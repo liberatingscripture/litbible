@@ -1,0 +1,98 @@
+/* Shared tools tray layout (SearchLayout + ScriptureLayout) */
+
+.scripture-tools {
+  padding: 18px 16px 10px;
+
+  /* keeps dropdown trays behaving on scripture pages too */
+  position: relative;
+  z-index: 80;
+  overflow: visible;
+}
+
+/* Wide container: tools bar is wider than reading column */
+.scripture-tools__inner {
+  margin: 0 auto;
+  width: min(1100px, calc(100% - 32px));
+
+  display: grid;
+
+  /* Symmetric side columns so the center stays visually centered */
+  grid-template-columns:
+    minmax(220px, 280px)
+    minmax(600px, 1fr)
+    minmax(220px, 280px);
+
+  align-items: start;
+  gap: 18px;
+
+  overflow: visible;
+}
+
+.scripture-tools__left {
+  justify-self: start;
+}
+
+/* Center should actually use the center column */
+.scripture-tools__center {
+  justify-self: stretch;
+  width: 100%;
+  max-width: none;
+
+  position: relative;
+  overflow: visible;
+  z-index: 90;
+
+  /* Desktop: push the search column down */
+  padding-top: 79px;
+}
+
+.scripture-tools__right {
+  justify-self: end;
+}
+
+/* Responsive: stack tools */
+@media (max-width: 900px) {
+  .scripture-tools__inner {
+    grid-template-columns: 1fr;
+    width: min(720px, calc(100% - 32px));
+  }
+
+  .scripture-tools__center {
+    justify-self: stretch;
+    padding-top: 0; /* Mobile/stacked: remove extra gap */
+  }
+}
+
+/* ReadMenu: stacked on scripture-layout pages */
+.scripture-layout .read-menu {
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  margin-top: 0;
+}
+
+.scripture-layout .read-menu select,
+.scripture-layout .read-menu button {
+  width: 100%;
+  max-width: 260px;
+}
+
+/* Mobile: center the ReadMenu horizontally */
+@media (max-width: 900px) {
+  /* Let the left column take full width so it can center its contents */
+  .scripture-tools__left {
+    justify-self: stretch;
+  }
+
+  /* Center the ReadMenu controls as a stack */
+  .scripture-layout .read-menu {
+    align-items: center;
+  }
+
+  /* Keep controls a nice readable width while centered */
+  .scripture-layout .read-menu select,
+  .scripture-layout .read-menu button {
+    width: min(100%, 260px); /* keep your current max feel */
+    max-width: none;         /* width above already caps it */
+  }
+}

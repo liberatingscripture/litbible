@@ -1,0 +1,63 @@
+---
+import type { CollectionEntry } from "astro:content";
+type ArticleEntry = CollectionEntry<"articles">;
+
+const { entry } = Astro.props as { entry: ArticleEntry };
+const { data } = entry;
+
+const href = `/articles/${entry.slug}/`;
+
+// If you haven't added excerpt yet, this still works because we read it defensively.
+const excerpt = (data as any).excerpt as string | undefined;
+const summary = excerpt || data.description || "";
+
+const heroImage = data.heroImage;
+const tags: string[] = Array.isArray(data.tags) ? data.tags : [];
+
+const dateLabel = data.date.toLocaleDateString("en-US", {
+  timeZone: "UTC",
+  year: "numeric",
+  month: "numeric",
+  day: "numeric",
+});
+---
+
+<article class="card">
+  <a class="card__link" href={href}>
+    <div class="card__media" aria-hidden="true">
+      {
+        heroImage ? (
+          <img
+            class="card__img"
+            src={heroImage}
+            alt=""
+            loading="lazy"
+            decoding="async"
+          />
+        ) : (
+          <div class="card__img--fallback" aria-hidden="true" />
+        )
+      }
+    </div>
+
+    <div class="card__body">
+      <div class="card__date">{dateLabel}</div>
+
+      <h2 class="card__title">{data.title}</h2>
+
+      {summary && <p class="card__summary">{summary}</p>}
+
+      {
+        tags.length > 0 && (
+          <ul class="tags" aria-label="Tags">
+            {tags.slice(0, 3).map((t) => (
+              <li class="tag">{t}</li>
+            ))}
+          </ul>
+        )
+      }
+
+      <span class="card__more">Read →</span>
+    </div>
+  </a>
+</article>

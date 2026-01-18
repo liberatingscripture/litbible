@@ -1,0 +1,435 @@
+/* =========================================================
+   About page — full-bleed cream, essay mode
+   ========================================================= */
+
+.about-page {
+  background-color: var(--cream);
+  min-height: 100vh;
+
+  /* vertical rhythm */
+  padding-block: clamp(3.5rem, 8vw, 6rem);
+
+  /* global content gutter */
+  padding-inline: clamp(1.25rem, 4vw, 2.5rem);
+}
+
+/* =========================================================
+   HERO: Question + answer
+   ========================================================= */
+
+.about-hero {
+  width: 100%;
+  margin-bottom: clamp(3.5rem, 7vw, 5rem);
+}
+
+.about-hero__inner {
+  max-width: 60ch;
+  margin: 0 auto;
+  position: relative;
+}
+
+/* Title */
+.about-hero__title {
+  font-family: var(--serif, serif);
+  font-size: clamp(2.45rem, 4.2vw, 3.25rem);
+  line-height: 1.1;
+  margin: 0 0 1.75rem 0;
+  text-align: center;
+}
+
+/* Answer block */
+.about-hero__answer {
+  font-size: clamp(1.2rem, 0.6vw + 1.05rem, 1.35rem);
+  line-height: 1.78;
+}
+
+
+
+/* =========================================================
+   BODY SECTIONS (stacked, readable)
+   ========================================================= */
+
+.about-body {
+  max-width: 60ch;
+  margin: 0 auto clamp(3.5rem, 7vw, 5rem);
+
+  font-size: clamp(1.1rem, 0.55vw + 1rem, 1.3rem);
+  line-height: 1.75;
+}
+
+/* Paragraph rhythm */
+.about-body p + p {
+  margin-top: 1.75rem;
+}
+
+/* =========================================================
+   Headings hierarchy
+   ========================================================= */
+
+/* H2: Major sections */
+.about-body > h2 {
+  font-family: var(--serif, serif);
+  font-size: clamp(1.75rem, 3vw, 2.15rem);
+  line-height: 1.25;
+
+  margin-top: clamp(3.5rem, 7vw, 5rem);
+  margin-bottom: 1.5rem;
+}
+
+/* First H2 shouldn’t push down */
+.about-body > h2:first-child {
+  margin-top: 0;
+}
+
+/* H3: Subsections */
+.about-body h3 {
+  font-family: var(--serif, serif);
+  font-size: clamp(1.35rem, 1.1vw + 1.05rem, 1.6rem);
+  line-height: 1.25;
+
+  margin-top: 2.75rem;
+  margin-bottom: 1rem;
+}
+
+
+/* =========================================================
+   Lists
+   ========================================================= */
+
+.about-body ul {
+  margin: 1.5rem 0 1.75rem 1.25rem;
+  padding: 0;
+}
+
+.about-body li {
+  margin-bottom: 0.65rem;
+}
+
+/* =========================================================
+   FAQ accordion (details/summary)
+   ========================================================= */
+
+.faq {
+  margin-top: 1.5rem;
+  display: grid;
+  gap: 12px;
+}
+
+.faq-item {
+  border: 1px solid rgba(29, 35, 28, 0.12);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.faq-q {
+  list-style: none;
+  cursor: pointer;
+
+  font-family: var(--serif, serif);
+  font-size: clamp(1.15rem, 0.55vw + 1.05rem, 1.35rem);
+  line-height: 1.25;
+
+  padding: 16px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.faq-q::-webkit-details-marker {
+  display: none;
+}
+
+.faq-q::after {
+  content: "＋";
+  font-size: 1.15rem;
+  line-height: 1;
+  color: rgba(29, 35, 28, 0.75);
+  transform-origin: center;
+  transition: transform 180ms ease, opacity 180ms ease;
+}
+
+.faq-item[open] .faq-q::after {
+  content: "–";
+  transform: translateY(-1px);
+  opacity: 0.8;
+}
+
+.faq-q:focus-visible {
+  outline: 2px solid rgba(32, 157, 80, 0.6);
+  outline-offset: 2px;
+  border-radius: 12px;
+}
+
+.faq-a {
+  padding: 0 16px 16px;
+}
+
+.faq-a p + p {
+  margin-top: 1.25rem;
+}
+
+
+/* =========================================================
+   Section spacing refinements
+   ========================================================= */
+
+.about-translation {
+  margin-top: clamp(4.5rem, 9vw, 6.5rem);
+}
+
+.about-site {
+  margin-top: clamp(4.5rem, 9vw, 6.5rem);
+}
+
+.about-faq .about-back {
+  margin-top: 3rem;
+}
+
+
+/* =========================================================
+   Reduced motion
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .about-hero__answer::before {
+    display: none;
+  }
+}
+
+/* =========================================================
+   About TOC (sticky)
+   Desktop (>= 901): tray always visible, no toggle
+   Mobile (<= 900): compact bar + hamburger opens tray
+   + Anchor offset so headings aren't covered
+   ========================================================= */
+
+.about-toc {
+  position: sticky;
+  top: 16px;
+  z-index: 10;
+
+  margin: 26px auto 18px;
+  max-width: var(--content-width, 72ch);
+  padding: 0 16px; /* breathing room on small screens */
+
+  /* Anchor math: keep jump targets below the sticky TOC */
+  --toc-top-gap: 16px;
+  --toc-outer-pad: 12px; /* bar padding */
+  --toc-border: 1px;
+  --toc-bar-height: 44px; /* approximate; tray closed on mobile */
+}
+
+/* Inner frosted panel */
+.about-toc__inner {
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(12px);
+
+  border: 1px solid rgba(29, 35, 28, 0.10);
+  border-radius: 16px;
+
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.06);
+  overflow: hidden; /* keeps tray edges clean */
+}
+
+/* Top bar */
+.about-toc__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  padding: 12px;
+}
+
+.about-toc__label {
+  margin: 0;
+  font-size: 0.82rem;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: rgba(29, 35, 28, 0.65);
+}
+
+/* Toggle button (mobile only) */
+.about-toc__toggle {
+  width: 44px;
+  height: 44px;
+
+  border: 1px solid rgba(29, 35, 28, 0.12);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.65);
+
+  display: none; /* shown on mobile */
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+  transition: transform 180ms ease, opacity 180ms ease;
+}
+
+.about-toc__toggle:hover,
+.about-toc__toggle:focus-visible {
+  transform: translateY(-1px);
+  outline: none;
+}
+
+/* Hamburger icon, morphs into X via .is-open */
+.about-toc__icon {
+  position: relative;
+  width: 20px;
+  height: 14px;
+
+  /* Middle bar (no extra span needed) */
+  background:
+    linear-gradient(rgba(29, 35, 28, 0.85), rgba(29, 35, 28, 0.85)) center / 100% 2px no-repeat;
+  transition: background-size 220ms ease;
+}
+
+.about-toc__icon::before,
+.about-toc__icon::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  border-radius: 2px;
+  background: rgba(29, 35, 28, 0.85);
+  transition:
+    transform 220ms ease,
+    top 220ms ease,
+    bottom 220ms ease,
+    opacity 220ms ease;
+}
+
+.about-toc__icon::before { top: 2px; }
+.about-toc__icon::after  { bottom: 2px; }
+
+/* Open state: X */
+.about-toc.is-open .about-toc__icon {
+  background-size: 0 2px; /* hide middle bar */
+}
+
+.about-toc.is-open .about-toc__icon::before {
+  top: 6px;
+  transform: rotate(45deg);
+}
+
+.about-toc.is-open .about-toc__icon::after {
+  bottom: 6px;
+  transform: rotate(-45deg);
+}
+
+/* Tray + list */
+.about-toc__tray {
+  padding: 0 12px 12px;
+}
+
+.about-toc__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* Calm TOC CTA treatment (uses footer-cta styling, but no curtain) */
+.about-toc a.footer-cta.about-toc__cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 0.85rem;
+  padding: 10px 16px;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+
+  transition: opacity 180ms ease-in-out, transform 180ms ease-in-out;
+}
+
+/* Disable curtain in this context */
+.about-toc a.footer-cta.about-toc__cta::before {
+  content: none !important;
+}
+
+.about-toc a.footer-cta.about-toc__cta:hover,
+.about-toc a.footer-cta.about-toc__cta:focus-visible {
+  opacity: 0.86;
+  transform: translateY(-1px);
+  outline: none;
+}
+
+/* ---------------------------------------------------------
+   Desktop behavior (>= 901px)
+   Tray always visible (even if [hidden] is present)
+   --------------------------------------------------------- */
+@media (min-width: 901px) {
+  .about-toc__toggle {
+    display: none;
+  }
+
+  /* Always show tray on desktop, regardless of the hidden attribute */
+  .about-toc__tray {
+    display: block !important;
+  }
+}
+
+/* ---------------------------------------------------------
+   Mobile behavior (<= 900px)
+   Compact bar, tray toggled
+   --------------------------------------------------------- */
+@media (max-width: 900px) {
+  .about-toc {
+    top: 10px;
+    margin: 16px auto 14px;
+
+    --toc-top-gap: 10px;
+  }
+
+  .about-toc__toggle {
+    display: inline-flex;
+  }
+
+  .about-toc__tray {
+    border-top: 1px solid rgba(29, 35, 28, 0.08);
+  }
+
+  .about-toc__list {
+    flex-direction: column; /* reduces crowding */
+  }
+
+  .about-toc a.footer-cta.about-toc__cta {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* =========================================================
+   Anchor offset so sticky TOC doesn't cover section headings
+   ========================================================= */
+
+/* Default (desktop): sticky panel is taller */
+:root {
+  --about-anchor-offset: 160px;
+}
+
+.about-page h2[id] {
+  scroll-margin-top: var(--about-anchor-offset);
+}
+
+/* Mobile: bar is shorter, but still needs clearance */
+@media (max-width: 900px) {
+  :root {
+    --about-anchor-offset: 132px;
+  }
+}
+
+
+
+html {
+  scroll-behavior: smooth;
+}

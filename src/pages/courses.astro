@@ -1,0 +1,160 @@
+---
+import Layout from "../layouts/Layout.astro";
+import "../styles/pages/courses.css";
+---
+
+<Layout
+  title="Courses | Liberation and Inclusion Translation"
+  description="Courses that connect the dots behind the Liberation and Inclusion Translation—coming soon. Sign up for email updates."
+>
+  <main class="courses-page">
+    <header class="courses-hero">
+      <h1>Courses coming soon</h1>
+
+      <div class="courses-intro">
+        <p>
+          As I’ve translated the scriptures and talked through my findings with
+          friends and family, it has had a major transformative effect on how I
+          understand the Bible and Jesus-centered spirituality. That’s part of
+          how I arrived at a version of the Bible worth calling the Liberation
+          and Inclusion Translation. That’s what I’ve come to see in the text.
+          But I know that even with the translation decisions I’ve made, much of
+          how I understand it is still difficult to see just from reading one
+          verse or chapter or even a whole book at a time.
+        </p>
+
+        <p>
+          Coming soon, I plan to create courses to make available here that
+          connect the dots and explain how I understand what the messages of the
+          Bible and its various parts are and help clarify how I arrived at that
+          understanding. If you’re interested in journeying through that too,
+          check back here from time to time, or sign up for email updates to be
+          notified when new material is added.
+        </p>
+      </div>
+    </header>
+
+    <section class="courses-updates" aria-labelledby="email-updates-title">
+      {/* Top wave */}
+      <div class="courses-wave courses-wave--top" aria-hidden="true">
+        <svg
+          viewBox="0 0 1440 160"
+          preserveAspectRatio="none"
+          focusable="false"
+        >
+          <path
+            class="wave-fill"
+            d="M0,60 C240,10 480,10 720,55 C960,100 1200,110 1440,60 L1440,160 L0,160 Z"
+          ></path>
+          <path
+            class="wave-stroke"
+            d="M0,60 C240,10 480,10 720,55 C960,100 1200,110 1440,60"></path>
+        </svg>
+      </div>
+
+      <div class="courses-updates__inner">
+        <h2 id="email-updates-title">Email Updates</h2>
+        <p class="courses-updates__lead">
+          Sign up with your email address to receive news and updates.
+        </p>
+
+        <form
+          class="signup"
+          action="https://formspree.io/f/mgovgpoo"
+          method="POST"
+          data-formspree
+        >
+          <label class="sr-only" for="email">Email address</label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            inputmode="email"
+            autocomplete="email"
+            required
+            placeholder="Email Address"
+          />
+          <input type="hidden" name="source" value="courses" />
+
+          {/* Honeypot (spam trap) */}
+          <input
+            class="hp-field"
+            type="text"
+            name="_gotcha"
+            tabindex="-1"
+            autocomplete="off"
+            aria-hidden="true"
+          />
+
+          <button class="signup__button" type="submit">SIGN UP</button>
+
+          <p class="signup__status" role="status" aria-live="polite"></p>
+        </form>
+
+        <p class="courses-updates__note">
+          Your information will not be sold or shared in any way.
+        </p>
+      </div>
+
+      {/* Bottom wave */}
+      <div class="courses-wave courses-wave--bottom" aria-hidden="true">
+        <svg
+          viewBox="0 0 1440 160"
+          preserveAspectRatio="none"
+          focusable="false"
+        >
+          <path
+            class="wave-fill"
+            d="M0,100 C260,140 520,150 760,120 C980,92 1180,70 1440,100 L1440,0 L0,0 Z"
+          ></path>
+          <path
+            class="wave-stroke"
+            d="M0,100 C260,140 520,150 760,120 C980,92 1180,70 1440,100"></path>
+        </svg>
+      </div>
+    </section>
+
+    <script is:inline>
+      (() => {
+        const form = document.querySelector("form[data-formspree]");
+        if (!form) return;
+
+        const status = form.querySelector(".signup__status");
+        const button = form.querySelector('button[type="submit"]');
+
+        form.addEventListener("submit", async (e) => {
+          // Allow non-JS fallback if anything weird happens
+          e.preventDefault();
+
+          // Honeypot filled? Pretend success.
+          const hp = form.querySelector('input[name="_gotcha"]');
+          if (hp && hp.value) return;
+
+          status.textContent = "";
+          button.disabled = true;
+
+          try {
+            const data = new FormData(form);
+            const res = await fetch(form.action, {
+              method: "POST",
+              body: data,
+              headers: { Accept: "application/json" },
+            });
+
+            if (res.ok) {
+              form.reset();
+              status.textContent = "Thanks — you’re signed up.";
+            } else {
+              status.textContent =
+                "Something went wrong. Please try again in a moment.";
+            }
+          } catch {
+            status.textContent = "Network error. Please try again in a moment.";
+          } finally {
+            button.disabled = false;
+          }
+        });
+      })();
+    </script>
+  </main>
+</Layout>

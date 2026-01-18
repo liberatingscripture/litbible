@@ -1,0 +1,324 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import SearchBar from "../../components/SearchBar.astro";
+import "../../styles/articles.css";
+
+import { getCollection } from "astro:content";
+import type { CollectionEntry } from "astro:content";
+
+type ArticleEntry = CollectionEntry<"articles">;
+
+export async function getStaticPaths() {
+  const entries = (await getCollection("articles")) as ArticleEntry[];
+  return entries.map((entry) => ({
+    params: { slug: entry.slug }, // keep this a string
+  }));
+}
+
+const slug = Astro.params.slug as string;
+
+const entries = (await getCollection("articles")) as ArticleEntry[];
+const entry = entries.find((e) => e.slug === slug);
+
+if (!entry) throw new Error(`Article not found: ${slug}`);
+
+const { Content } = await entry.render();
+const { data } = entry;
+
+/**
+ * Pagefind-friendly hyphen normalization for INDEXED TEXT:
+ * Replace hyphens that function as word-joiners with spaces so searches match
+ * both "life breath" and "life-breath", etc.
+ *
+ * Conservative: only targets hyphen-minus BETWEEN word characters.
+ */
+function hyphensToSpacesForIndex(s: string) {
+  return String(s ?? "").replace(/([0-9A-Za-z])\-([0-9A-Za-z])/g, "$1 $2");
+}
+
+const pageTitleRaw = `${data.title} | Articles | The Liberation & Inclusion Translation`;
+const pageDescriptionRaw = data.description ?? "";
+
+const pageTitle = pageTitleRaw;
+const pageDescription = pageDescriptionRaw;
+
+const dateLabel = data.date.toLocaleDateString("en-US", {
+  timeZone: "UTC",
+  year: "numeric",
+  month: "numeric",
+  day: "numeric",
+});
+
+const heroImage = data.heroImage;
+const tags: string[] = Array.isArray(data.tags) ? data.tags : [];
+function tagKey(t: string) {
+  return String(t)
+    .toLowerCase()
+    .replace(/[^0-9a-z]/g, "");
+}
+
+/**
+ * Index-only strings (hyphens treated as spaces):
+ * This is what Pagefind will use for matching.
+ */
+const indexTitle = hyphensToSpacesForIndex(data.title);
+const indexDescription = hyphensToSpacesForIndex(pageDescriptionRaw);
+const indexTagsJoined = hyphensToSpacesForIndex(tags.join(" "));
+---
+
+<Layout
+  title={pageTitle}
+  description={pageDescription}
+  bodyClass="bg-cream"
+  headerClass="site-header--green"
+>
+  <div class="article-shell">
+    <div class="article-top">
+      <div class="article-top__inner">
+        <div class="article-top__search">
+          <SearchBar
+            placeholder="Search…"
+            fullSearchHref="/search"
+            defaultType="article"
+          />
+        </div>
+      </div>
+    </div>
+
+    <article
+      class="article__card"
+      data-pagefind-body
+      data-pagefind-filter="type:article"
+    >
+      {/* Index-only surface: title + description + tags */}
+      <div class="sr-only">
+        <h1 data-pagefind-meta="title">{indexTitle}</h1>
+
+        {
+          pageDescriptionRaw && (
+            <p data-pagefind-meta="description">{indexDescription}</p>
+          )
+        }
+
+        {
+          tags.length > 0 && (
+            <>
+              <p data-pagefind-meta="tags">Tags: {indexTagsJoined}</p>
+
+              {/* Optional: enable tag filters later (normalized) */}
+              {tags.map((t) => (
+                <span data-pagefind-filter={`tag:${tagKey(t)}`} />
+              ))}
+            </>
+          )
+        }
+      </div>
+
+      {/* Everything below is ignored by Pagefind */}
+      <a class="article__back" href="/articles" data-pagefind-ignore>
+        ← All Articles
+      </a>
+
+      {
+        heroImage && (
+          <div class="article__hero" aria-hidden="true" data-pagefind-ignore>
+            <img
+              class="article__hero-img"
+              src={heroImage}
+              alt=""
+              loading="eager"
+              decoding="async"
+            />
+          </div>
+        )
+      }
+
+      <header class="article__header" data-pagefind-ignore>
+        <time class="article__date" datetime={data.date.toISOString()}>
+          {dateLabel}
+        </time>
+
+        <h1 class="article__title">{data.title}</h1>
+
+        {pageDescriptionRaw && <p class="article__dek">{pageDescriptionRaw}</p>}
+
+        {
+          tags.length > 0 && (
+            <ul class="tags" aria-label="Tags">
+              {tags.map((t) => (
+                <li class="tag">{t}</li>
+              ))}
+            </ul>
+          )
+        }
+      </header>
+
+      <hr class="article__rule" data-pagefind-ignore />
+
+      <div class="article__body" data-pagefind-ignore>
+        <Content />
+      </div>
+    </article>
+  </div>
+</Layout>
+
+<style>
+  /* =========================
+     Shell (NOT a card)
+     ========================= */
+  .article-shell {
+    padding: 22px var(--gutter) 86px;
+  }
+
+  .article-top__inner {
+    width: min(860px, calc(100% - (var(--gutter) * 2)));
+    margin-inline: auto;
+  }
+
+  .article-top__search {
+    width: 100%;
+    margin: 0 auto 18px;
+  }
+
+  /* =========================
+     Card (the ONLY card)
+     ========================= */
+  .article__card {
+    width: min(860px, calc(100% - (var(--gutter) * 2)));
+    margin-inline: auto;
+
+    background: var(--white);
+    border-radius: 22px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+  }
+
+  .article__back {
+    display: inline-block;
+    padding: 18px 22px 14px;
+    color: var(--green);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+
+  /* =========================
+     Hero (bleeds to card edges)
+     ========================= */
+  .article__hero {
+    padding: 0;
+    margin: 0;
+    background: none;
+
+    overflow: hidden;
+    border-top-left-radius: 22px;
+    border-top-right-radius: 22px;
+  }
+
+  .article__hero-img {
+    width: 100%;
+    height: clamp(220px, 36vw, 420px);
+    object-fit: cover;
+    display: block;
+    border-radius: 0;
+  }
+
+  /* Header / body */
+  .article__header {
+    padding: 22px 22px 18px;
+  }
+
+  .article__date {
+    display: block;
+    margin: 0 0 10px;
+    opacity: 0.75;
+  }
+
+  .article__title {
+    margin: 0 0 10px;
+    color: var(--black);
+    font-size: clamp(2rem, 3.2vw, 2.6rem);
+    line-height: 1.12;
+  }
+
+  .article__dek {
+    margin: 0 0 14px;
+    max-width: 70ch;
+    opacity: 0.9;
+  }
+
+  .article__rule {
+    border: 0;
+    border-top: 1px solid rgba(0, 0, 0, 0.12);
+    margin: 0;
+  }
+
+  .article__body {
+    padding: 22px 22px 30px;
+  }
+
+  /* Markdown defaults */
+  .article__body :global(p) {
+    margin: 0 0 1.15rem 0;
+  }
+  .article__body :global(h2) {
+    margin-top: 2.2rem;
+  }
+  .article__body :global(h3) {
+    margin-top: 1.8rem;
+  }
+  .article__body :global(a) {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+  .article__body :global(blockquote) {
+    margin: 1.6rem 0;
+    padding: 0.8rem 1rem;
+    background: var(--cream);
+    border-left: 4px solid var(--green);
+    border-radius: 14px;
+  }
+  .article__body :global(pre) {
+    overflow-x: auto;
+    background: var(--cream);
+    padding: 1rem;
+    border-radius: 14px;
+  }
+  .article__body :global(code) {
+    background: var(--cream);
+    padding: 0.12rem 0.35rem;
+    border-radius: 8px;
+  }
+
+  /* Tags */
+  .tags {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .tag {
+    display: inline-flex;
+    width: fit-content;
+    align-items: center;
+    font-size: 0.85rem;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: var(--cream);
+    border: 1px solid var(--green);
+    color: var(--ink);
+  }
+
+  @media (max-width: 560px) {
+    .article__back {
+      padding-left: 16px;
+      padding-right: 16px;
+    }
+    .article__header,
+    .article__body {
+      padding-left: 16px;
+      padding-right: 16px;
+    }
+  }
+</style>

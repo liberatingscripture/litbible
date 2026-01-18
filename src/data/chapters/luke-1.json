@@ -1,0 +1,18 @@
+{
+  "bookKey": "luke",
+  "chapter": 1,
+  "type": "scripture",
+  "title": "Luke 1",
+  "description": "Luke 1 in the Liberation and Inclusion Translation (LIT).",
+  "topics": [
+    "birth",
+    "empire",
+    "hope"
+  ],
+  "paragraphs": [
+    "<p id=\"luke-1-p1\"><sup id=\"v1\" class=\"vn\">1</sup>&nbsp;Many people have already tried to compile a report about the events that have been fulfilled among us…</p>",
+    "<p id=\"luke-1-p2\"><sup id=\"v2\" class=\"vn\">2</sup>&nbsp;…just as these things were handed down to us by those who were eyewitnesses from the beginning…</p>",
+    "<p id=\"luke-1-p3\"><sup id=\"v3\" class=\"vn\">3</sup>&nbsp;…so I decided to investigate everything carefully from the start and write it out in an orderly way…</p>"
+  ],
+  "footnotes": []
+}

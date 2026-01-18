@@ -1,0 +1,100 @@
+---
+import type { CollectionEntry } from "astro:content";
+type ArticleEntry = CollectionEntry<"articles">;
+
+const { entry } = Astro.props as { entry: ArticleEntry };
+const { data } = entry;
+
+const href = `/articles/${entry.slug}/`;
+const summary = data.description ?? "";
+
+const tags: string[] = Array.isArray(data.tags) ? data.tags : [];
+
+const dateLabel = data.date.toLocaleDateString("en-US", {
+  timeZone: "UTC",
+  year: "numeric",
+  month: "numeric",
+  day: "numeric",
+});
+
+const heroImage = data.heroImage; // string | undefined (from your schema)
+---
+
+<section class="featured" aria-label="Featured article">
+  <a class="featured__card" href={href}>
+    <div class="featured__media" aria-hidden="true">
+      {
+        heroImage ? (
+          <img
+            class="featured__img"
+            src={heroImage}
+            alt=""
+            loading="lazy"
+            decoding="async"
+          />
+        ) : (
+          <div class="featured__img featured__img--fallback" />
+        )
+      }
+    </div>
+
+    <div class="featured__body">
+      <div class="featured__meta">
+        <time datetime={data.date.toISOString()}>{dateLabel}</time>
+      </div>
+
+      <h2 class="featured__title">{data.title}</h2>
+
+      {summary && <p class="featured__summary">{summary}</p>}
+
+      {
+        tags.length > 0 && (
+          <ul class="tags tags--featured" aria-label="Tags">
+            {tags.map((t: string) => (
+              <li class="tag">{t}</li>
+            ))}
+          </ul>
+        )
+      }
+
+      <div class="featured__link">Read article</div>
+    </div>
+  </a>
+</section>
+
+<style>
+  /* Only what articles.css doesn't already cover */
+  .featured__media {
+    width: 100%;
+    height: 100%;
+    background: var(--cream);
+  }
+
+  .featured__img--fallback {
+    width: 100%;
+    height: 100%;
+    background: var(--cream);
+    position: relative;
+  }
+
+  .featured__img--fallback::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.06);
+  }
+
+  /* Tags: show 3 on mobile, 5 on desktop */
+  .tags.tags--featured > .tag:nth-child(n + 4) {
+    display: none !important;
+  }
+
+  @media (min-width: 820px) {
+    .tags.tags--featured > .tag:nth-child(n + 4) {
+      display: inline-flex !important;
+    }
+    .tags.tags--featured > .tag:nth-child(n + 6) {
+      display: none !important;
+    }
+  }
+</style>

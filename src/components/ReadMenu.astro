@@ -1,0 +1,202 @@
+---
+const books = {
+  matthew: 28,
+  mark: 16,
+  luke: 24,
+  john: 21,
+  acts: 28,
+  romans: 16,
+  "1corinthians": 16,
+  "2corinthians": 13,
+  galatians: 6,
+  ephesians: 6,
+  philippians: 4,
+  colossians: 4,
+  "1thessalonians": 5,
+  "2thessalonians": 3,
+  "1timothy": 6,
+  "2timothy": 4,
+  titus: 3,
+  philemon: 1,
+  hebrews: 13,
+  james: 5,
+  "1peter": 5,
+  "2peter": 3,
+  "1john": 5,
+  "2john": 1,
+  "3john": 1,
+  jude: 1,
+  revelation: 22,
+};
+---
+
+<div class="read-menu-wrap">
+  <div class="read-menu" data-books={JSON.stringify(books)}>
+    <label for="book-select" class="sr-only">Select a New Testament book</label>
+    <select id="book-select" aria-label="Select a New Testament book">
+      <option value="">Select a Book</option>
+      <option>Matthew</option>
+      <option>Mark</option>
+      <option>Luke</option>
+      <option>John</option>
+      <option>Acts</option>
+      <option>Romans</option>
+      <option>1 Corinthians</option>
+      <option>2 Corinthians</option>
+      <option>Galatians</option>
+      <option>Ephesians</option>
+      <option>Philippians</option>
+      <option>Colossians</option>
+      <option>1 Thessalonians</option>
+      <option>2 Thessalonians</option>
+      <option>1 Timothy</option>
+      <option>2 Timothy</option>
+      <option>Titus</option>
+      <option>Philemon</option>
+      <option>Hebrews</option>
+      <option>James</option>
+      <option>1 Peter</option>
+      <option>2 Peter</option>
+      <option>1 John</option>
+      <option>2 John</option>
+      <option>3 John</option>
+      <option>Jude</option>
+      <option>Revelation</option>
+    </select>
+
+    <label for="chapter-select" class="sr-only">Select a chapter</label>
+    <select id="chapter-select" aria-label="Select a chapter" disabled>
+      <option value="">Select a Chapter</option>
+    </select>
+
+    <button
+      id="go-button"
+      type="button"
+      aria-label="Go to selected chapter"
+      disabled
+    >
+      Go
+    </button>
+  </div>
+
+  <script is:inline>
+    (() => {
+      const root = document.currentScript?.previousElementSibling;
+      if (!root) return;
+
+      const books = JSON.parse(root.getAttribute("data-books") || "{}");
+
+      const bookSelect = root.querySelector("#book-select");
+      const chapterSelect = root.querySelector("#chapter-select");
+      const goButton = root.querySelector("#go-button");
+
+      function slugifyBook(name) {
+        return name.toLowerCase().replace(/[^0-9a-z]/g, "");
+      }
+
+      bookSelect.addEventListener("change", () => {
+        const key = slugifyBook(bookSelect.value);
+
+        chapterSelect.innerHTML = '<option value="">Select a Chapter</option>';
+        chapterSelect.disabled = true;
+        goButton.disabled = true;
+
+        if (books[key]) {
+          chapterSelect.disabled = false;
+
+          const intro = document.createElement("option");
+          intro.value = "intro";
+          intro.textContent = "Introduction";
+          chapterSelect.appendChild(intro);
+
+          for (let i = 1; i <= books[key]; i++) {
+            const opt = document.createElement("option");
+            opt.value = String(i);
+            opt.textContent = `Chapter ${i}`;
+            chapterSelect.appendChild(opt);
+          }
+        }
+      });
+
+      chapterSelect.addEventListener("change", () => {
+        goButton.disabled = !chapterSelect.value;
+      });
+
+      goButton.addEventListener("click", () => {
+        const book = slugifyBook(bookSelect.value);
+        const chapter = chapterSelect.value;
+
+        let path = `/${book}`;
+        if (chapter === "intro") path += "-intro";
+        else if (chapter) path += `-${chapter}`;
+
+        window.location.href = path;
+      });
+    })();
+  </script>
+
+  <style>
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .read-menu {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 2.2rem;
+    }
+
+    .read-menu select,
+    .read-menu button {
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 10px;
+      border: none;
+      background-color: #f9f9f9;
+      color: #1d231c;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+      transition:
+        background-color 0.2s ease,
+        color 0.2s ease;
+    }
+
+    .read-menu select:hover:not(:disabled),
+    .read-menu button:hover:not(:disabled) {
+      background-color: #209d50;
+      color: #ffffff;
+    }
+
+    .read-menu select:disabled,
+    .read-menu button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .read-menu button {
+      background-color: #1d231c;
+      color: #209d50;
+      cursor: pointer;
+    }
+
+    .read-menu button#go-button {
+      background-color: #209d50;
+      color: #ffffff;
+    }
+
+    .read-menu button#go-button:hover:not(:disabled) {
+      background-color: #1d231c;
+      color: #ffffff;
+    }
+  </style>
+</div>

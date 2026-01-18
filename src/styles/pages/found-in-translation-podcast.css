@@ -1,0 +1,536 @@
+/* =========================================================
+   Found in Translation Podcast page
+   ========================================================= */
+
+.fit-page {
+  /* First section background should be white */
+  background: #fff;
+
+  /* Page-scoped heading font */
+  --fit-serif: "Crimson Text", serif;
+
+  /* Curve controls */
+  --fit-curve-h: 92px;        /* height of the curve graphic */
+  --fit-curve-stroke: 10px;   /* visible “line” thickness */
+  --fit-cream: #E1DFD9;       /* match your global --cream */
+  --fit-white: #ffffff;
+
+  /* SVG curves (top + bottom) */
+  --fit-wave-top-cream: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%201440%20120'%20preserveAspectRatio='none'%3E%3Cpath%20d='M0%200H1440V70Q720%20130%200%2070Z'%20fill='%23E1DFD9'/%3E%3C/svg%3E");
+  --fit-wave-top-white: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%201440%20120'%20preserveAspectRatio='none'%3E%3Cpath%20d='M0%200H1440V70Q720%20130%200%2070Z'%20fill='%23ffffff'/%3E%3C/svg%3E");
+
+  --fit-wave-bot-cream: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%201440%20120'%20preserveAspectRatio='none'%3E%3Cpath%20d='M0%2050Q720%20-10%201440%2050V120H0Z'%20fill='%23E1DFD9'/%3E%3C/svg%3E");
+  --fit-wave-bot-white: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%201440%20120'%20preserveAspectRatio='none'%3E%3Cpath%20d='M0%2050Q720%20-10%201440%2050V120H0Z'%20fill='%23ffffff'/%3E%3C/svg%3E");
+
+  /* Prevent any 100vw bleed from causing horizontal scroll */
+  overflow-x: clip;
+}
+
+/* Header is NOT inside .fit-page, so .fit-page .site-header won't hit.
+   Use :has() to scope the header to this page. */
+body:has(.fit-page) {
+  background: #fff; /* ensures white behind any transparent header */
+}
+
+body:has(.fit-page) .site-header {
+  background: #fff;
+}
+
+body:has(.fit-page) .site-header__inner {
+  background: transparent;
+}
+
+/* If your header swaps backgrounds when sticky/scrolled, keep it white here too */
+body:has(.fit-page) .site-header.is-sticky,
+body:has(.fit-page) .site-header.is-scrolled,
+body:has(.fit-page) .site-header.has-bg {
+  background: #fff;
+}
+
+/* -------------------------
+   HERO (full-bleed)
+   ------------------------- */
+
+.fit-hero {
+  position: relative;
+  overflow: hidden;
+
+  /* FULL BLEED — escapes any centered layout container */
+  width: 100vw;
+  max-width: none;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+
+  border-radius: 0;
+
+  min-height: clamp(300px, 44vw, 560px);
+}
+
+.fit-hero__bg {
+  position: absolute;
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 65%;
+
+  filter: saturate(0.95) contrast(0.95);
+  transform: translateZ(0);
+}
+
+.fit-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.04),
+    rgba(0, 0, 0, 0.18)
+  );
+}
+
+.fit-hero__content {
+  position: relative;
+  z-index: 1;
+
+  padding: clamp(22px, 4vw, 54px);
+  text-align: center;
+
+  color: rgba(0, 0, 0, 0.78);
+
+  max-width: 72ch;
+  margin: 0 auto;
+}
+
+.fit-hero__title {
+  margin: 0 0 10px;
+  font-family: var(--fit-serif);
+  font-size: clamp(2.1rem, 5vw, 4rem);
+  line-height: 1.08;
+  letter-spacing: 0.02em;
+}
+
+.fit-hero__subtitle {
+  margin: 0;
+  font-size: clamp(1.05rem, 2.2vw, 1.65rem);
+  letter-spacing: 0.02em;
+}
+
+.fit-hero__byline {
+  margin: 14px 0 0;
+  font-size: 1rem;
+  opacity: 0.9;
+}
+
+/* -------------------------
+   COVER + PLATFORM LINKS
+   ------------------------- */
+
+.fit-platforms {
+  max-width: 1100px;
+  margin: 0 auto;
+
+  padding: 0 16px 44px;
+  margin-top: -170px;
+
+  display: grid;
+  justify-items: center;
+  gap: 22px;
+
+  position: relative;
+  z-index: 10;
+}
+
+.fit-cover-wrap {
+  position: relative;
+  z-index: 20;
+}
+
+.fit-cover {
+  width: clamp(240px, 28vw, 420px);
+  height: auto;
+
+  border-radius: 30px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
+  border: 1px solid rgba(0, 0, 0, 0.10);
+
+  display: block;
+}
+
+.fit-platform-links {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(160px, 1fr));
+  gap: 18px;
+  width: min(980px, 100%);
+  margin-top: 6px;
+}
+
+/* CTAs: green by default, hover turns white + lifts slightly (like About TOC) */
+.fit-platform {
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-weight: 800;
+  font-size: 0.95rem;
+
+  padding: 16px 18px;
+  border-radius: 14px;
+
+  display: grid;
+  place-items: center;
+
+  background: var(--green);
+  color: #fff;
+
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.16);
+  border: 1px solid rgba(0, 0, 0, 0.10);
+
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    background-color 160ms ease,
+    color 160ms ease,
+    border-color 160ms ease;
+}
+
+.fit-platform:hover {
+  transform: translateY(-2px);
+  background: #fff;
+  color: var(--green);
+  border-color: rgba(0, 0, 0, 0.12);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.18);
+}
+
+.fit-platform:focus-visible {
+  outline: 3px solid rgba(32, 157, 80, 0.35);
+  outline-offset: 3px;
+}
+
+@media (max-width: 760px) {
+  .fit-platforms {
+    margin-top: -120px;
+  }
+
+  .fit-platform-links {
+    grid-template-columns: 1fr;
+  }
+
+  .fit-cover {
+    width: clamp(220px, 62vw, 360px);
+  }
+}
+
+/* -------------------------
+   SECTIONS (with curved breaks)
+   ------------------------- */
+
+/* Use a shared variable so we can add “curve space” cleanly */
+.fit-section {
+  --fit-section-pad: clamp(42px, 6vw, 78px);
+  padding: var(--fit-section-pad) 16px;
+}
+
+.fit-section--green {
+  /* The green block itself */
+  background-color: var(--green);
+  color: #fff;
+
+  /* Make room so content doesn’t collide with curves */
+  padding-top: calc(var(--fit-section-pad) + var(--fit-curve-h));
+  padding-bottom: calc(var(--fit-section-pad) + var(--fit-curve-h));
+
+  /* Curves:
+     TOP: cream “line” (stroke) under a slightly smaller white cutout
+     BOTTOM: subtle white highlight line + cream cutout into the next cream section
+  */
+  background-image:
+    /* TOP white cutout (smaller) */
+    var(--fit-wave-top-white),
+    /* TOP cream stroke (bigger, shows as a cream line) */
+    var(--fit-wave-top-cream),
+
+    /* BOTTOM cream cutout (smaller) */
+    var(--fit-wave-bot-cream),
+    /* BOTTOM white highlight (bigger, shows as a thin white line) */
+    var(--fit-wave-bot-white);
+
+  background-repeat: no-repeat;
+  background-position:
+    top center,
+    top center,
+    bottom center,
+    bottom center;
+
+  background-size:
+    100% calc(var(--fit-curve-h) - var(--fit-curve-stroke)),
+    100% var(--fit-curve-h),
+    100% calc(var(--fit-curve-h) - var(--fit-curve-stroke)),
+    100% var(--fit-curve-h);
+}
+
+.fit-section--cream {
+  background: var(--cream);
+  color: var(--ink);
+}
+
+.fit-h2 {
+  margin: 0 0 28px;
+  text-align: center;
+
+  font-family: var(--fit-serif);
+  font-size: clamp(2rem, 4vw, 3.25rem);
+  letter-spacing: 0.02em;
+}
+
+.fit-lead {
+  margin: -6px 0 0;
+  text-align: center;
+
+  font-family: var(--fit-serif);
+  font-size: clamp(1.3rem, 2.6vw, 2rem);
+  opacity: 0.92;
+}
+
+/* -------------------------
+   EMBEDS
+   ------------------------- */
+
+.fit-embed,
+.fit-embed--apple {
+  width: min(1100px, 100%);
+  margin: 0 auto;
+
+  border-radius: 18px;
+  overflow: hidden;
+
+  box-shadow: 0 18px 55px rgba(0, 0, 0, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+}
+
+.fit-embed iframe {
+  width: 100%;
+  display: block;
+  border: 0;
+}
+
+.fit-embed--apple {
+  max-width: 900px;
+  margin-bottom: 34px;
+}
+
+.fit-embed-grid {
+  width: min(1100px, 100%);
+  margin: 0 auto;
+
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 26px;
+}
+
+.fit-embed-grid .fit-embed iframe {
+  height: 352px;
+}
+
+@media (max-width: 860px) {
+  .fit-embed-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .fit-embed-grid .fit-embed iframe {
+    height: 360px;
+  }
+}
+
+/* =========================
+   Episode lists (Start with these / Then bounce around)
+   ========================= */
+
+.fit-episodes__inner {
+  max-width: 72ch;
+  margin: 0 auto;
+}
+
+/* Serif centered headings */
+.fit-episodes__kicker {
+  margin: 0 0 28px;
+  text-align: center;
+  font-family: var(--fit-serif);
+  font-size: clamp(2.2rem, 4.6vw, 3.2rem);
+  line-height: 1.1;
+}
+
+.fit-episodes__kicker--spaced {
+  margin-top: clamp(48px, 7vw, 84px);
+}
+
+/* Main list */
+.fit-ep-list {
+  margin: 0;
+  padding-left: 1.6rem; /* keeps bullet nicely inset */
+}
+
+.fit-ep {
+  margin: 0 0 clamp(28px, 4vw, 46px);
+}
+
+/* Make the bullet feel like your screenshot */
+.fit-ep::marker {
+  font-size: 1.15em;
+}
+
+/* Big bold episode title */
+.fit-ep__title {
+  font-weight: 800;
+  font-size: clamp(1.55rem, 3vw, 2.25rem);
+  line-height: 1.25;
+  margin: 0 0 14px;
+}
+
+/* Sub-links list (hollow circle bullets) */
+.fit-ep__links {
+  margin: 0;
+  padding-left: 1.75rem;
+  list-style: circle;
+}
+
+.fit-ep__links li {
+  margin: 10px 0;
+}
+
+/* Link styling: underlined, like screenshot */
+.fit-ep__links a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 6px;
+  text-decoration-thickness: 2px;
+  font-size: clamp(1.35rem, 2.4vw, 1.8rem);
+}
+
+.fit-ep__links a:hover {
+  text-decoration-thickness: 3px;
+}
+
+/* Slight tightening on small screens so it doesn't feel huge */
+@media (max-width: 520px) {
+  .fit-ep-list {
+    padding-left: 1.25rem;
+  }
+  .fit-ep__links {
+    padding-left: 1.35rem;
+  }
+}
+
+/* =========================
+   Episodes — Quiet Cards (Option A)
+   ========================= */
+
+.fit-episodes__inner {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.fit-episodes__kicker {
+  margin: 0 0 22px;
+  text-align: center;
+  font-family: var(--fit-serif);
+  font-size: clamp(2rem, 4vw, 3rem);
+  letter-spacing: 0.01em;
+}
+
+.fit-episodes__kicker--spaced {
+  margin-top: clamp(44px, 7vw, 80px);
+}
+
+/* List layout */
+.fit-episodes .fit-ep-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+
+  display: grid;
+  gap: 18px;
+}
+
+/* Card */
+.fit-episodes .fit-ep {
+  background: rgba(255, 255, 255, 0.58);
+  backdrop-filter: blur(10px);
+
+  border: 1px solid rgba(29, 35, 28, 0.10);
+  border-radius: 18px;
+
+  padding: clamp(16px, 2.5vw, 22px);
+
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.06);
+}
+
+/* Title */
+.fit-episodes .fit-ep__title {
+  margin: 0 0 12px;
+
+  font-weight: 800;
+  font-size: clamp(1.2rem, 2.1vw, 1.55rem);
+  line-height: 1.25;
+  color: rgba(0, 0, 0, 0.86);
+}
+
+/* Link pills */
+.fit-episodes .fit-ep__links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.fit-episodes .fit-ep__links a {
+  display: inline-flex;
+  align-items: center;
+
+  text-decoration: none;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+
+  font-size: 0.78rem;
+  padding: 10px 12px;
+  border-radius: 999px;
+
+  background: rgba(255, 255, 255, 0.72);
+  color: rgba(0, 0, 0, 0.78);
+
+  border: 1px solid rgba(29, 35, 28, 0.14);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.06);
+
+  transition:
+    transform 140ms ease,
+    background-color 140ms ease,
+    color 140ms ease,
+    border-color 140ms ease,
+    box-shadow 140ms ease;
+}
+
+.fit-episodes .fit-ep__links a:hover {
+  transform: translateY(-1px);
+  background: var(--green);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.10);
+}
+
+.fit-episodes .fit-ep__links a:focus-visible {
+  outline: 3px solid rgba(32, 157, 80, 0.35);
+  outline-offset: 3px;
+}
+
+/* Mobile: stack pills */
+@media (max-width: 520px) {
+  .fit-episodes .fit-ep__links a {
+    width: 100%;
+    justify-content: center;
+  }
+}

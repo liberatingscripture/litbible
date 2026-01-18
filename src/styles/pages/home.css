@@ -1,0 +1,1035 @@
+/* ================================
+   Hero Section
+   ================================ */
+
+.hero {
+  background-color: #209d50;
+  padding: clamp(3.25rem, 7vw, 6.5rem) 1rem;
+
+  /* Let the shadow fade naturally (no hard clipping) */
+  overflow: visible;
+}
+
+.hero-wrap {
+  width: min(1100px, 100%);
+  margin: 0 auto;
+  position: relative;
+
+  /* tracks actual scroll width */
+  --scroll-w: min(1100px, 100vw);
+
+  /* NEW: visual centering lift (negative = move text up) */
+  --hero-lift: clamp(-48px, calc(var(--scroll-w) * -0.02), -28px);
+}
+
+/* SVG scroll */
+.hero-shape {
+  display: block;
+  width: 100%;
+  height: auto;
+
+  /* Real shadow (works because the SVG has pixels) */
+  filter:
+    drop-shadow(0 12px 26px rgba(0, 0, 0, 0.20))
+    drop-shadow(0 22px 44px rgba(0, 0, 0, 0.14));
+}
+
+/* Overlay layer */
+.hero-content {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+
+/* Safe interior */
+.hero-inner {
+  width: min(84%, 980px);
+  padding-inline: clamp(1.75rem, calc(var(--scroll-w) * 0.045), 4.25rem);
+  padding-block: clamp(2.15rem, calc(var(--scroll-w) * 0.05), 4.75rem);
+  text-align: center;
+
+  /* NEW: lift text block upward for visual centering */
+  transform: translateY(var(--hero-lift));
+  will-change: transform;
+}
+
+/* Lead statement (Fraunces) */
+.hero-lead {
+  font-family: "Fraunces", serif;
+  font-weight: 500;
+  font-size: clamp(1.7rem, calc(var(--scroll-w) * 0.033), 3.2rem);
+  line-height: 1.14;
+  color: #1d231c;
+  margin: 0 0 clamp(0.95rem, calc(var(--scroll-w) * 0.018), 1.85rem) 0;
+}
+
+/* Question (Inter, italic) */
+.hero-question {
+  font-family: "Inter", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  font-size: clamp(1.15rem, calc(var(--scroll-w) * 0.02), 1.9rem);
+  line-height: 1.5;
+  color: #1d231c;
+  margin: 0;
+}
+
+.hero-question em {
+  font-style: italic;
+}
+
+/* ================================
+   Large desktop refinement
+   ================================ */
+
+@media (min-width: 1100px) {
+  .hero-lead {
+    font-size: 3.35rem;
+    line-height: 1.12;
+  }
+
+  .hero-question {
+    font-size: 2.05rem;
+  }
+}
+
+/* ================================
+   Small screens: taller scroll,
+   larger text, no spill
+   + extra room so shadow doesn’t “hard stop”
+   ================================ */
+
+@media (max-width: 760px) {
+  .hero {
+    padding: 3rem 0.75rem;
+
+    /* Give the shadow room to fade on mobile */
+    padding-bottom: 4.25rem;
+  }
+
+  /* Slightly taller scroll, restrained */
+  .hero-shape {
+    height: 480px;
+    max-height: 72vh;
+    width: 100%;
+
+    /* Slightly stronger shadow on mobile where it reads faint */
+    filter:
+      drop-shadow(0 14px 28px rgba(0, 0, 0, 0.22))
+      drop-shadow(0 26px 52px rgba(0, 0, 0, 0.16));
+  }
+
+  .hero-inner {
+    width: 74%;
+    padding-inline: 1.35rem;
+    padding-block: 2.2rem;
+  }
+
+  .hero-lead {
+    font-size: 1.7rem;
+    line-height: 1.18;
+  }
+
+  .hero-question {
+    font-size: 1.2rem;
+  }
+
+  /* NEW: mobile-specific lift tweak */
+  .hero-wrap {
+    --hero-lift: -30px;
+  }
+}
+
+/* ================================
+   Very small screens
+   ================================ */
+
+@media (max-width: 420px) {
+  .hero-shape {
+    height: 500px;
+    max-height: 76vh;
+  }
+
+  .hero-inner {
+    width: 70%;
+    padding-inline: 1.15rem;
+  }
+
+  .hero-lead {
+    font-size: 1.45rem;
+  }
+
+  /* a touch more fade room */
+  .hero {
+    padding-bottom: 4.75rem;
+  }
+
+  /* NEW: tiny-screen lift tweak */
+  .hero-wrap {
+    --hero-lift: -34px;
+  }
+}
+
+/* Safety */
+.hero * {
+  box-sizing: border-box;
+}
+
+.hero svg {
+  pointer-events: none;
+}
+
+
+
+/* =========================================================
+   Title Block — cream panel with TOP chevron notch
+   (green is just the page background behind it)
+   ========================================================= */
+
+.title-block {
+  --notch: 140px; /* center dip depth */
+  --edge: 36px;   /* height at left/right */
+
+  position: relative;
+
+  /* full-bleed (no green side gutters) */
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+
+  background: var(--cream);
+  overflow: visible;
+
+  /* Clip the CREAM so green shows above in chevron shape */
+  -webkit-clip-path: polygon(
+    0 var(--edge),
+    50% var(--notch),
+    100% var(--edge),
+    100% 100%,
+    0 100%
+  );
+  clip-path: polygon(
+    0 var(--edge),
+    50% var(--notch),
+    100% var(--edge),
+    100% 100%,
+    0 100%
+  );
+
+  /* Push text below the notch (TIGHTENED) */
+  padding: calc(var(--notch) + 2.6rem) 1.5rem 3.4rem;
+
+  /* Prevent margin-collapse seams with the next section */
+  border-bottom: 1px solid transparent;
+}
+
+/* =========================================================
+   Inner layout
+   ========================================================= */
+
+.title-block__inner {
+  position: relative;
+  z-index: 3;
+  max-width: 1100px;
+  margin: 0 auto;
+  text-align: center;
+  color: #1d231c;
+}
+
+/* =========================================================
+   Typography — Crimson Text, 3-tier hierarchy
+   ========================================================= */
+
+.title-block__inner * {
+  font-family: "Crimson Text", serif;
+}
+
+/* Small lines:
+   Introducing
+   of the Christian Scriptures
+*/
+.title-small,
+.title-sub {
+  font-size: clamp(1.35rem, 1.9vw, 1.6rem);
+  font-weight: 400;
+  margin: 0;
+}
+
+.title-small {
+  margin-bottom: 1.35rem; /* was 1.85rem */
+}
+
+/* Stack container */
+.title-stack {
+  margin: 0;
+  text-transform: uppercase;
+  line-height: 1.06;
+}
+
+.title-stack span {
+  display: block;
+  overflow: visible; /* ensure glyphs/letter-spacing never get clipped */
+}
+
+/* Medium lines:
+   The
+   and
+*/
+.title-medium {
+  font-size: clamp(2rem, 3.6vw, 2.8rem);
+  font-weight: 600;
+  margin: 0.22rem 0;
+}
+
+/* Large lines:
+   Liberation
+   Inclusion
+   Translation
+*/
+.title-large {
+  font-size: clamp(3.2rem, 6.4vw, 5.4rem);
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  margin: 0.48rem 0;
+}
+
+/* Bottom subtitle spacing (tightened) */
+.title-sub {
+  margin-top: 1.25rem; /* was 1.85rem */
+}
+
+/* =========================================================
+   Desktop enhancement — scale EVERYTHING up
+   + smallest text set to 38px
+   ========================================================= */
+
+@media (min-width: 1100px) {
+  .title-small,
+  .title-sub {
+    font-size: 2.375rem; /* 38px */
+  }
+
+  .title-medium {
+    font-size: 3.2rem; /* 51.2px */
+  }
+
+  .title-large {
+    font-size: 6.2rem; /* 99.2px */
+    letter-spacing: 0.035em;
+  }
+
+  .title-stack {
+    line-height: 1.08;
+  }
+
+  .title-large {
+    margin-top: 0.65rem; /* was 0.75rem */
+  }
+}
+
+/* =========================================================
+   Mobile tuning
+   ========================================================= */
+
+@media (max-width: 640px) {
+  .title-block {
+    --notch: 110px;
+    --edge: 28px;
+    padding: calc(var(--notch) + 2.25rem) 1.25rem 3rem; /* tightened */
+  }
+
+  /* ONLY the smallest text grows on mobile */
+  .title-small,
+  .title-sub {
+    font-size: 1.45rem;
+  }
+
+  /* Give the stacked title a little extra horizontal runway
+     without changing the notch geometry */
+  .title-stack {
+    line-height: 1.04;
+    margin-inline: -1rem; /* <- key fix for TRANSLATION overflow */
+  }
+
+  .title-large {
+    margin-top: 0.4rem;
+    letter-spacing: 0.02em;
+  }
+
+  .title-medium {
+    margin: 0.22rem 0;
+  }
+
+  .title-sub {
+    margin-top: 1.1rem;
+  }
+}
+
+
+/* =========================================================
+   Title block extension — include ReadMenu on cream
+   (tightened so it doesn’t create a giant void)
+   ========================================================= */
+
+.title-block--with-menu {
+  padding-bottom: 0.5rem; /* was 6rem */
+}
+
+/* ================================
+   ReadMenu in title block
+   Stack on mobile, row on desktop
+   (does NOT resize controls)
+   ================================ */
+
+.title-menu {
+  margin-top: 0rem; /* was 3rem */
+  display: flex;
+  justify-content: center;
+}
+
+/* Only ever one child now: .read-menu-wrap */
+.title-menu > .read-menu-wrap {
+  display: flex;
+  justify-content: center;
+}
+
+/* Target the actual control row/stack */
+.title-menu .read-menu {
+  margin-top: 0rem; /* was 2.2rem */
+}
+
+/* Desktop: row */
+@media (min-width: 761px) {
+  .title-menu .read-menu {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+}
+
+/* Mobile: stacked, keep intrinsic widths */
+@media (max-width: 760px) {
+  .title-menu .read-menu {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 1.25rem;
+  }
+}
+
+/* =========================================================
+   Intro block — full-bleed white band on green canvas
+   ========================================================= */
+
+.intro {
+  position: relative;
+  width: 100vw;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+
+  background: #ffffff;
+  padding: 6rem 1.5rem;
+
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+  color: var(--ink);
+}
+
+.intro-inner {
+  max-width: 48rem;
+  margin: 0 auto;
+}
+
+/* Eyebrow */
+
+.intro-eyebrow {
+  font-size: 1.75rem;
+  font-weight: 500;
+  margin: 0 0 2rem 0;
+  color: var(--ink);
+}
+
+/* Main intro text */
+
+.intro-lead,
+.intro-body {
+  font-size: 1.75rem;
+  line-height: 1.6;
+  margin: 0 0 1.75rem 0;
+  color: var(--ink);
+}
+
+.intro-lead:last-child,
+.intro-body:last-child {
+  margin-bottom: 0;
+}
+
+/* =========================================================
+   Callout block — white section, cream card,
+   animated hand-drawn underline, overlapping CTA,
+   diagonal transition to cream
+   ========================================================= */
+
+/* Full-bleed white section (works even if the page canvas is green) */
+.callout {
+  position: relative;
+
+  width: 100vw;
+  left: 50%;
+  margin-left: -50vw;
+
+  background: #ffffff;
+  padding: 0;
+}
+
+/* Content width constraint + page gutters live here */
+.callout-inner {
+  max-width: 70rem;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+/* Cream rectangle/card (centered) */
+.callout-panel {
+  position: relative;
+  background: var(--cream);
+
+  max-width: 58rem;
+  margin: 0 auto;
+
+  padding: 4rem 4.5rem;
+
+  font-family: "Fraunces", var(--serif, Georgia, serif);
+}
+
+/* Headline — uniform rhythm */
+.callout-head {
+  margin: 0;
+  font-family: "Fraunces", var(--serif, Georgia, serif);
+  font-size: clamp(2.4rem, 4vw, 3.4rem);
+
+  line-height: 1.22;
+  letter-spacing: 0.005em;
+
+  max-width: 42rem;
+}
+
+/* Underlined word wrapper — does not affect line box metrics */
+.callout-underline {
+  position: relative;
+  display: inline;
+  padding-bottom: 0;
+  white-space: nowrap;
+}
+
+/* Hand-drawn underline SVG (purely visual offset) */
+.callout-underline-svg {
+  position: absolute;
+  left: -0.05em;
+  right: -0.05em;
+  bottom: -0.1em;
+  width: calc(100% + 0.1em);
+  height: 0.55em;
+  overflow: visible;
+}
+
+/* The stroke itself */
+.callout-underline-path {
+  fill: none;
+  stroke: var(--green, #209d50);
+  stroke-width: 6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+
+  stroke-dasharray: 260;
+  stroke-dashoffset: 260;
+  transition: stroke-dashoffset 900ms ease;
+}
+
+/* Trigger underline animation when section enters viewport */
+.callout.is-visible .callout-underline-path {
+  stroke-dashoffset: 0;
+}
+
+/* Desktop CTA positioning (visual styling comes from a.footer-cta) */
+.callout-cta {
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  transform: translate(-65%, 0%);
+
+  padding: 14px 22px;
+  min-width: 0;
+}
+
+/* =========================================================
+   Desktop: make the curtain visibly wipe (not just fade)
+   ========================================================= */
+@media (min-width: 901px) {
+  a.callout-cta.footer-cta {
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  /* Curtain ABOVE background, BELOW text */
+  a.callout-cta.footer-cta::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--green);
+    border-radius: inherit;
+
+    z-index: 0;
+
+    transform-origin: top;
+    transform: scaleY(1);
+    transition: transform 380ms ease-in-out;
+    will-change: transform;
+  }
+
+  a.callout-cta.footer-cta:hover::before,
+  a.callout-cta.footer-cta:focus::before {
+    transform: scaleY(0);
+  }
+
+  a.callout-cta.footer-cta > span {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+/* Reduced motion (desktop) */
+@media (prefers-reduced-motion: reduce) {
+  @media (min-width: 901px) {
+    a.callout-cta.footer-cta::before {
+      transition: none;
+    }
+  }
+}
+
+/* =========================================================
+   Diagonal break with cream below (FULL-BLEED)
+   + seam-killer overlap into next cream section
+   ========================================================= */
+.callout-diagonal {
+  height: 220px;
+  background: var(--cream);
+
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  margin-left: -50vw;
+
+  clip-path: polygon(0 35%, 100% 0, 100% 100%, 0 100%);
+  margin-top: 5rem;
+
+  /* Seam-killer: overlap next section by 1px */
+  margin-bottom: -1px;
+}
+
+/* =========================================================
+   Mobile: CTA centered and hanging off the bottom edge
+   + narrower callout card (desktop unchanged)
+   ========================================================= */
+@media (max-width: 900px) {
+  .callout-inner {
+    padding: 0 1.25rem;
+  }
+
+  /* Narrower card on mobile (centered)
+     CTA placement unchanged (CTA is positioned relative to this panel) */
+  .callout-panel {
+    position: relative;
+
+    /* NEW: slightly narrower than the inner container */
+    width: min(34rem, 92%);
+    margin: 0 auto;
+
+    /* NEW: a touch more side padding so text sits nicely */
+    padding: 2.75rem 2rem 4.75rem;
+
+    background: var(--cream);
+    font-family: "Fraunces", var(--serif, Georgia, serif);
+  }
+
+  .callout-head {
+    max-width: none;
+  }
+
+  a.callout-cta.footer-cta {
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    transform: translate(-50%, 85%);
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: auto;
+    height: auto;
+
+    flex: 0 0 auto;
+    align-self: center;
+
+    padding: 14px 22px;
+    line-height: 1;
+    white-space: nowrap;
+
+    border-radius: 12px;
+    box-sizing: border-box;
+
+    margin: 0;
+  }
+}
+
+
+/* =========================
+   Chat block (full-bleed cream)
+   + bubble thread
+   + diagonal transition to green
+   ========================= */
+
+.chat-block {
+  position: relative;
+
+  width: 100vw;
+  left: 50%;
+  margin-left: -50vw;
+
+  background: var(--cream);
+  color: var(--ink);
+  padding-top: clamp(8px, 2vw, 24px);
+  padding-bottom: clamp(120px, 14vw, 210px);
+  overflow: hidden;
+}
+
+/* Inner aligns with your usual content width */
+.chat-block__inner {
+  width: min(980px, calc(100% - 40px));
+  margin: 0 auto;
+}
+
+/* Thread */
+.chat-thread {
+  display: grid;
+  gap: 22px;
+}
+
+/* Bubble base */
+.chat-bubble {
+  width: fit-content;
+  max-width: min(720px, 92%);
+  padding: 20px 26px;
+  border-radius: 28px;
+  background: #ffffff;
+  color: var(--ink);
+  line-height: 1.45;
+  font-size: clamp(18px, 2.1vw, 34px);
+
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.10);
+}
+
+/* Left/right alignment */
+.chat-bubble--left {
+  margin-right: auto;
+}
+
+.chat-bubble--right {
+  margin-left: auto;
+  background: var(--green);
+  color: #ffffff;
+}
+
+/* Optional “single-word reply” look */
+.chat-bubble--center {
+  justify-self: start;
+  max-width: 420px;
+  text-align: center;
+  padding: 22px 36px;
+}
+
+/* Bubble text hygiene */
+.chat-bubble p {
+  margin: 0;
+}
+
+.chat-bubble em {
+  font-style: italic;
+}
+
+/* =========
+   Animations
+   ========= */
+
+.chat-bubble[data-animate="in"] {
+  opacity: 0;
+  transform: translateY(18px);
+  transition:
+    opacity 520ms ease,
+    transform 520ms ease;
+  transition-delay: var(--stagger, 0ms);
+}
+
+.chat-bubble.is-in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chat-bubble[data-animate="in"] {
+    opacity: 1;
+    transform: none;
+    transition: none
+      
+  }
+}
+
+/* =========================
+   Diagonal break (cream -> green)
+   ========================= */
+
+.chat-block::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+
+  height: clamp(70px, 11vw, 150px);
+  background: var(--green);
+
+  clip-path: polygon(0 22%, 100% 78%, 100% 100%, 0 100%);
+  transform: translateZ(0);
+}
+
+/* =========================================================
+   Questions block — green canvas + 3-card grid
+   H2: serif (Crimson), white
+   H3: serif (Crimson), white
+   Body: Inter, white
+   Images: forced square crop (object-fit)
+   Buttons: full-width CTA with black curtain reveal -> green
+   ========================================================= */
+
+.questions-block {
+  background: var(--green);
+  color: var(--white);
+  padding: clamp(44px, 7vw, 84px) 0 clamp(56px, 8vw, 96px);
+}
+
+.questions-block__inner {
+  width: min(1200px, calc(100% - 56px));
+  margin: 0 auto;
+}
+
+.questions-block__title {
+  font-family: "Crimson Text", Georgia, "Times New Roman", serif;
+  font-weight: 600;
+  text-align: center;
+  color: var(--white);
+  margin: 0 0 clamp(26px, 4vw, 46px) 0;
+  font-size: clamp(2.3rem, 4.3vw, 4.2rem);
+  line-height: 1.08;
+}
+
+/* Grid */
+.questions-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(18px, 2.4vw, 28px);
+  align-items: start;
+}
+
+/* Card */
+.question-card {
+  display: grid;
+  grid-template-rows: auto auto 1fr auto;
+  gap: 18px;
+}
+
+/* =========================================================
+   Media — forced square crop (no file re-cropping needed)
+   ========================================================= */
+
+.question-card__media {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1; /* force square */
+  border-radius: 32px;
+  overflow: hidden;
+}
+
+.question-card__media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* crop, don’t distort */
+  object-position: center;
+}
+
+/* H3 question */
+.question-card__question {
+  font-family: "Crimson Text", Georgia, "Times New Roman", serif;
+  font-weight: 600;
+  color: var(--white);
+  margin: 0;
+  font-size: clamp(2.0rem, 2.6vw, 3.2rem);
+  line-height: 1.05;
+}
+
+/* Answer body (Inter) */
+.question-card__answer {
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, Helvetica, Arial, sans-serif;
+  color: var(--white);
+  margin: 0;
+  font-size: clamp(1.2rem, 1.6vw, 1.85rem);
+  line-height: 1.55;
+}
+
+/* =========================================================
+   Full-width CTA button — black curtain lifts to reveal green
+   (matches your header CTA palette/behavior)
+   IMPORTANT: targets your actual HTML class .question-cta
+   ========================================================= */
+
+a.question-cta {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+
+  display: inline-flex;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-weight: 700;
+
+  /* NEW: keep labels on one line + consistent height */
+  white-space: nowrap;
+  min-height: 72px;
+
+  /* NEW: allow a tiny shrink before wrapping would ever happen */
+  font-size: clamp(0.92rem, 1.05vw, 1.02rem);
+
+  padding: 18px 22px;
+  border-radius: 14px;
+
+  border: 2px solid var(--ink);
+
+  /* Text starts green on the black curtain */
+  color: var(--green);
+
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.22);
+
+  transition: color 220ms ease-in-out;
+}
+
+/* Green base layer */
+a.question-cta::after {
+  content: "";
+  position: absolute;
+  inset: -2px; /* prevents corner peeking */
+  background: var(--green);
+  border-radius: inherit;
+  z-index: -2;
+}
+
+/* Black curtain layer */
+a.question-cta::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  background: var(--ink);
+  border-radius: inherit;
+
+  clip-path: inset(0 0 0 0 round 16px);
+  transition: clip-path 380ms ease-in-out;
+
+  z-index: -1;
+}
+
+/* Hover/focus: lift the curtain to reveal green */
+a.question-cta:hover::before,
+a.question-cta:focus::before {
+  clip-path: inset(0 0 100% 0 round 16px);
+}
+
+/* End-state text: ink on green */
+a.question-cta:hover,
+a.question-cta:focus {
+  color: var(--ink);
+  text-decoration: none;
+}
+
+/* Text above layers */
+a.question-cta > span {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  line-height: 1.15;
+
+  /* NEW: ensure the span itself never wraps */
+  white-space: nowrap;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  a.question-cta::before,
+  a.question-cta {
+    transition: none;
+  }
+}
+
+/* Responsive */
+@media (max-width: 980px) {
+  .questions-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .question-card__question {
+    text-align: left;
+  }
+
+  .questions-block__inner {
+    width: min(980px, calc(100% - 40px));
+  }
+
+  /* Mobile: allow wrapping if needed so it never overflows */
+  a.question-cta,
+  a.question-cta > span {
+    white-space: normal;
+  }
+}
+
+/* =========================================================
+   Desktop alignment: force all CTAs to share a baseline
+   (mobile already fine)
+   ========================================================= */
+
+@media (min-width: 981px) {
+  /* Make the grid items (cards) stretch to the same height */
+  .questions-grid {
+    align-items: stretch;
+  }
+
+  /* Ensure each card actually fills the available height */
+  .question-card {
+    height: 100%;
+  }
+
+  /* Allow the answer paragraph to be the flexible row */
+  .question-card__answer {
+    align-self: stretch;
+  }
+
+  /* Pin the CTA to the bottom row */
+  a.question-cta {
+    align-self: end;
+  }
+}

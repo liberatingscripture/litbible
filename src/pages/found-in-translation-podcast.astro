@@ -1,0 +1,519 @@
+---
+import Layout from "../layouts/Layout.astro";
+import "../styles/pages/found-in-translation-podcast.css";
+
+// Update these paths to match what’s in /public/images/
+const heroImage = "/images/scopio-0b189831-4e0b-46c8-a758-c743663d7611.webp";
+const coverImage = "/images/fit-cover.webp";
+---
+
+<Layout title="Found in Translation Podcast | The LIT">
+  <main class="fit-page">
+    <!-- HERO -->
+    <section class="fit-hero" aria-label="Found in Translation hero">
+      <img
+        class="fit-hero__bg"
+        src={heroImage}
+        alt=""
+        width="1920"
+        height="1080"
+        loading="eager"
+        decoding="async"
+      />
+
+      <div class="fit-hero__content">
+        <h1 class="fit-hero__title">Found in Translation</h1>
+        <p class="fit-hero__subtitle">
+          armchair bible banter for liberation and healing
+        </p>
+        <p class="fit-hero__byline">
+          with Brandon Vélez Johnson and Brandon Rhodes
+        </p>
+      </div>
+    </section>
+
+    <!-- COVER + PLATFORMS -->
+    <section class="fit-platforms" aria-label="Listen on podcast platforms">
+      <div class="fit-cover-wrap">
+        <img
+          class="fit-cover"
+          src={coverImage}
+          alt="Found in Translation podcast cover"
+          width="600"
+          height="600"
+          loading="lazy"
+          decoding="async"
+        />
+      </div>
+
+      <div class="fit-platform-links">
+        <a
+          class="fit-platform fit-platform--apple"
+          href="https://podcasts.apple.com/us/podcast/found-in-translation/id1586737797"
+          target="_blank"
+          rel="noopener"
+        >
+          Apple Podcasts
+        </a>
+        <a
+          class="fit-platform fit-platform--spotify"
+          href="https://open.spotify.com/show/6S2wWaM5oqknwncPfOEyZ6"
+          target="_blank"
+          rel="noopener"
+        >
+          Spotify
+        </a>
+        <a
+          class="fit-platform fit-platform--youtube"
+          href="https://www.youtube.com/@foundintranslationpodcast"
+          target="_blank"
+          rel="noopener"
+        >
+          YouTube
+        </a>
+      </div>
+    </section>
+
+    <!-- LATEST -->
+    <section
+      class="fit-section fit-section--green"
+      aria-label="Latest episodes"
+    >
+      <h2 class="fit-h2">Latest Episodes</h2>
+
+      <div class="fit-embed fit-embed--apple" aria-label="Apple Podcasts embed">
+        <iframe
+          id="embedPlayer"
+          src="https://embed.podcasts.apple.com/us/podcast/found-in-translation/id1586737797?itsct=podcast_box_player&itscg=30200&ls=1&theme=auto"
+          height="450"
+          frameborder="0"
+          sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-top-navigation-by-user-activation"
+          allow="autoplay *; encrypted-media *; clipboard-write"
+          loading="lazy"
+          title="Found in Translation on Apple Podcasts"></iframe>
+      </div>
+
+      <div class="fit-embed-grid">
+        <div class="fit-embed" aria-label="YouTube embed">
+          <iframe
+            src="https://www.youtube.com/embed/PJNPyB1swZ0?si=oW1rXQdX05Z_J5lH"
+            title="Found in Translation on YouTube"
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowfullscreen
+            loading="lazy"></iframe>
+        </div>
+
+        <div class="fit-embed" aria-label="Spotify embed">
+          <iframe
+            src="https://open.spotify.com/embed/show/6S2wWaM5oqknwncPfOEyZ6?utm_source=generator&theme=0"
+            frameborder="0"
+            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+            loading="lazy"
+            title="Found in Translation on Spotify"></iframe>
+        </div>
+      </div>
+    </section>
+
+    <!-- ESSENTIAL / FAVORITES -->
+    <section
+      class="fit-section fit-section--cream fit-episodes"
+      aria-labelledby="fit-essentials"
+    >
+      <div class="fit-episodes__inner">
+        <h2 id="fit-essentials" class="fit-episodes__kicker">
+          Start with these…
+        </h2>
+
+        <ul class="fit-ep-list" role="list">
+          <li class="fit-ep">
+            <h3 class="fit-ep__title">
+              Introducing Hebrews – A Radically Anti-Sacrificial Letter
+            </h3>
+            <ul class="fit-ep__links" role="list">
+              <li><a href="https://litbible.net/hebrews-1">Read</a></li>
+              <li>
+                <a
+                  href="https://podcasts.apple.com/us/podcast/introducing-hebrews-a-radically-anti-sacrificial-letter/id1586737797?i=1000632030735"
+                  target="_blank"
+                  rel="noopener">Listen on Apple Podcasts</a
+                >
+              </li>
+              <li>
+                <a
+                  href="https://open.spotify.com/episode/4hXGQFaVtsGL3tgKSlbMSR?si=zjZYps1ES6GyXbiZHVtCvw"
+                  target="_blank"
+                  rel="noopener">Listen on Spotify</a
+                >
+              </li>
+              <li>
+                <a
+                  href="https://youtu.be/RwJboMZIclA?si=RVVD673I0NuuXC20"
+                  target="_blank"
+                  rel="noopener">Watch on YouTube</a
+                >
+              </li>
+            </ul>
+          </li>
+
+          <li class="fit-ep">
+            <h3 class="fit-ep__title">Matthew 6 – Prayer, Souls, and Faith</h3>
+            <ul class="fit-ep__links" role="list">
+              <li>
+                <a
+                  href="https://drive.google.com/file/d/1Qs6zWYfyJ4JGHffTMHRwA7WAMSAQfDa7/view?usp=sharing"
+                  target="_blank"
+                  rel="noopener">Read</a
+                >
+              </li>
+              <li>
+                <a
+                  href="https://podcasts.apple.com/us/podcast/matthew-6/id1586737797?i=1000541110556"
+                  target="_blank"
+                  rel="noopener">Listen on Apple Podcasts</a
+                >
+              </li>
+              <li>
+                <a
+                  href="https://open.spotify.com/episode/4fw1HLRBcG3OH0NUc2eggk?si=UikzyyW7TAWhizhKsoVCPg"
+                  target="_blank"
+                  rel="noopener">Listen on Spotify</a
+                >
+              </li>
+            </ul>
+          </li>
+
+          <li class="fit-ep">
+            <h3 class="fit-ep__title">
+              Matthew 8–9 – Trust, Nicknames, and Outsiders
+            </h3>
+            <ul class="fit-ep__links" role="list">
+              <li>
+                <a
+                  href="https://drive.google.com/file/d/1Qs6zWYfyJ4JGHffTMHRwA7WAMSAQfDa7/view?usp=sharing"
+                  target="_blank"
+                  rel="noopener">Read</a
+                >
+              </li>
+              <li>
+                <a
+                  href="https://podcasts.apple.com/us/podcast/matthew-8-9-trust-nicknames-and-outsiders/id1586737797?i=1000542708829"
+                  target="_blank"
+                  rel="noopener">Listen on Apple Podcasts</a
+                >
+              </li>
+              <li>
+                <a
+                  href="https://open.spotify.com/episode/4uiBmSgmuNqjD7osrcXG0E?si=xHLrHiphRCSciF9GqFPIww"
+                  target="_blank"
+                  rel="noopener">Listen on Spotify</a
+                >
+              </li>
+            </ul>
+          </li>
+        </ul>
+
+        <h2 class="fit-episodes__kicker fit-episodes__kicker--spaced">
+          Then bounce around…
+        </h2>
+
+        <ul class="fit-ep-list" role="list">
+          <li class="fit-ep">
+            <h3 class="fit-ep__title">
+              Matthew 19 – That time Jesus said patriarchy disqualifies you for
+              marriage
+            </h3>
+            <ul class="fit-ep__links" role="list">
+              <li>
+                <a
+                  href="https://drive.google.com/file/d/1Qs6zWYfyJ4JGHffTMHRwA7WAMSAQfDa7/view?usp=sharing"
+                  target="_blank"
+                  rel="noopener">Read</a
+                >
+              </li>
+              <li>
+                <a
+                  href="https://podcasts.apple.com/us/podcast/matthew-19-that-time-jesus-said-patriarchy-disqualifies/id1586737797?i=1000548150863"
+                  target="_blank"
+                  rel="noopener">Listen on Apple Podcasts</a
+                >
+              </li>
+              <li>
+                <a
+                  href="https://open.spotify.com/episode/6A1JNX4C86aquinM8DLlfZ?si=2dRvGlcJTDy1WnYkqcGh1A"
+                  target="_blank"
+                  rel="noopener">Listen on Spotify</a
+                >
+              </li>
+            </ul>
+          </li>
+
+          <li class="fit-ep">
+            <h3 class="fit-ep__title">
+              John 1 – In the Beginning was the Conversation
+            </h3>
+            <ul class="fit-ep__links" role="list">
+              <li><a href="https://litbible.net/john-1">Read</a></li>
+              <li>
+                <a
+                  href="https://podcasts.apple.com/us/podcast/in-the-beginning-was-the-conversation/id1586737797?i=1000594334895"
+                  target="_blank"
+                  rel="noopener">Listen on Apple Podcasts</a
+                >
+              </li>
+              <li>
+                <a
+                  href="https://open.spotify.com/episode/7kcd8QbChquu9ekJsiaXCb?si=QaKtJvgIRq2m3bHDeLMy3g"
+                  target="_blank"
+                  rel="noopener">Listen on Spotify</a
+                >
+              </li>
+              <li>
+                <a
+                  href="https://youtu.be/D8Jpc2Doao0?si=cnPpc0TvhFFlSvB9"
+                  target="_blank"
+                  rel="noopener">Watch on YouTube</a
+                >
+              </li>
+            </ul>
+          </li>
+
+          <li class="fit-ep">
+            <h3 class="fit-ep__title">
+              John 11 – Mary Magdalene’s Surprising Connection to the Beloved
+              Disciple
+            </h3>
+            <ul class="fit-ep__links" role="list">
+              <li><a href="https://litbible.net/john-11">Read</a></li>
+              <li>
+                <a
+                  href="https://podcasts.apple.com/us/podcast/mary-magdalenes-surprising-connection-to-the-beloved/id1586737797?i=1000602665896"
+                  target="_blank"
+                  rel="noopener">Listen on Apple Podcasts</a
+                >
+              </li>
+              <li>
+                <a
+                  href="https://open.spotify.com/episode/6qTL5UFP1kpfxWqDn5MMo4?si=dgn5VZ_ARXmJ9im1Vr2_PA"
+                  target="_blank"
+                  rel="noopener">Listen on Spotify</a
+                >
+              </li>
+              <li>
+                <a
+                  href="https://youtu.be/QS68EoWqowI?si=rAqQmhlJqgWC-dBL"
+                  target="_blank"
+                  rel="noopener">Watch on YouTube</a
+                >
+              </li>
+            </ul>
+          </li>
+
+          <li class="fit-ep">
+            <h3 class="fit-ep__title">Galatians 3:6–29 – Grafted In</h3>
+            <ul class="fit-ep__links" role="list">
+              <li><a href="https://litbible.net/galatians-3">Read</a></li>
+              <li>
+                <a
+                  href="https://podcasts.apple.com/us/podcast/galatians-3-6-29-grafted-in/id1586737797?i=1000577663991"
+                  target="_blank"
+                  rel="noopener">Listen on Apple Podcasts</a
+                >
+              </li>
+              <li>
+                <a
+                  href="https://open.spotify.com/episode/2LLW1tD1mX9NLQaOhrkJiB?si=UCY7ZpG8ThW_s21Ns60-fg"
+                  target="_blank"
+                  rel="noopener">Listen on Spotify</a
+                >
+              </li>
+              <li>
+                <a
+                  href="https://youtu.be/oNfSKiPfO0Q?si=pY35hTeJAZd9V3Vf"
+                  target="_blank"
+                  rel="noopener">Watch on YouTube</a
+                >
+              </li>
+            </ul>
+          </li>
+
+          <li class="fit-ep">
+            <h3 class="fit-ep__title">
+              Ephesians 4:17–32 – Anger and Gratitude
+            </h3>
+            <ul class="fit-ep__links" role="list">
+              <li><a href="https://litbible.net/ephesians-4">Read</a></li>
+              <li>
+                <a
+                  href="https://podcasts.apple.com/us/podcast/ephesians-4-17-32-anger-and-gratitude/id1586737797?i=1000563292281"
+                  target="_blank"
+                  rel="noopener">Listen on Apple Podcasts</a
+                >
+              </li>
+              <li>
+                <a
+                  href="https://open.spotify.com/episode/5QTp52IkVUqP5FO9JFAQrF?si=bom39PL2QhGMAWLLeLgdOg"
+                  target="_blank"
+                  rel="noopener">Listen on Spotify</a
+                >
+              </li>
+              <li>
+                <a
+                  href="https://youtu.be/zDnE4_pkLj4?si=zPmFHwbuiK1tANSf"
+                  target="_blank"
+                  rel="noopener">Watch on YouTube</a
+                >
+              </li>
+            </ul>
+          </li>
+
+          <li class="fit-ep">
+            <h3 class="fit-ep__title">Ephesians 5:18–33 – R-E-S-P-E-C-T</h3>
+            <ul class="fit-ep__links" role="list">
+              <li><a href="https://litbible.net/ephesians-5">Read</a></li>
+              <li>
+                <a
+                  href="https://podcasts.apple.com/us/podcast/ephesians-5-18-33-r-e-s-p-e-c-t/id1586737797?i=1000565362250"
+                  target="_blank"
+                  rel="noopener">Listen on Apple Podcasts</a
+                >
+              </li>
+              <li>
+                <a
+                  href="https://open.spotify.com/episode/2XiLeIVow4JD1xKCOo1WsO?si=qa5XmJxiSgC9rWyXHqRoNg"
+                  target="_blank"
+                  rel="noopener">Listen on Spotify</a
+                >
+              </li>
+              <li>
+                <a
+                  href="https://youtu.be/wJCQ-9EBC3c?si=4a-cL_xAQZHg_oqd"
+                  target="_blank"
+                  rel="noopener">Watch on YouTube</a
+                >
+              </li>
+            </ul>
+          </li>
+
+          <li class="fit-ep">
+            <h3 class="fit-ep__title">
+              Hebrews 5–6a – What Good is Doctrine if You’re Still Scapegoating?
+            </h3>
+            <ul class="fit-ep__links" role="list">
+              <li><a href="https://litbible.net/hebrews-5">Read</a></li>
+              <li>
+                <a
+                  href="https://podcasts.apple.com/us/podcast/what-good-is-doctrine-if-youre-still-scapegoating-hebrews/id1586737797?i=1000635198329"
+                  target="_blank"
+                  rel="noopener">Listen on Apple Podcasts</a
+                >
+              </li>
+              <li>
+                <a
+                  href="https://open.spotify.com/episode/6s7VcSTr3d04Z4QyhP6KqY?si=pBqehb6UQM6IeKoYILEyYQ"
+                  target="_blank"
+                  rel="noopener">Listen on Spotify</a
+                >
+              </li>
+              <li>
+                <a
+                  href="https://youtu.be/KBMTyP2kINI?si=GUAjbSxWDoriXBQ_"
+                  target="_blank"
+                  rel="noopener">Watch on YouTube</a
+                >
+              </li>
+            </ul>
+          </li>
+
+          <li class="fit-ep">
+            <h3 class="fit-ep__title">Hebrews 6b–9 – Blood and Glory</h3>
+            <ul class="fit-ep__links" role="list">
+              <li><a href="https://litbible.net/hebrews-6">Read</a></li>
+              <li>
+                <a
+                  href="https://podcasts.apple.com/us/podcast/blood-and-glory-hebrews-6b-9/id1586737797?i=1000636442407"
+                  target="_blank"
+                  rel="noopener">Listen on Apple Podcasts</a
+                >
+              </li>
+              <li>
+                <a
+                  href="https://open.spotify.com/episode/4w8UHtHDd2feBr9bDpxaCW?si=JvSTqRKxQbyrWUj4ZBZCpw"
+                  target="_blank"
+                  rel="noopener">Listen on Spotify</a
+                >
+              </li>
+              <li>
+                <a
+                  href="https://youtu.be/Ga34c7CB3Oc?si=5WAS6pSduM31GCq7"
+                  target="_blank"
+                  rel="noopener">Watch on YouTube</a
+                >
+              </li>
+            </ul>
+          </li>
+
+          <li class="fit-ep">
+            <h3 class="fit-ep__title">
+              Hebrews 12:14–29 – The Leftist Expectations of Grace
+            </h3>
+            <ul class="fit-ep__links" role="list">
+              <li><a href="https://litbible.net/hebrews-12">Read</a></li>
+              <li>
+                <a
+                  href="https://podcasts.apple.com/us/podcast/the-leftist-expectations-of-grace-hebrews-12-14-29/id1586737797?i=1000638708483"
+                  target="_blank"
+                  rel="noopener">Listen on Apple Podcasts</a
+                >
+              </li>
+              <li>
+                <a
+                  href="https://open.spotify.com/episode/0lEQLrzWRj19iYSAIWMtqo?si=CQ95APvaR-ar9HC7OLAw1g"
+                  target="_blank"
+                  rel="noopener">Listen on Spotify</a
+                >
+              </li>
+              <li>
+                <a
+                  href="https://youtu.be/w1pWBhbQIJk?si=y4HCo1PNVxKY_S6K"
+                  target="_blank"
+                  rel="noopener">Watch on YouTube</a
+                >
+              </li>
+            </ul>
+          </li>
+
+          <li class="fit-ep">
+            <h3 class="fit-ep__title">
+              Hebrews 13 – Faithfulness is Hopeful Solidarity
+            </h3>
+            <ul class="fit-ep__links" role="list">
+              <li><a href="https://litbible.net/hebrews-12">Read</a></li>
+              <li>
+                <a
+                  href="https://podcasts.apple.com/us/podcast/faithfulness-is-hopeful-solidarity-hebrews-13/id1586737797?i=1000639492675"
+                  target="_blank"
+                  rel="noopener">Listen on Apple Podcasts</a
+                >
+              </li>
+              <li>
+                <a
+                  href="https://open.spotify.com/episode/3g0HLdgQCnANS8TXwGI0jD?si=4z4yA7_qT-2ANkdWddCFBA"
+                  target="_blank"
+                  rel="noopener">Listen on Spotify</a
+                >
+              </li>
+              <li>
+                <a
+                  href="https://youtu.be/2bi3daJXmMo?si=uw8icBvMUqZzGr66"
+                  target="_blank"
+                  rel="noopener">Watch on YouTube</a
+                >
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </section>
+  </main>
+</Layout>

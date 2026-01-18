@@ -1,0 +1,113 @@
+{
+  "generatedAt": "2026-01-18T04:12:13.153Z",
+  "topics": {
+    "birth": [
+      {
+        "url": "/luke-1",
+        "title": "Luke 1",
+        "type": "scripture",
+        "book": "luke",
+        "chapter": 1,
+        "topicLabel": "birth"
+      }
+    ],
+    "empire": [
+      {
+        "url": "/luke-1",
+        "title": "Luke 1",
+        "type": "scripture",
+        "book": "luke",
+        "chapter": 1,
+        "topicLabel": "empire"
+      },
+      {
+        "url": "/luke-4",
+        "title": "Luke 4",
+        "type": "scripture",
+        "book": "luke",
+        "chapter": 4,
+        "topicLabel": "empire"
+      }
+    ],
+    "hope": [
+      {
+        "url": "/luke-1",
+        "title": "Luke 1",
+        "type": "scripture",
+        "book": "luke",
+        "chapter": 1,
+        "topicLabel": "hope"
+      }
+    ],
+    "temptation": [
+      {
+        "url": "/luke-4",
+        "title": "Luke 4",
+        "type": "scripture",
+        "book": "luke",
+        "chapter": 4,
+        "topicLabel": "temptation"
+      }
+    ],
+    "liberation": [
+      {
+        "url": "/luke-4",
+        "title": "Luke 4",
+        "type": "scripture",
+        "book": "luke",
+        "chapter": 4,
+        "topicLabel": "liberation"
+      }
+    ],
+    "jubilee": [
+      {
+        "url": "/luke-4",
+        "title": "Luke 4",
+        "type": "scripture",
+        "book": "luke",
+        "chapter": 4,
+        "topicLabel": "jubilee"
+      }
+    ],
+    "life-breath": [
+      {
+        "url": "/luke-4",
+        "title": "Luke 4",
+        "type": "scripture",
+        "book": "luke",
+        "chapter": 4,
+        "topicLabel": "life-breath"
+      }
+    ],
+    "nazareth": [
+      {
+        "url": "/luke-4",
+        "title": "Luke 4",
+        "type": "scripture",
+        "book": "luke",
+        "chapter": 4,
+        "topicLabel": "nazareth"
+      }
+    ],
+    "healing": [
+      {
+        "url": "/luke-4",
+        "title": "Luke 4",
+        "type": "scripture",
+        "book": "luke",
+        "chapter": 4,
+        "topicLabel": "healing"
+      }
+    ],
+    "exorcism": [
+      {
+        "url": "/luke-4",
+        "title": "Luke 4",
+        "type": "scripture",
+        "book": "luke",
+        "chapter": 4,
+        "topicLabel": "exorcism"
+      }
+    ]
+  }
+}

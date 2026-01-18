@@ -1,0 +1,367 @@
+---
+// ScriptureLayout.astro
+import "../styles/scripture-tools.css";
+
+import Layout from "./Layout.astro";
+import ReadMenu from "../components/ReadMenu.astro";
+import SearchBar from "../components/SearchBar.astro";
+import ScriptureHeader from "../components/ScriptureHeader.astro";
+
+const {
+  title = "Liberation and Inclusion Translation",
+  description = "A trauma-informed, justice-oriented translation of the Bible from the original languages.",
+  canonical,
+  bg = "cream",
+
+  /**
+   * Pagefind + scripture metadata
+   * book: MUST match your ReadMenu slug keys (e.g., "luke", "1peter", "hebrews")
+   * chapter: "intro" or a chapter number (e.g., "1")
+   * type: "scripture" | "intro" | "search" | ...
+   */
+  book,
+  chapter,
+  type = "search",
+
+  /**
+   * scripture topics/tags (array or string)
+   * These are indexed as Pagefind meta "topics"
+   */
+  topics,
+
+  /**
+   * Layout toggles
+   */
+  showToolsReadMenu = true,
+  showToolsSearch = true,
+
+  /**
+   * If false, keep this page OUT of Pagefind indexing
+   * (Defaults to false for search pages, true otherwise)
+   */
+  index: indexProp,
+} = Astro.props;
+
+const pagefindBook = book ?? "";
+const pagefindChapter = chapter ?? "";
+const pagefindType = type ?? "search";
+
+/**
+ * Normalize topics so Pagefind gets a simple string.
+ * IMPORTANT: we emit TEXT meta (not <meta content="...">),
+ * because Pagefind is inconsistent with custom fields on <meta>.
+ */
+const topicsString = Array.isArray(topics)
+  ? topics.join(" ")
+  : typeof topics === "string"
+    ? topics.trim()
+    : "";
+
+/**
+ * Hidden indexed TOPIC TEXT (not meta) so subject searches can find pages
+ * even when the topic word never appears in visible scripture text.
+ *
+ * We do NOT rely on prefixes now. Instead, we mark the topic-only zone with
+ * pf-topics-start/end anchors, and the UI excludes keyword hits whose match
+ * locations land entirely inside that zone.
+ */
+const topicsIndexString = topicsString
+  ? topicsString.split(/\s+/).filter(Boolean).join(" ")
+  : "";
+
+const shouldIndex =
+  typeof indexProp === "boolean" ? indexProp : pagefindType !== "search";
+
+const isSearchPage = pagefindType === "search";
+const isScriptureLike =
+  pagefindType === "scripture" || pagefindType === "intro";
+
+/**
+ * Default header props (only used if caller doesn't provide a pageHeader slot)
+ */
+const headerKind: "intro" | "chapter" =
+  pagefindType === "intro" || String(pagefindChapter) === "intro"
+    ? "intro"
+    : "chapter";
+
+let headerChapter: number | undefined = undefined;
+if (headerKind === "chapter") {
+  const n = Number.parseInt(String(pagefindChapter || "1"), 10);
+  headerChapter = Number.isFinite(n) ? n : 1;
+}
+---
+
+<Layout title={title} description={description} canonical={canonical} bg={bg}>
+  <slot slot="head" name="head" />
+
+  <div class={`scripture-layout scripture-layout--${pagefindType}`}>
+    {
+      (showToolsReadMenu || showToolsSearch) && (
+        <section
+          class="scripture-tools"
+          data-pagefind-ignore
+          aria-label="Scripture tools"
+        >
+          <div class="scripture-tools__inner">
+            <div class="scripture-tools__left" aria-label="Jump to passage">
+              {showToolsReadMenu ? <ReadMenu /> : null}
+            </div>
+
+            <div class="scripture-tools__center" aria-label="Search the LIT">
+              {showToolsSearch ? (
+                <SearchBar variant={isSearchPage ? "inline" : "dropdown"} />
+              ) : null}
+            </div>
+
+            <div class="scripture-tools__right" aria-hidden="true" />
+          </div>
+        </section>
+      )
+    }
+
+    {
+      /* On /search we want the panel visible + in-flow (not dropdown).
+         This runs after hydration and simply removes the "hidden" state. */
+      isSearchPage && showToolsSearch ? (
+        <script is:inline>
+          {`
+            (() => {
+              const root = document.querySelector("[data-search-root]");
+              if (!root) return;
+              root.classList.add("is-open");
+              const panel = root.querySelector("[data-search-panel]");
+              if (panel) panel.hidden = false;
+            })();
+          `}
+        </script>
+      ) : null
+    }
+
+    <main
+      class="scripture-main"
+      data-pagefind-body={shouldIndex ? true : undefined}
+      data-pagefind-ignore={shouldIndex ? undefined : true}
+      data-type={shouldIndex ? pagefindType : undefined}
+      data-book={shouldIndex ? pagefindBook : undefined}
+      data-chapter={shouldIndex ? pagefindChapter : undefined}
+      data-pagefind-filter={shouldIndex
+        ? "type[data-type], book[data-book], chapter[data-chapter]"
+        : undefined}
+    >
+      {
+        /* =========================================================
+         Pagefind meta fields (TEXT-based, not <meta content="...">)
+         NOTE: These MUST be ignored for body indexing, or topics leak into
+         keyword search results.
+         ========================================================= */
+      }
+      {
+        shouldIndex ? (
+          <>
+            {/* Avoid duplicate title meta on scripture/intro pages.
+                ScriptureHeader's <h1> already carries data-pagefind-meta="title". */}
+            {!isScriptureLike ? (
+              <span
+                class="pf-meta"
+                data-pagefind-meta="title"
+                data-pagefind-ignore
+              >
+                {title}
+              </span>
+            ) : null}
+
+            <span
+              class="pf-meta"
+              data-pagefind-meta="description"
+              data-pagefind-ignore
+            >
+              {description}
+            </span>
+            <span
+              class="pf-meta"
+              data-pagefind-meta="type"
+              data-pagefind-ignore
+            >
+              {pagefindType}
+            </span>
+            <span
+              class="pf-meta"
+              data-pagefind-meta="book"
+              data-pagefind-ignore
+            >
+              {pagefindBook}
+            </span>
+            <span
+              class="pf-meta"
+              data-pagefind-meta="chapter"
+              data-pagefind-ignore
+            >
+              {String(pagefindChapter)}
+            </span>
+
+            {topicsString ? (
+              <span
+                class="pf-meta"
+                data-pagefind-meta="topics"
+                data-pagefind-ignore
+              >
+                {topicsString}
+              </span>
+            ) : null}
+
+            {/* ✅ Hidden-but-indexed CONTENT for topic searching.
+                We mark the "topic-only zone" so JS can exclude keyword hits
+                where match locations land entirely inside this zone. */}
+            {topicsIndexString ? (
+              <span class="pf-topics" aria-hidden="true">
+                <span id="pf-topics-start" />
+                {topicsIndexString}
+                <span id="pf-topics-end" />
+              </span>
+            ) : null}
+          </>
+        ) : null
+      }
+
+      {/* Default header (unless the page provides its own pageHeader slot) */}
+      <slot name="pageHeader">
+        {
+          isScriptureLike ? (
+            <ScriptureHeader
+              kind={headerKind}
+              bookKey={pagefindBook}
+              chapter={headerChapter}
+            />
+          ) : null
+        }
+      </slot>
+
+      <slot />
+    </main>
+
+    <section
+      class="scripture-disclaimer"
+      aria-label="Source text and licensing notice"
+      data-pagefind-ignore
+    >
+      <div class="scripture-disclaimer__inner">
+        <p>
+          The Liberation &amp; Inclusion Translation (LIT) is an original
+          English translation prepared from{" "}
+          <em>The Greek New Testament: SBL Edition</em> (ed. Michael W. Holmes; ©
+          2010 Society of Biblical Literature &amp; Logos Bible Software).
+        </p>
+        <p>
+          The SBLGNT is licensed under the Creative Commons Attribution 4.0,
+          International Licence (CC BY 4.0):{" "}
+          <a
+            href="https://creativecommons.org/licenses/by/4.0/"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            https://creativecommons.org/licenses/by/4.0/
+          </a>
+          . This translation constitutes an adaptation of that Greek text. Used with
+          permission.
+        </p>
+        <p>
+          Greek quotations are presented in transliterated form; accentuation
+          and punctuation follow LIT house style, mostly removed for
+          accessibility to readers without prior knowledge of Greek.
+        </p>
+        <p>
+          Portions of the SBL Greek text quoted here remain available under CC
+          BY 4.0; the NC-ND restrictions apply only to the original English
+          translation and other LIT-specific content.
+        </p>
+        <p>
+          The Society of Biblical Literature and Logos Bible Software do not
+          endorse the LIT Bible.
+        </p>
+      </div>
+    </section>
+
+    <style>
+      .scripture-main {
+        margin: 0 auto;
+        max-width: var(--content-width, 72ch);
+        padding: 12px 16px 64px;
+      }
+
+      /* Hidden-but-indexed metadata for Pagefind */
+      .pf-meta {
+        position: absolute;
+        left: -9999px;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        white-space: nowrap;
+      }
+
+      /* Hidden-but-indexed CONTENT so topic queries can match pages.
+         The JS uses pf-topics-start/end in anchors[] to exclude topic-only
+         hits from Keyword matches. */
+      .pf-topics {
+        position: absolute;
+        left: -9999px;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        white-space: nowrap;
+      }
+
+      /* Mobile-only breathing room BETWEEN the two tool columns.
+         (We do NOT style SearchBar internals here.) */
+      @media (max-width: 640px) {
+        :global(.scripture-tools__inner) {
+          gap: 18px;
+        }
+
+        :global(.scripture-tools__center) {
+          margin-top: 8px;
+        }
+      }
+
+      .scripture-disclaimer {
+        background: #fff;
+        padding: 30px 16px 56px;
+      }
+
+      .scripture-disclaimer__inner {
+        margin: 0 auto;
+
+        /* match the footer/tools “wide” container */
+        width: min(1100px, calc(100% - 32px));
+        max-width: none;
+
+        font-size: 0.95rem;
+        line-height: 1.65;
+        color: rgba(29, 35, 28, 0.85);
+      }
+
+      .scripture-disclaimer__inner p {
+        margin: 0 0 14px;
+      }
+
+      .scripture-disclaimer__inner a {
+        word-break: break-word;
+      }
+    </style>
+
+    <style is:global>
+      /* /search: make the SearchBar panel behave like an in-page tray */
+      .scripture-layout--search [data-search-root] .search__panel {
+        position: static !important;
+        top: auto !important;
+        left: auto !important;
+        right: auto !important;
+        margin-top: 12px;
+      }
+
+      /* /search: you're already on full search, so hide the link */
+      .scripture-layout--search [data-search-root] .search__more {
+        display: none !important;
+      }
+    </style>
+  </div>
+</Layout>

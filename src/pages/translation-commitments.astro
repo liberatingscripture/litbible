@@ -1,0 +1,227 @@
+---
+import Layout from "../layouts/Layout.astro";
+import "../styles/pages/translation-commitments.css";
+
+const commitments = [
+  {
+    key: "faithfulness",
+    title: "Faithfulness to the text",
+    icon: "/images/faithfulness.png",
+    alt: "Abstract circular path icon representing faithfulness to the text.",
+    scale: 1.63,
+    body: "I want the original voices of the scriptures to speak in their own strange way, trying to be true to both the Greek and English, and the literary purposes of the text. Metaphors and image-words in the Greek text (e.g. “deviations”) will be used in place of stodgy technical terms (e.g. “sin”). This is also a translation, not a paraphrase or midrash. Extended elaborations are saved for footnotes rather than the translation.",
+  },
+  {
+    key: "accessibility",
+    title: "Avoid religious technical language",
+    icon: "/images/accessibility.png",
+    alt: "Stylized road under an arch icon representing accessible language.",
+    scale: 1.43,
+    x: 2,
+    y: 1,
+    body: "Two thousand years of beautiful tradition clutter our hearing. Paul’s informal phrases have calcified into formal religious jargon by repetition, sticking in our minds and our churches like glue. Entire libraries of rigid theological meaning have been drafted trying to fix in place words that used to have more informality and flexibility. I’m trying to recover that and make it accessible without a theology degree.",
+  },
+  {
+    key: "equity",
+    title: "Read with the oppressed",
+    icon: "/images/equity.png",
+    alt: "Interwoven knot icon representing solidarity with the oppressed.",
+    scale: 1.45,
+    x: -1.5,
+    body: "The Bible, as an oppressed people’s sacred library, is steadily critical of power dynamics. When it appears to endorse the powerful, we read with the marginalized, such as our LGBTQ and BIPOC kin. People are always the priority over ideas. We discern the truth of theology by how it impacts the most vulnerable, not accepting or rejecting people based on fitting our theology and cultural norms.",
+  },
+  {
+    key: "trauma",
+    title: "Trauma-informed translation",
+    icon: "/images/trauma-informed-care.png",
+    alt: "Floral mandala icon representing trauma-informed care.",
+    scale: 1.46,
+    x: -4.85,
+    y: 1,
+    body: "Therapy is my day job. So I’m painfully aware of the traumatizing legacy that other translations and people’s interpretations of them have developed. I attempt to translate from a non-shaming, compassionate, body-affirming, empathy-soaked posture. Transparency is key. Learning from those who have been harmed the most is essential. Passages with a legacy of abuse are translated to minimize harm without sidestepping meaning.",
+  },
+  {
+    key: "gentleness",
+    title: "God always looks like Jesus",
+    icon: "/images/gentleness.png",
+    alt: "Dove icon representing the conviction that God is Christlike.",
+    scale: 1.3,
+    x: 1.5,
+    y: 5,
+    body: "Every translator expresses their theology in the work of translating—neutrality is a myth. So where other translators insert their assumptions of an all-dominating, fame-seeking, power-hungry, violent, authoritarian God into the Bible, I lean on my belief that God is Christlike through and through. It’s what I use for tie-breakers in translating difficult passages and the guiding star for each question of how to understand each word and phrase.",
+  },
+  {
+    key: "belonging",
+    title: "Belovedness and belonging",
+    icon: "/images/belonging.png",
+    alt: "Tree icon representing belovedness and belonging.",
+    scale: 1.2,
+    x: -1.5,
+    y: -2,
+    body: "It’s good to be human. In fact, God says it’s “very good.” At the heart of the Bible’s story is Creator expanding our imagination for how big belonging is, who is beloved, and how far divine declarations of worthiness flow. The promise to Abraham says ALL people groups will be praised as worthy. While other translations start with condemnation and exclusion, I take that message seriously and surface it at every opportunity.",
+  },
+];
+---
+
+<Layout
+  title="Translation Commitments | Liberation and Inclusion Translation"
+  description="The guiding commitments behind the Liberation and Inclusion Translation (LIT): a trauma-informed, liberationist translation that aims for faithfulness, clarity, and belonging."
+  canonical="https://litbible.net/translation-commitments"
+>
+  <article class="tc-page">
+    <header class="tc-hero">
+      <h1 class="tc-title">Translation Commitments</h1>
+      <p class="tc-lede">
+        The LIT is a historical, literary translation from the original
+        languages, guided by a set of commitments about meaning, power, harm,
+        and hope.
+      </p>
+    </header>
+
+    <section class="tc-grid" aria-label="Translation commitments">
+      {
+        commitments.map((c) => (
+          <section class="tc-card" data-key={c.key}>
+            <div
+              class="tc-iconTile"
+              aria-hidden="true"
+              style={`--icon-scale:${c.scale ?? 1.16}; --icon-x:${c.x ?? 0}px; --icon-y:${c.y ?? 0}px;`}
+            >
+              <img
+                class="tc-icon"
+                src={c.icon}
+                alt=""
+                loading="lazy"
+                decoding="async"
+              />
+            </div>
+
+            <h2 class="tc-cardTitle">{c.title}</h2>
+            <p class="tc-cardBody">{c.body}</p>
+          </section>
+        ))
+      }
+    </section>
+
+    <section class="tc-narrative" aria-labelledby="tc-how">
+      <div class="tc-narrative__inner">
+        <h2 id="tc-how">How these commitments work together</h2>
+
+        <p>
+          These commitments aren’t separate from each other but inform each
+          other. They are also not weighted equally. They set the boundaries for
+          each other and guide the choices that happen as I translate within
+          those boundaries.
+        </p>
+
+        <p>
+          Translation is not the same thing as decoding one-to-one meanings.
+          Even what we were taught to do in early Greek classes isn’t the same
+          as mature translation because translation isn’t just about looking
+          things up in the dictionary and filling in the blank. True translation
+          requires understanding the culture and mindset of the original writers
+          and audience, looking at how and when words are used and what
+          understanding is being communicated.
+        </p>
+
+        <p>
+          Sometimes the first (or second or third) definition listed in the
+          dictionary doesn’t communicate what the writer intended. Looking at
+          the context around the word, around the whole Bible, in other
+          literature of the time, the historical context and cultural contexts
+          (yes, there were multiple cultures influencing the writers at the same
+          time) all must be seriously considered. It’s about making thousands of
+          tiny judgments about tone, imagery, ambiguity, and what a sentence is
+          trying to communicate for the reader while staying anchored to what
+          the Greek can honestly bear.
+        </p>
+
+        <p>
+          I set out to translate with meaning-first clarity and source-text
+          accountability. Following Nida’s focus on communicating the text’s
+          function in the target language, I aim for English that lands with the
+          kind of effect the Greek likely produced, rather than preserving
+          churchy phrasing for its own sake. I want English-speaking readers to
+          have, as close as possible, the same experience the original
+          Greek-speaking audiences would likely have had. And following Pym’s
+          emphasis on translation as a series of choices with real consequences,
+          I make my decisions transparent, manage risk through careful wording
+          and footnotes, and resist “default” English options that import
+          theology or stigma not required by the text.
+        </p>
+
+        <p>
+          <strong>Faithfulness to the text</strong> sets the boundaries for all the
+          other commitments. Every translation decision is intended to stay inside
+          the semantic range (the realm of possible meaning) of the Greek. It does
+          that by paying attention to lexical definitions, patterns of word usage
+          both inside and outside the Bible, and careful attention to how it fits
+          into the grammar and syntax of the whole passage, as well as literary purpose,
+          metaphor, and voice.
+        </p>
+
+        <p>
+          But faithfulness isn’t the same thing as repeating inherited
+          church-language. So <strong
+            >avoiding religious technical language</strong
+          > pushes against the automatic use of jargon, not because tradition is worthless,
+          but because tradition always carries baggage with it. For instance, the
+          word “flesh” is not an incorrect translation of <em>sarx</em>, but
+          because the tradition has turned it into jargon, it’s not neutral. It
+          carries doctrinal meaning that may or may not have been part of the
+          original intention. Using fresh language allows readers to be curious
+          about the meaning in new ways.
+        </p>
+
+        <p>
+          The rest of the commitments address the ethics of translation. Most
+          translators pretend to be neutral or not to see the ethical impact of
+          their decisions. They pretend that in attempting to be faithful to the
+          text, they can’t possibly go wrong in other ways. They are wrong
+          because there are many ways to stay faithful to the original language
+          that are all technically valid but that lead to very different
+          meanings in English and impacts on readers, churches, and theology.
+        </p>
+
+        <p>
+          The Bible is a library produced by communities under empire, and it
+          consistently critiques domination. So
+          <strong>reading with the oppressed</strong> means the “default reader” is
+          not the powerful, the secure, or the socially protected. It means asking,
+          in every passage: who is vulnerable here, what is being normalized, and
+          what kind of world does this wording quietly build? The renderings always
+          still fall within the options of what the Greek can mean despite choosing
+          options that may be quite different from what other translators who are
+          more comfortable with authoritarianism might choose.
+        </p>
+
+        <p>
+          <strong>Trauma-informed translation</strong> adds another layer of honesty:
+          some passages have a long history of being weaponized. When the Greek allows
+          more than one responsible rendering, the LIT will prefer options that reduce
+          shame and harm without altering meaning. And where the text itself is hard
+          to swallow, the LIT aims to be transparent by using footnotes to explain
+          interpretive choices rather than disguising them. It is not about softening
+          language. It’s about refusing to select wording that instills shame when
+          a non-shaming option exists. In fact, it can explicitly be about refusing
+          to soften the reality of harm that is captured in the text, such as translating
+          <em>doulos</em> as “enslaved person” instead of as “servant.”
+        </p>
+
+        <p>
+          Finally, <strong>God always looks like Jesus</strong> and
+          <strong>belovedness and belonging</strong> are about refusing to allow the
+          act of translating and the LIT itself to drift into a cold, academic translation
+          that accidentally reinforces the very exclusion the Gospel confronts. When
+          the Greek forces hard questions about God, power, wrath, judgment, or worthiness,
+          the LIT treats Jesus as the clearest lens for what God is like and treats
+          human dignity as non-negotiable. After all, Christ is “the image of God,
+          who is unseen.” In practice, this means the translation chooses the options
+          from among the many possible ones that point the meaning toward the character
+          and values that are clearly taught and modeled by Jesus and the themes of
+          love and belonging for all that served as the core of that message.
+        </p>
+      </div>
+    </section>
+  </article>
+</Layout>

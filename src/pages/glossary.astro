@@ -1,0 +1,1904 @@
+---
+import Layout from "../layouts/Layout.astro";
+import "../styles/pages/glossary.css";
+---
+
+<Layout
+  title="Glossary | Liberation and Inclusion Translation"
+  description="A trauma-informed glossary explaining how key biblical terms are translated in the Liberation and Inclusion Translation (LIT), with historical, linguistic, and theological context."
+  canonical="https://litbible.net/glossary/"
+  bg="white"
+  type="glossary"
+>
+  <div class="glossary-page">
+    <!-- PAGE HEADER (white background) -->
+    <section class="glossary-hero" aria-labelledby="glossary-title">
+      <div class="wrap">
+        <h1 id="glossary-title" class="glossary-title">Glossary</h1>
+
+        <p data-pagefind-ignore>
+          There's a lot of words you would expect to see if you're familiar with
+          the Bible that you won't see in this translation. There's also a lot
+          that may be unfamiliar. Some of them have been replaced because
+          English has evolved over the last few hundred years and other words
+          better capture the intended meaning of the Greek than what has become
+          tradition. Others have been replaced because I'm convinced the words
+          we've gotten used to were more or less the wrong choice to begin with.
+          Other words have been replaced not because they are wrong but because
+          we've gotten so used to them that it becomes difficult to be curious
+          enough to really dig into what they are saying. There are footnotes
+          throughout the translation explaining some of the differences you
+          might find and why I chose the alternatives, but here's a concise
+          guide all in one place for some of the changes. In bold, you'll find
+          the traditional word. In italics is the Greek behind it. Underlined,
+          you'll see what I've used in its place most often (it can change based
+          on context). Feel free to contact me{" "}
+          <a class="inline-link" href="/contact">here</a>{" "}
+          if you think I've missed any important ones!
+        </p>
+
+        <!-- Sticky Glossary Menu (About-TOC style wrapper) -->
+        <div
+          class="glossary-toc"
+          data-glossary-toc
+          aria-label="Glossary Selection Menu"
+          data-pagefind-ignore
+        >
+          <div class="glossary-toc__inner">
+            <div class="glossary-toc__bar">
+              <p class="glossary-toc__label">Jump to an entry</p>
+
+              <button
+                class="glossary-toc__toggle"
+                type="button"
+                aria-expanded="false"
+                aria-controls="glossary-toc-tray"
+              >
+                <span class="glossary-toc__icon" aria-hidden="true"></span>
+                <span class="sr-only">Toggle glossary menu</span>
+              </button>
+            </div>
+
+            <div class="glossary-toc__tray" id="glossary-toc-tray">
+              <!-- MENU (mirrors Home page read-menu centering + mobile stack) -->
+              <div class="title-menu" aria-label="Glossary Selection Menu">
+                <div class="read-menu-wrap">
+                  <div class="read-menu glossary-menu">
+                    <label class="sr-only" for="category-select">
+                      Select Glossary Category
+                    </label>
+
+                    <select
+                      id="category-select"
+                      aria-label="Select Glossary Category"
+                    >
+                      <option value="">Select Glossary Category</option>
+                      <option value="traditional"
+                        >Traditional Translation</option
+                      >
+                      <option value="lit">LIT Word Choice</option>
+                    </select>
+
+                    <label class="sr-only" for="word-select"
+                      >Select a Word</label
+                    >
+
+                    <select
+                      id="word-select"
+                      aria-label="Select a Word"
+                      disabled
+                    >
+                      <option value="">Select a Word</option>
+                    </select>
+
+                    <button id="go-button" type="button" disabled>Go</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sticky toggle JS -->
+        <script type="module">
+          document.addEventListener("DOMContentLoaded", () => {
+            const toc = document.querySelector("[data-glossary-toc]");
+            if (!toc) return;
+
+            const btn = toc.querySelector(".glossary-toc__toggle");
+            const tray = toc.querySelector(".glossary-toc__tray");
+            if (!btn || !tray) return;
+
+            const setOpen = (open) => {
+              toc.classList.toggle("is-open", open);
+              btn.setAttribute("aria-expanded", open ? "true" : "false");
+            };
+
+            const syncForViewport = () => {
+              const isMobile = window.matchMedia("(max-width: 760px)").matches;
+              setOpen(!isMobile);
+            };
+
+            syncForViewport();
+            window.addEventListener("resize", syncForViewport);
+
+            btn.addEventListener("click", () => {
+              setOpen(!toc.classList.contains("is-open"));
+            });
+
+            // Close after selection on mobile (optional, nice UX)
+            toc.addEventListener("change", () => {
+              if (window.matchMedia("(max-width: 760px)").matches)
+                setOpen(false);
+            });
+          });
+        </script>
+
+        <!-- Menu JS (your existing behavior) -->
+        <script type="module">
+          document.addEventListener("DOMContentLoaded", () => {
+            const glossary = {
+              traditional: {
+                Angel: "/glossary/#angel-message",
+                Bad: "/glossary/#bad-harmful",
+                Blasphemy: "/glossary/#blasphemy-disrespectfulness",
+                Clean: "/glossary/#clean-clean",
+                Confession: "/glossary/#confession-open-acknowledgement",
+                "Defiled/Profane": "/glossary/#defiled-common",
+                Demon: "/glossary/#demon-demon",
+                Devil: "/glossary/#devil-false-accuser",
+                Evil: "/glossary/#evil-hardship",
+                Faith: "/glossary/#faith-trust",
+                Flesh: "/glossary/#flesh-body",
+                Forgiveness: "/glossary/#forgiveness-letting-go",
+                "Gehenna/Hell": "/glossary/#gehenna-hinnom-valley",
+                Glory: "/glossary/#glory-praiseworthiness",
+                "Good -1-": "/glossary/#good-admirable",
+                "Good -2-": "/glossary/#good-beneficial",
+                Gospel: "/glossary/#gospel-triumphant-message",
+                Grace: "/glossary/#grace-generosity",
+                Heaven: "/glossary/#heaven-sky",
+                "Hell/Hades": "/glossary/#hell-hades",
+                Holy: "/glossary/#holy-sacred",
+                Law: "/glossary/#law-torah",
+                Repentance: "/glossary/#repentance-reorient-mind",
+                Resurrection: "/glossary/#resurrection-reawakening",
+                Righteousness: "/glossary/#righteousness-justness",
+                Salvation: "/glossary/#salvation-liberation",
+                Satan: "/glossary/#satan-adversary",
+                Sin: "/glossary/#sin-deviation",
+                Spirit: "/glossary/#spirit-life-breath",
+                "Trespass/Transgression": "/glossary/#trespass-shortfall",
+                Unclean: "/glossary/#unclean-unclean",
+              },
+              lit: {
+                "The Adversary": "/glossary/#satan-adversary",
+                "Appealing/Admirable": "/glossary/#good-admirable",
+                "Beneficial to people": "/glossary/#good-beneficial",
+                "Body/Family/Impulses": "/glossary/#flesh-body",
+                Clean: "/glossary/#clean-clean",
+                Demon: "/glossary/#demon-demon",
+                Deviation: "/glossary/#sin-deviation",
+                Disrespectfulness: "/glossary/#blasphemy-disrespectfulness",
+                "False Accuser": "/glossary/#devil-false-accuser",
+                Generosity: "/glossary/#grace-generosity",
+                Harmful: "/glossary/#bad-harmful",
+                Hardship: "/glossary/#evil-hardship",
+                "The heavens/sky": "/glossary/#heaven-sky",
+                "Hinnom Valley": "/glossary/#gehenna-hinnom-valley",
+                Justness: "/glossary/#righteousness-justness",
+                "Letting Go": "/glossary/#forgiveness-letting-go",
+                Liberation: "/glossary/#salvation-liberation",
+                "Life-breath/Spirit-breath": "/glossary/#spirit-life-breath",
+                Messenger: "/glossary/#angel-message",
+                "Open Acknowledgment":
+                  "/glossary/#confession-open-acknowledgement",
+                "Ordinary/unconsecrated": "/glossary/#defiled-common",
+                "Place of the dead": "/glossary/#hell-hades",
+                "Reawakening/Standing up":
+                  "/glossary/#resurrection-reawakening",
+                "Renown/Praiseworthiness": "/glossary/#glory-praiseworthiness",
+                "Shortfall/Sidestep": "/glossary/#trespass-shortfall",
+                "Triumphant Message": "/glossary/#gospel-triumphant-message",
+                "Trust/Faithfulness": "/glossary/#faith-trust",
+                Sacred: "/glossary/#holy-sacred",
+                Torah: "/glossary/#law-torah",
+                "Reorienting the mind": "/glossary/#repentance-reorient-mind",
+                Unclean: "/glossary/#unclean-unclean",
+              },
+            };
+
+            const categorySelect = document.getElementById("category-select");
+            const wordSelect = document.getElementById("word-select");
+            const goButton = document.getElementById("go-button");
+
+            if (!categorySelect || !wordSelect || !goButton) return;
+
+            wordSelect.disabled = true;
+            goButton.disabled = true;
+
+            categorySelect.addEventListener("change", () => {
+              const selectedCategory = categorySelect.value;
+
+              wordSelect.innerHTML = '<option value="">Select a Word</option>';
+              wordSelect.disabled = true;
+              goButton.disabled = true;
+
+              if (selectedCategory && glossary[selectedCategory]) {
+                const words = glossary[selectedCategory];
+                for (const word in words) {
+                  const option = document.createElement("option");
+                  option.value = words[word];
+                  option.textContent = word;
+                  wordSelect.appendChild(option);
+                }
+                wordSelect.disabled = false;
+              }
+            });
+
+            wordSelect.addEventListener("change", () => {
+              goButton.disabled = !wordSelect.value;
+            });
+
+            goButton.addEventListener("click", () => {
+              const selectedWordUrl = wordSelect.value;
+              if (selectedWordUrl) window.location.href = selectedWordUrl;
+            });
+          });
+        </script>
+
+        <!-- ENTRIES BLOCK -->
+        <section
+          class="glossary-entries"
+          data-pagefind-body
+          data-pagefind-filter="type:glossary"
+        >
+          <!-- Index-only surface: just enough for search -->
+          <div class="sr-only">
+            <span data-pagefind-meta="title">Glossary</span>
+            <span data-pagefind-meta="type">glossary</span>
+            <span data-pagefind-meta="description">
+              Translation glossary for key terms in the LIT.
+            </span>
+          </div>
+
+          <!-- Full-bleed notch block -->
+          <div class="entries-top" aria-hidden="true" data-pagefind-ignore>
+          </div>
+
+          <!-- Cream panel starts here -->
+          <div class="entries-panel">
+            <div class="wrap entries-wrap">
+              <!-- ENTRY: ANGEL -->
+              <article
+                class="entry"
+                id="angel-message"
+                data-animate="underline"
+              >
+                <header class="entry-head">
+                  <h2 class="entry-title" id="angel-message">
+                    <!-- Index-only: English entry words -->
+                    <span class="sr-only">Angel messenger</span>
+
+                    <span class="entries-strike">
+                      <strong>Angel</strong>
+                    </span>
+
+                    <span class="sep" aria-hidden="true">&nbsp;–&nbsp;</span>
+
+                    <!-- Greek transliteration should NOT be searchable -->
+                    <em data-pagefind-ignore>angelos</em>
+
+                    <span class="sep" aria-hidden="true">&nbsp;–&nbsp;</span>
+
+                    <!-- English gloss SHOULD be searchable -->
+                    <span class="entries-underline"> messenger </span>
+                  </h2>
+                </header>
+
+                <!-- Definition body should NOT be searchable -->
+                <div class="entry-body" data-pagefind-ignore>
+                  <p>
+                    Whether this word is being used for a heavenly being, wind
+                    and fire, a burning bush, or humans carrying a message, the
+                    word <em>angelos</em>
+                    means “messenger.” It refers to someone who speaks for another,
+                    communicating something as an intermediary or as an agent. Even
+                    when the message is from God to a human, the messenger can be
+                    any number of things—people, natural phenomena, dreams, and yes,
+                    even heavenly beings. Worth noting is that there is never a specific
+                    kind of being named an “angel” in the Bible. Whatever kind of
+                    being it is, if it is called an
+                    <em>angelos</em>, it’s because it is conveying a message.
+                  </p>
+                </div>
+              </article>
+
+              <!-- ENTRY: BAD -->
+              <article class="entry" id="bad-harmful" data-animate="underline">
+                <header class="entry-head">
+                  <h2 class="entry-title" id="bad-harmful">
+                    <!-- Index-only: English entry words -->
+                    <span class="sr-only">Bad harmful</span>
+
+                    <span class="entries-strike">
+                      <strong>Bad</strong>
+                    </span>
+
+                    <span class="sep" aria-hidden="true">&nbsp;–&nbsp;</span>
+                    <em data-pagefind-ignore>kakos</em>
+                    <span class="sep" aria-hidden="true">&nbsp;–&nbsp;</span>
+
+                    <span class="entries-underline"> harmful </span>
+                  </h2>
+                </header>
+
+                <div class="entry-body" data-pagefind-ignore>
+                  <p>
+                    (This word is the antonym of <em>kalos</em>. See the entry
+                    for “good [1]” below.) This translation decision is more of
+                    a matter of writing style and an understanding of the
+                    psychology of language. (If you’re an especially nerdy type
+                    and want to go on a deep dive, I recommend Steven Hayes’
+                    Relational Frame Theory.) While, yes, <em>kakos</em> is always
+                    used to describe something negative, the word “bad” in English
+                    is problematic in that it is both too vague and carries too much
+                    assumption about disobedience to rules. It’s a judgment about
+                    the quality being described, not the quality itself. I have chosen
+                    to translate this word based on the specific context with what
+                    kind of negative quality is in view. Much of the time “harmful”
+                    is an appropriate way to translate it, but a number of other ways
+                    also get used.
+                  </p>
+                </div>
+              </article>
+
+              <!-- ENTRY: BLASPHEMY -->
+              <article
+                class="entry"
+                id="blasphemy-disrespectfulness"
+                data-animate="underline"
+              >
+                <header class="entry-head">
+                  <h2 class="entry-title" id="blasphemy-disrespectfulness">
+                    <!-- Index-only: English entry words -->
+                    <span class="sr-only">Blasphemy disrespectfulness</span>
+
+                    <span class="entries-strike">
+                      <strong>Blasphemy</strong>
+                    </span>
+
+                    <span class="sep" aria-hidden="true">&nbsp;–&nbsp;</span>
+                    <em data-pagefind-ignore>blasphemia</em>
+                    <span class="sep" aria-hidden="true">&nbsp;–&nbsp;</span>
+
+                    <span class="entries-underline"> disrespectfulness </span>
+                  </h2>
+                </header>
+
+                <div class="entry-body" data-pagefind-ignore>
+                  <p>
+                    The English word “blasphemy” has come to mean a very
+                    particular type of offense against God. However, the Greek
+                    word is not nearly as specific as that. It means to speak
+                    against something or someone in a way that is disrespectful
+                    and causes it to be viewed with less esteem or more
+                    judgmentalism. Words like “disrespect,” “slander,”
+                    “defamation,” “belittling,” “insult” and others like these
+                    could work. The Greek word
+                    <em>blasphemia</em> appears dozens of times in the Bible, and
+                    while many instances are about speaking or implying things against
+                    God, many are not.
+                  </p>
+                </div>
+              </article>
+
+              <!-- ENTRY: CLEAN -->
+              <article class="entry" id="clean-clean" data-animate="underline">
+                <header class="entry-head">
+                  <h2 class="entry-title" id="clean-clean">
+                    <!-- Index-only: English entry words -->
+                    <span class="sr-only">Clean clean</span>
+
+                    <span class="entries-strike">
+                      <strong>Clean</strong>
+                    </span>
+
+                    <span class="sep" aria-hidden="true">&nbsp;–&nbsp;</span>
+                    <em data-pagefind-ignore>katharos</em>
+                    <span class="sep" aria-hidden="true">&nbsp;–&nbsp;</span>
+
+                    <span class="entries-underline"> clean </span>
+                    <span data-pagefind-ignore
+                      >(prepared for sacred purposes)</span
+                    >
+                  </h2>
+                </header>
+
+                <div class="entry-body" data-pagefind-ignore>
+                  <p>
+                    I have actually kept translating this word as “clean”
+                    because I have not been satisfied with any alternatives, and
+                    I don’t know that any real English equivalents exist. It is,
+                    in fact, the Greek word for “clean,” but in the context of
+                    the Bible and sacred Hebrew practices, it’s not what most of
+                    us have been led to understand. First, it refers to the
+                    specific context of religious life. It is not a synonym for
+                    “good,” or the opposite of “abhorrent,” or “disgusting,” or
+                    “contaminated.” It has to do with being prepared for sacred
+                    purposes. The book “Hebrews” discusses the Tabernacle and
+                    the priests being cleansed, not because they were sinful
+                    beforehand but because they hadn’t been initiated or
+                    inaugurated into their sacred roles yet. The ancient Hebrew
+                    imagination had a much more expansive view of calling and
+                    sacredness than modern Western thought.
+                  </p>
+                </div>
+              </article>
+
+              <!-- ENTRY: CONFESSION -->
+              <article
+                class="entry"
+                id="confession-open-acknowledgement"
+                data-animate="underline"
+              >
+                <header class="entry-head">
+                  <h2 class="entry-title" id="confession-open-acknowledgement">
+                    <!-- Index-only: English entry words -->
+                    <span class="sr-only">Confession open acknowledgement</span>
+
+                    <span class="entries-strike">
+                      <strong>Confession</strong>
+                    </span>
+
+                    <span class="sep" aria-hidden="true">&nbsp;–&nbsp;</span>
+                    <em data-pagefind-ignore>homologia</em>
+                    <span class="sep" aria-hidden="true">&nbsp;–&nbsp;</span>
+
+                    <span class="entries-underline">
+                      open acknowledgement
+                    </span>
+                  </h2>
+                </header>
+
+                <div class="entry-body" data-pagefind-ignore>
+                  <p>
+                    This word is not inherently about admitting wrongdoing. It
+                    is about speaking together something true. What is spoken
+                    may very well be an open acknowledgment of participating in
+                    harm, or it may be affirming the trustworthiness of Jesus.
+                    It is an affirmation of the truth of something.
+                  </p>
+                </div>
+              </article>
+
+              <!-- ENTRY: DEFILED / PROFANE -->
+              <article
+                class="entry"
+                id="defiled-common"
+                data-animate="underline"
+              >
+                <header class="entry-head">
+                  <h2 class="entry-title" id="defiled-common">
+                    <!-- Index-only: English entry words -->
+                    <span class="sr-only">Defiled Profane ordinary</span>
+
+                    <span class="entries-strike">
+                      <strong>Defiled/Profane</strong>
+                    </span>
+
+                    <span class="sep" aria-hidden="true">&nbsp;–&nbsp;</span>
+                    <em data-pagefind-ignore>koine</em>
+                    <span class="sep" aria-hidden="true">&nbsp;–&nbsp;</span>
+
+                    <span class="entries-underline"> ordinary </span>
+                    <span data-pagefind-ignore>
+                      (unconsecrated, not designated for sacred purposes)
+                    </span>
+                  </h2>
+                </header>
+
+                <div class="entry-body" data-pagefind-ignore>
+                  <p>
+                    This word is often contrasted with “clean” and “holy” but
+                    also often has nothing to do with that contrast. It simply
+                    means “common” or “ordinary.” In fact, the type of Greek the
+                    Bible is written in is called “Koine Greek” because it was
+                    the dialect spoken by the common people. When the Bible uses
+                    it about a religious context, it serves as the opposite of
+                    the Greek word
+                    <em>hagios</em> (see the entry for “holy” below). When it is contrasted
+                    with “clean” or “holy,” it’s not because it’s inherently bad (or
+                    anti-holy) but because it is referring to something or someone
+                    not living in alignment with a sacred calling. They’re just following
+                    the ordinary path that people usually take when they haven’t answered
+                    God’s calling.
+                  </p>
+                </div>
+              </article>
+
+              <!-- ENTRY: DEMON -->
+              <article class="entry" id="demon-demon" data-animate="underline">
+                <header class="entry-head">
+                  <h2 class="entry-title" id="demon-demon">
+                    <!-- Index-only: English entry words -->
+                    <span class="sr-only">Demon demon</span>
+
+                    <span class="entries-strike">
+                      <strong>Demon</strong>
+                    </span>
+
+                    <span class="sep" aria-hidden="true">&nbsp;–&nbsp;</span>
+                    <em data-pagefind-ignore>daimonion</em>
+                    <span class="sep" aria-hidden="true">&nbsp;–&nbsp;</span>
+
+                    <span class="entries-underline"> demon </span>
+                  </h2>
+                </header>
+
+                <div class="entry-body" data-pagefind-ignore>
+                  <p>
+                    It may be surprising to note that I have continued to
+                    translate
+                    <em>daimonion</em> as “demon.” There isn’t a better alternative.
+                    What it has in view is almost certainly not what modern American
+                    readers think of when we hear the word “demon,” those ideas are
+                    formed by Medieval European folklore, not biblical teachings,
+                    but it is talking about something that can’t just be dismissed
+                    out of hand.
+                  </p>
+                </div>
+              </article>
+
+              <!-- ENTRY: DEVIL -->
+              <article
+                class="entry"
+                id="devil-false-accuser"
+                data-animate="underline"
+              >
+                <header class="entry-head">
+                  <h2 class="entry-title" id="devil-false-accuser">
+                    <!-- Index-only: English entry words -->
+                    <span class="sr-only">Devil False Accuser</span>
+
+                    <span class="entries-strike">
+                      <strong>Devil</strong>
+                    </span>
+
+                    <span class="sep" aria-hidden="true">&nbsp;–&nbsp;</span>
+                    <em data-pagefind-ignore>diabolon</em>
+                    <span class="sep" aria-hidden="true">&nbsp;–&nbsp;</span>
+
+                    <span class="entries-underline"> False Accuser </span>
+                  </h2>
+                </header>
+
+                <div class="entry-body" data-pagefind-ignore>
+                  <p>
+                    The word “devil” isn’t really a translation. It’s a keeping
+                    of the Greek word, filtered through Latin, then French, then
+                    English. The word really means something like “slanderer”
+                    or, more particularly, “false accuser.” There does seem to
+                    be a sense of a particular False Accuser in mind, and it is
+                    noteworthy that the work of diminishing someone to the label
+                    of bad or wrong or evil or worthless is explicitly the work
+                    of the False Accuser, not God, contrary to the doctrine of
+                    Total Depravity (if you don’t know what that is, consider
+                    yourself fortunate).
+                  </p>
+                </div>
+              </article>
+
+              <!-- ENTRY: EVIL -->
+              <article
+                class="entry"
+                id="evil-hardship"
+                data-animate="underline"
+              >
+                <header class="entry-head">
+                  <h2 class="entry-title" id="evil-hardship">
+                    <!-- Index-only: English entry words -->
+                    <span class="sr-only">Evil harmful</span>
+
+                    <span class="entries-strike">
+                      <strong>Evil</strong>
+                    </span>
+
+                    <span class="sep" aria-hidden="true">&nbsp;–&nbsp;</span>
+                    <em data-pagefind-ignore>poneros</em>
+                    <span class="sep" aria-hidden="true">&nbsp;–&nbsp;</span>
+
+                    <span class="entries-underline"> harmful </span>
+                    <span data-pagefind-ignore> (oppressive, hardship) </span>
+                  </h2>
+                </header>
+
+                <div class="entry-body" data-pagefind-ignore>
+                  <p>
+                    (This word is the antonym of <em>agathos</em>. See the entry
+                    for “good [2]” below.) The word “evil” has come to mean
+                    something along the lines of a malicious and hostile person
+                    who seeks their own gain or even takes pleasure in the pain
+                    of others. A person who fits that description could possibly
+                    be considered to fit the definition of <em>poneros</em>, but
+                    that’s not specifically what it means. At its core, it’s
+                    about anything that causes hardship, especially oppressive
+                    or disastrous hardship. A tornado would fit this
+                    description. An occupying army would fit this description.
+                    It’s about the hardship caused for people, not the wicked
+                    desires that make something
+                    <em>poneros</em>. The person or community who makes life
+                    harder for others, who treats others as objects for one’s
+                    own gain or benefit, is <em>poneros</em>
+                    (as an adjective). The effects of that posture to others, the
+                    impacts on the other people, could also be called <em
+                      >poneros</em
+                    > (as a noun).
+                  </p>
+                </div>
+              </article>
+
+              <!-- ENTRY: FAITH -->
+              <article class="entry" id="faith-trust" data-animate="underline">
+                <header class="entry-head">
+                  <h2 class="entry-title" id="faith-trust">
+                    <!-- Index-only: split slash into tokens -->
+                    <span class="sr-only">Faith trust faithfulness</span>
+
+                    <span class="entries-strike">
+                      <strong>Faith</strong>
+                    </span>
+
+                    <span class="sep" aria-hidden="true">&nbsp;–&nbsp;</span>
+                    <em data-pagefind-ignore>pistis</em>
+                    <span class="sep" aria-hidden="true">&nbsp;–&nbsp;</span>
+
+                    <span class="entries-underline">
+                      trust<span class="pf-slash-space"> </span>/<span
+                        class="pf-slash-space"
+                      >
+                      </span>faithfulness
+                    </span>
+                  </h2>
+                </header>
+
+                <div class="entry-body" data-pagefind-ignore>
+                  <p>
+                    This word is complex. It is traditionally translated as
+                    “faith” or “belief” or “faithfulness” based on context. The
+                    first two have become too misconstrued to be useful anymore.
+                    The heart of the word is a reciprocal relationship between
+                    trust and faithfulness. It can lean on the sense of a bond
+                    of trust toward a person or way of being that a person
+                    teaches in some places, and it can lean on the trusting
+                    response to that person or that way of being that emulates
+                    it. Trust leads to faithfulness and faithfulness leads to
+                    trust. There is a committedness involved that chooses to be
+                    faithful because of trusting the source of encouragement to
+                    stick to the path even when hoped-for outcomes are still in
+                    the distant future.
+                  </p>
+                </div>
+              </article>
+
+              <!-- ENTRY: FLESH -->
+              <article class="entry" id="flesh-body" data-animate="underline">
+                <header class="entry-head">
+                  <h2 class="entry-title" id="flesh-body">
+                    <!-- Index-only: include split tokens so searches for either match -->
+                    <span class="sr-only"
+                      >Flesh self-preservation self preservation family</span
+                    >
+
+                    <span class="entries-strike">
+                      <strong>Flesh</strong>
+                    </span>
+
+                    <span class="sep" aria-hidden="true">&nbsp;–&nbsp;</span>
+                    <em data-pagefind-ignore>sarx</em>
+                    <span class="sep" aria-hidden="true">&nbsp;–&nbsp;</span>
+
+                    <span class="entries-underline">
+                      self-preservation<span class="pf-slash-space">
+                      </span>/<span class="pf-slash-space"> </span>family
+                    </span>
+                  </h2>
+                </header>
+
+                <div class="entry-body" data-pagefind-ignore>
+                  <p>
+                    While “flesh” in the sense of bodily cravings (usually
+                    thought to be primarily about sex) is the most talked about
+                    use of this word, it’s not the way it’s used the majority of
+                    instances. It can be used that way in some contexts;
+                    however, it’s almost always referring to hostility and
+                    aggression when it does so, not sex. <em>Sarx</em> is also used
+                    to discuss things like family connections (much like talking about
+                    people being your “flesh and blood”), being physical instead of
+                    ideological, and simply referring to the body without any kind
+                    of negative judgment about it.
+                  </p>
+                </div>
+              </article>
+
+              <!-- ENTRY: FORGIVENESS -->
+              <article
+                class="entry"
+                id="forgiveness-letting-go"
+                data-animate="underline"
+              >
+                <header class="entry-head">
+                  <h2 class="entry-title" id="forgiveness-letting-go">
+                    <!-- Index-only: include phrase and split tokens -->
+                    <span class="sr-only"
+                      >Forgiveness letting go letting-go</span
+                    >
+
+                    <span class="entries-strike">
+                      <strong>Forgiveness</strong>
+                    </span>
+
+                    <span class="sep" aria-hidden="true">&nbsp;–&nbsp;</span>
+                    <em data-pagefind-ignore>aphiemi</em>
+                    <span class="sep" aria-hidden="true">&nbsp;–&nbsp;</span>
+
+                    <span class="entries-underline"> letting go </span>
+                  </h2>
+                </header>
+
+                <div class="entry-body" data-pagefind-ignore>
+                  <p>
+                    The first thing to note is that this word has several uses
+                    unrelated to forgiveness, including “divorce” and “allow.”
+                    The core meaning is about creating separation, whether by
+                    letting go or sending away. The second thing to note is that
+                    when it’s about deviations or shortfalls, it’s never
+                    directed toward a person or people in the Bible; it’s always
+                    about the deviation or shortfall. What I mean is that it is
+                    always “your deviations are let go” and not “I forgive you”
+                    or “God forgives you.” It’s about not holding a claim on
+                    being owed by the person or people anymore. It’s parallel to
+                    debt forgiveness. When a loan is forgiven, the lender
+                    doesn’t tell the borrower, “We forgive you.” They
+                    communicate that there is no longer any repayment owed.
+                  </p>
+                </div>
+              </article>
+
+              <!-- ENTRY: GEHENNA / HELL -->
+              <article
+                class="entry"
+                id="gehenna-hinnom-valley"
+                data-animate="underline"
+              >
+                <header class="entry-head">
+                  <h2 class="entry-title" id="gehenna-hinnom-valley">
+                    <!-- Index-only: English entry words -->
+                    <span class="sr-only">Gehenna Hell Hinnom Valley</span>
+
+                    <span class="entries-strike">
+                      <strong>Gehenna/Hell</strong>
+                    </span>
+
+                    <span class="sep" aria-hidden="true">&nbsp;–&nbsp;</span>
+                    <em data-pagefind-ignore>Gehenna</em>
+                    <span class="sep" aria-hidden="true">&nbsp;–&nbsp;</span>
+
+                    <span class="entries-underline"> Hinnom Valley </span>
+                  </h2>
+                </header>
+
+                <div class="entry-body" data-pagefind-ignore>
+                  <p>
+                    This one is fascinating. It has come to be used as a synonym
+                    for Hell (and is sometimes translated that way by people),
+                    but it actually refers to a geographical location in
+                    Palestine. The Hebrew <em>Ge Hinnom</em> (Valley of Hinnom) was
+                    transliterated into Greek as <em>Gehenna</em>. That valley
+                    has a horrific history of infant sacrifice, with people
+                    burning their own babies alive as an offering to the god
+                    Molech, as well as Jeremiah referring to it as a place of
+                    slaughter during a foreign invasion, where so many died that
+                    the corpses rotted there because there were not enough
+                    survivors to bury them. When Jesus talks about the Hinnom
+                    Valley, he does seem to be doing so metaphorically—and
+                    others did so at the time as well—but it is not about a
+                    place of individual, everlasting torment after a person
+                    dies. Rather, it’s a symbol of the horrific outcomes that
+                    await the community when it follows the values that brought
+                    their ancestors to those types of events in the past.
+                  </p>
+                </div>
+              </article>
+
+              <!-- ENTRY: GLORY -->
+              <article
+                class="entry"
+                id="glory-praiseworthiness"
+                data-animate="underline"
+              >
+                <header class="entry-head">
+                  <h2 class="entry-title" id="glory-praiseworthiness">
+                    <!-- Index-only: split slash into tokens -->
+                    <span class="sr-only">Glory praise renown</span>
+
+                    <span class="entries-strike">
+                      <strong>Glory</strong>
+                      <svg
+                        class="entries-strike-svg"
+                        viewBox="0 0 220220 40"
+                        preserveAspectRatio="none"
+                        aria-hidden="true"
+                        data-pagefind-ignore
+                      >
+                        <use href="#ink-strike"></use>
+                      </svg>
+                    </span>
+
+                    <span class="sep" aria-hidden="true">&nbsp;–&nbsp;</span>
+                    <em data-pagefind-ignore>doxa</em>
+                    <span class="sep" aria-hidden="true">&nbsp;–&nbsp;</span>
+
+                    <span class="entries-underline">
+                      praise<span class="pf-slash-space"> </span>/<span
+                        class="pf-slash-space"
+                      >
+                      </span>renown
+                    </span>
+                  </h2>
+                </header>
+
+                <div class="entry-body" data-pagefind-ignore>
+                  <p>
+                    The word <em>doxa</em> can be used in a number of ways, mostly
+                    centered around the concept of praise. It’s related to the verb
+                    <em>dokeo</em>, which means “to seem” or sometimes more
+                    specifically “to esteem.” It has to do with the public
+                    recognition of praiseworthiness. In biblical thought, it’s
+                    also often connected with presence—the visible recognition
+                    of the divine as it is with humanity in a way that
+                    highlights how praiseworthy the divine is.
+                  </p>
+                </div>
+              </article>
+
+              <!-- ENTRY: GOOD [1] -->
+              <article
+                class="entry"
+                id="good-admirable"
+                data-entry="good-admirable"
+                data-animate="underline"
+              >
+                <header class="entry-head">
+                  <h2 class="entry-title" id="good-admirable">
+                    <!-- Index-only: English entry words (no Greek) -->
+                    <span class="sr-only">Good appealing admirable</span>
+
+                    <span class="entries-strike">
+                      <strong>Good [1]</strong>
+                    </span>
+
+                    <span class="sep" data-pagefind-ignore>&nbsp;–&nbsp;</span>
+                    <em data-pagefind-ignore>kalos</em>
+                    <span class="sep" data-pagefind-ignore>&nbsp;–&nbsp;</span>
+
+                    <span class="entries-underline">
+                      appealing<span class="pf-slash-space"> </span>/<span
+                        class="pf-slash-space"
+                      >
+                      </span>admirable
+                    </span>
+                  </h2>
+                </header>
+
+                <!-- Ignore body so only entry words index -->
+                <div class="entry-body" data-pagefind-ignore>
+                  <p>
+                    (This word is the antonym of <em>kakos</em>. See the entry
+                    for “bad” above.) This translation decision is more of a
+                    matter of writing style and an understanding of the
+                    psychology of language. (If you’re an especially nerdy type
+                    and want to go on a deep dive, I recommend Steven Hayes’
+                    Relational Frame Theory.) While, yes,
+                    <em>kalos</em> is always used to describe something positive,
+                    the word “good” in English is problematic in that it is both too
+                    vague and carries too much assumption of obedience to rules. It’s
+                    a judgment about the quality being described, not the quality
+                    itself. I have chosen to translate this word based on the specific
+                    context with what kind of positive quality in view. The core meaning
+                    is connected with “beautiful,” and “appealing” or “admirable”
+                    are good ways to think about it. Whereas something that is harmful
+                    would be avoided, something that is <em>kalos</em> is something
+                    worth getting closer to, paying attention to, and ultimately receiving
+                    and sharing it.
+                  </p>
+                </div>
+              </article>
+
+              <!-- ENTRY: GOOD [2] -->
+              <article
+                class="entry"
+                id="good-beneficial"
+                data-entry="good-beneficial"
+                data-animate="underline"
+              >
+                <header class="entry-head">
+                  <h2 class="entry-title" id="good-beneficial">
+                    <span class="sr-only">Good beneficial</span>
+
+                    <span class="entries-strike">
+                      <strong>Good [2]</strong>
+                    </span>
+
+                    <span class="sep" data-pagefind-ignore>&nbsp;–&nbsp;</span>
+                    <em data-pagefind-ignore>agathos</em>
+                    <span class="sep" data-pagefind-ignore>&nbsp;–&nbsp;</span>
+
+                    <span class="entries-underline"> beneficial </span>
+                  </h2>
+                </header>
+
+                <div class="entry-body" data-pagefind-ignore>
+                  <p>
+                    (This word is the antonym of <em>poneros</em>. See the entry
+                    for “evil” above.) While, yes, <em>agathos</em> is always used
+                    to describe something positive, it’s more specific than that.
+                    The word “good” in English is problematic in that it is both too
+                    vague and carries too much assumption of obedience to rules. It’s
+                    a judgment about the quality being described, not the quality
+                    itself. I have chosen to translate this word based on the specific
+                    context with what kind of positive quality in view. The core meaning
+                    is connected with “beneficial to others” or “causing or contributing
+                    to people’s well-being.” That can take the form of being someone
+                    who acts with kindness or generosity, a food that is healthy and
+                    benefits the person who eats it, and anything that provides benefit
+                    or enhances well-being for people.
+                  </p>
+                </div>
+              </article>
+
+              <!-- ENTRY: GOSPEL -->
+              <article
+                class="entry"
+                id="gospel-triumphant-message"
+                data-entry="gospel-triumphant-message"
+                data-animate="underline"
+              >
+                <header class="entry-head">
+                  <h2 class="entry-title" id="gospel-triumphant-message">
+                    <span class="sr-only">Gospel triumphant message</span>
+
+                    <span class="entries-strike">
+                      <strong>Gospel</strong>
+                    </span>
+
+                    <span class="sep" data-pagefind-ignore>&nbsp;–&nbsp;</span>
+                    <em data-pagefind-ignore>euangelion</em>
+                    <span class="sep" data-pagefind-ignore>&nbsp;–&nbsp;</span>
+
+                    <span class="entries-underline">
+                      The Triumphant Message
+                    </span>
+                  </h2>
+                </header>
+
+                <div class="entry-body" data-pagefind-ignore>
+                  <p>
+                    The word “gospel” is left over in English from Old English
+                    (which is a language before English, not just King James
+                    style English) <em>godspel</em>, a compound of <em>god</em> (“God”)
+                    and <em>spel</em> (“story”). While that’s not unrelated, it’s
+                    not a direct translation from the Greek. The often used “good
+                    news” is a closer translation. Perhaps “good announcement” or
+                    “good message” might be even closer. Rather than any of those
+                    options, I have chosen to translate it as “triumphant message.”
+                    Another option I considered is “news of victory.” The reason is
+                    that it wasn’t just two words for “good” and “news” that happened
+                    to get used together, but rather, it was a term for a specific
+                    kind of event or announcement in the ancient world. It was used
+                    for the announcement that was made when a ruler or general returned
+                    victorious from the field of battle. A herald or messenger would
+                    travel ahead of the ruler and their army, enter the city in advance
+                    and announce the triumphant return of their leader. Then, the
+                    people would leave the city to meet the victorious leader on the
+                    road and escort them inside the city in a celebratory procession.
+                    The story of the Triumphal Entry of Jesus into Jerusalem on Palm
+                    Sunday is an enactment of this practice.
+                  </p>
+                </div>
+              </article>
+
+              <!-- ENTRY: GRACE -->
+              <article
+                class="entry"
+                id="grace-generosity"
+                data-entry="grace-generosity"
+                data-animate="underline"
+              >
+                <header class="entry-head">
+                  <h2 class="entry-title" id="grace-generosity">
+                    <span class="sr-only">Grace generosity</span>
+
+                    <span class="entries-strike">
+                      <strong>Grace</strong>
+                    </span>
+
+                    <span class="sep" data-pagefind-ignore>&nbsp;–&nbsp;</span>
+                    <em data-pagefind-ignore>charis</em>
+                    <span class="sep" data-pagefind-ignore>&nbsp;–&nbsp;</span>
+
+                    <span class="entries-underline"> generosity </span>
+                  </h2>
+                </header>
+
+                <div class="entry-body" data-pagefind-ignore>
+                  <p>
+                    Growing up, I heard my pastor define “grace” as “getting
+                    what you don’t deserve.” That misses the point, but it’s
+                    close enough to seem right. It has nothing to do with
+                    deserving or not deserving. It’s not about the recipient at
+                    all. <em>Charis</em> is related to the word for “gift.” It is
+                    the characteristic of being the kind of person who gives freely,
+                    or it can be used of the instances of giving freely. It’s about
+                    the generosity of the giver who gives because it reflects their
+                    character. It is not meant to be a technical term for the means
+                    by which someone goes to Heaven when they die.
+                  </p>
+                </div>
+              </article>
+
+              <!-- ENTRY: HEAVEN -->
+              <article
+                class="entry"
+                id="heaven-sky"
+                data-entry="heaven-sky"
+                data-animate="underline"
+              >
+                <header class="entry-head">
+                  <h2 class="entry-title" id="heaven-sky">
+                    <span class="sr-only">Heaven the heavens</span>
+
+                    <span class="entries-strike">
+                      <strong>Heaven</strong>
+                    </span>
+
+                    <span class="sep" data-pagefind-ignore>&nbsp;–&nbsp;</span>
+                    <em data-pagefind-ignore>ouranos</em>
+                    <span class="sep" data-pagefind-ignore>&nbsp;–&nbsp;</span>
+
+                    <span class="entries-underline"> the heavens </span>
+                  </h2>
+                </header>
+
+                <div class="entry-body" data-pagefind-ignore>
+                  <p>
+                    This word has a few different meanings. The first is very
+                    literal: “sky.” The others are metaphorical. It is used to
+                    represent the divine presence or, as in Matthew, as a sort
+                    of replacement for mentioning God directly. Another
+                    metaphorical usage is to represent social hierarchy,
+                    specifically those of high status, power, and influence.
+                    Paul especially uses a language of tiers to discuss social
+                    status differences, and he includes God and Christ in the
+                    highest tiers (the “highest heavens”), and others like
+                    Caesar and kings would be included in “the heavens” as well
+                    in that framework. He also has “the air,” which is referring
+                    to the part of the sky, or atmosphere, close to the ground.
+                    It would be people like governors or magistrates, priests,
+                    and others with more authority and status than the average
+                    person but less than those in “the heavens.” Notably, it’s
+                    not about a location in another plane of existence or about
+                    a destination for after you die. That’s not to say life
+                    doesn’t continue beyond my death, but this word isn’t about
+                    that.
+                  </p>
+                </div>
+              </article>
+
+              <!-- ENTRY: HELL / HADES -->
+              <article
+                class="entry"
+                id="hell-hades"
+                data-entry="hell-hades"
+                data-animate="underline"
+              >
+                <header class="entry-head">
+                  <h2 class="entry-title" id="hell-hades">
+                    <span class="sr-only">Hell Hades place of the dead</span>
+
+                    <span class="entries-strike">
+                      <strong>Hell/Hades</strong>
+                    </span>
+
+                    <span class="sep" data-pagefind-ignore>&nbsp;–&nbsp;</span>
+                    <em data-pagefind-ignore>Hades</em>
+                    <span class="sep" data-pagefind-ignore>&nbsp;–&nbsp;</span>
+
+                    <span class="entries-underline">
+                      the place of the dead
+                    </span>
+                  </h2>
+                </header>
+
+                <div class="entry-body" data-pagefind-ignore>
+                  <p>
+                    The concept of Hell most of us are familiar with has nothing
+                    to do with anything in the Bible. While something like
+                    purgatory was discussed during the time of Jesus, the
+                    concept of an everlasting experience of punishment did not
+                    exist until at least a couple centuries after Jesus. Hell as
+                    we think of it is based on Medieval European folklore, not
+                    biblical teaching. In both Greek culture and biblical
+                    thought, the word <em>Hades</em> refers to the place all people
+                    go after they die, not only those who deserve punishment. The
+                    Greek translation of the Hebrew Bible called the Septuagint uses
+                    <em>Hades</em> to translate the Hebrew word <em>Sheol</em>,
+                    which can be translated as the “grave” or the “pit” or
+                    something like the “underworld.” It’s not an evil place or a
+                    place for evil people. It’s just where the dead are.
+                  </p>
+                </div>
+              </article>
+
+              <!-- ENTRY: HOLY -->
+              <article
+                class="entry"
+                id="holy-sacred"
+                data-entry="holy-sacred"
+                data-animate="underline"
+              >
+                <header class="entry-head">
+                  <h2 class="entry-title" id="holy-sacred">
+                    <span class="sr-only"
+                      >Holy designated for sacred purposes</span
+                    >
+
+                    <span class="entries-strike">
+                      <strong>Holy</strong>
+                    </span>
+
+                    <span class="sep" data-pagefind-ignore>&nbsp;–&nbsp;</span>
+                    <em data-pagefind-ignore>hagios</em>
+                    <span class="sep" data-pagefind-ignore>&nbsp;–&nbsp;</span>
+
+                    <span class="entries-underline">
+                      designated for sacred purposes
+                    </span>
+                  </h2>
+                </header>
+
+                <div class="entry-body" data-pagefind-ignore>
+                  <p>
+                    The word <em>hagios</em> has traditionally been translated as
+                    “holy” or “saints” (“holy ones”). For many people, the word “holy”
+                    calls to mind being “holier than thou” or a sense of being better
+                    than others. It can also seem to mean something like being characterized
+                    by obedience to a series of rules. I was taught it meant “set
+                    apart,” which is not wrong exactly, but it’s often confused for
+                    meaning “separate” or “distant from.” It’s “set apart” in the
+                    sense that it is designated for a specific purpose. In religious
+                    and spiritual contexts, it’s about being designated for sacred
+                    purposes. Priests are <em>hagios</em>. They have been
+                    designated for the sacred purposes of carrying out temple
+                    duties. In biblical thought, the whole nation of Israel was <em
+                      >hagios</em
+                    >, designated for the sacred purpose of being a light to all
+                    people groups. In fact, in the creation stories, all humans
+                    are <em>hagios</em>, designated for the sacred purpose of
+                    representing the Creator to each other and the rest of
+                    creation. In New Testament thought, people who follow Jesus
+                    are <em>hagios</em>, designated for the sacred purpose of
+                    representing Christ to the rest of humanity and carrying the
+                    triumphant message that all peoples will be praised as
+                    worthy.
+                  </p>
+                </div>
+              </article>
+
+              <!-- ENTRY: LAW -->
+              <article
+                class="entry"
+                id="law-torah"
+                data-entry="law-torah"
+                data-animate="underline"
+              >
+                <header class="entry-head">
+                  <h2 class="entry-title" id="law-torah">
+                    <span class="sr-only">Law Torah</span>
+
+                    <span class="entries-strike">
+                      <strong>Law</strong>
+                    </span>
+
+                    <span class="sep" data-pagefind-ignore>&nbsp;–&nbsp;</span>
+                    <em data-pagefind-ignore>nomos</em>
+                    <span class="sep" data-pagefind-ignore>&nbsp;–&nbsp;</span>
+
+                    <span class="entries-underline"> Torah </span>
+                  </h2>
+                </header>
+
+                <div class="entry-body" data-pagefind-ignore>
+                  <p>
+                    The Greek word was used to mean “law” in many contexts, but
+                    the context of the Bible is unique, and it is used to refer
+                    primarily to the first five books of the Bible: Genesis,
+                    Exodus, Leviticus, Numbers, and Deuteronomy. The Hebrew name
+                    for these books is <em>Torah</em>. According to Wilda C.
+                    Gafney in <em
+                      >Womanist Midrash: A Reintroduction to the Women of the
+                      Torah and the Throne</em
+                    > (2017), “The Torah is instruction, revelation, and sometimes
+                    law. Torah (with a capital T) is the first five books of the Scriptures
+                    and all that is in them: story, song, genealogy, geography, legal
+                    material, and lessons from the ancestors. Torah (with a little
+                    t) is instruction and jurisprudence. So, while there is torah
+                    in Torah, not all Torah is torah, and there is torah outside of
+                    the five books of the Torah! Toroth (plural of torah) can be found
+                    in any of the many genres of Torah. [. . .] The Torah is a locus
+                    of divine revelation (and divine self-revelation). The word torah
+                    comes from the verb y-r-h, ‘to throw’ (e.g., ‘to cast lots’) or
+                    ‘to shoot’ (arrows). With regard to torah, y-r-h also means ‘to
+                    throw’ rain or instruction from the heavens; [. . .] In a mystical
+                    sense, Torah can be seen as an embodiment of divine Wisdom and
+                    for some as the Word of God (with a capital W)” (p. 17). By translating
+                    <em>nomos</em> as “law,” it is siding with the Roman idea of how
+                    leadership and citizenship works, but the biblical view on these
+                    things has nothing to do with the Roman view. De-Judaizing the
+                    scriptures has been part of a long history of antisemitism, of
+                    the church trying to distance itself from its Jewish roots. Not
+                    only do we lose the Jewish context, but we lose the imagery in
+                    place. As discussed by Dr. Gafney in the above quote, the noun
+                    <em>torah</em> is referring to instruction thrown down from the
+                    heavens. Maybe even more relevant for the imagery Jesus and the
+                    rest of the New Testament writers use is that it’s being thrown
+                    from the heavens traces the path toward the target the people
+                    of God are supposed to be pursuing. It traces the path to follow
+                    toward New Creation, toward Jubilee, toward the Age to Come.
+                  </p>
+                </div>
+              </article>
+
+              <!-- ENTRY: REPENTANCE -->
+              <article
+                class="entry"
+                id="repentance-reorient-mind"
+                data-entry="repentance-reorient-mind"
+                data-animate="underline"
+              >
+                <header class="entry-head">
+                  <h2 class="entry-title" id="repentance-reorient-mind">
+                    <span class="sr-only">Repentance reorienting the mind</span>
+
+                    <span class="entries-strike">
+                      <strong>Repentance</strong>
+                    </span>
+
+                    <span class="sep" data-pagefind-ignore>&nbsp;–&nbsp;</span>
+                    <em data-pagefind-ignore>metanoia</em>
+                    <span class="sep" data-pagefind-ignore>&nbsp;–&nbsp;</span>
+
+                    <span class="entries-underline">
+                      reorienting the mind
+                    </span>
+                  </h2>
+                </header>
+
+                <div class="entry-body" data-pagefind-ignore>
+                  <p>
+                    Whereas many of us grew up with repentance being about
+                    feeling guilty or ashamed for bad behavior or simply for
+                    having a sinful nature inherited from Adam and Eve,
+                    expressing that guilt, and then trying to do better, the
+                    Greek word <em>metanoia</em> has almost nothing to do with any
+                    of that. It is a compound of “change” and “mind.” While it is
+                    occasionally used to mean a simple change of mind, like deciding
+                    to do a different activity than planned, the scriptures primarily
+                    use it to mean a deeper, lasting transformation of how we understand
+                    life. It is a transformation of how our mind works. It’s not opposed
+                    to an emotional moment spurring on that change, but <em
+                      >metanoia</em
+                    >
+                    is about the ongoing transformation that typically takes years;
+                    it doesn’t focus on a single moment.
+                  </p>
+                </div>
+              </article>
+
+              <!-- ENTRY: RESURRECTION -->
+              <article
+                class="entry"
+                id="resurrection-reawakening"
+                data-entry="resurrection-reawakening"
+                data-animate="underline"
+              >
+                <header class="entry-head">
+                  <h2 class="entry-title" id="resurrection-reawakening">
+                    <span class="sr-only"
+                      >Resurrection standing up rising up reawakening</span
+                    >
+
+                    <span class="entries-strike">
+                      <strong>Resurrection</strong>
+                    </span>
+
+                    <span class="sep" data-pagefind-ignore>&nbsp;–&nbsp;</span>
+                    <em data-pagefind-ignore>anastasis</em>
+                    <span class="sep" data-pagefind-ignore>&nbsp;–&nbsp;</span>
+
+                    <span class="entries-underline">
+                      standing up<span class="pf-slash-space"> </span>/<span
+                        class="pf-slash-space"
+                      >
+                      </span>rising up
+                    </span>
+                  </h2>
+                </header>
+
+                <div class="entry-body" data-pagefind-ignore>
+                  <p>
+                    The word <em>anastasis</em> literally means physically “getting
+                    up” and can be referring to standing from a lying or seated position.
+                    The English word “resurrection” comes from the Latin <em
+                      >resurgere</em
+                    >, “to rise again.” You’ll notice the shared root between
+                    the words “resurrect” and “erect,” “resurrection” and
+                    “insurrection” (also called an “uprising”). Standing up is
+                    the shared root idea. The Bible uses two words
+                    interchangeably, with <em>anastasis</em> being the more common
+                    noun to use and <em>egeiro</em> being the more common verb to
+                    use. The word <em>egeiro</em> can also mean “get up” physically
+                    and often refers more to waking up or becoming alert. The choice
+                    of “reawakening” rather than merely “rising up again” (while that
+                    would work well, especially as paired with the revolution ideas
+                    about following Jesus rather than Caesar) is based on the metaphorical
+                    language commonly used at the time, wherein “falling asleep” was
+                    a euphemism for dying, much like our culture uses “passing away.”
+                    Since dying was called “falling asleep,” it makes good literary
+                    sense to pair it with “reawakening” when coming into a new life.
+                  </p>
+                </div>
+              </article>
+
+              <!-- ENTRY: RIGHTEOUSNESS -->
+              <article
+                class="entry"
+                id="righteousness-justness"
+                data-entry="righteousness-justness"
+                data-animate="underline"
+              >
+                <header class="entry-head">
+                  <h2 class="entry-title" id="righteousness-justness">
+                    <span class="sr-only">Righteousness alignment justice</span>
+
+                    <span class="entries-strike">
+                      <strong>Righteousness</strong>
+                    </span>
+
+                    <span class="sep" data-pagefind-ignore>&nbsp;–&nbsp;</span>
+                    <em data-pagefind-ignore>dikaiosune</em>
+                    <span class="sep" data-pagefind-ignore>&nbsp;–&nbsp;</span>
+
+                    <span class="entries-underline">
+                      alignment<span class="pf-slash-space"> </span>/<span
+                        class="pf-slash-space"
+                      >
+                      </span>justice
+                    </span>
+                  </h2>
+                </header>
+
+                <div class="entry-body" data-pagefind-ignore>
+                  <p>
+                    Both Greek and English have a really helpful grouping of
+                    words that help clarify what the Bible means by <em
+                      >dikaiosune</em
+                    >. <em>dikeo</em> has to do with justice. In English, we talk
+                    about being considered “righteous” as being “justified,” or more
+                    casually as being declared “right.” Both the English words “just”
+                    and “right” have to do with being aligned or straight. Justice
+                    is represented by the symbol of a set of scales that are straight
+                    across, not leaning one way or the other. Also, in a document,
+                    you can have left-aligned, center-aligned, or right-aligned text,
+                    or you can have “justified” text, where it’s straight up-and-down
+                    both sides. Equity and justice are essential to the concept of
+                    <em>dikaiosune</em>. Jesus talks about the straight path.
+                    Isaiah talks about the image of a plumb line, a tool used to
+                    make sure that walls were straight up-and-down. So, what
+                    does it mean to be aligned or straight? (certainly not
+                    heterosexual!) In the biblical imagination, someone or a
+                    community that is <em>dikaios</em>, that embodies <em
+                      >dikaiosune</em
+                    >, is aligned with the path traced out by Torah and lived
+                    out by Jesus. Alignment with that path is justness. (See the
+                    entries for “law” above and “sin” below).
+                  </p>
+                </div>
+              </article>
+
+              <!-- ENTRY: SALVATION -->
+              <article
+                class="entry"
+                id="salvation-liberation"
+                data-entry="salvation-liberation"
+                data-animate="underline"
+              >
+                <header class="entry-head">
+                  <h2 class="entry-title" id="salvation-liberation">
+                    <span class="sr-only">Salvation liberation restoration</span
+                    >
+
+                    <span class="entries-strike">
+                      <strong>Salvation</strong>
+                    </span>
+
+                    <span class="sep" data-pagefind-ignore>&nbsp;–&nbsp;</span>
+                    <em data-pagefind-ignore>soterios</em>
+                    <span class="sep" data-pagefind-ignore>&nbsp;–&nbsp;</span>
+
+                    <span class="entries-underline">
+                      liberation<span class="pf-slash-space"> </span>/<span
+                        class="pf-slash-space"
+                      >
+                      </span>restoration
+                    </span>
+                  </h2>
+                </header>
+
+                <div class="entry-body" data-pagefind-ignore>
+                  <p>
+                    The word “salvation” is another one that’s not wrong; it’s
+                    just so loaded with preconceptions from historical uses of
+                    it that it’s more likely to lead away from the text’s
+                    meaning than toward it. The basic concept of <em
+                      >soterios</em
+                    > is preserving or protecting someone’s well-being. It can be
+                    used of healing, rescue from imprisonment, protection from assault,
+                    liberation from oppression, restoration of resources, and return
+                    to health. In most of the contexts in the scriptures, “liberation”
+                    and “restoration” work nicely to clarify what is in view. As with
+                    other words, it’s not about making sure Heaven is the afterlife
+                    destination. There is a much more “this life” focus to it.
+                  </p>
+                </div>
+              </article>
+
+              <!-- ENTRY: SATAN -->
+              <article
+                class="entry"
+                id="satan-adversary"
+                data-entry="satan-adversary"
+                data-animate="underline"
+              >
+                <header class="entry-head">
+                  <h2 class="entry-title" id="satan-adversary">
+                    <span class="sr-only">Satan the adversary</span>
+
+                    <span class="entries-strike">
+                      <strong>Satan</strong>
+                    </span>
+
+                    <span class="sep" data-pagefind-ignore>&nbsp;–&nbsp;</span>
+                    <em data-pagefind-ignore>Satanas</em>
+                    <span class="sep" data-pagefind-ignore>&nbsp;–&nbsp;</span>
+
+                    <span class="entries-underline"> The Adversary </span>
+                  </h2>
+                </header>
+
+                <div class="entry-body" data-pagefind-ignore>
+                  <p>
+                    The English word “Satan” is not a translation (and it’s not
+                    exactly a name either). It’s taking the letters of the Greek <em
+                      >Satanas</em
+                    >, which is also not a translation but taking the letters
+                    from the Hebrew word <em>Shatan</em>. In fact, in Hebrew, it
+                    is always <em>Ha Shatan</em>, “the Satan.” <em>Ha Shatan</em
+                    > seems to be a title, or maybe a personified concept, rather
+                    than the name of a being. It carries the meaning of someone who
+                    is against another, trying to sabotage their efforts and their
+                    wellbeing, and against someone as a plaintiff in court. An enemy,
+                    but also someone accusing another of wrongdoing, whether truly
+                    or falsely. It’s not just about pointing out something bad, but
+                    actively moving to cause hardship. In fact, in the Hebrew Bible,
+                    <em>Ha Shatan</em>
+                    was not the archnemesis of God but a participant in the council
+                    of celestial beings and always served the role of causing hardship
+                    in order to test the faithfulness of a person or community. The
+                    story in the book of Job is a clear example of this role.
+                  </p>
+                </div>
+              </article>
+
+              <!-- ENTRY: SIN -->
+              <article
+                class="entry"
+                id="sin-deviation"
+                data-entry="sin-deviation"
+                data-animate="underline"
+              >
+                <header class="entry-head">
+                  <h2 class="entry-title" id="sin-deviation">
+                    <span class="sr-only">Sin deviation</span>
+
+                    <span class="entries-strike">
+                      <strong>Sin</strong>
+                    </span>
+
+                    <span class="sep" data-pagefind-ignore>&nbsp;–&nbsp;</span>
+                    <em data-pagefind-ignore>hamartia</em>
+                    <span class="sep" data-pagefind-ignore>&nbsp;–&nbsp;</span>
+
+                    <span class="entries-underline"> deviation </span>
+                  </h2>
+                </header>
+
+                <div class="entry-body" data-pagefind-ignore>
+                  <p>
+                    The word <em>hamartia</em> is traditionally translated “sin,”
+                    which only has meaning in a religious context, but the Greek word
+                    wasn’t taken from religious vocabulary at all. The actual meaning
+                    is an archery term for missing the target; it’s a metaphor. The
+                    English word “sin” has too much baggage, too many presuppositions
+                    attached, for it to be read with curiosity as a fresh message.
+                    It needs to be defined, not just repeated. It is about veering
+                    off course, wandering from the appropriate trajectory, stepping
+                    from the path. What path is that? The one traced out by Torah
+                    (see the entry on “law” above) and lived out by Jesus. Torah is
+                    from the verb for shoot, as in an arrow, and we can live in a
+                    way that’s aligned with that trajectory (see the entry for “righteousness”
+                    above), or we can deviate from that trajectory, take a different
+                    path. In fact, while there are numerous ways to behave harmfully
+                    that are deviation, there are also ways to behave that aren’t
+                    harmful but simply don’t fit with one’s particular sacred calling
+                    that are deviation. Even more, there are things described as deviation
+                    that are not about behaviors at all but that are about things
+                    like having an injury, or a disability, or illness, or even just
+                    not being Jewish. Jesus strongly resists those who treat all these
+                    kinds of deviation as if they are equal. They deviate from the
+                    path toward a world in which all things are well and everyone
+                    is cared for and valued. Most of the time, “deviation” is about
+                    harmful behavior, but other times it’s not, and how to respond
+                    to the various kinds is something worth looking to Jesus to determine.
+                  </p>
+                </div>
+              </article>
+
+              <!-- ENTRY: SPIRIT -->
+              <article
+                class="entry"
+                id="spirit-life-breath"
+                data-entry="spirit-life-breath"
+                data-animate="underline"
+              >
+                <header class="entry-head">
+                  <h2 class="entry-title" id="spirit-life-breath">
+                    <!-- Index-only: includes de-hyphenated variant so "breath" matches "life-breath" -->
+                    <span class="sr-only">Spirit life-breath life breath</span>
+
+                    <span class="entries-strike">
+                      <strong>Spirit</strong>
+                    </span>
+
+                    <span class="sep" data-pagefind-ignore>&nbsp;–&nbsp;</span>
+                    <em data-pagefind-ignore>pneuma</em>
+                    <span class="sep" data-pagefind-ignore>&nbsp;–&nbsp;</span>
+
+                    <span class="entries-underline"> life-breath </span>
+                  </h2>
+                </header>
+
+                <div class="entry-body" data-pagefind-ignore>
+                  <p>
+                    The word <em>pneuma</em> in Greek (and the word <em
+                      >ruach</em
+                    > in Hebrew) means essentially “breath” or “wind.” When it is
+                    traditionally translated as “spirit” it is to refer to the life-energy
+                    of the breath within a person or animal, which is when I use “life-breath.”
+                    It is also used to refer to the animating energy of the breath
+                    when someone speaks, including God, and an “evil spirit” is often
+                    used when hateful, exclusionary, lying, or harmfully honest speech
+                    is being directed at people. Those instances are when I use “spirit-breath.”
+                    The “Sacred Life-breath” often refers to how God shows up to communicate
+                    loving truth, a presence within and among people that connects
+                    them with God, with each other, and with life.
+                  </p>
+                </div>
+              </article>
+
+              <!-- ENTRY: TRESPASS / TRANSGRESSION -->
+              <article
+                class="entry"
+                id="trespass-shortfall"
+                data-entry="trespass-shortfall"
+                data-animate="underline"
+              >
+                <header class="entry-head">
+                  <h2 class="entry-title" id="trespass-shortfall">
+                    <span class="sr-only">Transgression shortfall sidestep</span
+                    >
+
+                    <span class="entries-strike">
+                      <strong>Transgression</strong>
+                    </span>
+
+                    <span class="sep" data-pagefind-ignore>&nbsp;–&nbsp;</span>
+                    <em data-pagefind-ignore>paraptoma</em>
+                    <span class="sep" data-pagefind-ignore>&nbsp;–&nbsp;</span>
+
+                    <span class="entries-underline">
+                      shortfall<span class="pf-slash-space"> </span>/<span
+                        class="pf-slash-space"
+                      >
+                      </span>sidestep
+                    </span>
+                  </h2>
+                </header>
+
+                <div class="entry-body" data-pagefind-ignore>
+                  <p>
+                    This word is traditionally translated as “trespass” or
+                    “transgression.” It very literally means something like
+                    “fall to the side.” It is used as another metaphor about
+                    following the path, or in this case, not following the path
+                    (see entries above about “law,” “righteousness,” and “sin”).
+                    It can be used with debt-metaphor language for harmful
+                    behavior, and in those instances, “shortfall” is used in
+                    this translation. In places when it seems to be about
+                    straying from the path by avoiding specific ways of
+                    following the instructions about how to live, “sidestep” is
+                    used.
+                  </p>
+                </div>
+              </article>
+
+              <!-- ENTRY: UNCLEAN -->
+              <article
+                class="entry"
+                id="unclean-unclean"
+                data-entry="unclean-unclean"
+                data-animate="underline"
+              >
+                <header class="entry-head">
+                  <h2 class="entry-title" id="unclean-unclean">
+                    <span class="sr-only">Unclean unclean</span>
+
+                    <span class="entries-strike">
+                      <strong>Unclean</strong>
+                    </span>
+
+                    <span class="sep" data-pagefind-ignore>&nbsp;–&nbsp;</span>
+                    <em data-pagefind-ignore>akathartos</em>
+                    <span class="sep" data-pagefind-ignore>&nbsp;–&nbsp;</span>
+
+                    <span class="entries-underline"> unclean </span>
+                    <span data-pagefind-ignore
+                      >(not prepared for sacred purposes)</span
+                    >
+                  </h2>
+                </header>
+
+                <div class="entry-body" data-pagefind-ignore>
+                  <p>
+                    I have actually kept translating this word as “unclean”
+                    because I have not been satisfied with any alternatives, and
+                    I don’t know that any real English equivalents exist. It is,
+                    in fact, the Greek word for “not clean,” but in the context
+                    of the Bible and sacred Hebrew practices, it’s not what most
+                    of us have been led to understand. It is not a synonym for
+                    “bad,” or synonyms for “abhorrent,” or “disgusting,” or
+                    “contaminated.” It has to do with being unprepared for
+                    sacred purposes. It especially seems to be used about ways
+                    of speaking toward or about people that are judgmental and
+                    pejorative, and about ways of treating people that are
+                    harmful. Those are not aligned with the calling and sacred
+                    purposes of God’s people. (See entry on “clean” above.)
+                  </p>
+                </div>
+              </article>
+
+              <script type="module" data-pagefind-ignore>
+                // --- intersection observer: adds .is-visible and triggers redraw ---
+                const entries = Array.from(
+                  document.querySelectorAll(".glossary-page .entry"),
+                );
+
+                const io = new IntersectionObserver(
+                  (items) => {
+                    for (const item of items) {
+                      if (item.isIntersecting) {
+                        item.target.classList.add("is-visible");
+                        revealInkInEntry(item.target);
+                        io.unobserve(item.target);
+                      }
+                    }
+                  },
+                  { threshold: 0.25 },
+                );
+
+                entries.forEach((e) => io.observe(e));
+
+                // --- ink drawing helpers ---
+                function mulberry32(seed) {
+                  return function () {
+                    let t = (seed += 0x6d2b79f5);
+                    t = Math.imul(t ^ (t >>> 15), t | 1);
+                    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+                    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+                  };
+                }
+
+                function hashString(str) {
+                  let h = 2166136261;
+                  for (let i = 0; i < str.length; i++) {
+                    h ^= str.charCodeAt(i);
+                    h = Math.imul(h, 16777619);
+                  }
+                  return h >>> 0;
+                }
+
+                function makeScribblePath({ w, h, kind, seed }) {
+                  const rand = mulberry32(seed);
+
+                  const padX = Math.max(2, w * 0.02);
+                  const x0 = padX;
+                  const x1 = w - padX;
+
+                  const yStrike = h * 0.55;
+                  const yUnderline = h * 0.92;
+                  const baseY = kind === "strike" ? yStrike : yUnderline;
+
+                  const amp =
+                    kind === "strike"
+                      ? Math.max(1.5, h * 0.1)
+                      : Math.max(1.2, h * 0.07);
+
+                  const points = [];
+                  const steps = 6;
+
+                  for (let i = 0; i <= steps; i++) {
+                    const t = i / steps;
+                    const x = x0 + (x1 - x0) * t;
+
+                    const wobble = (rand() - 0.5) * 2 * amp;
+                    const drift = Math.sin(t * Math.PI * 2) * (amp * 0.35);
+                    const y = baseY + wobble * 0.55 + drift;
+
+                    points.push({ x, y });
+                  }
+
+                  let d = `M ${points[0].x.toFixed(2)} ${points[0].y.toFixed(2)}`;
+                  for (let i = 1; i < points.length - 1; i++) {
+                    const cx = points[i].x;
+                    const cy = points[i].y;
+                    const nx = (points[i].x + points[i + 1].x) / 2;
+                    const ny = (points[i].y + points[i + 1].y) / 2;
+                    d += ` Q ${cx.toFixed(2)} ${cy.toFixed(2)} ${nx.toFixed(2)} ${ny.toFixed(2)}`;
+                  }
+                  const last = points[points.length - 1];
+                  d += ` T ${last.x.toFixed(2)} ${last.y.toFixed(2)}`;
+                  return d;
+                }
+
+                function clearInk(titleEl) {
+                  titleEl
+                    .querySelectorAll(":scope > .ink-svg")
+                    .forEach((n) => n.remove());
+                }
+
+                function drawInkForSpan(span, kind) {
+                  const title = span.closest(".entry-title");
+                  if (!title) return;
+
+                  const titleRect = title.getBoundingClientRect();
+                  const rects = Array.from(span.getClientRects()).filter(
+                    (r) => r.width > 1 && r.height > 1,
+                  );
+
+                  const seedBase = hashString(
+                    (span.textContent || "").trim() + "|" + kind,
+                  );
+
+                  rects.forEach((r, idx) => {
+                    const left = r.left - titleRect.left;
+                    const top = r.top - titleRect.top;
+                    const w = r.width;
+                    const h = r.height;
+
+                    const svg = document.createElementNS(
+                      "http://www.w3.org/2000/svg",
+                      "svg",
+                    );
+                    svg.classList.add("ink-svg");
+                    svg.setAttribute("aria-hidden", "true");
+                    svg.setAttribute("focusable", "false");
+
+                    svg.style.left = `${left}px`;
+                    svg.style.top = `${top}px`;
+                    svg.style.width = `${w}px`;
+                    svg.style.height = `${h}px`;
+
+                    svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
+                    svg.setAttribute("preserveAspectRatio", "none");
+
+                    const path = document.createElementNS(
+                      "http://www.w3.org/2000/svg",
+                      "path",
+                    );
+                    const seed = seedBase + idx * 101;
+
+                    path.setAttribute(
+                      "d",
+                      makeScribblePath({ w, h, kind, seed }),
+                    );
+                    path.setAttribute("fill", "none");
+                    path.setAttribute("stroke", "var(--lit-green)");
+                    path.setAttribute("stroke-linecap", "round");
+                    path.setAttribute("stroke-linejoin", "round");
+
+                    const strokeW =
+                      kind === "strike"
+                        ? Math.max(1.9, h * 0.105)
+                        : Math.max(1.8, h * 0.095);
+
+                    path.setAttribute("stroke-width", strokeW.toFixed(2));
+
+                    const len = path.getTotalLength();
+                    path.style.strokeDasharray = `${len}`;
+                    path.style.strokeDashoffset = `${len}`;
+                    path.style.transition =
+                      "stroke-dashoffset 900ms cubic-bezier(0.25, 0.8, 0.25, 1)";
+
+                    svg.appendChild(path);
+                    title.appendChild(svg);
+                  });
+                }
+
+                function redrawAllInk() {
+                  const titles = Array.from(
+                    document.querySelectorAll(".glossary-page .entry-title"),
+                  );
+                  titles.forEach((title) => {
+                    clearInk(title);
+                    title
+                      .querySelectorAll(".entries-strike")
+                      .forEach((s) => drawInkForSpan(s, "strike"));
+                    title
+                      .querySelectorAll(".entries-underline")
+                      .forEach((s) => drawInkForSpan(s, "underline"));
+                  });
+
+                  // reveal immediately for already-visible entries (above fold)
+                  entries.forEach((entry) => {
+                    if (entry.classList.contains("is-visible"))
+                      revealInkInEntry(entry);
+                  });
+                }
+
+                function revealInkInEntry(entryEl) {
+                  entryEl.querySelectorAll(".ink-svg path").forEach((p) => {
+                    p.style.strokeDashoffset = "0";
+                  });
+                }
+
+                let raf = 0;
+                function scheduleRedraw() {
+                  cancelAnimationFrame(raf);
+                  raf = requestAnimationFrame(redrawAllInk);
+                }
+
+                window.addEventListener("DOMContentLoaded", () => {
+                  redrawAllInk();
+                  window.addEventListener("resize", scheduleRedraw);
+                  if (document.fonts && document.fonts.ready) {
+                    document.fonts.ready.then(() => scheduleRedraw());
+                  }
+                });
+              </script>
+            </div>
+          </div>
+        </section>
+      </div>
+    </section>
+  </div>
+</Layout>

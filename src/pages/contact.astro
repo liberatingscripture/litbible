@@ -1,0 +1,139 @@
+---
+import Layout from "../layouts/Layout.astro";
+import "../styles/pages/contact.css";
+---
+
+<Layout
+  title="Contact | Liberation and Inclusion Translation"
+  description="Contact Brandon Vélez Johnson about the Liberation and Inclusion Translation (LIT)—questions, feedback, speaking, and collaboration."
+>
+  <main class="contact-page">
+    <section class="contact-hero" aria-labelledby="contact-title">
+      <div class="contact-inner">
+        <h1 id="contact-title">Contact me</h1>
+
+        <p class="contact-lead">
+          I would love to connect to answer questions, get your input on this
+          work-in-progress, talk about me speaking with a group, or just to chat
+          about the Bible and spirituality. Feel free to reach out!
+        </p>
+
+        <img
+          class="contact-logo"
+          src="/images/lit-logo.png"
+          alt="Liberation and Inclusion Translation logo."
+          loading="lazy"
+          decoding="async"
+        />
+
+        <form
+          class="contact-form"
+          action="https://formspree.io/f/mbdlnpgz"
+          method="POST"
+          data-formspree
+        >
+          <input type="hidden" name="source" value="contact" />
+
+          {/* Honeypot (spam trap) */}
+          <input
+            class="hp-field"
+            type="text"
+            name="_gotcha"
+            tabindex="-1"
+            autocomplete="off"
+            aria-hidden="true"
+          />
+
+          <div class="field">
+            <label for="name">Name</label>
+            <input
+              id="name"
+              name="name"
+              type="text"
+              autocomplete="name"
+              placeholder="Your name"
+            />
+          </div>
+
+          <div class="field">
+            <label for="email">Email</label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              inputmode="email"
+              autocomplete="email"
+              required
+              placeholder="you@example.com"
+            />
+          </div>
+
+          <div class="field">
+            <label for="message">Message</label>
+            <textarea
+              id="message"
+              name="message"
+              rows="7"
+              required
+              placeholder="What would you like to share?"></textarea>
+          </div>
+
+          <button class="contact-button" type="submit">Send message</button>
+
+          <p class="contact-privacy">
+            This form sends your message to our email inbox and is not intended
+            for sensitive personal information.
+            <br />
+            <br />
+            We will never sell or share your information.
+          </p>
+
+          <p class="contact-status" role="status" aria-live="polite"></p>
+        </form>
+      </div>
+
+      <script is:inline>
+        (() => {
+          const form = document.querySelector("form[data-formspree]");
+          if (!form) return;
+
+          const status = form.querySelector(".contact-status");
+          const button = form.querySelector('button[type="submit"]');
+
+          form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            // Honeypot filled? Pretend success.
+            const hp = form.querySelector('input[name="_gotcha"]');
+            if (hp && hp.value) return;
+
+            status.textContent = "";
+            button.disabled = true;
+
+            try {
+              const data = new FormData(form);
+              const res = await fetch(form.action, {
+                method: "POST",
+                body: data,
+                headers: { Accept: "application/json" },
+              });
+
+              if (res.ok) {
+                form.reset();
+                status.textContent = "Thanks — your message has been sent.";
+              } else {
+                status.textContent =
+                  "Something went wrong. Please try again in a moment.";
+              }
+            } catch {
+              status.textContent =
+                "Network error. Please try again in a moment.";
+            } finally {
+              button.disabled = false;
+            }
+          });
+        })();
+      </script>
+    </section>
+  </main>
+</Layout>

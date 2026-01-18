@@ -1,0 +1,1011 @@
+---
+// SearchBar.astro
+const {
+  placeholder = "Search",
+  fullSearchHref = "/search",
+  defaultType = "",
+} = Astro.props;
+---
+
+<div
+  class="searchbar"
+  data-searchbar
+  data-open="false"
+  data-default-type={defaultType}
+>
+  <label class="sr-only" for="site-search-input">Search</label>
+
+  <!-- wrap input + button in a form so mobile can submit -->
+  <form class="searchbar__form" data-searchbar-form role="search">
+    <input
+      id="site-search-input"
+      class="searchbar__input"
+      type="search"
+      placeholder={placeholder}
+      autocomplete="off"
+      spellcheck="false"
+    />
+
+    <!-- Mobile/tablet submit button -->
+    <button class="searchbar__submit" type="submit" aria-label="Search">
+      <svg
+        class="btn-icon"
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <path d="M3 20.5v-7.2L19.8 12 3 10.7V3.5L22 12 3 20.5Z"></path>
+      </svg>
+    </button>
+  </form>
+
+  <div class="searchbar__panel" role="dialog" aria-label="Search results tray">
+    <div class="searchbar__panel-inner">
+      <div class="searchbar__controls" aria-label="Search filters">
+        <button type="button" class="chip chip--active" data-type="">All</button
+        >
+
+        <button type="button" class="chip" data-type="article">Articles</button>
+
+        <button type="button" class="chip" data-type="scripture"
+          >Scripture</button
+        >
+        <button type="button" class="chip" data-type="intro">Intros</button>
+
+        <label class="sr-only" for="searchbar-book">Filter by book</label>
+        <select id="searchbar-book" class="searchbar__book">
+          <option value="">All books</option>
+        </select>
+
+        <!-- Result-mode filter -->
+        <label class="sr-only" for="searchbar-mode">Filter results type</label>
+        <select id="searchbar-mode" class="searchbar__mode">
+          <option value="all">All results</option>
+          <option value="subject">Subject matches</option>
+          <option value="keyword">Keyword matches</option>
+          <option value="ref">Chapter &amp; verse jump</option>
+        </select>
+      </div>
+
+      <div class="searchbar__status" aria-live="polite"></div>
+
+      <!-- Reference jump row is injected here -->
+      <div class="searchbar__jump" data-jump hidden></div>
+
+      <!-- Grouped results are injected here -->
+      <div class="searchbar__groups" data-groups></div>
+
+      <div class="searchbar__footer">
+        <a class="searchbar__full" href={fullSearchHref}>Go to full search</a>
+        <button type="button" class="searchbar__close" aria-label="Close tray">
+          Esc
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script is:inline>
+    (async () => {
+      const root = document.currentScript?.closest("[data-searchbar]");
+      if (!root) return;
+
+      // Prevent double-init if Astro renders twice
+      if (root.dataset.enhanced === "true") return;
+      root.dataset.enhanced = "true";
+
+      const form = root.querySelector("[data-searchbar-form]");
+      const input = root.querySelector(".searchbar__input");
+      const status = root.querySelector(".searchbar__status");
+      const groupsEl = root.querySelector("[data-groups]");
+      const bookSelect = root.querySelector(".searchbar__book");
+      const modeSelect = root.querySelector(".searchbar__mode");
+      const chips = Array.from(root.querySelectorAll(".chip"));
+      const closeBtn = root.querySelector(".searchbar__close");
+      const fullLink = root.querySelector(".searchbar__full");
+      const jumpRow = root.querySelector("[data-jump]");
+
+      if (
+        !form ||
+        !input ||
+        !status ||
+        !groupsEl ||
+        !bookSelect ||
+        !modeSelect ||
+        !closeBtn ||
+        !jumpRow
+      )
+        return;
+
+      const MIN_QUERY_LEN = 3;
+
+      // Canonical NT order matching your ReadMenu keys
+      const BOOK_ORDER = [
+        "matthew",
+        "mark",
+        "luke",
+        "john",
+        "acts",
+        "romans",
+        "1corinthians",
+        "2corinthians",
+        "galatians",
+        "ephesians",
+        "philippians",
+        "colossians",
+        "1thessalonians",
+        "2thessalonians",
+        "1timothy",
+        "2timothy",
+        "titus",
+        "philemon",
+        "hebrews",
+        "james",
+        "1peter",
+        "2peter",
+        "1john",
+        "2john",
+        "3john",
+        "jude",
+        "revelation",
+      ];
+      const BOOK_RANK = new Map(BOOK_ORDER.map((k, i) => [k, i]));
+
+      let pagefind = null;
+
+      // allow default type via data-default-type
+      const initialType = root.dataset.defaultType || "";
+      let activeType = initialType;
+      let activeBook = "";
+      let activeMode = "all"; // all | subject | keyword | ref
+
+      function openPanel() {
+        root.dataset.open = "true";
+      }
+
+      function closePanel() {
+        root.dataset.open = "false";
+      }
+
+      function setActiveChip(type) {
+        activeType = type;
+        chips.forEach((c) =>
+          c.classList.toggle("chip--active", (c.dataset.type || "") === type),
+        );
+      }
+
+      function slugifyBookName(name) {
+        return String(name)
+          .toLowerCase()
+          .replace(/[^0-9a-z]/g, "");
+      }
+
+      function bookKeyToLabel(key) {
+        const m = String(key).match(/^(\d+)?([a-z]+)$/i);
+        if (!m) return String(key);
+        const num = m[1] ? m[1] + " " : "";
+        const word = m[2];
+        return num + word.charAt(0).toUpperCase() + word.slice(1);
+      }
+
+      // Populate book dropdown from ReadMenu if present
+      const booksDataEl = document.querySelector("[data-books]");
+      if (booksDataEl) {
+        try {
+          const books = JSON.parse(
+            booksDataEl.getAttribute("data-books") || "{}",
+          );
+          Object.keys(books).forEach((key) => {
+            const opt = document.createElement("option");
+            opt.value = key;
+            opt.textContent = bookKeyToLabel(key);
+            bookSelect.appendChild(opt);
+          });
+        } catch {
+          // ignore
+        }
+      }
+
+      function parseReference(raw) {
+        const s = String(raw || "")
+          .trim()
+          .toLowerCase();
+        if (!s) return null;
+
+        const cleaned = s
+          .replace(/[.,;()]/g, " ")
+          .replace(/\s+/g, " ")
+          .trim();
+
+        // allow: "luke 1", "luke 1:3", "1 john 4:18"
+        const m = cleaned.match(/^(.+?)\s+(\d+)(?::(\d+))?$/);
+        if (!m) return null;
+
+        const bookPart = m[1];
+        const chapter = Number(m[2]);
+        const verse = m[3] ? Number(m[3]) : null;
+
+        const bookKey = slugifyBookName(bookPart);
+        if (!BOOK_RANK.has(bookKey)) return null;
+        if (!Number.isFinite(chapter) || chapter <= 0) return null;
+        if (verse !== null && (!Number.isFinite(verse) || verse <= 0))
+          return null;
+
+        return { bookKey, chapter, verse };
+      }
+
+      // Phrase queries:
+      // If the user enters multiple words, wrap the whole query in quotes so Pagefind
+      // only returns pages containing the full phrase. Single-word behavior stays unchanged.
+      function buildPfQuery(raw) {
+        const q = String(raw || "").trim();
+        if (!q) return "";
+        // Respect explicit quoting
+        if (q.includes('"')) return q;
+        // Multi-word -> exact phrase
+        if (/\s+/.test(q)) return `"${q}"`;
+        return q;
+      }
+
+      function formatReferenceLabel(ref) {
+        const book = bookKeyToLabel(ref.bookKey);
+        if (ref.verse) return `${book} ${ref.chapter}:${ref.verse}`;
+        return `${book} ${ref.chapter}`;
+      }
+
+      function makeReferenceHref(ref) {
+        const base = `/${ref.bookKey}-${ref.chapter}`;
+        return ref.verse ? `${base}#v${ref.verse}` : base;
+      }
+
+      function parseScripturePath(hrefOrUrl) {
+        try {
+          const u = new URL(hrefOrUrl, window.location.origin);
+          const m = u.pathname.match(/^\/([0-9a-z]+)-(intro|\d+)$/);
+          if (!m) return null;
+
+          const bookKey = m[1];
+          const chapRaw = m[2];
+
+          return {
+            bookKey,
+            isIntro: chapRaw === "intro",
+            chapter: chapRaw === "intro" ? 0 : Number(chapRaw),
+            href: u.pathname + u.hash,
+          };
+        } catch {
+          return null;
+        }
+      }
+
+      function bibleOrderCompareHref(aHref, bHref) {
+        const a = parseScripturePath(aHref);
+        const b = parseScripturePath(bHref);
+
+        if (!a && !b) return 0;
+        if (!a) return 1;
+        if (!b) return -1;
+
+        const ar = BOOK_RANK.get(a.bookKey) ?? 999;
+        const br = BOOK_RANK.get(b.bookKey) ?? 999;
+        if (ar !== br) return ar - br;
+
+        return a.chapter - b.chapter;
+      }
+
+      async function ensurePagefind() {
+        if (pagefind) return pagefind;
+        try {
+          pagefind = await import("/pagefind/pagefind.js");
+          return pagefind;
+        } catch {
+          status.textContent =
+            "Search index not available yet. Run: npm run build";
+          return null;
+        }
+      }
+
+      function renderJump(ref) {
+        if (!ref) {
+          jumpRow.hidden = true;
+          jumpRow.innerHTML = "";
+          return;
+        }
+
+        const href = makeReferenceHref(ref);
+        const label = formatReferenceLabel(ref);
+
+        jumpRow.hidden = false;
+        jumpRow.innerHTML = `
+          <a class="searchbar__jump-link" href="${href}">
+            Jump to <strong>${label}</strong>
+            <span class="searchbar__jump-hint">↩ Enter</span>
+          </a>
+        `;
+      }
+
+      function parseTopicsToList(metaValue) {
+        if (!metaValue) return [];
+        const raw = String(metaValue);
+
+        const cleaned = raw
+          .replace(/\u00A0/g, " ")
+          .replace(/[|/]+/g, " ")
+          .trim();
+
+        return cleaned
+          .split(/[,]+/)
+          .flatMap((chunk) => chunk.split(/\s+/))
+          .map((t) => t.trim())
+          .filter(Boolean);
+      }
+
+      function stripHtml(s) {
+        return String(s || "")
+          .replace(/<[^>]*>/g, " ")
+          .replace(/\s+/g, " ")
+          .trim();
+      }
+
+      function normalizeToken(s) {
+        return String(s || "")
+          .toLowerCase()
+          .replace(/[^0-9a-z-]/g, "");
+      }
+
+      function tokenize(s) {
+        const txt = String(s || "").toLowerCase();
+        const m = txt.match(/[0-9a-z]+(?:-[0-9a-z]+)*/g);
+        return m ? m.map(normalizeToken).filter(Boolean) : [];
+      }
+
+      /**
+       * Topic-only hit detector (corrected):
+       * If the match location is *before* the first anchor, and the query is one
+       * of the page's topic tags, it's almost certainly matching hidden topic index
+       * text rather than scripture body.
+       */
+      function isTopicOnlyHit(
+        query,
+        topicsList,
+        excerptHtml,
+        matchLoc,
+        firstAnchorLoc,
+      ) {
+        const q = normalizeToken(query);
+        if (!q) return false;
+
+        const topics = new Set(
+          (topicsList || []).map((t) => normalizeToken(t)).filter(Boolean),
+        );
+        if (!topics.size) return false;
+
+        // Only applies when query is one of this page's topics
+        if (!topics.has(q)) return false;
+
+        // Strong signal: match occurs before the first verse anchor location
+        if (
+          typeof matchLoc === "number" &&
+          typeof firstAnchorLoc === "number"
+        ) {
+          if (matchLoc < firstAnchorLoc) return true;
+        }
+
+        // Fallback: excerpt contains only topic words
+        const excerptText = stripHtml(excerptHtml || "");
+        const tokens = tokenize(excerptText);
+        if (!tokens.length) return false;
+        if (!tokens.includes(q)) return false;
+
+        const nonTiny = tokens.filter((t) => t.length >= 3);
+        if (!nonTiny.length) return false;
+
+        return nonTiny.every((t) => topics.has(t));
+      }
+
+      // Build a deep link to the nearest anchor at/before the first match
+      async function hrefToFirstMatch(result) {
+        const d = await result.data();
+
+        const matchLoc =
+          d?.weighted_locations?.[0]?.location ?? d?.locations?.[0];
+
+        const anchorsRaw = Array.isArray(d?.anchors) ? d.anchors : [];
+        const anchors = [...anchorsRaw].sort(
+          (a, b) => (a?.location ?? 0) - (b?.location ?? 0),
+        );
+
+        const firstAnchorLoc =
+          anchors.length && typeof anchors[0]?.location === "number"
+            ? anchors[0].location
+            : undefined;
+
+        if (typeof matchLoc !== "number" || anchors.length === 0) {
+          return { href: d.url, matchLoc, firstAnchorLoc };
+        }
+
+        let chosen = null;
+        for (const a of anchors) {
+          if (!a?.id || typeof a.location !== "number") continue;
+          if (a.location <= matchLoc) chosen = a;
+          else break;
+        }
+
+        const href = chosen?.id ? `${d.url}#${chosen.id}` : d.url;
+        return { href, matchLoc, firstAnchorLoc };
+      }
+
+      function renderGroups({ subject, keyword }) {
+        const subjectCount = subject.length;
+        const keywordCount = keyword.length;
+
+        if (!subjectCount && !keywordCount) {
+          groupsEl.innerHTML = "";
+          return;
+        }
+
+        const renderList = (items) => {
+          return `
+            <ol class="searchbar__results">
+              ${items
+                .map(
+                  ({ title, href }) => `
+                    <li class="searchbar__result">
+                      <a class="searchbar__link" href="${href}">
+                        <div class="searchbar__title">${title}</div>
+                      </a>
+                    </li>
+                  `,
+                )
+                .join("")}
+            </ol>
+          `;
+        };
+
+        groupsEl.innerHTML = `
+          ${
+            subjectCount && (activeMode === "all" || activeMode === "subject")
+              ? `
+                <div class="searchbar__group">
+                  <div class="searchbar__group-title">Subject matches</div>
+                  ${renderList(subject)}
+                </div>
+              `
+              : ""
+          }
+          ${
+            keywordCount && (activeMode === "all" || activeMode === "keyword")
+              ? `
+                <div class="searchbar__group">
+                  <div class="searchbar__group-title">Keyword matches</div>
+                  ${renderList(keyword)}
+                </div>
+              `
+              : ""
+          }
+        `;
+      }
+
+      async function runSearch(q) {
+        const pf = await ensurePagefind();
+        if (!pf) return;
+
+        const ref = parseReference(q);
+
+        // Mode: ref only
+        if (activeMode === "ref") {
+          if (ref) {
+            status.textContent = "Press Enter to jump.";
+            renderJump(ref);
+          } else {
+            status.textContent = "Type a reference like “Luke 4:18”.";
+            renderJump(null);
+          }
+          groupsEl.innerHTML = "";
+          return;
+        }
+
+        // For other modes, show jump row if a reference is parseable
+        renderJump(ref);
+
+        const suppressKeywordResultsForPureReference = true;
+
+        if (
+          suppressKeywordResultsForPureReference &&
+          ref &&
+          q.trim().match(/^[^:]+?\s+\d+(?::\d+)?$/i)
+        ) {
+          status.textContent = "Press Enter to jump.";
+          groupsEl.innerHTML = "";
+          return;
+        }
+
+        const filters = {};
+        if (activeType) filters.type = [activeType];
+        if (activeBook) filters.book = [activeBook];
+
+        status.textContent = "Searching…";
+        groupsEl.innerHTML = "";
+
+        const pfQuery = buildPfQuery(q);
+
+        const res = await pf.search(
+          pfQuery,
+          Object.keys(filters).length ? { filters } : undefined,
+        );
+
+        // Keep tray small
+        const top = res.results.slice(0, 10);
+
+        // Resolve Pagefind data, compute deep links
+        const resolved = await Promise.all(
+          top.map(async (r) => {
+            const d = await r.data();
+            const { href, matchLoc, firstAnchorLoc } =
+              await hrefToFirstMatch(r);
+            const topicsList = parseTopicsToList(d?.meta?.topics);
+            const excerpt = d?.excerpt || "";
+            return { d, href, topicsList, excerpt, matchLoc, firstAnchorLoc };
+          }),
+        );
+
+        // Split into scripture-ish and other, for canonical sorting
+        const scriptureish = [];
+        const other = [];
+
+        for (const it of resolved) {
+          const parsed = parseScripturePath(it.d.url);
+          if (
+            parsed &&
+            (it.d?.meta?.type === "scripture" || it.d?.meta?.type === "intro")
+          ) {
+            scriptureish.push(it);
+          } else if (parsed && !it.d?.meta?.type) {
+            scriptureish.push(it);
+          } else {
+            other.push(it);
+          }
+        }
+
+        scriptureish.sort((a, b) => bibleOrderCompareHref(a.d.url, b.d.url));
+        const merged = [...scriptureish, ...other];
+
+        // Subject matching only makes sense for single-token queries
+        const qTrim = q.trim();
+        const qIsSingleToken = !/\s+/.test(qTrim);
+        const qNorm = qIsSingleToken ? normalizeToken(qTrim) : "";
+
+        // SUBJECT matches: query equals one of the topics tags
+        const subjectMatches = merged.filter((it) => {
+          if (!qNorm) return false;
+          const topics = it.topicsList.map((t) => normalizeToken(t));
+          return topics.includes(qNorm);
+        });
+
+        // KEYWORD matches: exclude topic-only hits (corrected)
+        const keywordMatches = merged.filter((it) => {
+          if (!qNorm) return true; // multi-word phrases won't be topic-only
+          if (!it.topicsList?.length) return true;
+          return !isTopicOnlyHit(
+            q,
+            it.topicsList,
+            it.excerpt,
+            it.matchLoc,
+            it.firstAnchorLoc,
+          );
+        });
+
+        const subjectItems = subjectMatches.slice(0, 6).map((it) => ({
+          title: it.d?.meta?.title ? it.d.meta.title : it.d.title || it.d.url,
+          href: it.href,
+        }));
+
+        const keywordItems = keywordMatches.slice(0, 6).map((it) => ({
+          title: it.d?.meta?.title ? it.d.meta.title : it.d.title || it.d.url,
+          href: it.href,
+        }));
+
+        status.textContent = `${subjectMatches.length} subject match${
+          subjectMatches.length === 1 ? "" : "es"
+        } • ${keywordMatches.length} keyword match${
+          keywordMatches.length === 1 ? "" : "es"
+        }`;
+
+        renderGroups({ subject: subjectItems, keyword: keywordItems });
+      }
+
+      function submitSearch() {
+        const q = input.value.trim();
+        if (!q) return;
+
+        const ref = parseReference(q);
+        if (ref) {
+          if (!(activeBook && activeBook !== ref.bookKey)) {
+            window.location.href = makeReferenceHref(ref);
+            return;
+          }
+        }
+
+        const url = new URL(
+          fullLink?.getAttribute("href") || "/search",
+          window.location.origin,
+        );
+        url.searchParams.set("q", q);
+        if (activeType) url.searchParams.set("type", activeType);
+        if (activeBook) url.searchParams.set("book", activeBook);
+        if (activeMode && activeMode !== "all")
+          url.searchParams.set("mode", activeMode);
+
+        window.location.href = url.pathname + url.search;
+      }
+
+      function clearForShortQuery(q) {
+        groupsEl.innerHTML = "";
+        renderJump(null);
+        status.textContent = q
+          ? `Type ${MIN_QUERY_LEN} or more letters to search.`
+          : `Type ${MIN_QUERY_LEN} or more letters to search.`;
+      }
+
+      // Chip + book + mode handlers
+      chips.forEach((chip) => {
+        chip.addEventListener("click", () => {
+          setActiveChip(chip.dataset.type || "");
+          const q = input.value.trim();
+          openPanel();
+          if (!q) {
+            clearForShortQuery("");
+            return;
+          }
+          if (q.length >= MIN_QUERY_LEN || parseReference(q)) runSearch(q);
+          else clearForShortQuery(q);
+        });
+      });
+
+      bookSelect.addEventListener("change", () => {
+        activeBook = bookSelect.value || "";
+        const q = input.value.trim();
+        openPanel();
+        if (!q) {
+          clearForShortQuery("");
+          return;
+        }
+        if (q.length >= MIN_QUERY_LEN || parseReference(q)) runSearch(q);
+        else clearForShortQuery(q);
+      });
+
+      modeSelect.addEventListener("change", () => {
+        activeMode = modeSelect.value || "all";
+        const q = input.value.trim();
+        openPanel();
+        if (!q) {
+          clearForShortQuery("");
+          return;
+        }
+        // In ref mode, allow shorter
+        if (activeMode === "ref") {
+          runSearch(q);
+          return;
+        }
+        if (q.length >= MIN_QUERY_LEN) runSearch(q);
+        else clearForShortQuery(q);
+      });
+
+      closeBtn.addEventListener("click", closePanel);
+
+      // Close on outside click / Escape
+      document.addEventListener("click", (e) => {
+        if (!root.contains(e.target)) closePanel();
+      });
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") closePanel();
+      });
+
+      // Debounced input search
+      let t = null;
+      input.addEventListener("input", () => {
+        const q = input.value.trim();
+
+        if (!q) {
+          groupsEl.innerHTML = "";
+          status.textContent = "";
+          renderJump(null);
+          // Keep tray open if focused, but empty
+          return;
+        }
+
+        openPanel();
+
+        // In ref mode, allow short
+        if (activeMode === "ref") {
+          clearTimeout(t);
+          t = setTimeout(() => runSearch(q), 120);
+          return;
+        }
+
+        // ✅ Minimum length gate
+        if (q.length < MIN_QUERY_LEN) {
+          clearForShortQuery(q);
+          return;
+        }
+
+        clearTimeout(t);
+        t = setTimeout(() => runSearch(q), 120);
+      });
+
+      // Open tray on click/tap/focus (even before typing)
+      input.addEventListener("focus", () => {
+        openPanel();
+        const q = input.value.trim();
+
+        if (!q) {
+          clearForShortQuery("");
+          return;
+        }
+
+        // In ref mode, allow short
+        if (activeMode === "ref") {
+          runSearch(q);
+          return;
+        }
+
+        if (q.length < MIN_QUERY_LEN) {
+          clearForShortQuery(q);
+          return;
+        }
+
+        runSearch(q);
+      });
+
+      // Enter: handle explicitly for reference-jump UX
+      input.addEventListener("keydown", (e) => {
+        if (e.key !== "Enter") return;
+        e.preventDefault();
+        submitSearch();
+      });
+
+      // Mobile/tablet submit button uses the same submit logic
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        submitSearch();
+      });
+
+      // Default state
+      setActiveChip(initialType);
+      activeMode = modeSelect.value || "all";
+      closePanel();
+    })();
+  </script>
+</div>
+
+<!-- IMPORTANT: this CSS must be GLOBAL because search results are injected via innerHTML -->
+<style is:global>
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .searchbar {
+    width: 100%;
+    position: relative;
+  }
+
+  /* Form row (input + button) */
+  .searchbar__form {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .searchbar__input {
+    width: 100%;
+    padding: 14px 16px;
+    border-radius: 12px;
+    border: 1px solid rgba(29, 35, 28, 0.25);
+    font-size: 1rem;
+    background: rgba(255, 255, 255, 0.85);
+  }
+
+  /* Mobile/tablet submit button (hidden by default) */
+  .searchbar__submit {
+    display: none;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 14px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+
+    background: var(--green, #209d50);
+    color: #fff;
+    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.14);
+
+    transition:
+      transform 160ms ease,
+      background-color 200ms ease;
+  }
+
+  .searchbar__submit:hover {
+    background: var(--ink, #1d231c);
+    transform: translateY(-1px);
+  }
+
+  .searchbar__submit:active {
+    transform: translateY(0);
+  }
+
+  .searchbar__submit .btn-icon {
+    width: 18px;
+    height: 18px;
+    display: block;
+    fill: currentColor;
+    stroke: none;
+  }
+
+  .searchbar__submit .btn-icon path {
+    fill: currentColor;
+  }
+
+  @media (max-width: 1024px) {
+    .searchbar__submit {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 auto;
+      width: auto;
+      min-width: 0;
+      padding: 12px 12px;
+    }
+  }
+
+  /* Tray */
+  .searchbar__panel {
+    display: none;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(100% + 10px);
+    z-index: 999;
+  }
+
+  [data-searchbar][data-open="true"] .searchbar__panel {
+    display: block;
+  }
+
+  .searchbar__panel-inner {
+    background: rgba(255, 255, 255, 0.96);
+    border: 1px solid rgba(29, 35, 28, 0.18);
+    border-radius: 16px;
+    box-shadow: 0 18px 44px rgba(0, 0, 0, 0.18);
+    padding: 16px;
+  }
+
+  .searchbar__controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+
+  .chip {
+    border-radius: 999px;
+    padding: 8px 12px;
+    border: 1px solid rgba(29, 35, 28, 0.2);
+    background: #fff;
+    cursor: pointer;
+  }
+
+  .chip--active {
+    background: rgba(32, 157, 80, 0.12);
+    border-color: rgba(32, 157, 80, 0.45);
+  }
+
+  .searchbar__book,
+  .searchbar__mode {
+    padding: 8px 10px;
+    border-radius: 10px;
+    border: 1px solid rgba(29, 35, 28, 0.2);
+    background: #fff;
+  }
+
+  .searchbar__book {
+    margin-left: auto;
+  }
+
+  .searchbar__status {
+    margin: 8px 0 10px;
+    opacity: 0.75;
+    font-size: 0.95rem;
+  }
+
+  .searchbar__jump {
+    margin: 0 0 10px;
+  }
+
+  .searchbar__jump-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    text-decoration: none;
+    padding: 12px 12px;
+    border-radius: 14px;
+    background: rgba(32, 157, 80, 0.1);
+    border: 1px solid rgba(32, 157, 80, 0.35);
+  }
+
+  .searchbar__jump-hint {
+    opacity: 0.7;
+    font-size: 0.9rem;
+    white-space: nowrap;
+  }
+
+  .searchbar__groups {
+    margin-top: 6px;
+  }
+
+  .searchbar__group + .searchbar__group {
+    margin-top: 12px;
+  }
+
+  .searchbar__group-title {
+    font-size: 0.82rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    opacity: 0.72;
+    margin: 10px 0 6px;
+  }
+
+  .searchbar__results {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .searchbar__result + .searchbar__result {
+    border-top: 1px solid rgba(29, 35, 28, 0.12);
+  }
+
+  .searchbar__link {
+    display: block;
+    padding: 12px 0;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .searchbar__title {
+    font-weight: 700;
+    color: rgba(29, 35, 28, 0.95);
+  }
+
+  .searchbar__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(29, 35, 28, 0.12);
+  }
+
+  .searchbar__full {
+    text-decoration: underline;
+  }
+
+  .searchbar__close {
+    border: 1px solid rgba(29, 35, 28, 0.2);
+    background: #fff;
+    border-radius: 12px;
+    padding: 8px 12px;
+    cursor: pointer;
+  }
+</style>

@@ -1,0 +1,335 @@
+---
+import Layout from "../layouts/Layout.astro";
+import ReadMenu from "../components/ReadMenu.astro";
+import "../styles/pages/home.css";
+---
+
+<Layout
+  title="Liberation and Inclusion Translation"
+  description="A trauma-informed, justice-oriented translation of the Bible from the original languages."
+  canonical="https://litbible.net/"
+  bg="green"
+>
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-wrap container">
+      <svg
+        class="hero-shape"
+        viewBox="0 0 1000 520"
+        preserveAspectRatio="none"
+        aria-hidden="true"
+      >
+        <path
+          fill="var(--cream)"
+          d="
+            M 80 0
+            L 920 0
+
+            C 960 60, 960 160, 920 260
+            C 880 360, 880 460, 920 520
+
+            L 80 520
+
+            C 40 460, 40 360, 80 260
+            C 120 160, 120 60, 80 0
+            Z
+          "
+        ></path>
+      </svg>
+
+      <div class="hero-content">
+        <div class="hero-inner">
+          <p class="hero-lead">
+            The Bible is a library of sacred literature from oppressed &amp;
+            marginalized communities.
+          </p>
+
+          <p class="hero-question">
+            <em>
+              So why do we translate it to justify more trauma,
+              authoritarianism, and exclusion?
+            </em>
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TITLE + READ MENU -->
+  <section
+    class="title-block title-block--with-menu"
+    aria-labelledby="lit-title"
+  >
+    <div class="title-block__inner container">
+      <p class="title-small">Introducing</p>
+
+      <h1 id="lit-title" class="title-stack">
+        <span class="title-medium">The</span>
+        <span class="title-large">Liberation</span>
+        <span class="title-medium">and</span>
+        <span class="title-large">Inclusion</span>
+        <span class="title-large">Translation</span>
+      </h1>
+
+      <p class="title-small title-sub">of the Christian Scriptures</p>
+    </div>
+
+    <div class="title-menu container">
+      <ReadMenu />
+    </div>
+  </section>
+
+  <!-- INTRO -->
+  <section class="intro" aria-labelledby="intro-title">
+    <div class="intro-inner container">
+      <h2 id="intro-title" class="intro-eyebrow">Hi there. I’m Brandon.</h2>
+
+      <p class="intro-lead">
+        No, I don’t want my kids near most Bibles, either.
+      </p>
+
+      <p class="intro-lead">I don’t want it to hurt them like it hurt me.</p>
+
+      <p class="intro-lead">
+        That’s why I’ve been translating it for them since 2020.
+      </p>
+
+      <p class="intro-body">
+        All from a trauma-informed, cringe-mindful, liberationist lens.
+      </p>
+
+      <p class="intro-body">One Greek word at a time.</p>
+    </div>
+  </section>
+
+  <!-- CALLOUT -->
+  <section class="callout" data-animate="underline">
+    <div class="callout-inner container">
+      <div class="callout-panel">
+        <h2 class="callout-head">
+          Turns out there’s some
+          <span class="callout-underline">
+            really
+            <svg
+              class="callout-underline-svg"
+              viewBox="0 0 220 26"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path
+                class="callout-underline-path"
+                d="M6 18 C 55 6, 120 6, 214 16"></path>
+            </svg>
+          </span>
+          good stuff in there.
+        </h2>
+
+        <a
+          class="callout-cta footer-cta"
+          href="/read"
+          aria-label="Read the Liberation and Inclusion Translation now"
+        >
+          <span>Read Now</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="callout-diagonal" aria-hidden="true"></div>
+  </section>
+
+  <!-- Underline animation -->
+  <script type="module">
+    (() => {
+      const sections = document.querySelectorAll('[data-animate="underline"]');
+      if (sections.length === 0) return;
+
+      const observer = new IntersectionObserver(
+        (entries, obs) => {
+          for (const entry of entries) {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("is-visible");
+              obs.unobserve(entry.target);
+            }
+          }
+        },
+        { threshold: 0.35 }
+      );
+
+      sections.forEach((s) => observer.observe(s));
+    })();
+  </script>
+
+  <!-- CHAT -->
+  <section class="chat-block" aria-labelledby="chat-block-title">
+    <div class="chat-block__inner container">
+      <h2 id="chat-block-title" class="sr-only">
+        A conversation about salvation and liberation
+      </h2>
+
+      <div class="chat-thread">
+        <div class="chat-bubble chat-bubble--left" data-animate="in">
+          <p>Tell me more of this <em>good stuff</em>…</p>
+        </div>
+
+        <div class="chat-bubble chat-bubble--right" data-animate="in">
+          <p>
+            “Salvation” was one of the first words I worked through. I picture
+            floating on clouds, being rescued from hell. The sinner’s prayer,
+            and all that.
+          </p>
+        </div>
+
+        <div class="chat-bubble chat-bubble--left" data-animate="in">
+          <p>That’s not what salvation is about?</p>
+        </div>
+
+        <div class="chat-bubble chat-bubble--right" data-animate="in">
+          <p>
+            Well, to a lot of Christians it is. But that word traps them in the
+            wrong story. Jesus freed the oppressed and cast down the mighty.
+            That sounds less like salvation and more like…
+          </p>
+        </div>
+
+        <div
+          class="chat-bubble chat-bubble--left chat-bubble--center"
+          data-animate="in"
+        >
+          <p>Liberation</p>
+        </div>
+
+        <div class="chat-bubble chat-bubble--right" data-animate="in">
+          <p>Exactly! Did you scroll ahead or something?</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Chat animation -->
+  <script type="module">
+    (() => {
+      const reduceMotion = window.matchMedia(
+        "(prefers-reduced-motion: reduce)"
+      ).matches;
+      if (reduceMotion) return;
+
+      const els = document.querySelectorAll('[data-animate="in"]');
+      if (!("IntersectionObserver" in window) || els.length === 0) return;
+
+      const io = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("is-in");
+              io.unobserve(entry.target);
+            }
+          }
+        },
+        { threshold: 0.15 }
+      );
+
+      els.forEach((el, i) => {
+        if (!(el instanceof HTMLElement)) return;
+        el.style.setProperty("--stagger", `${i * 70}ms`);
+        io.observe(el);
+      });
+    })();
+  </script>
+
+  <!-- QUESTIONS -->
+  <section class="questions-block" aria-labelledby="questions-title">
+    <div class="questions-block__inner container">
+      <h2 id="questions-title" class="questions-block__title">
+        I’ve got more questions…
+      </h2>
+
+      <div class="questions-grid">
+        <!-- Card 1 -->
+        <article class="question-card">
+          <div class="question-card__media">
+            <img
+              src="/images/open-bible.webp"
+              alt="A hand holding a glass sphere reflecting a city at sunset"
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
+
+          <h3 class="question-card__question">
+            What values guide this effort?
+          </h3>
+
+          <p class="question-card__answer">
+            Faithfulness to the Greek, reading with the damned, sidestepping
+            religious jargon, trusting that God is always like Jesus, and more.
+          </p>
+
+          <a
+            class="question-cta"
+            href="/translation-commitments"
+            aria-label="Read the translation commitments"
+          >
+            <span>More about Commitments</span>
+          </a>
+        </article>
+
+        <!-- Card 2 -->
+        <article class="question-card">
+          <div class="question-card__media">
+            <img
+              src="/images/upside-down.webp"
+              alt="An open Bible with reference books and handwritten notes"
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
+
+          <h3 class="question-card__question">
+            Who are you, to translate the Bible?!
+          </h3>
+
+          <p class="question-card__answer">
+            Let’s start with the first three words of that question…
+          </p>
+
+          <a
+            class="question-cta"
+            href="/about"
+            aria-label="Learn about Brandon and the project background"
+          >
+            <span>I’m just a person</span>
+          </a>
+        </article>
+
+        <!-- Card 3 -->
+        <article class="question-card">
+          <div class="question-card__media">
+            <img
+              src="/images/fit-cover.webp"
+              alt="Found in Translation podcast artwork under a magnifying glass"
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
+
+          <h3 class="question-card__question">
+            What if I’m more of an auditory learner?
+          </h3>
+
+          <p class="question-card__answer">
+            I cohost a podcast where we work through the LIT one chapter or big
+            idea at a time. It’s called “Found in Translation.”
+          </p>
+
+          <a
+            class="question-cta"
+            href="/podcast"
+            aria-label="Listen to the Found in Translation podcast"
+          >
+            <span>Listen now</span>
+          </a>
+        </article>
+      </div>
+    </div>
+  </section>
+</Layout>

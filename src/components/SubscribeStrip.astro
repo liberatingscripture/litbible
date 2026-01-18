@@ -1,0 +1,30 @@
+---
+const formAction = "https://formspree.io/f/mgovgpoo";
+---
+
+<section class="subscribe-strip" aria-label="Email updates">
+  <div class="subscribe-strip__inner">
+    <div class="subscribe-strip__copy">
+      <h2 class="subscribe-strip__title">Get new articles by email</h2>
+      <p class="subscribe-strip__note">
+        Occasional updates. No spam. Unsubscribe anytime.
+      </p>
+    </div>
+
+    <form class="subscribe-strip__form" action={formAction} method="POST">
+      <label class="sr-only" for="subscribe-email">Email address</label>
+      <input
+        id="subscribe-email"
+        name="email"
+        type="email"
+        placeholder="Email address"
+        autocomplete="email"
+        required
+      />
+
+      <input type="hidden" name="source" value="articles" />
+
+      <button class="btn btn--cta" type="submit">Subscribe</button>
+    </form>
+  </div>
+</section>

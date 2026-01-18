@@ -1,0 +1,77 @@
+---
+import Layout from "../layouts/Layout.astro";
+import "../styles/articles.css";
+
+import SearchBar from "../components/SearchBar.astro";
+import ArticlesHero from "../components/ArticlesHero.astro";
+import SubscribeStrip from "../components/SubscribeStrip.astro";
+import FeaturedArticle from "../components/FeaturedArticle.astro";
+import ArticleCard from "../components/ArticleCard.astro";
+
+import { getCollection } from "astro:content";
+import type { CollectionEntry } from "astro:content";
+
+type ArticleEntry = CollectionEntry<"articles">;
+
+const all = (await getCollection("articles")) as ArticleEntry[];
+
+const articles = all.sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
+);
+
+const featured: ArticleEntry | undefined =
+  articles.find((x) => x.data.featured) ?? articles[0];
+
+const rest: ArticleEntry[] = featured
+  ? articles.filter((x) => x.id !== featured.id)
+  : [];
+---
+
+<Layout
+  title="Articles | The Liberation & Inclusion Translation"
+  description="Articles on translation, liberation, trauma-informed faith, and the Jesus way."
+  bodyClass="bg-cream"
+  headerClass="site-header--green"
+>
+  <ArticlesHero>
+    <div
+      class="articles-hero-search"
+      data-pagefind-ignore
+      aria-label="Search articles"
+    >
+      <SearchBar
+        placeholder="Search articles…"
+        fullSearchHref="/search"
+        defaultType="article"
+      />
+    </div>
+  </ArticlesHero>
+
+  <!-- Use div: Layout already has <main> -->
+  <div class="articles" data-pagefind-ignore>
+    <SubscribeStrip />
+
+    {featured && <FeaturedArticle entry={featured} />}
+
+    <section class="articles-grid" aria-label="All articles">
+      <div class="articles-grid__inner">
+        {rest.map((entry: ArticleEntry) => <ArticleCard entry={entry} />)}
+      </div>
+    </section>
+  </div>
+</Layout>
+
+<style>
+  /* Keep the search bar visually anchored in the hero */
+  .articles-hero-search {
+    width: min(1100px, calc(100% - 32px));
+    margin: 22px auto 0;
+  }
+
+  /* If your hero is tight on small screens, reduce the top margin */
+  @media (max-width: 700px) {
+    .articles-hero-search {
+      margin-top: 16px;
+    }
+  }
+</style>

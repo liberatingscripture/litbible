@@ -1,0 +1,200 @@
+---
+import { books } from "../data/books";
+
+/**
+ * Props are OPTIONAL so <ScriptureHeader /> is valid anywhere.
+ * If you pass props, they win. If not, we infer from the URL path.
+ */
+export type Props = {
+  kind?: "intro" | "chapter";
+  bookKey?: string;
+  chapter?: number;
+  chaptersInBook?: number;
+};
+
+const props = Astro.props as Props;
+
+function normalizeBookKey(key: string) {
+  // Force "bookKey" to be the slug key your site uses:
+  // "1 thessalonians" -> "1thessalonians"
+  // "  Luke "         -> "luke"
+  return String(key ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, "");
+}
+
+function humanBookName(key: string) {
+  const k = normalizeBookKey(key);
+
+  // "1thessalonians" -> "1 Thessalonians"
+  // "2corinthians"   -> "2 Corinthians"
+  const m = k.match(/^(\d+)([a-z].*)$/i);
+  if (m) {
+    const num = m[1];
+    const rest = m[2];
+    return `${num} ${rest.charAt(0).toUpperCase()}${rest.slice(1)}`;
+  }
+
+  // "luke" -> "Luke"
+  return k.charAt(0).toUpperCase() + k.slice(1);
+}
+
+function inferFromPath(pathname: string): {
+  kind?: "intro" | "chapter";
+  bookKey?: string;
+  chapter?: number;
+} {
+  // Expected:
+  // /luke-intro
+  // /luke-1
+  // /1john-4
+  const m = pathname.match(/^\/([0-9]*[a-z]+)(?:-(intro|\d+))?\/?$/i);
+  if (!m) return {};
+
+  const bookKey = normalizeBookKey(m[1]);
+  const suffix = m[2]?.toLowerCase();
+
+  if (!suffix || suffix === "intro") {
+    return { kind: "intro", bookKey };
+  }
+
+  const chapter = Number.parseInt(suffix, 10);
+  if (Number.isFinite(chapter)) return { kind: "chapter", bookKey, chapter };
+
+  return { kind: "intro", bookKey };
+}
+
+const inferred = inferFromPath(Astro.url?.pathname ?? "");
+
+// Explicit props override inferred values (and we normalize either way)
+const bookKey = normalizeBookKey(props.bookKey ?? inferred.bookKey ?? "");
+
+const kind: "intro" | "chapter" =
+  props.kind ?? inferred.kind ?? (props.chapter != null ? "chapter" : "intro");
+
+let chapter: number | undefined = undefined;
+
+if (kind === "chapter") {
+  const raw = props.chapter ?? inferred.chapter ?? 1;
+  const parsed = Number.parseInt(String(raw), 10);
+  chapter = Number.isFinite(parsed) ? parsed : 1;
+}
+
+const bookName = bookKey ? humanBookName(bookKey) : "";
+
+// Prefer an explicit prop if you pass it, otherwise fall back to your books map.
+const chaptersInBook =
+  props.chaptersInBook ??
+  (bookKey ? (books as Record<string, number>)[bookKey] : undefined);
+
+let headingText = "";
+let prevHref: string | null = null;
+let nextHref: string | null = null;
+
+if (!bookKey) {
+  headingText = "Scripture";
+  prevHref = null;
+  nextHref = null;
+} else if (kind === "intro") {
+  headingText = `${bookName} — Introduction`;
+  prevHref = null;
+  nextHref = `/${bookKey}-1`;
+} else {
+  const n = chapter ?? 1;
+  headingText = `${bookName} ${n}`;
+
+  prevHref = n > 1 ? `/${bookKey}-${n - 1}` : `/${bookKey}-intro`;
+
+  if (typeof chaptersInBook === "number" && n >= chaptersInBook)
+    nextHref = null;
+  else nextHref = `/${bookKey}-${n + 1}`;
+}
+---
+
+<header class="scripture-header">
+  <h1 id="chapter-title" class="chapter-title" data-pagefind-meta="title">
+    {headingText}
+  </h1>
+
+  <nav class="chapter-nav" aria-label="Chapter navigation">
+    {
+      prevHref ? (
+        <a
+          class="nav-button"
+          href={prevHref}
+          aria-label="Go to previous chapter"
+        >
+          ◀ Previous
+        </a>
+      ) : (
+        <span class="nav-button nav-button--disabled" aria-disabled="true">
+          ◀ Previous
+        </span>
+      )
+    }
+
+    {
+      nextHref ? (
+        <a class="nav-button" href={nextHref} aria-label="Go to next chapter">
+          Next ▶
+        </a>
+      ) : (
+        <span class="nav-button nav-button--disabled" aria-disabled="true">
+          Next ▶
+        </span>
+      )
+    }
+  </nav>
+</header>
+
+<style>
+  .scripture-header {
+    text-align: center;
+    margin: 20px 0 18px;
+  }
+
+  .chapter-title {
+    font-size: 32px;
+    line-height: 1.8;
+    margin: 0 0 14px;
+    text-align: center;
+  }
+
+  .chapter-nav {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .nav-button {
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 10px;
+    border: 0;
+    background-color: #209d50;
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    margin: 5px;
+    transition:
+      background-color 0.2s ease,
+      transform 0.2s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .nav-button:hover:not(.nav-button--disabled) {
+    background-color: #1d231c;
+    transform: translateY(-1px);
+  }
+
+  .nav-button--disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+</style>

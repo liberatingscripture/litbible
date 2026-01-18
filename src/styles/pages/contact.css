@@ -1,0 +1,175 @@
+/* =========================================================
+   Contact page
+   ========================================================= */
+
+.contact-page {
+  background: var(--cream);
+  color: var(--ink);
+}
+
+.contact-hero {
+  min-height: calc(100vh - var(--header-height, 0px));
+  display: grid;
+  place-items: center;
+
+  padding: clamp(72px, 10vh, 120px) 16px 88px;
+}
+
+.contact-inner {
+  width: 100%;
+  max-width: 860px;
+  text-align: center;
+}
+
+.contact-inner h1 {
+  font-family: "Crimson Text", var(--font-serif, serif);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.05;
+
+  font-size: clamp(3.2rem, 6vw, 5.4rem);
+  margin: 0 0 20px;
+  color: var(--ink);
+}
+
+.contact-lead {
+  margin: 0 auto 34px;
+  max-width: 38ch;
+
+  font-size: clamp(1.35rem, 2.6vw, 2.15rem);
+  line-height: 1.25;
+
+  color: rgba(29, 35, 28, 0.92);
+}
+
+.contact-logo {
+  display: block;
+  width: min(360px, 80vw);
+  height: auto;
+  margin: 22px auto 34px;
+}
+
+/* Form */
+.contact-form {
+  width: min(720px, 92vw);
+  margin: 0 auto;
+
+  display: grid;
+  gap: 16px;
+}
+
+.field {
+  display: grid;
+  gap: 8px;
+  text-align: left;
+}
+
+.field label {
+  font-size: 0.95rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: rgba(29, 35, 28, 0.75);
+}
+
+.field input,
+.field textarea {
+  width: 100%;
+  border: none;
+  border-radius: 10px;
+
+  background: #ffffff;
+  color: var(--ink);
+
+  padding: 16px 16px;
+  font-size: 1.05rem;
+
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+}
+
+.field textarea {
+  resize: vertical;
+  min-height: 160px;
+}
+
+.field input::placeholder,
+.field textarea::placeholder {
+  color: rgba(29, 35, 28, 0.42);
+}
+
+/* CTA-style button (green base → white on hover + lift) */
+.contact-button {
+  justify-self: center;
+
+  border: 2px solid var(--green);
+  cursor: pointer;
+
+  background: var(--green);
+  color: #ffffff;
+
+  padding: 14px 34px;
+  border-radius: 12px;
+
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16);
+
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    background-color 160ms ease,
+    color 160ms ease;
+}
+
+.contact-button:hover {
+  background: #ffffff;
+  color: var(--green);
+  transform: translateY(-2px);
+  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.18);
+}
+
+.contact-button:active {
+  transform: translateY(0);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16);
+}
+
+.contact-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.contact-privacy {
+  margin: 10px auto 0;
+  max-width: 60ch;
+  font-size: 0.98rem;
+  line-height: 1.45;
+  color: rgba(29, 35, 28, 0.78);
+}
+
+.contact-status {
+  margin: 4px 0 0;
+  min-height: 1.4em;
+  text-align: center;
+  color: rgba(29, 35, 28, 0.85);
+}
+
+/* Focus states */
+.field input:focus,
+.field textarea:focus,
+.contact-button:focus {
+  outline: 3px solid rgba(32, 157, 80, 0.35);
+  outline-offset: 3px;
+}
+
+/* Honeypot hidden */
+.hp-field {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}

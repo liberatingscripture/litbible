@@ -1,0 +1,151 @@
+---
+const { class: className = "" } = Astro.props;
+---
+
+<header class={`site-header ${className}`.trim()}>
+  <div class="site-header__inner">
+    <a
+      href="/"
+      class="site-header__brand"
+      aria-label="The Liberation and Inclusion Translation home"
+    >
+      <img
+        src="/images/lit-logo.png"
+        alt=""
+        class="site-header__logo"
+        width="48"
+        height="48"
+        loading="eager"
+        decoding="async"
+      />
+      <span class="site-header__title"
+        >The Liberation &amp; Inclusion Translation</span
+      >
+    </a>
+
+    <!-- Desktop nav -->
+    <nav class="site-nav" aria-label="Primary">
+      <ul class="site-nav__list">
+        <li><a href="/about">About</a></li>
+        <li><a href="/translation-commitments">Commitments</a></li>
+        <li><a href="/glossary">Glossary</a></li>
+        <li><a href="/found-in-translation-podcast">Podcast</a></li>
+        <li><a href="/articles">Articles</a></li>
+
+        <li class="site-nav__cta-item">
+          <a href="/read" class="site-header__cta"><span>Read Now</span></a>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="site-header__actions">
+      <button
+        class="site-header__menu-toggle"
+        type="button"
+        aria-label="Open menu"
+        aria-controls="mobileMenu"
+        aria-expanded="false"
+        aria-haspopup="dialog"
+      >
+        <span class="menu-icon" aria-hidden="true"></span>
+        <span class="sr-only">Menu</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile overlay menu -->
+  <div class="menu-overlay" id="mobileMenu" aria-hidden="true">
+    <div
+      class="menu-overlay__panel"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Site menu"
+      tabindex="-1"
+    >
+      <nav class="menu-overlay__nav" aria-label="Primary (mobile)">
+        <a href="/about">About</a>
+        <a href="/translation-commitments">Commitments</a>
+        <a href="/glossary">Glossary</a>
+        <a href="/found-in-translation-podcast">Podcast</a>
+        <a href="/articles">Articles</a>
+
+        <a href="/read" class="menu-overlay__cta">Read Now</a>
+      </nav>
+    </div>
+  </div>
+
+  <script>
+    // @ts-nocheck
+    (() => {
+      const toggle = document.querySelector(".site-header__menu-toggle");
+      const overlay = document.getElementById("mobileMenu");
+      const panel = overlay?.querySelector(".menu-overlay__panel");
+
+      if (!toggle || !overlay || !panel) return;
+
+      let lastActive = null;
+
+      const setOpenState = (open) => {
+        overlay.classList.toggle("is-open", open);
+        overlay.setAttribute("aria-hidden", open ? "false" : "true");
+
+        toggle.setAttribute("aria-expanded", open ? "true" : "false");
+        toggle.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+
+        document.documentElement.classList.toggle("menu-open", open);
+      };
+
+      const openMenu = () => {
+        lastActive = document.activeElement;
+        setOpenState(true);
+        panel.focus({ preventScroll: true });
+      };
+
+      const closeMenu = () => {
+        setOpenState(false);
+        (lastActive?.focus ? lastActive : toggle).focus?.({
+          preventScroll: true,
+        });
+      };
+
+      const isOpen = () => overlay.classList.contains("is-open");
+
+      toggle.addEventListener("click", (e) => {
+        e.preventDefault();
+        isOpen() ? closeMenu() : openMenu();
+      });
+
+      overlay.addEventListener("click", (e) => {
+        if (e.target === overlay) closeMenu();
+      });
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && isOpen()) closeMenu();
+      });
+
+      overlay.querySelectorAll("a").forEach((a) => {
+        a.addEventListener("click", () => closeMenu());
+      });
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key !== "Tab" || !isOpen()) return;
+
+        const focusables = panel.querySelectorAll(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        if (!focusables.length) return;
+
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      });
+    })();
+  </script>
+</header>

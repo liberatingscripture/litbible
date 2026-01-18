@@ -1,0 +1,790 @@
+---
+import Layout from "../layouts/Layout.astro";
+import "../styles/pages/about.css";
+---
+
+<Layout
+  title="About | Liberation and Inclusion Translation"
+  description="An overview of the Liberation and Inclusion Translation (LIT), the translator behind it, and the values guiding this trauma-informed, justice-oriented Bible translation."
+  canonical="https://litbible.net/about/"
+>
+  <article class="about-page">
+    {/* HERO: question + short answer + arc */}
+    <header class="about-hero" id="top">
+      <div class="about-hero__inner">
+        <h1 class="about-hero__title">So… who am I?</h1>
+
+        <div class="about-hero__answer">
+          <p>
+            I’m Brandon Vélez Johnson, a language and Bible nerd, a mental
+            health counselor, and someone who cares not just what the Bible
+            says, but how it impacts people.
+          </p>
+        </div>
+      </div>
+    </header>
+
+    <nav class="about-toc" aria-label="On this page">
+      <div class="about-toc__inner">
+        <div class="about-toc__bar">
+          <p class="about-toc__label">On this page</p>
+
+          <button
+            class="about-toc__toggle"
+            type="button"
+            aria-expanded="false"
+            aria-controls="about-toc-tray"
+          >
+            <span class="sr-only">Toggle section navigation</span>
+            <span class="about-toc__icon" aria-hidden="true"></span>
+          </button>
+        </div>
+
+        <div class="about-toc__tray" id="about-toc-tray" hidden>
+          <ul class="about-toc__list">
+            <li>
+              <a class="footer-cta about-toc__cta" href="#about-translator"
+                >About the translator</a
+              >
+            </li>
+            <li>
+              <a class="footer-cta about-toc__cta" href="#about-lit"
+                >About the LIT Bible</a
+              >
+            </li>
+            <li>
+              <a class="footer-cta about-toc__cta" href="#about-site"
+                >About this site</a
+              >
+            </li>
+            <li><a class="footer-cta about-toc__cta" href="#faq">FAQ’s</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <script>
+      (() => {
+        const toc = document.querySelector(".about-toc");
+        if (!toc) return;
+
+        const toggle = toc.querySelector(".about-toc__toggle");
+        const tray = toc.querySelector("#about-toc-tray");
+        const links = toc.querySelectorAll('a[href^="#"]');
+
+        // Type narrowing + safety
+        if (!(toggle instanceof HTMLButtonElement)) return;
+        if (!(tray instanceof HTMLElement)) return;
+
+        const openTray = () => {
+          toggle.setAttribute("aria-expanded", "true");
+          toc.classList.add("is-open");
+          tray.hidden = false;
+        };
+
+        const closeTray = () => {
+          toggle.setAttribute("aria-expanded", "false");
+          toc.classList.remove("is-open");
+          tray.hidden = true;
+        };
+
+        toggle.addEventListener("click", () => {
+          const isOpen = toggle.getAttribute("aria-expanded") === "true";
+          if (isOpen) closeTray();
+          else openTray();
+        });
+
+        links.forEach((a) => {
+          a.addEventListener("click", () => closeTray());
+        });
+
+        document.addEventListener("keydown", (e) => {
+          if (e.key === "Escape") closeTray();
+        });
+      })();
+    </script>
+
+    {/* CONTENT: stacked sections */}
+    <section class="about-body" aria-labelledby="about-translator">
+      <h2 id="about-translator">About the translator</h2>
+
+      <p>
+        For a long time, I thought I was going to be a pastor and a theology
+        professor, and I went to school for those things. I learned a lot that
+        was genuinely helpful. I also learned a lot that made me scratch my
+        head. In the end, I only served in one temporary pastor position, and by
+        the time I was graduating with my Master of Divinity, I knew I wasn’t
+        going to be a pastor or a professor anymore.
+      </p>
+
+      <h3>Where I came from</h3>
+
+      <p>
+        By the time I joined a church at age 11, faith had already left scars in
+        my family. Both of my parents grew up Seventh-day Adventist, my mother
+        in a Puerto Rican Adventist church, and my dad’s father was even a
+        pastor for a few years. Both of my parents were hurt by that world and
+        left Christianity entirely when I was a baby.
+      </p>
+
+      <p>
+        At eleven, my mom brought me to an Easter sunrise service. When the
+        pastor invited people to accept Jesus, I stood up. My mom had promised
+        that if I ever wanted to pursue faith, she would support me, and she
+        did. We started attending church together, and she returned to faith not
+        long after.
+      </p>
+
+      <p>
+        That first church was imperfect, but it gave me something that stuck.
+        They called themselves “inter-denominational,” and they emphasized
+        belonging across differences. That instinct shaped the path that
+        followed.
+      </p>
+
+      <p>
+        Over the years, I moved through a wide range of Christian spaces:
+        Evangelical, Pentecostal, Catholic monastic, Conservative Baptist,
+        Presbyterian, and the Emerging Church movement. Later, my wife and I
+        were drawn into New Monasticism and intentional community, where justice
+        stopped being an idea and became a daily practice. Eventually, we found
+        our way into an Anabaptist-rooted house church and intentional community
+        called The Springwater Community, and over a decade later, that’s still
+        our home.
+      </p>
+
+      <p>
+        I’ve learned from all of it, some things I carry forward, and some I’m
+        determined not to repeat.
+      </p>
+
+      <h3>How I got here</h3>
+
+      <p>
+        It took me a few years to figure out what to be when I grew up, and I
+        ended up becoming a counselor instead. It turned out to be a much better
+        fit. Counseling held onto all the parts of pastoral work that had drawn
+        me in in the first place: supporting people, helping them learn and
+        grow, being present when they needed not to be alone, and helping people
+        see themselves more clearly.
+      </p>
+
+      <p>
+        But that shift left me with a bunch of unused knowledge and skills. And,
+        if I’m honest, the Bible is one of my neurodivergent special interests.
+        I couldn’t just ignore it, so I kept learning on my own.
+      </p>
+
+      <p>
+        So, with an otherwise unused bachelor’s degree where I double majored in
+        Biblical Studies and Biblical Languages and minored in Spanish, a
+        master’s degree in Divinity where I focused on biblical languages and
+        biblical hermeneutics, and another decade of study on my own and in
+        conversation with other Bible nerds about both the Bible and other
+        languages like German, Japanese, and more Spanish, there’s a lot
+        rattling around in my brain.
+      </p>
+
+      <h3>Why a new translation</h3>
+
+      <p>
+        As my family grew, I found myself wanting to share this special interest
+        with my children. That’s when I ran into a problem. I can’t read the
+        Bible without qualifying things, stopping every few sentences, sometimes
+        every few words, to explain context, nuance, or what I think is actually
+        going on in the text.
+      </p>
+
+      <p>That’s no way to read the Bible.</p>
+
+      <p>
+        For years, I dreamed about creating a version that would be accessible
+        to my children without dumbing the text down, and that would also help
+        them see the values I believe the Bible consistently points toward. When
+        the shutdowns happened during the COVID-19 pandemic, I suddenly found
+        myself with the time and energy to finally put toward that idea.
+      </p>
+
+      <p>
+        As I started sharing my translation work, friends responded with
+        curiosity, encouragement, and thoughtful questions. Ultimately, they
+        encouraged me to keep going.
+      </p>
+
+      <h3>Why this work exists</h3>
+
+      <p>
+        The deeper I dug into exploring the original languages, seeing patterns
+        emerge, and questioning assumptions that weren’t part of the language
+        itself, the more I began to notice significant differences between the
+        original text and English translations. I discovered new clarity in
+        themes, connections within the text, and a whole range of possibilities
+        I would never have known were there. It gave me new eyes to read
+        familiar texts.
+      </p>
+
+      <p>
+        Seeing this work bring meaning to my friends and acquaintances has given
+        me a growing sense of excitement—about joining the work of the Spirit,
+        standing alongside many others who have wrestled honestly with
+        Scripture, and exploring what it might mean to share this translation
+        with a wider community.
+      </p>
+      <p class="about-back">
+        <a href="#top">Back to top</a>
+      </p>
+    </section>
+
+    <section class="about-body about-translation" aria-labelledby="about-lit">
+      <h2 id="about-lit">About the Liberation and Inclusion Translation</h2>
+
+      <p>
+        This project didn’t begin as a public translation. It grew out of years
+        of study, pastoral formation, living in Christian community, counseling
+        work, and the realization that how we translate Scripture shapes how
+        people experience God, themselves, and one another.
+      </p>
+
+      <p>
+        As I kept returning to the Greek text, I noticed something that had
+        bothered me for a long time: much of what makes the good news good—the
+        liberating movements, restorative teachings, radical inclusion, healing,
+        empowerment, embodiment, and insistence on loving justice in the New
+        Testament—wasn’t coming through clearly enough in English. Sometimes
+        that was because of theological tradition. Sometimes it was because of
+        habit. Often it was because familiar religious language had trained us
+        to be numb to what the text was actually doing.
+      </p>
+
+      <h3>“Word-by-word” doesn’t mean neutral</h3>
+
+      <p>
+        The LIT is translated word-by-word directly from the Greek texts,
+        working closely with grammar, syntax, and historical context. In that
+        sense, it is word-based. But Greek is not a code with fixed English
+        equivalents, and translation is never a mechanical process.
+      </p>
+
+      <p>A single Greek word often carries a range of meanings:</p>
+
+      <ul>
+        <li>
+          <em>Charis</em> can mean grace, favor, generosity, gift, or gratitude.
+        </li>
+        <li>
+          <em>Sarx</em> can mean flesh, body, family, embodied humanity, or self-preservation
+          instincts.
+        </li>
+        <li>
+          <em>Pistis</em> can mean faith, faithfulness, commitment, trust, allegiance,
+          or confidence.
+        </li>
+      </ul>
+
+      <p>
+        Every translation has to decide which sense is doing the work in a given
+        passage, whether to preserve ambiguity or clarify it, and whether to
+        echo inherited theological language or let the context speak more
+        directly.
+      </p>
+
+      <p>
+        The LIT doesn’t pretend to avoid those decisions. Instead, it makes them
+        deliberately, choosing English that reflects what the Greek is actually
+        communicating in context, often letting go of familiar phrasing to do
+        that more clearly.
+      </p>
+
+      <h3>Why the language often sounds unfamiliar</h3>
+
+      <p>
+        Many English translations rely on traditional church vocabulary that has
+        accumulated centuries of doctrinal meaning. Sometimes that language is
+        helpful. More often, it narrows, distorts, or mutes what the text
+        originally conveyed.
+      </p>
+
+      <p>
+        In the LIT, you’ll see terms rendered in ways that may feel unfamiliar
+        at first:
+      </p>
+
+      <ul>
+        <li>
+          <em>ekklesia</em> as <strong>“called community”</strong> (traditionally,
+          “church”)
+        </li>
+        <li>
+          <em>pneuma</em> as <strong>“life-breath”</strong> (traditionally, “spirit”)
+        </li>
+        <li>
+          <em>euangelion</em> as <strong>“triumphant message”</strong>
+          (traditionally, “gospel”)
+        </li>
+        <li>
+          <em>sōtērion</em> as <strong>“liberation”</strong> (traditionally, “salvation”)
+        </li>
+      </ul>
+
+      <p>
+        These choices aren’t meant to be provocative. They are attempts to
+        surface the social, relational, and political dimensions of the text
+        that can disappear behind religious shorthand. Where a choice might
+        raise questions, the translation is annotated with footnotes so readers
+        can see the Greek term, its range of meanings, and the reasoning behind
+        the rendering.
+      </p>
+
+      <h3>Not a paraphrase, not a frozen literalism</h3>
+
+      <p>
+        Although the LIT often reads fluidly and with unfamiliar phrasing, it is
+        not a paraphrase. Every line is translated from the Greek, and every
+        rendering stays within the recognized semantic range of the source
+        language.
+      </p>
+
+      <p>
+        At the same time, it resists a kind of literalism that treats English
+        words as interchangeable containers for Greek ones. The goal is not to
+        reproduce Greek grammar in English, but to communicate meaning
+        faithfully and responsibly to modern readers who don’t live in the world
+        of the first century. ested.
+      </p>
+
+      <p>
+        You could think of the LIT as an annotated translation where
+        interpretive work is made visible rather than hidden behind the
+        appearance of neutrality.
+      </p>
+
+      <h3>In dialogue with the text, not with tradition</h3>
+
+      <p>
+        Many translations are shaped primarily by doctrinal clarity, liturgical
+        use, or reverence as defined by later theological frameworks.
+      </p>
+
+      <p>This translation takes a different starting point. It prioritizes:</p>
+
+      <ul>
+        <li>historical and linguistic integrity,</li>
+        <li>attention to power, community, and marginalization in the text,</li>
+        <li>and reader comprehension over inherited piety.</li>
+      </ul>
+
+      <p>
+        That means it does not claim neutrality. Translation is always
+        interpretation, and interpretation always reflects values. Rather than
+        disguising those values, the LIT names them so readers can engage the
+        text with awareness.
+      </p>
+
+      <h3>Core commitments</h3>
+
+      <ul>
+        <li>
+          <strong>Faithfulness to the text</strong><br />
+          Translation choices are grounded in grammar, syntax, and historical context,
+          not doctrinal shortcuts.
+        </li>
+        <li>
+          <strong>Clarity over religious technical language</strong><br />
+          Traditional theological terms are reconsidered when they obscure meaning,
+          import later doctrine, or soften the text’s original force.
+        </li>
+        <li>
+          <strong>Attention to harm and trauma</strong><br />
+          Where Scripture has been used to shame, exclude, or justify harm, the translation
+          asks whether that harm arises from the text itself or from how it has been
+          rendered and taught.
+        </li>
+        <li>
+          <strong>God looks like Jesus</strong><br />
+          The character of God is interpreted consistently with Jesus’ life, teaching,
+          and self-giving love, rather than through abstract or punitive frameworks.
+        </li>
+        <li>
+          <strong>Belonging and restoration</strong><br />
+          The translation highlights the Bible’s recurring concern with communal repair,
+          shared dignity, and life together rather than fear-based exclusion.
+        </li>
+      </ul>
+
+      <h3>What this translation is—and isn’t</h3>
+
+      <p>
+        The LIT is a theological, interpretive translation rooted in
+        historical-critical scholarship and shaped by concern for lived
+        experience. It is offered as one faithful contribution among many.
+      </p>
+
+      <p>
+        It is not a claim to be the most literal or most neutral Bible, not a
+        replacement for other translations, and not a final word on the meaning
+        of Scripture.
+      </p>
+
+      <p>
+        Readers are encouraged to read it alongside other translations,
+        commentaries, and voices, engaging it as part of an ongoing communal
+        conversation.
+      </p>
+
+      <h3>An invitation</h3>
+
+      <p>
+        This project exists because translation shapes theology, and theology
+        shapes lives.
+      </p>
+
+      <p>
+        For many people—especially those who have been harmed or excluded by how
+        Scripture has been translated and taught—those choices have mattered
+        deeply.
+      </p>
+
+      <p>
+        The Liberation and Inclusion Translation invites readers to slow down,
+        notice where translation choices matter, question inherited language,
+        and encounter the text as a living witness to justice, healing, and
+        shared belonging.
+      </p>
+
+      <p>
+        <strong
+          >It doesn’t ask for agreement.<br />It asks for engagement.</strong
+        >
+      </p>
+      <p class="about-back">
+        <a href="#top">Back to top</a>
+      </p>
+    </section>
+
+    <section class="about-body about-site" aria-labelledby="about-site">
+      <h2 id="about-site">About this site</h2>
+
+      <p>
+        This website is intentionally simple, transparent, and accessible. It is
+        built as a static site, meaning there are no ads, no tracking scripts,
+        no paywalls, and no algorithms shaping what you see.
+      </p>
+
+      <p>
+        The Liberation and Inclusion Translation is offered freely online
+        because access to sacred texts and interpretive work should not be
+        restricted by income, institutional affiliation, or geography.
+      </p>
+
+      <p>
+        This site is a work in progress. Text, notes, and structure may evolve
+        as the translation continues and feedback is incorporated. Revisions are
+        made carefully and publicly, with the aim of improved clarity, accuracy,
+        and readability.
+      </p>
+
+      <h3>How to use this site</h3>
+
+      <p>
+        If you want to read from beginning to end, you can. If you prefer to
+        move between passages, books, and themes, that works too. You do not
+        need to follow a fixed order or agree with every translation choice to
+        engage meaningfully with the text.
+      </p>
+
+      <p>
+        Use the <a href="/read">Read Now</a> page to choose a book and chapter directly.
+        It also shows which books are available now and which are still coming later.
+      </p>
+
+      <p>
+        You can read individual passages on their own, move between books, or
+        compare the translation here with other versions you already know. The
+        navigation and structure are meant to support curiosity rather than
+        enforce a particular path.
+      </p>
+
+      <p>
+        Footnotes are an important part of the translation, but they are
+        optional. Some readers will want to read straight through and return to
+        the notes later; others will move back and forth frequently. Both
+        approaches are valid.
+      </p>
+
+      <p>
+        This site can be used for study, reflection, group discussion, teaching,
+        or quiet reading. It is not designed for speed or volume, but for
+        attentiveness. Taking your time here is part of how the translation is
+        meant to be read.
+      </p>
+      <p class="about-back">
+        <a href="#top">Back to top</a>
+      </p>
+    </section>
+
+    <section class="about-body about-faq" aria-labelledby="faq">
+      <h2 id="faq">Frequently Asked Questions</h2>
+
+      <div class="faq">
+        <details class="faq-item">
+          <summary class="faq-q"
+            >What makes this the “best” translation?</summary
+          >
+          <div class="faq-a">
+            <p>Short answer: it isn’t.</p>
+            <p>
+              Longer answer: there is no such thing as the “best” translation.
+              Every translation has a particular focus, set of priorities, and
+              set of biases. Most widely used English translations emerge from
+              conservative Evangelical traditions. This one does not.
+            </p>
+            <p>
+              The Liberation and Inclusion Translation seeks to highlight themes
+              and valid translation options that emerge from my own formation,
+              commitments, and questions as a translator. Rather than pretending
+              neutrality, I try to be as aware of my biases as possible and
+              transparent about them, so readers can make informed decisions
+              about how they engage the text for themselves.
+            </p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-q">Should I only read this translation?</summary>
+          <div class="faq-a">
+            <p>Please don’t.</p>
+            <p>
+              I encourage readers to continue engaging other translations,
+              commentaries, and writers who bring different insights and
+              perspectives. No single translation, whether produced by one
+              person or a large committee, should dominate anyone’s
+              understanding of Scripture or spiritual truth.
+            </p>
+            <p>
+              Interpretation happens in community, through conversation,
+              comparison, and listening to many voices over time.
+            </p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-q">Who is this translation for?</summary>
+          <div class="faq-a">
+            <p>
+              The LIT is written for readers who want to engage Scripture
+              thoughtfully, including pastors, students, counselors, teachers,
+              skeptics, and people who have been harmed or excluded by how the
+              Bible has been translated and taught.
+            </p>
+            <p>
+              It assumes curiosity rather than agreement, and engagement rather
+              than certainty.
+            </p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-q">Is this a paraphrase or commentary?</summary>
+          <div class="faq-a">
+            <p>
+              No. The LIT is a translation made directly from the original
+              languages, working closely with grammar, syntax, and historical
+              context. Every rendering stays within the recognized semantic
+              range of the source text.
+            </p>
+            <p>
+              At the same time, translation always involves interpretation.
+              Where choices are difficult or contested, that interpretive work
+              is made visible through footnotes rather than hidden behind
+              familiar phrasing.
+            </p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-q">
+            Why does the language sometimes sound unfamiliar or unsettling?
+          </summary>
+          <div class="faq-a">
+            <p>
+              Much traditional Bible language has accumulated centuries of
+              theological and cultural meaning. Familiar words can feel safe
+              even when they no longer communicate what the original text was
+              doing.
+            </p>
+            <p>
+              The LIT sometimes uses unfamiliar phrasing to help readers notice
+              details, stay curious, and pay closer attention to passages that
+              have become rote or glossed over through familiarity and inherited
+              tradition. The goal is not to be provocative, but to promote
+              clarity and attentiveness.
+            </p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-q">
+            Is this translation driven by a political or ideological agenda?
+          </summary>
+          <div class="faq-a">
+            <p>
+              Every translation reflects values. Decisions about wording,
+              emphasis, and clarity always shape how a text is heard.
+            </p>
+            <p>
+              The LIT is biased in the same way all translations are biased. It
+              is not, however, attempting to make the text say something it does
+              not already say. From within the range of possible meanings,
+              particular choices are made through the lens of the commitments
+              guiding this work, commitments that may differ from those shaping
+              other translations.
+            </p>
+            <p>
+              Rather than claiming neutrality, the LIT names its commitments
+              openly, including faithfulness to the text, attentiveness to harm
+              and exclusion, and interpretation of God’s character through the
+              life and teaching of Jesus. Readers are invited to engage those
+              commitments critically and thoughtfully.
+            </p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-q"
+            >How confident are you in this translation?</summary
+          >
+          <div class="faq-a">
+            <p>
+              I have worked diligently, building on formal academic training
+              with ongoing self-study and years of engagement with the biblical
+              languages. I consult reference materials regularly and aim to make
+              careful, responsible translation decisions.
+            </p>
+            <p>
+              That said, this is a semi-scholarly work that is still in
+              progress. Most translation choices have not been subjected to
+              exhaustive textual criticism, journal-level research, or peer
+              review. Readers are encouraged to pursue their own supplemental
+              study and come to their own conclusions about difficult or
+              disputed passages.
+            </p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-q">What texts are available right now?</summary>
+          <div class="faq-a">
+            <p>
+              The New Testament is being translated and published progressively.
+              All books are currently drafts that will be reviewed and updated
+              in the future. Most books are complete, but some are not yet
+              available. A list of currently available books can be found on the <a
+                href="/read">Read Now</a
+              >
+              page.
+            </p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-q">When will the translation be finished?</summary
+          >
+          <div class="faq-a">
+            <p>That is difficult to answer.</p>
+            <p>
+              More than half of the New Testament has been translated so far. My
+              hope is to complete a first full draft sometime in 2026. As my
+              understanding has deepened through this project, I have also
+              become aware of ways earlier books can be improved.
+            </p>
+            <p>
+              I plan to revise all books at least once after completing their
+              initial drafts, a process that will likely take several additional
+              years. After that, work on the Hebrew Bible will begin. This is a
+              long-term project.
+            </p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-q">Can I quote or share this translation?</summary
+          >
+          <div class="faq-a">
+            <p>
+              Yes. The translation is offered freely for reading, teaching,
+              discussion, and non-commercial use. Attribution is appreciated,
+              and licensing details are provided on the <a href="/read#license"
+                >Read Now</a
+              >
+              page.
+            </p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-q"
+            >What if I strongly disagree with a translation choice?</summary
+          >
+          <div class="faq-a">
+            <p>
+              That response is welcome. Disagreement often means the text is
+              being taken seriously.
+            </p>
+            <p>
+              Readers are encouraged to compare the LIT with other translations,
+              consult the footnotes, and engage the reasoning behind a choice
+              rather than assuming carelessness or bad faith. If you believe the
+              original language is communicating something that is not reflected
+              here, feedback is welcome so the translation can continue to
+              improve.
+            </p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-q"
+            >What Greek text is the LIT translated from?</summary
+          >
+          <div class="faq-a">
+            <p>
+              The Liberation &amp; Inclusion Translation (LIT) is an original
+              English translation prepared from
+              <em>The Greek New Testament: SBL Edition</em> (ed. Michael W. Holmes;
+              © 2010 Society of Biblical Literature &amp; Logos Bible Software).
+            </p>
+            <p>
+              The SBLGNT is licensed under the Creative Commons Attribution 4.0,
+              International Licence (CC BY 4.0):
+              <a
+                href="https://creativecommons.org/licenses/by/4.0/"
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                https://creativecommons.org/licenses/by/4.0/
+              </a>. This translation constitutes an adaptation of that Greek
+              text. Used with permission.
+            </p>
+            <p>
+              Greek quotations are presented in transliterated form;
+              accentuation and punctuation follow LIT house style, mostly
+              removed for accessibility to readers without prior knowledge of
+              Greek.
+            </p>
+            <p>
+              Portions of the SBL Greek text quoted here remain available under
+              CC BY 4.0; the NC-ND restrictions apply only to the original
+              English translation and other LIT-specific content.
+            </p>
+            <p>
+              The Society of Biblical Literature and Logos Bible Software do not
+              endorse the LIT Bible.
+            </p>
+          </div>
+        </details>
+      </div>
+      <p class="about-back">
+        <a href="#top">Back to top</a>
+      </p>
+    </section>
+  </article>
+</Layout>

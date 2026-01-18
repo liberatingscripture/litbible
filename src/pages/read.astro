@@ -1,0 +1,109 @@
+---
+import ReadLayout from "../layouts/ReadLayout.astro";
+import "../styles/pages/read.css";
+
+const title = "Read | Liberation and Inclusion Translation";
+const description =
+  "Read the Liberation and Inclusion Translation (LIT) online.";
+---
+
+<ReadLayout title={title} description={description} bg="cream" showTools={true}>
+  <header slot="hero" class="read-hero">
+    <img
+      class="read-logo"
+      src="/images/lit-logo.png"
+      alt="Liberation and Inclusion Translation logo"
+      width="220"
+      height="220"
+      loading="eager"
+      decoding="async"
+    />
+
+    <h1 class="read-title">Read the LIT Online</h1>
+
+    <p class="read-lede">
+      I’ve got solid drafts of over half of the New Testament, ready for your
+      study, scrutinize, celebrate, and use in your faith circles. This is a
+      living project, so check back over time for the latest version. Questions,
+      comments, or insights?
+      <a href="/contact">Drop me a line</a>.
+    </p>
+  </header>
+
+  <section class="license-band" aria-labelledby="license-heading">
+    <div class="license-band__inner">
+      <section
+        id="license"
+        class="license-card"
+        aria-labelledby="license-heading"
+      >
+        <h2 id="license-heading" class="license-card__title">
+          License and reuse
+        </h2>
+
+        <p class="license-card__lede">
+          <a href="https://litbible.net" class="license-card__link"
+            >The Liberation and Inclusion Translation of the Bible (LIT)™</a
+          >
+          © 2024 by
+          <a href="/about" class="license-card__link"
+            >Brandon C. Vélez Johnson</a
+          >
+          is licensed under
+          <a
+            href="http://creativecommons.org/licenses/by-nc-nd/4.0/?ref=chooser-v1"
+            class="license-card__link"
+            target="_blank"
+            rel="noopener">CC BY-NC-ND 4.0</a
+          >.
+        </p>
+
+        <p class="license-card__lede">
+          You may use it within that license with the following restrictions (If
+          you would like to use it outside these restrictions, please contact me
+          to discuss your project):
+        </p>
+
+        <ol class="license-card__list">
+          <li>
+            <strong>Attribution</strong> — You must give
+            <a
+              href="https://creativecommons.org/licenses/by-nc-nd/4.0/?ref=chooser-v1#ref-appropriate-credit"
+              class="license-card__link"
+              target="_blank"
+              rel="noopener">appropriate credit</a
+            >, provide a link to the license, and
+            <a
+              href="https://creativecommons.org/licenses/by-nc-nd/4.0/?ref=chooser-v1#ref-indicate-changes"
+              class="license-card__link"
+              target="_blank"
+              rel="noopener">indicate if changes were made</a
+            >.
+          </li>
+
+          <li>
+            <strong>NonCommercial Use Only</strong> — You may not use the material
+            for
+            <a
+              href="https://creativecommons.org/licenses/by-nc-nd/4.0/?ref=chooser-v1#ref-commercial-purposes"
+              class="license-card__link"
+              target="_blank"
+              rel="noopener">commercial purposes</a
+            >.
+          </li>
+
+          <li>
+            <strong>No Derivatives</strong> — If you
+            <a
+              href="https://creativecommons.org/licenses/by-nc-nd/4.0/?ref=chooser-v1#ref-some-kinds-of-mods"
+              class="license-card__link"
+              target="_blank"
+              rel="noopener">remix, transform, or build upon</a
+            >
+            the material, you may not distribute the modified material.
+          </li>
+        </ol>
+      </section>
+    </div>
+  </section>
+</ReadLayout>

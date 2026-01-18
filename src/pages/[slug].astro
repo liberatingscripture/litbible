@@ -1,0 +1,553 @@
+---
+import ScriptureLayout from "../layouts/ScriptureLayout.astro";
+import { books } from "../data/books";
+
+type Footnote = {
+  id: string; // e.g. "fn-a"
+  refId: string; // e.g. "fnref-a"
+  label: string; // e.g. "a"
+  html: string; // inner HTML for the note content
+};
+
+type ChapterData = {
+  bookKey?: string;
+  chapter: number;
+
+  // Optional meta (lets your JSON drive these instead of generic strings)
+  type?: string;
+  title?: string;
+  description?: string;
+  topics?: string[];
+
+  // New mode (Luke 4 style)
+  paragraphs: string[];
+
+  // Optional (Luke 4 style)
+  footnotes?: Footnote[];
+};
+
+type ChapterModule = { default: ChapterData };
+
+const chapterModules = import.meta.glob<ChapterModule>(
+  "../data/chapters/*.json",
+  { eager: true },
+);
+
+function getChapter(slug: string): ChapterData | null {
+  const key = `../data/chapters/${slug}.json`;
+  const mod = chapterModules[key];
+  return mod?.default ?? null;
+}
+
+function normalizeBookKey(key: string) {
+  return String(key ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, "");
+}
+
+function humanBookName(key: string) {
+  const k = normalizeBookKey(key);
+
+  // "1thessalonians" -> "1 Thessalonians"
+  const m = k.match(/^(\d+)([a-z].*)$/i);
+  if (m) {
+    const num = m[1];
+    const rest = m[2];
+    return `${num} ${rest.charAt(0).toUpperCase()}${rest.slice(1)}`;
+  }
+
+  // "luke" -> "Luke"
+  return k.charAt(0).toUpperCase() + k.slice(1);
+}
+
+/**
+ * Pagefind-friendly hyphen normalization:
+ * Turn word-word into word<space>word for indexing, while keeping a visible hyphen.
+ *
+ * - Only operates OUTSIDE tags (so it won't touch ids/attrs like luke-4-p11).
+ * - Only targets hyphen-minus between word chars: /[0-9A-Za-z]-[0-9A-Za-z]/
+ *
+ * Replacement:
+ *   <span class="pf-wordbreak"> </span><span class="pf-hyphen"></span>
+ *
+ * The first span contains a literal space but is zero-width visually.
+ * The hyphen span renders "-" via CSS ::before (visible but not indexed).
+ */
+function injectHyphenWordbreaks(html: string): string {
+  const s = String(html ?? "");
+  if (!s.includes("-")) return s;
+
+  const isWord = (ch: string) => /[0-9A-Za-z]/.test(ch);
+
+  let out = "";
+  let inTag = false;
+
+  for (let i = 0; i < s.length; i++) {
+    const ch = s[i];
+
+    if (ch === "<") {
+      inTag = true;
+      out += ch;
+      continue;
+    }
+
+    if (ch === ">") {
+      inTag = false;
+      out += ch;
+      continue;
+    }
+
+    if (!inTag && ch === "-") {
+      const prev = i > 0 ? s[i - 1] : "";
+      const next = i + 1 < s.length ? s[i + 1] : "";
+
+      if (isWord(prev) && isWord(next)) {
+        out +=
+          `<span class="pf-wordbreak" aria-hidden="true"> </span>` +
+          `<span class="pf-hyphen" aria-hidden="true"></span>`;
+        continue; // skip the real "-" char
+      }
+    }
+
+    out += ch;
+  }
+
+  return out;
+}
+
+type StaticPath =
+  | { params: { slug: string }; props: { kind: "intro"; bookKey: string } }
+  | {
+      params: { slug: string };
+      props: {
+        kind: "chapter";
+        bookKey: string;
+        chapter: number;
+        slug: string;
+      };
+    };
+
+export function getStaticPaths(): StaticPath[] {
+  const paths: StaticPath[] = [];
+
+  for (const [bookKey, chapterCount] of Object.entries(books)) {
+    paths.push({
+      params: { slug: `${bookKey}-intro` },
+      props: { kind: "intro", bookKey },
+    });
+
+    for (let ch = 1; ch <= chapterCount; ch++) {
+      paths.push({
+        params: { slug: `${bookKey}-${ch}` },
+        props: {
+          kind: "chapter",
+          bookKey,
+          chapter: ch,
+          slug: `${bookKey}-${ch}`,
+        },
+      });
+    }
+  }
+
+  return paths;
+}
+
+const props = Astro.props as StaticPath["props"];
+
+const chapterData = props.kind === "chapter" ? getChapter(props.slug) : null;
+
+const topics = Array.isArray(chapterData?.topics) ? chapterData!.topics : [];
+
+const title =
+  props.kind === "intro"
+    ? `${props.bookKey} — Introduction | Liberation and Inclusion Translation`
+    : chapterData?.title
+      ? `${chapterData.title} | Liberation and Inclusion Translation`
+      : `${props.bookKey} ${props.chapter} | Liberation and Inclusion Translation`;
+
+const description =
+  props.kind === "intro"
+    ? `Introduction to ${props.bookKey} in the Liberation and Inclusion Translation (LIT).`
+    : chapterData?.description
+      ? chapterData.description
+      : `${props.bookKey} ${props.chapter} in the Liberation and Inclusion Translation (LIT).`;
+
+const paragraphsRaw = Array.isArray(chapterData?.paragraphs)
+  ? chapterData!.paragraphs
+  : [];
+
+/**
+ * IMPORTANT:
+ * We only apply hyphen normalization to the scripture paragraphs (the indexed body),
+ * not footnotes (which you already ignore from indexing).
+ */
+const paragraphs = paragraphsRaw.map(injectHyphenWordbreaks);
+
+const footnotes = Array.isArray(chapterData?.footnotes)
+  ? chapterData!.footnotes
+  : [];
+
+/* Chapter CTAs (below text, above footnotes) */
+const bookKey = normalizeBookKey(props.bookKey);
+const bookName = humanBookName(bookKey);
+const chaptersInBook = (books as Record<string, number>)[bookKey];
+
+let prevCta: { href: string; label: string } | null = null;
+let nextCta: { href: string; label: string } | null = null;
+
+if (props.kind === "chapter") {
+  const n = props.chapter;
+
+  // Previous: chapter 1 goes to Intro
+  if (n === 1) {
+    prevCta = { href: `/${bookKey}-intro`, label: `${bookName} Intro` };
+  } else if (n > 1) {
+    prevCta = { href: `/${bookKey}-${n - 1}`, label: `${bookName} ${n - 1}` };
+  }
+
+  // Next: stop at the end of the book
+  if (typeof chaptersInBook === "number" && n < chaptersInBook) {
+    nextCta = { href: `/${bookKey}-${n + 1}`, label: `${bookName} ${n + 1}` };
+  }
+}
+---
+
+<ScriptureLayout
+  title={title}
+  description={description}
+  book={props.bookKey}
+  chapter={props.kind === "intro" ? "intro" : props.chapter}
+  type={props.kind === "intro" ? "intro" : "scripture"}
+  topics={topics}
+>
+  {
+    props.kind === "intro" ? (
+      <article class="chapter">
+        {/* H1 is provided by <ScriptureHeader /> in ScriptureLayout */}
+
+        <div class="intro">
+          <p>(Intro content goes here.)</p>
+        </div>
+      </article>
+    ) : (
+      <article class="chapter">
+        {/* H1 is provided by <ScriptureHeader /> in ScriptureLayout */}
+
+        {paragraphs.length ? (
+          <>
+            <div class="chapter-paragraphs">
+              {paragraphs.map((html) => (
+                <div class="p" set:html={html} />
+              ))}
+            </div>
+
+            {/* Chapter CTAs (below scripture text, above footnotes) */}
+            {prevCta || nextCta ? (
+              <nav class="chapter-ctas" aria-label="Chapter navigation">
+                {prevCta ? (
+                  <a
+                    class="chapter-cta"
+                    href={prevCta.href}
+                    aria-label={`Go to ${prevCta.label}`}
+                  >
+                    {prevCta.label}
+                  </a>
+                ) : (
+                  <span
+                    class="chapter-cta chapter-cta--spacer"
+                    aria-hidden="true"
+                  />
+                )}
+
+                {nextCta ? (
+                  <a
+                    class="chapter-cta"
+                    href={nextCta.href}
+                    aria-label={`Go to ${nextCta.label}`}
+                  >
+                    {nextCta.label}
+                  </a>
+                ) : (
+                  <span
+                    class="chapter-cta chapter-cta--spacer"
+                    aria-hidden="true"
+                  />
+                )}
+              </nav>
+            ) : null}
+
+            {/* Footnotes: shown to readers, excluded from search indexing */}
+            {footnotes.length ? (
+              <section
+                class="footnotes-wrap"
+                data-pagefind-ignore
+                aria-labelledby="footnotes-title"
+              >
+                <h2 id="footnotes-title">Footnotes</h2>
+
+                <ol class="footnotes">
+                  {footnotes.map((fn) => (
+                    <li id={fn.id}>
+                      <p>
+                        <a
+                          href={`#${fn.refId}`}
+                          class="footnote-backlink"
+                          aria-label={`Back to footnote reference ${fn.label}`}
+                        >
+                          {fn.label}
+                        </a>
+                        <span set:html={fn.html} />
+                      </p>
+                    </li>
+                  ))}
+                </ol>
+              </section>
+            ) : null}
+
+            {/* Back to top */}
+            <div class="back-to-top">
+              <a class="back-to-top__link" href="#chapter-title">
+                Back to top ↑
+              </a>
+            </div>
+          </>
+        ) : (
+          <p>(No chapter data yet. Add src/data/chapters/{props.slug}.json)</p>
+        )}
+      </article>
+    )
+  }
+
+  <style>
+    /* Paragraph mode styling */
+    .chapter-paragraphs :global(p) {
+      margin: 0 0 12px;
+      line-height: 1.75;
+    }
+
+    /* Verse numbers inside paragraphs (ONLY these) */
+    .chapter-paragraphs :global(sup[id^="v"]) {
+      font-weight: 400; /* unbold */
+      font-size: 0.8em;
+      line-height: 1;
+      margin-right: 0;
+      opacity: 0.85; /* optional, subtle */
+    }
+
+    /* Make #vN hashes land below sticky tools/header */
+    .chapter :global([id^="v"]) {
+      scroll-margin-top: 120px;
+    }
+
+    /* Footnote refs in the MAIN scripture text only */
+    .chapter-paragraphs :global(.fn-ref a) {
+      text-decoration: none;
+      color: var(--green, #209d50);
+      font-weight: 700;
+    }
+    .chapter-paragraphs :global(.fn-ref a:hover) {
+      text-decoration: underline;
+    }
+
+    /* --- Hyphen-as-space indexing helpers --- */
+    .chapter-paragraphs :global(.pf-wordbreak) {
+      display: inline-block;
+      width: 0;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    .chapter-paragraphs :global(.pf-hyphen) {
+      display: inline-block;
+    }
+
+    .chapter-paragraphs :global(.pf-hyphen)::before {
+      content: "-";
+    }
+
+    /* Chapter CTAs */
+    :global(.chapter-ctas) {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      margin: 18px 0 14px;
+    }
+
+    /* Big, consistent button size */
+    :global(.chapter-cta) {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+
+      width: clamp(240px, 42%, 420px);
+      min-height: 56px;
+
+      padding: 14px 22px;
+      border-radius: 14px;
+      text-decoration: none;
+
+      background: var(--green, #209d50);
+      color: var(--ink, #1d231c);
+
+      font-weight: 800;
+      letter-spacing: 0.03em;
+
+      box-shadow: 0 12px 26px rgba(0, 0, 0, 0.2);
+
+      transition:
+        background-color 0.18s ease,
+        color 0.18s ease,
+        transform 0.18s ease;
+
+      text-align: center;
+      white-space: normal;
+      line-height: 1.15;
+    }
+
+    :global(.chapter-cta:hover) {
+      background: #fff;
+      color: var(--green, #209d50);
+      transform: translateY(-1px);
+    }
+
+    :global(.chapter-cta--spacer) {
+      width: clamp(240px, 42%, 420px);
+      min-height: 56px;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    @media (max-width: 560px) {
+      :global(.chapter-ctas) {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      :global(.chapter-cta),
+      :global(.chapter-cta--spacer) {
+        width: 100%;
+      }
+
+      :global(.chapter-cta--spacer) {
+        display: none;
+      }
+    }
+
+    /* Footnotes section */
+    .footnotes-wrap {
+      margin-top: 28px;
+      padding-top: 18px;
+      border-top: 1px solid rgba(29, 35, 28, 0.14);
+    }
+
+    .footnotes-wrap h2 {
+      margin: 0 0 10px;
+      font-size: 1.45rem;
+      line-height: 1.2;
+      font-weight: 700;
+    }
+
+    /* Footnotes list: show ONLY your a/b/c labels, not 1/2/3 */
+    .footnotes {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+    }
+
+    .footnotes li {
+      margin: 0 0 10px;
+    }
+
+    .footnotes p {
+      margin: 0;
+      line-height: 1.6;
+    }
+
+    .footnote-backlink {
+      text-decoration: none;
+      color: var(--green, #209d50);
+      font-weight: 800;
+      margin-right: 0.4rem;
+    }
+
+    .footnote-backlink:hover {
+      text-decoration: underline;
+    }
+
+    /* Back to top (more separation from footnotes; green by default, white on hover) */
+    .back-to-top {
+      margin-top: 34px; /* separation from last footnote */
+      padding-top: 10px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .back-to-top__link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 18px;
+      border-radius: 999px;
+      text-decoration: none;
+
+      background: var(--green, #209d50);
+      color: var(--ink, #1d231c);
+      font-weight: 800;
+
+      box-shadow: 0 10px 22px rgba(0, 0, 0, 0.14);
+
+      transition:
+        background-color 0.18s ease,
+        color 0.18s ease,
+        transform 0.18s ease;
+    }
+
+    .back-to-top__link:hover {
+      background: #fff;
+      color: var(--green, #209d50);
+      transform: translateY(-1px);
+    }
+
+    /* Hidden but still indexable */
+    .pf-visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    /* Hebrew Bible quotation blocks inside scripture text */
+    .chapter-paragraphs :global(blockquote.hbq) {
+      margin: 0.6rem 0 0.9rem;
+      padding-left: 2rem;
+      border-left: 0;
+      font-style: normal;
+      color: inherit;
+    }
+
+    /* Poetic-line rendering: continuation wraps indent further by the blockquote indent */
+    .chapter-paragraphs :global(blockquote.hbq .hbq-line) {
+      margin: 0;
+      line-height: 1.75;
+
+      /* wrapped lines shift right by +2rem (same as blockquote indent) */
+      padding-left: 2rem;
+      text-indent: -2rem;
+    }
+
+    .chapter-paragraphs :global(blockquote.hbq .hbq-line sup.vn) {
+      margin-right: 0.15em;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+  </style>
+</ScriptureLayout>

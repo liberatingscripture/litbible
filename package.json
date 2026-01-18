@@ -1,0 +1,16 @@
+{
+  "name": "litbible",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "node scripts/build-topics-index.mjs && astro build && pagefind --site dist",
+    "preview": "npm run build && astro preview"
+  },
+  "dependencies": {
+    "astro": "^5.0.0"
+  },
+  "devDependencies": {
+    "pagefind": "^1.0.0"
+  }
+}

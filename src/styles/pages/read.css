@@ -1,0 +1,147 @@
+/* =========================================================
+   Read page
+   ========================================================= */
+
+.read-page {
+  max-width: var(--content-width, 72ch);
+  margin: 0 auto;
+  padding: clamp(72px, 10vh, 108px) 16px 56px;
+}
+
+.read-hero {
+  text-align: center;
+}
+
+.read-logo {
+  display: block;
+  margin: 0 auto 18px;
+  max-width: 200px;
+  height: auto;
+}
+
+.read-title {
+  margin: 0 0 14px;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.1;
+}
+
+.read-lede {
+  margin: 0 auto;
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: rgba(29, 35, 28, 0.85);
+  max-width: 68ch;
+}
+
+.read-lede a {
+  color: var(--green, #209d50);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.read-lede a:hover {
+  color: var(--ink, #1d231c);
+}
+
+.read-body {
+  margin-top: 34px;
+}
+
+/* =========================================================
+   License band (full-bleed with curve)
+   ========================================================= */
+
+.license-band {
+  position: relative;
+  margin-top: 72px;
+
+  /* push placard down so it clears the concave cut */
+  padding: 190px 0 96px;
+
+  background: var(--green, #209d50);
+  color: #1d231c;
+
+  /* full-bleed trick */
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+
+  /* pull the green under the footer */
+  margin-bottom: -56px;
+}
+
+
+.license-band::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 110px;
+
+  /* This is the page background color that "cuts" into the green */
+  background: var(--cream, #fafaf7);
+
+  /* Concave curve: round the *bottom* edges */
+  border-bottom-left-radius: 100% 100%;
+  border-bottom-right-radius: 100% 100%;
+}
+
+.license-band__inner {
+  max-width: var(--content-width, 72ch);
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+/* =========================================================
+   License placard (floats on green)
+   ========================================================= */
+
+.license-card {
+  /* clear separation from the green band */
+  margin-top: 8px;
+
+  background: #ffffff; /* pure white */
+  border-radius: 20px;
+  padding: 26px 24px;
+
+  border: 1px solid rgba(29, 35, 28, 0.14);
+  box-shadow:
+    0 18px 48px rgba(0, 0, 0, 0.18),
+    0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* keep previous typography styles */
+
+#license {
+  scroll-margin-top: 96px;
+}
+
+/* =========================================================
+   ReadMenu: stack cleanly on mobile
+   ========================================================= */
+
+@media (max-width: 640px) {
+  /* Override component styles */
+  .read-menu {
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+
+    /* kill the wrap behavior */
+    flex-wrap: nowrap;
+
+    /* keep the spacing, but let it breathe */
+    gap: 12px;
+
+    /* keep your top rhythm */
+    margin-top: 2rem;
+  }
+
+  /* Make the inputs/buttons fill the column */
+  .read-menu select,
+  .read-menu button {
+    width: 50%;
+    max-width: 50%;
+  }
+}

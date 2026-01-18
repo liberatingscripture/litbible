@@ -1,0 +1,239 @@
+/* =========================================================
+   Courses page
+   ========================================================= */
+
+.courses-page {
+  background: var(--cream);
+  color: var(--ink);
+}
+
+/* Hero */
+.courses-hero {
+  max-width: var(--content-width, 72ch);
+  margin: 0 auto;
+  padding: clamp(72px, 10vh, 108px) 16px 56px;
+
+  /* Keep the H1 centered */
+  text-align: center;
+}
+
+.courses-hero h1 {
+  font-family: "Crimson Text", var(--font-serif, serif);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.05;
+
+  font-size: clamp(2.6rem, 6vw, 5rem);
+  margin: 0 0 26px;
+}
+
+.courses-intro {
+  margin: 0 auto;
+  max-width: 58ch;
+
+  /* Body copy left-aligned */
+  text-align: left;
+}
+
+.courses-intro p {
+  margin: 0 0 26px;
+  font-size: clamp(1.25rem, 2.1vw, 1.65rem);
+  line-height: 1.55;
+  color: rgba(29, 35, 28, 0.92);
+}
+
+/* Updates block */
+.courses-updates {
+  position: relative;
+  background: var(--green);
+  color: #ffffff;
+  overflow: hidden;
+
+  /* breathing room under the hero */
+  padding: 110px 0 110px;
+}
+
+.courses-updates__inner {
+  position: relative;
+  z-index: 2;
+
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 16px;
+
+  text-align: center;
+}
+
+.courses-updates__inner h2 {
+  font-family: var(--font-serif, "Fraunces", serif);
+  font-weight: 600;
+  font-size: clamp(1.9rem, 3vw, 2.6rem);
+  margin: 0 0 12px;
+}
+
+.courses-updates__lead {
+  margin: 0 auto 30px;
+  max-width: 34ch;
+  font-size: clamp(1.3rem, 2.4vw, 2.1rem);
+  line-height: 1.25;
+}
+
+/* Form */
+.signup {
+  display: grid;
+  place-items: center;
+  gap: 18px;
+  margin: 0 auto;
+}
+
+.signup input[type="email"] {
+  width: min(680px, 92vw);
+  height: 72px;
+
+  padding: 0 22px;
+  font-size: 1.6rem;
+
+  border: none;
+  border-radius: 6px;
+
+  background: #ffffff;
+  color: var(--ink);
+
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+}
+
+.signup input[type="email"]::placeholder {
+  color: rgba(29, 35, 28, 0.38);
+}
+
+.signup__button {
+  border: none;
+  cursor: pointer;
+
+  background: #ffffff;
+  color: var(--green);
+
+  padding: 14px 34px;
+  border-radius: 10px;
+
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16);
+
+  transition: transform 140ms ease, box-shadow 140ms ease;
+}
+
+.signup__button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.18);
+}
+
+.signup__button:active {
+  transform: translateY(0);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16);
+}
+
+.signup__button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.signup__status {
+  margin: 2px 0 0;
+  min-height: 1.4em;
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.courses-updates__note {
+  margin: 34px 0 0;
+  font-size: 1.05rem;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+/* Waves */
+.courses-wave {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 160px;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.courses-wave svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.courses-wave--top {
+  top: 0;
+  transform: translateY(-1px);
+}
+
+.courses-wave--bottom {
+  bottom: 0;
+  transform: translateY(1px);
+}
+
+/* Wave styling */
+.wave-fill {
+  fill: var(--green);
+}
+
+.wave-stroke {
+  fill: none;
+  stroke-width: 10;
+  vector-effect: non-scaling-stroke;
+}
+
+/* Top wave outline: white */
+.courses-wave--top .wave-stroke {
+  stroke: rgba(255, 255, 255, 0.9);
+}
+
+/* Bottom wave outline: black */
+.courses-wave--bottom .wave-stroke {
+  stroke: rgba(0, 0, 0, 0.8);
+}
+
+/* Accessibility helpers */
+.sr-only {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Honeypot hidden */
+.hp-field {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+/* Focus states */
+.signup input[type="email"]:focus,
+.signup__button:focus {
+  outline: 3px solid rgba(255, 255, 255, 0.75);
+  outline-offset: 3px;
+}
+
+@media (max-width: 520px) {
+  .signup input[type="email"] {
+    height: 64px;
+    font-size: 1.35rem;
+  }
+}

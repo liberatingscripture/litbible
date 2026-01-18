@@ -1,0 +1,519 @@
+:root{
+  --lit-green:#209D50;
+  --lit-ink:#1D231C;
+  --paper:#ffffff;
+  --cream:#e9e6df; /* warm light gray like your screenshots */
+}
+
+/* =========================================================
+   Glossary page base
+   ========================================================= */
+
+.glossary-page{
+  color: var(--lit-ink);
+  background: var(--paper);
+}
+
+/* Header background: header is outside .glossary-page in Layout,
+   so scope using :has() (modern browsers) with a safe fallback. */
+@supports selector(body:has(.glossary-page)){
+  body:has(.glossary-page) .site-header{
+    background: #fff;
+  }
+}
+
+/* Fallback if Layout adds a bg class to body/html (you’re using bg="white") */
+.bg-white .site-header{
+  background: #fff;
+}
+
+.wrap{
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 56px 24px;
+}
+
+html{
+  scroll-behavior: smooth;
+}
+
+/* =========================================================
+   HERO
+   ========================================================= */
+
+.glossary-hero{
+  background: var(--paper);
+  padding-top: 10px;
+}
+
+.glossary-hero h1{
+  margin: 0 0 24px 0;
+  text-align: center;
+  font-size: clamp(44px, 5vw, 64px);
+  letter-spacing: 0.02em;
+}
+
+/* Center hero blurb to match the H1 and keep the max-width */
+.glossary-hero p{
+  margin: 0 auto 32px;
+  text-align: left;
+  font-size: clamp(18px, 2.2vw, 26px);
+  line-height: 1.55;
+  max-width: 42em;
+}
+
+.inline-link{
+  color: var(--lit-green);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.inline-link:hover{ color: var(--lit-ink); }
+
+/* =========================================================
+   MENU (Home-mirroring)
+   Markup: .title-menu > .read-menu-wrap > .read-menu.glossary-menu
+   ========================================================= */
+
+/* Baseline control styling (scoped to glossary menu only) */
+.glossary-page .read-menu select,
+.glossary-page .read-menu button{
+  padding: 10px;
+  margin: 10px;
+  font-size: 16px;
+  border-radius: 10px;
+  border: none;
+  background-color: #f9f9f9;
+  color: var(--lit-ink);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+}
+
+.glossary-page .read-menu button{
+  background-color: var(--lit-ink);
+  color: var(--lit-green);
+  cursor: pointer;
+}
+
+.glossary-page .read-menu button#go-button{
+  background-color: var(--lit-green);
+  color: #fff;
+}
+
+.glossary-page .read-menu button#go-button:hover{
+  background-color: var(--lit-ink);
+  color: #fff;
+}
+
+.glossary-page .read-menu button:hover,
+.glossary-page .read-menu select:hover{
+  background-color: var(--lit-green);
+  color: #fff;
+}
+
+/* Disabled state to match Home */
+.glossary-page .read-menu select:disabled,
+.glossary-page .read-menu button:disabled{
+  opacity: 0.55;
+  cursor: not-allowed;
+  filter: grayscale(0.15);
+}
+
+/* Mirror the Home page centering wrapper */
+.title-menu{
+  margin-top: 24px;
+  display: flex;
+  justify-content: center;
+}
+
+/* Only ever one child now: .read-menu-wrap */
+.title-menu > .read-menu-wrap{
+  display: flex;
+  justify-content: center;
+}
+
+/* Target the actual control row/stack */
+.title-menu .read-menu{
+  margin-top: 0;
+}
+
+/* Your glossary menu is also .read-menu, but keep this for clarity */
+.glossary-menu{
+  justify-content: center;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* Desktop: row */
+@media (min-width: 761px){
+  .title-menu .read-menu{
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+}
+
+/* Mobile: stacked, keep intrinsic widths (match Home look) */
+@media (max-width: 760px){
+  .title-menu .read-menu{
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 1.25rem;
+  }
+
+  /* Prevent weird stretching and align tiles visually */
+  .title-menu .read-menu select,
+  .title-menu .read-menu button{
+    margin: 0;
+    width: auto;
+    min-width: 220px;
+    text-align: center;
+  }
+
+  .title-menu .read-menu select{
+    border-radius: 12px;
+    box-shadow: 0 10px 22px rgba(0,0,0,0.16);
+  }
+
+  .title-menu .read-menu button#go-button{
+    border-radius: 12px;
+    box-shadow: 0 10px 22px rgba(0,0,0,0.16);
+  }
+}
+
+/* =========================================================
+   Glossary sticky menu (About-TOC behavior)
+   Desktop: tray always visible (JS handles open state)
+   Mobile: frosted sticky bar + toggle opens tray
+   ========================================================= */
+
+.glossary-toc{
+  position: sticky;
+  top: 16px;
+  z-index: 10;
+
+  margin: 26px auto 18px;
+  max-width: 980px;
+  padding: 0 16px;
+}
+
+/* Desktop: keep wrapper visually invisible */
+.glossary-toc__inner{
+  background: transparent;
+  border: none;
+  border-radius: 16px;
+  box-shadow: none;
+  overflow: visible;
+}
+
+/* Bar is mobile-only */
+.glossary-toc__bar{
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px;
+}
+
+.glossary-toc__label{
+  margin: 0;
+  font-size: 0.82rem;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: rgba(29, 35, 28, 0.65);
+}
+
+.glossary-toc__toggle{
+  width: 44px;
+  height: 44px;
+
+  border: 1px solid rgba(29, 35, 28, 0.12);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.65);
+
+  display: none;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+  transition: transform 180ms ease, opacity 180ms ease;
+}
+
+.glossary-toc__toggle:hover,
+.glossary-toc__toggle:focus-visible{
+  transform: translateY(-1px);
+  outline: none;
+}
+
+/* Hamburger -> X via .is-open */
+.glossary-toc__icon{
+  position: relative;
+  width: 20px;
+  height: 14px;
+
+  background:
+    linear-gradient(rgba(29, 35, 28, 0.85), rgba(29, 35, 28, 0.85)) center / 100% 2px no-repeat;
+  transition: background-size 220ms ease;
+}
+
+.glossary-toc__icon::before,
+.glossary-toc__icon::after{
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  border-radius: 2px;
+  background: rgba(29, 35, 28, 0.85);
+  transition:
+    transform 220ms ease,
+    top 220ms ease,
+    bottom 220ms ease,
+    opacity 220ms ease;
+}
+
+.glossary-toc__icon::before{ top: 2px; }
+.glossary-toc__icon::after{ bottom: 2px; }
+
+.glossary-toc.is-open .glossary-toc__icon{
+  background-size: 0 2px;
+}
+
+.glossary-toc.is-open .glossary-toc__icon::before{
+  top: 6px;
+  transform: rotate(45deg);
+}
+
+.glossary-toc.is-open .glossary-toc__icon::after{
+  bottom: 6px;
+  transform: rotate(-45deg);
+}
+
+/* Tray defaults (desktop: no extra padding) */
+.glossary-toc__tray{
+  padding: 0;
+}
+
+/* Mobile behavior */
+@media (max-width: 900px){
+  .glossary-toc{
+    top: 12px;
+  }
+
+  .glossary-toc__inner{
+    background: rgba(255, 255, 255, 0.78);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(29, 35, 28, 0.10);
+    border-radius: 16px;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+  }
+
+  .glossary-toc__bar{
+    display: flex;
+  }
+
+  .glossary-toc__toggle{
+    display: inline-flex;
+  }
+
+  /* Closed by default on mobile */
+  .glossary-toc__tray{
+    display: none;
+    padding: 6px 12px 20px;
+  }
+
+  .glossary-toc.is-open .glossary-toc__tray{
+    display: block;
+  }
+
+  /* Pull the controls up inside the tray without changing desktop */
+  .glossary-toc__tray .title-menu{
+    margin-top: 6px;
+    margin-bottom: 0;
+  }
+}
+
+/* =========================================================
+   Entries section
+   White above, cream below, with a TOP chevron notch
+   ========================================================= */
+
+.glossary-entries{
+  background: var(--paper);
+}
+
+/* Full-bleed TOP chevron notch (cream) */
+.entries-top{
+  --notch: 64px; /* center dip depth */
+  --edge: 18px;  /* left/right height */
+
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+
+  background: var(--cream);
+  height: calc(var(--notch) + 14px);
+
+  -webkit-clip-path: polygon(
+    0 var(--edge),
+    50% var(--notch),
+    100% var(--edge),
+    100% 100%,
+    0 100%
+  );
+  clip-path: polygon(
+    0 var(--edge),
+    50% var(--notch),
+    100% var(--edge),
+    100% 100%,
+    0 100%
+  );
+
+  border-bottom: 1px solid transparent;
+}
+
+/* Full-bleed cream panel under the notch */
+.entries-panel{
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+
+  background: var(--cream);
+  padding-bottom: 64px;
+
+  border-top: 1px solid transparent;
+}
+
+.entries-wrap{ padding-top: 36px; }
+
+.entry{
+  padding: 34px 0;
+  border-bottom: 1px solid rgba(29,35,28,0.12);
+}
+
+/* =========================================================
+   Entry title layout
+   - Wraps long titles
+   - Keeps separators visible on mobile
+   - Does NOT force the gloss onto its own line
+   ========================================================= */
+
+.entry-title{
+  margin: 0 0 16px 0;
+  font-size: clamp(34px, 3.2vw, 54px);
+  font-weight: 500;
+  line-height: 1.15;
+
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+
+  max-width: 100%;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: normal;
+
+  column-gap: 0.6rem;
+  row-gap: 0.35rem;
+
+  /* REQUIRED for absolute overlays; also keeps z-index stacking sane */
+  position: relative;
+  isolation: isolate;
+}
+
+/* Prevent flex children from refusing to shrink */
+.entries-strike,
+.entries-underline,
+.entry-title em,
+.entry-title strong{
+  min-width: 0;
+}
+
+.entry-title .sep{
+  display: inline;
+  padding: 0 0.35rem;
+  opacity: 0.7;
+  white-space: nowrap; /* keeps “ – ” together */
+}
+
+.entry-body p{
+  margin: 0;
+  font-size: clamp(18px, 2.1vw, 26px);
+  line-height: 1.6;
+  max-width: 44em;
+}
+
+/* =========================================================
+   INK OVERLAYS (JS-injected .ink-svg)
+   Works with markup:
+     <span class="entries-strike">…</span>
+     <span class="entries-underline">…</span>
+   JS appends:
+     <svg class="ink-svg"><path ... /></svg>
+   ========================================================= */
+
+/* The overlay svg that JS injects (direct child of .entry-title) */
+.entry-title > .ink-svg{
+  position: absolute;
+  z-index: 3;
+  pointer-events: none;
+  overflow: visible;
+}
+
+/* Keep the real text above the cream panel but under the ink.
+   IMPORTANT: exclude .ink-svg or you stomp its z-index. */
+.entry-title > *:not(.ink-svg){
+  position: relative;
+  z-index: 1;
+}
+
+/* Keep these as normal inline wrappers */
+.entries-strike,
+.entries-underline{
+  position: relative;
+  display: inline-block;
+  white-space: nowrap;
+}
+
+/* Optional: give a “real” underline as a fallback if JS fails.
+   The ink scribble will sit over it when JS works. */
+/*.entries-underline{
+  text-decoration-line: underline;
+  text-decoration-style: solid;
+  text-decoration-thickness: 0.12em;
+  text-underline-offset: 0.22em;
+  text-decoration-skip-ink: none;
+  text-decoration-color: transparent; 
+}
+
+.entry.is-visible .entries-underline{
+  text-decoration-color: var(--lit-green);
+  transition: text-decoration-color 520ms ease;
+}*/
+
+/* If any leftover old SVGs are still in markup, hide them. */
+.entries-strike-svg,
+.entries-underline-svg{
+  display: none !important;
+}
+
+/* =========================================================
+   Reduced motion
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce){
+  html{ scroll-behavior: auto; }
+
+  .entry.is-visible .entries-underline{
+    transition: none;
+  }
+}
+
+/* Glossary-only: Pagefind helper separators (don’t show them) */
+.glossary-page .pf-sep,
+.glossary-page .pf-hyphen-space,
+.glossary-page .pf-slash-space {
+  display: none;
+}

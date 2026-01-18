@@ -1,0 +1,1204 @@
+/* =========================================================
+   Global styles — Liberation and Inclusion Translation (LIT)
+   Solid colors limited to:
+   #E1DFD9, #FFFFFF, #209D50, #1D231C, #000000
+   Shadows/overlays may use rgba(0,0,0,alpha) only.
+   ========================================================= */
+
+/* ---------- Brand tokens (ONLY solids) ---------- */
+:root {
+  --cream: #E1DFD9;
+  --white: #FFFFFF;
+  --green: #209D50;
+  --ink: #1D231C;
+  --black: #000000;
+
+  /* Semantic usage */
+  --page-bg: var(--cream); /* DEFAULT */
+  --surface: var(--cream);
+  --text: var(--ink);
+  --text-strong: var(--black);
+  --link: var(--green);
+  --border: var(--white);
+
+  /* CTA */
+  --cta-bg: var(--ink);
+  --cta-text: var(--green);
+
+  /* Layout system */
+  --gutter: clamp(1.25rem, 4vw, 2.5rem); /* keep content off screen edges */
+  --content-max: 1200px;                 /* default readable width */
+  --container-max: 1400px;               /* wider container when needed */
+}
+
+/* ---------- Reset / box model ---------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+/* ---------- Base typography ---------- */
+body {
+  background: var(--page-bg);
+  color: var(--text);
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, Helvetica, Arial, sans-serif;
+  font-size: 18px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ---------- Background modes ---------- */
+/* Cream is default via --page-bg */
+body.bg-cream {
+  background: var(--cream);
+}
+
+body.bg-green {
+  background: var(--green);
+}
+
+/* ---------- Main wrapper (FULL-BLEED so section backgrounds can reach edges) ---------- */
+main {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* =========================================================
+   Content wrappers
+   - Use .content inside full-bleed sections to keep content padded
+   - Use .container when you want a wider max width than .content
+   ========================================================= */
+
+/* Default “safe” content width */
+.content {
+  width: min(var(--content-max), calc(100% - (var(--gutter) * 2)));
+  margin-inline: auto;
+}
+
+/* Wider container (kept from your previous system) */
+.container {
+  width: min(var(--container-max), calc(100% - (var(--gutter) * 2)));
+  margin-inline: auto;
+  padding-bottom: 80px;
+}
+
+/* Utility: full-bleed section (background spans edge-to-edge) */
+.full-bleed {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+}
+
+/* ---------- Headings (Crimson Text for LIT) ---------- */
+h1,
+h2,
+h3,
+h4 {
+  font-family: "Crimson Text", Georgia, "Times New Roman", serif;
+  font-weight: 600;
+  line-height: 1.2;
+  margin: 0 0 1rem 0;
+  color: var(--text-strong);
+}
+
+/* ---------- Body text ---------- */
+p {
+  margin: 0 0 1.4rem 0;
+}
+
+/* ---------- Links ---------- */
+a {
+  color: var(--link);
+  text-decoration: none;
+}
+
+a:hover,
+a:focus {
+  text-decoration: underline;
+}
+
+/* ---------- Accessibility ---------- */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---------- Shadows (allowed: rgba black only) ---------- */
+.shadow-soft {
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+}
+
+.shadow-tight {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+}
+
+
+/* =========================================================
+   Site header — grid-based, LSC-style contraction + overlay menu
+   ========================================================= */
+
+.site-header {
+  position: relative;
+}
+
+/* ---------------------------------------------------------
+   Header row: BRAND | NAV (includes CTA) | ACTIONS (hamburger)
+--------------------------------------------------------- */
+.site-header__inner {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 16px 12px;
+
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  column-gap: 18px;
+}
+
+/* ---------------------------------------------------------
+   Brand lockup
+--------------------------------------------------------- */
+.site-header__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  text-decoration: none;
+  color: var(--text);
+  min-width: 0;
+}
+
+/* Remove underline on brand hover/focus */
+.site-header__brand:hover,
+.site-header__brand:focus {
+  text-decoration: none;
+}
+
+/* Shadow instead of underline on title */
+.site-header__brand:hover .site-header__title,
+.site-header__brand:focus .site-header__title {
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.22);
+}
+
+.site-header__logo {
+  width: 48px;
+  height: 48px;
+  flex: 0 0 auto;
+  display: block;
+}
+
+.site-header__title {
+  font-family: "Crimson Text", Georgia, "Times New Roman", serif;
+  font-size: 1.85rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1.1;
+  color: var(--text-strong);
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+/* ---------------------------------------------------------
+   Primary nav (centered on desktop)
+--------------------------------------------------------- */
+.site-nav {
+  display: flex;
+  justify-content: center;
+  min-width: 0;
+}
+
+.site-nav__list {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  margin: 0;
+  padding: 0;
+  white-space: nowrap;
+}
+
+/* Nav link base */
+.site-nav__list > li > a {
+  color: var(--text);
+  font-size: 0.9rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+/* ---------------------------------------------------------
+   Animated underline ONLY for non-CTA nav links
+--------------------------------------------------------- */
+.site-nav__list > li:not(.site-nav__cta-item) > a {
+  position: relative;
+}
+
+.site-nav__list > li:not(.site-nav__cta-item) > a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -4px;
+  width: 100%;
+  height: 2px;
+  background-color: var(--black);
+
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 520ms ease-in-out; /* slower, deliberate */
+}
+
+.site-nav__list > li:not(.site-nav__cta-item) > a:hover::after,
+.site-nav__list > li:not(.site-nav__cta-item) > a:focus::after {
+  transform: scaleX(1);
+}
+
+/* Belt + suspenders: CTA NEVER gets an underline pseudo-element */
+.site-nav__cta-item > a::after {
+  display: none !important;
+}
+
+/* ---------------------------------------------------------
+   CTA inside nav (desktop position)
+--------------------------------------------------------- */
+.site-nav__cta-item {
+  margin-left: 22px;
+}
+
+/* =========================================================
+   CTA — curtain-raise reveal
+   ========================================================= */
+
+/* IMPORTANT: target the CTA as a nav item so it beats
+   .site-nav__list > li > a in specificity */
+.site-nav__cta-item > a.site-header__cta {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+
+  text-decoration: none;
+  font-size: 0.85rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 14px 26px;
+  border-radius: 12px;
+
+  /* Anchor itself is transparent; layers do the painting */
+  background: transparent;
+
+  /* End-state border */
+  border: 2px solid var(--ink);
+
+  /* Start-state text (green on ink curtain) */
+  color: var(--green);
+
+  white-space: nowrap;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+
+  transition: color 220ms ease-in-out;
+
+  z-index: 0;
+}
+
+/* Base layer (green) */
+.site-nav__cta-item > a.site-header__cta::after {
+  content: "";
+  position: absolute;
+  inset: -2px; /* prevents corner peeking */
+  background: var(--green);
+  border-radius: inherit;
+  z-index: -2;
+}
+
+/* Curtain overlay (ink) */
+.site-nav__cta-item > a.site-header__cta::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  background: var(--ink);
+  border-radius: inherit;
+
+  /* Fully covering at rest */
+  clip-path: inset(0 0 0 0 round 14px);
+  transition: clip-path 380ms ease-in-out;
+
+  z-index: -1; /* above base, below text */
+}
+
+/* Hover/focus: raise the curtain */
+.site-nav__cta-item > a.site-header__cta:hover::before,
+.site-nav__cta-item > a.site-header__cta:focus::before {
+  clip-path: inset(0 0 100% 0 round 14px);
+}
+
+/* Reveal end-state text color */
+.site-nav__cta-item > a.site-header__cta:hover,
+.site-nav__cta-item > a.site-header__cta:focus {
+  color: var(--ink);
+  text-decoration: none;
+}
+
+/* Ensures text is visible above layers */
+.site-nav__cta-item > a.site-header__cta > span {
+  position: relative;
+  z-index: 1;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .site-nav__cta-item > a.site-header__cta::before {
+    transition: none;
+  }
+  .site-nav__cta-item > a.site-header__cta {
+    transition: none;
+  }
+  .site-nav__list > li:not(.site-nav__cta-item) > a::after {
+    transition: none;
+  }
+}
+
+/* ---------------------------------------------------------
+   Actions container (hamburger lives here)
+--------------------------------------------------------- */
+.site-header__actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+/* =========================================================
+   Hamburger toggle — tile matches page background
+   + morphs into X when overlay open
+   + stays ABOVE the overlay (Option 1)
+   ========================================================= */
+
+.site-header__menu-toggle {
+  width: 52px;
+  height: 52px;
+  padding: 0;
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+
+  /* Match page background (green/cream per page) */
+  background: inherit;
+
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
+
+  display: none; /* shown at collapse */
+  align-items: center;
+  justify-content: center;
+
+  appearance: none;
+  transition: transform 180ms ease-in-out, box-shadow 180ms ease-in-out;
+}
+
+.site-header__menu-toggle:hover,
+.site-header__menu-toggle:focus {
+  transform: translateY(-1px);
+  outline: none;
+}
+
+.site-header__menu-toggle:active {
+  transform: translateY(0);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.16);
+}
+
+/* Bars icon */
+.menu-icon {
+  position: relative;
+  width: 22px;
+  height: 16px;
+  display: block;
+}
+
+.menu-icon::before,
+.menu-icon::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--ink);
+  border-radius: 2px;
+  transition: transform 240ms ease-in-out, top 240ms ease-in-out,
+    background-color 180ms ease-in-out;
+}
+
+.menu-icon::before {
+  top: 2px;
+}
+
+.menu-icon::after {
+  top: 12px;
+}
+
+/* When overlay is open: hamburger becomes X */
+html.menu-open .menu-icon::before {
+  top: 7px;
+  transform: rotate(45deg);
+}
+
+html.menu-open .menu-icon::after {
+  top: 7px;
+  transform: rotate(-45deg);
+}
+
+/* =========================================================
+   Option 1: keep the toggle above the overlay scrim
+   ========================================================= */
+
+/* Ensure the header (and therefore the button) can sit above the overlay */
+html.menu-open .site-header {
+  z-index: 10001;
+}
+
+/* Put the button above the scrim */
+html.menu-open .site-header__menu-toggle {
+  position: relative;
+  z-index: 10002;
+}
+
+/* Contrast boost (only while open) */
+html.menu-open .site-header__menu-toggle {
+  background: rgba(0, 0, 0, 0.22);
+}
+
+html.menu-open .site-header__menu-toggle .menu-icon::before,
+html.menu-open .site-header__menu-toggle .menu-icon::after {
+  background: var(--white);
+}
+
+/* =========================================================
+   Pre-collapse tuning
+   (avoid overlap by tightening slightly)
+   ========================================================= */
+
+@media (max-width: 1250px) {
+  .site-header__title {
+    font-size: 1.65rem;
+  }
+
+  .site-nav__list {
+    gap: 22px;
+  }
+
+  .site-nav__list > li > a {
+    font-size: 0.85rem;
+    letter-spacing: 0.15em;
+  }
+}
+
+/* =========================================================
+   Collapse breakpoint
+   - hide desktop nav
+   - show hamburger
+   ========================================================= */
+
+@media (max-width: 1100px) {
+  .site-header__inner {
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: 12px;
+  }
+
+  .site-nav {
+    display: none;
+  }
+
+  .site-header__menu-toggle {
+    display: inline-flex;
+  }
+}
+
+/* Small screens: tighter gutters */
+@media (max-width: 640px) {
+  .site-header__inner {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+}
+
+/* =========================================================
+   Full-screen overlay menu (mobile)
+   Fade in/out + animated link entrance
+   ========================================================= */
+
+.menu-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+
+  /* IMPORTANT: animatable hidden state (no display:none) */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(0, 0, 0, 0.90); /* slightly more opaque */
+  backdrop-filter: blur(2px);
+
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+
+  transition: opacity 360ms ease-in-out, visibility 0ms linear 360ms;
+}
+
+.menu-overlay.is-open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+
+  transition: opacity 360ms ease-in-out, visibility 0ms linear 0ms;
+}
+
+/* Lock scroll when open */
+html.menu-open,
+html.menu-open body {
+  overflow: hidden;
+}
+
+/* Centered panel wrapper (subtle float-in) */
+.menu-overlay__panel {
+  width: min(560px, 92vw);
+  padding: 36px 22px 34px;
+
+  transform: translateY(8px);
+  transition: transform 360ms ease-in-out;
+}
+
+.menu-overlay.is-open .menu-overlay__panel {
+  transform: translateY(0);
+}
+
+/* Big centered links */
+.menu-overlay__nav {
+  display: grid;
+  gap: 28px;
+  justify-items: center;
+  text-align: center;
+}
+
+.menu-overlay__nav a {
+  color: var(--white);
+  text-decoration: none;
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, Helvetica, Arial, sans-serif;
+
+  font-size: 2.5rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 500;
+
+  /* entrance animation */
+  opacity: 0;
+  transform: translateX(-28px);
+  transition: transform 520ms ease-in-out, opacity 520ms ease-in-out;
+
+  will-change: transform, opacity;
+}
+
+.menu-overlay.is-open .menu-overlay__nav a {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.menu-overlay__nav a:hover,
+.menu-overlay__nav a:focus {
+  text-decoration: underline;
+  text-underline-offset: 6px;
+}
+
+/* Overlay CTA (comes from bottom, last) */
+.menu-overlay__cta {
+  margin-top: 12px;
+
+  background: var(--green);
+  color: var(--white);
+  border-radius: 14px;
+  padding: 16px 28px;
+
+  font-size: 1.1rem;
+  letter-spacing: 0.12em;
+
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.22);
+  text-decoration: none;
+
+  /* override left-slide */
+  transform: translateY(22px);
+}
+
+.menu-overlay.is-open .menu-overlay__cta {
+  transform: translateY(0);
+}
+
+/* Stagger timing (assumes order: 5 links, then CTA) */
+.menu-overlay.is-open .menu-overlay__nav a:nth-child(1) {
+  transition-delay: 80ms;
+}
+.menu-overlay.is-open .menu-overlay__nav a:nth-child(2) {
+  transition-delay: 140ms;
+}
+.menu-overlay.is-open .menu-overlay__nav a:nth-child(3) {
+  transition-delay: 200ms;
+}
+.menu-overlay.is-open .menu-overlay__nav a:nth-child(4) {
+  transition-delay: 260ms;
+}
+.menu-overlay.is-open .menu-overlay__nav a:nth-child(5) {
+  transition-delay: 320ms;
+}
+.menu-overlay.is-open .menu-overlay__nav a.menu-overlay__cta {
+  transition-delay: 420ms;
+}
+
+/* Closing: no lingering delays */
+.menu-overlay__nav a {
+  transition-delay: 0ms;
+}
+
+/* Smaller screens: scale typography down */
+@media (max-width: 520px) {
+  .menu-overlay__nav a {
+    font-size: 2.05rem;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .menu-overlay,
+  .menu-overlay__panel,
+  .menu-overlay__nav a {
+    transition: none !important;
+  }
+
+  .menu-overlay {
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  .menu-overlay.is-open {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .menu-overlay__nav a {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* =========================================================
+   Site Header: green background mode
+   Apply by adding .site-header--green to the header element
+   ========================================================= */
+
+.site-header--green {
+  background: var(--green);
+}
+
+/* Brand + nav text becomes white 
+.site-header--green .site-header__brand,
+.site-header--green .site-header__title,
+.site-header--green .site-nav__list > li > a {
+  color: var(--white);
+}
+
+/* Desktop underline becomes white instead of black 
+.site-header--green
+  .site-nav__list
+  > li:not(.site-nav__cta-item)
+  > a::after {
+  background-color: var(--white);
+}
+
+/* Brand hover shadow stays legal and visible 
+.site-header--green .site-header__brand:hover .site-header__title,
+.site-header--green .site-header__brand:focus .site-header__title {
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.28);
+}
+
+/* Hamburger tile: inherit green is fine, but bars must become white 
+.site-header--green .site-header__menu-toggle {
+  background: rgba(0, 0, 0, 0.10); /* gives contrast on green 
+}
+
+.site-header--green .menu-icon::before,
+.site-header--green .menu-icon::after {
+  background: var(--white);
+}
+*/
+
+/* =========================================================
+   Site Header: green background mode — CTA fix
+   Make the CTA rest state WHITE (curtain), reveal GREEN on hover
+   ========================================================= */
+
+/* CTA: base layer should be green 
+.site-header--green .site-nav__cta-item > a.site-header__cta::after {
+  background: var(--green);
+}
+
+/* CTA: curtain overlay should be white (this is what you’re missing) 
+.site-header--green .site-nav__cta-item > a.site-header__cta::before {
+  background: var(--white);
+}
+
+/* Rest state (curtain down): black text on white 
+.site-header--green .site-nav__cta-item > a.site-header__cta {
+  border-color: var(--white);
+  color: var(--ink);
+}
+
+/* Hover/focus (curtain up): white text on green 
+.site-header--green .site-nav__cta-item > a.site-header__cta:hover,
+.site-header--green .site-nav__cta-item > a.site-header__cta:focus {
+  color: var(--white);
+}
+*/
+
+
+/* ================================
+   Site Footer Section
+   ================================ */
+
+.site-footer {
+  border-top: 1px solid #000;
+  padding: 4rem 2rem;
+  background: #fff;
+}
+
+.footer-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: start;
+  column-gap: 3rem;
+}
+
+/* =========================
+   Left area
+   ========================= */
+
+.footer-left {
+  grid-column: 1;
+  padding-right: 140px;
+  justify-self: start;
+}
+
+.footer-nav {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+}
+
+.footer-col h2 {
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+
+.footer-col ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-col li {
+  margin-bottom: 0.75rem;
+}
+
+/* Base link styling (TEXT LINKS ONLY) */
+.footer-col a {
+  text-decoration: underline;
+  color: #000;
+  transition: color 160ms ease;
+}
+
+/* Hover / focus for LEFT NAV LINKS ONLY */
+.footer-col a:hover,
+.footer-col a:focus {
+  color: var(--green);
+}
+
+/* =========================
+   Social links (explicitly unchanged)
+   ========================= */
+
+.footer-col .social-links {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 3.00rem;
+}
+
+/* Icon button */
+.footer-col .social-links a {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+
+  text-decoration: none;
+  color: var(--ink);
+  opacity: 1;
+
+  background: transparent;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+
+  transition:
+    background-color 180ms ease,
+    color 180ms ease,
+    transform 160ms ease;
+}
+
+/* SVG inherits color */
+.footer-col .social-links svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+
+/* Hover / focus — SOCIAL ONLY */
+.footer-col .social-links a:hover,
+.footer-col .social-links a:focus {
+  background-color: var(--green);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+/* Keyboard focus */
+.footer-col .social-links a:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 3px;
+}
+
+/* =========================
+   Center logo
+   ========================= */
+
+.footer-center {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  width: 220px;
+}
+
+.footer-center img {
+  display: block;
+}
+
+/* =========================
+   Right area
+   ========================= */
+
+.footer-right {
+  grid-column: 2;
+  padding-left: 180px;
+  justify-self: start;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* =========================
+   Footer CTA (seam-proof, scoped)
+   ========================= */
+
+a.footer-cta {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+
+  text-decoration: none;
+  font-size: 0.85rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 14px 26px;
+  border-radius: 12px;
+
+  border: 2px solid var(--green);
+
+  /* The element itself is the green base */
+  background: var(--green);
+  color: var(--ink);
+
+  white-space: nowrap;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+
+  font-weight: 700;
+
+  transition:
+    color 220ms ease-in-out,
+    background-color 220ms ease-in-out;
+
+  z-index: 0;
+}
+
+/* Curtain overlay — animates away, never exposes seams */
+a.footer-cta::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--green);
+  border-radius: inherit;
+  z-index: -1;
+
+  transform-origin: top;
+  transform: scaleY(1);
+  transition: transform 380ms ease-in-out;
+
+  will-change: transform;
+}
+
+/* Hover / focus: lift curtain */
+a.footer-cta:hover::before,
+a.footer-cta:focus::before {
+  transform: scaleY(0);
+}
+
+/* End-state appearance */
+a.footer-cta:hover,
+a.footer-cta:focus {
+  background: #ffffff;
+  color: var(--green);
+  text-decoration: none;
+}
+
+/* Keep text above layers */
+a.footer-cta > span {
+  position: relative;
+  z-index: 1;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  a.footer-cta::before {
+    transition: none;
+  }
+  a.footer-cta {
+    transition: none;
+  }
+}
+
+
+
+/* =========================
+   License
+   ========================= */
+
+.license {
+  font-size: 1rem;
+  line-height: 1.4;
+
+  width: 42ch;
+  text-align: left;
+
+  margin-top: 1.75rem;
+}
+
+.license a {
+  text-decoration: underline;
+}
+
+/* =========================
+   Footer — Mobile layout fix
+   Desktop unchanged.
+   Mobile order:
+   CTA → left → logo → license
+   + Nav stays 2 columns
+   + Social icons move below both columns
+   + Headings stay above links
+   ========================= */
+
+@media (max-width: 720px) {
+  /* Stop horizontal scroll from any leftover padding/absolute behavior */
+  .site-footer {
+    overflow-x: hidden;
+  }
+
+  .footer-inner {
+    display: grid;
+    grid-template-columns: 1fr;
+
+    /* Mobile stacking order */
+    grid-template-areas:
+      "cta"
+      "left"
+      "center"
+      "license";
+
+    row-gap: 2.25rem;
+    column-gap: 0;
+
+    /* The logo is absolute on desktop; on mobile we need normal flow */
+    position: static;
+  }
+
+  /* LEFT (nav) */
+  .footer-left {
+    grid-area: left;
+    grid-column: auto;
+    padding-right: 0;
+    justify-self: stretch;
+  }
+
+  /* Nav: 2 columns on mobile */
+  .footer-nav {
+    display: grid;
+
+    /* KEY CHANGE: columns size to their content */
+    grid-template-columns: max-content max-content;
+
+    /* Center the two columns as a unit */
+    justify-content: center;
+
+    /* Keep your existing spacing */
+    gap: 1.75rem 3rem; /* adjust column gap here */
+    align-items: start;
+
+    position: relative;
+    padding-bottom: 4.25rem;
+  }
+
+  /* Footer columns stay stacked: heading above links */
+  .footer-col {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  /* Social icons: full-width row below both columns */
+  .footer-col .social-links {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+
+    margin: 0;
+    padding: 0;
+  }
+
+  /* CENTER (logo) */
+  .footer-center {
+    grid-area: center;
+
+    /* Undo absolute centering */
+    position: static;
+    left: auto;
+    top: auto;
+    transform: none;
+
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .footer-center img {
+    max-width: min(220px, 70vw);
+    height: auto;
+    margin: 0 auto;
+  }
+
+  /* RIGHT wrapper: let its children become grid items so we can place them */
+  .footer-right {
+    display: contents;
+    padding-left: 0; /* defensive; not used when display: contents, but harmless */
+  }
+
+  /* CTA at the very top */
+  .footer-cta {
+    grid-area: cta;
+    justify-self: center;
+    margin: 0;
+  }
+
+  /* License at the bottom */
+  .license {
+    grid-area: license;
+    margin: 0;
+    width: auto;
+    max-width: 42ch;
+    text-align: left;
+  }
+}
+
+/* =========================
+   Anchor landing offsets
+   Desktop + mobile tuning
+   ========================= */
+
+:root {
+  /* Default (desktop/tablet) */
+  --anchor-offset-verse: 48px;
+  --anchor-offset-paragraph: 36px;
+}
+
+/* Mobile: smaller offset so you don’t land “too high” */
+@media (max-width: 720px) {
+  :root {
+    --anchor-offset-verse: 32px;
+    --anchor-offset-paragraph: 24px;
+  }
+}
+
+/* Verse anchors
+   NOTE: sup is inline by default; make it a box so scroll-margin is reliable. */
+sup[id^="v"] {
+  display: inline-block;
+  scroll-margin-top: var(--anchor-offset-verse);
+}
+
+/* Paragraph anchors (your pattern: id="luke-4-p11", etc.) */
+p[id*="-p"],
+blockquote[id*="-p"] {
+  scroll-margin-top: var(--anchor-offset-paragraph);
+}
+
+/* Pagefind helper: invisible spacer used to split hyphenated compounds for indexing */
+.pf-hyphen-space {
+  display: none;
+}
+
+/* Pagefind helper: invisible spacer used to split slash compounds for indexing */
+.pf-slash-space {
+  display: none;
+}

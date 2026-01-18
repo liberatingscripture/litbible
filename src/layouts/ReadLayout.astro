@@ -1,0 +1,111 @@
+---
+import Layout from "./Layout.astro";
+import ReadMenu from "../components/ReadMenu.astro";
+import SearchBar from "../components/SearchBar.astro";
+
+type Props = {
+  title: string;
+  description?: string;
+  bg?: "cream" | "white" | "ink";
+  showTools?: boolean;
+};
+
+const {
+  title,
+  description = "",
+  bg = "cream",
+  showTools = true,
+} = Astro.props as Props;
+---
+
+<Layout title={title} description={description} bg={bg}>
+  <main class="read-layout">
+    <header class="read-layout__hero">
+      <slot name="hero" />
+    </header>
+
+    {
+      showTools && (
+        <section class="read-layout__tools" aria-label="Reading tools">
+          <ReadMenu />
+          <SearchBar placeholder="Search" fullSearchHref="/search" />
+        </section>
+      )
+    }
+
+    <section class="read-layout__content">
+      <slot />
+    </section>
+  </main>
+</Layout>
+
+<style>
+  .read-layout {
+    display: block;
+  }
+
+  .read-layout__hero {
+    max-width: var(--content-width, 72ch);
+    margin: 0 auto;
+    padding: clamp(72px, 10vh, 108px) 16px 12px;
+    text-align: center;
+  }
+
+  /* Tools: layout-only spacing (no SearchBar internals touched) */
+  .read-layout__tools {
+    max-width: var(--content-width, 72ch);
+    margin: 0 auto;
+    padding: 18px 16px 26px;
+
+    display: grid;
+
+    /* Row rhythm:
+       1) ReadMenu
+       2) SearchBar
+    */
+    gap: 26px;
+  }
+
+  /* Don’t let ReadMenu add extra top margin inside this section */
+  .read-layout__tools :global(.read-menu) {
+    margin-top: 0;
+  }
+
+  /* Mobile: ReadMenu stacked + centered, controls at 50% width */
+  @media (max-width: 640px) {
+    .read-layout__tools {
+      padding-top: 22px;
+      padding-bottom: 30px;
+      gap: 30px; /* extra breathing room between ReadMenu and SearchBar */
+    }
+
+    .read-layout__tools :global(.read-menu) {
+      flex-direction: column;
+      align-items: center; /* centers 50% controls */
+      justify-content: flex-start;
+      flex-wrap: nowrap;
+      gap: 12px;
+    }
+
+    .read-layout__tools :global(.read-menu select),
+    .read-layout__tools :global(.read-menu button) {
+      width: 50%;
+      max-width: 50%;
+    }
+  }
+
+  /* Tiny screens: 50% gets too narrow */
+  @media (max-width: 380px) {
+    .read-layout__tools :global(.read-menu select),
+    .read-layout__tools :global(.read-menu button) {
+      width: 70%;
+      max-width: 70%;
+    }
+  }
+
+  .read-layout__content {
+    max-width: var(--content-width, 72ch);
+    margin: 0 auto;
+    padding: 0 16px 56px;
+  }
+</style>

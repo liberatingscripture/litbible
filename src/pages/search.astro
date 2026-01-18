@@ -1,0 +1,793 @@
+---
+// src/pages/search.astro
+import SearchLayout from "../layouts/SearchLayout.astro";
+
+const title = "Search | Liberation and Inclusion Translation";
+const description = "Search the Liberation & Inclusion Translation (LIT).";
+
+// Runs at build time (Astro), safe to pass into define:vars
+const baseUrl = import.meta.env.BASE_URL || "/";
+---
+
+<SearchLayout
+  title={title}
+  description={description}
+  bg="cream"
+  type="search"
+  index={false}
+>
+  <section class="search-page" data-pagefind-ignore>
+    <header class="search-header">
+      <h1 class="search-title">Search</h1>
+      <p class="search-subtitle">
+        Results update as you type. Use the filters to narrow by type and book.
+      </p>
+    </header>
+
+    <div class="search-meta">
+      <div id="search-status" aria-live="polite"></div>
+    </div>
+
+    <div class="group" id="group-subject" hidden>
+      <div class="group-title">Subject matches</div>
+      <ol class="results" id="results-subject"></ol>
+    </div>
+
+    <div class="group" id="group-keyword" hidden>
+      <div class="group-title">Keyword matches</div>
+      <ol class="results" id="results-keyword"></ol>
+
+      <div class="pager" id="pager" hidden>
+        <button class="pager-btn" id="prev" type="button">Previous</button>
+        <div class="pager-info" id="pager-info"></div>
+        <button class="pager-btn" id="next" type="button">Next</button>
+      </div>
+    </div>
+  </section>
+
+  <script type="module" is:inline define:vars={{ BASE_URL: baseUrl }}>
+    const base = String(BASE_URL || "/").replace(/\/?$/, "/");
+
+    const $ = (sel, root = document) => root.querySelector(sel);
+
+    const statusEl = $("#search-status");
+
+    const groupSubject = $("#group-subject");
+    const groupKeyword = $("#group-keyword");
+
+    const subjectEl = $("#results-subject");
+    const keywordEl = $("#results-keyword");
+
+    const pagerEl = $("#pager");
+    const prevBtn = $("#prev");
+    const nextBtn = $("#next");
+    const pagerInfo = $("#pager-info");
+
+    // Grab the SearchBar instance rendered by SearchLayout
+    const searchRoot = document.querySelector("[data-search-root]");
+    const input = $("#site-search");
+    const tabButtons = searchRoot
+      ? Array.from(searchRoot.querySelectorAll("[data-tab]"))
+      : [];
+    const bookSelect = searchRoot
+      ? searchRoot.querySelector("[data-book-filter]")
+      : null;
+
+    const pageSize = 8;
+    let pagefindMod = null;
+    let debounceId = null;
+
+    // Make the tools-bar SearchBar behave like "controls only"
+    if (searchRoot) {
+      const hint = searchRoot.querySelector(".search__hint");
+      if (hint) hint.style.display = "none";
+
+      const footer = searchRoot.querySelector(".search__footer");
+      if (footer) footer.style.display = "none";
+    }
+
+    function setStatus(msg) {
+      statusEl.textContent = msg;
+    }
+
+    function escapeHtml(s) {
+      return String(s).replace(
+        /[&<>"']/g,
+        (c) =>
+          ({
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#039;",
+          })[c],
+      );
+    }
+
+    // --- Pretty titles for numeric-leading books (1thessalonians -> 1 Thessalonians) ---
+    function humanBookName(key) {
+      const k = String(key || "").trim();
+      const spaced = k.replace(/^(\d+)([a-z])/i, (_, n, ch) => {
+        return `${n} ${String(ch).toUpperCase()}`;
+      });
+      return spaced ? spaced.charAt(0).toUpperCase() + spaced.slice(1) : "";
+    }
+
+    function prettyTitleFromUrl(url, fallbackTitle = "Result") {
+      try {
+        const path = new URL(url, window.location.origin).pathname;
+        const m = path.match(/^\/([0-9]?[a-z]+)(?:-(intro|\d+))?\/?$/i);
+        if (!m) return fallbackTitle;
+
+        const bookKey = String(m[1]).toLowerCase();
+        const suffix = String(m[2] || "").toLowerCase();
+
+        const bookName = humanBookName(bookKey);
+
+        if (!suffix || suffix === "intro") return `${bookName} — Introduction`;
+
+        const chapter = Number.parseInt(suffix, 10);
+        if (Number.isFinite(chapter)) return `${bookName} ${chapter}`;
+
+        return fallbackTitle;
+      } catch {
+        return fallbackTitle;
+      }
+    }
+
+    // URL state helpers
+    function readState() {
+      const params = new URLSearchParams(window.location.search);
+      return {
+        q: (params.get("q") || "").trim(),
+        type: (params.get("type") || "").trim(),
+        book: (params.get("book") || "").trim(),
+        page: Math.max(1, parseInt(params.get("page") || "1", 10)),
+      };
+    }
+
+    function writeState(next, { push = false } = {}) {
+      const params = new URLSearchParams(window.location.search);
+
+      if (next.q) params.set("q", next.q);
+      else params.delete("q");
+
+      if (next.type) params.set("type", next.type);
+      else params.delete("type");
+
+      if (next.book) params.set("book", next.book);
+      else params.delete("book");
+
+      if (next.page && next.page > 1) params.set("page", String(next.page));
+      else params.delete("page");
+
+      const qs = params.toString();
+      const url = qs
+        ? `${window.location.pathname}?${qs}`
+        : window.location.pathname;
+
+      if (push) history.pushState(null, "", url);
+      else history.replaceState(null, "", url);
+    }
+
+    // UI sync (SearchBar controls)
+    function setActiveTabFromType(type) {
+      const tabValue = type ? type : "all";
+      for (const btn of tabButtons) {
+        const on = btn.dataset.tab === tabValue;
+        btn.classList.toggle("is-active", on);
+        btn.setAttribute("aria-selected", on ? "true" : "false");
+      }
+    }
+
+    function getTypeFromActiveTab() {
+      const active = tabButtons.find((b) => b.classList.contains("is-active"));
+      const t = active?.dataset.tab || "all";
+      return t === "all" ? "" : t;
+    }
+
+    function syncControlsFromUrl() {
+      const { q, type, book } = readState();
+
+      if (input && input.value !== q) input.value = q;
+      setActiveTabFromType(type);
+      if (bookSelect) bookSelect.value = book;
+    }
+
+    // --- Topics parsing (robust) ---
+    function parseTopics(raw) {
+      const s = raw ? String(raw) : "";
+      if (!s) return [];
+      return s
+        .replace(/\u00A0/g, " ") // NBSP -> space
+        .replace(/[|/]+/g, " ") // common separators -> space
+        .split(/[,\s]+/)
+        .map((t) => t.trim())
+        .filter(Boolean);
+    }
+
+    function normalizeToken(s) {
+      return String(s || "")
+        .toLowerCase()
+        .replace(/[^0-9a-z-]/g, "");
+    }
+
+    // Phrase queries:
+    // If the user enters multiple words, we wrap the whole query in quotes so Pagefind
+    // only returns pages containing the full phrase. Single-word behavior stays unchanged.
+    function buildPfQuery(raw) {
+      const q = String(raw || "").trim();
+      if (!q) return "";
+      // Respect explicit quoting
+      if (q.includes('"')) return q;
+      // Multi-word -> exact phrase
+      if (/\s+/.test(q)) return `"${q}"`;
+      return q;
+    }
+
+    // ---- Topic-range + match-location logic ----
+
+    function getTopicRangeFromAnchors(anchors) {
+      if (!Array.isArray(anchors)) return null;
+      const start = anchors.find((a) => a?.id === "pf-topics-start")?.location;
+      const end = anchors.find((a) => a?.id === "pf-topics-end")?.location;
+      if (typeof start !== "number" || typeof end !== "number") return null;
+      return start <= end ? { start, end } : { start: end, end: start };
+    }
+
+    function getMatchLocations(d) {
+      const wl = Array.isArray(d?.weighted_locations)
+        ? d.weighted_locations
+            .map((x) => x?.location)
+            .filter((n) => typeof n === "number")
+        : [];
+      if (wl.length) return wl;
+
+      const locs = Array.isArray(d?.locations)
+        ? d.locations.filter((n) => typeof n === "number")
+        : [];
+      return locs;
+    }
+
+    function hasNonTopicMatch(locs, topicRange) {
+      if (!topicRange) return true;
+      return (locs || []).some(
+        (n) => n < topicRange.start || n > topicRange.end,
+      );
+    }
+
+    function pickBestNonTopicLocation(locs, topicRange) {
+      if (!Array.isArray(locs) || !locs.length) return null;
+      if (!topicRange) return locs[0];
+      const nonTopic = locs.filter(
+        (n) => n < topicRange.start || n > topicRange.end,
+      );
+      return nonTopic.length ? nonTopic[0] : locs[0];
+    }
+
+    // Sometimes excerpts get polluted by meta text; keep this conservative.
+    function looksLikeMetaDump(htmlOrText) {
+      const t = String(htmlOrText || "").toLowerCase();
+      if (!t) return false;
+
+      const hasTypeWord = /\b(scripture|intro|article)\b/.test(t);
+      const hasMetaWords = /\b(book|chapter|type)\b/.test(t);
+      return hasTypeWord && hasMetaWords;
+    }
+
+    // Pagefind diagnostics
+    async function verifyPagefindAssets() {
+      const entryUrl = `${base}pagefind/pagefind-entry.json`;
+
+      const entryRes = await fetch(entryUrl, { cache: "no-store" });
+      if (!entryRes.ok) {
+        throw new Error(
+          `Pagefind entry missing (${entryRes.status}): ${entryUrl}`,
+        );
+      }
+
+      const entry = await entryRes.json();
+      const langs = entry?.languages || {};
+
+      const docLang = (document.documentElement.lang || "").toLowerCase();
+      const lang = langs[docLang] || Object.values(langs)[0];
+
+      if (!lang?.hash || !lang?.wasm) {
+        throw new Error("Pagefind entry missing language hash/wasm.");
+      }
+
+      const metaUrl = `${base}pagefind/pagefind.${lang.hash}.pf_meta`;
+      const wasmUrl = `${base}pagefind/wasm.${lang.wasm}.pagefind`;
+
+      const [metaRes, wasmRes] = await Promise.all([
+        fetch(metaUrl, { cache: "no-store" }),
+        fetch(wasmUrl, { cache: "no-store" }),
+      ]);
+
+      if (!metaRes.ok)
+        throw new Error(`Missing meta (${metaRes.status}): ${metaUrl}`);
+      if (!wasmRes.ok)
+        throw new Error(`Missing wasm (${wasmRes.status}): ${wasmUrl}`);
+    }
+
+    async function loadPagefind() {
+      if (pagefindMod) return pagefindMod;
+
+      await verifyPagefindAssets();
+
+      pagefindMod = await import(`${base}pagefind/pagefind.js`);
+
+      await pagefindMod.options?.({
+        basePath: `${base}pagefind/`,
+        baseUrl: base === "/" ? "/" : base.replace(/\/$/, ""),
+      });
+
+      await pagefindMod.init?.();
+      return pagefindMod;
+    }
+
+    // Build a deep link to the nearest anchor at/before the first NON-topic match.
+    async function hrefToFirstMatch(result) {
+      const d = await result.data();
+
+      const topicRange = getTopicRangeFromAnchors(d?.anchors);
+      const locs = getMatchLocations(d);
+      const chosenLoc = pickBestNonTopicLocation(locs, topicRange);
+
+      if (
+        typeof chosenLoc !== "number" ||
+        !Array.isArray(d?.anchors) ||
+        d.anchors.length === 0
+      ) {
+        return { url: d.url, data: d, topicRange, locs };
+      }
+
+      const anchors = [...d.anchors]
+        .filter((a) => a?.id && !String(a.id).startsWith("pf-topics-"))
+        .sort((a, b) => (a.location ?? 0) - (b.location ?? 0));
+
+      let chosen = null;
+      for (const a of anchors) {
+        if (!a?.id || typeof a.location !== "number") continue;
+        if (a.location <= chosenLoc) chosen = a;
+        else break;
+      }
+
+      const url = chosen?.id ? `${d.url}#${chosen.id}` : d.url;
+      return { url, data: d, topicRange, locs };
+    }
+
+    function renderSubject(items) {
+      subjectEl.innerHTML = "";
+      for (const r of items) {
+        const li = document.createElement("li");
+        li.className = "result";
+
+        const fallbackTitle = r.meta?.title || r.title || "Result";
+        const displayTitle = prettyTitleFromUrl(r.url, fallbackTitle);
+
+        li.innerHTML = `
+          <a class="result-link" href="${escapeHtml(r.url)}">
+            <div class="result-title">${escapeHtml(displayTitle)}</div>
+          </a>
+        `;
+
+        subjectEl.appendChild(li);
+      }
+    }
+
+    // ✅ Highlighted excerpt (<mark>) preserved for keyword matches.
+    function renderKeyword(items) {
+      keywordEl.innerHTML = "";
+
+      for (const r of items) {
+        const li = document.createElement("li");
+        li.className = "result";
+
+        const fallbackTitle = r.meta?.title || r.title || "Result";
+        const displayTitle = prettyTitleFromUrl(r.url, fallbackTitle);
+
+        const descriptionMeta = r?.meta?.description
+          ? String(r.meta.description).trim()
+          : "";
+
+        const excerptHtml = r?.excerpt ? String(r.excerpt) : "";
+
+        const snippetHtml =
+          excerptHtml && !looksLikeMetaDump(excerptHtml)
+            ? excerptHtml
+            : descriptionMeta
+              ? escapeHtml(descriptionMeta)
+              : "";
+
+        li.innerHTML = `
+          <a class="result-link" href="${escapeHtml(r.url)}">
+            <div class="result-title">${escapeHtml(displayTitle)}</div>
+            ${snippetHtml ? `<div class="result-excerpt">${snippetHtml}</div>` : ""}
+          </a>
+        `;
+
+        keywordEl.appendChild(li);
+      }
+    }
+
+    function setPager(total, page) {
+      const pages = Math.max(1, Math.ceil(total / pageSize));
+      const show = total > pageSize;
+      pagerEl.hidden = !show;
+
+      if (!show) {
+        prevBtn.disabled = true;
+        nextBtn.disabled = true;
+        pagerInfo.textContent = "";
+        return;
+      }
+
+      prevBtn.disabled = page <= 1;
+      nextBtn.disabled = page >= pages;
+      pagerInfo.textContent = `Page ${page} of ${pages}`;
+    }
+
+    async function runFullSearch() {
+      const { q, type, book, page } = readState();
+
+      if (!q) {
+        setStatus("Type to search.");
+        groupSubject.hidden = true;
+        groupKeyword.hidden = true;
+        subjectEl.innerHTML = "";
+        keywordEl.innerHTML = "";
+        setPager(0, 1);
+        return;
+      }
+
+      setStatus("Searching…");
+
+      const pagefind = await loadPagefind();
+
+      const filters = {};
+      if (type) filters.type = type;
+      if (book) filters.book = book;
+
+      const pfQuery = buildPfQuery(q);
+
+      const search = await pagefind.search(
+        pfQuery,
+        Object.keys(filters).length ? { filters } : undefined,
+      );
+
+      const total = search.results.length;
+
+      if (!total) {
+        setStatus("No results.");
+        groupSubject.hidden = true;
+        groupKeyword.hidden = true;
+        subjectEl.innerHTML = "";
+        keywordEl.innerHTML = "";
+        setPager(0, 1);
+        return;
+      }
+
+      // Resolve ALL (we need subject counts + keyword filtering)
+      const resolvedAll = await Promise.all(
+        search.results.map((r) => hrefToFirstMatch(r)),
+      );
+
+      const allData = resolvedAll.map(({ url, data, topicRange, locs }) => ({
+        ...data,
+        url,
+        __topicRange: topicRange,
+        __locs: locs,
+      }));
+
+      // Subject matching only makes sense for single-token queries
+      const qIsSingleToken = !/\s+/.test(q.trim());
+      const qNorm = qIsSingleToken ? normalizeToken(q) : "";
+
+      // Subject matches = query matches a topic tag
+      const subjectMatches = allData.filter((d) => {
+        if (!qNorm) return false;
+        const topics = parseTopics(d?.meta?.topics || "").map(normalizeToken);
+        return topics.includes(qNorm);
+      });
+
+      // Keyword matches = include only if any match location is outside topic-only zone
+      const keywordMatchesAll = allData.filter((d) => {
+        const topicRange =
+          d.__topicRange || getTopicRangeFromAnchors(d?.anchors);
+        const locs = d.__locs || getMatchLocations(d);
+        return hasNonTopicMatch(locs, topicRange);
+      });
+
+      // Paging applies to keyword matches only
+      const keywordTotal = keywordMatchesAll.length;
+      const start = (page - 1) * pageSize;
+      const keywordSlice = keywordMatchesAll.slice(start, start + pageSize);
+
+      setStatus(
+        `${subjectMatches.length} subject match${subjectMatches.length === 1 ? "" : "es"} • ` +
+          `${keywordTotal} keyword match${keywordTotal === 1 ? "" : "es"}`,
+      );
+
+      // Render groups
+      if (subjectMatches.length) {
+        groupSubject.hidden = false;
+        renderSubject(subjectMatches.slice(0, 50)); // generous, usually small
+      } else {
+        groupSubject.hidden = true;
+        subjectEl.innerHTML = "";
+      }
+
+      if (keywordTotal) {
+        groupKeyword.hidden = false;
+        renderKeyword(keywordSlice);
+      } else {
+        groupKeyword.hidden = true;
+        keywordEl.innerHTML = "";
+      }
+
+      setPager(keywordTotal, page);
+    }
+
+    function scheduleSearch() {
+      clearTimeout(debounceId);
+      debounceId = setTimeout(async () => {
+        try {
+          await runFullSearch();
+        } catch (err) {
+          console.error(err);
+          setStatus(`Search failed: ${err?.message || "Unknown error"}`);
+          groupSubject.hidden = true;
+          groupKeyword.hidden = true;
+          subjectEl.innerHTML = "";
+          keywordEl.innerHTML = "";
+          setPager(0, 1);
+        }
+      }, 180);
+    }
+
+    function updateFromControls({ resetPage = true, push = false } = {}) {
+      const q = input ? input.value.trim() : "";
+      const type = getTypeFromActiveTab();
+      const book = bookSelect ? String(bookSelect.value || "") : "";
+      const current = readState();
+
+      writeState(
+        { q, type, book, page: resetPage ? 1 : current.page },
+        { push },
+      );
+
+      scheduleSearch();
+    }
+
+    // Initial sync
+    syncControlsFromUrl();
+    scheduleSearch();
+
+    if (input) {
+      input.addEventListener("input", () =>
+        updateFromControls({ resetPage: true }),
+      );
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter")
+          updateFromControls({ resetPage: true, push: true });
+      });
+    }
+
+    tabButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        queueMicrotask(() =>
+          updateFromControls({ resetPage: true, push: true }),
+        );
+      });
+    });
+
+    if (bookSelect) {
+      bookSelect.addEventListener("change", () =>
+        updateFromControls({ resetPage: true, push: true }),
+      );
+    }
+
+    function setPage(n) {
+      const s = readState();
+      writeState({ ...s, page: n }, { push: true });
+      scheduleSearch();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    prevBtn.addEventListener("click", () => {
+      const s = readState();
+      if (s.page > 1) setPage(s.page - 1);
+    });
+
+    nextBtn.addEventListener("click", () => {
+      const s = readState();
+      setPage(s.page + 1);
+    });
+
+    window.addEventListener("popstate", () => {
+      syncControlsFromUrl();
+      scheduleSearch();
+    });
+  </script>
+
+  <style>
+    .search-page {
+      padding: 18px 0 42px;
+    }
+
+    .search-header {
+      text-align: center;
+      margin: 0 0 16px;
+    }
+
+    .search-title {
+      font-size: 32px;
+      margin: 0 0 8px;
+    }
+
+    .search-subtitle {
+      margin: 0;
+      color: rgba(29, 35, 28, 0.7);
+    }
+
+    .search-meta {
+      max-width: var(--content-width, 72ch);
+      margin: 0 auto 10px;
+      padding: 0 16px;
+      color: rgba(29, 35, 28, 0.8);
+      font-size: 0.95rem;
+      text-align: center;
+    }
+
+    .group {
+      max-width: var(--content-width, 72ch);
+      margin: 0 auto;
+      padding: 0 16px;
+    }
+
+    .group + .group {
+      margin-top: 18px;
+    }
+
+    .group-title {
+      font-size: 0.82rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      opacity: 0.72;
+      margin: 14px 0 10px;
+      text-align: left;
+    }
+
+    .search-page :global(.results) {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+
+      display: grid;
+      gap: 12px;
+    }
+
+    .search-page :global(.result) {
+      margin: 0;
+    }
+
+    .search-page :global(.result-link) {
+      display: block;
+      text-decoration: none;
+      color: #1d231c;
+
+      border-radius: 16px;
+      padding: 16px 16px;
+      padding-right: 46px;
+
+      background: rgba(255, 255, 255, 0.78);
+      border: 1px solid rgba(29, 35, 28, 0.14);
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+
+      position: relative;
+
+      transition:
+        transform 120ms ease,
+        box-shadow 120ms ease,
+        border-color 160ms ease,
+        background-color 160ms ease;
+    }
+
+    .search-page :global(.result-title) {
+      font-weight: 700;
+      margin: 0 0 6px;
+      line-height: 1.25;
+      color: #1d231c;
+    }
+
+    .search-page :global(.result-excerpt) {
+      color: rgba(29, 35, 28, 0.78);
+      line-height: 1.5;
+    }
+
+    .search-page :global(.result-link::after) {
+      content: "›";
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+
+      display: grid;
+      place-items: center;
+
+      background: rgba(29, 35, 28, 0.08);
+      color: rgba(29, 35, 28, 0.9);
+      font-size: 22px;
+      line-height: 1;
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      .search-page :global(.result-link:hover) {
+        transform: translateY(-1px);
+        border-color: rgba(32, 157, 80, 0.45);
+        box-shadow: 0 16px 34px rgba(0, 0, 0, 0.12);
+        background: rgba(255, 255, 255, 0.92);
+      }
+
+      .search-page :global(.result-link:hover::after) {
+        background: rgba(32, 157, 80, 0.18);
+      }
+    }
+
+    .search-page :global(.result-link:active) {
+      transform: translateY(0);
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.1);
+      background: rgba(255, 255, 255, 0.95);
+    }
+
+    .search-page :global(.result-link:focus-visible) {
+      outline: 3px solid rgba(32, 157, 80, 0.55);
+      outline-offset: 3px;
+    }
+
+    .search-page :global(.result-excerpt mark) {
+      background: rgba(255, 230, 0, 0.55);
+      color: #1d231c;
+      padding: 0 2px;
+      border-radius: 3px;
+    }
+
+    .pager {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      align-items: center;
+      margin: 18px auto 0;
+      padding: 0 16px;
+    }
+
+    .pager-btn {
+      padding: 10px 16px;
+      border-radius: 12px;
+      border: none;
+      background: #1d231c;
+      color: #fff;
+      cursor: pointer;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    }
+
+    .pager-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .pager-info {
+      color: rgba(29, 35, 28, 0.8);
+      font-size: 0.95rem;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+  </style>
+</SearchLayout>

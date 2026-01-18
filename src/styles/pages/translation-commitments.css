@@ -1,0 +1,241 @@
+/* =========================================================
+   Translation Commitments page
+   ========================================================= */
+
+.tc-page {
+  padding: 0 0 56px;
+  background: #ffffff;
+}
+
+/* =========================================================
+   Commitments page: force WHITE behind header (no Layout changes)
+   Uses :has() to scope to this page only.
+   ========================================================= */
+
+body:has(.tc-page) {
+  background: #ffffff; /* prevents cream peeking above/around header */
+}
+
+body:has(.tc-page) .site-header,
+body:has(.tc-page) .site-header__inner {
+  background: #ffffff;
+}
+
+/* HERO */
+.tc-hero {
+  max-width: var(--content-width, 72ch);
+  margin: 0 auto;
+  padding: 56px 16px 24px;
+  text-align: center;
+}
+
+.tc-title {
+  margin: 0 0 10px;
+}
+
+.tc-lede {
+  margin: 0 auto;
+  max-width: 62ch;
+  line-height: 1.6;
+  color: rgba(29, 35, 28, 0.78);
+}
+
+/* GRID */
+.tc-grid {
+  max-width: 1120px;
+  margin: 18px auto 0;
+  padding: 0 16px;
+
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(26px, 3vw, 48px);
+}
+
+@media (max-width: 980px) {
+  .tc-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .tc-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* CARD */
+.tc-card {
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+  align-content: start;
+
+  /* matches your clean, airy style */
+  padding: 8px 6px;
+}
+
+/*
+  Icon coherence filter
+  ---------------------
+  Your PNGs have slightly different *near-white* backgrounds.
+  This pushes those backgrounds to pure white while keeping the marks dark.
+
+  If anything looks washed out, reduce brightness first (e.g. 1.12).
+  If a background tint is still visible, increase brightness slightly (e.g. 1.20).
+*/
+.tc-iconTile {
+  /* per-card knobs set inline via style="" */
+  --icon-scale: 1.16; /* fallback */
+  --icon-x: 0px;
+  --icon-y: 0px;
+
+  width: min(290px, 72vw);
+  aspect-ratio: 1 / 1;
+  margin: 0 auto 18px;
+
+  display: grid;
+  place-items: center;
+
+  background: #ffffff;
+  border-radius: 999px;
+  overflow: hidden;
+
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.10);
+  border: 1px solid rgba(29, 35, 28, 0.10);
+}
+
+.tc-icon {
+  width: 100%;
+  height: auto;
+  display: block;
+
+  filter: grayscale(1) brightness(1.17) contrast(1.22);
+  mix-blend-mode: multiply;
+
+  transform: translate(var(--icon-x), var(--icon-y)) scale(var(--icon-scale));
+  transform-origin: center;
+}
+
+/* Titles + body */
+.tc-cardTitle {
+  margin: 0 0 10px;
+  font-size: clamp(1.2rem, 2vw, 1.55rem);
+  line-height: 1.2;
+  text-align: center;
+}
+
+.tc-cardBody {
+  margin: 0;
+  line-height: 1.7;
+  color: rgba(29, 35, 28, 0.84);
+  text-align: left;
+  max-width: 62ch;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* NARRATIVE (framed manifesto block on cream) */
+.tc-narrative {
+  margin: 44px auto 0;
+  padding: 34px 16px 0;
+  border-top: 1px solid rgba(29, 35, 28, 0.18);
+
+  /* let the framed block control the readable width */
+  max-width: 1120px;
+}
+
+.tc-narrative__inner {
+  max-width: 78ch;
+  margin: 0 auto;
+
+  background: var(--cream);
+  border: 1px solid rgba(29, 35, 28, 0.10);
+  border-radius: 28px;
+  padding: clamp(22px, 3.2vw, 38px);
+
+  box-shadow: 0 22px 60px rgba(0, 0, 0, 0.10);
+  position: relative;
+}
+
+/* Left spine */
+.tc-narrative__inner::before{
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 18px;
+  bottom: 18px;
+  width: 15px;
+  border-radius: 999px;
+  opacity: 0.38;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--green) 5%, transparent),
+    color-mix(in srgb, var(--green) 100%, transparent),
+    color-mix(in srgb, var(--green) 20%, transparent),
+    color-mix(in srgb, var(--green) 100%, transparent),
+    color-mix(in srgb, var(--green) 20%, transparent),
+    color-mix(in srgb, var(--green) 100%, transparent),
+    color-mix(in srgb, var(--green) 5%, transparent)
+  );
+}
+
+/* Right spine (duplicate) */
+.tc-narrative__inner::after{
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 18px;
+  bottom: 18px;
+  width: 15px;
+  border-radius: 999px;
+  opacity: 0.38;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--green) 5%, transparent),
+    color-mix(in srgb, var(--green) 100%, transparent),
+    color-mix(in srgb, var(--green) 20%, transparent),
+    color-mix(in srgb, var(--green) 100%, transparent),
+    color-mix(in srgb, var(--green) 20%, transparent),
+    color-mix(in srgb, var(--green) 100%, transparent),
+    color-mix(in srgb, var(--green) 5%, transparent)
+  );
+}
+
+
+
+.tc-narrative h2 {
+  margin: 0 0 14px;
+}
+
+.tc-narrative p {
+  margin: 0 0 14px;
+  line-height: 1.75;
+  color: rgba(29, 35, 28, 0.88);
+}
+
+.tc-narrative p:last-child {
+  margin-bottom: 0;
+}
+
+.tc-narrative strong {
+  font-weight: 750;
+}
+
+/* Mobile: keep the accent spine from crowding */
+@media (max-width: 520px) {
+  .tc-narrative__inner {
+    border-radius: 22px;
+    padding: 18px 16px;
+  }
+
+  .tc-narrative__inner::before {
+    top: 14px;
+    bottom: 14px;
+    width: 5px;
+  }
+
+    .tc-narrative__inner::after {
+    top: 14px;
+    bottom: 14px;
+    width: 5px;
+  }
+}
