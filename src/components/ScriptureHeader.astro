@@ -1,5 +1,5 @@
 ---
-import { books } from "../data/books";
+import { BOOKS } from "../data/books.js";
 
 /**
  * Props are OPTIONAL so <ScriptureHeader /> is valid anywhere.
@@ -15,9 +15,6 @@ export type Props = {
 const props = Astro.props as Props;
 
 function normalizeBookKey(key: string) {
-  // Force "bookKey" to be the slug key your site uses:
-  // "1 thessalonians" -> "1thessalonians"
-  // "  Luke "         -> "luke"
   return String(key ?? "")
     .trim()
     .toLowerCase()
@@ -36,7 +33,6 @@ function humanBookName(key: string) {
     return `${num} ${rest.charAt(0).toUpperCase()}${rest.slice(1)}`;
   }
 
-  // "luke" -> "Luke"
   return k.charAt(0).toUpperCase() + k.slice(1);
 }
 
@@ -83,10 +79,25 @@ if (kind === "chapter") {
 
 const bookName = bookKey ? humanBookName(bookKey) : "";
 
-// Prefer an explicit prop if you pass it, otherwise fall back to your books map.
+// Map + order
+const BOOKS_MAP = (BOOKS ?? {}) as Record<string, number>;
+const BOOK_ORDER = Object.keys(BOOKS_MAP).map(normalizeBookKey);
+
+const currentIndex = bookKey ? BOOK_ORDER.indexOf(bookKey) : -1;
+const prevBookKey = currentIndex > 0 ? BOOK_ORDER[currentIndex - 1] : null;
+const nextBookKey =
+  currentIndex >= 0 && currentIndex < BOOK_ORDER.length - 1
+    ? BOOK_ORDER[currentIndex + 1]
+    : null;
+
+const prevBookLastChapter =
+  prevBookKey && typeof BOOKS_MAP[prevBookKey] === "number"
+    ? BOOKS_MAP[prevBookKey]
+    : null;
+
+// Chapters in current book
 const chaptersInBook =
-  props.chaptersInBook ??
-  (bookKey ? (books as Record<string, number>)[bookKey] : undefined);
+  props.chaptersInBook ?? (bookKey ? BOOKS_MAP[bookKey] : undefined);
 
 let headingText = "";
 let prevHref: string | null = null;
@@ -98,17 +109,28 @@ if (!bookKey) {
   nextHref = null;
 } else if (kind === "intro") {
   headingText = `${bookName} — Introduction`;
-  prevHref = null;
+
+  // Intro previous -> previous book final chapter
+  prevHref =
+    prevBookKey && prevBookLastChapter
+      ? `/${prevBookKey}-${prevBookLastChapter}`
+      : null;
+
+  // Intro next -> chapter 1 of current book
   nextHref = `/${bookKey}-1`;
 } else {
   const n = chapter ?? 1;
   headingText = `${bookName} ${n}`;
 
+  // Chapter previous: chapter 1 -> intro
   prevHref = n > 1 ? `/${bookKey}-${n - 1}` : `/${bookKey}-intro`;
 
-  if (typeof chaptersInBook === "number" && n >= chaptersInBook)
-    nextHref = null;
-  else nextHref = `/${bookKey}-${n + 1}`;
+  // Chapter next: last chapter -> next book intro (don’t skip intros)
+  if (typeof chaptersInBook === "number" && n >= chaptersInBook) {
+    nextHref = nextBookKey ? `/${nextBookKey}-intro` : null;
+  } else {
+    nextHref = `/${bookKey}-${n + 1}`;
+  }
 }
 ---
 
@@ -120,11 +142,7 @@ if (!bookKey) {
   <nav class="chapter-nav" aria-label="Chapter navigation">
     {
       prevHref ? (
-        <a
-          class="nav-button"
-          href={prevHref}
-          aria-label="Go to previous chapter"
-        >
+        <a class="nav-button" href={prevHref} aria-label="Go to previous page">
           ◀ Previous
         </a>
       ) : (
@@ -136,7 +154,7 @@ if (!bookKey) {
 
     {
       nextHref ? (
-        <a class="nav-button" href={nextHref} aria-label="Go to next chapter">
+        <a class="nav-button" href={nextHref} aria-label="Go to next page">
           Next ▶
         </a>
       ) : (

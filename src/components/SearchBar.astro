@@ -17,14 +17,24 @@ const {
 
   <!-- wrap input + button in a form so mobile can submit -->
   <form class="searchbar__form" data-searchbar-form role="search">
-    <input
-      id="site-search-input"
-      class="searchbar__input"
-      type="search"
-      placeholder={placeholder}
-      autocomplete="off"
-      spellcheck="false"
-    />
+    <!-- Input wrap lets us overlay “ghost” autocomplete INSIDE the input -->
+    <div class="searchbar__input-wrap">
+      <input
+        id="site-search-input"
+        class="searchbar__input"
+        type="search"
+        placeholder={placeholder}
+        autocomplete="off"
+        spellcheck="false"
+      />
+
+      <!-- One-option predictive “ghost” topic suggestion -->
+      <div class="searchbar__ghost" data-ghost hidden aria-hidden="true">
+        <span class="searchbar__ghost-typed" data-ghost-typed></span><span
+          class="searchbar__ghost-rest"
+          data-ghost-rest></span>
+      </div>
+    </div>
 
     <!-- Mobile/tablet submit button -->
     <button class="searchbar__submit" type="submit" aria-label="Search">
@@ -42,37 +52,38 @@ const {
   <div class="searchbar__panel" role="dialog" aria-label="Search results tray">
     <div class="searchbar__panel-inner">
       <div class="searchbar__controls" aria-label="Search filters">
-        <button type="button" class="chip chip--active" data-type="">All</button
-        >
+        <div class="searchbar__chips">
+          <button type="button" class="chip chip--active" data-type=""
+            >All</button
+          >
+          <button type="button" class="chip" data-type="article"
+            >Articles</button
+          >
+          <button type="button" class="chip" data-type="scripture"
+            >Scripture</button
+          >
+        </div>
 
-        <button type="button" class="chip" data-type="article">Articles</button>
+        <div class="searchbar__filters">
+          <label class="sr-only" for="searchbar-book">Filter by book</label>
+          <select id="searchbar-book" class="searchbar__book">
+            <option value="">All books</option>
+          </select>
 
-        <button type="button" class="chip" data-type="scripture"
-          >Scripture</button
-        >
-        <button type="button" class="chip" data-type="intro">Intros</button>
-
-        <label class="sr-only" for="searchbar-book">Filter by book</label>
-        <select id="searchbar-book" class="searchbar__book">
-          <option value="">All books</option>
-        </select>
-
-        <!-- Result-mode filter -->
-        <label class="sr-only" for="searchbar-mode">Filter results type</label>
-        <select id="searchbar-mode" class="searchbar__mode">
-          <option value="all">All results</option>
-          <option value="subject">Subject matches</option>
-          <option value="keyword">Keyword matches</option>
-          <option value="ref">Chapter &amp; verse jump</option>
-        </select>
+          <label class="sr-only" for="searchbar-mode">Filter results type</label
+          >
+          <select id="searchbar-mode" class="searchbar__mode">
+            <option value="all">All results</option>
+            <option value="subject">Subject matches</option>
+            <option value="keyword">Keyword matches</option>
+            <option value="glossary">Glossary matches</option>
+            <option value="ref">Chapter &amp; verse jump</option>
+          </select>
+        </div>
       </div>
 
       <div class="searchbar__status" aria-live="polite"></div>
-
-      <!-- Reference jump row is injected here -->
       <div class="searchbar__jump" data-jump hidden></div>
-
-      <!-- Grouped results are injected here -->
       <div class="searchbar__groups" data-groups></div>
 
       <div class="searchbar__footer">
@@ -104,6 +115,11 @@ const {
       const fullLink = root.querySelector(".searchbar__full");
       const jumpRow = root.querySelector("[data-jump]");
 
+      // Ghost autocomplete elements
+      const ghost = root.querySelector("[data-ghost]");
+      const ghostTyped = root.querySelector("[data-ghost-typed]");
+      const ghostRest = root.querySelector("[data-ghost-rest]");
+
       if (
         !form ||
         !input ||
@@ -116,7 +132,7 @@ const {
       )
         return;
 
-      const MIN_QUERY_LEN = 3;
+      const MIN_QUERY_LEN = 3; // keep your gate; 3–4 char queries are now exact-only
 
       // Canonical NT order matching your ReadMenu keys
       const BOOK_ORDER = [
@@ -152,11 +168,170 @@ const {
 
       let pagefind = null;
 
-      // allow default type via data-default-type
       const initialType = root.dataset.defaultType || "";
       let activeType = initialType;
       let activeBook = "";
-      let activeMode = "all"; // all | subject | keyword | ref
+      let activeMode = "all"; // all | subject | keyword | glossary | ref
+
+      // -----------------------------
+      // One-option topic autocomplete
+      // -----------------------------
+      let topicsLoaded = false;
+      let topicsList = []; // [{ label, norm, count }]
+
+      function normPhrase(s) {
+        return String(s || "")
+          .toLowerCase()
+          .trim()
+          .replace(/\u00a0/g, " ")
+          .replace(/\s+/g, " ");
+      }
+
+      function clearGhost() {
+        if (!ghost || !ghostTyped || !ghostRest) return;
+        ghost.hidden = true;
+        ghostTyped.textContent = "";
+        ghostRest.textContent = "";
+      }
+
+      function caretIsAtEnd() {
+        try {
+          const end = input.value.length;
+          return input.selectionStart === end && input.selectionEnd === end;
+        } catch {
+          return true;
+        }
+      }
+
+      function bestTopicSuggestion(qRaw) {
+        const qNorm = normPhrase(qRaw);
+        if (!qNorm || qNorm.length < 2) return null; // small guard = fewer distractions
+
+        // prefix-only
+        const matches = [];
+        for (const t of topicsList) {
+          if (!t?.norm) continue;
+          if (t.norm.startsWith(qNorm)) matches.push(t);
+        }
+        if (!matches.length) return null;
+
+        // shortest matching first (your preference), then count desc, then alpha
+        matches.sort((a, b) => {
+          const la = a.norm.length;
+          const lb = b.norm.length;
+          if (la !== lb) return la - lb;
+
+          const ac = Number(a.count || 0);
+          const bc = Number(b.count || 0);
+          if (bc !== ac) return bc - ac;
+
+          return String(a.label || "").localeCompare(String(b.label || ""));
+        });
+
+        return matches[0] || null;
+      }
+
+      function renderGhost(qRaw) {
+        if (!ghost || !ghostTyped || !ghostRest) return;
+
+        // Only show ghost when user is editing at the end (prevents mid-string weirdness)
+        if (document.activeElement === input && !caretIsAtEnd()) {
+          clearGhost();
+          return;
+        }
+
+        const q = String(qRaw || "");
+        const picked = bestTopicSuggestion(q);
+        const qNorm = normPhrase(q);
+        if (!picked || picked.norm === qNorm) {
+          clearGhost();
+          return;
+        }
+
+        // The “rest” has to be aligned with the *original* typed string length.
+        // We treat the typed string as authoritative display (even if spacing/case differs).
+        const fullLabel = String(picked.label || "");
+        const typedLen = q.length;
+
+        ghost.hidden = false;
+        ghostTyped.textContent = q;
+
+        // If typedLen exceeds label length (shouldn’t happen, but safety)
+        ghostRest.textContent =
+          typedLen < fullLabel.length ? fullLabel.slice(typedLen) : "";
+      }
+
+      function acceptGhostIfAny() {
+        if (!ghost || ghost.hidden) return false;
+
+        const q = input.value;
+        const picked = bestTopicSuggestion(q);
+        if (!picked) return false;
+
+        // Only accept if current query is a true prefix of the label (ignoring case/extra spaces)
+        const qNorm = normPhrase(q);
+        if (!picked.norm.startsWith(qNorm)) return false;
+
+        // Replace with canonical label
+        input.value = String(picked.label || "").trim();
+        clearGhost();
+        return true;
+      }
+
+      async function loadTopicsOnce() {
+        if (topicsLoaded) return;
+        topicsLoaded = true;
+
+        // build-topics-index.mjs writes: /public/topics-index.json
+        // so it is served from site root as: /topics-index.json
+        try {
+          const res = await fetch("/topics-index.json", {
+            cache: "force-cache",
+          });
+          if (!res.ok) throw new Error("topics-index.json missing");
+
+          const data = await res.json();
+
+          // { generatedAt: "...", topics: { "<slug>": [ { topicLabel, url, ...}, ... ] } }
+          const map =
+            data?.topics && typeof data.topics === "object" ? data.topics : {};
+          const byNorm = new Map();
+
+          for (const key of Object.keys(map)) {
+            const entries = Array.isArray(map[key]) ? map[key] : [];
+            if (!entries.length) continue;
+
+            const rawLabel =
+              String(entries[0]?.topicLabel || "").trim() || String(key);
+
+            const n = normPhrase(rawLabel);
+            if (!n) continue;
+
+            const count = entries.length;
+
+            const prev = byNorm.get(n);
+            if (!prev) {
+              byNorm.set(n, { label: rawLabel, norm: n, count });
+            } else {
+              const prevLabel = String(prev.label || "");
+              const nextLabel = rawLabel;
+
+              const canonical =
+                nextLabel.length < prevLabel.length ? nextLabel : prevLabel;
+
+              byNorm.set(n, {
+                label: canonical,
+                norm: n,
+                count: Math.max(Number(prev.count || 0), count),
+              });
+            }
+          }
+
+          topicsList = Array.from(byNorm.values());
+        } catch {
+          topicsList = [];
+        }
+      }
 
       function openPanel() {
         root.dataset.open = "true";
@@ -164,6 +339,7 @@ const {
 
       function closePanel() {
         root.dataset.open = "false";
+        clearGhost();
       }
 
       function setActiveChip(type) {
@@ -216,7 +392,6 @@ const {
           .replace(/\s+/g, " ")
           .trim();
 
-        // allow: "luke 1", "luke 1:3", "1 john 4:18"
         const m = cleaned.match(/^(.+?)\s+(\d+)(?::(\d+))?$/);
         if (!m) return null;
 
@@ -233,17 +408,128 @@ const {
         return { bookKey, chapter, verse };
       }
 
-      // Phrase queries:
-      // If the user enters multiple words, wrap the whole query in quotes so Pagefind
-      // only returns pages containing the full phrase. Single-word behavior stays unchanged.
+      // Normalize curly quotes so users can paste from “fancy” sources
+      function normalizeQuotes(s) {
+        return String(s || "")
+          .replace(/[“”]/g, '"')
+          .replace(/[‘’]/g, "'");
+      }
+
+      function isExplicitlyQuoted(q) {
+        const s = String(q || "").trim();
+        if (s.length < 2) return false;
+        return s.startsWith('"') && s.endsWith('"');
+      }
+
+      // Whole-word boundary check for exact-only single-token searches (sin != since)
+      function isWordChar(ch) {
+        if (!ch) return false;
+        return /[\p{L}\p{N}_]/u.test(ch);
+      }
+
+      function excerptHasWholeWordMarkedTerm(excerptHtml, term) {
+        if (!excerptHtml || !term) return false;
+
+        const s = String(excerptHtml)
+          .replace(/<mark>/gi, "\u0001")
+          .replace(/<\/mark>/gi, "\u0002")
+          .replace(/<[^>]+>/g, "");
+
+        const t = String(term).toLowerCase();
+
+        for (let i = 0; i < s.length; i++) {
+          if (s[i] !== "\u0001") continue;
+
+          const start = i + 1;
+          const end = s.indexOf("\u0002", start);
+          if (end === -1) break;
+
+          const marked = s.slice(start, end);
+          if (marked.toLowerCase() === t) {
+            const before = s[i - 1];
+            const after = s[end + 1];
+            if (!isWordChar(before) && !isWordChar(after)) return true;
+          }
+
+          i = end;
+        }
+
+        return false;
+      }
+
+      // Fallback whole-word check when Pagefind doesn't provide <mark> in excerpt
+      function escapeRegExp(s) {
+        return String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      }
+
+      function stripTags(html) {
+        return String(html || "").replace(/<[^>]+>/g, "");
+      }
+
+      function textHasWholeWord(text, term) {
+        if (!text || !term) return false;
+
+        const s = String(text).toLowerCase();
+        const t = escapeRegExp(String(term).toLowerCase());
+
+        const re = new RegExp(
+          `(^|[^\\p{L}\\p{N}_])${t}([^\\p{L}\\p{N}_]|$)`,
+          "u",
+        );
+        return re.test(s);
+      }
+
+      // Case-insensitive phrase check (for non-exact, longer queries)
+      function normalizePhrase(s) {
+        return String(s || "")
+          .toLowerCase()
+          .trim()
+          .replace(/\s+/g, " ");
+      }
+
+      function textHasPhrase(text, phrase) {
+        if (!text || !phrase) return false;
+        return normalizePhrase(text).includes(normalizePhrase(phrase));
+      }
+
+      /**
+       * Query rules:
+       * - If user explicitly quotes: use as-is (exact).
+       * - If single token length 1–4: force exact by quoting (exact-only).
+       * - If multi-word and not explicitly quoted: quote whole phrase (exact phrase).
+       * - Otherwise: leave unquoted (allow Pagefind’s normal behavior).
+       */
       function buildPfQuery(raw) {
-        const q = String(raw || "").trim();
-        if (!q) return "";
-        // Respect explicit quoting
-        if (q.includes('"')) return q;
-        // Multi-word -> exact phrase
-        if (/\s+/.test(q)) return `"${q}"`;
-        return q;
+        const q0 = normalizeQuotes(raw).trim();
+        if (!q0)
+          return { pfQuery: "", exactSingleToken: false, exactToken: "" };
+
+        // Respect explicit quoting: don't modify
+        if (isExplicitlyQuoted(q0)) {
+          const inner = q0.slice(1, -1).trim();
+          const single = !/\s+/.test(inner);
+          return {
+            pfQuery: q0,
+            exactSingleToken: single,
+            exactToken: single ? inner : "",
+          };
+        }
+
+        const isMultiWord = /\s+/.test(q0);
+        if (isMultiWord) {
+          return {
+            pfQuery: `"${q0}"`,
+            exactSingleToken: false,
+            exactToken: "",
+          };
+        }
+
+        // Single token: force exact for length 1–4
+        if (q0.length >= 1 && q0.length <= 4) {
+          return { pfQuery: `"${q0}"`, exactSingleToken: true, exactToken: q0 };
+        }
+
+        return { pfQuery: q0, exactSingleToken: false, exactToken: "" };
       }
 
       function formatReferenceLabel(ref) {
@@ -323,122 +609,142 @@ const {
         `;
       }
 
-      function parseTopicsToList(metaValue) {
+      // ✅ Comma/semicolon-delimited subjects preserve multi-word phrases.
+      // If the build accidentally gives whitespace-only, we treat the whole blob as ONE entry.
+      function parseMetaList(metaValue) {
         if (!metaValue) return [];
-        const raw = String(metaValue);
-
-        const cleaned = raw
+        const raw = String(metaValue)
           .replace(/\u00A0/g, " ")
-          .replace(/[|/]+/g, " ")
+          .replace(/[|/]+/g, ",")
           .trim();
 
-        return cleaned
-          .split(/[,]+/)
-          .flatMap((chunk) => chunk.split(/\s+/))
+        if (!raw) return [];
+
+        const parts = raw
+          .split(/\s*[;,]\s*/g)
           .map((t) => t.trim())
           .filter(Boolean);
+
+        return parts.length ? parts : [raw];
       }
 
-      function stripHtml(s) {
-        return String(s || "")
-          .replace(/<[^>]*>/g, " ")
-          .replace(/\s+/g, " ")
-          .trim();
+      // ✅ Subject-zone anchor pairs: supports topics/tags/subjects
+      function getSubjectRangeFromAnchors(anchors) {
+        if (!Array.isArray(anchors)) return null;
+
+        const pairs = [
+          ["pf-subjects-start", "pf-subjects-end"],
+          ["pf-topics-start", "pf-topics-end"],
+          ["pf-tags-start", "pf-tags-end"],
+        ];
+
+        for (const [startId, endId] of pairs) {
+          const start = anchors.find((a) => a?.id === startId)?.location;
+          const end = anchors.find((a) => a?.id === endId)?.location;
+          if (typeof start === "number" && typeof end === "number") {
+            return start <= end ? { start, end } : { start: end, end: start };
+          }
+        }
+
+        return null;
       }
 
-      function normalizeToken(s) {
-        return String(s || "")
-          .toLowerCase()
-          .replace(/[^0-9a-z-]/g, "");
+      function getMatchLocations(d) {
+        const wl = Array.isArray(d?.weighted_locations)
+          ? d.weighted_locations
+              .map((x) => x?.location)
+              .filter((n) => typeof n === "number")
+          : [];
+        if (wl.length) return wl;
+
+        const locs = Array.isArray(d?.locations)
+          ? d.locations.filter((n) => typeof n === "number")
+          : [];
+        return locs;
       }
 
-      function tokenize(s) {
-        const txt = String(s || "").toLowerCase();
-        const m = txt.match(/[0-9a-z]+(?:-[0-9a-z]+)*/g);
-        return m ? m.map(normalizeToken).filter(Boolean) : [];
-      }
-
-      /**
-       * Topic-only hit detector (corrected):
-       * If the match location is *before* the first anchor, and the query is one
-       * of the page's topic tags, it's almost certainly matching hidden topic index
-       * text rather than scripture body.
-       */
-      function isTopicOnlyHit(
-        query,
-        topicsList,
-        excerptHtml,
-        matchLoc,
-        firstAnchorLoc,
-      ) {
-        const q = normalizeToken(query);
-        if (!q) return false;
-
-        const topics = new Set(
-          (topicsList || []).map((t) => normalizeToken(t)).filter(Boolean),
+      function hasNonSubjectMatch(locs, subjectRange) {
+        if (!subjectRange) return true;
+        return (locs || []).some(
+          (n) => n < subjectRange.start || n > subjectRange.end,
         );
-        if (!topics.size) return false;
+      }
 
-        // Only applies when query is one of this page's topics
-        if (!topics.has(q)) return false;
+      function pickBestNonSubjectLocation(locs, subjectRange) {
+        if (!Array.isArray(locs) || !locs.length) return null;
+        if (!subjectRange) return locs[0];
+        const nonSubject = locs.filter(
+          (n) => n < subjectRange.start || n > subjectRange.end,
+        );
+        return nonSubject.length ? nonSubject[0] : locs[0];
+      }
 
-        // Strong signal: match occurs before the first verse anchor location
+      // Build deep link without re-fetching r.data() again
+      function hrefFromData(d, subjectRange, locs) {
+        const chosenLoc = pickBestNonSubjectLocation(locs, subjectRange);
+
         if (
-          typeof matchLoc === "number" &&
-          typeof firstAnchorLoc === "number"
+          typeof chosenLoc !== "number" ||
+          !Array.isArray(d?.anchors) ||
+          d.anchors.length === 0
         ) {
-          if (matchLoc < firstAnchorLoc) return true;
+          return d.url;
         }
 
-        // Fallback: excerpt contains only topic words
-        const excerptText = stripHtml(excerptHtml || "");
-        const tokens = tokenize(excerptText);
-        if (!tokens.length) return false;
-        if (!tokens.includes(q)) return false;
-
-        const nonTiny = tokens.filter((t) => t.length >= 3);
-        if (!nonTiny.length) return false;
-
-        return nonTiny.every((t) => topics.has(t));
-      }
-
-      // Build a deep link to the nearest anchor at/before the first match
-      async function hrefToFirstMatch(result) {
-        const d = await result.data();
-
-        const matchLoc =
-          d?.weighted_locations?.[0]?.location ?? d?.locations?.[0];
-
-        const anchorsRaw = Array.isArray(d?.anchors) ? d.anchors : [];
-        const anchors = [...anchorsRaw].sort(
-          (a, b) => (a?.location ?? 0) - (b?.location ?? 0),
-        );
-
-        const firstAnchorLoc =
-          anchors.length && typeof anchors[0]?.location === "number"
-            ? anchors[0].location
-            : undefined;
-
-        if (typeof matchLoc !== "number" || anchors.length === 0) {
-          return { href: d.url, matchLoc, firstAnchorLoc };
-        }
+        const anchors = [...d.anchors]
+          .filter((a) => {
+            const id = a?.id ? String(a.id) : "";
+            if (!id) return false;
+            if (id.startsWith("pf-topics-")) return false;
+            if (id.startsWith("pf-tags-")) return false;
+            if (id.startsWith("pf-subjects-")) return false;
+            return true;
+          })
+          .sort((a, b) => (a?.location ?? 0) - (b?.location ?? 0));
 
         let chosen = null;
         for (const a of anchors) {
           if (!a?.id || typeof a.location !== "number") continue;
-          if (a.location <= matchLoc) chosen = a;
+          if (a.location <= chosenLoc) chosen = a;
           else break;
         }
 
-        const href = chosen?.id ? `${d.url}#${chosen.id}` : d.url;
-        return { href, matchLoc, firstAnchorLoc };
+        return chosen?.id ? `${d.url}#${chosen.id}` : d.url;
       }
 
-      function renderGroups({ subject, keyword }) {
+      // ✅ Safe glossary check (never throws)
+      function isGlossaryUrlSafe(url) {
+        const raw = String(url || "").trim();
+        if (!raw) return false;
+
+        // Strip hash/query for cheap matching
+        const base = raw.split("#")[0].split("?")[0];
+
+        // Most Pagefind URLs are site-relative
+        if (base.startsWith("/")) {
+          return /\/glossary(\/|$)/i.test(base);
+        }
+
+        // Only parse if it looks absolute
+        if (base.startsWith("http://") || base.startsWith("https://")) {
+          try {
+            const p = new URL(base).pathname.replace(/\/+$/, "");
+            return /\/glossary(\/|$)/i.test(p);
+          } catch {
+            return false;
+          }
+        }
+
+        // Fallback: segment-ish check
+        return /\/glossary(\/|$)/i.test(base) || /^glossary(\/|$)/i.test(base);
+      }
+
+      function renderGroups({ glossary, subject, keyword }) {
+        const glossaryCount = glossary.length;
         const subjectCount = subject.length;
         const keywordCount = keyword.length;
 
-        if (!subjectCount && !keywordCount) {
+        if (!glossaryCount && !subjectCount && !keywordCount) {
           groupsEl.innerHTML = "";
           return;
         }
@@ -463,6 +769,16 @@ const {
 
         groupsEl.innerHTML = `
           ${
+            glossaryCount && (activeMode === "all" || activeMode === "glossary")
+              ? `
+                <div class="searchbar__group">
+                  <div class="searchbar__group-title">Glossary matches</div>
+                  ${renderList(glossary)}
+                </div>
+              `
+              : ""
+          }
+          ${
             subjectCount && (activeMode === "all" || activeMode === "subject")
               ? `
                 <div class="searchbar__group">
@@ -486,136 +802,203 @@ const {
       }
 
       async function runSearch(q) {
-        const pf = await ensurePagefind();
-        if (!pf) return;
+        // Never let a search-path error break ghost suggestions / input listeners
+        try {
+          const pf = await ensurePagefind();
+          if (!pf) return;
 
-        const ref = parseReference(q);
+          const ref = parseReference(q);
 
-        // Mode: ref only
-        if (activeMode === "ref") {
-          if (ref) {
-            status.textContent = "Press Enter to jump.";
-            renderJump(ref);
-          } else {
-            status.textContent = "Type a reference like “Luke 4:18”.";
-            renderJump(null);
+          if (activeMode === "ref") {
+            clearGhost();
+
+            if (ref) {
+              status.textContent = "Press Enter to jump.";
+              renderJump(ref);
+            } else {
+              status.textContent = "Type a reference like “Luke 4:18”.";
+              renderJump(null);
+            }
+            groupsEl.innerHTML = "";
+            return;
           }
-          groupsEl.innerHTML = "";
-          return;
-        }
 
-        // For other modes, show jump row if a reference is parseable
-        renderJump(ref);
+          renderJump(ref);
 
-        const suppressKeywordResultsForPureReference = true;
+          const suppressKeywordResultsForPureReference = true;
 
-        if (
-          suppressKeywordResultsForPureReference &&
-          ref &&
-          q.trim().match(/^[^:]+?\s+\d+(?::\d+)?$/i)
-        ) {
-          status.textContent = "Press Enter to jump.";
-          groupsEl.innerHTML = "";
-          return;
-        }
-
-        const filters = {};
-        if (activeType) filters.type = [activeType];
-        if (activeBook) filters.book = [activeBook];
-
-        status.textContent = "Searching…";
-        groupsEl.innerHTML = "";
-
-        const pfQuery = buildPfQuery(q);
-
-        const res = await pf.search(
-          pfQuery,
-          Object.keys(filters).length ? { filters } : undefined,
-        );
-
-        // Keep tray small
-        const top = res.results.slice(0, 10);
-
-        // Resolve Pagefind data, compute deep links
-        const resolved = await Promise.all(
-          top.map(async (r) => {
-            const d = await r.data();
-            const { href, matchLoc, firstAnchorLoc } =
-              await hrefToFirstMatch(r);
-            const topicsList = parseTopicsToList(d?.meta?.topics);
-            const excerpt = d?.excerpt || "";
-            return { d, href, topicsList, excerpt, matchLoc, firstAnchorLoc };
-          }),
-        );
-
-        // Split into scripture-ish and other, for canonical sorting
-        const scriptureish = [];
-        const other = [];
-
-        for (const it of resolved) {
-          const parsed = parseScripturePath(it.d.url);
           if (
-            parsed &&
-            (it.d?.meta?.type === "scripture" || it.d?.meta?.type === "intro")
+            suppressKeywordResultsForPureReference &&
+            ref &&
+            q.trim().match(/^[^:]+?\s+\d+(?::\d+)?$/i)
           ) {
-            scriptureish.push(it);
-          } else if (parsed && !it.d?.meta?.type) {
-            scriptureish.push(it);
-          } else {
-            other.push(it);
+            status.textContent = "Press Enter to jump.";
+            groupsEl.innerHTML = "";
+            return;
           }
-        }
 
-        scriptureish.sort((a, b) => bibleOrderCompareHref(a.d.url, b.d.url));
-        const merged = [...scriptureish, ...other];
+          const filters = {};
+          if (activeType) {
+            filters.type =
+              activeType === "scripture"
+                ? ["scripture", "intro"]
+                : [activeType];
+          }
+          if (activeBook) filters.book = [activeBook];
 
-        // Subject matching only makes sense for single-token queries
-        const qTrim = q.trim();
-        const qIsSingleToken = !/\s+/.test(qTrim);
-        const qNorm = qIsSingleToken ? normalizeToken(qTrim) : "";
+          status.textContent = "Searching…";
+          groupsEl.innerHTML = "";
 
-        // SUBJECT matches: query equals one of the topics tags
-        const subjectMatches = merged.filter((it) => {
-          if (!qNorm) return false;
-          const topics = it.topicsList.map((t) => normalizeToken(t));
-          return topics.includes(qNorm);
-        });
+          const { pfQuery, exactSingleToken, exactToken } = buildPfQuery(q);
 
-        // KEYWORD matches: exclude topic-only hits (corrected)
-        const keywordMatches = merged.filter((it) => {
-          if (!qNorm) return true; // multi-word phrases won't be topic-only
-          if (!it.topicsList?.length) return true;
-          return !isTopicOnlyHit(
-            q,
-            it.topicsList,
-            it.excerpt,
-            it.matchLoc,
-            it.firstAnchorLoc,
+          const res = await pf.search(
+            pfQuery,
+            Object.keys(filters).length ? { filters } : undefined,
           );
-        });
 
-        const subjectItems = subjectMatches.slice(0, 6).map((it) => ({
-          title: it.d?.meta?.title ? it.d.meta.title : it.d.title || it.d.url,
-          href: it.href,
-        }));
+          // Resolve ALL results to keep accurate counts.
+          const qTrim = q.trim();
+          const qUnquoted = qTrim.replace(/^"+|"+$/g, "").trim();
+          const qPhrase = normalizePhrase(qUnquoted);
+          const isSingleToken = qPhrase && !qPhrase.includes(" ");
 
-        const keywordItems = keywordMatches.slice(0, 6).map((it) => ({
-          title: it.d?.meta?.title ? it.d.meta.title : it.d.title || it.d.url,
-          href: it.href,
-        }));
+          const resolvedAll = await Promise.all(
+            res.results.map(async (r) => {
+              const d = await r.data();
 
-        status.textContent = `${subjectMatches.length} subject match${
-          subjectMatches.length === 1 ? "" : "es"
-        } • ${keywordMatches.length} keyword match${
-          keywordMatches.length === 1 ? "" : "es"
-        }`;
+              const subjectRange = getSubjectRangeFromAnchors(d?.anchors);
+              const locs = getMatchLocations(d);
 
-        renderGroups({ subject: subjectItems, keyword: keywordItems });
+              const topicsListLocal = [
+                ...parseMetaList(d?.meta?.topics),
+                ...parseMetaList(d?.meta?.tags),
+              ];
+
+              const excerptText = stripTags(d?.excerpt);
+
+              const wholeWordOk =
+                !exactSingleToken ||
+                excerptHasWholeWordMarkedTerm(d?.excerpt, exactToken) ||
+                textHasWholeWord(excerptText, exactToken) ||
+                textHasWholeWord(d?.meta?.title, exactToken) ||
+                textHasWholeWord(d?.meta?.description, exactToken) ||
+                textHasWholeWord(d?.title, exactToken);
+
+              const contentHit = !qPhrase
+                ? false
+                : isSingleToken
+                  ? textHasWholeWord(excerptText, qPhrase) ||
+                    textHasWholeWord(d?.title, qPhrase) ||
+                    textHasWholeWord(d?.meta?.title, qPhrase) ||
+                    textHasWholeWord(d?.meta?.description, qPhrase)
+                  : textHasPhrase(excerptText, qPhrase) ||
+                    textHasPhrase(d?.title, qPhrase) ||
+                    textHasPhrase(d?.meta?.title, qPhrase) ||
+                    textHasPhrase(d?.meta?.description, qPhrase);
+
+              const subjectHit =
+                !!qPhrase &&
+                topicsListLocal.map(normalizePhrase).includes(qPhrase);
+
+              return {
+                d,
+                subjectRange,
+                locs,
+                topicsList: topicsListLocal,
+                wholeWordOk,
+                subjectHit,
+                contentHit,
+              };
+            }),
+          );
+
+          // Scripture-first ordering
+          const scriptureish = [];
+          const other = [];
+
+          for (const it of resolvedAll) {
+            const parsed = parseScripturePath(it.d?.url);
+            if (
+              parsed &&
+              (it.d?.meta?.type === "scripture" || it.d?.meta?.type === "intro")
+            ) {
+              scriptureish.push(it);
+            } else if (parsed && !it.d?.meta?.type) {
+              scriptureish.push(it);
+            } else {
+              other.push(it);
+            }
+          }
+
+          scriptureish.sort((a, b) => bibleOrderCompareHref(a.d.url, b.d.url));
+          const merged = [...scriptureish, ...other];
+
+          // Glossary bucket (exclude from other buckets to avoid duplicates)
+          const glossaryMatches = merged.filter((it) =>
+            isGlossaryUrlSafe(it?.d?.url),
+          );
+          const nonGlossary = merged.filter(
+            (it) => !isGlossaryUrlSafe(it?.d?.url),
+          );
+
+          const subjectMatches = nonGlossary.filter((it) => it.subjectHit);
+
+          const keywordMatches = nonGlossary.filter((it) => {
+            // Intros are subject-indexed only (by design), so they should not appear as keyword matches.
+            if (it?.d?.meta?.type === "intro") return false;
+
+            if (!hasNonSubjectMatch(it.locs, it.subjectRange)) return false;
+            if (it.subjectHit && !it.contentHit) return false;
+            if (exactSingleToken) return it.wholeWordOk;
+            return true;
+          });
+
+          // Only render a small number in the tray
+          const glossaryItems = glossaryMatches.slice(0, 6).map((it) => ({
+            title: it.d?.meta?.title ? it.d.meta.title : it.d.title || it.d.url,
+            href: hrefFromData(it.d, it.subjectRange, it.locs),
+          }));
+
+          const subjectItems = subjectMatches.slice(0, 6).map((it) => ({
+            title: it.d?.meta?.title ? it.d.meta.title : it.d.title || it.d.url,
+            href: hrefFromData(it.d, it.subjectRange, it.locs),
+          }));
+
+          const keywordItems = keywordMatches.slice(0, 6).map((it) => ({
+            title: it.d?.meta?.title ? it.d.meta.title : it.d.title || it.d.url,
+            href: hrefFromData(it.d, it.subjectRange, it.locs),
+          }));
+
+          const gCount = glossaryMatches.length;
+          const sCount = subjectMatches.length;
+          const kCount = keywordMatches.length;
+
+          status.textContent =
+            (gCount
+              ? `${gCount} glossary match${gCount === 1 ? "" : "es"} • `
+              : "") +
+            `${sCount} subject match${sCount === 1 ? "" : "es"} • ` +
+            `${kCount} keyword match${kCount === 1 ? "" : "es"}`;
+
+          renderGroups({
+            glossary: glossaryItems,
+            subject: subjectItems,
+            keyword: keywordItems,
+          });
+        } catch (err) {
+          console.error(err);
+          // Don’t rethrow. Ever.
+          groupsEl.innerHTML = "";
+          renderJump(null);
+          status.textContent = "Search failed.";
+        }
       }
 
       function submitSearch() {
         const q = input.value.trim();
         if (!q) return;
+
+        clearGhost();
 
         const ref = parseReference(q);
         if (ref) {
@@ -629,7 +1012,11 @@ const {
           fullLink?.getAttribute("href") || "/search",
           window.location.origin,
         );
-        url.searchParams.set("q", q);
+
+        // Propagate query rules to full search
+        const { pfQuery, exactSingleToken } = buildPfQuery(q);
+        url.searchParams.set("q", exactSingleToken ? pfQuery : q);
+
         if (activeType) url.searchParams.set("type", activeType);
         if (activeBook) url.searchParams.set("book", activeBook);
         if (activeMode && activeMode !== "all")
@@ -641,17 +1028,21 @@ const {
       function clearForShortQuery(q) {
         groupsEl.innerHTML = "";
         renderJump(null);
+        clearGhost();
         status.textContent = q
           ? `Type ${MIN_QUERY_LEN} or more letters to search.`
           : `Type ${MIN_QUERY_LEN} or more letters to search.`;
       }
 
-      // Chip + book + mode handlers
       chips.forEach((chip) => {
         chip.addEventListener("click", () => {
           setActiveChip(chip.dataset.type || "");
           const q = input.value.trim();
           openPanel();
+
+          if (activeMode !== "ref") renderGhost(q);
+          else clearGhost();
+
           if (!q) {
             clearForShortQuery("");
             return;
@@ -665,6 +1056,10 @@ const {
         activeBook = bookSelect.value || "";
         const q = input.value.trim();
         openPanel();
+
+        if (activeMode !== "ref") renderGhost(q);
+        else clearGhost();
+
         if (!q) {
           clearForShortQuery("");
           return;
@@ -677,22 +1072,19 @@ const {
         activeMode = modeSelect.value || "all";
         const q = input.value.trim();
         openPanel();
+
+        if (activeMode === "ref") clearGhost();
+        else renderGhost(q);
+
         if (!q) {
           clearForShortQuery("");
           return;
         }
-        // In ref mode, allow shorter
-        if (activeMode === "ref") {
-          runSearch(q);
-          return;
-        }
-        if (q.length >= MIN_QUERY_LEN) runSearch(q);
-        else clearForShortQuery(q);
+        runSearch(q);
       });
 
       closeBtn.addEventListener("click", closePanel);
 
-      // Close on outside click / Escape
       document.addEventListener("click", (e) => {
         if (!root.contains(e.target)) closePanel();
       });
@@ -701,76 +1093,97 @@ const {
         if (e.key === "Escape") closePanel();
       });
 
-      // Debounced input search
       let t = null;
       input.addEventListener("input", () => {
-        const q = input.value.trim();
+        const q = input.value;
 
-        if (!q) {
+        if (!q.trim()) {
           groupsEl.innerHTML = "";
           status.textContent = "";
           renderJump(null);
-          // Keep tray open if focused, but empty
+          clearGhost();
           return;
         }
 
         openPanel();
 
-        // In ref mode, allow short
+        if (activeMode !== "ref") renderGhost(q);
+        else clearGhost();
+
         if (activeMode === "ref") {
           clearTimeout(t);
-          t = setTimeout(() => runSearch(q), 120);
+          t = setTimeout(() => runSearch(q.trim()), 120);
           return;
         }
 
-        // ✅ Minimum length gate
-        if (q.length < MIN_QUERY_LEN) {
-          clearForShortQuery(q);
+        if (q.trim().length < MIN_QUERY_LEN) {
+          clearForShortQuery(q.trim());
           return;
         }
 
         clearTimeout(t);
-        t = setTimeout(() => runSearch(q), 120);
+        t = setTimeout(() => runSearch(q.trim()), 120);
       });
 
-      // Open tray on click/tap/focus (even before typing)
       input.addEventListener("focus", () => {
         openPanel();
-        const q = input.value.trim();
+        const q = input.value;
 
-        if (!q) {
+        if (!q.trim()) {
           clearForShortQuery("");
           return;
         }
 
-        // In ref mode, allow short
+        if (activeMode !== "ref") renderGhost(q);
+        else clearGhost();
+
         if (activeMode === "ref") {
-          runSearch(q);
+          runSearch(q.trim());
           return;
         }
 
-        if (q.length < MIN_QUERY_LEN) {
-          clearForShortQuery(q);
+        if (q.trim().length < MIN_QUERY_LEN) {
+          clearForShortQuery(q.trim());
           return;
         }
 
-        runSearch(q);
+        runSearch(q.trim());
       });
 
-      // Enter: handle explicitly for reference-jump UX
       input.addEventListener("keydown", (e) => {
+        // Accept ghost suggestion with Tab or ArrowRight (only at end)
+        if (
+          (e.key === "Tab" || e.key === "ArrowRight") &&
+          !e.metaKey &&
+          !e.ctrlKey &&
+          !e.altKey
+        ) {
+          if (document.activeElement === input && caretIsAtEnd()) {
+            const accepted = acceptGhostIfAny();
+            if (accepted) {
+              e.preventDefault();
+              const q = input.value.trim();
+              if (q.length >= MIN_QUERY_LEN || parseReference(q)) runSearch(q);
+              return;
+            }
+          }
+        }
+
         if (e.key !== "Enter") return;
         e.preventDefault();
         submitSearch();
       });
 
-      // Mobile/tablet submit button uses the same submit logic
       form.addEventListener("submit", (e) => {
         e.preventDefault();
         submitSearch();
       });
 
-      // Default state
+      // Load topic index once (non-blocking)
+      loadTopicsOnce().then(() => {
+        if (activeMode !== "ref") renderGhost(input.value);
+      });
+
       setActiveChip(initialType);
       activeMode = modeSelect.value || "all";
       closePanel();
@@ -785,7 +1198,7 @@ const {
     width: 1px;
     height: 1px;
     padding: 0;
-    margin: -1px;
+    margin: 0;
     overflow: hidden;
     clip: rect(0, 0, 0, 0);
     white-space: nowrap;
@@ -805,6 +1218,12 @@ const {
     width: 100%;
   }
 
+  .searchbar__input-wrap {
+    position: relative;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
   .searchbar__input {
     width: 100%;
     padding: 14px 16px;
@@ -812,6 +1231,35 @@ const {
     border: 1px solid rgba(29, 35, 28, 0.25);
     font-size: 1rem;
     background: rgba(255, 255, 255, 0.85);
+  }
+
+  /* One-option “ghost” autocomplete overlay inside the input */
+  .searchbar__ghost {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    padding: 14px 16px;
+    border-radius: 12px;
+    pointer-events: none;
+    user-select: none;
+    overflow: hidden;
+
+    /* match input typography */
+    font-size: 1rem;
+    line-height: normal;
+    white-space: nowrap;
+  }
+
+  /* typed portion is invisible so the real input text shows through */
+  .searchbar__ghost-typed {
+    color: transparent;
+  }
+
+  /* rest appears as subtle hint */
+  .searchbar__ghost-rest {
+    color: rgba(29, 35, 28, 0.35);
   }
 
   /* Mobile/tablet submit button (hidden by default) */
@@ -889,6 +1337,7 @@ const {
     padding: 16px;
   }
 
+  /* Controls wrapper */
   .searchbar__controls {
     display: flex;
     align-items: center;
@@ -903,11 +1352,22 @@ const {
     border: 1px solid rgba(29, 35, 28, 0.2);
     background: #fff;
     cursor: pointer;
+    white-space: nowrap;
   }
 
   .chip--active {
     background: rgba(32, 157, 80, 0.12);
     border-color: rgba(32, 157, 80, 0.45);
+  }
+
+  /* NEW: chip strip wrapper (used on mobile) */
+  .searchbar__chips {
+    display: contents; /* desktop: behave like chips are direct children */
+  }
+
+  /* NEW: selects wrapper (used on mobile) */
+  .searchbar__filters {
+    display: contents; /* desktop: behave like selects are direct children */
   }
 
   .searchbar__book,
@@ -918,6 +1378,7 @@ const {
     background: #fff;
   }
 
+  /* keep the desktop “push-right” behavior */
   .searchbar__book {
     margin-left: auto;
   }
@@ -1007,5 +1468,53 @@ const {
     border-radius: 12px;
     padding: 8px 12px;
     cursor: pointer;
+  }
+
+  /* =========================================================
+     Mobile tray layout:
+     - chips on ONE row (scrollable)
+     - book + mode side-by-side when there's room
+     - stack selects when the screen is too narrow (prevents “squish”)
+     ========================================================= */
+  @media (max-width: 640px) {
+    .searchbar__controls {
+      display: grid;
+      gap: 10px;
+      align-items: start;
+    }
+
+    .searchbar__chips {
+      display: flex;
+      gap: 10px;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 4px;
+    }
+
+    .searchbar__chips .chip {
+      flex: 0 0 auto;
+      white-space: nowrap;
+    }
+
+    .searchbar__filters {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .searchbar__book,
+    .searchbar__mode {
+      width: 100%;
+      min-width: 0;
+      margin-left: 0;
+    }
+  }
+
+  @media (max-width: 380px) {
+    .searchbar__filters {
+      grid-template-columns: 1fr;
+    }
   }
 </style>

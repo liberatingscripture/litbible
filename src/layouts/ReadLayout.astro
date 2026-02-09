@@ -58,11 +58,6 @@ const {
     padding: 18px 16px 26px;
 
     display: grid;
-
-    /* Row rhythm:
-       1) ReadMenu
-       2) SearchBar
-    */
     gap: 26px;
   }
 
@@ -76,12 +71,12 @@ const {
     .read-layout__tools {
       padding-top: 22px;
       padding-bottom: 30px;
-      gap: 30px; /* extra breathing room between ReadMenu and SearchBar */
+      gap: 30px;
     }
 
     .read-layout__tools :global(.read-menu) {
       flex-direction: column;
-      align-items: center; /* centers 50% controls */
+      align-items: center;
       justify-content: flex-start;
       flex-wrap: nowrap;
       gap: 12px;
@@ -94,7 +89,6 @@ const {
     }
   }
 
-  /* Tiny screens: 50% gets too narrow */
   @media (max-width: 380px) {
     .read-layout__tools :global(.read-menu select),
     .read-layout__tools :global(.read-menu button) {
@@ -106,6 +100,9 @@ const {
   .read-layout__content {
     max-width: var(--content-width, 72ch);
     margin: 0 auto;
-    padding: 0 16px 56px;
+
+    /* Keep horizontal gutters, but do NOT add bottom padding here.
+       The page can include full-bleed sections that must sit flush to the footer. */
+    padding: 0 16px;
   }
 </style>

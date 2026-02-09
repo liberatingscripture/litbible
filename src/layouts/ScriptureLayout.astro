@@ -47,27 +47,35 @@ const pagefindChapter = chapter ?? "";
 const pagefindType = type ?? "search";
 
 /**
- * Normalize topics so Pagefind gets a simple string.
- * IMPORTANT: we emit TEXT meta (not <meta content="...">),
- * because Pagefind is inconsistent with custom fields on <meta>.
+ * Normalize topics so Pagefind gets a phrase-preserving string.
+ * - If topics is an array (your JSON case), we join with semicolons.
+ * - If topics is a string, we assume it may already be delimited or may be a single phrase.
  */
-const topicsString = Array.isArray(topics)
-  ? topics.join(" ")
+const topicsArray = Array.isArray(topics)
+  ? topics
+      .map((t) =>
+        String(t)
+          .replace(/\u00A0/g, " ")
+          .trim(),
+      )
+      .filter(Boolean)
+  : null;
+
+const topicsString = topicsArray
+  ? topicsArray.join("; ")
   : typeof topics === "string"
-    ? topics.trim()
+    ? topics.replace(/\u00A0/g, " ").trim()
     : "";
 
 /**
  * Hidden indexed TOPIC TEXT (not meta) so subject searches can find pages
- * even when the topic word never appears in visible scripture text.
+ * even when the topic phrase never appears in visible scripture text.
  *
- * We do NOT rely on prefixes now. Instead, we mark the topic-only zone with
- * pf-topics-start/end anchors, and the UI excludes keyword hits whose match
- * locations land entirely inside that zone.
+ * IMPORTANT: preserve phrases. DO NOT split on whitespace.
+ * We separate phrases with semicolons so Pagefind treats them as distinct,
+ * while multi-word phrases remain intact for exact-phrase queries.
  */
-const topicsIndexString = topicsString
-  ? topicsString.split(/\s+/).filter(Boolean).join(" ")
-  : "";
+const topicsIndexString = topicsArray ? topicsArray.join(" ; ") : topicsString;
 
 const shouldIndex =
   typeof indexProp === "boolean" ? indexProp : pagefindType !== "search";
@@ -259,10 +267,9 @@ if (headerKind === "chapter") {
             rel="noopener noreferrer"
             target="_blank"
           >
-            https://creativecommons.org/licenses/by/4.0/
-          </a>
-          . This translation constitutes an adaptation of that Greek text. Used with
-          permission.
+            https://creativecommons.org/licenses/by/4.0/</a
+          >. This translation constitutes an adaptation of that Greek text. Used
+          with permission.
         </p>
         <p>
           Greek quotations are presented in transliterated form; accentuation
@@ -361,6 +368,54 @@ if (headerKind === "chapter") {
       /* /search: you're already on full search, so hide the link */
       .scripture-layout--search [data-search-root] .search__more {
         display: none !important;
+      }
+
+      /* =========================================================
+   HBQ verse number alignment
+   - keeps your existing `</sup>&nbsp;` logic intact
+   - hangs verse numbers into the margin so they don't look over-indented
+   ========================================================= */
+
+      :is(.scripture-layout--scripture, .scripture-layout--intro) .hbq {
+        --vn-w: 2.6ch; /* total reserved width for the number */
+        --vn-hang: 0.7ch; /* how far the number hangs into the left margin */
+      }
+
+      :is(.scripture-layout--scripture, .scripture-layout--intro)
+        .hbq
+        .hbq-line {
+        margin: 0;
+      }
+
+      :is(.scripture-layout--scripture, .scripture-layout--intro)
+        .hbq
+        .hbq-line:has(> sup.vn) {
+        /* reserve space for number, but subtract the hang so the text block
+     doesn't move farther right than necessary */
+        padding-left: calc(var(--vn-w) - var(--vn-hang));
+        text-indent: calc(-1 * (var(--vn-w) - var(--vn-hang)));
+      }
+
+      :is(.scripture-layout--scripture, .scripture-layout--intro)
+        .hbq
+        .hbq-line
+        > sup.vn {
+        display: inline-block;
+        width: var(--vn-w);
+        text-align: right;
+
+        /* hang the number left so it feels aligned with the block */
+        margin-left: calc(-1 * var(--vn-hang));
+
+        font-variant-numeric: tabular-nums; /* steadier digit rhythm */
+
+        font-weight: 400;
+        font-size: 0.8em;
+        line-height: 1;
+        opacity: 0.85;
+
+        margin-right: 0; /* rely on your existing &nbsp; */
+        vertical-align: baseline;
       }
     </style>
   </div>

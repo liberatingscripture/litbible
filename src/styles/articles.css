@@ -248,8 +248,10 @@
   height: 100%;
 }
 
+/* Enforce consistent hero height across different source image ratios */
 .card__media {
   aspect-ratio: 16 / 9;
+  overflow: hidden;
   background: var(--cream);
 }
 
@@ -275,10 +277,12 @@
   background: rgba(0, 0, 0, 0.06);
 }
 
+/* Prevent text overflow edge-cases inside grid/flex contexts */
 .card__body {
   padding: 14px 16px 16px;
   display: grid;
   gap: 10px;
+  min-width: 0;
 }
 
 .card__date {
@@ -293,9 +297,20 @@
   color: var(--black);
 }
 
+/* Clamp + allow long tokens to wrap instead of spilling
+   Also prevent "peek" artifacts by clamping via max-height. */
 .card__summary {
   margin: 0;
   opacity: 0.9;
+
+  white-space: normal;
+  overflow-wrap: anywhere;
+  max-width: 100%;
+
+  /* Deterministic clamp (prevents sub-pixel peeking) */
+  line-height: 1.55;
+  max-height: calc(1.55em * 4);
+  overflow: hidden;
 
   /* Standard property (for tooling compatibility) */
   line-clamp: 4;
@@ -304,7 +319,6 @@
   display: -webkit-box;
   -webkit-line-clamp: 4;
   -webkit-box-orient: vertical;
-  overflow: hidden;
 }
 
 .card__more {
@@ -469,4 +483,3 @@
   text-decoration: underline;
   text-underline-offset: 4px;
 }
-

@@ -28,6 +28,11 @@ const baseUrl = import.meta.env.BASE_URL || "/";
       <div id="search-status" aria-live="polite"></div>
     </div>
 
+    <div class="group" id="group-glossary" hidden>
+      <div class="group-title">Glossary matches</div>
+      <ol class="results" id="results-glossary"></ol>
+    </div>
+
     <div class="group" id="group-subject" hidden>
       <div class="group-title">Subject matches</div>
       <ol class="results" id="results-subject"></ol>
@@ -52,9 +57,11 @@ const baseUrl = import.meta.env.BASE_URL || "/";
 
     const statusEl = $("#search-status");
 
+    const groupGlossary = $("#group-glossary");
     const groupSubject = $("#group-subject");
     const groupKeyword = $("#group-keyword");
 
+    const glossaryEl = $("#results-glossary");
     const subjectEl = $("#results-subject");
     const keywordEl = $("#results-keyword");
 
@@ -135,6 +142,17 @@ const baseUrl = import.meta.env.BASE_URL || "/";
       }
     }
 
+    function isGlossaryUrl(hrefOrUrl) {
+      try {
+        const u = new URL(hrefOrUrl, window.location.origin);
+        const p = u.pathname.replace(/\/+$/, "");
+        return p === "/glossary" || p.startsWith("/glossary/");
+      } catch {
+        const s = String(hrefOrUrl || "");
+        return s.startsWith("/glossary");
+      }
+    }
+
     // URL state helpers
     function readState() {
       const params = new URLSearchParams(window.location.search);
@@ -194,45 +212,146 @@ const baseUrl = import.meta.env.BASE_URL || "/";
       if (bookSelect) bookSelect.value = book;
     }
 
-    // --- Topics parsing (robust) ---
-    function parseTopics(raw) {
+    // -------- Subject parsing (PHRASES, not tokens) --------
+    function parseMetaPhrases(raw) {
       const s = raw ? String(raw) : "";
       if (!s) return [];
-      return s
-        .replace(/\u00A0/g, " ") // NBSP -> space
-        .replace(/[|/]+/g, " ") // common separators -> space
-        .split(/[,\s]+/)
-        .map((t) => t.trim())
-        .filter(Boolean);
+
+      const cleaned = s
+        .replace(/\u00A0/g, " ")
+        .replace(/[|/]+/g, ",")
+        .trim();
+
+      if (!cleaned) return [];
+
+      if (/[;,]/.test(cleaned)) {
+        return cleaned
+          .split(/\s*[;,]\s*/g)
+          .map((t) => t.trim())
+          .filter(Boolean);
+      }
+
+      return [cleaned];
     }
 
-    function normalizeToken(s) {
+    function normalizePhrase(s) {
       return String(s || "")
         .toLowerCase()
-        .replace(/[^0-9a-z-]/g, "");
+        .trim()
+        .replace(/\s+/g, " ");
     }
 
-    // Phrase queries:
-    // If the user enters multiple words, we wrap the whole query in quotes so Pagefind
-    // only returns pages containing the full phrase. Single-word behavior stays unchanged.
+    // Query rules (mirrors SearchBar behavior):
+    function normalizeQuotes(s) {
+      return String(s || "")
+        .replace(/[“”]/g, '"')
+        .replace(/[‘’]/g, "'");
+    }
+
+    function isExplicitlyQuoted(q) {
+      const s = String(q || "").trim();
+      return s.length >= 2 && s.startsWith('"') && s.endsWith('"');
+    }
+
+    function isWordChar(ch) {
+      if (!ch) return false;
+      return /[\p{L}\p{N}_]/u.test(ch);
+    }
+
+    function excerptHasWholeWordMarkedTerm(excerptHtml, term) {
+      if (!excerptHtml || !term) return false;
+
+      const s = String(excerptHtml)
+        .replace(/<mark>/gi, "\u0001")
+        .replace(/<\/mark>/gi, "\u0002")
+        .replace(/<[^>]+>/g, "");
+
+      const t = String(term).toLowerCase();
+
+      for (let i = 0; i < s.length; i++) {
+        if (s[i] !== "\u0001") continue;
+
+        const start = i + 1;
+        const end = s.indexOf("\u0002", start);
+        if (end === -1) break;
+
+        const marked = s.slice(start, end);
+        if (marked.toLowerCase() === t) {
+          const before = s[i - 1];
+          const after = s[end + 1];
+          if (!isWordChar(before) && !isWordChar(after)) return true;
+        }
+
+        i = end;
+      }
+
+      return false;
+    }
+
+    function escapeRegExp(s) {
+      return String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    }
+
+    function stripTags(html) {
+      return String(html || "").replace(/<[^>]+>/g, "");
+    }
+
+    function textHasWholeWord(text, term) {
+      if (!text || !term) return false;
+
+      const s = String(text).toLowerCase();
+      const t = escapeRegExp(String(term).toLowerCase());
+
+      const re = new RegExp(
+        `(^|[^\\p{L}\\p{N}_])${t}([^\\p{L}\\p{N}_]|$)`,
+        "u",
+      );
+      return re.test(s);
+    }
+
     function buildPfQuery(raw) {
-      const q = String(raw || "").trim();
-      if (!q) return "";
-      // Respect explicit quoting
-      if (q.includes('"')) return q;
-      // Multi-word -> exact phrase
-      if (/\s+/.test(q)) return `"${q}"`;
-      return q;
+      const q0 = normalizeQuotes(raw).trim();
+      if (!q0) return { pfQuery: "", exactSingleToken: false, exactToken: "" };
+
+      if (isExplicitlyQuoted(q0)) {
+        const inner = q0.slice(1, -1).trim();
+        const single = !/\s+/.test(inner);
+        return {
+          pfQuery: q0,
+          exactSingleToken: single,
+          exactToken: single ? inner : "",
+        };
+      }
+
+      if (/\s+/.test(q0)) {
+        return { pfQuery: `"${q0}"`, exactSingleToken: false, exactToken: "" };
+      }
+
+      if (q0.length >= 1 && q0.length <= 4) {
+        return { pfQuery: `"${q0}"`, exactSingleToken: true, exactToken: q0 };
+      }
+
+      return { pfQuery: q0, exactSingleToken: false, exactToken: "" };
     }
 
-    // ---- Topic-range + match-location logic ----
-
-    function getTopicRangeFromAnchors(anchors) {
+    function getSubjectRangeFromAnchors(anchors) {
       if (!Array.isArray(anchors)) return null;
-      const start = anchors.find((a) => a?.id === "pf-topics-start")?.location;
-      const end = anchors.find((a) => a?.id === "pf-topics-end")?.location;
-      if (typeof start !== "number" || typeof end !== "number") return null;
-      return start <= end ? { start, end } : { start: end, end: start };
+
+      const pairs = [
+        ["pf-subjects-start", "pf-subjects-end"],
+        ["pf-topics-start", "pf-topics-end"],
+        ["pf-tags-start", "pf-tags-end"],
+      ];
+
+      for (const [startId, endId] of pairs) {
+        const start = anchors.find((a) => a?.id === startId)?.location;
+        const end = anchors.find((a) => a?.id === endId)?.location;
+        if (typeof start === "number" && typeof end === "number") {
+          return start <= end ? { start, end } : { start: end, end: start };
+        }
+      }
+
+      return null;
     }
 
     function getMatchLocations(d) {
@@ -249,20 +368,20 @@ const baseUrl = import.meta.env.BASE_URL || "/";
       return locs;
     }
 
-    function hasNonTopicMatch(locs, topicRange) {
-      if (!topicRange) return true;
+    function hasNonSubjectMatch(locs, subjectRange) {
+      if (!subjectRange) return true;
       return (locs || []).some(
-        (n) => n < topicRange.start || n > topicRange.end,
+        (n) => n < subjectRange.start || n > subjectRange.end,
       );
     }
 
-    function pickBestNonTopicLocation(locs, topicRange) {
+    function pickBestNonSubjectLocation(locs, subjectRange) {
       if (!Array.isArray(locs) || !locs.length) return null;
-      if (!topicRange) return locs[0];
-      const nonTopic = locs.filter(
-        (n) => n < topicRange.start || n > topicRange.end,
+      if (!subjectRange) return locs[0];
+      const nonSubject = locs.filter(
+        (n) => n < subjectRange.start || n > subjectRange.end,
       );
-      return nonTopic.length ? nonTopic[0] : locs[0];
+      return nonSubject.length ? nonSubject[0] : locs[0];
     }
 
     // Sometimes excerpts get polluted by meta text; keep this conservative.
@@ -275,7 +394,6 @@ const baseUrl = import.meta.env.BASE_URL || "/";
       return hasTypeWord && hasMetaWords;
     }
 
-    // Pagefind diagnostics
     async function verifyPagefindAssets() {
       const entryUrl = `${base}pagefind/pagefind-entry.json`;
 
@@ -326,24 +444,31 @@ const baseUrl = import.meta.env.BASE_URL || "/";
       return pagefindMod;
     }
 
-    // Build a deep link to the nearest anchor at/before the first NON-topic match.
+    // Build a deep link to the nearest anchor at/before the first NON-subject match.
     async function hrefToFirstMatch(result) {
       const d = await result.data();
 
-      const topicRange = getTopicRangeFromAnchors(d?.anchors);
+      const subjectRange = getSubjectRangeFromAnchors(d?.anchors);
       const locs = getMatchLocations(d);
-      const chosenLoc = pickBestNonTopicLocation(locs, topicRange);
+      const chosenLoc = pickBestNonSubjectLocation(locs, subjectRange);
 
       if (
         typeof chosenLoc !== "number" ||
         !Array.isArray(d?.anchors) ||
         d.anchors.length === 0
       ) {
-        return { url: d.url, data: d, topicRange, locs };
+        return { url: d.url, data: d, subjectRange, locs };
       }
 
       const anchors = [...d.anchors]
-        .filter((a) => a?.id && !String(a.id).startsWith("pf-topics-"))
+        .filter((a) => {
+          const id = a?.id ? String(a.id) : "";
+          if (!id) return false;
+          if (id.startsWith("pf-topics-")) return false;
+          if (id.startsWith("pf-tags-")) return false;
+          if (id.startsWith("pf-subjects-")) return false;
+          return true;
+        })
         .sort((a, b) => (a.location ?? 0) - (b.location ?? 0));
 
       let chosen = null;
@@ -354,7 +479,52 @@ const baseUrl = import.meta.env.BASE_URL || "/";
       }
 
       const url = chosen?.id ? `${d.url}#${chosen.id}` : d.url;
-      return { url, data: d, topicRange, locs };
+      return { url, data: d, subjectRange, locs };
+    }
+
+    // ---- Glossary: show ONLY the matched term, no excerpt, no <mark> ----
+    function displayQueryLabel(qRaw) {
+      const q = String(qRaw || "").trim();
+      if (!q) return "";
+      // If q came in quoted (because of your query rules), display clean label.
+      if (isExplicitlyQuoted(q)) return q.slice(1, -1).trim();
+      return q;
+    }
+
+    function cleanGlossaryTitle(s) {
+      let t = String(s || "").trim();
+      t = t.replace(/^glossary\s*[-—:]\s*/i, "");
+      t = t.replace(/\s*[-—:]\s*glossary$/i, "");
+      return t.trim();
+    }
+
+    function glossaryTermFromResult(d, fallback = "") {
+      const metaTerm =
+        d?.meta?.glossary_term || d?.meta?.term || d?.meta?.entry || "";
+
+      if (metaTerm) return String(metaTerm).trim();
+
+      const title = d?.meta?.title || d?.title || "";
+      const cleaned = cleanGlossaryTitle(title);
+      return cleaned || String(fallback || "").trim() || "Glossary";
+    }
+
+    function renderGlossary(items, qPhrase) {
+      glossaryEl.innerHTML = "";
+      for (const r of items) {
+        const li = document.createElement("li");
+        li.className = "result";
+
+        const term = glossaryTermFromResult(r, qPhrase);
+
+        li.innerHTML = `
+          <a class="result-link" href="${escapeHtml(r.url)}">
+            <div class="result-title">${escapeHtml(term)}</div>
+          </a>
+        `;
+
+        glossaryEl.appendChild(li);
+      }
     }
 
     function renderSubject(items) {
@@ -367,10 +537,10 @@ const baseUrl = import.meta.env.BASE_URL || "/";
         const displayTitle = prettyTitleFromUrl(r.url, fallbackTitle);
 
         li.innerHTML = `
-          <a class="result-link" href="${escapeHtml(r.url)}">
-            <div class="result-title">${escapeHtml(displayTitle)}</div>
-          </a>
-        `;
+        <a class="result-link" href="${escapeHtml(r.url)}">
+          <div class="result-title">${escapeHtml(displayTitle)}</div>
+        </a>
+      `;
 
         subjectEl.appendChild(li);
       }
@@ -401,11 +571,11 @@ const baseUrl = import.meta.env.BASE_URL || "/";
               : "";
 
         li.innerHTML = `
-          <a class="result-link" href="${escapeHtml(r.url)}">
-            <div class="result-title">${escapeHtml(displayTitle)}</div>
-            ${snippetHtml ? `<div class="result-excerpt">${snippetHtml}</div>` : ""}
-          </a>
-        `;
+        <a class="result-link" href="${escapeHtml(r.url)}">
+          <div class="result-title">${escapeHtml(displayTitle)}</div>
+          ${snippetHtml ? `<div class="result-excerpt">${snippetHtml}</div>` : ""}
+        </a>
+      `;
 
         keywordEl.appendChild(li);
       }
@@ -430,18 +600,22 @@ const baseUrl = import.meta.env.BASE_URL || "/";
 
     async function runFullSearch() {
       const { q, type, book, page } = readState();
+      const displayQ = displayQueryLabel(q);
 
       if (!q) {
         setStatus("Type to search.");
+        groupGlossary.hidden = true;
         groupSubject.hidden = true;
         groupKeyword.hidden = true;
+        glossaryEl.innerHTML = "";
         subjectEl.innerHTML = "";
         keywordEl.innerHTML = "";
         setPager(0, 1);
         return;
       }
 
-      setStatus("Searching…");
+      // Keep it simple while searching; final status line will replace this.
+      setStatus(`Searching for “${displayQ}”…`);
 
       const pagefind = await loadPagefind();
 
@@ -449,7 +623,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
       if (type) filters.type = type;
       if (book) filters.book = book;
 
-      const pfQuery = buildPfQuery(q);
+      const { pfQuery, exactSingleToken, exactToken } = buildPfQuery(q);
 
       const search = await pagefind.search(
         pfQuery,
@@ -458,65 +632,102 @@ const baseUrl = import.meta.env.BASE_URL || "/";
 
       const total = search.results.length;
 
-      if (!total) {
-        setStatus("No results.");
-        groupSubject.hidden = true;
-        groupKeyword.hidden = true;
-        subjectEl.innerHTML = "";
-        keywordEl.innerHTML = "";
-        setPager(0, 1);
-        return;
-      }
-
-      // Resolve ALL (we need subject counts + keyword filtering)
+      // Resolve ALL (we need glossary bucket + subject counts + keyword filtering)
       const resolvedAll = await Promise.all(
         search.results.map((r) => hrefToFirstMatch(r)),
       );
 
-      const allData = resolvedAll.map(({ url, data, topicRange, locs }) => ({
+      const allData = resolvedAll.map(({ url, data, subjectRange, locs }) => ({
         ...data,
         url,
-        __topicRange: topicRange,
+        __subjectRange: subjectRange,
         __locs: locs,
       }));
 
-      // Subject matching only makes sense for single-token queries
-      const qIsSingleToken = !/\s+/.test(q.trim());
-      const qNorm = qIsSingleToken ? normalizeToken(q) : "";
+      const qUnquoted = displayQ;
+      const qPhrase = normalizePhrase(qUnquoted);
 
-      // Subject matches = query matches a topic tag
+      // 1) Glossary matches (exclusive bucket)
+      const glossaryMatches = allData.filter((d) => {
+        const metaType = String(d?.meta?.type || "");
+        return isGlossaryUrl(d.url) || metaType === "glossary";
+      });
+
+      // 2) Subject matches (excluding glossary)
       const subjectMatches = allData.filter((d) => {
-        if (!qNorm) return false;
-        const topics = parseTopics(d?.meta?.topics || "").map(normalizeToken);
-        return topics.includes(qNorm);
+        if (isGlossaryUrl(d.url) || String(d?.meta?.type || "") === "glossary")
+          return false;
+
+        if (!qPhrase) return false;
+
+        const subjects = [
+          ...parseMetaPhrases(d?.meta?.topics || ""),
+          ...parseMetaPhrases(d?.meta?.tags || ""),
+        ].map(normalizePhrase);
+
+        return subjects.includes(qPhrase);
       });
 
-      // Keyword matches = include only if any match location is outside topic-only zone
+      // 3) Keyword matches (excluding glossary)
       const keywordMatchesAll = allData.filter((d) => {
-        const topicRange =
-          d.__topicRange || getTopicRangeFromAnchors(d?.anchors);
+        if (isGlossaryUrl(d.url) || String(d?.meta?.type || "") === "glossary")
+          return false;
+
+        const subjectRange =
+          d.__subjectRange || getSubjectRangeFromAnchors(d?.anchors);
         const locs = d.__locs || getMatchLocations(d);
-        return hasNonTopicMatch(locs, topicRange);
+
+        if (!hasNonSubjectMatch(locs, subjectRange)) return false;
+
+        // For exact-only single-token searches, enforce whole-word.
+        const excerptText = stripTags(d?.excerpt);
+
+        if (exactSingleToken) {
+          return (
+            excerptHasWholeWordMarkedTerm(d?.excerpt, exactToken) ||
+            textHasWholeWord(excerptText, exactToken) ||
+            textHasWholeWord(d?.meta?.title, exactToken) ||
+            textHasWholeWord(d?.meta?.description, exactToken) ||
+            textHasWholeWord(d?.title, exactToken)
+          );
+        }
+
+        return true;
       });
 
-      // Paging applies to keyword matches only
+      const glossaryCount = glossaryMatches.length;
+      const subjectCount = subjectMatches.length;
       const keywordTotal = keywordMatchesAll.length;
-      const start = (page - 1) * pageSize;
-      const keywordSlice = keywordMatchesAll.slice(start, start + pageSize);
 
+      const matchTotal = glossaryCount + subjectCount + keywordTotal;
+
+      // ✅ Keep ONE status line, and keep the “old” count format:
       setStatus(
-        `${subjectMatches.length} subject match${subjectMatches.length === 1 ? "" : "es"} • ` +
-          `${keywordTotal} keyword match${keywordTotal === 1 ? "" : "es"}`,
+        `Searching for “${displayQ}” · ${matchTotal} match${
+          matchTotal === 1 ? "" : "es"
+        } (${glossaryCount} glossary, ${subjectCount} subject, ${keywordTotal} keyword)`,
       );
 
       // Render groups
-      if (subjectMatches.length) {
+      if (glossaryCount) {
+        groupGlossary.hidden = false;
+        renderGlossary(glossaryMatches.slice(0, 50), qPhrase);
+      } else {
+        groupGlossary.hidden = true;
+        glossaryEl.innerHTML = "";
+      }
+
+      if (subjectCount) {
         groupSubject.hidden = false;
-        renderSubject(subjectMatches.slice(0, 50)); // generous, usually small
+        renderSubject(subjectMatches.slice(0, 50));
       } else {
         groupSubject.hidden = true;
         subjectEl.innerHTML = "";
       }
+
+      // Paging applies to keyword matches only
+      const start = (page - 1) * pageSize;
+      const keywordSlice = keywordMatchesAll.slice(start, start + pageSize);
 
       if (keywordTotal) {
         groupKeyword.hidden = false;
@@ -527,6 +738,8 @@ const baseUrl = import.meta.env.BASE_URL || "/";
       }
 
       setPager(keywordTotal, page);
+
+      // If there are zero keyword results, hide pager (setPager already handles it)
     }
 
     function scheduleSearch() {
@@ -537,8 +750,10 @@ const baseUrl = import.meta.env.BASE_URL || "/";
         } catch (err) {
           console.error(err);
           setStatus(`Search failed: ${err?.message || "Unknown error"}`);
+          groupGlossary.hidden = true;
           groupSubject.hidden = true;
           groupKeyword.hidden = true;
+          glossaryEl.innerHTML = "";
           subjectEl.innerHTML = "";
           keywordEl.innerHTML = "";
           setPager(0, 1);
@@ -610,184 +825,185 @@ const baseUrl = import.meta.env.BASE_URL || "/";
       scheduleSearch();
     });
   </script>
-
-  <style>
-    .search-page {
-      padding: 18px 0 42px;
-    }
-
-    .search-header {
-      text-align: center;
-      margin: 0 0 16px;
-    }
-
-    .search-title {
-      font-size: 32px;
-      margin: 0 0 8px;
-    }
-
-    .search-subtitle {
-      margin: 0;
-      color: rgba(29, 35, 28, 0.7);
-    }
-
-    .search-meta {
-      max-width: var(--content-width, 72ch);
-      margin: 0 auto 10px;
-      padding: 0 16px;
-      color: rgba(29, 35, 28, 0.8);
-      font-size: 0.95rem;
-      text-align: center;
-    }
-
-    .group {
-      max-width: var(--content-width, 72ch);
-      margin: 0 auto;
-      padding: 0 16px;
-    }
-
-    .group + .group {
-      margin-top: 18px;
-    }
-
-    .group-title {
-      font-size: 0.82rem;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      opacity: 0.72;
-      margin: 14px 0 10px;
-      text-align: left;
-    }
-
-    .search-page :global(.results) {
-      margin: 0;
-      padding: 0;
-      list-style: none;
-
-      display: grid;
-      gap: 12px;
-    }
-
-    .search-page :global(.result) {
-      margin: 0;
-    }
-
-    .search-page :global(.result-link) {
-      display: block;
-      text-decoration: none;
-      color: #1d231c;
-
-      border-radius: 16px;
-      padding: 16px 16px;
-      padding-right: 46px;
-
-      background: rgba(255, 255, 255, 0.78);
-      border: 1px solid rgba(29, 35, 28, 0.14);
-      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
-
-      position: relative;
-
-      transition:
-        transform 120ms ease,
-        box-shadow 120ms ease,
-        border-color 160ms ease,
-        background-color 160ms ease;
-    }
-
-    .search-page :global(.result-title) {
-      font-weight: 700;
-      margin: 0 0 6px;
-      line-height: 1.25;
-      color: #1d231c;
-    }
-
-    .search-page :global(.result-excerpt) {
-      color: rgba(29, 35, 28, 0.78);
-      line-height: 1.5;
-    }
-
-    .search-page :global(.result-link::after) {
-      content: "›";
-      position: absolute;
-      right: 16px;
-      top: 50%;
-      transform: translateY(-50%);
-
-      width: 28px;
-      height: 28px;
-      border-radius: 999px;
-
-      display: grid;
-      place-items: center;
-
-      background: rgba(29, 35, 28, 0.08);
-      color: rgba(29, 35, 28, 0.9);
-      font-size: 22px;
-      line-height: 1;
-    }
-
-    @media (hover: hover) and (pointer: fine) {
-      .search-page :global(.result-link:hover) {
-        transform: translateY(-1px);
-        border-color: rgba(32, 157, 80, 0.45);
-        box-shadow: 0 16px 34px rgba(0, 0, 0, 0.12);
-        background: rgba(255, 255, 255, 0.92);
-      }
-
-      .search-page :global(.result-link:hover::after) {
-        background: rgba(32, 157, 80, 0.18);
-      }
-    }
-
-    .search-page :global(.result-link:active) {
-      transform: translateY(0);
-      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.1);
-      background: rgba(255, 255, 255, 0.95);
-    }
-
-    .search-page :global(.result-link:focus-visible) {
-      outline: 3px solid rgba(32, 157, 80, 0.55);
-      outline-offset: 3px;
-    }
-
-    .search-page :global(.result-excerpt mark) {
-      background: rgba(255, 230, 0, 0.55);
-      color: #1d231c;
-      padding: 0 2px;
-      border-radius: 3px;
-    }
-
-    .pager {
-      display: flex;
-      gap: 12px;
-      justify-content: center;
-      align-items: center;
-      margin: 18px auto 0;
-      padding: 0 16px;
-    }
-
-    .pager-btn {
-      padding: 10px 16px;
-      border-radius: 12px;
-      border: none;
-      background: #1d231c;
-      color: #fff;
-      cursor: pointer;
-      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-    }
-
-    .pager-btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
-    .pager-info {
-      color: rgba(29, 35, 28, 0.8);
-      font-size: 0.95rem;
-    }
-
-    [hidden] {
-      display: none !important;
-    }
-  </style>
 </SearchLayout>
+
+<style>
+  .search-page {
+    padding: 18px 0 42px;
+  }
+
+  .search-header {
+    text-align: center;
+    margin: 0 0 16px;
+  }
+
+  .search-title {
+    font-size: 32px;
+    margin: 0 0 8px;
+  }
+
+  .search-subtitle {
+    margin: 0;
+    color: rgba(29, 35, 28, 0.7);
+  }
+
+  .search-meta {
+    max-width: var(--content-width, 72ch);
+    margin: 0 auto 10px;
+    padding: 0 16px;
+    color: rgba(29, 35, 28, 0.8);
+    font-size: 0.95rem;
+    text-align: center;
+  }
+
+  .group {
+    max-width: var(--content-width, 72ch);
+    margin: 0 auto;
+    padding: 0 16px;
+  }
+
+  .group + .group {
+    margin-top: 18px;
+  }
+
+  .group-title {
+    font-size: 0.82rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    opacity: 0.72;
+    margin: 14px 0 10px;
+    text-align: left;
+  }
+
+  .search-page :global(.results) {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    display: grid;
+    gap: 12px;
+  }
+
+  .search-page :global(.result) {
+    margin: 0;
+  }
+
+  .search-page :global(.result-link) {
+    display: block;
+    text-decoration: none;
+    color: #1d231c;
+
+    border-radius: 16px;
+    padding: 16px 16px;
+    padding-right: 46px;
+
+    background: rgba(255, 255, 255, 0.78);
+    border: 1px solid rgba(29, 35, 28, 0.14);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+
+    position: relative;
+
+    transition:
+      transform 120ms ease,
+      box-shadow 120ms ease,
+      border-color 160ms ease,
+      background-color 160ms ease;
+  }
+
+  .search-page :global(.result-title) {
+    font-weight: 700;
+    margin: 0 0 6px;
+    line-height: 1.25;
+    color: #1d231c;
+  }
+
+  .search-page :global(.result-excerpt) {
+    color: rgba(29, 35, 28, 0.78);
+    line-height: 1.5;
+  }
+
+  .search-page :global(.result-link::after) {
+    content: "›";
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+
+    width: 28px;
+    height: 28px;
+    border-radius: 999px;
+
+    display: grid;
+    place-items: center;
+
+    background: rgba(29, 35, 28, 0.08);
+    color: rgba(29, 35, 28, 0.9);
+    font-size: 22px;
+    line-height: 1;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .search-page :global(.result-link:hover) {
+      transform: translateY(-1px);
+      border-color: rgba(32, 157, 80, 0.45);
+      box-shadow: 0 16px 34px rgba(0, 0, 0, 0.12);
+      background: rgba(255, 255, 255, 0.92);
+    }
+
+    .search-page :global(.result-link:hover::after) {
+      background: rgba(32, 157, 80, 0.18);
+    }
+  }
+
+  .search-page :global(.result-link:active) {
+    transform: translateY(0);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.1);
+    background: rgba(255, 255, 255, 0.95);
+  }
+
+  .search-page :global(.result-link:focus-visible) {
+    outline: 3px solid rgba(32, 157, 80, 0.55);
+    outline-offset: 3px;
+  }
+
+  /* Highlighting stays for keyword results only */
+  .search-page :global(.result-excerpt mark) {
+    background: rgba(255, 230, 0, 0.55);
+    color: #1d231c;
+    padding: 0 2px;
+    border-radius: 3px;
+  }
+
+  .pager {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    align-items: center;
+    margin: 18px auto 0;
+    padding: 0 16px;
+  }
+
+  .pager-btn {
+    padding: 10px 16px;
+    border-radius: 12px;
+    border: none;
+    background: #1d231c;
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  }
+
+  .pager-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .pager-info {
+    color: rgba(29, 35, 28, 0.8);
+    font-size: 0.95rem;
+  }
+
+  [hidden] {
+    display: none !important;
+  }
+</style>

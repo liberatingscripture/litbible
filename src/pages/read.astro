@@ -1,4 +1,5 @@
 ---
+// src/pages/read.astro
 import ReadLayout from "../layouts/ReadLayout.astro";
 import "../styles/pages/read.css";
 
@@ -42,20 +43,23 @@ const description =
         </h2>
 
         <p class="license-card__lede">
-          <a href="https://litbible.net" class="license-card__link"
-            >The Liberation and Inclusion Translation of the Bible (LIT)™</a
-          >
+          <a href="https://litbible.net" class="license-card__link">
+            The Liberation and Inclusion Translation of the Bible (LIT)™
+          </a>
           © 2024 by
-          <a href="/about" class="license-card__link"
-            >Brandon C. Vélez Johnson</a
-          >
+          <a href="/about" class="license-card__link">
+            Brandon C. Vélez Johnson
+          </a>
           is licensed under
           <a
             href="http://creativecommons.org/licenses/by-nc-nd/4.0/?ref=chooser-v1"
             class="license-card__link"
             target="_blank"
-            rel="noopener">CC BY-NC-ND 4.0</a
-          >.
+            rel="noopener"
+          >
+            CC BY-NC-ND 4.0
+          </a>
+          .
         </p>
 
         <p class="license-card__lede">
@@ -71,14 +75,20 @@ const description =
               href="https://creativecommons.org/licenses/by-nc-nd/4.0/?ref=chooser-v1#ref-appropriate-credit"
               class="license-card__link"
               target="_blank"
-              rel="noopener">appropriate credit</a
-            >, provide a link to the license, and
+              rel="noopener"
+            >
+              appropriate credit
+            </a>
+            , provide a link to the license, and
             <a
               href="https://creativecommons.org/licenses/by-nc-nd/4.0/?ref=chooser-v1#ref-indicate-changes"
               class="license-card__link"
               target="_blank"
-              rel="noopener">indicate if changes were made</a
-            >.
+              rel="noopener"
+            >
+              indicate if changes were made
+            </a>
+            .
           </li>
 
           <li>
@@ -88,8 +98,11 @@ const description =
               href="https://creativecommons.org/licenses/by-nc-nd/4.0/?ref=chooser-v1#ref-commercial-purposes"
               class="license-card__link"
               target="_blank"
-              rel="noopener">commercial purposes</a
-            >.
+              rel="noopener"
+            >
+              commercial purposes
+            </a>
+            .
           </li>
 
           <li>
@@ -98,12 +111,58 @@ const description =
               href="https://creativecommons.org/licenses/by-nc-nd/4.0/?ref=chooser-v1#ref-some-kinds-of-mods"
               class="license-card__link"
               target="_blank"
-              rel="noopener">remix, transform, or build upon</a
+              rel="noopener"
             >
+              remix, transform, or build upon
+            </a>
             the material, you may not distribute the modified material.
           </li>
         </ol>
       </section>
+    </div>
+  </section>
+
+  <section
+    class="scripture-disclaimer"
+    aria-label="Source text and licensing notice"
+    data-pagefind-ignore
+  >
+    <div class="scripture-disclaimer__inner">
+      <p>
+        The Liberation &amp; Inclusion Translation (LIT) is an original English
+        translation prepared from <em>The Greek New Testament: SBL Edition</em>{
+          " "
+        }
+        (ed. Michael W. Holmes; © 2010 Society of Biblical Literature &amp; Logos
+        Bible Software).
+      </p>
+      <p>
+        The SBLGNT is licensed under the Creative Commons Attribution 4.0,
+        International Licence (CC BY 4.0):{" "}
+        <a
+          href="https://creativecommons.org/licenses/by/4.0/"
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          https://creativecommons.org/licenses/by/4.0/
+        </a>
+        . This translation constitutes an adaptation of that Greek text. Used with
+        permission.
+      </p>
+      <p>
+        Greek quotations are presented in transliterated form; accentuation and
+        punctuation follow LIT house style, mostly removed for accessibility to
+        readers without prior knowledge of Greek.
+      </p>
+      <p>
+        Portions of the SBL Greek text quoted here remain available under CC BY
+        4.0; the NC-ND restrictions apply only to the original English
+        translation and other LIT-specific content.
+      </p>
+      <p>
+        The Society of Biblical Literature and Logos Bible Software do not
+        endorse the LIT Bible.
+      </p>
     </div>
   </section>
 </ReadLayout>

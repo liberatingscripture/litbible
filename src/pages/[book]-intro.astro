@@ -1,0 +1,249 @@
+---
+import ScriptureLayout from "../layouts/ScriptureLayout.astro";
+
+// Load intro markdown files eagerly (so we can render immediately)
+type IntroMod = {
+  frontmatter?: Record<string, any>;
+  default: any; // MD/MDX component
+};
+
+const introModules = import.meta.glob<IntroMod>("../data/intros/*-intro.md", {
+  eager: true,
+});
+
+// ---------- Helpers (safe to use in render; NOT used by getStaticPaths) ----------
+function normalizeBookKey(key: string) {
+  return String(key ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, "");
+}
+
+function humanBookName(key: string) {
+  const k = normalizeBookKey(key);
+  const m = k.match(/^(\d+)([a-z].*)$/i);
+  if (m) return `${m[1]} ${m[2].charAt(0).toUpperCase()}${m[2].slice(1)}`;
+  return k.charAt(0).toUpperCase() + k.slice(1);
+}
+
+// IMPORTANT: Astro can hoist/extract getStaticPaths in a way that breaks references
+// to helpers defined in this file. So keep getStaticPaths self-contained.
+export async function getStaticPaths() {
+  const mod: any = await import("../data/books");
+  const map = (mod?.books ?? mod?.BOOKS ?? mod?.default ?? {}) as Record<
+    string,
+    number
+  >;
+
+  return Object.keys(map).map((book) => ({
+    params: { book },
+    props: { book },
+  }));
+}
+
+const { book } = Astro.props as { book: string };
+
+const bookKey = normalizeBookKey(book);
+const bookName = humanBookName(bookKey);
+
+// Match: ../data/intros/<book>-intro.md
+const introKey = `../data/intros/${bookKey}-intro.md`;
+const introMod = (introModules as Record<string, IntroMod>)[introKey] ?? null;
+const IntroContent = introMod?.default ?? null;
+
+// Topics for indexing/filtering (frontmatter: topics: ["..."])
+const topics = Array.isArray(introMod?.frontmatter?.topics)
+  ? (introMod!.frontmatter!.topics as string[])
+  : [];
+
+const title = `${bookName} — Introduction | Liberation and Inclusion Translation`;
+const description = `Introduction to ${bookName} in the Liberation and Inclusion Translation (LIT).`;
+
+// ---- compute “previous book’s final chapter” for the left CTA ----
+const booksMod: any = await import("../data/books");
+const BOOKS_MAP = (booksMod?.books ??
+  booksMod?.BOOKS ??
+  booksMod?.default ??
+  {}) as Record<string, number>;
+
+// Uses insertion order from the exported map.
+// (If you ever need a custom order, switch this to an explicit BOOK_ORDER array.)
+const BOOK_ORDER = Object.keys(BOOKS_MAP).map(normalizeBookKey);
+
+const currentIndex = BOOK_ORDER.indexOf(bookKey);
+const prevBookKey = currentIndex > 0 ? BOOK_ORDER[currentIndex - 1] : null;
+
+const prevBookLastChapter =
+  prevBookKey && typeof BOOKS_MAP[prevBookKey] === "number"
+    ? BOOKS_MAP[prevBookKey]
+    : null;
+
+const prevCtaHref =
+  prevBookKey && prevBookLastChapter
+    ? `/${prevBookKey}-${prevBookLastChapter}`
+    : "/read";
+
+const prevCtaLabel = prevBookKey
+  ? `${humanBookName(prevBookKey)} ${prevBookLastChapter ?? ""}`.trim()
+  : "Read";
+
+// Next (intro always goes to chapter 1 of the current book)
+const nextCtaHref = `/${bookKey}-1`;
+---
+
+<ScriptureLayout
+  title={title}
+  description={description}
+  book={bookKey}
+  chapter="intro"
+  type="intro"
+  topics={topics}
+>
+  <article class="chapter">
+    {/* H1 is rendered by ScriptureHeader inside ScriptureLayout */}
+
+    {
+      /* You said: only topics/subjects should be indexed on intro pages.
+         So we ignore body content for Pagefind. */
+    }
+    <section class="intro" data-pagefind-ignore>
+      {
+        IntroContent ? (
+          <IntroContent />
+        ) : (
+          <p>Intro content isn’t written yet for {bookName}.</p>
+        )
+      }
+    </section>
+
+    <nav class="chapter-ctas" aria-label="Chapter navigation">
+      <a
+        class="chapter-cta chapter-cta--prev"
+        href={prevCtaHref}
+        aria-label={`Go to ${prevCtaLabel}`}
+      >
+        {prevCtaLabel}
+      </a>
+
+      <a
+        class="chapter-cta chapter-cta--next"
+        href={nextCtaHref}
+        aria-label={`Go to ${bookName} 1`}
+      >
+        {bookName} 1
+      </a>
+    </nav>
+  </article>
+
+  <style>
+    /* Keep intro left-aligned (NOT centered). Keep width readable. */
+    .intro {
+      max-width: 70ch;
+    }
+
+    .intro :global(p) {
+      margin: 0 0 12px;
+      line-height: 1.75;
+      text-align: left;
+    }
+
+    /* Lists match article page behavior */
+    .intro :global(ul),
+    .intro :global(ol) {
+      margin: 1rem 0;
+      padding-left: 1.25rem;
+    }
+
+    .intro :global(ul li + li),
+    .intro :global(ol li + li) {
+      margin-top: 0.5rem;
+    }
+
+    .intro :global(li > ul),
+    .intro :global(li > ol) {
+      margin-top: 0.5rem;
+      margin-bottom: 0.25rem;
+    }
+
+    /* If your intro markdown uses headings, give them sane spacing */
+    .intro :global(h2) {
+      margin: 1.4rem 0 0.7rem;
+      line-height: 1.2;
+    }
+
+    .intro :global(h3) {
+      margin: 1.2rem 0 0.6rem;
+      line-height: 1.25;
+    }
+
+    :global(.chapter-ctas) {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      margin: 22px 0 0;
+      flex-wrap: wrap;
+    }
+
+    :global(.chapter-cta) {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+
+      width: clamp(240px, 42%, 420px);
+      min-height: 56px;
+
+      padding: 14px 22px;
+      border-radius: 14px;
+
+      background-color: var(--green, #209d50);
+      color: var(--white, #fff);
+
+      font-size: 16px;
+      font-weight: 400;
+      letter-spacing: 0; /* match ScriptureHeader buttons */
+      line-height: 1.15;
+      text-align: center;
+      white-space: normal;
+
+      text-decoration: none; /* no underline ever */
+      box-shadow: 0 12px 26px rgba(0, 0, 0, 0.18);
+
+      transition:
+        background-color 0.2s ease,
+        /* match ScriptureHeader timing */ transform 0.2s ease;
+    }
+
+    :global(.chapter-cta:hover) {
+      background-color: #1d231c; /* match ScriptureHeader hover */
+      transform: translateY(-1px);
+      text-decoration: none;
+    }
+
+    /* Inject arrows consistently via CSS (instead of hard-coding in labels) */
+    :global(.chapter-cta--prev)::before {
+      content: "◀ ";
+      display: inline-block;
+      width: 1.2em;
+      text-align: left;
+    }
+
+    :global(.chapter-cta--next)::after {
+      content: " ▶";
+      display: inline-block;
+      width: 1.2em;
+      text-align: right;
+    }
+
+    @media (max-width: 560px) {
+      :global(.chapter-ctas) {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      :global(.chapter-cta) {
+        width: 100%;
+      }
+    }
+  </style>
+</ScriptureLayout>

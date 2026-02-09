@@ -1,0 +1,299 @@
+---
+// src/pages/support.astro
+import Layout from "../layouts/Layout.astro";
+import "../styles/pages/support.css";
+
+// Swap this to your real Give Lively campaign URL when ready.
+// For now, it stays on-page to avoid dead links.
+const donateHref = "#donate";
+const lscSiteHref = "https://liberatingscripture.org";
+const lscContactHref = "https://liberatingscripture.org/contact";
+---
+
+<Layout
+  title="Support | LIT Bible"
+  description="Support the Liberating Scripture Collective (LSC): help keep liberation-centered, trauma-informed scripture work free, auditable, and community-shaped."
+  canonical="https://litbible.net/support/"
+>
+  <main class="support">
+    <!-- HERO -->
+    <header class="support-hero" aria-label="Support the work">
+      <div class="support-hero__grid">
+        <div class="support-hero__copy">
+          <p class="eyebrow">Support the work</p>
+
+          <h1>Donate. Get involved. Help it last.</h1>
+
+          <p class="lede">
+            The Liberation and Inclusion Translation (LIT) is built as a free
+            public resource. The Liberating Scripture Collective exists to
+            steward it long-term, expand it into learning resources, and build
+            trauma-informed pathways of support.
+          </p>
+
+          <p class="lede">
+            If this work has helped you, or if you want it to exist for the next
+            person who needs it, this is where you can join in.
+          </p>
+
+          <div class="support-actions" aria-label="Primary actions">
+            <a class="button button--primary" href={donateHref}>Donate</a>
+            <a class="button" href="#get-involved">Get involved</a>
+            <a
+              class="button button--outline button--external"
+              href={lscSiteHref}
+              target="_blank"
+              rel="external noopener"
+            >
+              liberatingscripture.org
+            </a>
+          </div>
+
+          <p class="fineprint">
+            Give Lively is the current front-runner. This page is set up so you
+            can drop the live donation link in cleanly once it’s ready.
+          </p>
+        </div>
+
+        <div
+          class="support-hero__media"
+          aria-label="Open book shaped like a heart"
+        >
+          <img
+            src="/images/book-heart.webp"
+            alt="An open book with pages shaped into a heart"
+            width="1200"
+            height="800"
+            loading="eager"
+            decoding="async"
+          />
+        </div>
+      </div>
+    </header>
+
+    <!-- BODY -->
+    <div class="support-content">
+      <!-- DONATE BAND -->
+      <section id="donate" class="support-section">
+        <div class="support-band" aria-label="Donate to support the work">
+          <div class="support-band__brand">
+            <!-- Wrapper provides the “surface” color so transparent pixels blend in -->
+            <span class="support-band__logo-wrap" aria-hidden="true">
+              <img
+                class="support-band__logo"
+                src="/images/lsc-logo.png"
+                alt=""
+                loading="lazy"
+                decoding="async"
+              />
+            </span>
+
+            <div class="support-band__brand-text">
+              <span>Support the work</span>
+              <span>Liberating Scripture Collective</span>
+            </div>
+          </div>
+
+          <div class="support-band__grid">
+            <div class="support-band__copy">
+              <h2>Donate</h2>
+
+              <p>
+                Donations keep the core work open-access, help cover
+                infrastructure costs, and make it possible to publish resources
+                without paywalls or extraction.
+              </p>
+
+              <ul class="support-list">
+                <li>
+                  <strong>Infrastructure:</strong> hosting, tooling, accessibility
+                  work, and upkeep.
+                </li>
+                <li>
+                  <strong>Publishing:</strong> layout, editing, and eventual print
+                  production (without locking content).
+                </li>
+                <li>
+                  <strong>Capacity:</strong> collaboration workflows, review processes,
+                  and sustainability.
+                </li>
+              </ul>
+
+              <div
+                class="support-actions support-actions--left"
+                aria-label="Donate links"
+              >
+                <a class="button button--primary" href={donateHref}>
+                  Donate (Give Lively soon)
+                </a>
+
+                <a
+                  class="button button--outline button--external"
+                  href={lscSiteHref}
+                  target="_blank"
+                  rel="external noopener"
+                >
+                  Visit LSC site
+                </a>
+              </div>
+
+              <p class="fineprint">
+                When the donation page is live, replace <code>donateHref</code> in
+                <code>support.astro</code> with the Give Lively campaign URL.
+              </p>
+            </div>
+
+            <div class="support-band__card" aria-label="Donation values">
+              <h3>Donation values</h3>
+              <p>
+                This work aims to be transparent about power, careful with
+                people’s nervous systems, and honest about the real consequences
+                scripture can have in communities.
+              </p>
+              <p>
+                If you want a way to give that supports clarity, consent, and
+                non-commercial access, you’re in the right neighborhood.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- GET INVOLVED -->
+      <section id="get-involved" class="support-section">
+        <h2>Get involved</h2>
+
+        <p>
+          “Getting involved” can mean a lot of things, and none of them require
+          being an expert. The goal is to build a community of feedback,
+          accountability, and shared stewardship.
+        </p>
+
+        <div class="support-cards" aria-label="Ways to get involved">
+          <article class="support-card">
+            <h3>Give feedback</h3>
+            <p>
+              Point out unclear wording, confusing structure, or places where
+              the translation needs more transparency. Specific examples help
+              most.
+            </p>
+          </article>
+
+          <article class="support-card">
+            <h3>Share and recommend</h3>
+            <p>
+              If LIT or LSC has been useful, share it with people who want an
+              honest, liberation-centered approach.
+            </p>
+          </article>
+
+          <article class="support-card">
+            <h3>Collaborate</h3>
+            <p>
+              If you have relevant experience (biblical studies, accessibility,
+              design, education, community care), you can help shape resources
+              and workflows.
+            </p>
+          </article>
+
+          <article class="support-card">
+            <h3>Partner thoughtfully</h3>
+            <p>
+              If you lead a community or program and want to use LIT/LSC
+              material responsibly, reach out and we’ll talk through best-fit
+              options.
+            </p>
+          </article>
+        </div>
+
+        <div
+          class="support-actions support-actions--left"
+          aria-label="Contact actions"
+        >
+          <a class="button button--primary" href="/contact">
+            Get involved (contact)
+          </a>
+
+          <a
+            class="button button--outline button--external"
+            href={lscContactHref}
+            target="_blank"
+            rel="external noopener"
+          >
+            LSC contact
+          </a>
+        </div>
+
+        <p class="fineprint">
+          If you’re not sure what you have to offer, that’s normal. A short note
+          describing your interest and constraints is enough to start.
+        </p>
+      </section>
+
+      <!-- TRANSPARENCY -->
+      <section id="transparency" class="support-section">
+        <h2>Transparency and non-commercial access</h2>
+
+        <p>
+          The point is not to build a brand. The point is to build work that
+          stays free, stays honest, and stays accountable to real human impact.
+        </p>
+
+        <ul class="support-list">
+          <li>
+            <strong>No paywalls for core work:</strong> the translation and key resources
+            remain open online.
+          </li>
+          <li>
+            <strong>Clarity over mystique:</strong> translation choices are meant
+            to be explainable and auditable.
+          </li>
+          <li>
+            <strong>Community-shaped:</strong> feedback and critique are part of the
+            design, not an afterthought.
+          </li>
+        </ul>
+      </section>
+
+      <!-- QUICK LINKS -->
+      <section id="links" class="support-section">
+        <h2>Quick links</h2>
+
+        <div
+          class="support-actions support-actions--left"
+          aria-label="Quick links"
+        >
+          <a class="button" href={donateHref}>Donate</a>
+          <a class="button" href="#get-involved">Get involved</a>
+
+          <a
+            class="button button--outline button--external"
+            href={lscSiteHref}
+            target="_blank"
+            rel="external noopener"
+          >
+            liberatingscripture.org
+          </a>
+
+          <a class="button button--outline" href="/contact">
+            Contact (this site)
+          </a>
+
+          <a
+            class="button button--outline button--external"
+            href={lscContactHref}
+            target="_blank"
+            rel="external noopener"
+          >
+            Contact (LSC site)
+          </a>
+        </div>
+
+        <p class="fineprint">
+          LSC is in active development. This page will evolve as the donation
+          platform and collaboration pathways become clearer.
+        </p>
+      </section>
+    </div>
+  </main>
+</Layout>

@@ -33,9 +33,6 @@
   padding: 56px 24px;
 }
 
-html{
-  scroll-behavior: smooth;
-}
 
 /* =========================================================
    HERO
@@ -497,23 +494,4 @@ html{
 .entries-strike-svg,
 .entries-underline-svg{
   display: none !important;
-}
-
-/* =========================================================
-   Reduced motion
-   ========================================================= */
-
-@media (prefers-reduced-motion: reduce){
-  html{ scroll-behavior: auto; }
-
-  .entry.is-visible .entries-underline{
-    transition: none;
-  }
-}
-
-/* Glossary-only: Pagefind helper separators (don’t show them) */
-.glossary-page .pf-sep,
-.glossary-page .pf-hyphen-space,
-.glossary-page .pf-slash-space {
-  display: none;
 }

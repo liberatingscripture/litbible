@@ -845,13 +845,21 @@ html.menu-open body {
 }
 
 /* =========================
-   Social links (explicitly unchanged)
+   Social links
    ========================= */
 
 .footer-col .social-links {
   display: flex;
   gap: 0.75rem;
-  margin-top: 3.00rem;
+  margin-top: 0.75rem;
+  transform: translateX(-8px); /* desktop/default: shift left */
+}
+
+/* Mobile: nudge right a bit */
+@media (max-width: 720px) {
+  .footer-col .social-links {
+    transform: translateX(0); /* tune: 4px–12px */
+  }
 }
 
 /* Icon button */
@@ -1033,6 +1041,95 @@ a.footer-cta > span {
 .license a {
   text-decoration: underline;
 }
+/* Footer — Narrow desktop / tablet ONLY (does not affect mobile) */
+@media (min-width: 721px) and (max-width: 860px) {
+  .footer-inner {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: 1.75rem;
+  }
+
+  .footer-nav {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 1.25rem 2rem;
+  }
+
+  .footer-col,
+  .footer-left,
+  .footer-right,
+  .footer-nav {
+    min-width: 0;
+  }
+
+  .footer-col .social-links {
+    position: static;
+    left: auto;
+    right: auto;
+    bottom: auto;
+
+    flex-wrap: wrap;
+    row-gap: 0.75rem;
+    margin-top: 2rem;
+    /* remove max-width unless you want tighter wrapping */
+  }
+}
+
+
+/* =========================
+   Footer — Mid-width fix (tablet)
+   Put logo in normal flow so nothing gets shoved offscreen.
+   ========================= */
+@media (max-width: 1248px) {
+  .footer-inner {
+    /* keep two columns for left + right, and let logo take a full row */
+    position: static; /* stops absolute child math from breaking layout */
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas:
+      "left right"
+      "center center";
+    row-gap: 2.5rem;
+    column-gap: 2rem;
+  }
+
+  .footer-left {
+    grid-area: left;
+    padding-right: 0; /* remove desktop “make room for logo” padding */
+    min-width: 0;
+  }
+
+  .footer-right {
+    grid-area: right;
+    padding-left: 0; /* remove desktop “make room for logo” padding */
+    min-width: 0;
+
+    /* your desktop centers everything; at mid widths that looks odd + wastes space */
+    align-items: flex-start;
+  }
+
+  .footer-center {
+    grid-area: center;
+
+    /* undo absolute centering */
+    position: static;
+    left: auto;
+    top: auto;
+    transform: none;
+
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .footer-center img {
+    max-width: min(220px, 55vw);
+    height: auto;
+  }
+
+  .license {
+    width: auto;       /* prevents forcing overflow */
+    max-width: 42ch;   /* keeps your intended measure */
+  }
+}
 
 /* =========================
    Footer — Mobile layout fix
@@ -1187,11 +1284,70 @@ sup[id^="v"] {
   scroll-margin-top: var(--anchor-offset-verse);
 }
 
-/* Paragraph anchors (your pattern: id="luke-4-p11", etc.) */
+/* =========================
+   Anchor offset for paragraphs + blockquotes
+   ========================= */
 p[id*="-p"],
 blockquote[id*="-p"] {
   scroll-margin-top: var(--anchor-offset-paragraph);
 }
+
+/* =========================
+   Anchor offset for paragraphs + blockquotes
+   ========================= */
+p[id*="-p"],
+blockquote[id*="-p"] {
+  scroll-margin-top: var(--anchor-offset-paragraph);
+}
+
+/* =========================
+   HBQ (poetry / blockquote) alignment
+   - Consistent left alignment whether a verse number exists or not
+   - Hanging indent for wrapped lines (lines after the first visual line)
+   ========================= */
+
+/* Tune these once */
+:root {
+  --hbq-vn-gutter: 2.25rem;   /* reserved space for verse numbers */
+  --hbq-wrap-indent: 1.1rem;  /* extra indent for wrapped lines */
+}
+
+blockquote.hbq {
+  margin: 1rem 0;
+  padding: 0;
+}
+
+blockquote.hbq .hbq-line {
+  position: relative;
+  margin: 0;
+
+  /* Reserve space: gutter + wrap indent */
+  padding-left: calc(var(--hbq-vn-gutter) + var(--hbq-wrap-indent));
+
+  /* Hanging indent: first visual line pulled left by wrap indent,
+     wrapped lines stay indented */
+  text-indent: calc(-1 * var(--hbq-wrap-indent));
+}
+
+/* Verse marker lives in the gutter, not in the text flow */
+blockquote.hbq .hbq-line > .vglue {
+  position: absolute;
+  top: 0;
+
+  /* IMPORTANT: pull it back left by the same padding we added to the line,
+     so it sits in the gutter instead of on top of the text */
+  left: calc(-1 * (var(--hbq-vn-gutter) + var(--hbq-wrap-indent)));
+
+  width: var(--hbq-vn-gutter);
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* Optional: numeric stability */
+blockquote.hbq .hbq-line .vn {
+  font-variant-numeric: tabular-nums;
+}
+
 
 /* Pagefind helper: invisible spacer used to split hyphenated compounds for indexing */
 .pf-hyphen-space {
@@ -1202,3 +1358,47 @@ blockquote[id*="-p"] {
 .pf-slash-space {
   display: none;
 }
+
+/* =========================================================
+   Footnotes: clickable, but don't get copied when selecting
+   ========================================================= */
+
+/* Scripture text footnote markers (your markup: <sup class="fn-ref"><a>…</a></sup>) */
+.chapter-paragraphs sup.fn-ref,
+.chapter-paragraphs sup.fn-ref * {
+  -webkit-user-select: none !important;
+  user-select: none !important;
+}
+
+/* Keep them clickable */
+.chapter-paragraphs sup.fn-ref,
+.chapter-paragraphs sup.fn-ref a {
+  pointer-events: auto;
+}
+
+/* Footnotes section backlink label (your markup: <a class="footnote-backlink">a</a>) */
+.footnotes .footnote-backlink,
+.footnotes .footnote-backlink * {
+  -webkit-user-select: none !important;
+  user-select: none !important;
+}
+
+/* Don't paint selection highlight for these */
+.chapter-paragraphs sup.fn-ref::selection,
+.chapter-paragraphs sup.fn-ref *::selection,
+.footnotes .footnote-backlink::selection,
+.footnotes .footnote-backlink *::selection {
+  background: transparent;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+.vglue { white-space: nowrap; }

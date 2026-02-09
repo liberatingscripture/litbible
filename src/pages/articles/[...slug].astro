@@ -63,7 +63,7 @@ function tagKey(t: string) {
  */
 const indexTitle = hyphensToSpacesForIndex(data.title);
 const indexDescription = hyphensToSpacesForIndex(pageDescriptionRaw);
-const indexTagsJoined = hyphensToSpacesForIndex(tags.join(" "));
+const indexTagsJoined = hyphensToSpacesForIndex(tags.join(", "));
 ---
 
 <Layout
@@ -103,7 +103,16 @@ const indexTagsJoined = hyphensToSpacesForIndex(tags.join(" "));
         {
           tags.length > 0 && (
             <>
-              <p data-pagefind-meta="tags">Tags: {indexTagsJoined}</p>
+              {/* Topic-only zone so tag hits do not count as keyword hits */}
+              <span id="pf-topics-start" />
+
+              {/* IMPORTANT:
+                - use meta="topics" so both tray + search page treat these as "Subject matches"
+                - keep it a clean comma-separated list
+                - hyphens normalized for index matching */}
+              <p data-pagefind-meta="topics">{indexTagsJoined}</p>
+
+              <span id="pf-topics-end" />
 
               {/* Optional: enable tag filters later (normalized) */}
               {tags.map((t) => (
@@ -155,8 +164,17 @@ const indexTagsJoined = hyphensToSpacesForIndex(tags.join(" "));
 
       <hr class="article__rule" data-pagefind-ignore />
 
+      {/* Back-to-top target */}
+      <div id="top" data-pagefind-ignore></div>
+
       <div class="article__body" data-pagefind-ignore>
         <Content />
+      </div>
+
+      {/* Bottom nav */}
+      <div class="article__bottom-nav" data-pagefind-ignore>
+        <a class="article__back" href="/articles">← All Articles</a>
+        <a class="article__top" href="#top">Back to top ↑</a>
       </div>
     </article>
   </div>
@@ -191,6 +209,12 @@ const indexTagsJoined = hyphensToSpacesForIndex(tags.join(" "));
     border-radius: 22px;
     box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
     overflow: hidden;
+  }
+
+  @media (max-width: 600px) {
+    .article__card {
+      width: calc(100%);
+    }
   }
 
   .article__back {
@@ -256,6 +280,25 @@ const indexTagsJoined = hyphensToSpacesForIndex(tags.join(" "));
     padding: 22px 22px 30px;
   }
 
+  /* Bottom nav */
+  .article__bottom-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 22px 20px;
+    border-top: 1px solid rgba(0, 0, 0, 0.12);
+  }
+
+  .article__bottom-nav .article__back {
+    padding: 0;
+  }
+
+  .article__top {
+    color: var(--green);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+
   /* Markdown defaults */
   .article__body :global(p) {
     margin: 0 0 1.15rem 0;
@@ -277,6 +320,15 @@ const indexTagsJoined = hyphensToSpacesForIndex(tags.join(" "));
     border-left: 4px solid var(--green);
     border-radius: 14px;
   }
+
+  /* Mobile */
+  @media (max-width: 600px) {
+    .article__body :global(blockquote) {
+      margin-left: -0.4rem;
+      margin-right: -0.4rem;
+    }
+  }
+
   .article__body :global(pre) {
     overflow-x: auto;
     background: var(--cream);
@@ -312,13 +364,45 @@ const indexTagsJoined = hyphensToSpacesForIndex(tags.join(" "));
 
   @media (max-width: 560px) {
     .article__back {
-      padding-left: 16px;
-      padding-right: 16px;
+      padding-left: 0;
+      padding-right: 0;
     }
     .article__header,
     .article__body {
-      padding-left: 16px;
-      padding-right: 16px;
+      padding-left: 0;
+      padding-right: 0;
+    }
+
+    .article__bottom-nav {
+      padding-left: 0;
+      padding-right: 0;
+    }
+  }
+
+  /* Lists in articles: spacing between items */
+  .article__body :global(ul),
+  .article__body :global(ol) {
+    margin: 1rem 0;
+  }
+
+  .article__body :global(ul li + li),
+  .article__body :global(ol li + li) {
+    margin-top: 0.5rem;
+  }
+
+  /* Nested lists: a little breathing room */
+  .article__body :global(li > ul),
+  .article__body :global(li > ol) {
+    margin-top: 0.5rem;
+    margin-bottom: 0.25rem;
+  }
+
+  /* Mobile: match blockquote widened margins (bullets will shift left too) */
+  @media (max-width: 600px) {
+    .article__body :global(ul),
+    .article__body :global(ol) {
+      margin-left: -1.4rem;
+      margin-right: 0;
     }
   }
 </style>

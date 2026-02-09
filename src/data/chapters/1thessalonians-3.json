@@ -1,0 +1,36 @@
+{
+  "bookKey": "1thessalonians",
+  "chapter": 3,
+  "type": "scripture",
+  "title": "1 Thessalonians 3",
+  "description": "1 Thessalonians 3 in the Liberation and Inclusion Translation (LIT).",
+  "topics": [
+    "athens",
+    "timothy",
+    "coworker",
+    "support",
+    "encourage",
+    "commitment",
+    "troubles",
+    "tester",
+    "distress",
+    "joy",
+    "plead",
+    "arrival",
+    "sacred-ones"
+  ],
+  "paragraphs": [
+    "<p id=\"1thessalonians-3-p1\"><span class=\"vglue\"><sup id=\"v1\" class=\"vn\">1</sup>&nbsp;Therefore,</span> when we could not hold on any longer, we decided to stay behind in Athens by ourselves <span class=\"vglue\"><sup id=\"v2\" class=\"vn\">2</sup>&nbsp;and</span> sent Timothy, our brother and coworker for God<sup class=\"fn-ref\"><a id=\"fnref-a\" href=\"#fn-a\" role=\"doc-noteref\">a</a></sup> regarding Christ’s triumphant message, to support and encourage you concerning your commitment<sup class=\"fn-ref\"><a id=\"fnref-b\" href=\"#fn-b\" role=\"doc-noteref\">b</a></sup> <span class=\"vglue\"><sup id=\"v3\" class=\"vn\">3</sup>&nbsp;so</span> that no one will be upset<sup class=\"fn-ref\"><a id=\"fnref-c\" href=\"#fn-c\" role=\"doc-noteref\">c</a></sup> concerning these troubles. You have seen for yourselves this is what we are here for <span class=\"vglue\"><sup id=\"v4\" class=\"vn\">4</sup>&nbsp;since</span> even when we were with you, we were predicting to you that we were about to encounter trouble, and it happened that way, as you saw. <span class=\"vglue\"><sup id=\"v5\" class=\"vn\">5</sup>&nbsp;Because</span> of this, I was not able to hold on any longer, and I sent him to learn about your commitment, for fear that somehow the Tester<sup class=\"fn-ref\"><a id=\"fnref-d\" href=\"#fn-d\" role=\"doc-noteref\">d</a></sup> put you to the test, and our labor came up empty.</p>",
+    "<p id=\"1thessalonians-3-p2\"><span class=\"vglue\"><sup id=\"v6\" class=\"vn\">6</sup>&nbsp;But</span> now that Timothy has come to us from you and announced a triumphant message to us about your commitment and love and that you always have a pleasant memory of us, longing to see us just like we also long to see you. <span class=\"vglue\"><sup id=\"v7\" class=\"vn\">7</sup>&nbsp;Because</span> of this, Family, we were encouraged because of you during all our distress and trouble<sup class=\"fn-ref\"><a id=\"fnref-e\" href=\"#fn-e\" role=\"doc-noteref\">e</a></sup> because of your commitment; <span class=\"vglue\"><sup id=\"v8\" class=\"vn\">8</sup>&nbsp;we</span> are alive for now if you are firmly committed<sup class=\"fn-ref\"><a id=\"fnref-f\" href=\"#fn-f\" role=\"doc-noteref\">f</a></sup> regarding the Lord. <span class=\"vglue\"><sup id=\"v9\" class=\"vn\">9</sup>&nbsp;What</span> gratitude can we repay to God about you for all the joy we experience<sup class=\"fn-ref\"><a id=\"fnref-g\" href=\"#fn-g\" role=\"doc-noteref\">g</a></sup> because of you in the presence of our God <span class=\"vglue\"><sup id=\"v10\" class=\"vn\">10</sup>&nbsp;while</span> we plead immeasurably much, night and day, to see your faces and to contribute the things that are missing from your commitment?</p>",
+    "<p id=\"1thessalonians-3-p3\"><span class=\"vglue\"><sup id=\"v11\" class=\"vn\">11</sup>&nbsp;Then:</span> May our same God and Father, and our Lord Jesus, clear the way to you for us. <span class=\"vglue\"><sup id=\"v12\" class=\"vn\">12</sup>&nbsp;May</span> the Lord increase your love for each other and for everyone and cause it to overflow, just like the love we have for you, <span class=\"vglue\"><sup id=\"v13\" class=\"vn\">13</sup>&nbsp;toward</span> firmly committing your hearts that are without any cause for blame with regard to sacredness in the presence of our God and Father at the arrival of our Lord Jesus with all his sacred ones.</p>"
+  ],
+  "footnotes": [
+    { "id": "fn-a", "refId": "fnref-a", "label": "a", "html": "The Greek is not completely clear here. The Greek <em>theos</em> (‘God’) is in the genitive case, often translated as ‘of God.’ It could be taken as a Possessive Genitive, which would make Timothy God’s coworker. While not impossible, it seems unlikely that is the intent here. It could also be a Genitive of Production/Producer, making it ‘coworker produced/provided by God.’ It could also be a Genitive of Source, as in ‘coworker from God.’ The way it is translated here as ‘for God’ takes it to be a Genitive of Destination/Purpose." },
+    { "id": "fn-b", "refId": "fnref-b", "label": "b", "html": "Or ‘faithfulness’ or ‘allegiance’ or ‘trust’" },
+    { "id": "fn-c", "refId": "fnref-c", "label": "c", "html": "Literally, ‘to wag the tail.’ It had several possible figurative uses, including flattering, to agitate, and others." },
+    { "id": "fn-d", "refId": "fnref-d", "label": "d", "html": "Compare with Matthew 4:3" },
+    { "id": "fn-e", "refId": "fnref-e", "label": "e", "html": "Both the word for ‘distress’ and ‘trouble’ here have a sense of being about oppression or suffering, not mere inconveniences or disappointments." },
+    { "id": "fn-f", "refId": "fnref-f", "label": "f", "html": "The instances of ‘commitment’ prior to this sentence are all <em>pistis</em> and could also be translated as ‘faithfulness’ or ‘allegiance’ or ‘trust.’ This word translated as ‘firmly committed’ is <em>steko</em>, and it has a literal meaning of ‘stand’ and a metaphorical meaning of “to be firmly committed in conviction or belief,” <em>i.e.</em> ‘stand firm’ or ‘be steadfast’ (BDAG)." },
+    { "id": "fn-g", "refId": "fnref-g", "label": "g", "html": "Literally, ‘all the joy we rejoice’" }
+  ]
+}

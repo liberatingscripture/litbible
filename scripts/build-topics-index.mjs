@@ -3,20 +3,23 @@ import path from "node:path";
 
 const ROOT = process.cwd();
 
-// Adjust if your chapters live somewhere else
+// chapters
 const CHAPTERS_DIR = path.join(ROOT, "src", "data", "chapters");
-const OUT_FILE = path.join(ROOT, "public", "topics-index.json");
+
+// outputs
+const OUT_INDEX_FILE = path.join(ROOT, "public", "topics-index.json"); // existing
+const OUT_AUTOCOMPLETE_FILE = path.join(ROOT, "public", "search", "topics.json"); // new
 
 function normalizeTopic(s) {
   return String(s || "")
     .trim()
     .toLowerCase()
     .replace(/[\u00A0]/g, " ")
-    .replace(/[’']/g, "")          // drop apostrophes
+    .replace(/[’']/g, "") // drop apostrophes
     .replace(/[^a-z0-9\s-]/g, " ") // kill punctuation
-    .replace(/\s+/g, "-")          // spaces -> hyphen
-    .replace(/-+/g, "-")           // collapse
-    .replace(/^-|-$/g, "");        // trim hyphens
+    .replace(/\s+/g, "-") // spaces -> hyphen
+    .replace(/-+/g, "-") // collapse
+    .replace(/^-|-$/g, ""); // trim hyphens
 }
 
 function bookKeyToLabel(key) {
@@ -36,7 +39,7 @@ async function fileExists(p) {
   }
 }
 
-async function buildFromChapters(topicsMap) {
+async function buildFromChapters(topicsMap, topicMeta) {
   if (!(await fileExists(CHAPTERS_DIR))) return;
 
   const files = (await fs.readdir(CHAPTERS_DIR)).filter((f) => f.endsWith(".json"));
@@ -59,7 +62,6 @@ async function buildFromChapters(topicsMap) {
       data.title ||
       (bookKey && chapter ? `${bookKeyToLabel(bookKey)} ${chapter}` : "Scripture");
 
-    // You can decide how to treat intros if you have them in this folder
     const url =
       chapter === "intro" || type === "intro"
         ? `/${bookKey}-intro`
@@ -70,6 +72,7 @@ async function buildFromChapters(topicsMap) {
       const key = normalizeTopic(t);
       if (!key) continue;
 
+      // Full index entry (topic -> list of pages)
       const entry = {
         url,
         title,
@@ -81,14 +84,27 @@ async function buildFromChapters(topicsMap) {
 
       if (!topicsMap[key]) topicsMap[key] = [];
       topicsMap[key].push(entry);
+
+      // Lightweight autocomplete meta (topic -> counts + original label)
+      if (!topicMeta[key]) {
+        topicMeta[key] = {
+          key,
+          label: String(t).trim(),
+          count: 0,
+          books: new Set(),
+        };
+      }
+      topicMeta[key].count += 1;
+      if (bookKey) topicMeta[key].books.add(bookKey);
     }
   }
 }
 
 async function main() {
   const topicsMap = {};
+  const topicMeta = {}; // key -> { key, label, count, books:Set }
 
-  await buildFromChapters(topicsMap);
+  await buildFromChapters(topicsMap, topicMeta);
 
   // Deduplicate within each topic by URL
   for (const key of Object.keys(topicsMap)) {
@@ -100,14 +116,41 @@ async function main() {
     });
   }
 
-  const payload = {
-    generatedAt: new Date().toISOString(),
+  const generatedAt = new Date().toISOString();
+
+  // 1) Full index (existing behavior)
+  const indexPayload = {
+    generatedAt,
     topics: topicsMap,
   };
 
-  await fs.mkdir(path.dirname(OUT_FILE), { recursive: true });
-  await fs.writeFile(OUT_FILE, JSON.stringify(payload, null, 2), "utf8");
-  console.log(`Wrote ${OUT_FILE}`);
+  await fs.mkdir(path.dirname(OUT_INDEX_FILE), { recursive: true });
+  await fs.writeFile(OUT_INDEX_FILE, JSON.stringify(indexPayload, null, 2), "utf8");
+  console.log(`Wrote ${OUT_INDEX_FILE}`);
+
+  // 2) Autocomplete payload (small + fast)
+  // Sort: most common first, tie-break alphabetical
+  const autocompleteItems = Object.values(topicMeta)
+    .map((m) => ({
+      key: m.key,
+      label: m.label,
+      count: m.count,
+      books: Array.from(m.books),
+    }))
+    .sort((a, b) => (b.count - a.count) || a.label.localeCompare(b.label));
+
+  const autocompletePayload = {
+    generatedAt,
+    items: autocompleteItems,
+  };
+
+  await fs.mkdir(path.dirname(OUT_AUTOCOMPLETE_FILE), { recursive: true });
+  await fs.writeFile(
+    OUT_AUTOCOMPLETE_FILE,
+    JSON.stringify(autocompletePayload, null, 2),
+    "utf8",
+  );
+  console.log(`Wrote ${OUT_AUTOCOMPLETE_FILE}`);
 }
 
 main().catch((err) => {

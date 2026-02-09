@@ -2,6 +2,15 @@
    Read page
    ========================================================= */
 
+/* IMPORTANT FIX:
+   The cream “peek” is almost certainly padding on Layout.astro’s <main>.
+   Since this CSS only loads on /read, we can safely zero it out here.
+*/
+body.bg-cream > main {
+  padding-bottom: 0 !important;
+  margin-bottom: 0 !important;
+}
+
 .read-page {
   max-width: var(--content-width, 72ch);
   margin: 0 auto;
@@ -65,10 +74,9 @@
   width: 100vw;
   margin-left: calc(50% - 50vw);
 
-  /* pull the green under the footer */
-  margin-bottom: -56px;
+  /* was previously compensating for layout bottom padding; no longer needed */
+  margin-bottom: 0;
 }
-
 
 .license-band::before {
   content: "";
@@ -98,10 +106,9 @@
    ========================================================= */
 
 .license-card {
-  /* clear separation from the green band */
   margin-top: 8px;
 
-  background: #ffffff; /* pure white */
+  background: #ffffff;
   border-radius: 20px;
   padding: 26px 24px;
 
@@ -110,8 +117,6 @@
     0 18px 48px rgba(0, 0, 0, 0.18),
     0 4px 12px rgba(0, 0, 0, 0.08);
 }
-
-/* keep previous typography styles */
 
 #license {
   scroll-margin-top: 96px;
@@ -122,26 +127,67 @@
    ========================================================= */
 
 @media (max-width: 640px) {
-  /* Override component styles */
   .read-menu {
     flex-direction: column;
     align-items: stretch;
     justify-content: flex-start;
-
-    /* kill the wrap behavior */
     flex-wrap: nowrap;
-
-    /* keep the spacing, but let it breathe */
     gap: 12px;
-
-    /* keep your top rhythm */
     margin-top: 2rem;
   }
 
-  /* Make the inputs/buttons fill the column */
   .read-menu select,
   .read-menu button {
     width: 50%;
     max-width: 50%;
   }
+}
+
+/* =========================================================
+   Scripture Disclaimer (full-bleed, flush to footer)
+   ========================================================= */
+
+.scripture-disclaimer {
+  background: #fff;
+
+  /* full-bleed breakout (escapes max-width parents) */
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+
+  padding: 30px 0 56px;
+
+  /* prevents margin-collapsing oddities */
+  display: flow-root;
+
+  position: relative;
+  z-index: 1;
+
+  border-bottom: 1px solid rgba(29, 35, 28, 0.18);
+
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.scripture-disclaimer__inner {
+  margin: 0 auto;
+  width: min(1100px, calc(100% - 32px));
+  max-width: none;
+
+  font-size: 0.95rem;
+  line-height: 1.65;
+  color: rgba(29, 35, 28, 0.85);
+}
+
+.scripture-disclaimer__inner p {
+  margin: 0 0 14px;
+}
+
+.scripture-disclaimer__inner p:first-child {
+  margin-top: 0;
+}
+
+.scripture-disclaimer__inner a {
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }

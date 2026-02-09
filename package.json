@@ -4,11 +4,13 @@
   "type": "module",
   "scripts": {
     "dev": "astro dev",
-    "build": "node scripts/build-topics-index.mjs && astro build && pagefind --site dist",
+    "build:topics": "node scripts/build-topics-index.mjs",
+    "build": "npm run build:topics && astro build && pagefind --site dist",
     "preview": "npm run build && astro preview"
   },
   "dependencies": {
-    "astro": "^5.0.0"
+    "astro": "^5.17.1",
+    "simple-icons": "^16.7.0"
   },
   "devDependencies": {
     "pagefind": "^1.0.0"

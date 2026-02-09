@@ -1,4 +1,6 @@
-export const books = {
+// src/data/books.js
+
+export const BOOKS = {
   matthew: 28,
   mark: 16,
   luke: 24,
@@ -27,3 +29,41 @@ export const books = {
   jude: 1,
   revelation: 22,
 };
+
+export const BOOK_ORDER = [
+  "matthew",
+  "mark",
+  "luke",
+  "john",
+  "acts",
+  "romans",
+  "1corinthians",
+  "2corinthians",
+  "galatians",
+  "ephesians",
+  "philippians",
+  "colossians",
+  "1thessalonians",
+  "2thessalonians",
+  "1timothy",
+  "2timothy",
+  "titus",
+  "philemon",
+  "hebrews",
+  "james",
+  "1peter",
+  "2peter",
+  "1john",
+  "2john",
+  "3john",
+  "jude",
+  "revelation",
+];
+
+export function bookKeyToLabel(key) {
+  const m = String(key).match(/^(\d+)?([a-z]+)$/i);
+  if (!m) return String(key);
+  const num = m[1] ? `${m[1]} ` : "";
+  const word = m[2];
+  return num + word.charAt(0).toUpperCase() + word.slice(1);
+}

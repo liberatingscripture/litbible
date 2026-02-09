@@ -1,0 +1,309 @@
+---
+const { ariaLabel = "Carousel", intervalMs = 2800 } = Astro.props as {
+  ariaLabel?: string;
+  intervalMs?: number;
+};
+---
+
+<div
+  class="card-carousel"
+  data-card-carousel
+  aria-label={ariaLabel}
+  data-interval-ms={intervalMs}
+>
+  <div class="card-carousel__viewport" data-card-viewport>
+    <div class="card-carousel__track" data-card-track>
+      <slot />
+    </div>
+  </div>
+
+  <div class="card-carousel__controls" aria-label="Carousel controls">
+    <button
+      class="card-carousel__btn"
+      type="button"
+      data-card-prev
+      aria-label="Previous"
+    >
+      ‹
+    </button>
+    <button
+      class="card-carousel__btn"
+      type="button"
+      data-card-next
+      aria-label="Next"
+    >
+      ›
+    </button>
+  </div>
+</div>
+
+<script type="module">
+  // @ts-check
+
+  /**
+   * @param {HTMLElement} carousel
+   */
+  const init = (carousel) => {
+    /** @type {HTMLElement | null} */
+    const viewport = carousel.querySelector("[data-card-viewport]");
+    /** @type {HTMLElement | null} */
+    const track = carousel.querySelector("[data-card-track]");
+    /** @type {HTMLButtonElement | null} */
+    const prevBtn = carousel.querySelector("[data-card-prev]");
+    /** @type {HTMLButtonElement | null} */
+    const nextBtn = carousel.querySelector("[data-card-next]");
+
+    if (!viewport || !track) return;
+
+    const prefersReduced = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+
+    const intervalAttr = carousel.getAttribute("data-interval-ms");
+    const INTERVAL_MS = intervalAttr ? Number(intervalAttr) : 2800;
+
+    // Ensure slotted children get the item class
+    Array.from(track.children).forEach((el) => {
+      if (el instanceof HTMLElement) el.classList.add("card-carousel__item");
+    });
+
+    /** @type {HTMLElement[]} */
+    const baseItems = Array.from(track.children).filter(
+      (el) => el instanceof HTMLElement,
+    );
+
+    if (baseItems.length < 2) return;
+
+    /** @returns {number} */
+    const getGapPx = () => {
+      const cs = getComputedStyle(track);
+      const g = cs.columnGap || cs.gap || "0px";
+      const n = Number.parseFloat(g);
+      return Number.isFinite(n) ? n : 0;
+    };
+
+    /** @returns {number} */
+    const getStepPx = () => {
+      const item = baseItems[0];
+      const w = item.getBoundingClientRect().width;
+      return w + getGapPx();
+    };
+
+    /** @returns {number} */
+    const getVisibleCount = () => {
+      const step = getStepPx();
+      if (step <= 0) return 1;
+      // enough clones so the “peek” never shows empty space
+      return Math.min(
+        baseItems.length,
+        Math.ceil(viewport.clientWidth / step) + 1,
+      );
+    };
+
+    /** @param {number} left */
+    const scrollToLeft = (left) => {
+      track.scrollTo({ left, behavior: prefersReduced ? "auto" : "smooth" });
+    };
+
+    /** @param {number} left */
+    const jumpToLeft = (left) => {
+      const prevBehavior = track.style.scrollBehavior;
+      track.style.scrollBehavior = "auto";
+      track.scrollLeft = left;
+      track.style.scrollBehavior = prevBehavior;
+    };
+
+    // ---- Infinite setup via clones ----
+    const cloneCount = getVisibleCount();
+
+    /** @type {HTMLElement[]} */
+    const headClones = [];
+    /** @type {HTMLElement[]} */
+    const tailClones = [];
+
+    // last N to front
+    for (let i = 0; i < cloneCount; i++) {
+      const src =
+        baseItems[
+          (baseItems.length - cloneCount + i + baseItems.length) %
+            baseItems.length
+        ];
+      const c = /** @type {HTMLElement} */ (src.cloneNode(true));
+      c.setAttribute("data-clone", "true");
+      headClones.push(c);
+    }
+
+    // first N to end
+    for (let i = 0; i < cloneCount; i++) {
+      const src = baseItems[i % baseItems.length];
+      const c = /** @type {HTMLElement} */ (src.cloneNode(true));
+      c.setAttribute("data-clone", "true");
+      tailClones.push(c);
+    }
+
+    headClones.forEach((c) => track.insertBefore(c, track.firstChild));
+    tailClones.forEach((c) => track.appendChild(c));
+
+    // Measure after clones exist
+    const stepPx = getStepPx();
+    const headWidth = stepPx * cloneCount;
+    const count = baseItems.length;
+    const baseWidth = stepPx * count;
+
+    /**
+     * Real positions live in:
+     *   [headWidth, headWidth + baseWidth)
+     * Tail-clone “one step forward” position is:
+     *   headWidth + baseWidth  (visually identical to headWidth)
+     */
+    let index = 0;
+
+    /**
+     * @param {number} i
+     * @returns {number}
+     */
+    const leftForIndex = (i) => headWidth + i * stepPx;
+
+    // Start at first real card
+    jumpToLeft(leftForIndex(index));
+
+    // Wrap normalization — keeps motion direction continuous
+    const normalizeIfNeeded = () => {
+      const left = track.scrollLeft;
+
+      // If we moved one step into the right clone band, snap to real start
+      if (left >= headWidth + baseWidth - stepPx * 0.25) {
+        index = 0;
+        jumpToLeft(leftForIndex(index));
+        return;
+      }
+
+      // If we moved one step into the left clone band, snap to real end
+      if (left <= headWidth - stepPx * 0.75) {
+        index = count - 1;
+        jumpToLeft(leftForIndex(index));
+      }
+    };
+
+    const goNext = () => {
+      // If at the end, scroll ONE step forward into tail clone (no reverse),
+      // then normalization will snap invisibly to the real start.
+      if (index === count - 1) {
+        scrollToLeft(headWidth + baseWidth);
+        index = 0;
+        return;
+      }
+
+      index += 1;
+      scrollToLeft(leftForIndex(index));
+    };
+
+    const goPrev = () => {
+      // If at the start, scroll ONE step backward into head clone,
+      // then normalization will snap invisibly to the real end.
+      if (index === 0) {
+        scrollToLeft(headWidth - stepPx);
+        index = count - 1;
+        return;
+      }
+
+      index -= 1;
+      scrollToLeft(leftForIndex(index));
+    };
+
+    // Keep index reasonably in sync if user drags/scrolls
+    const syncIndexFromScroll = () => {
+      const raw = track.scrollLeft - headWidth;
+      const approx = Math.round(raw / stepPx);
+
+      // approx can be -1 (head clone) or count (tail clone)
+      if (approx < 0) {
+        index = count - 1;
+      } else if (approx >= count) {
+        index = 0;
+      } else {
+        index = approx;
+      }
+    };
+
+    /** @type {ReturnType<typeof globalThis.setInterval> | undefined} */
+    let timer;
+
+    /** @type {ReturnType<typeof globalThis.setTimeout> | undefined} */
+    let settleTimeout;
+
+    const start = () => {
+      if (prefersReduced) return;
+      if (timer !== undefined) return;
+      timer = globalThis.setInterval(goNext, INTERVAL_MS);
+    };
+
+    const pause = () => {
+      if (timer === undefined) return;
+      globalThis.clearInterval(timer);
+      timer = undefined;
+    };
+
+    const settleSoon = () => {
+      if (settleTimeout !== undefined) globalThis.clearTimeout(settleTimeout);
+      settleTimeout = globalThis.setTimeout(
+        () => {
+          settleTimeout = undefined;
+          // After scroll settles, normalize (snap without animation)
+          normalizeIfNeeded();
+          syncIndexFromScroll();
+          start();
+        },
+        prefersReduced ? 0 : 140,
+      );
+    };
+
+    prevBtn?.addEventListener("click", () => {
+      pause();
+      goPrev();
+      settleSoon();
+    });
+
+    nextBtn?.addEventListener("click", () => {
+      pause();
+      goNext();
+      settleSoon();
+    });
+
+    carousel.addEventListener("mouseenter", pause);
+    carousel.addEventListener("mouseleave", start);
+    carousel.addEventListener("focusin", pause);
+    carousel.addEventListener("focusout", start);
+
+    track.addEventListener(
+      "scroll",
+      () => {
+        pause();
+        settleSoon();
+      },
+      { passive: true },
+    );
+
+    // Resize: keep current index aligned
+    /** @type {number} */
+    let raf = 0;
+
+    window.addEventListener(
+      "resize",
+      () => {
+        if (raf) cancelAnimationFrame(raf);
+        raf = requestAnimationFrame(() => {
+          // Best effort — keep the current index aligned after layout changes
+          jumpToLeft(leftForIndex(index));
+        });
+      },
+      { passive: true },
+    );
+
+    start();
+  };
+
+  /** @type {NodeListOf<HTMLElement>} */
+  const carousels = document.querySelectorAll("[data-card-carousel]");
+  carousels.forEach(init);
+</script>
