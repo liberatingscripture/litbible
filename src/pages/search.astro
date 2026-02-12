@@ -1,6 +1,7 @@
 ---
 // src/pages/search.astro
 import SearchLayout from "../layouts/SearchLayout.astro";
+import { BOOK_ORDER } from "../data/books.js";
 
 const title = "Search | Liberation and Inclusion Translation";
 const description = "Search the Liberation & Inclusion Translation (LIT).";
@@ -25,7 +26,36 @@ const baseUrl = import.meta.env.BASE_URL || "/";
     </header>
 
     <div class="search-meta">
-      <div id="search-status" aria-live="polite"></div>
+      <!-- Sort stays in a dedicated row so it never "wraps under" the status line -->
+      <div class="search-meta__top">
+        <div class="sort-wrap" aria-label="Sort results">
+          <span class="sort-label">Sort by:</span>
+          <div class="sort-toggle">
+            <button
+              type="button"
+              class="sort-btn"
+              data-sort="relevance"
+              aria-pressed="true"
+              title="Sort by relevance"
+            >
+              Relevance
+            </button>
+            <button
+              type="button"
+              class="sort-btn"
+              data-sort="order"
+              aria-pressed="false"
+              title="Sort by book and chapter order"
+            >
+              Book order
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="search-meta__status">
+        <div id="search-status" aria-live="polite"></div>
+      </div>
     </div>
 
     <div class="group" id="group-glossary" hidden>
@@ -50,8 +80,13 @@ const baseUrl = import.meta.env.BASE_URL || "/";
     </div>
   </section>
 
-  <script type="module" is:inline define:vars={{ BASE_URL: baseUrl }}>
+  <script
+    type="module"
+    is:inline
+    define:vars={{ BASE_URL: baseUrl, BOOK_ORDER: BOOK_ORDER }}
+  >
     const base = String(BASE_URL || "/").replace(/\/?$/, "/");
+    const BOOK_ORDER_LIST = Array.isArray(BOOK_ORDER) ? BOOK_ORDER : [];
 
     const $ = (sel, root = document) => root.querySelector(sel);
 
@@ -70,6 +105,8 @@ const baseUrl = import.meta.env.BASE_URL || "/";
     const nextBtn = $("#next");
     const pagerInfo = $("#pager-info");
 
+    const sortButtons = Array.from(document.querySelectorAll("[data-sort]"));
+
     // Grab the SearchBar instance rendered by SearchLayout
     const searchRoot = document.querySelector("[data-search-root]");
     const input = $("#site-search");
@@ -83,6 +120,9 @@ const baseUrl = import.meta.env.BASE_URL || "/";
     const pageSize = 8;
     let pagefindMod = null;
     let debounceId = null;
+
+    // Cache the most recent full result set so we can re-sort without re-searching
+    let lastSearchCache = null;
 
     // Make the tools-bar SearchBar behave like "controls only"
     if (searchRoot) {
@@ -156,11 +196,15 @@ const baseUrl = import.meta.env.BASE_URL || "/";
     // URL state helpers
     function readState() {
       const params = new URLSearchParams(window.location.search);
+      const sortRaw = (params.get("sort") || "").trim().toLowerCase();
+      const sort = sortRaw === "order" ? "order" : "relevance";
+
       return {
         q: (params.get("q") || "").trim(),
         type: (params.get("type") || "").trim(),
         book: (params.get("book") || "").trim(),
         page: Math.max(1, parseInt(params.get("page") || "1", 10)),
+        sort,
       };
     }
 
@@ -178,6 +222,9 @@ const baseUrl = import.meta.env.BASE_URL || "/";
 
       if (next.page && next.page > 1) params.set("page", String(next.page));
       else params.delete("page");
+
+      if (next.sort && next.sort !== "relevance") params.set("sort", next.sort);
+      else params.delete("sort");
 
       const qs = params.toString();
       const url = qs
@@ -204,12 +251,28 @@ const baseUrl = import.meta.env.BASE_URL || "/";
       return t === "all" ? "" : t;
     }
 
+    function setActiveSort(sort) {
+      const v = sort === "order" ? "order" : "relevance";
+      for (const btn of sortButtons) {
+        const on = btn.dataset.sort === v;
+        btn.classList.toggle("is-active", on);
+        btn.setAttribute("aria-pressed", on ? "true" : "false");
+      }
+    }
+
+    function getActiveSort() {
+      const active = sortButtons.find((b) => b.classList.contains("is-active"));
+      const v = active?.dataset.sort || "relevance";
+      return v === "order" ? "order" : "relevance";
+    }
+
     function syncControlsFromUrl() {
-      const { q, type, book } = readState();
+      const { q, type, book, sort } = readState();
 
       if (input && input.value !== q) input.value = q;
       setActiveTabFromType(type);
       if (bookSelect) bookSelect.value = book;
+      setActiveSort(sort);
     }
 
     // -------- Subject parsing (PHRASES, not tokens) --------
@@ -334,24 +397,39 @@ const baseUrl = import.meta.env.BASE_URL || "/";
       return { pfQuery: q0, exactSingleToken: false, exactToken: "" };
     }
 
-    function getSubjectRangeFromAnchors(anchors) {
-      if (!Array.isArray(anchors)) return null;
+    // ✅ Treat "meta-like hidden zones" as a UNION of ranges.
+    // NOTE: topics are no longer body-indexed, so DO NOT include pf-topics-* here.
+    function getMetaRangesFromAnchors(anchors) {
+      if (!Array.isArray(anchors)) return [];
 
       const pairs = [
         ["pf-subjects-start", "pf-subjects-end"],
-        ["pf-topics-start", "pf-topics-end"],
         ["pf-tags-start", "pf-tags-end"],
       ];
+
+      const ranges = [];
 
       for (const [startId, endId] of pairs) {
         const start = anchors.find((a) => a?.id === startId)?.location;
         const end = anchors.find((a) => a?.id === endId)?.location;
         if (typeof start === "number" && typeof end === "number") {
-          return start <= end ? { start, end } : { start: end, end: start };
+          ranges.push(
+            start <= end ? { start, end } : { start: end, end: start },
+          );
         }
       }
 
-      return null;
+      ranges.sort((a, b) => a.start - b.start);
+
+      // Merge overlaps / adjacency
+      const merged = [];
+      for (const r of ranges) {
+        const last = merged[merged.length - 1];
+        if (!last || r.start > last.end) merged.push({ ...r });
+        else last.end = Math.max(last.end, r.end);
+      }
+
+      return merged;
     }
 
     function getMatchLocations(d) {
@@ -368,20 +446,21 @@ const baseUrl = import.meta.env.BASE_URL || "/";
       return locs;
     }
 
-    function hasNonSubjectMatch(locs, subjectRange) {
-      if (!subjectRange) return true;
-      return (locs || []).some(
-        (n) => n < subjectRange.start || n > subjectRange.end,
-      );
+    function isInAnyRange(n, ranges) {
+      return (ranges || []).some((r) => n >= r.start && n <= r.end);
     }
 
-    function pickBestNonSubjectLocation(locs, subjectRange) {
+    function hasNonMetaMatch(locs, metaRanges) {
+      if (!metaRanges || metaRanges.length === 0) return true;
+      return (locs || []).some((n) => !isInAnyRange(n, metaRanges));
+    }
+
+    function pickBestNonMetaLocation(locs, metaRanges) {
       if (!Array.isArray(locs) || !locs.length) return null;
-      if (!subjectRange) return locs[0];
-      const nonSubject = locs.filter(
-        (n) => n < subjectRange.start || n > subjectRange.end,
-      );
-      return nonSubject.length ? nonSubject[0] : locs[0];
+      if (!metaRanges || metaRanges.length === 0) return locs[0];
+
+      const nonMeta = locs.filter((n) => !isInAnyRange(n, metaRanges));
+      return nonMeta.length ? nonMeta[0] : locs[0];
     }
 
     // Sometimes excerpts get polluted by meta text; keep this conservative.
@@ -444,27 +523,26 @@ const baseUrl = import.meta.env.BASE_URL || "/";
       return pagefindMod;
     }
 
-    // Build a deep link to the nearest anchor at/before the first NON-subject match.
+    // Build a deep link to the nearest anchor at/before the first NON-meta match.
     async function hrefToFirstMatch(result) {
       const d = await result.data();
 
-      const subjectRange = getSubjectRangeFromAnchors(d?.anchors);
+      const metaRanges = getMetaRangesFromAnchors(d?.anchors);
       const locs = getMatchLocations(d);
-      const chosenLoc = pickBestNonSubjectLocation(locs, subjectRange);
+      const chosenLoc = pickBestNonMetaLocation(locs, metaRanges);
 
       if (
         typeof chosenLoc !== "number" ||
         !Array.isArray(d?.anchors) ||
         d.anchors.length === 0
       ) {
-        return { url: d.url, data: d, subjectRange, locs };
+        return { url: d.url, data: d, metaRanges, locs };
       }
 
       const anchors = [...d.anchors]
         .filter((a) => {
           const id = a?.id ? String(a.id) : "";
           if (!id) return false;
-          if (id.startsWith("pf-topics-")) return false;
           if (id.startsWith("pf-tags-")) return false;
           if (id.startsWith("pf-subjects-")) return false;
           return true;
@@ -479,14 +557,63 @@ const baseUrl = import.meta.env.BASE_URL || "/";
       }
 
       const url = chosen?.id ? `${d.url}#${chosen.id}` : d.url;
-      return { url, data: d, subjectRange, locs };
+      return { url, data: d, metaRanges, locs };
+    }
+
+    // ---- Sorting: book/chapter order (optional) ----
+    function parseBookChapterFromUrl(url) {
+      try {
+        const path = new URL(url, window.location.origin).pathname;
+        const m = path.match(/^\/([0-9]?[a-z]+)(?:-(intro|\d+))?\/?$/i);
+        if (!m) return null;
+
+        const bookKey = String(m[1] || "").toLowerCase();
+        const suffix = String(m[2] || "").toLowerCase();
+
+        // Intro before chapter 1
+        let chapter = 0;
+        if (suffix && suffix !== "intro") {
+          const n = Number.parseInt(suffix, 10);
+          chapter = Number.isFinite(n) ? n : 0;
+        }
+
+        return { bookKey, chapter };
+      } catch {
+        return null;
+      }
+    }
+
+    function bookIndex(bookKey) {
+      const i = BOOK_ORDER_LIST.indexOf(bookKey);
+      return i === -1 ? 9999 : i;
+    }
+
+    function compareByBookOrder(a, b) {
+      const pa = parseBookChapterFromUrl(a?.url || "");
+      const pb = parseBookChapterFromUrl(b?.url || "");
+
+      if (!pa && !pb) return 0;
+      if (!pa) return 1;
+      if (!pb) return -1;
+
+      const ia = bookIndex(pa.bookKey);
+      const ib = bookIndex(pb.bookKey);
+      if (ia !== ib) return ia - ib;
+
+      if (pa.chapter !== pb.chapter) return pa.chapter - pb.chapter;
+
+      return String(a.url || "").localeCompare(String(b.url || ""));
+    }
+
+    function sortMaybe(items, sort) {
+      if (sort === "order") return [...items].sort(compareByBookOrder);
+      return items;
     }
 
     // ---- Glossary: show ONLY the matched term, no excerpt, no <mark> ----
     function displayQueryLabel(qRaw) {
       const q = String(qRaw || "").trim();
       if (!q) return "";
-      // If q came in quoted (because of your query rules), display clean label.
       if (isExplicitlyQuoted(q)) return q.slice(1, -1).trim();
       return q;
     }
@@ -546,7 +673,6 @@ const baseUrl = import.meta.env.BASE_URL || "/";
       }
     }
 
-    // ✅ Highlighted excerpt (<mark>) preserved for keyword matches.
     function renderKeyword(items) {
       keywordEl.innerHTML = "";
 
@@ -598,8 +724,67 @@ const baseUrl = import.meta.env.BASE_URL || "/";
       pagerInfo.textContent = `Page ${page} of ${pages}`;
     }
 
+    function renderFromCache() {
+      const { page, sort } = readState();
+      if (!lastSearchCache) return;
+
+      const {
+        displayQ,
+        glossaryMatches,
+        subjectMatchesRaw,
+        keywordMatchesRaw,
+        qPhrase,
+      } = lastSearchCache;
+
+      const subjectMatches = sortMaybe(subjectMatchesRaw, sort);
+      const keywordMatchesAll = sortMaybe(keywordMatchesRaw, sort);
+
+      const glossaryCount = glossaryMatches.length;
+      const subjectCount = subjectMatches.length;
+      const keywordTotal = keywordMatchesAll.length;
+      const matchTotal = glossaryCount + subjectCount + keywordTotal;
+
+      setStatus(
+        `Searching for “${displayQ}” · ${matchTotal} match${
+          matchTotal === 1 ? "" : "es"
+        } (${glossaryCount} glossary, ${subjectCount} subject, ${keywordTotal} keyword)`,
+      );
+
+      // Only show glossary/subject on page 1
+      const showMetaBuckets = page === 1;
+
+      if (showMetaBuckets && glossaryCount) {
+        groupGlossary.hidden = false;
+        renderGlossary(glossaryMatches.slice(0, 50), qPhrase);
+      } else {
+        groupGlossary.hidden = true;
+        glossaryEl.innerHTML = "";
+      }
+
+      if (showMetaBuckets && subjectCount) {
+        groupSubject.hidden = false;
+        renderSubject(subjectMatches.slice(0, 50));
+      } else {
+        groupSubject.hidden = true;
+        subjectEl.innerHTML = "";
+      }
+
+      const start = (page - 1) * pageSize;
+      const keywordSlice = keywordMatchesAll.slice(start, start + pageSize);
+
+      if (keywordTotal) {
+        groupKeyword.hidden = false;
+        renderKeyword(keywordSlice);
+      } else {
+        groupKeyword.hidden = true;
+        keywordEl.innerHTML = "";
+      }
+
+      setPager(keywordTotal, page);
+    }
+
     async function runFullSearch() {
-      const { q, type, book, page } = readState();
+      const { q, type, book } = readState();
       const displayQ = displayQueryLabel(q);
 
       if (!q) {
@@ -611,10 +796,10 @@ const baseUrl = import.meta.env.BASE_URL || "/";
         subjectEl.innerHTML = "";
         keywordEl.innerHTML = "";
         setPager(0, 1);
+        lastSearchCache = null;
         return;
       }
 
-      // Keep it simple while searching; final status line will replace this.
       setStatus(`Searching for “${displayQ}”…`);
 
       const pagefind = await loadPagefind();
@@ -630,17 +815,14 @@ const baseUrl = import.meta.env.BASE_URL || "/";
         Object.keys(filters).length ? { filters } : undefined,
       );
 
-      const total = search.results.length;
-
-      // Resolve ALL (we need glossary bucket + subject counts + keyword filtering)
       const resolvedAll = await Promise.all(
         search.results.map((r) => hrefToFirstMatch(r)),
       );
 
-      const allData = resolvedAll.map(({ url, data, subjectRange, locs }) => ({
+      const allData = resolvedAll.map(({ url, data, metaRanges, locs }) => ({
         ...data,
         url,
-        __subjectRange: subjectRange,
+        __metaRanges: metaRanges,
         __locs: locs,
       }));
 
@@ -654,7 +836,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
       });
 
       // 2) Subject matches (excluding glossary)
-      const subjectMatches = allData.filter((d) => {
+      const subjectMatchesRaw = allData.filter((d) => {
         if (isGlossaryUrl(d.url) || String(d?.meta?.type || "") === "glossary")
           return false;
 
@@ -669,17 +851,17 @@ const baseUrl = import.meta.env.BASE_URL || "/";
       });
 
       // 3) Keyword matches (excluding glossary)
-      const keywordMatchesAll = allData.filter((d) => {
+      const keywordMatchesRaw = allData.filter((d) => {
         if (isGlossaryUrl(d.url) || String(d?.meta?.type || "") === "glossary")
           return false;
 
-        const subjectRange =
-          d.__subjectRange || getSubjectRangeFromAnchors(d?.anchors);
+        const metaRanges =
+          d.__metaRanges || getMetaRangesFromAnchors(d?.anchors);
         const locs = d.__locs || getMatchLocations(d);
 
-        if (!hasNonSubjectMatch(locs, subjectRange)) return false;
+        // ✅ Require at least one match OUTSIDE meta ranges (subjects/tags zones, if any)
+        if (!hasNonMetaMatch(locs, metaRanges)) return false;
 
-        // For exact-only single-token searches, enforce whole-word.
         const excerptText = stripTags(d?.excerpt);
 
         if (exactSingleToken) {
@@ -695,51 +877,17 @@ const baseUrl = import.meta.env.BASE_URL || "/";
         return true;
       });
 
-      const glossaryCount = glossaryMatches.length;
-      const subjectCount = subjectMatches.length;
-      const keywordTotal = keywordMatchesAll.length;
+      // Cache the full raw lists in relevance order (Pagefind order),
+      // then render based on current sort without re-searching.
+      lastSearchCache = {
+        displayQ,
+        qPhrase,
+        glossaryMatches,
+        subjectMatchesRaw,
+        keywordMatchesRaw,
+      };
 
-      const matchTotal = glossaryCount + subjectCount + keywordTotal;
-
-      // ✅ Keep ONE status line, and keep the “old” count format:
-      setStatus(
-        `Searching for “${displayQ}” · ${matchTotal} match${
-          matchTotal === 1 ? "" : "es"
-        } (${glossaryCount} glossary, ${subjectCount} subject, ${keywordTotal} keyword)`,
-      );
-
-      // Render groups
-      if (glossaryCount) {
-        groupGlossary.hidden = false;
-        renderGlossary(glossaryMatches.slice(0, 50), qPhrase);
-      } else {
-        groupGlossary.hidden = true;
-        glossaryEl.innerHTML = "";
-      }
-
-      if (subjectCount) {
-        groupSubject.hidden = false;
-        renderSubject(subjectMatches.slice(0, 50));
-      } else {
-        groupSubject.hidden = true;
-        subjectEl.innerHTML = "";
-      }
-
-      // Paging applies to keyword matches only
-      const start = (page - 1) * pageSize;
-      const keywordSlice = keywordMatchesAll.slice(start, start + pageSize);
-
-      if (keywordTotal) {
-        groupKeyword.hidden = false;
-        renderKeyword(keywordSlice);
-      } else {
-        groupKeyword.hidden = true;
-        keywordEl.innerHTML = "";
-      }
-
-      setPager(keywordTotal, page);
-
-      // If there are zero keyword results, hide pager (setPager already handles it)
+      renderFromCache();
     }
 
     function scheduleSearch() {
@@ -757,6 +905,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
           subjectEl.innerHTML = "";
           keywordEl.innerHTML = "";
           setPager(0, 1);
+          lastSearchCache = null;
         }
       }, 180);
     }
@@ -765,10 +914,11 @@ const baseUrl = import.meta.env.BASE_URL || "/";
       const q = input ? input.value.trim() : "";
       const type = getTypeFromActiveTab();
       const book = bookSelect ? String(bookSelect.value || "") : "";
+      const sort = getActiveSort();
       const current = readState();
 
       writeState(
-        { q, type, book, page: resetPage ? 1 : current.page },
+        { q, type, book, sort, page: resetPage ? 1 : current.page },
         { push },
       );
 
@@ -803,10 +953,33 @@ const baseUrl = import.meta.env.BASE_URL || "/";
       );
     }
 
+    // ✅ Sort toggle: re-render the already-computed results (no re-search, no reset)
+    sortButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const v = btn.dataset.sort === "order" ? "order" : "relevance";
+        const s = readState();
+
+        setActiveSort(v);
+        writeState({ ...s, sort: v }, { push: true });
+
+        if (lastSearchCache) {
+          renderFromCache();
+        } else {
+          scheduleSearch();
+        }
+      });
+    });
+
     function setPage(n) {
       const s = readState();
       writeState({ ...s, page: n }, { push: true });
-      scheduleSearch();
+
+      if (lastSearchCache) {
+        renderFromCache();
+      } else {
+        scheduleSearch();
+      }
+
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
@@ -822,7 +995,9 @@ const baseUrl = import.meta.env.BASE_URL || "/";
 
     window.addEventListener("popstate", () => {
       syncControlsFromUrl();
-      scheduleSearch();
+
+      if (lastSearchCache) renderFromCache();
+      else scheduleSearch();
     });
   </script>
 </SearchLayout>
@@ -853,7 +1028,62 @@ const baseUrl = import.meta.env.BASE_URL || "/";
     padding: 0 16px;
     color: rgba(29, 35, 28, 0.8);
     font-size: 0.95rem;
+  }
+
+  /* Toggle row is always its own line; status lives below. No dancing. */
+  .search-meta__top {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    min-height: 40px;
+  }
+
+  .search-meta__status {
     text-align: center;
+    margin-top: 6px;
+  }
+
+  .sort-wrap {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .sort-label {
+    font-size: 0.9rem;
+    color: rgba(29, 35, 28, 0.75);
+    white-space: nowrap;
+  }
+
+  .sort-toggle {
+    display: inline-flex;
+    gap: 0;
+    border-radius: 999px;
+    overflow: hidden;
+    border: 1px solid rgba(29, 35, 28, 0.18);
+    background: rgba(255, 255, 255, 0.7);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+  }
+
+  .sort-btn {
+    appearance: none;
+    border: none;
+    background: transparent;
+    padding: 8px 12px;
+    font-size: 0.9rem;
+    color: rgba(29, 35, 28, 0.9);
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .sort-btn.is-active {
+    background: rgba(32, 157, 80, 0.16);
+    color: rgba(29, 35, 28, 1);
+  }
+
+  .sort-btn:focus-visible {
+    outline: 3px solid rgba(32, 157, 80, 0.55);
+    outline-offset: 2px;
   }
 
   .group {
@@ -1001,6 +1231,37 @@ const baseUrl = import.meta.env.BASE_URL || "/";
   .pager-info {
     color: rgba(29, 35, 28, 0.8);
     font-size: 0.95rem;
+  }
+
+  /* Force pager buttons: green by default; black + lift on hover */
+  .search-page .pager .pager-btn {
+    background-color: var(--green, #209d50) !important;
+    color: var(--white, #fff) !important;
+    border: none !important;
+
+    transition:
+      background-color 0.18s ease,
+      transform 0.18s ease,
+      box-shadow 0.18s ease;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .search-page .pager .pager-btn:hover:not(:disabled) {
+      background-color: var(--ink, #1d231c) !important;
+      transform: translateY(-1px);
+      box-shadow: 0 12px 22px rgba(0, 0, 0, 0.22);
+    }
+  }
+
+  .search-page .pager .pager-btn:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.18);
+  }
+
+  .search-page .pager .pager-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
   }
 
   [hidden] {

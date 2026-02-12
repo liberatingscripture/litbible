@@ -10,7 +10,7 @@ topics:
 
 The Gospel of Matthew presents Jesus as the fulfillment of Hebrew scriptures and a teacher of wisdom, deeply rooted in the Jewish tradition yet radical in his message of inclusion and liberation. Often referred to as the "teacher's Gospel," Matthew unfolds in a deliberate structure, with extended discourses attributed to Jesus that shape the narrative around his vision for the Reign of God—a community centered on justice, mercy, and faithfulness. The book speaks directly to a Jewish audience, positioning Jesus as the new Moses who reinterprets the Torah in the tradition of Isaiah and other prophets to emphasize love, equity, and restorative justice.
 
-<h2>Main Themes:</h2>
+<h2>Main Themes</h2>
 <ol>
 <li>
 <strong>The Heavenly Reign</strong>: The concept of the Heavenly Reign (called God’s Reign in Mark and Luke) appears frequently, signaling God's inbreaking presence that challenges societal hierarchies. Through parables, healings, and teachings, Jesus illustrates a community where humility, mercy, and compassion replace status and domination.
@@ -25,7 +25,7 @@ The Gospel of Matthew presents Jesus as the fulfillment of Hebrew scriptures and
 <strong>Inclusion and the Call to Discipleship</strong>: The Gospel portrays Jesus calling students from varied backgrounds, extending the invitation to participate in the Heavenly Reign across social and cultural boundaries. His instructions on letting go of debts, peacemaking, and humility serve as guiding principles for followers, highlighting a call to community that upholds those with the lowest social status and least respect in society. 
 </li>
 </ol>
-<h2>Structure:</h2>
+<h2>Structure</h2>
 
 Matthew is organized in what is called a “chiastic” structure. Hebrew writers often structured documents with mirrored passages that started with bookends and worked their way toward a central, pivotal section which is the only one without a mirrored counterpart. That central section holds the essential point of the whole document. In this case it’s Matthew 15:1-28. The following chart shows the mirrored passages and pivotal section.
 
@@ -40,7 +40,7 @@ Matthew is organized in what is called a “chiastic” structure. Hebrew writer
   </figcaption>
 </figure>
 
-<h2>Key Passages:</h2>
+<h2>Key Passages</h2>
 
 <ul>
 <li>
@@ -60,6 +60,6 @@ Matthew is organized in what is called a “chiastic” structure. Hebrew writer
 </li>
 </ul>
 
-<h2>Takeaways on Liberation and Inclusion:</h2>
+<h2>Takeaways on Liberation and Inclusion</h2>
 
 Matthew’s Gospel conveys a message of liberation that extends God’s love and justice to all people. Jesus’ ministry among those on society’s margins and his teachings on restoration, mercy, and compassion reveal a vision for a world transformed by love. Through parables and discourses, Jesus confronts systems of privilege and power, challenging his followers to build communities that reflect God’s justice and kindness. The call to care for the "least of these" as an expression of devotion highlights a deep commitment to inclusivity and restorative justice, making Matthew's Gospel a profound narrative of liberation and compassion.

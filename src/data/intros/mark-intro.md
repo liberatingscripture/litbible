@@ -10,7 +10,7 @@ topics:
 
 The Gospel of Mark is considered the earliest and one of the most concise accounts of Jesus' life and ministry, emphasizing action, urgency, and the mystery of Jesus' identity. Written in a dynamic narrative style, the book unfolds rapidly, moving from one event to another, presenting Jesus as the suffering servant and emphasizing the Reign of God as a countercultural force that upends the world's power structures.
 
-<h2>Main Themes:</h2>
+<h2>Main Themes</h2>
 <ol>
 <li>
 <strong>The Reign of God</strong>: Central to Mark's message is the announcement of God's Reign (traditionally "Kingdom"), which challenges oppressive systems. Jesus' teachings, healings, and exorcisms reveal a new way of being, where social barriers are dismantled and marginalized people are included.
@@ -26,7 +26,7 @@ The Gospel of Mark is considered the earliest and one of the most concise accoun
 </li>
 </ol>
 
-<h2>Structure:</h2>
+<h2>Structure</h2>
 
 Mark's Gospel can be broken into two broad sections:
 
@@ -39,7 +39,7 @@ Mark's Gospel can be broken into two broad sections:
 </li>
 </ul>
 
-<h2>Key Passages:</h2>
+<h2>Key Passages</h2>
 
 <ul>
 <li>
@@ -53,6 +53,6 @@ Mark's Gospel can be broken into two broad sections:
 </li>
 </ul>
 
-<h2>Takeaways on Liberation and Inclusion:</h2>
+<h2>Takeaways on Liberation and Inclusion</h2>
 
 Mark’s Gospel is deeply concerned with the liberation of the oppressed. Jesus’ actions, such as healing the sick and confronting religious and political elites, demonstrate a vision of the Reign of God that centers those who are marginalized by society. His inclusion of people who deviate and outsiders in his community, and his critique of wealth and power, reveal a message of radical inclusion and social justice.

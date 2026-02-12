@@ -12,7 +12,7 @@ The letter to the Romans is a pastoral message addressed to the early Christian 
 
 At its core, Romans is not about moral behavior or the remedy for deviation (traditionally, ‘sin’), but about the radical inclusivity of the Christ community. Anyone perpetuating a teaching that detracts from that message or seeks to exclude any group of people is framed incurs this message from Paul: “God’s name is being slandered by you among the other peoples” (Romans 2:24). Paul highlights that all people, regardless of their personal histories or external markers, are worthy of belonging and the gifts that flow from this shared identity in Christ.
 
-<h2>Main Themes:</h2>
+<h2>Main Themes</h2>
 <ul>
 <li>
 <strong>Belonging in the Christ Community:</strong>
@@ -40,7 +40,7 @@ While the letter is not primarily about belonging based in moral behavior (or ev
 </li>
 </ul>
 
-<h2>Structure:</h2>
+<h2>Structure</h2>
 
 Romans unfolds in a deliberate progression that moves from an introductory thought and several explanations aimed at helping the audience understand the main point to practical areas of life where he explores the ways that point can be lived out in real ways:
 
@@ -71,7 +71,7 @@ Paul shifts to guiding practical responses, urging the community to live out the
 </li>
 </ol>
 
-<h2>Key Passages:</h2>
+<h2>Key Passages</h2>
 
 <ul>
 <li>
@@ -92,7 +92,7 @@ Paul shifts to guiding practical responses, urging the community to live out the
 </li>
 </ul>
 
-<h2>Takeaways on Liberation and Inclusion:</h2>
+<h2>Takeaways on Liberation and Inclusion</h2>
 
 Romans calls the church to embody the radical inclusivity of the Triumphant Message (traditionally, ‘gospel’), where all people are welcomed and valued. Paul rejects any basis for belonging rooted in external markers like ethnicity, obedience to rules, or social status, insisting instead that God’s generosity creates a community of belonging open to everyone.
 

@@ -21,7 +21,7 @@ const {
    */
   book,
   chapter,
-  type = "search",
+  type = "scripture",
 
   /**
    * scripture topics/tags (array or string)
@@ -44,7 +44,7 @@ const {
 
 const pagefindBook = book ?? "";
 const pagefindChapter = chapter ?? "";
-const pagefindType = type ?? "search";
+const pagefindType = type ?? "scripture";
 
 /**
  * Normalize topics so Pagefind gets a phrase-preserving string.
@@ -66,16 +66,6 @@ const topicsString = topicsArray
   : typeof topics === "string"
     ? topics.replace(/\u00A0/g, " ").trim()
     : "";
-
-/**
- * Hidden indexed TOPIC TEXT (not meta) so subject searches can find pages
- * even when the topic phrase never appears in visible scripture text.
- *
- * IMPORTANT: preserve phrases. DO NOT split on whitespace.
- * We separate phrases with semicolons so Pagefind treats them as distinct,
- * while multi-word phrases remain intact for exact-phrase queries.
- */
-const topicsIndexString = topicsArray ? topicsArray.join(" ; ") : topicsString;
 
 const shouldIndex =
   typeof indexProp === "boolean" ? indexProp : pagefindType !== "search";
@@ -159,8 +149,7 @@ if (headerKind === "chapter") {
       {
         /* =========================================================
          Pagefind meta fields (TEXT-based, not <meta content="...">)
-         NOTE: These MUST be ignored for body indexing, or topics leak into
-         keyword search results.
+         NOTE: These MUST be ignored for body indexing.
          ========================================================= */
       }
       {
@@ -214,17 +203,6 @@ if (headerKind === "chapter") {
                 data-pagefind-ignore
               >
                 {topicsString}
-              </span>
-            ) : null}
-
-            {/* ✅ Hidden-but-indexed CONTENT for topic searching.
-                We mark the "topic-only zone" so JS can exclude keyword hits
-                where match locations land entirely inside this zone. */}
-            {topicsIndexString ? (
-              <span class="pf-topics" aria-hidden="true">
-                <span id="pf-topics-start" />
-                {topicsIndexString}
-                <span id="pf-topics-end" />
               </span>
             ) : null}
           </>
@@ -297,18 +275,6 @@ if (headerKind === "chapter") {
 
       /* Hidden-but-indexed metadata for Pagefind */
       .pf-meta {
-        position: absolute;
-        left: -9999px;
-        width: 1px;
-        height: 1px;
-        overflow: hidden;
-        white-space: nowrap;
-      }
-
-      /* Hidden-but-indexed CONTENT so topic queries can match pages.
-         The JS uses pf-topics-start/end in anchors[] to exclude topic-only
-         hits from Keyword matches. */
-      .pf-topics {
         position: absolute;
         left: -9999px;
         width: 1px;

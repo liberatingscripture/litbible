@@ -1,0 +1,13 @@
+{
+  "bookKey": "luke",
+  "chapter": 24,
+  "type": "scripture",
+  "title": "Luke 24",
+  "description": "Luke 24 in the Liberation and Inclusion Translation (LIT).",
+  "topics": [],
+  "paragraphs": [
+    "<figure style=\"margin: 0; text-align: center;\">\n  <img src=\"/images/writing-in-progress.webp\" alt=\"Page in progress; check back soon\" style=\"display: block; margin: 0 auto; max-width: 400px; width: 100%; height: auto;\" />\n  <figcaption style=\"margin-top: 0.5rem; font-size: 0.95em;\">\n    There once was a page still unwritten, beware,<br>\n    Still brewing up thoughts in midair.<br>\n    This page is on hold,<br>\n    But soon will unfold,<br>\n    So check back, real words will be there.\n  </figcaption>\n</figure>",
+    "<br><h2>This page is still in progress. All books except Acts and Revelation are currently available. Check back soon!</h2>"
+  ],
+  "footnotes": []
+}

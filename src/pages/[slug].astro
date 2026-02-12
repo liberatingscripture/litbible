@@ -115,6 +115,8 @@ function injectHyphenWordbreaks(html: string): string {
   return out;
 }
 
+// This route only serves chapter pages now.
+// Keeping the union type is harmless, but we avoid touching intro-only fields.
 type StaticPath =
   | { params: { slug: string }; props: { kind: "intro"; bookKey: string } }
   | {
@@ -135,11 +137,9 @@ export function getStaticPaths(): StaticPath[] {
   for (const [bookKey, chapterCountRaw] of bookEntries) {
     const chapterCount = Number(chapterCountRaw) || 0;
 
-    paths.push({
-      params: { slug: `${bookKey}-intro` },
-      props: { kind: "intro", bookKey },
-    });
-
+    // IMPORTANT:
+    // Intros are now handled by /[book]-intro.astro, so DO NOT generate them here.
+    // This prevents collisions like /matthew-intro between /[slug] and /[book]-intro.
     for (let ch = 1; ch <= chapterCount; ch++) {
       paths.push({
         params: { slug: `${bookKey}-${ch}` },
@@ -158,26 +158,33 @@ export function getStaticPaths(): StaticPath[] {
 
 const props = Astro.props as StaticPath["props"];
 
-const chapterData = props.kind === "chapter" ? getChapter(props.slug) : null;
+// Guard: if someone somehow hits /whatever-intro via this route,
+// we don't want to try to load a chapter JSON file.
+const paramSlug =
+  typeof Astro.params?.slug === "string" ? Astro.params.slug : "";
+const isIntroSlug = paramSlug.endsWith("-intro");
+
+// Safe helper for places where you want a string even though props is a union.
+const chapterSlug = props.kind === "chapter" ? props.slug : "";
+
+const chapterData =
+  props.kind === "chapter" && !isIntroSlug ? getChapter(props.slug) : null;
 
 const topics = Array.isArray(chapterData?.topics) ? chapterData!.topics : [];
 
 const normalizedBookKey = normalizeBookKey(props.bookKey);
 const bookName = humanBookName(normalizedBookKey);
 
-const title =
-  props.kind === "intro"
-    ? `${bookName} — Introduction | Liberation and Inclusion Translation`
-    : chapterData?.title
-      ? `${chapterData.title} | Liberation and Inclusion Translation`
-      : `${bookName} ${props.chapter} | Liberation and Inclusion Translation`;
+const chapterNumberLabel =
+  props.kind === "chapter" ? String(props.chapter) : "";
 
-const description =
-  props.kind === "intro"
-    ? `Introduction to ${bookName} in the Liberation and Inclusion Translation (LIT).`
-    : chapterData?.description
-      ? chapterData.description
-      : `${bookName} ${props.chapter} in the Liberation and Inclusion Translation (LIT).`;
+const title = chapterData?.title
+  ? `${chapterData.title} | Liberation and Inclusion Translation`
+  : `${bookName} ${chapterNumberLabel} | Liberation and Inclusion Translation`;
+
+const description = chapterData?.description
+  ? chapterData.description
+  : `${bookName} ${chapterNumberLabel} in the Liberation and Inclusion Translation (LIT).`;
 
 const paragraphsRaw = Array.isArray(chapterData?.paragraphs)
   ? chapterData!.paragraphs
@@ -209,7 +216,7 @@ let nextCta: { href: string; label: string } | null = null;
 if (props.kind === "chapter") {
   const n = props.chapter;
 
-  // Previous: chapter 1 goes to Intro
+  // Previous: chapter 1 goes to Intro (owned by /[book]-intro)
   if (n === 1) {
     prevCta = {
       href: `/${normalizedBookKey}-intro`,
@@ -224,7 +231,7 @@ if (props.kind === "chapter") {
 
   // Next:
   // - Normal chapters: go to next chapter
-  // - Final chapter: go to next book intro (e.g., Matthew 28 -> Mark Intro)
+  // - Final chapter: go to next book intro
   if (typeof chaptersInBook === "number" && n < chaptersInBook) {
     nextCta = {
       href: `/${normalizedBookKey}-${n + 1}`,
@@ -247,17 +254,18 @@ if (props.kind === "chapter") {
   title={title}
   description={description}
   book={props.bookKey}
-  chapter={props.kind === "intro" ? "intro" : props.chapter}
-  type={props.kind === "intro" ? "intro" : "scripture"}
+  chapter={props.kind === "chapter" ? props.chapter : "?"}
+  type="scripture"
   topics={topics}
 >
   {
-    props.kind === "intro" ? (
+    isIntroSlug ? (
       <article class="chapter">
-        {/* H1 is provided by <ScriptureHeader /> in ScriptureLayout */}
-
         <div class="intro">
-          <p>(Intro content goes here.)</p>
+          <p>
+            This page is an introduction, and it’s rendered by the dedicated
+            <code> /[book]-intro </code> route.
+          </p>
         </div>
       </article>
     ) : (
@@ -335,15 +343,15 @@ if (props.kind === "chapter") {
               </section>
             ) : null}
 
-            {/* Back to top */}
-            <div class="back-to-top">
+            {/* Back to top (excluded from Pagefind indexing + excerpts) */}
+            <div class="back-to-top" data-pagefind-ignore>
               <a class="back-to-top__link" href="#chapter-title">
                 Back to top ↑
               </a>
             </div>
           </>
         ) : (
-          <p>(No chapter data yet. Add src/data/chapters/{props.slug}.json)</p>
+          <p>(No chapter data yet. Add src/data/chapters/{chapterSlug}.json)</p>
         )}
       </article>
     )
@@ -536,8 +544,8 @@ if (props.kind === "chapter") {
       text-decoration: none;
 
       background: var(--green, #209d50);
-      color: var(--ink, #1d231c);
-      font-weight: 800;
+      color: var(--white, #fff);
+      font-weight: 600;
 
       box-shadow: 0 10px 22px rgba(0, 0, 0, 0.14);
 

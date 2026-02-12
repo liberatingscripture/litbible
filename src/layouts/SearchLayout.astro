@@ -23,7 +23,7 @@ const {
   type = "search",
 
   /**
-   * NEW: Scripture topics/tags (array or string)
+   * Scripture topics/tags (array or string)
    * Emitted to Pagefind meta as "topics"
    */
   topics,
@@ -61,7 +61,13 @@ const shouldIndex =
 const isSearchPage = pagefindType === "search";
 ---
 
-<Layout title={title} description={description} canonical={canonical} bg={bg}>
+<Layout
+  title={title}
+  description={description}
+  canonical={canonical}
+  bg={bg}
+  index={shouldIndex}
+>
   <slot slot="head" name="head" />
 
   <div class={`scripture-layout scripture-layout--${pagefindType}`}>
@@ -200,9 +206,10 @@ const isSearchPage = pagefindType === "search";
             rel="noopener noreferrer"
             target="_blank"
           >
-            https://creativecommons.org/licenses/by/4.0/</a
-          >. This translation constitutes an adaptation of that Greek text. Used
-          with permission.
+            https://creativecommons.org/licenses/by/4.0/
+          </a>
+          . This translation constitutes an adaptation of that Greek text. Used with
+          permission.
         </p>
         <p>
           Greek quotations are presented in transliterated form; accentuation

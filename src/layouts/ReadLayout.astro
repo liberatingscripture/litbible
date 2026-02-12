@@ -8,6 +8,12 @@ type Props = {
   description?: string;
   bg?: "cream" | "white" | "ink";
   showTools?: boolean;
+
+  /**
+   * If false, keep this page OUT of Pagefind indexing.
+   * Default: true for reading pages.
+   */
+  index?: boolean;
 };
 
 const {
@@ -15,10 +21,11 @@ const {
   description = "",
   bg = "cream",
   showTools = true,
+  index = true,
 } = Astro.props as Props;
 ---
 
-<Layout title={title} description={description} bg={bg}>
+<Layout title={title} description={description} bg={bg} index={index}>
   <main class="read-layout">
     <header class="read-layout__hero">
       <slot name="hero" />
