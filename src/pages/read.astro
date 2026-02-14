@@ -8,8 +8,14 @@ const description =
   "Read the Liberation and Inclusion Translation (LIT) online.";
 ---
 
-<ReadLayout title={title} description={description} bg="cream" showTools={true}>
-  <header slot="hero" class="read-hero">
+<ReadLayout
+  title={title}
+  description={description}
+  bg="cream"
+  showTools={true}
+  index={false}
+>
+  <div slot="hero" class="read-hero">
     <img
       class="read-logo"
       src="/images/lit-logo.png"
@@ -29,7 +35,7 @@ const description =
       comments, or insights?
       <a href="/contact">Drop me a line</a>.
     </p>
-  </header>
+  </div>
 
   <section class="license-band" aria-labelledby="license-heading">
     <div class="license-band__inner">
@@ -46,11 +52,11 @@ const description =
           <a href="https://litbible.net" class="license-card__link">
             The Liberation and Inclusion Translation of the Bible (LIT)™
           </a>
-          © 2024 by
+          © 2024 by{" "}
           <a href="/about" class="license-card__link">
             Brandon C. Vélez Johnson
-          </a>
-          is licensed under
+          </a>{" "}
+          is licensed under{" "}
           <a
             href="http://creativecommons.org/licenses/by-nc-nd/4.0/?ref=chooser-v1"
             class="license-card__link"
@@ -70,7 +76,7 @@ const description =
 
         <ol class="license-card__list">
           <li>
-            <strong>Attribution</strong> — You must give
+            <strong>Attribution</strong> — You must give{" "}
             <a
               href="https://creativecommons.org/licenses/by-nc-nd/4.0/?ref=chooser-v1#ref-appropriate-credit"
               class="license-card__link"
@@ -79,7 +85,7 @@ const description =
             >
               appropriate credit
             </a>
-            , provide a link to the license, and
+            , provide a link to the license, and{" "}
             <a
               href="https://creativecommons.org/licenses/by-nc-nd/4.0/?ref=chooser-v1#ref-indicate-changes"
               class="license-card__link"
@@ -93,7 +99,7 @@ const description =
 
           <li>
             <strong>NonCommercial Use Only</strong> — You may not use the material
-            for
+            for{" "}
             <a
               href="https://creativecommons.org/licenses/by-nc-nd/4.0/?ref=chooser-v1#ref-commercial-purposes"
               class="license-card__link"
@@ -106,7 +112,7 @@ const description =
           </li>
 
           <li>
-            <strong>No Derivatives</strong> — If you
+            <strong>No Derivatives</strong> — If you{" "}
             <a
               href="https://creativecommons.org/licenses/by-nc-nd/4.0/?ref=chooser-v1#ref-some-kinds-of-mods"
               class="license-card__link"
@@ -114,7 +120,7 @@ const description =
               rel="noopener"
             >
               remix, transform, or build upon
-            </a>
+            </a>{" "}
             the material, you may not distribute the modified material.
           </li>
         </ol>
@@ -123,9 +129,9 @@ const description =
   </section>
 
   <section
+    id="sblgnt-disclaimer"
     class="scripture-disclaimer"
     aria-label="Source text and licensing notice"
-    data-pagefind-ignore
   >
     <div class="scripture-disclaimer__inner">
       <p>
@@ -144,9 +150,10 @@ const description =
           rel="noopener noreferrer"
           target="_blank"
         >
-          https://creativecommons.org/licenses/by/4.0/</a
-        >. This translation constitutes an adaptation of that Greek text. Used
-        with permission.
+          https://creativecommons.org/licenses/by/4.0/
+        </a>
+        . This translation constitutes an adaptation of that Greek text. Used with
+        permission.
       </p>
       <p>
         Greek quotations are presented in transliterated form; accentuation and

@@ -60,9 +60,14 @@ function tagKey(t: string) {
 /**
  * Index-only strings (hyphens treated as spaces):
  * This is what Pagefind will use for matching.
+ *
+ * NOTE: We intentionally index ONLY:
+ * - Title (keyword matches)
+ * - Tags (topic matches)
+ *
+ * We do NOT index the description/dek.
  */
 const indexTitle = hyphensToSpacesForIndex(data.title);
-const indexDescription = hyphensToSpacesForIndex(pageDescriptionRaw);
 const indexTagsJoined = hyphensToSpacesForIndex(tags.join(", "));
 ---
 
@@ -90,15 +95,13 @@ const indexTagsJoined = hyphensToSpacesForIndex(tags.join(", "));
       data-pagefind-body
       data-pagefind-filter="type:article"
     >
-      {/* Index-only surface: title + description + tags */}
+      {/* Index-only surface: title + tags (NOT description) */}
       <div class="sr-only">
-        <h1 data-pagefind-meta="title">{indexTitle}</h1>
+        {/* Make title real indexable text (keyword matches) */}
+        <h1>{indexTitle}</h1>
 
-        {
-          pageDescriptionRaw && (
-            <p data-pagefind-meta="description">{indexDescription}</p>
-          )
-        }
+        {/* Optional meta mirror (handy for tooling/debug) */}
+        <span data-pagefind-meta="title">{indexTitle}</span>
 
         {
           tags.length > 0 && (

@@ -59,6 +59,12 @@ const shouldIndex =
   typeof indexProp === "boolean" ? indexProp : pagefindType !== "search";
 
 const isSearchPage = pagefindType === "search";
+
+// Let SearchBar default its active chip from the current URL (on /search only).
+const initialTypeFromUrl = isSearchPage
+  ? (Astro.url?.searchParams?.get("type") || "").trim()
+  : "";
+const baseUrl = import.meta.env.BASE_URL || "/";
 ---
 
 <Layout
@@ -85,7 +91,10 @@ const isSearchPage = pagefindType === "search";
 
             <div class="scripture-tools__center" aria-label="Search the LIT">
               {showToolsSearch ? (
-                <SearchBar variant={isSearchPage ? "inline" : "dropdown"} />
+                <SearchBar
+                  fullSearchHref={`${baseUrl}search`}
+                  defaultType={initialTypeFromUrl}
+                />
               ) : null}
             </div>
 
@@ -96,17 +105,15 @@ const isSearchPage = pagefindType === "search";
     }
 
     {
-      /* On /search we want the panel visible + in-flow (not dropdown).
-         This runs after hydration and simply removes the "hidden" state. */
+      /* On /search we want the SearchBar panel "open" and in-flow so
+         its controls (chips/book/mode) are visible as part of the page. */
       isSearchPage && showToolsSearch ? (
         <script is:inline>
           {`
             (() => {
-              const root = document.querySelector("[data-search-root]");
+              const root = document.querySelector("[data-searchbar]");
               if (!root) return;
-              root.classList.add("is-open");
-              const panel = root.querySelector("[data-search-panel]");
-              if (panel) panel.hidden = false;
+              root.dataset.open = "true";
             })();
           `}
         </script>
@@ -284,17 +291,26 @@ const isSearchPage = pagefindType === "search";
     </style>
 
     <style is:global>
-      /* /search: make the SearchBar panel behave like an in-page tray */
-      .scripture-layout--search [data-search-root] .search__panel {
+      /* /search: make SearchBar panel behave like an in-page controls tray */
+      .scripture-layout--search [data-searchbar] .searchbar__panel {
         position: static !important;
         top: auto !important;
         left: auto !important;
         right: auto !important;
         margin-top: 12px;
+        display: block !important; /* we force open via dataset; this is extra safety */
       }
 
-      /* /search: you're already on full search, so hide the link */
-      .scripture-layout--search [data-search-root] .search__more {
+      /* /search: we only want the controls (chips/book/mode), not the mini-results tray */
+      .scripture-layout--search [data-searchbar] .searchbar__status,
+      .scripture-layout--search [data-searchbar] .searchbar__jump,
+      .scripture-layout--search [data-searchbar] .searchbar__groups,
+      .scripture-layout--search [data-searchbar] .searchbar__footer {
+        display: none !important;
+      }
+
+      /* /search: you're already on full search */
+      .scripture-layout--search [data-searchbar] .searchbar__full {
         display: none !important;
       }
     </style>

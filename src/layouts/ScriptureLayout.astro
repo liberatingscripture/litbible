@@ -47,11 +47,10 @@ const pagefindChapter = chapter ?? "";
 const pagefindType = type ?? "scripture";
 
 /**
- * Normalize topics so Pagefind gets a phrase-preserving string.
- * - If topics is an array (your JSON case), we join with semicolons.
- * - If topics is a string, we assume it may already be delimited or may be a single phrase.
+ * Normalize topics into an array of exact tag strings.
+ * Keep multi-word tags intact. No joining. No slugging.
  */
-const topicsArray = Array.isArray(topics)
+const topicsList: string[] = Array.isArray(topics)
   ? topics
       .map((t) =>
         String(t)
@@ -59,13 +58,9 @@ const topicsArray = Array.isArray(topics)
           .trim(),
       )
       .filter(Boolean)
-  : null;
-
-const topicsString = topicsArray
-  ? topicsArray.join("; ")
   : typeof topics === "string"
-    ? topics.replace(/\u00A0/g, " ").trim()
-    : "";
+    ? [topics.replace(/\u00A0/g, " ").trim()].filter(Boolean)
+    : [];
 
 const shouldIndex =
   typeof indexProp === "boolean" ? indexProp : pagefindType !== "search";
@@ -196,15 +191,17 @@ if (headerKind === "chapter") {
               {String(pagefindChapter)}
             </span>
 
-            {topicsString ? (
-              <span
-                class="pf-meta"
-                data-pagefind-meta="topics"
-                data-pagefind-ignore
-              >
-                {topicsString}
-              </span>
-            ) : null}
+            {topicsList.length
+              ? topicsList.map((t) => (
+                  <span
+                    class="pf-meta"
+                    data-pagefind-meta="topics"
+                    data-pagefind-ignore
+                  >
+                    {t}
+                  </span>
+                ))
+              : null}
           </>
         ) : null
       }

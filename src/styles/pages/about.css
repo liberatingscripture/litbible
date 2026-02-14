@@ -223,6 +223,14 @@
   --toc-bar-height: 44px; /* approximate; tray closed on mobile */
 }
 
+/* Desktop: make TOC wider than the text column */
+@media (min-width: 901px) {
+  .about-toc {
+    max-width: calc(var(--content-width, 72ch) + 5ch);
+  }
+}
+
+
 /* Inner frosted panel */
 .about-toc__inner {
   background: rgba(255, 255, 255, 0.78);
