@@ -405,14 +405,34 @@
   display: none;
 }
 
-/* Kill the leftover glue-space after hidden verse numbers */
-.rm-page .rm-reader[data-rm-markers="off"] .rm-text .vglue {
+/* Kill leftover glue-space after hidden verse numbers (NON-HBQ only) */
+.rm-page
+  .rm-reader[data-rm-markers="off"]
+  .rm-text
+  p:not(.hbq-line)
+  .vglue {
   font-size: 0;
   line-height: 0;
 }
 
-/* Restore normal rendering for actual elements inside the glue */
-.rm-page .rm-reader[data-rm-markers="off"] .rm-text .vglue > * {
+/* Restore normal rendering for actual elements inside the glue (NON-HBQ only) */
+.rm-page
+  .rm-reader[data-rm-markers="off"]
+  .rm-text
+  p:not(.hbq-line)
+  .vglue
+  > * {
+  font-size: inherit;
+  line-height: inherit;
+}
+
+/* HBQ: keep the first word visible when markers are off */
+.rm-page
+  .rm-reader[data-rm-markers="off"]
+  .rm-text
+  blockquote.hbq
+  .hbq-line
+  > .vglue {
   font-size: inherit;
   line-height: inherit;
 }
