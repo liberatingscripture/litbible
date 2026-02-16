@@ -1312,12 +1312,30 @@ blockquote[id*="-p"] {
   --hbq-wrap-indent: 1.1rem;  /* extra indent for wrapped lines */
 }
 
+/* Safe fallback if hbq appears outside known scripture wrappers */
 blockquote.hbq {
-  margin: 1rem 0;
-  padding: 0;
+  margin: 0.6rem 0 0.9rem;
+  margin-left: 0.6rem;
+  padding: 0 0 0 0.95rem;
+  border-left: 2px solid rgba(29, 35, 28, 0.16);
+  font-style: normal;
+  color: inherit;
 }
 
-blockquote.hbq .hbq-line {
+/* Explicit parity targets: Read Mode + Study chapter text */
+.rm-page .rm-text blockquote.hbq,
+.chapter-paragraphs blockquote.hbq {
+  margin: 0.6rem 0 0.9rem;
+  margin-left: 0.6rem;
+  padding: 0 0 0 0.95rem;
+  border-left: 2px solid rgba(29, 35, 28, 0.16);
+  font-style: normal;
+  color: inherit;
+}
+
+blockquote.hbq .hbq-line,
+.rm-page .rm-text blockquote.hbq .hbq-line,
+.chapter-paragraphs blockquote.hbq .hbq-line {
   position: relative;
   margin: 0;
 
@@ -1329,22 +1347,27 @@ blockquote.hbq .hbq-line {
   text-indent: calc(-1 * var(--hbq-wrap-indent));
 }
 
-/* Verse marker lives in the gutter, not in the text flow */
-blockquote.hbq .hbq-line > .vglue {
-  position: absolute;
-  top: 0;
-
-  /* IMPORTANT: pull it back left by the same padding we added to the line,
-     so it sits in the gutter instead of on top of the text */
-  left: calc(-1 * (var(--hbq-vn-gutter) + var(--hbq-wrap-indent)));
-
-  width: var(--hbq-vn-gutter);
-  text-align: right;
+/* Verse marker lives in the gutter while staying glued to the first word */
+blockquote.hbq .hbq-line > .vglue,
+.rm-page .rm-text blockquote.hbq .hbq-line > .vglue,
+.chapter-paragraphs blockquote.hbq .hbq-line > .vglue {
+  position: relative;
+  display: inline;
   white-space: nowrap;
 }
 
-/* Optional: numeric stability */
-blockquote.hbq .hbq-line .vn {
+blockquote.hbq .hbq-line .vn,
+.rm-page .rm-text blockquote.hbq .hbq-line .vn,
+.chapter-paragraphs blockquote.hbq .hbq-line .vn {
+  position: absolute;
+  top: 0;
+  left: calc(-1 * (var(--hbq-vn-gutter) + var(--hbq-wrap-indent)));
+  width: var(--hbq-vn-gutter);
+  text-align: right;
+  white-space: nowrap;
+  font-size: 0.72em;
+  font-weight: 500;
+  opacity: 0.78;
   font-variant-numeric: tabular-nums;
 }
 
@@ -1402,3 +1425,6 @@ html {
 }
 
 .vglue { white-space: nowrap; }
+
+
+

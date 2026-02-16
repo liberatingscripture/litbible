@@ -1,4 +1,4 @@
-﻿---
+---
 // SearchBar.astro
 const {
   placeholder = "Search",
@@ -18,7 +18,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
 
   <!-- wrap input + button in a form so mobile can submit -->
   <form class="searchbar__form" data-searchbar-form role="search">
-    <!-- Input wrap lets us overlay â€œghostâ€ autocomplete INSIDE the input -->
+    <!-- Input wrap lets us overlay “ghost” autocomplete INSIDE the input -->
     <div class="searchbar__input-wrap">
       <input
         id="site-search-input"
@@ -29,7 +29,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
         spellcheck="false"
       />
 
-      <!-- One-option predictive â€œghostâ€ topic suggestion -->
+      <!-- One-option predictive “ghost” topic suggestion -->
       <div class="searchbar__ghost" data-ghost hidden aria-hidden="true">
         <span class="searchbar__ghost-typed" data-ghost-typed></span><span
           class="searchbar__ghost-rest"
@@ -82,7 +82,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
           </select>
         </div>
         <p class="searchbar__mode-help">
-          Topic matches use LIT’s topic index, even when the exact words aren’t
+          Topic matches use LIT's topic index, even when the exact words aren't
           in the text.
         </p>
       </div>
@@ -140,7 +140,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
         )
           continue;
 
-        const MIN_QUERY_LEN = 3; // keep your gate; 3â€“4 char queries are now exact-only
+        const MIN_QUERY_LEN = 3; // keep your gate; 3–4 char queries are now exact-only
 
         // Canonical NT order matching your ReadMenu keys
         const BOOK_ORDER = [
@@ -453,7 +453,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
         }
 
         const REF_HELP_TEXT =
-          "Type a reference like “Luke 4:18”, “John3:16”, or “Jn 3:16”.";
+          "Type a reference like \"Luke 4:18\", \"John3:16\", or \"Jn 3:16\".";
 
         function resolveBookKey(rawBookPart) {
           const alias = slugifyBookName(rawBookPart);
@@ -495,7 +495,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
 
           const cleaned = s
             .replace(/[.,;()]/g, " ")
-            .replace(/[–—−]/g, "-")
+            .replace(/[\u2013\u2014\u2212]/g, "-")
             .replace(/\s+/g, " ")
             .trim();
 
@@ -524,8 +524,8 @@ const baseUrl = import.meta.env.BASE_URL || "/";
 
         function normalizeQuotes(s) {
           return String(s || "")
-            .replace(/[â€œâ€]/g, '"')
-            .replace(/[â€˜â€™]/g, "'");
+            .replace(/[“”]/g, '"')
+            .replace(/[‘’]/g, "'");
         }
 
         function isExplicitlyQuoted(q) {
@@ -645,9 +645,27 @@ const baseUrl = import.meta.env.BASE_URL || "/";
           return `${book} ${ref.chapter}`;
         }
 
-        function makeReferenceHref(ref) {
+        function makeStudyReferenceHref(ref) {
           const base = `/${ref.bookKey}-${ref.chapter}`;
           return ref.verse ? `${base}#v${ref.verse}` : base;
+        }
+
+        function makeReadReferenceHref(ref) {
+          const base = `/read/${ref.bookKey}`;
+          const hash = ref.verse
+            ? `${ref.bookKey}-${ref.chapter}-v${ref.verse}`
+            : `ch-${ref.chapter}`;
+          return `${base}#${hash}`;
+        }
+
+        const globalRefJumpHost = globalThis;
+        if (!globalRefJumpHost.__litRefJump) {
+          globalRefJumpHost.__litRefJump = {
+            parseReference,
+            formatReferenceLabel,
+            makeStudyReferenceHref,
+            makeReadReferenceHref,
+          };
         }
 
         function parseScripturePath(hrefOrUrl) {
@@ -705,15 +723,22 @@ const baseUrl = import.meta.env.BASE_URL || "/";
             return;
           }
 
-          const href = makeReferenceHref(ref);
+          const studyHref = makeStudyReferenceHref(ref);
+          const readHref = makeReadReferenceHref(ref);
           const label = formatReferenceLabel(ref);
 
           jumpRow.hidden = false;
           jumpRow.innerHTML = `
-            <a class="searchbar__jump-link" href="${href}">
-              Jump to <strong>${label}</strong>
-              <span class="searchbar__jump-hint">Enter</span>
-            </a>
+            <div class="searchbar__jump-links">
+              <a class="searchbar__jump-link" href="${studyHref}">
+                Jump (Study Mode) to <strong>${label}</strong>
+                <span class="searchbar__jump-hint">Enter</span>
+              </a>
+              <a class="searchbar__jump-link searchbar__jump-link--read" href="${readHref}">
+                Jump (Read Mode) to <strong>${label}</strong>
+                <span class="searchbar__jump-hint">Read</span>
+              </a>
+            </div>
           `;
         }
 
@@ -918,7 +943,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
           const parsed = parseScripturePath(u);
           if (parsed) {
             const book = bookKeyToLabel(parsed.bookKey);
-            if (parsed.isIntro) return `${book} â€” Intro`;
+            if (parsed.isIntro) return `${book} — Intro`;
             return `${book} ${parsed.chapter}`;
           }
           return String(u || "");
@@ -985,7 +1010,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
             }
             if (activeBook) filters.book = [activeBook];
 
-            status.textContent = "Searchingâ€¦";
+            status.textContent = "Searching…";
             groupsEl.innerHTML = "";
 
             const qTrim = q.trim();
@@ -1198,7 +1223,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
           const ref = parseReference(q);
           if (ref) {
             if (!(activeBook && activeBook !== ref.bookKey)) {
-              window.location.href = makeReferenceHref(ref);
+              window.location.href = makeStudyReferenceHref(ref);
               return;
             }
           }
@@ -1387,7 +1412,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
 
 <!-- IMPORTANT: this CSS must be GLOBAL because search results are injected via innerHTML -->
 <style is:global>
-  /* (UNCHANGED CSS — keep exactly what you already have) */
+  /* (UNCHANGED CSS - keep exactly what you already have) */
   .sr-only {
     position: absolute;
     width: 1px;
@@ -1583,6 +1608,11 @@ const baseUrl = import.meta.env.BASE_URL || "/";
     margin: 0 0 10px;
   }
 
+  .searchbar__jump-links {
+    display: grid;
+    gap: 8px;
+  }
+
   .searchbar__jump-link {
     display: flex;
     align-items: center;
@@ -1593,6 +1623,11 @@ const baseUrl = import.meta.env.BASE_URL || "/";
     border-radius: 14px;
     background: rgba(32, 157, 80, 0.1);
     border: 1px solid rgba(32, 157, 80, 0.35);
+  }
+
+  .searchbar__jump-link--read {
+    background: rgba(29, 35, 28, 0.05);
+    border-color: rgba(29, 35, 28, 0.28);
   }
 
   .searchbar__jump-hint {

@@ -1,37 +1,9 @@
 ---
-const books = {
-  matthew: 28,
-  mark: 16,
-  luke: 24,
-  john: 21,
-  acts: 28,
-  romans: 16,
-  "1corinthians": 16,
-  "2corinthians": 13,
-  galatians: 6,
-  ephesians: 6,
-  philippians: 4,
-  colossians: 4,
-  "1thessalonians": 5,
-  "2thessalonians": 3,
-  "1timothy": 6,
-  "2timothy": 4,
-  titus: 3,
-  philemon: 1,
-  hebrews: 13,
-  james: 5,
-  "1peter": 5,
-  "2peter": 3,
-  "1john": 5,
-  "2john": 1,
-  "3john": 1,
-  jude: 1,
-  revelation: 22,
-};
+import { BOOKS as books } from "../data/books.js";
 ---
 
 <div class="read-menu-wrap">
-  <div class="read-menu" data-books={JSON.stringify(books)}>
+  <form class="read-menu" data-books={JSON.stringify(books)} novalidate>
     <label for="book-select" class="sr-only">Select a New Testament book</label>
     <select id="book-select" aria-label="Select a New Testament book">
       <option value="">Select a Book</option>
@@ -69,29 +41,73 @@ const books = {
       <option value="">Select a Chapter</option>
     </select>
 
-    <button
-      id="go-button"
-      type="button"
-      aria-label="Go to selected chapter"
-      disabled
-    >
-      Go
-    </button>
-  </div>
+    <div class="read-menu__actions">
+      <button
+        id="study-button"
+        type="submit"
+        name="mode"
+        value="study"
+        aria-label="Open selected passage in study mode"
+        disabled
+      >
+        Study
+      </button>
+
+      <button
+        id="read-button"
+        type="submit"
+        name="mode"
+        value="read"
+        aria-label="Open selected passage in reading mode"
+        disabled
+      >
+        Read
+      </button>
+    </div>
+  </form>
 
   <script is:inline>
     (() => {
       const root = document.currentScript?.previousElementSibling;
-      if (!root) return;
+      if (!(root instanceof HTMLFormElement)) return;
 
       const books = JSON.parse(root.getAttribute("data-books") || "{}");
 
       const bookSelect = root.querySelector("#book-select");
       const chapterSelect = root.querySelector("#chapter-select");
-      const goButton = root.querySelector("#go-button");
+      const studyButton = root.querySelector("#study-button");
+      const readButton = root.querySelector("#read-button");
+
+      if (
+        !(bookSelect instanceof HTMLSelectElement) ||
+        !(chapterSelect instanceof HTMLSelectElement) ||
+        !(studyButton instanceof HTMLButtonElement) ||
+        !(readButton instanceof HTMLButtonElement)
+      ) {
+        return;
+      }
 
       function slugifyBook(name) {
-        return name.toLowerCase().replace(/[^0-9a-z]/g, "");
+        return String(name)
+          .toLowerCase()
+          .replace(/[^0-9a-z]/g, "");
+      }
+
+      function buildStudyHref(bookKey, chapter) {
+        if (!bookKey || !chapter) return "";
+        if (chapter === "intro") return `/${bookKey}-intro`;
+        return `/${bookKey}-${chapter}`;
+      }
+
+      function buildReadHref(bookKey, chapter) {
+        if (!bookKey || !chapter) return "";
+        if (chapter === "intro") return buildStudyHref(bookKey, chapter);
+        return `/read/${bookKey}#ch-${chapter}`;
+      }
+
+      function setButtonsDisabled(disabled) {
+        studyButton.disabled = disabled;
+        readButton.disabled = disabled;
       }
 
       bookSelect.addEventListener("change", () => {
@@ -99,7 +115,7 @@ const books = {
 
         chapterSelect.innerHTML = '<option value="">Select a Chapter</option>';
         chapterSelect.disabled = true;
-        goButton.disabled = true;
+        setButtonsDisabled(true);
 
         if (books[key]) {
           chapterSelect.disabled = false;
@@ -119,18 +135,37 @@ const books = {
       });
 
       chapterSelect.addEventListener("change", () => {
-        goButton.disabled = !chapterSelect.value;
+        setButtonsDisabled(!chapterSelect.value);
       });
 
-      goButton.addEventListener("click", () => {
+      const submitStudyFromKeyboard = (event) => {
+        if (event.key !== "Enter") return;
+        event.preventDefault();
+        if (!studyButton.disabled) root.requestSubmit(studyButton);
+      };
+
+      bookSelect.addEventListener("keydown", submitStudyFromKeyboard);
+      chapterSelect.addEventListener("keydown", submitStudyFromKeyboard);
+
+      root.addEventListener("submit", (event) => {
+        event.preventDefault();
+
         const book = slugifyBook(bookSelect.value);
         const chapter = chapterSelect.value;
+        if (!book || !chapter) return;
 
-        let path = `/${book}`;
-        if (chapter === "intro") path += "-intro";
-        else if (chapter) path += `-${chapter}`;
+        const submitter = event.submitter;
+        const mode =
+          submitter instanceof HTMLButtonElement && submitter.value
+            ? submitter.value
+            : "study";
 
-        window.location.href = path;
+        const href =
+          mode === "read"
+            ? buildReadHref(book, chapter)
+            : buildStudyHref(book, chapter);
+
+        if (href) window.location.href = href;
       });
     })();
   </script>
@@ -157,6 +192,13 @@ const books = {
       margin-top: 2.2rem;
     }
 
+    .read-menu__actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
     .read-menu select,
     .read-menu button {
       padding: 10px;
@@ -169,6 +211,13 @@ const books = {
       transition:
         background-color 0.2s ease,
         color 0.2s ease;
+    }
+
+    .read-menu__actions button {
+      min-width: 88px;
+      padding: 6px 12px;
+      font-size: 0.9rem;
+      border-radius: 999px;
     }
 
     .read-menu select:hover:not(:disabled),
@@ -185,18 +234,28 @@ const books = {
 
     .read-menu button {
       background-color: #1d231c;
-      color: #209d50;
+      color: #ffffff;
       cursor: pointer;
     }
 
-    .read-menu button#go-button {
+    .read-menu button#study-button {
       background-color: #209d50;
       color: #ffffff;
     }
 
-    .read-menu button#go-button:hover:not(:disabled) {
+    .read-menu button#study-button:hover:not(:disabled) {
       background-color: #1d231c;
       color: #ffffff;
+    }
+
+    @media (max-width: 560px) {
+      .read-menu__actions {
+        justify-content: center;
+      }
+
+      .read-menu__actions button {
+        flex: 0 0 auto;
+      }
     }
   </style>
 </div>

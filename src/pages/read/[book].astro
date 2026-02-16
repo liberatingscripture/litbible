@@ -1,0 +1,366 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { BOOKS, BOOK_ORDER, bookKeyToLabel } from "../../data/books.js";
+import ReadMenu from "../../components/ReadMenu.astro";
+import SearchBar from "../../components/SearchBar.astro";
+import "../../styles/scripture-tools.css";
+import "../../styles/read-mode.css";
+import readModeScript from "../../scripts/read-mode.js?url";
+import { normalizeHbqVerseGlue } from "../../utils/hbq-normalize";
+
+type ChapterData = {
+  chapter?: number;
+  paragraphs?: string[];
+};
+
+type ChapterModule = { default: ChapterData };
+
+const chapterModules = import.meta.glob<ChapterModule>("../../data/chapters/*.json", {
+  eager: true,
+});
+
+const introModules = import.meta.glob("../../data/intros/*-intro.md", {
+  eager: true,
+});
+
+function removeFootnoteRefs(html: string): string {
+  return String(html || "").replace(
+    /<sup\b[^>]*class=(['"])[^'"]*\bfn-ref\b[^'"]*\1[^>]*>[\s\S]*?<\/sup>/gi,
+    "",
+  );
+}
+
+function rewriteVerseIdsAndAnchors(
+  html: string,
+  bookKey: string,
+  chapter: number,
+): string {
+  return String(html || "")
+    .replace(
+      /\bid=(['"])v(\d+)\1/gi,
+      (_match, quote: string, verse: string) =>
+        `id=${quote}${bookKey}-${chapter}-v${verse}${quote}`,
+    )
+    .replace(
+      /\bhref=(['"])#v(\d+)\1/gi,
+      (_match, quote: string, verse: string) =>
+        `href=${quote}#${bookKey}-${chapter}-v${verse}${quote}`,
+    );
+}
+
+function normalizeVerseGlue(html: string): string {
+  return String(html || "").replace(
+    /<span class="vglue">\s*(<sup\b[^>]*\bclass=(['"])[^'"]*\bvn\b[^'"]*\2[^>]*>[\s\S]*?<\/sup>)\s*(?:&nbsp;|\u00a0)\s*([\s\S]*?)<\/span>/gi,
+    (_match, sup: string, _quote: string, text: string) => {
+      const idMatch = sup.match(/\bid=(['"])([^'"]+)\1/i);
+      const verseId = idMatch?.[2] ? String(idMatch[2]) : "";
+      const safeVerseId = verseId.replace(/[^A-Za-z0-9:_-]/g, "");
+      const supWithoutId = safeVerseId
+        ? sup.replace(/\s*\bid=(['"])[^'"]*\1/i, "")
+        : sup;
+      const verseAnchor = safeVerseId
+        ? `<span class="rm-verse-anchor" id="${safeVerseId}" aria-hidden="true"></span>`
+        : "";
+
+      return `${verseAnchor}<span class="vglue">${supWithoutId}&nbsp;</span>${text}`;
+    },
+  );
+}
+
+function prepareParagraph(html: string, bookKey: string, chapter: number): string {
+  const noFootnotes = removeFootnoteRefs(html);
+  const uniqueVerseIds = rewriteVerseIdsAndAnchors(noFootnotes, bookKey, chapter);
+  return normalizeHbqVerseGlue(normalizeVerseGlue(uniqueVerseIds));
+}
+
+function getChapter(bookKey: string, chapter: number): ChapterData | null {
+  const key = `../../data/chapters/${bookKey}-${chapter}.json`;
+  return chapterModules[key]?.default ?? null;
+}
+
+function getChapterNumbers(total: number): number[] {
+  return Array.from({ length: total }, (_, i) => i + 1);
+}
+
+function getTocGroupSize(total: number): number {
+  if (total <= 10) return 0;
+  if (total <= 30) return 5;
+  return 10;
+}
+
+function buildTocGroups(total: number, size: number) {
+  if (!size) return [] as Array<{ label: string; chapters: number[] }>;
+
+  const groups: Array<{ label: string; chapters: number[] }> = [];
+  for (let start = 1; start <= total; start += size) {
+    const end = Math.min(total, start + size - 1);
+    groups.push({
+      label: `${start}-${end}`,
+      chapters: getChapterNumbers(end - start + 1).map((n) => n + start - 1),
+    });
+  }
+
+  return groups;
+}
+
+export function getStaticPaths() {
+  return BOOK_ORDER.filter(
+    (bookKey) => typeof (BOOKS as Record<string, number>)[bookKey] === "number",
+  ).map((bookKey) => ({
+    params: { book: bookKey },
+    props: { bookKey },
+  }));
+}
+
+const { bookKey } = Astro.props as { bookKey: string };
+
+const chapterTotal = Number((BOOKS as Record<string, number>)[bookKey] || 0);
+if (!chapterTotal) {
+  throw new Error(`Unknown or empty book key for /read/[book]: ${bookKey}`);
+}
+
+const bookName = bookKeyToLabel(bookKey);
+const hasIntro = Boolean(introModules[`../../data/intros/${bookKey}-intro.md`]);
+const studyIntroHref = `/${bookKey}-intro`;
+
+const chapters = getChapterNumbers(chapterTotal).map((chapter) => {
+  const chapterData = getChapter(bookKey, chapter);
+  const rawParagraphs = Array.isArray(chapterData?.paragraphs)
+    ? chapterData!.paragraphs
+    : [];
+
+  return {
+    chapter,
+    paragraphs: rawParagraphs.map((html) => prepareParagraph(html, bookKey, chapter)),
+  };
+});
+
+const tocGroupSize = getTocGroupSize(chapterTotal);
+const tocGroups = buildTocGroups(chapterTotal, tocGroupSize);
+const chapterNumbers = getChapterNumbers(chapterTotal);
+
+const title = `${bookName} (Reading Mode) | Liberation and Inclusion Translation`;
+const description = `Read ${bookName} in continuous scroll with Reading Mode.`;
+---
+
+<Layout title={title} description={description} bg="cream" index={false}>
+  <section class="scripture-tools" data-pagefind-ignore aria-label="Scripture tools">
+    <div class="scripture-tools__inner">
+      <div class="scripture-tools__left" aria-label="Jump to passage">
+        <ReadMenu />
+      </div>
+      <div class="scripture-tools__center" aria-label="Search the LIT">
+        <SearchBar fullSearchHref="/search" />
+      </div>
+      <div class="scripture-tools__right" aria-hidden="true"></div>
+    </div>
+  </section>
+
+  <section
+    class="rm-page"
+    data-rm-root
+    data-pagefind-ignore
+    data-rm-book={bookKey}
+    data-rm-book-title={bookName}
+    data-rm-has-intro={hasIntro ? "true" : "false"}
+    data-rm-study-intro-href={studyIntroHref}
+  >
+    <div class="rm-toolbar" data-rm-toolbar data-pagefind-ignore>
+      <div class="rm-toolbar__row">
+        <button
+          type="button"
+          data-rm-toc-toggle
+          aria-expanded="false"
+          aria-controls="rm-toc-panel"
+        >
+          Go to chapter
+        </button>
+
+        <button type="button" data-rm-markers-toggle aria-pressed="true">
+          Nums: On
+        </button>
+
+        <button
+          type="button"
+          data-rm-aa-toggle
+          aria-expanded="false"
+          aria-controls="rm-aa-panel"
+          aria-label="Typography controls"
+        >
+          Aa
+        </button>
+
+        <button type="button" data-rm-focus-toggle aria-pressed="false">
+          Focus: Off
+        </button>
+
+        <button type="button" data-rm-start-over>Start over</button>
+
+        <button
+          type="button"
+          class="rm-cta"
+          data-rm-study-toggle
+          aria-expanded="false"
+          aria-controls="rm-study-panel"
+        >
+          Study mode
+        </button>
+
+        <div class="rm-toolbar__meta">
+          <span class="rm-where" data-rm-where>{bookName} · Chapter 1</span>
+          <span class="rm-progress" data-rm-progress>0%</span>
+          <div class="rm-progressbar" aria-hidden="true">
+            <span data-rm-progress-bar></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="rm-resume" data-rm-resume hidden>
+        <span>Resume?</span>
+        <button type="button" data-rm-resume-yes>Resume</button>
+        <button type="button" data-rm-resume-no>Start at top</button>
+      </div>
+
+      <div class="rm-toolbar__panels">
+        <div id="rm-study-panel" class="rm-study" data-rm-study-panel hidden>
+          <a class="rm-study__option" data-rm-study-chapter-option href={`/${bookKey}-1`}>
+            This chapter
+          </a>
+          {
+            hasIntro ? (
+              <a class="rm-study__option" data-rm-study-intro-option href={studyIntroHref}>
+                Book introduction
+              </a>
+            ) : (
+              <button class="rm-study__option" type="button" disabled>
+                Book introduction
+              </button>
+            )
+          }
+        </div>
+
+        <div id="rm-toc-panel" class="rm-toc" data-rm-toc-panel hidden>
+          <div class="rm-toc__actions">
+            <button type="button" data-rm-top>Top</button>
+            <button type="button" data-rm-current>Current chapter</button>
+          </div>
+
+          <div class="rm-toc__list">
+            {
+              !tocGroupSize ? (
+                <>
+                  <p class="rm-toc__chapters-label">Chapters</p>
+                  <ol>
+                    {chapterNumbers.map((chapter) => (
+                      <li>
+                        <button
+                          type="button"
+                          data-rm-target={`ch-${chapter}`}
+                          data-rm-chapter-btn={chapter}
+                        >
+                          {chapter}
+                        </button>
+                      </li>
+                    ))}
+                  </ol>
+                </>
+              ) : (
+                <>
+                  <p class="rm-toc__chapters-label">Chapters</p>
+                  <div class="rm-toc__group-tabs" role="tablist" aria-label="Chapter groups">
+                    {tocGroups.map((group, index) => (
+                      <button
+                        type="button"
+                        role="tab"
+                        data-rm-group-tab={index}
+                        data-rm-group-start={group.chapters[0]}
+                        data-rm-group-end={group.chapters[group.chapters.length - 1]}
+                        aria-selected={index === 0 ? "true" : "false"}
+                      >
+                        {group.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  {tocGroups.map((group, index) => (
+                    <div
+                      class="rm-toc__group-panel"
+                      role="tabpanel"
+                      data-rm-group-panel={index}
+                      data-rm-group-start={group.chapters[0]}
+                      data-rm-group-end={group.chapters[group.chapters.length - 1]}
+                      hidden={index !== 0}
+                    >
+                      <ol>
+                        {group.chapters.map((chapter) => (
+                          <li>
+                            <button
+                              type="button"
+                              data-rm-target={`ch-${chapter}`}
+                              data-rm-chapter-btn={chapter}
+                            >
+                              {chapter}
+                            </button>
+                          </li>
+                        ))}
+                      </ol>
+                    </div>
+                  ))}
+                </>
+              )
+            }
+          </div>
+        </div>
+
+        <div id="rm-aa-panel" class="rm-aa" data-rm-aa-panel hidden>
+          <div class="rm-aa__group">
+            <p class="rm-aa__group-title">Font Size</p>
+            <div class="rm-aa__options">
+              <button type="button" data-rm-set="font:sm" aria-pressed="false">S</button>
+              <button type="button" data-rm-set="font:md" aria-pressed="false">M</button>
+              <button type="button" data-rm-set="font:lg" aria-pressed="false">L</button>
+            </div>
+          </div>
+
+          <div class="rm-aa__group">
+            <p class="rm-aa__group-title">Line Height</p>
+            <div class="rm-aa__options">
+              <button type="button" data-rm-set="leading:normal" aria-pressed="false">
+                Normal
+              </button>
+              <button type="button" data-rm-set="leading:roomy" aria-pressed="false">
+                Roomy
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <article class="rm-reader" data-rm-reader data-rm-markers="on" data-rm-focus="off">
+      <h1 class="rm-title">{bookName}</h1>
+
+      <div class="rm-text" data-rm-text>
+        {chapters.map(({ chapter, paragraphs }) => (
+          <>
+            <div class="rm-ch-anchor" id={`ch-${chapter}`} data-rm-chapter={chapter} aria-hidden="true"></div>
+            <h2 class="rm-chapter">
+              Chapter {chapter}
+            </h2>
+
+            {paragraphs.map((html) => (
+              <div class="rm-block" set:html={html} />
+            ))}
+          </>
+        ))}
+      </div>
+    </article>
+  </section>
+
+  <script type="module" src={readModeScript}></script>
+</Layout>
+
+
+
+
+

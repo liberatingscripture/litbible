@@ -58,7 +58,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
       </div>
 
       <!-- Optional reference jump banner (mode=ref) -->
-      <div class="search-ref" id="search-ref" hidden></div>
+      <div class="search-ref" id="search-ref" data-search-ref hidden></div>
     </div>
 
     <div class="group" id="group-glossary" hidden>
@@ -95,7 +95,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
     const $ = (sel, root = document) => root.querySelector(sel);
 
     const statusEl = $("#search-status");
-    const refEl = $("#search-ref");
+    const refEl = $("[data-search-ref]");
 
     const groupGlossary = $("#group-glossary");
     const groupSubject = $("#group-subject");
@@ -211,10 +211,18 @@ const baseUrl = import.meta.env.BASE_URL || "/";
       statusEl.textContent = msg;
     }
 
-    function setRefBanner(html, show) {
+    function setRefBanner(content, show) {
       if (!refEl) return;
       refEl.hidden = !show;
-      refEl.innerHTML = show ? html : "";
+      refEl.replaceChildren();
+      if (!show) return;
+
+      if (content instanceof Node) {
+        refEl.appendChild(content);
+        return;
+      }
+
+      refEl.innerHTML = String(content || "");
     }
 
     function escapeHtml(s) {
@@ -276,136 +284,74 @@ const baseUrl = import.meta.env.BASE_URL || "/";
     // ----------------------------
     // Reference parsing (mode=ref)
     // ----------------------------
-    function slugifyBookName(name) {
-      return String(name)
-        .toLowerCase()
-        .replace(/[^0-9a-z]/g, "");
-    }
-
-    const BOOK_ALIAS_ENTRIES = [
-      ["matthew", ["matthew", "matt", "mt"]],
-      ["mark", ["mark", "mrk", "mk"]],
-      ["luke", ["luke", "luk", "lk"]],
-      ["john", ["john", "jhn", "jn"]],
-      ["acts", ["acts", "act", "ac"]],
-      ["romans", ["romans", "rom", "ro"]],
-      [
-        "1corinthians",
-        ["1corinthians", "1 corinthians", "1cor", "1 cor", "1co", "1 co"],
-      ],
-      [
-        "2corinthians",
-        ["2corinthians", "2 corinthians", "2cor", "2 cor", "2co", "2 co"],
-      ],
-      ["galatians", ["galatians", "gal"]],
-      ["ephesians", ["ephesians", "eph"]],
-      ["philippians", ["philippians", "phil", "php"]],
-      ["colossians", ["colossians", "col"]],
-      [
-        "1thessalonians",
-        [
-          "1thessalonians",
-          "1 thessalonians",
-          "1thess",
-          "1 thess",
-          "1thes",
-          "1 thes",
-          "1th",
-          "1 th",
-        ],
-      ],
-      [
-        "2thessalonians",
-        [
-          "2thessalonians",
-          "2 thessalonians",
-          "2thess",
-          "2 thess",
-          "2thes",
-          "2 thes",
-          "2th",
-          "2 th",
-        ],
-      ],
-      ["1timothy", ["1timothy", "1 timothy", "1tim", "1 tim", "1ti", "1 ti"]],
-      ["2timothy", ["2timothy", "2 timothy", "2tim", "2 tim", "2ti", "2 ti"]],
-      ["titus", ["titus", "tit"]],
-      ["philemon", ["philemon", "phm", "phlm"]],
-      ["hebrews", ["hebrews", "heb"]],
-      ["james", ["james", "jas", "jm"]],
-      ["1peter", ["1peter", "1 peter", "1pet", "1 pet", "1pe", "1 pe"]],
-      ["2peter", ["2peter", "2 peter", "2pet", "2 pet", "2pe", "2 pe"]],
-      ["1john", ["1john", "1 john", "1jn", "1 jn", "1jhn", "1 jhn"]],
-      ["2john", ["2john", "2 john", "2jn", "2 jn", "2jhn", "2 jhn"]],
-      ["3john", ["3john", "3 john", "3jn", "3 jn", "3jhn", "3 jhn"]],
-      ["jude", ["jude", "jud"]],
-      ["revelation", ["revelation", "rev", "re"]],
-    ];
-
-    const BOOK_ALIASES = new Map();
-    for (const [bookKey, aliases] of BOOK_ALIAS_ENTRIES) {
-      BOOK_ALIASES.set(bookKey, bookKey);
-      for (const alias of aliases) {
-        BOOK_ALIASES.set(slugifyBookName(alias), bookKey);
-      }
-    }
-
     const REF_HELP_TEXT =
-      "Type a reference like “Luke 4:18”, “John3:16”, or “Jn 3:16”.";
-
-    function resolveBookKey(rawBookPart) {
-      const alias = slugifyBookName(rawBookPart);
-      const mapped = BOOK_ALIASES.get(alias) || alias;
-      return BOOK_RANK.has(mapped) ? mapped : null;
-    }
+      "Type a reference like \"Luke 4:18\", \"John3:16\", or \"Jn 3:16\".";
+    const sharedRefJump =
+      window.__litRefJump && typeof window.__litRefJump === "object"
+        ? window.__litRefJump
+        : null;
 
     function parseReference(raw) {
-      const s = String(raw || "")
-        .trim()
-        .toLowerCase();
-      if (!s) return null;
-
-      const cleaned = s
-        .replace(/[.,;()]/g, " ")
-        .replace(/[–—−]/g, "-")
-        .replace(/\s+/g, " ")
-        .trim();
-
-      const m = cleaned.match(/^(.+?)\s*(\d+)(?::(\d+)(?:\s*-\s*(\d+))?)?$/);
-      if (!m) return null;
-
-      const bookKey = resolveBookKey(m[1]);
-      const chapter = Number(m[2]);
-      const verse = m[3] ? Number(m[3]) : null;
-      const rangeEnd = m[4] ? Number(m[4]) : null;
-
-      if (!bookKey) return null;
-      if (!Number.isFinite(chapter) || chapter <= 0) return null;
-      if (verse !== null && (!Number.isFinite(verse) || verse <= 0))
-        return null;
-      if (rangeEnd !== null && (!Number.isFinite(rangeEnd) || rangeEnd <= 0))
-        return null;
-
-      return { bookKey, chapter, verse };
-    }
-
-    function bookKeyToLabel(key) {
-      const m = String(key).match(/^(\d+)?([a-z]+)$/i);
-      if (!m) return String(key);
-      const num = m[1] ? m[1] + " " : "";
-      const word = m[2];
-      return num + word.charAt(0).toUpperCase() + word.slice(1);
+      if (typeof sharedRefJump?.parseReference === "function") {
+        return sharedRefJump.parseReference(raw);
+      }
+      return null;
     }
 
     function formatReferenceLabel(ref) {
-      const book = bookKeyToLabel(ref.bookKey);
-      if (ref.verse) return `${book} ${ref.chapter}:${ref.verse}`;
-      return `${book} ${ref.chapter}`;
+      if (typeof sharedRefJump?.formatReferenceLabel === "function") {
+        return sharedRefJump.formatReferenceLabel(ref);
+      }
+
+      const book = String(ref?.bookKey || "");
+      const chapter = Number(ref?.chapter || 0);
+      const verse = Number(ref?.verse || 0);
+      if (verse > 0) return `${book} ${chapter}:${verse}`;
+      return `${book} ${chapter}`;
     }
 
-    function makeReferenceHref(ref) {
-      const base = `/${ref.bookKey}-${ref.chapter}`;
-      return ref.verse ? `${base}#v${ref.verse}` : base;
+    function makeStudyReferenceHref(ref) {
+      if (typeof sharedRefJump?.makeStudyReferenceHref === "function") {
+        return sharedRefJump.makeStudyReferenceHref(ref);
+      }
+
+      return `/${ref.bookKey}-${ref.chapter}`;
+    }
+
+    function makeReadReferenceHref(ref) {
+      if (typeof sharedRefJump?.makeReadReferenceHref === "function") {
+        return sharedRefJump.makeReadReferenceHref(ref);
+      }
+
+      const base = `/read/${ref.bookKey}`;
+      const hash = ref.verse
+        ? `${ref.bookKey}-${ref.chapter}-v${ref.verse}`
+        : `ch-${ref.chapter}`;
+      return `${base}#${hash}`;
+    }
+
+    function renderReferenceActions(ref) {
+      if (!ref) return null;
+
+      const wrapper = document.createElement("div");
+      wrapper.className = "search-ref__links";
+
+      const label = document.createElement("p");
+      label.className = "search-ref__label";
+      label.textContent = `Jump to: ${formatReferenceLabel(ref)}`;
+
+      const studyLink = document.createElement("a");
+      studyLink.className = "search-ref__link";
+      studyLink.setAttribute("href", makeStudyReferenceHref(ref));
+      studyLink.textContent = "Jump (Study Mode)";
+
+      const readLink = document.createElement("a");
+      readLink.className = "search-ref__link search-ref__link--read";
+      readLink.setAttribute("href", makeReadReferenceHref(ref));
+      readLink.textContent = "Jump (Read Mode)";
+
+      wrapper.append(label, studyLink, readLink);
+      return wrapper;
     }
 
     // -----------------------
@@ -990,7 +936,11 @@ const baseUrl = import.meta.env.BASE_URL || "/";
       const keywordTotal = keywordMatchesAll.length;
       const matchTotal = glossaryCount + subjectCount + keywordTotal;
 
-      setRefBanner("", false);
+      const parsedRef = parseReference(q);
+      setRefBanner(
+        parsedRef ? renderReferenceActions(parsedRef) : null,
+        Boolean(parsedRef),
+      );
 
       setStatus(
         `Searching for "${displayQ}" - ${matchTotal} match${
@@ -1075,27 +1025,21 @@ const baseUrl = import.meta.env.BASE_URL || "/";
         lastSearchCache = null;
 
         if (ref) {
-          const href = makeReferenceHref(ref);
-          const label = formatReferenceLabel(ref);
           setStatus("Press Enter to jump.");
-          setRefBanner(
-            `
-              <a class="search-ref__link" href="${escapeHtml(href)}">
-                Jump to <strong>${escapeHtml(label)}</strong>
-                <span class="search-ref__hint">Enter</span>
-              </a>
-            `,
-            true,
-          );
+          setRefBanner(renderReferenceActions(ref), true);
         } else {
           setStatus(REF_HELP_TEXT);
-          setRefBanner("", false);
+          setRefBanner(null, false);
         }
 
         return;
       }
 
-      setRefBanner("", false);
+      const parsedRef = parseReference(q);
+      setRefBanner(
+        parsedRef ? renderReferenceActions(parsedRef) : null,
+        Boolean(parsedRef),
+      );
       setStatus(`Searching for "${displayQ}"...`);
 
       const pagefind = await loadPagefind();
@@ -1309,7 +1253,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
         if (s.mode === "ref") {
           const ref = parseReference(input.value.trim());
           if (ref) {
-            window.location.href = makeReferenceHref(ref);
+            window.location.href = makeStudyReferenceHref(ref);
             return;
           }
         }
@@ -1428,6 +1372,17 @@ const baseUrl = import.meta.env.BASE_URL || "/";
     margin-top: 10px;
   }
 
+  .search-ref__links {
+    display: grid;
+    gap: 8px;
+  }
+
+  .search-ref__label {
+    margin: 0 0 2px;
+    font-size: 0.9rem;
+    color: rgba(29, 35, 28, 0.78);
+  }
+
   .search-ref__link {
     display: flex;
     align-items: center;
@@ -1439,6 +1394,11 @@ const baseUrl = import.meta.env.BASE_URL || "/";
     background: rgba(32, 157, 80, 0.1);
     border: 1px solid rgba(32, 157, 80, 0.35);
     color: inherit;
+  }
+
+  .search-ref__link--read {
+    background: rgba(29, 35, 28, 0.05);
+    border-color: rgba(29, 35, 28, 0.28);
   }
 
   .search-ref__hint {
@@ -1670,5 +1630,42 @@ const baseUrl = import.meta.env.BASE_URL || "/";
 
   [hidden] {
     display: none !important;
+  }
+</style>
+
+<style is:global>
+  .search-ref .search-ref__links {
+    display: grid;
+    gap: 8px;
+  }
+
+  .search-ref .search-ref__label {
+    margin: 0 0 2px;
+    font-size: 0.9rem;
+    color: rgba(29, 35, 28, 0.78);
+  }
+
+  .search-ref .search-ref__link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    text-decoration: none;
+    padding: 12px 12px;
+    border-radius: 14px;
+    background: rgba(32, 157, 80, 0.1);
+    border: 1px solid rgba(32, 157, 80, 0.35);
+    color: inherit;
+  }
+
+  .search-ref .search-ref__link--read {
+    background: rgba(29, 35, 28, 0.05);
+    border-color: rgba(29, 35, 28, 0.28);
+  }
+
+  .search-ref .search-ref__hint {
+    opacity: 0.7;
+    font-size: 0.9rem;
+    white-space: nowrap;
   }
 </style>
