@@ -6,13 +6,16 @@
     "dev": "astro dev",
     "build:topics": "node scripts/build-topics-index.mjs",
     "build": "npm run build:topics && astro build && pagefind --site dist",
-    "preview": "npm run build && astro preview"
+    "preview": "npm run build && astro preview",
+    "validate:chapters": "node scripts/validate-chapters.mjs",
+    "fix:chapters": "node scripts/validate-chapters.mjs --fix"
   },
   "dependencies": {
     "astro": "^5.17.1",
     "simple-icons": "^16.7.0"
   },
   "devDependencies": {
+    "jsonc-parser": "^3.3.1",
     "pagefind": "^1.0.0"
   }
 }
