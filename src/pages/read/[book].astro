@@ -165,80 +165,74 @@ const description = `Read ${bookName} in continuous scroll with Reading Mode.`;
     data-rm-has-intro={hasIntro ? "true" : "false"}
     data-rm-study-intro-href={studyIntroHref}
   >
-    <div class="rm-toolbar" data-rm-toolbar data-pagefind-ignore>
+    <div class="rm-toolbar" id="rm-toolbar" data-rm-toolbar data-pagefind-ignore>
       <div class="rm-toolbar__row">
-        <button
-          type="button"
-          data-rm-toc-toggle
-          aria-expanded="false"
-          aria-controls="rm-toc-panel"
-        >
-          Go to chapter
-        </button>
+        <div class="rm-toolbar__cluster rm-toolbar__cluster--left">
+          <button
+            type="button"
+            data-rm-toc-toggle
+            aria-expanded="false"
+            aria-controls="rm-toc-panel"
+          >
+            Go to chapter
+          </button>
 
-        <button type="button" data-rm-markers-toggle aria-pressed="true">
-          Nums: On
-        </button>
+          <button
+            type="button"
+            data-rm-aa-toggle
+            aria-expanded="false"
+            aria-controls="rm-aa-panel"
+            aria-label="Typography controls"
+          >
+            Aa
+          </button>
 
-        <button
-          type="button"
-          data-rm-aa-toggle
-          aria-expanded="false"
-          aria-controls="rm-aa-panel"
-          aria-label="Typography controls"
-        >
-          Aa
-        </button>
+          <button type="button" data-rm-markers-toggle aria-pressed="true" aria-label="Numbers: On">
+            Numbers: On
+          </button>
 
-        <button type="button" data-rm-focus-toggle aria-pressed="false">
-          Focus: Off
-        </button>
+          <button type="button" data-rm-focus-toggle aria-pressed="false">
+            Focus: Off
+          </button>
+        </div>
 
-        <button type="button" data-rm-start-over>Start over</button>
+        <div class="rm-toolbar__cluster rm-toolbar__cluster--center">
+          <span class="rm-where" data-rm-where>{bookName} &middot; Chapter 1</span>
 
-        <button
-          type="button"
-          class="rm-cta"
-          data-rm-study-toggle
-          aria-expanded="false"
-          aria-controls="rm-study-panel"
-        >
-          Study mode
-        </button>
-
-        <div class="rm-toolbar__meta">
-          <span class="rm-where" data-rm-where>{bookName} · Chapter 1</span>
-          <span class="rm-progress" data-rm-progress>0%</span>
-          <div class="rm-progressbar" aria-hidden="true">
-            <span data-rm-progress-bar></span>
+          <div class="rm-toolbar__progress">
+            <span class="rm-progress" data-rm-progress>0%</span>
+            <div class="rm-progressbar" aria-hidden="true">
+              <span data-rm-progress-bar></span>
+            </div>
           </div>
         </div>
+
+        <div class="rm-toolbar__cluster rm-toolbar__cluster--right">
+          <button type="button" data-rm-start-over>Return to Beginning</button>
+
+          <a
+            href={`/${bookKey}-1`}
+            class="rm-switch"
+            data-rm-study-switch
+            aria-label={`Switch to Study View for ${bookName} chapter 1`}
+          >
+            <span class="reading-view-pill__icon rm-cycle-icon" aria-hidden="true">&#x27F3;</span>
+            <span>Switch to Study View</span>
+          </a>
+
+          <button
+            type="button"
+            class="rm-toolbar__close"
+            data-rm-mobile-close
+            aria-label="Close"
+          >
+            &times;
+          </button>
+        </div>
       </div>
 
-      <div class="rm-resume" data-rm-resume hidden>
-        <span>Resume?</span>
-        <button type="button" data-rm-resume-yes>Resume</button>
-        <button type="button" data-rm-resume-no>Start at top</button>
-      </div>
 
       <div class="rm-toolbar__panels">
-        <div id="rm-study-panel" class="rm-study" data-rm-study-panel hidden>
-          <a class="rm-study__option" data-rm-study-chapter-option href={`/${bookKey}-1`}>
-            This chapter
-          </a>
-          {
-            hasIntro ? (
-              <a class="rm-study__option" data-rm-study-intro-option href={studyIntroHref}>
-                Book introduction
-              </a>
-            ) : (
-              <button class="rm-study__option" type="button" disabled>
-                Book introduction
-              </button>
-            )
-          }
-        </div>
-
         <div id="rm-toc-panel" class="rm-toc" data-rm-toc-panel hidden>
           <div class="rm-toc__actions">
             <button type="button" data-rm-top>Top</button>
@@ -333,6 +327,33 @@ const description = `Read ${bookName} in continuous scroll with Reading Mode.`;
               </button>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <button
+      type="button"
+      class="rm-fab"
+      data-rm-fab
+      aria-label="Open reading controls"
+      aria-expanded="false"
+      aria-controls="rm-toolbar"
+    >
+      <span class="rm-fab__icon" aria-hidden="true"></span>
+    </button>
+
+    <div class="rm-resume-popover" data-rm-resume-popover hidden>
+      <div class="rm-resume-popover__backdrop" data-rm-resume-backdrop></div>
+      <div
+        class="rm-resume-popover__card"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Resume reading?"
+      >
+        <div class="rm-resume" data-rm-resume>
+          <span>Resume?</span>
+          <button type="button" data-rm-resume-yes>Resume</button>
+          <button type="button" data-rm-resume-no>Start at top</button>
         </div>
       </div>
     </div>

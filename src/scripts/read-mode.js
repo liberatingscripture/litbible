@@ -51,10 +51,20 @@ function parseResume(raw) {
       typeof parsed.anchor === "string" && parsed.anchor.trim()
         ? parsed.anchor.trim()
         : null;
-    const offset = Number(parsed.offset);
 
-    if (!anchor || !Number.isFinite(offset)) return null;
-    return { anchor, offset };
+    const offset = Number(parsed.offset);
+    const scrollY = Number(parsed.scrollY);
+
+    const hasOldFormat = anchor && Number.isFinite(offset);
+    const hasScrollY = Number.isFinite(scrollY);
+
+    if (!hasOldFormat && !hasScrollY) return null;
+
+    return {
+      anchor: hasOldFormat ? anchor : null,
+      offset: hasOldFormat ? offset : 0,
+      scrollY: hasScrollY ? scrollY : null,
+    };
   } catch {
     return null;
   }
@@ -76,18 +86,13 @@ function initReadMode() {
 
   const bookKey = String(page.dataset.rmBook || "").trim();
   const bookTitle = String(page.dataset.rmBookTitle || "").trim() || "Book";
-  const hasIntro = String(page.dataset.rmHasIntro || "") === "true";
-  const studyIntroHref =
-    String(page.dataset.rmStudyIntroHref || "").trim() || `/${bookKey}-intro`;
 
   const whereEl = page.querySelector("[data-rm-where]");
   const progressEl = page.querySelector("[data-rm-progress]");
   const progressBar = page.querySelector("[data-rm-progress-bar]");
 
-  const studyToggle = page.querySelector("[data-rm-study-toggle]");
-  const studyPanel = page.querySelector("[data-rm-study-panel]");
-  const studyChapterOption = page.querySelector("[data-rm-study-chapter-option]");
-  const studyIntroOption = page.querySelector("[data-rm-study-intro-option]");
+  // Study switch (anchor) matches the current markup.
+  const studySwitch = page.querySelector("[data-rm-study-switch]");
 
   const markersToggle = page.querySelector("[data-rm-markers-toggle]");
   const focusToggle = page.querySelector("[data-rm-focus-toggle]");
@@ -111,12 +116,19 @@ function initReadMode() {
     page.querySelectorAll("[data-rm-group-panel]"),
   ).filter((el) => el instanceof HTMLElement);
 
+  const resumePopover = page.querySelector("[data-rm-resume-popover]");
+  const resumeBackdrop = page.querySelector("[data-rm-resume-backdrop]");
   const resumeBox = page.querySelector("[data-rm-resume]");
   const resumeYes = page.querySelector("[data-rm-resume-yes]");
   const resumeNo = page.querySelector("[data-rm-resume-no]");
   const startOverButton = page.querySelector("[data-rm-start-over]");
+  const fabToggle = page.querySelector("[data-rm-fab]");
+  const toolbarClose =
+    page.querySelector("[data-rm-mobile-close]") ||
+    page.querySelector("[data-rm-toolbar-close]");
 
   const typographyButtons = Array.from(page.querySelectorAll("[data-rm-set]"));
+  const phoneViewport = window.matchMedia("(max-width: 640px)");
 
   const chapterAnchors = Array.from(
     page.querySelectorAll(".rm-ch-anchor[data-rm-chapter]"),
@@ -155,12 +167,28 @@ function initReadMode() {
   const resumeKey = `lit_rm_resume_${bookKey}`;
   let resumeState = parseResume(safeGet(resumeKey));
 
+  // Return-to-location state for the Start Over button.
+  let returnLocationState = null;
+
   let activeFocusTarget = null;
   const visibleFocusTargets = new Set();
   let tocSelectedGroup = -1;
   let tocUserSelectedGroupWhileOpen = false;
 
   const studyChapterHref = (chapter) => `/${bookKey}-${chapter}`;
+
+  function isPhoneViewport() {
+    return phoneViewport.matches;
+  }
+
+  function setFabExpanded(expanded) {
+    if (!(fabToggle instanceof HTMLButtonElement)) return;
+    fabToggle.setAttribute("aria-expanded", expanded ? "true" : "false");
+  }
+
+  function isToolsOpen() {
+    return html.classList.contains("rm-tools-open");
+  }
 
   function scrollToAnchor(anchor, extraOffset = 0) {
     const target = document.getElementById(anchor);
@@ -183,15 +211,13 @@ function initReadMode() {
   }
 
   function setToolbarOpenState(state) {
-    const open =
-      state === "toc" || state === "study" || state === "aa" ? state : "";
+    const open = state === "toc" || state === "aa" ? state : "";
     toolbar.dataset.rmOpen = open;
   }
 
   function closePanels() {
     if (tocPanel instanceof HTMLElement) tocPanel.hidden = true;
     if (aaPanel instanceof HTMLElement) aaPanel.hidden = true;
-    if (studyPanel instanceof HTMLElement) studyPanel.hidden = true;
     tocUserSelectedGroupWhileOpen = false;
 
     if (tocToggle instanceof HTMLButtonElement) {
@@ -199,9 +225,6 @@ function initReadMode() {
     }
     if (aaToggle instanceof HTMLButtonElement) {
       aaToggle.setAttribute("aria-expanded", "false");
-    }
-    if (studyToggle instanceof HTMLButtonElement) {
-      studyToggle.setAttribute("aria-expanded", "false");
     }
 
     setToolbarOpenState("");
@@ -211,11 +234,9 @@ function initReadMode() {
   function openPanel(panelName) {
     const openToc = panelName === "toc";
     const openAa = panelName === "aa";
-    const openStudy = panelName === "study";
 
     if (tocPanel instanceof HTMLElement) tocPanel.hidden = !openToc;
     if (aaPanel instanceof HTMLElement) aaPanel.hidden = !openAa;
-    if (studyPanel instanceof HTMLElement) studyPanel.hidden = !openStudy;
 
     if (tocToggle instanceof HTMLButtonElement) {
       tocToggle.setAttribute("aria-expanded", openToc ? "true" : "false");
@@ -223,12 +244,8 @@ function initReadMode() {
     if (aaToggle instanceof HTMLButtonElement) {
       aaToggle.setAttribute("aria-expanded", openAa ? "true" : "false");
     }
-    if (studyToggle instanceof HTMLButtonElement) {
-      studyToggle.setAttribute("aria-expanded", openStudy ? "true" : "false");
-    }
 
     if (openToc) setToolbarOpenState("toc");
-    else if (openStudy) setToolbarOpenState("study");
     else if (openAa) setToolbarOpenState("aa");
     else setToolbarOpenState("");
 
@@ -253,7 +270,7 @@ function initReadMode() {
     if (markersToggle instanceof HTMLButtonElement) {
       const on = markersMode === "on";
       markersToggle.setAttribute("aria-pressed", on ? "true" : "false");
-      markersToggle.textContent = on ? "Nums: On" : "Nums: Off";
+      markersToggle.textContent = on ? "Numbers: On" : "Numbers: Off";
     }
 
     if (persist) safeSet(STORAGE.markers, markersMode);
@@ -262,6 +279,7 @@ function initReadMode() {
   function applyTypography(persist = true) {
     html.dataset.rmFont = typographyState.font;
     html.dataset.rmLeading = typographyState.leading;
+
     for (const button of typographyButtons) {
       if (!(button instanceof HTMLButtonElement)) continue;
 
@@ -406,11 +424,22 @@ function initReadMode() {
     }
   }
 
+  function updateStudySwitchHref() {
+    if (!(studySwitch instanceof HTMLAnchorElement)) return;
+    // Keep it simple: switch to the current chapter.
+    studySwitch.href = studyChapterHref(activeChapter);
+    studySwitch.setAttribute(
+      "aria-label",
+      `Switch to Study View for ${bookTitle} chapter ${activeChapter}`,
+    );
+  }
+
   function setActiveChapter(nextChapter) {
     const bounded = clamp(Number(nextChapter) || 1, 1, chapterAnchors.length);
     if (activeChapter === bounded) {
       syncTocGroupToActiveChapter(false);
       updateActiveChapterButton();
+      updateStudySwitchHref();
       return;
     }
 
@@ -420,12 +449,9 @@ function initReadMode() {
       whereEl.textContent = `${bookTitle} · Chapter ${activeChapter}`;
     }
 
-    if (studyChapterOption instanceof HTMLAnchorElement) {
-      studyChapterOption.href = studyChapterHref(activeChapter);
-    }
-
     syncTocGroupToActiveChapter(false);
     updateActiveChapterButton();
+    updateStudySwitchHref();
   }
 
   function findActiveChapterByViewportLine() {
@@ -462,27 +488,83 @@ function initReadMode() {
     }
   }
 
-  function hideResumePrompt() {
-    if (resumeBox instanceof HTMLElement) resumeBox.hidden = true;
+  function isResumePopoverOpen() {
+    return resumePopover instanceof HTMLElement && !resumePopover.hidden;
+  }
+
+  function showResumePopover() {
+    closeMobileTools();
+
+    if (resumePopover instanceof HTMLElement) {
+      resumePopover.hidden = false;
+    }
+    html.classList.add("rm-modal-open");
+
+    if (resumeYes instanceof HTMLButtonElement) {
+      window.requestAnimationFrame(() => {
+        resumeYes.focus();
+      });
+    }
+  }
+
+  function hideResumePopover() {
+    if (resumePopover instanceof HTMLElement) {
+      resumePopover.hidden = true;
+    }
+    html.classList.remove("rm-modal-open");
+  }
+
+  function closeMobileTools({ focusFab = false } = {}) {
+    if (isToolsOpen()) {
+      html.classList.remove("rm-tools-open");
+      closePanels();
+      updateToolbarOffset();
+    }
+
+    setFabExpanded(false);
+
+    if (focusFab && fabToggle instanceof HTMLButtonElement) {
+      fabToggle.focus();
+    }
+  }
+
+  function openMobileTools() {
+    if (!isPhoneViewport()) return;
+
+    html.classList.add("rm-tools-open");
+    setFabExpanded(true);
+
+    window.requestAnimationFrame(() => {
+      updateToolbarOffset();
+
+      if (toolbarClose instanceof HTMLButtonElement) {
+        toolbarClose.focus();
+      }
+    });
   }
 
   function saveResume() {
     const anchor = `ch-${activeChapter}`;
     const chapterEl = chapterById.get(anchor);
-    if (!(chapterEl instanceof HTMLElement)) return;
 
-    const chapterTop = window.scrollY + chapterEl.getBoundingClientRect().top;
-    const offset = Math.round(window.scrollY - chapterTop);
+    let offset = 0;
+    if (chapterEl instanceof HTMLElement) {
+      const chapterTop = window.scrollY + chapterEl.getBoundingClientRect().top;
+      offset = Math.round(window.scrollY - chapterTop);
+    }
 
-    const payload = JSON.stringify({ anchor, offset });
+    const scrollY = Math.round(window.scrollY);
+
+    const payload = JSON.stringify({ anchor, offset, scrollY });
     safeSet(resumeKey, payload);
-    resumeState = { anchor, offset };
+
+    resumeState = { anchor, offset, scrollY };
   }
 
   function clearResume(andScrollTop = false) {
     safeRemove(resumeKey);
     resumeState = null;
-    hideResumePrompt();
+    hideResumePopover();
 
     if (andScrollTop) {
       window.scrollTo({
@@ -500,33 +582,108 @@ function initReadMode() {
     closePanels();
   }
 
-  function goToStudyChapter() {
-    const href = studyChapterHref(activeChapter);
-    if (href) window.location.href = href;
-  }
+  function setReturnButtonState() {
+    if (!(startOverButton instanceof HTMLButtonElement)) return;
 
-  if (studyIntroOption instanceof HTMLAnchorElement) {
-    if (hasIntro) {
-      studyIntroOption.href = studyIntroHref;
+    if (returnLocationState) {
+      startOverButton.textContent = "Return to Location";
+      startOverButton.setAttribute(
+        "aria-label",
+        "Return to previous reading location",
+      );
+    } else {
+      startOverButton.textContent = "Return to Beginning";
+      startOverButton.setAttribute(
+        "aria-label",
+        "Return to beginning of reading view",
+      );
     }
   }
 
+  function captureReturnLocation() {
+    const anchor = `ch-${activeChapter}`;
+    const chapterEl = chapterById.get(anchor);
+
+    let offset = 0;
+    if (chapterEl instanceof HTMLElement) {
+      const chapterTop = window.scrollY + chapterEl.getBoundingClientRect().top;
+      offset = Math.round(window.scrollY - chapterTop);
+    }
+
+    const focusIndex =
+      activeFocusTarget instanceof HTMLElement
+        ? focusTargets.indexOf(activeFocusTarget)
+        : -1;
+
+    return {
+      anchor,
+      offset,
+      scrollY: Math.round(window.scrollY),
+      focusIndex,
+    };
+  }
+
+  function restoreReturnLocation() {
+    if (!returnLocationState) return;
+
+    const targetY = Number(returnLocationState.scrollY);
+    const hasScrollY = Number.isFinite(targetY);
+
+    if (hasScrollY) {
+      window.scrollTo({
+        top: Math.max(0, targetY),
+        behavior: prefersReducedMotion ? "auto" : "smooth",
+      });
+    } else if (returnLocationState.anchor) {
+      const moved = scrollToAnchor(
+        returnLocationState.anchor,
+        Number(returnLocationState.offset || 0),
+      );
+      if (!moved) return;
+    }
+
+    if (returnLocationState.anchor) {
+      setHash(returnLocationState.anchor);
+    }
+
+    window.requestAnimationFrame(() => {
+      setActiveChapter(findActiveChapterByViewportLine());
+      updateProgress();
+      pickActiveFocusTarget();
+
+      if (focusMode !== "on") return;
+
+      const idx = Number(returnLocationState?.focusIndex);
+      if (!Number.isFinite(idx) || idx < 0 || idx >= focusTargets.length) return;
+
+      const target = focusTargets[idx];
+      if (!(target instanceof HTMLElement)) return;
+
+      clearFocusClass();
+      activeFocusTarget = target;
+      activeFocusTarget.classList.add("rm-focus-active");
+    });
+  }
+
+  // Initial UI state
   if (whereEl instanceof HTMLElement) {
     whereEl.textContent = `${bookTitle} · Chapter ${activeChapter}`;
   }
 
-  if (studyChapterOption instanceof HTMLAnchorElement) {
-    studyChapterOption.href = studyChapterHref(activeChapter);
-  }
-
   syncTocGroupToActiveChapter(true);
   updateActiveChapterButton();
+  updateStudySwitchHref();
 
   updateProgress();
 
   applyMarkers(markersMode || "on", false);
   applyTypography(false);
   applyFocus(focusMode || "off", false);
+
+  setReturnButtonState();
+
+  html.classList.remove("rm-tools-open");
+  setFabExpanded(false);
 
   updateToolbarOffset();
   setToolbarOpenState("");
@@ -566,19 +723,6 @@ function initReadMode() {
 
   for (const node of focusTargets) {
     focusObserver.observe(node);
-  }
-
-  if (studyToggle instanceof HTMLButtonElement) {
-    studyToggle.addEventListener("click", () => {
-      const shouldOpen = !(studyPanel instanceof HTMLElement) || studyPanel.hidden;
-      openPanel(shouldOpen ? "study" : "none");
-    });
-
-    studyToggle.addEventListener("keydown", (event) => {
-      if (event.key !== "Enter") return;
-      event.preventDefault();
-      goToStudyChapter();
-    });
   }
 
   if (tocToggle instanceof HTMLButtonElement) {
@@ -654,7 +798,8 @@ function initReadMode() {
       if (group === "font" && FONT_OPTIONS.has(value)) {
         typographyState.font = value;
       } else if (group === "leading" && LEADING_OPTIONS.has(value)) {
-        typographyState.leading = value;      } else {
+        typographyState.leading = value;
+      } else {
         return;
       }
 
@@ -666,13 +811,35 @@ function initReadMode() {
   if (resumeYes instanceof HTMLButtonElement) {
     resumeYes.addEventListener("click", () => {
       if (!resumeState) {
-        hideResumePrompt();
+        hideResumePopover();
         return;
       }
 
-      const moved = scrollToAnchor(resumeState.anchor, resumeState.offset);
-      if (moved) setHash(resumeState.anchor);
-      hideResumePrompt();
+      const y = Number(resumeState.scrollY);
+      const hasScrollY = Number.isFinite(y);
+
+      if (hasScrollY) {
+        window.scrollTo({
+          top: Math.max(0, y),
+          behavior: prefersReducedMotion ? "auto" : "smooth",
+        });
+
+        window.requestAnimationFrame(() => {
+          setActiveChapter(findActiveChapterByViewportLine());
+          updateProgress();
+          setHash(`ch-${activeChapter}`);
+        });
+
+        hideResumePopover();
+        return;
+      }
+
+      if (resumeState.anchor) {
+        const moved = scrollToAnchor(resumeState.anchor, resumeState.offset);
+        if (moved) setHash(resumeState.anchor);
+      }
+
+      hideResumePopover();
     });
   }
 
@@ -684,6 +851,20 @@ function initReadMode() {
 
   if (startOverButton instanceof HTMLButtonElement) {
     startOverButton.addEventListener("click", () => {
+      // Second click: return to previous location
+      if (returnLocationState) {
+        restoreReturnLocation();
+        returnLocationState = null;
+        setReturnButtonState();
+        closePanels();
+        return;
+      }
+
+      // First click: capture current location then go to top
+      setActiveChapter(findActiveChapterByViewportLine());
+      returnLocationState = captureReturnLocation();
+      setReturnButtonState();
+
       clearResume(true);
       closePanels();
     });
@@ -693,14 +874,60 @@ function initReadMode() {
     updateToolbarOffset();
   });
 
+  if (fabToggle instanceof HTMLButtonElement) {
+    fabToggle.addEventListener("click", () => {
+      if (isToolsOpen()) {
+        closeMobileTools({ focusFab: true });
+      } else {
+        openMobileTools();
+      }
+    });
+  }
+
+  if (toolbarClose instanceof HTMLButtonElement) {
+    toolbarClose.addEventListener("click", () => {
+      closeMobileTools({ focusFab: true });
+    });
+  }
+
   document.addEventListener("click", (event) => {
     if (!(event.target instanceof Node)) return;
-    if (toolbar.contains(event.target)) return;
+    if (isResumePopoverOpen()) return;
+    const clickedToolbar = toolbar.contains(event.target);
+    const clickedFab =
+      fabToggle instanceof HTMLButtonElement && fabToggle.contains(event.target);
+
+    if (isPhoneViewport() && isToolsOpen() && !clickedToolbar && !clickedFab) {
+      closeMobileTools();
+      return;
+    }
+
+    if (clickedToolbar) return;
     closePanels();
   });
 
+  if (resumeBackdrop instanceof HTMLElement) {
+    resumeBackdrop.addEventListener("click", () => {
+      hideResumePopover();
+    });
+  }
+
   document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") closePanels();
+    if (event.key !== "Escape") return;
+
+    if (isResumePopoverOpen()) {
+      event.preventDefault();
+      hideResumePopover();
+      return;
+    }
+
+    if (isPhoneViewport() && isToolsOpen()) {
+      event.preventDefault();
+      closeMobileTools({ focusFab: true });
+      return;
+    }
+
+    closePanels();
   });
 
   let scrollRaf = 0;
@@ -724,11 +951,26 @@ function initReadMode() {
 
   window.addEventListener("scroll", onScroll, { passive: true });
   window.addEventListener("resize", () => {
+    if (!isPhoneViewport()) {
+      closeMobileTools();
+    }
+
     updateToolbarOffset();
     setToolbarOpenState(toolbar.dataset.rmOpen || "");
     updateProgress();
     pickActiveFocusTarget();
   });
+
+  const onPhoneViewportChange = () => {
+    closeMobileTools();
+    updateToolbarOffset();
+  };
+
+  if (typeof phoneViewport.addEventListener === "function") {
+    phoneViewport.addEventListener("change", onPhoneViewportChange);
+  } else if (typeof phoneViewport.addListener === "function") {
+    phoneViewport.addListener(onPhoneViewportChange);
+  }
 
   const hash = decodeURIComponent(window.location.hash.replace(/^#/, ""));
   const hashTarget = hash ? document.getElementById(hash) : null;
@@ -739,11 +981,18 @@ function initReadMode() {
       setActiveChapter(findActiveChapterByViewportLine());
       updateProgress();
     });
-    hideResumePrompt();
-  } else if (resumeState && chapterById.has(resumeState.anchor)) {
-    if (resumeBox instanceof HTMLElement) resumeBox.hidden = false;
+    hideResumePopover();
   } else {
-    hideResumePrompt();
+    const canShowResume =
+      !!resumeState &&
+      (Number.isFinite(Number(resumeState.scrollY)) ||
+        (resumeState.anchor && chapterById.has(resumeState.anchor)));
+
+    if (canShowResume) {
+      showResumePopover();
+    } else {
+      hideResumePopover();
+    }
   }
 }
 
@@ -752,4 +1001,3 @@ if (document.readyState === "loading") {
 } else {
   initReadMode();
 }
-

@@ -106,7 +106,22 @@ if (headerKind === "chapter") {
               ) : null}
             </div>
 
-            <div class="scripture-tools__right" aria-hidden="true" />
+            <div class="scripture-tools__right" aria-label="Reading View">
+              {pagefindType === "scripture" && headerKind === "chapter" ? (
+                <div class="reading-view-right" data-pagefind-ignore>
+                  <a
+                    class="reading-view-pill"
+                    href={`/read/${pagefindBook}/#ch-${headerChapter ?? 1}`}
+                    aria-label={`Switch to Reading View for ${pagefindBook} ${headerChapter ?? 1}`}
+                  >
+                    <span class="reading-view-pill__icon" aria-hidden="true">
+                      ⟳
+                    </span>
+                    <span>Switch to Reading View</span>
+                  </a>
+                </div>
+              ) : null}
+            </div>
           </div>
         </section>
       )
@@ -280,8 +295,78 @@ if (headerKind === "chapter") {
         white-space: nowrap;
       }
 
+      /* Ensure the right tools column aligns from the top (desktop/tablet) */
+      @media (min-width: 641px) {
+        :global(.scripture-tools__right) {
+          justify-self: end;
+          align-self: start;
+        }
+      }
+
+      /* Reading View pill: right column, aligned and slightly lowered */
+      .reading-view-right {
+        margin-top: 2.25rem;
+        display: flex;
+        justify-content: flex-end;
+      }
+
+      /* quieter, and nudged further RIGHT */
+      .reading-view-pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.55rem;
+
+        padding: 11px 16px;
+        border-radius: 999px;
+
+        background: rgba(255, 255, 255, 0.78);
+        border: 1px solid rgba(29, 35, 28, 0.11);
+
+        color: rgba(29, 35, 28, 0.68);
+        text-decoration: none;
+
+        font-weight: 600;
+        font-size: 0.92rem;
+        line-height: 1;
+
+        box-shadow: 0 2px 7px rgba(0, 0, 0, 0.035);
+
+        transform: translateX(28px);
+      }
+
+      /* “3D-ish” cycle glyph */
+      .reading-view-pill__icon {
+        display: inline-block;
+        font-size: 1.08rem;
+        line-height: 1;
+
+        text-shadow:
+          0 -1px 0 rgba(255, 255, 255, 0.75),
+          /* top highlight */ 0 1px 0 rgba(29, 35, 28, 0.16),
+          /* subtle bottom edge */ 0 2px 4px rgba(0, 0, 0, 0.22); /* drop shadow */
+
+        transform: translateY(-0.5px) rotate(-8deg);
+        opacity: 0.88;
+      }
+
+      .reading-view-pill:hover {
+        border-color: rgba(29, 35, 28, 0.17);
+        color: rgba(29, 35, 28, 0.84);
+        background: rgba(255, 255, 255, 0.92);
+      }
+
+      .reading-view-pill:hover .reading-view-pill__icon {
+        opacity: 1;
+        transform: translateY(-1px) rotate(-8deg);
+        text-shadow:
+          0 -1px 0 rgba(255, 255, 255, 0.85),
+          0 1px 0 rgba(29, 35, 28, 0.18),
+          0 3px 6px rgba(0, 0, 0, 0.26);
+      }
+
       /* Mobile-only breathing room BETWEEN the two tool columns.
-         (We do NOT style SearchBar internals here.) */
+     (We do NOT style SearchBar internals here.) */
       @media (max-width: 640px) {
         :global(.scripture-tools__inner) {
           gap: 18px;
@@ -289,6 +374,25 @@ if (headerKind === "chapter") {
 
         :global(.scripture-tools__center) {
           margin-top: 8px;
+        }
+
+        .reading-view-right {
+          margin-top: 0.75rem;
+          justify-content: center;
+        }
+
+        .reading-view-pill {
+          font-size: 0.9rem;
+          padding: 11px 16px;
+          transform: none;
+        }
+
+        .reading-view-pill__icon {
+          transform: translateY(-0.5px) rotate(-8deg);
+        }
+
+        .reading-view-pill:hover .reading-view-pill__icon {
+          transform: translateY(-1px) rotate(-8deg);
         }
       }
 
@@ -317,6 +421,5 @@ if (headerKind === "chapter") {
         word-break: break-word;
       }
     </style>
-
   </div>
 </Layout>
