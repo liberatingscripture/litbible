@@ -61,6 +61,21 @@
     justify-self: stretch;
     padding-top: 0; /* Mobile/stacked: remove extra gap */
   }
+
+  /* NEW: when stacked, center the right column */
+  .scripture-tools__right {
+    justify-self: center;
+  }
+
+  /* NEW: center the Reading View pill + remove desktop nudge */
+  .scripture-layout .reading-view-right {
+    justify-content: center;
+    margin-top: 0.75rem;
+  }
+
+  .scripture-layout .reading-view-pill {
+    transform: none;
+  }
 }
 
 /* ReadMenu: stacked on scripture-layout pages */
