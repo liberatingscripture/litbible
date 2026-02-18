@@ -285,7 +285,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
     // Reference parsing (mode=ref)
     // ----------------------------
     const REF_HELP_TEXT =
-      "Type a reference like \"Luke 4:18\", \"John3:16\", or \"Jn 3:16\".";
+      'Type a reference like "Luke 4:18", "John3:16", or "Jn 3:16".';
     const sharedRefJump =
       window.__litRefJump && typeof window.__litRefJump === "object"
         ? window.__litRefJump
@@ -343,12 +343,12 @@ const baseUrl = import.meta.env.BASE_URL || "/";
       const studyLink = document.createElement("a");
       studyLink.className = "search-ref__link";
       studyLink.setAttribute("href", makeStudyReferenceHref(ref));
-      studyLink.textContent = "Jump (Study Mode)";
+      studyLink.textContent = "Jump (Study View)";
 
       const readLink = document.createElement("a");
       readLink.className = "search-ref__link search-ref__link--read";
       readLink.setAttribute("href", makeReadReferenceHref(ref));
-      readLink.textContent = "Jump (Read Mode)";
+      readLink.textContent = "Jump (Read View)";
 
       wrapper.append(label, studyLink, readLink);
       return wrapper;

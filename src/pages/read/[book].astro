@@ -15,9 +15,12 @@ type ChapterData = {
 
 type ChapterModule = { default: ChapterData };
 
-const chapterModules = import.meta.glob<ChapterModule>("../../data/chapters/*.json", {
-  eager: true,
-});
+const chapterModules = import.meta.glob<ChapterModule>(
+  "../../data/chapters/*.json",
+  {
+    eager: true,
+  },
+);
 
 const introModules = import.meta.glob("../../data/intros/*-intro.md", {
   eager: true,
@@ -67,9 +70,17 @@ function normalizeVerseGlue(html: string): string {
   );
 }
 
-function prepareParagraph(html: string, bookKey: string, chapter: number): string {
+function prepareParagraph(
+  html: string,
+  bookKey: string,
+  chapter: number,
+): string {
   const noFootnotes = removeFootnoteRefs(html);
-  const uniqueVerseIds = rewriteVerseIdsAndAnchors(noFootnotes, bookKey, chapter);
+  const uniqueVerseIds = rewriteVerseIdsAndAnchors(
+    noFootnotes,
+    bookKey,
+    chapter,
+  );
   return normalizeHbqVerseGlue(normalizeVerseGlue(uniqueVerseIds));
 }
 
@@ -131,7 +142,9 @@ const chapters = getChapterNumbers(chapterTotal).map((chapter) => {
 
   return {
     chapter,
-    paragraphs: rawParagraphs.map((html) => prepareParagraph(html, bookKey, chapter)),
+    paragraphs: rawParagraphs.map((html) =>
+      prepareParagraph(html, bookKey, chapter),
+    ),
   };
 });
 
@@ -144,7 +157,11 @@ const description = `Read ${bookName} in continuous scroll with Reading Mode.`;
 ---
 
 <Layout title={title} description={description} bg="cream" index={false}>
-  <section class="scripture-tools" data-pagefind-ignore aria-label="Scripture tools">
+  <section
+    class="scripture-tools"
+    data-pagefind-ignore
+    aria-label="Scripture tools"
+  >
     <div class="scripture-tools__inner">
       <div class="scripture-tools__left" aria-label="Jump to passage">
         <ReadMenu />
@@ -165,7 +182,12 @@ const description = `Read ${bookName} in continuous scroll with Reading Mode.`;
     data-rm-has-intro={hasIntro ? "true" : "false"}
     data-rm-study-intro-href={studyIntroHref}
   >
-    <div class="rm-toolbar" id="rm-toolbar" data-rm-toolbar data-pagefind-ignore>
+    <div
+      class="rm-toolbar"
+      id="rm-toolbar"
+      data-rm-toolbar
+      data-pagefind-ignore
+    >
       <div class="rm-toolbar__row">
         <div class="rm-toolbar__cluster rm-toolbar__cluster--left">
           <button
@@ -187,7 +209,12 @@ const description = `Read ${bookName} in continuous scroll with Reading Mode.`;
             Aa
           </button>
 
-          <button type="button" data-rm-markers-toggle aria-pressed="true" aria-label="Numbers: On">
+          <button
+            type="button"
+            data-rm-markers-toggle
+            aria-pressed="true"
+            aria-label="Numbers: On"
+          >
             Numbers: On
           </button>
 
@@ -197,7 +224,9 @@ const description = `Read ${bookName} in continuous scroll with Reading Mode.`;
         </div>
 
         <div class="rm-toolbar__cluster rm-toolbar__cluster--center">
-          <span class="rm-where" data-rm-where>{bookName} &middot; Chapter 1</span>
+          <span class="rm-where" data-rm-where
+            >{bookName} &middot; Chapter 1</span
+          >
 
           <div class="rm-toolbar__progress">
             <span class="rm-progress" data-rm-progress>0%</span>
@@ -208,17 +237,23 @@ const description = `Read ${bookName} in continuous scroll with Reading Mode.`;
         </div>
 
         <div class="rm-toolbar__cluster rm-toolbar__cluster--right">
-          <button type="button" data-rm-start-over>Return to Beginning</button>
+          <div class="rm-toolbar__z3-actions">
+            <button type="button" data-rm-start-over>Return to Beginning</button
+            >
 
-          <a
-            href={`/${bookKey}-1`}
-            class="rm-switch"
-            data-rm-study-switch
-            aria-label={`Switch to Study View for ${bookName} chapter 1`}
-          >
-            <span class="reading-view-pill__icon rm-cycle-icon" aria-hidden="true">&#x27F3;</span>
-            <span>Switch to Study View</span>
-          </a>
+            <a
+              href={`/${bookKey}-1`}
+              class="rm-switch"
+              data-rm-study-switch
+              aria-label={`Switch to Study View for ${bookName} chapter 1`}
+            >
+              <span
+                class="reading-view-pill__icon rm-cycle-icon"
+                aria-hidden="true">&#x27F3;</span
+              >
+              <span>Switch to Study View</span>
+            </a>
+          </div>
 
           <button
             type="button"
@@ -226,11 +261,17 @@ const description = `Read ${bookName} in continuous scroll with Reading Mode.`;
             data-rm-mobile-close
             aria-label="Close"
           >
-            &times;
+            <svg
+              class="rm-x"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path d="M6 6l12 12M18 6L6 18"></path>
+            </svg>
           </button>
         </div>
       </div>
-
 
       <div class="rm-toolbar__panels">
         <div id="rm-toc-panel" class="rm-toc" data-rm-toc-panel hidden>
@@ -261,14 +302,20 @@ const description = `Read ${bookName} in continuous scroll with Reading Mode.`;
               ) : (
                 <>
                   <p class="rm-toc__chapters-label">Chapters</p>
-                  <div class="rm-toc__group-tabs" role="tablist" aria-label="Chapter groups">
+                  <div
+                    class="rm-toc__group-tabs"
+                    role="tablist"
+                    aria-label="Chapter groups"
+                  >
                     {tocGroups.map((group, index) => (
                       <button
                         type="button"
                         role="tab"
                         data-rm-group-tab={index}
                         data-rm-group-start={group.chapters[0]}
-                        data-rm-group-end={group.chapters[group.chapters.length - 1]}
+                        data-rm-group-end={
+                          group.chapters[group.chapters.length - 1]
+                        }
                         aria-selected={index === 0 ? "true" : "false"}
                       >
                         {group.label}
@@ -282,7 +329,9 @@ const description = `Read ${bookName} in continuous scroll with Reading Mode.`;
                       role="tabpanel"
                       data-rm-group-panel={index}
                       data-rm-group-start={group.chapters[0]}
-                      data-rm-group-end={group.chapters[group.chapters.length - 1]}
+                      data-rm-group-end={
+                        group.chapters[group.chapters.length - 1]
+                      }
                       hidden={index !== 0}
                     >
                       <ol>
@@ -310,19 +359,33 @@ const description = `Read ${bookName} in continuous scroll with Reading Mode.`;
           <div class="rm-aa__group">
             <p class="rm-aa__group-title">Font Size</p>
             <div class="rm-aa__options">
-              <button type="button" data-rm-set="font:sm" aria-pressed="false">S</button>
-              <button type="button" data-rm-set="font:md" aria-pressed="false">M</button>
-              <button type="button" data-rm-set="font:lg" aria-pressed="false">L</button>
+              <button type="button" data-rm-set="font:sm" aria-pressed="false"
+                >S</button
+              >
+              <button type="button" data-rm-set="font:md" aria-pressed="false"
+                >M</button
+              >
+              <button type="button" data-rm-set="font:lg" aria-pressed="false"
+                >L</button
+              >
             </div>
           </div>
 
           <div class="rm-aa__group">
             <p class="rm-aa__group-title">Line Height</p>
             <div class="rm-aa__options">
-              <button type="button" data-rm-set="leading:normal" aria-pressed="false">
+              <button
+                type="button"
+                data-rm-set="leading:normal"
+                aria-pressed="false"
+              >
                 Normal
               </button>
-              <button type="button" data-rm-set="leading:roomy" aria-pressed="false">
+              <button
+                type="button"
+                data-rm-set="leading:roomy"
+                aria-pressed="false"
+              >
                 Roomy
               </button>
             </div>
@@ -358,30 +421,35 @@ const description = `Read ${bookName} in continuous scroll with Reading Mode.`;
       </div>
     </div>
 
-    <article class="rm-reader" data-rm-reader data-rm-markers="on" data-rm-focus="off">
+    <article
+      class="rm-reader"
+      data-rm-reader
+      data-rm-markers="on"
+      data-rm-focus="off"
+    >
       <h1 class="rm-title">{bookName}</h1>
 
       <div class="rm-text" data-rm-text>
-        {chapters.map(({ chapter, paragraphs }) => (
-          <>
-            <div class="rm-ch-anchor" id={`ch-${chapter}`} data-rm-chapter={chapter} aria-hidden="true"></div>
-            <h2 class="rm-chapter">
-              Chapter {chapter}
-            </h2>
+        {
+          chapters.map(({ chapter, paragraphs }) => (
+            <>
+              <div
+                class="rm-ch-anchor"
+                id={`ch-${chapter}`}
+                data-rm-chapter={chapter}
+                aria-hidden="true"
+              />
+              <h2 class="rm-chapter">Chapter {chapter}</h2>
 
-            {paragraphs.map((html) => (
-              <div class="rm-block" set:html={html} />
-            ))}
-          </>
-        ))}
+              {paragraphs.map((html) => (
+                <div class="rm-block" set:html={html} />
+              ))}
+            </>
+          ))
+        }
       </div>
     </article>
   </section>
 
   <script type="module" src={readModeScript}></script>
 </Layout>
-
-
-
-
-

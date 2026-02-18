@@ -453,7 +453,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
         }
 
         const REF_HELP_TEXT =
-          "Type a reference like \"Luke 4:18\", \"John3:16\", or \"Jn 3:16\".";
+          'Type a reference like "Luke 4:18", "John3:16", or "Jn 3:16".';
 
         function resolveBookKey(rawBookPart) {
           const alias = slugifyBookName(rawBookPart);
@@ -731,15 +731,37 @@ const baseUrl = import.meta.env.BASE_URL || "/";
           jumpRow.innerHTML = `
             <div class="searchbar__jump-links">
               <a class="searchbar__jump-link" href="${studyHref}">
-                Jump (Study Mode) to <strong>${label}</strong>
-                <span class="searchbar__jump-hint">Enter</span>
+                Jump to <strong>${label}</strong>
+                <span class="searchbar__jump-hint">in Study View</span>
               </a>
               <a class="searchbar__jump-link searchbar__jump-link--read" href="${readHref}">
-                Jump (Read Mode) to <strong>${label}</strong>
-                <span class="searchbar__jump-hint">Read</span>
+                Jump to <strong>${label}</strong>
+                <span class="searchbar__jump-hint">in Read View</span>
               </a>
             </div>
           `;
+        }
+
+        function jumpLinksVisible() {
+          return !!(
+            jumpRow &&
+            jumpRow.hidden === false &&
+            jumpRow.querySelector(".searchbar__jump-link")
+          );
+        }
+
+        function doJump(preferRead = false) {
+          const links = Array.from(
+            jumpRow.querySelectorAll("a.searchbar__jump-link"),
+          );
+          if (!links.length) return false;
+
+          const target = preferRead ? links[1] || links[0] : links[0];
+          const href = target?.getAttribute("href");
+          if (!href) return false;
+
+          window.location.href = href;
+          return true;
         }
 
         function parseMetaList(metaValue) {
@@ -981,7 +1003,8 @@ const baseUrl = import.meta.env.BASE_URL || "/";
               clearGhost();
 
               if (ref) {
-                status.textContent = "Press Enter to jump.";
+                status.textContent =
+                  "Press Enter: Study View · Press Shift+Enter: Read View";
                 renderJump(ref);
               } else {
                 status.textContent = REF_HELP_TEXT;
@@ -996,7 +1019,8 @@ const baseUrl = import.meta.env.BASE_URL || "/";
             const suppressKeywordResultsForPureReference = true;
 
             if (suppressKeywordResultsForPureReference && ref) {
-              status.textContent = "Press Enter to jump.";
+              status.textContent =
+                "Press Enter: Study View · Press Shift+Enter: Read View";
               groupsEl.innerHTML = "";
               return;
             }
@@ -1389,6 +1413,14 @@ const baseUrl = import.meta.env.BASE_URL || "/";
           }
 
           if (e.key !== "Enter") return;
+
+          // If jump links are showing, Enter should jump (Shift+Enter = Read View)
+          if (jumpLinksVisible()) {
+            e.preventDefault();
+            doJump(e.shiftKey);
+            return;
+          }
+
           e.preventDefault();
           submitSearch();
         });

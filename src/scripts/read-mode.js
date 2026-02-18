@@ -1,4 +1,6 @@
-﻿const STORAGE = {
+﻿// src/scripts/read-mode.js
+
+const STORAGE = {
   markers: "lit_rm_markers",
   font: "lit_rm_fontSize",
   leading: "lit_rm_lineHeight",
@@ -118,7 +120,6 @@ function initReadMode() {
 
   const resumePopover = page.querySelector("[data-rm-resume-popover]");
   const resumeBackdrop = page.querySelector("[data-rm-resume-backdrop]");
-  const resumeBox = page.querySelector("[data-rm-resume]");
   const resumeYes = page.querySelector("[data-rm-resume-yes]");
   const resumeNo = page.querySelector("[data-rm-resume-no]");
   const startOverButton = page.querySelector("[data-rm-start-over]");
@@ -190,19 +191,54 @@ function initReadMode() {
     return html.classList.contains("rm-tools-open");
   }
 
+  // ---- Fix A core: reliable CSS var reading + correct subtraction ----
+  function readAnchorGapPx() {
+    // Reads --rm-anchor-gap from .rm-page; fallback 0
+    const raw = getComputedStyle(page).getPropertyValue("--rm-anchor-gap");
+    const n = parseFloat(String(raw || "").trim());
+    return Number.isFinite(n) ? n : 0;
+  }
+
+  function toolbarIsAtTop() {
+    // In your CSS, the toolbar is sticky top on “desktop/default”
+    // and becomes fixed at bottom in the @container (max-width: 1040px) sheet mode.
+    // So: if computed position is sticky (or fixed) AND top is 0-ish, treat as top overlay.
+    const cs = getComputedStyle(toolbar);
+    const pos = cs.position;
+    const top = parseFloat(cs.top || "0");
+    const atTop = (pos === "sticky" || pos === "fixed") && Number.isFinite(top) && top <= 1;
+    const bottom = parseFloat(cs.bottom || "NaN");
+    const atBottom = Number.isFinite(bottom) && bottom >= 0;
+    return atTop && !atBottom;
+  }
+
+  function getEffectiveTopOffsetPx() {
+    const gap = readAnchorGapPx();
+    const overlay = toolbarIsAtTop() ? toolbar.getBoundingClientRect().height : 0;
+    return Math.max(0, Math.round(gap + overlay));
+  }
+
   function scrollToAnchor(anchor, extraOffset = 0) {
     const target = document.getElementById(anchor);
     if (!target) return false;
 
+    const effectiveTopOffset = getEffectiveTopOffsetPx();
+    const rectTop = target.getBoundingClientRect().top;
+
+    // IMPORTANT: subtract offset so content lands LOWER on screen
     const top =
-      window.scrollY + target.getBoundingClientRect().top + Number(extraOffset || 0);
+      window.scrollY +
+      rectTop -
+      effectiveTopOffset +
+      Number(extraOffset || 0);
 
     window.scrollTo({
-      top,
+      top: Math.max(0, Math.round(top)),
       behavior: prefersReducedMotion ? "auto" : "smooth",
     });
     return true;
   }
+  // -------------------------------------------------------------------
 
   function setHash(anchor) {
     if (!anchor) return;
@@ -426,7 +462,6 @@ function initReadMode() {
 
   function updateStudySwitchHref() {
     if (!(studySwitch instanceof HTMLAnchorElement)) return;
-    // Keep it simple: switch to the current chapter.
     studySwitch.href = studyChapterHref(activeChapter);
     studySwitch.setAttribute(
       "aria-label",
@@ -477,7 +512,11 @@ function initReadMode() {
     const pct =
       end <= start
         ? 100
-        : clamp(Math.round(((window.scrollY - start) / (end - start)) * 100), 0, 100);
+        : clamp(
+            Math.round(((window.scrollY - start) / (end - start)) * 100),
+            0,
+            100,
+          );
 
     if (progressEl instanceof HTMLElement) {
       progressEl.textContent = `${pct}%`;
@@ -741,7 +780,10 @@ function initReadMode() {
 
   if (tocTop instanceof HTMLButtonElement) {
     tocTop.addEventListener("click", () => {
-      window.scrollTo({ top: 0, behavior: prefersReducedMotion ? "auto" : "smooth" });
+      window.scrollTo({
+        top: 0,
+        behavior: prefersReducedMotion ? "auto" : "smooth",
+      });
       window.history.replaceState(null, "", window.location.pathname);
       closePanels();
     });
