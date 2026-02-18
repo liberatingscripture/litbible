@@ -11,6 +11,10 @@ const FONT_OPTIONS = new Set(["sm", "md", "lg"]);
 const LEADING_OPTIONS = new Set(["normal", "roomy"]);
 const ON_OFF_OPTIONS = new Set(["on", "off"]);
 
+// Must match your CSS breakpoint where toolbar becomes bottom-sheet.
+// Mid should behave like Small, and Small starts at 1080 now.
+const SHEET_MAX = 1080;
+
 const prefersReducedMotion = window.matchMedia(
   "(prefers-reduced-motion: reduce)",
 ).matches;
@@ -129,7 +133,53 @@ function initReadMode() {
     page.querySelector("[data-rm-toolbar-close]");
 
   const typographyButtons = Array.from(page.querySelectorAll("[data-rm-set]"));
-  const phoneViewport = window.matchMedia("(max-width: 640px)");
+
+  // --- NEW: “sheet mode” detection that matches container-query behavior ---
+  let sheetMode = false;
+
+  function computeSheetMode() {
+    // Match your CSS: @container (max-width: 1080px) on .rm-page
+    const w = page.getBoundingClientRect().width || window.innerWidth;
+    return w <= SHEET_MAX;
+  }
+
+  function refreshSheetMode() {
+    const next = computeSheetMode();
+    if (next === sheetMode) return;
+
+    sheetMode = next;
+
+    // If we just moved OUT of sheet mode, forcibly close the bottom sheet state.
+    if (!sheetMode) {
+      closeMobileTools();
+    }
+  }
+
+  // initialize immediately
+  sheetMode = computeSheetMode();
+
+  // Track .rm-page width changes (better than viewport resize)
+  let pageRO = null;
+  if (typeof ResizeObserver === "function") {
+    pageRO = new ResizeObserver(() => {
+      refreshSheetMode();
+      updateToolbarOffset();
+      updateProgress();
+      pickActiveFocusTarget();
+    });
+    pageRO.observe(page);
+  } else {
+    // fallback
+    window.addEventListener("resize", () => {
+      refreshSheetMode();
+    });
+  }
+
+  function isSheetMode() {
+    // Cheap + current enough
+    return sheetMode;
+  }
+  // ------------------------------------------------------------------------
 
   const chapterAnchors = Array.from(
     page.querySelectorAll(".rm-ch-anchor[data-rm-chapter]"),
@@ -178,9 +228,39 @@ function initReadMode() {
 
   const studyChapterHref = (chapter) => `/${bookKey}-${chapter}`;
 
-  function isPhoneViewport() {
-    return phoneViewport.matches;
+  // --- Start Over button structure (prevents text concatenation) ---
+  let startOverIconEl = null;
+  let startOverLabelEl = null;
+
+  function ensureStartOverButtonStructure() {
+    if (!(startOverButton instanceof HTMLButtonElement)) return;
+
+    const existingIcon = startOverButton.querySelector(".rm-btn-icon");
+    const existingLabel = startOverButton.querySelector(".rm-btn-label");
+
+    if (existingIcon && existingLabel) {
+      startOverIconEl = existingIcon;
+      startOverLabelEl = existingLabel;
+      return;
+    }
+
+    startOverButton.textContent = "";
+
+    const icon = document.createElement("span");
+    icon.className = "rm-btn-icon";
+    icon.setAttribute("aria-hidden", "true");
+    icon.textContent = "↑";
+
+    const label = document.createElement("span");
+    label.className = "rm-btn-label";
+    label.textContent = "Return to Beginning";
+
+    startOverButton.append(icon, label);
+
+    startOverIconEl = icon;
+    startOverLabelEl = label;
   }
+  // ---------------------------------------------------------------
 
   function setFabExpanded(expanded) {
     if (!(fabToggle instanceof HTMLButtonElement)) return;
@@ -200,13 +280,16 @@ function initReadMode() {
   }
 
   function toolbarIsAtTop() {
-    // In your CSS, the toolbar is sticky top on “desktop/default”
-    // and becomes fixed at bottom in the @container (max-width: 1040px) sheet mode.
+    // In your CSS, the toolbar is sticky top on wide mode
+    // and becomes fixed at bottom in sheet mode.
     // So: if computed position is sticky (or fixed) AND top is 0-ish, treat as top overlay.
     const cs = getComputedStyle(toolbar);
     const pos = cs.position;
     const top = parseFloat(cs.top || "0");
-    const atTop = (pos === "sticky" || pos === "fixed") && Number.isFinite(top) && top <= 1;
+    const atTop =
+      (pos === "sticky" || pos === "fixed") &&
+      Number.isFinite(top) &&
+      top <= 1;
     const bottom = parseFloat(cs.bottom || "NaN");
     const atBottom = Number.isFinite(bottom) && bottom >= 0;
     return atTop && !atBottom;
@@ -214,7 +297,9 @@ function initReadMode() {
 
   function getEffectiveTopOffsetPx() {
     const gap = readAnchorGapPx();
-    const overlay = toolbarIsAtTop() ? toolbar.getBoundingClientRect().height : 0;
+    const overlay = toolbarIsAtTop()
+      ? toolbar.getBoundingClientRect().height
+      : 0;
     return Math.max(0, Math.round(gap + overlay));
   }
 
@@ -227,10 +312,7 @@ function initReadMode() {
 
     // IMPORTANT: subtract offset so content lands LOWER on screen
     const top =
-      window.scrollY +
-      rectTop -
-      effectiveTopOffset +
-      Number(extraOffset || 0);
+      window.scrollY + rectTop - effectiveTopOffset + Number(extraOffset || 0);
 
     window.scrollTo({
       top: Math.max(0, Math.round(top)),
@@ -553,7 +635,110 @@ function initReadMode() {
     html.classList.remove("rm-modal-open");
   }
 
+  // --- Swipe-to-dismiss (bottom sheet) + close-on-scroll ---
+  let dragActive = false;
+  let dragStartY = 0;
+  let dragLastY = 0;
+
+  function isInteractiveTarget(node) {
+    if (!(node instanceof Element)) return false;
+    return !!node.closest(
+      "button,a,input,select,textarea,label,[role='button'],[data-no-swipe]",
+    );
+  }
+
+  function setSheetDragTransform(dy) {
+    toolbar.style.transform = `translateY(${Math.max(0, dy)}px)`;
+  }
+
+  function resetSheetDragStyles() {
+    toolbar.style.removeProperty("transform");
+    toolbar.style.removeProperty("transition");
+    toolbar.style.removeProperty("will-change");
+  }
+
+  function closeSheetOnScroll() {
+    if (isSheetMode() && isToolsOpen()) {
+      closeMobileTools();
+    }
+  }
+
+  function enableSheetDrag() {
+    if (!isSheetMode()) return;
+
+    toolbar.addEventListener(
+      "pointerdown",
+      (e) => {
+        if (!isSheetMode() || !isToolsOpen()) return;
+        if (e.button !== 0) return;
+        if (isInteractiveTarget(e.target)) return;
+
+        dragActive = true;
+        dragStartY = e.clientY;
+        dragLastY = e.clientY;
+
+        toolbar.style.willChange = "transform";
+        toolbar.style.transition = "none";
+
+        try {
+          toolbar.setPointerCapture(e.pointerId);
+        } catch {
+          // ignore
+        }
+      },
+      { passive: true },
+    );
+
+    toolbar.addEventListener(
+      "pointermove",
+      (e) => {
+        if (!dragActive) return;
+        dragLastY = e.clientY;
+        const dy = dragLastY - dragStartY;
+
+        if (dy <= 0) {
+          setSheetDragTransform(0);
+          return;
+        }
+
+        setSheetDragTransform(dy);
+      },
+      { passive: true },
+    );
+
+    function endDrag() {
+      if (!dragActive) return;
+      dragActive = false;
+
+      const dy = dragLastY - dragStartY;
+      const h = toolbar.getBoundingClientRect().height;
+      const threshold = Math.min(h * 0.25, 90);
+
+      toolbar.style.transition = prefersReducedMotion
+        ? "none"
+        : "transform 180ms ease";
+
+      if (dy > threshold) {
+        resetSheetDragStyles();
+        closeMobileTools({ focusFab: true });
+      } else {
+        setSheetDragTransform(0);
+        window.setTimeout(() => {
+          resetSheetDragStyles();
+        }, prefersReducedMotion ? 0 : 200);
+      }
+    }
+
+    toolbar.addEventListener("pointerup", endDrag, { passive: true });
+    toolbar.addEventListener("pointercancel", endDrag, { passive: true });
+  }
+  // ---------------------------------------------------------
+
   function closeMobileTools({ focusFab = false } = {}) {
+    // Clean up any drag styles/state
+    resetSheetDragStyles();
+    dragActive = false;
+
     if (isToolsOpen()) {
       html.classList.remove("rm-tools-open");
       closePanels();
@@ -568,7 +753,8 @@ function initReadMode() {
   }
 
   function openMobileTools() {
-    if (!isPhoneViewport()) return;
+    refreshSheetMode();
+    if (!isSheetMode()) return;
 
     html.classList.add("rm-tools-open");
     setFabExpanded(true);
@@ -624,14 +810,26 @@ function initReadMode() {
   function setReturnButtonState() {
     if (!(startOverButton instanceof HTMLButtonElement)) return;
 
+    ensureStartOverButtonStructure();
+
+    const icon = returnLocationState ? "↓" : "↑";
+    const label = returnLocationState
+      ? "Return to Location"
+      : "Return to Beginning";
+
+    if (startOverIconEl instanceof HTMLElement) {
+      startOverIconEl.textContent = icon;
+    }
+    if (startOverLabelEl instanceof HTMLElement) {
+      startOverLabelEl.textContent = label;
+    }
+
     if (returnLocationState) {
-      startOverButton.textContent = "Return to Location";
       startOverButton.setAttribute(
         "aria-label",
         "Return to previous reading location",
       );
     } else {
-      startOverButton.textContent = "Return to Beginning";
       startOverButton.setAttribute(
         "aria-label",
         "Return to beginning of reading view",
@@ -709,6 +907,9 @@ function initReadMode() {
     whereEl.textContent = `${bookTitle} · Chapter ${activeChapter}`;
   }
 
+  // Ensure button structure early, before first label set.
+  ensureStartOverButtonStructure();
+
   syncTocGroupToActiveChapter(true);
   updateActiveChapterButton();
   updateStudySwitchHref();
@@ -726,6 +927,9 @@ function initReadMode() {
 
   updateToolbarOffset();
   setToolbarOpenState("");
+
+  // Enable swipe-to-dismiss handling once
+  enableSheetDrag();
 
   const chapterObserver = new IntersectionObserver(
     () => {
@@ -935,11 +1139,12 @@ function initReadMode() {
   document.addEventListener("click", (event) => {
     if (!(event.target instanceof Node)) return;
     if (isResumePopoverOpen()) return;
+
     const clickedToolbar = toolbar.contains(event.target);
     const clickedFab =
       fabToggle instanceof HTMLButtonElement && fabToggle.contains(event.target);
 
-    if (isPhoneViewport() && isToolsOpen() && !clickedToolbar && !clickedFab) {
+    if (isSheetMode() && isToolsOpen() && !clickedToolbar && !clickedFab) {
       closeMobileTools();
       return;
     }
@@ -963,7 +1168,7 @@ function initReadMode() {
       return;
     }
 
-    if (isPhoneViewport() && isToolsOpen()) {
+    if (isSheetMode() && isToolsOpen()) {
       event.preventDefault();
       closeMobileTools({ focusFab: true });
       return;
@@ -976,6 +1181,9 @@ function initReadMode() {
   let saveTimer = 0;
 
   const onScroll = () => {
+    // Wishlist: scrolling the page while sheet is open dismisses it.
+    closeSheetOnScroll();
+
     if (!scrollRaf) {
       scrollRaf = window.requestAnimationFrame(() => {
         scrollRaf = 0;
@@ -992,8 +1200,11 @@ function initReadMode() {
   };
 
   window.addEventListener("scroll", onScroll, { passive: true });
+
   window.addEventListener("resize", () => {
-    if (!isPhoneViewport()) {
+    refreshSheetMode();
+
+    if (!isSheetMode()) {
       closeMobileTools();
     }
 
@@ -1002,17 +1213,6 @@ function initReadMode() {
     updateProgress();
     pickActiveFocusTarget();
   });
-
-  const onPhoneViewportChange = () => {
-    closeMobileTools();
-    updateToolbarOffset();
-  };
-
-  if (typeof phoneViewport.addEventListener === "function") {
-    phoneViewport.addEventListener("change", onPhoneViewportChange);
-  } else if (typeof phoneViewport.addListener === "function") {
-    phoneViewport.addListener(onPhoneViewportChange);
-  }
 
   const hash = decodeURIComponent(window.location.hash.replace(/^#/, ""));
   const hashTarget = hash ? document.getElementById(hash) : null;

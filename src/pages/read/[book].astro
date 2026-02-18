@@ -238,8 +238,11 @@ const description = `Read ${bookName} in continuous scroll with Reading Mode.`;
 
         <div class="rm-toolbar__cluster rm-toolbar__cluster--right">
           <div class="rm-toolbar__z3-actions">
-            <button type="button" data-rm-start-over>Return to Beginning</button
-            >
+            <!-- UPDATED: arrow + swappable label -->
+            <button type="button" data-rm-start-over>
+              <span class="rm-arrow" aria-hidden="true"></span>
+              <span class="rm-start-over-label">Return to Beginning</span>
+            </button>
 
             <a
               href={`/${bookKey}-1`}
