@@ -635,7 +635,7 @@ function initReadMode() {
     html.classList.remove("rm-modal-open");
   }
 
-  // --- Swipe-to-dismiss (bottom sheet) + close-on-scroll ---
+  // --- Swipe-to-dismiss (bottom sheet) ---
   let dragActive = false;
   let dragStartY = 0;
   let dragLastY = 0;
@@ -657,12 +657,6 @@ function initReadMode() {
     toolbar.style.removeProperty("will-change");
   }
 
-  function closeSheetOnScroll() {
-    if (isSheetMode() && isToolsOpen()) {
-      closeMobileTools();
-    }
-  }
-
   function enableSheetDrag() {
     if (!isSheetMode()) return;
 
@@ -672,6 +666,10 @@ function initReadMode() {
         if (!isSheetMode() || !isToolsOpen()) return;
         if (e.button !== 0) return;
         if (isInteractiveTarget(e.target)) return;
+
+        // Only allow swipe-dismiss when the sheet is scrolled to top.
+        // Prevents fighting with normal sheet-content scrolling.
+        if (toolbar.scrollTop > 0) return;
 
         dragActive = true;
         dragStartY = e.clientY;
@@ -693,6 +691,10 @@ function initReadMode() {
       "pointermove",
       (e) => {
         if (!dragActive) return;
+
+        // Prevent the page from scrolling while we drag-dismiss the sheet.
+        e.preventDefault();
+
         dragLastY = e.clientY;
         const dy = dragLastY - dragStartY;
 
@@ -703,7 +705,7 @@ function initReadMode() {
 
         setSheetDragTransform(dy);
       },
-      { passive: true },
+      { passive: false },
     );
 
     function endDrag() {
@@ -1181,8 +1183,7 @@ function initReadMode() {
   let saveTimer = 0;
 
   const onScroll = () => {
-    // Wishlist: scrolling the page while sheet is open dismisses it.
-    closeSheetOnScroll();
+    // Allow page scroll while sheet remains open.
 
     if (!scrollRaf) {
       scrollRaf = window.requestAnimationFrame(() => {

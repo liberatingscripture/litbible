@@ -94,13 +94,15 @@ import { BOOKS as books } from "../data/books.js";
       }
 
       function buildStudyHref(bookKey, chapter) {
-        if (!bookKey || !chapter) return "";
-        if (chapter === "intro") return `/${bookKey}-intro`;
+        if (!bookKey) return "";
+        if (!chapter || chapter === "intro") return `/${bookKey}-intro`;
         return `/${bookKey}-${chapter}`;
       }
 
       function buildReadHref(bookKey, chapter) {
-        if (!bookKey || !chapter) return "";
+        if (!bookKey) return "";
+        // If no chapter selected, go to the book reading view landing page.
+        if (!chapter) return `/read/${bookKey}`;
         if (chapter === "intro") return buildStudyHref(bookKey, chapter);
         return `/read/${bookKey}#ch-${chapter}`;
       }
@@ -115,7 +117,9 @@ import { BOOKS as books } from "../data/books.js";
 
         chapterSelect.innerHTML = '<option value="">Select a Chapter</option>';
         chapterSelect.disabled = true;
-        setButtonsDisabled(true);
+
+        // Enable buttons as soon as a valid book is selected
+        setButtonsDisabled(!key);
 
         if (books[key]) {
           chapterSelect.disabled = false;
@@ -134,13 +138,18 @@ import { BOOKS as books } from "../data/books.js";
         }
       });
 
+      // No longer gate buttons on chapter selection; keep listener optional/no-op.
       chapterSelect.addEventListener("change", () => {
-        setButtonsDisabled(!chapterSelect.value);
+        // Buttons remain enabled as long as a book is selected.
+        const key = slugifyBook(bookSelect.value);
+        setButtonsDisabled(!key);
       });
 
       const submitStudyFromKeyboard = (event) => {
         if (event.key !== "Enter") return;
         event.preventDefault();
+
+        // Enter submits "study" by default, even if chapter isn't selected.
         if (!studyButton.disabled) root.requestSubmit(studyButton);
       };
 
@@ -151,8 +160,8 @@ import { BOOKS as books } from "../data/books.js";
         event.preventDefault();
 
         const book = slugifyBook(bookSelect.value);
-        const chapter = chapterSelect.value;
-        if (!book || !chapter) return;
+        const chapter = chapterSelect.value || ""; // may be empty now
+        if (!book) return;
 
         const submitter = event.submitter;
         const mode =

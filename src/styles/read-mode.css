@@ -418,6 +418,204 @@ html.rm-tools-open {
 }
 
 /* =========================================================
+   TAB EFFECT (wide mode): attach “Go to chapter” + “Aa” to trays
+   ========================================================= */
+
+/* When a tray is open, reduce the gap so it feels connected */
+.rm-page .rm-toolbar[data-rm-open="toc"] .rm-toolbar__panels,
+.rm-page .rm-toolbar[data-rm-open="aa"] .rm-toolbar__panels {
+  margin-top: 0.2rem;
+}
+
+/* Active tab buttons: become “tabs” and merge with panel border */
+.rm-page .rm-toolbar[data-rm-open="toc"] [data-rm-toc-toggle],
+.rm-page .rm-toolbar[data-rm-open="aa"] [data-rm-aa-toggle] {
+  background: #fff;
+  border-color: rgba(29, 35, 28, 0.22);
+  border-bottom-color: transparent;
+  border-radius: 10px 10px 0 0;
+  position: relative;
+  z-index: 3;
+  top: 3px;
+  margin-bottom: -5px;
+}
+
+/* Pull the open panel up to meet the tab and hide the seam */
+.rm-page .rm-toolbar[data-rm-open="toc"] .rm-toc,
+.rm-page .rm-toolbar[data-rm-open="aa"] .rm-aa {
+  margin-top: -1px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+/* =========================================================
+   AA spacing: tighten title-to-buttons gaps + add breathing room AFTER buttons
+   (UPDATED to match your actual markup: .rm-aa__group-title + .rm-aa__options)
+   ========================================================= */
+
+/* Headings themselves can be the source of "mystery whitespace" (keep, harmless) */
+.rm-page .rm-aa h1,
+.rm-page .rm-aa h2,
+.rm-page .rm-aa h3,
+.rm-page .rm-aa h4 {
+  margin: 0 0 0.35rem; /* tighter gap heading → options */
+}
+
+/* Your AA titles are <p class="rm-aa__group-title"> */
+.rm-page .rm-aa p.rm-aa__group-title {
+  margin: 0 0 0.35rem; /* tighter title → buttons */
+  line-height: 1.2;
+}
+
+/* Button rows are <div class="rm-aa__options"> */
+.rm-page .rm-aa .rm-aa__options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+
+  margin: 0 0 0.85rem; /* more space AFTER buttons */
+}
+
+/* Group wrapper: don't add extra bottom margin (it was inflating spacing) */
+.rm-page .rm-aa .rm-aa__group {
+  margin: 0;
+  padding: 0;
+}
+
+/* Don’t over-pad the final option set */
+.rm-page .rm-aa .rm-aa__group:last-child .rm-aa__options {
+  margin-bottom: 0;
+}
+
+/* --- Legacy selectors kept as no-ops for safety (in case older markup exists) --- */
+.rm-page .rm-aa p:not(.rm-aa__group-title) {
+  margin: 0 0 0.35rem;
+}
+
+.rm-page .rm-aa .rm-aa__row,
+.rm-page .rm-aa .rm-aa__buttons,
+.rm-page .rm-aa [data-rm-aa-options] {
+  margin-bottom: 0.85rem;
+}
+
+.rm-page .rm-aa .rm-aa__row:last-child,
+.rm-page .rm-aa .rm-aa__buttons:last-child,
+.rm-page .rm-aa [data-rm-aa-options]:last-child {
+  margin-bottom: 0;
+}
+
+/* =========================================================
+   TOC: Chapter selector visuals (groups row + active caret + green band)
+   ========================================================= */
+
+/* Make sure hidden group panels truly disappear (belt + suspenders) */
+.rm-page .rm-toc [data-rm-group-panel][hidden] {
+  display: none !important;
+}
+
+/* Group tabs row */
+.rm-page .rm-toc [data-rm-group-tab] {
+  position: relative;
+  border: 1px solid rgba(29, 35, 28, 0.22);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--ink, #1d231c);
+  padding: 0.28rem 0.55rem;
+  font-size: 0.82rem;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+/* Active group: green tint + border */
+.rm-page .rm-toc [data-rm-group-tab][aria-selected="true"] {
+  border-color: rgba(32, 157, 80, 0.7);
+  background: rgba(32, 157, 80, 0.16);
+}
+
+/* Speech-bubble caret for active group */
+.rm-page .rm-toc [data-rm-group-tab][aria-selected="true"]::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  bottom: -7px;
+  width: 12px;
+  height: 12px;
+  background: rgba(32, 157, 80, 0.16);
+  border-right: 1px solid rgba(32, 157, 80, 0.7);
+  border-bottom: 1px solid rgba(32, 157, 80, 0.7);
+  border-left: 0;
+  border-top: 0;
+}
+
+/* The active group's chapter-number "band" */
+.rm-page .rm-toc [data-rm-group-panel]:not([hidden]) {
+  margin-top: 0.55rem;
+  padding: 0.75rem;
+  border-radius: 14px;
+  background: rgba(32, 157, 80, 0.1);
+  border: 1px solid rgba(32, 157, 80, 0.22);
+}
+
+/* --- CRITICAL FIX: the chapter numbers must be a ROW (not a vertical list) --- */
+/* Handle either <ol>/<ul> or any nested list inside the active group panel */
+.rm-page .rm-toc [data-rm-group-panel]:not([hidden]) > ol,
+.rm-page .rm-toc [data-rm-group-panel]:not([hidden]) > ul,
+.rm-page .rm-toc [data-rm-group-panel]:not([hidden]) ol,
+.rm-page .rm-toc [data-rm-group-panel]:not([hidden]) ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+/* Remove list numbering/bullets even if something else reintroduces it */
+.rm-page .rm-toc [data-rm-group-panel]:not([hidden]) ol,
+.rm-page .rm-toc [data-rm-group-panel]:not([hidden]) ul {
+  list-style-type: none;
+}
+
+.rm-page .rm-toc [data-rm-group-panel]:not([hidden]) li {
+  display: inline-flex;
+  margin: 0;
+  padding: 0;
+}
+
+/* Chapter pills (buttons) */
+.rm-page .rm-toc [data-rm-chapter-btn] {
+  width: 2.35rem;
+  height: 2.35rem;
+  border-radius: 999px;
+
+  border: 1px solid rgba(29, 35, 28, 0.22);
+  background: #fff;
+  color: var(--ink, #1d231c);
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
+/* Active chapter highlight (aria-current set by JS) */
+.rm-page .rm-toc [data-rm-chapter-btn][aria-current="true"] {
+  border-color: rgba(32, 157, 80, 0.75);
+  background: rgba(32, 157, 80, 0.16);
+}
+
+/* Hover polish */
+.rm-page .rm-toc [data-rm-group-tab]:hover,
+.rm-page .rm-toc [data-rm-chapter-btn]:hover {
+  background: rgba(32, 157, 80, 0.12);
+}
+
+/* =========================================================
    READER
    ========================================================= */
 
@@ -723,6 +921,40 @@ html[data-rm-leading="roomy"] .rm-page .rm-reader {
     color: #fff;
   }
 
+  /* =========================================================
+     MOBILE (sheet mode): active toggles are NOT tabs.
+     Use highlight + caret instead.
+     ========================================================= */
+
+  /* Undo the desktop “tab merge” behavior in sheet mode */
+  .rm-page .rm-toolbar[data-rm-open="toc"] [data-rm-toc-toggle],
+  .rm-page .rm-toolbar[data-rm-open="aa"] [data-rm-aa-toggle] {
+    top: 0;
+    margin-bottom: 0;
+    border-bottom-color: rgba(29, 35, 28, 0.3);
+    border-radius: 999px;
+
+    border-color: rgba(32, 157, 80, 0.7);
+    background: rgba(32, 157, 80, 0.16);
+  }
+
+  /* Caret (speech-bubble pointer) */
+  .rm-page .rm-toolbar[data-rm-open="toc"] [data-rm-toc-toggle]::after,
+  .rm-page .rm-toolbar[data-rm-open="aa"] [data-rm-aa-toggle]::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%) rotate(45deg);
+    bottom: -7px;
+
+    width: 12px;
+    height: 12px;
+
+    background: rgba(32, 157, 80, 0.16);
+    border-right: 1px solid rgba(32, 157, 80, 0.7);
+    border-bottom: 1px solid rgba(32, 157, 80, 0.7);
+  }
+
   /* Close button */
   .rm-page .rm-toolbar button.rm-toolbar__close {
     display: inline-flex;
@@ -760,8 +992,6 @@ html[data-rm-leading="roomy"] .rm-page .rm-reader {
     stroke-linecap: round;
     fill: none;
   }
-
-  /* ... (rest unchanged) ... */
 }
 
 /* Keep for future phone-only tweaks (currently empty on purpose) */
