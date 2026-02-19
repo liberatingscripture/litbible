@@ -585,6 +585,32 @@ html.rm-tools-open {
   padding: 0;
 }
 
+/* =========================================================
+   TOC (ungrouped, <= 10 chapters): make the plain <ol> a pill ROW too
+   ========================================================= */
+
+.rm-page .rm-toc .rm-toc__list > ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rm-page .rm-toc .rm-toc__list > ol > li {
+  display: inline-flex;
+  margin: 0;
+  padding: 0;
+}
+
+/* Extra insurance: kill markers in browsers that get cute */
+.rm-page .rm-toc .rm-toc__list > ol > li::marker {
+  content: "";
+}
+
 /* Chapter pills (buttons) */
 .rm-page .rm-toc [data-rm-chapter-btn] {
   width: 2.35rem;
