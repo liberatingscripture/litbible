@@ -428,6 +428,10 @@
   margin-left: -50vw;
   margin-right: -50vw;
 
+  /* Seam killer: hide 1px subpixel gap above (title-block -> intro) */
+  margin-top: -1px;
+  z-index: 2;
+
   background: #ffffff;
   padding: 6rem 1.5rem;
 

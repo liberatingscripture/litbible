@@ -53,38 +53,85 @@ const baseUrl = import.meta.env.BASE_URL || "/";
   <div class="searchbar__panel" role="dialog" aria-label="Search results tray">
     <div class="searchbar__panel-inner">
       <div class="searchbar__controls" aria-label="Search filters">
-        <div class="searchbar__chips">
-          <button type="button" class="chip chip--active" data-type=""
-            >All</button
+        <!-- Keep chips + source tooltip ALWAYS together -->
+        <div class="searchbar__chips-row">
+          <div class="searchbar__chips">
+            <button type="button" class="chip chip--active" data-type=""
+              >All</button
+            >
+            <button type="button" class="chip" data-type="article"
+              >Articles</button
+            >
+            <button type="button" class="chip" data-type="scripture"
+              >Scripture</button
+            >
+          </div>
+
+          <button
+            type="button"
+            class="searchbar__tip"
+            aria-label="About the source filter (All, Articles, Scripture)"
           >
-          <button type="button" class="chip" data-type="article"
-            >Articles</button
-          >
-          <button type="button" class="chip" data-type="scripture"
-            >Scripture</button
-          >
+            <span class="searchbar__tip-dot" aria-hidden="true">i</span>
+            <span class="searchbar__tooltip" aria-hidden="true">
+              <strong>All</strong> searches Scripture + Articles.<br />
+              <strong>Articles</strong> searches article topics and titles.<br
+              />
+              <strong>Scripture</strong> searches chapter pages + book intros.
+            </span>
+          </button>
         </div>
 
         <div class="searchbar__filters">
-          <label class="sr-only" for="searchbar-book">Filter by book</label>
-          <select id="searchbar-book" class="searchbar__book">
-            <option value="">All books</option>
-          </select>
+          <div class="searchbar__filter searchbar__filter--book">
+            <label class="sr-only" for="searchbar-book">Filter by book</label>
+            <select id="searchbar-book" class="searchbar__book">
+              <option value="">All books</option>
+            </select>
 
-          <label class="sr-only" for="searchbar-mode">Filter results type</label
-          >
-          <select id="searchbar-mode" class="searchbar__mode">
-            <option value="all">All results</option>
-            <option value="subject">Topic matches</option>
-            <option value="keyword">Keyword matches</option>
-            <option value="glossary">Glossary matches</option>
-            <option value="ref">Chapter &amp; verse jump</option>
-          </select>
+            <button
+              type="button"
+              class="searchbar__tip"
+              aria-label="About the book filter"
+            >
+              <span class="searchbar__tip-dot" aria-hidden="true">i</span>
+              <span class="searchbar__tooltip" aria-hidden="true">
+                Narrows scripture results to a specific book
+              </span>
+            </button>
+          </div>
+
+          <div class="searchbar__filter searchbar__filter--mode">
+            <label class="sr-only" for="searchbar-mode"
+              >Filter results type</label
+            >
+            <select id="searchbar-mode" class="searchbar__mode">
+              <option value="all">All results</option>
+              <option value="subject">Topic matches</option>
+              <option value="keyword">Keyword matches</option>
+              <option value="glossary">Glossary matches</option>
+              <option value="ref">Chapter &amp; verse jump</option>
+            </select>
+
+            <button
+              type="button"
+              class="searchbar__tip"
+              aria-label="About results type (All, Topic, Keyword, Glossary, Ref)"
+            >
+              <span class="searchbar__tip-dot" aria-hidden="true">i</span>
+              <span class="searchbar__tooltip" aria-hidden="true">
+                <strong>Topic</strong>: matches use LIT's topic index, even when
+                the exact words aren't in the text. Exact matches only.<br />
+                <strong>Keyword</strong>: matches words/phrases in Bible text
+                and article titles.<br />
+                <strong>Glossary</strong>: terms from the glossary page only,
+                both LIT and traditional.<br />
+                <strong>Ref</strong>: quick “jump to” for Bible references, such
+                as 'John 3:16.'
+              </span>
+            </button>
+          </div>
         </div>
-        <p class="searchbar__mode-help">
-          Topic matches use LIT's topic index, even when the exact words aren't
-          in the text.
-        </p>
       </div>
 
       <div class="searchbar__status" aria-live="polite"></div>
@@ -139,6 +186,94 @@ const baseUrl = import.meta.env.BASE_URL || "/";
           !jumpRow
         )
           continue;
+
+        // -----------------------------
+        // Tooltip behavior (viewport-clamped, stable on mobile)
+        // -----------------------------
+        const tipButtons = Array.from(root.querySelectorAll(".searchbar__tip"));
+        let activeTip = null;
+
+        function closeAllTips() {
+          for (const b of tipButtons) b.dataset.tipOpen = "false";
+          activeTip = null;
+        }
+
+        function positionTip(btn) {
+          const tip = btn.querySelector(".searchbar__tooltip");
+          if (!tip) return;
+
+          const pad = 12;
+          const gap = 10;
+
+          // Ensure it's measurable
+          btn.dataset.tipOpen = "true";
+
+          const btnRect = btn.getBoundingClientRect();
+          const tipRect = tip.getBoundingClientRect();
+
+          let left = btnRect.left + btnRect.width / 2 - tipRect.width / 2;
+          left = Math.max(
+            pad,
+            Math.min(left, window.innerWidth - tipRect.width - pad),
+          );
+
+          // Prefer above; if not enough room, place below
+          let top = btnRect.top - tipRect.height - gap;
+          if (top < pad) top = btnRect.bottom + gap;
+
+          top = Math.max(
+            pad,
+            Math.min(top, window.innerHeight - tipRect.height - pad),
+          );
+
+          btn.style.setProperty("--tip-x", `${left}px`);
+          btn.style.setProperty("--tip-y", `${top}px`);
+        }
+
+        function openTip(btn) {
+          if (activeTip && activeTip !== btn)
+            activeTip.dataset.tipOpen = "false";
+          activeTip = btn;
+          btn.dataset.tipOpen = "true";
+          requestAnimationFrame(() => positionTip(btn));
+        }
+
+        for (const btn of tipButtons) {
+          btn.dataset.tipOpen = "false";
+
+          btn.addEventListener("mouseenter", () => openTip(btn));
+          btn.addEventListener("mouseleave", () => {
+            btn.dataset.tipOpen = "false";
+            if (activeTip === btn) activeTip = null;
+          });
+
+          btn.addEventListener("focus", () => openTip(btn));
+          btn.addEventListener("blur", () => {
+            btn.dataset.tipOpen = "false";
+            if (activeTip === btn) activeTip = null;
+          });
+
+          // Tap/click toggles (mobile friendly)
+          btn.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (btn.dataset.tipOpen === "true") {
+              btn.dataset.tipOpen = "false";
+              if (activeTip === btn) activeTip = null;
+            } else {
+              openTip(btn);
+            }
+          });
+        }
+
+        // Close tips when clicking elsewhere in this searchbar
+        root.addEventListener("click", (e) => {
+          if (!e.target.closest(".searchbar__tip")) closeAllTips();
+        });
+
+        window.addEventListener("resize", () => {
+          if (activeTip) requestAnimationFrame(() => positionTip(activeTip));
+        });
 
         const MIN_QUERY_LEN = 3; // keep your gate; 3–4 char queries are now exact-only
 
@@ -366,6 +501,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
         function closePanel() {
           root.dataset.open = "false";
           clearGhost();
+          closeAllTips();
         }
 
         function setActiveChip(type) {
@@ -462,6 +598,24 @@ const baseUrl = import.meta.env.BASE_URL || "/";
           const alias = slugifyBookName(rawBookPart);
           const mapped = BOOK_ALIASES.get(alias) || alias;
           return BOOK_RANK.has(mapped) ? mapped : null;
+        }
+
+        // Book-only queries (e.g., "Romans", "Rom", "Ro", "1 Jn")
+        // Purpose: enable jumps at 2 letters, without enabling 2-letter keyword searches.
+        function parseBookOnly(raw) {
+          const s = String(raw || "")
+            .trim()
+            .toLowerCase();
+          if (!s) return null;
+
+          const cleaned = s
+            .replace(/[.,;()]/g, " ")
+            .replace(/[\u2013\u2014\u2212]/g, "-")
+            .replace(/\s+/g, " ")
+            .trim();
+
+          const bookKey = resolveBookKey(cleaned);
+          return bookKey ? { bookKey } : null;
         }
 
         function bookKeyToLabel(key) {
@@ -661,6 +815,14 @@ const baseUrl = import.meta.env.BASE_URL || "/";
           return `${base}#${hash}`;
         }
 
+        function makeStudyBookHref(bookKey) {
+          return `/${bookKey}-intro`;
+        }
+
+        function makeReadBookHref(bookKey) {
+          return `/read/${bookKey}`;
+        }
+
         const globalRefJumpHost = globalThis;
         if (!globalRefJumpHost.__litRefJump) {
           globalRefJumpHost.__litRefJump = {
@@ -719,31 +881,60 @@ const baseUrl = import.meta.env.BASE_URL || "/";
           }
         }
 
-        function renderJump(ref) {
-          if (!ref) {
+        // jump = null | { kind:"ref", bookKey, chapter, verse } | { kind:"book", bookKey }
+        function renderJump(jump) {
+          if (!jump) {
             jumpRow.hidden = true;
             jumpRow.innerHTML = "";
             return;
           }
 
-          const studyHref = makeStudyReferenceHref(ref);
-          const readHref = makeReadReferenceHref(ref);
-          const label = formatReferenceLabel(ref);
+          const isBook = jump.kind === "book";
+          const studyHref = isBook
+            ? makeStudyBookHref(jump.bookKey)
+            : makeStudyReferenceHref(jump);
+          const readHref = isBook
+            ? makeReadBookHref(jump.bookKey)
+            : makeReadReferenceHref(jump);
+          const label = isBook
+            ? bookKeyToLabel(jump.bookKey)
+            : formatReferenceLabel(jump);
 
           jumpRow.hidden = false;
           jumpRow.innerHTML = `
             <div class="searchbar__jump-links">
               <a class="searchbar__jump-link" href="${studyHref}">
                 Jump to <strong>${label}</strong>
-                <span class="searchbar__jump-hint">in Study View</span>
+                <span class="searchbar__jump-hint">${
+                  isBook ? "Intro (Study View)" : "in Study View"
+                }</span>
               </a>
               <a class="searchbar__jump-link searchbar__jump-link--read" href="${readHref}">
                 Jump to <strong>${label}</strong>
-                <span class="searchbar__jump-hint">in Read View</span>
+                <span class="searchbar__jump-hint">${
+                  isBook ? "Book (Read View)" : "in Read View"
+                }</span>
               </a>
+            </div>
+            <div class="searchbar__jump-meta">
+              <span class="searchbar__jump-keys">
+                Enter: Study View &nbsp;·&nbsp; Shift+Enter: Read View
+              </span>
+              <button type="button" class="searchbar__jump-search" data-jump-search>
+                Search for this instead
+              </button>
             </div>
           `;
         }
+
+        // “Search for this instead” lives inside jumpRow (innerHTML),
+        // so use event delegation once.
+        jumpRow.addEventListener("click", (e) => {
+          const btn = e.target?.closest?.("[data-jump-search]");
+          if (!btn) return;
+          e.preventDefault();
+          submitSearch({ forceSearch: true });
+        });
 
         function jumpLinksVisible() {
           return !!(
@@ -974,13 +1165,18 @@ const baseUrl = import.meta.env.BASE_URL || "/";
           return String(u || "");
         }
 
-        function filterSubjectUrlsByActiveFilters(items) {
+        function filterSubjectUrlsByActiveFilters(items, opts = {}) {
+          const bookFilter =
+            typeof opts.bookOverride === "string"
+              ? opts.bookOverride
+              : activeBook;
+
           let out = Array.isArray(items) ? items.slice() : [];
 
-          if (activeBook) {
+          if (bookFilter) {
             out = out.filter((it) => {
               const p = parseScripturePath(it?.url);
-              return p ? p.bookKey === activeBook : false;
+              return p ? p.bookKey === bookFilter : false;
             });
           }
 
@@ -1004,14 +1200,20 @@ const baseUrl = import.meta.env.BASE_URL || "/";
             if (mySeq !== searchSeq) return;
 
             const ref = parseReference(q);
+            const bookOnly = !ref ? parseBookOnly(q) : null;
+            const jump = ref
+              ? { kind: "ref", ...ref }
+              : bookOnly
+                ? { kind: "book", ...bookOnly }
+                : null;
+            const hasJump = !!jump;
 
             if (activeMode === "ref") {
               clearGhost();
 
-              if (ref) {
-                status.textContent =
-                  "Press Enter: Study View · Press Shift+Enter: Read View";
-                renderJump(ref);
+              if (jump) {
+                status.textContent = "";
+                renderJump(jump);
               } else {
                 status.textContent = REF_HELP_TEXT;
                 renderJump(null);
@@ -1020,16 +1222,8 @@ const baseUrl = import.meta.env.BASE_URL || "/";
               return;
             }
 
-            renderJump(ref);
-
-            const suppressKeywordResultsForPureReference = true;
-
-            if (suppressKeywordResultsForPureReference && ref) {
-              status.textContent =
-                "Press Enter: Study View · Press Shift+Enter: Read View";
-              groupsEl.innerHTML = "";
-              return;
-            }
+            // Non-ref mode: show jump row (if any) AND keep searching for results.
+            renderJump(jump);
 
             const filters = {};
             if (activeType) {
@@ -1038,7 +1232,10 @@ const baseUrl = import.meta.env.BASE_URL || "/";
                   ? ["scripture", "intro"]
                   : [activeType];
             }
-            if (activeBook) filters.book = [activeBook];
+
+            // If the user typed a reference or book-only query, ignore the active book filter
+            // to avoid "I forgot I filtered" confusion and to allow article hits to appear.
+            if (activeBook && !hasJump) filters.book = [activeBook];
 
             status.textContent = "Searching…";
             groupsEl.innerHTML = "";
@@ -1059,6 +1256,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
 
             const subjectFromIndex = filterSubjectUrlsByActiveFilters(
               subjectFromIndexRaw,
+              { bookOverride: hasJump ? "" : undefined },
             ).slice(0, 50);
 
             if (activeMode === "subject") {
@@ -1244,16 +1442,23 @@ const baseUrl = import.meta.env.BASE_URL || "/";
           }
         }
 
-        function submitSearch() {
+        function submitSearch(opts = {}) {
+          const forceSearch = !!opts.forceSearch;
           const q = input.value.trim();
           if (!q) return;
 
           clearGhost();
 
-          const ref = parseReference(q);
-          if (ref) {
-            if (!(activeBook && activeBook !== ref.bookKey)) {
+          if (!forceSearch) {
+            const ref = parseReference(q);
+            if (ref) {
               window.location.href = makeStudyReferenceHref(ref);
+              return;
+            }
+
+            const bookOnly = parseBookOnly(q);
+            if (bookOnly) {
+              window.location.href = makeStudyBookHref(bookOnly.bookKey);
               return;
             }
           }
@@ -1296,7 +1501,12 @@ const baseUrl = import.meta.env.BASE_URL || "/";
               clearForShortQuery("");
               return;
             }
-            if (q.length >= MIN_QUERY_LEN || parseReference(q)) runSearch(q);
+            if (
+              q.length >= MIN_QUERY_LEN ||
+              parseReference(q) ||
+              parseBookOnly(q)
+            )
+              runSearch(q);
             else clearForShortQuery(q);
           });
         });
@@ -1313,7 +1523,12 @@ const baseUrl = import.meta.env.BASE_URL || "/";
             clearForShortQuery("");
             return;
           }
-          if (q.length >= MIN_QUERY_LEN || parseReference(q)) runSearch(q);
+          if (
+            q.length >= MIN_QUERY_LEN ||
+            parseReference(q) ||
+            parseBookOnly(q)
+          )
+            runSearch(q);
           else clearForShortQuery(q);
         });
 
@@ -1365,8 +1580,15 @@ const baseUrl = import.meta.env.BASE_URL || "/";
             return;
           }
 
-          if (q.trim().length < MIN_QUERY_LEN) {
-            clearForShortQuery(q.trim());
+          // Keep 3-letter minimum for keyword search,
+          // but allow 2-letter book-only detection to show jumps.
+          const qt = q.trim();
+          if (
+            qt.length < MIN_QUERY_LEN &&
+            !parseReference(qt) &&
+            !parseBookOnly(qt)
+          ) {
+            clearForShortQuery(qt);
             return;
           }
 
@@ -1391,8 +1613,13 @@ const baseUrl = import.meta.env.BASE_URL || "/";
             return;
           }
 
-          if (q.trim().length < MIN_QUERY_LEN) {
-            clearForShortQuery(q.trim());
+          const qt = q.trim();
+          if (
+            qt.length < MIN_QUERY_LEN &&
+            !parseReference(qt) &&
+            !parseBookOnly(qt)
+          ) {
+            clearForShortQuery(qt);
             return;
           }
 
@@ -1411,7 +1638,11 @@ const baseUrl = import.meta.env.BASE_URL || "/";
               if (accepted) {
                 e.preventDefault();
                 const q = input.value.trim();
-                if (q.length >= MIN_QUERY_LEN || parseReference(q))
+                if (
+                  q.length >= MIN_QUERY_LEN ||
+                  parseReference(q) ||
+                  parseBookOnly(q)
+                )
                   runSearch(q);
                 return;
               }
@@ -1609,12 +1840,35 @@ const baseUrl = import.meta.env.BASE_URL || "/";
     border-color: rgba(32, 157, 80, 0.45);
   }
 
+  /* New: chips row keeps the source tooltip glued to the chip row */
+  .searchbar__chips-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+
   .searchbar__chips {
-    display: contents;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
   }
 
   .searchbar__filters {
     display: contents;
+  }
+
+  .searchbar__filter {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  /* Preserve the old "book select pushes right" behavior */
+  .searchbar__filter--book {
+    margin-left: auto;
   }
 
   .searchbar__book,
@@ -1623,10 +1877,14 @@ const baseUrl = import.meta.env.BASE_URL || "/";
     border-radius: 10px;
     border: 1px solid rgba(29, 35, 28, 0.2);
     background: #fff;
+
+    /* Avoid mobile overflow when paired with tooltip button */
+    flex: 1 1 auto;
+    min-width: 0;
   }
 
   .searchbar__book {
-    margin-left: auto;
+    margin-left: 0;
   }
 
   .searchbar__mode-help {
@@ -1640,6 +1898,75 @@ const baseUrl = import.meta.env.BASE_URL || "/";
     margin: 8px 0 10px;
     opacity: 0.75;
     font-size: 0.95rem;
+  }
+
+  .searchbar__tip {
+    position: relative;
+
+    /* JS sets these so tooltips never run off-screen */
+    --tip-x: 12px;
+    --tip-y: 12px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 999px;
+    border: 1px solid rgba(29, 35, 28, 0.22);
+    background: #fff;
+    cursor: pointer;
+    padding: 0;
+    flex: 0 0 auto;
+  }
+
+  .searchbar__tip:focus-visible {
+    outline: 2px solid rgba(32, 157, 80, 0.6);
+    outline-offset: 2px;
+  }
+
+  .searchbar__tip-dot {
+    font-size: 0.95rem;
+    font-weight: 800;
+    line-height: 1;
+    opacity: 0.75;
+  }
+
+  /* Viewport-clamped tooltips (direction independent) */
+  .searchbar__tooltip {
+    position: fixed;
+    z-index: 1000;
+    left: var(--tip-x);
+    top: var(--tip-y);
+
+    width: max-content;
+    max-width: min(380px, calc(100vw - 24px));
+
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid rgba(29, 35, 28, 0.18);
+    background: #fff;
+    box-shadow: 0 18px 44px rgba(0, 0, 0, 0.18);
+
+    font-size: 0.95rem;
+    line-height: 1.5;
+
+    white-space: normal;
+    overflow-wrap: anywhere;
+
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    text-align: left;
+
+    transform: translateY(8px);
+  }
+
+  /* Visible when JS toggles the data attr */
+  .searchbar__tip[data-tip-open="true"] .searchbar__tooltip {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
   }
 
   .searchbar__jump {
@@ -1672,6 +1999,35 @@ const baseUrl = import.meta.env.BASE_URL || "/";
     opacity: 0.7;
     font-size: 0.9rem;
     white-space: nowrap;
+  }
+
+  .searchbar__jump-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    row-gap: 8px;
+    gap: 12px;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(29, 35, 28, 0.12);
+  }
+
+  .searchbar__jump-keys {
+    font-size: 0.9rem;
+    opacity: 0.72;
+    white-space: nowrap;
+  }
+
+  .searchbar__jump-search {
+    border: 1px solid rgba(29, 35, 28, 0.2);
+    background: #fff;
+    border-radius: 999px;
+    padding: 7px 12px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    margin-left: auto;
   }
 
   .searchbar__groups {
@@ -1740,9 +2096,24 @@ const baseUrl = import.meta.env.BASE_URL || "/";
       align-items: start;
     }
 
-    .searchbar__chips {
+    /* Chips row: chips scroll, tooltip stays in-row */
+    /* Chips row: keep the info icon RIGHT NEXT to the chips */
+    .searchbar__chips-row {
+      width: 100%;
       display: flex;
+      align-items: center;
       gap: 10px;
+    }
+
+    /* Don't let chips expand to fill the row (that creates the big empty gap).
+   Instead, constrain them so they can scroll, and keep the tooltip button adjacent. */
+    .searchbar__chips {
+      flex: 0 1 auto;
+      min-width: 0;
+
+      /* Reserve space for the tooltip button (28px) + gap (10px) */
+      max-width: calc(100% - 38px);
+
       flex-wrap: nowrap;
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
@@ -1761,10 +2132,15 @@ const baseUrl = import.meta.env.BASE_URL || "/";
       align-items: center;
     }
 
-    .searchbar__book,
-    .searchbar__mode {
+    .searchbar__filter {
       width: 100%;
-      min-width: 0;
+    }
+
+    .searchbar__filter--book {
+      margin-left: 0;
+    }
+
+    .searchbar__jump-search {
       margin-left: 0;
     }
   }

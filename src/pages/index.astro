@@ -73,10 +73,6 @@ import "../styles/pages/home.css";
 
       <p class="title-small title-sub">of the Christian Scriptures</p>
     </div>
-
-    <div class="title-menu container">
-      <ReadMenu />
-    </div>
   </section>
 
   <!-- INTRO -->
@@ -152,7 +148,7 @@ import "../styles/pages/home.css";
             }
           }
         },
-        { threshold: 0.35 }
+        { threshold: 0.35 },
       );
 
       sections.forEach((s) => observer.observe(s));
@@ -209,7 +205,7 @@ import "../styles/pages/home.css";
   <script type="module">
     (() => {
       const reduceMotion = window.matchMedia(
-        "(prefers-reduced-motion: reduce)"
+        "(prefers-reduced-motion: reduce)",
       ).matches;
       if (reduceMotion) return;
 
@@ -225,7 +221,7 @@ import "../styles/pages/home.css";
             }
           }
         },
-        { threshold: 0.15 }
+        { threshold: 0.15 },
       );
 
       els.forEach((el, i) => {
