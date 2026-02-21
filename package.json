@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "astro dev",
     "build:topics": "node scripts/build-topics-index.mjs",
-    "build": "npm run build:topics && astro build && pagefind --site dist",
+    "build:api": "node scripts/build-api-json.mjs",
+    "build": "npm run build:topics && node scripts/build-api-json.mjs && astro build && pagefind --site dist",
     "preview": "npm run build && astro preview",
     "validate:chapters": "node scripts/validate-chapters.mjs",
     "fix:chapters": "node scripts/validate-chapters.mjs --fix"

@@ -26,3 +26,6 @@ pnpm-debug.log*
 
 # VS Code settings (optional)
 .vscode/
+public/api/
+public/search/topics.json
+public/topics-index.json

@@ -1,0 +1,7 @@
+/api/*
+  Access-Control-Allow-Origin: *
+  Content-Type: application/json
+  Cache-Control: public, max-age=3600
+
+/api/version.json
+  Cache-Control: no-store
