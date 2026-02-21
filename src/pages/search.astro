@@ -129,6 +129,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
       : null;
 
     const pageSize = 8;
+    const MIN_QUERY_LEN = 3;
     let pagefindMod = null;
     let debounceId = null;
 
@@ -286,24 +287,142 @@ const baseUrl = import.meta.env.BASE_URL || "/";
     // ----------------------------
     const REF_HELP_TEXT =
       'Type a reference like "Luke 4:18", "John3:16", or "Jn 3:16".';
-    const sharedRefJump =
-      window.__litRefJump && typeof window.__litRefJump === "object"
+
+    function getSharedRefJump() {
+      return window.__litRefJump && typeof window.__litRefJump === "object"
         ? window.__litRefJump
         : null;
+    }
+
+    function slugifyBookName(name) {
+      return String(name || "")
+        .toLowerCase()
+        .replace(/[^0-9a-z]/g, "");
+    }
+
+    const BOOK_ALIAS_ENTRIES = [
+      ["matthew", ["matthew", "matt", "mt"]],
+      ["mark", ["mark", "mrk", "mk"]],
+      ["luke", ["luke", "luk", "lk"]],
+      ["john", ["john", "jhn", "jn"]],
+      ["acts", ["acts", "act", "ac"]],
+      ["romans", ["romans", "rom", "ro"]],
+      ["1corinthians", ["1corinthians", "1 corinthians", "1cor", "1 cor", "1co", "1 co"]],
+      ["2corinthians", ["2corinthians", "2 corinthians", "2cor", "2 cor", "2co", "2 co"]],
+      ["galatians", ["galatians", "gal"]],
+      ["ephesians", ["ephesians", "eph"]],
+      ["philippians", ["philippians", "phil", "php"]],
+      ["colossians", ["colossians", "col"]],
+      [
+        "1thessalonians",
+        ["1thessalonians", "1 thessalonians", "1thess", "1 thess", "1thes", "1 thes", "1th", "1 th"],
+      ],
+      [
+        "2thessalonians",
+        ["2thessalonians", "2 thessalonians", "2thess", "2 thess", "2thes", "2 thes", "2th", "2 th"],
+      ],
+      ["1timothy", ["1timothy", "1 timothy", "1tim", "1 tim", "1ti", "1 ti"]],
+      ["2timothy", ["2timothy", "2 timothy", "2tim", "2 tim", "2ti", "2 ti"]],
+      ["titus", ["titus", "tit"]],
+      ["philemon", ["philemon", "phm", "phlm"]],
+      ["hebrews", ["hebrews", "heb"]],
+      ["james", ["james", "jas", "jm"]],
+      ["1peter", ["1peter", "1 peter", "1pet", "1 pet", "1pe", "1 pe"]],
+      ["2peter", ["2peter", "2 peter", "2pet", "2 pet", "2pe", "2 pe"]],
+      ["1john", ["1john", "1 john", "1jn", "1 jn", "1jhn", "1 jhn"]],
+      ["2john", ["2john", "2 john", "2jn", "2 jn", "2jhn", "2 jhn"]],
+      ["3john", ["3john", "3 john", "3jn", "3 jn", "3jhn", "3 jhn"]],
+      ["jude", ["jude", "jud"]],
+      ["revelation", ["revelation", "rev", "re"]],
+    ];
+
+    const BOOK_ALIASES = new Map();
+    for (const [bookKey, aliases] of BOOK_ALIAS_ENTRIES) {
+      BOOK_ALIASES.set(bookKey, bookKey);
+      BOOK_ALIASES.set(slugifyBookName(bookKey), bookKey);
+      for (const alias of aliases) {
+        BOOK_ALIASES.set(slugifyBookName(alias), bookKey);
+      }
+    }
+
+    function resolveBookKey(rawBookPart) {
+      const alias = slugifyBookName(rawBookPart);
+      const mapped = BOOK_ALIASES.get(alias) || alias;
+      return BOOK_RANK.has(mapped) ? mapped : null;
+    }
+
+    function parseBookOnly(raw) {
+      const s = String(raw || "")
+        .trim()
+        .toLowerCase();
+      if (!s) return null;
+
+      const cleaned = s
+        .replace(/[.,;()]/g, " ")
+        .replace(/[\u2013\u2014\u2212]/g, "-")
+        .replace(/\s+/g, " ")
+        .trim();
+
+      const bookKey = resolveBookKey(cleaned);
+      return bookKey ? { bookKey } : null;
+    }
+
+    function parseReferenceFallback(raw) {
+      const s = String(raw || "")
+        .trim()
+        .toLowerCase();
+      if (!s) return null;
+
+      const cleaned = s
+        .replace(/[.,;()]/g, " ")
+        .replace(/[\u2013\u2014\u2212]/g, "-")
+        .replace(/\s+/g, " ")
+        .trim();
+
+      const m = cleaned.match(/^(.+?)\s*(\d+)(?::(\d+)(?:\s*-\s*(\d+))?)?$/);
+      if (!m) return null;
+
+      const bookKey = resolveBookKey(m[1]);
+      const chapter = Number(m[2]);
+      const verse = m[3] ? Number(m[3]) : null;
+      const rangeEnd = m[4] ? Number(m[4]) : null;
+
+      if (!bookKey) return null;
+      if (!Number.isFinite(chapter) || chapter <= 0) return null;
+      if (verse !== null && (!Number.isFinite(verse) || verse <= 0))
+        return null;
+      if (rangeEnd !== null && (!Number.isFinite(rangeEnd) || rangeEnd <= 0))
+        return null;
+
+      return { bookKey, chapter, verse };
+    }
 
     function parseReference(raw) {
+      const sharedRefJump = getSharedRefJump();
       if (typeof sharedRefJump?.parseReference === "function") {
-        return sharedRefJump.parseReference(raw);
+        const parsed = sharedRefJump.parseReference(raw);
+        if (parsed) return parsed;
       }
+      return parseReferenceFallback(raw);
+    }
+
+    function parseReferenceJump(raw) {
+      const ref = parseReference(raw);
+      if (ref) return { kind: "ref", ...ref };
+
+      const bookOnly = parseBookOnly(raw);
+      if (bookOnly) return { kind: "book", ...bookOnly };
+
       return null;
     }
 
     function formatReferenceLabel(ref) {
+      const sharedRefJump = getSharedRefJump();
       if (typeof sharedRefJump?.formatReferenceLabel === "function") {
         return sharedRefJump.formatReferenceLabel(ref);
       }
 
-      const book = String(ref?.bookKey || "");
+      const book = humanBookName(ref?.bookKey || "");
       const chapter = Number(ref?.chapter || 0);
       const verse = Number(ref?.verse || 0);
       if (verse > 0) return `${book} ${chapter}:${verse}`;
@@ -311,44 +430,76 @@ const baseUrl = import.meta.env.BASE_URL || "/";
     }
 
     function makeStudyReferenceHref(ref) {
+      const sharedRefJump = getSharedRefJump();
       if (typeof sharedRefJump?.makeStudyReferenceHref === "function") {
         return sharedRefJump.makeStudyReferenceHref(ref);
       }
 
-      return `/${ref.bookKey}-${ref.chapter}`;
+      const baseHref = `/${ref.bookKey}-${ref.chapter}`;
+      return ref.verse ? `${baseHref}#v${ref.verse}` : baseHref;
     }
 
     function makeReadReferenceHref(ref) {
+      const sharedRefJump = getSharedRefJump();
       if (typeof sharedRefJump?.makeReadReferenceHref === "function") {
         return sharedRefJump.makeReadReferenceHref(ref);
       }
 
-      const base = `/read/${ref.bookKey}`;
+      const baseHref = `/read/${ref.bookKey}`;
       const hash = ref.verse
         ? `${ref.bookKey}-${ref.chapter}-v${ref.verse}`
         : `ch-${ref.chapter}`;
-      return `${base}#${hash}`;
+      return `${baseHref}#${hash}`;
     }
 
-    function renderReferenceActions(ref) {
-      if (!ref) return null;
+    function makeStudyBookHref(bookKey) {
+      return `/${bookKey}-intro`;
+    }
+
+    function makeReadBookHref(bookKey) {
+      return `/read/${bookKey}`;
+    }
+
+    function referenceJumpLabel(jump) {
+      if (!jump) return "";
+      return jump.kind === "book"
+        ? humanBookName(jump.bookKey)
+        : formatReferenceLabel(jump);
+    }
+
+    function makeStudyJumpHref(jump) {
+      return jump.kind === "book"
+        ? makeStudyBookHref(jump.bookKey)
+        : makeStudyReferenceHref(jump);
+    }
+
+    function makeReadJumpHref(jump) {
+      return jump.kind === "book"
+        ? makeReadBookHref(jump.bookKey)
+        : makeReadReferenceHref(jump);
+    }
+
+    function renderReferenceActions(jump) {
+      if (!jump) return null;
+
+      const isBook = jump.kind === "book";
 
       const wrapper = document.createElement("div");
       wrapper.className = "search-ref__links";
 
       const label = document.createElement("p");
       label.className = "search-ref__label";
-      label.textContent = `Jump to: ${formatReferenceLabel(ref)}`;
+      label.textContent = `Jump to: ${referenceJumpLabel(jump)}`;
 
       const studyLink = document.createElement("a");
       studyLink.className = "search-ref__link";
-      studyLink.setAttribute("href", makeStudyReferenceHref(ref));
-      studyLink.textContent = "Jump (Study View)";
+      studyLink.setAttribute("href", makeStudyJumpHref(jump));
+      studyLink.textContent = isBook ? "Jump (Study Intro)" : "Jump (Study View)";
 
       const readLink = document.createElement("a");
       readLink.className = "search-ref__link search-ref__link--read";
-      readLink.setAttribute("href", makeReadReferenceHref(ref));
-      readLink.textContent = "Jump (Read View)";
+      readLink.setAttribute("href", makeReadJumpHref(jump));
+      readLink.textContent = isBook ? "Jump (Read Book)" : "Jump (Read View)";
 
       wrapper.append(label, studyLink, readLink);
       return wrapper;
@@ -936,10 +1087,10 @@ const baseUrl = import.meta.env.BASE_URL || "/";
       const keywordTotal = keywordMatchesAll.length;
       const matchTotal = glossaryCount + subjectCount + keywordTotal;
 
-      const parsedRef = parseReference(q);
+      const parsedJump = parseReferenceJump(q);
       setRefBanner(
-        parsedRef ? renderReferenceActions(parsedRef) : null,
-        Boolean(parsedRef),
+        parsedJump ? renderReferenceActions(parsedJump) : null,
+        Boolean(parsedJump),
       );
 
       setStatus(
@@ -1009,10 +1160,10 @@ const baseUrl = import.meta.env.BASE_URL || "/";
         return;
       }
 
+      const parsedJump = parseReferenceJump(q);
+
       // Mode=ref: act like the tray (jump-only)
       if (mode === "ref") {
-        const ref = parseReference(q);
-
         groupGlossary.hidden = true;
         groupSubject.hidden = true;
         groupKeyword.hidden = true;
@@ -1024,9 +1175,9 @@ const baseUrl = import.meta.env.BASE_URL || "/";
         setPager(0, 1);
         lastSearchCache = null;
 
-        if (ref) {
+        if (parsedJump) {
           setStatus("Press Enter to jump.");
-          setRefBanner(renderReferenceActions(ref), true);
+          setRefBanner(renderReferenceActions(parsedJump), true);
         } else {
           setStatus(REF_HELP_TEXT);
           setRefBanner(null, false);
@@ -1035,11 +1186,43 @@ const baseUrl = import.meta.env.BASE_URL || "/";
         return;
       }
 
-      const parsedRef = parseReference(q);
       setRefBanner(
-        parsedRef ? renderReferenceActions(parsedRef) : null,
-        Boolean(parsedRef),
+        parsedJump ? renderReferenceActions(parsedJump) : null,
+        Boolean(parsedJump),
       );
+
+      if (q.length < MIN_QUERY_LEN && !parsedJump) {
+        setStatus(`Type ${MIN_QUERY_LEN} or more letters to search.`);
+
+        groupGlossary.hidden = true;
+        groupSubject.hidden = true;
+        groupKeyword.hidden = true;
+
+        glossaryEl.innerHTML = "";
+        subjectEl.innerHTML = "";
+        keywordEl.innerHTML = "";
+
+        setPager(0, 1);
+        lastSearchCache = null;
+        return;
+      }
+
+      if (q.length < MIN_QUERY_LEN && parsedJump) {
+        setStatus("Press Enter to jump, or keep typing to search.");
+
+        groupGlossary.hidden = true;
+        groupSubject.hidden = true;
+        groupKeyword.hidden = true;
+
+        glossaryEl.innerHTML = "";
+        subjectEl.innerHTML = "";
+        keywordEl.innerHTML = "";
+
+        setPager(0, 1);
+        lastSearchCache = null;
+        return;
+      }
+
       setStatus(`Searching for "${displayQ}"...`);
 
       const pagefind = await loadPagefind();
@@ -1251,9 +1434,9 @@ const baseUrl = import.meta.env.BASE_URL || "/";
         // In ref mode, Enter jumps if valid.
         const s = readState();
         if (s.mode === "ref") {
-          const ref = parseReference(input.value.trim());
-          if (ref) {
-            window.location.href = makeStudyReferenceHref(ref);
+          const jump = parseReferenceJump(input.value.trim());
+          if (jump) {
+            window.location.href = makeStudyJumpHref(jump);
             return;
           }
         }
@@ -1646,21 +1829,84 @@ const baseUrl = import.meta.env.BASE_URL || "/";
   }
 
   .search-ref .search-ref__link {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 12px;
     text-decoration: none;
-    padding: 12px 12px;
-    border-radius: 14px;
-    background: rgba(32, 157, 80, 0.1);
-    border: 1px solid rgba(32, 157, 80, 0.35);
-    color: inherit;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: linear-gradient(
+      180deg,
+      rgba(44, 176, 93, 0.26) 0%,
+      rgba(32, 157, 80, 0.2) 100%
+    );
+    border: 1px solid rgba(32, 157, 80, 0.42);
+    color: #1d231c;
+    font-weight: 700;
+    box-shadow:
+      0 2px 0 rgba(22, 96, 49, 0.36),
+      0 12px 22px rgba(0, 0, 0, 0.14),
+      inset 0 1px 0 rgba(255, 255, 255, 0.78);
+    transform: translateY(0);
+    transition:
+      transform 140ms ease,
+      box-shadow 180ms ease,
+      border-color 180ms ease,
+      background 180ms ease;
   }
 
   .search-ref .search-ref__link--read {
-    background: rgba(29, 35, 28, 0.05);
-    border-color: rgba(29, 35, 28, 0.28);
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.96) 0%,
+      rgba(234, 238, 233, 0.92) 100%
+    );
+    border-color: rgba(29, 35, 28, 0.32);
+    box-shadow:
+      0 2px 0 rgba(29, 35, 28, 0.3),
+      0 12px 22px rgba(0, 0, 0, 0.11),
+      inset 0 1px 0 rgba(255, 255, 255, 0.86);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .search-ref .search-ref__link:hover {
+      transform: translateY(-1px);
+      border-color: rgba(32, 157, 80, 0.55);
+      box-shadow:
+        0 3px 0 rgba(22, 96, 49, 0.4),
+        0 16px 28px rgba(0, 0, 0, 0.18),
+        inset 0 1px 0 rgba(255, 255, 255, 0.84);
+    }
+
+    .search-ref .search-ref__link--read:hover {
+      border-color: rgba(29, 35, 28, 0.42);
+      box-shadow:
+        0 3px 0 rgba(29, 35, 28, 0.34),
+        0 16px 28px rgba(0, 0, 0, 0.14),
+        inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    }
+  }
+
+  .search-ref .search-ref__link:active {
+    transform: translateY(1px);
+    box-shadow:
+      0 1px 0 rgba(22, 96, 49, 0.36),
+      0 7px 16px rgba(0, 0, 0, 0.12),
+      inset 0 1px 0 rgba(255, 255, 255, 0.72);
+  }
+
+  .search-ref .search-ref__link--read:active {
+    box-shadow:
+      0 1px 0 rgba(29, 35, 28, 0.3),
+      0 7px 16px rgba(0, 0, 0, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.82);
+  }
+
+  .search-ref .search-ref__link:focus-visible {
+    outline: 3px solid rgba(32, 157, 80, 0.55);
+    outline-offset: 2px;
   }
 
   .search-ref .search-ref__hint {
