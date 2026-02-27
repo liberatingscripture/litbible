@@ -307,19 +307,43 @@ const baseUrl = import.meta.env.BASE_URL || "/";
       ["john", ["john", "jhn", "jn"]],
       ["acts", ["acts", "act", "ac"]],
       ["romans", ["romans", "rom", "ro"]],
-      ["1corinthians", ["1corinthians", "1 corinthians", "1cor", "1 cor", "1co", "1 co"]],
-      ["2corinthians", ["2corinthians", "2 corinthians", "2cor", "2 cor", "2co", "2 co"]],
+      [
+        "1corinthians",
+        ["1corinthians", "1 corinthians", "1cor", "1 cor", "1co", "1 co"],
+      ],
+      [
+        "2corinthians",
+        ["2corinthians", "2 corinthians", "2cor", "2 cor", "2co", "2 co"],
+      ],
       ["galatians", ["galatians", "gal"]],
       ["ephesians", ["ephesians", "eph"]],
       ["philippians", ["philippians", "phil", "php"]],
       ["colossians", ["colossians", "col"]],
       [
         "1thessalonians",
-        ["1thessalonians", "1 thessalonians", "1thess", "1 thess", "1thes", "1 thes", "1th", "1 th"],
+        [
+          "1thessalonians",
+          "1 thessalonians",
+          "1thess",
+          "1 thess",
+          "1thes",
+          "1 thes",
+          "1th",
+          "1 th",
+        ],
       ],
       [
         "2thessalonians",
-        ["2thessalonians", "2 thessalonians", "2thess", "2 thess", "2thes", "2 thes", "2th", "2 th"],
+        [
+          "2thessalonians",
+          "2 thessalonians",
+          "2thess",
+          "2 thess",
+          "2thes",
+          "2 thes",
+          "2th",
+          "2 th",
+        ],
       ],
       ["1timothy", ["1timothy", "1 timothy", "1tim", "1 tim", "1ti", "1 ti"]],
       ["2timothy", ["2timothy", "2 timothy", "2tim", "2 tim", "2ti", "2 ti"]],
@@ -494,7 +518,9 @@ const baseUrl = import.meta.env.BASE_URL || "/";
       const studyLink = document.createElement("a");
       studyLink.className = "search-ref__link";
       studyLink.setAttribute("href", makeStudyJumpHref(jump));
-      studyLink.textContent = isBook ? "Jump (Study Intro)" : "Jump (Study View)";
+      studyLink.textContent = isBook
+        ? "Jump (Study Intro)"
+        : "Jump (Study View)";
 
       const readLink = document.createElement("a");
       readLink.className = "search-ref__link search-ref__link--read";
@@ -708,6 +734,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
       return re.test(s);
     }
 
+    // UPDATED: hyphenated single-token query support (matches your index "word- word")
     function buildPfQuery(raw) {
       const q0 = normalizeQuotes(raw).trim();
       if (!q0) return { pfQuery: "", exactSingleToken: false, exactToken: "" };
@@ -722,15 +749,41 @@ const baseUrl = import.meta.env.BASE_URL || "/";
         };
       }
 
-      if (/\s+/.test(q0)) {
-        return { pfQuery: `"${q0}"`, exactSingleToken: false, exactToken: "" };
+      // Normalize fancy dashes to "-" for consistent matching.
+      const canon = q0.replace(/[\u2010\u2011\u2012\u2013\u2014\u2212]/g, "-");
+
+      // Hyphenated single-token queries:
+      // Your index uses "word- word" (hyphen + space). So if a user types "word-word",
+      // rewrite to a quoted phrase "word- word" so results appear.
+      if (!/\s+/.test(canon) && /[\p{L}\p{N}]-(?=[\p{L}\p{N}])/u.test(canon)) {
+        const pfPhrase = canon.replace(
+          /([\p{L}\p{N}])-([\p{L}\p{N}])/gu,
+          "$1- $2",
+        );
+        return {
+          pfQuery: `"${pfPhrase}"`,
+          exactSingleToken: false,
+          exactToken: "",
+        };
       }
 
-      if (q0.length >= 1 && q0.length <= 4) {
-        return { pfQuery: `"${q0}"`, exactSingleToken: true, exactToken: q0 };
+      if (/\s+/.test(canon)) {
+        return {
+          pfQuery: `"${canon}"`,
+          exactSingleToken: false,
+          exactToken: "",
+        };
       }
 
-      return { pfQuery: q0, exactSingleToken: false, exactToken: "" };
+      if (canon.length >= 1 && canon.length <= 4) {
+        return {
+          pfQuery: `"${canon}"`,
+          exactSingleToken: true,
+          exactToken: canon,
+        };
+      }
+
+      return { pfQuery: canon, exactSingleToken: false, exactToken: "" };
     }
 
     // Treat "meta-like hidden zones" as a UNION of ranges.
@@ -1024,13 +1077,26 @@ const baseUrl = import.meta.env.BASE_URL || "/";
           : "";
 
         const excerptHtml = r?.excerpt ? String(r.excerpt) : "";
+        const hasHighlight = /<mark>/i.test(excerptHtml);
 
-        const snippetHtml =
-          excerptHtml && !looksLikeMetaDump(excerptHtml)
-            ? excerptHtml
-            : descriptionMeta
-              ? escapeHtml(descriptionMeta)
-              : "";
+        // Prefer Pagefind excerpt (context) whenever possible.
+        // If it contains highlights, always show it (even if it "looks like meta"),
+        // otherwise only fall back when excerpt is empty or clearly useless.
+        let snippetHtml = "";
+        if (excerptHtml) {
+          if (hasHighlight) {
+            snippetHtml = excerptHtml;
+          } else if (!looksLikeMetaDump(excerptHtml)) {
+            snippetHtml = excerptHtml;
+          } else if (descriptionMeta) {
+            snippetHtml = escapeHtml(descriptionMeta);
+          } else {
+            // Last resort: show the excerpt rather than show nothing.
+            snippetHtml = excerptHtml;
+          }
+        } else if (descriptionMeta) {
+          snippetHtml = escapeHtml(descriptionMeta);
+        }
 
         li.innerHTML = `
           <a class="result-link" href="${escapeHtml(r.url)}">

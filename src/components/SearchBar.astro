@@ -776,24 +776,48 @@ const baseUrl = import.meta.env.BASE_URL || "/";
             };
           }
 
-          const isMultiWord = /\s+/.test(q0);
-          if (isMultiWord) {
+          // Normalize fancy dashes to "-" for consistent matching.
+          const canon = q0.replace(
+            /[\u2010\u2011\u2012\u2013\u2014\u2212]/g,
+            "-",
+          );
+
+          // Hyphenated single-token queries:
+          // Your index uses "word- word" (hyphen + space). So if a user types "word-word",
+          // rewrite to a quoted phrase "word- word" so results appear.
+          if (
+            !/\s+/.test(canon) &&
+            /[\p{L}\p{N}]-(?=[\p{L}\p{N}])/u.test(canon)
+          ) {
+            const pfPhrase = canon.replace(
+              /([\p{L}\p{N}])-([\p{L}\p{N}])/gu,
+              "$1- $2",
+            );
             return {
-              pfQuery: `"${q0}"`,
+              pfQuery: `"${pfPhrase}"`,
               exactSingleToken: false,
               exactToken: "",
             };
           }
 
-          if (q0.length >= 1 && q0.length <= 4) {
+          const isMultiWord = /\s+/.test(canon);
+          if (isMultiWord) {
             return {
-              pfQuery: `"${q0}"`,
-              exactSingleToken: true,
-              exactToken: q0,
+              pfQuery: `"${canon}"`,
+              exactSingleToken: false,
+              exactToken: "",
             };
           }
 
-          return { pfQuery: q0, exactSingleToken: false, exactToken: "" };
+          if (canon.length >= 1 && canon.length <= 4) {
+            return {
+              pfQuery: `"${canon}"`,
+              exactSingleToken: true,
+              exactToken: canon,
+            };
+          }
+
+          return { pfQuery: canon, exactSingleToken: false, exactToken: "" };
         }
 
         function formatReferenceLabel(ref) {

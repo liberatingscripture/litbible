@@ -99,7 +99,7 @@ James 2:14-17:</strong> “My Family, what is the benefit if someone claims to h
 </li>
 <li>
 <strong>
-James 5:1-6:</strong> "Now, come on, you who are wealthy, weep—wailing at the hardships coming upon you! Your wealth has rotted, and your clothing has become moth-eaten. Your gold and silver have corroded, and their corrosion will be a testament for you, and it will consume your body like fire. You hoarded assets in the final days. Look, the pay of the workers who harvested your fields that you deprived them of cries out from you, and the cries of the harvesters have reached the ears of The-Lord-of-the-Multitudes. You lived indulgently and luxuriously in the land, feeding your hearts’ desires during a day of slaughter. You have rendered judgment against and murdered the just person, without the just person resisting you."
+James 5:1-6:</strong> "Now, come on, you who are wealthy, weep—wailing at the hardships coming upon you! Your wealth has rotted, and your clothing has become moth-eaten. Your gold and silver have corroded, and their corrosion will be a testament for you, and it will consume your body like fire. You hoarded assets in the final days. Look, the pay of the workers who harvested your fields that you deprived them of cries out from you, and the cries of the harvesters have reached the ears of The Lord of the Divine Council. You lived indulgently and luxuriously in the land, feeding your hearts’ desires during a day of slaughter. You have rendered judgment against and murdered the just person, without the just person resisting you."
 </li>
 </ul>
 <h2>

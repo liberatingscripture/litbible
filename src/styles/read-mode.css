@@ -885,6 +885,23 @@ html[data-rm-leading="roomy"] .rm-page .rm-reader {
     flex: 0 0 auto;
   }
 
+  /* ---------------------------------------------------------
+     SHEET MODE: reorder stacked rows
+     Desired top-to-bottom: Zone 3 (right), Zone 2 (center), Zone 1 (left)
+     --------------------------------------------------------- */
+
+  .rm-page .rm-toolbar__cluster--right {
+    order: 1; /* Zone 3: top row */
+  }
+
+  .rm-page .rm-toolbar__cluster--center {
+    order: 2; /* Zone 2: middle row */
+  }
+
+  .rm-page .rm-toolbar__cluster--left {
+    order: 3; /* Zone 1: bottom row */
+  }
+
   /* Zone 3: keep center actions centered, close at right */
   .rm-page .rm-toolbar__cluster--right {
     display: grid;

@@ -1428,3 +1428,30 @@ html {
 
 
 
+.chiasm { margin-top: 0.5rem; }
+
+.chiasm-line{
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin: 0.15rem 0;
+}
+
+/* fixed “label column” so wraps line up nicely */
+.chiasm-key{
+  flex: 0 0 2.25rem; /* tweak if needed for D' etc. */
+  white-space: nowrap;
+}
+
+/* wrapped lines naturally hang under the text start */
+.chiasm-text{
+  flex: 1 1 auto;
+  min-width: 0; /* important for wrapping inside flex */
+}
+
+/* indentation levels */
+.chiasm-line.lvl-0{ padding-left: 0; }
+.chiasm-line.lvl-1{ padding-left: 1.25rem; }
+.chiasm-line.lvl-2{ padding-left: 2.5rem; }
+.chiasm-line.lvl-3{ padding-left: 3.75rem; }
+.chiasm-line.lvl-4{ padding-left: 5rem; } 
