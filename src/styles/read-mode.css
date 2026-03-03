@@ -403,18 +403,13 @@ html.rm-tools-open {
   cursor: not-allowed;
 }
 
-.rm-page .rm-toc__actions {
-  display: flex;
-  gap: 0.42rem;
-  margin-bottom: 0.55rem;
-}
+/* rm-toc__actions removed from markup; remove its styling too. */
 
+/* UPDATED: without the actions row, rm-toc__list no longer needs its
+   border-top + margin-top/padding-top divider strip. */
 .rm-page .rm-toc__list {
   max-height: min(48vh, 380px);
   overflow: auto;
-  border-top: 1px solid rgba(29, 35, 28, 0.12);
-  margin-top: 0.2rem;
-  padding-top: 0.5rem;
 }
 
 /* =========================================================
@@ -511,6 +506,11 @@ html.rm-tools-open {
 /* Make sure hidden group panels truly disappear (belt + suspenders) */
 .rm-page .rm-toc [data-rm-group-panel][hidden] {
   display: none !important;
+}
+
+/* Tighten "Chapters" label spacing (kills default <p> margins) */
+.rm-page .rm-toc__chapters-label {
+  margin: 0 0 0rem;
 }
 
 /* Group tabs row */
