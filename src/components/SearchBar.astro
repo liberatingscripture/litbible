@@ -1984,6 +1984,8 @@ const baseUrl = import.meta.env.BASE_URL || "/";
     text-align: left;
 
     transform: translateY(8px);
+    transition: opacity 140ms ease, visibility 140ms ease, transform 140ms ease;
+    transition-delay: 120ms;
   }
 
   /* Visible when JS toggles the data attr */
@@ -1991,6 +1993,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
     opacity: 1;
     visibility: visible;
     transform: translateY(0);
+    transition-delay: 0ms;
   }
 
   .searchbar__jump {
