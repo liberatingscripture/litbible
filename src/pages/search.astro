@@ -59,7 +59,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
 
       <div class="search-active-filters" id="search-active-filters" hidden></div>
 
-      <!-- Optional reference jump banner (mode=ref) -->
+      <!-- Optional reference jump banner -->
       <div class="search-ref" id="search-ref" data-search-ref hidden></div>
     </div>
 
@@ -71,6 +71,11 @@ const baseUrl = import.meta.env.BASE_URL || "/";
     <div class="group" id="group-subject" hidden>
       <div class="group-title">Topic matches</div>
       <ol class="results" id="results-subject"></ol>
+    </div>
+
+    <div class="group" id="group-articles" hidden>
+      <div class="group-title">Article matches</div>
+      <ol class="results" id="results-articles"></ol>
     </div>
 
     <div class="group" id="group-keyword" hidden>
@@ -101,10 +106,12 @@ const baseUrl = import.meta.env.BASE_URL || "/";
 
     const groupGlossary = $("#group-glossary");
     const groupSubject = $("#group-subject");
+    const groupArticles = $("#group-articles");
     const groupKeyword = $("#group-keyword");
 
     const glossaryEl = $("#results-glossary");
     const subjectEl = $("#results-subject");
+    const articlesEl = $("#results-articles");
     const keywordEl = $("#results-keyword");
 
     const pagerEl = $("#pager");
@@ -132,6 +139,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
       : null;
 
     const pageSize = 8;
+    const COLLAPSE_THRESHOLD = 3;
     const MIN_QUERY_LEN = 3;
     let pagefindMod = null;
     let debounceId = null;
@@ -274,8 +282,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
       const { type, book, mode } = readState();
       const pills = [];
 
-      if (type === "article") pills.push({ label: "Articles", key: "type" });
-      else if (type === "scripture") pills.push({ label: "Scripture", key: "type" });
+      if (type === "scripture") pills.push({ label: "Scripture Only", key: "type" });
 
       if (book) {
         const opt = bookSelect?.querySelector(`option[value="${book}"]`);
@@ -283,7 +290,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
       }
 
       if (mode && mode !== "all") {
-        const ml = { subject: "Topic matches", keyword: "Keyword matches", glossary: "Glossary", ref: "Ref jump" };
+        const ml = { subject: "Topic matches", keyword: "Keyword matches", glossary: "Glossary", article: "Article matches" };
         pills.push({ label: ml[mode] || mode, key: "mode" });
       }
 
@@ -362,12 +369,13 @@ const baseUrl = import.meta.env.BASE_URL || "/";
       }
     }
 
-    // ----------------------------
-    // Reference parsing (mode=ref)
-    // ----------------------------
-    const REF_HELP_TEXT =
-      'Type a reference like "Luke 4:18", "John3:16", or "Jn 3:16".';
+    function isArticleUrl(url) {
+      return url && !parseBookChapterFromUrl(url) && !isGlossaryUrl(url);
+    }
 
+    // ----------------------------
+    // Reference parsing
+    // ----------------------------
     function getSharedRefJump() {
       return window.__litRefJump && typeof window.__litRefJump === "object"
         ? window.__litRefJump
@@ -624,7 +632,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
         modeRaw === "subject" ||
         modeRaw === "keyword" ||
         modeRaw === "glossary" ||
-        modeRaw === "ref"
+        modeRaw === "article"
           ? modeRaw
           : "all";
 
@@ -702,15 +710,16 @@ const baseUrl = import.meta.env.BASE_URL || "/";
     }
 
     function syncControlsFromUrl() {
+      const params = new URLSearchParams(window.location.search);
       const { q, type, book, sort, mode } = readState();
 
       if (input && input.value !== q) input.value = q;
 
-      setActiveChipFromType(type);
+      if (params.has("type")) setActiveChipFromType(type);
 
       if (bookSelect) bookSelect.value = book;
 
-      if (modeSelect) modeSelect.value = mode;
+      if (params.has("mode") && modeSelect) modeSelect.value = mode;
 
       setActiveSort(sort);
       renderActiveFiltersFull();
@@ -1194,6 +1203,72 @@ const baseUrl = import.meta.env.BASE_URL || "/";
       }
     }
 
+    function renderArticles(items) {
+      articlesEl.innerHTML = "";
+      for (const r of items) {
+        const li = document.createElement("li");
+        li.className = "result";
+
+        const fallbackTitle = r.meta?.title || r.title || "Result";
+        const displayTitle = fallbackTitle;
+
+        const descriptionMeta = r?.meta?.description
+          ? String(r.meta.description).trim()
+          : "";
+
+        const excerptHtml = r?.excerpt ? String(r.excerpt) : "";
+        const hasHighlight = /<mark>/i.test(excerptHtml);
+
+        let snippetHtml = "";
+        if (excerptHtml) {
+          if (hasHighlight) {
+            snippetHtml = excerptHtml;
+          } else if (!looksLikeMetaDump(excerptHtml)) {
+            snippetHtml = excerptHtml;
+          } else if (descriptionMeta) {
+            snippetHtml = escapeHtml(descriptionMeta);
+          } else {
+            snippetHtml = excerptHtml;
+          }
+        } else if (descriptionMeta) {
+          snippetHtml = escapeHtml(descriptionMeta);
+        }
+
+        li.innerHTML = `
+          <a class="result-link" href="${escapeHtml(r.url)}">
+            <div class="result-title">${escapeHtml(displayTitle)}</div>
+            ${snippetHtml ? `<div class="result-excerpt">${snippetHtml}</div>` : ""}
+          </a>
+        `;
+
+        articlesEl.appendChild(li);
+      }
+    }
+
+    function applyCollapse(listEl) {
+      const items = listEl.querySelectorAll(":scope > li");
+      if (items.length <= COLLAPSE_THRESHOLD) return;
+
+      // Remove any existing "See more" button
+      const oldBtn = listEl.parentElement?.querySelector(".see-more-btn");
+      if (oldBtn) oldBtn.remove();
+
+      items.forEach((li, i) => {
+        if (i >= COLLAPSE_THRESHOLD) li.classList.add("result--collapsed");
+      });
+
+      const extra = items.length - COLLAPSE_THRESHOLD;
+      const btn = document.createElement("button");
+      btn.className = "see-more-btn";
+      btn.textContent = `See ${extra} more`;
+      btn.addEventListener("click", () => {
+        items.forEach((li) => li.classList.remove("result--collapsed"));
+        btn.remove();
+      });
+
+      listEl.parentElement.appendChild(btn);
+    }
+
     function setPager(total, page) {
       const pages = Math.max(1, Math.ceil(total / pageSize));
       const show = total > pageSize;
@@ -1219,20 +1294,20 @@ const baseUrl = import.meta.env.BASE_URL || "/";
         displayQ,
         glossaryMatches,
         subjectMatchesRaw,
+        articleMatchesRaw,
         keywordMatchesRaw,
         qPhrase,
       } = lastSearchCache;
 
-      // Mode behavior: ref handled elsewhere
-      if (mode === "ref") return;
-
       const subjectMatches = sortMaybe(subjectMatchesRaw, sort);
+      const articleMatches = sortMaybe(articleMatchesRaw, sort);
       const keywordMatchesAll = sortMaybe(keywordMatchesRaw, sort);
 
       const glossaryCount = glossaryMatches.length;
       const subjectCount = subjectMatches.length;
+      const articleCount = articleMatches.length;
       const keywordTotal = keywordMatchesAll.length;
-      const matchTotal = glossaryCount + subjectCount + keywordTotal;
+      const matchTotal = glossaryCount + subjectCount + articleCount + keywordTotal;
 
       const parsedJump = parseReferenceJump(q);
       setRefBanner(
@@ -1279,7 +1354,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
       setStatus(
         `Searching for "${displayQ}" - ${matchTotal} match${
           matchTotal === 1 ? "" : "es"
-        } (${glossaryCount} glossary, ${subjectCount} topic, ${keywordTotal} keyword)`,
+        } (${glossaryCount} glossary, ${subjectCount} topic, ${articleCount} article, ${keywordTotal} keyword)`,
       );
 
       // Only show glossary/subject on page 1
@@ -1289,6 +1364,8 @@ const baseUrl = import.meta.env.BASE_URL || "/";
         (mode === "all" || mode === "glossary") && showMetaBuckets;
       const showSubject =
         (mode === "all" || mode === "subject") && showMetaBuckets;
+      const showArticles =
+        (mode === "all" || mode === "article") && showMetaBuckets;
       const showKeyword = mode === "all" || mode === "keyword";
 
       if (showGlossary && glossaryCount) {
@@ -1302,9 +1379,19 @@ const baseUrl = import.meta.env.BASE_URL || "/";
       if (showSubject && subjectCount) {
         groupSubject.hidden = false;
         renderSubject(subjectMatches.slice(0, 50));
+        applyCollapse(subjectEl);
       } else {
         groupSubject.hidden = true;
         subjectEl.innerHTML = "";
+      }
+
+      if (showArticles && articleCount) {
+        groupArticles.hidden = false;
+        renderArticles(articleMatches.slice(0, 20));
+        applyCollapse(articlesEl);
+      } else {
+        groupArticles.hidden = true;
+        articlesEl.innerHTML = "";
       }
 
       // keyword paging always applies to keyword bucket only
@@ -1333,10 +1420,12 @@ const baseUrl = import.meta.env.BASE_URL || "/";
 
         groupGlossary.hidden = true;
         groupSubject.hidden = true;
+        groupArticles.hidden = true;
         groupKeyword.hidden = true;
 
         glossaryEl.innerHTML = "";
         subjectEl.innerHTML = "";
+        articlesEl.innerHTML = "";
         keywordEl.innerHTML = "";
 
         setPager(0, 1);
@@ -1345,30 +1434,6 @@ const baseUrl = import.meta.env.BASE_URL || "/";
       }
 
       const parsedJump = parseReferenceJump(q);
-
-      // Mode=ref: act like the tray (jump-only)
-      if (mode === "ref") {
-        groupGlossary.hidden = true;
-        groupSubject.hidden = true;
-        groupKeyword.hidden = true;
-
-        glossaryEl.innerHTML = "";
-        subjectEl.innerHTML = "";
-        keywordEl.innerHTML = "";
-
-        setPager(0, 1);
-        lastSearchCache = null;
-
-        if (parsedJump) {
-          setStatus("Press Enter to jump.");
-          setRefBanner(renderReferenceActions(parsedJump), true);
-        } else {
-          setStatus(REF_HELP_TEXT);
-          setRefBanner(null, false);
-        }
-
-        return;
-      }
 
       setRefBanner(
         parsedJump ? renderReferenceActions(parsedJump) : null,
@@ -1380,10 +1445,12 @@ const baseUrl = import.meta.env.BASE_URL || "/";
 
         groupGlossary.hidden = true;
         groupSubject.hidden = true;
+        groupArticles.hidden = true;
         groupKeyword.hidden = true;
 
         glossaryEl.innerHTML = "";
         subjectEl.innerHTML = "";
+        articlesEl.innerHTML = "";
         keywordEl.innerHTML = "";
 
         setPager(0, 1);
@@ -1396,10 +1463,12 @@ const baseUrl = import.meta.env.BASE_URL || "/";
 
         groupGlossary.hidden = true;
         groupSubject.hidden = true;
+        groupArticles.hidden = true;
         groupKeyword.hidden = true;
 
         glossaryEl.innerHTML = "";
         subjectEl.innerHTML = "";
+        articlesEl.innerHTML = "";
         keywordEl.innerHTML = "";
 
         setPager(0, 1);
@@ -1552,12 +1621,30 @@ const baseUrl = import.meta.env.BASE_URL || "/";
         return true;
       });
 
+      // Pull article-page results into their own bucket — but ONLY when source
+      // chip is "All" (type === ""). When "Scripture Only" chip is active,
+      // no article results exist anyway.
+      let articleMatchesRaw = [];
+      let keywordMatchesRawFiltered = keywordMatchesRaw;
+      if (type !== "article") {
+        const articleSeen = new Set();
+        for (const d of [...subjectMatchesRaw, ...keywordMatchesRaw]) {
+          if (!isArticleUrl(d.url)) continue;
+          if (articleSeen.has(d.url)) continue;
+          articleSeen.add(d.url);
+          articleMatchesRaw.push(d);
+        }
+        subjectMatchesRaw = subjectMatchesRaw.filter(d => !isArticleUrl(d.url));
+        keywordMatchesRawFiltered = keywordMatchesRaw.filter(d => !isArticleUrl(d.url));
+      }
+
       lastSearchCache = {
         displayQ,
         qPhrase,
         glossaryMatches,
         subjectMatchesRaw,
-        keywordMatchesRaw,
+        articleMatchesRaw,
+        keywordMatchesRaw: keywordMatchesRawFiltered,
       };
 
       renderFromCache();
@@ -1575,10 +1662,12 @@ const baseUrl = import.meta.env.BASE_URL || "/";
 
           groupGlossary.hidden = true;
           groupSubject.hidden = true;
+          groupArticles.hidden = true;
           groupKeyword.hidden = true;
 
           glossaryEl.innerHTML = "";
           subjectEl.innerHTML = "";
+          articlesEl.innerHTML = "";
           keywordEl.innerHTML = "";
 
           setPager(0, 1);
@@ -1616,17 +1705,6 @@ const baseUrl = import.meta.env.BASE_URL || "/";
       );
       input.addEventListener("keydown", (e) => {
         if (e.key !== "Enter") return;
-
-        // In ref mode, Enter jumps if valid.
-        const s = readState();
-        if (s.mode === "ref") {
-          const jump = parseReferenceJump(input.value.trim());
-          if (jump) {
-            window.location.href = makeStudyJumpHref(jump);
-            return;
-          }
-        }
-
         updateFromControls({ resetPage: true, push: true });
       });
     }
@@ -1795,7 +1873,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
     border-color: rgba(32, 157, 80, 0.5);
   }
 
-  /* Ref banner (mode=ref) */
+  /* Ref banner */
   .search-ref {
     margin-top: 10px;
   }
@@ -2062,6 +2140,29 @@ const baseUrl = import.meta.env.BASE_URL || "/";
 </style>
 
 <style is:global>
+  .result--collapsed {
+    display: none !important;
+  }
+
+  .see-more-btn {
+    display: inline-block;
+    margin-top: 6px;
+    padding: 4px 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--accent, #38613a);
+    background: transparent;
+    border: 1.5px solid var(--accent, #38613a);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+
+  .see-more-btn:hover {
+    background: var(--accent, #38613a);
+    color: #fff;
+  }
+
   .search-ref .search-ref__links {
     display: grid;
     gap: 8px;

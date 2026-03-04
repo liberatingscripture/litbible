@@ -4,6 +4,7 @@ const {
   placeholder = "Search",
   fullSearchHref = "/search",
   defaultType = "",
+  defaultMode = "",
 } = Astro.props;
 const baseUrl = import.meta.env.BASE_URL || "/";
 ---
@@ -13,6 +14,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
   data-searchbar
   data-open="false"
   data-default-type={defaultType}
+  data-default-mode={defaultMode}
 >
   <label class="sr-only" for="site-search-input">Search</label>
 
@@ -59,25 +61,20 @@ const baseUrl = import.meta.env.BASE_URL || "/";
             <button type="button" class="chip chip--active" data-type=""
               >All</button
             >
-            <button type="button" class="chip" data-type="article"
-              >Articles</button
-            >
             <button type="button" class="chip" data-type="scripture"
-              >Scripture</button
+              >Scripture Only</button
             >
           </div>
 
           <button
             type="button"
             class="searchbar__tip"
-            aria-label="About the source filter (All, Articles, Scripture)"
+            aria-label="About the source filter (All, Scripture Only)"
           >
             <span class="searchbar__tip-dot" aria-hidden="true">i</span>
             <span class="searchbar__tooltip" aria-hidden="true">
-              <strong>All</strong> searches Scripture + Articles.<br />
-              <strong>Articles</strong> searches article topics and titles.<br
-              />
-              <strong>Scripture</strong> searches chapter pages + book intros.
+              <strong>All</strong> searches everything — Scripture + Articles.<br />
+              <strong>Scripture Only</strong> limits results to Bible chapters and book introductions — excludes articles.
             </span>
           </button>
         </div>
@@ -110,24 +107,22 @@ const baseUrl = import.meta.env.BASE_URL || "/";
               <option value="subject">Topic matches</option>
               <option value="keyword">Keyword matches</option>
               <option value="glossary">Glossary matches</option>
-              <option value="ref">Chapter &amp; verse jump</option>
+              <option value="article">Article matches</option>
             </select>
 
             <button
               type="button"
               class="searchbar__tip"
-              aria-label="About results type (All, Topic, Keyword, Glossary, Ref)"
+              aria-label="About results type (All, Topic, Keyword, Glossary, Article)"
             >
               <span class="searchbar__tip-dot" aria-hidden="true">i</span>
               <span class="searchbar__tooltip" aria-hidden="true">
                 <strong>Topic</strong>: matches use LIT's topic index, even when
                 the exact words aren't in the text. Exact matches only.<br />
-                <strong>Keyword</strong>: matches words/phrases in Bible text
-                and article titles.<br />
+                <strong>Keyword</strong>: matches words/phrases in Bible text.<br />
                 <strong>Glossary</strong>: terms from the glossary page only,
                 both LIT and traditional.<br />
-                <strong>Ref</strong>: quick “jump to” for Bible references, such
-                as 'John 3:16.'
+                <strong>Article</strong>: matches from article pages only.
               </span>
             </button>
           </div>
@@ -314,9 +309,10 @@ const baseUrl = import.meta.env.BASE_URL || "/";
         let pagefind = null;
 
         const initialType = root.dataset.defaultType || "";
+        const initialMode = root.dataset.defaultMode || "all";
         let activeType = initialType;
         let activeBook = "";
-        let activeMode = "all"; // all | subject | keyword | glossary | ref
+        let activeMode = initialMode;
 
         // Kill stale async renders (prod can be slower than localhost)
         let searchSeq = 0;
@@ -592,9 +588,6 @@ const baseUrl = import.meta.env.BASE_URL || "/";
             BOOK_ALIASES.set(slugifyBookName(alias), bookKey);
           }
         }
-
-        const REF_HELP_TEXT =
-          'Type a reference like "Luke 4:18", "John3:16", or "Jn 3:16".';
 
         function resolveBookKey(rawBookPart) {
           const alias = slugifyBookName(rawBookPart);
@@ -1118,12 +1111,18 @@ const baseUrl = import.meta.env.BASE_URL || "/";
           );
         }
 
-        function renderGroups({ glossary, subject, keyword }) {
+        function isArticleResult(it) {
+          const url = it?.d?.url || "";
+          return url && !parseScripturePath(url) && !isGlossaryUrlSafe(url);
+        }
+
+        function renderGroups({ glossary, subject, articles, keyword }) {
           const glossaryCount = glossary.length;
           const subjectCount = subject.length;
+          const articlesCount = articles.length;
           const keywordCount = keyword.length;
 
-          if (!glossaryCount && !subjectCount && !keywordCount) {
+          if (!glossaryCount && !subjectCount && !articlesCount && !keywordCount) {
             groupsEl.innerHTML = "";
             return;
           }
@@ -1164,6 +1163,16 @@ const baseUrl = import.meta.env.BASE_URL || "/";
                   <div class="searchbar__group">
                     <div class="searchbar__group-title">Topic matches</div>
                     ${renderList(subject)}
+                  </div>
+                `
+                : ""
+            }
+            ${
+              articlesCount && (activeMode === "all" || activeMode === "article")
+                ? `
+                  <div class="searchbar__group">
+                    <div class="searchbar__group-title">Article matches</div>
+                    ${renderList(articles)}
                   </div>
                 `
                 : ""
@@ -1237,8 +1246,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
           if (!activeFiltersEl) return;
           const pills = [];
 
-          if (activeType === "article") pills.push({ label: "Articles", clear() { setActiveChip(""); } });
-          else if (activeType === "scripture") pills.push({ label: "Scripture", clear() { setActiveChip(""); } });
+          if (activeType === "scripture") pills.push({ label: "Scripture Only", clear() { setActiveChip(""); } });
 
           if (activeBook) {
             const bookLabel = bookSelect.selectedOptions?.[0]?.textContent || bookKeyToLabel(activeBook);
@@ -1246,7 +1254,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
           }
 
           if (activeMode && activeMode !== "all") {
-            const ml = { subject: "Topic matches", keyword: "Keyword matches", glossary: "Glossary", ref: "Ref jump" };
+            const ml = { subject: "Topic matches", keyword: "Keyword matches", glossary: "Glossary", article: "Article matches" };
             pills.push({ label: ml[activeMode] || activeMode, clear() { activeMode = "all"; modeSelect.value = "all"; } });
           }
 
@@ -1287,12 +1295,8 @@ const baseUrl = import.meta.env.BASE_URL || "/";
             });
           }
 
-          if (activeType) {
-            if (activeType === "scripture") {
-              out = out.filter((it) => !!parseScripturePath(it?.url));
-            } else if (activeType === "article") {
-              out = out.filter((it) => !parseScripturePath(it?.url));
-            }
+          if (activeType === "scripture") {
+            out = out.filter((it) => !!parseScripturePath(it?.url));
           }
 
           return out;
@@ -1315,21 +1319,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
                 : null;
             const hasJump = !!jump;
 
-            if (activeMode === "ref") {
-              clearGhost();
-
-              if (jump) {
-                status.textContent = "";
-                renderJump(jump);
-              } else {
-                status.textContent = REF_HELP_TEXT;
-                renderJump(null);
-              }
-              groupsEl.innerHTML = "";
-              return;
-            }
-
-            // Non-ref mode: show jump row (if any) AND keep searching for results.
+            // Show jump row (if any) AND keep searching for results.
             renderJump(jump);
 
             const filters = {};
@@ -1379,6 +1369,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
               renderGroups({
                 glossary: [],
                 subject: subjectItems,
+                articles: [],
                 keyword: [],
               });
 
@@ -1501,6 +1492,24 @@ const baseUrl = import.meta.env.BASE_URL || "/";
               return true;
             });
 
+            // Pull article-page results into their own bucket — but ONLY when source
+            // chip is "All" (activeType === ""). When "Scripture Only" chip is active,
+            // no article results exist anyway since Pagefind filters to scripture/intro.
+            let articleMatches = [];
+            let keywordMatchesFiltered = keywordMatches;
+            if (activeType !== "article") {
+              const articleSeen = new Set();
+              for (const it of [...subjectMatches, ...keywordMatches]) {
+                if (!isArticleResult(it)) continue;
+                const url = it.d?.url || "";
+                if (articleSeen.has(url)) continue;
+                articleSeen.add(url);
+                articleMatches.push(it);
+              }
+              subjectMatches = subjectMatches.filter(it => !isArticleResult(it));
+              keywordMatchesFiltered = keywordMatches.filter(it => !isArticleResult(it));
+            }
+
             const glossaryItems = glossaryMatches.slice(0, 6).map((it) => ({
               title: it.d?.meta?.title
                 ? it.d.meta.title
@@ -1517,7 +1526,12 @@ const baseUrl = import.meta.env.BASE_URL || "/";
                 : it.d.url,
             }));
 
-            const keywordItems = keywordMatches.slice(0, 6).map((it) => ({
+            const articleItems = articleMatches.slice(0, 6).map((it) => ({
+              title: it.d?.meta?.title ? it.d.meta.title : it.d.title || it.d.url,
+              href: hrefFromData(it.d, it.subjectRange, it.locs),
+            }));
+
+            const keywordItems = keywordMatchesFiltered.slice(0, 6).map((it) => ({
               title: it.d?.meta?.title
                 ? it.d.meta.title
                 : it.d.title || it.d.url,
@@ -1526,7 +1540,8 @@ const baseUrl = import.meta.env.BASE_URL || "/";
 
             const gCount = glossaryMatches.length;
             const sCount = subjectMatches.length;
-            const kCount = keywordMatches.length;
+            const aCount = articleMatches.length;
+            const kCount = keywordMatchesFiltered.length;
             const sep = " \u2022 ";
 
             status.textContent =
@@ -1534,16 +1549,20 @@ const baseUrl = import.meta.env.BASE_URL || "/";
                 ? `${gCount} glossary match${gCount === 1 ? "" : "es"}${sep}`
                 : "") +
               `${sCount} topic match${sCount === 1 ? "" : "es"}${sep}` +
+              (aCount
+                ? `${aCount} article match${aCount === 1 ? "" : "es"}${sep}`
+                : "") +
               `${kCount} keyword match${kCount === 1 ? "" : "es"}`;
 
             renderGroups({
               glossary: glossaryItems,
               subject: subjectItems,
+              articles: articleItems,
               keyword: keywordItems,
             });
             renderActiveFilters();
 
-            const totalCount = gCount + sCount + kCount;
+            const totalCount = gCount + sCount + aCount + kCount;
             if (totalCount === 0) {
               if (qPhrase && qPhrase.includes(" ")) {
                 const words = qPhrase.split(/\s+/).filter(w => w.length >= MIN_QUERY_LEN);
@@ -1630,8 +1649,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
             const q = input.value.trim();
             openPanel();
 
-            if (activeMode !== "ref") renderGhost(q);
-            else clearGhost();
+            renderGhost(q);
 
             if (!q) {
               clearForShortQuery("");
@@ -1654,8 +1672,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
           const q = input.value.trim();
           openPanel();
 
-          if (activeMode !== "ref") renderGhost(q);
-          else clearGhost();
+          renderGhost(q);
 
           if (!q) {
             clearForShortQuery("");
@@ -1677,8 +1694,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
           const q = input.value.trim();
           openPanel();
 
-          if (activeMode === "ref") clearGhost();
-          else renderGhost(q);
+          renderGhost(q);
 
           if (!q) {
             clearForShortQuery("");
@@ -1713,14 +1729,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
 
           openPanel();
 
-          if (activeMode !== "ref") renderGhost(q);
-          else clearGhost();
-
-          if (activeMode === "ref") {
-            clearTimeout(t);
-            t = setTimeout(() => runSearch(q.trim()), 120);
-            return;
-          }
+          renderGhost(q);
 
           // Keep 3-letter minimum for keyword search,
           // but allow 2-letter book-only detection to show jumps.
@@ -1747,13 +1756,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
             return;
           }
 
-          if (activeMode !== "ref") renderGhost(q);
-          else clearGhost();
-
-          if (activeMode === "ref") {
-            runSearch(q.trim());
-            return;
-          }
+          renderGhost(q);
 
           const qt = q.trim();
           if (
@@ -1811,11 +1814,12 @@ const baseUrl = import.meta.env.BASE_URL || "/";
         });
 
         loadTopicsOnce().then(() => {
-          if (activeMode !== "ref") renderGhost(input.value);
+          renderGhost(input.value);
         });
 
         setActiveChip(initialType);
-        activeMode = modeSelect.value || "all";
+        activeMode = initialMode;
+        if (modeSelect) modeSelect.value = initialMode;
         closePanel();
       }
     })();
