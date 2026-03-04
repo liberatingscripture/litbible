@@ -134,6 +134,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
         </div>
       </div>
 
+      <div class="searchbar__active-filters" data-active-filters hidden></div>
       <div class="searchbar__status" aria-live="polite"></div>
       <div class="searchbar__jump" data-jump hidden></div>
       <div class="searchbar__groups" data-groups></div>
@@ -169,6 +170,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
         const closeBtn = root.querySelector(".searchbar__close");
         const fullLink = root.querySelector(".searchbar__full");
         const jumpRow = root.querySelector("[data-jump]");
+        const activeFiltersEl = root.querySelector("[data-active-filters]");
 
         // Ghost autocomplete elements
         const ghost = root.querySelector("[data-ghost]");
@@ -1189,6 +1191,49 @@ const baseUrl = import.meta.env.BASE_URL || "/";
           return String(u || "");
         }
 
+        function escapeForAttr(s) {
+          return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+        }
+
+        function renderActiveFilters() {
+          if (!activeFiltersEl) return;
+          const pills = [];
+
+          if (activeType === "article") pills.push({ label: "Articles", clear() { setActiveChip(""); } });
+          else if (activeType === "scripture") pills.push({ label: "Scripture", clear() { setActiveChip(""); } });
+
+          if (activeBook) {
+            const bookLabel = bookSelect.selectedOptions?.[0]?.textContent || bookKeyToLabel(activeBook);
+            pills.push({ label: bookLabel, clear() { activeBook = ""; bookSelect.value = ""; } });
+          }
+
+          if (activeMode && activeMode !== "all") {
+            const ml = { subject: "Topic matches", keyword: "Keyword matches", glossary: "Glossary", ref: "Ref jump" };
+            pills.push({ label: ml[activeMode] || activeMode, clear() { activeMode = "all"; modeSelect.value = "all"; } });
+          }
+
+          if (!pills.length) { activeFiltersEl.hidden = true; activeFiltersEl.innerHTML = ""; return; }
+
+          activeFiltersEl.hidden = false;
+          activeFiltersEl.innerHTML = pills.map((p, i) =>
+            `<button type="button" class="searchbar__filter-pill" data-pill-idx="${i}">${escapeForAttr(p.label)} <span aria-label="Clear filter">\u2715</span></button>`
+          ).join("") + (pills.length >= 2 ? `<button type="button" class="searchbar__filter-clear-all" data-clear-all>Clear all</button>` : "");
+
+          function rerun() {
+            renderActiveFilters();
+            const q = input.value.trim();
+            if (q.length >= MIN_QUERY_LEN || parseReference(q) || parseBookOnly(q)) runSearch(q);
+            else clearForShortQuery(q);
+          }
+
+          activeFiltersEl.querySelectorAll("[data-pill-idx]").forEach(btn => {
+            btn.addEventListener("click", () => { pills[Number(btn.dataset.pillIdx)]?.clear(); rerun(); });
+          });
+          activeFiltersEl.querySelector("[data-clear-all]")?.addEventListener("click", () => {
+            setActiveChip(""); activeBook = ""; bookSelect.value = ""; activeMode = "all"; modeSelect.value = "all"; rerun();
+          });
+        }
+
         function filterSubjectUrlsByActiveFilters(items, opts = {}) {
           const bookFilter =
             typeof opts.bookOverride === "string"
@@ -1458,6 +1503,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
               subject: subjectItems,
               keyword: keywordItems,
             });
+            renderActiveFilters();
           } catch (err) {
             console.error(err);
             groupsEl.innerHTML = "";
@@ -1523,6 +1569,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
 
             if (!q) {
               clearForShortQuery("");
+              renderActiveFilters();
               return;
             }
             if (
@@ -1532,6 +1579,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
             )
               runSearch(q);
             else clearForShortQuery(q);
+            renderActiveFilters();
           });
         });
 
@@ -1545,6 +1593,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
 
           if (!q) {
             clearForShortQuery("");
+            renderActiveFilters();
             return;
           }
           if (
@@ -1554,6 +1603,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
           )
             runSearch(q);
           else clearForShortQuery(q);
+          renderActiveFilters();
         });
 
         modeSelect.addEventListener("change", () => {
@@ -1566,9 +1616,11 @@ const baseUrl = import.meta.env.BASE_URL || "/";
 
           if (!q) {
             clearForShortQuery("");
+            renderActiveFilters();
             return;
           }
           runSearch(q);
+          renderActiveFilters();
         });
 
         closeBtn.addEventListener("click", closePanel);
@@ -1648,6 +1700,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
           }
 
           runSearch(q.trim());
+          renderActiveFilters();
         });
 
         input.addEventListener("keydown", (e) => {
@@ -1916,6 +1969,52 @@ const baseUrl = import.meta.env.BASE_URL || "/";
     margin: 2px 0 0;
     opacity: 0.72;
     font-size: 0.82rem;
+  }
+
+  .searchbar__active-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 8px 0 4px;
+  }
+
+  .searchbar__filter-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(32, 157, 80, 0.35);
+    background: rgba(32, 157, 80, 0.08);
+    font-size: 0.85rem;
+    cursor: pointer;
+    white-space: nowrap;
+    color: rgba(29, 35, 28, 0.9);
+  }
+
+  .searchbar__filter-pill:hover {
+    background: rgba(32, 157, 80, 0.16);
+    border-color: rgba(32, 157, 80, 0.5);
+  }
+
+  .searchbar__filter-pill span {
+    font-size: 0.75rem;
+    opacity: 0.65;
+  }
+
+  .searchbar__filter-clear-all {
+    padding: 4px 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(29, 35, 28, 0.18);
+    background: transparent;
+    font-size: 0.85rem;
+    cursor: pointer;
+    color: rgba(29, 35, 28, 0.6);
+    white-space: nowrap;
+  }
+
+  .searchbar__filter-clear-all:hover {
+    background: rgba(29, 35, 28, 0.06);
   }
 
   .searchbar__status {

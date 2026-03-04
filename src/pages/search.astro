@@ -57,6 +57,8 @@ const baseUrl = import.meta.env.BASE_URL || "/";
         <div id="search-status" aria-live="polite"></div>
       </div>
 
+      <div class="search-active-filters" id="search-active-filters" hidden></div>
+
       <!-- Optional reference jump banner (mode=ref) -->
       <div class="search-ref" id="search-ref" data-search-ref hidden></div>
     </div>
@@ -109,6 +111,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
     const prevBtn = $("#prev");
     const nextBtn = $("#next");
     const pagerInfo = $("#pager-info");
+    const activeFiltersFullEl = document.getElementById("search-active-filters");
 
     const sortButtons = Array.from(document.querySelectorAll("[data-sort]"));
 
@@ -224,6 +227,43 @@ const baseUrl = import.meta.env.BASE_URL || "/";
       }
 
       refEl.innerHTML = String(content || "");
+    }
+
+    function renderActiveFiltersFull() {
+      if (!activeFiltersFullEl) return;
+      const { type, book, mode } = readState();
+      const pills = [];
+
+      if (type === "article") pills.push({ label: "Articles", key: "type" });
+      else if (type === "scripture") pills.push({ label: "Scripture", key: "type" });
+
+      if (book) {
+        const opt = bookSelect?.querySelector(`option[value="${book}"]`);
+        pills.push({ label: opt?.textContent || humanBookName(book), key: "book" });
+      }
+
+      if (mode && mode !== "all") {
+        const ml = { subject: "Topic matches", keyword: "Keyword matches", glossary: "Glossary", ref: "Ref jump" };
+        pills.push({ label: ml[mode] || mode, key: "mode" });
+      }
+
+      if (!pills.length) { activeFiltersFullEl.hidden = true; activeFiltersFullEl.innerHTML = ""; return; }
+
+      activeFiltersFullEl.hidden = false;
+      activeFiltersFullEl.innerHTML = pills.map(p =>
+        `<button type="button" class="filter-pill" data-clear-key="${p.key}">${escapeHtml(p.label)} <span aria-label="Clear">\u2715</span></button>`
+      ).join("") + (pills.length >= 2 ? `<button type="button" class="filter-pill filter-pill--clear-all" data-clear-key="all">Clear all</button>` : "");
+
+      activeFiltersFullEl.querySelectorAll("[data-clear-key]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const k = btn.dataset.clearKey;
+          if (k === "all") { setActiveChipFromType(""); if (bookSelect) bookSelect.value = ""; if (modeSelect) modeSelect.value = "all"; }
+          else if (k === "type") setActiveChipFromType("");
+          else if (k === "book") { if (bookSelect) bookSelect.value = ""; }
+          else if (k === "mode") { if (modeSelect) modeSelect.value = "all"; }
+          updateFromControls({ resetPage: true, push: true });
+        });
+      });
     }
 
     function escapeHtml(s) {
@@ -633,6 +673,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
       if (modeSelect) modeSelect.value = mode;
 
       setActiveSort(sort);
+      renderActiveFiltersFull();
     }
 
     // -------- Subject parsing (PHRASES, not tokens) --------
@@ -1203,6 +1244,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
       }
 
       setPager(showKeyword ? keywordTotal : 0, page);
+      renderActiveFiltersFull();
     }
 
     async function runFullSearch() {
@@ -1483,6 +1525,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
       );
 
       scheduleSearch();
+      renderActiveFiltersFull();
     }
 
     // Initial sync
@@ -1614,6 +1657,48 @@ const baseUrl = import.meta.env.BASE_URL || "/";
   .search-meta__status {
     text-align: center;
     margin-top: 6px;
+  }
+
+  .search-active-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: center;
+    margin: 8px 0 4px;
+  }
+
+  .filter-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(32, 157, 80, 0.35);
+    background: rgba(32, 157, 80, 0.08);
+    font-size: 0.88rem;
+    cursor: pointer;
+    white-space: nowrap;
+    color: rgba(29, 35, 28, 0.9);
+  }
+
+  .filter-pill:hover {
+    background: rgba(32, 157, 80, 0.16);
+    border-color: rgba(32, 157, 80, 0.5);
+  }
+
+  .filter-pill span {
+    font-size: 0.78rem;
+    opacity: 0.65;
+  }
+
+  .filter-pill--clear-all {
+    border-color: rgba(29, 35, 28, 0.18);
+    background: transparent;
+    color: rgba(29, 35, 28, 0.6);
+  }
+
+  .filter-pill--clear-all:hover {
+    background: rgba(29, 35, 28, 0.06);
   }
 
   /* Ref banner (mode=ref) */
