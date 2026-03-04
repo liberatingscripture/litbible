@@ -1191,6 +1191,44 @@ const baseUrl = import.meta.env.BASE_URL || "/";
           return String(u || "");
         }
 
+        function levenshtein(a, b) {
+          const m = a.length, n = b.length;
+          if (m === 0) return n;
+          if (n === 0) return m;
+          const d = Array.from({ length: m + 1 }, (_, i) => i);
+          for (let j = 1; j <= n; j++) {
+            let prev = d[0];
+            d[0] = j;
+            for (let i = 1; i <= m; i++) {
+              const temp = d[i];
+              d[i] = a[i - 1] === b[j - 1] ? prev : 1 + Math.min(prev, d[i], d[i - 1]);
+              prev = temp;
+            }
+          }
+          return d[m];
+        }
+
+        function fuzzyTopicSuggestions(query, topics, limit) {
+          limit = limit || 3;
+          const qNorm = normalizePhrase(query);
+          if (!qNorm || qNorm.length < 3) return [];
+          const scored = [];
+          for (const t of topics) {
+            const norm = t.norm || String(t);
+            if (norm === qNorm) continue;
+            if (norm.startsWith(qNorm) || qNorm.startsWith(norm)) {
+              scored.push({ label: t.label || t.display || norm, dist: 0 });
+              continue;
+            }
+            if (Math.abs(norm.length - qNorm.length) > 4) continue;
+            const dist = levenshtein(qNorm, norm);
+            const threshold = Math.max(2, Math.ceil(qNorm.length * 0.3));
+            if (dist <= threshold) scored.push({ label: t.label || t.display || norm, dist });
+          }
+          scored.sort((a, b) => a.dist - b.dist);
+          return scored.slice(0, limit).map(s => s.label);
+        }
+
         function escapeForAttr(s) {
           return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
         }
@@ -1506,13 +1544,27 @@ const baseUrl = import.meta.env.BASE_URL || "/";
             renderActiveFilters();
 
             const totalCount = gCount + sCount + kCount;
-            if (totalCount === 0 && qPhrase && qPhrase.includes(" ")) {
-              const words = qPhrase.split(/\s+/).filter(w => w.length >= MIN_QUERY_LEN);
-              if (words.length >= 2) {
-                const wordLinks = words.map(w =>
-                  `<button type="button" class="searchbar__suggest-word" data-suggest="${escapeForAttr(w)}">${escapeForAttr(w)}</button>`
+            if (totalCount === 0) {
+              if (qPhrase && qPhrase.includes(" ")) {
+                const words = qPhrase.split(/\s+/).filter(w => w.length >= MIN_QUERY_LEN);
+                if (words.length >= 2) {
+                  const wordLinks = words.map(w =>
+                    `<button type="button" class="searchbar__suggest-word" data-suggest="${escapeForAttr(w)}">${escapeForAttr(w)}</button>`
+                  ).join(" \u00B7 ");
+                  status.innerHTML = `No results for the exact phrase \u201C${escapeForAttr(qPhrase)}.\u201D Try: ${wordLinks}`;
+                  status.querySelectorAll("[data-suggest]").forEach(btn => {
+                    btn.addEventListener("click", () => { input.value = btn.dataset.suggest; runSearch(btn.dataset.suggest); });
+                  });
+                }
+              }
+
+              const suggestions = fuzzyTopicSuggestions(qPhrase, topicsList, 3);
+              if (suggestions.length) {
+                const sugLinks = suggestions.map(s =>
+                  `<button type="button" class="searchbar__suggest-word" data-suggest="${escapeForAttr(s)}">${escapeForAttr(s)}</button>`
                 ).join(" \u00B7 ");
-                status.innerHTML = `No results for the exact phrase \u201C${escapeForAttr(qPhrase)}.\u201D Try: ${wordLinks}`;
+                const current = status.innerHTML || status.textContent || `No results for \u201C${escapeForAttr(qPhrase)}.\u201D`;
+                status.innerHTML = `${current}<br>Did you mean: ${sugLinks}`;
                 status.querySelectorAll("[data-suggest]").forEach(btn => {
                   btn.addEventListener("click", () => { input.value = btn.dataset.suggest; runSearch(btn.dataset.suggest); });
                 });

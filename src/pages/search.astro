@@ -229,6 +229,46 @@ const baseUrl = import.meta.env.BASE_URL || "/";
       refEl.innerHTML = String(content || "");
     }
 
+    let cachedTopicsList = null;
+
+    function levenshtein(a, b) {
+      const m = a.length, n = b.length;
+      if (m === 0) return n;
+      if (n === 0) return m;
+      const d = Array.from({ length: m + 1 }, (_, i) => i);
+      for (let j = 1; j <= n; j++) {
+        let prev = d[0];
+        d[0] = j;
+        for (let i = 1; i <= m; i++) {
+          const temp = d[i];
+          d[i] = a[i - 1] === b[j - 1] ? prev : 1 + Math.min(prev, d[i], d[i - 1]);
+          prev = temp;
+        }
+      }
+      return d[m];
+    }
+
+    function fuzzyTopicSuggestions(query, topics, limit) {
+      limit = limit || 3;
+      const qNorm = normalizePhrase(query);
+      if (!qNorm || qNorm.length < 3) return [];
+      const scored = [];
+      for (const t of topics) {
+        const norm = t.norm || String(t);
+        if (norm === qNorm) continue;
+        if (norm.startsWith(qNorm) || qNorm.startsWith(norm)) {
+          scored.push({ label: t.label || t.display || norm, dist: 0 });
+          continue;
+        }
+        if (Math.abs(norm.length - qNorm.length) > 4) continue;
+        const dist = levenshtein(qNorm, norm);
+        const threshold = Math.max(2, Math.ceil(qNorm.length * 0.3));
+        if (dist <= threshold) scored.push({ label: t.label || t.display || norm, dist });
+      }
+      scored.sort((a, b) => a.dist - b.dist);
+      return scored.slice(0, limit).map(s => s.label);
+    }
+
     function renderActiveFiltersFull() {
       if (!activeFiltersFullEl) return;
       const { type, book, mode } = readState();
@@ -1212,10 +1252,27 @@ const baseUrl = import.meta.env.BASE_URL || "/";
             statusEl.querySelectorAll("[data-suggest]").forEach(btn => {
               btn.addEventListener("click", () => { if (input) input.value = btn.dataset.suggest; updateFromControls({ resetPage: true, push: true }); });
             });
-            // skip normal setStatus — we already set innerHTML
-            renderActiveFiltersFull();
-            return;
           }
+        }
+
+        if (cachedTopicsList) {
+          const suggestions = fuzzyTopicSuggestions(normalizePhrase(displayQ), cachedTopicsList, 3);
+          if (suggestions.length) {
+            const sugLinks = suggestions.map(s =>
+              `<button type="button" class="suggest-word" data-suggest="${escapeHtml(s)}">${escapeHtml(s)}</button>`
+            ).join(" \u00B7 ");
+            const current = statusEl.innerHTML || `No results for \u201C${escapeHtml(displayQ)}.\u201D`;
+            statusEl.innerHTML = `${current}<br>Did you mean: ${sugLinks}`;
+            statusEl.querySelectorAll("[data-suggest]").forEach(btn => {
+              btn.addEventListener("click", () => { if (input) input.value = btn.dataset.suggest; updateFromControls({ resetPage: true, push: true }); });
+            });
+          }
+        }
+
+        if (statusEl.innerHTML) {
+          // skip normal setStatus — we already set innerHTML
+          renderActiveFiltersFull();
+          return;
         }
       }
 
@@ -1403,6 +1460,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
 
       // 2b) Topic-only matches via /topics-index.json (covers subjects that aren't body-indexed)
       const topicsData = await loadTopicsIndexOnce();
+      if (topicsData) cachedTopicsList = topicsData.topicsList;
       if (topicsData && qPhrase) {
         const { topicsList, topicsUrlMap } = topicsData;
 
