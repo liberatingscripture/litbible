@@ -1820,6 +1820,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
         setActiveChip(initialType);
         activeMode = initialMode;
         if (modeSelect) modeSelect.value = initialMode;
+        renderActiveFilters();
         closePanel();
       }
     })();
