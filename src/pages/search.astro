@@ -57,7 +57,8 @@ const baseUrl = import.meta.env.BASE_URL || "/";
         <div id="search-status" aria-live="polite"></div>
       </div>
 
-      <div class="search-active-filters" id="search-active-filters" hidden></div>
+      <div class="search-active-filters" id="search-active-filters" hidden>
+      </div>
 
       <!-- Optional reference jump banner -->
       <div class="search-ref" id="search-ref" data-search-ref hidden></div>
@@ -118,7 +119,9 @@ const baseUrl = import.meta.env.BASE_URL || "/";
     const prevBtn = $("#prev");
     const nextBtn = $("#next");
     const pagerInfo = $("#pager-info");
-    const activeFiltersFullEl = document.getElementById("search-active-filters");
+    const activeFiltersFullEl = document.getElementById(
+      "search-active-filters",
+    );
 
     const sortButtons = Array.from(document.querySelectorAll("[data-sort]"));
 
@@ -240,7 +243,8 @@ const baseUrl = import.meta.env.BASE_URL || "/";
     let cachedTopicsList = null;
 
     function levenshtein(a, b) {
-      const m = a.length, n = b.length;
+      const m = a.length,
+        n = b.length;
       if (m === 0) return n;
       if (n === 0) return m;
       const d = Array.from({ length: m + 1 }, (_, i) => i);
@@ -249,7 +253,8 @@ const baseUrl = import.meta.env.BASE_URL || "/";
         d[0] = j;
         for (let i = 1; i <= m; i++) {
           const temp = d[i];
-          d[i] = a[i - 1] === b[j - 1] ? prev : 1 + Math.min(prev, d[i], d[i - 1]);
+          d[i] =
+            a[i - 1] === b[j - 1] ? prev : 1 + Math.min(prev, d[i], d[i - 1]);
           prev = temp;
         }
       }
@@ -271,10 +276,11 @@ const baseUrl = import.meta.env.BASE_URL || "/";
         if (Math.abs(norm.length - qNorm.length) > 4) continue;
         const dist = levenshtein(qNorm, norm);
         const threshold = Math.max(2, Math.ceil(qNorm.length * 0.3));
-        if (dist <= threshold) scored.push({ label: t.label || t.display || norm, dist });
+        if (dist <= threshold)
+          scored.push({ label: t.label || t.display || norm, dist });
       }
       scored.sort((a, b) => a.dist - b.dist);
-      return scored.slice(0, limit).map(s => s.label);
+      return scored.slice(0, limit).map((s) => s.label);
     }
 
     function renderActiveFiltersFull() {
@@ -282,35 +288,63 @@ const baseUrl = import.meta.env.BASE_URL || "/";
       const { type, book, mode } = readState();
       const pills = [];
 
-      if (type === "scripture") pills.push({ label: "Scripture Only", key: "type" });
+      if (type === "scripture")
+        pills.push({ label: "Scripture Only", key: "type" });
 
       if (book) {
         const opt = bookSelect?.querySelector(`option[value="${book}"]`);
-        pills.push({ label: opt?.textContent || humanBookName(book), key: "book" });
+        pills.push({
+          label: opt?.textContent || humanBookName(book),
+          key: "book",
+        });
       }
 
       if (mode && mode !== "all") {
-        const ml = { subject: "Topic matches", keyword: "Keyword matches", glossary: "Glossary", article: "Article matches" };
+        const ml = {
+          subject: "Topic matches",
+          keyword: "Keyword matches",
+          glossary: "Glossary",
+          article: "Article matches",
+        };
         pills.push({ label: ml[mode] || mode, key: "mode" });
       }
 
-      if (!pills.length) { activeFiltersFullEl.hidden = true; activeFiltersFullEl.innerHTML = ""; return; }
+      if (!pills.length) {
+        activeFiltersFullEl.hidden = true;
+        activeFiltersFullEl.innerHTML = "";
+        return;
+      }
 
       activeFiltersFullEl.hidden = false;
-      activeFiltersFullEl.innerHTML = pills.map(p =>
-        `<button type="button" class="filter-pill" data-clear-key="${p.key}">${escapeHtml(p.label)} <span aria-label="Clear">\u2715</span></button>`
-      ).join("") + (pills.length >= 2 ? `<button type="button" class="filter-pill filter-pill--clear-all" data-clear-key="all">Clear all</button>` : "");
+      activeFiltersFullEl.innerHTML =
+        pills
+          .map(
+            (p) =>
+              `<button type="button" class="filter-pill" data-clear-key="${p.key}">${escapeHtml(p.label)} <span aria-label="Clear">\u2715</span></button>`,
+          )
+          .join("") +
+        (pills.length >= 2
+          ? `<button type="button" class="filter-pill filter-pill--clear-all" data-clear-key="all">Clear all</button>`
+          : "");
 
-      activeFiltersFullEl.querySelectorAll("[data-clear-key]").forEach(btn => {
-        btn.addEventListener("click", () => {
-          const k = btn.dataset.clearKey;
-          if (k === "all") { setActiveChipFromType(""); if (bookSelect) bookSelect.value = ""; if (modeSelect) modeSelect.value = "all"; }
-          else if (k === "type") setActiveChipFromType("");
-          else if (k === "book") { if (bookSelect) bookSelect.value = ""; }
-          else if (k === "mode") { if (modeSelect) modeSelect.value = "all"; }
-          updateFromControls({ resetPage: true, push: true });
+      activeFiltersFullEl
+        .querySelectorAll("[data-clear-key]")
+        .forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const k = btn.dataset.clearKey;
+            if (k === "all") {
+              setActiveChipFromType("");
+              if (bookSelect) bookSelect.value = "";
+              if (modeSelect) modeSelect.value = "all";
+            } else if (k === "type") setActiveChipFromType("");
+            else if (k === "book") {
+              if (bookSelect) bookSelect.value = "";
+            } else if (k === "mode") {
+              if (modeSelect) modeSelect.value = "all";
+            }
+            updateFromControls({ resetPage: true, push: true });
+          });
         });
-      });
     }
 
     function escapeHtml(s) {
@@ -1307,7 +1341,8 @@ const baseUrl = import.meta.env.BASE_URL || "/";
       const subjectCount = subjectMatches.length;
       const articleCount = articleMatches.length;
       const keywordTotal = keywordMatchesAll.length;
-      const matchTotal = glossaryCount + subjectCount + articleCount + keywordTotal;
+      const matchTotal =
+        glossaryCount + subjectCount + articleCount + keywordTotal;
 
       const parsedJump = parseReferenceJump(q);
       setRefBanner(
@@ -1318,28 +1353,48 @@ const baseUrl = import.meta.env.BASE_URL || "/";
       if (matchTotal === 0) {
         const qNorm = normalizePhrase(displayQ);
         if (qNorm.includes(" ")) {
-          const words = qNorm.split(/\s+/).filter(w => w.length >= MIN_QUERY_LEN);
+          const words = qNorm
+            .split(/\s+/)
+            .filter((w) => w.length >= MIN_QUERY_LEN);
           if (words.length >= 2) {
-            const wordLinks = words.map(w =>
-              `<button type="button" class="suggest-word" data-suggest="${escapeHtml(w)}">${escapeHtml(w)}</button>`
-            ).join(" \u00B7 ");
+            const wordLinks = words
+              .map(
+                (w) =>
+                  `<button type="button" class="suggest-word" data-suggest="${escapeHtml(w)}">${escapeHtml(w)}</button>`,
+              )
+              .join(" \u00B7 ");
             statusEl.innerHTML = `No results for the exact phrase \u201C${escapeHtml(displayQ)}.\u201D Try: ${wordLinks}`;
-            statusEl.querySelectorAll("[data-suggest]").forEach(btn => {
-              btn.addEventListener("click", () => { if (input) input.value = btn.dataset.suggest; updateFromControls({ resetPage: true, push: true }); });
+            statusEl.querySelectorAll("[data-suggest]").forEach((btn) => {
+              btn.addEventListener("click", () => {
+                if (input) input.value = btn.dataset.suggest;
+                updateFromControls({ resetPage: true, push: true });
+              });
             });
           }
         }
 
         if (cachedTopicsList) {
-          const suggestions = fuzzyTopicSuggestions(normalizePhrase(displayQ), cachedTopicsList, 3);
+          const suggestions = fuzzyTopicSuggestions(
+            normalizePhrase(displayQ),
+            cachedTopicsList,
+            3,
+          );
           if (suggestions.length) {
-            const sugLinks = suggestions.map(s =>
-              `<button type="button" class="suggest-word" data-suggest="${escapeHtml(s)}">${escapeHtml(s)}</button>`
-            ).join(" \u00B7 ");
-            const current = statusEl.innerHTML || `No results for \u201C${escapeHtml(displayQ)}.\u201D`;
+            const sugLinks = suggestions
+              .map(
+                (s) =>
+                  `<button type="button" class="suggest-word" data-suggest="${escapeHtml(s)}">${escapeHtml(s)}</button>`,
+              )
+              .join(" \u00B7 ");
+            const current =
+              statusEl.innerHTML ||
+              `No results for \u201C${escapeHtml(displayQ)}.\u201D`;
             statusEl.innerHTML = `${current}<br>Did you mean: ${sugLinks}`;
-            statusEl.querySelectorAll("[data-suggest]").forEach(btn => {
-              btn.addEventListener("click", () => { if (input) input.value = btn.dataset.suggest; updateFromControls({ resetPage: true, push: true }); });
+            statusEl.querySelectorAll("[data-suggest]").forEach((btn) => {
+              btn.addEventListener("click", () => {
+                if (input) input.value = btn.dataset.suggest;
+                updateFromControls({ resetPage: true, push: true });
+              });
             });
           }
         }
@@ -1611,10 +1666,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
         if (exactSingleToken) {
           return (
             excerptHasWholeWordMarkedTerm(d?.excerpt, exactToken) ||
-            textHasWholeWord(excerptText, exactToken) ||
-            textHasWholeWord(d?.meta?.title, exactToken) ||
-            textHasWholeWord(d?.meta?.description, exactToken) ||
-            textHasWholeWord(d?.title, exactToken)
+            textHasWholeWord(excerptText, exactToken)
           );
         }
 
@@ -1634,8 +1686,12 @@ const baseUrl = import.meta.env.BASE_URL || "/";
           articleSeen.add(d.url);
           articleMatchesRaw.push(d);
         }
-        subjectMatchesRaw = subjectMatchesRaw.filter(d => !isArticleUrl(d.url));
-        keywordMatchesRawFiltered = keywordMatchesRaw.filter(d => !isArticleUrl(d.url));
+        subjectMatchesRaw = subjectMatchesRaw.filter(
+          (d) => !isArticleUrl(d.url),
+        );
+        keywordMatchesRawFiltered = keywordMatchesRaw.filter(
+          (d) => !isArticleUrl(d.url),
+        );
       }
 
       lastSearchCache = {
@@ -2155,7 +2211,9 @@ const baseUrl = import.meta.env.BASE_URL || "/";
     border: 1.5px solid var(--accent, #38613a);
     border-radius: 6px;
     cursor: pointer;
-    transition: background 0.15s, color 0.15s;
+    transition:
+      background 0.15s,
+      color 0.15s;
   }
 
   .see-more-btn:hover {

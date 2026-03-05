@@ -221,18 +221,26 @@ if (headerKind === "chapter") {
         ) : null
       }
 
-      {/* Default header (unless the page provides its own pageHeader slot) */}
-      <slot name="pageHeader">
-        {
-          isScriptureLike ? (
-            <ScriptureHeader
-              kind={headerKind}
-              bookKey={pagefindBook}
-              chapter={headerChapter}
-            />
-          ) : null
-        }
-      </slot>
+      {
+        /* Default header (unless the page provides its own pageHeader slot)
+         Wrapped in data-pagefind-ignore so the h1 text (e.g. "Mark 1") is NOT
+         indexed as body content — it only contributes via data-pagefind-meta="title"
+         on the <h1> inside ScriptureHeader. Without this, searching "Mark" returns
+         every chapter in Mark as a keyword hit. */
+      }
+      <div data-pagefind-ignore>
+        <slot name="pageHeader">
+          {
+            isScriptureLike ? (
+              <ScriptureHeader
+                kind={headerKind}
+                bookKey={pagefindBook}
+                chapter={headerChapter}
+              />
+            ) : null
+          }
+        </slot>
+      </div>
 
       <slot />
     </main>

@@ -73,8 +73,10 @@ const baseUrl = import.meta.env.BASE_URL || "/";
           >
             <span class="searchbar__tip-dot" aria-hidden="true">i</span>
             <span class="searchbar__tooltip" aria-hidden="true">
-              <strong>All</strong> searches everything — Scripture + Articles.<br />
-              <strong>Scripture Only</strong> limits results to Bible chapters and book introductions — excludes articles.
+              <strong>All</strong> searches everything — Scripture + Articles.<br
+              />
+              <strong>Scripture Only</strong> limits results to Bible chapters and
+              book introductions — excludes articles.
             </span>
           </button>
         </div>
@@ -119,7 +121,8 @@ const baseUrl = import.meta.env.BASE_URL || "/";
               <span class="searchbar__tooltip" aria-hidden="true">
                 <strong>Topic</strong>: matches use LIT's topic index, even when
                 the exact words aren't in the text. Exact matches only.<br />
-                <strong>Keyword</strong>: matches words/phrases in Bible text.<br />
+                <strong>Keyword</strong>: matches words/phrases in Bible text.<br
+                />
                 <strong>Glossary</strong>: terms from the glossary page only,
                 both LIT and traditional.<br />
                 <strong>Article</strong>: matches from article pages only.
@@ -1122,7 +1125,12 @@ const baseUrl = import.meta.env.BASE_URL || "/";
           const articlesCount = articles.length;
           const keywordCount = keyword.length;
 
-          if (!glossaryCount && !subjectCount && !articlesCount && !keywordCount) {
+          if (
+            !glossaryCount &&
+            !subjectCount &&
+            !articlesCount &&
+            !keywordCount
+          ) {
             groupsEl.innerHTML = "";
             return;
           }
@@ -1168,7 +1176,8 @@ const baseUrl = import.meta.env.BASE_URL || "/";
                 : ""
             }
             ${
-              articlesCount && (activeMode === "all" || activeMode === "article")
+              articlesCount &&
+              (activeMode === "all" || activeMode === "article")
                 ? `
                   <div class="searchbar__group">
                     <div class="searchbar__group-title">Article matches</div>
@@ -1201,7 +1210,8 @@ const baseUrl = import.meta.env.BASE_URL || "/";
         }
 
         function levenshtein(a, b) {
-          const m = a.length, n = b.length;
+          const m = a.length,
+            n = b.length;
           if (m === 0) return n;
           if (n === 0) return m;
           const d = Array.from({ length: m + 1 }, (_, i) => i);
@@ -1210,7 +1220,10 @@ const baseUrl = import.meta.env.BASE_URL || "/";
             d[0] = j;
             for (let i = 1; i <= m; i++) {
               const temp = d[i];
-              d[i] = a[i - 1] === b[j - 1] ? prev : 1 + Math.min(prev, d[i], d[i - 1]);
+              d[i] =
+                a[i - 1] === b[j - 1]
+                  ? prev
+                  : 1 + Math.min(prev, d[i], d[i - 1]);
               prev = temp;
             }
           }
@@ -1232,52 +1245,108 @@ const baseUrl = import.meta.env.BASE_URL || "/";
             if (Math.abs(norm.length - qNorm.length) > 4) continue;
             const dist = levenshtein(qNorm, norm);
             const threshold = Math.max(2, Math.ceil(qNorm.length * 0.3));
-            if (dist <= threshold) scored.push({ label: t.label || t.display || norm, dist });
+            if (dist <= threshold)
+              scored.push({ label: t.label || t.display || norm, dist });
           }
           scored.sort((a, b) => a.dist - b.dist);
-          return scored.slice(0, limit).map(s => s.label);
+          return scored.slice(0, limit).map((s) => s.label);
         }
 
         function escapeForAttr(s) {
-          return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+          return String(s)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;");
         }
 
         function renderActiveFilters() {
           if (!activeFiltersEl) return;
           const pills = [];
 
-          if (activeType === "scripture") pills.push({ label: "Scripture Only", clear() { setActiveChip(""); } });
+          if (activeType === "scripture")
+            pills.push({
+              label: "Scripture Only",
+              clear() {
+                setActiveChip("");
+              },
+            });
 
           if (activeBook) {
-            const bookLabel = bookSelect.selectedOptions?.[0]?.textContent || bookKeyToLabel(activeBook);
-            pills.push({ label: bookLabel, clear() { activeBook = ""; bookSelect.value = ""; } });
+            const bookLabel =
+              bookSelect.selectedOptions?.[0]?.textContent ||
+              bookKeyToLabel(activeBook);
+            pills.push({
+              label: bookLabel,
+              clear() {
+                activeBook = "";
+                bookSelect.value = "";
+              },
+            });
           }
 
           if (activeMode && activeMode !== "all") {
-            const ml = { subject: "Topic matches", keyword: "Keyword matches", glossary: "Glossary", article: "Article matches" };
-            pills.push({ label: ml[activeMode] || activeMode, clear() { activeMode = "all"; modeSelect.value = "all"; } });
+            const ml = {
+              subject: "Topic matches",
+              keyword: "Keyword matches",
+              glossary: "Glossary",
+              article: "Article matches",
+            };
+            pills.push({
+              label: ml[activeMode] || activeMode,
+              clear() {
+                activeMode = "all";
+                modeSelect.value = "all";
+              },
+            });
           }
 
-          if (!pills.length) { activeFiltersEl.hidden = true; activeFiltersEl.innerHTML = ""; return; }
+          if (!pills.length) {
+            activeFiltersEl.hidden = true;
+            activeFiltersEl.innerHTML = "";
+            return;
+          }
 
           activeFiltersEl.hidden = false;
-          activeFiltersEl.innerHTML = pills.map((p, i) =>
-            `<button type="button" class="searchbar__filter-pill" data-pill-idx="${i}">${escapeForAttr(p.label)} <span aria-label="Clear filter">\u2715</span></button>`
-          ).join("") + (pills.length >= 2 ? `<button type="button" class="searchbar__filter-clear-all" data-clear-all>Clear all</button>` : "");
+          activeFiltersEl.innerHTML =
+            pills
+              .map(
+                (p, i) =>
+                  `<button type="button" class="searchbar__filter-pill" data-pill-idx="${i}">${escapeForAttr(p.label)} <span aria-label="Clear filter">\u2715</span></button>`,
+              )
+              .join("") +
+            (pills.length >= 2
+              ? `<button type="button" class="searchbar__filter-clear-all" data-clear-all>Clear all</button>`
+              : "");
 
           function rerun() {
             renderActiveFilters();
             const q = input.value.trim();
-            if (q.length >= MIN_QUERY_LEN || parseReference(q) || parseBookOnly(q)) runSearch(q);
+            if (
+              q.length >= MIN_QUERY_LEN ||
+              parseReference(q) ||
+              parseBookOnly(q)
+            )
+              runSearch(q);
             else clearForShortQuery(q);
           }
 
-          activeFiltersEl.querySelectorAll("[data-pill-idx]").forEach(btn => {
-            btn.addEventListener("click", () => { pills[Number(btn.dataset.pillIdx)]?.clear(); rerun(); });
+          activeFiltersEl.querySelectorAll("[data-pill-idx]").forEach((btn) => {
+            btn.addEventListener("click", () => {
+              pills[Number(btn.dataset.pillIdx)]?.clear();
+              rerun();
+            });
           });
-          activeFiltersEl.querySelector("[data-clear-all]")?.addEventListener("click", () => {
-            setActiveChip(""); activeBook = ""; bookSelect.value = ""; activeMode = "all"; modeSelect.value = "all"; rerun();
-          });
+          activeFiltersEl
+            .querySelector("[data-clear-all]")
+            ?.addEventListener("click", () => {
+              setActiveChip("");
+              activeBook = "";
+              bookSelect.value = "";
+              activeMode = "all";
+              modeSelect.value = "all";
+              rerun();
+            });
         }
 
         function filterSubjectUrlsByActiveFilters(items, opts = {}) {
@@ -1401,22 +1470,13 @@ const baseUrl = import.meta.env.BASE_URL || "/";
                 const wholeWordOk =
                   !exactSingleToken ||
                   excerptHasWholeWordMarkedTerm(d?.excerpt, exactToken) ||
-                  textHasWholeWord(excerptText, exactToken) ||
-                  textHasWholeWord(d?.meta?.title, exactToken) ||
-                  textHasWholeWord(d?.meta?.description, exactToken) ||
-                  textHasWholeWord(d?.title, exactToken);
+                  textHasWholeWord(excerptText, exactToken);
 
                 const contentHit = !qPhrase
                   ? false
                   : isSingleToken
-                    ? textHasWholeWord(excerptText, qPhrase) ||
-                      textHasWholeWord(d?.title, qPhrase) ||
-                      textHasWholeWord(d?.meta?.title, qPhrase) ||
-                      textHasWholeWord(d?.meta?.description, qPhrase)
-                    : textHasPhrase(excerptText, qPhrase) ||
-                      textHasPhrase(d?.title, qPhrase) ||
-                      textHasPhrase(d?.meta?.title, qPhrase) ||
-                      textHasPhrase(d?.meta?.description, qPhrase);
+                    ? textHasWholeWord(excerptText, qPhrase)
+                    : textHasPhrase(excerptText, qPhrase);
 
                 const subjectHit =
                   !!qPhrase &&
@@ -1506,8 +1566,12 @@ const baseUrl = import.meta.env.BASE_URL || "/";
                 articleSeen.add(url);
                 articleMatches.push(it);
               }
-              subjectMatches = subjectMatches.filter(it => !isArticleResult(it));
-              keywordMatchesFiltered = keywordMatches.filter(it => !isArticleResult(it));
+              subjectMatches = subjectMatches.filter(
+                (it) => !isArticleResult(it),
+              );
+              keywordMatchesFiltered = keywordMatches.filter(
+                (it) => !isArticleResult(it),
+              );
             }
 
             const glossaryItems = glossaryMatches.slice(0, 6).map((it) => ({
@@ -1527,16 +1591,20 @@ const baseUrl = import.meta.env.BASE_URL || "/";
             }));
 
             const articleItems = articleMatches.slice(0, 6).map((it) => ({
-              title: it.d?.meta?.title ? it.d.meta.title : it.d.title || it.d.url,
-              href: hrefFromData(it.d, it.subjectRange, it.locs),
-            }));
-
-            const keywordItems = keywordMatchesFiltered.slice(0, 6).map((it) => ({
               title: it.d?.meta?.title
                 ? it.d.meta.title
                 : it.d.title || it.d.url,
               href: hrefFromData(it.d, it.subjectRange, it.locs),
             }));
+
+            const keywordItems = keywordMatchesFiltered
+              .slice(0, 6)
+              .map((it) => ({
+                title: it.d?.meta?.title
+                  ? it.d.meta.title
+                  : it.d.title || it.d.url,
+                href: hrefFromData(it.d, it.subjectRange, it.locs),
+              }));
 
             const gCount = glossaryMatches.length;
             const sCount = subjectMatches.length;
@@ -1565,27 +1633,44 @@ const baseUrl = import.meta.env.BASE_URL || "/";
             const totalCount = gCount + sCount + aCount + kCount;
             if (totalCount === 0) {
               if (qPhrase && qPhrase.includes(" ")) {
-                const words = qPhrase.split(/\s+/).filter(w => w.length >= MIN_QUERY_LEN);
+                const words = qPhrase
+                  .split(/\s+/)
+                  .filter((w) => w.length >= MIN_QUERY_LEN);
                 if (words.length >= 2) {
-                  const wordLinks = words.map(w =>
-                    `<button type="button" class="searchbar__suggest-word" data-suggest="${escapeForAttr(w)}">${escapeForAttr(w)}</button>`
-                  ).join(" \u00B7 ");
+                  const wordLinks = words
+                    .map(
+                      (w) =>
+                        `<button type="button" class="searchbar__suggest-word" data-suggest="${escapeForAttr(w)}">${escapeForAttr(w)}</button>`,
+                    )
+                    .join(" \u00B7 ");
                   status.innerHTML = `No results for the exact phrase \u201C${escapeForAttr(qPhrase)}.\u201D Try: ${wordLinks}`;
-                  status.querySelectorAll("[data-suggest]").forEach(btn => {
-                    btn.addEventListener("click", () => { input.value = btn.dataset.suggest; runSearch(btn.dataset.suggest); });
+                  status.querySelectorAll("[data-suggest]").forEach((btn) => {
+                    btn.addEventListener("click", () => {
+                      input.value = btn.dataset.suggest;
+                      runSearch(btn.dataset.suggest);
+                    });
                   });
                 }
               }
 
               const suggestions = fuzzyTopicSuggestions(qPhrase, topicsList, 3);
               if (suggestions.length) {
-                const sugLinks = suggestions.map(s =>
-                  `<button type="button" class="searchbar__suggest-word" data-suggest="${escapeForAttr(s)}">${escapeForAttr(s)}</button>`
-                ).join(" \u00B7 ");
-                const current = status.innerHTML || status.textContent || `No results for \u201C${escapeForAttr(qPhrase)}.\u201D`;
+                const sugLinks = suggestions
+                  .map(
+                    (s) =>
+                      `<button type="button" class="searchbar__suggest-word" data-suggest="${escapeForAttr(s)}">${escapeForAttr(s)}</button>`,
+                  )
+                  .join(" \u00B7 ");
+                const current =
+                  status.innerHTML ||
+                  status.textContent ||
+                  `No results for \u201C${escapeForAttr(qPhrase)}.\u201D`;
                 status.innerHTML = `${current}<br>Did you mean: ${sugLinks}`;
-                status.querySelectorAll("[data-suggest]").forEach(btn => {
-                  btn.addEventListener("click", () => { input.value = btn.dataset.suggest; runSearch(btn.dataset.suggest); });
+                status.querySelectorAll("[data-suggest]").forEach((btn) => {
+                  btn.addEventListener("click", () => {
+                    input.value = btn.dataset.suggest;
+                    runSearch(btn.dataset.suggest);
+                  });
                 });
               }
             }
@@ -2171,7 +2256,10 @@ const baseUrl = import.meta.env.BASE_URL || "/";
     text-align: left;
 
     transform: translateY(8px);
-    transition: opacity 140ms ease, visibility 140ms ease, transform 140ms ease;
+    transition:
+      opacity 140ms ease,
+      visibility 140ms ease,
+      transform 140ms ease;
     transition-delay: 120ms;
   }
 
