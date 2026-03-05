@@ -12,15 +12,15 @@
 /* Wide container: tools bar is wider than reading column */
 .scripture-tools__inner {
   margin: 0 auto;
-  width: min(1100px, calc(100% - 32px));
+  width: min(1200px, calc(100% - 32px));
 
   display: grid;
 
   /* Symmetric side columns so the center stays visually centered */
   grid-template-columns:
-    minmax(220px, 280px)
-    minmax(600px, 1fr)
-    minmax(220px, 280px);
+    minmax(200px, 260px)
+    minmax(640px, 1fr)
+    minmax(200px, 260px);
 
   align-items: start;
   gap: 18px;
