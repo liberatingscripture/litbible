@@ -90,6 +90,8 @@ const baseUrl = import.meta.env.BASE_URL || "/";
             </div>
 
             <div class="scripture-tools__center" aria-label="Search the LIT">
+              {/* Slot for content above the search bar (e.g. search page heading) */}
+              <slot name="preSearch" />
               {showToolsSearch ? (
                 <SearchBar
                   fullSearchHref={`${baseUrl}search`}
@@ -260,7 +262,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
         }
 
         :global(.scripture-tools__center) {
-          margin-top: 8px;
+          margin-top: 44px;
         }
       }
 

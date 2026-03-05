@@ -17,14 +17,14 @@ const baseUrl = import.meta.env.BASE_URL || "/";
   type="search"
   index={false}
 >
-  <section class="search-page" data-pagefind-ignore>
-    <header class="search-header">
-      <h1 class="search-title">Search</h1>
-      <p class="search-subtitle">
-        Results update as you type. Use the filters to narrow by type and book.
-      </p>
-    </header>
+  <header class="search-header" slot="preSearch">
+    <h1 class="search-title">Search</h1>
+    <p class="search-subtitle">
+      Results update as you type. Use the filters to narrow by type and book.
+    </p>
+  </header>
 
+  <section class="search-page" data-pagefind-ignore>
     <div class="search-meta">
       <!-- Sort stays in a dedicated row so it never "wraps under" the status line -->
       <div class="search-meta__top">
@@ -1834,17 +1834,17 @@ const baseUrl = import.meta.env.BASE_URL || "/";
     padding: 18px 0 42px;
   }
 
-  .search-header {
+  :global(.search-header) {
     text-align: center;
     margin: 0 0 16px;
   }
 
-  .search-title {
+  :global(.search-title) {
     font-size: 32px;
     margin: 0 0 8px;
   }
 
-  .search-subtitle {
+  :global(.search-subtitle) {
     margin: 0;
     color: rgba(29, 35, 28, 0.7);
   }
