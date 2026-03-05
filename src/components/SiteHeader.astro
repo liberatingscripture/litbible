@@ -18,9 +18,15 @@ const { class: className = "" } = Astro.props;
         loading="eager"
         decoding="async"
       />
-      <span class="site-header__title"
-        >The Liberation &amp; Inclusion Translation</span
-      >
+      <span class="site-header__title">
+        <span class="title-long">
+          <span class="title-prefix">The Liberation &amp; Inclusion</span><span
+            class="title-truncatable">Translation</span
+          >
+        </span>
+        <span class="title-alt">LIT Bible</span>
+        <span class="sr-only">The Liberation and Inclusion Translation</span>
+      </span>
     </a>
 
     <!-- Desktop nav -->
@@ -131,7 +137,7 @@ const { class: className = "" } = Astro.props;
         if (e.key !== "Tab" || !isOpen()) return;
 
         const focusables = panel.querySelectorAll(
-          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
         );
         if (!focusables.length) return;
 
@@ -146,6 +152,69 @@ const { class: className = "" } = Astro.props;
           first.focus();
         }
       });
+    })();
+  </script>
+
+  <script>
+    // Title truncation observer
+    // Desktop (nav visible): allow ellipsis on "Translation" only.
+    // When "Translation" is fully hidden, switch to "LIT Bible."
+    // Mobile (nav hidden): no truncation — if full title overflows, jump to "LIT Bible."
+    (() => {
+      const titleEl = document.querySelector<HTMLElement>(
+        ".site-header__title",
+      );
+      const longEl = titleEl?.querySelector<HTMLElement>(".title-long");
+      const truncEl = titleEl?.querySelector<HTMLElement>(".title-truncatable");
+      const altEl = titleEl?.querySelector<HTMLElement>(".title-alt");
+
+      if (!titleEl || !longEl || !truncEl || !altEl) return;
+
+      const check = () => {
+        // Reset to long title so we can measure
+        longEl.style.display = "flex";
+        altEl.style.display = "none";
+
+        const nav = document.querySelector<HTMLElement>(".site-nav");
+        const navVisible = nav && getComputedStyle(nav).display !== "none";
+
+        if (navVisible) {
+          // Desktop: ellipsis is active on .title-truncatable
+          // If truncatable word is fully clipped (its visible width ≈ 0), swap
+          const truncWidth = truncEl.offsetWidth;
+          if (truncWidth < 2) {
+            longEl.style.display = "none";
+            altEl.style.display = "inline";
+          }
+        } else {
+          // Mobile: no truncation allowed.
+          // If the full title overflows the container, swap to alt.
+          const titleWidth = titleEl.scrollWidth;
+          const availWidth = titleEl.clientWidth;
+          if (titleWidth > availWidth + 2) {
+            longEl.style.display = "none";
+            altEl.style.display = "inline";
+          }
+        }
+      };
+
+      // Use ResizeObserver on the header row — its width always tracks the viewport,
+      // unlike titleEl which stays the same size when showing short "LIT Bible" text.
+      const headerInner = document.querySelector<HTMLElement>(
+        ".site-header__inner",
+      );
+      if (!headerInner) return;
+
+      const ro = new ResizeObserver(() => {
+        requestAnimationFrame(check);
+      });
+      ro.observe(headerInner);
+
+      // Also recheck on window resize as a fallback
+      window.addEventListener("resize", () => requestAnimationFrame(check));
+
+      // Initial check
+      check();
     })();
   </script>
 </header>

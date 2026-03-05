@@ -214,8 +214,37 @@ a:focus {
 
   white-space: nowrap;
   overflow: hidden;
+  min-width: 0;
+
+  display: flex;
+  align-items: baseline;
+}
+
+/* The full title — flex row so prefix stays rigid */
+.site-header__title .title-long {
+  display: flex;
+  align-items: baseline;
+  gap: 0.32em;
+  min-width: 0;
+}
+
+/* The fixed prefix must not shrink or clip */
+.site-header__title .title-prefix {
+  flex-shrink: 0;
+}
+
+/* Only "Translation" truncates letter-by-letter */
+.site-header__title .title-truncatable {
+  overflow: hidden;
   text-overflow: ellipsis;
   min-width: 0;
+  flex: 0 1 auto;
+}
+
+/* Alternate short title — hidden by default, JS toggles it */
+.site-header__title .title-alt {
+  display: none;
+  flex-shrink: 0;
 }
 
 /* ---------------------------------------------------------
@@ -231,7 +260,7 @@ a:focus {
   list-style: none;
   display: flex;
   align-items: center;
-  gap: 32px;
+  gap: 22px;
   margin: 0;
   padding: 0;
   white-space: nowrap;
@@ -494,21 +523,6 @@ html.menu-open .site-header__menu-toggle .menu-icon::after {
    (avoid overlap by tightening slightly)
    ========================================================= */
 
-@media (max-width: 1250px) {
-  .site-header__title {
-    font-size: 1.65rem;
-  }
-
-  .site-nav__list {
-    gap: 22px;
-  }
-
-  .site-nav__list > li > a {
-    font-size: 0.85rem;
-    letter-spacing: 0.15em;
-  }
-}
-
 /* =========================================================
    Collapse breakpoint
    - hide desktop nav
@@ -527,6 +541,12 @@ html.menu-open .site-header__menu-toggle .menu-icon::after {
 
   .site-header__menu-toggle {
     display: inline-flex;
+  }
+
+  /* No gradual truncation on mobile — title fits fully or swaps to LIT Bible */
+  .site-header__title .title-truncatable {
+    overflow: visible;
+    text-overflow: clip;
   }
 }
 
@@ -1454,4 +1474,4 @@ html {
 .chiasm-line.lvl-1{ padding-left: 1.25rem; }
 .chiasm-line.lvl-2{ padding-left: 2.5rem; }
 .chiasm-line.lvl-3{ padding-left: 3.75rem; }
-.chiasm-line.lvl-4{ padding-left: 5rem; } 
+.chiasm-line.lvl-4{ padding-left: 5rem; }

@@ -770,7 +770,7 @@ html.rm-tools-open {
 }
 
 .rm-page .rm-reader[data-rm-focus="on"] .rm-text p {
-  opacity: 0.58;
+  opacity: 0.4;
   transition: opacity 160ms ease;
 }
 
