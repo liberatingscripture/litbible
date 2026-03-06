@@ -1454,9 +1454,8 @@ const baseUrl = import.meta.env.BASE_URL || "/";
             if (mySeq !== searchSeq) return;
 
             const resolvedAll = await Promise.all(
-              res.results.map(async (r, _i) => {
+              res.results.map(async (r, i) => {
                 const d = await r.data();
-                const score = r.score ?? 0;
 
                 const subjectRange = getSubjectRangeFromAnchors(d?.anchors);
                 const locs = getMatchLocations(d);
@@ -1485,7 +1484,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
 
                 return {
                   d,
-                  score,
+                  relevanceRank: i,
                   subjectRange,
                   locs,
                   topicsList: topicsListLocal,
@@ -1586,11 +1585,13 @@ const baseUrl = import.meta.env.BASE_URL || "/";
               href: hrefFromData(it.d, it.subjectRange, it.locs),
             }));
 
-            // Sort keyword and article results by Pagefind relevance score
+            // Sort keyword and article results by Pagefind relevance order
             keywordMatchesFiltered.sort(
-              (a, b) => (b.score || 0) - (a.score || 0),
+              (a, b) => (a.relevanceRank ?? 9999) - (b.relevanceRank ?? 9999),
             );
-            articleMatches.sort((a, b) => (b.score || 0) - (a.score || 0));
+            articleMatches.sort(
+              (a, b) => (a.relevanceRank ?? 9999) - (b.relevanceRank ?? 9999),
+            );
 
             const keywordItems = keywordMatchesFiltered
               .slice(0, 6)
