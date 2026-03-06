@@ -624,7 +624,8 @@ const baseUrl = import.meta.env.BASE_URL || "/";
           return num + word.charAt(0).toUpperCase() + word.slice(1);
         }
 
-        // Populate book dropdown from ReadMenu if present
+        // Populate book dropdown — prefer ReadMenu's data-books if present,
+        // otherwise fall back to the canonical BOOK_ORDER list.
         const booksDataEl = document.querySelector("[data-books]");
         if (booksDataEl) {
           try {
@@ -640,6 +641,14 @@ const baseUrl = import.meta.env.BASE_URL || "/";
           } catch {
             // ignore
           }
+        } else {
+          // No ReadMenu on this page — populate from the canonical NT order
+          BOOK_ORDER.forEach((key) => {
+            const opt = document.createElement("option");
+            opt.value = key;
+            opt.textContent = bookKeyToLabel(key);
+            bookSelect.appendChild(opt);
+          });
         }
 
         function parseReference(raw) {
