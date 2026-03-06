@@ -1243,32 +1243,9 @@ const baseUrl = import.meta.env.BASE_URL || "/";
         const fallbackTitle = r.meta?.title || r.title || "Result";
         const displayTitle = fallbackTitle;
 
-        const descriptionMeta = r?.meta?.description
-          ? String(r.meta.description).trim()
-          : "";
-
-        const excerptHtml = r?.excerpt ? String(r.excerpt) : "";
-        const hasHighlight = /<mark>/i.test(excerptHtml);
-
-        let snippetHtml = "";
-        if (excerptHtml) {
-          if (hasHighlight) {
-            snippetHtml = excerptHtml;
-          } else if (!looksLikeMetaDump(excerptHtml)) {
-            snippetHtml = excerptHtml;
-          } else if (descriptionMeta) {
-            snippetHtml = escapeHtml(descriptionMeta);
-          } else {
-            snippetHtml = excerptHtml;
-          }
-        } else if (descriptionMeta) {
-          snippetHtml = escapeHtml(descriptionMeta);
-        }
-
         li.innerHTML = `
           <a class="result-link" href="${escapeHtml(r.url)}">
             <div class="result-title">${escapeHtml(displayTitle)}</div>
-            ${snippetHtml ? `<div class="result-excerpt">${snippetHtml}</div>` : ""}
           </a>
         `;
 
