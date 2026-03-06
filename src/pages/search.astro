@@ -1120,7 +1120,8 @@ const baseUrl = import.meta.env.BASE_URL || "/";
 
     function sortMaybe(items, sort) {
       if (sort === "order") return [...items].sort(compareByBookOrder);
-      return items;
+      // Relevance: sort by Pagefind score (highest first)
+      return [...items].sort((a, b) => (b.__score || 0) - (a.__score || 0));
     }
 
     // ---- Glossary: show ONLY the matched term, no excerpt, no <mark> ----
@@ -1333,7 +1334,8 @@ const baseUrl = import.meta.env.BASE_URL || "/";
         qPhrase,
       } = lastSearchCache;
 
-      const subjectMatches = sortMaybe(subjectMatchesRaw, sort);
+      // Topics always display in canonical book order
+      const subjectMatches = [...subjectMatchesRaw].sort(compareByBookOrder);
       const articleMatches = sortMaybe(articleMatchesRaw, sort);
       const keywordMatchesAll = sortMaybe(keywordMatchesRaw, sort);
 
@@ -1549,15 +1551,21 @@ const baseUrl = import.meta.env.BASE_URL || "/";
       );
 
       const resolvedAll = await Promise.all(
-        search.results.map((r) => hrefToFirstMatch(r)),
+        search.results.map(async (r) => {
+          const resolved = await hrefToFirstMatch(r);
+          return { ...resolved, score: r.score ?? 0 };
+        }),
       );
 
-      const allData = resolvedAll.map(({ url, data, metaRanges, locs }) => ({
-        ...data,
-        url,
-        __metaRanges: metaRanges,
-        __locs: locs,
-      }));
+      const allData = resolvedAll.map(
+        ({ url, data, metaRanges, locs, score }) => ({
+          ...data,
+          url,
+          __metaRanges: metaRanges,
+          __locs: locs,
+          __score: score,
+        }),
+      );
 
       const qUnquoted = displayQ;
       const qPhrase = normalizePhrase(qUnquoted);
