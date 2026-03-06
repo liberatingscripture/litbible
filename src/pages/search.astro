@@ -2249,71 +2249,45 @@ const baseUrl = import.meta.env.BASE_URL || "/";
     text-decoration: none;
     padding: 12px 14px;
     border-radius: 12px;
-    background: linear-gradient(
-      180deg,
-      rgba(44, 176, 93, 0.26) 0%,
-      rgba(32, 157, 80, 0.2) 100%
-    );
-    border: 1px solid rgba(32, 157, 80, 0.42);
-    color: #1d231c;
+    background-color: var(--green, #209d50);
+    border: none;
+    color: var(--white, #fff);
     font-weight: 700;
-    box-shadow:
-      0 2px 0 rgba(22, 96, 49, 0.36),
-      0 12px 22px rgba(0, 0, 0, 0.14),
-      inset 0 1px 0 rgba(255, 255, 255, 0.78);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
     transform: translateY(0);
     transition:
       transform 140ms ease,
       box-shadow 180ms ease,
-      border-color 180ms ease,
-      background 180ms ease;
+      background-color 180ms ease;
   }
 
   .search-ref .search-ref__link--read {
-    background: linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 0.96) 0%,
-      rgba(234, 238, 233, 0.92) 100%
-    );
-    border-color: rgba(29, 35, 28, 0.32);
-    box-shadow:
-      0 2px 0 rgba(29, 35, 28, 0.3),
-      0 12px 22px rgba(0, 0, 0, 0.11),
-      inset 0 1px 0 rgba(255, 255, 255, 0.86);
+    background-color: var(--white, #fff);
+    color: var(--ink, #1d231c);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
   }
 
   @media (hover: hover) and (pointer: fine) {
     .search-ref .search-ref__link:hover {
       transform: translateY(-1px);
-      border-color: rgba(32, 157, 80, 0.55);
-      box-shadow:
-        0 3px 0 rgba(22, 96, 49, 0.4),
-        0 16px 28px rgba(0, 0, 0, 0.18),
-        inset 0 1px 0 rgba(255, 255, 255, 0.84);
+      background-color: var(--ink, #1d231c);
+      box-shadow: 0 12px 22px rgba(0, 0, 0, 0.22);
     }
 
     .search-ref .search-ref__link--read:hover {
-      border-color: rgba(29, 35, 28, 0.42);
-      box-shadow:
-        0 3px 0 rgba(29, 35, 28, 0.34),
-        0 16px 28px rgba(0, 0, 0, 0.14),
-        inset 0 1px 0 rgba(255, 255, 255, 0.9);
+      background-color: var(--ink, #1d231c);
+      color: var(--white, #fff);
+      box-shadow: 0 12px 22px rgba(0, 0, 0, 0.22);
     }
   }
 
   .search-ref .search-ref__link:active {
-    transform: translateY(1px);
-    box-shadow:
-      0 1px 0 rgba(22, 96, 49, 0.36),
-      0 7px 16px rgba(0, 0, 0, 0.12),
-      inset 0 1px 0 rgba(255, 255, 255, 0.72);
+    transform: translateY(0);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.16);
   }
 
   .search-ref .search-ref__link--read:active {
-    box-shadow:
-      0 1px 0 rgba(29, 35, 28, 0.3),
-      0 7px 16px rgba(0, 0, 0, 0.1),
-      inset 0 1px 0 rgba(255, 255, 255, 0.82);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
   }
 
   .search-ref .search-ref__link:focus-visible {
