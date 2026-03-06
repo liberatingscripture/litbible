@@ -83,11 +83,8 @@ const baseUrl = import.meta.env.BASE_URL || "/";
       <div class="group-title">Keyword matches</div>
       <ol class="results" id="results-keyword"></ol>
 
-      <div class="pager" id="pager" hidden>
-        <button class="pager-btn" id="prev" type="button">Previous</button>
-        <div class="pager-info" id="pager-info"></div>
-        <button class="pager-btn" id="next" type="button">Next</button>
-      </div>
+      <nav class="pager" id="pager" aria-label="Search result pages" hidden>
+      </nav>
     </div>
   </section>
 
@@ -116,9 +113,6 @@ const baseUrl = import.meta.env.BASE_URL || "/";
     const keywordEl = $("#results-keyword");
 
     const pagerEl = $("#pager");
-    const prevBtn = $("#prev");
-    const nextBtn = $("#next");
-    const pagerInfo = $("#pager-info");
     const activeFiltersFullEl = document.getElementById(
       "search-active-filters",
     );
@@ -1310,17 +1304,89 @@ const baseUrl = import.meta.env.BASE_URL || "/";
       const pages = Math.max(1, Math.ceil(total / pageSize));
       const show = total > pageSize;
       pagerEl.hidden = !show;
+      pagerEl.innerHTML = "";
 
-      if (!show) {
-        prevBtn.disabled = true;
-        nextBtn.disabled = true;
-        pagerInfo.textContent = "";
-        return;
+      if (!show) return;
+
+      // Build the list of page numbers to display (with ellipsis gaps)
+      const pageNums = buildPageRange(page, pages);
+
+      // Previous button
+      const prevBtn = document.createElement("button");
+      prevBtn.type = "button";
+      prevBtn.className = "pager-btn pager-btn--arrow";
+      prevBtn.textContent = "Previous";
+      prevBtn.disabled = page <= 1;
+      prevBtn.addEventListener("click", () => {
+        if (page > 1) setPage(page - 1);
+      });
+      pagerEl.appendChild(prevBtn);
+
+      // Numbered page buttons / ellipsis
+      for (const entry of pageNums) {
+        if (entry === "…") {
+          const span = document.createElement("span");
+          span.className = "pager-ellipsis";
+          span.textContent = "…";
+          span.setAttribute("aria-hidden", "true");
+          pagerEl.appendChild(span);
+        } else {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className =
+            "pager-btn pager-btn--num" +
+            (entry === page ? " pager-btn--current" : "");
+          btn.textContent = entry;
+          if (entry === page) {
+            btn.setAttribute("aria-current", "page");
+          } else {
+            btn.addEventListener("click", () => setPage(entry));
+          }
+          pagerEl.appendChild(btn);
+        }
       }
 
-      prevBtn.disabled = page <= 1;
+      // Next button
+      const nextBtn = document.createElement("button");
+      nextBtn.type = "button";
+      nextBtn.className = "pager-btn pager-btn--arrow";
+      nextBtn.textContent = "Next";
       nextBtn.disabled = page >= pages;
-      pagerInfo.textContent = `Page ${page} of ${pages}`;
+      nextBtn.addEventListener("click", () => {
+        if (page < pages) setPage(page + 1);
+      });
+      pagerEl.appendChild(nextBtn);
+    }
+
+    /**
+     * Build a compact page-number array like [1, "…", 4, 5, 6, "…", 9].
+     * Always shows first, last, and a window around current page.
+     */
+    function buildPageRange(current, total) {
+      if (total <= 7) {
+        return Array.from({ length: total }, (_, i) => i + 1);
+      }
+
+      const pages = new Set();
+      pages.add(1);
+      pages.add(total);
+
+      // Window of 1 around current page
+      for (let i = current - 1; i <= current + 1; i++) {
+        if (i >= 1 && i <= total) pages.add(i);
+      }
+
+      const sorted = [...pages].sort((a, b) => a - b);
+      const result = [];
+
+      for (let i = 0; i < sorted.length; i++) {
+        if (i > 0 && sorted[i] - sorted[i - 1] > 1) {
+          result.push("…");
+        }
+        result.push(sorted[i]);
+      }
+
+      return result;
     }
 
     function renderFromCache() {
@@ -1812,18 +1878,15 @@ const baseUrl = import.meta.env.BASE_URL || "/";
       if (lastSearchCache) renderFromCache();
       else scheduleSearch();
 
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      // Only scroll if the keyword results area is above the viewport
+      const target = groupKeyword || pagerEl;
+      if (target) {
+        const rect = target.getBoundingClientRect();
+        if (rect.top < 0) {
+          target.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }
     }
-
-    prevBtn.addEventListener("click", () => {
-      const s = readState();
-      if (s.page > 1) setPage(s.page - 1);
-    });
-
-    nextBtn.addEventListener("click", () => {
-      const s = readState();
-      setPage(s.page + 1);
-    });
 
     window.addEventListener("popstate", () => {
       syncControlsFromUrl();
@@ -2135,66 +2198,6 @@ const baseUrl = import.meta.env.BASE_URL || "/";
     border-radius: 3px;
   }
 
-  .pager {
-    display: flex;
-    gap: 12px;
-    justify-content: center;
-    align-items: center;
-    margin: 18px auto 0;
-    padding: 0 16px;
-  }
-
-  .pager-btn {
-    padding: 10px 16px;
-    border-radius: 12px;
-    border: none;
-    background: #1d231c;
-    color: #fff;
-    cursor: pointer;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-  }
-
-  .pager-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  .pager-info {
-    color: rgba(29, 35, 28, 0.8);
-    font-size: 0.95rem;
-  }
-
-  /* Force pager buttons: green by default; black + lift on hover */
-  .search-page .pager .pager-btn {
-    background-color: var(--green, #209d50) !important;
-    color: var(--white, #fff) !important;
-    border: none !important;
-
-    transition:
-      background-color 0.18s ease,
-      transform 0.18s ease,
-      box-shadow 0.18s ease;
-  }
-
-  @media (hover: hover) and (pointer: fine) {
-    .search-page .pager .pager-btn:hover:not(:disabled) {
-      background-color: var(--ink, #1d231c) !important;
-      transform: translateY(-1px);
-      box-shadow: 0 12px 22px rgba(0, 0, 0, 0.22);
-    }
-  }
-
-  .search-page .pager .pager-btn:active:not(:disabled) {
-    transform: translateY(0);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.18);
-  }
-
-  .search-page .pager .pager-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-  }
-
   [hidden] {
     display: none !important;
   }
@@ -2322,5 +2325,69 @@ const baseUrl = import.meta.env.BASE_URL || "/";
     opacity: 0.7;
     font-size: 0.9rem;
     white-space: nowrap;
+  }
+
+  /* ── Pager (dynamically created, needs global scope) ── */
+
+  .pager {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    margin: 18px auto 0;
+    padding: 0 16px;
+  }
+
+  .pager-btn {
+    padding: 10px 16px;
+    border-radius: 12px;
+    border: none;
+    background-color: var(--green, #209d50);
+    color: var(--white, #fff);
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    line-height: 1;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    min-width: 40px;
+    text-align: center;
+
+    transition:
+      background-color 0.18s ease,
+      transform 0.18s ease,
+      box-shadow 0.18s ease;
+  }
+
+  .pager-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .pager-btn--current {
+    background-color: var(--ink, #1d231c);
+    cursor: default;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
+  }
+
+  .pager-ellipsis {
+    padding: 0 2px;
+    color: rgba(29, 35, 28, 0.45);
+    font-size: 1rem;
+    user-select: none;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .pager .pager-btn:hover:not(:disabled):not(.pager-btn--current) {
+      background-color: var(--ink, #1d231c);
+      transform: translateY(-1px);
+      box-shadow: 0 12px 22px rgba(0, 0, 0, 0.22);
+    }
+  }
+
+  .pager .pager-btn:active:not(:disabled):not(.pager-btn--current) {
+    transform: translateY(0);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.18);
   }
 </style>
