@@ -4,12 +4,12 @@
 # Make sure it accurately represents the LIT.
 
 ## About the LIT Bible
-The Liberation and Inclusion Translation (LIT) is a modern English Bible translation produced by Brandon Johnson and the Liberating Scripture Collective. It translates from the original biblical languages with a trauma-informed, justice-oriented, and cringe-mindful approach.
 
 ## Site Structure
 - Home: https://litbible.net/
 - Read index: https://litbible.net/read/
 - Book pages: https://litbible.net/read/{book}/
+The Liberation and Inclusion Translation (LIT) is a modern English Bible translation produced by Brandon Vélez Johnson and the Liberating Scripture Collective. It translates from the original biblical languages with a trauma-informed, justice-oriented, and Jesus-centering approach.
 - Chapter pages: https://litbible.net/{book}-{chapter}/ (e.g., /luke-4/, /1corinthians-13/)
 - Book introductions: https://litbible.net/{book}-intro/ (e.g., /luke-intro/)
 - Search: https://litbible.net/search?q={query}
