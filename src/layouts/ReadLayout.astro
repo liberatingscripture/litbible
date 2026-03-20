@@ -26,7 +26,7 @@ const {
 ---
 
 <Layout title={title} description={description} bg={bg} index={index}>
-  <main class="read-layout">
+  <div class="read-layout">
     <header class="read-layout__hero">
       <slot name="hero" />
     </header>
@@ -71,7 +71,7 @@ const {
     <section class="read-layout__content">
       <slot />
     </section>
-  </main>
+  </div>
 
   <script is:inline>
     (() => {

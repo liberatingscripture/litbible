@@ -17,6 +17,7 @@
     "simple-icons": "^16.7.0"
   },
   "devDependencies": {
+    "@astrojs/sitemap": "^3.7.1",
     "jsonc-parser": "^3.3.1",
     "pagefind": "^1.0.0"
   }

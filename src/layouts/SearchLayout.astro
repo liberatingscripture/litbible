@@ -122,7 +122,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
       ) : null
     }
 
-    <main
+    <div
       class="scripture-main"
       data-pagefind-body={shouldIndex ? true : undefined}
       data-pagefind-ignore={shouldIndex ? undefined : true}
@@ -193,7 +193,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
 
       <slot name="pageHeader" />
       <slot />
-    </main>
+    </div>
 
     <section
       class="scripture-disclaimer"
