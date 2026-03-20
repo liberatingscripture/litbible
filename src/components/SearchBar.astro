@@ -1099,6 +1099,91 @@ const baseUrl = import.meta.env.BASE_URL || "/";
           return chosen?.id ? `${d.url}#${chosen.id}` : d.url;
         }
 
+        /**
+         * Count per-occurrence keyword matches by scanning data.content.
+         * Returns an array with one entry per anchor-grouped occurrence.
+         * Used for accurate keyword counting that matches the full search page.
+         */
+        function expandToOccurrences(item, searchTerm) {
+          const content = item?.content || item?.d?.content || '';
+          const anchorsRaw = item?.anchors || item?.d?.anchors || [];
+          const anchors = Array.isArray(anchorsRaw) ? anchorsRaw : [];
+          const term = String(searchTerm || '').toLowerCase().trim();
+
+          if (!content || !term || term.length < 2) {
+            return [item];
+          }
+
+          const sortedAnchors = anchors
+            .filter(a => {
+              const id = a?.id ? String(a.id) : '';
+              if (!id) return false;
+              if (id.startsWith('pf-tags-')) return false;
+              if (id.startsWith('pf-subjects-')) return false;
+              return true;
+            })
+            .sort((a, b) => (a.location ?? 0) - (b.location ?? 0));
+
+          const escapedTerm = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          const regex = new RegExp(
+            `(?<![\\p{L}\\p{N}_])${escapedTerm}(?![\\p{L}\\p{N}_])`,
+            'giu'
+          );
+
+          // Pagefind anchor locations are word indexes, not character offsets.
+          function charIndexToWordIndex(charIdx) {
+            let words = 0;
+            for (let i = 0; i < charIdx && i < content.length; i++) {
+              if (content[i] === ' ' && i > 0 && content[i - 1] !== ' ') {
+                words++;
+              }
+            }
+            return words;
+          }
+
+          const matchPositions = [];
+          let m;
+          while ((m = regex.exec(content)) !== null) {
+            matchPositions.push({
+              index: m.index,
+              length: m[0].length,
+              wordIndex: charIndexToWordIndex(m.index),
+            });
+          }
+
+          if (matchPositions.length === 0) {
+            return [item];
+          }
+
+          function findNearestAnchor(wordIndex) {
+            let best = null;
+            for (const a of sortedAnchors) {
+              if (typeof a.location !== 'number') continue;
+              if (a.location <= wordIndex) best = a;
+              else break;
+            }
+            return best;
+          }
+
+          // Group matches by anchor ID — one "occurrence" per anchor region
+          const groups = new Map();
+          for (const pos of matchPositions) {
+            const anchor = findNearestAnchor(pos.wordIndex);
+            const key = anchor?.id || '__no_anchor__';
+            if (!groups.has(key)) {
+              groups.set(key, { anchor, matches: [] });
+            }
+            groups.get(key).matches.push(pos);
+          }
+
+          // Return one entry per group (we only need the count, not full card data)
+          const results = [];
+          for (const [anchorId, group] of groups) {
+            results.push(item); // placeholder — we just need results.length for counting
+          }
+          return results;
+        }
+
         function isGlossaryUrlSafe(url) {
           const raw = String(url || "").trim();
           if (!raw) return false;
@@ -1614,7 +1699,9 @@ const baseUrl = import.meta.env.BASE_URL || "/";
             const gCount = glossaryMatches.length;
             const sCount = subjectMatches.length;
             const aCount = articleMatches.length;
-            const kCount = keywordMatchesFiltered.length;
+            const kCount = keywordMatchesFiltered.flatMap(it =>
+              expandToOccurrences(it, qUnquoted)
+            ).length;
             const sep = " \u2022 ";
 
             status.textContent =
