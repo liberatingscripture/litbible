@@ -1345,11 +1345,16 @@ const baseUrl = import.meta.env.BASE_URL || "/";
         const fallbackTitle = group.meta?.title || group.items[0]?.title || "Result";
         const displayTitle = prettyTitleFromUrl(baseUrl, fallbackTitle);
 
-        // If this group has only one item, render it the traditional way (no sub-grouping)
+        // Single-result groups: same layout as multi-result (title above, card below)
         if (group.items.length === 1) {
           const r = group.items[0];
-          const li = document.createElement("li");
-          li.className = "result";
+          const groupLi = document.createElement("li");
+          groupLi.className = "result-group";
+
+          const heading = document.createElement("div");
+          heading.className = "result-group__title";
+          heading.textContent = displayTitle;
+          groupLi.appendChild(heading);
 
           const excerptHtml = r.excerpt ? String(r.excerpt) : '';
           const hasHighlight = /<mark>/i.test(excerptHtml);
@@ -1373,14 +1378,20 @@ const baseUrl = import.meta.env.BASE_URL || "/";
             snippetHtml = escapeHtml(descriptionMeta);
           }
 
-          li.innerHTML = `
-            <a class="result-link" href="${escapeHtml(r.url)}">
-              <div class="result-title">${escapeHtml(displayTitle)}</div>
-              ${snippetHtml ? `<div class="result-excerpt">${snippetHtml}</div>` : ""}
+          const subList = document.createElement("ol");
+          subList.className = "result-group__occurrences";
+
+          const subLi = document.createElement("li");
+          subLi.className = "result-occurrence";
+          subLi.innerHTML = `
+            <a class="result-link result-link--occurrence" href="${escapeHtml(r.url)}">
+              ${snippetHtml ? `<div class="result-excerpt">${snippetHtml}</div>` : `<div class="result-excerpt">(match)</div>`}
             </a>
           `;
 
-          keywordEl.appendChild(li);
+          subList.appendChild(subLi);
+          groupLi.appendChild(subList);
+          keywordEl.appendChild(groupLi);
           continue;
         }
 
@@ -2368,14 +2379,14 @@ const baseUrl = import.meta.env.BASE_URL || "/";
   /* ── Grouped occurrence results ── */
   .search-page :global(.result-group) {
     list-style: none;
-    margin: 0 0 8px;
+    margin: 0 0 4px;
   }
 
   .search-page :global(.result-group__title) {
     font-weight: 700;
     font-size: 1rem;
     color: #1d231c;
-    padding: 10px 16px 6px;
+    padding: 5px 16px 6px;
   }
 
   .search-page :global(.result-group__occurrences) {
