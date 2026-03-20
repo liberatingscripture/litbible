@@ -145,8 +145,9 @@ if (headerKind === "chapter") {
       ) : null
     }
 
-    <main
+    <div
       class="scripture-main"
+      aria-labelledby={isScriptureLike ? "chapter-title" : undefined}
       data-pagefind-body={shouldIndex ? true : undefined}
       data-pagefind-ignore={shouldIndex ? undefined : true}
       data-type={shouldIndex ? pagefindType : undefined}
@@ -243,7 +244,7 @@ if (headerKind === "chapter") {
       </div>
 
       <slot />
-    </main>
+    </div>
 
     <section
       class="scripture-disclaimer"

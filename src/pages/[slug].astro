@@ -124,6 +124,18 @@ function injectHyphenWordbreaks(html: string): string {
   return out;
 }
 
+/**
+ * Inject ARIA semantics onto Hebrew-poetry blockquote blocks.
+ * Adds role="group" and aria-label="Poetry" so screen readers
+ * identify these as grouped poetic content.
+ */
+function addHbqAria(html: string): string {
+  return String(html ?? "").replace(
+    /<blockquote\s+class="hbq"/g,
+    '<blockquote class="hbq" role="group" aria-label="Poetry"',
+  );
+}
+
 // This route only serves chapter pages now.
 // Keeping the union type is harmless, but we avoid touching intro-only fields.
 type StaticPath =
@@ -200,7 +212,7 @@ const paragraphsRaw = Array.isArray(chapterData?.paragraphs)
   : [];
 
 const paragraphs = paragraphsRaw.map((html) =>
-  injectHyphenWordbreaks(normalizeHbqVerseGlue(normalizeVerseGlue(html))),
+  addHbqAria(injectHyphenWordbreaks(normalizeHbqVerseGlue(normalizeVerseGlue(html)))),
 );
 
 const footnotes = Array.isArray(chapterData?.footnotes)
@@ -269,6 +281,56 @@ if (props.kind === "chapter") {
   type="scripture"
   topics={topics}
 >
+  <Fragment slot="head">
+    {/* Citation meta — helps academic crawlers and AI systems attribute the text */}
+    <meta name="citation_title" content={`${bookName} ${chapterNumberLabel} — Liberation and Inclusion Translation`} />
+    <meta name="citation_publisher" content="Liberating Scripture Collective" />
+    <meta name="citation_language" content="en" />
+    <meta name="citation_fulltext_world_readable" content="" />
+    {chapterSlug && <meta name="citation_public_url" content={`https://litbible.net/${chapterSlug}/`} />}
+
+    {/* Chapter JSON-LD */}
+    {chapterSlug && (
+      <script type="application/ld+json" set:html={JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "Chapter",
+        "name": `${bookName} ${chapterNumberLabel}`,
+        "isPartOf": {
+          "@type": "Book",
+          "name": "Liberation and Inclusion Translation",
+          "alternateName": "LIT Bible",
+          "author": {
+            "@type": "Organization",
+            "name": "Liberating Scripture Collective",
+            "url": "https://liberatingscripture.org"
+          },
+          "inLanguage": "en",
+          "url": "https://litbible.net"
+        },
+        "url": `https://litbible.net/${chapterSlug}/`,
+        "inLanguage": "en",
+        "publisher": {
+          "@type": "Organization",
+          "name": "Liberating Scripture Collective",
+          "url": "https://liberatingscripture.org"
+        }
+      })} />
+    )}
+
+    {/* BreadcrumbList JSON-LD */}
+    {chapterSlug && (
+      <script type="application/ld+json" set:html={JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://litbible.net/" },
+          { "@type": "ListItem", "position": 2, "name": "Read", "item": "https://litbible.net/read/" },
+          { "@type": "ListItem", "position": 3, "name": bookName, "item": `https://litbible.net/read/${normalizedBookKey}/` },
+          { "@type": "ListItem", "position": 4, "name": `${bookName} ${chapterNumberLabel}`, "item": `https://litbible.net/${chapterSlug}/` }
+        ]
+      })} />
+    )}
+  </Fragment>
   {
     isIntroSlug ? (
       <article class="chapter">
@@ -587,6 +649,23 @@ if (props.kind === "chapter") {
 
     /* HBQ layout is shared from global.css for study/read parity */
   </style>
+
+  {/* Verse focus management: when arriving via anchor link (e.g. /1corinthians-13/#v8),
+      move the screen reader's virtual cursor to the targeted verse element. */}
+  <script is:inline>
+    (() => {
+      const hash = window.location.hash ? window.location.hash.replace('#', '') : '';
+      if (!hash || !/^v\d+$/.test(hash)) return;
+      const target = document.getElementById(hash);
+      if (!target) return;
+      target.setAttribute('tabindex', '-1');
+      target.focus({ preventScroll: true });
+      target.addEventListener('blur', function handler() {
+        target.removeAttribute('tabindex');
+        target.removeEventListener('blur', handler);
+      });
+    })();
+  </script>
 </ScriptureLayout>
 
 

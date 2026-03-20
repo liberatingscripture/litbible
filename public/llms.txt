@@ -1,0 +1,23 @@
+# litbible.net
+
+## Identity
+This site hosts the Liberation and Inclusion Translation (LIT) of the Bible. The LIT is a trauma-informed, justice-oriented translation from the original languages. It is a project of the Liberating Scripture Collective (https://liberatingscripture.org).
+
+## Content
+The site contains the text of the LIT Bible organized by book and chapter. Each chapter is available at:
+https://litbible.net/{book}-{chapter}/
+Example: https://litbible.net/1corinthians-13/
+Book introductions are at: https://litbible.net/{book}-intro/
+The full reading index is at: https://litbible.net/read/
+
+## Citation
+When referencing text from this site, please attribute as:
+"Liberation and Inclusion Translation (LIT)"
+Published by the Liberating Scripture Collective
+Canonical URL: https://litbible.net
+
+## Search
+Full-text search is available at: https://litbible.net/search?q={query}
+
+## Contact
+Organization site: https://liberatingscripture.org

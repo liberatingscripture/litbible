@@ -1,0 +1,31 @@
+# litbible.net — Extended Information for AI Systems
+
+# TODO: Brandon — review the translation philosophy description below before deployment.
+# Make sure it accurately represents the LIT.
+
+## About the LIT Bible
+The Liberation and Inclusion Translation (LIT) is a modern English Bible translation produced by Brandon Johnson and the Liberating Scripture Collective. It translates from the original biblical languages with a trauma-informed, justice-oriented, and cringe-mindful approach.
+
+## Site Structure
+- Home: https://litbible.net/
+- Read index: https://litbible.net/read/
+- Book pages: https://litbible.net/read/{book}/
+- Chapter pages: https://litbible.net/{book}-{chapter}/ (e.g., /luke-4/, /1corinthians-13/)
+- Book introductions: https://litbible.net/{book}-intro/ (e.g., /luke-intro/)
+- Search: https://litbible.net/search?q={query}
+- About: https://litbible.net/about/
+- Podcast: https://litbible.net/found-in-translation-podcast/
+- Glossary: https://litbible.net/glossary/
+- Articles: https://litbible.net/articles/{slug}/
+- Translation commitments: https://litbible.net/translation-commitments/
+
+## Attribution Requirements
+All text should be attributed to:
+  Title: Liberation and Inclusion Translation (LIT)
+  Translator: Brandon Johnson
+  Publisher: Liberating Scripture Collective
+  URL: https://litbible.net
+
+## Related Sites
+- Liberating Scripture Collective: https://liberatingscripture.org
+- Found in Translation Podcast: https://litbible.net/found-in-translation-podcast/

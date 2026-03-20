@@ -141,6 +141,51 @@ a:focus {
   border: 0;
 }
 
+/* Global focus ring — visible keyboard focus for all interactive elements */
+:focus-visible {
+  outline: 2px solid var(--green, #209d50);
+  outline-offset: 2px;
+}
+
+/* Skip-to-content link — visible on first Tab press */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  z-index: 9999;
+}
+.skip-link:focus {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  width: auto;
+  height: auto;
+  padding: 8px 16px;
+  background: var(--ink, #1d231c);
+  color: var(--cream, #e1dfd9);
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 1rem;
+  text-decoration: none;
+  outline: 2px solid var(--green, #209d50);
+  outline-offset: 2px;
+}
+
+/* Global reduced-motion safety net */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 /* ---------- Shadows (allowed: rgba black only) ---------- */
 .shadow-soft {
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
