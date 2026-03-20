@@ -1189,9 +1189,11 @@ const baseUrl = import.meta.env.BASE_URL || "/";
     }
 
     function expandToOccurrences(item, searchTerm) {
-      const content = item?.content || '';
+      const content = item?.content || "";
       const anchors = Array.isArray(item?.anchors) ? item.anchors : [];
-      const term = String(searchTerm || '').toLowerCase().trim();
+      const term = String(searchTerm || "")
+        .toLowerCase()
+        .trim();
 
       // Fallback: if we can't scan, return the original item as-is (one card)
       if (!content || !term || term.length < 2) {
@@ -1200,25 +1202,28 @@ const baseUrl = import.meta.env.BASE_URL || "/";
 
       // Build sorted anchor list, filtering out meta-zone anchors
       const sortedAnchors = anchors
-        .filter(a => {
-          const id = a?.id ? String(a.id) : '';
+        .filter((a) => {
+          const id = a?.id ? String(a.id) : "";
           if (!id) return false;
-          if (id.startsWith('pf-tags-')) return false;
-          if (id.startsWith('pf-subjects-')) return false;
+          if (id.startsWith("pf-tags-")) return false;
+          if (id.startsWith("pf-subjects-")) return false;
           return true;
         })
         .sort((a, b) => (a.location ?? 0) - (b.location ?? 0));
 
       // Find all whole-word occurrences of the term in the content
-      const escapedTerm = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      const regex = new RegExp(`(?<![\\p{L}\\p{N}_])${escapedTerm}(?![\\p{L}\\p{N}_])`, 'giu');
+      const escapedTerm = term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const regex = new RegExp(
+        `(?<![\\p{L}\\p{N}_])${escapedTerm}(?![\\p{L}\\p{N}_])`,
+        "giu",
+      );
 
       // Pre-compute a character→word-index lookup.
       // Pagefind anchor locations are word indexes, not character offsets.
       function charIndexToWordIndex(charIdx) {
         let words = 0;
         for (let i = 0; i < charIdx && i < content.length; i++) {
-          if (content[i] === ' ' && i > 0 && content[i - 1] !== ' ') {
+          if (content[i] === " " && i > 0 && content[i - 1] !== " ") {
             words++;
           }
         }
@@ -1229,9 +1234,9 @@ const baseUrl = import.meta.env.BASE_URL || "/";
       let m;
       while ((m = regex.exec(content)) !== null) {
         matchPositions.push({
-          index: m.index,         // character position (for excerpt slicing)
+          index: m.index, // character position (for excerpt slicing)
           length: m[0].length,
-          wordIndex: charIndexToWordIndex(m.index),  // word position (for anchor matching)
+          wordIndex: charIndexToWordIndex(m.index), // word position (for anchor matching)
         });
       }
 
@@ -1244,7 +1249,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
       function findNearestAnchor(wordIndex) {
         let best = null;
         for (const a of sortedAnchors) {
-          if (typeof a.location !== 'number') continue;
+          if (typeof a.location !== "number") continue;
           if (a.location <= wordIndex) best = a;
           else break;
         }
@@ -1255,7 +1260,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
       const groups = new Map(); // anchorId -> { anchor, matches: [] }
       for (const pos of matchPositions) {
         const anchor = findNearestAnchor(pos.wordIndex);
-        const key = anchor?.id || '__no_anchor__';
+        const key = anchor?.id || "__no_anchor__";
         if (!groups.has(key)) {
           groups.set(key, { anchor, matches: [] });
         }
@@ -1263,30 +1268,34 @@ const baseUrl = import.meta.env.BASE_URL || "/";
       }
 
       // Build one card per anchor group
-      const baseUrl = (item.url || '').replace(/#.*$/, ''); // strip any existing hash
+      const baseUrl = (item.url || "").replace(/#.*$/, ""); // strip any existing hash
       const results = [];
       let occIdx = 0;
 
       for (const [anchorId, group] of groups) {
         // Deep-link URL: use the anchor ID as the hash fragment
-        const hash = (anchorId !== '__no_anchor__' && anchorId) ? `#${anchorId}` : '';
+        const hash =
+          anchorId !== "__no_anchor__" && anchorId ? `#${anchorId}` : "";
         const url = `${baseUrl}${hash}`;
 
         // Build excerpt from the FIRST match in this group, with a window of context
         const firstMatch = group.matches[0];
         const WINDOW = 80; // chars before and after the match
         let excerptStart = Math.max(0, firstMatch.index - WINDOW);
-        let excerptEnd = Math.min(content.length, firstMatch.index + firstMatch.length + WINDOW);
+        let excerptEnd = Math.min(
+          content.length,
+          firstMatch.index + firstMatch.length + WINDOW,
+        );
 
         // Snap to word boundaries
         if (excerptStart > 0) {
-          const spaceAfter = content.indexOf(' ', excerptStart);
+          const spaceAfter = content.indexOf(" ", excerptStart);
           if (spaceAfter !== -1 && spaceAfter < firstMatch.index) {
             excerptStart = spaceAfter + 1;
           }
         }
         if (excerptEnd < content.length) {
-          const spaceBefore = content.lastIndexOf(' ', excerptEnd);
+          const spaceBefore = content.lastIndexOf(" ", excerptEnd);
           if (spaceBefore > firstMatch.index + firstMatch.length) {
             excerptEnd = spaceBefore;
           }
@@ -1295,18 +1304,32 @@ const baseUrl = import.meta.env.BASE_URL || "/";
         let excerptText = content.slice(excerptStart, excerptEnd);
 
         // Highlight ALL occurrences of the term within the excerpt window
-        const excerptEscaped = excerptText.replace(/[&<>"']/g, c =>
-          ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' })[c]
+        const excerptEscaped = excerptText.replace(
+          /[&<>"']/g,
+          (c) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#039;",
+            })[c],
         );
-        const highlightRegex = new RegExp(`(?<![\\p{L}\\p{N}_])(${escapedTerm})(?![\\p{L}\\p{N}_])`, 'giu');
-        const highlighted = excerptEscaped.replace(highlightRegex, '<mark>$1</mark>');
+        const highlightRegex = new RegExp(
+          `(?<![\\p{L}\\p{N}_])(${escapedTerm})(?![\\p{L}\\p{N}_])`,
+          "giu",
+        );
+        const highlighted = excerptEscaped.replace(
+          highlightRegex,
+          "<mark>$1</mark>",
+        );
 
-        const prefix = excerptStart > 0 ? '…' : '';
-        const suffix = excerptEnd < content.length ? '…' : '';
+        const prefix = excerptStart > 0 ? "…" : "";
+        const suffix = excerptEnd < content.length ? "…" : "";
         const excerptHtml = `${prefix}${highlighted}${suffix}`;
 
         // Strip verse numbers from the excerpt for cleaner display.
-        const cleanedExcerpt = excerptHtml.replace(/^(…?)(\d{1,3})\s/, '$1');
+        const cleanedExcerpt = excerptHtml.replace(/^(…?)(\d{1,3})\s/, "$1");
 
         results.push({
           url,
@@ -1334,7 +1357,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
       // Group items by base URL (chapter page)
       const groups = new Map();
       for (const r of items) {
-        const base = r.__baseUrl || r.url?.replace(/#.*$/, '') || r.url;
+        const base = r.__baseUrl || r.url?.replace(/#.*$/, "") || r.url;
         if (!groups.has(base)) {
           groups.set(base, { items: [], meta: r.meta, baseUrl: base });
         }
@@ -1342,7 +1365,8 @@ const baseUrl = import.meta.env.BASE_URL || "/";
       }
 
       for (const [baseUrl, group] of groups) {
-        const fallbackTitle = group.meta?.title || group.items[0]?.title || "Result";
+        const fallbackTitle =
+          group.meta?.title || group.items[0]?.title || "Result";
         const displayTitle = prettyTitleFromUrl(baseUrl, fallbackTitle);
 
         // Single-result groups: same layout as multi-result (title above, card below)
@@ -1356,7 +1380,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
           heading.textContent = displayTitle;
           groupLi.appendChild(heading);
 
-          const excerptHtml = r.excerpt ? String(r.excerpt) : '';
+          const excerptHtml = r.excerpt ? String(r.excerpt) : "";
           const hasHighlight = /<mark>/i.test(excerptHtml);
 
           const descriptionMeta = r?.meta?.description
@@ -1415,11 +1439,11 @@ const baseUrl = import.meta.env.BASE_URL || "/";
             subLi.classList.add("result-occurrence--collapsed");
           }
 
-          const excerptHtml = r.excerpt ? String(r.excerpt) : '';
+          const excerptHtml = r.excerpt ? String(r.excerpt) : "";
 
           subLi.innerHTML = `
             <a class="result-link result-link--occurrence" href="${escapeHtml(r.url)}">
-              <div class="result-excerpt">${excerptHtml || '(match)'}</div>
+              <div class="result-excerpt">${excerptHtml || "(match)"}</div>
             </a>
           `;
 
@@ -1436,8 +1460,11 @@ const baseUrl = import.meta.env.BASE_URL || "/";
           moreBtn.className = "see-more-btn";
           moreBtn.textContent = `Show ${extra} more in this chapter`;
           moreBtn.addEventListener("click", () => {
-            subList.querySelectorAll(".result-occurrence--collapsed")
-              .forEach(el => el.classList.remove("result-occurrence--collapsed"));
+            subList
+              .querySelectorAll(".result-occurrence--collapsed")
+              .forEach((el) =>
+                el.classList.remove("result-occurrence--collapsed"),
+              );
             moreBtn.remove();
           });
           groupLi.appendChild(moreBtn);
@@ -1934,30 +1961,39 @@ const baseUrl = import.meta.env.BASE_URL || "/";
         return true;
       });
 
-      // Pull article-page results into their own bucket — but ONLY when source
-      // chip is "All" (type === ""). When "Scripture Only" chip is active,
-      // no article results exist anyway.
+      // Pull article-page results into their own bucket.
+      // Always extract so articles get their own section and are not
+      // double-counted as keyword results. Scan all non-glossary Pagefind
+      // hits (not just subject+keyword survivors) so articles aren't lost
+      // by stricter keyword filters. When "Scripture Only" chip is active,
+      // Pagefind already filters to scripture/intro so no article results
+      // will be present — the extraction is a harmless no-op.
       let articleMatchesRaw = [];
-      let keywordMatchesRawFiltered = keywordMatchesRaw;
-      if (type !== "article") {
-        const articleSeen = new Set();
-        for (const d of [...subjectMatchesRaw, ...keywordMatchesRaw]) {
-          if (!isArticleUrl(d.url)) continue;
-          if (articleSeen.has(d.url)) continue;
-          articleSeen.add(d.url);
-          articleMatchesRaw.push(d);
-        }
-        subjectMatchesRaw = subjectMatchesRaw.filter(
-          (d) => !isArticleUrl(d.url),
-        );
-        keywordMatchesRawFiltered = keywordMatchesRaw.filter(
-          (d) => !isArticleUrl(d.url),
-        );
+      const articleSeen = new Set();
+      // First pass: all Pagefind results that are article URLs
+      for (const d of allData) {
+        if (isGlossaryUrl(d.url) || String(d?.meta?.type || "") === "glossary")
+          continue;
+        if (!isArticleUrl(d.url)) continue;
+        if (articleSeen.has(d.url)) continue;
+        articleSeen.add(d.url);
+        articleMatchesRaw.push(d);
       }
+      // Second pass: article URLs from the topic index that weren't in Pagefind
+      for (const d of subjectMatchesRaw) {
+        if (!isArticleUrl(d.url)) continue;
+        if (articleSeen.has(d.url)) continue;
+        articleSeen.add(d.url);
+        articleMatchesRaw.push(d);
+      }
+      subjectMatchesRaw = subjectMatchesRaw.filter((d) => !isArticleUrl(d.url));
+      let keywordMatchesRawFiltered = keywordMatchesRaw.filter(
+        (d) => !isArticleUrl(d.url),
+      );
 
       // Expand keyword results into per-occurrence cards
-      const keywordExpanded = keywordMatchesRawFiltered.flatMap(item =>
-        expandToOccurrences(item, displayQ)
+      const keywordExpanded = keywordMatchesRawFiltered.flatMap((item) =>
+        expandToOccurrences(item, displayQ),
       );
 
       lastSearchCache = {
