@@ -3,7 +3,6 @@
 const {
   placeholder = "Search",
   fullSearchHref = "/search",
-  defaultType = "",
   defaultMode = "",
 } = Astro.props;
 const baseUrl = import.meta.env.BASE_URL || "/";
@@ -13,7 +12,6 @@ const baseUrl = import.meta.env.BASE_URL || "/";
   class="searchbar"
   data-searchbar
   data-open="false"
-  data-default-type={defaultType}
   data-default-mode={defaultMode}
 >
   <label class="sr-only" for="site-search-input">Search</label>
@@ -55,32 +53,6 @@ const baseUrl = import.meta.env.BASE_URL || "/";
   <div class="searchbar__panel" role="dialog" aria-label="Search results tray">
     <div class="searchbar__panel-inner">
       <div class="searchbar__controls" aria-label="Search filters">
-        <!-- Keep chips + source tooltip ALWAYS together -->
-        <div class="searchbar__chips-row">
-          <div class="searchbar__chips">
-            <button type="button" class="chip chip--active" data-type=""
-              >All</button
-            >
-            <button type="button" class="chip" data-type="scripture"
-              >Scripture Only</button
-            >
-          </div>
-
-          <button
-            type="button"
-            class="searchbar__tip"
-            aria-label="About the source filter (All, Scripture Only)"
-          >
-            <span class="searchbar__tip-dot" aria-hidden="true">i</span>
-            <span class="searchbar__tooltip" aria-hidden="true">
-              <strong>All</strong> searches everything — Scripture + Articles.<br
-              />
-              <strong>Scripture Only</strong> limits results to Bible chapters and
-              book introductions — excludes articles.
-            </span>
-          </button>
-        </div>
-
         <div class="searchbar__filters">
           <div class="searchbar__filter searchbar__filter--book">
             <label class="sr-only" for="searchbar-book">Filter by book</label>
@@ -164,7 +136,6 @@ const baseUrl = import.meta.env.BASE_URL || "/";
         const groupsEl = root.querySelector("[data-groups]");
         const bookSelect = root.querySelector(".searchbar__book");
         const modeSelect = root.querySelector(".searchbar__mode");
-        const chips = Array.from(root.querySelectorAll(".chip"));
         const closeBtn = root.querySelector(".searchbar__close");
         const fullLink = root.querySelector(".searchbar__full");
         const jumpRow = root.querySelector("[data-jump]");
@@ -311,9 +282,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
 
         let pagefind = null;
 
-        const initialType = root.dataset.defaultType || "";
         const initialMode = root.dataset.defaultMode || "all";
-        let activeType = initialType;
         let activeBook = "";
         let activeMode = initialMode;
 
@@ -503,13 +472,6 @@ const baseUrl = import.meta.env.BASE_URL || "/";
           root.dataset.open = "false";
           clearGhost();
           closeAllTips();
-        }
-
-        function setActiveChip(type) {
-          activeType = type;
-          chips.forEach((c) =>
-            c.classList.toggle("chip--active", (c.dataset.type || "") === type),
-          );
         }
 
         function slugifyBookName(name) {
@@ -1360,14 +1322,6 @@ const baseUrl = import.meta.env.BASE_URL || "/";
           if (!activeFiltersEl) return;
           const pills = [];
 
-          if (activeType === "scripture")
-            pills.push({
-              label: "Scripture Only",
-              clear() {
-                setActiveChip("");
-              },
-            });
-
           if (activeBook) {
             const bookLabel =
               bookSelect.selectedOptions?.[0]?.textContent ||
@@ -1436,7 +1390,6 @@ const baseUrl = import.meta.env.BASE_URL || "/";
           activeFiltersEl
             .querySelector("[data-clear-all]")
             ?.addEventListener("click", () => {
-              setActiveChip("");
               activeBook = "";
               bookSelect.value = "";
               activeMode = "all";
@@ -1458,10 +1411,6 @@ const baseUrl = import.meta.env.BASE_URL || "/";
               const p = parseScripturePath(it?.url);
               return p ? p.bookKey === bookFilter : false;
             });
-          }
-
-          if (activeType === "scripture") {
-            out = out.filter((it) => !!parseScripturePath(it?.url));
           }
 
           return out;
@@ -1488,12 +1437,6 @@ const baseUrl = import.meta.env.BASE_URL || "/";
             renderJump(jump);
 
             const filters = {};
-            if (activeType) {
-              filters.type =
-                activeType === "scripture"
-                  ? ["scripture", "intro"]
-                  : [activeType];
-            }
 
             // If the user typed a reference or book-only query, ignore the active book filter
             // to avoid "I forgot I filtered" confusion and to allow article hits to appear.
@@ -1640,9 +1583,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
             // Always extract so articles get their own section and are not
             // double-counted as keyword results. Scan all non-glossary Pagefind
             // hits (not just subject+keyword survivors) so articles aren't lost
-            // by the stricter keyword filters. When "Scripture Only" chip is
-            // active, Pagefind already filters to scripture/intro so no article
-            // results will be present — the extraction is a harmless no-op.
+            // by the stricter keyword filters.
             let articleMatches = [];
             const articleSeen = new Set();
             for (const it of nonGlossary) {
@@ -1826,7 +1767,6 @@ const baseUrl = import.meta.env.BASE_URL || "/";
           const { pfQuery, exactSingleToken } = buildPfQuery(q);
           url.searchParams.set("q", exactSingleToken ? pfQuery : q);
 
-          if (activeType) url.searchParams.set("type", activeType);
           if (activeBook) url.searchParams.set("book", activeBook);
           if (activeMode && activeMode !== "all")
             url.searchParams.set("mode", activeMode);
@@ -1842,30 +1782,6 @@ const baseUrl = import.meta.env.BASE_URL || "/";
             ? `Type ${MIN_QUERY_LEN} or more letters to search.`
             : `Type ${MIN_QUERY_LEN} or more letters to search.`;
         }
-
-        chips.forEach((chip) => {
-          chip.addEventListener("click", () => {
-            setActiveChip(chip.dataset.type || "");
-            const q = input.value.trim();
-            openPanel();
-
-            renderGhost(q);
-
-            if (!q) {
-              clearForShortQuery("");
-              renderActiveFilters();
-              return;
-            }
-            if (
-              q.length >= MIN_QUERY_LEN ||
-              parseReference(q) ||
-              parseBookOnly(q)
-            )
-              runSearch(q);
-            else clearForShortQuery(q);
-            renderActiveFilters();
-          });
-        });
 
         bookSelect.addEventListener("change", () => {
           activeBook = bookSelect.value || "";
@@ -2017,7 +1933,6 @@ const baseUrl = import.meta.env.BASE_URL || "/";
           renderGhost(input.value);
         });
 
-        setActiveChip(initialType);
         activeMode = initialMode;
         if (modeSelect) modeSelect.value = initialMode;
         renderActiveFilters();
@@ -2172,35 +2087,6 @@ const baseUrl = import.meta.env.BASE_URL || "/";
     gap: 10px;
     flex-wrap: wrap;
     margin-bottom: 10px;
-  }
-
-  .chip {
-    border-radius: 999px;
-    padding: 8px 12px;
-    border: 1px solid rgba(29, 35, 28, 0.2);
-    background: #fff;
-    cursor: pointer;
-    white-space: nowrap;
-  }
-
-  .chip--active {
-    background: rgba(32, 157, 80, 0.12);
-    border-color: rgba(32, 157, 80, 0.45);
-  }
-
-  /* New: chips row keeps the source tooltip glued to the chip row */
-  .searchbar__chips-row {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    min-width: 0;
-  }
-
-  .searchbar__chips {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    min-width: 0;
   }
 
   .searchbar__filters {
@@ -2511,35 +2397,6 @@ const baseUrl = import.meta.env.BASE_URL || "/";
       display: grid;
       gap: 10px;
       align-items: start;
-    }
-
-    /* Chips row: chips scroll, tooltip stays in-row */
-    /* Chips row: keep the info icon RIGHT NEXT to the chips */
-    .searchbar__chips-row {
-      width: 100%;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    /* Don't let chips expand to fill the row (that creates the big empty gap).
-   Instead, constrain them so they can scroll, and keep the tooltip button adjacent. */
-    .searchbar__chips {
-      flex: 0 1 auto;
-      min-width: 0;
-
-      /* Reserve space for the tooltip button (28px) + gap (10px) */
-      max-width: calc(100% - 38px);
-
-      flex-wrap: nowrap;
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      padding-bottom: 4px;
-    }
-
-    .searchbar__chips .chip {
-      flex: 0 0 auto;
-      white-space: nowrap;
     }
 
     .searchbar__filters {

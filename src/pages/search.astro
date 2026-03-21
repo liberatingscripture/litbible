@@ -123,10 +123,6 @@ const baseUrl = import.meta.env.BASE_URL || "/";
     const searchRoot = document.querySelector("[data-searchbar]");
     const input = $("#site-search-input");
 
-    const chipButtons = searchRoot
-      ? Array.from(searchRoot.querySelectorAll(".chip"))
-      : [];
-
     const bookSelect = searchRoot
       ? searchRoot.querySelector(".searchbar__book")
       : null;
@@ -279,11 +275,8 @@ const baseUrl = import.meta.env.BASE_URL || "/";
 
     function renderActiveFiltersFull() {
       if (!activeFiltersFullEl) return;
-      const { type, book, mode } = readState();
+      const { book, mode } = readState();
       const pills = [];
-
-      if (type === "scripture")
-        pills.push({ label: "Scripture Only", key: "type" });
 
       if (book) {
         const opt = bookSelect?.querySelector(`option[value="${book}"]`);
@@ -327,11 +320,9 @@ const baseUrl = import.meta.env.BASE_URL || "/";
           btn.addEventListener("click", () => {
             const k = btn.dataset.clearKey;
             if (k === "all") {
-              setActiveChipFromType("");
               if (bookSelect) bookSelect.value = "";
               if (modeSelect) modeSelect.value = "all";
-            } else if (k === "type") setActiveChipFromType("");
-            else if (k === "book") {
+            } else if (k === "book") {
               if (bookSelect) bookSelect.value = "";
             } else if (k === "mode") {
               if (modeSelect) modeSelect.value = "all";
@@ -666,7 +657,6 @@ const baseUrl = import.meta.env.BASE_URL || "/";
 
       return {
         q: (params.get("q") || "").trim(),
-        type: (params.get("type") || "").trim(),
         book: (params.get("book") || "").trim(),
         page: Math.max(1, parseInt(params.get("page") || "1", 10)),
         sort,
@@ -680,8 +670,8 @@ const baseUrl = import.meta.env.BASE_URL || "/";
       if (next.q) params.set("q", next.q);
       else params.delete("q");
 
-      if (next.type) params.set("type", next.type);
-      else params.delete("type");
+      // Clean up legacy ?type= param if present
+      params.delete("type");
 
       if (next.book) params.set("book", next.book);
       else params.delete("book");
@@ -707,21 +697,6 @@ const baseUrl = import.meta.env.BASE_URL || "/";
     // -----------------------
     // UI sync (SearchBar controls)
     // -----------------------
-    function setActiveChipFromType(type) {
-      const t = type || "";
-      for (const btn of chipButtons) {
-        const on = (btn.dataset.type || "") === t;
-        btn.classList.toggle("chip--active", on);
-      }
-    }
-
-    function getTypeFromActiveChip() {
-      const active = chipButtons.find((b) =>
-        b.classList.contains("chip--active"),
-      );
-      return active?.dataset.type || "";
-    }
-
     function setActiveSort(sort) {
       const v = sort === "order" ? "order" : "relevance";
       for (const btn of sortButtons) {
@@ -739,11 +714,9 @@ const baseUrl = import.meta.env.BASE_URL || "/";
 
     function syncControlsFromUrl() {
       const params = new URLSearchParams(window.location.search);
-      const { q, type, book, sort, mode } = readState();
+      const { q, book, sort, mode } = readState();
 
       if (input && input.value !== q) input.value = q;
-
-      if (params.has("type")) setActiveChipFromType(type);
 
       if (bookSelect) bookSelect.value = book;
 
@@ -1495,11 +1468,12 @@ const baseUrl = import.meta.env.BASE_URL || "/";
 
     function applyCollapse(listEl) {
       const items = listEl.querySelectorAll(":scope > li");
-      if (items.length <= COLLAPSE_THRESHOLD) return;
 
-      // Remove any existing "See more" button
+      // Always clean up stale "See more" button (e.g. after filter narrows results)
       const oldBtn = listEl.parentElement?.querySelector(".see-more-btn");
       if (oldBtn) oldBtn.remove();
+
+      if (items.length <= COLLAPSE_THRESHOLD) return;
 
       items.forEach((li, i) => {
         if (i >= COLLAPSE_THRESHOLD) li.classList.add("result--collapsed");
@@ -1753,7 +1727,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
     }
 
     async function runFullSearch() {
-      const { q, type, book, mode } = readState();
+      const { q, book, mode } = readState();
       const displayQ = displayQueryLabel(q);
 
       if (!q) {
@@ -1823,9 +1797,6 @@ const baseUrl = import.meta.env.BASE_URL || "/";
       const pagefind = await loadPagefind();
 
       const filters = {};
-      if (type) {
-        filters.type = type === "scripture" ? ["scripture", "intro"] : type;
-      }
       if (book) filters.book = book;
 
       const { pfQuery, exactSingleToken, exactToken } = buildPfQuery(q);
@@ -1902,7 +1873,6 @@ const baseUrl = import.meta.env.BASE_URL || "/";
         const docs = exact.length ? exact : loose;
 
         if (docs.length) {
-          const wantType = String(type || "");
           const wantBook = normalizePhrase(String(book || ""));
 
           const existing = new Set(subjectMatchesRaw.map((r) => r.url));
@@ -1913,7 +1883,6 @@ const baseUrl = import.meta.env.BASE_URL || "/";
             const docType = String(doc?.type || "");
             const docBook = normalizePhrase(String(doc?.book || ""));
 
-            if (wantType && docType && docType !== wantType) continue;
             if (wantBook && docBook && docBook !== wantBook) continue;
 
             subjectMatchesRaw.push({
@@ -1965,9 +1934,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
       // Always extract so articles get their own section and are not
       // double-counted as keyword results. Scan all non-glossary Pagefind
       // hits (not just subject+keyword survivors) so articles aren't lost
-      // by stricter keyword filters. When "Scripture Only" chip is active,
-      // Pagefind already filters to scripture/intro so no article results
-      // will be present — the extraction is a harmless no-op.
+      // by stricter keyword filters.
       let articleMatchesRaw = [];
       const articleSeen = new Set();
       // First pass: all Pagefind results that are article URLs
@@ -2036,7 +2003,6 @@ const baseUrl = import.meta.env.BASE_URL || "/";
 
     function updateFromControls({ resetPage = true, push = false } = {}) {
       const q = input ? input.value.trim() : "";
-      const type = getTypeFromActiveChip();
       const book = bookSelect ? String(bookSelect.value || "") : "";
       const sort = getActiveSort();
       const mode = modeSelect ? String(modeSelect.value || "all") : "all";
@@ -2044,7 +2010,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
       const current = readState();
 
       writeState(
-        { q, type, book, sort, mode, page: resetPage ? 1 : current.page },
+        { q, book, sort, mode, page: resetPage ? 1 : current.page },
         { push },
       );
 
@@ -2066,15 +2032,6 @@ const baseUrl = import.meta.env.BASE_URL || "/";
         updateFromControls({ resetPage: true, push: true });
       });
     }
-
-    // Chips: let SearchBar handle its own class toggles, then read state next microtask.
-    chipButtons.forEach((btn) => {
-      btn.addEventListener("click", () => {
-        queueMicrotask(() =>
-          updateFromControls({ resetPage: true, push: true }),
-        );
-      });
-    });
 
     if (bookSelect) {
       bookSelect.addEventListener("change", () =>
