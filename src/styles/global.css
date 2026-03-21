@@ -490,6 +490,10 @@ a:focus {
 .site-header__menu-toggle:hover,
 .site-header__menu-toggle:focus {
   transform: translateY(-1px);
+}
+
+/* Preserve keyboard focus ring (global :focus-visible handles the ring) */
+.site-header__menu-toggle:focus:not(:focus-visible) {
   outline: none;
 }
 
@@ -741,6 +745,34 @@ html.menu-open body {
   transition-delay: 0ms;
 }
 
+/* Close button inside panel (keyboard-reachable) */
+.menu-overlay__close {
+  display: block;
+  margin: 28px auto 0;
+  padding: 10px 24px;
+
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 999px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.95rem;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+
+  transition: color 180ms ease, border-color 180ms ease;
+}
+
+.menu-overlay__close:hover,
+.menu-overlay__close:focus {
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+.menu-overlay__close:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 3px;
+}
+
 /* Smaller screens: scale typography down */
 @media (max-width: 520px) {
   .menu-overlay__nav a {
@@ -781,14 +813,14 @@ html.menu-open body {
   background: var(--green);
 }
 
-/* Brand + nav text becomes white 
+/* Brand + nav text becomes white */
 .site-header--green .site-header__brand,
 .site-header--green .site-header__title,
 .site-header--green .site-nav__list > li > a {
   color: var(--white);
 }
 
-/* Desktop underline becomes white instead of black 
+/* Desktop underline becomes white instead of black */
 .site-header--green
   .site-nav__list
   > li:not(.site-nav__cta-item)
@@ -796,50 +828,48 @@ html.menu-open body {
   background-color: var(--white);
 }
 
-/* Brand hover shadow stays legal and visible 
+/* Brand hover shadow stays legal and visible */
 .site-header--green .site-header__brand:hover .site-header__title,
 .site-header--green .site-header__brand:focus .site-header__title {
   text-shadow: 0 1px 4px rgba(0, 0, 0, 0.28);
 }
 
-/* Hamburger tile: inherit green is fine, but bars must become white 
+/* Hamburger tile: inherit green is fine, but bars must become white */
 .site-header--green .site-header__menu-toggle {
-  background: rgba(0, 0, 0, 0.10); /* gives contrast on green 
+  background: rgba(0, 0, 0, 0.10); /* gives contrast on green */
 }
 
 .site-header--green .menu-icon::before,
 .site-header--green .menu-icon::after {
   background: var(--white);
 }
-*/
 
 /* =========================================================
    Site Header: green background mode — CTA fix
    Make the CTA rest state WHITE (curtain), reveal GREEN on hover
    ========================================================= */
 
-/* CTA: base layer should be green 
+/* CTA: base layer should be green */
 .site-header--green .site-nav__cta-item > a.site-header__cta::after {
   background: var(--green);
 }
 
-/* CTA: curtain overlay should be white (this is what you’re missing) 
+/* CTA: curtain overlay should be white (this is what you’re missing) */
 .site-header--green .site-nav__cta-item > a.site-header__cta::before {
   background: var(--white);
 }
 
-/* Rest state (curtain down): black text on white 
+/* Rest state (curtain down): black text on white */
 .site-header--green .site-nav__cta-item > a.site-header__cta {
   border-color: var(--white);
   color: var(--ink);
 }
 
-/* Hover/focus (curtain up): white text on green 
+/* Hover/focus (curtain up): white text on green */
 .site-header--green .site-nav__cta-item > a.site-header__cta:hover,
 .site-header--green .site-nav__cta-item > a.site-header__cta:focus {
   color: var(--white);
 }
-*/
 
 
 /* ================================
@@ -1347,14 +1377,6 @@ a.footer-cta > span {
 sup[id^="v"] {
   display: inline-block;
   scroll-margin-top: var(--anchor-offset-verse);
-}
-
-/* =========================
-   Anchor offset for paragraphs + blockquotes
-   ========================= */
-p[id*="-p"],
-blockquote[id*="-p"] {
-  scroll-margin-top: var(--anchor-offset-paragraph);
 }
 
 /* =========================

@@ -1,0 +1,119 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout
+  title="Page not found | Liberation and Inclusion Translation"
+  description="The page you're looking for doesn't exist."
+>
+  <section class="not-found">
+    <div class="not-found__inner">
+      <img
+        class="not-found__logo"
+        src="/images/lit-logo.png"
+        alt="Liberation and Inclusion Translation logo"
+        width="140"
+        height="140"
+        loading="eager"
+        decoding="async"
+      />
+
+      <h1 class="not-found__title">Page not found</h1>
+
+      <p class="not-found__lead">
+        The page you're looking for doesn't exist, may have moved, or the link
+        may have a typo.
+      </p>
+
+      <nav class="not-found__actions" aria-label="Quick links">
+        <a class="not-found__cta" href="/read">Read the LIT</a>
+        <a class="not-found__cta not-found__cta--outline" href="/search"
+          >Search</a
+        >
+        <a class="not-found__link" href="/">Go to the home page</a>
+      </nav>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .not-found {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    padding: clamp(48px, 10vh, 96px) 16px;
+    text-align: center;
+  }
+
+  .not-found__inner {
+    max-width: 520px;
+  }
+
+  .not-found__logo {
+    display: block;
+    margin: 0 auto 2rem;
+  }
+
+  .not-found__title {
+    font-size: clamp(2rem, 5vw, 3rem);
+    margin: 0 0 1rem;
+  }
+
+  .not-found__lead {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin: 0 0 2rem;
+    color: rgba(29, 35, 28, 0.78);
+  }
+
+  .not-found__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 1.5rem;
+  }
+
+  .not-found__cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 14px 28px;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+
+    background: var(--green, #209d50);
+    color: #fff;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    transition: background-color 0.2s ease, transform 0.2s ease;
+  }
+
+  .not-found__cta:hover {
+    background: var(--ink, #1d231c);
+    transform: translateY(-1px);
+    text-decoration: none;
+  }
+
+  .not-found__cta--outline {
+    background: transparent;
+    color: var(--ink, #1d231c);
+    border: 2px solid var(--ink, #1d231c);
+    box-shadow: none;
+  }
+
+  .not-found__cta--outline:hover {
+    background: var(--ink, #1d231c);
+    color: #fff;
+  }
+
+  .not-found__link {
+    display: block;
+    width: 100%;
+    margin-top: 4px;
+    font-size: 0.95rem;
+  }
+</style>
