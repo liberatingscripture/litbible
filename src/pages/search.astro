@@ -237,7 +237,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
     border-radius: 999px;
     overflow: hidden;
     border: 1px solid rgba(var(--ink-rgb), 0.18);
-    background: rgba(255, 255, 255, 0.7);
+    background: rgba(var(--surface-rgb), 0.7);
     box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
   }
 
@@ -303,7 +303,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
     padding: 16px 16px;
     padding-right: 46px;
 
-    background: rgba(255, 255, 255, 0.78);
+    background: rgba(var(--surface-rgb), 0.78);
     border: 1px solid rgba(var(--ink-rgb), 0.14);
     box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
 
@@ -353,7 +353,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
       transform: translateY(-1px);
       border-color: rgba(32, 157, 80, 0.45);
       box-shadow: 0 16px 34px rgba(0, 0, 0, 0.12);
-      background: rgba(255, 255, 255, 0.92);
+      background: rgba(var(--surface-rgb), 0.92);
     }
 
     .search-page :global(.result-link:hover::after) {
@@ -364,7 +364,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
   .search-page :global(.result-link:active) {
     transform: translateY(0);
     box-shadow: 0 8px 18px rgba(0, 0, 0, 0.1);
-    background: rgba(255, 255, 255, 0.95);
+    background: rgba(var(--surface-rgb), 0.95);
   }
 
   .search-page :global(.result-link:focus-visible) {

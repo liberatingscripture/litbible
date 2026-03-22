@@ -118,7 +118,7 @@
 .faq-item {
   border: 1px solid rgba(var(--ink-rgb), 0.12);
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.65);
+  background: rgba(var(--surface-rgb), 0.65);
   backdrop-filter: blur(10px);
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.05);
   overflow: hidden;
@@ -233,7 +233,7 @@
 
 /* Inner frosted panel */
 .about-toc__inner {
-  background: rgba(255, 255, 255, 0.78);
+  background: rgba(var(--surface-rgb), 0.78);
   backdrop-filter: blur(12px);
 
   border: 1px solid rgba(var(--ink-rgb), 0.10);
@@ -268,7 +268,7 @@
 
   border: 1px solid rgba(var(--ink-rgb), 0.12);
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.65);
+  background: rgba(var(--surface-rgb), 0.65);
 
   display: none; /* shown on mobile */
   align-items: center;

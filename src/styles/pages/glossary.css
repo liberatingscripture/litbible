@@ -227,7 +227,7 @@
 
   border: 1px solid rgba(var(--ink-rgb), 0.12);
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.65);
+  background: rgba(var(--surface-rgb), 0.65);
 
   display: none;
   align-items: center;
@@ -299,7 +299,7 @@
   }
 
   .glossary-toc__inner{
-    background: rgba(255, 255, 255, 0.78);
+    background: rgba(var(--surface-rgb), 0.78);
     backdrop-filter: blur(12px);
     border: 1px solid rgba(var(--ink-rgb), 0.10);
     border-radius: 16px;

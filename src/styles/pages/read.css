@@ -162,7 +162,7 @@ body.bg-cream > main {
   height: 110px;
 
   /* This is the page background color that "cuts" into the green */
-  background: var(--cream, #fafaf7);
+  background: var(--page-bg);
 
   /* Concave curve: round the *bottom* edges */
   border-bottom-left-radius: 100% 100%;

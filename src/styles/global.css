@@ -24,6 +24,7 @@
   --green: #209D50;
   --ink: #1D231C;
   --ink-rgb: 29, 35, 28;
+  --surface-rgb: 255, 255, 255;
   --black: #000000;
 
   /* Semantic usage */
@@ -54,6 +55,7 @@
     --surface-raised: #2e322e;
     --surface-input: #2e322e;
     --ink-rgb: 212, 210, 204;
+    --surface-rgb: 50, 56, 50;
     --text: #d4d2cc;
     --text-strong: #eae8e3;
     --link: #3abf6a;
@@ -70,6 +72,7 @@
   --surface-raised: #2e322e;
   --surface-input: #2e322e;
   --ink-rgb: 212, 210, 204;
+  --surface-rgb: 50, 56, 50;
   --text: #d4d2cc;
   --text-strong: #eae8e3;
   --link: #3abf6a;

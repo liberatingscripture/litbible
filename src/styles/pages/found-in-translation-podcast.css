@@ -98,7 +98,7 @@ body:has(.fit-page) .site-header.has-bg {
   padding: clamp(22px, 4vw, 54px);
   text-align: center;
 
-  color: rgba(0, 0, 0, 0.78);
+  color: rgba(var(--ink-rgb), 0.78);
 
   max-width: 72ch;
   margin: 0 auto;
@@ -199,7 +199,7 @@ body:has(.fit-page) .site-header.has-bg {
   transform: translateY(-2px);
   background: var(--surface-raised);
   color: var(--green);
-  border-color: rgba(0, 0, 0, 0.12);
+  border-color: rgba(var(--ink-rgb), 0.12);
   box-shadow: 0 14px 30px rgba(0, 0, 0, 0.18);
 }
 
@@ -455,7 +455,7 @@ body:has(.fit-page) .site-header.has-bg {
 
 /* Card */
 .fit-episodes .fit-ep {
-  background: rgba(255, 255, 255, 0.58);
+  background: rgba(var(--surface-rgb), 0.58);
   backdrop-filter: blur(10px);
 
   border: 1px solid rgba(var(--ink-rgb), 0.10);
@@ -473,7 +473,7 @@ body:has(.fit-page) .site-header.has-bg {
   font-weight: 800;
   font-size: clamp(1.2rem, 2.1vw, 1.55rem);
   line-height: 1.25;
-  color: rgba(0, 0, 0, 0.86);
+  color: rgba(var(--ink-rgb), 0.86);
 }
 
 /* Link pills */
@@ -500,8 +500,8 @@ body:has(.fit-page) .site-header.has-bg {
   padding: 10px 12px;
   border-radius: 999px;
 
-  background: rgba(255, 255, 255, 0.72);
-  color: rgba(0, 0, 0, 0.78);
+  background: rgba(var(--surface-rgb), 0.72);
+  color: rgba(var(--ink-rgb), 0.78);
 
   border: 1px solid rgba(var(--ink-rgb), 0.14);
   box-shadow: 0 8px 18px rgba(0, 0, 0, 0.06);

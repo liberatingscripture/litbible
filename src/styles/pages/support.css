@@ -126,7 +126,7 @@
   text-decoration: none;
 
   border: 1px solid rgba(0, 0, 0, 0.15);
-  background: rgba(255, 255, 255, 0.55);
+  background: rgba(var(--surface-rgb), 0.55);
   color: var(--ink);
 
   transition: transform 160ms ease, opacity 180ms ease, background-color 180ms ease;
@@ -184,8 +184,8 @@
 
 .support-band {
   /* single source of truth for the “surface” color */
-  --support-surface: rgba(255, 255, 255, 0.55);
-  --support-surface-soft: rgba(255, 255, 255, 0.35);
+  --support-surface: rgba(var(--surface-rgb), 0.55);
+  --support-surface-soft: rgba(var(--surface-rgb), 0.35);
 
   padding: clamp(1rem, 2.5vw, 1.5rem);
   border-radius: 22px;
@@ -327,7 +327,7 @@
   border-radius: 16px;
   padding: 1rem;
 
-  background: rgba(255, 255, 255, 0.55);
+  background: rgba(var(--surface-rgb), 0.55);
   backdrop-filter: blur(10px);
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.05);
 }
