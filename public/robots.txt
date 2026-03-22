@@ -25,7 +25,6 @@ Allow: /
 User-agent: PerplexityBot
 Allow: /
 
-# TODO: Brandon — review which AI crawlers to allow/block.
 # Allowing crawlers helps the LIT be discoverable and citable by AI systems.
 # Blocking prevents use in AI training data.
 # These two are blocked as lower-value:
