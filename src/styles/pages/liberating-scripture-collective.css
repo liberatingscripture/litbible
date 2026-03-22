@@ -4,7 +4,7 @@
    ========================================================= */
 
 .lsc {
-  background-color: var(--cream);
+  background-color: var(--page-bg);
   min-height: 100vh;
   padding-block: clamp(3.5rem, 8vw, 6rem);
   padding-inline: clamp(1.25rem, 4vw, 2.5rem);
@@ -43,7 +43,7 @@
   font-size: 0.82rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: rgba(29, 35, 28, 0.65);
+  color: rgba(var(--ink-rgb), 0.65);
 }
 
 .lsc-hero h1 {
@@ -76,7 +76,7 @@
   max-width: 58ch;
   font-size: 0.98rem;
   line-height: 1.6;
-  color: rgba(29, 35, 28, 0.72);
+  color: rgba(var(--ink-rgb), 0.72);
 }
 
 /* =========================================================
@@ -310,7 +310,7 @@
 .fineprint {
   margin-top: 1.25rem;
   font-size: 0.98rem;
-  color: rgba(29, 35, 28, 0.7);
+  color: rgba(var(--ink-rgb), 0.7);
 }
 
 /* =========================================================
@@ -355,7 +355,7 @@
   margin: 0;
   font-size: 1.02rem;
   line-height: 1.55;
-  color: rgba(29, 35, 28, 0.88);
+  color: rgba(var(--ink-rgb), 0.88);
 }
 
 /* =========================================================
@@ -369,7 +369,7 @@
 .lsc-detail + .lsc-detail {
   margin-top: clamp(1.8rem, 4vw, 2.6rem);
   padding-top: clamp(1.2rem, 2.8vw, 1.6rem);
-  border-top: 1px solid rgba(29, 35, 28, 0.10);
+  border-top: 1px solid rgba(var(--ink-rgb), 0.10);
 }
 
 .lsc-detail h3 {
@@ -418,8 +418,8 @@
     ),
     radial-gradient(
       520px 260px at 20% 40%,
-      rgba(29, 35, 28, 0.06),
-      rgba(29, 35, 28, 0.00) 70%
+      rgba(var(--ink-rgb), 0.06),
+      rgba(var(--ink-rgb), 0.00) 70%
     );
   filter: blur(2px);
   opacity: 0.9;
@@ -443,7 +443,7 @@
       rgba(255, 255, 255, 0.55),
       rgba(255, 255, 255, 0.35)
     );
-  border: 1px solid rgba(29, 35, 28, 0.10);
+  border: 1px solid rgba(var(--ink-rgb), 0.10);
   box-shadow: 0 14px 36px rgba(0, 0, 0, 0.06);
 }
 
@@ -467,11 +467,11 @@
   opacity: 0.10;
   transform: rotate(12deg);
   background:
-    radial-gradient(circle at 35% 35%, rgba(29, 35, 28, 0.55) 0 2px, transparent 3px),
-    radial-gradient(circle at 65% 35%, rgba(29, 35, 28, 0.55) 0 2px, transparent 3px),
-    radial-gradient(circle at 35% 65%, rgba(29, 35, 28, 0.55) 0 2px, transparent 3px),
-    radial-gradient(circle at 65% 65%, rgba(29, 35, 28, 0.55) 0 2px, transparent 3px),
-    radial-gradient(circle at 50% 50%, rgba(29, 35, 28, 0.35) 0 44px, transparent 46px),
+    radial-gradient(circle at 35% 35%, rgba(var(--ink-rgb), 0.55) 0 2px, transparent 3px),
+    radial-gradient(circle at 65% 35%, rgba(var(--ink-rgb), 0.55) 0 2px, transparent 3px),
+    radial-gradient(circle at 35% 65%, rgba(var(--ink-rgb), 0.55) 0 2px, transparent 3px),
+    radial-gradient(circle at 65% 65%, rgba(var(--ink-rgb), 0.55) 0 2px, transparent 3px),
+    radial-gradient(circle at 50% 50%, rgba(var(--ink-rgb), 0.35) 0 44px, transparent 46px),
     radial-gradient(circle at 50% 50%, rgba(32, 157, 80, 0.35) 0 52px, transparent 54px);
 }
 
@@ -479,13 +479,13 @@
   opacity: 0.11;
   background:
     radial-gradient(circle at 50% 50%, rgba(32, 157, 80, 0.45) 0 54px, transparent 56px),
-    radial-gradient(circle at 50% 50%, rgba(29, 35, 28, 0.25) 0 44px, transparent 46px);
+    radial-gradient(circle at 50% 50%, rgba(var(--ink-rgb), 0.25) 0 44px, transparent 46px);
 }
 
 .card-carousel__track > :nth-child(6n + 2).lsc-card::after {
   opacity: 0.10;
   background:
-    radial-gradient(circle at 50% 50%, rgba(29, 35, 28, 0.28) 0 52px, transparent 54px),
+    radial-gradient(circle at 50% 50%, rgba(var(--ink-rgb), 0.28) 0 52px, transparent 54px),
     radial-gradient(circle at 50% 50%, rgba(32, 157, 80, 0.25) 0 40px, transparent 42px);
 }
 
@@ -494,7 +494,7 @@
   background:
     repeating-radial-gradient(
       circle at 50% 50%,
-      rgba(29, 35, 28, 0.30) 0 2px,
+      rgba(var(--ink-rgb), 0.30) 0 2px,
       transparent 2px 10px
     );
 }
@@ -503,20 +503,20 @@
   opacity: 0.10;
   background:
     linear-gradient(135deg, rgba(32, 157, 80, 0.28), transparent 55%),
-    radial-gradient(circle at 50% 50%, rgba(29, 35, 28, 0.25) 0 46px, transparent 48px);
+    radial-gradient(circle at 50% 50%, rgba(var(--ink-rgb), 0.25) 0 46px, transparent 48px);
 }
 
 .card-carousel__track > :nth-child(6n + 5).lsc-card::after {
   opacity: 0.10;
   background:
     radial-gradient(circle at 50% 50%, rgba(32, 157, 80, 0.22) 0 56px, transparent 58px),
-    radial-gradient(circle at 50% 50%, rgba(29, 35, 28, 0.30) 0 40px, transparent 42px);
+    radial-gradient(circle at 50% 50%, rgba(var(--ink-rgb), 0.30) 0 40px, transparent 42px);
 }
 
 .card-carousel__track > :nth-child(6n + 6).lsc-card::after {
   opacity: 0.10;
   background:
-    radial-gradient(circle at 50% 50%, rgba(29, 35, 28, 0.28) 0 56px, transparent 58px),
+    radial-gradient(circle at 50% 50%, rgba(var(--ink-rgb), 0.28) 0 56px, transparent 58px),
     linear-gradient(135deg, rgba(32, 157, 80, 0.18), transparent 60%);
 }
 

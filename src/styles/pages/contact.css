@@ -3,7 +3,7 @@
    ========================================================= */
 
 .contact-page {
-  background: var(--cream);
+  background: var(--page-bg);
   color: var(--ink);
 }
 
@@ -39,7 +39,7 @@
   font-size: clamp(1.35rem, 2.6vw, 2.15rem);
   line-height: 1.25;
 
-  color: rgba(29, 35, 28, 0.92);
+  color: rgba(var(--ink-rgb), 0.92);
 }
 
 .contact-logo {
@@ -69,7 +69,7 @@
   letter-spacing: 0.06em;
   text-transform: uppercase;
   font-weight: 700;
-  color: rgba(29, 35, 28, 0.75);
+  color: rgba(var(--ink-rgb), 0.75);
 }
 
 .field input,
@@ -94,7 +94,7 @@
 
 .field input::placeholder,
 .field textarea::placeholder {
-  color: rgba(29, 35, 28, 0.42);
+  color: rgba(var(--ink-rgb), 0.42);
 }
 
 /* CTA-style button (green base → white on hover + lift) */
@@ -147,14 +147,14 @@
   max-width: 60ch;
   font-size: 0.98rem;
   line-height: 1.45;
-  color: rgba(29, 35, 28, 0.78);
+  color: rgba(var(--ink-rgb), 0.78);
 }
 
 .contact-status {
   margin: 4px 0 0;
   min-height: 1.4em;
   text-align: center;
-  color: rgba(29, 35, 28, 0.85);
+  color: rgba(var(--ink-rgb), 0.85);
 }
 
 /* Focus states */

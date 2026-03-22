@@ -271,7 +271,7 @@ body:has(.fit-page) .site-header.has-bg {
 }
 
 .fit-section--cream {
-  background: var(--cream);
+  background: var(--page-bg);
   color: var(--ink);
 }
 
@@ -458,7 +458,7 @@ body:has(.fit-page) .site-header.has-bg {
   background: rgba(255, 255, 255, 0.58);
   backdrop-filter: blur(10px);
 
-  border: 1px solid rgba(29, 35, 28, 0.10);
+  border: 1px solid rgba(var(--ink-rgb), 0.10);
   border-radius: 18px;
 
   padding: clamp(16px, 2.5vw, 22px);
@@ -503,7 +503,7 @@ body:has(.fit-page) .site-header.has-bg {
   background: rgba(255, 255, 255, 0.72);
   color: rgba(0, 0, 0, 0.78);
 
-  border: 1px solid rgba(29, 35, 28, 0.14);
+  border: 1px solid rgba(var(--ink-rgb), 0.14);
   box-shadow: 0 8px 18px rgba(0, 0, 0, 0.06);
 
   transition:

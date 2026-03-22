@@ -3,7 +3,7 @@
    ========================================================= */
 
 .courses-page {
-  background: var(--cream);
+  background: var(--page-bg);
   color: var(--ink);
 }
 
@@ -39,7 +39,7 @@
   margin: 0 0 26px;
   font-size: clamp(1.25rem, 2.1vw, 1.65rem);
   line-height: 1.55;
-  color: rgba(29, 35, 28, 0.92);
+  color: rgba(var(--ink-rgb), 0.92);
 }
 
 /* Updates block */
@@ -103,7 +103,7 @@
 }
 
 .signup input[type="email"]::placeholder {
-  color: rgba(29, 35, 28, 0.38);
+  color: rgba(var(--ink-rgb), 0.38);
 }
 
 .signup__button {

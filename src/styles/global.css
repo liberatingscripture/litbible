@@ -23,6 +23,7 @@
   --white: #FFFFFF;
   --green: #209D50;
   --ink: #1D231C;
+  --ink-rgb: 29, 35, 28;
   --black: #000000;
 
   /* Semantic usage */
@@ -52,6 +53,7 @@
     --surface: #242824;
     --surface-raised: #2e322e;
     --surface-input: #2e322e;
+    --ink-rgb: 212, 210, 204;
     --text: #d4d2cc;
     --text-strong: #eae8e3;
     --link: #3abf6a;
@@ -67,6 +69,7 @@
   --surface: #242824;
   --surface-raised: #2e322e;
   --surface-input: #2e322e;
+  --ink-rgb: 212, 210, 204;
   --text: #d4d2cc;
   --text-strong: #eae8e3;
   --link: #3abf6a;
@@ -1493,7 +1496,7 @@ blockquote.hbq {
   margin: 0.6rem 0 0.9rem;
   margin-left: 0.6rem;
   padding: 0 0 0 0.95rem;
-  border-left: 2px solid rgba(29, 35, 28, 0.16);
+  border-left: 2px solid rgba(var(--ink-rgb), 0.16);
   font-style: normal;
   color: inherit;
 }
@@ -1504,7 +1507,7 @@ blockquote.hbq {
   margin: 0.6rem 0 0.9rem;
   margin-left: 0.6rem;
   padding: 0 0 0 0.95rem;
-  border-left: 2px solid rgba(29, 35, 28, 0.16);
+  border-left: 2px solid rgba(var(--ink-rgb), 0.16);
   font-style: normal;
   color: inherit;
 }

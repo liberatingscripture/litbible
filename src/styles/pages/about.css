@@ -3,7 +3,7 @@
    ========================================================= */
 
 .about-page {
-  background-color: var(--cream);
+  background-color: var(--page-bg);
   min-height: 100vh;
 
   /* vertical rhythm */
@@ -116,7 +116,7 @@
 }
 
 .faq-item {
-  border: 1px solid rgba(29, 35, 28, 0.12);
+  border: 1px solid rgba(var(--ink-rgb), 0.12);
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.65);
   backdrop-filter: blur(10px);
@@ -147,7 +147,7 @@
   content: "＋";
   font-size: 1.15rem;
   line-height: 1;
-  color: rgba(29, 35, 28, 0.75);
+  color: rgba(var(--ink-rgb), 0.75);
   transform-origin: center;
   transition: transform 180ms ease, opacity 180ms ease;
 }
@@ -236,7 +236,7 @@
   background: rgba(255, 255, 255, 0.78);
   backdrop-filter: blur(12px);
 
-  border: 1px solid rgba(29, 35, 28, 0.10);
+  border: 1px solid rgba(var(--ink-rgb), 0.10);
   border-radius: 16px;
 
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.06);
@@ -258,7 +258,7 @@
   font-size: 0.82rem;
   letter-spacing: 0.10em;
   text-transform: uppercase;
-  color: rgba(29, 35, 28, 0.65);
+  color: rgba(var(--ink-rgb), 0.65);
 }
 
 /* Toggle button (mobile only) */
@@ -266,7 +266,7 @@
   width: 44px;
   height: 44px;
 
-  border: 1px solid rgba(29, 35, 28, 0.12);
+  border: 1px solid rgba(var(--ink-rgb), 0.12);
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.65);
 
@@ -292,7 +292,7 @@
 
   /* Middle bar (no extra span needed) */
   background:
-    linear-gradient(rgba(29, 35, 28, 0.85), rgba(29, 35, 28, 0.85)) center / 100% 2px no-repeat;
+    linear-gradient(rgba(var(--ink-rgb), 0.85), rgba(var(--ink-rgb), 0.85)) center / 100% 2px no-repeat;
   transition: background-size 220ms ease;
 }
 
@@ -304,7 +304,7 @@
   right: 0;
   height: 2px;
   border-radius: 2px;
-  background: rgba(29, 35, 28, 0.85);
+  background: rgba(var(--ink-rgb), 0.85);
   transition:
     transform 220ms ease,
     top 220ms ease,
@@ -403,7 +403,7 @@
   }
 
   .about-toc__tray {
-    border-top: 1px solid rgba(29, 35, 28, 0.08);
+    border-top: 1px solid rgba(var(--ink-rgb), 0.08);
   }
 
   .about-toc__list {

@@ -218,14 +218,14 @@
   font-size: 0.82rem;
   letter-spacing: 0.10em;
   text-transform: uppercase;
-  color: rgba(29, 35, 28, 0.65);
+  color: rgba(var(--ink-rgb), 0.65);
 }
 
 .glossary-toc__toggle{
   width: 44px;
   height: 44px;
 
-  border: 1px solid rgba(29, 35, 28, 0.12);
+  border: 1px solid rgba(var(--ink-rgb), 0.12);
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.65);
 
@@ -250,7 +250,7 @@
   height: 14px;
 
   background:
-    linear-gradient(rgba(29, 35, 28, 0.85), rgba(29, 35, 28, 0.85)) center / 100% 2px no-repeat;
+    linear-gradient(rgba(var(--ink-rgb), 0.85), rgba(var(--ink-rgb), 0.85)) center / 100% 2px no-repeat;
   transition: background-size 220ms ease;
 }
 
@@ -262,7 +262,7 @@
   right: 0;
   height: 2px;
   border-radius: 2px;
-  background: rgba(29, 35, 28, 0.85);
+  background: rgba(var(--ink-rgb), 0.85);
   transition:
     transform 220ms ease,
     top 220ms ease,
@@ -301,7 +301,7 @@
   .glossary-toc__inner{
     background: rgba(255, 255, 255, 0.78);
     backdrop-filter: blur(12px);
-    border: 1px solid rgba(29, 35, 28, 0.10);
+    border: 1px solid rgba(var(--ink-rgb), 0.10);
     border-radius: 16px;
     box-shadow: 0 10px 28px rgba(0, 0, 0, 0.06);
     overflow: hidden;
@@ -350,7 +350,7 @@
   margin-left: calc(50% - 50vw);
   margin-right: calc(50% - 50vw);
 
-  background: var(--cream);
+  background: var(--page-bg);
   height: calc(var(--notch) + 14px);
 
   -webkit-clip-path: polygon(
@@ -377,7 +377,7 @@
   margin-left: calc(50% - 50vw);
   margin-right: calc(50% - 50vw);
 
-  background: var(--cream);
+  background: var(--page-bg);
   padding-bottom: 64px;
 
   border-top: 1px solid transparent;
@@ -387,7 +387,7 @@
 
 .entry{
   padding: 34px 0;
-  border-bottom: 1px solid rgba(29,35,28,0.12);
+  border-bottom: 1px solid rgba(var(--ink-rgb),0.12);
 }
 
 /* =========================================================
