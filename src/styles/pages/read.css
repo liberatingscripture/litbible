@@ -96,7 +96,7 @@ body.bg-cream > main {
 }
 
 .view-card {
-  background: #ffffff;
+  background: var(--surface-raised);
   border-radius: 16px;
   padding: 24px;
   border: 1px solid rgba(29, 35, 28, 0.12);
@@ -182,7 +182,7 @@ body.bg-cream > main {
 .license-card {
   margin-top: 8px;
 
-  background: #ffffff;
+  background: var(--surface-raised);
   border-radius: 20px;
   padding: 26px 24px;
 
@@ -222,7 +222,7 @@ body.bg-cream > main {
    ========================================================= */
 
 .scripture-disclaimer {
-  background: #fff;
+  background: var(--surface-raised);
 
   /* full-bleed breakout (escapes max-width parents) */
   width: 100vw;

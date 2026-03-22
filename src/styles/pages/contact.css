@@ -78,8 +78,8 @@
   border: none;
   border-radius: 10px;
 
-  background: #ffffff;
-  color: var(--ink);
+  background: var(--surface-raised);
+  color: var(--text);
 
   padding: 16px 16px;
   font-size: 1.05rem;
@@ -125,7 +125,7 @@
 }
 
 .contact-button:hover {
-  background: #ffffff;
+  background: var(--surface-raised);
   color: var(--green);
   transform: translateY(-2px);
   box-shadow: 0 16px 34px rgba(0, 0, 0, 0.18);

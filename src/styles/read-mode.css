@@ -25,7 +25,7 @@
   top: 0;
   z-index: 70;
 
-  background: var(--cream, #e1dfd9);
+  background: var(--page-bg);
   border: 1px solid rgba(29, 35, 28, 0.2);
   border-radius: 12px;
   box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
@@ -117,8 +117,8 @@
 .rm-page .rm-toolbar a {
   border: 1px solid rgba(29, 35, 28, 0.22);
   border-radius: 9px;
-  background: #fff;
-  color: var(--ink, #1d231c);
+  background: var(--surface-raised);
+  color: var(--text);
   padding: 0.35rem 0.55rem;
   font-size: 0.82rem;
   text-decoration: none;
@@ -319,7 +319,7 @@ html.rm-tools-open {
   position: relative;
   z-index: 1;
   width: min(460px, calc(100% - 1rem));
-  background: #fff;
+  background: var(--surface-raised);
   border: 1px solid rgba(29, 35, 28, 0.16);
   border-radius: 14px;
   box-shadow: 0 14px 28px rgba(0, 0, 0, 0.2);
@@ -339,8 +339,8 @@ html.rm-tools-open {
 .rm-page .rm-resume button {
   border: 1px solid rgba(29, 35, 28, 0.22);
   border-radius: 9px;
-  background: #fff;
-  color: var(--ink, #1d231c);
+  background: var(--surface-raised);
+  color: var(--text);
   padding: 0.35rem 0.55rem;
   font-size: 0.82rem;
   line-height: 1.1;
@@ -364,7 +364,7 @@ html.rm-tools-open {
 .rm-page .rm-study,
 .rm-page .rm-toc,
 .rm-page .rm-aa {
-  background: #fff;
+  background: var(--surface-raised);
   border: 1px solid rgba(29, 35, 28, 0.18);
   border-radius: 11px;
   padding: 0.58rem;
@@ -425,7 +425,7 @@ html.rm-tools-open {
 /* Active tab buttons: become “tabs” and merge with panel border */
 .rm-page .rm-toolbar[data-rm-open="toc"] [data-rm-toc-toggle],
 .rm-page .rm-toolbar[data-rm-open="aa"] [data-rm-aa-toggle] {
-  background: #fff;
+  background: var(--surface-raised);
   border-color: rgba(29, 35, 28, 0.22);
   border-bottom-color: transparent;
   border-radius: 10px 10px 0 0;
@@ -518,8 +518,8 @@ html.rm-tools-open {
   position: relative;
   border: 1px solid rgba(29, 35, 28, 0.22);
   border-radius: 999px;
-  background: #fff;
-  color: var(--ink, #1d231c);
+  background: var(--surface-raised);
+  color: var(--text);
   padding: 0.28rem 0.55rem;
   font-size: 0.82rem;
   line-height: 1.1;
@@ -618,8 +618,8 @@ html.rm-tools-open {
   border-radius: 999px;
 
   border: 1px solid rgba(29, 35, 28, 0.22);
-  background: #fff;
-  color: var(--ink, #1d231c);
+  background: var(--surface-raised);
+  color: var(--text);
 
   display: inline-flex;
   align-items: center;
@@ -825,7 +825,7 @@ html[data-rm-leading="roomy"] .rm-page .rm-reader {
 
     z-index: 260;
 
-    background: #fff;
+    background: var(--surface-raised);
     border: 1px solid rgba(29, 35, 28, 0.22);
     border-radius: 14px 14px 0 0;
 

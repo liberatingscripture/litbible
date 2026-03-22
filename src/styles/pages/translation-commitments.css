@@ -4,7 +4,7 @@
 
 .tc-page {
   padding: 0 0 56px;
-  background: #ffffff;
+  background: var(--surface-raised);
 }
 
 /* =========================================================
@@ -13,12 +13,12 @@
    ========================================================= */
 
 body:has(.tc-page) {
-  background: #ffffff; /* prevents cream peeking above/around header */
+  background: var(--surface-raised); /* prevents cream peeking above/around header */
 }
 
 body:has(.tc-page) .site-header,
 body:has(.tc-page) .site-header__inner {
-  background: #ffffff;
+  background: var(--surface-raised);
 }
 
 /* HERO */
@@ -95,7 +95,7 @@ body:has(.tc-page) .site-header__inner {
   display: grid;
   place-items: center;
 
-  background: #ffffff;
+  background: var(--surface-raised);
   border-radius: 999px;
   overflow: hidden;
 

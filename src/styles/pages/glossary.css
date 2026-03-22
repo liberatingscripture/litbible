@@ -1,7 +1,7 @@
 :root{
   --lit-green:#209D50;
   --lit-ink:#1D231C;
-  --paper:#ffffff;
+  --paper: var(--surface-raised, #ffffff);
   --cream:#e9e6df; /* warm light gray like your screenshots */
 }
 
@@ -18,13 +18,13 @@
    so scope using :has() (modern browsers) with a safe fallback. */
 @supports selector(body:has(.glossary-page)){
   body:has(.glossary-page) .site-header{
-    background: #fff;
+    background: var(--surface-raised);
   }
 }
 
 /* Fallback if Layout adds a bg class to body/html (you’re using bg="white") */
 .bg-white .site-header{
-  background: #fff;
+  background: var(--surface-raised);
 }
 
 .wrap{
@@ -79,8 +79,8 @@
   font-size: 16px;
   border-radius: 10px;
   border: none;
-  background-color: #f9f9f9;
-  color: var(--lit-ink);
+  background-color: var(--surface-input);
+  color: var(--text);
   box-shadow: 0 8px 16px rgba(0,0,0,0.2);
 }
 

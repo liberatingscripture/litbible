@@ -4,7 +4,7 @@
 
 .fit-page {
   /* First section background should be white */
-  background: #fff;
+  background: var(--surface-raised);
 
   /* Page-scoped heading font */
   --fit-serif: "Crimson Text", serif;
@@ -29,11 +29,11 @@
 /* Header is NOT inside .fit-page, so .fit-page .site-header won't hit.
    Use :has() to scope the header to this page. */
 body:has(.fit-page) {
-  background: #fff; /* ensures white behind any transparent header */
+  background: var(--surface-raised); /* ensures white behind any transparent header */
 }
 
 body:has(.fit-page) .site-header {
-  background: #fff;
+  background: var(--surface-raised);
 }
 
 body:has(.fit-page) .site-header__inner {
@@ -44,7 +44,7 @@ body:has(.fit-page) .site-header__inner {
 body:has(.fit-page) .site-header.is-sticky,
 body:has(.fit-page) .site-header.is-scrolled,
 body:has(.fit-page) .site-header.has-bg {
-  background: #fff;
+  background: var(--surface-raised);
 }
 
 /* -------------------------
@@ -197,7 +197,7 @@ body:has(.fit-page) .site-header.has-bg {
 
 .fit-platform:hover {
   transform: translateY(-2px);
-  background: #fff;
+  background: var(--surface-raised);
   color: var(--green);
   border-color: rgba(0, 0, 0, 0.12);
   box-shadow: 0 14px 30px rgba(0, 0, 0, 0.18);

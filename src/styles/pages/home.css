@@ -61,7 +61,7 @@
   font-weight: 500;
   font-size: clamp(1.7rem, calc(var(--scroll-w) * 0.033), 3.2rem);
   line-height: 1.14;
-  color: #1d231c;
+  color: var(--text);
   margin: 0 0 clamp(0.95rem, calc(var(--scroll-w) * 0.018), 1.85rem) 0;
 }
 
@@ -70,7 +70,7 @@
   font-family: "Inter", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
   font-size: clamp(1.15rem, calc(var(--scroll-w) * 0.02), 1.9rem);
   line-height: 1.5;
-  color: #1d231c;
+  color: var(--text);
   margin: 0;
 }
 
@@ -197,7 +197,7 @@
   margin-left: calc(50% - 50vw);
   margin-right: calc(50% - 50vw);
 
-  background: var(--cream);
+  background: var(--page-bg);
   overflow: visible;
 
   /* Clip the CREAM so green shows above in chevron shape */
@@ -233,7 +233,7 @@
   max-width: 1100px;
   margin: 0 auto;
   text-align: center;
-  color: #1d231c;
+  color: var(--text);
 }
 
 /* =========================================================
@@ -451,12 +451,12 @@
   margin-top: -1px;
   z-index: 2;
 
-  background: #ffffff;
+  background: var(--surface-raised);
   padding: 6rem 1.5rem;
 
   font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont,
     "Segoe UI", sans-serif;
-  color: var(--ink);
+  color: var(--text);
 }
 
 .intro-inner {
@@ -502,7 +502,7 @@
   left: 50%;
   margin-left: -50vw;
 
-  background: #ffffff;
+  background: var(--surface-raised);
   padding: 0;
 }
 
@@ -516,7 +516,7 @@
 /* Cream rectangle/card (centered) */
 .callout-panel {
   position: relative;
-  background: var(--cream);
+  background: var(--page-bg);
 
   max-width: 58rem;
   margin: 0 auto;
@@ -637,7 +637,7 @@
    ========================================================= */
 .callout-diagonal {
   height: 220px;
-  background: var(--cream);
+  background: var(--page-bg);
 
   width: 100vw;
   position: relative;
@@ -672,7 +672,7 @@
     /* NEW: a touch more side padding so text sits nicely */
     padding: 2.75rem 2rem 4.75rem;
 
-    background: var(--cream);
+    background: var(--page-bg);
     font-family: "Fraunces", var(--serif, Georgia, serif);
   }
 
@@ -721,8 +721,8 @@
   left: 50%;
   margin-left: -50vw;
 
-  background: var(--cream);
-  color: var(--ink);
+  background: var(--page-bg);
+  color: var(--text);
   padding-top: clamp(8px, 2vw, 24px);
   padding-bottom: clamp(120px, 14vw, 210px);
   overflow: hidden;
@@ -746,8 +746,8 @@
   max-width: min(720px, 92%);
   padding: 20px 26px;
   border-radius: 28px;
-  background: #ffffff;
-  color: var(--ink);
+  background: var(--surface-raised);
+  color: var(--text);
   line-height: 1.45;
   font-size: clamp(18px, 2.1vw, 34px);
 

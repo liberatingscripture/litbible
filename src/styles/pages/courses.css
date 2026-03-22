@@ -96,7 +96,7 @@
   border: none;
   border-radius: 6px;
 
-  background: #ffffff;
+  background: var(--surface-raised);
   color: var(--ink);
 
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
@@ -110,7 +110,7 @@
   border: none;
   cursor: pointer;
 
-  background: #ffffff;
+  background: var(--surface-raised);
   color: var(--green);
 
   padding: 14px 34px;

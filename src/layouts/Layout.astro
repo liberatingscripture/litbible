@@ -21,6 +21,9 @@ const canonicalUrl: string =
 <!doctype html>
 <html lang="en">
   <head>
+    <script is:inline>
+      (function(){var t;try{t=localStorage.getItem("lit_theme")}catch(e){}if(t)document.documentElement.setAttribute("data-theme",t)})();
+    </script>
     <meta charset="utf-8" />
     <title>{title}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -48,6 +51,7 @@ const canonicalUrl: string =
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
     <meta name="theme-color" content="#209D50" />
+    <meta name="color-scheme" content="light dark" />
 
 <slot name="head" />
   </head>
