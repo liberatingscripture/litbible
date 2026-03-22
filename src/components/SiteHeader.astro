@@ -77,14 +77,6 @@ const { class: className = "" } = Astro.props;
 
         <a href="/read" class="menu-overlay__cta">Read Now</a>
       </nav>
-
-      <button
-        type="button"
-        class="menu-overlay__close"
-        aria-label="Close menu"
-      >
-        Close
-      </button>
     </div>
   </div>
 
@@ -140,12 +132,6 @@ const { class: className = "" } = Astro.props;
       overlay.querySelectorAll("a").forEach((a) => {
         a.addEventListener("click", () => closeMenu());
       });
-
-      // Close button inside the panel (reachable by focus trap)
-      const panelClose = panel.querySelector(".menu-overlay__close");
-      if (panelClose) {
-        panelClose.addEventListener("click", () => closeMenu());
-      }
 
       document.addEventListener("keydown", (e) => {
         if (e.key !== "Tab" || !isOpen()) return;

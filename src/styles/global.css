@@ -745,34 +745,6 @@ html.menu-open body {
   transition-delay: 0ms;
 }
 
-/* Close button inside panel (keyboard-reachable) */
-.menu-overlay__close {
-  display: block;
-  margin: 28px auto 0;
-  padding: 10px 24px;
-
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  border-radius: 999px;
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 0.95rem;
-  letter-spacing: 0.08em;
-  cursor: pointer;
-
-  transition: color 180ms ease, border-color 180ms ease;
-}
-
-.menu-overlay__close:hover,
-.menu-overlay__close:focus {
-  color: #fff;
-  border-color: rgba(255, 255, 255, 0.6);
-}
-
-.menu-overlay__close:focus-visible {
-  outline: 2px solid var(--green);
-  outline-offset: 3px;
-}
-
 /* Smaller screens: scale typography down */
 @media (max-width: 520px) {
   .menu-overlay__nav a {
