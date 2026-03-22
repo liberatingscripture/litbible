@@ -54,9 +54,9 @@
     --surface: #242824;
     --surface-raised: #2e322e;
     --surface-input: #2e322e;
-    --ink-rgb: 212, 210, 204;
+    --ink-rgb: 228, 226, 220;
     --surface-rgb: 50, 56, 50;
-    --text: #d4d2cc;
+    --text: #e4e2dc;
     --text-strong: #eae8e3;
     --link: #3abf6a;
     --border: #3a3e3a;
@@ -71,9 +71,9 @@
   --surface: #242824;
   --surface-raised: #2e322e;
   --surface-input: #2e322e;
-  --ink-rgb: 212, 210, 204;
+  --ink-rgb: 228, 226, 220;
   --surface-rgb: 50, 56, 50;
-  --text: #d4d2cc;
+  --text: #e4e2dc;
   --text-strong: #eae8e3;
   --link: #3abf6a;
   --border: #3a3e3a;
@@ -640,7 +640,7 @@ a:focus {
   left: 0;
   right: 0;
   height: 2px;
-  background: var(--ink);
+  background: var(--text);
   border-radius: 2px;
   transition: transform 240ms ease-in-out, top 240ms ease-in-out,
     background-color 180ms ease-in-out;
@@ -1064,7 +1064,7 @@ html.menu-open body {
   border-radius: 10px;
 
   text-decoration: none;
-  color: var(--ink);
+  color: var(--text);
   opacity: 1;
 
   background: transparent;

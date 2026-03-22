@@ -154,7 +154,7 @@ body:has(.fit-page) .site-header.has-bg {
 
   border-radius: 30px;
   box-shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
-  border: 1px solid rgba(0, 0, 0, 0.10);
+  border: 1px solid rgba(var(--ink-rgb), 0.10);
 
   display: block;
 }
@@ -185,7 +185,7 @@ body:has(.fit-page) .site-header.has-bg {
   color: #fff;
 
   box-shadow: 0 10px 26px rgba(0, 0, 0, 0.16);
-  border: 1px solid rgba(0, 0, 0, 0.10);
+  border: 1px solid rgba(var(--ink-rgb), 0.10);
 
   transition:
     transform 160ms ease,
@@ -272,7 +272,7 @@ body:has(.fit-page) .site-header.has-bg {
 
 .fit-section--cream {
   background: var(--page-bg);
-  color: var(--ink);
+  color: var(--text);
 }
 
 .fit-h2 {

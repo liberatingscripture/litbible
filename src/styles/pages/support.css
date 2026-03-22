@@ -125,9 +125,9 @@
   border-radius: 12px;
   text-decoration: none;
 
-  border: 1px solid rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(var(--ink-rgb), 0.15);
   background: rgba(var(--surface-rgb), 0.55);
-  color: var(--ink);
+  color: var(--text);
 
   transition: transform 160ms ease, opacity 180ms ease, background-color 180ms ease;
 }
@@ -268,7 +268,7 @@
 }
 
 .support-band__card {
-  border: 1px solid rgba(0, 0, 0, 0.12);
+  border: 1px solid rgba(var(--ink-rgb), 0.12);
   border-radius: 16px;
   padding: 1rem;
 
@@ -323,7 +323,7 @@
 }
 
 .support-card {
-  border: 1px solid rgba(0, 0, 0, 0.12);
+  border: 1px solid rgba(var(--ink-rgb), 0.12);
   border-radius: 16px;
   padding: 1rem;
 

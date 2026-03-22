@@ -4,7 +4,7 @@
 
 .contact-page {
   background: var(--page-bg);
-  color: var(--ink);
+  color: var(--text);
 }
 
 .contact-hero {
@@ -29,7 +29,7 @@
 
   font-size: clamp(3.2rem, 6vw, 5.4rem);
   margin: 0 0 20px;
-  color: var(--ink);
+  color: var(--text-strong);
 }
 
 .contact-lead {

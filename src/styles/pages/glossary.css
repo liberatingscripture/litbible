@@ -10,7 +10,7 @@
    ========================================================= */
 
 .glossary-page{
-  color: var(--lit-ink);
+  color: var(--text);
   background: var(--paper);
 }
 
@@ -64,7 +64,7 @@
   text-decoration: underline;
   text-underline-offset: 4px;
 }
-.inline-link:hover{ color: var(--lit-ink); }
+.inline-link:hover{ color: var(--text-strong); }
 
 /* =========================================================
    MENU (Home-mirroring)

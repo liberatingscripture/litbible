@@ -114,7 +114,7 @@
   border-radius: 12px;
   border: 1px solid var(--border);
   background: var(--surface-input);
-  color: var(--ink);
+  color: var(--text);
   padding: 0 14px;
   font-size: 1rem;
 }
@@ -352,9 +352,9 @@
   padding: 6px 10px;
   border-radius: 999px;
 
-  background: var(--page-bg);
+  background: var(--surface-raised);
   border: 1px solid var(--green);
-  color: var(--ink);
+  color: var(--text);
 }
 
 /* =========================================================
@@ -386,14 +386,14 @@
 /* Your wrapper in articles.astro is .articles-hero-search */
 .articles-hero-search {
   text-align: left;
-  color: var(--ink);
+  color: var(--text);
 }
 
 /* Ensure tray content doesn't inherit hero centering / white text */
 .articles-hero-search .searchbar__tray,
 .articles-hero-search .searchbar__tray * {
   text-align: left;
-  color: var(--ink);
+  color: var(--text);
 }
 
 /* Keep tray links consistent with site */
@@ -498,7 +498,7 @@
 }
 
 .article__body :is(h2, h3) {
-  color: var(--black);
+  color: var(--text-strong);
   line-height: 1.2;
   margin-top: 1.6em;
 }

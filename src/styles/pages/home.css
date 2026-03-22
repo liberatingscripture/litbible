@@ -470,7 +470,7 @@
   font-size: 1.75rem;
   font-weight: 500;
   margin: 0 0 2rem 0;
-  color: var(--ink);
+  color: var(--text);
 }
 
 /* Main intro text */
@@ -480,7 +480,7 @@
   font-size: 1.75rem;
   line-height: 1.6;
   margin: 0 0 1.75rem 0;
-  color: var(--ink);
+  color: var(--text);
 }
 
 .intro-lead:last-child,
@@ -986,7 +986,7 @@ a.question-cta:focus::before {
 /* End-state text: ink on green */
 a.question-cta:hover,
 a.question-cta:focus {
-  color: var(--ink);
+  color: var(--text);
   text-decoration: none;
 }
 
