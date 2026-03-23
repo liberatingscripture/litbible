@@ -25,8 +25,8 @@
   top: 0;
   z-index: 70;
 
-  background: var(--cream, #e1dfd9);
-  border: 1px solid rgba(29, 35, 28, 0.2);
+  background: var(--page-bg);
+  border: 1px solid rgba(var(--ink-rgb), 0.2);
   border-radius: 12px;
   box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
   padding: 0.55rem;
@@ -79,13 +79,13 @@
 
 .rm-page .rm-where {
   font-size: 0.84rem;
-  color: rgba(29, 35, 28, 0.9);
+  color: rgba(var(--ink-rgb), 0.9);
   white-space: nowrap;
 }
 
 .rm-page .rm-progress {
   font-size: 0.8rem;
-  color: rgba(29, 35, 28, 0.78);
+  color: rgba(var(--ink-rgb), 0.78);
   white-space: nowrap;
 }
 
@@ -101,7 +101,7 @@
   width: 74px;
   height: 4px;
   border-radius: 999px;
-  background: rgba(29, 35, 28, 0.14);
+  background: rgba(var(--ink-rgb), 0.14);
   overflow: hidden;
   flex: 0 0 auto;
 }
@@ -115,10 +115,10 @@
 
 .rm-page .rm-toolbar button,
 .rm-page .rm-toolbar a {
-  border: 1px solid rgba(29, 35, 28, 0.22);
+  border: 1px solid rgba(var(--ink-rgb), 0.22);
   border-radius: 9px;
-  background: #fff;
-  color: var(--ink, #1d231c);
+  background: var(--surface-raised);
+  color: var(--text);
   padding: 0.35rem 0.55rem;
   font-size: 0.82rem;
   text-decoration: none;
@@ -210,7 +210,7 @@
   align-items: center;
   justify-content: center;
 
-  border: 1px solid rgba(29, 35, 28, 0.2);
+  border: 1px solid rgba(var(--ink-rgb), 0.2);
   border-radius: 14px;
 
   background: var(--green, #209d50);
@@ -246,7 +246,7 @@
   width: 100%;
   height: 2.5px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.98);
+  background: rgba(var(--surface-rgb), 0.98);
 }
 
 .rm-page .rm-fab__icon::before {
@@ -319,8 +319,8 @@ html.rm-tools-open {
   position: relative;
   z-index: 1;
   width: min(460px, calc(100% - 1rem));
-  background: #fff;
-  border: 1px solid rgba(29, 35, 28, 0.16);
+  background: var(--surface-raised);
+  border: 1px solid rgba(var(--ink-rgb), 0.16);
   border-radius: 14px;
   box-shadow: 0 14px 28px rgba(0, 0, 0, 0.2);
   padding: 0.9rem 1rem;
@@ -337,10 +337,10 @@ html.rm-tools-open {
 }
 
 .rm-page .rm-resume button {
-  border: 1px solid rgba(29, 35, 28, 0.22);
+  border: 1px solid rgba(var(--ink-rgb), 0.22);
   border-radius: 9px;
-  background: #fff;
-  color: var(--ink, #1d231c);
+  background: var(--surface-raised);
+  color: var(--text);
   padding: 0.35rem 0.55rem;
   font-size: 0.82rem;
   line-height: 1.1;
@@ -364,8 +364,8 @@ html.rm-tools-open {
 .rm-page .rm-study,
 .rm-page .rm-toc,
 .rm-page .rm-aa {
-  background: #fff;
-  border: 1px solid rgba(29, 35, 28, 0.18);
+  background: var(--surface-raised);
+  border: 1px solid rgba(var(--ink-rgb), 0.18);
   border-radius: 11px;
   padding: 0.58rem;
 }
@@ -425,8 +425,8 @@ html.rm-tools-open {
 /* Active tab buttons: become “tabs” and merge with panel border */
 .rm-page .rm-toolbar[data-rm-open="toc"] [data-rm-toc-toggle],
 .rm-page .rm-toolbar[data-rm-open="aa"] [data-rm-aa-toggle] {
-  background: #fff;
-  border-color: rgba(29, 35, 28, 0.22);
+  background: var(--surface-raised);
+  border-color: rgba(var(--ink-rgb), 0.22);
   border-bottom-color: transparent;
   border-radius: 10px 10px 0 0;
   position: relative;
@@ -516,10 +516,10 @@ html.rm-tools-open {
 /* Group tabs row */
 .rm-page .rm-toc [data-rm-group-tab] {
   position: relative;
-  border: 1px solid rgba(29, 35, 28, 0.22);
+  border: 1px solid rgba(var(--ink-rgb), 0.22);
   border-radius: 999px;
-  background: #fff;
-  color: var(--ink, #1d231c);
+  background: var(--surface-raised);
+  color: var(--text);
   padding: 0.28rem 0.55rem;
   font-size: 0.82rem;
   line-height: 1.1;
@@ -617,9 +617,9 @@ html.rm-tools-open {
   height: 2.35rem;
   border-radius: 999px;
 
-  border: 1px solid rgba(29, 35, 28, 0.22);
-  background: #fff;
-  color: var(--ink, #1d231c);
+  border: 1px solid rgba(var(--ink-rgb), 0.22);
+  background: var(--surface-raised);
+  color: var(--text);
 
   display: inline-flex;
   align-items: center;
@@ -702,7 +702,7 @@ html.rm-tools-open {
 
 .rm-page .rm-text blockquote.hbq {
   margin-left: 0.6rem;
-  border-left: 2px solid rgba(29, 35, 28, 0.16);
+  border-left: 2px solid rgba(var(--ink-rgb), 0.16);
   padding-left: 0.95rem;
 }
 
@@ -825,8 +825,8 @@ html[data-rm-leading="roomy"] .rm-page .rm-reader {
 
     z-index: 260;
 
-    background: #fff;
-    border: 1px solid rgba(29, 35, 28, 0.22);
+    background: var(--surface-raised);
+    border: 1px solid rgba(var(--ink-rgb), 0.22);
     border-radius: 14px 14px 0 0;
 
     /* Keep the sheet truly flush with the bottom edge, while respecting safe areas */
@@ -863,7 +863,7 @@ html[data-rm-leading="roomy"] .rm-page .rm-reader {
     pointer-events: auto;
     overflow: auto;
 
-    border-color: rgba(29, 35, 28, 0.22);
+    border-color: rgba(var(--ink-rgb), 0.22);
     box-shadow: 0 -10px 22px rgba(0, 0, 0, 0.18);
 
     transform: translateY(0) scale(1);
@@ -944,7 +944,7 @@ html[data-rm-leading="roomy"] .rm-page .rm-reader {
     font-size: 0.8rem;
 
     background: rgba(32, 157, 80, 0.08);
-    border-color: rgba(29, 35, 28, 0.3);
+    border-color: rgba(var(--ink-rgb), 0.3);
     overflow: visible;
   }
 
@@ -974,7 +974,7 @@ html[data-rm-leading="roomy"] .rm-page .rm-reader {
   .rm-page .rm-toolbar[data-rm-open="aa"] [data-rm-aa-toggle] {
     top: 0;
     margin-bottom: 0;
-    border-bottom-color: rgba(29, 35, 28, 0.3);
+    border-bottom-color: rgba(var(--ink-rgb), 0.3);
     border-radius: 999px;
 
     border-color: rgba(32, 157, 80, 0.7);
@@ -1009,7 +1009,7 @@ html[data-rm-leading="roomy"] .rm-page .rm-reader {
     padding: 0;
 
     background: var(--green, #209d50) !important;
-    border: 1px solid rgba(29, 35, 28, 0.2) !important;
+    border: 1px solid rgba(var(--ink-rgb), 0.2) !important;
     border-radius: 14px !important;
 
     font-size: 0 !important;

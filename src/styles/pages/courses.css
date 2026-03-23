@@ -3,8 +3,8 @@
    ========================================================= */
 
 .courses-page {
-  background: var(--cream);
-  color: var(--ink);
+  background: var(--page-bg);
+  color: var(--text);
 }
 
 /* Hero */
@@ -39,7 +39,7 @@
   margin: 0 0 26px;
   font-size: clamp(1.25rem, 2.1vw, 1.65rem);
   line-height: 1.55;
-  color: rgba(29, 35, 28, 0.92);
+  color: rgba(var(--ink-rgb), 0.92);
 }
 
 /* Updates block */
@@ -96,21 +96,21 @@
   border: none;
   border-radius: 6px;
 
-  background: #ffffff;
-  color: var(--ink);
+  background: var(--surface-raised);
+  color: var(--text);
 
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
 }
 
 .signup input[type="email"]::placeholder {
-  color: rgba(29, 35, 28, 0.38);
+  color: rgba(var(--ink-rgb), 0.38);
 }
 
 .signup__button {
   border: none;
   cursor: pointer;
 
-  background: #ffffff;
+  background: var(--surface-raised);
   color: var(--green);
 
   padding: 14px 34px;

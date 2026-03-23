@@ -208,7 +208,7 @@ const indexTagsJoined = hyphensToSpacesForIndex(tags.join(", "));
     width: min(860px, calc(100% - (var(--gutter) * 2)));
     margin-inline: auto;
 
-    background: var(--white);
+    background: var(--surface-raised);
     border-radius: 22px;
     box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
     overflow: hidden;
@@ -262,7 +262,7 @@ const indexTagsJoined = hyphensToSpacesForIndex(tags.join(", "));
 
   .article__title {
     margin: 0 0 10px;
-    color: var(--black);
+    color: var(--text-strong);
     font-size: clamp(2rem, 3.2vw, 2.6rem);
     line-height: 1.12;
   }
@@ -319,7 +319,7 @@ const indexTagsJoined = hyphensToSpacesForIndex(tags.join(", "));
   .article__body :global(blockquote) {
     margin: 1.6rem 0;
     padding: 0.8rem 1rem;
-    background: var(--cream);
+    background: var(--surface);
     border-left: 4px solid var(--green);
     border-radius: 14px;
   }
@@ -334,12 +334,12 @@ const indexTagsJoined = hyphensToSpacesForIndex(tags.join(", "));
 
   .article__body :global(pre) {
     overflow-x: auto;
-    background: var(--cream);
+    background: var(--surface);
     padding: 1rem;
     border-radius: 14px;
   }
   .article__body :global(code) {
-    background: var(--cream);
+    background: var(--surface);
     padding: 0.12rem 0.35rem;
     border-radius: 8px;
   }
@@ -360,9 +360,9 @@ const indexTagsJoined = hyphensToSpacesForIndex(tags.join(", "));
     font-size: 0.85rem;
     padding: 6px 10px;
     border-radius: 999px;
-    background: var(--cream);
+    background: var(--surface);
     border: 1px solid var(--green);
-    color: var(--ink);
+    color: var(--text);
   }
 
   @media (max-width: 560px) {

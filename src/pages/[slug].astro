@@ -516,7 +516,7 @@ if (props.kind === "chapter") {
     }
 
     :global(.chapter-cta:hover) {
-      background-color: #1d231c; /* match ScriptureHeader hover */
+      background-color: var(--ink); /* match ScriptureHeader hover */
       transform: translateY(-1px);
       text-decoration: none;
     }
@@ -563,7 +563,7 @@ if (props.kind === "chapter") {
     .footnotes-wrap {
       margin-top: 28px;
       padding-top: 18px;
-      border-top: 1px solid rgba(29, 35, 28, 0.14);
+      border-top: 1px solid rgba(var(--ink-rgb), 0.14);
     }
 
     .footnotes-wrap h2 {
@@ -629,7 +629,7 @@ if (props.kind === "chapter") {
     }
 
     .back-to-top__link:hover {
-      background: #fff;
+      background: var(--surface-raised);
       color: var(--green, #209d50);
       transform: translateY(-1px);
     }

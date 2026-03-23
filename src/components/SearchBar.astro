@@ -1979,9 +1979,9 @@ const baseUrl = import.meta.env.BASE_URL || "/";
     width: 100%;
     padding: 14px 16px;
     border-radius: 12px;
-    border: 1px solid rgba(29, 35, 28, 0.25);
+    border: 1px solid rgba(var(--ink-rgb), 0.25);
     font-size: 1rem;
-    background: rgba(255, 255, 255, 0.94);
+    background: rgba(var(--surface-rgb), 0.94);
   }
 
   .searchbar__ghost {
@@ -2005,7 +2005,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
   }
 
   .searchbar__ghost-rest {
-    color: rgba(29, 35, 28, 0.35);
+    color: rgba(var(--ink-rgb), 0.35);
   }
 
   .searchbar__submit {
@@ -2074,8 +2074,9 @@ const baseUrl = import.meta.env.BASE_URL || "/";
   }
 
   .searchbar__panel-inner {
-    background: #fff;
-    border: 1px solid rgba(29, 35, 28, 0.18);
+    background: var(--surface-raised);
+    color: var(--text);
+    border: 1px solid rgba(var(--ink-rgb), 0.18);
     border-radius: 16px;
     box-shadow: 0 18px 44px rgba(0, 0, 0, 0.18);
     padding: 16px;
@@ -2109,8 +2110,9 @@ const baseUrl = import.meta.env.BASE_URL || "/";
   .searchbar__mode {
     padding: 8px 10px;
     border-radius: 10px;
-    border: 1px solid rgba(29, 35, 28, 0.2);
-    background: #fff;
+    border: 1px solid rgba(var(--ink-rgb), 0.2);
+    background: var(--surface-raised);
+    color: var(--text);
 
     /* Avoid mobile overflow when paired with tooltip button */
     flex: 1 1 auto;
@@ -2146,7 +2148,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
     font-size: 0.85rem;
     cursor: pointer;
     white-space: nowrap;
-    color: rgba(29, 35, 28, 0.9);
+    color: rgba(var(--ink-rgb), 0.9);
   }
 
   .searchbar__filter-pill:hover {
@@ -2162,16 +2164,16 @@ const baseUrl = import.meta.env.BASE_URL || "/";
   .searchbar__filter-clear-all {
     padding: 4px 10px;
     border-radius: 999px;
-    border: 1px solid rgba(29, 35, 28, 0.18);
+    border: 1px solid rgba(var(--ink-rgb), 0.18);
     background: transparent;
     font-size: 0.85rem;
     cursor: pointer;
-    color: rgba(29, 35, 28, 0.6);
+    color: rgba(var(--ink-rgb), 0.6);
     white-space: nowrap;
   }
 
   .searchbar__filter-clear-all:hover {
-    background: rgba(29, 35, 28, 0.06);
+    background: rgba(var(--ink-rgb), 0.06);
   }
 
   .searchbar__suggest-word {
@@ -2210,8 +2212,9 @@ const baseUrl = import.meta.env.BASE_URL || "/";
     width: 28px;
     height: 28px;
     border-radius: 999px;
-    border: 1px solid rgba(29, 35, 28, 0.22);
-    background: #fff;
+    border: 1px solid rgba(var(--ink-rgb), 0.22);
+    background: var(--surface-raised);
+    color: var(--text);
     cursor: pointer;
     padding: 0;
     flex: 0 0 auto;
@@ -2226,7 +2229,8 @@ const baseUrl = import.meta.env.BASE_URL || "/";
     font-size: 0.95rem;
     font-weight: 800;
     line-height: 1;
-    opacity: 0.75;
+    color: var(--text);
+    opacity: 0.85;
   }
 
   /* Viewport-clamped tooltips (direction independent) */
@@ -2241,8 +2245,8 @@ const baseUrl = import.meta.env.BASE_URL || "/";
 
     padding: 12px 14px;
     border-radius: 12px;
-    border: 1px solid rgba(29, 35, 28, 0.18);
-    background: #fff;
+    border: 1px solid rgba(var(--ink-rgb), 0.18);
+    background: var(--surface-raised);
     box-shadow: 0 18px 44px rgba(0, 0, 0, 0.18);
 
     font-size: 0.95rem;
@@ -2294,8 +2298,8 @@ const baseUrl = import.meta.env.BASE_URL || "/";
   }
 
   .searchbar__jump-link--read {
-    background: rgba(29, 35, 28, 0.05);
-    border-color: rgba(29, 35, 28, 0.28);
+    background: rgba(var(--ink-rgb), 0.05);
+    border-color: rgba(var(--ink-rgb), 0.28);
   }
 
   .searchbar__jump-hint {
@@ -2313,7 +2317,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
     gap: 12px;
     margin-top: 10px;
     padding-top: 10px;
-    border-top: 1px solid rgba(29, 35, 28, 0.12);
+    border-top: 1px solid rgba(var(--ink-rgb), 0.12);
   }
 
   .searchbar__jump-keys {
@@ -2323,8 +2327,8 @@ const baseUrl = import.meta.env.BASE_URL || "/";
   }
 
   .searchbar__jump-search {
-    border: 1px solid rgba(29, 35, 28, 0.2);
-    background: #fff;
+    border: 1px solid rgba(var(--ink-rgb), 0.2);
+    background: var(--surface-raised);
     border-radius: 999px;
     padding: 7px 12px;
     cursor: pointer;
@@ -2356,7 +2360,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
   }
 
   .searchbar__result + .searchbar__result {
-    border-top: 1px solid rgba(29, 35, 28, 0.12);
+    border-top: 1px solid rgba(var(--ink-rgb), 0.12);
   }
 
   .searchbar__link {
@@ -2368,7 +2372,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
 
   .searchbar__title {
     font-weight: 700;
-    color: rgba(29, 35, 28, 0.95);
+    color: rgba(var(--ink-rgb), 0.95);
   }
 
   .searchbar__footer {
@@ -2377,7 +2381,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
     justify-content: space-between;
     margin-top: 12px;
     padding-top: 10px;
-    border-top: 1px solid rgba(29, 35, 28, 0.12);
+    border-top: 1px solid rgba(var(--ink-rgb), 0.12);
   }
 
   .searchbar__full {
@@ -2385,8 +2389,9 @@ const baseUrl = import.meta.env.BASE_URL || "/";
   }
 
   .searchbar__close {
-    border: 1px solid rgba(29, 35, 28, 0.2);
-    background: #fff;
+    border: 1px solid rgba(var(--ink-rgb), 0.2);
+    background: var(--surface-raised);
+    color: var(--text);
     border-radius: 12px;
     padding: 8px 12px;
     cursor: pointer;

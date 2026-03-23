@@ -23,6 +23,8 @@
   --white: #FFFFFF;
   --green: #209D50;
   --ink: #1D231C;
+  --ink-rgb: 29, 35, 28;
+  --surface-rgb: 255, 255, 255;
   --black: #000000;
 
   /* Semantic usage */
@@ -32,6 +34,8 @@
   --text-strong: var(--black);
   --link: var(--green);
   --border: var(--white);
+  --surface-raised: #FFFFFF;
+  --surface-input: #f9f9f9;
 
   /* CTA */
   --cta-bg: var(--ink);
@@ -41,6 +45,40 @@
   --gutter: clamp(1.25rem, 4vw, 2.5rem); /* keep content off screen edges */
   --content-max: 1200px;                 /* default readable width */
   --container-max: 1400px;               /* wider container when needed */
+}
+
+/* ---------- Dark mode (system preference) ---------- */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --page-bg: #1a1e1a;
+    --surface: #242824;
+    --surface-raised: #2e322e;
+    --surface-input: #2e322e;
+    --ink-rgb: 228, 226, 220;
+    --surface-rgb: 50, 56, 50;
+    --text: #e4e2dc;
+    --text-strong: #eae8e3;
+    --link: #3abf6a;
+    --border: #3a3e3a;
+    --cta-bg: #d4d2cc;
+    --cta-text: #1a1e1a;
+  }
+}
+
+/* ---------- Dark mode (explicit user toggle) ---------- */
+:root[data-theme="dark"] {
+  --page-bg: #1a1e1a;
+  --surface: #242824;
+  --surface-raised: #2e322e;
+  --surface-input: #2e322e;
+  --ink-rgb: 228, 226, 220;
+  --surface-rgb: 50, 56, 50;
+  --text: #e4e2dc;
+  --text-strong: #eae8e3;
+  --link: #3abf6a;
+  --border: #3a3e3a;
+  --cta-bg: #d4d2cc;
+  --cta-text: #1a1e1a;
 }
 
 /* ---------- Reset / box model ---------- */
@@ -71,7 +109,7 @@ body {
 /* ---------- Background modes ---------- */
 /* Cream is default via --page-bg */
 body.bg-cream {
-  background: var(--cream);
+  background: var(--page-bg);
 }
 
 body.bg-green {
@@ -347,7 +385,7 @@ a:focus {
   bottom: -4px;
   width: 100%;
   height: 2px;
-  background-color: var(--black);
+  background-color: var(--text-strong);
 
   transform: scaleX(0);
   transform-origin: left;
@@ -440,7 +478,7 @@ a:focus {
 /* Reveal end-state text color */
 .site-nav__cta-item > a.site-header__cta:hover,
 .site-nav__cta-item > a.site-header__cta:focus {
-  color: var(--ink);
+  color: var(--text-strong);
   text-decoration: none;
 }
 
@@ -470,6 +508,62 @@ a:focus {
   display: inline-flex;
   align-items: center;
   justify-content: flex-end;
+  gap: 8px;
+}
+
+/* ---------- Theme toggle ---------- */
+.site-header__theme-toggle {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  background: transparent;
+  color: var(--text);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 180ms ease;
+}
+
+.site-header__theme-toggle:hover {
+  color: var(--link);
+}
+
+.site-header__theme-toggle svg {
+  width: 22px;
+  height: 22px;
+}
+
+/* Show sun icon in light mode, moon icon in dark mode */
+.theme-icon--dark {
+  display: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .theme-icon--light {
+    display: none;
+  }
+  :root:not([data-theme="light"]) .theme-icon--dark {
+    display: block;
+  }
+}
+
+:root[data-theme="dark"] .theme-icon--light {
+  display: none;
+}
+
+:root[data-theme="dark"] .theme-icon--dark {
+  display: block;
+}
+
+:root[data-theme="light"] .theme-icon--light {
+  display: block;
+}
+
+:root[data-theme="light"] .theme-icon--dark {
+  display: none;
 }
 
 /* =========================================================
@@ -529,7 +623,7 @@ a:focus {
   left: 0;
   right: 0;
   height: 2px;
-  background: var(--ink);
+  background: var(--text);
   border-radius: 2px;
   transition: transform 240ms ease-in-out, top 240ms ease-in-out,
     background-color 180ms ease-in-out;
@@ -861,9 +955,9 @@ html.menu-open body {
    ================================ */
 
 .site-footer {
-  border-top: 1px solid #000;
+  border-top: 1px solid var(--border);
   padding: 4rem 2rem;
-  background: #fff;
+  background: var(--surface-raised);
 }
 
 .footer-inner {
@@ -913,7 +1007,7 @@ html.menu-open body {
 /* Base link styling (TEXT LINKS ONLY) */
 .footer-col a {
   text-decoration: underline;
-  color: #000;
+  color: var(--text-strong);
   transition: color 160ms ease;
 }
 
@@ -953,11 +1047,11 @@ html.menu-open body {
   border-radius: 10px;
 
   text-decoration: none;
-  color: var(--ink);
+  color: var(--text);
   opacity: 1;
 
   background: transparent;
-  border: 1px solid rgba(0, 0, 0, 0.15);
+  border: 1px solid var(--border);
 
   transition:
     background-color 180ms ease,
@@ -1080,7 +1174,7 @@ a.footer-cta:focus::before {
 /* End-state appearance */
 a.footer-cta:hover,
 a.footer-cta:focus {
-  background: #ffffff;
+  background: var(--surface-raised);
   color: var(--green);
   text-decoration: none;
 }
@@ -1388,7 +1482,7 @@ blockquote.hbq {
   margin: 0.6rem 0 0.9rem;
   margin-left: 0.6rem;
   padding: 0 0 0 0.95rem;
-  border-left: 2px solid rgba(29, 35, 28, 0.16);
+  border-left: 2px solid rgba(var(--ink-rgb), 0.16);
   font-style: normal;
   color: inherit;
 }
@@ -1399,7 +1493,7 @@ blockquote.hbq {
   margin: 0.6rem 0 0.9rem;
   margin-left: 0.6rem;
   padding: 0 0 0 0.95rem;
-  border-left: 2px solid rgba(29, 35, 28, 0.16);
+  border-left: 2px solid rgba(var(--ink-rgb), 0.16);
   font-style: normal;
   color: inherit;
 }

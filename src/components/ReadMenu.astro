@@ -214,8 +214,8 @@ import { BOOKS as books } from "../data/books.js";
       font-size: 16px;
       border-radius: 10px;
       border: none;
-      background-color: #f9f9f9;
-      color: #1d231c;
+      background-color: var(--surface-input);
+      color: var(--text);
       box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
       transition:
         background-color 0.2s ease,
@@ -231,7 +231,7 @@ import { BOOKS as books } from "../data/books.js";
 
     .read-menu select:hover:not(:disabled),
     .read-menu button:hover:not(:disabled) {
-      background-color: #209d50;
+      background-color: var(--green);
       color: #ffffff;
     }
 
@@ -242,18 +242,18 @@ import { BOOKS as books } from "../data/books.js";
     }
 
     .read-menu button {
-      background-color: #1d231c;
-      color: #ffffff;
+      background-color: var(--cta-bg);
+      color: var(--cta-text);
       cursor: pointer;
     }
 
     .read-menu button#study-button {
-      background-color: #209d50;
+      background-color: var(--green);
       color: #ffffff;
     }
 
     .read-menu button#study-button:hover:not(:disabled) {
-      background-color: #1d231c;
+      background-color: var(--ink);
       color: #ffffff;
     }
 
