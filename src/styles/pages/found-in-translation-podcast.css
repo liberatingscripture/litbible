@@ -226,7 +226,7 @@ body:has(.fit-page) .site-header.has-bg {
 
 @media (max-width: 760px) {
   .fit-platforms {
-    margin-top: -120px;
+    margin-top: -40px;
   }
 
   .fit-platform-links {
