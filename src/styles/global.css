@@ -81,23 +81,6 @@
   --cta-text: #1a1e1a;
 }
 
-/* Dark mode: subtle backing for logos with transparency */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .site-header__logo,
-  :root:not([data-theme="light"]) .footer-center img,
-  :root:not([data-theme="light"]) .not-found__logo {
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.08);
-  }
-}
-
-:root[data-theme="dark"] .site-header__logo,
-:root[data-theme="dark"] .footer-center img,
-:root[data-theme="dark"] .not-found__logo {
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.08);
-}
-
 /* ---------- Reset / box model ---------- */
 *,
 *::before,
