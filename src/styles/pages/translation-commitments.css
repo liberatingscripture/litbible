@@ -115,6 +115,18 @@ body:has(.tc-page) .site-header__inner {
   transform-origin: center;
 }
 
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .tc-icon {
+    filter: grayscale(1) brightness(1.17) contrast(1.22) invert(1);
+    mix-blend-mode: screen;
+  }
+}
+
+:root[data-theme="dark"] .tc-icon {
+  filter: grayscale(1) brightness(1.17) contrast(1.22) invert(1);
+  mix-blend-mode: screen;
+}
+
 /* Titles + body */
 .tc-cardTitle {
   margin: 0 0 10px;
