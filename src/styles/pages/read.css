@@ -142,7 +142,7 @@ body.bg-cream > main {
   padding: 190px 0 96px;
 
   background: var(--green, #209d50);
-  color: #1d231c;
+  color: var(--text-strong);
 
   /* full-bleed trick */
   width: 100vw;

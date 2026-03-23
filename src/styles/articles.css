@@ -89,7 +89,7 @@
 .subscribe-strip__title {
   margin: 0 0 4px;
   font-size: 1.1rem;
-  color: var(--black);
+  color: var(--text-strong);
 }
 
 .subscribe-strip__note {
@@ -197,7 +197,7 @@
   margin: 0;
   font-size: clamp(1.6rem, 2.3vw, 2.1rem);
   line-height: 1.15;
-  color: var(--black);
+  color: var(--text-strong);
 }
 
 .featured__summary {
@@ -295,7 +295,7 @@
   margin: 0;
   font-size: 1.45rem;
   line-height: 1.15;
-  color: var(--black);
+  color: var(--text-strong);
 }
 
 /* Clamp + allow long tokens to wrap instead of spilling
@@ -469,7 +469,7 @@
 
 .article__title {
   margin: 0;
-  color: var(--black);
+  color: var(--text-strong);
   line-height: 1.05;
   font-size: clamp(2rem, 3.6vw, 3rem);
 }

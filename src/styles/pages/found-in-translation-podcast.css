@@ -26,6 +26,22 @@
   overflow-x: clip;
 }
 
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --fit-wave-top-cream: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%201440%20120'%20preserveAspectRatio='none'%3E%3Cpath%20d='M0%200H1440V70Q720%20130%200%2070Z'%20fill='%231a1e1a'/%3E%3C/svg%3E");
+    --fit-wave-top-white: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%201440%20120'%20preserveAspectRatio='none'%3E%3Cpath%20d='M0%200H1440V70Q720%20130%200%2070Z'%20fill='%23242824'/%3E%3C/svg%3E");
+    --fit-wave-bot-cream: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%201440%20120'%20preserveAspectRatio='none'%3E%3Cpath%20d='M0%2050Q720%20-10%201440%2050V120H0Z'%20fill='%231a1e1a'/%3E%3C/svg%3E");
+    --fit-wave-bot-white: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%201440%20120'%20preserveAspectRatio='none'%3E%3Cpath%20d='M0%2050Q720%20-10%201440%2050V120H0Z'%20fill='%23242824'/%3E%3C/svg%3E");
+  }
+}
+
+:root[data-theme="dark"] {
+  --fit-wave-top-cream: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%201440%20120'%20preserveAspectRatio='none'%3E%3Cpath%20d='M0%200H1440V70Q720%20130%200%2070Z'%20fill='%231a1e1a'/%3E%3C/svg%3E");
+  --fit-wave-top-white: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%201440%20120'%20preserveAspectRatio='none'%3E%3Cpath%20d='M0%200H1440V70Q720%20130%200%2070Z'%20fill='%23242824'/%3E%3C/svg%3E");
+  --fit-wave-bot-cream: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%201440%20120'%20preserveAspectRatio='none'%3E%3Cpath%20d='M0%2050Q720%20-10%201440%2050V120H0Z'%20fill='%231a1e1a'/%3E%3C/svg%3E");
+  --fit-wave-bot-white: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%201440%20120'%20preserveAspectRatio='none'%3E%3Cpath%20d='M0%2050Q720%20-10%201440%2050V120H0Z'%20fill='%23242824'/%3E%3C/svg%3E");
+}
+
 /* Header is NOT inside .fit-page, so .fit-page .site-header won't hit.
    Use :has() to scope the header to this page. */
 body:has(.fit-page) {

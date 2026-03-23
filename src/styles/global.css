@@ -495,7 +495,7 @@ a:focus {
 /* Reveal end-state text color */
 .site-nav__cta-item > a.site-header__cta:hover,
 .site-nav__cta-item > a.site-header__cta:focus {
-  color: var(--ink);
+  color: var(--text-strong);
   text-decoration: none;
 }
 
