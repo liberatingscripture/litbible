@@ -22,7 +22,8 @@
 
 .lsc-hero {
   text-align: center;
-  margin-bottom: clamp(3rem, 6vw, 4.5rem);
+  margin-bottom: 0;
+  padding-bottom: 0;
 }
 
 /* Logo (single use on page) */
@@ -72,7 +73,9 @@
 }
 
 .lsc-actions__hint {
-  margin: 0.9rem auto 0;
+  margin: 0.4rem auto 0;
+  margin-bottom: 0;
+  padding-bottom: 0;
   max-width: 58ch;
   font-size: 0.98rem;
   line-height: 1.6;
@@ -114,7 +117,11 @@
    ========================================================= */
 
 .lsc-section {
-  margin-top: clamp(3.2rem, 6vw, 4.5rem);
+  margin-top: clamp(2.5rem, 5vw, 3.5rem);
+}
+
+.lsc-content > .lsc-section:first-child {
+  margin-top: 1.75rem;
 }
 
 .lsc-section h2 {
@@ -329,7 +336,7 @@
 }
 
 /* =========================================================
-   “Brief” cards for the moving carousel
+   "Brief" cards for the moving carousel
    ========================================================= */
 
 .lsc-card--brief {
