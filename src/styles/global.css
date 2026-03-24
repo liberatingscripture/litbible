@@ -511,61 +511,6 @@ a:focus {
   gap: 8px;
 }
 
-/* ---------- Theme toggle ---------- */
-.site-header__theme-toggle {
-  width: 40px;
-  height: 40px;
-  padding: 0;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  background: transparent;
-  color: var(--text);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: color 180ms ease;
-}
-
-.site-header__theme-toggle:hover {
-  color: var(--link);
-}
-
-.site-header__theme-toggle svg {
-  width: 22px;
-  height: 22px;
-}
-
-/* Show sun icon in light mode, moon icon in dark mode */
-.theme-icon--dark {
-  display: none;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .theme-icon--light {
-    display: none;
-  }
-  :root:not([data-theme="light"]) .theme-icon--dark {
-    display: block;
-  }
-}
-
-:root[data-theme="dark"] .theme-icon--light {
-  display: none;
-}
-
-:root[data-theme="dark"] .theme-icon--dark {
-  display: block;
-}
-
-:root[data-theme="light"] .theme-icon--light {
-  display: block;
-}
-
-:root[data-theme="light"] .theme-icon--dark {
-  display: none;
-}
-
 /* =========================================================
    Hamburger toggle — tile matches page background
    + morphs into X when overlay open
