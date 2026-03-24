@@ -2,7 +2,6 @@
 import Layout from "../layouts/Layout.astro";
 import "../styles/pages/liberating-scripture-collective.css";
 
-// If your component lives elsewhere, adjust path:
 import CardCarousel from "../components/CardCarousel.astro";
 ---
 
@@ -16,7 +15,6 @@ import CardCarousel from "../components/CardCarousel.astro";
     <header class="lsc-hero">
       <p class="eyebrow">An initiative rooted in the LIT Bible</p>
 
-      <!-- LSC logo (single use on this page) -->
       <img
         class="lsc-logo lsc-logo--hero"
         src="/images/lsc-logo-text.png"
@@ -30,283 +28,256 @@ import CardCarousel from "../components/CardCarousel.astro";
       <h1 class="sr-only">Liberating Scripture Collective</h1>
 
       <p class="lede">
-        Liberating Scripture Collective (LSC) is the organization founded by
-        Brandon Vélez Johnson to support the Liberation and Inclusion
-        Translation (LIT) and build the wider ecosystem around it.
+        The Liberating Scripture Collective creates open-access, trauma-informed
+        translation, learning resources, and pathways of spiritual support that
+        serve liberation, healing, and belonging.
       </p>
 
       <p class="lede">
-        The Collective creates open-access, trauma-informed translation,
-        learning resources, and pathways of spiritual support that serve
-        liberation, healing, and belonging.
+        The Collective was founded by Brandon Vélez Johnson to support the
+        Liberation and Inclusion Translation (LIT) and build the wider ecosystem
+        around it.
       </p>
 
       <div class="lsc-actions" aria-label="Primary actions">
-        <a class="button button--primary" href="/support/#donate"> Donate </a>
-
-        <a
-          class="button"
-          href="https://liberatingscripture.org/"
-          rel="noopener"
+        <a class="button button--primary" href="/support/#donate">Donate</a>
+        <a class="button" href="https://liberatingscripture.org/" rel="noopener"
+          >Visit liberatingscripture.org</a
         >
-          Visit liberatingscripture.org
-        </a>
-
-        <a class="button" href="/support/"> Get involved </a>
+        <a class="button" href="/support/">Get involved</a>
       </div>
-
-      <p class="lsc-actions__hint">
-        “Get involved” can mean offering feedback, collaborating on resources,
-        or helping build sustainable support for the work.
-      </p>
     </header>
 
-    <!-- BODY -->
-    <div class="lsc-content">
-      <section id="what-lsc-is" class="lsc-section">
-        <h2>What LSC is</h2>
+    <p class="lsc-actions__hint">
+      "Get involved" can mean offering feedback, collaborating on resources, or
+      helping build sustainable support for the work.
+    </p>
+  </div>
 
-        <p>
-          The Collective is the umbrella organization that holds the Liberation
-          and Inclusion Translation and extends it into teaching, public
-          conversation, and practical support. Think of LIT as the translation
-          work, and the Collective as the organization building the ecosystem
-          around it.
-        </p>
+  <!-- BODY -->
+  <div class="lsc-content">
+    <section id="who-we-are" class="lsc-section">
+      <h2>Who We Are</h2>
 
-        <p>
-          The Collective exists because translation is never “just text.” It
-          becomes teaching, practice, community, accountability, and care. The
-          Collective is designed to make scripture more transparent, more honest
-          about power, and less likely to be used as a tool of harm.
-        </p>
-      </section>
+      <p>
+        We guide the Liberation and Inclusion Translation and extend it into
+        teaching, public conversation, and practical support.
+      </p>
 
-      <section id="why-it-exists" class="lsc-section">
-        <h2>Why it exists</h2>
+      <p>
+        Translation is never "just text." The word, its conversation, is always
+        trying to become flesh. It becomes teaching, practice, community,
+        accountability, and care. We smooth the journey between translation and
+        faithful, responsive hearing: making scripture more transparent, more
+        honest about power, and less likely to be used as a tool of harm.
+      </p>
+    </section>
 
-        <p>
-          Many people were taught to treat the Bible as a weapon, a test, or a
-          loyalty pledge. The Collective exists to make a different kind of
-          engagement possible, one grounded in consent, context, and the dignity
-          of real human lives.
-        </p>
+    <section id="why-it-exists" class="lsc-section">
+      <h2>Why it exists</h2>
 
-        <p>
-          The aim is not to create a “safe” Bible by sanding down hard texts.
-          The aim is honesty, transparency, and a liberating ethic, so readers
-          can actually see what the text is doing, how it has been interpreted,
-          and what kinds of communities it tends to produce.
-        </p>
-      </section>
+      <p>
+        Many were taught to treat the Bible as a weapon, a test, or a loyalty
+        pledge. The Collective exists to make a different kind of engagement
+        possible, one grounded in consent, context, and the dignity of real
+        human lives. More incarnational than authoritarian.
+      </p>
 
-      <!-- WHAT WE MAKE -->
-      <section id="what-we-make" class="lsc-section">
-        <h2>What we make</h2>
+      <p>
+        We're not here to make a "safe" Bible by sanding down hard texts. Our
+        aim is honesty, transparency, and a liberating ethic, so readers can
+        actually see what the text is doing, how it has been interpreted, and
+        what kinds of communities it tends to produce.
+      </p>
+    </section>
 
-        <div class="lsc-breakout">
-          <CardCarousel ariaLabel="What we make carousel" intervalMs={3200}>
-            <article class="lsc-card lsc-card--brief">
-              <h3>
-                <a class="lsc-card__link" href="#make-translation">
-                  Open-access translation
-                </a>
-              </h3>
-              <p class="lsc-card__brief">
-                A trauma-informed, liberationist translation designed to be
-                readable, teachable, and auditable.
-              </p>
-            </article>
+    <!-- OUR COMMITMENTS AND GOALS -->
+    <section id="our-commitments" class="lsc-section">
+      <h2>Our Commitments and Goals</h2>
 
-            <article class="lsc-card lsc-card--brief">
-              <h3>
-                <a class="lsc-card__link" href="#make-courses">
-                  Courses and learning resources
-                </a>
-              </h3>
-              <p class="lsc-card__brief">
-                Practical tools, study guides, and short courses for reading
-                scripture with context and care.
-              </p>
-            </article>
-
-            <article class="lsc-card lsc-card--brief">
-              <h3>
-                <a class="lsc-card__link" href="#make-podcasts">
-                  Podcasts and public teaching
-                </a>
-              </h3>
-              <p class="lsc-card__brief">
-                Conversations about translation, theology, liberation, and
-                spiritual practice with guests and collaborators.
-              </p>
-            </article>
-
-            <article class="lsc-card lsc-card--brief">
-              <h3>
-                <a class="lsc-card__link" href="#make-support">
-                  Conduits to spiritual support
-                </a>
-              </h3>
-              <p class="lsc-card__brief">
-                Curated pathways to consent-based, trauma-aware spiritual
-                companionship and care.
-              </p>
-            </article>
-
-            <article class="lsc-card lsc-card--brief">
-              <h3>
-                <a class="lsc-card__link" href="#make-community">
-                  A collaborative community
-                </a>
-              </h3>
-              <p class="lsc-card__brief">
-                An invitation to co-create, critique, and steward resources with
-                real accountability.
-              </p>
-            </article>
-
-            <article class="lsc-card lsc-card--brief">
-              <h3>
-                <a class="lsc-card__link" href="#make-access">
-                  Non-commercial access
-                </a>
-              </h3>
-              <p class="lsc-card__brief">
-                Core resources stay free online, with sustainability pursued
-                without paywalls or extraction.
-              </p>
-            </article>
-          </CardCarousel>
-        </div>
-
-        <div class="lsc-details" aria-label="What we make details">
-          <article id="make-translation" class="lsc-detail">
-            <h3>Open-access translation</h3>
-            <p>
-              The LIT Bible is a trauma-informed, liberationist translation
-              approach that prioritizes clarity, transparency, and
-              accountability to the source text.
-            </p>
-            <p>
-              It is built to be readable, teachable, and auditable, so readers
-              can understand not only what the text says, but why translation
-              decisions were made.
+      <div class="lsc-breakout">
+        <CardCarousel
+          ariaLabel="Our commitments and goals carousel"
+          intervalMs={3200}
+        >
+          <article class="lsc-card lsc-card--brief">
+            <h3>
+              <a class="lsc-card__link" href="#make-access">
+                Non-commercial access
+              </a>
+            </h3>
+            <p class="lsc-card__brief">
+              Core resources stay free online, with sustainability pursued
+              without paywalls or extraction.
             </p>
           </article>
 
-          <article id="make-courses" class="lsc-detail">
-            <h3>Courses and learning resources</h3>
-            <p>
-              Short courses, study guides, reading companions, and practical
-              tools to help people engage scripture with context, care, and
-              critical honesty.
-            </p>
-            <p>
-              The goal is accessible formation, not gatekeeping, giving people
-              handles for reading well without needing a seminary degree.
+          <article class="lsc-card lsc-card--brief">
+            <h3>
+              <a class="lsc-card__link" href="#make-community">
+                A collaborative community
+              </a>
+            </h3>
+            <p class="lsc-card__brief">
+              An invitation to co-create, critique, and steward resources with
+              real accountability.
             </p>
           </article>
 
-          <article id="make-podcasts" class="lsc-detail">
-            <h3>Podcasts and public teaching</h3>
-            <p>
+          <article class="lsc-card lsc-card--brief">
+            <h3>
+              <a class="lsc-card__link" href="#make-translation">
+                Open-access translation
+              </a>
+            </h3>
+            <p class="lsc-card__brief">
+              A trauma-informed, liberationist translation designed to be
+              readable, teachable, and auditable.
+            </p>
+          </article>
+
+          <article class="lsc-card lsc-card--brief">
+            <h3>
+              <a class="lsc-card__link" href="#make-courses">
+                Courses and learning resources
+              </a>
+            </h3>
+            <p class="lsc-card__brief">
+              Practical tools, study guides, and short courses for reading
+              scripture with context and care.
+            </p>
+          </article>
+
+          <article class="lsc-card lsc-card--brief">
+            <h3>
+              <a class="lsc-card__link" href="#make-podcasts">
+                Podcasts and public teaching
+              </a>
+            </h3>
+            <p class="lsc-card__brief">
               Conversations about translation, theology, liberation, and
-              spiritual practice, with guests and collaborators who bring rigor
-              and lived experience.
-            </p>
-            <p>
-              This is where the “why” becomes audible, and where the community
-              of interpreters becomes visible.
+              spiritual practice with guests and collaborators.
             </p>
           </article>
 
-          <article id="make-support" class="lsc-detail">
-            <h3>Conduits to spiritual support</h3>
-            <p>
-              Curated pathways to aligned spiritual companionship and care,
-              aimed at helping people find consent-based, trauma-aware support.
-            </p>
-            <p>
-              This is not about funneling people into institutions. It is about
-              helping people find safe, fitting forms of support for their
-              actual lives.
-            </p>
-          </article>
-
-          <article id="make-community" class="lsc-detail">
-            <h3>A collaborative community</h3>
-            <p>
-              The Collective invites people into the work through feedback,
-              conversation, and partnership, because liberating scripture is not
-              a solo project.
-            </p>
-            <p>
-              Collaboration can include readers, scholars, practitioners,
-              artists, and people with lived experience whose insight has been
-              ignored by “official” interpreters.
+          <article class="lsc-card lsc-card--brief">
+            <h3>
+              <a class="lsc-card__link" href="#make-support">
+                Conduits to spiritual support
+              </a>
+            </h3>
+            <p class="lsc-card__brief">
+              Curated pathways to consent-based, trauma-aware spiritual
+              companionship and care.
             </p>
           </article>
+        </CardCarousel>
+      </div>
 
-          <article id="make-access" class="lsc-detail">
-            <h3>Non-commercial access</h3>
-            <p>
-              The core resources remain freely accessible online. Sustainability
-              is pursued without locking the work behind paywalls.
-            </p>
-            <p>
-              Financial support, when needed, is aimed at infrastructure and
-              longevity, not extraction.
-            </p>
-          </article>
-        </div>
-      </section>
+      <div class="lsc-details" aria-label="Our commitments and goals details">
+        <article id="make-translation" class="lsc-detail">
+          <h3>Open-access translation</h3>
+          <p>
+            The LIT Bible is a trauma-informed, liberationist translation
+            approach that prioritizes clarity, transparency, and accountability
+            to the source text.
+          </p>
+          <p>
+            It's built to be readable, teachable, and auditable, so readers can
+            understand not only what the text says, but why translation
+            decisions were made.
+          </p>
+        </article>
 
-      <section id="what-it-is-not" class="lsc-section">
-        <h2>What LSC is not</h2>
+        <article id="make-courses" class="lsc-detail">
+          <h3>Courses and learning resources</h3>
+          <p>
+            Short courses, study guides, reading companions, and practical tools
+            to help people engage scripture with context, care, and critical
+            honesty.
+          </p>
+          <p>
+            The goal is accessible formation, not gatekeeping — giving people
+            handles for reading well without needing a seminary degree.
+          </p>
+        </article>
 
-        <ul class="lsc-list">
-          <li>
-            <strong>Not a church:</strong> The Collective does not exist to control
-            belief, membership, or religious identity.
-          </li>
-          <li>
-            <strong>Not a paywall:</strong> The core work is not locked behind subscriptions
-            or donor tiers.
-          </li>
-          <li>
-            <strong>Not a single-person brand forever:</strong> Brandon founded LSC,
-            but the long-term aim is a shared community of accountability, collaboration,
-            and stewardship.
-          </li>
-        </ul>
-      </section>
+        <article id="make-podcasts" class="lsc-detail">
+          <h3>Podcasts and public teaching</h3>
+          <p>
+            Conversations about translation, theology, liberation, and spiritual
+            practice, with guests and collaborators who bring rigor and lived
+            experience.
+          </p>
+          <p>
+            This is where the "why" becomes audible, and where the community of
+            interpreters becomes visible.
+          </p>
+        </article>
 
-      <section id="connect" class="lsc-section">
-        <h2>How to connect</h2>
+        <article id="make-support" class="lsc-detail">
+          <h3>Conduits to spiritual support</h3>
+          <p>
+            Curated pathways to aligned spiritual companionship and care, aimed
+            at helping people find consent-based, trauma-aware support.
+          </p>
+          <p>
+            This isn't about funneling people into institutions. It's about
+            helping people find safe, fitting forms of support for their actual
+            lives.
+          </p>
+        </article>
 
-        <p>
-          If you want to collaborate, support the work, or track what’s
-          launching next, start here:
-        </p>
+        <article id="make-community" class="lsc-detail">
+          <h3>A collaborative community</h3>
+          <p>
+            The Collective invites people into the work through feedback,
+            conversation, and partnership, because liberating scripture is not a
+            solo project.
+          </p>
+          <p>
+            Collaboration can include readers, scholars, practitioners, artists,
+            and people with lived experience whose insight has been ignored by
+            "official" interpreters.
+          </p>
+        </article>
 
-        <div class="lsc-actions" aria-label="Connection links">
-          <a class="button button--primary" href="/support/"> Get involved </a>
-          <a class="button" href="/support/#donate"> Donate </a>
-          <a
-            class="button"
-            href="https://liberatingscripture.org/contact"
-            rel="noopener"
-          >
-            Contact (liberatingscripture.org)
-          </a>
-        </div>
+        <article id="make-access" class="lsc-detail">
+          <h3>Non-commercial access</h3>
+          <p>
+            The core resources remain freely accessible online. Sustainability
+            is pursued without locking the work behind paywalls.
+          </p>
+          <p>
+            Financial support, when needed, is aimed at infrastructure and
+            longevity, not extraction.
+          </p>
+        </article>
+      </div>
+    </section>
 
-        <p class="fineprint">
-          LSC is in active development. This page will evolve as projects launch
-          and collaboration pathways become clearer.
-        </p>
-      </section>
-    </div>
+    <section id="connect" class="lsc-section">
+      <h2>How to connect</h2>
+
+      <p>
+        If you want to collaborate, support the work, or track what's launching
+        next, start here:
+      </p>
+
+      <div class="lsc-actions" aria-label="Connection links">
+        <a class="button button--primary" href="/support/">Get involved</a>
+        <a class="button" href="/support/#donate">Donate</a>
+        <a
+          class="button"
+          href="https://liberatingscripture.org/contact"
+          rel="noopener">Contact (liberatingscripture.org)</a
+        >
+      </div>
+    </section>
+
+    <p class="fineprint">
+      LSC is in active development. This page will evolve as projects launch and
+      collaboration pathways become clearer.
+    </p>
   </div>
 </Layout>
