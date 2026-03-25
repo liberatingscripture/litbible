@@ -404,6 +404,19 @@ body:has(.fit-page) .site-header.has-bg {
   margin: 0 0 14px;
 }
 
+.fit-ep__date {
+  display: inline;
+  font-size: 0.85em;
+  font-weight: normal;
+  color: var(--color-ink-muted, #777);
+  margin-inline-start: 0.5em;
+}
+
+.fit-ep__date::before {
+  content: "·";
+  margin-inline-end: 0.5em;
+}
+
 /* Sub-links list (hollow circle bullets) */
 .fit-ep__links {
   margin: 0;

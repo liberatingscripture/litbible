@@ -1,22 +1,44 @@
 ---
-import { fetchEpisodes } from '../lib/fetchPodcastEpisodes';
+import { fetchEpisodes } from "../lib/fetchPodcastEpisodes";
 
 const episodes = await fetchEpisodes();
 ---
 
 <ul class="fit-ep-list" role="list">
-  {episodes.map((ep) => (
-    <li class="fit-ep">
-      <h3 class="fit-ep__title">{ep.title}</h3>
-      <ul class="fit-ep__links" role="list">
-        {ep.links.map((link) =>
-          link.external ? (
-            <li><a href={link.url} target="_blank" rel="noopener">{link.label}</a></li>
-          ) : (
-            <li><a href={link.url}>{link.label}</a></li>
-          )
-        )}
-      </ul>
-    </li>
-  ))}
+  {
+    episodes.map((ep) => (
+      <li class="fit-ep">
+        <h3 class="fit-ep__title">
+          {ep.title}
+          {ep.pubDate && !isNaN(new Date(ep.pubDate).getTime()) && (
+            <time
+              class="fit-ep__date"
+              datetime={new Date(ep.pubDate).toISOString().slice(0, 10)}
+            >
+              {new Date(ep.pubDate).toLocaleDateString("en-US", {
+                month: "long",
+                day: "numeric",
+                year: "numeric",
+              })}
+            </time>
+          )}
+        </h3>
+        <ul class="fit-ep__links" role="list">
+          {ep.links.map((link) =>
+            link.external ? (
+              <li>
+                <a href={link.url} target="_blank" rel="noopener">
+                  {link.label}
+                </a>
+              </li>
+            ) : (
+              <li>
+                <a href={link.url}>{link.label}</a>
+              </li>
+            ),
+          )}
+        </ul>
+      </li>
+    ))
+  }
 </ul>

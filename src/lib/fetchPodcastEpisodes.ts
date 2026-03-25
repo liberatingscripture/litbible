@@ -205,7 +205,7 @@ export async function fetchEpisodes(): Promise<Episode[]> {
 
     const season = extractTag(item, 'itunes:season').trim() || undefined;
     const episode = extractTag(item, 'itunes:episode').trim() || undefined;
-    const pubDate = extractTag(item, 'pubDate').trim();
+    const pubDate = unescapeHtml(extractTag(item, 'pubDate').trim());
 
     const contentEncoded = extractTag(item, 'content:encoded');
     const description = extractTag(item, 'description');
