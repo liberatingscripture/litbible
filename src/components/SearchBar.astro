@@ -390,6 +390,14 @@ const baseUrl = import.meta.env.BASE_URL || "/";
           return true;
         }
 
+        function acceptCompletion() {
+          const accepted = acceptGhostIfAny();
+          if (!accepted) return false;
+          input.focus();
+          input.dispatchEvent(new Event("input", { bubbles: true }));
+          return true;
+        }
+
         async function loadTopicsOnce() {
           if (topicsLoaded) return;
           topicsLoaded = true;
@@ -1896,7 +1904,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
             !e.altKey
           ) {
             if (document.activeElement === input && caretIsAtEnd()) {
-              const accepted = acceptGhostIfAny();
+              const accepted = acceptCompletion();
               if (accepted) {
                 e.preventDefault();
                 const q = input.value.trim();
@@ -1923,6 +1931,63 @@ const baseUrl = import.meta.env.BASE_URL || "/";
           e.preventDefault();
           submitSearch();
         });
+
+        // --------------------------------------------------
+        // Option C — tap ghost-rest span to accept completion
+        // --------------------------------------------------
+        if (ghostRest) {
+          ghostRest.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const accepted = acceptCompletion();
+            if (accepted) {
+              const q = input.value.trim();
+              if (
+                q.length >= MIN_QUERY_LEN ||
+                parseReference(q) ||
+                parseBookOnly(q)
+              )
+                runSearch(q);
+            }
+          });
+        }
+
+        // --------------------------------------------------
+        // Option A — swipe right on input to accept completion
+        // --------------------------------------------------
+        const SWIPE_THRESHOLD_PX = 40;
+        const SWIPE_AXIS_RATIO = 1.5;
+
+        let swipeStartX = 0;
+        let swipeStartY = 0;
+
+        input.addEventListener("touchstart", (e) => {
+          const t = e.changedTouches[0];
+          swipeStartX = t.clientX;
+          swipeStartY = t.clientY;
+        }, { passive: true });
+
+        input.addEventListener("touchend", (e) => {
+          if (ghost && !ghost.hidden) {
+            const t = e.changedTouches[0];
+            const dx = t.clientX - swipeStartX;
+            const dy = Math.abs(t.clientY - swipeStartY);
+            if (
+              dx >= SWIPE_THRESHOLD_PX &&
+              dx / (dy || 1) >= SWIPE_AXIS_RATIO
+            ) {
+              const accepted = acceptCompletion();
+              if (accepted) {
+                const q = input.value.trim();
+                if (
+                  q.length >= MIN_QUERY_LEN ||
+                  parseReference(q) ||
+                  parseBookOnly(q)
+                )
+                  runSearch(q);
+              }
+            }
+          }
+        }, { passive: true });
 
         form.addEventListener("submit", (e) => {
           e.preventDefault();
@@ -1992,7 +2057,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
     bottom: 0;
     padding: 14px 16px;
     border-radius: 12px;
-    pointer-events: none;
+    pointer-events: none; /* ghost-typed is transparent; only ghost-rest needs events */
     user-select: none;
     overflow: hidden;
     font-size: 1rem;
@@ -2002,10 +2067,18 @@ const baseUrl = import.meta.env.BASE_URL || "/";
 
   .searchbar__ghost-typed {
     color: transparent;
+    pointer-events: none;
   }
 
   .searchbar__ghost-rest {
     color: rgba(var(--ink-rgb), 0.35);
+    pointer-events: auto;
+    cursor: pointer;
+    text-decoration: underline dotted rgba(var(--ink-rgb), 0.35);
+  }
+
+  .searchbar__ghost-rest:active {
+    color: rgba(var(--ink-rgb), 0.55);
   }
 
   .searchbar__submit {
