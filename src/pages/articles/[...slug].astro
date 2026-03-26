@@ -50,6 +50,7 @@ const dateLabel = data.date.toLocaleDateString("en-US", {
 });
 
 const heroImage = data.heroImage;
+const siteOrigin = "https://litbible.net";
 const tags: string[] = Array.isArray(data.tags) ? data.tags : [];
 function tagKey(t: string) {
   return String(t)
@@ -76,6 +77,7 @@ const indexTagsJoined = hyphensToSpacesForIndex(tags.join(", "));
   description={pageDescription}
   bg="cream"
   headerClass="site-header--green"
+  ogImage={heroImage ? `${siteOrigin}${heroImage}` : undefined}
 >
   <div class="article-shell">
     <div class="article-top">
