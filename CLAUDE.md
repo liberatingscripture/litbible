@@ -61,22 +61,20 @@ Each file in `src/data/chapters/` follows this structure:
   "description": "...",
   "topics": ["topic-slug"],
   "paragraphs": [
-    {
-      "type": "paragraph",
-      "content": "<span class=\"vn\" id=\"v1\">1</span> HTML text..."
-    }
+    "<p id=\"john-3-p1\"><span class=\"vglue\"><sup id=\"v1\" class=\"vn\">1</sup>&nbsp;There was a Pharisee..."
   ],
   "footnotes": [
     {
-      "id": "fn1",
-      "ref": "1",
-      "content": "Footnote text..."
+      "id": "fn-a",
+      "refId": "fnref-a",
+      "label": "a",
+      "html": "Footnote content as HTML string..."
     }
   ]
 }
 ```
 
-- **Verse numbers** are `<span class="vn" id="vN">N</span>` elements inline in paragraph content
+- **Verse numbers** are `<sup id="vN" class="vn">N</sup>` elements, always wrapped in `<span class="vglue"><sup...></sup>&nbsp;</span>` with the first word of the verse inside the same vglue span
 - **Topics** are slugs that map to `public/topics-index.json`
 - Run `npm run validate:chapters` after editing chapter JSON
 
@@ -95,7 +93,6 @@ Each file in `src/data/chapters/` follows this structure:
 | `src/data/books.js` | Source of truth for NT book list and chapter counts |
 | `src/pages/[slug].astro` | Dynamic scripture chapter pages |
 | `src/styles/global.css` | Main stylesheet (33KB) |
-| `scripts/validate-chapters.mjs` | Chapter JSON validator |
 | `scripts/build-topics-index.mjs` | Topic index generator |
 | `astro.config.mjs` | Astro configuration |
 | `pagefind.yml` | Search index config (excludes footnote refs) |
