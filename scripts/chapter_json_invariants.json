@@ -1,0 +1,9 @@
+{
+  "invariants": [
+    {
+      "id": "indexed_flag",
+      "rule": "Optional boolean field. Set to false on placeholder/stub chapters to suppress Pagefind indexing. Remove this field (do not set to true) when real content replaces the stub. The validator will warn if indexed:false is present on a chapter with real content.",
+      "severity": "high"
+    }
+  ]
+}

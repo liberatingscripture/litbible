@@ -1,6 +1,7 @@
 {
   "bookKey": "luke",
   "chapter": 21,
+  "indexed": false,
   "type": "scripture",
   "title": "Luke 21",
   "description": "Luke 21 in the Liberation and Inclusion Translation (LIT).",

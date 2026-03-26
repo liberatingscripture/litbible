@@ -1,6 +1,7 @@
 {
   "bookKey": "luke",
   "chapter": 14,
+  "indexed": false,
   "type": "scripture",
   "title": "Luke 14",
   "description": "Luke 14 in the Liberation and Inclusion Translation (LIT).",

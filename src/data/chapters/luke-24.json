@@ -1,6 +1,7 @@
 {
   "bookKey": "luke",
   "chapter": 24,
+  "indexed": false,
   "type": "scripture",
   "title": "Luke 24",
   "description": "Luke 24 in the Liberation and Inclusion Translation (LIT).",

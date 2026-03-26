@@ -1,6 +1,7 @@
 {
   "bookKey": "luke",
   "chapter": 16,
+  "indexed": false,
   "type": "scripture",
   "title": "Luke 16",
   "description": "Luke 16 in the Liberation and Inclusion Translation (LIT).",

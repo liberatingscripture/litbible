@@ -1,6 +1,7 @@
 {
   "bookKey": "luke",
   "chapter": 22,
+  "indexed": false,
   "type": "scripture",
   "title": "Luke 22",
   "description": "Luke 22 in the Liberation and Inclusion Translation (LIT).",

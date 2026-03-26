@@ -115,7 +115,12 @@ if (headerKind === "chapter") {
                     aria-label={`Switch to Reading View for ${pagefindBook} ${headerChapter ?? 1}`}
                   >
                     <span class="reading-view-pill__icon" aria-hidden="true">
-                      ⟳
+                      <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none"
+                           stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                           stroke-linejoin="round" aria-hidden="true" focusable="false">
+                        <path d="M1 4v6h6"/>
+                        <path d="M3.51 15a9 9 0 1 0 .49-4.5"/>
+                      </svg>
                     </span>
                     <span>Switch to Reading View</span>
                   </a>
@@ -344,9 +349,10 @@ if (headerKind === "chapter") {
         transform: translateX(28px);
       }
 
-      /* “3D-ish” cycle glyph */
+      /* cycle icon */
       .reading-view-pill__icon {
-        display: inline-block;
+        display: inline-flex;
+        align-items: center;
         font-size: 1.08rem;
         line-height: 1;
 

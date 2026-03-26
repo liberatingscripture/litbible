@@ -1,6 +1,7 @@
 {
   "bookKey": "acts",
   "chapter": 1,
+  "indexed": false,
   "type": "scripture",
   "title": "Acts 1",
   "description": "Acts 1 in the Liberation and Inclusion Translation (LIT).",
