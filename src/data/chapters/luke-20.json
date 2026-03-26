@@ -1,6 +1,7 @@
 {
   "bookKey": "luke",
   "chapter": 20,
+  "indexed": false,
   "type": "scripture",
   "title": "Luke 20",
   "description": "Luke 20 in the Liberation and Inclusion Translation (LIT).",

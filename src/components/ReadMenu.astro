@@ -5,7 +5,7 @@ import { BOOKS as books } from "../data/books.js";
 <div class="read-menu-wrap">
   <form class="read-menu" data-books={JSON.stringify(books)} novalidate>
     <label for="book-select" class="sr-only">Select a New Testament book</label>
-    <select id="book-select" aria-label="Select a New Testament book">
+    <select id="book-select">
       <option value="">Select a Book</option>
       <option>Matthew</option>
       <option>Mark</option>
@@ -37,7 +37,7 @@ import { BOOKS as books } from "../data/books.js";
     </select>
 
     <label for="chapter-select" class="sr-only">Select a chapter</label>
-    <select id="chapter-select" aria-label="Select a chapter" disabled>
+    <select id="chapter-select" disabled>
       <option value="">Select a Chapter</option>
     </select>
 

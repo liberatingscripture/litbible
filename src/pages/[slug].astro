@@ -13,6 +13,7 @@ type Footnote = {
 type ChapterData = {
   bookKey?: string;
   chapter: number;
+  indexed?: boolean;
 
   // Optional meta (lets your JSON drive these instead of generic strings)
   type?: string;
@@ -211,6 +212,8 @@ const paragraphsRaw = Array.isArray(chapterData?.paragraphs)
   ? chapterData!.paragraphs
   : [];
 
+const shouldIndex = chapterData?.indexed !== false;
+
 const paragraphs = paragraphsRaw.map((html) =>
   addHbqAria(injectHyphenWordbreaks(normalizeHbqVerseGlue(normalizeVerseGlue(html)))),
 );
@@ -280,6 +283,7 @@ if (props.kind === "chapter") {
   chapter={props.kind === "chapter" ? props.chapter : "?"}
   type="scripture"
   topics={topics}
+  index={shouldIndex}
 >
   <Fragment slot="head">
     {/* Citation meta — helps academic crawlers and AI systems attribute the text */}

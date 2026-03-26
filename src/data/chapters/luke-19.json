@@ -1,6 +1,7 @@
 {
   "bookKey": "luke",
   "chapter": 19,
+  "indexed": false,
   "type": "scripture",
   "title": "Luke 19",
   "description": "Luke 19 in the Liberation and Inclusion Translation (LIT).",

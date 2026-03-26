@@ -1,4 +1,4 @@
-﻿// src/scripts/read-mode.js
+// src/scripts/read-mode.js
 
 const STORAGE = {
   markers: "lit_rm_markers",
