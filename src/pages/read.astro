@@ -38,9 +38,8 @@ const description =
     time for the latest version. Questions, comments, or insights?
     <a href="/contact" style="white-space:nowrap">Drop me a line</a>.
   </div>
-</ReadLayout>
 
-<section class="views-band" aria-labelledby="views-heading">
+  <section slot="bands" class="views-band" aria-labelledby="views-heading">
   <h2 id="views-heading" class="views-heading">Two ways to read</h2>
   <p class="views-lede">
     The LIT offers two ways to engage with the text, and you can switch between
@@ -71,7 +70,7 @@ const description =
   </div>
 </section>
 
-<section class="license-band" aria-labelledby="license-heading">
+<section slot="bands" class="license-band" aria-labelledby="license-heading">
   <div class="license-band__inner">
     <section
       id="license"
@@ -164,6 +163,7 @@ const description =
 </section>
 
 <section
+  slot="bands"
   id="sblgnt-disclaimer"
   class="scripture-disclaimer"
   aria-label="Source text and licensing notice"
@@ -205,3 +205,4 @@ const description =
     </p>
   </div>
 </section>
+</ReadLayout>
