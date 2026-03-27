@@ -33,6 +33,29 @@ const rest: ArticleEntry[] = featured
   bg="cream"
   headerClass="site-header--green"
 >
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      "name": "Articles | Liberation and Inclusion Translation",
+      "description": "Articles on translation, liberation, trauma-informed faith, and the Jesus way.",
+      "url": "https://litbible.net/articles/",
+      "isPartOf": { "@type": "WebSite", "name": "LIT Bible", "url": "https://litbible.net" },
+      "publisher": {
+        "@type": "Organization",
+        "name": "Liberating Scripture Collective",
+        "url": "https://liberatingscripture.org"
+      }
+    })} />
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://litbible.net/" },
+        { "@type": "ListItem", "position": 2, "name": "Articles", "item": "https://litbible.net/articles/" }
+      ]
+    })} />
+  </Fragment>
   <ArticlesHero>
     <div
       class="articles-hero-search"

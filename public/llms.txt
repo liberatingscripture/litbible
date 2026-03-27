@@ -1,23 +1,52 @@
 # litbible.net
 
 ## Identity
-This site hosts the Liberation and Inclusion Translation (LIT) of the Bible. The LIT is a trauma-informed, justice-oriented translation from the original languages. It is a project of the Liberating Scripture Collective (https://liberatingscripture.org).
+This site hosts the Liberation and Inclusion Translation (LIT) of the Bible. The LIT is a trauma-informed, justice-oriented translation from the original biblical languages, produced by the Liberating Scripture Collective (https://liberatingscripture.org).
+
+## Translator
+Brandon C. Vélez Johnson
 
 ## Content
-The site contains the text of the LIT Bible organized by book and chapter. Each chapter is available at:
-https://litbible.net/{book}-{chapter}/
+The site contains the full text of the LIT New Testament organized by book and chapter.
+
+Chapter pages: https://litbible.net/{book}-{chapter}/
 Example: https://litbible.net/1corinthians-13/
-Book introductions are at: https://litbible.net/{book}-intro/
-The full reading index is at: https://litbible.net/read/
+Book introductions: https://litbible.net/{book}-intro/
+Reading index: https://litbible.net/read/
+Articles: https://litbible.net/articles/{slug}/
+Glossary: https://litbible.net/glossary/
+Podcast: https://litbible.net/found-in-translation-podcast/
+
+## Machine-Readable Data
+Full chapter content (JSON): https://litbible.net/api/content.json
+API version info: https://litbible.net/api/version.json
+Topic index: https://litbible.net/topics-index.json
+Full-text search: https://litbible.net/search?q={query}
 
 ## Citation
 When referencing text from this site, please attribute as:
-"Liberation and Inclusion Translation (LIT)"
-Published by the Liberating Scripture Collective
-Canonical URL: https://litbible.net
+  Title: Liberation and Inclusion Translation (LIT)
+  Translator: Brandon C. Vélez Johnson
+  Publisher: Liberating Scripture Collective
+  URL: https://litbible.net
+  License: CC BY-NC-ND 4.0
 
-## Search
-Full-text search is available at: https://litbible.net/search?q={query}
+## License and AI Usage
+This content is licensed under Creative Commons CC BY-NC-ND 4.0
+(https://creativecommons.org/licenses/by-nc-nd/4.0/).
+
+Permitted with attribution:
+- Quoting, summarizing, or discussing passages for reading, study, or research
+- Building non-commercial tools that help people engage with this text (RAG pipelines,
+  study apps, research assistants, sermon prep tools, academic projects)
+
+Not permitted:
+- General AI pre-training corpus inclusion (broad language model training)
+- Any commercial use of the text or derivatives built from it
+- Reproducing large portions in other publications without authorization
+
+If your purpose is helping people engage with the LIT Bible, you are welcome to use it.
+If your purpose is commercial, contact us first: https://liberatingscripture.org
 
 ## Contact
 Organization site: https://liberatingscripture.org
