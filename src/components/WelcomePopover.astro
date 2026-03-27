@@ -16,9 +16,29 @@
       class="welcome-close"
       aria-label="Close welcome message"
     >
-      <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
-        <line x1="4" y1="4" x2="16" y2="16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-        <line x1="16" y1="4" x2="4" y2="16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 20 20"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <line
+          x1="4"
+          y1="4"
+          x2="16"
+          y2="16"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"></line>
+        <line
+          x1="16"
+          y1="4"
+          x2="4"
+          y2="16"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"></line>
       </svg>
     </button>
 
@@ -32,7 +52,9 @@
       />
     </div>
 
-    <h2 id="welcome-title" class="welcome-title">Welcome to the New LIT Bible</h2>
+    <h2 id="welcome-title" class="welcome-title">
+      Welcome to the new LIT Bible
+    </h2>
     <p class="welcome-subtitle">
       We've rebuilt the site from the ground up. Here's what's new:
     </p>
@@ -40,33 +62,60 @@
     <ul class="welcome-features" aria-label="New features">
       <li class="welcome-feature">
         <div class="welcome-feature-icon" aria-hidden="true">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="11" cy="11" r="7"/>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          <svg
+            width="22"
+            height="22"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle cx="11" cy="11" r="7"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
           </svg>
         </div>
         <div>
           <strong>Upgraded Search</strong>
-          <span>Full-text search across all 260 chapters of the New Testament, with instant results and direct verse navigation.</span>
+          <span
+            >Full-text search across all 260 chapters of the New Testament, with
+            instant results and direct verse navigation.</span
+          >
         </div>
       </li>
       <li class="welcome-feature">
         <div class="welcome-feature-icon" aria-hidden="true">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
-            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+          <svg
+            width="22"
+            height="22"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
           </svg>
         </div>
         <div>
           <strong>Reading View</strong>
-          <span>Read without distraction: adjustable text size, progress tracking, a focus mode that highlights one paragraph at a time, and the option to hide chapter and verse numbers entirely.</span>
+          <span
+            >Read without distraction: adjustable text size, progress tracking,
+            a focus mode that highlights one paragraph at a time, and the option
+            to hide chapter and verse numbers entirely.</span
+          >
         </div>
       </li>
     </ul>
 
     <div class="welcome-ctas">
       <a href="/read" class="welcome-cta-primary">Explore Reading View</a>
-      <a href="/read/matthew" class="welcome-cta-secondary">Start in Matthew 1</a>
+      <a href="/read/matthew" class="welcome-cta-secondary"
+        >Start in Matthew 1</a
+      >
     </div>
   </div>
 </dialog>
@@ -87,7 +136,7 @@
     border: none;
     border-radius: 12px;
     background: var(--surface-raised, #fff);
-    color: var(--text, #1D231C);
+    color: var(--text, #1d231c);
     width: min(600px, calc(100vw - 2.5rem));
     max-height: 90vh;
     overflow-y: auto;
@@ -95,7 +144,9 @@
     /* Entry animation */
     opacity: 0;
     transform: translateY(12px) scale(0.98);
-    transition: opacity 0.25s ease, transform 0.25s ease;
+    transition:
+      opacity 0.25s ease,
+      transform 0.25s ease;
   }
 
   .welcome-dialog[open] {
@@ -128,10 +179,12 @@
     border: none;
     border-radius: 50%;
     background: transparent;
-    color: var(--text, #1D231C);
+    color: var(--text, #1d231c);
     cursor: pointer;
     opacity: 0.6;
-    transition: opacity 0.15s, background 0.15s;
+    transition:
+      opacity 0.15s,
+      background 0.15s;
   }
 
   .welcome-close:hover,
@@ -164,7 +217,7 @@
   /* Subtitle */
   .welcome-subtitle {
     font-size: 1rem;
-    color: var(--text, #1D231C);
+    color: var(--text, #1d231c);
     opacity: 0.75;
     margin: 0 0 1.5rem 0;
   }
@@ -193,7 +246,7 @@
   .welcome-feature-icon {
     flex-shrink: 0;
     margin-top: 2px;
-    color: var(--green, #209D50);
+    color: var(--green, #209d50);
   }
 
   .welcome-feature div:last-child {
@@ -211,7 +264,7 @@
   .welcome-feature span {
     font-size: 0.9rem;
     line-height: 1.45;
-    color: var(--text, #1D231C);
+    color: var(--text, #1d231c);
     opacity: 0.8;
   }
 
@@ -237,8 +290,8 @@
   }
 
   .welcome-cta-primary {
-    background: var(--cta-bg, #1D231C);
-    color: var(--cta-text, #209D50);
+    background: var(--cta-bg, #1d231c);
+    color: var(--cta-text, #209d50);
   }
 
   .welcome-cta-secondary {
@@ -263,11 +316,15 @@
 
 <script>
   const COOKIE_NAME = "lit_welcome_v1";
-  const COOKIE_DAYS = 14;
+  const COOKIE_DAYS = 5;
 
   function getCookie(name: string): string | null {
     const match = document.cookie.match(
-      new RegExp("(?:^|; )" + name.replace(/([.*+?^=!:${}()|[\]/\\])/g, "\\$1") + "=([^;]*)")
+      new RegExp(
+        "(?:^|; )" +
+          name.replace(/([.*+?^=!:${}()|[\]/\\])/g, "\\$1") +
+          "=([^;]*)",
+      ),
     );
     return match ? decodeURIComponent(match[1]) : null;
   }
@@ -282,7 +339,9 @@
     dialog.close();
   }
 
-  const dialog = document.getElementById("welcome-popover") as HTMLDialogElement;
+  const dialog = document.getElementById(
+    "welcome-popover",
+  ) as HTMLDialogElement;
 
   if (dialog && !getCookie(COOKIE_NAME)) {
     // Show after a brief delay so the page renders first
@@ -292,7 +351,9 @@
   }
 
   // Close on X button
-  document.getElementById("welcome-close")?.addEventListener("click", dismissAndSet);
+  document
+    .getElementById("welcome-close")
+    ?.addEventListener("click", dismissAndSet);
 
   // Close on backdrop click (click lands on the <dialog> element itself, not .welcome-inner)
   dialog?.addEventListener("click", (e) => {
@@ -306,7 +367,11 @@
   });
 
   // CTA links close the popover and set cookie before navigating
-  dialog?.querySelectorAll(".welcome-cta-primary, .welcome-cta-secondary").forEach((link) => {
-    link.addEventListener("click", () => setCookie(COOKIE_NAME, "1", COOKIE_DAYS));
-  });
+  dialog
+    ?.querySelectorAll(".welcome-cta-primary, .welcome-cta-secondary")
+    .forEach((link) => {
+      link.addEventListener("click", () =>
+        setCookie(COOKIE_NAME, "1", COOKIE_DAYS),
+      );
+    });
 </script>
