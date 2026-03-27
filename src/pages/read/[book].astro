@@ -164,7 +164,7 @@ const description = `Read ${bookName} in continuous scroll with Reading Mode.`;
   >
     <div class="scripture-tools__inner">
       <div class="scripture-tools__left" aria-label="Jump to passage">
-        <ReadMenu />
+        <ReadMenu currentBook={bookKey} />
       </div>
       <div class="scripture-tools__center" aria-label="Search the LIT">
         <SearchBar fullSearchHref="/search" />

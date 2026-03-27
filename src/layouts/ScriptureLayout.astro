@@ -97,7 +97,7 @@ if (headerKind === "chapter") {
         >
           <div class="scripture-tools__inner">
             <div class="scripture-tools__left" aria-label="Jump to passage">
-              {showToolsReadMenu ? <ReadMenu /> : null}
+              {showToolsReadMenu ? <ReadMenu currentBook={pagefindBook} currentChapter={String(pagefindChapter)} /> : null}
             </div>
 
             <div class="scripture-tools__center" aria-label="Search the LIT">
@@ -339,6 +339,7 @@ if (headerKind === "chapter") {
 
         color: rgba(var(--ink-rgb), 0.68);
         text-decoration: none;
+        user-select: none;
 
         font-weight: 600;
         font-size: 0.92rem;
