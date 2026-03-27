@@ -13,4 +13,4 @@ So check back, real words will be there.
   </figcaption>
 </figure>
 
-<h2>This page is still in progress. All books except Acts and Revelation are currently availabe. Check back soon!</h2>
+<h2>This page is still in progress. All books except part of Luke and Acts and Revelation are currently availabe. Check back soon!</h2>
