@@ -154,11 +154,31 @@ import "../styles/pages/glossary.css";
               setOpen(!toc.classList.contains("is-open"));
             });
 
-            // Close after selection on mobile (optional, nice UX)
-            toc.addEventListener("change", () => {
-              if (window.matchMedia("(max-width: 760px)").matches)
+            // Close on tap outside (mobile only)
+            document.addEventListener("pointerdown", (e) => {
+              if (
+                window.matchMedia("(max-width: 900px)").matches &&
+                toc.classList.contains("is-open") &&
+                !toc.contains(e.target)
+              ) {
                 setOpen(false);
+              }
             });
+
+            // Close on scroll (mobile only)
+            let scrollTimer;
+            window.addEventListener("scroll", () => {
+              if (
+                window.matchMedia("(max-width: 900px)").matches &&
+                toc.classList.contains("is-open")
+              ) {
+                clearTimeout(scrollTimer);
+                scrollTimer = setTimeout(() => setOpen(false), 80);
+              }
+            }, { passive: true });
+
+            // Expose setOpen so the Go button handler can close the tray
+            toc._setOpen = setOpen;
           });
         </script>
 
@@ -270,7 +290,14 @@ import "../styles/pages/glossary.css";
 
             goButton.addEventListener("click", () => {
               const selectedWordUrl = wordSelect.value;
-              if (selectedWordUrl) window.location.href = selectedWordUrl;
+              if (selectedWordUrl) {
+                // Close tray on mobile before navigating
+                const toc = document.querySelector("[data-glossary-toc]");
+                if (toc?._setOpen && window.matchMedia("(max-width: 900px)").matches) {
+                  toc._setOpen(false);
+                }
+                window.location.href = selectedWordUrl;
+              }
             });
           });
         </script>
