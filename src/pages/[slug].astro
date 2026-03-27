@@ -133,7 +133,7 @@ function injectHyphenWordbreaks(html: string): string {
 function addHbqAria(html: string): string {
   return String(html ?? "").replace(
     /<blockquote\s+class="hbq"/g,
-    '<blockquote class="hbq" role="group" aria-label="Poetry"',
+    '<blockquote class="hbq" role="group" aria-label="Poetry" aria-describedby="hbq-description"',
   );
 }
 
@@ -288,8 +288,10 @@ if (props.kind === "chapter") {
   <Fragment slot="head">
     {/* Citation meta — helps academic crawlers and AI systems attribute the text */}
     <meta name="citation_title" content={`${bookName} ${chapterNumberLabel} — Liberation and Inclusion Translation`} />
+    <meta name="citation_author" content="Vélez Johnson, Brandon C." />
     <meta name="citation_publisher" content="Liberating Scripture Collective" />
     <meta name="citation_language" content="en" />
+    <meta name="citation_date" content="2024" />
     <meta name="citation_fulltext_world_readable" content="" />
     {chapterSlug && <meta name="citation_public_url" content={`https://litbible.net/${chapterSlug}/`} />}
 
@@ -299,6 +301,11 @@ if (props.kind === "chapter") {
         "@context": "https://schema.org",
         "@type": "Chapter",
         "name": `${bookName} ${chapterNumberLabel}`,
+        "translator": {
+          "@type": "Person",
+          "name": "Brandon C. Vélez Johnson",
+          "url": "https://litbible.net/about"
+        },
         "isPartOf": {
           "@type": "Book",
           "name": "Liberation and Inclusion Translation",
@@ -307,6 +314,11 @@ if (props.kind === "chapter") {
             "@type": "Organization",
             "name": "Liberating Scripture Collective",
             "url": "https://liberatingscripture.org"
+          },
+          "translator": {
+            "@type": "Person",
+            "name": "Brandon C. Vélez Johnson",
+            "url": "https://litbible.net/about"
           },
           "inLanguage": "en",
           "url": "https://litbible.net"
@@ -347,6 +359,8 @@ if (props.kind === "chapter") {
       </article>
     ) : (
       <article class="chapter">
+        {/* Hidden description for Hebrew poetry blockquotes referenced by aria-describedby */}
+        <div id="hbq-description" hidden>Formatted as Hebrew and Semitic poetry with indented parallel lines</div>
         {/* H1 is provided by <ScriptureHeader /> in ScriptureLayout */}
 
         {paragraphs.length ? (
@@ -653,6 +667,17 @@ if (props.kind === "chapter") {
 
     /* HBQ layout is shared from global.css for study/read parity */
   </style>
+
+  {/* Label footnote reference links in scripture text for screen readers */}
+  <script is:inline>
+    (() => {
+      document.querySelectorAll('.fn-ref a').forEach(function(a) {
+        if (!a.hasAttribute('aria-label')) {
+          a.setAttribute('aria-label', 'Footnote reference ' + (a.textContent || '').trim());
+        }
+      });
+    })();
+  </script>
 
   {/* Verse focus management: when arriving via anchor link (e.g. /1corinthians-13/#v8),
       move the screen reader's virtual cursor to the targeted verse element. */}

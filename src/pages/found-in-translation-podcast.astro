@@ -11,6 +11,37 @@ const coverImage = "/images/fit-cover.webp";
 <Layout
   title="Found in Translation Podcast | Liberation and Inclusion Translation"
 >
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "PodcastSeries",
+      "name": "Found in Translation",
+      "description": "Armchair bible banter for liberation and healing with Brandon Vélez Johnson and Brandon Rhodes.",
+      "url": "https://litbible.net/found-in-translation-podcast/",
+      "image": "https://litbible.net/images/fit-cover.webp",
+      "author": [
+        { "@type": "Person", "name": "Brandon C. Vélez Johnson", "url": "https://litbible.net/about" },
+        { "@type": "Person", "name": "Brandon Rhodes" }
+      ],
+      "publisher": {
+        "@type": "Organization",
+        "name": "Liberating Scripture Collective",
+        "url": "https://liberatingscripture.org"
+      },
+      "webFeed": [
+        { "@type": "DataFeed", "url": "https://podcasts.apple.com/us/podcast/found-in-translation/id1586737797" },
+        { "@type": "DataFeed", "url": "https://open.spotify.com/show/6S2wWaM5oqknwncPfOEyZ6" }
+      ]
+    })} />
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://litbible.net/" },
+        { "@type": "ListItem", "position": 2, "name": "Found in Translation Podcast", "item": "https://litbible.net/found-in-translation-podcast/" }
+      ]
+    })} />
+  </Fragment>
   <div class="fit-page">
     <!-- HERO -->
     <section class="fit-hero" aria-label="Found in Translation hero">

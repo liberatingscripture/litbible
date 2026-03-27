@@ -23,14 +23,14 @@ const dateLabel = data.date.toLocaleDateString("en-US", {
 ---
 
 <article class="card">
-  <a class="card__link" href={href}>
-    <div class="card__media" aria-hidden="true">
+  <a class="card__link" href={href} aria-label={data.title}>
+    <div class="card__media">
       {
         heroImage ? (
           <img
             class="card__img"
             src={heroImage}
-            alt=""
+            alt={data.title}
             loading="lazy"
             decoding="async"
           />
@@ -57,7 +57,7 @@ const dateLabel = data.date.toLocaleDateString("en-US", {
         )
       }
 
-      <span class="card__more">Read →</span>
+      <span class="card__more" aria-hidden="true">Read →</span>
     </div>
   </a>
 </article>

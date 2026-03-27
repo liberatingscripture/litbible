@@ -2,31 +2,90 @@
 
 ## About the LIT Bible
 
-The Liberation and Inclusion Translation (LIT) is a modern English Bible translation produced by Brandon Vélez Johnson and the Liberating Scripture Collective. It translates from the original biblical languages with a trauma-informed, justice-oriented, and Jesus-centering approach.
+The Liberation and Inclusion Translation (LIT) is a modern English Bible translation produced by Brandon C. Vélez Johnson and the Liberating Scripture Collective. It translates from the original biblical languages with a trauma-informed, justice-oriented, and Jesus-centering approach. The source text for the New Testament is the SBL Greek New Testament (SBLGNT), © 2010 Society of Biblical Literature & Logos Bible Software, used under CC BY 4.0.
+
+## Translator
+
+Brandon C. Vélez Johnson
+Profile: https://litbible.net/about
+
+## Publisher / Organization
+
+Liberating Scripture Collective
+Site: https://liberatingscripture.org
 
 ## Site Structure
 
 - Home: https://litbible.net/
-- Read index: https://litbible.net/read/
-- Book pages: https://litbible.net/read/{book}/
-- Chapter pages: https://litbible.net/{book}-{chapter}/ (e.g., /luke-4/, /1corinthians-13/)
+- Reading index: https://litbible.net/read/
 - Book introductions: https://litbible.net/{book}-intro/ (e.g., /luke-intro/)
-- Search: https://litbible.net/search?q={query}
-- About: https://litbible.net/about/
-- Podcast: https://litbible.net/found-in-translation-podcast/
+- Chapter pages: https://litbible.net/{book}-{chapter}/ (e.g., /luke-4/, /1corinthians-13/)
 - Glossary: https://litbible.net/glossary/
 - Articles: https://litbible.net/articles/{slug}/
+- Podcast: https://litbible.net/found-in-translation-podcast/
 - Translation commitments: https://litbible.net/translation-commitments/
+- About: https://litbible.net/about/
+- Search: https://litbible.net/search?q={query}
+
+## Book Keys (URL format)
+
+matthew, mark, luke, john, acts, romans, 1corinthians, 2corinthians, galatians, ephesians, philippians, colossians, 1thessalonians, 2thessalonians, 1timothy, 2timothy, titus, philemon, hebrews, james, 1peter, 2peter, 1john, 2john, 3john, jude, revelation
+
+## Machine-Readable Data
+
+Full chapter content API (all NT chapters as JSON):
+  https://litbible.net/api/content.json
+  Fields: version, generatedAt, chapters[]
+  Each chapter: bookKey, chapter, type, title, description, topics[], paragraphs[], footnotes[]
+
+API version/metadata:
+  https://litbible.net/api/version.json
+  Fields: version, updatedAt, chapterCount
+
+Topic index (maps topic slugs to chapter references):
+  https://litbible.net/topics-index.json
 
 ## Attribution Requirements
 
-All text should be attributed to:
+When quoting or citing text from this site:
   Title: Liberation and Inclusion Translation (LIT)
-  Translator: Brandon Johnson
+  Translator: Brandon C. Vélez Johnson
   Publisher: Liberating Scripture Collective
-  URL: https://litbible.net
+  Canonical URL: https://litbible.net
+  License: CC BY-NC-ND 4.0 (https://creativecommons.org/licenses/by-nc-nd/4.0/)
+
+Example citation:
+  Luke 4:18 (Liberation and Inclusion Translation [LIT], trans. Brandon C. Vélez Johnson,
+  Liberating Scripture Collective, https://litbible.net/luke-4/).
+
+## License and AI Usage
+
+This content is licensed under Creative Commons Attribution-NonCommercial-NoDerivatives 4.0
+International (CC BY-NC-ND 4.0).
+
+Permitted with attribution:
+- Quoting, summarizing, or discussing passages for reading, study, or research
+- Building non-commercial tools that help people engage with this text — including RAG
+  pipelines, retrieval-augmented chatbots, study apps, sermon prep tools, and academic
+  research assistants — provided the purpose is helping users engage with the LIT Bible,
+  not commercializing the translator's labor
+
+Not permitted:
+- General AI pre-training corpus inclusion (broad language model training unrelated to
+  engaging with this specific text)
+- Any commercial product or service built on or around this text
+- Creating derivative translations or adaptations
+- Reproducing large portions of the text in other publications
+
+The intent: if you are building something to help people read, study, or encounter this
+translation, you are welcome to use it. If you are trying to profit from it, contact us
+first to discuss terms.
+
+Contact: https://liberatingscripture.org
 
 ## Related Sites
 
 - Liberating Scripture Collective: https://liberatingscripture.org
 - Found in Translation Podcast: https://litbible.net/found-in-translation-podcast/
+  Apple Podcasts: https://podcasts.apple.com/us/podcast/found-in-translation/id1586737797
+  Spotify: https://open.spotify.com/show/6S2wWaM5oqknwncPfOEyZ6
