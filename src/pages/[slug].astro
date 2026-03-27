@@ -137,6 +137,36 @@ function addHbqAria(html: string): string {
   );
 }
 
+/**
+ * OSIS book abbreviation map (standard SBL/OSIS identifiers for the NT).
+ * Used to generate data-osis="Book.Chapter.Verse" on verse number elements.
+ */
+const OSIS_BOOKS: Record<string, string> = {
+  matthew: "Matt", mark: "Mark", luke: "Luke", john: "John", acts: "Acts",
+  romans: "Rom", "1corinthians": "1Cor", "2corinthians": "2Cor",
+  galatians: "Gal", ephesians: "Eph", philippians: "Phil", colossians: "Col",
+  "1thessalonians": "1Thess", "2thessalonians": "2Thess",
+  "1timothy": "1Tim", "2timothy": "2Tim", titus: "Titus", philemon: "Phlm",
+  hebrews: "Heb", james: "Jas", "1peter": "1Pet", "2peter": "2Pet",
+  "1john": "1John", "2john": "2John", "3john": "3John", jude: "Jude",
+  revelation: "Rev",
+};
+
+/**
+ * Inject data-osis="Book.Chapter.Verse" onto verse number <sup> elements.
+ * Only targets <sup id="vN" class="vn"> — footnote refs use a different structure.
+ */
+function addOsisIds(html: string, osisBook: string, chapter: number): string {
+  if (!osisBook || !chapter) return String(html ?? "");
+  return String(html ?? "").replace(
+    /<sup\b([^>]*)id="v(\d+)"([^>]*)>/g,
+    (match, before, verse, after) => {
+      if (match.includes("data-osis=")) return match;
+      return `<sup${before}id="v${verse}"${after} data-osis="${osisBook}.${chapter}.${verse}">`;
+    },
+  );
+}
+
 // This route only serves chapter pages now.
 // Keeping the union type is harmless, but we avoid touching intro-only fields.
 type StaticPath =
@@ -214,8 +244,11 @@ const paragraphsRaw = Array.isArray(chapterData?.paragraphs)
 
 const shouldIndex = chapterData?.indexed !== false;
 
+const osisBook = OSIS_BOOKS[normalizedBookKey] ?? "";
+const chapterNum = props.kind === "chapter" ? props.chapter : 0;
+
 const paragraphs = paragraphsRaw.map((html) =>
-  addHbqAria(injectHyphenWordbreaks(normalizeHbqVerseGlue(normalizeVerseGlue(html)))),
+  addOsisIds(addHbqAria(injectHyphenWordbreaks(normalizeHbqVerseGlue(normalizeVerseGlue(html)))), osisBook, chapterNum),
 );
 
 const footnotes = Array.isArray(chapterData?.footnotes)
