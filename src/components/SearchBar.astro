@@ -163,9 +163,11 @@ const baseUrl = import.meta.env.BASE_URL || "/";
         // -----------------------------
         const tipButtons = Array.from(root.querySelectorAll(".searchbar__tip"));
         let activeTip = null;
+        const lockedTips = new Set();
 
         function closeAllTips() {
           for (const b of tipButtons) b.dataset.tipOpen = "false";
+          lockedTips.clear();
           activeTip = null;
         }
 
@@ -214,32 +216,41 @@ const baseUrl = import.meta.env.BASE_URL || "/";
 
           btn.addEventListener("mouseenter", () => openTip(btn));
           btn.addEventListener("mouseleave", () => {
-            btn.dataset.tipOpen = "false";
-            if (activeTip === btn) activeTip = null;
+            if (!lockedTips.has(btn)) {
+              btn.dataset.tipOpen = "false";
+              if (activeTip === btn) activeTip = null;
+            }
           });
 
           btn.addEventListener("focus", () => openTip(btn));
           btn.addEventListener("blur", () => {
-            btn.dataset.tipOpen = "false";
-            if (activeTip === btn) activeTip = null;
+            if (!lockedTips.has(btn)) {
+              btn.dataset.tipOpen = "false";
+              if (activeTip === btn) activeTip = null;
+            }
           });
 
-          // Tap/click toggles (mobile friendly)
+          // Click locks open; second click closes
           btn.addEventListener("click", (e) => {
             e.preventDefault();
             e.stopPropagation();
-            if (btn.dataset.tipOpen === "true") {
+            if (lockedTips.has(btn)) {
+              lockedTips.delete(btn);
               btn.dataset.tipOpen = "false";
               if (activeTip === btn) activeTip = null;
             } else {
+              lockedTips.add(btn);
               openTip(btn);
             }
           });
         }
 
-        // Close tips when clicking elsewhere in this searchbar
+        // Close tips when clicking elsewhere
         root.addEventListener("click", (e) => {
           if (!e.target.closest(".searchbar__tip")) closeAllTips();
+        });
+        document.addEventListener("click", (e) => {
+          if (!root.contains(e.target)) closeAllTips();
         });
 
         window.addEventListener("resize", () => {

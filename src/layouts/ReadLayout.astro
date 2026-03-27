@@ -87,10 +87,10 @@ const {
         const tip = btn.querySelector(".read-layout__tooltip");
         if (!(tip instanceof HTMLElement)) continue;
 
-        let isOpen = false;
+        let isLocked = false;
 
         const close = () => {
-          isOpen = false;
+          isLocked = false;
           btn.dataset.tipOpen = "false";
         };
 
@@ -125,23 +125,22 @@ const {
         };
 
         const open = () => {
-          isOpen = true;
           btn.dataset.tipOpen = "true";
           requestAnimationFrame(position);
         };
 
         // Hover/focus for desktop
         btn.addEventListener("mouseenter", () => open());
-        btn.addEventListener("mouseleave", () => close());
+        btn.addEventListener("mouseleave", () => { if (!isLocked) close(); });
         btn.addEventListener("focus", () => open());
-        btn.addEventListener("blur", () => close());
+        btn.addEventListener("blur", () => { if (!isLocked) close(); });
 
-        // Tap/click toggle for mobile
+        // Click locks open; second click closes
         btn.addEventListener("click", (e) => {
           e.preventDefault();
           e.stopPropagation();
-          if (isOpen) close();
-          else open();
+          if (isLocked) close();
+          else { isLocked = true; open(); }
         });
 
         // Close on outside click
