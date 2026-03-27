@@ -81,12 +81,14 @@
   font-size: 0.84rem;
   color: rgba(var(--ink-rgb), 0.9);
   white-space: nowrap;
+  user-select: none;
 }
 
 .rm-page .rm-progress {
   font-size: 0.8rem;
   color: rgba(var(--ink-rgb), 0.78);
   white-space: nowrap;
+  user-select: none;
 }
 
 .rm-page .rm-toolbar__progress {
@@ -123,6 +125,7 @@
   font-size: 0.82rem;
   text-decoration: none;
   line-height: 1.1;
+  user-select: none;
 
   display: inline-flex;
   align-items: center;
@@ -225,6 +228,7 @@
   padding: 0;
   font-size: 0;
   line-height: 1;
+  user-select: none;
 
   box-shadow: 0 12px 22px rgba(0, 0, 0, 0.24);
   transition:
@@ -345,6 +349,7 @@ html.rm-tools-open {
   padding: 0.35rem 0.55rem;
   font-size: 0.82rem;
   line-height: 1.1;
+  user-select: none;
 }
 
 .rm-page .rm-resume button:hover {
@@ -695,6 +700,7 @@ html.rm-tools-open {
 .rm-page .rm-chapter {
   margin: 1.5rem 0 0.85rem;
   font-size: clamp(1.24rem, 2.4vw, 1.8rem);
+  user-select: none;
 }
 
 .rm-page .rm-text p {

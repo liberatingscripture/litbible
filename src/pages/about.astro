@@ -63,47 +63,6 @@ import "../styles/pages/about.css";
       </div>
     </nav>
 
-    <script>
-      (() => {
-        const toc = document.querySelector(".about-toc");
-        if (!toc) return;
-
-        const toggle = toc.querySelector(".about-toc__toggle");
-        const tray = toc.querySelector("#about-toc-tray");
-        const links = toc.querySelectorAll('a[href^="#"]');
-
-        // Type narrowing + safety
-        if (!(toggle instanceof HTMLButtonElement)) return;
-        if (!(tray instanceof HTMLElement)) return;
-
-        const openTray = () => {
-          toggle.setAttribute("aria-expanded", "true");
-          toc.classList.add("is-open");
-          tray.hidden = false;
-        };
-
-        const closeTray = () => {
-          toggle.setAttribute("aria-expanded", "false");
-          toc.classList.remove("is-open");
-          tray.hidden = true;
-        };
-
-        toggle.addEventListener("click", () => {
-          const isOpen = toggle.getAttribute("aria-expanded") === "true";
-          if (isOpen) closeTray();
-          else openTray();
-        });
-
-        links.forEach((a) => {
-          a.addEventListener("click", () => closeTray());
-        });
-
-        document.addEventListener("keydown", (e) => {
-          if (e.key === "Escape") closeTray();
-        });
-      })();
-    </script>
-
     {/* CONTENT: stacked sections */}
     <section class="about-body" aria-labelledby="about-translator">
       <h2 id="about-translator">About the translator</h2>
@@ -760,4 +719,45 @@ import "../styles/pages/about.css";
       <a href="#top">Back to top</a>
     </p>
   </article>
+
+  <script>
+    (() => {
+      const toc = document.querySelector(".about-toc");
+      if (!toc) return;
+
+      const toggle = toc.querySelector(".about-toc__toggle");
+      const tray = toc.querySelector("#about-toc-tray");
+      const links = toc.querySelectorAll('a[href^="#"]');
+
+      // Type narrowing + safety
+      if (!(toggle instanceof HTMLButtonElement)) return;
+      if (!(tray instanceof HTMLElement)) return;
+
+      const openTray = () => {
+        toggle.setAttribute("aria-expanded", "true");
+        toc.classList.add("is-open");
+        tray.hidden = false;
+      };
+
+      const closeTray = () => {
+        toggle.setAttribute("aria-expanded", "false");
+        toc.classList.remove("is-open");
+        tray.hidden = true;
+      };
+
+      toggle.addEventListener("click", () => {
+        const isOpen = toggle.getAttribute("aria-expanded") === "true";
+        if (isOpen) closeTray();
+        else openTray();
+      });
+
+      links.forEach((a) => {
+        a.addEventListener("click", () => closeTray());
+      });
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") closeTray();
+      });
+    })();
+  </script>
 </Layout>

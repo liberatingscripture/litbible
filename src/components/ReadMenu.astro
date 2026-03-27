@@ -1,9 +1,16 @@
 ---
 import { BOOKS as books } from "../data/books.js";
+const { currentBook = "", currentChapter = "" } = Astro.props;
 ---
 
 <div class="read-menu-wrap">
-  <form class="read-menu" data-books={JSON.stringify(books)} novalidate>
+  <form
+    class="read-menu"
+    data-books={JSON.stringify(books)}
+    data-current-book={currentBook || undefined}
+    data-current-chapter={currentChapter || undefined}
+    novalidate
+  >
     <label for="book-select" class="sr-only">Select a New Testament book</label>
     <select id="book-select">
       <option value="">Select a Book</option>
@@ -144,6 +151,20 @@ import { BOOKS as books } from "../data/books.js";
         const key = slugifyBook(bookSelect.value);
         setButtonsDisabled(!key);
       });
+
+      // Pre-select current book/chapter if provided via data attributes
+      const initBook = root.getAttribute("data-current-book");
+      const initChapter = root.getAttribute("data-current-chapter");
+      if (initBook) {
+        for (const opt of bookSelect.options) {
+          if (slugifyBook(opt.value) === initBook) {
+            bookSelect.value = opt.value;
+            break;
+          }
+        }
+        bookSelect.dispatchEvent(new Event("change"));
+        if (initChapter) chapterSelect.value = initChapter;
+      }
 
       const submitStudyFromKeyboard = (event) => {
         if (event.key !== "Enter") return;
