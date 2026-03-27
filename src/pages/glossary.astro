@@ -137,9 +137,16 @@ import "../styles/pages/glossary.css";
             const tray = toc.querySelector(".glossary-toc__tray");
             if (!btn || !tray) return;
 
+            let ignoreScroll = false;
             const setOpen = (open) => {
               toc.classList.toggle("is-open", open);
               btn.setAttribute("aria-expanded", open ? "true" : "false");
+              // Opening the tray shifts layout and can fire a spurious scroll event;
+              // ignore scroll-to-close for a brief window after opening.
+              if (open) {
+                ignoreScroll = true;
+                setTimeout(() => { ignoreScroll = false; }, 300);
+              }
             };
 
             const syncForViewport = () => {
@@ -169,12 +176,12 @@ import "../styles/pages/glossary.css";
             let scrollTimer;
             window.addEventListener("scroll", () => {
               if (
-                window.matchMedia("(max-width: 900px)").matches &&
-                toc.classList.contains("is-open")
-              ) {
-                clearTimeout(scrollTimer);
-                scrollTimer = setTimeout(() => setOpen(false), 80);
-              }
+                ignoreScroll ||
+                !window.matchMedia("(max-width: 900px)").matches ||
+                !toc.classList.contains("is-open")
+              ) return;
+              clearTimeout(scrollTimer);
+              scrollTimer = setTimeout(() => setOpen(false), 80);
             }, { passive: true });
 
             // Expose setOpen so the Go button handler can close the tray
