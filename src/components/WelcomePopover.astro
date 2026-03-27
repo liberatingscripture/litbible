@@ -1,0 +1,312 @@
+---
+// WelcomePopover — shown once per 2-week period on first landing.
+// Cookie: lit_welcome_v1 (14-day expiry). Remove style="display:none" to force-show.
+---
+
+<dialog
+  id="welcome-popover"
+  class="welcome-dialog"
+  aria-labelledby="welcome-title"
+  aria-modal="true"
+>
+  <div class="welcome-inner">
+    <button
+      type="button"
+      id="welcome-close"
+      class="welcome-close"
+      aria-label="Close welcome message"
+    >
+      <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+        <line x1="4" y1="4" x2="16" y2="16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <line x1="16" y1="4" x2="4" y2="16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </button>
+
+    <div class="welcome-logo">
+      <img
+        src="/images/lit-logo.png"
+        alt="Liberation and Inclusion Translation logo"
+        width="72"
+        height="72"
+        loading="eager"
+      />
+    </div>
+
+    <h2 id="welcome-title" class="welcome-title">Welcome to the New LIT Bible</h2>
+    <p class="welcome-subtitle">
+      We've rebuilt the site from the ground up. Here's what's new:
+    </p>
+
+    <ul class="welcome-features" aria-label="New features">
+      <li class="welcome-feature">
+        <div class="welcome-feature-icon" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="7"/>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+        </div>
+        <div>
+          <strong>Upgraded Search</strong>
+          <span>Full-text search across all 260 chapters of the New Testament, with instant results and direct verse navigation.</span>
+        </div>
+      </li>
+      <li class="welcome-feature">
+        <div class="welcome-feature-icon" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+          </svg>
+        </div>
+        <div>
+          <strong>Reading View</strong>
+          <span>Read without distraction: adjustable text size, progress tracking, a focus mode that highlights one paragraph at a time, and the option to hide chapter and verse numbers entirely.</span>
+        </div>
+      </li>
+    </ul>
+
+    <div class="welcome-ctas">
+      <a href="/read" class="welcome-cta-primary">Explore Reading View</a>
+      <a href="/read/matthew" class="welcome-cta-secondary">Start in Matthew 1</a>
+    </div>
+  </div>
+</dialog>
+
+<style>
+  /* Backdrop */
+  .welcome-dialog::backdrop {
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(2px);
+  }
+
+  /* Dialog container */
+  .welcome-dialog {
+    position: fixed;
+    inset: 0;
+    margin: auto;
+    padding: 0;
+    border: none;
+    border-radius: 12px;
+    background: var(--surface-raised, #fff);
+    color: var(--text, #1D231C);
+    width: min(600px, calc(100vw - 2.5rem));
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.22);
+    /* Entry animation */
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+  }
+
+  .welcome-dialog[open] {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  /* Inner padding */
+  .welcome-inner {
+    position: relative;
+    padding: clamp(1.5rem, 5vw, 2.5rem);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0;
+  }
+
+  /* Close button */
+  .welcome-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--text, #1D231C);
+    cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 0.15s, background 0.15s;
+  }
+
+  .welcome-close:hover,
+  .welcome-close:focus-visible {
+    opacity: 1;
+    background: rgba(var(--ink-rgb, 29, 35, 28), 0.08);
+    outline: none;
+  }
+
+  /* Logo */
+  .welcome-logo {
+    margin-bottom: 1.1rem;
+  }
+
+  .welcome-logo img {
+    display: block;
+    border-radius: 50%;
+  }
+
+  /* Title */
+  .welcome-title {
+    font-family: "Crimson Text", Georgia, "Times New Roman", serif;
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    color: var(--text-strong, #000);
+    margin: 0 0 0.5rem 0;
+    line-height: 1.2;
+  }
+
+  /* Subtitle */
+  .welcome-subtitle {
+    font-size: 1rem;
+    color: var(--text, #1D231C);
+    opacity: 0.75;
+    margin: 0 0 1.5rem 0;
+  }
+
+  /* Feature list */
+  .welcome-features {
+    list-style: none;
+    margin: 0 0 1.75rem 0;
+    padding: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+    text-align: left;
+  }
+
+  .welcome-feature {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.875rem;
+    background: rgba(var(--ink-rgb, 29, 35, 28), 0.04);
+    border-radius: 8px;
+    padding: 0.875rem 1rem;
+  }
+
+  .welcome-feature-icon {
+    flex-shrink: 0;
+    margin-top: 2px;
+    color: var(--green, #209D50);
+  }
+
+  .welcome-feature div:last-child {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .welcome-feature strong {
+    font-size: 0.975rem;
+    font-weight: 600;
+    color: var(--text-strong, #000);
+  }
+
+  .welcome-feature span {
+    font-size: 0.9rem;
+    line-height: 1.45;
+    color: var(--text, #1D231C);
+    opacity: 0.8;
+  }
+
+  /* CTA buttons */
+  .welcome-ctas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .welcome-cta-primary,
+  .welcome-cta-secondary {
+    display: inline-block;
+    padding: 0.65rem 1.5rem;
+    border-radius: 6px;
+    font-size: 0.975rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: opacity 0.15s;
+    cursor: pointer;
+  }
+
+  .welcome-cta-primary {
+    background: var(--cta-bg, #1D231C);
+    color: var(--cta-text, #209D50);
+  }
+
+  .welcome-cta-secondary {
+    background: transparent;
+    color: var(--text-strong, #000);
+    border: 1.5px solid rgba(var(--ink-rgb, 29, 35, 28), 0.25);
+  }
+
+  .welcome-cta-primary:hover,
+  .welcome-cta-primary:focus-visible {
+    opacity: 0.85;
+    text-decoration: none;
+    outline-offset: 3px;
+  }
+
+  .welcome-cta-secondary:hover,
+  .welcome-cta-secondary:focus-visible {
+    background: rgba(var(--ink-rgb, 29, 35, 28), 0.06);
+    text-decoration: none;
+  }
+</style>
+
+<script>
+  const COOKIE_NAME = "lit_welcome_v1";
+  const COOKIE_DAYS = 14;
+
+  function getCookie(name: string): string | null {
+    const match = document.cookie.match(
+      new RegExp("(?:^|; )" + name.replace(/([.*+?^=!:${}()|[\]/\\])/g, "\\$1") + "=([^;]*)")
+    );
+    return match ? decodeURIComponent(match[1]) : null;
+  }
+
+  function setCookie(name: string, value: string, days: number) {
+    const expires = new Date(Date.now() + days * 864e5).toUTCString();
+    document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/; SameSite=Lax`;
+  }
+
+  function dismissAndSet() {
+    setCookie(COOKIE_NAME, "1", COOKIE_DAYS);
+    dialog.close();
+  }
+
+  const dialog = document.getElementById("welcome-popover") as HTMLDialogElement;
+
+  if (dialog && !getCookie(COOKIE_NAME)) {
+    // Show after a brief delay so the page renders first
+    setTimeout(() => {
+      dialog.showModal();
+    }, 400);
+  }
+
+  // Close on X button
+  document.getElementById("welcome-close")?.addEventListener("click", dismissAndSet);
+
+  // Close on backdrop click (click lands on the <dialog> element itself, not .welcome-inner)
+  dialog?.addEventListener("click", (e) => {
+    if (e.target === dialog) dismissAndSet();
+  });
+
+  // Close on Escape key (native dialog behavior) — set cookie so it doesn't reappear
+  dialog?.addEventListener("cancel", (e) => {
+    e.preventDefault(); // prevent default close so we can set cookie first
+    dismissAndSet();
+  });
+
+  // CTA links close the popover and set cookie before navigating
+  dialog?.querySelectorAll(".welcome-cta-primary, .welcome-cta-secondary").forEach((link) => {
+    link.addEventListener("click", () => setCookie(COOKIE_NAME, "1", COOKIE_DAYS));
+  });
+</script>

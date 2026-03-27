@@ -2,6 +2,7 @@
 import "../styles/global.css";
 import SiteHeader from "../components/SiteHeader.astro";
 import SiteFooter from "../components/SiteFooter.astro";
+import WelcomePopover from "../components/WelcomePopover.astro";
 
 const {
   title = "Liberation and Inclusion Translation",
@@ -69,5 +70,6 @@ const ogImageUrl = ogImage ?? `${siteOrigin}/images/lit-logo.png`;
     </main>
 
     <SiteFooter />
+    <WelcomePopover />
   </body>
 </html>
