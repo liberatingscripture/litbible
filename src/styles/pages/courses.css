@@ -215,14 +215,6 @@
   border: 0;
 }
 
-/* Honeypot hidden */
-.hp-field {
-  position: absolute;
-  left: -9999px;
-  width: 1px;
-  height: 1px;
-  opacity: 0;
-}
 
 /* Focus states */
 .signup input[type="email"]:focus,
