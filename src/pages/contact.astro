@@ -75,6 +75,8 @@ import "../styles/pages/contact.css";
               placeholder="What would you like to share?"></textarea>
           </div>
 
+          <div class="cf-turnstile" data-sitekey="0x4AAAAAACxG-At0E7VLZgdC"></div>
+
           <button class="contact-button" type="submit">Send message</button>
 
           <p class="contact-privacy">
@@ -88,6 +90,8 @@ import "../styles/pages/contact.css";
           <p class="contact-status" role="status" aria-live="polite"></p>
         </form>
       </div>
+
+      <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer is:inline></script>
 
       <script is:inline>
         (() => {
@@ -104,6 +108,13 @@ import "../styles/pages/contact.css";
             const hp = form.querySelector('input[name="_gotcha"]');
             if (hp && hp.value) return;
 
+            // Turnstile token missing? Block submission.
+            const turnstileToken = form.querySelector('input[name="cf-turnstile-response"]');
+            if (!turnstileToken || !turnstileToken.value) {
+              status.textContent = "Please complete the security check before sending.";
+              return;
+            }
+
             status.textContent = "";
             button.disabled = true;
 
@@ -118,6 +129,7 @@ import "../styles/pages/contact.css";
               if (res.ok) {
                 form.reset();
                 status.textContent = "Thanks — your message has been sent.";
+                if (window.turnstile) window.turnstile.reset();
               } else {
                 status.textContent =
                   "Something went wrong. Please try again in a moment.";
