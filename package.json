@@ -10,7 +10,8 @@
     "build": "npm run build:topics && node scripts/build-api-json.mjs && node scripts/build-api-manifest.mjs && astro build && pagefind --site dist",
     "preview": "npm run build && astro preview",
     "validate:chapters": "node scripts/validate-chapters.mjs",
-    "fix:chapters": "node scripts/validate-chapters.mjs --fix"
+    "fix:chapters": "node scripts/validate-chapters.mjs --fix",
+    "draft:release-notes": "node scripts/draft-release-notes.mjs"
   },
   "dependencies": {
     "@fontsource/crimson-text": "^5.2.7",

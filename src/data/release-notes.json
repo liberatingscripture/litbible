@@ -1,0 +1,29 @@
+[
+  {
+    "version": "2026-03-28",
+    "date": "2026-03-28",
+    "label": "March 28, 2026",
+    "changes": [
+      {
+        "type": "chapter_added",
+        "description": "2 Corinthians added"
+      },
+      {
+        "type": "text_updated",
+        "description": "Romans 3:6 — text updated"
+      },
+      {
+        "type": "footnote_added",
+        "description": "Matthew 4:20 — footnote added"
+      },
+      {
+        "type": "intro_updated",
+        "description": "Romans Introduction updated"
+      },
+      {
+        "type": "glossary_updated",
+        "description": "Glossary entry for Blessed added"
+      }
+    ]
+  }
+]
