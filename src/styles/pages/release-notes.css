@@ -1,0 +1,112 @@
+/* =========================================================
+   Release Notes page
+   ========================================================= */
+
+.rn-page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 56px 16px 80px;
+}
+
+/* HERO */
+.rn-hero {
+  margin-bottom: 48px;
+  text-align: center;
+}
+
+.rn-title {
+  margin: 0 0 12px;
+}
+
+.rn-lede {
+  margin: 0 auto;
+  max-width: 56ch;
+  color: rgba(var(--ink-rgb), 0.72);
+  line-height: 1.6;
+}
+
+/* LIST */
+.rn-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.rn-empty {
+  color: rgba(var(--ink-rgb), 0.5);
+  text-align: center;
+  margin-top: 32px;
+}
+
+/* ENTRY */
+.rn-entry {
+  border-top: 1px solid rgba(var(--ink-rgb), 0.1);
+  padding-top: 32px;
+}
+
+.rn-entry__header {
+  margin-bottom: 16px;
+}
+
+.rn-entry__date {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(var(--ink-rgb), 0.5);
+}
+
+/* CHANGES */
+.rn-changes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rn-change {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+/* Badge */
+.rn-change__badge {
+  flex-shrink: 0;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 3px;
+  background: rgba(var(--ink-rgb), 0.08);
+  color: rgba(var(--ink-rgb), 0.6);
+}
+
+.rn-change[data-type="chapter_added"] .rn-change__badge,
+.rn-change[data-type="article_added"] .rn-change__badge,
+.rn-change[data-type="glossary_added"] .rn-change__badge {
+  background: color-mix(in srgb, var(--link) 12%, transparent);
+  color: var(--link);
+}
+
+.rn-change__text {
+  color: rgba(var(--ink-rgb), 0.88);
+}
+
+@media (max-width: 480px) {
+  .rn-page {
+    padding-top: 40px;
+  }
+
+  .rn-change {
+    flex-wrap: wrap;
+  }
+}

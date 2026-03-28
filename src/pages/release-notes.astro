@@ -1,0 +1,64 @@
+---
+import Layout from "../layouts/Layout.astro";
+import "../styles/pages/release-notes.css";
+import releaseNotes from "../data/release-notes.json";
+
+const TYPE_LABEL: Record<string, string> = {
+  chapter_added: "Added",
+  text_updated: "Updated",
+  footnote_added: "Updated",
+  footnote_updated: "Updated",
+  intro_updated: "Updated",
+  metadata_updated: "Updated",
+  glossary_added: "Added",
+  glossary_updated: "Updated",
+  article_added: "Added",
+  article_updated: "Updated",
+};
+---
+
+<Layout
+  title="Release Notes | Liberation and Inclusion Translation"
+  description="A record of content updates to the Liberation and Inclusion Translation — new chapters, text revisions, footnote additions, and glossary changes."
+  canonical="https://litbible.net/release-notes/"
+>
+  <div class="rn-page">
+    <header class="rn-hero">
+      <h1 class="rn-title">Release Notes</h1>
+      <p class="rn-lede">
+        A running record of content updates to the LIT — new chapters, revised
+        text, added footnotes, and glossary changes.
+      </p>
+    </header>
+
+    <main class="rn-main">
+      {
+        releaseNotes.length === 0 ? (
+          <p class="rn-empty">No updates recorded yet.</p>
+        ) : (
+          <ol class="rn-list" reversed>
+            {releaseNotes.map((entry) => (
+              <li class="rn-entry">
+                <div class="rn-entry__header">
+                  <time class="rn-entry__date" datetime={entry.date}>
+                    {entry.label}
+                  </time>
+                </div>
+                <ul class="rn-changes">
+                  {entry.changes.map((change) => (
+                    <li class="rn-change" data-type={change.type}>
+                      <span class="rn-change__badge">
+                        {TYPE_LABEL[change.type] ?? "Updated"}
+                      </span>
+                      <span class="rn-change__text">{change.description}</span>
+                    </li>
+                  ))}
+                </ul>
+              </li>
+            ))}
+          </ol>
+        )
+      }
+    </main>
+  </div>
+</Layout>
