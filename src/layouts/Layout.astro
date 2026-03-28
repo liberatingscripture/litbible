@@ -1,6 +1,8 @@
 ---
 import "../styles/global.css";
 import SiteHeader from "../components/SiteHeader.astro";
+import interLatin400Url from "@fontsource/inter/files/inter-latin-400-normal.woff2";
+import crimsonLatin600Url from "@fontsource/crimson-text/files/crimson-text-latin-600-normal.woff2";
 import SiteFooter from "../components/SiteFooter.astro";
 import WelcomePopover from "../components/WelcomePopover.astro";
 
@@ -48,6 +50,10 @@ const ogImageUrl = ogImage ?? `${siteOrigin}/images/lit-logo.png`;
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImageUrl} />
+
+    <!-- Font preloads: start fetching before CSS is parsed -->
+    <link rel="preload" href={interLatin400Url} as="font" type="font/woff2" crossorigin="anonymous" />
+    <link rel="preload" href={crimsonLatin600Url} as="font" type="font/woff2" crossorigin="anonymous" />
 
     <!-- Favicons & manifest -->
     <link rel="icon" href="/favicon.ico" sizes="48x48" />
