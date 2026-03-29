@@ -2,10 +2,26 @@
 // src/pages/read.astro
 import ReadLayout from "../layouts/ReadLayout.astro";
 import "../styles/pages/read.css";
+import releaseNotes from "../data/release-notes.json";
 
 const title = "Read | Liberation and Inclusion Translation";
 const description =
   "Read the Liberation and Inclusion Translation (LIT) online.";
+
+const recentNotes = releaseNotes.slice(0, 3);
+
+const TYPE_LABEL: Record<string, string> = {
+  chapter_added: "Added",
+  text_updated: "Updated",
+  footnote_added: "Updated",
+  footnote_updated: "Updated",
+  intro_updated: "Updated",
+  metadata_updated: "Updated",
+  glossary_added: "Added",
+  glossary_updated: "Updated",
+  article_added: "Added",
+  article_updated: "Updated",
+};
 ---
 
 <ReadLayout
@@ -29,7 +45,7 @@ const description =
     <h1 class="read-title">Read the LIT Online</h1>
 
     <p class="read-lede">
-      I’ve got solid drafts of most of the New Testament (all except part of <strong
+      I've got solid drafts of most of the New Testament (all except part of <strong
         >Luke</strong
       > and
     </p><strong>Acts</strong> and
@@ -37,6 +53,44 @@ const description =
     and use in your faith circles. This is a living project, so check back over
     time for the latest version. Questions, comments, or insights?
     <a href="/contact" style="white-space:nowrap">Drop me a line</a>.
+
+  {recentNotes.length > 0 && (
+    <div class="whats-new">
+      <button
+        class="whats-new__trigger"
+        type="button"
+        aria-expanded="false"
+        aria-controls="whatsNewPanel"
+      >
+        <span class="whats-new__dot" aria-hidden="true"></span>
+        What's new
+        <span class="whats-new__chevron" aria-hidden="true">▾</span>
+      </button>
+
+      <div class="whats-new__panel" id="whatsNewPanel">
+        {recentNotes.map((entry) => (
+          <div class="whats-new__entry">
+            <time class="whats-new__date" datetime={entry.date}>
+              {entry.label}
+            </time>
+            <ul class="whats-new__changes">
+              {entry.changes.map((change) => (
+                <li class="whats-new__change" data-type={change.type}>
+                  <span class="whats-new__badge">
+                    {TYPE_LABEL[change.type] ?? "Updated"}
+                  </span>
+                  <span class="whats-new__change-text">{change.description}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+        <a href="/release-notes" class="whats-new__all">
+          See all release notes →
+        </a>
+      </div>
+    </div>
+  )}
   </div>
 
   <section slot="bands" class="views-band" aria-labelledby="views-heading">
@@ -206,3 +260,39 @@ const description =
   </div>
 </section>
 </ReadLayout>
+
+<script>
+  // @ts-nocheck
+  (() => {
+    const trigger = document.querySelector(".whats-new__trigger");
+    const panel = document.getElementById("whatsNewPanel");
+    if (!trigger || !panel) return;
+
+    const open = () => {
+      panel.classList.add("is-open");
+      trigger.setAttribute("aria-expanded", "true");
+    };
+
+    const close = () => {
+      panel.classList.remove("is-open");
+      trigger.setAttribute("aria-expanded", "false");
+    };
+
+    const isOpen = () => panel.classList.contains("is-open");
+
+    trigger.addEventListener("click", () => (isOpen() ? close() : open()));
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && isOpen()) {
+        close();
+        trigger.focus({ preventScroll: true });
+      }
+    });
+
+    document.addEventListener("click", (e) => {
+      if (isOpen() && !trigger.contains(e.target) && !panel.contains(e.target)) {
+        close();
+      }
+    });
+  })();
+</script>
