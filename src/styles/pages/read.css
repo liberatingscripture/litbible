@@ -57,6 +57,167 @@ body.bg-cream > main {
 }
 
 /* =========================================================
+   What's New disclosure
+   ========================================================= */
+
+.whats-new {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.whats-new__trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(var(--ink-rgb), 0.18);
+  background: var(--surface-raised);
+  color: rgba(var(--ink-rgb), 0.75);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.whats-new__trigger:hover {
+  border-color: rgba(var(--ink-rgb), 0.35);
+  color: rgba(var(--ink-rgb), 0.9);
+}
+
+.whats-new__trigger[aria-expanded="true"] {
+  border-color: var(--green, #209d50);
+  color: var(--green, #209d50);
+}
+
+.whats-new__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--green, #209d50);
+  flex-shrink: 0;
+}
+
+.whats-new__chevron {
+  font-size: 0.75rem;
+  line-height: 1;
+  transition: transform 0.18s ease;
+}
+
+.whats-new__trigger[aria-expanded="true"] .whats-new__chevron {
+  transform: rotate(180deg);
+}
+
+.whats-new__panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) translateY(-4px);
+  width: min(400px, 90vw);
+  z-index: 40;
+
+  background: var(--surface-raised);
+  border: 1px solid rgba(var(--ink-rgb), 0.14);
+  border-radius: 16px;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.12),
+    0 2px 8px rgba(0, 0, 0, 0.06);
+  padding: 20px;
+
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+  transition: opacity 0.18s ease, transform 0.18s ease, visibility 0s linear 0.18s;
+}
+
+.whats-new__panel.is-open {
+  opacity: 1;
+  pointer-events: auto;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.whats-new__entry {
+  padding-bottom: 16px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid rgba(var(--ink-rgb), 0.08);
+}
+
+.whats-new__entry:last-of-type {
+  padding-bottom: 0;
+  margin-bottom: 16px;
+  border-bottom: none;
+}
+
+.whats-new__date {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(var(--ink-rgb), 0.45);
+  margin-bottom: 8px;
+}
+
+.whats-new__changes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.whats-new__change {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  text-align: left;
+}
+
+.whats-new__badge {
+  flex-shrink: 0;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: rgba(var(--ink-rgb), 0.08);
+  color: rgba(var(--ink-rgb), 0.55);
+}
+
+.whats-new__change[data-type="chapter_added"] .whats-new__badge,
+.whats-new__change[data-type="article_added"] .whats-new__badge,
+.whats-new__change[data-type="glossary_added"] .whats-new__badge {
+  background: color-mix(in srgb, var(--link) 12%, transparent);
+  color: var(--link);
+}
+
+.whats-new__change-text {
+  color: rgba(var(--ink-rgb), 0.85);
+}
+
+.whats-new__all {
+  display: block;
+  text-align: center;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--green, #209d50);
+  text-decoration: none;
+}
+
+.whats-new__all:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* =========================================================
    Views explanation
    ========================================================= */
 
