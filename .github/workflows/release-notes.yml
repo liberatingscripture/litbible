@@ -45,6 +45,6 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           if ! git diff --quiet src/data/release-notes.json; then
             git add src/data/release-notes.json
-            git commit -m "chore: auto-update release notes [skip ci]"
+            git commit -m "chore: auto-update release notes"
             git push
           fi
