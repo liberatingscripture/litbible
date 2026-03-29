@@ -58,6 +58,7 @@ async function collectContentFiles() {
   // Top-level data files the spec expects (include them when they exist)
   const topLevelFiles = [
     'glossary.json',
+    'release-notes.json',
     'topics.json',
     'translation-commitments.json',
   ];
