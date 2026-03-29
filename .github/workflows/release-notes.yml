@@ -1,0 +1,50 @@
+name: Auto-update release notes
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/data/chapters/**'
+      - 'src/data/intros/**'
+      - 'src/content/articles/**'
+      - 'src/content/glossary/**'
+
+jobs:
+  update-release-notes:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # full history needed for git diff in the script
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Find base ref
+        id: base
+        run: |
+          # Use the commit that last touched release-notes.json as the base,
+          # so we only report changes made since the last update.
+          # Falls back to the first commit if the file has never been updated.
+          LAST=$(git log --format="%H" -- src/data/release-notes.json | head -1)
+          if [ -z "$LAST" ]; then
+            LAST=$(git rev-list --max-parents=0 HEAD)
+          fi
+          echo "ref=$LAST" >> "$GITHUB_OUTPUT"
+
+      - name: Draft and write release notes
+        run: node scripts/draft-release-notes.mjs --since ${{ steps.base.outputs.ref }} --write
+
+      - name: Commit if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if ! git diff --quiet src/data/release-notes.json; then
+            git add src/data/release-notes.json
+            git commit -m "chore: auto-update release notes [skip ci]"
+            git push
+          fi
