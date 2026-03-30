@@ -27,7 +27,7 @@
   letter-spacing: -0.01em;
   line-height: 1.05;
 
-  font-size: clamp(3.2rem, 6vw, 5.4rem);
+  font-size: clamp(2.6rem, 5vw, 4.2rem);
   margin: 0 0 20px;
   color: var(--text-strong);
 }
@@ -36,7 +36,7 @@
   margin: 0 auto 34px;
   max-width: 38ch;
 
-  font-size: clamp(1.35rem, 2.6vw, 2.15rem);
+  font-size: clamp(1.1rem, 2vw, 1.6rem);
   line-height: 1.25;
 
   color: rgba(var(--ink-rgb), 0.92);
@@ -44,7 +44,7 @@
 
 .contact-logo {
   display: block;
-  width: min(360px, 80vw);
+  width: min(260px, 60vw);
   height: auto;
   margin: 22px auto 34px;
 }
