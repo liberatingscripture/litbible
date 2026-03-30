@@ -10,6 +10,25 @@ import CardCarousel from "../components/CardCarousel.astro";
   description="Liberating Scripture Collective (LSC) is the organization founded by Brandon Vélez Johnson to support the Liberation and Inclusion Translation (LIT) and build open-access, trauma-informed Bible translation, learning resources, and pathways of spiritual support."
   canonical="https://litbible.net/liberating-scripture-collective/"
 >
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Liberating Scripture Collective",
+      "alternateName": "LSC",
+      "url": "https://liberatingscripture.org",
+      "description": "Liberating Scripture Collective creates open-access, trauma-informed translation, learning resources, and pathways of spiritual support that serve liberation, healing, and belonging.",
+      "founder": {
+        "@type": "Person",
+        "name": "Brandon Vélez Johnson",
+        "url": "https://litbible.net/about/"
+      },
+      "sameAs": [
+        "https://liberatingscripture.org",
+        "https://litbible.net/liberating-scripture-collective/"
+      ]
+    })} />
+  </Fragment>
   <div class="lsc">
     <!-- HERO -->
     <header class="lsc-hero">

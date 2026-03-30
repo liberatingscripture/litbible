@@ -8,6 +8,25 @@ import "../styles/pages/about.css";
   description="An overview of the Liberation and Inclusion Translation (LIT), the translator behind it, and the values guiding this trauma-informed, justice-oriented Bible translation."
   canonical="https://litbible.net/about/"
 >
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "Brandon C. Vélez Johnson",
+      "url": "https://litbible.net/about/",
+      "jobTitle": "Bible Translator, Mental Health Counselor",
+      "description": "Brandon Vélez Johnson is the translator of the Liberation and Inclusion Translation (LIT), a trauma-informed, justice-oriented translation of the Bible. He holds a bachelor's degree in Biblical Studies and Biblical Languages and a Master of Divinity with a focus on biblical languages and hermeneutics.",
+      "sameAs": [
+        "https://litbible.net/about/",
+        "https://liberatingscripture.org"
+      ],
+      "worksFor": {
+        "@type": "Organization",
+        "name": "Liberating Scripture Collective",
+        "url": "https://liberatingscripture.org"
+      }
+    })} />
+  </Fragment>
   <article class="about-page">
     {/* HERO: question + short answer + arc */}
     <header class="about-hero" id="top">
