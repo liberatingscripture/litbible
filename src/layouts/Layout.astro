@@ -64,6 +64,22 @@ const ogImageUrl = ogImage ?? `${siteOrigin}/images/lit-logo.png`;
     <meta name="theme-color" content="#209D50" />
     <meta name="color-scheme" content="light dark" />
 
+<!-- Articles RSS feed -->
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title="LIT Bible Articles"
+      href="/rss.xml"
+    />
+
+    <!-- Found in Translation podcast (RedCircle) -->
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title="Found in Translation Podcast"
+      href="https://feeds.redcircle.com/59ffbfb2-f814-469a-8522-416bb67c15f6"
+    />
+
 <slot name="head" />
   </head>
 
