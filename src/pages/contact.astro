@@ -75,7 +75,10 @@ import "../styles/pages/contact.css";
               placeholder="What would you like to share?"></textarea>
           </div>
 
-          <div class="cf-turnstile" data-sitekey="0x4AAAAAACxG-At0E7VLZgdC"></div>
+          <div class="contact-turnstile-row">
+            <div class="cf-turnstile" data-sitekey="0x4AAAAAACxG-At0E7VLZgdC"></div>
+            <p class="contact-status" role="status" aria-live="polite" aria-atomic="true"></p>
+          </div>
 
           <button class="contact-button" type="submit">Send message</button>
 
@@ -86,8 +89,6 @@ import "../styles/pages/contact.css";
             <br />
             We will never sell or share your information.
           </p>
-
-          <p class="contact-status" role="status" aria-live="polite"></p>
         </form>
       </div>
 
@@ -115,6 +116,7 @@ import "../styles/pages/contact.css";
               return;
             }
 
+            status.className = "contact-status";
             status.textContent = "";
             button.disabled = true;
 
@@ -128,13 +130,16 @@ import "../styles/pages/contact.css";
 
               if (res.ok) {
                 form.reset();
+                status.className = "contact-status is-success";
                 status.textContent = "Thanks — your message has been sent.";
                 if (window.turnstile) window.turnstile.reset();
               } else {
+                status.className = "contact-status is-error";
                 status.textContent =
                   "Something went wrong. Please try again in a moment.";
               }
             } catch {
+              status.className = "contact-status is-error";
               status.textContent =
                 "Network error. Please try again in a moment.";
             } finally {
