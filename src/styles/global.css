@@ -1059,109 +1059,10 @@ html.menu-open body {
 
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
+  gap: 0;
 }
 
-/* =========================
-   Footer CTA (seam-proof, scoped)
-   ========================= */
-
-a.footer-cta {
-  position: relative;
-  overflow: hidden;
-  isolation: isolate;
-
-  text-decoration: none;
-  user-select: none;
-  font-size: 0.85rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  padding: 14px 26px;
-  border-radius: 12px;
-
-  border: 2px solid var(--green);
-
-  /* The element itself is the green base */
-  background: var(--green);
-  color: var(--ink);
-
-  white-space: nowrap;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
-
-  font-weight: 700;
-
-  transition:
-    color 220ms ease-in-out,
-    background-color 220ms ease-in-out;
-
-  z-index: 0;
-}
-
-/* Curtain overlay — animates away, never exposes seams */
-a.footer-cta::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: var(--green);
-  border-radius: inherit;
-  z-index: -1;
-
-  transform-origin: top;
-  transform: scaleY(1);
-  transition: transform 380ms ease-in-out;
-
-  will-change: transform;
-}
-
-/* Hover / focus: lift curtain */
-a.footer-cta:hover::before,
-a.footer-cta:focus::before {
-  transform: scaleY(0);
-}
-
-/* End-state appearance */
-a.footer-cta:hover,
-a.footer-cta:focus {
-  background: var(--surface-raised);
-  color: var(--green);
-  text-decoration: none;
-}
-
-/* Keep text above layers */
-a.footer-cta > span {
-  position: relative;
-  z-index: 1;
-}
-
-/* Reduced motion */
-@media (prefers-reduced-motion: reduce) {
-  a.footer-cta::before {
-    transition: none;
-  }
-  a.footer-cta {
-    transition: none;
-  }
-}
-
-
-
-/* =========================
-   License
-   ========================= */
-
-.license {
-  font-size: 1rem;
-  line-height: 1.4;
-
-  width: 42ch;
-  text-align: left;
-
-  margin-top: 1.75rem;
-}
-
-.license a {
-  text-decoration: underline;
-}
 /* Footer — Narrow desktop / tablet ONLY (does not affect mobile) */
 @media (min-width: 721px) and (max-width: 860px) {
   .footer-inner {
@@ -1246,10 +1147,6 @@ a.footer-cta > span {
     height: auto;
   }
 
-  .license {
-    width: auto;       /* prevents forcing overflow */
-    max-width: 42ch;   /* keeps your intended measure */
-  }
 }
 
 /* =========================
@@ -1274,10 +1171,9 @@ a.footer-cta > span {
 
     /* Mobile stacking order */
     grid-template-areas:
-      "cta"
       "left"
-      "center"
-      "license";
+      "newsletter"
+      "center";
 
     row-gap: 2.25rem;
     column-gap: 0;
@@ -1356,25 +1252,217 @@ a.footer-cta > span {
     margin: 0 auto;
   }
 
-  /* RIGHT wrapper: let its children become grid items so we can place them */
+  /* RIGHT wrapper — normal block on mobile, sits in newsletter grid area */
   .footer-right {
-    display: contents;
-    padding-left: 0; /* defensive; not used when display: contents, but harmless */
+    grid-area: newsletter;
+    padding-left: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
 
-  /* CTA at the very top */
-  .footer-cta {
-    grid-area: cta;
-    justify-self: center;
-    margin: 0;
+  .footer-newsletter {
+    align-items: center;
+    text-align: center;
   }
 
-  /* License at the bottom */
-  .license {
-    grid-area: license;
-    margin: 0;
-    width: auto;
-    max-width: 42ch;
+  .footer-newsletter__desc {
+    max-width: 32ch;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .footer-newsletter__row {
+    width: 100%;
+    max-width: 320px;
+  }
+}
+
+/* =========================
+   Footer — Newsletter
+   ========================= */
+
+.footer-newsletter {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.footer-newsletter__heading {
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.footer-newsletter__desc {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--text);
+  margin: 0;
+  max-width: 34ch;
+}
+
+/* Brevo status panels — hidden by default, shown by main.js */
+.footer-newsletter__message {
+  display: none;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  padding: 0.6rem 0.75rem;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  margin-bottom: 0.25rem;
+}
+
+.footer-newsletter__message--error {
+  color: #661d1d;
+  background-color: #ffeded;
+  border-color: #ff4949;
+}
+
+.footer-newsletter__message--success {
+  color: #085229;
+  background-color: #e7faf0;
+  border-color: #13ce66;
+}
+
+.footer-newsletter__message-icon {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
+.footer-newsletter__row {
+  display: flex;
+  gap: 0;
+  margin-top: 0.25rem;
+}
+
+.footer-newsletter__input {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 14px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  color: var(--text);
+  background: var(--surface-input);
+  border: 1px solid var(--border);
+  border-right: none;
+  border-radius: 8px 0 0 8px;
+  outline: none;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.footer-newsletter__input:focus {
+  border-color: var(--green);
+  box-shadow: 0 0 0 2px rgba(32, 157, 80, 0.2);
+}
+
+.footer-newsletter__input::placeholder {
+  color: var(--text);
+  opacity: 0.4;
+}
+
+.footer-newsletter__submit {
+  padding: 10px 18px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+
+  color: var(--ink);
+  background: var(--green);
+  border: 1px solid var(--green);
+  border-radius: 0 8px 8px 0;
+
+  transition: background-color 180ms ease, color 180ms ease;
+}
+
+.footer-newsletter__submit:hover,
+.footer-newsletter__submit:focus {
+  background: var(--ink);
+  color: var(--green);
+}
+
+.footer-newsletter__submit:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 2px;
+}
+
+.footer-newsletter__field-error {
+  display: block;
+  font-size: 0.8rem;
+  color: #661d1d;
+  min-height: 0;
+  margin-top: 0.2rem;
+}
+
+.footer-newsletter__turnstile {
+  margin-top: 0.5rem;
+}
+
+.footer-newsletter__honeypot {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .footer-newsletter__input,
+  .footer-newsletter__submit {
+    transition: none;
+  }
+}
+
+/* =========================
+   Footer — License band
+   Full-width subfooter, outside <footer>
+   ========================= */
+
+.footer-license-band {
+  background: var(--surface-raised);
+  border-top: 1px solid var(--border);
+  padding: 1.25rem 2rem;
+}
+
+.footer-license-band__text {
+  max-width: 1200px;
+  margin: 0 auto;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--text);
+  text-align: center;
+}
+
+.footer-license-band__text a {
+  color: var(--green);
+  text-decoration: underline;
+}
+
+.footer-license-band__text a:hover,
+.footer-license-band__text a:focus {
+  color: var(--text-strong);
+}
+
+@media (max-width: 720px) {
+  .footer-license-band {
+    padding: 1rem 1.25rem;
+  }
+
+  .footer-license-band__text {
     text-align: left;
   }
 }
