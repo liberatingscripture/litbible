@@ -130,7 +130,11 @@ const { class: className = "" } = Astro.props;
       });
 
       overlay.querySelectorAll("a").forEach((a) => {
-        a.addEventListener("click", () => closeMenu());
+        a.addEventListener("click", () => {
+          // Defer DOM mutations so the browser can paint the click feedback first.
+          // For navigation links the page unloads before rAF fires — no visible effect.
+          requestAnimationFrame(closeMenu);
+        });
       });
 
       document.addEventListener("keydown", (e) => {

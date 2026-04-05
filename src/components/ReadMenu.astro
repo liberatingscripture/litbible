@@ -119,30 +119,39 @@ const { currentBook = "", currentChapter = "" } = Astro.props;
         readButton.disabled = disabled;
       }
 
-      bookSelect.addEventListener("change", () => {
-        const key = slugifyBook(bookSelect.value);
-
+      function populateChapters(key, afterPopulate) {
         chapterSelect.innerHTML = '<option value="">Select a Chapter</option>';
         chapterSelect.disabled = true;
 
-        // Enable buttons as soon as a valid book is selected
-        setButtonsDisabled(!key);
-
         if (books[key]) {
-          chapterSelect.disabled = false;
+          const fragment = document.createDocumentFragment();
 
           const intro = document.createElement("option");
           intro.value = "intro";
           intro.textContent = "Introduction";
-          chapterSelect.appendChild(intro);
+          fragment.appendChild(intro);
 
           for (let i = 1; i <= books[key]; i++) {
             const opt = document.createElement("option");
             opt.value = String(i);
             opt.textContent = `Chapter ${i}`;
-            chapterSelect.appendChild(opt);
+            fragment.appendChild(opt);
           }
+
+          chapterSelect.appendChild(fragment);
+          chapterSelect.disabled = false;
+          if (afterPopulate) afterPopulate();
         }
+      }
+
+      bookSelect.addEventListener("change", () => {
+        const key = slugifyBook(bookSelect.value);
+
+        // Enable buttons as soon as a valid book is selected
+        setButtonsDisabled(!key);
+
+        // Defer DOM work to keep INP fast — paint the selection first
+        requestAnimationFrame(() => populateChapters(key));
       });
 
       // No longer gate buttons on chapter selection; keep listener optional/no-op.
@@ -162,8 +171,12 @@ const { currentBook = "", currentChapter = "" } = Astro.props;
             break;
           }
         }
-        bookSelect.dispatchEvent(new Event("change"));
-        if (initChapter) chapterSelect.value = initChapter;
+        const key = slugifyBook(initBook);
+        setButtonsDisabled(!key);
+        // Synchronous on init so chapterSelect.value can be set immediately after
+        populateChapters(key, () => {
+          if (initChapter) chapterSelect.value = initChapter;
+        });
       }
 
       const submitStudyFromKeyboard = (event) => {
