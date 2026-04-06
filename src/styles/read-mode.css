@@ -660,6 +660,8 @@ html.rm-tools-open {
   width: 100%;
   max-width: 76ch;
   margin: 0 auto;
+  font-size: 1.04rem;
+  --rm-line-height: 1.75;
 }
 
 /* IMPORTANT CHANGE:
