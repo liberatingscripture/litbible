@@ -264,6 +264,14 @@ body.bg-cream > main {
   box-shadow:
     0 4px 12px rgba(0, 0, 0, 0.06),
     0 1px 3px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+}
+
+@media (max-width: 640px) {
+  .view-card {
+    display: block;
+  }
 }
 
 .view-card__title {
@@ -284,6 +292,7 @@ body.bg-cream > main {
   font-weight: 600;
   color: var(--green, #209d50);
   text-decoration: none;
+  margin-top: auto;
 }
 
 .view-card__link:hover {
