@@ -1882,6 +1882,10 @@ const baseUrl = import.meta.env.BASE_URL || "/";
         });
 
         input.addEventListener("focus", () => {
+          // Start loading topics on first focus so ghost suggestions are ready,
+          // without blocking page load with an eager fetch.
+          loadTopicsOnce().then(() => { renderGhost(input.value); });
+
           openPanel();
           const q = input.value;
 
@@ -2002,10 +2006,6 @@ const baseUrl = import.meta.env.BASE_URL || "/";
         form.addEventListener("submit", (e) => {
           e.preventDefault();
           submitSearch();
-        });
-
-        loadTopicsOnce().then(() => {
-          renderGhost(input.value);
         });
 
         activeMode = initialMode;
