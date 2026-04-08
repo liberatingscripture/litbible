@@ -1,0 +1,183 @@
+---
+import Layout from "../layouts/Layout.astro";
+import "../styles/pages/privacy.css";
+---
+
+<Layout
+  title="Privacy Policy | LIT Bible"
+  description="The LIT Bible app privacy policy. Your reading life is your own — we collect nothing personally identifiable, and everything you create stays on your device."
+  canonical="https://litbible.net/privacy"
+>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "Privacy Policy — LIT Bible",
+      "url": "https://litbible.net/privacy",
+      "dateModified": "2026-04-08",
+      "description": "The LIT Bible app privacy policy. Your reading life is your own — we collect nothing personally identifiable, and everything you create stays on your device.",
+      "isPartOf": {
+        "@type": "WebSite",
+        "name": "LIT Bible",
+        "url": "https://litbible.net"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "LIT Bible",
+        "url": "https://litbible.net"
+      }
+    })} />
+  </Fragment>
+
+  <article class="privacy-page" aria-labelledby="privacy-title">
+
+    <header class="privacy-header">
+      <div class="privacy-header__inner">
+        <h1 id="privacy-title" class="privacy-title">Privacy Policy</h1>
+        <p class="privacy-effective">
+          Effective date: <time datetime="2026-04-08">April 8, 2026</time>
+        </p>
+        <p class="privacy-lede">
+          The LIT Bible app is built on a simple principle: your reading life is
+          your own. This policy describes what data the app handles and how.
+        </p>
+      </div>
+    </header>
+
+    <div class="privacy-body">
+
+      <section aria-labelledby="privacy-collect">
+        <h2 id="privacy-collect">What we collect</h2>
+        <p>
+          Nothing personally identifiable. The app does not collect your name,
+          email address, device identifiers, or any information that could
+          identify you as an individual.
+        </p>
+      </section>
+
+      <section aria-labelledby="privacy-on-device">
+        <h2 id="privacy-on-device">What stays on your device</h2>
+        <p>
+          Everything you create in the app — highlights, notes, and your reading
+          position — is stored locally on your device using a private database.
+          This data never leaves your device and is not accessible to us.
+        </p>
+        <p>
+          Your app preferences (such as your chosen text size and whether you
+          have completed the welcome tour) are stored in your device's standard
+          preferences storage and remain on your device.
+        </p>
+      </section>
+
+      <section aria-labelledby="privacy-content-updates">
+        <h2 id="privacy-content-updates">Content updates</h2>
+        <p>
+          The app may periodically check our servers at litbible.net for updates
+          to the Bible translation text. During this check, your device contacts
+          our server and downloads any changed content. No information about you,
+          your device, or your reading activity is sent to us during this
+          process. The check is limited to comparing file versions and
+          downloading updated text — nothing more.
+        </p>
+      </section>
+
+      <section aria-labelledby="privacy-spotlight">
+        <h2 id="privacy-spotlight">Spotlight Search</h2>
+        <p>
+          The app makes portions of the Bible text available through your
+          device's built-in Spotlight search. This indexing happens entirely on
+          your device and is not transmitted to us or to Apple.
+        </p>
+      </section>
+
+      <section aria-labelledby="privacy-widget">
+        <h2 id="privacy-widget">The home screen widget</h2>
+        <p>
+          The LIT Bible widget displays lectionary readings and liturgical
+          calendar information. All widget data is computed on your device from
+          information bundled with the app. The widget makes no network
+          requests.
+        </p>
+      </section>
+
+      <section aria-labelledby="privacy-external-links">
+        <h2 id="privacy-external-links">External links</h2>
+        <p>The app includes links to:</p>
+        <ul>
+          <li>
+            <strong>Donorbox</strong> (litbible.net's contribution page) —
+            opened in an in-app browser. We do not track whether you visit this
+            page or make a contribution.
+          </li>
+          <li>
+            <strong>Apple Podcasts</strong> — opened in the system browser or
+            Podcasts app. We do not track whether you follow this link.
+          </li>
+          <li>
+            <strong>CreativeCommons.org</strong> — opened in the system browser
+            to display the full license text.
+          </li>
+        </ul>
+        <p>
+          When you follow these links, you are subject to those third parties'
+          own privacy policies.
+        </p>
+      </section>
+
+      <section aria-labelledby="privacy-sharing">
+        <h2 id="privacy-sharing">Sharing</h2>
+        <p>
+          When you select text and choose Share, your device's standard share
+          sheet opens. The selected passage text is passed to whatever app you
+          choose to share it with. We do not log what you share, where you share
+          it, or how often.
+        </p>
+      </section>
+
+      <section aria-labelledby="privacy-third-party">
+        <h2 id="privacy-third-party">Third-party software</h2>
+        <p>The app is built using two third-party software libraries:</p>
+        <ul>
+          <li>
+            <strong>GRDB</strong> — an open-source database library. It stores
+            your data locally on your device and makes no network connections of
+            its own.
+          </li>
+          <li>
+            <strong>Supabase SDK</strong> — a library that supports optional
+            cloud backup features. This feature is not active in the current
+            version of the app. The library is included in preparation for a
+            future update; it makes no network connections and does not collect
+            any data in the current version.
+          </li>
+        </ul>
+      </section>
+
+      <section aria-labelledby="privacy-children">
+        <h2 id="privacy-children">Children</h2>
+        <p>
+          The app does not collect personal information from anyone, including
+          children. It contains no advertising and no social features.
+        </p>
+      </section>
+
+      <section aria-labelledby="privacy-changes">
+        <h2 id="privacy-changes">Changes to this policy</h2>
+        <p>
+          If we update this policy in a way that is material to how your data is
+          handled, we will note it in the app's Translation Updates section and
+          update the effective date above.
+        </p>
+      </section>
+
+      <section aria-labelledby="privacy-contact">
+        <h2 id="privacy-contact">Contact</h2>
+        <p>
+          Questions about this policy can be directed to the LIT Bible team at
+          <a href="/contact">litbible.net/contact</a>.
+        </p>
+      </section>
+
+    </div>
+  </article>
+</Layout>

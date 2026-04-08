@@ -1,0 +1,123 @@
+/* =========================================================
+   Privacy Policy page — centered document column
+   ========================================================= */
+
+.privacy-page {
+  background-color: var(--page-bg);
+  min-height: 100vh;
+  padding-block: clamp(3.5rem, 8vw, 6rem);
+  padding-inline: clamp(1.25rem, 4vw, 2.5rem);
+}
+
+/* =========================================================
+   Header: title + effective date + lede
+   ========================================================= */
+
+.privacy-header {
+  width: 100%;
+  margin-bottom: clamp(3rem, 6vw, 4.5rem);
+}
+
+.privacy-header__inner {
+  max-width: 65ch;
+  margin: 0 auto;
+}
+
+.privacy-title {
+  font-family: var(--serif, serif);
+  font-size: clamp(2.25rem, 4vw, 3rem);
+  line-height: 1.1;
+  margin: 0 0 0.5rem;
+}
+
+.privacy-effective {
+  font-size: 0.9rem;
+  letter-spacing: 0.04em;
+  color: rgba(var(--ink-rgb), 0.6);
+  margin: 0 0 1.75rem;
+}
+
+.privacy-lede {
+  font-size: clamp(1.1rem, 0.5vw + 1rem, 1.25rem);
+  line-height: 1.72;
+  margin: 0;
+}
+
+/* =========================================================
+   Body: stacked sections in a readable column
+   ========================================================= */
+
+.privacy-body {
+  max-width: 65ch;
+  margin: 0 auto;
+  font-size: clamp(1rem, 0.4vw + 0.9rem, 1.15rem);
+  line-height: 1.75;
+}
+
+.privacy-body section {
+  margin-bottom: clamp(2.25rem, 5vw, 3.5rem);
+}
+
+.privacy-body section:last-child {
+  margin-bottom: 0;
+}
+
+/* H2: section headings */
+.privacy-body h2 {
+  font-family: var(--serif, serif);
+  font-size: clamp(1.3rem, 1.2vw + 1.05rem, 1.6rem);
+  line-height: 1.25;
+  margin: 0 0 0.85rem;
+  color: var(--text-strong);
+}
+
+/* Paragraph spacing within sections */
+.privacy-body p {
+  margin: 0 0 1rem;
+}
+
+.privacy-body p:last-child {
+  margin-bottom: 0;
+}
+
+/* Lists */
+.privacy-body ul {
+  margin: 0.5rem 0 1rem 1.25rem;
+  padding: 0;
+}
+
+.privacy-body li {
+  margin-bottom: 0.75rem;
+}
+
+.privacy-body li:last-child {
+  margin-bottom: 0;
+}
+
+/* Links */
+.privacy-body a {
+  color: var(--link);
+  text-underline-offset: 3px;
+}
+
+.privacy-body a:hover,
+.privacy-body a:focus-visible {
+  text-decoration-thickness: 2px;
+  outline: none;
+}
+
+.privacy-body a:focus-visible {
+  outline: 2px solid rgba(32, 157, 80, 0.6);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* =========================================================
+   Divider between sections (subtle rule above each h2)
+   ========================================================= */
+
+.privacy-body section + section {
+  border-top: 1px solid rgba(var(--ink-rgb), 0.1);
+  padding-top: clamp(2.25rem, 5vw, 3.5rem);
+  margin-top: 0;
+}
