@@ -2,44 +2,151 @@
 import { fetchEpisodes } from "../lib/fetchPodcastEpisodes";
 
 const episodes = await fetchEpisodes();
+
+// Group episodes by season (preserving newest-first order within each group)
+const seasonMap = new Map<string, typeof episodes>();
+for (const ep of episodes) {
+  const key = ep.season ?? "other";
+  if (!seasonMap.has(key)) seasonMap.set(key, []);
+  seasonMap.get(key)!.push(ep);
+}
+
+// Sort: bonus first, numbered seasons descending, introduction last, other last
+const seasonKeys = [...seasonMap.keys()].sort((a, b) => {
+  if (a === "bonus") return -1;
+  if (b === "bonus") return 1;
+  if (a === "introduction") return 1;
+  if (b === "introduction") return -1;
+  if (a === "other") return 1;
+  if (b === "other") return -1;
+  return Number(b) - Number(a);
+});
+
+const MIN_EPISODES_FOR_BACK_LINK = 4;
+
+const SEASON_SUBJECTS: Record<string, string> = {
+  "1": "Matthew",
+  "2": "Ephesians",
+  "3": "Galatians",
+  "4": "John",
+  "5": "Hebrews",
+  "6": "Romans",
+  "7": "Matthew under Authoritarianism",
+  "8": "James",
+};
+
+const SEASON_NAV_LABELS: Record<string, string> = {
+  "7": "Matthew 2.0",
+};
+
+function seasonLabel(key: string): string {
+  if (key === "bonus") return "Bonus Episodes";
+  if (key === "introduction") return "Introduction";
+  if (key === "other") return "Other Episodes";
+  const subject = SEASON_SUBJECTS[key];
+  return subject ? `Season ${key} – ${subject}` : `Season ${key}`;
+}
+
+function seasonNavLabel(key: string): string {
+  if (key === "bonus") return "Bonus Episodes";
+  if (key === "introduction") return "Introduction";
+  if (key === "other") return "Other";
+  const short = SEASON_NAV_LABELS[key] ?? SEASON_SUBJECTS[key];
+  return short ? `S${key} – ${short}` : `S${key}`;
+}
 ---
 
-<ul class="fit-ep-list" role="list">
-  {
-    episodes.map((ep) => (
-      <li class="fit-ep">
-        <h3 class="fit-ep__title">
-          {ep.title}
-          {ep.pubDate && !isNaN(new Date(ep.pubDate).getTime()) && (
-            <time
-              class="fit-ep__date"
-              datetime={new Date(ep.pubDate).toISOString().slice(0, 10)}
-            >
-              {new Date(ep.pubDate).toLocaleDateString("en-US", {
-                month: "long",
-                day: "numeric",
-                year: "numeric",
-                timeZone: "America/Los_Angeles",
-              })}
-            </time>
-          )}
-        </h3>
-        <ul class="fit-ep__links" role="list">
-          {ep.links.map((link) =>
-            link.external ? (
-              <li>
-                <a href={link.url} target="_blank" rel="noopener">
-                  {link.label}
-                </a>
-              </li>
-            ) : (
-              <li>
-                <a href={link.url}>{link.label}</a>
-              </li>
-            ),
-          )}
-        </ul>
-      </li>
-    ))
+{seasonKeys.length > 1 && (
+  <div class="fit-season-nav-wrap">
+    <button class="fit-season-arrow fit-season-arrow--prev" aria-label="Scroll seasons left" hidden>&#8592;</button>
+    <nav id="fit-season-nav" class="fit-season-nav" aria-label="Jump to season">
+      {seasonKeys.map((key) => (
+        <a href={`#fit-season-${key}`}>{seasonNavLabel(key)}</a>
+      ))}
+    </nav>
+    <button class="fit-season-arrow fit-season-arrow--next" aria-label="Scroll seasons right">&#8594;</button>
+  </div>
+)}
+
+<script>
+  const nav = document.querySelector('.fit-season-nav') as HTMLElement | null;
+  const wrap = nav?.closest('.fit-season-nav-wrap') as HTMLElement | null;
+  const btnPrev = wrap?.querySelector('.fit-season-arrow--prev') as HTMLButtonElement | null;
+  const btnNext = wrap?.querySelector('.fit-season-arrow--next') as HTMLButtonElement | null;
+
+  if (nav && wrap && btnPrev && btnNext) {
+    const SCROLL_BY = 240;
+
+    const update = () => {
+      const atStart = nav.scrollLeft <= 4;
+      const atEnd = nav.scrollLeft + nav.clientWidth >= nav.scrollWidth - 4;
+      btnPrev.hidden = atStart;
+      btnNext.hidden = atEnd;
+      wrap.classList.toggle('is-scrolled-start', !atStart);
+      wrap.classList.toggle('is-scrolled-end', atEnd);
+    };
+
+    btnPrev.addEventListener('click', () => {
+      nav.scrollBy({ left: -SCROLL_BY, behavior: 'smooth' });
+    });
+    btnNext.addEventListener('click', () => {
+      nav.scrollBy({ left: SCROLL_BY, behavior: 'smooth' });
+    });
+
+    nav.addEventListener('scroll', update, { passive: true });
+    update();
   }
-</ul>
+</script>
+
+{seasonKeys.map((key) => {
+  const seasonEpisodes = seasonMap.get(key)!;
+  const showBackLink = seasonEpisodes.length >= MIN_EPISODES_FOR_BACK_LINK;
+  const label = seasonLabel(key);
+  return (
+    <div class="fit-season-group">
+      {seasonKeys.length > 1 && (
+        <h3 id={`fit-season-${key}`} class="fit-season-heading">{label}</h3>
+      )}
+      <ul class="fit-ep-list" role="list">
+        {seasonEpisodes.map((ep) => (
+          <li class="fit-ep">
+            <h3 class="fit-ep__title">
+              {ep.title}
+              {ep.pubDate && !isNaN(new Date(ep.pubDate).getTime()) && (
+                <time
+                  class="fit-ep__date"
+                  datetime={new Date(ep.pubDate).toISOString().slice(0, 10)}
+                >
+                  {new Date(ep.pubDate).toLocaleDateString("en-US", {
+                    month: "long",
+                    day: "numeric",
+                    year: "numeric",
+                    timeZone: "America/Los_Angeles",
+                  })}
+                </time>
+              )}
+            </h3>
+            <ul class="fit-ep__links" role="list">
+              {ep.links.map((link) =>
+                link.external ? (
+                  <li>
+                    <a href={link.url} target="_blank" rel="noopener">
+                      {link.label}
+                    </a>
+                  </li>
+                ) : (
+                  <li>
+                    <a href={link.url}>{link.label}</a>
+                  </li>
+                ),
+              )}
+            </ul>
+          </li>
+        ))}
+      </ul>
+      {showBackLink && seasonKeys.length > 1 && (
+        <a href="#fit-season-nav" class="fit-season-top">↑ All seasons</a>
+      )}
+    </div>
+  );
+})}

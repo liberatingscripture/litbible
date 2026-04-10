@@ -38,7 +38,7 @@ const EXCLUDED_SLUGS = new Set([
   'found-in-translation-podcast',
 ]);
 
-type OverrideEntry = { read?: string; spotify?: string; apple?: string; youtube?: string };
+type OverrideEntry = { read?: string; spotify?: string; apple?: string; youtube?: string; season?: string };
 const overrides: Record<string, OverrideEntry> = overridesData;
 
 const excludedTitles = new Set([
@@ -136,9 +136,8 @@ function unescapeHtml(str: string): string {
   return str
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
-    .replace(/&#34;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&#43;/g, '+')
+    .replace(/&#x([0-9a-fA-F]+);/g, (_, hex) => String.fromCodePoint(parseInt(hex, 16)))
+    .replace(/&#(\d+);/g, (_, dec) => String.fromCodePoint(Number(dec)))
     .replace(/&quot;/g, '"')
     .replace(/&apos;/g, "'")
     .replace(/&amp;/g, '&'); // must be last
@@ -232,7 +231,7 @@ export async function fetchEpisodes(): Promise<Episode[]> {
       continue;
     }
 
-    const season = extractTag(item, 'itunes:season').trim() || undefined;
+    let season = extractTag(item, 'itunes:season').trim() || undefined;
     const episode = extractTag(item, 'itunes:episode').trim() || undefined;
     const pubDate = unescapeHtml(extractTag(item, 'pubDate').trim());
 
@@ -266,6 +265,9 @@ export async function fetchEpisodes(): Promise<Episode[]> {
 
     // 5. Merge manual overrides — read override replaces RSS; others are additive
     const overrideMatch = overrideLookup.get(normalizeTitle(title));
+    if (overrideMatch?.season) {
+      season = overrideMatch.season;
+    }
     if (overrideMatch) {
       if (overrideMatch.read) {
         // Replace any RSS-extracted read link with the corrected override URL

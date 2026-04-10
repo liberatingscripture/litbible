@@ -563,3 +563,160 @@ body:has(.fit-page) .site-header.has-bg {
     justify-content: center;
   }
 }
+
+/* =========================
+   Season navigation
+   ========================= */
+
+.fit-season-nav-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 clamp(32px, 5vw, 52px);
+}
+
+.fit-season-arrow {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid rgba(var(--ink-rgb), 0.18);
+  background: rgba(var(--surface-rgb), 0.6);
+  color: rgba(var(--ink-rgb), 0.6);
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: background-color 140ms ease, color 140ms ease;
+}
+
+.fit-season-arrow:hover {
+  background: var(--green);
+  color: #fff;
+  border-color: transparent;
+}
+
+.fit-season-arrow:focus-visible {
+  outline: 3px solid rgba(32, 157, 80, 0.35);
+  outline-offset: 3px;
+}
+
+.fit-season-nav-wrap::before,
+.fit-season-nav-wrap::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 4px;
+  width: 48px;
+  pointer-events: none;
+  transition: opacity 200ms ease;
+}
+
+.fit-season-nav-wrap::before {
+  left: 40px; /* clears the prev arrow button (32px) + gap (8px) */
+  background: linear-gradient(to left, transparent, var(--page-bg));
+  opacity: 0;
+}
+
+.fit-season-nav-wrap::after {
+  right: 40px; /* clears the next arrow button (32px) + gap (8px) */
+  background: linear-gradient(to right, transparent, var(--page-bg));
+}
+
+.fit-season-nav-wrap.is-scrolled-start::before {
+  opacity: 1;
+}
+
+.fit-season-nav-wrap.is-scrolled-end::after {
+  opacity: 0;
+}
+
+.fit-season-nav {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  scroll-snap-type: x proximity;
+  padding-bottom: 4px; /* prevent clipping box-shadow */
+}
+
+.fit-season-nav::-webkit-scrollbar {
+  display: none;
+}
+
+.fit-season-nav a {
+  scroll-snap-align: start;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.fit-season-nav a {
+  display: inline-block;
+  padding: 8px 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(var(--ink-rgb), 0.18);
+  background: rgba(var(--surface-rgb), 0.6);
+  color: rgba(var(--ink-rgb), 0.78);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition:
+    background-color 140ms ease,
+    color 140ms ease,
+    border-color 140ms ease;
+}
+
+.fit-season-nav a:hover {
+  background: var(--green);
+  color: #fff;
+  border-color: transparent;
+}
+
+.fit-season-nav a:focus-visible {
+  outline: 3px solid rgba(32, 157, 80, 0.35);
+  outline-offset: 3px;
+}
+
+.fit-season-group {
+  margin-bottom: clamp(44px, 7vw, 72px);
+}
+
+.fit-season-heading {
+  font-family: var(--fit-serif);
+  font-size: clamp(1.5rem, 3vw, 2.1rem);
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  color: rgba(var(--ink-rgb), 0.5);
+  text-transform: uppercase;
+  margin: 0 0 clamp(20px, 3vw, 32px);
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(var(--ink-rgb), 0.12);
+}
+
+.fit-season-top {
+  display: inline-block;
+  margin-top: clamp(18px, 2.5vw, 28px);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: rgba(var(--ink-rgb), 0.45);
+  text-decoration: none;
+  transition: color 140ms ease;
+}
+
+.fit-season-top:hover {
+  color: var(--green);
+}
+
+.fit-season-top:focus-visible {
+  outline: 3px solid rgba(32, 157, 80, 0.35);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
