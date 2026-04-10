@@ -12,6 +12,7 @@ const coverImage = "/images/fit-cover.webp";
   title="Found in Translation Podcast | Liberation and Inclusion Translation"
 >
   <Fragment slot="head">
+    <link rel="preload" as="image" href={heroImage} fetchpriority="high" />
     <script type="application/ld+json" set:html={JSON.stringify({
       "@context": "https://schema.org",
       "@type": "PodcastSeries",
@@ -52,7 +53,8 @@ const coverImage = "/images/fit-cover.webp";
         width="1920"
         height="1080"
         loading="eager"
-        decoding="async"
+        fetchpriority="high"
+        decoding="sync"
       />
 
       <div class="fit-hero__content">
@@ -137,6 +139,7 @@ const coverImage = "/images/fit-cover.webp";
             frameborder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
             referrerpolicy="strict-origin-when-cross-origin"
+            loading="lazy"
             allowfullscreen></iframe>
         </div>
 
