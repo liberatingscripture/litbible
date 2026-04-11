@@ -1,5 +1,16 @@
 [
   {
+    "version": "2026-04-11",
+    "date": "2026-04-11",
+    "label": "April 11, 2026",
+    "changes": [
+      {
+        "type": "footnote_updated",
+        "description": "Luke 1 — footnote updated"
+      }
+    ]
+  },
+  {
     "version": "2026-03-31",
     "date": "2026-03-31",
     "label": "March 31, 2026",
