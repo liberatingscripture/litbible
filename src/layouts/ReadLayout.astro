@@ -92,6 +92,7 @@ const {
         let isLocked = false;
 
         const close = () => {
+          if (!isLocked && btn.dataset.tipOpen !== "true") return;
           isLocked = false;
           btn.dataset.tipOpen = "false";
         };

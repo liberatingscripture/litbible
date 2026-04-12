@@ -376,9 +376,13 @@ function initReadMode() {
     requestAnimationFrame(updateToolbarOffset);
   }
 
+  let lastToolbarOffset = -1;
+
   function updateToolbarOffset() {
-    const h = toolbar.getBoundingClientRect().height;
-    page.style.setProperty("--rm-toolbar-offset", `${Math.ceil(h)}px`);
+    const h = Math.ceil(toolbar.getBoundingClientRect().height);
+    if (h === lastToolbarOffset) return;
+    lastToolbarOffset = h;
+    page.style.setProperty("--rm-toolbar-offset", `${h}px`);
   }
 
   function applyMarkers(mode, persist = true) {
@@ -1118,10 +1122,6 @@ function initReadMode() {
     });
   }
 
-  toolbar.addEventListener("click", () => {
-    updateToolbarOffset();
-  });
-
   if (fabToggle instanceof HTMLButtonElement) {
     fabToggle.addEventListener("click", () => {
       if (isToolsOpen()) {
@@ -1152,7 +1152,12 @@ function initReadMode() {
     }
 
     if (clickedToolbar) return;
-    closePanels();
+
+    // Only close panels if one is actually open — avoids unnecessary
+    // getBoundingClientRect() in updateToolbarOffset() on every document click.
+    const tocOpen = tocPanel instanceof HTMLElement && !tocPanel.hidden;
+    const aaOpen = aaPanel instanceof HTMLElement && !aaPanel.hidden;
+    if (tocOpen || aaOpen) closePanels();
   });
 
   if (resumeBackdrop instanceof HTMLElement) {
