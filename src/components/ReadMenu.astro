@@ -208,7 +208,7 @@ const { currentBook = "", currentChapter = "" } = Astro.props;
             ? buildReadHref(book, chapter)
             : buildStudyHref(book, chapter);
 
-        if (href) window.location.href = href;
+        if (href) requestAnimationFrame(() => { window.location.href = href; });
       });
     })();
   </script>

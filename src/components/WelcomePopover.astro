@@ -124,6 +124,7 @@
   /* Backdrop */
   .welcome-dialog::backdrop {
     background: rgba(0, 0, 0, 0.55);
+    transition: opacity 0.25s ease;
   }
 
   /* Dialog container */
@@ -151,6 +152,17 @@
   .welcome-dialog[open] {
     opacity: 1;
     transform: translateY(0) scale(1);
+    will-change: transform, opacity;
+  }
+
+  .welcome-dialog[open].is-closing {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+    pointer-events: none;
+  }
+
+  .welcome-dialog[open].is-closing::backdrop {
+    opacity: 0;
   }
 
   /* Inner padding */
@@ -334,8 +346,10 @@
   }
 
   function dismissAndSet() {
+    if (dialog.classList.contains('is-closing')) return;
     setCookie(COOKIE_NAME, "1", COOKIE_DAYS);
-    dialog.close();
+    dialog.classList.add('is-closing');
+    setTimeout(() => dialog.close(), 250);
   }
 
   const dialog = document.getElementById(
