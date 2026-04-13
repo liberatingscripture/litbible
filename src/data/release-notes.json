@@ -1,5 +1,16 @@
 [
   {
+    "version": "2026-04-13",
+    "date": "2026-04-13",
+    "label": "April 13, 2026",
+    "changes": [
+      {
+        "type": "chapter_added",
+        "description": "Luke 13 added"
+      }
+    ]
+  },
+  {
     "version": "2026-04-11",
     "date": "2026-04-11",
     "label": "April 11, 2026",
