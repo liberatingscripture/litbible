@@ -311,11 +311,12 @@ if (changes.length === 0) {
   process.exit(0);
 }
 
-const today = new Date().toISOString().split("T")[0];
+const today = new Date().toLocaleDateString("en-CA", { timeZone: "America/Los_Angeles" });
 const entry = {
   version: today,
   date: today,
   label: new Date().toLocaleDateString("en-US", {
+    timeZone: "America/Los_Angeles",
     year: "numeric",
     month: "long",
     day: "numeric",
