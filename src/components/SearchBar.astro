@@ -4,6 +4,7 @@ const {
   placeholder = "Search",
   fullSearchHref = "/search",
   defaultMode = "",
+  initialOpen = false,
 } = Astro.props;
 const baseUrl = import.meta.env.BASE_URL || "/";
 ---
@@ -11,7 +12,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
 <div
   class="searchbar"
   data-searchbar
-  data-open="false"
+  data-open={initialOpen ? "true" : "false"}
   data-default-mode={defaultMode}
 >
   <label class="sr-only" for="site-search-input">Search</label>
@@ -483,11 +484,15 @@ const baseUrl = import.meta.env.BASE_URL || "/";
           }
         }
 
+        // On /search the panel is server-rendered open and should stay open.
+        const pinnedOpen = root.dataset.open === "true";
+
         function openPanel() {
           root.dataset.open = "true";
         }
 
         function closePanel() {
+          if (pinnedOpen) return;
           root.dataset.open = "false";
           clearGhost();
           closeAllTips();

@@ -96,6 +96,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
                 <SearchBar
                   fullSearchHref={`${baseUrl}search`}
                   defaultMode={initialTypeFromUrl}
+                  initialOpen={isSearchPage}
                 />
               ) : null}
             </div>
@@ -107,19 +108,8 @@ const baseUrl = import.meta.env.BASE_URL || "/";
     }
 
     {
-      /* On /search we want the SearchBar panel "open" and in-flow so
-         its controls (chips/book/mode) are visible as part of the page. */
-      isSearchPage && showToolsSearch ? (
-        <script is:inline>
-          {`
-            (() => {
-              const root = document.querySelector("[data-searchbar]");
-              if (!root) return;
-              root.dataset.open = "true";
-            })();
-          `}
-        </script>
-      ) : null
+      /* On /search the SearchBar panel is server-rendered open via
+         initialOpen={true}, so no client-side toggle is needed. */
     }
 
     <div
