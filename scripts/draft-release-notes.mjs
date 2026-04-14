@@ -88,6 +88,98 @@ function formatVerseRange(verses) {
   return ranges.join(", ");
 }
 
+/** Strip all HTML tags and decode common entities to plain text. */
+function stripHtml(html) {
+  return (html ?? "")
+    .replace(/<[^>]+>/g, "")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&rdquo;/g, "\u201D")
+    .replace(/&ldquo;/g, "\u201C")
+    .replace(/&rsquo;/g, "\u2019")
+    .replace(/&lsquo;/g, "\u2018")
+    .replace(/&mdash;/g, "\u2014")
+    .replace(/&ndash;/g, "\u2013")
+    .replace(/&#?\w+;/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/** Remove footnote-reference superscripts from paragraph HTML so that
+ *  text comparisons aren't affected by footnote additions/removals. */
+function stripFootnoteRefs(html) {
+  return (html ?? "").replace(/<sup class="fn-ref">.*?<\/sup>/g, "");
+}
+
+/** Build a Map<verseNumber, plainText> from an array of paragraph HTML strings.
+ *  Footnote references are stripped before extraction so only body text is compared. */
+function extractVerseTexts(paragraphs) {
+  const combined = paragraphs.map(stripFootnoteRefs).join("\n");
+  const parts = combined.split(/(?=<span class="vglue"><sup id="v\d+)/);
+  const verses = new Map();
+  for (const part of parts) {
+    const m = part.match(/<sup id="v(\d+)"/);
+    if (!m) continue;
+    const vNum = parseInt(m[1], 10);
+    const text = stripHtml(part).replace(/^\d+\s*/, "").trim();
+    verses.set(vNum, text);
+  }
+  return verses;
+}
+
+/** Find the verse number that contains the footnote reference with the given label. */
+function findFootnoteVerse(paragraphs, fnLabel) {
+  const needle = `fnref-${fnLabel}"`;
+  for (const para of paragraphs) {
+    const idx = para.indexOf(needle);
+    if (idx === -1) continue;
+    const before = para.substring(0, idx);
+    const matches = [...before.matchAll(/id="v(\d+)"/g)];
+    if (matches.length) return parseInt(matches[matches.length - 1][1], 10);
+  }
+  return null;
+}
+
+/** Truncate a string to maxLen characters, adding "\u2026" if needed. */
+function truncate(str, maxLen) {
+  if (str.length <= maxLen) return str;
+  return str.slice(0, maxLen - 1) + "\u2026";
+}
+
+/** Produce a brief human-readable diff between two plain-text strings.
+ *  Returns e.g. '"old phrase" → "new phrase"' */
+function briefDiff(oldText, newText, maxLen = 120) {
+  if (!oldText && !newText) return "";
+  if (!oldText) return `added "${truncate(newText, maxLen)}"`;
+  if (!newText) return `removed "${truncate(oldText, maxLen)}"`;
+
+  const oldWords = oldText.split(/\s+/);
+  const newWords = newText.split(/\s+/);
+
+  let pre = 0;
+  while (pre < oldWords.length && pre < newWords.length && oldWords[pre] === newWords[pre]) pre++;
+
+  let suf = 0;
+  while (
+    suf < oldWords.length - pre &&
+    suf < newWords.length - pre &&
+    oldWords[oldWords.length - 1 - suf] === newWords[newWords.length - 1 - suf]
+  ) suf++;
+
+  const oldDiff = oldWords.slice(pre, oldWords.length - suf).join(" ");
+  const newDiff = newWords.slice(pre, newWords.length - suf).join(" ");
+
+  if (oldDiff && newDiff) {
+    const half = Math.floor(maxLen / 2);
+    return `"${truncate(oldDiff, half)}" \u2192 "${truncate(newDiff, half)}"`;
+  }
+  if (newDiff) return `added "${truncate(newDiff, maxLen)}"`;
+  if (oldDiff) return `removed "${truncate(oldDiff, maxLen)}"`;
+  return "minor formatting change";
+}
+
 // ── Load canonical book order ─────────────────────────────────────────────────
 
 const { BOOKS, BOOK_ORDER, bookKeyToLabel } = await import("../src/data/books.js");
@@ -174,50 +266,121 @@ for (const file of modifiedChapters) {
 
   const oldParas = oldJson.paragraphs ?? [];
   const newParas = newJson.paragraphs ?? [];
-  const parasChanged = JSON.stringify(oldParas) !== JSON.stringify(newParas);
-
   const oldFns = oldJson.footnotes ?? [];
   const newFns = newJson.footnotes ?? [];
-  const fnsChanged = JSON.stringify(oldFns) !== JSON.stringify(newFns);
-  const fnAdded = newFns.length > oldFns.length;
 
-  // Find verse numbers in changed paragraphs
-  const changedVerses = new Set();
-  if (parasChanged) {
-    const maxLen = Math.max(oldParas.length, newParas.length);
-    for (let i = 0; i < maxLen; i++) {
-      if (oldParas[i] !== newParas[i]) {
-        const html = newParas[i] ?? oldParas[i] ?? "";
-        for (const v of extractVerses(html)) changedVerses.add(v);
-      }
+  // ── Verse-level text comparison ──────────────────────────
+  const oldVerses = extractVerseTexts(oldParas);
+  const newVerses = extractVerseTexts(newParas);
+  const allVerseNums = new Set([...oldVerses.keys(), ...newVerses.keys()]);
+
+  const textDiffs = [];
+  for (const v of [...allVerseNums].sort((a, b) => a - b)) {
+    const oldText = oldVerses.get(v) ?? "";
+    const newText = newVerses.get(v) ?? "";
+    if (oldText !== newText) {
+      textDiffs.push({ verse: v, diff: briefDiff(oldText, newText) });
     }
   }
 
-  const verseStr = formatVerseRange([...changedVerses]);
-  const ref = verseStr ? `${label} ${chapter}:${verseStr}` : `${label} ${chapter}`;
+  // Fallback: if verse extraction found nothing but paragraphs clearly differ,
+  // fall back to paragraph-level detection so we never silently swallow changes.
+  if (
+    textDiffs.length === 0 &&
+    JSON.stringify(oldParas.map(stripFootnoteRefs)) !==
+      JSON.stringify(newParas.map(stripFootnoteRefs))
+  ) {
+    const changedVerses = new Set();
+    const maxLen = Math.max(oldParas.length, newParas.length);
+    for (let i = 0; i < maxLen; i++) {
+      if (stripFootnoteRefs(oldParas[i] ?? "") !== stripFootnoteRefs(newParas[i] ?? "")) {
+        for (const v of extractVerses(newParas[i] ?? oldParas[i] ?? "")) changedVerses.add(v);
+      }
+    }
+    for (const v of changedVerses) textDiffs.push({ verse: v, diff: "" });
+  }
 
-  if (!parasChanged && !fnsChanged) {
-    // Only metadata (topics, title, description) changed
+  // ── Individual footnote comparison ───────────────────────
+  const oldFnMap = new Map(oldFns.map((f) => [f.id, f]));
+  const newFnMap = new Map(newFns.map((f) => [f.id, f]));
+  const allFnIds = new Set([...oldFnMap.keys(), ...newFnMap.keys()]);
+
+  const fnDiffs = [];
+  for (const id of allFnIds) {
+    const oldFn = oldFnMap.get(id);
+    const newFn = newFnMap.get(id);
+    if (!oldFn && newFn) {
+      const verse = findFootnoteVerse(newParas, newFn.label);
+      fnDiffs.push({
+        label: newFn.label,
+        verse,
+        action: "added",
+        diff: `added "${truncate(stripHtml(newFn.html), 120)}"`,
+      });
+    } else if (oldFn && !newFn) {
+      const verse = findFootnoteVerse(oldParas, oldFn.label);
+      fnDiffs.push({
+        label: oldFn.label,
+        verse,
+        action: "removed",
+        diff: `removed "${truncate(stripHtml(oldFn.html), 120)}"`,
+      });
+    } else if (oldFn && newFn && oldFn.html !== newFn.html) {
+      const verse = findFootnoteVerse(newParas, newFn.label);
+      fnDiffs.push({
+        label: newFn.label,
+        verse,
+        action: "updated",
+        diff: briefDiff(stripHtml(oldFn.html), stripHtml(newFn.html)),
+      });
+    }
+  }
+
+  // ── Emit change entries ──────────────────────────────────
+  const hasTextChanges = textDiffs.length > 0;
+  const hasFnChanges = fnDiffs.length > 0;
+
+  if (!hasTextChanges && !hasFnChanges) {
     changes.push({
       type: "metadata_updated",
       description: `${label} ${chapter} — metadata updated`,
     });
-  } else if (parasChanged && fnsChanged) {
-    changes.push({
-      type: "text_updated",
-      description: `${ref} — text and footnotes updated`,
-    });
-  } else if (parasChanged) {
-    changes.push({
+    continue;
+  }
+
+  if (hasTextChanges) {
+    const verses = textDiffs.map((d) => d.verse);
+    const verseStr = formatVerseRange(verses);
+    const ref = verseStr ? `${label} ${chapter}:${verseStr}` : `${label} ${chapter}`;
+    const detailParts = textDiffs
+      .filter((d) => d.diff)
+      .map((d) => (textDiffs.length > 1 ? `v. ${d.verse}: ${d.diff}` : d.diff));
+    const entry = {
       type: "text_updated",
       description: `${ref} — text updated`,
+    };
+    if (detailParts.length) entry.detail = detailParts.join("; ");
+    changes.push(entry);
+  }
+
+  if (hasFnChanges) {
+    const fnLabels = fnDiffs.map((d) => d.label);
+    const fnVerses = fnDiffs.map((d) => d.verse).filter(Boolean);
+    const verseStr = fnVerses.length ? formatVerseRange(fnVerses) : "";
+    const ref = verseStr ? `${label} ${chapter}:${verseStr}` : `${label} ${chapter}`;
+    const allAdded = fnDiffs.every((d) => d.action === "added");
+    const action = allAdded ? "added" : "updated";
+    const fnWord = fnDiffs.length === 1 ? "footnote" : "footnotes";
+    const detailParts = fnDiffs.map((d) => {
+      const vRef = d.verse ? ` (v. ${d.verse})` : "";
+      return `fn. ${d.label}${vRef}: ${d.diff}`;
     });
-  } else {
-    // footnotes only
-    changes.push({
-      type: fnAdded ? "footnote_added" : "footnote_updated",
-      description: `${ref} — footnote ${fnAdded ? "added" : "updated"}`,
-    });
+    const entry = {
+      type: allAdded ? "footnote_added" : "footnote_updated",
+      description: `${ref} — ${fnWord} ${fnLabels.join(", ")} ${action}`,
+    };
+    if (detailParts.length) entry.detail = detailParts.join("; ");
+    changes.push(entry);
   }
 }
 

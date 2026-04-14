@@ -97,8 +97,22 @@
   color: var(--link);
 }
 
+.rn-change__body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
 .rn-change__text {
   color: rgba(var(--ink-rgb), 0.88);
+}
+
+.rn-change__detail {
+  display: block;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: rgba(var(--ink-rgb), 0.5);
+  font-style: italic;
 }
 
 @media (max-width: 480px) {
