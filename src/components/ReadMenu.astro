@@ -150,8 +150,9 @@ const { currentBook = "", currentChapter = "" } = Astro.props;
         // Enable buttons as soon as a valid book is selected
         setButtonsDisabled(!key);
 
-        // Defer DOM work to keep INP fast — paint the selection first
-        requestAnimationFrame(() => populateChapters(key));
+        // Defer DOM work past the next paint so the select's visual
+        // change renders before we build chapter <option> elements (improves INP).
+        requestAnimationFrame(() => setTimeout(() => populateChapters(key), 0));
       });
 
       // No longer gate buttons on chapter selection; keep listener optional/no-op.

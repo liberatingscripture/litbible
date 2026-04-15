@@ -285,7 +285,11 @@ const TYPE_LABEL: Record<string, string> = {
 
     const isOpen = () => panel.classList.contains("is-open");
 
-    trigger.addEventListener("click", () => (isOpen() ? close() : open()));
+    trigger.addEventListener("click", () => {
+      // Yield to the browser so the button's :active/:focus styles paint
+      // before the panel's visibility/transform transition starts (improves INP).
+      requestAnimationFrame(() => (isOpen() ? close() : open()));
+    });
 
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape" && isOpen()) {

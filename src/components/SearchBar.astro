@@ -1916,8 +1916,12 @@ const baseUrl = import.meta.env.BASE_URL || "/";
             return;
           }
 
-          runSearch(q.trim());
-          renderActiveFilters();
+          // Yield to the browser so the focus visual update paints before
+          // the heavy Pagefind import + search runs (improves INP).
+          setTimeout(() => {
+            runSearch(q.trim());
+            renderActiveFilters();
+          }, 0);
         });
 
         input.addEventListener("keydown", (e) => {

@@ -1923,7 +1923,9 @@
       );
 
       scheduleSearch();
-      renderActiveFiltersFull();
+      // Yield to the browser so the input visual update paints before
+      // the filter-pill DOM work runs (improves INP).
+      requestAnimationFrame(() => renderActiveFiltersFull());
     }
 
     // Initial sync
