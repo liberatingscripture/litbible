@@ -1,14 +1,183 @@
 {
   "bookKey": "luke",
   "chapter": 14,
-  "indexed": false,
+  "indexed": true,
   "type": "scripture",
   "title": "Luke 14",
   "description": "Luke 14 in the Liberation and Inclusion Translation (LIT).",
-  "topics": [],
-  "paragraphs": [
-    "<figure style=\"margin: 0; text-align: center;\">\n  <img src=\"/images/writing-in-progress.webp\" alt=\"Page in progress; check back soon\" style=\"display: block; margin: 0 auto; max-width: 400px; width: 100%; height: auto;\" />\n  <figcaption style=\"margin-top: 0.5rem; font-size: 0.95em;\">\n    There once was a page still unwritten, beware,<br>\n    Still brewing up thoughts in midair.<br>\n    This page is on hold,<br>\n    But soon will unfold,<br>\n    So check back, real words will be there.\n  </figcaption>\n</figure>",
-    "<br><h2>This page is still in progress. All books except <strong>Acts</strong>, <strong>Revelation</strong>, and part of <strong>Luke</strong> are currently available. Check back soon!</h2>"
+  "topics": [
+     "Shabbat",
+    "Sabbath",
+    "healing on Shabbat",
+    "healing on the Sabbath",
+    "Pharisees",
+    "Torah",
+    "parable",
+    "parable of the great banquet",
+    "great banquet",
+    "wedding feast",
+    "reign of God",
+    "kingdom of God",
+    "disciples",
+    "students",
+    "discipleship",
+    "take up their cross",
+    "take up your cross",
+    "cross",
+    "cost of discipleship",
+    "salt"
   ],
-  "footnotes": []
+  "paragraphs": [
+    "<p id=\"luke-14-p1\"><span class=\"vglue\"><sup id=\"v1\" class=\"vn\">1</sup>&nbsp;On</span> one Shabbat,<sup class=\"fn-ref\"><a id=\"fnref-a\" href=\"#fn-a\" role=\"doc-noteref\">a</a></sup> when Jesus was going to the house of one of the leaders of the Pharisees to eat a meal, they were watching him carefully. <span class=\"vglue\"><sup id=\"v2\" class=\"vn\">2</sup>&nbsp;He</span> came upon someone right in front of him who was suffering from severe swelling due to fluid retention.</p>",
+    "<p id=\"luke-14-p2\"><span class=\"vglue\"><sup id=\"v3\" class=\"vn\">3</sup>&nbsp;Jesus</span> responded to the Torah experts and Pharisees by saying, “Is it right to heal on Shabbat or not?” <span class=\"vglue\"><sup id=\"v4\" class=\"vn\">4</sup>&nbsp;But</span> they stayed silent. Jesus took hold of the person, restored him, and set him free.<sup class=\"fn-ref\"><a id=\"fnref-b\" href=\"#fn-b\" role=\"doc-noteref\">b</a></sup> <span class=\"vglue\"><sup id=\"v5\" class=\"vn\">5</sup>&nbsp;Then</span> he said to them, “Which of you, if a son or an ox were to fall into a well on a day of Shabbat, would not immediately pull him up?” <span class=\"vglue\"><sup id=\"v6\" class=\"vn\">6</sup>&nbsp;They</span> couldn’t argue with that.</p>",
+    "<p id=\"luke-14-p3\"><span class=\"vglue\"><sup id=\"v7\" class=\"vn\">7</sup>&nbsp;Noticing</span> how the guests were picking the foremost spots for themselves, Jesus told them a parable. He told them, <span class=\"vglue\"><sup id=\"v8\" class=\"vn\">8</sup>&nbsp;“When</span> you are invited by someone to a wedding feast, don’t seat yourself in the foremost spot.<sup class=\"fn-ref\"><a id=\"fnref-c\" href=\"#fn-c\" role=\"doc-noteref\">c</a></sup> Otherwise, someone may have been invited who is more highly esteemed than you, <span class=\"vglue\"><sup id=\"v9\" class=\"vn\">9</sup>&nbsp;and</span> the one who invited both you and that person will tell you, ‘Give them this spot.’ Then, you’ll have to move to the last place<sup class=\"fn-ref\"><a id=\"fnref-d\" href=\"#fn-d\" role=\"doc-noteref\">d</a></sup> in humiliation. <span class=\"vglue\"><sup id=\"v10\" class=\"vn\">10</sup>&nbsp;Instead,</span> when you’re invited, go recline<sup class=\"fn-ref\"><a id=\"fnref-e\" href=\"#fn-e\" role=\"doc-noteref\">e</a></sup> at the last place. That way, when the one who invited you comes, they will tell you, ‘Friend, move up higher.’ Then, the honor will be yours in front of everyone reclining at the table with you. <span class=\"vglue\"><sup id=\"v11\" class=\"vn\">11</sup>&nbsp;You</span> see, everyone who lifts themself will be humbled, and whoever humbles themself will be lifted up.”</p>",
+    "<p id=\"luke-14-p4\"><span class=\"vglue\"><sup id=\"v12\" class=\"vn\">12</sup>&nbsp;Then,</span> specifically to the one who had invited him, Jesus said, “When you host a meal or a dinner, don’t invite your friends or family members<sup class=\"fn-ref\"><a id=\"fnref-f\" href=\"#fn-f\" role=\"doc-noteref\">f</a></sup> or relatives or wealthy neighbors, so they might also return the invitation, and it might be repaid for you. <span class=\"vglue\"><sup id=\"v13\" class=\"vn\">13</sup>&nbsp;Instead,</span> when you throw a feast, invite people experiencing poverty, people with severe physical disabilities,<sup class=\"fn-ref\"><a id=\"fnref-g\" href=\"#fn-g\" role=\"doc-noteref\">g</a></sup> people who are unable to walk,<sup class=\"fn-ref\"><a id=\"fnref-h\" href=\"#fn-h\" role=\"doc-noteref\">h</a></sup> and people who are blind. <span class=\"vglue\"><sup id=\"v14\" class=\"vn\">14</sup>&nbsp;Since</span> they have nothing to repay you with, you will still have reason for gratitude<sup class=\"fn-ref\"><a id=\"fnref-i\" href=\"#fn-i\" role=\"doc-noteref\">i</a></sup> because your repayment will be at the rising up<sup class=\"fn-ref\"><a id=\"fnref-j\" href=\"#fn-j\" role=\"doc-noteref\">j</a></sup> of the those aligned with the Path.”<sup class=\"fn-ref\"><a id=\"fnref-k\" href=\"#fn-k\" role=\"doc-noteref\">k</a></sup></p>",
+    "<p id=\"luke-14-p5\"><span class=\"vglue\"><sup id=\"v15\" class=\"vn\">15</sup>&nbsp;But</span> when one of the guests<sup class=\"fn-ref\"><a id=\"fnref-l\" href=\"#fn-l\" role=\"doc-noteref\">l</a></sup> heard these things, he told Jesus, “Everyone<sup class=\"fn-ref\"><a id=\"fnref-m\" href=\"#fn-m\" role=\"doc-noteref\">m</a></sup> who eats bread in the Reign of God has reason for gratitude!”</p>",
+    "<p id=\"luke-14-p6\"><span class=\"vglue\"><sup id=\"v16\" class=\"vn\">16</sup>&nbsp;But</span> Jesus told him, “Someone was hosting a banquet and invited many people. <span class=\"vglue\"><sup id=\"v17\" class=\"vn\">17</sup>&nbsp;At</span> the time of the banquet, he sent a person who was enslaved to him to tell the people who had been invited, ‘Come, because it’s ready now.’ <span class=\"vglue\"><sup id=\"v18\" class=\"vn\">18</sup>&nbsp;Yet</span> one after another, they all excused themselves. The first one told them, ‘I bought a field, and I need to go out and see it. Please, excuse me.’ <span class=\"vglue\"><sup id=\"v19\" class=\"vn\">19</sup>&nbsp;Another</span> said, ‘I bought five pairs of oxen, and I’m going to examine them. Please, excuse me.’ <span class=\"vglue\"><sup id=\"v20\" class=\"vn\">20</sup>&nbsp;Yet</span> another said, ‘I took a wife, and that’s why I can’t come.’ <span class=\"vglue\"><sup id=\"v21\" class=\"vn\">21</sup>&nbsp;The</span> enslaved person went back to deliver these messages to their master. Then, furious, the owner of the house told the person who was enslaved to him, ‘Go out right away into the streets and back alleys of the city, and bring in people who are experiencing poverty, who have severe physical disabilities, who are unable to walk, and who are blind.’<sup class=\"fn-ref\"><a id=\"fnref-n\" href=\"#fn-n\" role=\"doc-noteref\">n</a></sup> <span class=\"vglue\"><sup id=\"v22\" class=\"vn\">22</sup>&nbsp;Soon,</span> the enslaved person said, ‘Sir, what you ordered has been done, and there is still space.’ <span class=\"vglue\"><sup id=\"v23\" class=\"vn\">23</sup>&nbsp;The</span> master told the enslaved person, ‘Go out to the highways and boundary lines,<sup class=\"fn-ref\"><a id=\"fnref-o\" href=\"#fn-o\" role=\"doc-noteref\">o</a></sup> and bring in the people there, so my house will be filled.’</p>",
+    "<p id=\"luke-14-p7\"><span class=\"vglue\"><sup id=\"v24\" class=\"vn\">24</sup>&nbsp;“You</span> see, I’m telling you all<sup class=\"fn-ref\"><a id=\"fnref-p\" href=\"#fn-p\" role=\"doc-noteref\">p</a></sup> that none of those men<sup class=\"fn-ref\"><a id=\"fnref-q\" href=\"#fn-q\" role=\"doc-noteref\">q</a></sup> who were invited will taste my banquet!”<sup class=\"fn-ref\"><a id=\"fnref-r\" href=\"#fn-r\" role=\"doc-noteref\">r</a></sup></p>",
+    "<p id=\"luke-14-p8\"><span class=\"vglue\"><sup id=\"v25\" class=\"vn\">25</sup>&nbsp;Large</span> crowds were walking with him. Turning to them, Jesus said, <span class=\"vglue\"><sup id=\"v26\" class=\"vn\">26</sup>&nbsp;“If</span> anyone comes to me and does not abandon loyalty to<sup class=\"fn-ref\"><a id=\"fnref-s\" href=\"#fn-s\" role=\"doc-noteref\">s</a></sup> their own father and mother, wife and children, brothers and sisters, and even their very self,<sup class=\"fn-ref\"><a id=\"fnref-t\" href=\"#fn-t\" role=\"doc-noteref\">t</a></sup> they cannot be my student. <span class=\"vglue\"><sup id=\"v27\" class=\"vn\">27</sup>&nbsp;Anyone</span> who does not carry their own cross and follow me cannot be my student.</p>",
+    "<p id=\"luke-14-p9\"><span class=\"vglue\"><sup id=\"v28\" class=\"vn\">28</sup>&nbsp;After</span> all, which of you, wanting to build a tower, wouldn’t first sit down and calculate the cost to see whether they have enough to complete it? <span class=\"vglue\"><sup id=\"v29\" class=\"vn\">29</sup>&nbsp;That</span> way it keeps everyone who sees it from mocking them for laying the foundation and not being able to finish it, <span class=\"vglue\"><sup id=\"v30\" class=\"vn\">30</sup>&nbsp;saying,</span> ‘This person started building and couldn’t finish it!’ <span class=\"vglue\"><sup id=\"v31\" class=\"vn\">31</sup>&nbsp;Or</span> what king who goes to confront another king in battle would not sit down first and consider whether he is able to oppose with 10,000 the one coming against him with 20,000? <span class=\"vglue\"><sup id=\"v32\" class=\"vn\">32</sup>&nbsp;If</span> it’s certain he can’t, then while the other is still at a distance, he will send an emissary to request terms for peace. <span class=\"vglue\"><sup id=\"v33\" class=\"vn\">33</sup>&nbsp;Similarly,</span> then, anyone among you who doesn’t release their claim on<sup class=\"fn-ref\"><a id=\"fnref-u\" href=\"#fn-u\" role=\"doc-noteref\">u</a></sup> all they have cannot be my student.</p>",
+    "<p id=\"luke-14-p10\"><span class=\"vglue\"><sup id=\"v34\" class=\"vn\">34</sup>&nbsp;So</span> then, salt is helpful,<sup class=\"fn-ref\"><a id=\"fnref-v\" href=\"#fn-v\" role=\"doc-noteref\">v</a></sup> but if that salt were ruined through carelessness,<sup class=\"fn-ref\"><a id=\"fnref-w\" href=\"#fn-w\" role=\"doc-noteref\">w</a></sup> how would it be restored? <span class=\"vglue\"><sup id=\"v35\" class=\"vn\">35</sup>&nbsp;It’s</span> neither useful for the soil nor the manure pile; it will be thrown out. Whoever has ears should listen!”</p>"
+ ],
+  "footnotes": [
+    
+    {
+      "id": "fn-a",
+      "refId": "fnref-a",
+      "label": "a",
+      "html": "This is traditionally ‘Sabbath.’ It’s from the Hebrew word <em>Shabbat</em>, which means ‘rest’ and was used to refer to the seventh day of the week as a designated day for resting (See Exodus 20:8–11). Spelling and pronouncing it ‘Sabbath’ instead of <em>Shabbat</em> just needlessly distances it from the Jewish origin. It’s not an accident that this story directly follows Jesus promising rest for those who carry his yoke. See the book <em>Sabbath as Resistance</em> by Walter Brueggemann for more insight into the significance of <em>Shabbat</em> in the Bible."
+    },
+    {
+      "id": "fn-b",
+      "refId": "fnref-b",
+      "label": "b",
+      "html": "Or “let him go.” Most translations lean toward the more neutral meaning of dismissal, but the context strongly suggests the liberation sense. The condition would have carried significant social and religious stigma, and releasing him from the burden of it would have been more powerful than the already significant physical aspect of it. Additionally, the same word is used in Luke 13:12 as Jesus tells the woman, “You’ve been freed from your debilitation.”"
+    },
+    {
+      "id": "fn-c",
+      "refId": "fnref-c",
+      "label": "c",
+      "html": "The tables in these settings were U-shaped, with the host sitting at the center of the bend of the table. The seats closest to that position were the “foremost spots,” reserved for the most important guests."
+    },
+    {
+      "id": "fn-d",
+      "refId": "fnref-d",
+      "label": "d",
+      "html": "The spots at the ends of the table, farthest from the host, were the least honored and given to the guests that were deemed least important."
+    },
+    {
+      "id": "fn-e",
+      "refId": "fnref-e",
+      "label": "e",
+      "html": "The tables were low to the ground, and people reclined on cushions during meals, not sat in chairs as modern Westerners do."
+    },
+    {
+      "id": "fn-f",
+      "refId": "fnref-f",
+      "label": "f",
+      "html": "The word <em>adelphos</em> literally means ‘brother’ or ‘sibling.’ It was also frequently used to refer to ‘cousin’ or ‘relative,’ and even for members of the same ideological or ethnic group."
+    },
+    {
+      "id": "fn-g",
+      "refId": "fnref-g",
+      "label": "g",
+      "html": "The word <em>anapeiros</em> is rare (appearing only two times in the Bible, both in this chapter) and refers to severe permanent physical disability, potentially including loss of or inability to use a limb."
+    },
+    {
+      "id": "fn-h",
+      "refId": "fnref-h",
+      "label": "h",
+      "html": "The disability here is limited ability to walk, from as mild as a permanent limp to complete inability to use the legs. The context warrants the more severe understanding here."
+    },
+    {
+      "id": "fn-i",
+      "refId": "fnref-i",
+      "label": "i",
+      "html": "Traditionally, ‘blessed.’ There is not one English word that covers what is being described here. There is a sense of satisfaction or contentedness but also receiving something that meets a need. Sometimes it’s translated ‘happy’ to capture the mental/emotional component, and historically it was translated ‘blessed’ to capture the endowment aspect of it, of receiving something as a gift from God. It is about receiving something that inspires or is worthy of gratitude."
+    },
+    {
+      "id": "fn-j",
+      "refId": "fnref-j",
+      "label": "j",
+      "html": "This word, <em>anastasis</em>, is the same word traditionally translated as ‘resurrection.’ It can mean something as simple as standing up from lying or sitting. It can also mean to stand up as a public figure entering their role in public view, like a prophet."
+    },
+    {
+      "id": "fn-k",
+      "refId": "fnref-k",
+      "label": "k",
+      "html": "This word is <em>dikaios</em>, traditionally ‘righteous.’ The word is related to ‘just’ or ‘straight’ or ‘aligned’ and it usually refers to being aligned with Torah and justice, the path of the Lord. In this case, it is referring directly to alignment with God or the path traced out by Torah and lived out by Jesus."
+    },
+    {
+      "id": "fn-l",
+      "refId": "fnref-l",
+      "label": "l",
+      "html": "Literally it refers to one of the people “eating together.”"
+    },
+    {
+      "id": "fn-m",
+      "refId": "fnref-m",
+      "label": "m",
+      "html": "The response sounds like it could be an excited statement of inclusion, but the point is that it is a deflection, intentionally pushing against Jesus’ focus on emphasizing the inclusion of the marginalized. By reacting to Jesus’ statement of particularity with a universalizing ‘everyone,’ the speaker dismisses Jesus’ challenge without engaging it, in the same way that responding to ‘Black lives matter’ with ‘All lives matter’ acknowledges the form of the claim while evading its meaning and power."
+    },
+    {
+      "id": "fn-n",
+      "refId": "fnref-n",
+      "label": "n",
+      "html": "Notice the parallel with verse 13."
+    },
+    {
+      "id": "fn-o",
+      "refId": "fnref-o",
+      "label": "o",
+      "html": "The “boundary lines” were places travelers and people without homes camped. It would have been the place to find foreigners passing through and the most destitute in the land."
+    },
+    {
+      "id": "fn-p",
+      "refId": "fnref-p",
+      "label": "p",
+      "html": "The word ‘you’ here is plural, indicating it’s being addressed to the dinner guests with Jesus rather than as part of the parable itself."
+    },
+    {
+      "id": "fn-q",
+      "refId": "fnref-q",
+      "label": "q",
+      "html": "The word <em>aner</em> is specifically the word for men, not people broadly. It is occasionally used in a non-gender-specific way to refer to ‘individuals.’ This context is explicitly referring to men with power."
+    },
+    {
+      "id": "fn-r",
+      "refId": "fnref-r",
+      "label": "r",
+      "html": "Existing English translations include this verse as the final line of the parable, spoken by the host; however, several major commentaries note that Jesus as the speaker is either the most likely intention of the text or at least a strong possibility, including NICNT (Joel B. Green), Hermeneia (François Bovon), and Word Biblical Commentary (John Nolland), among others. Several features of the Greek strongly suggest that Jesus is now speaking directly to his fellow dinner guests instead. The phrase “I’m telling you” (<em>lego humin</em>) is a formula Jesus uses throughout Luke twenty-one times, and it is almost never placed in a parable character’s mouth. The plural “you” (<em>humin</em>) also does not fit the scene inside the parable, where the host speaks only to a single enslaved person. Luke often ends parables with Jesus stepping out of the story to give a concluding word (for example, 10:36–37; 15:7; 15:10; 18:14). The one exception is the Parable of the Minas (19:26–27), where Luke intentionally blends the king’s speech with a concluding principle because the king continues speaking in the following verse, marking it as structurally unusual. Taken together, these factors indicate that v. 24 is Jesus addressing the people around him, highlighting that the kind of wealth that lets someone casually refuse a peer’s banquet implies a deeper problem: such wealth can only be gained or maintained by exploiting others or, at the very least, by benefiting from systems that exploit and by withholding resources that could lift others up. In contrast to both the slaveholder in the parable and the person hosting Jesus, Jesus’ own banquet will specifically include the marginalized and oppressed and not the ultra-wealthy, who will choose to exclude themselves."
+    },
+    {
+      "id": "fn-s",
+      "refId": "fnref-s",
+      "label": "s",
+      "html": "Traditionally, ‘hate.’ ‘Abandon loyalty’ renders the Greek verb <em>misein</em>, which can include both active hostility and, in many Semitic contexts, the withdrawal or reversal of loyalty. In kinship settings this verb regularly signals a reordering of allegiance rather than emotional hatred. The Septuagint uses <em>misein</em> in this comparative way in Genesis 29:30–31 and Deuteronomy 21:15–17, where hated family members are those given diminished status or lower priority. Matthew’s parallel (“loves father or mother more than me,” Matt 10:37) confirms that the issue is competing claims of loyalty, not commanded animosity. See BDAG, 653–54, on the sense of <em>miseo</em> as “disfavor” or “love less,” and Joel B. Green, <em>The Gospel of Luke</em> (NICNT; Grand Rapids: Eerdmans, 1997), 565–66, for the kinship and allegiance dynamics at work in Luke 14:26."
+    },
+    {
+      "id": "fn-t",
+      "refId": "fnref-t",
+      "label": "t",
+      "html": "This is the word <em>psuche</em>, with the root idea of “breath.” It points to the breath, the respiration, that makes someone a living person. In the Septuagint, the Greek translation of the Hebrew Bible, it is what is used to translate <em>nephesh</em>, or ‘living being.’ From there it takes on two closely linked meanings: 1, Physical life — when a verse is talking about someone’s body staying alive or being in danger, like “whoever wants to secure their <em>psuche</em> will surrender it” (Luke 9:24); 2, Inner self and identity — in many places <em>psuche</em> means the deep core of who you are, including your feelings, thoughts, priorities, values, motivation, and sense of self. That’s why Jesus asks, “how does it benefit a person to gain the whole world but injure or destroy their <em>psuche</em>?” (Luke 9:35). The word is about more than staying alive; it’s about losing your identity and integrity of character. <em>Psuche</em> is the living person, seen from the angle of both survival and identity."
+    },
+    {
+      "id": "fn-u",
+      "refId": "fnref-u",
+      "label": "u",
+      "html": "The verb <em>apotasso</em> literally means “to take formal leave of” someone or something. In many places that simply looks like saying goodbye, such as in Mark 6:46. However, the same word can indicate formally declaring a hard separation, as it does here."
+    },
+    {
+      "id": "fn-v",
+      "refId": "fnref-v",
+      "label": "v",
+      "html": "Traditionally, ‘good.’ Like the word ‘good’ in English, the word <em>kalos</em> in Greek has a number of uses, though in the Bible, they are typically about something along the lines of being honorable, admirable, beautiful, or something that is in healthy or undamaged condition."
+    },
+    {
+      "id": "fn-w",
+      "refId": "fnref-w",
+      "label": "w",
+      "html": "The Greek word <em>moraino</em> is the verb form of <em>moros</em>, where English ‘moron’ comes from. It carries a sense of shortsightedness or negligence. The word doesn’t actually have anything to do with flavor or preservative properties of salt. The nature of the carelessness isn’t made explicit, but the context implies losing its identity or qualities in some way. Unlike modern salt with industrial refinement properties, the salt of this period contained impurities, other minerals mixed in with the salt. If salt was carelessly exposed to moisture, the salt would dissolve and leave behind only the impurities, which would basically be sand."
+    }
+  ]
 }
