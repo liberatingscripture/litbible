@@ -1,5 +1,21 @@
 [
   {
+    "version": "2026-04-14",
+    "date": "2026-04-14",
+    "label": "April 14, 2026",
+    "changes": [
+      {
+        "type": "footnote_updated",
+        "description": "Luke 9:61 — footnote jj updated",
+        "detail": "fn. jj (v. 61): \"apoptasso\" → \"apotasso\""
+      },
+      {
+        "type": "chapter_added",
+        "description": "Luke 14 added"
+      }
+    ]
+  },
+  {
     "version": "2026-04-13",
     "date": "2026-04-13",
     "label": "April 13, 2026",
