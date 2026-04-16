@@ -127,7 +127,10 @@ const baseUrl = import.meta.env.BASE_URL || "/";
   <script type="module" is:inline define:vars={{ BASE_URL: baseUrl }}>
     // IMPORTANT: In module scripts, document.currentScript is often null.
     // So we initialize ALL searchbars on the page (and guard with data-enhanced).
-    (async () => {
+    //
+    // Defer initialization so the main thread is free for early user interactions
+    // (improves INP). Use requestIdleCallback where available, else setTimeout.
+    const _initSearchbars = async () => {
       const roots = Array.from(document.querySelectorAll("[data-searchbar]"));
       for (const root of roots) {
         if (!root) continue;
@@ -2027,7 +2030,14 @@ const baseUrl = import.meta.env.BASE_URL || "/";
         renderActiveFilters();
         closePanel();
       }
-    })();
+    };
+    // Yield to the browser before running the heavy init so early
+    // interactions (taps, clicks) are not blocked (improves INP).
+    if ('requestIdleCallback' in window) {
+      requestIdleCallback(_initSearchbars);
+    } else {
+      setTimeout(_initSearchbars, 1);
+    }
   </script>
 </div>
 

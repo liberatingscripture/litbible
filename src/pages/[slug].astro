@@ -488,6 +488,12 @@ if (props.kind === "chapter") {
       line-height: 1.75;
     }
 
+    /* Skip rendering for off-screen paragraphs (improves INP on long chapters) */
+    .chapter-paragraphs :global(.p) {
+      content-visibility: auto;
+      contain-intrinsic-size: auto 120px;
+    }
+
     /* Add space between the end of the body text and the nav buttons */
     .chapter-paragraphs {
       margin-bottom: 40px; /* tweak: 24–40px usually feels right */
