@@ -26,6 +26,7 @@ const {
 ---
 
 <Layout title={title} description={description} bg={bg} index={index}>
+  <slot slot="head" name="head" />
   <div class="read-layout">
     <header class="read-layout__hero">
       <slot name="hero" />
