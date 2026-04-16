@@ -1,14 +1,88 @@
 {
   "bookKey": "luke",
   "chapter": 15,
-  "indexed": false,
+  "indexed": true,
   "type": "scripture",
   "title": "Luke 15",
   "description": "Luke 15 in the Liberation and Inclusion Translation (LIT).",
-  "topics": [],
-  "paragraphs": [
-    "<figure style=\"margin: 0; text-align: center;\">\n  <img src=\"/images/writing-in-progress.webp\" alt=\"Page in progress; check back soon\" style=\"display: block; margin: 0 auto; max-width: 400px; width: 100%; height: auto;\" />\n  <figcaption style=\"margin-top: 0.5rem; font-size: 0.95em;\">\n    There once was a page still unwritten, beware,<br>\n    Still brewing up thoughts in midair.<br>\n    This page is on hold,<br>\n    But soon will unfold,<br>\n    So check back, real words will be there.\n  </figcaption>\n</figure>",
-    "<br><h2>This page is still in progress. All books except <strong>Acts</strong>, <strong>Revelation</strong>, and part of <strong>Luke</strong> are currently available. Check back soon!</h2>"
+  "topics": [
+    "parable",
+    "lost sheep",
+    "parable of the lost sheep",
+    "lost coin",
+    "parable of the lost coin",
+    "prodigal son",
+    "lost son",
+    "parable of the lost son",
+    "parable of the prodigal son",
+    "parable of the two sons",
+    "lost and found",
+    "repentance",
+    "reorientation of the mind",
+    "metanoia",
+    "tax collectors",
+    "Pharisees",
+    "sinners",
+    "people who deviate",
+    "forgiveness",
+    "compassion",
+    "celebration",
+    "joy",
+    "exile",
+    "return from exile",
+    "righteousness",
+    "dikaios",
+    "aligned with the Path",
+    "hamartolos",
+    "fattened calf",
+    "father and son",
+    "Torah",
+    "justice"
   ],
-  "footnotes": []
+  "paragraphs": [
+    "<p id=\"luke-15-p1\"><span class=\"vglue\"><sup id=\"v1\" class=\"vn\">1</sup>&nbsp;All</span> the tax collectors and people who deviate<sup class=\"fn-ref\"><a id=\"fnref-a\" href=\"#fn-a\" role=\"doc-noteref\">a</a></sup> were coming close to listen to him, <span class=\"vglue\"><sup id=\"v2\" class=\"vn\">2</sup>&nbsp;and</span> both the Pharisees and the scripture scholars were criticizing, saying, “This person welcomes people who deviate and eats with them!”</p>",
+    "<p id=\"luke-15-p2\"><span class=\"vglue\"><sup id=\"v3\" class=\"vn\">3</sup>&nbsp;So</span> Jesus told them this parable: <span class=\"vglue\"><sup id=\"v4\" class=\"vn\">4</sup>&nbsp;“Which</span> one of you, if they have 100 sheep and lose one of them, wouldn’t leave the 99 in the wilderness and go after the one that is lost until they find it? <span class=\"vglue\"><sup id=\"v5\" class=\"vn\">5</sup>&nbsp;When</span> they find it, they place it on their shoulders, celebrating, <span class=\"vglue\"><sup id=\"v6\" class=\"vn\">6</sup>&nbsp;and</span> when they come home, they call their friends and neighbors together, telling them, ‘Celebrate with me because I found my lost sheep!’ <span class=\"vglue\"><sup id=\"v7\" class=\"vn\">7</sup>&nbsp;I’m</span> telling you, similarly, there will be more joy in the heavens at one person who has deviated, when they reorient their mind,<sup class=\"fn-ref\"><a id=\"fnref-b\" href=\"#fn-b\" role=\"doc-noteref\">b</a></sup> than at 99 people aligned with the Path<sup class=\"fn-ref\"><a id=\"fnref-c\" href=\"#fn-c\" role=\"doc-noteref\">c</a></sup> who don’t need reorienting.</p>",
+    "<p id=\"luke-15-p3\"><span class=\"vglue\"><sup id=\"v8\" class=\"vn\">8</sup>&nbsp;“Or</span> what woman, if she has ten drachmas<sup class=\"fn-ref\"><a id=\"fnref-d\" href=\"#fn-d\" role=\"doc-noteref\">d</a></sup> and loses one, doesn’t light a lamp and sweep the house and search carefully until she finds it? <span class=\"vglue\"><sup id=\"v9\" class=\"vn\">9</sup>&nbsp;After</span> she finds it, she calls her friends and neighbors together, saying, ‘Celebrate with me because I found my coin that was lost!’ <span class=\"vglue\"><sup id=\"v10\" class=\"vn\">10</sup>&nbsp;Similarly,</span> I’m telling you, there will come to be joy among God’s messengers at one person who has deviated, when they reorient their mind.”</p>",
+    "<p id=\"luke-15-p4\"><span class=\"vglue\"><sup id=\"v11\" class=\"vn\">11</sup>&nbsp;Then</span> Jesus said, “Someone had two sons. <span class=\"vglue\"><sup id=\"v12\" class=\"vn\">12</sup>&nbsp;The</span> younger one said to their father, ‘Father, give me the portion of what you have that will fall to me.’ So the father divided his resources between them. <span class=\"vglue\"><sup id=\"v13\" class=\"vn\">13</sup>&nbsp;After</span> a few days, the younger son had gathered everything and left his homeland for a distant land. Once he was there, he squandered what he had, living carelessly. <span class=\"vglue\"><sup id=\"v14\" class=\"vn\">14</sup>&nbsp;After</span> he had expended everything, there was a severe famine throughout that land, and he began to suffer deprivation. <span class=\"vglue\"><sup id=\"v15\" class=\"vn\">15</sup>&nbsp;He</span> went and bound himself<sup class=\"fn-ref\"><a id=\"fnref-e\" href=\"#fn-e\" role=\"doc-noteref\">e</a></sup> to one of the citizens of that land, who sent him to his fields to feed pigs. <span class=\"vglue\"><sup id=\"v16\" class=\"vn\">16</sup>&nbsp;He</span> was longing to fill himself with the carob pods the pigs were eating, but no one gave him anything. <span class=\"vglue\"><sup id=\"v17\" class=\"vn\">17</sup>&nbsp;After</span> coming to himself, he said, ‘I’m dying of hunger! <span class=\"vglue\"><sup id=\"v18\" class=\"vn\">18</sup>&nbsp;I’ll</span> stand up, go to my father, and tell him, “Father, I deviated against the heavens and in your eyes. <span class=\"vglue\"><sup id=\"v19\" class=\"vn\">19</sup>&nbsp;I’m</span> no longer fit to be called your son. Make me like one of your hired hands.”’ <span class=\"vglue\"><sup id=\"v20\" class=\"vn\">20</sup>&nbsp;And</span> standing up, he came back to his father.</p>",
+    "<p id=\"luke-15-p5\">“While he was still a long way off, his father saw him and ached with compassion. Running to him, his father seized him in an embrace and kissed him over and over. <span class=\"vglue\"><sup id=\"v21\" class=\"vn\">21</sup>&nbsp;Then</span> the son said to him, ‘Father, I deviated against the heavens and in your eyes. I’m no longer fit to be called your son.’ <span class=\"vglue\"><sup id=\"v22\" class=\"vn\">22</sup>&nbsp;But</span> the father told his enslaved workers, ‘Hurry! Bring the finest robe and put it on him! Put a ring on his finger and sandals on his feet! <span class=\"vglue\"><sup id=\"v23\" class=\"vn\">23</sup>&nbsp;Get</span> the fattened calf, and slaughter it. Let’s eat and celebrate <span class=\"vglue\"><sup id=\"v24\" class=\"vn\">24</sup>&nbsp;because</span> my son was dead and came back to life! He was lost yet is found!’ And they began celebrating.</p>",
+    "<p id=\"luke-15-p6\"><span class=\"vglue\"><sup id=\"v25\" class=\"vn\">25</sup>&nbsp;“The</span> older son had been in the field. As he was coming toward the house, he heard music and dancing. <span class=\"vglue\"><sup id=\"v26\" class=\"vn\">26</sup>&nbsp;He</span> called one of the enslaved workers and asked what was happening. <span class=\"vglue\"><sup id=\"v27\" class=\"vn\">27</sup>&nbsp;The</span> enslaved worker told him, ‘Your brother is here, and your father slaughtered the fattened calf because he got him back healthy.’ <span class=\"vglue\"><sup id=\"v28\" class=\"vn\">28</sup>&nbsp;But</span> the older son was furious and refused to go inside. So, his father came outside to address him, <span class=\"vglue\"><sup id=\"v29\" class=\"vn\">29</sup>&nbsp;but</span> he answered his father, ‘Look! I’ve worked like a slave for you for many years and never avoided a single order of yours, yet you never gave me even a young goat so I could celebrate with my friends. <span class=\"vglue\"><sup id=\"v30\" class=\"vn\">30</sup>&nbsp;But</span> when this son of yours who ate up your resources with prostitutes arrives, you slaughtered the fattened calf for him!’ <span class=\"vglue\"><sup id=\"v31\" class=\"vn\">31</sup>&nbsp;So,</span> the father said to him, ‘My child,<sup class=\"fn-ref\"><a id=\"fnref-f\" href=\"#fn-f\" role=\"doc-noteref\">f</a></sup> you are always with me, and everything that’s mine is yours. <span class=\"vglue\"><sup id=\"v32\" class=\"vn\">32</sup>&nbsp;It</span> was right to be joyful and celebrate because your brother was dead and came to life, was lost and is found.’”</p>"
+   ],
+  "footnotes": [
+       {
+      "id": "fn-a",
+      "refId": "fnref-a",
+      "label": "a",
+      "html": "Traditionally, ‘sinners.’ “People who deviate” describes people who live in a way characterized by actions that don’t follow the path traced out by Torah and lived out by Jesus. This shift emphasizes actions misaligned with the sacred path rather than an inherent sinful state. The Greek <em>hamartolos</em> is actually an adjective, not a noun, indicating that deviation is not an identity. Instead, it represents behaviors or conditions that “miss the mark” set by God’s path. ‘People who deviate’ fits with the idea that these could be people with behavioral issues, like tax collectors who routinely exploited the poor and sided with the enemy (Rome) for their own profit. However, it was applied to anyone who did not align with a sense of perfection as defined by Torah, so people who were chronically ill, or not followers of Yahweh, and others would also have been labeled ‘people who deviate’ through no fault of their own, but they still would have been treated as deserving status as second class citizens."
+    },
+    {
+      "id": "fn-b",
+      "refId": "fnref-b",
+      "label": "b",
+      "html": "The Greek word <em>metanoia</em> is traditionally translated as ‘repent.’ The meaning of <em>metanoia</em> is ‘change the mind’ or ‘transform the mind.’ It does not mean ‘remorse’ or ‘guilt.’ The confusion comes from the Vulgate, the Latin translation of the Bible, which used <em>paenitere</em>, which means ‘to be penitent,’ which was a significant shift away from the Greek meaning. The use of ‘reorient’ here reflects the kind of transformation in view, and it also surfaces the Hebraic understanding of the concept that the biblical writers would have had in mind. The Hebrew word traditionally translated as ‘repent’ was <em>shuv</em>, which literally meant ‘turn around’ or ‘turn back.’"
+    },
+    {
+      "id": "fn-c",
+      "refId": "fnref-c",
+      "label": "c",
+      "html": "This word is <em>dikaios</em>, traditionally ‘righteous.’ The word is related to ‘just’ or ‘straight’ or ‘aligned’ and it usually refers to being aligned with Torah and justice, the path of the Lord. In this case, it is referring directly to alignment with God or the path traced out by Torah and lived out by Jesus."
+    },
+    {
+      "id": "fn-d",
+      "refId": "fnref-d",
+      "label": "d",
+      "html": "A drachma was a coin worth the amount of money for a day’s wage. If we estimate $15/per hour and an 8-hour workday, that would make it equivalent to $120 each drachma."
+    },
+    {
+      "id": "fn-e",
+      "refId": "fnref-e",
+      "label": "e",
+      "html": "The Greek <em>ekollethe</em> (“bound himself”) comes from a verb meaning to glue or adhere, and it is often used in the Septuagint for Israel’s attachment to foreign nations and gods. Here it describes dependent labor with no negotiating position, something akin to indentured servitude to a foreigner in a foreign land. The imagery alludes to the Exile in Babylon: separation from land, people, and covenant identity. The son’s eventual turn toward home carries the resonance of return from exile, not merely a change of circumstances."
+    },
+    {
+      "id": "fn-f",
+      "refId": "fnref-f",
+      "label": "f",
+      "html": "Literally, just ‘Child,’ but it is meant to be tender and firm, not judgmental or patronizing. In English, adding ‘my’ gives it a closer impact to the meaning of the Greek."
+    }
+  ]
 }
