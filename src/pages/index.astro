@@ -2,6 +2,7 @@
 import Layout from "../layouts/Layout.astro";
 import ReadMenu from "../components/ReadMenu.astro";
 import "../styles/pages/home.css";
+import frauncesLatin500Url from "@fontsource/fraunces/files/fraunces-latin-500-normal.woff2";
 ---
 
 <Layout
@@ -11,6 +12,7 @@ import "../styles/pages/home.css";
   bg="green"
 >
   <Fragment slot="head">
+    <link rel="preload" href={frauncesLatin500Url} as="font" type="font/woff2" crossorigin="anonymous" />
     <script type="application/ld+json" set:html={JSON.stringify({
       "@context": "https://schema.org",
       "@type": "WebSite",
