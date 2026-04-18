@@ -5,14 +5,8 @@
     "label": "April 18, 2026",
     "changes": [
       {
-        "type": "text_updated",
-        "description": "Luke 15:13, 27 — text updated",
-        "detail": "v. 13: \"he squandered what he had, living carelessly.\" → \"living a life that preserved nothing, he scattered what he …\"; v. 27: \"healthy.’\" → \"healthy.\""
-      },
-      {
-        "type": "footnote_updated",
-        "description": "Luke 15:13, 15–16, 31 — footnotes e, f, g, h updated",
-        "detail": "fn. e (v. 13): \"The Greek ekollethe (“bound himself”) comes from a verb mea…\" → \"This word indicates the imagery of scattering seed far and …\"; fn. f (v. 15): \"Literally, just ‘Child,’ but it is meant to be tender and f…\" → \"The Greek ekollethe (“bound himself”) comes from a verb mea…\"; fn. g (v. 16): added \"The Greek chortazo means something more specific than simply ‘eat’ and is not the usual word used for eating. It specif…\"; fn. h (v. 31): added \"Literally, just ‘Child,’ but it is meant to be tender and firm, not judgmental or patronizing. In English, adding ‘my’ …\""
+        "type": "chapter_added",
+        "description": "Luke 16 added"
       }
     ]
   },
