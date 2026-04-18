@@ -145,14 +145,13 @@
     opacity: 0;
     transform: translateY(12px) scale(0.98);
     transition:
-      opacity 0.25s ease,
-      transform 0.25s ease;
+      opacity 0.15s ease,
+      transform 0.15s ease;
   }
 
   .welcome-dialog[open] {
     opacity: 1;
     transform: translateY(0) scale(1);
-    will-change: transform, opacity;
   }
 
   .welcome-dialog[open].is-closing {
@@ -357,10 +356,11 @@
   ) as HTMLDialogElement;
 
   if (dialog && !getCookie(COOKIE_NAME)) {
-    // Show after a brief delay so the page renders first
-    setTimeout(() => {
-      dialog.showModal();
-    }, 400);
+    // Open on the frame after first paint so the hero renders first, but
+    // the tap-before-modal window stays small (avoids an INP race).
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => dialog.showModal());
+    });
   }
 
   // Close on X button

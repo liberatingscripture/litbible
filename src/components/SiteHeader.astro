@@ -104,7 +104,9 @@ const { class: className = "" } = Astro.props;
       const openMenu = () => {
         lastActive = document.activeElement;
         setOpenState(true);
-        panel.focus({ preventScroll: true });
+        // Defer focus so the opening paint commits first; focus() forces
+        // layout and would otherwise stack two sync layouts into this tick.
+        requestAnimationFrame(() => panel.focus({ preventScroll: true }));
       };
 
       const closeMenu = () => {

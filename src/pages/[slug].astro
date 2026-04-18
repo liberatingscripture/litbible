@@ -488,10 +488,13 @@ if (props.kind === "chapter") {
       line-height: 1.75;
     }
 
-    /* Skip rendering for off-screen paragraphs (improves INP on long chapters) */
+    /* Skip rendering for off-screen paragraphs (improves INP on long chapters).
+       Placeholder height is sized to the average scripture paragraph — using
+       too small a value (e.g. 120px) caused large CLS when real paragraphs
+       resolved. 400px is closer to the median real height. */
     .chapter-paragraphs :global(.p) {
       content-visibility: auto;
-      contain-intrinsic-size: auto 120px;
+      contain-intrinsic-size: auto 400px;
     }
 
     /* Add space between the end of the body text and the nav buttons */
