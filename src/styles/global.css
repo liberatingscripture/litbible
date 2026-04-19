@@ -11,6 +11,38 @@
 @import "@fontsource/fraunces/latin-500.css";
 
 /* =========================================================
+   Metric-matched fallback fonts (to minimize CLS from font swap)
+   These render during the brief window before the real font loads
+   so layout stays stable when the webfont replaces them.
+   Metrics are tuned so each fallback paints at visually matching
+   x-height / cap-height / line height to its target font.
+   ========================================================= */
+@font-face {
+  font-family: "Inter Fallback";
+  src: local("Arial");
+  size-adjust: 107.40%;
+  ascent-override: 90%;
+  descent-override: 22.43%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: "Crimson Fallback";
+  src: local("Georgia");
+  size-adjust: 104.72%;
+  ascent-override: 92.18%;
+  descent-override: 23.23%;
+  line-gap-override: 8.73%;
+}
+@font-face {
+  font-family: "Fraunces Fallback";
+  src: local("Georgia");
+  size-adjust: 112%;
+  ascent-override: 87.5%;
+  descent-override: 22.3%;
+  line-gap-override: 0%;
+}
+
+/* =========================================================
    Global styles — Liberation and Inclusion Translation (LIT)
    Solid colors limited to:
    #E1DFD9, #FFFFFF, #209D50, #1D231C, #000000
@@ -98,8 +130,8 @@ body {
 body {
   background: var(--page-bg);
   color: var(--text);
-  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-    Roboto, Helvetica, Arial, sans-serif;
+  font-family: Inter, "Inter Fallback", system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   font-size: 1.125rem;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
@@ -155,7 +187,8 @@ h1,
 h2,
 h3,
 h4 {
-  font-family: "Crimson Text", Georgia, "Times New Roman", serif;
+  font-family: "Crimson Text", "Crimson Fallback", Georgia, "Times New Roman",
+    serif;
   font-weight: 600;
   line-height: 1.2;
   margin: 0 0 1rem 0;
@@ -300,7 +333,8 @@ a:focus {
 }
 
 .site-header__title {
-  font-family: "Crimson Text", Georgia, "Times New Roman", serif;
+  font-family: "Crimson Text", "Crimson Fallback", Georgia, "Times New Roman",
+    serif;
   font-size: 1.85rem;
   font-weight: 600;
   letter-spacing: 0.02em;
@@ -723,8 +757,8 @@ html.menu-open body {
 .menu-overlay__nav a {
   color: var(--white);
   text-decoration: none;
-  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-    Roboto, Helvetica, Arial, sans-serif;
+  font-family: Inter, "Inter Fallback", system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 
   font-size: 2.5rem;
   letter-spacing: 0.14em;

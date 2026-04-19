@@ -57,7 +57,7 @@
 
 /* Lead statement (Fraunces) */
 .hero-lead {
-  font-family: "Fraunces", serif;
+  font-family: "Fraunces", "Fraunces Fallback", serif;
   font-weight: 500;
   font-size: clamp(1.7rem, calc(var(--scroll-w) * 0.033), 3.2rem);
   line-height: 1.14;
@@ -67,7 +67,8 @@
 
 /* Question (Inter, italic) */
 .hero-question {
-  font-family: "Inter", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  font-family: "Inter", "Inter Fallback", system-ui, -apple-system, Segoe UI,
+    Roboto, sans-serif;
   font-size: clamp(1.15rem, calc(var(--scroll-w) * 0.02), 1.9rem);
   line-height: 1.5;
   color: var(--text);
@@ -241,7 +242,7 @@
    ========================================================= */
 
 .title-block__inner * {
-  font-family: "Crimson Text", serif;
+  font-family: "Crimson Text", "Crimson Fallback", serif;
 }
 
 /* Small lines:
@@ -454,8 +455,8 @@
   background: var(--surface-raised);
   padding: 6rem 1.5rem;
 
-  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont,
-    "Segoe UI", sans-serif;
+  font-family: Inter, "Inter Fallback", system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", sans-serif;
   color: var(--text);
 }
 
@@ -523,13 +524,13 @@
 
   padding: 4rem 4.5rem;
 
-  font-family: "Fraunces", var(--serif, Georgia, serif);
+  font-family: "Fraunces", "Fraunces Fallback", var(--serif, Georgia, serif);
 }
 
 /* Headline — uniform rhythm */
 .callout-head {
   margin: 0;
-  font-family: "Fraunces", var(--serif, Georgia, serif);
+  font-family: "Fraunces", "Fraunces Fallback", var(--serif, Georgia, serif);
   font-size: clamp(2.4rem, 4vw, 3.4rem);
 
   line-height: 1.22;
@@ -673,7 +674,7 @@
     padding: 2.75rem 2rem 4.75rem;
 
     background: var(--page-bg);
-    font-family: "Fraunces", var(--serif, Georgia, serif);
+    font-family: "Fraunces", "Fraunces Fallback", var(--serif, Georgia, serif);
   }
 
   .callout-head {
@@ -848,7 +849,8 @@
 }
 
 .questions-block__title {
-  font-family: "Crimson Text", Georgia, "Times New Roman", serif;
+  font-family: "Crimson Text", "Crimson Fallback", Georgia, "Times New Roman",
+    serif;
   font-weight: 600;
   text-align: center;
   color: var(--white);
@@ -894,7 +896,8 @@
 
 /* H3 question */
 .question-card__question {
-  font-family: "Crimson Text", Georgia, "Times New Roman", serif;
+  font-family: "Crimson Text", "Crimson Fallback", Georgia, "Times New Roman",
+    serif;
   font-weight: 600;
   color: var(--white);
   margin: 0;
@@ -904,8 +907,8 @@
 
 /* Answer body (Inter) */
 .question-card__answer {
-  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-    Roboto, Helvetica, Arial, sans-serif;
+  font-family: Inter, "Inter Fallback", system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   color: var(--white);
   margin: 0;
   font-size: clamp(1.2rem, 1.6vw, 1.85rem);

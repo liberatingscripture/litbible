@@ -22,7 +22,7 @@
 }
 
 .contact-inner h1 {
-  font-family: "Crimson Text", var(--font-serif, serif);
+  font-family: "Crimson Text", "Crimson Fallback", var(--font-serif, serif);
   font-weight: 600;
   letter-spacing: -0.01em;
   line-height: 1.05;
