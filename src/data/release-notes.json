@@ -1,5 +1,42 @@
 [
   {
+    "version": "2026-04-19",
+    "date": "2026-04-19",
+    "label": "April 19, 2026",
+    "changes": [
+      {
+        "type": "text_updated",
+        "description": "Colossians 3:22 — text updated",
+        "detail": "\"respecting the Lord.\" → \"taking the Lord seriously.\""
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Colossians 3:22 — footnotes nn, oo updated",
+        "detail": "fn. nn (v. 22): \"Literally, ‘fearing.’ It is often translated as ‘respect’ o…\" → \"Kurios in Greek can be translated several ways, including b…\"; fn. oo (v. 22): \"Kurios in Greek can be translated several ways, including b…\" → \"The word here is phoboumenoi (traditionally “fearing” or “r…\""
+      },
+      {
+        "type": "text_updated",
+        "description": "Ephesians 5:21, 33 — text updated",
+        "detail": "v. 21: \"other with Christ’s respectfulness,\" → \"other, taking Christ seriously,\"; v. 33: \"treat your wife with love like you treat yourself so that t…\" → \"love your wife like yourself so that the wife would take he…\""
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Ephesians 5:21, 33 — footnotes s, aa updated",
+        "detail": "fn. s (v. 21): \"Also, the phrase is ‘respect of Christ’ which could mean re…\" → \"The phrase is phobos of Christ, which could mean serious re…\"; fn. aa (v. 33): \"Literally, ‘fear.’ Traditionally, ‘respect’ or ‘revere.’ Th…\" → \"Traditionally, ‘revere’ or ‘respect’ in this passage. The v…\""
+      },
+      {
+        "type": "text_updated",
+        "description": "Ephesians 6:5, 10 — text updated",
+        "detail": "v. 5: \"following their bodily impulses, respectfully and carefully,\" → \"bodily considerations, with seriousness and trembling,\"; v. 10: \"Lord's\" → \"Lord’s\""
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Ephesians 6:1, 3–7, 9–14, 16–20, 22, 24 — footnotes a, b, d, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z, aa, bb, cc, dd, ee, ff, gg, hh, ii, jj, kk, ll, mm, nn updated",
+        "detail": "fn. a (v. 1): \"‘in’ but that is only an appropriate translation for en if …\" → \"'in' but that is only an appropriate translation for en if …\"; fn. b (v. 1): \"‘righteous.’ In many places, ‘just’ is the appropriate tran…\" → \"'righteous.' In many places, 'just' is the appropriate tran…\"; fn. d (v. 3): \"‘happen’ or ‘come to pass’\" → \"'happen' or 'come to pass'\"; fn. f (v. 4): \"one’s\" → \"one's\"; fn. g (v. 4): \"one’s\" → \"one's\"; fn. h (v. 4): \"‘childing.’\" → \"'childing.'\"; fn. i (v. 4): \"‘instruction of.’ It’s a compound word for ‘mind’ and ‘atte…\" → \"'instruction of.' It's a compound word for 'mind' and 'atte…\"; fn. j (v. 5): \"‘according-to-the-flesh/body lords.’ What these ‘lords’ are…\" → \"'according-to-the-flesh/body lords.' What these 'lords' are…\"; fn. k (v. 5): \"Literally, ‘with fear’ or ‘with respect’ (phobos). Compare …\" → \"Traditionally, “with fear and trembling.” The doubled phras…\"; fn. l (v. 6): \"‘with trembling’ (tromos) and the resources all connect it …\" → \"'not according to eye-service.'\"; fn. m (v. 7): \"Literally, ‘not according to eye-service.’\" → \"This word is a compound of 'good/well' and 'mind.' It only …\"; fn. n (v. 9): \"This word is a compound of ‘good/well’ and ‘mind.’ It only …\" → \"Literally, 'in the sky' and traditionally, 'in Heaven.'\"; fn. o (v. 9): \"Literally, ‘in the sky’ and traditionally, ‘in Heaven.’\" → \"Or 'the divine Lord is theirs and yours'\"; fn. p (v. 9): \"Or ‘the divine Lord is theirs and yours’\" → \"Traditionally, 'favoritism' or 'partiality.' There is a str…\"; fn. q (v. 10): \"Traditionally, ‘favoritism’ or ‘partiality.’ There is a str…\" → \"This are the same Greek words found in Ephesians 1:19.\"; fn. r (v. 11): \"This are the same Greek words found in Ephesians 1:19.\" → \"Literally, 'panoply' from panoplia. It means a 'complete su…\"; fn. s (v. 11): \"Literally, ‘panoply’ from panoplia. It means a ‘complete su…\" → \"Probably in contrast to Caesar's armor, the gear worn by Ro…\"; fn. t (v. 11): \"Probably in contrast to Caesar’s armor, the gear worn by Ro…\" → \"The False Accuser was also mentioned in Ephesians 4:27.\"; fn. u (v. 11): \"False Accuser was also mentioned in Ephesians 4:27.\" → \"same word was used in Ephesians 4:14.\"; fn. v (v. 12): \"The same word was used in Ephesians 4:14.\" → \"This word, pale, refers specifically to a wrestling contest…\"; fn. w (v. 12): \"This word, pale, refers specifically to a wrestling contest…\" → \"Or 'flesh and blood,' including both the sense of 'body' an…\"; fn. x (v. 12): \"Or ‘flesh and blood,’ including both the sense of ‘body’ an…\" → \"'The conquerors of the world' is a single word in Greek, an…\"; fn. y (v. 12): \"‘The conquerors of the world’ is a single word in Greek, an…\" → \"'This darkness' refers to the darkness spoken of in Ephesia…\"; fn. z (v. 12): \"‘This darkness’ refers to the darkness spoken of in Ephesia…\" → \"Traditionally, 'in the heavenlies.' Literally, 'in the over…\"; fn. aa (v. 13): \"Traditionally, ‘in the heavenlies.’ Literally, ‘in the over…\" → \"Or 'resist,' but not in the sense of 'exercise self-restrai…\"; fn. bb (v. 13): \"Or ‘resist,’ but not in the sense of ‘exercise self-restrai…\" → \"Literally, 'oppressive day' or 'harmful day.' Traditionally…\"; fn. cc (v. 13): \"‘oppressive day’ or ‘harmful day.’ Traditionally, ‘evil day…\" → \"'to stand.'\"; fn. dd (v. 14): \"‘to stand.’\" → \"'Therefore, stand'\"; fn. ee (v. 16): \"Literally, ‘Therefore, stand’\" → \"Or 'trust.' This is the Greek word pistis. In various place…\"; fn. ff (v. 16): \"‘trust.’ This is the Greek word pistis. In various places i…\" → \"'the oppressor.' Traditionally, 'the evil one.' See footnot…\"; fn. gg (v. 17): \"Or ‘the oppressor.’ Traditionally, ‘the evil one.’ See foot…\" → \"Traditionally, 'salvation.' It's not incorrect, but it has …\"; fn. hh (v. 17): \"‘salvation.’ It’s not incorrect, but it has become associat…\" → \"'which is the word of God.' This is from the Greek rema, no…\"; fn. ii (v. 18): \"Traditionally, ‘which is the word of God.’ This is from the…\" → \"Compare with Ephesians 3:12.\"; fn. jj (v. 19): \"Compare with Ephesians 3:12.\" → \"Another possible translation for this word, though it does …\"; fn. kk (v. 20): \"Another possible translation for this word, though it does …\" → \"Since 'heart' did not represent all emotion but specificall…\"; fn. ll (v. 22): \"Since ‘heart’ did not represent all emotion but specificall…\" → \"Literally something like 'who love our Lord, Jesus Christ, …\"; fn. mm (v. 24): \"‘who love our Lord, Jesus Christ, with undyingness.’\" → \"'who love our Lord, Jesus Christ, with undyingness.'\"; fn. nn (v. 24): removed \"Literally something like ‘who love our Lord, Jesus Christ, with undyingness.’\""
+      }
+    ]
+  },
+  {
     "version": "2026-04-18",
     "date": "2026-04-18",
     "label": "April 18, 2026",
