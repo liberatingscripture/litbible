@@ -148,6 +148,9 @@ function initReadMode() {
     if (next === sheetMode) return;
 
     sheetMode = next;
+    // Toolbar CSS position/top/bottom values may change at this breakpoint.
+    cachedToolbarAtTop = null;
+    cachedAnchorGap = null;
 
     // If we just moved OUT of sheet mode, forcibly close the bottom sheet state.
     if (!sheetMode) {
@@ -273,16 +276,20 @@ function initReadMode() {
 
   // ---- Fix A core: reliable CSS var reading + correct subtraction ----
   function readAnchorGapPx() {
-    // Reads --rm-anchor-gap from .rm-page; fallback 0
+    // Reads --rm-anchor-gap from .rm-page; fallback 0. Cached until next resize.
+    if (cachedAnchorGap !== null) return cachedAnchorGap;
     const raw = getComputedStyle(page).getPropertyValue("--rm-anchor-gap");
     const n = parseFloat(String(raw || "").trim());
-    return Number.isFinite(n) ? n : 0;
+    cachedAnchorGap = Number.isFinite(n) ? n : 0;
+    return cachedAnchorGap;
   }
 
   function toolbarIsAtTop() {
     // In your CSS, the toolbar is sticky top on wide mode
     // and becomes fixed at bottom in sheet mode.
     // So: if computed position is sticky (or fixed) AND top is 0-ish, treat as top overlay.
+    // Cached until next resize/reflow.
+    if (cachedToolbarAtTop !== null) return cachedToolbarAtTop;
     const cs = getComputedStyle(toolbar);
     const pos = cs.position;
     const top = parseFloat(cs.top || "0");
@@ -292,13 +299,16 @@ function initReadMode() {
       top <= 1;
     const bottom = parseFloat(cs.bottom || "NaN");
     const atBottom = Number.isFinite(bottom) && bottom >= 0;
-    return atTop && !atBottom;
+    cachedToolbarAtTop = atTop && !atBottom;
+    return cachedToolbarAtTop;
   }
 
   function getEffectiveTopOffsetPx() {
     const gap = readAnchorGapPx();
+    // Use the cached toolbar height from the last updateToolbarOffset() call rather
+    // than forcing a new getBoundingClientRect() during an interaction handler.
     const overlay = toolbarIsAtTop()
-      ? toolbar.getBoundingClientRect().height
+      ? (lastToolbarOffset > 0 ? lastToolbarOffset : toolbar.getBoundingClientRect().height)
       : 0;
     return Math.max(0, Math.round(gap + overlay));
   }
@@ -377,8 +387,14 @@ function initReadMode() {
   }
 
   let lastToolbarOffset = -1;
+  // Cached results of expensive layout queries — invalidated on resize/reflow.
+  let cachedToolbarAtTop = null; // null = stale; boolean = valid
+  let cachedAnchorGap = null;    // null = stale; number = valid
 
   function updateToolbarOffset() {
+    // Invalidate position caches on every reflow measurement.
+    cachedToolbarAtTop = null;
+    cachedAnchorGap = null;
     const h = Math.ceil(toolbar.getBoundingClientRect().height);
     if (h === lastToolbarOffset) return;
     lastToolbarOffset = h;
@@ -747,8 +763,10 @@ function initReadMode() {
 
     if (isToolsOpen()) {
       html.classList.remove("rm-tools-open");
+      // closePanels() already queues updateToolbarOffset() via requestAnimationFrame —
+      // calling it synchronously here would force a layout read immediately after DOM
+      // mutations, causing layout thrashing. Let the rAF handle it.
       closePanels();
-      updateToolbarOffset();
     }
 
     setFabExpanded(false);
