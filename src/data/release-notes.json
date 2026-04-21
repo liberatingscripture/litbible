@@ -5,39 +5,9 @@
     "label": "April 20, 2026",
     "changes": [
       {
-        "type": "text_updated",
-        "description": "1 Corinthians 2:2–3, 5, 7, 9, 14, 16 — text updated",
-        "detail": "v. 2: \"That’s\" → \"That's\"; v. 3: \"you, feeling faint and fearful with\" → \"you in weakness and with seriousness and\"; v. 5: \"God’s\" → \"God's\"; v. 7: \"God’s\" → \"God's\"; v. 9: \"“Things that no eye has seen, and no ear has heard, and in …\" → \"\"Things that no eye has seen, and no ear has heard, and in …\"; v. 14: \"one’s own life-force does not accept the things of God’s Li…\" → \"one's own life-force does not accept the things of God's Li…\"; v. 16: \"“You see, who understands the mind of the Lord; who would h…\" → \"\"You see, who understands the mind of the Lord; who would h…\""
-      },
-      {
         "type": "footnote_updated",
-        "description": "1 Corinthians 2:1–5, 7–9, 12, 14, 16 — footnotes a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r updated",
-        "detail": "fn. a (v. 1): \"‘brother’ or ‘sibling.’ It was also frequently used to refe…\" → \"'brother' or 'sibling.' It was also frequently used to refe…\"; fn. b (v. 1): \"‘superior’ or ‘supremacist’\" → \"'superior' or 'supremacist'\"; fn. c (v. 1): \"‘word’ or ‘message’ or ‘conversation,’\" → \"'word' or 'message' or 'conversation,'\"; fn. d (v. 1): \"‘wisdom,’ but the word sophia is being used in this passage…\" → \"'wisdom,' but the word sophia is being used in this passage…\"; fn. e (v. 1): \"‘testimony.’\" → \"'testimony.'\"; fn. f (v. 2): \"‘to know.’ The word can mean a sense of being aware or of b…\" → \"'to know.' The word can mean a sense of being aware or of b…\"; fn. g (v. 3): \"This word is logos, which can mean ‘word’ or ‘message’ or ‘…\" → \"Traditionally, \"in weakness (astheneia) and in fear (phobos…\"; fn. h (v. 4): \"Literally, ‘wisdom,’ but the word sophia is being used in t…\" → \"This word is logos, which can mean 'word' or 'message' or '…\"; fn. i (v. 4): \"Traditionally, ‘faith.’ The Greek word pistis carries a rec…\" → \"Literally, 'wisdom,' but the word sophia is being used in t…\"; fn. j (v. 5): \"This is the same word translated as ‘philosophy’ in verses …\" → \"Traditionally, 'faith.' The Greek word pistis carries a rec…\"; fn. k (v. 5): \"Traditionally, ‘glory’\" → \"This is the same word translated as 'philosophy' in verses …\"; fn. l (v. 7): \"‘Lord of glory’\" → \"'glory'\"; fn. m (v. 8): \"This is a reference to Isaiah, but in the Hebrew it says ‘w…\" → \"Traditionally, 'Lord of glory'\"; fn. n (v. 9): \"Reference to Isaiah 64:4\" → \"This is a reference to Isaiah, but in the Hebrew it says 'w…\"; fn. o (v. 9): \"Traditionally just ‘world.’ It is not about physical existe…\" → \"Reference to Isaiah 64:4\"; fn. p (v. 12): \"The term psuchikos comes from psuche, which refers to the l…\" → \"Traditionally just 'world.' It is not about physical existe…\"; fn. q (v. 14): \"Quotation of Isaiah 40:13\" → \"The term psuchikos comes from psuche, which refers to the l…\"; fn. r (v. 16): added \"Quotation of Isaiah 40:13\""
-      },
-      {
-        "type": "text_updated",
-        "description": "2 Corinthians 7:15 — text updated",
-        "detail": "\"respect and seriousness.\" → \"seriousness and trembling.\""
-      },
-      {
-        "type": "footnote_updated",
-        "description": "2 Corinthians 7:15 — footnote p updated",
-        "detail": "fn. p (v. 15): \"The Greek word tromos means trembling or shaking. In the Ne…\" → \"Traditionally, “fear and trembling.” The Greek word phobos …\""
-      },
-      {
-        "type": "text_updated",
-        "description": "Mark 16:8 — text updated",
-        "detail": "\"fear\" → \"trembling\""
-      },
-      {
-        "type": "text_updated",
-        "description": "Philippians 2:12 — text updated",
-        "detail": "\"respectfully and carefully\" → \"with seriousness and trembling\""
-      },
-      {
-        "type": "footnote_updated",
-        "description": "Philippians 2:12, 30 — footnotes l, m, n, o, p, q, r, s, t, u, v updated",
-        "detail": "fn. l (v. 12): \"Literally, ‘fear.’ Compare with Ephesians 5:21, 33; 6:5.\" → \"Traditionally, “with fear and trembling” (phobos kai tromos…\"; fn. m (v. 12): \"Literally, ‘trembling’ (tromos) and the resources all conne…\" → \"Traditionally, ‘salvation.’\"; fn. n: \"Traditionally, ‘salvation.’\" → \"The Greek preposition here is en. It can be used several wa…\"; fn. o: \"The Greek preposition here is en. It can be used several wa…\" → \"Compare with Matthew 5:14.\"; fn. p: \"Compare with Matthew 5:14.\" → \"This word translated ‘empty’ is kenos, the adjective form o…\"; fn. q: \"This word translated ‘empty’ is kenos, the adjective form o…\" → \"The word translated here as ‘performance of ritual service’…\"; fn. r: \"The word translated here as ‘performance of ritual service’…\" → \"‘Concerns’ more literally here would be translated as ‘thin…\"; fn. s: \"‘Concerns’ more literally here would be translated as ‘thin…\" → \"Traditionally, ‘fellow soldier.’ While ‘fellow soldier’ wor…\"; fn. t: \"Traditionally, ‘fellow soldier.’ While ‘fellow soldier’ wor…\" → \"The word translated here as ‘representative servant’ is lei…\"; fn. u: \"The word translated here as ‘representative servant’ is lei…\" → \"Or ‘life.’ It’s the word that is traditionally translated a…\"; fn. v (v. 30): removed \"Or ‘life.’ It’s the word that is traditionally translated as ‘soul’ in many places, psuche.\""
+        "description": "1 Corinthians 2:3 — footnote g updated",
+        "detail": "fn. g (v. 3): minor formatting change"
       }
     ]
   },
