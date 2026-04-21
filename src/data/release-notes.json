@@ -1,5 +1,17 @@
 [
   {
+    "version": "2026-04-21",
+    "date": "2026-04-21",
+    "label": "April 21, 2026",
+    "changes": [
+      {
+        "type": "footnote_updated",
+        "description": "Ephesians 5:23 — footnote t updated; footnotes formerly t–aa relabeled u–bb",
+        "detail": "fn. t (v. 23): \"Traditionally, ‘savior.’ It is the Greek word soter. It’s u…\" → \"The Greek word kephale (\"head\") in Greek carries the sense …\"; footnotes formerly t–aa relabeled u–bb"
+      }
+    ]
+  },
+  {
     "version": "2026-04-20",
     "date": "2026-04-20",
     "label": "April 20, 2026",
