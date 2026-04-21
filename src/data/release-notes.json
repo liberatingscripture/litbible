@@ -5,6 +5,11 @@
     "label": "April 20, 2026",
     "changes": [
       {
+        "type": "footnote_updated",
+        "description": "1 Corinthians 2:3 — footnote g updated",
+        "detail": "fn. g (v. 3): minor formatting change"
+      },
+      {
         "type": "text_updated",
         "description": "1 Corinthians 2:3 — text updated",
         "detail": "v. 3: \"feeling faint and fearful with much trembling,\" → \"in weakness and with seriousness and much trembling,\""
@@ -38,18 +43,6 @@
         "type": "text_updated",
         "description": "Mark 16:8 — text updated",
         "detail": "v. 8: \"fear and confusion had taken hold of them\" → \"trembling and confusion had taken hold of them\""
-      }
-    ]
-  },
-  {
-    "version": "2026-04-20",
-    "date": "2026-04-20",
-    "label": "April 20, 2026",
-    "changes": [
-      {
-        "type": "footnote_updated",
-        "description": "1 Corinthians 2:3 — footnote g updated",
-        "detail": "fn. g (v. 3): minor formatting change"
       }
     ]
   },
