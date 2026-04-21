@@ -5,6 +5,48 @@
     "label": "April 20, 2026",
     "changes": [
       {
+        "type": "text_updated",
+        "description": "1 Corinthians 2:3 — text updated",
+        "detail": "v. 3: \"feeling faint and fearful with much trembling,\" → \"in weakness and with seriousness and much trembling,\""
+      },
+      {
+        "type": "footnote_updated",
+        "description": "1 Corinthians 2:3 — footnote g added; footnotes g–q relabeled h–r",
+        "detail": "fn. g (v. 3): added \"Traditionally, \"in weakness (astheneia) and in fear (phob…\"; footnotes formerly g–q relabeled h–r"
+      },
+      {
+        "type": "text_updated",
+        "description": "2 Corinthians 7:15 — text updated",
+        "detail": "v. 15: \"you welcomed him with respect and seriousness.\" → \"you welcomed him with seriousness and trembling.\""
+      },
+      {
+        "type": "footnote_updated",
+        "description": "2 Corinthians 7:15 — footnote p updated",
+        "detail": "fn. p (v. 15): \"The Greek word tromos means trembling or shaking. In the…\" → \"Traditionally, \"fear and trembling.\" The Greek word phobos i…\""
+      },
+      {
+        "type": "text_updated",
+        "description": "Philippians 2:12 — text updated",
+        "detail": "v. 12: \"respectfully and carefully putting to action your own li…\" → \"with seriousness and trembling putting to action your own l…\""
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Philippians 2:12 — footnotes l removed, l updated; footnotes n–v relabeled m–u",
+        "detail": "fn. l (v. 12): removed \"Literally, 'fear.' Compare with Ephesians 5:21, 33; 6:5.\"; fn. l (v. 12, formerly fn. m): \"Literally, 'trembling' (tromos) and the resources all conn…\" → \"Traditionally, \"with fear and trembling\" (phobos kai tromos…\"; footnotes formerly n–v relabeled m–u"
+      },
+      {
+        "type": "text_updated",
+        "description": "Mark 16:8 — text updated",
+        "detail": "v. 8: \"fear and confusion had taken hold of them\" → \"trembling and confusion had taken hold of them\""
+      }
+    ]
+  },
+  {
+    "version": "2026-04-20",
+    "date": "2026-04-20",
+    "label": "April 20, 2026",
+    "changes": [
+      {
         "type": "footnote_updated",
         "description": "1 Corinthians 2:3 — footnote g updated",
         "detail": "fn. g (v. 3): minor formatting change"

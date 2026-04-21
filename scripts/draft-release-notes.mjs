@@ -493,12 +493,20 @@ if (writeFlag) {
   if (existsSync(rnPath)) {
     existing = JSON.parse(readFileSync(rnPath, "utf-8"));
   }
-  // Don't duplicate entries for the same date
+  // Don't duplicate entries for the same date — merge new changes in
   const sameDay = existing.findIndex((e) => e.date === today);
   if (sameDay !== -1) {
-    existing[sameDay].changes = entry.changes;
+    // Append only changes whose description isn't already present, so running
+    // the script multiple times on the same day accumulates rather than overwrites.
+    const existingDescriptions = new Set(
+      existing[sameDay].changes.map((c) => c.description)
+    );
+    const novel = entry.changes.filter(
+      (c) => !existingDescriptions.has(c.description)
+    );
+    existing[sameDay].changes.push(...novel);
     console.log(
-      `✓ Updated existing ${today} entry with ${changes.length} change(s) in src/data/release-notes.json`
+      `✓ Merged ${novel.length} new change(s) into existing ${today} entry in src/data/release-notes.json`
     );
   } else {
     existing.unshift(entry);
