@@ -336,9 +336,116 @@ for (const file of modifiedChapters) {
     }
   }
 
+  // ── Detect footnote relabelings ──────────────────────────
+  // When a footnote is inserted or removed, all subsequent labels shift (e.g.
+  // old g–q become h–r). The id-based loop above reports every shifted footnote
+  // as "updated." Match by HTML content instead to identify pure relabelings and
+  // summarize them as a compact range rather than listing each one individually.
+
+  // Build content → label maps using each array's own ordering as the sort key.
+  const oldLabelOrder = new Map(oldFns.map((f, i) => [f.label, i]));
+  const newLabelOrder = new Map(newFns.map((f, i) => [f.label, i]));
+  // Use first-occurrence preference so duplicate HTML values (e.g. the same
+  // "Traditionally, 'flesh'" note appearing twice in a chapter) don't get
+  // misidentified as relabelings of each other.
+  const oldContentToLabel = new Map();
+  for (const f of oldFns) if (!oldContentToLabel.has(f.html)) oldContentToLabel.set(f.html, f.label);
+  const newContentToLabel = new Map();
+  for (const f of newFns) if (!newContentToLabel.has(f.html)) newContentToLabel.set(f.html, f.label);
+
+  const relabelCandidates = []; // { fromLabel, toLabel, shift }
+
+  for (const oldFn of oldFns) {
+    // Skip if the footnote at this label is unchanged — it's not being relabeled.
+    const sameIdNewFn = newFnMap.get(oldFn.id);
+    if (sameIdNewFn?.html === oldFn.html) continue;
+
+    const newLabel = newContentToLabel.get(oldFn.html);
+    if (newLabel === undefined || newLabel === oldFn.label) continue;
+
+    // Skip if the target label already held this same content in the old file —
+    // that would be coincidental duplicate content, not a cascade relabeling.
+    const sameIdOldFn = oldFnMap.get(`fn-${newLabel}`);
+    if (sameIdOldFn?.html === oldFn.html) continue;
+
+    const shift =
+      (newLabelOrder.get(newLabel) ?? 0) - (oldLabelOrder.get(oldFn.label) ?? 0);
+    relabelCandidates.push({ fromLabel: oldFn.label, toLabel: newLabel, shift });
+  }
+
+  // A genuine relabeling cascade has a consistent index shift (e.g. all +1 when a
+  // footnote is inserted, all -1 when one is removed). Discard candidates where the
+  // shift is inconsistent — those are coincidental content duplicates, not relabelings.
+  const dominantShift = (() => {
+    if (!relabelCandidates.length) return null;
+    const freq = new Map();
+    for (const { shift } of relabelCandidates)
+      freq.set(shift, (freq.get(shift) ?? 0) + 1);
+    return [...freq.entries()].sort((a, b) => b[1] - a[1])[0][0];
+  })();
+
+  const relabelFromLabels = [];
+  const relabelToLabels = [];
+  const relabeledFromSet = new Set();
+  const relabeledToSet = new Set();
+
+  for (const { fromLabel, toLabel, shift } of relabelCandidates) {
+    if (shift !== dominantShift) continue;
+    relabelFromLabels.push(fromLabel);
+    relabelToLabels.push(toLabel);
+    relabeledFromSet.add(fromLabel);
+    relabeledToSet.add(toLabel);
+  }
+
+  // Remove pure relabelings from per-footnote diffs so they aren't listed
+  // individually as added/removed/updated.
+  const filteredFnDiffs = fnDiffs.filter((d) => {
+    if (d.action === "added" && relabeledToSet.has(d.label)) return false;
+    if (d.action === "removed" && relabeledFromSet.has(d.label)) return false;
+    if (d.action === "updated") {
+      // A label-collision "update" is actually a relabeling cascade if the new
+      // content originated from a different old label AND the old content moved
+      // to a different new label.
+      const newFn = newFnMap.get(`fn-${d.label}`);
+      const oldFn = oldFnMap.get(`fn-${d.label}`);
+      if (newFn && oldFn) {
+        const newCameFromElsewhere =
+          oldContentToLabel.has(newFn.html) &&
+          oldContentToLabel.get(newFn.html) !== d.label;
+        const oldMovedElsewhere =
+          newContentToLabel.has(oldFn.html) &&
+          newContentToLabel.get(oldFn.html) !== d.label;
+        if (newCameFromElsewhere && oldMovedElsewhere) return false;
+      }
+    }
+    return true;
+  });
+
+  // Summarize relabelings as a range (e.g. "footnotes formerly g–q relabeled h–r").
+  // Sort by position in the original footnote arrays, not alphabetically, so that
+  // double-letter labels like aa, bb sort correctly after z.
+  let relabelSummary = null;
+  if (relabelFromLabels.length > 0) {
+    const sortedFrom = [...relabelFromLabels].sort(
+      (a, b) => (oldLabelOrder.get(a) ?? 0) - (oldLabelOrder.get(b) ?? 0)
+    );
+    const sortedTo = [...relabelToLabels].sort(
+      (a, b) => (newLabelOrder.get(a) ?? 0) - (newLabelOrder.get(b) ?? 0)
+    );
+    const fromRange =
+      sortedFrom.length === 1
+        ? sortedFrom[0]
+        : `${sortedFrom[0]}–${sortedFrom[sortedFrom.length - 1]}`;
+    const toRange =
+      sortedTo.length === 1
+        ? sortedTo[0]
+        : `${sortedTo[0]}–${sortedTo[sortedTo.length - 1]}`;
+    relabelSummary = `footnotes formerly ${fromRange} relabeled ${toRange}`;
+  }
+
   // ── Emit change entries ──────────────────────────────────
   const hasTextChanges = textDiffs.length > 0;
-  const hasFnChanges = fnDiffs.length > 0;
+  const hasFnChanges = filteredFnDiffs.length > 0 || relabelSummary !== null;
 
   if (!hasTextChanges && !hasFnChanges) {
     changes.push({
@@ -364,20 +471,31 @@ for (const file of modifiedChapters) {
   }
 
   if (hasFnChanges) {
-    const fnLabels = fnDiffs.map((d) => d.label);
-    const fnVerses = fnDiffs.map((d) => d.verse).filter(Boolean);
+    const fnLabels = filteredFnDiffs.map((d) => d.label);
+    const fnVerses = filteredFnDiffs.map((d) => d.verse).filter(Boolean);
     const verseStr = fnVerses.length ? formatVerseRange(fnVerses) : "";
     const ref = verseStr ? `${label} ${chapter}:${verseStr}` : `${label} ${chapter}`;
-    const allAdded = fnDiffs.every((d) => d.action === "added");
+    const allAdded =
+      filteredFnDiffs.length > 0 && filteredFnDiffs.every((d) => d.action === "added");
     const action = allAdded ? "added" : "updated";
-    const fnWord = fnDiffs.length === 1 ? "footnote" : "footnotes";
-    const detailParts = fnDiffs.map((d) => {
+    const fnWord = filteredFnDiffs.length === 1 ? "footnote" : "footnotes";
+
+    // Build description: genuine changes first, then relabeling summary
+    const descParts = [];
+    if (filteredFnDiffs.length > 0)
+      descParts.push(`${fnWord} ${fnLabels.join(", ")} ${action}`);
+    if (relabelSummary) descParts.push(relabelSummary);
+
+    // Build detail: per-footnote diffs then relabeling summary
+    const detailParts = filteredFnDiffs.map((d) => {
       const vRef = d.verse ? ` (v. ${d.verse})` : "";
       return `fn. ${d.label}${vRef}: ${d.diff}`;
     });
+    if (relabelSummary) detailParts.push(relabelSummary);
+
     const entry = {
-      type: allAdded ? "footnote_added" : "footnote_updated",
-      description: `${ref} — ${fnWord} ${fnLabels.join(", ")} ${action}`,
+      type: allAdded && !relabelSummary ? "footnote_added" : "footnote_updated",
+      description: `${ref} — ${descParts.join("; ")}`,
     };
     if (detailParts.length) entry.detail = detailParts.join("; ");
     changes.push(entry);
