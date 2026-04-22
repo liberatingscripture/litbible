@@ -109,6 +109,27 @@
   }
 }
 
+.subscribe-strip__inert {
+  display: none;
+}
+
+.subscribe-strip__form-area {
+  display: block;
+}
+
+.subscribe-strip__feedback {
+  margin: 8px 0 0;
+  font-size: 0.9rem;
+}
+
+.subscribe-strip__feedback--success {
+  color: var(--green);
+}
+
+.subscribe-strip__feedback--error {
+  color: #c0392b;
+}
+
 .subscribe-strip__form input[type="email"] {
   height: 48px;
   border-radius: 12px;
