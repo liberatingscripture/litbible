@@ -328,6 +328,18 @@ if (props.kind === "chapter") {
     <meta name="citation_fulltext_world_readable" content="" />
     {chapterSlug && <meta name="citation_public_url" content={`https://litbible.net/${chapterSlug}/`} />}
 
+    {/* When arriving via a verse hash link (e.g. /matthew-13#v41), strip the
+        hash from the URL immediately so the browser does NOT attempt its own
+        hash scroll (which uses inaccurate content-visibility placeholder
+        heights). The hash is stored in window.__litVerseHash and the body
+        script performs a corrected scroll after forcing real heights. */}
+    <script is:inline>
+      window.__litVerseHash = window.location.hash;
+      if (/^#v\d+$/.test(window.__litVerseHash)) {
+        history.replaceState(null, '', window.location.pathname + window.location.search);
+      }
+    </script>
+
     {/* Chapter JSON-LD */}
     {chapterSlug && (
       <script type="application/ld+json" set:html={JSON.stringify({
@@ -509,11 +521,6 @@ if (props.kind === "chapter") {
       line-height: 1;
       margin-right: 0;
       opacity: 0.85; /* optional, subtle */
-    }
-
-    /* Make #vN hashes land below sticky tools/header */
-    .chapter :global([id^="v"]) {
-      scroll-margin-top: 120px;
     }
 
     /* Footnote refs in the MAIN scripture text only */
@@ -723,14 +730,46 @@ if (props.kind === "chapter") {
     })();
   </script>
 
-  {/* Verse focus management: when arriving via anchor link (e.g. /1corinthians-13/#v8),
-      move the screen reader's virtual cursor to the targeted verse element. */}
+  {/* Verse scroll + focus management: when arriving via a verse hash link
+      (e.g. /matthew-13#v41), the head script stripped the hash to prevent
+      the browser's inaccurate content-visibility hash scroll. Here we
+      perform a corrected scroll by forcing only the preceding paragraphs
+      to render at real heights, scrolling, then restoring content-visibility. */}
   <script is:inline>
     (() => {
-      const hash = window.location.hash ? window.location.hash.replace('#', '') : '';
+      var rawHash = window.__litVerseHash || '';
+      window.__litVerseHash = undefined;
+      var hash = rawHash.replace('#', '');
       if (!hash || !/^v\d+$/.test(hash)) return;
-      const target = document.getElementById(hash);
+      var target = document.getElementById(hash);
       if (!target) return;
+
+      // Restore the hash in the URL (without triggering another scroll)
+      history.replaceState(null, '', '#' + hash);
+
+      var allPDivs = Array.from(document.querySelectorAll('.chapter-paragraphs .p'));
+      var targetPDiv = target.closest('.p');
+      var targetIdx = targetPDiv ? allPDivs.indexOf(targetPDiv) : -1;
+
+      if (targetIdx > 0) {
+        // Force preceding paragraphs to real heights so scrollIntoView is accurate
+        var precedingDivs = allPDivs.slice(0, targetIdx);
+        precedingDivs.forEach(function(div) {
+          div.style.contentVisibility = 'visible';
+          div.style.containIntrinsicSize = 'none';
+        });
+        // Force layout reflow with real heights, then scroll
+        void document.body.offsetHeight;
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        // Do NOT restore content-visibility here — restoring triggers a layout
+        // recalculation that snaps placeholder heights back, shifting the scroll
+        // position past the target. Preceding paragraphs are already rendered
+        // so leaving them visible has no meaningful performance cost.
+      } else {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+
+      // Move screen-reader cursor to the verse element
       target.setAttribute('tabindex', '-1');
       target.focus({ preventScroll: true });
       target.addEventListener('blur', function handler() {
