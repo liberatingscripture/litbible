@@ -1,5 +1,6 @@
 ---
-const formAction = "https://formspree.io/f/mgovgpoo";
+const brevoAction =
+  "https://1742a6b7.sibforms.com/serve/MUIFAKJyiPPqI2bardfqrp4wdqO-pfiy9S0T0d29zd_v8G57bZ4nS9ClYWCPu64OSzzQyw7yTR9wqyWr-vdn17UIhr2fG1OFFtGvdeEHWM-b9y94UUNmT3jjFI_8ltcZGK3w1h_iMk2Aylrk3qAQqLSPdAV51iOZf0SVzMSSVh41B1CKoomPPA_6j5j3arPgHjcdzi76_cLEFKzQKA==";
 ---
 
 <section class="subscribe-strip" aria-label="Email updates">
@@ -11,20 +12,168 @@ const formAction = "https://formspree.io/f/mgovgpoo";
       </p>
     </div>
 
-    <form class="subscribe-strip__form" action={formAction} method="POST">
-      <label class="sr-only" for="subscribe-email">Email address</label>
-      <input
-        id="subscribe-email"
-        name="email"
-        type="email"
-        placeholder="Email address"
-        autocomplete="email"
-        required
-      />
+    <div class="subscribe-strip__form-area">
+      <form
+        id="subscribe-strip-form"
+        class="subscribe-strip__form"
+        action={brevoAction}
+        method="POST"
+        data-type="subscription"
+        novalidate
+      >
+        <label class="sr-only" for="subscribe-email">Email address</label>
+        <input
+          id="subscribe-email"
+          type="email"
+          name="EMAIL"
+          placeholder="Email address"
+          autocomplete="email"
+          required
+        />
+        <input
+          type="text"
+          name="email_address_check"
+          value=""
+          class="subscribe-strip__inert"
+          aria-hidden="true"
+          tabindex="-1"
+          autocomplete="off"
+        />
+        <input type="hidden" name="locale" value="en" />
+        <div id="subscribe-strip-captcha" class="subscribe-strip__inert"></div>
+        <button class="btn btn--cta" id="subscribe-strip-btn" type="submit">
+          Subscribe
+        </button>
+      </form>
 
-      <input type="hidden" name="source" value="articles" />
-
-      <button class="btn btn--cta" type="submit">Subscribe</button>
-    </form>
+      <p
+        id="subscribe-strip-success"
+        class="subscribe-strip__feedback subscribe-strip__feedback--success"
+        hidden
+        aria-live="polite"
+      >
+        You&rsquo;re subscribed. Thanks for signing up!
+      </p>
+      <p
+        id="subscribe-strip-error"
+        class="subscribe-strip__feedback subscribe-strip__feedback--error"
+        hidden
+        aria-live="assertive"
+      >
+        Something went wrong. Please try again.
+      </p>
+    </div>
   </div>
 </section>
+
+<script is:inline>
+  (function () {
+    var ACTION =
+      "https://1742a6b7.sibforms.com/serve/MUIFAKJyiPPqI2bardfqrp4wdqO-pfiy9S0T0d29zd_v8G57bZ4nS9ClYWCPu64OSzzQyw7yTR9wqyWr-vdn17UIhr2fG1OFFtGvdeEHWM-b9y94UUNmT3jjFI_8ltcZGK3w1h_iMk2Aylrk3qAQqLSPdAV51iOZf0SVzMSSVh41B1CKoomPPA_6j5j3arPgHjcdzi76_cLEFKzQKA==";
+    var SITEKEY = "0x4AAAAAACyvexOxVuDiY_85";
+
+    var form = document.getElementById("subscribe-strip-form");
+    var btn = document.getElementById("subscribe-strip-btn");
+    var successEl = document.getElementById("subscribe-strip-success");
+    var errorEl = document.getElementById("subscribe-strip-error");
+    var captchaEl = document.getElementById("subscribe-strip-captcha");
+    var widgetId = null;
+    var pendingSubmit = false;
+
+    function submitData(token) {
+      var email = form.querySelector('[name="EMAIL"]').value;
+      var body = new URLSearchParams({
+        EMAIL: email,
+        email_address_check: "",
+        locale: "en",
+      });
+      if (token) body.set("cf-turnstile-response", token);
+
+      fetch(ACTION, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: body.toString(),
+      })
+        .then(function (res) {
+          btn.disabled = false;
+          if (res.ok) {
+            form.hidden = true;
+            successEl.hidden = false;
+          } else {
+            showError();
+          }
+        })
+        .catch(function () {
+          btn.disabled = false;
+          showError();
+        });
+    }
+
+    function showError() {
+      errorEl.hidden = false;
+      pendingSubmit = false;
+      if (widgetId !== null && window.turnstile) {
+        window.turnstile.reset(widgetId);
+      }
+    }
+
+    function initWidget() {
+      if (widgetId !== null || !window.turnstile) return;
+      widgetId = window.turnstile.render(captchaEl, {
+        sitekey: SITEKEY,
+        size: "invisible",
+        execution: "execute",
+        callback: function (token) {
+          if (pendingSubmit) {
+            pendingSubmit = false;
+            submitData(token);
+          }
+        },
+      });
+    }
+
+    function ensureTurnstile() {
+      if (window.turnstile) {
+        initWidget();
+        return;
+      }
+      // Load script if it hasn't been injected yet (footer lazy-loads it later)
+      if (!document.querySelector('script[src*="turnstile"]')) {
+        var s = document.createElement("script");
+        s.src = "https://challenges.cloudflare.com/turnstile/v0/api.js";
+        s.async = true;
+        document.head.appendChild(s);
+      }
+      // Poll until available (handles both our load and footer's lazy load)
+      var poll = setInterval(function () {
+        if (window.turnstile) {
+          clearInterval(poll);
+          initWidget();
+        }
+      }, 100);
+    }
+
+    ensureTurnstile();
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var emailInput = form.querySelector('[name="EMAIL"]');
+      if (!emailInput.checkValidity()) {
+        emailInput.reportValidity();
+        return;
+      }
+
+      errorEl.hidden = true;
+      btn.disabled = true;
+      pendingSubmit = true;
+
+      if (widgetId !== null && window.turnstile) {
+        window.turnstile.execute(widgetId);
+      } else {
+        // Turnstile unavailable — submit without token as fallback
+        pendingSubmit = false;
+        submitData("");
+      }
+    });
+  })();
+</script>
