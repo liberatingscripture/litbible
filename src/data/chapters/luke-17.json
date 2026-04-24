@@ -1,14 +1,240 @@
 {
   "bookKey": "luke",
   "chapter": 17,
-  "indexed": false,
+  "indexed": true,
   "type": "scripture",
   "title": "Luke 17",
   "description": "Luke 17 in the Liberation and Inclusion Translation (LIT).",
-  "topics": [],
+  "topics": [
+  "repentance",
+  "reorientation of the mind",
+  "metanoia",
+  "forgiveness",
+  "release claim",
+  "accountability",
+  "faith",
+  "trust",
+  "pistis",
+  "faith like a mustard seed",
+  "mustard seed",
+  "parable",
+  "parable of the unworthy servant",
+  "ten lepers",
+  "ten men with skin conditions",
+  "healing",
+  "grateful Samaritan",
+  "samaritans",
+  "marginalization",
+  "gratitude",
+  "thanksgiving",
+  "kingdom of God",
+  "reign of God",
+  "Son of Man",
+  "Son of Humanity",
+  "eschatology",
+  "apocalyptic",
+  "days of Noah",
+  "days of Lot",
+  "one will be taken and the other left",
+  "remember Lot's wife",
+  "Lot's wife",
+  "where the eagles gather",
+  "whoever loses their life will preserve it"
+],
   "paragraphs": [
-    "<figure style=\"margin: 0; text-align: center;\">\n  <img src=\"/images/writing-in-progress.webp\" alt=\"Page in progress; check back soon\" style=\"display: block; margin: 0 auto; max-width: 400px; width: 100%; height: auto;\" />\n  <figcaption style=\"margin-top: 0.5rem; font-size: 0.95em;\">\n    There once was a page still unwritten, beware,<br>\n    Still brewing up thoughts in midair.<br>\n    This page is on hold,<br>\n    But soon will unfold,<br>\n    So check back, real words will be there.\n  </figcaption>\n</figure>",
-    "<br><h2>This page is still in progress. All books except <strong>Acts</strong>, <strong>Revelation</strong>, and part of <strong>Luke</strong> are currently available. Check back soon!</h2>"
+    "<p id=\"luke-17-p1\"><span class=\"vglue\"><sup id=\"v1\" class=\"vn\">1</sup>&nbsp;Jesus</span><sup class=\"fn-ref\"><a id=\"fnref-a\" href=\"#fn-a\" role=\"doc-noteref\">a</a></sup> said to his students, “It’s unavoidable for obstacles to come; nevertheless, it won’t end well<sup class=\"fn-ref\"><a id=\"fnref-b\" href=\"#fn-b\" role=\"doc-noteref\">b</a></sup> for the one through whom they come! <span class=\"vglue\"><sup id=\"v2\" class=\"vn\">2</sup>&nbsp;It</span> would be better for him to have a millstone around his neck and be thrown into the sea than to be an obstacle for one of these who are treated as insignificant.<sup class=\"fn-ref\"><a id=\"fnref-c\" href=\"#fn-c\" role=\"doc-noteref\">c</a></sup> <span class=\"vglue\"><sup id=\"v3\" class=\"vn\">3</sup>&nbsp;Be</span> mindful of<sup class=\"fn-ref\"><a id=\"fnref-d\" href=\"#fn-d\" role=\"doc-noteref\">d</a></sup> yourselves. If your family member<sup class=\"fn-ref\"><a id=\"fnref-e\" href=\"#fn-e\" role=\"doc-noteref\">e</a></sup> deviates,<sup class=\"fn-ref\"><a id=\"fnref-f\" href=\"#fn-f\" role=\"doc-noteref\">f</a></sup> call them to account.<sup class=\"fn-ref\"><a id=\"fnref-g\" href=\"#fn-g\" role=\"doc-noteref\">g</a></sup> And if they reorient their mind,<sup class=\"fn-ref\"><a id=\"fnref-h\" href=\"#fn-h\" role=\"doc-noteref\">h</a></sup> release claim<sup class=\"fn-ref\"><a id=\"fnref-i\" href=\"#fn-i\" role=\"doc-noteref\">i</a></sup> on it for them. <span class=\"vglue\"><sup id=\"v4\" class=\"vn\">4</sup>&nbsp;Even</span> if they deviate against you seven times in a day and turns back to you seven times, saying, ‘I am reorienting my mind,’ keep releasing claim on it for them.”</p>",
+    "<p id=\"luke-17-p2\"><span class=\"vglue\"><sup id=\"v5\" class=\"vn\">5</sup>&nbsp;The</span> commissioned ones<sup class=\"fn-ref\"><a id=\"fnref-j\" href=\"#fn-j\" role=\"doc-noteref\">j</a></sup> said to the Lord, “Increase our trust!”<sup class=\"fn-ref\"><a id=\"fnref-k\" href=\"#fn-k\" role=\"doc-noteref\">k</a></sup></p>",
+    "<p id=\"luke-17-p3\"><span class=\"vglue\"><sup id=\"v6\" class=\"vn\">6</sup>&nbsp;So</span> the Lord said, “If you had<sup class=\"fn-ref\"><a id=\"fnref-l\" href=\"#fn-l\" role=\"doc-noteref\">l</a></sup> trust like a mustard seed,<sup class=\"fn-ref\"><a id=\"fnref-m\" href=\"#fn-m\" role=\"doc-noteref\">m</a></sup> you would say to this black mulberry tree, ‘Be uprooted and planted in the sea,’ and it would listen to you.</p>",
+    "<p id=\"luke-17-p4\"><span class=\"vglue\"><sup id=\"v7\" class=\"vn\">7</sup>&nbsp;“Which</span> of you who has someone enslaved to you who is ploughing or tending sheep and comes in from the field tells him, ‘Since you’re here, recline for a meal right away!’? <span class=\"vglue\"><sup id=\"v8\" class=\"vn\">8</sup>&nbsp;Instead,</span> wouldn’t they tell him, ‘Prepare my meal and be ready<sup class=\"fn-ref\"><a id=\"fnref-n\" href=\"#fn-n\" role=\"doc-noteref\">n</a></sup> to serve me while I eat and drink, and after that you will eat and drink’? <span class=\"vglue\"><sup id=\"v9\" class=\"vn\">9</sup>&nbsp;They</span> don’t have gratitude for the person who is enslaved because he did what was assigned, do they? <span class=\"vglue\"><sup id=\"v10\" class=\"vn\">10</sup>&nbsp;Similarly,</span> you also, when you do everything that is assigned to you, say, ‘We are enslaved workers with no surplus claim,<sup class=\"fn-ref\"><a id=\"fnref-o\" href=\"#fn-o\" role=\"doc-noteref\">o</a></sup> and we have done what we have owed it to do.’”</p>",
+    "<p id=\"luke-17-p5\"><span class=\"vglue\"><sup id=\"v11\" class=\"vn\">11</sup>&nbsp;On</span> the way to Jerusalem, Jesus was traveling between Samaria and Galilee.<sup class=\"fn-ref\"><a id=\"fnref-p\" href=\"#fn-p\" role=\"doc-noteref\">p</a></sup> <span class=\"vglue\"><sup id=\"v12\" class=\"vn\">12</sup>&nbsp;As</span> he was entering one village, ten men with a skin condition<sup class=\"fn-ref\"><a id=\"fnref-q\" href=\"#fn-q\" role=\"doc-noteref\">q</a></sup> went to meet him. They stood at a distance, <span class=\"vglue\"><sup id=\"v13\" class=\"vn\">13</sup>&nbsp;raised</span> their voices, and said, “Jesus, sir,<sup class=\"fn-ref\"><a id=\"fnref-r\" href=\"#fn-r\" role=\"doc-noteref\">r</a></sup> show us compassion!”<sup class=\"fn-ref\"><a id=\"fnref-s\" href=\"#fn-s\" role=\"doc-noteref\">s</a></sup></p>",
+    "<p id=\"luke-17-p6\"><span class=\"vglue\"><sup id=\"v14\" class=\"vn\">14</sup>&nbsp;When</span> he saw them, he told them, “Go and show yourselves to the priests!” As they were leaving, they were cleansed.</p>",
+    "<p id=\"luke-17-p7\"><span class=\"vglue\"><sup id=\"v15\" class=\"vn\">15</sup>&nbsp;One</span> of them, when he saw that he was made well, he turned back, praising God with a loud voice. <span class=\"vglue\"><sup id=\"v16\" class=\"vn\">16</sup>&nbsp;He</span> threw himself facedown at Jesus’ feet, giving thanks to him. (He was a Samaritan.)</p>",
+    "<p id=\"luke-17-p8\"><span class=\"vglue\"><sup id=\"v17\" class=\"vn\">17</sup>&nbsp;Jesus</span> responded by saying, “Weren’t all ten cleansed? Where are the other nine? <span class=\"vglue\"><sup id=\"v18\" class=\"vn\">18</sup>&nbsp;Were</span> none found turning back to give praise to God except this man of a different people?” <span class=\"vglue\"><sup id=\"v19\" class=\"vn\">19</sup>&nbsp;Then</span> he told him, “Stand up and go on. Your trust has restored<sup class=\"fn-ref\"><a id=\"fnref-t\" href=\"#fn-t\" role=\"doc-noteref\">t</a></sup> you.”</p>",
+    "<p id=\"luke-17-p9\"><span class=\"vglue\"><sup id=\"v20\" class=\"vn\">20</sup>&nbsp;When</span> Jesus was questioned by the Pharisees about when God’s Reign would come, he answered, “God’s Reign doesn’t come in a way that is observed.<sup class=\"fn-ref\"><a id=\"fnref-u\" href=\"#fn-u\" role=\"doc-noteref\">u</a></sup> <span class=\"vglue\"><sup id=\"v21\" class=\"vn\">21</sup>&nbsp;And</span> people won’t say, ‘Look! Here it is!’ or ‘There! Look!’ You see, God’s Reign is among<sup class=\"fn-ref\"><a id=\"fnref-v\" href=\"#fn-v\" role=\"doc-noteref\">v</a></sup> you.”</p>",
+    "<p id=\"luke-17-p10\"><span class=\"vglue\"><sup id=\"v22\" class=\"vn\">22</sup>&nbsp;To</span> the students, he said, “The days are coming when you will desire to see one of the days of the Son of Humanity,<sup class=\"fn-ref\"><a id=\"fnref-w\" href=\"#fn-w\" role=\"doc-noteref\">w</a></sup> but you won’t see it. <span class=\"vglue\"><sup id=\"v23\" class=\"vn\">23</sup>&nbsp;People</span> will tell you, ‘Look, there he is!’ or ‘Look, here he is!’ Don’t go out or chase after them. <span class=\"vglue\"><sup id=\"v24\" class=\"vn\">24</sup>&nbsp;You</span> see, just as lightning flashes and lights the heavens from one end to the other, that’s how the Son of Humanity will be on his Day. <span class=\"vglue\"><sup id=\"v25\" class=\"vn\">25</sup>&nbsp;But</span> first it is necessary for him to suffer many things and be rejected by this group.<sup class=\"fn-ref\"><a id=\"fnref-x\" href=\"#fn-x\" role=\"doc-noteref\">x</a></sup> <span class=\"vglue\"><sup id=\"v26\" class=\"vn\">26</sup>&nbsp;And</span> just like it was in Noah’s days, it will also be the same in the days of the Son of Humanity. <span class=\"vglue\"><sup id=\"v27\" class=\"vn\">27</sup>&nbsp;People</span> were eating, drinking, marrying and being given in marriage, until the day Noah entered the ark and the flood came and destroyed them all. <span class=\"vglue\"><sup id=\"v28\" class=\"vn\">28</sup>&nbsp;Likewise,</span> just like it happened in Lot’s days, people were eating, drinking, buying, selling, planting, and building. <span class=\"vglue\"><sup id=\"v29\" class=\"vn\">29</sup>&nbsp;But</span> on the day Lot left Sodom, fire and sulfur rained down from the heavens and destroyed them all. <span class=\"vglue\"><sup id=\"v30\" class=\"vn\">30</sup>&nbsp;It</span> will be in line with those things on the day the Son of Humanity is revealed. <span class=\"vglue\"><sup id=\"v31\" class=\"vn\">31</sup>&nbsp;On</span> that day, anyone who is on the roof must not go inside to get their containers.<sup class=\"fn-ref\"><a id=\"fnref-y\" href=\"#fn-y\" role=\"doc-noteref\">y</a></sup> Likewise, anyone in a field must not turn back. <span class=\"vglue\"><sup id=\"v32\" class=\"vn\">32</sup>&nbsp;Remember</span> Lot’s wife. <span class=\"vglue\"><sup id=\"v33\" class=\"vn\">33</sup>&nbsp;Whoever</span> strives to hang onto<sup class=\"fn-ref\"><a id=\"fnref-z\" href=\"#fn-z\" role=\"doc-noteref\">z</a></sup> their life<sup class=\"fn-ref\"><a id=\"fnref-aa\" href=\"#fn-aa\" role=\"doc-noteref\">aa</a></sup> will lose it, but whoever loses their life will preserve their life.<sup class=\"fn-ref\"><a id=\"fnref-bb\" href=\"#fn-bb\" role=\"doc-noteref\">bb</a></sup> <span class=\"vglue\"><sup id=\"v34\" class=\"vn\">34</sup>&nbsp;I’m</span> telling you, on that night, there will be two people in one bed; one will be taken and the other will be left. <span class=\"vglue\"><sup id=\"v35\" class=\"vn\">35</sup>&nbsp;There</span> will be two women grinding grain in the same place; one will be taken and the other will be left.”<sup class=\"fn-ref\"><a id=\"fnref-cc\" href=\"#fn-cc\" role=\"doc-noteref\">cc</a></sup></p>",
+    "<p id=\"luke-17-p11\"><span class=\"vglue\"><sup id=\"v37\" class=\"vn\">37</sup>&nbsp;The</span> students responded and said to him, “Where, Lord?”</p>",
+    "<p id=\"luke-17-p12\">He told them, “Where there’s a body, that’s where the eagles<sup class=\"fn-ref\"><a id=\"fnref-dd\" href=\"#fn-dd\" role=\"doc-noteref\">dd</a></sup> will gather.”</p>"
   ],
-  "footnotes": []
+  "footnotes": [
+    {
+      "id": "fn-a",
+      "refId": "fnref-a",
+      "label": "a",
+      "html": "Literally, ‘he.’ The name is added for clarity."
+    },
+    {
+      "id": "fn-b",
+      "refId": "fnref-b",
+      "label": "b",
+      "html": "The Greek word <em>ouai</em> is often translated “woe,” but in modern English that sounds vague or archaic. It’s a prophetic outcry expressing both grief and warning, something like “this will end badly for you” or “you’re heading for disaster.” It’s not a curse but a lament for the harm people bring on themselves and each other through hypocrisy and injustice."
+    },
+    {
+      "id": "fn-c",
+      "refId": "fnref-c",
+      "label": "c",
+      "html": "Literally, ‘these little ones.’ English readers assume it means children, partly because ‘little ones’ is used exclusively for children in English and partly because Matthew 18’s parallel passage is explicitly about children. However, no children appear in Luke’s context at all. The only people that could be what “these” is pointing to in this context is the marginalized and impoverished victims of injustice in the previous chapter."
+    },
+    {
+      "id": "fn-d",
+      "refId": "fnref-d",
+      "label": "d",
+      "html": "The Greek phrase <em>prosechete heaoutois</em> literally means ‘hold it to yourselves’ with the ‘it’ being an assumed ‘mind.’ The idea is to pay continual and careful attention to yourselves. This idea of paying careful attention to one’s own integrity and behavior recurs throughout the Bible, most famously appearing in Matthew 7:1-5."
+    },
+    {
+      "id": "fn-e",
+      "refId": "fnref-e",
+      "label": "e",
+      "html": "The word <em>adelphos</em> literally means ‘brother’ or ‘sibling.’ It was also frequently used to refer to ‘cousin’ or ‘relative,’ and even for members of the same ideological or ethnic group."
+    },
+    {
+      "id": "fn-f",
+      "refId": "fnref-f",
+      "label": "f",
+      "html": "Traditionally, ‘sins.’ The term ‘deviates’ describes acting in a way that doesn’t follow the path traced out by Torah and lived out by Jesus. This shift emphasizes actions misaligned with the sacred path rather than an inherent sinful state. The Greek <em>hamartano</em> represents behaviors or conditions that “miss the mark” set by God’s path. ‘Deviating’ could be actions that are morally corrupt, such as exploiting the poor or siding with oppressors for profit."
+    },
+    {
+      "id": "fn-g",
+      "refId": "fnref-g",
+      "label": "g",
+      "html": "The word <em>epitimao</em> is from the verb for naming someone’s worth, honor, or assessed value, and <em>epi-</em> applies or intensifies that evaluation, shifting the meaning toward “weigh what they’ve done,” not toward punishment. Therefore, “call them to account” preserves the evaluative idea along with the relational obligation to name the harm directly."
+    },
+    {
+      "id": "fn-h",
+      "refId": "fnref-h",
+      "label": "h",
+      "html": "The Greek word <em>metanoia</em> is traditionally translated as ‘repent.’ The meaning of <em>metanoia</em> is ‘change the mind’ or ‘transform the mind.’ It does not mean ‘remorse’ or ‘guilt.’ The confusion comes from the Vulgate, the Latin translation of the Bible, which used <em>paenitere</em>, which means ‘to be penitent,’ which was a significant shift away from the Greek meaning. The use of ‘reorient’ here reflects the kind of transformation in view, and it also surfaces the Hebraic understanding of the concept that the biblical writers would have had in mind. The Hebrew word traditionally translated as ‘repent’ was <em>shuv</em>, which literally meant ‘turn around’ or ‘turn back.’"
+    },
+    {
+      "id": "fn-i",
+      "refId": "fnref-i",
+      "label": "i",
+      "html": "The word here, traditionally translated as “forgive,” is never directed toward a person but always directed toward what the person owes. For example, it would not be accurate to phrase it as “forgive us for our debts” but rather “forgive our debts for us.” It’s about sending away, distancing, releasing, letting go, separating from oneself, abandoning or disconnecting from something."
+    },
+    {
+      "id": "fn-j",
+      "refId": "fnref-j",
+      "label": "j",
+      "html": "Traditionally, ‘apostles.’ The word means ‘someone who is sent to carry out a purpose’ and while it became used in a particular way in the church, it was not an inherently religious word in the Greek language."
+    },
+    {
+      "id": "fn-k",
+      "refId": "fnref-k",
+      "label": "k",
+      "html": "Traditionally, ‘faith.’ The Greek term <em>pistis</em> communicates meanings such as trust, faithfulness, commitment, and allegiance, reflecting an active, relational trust rather than a static belief. This translation emphasizes an ongoing, reciprocal relationship between trusting someone and committed faithfulness that confirms trustworthiness."
+    },
+    {
+      "id": "fn-l",
+      "refId": "fnref-l",
+      "label": "l",
+      "html": "The grammar of this sentence is a “second class conditional” which means there is the strong implication that the condition for the specified outcome is currently not met."
+    },
+    {
+      "id": "fn-m",
+      "refId": "fnref-m",
+      "label": "m",
+      "html": "The mustard plant, most likely <em>Brassica nigra</em> (black mustard), was well known in first-century Palestine as the largest of common garden plants. Ancient sources, including the Talmud, describe it reaching impressive sizes, with one rabbi noting he was accustomed to climbing into it as one would a fig tree. However, it was not classified as a tree. Calling it a <em>dendron</em> here is deliberate hyperbole rather than botanical description. The image of a great tree whose branches shelter birds draws directly on the Hebrew prophets: in Ezekiel 17:23, 31:6, and Daniel 4:12, a vast, sheltering tree represents a kingdom with reach across peoples and nations."
+    },
+    {
+      "id": "fn-n",
+      "refId": "fnref-n",
+      "label": "n",
+      "html": "The wording here is specific to wrapping and securing the tunic to enable someone to move freely."
+    },
+    {
+      "id": "fn-o",
+      "refId": "fnref-o",
+      "label": "o",
+      "html": "<em>Achreioi</em> is traditionally translated “worthless,” but the context is economic, not a judgment on the workers’ personal worth or character. Having done what was required, they carry no outstanding credit, nothing that would put the enslaver in their debt. “Workers with no surplus claim” preserves the economic logic: the account is even."
+    },
+    {
+      "id": "fn-p",
+      "refId": "fnref-p",
+      "label": "p",
+      "html": "It has in view the border area between the two regions, where the outcasts of both regions would have resided."
+    },
+    {
+      "id": "fn-q",
+      "refId": "fnref-q",
+      "label": "q",
+      "html": "The Greek <em>lepros</em> is related to the English word “leprosy,” but the connection is misleading. The condition in view was not the disease now called leprosy (Hansen’s disease), which was likely rare in first-century Palestine. <em>Lepros</em> was a general term for skin conditions causing visible scaling or discoloration, including conditions like psoriasis and eczema. Leviticus 13 provides detailed priestly criteria for determining which skin conditions rendered a person ritually unclean, and the determining factor throughout is whether the condition is spreading or shows signs of active infection. Non-contagious, non-spreading conditions are repeatedly declared clean. Chronic scaling conditions like psoriasis and eczema would not meet Torah’s criteria for exclusion, yet by the first century such individuals were being treated as permanently unclean, barred from communal worship and socially isolated. Jesus’ response upends the system entirely."
+    },
+    {
+      "id": "fn-r",
+      "refId": "fnref-r",
+      "label": "r",
+      "html": "Traditionally, ‘Master.’ The Greek word here is <em>epistata</em>, a respectful form of address used exclusively by Jesus’ disciples. It derives from the root <em>epistamai</em>, meaning “to know, understand, or be acquainted with,” and is related to the idea of someone who stands over or supervises—hence a guide, overseer, or leader. Many traditional translations render it “Master,” but that carries authoritarian connotations absent from the Greek. The term conveys relational respect rather than institutional authority."
+    },
+    {
+      "id": "fn-s",
+      "refId": "fnref-s",
+      "label": "s",
+      "html": "Traditionally, ‘mercy.’ The English word ‘mercy’ is sometimes used to communicate compassion, which is what is in view here. However, ‘mercy’ can also be used to refer to ‘pity’ or ‘relenting from enacting a punishment’ which has nothing to do with this Greek word. It is used of taking care of people. The Greek translation of the Hebrew Bible, the “Septuagint,” uses this word to translate the Hebrew word <em>hesed</em>, which means something along the lines of ‘loyal love,’ ‘compassionate faithfulness,’ ‘lovingkindness,’ ‘committed love/kindness.’ It carries a commitment to pursue good for others based in care. The Greek word is <em>eleemones</em>, related to the word for olive oil, which was used as a medicinal ointment in caring for the sick."
+    },
+    {
+      "id": "fn-t",
+      "refId": "fnref-t",
+      "label": "t",
+      "html": "Traditionally, ‘saved’ or ‘healed.’ This word can be translated a number of ways, with all of them about taking action to create or protect wellbeing. Options include, ‘liberated,’ ‘restored,’ ‘healed,’ ‘protected,’ ‘rescued,’ and others. This person is seeking to be liberated from the burden of his medical condition and restored to inclusion in the community."
+    },
+    {
+      "id": "fn-u",
+      "refId": "fnref-u",
+      "label": "u",
+      "html": "The word <em>paratereseos</em> was used in the context of making observations as part of medical examinations or as an astronomer observing the stars. The sense in this context would be to observe from a distance without participation. It may also emphasize the sense of diagnosing a problem with others and not including themselves in the assessment. It pairs interestingly with the ten men with skin conditions standing at a distance. They remained physically distant because they were rejected while the Pharisees are being shown to remain spiritually and socially distant because they reject others."
+    },
+    {
+      "id": "fn-v",
+      "refId": "fnref-v",
+      "label": "v",
+      "html": "There is scholarly debate whether this word should be translated as ‘among’ or ‘within.’ The fact that it is addressed to a group within a social context involving Jesus valuing and enacting God’s reign among the outcast and marginalized strongly suggests it should be understood as ‘among’ here. It seems to be emphasizing that the Pharisees are being called to participate in God’s reign among the people, not that they have God’s reign internally within each of them in a disembodied, spiritual sense."
+    },
+    {
+      "id": "fn-w",
+      "refId": "fnref-w",
+      "label": "w",
+      "html": "Reference to Ezekiel—“Son of Man” was how Ezekiel referred to himself—and to Daniel 7:13-27. This is one of the loftiest titles Jesus could have used for himself and likely played a key role in accusations against him of attempting to usurp the royal throne. At the same time, though Daniel 7:13-14 connects the “one like a son of humanity” to a kingship with all peoples serving him and that his kingship shall never be destroyed, continuing to verse 27 is the parallel verse that explains it further, and it asserts that “the greatness of the kingdoms under the whole heaven shall be given to the people” as an everlasting kingdom. It also left Jesus with deniability, since he could also claim just to be calling himself a prophet in the tradition of Ezekiel."
+    },
+    {
+      "id": "fn-x",
+      "refId": "fnref-x",
+      "label": "x",
+      "html": "Or ‘generation’ or ‘lineage’ or any ‘group of people’ that has a shared characteristic or origin, including gender."
+    },
+    {
+      "id": "fn-y",
+      "refId": "fnref-y",
+      "label": "y",
+      "html": "The word <em>skeue</em> refers to vessels or containers. In a household context, it refers to the storage jars holding provisions like grain and oil. The instruction is not to go back inside for the supplies you need to live on. The situation is urgent enough not even to take the time to get survival goods."
+    },
+    {
+      "id": "fn-z",
+      "refId": "fnref-z",
+      "label": "z",
+      "html": "The word <em>peripoio</em> literally means “make aside” in the sense of reserving something out of the way so that it can be kept for later."
+    },
+    {
+      "id": "fn-aa",
+      "refId": "fnref-aa",
+      "label": "aa",
+      "html": "The Greek word here is <em>psuche</em>, the root of the English ‘psyche’ and ‘psychology,’ and traditionally translated as ‘soul.’ A better single word might be ‘being.’ Like the Hebrew <em>nephesh</em>, it refers to the ‘living being’—a unity of body, breath, and life-force. Depending on context, other appropriate translations include ‘life’ and ‘self.’ In this case, it’s about preserving one’s life, or continuing to have a self or being."
+    },
+    {
+      "id": "fn-bb",
+      "refId": "fnref-bb",
+      "label": "bb",
+      "html": "<em>Zoogoneo</em> means to preserve alive or keep living, built from the root <em>zoe</em>, a different Greek word for ‘life.’ The only other New Testament occurrence is Acts 7:19, where it describes keeping infants alive. Luke uses <em>sozo</em> (restore, preserve) in place of <em>zoogoneo</em> for the same phrase earlier in 9:24."
+    },
+    {
+      "id": "fn-cc",
+      "refId": "fnref-cc",
+      "label": "cc",
+      "html": "Verse 36 is not in the most reliable manuscripts and is almost certainly a later addition meant to make this passage match Matthew 24:40."
+    },
+    {
+      "id": "fn-dd",
+      "refId": "fnref-dd",
+      "label": "dd",
+      "html": "The “body” in this verse has been interpreted by early Christian theologians like Irenaeus and Origen as a reference to Christ’s crucified body. In their reading, the eagles symbolize the faithful or divine agents who will gather to Christ at his arrival. The eagle is often used as a symbol of power, swiftness, and divine action in biblical and apocalyptic literature, sometimes representing divine messengers or even the Roman armies. The Greek word can also mean ‘vultures,’ and some scholars interpret it that way here."
+    }
+  ]
 }
