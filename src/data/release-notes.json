@@ -1,5 +1,16 @@
 [
   {
+    "version": "2026-04-23",
+    "date": "2026-04-23",
+    "label": "April 23, 2026",
+    "changes": [
+      {
+        "type": "text_updated",
+        "description": "Luke 12 — updated"
+      }
+    ]
+  },
+  {
     "version": "2026-04-21",
     "date": "2026-04-21",
     "label": "April 21, 2026",
