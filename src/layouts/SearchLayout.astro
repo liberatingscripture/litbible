@@ -185,48 +185,6 @@ const baseUrl = import.meta.env.BASE_URL || "/";
       <slot />
     </div>
 
-    <section
-      class="scripture-disclaimer"
-      aria-label="Source text and licensing notice"
-      data-pagefind-ignore
-    >
-      <div class="scripture-disclaimer__inner">
-        <p>
-          The Liberation &amp; Inclusion Translation (LIT) is an original
-          English translation prepared from{" "}
-          <em>The Greek New Testament: SBL Edition</em> (ed. Michael W. Holmes; ©
-          2010 Society of Biblical Literature &amp; Logos Bible Software).
-        </p>
-        <p>
-          The SBLGNT is licensed under the Creative Commons Attribution 4.0,
-          International Licence (CC BY 4.0):{" "}
-          <a
-            href="https://creativecommons.org/licenses/by/4.0/"
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            https://creativecommons.org/licenses/by/4.0/
-          </a>
-          . This translation constitutes an adaptation of that Greek text. Used with
-          permission.
-        </p>
-        <p>
-          Greek quotations are presented in transliterated form; accentuation
-          and punctuation follow LIT house style, mostly removed for
-          accessibility to readers without prior knowledge of Greek.
-        </p>
-        <p>
-          Portions of the SBL Greek text quoted here remain available under CC
-          BY 4.0; the NC-ND restrictions apply only to the original English
-          translation and other LIT-specific content.
-        </p>
-        <p>
-          The Society of Biblical Literature and Logos Bible Software do not
-          endorse the LIT Bible.
-        </p>
-      </div>
-    </section>
-
     <style>
       .scripture-main {
         margin: 0 auto;
@@ -256,30 +214,6 @@ const baseUrl = import.meta.env.BASE_URL || "/";
         }
       }
 
-      .scripture-disclaimer {
-        background: var(--surface-raised);
-        padding: 30px 16px 56px;
-      }
-
-      .scripture-disclaimer__inner {
-        margin: 0 auto;
-
-        /* match the footer/tools “wide” container */
-        width: min(1100px, calc(100% - 32px));
-        max-width: none;
-
-        font-size: 0.95rem;
-        line-height: 1.65;
-        color: rgba(var(--ink-rgb), 0.85);
-      }
-
-      .scripture-disclaimer__inner p {
-        margin: 0 0 14px;
-      }
-
-      .scripture-disclaimer__inner a {
-        word-break: break-word;
-      }
     </style>
 
     <style is:global>

@@ -1,6 +1,13 @@
 ---
 import { BOOKS as books } from "../data/books.js";
 const { currentBook = "", currentChapter = "" } = Astro.props;
+
+const currentBookKey = currentBook
+  ? String(currentBook).toLowerCase().replace(/[^0-9a-z]/g, "")
+  : "";
+const initialChapterCount = currentBookKey
+  ? ((books as Record<string, number>)[currentBookKey] ?? 0)
+  : 0;
 ---
 
 <div class="read-menu-wrap">
@@ -44,8 +51,16 @@ const { currentBook = "", currentChapter = "" } = Astro.props;
     </select>
 
     <label for="chapter-select" class="sr-only">Select a chapter</label>
-    <select id="chapter-select" disabled>
+    <select id="chapter-select" disabled={!initialChapterCount}>
       <option value="">Select a Chapter</option>
+      {initialChapterCount > 0 && (
+        <>
+          <option value="intro" selected={currentChapter === "intro"}>Introduction</option>
+          {Array.from({ length: initialChapterCount }, (_, i) => i + 1).map((i) => (
+            <option value={String(i)} selected={currentChapter === String(i)}>Chapter {i}</option>
+          ))}
+        </>
+      )}
     </select>
 
     <div class="read-menu__actions">
@@ -174,10 +189,15 @@ const { currentBook = "", currentChapter = "" } = Astro.props;
         }
         const key = slugifyBook(initBook);
         setButtonsDisabled(!key);
-        // Synchronous on init so chapterSelect.value can be set immediately after
-        populateChapters(key, () => {
+        if (chapterSelect.options.length > 1) {
+          // Options already server-rendered — just set the selected value.
           if (initChapter) chapterSelect.value = initChapter;
-        });
+        } else {
+          // Fallback for contexts without SSR chapter options (e.g. search page ReadMenu).
+          populateChapters(key, () => {
+            if (initChapter) chapterSelect.value = initChapter;
+          });
+        }
       }
 
       const submitStudyFromKeyboard = (event) => {
