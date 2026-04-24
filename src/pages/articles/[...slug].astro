@@ -79,6 +79,7 @@ const indexTagsJoined = hyphensToSpacesForIndex(tags.join(", "));
   headerClass="site-header--green"
   ogImage={heroImage ? `${siteOrigin}${heroImage}` : undefined}
 >
+  {heroImage && <link rel="preload" as="image" href={heroImage} slot="head" />}
   <div class="article-shell">
     <div class="article-top">
       <div class="article-top__inner">
@@ -141,6 +142,7 @@ const indexTagsJoined = hyphensToSpacesForIndex(tags.join(", "));
               src={heroImage}
               alt=""
               loading="eager"
+              fetchpriority="high"
               decoding="async"
             />
           </div>

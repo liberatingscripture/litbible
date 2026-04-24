@@ -988,8 +988,16 @@ function initReadMode() {
     },
   );
 
-  for (const node of focusTargets) {
-    focusObserver.observe(node);
+  const startFocusObserver = () => {
+    for (const node of focusTargets) {
+      focusObserver.observe(node);
+    }
+  };
+
+  if (typeof requestIdleCallback === "function") {
+    requestIdleCallback(startFocusObserver, { timeout: 2000 });
+  } else {
+    setTimeout(startFocusObserver, 200);
   }
 
   if (tocToggle instanceof HTMLButtonElement) {
