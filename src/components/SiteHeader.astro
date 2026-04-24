@@ -98,7 +98,12 @@ const { class: className = "" } = Astro.props;
         toggle.setAttribute("aria-expanded", open ? "true" : "false");
         toggle.setAttribute("aria-label", open ? "Close menu" : "Open menu");
 
-        document.documentElement.classList.toggle("menu-open", open);
+        // Defer scroll-lock to the next frame so the paint of the visual
+        // open/close state isn't blocked by a full layout recalculation
+        // (overflow:hidden on <body> triggers relayout of the entire page).
+        requestAnimationFrame(() => {
+          document.documentElement.classList.toggle("menu-open", open);
+        });
       };
 
       const openMenu = () => {
