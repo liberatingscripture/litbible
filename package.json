@@ -3,6 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "prepare": "git config core.hooksPath .githooks",
     "dev": "astro dev",
     "build:topics": "node scripts/build-topics-index.mjs",
     "build:api": "node scripts/build-api-json.mjs",

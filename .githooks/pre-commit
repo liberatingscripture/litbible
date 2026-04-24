@@ -1,0 +1,19 @@
+#!/bin/sh
+# Pre-commit hook: validate staged chapter JSON files.
+# Installed automatically via `npm install` (package.json prepare script).
+
+staged=$(git diff --cached --name-only | grep '^src/data/chapters/.*\.json$')
+
+if [ -z "$staged" ]; then
+  exit 0
+fi
+
+echo "Validating staged chapter files..."
+node scripts/validate-chapters.mjs $staged
+
+if [ $? -ne 0 ]; then
+  echo ""
+  echo "Commit blocked: fix the errors above before committing."
+  echo "Run \`npm run validate:chapters\` to check all chapters."
+  exit 1
+fi
