@@ -1,5 +1,17 @@
 [
   {
+    "version": "2026-04-26",
+    "date": "2026-04-26",
+    "label": "April 26, 2026",
+    "changes": [
+      {
+        "type": "text_updated",
+        "description": "Matthew 7:15 — text updated",
+        "detail": "\"hungry\" → \"predatory\""
+      }
+    ]
+  },
+  {
     "version": "2026-04-25",
     "date": "2026-04-25",
     "label": "April 25, 2026",
