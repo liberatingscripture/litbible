@@ -1,5 +1,17 @@
 [
   {
+    "version": "2026-04-25",
+    "date": "2026-04-25",
+    "label": "April 25, 2026",
+    "changes": [
+      {
+        "type": "text_updated",
+        "description": "1 Corinthians 5:10–11 — text updated",
+        "detail": "v. 10: \"never satisfied\" → \"predatory\"; v. 11: \"can never be satisfied;\" → \"predatory;\""
+      }
+    ]
+  },
+  {
     "version": "2026-04-24",
     "date": "2026-04-24",
     "label": "April 24, 2026",
@@ -32,7 +44,7 @@
       {
         "type": "footnote_updated",
         "description": "Luke 12:1 — footnote a added; footnotes formerly a–hh relabeled b–ii",
-        "detail": "fn. a (v. 1): added \u201cThe Greek phrase prosechete heautois literally means \u2018pay attention to yourselves\u2019 or \u2018be mindful of yourselves.\u2019\u201d; typo fix in fn. a: \u201cheaoutois\u201d \u2192 \u201cheautois\u201d; footnotes formerly a\u2013hh relabeled b\u2013ii"
+        "detail": "fn. a (v. 1): added “The Greek phrase prosechete heautois literally means ‘pay attention to yourselves’ or ‘be mindful of yourselves.’”; typo fix in fn. a: “heaoutois” → “heautois”; footnotes formerly a–hh relabeled b–ii"
       }
     ]
   },
