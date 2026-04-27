@@ -709,8 +709,7 @@ html.menu-open .site-header__menu-toggle .menu-icon::after {
   align-items: center;
   justify-content: center;
 
-  background: rgba(0, 0, 0, 0.90); /* slightly more opaque */
-  backdrop-filter: blur(2px);
+  background: rgba(0, 0, 0, 0.90);
 
   opacity: 0;
   visibility: hidden;
@@ -770,7 +769,6 @@ html.menu-open body {
   transform: translateX(-28px);
   transition: transform 520ms ease-in-out, opacity 520ms ease-in-out;
 
-  will-change: transform, opacity;
 }
 
 .menu-overlay.is-open .menu-overlay__nav a {
