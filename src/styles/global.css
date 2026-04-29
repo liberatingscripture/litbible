@@ -77,6 +77,9 @@
   --gutter: clamp(1.25rem, 4vw, 2.5rem); /* keep content off screen edges */
   --content-max: 1200px;                 /* default readable width */
   --container-max: 1400px;               /* wider container when needed */
+
+  /* Font stacks */
+  --serif: "Crimson Text", "Crimson Fallback", Georgia, "Times New Roman", serif;
 }
 
 /* ---------- Dark mode (system preference) ---------- */
@@ -118,6 +121,10 @@
 *::before,
 *::after {
   box-sizing: border-box;
+}
+
+html {
+  scrollbar-gutter: stable;
 }
 
 html,
