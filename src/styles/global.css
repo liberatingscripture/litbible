@@ -1435,6 +1435,11 @@ html.menu-open body {
   outline-offset: 2px;
 }
 
+.footer-newsletter__submit:disabled {
+  opacity: 1;
+  cursor: pointer;
+}
+
 .footer-newsletter__field-error {
   display: block;
   font-size: 0.8rem;

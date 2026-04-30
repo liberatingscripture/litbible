@@ -188,6 +188,7 @@ import { siFacebook, siThreads, siBluesky, siInstagram } from "simple-icons";
               type="submit"
               class="footer-newsletter__submit"
               form="sib-form"
+              disabled
             >
               Subscribe
             </button>
@@ -245,10 +246,12 @@ import { siFacebook, siThreads, siBluesky, siInstagram } from "simple-icons";
   </p>
 </div>
 
-{/* Brevo scripts — lazy-loaded when newsletter section is near viewport (improves INP) */}
+{/* Brevo scripts — lazy-loaded on first user interaction with the newsletter form */}
 <script is:inline>
   (function() {
     var loaded = false;
+    var submitBtn = document.querySelector('.footer-newsletter__submit');
+
     function loadBrevoScripts() {
       if (loaded) return;
       loaded = true;
@@ -277,9 +280,12 @@ import { siFacebook, siThreads, siBluesky, siInstagram } from "simple-icons";
         window.grecaptcha = window.turnstile;
       };
 
-      // Inject Brevo form JS
+      // Inject Brevo form JS — re-enable submit when ready
       var s1 = document.createElement("script");
       s1.src = "https://sibforms.com/forms/end-form/build/main.js";
+      s1.onload = function() {
+        if (submitBtn) submitBtn.disabled = false;
+      };
       document.body.appendChild(s1);
 
       // Inject Cloudflare Turnstile
@@ -289,21 +295,17 @@ import { siFacebook, siThreads, siBluesky, siInstagram } from "simple-icons";
       document.body.appendChild(s2);
     }
 
-    // Lazy-load when the newsletter section scrolls near the viewport
-    var target = document.getElementById("sib-form");
-    if (!target) return;
+    var form = document.getElementById("sib-form");
+    if (!form) return;
 
-    if ("IntersectionObserver" in window) {
-      var observer = new IntersectionObserver(function(entries) {
-        if (entries[0].isIntersecting) {
-          observer.disconnect();
-          loadBrevoScripts();
-        }
-      }, { rootMargin: "200px" });
-      observer.observe(target);
-    } else {
-      // Fallback: load after a delay for older browsers
-      setTimeout(loadBrevoScripts, 3000);
+    // Load on first pointer or keyboard interaction with the form
+    function onInteraction() {
+      form.removeEventListener("pointerover", onInteraction);
+      form.removeEventListener("focusin", onInteraction);
+      loadBrevoScripts();
     }
+
+    form.addEventListener("pointerover", onInteraction);
+    form.addEventListener("focusin", onInteraction);
   })();
 </script>
