@@ -3,30 +3,34 @@ import { getCollection } from "astro:content";
 import Layout from "../layouts/Layout.astro";
 import "../styles/pages/glossary.css";
 
-// Load and sort entries alphabetically by the traditional word.
-// This drives both entry rendering order and menu population order.
 const rawEntries = await getCollection("glossary");
-const entries = await Promise.all(
-  rawEntries
-    .sort((a, b) => a.data.traditional.localeCompare(b.data.traditional))
-    .map(async (entry) => ({
-      data: entry.data,
-      Content: (await entry.render()).Content,
-    }))
+
+// Two sorted views — each menu and the initial page order use their own sort key.
+const byLit = [...rawEntries].sort((a, b) => a.data.litMenu.localeCompare(b.data.litMenu));
+const byTraditional = [...rawEntries].sort((a, b) =>
+  (a.data.menuTraditional ?? a.data.traditional).localeCompare(
+    b.data.menuTraditional ?? b.data.traditional
+  )
 );
 
-// Build the menu data object at build time.
-// The traditional category uses menuTraditional when provided (e.g. "Good -1-"),
-// falling back to the traditional field. Both menus follow entry sort order.
+// Render entries in LIT order (matches the default toggle state).
+const entries = await Promise.all(
+  byLit.map(async (entry) => ({
+    data: entry.data,
+    Content: (await entry.render()).Content,
+  }))
+);
+
+// Each menu dropdown is sorted by its own key.
 const menuData = {
   traditional: Object.fromEntries(
-    entries.map((e) => [
+    byTraditional.map((e) => [
       e.data.menuTraditional ?? e.data.traditional,
       `/glossary/#${e.data.id}`,
     ])
   ),
   lit: Object.fromEntries(
-    entries.map((e) => [e.data.litMenu, `/glossary/#${e.data.id}`])
+    byLit.map((e) => [e.data.litMenu, `/glossary/#${e.data.id}`])
   ),
 };
 ---
@@ -93,129 +97,38 @@ const menuData = {
           if you think I've missed any important ones!
         </p>
 
-        <!-- Sticky Glossary Menu (About-TOC style wrapper) -->
-        <div
-          class="glossary-toc"
-          data-glossary-toc
-          aria-label="Glossary Selection Menu"
-          data-pagefind-ignore
-        >
-          <div class="glossary-toc__inner">
-            <div class="glossary-toc__bar">
-              <p class="glossary-toc__label">Jump to an entry</p>
-
-              <button
-                class="glossary-toc__toggle"
-                type="button"
-                aria-expanded="false"
-                aria-controls="glossary-toc-tray"
-              >
-                <span class="glossary-toc__icon" aria-hidden="true"></span>
-                <span class="sr-only">Toggle glossary menu</span>
-              </button>
-            </div>
-
-            <div class="glossary-toc__tray" id="glossary-toc-tray">
-              <!-- MENU -->
-              <div class="title-menu" aria-label="Glossary Selection Menu">
-                <div class="read-menu-wrap">
-                  <div class="read-menu glossary-menu">
-                    <label class="sr-only" for="category-select">
-                      Select Glossary Category
-                    </label>
-
-                    <select
-                      id="category-select"
-                      aria-label="Select Glossary Category"
-                    >
-                      <option value="">Select Glossary Category</option>
-                      <option value="traditional"
-                        >Traditional Translation</option
-                      >
-                      <option value="lit">LIT Word Choice</option>
-                    </select>
-
-                    <label class="sr-only" for="word-select"
-                      >Select a Word</label
-                    >
-
-                    <select
-                      id="word-select"
-                      aria-label="Select a Word"
-                      disabled
-                    >
-                      <option value="">Select a Word</option>
-                    </select>
-
-                    <button id="go-button" type="button" disabled>Go</button>
-                  </div>
-                </div>
-              </div>
-            </div>
+        <!-- Sort toggle (inline, not sticky) -->
+        <div class="glossary-sort-toggle" data-pagefind-ignore>
+          <span class="sort-by-label">Sort by</span>
+          <div class="category-toggle" role="group" aria-label="Sort order by">
+            <span class="toggle-label is-active" id="cat-lit">LIT Bible Translation</span>
+            <button
+              class="toggle-switch"
+              id="category-toggle"
+              type="button"
+              role="switch"
+              aria-checked="false"
+              aria-labelledby="cat-lit cat-trad"
+            ></button>
+            <span class="toggle-label" id="cat-trad">Traditional Translation</span>
           </div>
         </div>
 
-        <!-- Sticky toggle JS -->
-        <script type="module">
-          document.addEventListener("DOMContentLoaded", () => {
-            const toc = document.querySelector("[data-glossary-toc]");
-            if (!toc) return;
-
-            const btn = toc.querySelector(".glossary-toc__toggle");
-            const tray = toc.querySelector(".glossary-toc__tray");
-            if (!btn || !tray) return;
-
-            let ignoreScroll = false;
-            const setOpen = (open) => {
-              toc.classList.toggle("is-open", open);
-              btn.setAttribute("aria-expanded", open ? "true" : "false");
-              // Opening the tray shifts layout and can fire a spurious scroll event;
-              // ignore scroll-to-close for a brief window after opening.
-              if (open) {
-                ignoreScroll = true;
-                setTimeout(() => { ignoreScroll = false; }, 300);
-              }
-            };
-
-            const syncForViewport = () => {
-              const isMobile = window.matchMedia("(max-width: 760px)").matches;
-              setOpen(!isMobile);
-            };
-
-            syncForViewport();
-            window.addEventListener("resize", syncForViewport);
-
-            btn.addEventListener("click", () => {
-              setOpen(!toc.classList.contains("is-open"));
-            });
-
-            // Close on tap outside (mobile only)
-            document.addEventListener("pointerdown", (e) => {
-              if (
-                window.matchMedia("(max-width: 900px)").matches &&
-                toc.classList.contains("is-open") &&
-                !toc.contains(e.target)
-              ) {
-                setOpen(false);
-              }
-            });
-
-            // Close on scroll (mobile only)
-            let scrollTimer;
-            window.addEventListener("scroll", () => {
-              if (
-                ignoreScroll ||
-                !window.matchMedia("(max-width: 900px)").matches ||
-                !toc.classList.contains("is-open")
-              ) return;
-              clearTimeout(scrollTimer);
-              scrollTimer = setTimeout(() => setOpen(false), 80);
-            }, { passive: true });
-
-            // Expose setOpen so the Go button handler can close the tray
-            toc._setOpen = setOpen;
-          });
-        </script>
+        <!-- Sticky jump dropdown -->
+        <div class="glossary-toc" data-pagefind-ignore>
+          <div class="glossary-toc__inner">
+            <label class="sr-only" for="word-select">Jump to an entry</label>
+            <select id="word-select" aria-label="Jump to an entry" disabled>
+              <option value="">Jump to an entry</option>
+            </select>
+            <button
+              id="back-to-top"
+              type="button"
+              aria-label="Back to top"
+              class="back-to-top"
+            >↑</button>
+          </div>
+        </div>
 
         <!-- Menu data (generated at build time from glossary collection) -->
         <script
@@ -231,24 +144,18 @@ const menuData = {
               document.getElementById("glossary-menu-data").textContent
             );
 
-            const categorySelect = document.getElementById("category-select");
+            const toggle = document.getElementById("category-toggle");
+            const labelLit = document.getElementById("cat-lit");
+            const labelTrad = document.getElementById("cat-trad");
             const wordSelect = document.getElementById("word-select");
-            const goButton = document.getElementById("go-button");
 
-            if (!categorySelect || !wordSelect || !goButton) return;
+            if (!toggle || !wordSelect) return;
 
-            wordSelect.disabled = true;
-            goButton.disabled = true;
-
-            categorySelect.addEventListener("change", () => {
-              const selectedCategory = categorySelect.value;
-
-              wordSelect.innerHTML = '<option value="">Select a Word</option>';
+            const populateWords = (category) => {
+              wordSelect.innerHTML = '<option value="">Jump to an entry</option>';
               wordSelect.disabled = true;
-              goButton.disabled = true;
-
-              if (selectedCategory && glossary[selectedCategory]) {
-                const words = glossary[selectedCategory];
+              if (category && glossary[category]) {
+                const words = glossary[category];
                 for (const word in words) {
                   const option = document.createElement("option");
                   option.value = words[word];
@@ -257,23 +164,56 @@ const menuData = {
                 }
                 wordSelect.disabled = false;
               }
+            };
+
+            const reorderEntries = (category) => {
+              const wrap = document.querySelector(".entries-wrap");
+              if (!wrap) return;
+              const entryEls = Array.from(wrap.querySelectorAll(":scope > .entry"));
+              const key = category === "traditional" ? "sortTraditional" : "sortLit";
+              entryEls.sort((a, b) => a.dataset[key].localeCompare(b.dataset[key]));
+              entryEls.forEach((e) => wrap.appendChild(e));
+              window.dispatchEvent(new CustomEvent("glossary-reordered"));
+            };
+
+            const setCategory = (isTraditional) => {
+              toggle.setAttribute("aria-checked", isTraditional ? "true" : "false");
+              labelLit.classList.toggle("is-active", !isTraditional);
+              labelTrad.classList.toggle("is-active", isTraditional);
+              populateWords(isTraditional ? "traditional" : "lit");
+              reorderEntries(isTraditional ? "traditional" : "lit");
+            };
+
+            setCategory(false);
+
+            toggle.addEventListener("click", () => {
+              setCategory(toggle.getAttribute("aria-checked") !== "true");
             });
+
+            labelLit.addEventListener("click", () => setCategory(false));
+            labelTrad.addEventListener("click", () => setCategory(true));
 
             wordSelect.addEventListener("change", () => {
-              goButton.disabled = !wordSelect.value;
+              const url = wordSelect.value;
+              if (!url) return;
+              window.location.href = url;
             });
 
-            goButton.addEventListener("click", () => {
-              const selectedWordUrl = wordSelect.value;
-              if (selectedWordUrl) {
-                // Close tray on mobile before navigating
-                const toc = document.querySelector("[data-glossary-toc]");
-                if (toc?._setOpen && window.matchMedia("(max-width: 900px)").matches) {
-                  toc._setOpen(false);
-                }
-                window.location.href = selectedWordUrl;
-              }
-            });
+            const backToTop = document.getElementById("back-to-top");
+            if (backToTop) {
+              const toggle = document.querySelector(".glossary-sort-toggle");
+              const updateVisibility = () => {
+                const scrolled = toggle
+                  ? window.scrollY > toggle.getBoundingClientRect().bottom + window.scrollY
+                  : window.scrollY > 200;
+                backToTop.classList.toggle("is-visible", scrolled);
+              };
+              window.addEventListener("scroll", updateVisibility, { passive: true });
+              updateVisibility();
+              backToTop.addEventListener("click", () => {
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              });
+            }
           });
         </script>
 
@@ -306,6 +246,8 @@ const menuData = {
                     class="entry"
                     data-entry={data.id}
                     data-animate="underline"
+                    data-sort-lit={data.litMenu}
+                    data-sort-traditional={data.menuTraditional ?? data.traditional}
                   >
                     <header class="entry-head">
                       <h2 class="entry-title" id={data.id}>
@@ -547,6 +489,7 @@ const menuData = {
                 window.addEventListener("DOMContentLoaded", () => {
                   redrawAllInk();
                   window.addEventListener("resize", scheduleRedraw);
+                  window.addEventListener("glossary-reordered", scheduleRedraw);
                   if (document.fonts && document.fonts.ready) {
                     document.fonts.ready.then(() => scheduleRedraw());
                   }

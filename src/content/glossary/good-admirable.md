@@ -3,7 +3,7 @@ id: good-admirable
 traditional: "Good [1]"
 greek: kalos
 lit: appealing / admirable
-litMenu: Appealing/Admirable
+litMenu: Appealing / Admirable
 srOnly: Good appealing admirable
 menuTraditional: "Good -1-"
 ---

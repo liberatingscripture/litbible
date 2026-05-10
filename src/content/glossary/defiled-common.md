@@ -3,7 +3,7 @@ id: defiled-common
 traditional: Defiled/Profane
 greek: koine
 lit: ordinary
-litMenu: Ordinary/unconsecrated
+litMenu: Ordinary / Unconsecrated
 srOnly: Defiled Profane ordinary
 note: (unconsecrated, not designated for sacred purposes)
 ---
