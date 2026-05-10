@@ -1,5 +1,56 @@
 [
   {
+    "version": "2026-05-10",
+    "date": "2026-05-10",
+    "label": "May 10, 2026",
+    "changes": [
+      {
+        "type": "glossary_updated",
+        "description": "Glossary entry for Defiled/Profane updated"
+      },
+      {
+        "type": "glossary_updated",
+        "description": "Glossary entry for Faith updated"
+      },
+      {
+        "type": "glossary_updated",
+        "description": "Glossary entry for Flesh updated"
+      },
+      {
+        "type": "glossary_updated",
+        "description": "Glossary entry for Glory updated"
+      },
+      {
+        "type": "glossary_updated",
+        "description": "Glossary entry for Good [1] updated"
+      },
+      {
+        "type": "glossary_updated",
+        "description": "Glossary entry for Heaven updated"
+      },
+      {
+        "type": "glossary_updated",
+        "description": "Glossary entry for Holy updated"
+      },
+      {
+        "type": "glossary_updated",
+        "description": "Glossary entry for Resurrection updated"
+      },
+      {
+        "type": "glossary_updated",
+        "description": "Glossary entry for Righteousness updated"
+      },
+      {
+        "type": "glossary_updated",
+        "description": "Glossary entry for Spirit updated"
+      },
+      {
+        "type": "glossary_updated",
+        "description": "Glossary entry for Transgression updated"
+      }
+    ]
+  },
+  {
     "version": "2026-04-26",
     "date": "2026-04-26",
     "label": "April 26, 2026",
