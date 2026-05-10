@@ -937,6 +937,81 @@ html.menu-open body {
 
 
 /* ================================
+   CTA Button (footer-cta)
+   ================================ */
+
+a.footer-cta {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+
+  text-decoration: none;
+  user-select: none;
+  font-size: 0.85rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 14px 26px;
+  border-radius: 12px;
+
+  border: 2px solid var(--green);
+
+  background: var(--green);
+  color: var(--ink);
+
+  white-space: nowrap;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+
+  font-weight: 700;
+
+  transition:
+    color 220ms ease-in-out,
+    background-color 220ms ease-in-out;
+
+  z-index: 0;
+}
+
+a.footer-cta::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--green);
+  border-radius: inherit;
+  z-index: -1;
+
+  transform-origin: top;
+  transform: scaleY(1);
+  transition: transform 380ms ease-in-out;
+
+  will-change: transform;
+}
+
+a.footer-cta:hover::before,
+a.footer-cta:focus::before {
+  transform: scaleY(0);
+}
+
+a.footer-cta:hover,
+a.footer-cta:focus {
+  background: var(--surface-raised);
+  color: var(--green);
+  text-decoration: none;
+}
+
+a.footer-cta > span {
+  position: relative;
+  z-index: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  a.footer-cta::before {
+    transition: none;
+  }
+  a.footer-cta {
+    transition: none;
+  }
+}
+
+/* ================================
    Site Footer Section
    ================================ */
 
