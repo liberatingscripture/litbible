@@ -3,7 +3,7 @@ id: trespass-shortfall
 traditional: Transgression
 greek: paraptoma
 lit: shortfall / sidestep
-litMenu: Shortfall/Sidestep
+litMenu: Shortfall / Sidestep
 srOnly: Transgression shortfall sidestep
 menuTraditional: Trespass/Transgression
 ---
