@@ -23,6 +23,15 @@ const canonicalUrl: string =
   canonical ?? (Astro.site ? new URL(Astro.url.pathname, Astro.site).href : "");
 const siteOrigin = Astro.site ? Astro.site.origin : "https://litbible.net";
 const ogImageUrl = ogImage ?? `${siteOrigin}/images/lit-logo.png`;
+
+// Critical inline style values — prevent FOUC before external stylesheet loads.
+// green pages stay green in dark mode (brand color); all others flip to dark bg.
+const isGreen = bg === "green";
+const criticalBg    = isGreen ? "#209D50" : "#E1DFD9";
+const criticalColor = isGreen ? "#E1DFD9" : "#1d231c";
+const criticalDarkBg    = isGreen ? "#209D50" : "#1a1e1a";
+const criticalDarkColor = isGreen ? "#E1DFD9" : "#e4e2dc";
+const criticalCSS = `html,body{margin:0;padding:0}body{background:${criticalBg};color:${criticalColor}}@media(prefers-color-scheme:dark){body{background:${criticalDarkBg};color:${criticalDarkColor}}}`;
 ---
 
 <!doctype html>
@@ -51,6 +60,11 @@ const ogImageUrl = ogImage ?? `${siteOrigin}/images/lit-logo.png`;
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImageUrl} />
+
+    <!-- Critical inline reset: applies before the external stylesheet is fetched,
+         preventing the browser's 8px default body margin from causing CLS.
+         Colors are bg-specific so no flash occurs on green or dark-mode pages. -->
+    <Fragment set:html={`<style>${criticalCSS}</style>`} />
 
     <!-- Font preloads: start fetching before CSS is parsed -->
     <link rel="preload" href={interLatin400Url} as="font" type="font/woff2" crossorigin="anonymous" />

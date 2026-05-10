@@ -162,12 +162,13 @@ const initialChapterCount = currentBookKey
       bookSelect.addEventListener("change", () => {
         const key = slugifyBook(bookSelect.value);
 
-        // Enable buttons as soon as a valid book is selected
-        setButtonsDisabled(!key);
-
-        // Defer DOM work past the next paint so the select's visual
-        // change renders before we build chapter <option> elements (improves INP).
-        requestAnimationFrame(() => setTimeout(() => populateChapters(key), 0));
+        // Defer all DOM work past the next paint so the event handler returns
+        // immediately (minimises INP processing time). Buttons + chapters both
+        // update after the select's visual change is already rendered.
+        requestAnimationFrame(() => {
+          setButtonsDisabled(!key);
+          setTimeout(() => populateChapters(key), 0);
+        });
       });
 
       // No longer gate buttons on chapter selection; keep listener optional/no-op.
