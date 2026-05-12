@@ -15,8 +15,15 @@ import { fileURLToPath } from 'node:url';
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(scriptDir, '..');
 const dataDir = path.join(projectRoot, 'src', 'data');
+const publicImagesDir = path.join(projectRoot, 'public', 'images');
 const outputBase = path.join(projectRoot, 'public', 'api');
 const outputData = path.join(outputBase, 'data');
+
+// Matches src="/images/<filename>" in intro markdown/HTML. The leading slash is
+// site-root-relative; the iOS app rewrites these to bare filenames at render
+// time and resolves from a local image directory, so we expose them in the
+// manifest under "images/<filename>".
+const IMAGE_REF_RE = /\/images\/([A-Za-z0-9._-]+)/g;
 
 function hashBuffer(buf) {
   return crypto.createHash('sha256').update(buf).digest('hex');
@@ -40,19 +47,39 @@ async function collectContentFiles() {
     }
   }
 
-  // intros/*.md
+  // intros/*.md — also collect any /images/<filename> references found inside
+  const referencedImages = new Set();
   const introsDir = path.join(dataDir, 'intros');
   try {
     for (const name of await fs.readdir(introsDir)) {
       if (name.endsWith('.md')) {
+        const abs = path.join(introsDir, name);
         files.push({
           relativePath: `intros/${name}`,
-          absolutePath: path.join(introsDir, name),
+          absolutePath: abs,
         });
+        const text = await fs.readFile(abs, 'utf8');
+        for (const match of text.matchAll(IMAGE_REF_RE)) {
+          referencedImages.add(match[1]);
+        }
       }
     }
   } catch {
     // intros directory may not exist yet
+  }
+
+  // images/<filename> — every image referenced from an intro file
+  for (const filename of referencedImages) {
+    const abs = path.join(publicImagesDir, filename);
+    try {
+      await fs.access(abs);
+      files.push({
+        relativePath: `images/${filename}`,
+        absolutePath: abs,
+      });
+    } catch {
+      console.warn(`⚠️  intro references /images/${filename} but file not found in public/images/`);
+    }
   }
 
   // Top-level data files the spec expects (include them when they exist)
