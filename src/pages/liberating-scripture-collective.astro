@@ -13,9 +13,10 @@ import CardCarousel from "../components/CardCarousel.astro";
   <Fragment slot="head">
     <script type="application/ld+json" set:html={JSON.stringify({
       "@context": "https://schema.org",
-      "@type": "Organization",
+      "@type": "NGO",
       "name": "Liberating Scripture Collective",
       "alternateName": "LSC",
+      "taxID": "41-5314350",
       "url": "https://liberatingscripture.org",
       "description": "Liberating Scripture Collective creates open-access, trauma-informed translation, learning resources, and pathways of spiritual support that serve liberation, healing, and belonging.",
       "founder": {
@@ -89,6 +90,12 @@ import CardCarousel from "../components/CardCarousel.astro";
         accountability, and care. We smooth the journey between translation and
         faithful, responsive hearing: making scripture more transparent, more
         honest about power, and less likely to be used as a tool of harm.
+      </p>
+
+      <p>
+        The Liberating Scripture Collective is a registered 501(c)(3) nonprofit
+        organization. Donations to support this work are tax-deductible to the
+        extent permitted by law.
       </p>
     </section>
 
@@ -295,8 +302,9 @@ import CardCarousel from "../components/CardCarousel.astro";
     </section>
 
     <p class="fineprint">
-      LSC is in active development. This page will evolve as projects launch and
-      collaboration pathways become clearer.
+      The Liberating Scripture Collective is a registered 501(c)(3) nonprofit.
+      This page will evolve as projects launch and collaboration pathways
+      become clearer.
     </p>
   </div>
 </Layout>

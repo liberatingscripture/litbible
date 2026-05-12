@@ -3,8 +3,6 @@
 import Layout from "../layouts/Layout.astro";
 import "../styles/pages/support.css";
 
-// Swap this to your real Give Lively campaign URL when ready.
-// For now, it stays on-page to avoid dead links.
 const donateHref = "#donate";
 const lscSiteHref = "https://liberatingscripture.org";
 const lscContactHref = "https://liberatingscripture.org/contact";
@@ -15,6 +13,9 @@ const lscContactHref = "https://liberatingscripture.org/contact";
   description="Support the Liberating Scripture Collective (LSC): help keep liberation-centered, trauma-informed scripture work free, auditable, and community-shaped."
   canonical="https://litbible.net/support/"
 >
+  <Fragment slot="head">
+    <script is:inline defer src="https://secure.givelively.org/widgets/simple_donation/liberating-scripture-collective.js?show_suggested_amount_buttons=false&show_in_honor_of=false&address_required=false&has_required_custom_question=null"></script>
+  </Fragment>
   <div class="support">
     <!-- HERO -->
     <header class="support-hero" aria-label="Support the work">
@@ -89,61 +90,41 @@ const lscContactHref = "https://liberatingscripture.org/contact";
             </div>
           </div>
 
-          <div class="support-band__grid">
-            <div class="support-band__copy">
-              <h2>Donate</h2>
+          <div class="support-band__copy">
+            <h2>Donate</h2>
 
-              <p>
-                Donations keep the core work open-access, help cover
-                infrastructure costs, and make it possible to publish resources
-                without paywalls or extraction.
-              </p>
+            <p>
+              Donations keep the core work open-access, help cover
+              infrastructure costs, and make it possible to publish resources
+              without paywalls or extraction.
+            </p>
 
-              <ul class="support-list">
-                <li>
-                  <strong>Infrastructure:</strong> hosting, tooling, accessibility
-                  work, and upkeep.
-                </li>
-                <li>
-                  <strong>Publishing:</strong> layout, editing, and eventual print
-                  production (without locking content).
-                </li>
-                <li>
-                  <strong>Capacity:</strong> collaboration workflows, review processes,
-                  and sustainability.
-                </li>
-              </ul>
+            <ul class="support-list">
+              <li>
+                <strong>Infrastructure:</strong> hosting, tooling, accessibility
+                work, and upkeep.
+              </li>
+              <li>
+                <strong>Publishing:</strong> layout, editing, and eventual print
+                production (without locking content).
+              </li>
+              <li>
+                <strong>Capacity:</strong> collaboration workflows, review processes,
+                and sustainability.
+              </li>
+            </ul>
 
-              <div
-                class="support-actions support-actions--left"
-                aria-label="Donate links"
-              >
-                <a class="button button--primary" href={donateHref}> Donate </a>
+            <p class="fineprint">
+              The Liberating Scripture Collective is a registered 501(c)(3)
+              nonprofit organization. Donations are tax-deductible to the
+              extent permitted by law.
+            </p>
 
-                <a
-                  class="button button--outline button--external"
-                  href={lscSiteHref}
-                  target="_blank"
-                  rel="external noopener"
-                >
-                  Visit LSC site
-                </a>
-              </div>
-            </div>
-
-            <div class="support-band__card" aria-label="Donation values">
-              <h3>Donation values</h3>
-              <p>
-                This work is transparent about power, careful with people’s
-                nervous systems, and honest about the real consequences
-                scripture can have in communities.
-              </p>
-              <p>
-                If you want a way to give that supports clarity, consent, and
-                non-commercial access, you’re in the right neighborhood.
-              </p>
-            </div>
           </div>
+
+          <!-- Begin Give Lively Fundraising Widget -->
+          <div id="give-lively-widget" class="gl-simple-donation-widget"></div>
+          <!-- End Give Lively Fundraising Widget -->
         </div>
       </section>
 
@@ -278,8 +259,8 @@ const lscContactHref = "https://liberatingscripture.org/contact";
         </div>
 
         <p class="fineprint">
-          LSC is in active development. This page will evolve as ways to
-          collaborate take shape.
+          The Liberating Scripture Collective is a registered 501(c)(3)
+          nonprofit. Ways to collaborate will expand as the work grows.
         </p>
       </section>
     </div>
