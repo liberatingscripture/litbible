@@ -202,26 +202,26 @@
 }
 
 .support-band__brand {
+  --brand-size: min(18vw, 120px);
+
   display: flex;
-  align-items: center;
+  align-items: flex-start;
+  justify-content: center;
   gap: 0.9rem;
   margin-bottom: 1rem;
 }
 
 .support-band__brand-text {
-  display: grid;
-  gap: 0.15rem;
   line-height: 1.2;
 }
 
-.support-band__brand-text span:first-child {
-  font-size: 1.2rem;
-  color: rgba(var(--ink-rgb), 0.70);
-}
-
 .support-band__brand-text span:last-child {
+  display: block;
   font-family: var(--serif, serif);
-  font-size: 1.5rem;
+  font-size: calc(var(--brand-size) * 0.29);
+  padding-top: calc(var(--brand-size) * 0.01);
+  text-align: center;
+  white-space: nowrap;
 }
 
 /* Wrapper uses the SAME surface as the band so the logo’s
@@ -229,35 +229,27 @@
 /* --- Replace these two blocks in support.css --- */
 
 .support-band__logo-wrap {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  display: block;
+  flex-shrink: 0;
+  width: var(--brand-size);
 
-  /* no border, no padding, no surface */
-  padding: 0;
-  background: transparent;
-  border: none;
-  box-shadow: none;
-
-  /* keep clean rounding, clip anything that overhangs */
-  border-radius: 16px;
+  /* keep clean rounding */
+  border-radius: 10px;
   overflow: hidden;
 }
 
 .support-band__logo {
   display: block;
-
-  /* logo fills the wrapper */
-  width: 96px;      /* adjust to taste */
+  width: 100%;
   height: auto;
-
-  background: transparent;
-  object-fit: contain;
 }
 
 
 .support-band__copy h2 {
-  margin-top: 0;
+  margin-top: 2.5rem;
+  font-size: clamp(2rem, 4.5vw, 3rem);
+  font-weight: 700;
+  text-align: center;
 }
 
 .support-band__card {
