@@ -12,6 +12,10 @@
         "type": "footnote_updated",
         "description": "Luke 18:42 — footnotes af, ag, ff, gg updated; footnotes formerly ab–ae relabeled bb–ee",
         "detail": "fn. af (v. 42): removed \"Traditionally, ‘faith.’ The Greek term pistis communicates meanings such as trust, faithfulness, commitment, and allegi…\"; fn. ag (v. 42): removed \"Traditionally, ‘saved.’ This word carries a meaning of any kind of action to prevent or repair harm. Appropriate transl…\"; fn. ff (v. 42): added \"Traditionally, ‘faith.’ The Greek term pistis communicates meanings such as trust, faithfulness, commitment, and allegi…\"; fn. gg (v. 42): added \"Traditionally, ‘saved.’ This word carries a meaning of any kind of action to prevent or repair harm. Appropriate transl…\"; footnotes formerly ab–ae relabeled bb–ee"
+      },
+      {
+        "type": "metadata_updated",
+        "description": "Luke 18 — metadata updated"
       }
     ]
   },
