@@ -1,5 +1,17 @@
 [
   {
+    "version": "2026-05-23",
+    "date": "2026-05-23",
+    "label": "May 23, 2026",
+    "changes": [
+      {
+        "type": "text_updated",
+        "description": "John 14:17 — text updated",
+        "detail": "\"it because it stays present alongside you and it\" → \"her because she stays present alongside you, and she\""
+      }
+    ]
+  },
+  {
     "version": "2026-05-17",
     "date": "2026-05-17",
     "label": "May 17, 2026",
