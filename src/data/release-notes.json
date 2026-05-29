@@ -1,5 +1,37 @@
 [
   {
+    "version": "2026-05-28",
+    "date": "2026-05-28",
+    "label": "May 28, 2026",
+    "changes": [
+      {
+        "type": "text_updated",
+        "description": "John 1:49 — text updated",
+        "detail": "\"“ lang=\"arc-Latn\" xml:lang=\"arc-Latn\">Rabbi,”\" → \"“Rabbi,”\""
+      },
+      {
+        "type": "footnote_updated",
+        "description": "John 1:1, 5–6, 9–10, 14, 20, 29, 32, 40–41, 50 — footnotes a, d, e, f, g, h, o, r, w, y, z, dd, ff, mm updated",
+        "detail": "fn. a (v. 1): minor formatting change; fn. d (v. 5): minor formatting change; fn. e (v. 6): minor formatting change; fn. f (v. 9): minor formatting change; fn. g (v. 9): minor formatting change; fn. h (v. 10): minor formatting change; fn. o (v. 14): minor formatting change; fn. r (v. 20): minor formatting change; fn. w (v. 29): minor formatting change; fn. y (v. 32): minor formatting change; fn. z (v. 32): minor formatting change; fn. dd (v. 40): minor formatting change; fn. ff (v. 41): minor formatting change; fn. mm (v. 50): minor formatting change"
+      },
+      {
+        "type": "footnote_updated",
+        "description": "John 2:5–6, 11–13, 15, 18, 25 — footnotes c, e, f, g, j, m, q, s, z updated",
+        "detail": "fn. c (v. 5): minor formatting change; fn. e (v. 6): minor formatting change; fn. f (v. 11): minor formatting change; fn. g (v. 12): minor formatting change; fn. j (v. 13): minor formatting change; fn. m (v. 15): minor formatting change; fn. q (v. 18): minor formatting change; fn. s (v. 18): minor formatting change; fn. z (v. 25): minor formatting change"
+      },
+      {
+        "type": "footnote_updated",
+        "description": "John 3:3, 5–6, 8–9, 19–20, 34 — footnotes d, e, h, i, j, l, m, n, x, y, cc, dd updated",
+        "detail": "fn. d (v. 3): minor formatting change; fn. e (v. 3): minor formatting change; fn. h (v. 5): minor formatting change; fn. i (v. 5): minor formatting change; fn. j (v. 6): minor formatting change; fn. l (v. 8): minor formatting change; fn. m (v. 8): minor formatting change; fn. n (v. 9): minor formatting change; fn. x (v. 19): minor formatting change; fn. y (v. 20): minor formatting change; fn. cc (v. 34): minor formatting change; fn. dd (v. 34): minor formatting change"
+      },
+      {
+        "type": "footnote_updated",
+        "description": "John 4:3, 11, 37–38, 48 — footnotes b, c, k, l, s, u updated",
+        "detail": "fn. b (v. 3): minor formatting change; fn. c (v. 11): minor formatting change; fn. k (v. 37): minor formatting change; fn. l (v. 38): minor formatting change; fn. s (v. 48): minor formatting change; fn. u: minor formatting change"
+      }
+    ]
+  },
+  {
     "version": "2026-05-23",
     "date": "2026-05-23",
     "label": "May 23, 2026",
