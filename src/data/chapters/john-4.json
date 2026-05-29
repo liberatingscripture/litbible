@@ -62,27 +62,137 @@
     "<p id=\"john-4-p30\"><span class=\"vglue\"><sup id=\"v54\" class=\"vn\">54</sup>&nbsp;Jesus</span> produced this second sign after coming back to Galilee from Judea.</p>"
   ],
   "footnotes": [
-    { "id": "fn-a", "refId": "fnref-a", "label": "a", "html": "Literally, ‘making.’ ‘Initiating’ could be appropriate. Many versions translate it as ‘making’ but others also try to make it flow more naturally in English, including by translating it as ‘winning’ (NET) and ‘gaining’ (NIV). Strangely, the NET reads ‘winning disciples’ here when the Greek is literally ‘making disciples’ but in Matthew 28:19, the NET says ‘making disciples’ when the Greek says something very literally like ‘disciplize all nations.’" },
-    { "id": "fn-b", "refId": "fnref-b", "label": "b", "html": "The Greek word <em lang=\"el-Latn\" xml:lang=\"el-Latn\">aphiemi</em> is the one often translated as ‘forgive’ or ‘divorce’ or ‘send away’ or ‘dismiss’ depending on context. Its core meaning is to create distance." },
-    { "id": "fn-c", "refId": "fnref-c", "label": "c", "html": "This is <em lang=\"el-Latn\" xml:lang=\"el-Latn\">kurios</em>, the same word translated as ‘lord’ in most places." },
-    { "id": "fn-d", "refId": "fnref-d", "label": "d", "html": "Traditionally, ‘greater.’ Literally, ‘bigger.’ It was used to discuss physical size, but also age, importance, status, and power, as well as degrees such as ‘great effort.’" },
-    { "id": "fn-e", "refId": "fnref-e", "label": "e", "html": "Literally, the word means ‘woman.’ However, addressing a woman as ‘woman’ in our culture is considered rude, an attempt to put her in her place, especially when done by a man. In Jesus’ culture, it was done as a respectful way to address someone." },
-    { "id": "fn-f", "refId": "fnref-f", "label": "f", "html": "The word ‘you’ is plural in all its instances in verses 21–24." },
-    { "id": "fn-g", "refId": "fnref-g", "label": "g", "html": "Literally, ‘truth’" },
-    { "id": "fn-h", "refId": "fnref-h", "label": "h", "html": "Literally, ‘everything I’ve done.’ In English, that wording sounds like a judgment. There’s an implicit, ‘everything I’ve done wrong.’ The actual wording has no judgment and is just about the events, something more like ‘every event that I’ve engaged in.’" },
-    { "id": "fn-i", "refId": "fnref-i", "label": "i", "html": "Literally, ‘white’ which referred to the lighter color of ripe grain." },
-    { "id": "fn-j", "refId": "fnref-j", "label": "j", "html": "Traditionally, ‘fruit,’ but it refers to whatever crops are harvested. In this case, grain seems to be in mind." },
-    { "id": "fn-k", "refId": "fnref-k", "label": "k", "html": "The Greek is <em lang=\"el-Latn\" xml:lang=\"el-Latn\">logos</em>. See note in John 1:1. With the understanding that at the heart of the word is a sense of conversation, the statement indicated here is not meant to be the authoritative conclusion but rather the prompt to discuss the concepts in view. What someone says as they wrestle with wisdom does not end a conversation but opens it, inviting others to wrestle as well." },
-    { "id": "fn-l", "refId": "fnref-l", "label": "l", "html": "This is the same word translated as ‘<em>go into</em> their mother’s womb’ in 3:4 and ‘participate in God’s reign’ in 3:5. The Greek word <em lang=\"el-Latn\" xml:lang=\"el-Latn\">eiserchomai</em> is traditionally translated as ‘enter.’ When it is used for physical travel, that is a good translation. It is a compound word for ‘into/toward’ and ‘come/go.’ However, it has other possible meanings that are more appropriate when it is not about travel: 1) to enter a state of being or event, meaning to start to be or participate in something happening, and 2) to happen or develop. Beginning to participate in something happening is the most appropriate way to translate it here." },
-    { "id": "fn-m", "refId": "fnref-m", "label": "m", "html": "Literally, ‘because of the <em>logos</em> of the woman who reported…’ See note about <em>logos</em> in John 1:1." },
-    { "id": "fn-n", "refId": "fnref-n", "label": "n", "html": "Or ‘stay present’ or ‘reside’ or ‘remain’" },
-    { "id": "fn-o", "refId": "fnref-o", "label": "o", "html": "Greek: <em>logos</em>. See note in John 1:1." },
-    { "id": "fn-p", "refId": "fnref-p", "label": "p", "html": "Literally, ‘fatherland.’ The idea is ‘region of origin.’ ‘Hometown’ works well in some instances, but this is about Galilee, which is the whole province, not just a town." },
-    { "id": "fn-q", "refId": "fnref-q", "label": "q", "html": "This word is plural." },
-    { "id": "fn-r", "refId": "fnref-r", "label": "r", "html": "‘Signs’ becomes a theme in John. It has more to do with evidence that Jesus can be trusted as representing God than with performing miracles. It is paired here with ‘miracles,’ not because they are synonyms but because they are two different things that people want to see in order to be willing to trust. Sometimes the signs are miraculous, like healing people, but other times it is that he predicted what kind of death he would die and that he died to be the people’s Bread of Life from God. They are all miraculous in the sense of being ‘from God’ but not in the way of being ‘magical.’" },
-    { "id": "fn-s", "refId": "fnref-s", "label": "s", "html": "Traditionally, ‘wonders.’ Perhaps ‘acts of magic’ or ‘acts of sorcery.’ The definition of <em lang=\"el-Latn\" xml:lang=\"el-Latn\">teras</em> is ‘something that astounds because of transcendent association’ (BDAG)." },
-    { "id": "fn-t", "refId": "fnref-t", "label": "t", "html": "Literally, “trusted the <em>logos</em> that Jesus spoke with him.” See note on <em>logos</em> in John 1:1." },
-    { "id": "fn-u", "refId": "fnref-u", "label": "u", "html": "Literally, something like ‘left him.’ The word is <em lang=\"el-Latn\" xml:lang=\"el-Latn\">aphiemi</em>, the same word translated as ‘forgive’ or ‘send away’ or ‘divorce’ or ‘dismiss’ or ‘disregard’ or ‘leave behind.’ It can be used in a number of ways to communicate the idea of creating separation or distance." },
-    { "id": "fn-v", "refId": "fnref-v", "label": "v", "html": "Literally, ‘the seventh hour.’" }
+    {
+      "id": "fn-a",
+      "refId": "fnref-a",
+      "label": "a",
+      "html": "Literally, ‘making.’ ‘Initiating’ could be appropriate. Many versions translate it as ‘making’ but others also try to make it flow more naturally in English, including by translating it as ‘winning’ (NET) and ‘gaining’ (NIV). Strangely, the NET reads ‘winning disciples’ here when the Greek is literally ‘making disciples’ but in Matthew 28:19, the NET says ‘making disciples’ when the Greek says something very literally like ‘disciplize all nations.’"
+    },
+    {
+      "id": "fn-b",
+      "refId": "fnref-b",
+      "label": "b",
+      "html": "The Greek word <em>aphiemi</em> is the one often translated as ‘forgive’ or ‘divorce’ or ‘send away’ or ‘dismiss’ depending on context. Its core meaning is to create distance."
+    },
+    {
+      "id": "fn-c",
+      "refId": "fnref-c",
+      "label": "c",
+      "html": "This is <em>kurios</em>, the same word translated as ‘lord’ in most places."
+    },
+    {
+      "id": "fn-d",
+      "refId": "fnref-d",
+      "label": "d",
+      "html": "Traditionally, ‘greater.’ Literally, ‘bigger.’ It was used to discuss physical size, but also age, importance, status, and power, as well as degrees such as ‘great effort.’"
+    },
+    {
+      "id": "fn-e",
+      "refId": "fnref-e",
+      "label": "e",
+      "html": "Literally, the word means ‘woman.’ However, addressing a woman as ‘woman’ in our culture is considered rude, an attempt to put her in her place, especially when done by a man. In Jesus’ culture, it was done as a respectful way to address someone."
+    },
+    {
+      "id": "fn-f",
+      "refId": "fnref-f",
+      "label": "f",
+      "html": "The word ‘you’ is plural in all its instances in verses 21–24."
+    },
+    {
+      "id": "fn-g",
+      "refId": "fnref-g",
+      "label": "g",
+      "html": "Literally, ‘truth’"
+    },
+    {
+      "id": "fn-h",
+      "refId": "fnref-h",
+      "label": "h",
+      "html": "Literally, ‘everything I’ve done.’ In English, that wording sounds like a judgment. There’s an implicit, ‘everything I’ve done wrong.’ The actual wording has no judgment and is just about the events, something more like ‘every event that I’ve engaged in.’"
+    },
+    {
+      "id": "fn-i",
+      "refId": "fnref-i",
+      "label": "i",
+      "html": "Literally, ‘white’ which referred to the lighter color of ripe grain."
+    },
+    {
+      "id": "fn-j",
+      "refId": "fnref-j",
+      "label": "j",
+      "html": "Traditionally, ‘fruit,’ but it refers to whatever crops are harvested. In this case, grain seems to be in mind."
+    },
+    {
+      "id": "fn-k",
+      "refId": "fnref-k",
+      "label": "k",
+      "html": "The Greek is <em>logos</em>. See note in John 1:1. With the understanding that at the heart of the word is a sense of conversation, the statement indicated here is not meant to be the authoritative conclusion but rather the prompt to discuss the concepts in view. What someone says as they wrestle with wisdom does not end a conversation but opens it, inviting others to wrestle as well."
+    },
+    {
+      "id": "fn-l",
+      "refId": "fnref-l",
+      "label": "l",
+      "html": "This is the same word translated as ‘<em>go into</em> their mother’s womb’ in 3:4 and ‘participate in God’s reign’ in 3:5. The Greek word <em>eiserchomai</em> is traditionally translated as ‘enter.’ When it is used for physical travel, that is a good translation. It is a compound word for ‘into/toward’ and ‘come/go.’ However, it has other possible meanings that are more appropriate when it is not about travel: 1) to enter a state of being or event, meaning to start to be or participate in something happening, and 2) to happen or develop. Beginning to participate in something happening is the most appropriate way to translate it here."
+    },
+    {
+      "id": "fn-m",
+      "refId": "fnref-m",
+      "label": "m",
+      "html": "Literally, ‘because of the <em>logos</em> of the woman who reported…’ See note about <em>logos</em> in John 1:1."
+    },
+    {
+      "id": "fn-n",
+      "refId": "fnref-n",
+      "label": "n",
+      "html": "Or ‘stay present’ or ‘reside’ or ‘remain’"
+    },
+    {
+      "id": "fn-o",
+      "refId": "fnref-o",
+      "label": "o",
+      "html": "Greek: <em>logos</em>. See note in John 1:1."
+    },
+    {
+      "id": "fn-p",
+      "refId": "fnref-p",
+      "label": "p",
+      "html": "Literally, ‘fatherland.’ The idea is ‘region of origin.’ ‘Hometown’ works well in some instances, but this is about Galilee, which is the whole province, not just a town."
+    },
+    {
+      "id": "fn-q",
+      "refId": "fnref-q",
+      "label": "q",
+      "html": "This word is plural."
+    },
+    {
+      "id": "fn-r",
+      "refId": "fnref-r",
+      "label": "r",
+      "html": "‘Signs’ becomes a theme in John. It has more to do with evidence that Jesus can be trusted as representing God than with performing miracles. It is paired here with ‘miracles,’ not because they are synonyms but because they are two different things that people want to see in order to be willing to trust. Sometimes the signs are miraculous, like healing people, but other times it is that he predicted what kind of death he would die and that he died to be the people’s Bread of Life from God. They are all miraculous in the sense of being ‘from God’ but not in the way of being ‘magical.’"
+    },
+    {
+      "id": "fn-s",
+      "refId": "fnref-s",
+      "label": "s",
+      "html": "Traditionally, ‘wonders.’ Perhaps ‘acts of magic’ or ‘acts of sorcery.’ The definition of <em>teras</em> is ‘something that astounds because of transcendent association’ (BDAG)."
+    },
+    {
+      "id": "fn-t",
+      "refId": "fnref-t",
+      "label": "t",
+      "html": "Literally, “trusted the <em>logos</em> that Jesus spoke with him.” See note on <em>logos</em> in John 1:1."
+    },
+    {
+      "id": "fn-u",
+      "refId": "fnref-u",
+      "label": "u",
+      "html": "Literally, something like ‘left him.’ The word is <em>aphiemi</em>, the same word translated as ‘forgive’ or ‘send away’ or ‘divorce’ or ‘dismiss’ or ‘disregard’ or ‘leave behind.’ It can be used in a number of ways to communicate the idea of creating separation or distance."
+    },
+    {
+      "id": "fn-v",
+      "refId": "fnref-v",
+      "label": "v",
+      "html": "Literally, ‘the seventh hour.’"
+    }
   ]
 }
