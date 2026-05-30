@@ -59,6 +59,7 @@ Through his death and resurrection, Jesus demonstrates ultimate liberation from 
 
 </li>
 </ul>
+
 <h2>Structure</h2>
 <ol>
 <li>
@@ -80,6 +81,7 @@ Focused on Jesus’ final days, this section includes the farewell discourse; th
 The final chapter offers a post-resurrection encounter between Jesus and his followers, emphasizing restoration, reconciliation, and the ongoing mission of the Christ community.
 </li>
 </ol>
+
 <h2>Key Passages</h2>
 <ul>
 <li>
@@ -101,6 +103,7 @@ The final chapter offers a post-resurrection encounter between Jesus and his fol
 <strong>John 17:20-23:</strong> "‘I’m not asking only on behalf of these ones but also on behalf of those who have placed their trust in me because of their conversation, so that everyone would be one, just like you, Father, are connected with me and I am connected with you, so that they can also be connected with us, so that the whole world would trust that you commissioned me. The praiseworthiness you gave me, I have given to them too so that they would be one just like we are one. I am connected with them, and you are connected with me, so they can be completely made into one, so that the whole world would know that you commissioned me and that you loved them just like you loved me."
 </li>
 </ul>
+
 <h2>Takeaways on Liberation and Inclusion</h2>
 The Gospel of John offers a transformative vision of liberation and restoration, woven into every aspect of Jesus’ ministry and teaching. Specific dimensions of this liberative message include:
 <ol>

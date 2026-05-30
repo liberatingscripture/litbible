@@ -12,96 +12,75 @@ The letter to the Ephesians has been traditionally ascribed to Paul, but many sc
 
 Ephesians proclaims that God’s purpose is to restore all relationships—between individuals, communities, and creation itself—through the faithfulness of Jesus. It pleads with the community to embody this vision of unity and justice, not as an abstract ideal but as a lived reality that transforms daily life, not just as individuals but as a collective body striving for restoration. By showing love, practicing justice, and standing firm against oppressive systems, the Christ community can be a living witness to the hope and restoration that God desires for the world. Through the faithfulness of Jesus, all people are invited into this sacred Family.
 
-<h2>
-Main Themes
-</h2>
+<h2>Main Themes</h2>
 <ul>
 <li>
-<strong>
-Unity in Christ:
-</strong>
+<strong>Unity in Christ:</strong>
 
 Ephesians emphasizes the unity of all people in Christ, who has broken down “the dividing wall of hostility” (2:14). The letter urges the Christ community to reject and dismantle divisions between ethnicity, social status, gender, and any other distinction, living as one sacred family that reflects God’s unifying work.
 
 </li>
 <li>
-<strong>
-Living as the Christ Community:
-</strong>
+<strong>Living as the Christ Community:</strong>
 
 The Christ community is urged to embody their new identity in Christ by living lives marked by humility, forgiveness, and mutual care. Ephesians describes the Christ community as a body where every member is interconnected, essential, and called to build one another up. The letter emphasizes that this unity must be protected through intentional efforts to show love and justice in every relationship.
 
 </li>
 <li>
-<strong>
-God’s Liberating Justice and Generosity:
-</strong>
+<strong>God’s Liberating Justice and Generosity:</strong>
 
 Ephesians celebrates the generosity of God, emphasizing that belonging is not earned but is a gift for all. It insists that this generosity calls the Christ community to embody God’s justice, especially in caring for the vulnerable and resisting systems of domination.
 
 </li>
 <li>
-<strong>
-Restoration of All Things:
-</strong>
+<strong>Restoration of All Things:</strong>
 
 The letter pleads for the community to see its role in God’s purpose of restoring all relationships. Through Jesus, God is healing divisions and restoring mutual care and loving relationships, inviting members of the Family to participate in this transformative work in their daily lives and communities. This work of restoration goes beyond individuals, addressing relationships, communities, and systems to bring about liberation and renewal.
 
 </li>
 <li>
-<strong>
-Practical Guidance for Sacred Living:
-</strong>
+<strong>Practical Guidance for Sacred Living:</strong>
 
 Ephesians moves from heartfelt exhortation to practical advice, offering guidance on how believers can live out their sacred calling. This includes fostering mutual respect in households, maintaining harmony within the community, and resisting the powers of oppression.
 
 </li>
 </ul>
-<h2>
-Structure
-</h2>
+
+<h2>Structure</h2>
 Ephesians follows a deliberate structure, beginning with a passionate attempt to persuade the audience grasp the depth of God’s generosity and then moving to practical instructions for how to live in light of this calling:
 
 <ol>
 <li>
-<strong>
-Chapters 1-3:</strong> A Call to Grasp God’s Plan of Unity and Restoration
+<strong>Chapters 1-3:</strong> A Call to Grasp God’s Plan of Unity and Restoration
 
 These chapters describe God’s work of bringing all things together in Christ and the inclusion of all people in the Christ community and the urgent plea to embrace everyone’s inclusion in this sacred Family.
 
 </li>
 <li>
-<strong>
-Chapters 4-6:</strong> A Call to Live Out Unity and Love in Daily Life
+<strong>Chapters 4-6:</strong> A Call to Live Out Unity and Love in Daily Life
 
 The second half of the letter shifts to practical instructions, urging the community to protect its unity through love, justice, and mutual care in all relationships and aspects of life and to stand firm against oppressive forces that threaten to divide or dominate.
 
 </li>
 </ol>
-<h2>
-Key Passages
-</h2>
+
+<h2>Key Passages</h2>
 <ul>
 <li>
-<strong>
-Ephesians 1:7, 8, 10b:</strong> " Through Christ we have the purchase of liberation from enslavement through his blood, the release of shortfalls, based on the richness of his generosity, which he shared lavishly for us regarding all wisdom and awareness … to bring under one Head everything connected with Christ, everything connected with him from the sky to the ground."
+<strong>Ephesians 1:7, 8, 10b:</strong> " Through Christ we have the purchase of liberation from enslavement through his blood, the release of shortfalls, based on the richness of his generosity, which he shared lavishly for us regarding all wisdom and awareness … to bring under one Head everything connected with Christ, everything connected with him from the sky to the ground."
 </li>
 <li>
-<strong>
-Ephesians 2:14-16:</strong> "That’s because Christ is our peace, the one who made both groups into one and tore down the wall between us—the hostility—with his body. He took away the power of law from directives given through decrees, so that—using himself—he could make peace between the two and create one new Person and reconcile them both in the interest of God into one Body through the cross, having eliminated the hostility with himself"
+<strong>Ephesians 2:14-16:</strong> "That’s because Christ is our peace, the one who made both groups into one and tore down the wall between us—the hostility—with his body. He took away the power of law from directives given through decrees, so that—using himself—he could make peace between the two and create one new Person and reconcile them both in the interest of God into one Body through the cross, having eliminated the hostility with himself"
 </li>
 <li>
-<strong>
-Ephesians 4:1-3:</strong> "Walk appropriately for the calling with which you have been called: with complete humility and gentleness, with patience, putting up with each other with love, striving to protect the unity produced by the Life-breath with bonding peace."
+<strong>Ephesians 4:1-3:</strong> "Walk appropriately for the calling with which you have been called: with complete humility and gentleness, with patience, putting up with each other with love, striving to protect the unity produced by the Life-breath with bonding peace."
 </li>
 <li>
-<strong>
-Ephesians 6:12:</strong> "Finally, be strengthened by the Lord and with the Lord's intense strength. Put on the battle gear associated with God in order to be able to withstand against the False Accuser’s schemes because our battle is not against blood and body but against the leaders, against the authorities, against the conquerors of the world system—who are characterized by this darkness—and against the things that are associated with the oppressive spirit-breath in the highest heavens."
+<strong>Ephesians 6:12:</strong> "Finally, be strengthened by the Lord and with the Lord's intense strength. Put on the battle gear associated with God in order to be able to withstand against the False Accuser’s schemes because our battle is not against blood and body but against the leaders, against the authorities, against the conquerors of the world system—who are characterized by this darkness—and against the things that are associated with the oppressive spirit-breath in the highest heavens."
 </li>
 </ul>
-<h2>
-Takeaways on Liberation and Inclusion
-</h2>
+
+<h2>Takeaways on Liberation and Inclusion</h2>
 
 Ephesians calls the Christ community to actively participate in God’s work of reconciliation and liberation. It pleads for a way of life that embodies love, justice, and unity, urging believers to break down the barriers that divide people and to resist oppressive systems that harm communities. The letter dismantles barriers of division, affirming that all are invited to belong fully in the Christ community. This unity is not about conformity but about celebrating diversity as central to God’s design.
 

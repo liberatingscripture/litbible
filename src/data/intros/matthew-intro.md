@@ -25,6 +25,7 @@ The Gospel of Matthew presents Jesus as the fulfillment of Hebrew scriptures and
 <strong>Inclusion and the Call to Discipleship</strong>: The Gospel portrays Jesus calling students from varied backgrounds, extending the invitation to participate in the Heavenly Reign across social and cultural boundaries. His instructions on letting go of debts, peacemaking, and humility serve as guiding principles for followers, highlighting a call to community that upholds those with the lowest social status and least respect in society. 
 </li>
 </ol>
+
 <h2>Structure</h2>
 
 Matthew is organized in what is called a “chiastic” structure. Hebrew writers often structured documents with mirrored passages that started with bookends and worked their way toward a central, pivotal section which is the only one without a mirrored counterpart. That central section holds the essential point of the whole document. In this case it’s Matthew 15:1-28. The following chart shows the mirrored passages and pivotal section.

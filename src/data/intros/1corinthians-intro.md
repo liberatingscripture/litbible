@@ -36,6 +36,7 @@ The letter offers both correction and encouragement, guiding the Corinthians tow
 <strong>Contrasting Worldly Wisdom and Life-breath Wisdom:</strong> Paul draws a sharp distinction between the supposed wisdom of the world-system and the wisdom that comes from the Life-breath. In chapters 1-2, he critiques the world’s schema as being rooted in status, power, and self-supremacy, whereas the way of Christ is marked by humility, trust, and the transforming power of the Life-breath. Chapter 7 continues this theme by contrasting earthly concerns with the freedom of a Life-breath-centered life. Chapter 14 addresses the proper use of spiritual gifts, advocating for edification over self-serving displays. Finally, chapter 15 reinforces the ultimate contrast: the perishable nature of the world-system versus the imperishable reality of resurrection life in Christ.
 </li>
 </ul>
+
 <h2>Structure</h2>
 
 1 Corinthians follows a structured flow that moves from addressing specific issues within the community to casting a larger vision of a life rooted in Christ’s liberation:
@@ -60,6 +61,7 @@ The letter offers both correction and encouragement, guiding the Corinthians tow
 <strong>Chapter 16:</strong> Final encouragements and greetings, reinforcing the call to mutual care and faithfulness.
 </li>
 </ol>
+
 <h2>Key Passages</h2>
 
 <ul>
@@ -99,6 +101,7 @@ but rather seek it for the other person.”
 <strong>1 Corinthians 15:58:</strong> “So then, my beloved Family, become planted in place, immovable, always surpassing in God’s work, and knowing that with the Lord, your heavy labor is not futile.”
 </li>
 </ul>
+
 <h2>Takeaways on Liberation and Inclusion</h2>
 
 Paul’s insistence on justice and inclusion is evident throughout 1 Corinthians.
@@ -114,36 +117,28 @@ Paul’s insistence on justice and inclusion is evident throughout 1 Corinthians
 <strong>Inclusion of the Marginalized</strong> – In 1 Corinthians 12:22-26, Paul states that the disempowered and lower socioeconomic status members of the body are indispensable. This affirms the dignity and worth of all people, especially those marginalized in society.
 </li>
 <li>
-<strong>
-Justice in Worship and Gender Equality</strong> – In 1 Corinthians 11 and 14, Paul’s words regarding women have historically been misused to justify their subjugation. However, a closer look at the text, especially in light of translation clarifications and cultural considerations, shows that Paul was challenging cultural norms rather than reinforcing them. In chapter 11, Paul affirms that women pray and prophesy, countering the idea that they must remain silent in worship. In chapter 14, the restrictive verses about women being silent appear next to temporary encouragements for other members of the community refrain from speaking for specific reasons and alongside encouragement for women to receive thorough education, something the culture outside the Called Community did not offer women. Paul advocates for the full participation of all members of the Family in all aspects of community life.
+<strong>Justice in Worship and Gender Equality</strong> – In 1 Corinthians 11 and 14, Paul’s words regarding women have historically been misused to justify their subjugation. However, a closer look at the text, especially in light of translation clarifications and cultural considerations, shows that Paul was challenging cultural norms rather than reinforcing them. In chapter 11, Paul affirms that women pray and prophesy, countering the idea that they must remain silent in worship. In chapter 14, the restrictive verses about women being silent appear next to temporary encouragements for other members of the community refrain from speaking for specific reasons and alongside encouragement for women to receive thorough education, something the culture outside the Called Community did not offer women. Paul advocates for the full participation of all members of the Family in all aspects of community life.
 </li>
 <li>
-<strong>
-Triumph Over Systems of Oppression</strong> – 1 Corinthians 15’s discussion of resurrection frames liberation as not only spiritual but also societal, declaring the victory of Christ over death-dealing systems.
+<strong>Triumph Over Systems of Oppression</strong> – 1 Corinthians 15’s discussion of resurrection frames liberation as not only spiritual but also societal, declaring the victory of Christ over death-dealing systems.
 </li>
 <li>
-<strong>
-Equity in Marriage and Relationships</strong> – In 1 Corinthians 7:3-4, Paul presents an egalitarian view of marriage and sex. This counters patriarchal norms by affirming shared responsibility and respect within relationships.
+<strong>Equity in Marriage and Relationships</strong> – In 1 Corinthians 7:3-4, Paul presents an egalitarian view of marriage and sex. This counters patriarchal norms by affirming shared responsibility and respect within relationships.
 </li>
 <li>
-<strong>
-Self-Sacrificial Love as a Model for Justice</strong> – 1 Corinthians 8:9-13 emphasizes the responsibility of those with greater social power to act with consideration toward others, ensuring that their freedoms do not cause harm. This principle supports a justice-oriented ethic where power and freedom is exercised with concern for the vulnerable.
+<strong>Self-Sacrificial Love as a Model for Justice</strong> – 1 Corinthians 8:9-13 emphasizes the responsibility of those with greater social power to act with consideration toward others, ensuring that their freedoms do not cause harm. This principle supports a justice-oriented ethic where power and freedom is exercised with concern for the vulnerable.
 </li>
 <li>
-<strong>
-Challenging Hierarchies in Leadership</strong> – 1 Corinthians 1:26-29 highlights how God chooses the lowly and culturally disrespected to demonstrate divine wisdom. This confronts social hierarchies and emphasizes that leadership in God’s Reign is not based on status but on faithfulness and humility.
+<strong>Challenging Hierarchies in Leadership</strong> – 1 Corinthians 1:26-29 highlights how God chooses the lowly and culturally disrespected to demonstrate divine wisdom. This confronts social hierarchies and emphasizes that leadership in God’s Reign is not based on status but on faithfulness and humility.
 </li>
 <li>
-<strong>
-Restorative Justice Within the Community</strong> – In 1 Corinthians 6:1-8, Paul warns against using external legal systems to resolve disputes among believers, instead advocating for a justice model based on reconciliation rather than retribution.
+<strong>Restorative Justice Within the Community</strong> – In 1 Corinthians 6:1-8, Paul warns against using external legal systems to resolve disputes among believers, instead advocating for a justice model based on reconciliation rather than retribution.
 </li>
 <li>
-<strong>
-Rejecting the Wisdom of the World for the Way of Christ</strong> – A central theme throughout 1 Corinthians is the contrast between the so-called wisdom of the world and the wisdom of God. In 1 Corinthians 1:18-25, Paul highlights that the world values power, status, and self-interest, but God’s wisdom is found in Christ’s self-giving love. This theme resurfaces in chapter 2, where Paul emphasizes that true understanding comes through the Life-breath rather than through human elitism or instinct. In chapter 3, Paul critiques divisions caused by worldly thinking and urges the community to build on Christ as the foundation. In chapter 9, he models the way of Christ by surrendering his own rights for the sake of others. In chapter 13, love—defined by selflessness and mutual care—is lifted up as the highest expression of God’s wisdom, transcending human impulses toward domination and self-interest. It is followed by chapter 15 where it contrasts the first Adam who is driven by the interests of his own life-force and the last Adam (Christ) who is driven by the task of giving life to all through the divine Life-breath.
+<strong>Rejecting the Wisdom of the World for the Way of Christ</strong> – A central theme throughout 1 Corinthians is the contrast between the so-called wisdom of the world and the wisdom of God. In 1 Corinthians 1:18-25, Paul highlights that the world values power, status, and self-interest, but God’s wisdom is found in Christ’s self-giving love. This theme resurfaces in chapter 2, where Paul emphasizes that true understanding comes through the Life-breath rather than through human elitism or instinct. In chapter 3, Paul critiques divisions caused by worldly thinking and urges the community to build on Christ as the foundation. In chapter 9, he models the way of Christ by surrendering his own rights for the sake of others. In chapter 13, love—defined by selflessness and mutual care—is lifted up as the highest expression of God’s wisdom, transcending human impulses toward domination and self-interest. It is followed by chapter 15 where it contrasts the first Adam who is driven by the interests of his own life-force and the last Adam (Christ) who is driven by the task of giving life to all through the divine Life-breath.
 </li>
 <li>
-<strong>
-The Leaders of This Age Rendered Obsolete</strong> – In 1 Corinthians 2:6-16, Paul speaks of a wisdom that is not from the leaders of this Age, who are being rendered obsolete. He contrasts worldly leadership—built on control, self-interest, and oppression—with the wisdom of God, which is revealed through the Life-breath and is rooted in self-giving love. Paul declares that if the rulers of this world had truly understood God’s wisdom, they would not have crucified Christ, showing that their power is based on deception and short-sighted self-preservation. Similarly, in 1 Corinthians 15:23-25, Paul speaks of Christ’s ultimate triumph over all rule, authority, and power, showing that the dominion of unjust systems will be dismantled as God’s Reign is fully realized.
+<strong>The Leaders of This Age Rendered Obsolete</strong> – In 1 Corinthians 2:6-16, Paul speaks of a wisdom that is not from the leaders of this Age, who are being rendered obsolete. He contrasts worldly leadership—built on control, self-interest, and oppression—with the wisdom of God, which is revealed through the Life-breath and is rooted in self-giving love. Paul declares that if the rulers of this world had truly understood God’s wisdom, they would not have crucified Christ, showing that their power is based on deception and short-sighted self-preservation. Similarly, in 1 Corinthians 15:23-25, Paul speaks of Christ’s ultimate triumph over all rule, authority, and power, showing that the dominion of unjust systems will be dismantled as God’s Reign is fully realized.
 </li>
 </ul>
 

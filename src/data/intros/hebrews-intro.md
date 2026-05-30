@@ -10,96 +10,73 @@ topics:
 
 The book of Hebrews is thought to be written by Priscilla, who was a prominent leader and teacher in the church alongside her husband Aquila. The book itself does not name its author. Hebrews focuses on the uniqueness of Jesus and the faithfulness Jesus modeled and the church is to replicate. It speaks to early believers facing hardship, urging them to remain steadfast in their trust and commitment to Jesus as the ultimate mediator of a new, more liberating covenant. His example calls the community to endurance in living out love for one another, particularly in facing struggles and oppression. It is lived out most fully in the sacred calling to create peace among everyone, which means pursuing universal well-being throughout the community (Hebrews 12:14-15).
 
-<h2>
-Main Themes
-</h2>
+<h2>Main Themes</h2>
 <ul>
 <li>
-<strong>
-Jesus as the High Priest: 
-</strong>
+<strong>Jesus as the High Priest:</strong>
 
 <em>Hebrews</em> makes clear that Jesus, in the order of Melchizedek, is the eternal High Priest who mediates God’s generosity and justice (Hebrews 7). His sacrifice, unlike the repetitive animal offerings, is final and complete, bringing restoration.
 
 </li>
 <li>
-<strong>
-Endurance in Trust and Commitment: 
-</strong>
+<strong>Endurance in Trust and Commitment:</strong>
 
 Followers are encouraged to “run the race laid out for us with endurance,” focusing on Jesus as the one who begins and completes faithfulness (Hebrews 12:1-2)​. This call reflects the importance of continuing to live faithfully even when the promise seems distant.
 
 </li>
 <li>
-<strong>
-God’s Liberating Justice:
-</strong>
+<strong>God’s Liberating Justice:</strong>
 
 The letter presents God as generous and just, calling the community to mirror that justice by showing hospitality and caring for those in prison and those mistreated, “as if within the same body” (Hebrews 13:3).
 
 </li>
 </ul>
-<h2>
-Structure
-</h2>
+
+<h2>Structure</h2>
 <ol>
 <li>
-<strong>
-Chapters 1-2:</strong> Jesus is greater than the messengers who came before, and His message requires serious attention.
+<strong>Chapters 1-2:</strong> Jesus is greater than the messengers who came before, and His message requires serious attention.
 </li>
 <li>
-<strong>
-Chapters 3-4:</strong> Jesus is greater than Moses, offering a deeper and more inclusive rest than what was instructed in the Hebrew Bible.
+<strong>Chapters 3-4:</strong> Jesus is greater than Moses, offering a deeper and more inclusive rest than what was instructed in the Hebrew Bible.
 </li>
 <li>
-<strong>
-Chapters 5-7:</strong> Jesus' priesthood in the order of Melchizedek explores how His role transcends the Levitical system.
+<strong>Chapters 5-7:</strong> Jesus' priesthood in the order of Melchizedek explores how His role transcends the Levitical system.
 </li>
 <li>
-<strong>
-Chapters 8-10:</strong> The advantage of the new covenant through Jesus’ final sacrifice.
+<strong>Chapters 8-10:</strong> The advantage of the new covenant through Jesus’ final sacrifice.
 </li>
 <li>
-<strong>
-Chapters 11-12:</strong> A list of ancient examples of faithfulness, calling the community to follow this tradition of faithfulness to stand up for justice, love, and endurance.
+<strong>Chapters 11-12:</strong> A list of ancient examples of faithfulness, calling the community to follow this tradition of faithfulness to stand up for justice, love, and endurance.
 </li>
 <li>
-<strong>
-Chapter 13:</strong> Final encouragements to live generously, show hospitality, and endure with love and mutual care.
+<strong>Chapter 13:</strong> Final encouragements to live generously, show hospitality, and endure with love and mutual care.
 </li>
 </ol>
-<h2>
-Key Passages
-</h2>
+
+<h2>Key Passages</h2>
 <ul>
 <li>
-<strong>
-Hebrews 4:9-10:</strong> “A Shabbat observance is still left for the people of God. Whoever comes into God’s rest also rests from their work activities just like God did from his own.”
+<strong>Hebrews 4:9-10:</strong> “A Shabbat observance is still left for the people of God. Whoever comes into God’s rest also rests from their work activities just like God did from his own.”
 </li>
 <li>
-<strong>
-Hebrews 4:15-16:</strong> “We do not have a high priest unable to sympathize with our weaknesses, but one who has been tested in every way like we are, yet without deviation. Therefore, we may go up to the generous throne with courage to speak so we may receive loving faithfulness and find generosity for well-timed help.”
+<strong>Hebrews 4:15-16:</strong> “We do not have a high priest unable to sympathize with our weaknesses, but one who has been tested in every way like we are, yet without deviation. Therefore, we may go up to the generous throne with courage to speak so we may receive loving faithfulness and find generosity for well-timed help.”
 </li>
 <li>
-<strong>
-Hebrews 11:1-2:</strong> “Faithfulness is the groundwork for the things being hoped for, a trial run of the circumstances that aren’t yet seen. With this, those who came before us were shown to be genuine.”
+<strong>Hebrews 11:1-2:</strong> “Faithfulness is the groundwork for the things being hoped for, a trial run of the circumstances that aren’t yet seen. With this, those who came before us were shown to be genuine.”
 </li>
 <li>
-<strong>
-Hebrews 12:1-2:</strong> “After putting down every burden and easily discarded deviation, we may run the race laid out for us with endurance, focusing on Jesus, the one who begins and completes faithfulness, who endured the cross and disregarded its shame in exchange for the joy laid out for him.”
+<strong>Hebrews 12:1-2:</strong> “After putting down every burden and easily discarded deviation, we may run the race laid out for us with endurance, focusing on Jesus, the one who begins and completes faithfulness, who endured the cross and disregarded its shame in exchange for the joy laid out for him.”
 </li>
 <li>
-<strong>
-Hebrews 12:14-15:</strong> “Pursue peace among everyone—the sacred purpose for which you are designated, without which no one will see the Lord—keeping an eye out that no one is left out of God’s generosity.”
+<strong>Hebrews 12:14-15:</strong> “Pursue peace among everyone—the sacred purpose for which you are designated, without which no one will see the Lord—keeping an eye out that no one is left out of God’s generosity.”
 </li>
 <li>
-<strong>
-Hebrews 13:1-3:</strong> “Familial love must stay present. Do not neglect welcoming strangers because through it some have welcomed messengers as guests unknowingly. Remember those imprisoned as though imprisoned with them, and those mistreated as though within the same body.”
+<strong>Hebrews 13:1-3:</strong> “Familial love must stay present. Do not neglect welcoming strangers because through it some have welcomed messengers as guests unknowingly. Remember those imprisoned as though imprisoned with them, and those mistreated as though within the same body.”
 </li>
 </ul>
-<h2>
-Takeaways on Liberation and Inclusion
-</h2>
+
+<h2>Takeaways on Liberation and Inclusion</h2>
 
 Hebrews calls the community to live out the values of God’s reign, focusing on inclusion, liberation, restoration, and hope. This is evident in the encouragement to care for prisoners and those mistreated (Hebrews 13:3). Jesus’ suffering “outside the gate” (Hebrews 13:12) reflects His solidarity with those marginalized by society, and followers are invited to join Him, not in privileged spaces but among the oppressed, embodying God's healing and justice.
 
