@@ -1,5 +1,100 @@
 [
   {
+    "version": "2026-05-29",
+    "date": "2026-05-29",
+    "label": "May 29, 2026",
+    "changes": [
+      {
+        "type": "intro_updated",
+        "description": "1 Corinthians Introduction updated"
+      },
+      {
+        "type": "intro_updated",
+        "description": "1 John Introduction updated"
+      },
+      {
+        "type": "intro_updated",
+        "description": "1 Peter Introduction updated"
+      },
+      {
+        "type": "intro_updated",
+        "description": "1 Thessalonians Introduction updated"
+      },
+      {
+        "type": "intro_updated",
+        "description": "1 Timothy Introduction updated"
+      },
+      {
+        "type": "intro_updated",
+        "description": "2 Corinthians Introduction updated"
+      },
+      {
+        "type": "intro_updated",
+        "description": "2 John Introduction updated"
+      },
+      {
+        "type": "intro_updated",
+        "description": "2 Peter Introduction updated"
+      },
+      {
+        "type": "intro_updated",
+        "description": "2 Thessalonians Introduction updated"
+      },
+      {
+        "type": "intro_updated",
+        "description": "2 Timothy Introduction updated"
+      },
+      {
+        "type": "intro_updated",
+        "description": "3 John Introduction updated"
+      },
+      {
+        "type": "intro_updated",
+        "description": "Colossians Introduction updated"
+      },
+      {
+        "type": "intro_updated",
+        "description": "Ephesians Introduction updated"
+      },
+      {
+        "type": "intro_updated",
+        "description": "Galatians Introduction updated"
+      },
+      {
+        "type": "intro_updated",
+        "description": "Hebrews Introduction updated"
+      },
+      {
+        "type": "intro_updated",
+        "description": "James Introduction updated"
+      },
+      {
+        "type": "intro_updated",
+        "description": "John Introduction updated"
+      },
+      {
+        "type": "intro_updated",
+        "description": "Jude Introduction updated"
+      },
+      {
+        "type": "intro_updated",
+        "description": "Matthew Introduction updated"
+      },
+      {
+        "type": "intro_updated",
+        "description": "Philemon Introduction updated"
+      },
+      {
+        "type": "intro_updated",
+        "description": "Philippians Introduction updated"
+      },
+      {
+        "type": "intro_updated",
+        "description": "Titus Introduction updated"
+      }
+    ]
+  },
+  {
     "version": "2026-05-28",
     "date": "2026-05-28",
     "label": "May 28, 2026",
