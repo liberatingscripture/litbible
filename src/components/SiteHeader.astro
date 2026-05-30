@@ -217,6 +217,13 @@ const { class: className = "" } = Astro.props;
 
       if (!tray || !closeBtn || !checkbox || !toggleBtns.length) return;
 
+      // Move the tray out of the header's stacking context (.site-header has
+      // z-index:10) so its own z-index competes at the top level — otherwise
+      // it renders behind page elements like the ScriptureMenu on study pages.
+      // It's position:fixed and JS-positioned, so it doesn't need the header
+      // as a positioning ancestor.
+      document.body.appendChild(tray);
+
       let activeBtn = null;
 
       const syncStatus = (active) => {
