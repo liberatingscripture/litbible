@@ -1012,6 +1012,11 @@ a.question-cta > span {
   }
 }
 
+/* Dyslexic font is wider — allow button text to wrap rather than clip */
+html.dyslexic-font a.question-cta > span {
+  white-space: normal;
+}
+
 /* Responsive */
 @media (max-width: 980px) {
   .questions-grid {
@@ -1058,4 +1063,30 @@ a.question-cta > span {
   a.question-cta {
     align-self: end;
   }
+}
+
+/* OpenDyslexic glyphs are wider — scale down large headings to prevent overflow/clipping */
+html.dyslexic-font .title-large {
+  font-size: clamp(2.4rem, 5.2vw, 4.2rem);
+  letter-spacing: 0;
+}
+
+@media (max-width: 640px) {
+  html.dyslexic-font .title-large {
+    font-size: clamp(2rem, 7vw, 3.2rem);
+  }
+
+  html.dyslexic-font .title-block {
+    padding-inline: 0.5rem;
+  }
+}
+
+@media (max-width: 420px) {
+  html.dyslexic-font .title-large {
+    font-size: clamp(1.6rem, 7.5vw, 2.4rem);
+  }
+}
+
+html.dyslexic-font .callout-head {
+  font-size: clamp(1.6rem, 3vw, 2.6rem);
 }

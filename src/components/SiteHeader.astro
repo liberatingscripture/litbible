@@ -40,11 +40,32 @@ const { class: className = "" } = Astro.props;
 
         <li class="site-nav__cta-item">
           <a href="/read" class="site-header__cta"><span>Read Now</span></a>
+          <!-- Desktop: Aa sits below READ NOW -->
+          <button
+            class="site-header__font-toggle site-header__font-toggle--nav"
+            type="button"
+            aria-expanded="false"
+            aria-controls="fontTray"
+            data-font-toggle
+          >
+            <span aria-hidden="true">Aa</span>
+            <span class="sr-only">Accessibility font settings</span>
+          </button>
         </li>
       </ul>
     </nav>
 
     <div class="site-header__actions">
+      <button
+        class="site-header__font-toggle site-header__font-toggle--actions"
+        type="button"
+        aria-expanded="false"
+        aria-controls="fontTray"
+        data-font-toggle
+      >
+        <span aria-hidden="true">Aa</span>
+        <span class="sr-only">Accessibility font settings</span>
+      </button>
       <button
         class="site-header__menu-toggle"
         type="button"
@@ -57,6 +78,25 @@ const { class: className = "" } = Astro.props;
         <span class="sr-only">Menu</span>
       </button>
     </div>
+  </div>
+
+  <!-- Shared tray — position: fixed, positioned by JS below whichever button opened it -->
+  <div class="font-tray" id="fontTray" hidden role="dialog" aria-labelledby="fontTrayHeading">
+    <div class="font-tray__header">
+      <p class="font-tray__heading" id="fontTrayHeading">Accessibility Font</p>
+      <button type="button" class="font-tray__close" aria-label="Close font settings">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+          <path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+    <label class="font-tray__row">
+      <span class="font-tray__status" id="dyslexicFontStatus" aria-hidden="true">Off</span>
+      <span class="font-tray__switch">
+        <input type="checkbox" class="font-tray__checkbox" id="dyslexicFontCheckbox" aria-label="Dyslexia-friendly font" />
+        <span class="font-tray__track" aria-hidden="true"></span>
+      </span>
+    </label>
   </div>
 
   <!-- Mobile overlay menu -->
@@ -167,6 +207,89 @@ const { class: className = "" } = Astro.props;
   </script>
 
   <script>
+    // @ts-nocheck
+    (() => {
+      const tray = document.getElementById('fontTray');
+      const closeBtn = tray?.querySelector('.font-tray__close');
+      const checkbox = document.getElementById('dyslexicFontCheckbox');
+      const statusEl = document.getElementById('dyslexicFontStatus');
+      const toggleBtns = Array.from(document.querySelectorAll('[data-font-toggle]'));
+
+      if (!tray || !closeBtn || !checkbox || !toggleBtns.length) return;
+
+      let activeBtn = null;
+
+      const syncStatus = (active) => {
+        checkbox.checked = active;
+        if (statusEl) statusEl.textContent = active ? 'On' : 'Off';
+      };
+
+      const positionTray = (btn) => {
+        const rect = btn.getBoundingClientRect();
+        const margin = 8;
+        tray.style.top = `${rect.bottom + margin}px`;
+        tray.style.right = `${Math.max(margin, window.innerWidth - rect.right)}px`;
+        tray.style.left = 'auto';
+      };
+
+      const closeTray = (returnFocus = true) => {
+        tray.hidden = true;
+        for (const btn of toggleBtns) btn.setAttribute('aria-expanded', 'false');
+        if (returnFocus && activeBtn) activeBtn.focus({ preventScroll: true });
+        activeBtn = null;
+      };
+
+      const openTray = (btn) => {
+        activeBtn = btn;
+        syncStatus(document.documentElement.classList.contains('dyslexic-font'));
+        positionTray(btn);
+        tray.hidden = false;
+        btn.setAttribute('aria-expanded', 'true');
+        requestAnimationFrame(() => closeBtn.focus({ preventScroll: true }));
+      };
+
+      for (const btn of toggleBtns) {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          !tray.hidden && activeBtn === btn ? closeTray() : openTray(btn);
+        });
+      }
+
+      closeBtn.addEventListener('click', () => closeTray());
+      tray.addEventListener('click', (e) => e.stopPropagation());
+
+      document.addEventListener('click', () => { if (!tray.hidden) closeTray(false); });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !tray.hidden) closeTray();
+      });
+
+      window.addEventListener('resize', () => {
+        if (!tray.hidden && activeBtn) positionTray(activeBtn);
+      });
+
+      // Header isn't sticky — close on scroll so the fixed tray can't detach from its button
+      window.addEventListener('scroll', () => {
+        if (!tray.hidden) closeTray(false);
+      }, { passive: true });
+
+      checkbox.addEventListener('change', () => {
+        const active = checkbox.checked;
+        document.documentElement.classList.toggle('dyslexic-font', active);
+        syncStatus(active);
+        window.dispatchEvent(new Event('resize'));
+        try {
+          active
+            ? localStorage.setItem('dyslexic-font', '1')
+            : localStorage.removeItem('dyslexic-font');
+        } catch (_) {}
+      });
+
+      syncStatus(document.documentElement.classList.contains('dyslexic-font'));
+    })();
+  </script>
+
+  <script>
     // Title truncation observer
     // Desktop (nav visible): allow ellipsis on "Translation" only.
     // When "Translation" is fully hidden, switch to "LIT Bible."
@@ -182,6 +305,13 @@ const { class: className = "" } = Astro.props;
       if (!titleEl || !longEl || !truncEl || !altEl) return;
 
       const check = () => {
+        // Dyslexic font is wider — always use the short title to avoid overflow
+        if (document.documentElement.classList.contains("dyslexic-font")) {
+          longEl.style.display = "none";
+          altEl.style.display = "inline";
+          return;
+        }
+
         // Reset to long title so we can measure
         longEl.style.display = "flex";
         altEl.style.display = "none";

@@ -38,6 +38,8 @@ const criticalCSS = `html,body{margin:0;padding:0}body{background:${criticalBg};
 <html lang="en">
   <head>
     <meta charset="utf-8" />
+    <!-- Apply dyslexic-font class before first paint to avoid flash of default font -->
+    <script is:inline>try{if(localStorage.getItem('dyslexic-font')==='1')document.documentElement.classList.add('dyslexic-font')}catch(_){}</script>
     <title>{title}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />

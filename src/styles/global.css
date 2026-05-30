@@ -9,6 +9,10 @@
 @import "@fontsource/crimson-text/latin-700.css";
 @import "@fontsource/fraunces/latin-400.css";
 @import "@fontsource/fraunces/latin-500.css";
+/* OpenDyslexic — loaded but only downloaded by the browser when the
+   html.dyslexic-font class is active and the font-family rule applies */
+@import "@fontsource/opendyslexic/latin.css";
+@import "@fontsource/opendyslexic/latin-italic.css";
 
 /* =========================================================
    Metric-matched fallback fonts (to minimize CLS from font swap)
@@ -292,6 +296,7 @@ a:focus {
 
 .site-header {
   position: relative;
+  z-index: 10;
 }
 
 /* ---------------------------------------------------------
@@ -552,6 +557,204 @@ a:focus {
   align-items: center;
   justify-content: flex-end;
   gap: 8px;
+}
+
+/* =========================================================
+   Accessibility font toggle + tray
+   ========================================================= */
+
+/* Desktop: Aa floats below READ NOW, out of flow so nav height is unchanged */
+.site-nav__cta-item {
+  position: relative;
+}
+
+.site-header__font-toggle--nav {
+  position: absolute;
+  top: calc(100% + 28px);
+  right: 0;
+}
+
+/* Mobile: hide nav Aa; actions Aa stays in normal flow (left of hamburger) */
+@media (max-width: 1100px) {
+  .site-header__font-toggle--nav {
+    display: none;
+  }
+}
+
+/* Desktop: hide actions Aa — specificity 020 beats base rule 010 */
+@media (min-width: 1101px) {
+  .site-header__actions .site-header__font-toggle--actions {
+    display: none;
+  }
+}
+
+.site-header__font-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+  padding: 0 12px;
+  border: 1.5px solid rgba(var(--ink-rgb), 0.45);
+  border-radius: 10px;
+  cursor: pointer;
+  background: transparent;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  appearance: none;
+  transition: border-color 150ms ease, background 150ms ease, color 150ms ease;
+}
+
+.site-header__font-toggle:hover,
+.site-header__font-toggle:focus {
+  border-color: var(--text);
+}
+
+.site-header__font-toggle:focus:not(:focus-visible) {
+  outline: none;
+}
+
+
+/* Green header variant */
+.site-header--green .site-header__font-toggle {
+  border-color: rgba(255, 255, 255, 0.5);
+  color: var(--white);
+}
+
+.site-header--green .site-header__font-toggle:hover,
+.site-header--green .site-header__font-toggle:focus {
+  border-color: var(--white);
+}
+
+
+/* ----- Tray panel ----- */
+.font-tray {
+  position: fixed;
+  z-index: 2000;
+  min-width: 230px;
+  background: var(--surface-raised);
+  border: 1px solid rgba(var(--ink-rgb), 0.13);
+  border-radius: 14px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.13);
+  padding: 16px;
+}
+
+.font-tray[hidden] { display: none; }
+
+.font-tray__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+/* Always in OpenDyslexic — serves as a font preview */
+.font-tray__heading {
+  font-family: 'OpenDyslexic', sans-serif !important;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--text);
+  line-height: 1.2;
+}
+
+.font-tray__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  appearance: none;
+  transition: background 120ms;
+}
+
+.font-tray__close:hover { background: rgba(var(--ink-rgb), 0.08); }
+.font-tray__close:focus:not(:focus-visible) { outline: none; }
+
+/* ----- Toggle row ----- */
+.font-tray__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.font-tray__status {
+  font-size: 0.9375rem;
+  color: var(--text);
+  min-width: 2ch;
+}
+
+/* ----- Toggle switch ----- */
+.font-tray__switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 26px;
+  flex-shrink: 0;
+}
+
+.font-tray__checkbox {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.font-tray__track {
+  position: absolute;
+  inset: 0;
+  border-radius: 13px;
+  background: rgba(var(--ink-rgb), 0.2);
+  pointer-events: none;
+  transition: background 200ms ease;
+}
+
+.font-tray__track::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--white);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.22);
+  transition: transform 200ms ease;
+}
+
+.font-tray__checkbox:checked + .font-tray__track { background: var(--green); }
+
+.font-tray__checkbox:checked + .font-tray__track::after {
+  transform: translateX(18px);
+}
+
+.font-tray__checkbox:focus-visible + .font-tray__track {
+  outline: 2px solid var(--green);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-header__font-toggle,
+  .font-tray__track,
+  .font-tray__track::after {
+    transition: none;
+  }
 }
 
 /* =========================================================
@@ -1775,3 +1978,26 @@ html {
 .chiasm-line.lvl-2{ padding-left: 2.5rem; }
 .chiasm-line.lvl-3{ padding-left: 3.75rem; }
 .chiasm-line.lvl-4{ padding-left: 5rem; }
+
+/* =========================================================
+   Dyslexia-friendly font mode
+   Activated by html.dyslexic-font (toggled via header button,
+   persisted in localStorage). The @font-face declarations are
+   declared at the top of this file; the browser only downloads
+   the font files when this class is present and the rule applies.
+   ========================================================= */
+html.dyslexic-font,
+html.dyslexic-font * {
+  font-family: 'OpenDyslexic', sans-serif !important;
+}
+
+/* Mobile nav: OpenDyslexic glyphs are wider — scale down so links fit the overlay */
+html.dyslexic-font .menu-overlay__nav a {
+  font-size: 1.7rem;
+}
+
+@media (max-width: 520px) {
+  html.dyslexic-font .menu-overlay__nav a {
+    font-size: 1.45rem;
+  }
+}

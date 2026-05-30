@@ -19,6 +19,7 @@
     "@fontsource/crimson-text": "^5.2.7",
     "@fontsource/fraunces": "^5.2.9",
     "@fontsource/inter": "^5.2.8",
+    "@fontsource/opendyslexic": "^5.2.5",
     "astro": "^5.17.1",
     "simple-icons": "^16.7.0"
   },
