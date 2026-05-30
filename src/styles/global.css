@@ -296,7 +296,10 @@ a:focus {
 
 .site-header {
   position: relative;
-  z-index: 10;
+  /* Above scripture/read-mode toolbars (max ~320) so the overhanging Aa
+     button stays clickable on those pages; below the mobile menu overlay
+     system (9999+) so that still layers correctly. */
+  z-index: 500;
 }
 
 /* ---------------------------------------------------------
