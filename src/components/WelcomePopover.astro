@@ -1,6 +1,6 @@
 ---
-// WelcomePopover — shown once per 2-week period on first landing.
-// Cookie: lit_welcome_v1 (30-day expiry). Remove style="display:none" to force-show.
+// WelcomePopover — shown once on first landing after cookie version bump.
+// Cookie: lit_welcome_v2 (30-day expiry). Remove style="display:none" to force-show.
 ---
 
 <dialog
@@ -44,22 +44,22 @@
 
     <div class="welcome-logo">
       <img
-        src="/images/lit-logo.png"
-        alt="Liberation and Inclusion Translation logo"
-        width="72"
-        height="72"
+        src="/images/lsc-logo-square.png"
+        alt="Liberating Scripture Collective logo"
+        width="88"
+        height="88"
         loading="eager"
       />
     </div>
 
     <h2 id="welcome-title" class="welcome-title">
-      Welcome to the new LIT Bible
+      Introducing the Liberating Scripture Collective
     </h2>
     <p class="welcome-subtitle">
-      We've rebuilt the site from the ground up. Here's what's new:
+      We support the work of creating the LIT Bible and build open-access, trauma-informed scripture resources for liberation and belonging.
     </p>
 
-    <ul class="welcome-features" aria-label="New features">
+    <ul class="welcome-features" aria-label="About the Liberating Scripture Collective">
       <li class="welcome-feature">
         <div class="welcome-feature-icon" aria-hidden="true">
           <svg
@@ -72,15 +72,18 @@
             stroke-linecap="round"
             stroke-linejoin="round"
           >
-            <circle cx="11" cy="11" r="7"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
           </svg>
         </div>
         <div>
-          <strong>Upgraded Search</strong>
+          <strong>A 501(c)(3) nonprofit</strong>
           <span
-            >Full-text search across all 260 chapters of the New Testament, with
-            instant results and direct verse navigation.</span
+            >Founded by Brandon Vélez Johnson to sustain the LIT Bible and build
+            the wider ecosystem of translation, learning, and spiritual support
+            around it.</span
           >
         </div>
       </li>
@@ -101,21 +104,17 @@
           </svg>
         </div>
         <div>
-          <strong>Reading View</strong>
+          <strong>A collaborative community</strong>
           <span
-            >Read without distraction: adjustable text size, progress tracking,
-            a focus mode that highlights one paragraph at a time, and the option
-            to hide chapter and verse numbers entirely.</span
+            >The Collective invites people into the work through feedback, conversation,
+            and partnership, because liberation is not a solo project.</span
           >
         </div>
       </li>
     </ul>
 
     <div class="welcome-ctas">
-      <a href="/read" class="welcome-cta-primary">Explore Reading View</a>
-      <a href="/read/matthew" class="welcome-cta-secondary"
-        >Start in Matthew 1</a
-      >
+      <a href="/liberating-scripture-collective/" class="welcome-cta-primary">Learn more</a>
     </div>
   </div>
 </dialog>
@@ -167,7 +166,7 @@
   /* Inner padding */
   .welcome-inner {
     position: relative;
-    padding: clamp(1.5rem, 5vw, 2.5rem);
+    padding: clamp(1rem, 3vw, 1.5rem);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -206,12 +205,15 @@
 
   /* Logo */
   .welcome-logo {
-    margin-bottom: 1.1rem;
+    margin-bottom: 0.75rem;
   }
 
   .welcome-logo img {
     display: block;
     border-radius: 50%;
+    padding: 6px;
+    background: #1b2318;
+    box-sizing: border-box;
   }
 
   /* Title */
@@ -230,18 +232,18 @@
     font-size: 1rem;
     color: var(--text, #1d231c);
     opacity: 0.75;
-    margin: 0 0 1.5rem 0;
+    margin: 0 0 1.1rem 0;
   }
 
   /* Feature list */
   .welcome-features {
     list-style: none;
-    margin: 0 0 1.75rem 0;
+    margin: 0 0 1.25rem 0;
     padding: 0;
     width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 0.875rem;
+    gap: 0.625rem;
     text-align: left;
   }
 
@@ -251,7 +253,7 @@
     gap: 0.875rem;
     background: rgba(var(--ink-rgb, 29, 35, 28), 0.04);
     border-radius: 8px;
-    padding: 0.875rem 1rem;
+    padding: 0.75rem 1rem;
   }
 
   .welcome-feature-icon {
@@ -326,7 +328,7 @@
 </style>
 
 <script>
-  const COOKIE_NAME = "lit_welcome_v1";
+  const COOKIE_NAME = "lit_welcome_v2";
   const COOKIE_DAYS = 30;
 
   function getCookie(name: string): string | null {
