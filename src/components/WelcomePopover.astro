@@ -46,8 +46,8 @@
       <img
         src="/images/lsc-logo-square.png"
         alt="Liberating Scripture Collective logo"
-        width="88"
-        height="88"
+        width="104"
+        height="104"
         loading="eager"
       />
     </div>
@@ -210,7 +210,16 @@
 
   .welcome-logo img {
     display: block;
-    border-radius: 50%;
+    /* Scale down on narrow screens so the larger desktop size never eats the
+       popover's vertical headroom on phones (height:auto keeps it square and
+       preserves the reserved aspect ratio from the width/height attrs). */
+    width: clamp(88px, 24vw, 104px);
+    height: auto;
+    /* The square asset includes the "Liberating Scripture Collective" wordmark,
+       so it must NOT be cropped to a circle — a 50% radius slices the bottom
+       corners and cuts into the lettering. A modest rounded-square keeps the
+       full mark visible. */
+    border-radius: 14px;
     padding: 6px;
     background: #1b2318;
     box-sizing: border-box;
@@ -359,11 +368,17 @@
   ) as HTMLDialogElement;
 
   if (dialog && !getCookie(COOKIE_NAME)) {
-    // Open on the frame after first paint so the hero renders first, but
-    // the tap-before-modal window stays small (avoids an INP race).
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => dialog.showModal());
-    });
+    // Open once the main thread is idle so the page's load-time long tasks
+    // (fonts, header scripts) finish first. The popover forces an immediate
+    // first interaction (the close click); opening it before those tasks
+    // settle is what inflated INP (input delay) on #welcome-close. The
+    // timeout guarantees it still appears promptly even on a busy thread.
+    const show = () => dialog.showModal();
+    if ("requestIdleCallback" in window) {
+      requestIdleCallback(show, { timeout: 1500 });
+    } else {
+      setTimeout(show, 200);
+    }
   }
 
   // Close on X button

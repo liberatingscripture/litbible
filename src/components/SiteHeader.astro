@@ -208,7 +208,11 @@ const { class: className = "" } = Astro.props;
 
   <script>
     // @ts-nocheck
-    (() => {
+    // Deferred to idle: this initializer does a synchronous document.body.appendChild
+    // (forces reflow) and runs in the post-load script burst that inflates INP input
+    // delay. Idle keeps it off the load-time long task; the "Aa" button still works
+    // (idle fires within tens of ms). Timeout guarantees init on a busy thread.
+    const initFontTray = () => {
       const tray = document.getElementById('fontTray');
       const closeBtn = tray?.querySelector('.font-tray__close');
       const checkbox = document.getElementById('dyslexicFontCheckbox');
@@ -293,7 +297,12 @@ const { class: className = "" } = Astro.props;
       });
 
       syncStatus(document.documentElement.classList.contains('dyslexic-font'));
-    })();
+    };
+    if ("requestIdleCallback" in window) {
+      requestIdleCallback(initFontTray, { timeout: 2000 });
+    } else {
+      setTimeout(initFontTray, 1);
+    }
   </script>
 
   <script>
@@ -301,7 +310,11 @@ const { class: className = "" } = Astro.props;
     // Desktop (nav visible): allow ellipsis on "Translation" only.
     // When "Translation" is fully hidden, switch to "LIT Bible."
     // Mobile (nav hidden): no truncation — if full title overflows, jump to "LIT Bible."
-    (() => {
+    // Deferred to idle: the initial check() and the ResizeObserver's first callback do
+    // forced synchronous layout (getComputedStyle / offsetWidth / scrollWidth), which
+    // belongs off the load-time long task that inflates INP input delay. The header
+    // min-height is reserved in critical CSS, so a late title swap can't shift layout.
+    const initTitleFit = () => {
       const titleEl = document.querySelector<HTMLElement>(
         ".site-header__title",
       );
@@ -363,7 +376,12 @@ const { class: className = "" } = Astro.props;
 
       // Initial check
       check();
-    })();
+    };
+    if ("requestIdleCallback" in window) {
+      requestIdleCallback(initTitleFit, { timeout: 2000 });
+    } else {
+      setTimeout(initTitleFit, 1);
+    }
   </script>
 
 </header>

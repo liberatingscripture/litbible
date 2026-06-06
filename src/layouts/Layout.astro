@@ -31,7 +31,11 @@ const criticalBg    = isGreen ? "#209D50" : "#E1DFD9";
 const criticalColor = isGreen ? "#E1DFD9" : "#1d231c";
 const criticalDarkBg    = isGreen ? "#209D50" : "#1a1e1a";
 const criticalDarkColor = isGreen ? "#E1DFD9" : "#e4e2dc";
-const criticalCSS = `html,body{margin:0;padding:0}body{background:${criticalBg};color:${criticalColor}}@media(prefers-color-scheme:dark){body{background:${criticalDarkBg};color:${criticalDarkColor}}}`;
+// scrollbar-gutter + header min-height are reserved here (not just in global.css)
+// so the early paint shares the final layout geometry — otherwise the gutter and
+// header height snap in when global.css applies, causing CLS (horizontal reflow +
+// ~80px downward push of all content).
+const criticalCSS = `html,body{margin:0;padding:0}html{scrollbar-gutter:stable}body{background:${criticalBg};color:${criticalColor}}.site-header__inner{min-height:80px;box-sizing:border-box}@media(prefers-color-scheme:dark){body{background:${criticalDarkBg};color:${criticalDarkColor}}}`;
 ---
 
 <!doctype html>
