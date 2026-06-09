@@ -1,5 +1,17 @@
 [
   {
+    "version": "2026-06-08",
+    "date": "2026-06-08",
+    "label": "June 8, 2026",
+    "changes": [
+      {
+        "type": "footnote_updated",
+        "description": "1 Corinthians 11:3 — footnote c updated",
+        "detail": "fn. c (v. 3): \"was never used to refer to authority or power over others u…\" → \"is highly contested whether kephale carried any sense of au…\""
+      }
+    ]
+  },
+  {
     "version": "2026-05-29",
     "date": "2026-05-29",
     "label": "May 29, 2026",
