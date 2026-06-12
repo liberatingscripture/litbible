@@ -34,6 +34,7 @@ export default defineConfig({
       filter: (page) => {
         if (page.includes('/search')) return false;
         const slug = new URL(page).pathname.replace(/^\/|\/$/g, '');
+        if (slug === 'unsubscribe') return false; // noindex utility page
         return !noindexSlugs.has(slug);
       },
     }),

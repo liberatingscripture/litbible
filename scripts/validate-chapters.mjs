@@ -54,6 +54,27 @@ const REQUIRED_FIELDS = [
   "footnotes",
 ];
 
+// ── Known critical-text verse omissions ───────────────────────────────────────
+// The LIT follows the SBLGNT, which omits these traditionally numbered verses.
+// Gaps listed here are expected; any other gap is flagged as a likely typo.
+const KNOWN_OMITTED_VERSES = {
+  "matthew-17": [21],
+  "matthew-18": [11],
+  "matthew-23": [14],
+  "mark-7": [16],
+  "mark-9": [44, 46],
+  "mark-11": [26],
+  "mark-15": [28],
+  "luke-17": [36],
+  "luke-23": [17],
+  "john-5": [4],
+  "acts-8": [37],
+  "acts-15": [34],
+  "acts-24": [7],
+  "acts-28": [29],
+  "romans-16": [24],
+};
+
 // ── Validation ────────────────────────────────────────────────────────────────
 
 let totalErrors = 0;
@@ -76,7 +97,8 @@ for (const filePath of files) {
   // ── Valid JSON ────────────────────────────────────────────────────────────
   let data;
   try {
-    data = JSON.parse(raw);
+    // Strip a UTF-8 BOM if present (some Windows editors add one)
+    data = JSON.parse(raw.replace(/^﻿/, ""));
   } catch (e) {
     console.error(`✗ ${rel}: invalid JSON — ${e.message}`);
     totalErrors++;
@@ -141,6 +163,93 @@ for (const filePath of files) {
       if (!refsInParas.has(label)) {
         warnings.push(
           `footnote fn-${label} is not referenced in any paragraph`
+        );
+      }
+    }
+  }
+
+  // ── Verse number sequence checks ──────────────────────────────────────────
+  // A verse number may appear twice (a verse spanning a paragraph break repeats
+  // its number, deduped at render time), but must never decrease, and gaps are
+  // only allowed for known SBLGNT omissions.
+  if (Array.isArray(data.paragraphs)) {
+    const paraHtml = data.paragraphs.join("\n");
+    const verses = [...paraHtml.matchAll(/<sup id="v(\d+)" class="vn"/g)].map(
+      (m) => Number(m[1])
+    );
+
+    if (verses.length === 0) {
+      if (data.indexed !== false) {
+        warnings.push(
+          "no verse markers found (expected for in-progress drafts with \"indexed\": false)"
+        );
+      }
+    } else {
+      // Order: non-decreasing
+      for (let i = 1; i < verses.length; i++) {
+        if (verses[i] < verses[i - 1]) {
+          errors.push(
+            `verse numbers out of order: v${verses[i]} appears after v${verses[i - 1]}`
+          );
+        }
+      }
+
+      // Repetition: at most twice
+      const counts = new Map();
+      for (const v of verses) counts.set(v, (counts.get(v) ?? 0) + 1);
+      for (const [v, n] of counts) {
+        if (n > 2) {
+          warnings.push(
+            `verse v${v} appears ${n} times (max expected is 2, for a verse spanning a paragraph break)`
+          );
+        }
+      }
+
+      // Gaps: only known SBLGNT omissions
+      const allowedGaps = new Set(
+        KNOWN_OMITTED_VERSES[`${data.bookKey}-${data.chapter}`] ?? []
+      );
+      const present = new Set(verses);
+      const max = Math.max(...verses);
+      for (let v = 1; v <= max; v++) {
+        if (!present.has(v) && !allowedGaps.has(v)) {
+          warnings.push(
+            `verse v${v} is missing (not a known SBLGNT omission — add to KNOWN_OMITTED_VERSES if intentional)`
+          );
+        }
+      }
+    }
+  }
+
+  // ── Anchor and internal-link integrity ────────────────────────────────────
+  // Every href="#X" in paragraphs or footnotes must resolve to an id rendered
+  // on the chapter page; chapter links like /john-3 must have a chapter file.
+  if (Array.isArray(data.paragraphs) && Array.isArray(data.footnotes)) {
+    const allHtml =
+      data.paragraphs.join("\n") +
+      "\n" +
+      data.footnotes.map((fn) => fn.html ?? "").join("\n");
+
+    const ids = new Set(
+      [...allHtml.matchAll(/\bid="([^"]+)"/g)].map((m) => m[1])
+    );
+    for (const fn of data.footnotes) {
+      if (fn.id) ids.add(fn.id); // <li id="fn-X"> rendered from footnotes array
+    }
+
+    for (const m of allHtml.matchAll(/\bhref="#([^"]+)"/g)) {
+      if (!ids.has(m[1])) {
+        warnings.push(`href="#${m[1]}" has no matching id in this chapter`);
+      }
+    }
+
+    for (const m of allHtml.matchAll(/\bhref="\/(\d?[a-z]+-\d+)"/g)) {
+      const target = join(chaptersDir, `${m[1]}.json`);
+      try {
+        readFileSync(target);
+      } catch {
+        warnings.push(
+          `link to /${m[1]} but src/data/chapters/${m[1]}.json does not exist`
         );
       }
     }
