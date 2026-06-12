@@ -1,5 +1,12 @@
 ---
 import { siFacebook, siThreads, siBluesky, siInstagram } from "simple-icons";
+
+/**
+ * hideNewsletter: omit the Brevo subscribe form. Used on /unsubscribe, which
+ * embeds its own Brevo form — Brevo markup requires fixed ids (sib-form,
+ * error-message, success-message), so two forms on one page collide.
+ */
+const { hideNewsletter = false } = Astro.props;
 ---
 
 <footer class="site-footer">
@@ -111,6 +118,7 @@ import { siFacebook, siThreads, siBluesky, siInstagram } from "simple-icons";
     </div>
 
     <div class="footer-right">
+      {!hideNewsletter && (
       <section
         class="footer-newsletter"
         aria-labelledby="footer-newsletter-heading"
@@ -226,6 +234,7 @@ import { siFacebook, siThreads, siBluesky, siInstagram } from "simple-icons";
           <input type="hidden" name="locale" value="en" />
         </form>
       </section>
+      )}
     </div>
   </div>
 </footer>
@@ -245,8 +254,10 @@ import { siFacebook, siThreads, siBluesky, siInstagram } from "simple-icons";
   </p>
 </div>
 
-{/* Brevo scripts — lazy-loaded on first user interaction with the newsletter form */}
-<script is:inline>
+{/* Brevo scripts — lazy-loaded on first user interaction with the newsletter form.
+    Skipped when the newsletter form is hidden (the script would otherwise grab
+    another page-level Brevo form via the shared sib-form id). */}
+{!hideNewsletter && <script is:inline>
   (function() {
     var loaded = false;
     var submitBtn = document.querySelector('.footer-newsletter__submit');
@@ -307,4 +318,4 @@ import { siFacebook, siThreads, siBluesky, siInstagram } from "simple-icons";
     form.addEventListener("pointerover", onInteraction);
     form.addEventListener("focusin", onInteraction);
   })();
-</script>
+</script>}

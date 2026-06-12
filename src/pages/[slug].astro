@@ -247,8 +247,23 @@ const shouldIndex = chapterData?.indexed !== false;
 const osisBook = OSIS_BOOKS[normalizedBookKey] ?? "";
 const chapterNum = props.kind === "chapter" ? props.chapter : 0;
 
+/**
+ * When a verse spans a paragraph break, the verse number is intentionally
+ * repeated at the start of the continuation paragraph (e.g. Mark 14:62).
+ * Keep the visible number but drop the duplicate id so HTML stays valid and
+ * #vN links/data-osis target only the first occurrence.
+ */
+const seenVerseIds = new Set<string>();
+function dropDuplicateVerseIds(html: string): string {
+  return html.replace(/<sup\b([^>]*?)\s*id="(v\d+)"([^>]*)>/g, (match, before, vid, after) => {
+    if (seenVerseIds.has(vid)) return `<sup${before}${after}>`;
+    seenVerseIds.add(vid);
+    return match;
+  });
+}
+
 const paragraphs = paragraphsRaw.map((html) =>
-  addOsisIds(addHbqAria(injectHyphenWordbreaks(normalizeHbqVerseGlue(normalizeVerseGlue(html)))), osisBook, chapterNum),
+  addOsisIds(addHbqAria(injectHyphenWordbreaks(normalizeHbqVerseGlue(normalizeVerseGlue(dropDuplicateVerseIds(html))))), osisBook, chapterNum),
 );
 
 const footnotes = Array.isArray(chapterData?.footnotes)
@@ -515,6 +530,7 @@ if (props.kind === "chapter") {
     }
 
     /* Verse numbers inside paragraphs (ONLY these) */
+    .chapter-paragraphs :global(sup.vn),
     .chapter-paragraphs :global(sup[id^="v"]) {
       font-weight: 400; /* unbold */
       font-size: 0.8em;

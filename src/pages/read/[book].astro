@@ -70,10 +70,27 @@ function normalizeVerseGlue(html: string): string {
   );
 }
 
+/**
+ * When a verse spans a paragraph break, the verse number is intentionally
+ * repeated at the start of the continuation paragraph (e.g. Mark 14:62).
+ * Keep the visible number but drop the duplicate id so HTML stays valid.
+ */
+function dropDuplicateVerseIds(html: string, seen: Set<string>): string {
+  return html.replace(
+    /<sup\b([^>]*?)\s*id="([^"]+)"([^>]*)>/g,
+    (match, before: string, vid: string, after: string) => {
+      if (seen.has(vid)) return `<sup${before}${after}>`;
+      seen.add(vid);
+      return match;
+    },
+  );
+}
+
 function prepareParagraph(
   html: string,
   bookKey: string,
   chapter: number,
+  seenVerseIds: Set<string>,
 ): string {
   const noFootnotes = removeFootnoteRefs(html);
   const uniqueVerseIds = rewriteVerseIdsAndAnchors(
@@ -81,7 +98,9 @@ function prepareParagraph(
     bookKey,
     chapter,
   );
-  return normalizeHbqVerseGlue(normalizeVerseGlue(uniqueVerseIds));
+  return normalizeHbqVerseGlue(
+    normalizeVerseGlue(dropDuplicateVerseIds(uniqueVerseIds, seenVerseIds)),
+  );
 }
 
 function getChapter(bookKey: string, chapter: number): ChapterData | null {
@@ -140,10 +159,11 @@ const chapters = getChapterNumbers(chapterTotal).map((chapter) => {
     ? chapterData!.paragraphs
     : [];
 
+  const seenVerseIds = new Set<string>();
   return {
     chapter,
     paragraphs: rawParagraphs.map((html) =>
-      prepareParagraph(html, bookKey, chapter),
+      prepareParagraph(html, bookKey, chapter, seenVerseIds),
     ),
   };
 });

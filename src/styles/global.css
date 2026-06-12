@@ -1813,6 +1813,7 @@ a.footer-cta > span {
 
 /* Verse anchors
    NOTE: sup is inline by default; make it a box so scroll-margin is reliable. */
+sup.vn,
 sup[id^="v"] {
   display: inline-block;
   scroll-margin-top: var(--anchor-offset-verse);

@@ -15,6 +15,7 @@ const {
   index = false, // ✅ default: do NOT index generic pages
   noindex = false, // when true → <meta name="robots" content="noindex,follow">
   ogImage,
+  hideFooterNewsletter = false, // pages with their own Brevo form (e.g. /unsubscribe)
 } = Astro.props;
 
 // Auto-generate canonical URL from site config when not explicitly provided.
@@ -112,7 +113,7 @@ const criticalCSS = `html,body{margin:0;padding:0}html{scrollbar-gutter:stable}b
       <slot />
     </main>
 
-    <SiteFooter />
+    <SiteFooter hideNewsletter={hideFooterNewsletter} />
     <WelcomePopover />
   </body>
 </html>
