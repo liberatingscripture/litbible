@@ -435,3 +435,90 @@ body.bg-cream > main {
   overflow-wrap: anywhere;
   word-break: break-word;
 }
+
+/* ── License accordion (mirrors FAQ pattern from /about) ── */
+.license-faq {
+  margin-top: 1.5rem;
+}
+
+.license-faq-item {
+  border: 1px solid rgba(var(--ink-rgb), 0.12);
+  border-radius: 16px;
+  background: rgba(var(--surface-rgb), 0.65);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.license-faq-q {
+  list-style: none;
+  cursor: pointer;
+  font-family: var(--serif, serif);
+  font-size: clamp(1rem, 0.5vw + 0.9rem, 1.15rem);
+  font-weight: 600;
+  line-height: 1.4;
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  color: var(--ink);
+  user-select: none;
+}
+
+.license-faq-q::-webkit-details-marker {
+  display: none;
+}
+
+.license-faq-q::after {
+  content: "＋";
+  font-size: 1.15rem;
+  line-height: 1;
+  color: rgba(var(--ink-rgb), 0.75);
+  transform-origin: center;
+  flex-shrink: 0;
+}
+
+.license-faq-item[open] .license-faq-q::after {
+  content: "–";
+  transform: translateY(-1px);
+  opacity: 0.8;
+}
+
+.license-faq-q:focus-visible {
+  outline: 2px solid rgba(32, 157, 80, 0.6);
+  outline-offset: 2px;
+  border-radius: 12px;
+}
+
+.license-faq-body {
+  padding: 0 20px 20px;
+  font-size: 0.95rem;
+  line-height: 1.65;
+  color: rgba(var(--ink-rgb), 0.85);
+}
+
+.license-faq-body p { margin: 0 0 0.75rem; }
+.license-faq-body ul,
+.license-faq-body ol { margin: 0 0 1rem 1.25rem; padding: 0; }
+.license-faq-body li { margin-bottom: 0.4rem; }
+.license-faq-body h3 {
+  font-family: var(--serif, serif);
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 1.25rem 0 0.5rem;
+}
+.license-faq-body .sblgnt-divider {
+  border: none;
+  border-top: 1px solid rgba(var(--ink-rgb), 0.12);
+  margin: 1.5rem 0;
+}
+.license-faq-body .sblgnt-credits {
+  font-size: 0.875rem;
+  color: rgba(var(--ink-rgb), 0.7);
+}
+.license-faq-body .sblgnt-credits p { margin: 0 0 0.75rem; }
+.license-faq-body .sblgnt-credits a {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}

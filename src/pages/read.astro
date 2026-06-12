@@ -165,108 +165,130 @@ const TYPE_LABEL: Record<string, string> = {
           .
         </p>
 
-        <p class="license-card__lede">
-          You may use it within that license with the following restrictions (If
-          you would like to use it outside these restrictions, please contact me
-          to discuss your project):
-        </p>
+        <div class="license-faq">
+          <details class="license-faq-item" id="sblgnt-disclaimer">
+            <summary class="license-faq-q">
+              View full license terms and standing exceptions for church, study, and digital use
+            </summary>
+            <div class="license-faq-body">
+              <p>
+                You may use the LIT Bible text within its public license under the
+                following core restrictions (If you would like to use it outside
+                these restrictions, please{" "}
+                <a href="/contact" class="license-card__link">contact me</a> to
+                discuss your project):
+              </p>
+              <ul>
+                <li>
+                  <strong>Attribution</strong> — You must give appropriate credit,
+                  provide a link to the license, and indicate if changes were made.
+                </li>
+                <li>
+                  <strong>NonCommercial Use Only</strong> — You may not use the
+                  material for commercial purposes.
+                </li>
+                <li>
+                  <strong>No Derivatives</strong> — If you remix, transform, or
+                  build upon the material, you may not distribute the modified
+                  material.
+                </li>
+              </ul>
 
-        <ol class="license-card__list">
-          <li>
-            <strong>Attribution</strong> — You must give{" "}
-            <a
-              href="https://creativecommons.org/licenses/by-nc-nd/4.0/?ref=chooser-v1#ref-appropriate-credit"
-              class="license-card__link"
-              target="_blank"
-              rel="noopener"
-            >
-              appropriate credit
-            </a>
-            , provide a link to the license, and{" "}
-            <a
-              href="https://creativecommons.org/licenses/by-nc-nd/4.0/?ref=chooser-v1#ref-indicate-changes"
-              class="license-card__link"
-              target="_blank"
-              rel="noopener"
-            >
-              indicate if changes were made
-            </a>
-            .
-          </li>
+              <h3>Standing Exceptions for Ministry, Education, and Study:</h3>
+              <p>
+                To encourage teaching, community study, and devotion, you are
+                permitted to quote portions of the LIT Bible text AND its
+                accompanying footnotes within non-commercial derivative works
+                (such as Bible study booklets, church bulletins, study guides, or
+                classroom presentations) without explicit written permission,
+                provided that:
+              </p>
+              <ol>
+                <li>
+                  The text or footnotes quoted do not amount to a complete book of
+                  the Bible.
+                </li>
+                <li>
+                  The LIT Bible material does not account for more than 50% of the
+                  total content of the new work.
+                </li>
+                <li>
+                  Footnotes are quoted accurately and kept in context with the
+                  scripture verses they reference.
+                </li>
+                <li>
+                  The work includes the following attribution notice: "Scripture
+                  and footnote quotations are from the LIT Bible (litbible.net),
+                  used by permission under CC BY-NC-ND 4.0."
+                </li>
+              </ol>
 
-          <li>
-            <strong>NonCommercial Use Only</strong> — You may not use the material
-            for{" "}
-            <a
-              href="https://creativecommons.org/licenses/by-nc-nd/4.0/?ref=chooser-v1#ref-commercial-purposes"
-              class="license-card__link"
-              target="_blank"
-              rel="noopener"
-            >
-              commercial purposes
-            </a>
-            .
-          </li>
+              <h3>Digital, Newsletter, &amp; Social Media Sharing:</h3>
+              <p>
+                You are welcome to share short excerpts, single verses, or
+                individual footnotes from the LIT Bible on social media platforms,
+                personal blogs, or church email newsletters without formal
+                copyright blocks, provided that:
+              </p>
+              <ol>
+                <li>
+                  The post or email does not republish more than one full chapter
+                  of text at a time.
+                </li>
+                <li>
+                  The quote is accompanied by a direct link back to litbible.net
+                  (or a tag to an official LIT Bible social media account) so
+                  others can find the full text in context.
+                </li>
+              </ol>
 
-          <li>
-            <strong>No Derivatives</strong> — If you{" "}
-            <a
-              href="https://creativecommons.org/licenses/by-nc-nd/4.0/?ref=chooser-v1#ref-some-kinds-of-mods"
-              class="license-card__link"
-              target="_blank"
-              rel="noopener"
-            >
-              remix, transform, or build upon
-            </a>{" "}
-            the material, you may not distribute the modified material.
-          </li>
-        </ol>
+            </div>
+          </details>
+
+          <details class="license-faq-item" id="sblgnt-disclaimer">
+            <summary class="license-faq-q">
+              Source text and translation credits (SBLGNT)
+            </summary>
+            <div class="license-faq-body sblgnt-credits">
+              <p>
+                The Liberation &amp; Inclusion Translation (LIT) is an original
+                English translation prepared from{" "}
+                <em>The Greek New Testament: SBL Edition</em>{" "}
+                (ed. Michael W. Holmes; © 2010 Society of Biblical Literature
+                &amp; Logos Bible Software).
+              </p>
+              <p>
+                The SBLGNT is licensed under the Creative Commons Attribution
+                4.0, International Licence (CC BY 4.0):{" "}
+                <a
+                  href="https://creativecommons.org/licenses/by/4.0/"
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  https://creativecommons.org/licenses/by/4.0/
+                </a>
+                . This translation constitutes an adaptation of that Greek text.
+                Used with permission.
+              </p>
+              <p>
+                Greek quotations are presented in transliterated form;
+                accentuation and punctuation follow LIT house style, mostly
+                removed for accessibility to readers without prior knowledge of
+                Greek.
+              </p>
+              <p>
+                Portions of the SBL Greek text quoted here remain available
+                under CC BY 4.0; the NC-ND restrictions apply only to the
+                original English translation and other LIT-specific content.
+              </p>
+              <p>
+                The Society of Biblical Literature and Logos Bible Software do
+                not endorse the LIT Bible.
+              </p>
+            </div>
+          </details>
+        </div>
       </section>
-    </div>
-  </section>
-
-  <section
-    slot="bands"
-    id="sblgnt-disclaimer"
-    class="scripture-disclaimer"
-    aria-label="Source text and licensing notice"
-  >
-    <div class="scripture-disclaimer__inner">
-      <p>
-        The Liberation &amp; Inclusion Translation (LIT) is an original English
-        translation prepared from <em>The Greek New Testament: SBL Edition</em>{
-          " "
-        }
-        (ed. Michael W. Holmes; © 2010 Society of Biblical Literature &amp; Logos
-        Bible Software).
-      </p>
-      <p>
-        The SBLGNT is licensed under the Creative Commons Attribution 4.0,
-        International Licence (CC BY 4.0):{" "}
-        <a
-          href="https://creativecommons.org/licenses/by/4.0/"
-          rel="noopener noreferrer"
-          target="_blank"
-        >
-          https://creativecommons.org/licenses/by/4.0/
-        </a>
-        . This translation constitutes an adaptation of that Greek text. Used with
-        permission.
-      </p>
-      <p>
-        Greek quotations are presented in transliterated form; accentuation and
-        punctuation follow LIT house style, mostly removed for accessibility to
-        readers without prior knowledge of Greek.
-      </p>
-      <p>
-        Portions of the SBL Greek text quoted here remain available under CC BY
-        4.0; the NC-ND restrictions apply only to the original English
-        translation and other LIT-specific content.
-      </p>
-      <p>
-        The Society of Biblical Literature and Logos Bible Software do not
-        endorse the LIT Bible.
-      </p>
     </div>
   </section>
 </ReadLayout>
