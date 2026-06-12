@@ -25,10 +25,11 @@ npm run fix:chapters     # Auto-fix chapter JSON issues
 
 ### Build Pipeline (in order)
 
-1. `build:topics` — generates `public/topics-index.json` from chapter data
-2. `build:api` — generates `public/api/content.json` from chapter data
-3. `astro build` — compiles site to `dist/`
-4. `pagefind` — indexes `dist/` and outputs `public/search/`
+1. `fetch:podcast` — refreshes `src/data/podcast-feed.xml` (committed snapshot; never fails the build — a RedCircle outage just reuses the last snapshot)
+2. `build:topics` — generates `public/topics-index.json` from chapter data
+3. `build:api` — generates `public/api/content.json` from chapter data
+4. `astro build` — compiles site to `dist/`
+5. `pagefind` — indexes `dist/` and outputs `public/search/`
 
 ## Project Structure
 

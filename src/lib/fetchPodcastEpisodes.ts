@@ -1,4 +1,5 @@
 import overridesData from '../data/podcastOverrides.json';
+import feedXml from '../data/podcast-feed.xml?raw';
 
 export interface EpisodeLink {
   label: string;
@@ -15,8 +16,10 @@ export interface Episode {
   links: EpisodeLink[];
 }
 
-const RSS_URL =
-  'https://feeds.redcircle.com/59ffbfb2-f814-469a-8522-416bb67c15f6';
+// The RSS feed is fetched by scripts/fetch-podcast-feed.mjs (first step of
+// `npm run build`) and committed as src/data/podcast-feed.xml. Parsing the
+// committed snapshot here means a RedCircle outage can never fail a deploy —
+// the build just uses the last successful snapshot.
 
 const LINK_ORDER = [
   'Read the passage',
@@ -203,11 +206,7 @@ function extractLinks(html: string): EpisodeLink[] {
 }
 
 export async function fetchEpisodes(): Promise<Episode[]> {
-  const response = await fetch(RSS_URL);
-  if (!response.ok) {
-    throw new Error(`Failed to fetch RSS feed: ${response.status}`);
-  }
-  const xml = await response.text();
+  const xml = feedXml;
 
   const episodes: Episode[] = [];
   const itemRe = /<item>([\s\S]*?)<\/item>/g;
