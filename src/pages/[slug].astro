@@ -350,7 +350,7 @@ if (props.kind === "chapter") {
         script performs a corrected scroll after forcing real heights. */}
     <script is:inline>
       window.__litVerseHash = window.location.hash;
-      if (/^#v\d+$/.test(window.__litVerseHash)) {
+      if (/^#v\d+(?:-\d+)?$/.test(window.__litVerseHash)) {
         history.replaceState(null, '', window.location.pathname + window.location.search);
       }
     </script>
@@ -756,8 +756,11 @@ if (props.kind === "chapter") {
       var rawHash = window.__litVerseHash || '';
       window.__litVerseHash = undefined;
       var hash = rawHash.replace('#', '');
-      if (!hash || !/^v\d+$/.test(hash)) return;
-      var target = document.getElementById(hash);
+      var m = hash.match(/^v(\d+)(?:-(\d+))?$/);
+      if (!m) return;
+      // Range hashes (#v16-18) scroll to the first verse; the bundled
+      // chapter-tools script applies the range highlight after restore.
+      var target = document.getElementById('v' + m[1]);
       if (!target) return;
 
       // Restore the hash in the URL (without triggering another scroll)
@@ -793,6 +796,11 @@ if (props.kind === "chapter") {
         target.removeEventListener('blur', handler);
       });
     })();
+  </script>
+
+  {/* Verse menus, range highlighting, footnote popovers (progressive enhancement) */}
+  <script>
+    import "../scripts/chapter-tools.js";
   </script>
 </ScriptureLayout>
 

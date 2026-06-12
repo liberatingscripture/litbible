@@ -2005,3 +2005,238 @@ html.dyslexic-font .menu-overlay__nav a {
     font-size: 1.45rem;
   }
 }
+/* =========================
+   Chapter tools (Study View): verse-range highlight, verse menu,
+   footnote popovers — see src/scripts/chapter-tools.js
+   ========================= */
+
+/* Soft highlight for verses addressed by #vN / #vN-M links, and for the
+   live selection while the verse menu is open */
+::highlight(lit-verse-range),
+::highlight(lit-verse-select) {
+  background-color: rgba(32, 157, 80, 0.16);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) ::highlight(lit-verse-range),
+  :root:not([data-theme="light"]) ::highlight(lit-verse-select) {
+    background-color: rgba(32, 157, 80, 0.32);
+  }
+}
+
+:root[data-theme="dark"] ::highlight(lit-verse-range),
+:root[data-theme="dark"] ::highlight(lit-verse-select) {
+  background-color: rgba(32, 157, 80, 0.32);
+}
+
+/* Floating "Clear highlight" chip shown while a #vN-M highlight is active */
+.lit-clear-chip {
+  position: fixed;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  z-index: 55;
+  padding: 9px 16px;
+  border: 1px solid rgba(var(--ink-rgb), 0.14);
+  border-radius: 999px;
+  background: var(--surface-raised);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+}
+
+.lit-clear-chip:hover {
+  color: var(--green);
+}
+
+/* One-time "tap a verse number" tip toast */
+.lit-tip {
+  position: fixed;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  z-index: 55;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: calc(100vw - 32px);
+  padding: 10px 16px;
+  border: 1px solid rgba(var(--ink-rgb), 0.14);
+  border-radius: 999px;
+  background: var(--surface-raised);
+  color: var(--text);
+  font-size: 0.88rem;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+}
+
+.lit-tip__dismiss {
+  flex: none;
+  padding: 4px 12px;
+  border: none;
+  border-radius: 999px;
+  background: var(--green);
+  color: var(--white);
+  font: inherit;
+  font-size: 0.84rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Verse numbers are tap targets for the verse menu. The ::after overlay
+   expands the touch hit area (~6px each side) without changing layout —
+   superscript digits alone are far below comfortable thumb-target size. */
+.chapter-paragraphs sup.vn {
+  cursor: pointer;
+  position: relative;
+}
+
+.chapter-paragraphs sup.vn::after {
+  content: "";
+  position: absolute;
+  inset: -6px;
+}
+
+.chapter-paragraphs sup.vn:hover {
+  opacity: 1;
+  color: var(--green);
+}
+
+/* Floating panel shared by the verse menu and footnote popovers */
+.lit-panel {
+  position: absolute;
+  z-index: 60;
+  box-sizing: border-box;
+  min-width: 200px;
+  max-width: 380px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--surface-raised);
+  color: var(--text);
+  border: 1px solid rgba(var(--ink-rgb), 0.14);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.22);
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+
+.lit-panel:focus {
+  outline: none;
+}
+
+/* Long footnotes scroll inside the popover instead of overflowing the viewport */
+.lit-panel--footnote {
+  max-height: min(55vh, 420px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.lit-panel--sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  max-width: none;
+  border-radius: 16px 16px 0 0;
+  padding: 16px 18px calc(16px + env(safe-area-inset-bottom));
+  max-height: 55vh;
+  overflow-y: auto;
+}
+
+.lit-panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.lit-panel__heading {
+  margin: 0 0 6px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: rgba(var(--ink-rgb), 0.65);
+}
+
+.lit-panel__header .lit-panel__heading {
+  margin-bottom: 0;
+}
+
+.lit-panel__close {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: rgba(var(--ink-rgb), 0.08);
+  color: rgba(var(--ink-rgb), 0.75);
+  font-size: 1.15rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.lit-panel__close:hover {
+  background: rgba(var(--ink-rgb), 0.16);
+}
+
+.lit-panel--menu {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.lit-panel__btn {
+  display: block;
+  width: 100%;
+  padding: 9px 10px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.lit-panel__btn:hover {
+  background: rgba(32, 157, 80, 0.12);
+  color: var(--green);
+}
+
+.lit-panel__btn--done {
+  color: var(--green);
+  font-weight: 600;
+}
+
+.lit-panel__btn--error {
+  color: rgba(var(--ink-rgb), 0.7);
+  font-size: 0.85rem;
+  cursor: default;
+}
+
+.lit-panel__body p {
+  margin: 0;
+}
+
+.lit-panel__body a {
+  color: var(--green);
+}
+
+/* Range-selection hint at the bottom of the verse menu */
+.lit-panel__hint {
+  margin: 6px 0 0;
+  font-size: 0.78rem;
+  color: rgba(var(--ink-rgb), 0.55);
+}
+
+/* "See in footnotes" link at the bottom of footnote popovers */
+.lit-panel__jump {
+  display: inline-block;
+  margin-top: 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--green);
+}

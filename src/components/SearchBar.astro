@@ -677,7 +677,12 @@ const baseUrl = import.meta.env.BASE_URL || "/";
           )
             return null;
 
-          return { bookKey, chapter, verse };
+          return {
+            bookKey,
+            chapter,
+            verse,
+            rangeEnd: verse !== null && rangeEnd !== null && rangeEnd > verse ? rangeEnd : null,
+          };
         }
 
         function normalizeQuotes(s) {
@@ -823,13 +828,18 @@ const baseUrl = import.meta.env.BASE_URL || "/";
 
         function formatReferenceLabel(ref) {
           const book = bookKeyToLabel(ref.bookKey);
-          if (ref.verse) return `${book} ${ref.chapter}:${ref.verse}`;
+          if (ref.verse) {
+            const range = ref.rangeEnd ? `–${ref.rangeEnd}` : "";
+            return `${book} ${ref.chapter}:${ref.verse}${range}`;
+          }
           return `${book} ${ref.chapter}`;
         }
 
         function makeStudyReferenceHref(ref) {
           const base = `/${ref.bookKey}-${ref.chapter}`;
-          return ref.verse ? `${base}#v${ref.verse}` : base;
+          if (!ref.verse) return base;
+          const range = ref.rangeEnd ? `-${ref.rangeEnd}` : "";
+          return `${base}#v${ref.verse}${range}`;
         }
 
         function makeReadReferenceHref(ref) {

@@ -433,7 +433,12 @@
       if (rangeEnd !== null && (!Number.isFinite(rangeEnd) || rangeEnd <= 0))
         return null;
 
-      return { bookKey, chapter, verse };
+      return {
+        bookKey,
+        chapter,
+        verse,
+        rangeEnd: verse !== null && rangeEnd !== null && rangeEnd > verse ? rangeEnd : null,
+      };
     }
 
     function parseReference(raw) {
@@ -464,7 +469,10 @@
       const book = humanBookName(ref?.bookKey || "");
       const chapter = Number(ref?.chapter || 0);
       const verse = Number(ref?.verse || 0);
-      if (verse > 0) return `${book} ${chapter}:${verse}`;
+      const rangeEnd = Number(ref?.rangeEnd || 0);
+      if (verse > 0) {
+        return `${book} ${chapter}:${verse}${rangeEnd > verse ? `–${rangeEnd}` : ""}`;
+      }
       return `${book} ${chapter}`;
     }
 
@@ -475,7 +483,9 @@
       }
 
       const baseHref = `/${ref.bookKey}-${ref.chapter}`;
-      return ref.verse ? `${baseHref}#v${ref.verse}` : baseHref;
+      if (!ref.verse) return baseHref;
+      const range = ref.rangeEnd ? `-${ref.rangeEnd}` : "";
+      return `${baseHref}#v${ref.verse}${range}`;
     }
 
     function makeReadReferenceHref(ref) {
