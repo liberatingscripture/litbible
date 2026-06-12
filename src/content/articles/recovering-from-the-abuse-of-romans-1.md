@@ -51,7 +51,7 @@ Here's another way Paul says it:
 
 > 8 Owe nothing to anyone except love to each other. Whoever loves the other fulfills Torah. 9 You see, the part that says, “Do not engage in marital infidelity, do not murder, do not steal, do not crave” (and any other directive) is summarized with this saying: “Love your neighbor as yourself.” 10 Love doesn’t produce harm to the neighbor. Therefore, love is the fulfillment of Torah.
 >
-> (<a href="/Romans-13" target="_blank" rel="noopener noreferrer">Romans 13:8-10 LIT</a>)
+> (<a href="/romans-13" target="_blank" rel="noopener noreferrer">Romans 13:8-10 LIT</a>)
 
 I’m leading up to verses 26-27 here, so follow the basic flow of verses 18-25 real quick with me.
 
