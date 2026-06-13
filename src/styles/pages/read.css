@@ -309,7 +309,7 @@ body.bg-cream > main {
   margin-top: 72px;
 
   /* push placard down so it clears the concave cut */
-  padding: 190px 0 96px;
+  padding: 190px 0 56px;
 
   background: var(--green, #209d50);
   color: var(--text-strong);
