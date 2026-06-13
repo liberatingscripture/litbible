@@ -5,7 +5,7 @@ type ArticleEntry = CollectionEntry<"articles">;
 const { entry } = Astro.props as { entry: ArticleEntry };
 const { data } = entry;
 
-const href = `/articles/${entry.slug}/`;
+const href = `/articles/${entry.id}/`;
 
 // If you haven't added excerpt yet, this still works because we read it defensively.
 const excerpt = (data as any).excerpt as string | undefined;

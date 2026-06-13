@@ -11,6 +11,7 @@ import { normalizeHbqVerseGlue } from "../../utils/hbq-normalize";
 type ChapterData = {
   chapter?: number;
   paragraphs?: string[];
+  indexed?: boolean;
 };
 
 type ChapterModule = { default: ChapterData };
@@ -172,11 +173,28 @@ const tocGroupSize = getTocGroupSize(chapterTotal);
 const tocGroups = buildTocGroups(chapterTotal, tocGroupSize);
 const chapterNumbers = getChapterNumbers(chapterTotal);
 
+// De-index the read-view aggregate when every chapter of the book is a draft
+// ("indexed": false). Mirrors the per-chapter noindex on Study View so a
+// book's full draft text can't be indexed via its /read/<book> page. Books
+// with even one published chapter (e.g. Luke) stay indexable.
+const existingChapterData = chapterNumbers
+  .map((chapter) => getChapter(bookKey, chapter))
+  .filter((data): data is ChapterData => data !== null);
+const allChaptersDraft =
+  existingChapterData.length > 0 &&
+  existingChapterData.every((data) => data.indexed === false);
+
 const title = `${bookName} (Reading Mode) | Liberation and Inclusion Translation`;
 const description = `Read ${bookName} in continuous scroll with Reading Mode.`;
 ---
 
-<Layout title={title} description={description} bg="cream" index={false}>
+<Layout
+  title={title}
+  description={description}
+  bg="cream"
+  index={false}
+  noindex={allChaptersDraft}
+>
   <section
     class="scripture-tools"
     data-pagefind-ignore

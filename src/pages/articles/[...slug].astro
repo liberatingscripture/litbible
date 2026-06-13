@@ -3,7 +3,7 @@ import Layout from "../../layouts/Layout.astro";
 import SearchBar from "../../components/SearchBar.astro";
 import "../../styles/articles.css";
 
-import { getCollection } from "astro:content";
+import { getCollection, render } from "astro:content";
 import type { CollectionEntry } from "astro:content";
 
 type ArticleEntry = CollectionEntry<"articles">;
@@ -11,18 +11,18 @@ type ArticleEntry = CollectionEntry<"articles">;
 export async function getStaticPaths() {
   const entries = (await getCollection("articles")) as ArticleEntry[];
   return entries.map((entry) => ({
-    params: { slug: entry.slug }, // keep this a string
+    params: { slug: entry.id },
   }));
 }
 
 const slug = Astro.params.slug as string;
 
 const entries = (await getCollection("articles")) as ArticleEntry[];
-const entry = entries.find((e) => e.slug === slug);
+const entry = entries.find((e) => e.id === slug);
 
 if (!entry) throw new Error(`Article not found: ${slug}`);
 
-const { Content } = await entry.render();
+const { Content } = await render(entry);
 const { data } = entry;
 
 /**
