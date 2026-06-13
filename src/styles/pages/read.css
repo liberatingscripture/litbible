@@ -136,7 +136,9 @@ body.bg-cream > main {
   opacity: 0;
   pointer-events: none;
   visibility: hidden;
-  transition: opacity 0.18s ease, transform 0.18s ease, visibility 0s linear 0.18s;
+  max-height: 0;
+  overflow: hidden;
+  transition: opacity 0.18s ease, transform 0.18s ease, visibility 0s linear 0.18s, max-height 0s linear 0.18s;
 }
 
 .whats-new__panel.is-open {
@@ -144,6 +146,8 @@ body.bg-cream > main {
   pointer-events: auto;
   visibility: visible;
   transform: translateX(-50%) translateY(0);
+  max-height: 80vh;
+  overflow-y: auto;
   transition: opacity 0.18s ease, transform 0.18s ease;
 }
 
