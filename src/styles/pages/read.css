@@ -2,11 +2,18 @@
    Read page
    ========================================================= */
 
-/* IMPORTANT FIX:
-   The cream “peek” is almost certainly padding on Layout.astro’s <main>.
-   Since this CSS only loads on /read, we can safely zero it out here.
-*/
+/* Sticky-footer layout: keeps the footer pinned to the bottom of the viewport
+   when page content is shorter than 100vh (previously the scripture-disclaimer
+   section filled that space; now the main element grows instead). Scoped to
+   body.bg-cream so it only fires on /read. */
+body.bg-cream {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
 body.bg-cream > main {
+  flex: 1;
   padding-bottom: 0 !important;
   margin-bottom: 0 !important;
 }
