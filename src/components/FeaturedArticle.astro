@@ -5,7 +5,7 @@ type ArticleEntry = CollectionEntry<"articles">;
 const { entry } = Astro.props as { entry: ArticleEntry };
 const { data } = entry;
 
-const href = `/articles/${entry.slug}/`;
+const href = `/articles/${entry.id}/`;
 const summary = data.description ?? "";
 
 const tags: string[] = Array.isArray(data.tags) ? data.tags : [];

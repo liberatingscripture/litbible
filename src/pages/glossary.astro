@@ -1,5 +1,5 @@
 ---
-import { getCollection } from "astro:content";
+import { getCollection, render } from "astro:content";
 import Layout from "../layouts/Layout.astro";
 import "../styles/pages/glossary.css";
 
@@ -17,7 +17,7 @@ const byTraditional = [...rawEntries].sort((a, b) =>
 const entries = await Promise.all(
   byLit.map(async (entry) => ({
     data: entry.data,
-    Content: (await entry.render()).Content,
+    Content: (await render(entry)).Content,
   }))
 );
 
