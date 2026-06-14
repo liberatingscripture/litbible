@@ -1,46 +1,77 @@
-# Astro Starter Kit: Basics
+# LIT Bible
+
+The website for the **Liberation and Inclusion Translation (LIT)** of the New
+Testament — a trauma-informed, justice-oriented translation from the original
+languages, produced by the [Liberating Scripture Collective](https://liberatingscripture.org).
+
+Live site: **[litbible.net](https://litbible.net)**
+
+## What this is
+
+A static website with a **content-as-data** design. The scripture text lives in
+the repository itself — 260 JSON files, one per New Testament chapter — alongside
+Markdown for book introductions, a glossary, and articles. There's no database
+and no CMS: the build reads these files and compiles a fast static site, plus
+JSON APIs that the companion iOS and Android apps consume.
+
+Built with [Astro](https://astro.build) and TypeScript. Search is powered by
+[Pagefind](https://pagefind.app). No front-end framework — interactivity is
+plain JavaScript layered on as progressive enhancement, so the site works fully
+with JavaScript disabled.
+
+## Getting started
+
+You'll need [Node.js](https://nodejs.org) (v20 or newer recommended).
 
 ```sh
-npm create astro@latest -- --template basics
+npm install        # install dependencies (also wires up the git pre-commit hook)
+npm run dev        # start the dev server at http://localhost:4321
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+## Common commands
 
-## 🚀 Project Structure
+| Command | What it does |
+| :------ | :----------- |
+| `npm run dev` | Start the local dev server at `localhost:4321` |
+| `npm run build` | Full production build into `dist/` (see pipeline below) |
+| `npm run preview` | Build, then preview the production site locally |
+| `npm run validate:chapters` | Check all chapter JSON files for errors |
+| `npm run fix:chapters` | Auto-fix chapter JSON formatting |
 
-Inside of your Astro project, you'll see the following folders and files:
+The production build runs in stages: refresh the podcast feed → generate topic
+indexes → generate the JSON API → generate the mobile-app manifest → compile the
+site with Astro → build the Pagefind search index.
 
-```text
-/
-├── public/
-│   └── favicon.svg
-├── src
-│   ├── assets
-│   │   └── astro.svg
-│   ├── components
-│   │   └── Welcome.astro
-│   ├── layouts
-│   │   └── Layout.astro
-│   └── pages
-│       └── index.astro
-└── package.json
+## Project layout
+
+```
+src/
+  data/chapters/   # 260 chapter JSON files — the scripture text
+  data/intros/     # Book introductions (Markdown)
+  content/         # Glossary + articles (Markdown content collections)
+  pages/           # Routes (scripture, reading view, glossary, articles, …)
+  components/       # Reusable Astro UI components
+  layouts/         # Page templates
+  scripts/         # Client-side JavaScript (progressive enhancement)
+  styles/          # CSS
+scripts/           # Build & validation scripts (Node.js)
+public/            # Static assets + generated output (API, search index)
 ```
 
-To learn more about the folder structure of an Astro project, refer to [our guide on project structure](https://docs.astro.build/en/basics/project-structure/).
+## Editing the scripture text
 
-## 🧞 Commands
+Chapter content lives in `src/data/chapters/<book>-<chapter>.json`
+(e.g. `john-3.json`). After editing any chapter file, run:
 
-All commands are run from the root of the project, from a terminal:
+```sh
+npm run validate:chapters
+```
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
+A git pre-commit hook also validates staged chapter files automatically, so a
+malformed chapter can't be committed.
 
-## 👀 Want to learn more?
+## A note for contributors using Claude Code
 
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+This repo includes a `CLAUDE.md` file with detailed operational guidance for the
+[Claude Code](https://claude.com/claude-code) AI assistant — data formats, build
+internals, and conventions. It's a useful deep reference for humans too.
