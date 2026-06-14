@@ -3,7 +3,8 @@
     "allow": [
       "Bash(npm install:*)",
       "Bash(npm run:*)",
-      "Bash(node scripts/build-api-manifest.mjs)"
+      "Bash(node scripts/build-api-manifest.mjs)",
+      "Bash(node -e ' *)"
     ]
   }
 }

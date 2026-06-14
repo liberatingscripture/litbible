@@ -26,6 +26,10 @@ pnpm-debug.log*
 
 # VS Code settings (optional)
 .vscode/
+
+# Claude Code
+.claude/worktrees/
+.claude/launch.json
 public/api/
 public/search/topics.json
 public/topics-index.json
