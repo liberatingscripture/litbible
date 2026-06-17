@@ -1,5 +1,17 @@
 [
   {
+    "version": "2026-06-16",
+    "date": "2026-06-16",
+    "label": "June 16, 2026",
+    "changes": [
+      {
+        "type": "footnote_updated",
+        "description": "1 Corinthians 16:22 — footnote j updated",
+        "detail": "fn. j (v. 22): \"tha (מָרָנָא תָּא),\" → \"tha,\""
+      }
+    ]
+  },
+  {
     "version": "2026-06-11",
     "date": "2026-06-11",
     "label": "June 11, 2026",
