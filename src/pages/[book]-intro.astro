@@ -99,6 +99,18 @@ const nextCtaHref = `/${bookKey}-1`;
   type="intro"
   topics={topics}
 >
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://litbible.net/" },
+        { "@type": "ListItem", "position": 2, "name": "Read", "item": "https://litbible.net/read/" },
+        { "@type": "ListItem", "position": 3, "name": bookName, "item": `https://litbible.net/read/${bookKey}/` },
+        { "@type": "ListItem", "position": 4, "name": `${bookName} Introduction`, "item": `https://litbible.net/${bookKey}-intro/` }
+      ]
+    })} />
+  </Fragment>
   <article class="chapter">
     {/* H1 is rendered by ScriptureHeader inside ScriptureLayout */}
 
