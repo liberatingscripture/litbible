@@ -3,6 +3,10 @@
 
 User-agent: *
 Allow: /
+# Content Signals (contentsignals.org) — declares permitted AI usage.
+# Matches the CC BY-NC-ND license and /llms.txt: search indexing and
+# inference-time use (RAG/assistants) are welcome; broad LLM training is not.
+Content-Signal: ai-train=no, search=yes, ai-input=yes
 
 Sitemap: https://litbible.net/sitemap-index.xml
 

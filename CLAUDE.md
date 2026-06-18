@@ -204,6 +204,20 @@ collection); they're read directly by the intro pages and the API manifest.
 - **Release notes are automated**: pushing changes to chapters, intros, glossary,
   or articles on `main` triggers `.github/workflows/release-notes.yml`, which
   runs `draft-release-notes.mjs` and commits to `release-notes.json`.
+- **Agent/AI discovery surface** lives in static files, all served as-is from
+  `public/`. They only take effect on a deployed Cloudflare Pages site — `dev`
+  and `astro preview` do **not** apply `_headers`:
+  - `public/.well-known/api-catalog` — RFC 9727/9264 `linkset+json` pointing at
+    the public API (`/api/content.json`, `/api/manifest.json`) with `service-doc`
+    (→ `llms-full.txt`) and `status` (→ `/api/version.json`) relations. It's
+    extensionless, so `_headers` sets its `Content-Type: application/linkset+json`.
+  - `public/_headers` adds `Link:` headers (RFC 8288) on `/*` advertising the
+    catalog (`rel="api-catalog"`) and docs (`rel="service-doc"`).
+  - `public/robots.txt` carries a `Content-Signal` line. Keep it consistent with
+    the CC BY-NC-ND license and `llms.txt`: `ai-train=no` (no broad LLM training),
+    `search=yes`, `ai-input=yes` (RAG/inference welcome). The site has no auth,
+    MCP server, or write API, so OAuth/MCP/WebMCP discovery files are intentionally
+    absent — don't add them without a real backing service.
 
 ## Important Files
 
@@ -218,8 +232,9 @@ collection); they're read directly by the intro pages and the API manifest.
 | `content.config.ts` | Content-collection schemas |
 | `scripts/validate-chapters.mjs` | Chapter validator (pre-commit + CI safety net) |
 | `pagefind.yml` | Search index config (excludes footnote refs) |
-| `public/_headers` | Security + caching headers (Cloudflare Pages) |
-| `public/llms.txt`, `llms-full.txt` | LLM-readable site description |
+| `public/_headers` | Security + caching headers; also RFC 8288 `Link` headers for agent discovery (Cloudflare Pages) |
+| `public/.well-known/api-catalog` | RFC 9727/9264 `linkset+json` catalog of the public API |
+| `public/llms.txt`, `llms-full.txt` | LLM-readable site description + AI-usage policy |
 
 > The top-level `README.md` is the default Astro starter README and is **not**
 > a reliable description of this project — rely on this file instead.

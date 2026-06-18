@@ -1,0 +1,38 @@
+{
+  "linkset": [
+    {
+      "anchor": "https://litbible.net/api/content.json",
+      "service-doc": [
+        {
+          "href": "https://litbible.net/llms-full.txt",
+          "type": "text/plain",
+          "title": "LIT Bible machine-readable content and usage guidance"
+        }
+      ],
+      "status": [
+        {
+          "href": "https://litbible.net/api/version.json",
+          "type": "application/json",
+          "title": "LIT Bible API version"
+        }
+      ]
+    },
+    {
+      "anchor": "https://litbible.net/api/manifest.json",
+      "service-doc": [
+        {
+          "href": "https://litbible.net/llms-full.txt",
+          "type": "text/plain",
+          "title": "LIT Bible machine-readable content and usage guidance"
+        }
+      ],
+      "status": [
+        {
+          "href": "https://litbible.net/api/version.json",
+          "type": "application/json",
+          "title": "LIT Bible API version"
+        }
+      ]
+    }
+  ]
+}
