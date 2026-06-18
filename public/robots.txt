@@ -1,5 +1,10 @@
 # litbible.net robots.txt
-# See /llms.txt for AI attribution guidance
+# See /llms.txt for AI attribution and usage guidance.
+#
+# Policy: search and citation are welcome; broad model training is not.
+# This mirrors the Content-Signal below and the CC BY-NC-ND license. The
+# split matters because most AI vendors now run separate crawlers for
+# training vs. search/citation — we allow the latter and block the former.
 
 User-agent: *
 Allow: /
@@ -10,28 +15,43 @@ Content-Signal: ai-train=no, search=yes, ai-input=yes
 
 Sitemap: https://litbible.net/sitemap-index.xml
 
-# AI crawlers — explicitly allowed for indexing and citation
-User-agent: GPTBot
+# --- AI search & citation bots: allowed (help people find and cite the LIT) ---
+# Listed explicitly: a bot matching its own group ignores "User-agent: *".
+User-agent: OAI-SearchBot
 Allow: /
 
-User-agent: Google-Extended
+User-agent: ChatGPT-User
 Allow: /
 
-User-agent: CCBot
+User-agent: Claude-SearchBot
 Allow: /
 
-User-agent: anthropic-ai
-Allow: /
-
-User-agent: ClaudeBot
+User-agent: Claude-User
 Allow: /
 
 User-agent: PerplexityBot
 Allow: /
 
-# Allowing crawlers helps the LIT be discoverable and citable by AI systems.
-# Blocking prevents use in AI training data.
-# These two are blocked as lower-value:
+# Google-Extended (Gemini): grounding/citation and training are not separable,
+# so allowing it is a deliberate tradeoff to stay citable in Gemini.
+# (Googlebot itself is covered by "User-agent: *" above.)
+User-agent: Google-Extended
+Allow: /
+
+# --- AI training crawlers: disallowed (consistent with ai-train=no) ---
+User-agent: GPTBot
+Disallow: /
+
+User-agent: ClaudeBot
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+# --- Low-value scrapers: disallowed ---
 User-agent: Bytespider
 Disallow: /
 
