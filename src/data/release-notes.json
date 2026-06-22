@@ -1,5 +1,16 @@
 [
   {
+    "version": "2026-06-21",
+    "date": "2026-06-21",
+    "label": "June 21, 2026",
+    "changes": [
+      {
+        "type": "chapter_added",
+        "description": "Luke 19 added"
+      }
+    ]
+  },
+  {
     "version": "2026-06-16",
     "date": "2026-06-16",
     "label": "June 16, 2026",
