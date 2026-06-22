@@ -518,10 +518,13 @@ if (props.kind === "chapter") {
     /* Skip rendering for off-screen paragraphs (improves INP on long chapters).
        Placeholder height is sized to the average scripture paragraph — using
        too small a value (e.g. 120px) caused large CLS when real paragraphs
-       resolved. 400px is closer to the median real height. */
+       resolved. 400px is closer to the median real height. Fixed (not auto)
+       so the placeholder is consistent across devices and visits — auto's
+       cached-size behaviour caused CLS when stale cross-device heights made
+       the page start at a different height than it ultimately settled at. */
     .chapter-paragraphs :global(.p) {
       content-visibility: auto;
-      contain-intrinsic-size: auto 400px;
+      contain-intrinsic-size: 400px;
     }
 
     /* Add space between the end of the body text and the nav buttons */

@@ -32,11 +32,12 @@ const criticalBg    = isGreen ? "#209D50" : "#E1DFD9";
 const criticalColor = isGreen ? "#E1DFD9" : "#1d231c";
 const criticalDarkBg    = isGreen ? "#209D50" : "#1a1e1a";
 const criticalDarkColor = isGreen ? "#E1DFD9" : "#e4e2dc";
-// scrollbar-gutter + header min-height are reserved here (not just in global.css)
-// so the early paint shares the final layout geometry — otherwise the gutter and
-// header height snap in when global.css applies, causing CLS (horizontal reflow +
-// ~80px downward push of all content).
-const criticalCSS = `html,body{margin:0;padding:0}html{scrollbar-gutter:stable}body{background:${criticalBg};color:${criticalColor}}.site-header__inner{min-height:80px;box-sizing:border-box}@media(prefers-color-scheme:dark){body{background:${criticalDarkBg};color:${criticalDarkColor}}}`;
+// scrollbar-gutter, header min-height, and main min-height are reserved here
+// (not just in global.css) so the early paint shares the final layout geometry.
+// .site-header covers the outer element; .site-header__inner covers the inner.
+// main{min-height:50svh} prevents the element starting at height:0 before
+// content-visibility placeholders resolve, which caused CLS 0.882 on long chapters.
+const criticalCSS = `html,body{margin:0;padding:0}html{scrollbar-gutter:stable}body{background:${criticalBg};color:${criticalColor}}.site-header{min-height:80px}.site-header__inner{min-height:80px;box-sizing:border-box}main{min-height:50svh}@media(prefers-color-scheme:dark){body{background:${criticalDarkBg};color:${criticalDarkColor}}}`;
 ---
 
 <!doctype html>
