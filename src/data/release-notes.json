@@ -7,11 +7,6 @@
       {
         "type": "chapter_added",
         "description": "Luke 19 added"
-      },
-      {
-        "type": "footnote_updated",
-        "description": "Luke 19:2 — footnote a updated",
-        "detail": "fn. a (v. 2): \"Zakkay is the Hebrew name underlying the Greek Zakchaios. M…\" → \"Zakkai is the Hebrew name underlying the Greek Zakchaios. M…\""
       }
     ]
   },
