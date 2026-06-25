@@ -343,14 +343,16 @@ if (props.kind === "chapter") {
     <meta name="citation_fulltext_world_readable" content="" />
     {chapterSlug && <meta name="citation_public_url" content={`https://litbible.net/${chapterSlug}/`} />}
 
-    {/* When arriving via a verse hash link (e.g. /matthew-13#v41), strip the
-        hash from the URL immediately so the browser does NOT attempt its own
-        hash scroll (which uses inaccurate content-visibility placeholder
-        heights). The hash is stored in window.__litVerseHash and the body
-        script performs a corrected scroll after forcing real heights. */}
+    {/* When arriving via an in-page anchor — a verse hash (/matthew-13#v41), a
+        paragraph anchor from a search result (/matthew-21#matthew-21-p25), or a
+        footnote (#fn-y) — strip the hash from the URL immediately so the browser
+        does NOT attempt its own hash scroll (which uses inaccurate
+        content-visibility placeholder heights and can land on the wrong
+        element). The hash is stored in window.__litVerseHash and the body script
+        performs a corrected scroll after forcing real heights. */}
     <script is:inline>
       window.__litVerseHash = window.location.hash;
-      if (/^#v\d+(?:-\d+)?$/.test(window.__litVerseHash)) {
+      if (window.__litVerseHash) {
         history.replaceState(null, '', window.location.pathname + window.location.search);
       }
     </script>
@@ -749,49 +751,55 @@ if (props.kind === "chapter") {
     })();
   </script>
 
-  {/* Verse scroll + focus management: when arriving via a verse hash link
-      (e.g. /matthew-13#v41), the head script stripped the hash to prevent
-      the browser's inaccurate content-visibility hash scroll. Here we
-      perform a corrected scroll by forcing only the preceding paragraphs
-      to render at real heights, scrolling, then restoring content-visibility. */}
+  {/* Anchor scroll + focus management: when arriving via an in-page anchor
+      (a verse hash like /matthew-13#v41, a paragraph anchor from a search
+      result like #matthew-21-p25, or a footnote like #fn-y), the head script
+      stripped the hash to prevent the browser's inaccurate content-visibility
+      hash scroll. Here we perform a corrected scroll by forcing the preceding
+      paragraphs to render at real heights before scrolling. */}
   <script is:inline>
     (() => {
       var rawHash = window.__litVerseHash || '';
       window.__litVerseHash = undefined;
-      var hash = rawHash.replace('#', '');
-      var m = hash.match(/^v(\d+)(?:-(\d+))?$/);
-      if (!m) return;
-      // Range hashes (#v16-18) scroll to the first verse; the bundled
-      // chapter-tools script applies the range highlight after restore.
-      var target = document.getElementById('v' + m[1]);
-      if (!target) return;
+      var hash = rawHash.replace(/^#/, '');
+      if (!hash) return;
+
+      // A verse-range hash (#v16-18) scrolls to its first verse; the bundled
+      // chapter-tools script applies the range highlight after the restore
+      // below. Any other hash is treated as a literal element id (paragraph
+      // anchor, footnote, etc.).
+      var vm = hash.match(/^v(\d+)(?:-\d+)?$/);
+      var targetId = vm ? 'v' + vm[1] : hash;
+      var target = document.getElementById(targetId);
+      if (!target) return; // unknown anchor — leave the page at the top
 
       // Restore the hash in the URL (without triggering another scroll)
       history.replaceState(null, '', '#' + hash);
 
       var allPDivs = Array.from(document.querySelectorAll('.chapter-paragraphs .p'));
       var targetPDiv = target.closest('.p');
-      var targetIdx = targetPDiv ? allPDivs.indexOf(targetPDiv) : -1;
+      // Paragraphs that precede the target must render at real heights so the
+      // browser's scroll math isn't thrown off by content-visibility
+      // placeholder sizes. A target outside the paragraph flow (e.g. a
+      // footnote) sits below every paragraph, so force them all.
+      var targetIdx = targetPDiv ? allPDivs.indexOf(targetPDiv) : allPDivs.length;
+      var precedingDivs = allPDivs.slice(0, Math.max(0, targetIdx));
 
-      if (targetIdx > 0) {
-        // Force preceding paragraphs to real heights so scrollIntoView is accurate
-        var precedingDivs = allPDivs.slice(0, targetIdx);
+      if (precedingDivs.length) {
         precedingDivs.forEach(function(div) {
           div.style.contentVisibility = 'visible';
           div.style.containIntrinsicSize = 'none';
         });
         // Force layout reflow with real heights, then scroll
         void document.body.offsetHeight;
-        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        // Do NOT restore content-visibility here — restoring triggers a layout
-        // recalculation that snaps placeholder heights back, shifting the scroll
-        // position past the target. Preceding paragraphs are already rendered
-        // so leaving them visible has no meaningful performance cost.
-      } else {
-        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        // Do NOT restore content-visibility afterwards — restoring triggers a
+        // layout recalculation that snaps placeholder heights back, shifting the
+        // scroll position past the target. Preceding paragraphs are already
+        // rendered so leaving them visible has no meaningful performance cost.
       }
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-      // Move screen-reader cursor to the verse element
+      // Move the screen-reader cursor to the target element
       target.setAttribute('tabindex', '-1');
       target.focus({ preventScroll: true });
       target.addEventListener('blur', function handler() {
