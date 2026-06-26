@@ -1,5 +1,17 @@
 [
   {
+    "version": "2026-06-25",
+    "date": "2026-06-25",
+    "label": "June 25, 2026",
+    "changes": [
+      {
+        "type": "footnote_updated",
+        "description": "1 Corinthians 15:29 — footnote t updated; footnotes formerly t–mm relabeled u–nn",
+        "detail": "fn. t (v. 29): \"The phrase ei kata anthropon is often translated as “if I f…\" → \"In English, translations have traditionally simply taken th…\"; footnotes formerly t–mm relabeled u–nn"
+      }
+    ]
+  },
+  {
     "version": "2026-06-21",
     "date": "2026-06-21",
     "label": "June 21, 2026",
