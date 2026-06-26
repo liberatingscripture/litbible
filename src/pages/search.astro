@@ -99,6 +99,9 @@ const baseUrl = import.meta.env.BASE_URL || "/";
 <style>
   .search-page {
     padding: 18px 0 42px;
+    /* Reserve space for asynchronously injected results so the footer starts
+       below the fold and doesn't get shoved down (CLS) once Pagefind renders. */
+    min-height: 70vh;
   }
 
   :global(.search-header) {
