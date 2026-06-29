@@ -7,6 +7,11 @@
       {
         "type": "chapter_added",
         "description": "Luke 20 added"
+      },
+      {
+        "type": "footnote_added",
+        "description": "Matthew 11:30 — footnote n added",
+        "detail": "fn. n (v. 30): added \"The Greek word for ‘yoke’ is zugos, the wooden beam that joined a pair of working animals or that a laborer wore across…\""
       }
     ]
   },
