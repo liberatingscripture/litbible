@@ -1,5 +1,17 @@
 [
   {
+    "version": "2026-06-30",
+    "date": "2026-06-30",
+    "label": "June 30, 2026",
+    "changes": [
+      {
+        "type": "footnote_updated",
+        "description": "Luke 12:59 — footnote ii updated",
+        "detail": "fn. ii (v. 59): \"two cents.\" → \"one dollar.\""
+      }
+    ]
+  },
+  {
     "version": "2026-06-28",
     "date": "2026-06-28",
     "label": "June 28, 2026",
