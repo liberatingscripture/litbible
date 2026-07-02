@@ -1,5 +1,6 @@
 ---
 import ScriptureLayout from "../layouts/ScriptureLayout.astro";
+import { BOOKS, BOOK_ORDER, bookKeyToLabel } from "../data/books.js";
 
 // Load intro markdown files eagerly (so we can render immediately)
 type IntroMod = {
@@ -11,31 +12,8 @@ const introModules = import.meta.glob<IntroMod>("../data/intros/*-intro.md", {
   eager: true,
 });
 
-// ---------- Helpers (safe to use in render; NOT used by getStaticPaths) ----------
-function normalizeBookKey(key: string) {
-  return String(key ?? "")
-    .trim()
-    .toLowerCase()
-    .replace(/\s+/g, "");
-}
-
-function humanBookName(key: string) {
-  const k = normalizeBookKey(key);
-  const m = k.match(/^(\d+)([a-z].*)$/i);
-  if (m) return `${m[1]} ${m[2].charAt(0).toUpperCase()}${m[2].slice(1)}`;
-  return k.charAt(0).toUpperCase() + k.slice(1);
-}
-
-// IMPORTANT: Astro can hoist/extract getStaticPaths in a way that breaks references
-// to helpers defined in this file. So keep getStaticPaths self-contained.
-export async function getStaticPaths() {
-  const mod: any = await import("../data/books");
-  const map = (mod?.books ?? mod?.BOOKS ?? mod?.default ?? {}) as Record<
-    string,
-    number
-  >;
-
-  return Object.keys(map).map((book) => ({
+export function getStaticPaths() {
+  return BOOK_ORDER.map((book) => ({
     params: { book },
     props: { book },
   }));
@@ -43,8 +21,8 @@ export async function getStaticPaths() {
 
 const { book } = Astro.props as { book: string };
 
-const bookKey = normalizeBookKey(book);
-const bookName = humanBookName(bookKey);
+const bookKey = book;
+const bookName = bookKeyToLabel(bookKey);
 
 // Match: ../data/intros/<book>-intro.md
 const introKey = `../data/intros/${bookKey}-intro.md`;
@@ -60,15 +38,7 @@ const title = `${bookName} — Introduction | Liberation and Inclusion Translati
 const description = `Introduction to ${bookName} in the Liberation and Inclusion Translation (LIT).`;
 
 // ---- compute “previous book’s final chapter” for the left CTA ----
-const booksMod: any = await import("../data/books");
-const BOOKS_MAP = (booksMod?.books ??
-  booksMod?.BOOKS ??
-  booksMod?.default ??
-  {}) as Record<string, number>;
-
-// Uses insertion order from the exported map.
-// (If you ever need a custom order, switch this to an explicit BOOK_ORDER array.)
-const BOOK_ORDER = Object.keys(BOOKS_MAP).map(normalizeBookKey);
+const BOOKS_MAP = BOOKS as Record<string, number>;
 
 const currentIndex = BOOK_ORDER.indexOf(bookKey);
 const prevBookKey = currentIndex > 0 ? BOOK_ORDER[currentIndex - 1] : null;
@@ -84,7 +54,7 @@ const prevCtaHref =
     : "/read";
 
 const prevCtaLabel = prevBookKey
-  ? `${humanBookName(prevBookKey)} ${prevBookLastChapter ?? ""}`.trim()
+  ? `${bookKeyToLabel(prevBookKey)} ${prevBookLastChapter ?? ""}`.trim()
   : "Read";
 
 // Next (intro always goes to chapter 1 of the current book)

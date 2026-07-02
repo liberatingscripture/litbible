@@ -1,6 +1,6 @@
 ---
 import ScriptureLayout from "../layouts/ScriptureLayout.astro";
-import { BOOKS as books, BOOK_ORDER } from "../data/books.js";
+import { BOOKS as books, BOOK_ORDER, bookKeyToLabel } from "../data/books.js";
 import { normalizeHbqVerseGlue } from "../utils/hbq-normalize";
 
 type Footnote = {
@@ -46,21 +46,6 @@ function normalizeBookKey(key: string) {
     .trim()
     .toLowerCase()
     .replace(/\s+/g, "");
-}
-
-function humanBookName(key: string) {
-  const k = normalizeBookKey(key);
-
-  // "1thessalonians" -> "1 Thessalonians"
-  const m = k.match(/^(\d+)([a-z].*)$/i);
-  if (m) {
-    const num = m[1];
-    const rest = m[2];
-    return `${num} ${rest.charAt(0).toUpperCase()}${rest.slice(1)}`;
-  }
-
-  // "luke" -> "Luke"
-  return k.charAt(0).toUpperCase() + k.slice(1);
 }
 
 function normalizeVerseGlue(html: string): string {
@@ -167,19 +152,11 @@ function addOsisIds(html: string, osisBook: string, chapter: number): string {
   );
 }
 
-// This route only serves chapter pages now.
-// Keeping the union type is harmless, but we avoid touching intro-only fields.
-type StaticPath =
-  | { params: { slug: string }; props: { kind: "intro"; bookKey: string } }
-  | {
-      params: { slug: string };
-      props: {
-        kind: "chapter";
-        bookKey: string;
-        chapter: number;
-        slug: string;
-      };
-    };
+// This route only serves chapter pages; intros live at /[book]-intro.astro.
+type StaticPath = {
+  params: { slug: string };
+  props: { bookKey: string; chapter: number; slug: string };
+};
 
 export function getStaticPaths(): StaticPath[] {
   const paths: StaticPath[] = [];
@@ -190,13 +167,12 @@ export function getStaticPaths(): StaticPath[] {
     const chapterCount = Number(chapterCountRaw) || 0;
 
     // IMPORTANT:
-    // Intros are now handled by /[book]-intro.astro, so DO NOT generate them here.
+    // Intros are handled by /[book]-intro.astro, so DO NOT generate them here.
     // This prevents collisions like /matthew-intro between /[slug] and /[book]-intro.
     for (let ch = 1; ch <= chapterCount; ch++) {
       paths.push({
         params: { slug: `${bookKey}-${ch}` },
         props: {
-          kind: "chapter",
           bookKey,
           chapter: ch,
           slug: `${bookKey}-${ch}`,
@@ -210,25 +186,15 @@ export function getStaticPaths(): StaticPath[] {
 
 const props = Astro.props as StaticPath["props"];
 
-// Guard: if someone somehow hits /whatever-intro via this route,
-// we don't want to try to load a chapter JSON file.
-const paramSlug =
-  typeof Astro.params?.slug === "string" ? Astro.params.slug : "";
-const isIntroSlug = paramSlug.endsWith("-intro");
-
-// Safe helper for places where you want a string even though props is a union.
-const chapterSlug = props.kind === "chapter" ? props.slug : "";
-
-const chapterData =
-  props.kind === "chapter" && !isIntroSlug ? getChapter(props.slug) : null;
+const chapterSlug = props.slug;
+const chapterData = getChapter(props.slug);
 
 const topics = Array.isArray(chapterData?.topics) ? chapterData!.topics : [];
 
 const normalizedBookKey = normalizeBookKey(props.bookKey);
-const bookName = humanBookName(normalizedBookKey);
+const bookName = bookKeyToLabel(normalizedBookKey);
 
-const chapterNumberLabel =
-  props.kind === "chapter" ? String(props.chapter) : "";
+const chapterNumberLabel = String(props.chapter);
 
 const title = chapterData?.title
   ? `${chapterData.title} | Liberation and Inclusion Translation`
@@ -245,7 +211,7 @@ const paragraphsRaw = Array.isArray(chapterData?.paragraphs)
 const shouldIndex = chapterData?.indexed !== false;
 
 const osisBook = OSIS_BOOKS[normalizedBookKey] ?? "";
-const chapterNum = props.kind === "chapter" ? props.chapter : 0;
+const chapterNum = props.chapter;
 
 /**
  * When a verse spans a paragraph break, the verse number is intentionally
@@ -287,40 +253,38 @@ const nextBookKey =
 let prevCta: { href: string; label: string } | null = null;
 let nextCta: { href: string; label: string } | null = null;
 
-if (props.kind === "chapter") {
-  const n = props.chapter;
+const n = props.chapter;
 
-  // Previous: chapter 1 goes to Intro (owned by /[book]-intro)
-  if (n === 1) {
-    prevCta = {
-      href: `/${normalizedBookKey}-intro`,
-      label: `${bookName} Introduction`,
-    };
-  } else if (n > 1) {
-    prevCta = {
-      href: `/${normalizedBookKey}-${n - 1}`,
-      label: `${bookName} ${n - 1}`,
-    };
-  }
+// Previous: chapter 1 goes to Intro (owned by /[book]-intro)
+if (n === 1) {
+  prevCta = {
+    href: `/${normalizedBookKey}-intro`,
+    label: `${bookName} Introduction`,
+  };
+} else if (n > 1) {
+  prevCta = {
+    href: `/${normalizedBookKey}-${n - 1}`,
+    label: `${bookName} ${n - 1}`,
+  };
+}
 
-  // Next:
-  // - Normal chapters: go to next chapter
-  // - Final chapter: go to next book intro
-  if (typeof chaptersInBook === "number" && n < chaptersInBook) {
-    nextCta = {
-      href: `/${normalizedBookKey}-${n + 1}`,
-      label: `${bookName} ${n + 1}`,
-    };
-  } else if (
-    typeof chaptersInBook === "number" &&
-    n === chaptersInBook &&
-    nextBookKey
-  ) {
-    nextCta = {
-      href: `/${nextBookKey}-intro`,
-      label: `${humanBookName(nextBookKey)} Intro`,
-    };
-  }
+// Next:
+// - Normal chapters: go to next chapter
+// - Final chapter: go to next book intro
+if (typeof chaptersInBook === "number" && n < chaptersInBook) {
+  nextCta = {
+    href: `/${normalizedBookKey}-${n + 1}`,
+    label: `${bookName} ${n + 1}`,
+  };
+} else if (
+  typeof chaptersInBook === "number" &&
+  n === chaptersInBook &&
+  nextBookKey
+) {
+  nextCta = {
+    href: `/${nextBookKey}-intro`,
+    label: `${bookKeyToLabel(nextBookKey)} Intro`,
+  };
 }
 ---
 
@@ -328,7 +292,7 @@ if (props.kind === "chapter") {
   title={title}
   description={description}
   book={props.bookKey}
-  chapter={props.kind === "chapter" ? props.chapter : "?"}
+  chapter={props.chapter}
   type="scripture"
   topics={topics}
   index={shouldIndex}
@@ -409,18 +373,7 @@ if (props.kind === "chapter") {
       })} />
     )}
   </Fragment>
-  {
-    isIntroSlug ? (
-      <article class="chapter">
-        <div class="intro">
-          <p>
-            This page is an introduction, and it’s rendered by the dedicated
-            <code> /[book]-intro </code> route.
-          </p>
-        </div>
-      </article>
-    ) : (
-      <article class="chapter">
+  <article class="chapter">
         {/* Hidden description for Hebrew poetry blockquotes referenced by aria-describedby */}
         <div id="hbq-description" hidden>Formatted as Hebrew and Semitic poetry with indented parallel lines</div>
         {/* H1 is provided by <ScriptureHeader /> in ScriptureLayout */}
@@ -504,11 +457,22 @@ if (props.kind === "chapter") {
             </div>
           </>
         ) : (
-          <p>(No chapter data yet. Add src/data/chapters/{chapterSlug}.json)</p>
+          <div class="chapter-pending">
+            <p>
+              This chapter hasn't been translated yet. The LIT is a living
+              translation — chapters are published as they're completed, so
+              check back soon.
+            </p>
+            <p>
+              In the meantime, you can{" "}
+              <a href={`/${normalizedBookKey}-intro`}>
+                read the {bookName} introduction
+              </a>{" "}
+              or <a href="/release-notes">see what's new</a>.
+            </p>
+          </div>
         )}
-      </article>
-    )
-  }
+  </article>
 
   <style>
     /* Paragraph mode styling */
