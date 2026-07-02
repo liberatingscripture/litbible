@@ -1,14 +1,9 @@
 ---
 // src/pages/search.astro
 import SearchLayout from "../layouts/SearchLayout.astro";
-import { BOOK_ORDER } from "../data/books.js";
-import searchScript from "../scripts/search.js?url";
 
 const title = "Search | Liberation and Inclusion Translation";
 const description = "Search the Liberation & Inclusion Translation (LIT).";
-
-// Runs at build time (Astro), safe to pass into define:vars
-const baseUrl = import.meta.env.BASE_URL || "/";
 ---
 
 <SearchLayout
@@ -89,11 +84,9 @@ const baseUrl = import.meta.env.BASE_URL || "/";
     </div>
   </section>
 
-  <script is:inline define:vars={{ BASE_URL: baseUrl, BOOK_ORDER: BOOK_ORDER }}>
-    window.__SEARCH_BASE_URL = BASE_URL;
-    window.__SEARCH_BOOK_ORDER = BOOK_ORDER;
+  <script>
+    import "../scripts/search.js";
   </script>
-  <script type="module" src={searchScript}></script>
 </SearchLayout>
 
 <style>
