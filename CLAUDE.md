@@ -166,12 +166,14 @@ Each file in `src/data/chapters/` follows this structure:
 - **`footnotes`** are HTML strings; the verse text references them via
   `<sup class="fn-ref">` anchors (Pagefind excludes these — see `pagefind.yml`).
 - **`indexed: false`** (optional) marks an in-progress **draft/stub chapter**.
-  56 of 260 chapters are currently drafts. This flag has three downstream
+  56 of 260 chapters are currently drafts. This flag has four downstream
   effects, so handle it carefully:
   1. Pagefind skips the page (kept out of search).
   2. `astro.config.mjs` excludes the slug from the sitemap, and a `/read/<book>`
      page is excluded only when *every* chapter of that book is a draft.
   3. The page is `noindex`'d.
+  4. `ReadMenu.astro` marks the chapter "(draft)" (dimmed) in its chapter
+     dropdown.
   **Remove the field** (do not set it to `true`) when real content lands. The
   validator warns if `indexed:false` remains on a chapter that has real content.
 - Always run `npm run validate:chapters` after editing chapter JSON. The
