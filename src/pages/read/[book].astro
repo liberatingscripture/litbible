@@ -380,20 +380,9 @@ const description = `Read ${bookName} in continuous scroll with Reading Mode.`;
       <span class="rm-fab__icon" aria-hidden="true"></span>
     </button>
 
-    <div class="rm-resume-popover" data-rm-resume-popover hidden>
-      <div class="rm-resume-popover__backdrop" data-rm-resume-backdrop></div>
-      <div
-        class="rm-resume-popover__card"
-        role="dialog"
-        aria-modal="true"
-        aria-label="Resume reading?"
-      >
-        <div class="rm-resume" data-rm-resume>
-          <span>Resume?</span>
-          <button type="button" data-rm-resume-yes>Resume</button>
-          <button type="button" data-rm-resume-no>Start at top</button>
-        </div>
-      </div>
+    <div class="rm-resume-chip" data-rm-resume-chip role="status" hidden>
+      <button type="button" data-rm-resume-go>Continue reading ↓</button>
+      <button type="button" data-rm-resume-dismiss aria-label="Dismiss">✕</button>
     </div>
 
     <article
