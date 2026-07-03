@@ -2052,45 +2052,18 @@ html.dyslexic-font .menu-overlay__nav a {
   color: var(--green);
 }
 
-/* One-time "tap a verse number" tip toast */
-.lit-tip {
-  position: fixed;
-  left: 50%;
-  bottom: 18px;
-  transform: translateX(-50%);
-  z-index: 55;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  max-width: calc(100vw - 32px);
-  padding: 10px 16px;
-  border: 1px solid rgba(var(--ink-rgb), 0.14);
-  border-radius: 12px;
-  background: var(--surface-raised);
-  color: var(--text);
-  font-size: 0.88rem;
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
-}
-
-.lit-tip__dismiss {
-  flex: none;
-  padding: 4px 12px;
-  border: none;
-  border-radius: 999px;
-  background: var(--green);
-  color: var(--white);
-  font: inherit;
-  font-size: 0.84rem;
-  font-weight: 600;
-  cursor: pointer;
-}
-
 /* Verse numbers are tap targets for the verse menu. The ::after overlay
    expands the touch hit area (~6px each side) without changing layout —
-   superscript digits alone are far below comfortable thumb-target size. */
+   superscript digits alone are far below comfortable thumb-target size.
+   The resting green + dotted underline is the always-visible "tappable"
+   affordance (touch devices never see :hover). */
 .chapter-paragraphs sup.vn {
   cursor: pointer;
   position: relative;
+  color: var(--green, #209d50);
+  text-decoration: underline dotted;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
 }
 
 .chapter-paragraphs sup.vn::after {
@@ -2099,9 +2072,10 @@ html.dyslexic-font .menu-overlay__nav a {
   inset: -6px;
 }
 
-.chapter-paragraphs sup.vn:hover {
+.chapter-paragraphs sup.vn:hover,
+.chapter-paragraphs sup.vn:active {
   opacity: 1;
-  color: var(--green);
+  text-decoration-style: solid;
 }
 
 /* Floating panel shared by the verse menu and footnote popovers */

@@ -262,12 +262,7 @@ if (typeof chaptersInBook === "number" && n < chaptersInBook) {
                   >
                     {prevCta.label}
                   </a>
-                ) : (
-                  <span
-                    class="chapter-cta chapter-cta--spacer"
-                    aria-hidden="true"
-                  />
-                )}
+                ) : null}
 
                 {nextCta ? (
                   <a
@@ -277,12 +272,7 @@ if (typeof chaptersInBook === "number" && n < chaptersInBook) {
                   >
                     {nextCta.label}
                   </a>
-                ) : (
-                  <span
-                    class="chapter-cta chapter-cta--spacer"
-                    aria-hidden="true"
-                  />
-                )}
+                ) : null}
               </nav>
             ) : null}
 
@@ -389,13 +379,19 @@ if (typeof chaptersInBook === "number" && n < chaptersInBook) {
       line-height: 0;
     }
 
-    /* Chapter CTAs */
+    /* Chapter CTAs — prev left, next right. margin-left:auto keeps a lone
+       "next" on the right without invisible spacer elements; a lone "prev"
+       (Revelation 22) sits left naturally. */
     :global(.chapter-ctas) {
       display: flex;
       justify-content: space-between;
       align-items: center;
       gap: 14px;
       margin: 18px 0 14px;
+    }
+
+    :global(.chapter-cta--next) {
+      margin-left: auto;
     }
 
     /* Big, consistent button size */
@@ -450,26 +446,14 @@ if (typeof chaptersInBook === "number" && n < chaptersInBook) {
       text-align: right;
     }
 
-    :global(.chapter-cta--spacer) {
-      width: clamp(240px, 42%, 420px);
-      min-height: 56px;
-      opacity: 0;
-      pointer-events: none;
-    }
-
     @media (max-width: 560px) {
       :global(.chapter-ctas) {
         flex-direction: column;
         align-items: stretch;
       }
 
-      :global(.chapter-cta),
-      :global(.chapter-cta--spacer) {
+      :global(.chapter-cta) {
         width: 100%;
-      }
-
-      :global(.chapter-cta--spacer) {
-        display: none;
       }
     }
 

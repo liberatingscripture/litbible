@@ -19,64 +19,6 @@ function init(container) {
   initVerseHighlight(container);
   initVerseMenu(container);
   initFootnotePopovers(container);
-  maybeShowVerseTip();
-}
-
-/* ── One-time discoverability tip ─────────────────────────────────────── */
-
-const TIP_KEY = "lit_verse_tip_seen";
-
-function maybeShowVerseTip() {
-  // Nothing to teach on draft chapters with no verse markers
-  if (!document.querySelector(".chapter-paragraphs sup.vn")) return;
-
-  try {
-    if (localStorage.getItem(TIP_KEY) === "1") return;
-  } catch {
-    return; // no storage → would nag on every visit; skip entirely
-  }
-
-  const tip = document.createElement("div");
-  tip.className = "lit-tip";
-  tip.setAttribute("role", "status");
-  tip.textContent = "Tip: tap a verse number to copy or share verses. ";
-
-  const dismiss = document.createElement("button");
-  dismiss.type = "button";
-  dismiss.className = "lit-tip__dismiss";
-  dismiss.textContent = "Got it";
-  tip.appendChild(dismiss);
-
-  function markSeen() {
-    try {
-      localStorage.setItem(TIP_KEY, "1");
-    } catch {
-      /* ignore */
-    }
-    tip.remove();
-  }
-
-  dismiss.addEventListener("click", markSeen);
-  // Interacting with any verse number also counts as "got it"
-  document.querySelector(".chapter-paragraphs")?.addEventListener("click", (e) => {
-    if (e.target.closest("sup.vn")) markSeen();
-  });
-
-  // Appear after the reader has settled in; auto-hide without marking seen
-  // (so it can reappear next visit if never acknowledged)
-  setTimeout(() => {
-    // The clear-highlight chip occupies the same spot — and a reader who
-    // arrived via a verse link is already discovering verse features.
-    if (clearChip || openPanel) return;
-    // Don't stack on top of the first-visit welcome modal; the tip will
-    // get its chance on the next visit (the seen flag is still unset).
-    const welcome = document.getElementById("welcome-popover");
-    if (welcome?.open) return;
-    document.body.appendChild(tip);
-    setTimeout(() => {
-      if (document.contains(tip)) tip.remove();
-    }, 12000);
-  }, 2500);
 }
 
 /* ── Shared: verse marker lookup and ranges ───────────────────────────── */
