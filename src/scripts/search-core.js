@@ -620,10 +620,10 @@ export function contentAnchors(anchors) {
 }
 
 /**
- * Deep link to the nearest content anchor at/before the first non-meta
- * match. Falls back to the page URL when there is nothing to anchor to.
+ * The nearest content anchor at/before the first non-meta match, or null
+ * when there is nothing to anchor to.
  */
-export function pickAnchorHref(d, metaRanges, locs) {
+export function pickContentAnchor(d, metaRanges, locs) {
   const chosenLoc = pickBestNonMetaLocation(locs, metaRanges);
 
   if (
@@ -631,7 +631,7 @@ export function pickAnchorHref(d, metaRanges, locs) {
     !Array.isArray(d?.anchors) ||
     d.anchors.length === 0
   ) {
-    return d.url;
+    return null;
   }
 
   let chosen = null;
@@ -641,6 +641,15 @@ export function pickAnchorHref(d, metaRanges, locs) {
     else break;
   }
 
+  return chosen;
+}
+
+/**
+ * Deep link to the nearest content anchor at/before the first non-meta
+ * match. Falls back to the page URL when there is nothing to anchor to.
+ */
+export function pickAnchorHref(d, metaRanges, locs) {
+  const chosen = pickContentAnchor(d, metaRanges, locs);
   return chosen?.id ? `${d.url}#${chosen.id}` : d.url;
 }
 
@@ -814,6 +823,184 @@ export function expandToOccurrences(item, searchTerm) {
   }
 
   return results;
+}
+
+/* ── Result enrichment + bucketing ───────────────────────────────────── */
+
+/** Glossary results match by URL or by explicit meta type. */
+export function isGlossaryResult(d) {
+  return isGlossaryUrl(d?.url) || String(d?.meta?.type || "") === "glossary";
+}
+
+/**
+ * Strict article check: any indexed page that is neither a scripture
+ * chapter/intro path nor a glossary page.
+ */
+export function isArticleResultUrl(url) {
+  return !!url && !parseScripturePath(url) && !isGlossaryUrl(url);
+}
+
+function cleanGlossaryTitle(s) {
+  let t = String(s || "").trim();
+  t = t.replace(/^glossary\s*[-—:]\s*/i, "");
+  t = t.replace(/\s*[-—:]\s*glossary$/i, "");
+  return t.trim();
+}
+
+/**
+ * Term-level title for a glossary result. The matched entry's heading anchor
+ * id follows the glossary filename convention `<traditional>-<lit>` (see
+ * content.config.ts), so "hell-hades" renders as "Hell → hades". Falls back
+ * to explicit meta, then the cleaned page title.
+ */
+export function glossaryTermFromResult(d, fallback = "") {
+  const anchor = pickContentAnchor(
+    d,
+    getMetaRangesFromAnchors(d?.anchors),
+    getMatchLocations(d),
+  );
+  const anchorId =
+    anchor && anchor.element === "h2" ? String(anchor.id || "") : "";
+  if (anchorId.includes("-")) {
+    const [traditional, ...litParts] = anchorId.split("-");
+    const cap = traditional.charAt(0).toUpperCase() + traditional.slice(1);
+    return `${cap} → ${litParts.join(" ")}`;
+  }
+
+  const metaTerm =
+    d?.meta?.glossary_term || d?.meta?.term || d?.meta?.entry || "";
+
+  if (metaTerm) return String(metaTerm).trim();
+
+  const title = d?.meta?.title || d?.title || "";
+  const cleaned = cleanGlossaryTitle(title);
+  return cleaned || String(fallback || "").trim() || "Glossary";
+}
+
+/**
+ * Compute the per-result match signals both surfaces bucket on:
+ * - metaRanges/locs: where the matches sit relative to hidden meta zones
+ * - subjectHit: the query exactly matches one of the page's topics/tags
+ * - contentHit: the query appears in the visible excerpt text
+ * - wholeWordOk: exact single-token queries matched as a whole word
+ */
+export function enrichSearchResult(
+  d,
+  relevanceRank,
+  { qPhrase, exactSingleToken, exactToken },
+) {
+  const metaRanges = getMetaRangesFromAnchors(d?.anchors);
+  const locs = getMatchLocations(d);
+
+  const subjects = [
+    ...parseMetaList(d?.meta?.topics),
+    ...parseMetaList(d?.meta?.tags),
+  ];
+
+  const excerptText = stripTags(d?.excerpt);
+  const isSingleToken = !!qPhrase && !qPhrase.includes(" ");
+
+  const wholeWordOk =
+    !exactSingleToken ||
+    excerptHasWholeWordMarkedTerm(d?.excerpt, exactToken) ||
+    textHasWholeWord(excerptText, exactToken);
+
+  const contentHit = !qPhrase
+    ? false
+    : isSingleToken
+      ? textHasWholeWord(excerptText, qPhrase)
+      : textHasPhrase(excerptText, qPhrase);
+
+  const subjectHit =
+    !!qPhrase && subjects.map(normalizePhrase).includes(qPhrase);
+
+  return { d, relevanceRank, metaRanges, locs, subjectHit, contentHit, wholeWordOk };
+}
+
+/** Enriched-item shape for docs that come from the topics index, not Pagefind. */
+export function topicsIndexSubjectItem(d) {
+  return {
+    d,
+    metaRanges: [],
+    locs: [],
+    subjectHit: true,
+    contentHit: false,
+    wholeWordOk: true,
+  };
+}
+
+/**
+ * The filter → dedupe → bucket orchestration shared by the tray and the
+ * /search page. Takes enriched items (see enrichSearchResult) and returns
+ * { glossary, subject, article, keyword }:
+ *
+ * - glossary: exclusive bucket, Pagefind relevance order
+ * - subject: exact topic hits (plus/instead of `extraSubjectItems` from the
+ *   topics index — `replaceSubject` replaces Pagefind subject hits when
+ *   extras exist, otherwise extras merge in with URL dedupe), Bible order
+ * - article: every non-scripture non-glossary URL from either source,
+ *   relevance order
+ * - keyword: real body matches only (non-meta location, not an intro, not a
+ *   topics-only hit, whole word when the query demands it), relevance order
+ */
+export function bucketSearchResults(
+  enriched,
+  { extraSubjectItems = [], replaceSubject = false } = {},
+) {
+  const glossary = [];
+  const nonGlossary = [];
+  for (const it of enriched) {
+    (isGlossaryResult(it.d) ? glossary : nonGlossary).push(it);
+  }
+
+  let subject = nonGlossary.filter((it) => it.subjectHit);
+
+  if (extraSubjectItems.length) {
+    if (replaceSubject) {
+      subject = extraSubjectItems.slice();
+    } else {
+      const seen = new Set(subject.map((it) => it.d?.url));
+      for (const it of extraSubjectItems) {
+        const url = it.d?.url;
+        if (!url || seen.has(url)) continue;
+        seen.add(url);
+        subject.push(it);
+      }
+    }
+  }
+
+  let keyword = nonGlossary.filter((it) => {
+    if (String(it.d?.meta?.type || "") === "intro") return false;
+    if (!hasNonMetaMatch(it.locs, it.metaRanges)) return false;
+    if (it.subjectHit && !it.contentHit) return false;
+    // wholeWordOk is always true for non-exact queries.
+    return it.wholeWordOk;
+  });
+
+  const article = [];
+  const articleSeen = new Set();
+  const collectArticle = (it) => {
+    const url = it.d?.url || "";
+    if (!isArticleResultUrl(url) || articleSeen.has(url)) return;
+    articleSeen.add(url);
+    article.push(it);
+  };
+  // Scan ALL non-glossary hits (not just bucket survivors) so articles
+  // aren't lost by the stricter keyword filters, then any article URLs
+  // that only came in via the topics index.
+  for (const it of nonGlossary) collectArticle(it);
+  for (const it of subject) collectArticle(it);
+
+  subject = subject.filter((it) => !isArticleResultUrl(it.d?.url || ""));
+  keyword = keyword.filter((it) => !isArticleResultUrl(it.d?.url || ""));
+
+  subject.sort((a, b) =>
+    bibleOrderCompareHref(a.d?.url || "", b.d?.url || ""),
+  );
+  keyword.sort((a, b) => (a.relevanceRank ?? 9999) - (b.relevanceRank ?? 9999));
+  article.sort((a, b) => (a.relevanceRank ?? 9999) - (b.relevanceRank ?? 9999));
+
+  return { glossary, subject, article, keyword };
 }
 
 /* ── Topics index loader ─────────────────────────────────────────────── */

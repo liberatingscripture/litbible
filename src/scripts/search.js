@@ -15,18 +15,16 @@ import {
   isExplicitlyQuoted,
   buildPfQuery,
   escapeHtml,
-  stripTags,
-  textHasWholeWord,
-  excerptHasWholeWordMarkedTerm,
   fuzzyTopicSuggestions,
   topicTokenMatches,
-  parseMetaList,
   parseBookChapterFromUrl,
   scriptureResultTitle,
-  isGlossaryUrl,
+  glossaryTermFromResult,
+  enrichSearchResult,
+  topicsIndexSubjectItem,
+  bucketSearchResults,
   getMatchLocations,
   getMetaRangesFromAnchors,
-  hasNonMetaMatch,
   pickAnchorHref,
   expandToOccurrences,
   loadTopicsIndex,
@@ -159,10 +157,6 @@ function renderActiveFiltersFull() {
 
 function prettyTitleFromUrl(url, fallbackTitle = "Result") {
   return scriptureResultTitle(url, fallbackTitle);
-}
-
-function isArticleUrl(url) {
-  return url && !parseBookChapterFromUrl(url) && !isGlossaryUrl(url);
 }
 
 function renderReferenceActions(jump) {
@@ -389,24 +383,6 @@ function displayQueryLabel(qRaw) {
   if (!q) return "";
   if (isExplicitlyQuoted(q)) return q.slice(1, -1).trim();
   return q;
-}
-
-function cleanGlossaryTitle(s) {
-  let t = String(s || "").trim();
-  t = t.replace(/^glossary\s*[-—:]\s*/i, "");
-  t = t.replace(/\s*[-—:]\s*glossary$/i, "");
-  return t.trim();
-}
-
-function glossaryTermFromResult(d, fallback = "") {
-  const metaTerm =
-    d?.meta?.glossary_term || d?.meta?.term || d?.meta?.entry || "";
-
-  if (metaTerm) return String(metaTerm).trim();
-
-  const title = d?.meta?.title || d?.title || "";
-  const cleaned = cleanGlossaryTitle(title);
-  return cleaned || String(fallback || "").trim() || "Glossary";
 }
 
 function renderGlossary(items, qPhrase) {
@@ -904,50 +880,34 @@ async function runFullSearch() {
     search.results.map((r) => hrefToFirstMatch(r)),
   );
 
-  const allData = resolvedAll.map(({ url, data, metaRanges, locs }, i) => ({
-    ...data,
-    url,
-    __metaRanges: metaRanges,
-    __locs: locs,
-    __relevanceRank: i,
-  }));
-
   const qUnquoted = displayQ;
   const qPhrase = normalizePhrase(qUnquoted);
 
-  // 1) Glossary matches (exclusive bucket)
-  const glossaryMatches = allData.filter((d) => {
-    const metaType = String(d?.meta?.type || "");
-    return isGlossaryUrl(d.url) || metaType === "glossary";
-  });
+  // Flat result objects (Pagefind data + anchored url + relevance rank) are
+  // what the render/cache layer consumes; enrichment wraps them with the
+  // match signals the shared bucketing runs on.
+  const enriched = resolvedAll.map(({ url, data }, i) =>
+    enrichSearchResult({ ...data, url, __relevanceRank: i }, i, {
+      qPhrase,
+      exactSingleToken,
+      exactToken,
+    }),
+  );
 
-  // 2) Subject matches (excluding glossary)
-  let subjectMatchesRaw = allData.filter((d) => {
-    if (isGlossaryUrl(d.url) || String(d?.meta?.type || "") === "glossary")
-      return false;
-    if (!qPhrase) return false;
-
-    const subjects = [
-      ...parseMetaList(d?.meta?.topics),
-      ...parseMetaList(d?.meta?.tags),
-    ].map(normalizePhrase);
-
-    return subjects.includes(qPhrase);
-  });
-
-  // 2b) Topic-only matches via /topics-index.json (covers subjects that aren't body-indexed)
+  // Topic-only matches via /topics-index.json (covers subjects that aren't
+  // body-indexed). Exact topic phrase first; single-token queries fall back
+  // to whole-word topic matches, capped to avoid an avalanche on broad
+  // tokens (e.g., "god").
+  const extraSubjectItems = [];
   const topicsData = await loadTopicsIndexOnce();
   if (topicsData) cachedTopicsList = topicsData.topicsList;
   if (topicsData && qPhrase) {
     const { topicsList, topicsUrlMap } = topicsData;
 
-    // Exact topic phrase match
     const exact = topicsUrlMap.get(qPhrase) || [];
 
-    // If no exact hit and the query is a single token, allow whole-word topic matches
     let loose = [];
     if (!exact.length && !/\s/.test(qPhrase)) {
-      // Cap to avoid an avalanche on broad tokens (e.g., "god")
       const MAX_TOPICS = 30;
       const MAX_DOCS = 60;
 
@@ -965,25 +925,21 @@ async function runFullSearch() {
     }
 
     const docs = exact.length ? exact : loose;
+    const wantBook = normalizePhrase(String(book || ""));
 
-    if (docs.length) {
-      const wantBook = normalizePhrase(String(book || ""));
+    for (const doc of docs) {
+      const url = String(doc?.url || "");
+      if (!url) continue;
 
-      const existing = new Set(subjectMatchesRaw.map((r) => r.url));
-      for (const doc of docs) {
-        const url = String(doc?.url || "");
-        if (!url || existing.has(url)) continue;
+      const docBook = normalizePhrase(String(doc?.book || ""));
+      if (wantBook && docBook && docBook !== wantBook) continue;
 
-        const docType = String(doc?.type || "");
-        const docBook = normalizePhrase(String(doc?.book || ""));
-
-        if (wantBook && docBook && docBook !== wantBook) continue;
-
-        subjectMatchesRaw.push({
+      extraSubjectItems.push(
+        topicsIndexSubjectItem({
           url,
           meta: {
             title: String(doc?.title || ""),
-            type: docType,
+            type: String(doc?.type || ""),
             book: String(doc?.book || ""),
             chapter: doc?.chapter != null ? String(doc.chapter) : "",
             // Make the subject label work
@@ -991,70 +947,21 @@ async function runFullSearch() {
           },
           excerpt: "",
           locations: [],
-        });
-        existing.add(url);
-      }
-    }
-  }
-
-  // 3) Keyword matches (excluding glossary)
-  const keywordMatchesRaw = allData.filter((d) => {
-    if (isGlossaryUrl(d.url) || String(d?.meta?.type || "") === "glossary")
-      return false;
-
-    // Intros are subject-indexed only (by design), so keep them out of keyword.
-    if (String(d?.meta?.type || "") === "intro") return false;
-
-    const metaRanges = d.__metaRanges || getMetaRangesFromAnchors(d?.anchors);
-    const locs = d.__locs || getMatchLocations(d);
-
-    // Require at least one match OUTSIDE meta ranges (subjects/tags zones, if any)
-    if (!hasNonMetaMatch(locs, metaRanges)) return false;
-
-    const excerptText = stripTags(d?.excerpt);
-
-    if (exactSingleToken) {
-      return (
-        excerptHasWholeWordMarkedTerm(d?.excerpt, exactToken) ||
-        textHasWholeWord(excerptText, exactToken)
+        }),
       );
     }
-
-    return true;
-  });
-
-  // Pull article-page results into their own bucket.
-  // Always extract so articles get their own section and are not
-  // double-counted as keyword results. Scan all non-glossary Pagefind
-  // hits (not just subject+keyword survivors) so articles aren't lost
-  // by stricter keyword filters.
-  let articleMatchesRaw = [];
-  const articleSeen = new Set();
-  // First pass: all Pagefind results that are article URLs
-  for (const d of allData) {
-    if (isGlossaryUrl(d.url) || String(d?.meta?.type || "") === "glossary")
-      continue;
-    if (!isArticleUrl(d.url)) continue;
-    if (articleSeen.has(d.url)) continue;
-    articleSeen.add(d.url);
-    articleMatchesRaw.push(d);
   }
-  // Second pass: article URLs from the topic index that weren't in Pagefind
-  for (const d of subjectMatchesRaw) {
-    if (!isArticleUrl(d.url)) continue;
-    if (articleSeen.has(d.url)) continue;
-    articleSeen.add(d.url);
-    articleMatchesRaw.push(d);
-  }
-  subjectMatchesRaw = subjectMatchesRaw.filter((d) => !isArticleUrl(d.url));
-  const keywordMatchesRawFiltered = keywordMatchesRaw.filter(
-    (d) => !isArticleUrl(d.url),
-  );
+
+  const buckets = bucketSearchResults(enriched, { extraSubjectItems });
+
+  const glossaryMatches = buckets.glossary.map((it) => it.d);
+  const subjectMatchesRaw = buckets.subject.map((it) => it.d);
+  const articleMatchesRaw = buckets.article.map((it) => it.d);
 
   // Expand keyword results into per-occurrence cards
-  const keywordExpanded = keywordMatchesRawFiltered.flatMap((item) =>
-    expandToOccurrences(item, displayQ),
-  );
+  const keywordExpanded = buckets.keyword
+    .map((it) => it.d)
+    .flatMap((item) => expandToOccurrences(item, displayQ));
 
   lastSearchCache = {
     displayQ,
