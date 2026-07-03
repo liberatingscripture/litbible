@@ -23,15 +23,18 @@ import {
   textHasPhrase,
   excerptHasWholeWordMarkedTerm,
   fuzzyTopicSuggestions,
+  parseMetaList,
   parseScripturePath,
+  scriptureResultTitle,
   isGlossaryUrl,
   bibleOrderCompareHref,
   getMatchLocations,
   getMetaRangesFromAnchors,
   hasNonMetaMatch,
   pickAnchorHref,
-  expandToOccurrences,
+  countOccurrences,
   loadTopicsIndex,
+  MODE_LABELS,
 } from "./search-core.js";
 
 const base = String(import.meta.env.BASE_URL || "/").replace(/\/?$/, "/");
@@ -197,7 +200,9 @@ const _initSearchbars = async () => {
       if (topicsLoaded) return;
       topicsLoaded = true;
 
-      const data = await loadTopicsIndex(base);
+      // force-cache: prefer speed for autocomplete; the /search page
+      // fetches the same index with no-store for freshness.
+      const data = await loadTopicsIndex(base, { cache: "force-cache" });
       if (data) {
         topicsList = data.topicsList;
         topicsUrlMap = data.topicsUrlMap;
@@ -403,34 +408,6 @@ const _initSearchbars = async () => {
       return true;
     }
 
-    function parseMetaList(metaValue) {
-      if (!metaValue) return [];
-
-      if (Array.isArray(metaValue)) {
-        return metaValue
-          .map((t) =>
-            String(t)
-              .replace(/\u00a0/g, " ")
-              .trim(),
-          )
-          .filter(Boolean);
-      }
-
-      const raw = String(metaValue)
-        .replace(/\u00a0/g, " ")
-        .replace(/[|/]+/g, ",")
-        .trim();
-
-      if (!raw) return [];
-
-      const parts = raw
-        .split(/\s*[;,]\s*/g)
-        .map((t) => t.trim())
-        .filter(Boolean);
-
-      return parts.length ? parts : [raw];
-    }
-
     function isArticleResult(it) {
       const url = it?.d?.url || "";
       return url && !parseScripturePath(url) && !isGlossaryUrl(url);
@@ -470,7 +447,7 @@ const _initSearchbars = async () => {
           glossaryCount && (activeMode === "all" || activeMode === "glossary")
             ? `
               <div class="searchbar__group">
-                <div class="searchbar__group-title">Glossary matches</div>
+                <div class="searchbar__group-title">${MODE_LABELS.glossary}</div>
                 ${renderList(glossary)}
               </div>
             `
@@ -480,7 +457,7 @@ const _initSearchbars = async () => {
           subjectCount && (activeMode === "all" || activeMode === "subject")
             ? `
               <div class="searchbar__group">
-                <div class="searchbar__group-title">Topic matches</div>
+                <div class="searchbar__group-title">${MODE_LABELS.subject}</div>
                 ${renderList(subject)}
               </div>
             `
@@ -490,7 +467,7 @@ const _initSearchbars = async () => {
           articlesCount && (activeMode === "all" || activeMode === "article")
             ? `
               <div class="searchbar__group">
-                <div class="searchbar__group-title">Article matches</div>
+                <div class="searchbar__group-title">${MODE_LABELS.article}</div>
                 ${renderList(articles)}
               </div>
             `
@@ -500,7 +477,7 @@ const _initSearchbars = async () => {
           keywordCount && (activeMode === "all" || activeMode === "keyword")
             ? `
               <div class="searchbar__group">
-                <div class="searchbar__group-title">Keyword matches</div>
+                <div class="searchbar__group-title">${MODE_LABELS.keyword}</div>
                 ${renderList(keyword)}
               </div>
             `
@@ -510,13 +487,9 @@ const _initSearchbars = async () => {
     }
 
     function titleFromUrl(u) {
-      const parsed = parseScripturePath(u);
-      if (parsed) {
-        const book = bookKeyToLabel(parsed.bookKey);
-        if (parsed.isIntro) return `${book} — Intro`;
-        return `${book} ${parsed.chapter}`;
-      }
-      return String(u || "");
+      // Non-scripture URLs (e.g. article paths from the topic index) fall
+      // back to the raw URL, matching the tray's original behavior.
+      return scriptureResultTitle(u, String(u || ""));
     }
 
     function renderActiveFilters() {
@@ -537,14 +510,8 @@ const _initSearchbars = async () => {
       }
 
       if (activeMode && activeMode !== "all") {
-        const ml = {
-          subject: "Topic matches",
-          keyword: "Keyword matches",
-          glossary: "Glossary",
-          article: "Article matches",
-        };
         pills.push({
-          label: ml[activeMode] || activeMode,
+          label: MODE_LABELS[activeMode] || activeMode,
           clear() {
             activeMode = "all";
             modeSelect.value = "all";
@@ -575,7 +542,7 @@ const _initSearchbars = async () => {
         const q = input.value.trim();
         if (q.length >= MIN_QUERY_LEN || parseReference(q) || parseBookOnly(q))
           runSearch(q);
-        else clearForShortQuery(q);
+        else clearForShortQuery();
       }
 
       activeFiltersEl.querySelectorAll("[data-pill-idx]").forEach((btn) => {
@@ -834,9 +801,11 @@ const _initSearchbars = async () => {
         const gCount = glossaryMatches.length;
         const sCount = subjectMatches.length;
         const aCount = articleMatches.length;
-        const kCount = keywordMatchesFiltered.flatMap((it) =>
-          expandToOccurrences(it.d, qUnquoted),
-        ).length;
+        // Count-only path: the status line doesn't need excerpt cards.
+        const kCount = keywordMatchesFiltered.reduce(
+          (n, it) => n + countOccurrences(it.d, qUnquoted),
+          0,
+        );
         const sep = " • ";
 
         // Only include counts for sections visible under the current mode

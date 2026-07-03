@@ -5,7 +5,7 @@
 // SearchBar tray) — only page-specific rendering and state live here.
 
 import {
-  BOOK_ORDER,
+  BOOK_RANK,
   bookKeyToLabel,
   parseReferenceJump,
   referenceJumpLabel,
@@ -20,7 +20,9 @@ import {
   excerptHasWholeWordMarkedTerm,
   fuzzyTopicSuggestions,
   topicTokenMatches,
+  parseMetaList,
   parseBookChapterFromUrl,
+  scriptureResultTitle,
   isGlossaryUrl,
   getMatchLocations,
   getMetaRangesFromAnchors,
@@ -28,6 +30,7 @@ import {
   pickAnchorHref,
   expandToOccurrences,
   loadTopicsIndex,
+  MODE_LABELS,
 } from "./search-core.js";
 
 const base = String(import.meta.env.BASE_URL || "/").replace(/\/?$/, "/");
@@ -71,9 +74,12 @@ let pagefindMod = null;
 let debounceId = null;
 
 // Canonical subject index (same one SearchBar uses), memoized.
+// no-store: full-page results should always reflect the latest deploy;
+// the tray fetches the same index with force-cache for speed.
 let topicsIndexPromise = null;
 function loadTopicsIndexOnce() {
-  if (!topicsIndexPromise) topicsIndexPromise = loadTopicsIndex(base);
+  if (!topicsIndexPromise)
+    topicsIndexPromise = loadTopicsIndex(base, { cache: "no-store" });
   return topicsIndexPromise;
 }
 
@@ -114,13 +120,7 @@ function renderActiveFiltersFull() {
   }
 
   if (mode && mode !== "all") {
-    const ml = {
-      subject: "Topic matches",
-      keyword: "Keyword matches",
-      glossary: "Glossary",
-      article: "Article matches",
-    };
-    pills.push({ label: ml[mode] || mode, key: "mode" });
+    pills.push({ label: MODE_LABELS[mode] || mode, key: "mode" });
   }
 
   if (!pills.length) {
@@ -158,12 +158,7 @@ function renderActiveFiltersFull() {
 }
 
 function prettyTitleFromUrl(url, fallbackTitle = "Result") {
-  const parsed = parseBookChapterFromUrl(url);
-  if (!parsed) return fallbackTitle;
-
-  const bookName = bookKeyToLabel(parsed.bookKey);
-  if (parsed.chapter === 0) return `${bookName} - Introduction`;
-  return `${bookName} ${parsed.chapter}`;
+  return scriptureResultTitle(url, fallbackTitle);
 }
 
 function isArticleUrl(url) {
@@ -284,28 +279,6 @@ function syncControlsFromUrl() {
   renderActiveFiltersFull();
 }
 
-// -------- Subject parsing (PHRASES, not tokens) --------
-function parseMetaPhrases(raw) {
-  const s = raw ? String(raw) : "";
-  if (!s) return [];
-
-  const cleaned = s
-    .replace(/\u00a0/g, " ")
-    .replace(/[|/]+/g, ",")
-    .trim();
-
-  if (!cleaned) return [];
-
-  if (/[;,]/.test(cleaned)) {
-    return cleaned
-      .split(/\s*[;,]\s*/g)
-      .map((t) => t.trim())
-      .filter(Boolean);
-  }
-
-  return [cleaned];
-}
-
 // Sometimes excerpts get polluted by meta text; keep this conservative.
 function looksLikeMetaDump(htmlOrText) {
   const t = String(htmlOrText || "").toLowerCase();
@@ -377,8 +350,7 @@ async function hrefToFirstMatch(result) {
 
 // ---- Sorting: book/chapter order (optional) ----
 function bookIndex(bookKey) {
-  const i = BOOK_ORDER.indexOf(bookKey);
-  return i === -1 ? 9999 : i;
+  return BOOK_RANK.get(bookKey) ?? 9999;
 }
 
 function compareByBookOrder(a, b) {
@@ -956,8 +928,8 @@ async function runFullSearch() {
     if (!qPhrase) return false;
 
     const subjects = [
-      ...parseMetaPhrases(d?.meta?.topics || ""),
-      ...parseMetaPhrases(d?.meta?.tags || ""),
+      ...parseMetaList(d?.meta?.topics),
+      ...parseMetaList(d?.meta?.tags),
     ].map(normalizePhrase);
 
     return subjects.includes(qPhrase);

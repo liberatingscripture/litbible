@@ -10,15 +10,23 @@
 // content vs meta), it lives here. Page-specific rendering stays in the
 // respective entry scripts.
 
-import { BOOKS, BOOK_ORDER, bookKeyToLabel } from "../data/books.js";
+import { BOOK_ORDER, bookKeyToLabel } from "../data/books.js";
 
-export { BOOKS, BOOK_ORDER, bookKeyToLabel };
+export { bookKeyToLabel };
 
 export const BOOK_RANK = new Map(BOOK_ORDER.map((k, i) => [k, i]));
 
+/** Bucket labels shared by group titles and active-filter pills. */
+export const MODE_LABELS = {
+  subject: "Topic matches",
+  keyword: "Keyword matches",
+  glossary: "Glossary matches",
+  article: "Article matches",
+};
+
 /* ── Book aliases and reference parsing ─────────────────────────────── */
 
-export function slugifyBookName(name) {
+function slugifyBookName(name) {
   return String(name || "")
     .toLowerCase()
     .replace(/[^0-9a-z]/g, "");
@@ -84,7 +92,7 @@ const BOOK_ALIAS_ENTRIES = [
   ["revelation", ["revelation", "rev", "re"]],
 ];
 
-export const BOOK_ALIASES = new Map();
+const BOOK_ALIASES = new Map();
 for (const [bookKey, aliases] of BOOK_ALIAS_ENTRIES) {
   BOOK_ALIASES.set(bookKey, bookKey);
   BOOK_ALIASES.set(slugifyBookName(bookKey), bookKey);
@@ -93,7 +101,7 @@ for (const [bookKey, aliases] of BOOK_ALIAS_ENTRIES) {
   }
 }
 
-export function resolveBookKey(rawBookPart) {
+function resolveBookKey(rawBookPart) {
   const alias = slugifyBookName(rawBookPart);
   const mapped = BOOK_ALIASES.get(alias) || alias;
   return BOOK_RANK.has(mapped) ? mapped : null;
@@ -317,6 +325,38 @@ export function textHasPhrase(text, phrase) {
   return normalizePhrase(text).includes(normalizePhrase(phrase));
 }
 
+/**
+ * Split a Pagefind meta value (topics/tags) into trimmed phrases.
+ * Accepts an array or a delimited string; "|" and "/" count as commas.
+ */
+export function parseMetaList(metaValue) {
+  if (!metaValue) return [];
+
+  if (Array.isArray(metaValue)) {
+    return metaValue
+      .map((t) =>
+        String(t)
+          .replace(/\u00a0/g, " ")
+          .trim(),
+      )
+      .filter(Boolean);
+  }
+
+  const raw = String(metaValue)
+    .replace(/\u00a0/g, " ")
+    .replace(/[|/]+/g, ",")
+    .trim();
+
+  if (!raw) return [];
+
+  const parts = raw
+    .split(/\s*[;,]\s*/g)
+    .map((t) => t.trim())
+    .filter(Boolean);
+
+  return parts.length ? parts : [raw];
+}
+
 /** True when the excerpt contains a <mark>ed term as a whole word. */
 export function excerptHasWholeWordMarkedTerm(excerptHtml, term) {
   if (!excerptHtml || !term) return false;
@@ -447,6 +487,19 @@ export function parseBookChapterFromUrl(url) {
   } catch {
     return null;
   }
+}
+
+/**
+ * Human title for a scripture result URL ("Luke 4", "Luke — Introduction").
+ * Non-scripture URLs return fallbackTitle so each surface can pick its own
+ * fallback (the tray shows the raw URL, the full page shows meta title).
+ */
+export function scriptureResultTitle(url, fallbackTitle = "Result") {
+  const parsed = parseScripturePath(url);
+  if (!parsed) return fallbackTitle;
+
+  const book = bookKeyToLabel(parsed.bookKey);
+  return parsed.isIntro ? `${book} — Introduction` : `${book} ${parsed.chapter}`;
 }
 
 export function isGlossaryUrl(hrefOrUrl) {
@@ -594,13 +647,12 @@ export function pickAnchorHref(d, metaRanges, locs) {
 /* ── Per-occurrence expansion ────────────────────────────────────────── */
 
 /**
- * Expand one Pagefind result into per-occurrence cards by scanning the raw
- * content for whole-word matches and grouping them by their nearest content
- * anchor. Returns [item] unchanged when the content can't be scanned.
- * The tray uses the array length as the occurrence count; the full search
- * page renders one card per entry.
+ * Scan a result's raw content for whole-word matches of the term and group
+ * them by their nearest content anchor. Returns a Map(anchorId → { anchor,
+ * matches }) or null when the content can't be scanned or nothing matches
+ * (callers treat null as "one occurrence: the item itself").
  */
-export function expandToOccurrences(item, searchTerm) {
+function scanOccurrenceGroups(item, searchTerm) {
   const content = item?.content || "";
   const anchors = Array.isArray(item?.anchors) ? item.anchors : [];
   const term = String(searchTerm || "")
@@ -608,7 +660,7 @@ export function expandToOccurrences(item, searchTerm) {
     .trim();
 
   if (!content || !term || term.length < 2) {
-    return [item];
+    return null;
   }
 
   const sortedAnchors = contentAnchors(anchors);
@@ -641,7 +693,7 @@ export function expandToOccurrences(item, searchTerm) {
   }
 
   if (matchPositions.length === 0) {
-    return [item];
+    return null;
   }
 
   function findNearestAnchor(wordIndex) {
@@ -654,7 +706,7 @@ export function expandToOccurrences(item, searchTerm) {
     return best;
   }
 
-  // Group matches by anchor ID — one "occurrence" card per anchor region
+  // Group matches by anchor ID — one "occurrence" per anchor region
   const groups = new Map();
   for (const pos of matchPositions) {
     const anchor = findNearestAnchor(pos.wordIndex);
@@ -664,6 +716,37 @@ export function expandToOccurrences(item, searchTerm) {
     }
     groups.get(key).matches.push(pos);
   }
+
+  return groups;
+}
+
+/**
+ * Count per-occurrence keyword matches without building excerpt cards —
+ * the tray's status line only needs the number. Matches
+ * expandToOccurrences' grouping exactly (unscannable content counts as 1).
+ */
+export function countOccurrences(item, searchTerm) {
+  const groups = scanOccurrenceGroups(item, searchTerm);
+  return groups ? groups.size : 1;
+}
+
+/**
+ * Expand one Pagefind result into per-occurrence cards (deep-link URL,
+ * highlighted excerpt) — one card per anchor group. Returns [item]
+ * unchanged when the content can't be scanned.
+ */
+export function expandToOccurrences(item, searchTerm) {
+  const groups = scanOccurrenceGroups(item, searchTerm);
+  if (!groups) {
+    return [item];
+  }
+
+  const content = item.content;
+  const escapedTerm = escapeRegExp(
+    String(searchTerm || "")
+      .toLowerCase()
+      .trim(),
+  );
 
   const baseUrl = (item.url || "").replace(/#.*$/, "");
   const results = [];
@@ -742,10 +825,18 @@ export function expandToOccurrences(item, searchTerm) {
  *   and fuzzy suggestions. When two labels normalize identically the shorter
  *   label wins.
  * - topicsUrlMap: Map(norm → [{ url, type, book, chapter, title, topic }]).
+ *
+ * `cache` is a fetch cache mode. The tray passes "force-cache" (speed —
+ * suggestions may lag a deploy); the /search page passes "no-store"
+ * (freshness for full results). These were the two surfaces' original,
+ * deliberate strategies.
  */
-export async function loadTopicsIndex(base) {
+export async function loadTopicsIndex(base, { cache } = {}) {
   try {
-    const res = await fetch(`${base}topics-index.json`);
+    const res = await fetch(
+      `${base}topics-index.json`,
+      cache ? { cache } : undefined,
+    );
     if (!res.ok) throw new Error(`topics-index.json missing (${res.status})`);
 
     const json = await res.json();
