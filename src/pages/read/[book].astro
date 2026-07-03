@@ -6,7 +6,7 @@ import SearchBar from "../../components/SearchBar.astro";
 import "../../styles/scripture-tools.css";
 import "../../styles/read-mode.css";
 import readModeScript from "../../scripts/read-mode.js?url";
-import { normalizeHbqVerseGlue } from "../../utils/hbq-normalize";
+import { prepareReadParagraph } from "../../lib/chapter-html";
 
 type ChapterData = {
   chapter?: number;
@@ -26,83 +26,6 @@ const chapterModules = import.meta.glob<ChapterModule>(
 const introModules = import.meta.glob("../../data/intros/*-intro.md", {
   eager: true,
 });
-
-function removeFootnoteRefs(html: string): string {
-  return String(html || "").replace(
-    /<sup\b[^>]*class=(['"])[^'"]*\bfn-ref\b[^'"]*\1[^>]*>[\s\S]*?<\/sup>/gi,
-    "",
-  );
-}
-
-function rewriteVerseIdsAndAnchors(
-  html: string,
-  bookKey: string,
-  chapter: number,
-): string {
-  return String(html || "")
-    .replace(
-      /\bid=(['"])v(\d+)\1/gi,
-      (_match, quote: string, verse: string) =>
-        `id=${quote}${bookKey}-${chapter}-v${verse}${quote}`,
-    )
-    .replace(
-      /\bhref=(['"])#v(\d+)\1/gi,
-      (_match, quote: string, verse: string) =>
-        `href=${quote}#${bookKey}-${chapter}-v${verse}${quote}`,
-    );
-}
-
-function normalizeVerseGlue(html: string): string {
-  return String(html || "").replace(
-    /<span class="vglue">\s*(<sup\b[^>]*\bclass=(['"])[^'"]*\bvn\b[^'"]*\2[^>]*>[\s\S]*?<\/sup>)\s*(?:&nbsp;|\u00a0)\s*([\s\S]*?)<\/span>/gi,
-    (_match, sup: string, _quote: string, text: string) => {
-      const idMatch = sup.match(/\bid=(['"])([^'"]+)\1/i);
-      const verseId = idMatch?.[2] ? String(idMatch[2]) : "";
-      const safeVerseId = verseId.replace(/[^A-Za-z0-9:_-]/g, "");
-      const supWithoutId = safeVerseId
-        ? sup.replace(/\s*\bid=(['"])[^'"]*\1/i, "")
-        : sup;
-      const verseAnchor = safeVerseId
-        ? `<span class="rm-verse-anchor" id="${safeVerseId}" aria-hidden="true"></span>`
-        : "";
-
-      return `${verseAnchor}<span class="vglue">${supWithoutId}&nbsp;</span>${text}`;
-    },
-  );
-}
-
-/**
- * When a verse spans a paragraph break, the verse number is intentionally
- * repeated at the start of the continuation paragraph (e.g. Mark 14:62).
- * Keep the visible number but drop the duplicate id so HTML stays valid.
- */
-function dropDuplicateVerseIds(html: string, seen: Set<string>): string {
-  return html.replace(
-    /<sup\b([^>]*?)\s*id="([^"]+)"([^>]*)>/g,
-    (match, before: string, vid: string, after: string) => {
-      if (seen.has(vid)) return `<sup${before}${after}>`;
-      seen.add(vid);
-      return match;
-    },
-  );
-}
-
-function prepareParagraph(
-  html: string,
-  bookKey: string,
-  chapter: number,
-  seenVerseIds: Set<string>,
-): string {
-  const noFootnotes = removeFootnoteRefs(html);
-  const uniqueVerseIds = rewriteVerseIdsAndAnchors(
-    noFootnotes,
-    bookKey,
-    chapter,
-  );
-  return normalizeHbqVerseGlue(
-    normalizeVerseGlue(dropDuplicateVerseIds(uniqueVerseIds, seenVerseIds)),
-  );
-}
 
 function getChapter(bookKey: string, chapter: number): ChapterData | null {
   const key = `../../data/chapters/${bookKey}-${chapter}.json`;
@@ -164,7 +87,7 @@ const chapters = getChapterNumbers(chapterTotal).map((chapter) => {
   return {
     chapter,
     paragraphs: rawParagraphs.map((html) =>
-      prepareParagraph(html, bookKey, chapter, seenVerseIds),
+      prepareReadParagraph(html, bookKey, chapter, seenVerseIds),
     ),
   };
 });

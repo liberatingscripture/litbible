@@ -87,13 +87,14 @@ src/
     release-notes.json        # "What's new" entries (auto-appended in CI)
     translation-commitments.json
   layouts/           # Layout, ScriptureLayout, ReadLayout, SearchLayout
-  lib/               # Server-side TS helpers (fetchPodcastEpisodes.ts)
+  lib/               # Server-side TS helpers: chapter-html.ts (the shared
+                     #   scripture-HTML transform pipeline — prepareStudyParagraph
+                     #   / prepareReadParagraph), fetchPodcastEpisodes.ts
   pages/             # File-based routes (see Routing below)
   scripts/           # CLIENT-side vanilla JS (chapter-tools, read-mode,
                      #   search-core + searchbar + search — see Search below)
   styles/            # global.css, read-mode.css, scripture-tools.css, articles.css,
                      #   pages/<page>.css (per-page stylesheets)
-  utils/             # hbq-normalize.ts
 scripts/             # BUILD/validation Node scripts (.mjs) — see below
 public/              # Static assets + generated output (api/, search/, topics-index.json,
                      #   llms.txt, llms-full.txt, _headers, images/, icons)

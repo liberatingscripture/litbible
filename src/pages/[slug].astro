@@ -1,7 +1,7 @@
 ---
 import ScriptureLayout from "../layouts/ScriptureLayout.astro";
 import { BOOKS as books, BOOK_ORDER, bookKeyToLabel } from "../data/books.js";
-import { normalizeHbqVerseGlue } from "../utils/hbq-normalize";
+import { prepareStudyParagraph } from "../lib/chapter-html";
 
 type Footnote = {
   id: string; // e.g. "fn-a"
@@ -46,110 +46,6 @@ function normalizeBookKey(key: string) {
     .trim()
     .toLowerCase()
     .replace(/\s+/g, "");
-}
-
-function normalizeVerseGlue(html: string): string {
-  return String(html ?? "").replace(
-    /<span class="vglue">\s*(<sup\b[^>]*\bclass=(['"])[^'"]*\bvn\b[^'"]*\2[^>]*>[\s\S]*?<\/sup>)\s*(?:&nbsp;|\u00a0)\s*([\s\S]*?)<\/span>/gi,
-    (_match, sup: string, _quote: string, text: string) => {
-      return `<span class="vglue">${sup}&nbsp;${text}</span>`;
-    },
-  );
-}
-/**
- * Pagefind-friendly hyphen normalization:
- * Keep the real hyphen in the visible text, but inject a zero-width, indexable space
- * AFTER the hyphen so Pagefind can treat word-word as word<space>word.
- *
- * - Only operates OUTSIDE tags (so it won't touch ids/attrs like luke-4-p11).
- * - Only targets hyphen-minus between word chars: /[0-9A-Za-z]-[0-9A-Za-z]/
- *
- * Replacement:
- *   "-" becomes "-<span class="pf-wordbreak"> </span>"
- *
- * This avoids the blockquote-only wrapping bug where a separate hyphen element can
- * get kicked to the next line by itself.
- */
-function injectHyphenWordbreaks(html: string): string {
-  const s = String(html ?? "");
-  if (!s.includes("-")) return s;
-
-  const isWord = (ch: string) => /[0-9A-Za-z]/.test(ch);
-
-  let out = "";
-  let inTag = false;
-
-  for (let i = 0; i < s.length; i++) {
-    const ch = s[i];
-
-    if (ch === "<") {
-      inTag = true;
-      out += ch;
-      continue;
-    }
-
-    if (ch === ">") {
-      inTag = false;
-      out += ch;
-      continue;
-    }
-
-    if (!inTag && ch === "-") {
-      const prev = i > 0 ? s[i - 1] : "";
-      const next = i + 1 < s.length ? s[i + 1] : "";
-
-      if (isWord(prev) && isWord(next)) {
-        out += `-<span class="pf-wordbreak" aria-hidden="true"> </span>`;
-        continue;
-      }
-    }
-
-    out += ch;
-  }
-
-  return out;
-}
-
-/**
- * Inject ARIA semantics onto Hebrew-poetry blockquote blocks.
- * Adds role="group" and aria-label="Poetry" so screen readers
- * identify these as grouped poetic content.
- */
-function addHbqAria(html: string): string {
-  return String(html ?? "").replace(
-    /<blockquote\s+class="hbq"/g,
-    '<blockquote class="hbq" role="group" aria-label="Poetry" aria-describedby="hbq-description"',
-  );
-}
-
-/**
- * OSIS book abbreviation map (standard SBL/OSIS identifiers for the NT).
- * Used to generate data-osis="Book.Chapter.Verse" on verse number elements.
- */
-const OSIS_BOOKS: Record<string, string> = {
-  matthew: "Matt", mark: "Mark", luke: "Luke", john: "John", acts: "Acts",
-  romans: "Rom", "1corinthians": "1Cor", "2corinthians": "2Cor",
-  galatians: "Gal", ephesians: "Eph", philippians: "Phil", colossians: "Col",
-  "1thessalonians": "1Thess", "2thessalonians": "2Thess",
-  "1timothy": "1Tim", "2timothy": "2Tim", titus: "Titus", philemon: "Phlm",
-  hebrews: "Heb", james: "Jas", "1peter": "1Pet", "2peter": "2Pet",
-  "1john": "1John", "2john": "2John", "3john": "3John", jude: "Jude",
-  revelation: "Rev",
-};
-
-/**
- * Inject data-osis="Book.Chapter.Verse" onto verse number <sup> elements.
- * Only targets <sup id="vN" class="vn"> — footnote refs use a different structure.
- */
-function addOsisIds(html: string, osisBook: string, chapter: number): string {
-  if (!osisBook || !chapter) return String(html ?? "");
-  return String(html ?? "").replace(
-    /<sup\b([^>]*)id="v(\d+)"([^>]*)>/g,
-    (match, before, verse, after) => {
-      if (match.includes("data-osis=")) return match;
-      return `<sup${before}id="v${verse}"${after} data-osis="${osisBook}.${chapter}.${verse}">`;
-    },
-  );
 }
 
 // This route only serves chapter pages; intros live at /[book]-intro.astro.
@@ -210,26 +106,9 @@ const paragraphsRaw = Array.isArray(chapterData?.paragraphs)
 
 const shouldIndex = chapterData?.indexed !== false;
 
-const osisBook = OSIS_BOOKS[normalizedBookKey] ?? "";
-const chapterNum = props.chapter;
-
-/**
- * When a verse spans a paragraph break, the verse number is intentionally
- * repeated at the start of the continuation paragraph (e.g. Mark 14:62).
- * Keep the visible number but drop the duplicate id so HTML stays valid and
- * #vN links/data-osis target only the first occurrence.
- */
 const seenVerseIds = new Set<string>();
-function dropDuplicateVerseIds(html: string): string {
-  return html.replace(/<sup\b([^>]*?)\s*id="(v\d+)"([^>]*)>/g, (match, before, vid, after) => {
-    if (seenVerseIds.has(vid)) return `<sup${before}${after}>`;
-    seenVerseIds.add(vid);
-    return match;
-  });
-}
-
 const paragraphs = paragraphsRaw.map((html) =>
-  addOsisIds(addHbqAria(injectHyphenWordbreaks(normalizeHbqVerseGlue(normalizeVerseGlue(dropDuplicateVerseIds(html))))), osisBook, chapterNum),
+  prepareStudyParagraph(html, normalizedBookKey, props.chapter, seenVerseIds),
 );
 
 const footnotes = Array.isArray(chapterData?.footnotes)
