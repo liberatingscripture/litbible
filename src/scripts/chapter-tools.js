@@ -243,8 +243,6 @@ function initVerseHighlight(container) {
     showClearChip(formatRef(start, end));
   }
 
-  // The verse-scroll inline script restores the hash synchronously before
-  // this module runs, so reading location.hash now is safe.
   applyFromHash();
   window.addEventListener("hashchange", applyFromHash);
 }
@@ -515,10 +513,7 @@ function initFootnotePopovers(container) {
     }
     panel.appendChild(body);
 
-    // Link through to the full footnotes section. The native anchor jump
-    // is inaccurate here: content-visibility placeholder heights above the
-    // footnotes make the browser land short, so scroll manually after
-    // forcing real paragraph heights (same trick as the verse-hash scroll).
+    // Link through to the full footnotes section.
     const jump = document.createElement("a");
     jump.className = "lit-panel__jump";
     jump.href = "#" + noteId;
@@ -529,11 +524,6 @@ function initFootnotePopovers(container) {
       // fight the navigation to the footnotes section.
       if (openPanel) openPanel.restoreFocus = null;
       closePanel();
-      container.querySelectorAll(".p").forEach((div) => {
-        div.style.contentVisibility = "visible";
-        div.style.containIntrinsicSize = "none";
-      });
-      void document.body.offsetHeight; // reflow with real heights
       history.pushState(null, "", "#" + noteId);
       note.scrollIntoView({ behavior: "smooth", block: "start" });
       note.setAttribute("tabindex", "-1");

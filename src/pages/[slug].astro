@@ -186,20 +186,6 @@ if (typeof chaptersInBook === "number" && n < chaptersInBook) {
     <meta name="citation_fulltext_world_readable" content="" />
     {chapterSlug && <meta name="citation_public_url" content={`https://litbible.net/${chapterSlug}/`} />}
 
-    {/* When arriving via an in-page anchor — a verse hash (/matthew-13#v41), a
-        paragraph anchor from a search result (/matthew-21#matthew-21-p25), or a
-        footnote (#fn-y) — strip the hash from the URL immediately so the browser
-        does NOT attempt its own hash scroll (which uses inaccurate
-        content-visibility placeholder heights and can land on the wrong
-        element). The hash is stored in window.__litVerseHash and the body script
-        performs a corrected scroll after forcing real heights. */}
-    <script is:inline>
-      window.__litVerseHash = window.location.hash;
-      if (window.__litVerseHash) {
-        history.replaceState(null, '', window.location.pathname + window.location.search);
-      }
-    </script>
-
     {/* Chapter JSON-LD */}
     {chapterSlug && (
       <script type="application/ld+json" set:html={JSON.stringify({
@@ -360,21 +346,17 @@ if (typeof chaptersInBook === "number" && n < chaptersInBook) {
       line-height: 1.75;
     }
 
-    /* Skip rendering for off-screen paragraphs (improves INP on long chapters).
-       Placeholder height is sized to the average scripture paragraph — using
-       too small a value (e.g. 120px) caused large CLS when real paragraphs
-       resolved. 400px is closer to the median real height. Fixed (not auto)
-       so the placeholder is consistent across devices and visits — auto's
-       cached-size behaviour caused CLS when stale cross-device heights made
-       the page start at a different height than it ultimately settled at. */
-    .chapter-paragraphs :global(.p) {
-      content-visibility: auto;
-      contain-intrinsic-size: 400px;
-    }
 
     /* Add space between the end of the body text and the nav buttons */
     .chapter-paragraphs {
       margin-bottom: 40px; /* tweak: 24–40px usually feels right */
+    }
+
+    /* Breathing room above anchor targets (verse ids, paragraph anchors,
+       footnotes) when the browser performs native hash scrolling */
+    .chapter-paragraphs :global([id]),
+    .footnotes li {
+      scroll-margin-top: 16px;
     }
 
     /* Verse numbers inside paragraphs (ONLY these) */
@@ -594,61 +576,16 @@ if (typeof chaptersInBook === "number" && n < chaptersInBook) {
     })();
   </script>
 
-  {/* Anchor scroll + focus management: when arriving via an in-page anchor
-      (a verse hash like /matthew-13#v41, a paragraph anchor from a search
-      result like #matthew-21-p25, or a footnote like #fn-y), the head script
-      stripped the hash to prevent the browser's inaccurate content-visibility
-      hash scroll. Here we perform a corrected scroll by forcing the preceding
-      paragraphs to render at real heights before scrolling. */}
+  {/* Native anchor scrolling handles #vN, paragraph, and footnote hashes.
+      The one case the browser can't: a verse-RANGE hash (#v16-18) matches no
+      element id, so scroll to its first verse. The bundled chapter-tools
+      script applies the range highlight. */}
   <script is:inline>
     (() => {
-      var rawHash = window.__litVerseHash || '';
-      window.__litVerseHash = undefined;
-      var hash = rawHash.replace(/^#/, '');
-      if (!hash) return;
-
-      // A verse-range hash (#v16-18) scrolls to its first verse; the bundled
-      // chapter-tools script applies the range highlight after the restore
-      // below. Any other hash is treated as a literal element id (paragraph
-      // anchor, footnote, etc.).
-      var vm = hash.match(/^v(\d+)(?:-\d+)?$/);
-      var targetId = vm ? 'v' + vm[1] : hash;
-      var target = document.getElementById(targetId);
-      if (!target) return; // unknown anchor — leave the page at the top
-
-      // Restore the hash in the URL (without triggering another scroll)
-      history.replaceState(null, '', '#' + hash);
-
-      var allPDivs = Array.from(document.querySelectorAll('.chapter-paragraphs .p'));
-      var targetPDiv = target.closest('.p');
-      // Paragraphs that precede the target must render at real heights so the
-      // browser's scroll math isn't thrown off by content-visibility
-      // placeholder sizes. A target outside the paragraph flow (e.g. a
-      // footnote) sits below every paragraph, so force them all.
-      var targetIdx = targetPDiv ? allPDivs.indexOf(targetPDiv) : allPDivs.length;
-      var precedingDivs = allPDivs.slice(0, Math.max(0, targetIdx));
-
-      if (precedingDivs.length) {
-        precedingDivs.forEach(function(div) {
-          div.style.contentVisibility = 'visible';
-          div.style.containIntrinsicSize = 'none';
-        });
-        // Force layout reflow with real heights, then scroll
-        void document.body.offsetHeight;
-        // Do NOT restore content-visibility afterwards — restoring triggers a
-        // layout recalculation that snaps placeholder heights back, shifting the
-        // scroll position past the target. Preceding paragraphs are already
-        // rendered so leaving them visible has no meaningful performance cost.
-      }
-      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-      // Move the screen-reader cursor to the target element
-      target.setAttribute('tabindex', '-1');
-      target.focus({ preventScroll: true });
-      target.addEventListener('blur', function handler() {
-        target.removeAttribute('tabindex');
-        target.removeEventListener('blur', handler);
-      });
+      var m = window.location.hash.match(/^#v(\d+)-\d+$/);
+      if (!m) return;
+      var target = document.getElementById('v' + m[1]);
+      if (target) target.scrollIntoView();
     })();
   </script>
 

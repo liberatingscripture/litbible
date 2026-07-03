@@ -35,8 +35,8 @@ const criticalDarkColor = isGreen ? "#E1DFD9" : "#e4e2dc";
 // scrollbar-gutter, header min-height, and main min-height are reserved here
 // (not just in global.css) so the early paint shares the final layout geometry.
 // .site-header covers the outer element; .site-header__inner covers the inner.
-// main{min-height:50svh} prevents the element starting at height:0 before
-// content-visibility placeholders resolve, which caused CLS 0.882 on long chapters.
+// main{min-height:50svh} keeps the early paint from starting at height:0
+// before content arrives, avoiding a large layout shift on long pages.
 const criticalCSS = `html,body{margin:0;padding:0}html{scrollbar-gutter:stable}body{background:${criticalBg};color:${criticalColor}}.site-header{min-height:80px}.site-header__inner{min-height:80px;box-sizing:border-box}main{min-height:50svh}@media(prefers-color-scheme:dark){body{background:${criticalDarkBg};color:${criticalDarkColor}}}`;
 ---
 
