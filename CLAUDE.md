@@ -80,7 +80,8 @@ src/
   data/
     chapters/        # 260 JSON files — one per NT chapter (e.g. john-3.json)
     intros/          # Book intro Markdown, one per book (e.g. john-intro.md)
-    books.js         # NT book constants: BOOKS (chapter counts) + BOOK_ORDER
+    books.js         # NT book constants: BOOKS (chapter counts), BOOK_ORDER,
+                     #   bookKeyToLabel() — the single source for book names
     podcast-feed.xml # Committed podcast snapshot (refreshed by fetch:podcast)
     podcastOverrides.json     # Manual episode metadata overrides
     release-notes.json        # "What's new" entries (auto-appended in CI)
@@ -88,7 +89,8 @@ src/
   layouts/           # Layout, ScriptureLayout, ReadLayout, SearchLayout
   lib/               # Server-side TS helpers (fetchPodcastEpisodes.ts)
   pages/             # File-based routes (see Routing below)
-  scripts/           # CLIENT-side vanilla JS (chapter-tools, read-mode, search)
+  scripts/           # CLIENT-side vanilla JS (chapter-tools, read-mode,
+                     #   search-core + searchbar + search — see Search below)
   styles/            # global.css, read-mode.css, scripture-tools.css, articles.css,
                      #   pages/<page>.css (per-page stylesheets)
   utils/             # hbq-normalize.ts
@@ -199,6 +201,13 @@ collection); they're read directly by the intro pages and the API manifest.
 - **No client JS framework**, but `src/scripts/` *does* hold vanilla JS for
   progressive enhancement (verse highlighting/menus, footnote popovers, reading
   mode, search). Everything must degrade gracefully without JS.
+- **Search is split into three client modules** in `src/scripts/`:
+  `search-core.js` holds all logic that must agree between the SearchBar tray
+  and the full `/search` page (book aliases, reference parsing, Pagefind query
+  building, result-location math, topics-index loading); `searchbar.js` is the
+  tray UI (loaded by `SearchBar.astro`); `search.js` is the `/search` page UI.
+  Never duplicate parsing/bucketing logic into the UI modules — add it to
+  `search-core.js` so both surfaces stay in sync.
 - **Mobile apps are first-class consumers** of `public/api/` output — changing
   chapter/intro/manifest shape can break them. Treat the API as a contract.
 - **Release notes are automated**: pushing changes to chapters, intros, glossary,

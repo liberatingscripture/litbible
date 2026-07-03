@@ -1,5 +1,5 @@
 ---
-import { BOOKS as books } from "../data/books.js";
+import { BOOKS as books, BOOK_ORDER, bookKeyToLabel } from "../data/books.js";
 const { currentBook = "", currentChapter = "" } = Astro.props;
 
 const currentBookKey = currentBook
@@ -21,33 +21,9 @@ const initialChapterCount = currentBookKey
     <label for="book-select" class="sr-only">Select a New Testament book</label>
     <select id="book-select">
       <option value="">Select a Book</option>
-      <option>Matthew</option>
-      <option>Mark</option>
-      <option>Luke</option>
-      <option>John</option>
-      <option>Acts</option>
-      <option>Romans</option>
-      <option>1 Corinthians</option>
-      <option>2 Corinthians</option>
-      <option>Galatians</option>
-      <option>Ephesians</option>
-      <option>Philippians</option>
-      <option>Colossians</option>
-      <option>1 Thessalonians</option>
-      <option>2 Thessalonians</option>
-      <option>1 Timothy</option>
-      <option>2 Timothy</option>
-      <option>Titus</option>
-      <option>Philemon</option>
-      <option>Hebrews</option>
-      <option>James</option>
-      <option>1 Peter</option>
-      <option>2 Peter</option>
-      <option>1 John</option>
-      <option>2 John</option>
-      <option>3 John</option>
-      <option>Jude</option>
-      <option>Revelation</option>
+      {BOOK_ORDER.map((key) => (
+        <option value={key}>{bookKeyToLabel(key)}</option>
+      ))}
     </select>
 
     <label for="chapter-select" class="sr-only">Select a chapter</label>
