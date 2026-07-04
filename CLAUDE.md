@@ -87,9 +87,11 @@ src/
     release-notes.json        # "What's new" entries (auto-appended in CI)
     translation-commitments.json
   layouts/           # Layout, ScriptureLayout, ReadLayout, SearchLayout
-  lib/               # Server-side TS helpers: chapter-html.ts (the shared
+  lib/               # Server-side build helpers: chapter-html.ts (the shared
                      #   scripture-HTML transform pipeline — prepareStudyParagraph
-                     #   / prepareReadParagraph), fetchPodcastEpisodes.ts
+                     #   / prepareReadParagraph), draft-chapters.mjs (single source
+                     #   for indexed:false draft data — used by astro.config.mjs
+                     #   and ReadMenu), fetchPodcastEpisodes.ts
   pages/             # File-based routes (see Routing below)
   scripts/           # CLIENT-side vanilla JS (chapter-tools, read-mode,
                      #   search-core + searchbar + search — see Search below)

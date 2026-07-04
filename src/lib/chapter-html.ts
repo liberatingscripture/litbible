@@ -20,17 +20,12 @@
  * When a verse spans a paragraph break, the verse number is intentionally
  * repeated at the start of the continuation paragraph (e.g. Mark 14:62).
  * Keep the visible number but drop the duplicate id so HTML stays valid and
- * anchors target only the first occurrence. `pattern` differs per view:
- * Study matches raw `v<N>` ids; Reading Mode runs after ids are namespaced,
- * so it matches any id.
+ * anchors target only the first occurrence. Both views run this on raw
+ * `v<N>` ids (Reading Mode dedupes BEFORE namespacing them).
  */
-function dropDuplicateVerseIds(
-  html: string,
-  seen: Set<string>,
-  pattern: RegExp,
-): string {
+function dropDuplicateVerseIds(html: string, seen: Set<string>): string {
   return html.replace(
-    pattern,
+    /<sup\b([^>]*?)\s*id="(v\d+)"([^>]*)>/g,
     (match, before: string, vid: string, after: string) => {
       if (seen.has(vid)) return `<sup${before}${after}>`;
       seen.add(vid);
@@ -38,9 +33,6 @@ function dropDuplicateVerseIds(
     },
   );
 }
-
-const STUDY_VERSE_ID_RE = /<sup\b([^>]*?)\s*id="(v\d+)"([^>]*)>/g;
-const READ_VERSE_ID_RE = /<sup\b([^>]*?)\s*id="([^"]+)"([^>]*)>/g;
 
 /**
  * Re-glue Hebrew-poetry (`hbq-line`) verse openings: the verse number sticks
@@ -272,9 +264,7 @@ export function prepareStudyParagraph(
     addHbqAria(
       injectHyphenWordbreaks(
         normalizeHbqVerseGlue(
-          normalizeStudyVerseGlue(
-            dropDuplicateVerseIds(html, seenVerseIds, STUDY_VERSE_ID_RE),
-          ),
+          normalizeStudyVerseGlue(dropDuplicateVerseIds(html, seenVerseIds)),
         ),
       ),
     ),
@@ -293,11 +283,14 @@ export function prepareReadParagraph(
   chapter: number,
   seenVerseIds: Set<string>,
 ): string {
+  // Dedupe before namespacing: vN → <book>-<ch>-vN is one-to-one within a
+  // chapter, so dropping duplicate vN ids first is equivalent and lets both
+  // views share the same v\d+ matcher.
   const noFootnotes = removeFootnoteRefs(html);
-  const namespaced = rewriteVerseIdsAndAnchors(noFootnotes, bookKey, chapter);
+  const deduped = dropDuplicateVerseIds(noFootnotes, seenVerseIds);
   return normalizeHbqVerseGlue(
     normalizeReadVerseGlue(
-      dropDuplicateVerseIds(namespaced, seenVerseIds, READ_VERSE_ID_RE),
+      rewriteVerseIdsAndAnchors(deduped, bookKey, chapter),
     ),
   );
 }

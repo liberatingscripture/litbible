@@ -1,5 +1,6 @@
 ---
 import { BOOKS as books, BOOK_ORDER, bookKeyToLabel } from "../data/books.js";
+import { scanDraftChapters } from "../lib/draft-chapters.mjs";
 const { currentBook = "", currentChapter = "" } = Astro.props;
 
 const currentBookKey = currentBook
@@ -10,20 +11,9 @@ const initialChapterCount = currentBookKey
   : 0;
 
 // Draft chapters ("indexed": false) get a "(draft)" marker in the chapter
-// list so readers aren't surprised by untranslated stubs. Same derivation as
-// the sitemap filter in astro.config.mjs.
-const chapterModules = import.meta.glob<{ default: { indexed?: boolean } }>(
-  "../data/chapters/*.json",
-  { eager: true },
-);
-
-const DRAFT_CHAPTERS: Record<string, number[]> = {};
-for (const [path, mod] of Object.entries(chapterModules)) {
-  if (mod?.default?.indexed !== false) continue;
-  const m = path.match(/\/([0-9a-z]+)-(\d+)\.json$/);
-  if (!m) continue;
-  (DRAFT_CHAPTERS[m[1]] ??= []).push(Number(m[2]));
-}
+// list so readers aren't surprised by untranslated stubs. Shared derivation
+// with the sitemap filter in astro.config.mjs.
+const DRAFT_CHAPTERS = scanDraftChapters().draftChaptersByBook;
 
 const initialDrafts = new Set(DRAFT_CHAPTERS[currentBookKey] ?? []);
 ---

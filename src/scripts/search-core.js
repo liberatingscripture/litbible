@@ -852,13 +852,12 @@ function cleanGlossaryTitle(s) {
  * id follows the glossary filename convention `<traditional>-<lit>` (see
  * content.config.ts), so "hell-hades" renders as "Hell → hades". Falls back
  * to explicit meta, then the cleaned page title.
+ *
+ * Takes the same precomputed metaRanges/locs as pickAnchorHref so the term
+ * label and the deep link are guaranteed to name the same entry.
  */
-export function glossaryTermFromResult(d, fallback = "") {
-  const anchor = pickContentAnchor(
-    d,
-    getMetaRangesFromAnchors(d?.anchors),
-    getMatchLocations(d),
-  );
+export function glossaryTermFromResult(d, metaRanges, locs, fallback = "") {
+  const anchor = pickContentAnchor(d, metaRanges, locs);
   const anchorId =
     anchor && anchor.element === "h2" ? String(anchor.id || "") : "";
   if (anchorId.includes("-")) {
@@ -880,6 +879,8 @@ export function glossaryTermFromResult(d, fallback = "") {
 /**
  * Compute the per-result match signals both surfaces bucket on:
  * - metaRanges/locs: where the matches sit relative to hidden meta zones
+ *   (accepted precomputed so callers that already derived them — e.g. for
+ *   pickAnchorHref — keep a single source of truth)
  * - subjectHit: the query exactly matches one of the page's topics/tags
  * - contentHit: the query appears in the visible excerpt text
  * - wholeWordOk: exact single-token queries matched as a whole word
@@ -887,10 +888,10 @@ export function glossaryTermFromResult(d, fallback = "") {
 export function enrichSearchResult(
   d,
   relevanceRank,
-  { qPhrase, exactSingleToken, exactToken },
+  { qPhrase, exactSingleToken, exactToken, metaRanges, locs },
 ) {
-  const metaRanges = getMetaRangesFromAnchors(d?.anchors);
-  const locs = getMatchLocations(d);
+  metaRanges = metaRanges ?? getMetaRangesFromAnchors(d?.anchors);
+  locs = locs ?? getMatchLocations(d);
 
   const subjects = [
     ...parseMetaList(d?.meta?.topics),

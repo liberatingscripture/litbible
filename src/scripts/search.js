@@ -385,16 +385,18 @@ function displayQueryLabel(qRaw) {
   return q;
 }
 
+// `items` are enriched entries ({ d, metaRanges, locs, ... }) so the term
+// label derives from the same anchor computation as the deep link.
 function renderGlossary(items, qPhrase) {
   glossaryEl.innerHTML = "";
-  for (const r of items) {
+  for (const it of items) {
     const li = document.createElement("li");
     li.className = "result";
 
-    const term = glossaryTermFromResult(r, qPhrase);
+    const term = glossaryTermFromResult(it.d, it.metaRanges, it.locs, qPhrase);
 
     li.innerHTML = `
-      <a class="result-link" href="${escapeHtml(r.url)}">
+      <a class="result-link" href="${escapeHtml(it.d.url)}">
         <div class="result-title">${escapeHtml(term)}</div>
       </a>
     `;
@@ -885,12 +887,16 @@ async function runFullSearch() {
 
   // Flat result objects (Pagefind data + anchored url + relevance rank) are
   // what the render/cache layer consumes; enrichment wraps them with the
-  // match signals the shared bucketing runs on.
-  const enriched = resolvedAll.map(({ url, data }, i) =>
+  // match signals the shared bucketing runs on. metaRanges/locs are passed
+  // through from hrefToFirstMatch so the anchor choice and the bucketing
+  // signals share one computation.
+  const enriched = resolvedAll.map(({ url, data, metaRanges, locs }, i) =>
     enrichSearchResult({ ...data, url, __relevanceRank: i }, i, {
       qPhrase,
       exactSingleToken,
       exactToken,
+      metaRanges,
+      locs,
     }),
   );
 
@@ -954,7 +960,10 @@ async function runFullSearch() {
 
   const buckets = bucketSearchResults(enriched, { extraSubjectItems });
 
-  const glossaryMatches = buckets.glossary.map((it) => it.d);
+  // Glossary stays enriched (renderGlossary needs metaRanges/locs to name
+  // the matched entry); the other buckets flatten to the d shape the
+  // sort/render/expand layer consumes.
+  const glossaryMatches = buckets.glossary;
   const subjectMatchesRaw = buckets.subject.map((it) => it.d);
   const articleMatchesRaw = buckets.article.map((it) => it.d);
 

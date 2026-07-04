@@ -680,7 +680,7 @@ const _initSearchbars = async () => {
         });
 
         const glossaryItems = glossaryMatches.slice(0, 6).map((it) => ({
-          title: glossaryTermFromResult(it.d, qUnquoted),
+          title: glossaryTermFromResult(it.d, it.metaRanges, it.locs, qUnquoted),
           href: pickAnchorHref(it.d, it.metaRanges, it.locs),
         }));
 

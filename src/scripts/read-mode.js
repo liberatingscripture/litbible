@@ -15,6 +15,12 @@ const ON_OFF_OPTIONS = new Set(["on", "off"]);
 // FAB appears). MUST match the small-mode media query in read-mode.css.
 const sheetModeQuery = window.matchMedia("(max-width: 1100px)");
 
+// The viewport line (as a fraction of viewport height) that decides the
+// active chapter: the active chapter is the last anchor above this line.
+// Drives BOTH the IntersectionObserver rootMargin and the programmatic
+// findActiveChapterByViewportLine() sync used after jumps/resumes.
+const ACTIVE_CHAPTER_LINE = 0.3;
+
 const prefersReducedMotion = window.matchMedia(
   "(prefers-reduced-motion: reduce)",
 ).matches;
@@ -58,17 +64,13 @@ function parseResume(raw) {
         ? parsed.anchor.trim()
         : null;
 
-    const offset = Number(parsed.offset);
     const scrollY = Number(parsed.scrollY);
-
-    const hasOldFormat = anchor && Number.isFinite(offset);
     const hasScrollY = Number.isFinite(scrollY);
 
-    if (!hasOldFormat && !hasScrollY) return null;
+    if (!anchor && !hasScrollY) return null;
 
     return {
-      anchor: hasOldFormat ? anchor : null,
-      offset: hasOldFormat ? offset : 0,
+      anchor,
       scrollY: hasScrollY ? scrollY : null,
     };
   } catch {
@@ -499,7 +501,7 @@ function initReadMode() {
   }
 
   function findActiveChapterByViewportLine() {
-    const line = window.innerHeight * 0.3;
+    const line = window.innerHeight * ACTIVE_CHAPTER_LINE;
     let winner = chapterAnchors[0];
 
     for (const anchor of chapterAnchors) {
@@ -700,20 +702,11 @@ function initReadMode() {
 
   function saveResume() {
     const anchor = `ch-${activeChapter}`;
-    const chapterEl = chapterById.get(anchor);
-
-    let offset = 0;
-    if (chapterEl instanceof HTMLElement) {
-      const chapterTop = window.scrollY + chapterEl.getBoundingClientRect().top;
-      offset = Math.round(window.scrollY - chapterTop);
-    }
-
     const scrollY = Math.round(window.scrollY);
 
-    const payload = JSON.stringify({ anchor, offset, scrollY });
-    safeSet(resumeKey, payload);
+    safeSet(resumeKey, JSON.stringify({ anchor, scrollY }));
 
-    resumeState = { anchor, offset, scrollY };
+    resumeState = { anchor, scrollY };
   }
 
   function clearResume(andScrollTop = false) {
@@ -762,13 +755,6 @@ function initReadMode() {
 
   function captureReturnLocation() {
     const anchor = `ch-${activeChapter}`;
-    const chapterEl = chapterById.get(anchor);
-
-    let offset = 0;
-    if (chapterEl instanceof HTMLElement) {
-      const chapterTop = window.scrollY + chapterEl.getBoundingClientRect().top;
-      offset = Math.round(window.scrollY - chapterTop);
-    }
 
     const focusIndex =
       activeFocusTarget instanceof HTMLElement
@@ -777,7 +763,6 @@ function initReadMode() {
 
     return {
       anchor,
-      offset,
       scrollY: Math.round(window.scrollY),
       focusIndex,
     };
@@ -852,8 +837,8 @@ function initReadMode() {
   enableSheetDrag();
 
   // Active-chapter detection, driven directly by observer entries: the band
-  // spans from the 30% viewport line down past the bottom of the document, so
-  // an anchor's intersection state flips exactly when it crosses the line
+  // spans from the ACTIVE_CHAPTER_LINE down past the bottom of the document,
+  // so an anchor's intersection state flips exactly when it crosses the line
   // (no narrow band a fast scroll could skip). An anchor NOT intersecting is
   // above the line — the active chapter is the last such anchor.
   const chaptersAboveLine = new Set();
@@ -877,7 +862,7 @@ function initReadMode() {
     },
     {
       root: null,
-      rootMargin: "-30% 0px 1000000px 0px",
+      rootMargin: `-${ACTIVE_CHAPTER_LINE * 100}% 0px 1000000px 0px`,
       threshold: 0,
     },
   );
@@ -1088,7 +1073,7 @@ function initReadMode() {
   document.addEventListener("keydown", (event) => {
     if (event.key !== "Escape") return;
 
-    if (resumeChip instanceof HTMLElement && !resumeChip.hidden) {
+    if (resumeChipTarget) {
       hideResumeChip();
       return;
     }
