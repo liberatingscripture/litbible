@@ -18,19 +18,13 @@ import {
   normalizePhrase,
   buildPfQuery,
   escapeHtml,
-  stripTags,
-  textHasWholeWord,
-  textHasPhrase,
-  excerptHasWholeWordMarkedTerm,
   fuzzyTopicSuggestions,
-  parseMetaList,
   parseScripturePath,
   scriptureResultTitle,
-  isGlossaryUrl,
-  bibleOrderCompareHref,
-  getMatchLocations,
-  getMetaRangesFromAnchors,
-  hasNonMetaMatch,
+  glossaryTermFromResult,
+  enrichSearchResult,
+  topicsIndexSubjectItem,
+  bucketSearchResults,
   pickAnchorHref,
   countOccurrences,
   loadTopicsIndex,
@@ -408,11 +402,6 @@ const _initSearchbars = async () => {
       return true;
     }
 
-    function isArticleResult(it) {
-      const url = it?.d?.url || "";
-      return url && !parseScripturePath(url) && !isGlossaryUrl(url);
-    }
-
     function renderGroups({ glossary, subject, articles, keyword }) {
       const glossaryCount = glossary.length;
       const subjectCount = subject.length;
@@ -611,7 +600,6 @@ const _initSearchbars = async () => {
         const qTrim = q.trim();
         const qUnquoted = qTrim.replace(/^"+|"+$/g, "").trim();
         const qPhrase = normalizePhrase(qUnquoted);
-        const isSingleToken = qPhrase && !qPhrase.includes(" ");
 
         const pickedTopic = qPhrase
           ? topicsList.find((t) => t?.norm === qPhrase)
@@ -658,118 +646,41 @@ const _initSearchbars = async () => {
         const resolvedAll = await Promise.all(
           res.results.map(async (r, i) => {
             const d = await r.data();
-
-            const metaRanges = getMetaRangesFromAnchors(d?.anchors);
-            const locs = getMatchLocations(d);
-
-            const topicsListLocal = [
-              ...parseMetaList(d?.meta?.topics),
-              ...parseMetaList(d?.meta?.tags),
-            ];
-
-            const excerptText = stripTags(d?.excerpt);
-
-            const wholeWordOk =
-              !exactSingleToken ||
-              excerptHasWholeWordMarkedTerm(d?.excerpt, exactToken) ||
-              textHasWholeWord(excerptText, exactToken);
-
-            const contentHit = !qPhrase
-              ? false
-              : isSingleToken
-                ? textHasWholeWord(excerptText, qPhrase)
-                : textHasPhrase(excerptText, qPhrase);
-
-            const subjectHit =
-              !!qPhrase &&
-              topicsListLocal.map(normalizePhrase).includes(qPhrase);
-
-            return {
-              d,
-              relevanceRank: i,
-              metaRanges,
-              locs,
-              topicsList: topicsListLocal,
-              wholeWordOk,
-              subjectHit,
-              contentHit,
-            };
+            return enrichSearchResult(d, i, {
+              qPhrase,
+              exactSingleToken,
+              exactToken,
+            });
           }),
         );
         if (mySeq !== searchSeq) return;
 
-        // Preserve Pagefind relevance order for keyword results.
-        // Bible order is applied to topic/subject matches separately below.
-        const merged = resolvedAll;
+        // When the query IS a known topic, the topics index replaces the
+        // Pagefind subject hits (it's the canonical topic → chapters list).
+        const extraSubjectItems =
+          pickedTopic && subjectFromIndex.length
+            ? subjectFromIndex.map((it) =>
+                topicsIndexSubjectItem({
+                  url: it.url,
+                  title: titleFromUrl(it.url),
+                  meta: { title: titleFromUrl(it.url) },
+                  anchors: [],
+                }),
+              )
+            : [];
 
-        const glossaryMatches = merged.filter((it) =>
-          isGlossaryUrl(it?.d?.url),
-        );
-        const nonGlossary = merged.filter((it) => !isGlossaryUrl(it?.d?.url));
-
-        let subjectMatches = nonGlossary.filter((it) => it.subjectHit);
-        subjectMatches.sort((a, b) =>
-          bibleOrderCompareHref(a.d?.url || "", b.d?.url || ""),
-        );
-
-        if (pickedTopic && subjectFromIndex.length) {
-          subjectMatches = subjectFromIndex.map((it) => ({
-            d: {
-              url: it.url,
-              title: titleFromUrl(it.url),
-              meta: { title: titleFromUrl(it.url) },
-              anchors: [],
-            },
-            metaRanges: [],
-            locs: [],
-            subjectHit: true,
-            contentHit: false,
-            wholeWordOk: true,
-          }));
-          subjectMatches.sort((a, b) =>
-            bibleOrderCompareHref(a.d?.url || "", b.d?.url || ""),
-          );
-        }
-
-        const keywordMatches = nonGlossary.filter((it) => {
-          if (it?.d?.meta?.type === "intro") return false;
-
-          if (!hasNonMetaMatch(it.locs, it.metaRanges)) return false;
-          if (it.subjectHit && !it.contentHit) return false;
-          if (exactSingleToken) return it.wholeWordOk;
-          return true;
+        const {
+          glossary: glossaryMatches,
+          subject: subjectMatches,
+          article: articleMatches,
+          keyword: keywordMatchesFiltered,
+        } = bucketSearchResults(resolvedAll, {
+          extraSubjectItems,
+          replaceSubject: true,
         });
 
-        // Pull article-page results into their own bucket.
-        // Always extract so articles get their own section and are not
-        // double-counted as keyword results. Scan all non-glossary Pagefind
-        // hits (not just subject+keyword survivors) so articles aren't lost
-        // by the stricter keyword filters.
-        let articleMatches = [];
-        const articleSeen = new Set();
-        for (const it of nonGlossary) {
-          if (!isArticleResult(it)) continue;
-          const url = it.d?.url || "";
-          if (articleSeen.has(url)) continue;
-          articleSeen.add(url);
-          articleMatches.push(it);
-        }
-        // Also capture any article URLs that came from the topic index
-        // (subjectFromIndex path) but weren't in the Pagefind results.
-        for (const it of subjectMatches) {
-          if (!isArticleResult(it)) continue;
-          const url = it.d?.url || "";
-          if (articleSeen.has(url)) continue;
-          articleSeen.add(url);
-          articleMatches.push(it);
-        }
-        subjectMatches = subjectMatches.filter((it) => !isArticleResult(it));
-        let keywordMatchesFiltered = keywordMatches.filter(
-          (it) => !isArticleResult(it),
-        );
-
         const glossaryItems = glossaryMatches.slice(0, 6).map((it) => ({
-          title: it.d?.meta?.title ? it.d.meta.title : it.d.title || it.d.url,
+          title: glossaryTermFromResult(it.d, it.metaRanges, it.locs, qUnquoted),
           href: pickAnchorHref(it.d, it.metaRanges, it.locs),
         }));
 
@@ -784,14 +695,6 @@ const _initSearchbars = async () => {
           title: it.d?.meta?.title ? it.d.meta.title : it.d.title || it.d.url,
           href: pickAnchorHref(it.d, it.metaRanges, it.locs),
         }));
-
-        // Sort keyword and article results by Pagefind relevance order
-        keywordMatchesFiltered.sort(
-          (a, b) => (a.relevanceRank ?? 9999) - (b.relevanceRank ?? 9999),
-        );
-        articleMatches.sort(
-          (a, b) => (a.relevanceRank ?? 9999) - (b.relevanceRank ?? 9999),
-        );
 
         const keywordItems = keywordMatchesFiltered.slice(0, 6).map((it) => ({
           title: it.d?.meta?.title ? it.d.meta.title : it.d.title || it.d.url,

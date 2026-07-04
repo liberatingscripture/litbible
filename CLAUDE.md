@@ -96,13 +96,16 @@ src/
     release-notes.json        # "What's new" entries (auto-appended in CI)
     translation-commitments.json
   layouts/           # Layout, ScriptureLayout, ReadLayout, SearchLayout
-  lib/               # Server-side TS helpers (fetchPodcastEpisodes.ts)
+  lib/               # Server-side build helpers: chapter-html.ts (the shared
+                     #   scripture-HTML transform pipeline — prepareStudyParagraph
+                     #   / prepareReadParagraph), draft-chapters.mjs (single source
+                     #   for indexed:false draft data — used by astro.config.mjs
+                     #   and ReadMenu), fetchPodcastEpisodes.ts
   pages/             # File-based routes (see Routing below)
   scripts/           # CLIENT-side vanilla JS (chapter-tools, read-mode,
                      #   search-core + searchbar + search — see Search below)
   styles/            # global.css, read-mode.css, scripture-tools.css, articles.css,
                      #   pages/<page>.css (per-page stylesheets)
-  utils/             # hbq-normalize.ts
 scripts/             # BUILD/validation Node scripts (.mjs) — see below
 public/              # Static assets + generated output (api/, search/, topics-index.json,
                      #   llms.txt, llms-full.txt, _headers, images/, icons)
@@ -174,12 +177,14 @@ Each file in `src/data/chapters/` follows this structure:
 - **`footnotes`** are HTML strings; the verse text references them via
   `<sup class="fn-ref">` anchors (Pagefind excludes these — see `pagefind.yml`).
 - **`indexed: false`** (optional) marks an in-progress **draft/stub chapter**.
-  56 of 260 chapters are currently drafts. This flag has three downstream
+  56 of 260 chapters are currently drafts. This flag has four downstream
   effects, so handle it carefully:
   1. Pagefind skips the page (kept out of search).
   2. `astro.config.mjs` excludes the slug from the sitemap, and a `/read/<book>`
      page is excluded only when *every* chapter of that book is a draft.
   3. The page is `noindex`'d.
+  4. `ReadMenu.astro` marks the chapter "(draft)" (dimmed) in its chapter
+     dropdown.
   **Remove the field** (do not set it to `true`) when real content lands. The
   validator warns if `indexed:false` remains on a chapter that has real content.
 - Always run `npm run validate:chapters` after editing chapter JSON. The

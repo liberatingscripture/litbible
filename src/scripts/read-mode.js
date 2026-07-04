@@ -11,9 +11,15 @@ const FONT_OPTIONS = new Set(["sm", "md", "lg"]);
 const LEADING_OPTIONS = new Set(["normal", "roomy"]);
 const ON_OFF_OPTIONS = new Set(["on", "off"]);
 
-// Must match your CSS breakpoint where toolbar becomes bottom-sheet.
-// Mid should behave like Small, and Small starts at 1080 now.
-const SHEET_MAX = 1080;
+// Single source of truth for "sheet mode" (toolbar becomes a bottom sheet,
+// FAB appears). MUST match the small-mode media query in read-mode.css.
+const sheetModeQuery = window.matchMedia("(max-width: 1100px)");
+
+// The viewport line (as a fraction of viewport height) that decides the
+// active chapter: the active chapter is the last anchor above this line.
+// Drives BOTH the IntersectionObserver rootMargin and the programmatic
+// findActiveChapterByViewportLine() sync used after jumps/resumes.
+const ACTIVE_CHAPTER_LINE = 0.3;
 
 const prefersReducedMotion = window.matchMedia(
   "(prefers-reduced-motion: reduce)",
@@ -58,17 +64,13 @@ function parseResume(raw) {
         ? parsed.anchor.trim()
         : null;
 
-    const offset = Number(parsed.offset);
     const scrollY = Number(parsed.scrollY);
-
-    const hasOldFormat = anchor && Number.isFinite(offset);
     const hasScrollY = Number.isFinite(scrollY);
 
-    if (!hasOldFormat && !hasScrollY) return null;
+    if (!anchor && !hasScrollY) return null;
 
     return {
-      anchor: hasOldFormat ? anchor : null,
-      offset: hasOldFormat ? offset : 0,
+      anchor,
       scrollY: hasScrollY ? scrollY : null,
     };
   } catch {
@@ -109,8 +111,6 @@ function initReadMode() {
   const tocToggle = page.querySelector("[data-rm-toc-toggle]");
   const tocPanel = page.querySelector("[data-rm-toc-panel]");
 
-  const tocTop = page.querySelector("[data-rm-top]");
-  const tocCurrent = page.querySelector("[data-rm-current]");
   const tocTargets = Array.from(page.querySelectorAll("[data-rm-target]"));
   const tocChapterButtons = Array.from(
     page.querySelectorAll("[data-rm-chapter-btn]"),
@@ -122,10 +122,9 @@ function initReadMode() {
     page.querySelectorAll("[data-rm-group-panel]"),
   ).filter((el) => el instanceof HTMLElement);
 
-  const resumePopover = page.querySelector("[data-rm-resume-popover]");
-  const resumeBackdrop = page.querySelector("[data-rm-resume-backdrop]");
-  const resumeYes = page.querySelector("[data-rm-resume-yes]");
-  const resumeNo = page.querySelector("[data-rm-resume-no]");
+  const resumeChip = page.querySelector("[data-rm-resume-chip]");
+  const resumeGo = page.querySelector("[data-rm-resume-go]");
+  const resumeDismiss = page.querySelector("[data-rm-resume-dismiss]");
   const startOverButton = page.querySelector("[data-rm-start-over]");
   const fabToggle = page.querySelector("[data-rm-fab]");
   const toolbarClose =
@@ -134,55 +133,16 @@ function initReadMode() {
 
   const typographyButtons = Array.from(page.querySelectorAll("[data-rm-set]"));
 
-  // --- NEW: “sheet mode” detection that matches container-query behavior ---
-  let sheetMode = false;
-
-  function computeSheetMode() {
-    // Match your CSS: @container (max-width: 1080px) on .rm-page
-    const w = page.getBoundingClientRect().width || window.innerWidth;
-    return w <= SHEET_MAX;
-  }
-
-  function refreshSheetMode() {
-    const next = computeSheetMode();
-    if (next === sheetMode) return;
-
-    sheetMode = next;
-    // Toolbar CSS position/top/bottom values may change at this breakpoint.
-    cachedToolbarAtTop = null;
-    cachedAnchorGap = null;
-
-    // If we just moved OUT of sheet mode, forcibly close the bottom sheet state.
-    if (!sheetMode) {
-      closeMobileTools();
-    }
-  }
-
-  // initialize immediately
-  sheetMode = computeSheetMode();
-
-  // Track .rm-page width changes (better than viewport resize)
-  let pageRO = null;
-  if (typeof ResizeObserver === "function") {
-    pageRO = new ResizeObserver(() => {
-      refreshSheetMode();
-      updateToolbarOffset();
-      updateProgress();
-      pickActiveFocusTarget();
-    });
-    pageRO.observe(page);
-  } else {
-    // fallback
-    window.addEventListener("resize", () => {
-      refreshSheetMode();
-    });
-  }
-
   function isSheetMode() {
-    // Cheap + current enough
-    return sheetMode;
+    return sheetModeQuery.matches;
   }
-  // ------------------------------------------------------------------------
+
+  // Leaving sheet mode must close the bottom sheet; toolbar geometry changes
+  // at the breakpoint either way.
+  sheetModeQuery.addEventListener("change", (e) => {
+    if (!e.matches) closeMobileTools();
+    updateToolbarOffset();
+  });
 
   const chapterAnchors = Array.from(
     page.querySelectorAll(".rm-ch-anchor[data-rm-chapter]"),
@@ -274,63 +234,18 @@ function initReadMode() {
     return html.classList.contains("rm-tools-open");
   }
 
-  // ---- Fix A core: reliable CSS var reading + correct subtraction ----
-  function readAnchorGapPx() {
-    // Reads --rm-anchor-gap from .rm-page; fallback 0. Cached until next resize.
-    if (cachedAnchorGap !== null) return cachedAnchorGap;
-    const raw = getComputedStyle(page).getPropertyValue("--rm-anchor-gap");
-    const n = parseFloat(String(raw || "").trim());
-    cachedAnchorGap = Number.isFinite(n) ? n : 0;
-    return cachedAnchorGap;
-  }
-
-  function toolbarIsAtTop() {
-    // In your CSS, the toolbar is sticky top on wide mode
-    // and becomes fixed at bottom in sheet mode.
-    // So: if computed position is sticky (or fixed) AND top is 0-ish, treat as top overlay.
-    // Cached until next resize/reflow.
-    if (cachedToolbarAtTop !== null) return cachedToolbarAtTop;
-    const cs = getComputedStyle(toolbar);
-    const pos = cs.position;
-    const top = parseFloat(cs.top || "0");
-    const atTop =
-      (pos === "sticky" || pos === "fixed") &&
-      Number.isFinite(top) &&
-      top <= 1;
-    const bottom = parseFloat(cs.bottom || "NaN");
-    const atBottom = Number.isFinite(bottom) && bottom >= 0;
-    cachedToolbarAtTop = atTop && !atBottom;
-    return cachedToolbarAtTop;
-  }
-
-  function getEffectiveTopOffsetPx() {
-    const gap = readAnchorGapPx();
-    // Use the cached toolbar height from the last updateToolbarOffset() call rather
-    // than forcing a new getBoundingClientRect() during an interaction handler.
-    const overlay = toolbarIsAtTop()
-      ? (lastToolbarOffset > 0 ? lastToolbarOffset : toolbar.getBoundingClientRect().height)
-      : 0;
-    return Math.max(0, Math.round(gap + overlay));
-  }
-
-  function scrollToAnchor(anchor, extraOffset = 0) {
+  // Landing position is handled by CSS: anchors carry scroll-margin-top
+  // (toolbar offset + reading gap), so a plain scrollIntoView is enough.
+  function scrollToAnchor(anchor) {
     const target = document.getElementById(anchor);
     if (!target) return false;
 
-    const effectiveTopOffset = getEffectiveTopOffsetPx();
-    const rectTop = target.getBoundingClientRect().top;
-
-    // IMPORTANT: subtract offset so content lands LOWER on screen
-    const top =
-      window.scrollY + rectTop - effectiveTopOffset + Number(extraOffset || 0);
-
-    window.scrollTo({
-      top: Math.max(0, Math.round(top)),
+    target.scrollIntoView({
       behavior: prefersReducedMotion ? "auto" : "smooth",
+      block: "start",
     });
     return true;
   }
-  // -------------------------------------------------------------------
 
   function setHash(anchor) {
     if (!anchor) return;
@@ -387,14 +302,8 @@ function initReadMode() {
   }
 
   let lastToolbarOffset = -1;
-  // Cached results of expensive layout queries — invalidated on resize/reflow.
-  let cachedToolbarAtTop = null; // null = stale; boolean = valid
-  let cachedAnchorGap = null;    // null = stale; number = valid
 
   function updateToolbarOffset() {
-    // Invalidate position caches on every reflow measurement.
-    cachedToolbarAtTop = null;
-    cachedAnchorGap = null;
     const h = Math.ceil(toolbar.getBoundingClientRect().height);
     if (h === lastToolbarOffset) return;
     lastToolbarOffset = h;
@@ -592,7 +501,7 @@ function initReadMode() {
   }
 
   function findActiveChapterByViewportLine() {
-    const line = window.innerHeight * 0.3;
+    const line = window.innerHeight * ACTIVE_CHAPTER_LINE;
     let winner = chapterAnchors[0];
 
     for (const anchor of chapterAnchors) {
@@ -629,30 +538,30 @@ function initReadMode() {
     }
   }
 
-  function isResumePopoverOpen() {
-    return resumePopover instanceof HTMLElement && !resumePopover.hidden;
+  // --- Non-blocking resume chip ("Continue at chapter N ↓") ---
+  // The chip's target is captured once at load: saveResume() overwrites
+  // resumeState as soon as the user scrolls, and the chip must keep offering
+  // the position from the PREVIOUS visit.
+  let resumeChipTarget = null;
+
+  function hideResumeChip() {
+    if (resumeChip instanceof HTMLElement) resumeChip.hidden = true;
+    resumeChipTarget = null;
   }
 
-  function showResumePopover() {
-    closeMobileTools();
+  function showResumeChip() {
+    if (!(resumeChip instanceof HTMLElement) || !resumeState) return;
 
-    if (resumePopover instanceof HTMLElement) {
-      resumePopover.hidden = false;
-    }
-    html.classList.add("rm-modal-open");
+    resumeChipTarget = { ...resumeState };
 
-    if (resumeYes instanceof HTMLButtonElement) {
-      window.requestAnimationFrame(() => {
-        resumeYes.focus();
-      });
+    if (resumeGo instanceof HTMLButtonElement) {
+      const m = /^ch-(\d+)$/.exec(resumeChipTarget.anchor || "");
+      resumeGo.textContent = m
+        ? `Continue at chapter ${m[1]} ↓`
+        : "Continue reading ↓";
     }
-  }
 
-  function hideResumePopover() {
-    if (resumePopover instanceof HTMLElement) {
-      resumePopover.hidden = true;
-    }
-    html.classList.remove("rm-modal-open");
+    resumeChip.hidden = false;
   }
 
   // --- Swipe-to-dismiss (bottom sheet) ---
@@ -678,8 +587,8 @@ function initReadMode() {
   }
 
   function enableSheetDrag() {
-    if (!isSheetMode()) return;
-
+    // Attached regardless of current mode — the handlers check isSheetMode()
+    // so drag keeps working after a resize across the breakpoint.
     toolbar.addEventListener(
       "pointerdown",
       (e) => {
@@ -777,7 +686,6 @@ function initReadMode() {
   }
 
   function openMobileTools() {
-    refreshSheetMode();
     if (!isSheetMode()) return;
 
     html.classList.add("rm-tools-open");
@@ -794,26 +702,17 @@ function initReadMode() {
 
   function saveResume() {
     const anchor = `ch-${activeChapter}`;
-    const chapterEl = chapterById.get(anchor);
-
-    let offset = 0;
-    if (chapterEl instanceof HTMLElement) {
-      const chapterTop = window.scrollY + chapterEl.getBoundingClientRect().top;
-      offset = Math.round(window.scrollY - chapterTop);
-    }
-
     const scrollY = Math.round(window.scrollY);
 
-    const payload = JSON.stringify({ anchor, offset, scrollY });
-    safeSet(resumeKey, payload);
+    safeSet(resumeKey, JSON.stringify({ anchor, scrollY }));
 
-    resumeState = { anchor, offset, scrollY };
+    resumeState = { anchor, scrollY };
   }
 
   function clearResume(andScrollTop = false) {
     safeRemove(resumeKey);
     resumeState = null;
-    hideResumePopover();
+    hideResumeChip();
 
     if (andScrollTop) {
       window.scrollTo({
@@ -822,13 +721,6 @@ function initReadMode() {
       });
       window.history.replaceState(null, "", window.location.pathname);
     }
-  }
-
-  function jumpToCurrentChapter() {
-    const anchor = `ch-${activeChapter}`;
-    if (!scrollToAnchor(anchor)) return;
-    setHash(anchor);
-    closePanels();
   }
 
   function setReturnButtonState() {
@@ -863,13 +755,6 @@ function initReadMode() {
 
   function captureReturnLocation() {
     const anchor = `ch-${activeChapter}`;
-    const chapterEl = chapterById.get(anchor);
-
-    let offset = 0;
-    if (chapterEl instanceof HTMLElement) {
-      const chapterTop = window.scrollY + chapterEl.getBoundingClientRect().top;
-      offset = Math.round(window.scrollY - chapterTop);
-    }
 
     const focusIndex =
       activeFocusTarget instanceof HTMLElement
@@ -878,7 +763,6 @@ function initReadMode() {
 
     return {
       anchor,
-      offset,
       scrollY: Math.round(window.scrollY),
       focusIndex,
     };
@@ -896,10 +780,7 @@ function initReadMode() {
         behavior: prefersReducedMotion ? "auto" : "smooth",
       });
     } else if (returnLocationState.anchor) {
-      const moved = scrollToAnchor(
-        returnLocationState.anchor,
-        Number(returnLocationState.offset || 0),
-      );
+      const moved = scrollToAnchor(returnLocationState.anchor);
       if (!moved) return;
     }
 
@@ -955,13 +836,33 @@ function initReadMode() {
   // Enable swipe-to-dismiss handling once
   enableSheetDrag();
 
+  // Active-chapter detection, driven directly by observer entries: the band
+  // spans from the ACTIVE_CHAPTER_LINE down past the bottom of the document,
+  // so an anchor's intersection state flips exactly when it crosses the line
+  // (no narrow band a fast scroll could skip). An anchor NOT intersecting is
+  // above the line — the active chapter is the last such anchor.
+  const chaptersAboveLine = new Set();
+
   const chapterObserver = new IntersectionObserver(
-    () => {
-      setActiveChapter(findActiveChapterByViewportLine());
+    (entries) => {
+      for (const entry of entries) {
+        if (!(entry.target instanceof HTMLElement)) continue;
+        const chapter = Number(entry.target.dataset.rmChapter || 0);
+        if (!chapter) continue;
+
+        if (entry.isIntersecting) chaptersAboveLine.delete(chapter);
+        else chaptersAboveLine.add(chapter);
+      }
+
+      let latest = 1;
+      for (const chapter of chaptersAboveLine) {
+        if (chapter > latest) latest = chapter;
+      }
+      setActiveChapter(latest);
     },
     {
       root: null,
-      rootMargin: "-30% 0px -65% 0px",
+      rootMargin: `-${ACTIVE_CHAPTER_LINE * 100}% 0px 1000000px 0px`,
       threshold: 0,
     },
   );
@@ -1011,23 +912,6 @@ function initReadMode() {
     aaToggle.addEventListener("click", () => {
       const shouldOpen = !(aaPanel instanceof HTMLElement) || aaPanel.hidden;
       openPanel(shouldOpen ? "aa" : "none");
-    });
-  }
-
-  if (tocTop instanceof HTMLButtonElement) {
-    tocTop.addEventListener("click", () => {
-      window.scrollTo({
-        top: 0,
-        behavior: prefersReducedMotion ? "auto" : "smooth",
-      });
-      window.history.replaceState(null, "", window.location.pathname);
-      closePanels();
-    });
-  }
-
-  if (tocCurrent instanceof HTMLButtonElement) {
-    tocCurrent.addEventListener("click", () => {
-      jumpToCurrentChapter();
     });
   }
 
@@ -1086,44 +970,45 @@ function initReadMode() {
     });
   }
 
-  if (resumeYes instanceof HTMLButtonElement) {
-    resumeYes.addEventListener("click", () => {
-      if (!resumeState) {
-        hideResumePopover();
-        return;
-      }
+  if (resumeGo instanceof HTMLButtonElement) {
+    resumeGo.addEventListener("click", () => {
+      const target = resumeChipTarget;
+      hideResumeChip();
+      if (!target) return;
 
-      const y = Number(resumeState.scrollY);
-      const hasScrollY = Number.isFinite(y);
+      const y = Number(target.scrollY);
 
-      if (hasScrollY) {
+      if (Number.isFinite(y)) {
         window.scrollTo({
           top: Math.max(0, y),
           behavior: prefersReducedMotion ? "auto" : "smooth",
         });
 
-        window.requestAnimationFrame(() => {
+        // Update the hash once the (possibly smooth) scroll settles — doing
+        // it on the next frame would record the starting chapter instead.
+        const finish = () => {
           setActiveChapter(findActiveChapterByViewportLine());
           updateProgress();
           setHash(`ch-${activeChapter}`);
-        });
-
-        hideResumePopover();
+        };
+        if ("onscrollend" in window) {
+          window.addEventListener("scrollend", finish, { once: true });
+        } else {
+          window.setTimeout(finish, prefersReducedMotion ? 50 : 800);
+        }
         return;
       }
 
-      if (resumeState.anchor) {
-        const moved = scrollToAnchor(resumeState.anchor, resumeState.offset);
-        if (moved) setHash(resumeState.anchor);
+      if (target.anchor) {
+        const moved = scrollToAnchor(target.anchor);
+        if (moved) setHash(target.anchor);
       }
-
-      hideResumePopover();
     });
   }
 
-  if (resumeNo instanceof HTMLButtonElement) {
-    resumeNo.addEventListener("click", () => {
-      clearResume(true);
+  if (resumeDismiss instanceof HTMLButtonElement) {
+    resumeDismiss.addEventListener("click", () => {
+      hideResumeChip();
     });
   }
 
@@ -1166,7 +1051,6 @@ function initReadMode() {
 
   document.addEventListener("click", (event) => {
     if (!(event.target instanceof Node)) return;
-    if (isResumePopoverOpen()) return;
 
     const clickedToolbar = toolbar.contains(event.target);
     const clickedFab =
@@ -1186,18 +1070,11 @@ function initReadMode() {
     if (tocOpen || aaOpen) closePanels();
   });
 
-  if (resumeBackdrop instanceof HTMLElement) {
-    resumeBackdrop.addEventListener("click", () => {
-      hideResumePopover();
-    });
-  }
-
   document.addEventListener("keydown", (event) => {
     if (event.key !== "Escape") return;
 
-    if (isResumePopoverOpen()) {
-      event.preventDefault();
-      hideResumePopover();
+    if (resumeChipTarget) {
+      hideResumeChip();
       return;
     }
 
@@ -1214,15 +1091,21 @@ function initReadMode() {
   let saveTimer = 0;
 
   const onScroll = () => {
-    // Allow page scroll while sheet remains open.
+    // Allow page scroll while sheet remains open. The active chapter is
+    // tracked by chapterObserver, not here.
 
     if (!scrollRaf) {
       scrollRaf = window.requestAnimationFrame(() => {
         scrollRaf = 0;
-        setActiveChapter(findActiveChapterByViewportLine());
         updateProgress();
         pickActiveFocusTarget();
       });
+    }
+
+    // A reader who has scrolled a full viewport past the top has started
+    // reading — the resume offer is no longer relevant.
+    if (resumeChipTarget && window.scrollY > window.innerHeight) {
+      hideResumeChip();
     }
 
     window.clearTimeout(saveTimer);
@@ -1234,12 +1117,6 @@ function initReadMode() {
   window.addEventListener("scroll", onScroll, { passive: true });
 
   window.addEventListener("resize", () => {
-    refreshSheetMode();
-
-    if (!isSheetMode()) {
-      closeMobileTools();
-    }
-
     updateToolbarOffset();
     setToolbarOpenState(toolbar.dataset.rmOpen || "");
     updateProgress();
@@ -1251,22 +1128,17 @@ function initReadMode() {
 
   if (hashTarget) {
     requestAnimationFrame(() => {
-      scrollToAnchor(hash, 0);
+      scrollToAnchor(hash);
       setActiveChapter(findActiveChapterByViewportLine());
       updateProgress();
     });
-    hideResumePopover();
   } else {
     const canShowResume =
       !!resumeState &&
       (Number.isFinite(Number(resumeState.scrollY)) ||
         (resumeState.anchor && chapterById.has(resumeState.anchor)));
 
-    if (canShowResume) {
-      showResumePopover();
-    } else {
-      hideResumePopover();
-    }
+    if (canShowResume) showResumeChip();
   }
 }
 

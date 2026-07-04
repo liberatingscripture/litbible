@@ -1,7 +1,7 @@
 ---
 import ScriptureLayout from "../layouts/ScriptureLayout.astro";
 import { BOOKS as books, BOOK_ORDER, bookKeyToLabel } from "../data/books.js";
-import { normalizeHbqVerseGlue } from "../utils/hbq-normalize";
+import { prepareStudyParagraph } from "../lib/chapter-html";
 
 type Footnote = {
   id: string; // e.g. "fn-a"
@@ -46,110 +46,6 @@ function normalizeBookKey(key: string) {
     .trim()
     .toLowerCase()
     .replace(/\s+/g, "");
-}
-
-function normalizeVerseGlue(html: string): string {
-  return String(html ?? "").replace(
-    /<span class="vglue">\s*(<sup\b[^>]*\bclass=(['"])[^'"]*\bvn\b[^'"]*\2[^>]*>[\s\S]*?<\/sup>)\s*(?:&nbsp;|\u00a0)\s*([\s\S]*?)<\/span>/gi,
-    (_match, sup: string, _quote: string, text: string) => {
-      return `<span class="vglue">${sup}&nbsp;${text}</span>`;
-    },
-  );
-}
-/**
- * Pagefind-friendly hyphen normalization:
- * Keep the real hyphen in the visible text, but inject a zero-width, indexable space
- * AFTER the hyphen so Pagefind can treat word-word as word<space>word.
- *
- * - Only operates OUTSIDE tags (so it won't touch ids/attrs like luke-4-p11).
- * - Only targets hyphen-minus between word chars: /[0-9A-Za-z]-[0-9A-Za-z]/
- *
- * Replacement:
- *   "-" becomes "-<span class="pf-wordbreak"> </span>"
- *
- * This avoids the blockquote-only wrapping bug where a separate hyphen element can
- * get kicked to the next line by itself.
- */
-function injectHyphenWordbreaks(html: string): string {
-  const s = String(html ?? "");
-  if (!s.includes("-")) return s;
-
-  const isWord = (ch: string) => /[0-9A-Za-z]/.test(ch);
-
-  let out = "";
-  let inTag = false;
-
-  for (let i = 0; i < s.length; i++) {
-    const ch = s[i];
-
-    if (ch === "<") {
-      inTag = true;
-      out += ch;
-      continue;
-    }
-
-    if (ch === ">") {
-      inTag = false;
-      out += ch;
-      continue;
-    }
-
-    if (!inTag && ch === "-") {
-      const prev = i > 0 ? s[i - 1] : "";
-      const next = i + 1 < s.length ? s[i + 1] : "";
-
-      if (isWord(prev) && isWord(next)) {
-        out += `-<span class="pf-wordbreak" aria-hidden="true"> </span>`;
-        continue;
-      }
-    }
-
-    out += ch;
-  }
-
-  return out;
-}
-
-/**
- * Inject ARIA semantics onto Hebrew-poetry blockquote blocks.
- * Adds role="group" and aria-label="Poetry" so screen readers
- * identify these as grouped poetic content.
- */
-function addHbqAria(html: string): string {
-  return String(html ?? "").replace(
-    /<blockquote\s+class="hbq"/g,
-    '<blockquote class="hbq" role="group" aria-label="Poetry" aria-describedby="hbq-description"',
-  );
-}
-
-/**
- * OSIS book abbreviation map (standard SBL/OSIS identifiers for the NT).
- * Used to generate data-osis="Book.Chapter.Verse" on verse number elements.
- */
-const OSIS_BOOKS: Record<string, string> = {
-  matthew: "Matt", mark: "Mark", luke: "Luke", john: "John", acts: "Acts",
-  romans: "Rom", "1corinthians": "1Cor", "2corinthians": "2Cor",
-  galatians: "Gal", ephesians: "Eph", philippians: "Phil", colossians: "Col",
-  "1thessalonians": "1Thess", "2thessalonians": "2Thess",
-  "1timothy": "1Tim", "2timothy": "2Tim", titus: "Titus", philemon: "Phlm",
-  hebrews: "Heb", james: "Jas", "1peter": "1Pet", "2peter": "2Pet",
-  "1john": "1John", "2john": "2John", "3john": "3John", jude: "Jude",
-  revelation: "Rev",
-};
-
-/**
- * Inject data-osis="Book.Chapter.Verse" onto verse number <sup> elements.
- * Only targets <sup id="vN" class="vn"> — footnote refs use a different structure.
- */
-function addOsisIds(html: string, osisBook: string, chapter: number): string {
-  if (!osisBook || !chapter) return String(html ?? "");
-  return String(html ?? "").replace(
-    /<sup\b([^>]*)id="v(\d+)"([^>]*)>/g,
-    (match, before, verse, after) => {
-      if (match.includes("data-osis=")) return match;
-      return `<sup${before}id="v${verse}"${after} data-osis="${osisBook}.${chapter}.${verse}">`;
-    },
-  );
 }
 
 // This route only serves chapter pages; intros live at /[book]-intro.astro.
@@ -210,26 +106,9 @@ const paragraphsRaw = Array.isArray(chapterData?.paragraphs)
 
 const shouldIndex = chapterData?.indexed !== false;
 
-const osisBook = OSIS_BOOKS[normalizedBookKey] ?? "";
-const chapterNum = props.chapter;
-
-/**
- * When a verse spans a paragraph break, the verse number is intentionally
- * repeated at the start of the continuation paragraph (e.g. Mark 14:62).
- * Keep the visible number but drop the duplicate id so HTML stays valid and
- * #vN links/data-osis target only the first occurrence.
- */
 const seenVerseIds = new Set<string>();
-function dropDuplicateVerseIds(html: string): string {
-  return html.replace(/<sup\b([^>]*?)\s*id="(v\d+)"([^>]*)>/g, (match, before, vid, after) => {
-    if (seenVerseIds.has(vid)) return `<sup${before}${after}>`;
-    seenVerseIds.add(vid);
-    return match;
-  });
-}
-
 const paragraphs = paragraphsRaw.map((html) =>
-  addOsisIds(addHbqAria(injectHyphenWordbreaks(normalizeHbqVerseGlue(normalizeVerseGlue(dropDuplicateVerseIds(html))))), osisBook, chapterNum),
+  prepareStudyParagraph(html, normalizedBookKey, props.chapter, seenVerseIds),
 );
 
 const footnotes = Array.isArray(chapterData?.footnotes)
@@ -307,20 +186,6 @@ if (typeof chaptersInBook === "number" && n < chaptersInBook) {
     <meta name="citation_fulltext_world_readable" content="" />
     {chapterSlug && <meta name="citation_public_url" content={`https://litbible.net/${chapterSlug}/`} />}
 
-    {/* When arriving via an in-page anchor — a verse hash (/matthew-13#v41), a
-        paragraph anchor from a search result (/matthew-21#matthew-21-p25), or a
-        footnote (#fn-y) — strip the hash from the URL immediately so the browser
-        does NOT attempt its own hash scroll (which uses inaccurate
-        content-visibility placeholder heights and can land on the wrong
-        element). The hash is stored in window.__litVerseHash and the body script
-        performs a corrected scroll after forcing real heights. */}
-    <script is:inline>
-      window.__litVerseHash = window.location.hash;
-      if (window.__litVerseHash) {
-        history.replaceState(null, '', window.location.pathname + window.location.search);
-      }
-    </script>
-
     {/* Chapter JSON-LD */}
     {chapterSlug && (
       <script type="application/ld+json" set:html={JSON.stringify({
@@ -397,12 +262,7 @@ if (typeof chaptersInBook === "number" && n < chaptersInBook) {
                   >
                     {prevCta.label}
                   </a>
-                ) : (
-                  <span
-                    class="chapter-cta chapter-cta--spacer"
-                    aria-hidden="true"
-                  />
-                )}
+                ) : null}
 
                 {nextCta ? (
                   <a
@@ -412,12 +272,7 @@ if (typeof chaptersInBook === "number" && n < chaptersInBook) {
                   >
                     {nextCta.label}
                   </a>
-                ) : (
-                  <span
-                    class="chapter-cta chapter-cta--spacer"
-                    aria-hidden="true"
-                  />
-                )}
+                ) : null}
               </nav>
             ) : null}
 
@@ -481,21 +336,17 @@ if (typeof chaptersInBook === "number" && n < chaptersInBook) {
       line-height: 1.75;
     }
 
-    /* Skip rendering for off-screen paragraphs (improves INP on long chapters).
-       Placeholder height is sized to the average scripture paragraph — using
-       too small a value (e.g. 120px) caused large CLS when real paragraphs
-       resolved. 400px is closer to the median real height. Fixed (not auto)
-       so the placeholder is consistent across devices and visits — auto's
-       cached-size behaviour caused CLS when stale cross-device heights made
-       the page start at a different height than it ultimately settled at. */
-    .chapter-paragraphs :global(.p) {
-      content-visibility: auto;
-      contain-intrinsic-size: 400px;
-    }
 
     /* Add space between the end of the body text and the nav buttons */
     .chapter-paragraphs {
       margin-bottom: 40px; /* tweak: 24–40px usually feels right */
+    }
+
+    /* Breathing room above anchor targets (verse ids, paragraph anchors,
+       footnotes) when the browser performs native hash scrolling */
+    .chapter-paragraphs :global([id]),
+    .footnotes li {
+      scroll-margin-top: 16px;
     }
 
     /* Verse numbers inside paragraphs (ONLY these) */
@@ -528,13 +379,19 @@ if (typeof chaptersInBook === "number" && n < chaptersInBook) {
       line-height: 0;
     }
 
-    /* Chapter CTAs */
+    /* Chapter CTAs — prev left, next right. margin-left:auto keeps a lone
+       "next" on the right without invisible spacer elements; a lone "prev"
+       (Revelation 22) sits left naturally. */
     :global(.chapter-ctas) {
       display: flex;
       justify-content: space-between;
       align-items: center;
       gap: 14px;
       margin: 18px 0 14px;
+    }
+
+    :global(.chapter-cta--next) {
+      margin-left: auto;
     }
 
     /* Big, consistent button size */
@@ -589,26 +446,14 @@ if (typeof chaptersInBook === "number" && n < chaptersInBook) {
       text-align: right;
     }
 
-    :global(.chapter-cta--spacer) {
-      width: clamp(240px, 42%, 420px);
-      min-height: 56px;
-      opacity: 0;
-      pointer-events: none;
-    }
-
     @media (max-width: 560px) {
       :global(.chapter-ctas) {
         flex-direction: column;
         align-items: stretch;
       }
 
-      :global(.chapter-cta),
-      :global(.chapter-cta--spacer) {
+      :global(.chapter-cta) {
         width: 100%;
-      }
-
-      :global(.chapter-cta--spacer) {
-        display: none;
       }
     }
 
@@ -715,61 +560,16 @@ if (typeof chaptersInBook === "number" && n < chaptersInBook) {
     })();
   </script>
 
-  {/* Anchor scroll + focus management: when arriving via an in-page anchor
-      (a verse hash like /matthew-13#v41, a paragraph anchor from a search
-      result like #matthew-21-p25, or a footnote like #fn-y), the head script
-      stripped the hash to prevent the browser's inaccurate content-visibility
-      hash scroll. Here we perform a corrected scroll by forcing the preceding
-      paragraphs to render at real heights before scrolling. */}
+  {/* Native anchor scrolling handles #vN, paragraph, and footnote hashes.
+      The one case the browser can't: a verse-RANGE hash (#v16-18) matches no
+      element id, so scroll to its first verse. The bundled chapter-tools
+      script applies the range highlight. */}
   <script is:inline>
     (() => {
-      var rawHash = window.__litVerseHash || '';
-      window.__litVerseHash = undefined;
-      var hash = rawHash.replace(/^#/, '');
-      if (!hash) return;
-
-      // A verse-range hash (#v16-18) scrolls to its first verse; the bundled
-      // chapter-tools script applies the range highlight after the restore
-      // below. Any other hash is treated as a literal element id (paragraph
-      // anchor, footnote, etc.).
-      var vm = hash.match(/^v(\d+)(?:-\d+)?$/);
-      var targetId = vm ? 'v' + vm[1] : hash;
-      var target = document.getElementById(targetId);
-      if (!target) return; // unknown anchor — leave the page at the top
-
-      // Restore the hash in the URL (without triggering another scroll)
-      history.replaceState(null, '', '#' + hash);
-
-      var allPDivs = Array.from(document.querySelectorAll('.chapter-paragraphs .p'));
-      var targetPDiv = target.closest('.p');
-      // Paragraphs that precede the target must render at real heights so the
-      // browser's scroll math isn't thrown off by content-visibility
-      // placeholder sizes. A target outside the paragraph flow (e.g. a
-      // footnote) sits below every paragraph, so force them all.
-      var targetIdx = targetPDiv ? allPDivs.indexOf(targetPDiv) : allPDivs.length;
-      var precedingDivs = allPDivs.slice(0, Math.max(0, targetIdx));
-
-      if (precedingDivs.length) {
-        precedingDivs.forEach(function(div) {
-          div.style.contentVisibility = 'visible';
-          div.style.containIntrinsicSize = 'none';
-        });
-        // Force layout reflow with real heights, then scroll
-        void document.body.offsetHeight;
-        // Do NOT restore content-visibility afterwards — restoring triggers a
-        // layout recalculation that snaps placeholder heights back, shifting the
-        // scroll position past the target. Preceding paragraphs are already
-        // rendered so leaving them visible has no meaningful performance cost.
-      }
-      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-      // Move the screen-reader cursor to the target element
-      target.setAttribute('tabindex', '-1');
-      target.focus({ preventScroll: true });
-      target.addEventListener('blur', function handler() {
-        target.removeAttribute('tabindex');
-        target.removeEventListener('blur', handler);
-      });
+      var m = window.location.hash.match(/^#v(\d+)-\d+$/);
+      if (!m) return;
+      var target = document.getElementById('v' + m[1]);
+      if (target) target.scrollIntoView();
     })();
   </script>
 

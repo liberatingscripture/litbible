@@ -1,5 +1,6 @@
 ---
 import { BOOKS as books, BOOK_ORDER, bookKeyToLabel } from "../data/books.js";
+import { scanDraftChapters } from "../lib/draft-chapters.mjs";
 const { currentBook = "", currentChapter = "" } = Astro.props;
 
 const currentBookKey = currentBook
@@ -8,12 +9,20 @@ const currentBookKey = currentBook
 const initialChapterCount = currentBookKey
   ? ((books as Record<string, number>)[currentBookKey] ?? 0)
   : 0;
+
+// Draft chapters ("indexed": false) get a "(draft)" marker in the chapter
+// list so readers aren't surprised by untranslated stubs. Shared derivation
+// with the sitemap filter in astro.config.mjs.
+const DRAFT_CHAPTERS = scanDraftChapters().draftChaptersByBook;
+
+const initialDrafts = new Set(DRAFT_CHAPTERS[currentBookKey] ?? []);
 ---
 
 <div class="read-menu-wrap">
   <form
     class="read-menu"
     data-books={JSON.stringify(books)}
+    data-drafts={JSON.stringify(DRAFT_CHAPTERS)}
     data-current-book={currentBook || undefined}
     data-current-chapter={currentChapter || undefined}
     novalidate
@@ -33,7 +42,13 @@ const initialChapterCount = currentBookKey
         <>
           <option value="intro" selected={currentChapter === "intro"}>Introduction</option>
           {Array.from({ length: initialChapterCount }, (_, i) => i + 1).map((i) => (
-            <option value={String(i)} selected={currentChapter === String(i)}>Chapter {i}</option>
+            <option
+              value={String(i)}
+              selected={currentChapter === String(i)}
+              class={initialDrafts.has(i) ? "draft-option" : undefined}
+            >
+              {initialDrafts.has(i) ? `Chapter ${i} (draft)` : `Chapter ${i}`}
+            </option>
           ))}
         </>
       )}
@@ -70,6 +85,12 @@ const initialChapterCount = currentBookKey
       if (!(root instanceof HTMLFormElement)) return;
 
       const books = JSON.parse(root.getAttribute("data-books") || "{}");
+      let drafts = {};
+      try {
+        drafts = JSON.parse(root.getAttribute("data-drafts") || "{}");
+      } catch {
+        drafts = {};
+      }
 
       const bookSelect = root.querySelector("#book-select");
       const chapterSelect = root.querySelector("#chapter-select");
@@ -116,6 +137,7 @@ const initialChapterCount = currentBookKey
 
         if (books[key]) {
           const fragment = document.createDocumentFragment();
+          const draftSet = new Set(drafts[key] || []);
 
           const intro = document.createElement("option");
           intro.value = "intro";
@@ -125,7 +147,12 @@ const initialChapterCount = currentBookKey
           for (let i = 1; i <= books[key]; i++) {
             const opt = document.createElement("option");
             opt.value = String(i);
-            opt.textContent = `Chapter ${i}`;
+            if (draftSet.has(i)) {
+              opt.textContent = `Chapter ${i} (draft)`;
+              opt.className = "draft-option";
+            } else {
+              opt.textContent = `Chapter ${i}`;
+            }
             fragment.appendChild(opt);
           }
 
@@ -271,6 +298,12 @@ const initialChapterCount = currentBookKey
     .read-menu button:disabled {
       opacity: 0.5;
       cursor: not-allowed;
+    }
+
+    /* Draft chapters are dimmed in the list; the "(draft)" text suffix is
+       the reliable marker (option styling support varies by browser). */
+    .read-menu select :global(option.draft-option) {
+      color: rgba(var(--ink-rgb), 0.55);
     }
 
     .read-menu button {

@@ -11,9 +11,6 @@
   width: min(1100px, calc(100% - 1.25rem));
   margin: 0 auto;
   padding: 1.2rem 0 2.6rem;
-
-  /* make the page a query container so bottom-sheet can follow page width */
-  container-type: inline-size;
 }
 
 /* =========================================================
@@ -269,13 +266,6 @@ html.rm-tools-open .rm-page .rm-fab {
   pointer-events: none;
 }
 
-/* Viewport fallback: show FAB on smaller screens even if container queries don't match */
-@media (max-width: 1080px) {
-  .rm-page .rm-fab {
-    display: inline-flex;
-  }
-}
-
 /* =========================================================
    A11y / Modal states
    ========================================================= */
@@ -287,10 +277,6 @@ html.rm-tools-open .rm-page .rm-fab {
   box-shadow: 0 0 0 3px rgba(16, 24, 18, 0.3);
 }
 
-html.rm-modal-open {
-  overflow: hidden;
-}
-
 /* ✅ Option A: do NOT lock scroll for the tools sheet */
 html.rm-tools-open {
   overflow: auto;
@@ -298,62 +284,50 @@ html.rm-tools-open {
 }
 
 /* =========================================================
-   RESUME POPOVER
+   RESUME CHIP (non-blocking "Continue at chapter N ↓")
    ========================================================= */
 
-.rm-page .rm-resume-popover {
-  position: fixed;
-  inset: 0;
-  z-index: 320;
-  display: grid;
-  place-items: center;
-  padding: 1rem;
+/* Sits in flow just above the book content: below the toolbar in wide mode,
+   below the search bar in sheet mode (where the toolbar is a bottom sheet).
+   Nothing overlaps it and it overlaps nothing. */
+.rm-page .rm-resume-chip {
+  width: fit-content;
+  margin: 0.35rem auto 1rem;
+
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+
+  background: var(--surface-raised);
+  border: 1px solid rgba(var(--ink-rgb), 0.22);
+  border-radius: 999px;
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.16);
+  padding: 0.15rem 0.2rem;
 }
 
-.rm-page .rm-resume-popover[hidden] {
+.rm-page .rm-resume-chip[hidden] {
   display: none;
 }
 
-.rm-page .rm-resume-popover__backdrop {
-  position: absolute;
-  inset: 0;
-  background: rgba(15, 18, 14, 0.46);
-}
-
-.rm-page .rm-resume-popover__card {
-  position: relative;
-  z-index: 1;
-  width: min(460px, calc(100% - 1rem));
-  background: var(--surface-raised);
-  border: 1px solid rgba(var(--ink-rgb), 0.16);
-  border-radius: 14px;
-  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.2);
-  padding: 0.9rem 1rem;
-}
-
-.rm-page .rm-resume {
-  display: flex;
-  align-items: center;
-  gap: 0.45rem;
-  flex-wrap: wrap;
-  justify-content: center;
-  margin: 0;
-  font-size: 0.9rem;
-}
-
-.rm-page .rm-resume button {
-  border: 1px solid rgba(var(--ink-rgb), 0.22);
-  border-radius: 9px;
-  background: var(--surface-raised);
+.rm-page .rm-resume-chip button {
+  border: none;
+  background: none;
   color: var(--text);
-  padding: 0.35rem 0.55rem;
-  font-size: 0.82rem;
+  font-size: 0.85rem;
   line-height: 1.1;
+  padding: 0.4rem 0.55rem;
+  border-radius: 999px;
+  cursor: pointer;
   user-select: none;
 }
 
-.rm-page .rm-resume button:hover {
+.rm-page .rm-resume-chip button:hover {
   background: rgba(32, 157, 80, 0.12);
+}
+
+.rm-page .rm-resume-chip [data-rm-resume-dismiss] {
+  padding: 0.4rem 0.6rem;
+  opacity: 0.7;
 }
 
 /* =========================================================
@@ -654,6 +628,7 @@ html.rm-tools-open {
 .rm-page .rm-title {
   margin: 0 0 0.8rem;
   font-size: clamp(1.8rem, 4vw, 2.5rem);
+  text-align: center;
 }
 
 .rm-page .rm-reader {
@@ -664,8 +639,17 @@ html.rm-tools-open {
   --rm-line-height: 1.75;
 }
 
-/* IMPORTANT CHANGE:
-   JS handles scroll positioning via --rm-anchor-gap, so anchors should be "neutral". */
+/* Anchor scrolling is native (scrollIntoView / hash navigation).
+   scroll-margin-top makes targets land below the sticky toolbar plus the
+   configured reading gap; the small-mode media block overrides it to just
+   the gap because the toolbar sits at the bottom there. JS keeps
+   --rm-toolbar-offset up to date with the toolbar's measured height. */
+.rm-page .rm-ch-anchor,
+.rm-page .rm-verse-anchor {
+  scroll-margin-top: calc(
+    var(--rm-toolbar-offset, 0px) + var(--rm-anchor-gap, 0px)
+  );
+}
 
 /* Chapter anchors can stay block (they sit between blocks anyway). */
 .rm-page .rm-ch-anchor {
@@ -820,10 +804,25 @@ html[data-rm-leading="roomy"] .rm-page .rm-reader {
 
 /* =========================================================
    SMALL MODE (and everything that used to be “mid”):
-   Bottom-sheet + FAB starts at 1080px
+   Bottom-sheet + FAB.
+   The 1100px viewport breakpoint MUST stay in sync with the
+   matchMedia() query in read-mode.js (single source of truth
+   for "sheet mode" across CSS and JS).
    ========================================================= */
 
-@container (max-width: 1080px) {
+@media (max-width: 1100px) {
+  /* FAB opens the bottom sheet */
+  .rm-page .rm-fab {
+    display: inline-flex;
+  }
+
+  /* Toolbar sits at the bottom, so anchors only need the reading gap */
+  .rm-page .rm-ch-anchor,
+  .rm-page .rm-verse-anchor {
+    scroll-margin-top: var(--rm-anchor-gap, 0px);
+  }
+
+
   /* Bottom sheet (hidden by default) */
   .rm-page .rm-toolbar {
     position: fixed;
