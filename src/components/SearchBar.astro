@@ -1,5 +1,6 @@
 ---
 // SearchBar.astro
+import { getCollection } from "astro:content";
 import { BOOK_ORDER, bookKeyToLabel } from "../data/books.js";
 
 const {
@@ -8,6 +9,20 @@ const {
   defaultMode = "",
   initialOpen = false,
 } = Astro.props;
+
+// Real term metadata for glossary search-result titles ("Hell/Hades → the
+// place of the dead"). Keyed by entry id — the entry's heading anchor id on
+// /glossary — and read at runtime by glossaryTermFromResult() in
+// search-core.js, which falls back to parsing the anchor id when an entry
+// is missing here.
+const glossaryTerms = Object.fromEntries(
+  (await getCollection("glossary"))
+    .sort((a, b) => a.data.id.localeCompare(b.data.id))
+    .map((e) => [
+      e.data.id,
+      { traditional: e.data.traditional, lit: e.data.lit },
+    ]),
+);
 ---
 
 <div
@@ -122,6 +137,14 @@ const {
       </div>
     </div>
   </div>
+
+  {/* Glossary term metadata for search-result titles — consumed by
+      glossaryTermFromResult() in search-core.js on both search surfaces. */}
+  <script
+    type="application/json"
+    data-glossary-terms
+    set:html={JSON.stringify(glossaryTerms)}
+  />
 
   {/* Tray behavior lives in src/scripts/searchbar.js (shared logic in
       search-core.js) so the script is bundled + cached once instead of

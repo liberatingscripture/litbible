@@ -847,11 +847,46 @@ function cleanGlossaryTitle(s) {
   return t.trim();
 }
 
+/* Parsed once per page: the embedded map is static build output. */
+let glossaryTermsCache;
+
+/**
+ * Glossary term metadata embedded by SearchBar.astro as
+ * `<script type="application/json" data-glossary-terms>` — a map of entry id
+ * (the entry's /glossary heading anchor id) → { traditional, lit } straight
+ * from the glossary collection frontmatter. Returns null when the page has
+ * no embed or it fails to parse.
+ */
+export function glossaryTermsFromDom() {
+  if (glossaryTermsCache !== undefined) return glossaryTermsCache;
+  glossaryTermsCache = null;
+
+  if (typeof document === "undefined") return glossaryTermsCache;
+
+  const el = document.querySelector(
+    'script[type="application/json"][data-glossary-terms]',
+  );
+  if (!el) return glossaryTermsCache;
+
+  try {
+    const parsed = JSON.parse(el.textContent || "");
+    if (parsed && typeof parsed === "object") glossaryTermsCache = parsed;
+  } catch {
+    // Malformed embed — callers fall back to anchor-id parsing.
+  }
+
+  return glossaryTermsCache;
+}
+
 /**
  * Term-level title for a glossary result. The matched entry's heading anchor
- * id follows the glossary filename convention `<traditional>-<lit>` (see
- * content.config.ts), so "hell-hades" renders as "Hell → hades". Falls back
- * to explicit meta, then the cleaned page title.
+ * id is the entry's frontmatter id, so it's first looked up in the embedded
+ * term-metadata map (see glossaryTermsFromDom) for the real
+ * "Traditional → lit rendering" label. Entries missing from the map fall
+ * back to splitting the anchor id on its FIRST hyphen per the
+ * `<traditional>-<lit>` filename convention (approximate: breaks for
+ * multi-word traditional terms and lossy ids like "hell-hades"), then to
+ * explicit meta, then the cleaned page title.
  *
  * Takes the same precomputed metaRanges/locs as pickAnchorHref so the term
  * label and the deep link are guaranteed to name the same entry.
@@ -860,6 +895,12 @@ export function glossaryTermFromResult(d, metaRanges, locs, fallback = "") {
   const anchor = pickContentAnchor(d, metaRanges, locs);
   const anchorId =
     anchor && anchor.element === "h2" ? String(anchor.id || "") : "";
+
+  const termMeta = anchorId ? glossaryTermsFromDom()?.[anchorId] : null;
+  if (termMeta?.traditional && termMeta?.lit) {
+    return `${termMeta.traditional} → ${termMeta.lit}`;
+  }
+
   if (anchorId.includes("-")) {
     const [traditional, ...litParts] = anchorId.split("-");
     const cap = traditional.charAt(0).toUpperCase() + traditional.slice(1);
