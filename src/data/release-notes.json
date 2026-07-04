@@ -1,5 +1,112 @@
 [
   {
+    "version": "2026-07-04",
+    "date": "2026-07-04",
+    "label": "July 4, 2026",
+    "changes": [
+      {
+        "type": "text_updated",
+        "description": "Luke 10:5 — text updated",
+        "detail": "\"“May there be well-being for this household!”\" → \"‘May there be well-being for this household!’\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 10,
+          "verse": 5
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Luke 12:45 — text updated",
+        "detail": "\"“My enslaver is delaying his arrival,”\" → \"‘My enslaver is delaying his arrival,’\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 12,
+          "verse": 45
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Luke 15:27 — text updated",
+        "detail": "\"healthy.\" → \"healthy.’\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 15,
+          "verse": 27
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Luke 17:4 — text updated",
+        "detail": "\"turns\" → \"turn\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 17,
+          "verse": 4
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Luke 18:16 — text updated",
+        "detail": "\"saying\" → \"saying,\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 18,
+          "verse": 16
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Luke 5:10 — text updated",
+        "detail": "added \"said\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 5,
+          "verse": 10
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Luke 6:38 — text updated",
+        "detail": "added \"the\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 6,
+          "verse": 38
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Luke 7:9, 24, 27, 34 — text updated",
+        "detail": "v. 9: \"hear\" → \"heard\"; v. 24: added \"to\"; v. 27: \"He's\" → \"He’s\"; v. 34: \"“Look!\" → \"‘Look!\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 7,
+          "verse": 9
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Luke 8:12 — text updated",
+        "detail": "added \"from\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 8,
+          "verse": 12
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Luke 9:44, 48, 57, 59 — text updated",
+        "detail": "v. 44: \"son\" → \"Son\"; v. 48: \"important.\" → \"important.”\"; v. 57: added \"to\"; v. 59: removed \"to\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 9,
+          "verse": 44
+        }
+      }
+    ]
+  },
+  {
     "version": "2026-06-30",
     "date": "2026-06-30",
     "label": "June 30, 2026",
