@@ -21,5 +21,17 @@
   Content-Type: application/json
   Cache-Control: public, max-age=3600
 
+# The apps gate on version.json, then must read a manifest and data files that
+# match it. If those were edge-cached (max-age=3600) they could lag a version
+# bump by up to an hour — a client would see the new version but download stale
+# hashes/bytes. Keep the sync-critical files fresh so a version change is
+# immediately consistent end-to-end. (These are only fetched when the version
+# actually changed, so the cost is bounded.)
 /api/version.json
+  Cache-Control: no-store
+
+/api/manifest.json
+  Cache-Control: no-store
+
+/api/data/*
   Cache-Control: no-store

@@ -87,18 +87,31 @@ async function readAndSortChapters() {
   return chapters.map((chapter) => chapter.data);
 }
 
+/**
+ * The content version is owned by build-api-manifest.mjs (it hashes the full
+ * synced content set). Read it from version.json so content.json's `version`
+ * matches what the apps poll. Falls back to a date-only string if this script
+ * is run standalone before the manifest step (degraded, but keeps `build:api`
+ * usable on its own).
+ */
+async function resolveVersion(generatedAt) {
+  try {
+    const raw = await fs.readFile(path.join(apiDir, 'version.json'), 'utf8');
+    const parsed = JSON.parse(raw);
+    if (parsed?.version) return parsed.version;
+  } catch {
+    // version.json not written yet — fall back below
+  }
+  return `v${generatedAt.slice(0, 10).replace(/-/g, '')}`;
+}
+
 async function main() {
   const generatedAt = new Date().toISOString();
-  const version = `v${generatedAt.slice(0, 10).replace(/-/g, '')}`;
   const chapters = await readAndSortChapters();
 
   await fs.mkdir(apiDir, { recursive: true });
 
-  const versionPayload = {
-    version,
-    updatedAt: generatedAt,
-    chapterCount: chapters.length,
-  };
+  const version = await resolveVersion(generatedAt);
 
   const contentPayload = {
     version,
@@ -106,11 +119,8 @@ async function main() {
     chapters,
   };
 
-  await fs.writeFile(path.join(apiDir, 'version.json'), JSON.stringify(versionPayload), 'utf8');
-  console.log(`✅ public/api/version.json written — version: ${version}`);
-
   await fs.writeFile(path.join(apiDir, 'content.json'), JSON.stringify(contentPayload), 'utf8');
-  console.log(`✅ public/api/content.json written — ${chapters.length} chapters`);
+  console.log(`✅ public/api/content.json written — ${chapters.length} chapters (version ${version})`);
 }
 
 main().catch((error) => {
