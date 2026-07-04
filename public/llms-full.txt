@@ -40,7 +40,7 @@ Full chapter content API (all NT chapters as JSON):
 
 API version/metadata:
   https://litbible.net/api/version.json
-  Fields: version, updatedAt, chapterCount
+  Fields: version, updatedAt, chapterCount, contentHash
 
 Topic index (maps topic slugs to chapter references):
   https://litbible.net/topics-index.json

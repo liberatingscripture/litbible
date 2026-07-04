@@ -116,12 +116,18 @@ async function main() {
     });
   }
 
-  const generatedAt = new Date().toISOString();
+  // Deterministic key order so the generated files are byte-stable when the
+  // underlying topics haven't changed. This keeps the app-sync content hash
+  // (and therefore version.json) from churning on every rebuild. No
+  // `generatedAt` is emitted for the same reason — nothing reads it.
+  const sortedTopics = {};
+  for (const key of Object.keys(topicsMap).sort()) {
+    sortedTopics[key] = topicsMap[key];
+  }
 
   // 1) Full index (existing behavior)
   const indexPayload = {
-    generatedAt,
-    topics: topicsMap,
+    topics: sortedTopics,
   };
 
   await fs.mkdir(path.dirname(OUT_INDEX_FILE), { recursive: true });
@@ -140,7 +146,6 @@ async function main() {
     .sort((a, b) => (b.count - a.count) || a.label.localeCompare(b.label));
 
   const autocompletePayload = {
-    generatedAt,
     items: autocompleteItems,
   };
 

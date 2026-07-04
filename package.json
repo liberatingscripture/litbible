@@ -9,7 +9,7 @@
     "build:api": "node scripts/build-api-json.mjs",
     "build:manifest": "node scripts/build-api-manifest.mjs",
     "fetch:podcast": "node scripts/fetch-podcast-feed.mjs",
-    "build": "node scripts/fetch-podcast-feed.mjs && npm run build:topics && node scripts/build-api-json.mjs && node scripts/build-api-manifest.mjs && astro build && pagefind --site dist",
+    "build": "node scripts/fetch-podcast-feed.mjs && npm run build:topics && node scripts/build-api-manifest.mjs && node scripts/build-api-json.mjs && astro build && pagefind --site dist",
     "preview": "npm run build && astro preview",
     "validate:chapters": "node scripts/validate-chapters.mjs",
     "fix:chapters": "node scripts/validate-chapters.mjs --fix",

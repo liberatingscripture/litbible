@@ -60,10 +60,19 @@ npm run draft:release-notes -- --since <ref>  # Draft a release-notes entry from
    build**.
 2. `build:topics` — generates `public/topics-index.json` (topic → chapters) and
    `public/search/topics.json` (autocomplete) from chapter `topics` arrays.
-3. `build:api` — generates `public/api/content.json` (full NT in canonical order).
-4. `build:manifest` — generates `public/api/manifest.json` and copies content
-   files into `public/api/data/` so the native apps can diff hashes and download
-   only changed files. Also exposes intro images under `images/`.
+   Output is deterministic (sorted, no timestamps) so it doesn't churn the sync
+   content hash.
+3. `build:manifest` — generates `public/api/manifest.json` + `public/api/version.json`
+   and copies content files into `public/api/data/` (chapters, intros, intro
+   `images/`, plus `topics.json` and `translation-commitments.json`) so the
+   native apps can diff hashes and download only changed files. **This step owns
+   the content `version`**: it's `v<YYYYMMDD>.<8-char hash of all file hashes>`,
+   so it changes on *every* content publish (including multiple on the same day)
+   and stays stable when nothing changed. The apps gate all syncing on this
+   string — see the app-sync note below.
+4. `build:api` — generates `public/api/content.json` (full NT in canonical
+   order). Runs *after* `build:manifest` and reads the shared `version` from
+   `version.json` so all three API artifacts report the same version.
 5. `astro build` — compiles the site to `dist/`.
 6. `pagefind --site dist` — builds the search index into `dist/pagefind/`.
 
@@ -210,6 +219,16 @@ collection); they're read directly by the intro pages and the API manifest.
   `search-core.js` so both surfaces stay in sync.
 - **Mobile apps are first-class consumers** of `public/api/` output — changing
   chapter/intro/manifest shape can break them. Treat the API as a contract.
+  The **sync contract**: both apps poll `version.json` first and do nothing
+  further unless its `version` string differs from what they last stored (a
+  cheap ~80-byte check, run at most once/24h on foreground + a ~6h background
+  task + on-demand pull-to-refresh). Only on a change do they fetch
+  `manifest.json` and download the files whose SHA-256 hashes moved. **So the
+  whole system only works if `version` bumps on every content publish** — which
+  is why it's content-derived (see build step 3), not date-only. The sync-
+  critical files (`version.json`, `manifest.json`, `data/*`) are served
+  `no-store` in `public/_headers` so a version bump is never served alongside a
+  stale manifest or data file.
 - **Release notes are automated**: pushing changes to chapters, intros, glossary,
   or articles on `main` triggers `.github/workflows/release-notes.yml`, which
   runs `draft-release-notes.mjs` and commits to `release-notes.json`.
