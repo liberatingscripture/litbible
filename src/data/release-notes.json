@@ -103,6 +103,106 @@
           "chapter": 9,
           "verse": 44
         }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 10:1, 13, 37, 41 — footnotes a, h, dd, hh updated",
+        "detail": "fn. a (v. 1): \"'Lord' reflects the reversal of the feudal, patriarchal, an…\" → \"‘Lord’ reflects the reversal of the feudal, patriarchal, an…\"; fn. h (v. 13): \"'transform the mind.' It does not mean ‘remorse’ or ‘guilt.…\" → \"‘transform the mind.’ It does not mean ‘remorse’ or ‘guilt.…\"; fn. dd (v. 37): \"using\" → \"uses\"; fn. hh (v. 41): \"'Lord' reflects the reversal of the feudal, patriarchal, an…\" → \"‘Lord’ reflects the reversal of the feudal, patriarchal, an…\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 10,
+          "verse": 1
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 11:39, 41 — footnotes aa, dd updated",
+        "detail": "fn. aa (v. 39): \"'Lord' reflects the reversal of the feudal, patriarchal, an…\" → \"‘Lord’ reflects the reversal of the feudal, patriarchal, an…\"; fn. dd (v. 41): \"using\" → \"uses\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 11,
+          "verse": 39
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 12:6, 42 — footnotes b, c, w updated",
+        "detail": "fn. b (v. 6): added \"were\"; fn. c (v. 6): removed \"dollar\"; fn. w (v. 42): \"'Lord' reflects the reversal of the feudal, patriarchal, an…\" → \"‘Lord’ reflects the reversal of the feudal, patriarchal, an…\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 12,
+          "verse": 6
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 16:16 — footnote o updated",
+        "detail": "removed \"on\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 16,
+          "verse": 16
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 3:2–3 — footnotes g, i updated",
+        "detail": "fn. g (v. 2): \"It\" → \"it\"; fn. i (v. 3): \"'transform the mind.' It does not mean ‘remorse’ or ‘guilt.…\" → \"‘transform the mind.’ It does not mean ‘remorse’ or ‘guilt.…\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 3,
+          "verse": 2
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 5:35 — footnote s updated",
+        "detail": "\"off”\" → \"off’\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 5,
+          "verse": 35
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 6:15 — footnote q updated",
+        "detail": "\"Jesus' lifetime, particularly around the time of the Jewish…\" → \"Jesus’ lifetime, particularly around the time of the Jewish…\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 6,
+          "verse": 15
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 7:13, 24 — footnotes h, u updated",
+        "detail": "fn. h (v. 13): \"'Lord' reflects the reversal of the feudal, patriarchal, an…\" → \"‘Lord’ reflects the reversal of the feudal, patriarchal, an…\"; fn. u (v. 24): \"It\" → \"it\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 7,
+          "verse": 13
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 8:10 — footnote h updated",
+        "detail": "\"'knowledge\" → \"‘knowledge\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 8,
+          "verse": 10
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 9:5, 25 — footnotes b, p updated",
+        "detail": "fn. b (v. 5): \"‘testimony”\" → \"“testimony”\"; fn. p (v. 25): \"self”/”very\" → \"self”/“very\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 9,
+          "verse": 5
+        }
       }
     ]
   },
