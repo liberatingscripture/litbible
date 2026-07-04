@@ -7,6 +7,21 @@
  * For modified chapters, identifies whether paragraphs or footnotes changed
  * and extracts the affected verse numbers.
  *
+ * Each change object carries (see the release-notes.json schema shared with the
+ * iOS/Android apps):
+ *   - type         change category (footnote_updated, text_updated, chapter_added, …)
+ *   - description   self-contained human summary incl. the verse reference
+ *   - detail        the pure "before → after" (footnote/text edits only)
+ *   - location      { bookKey, chapter, verse? } for scripture changes, so apps
+ *                   can deep-link to bookKey chapter:verse. verse is omitted for
+ *                   whole-chapter changes; footnoteId is intentionally NOT emitted
+ *                   yet (a stable id needs a matching anchor in the chapter JSON).
+ *   - relabel       the footnote letter-cascade note (e.g. "footnotes formerly
+ *                   t–mm relabeled u–nn"), kept out of `description` so apps can
+ *                   mute or hide it. Present only when a relabel occurred.
+ * All of location/detail/relabel are additive and optional; `description` alone
+ * always renders a complete row for apps that haven't adopted the new fields.
+ *
  * Usage:
  *   node scripts/draft-release-notes.mjs --since <git-ref>
  *   node scripts/draft-release-notes.mjs --since HEAD~5
@@ -86,6 +101,25 @@ function formatVerseRange(verses) {
   }
   ranges.push(start === end ? `${start}` : `${start}–${end}`);
   return ranges.join(", ");
+}
+
+/** The smallest verse number in a list — used as the "anchor" a deep link
+ *  targets when a change spans a range of verses. Returns null if none. */
+function anchorVerse(verses) {
+  const nums = (verses ?? []).filter((v) => Number.isFinite(v));
+  return nums.length ? Math.min(...nums) : null;
+}
+
+/** Build the platform-neutral `location` object the apps use to deep-link a
+ *  change to `bookKey chapter:verse` (see release-notes.json schema). `verse`
+ *  is omitted for whole-chapter changes. `footnoteId` is intentionally NOT
+ *  emitted yet: a stable, relabel-proof id only helps once the same id is also
+ *  anchored in the chapter content JSON, so apps fall back to verse-level
+ *  navigation until then. `bookKey` is the website URL-slug the apps already map. */
+function scriptureLocation(bookKey, chapter, verse) {
+  const loc = { bookKey, chapter };
+  if (verse != null) loc.verse = verse;
+  return loc;
 }
 
 /** Strip all HTML tags and decode common entities to plain text. */
@@ -238,6 +272,7 @@ for (const file of modifiedChapters) {
     changes.push({
       type: "text_updated",
       description: `${label} ${chapter} — updated`,
+      location: scriptureLocation(bookKey, chapter),
     });
     continue;
   }
@@ -260,6 +295,7 @@ for (const file of modifiedChapters) {
     changes.push({
       type: "text_updated",
       description: `${label} ${chapter} — updated`,
+      location: scriptureLocation(bookKey, chapter),
     });
     continue;
   }
@@ -451,6 +487,7 @@ for (const file of modifiedChapters) {
     changes.push({
       type: "metadata_updated",
       description: `${label} ${chapter} — metadata updated`,
+      location: scriptureLocation(bookKey, chapter),
     });
     continue;
   }
@@ -467,6 +504,7 @@ for (const file of modifiedChapters) {
       description: `${ref} — text updated`,
     };
     if (detailParts.length) entry.detail = detailParts.join("; ");
+    entry.location = scriptureLocation(bookKey, chapter, anchorVerse(verses));
     changes.push(entry);
   }
 
@@ -480,24 +518,36 @@ for (const file of modifiedChapters) {
     const action = allAdded ? "added" : "updated";
     const fnWord = filteredFnDiffs.length === 1 ? "footnote" : "footnotes";
 
-    // Build description: genuine changes first, then relabeling summary
-    const descParts = [];
-    if (filteredFnDiffs.length > 0)
-      descParts.push(`${fnWord} ${fnLabels.join(", ")} ${action}`);
-    if (relabelSummary) descParts.push(relabelSummary);
+    // description stays self-contained (keeps the human verse ref + footnote
+    // letters) but drops the relabel clause — that moves to its own `relabel`
+    // field so apps can mute or hide the letter-cascade noise.
+    const description = filteredFnDiffs.length > 0
+      ? `${ref} — ${fnWord} ${fnLabels.join(", ")} ${action}`
+      : `${ref} — footnotes relabeled`;
 
-    // Build detail: per-footnote diffs then relabeling summary
-    const detailParts = filteredFnDiffs.map((d) => {
-      const vRef = d.verse ? ` (v. ${d.verse})` : "";
-      return `fn. ${d.label}${vRef}: ${d.diff}`;
-    });
-    if (relabelSummary) detailParts.push(relabelSummary);
+    // detail is the pure before → after. For a single footnote it's just the
+    // diff (the row's `location` pinpoints which one); for a bucket of several
+    // we keep the `fn. label (v. N):` prefix so the diffs stay disambiguated,
+    // since one `location` can't point at each footnote individually.
+    let detail;
+    if (filteredFnDiffs.length === 1) {
+      detail = filteredFnDiffs[0].diff;
+    } else if (filteredFnDiffs.length > 1) {
+      detail = filteredFnDiffs
+        .map((d) => {
+          const vRef = d.verse ? ` (v. ${d.verse})` : "";
+          return `fn. ${d.label}${vRef}: ${d.diff}`;
+        })
+        .join("; ");
+    }
 
     const entry = {
       type: allAdded && !relabelSummary ? "footnote_added" : "footnote_updated",
-      description: `${ref} — ${descParts.join("; ")}`,
+      description,
     };
-    if (detailParts.length) entry.detail = detailParts.join("; ");
+    if (detail) entry.detail = detail;
+    entry.location = scriptureLocation(bookKey, chapter, anchorVerse(fnVerses));
+    if (relabelSummary) entry.relabel = relabelSummary;
     changes.push(entry);
   }
 }
@@ -511,17 +561,22 @@ for (const bookKey of BOOK_ORDER) {
   const label = bookKeyToLabel(bookKey);
   const total = BOOKS[bookKey];
 
+  // Deep-link to the first newly added chapter regardless of how many landed.
+  const location = scriptureLocation(bookKey, chapters[0]);
+
   if (chapters.length === total) {
-    changes.push({ type: "chapter_added", description: `${label} added` });
+    changes.push({ type: "chapter_added", description: `${label} added`, location });
   } else if (chapters.length === 1) {
     changes.push({
       type: "chapter_added",
       description: `${label} ${chapters[0]} added`,
+      location,
     });
   } else {
     changes.push({
       type: "chapter_added",
       description: `${label} chapters ${formatVerseRange(chapters)} added`,
+      location,
     });
   }
 }

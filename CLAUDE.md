@@ -236,7 +236,16 @@ collection); they're read directly by the intro pages and the API manifest.
   stale manifest or data file.
 - **Release notes are automated**: pushing changes to chapters, intros, glossary,
   or articles on `main` triggers `.github/workflows/release-notes.yml`, which
-  runs `draft-release-notes.mjs` and commits to `release-notes.json`.
+  runs `draft-release-notes.mjs` and commits to `release-notes.json`. That file
+  is also synced to the apps (`/api/data/release-notes.json`) as their
+  "Translation Updates" feed, so its **change-object shape is a contract**: each
+  change carries a self-contained `description` plus additive/optional
+  enrichment — `detail` (pure before→after), `location` (`bookKey`/`chapter`/
+  `verse` for deep-linking scripture changes), and `relabel` (the footnote
+  letter-cascade note, split out of `description`). See the docblock in
+  `draft-release-notes.mjs` for the field-by-field spec. (A stable per-footnote
+  `footnoteId` for exact-footnote deep links is intentionally not emitted yet —
+  it needs a matching stable anchor in the chapter JSON first.)
 - **Agent/AI discovery surface** lives in static files, all served as-is from
   `public/`. They only take effect on a deployed Cloudflare Pages site — `dev`
   and `astro preview` do **not** apply `_headers`:
