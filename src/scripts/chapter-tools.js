@@ -208,8 +208,7 @@ function getVerseUrl(start, end) {
 
 /**
  * Extract the plain text of one verse (everything after its number marker
- * up to the next different verse number), skipping footnote refs and the
- * hidden hyphen-wordbreak helpers.
+ * up to the next different verse number), skipping footnote refs.
  */
 function getSingleVerseText(container, verse) {
   const range = buildVerseRange(container, verse, verse, { includeMarker: false });
@@ -221,7 +220,7 @@ function getSingleVerseText(container, verse) {
     {
       acceptNode(node) {
         if (!range.intersectsNode(node)) return NodeFilter.FILTER_REJECT;
-        if (node.parentElement?.closest("sup.fn-ref, sup.vn, .pf-wordbreak")) {
+        if (node.parentElement?.closest("sup.fn-ref, sup.vn")) {
           return NodeFilter.FILTER_REJECT;
         }
         return NodeFilter.FILTER_ACCEPT;

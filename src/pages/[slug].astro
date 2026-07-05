@@ -369,16 +369,6 @@ if (typeof chaptersInBook === "number" && n < chaptersInBook) {
       text-decoration: underline;
     }
 
-    /* --- Hyphen-as-space indexing helpers --- */
-    .chapter-paragraphs :global(.pf-wordbreak) {
-      display: inline-block;
-      width: 0;
-      overflow: hidden;
-      white-space: nowrap;
-      font-size: 0;
-      line-height: 0;
-    }
-
     /* Chapter CTAs — prev left, next right. margin-left:auto keeps a lone
        "next" on the right without invisible spacer elements; a lone "prev"
        (Revelation 22) sits left naturally. */

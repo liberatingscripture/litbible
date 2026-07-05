@@ -99,60 +99,6 @@ function normalizeStudyVerseGlue(html: string): string {
 }
 
 /**
- * Pagefind-friendly hyphen normalization:
- * Keep the real hyphen in the visible text, but inject a zero-width, indexable space
- * AFTER the hyphen so Pagefind can treat word-word as word<space>word.
- *
- * - Only operates OUTSIDE tags (so it won't touch ids/attrs like luke-4-p11).
- * - Only targets hyphen-minus between word chars: /[0-9A-Za-z]-[0-9A-Za-z]/
- *
- * Replacement:
- *   "-" becomes "-<span class="pf-wordbreak"> </span>"
- *
- * This avoids the blockquote-only wrapping bug where a separate hyphen element can
- * get kicked to the next line by itself.
- */
-function injectHyphenWordbreaks(html: string): string {
-  const s = String(html ?? "");
-  if (!s.includes("-")) return s;
-
-  const isWord = (ch: string) => /[0-9A-Za-z]/.test(ch);
-
-  let out = "";
-  let inTag = false;
-
-  for (let i = 0; i < s.length; i++) {
-    const ch = s[i];
-
-    if (ch === "<") {
-      inTag = true;
-      out += ch;
-      continue;
-    }
-
-    if (ch === ">") {
-      inTag = false;
-      out += ch;
-      continue;
-    }
-
-    if (!inTag && ch === "-") {
-      const prev = i > 0 ? s[i - 1] : "";
-      const next = i + 1 < s.length ? s[i + 1] : "";
-
-      if (isWord(prev) && isWord(next)) {
-        out += `-<span class="pf-wordbreak" aria-hidden="true"> </span>`;
-        continue;
-      }
-    }
-
-    out += ch;
-  }
-
-  return out;
-}
-
-/**
  * Inject ARIA semantics onto Hebrew-poetry blockquote blocks.
  * Adds role="group" and aria-label="Poetry" so screen readers
  * identify these as grouped poetic content.
@@ -262,10 +208,8 @@ export function prepareStudyParagraph(
   const osisBook = OSIS_BOOKS[bookKey] ?? "";
   return addOsisIds(
     addHbqAria(
-      injectHyphenWordbreaks(
-        normalizeHbqVerseGlue(
-          normalizeStudyVerseGlue(dropDuplicateVerseIds(html, seenVerseIds)),
-        ),
+      normalizeHbqVerseGlue(
+        normalizeStudyVerseGlue(dropDuplicateVerseIds(html, seenVerseIds)),
       ),
     ),
     osisBook,
