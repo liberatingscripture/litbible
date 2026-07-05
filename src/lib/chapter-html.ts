@@ -99,6 +99,71 @@ function normalizeStudyVerseGlue(html: string): string {
 }
 
 /**
+ * Wrap each verse's inline content in `<span data-verse="N">` so verse
+ * boundaries are DOM containers (CSS-targetable highlighting, trivial text
+ * extraction in chapter-tools.js) instead of runtime TreeWalker
+ * reconstructions. A verse that spans block boundaries (paragraph breaks,
+ * poetry lines) gets one span per block, all sharing the same data-verse.
+ *
+ * Splitting each `<p>`'s inner HTML at `<span class="vglue">` openings is
+ * nesting-safe by validated corpus invariants (see validate-chapters):
+ * every vglue sits at tag-depth 0 within its block and every block is
+ * balanced, so each segment is complete markup. Text before a chapter's
+ * first verse marker is left unwrapped.
+ *
+ * `state.currentVerse` threads the active verse across paragraphs — pass
+ * one state object per chapter.
+ */
+export type StudyVerseState = { currentVerse: number | null };
+
+function wrapVerseSegments(html: string, state: StudyVerseState): string {
+  const wrapSeg = (seg: string, verse: number) =>
+    `<span data-verse="${verse}">${seg}</span>`;
+
+  return String(html ?? "").replace(
+    /(<p\b[^>]*>)([\s\S]*?)(<\/p>)/gi,
+    (_match, open: string, inner: string, close: string) => {
+      const starts = [...inner.matchAll(/<span class="vglue">/g)].map(
+        (m) => m.index as number,
+      );
+
+      // No verse marker in this block: the whole line continues the
+      // current verse (e.g. an unnumbered poetry line).
+      if (!starts.length) {
+        return state.currentVerse && inner.trim()
+          ? open + wrapSeg(inner, state.currentVerse) + close
+          : _match;
+      }
+
+      let out = open;
+
+      const pre = inner.slice(0, starts[0]);
+      out +=
+        state.currentVerse && pre.trim()
+          ? wrapSeg(pre, state.currentVerse)
+          : pre;
+
+      for (let i = 0; i < starts.length; i++) {
+        const seg = inner.slice(starts[i], starts[i + 1] ?? inner.length);
+        const vm = seg.match(
+          /<sup\b[^>]*\bclass=(['"])[^'"]*\bvn\b[^'"]*\1[^>]*>(\d+)/i,
+        );
+        const verse = vm ? Number(vm[2]) : state.currentVerse;
+
+        if (verse) {
+          out += wrapSeg(seg, verse);
+          state.currentVerse = verse;
+        } else {
+          out += seg;
+        }
+      }
+
+      return out + close;
+    },
+  );
+}
+
+/**
  * Inject ARIA semantics onto Hebrew-poetry blockquote blocks.
  * Adds role="group" and aria-label="Poetry" so screen readers
  * identify these as grouped poetic content.
@@ -196,24 +261,29 @@ function normalizeReadVerseGlue(html: string): string {
 /* ── Entry points ────────────────────────────────────────────────────── */
 
 /**
- * Full Study View pipeline for one paragraph. `seenVerseIds` must be a fresh
- * Set per chapter (duplicate verse ids are only dropped within a chapter).
+ * Full Study View pipeline for one paragraph. `seenVerseIds` and
+ * `verseState` must be fresh per chapter (duplicate verse ids are only
+ * dropped — and the current verse only carries — within a chapter).
  */
 export function prepareStudyParagraph(
   html: string,
   bookKey: string,
   chapter: number,
   seenVerseIds: Set<string>,
+  verseState: StudyVerseState,
 ): string {
   const osisBook = OSIS_BOOKS[bookKey] ?? "";
-  return addOsisIds(
-    addHbqAria(
-      normalizeHbqVerseGlue(
-        normalizeStudyVerseGlue(dropDuplicateVerseIds(html, seenVerseIds)),
+  return wrapVerseSegments(
+    addOsisIds(
+      addHbqAria(
+        normalizeHbqVerseGlue(
+          normalizeStudyVerseGlue(dropDuplicateVerseIds(html, seenVerseIds)),
+        ),
       ),
+      osisBook,
+      chapter,
     ),
-    osisBook,
-    chapter,
+    verseState,
   );
 }
 

@@ -107,8 +107,15 @@ const paragraphsRaw = Array.isArray(chapterData?.paragraphs)
 const shouldIndex = chapterData?.indexed !== false;
 
 const seenVerseIds = new Set<string>();
+const verseState = { currentVerse: null as number | null };
 const paragraphs = paragraphsRaw.map((html) =>
-  prepareStudyParagraph(html, normalizedBookKey, props.chapter, seenVerseIds),
+  prepareStudyParagraph(
+    html,
+    normalizedBookKey,
+    props.chapter,
+    seenVerseIds,
+    verseState,
+  ),
 );
 
 const footnotes = Array.isArray(chapterData?.footnotes)
