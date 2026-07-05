@@ -118,8 +118,14 @@ async function main() {
 
   // Deterministic key order so the generated files are byte-stable when the
   // underlying topics haven't changed. This keeps the app-sync content hash
-  // (and therefore version.json) from churning on every rebuild. No
-  // `generatedAt` is emitted for the same reason — nothing reads it.
+  // (and therefore version.json) from churning on every rebuild.
+  //
+  // Deliberately NO `generatedAt` (or any other per-build timestamp): emitting
+  // one would change the file every build, churn the content hash, bump
+  // version.json, and force every client to re-download on every sync — the
+  // exact throttling hole the content-hashed version closed. Consumers must
+  // therefore treat `generatedAt` as absent/optional; the authoritative
+  // build time lives in version.json / manifest.json, not here.
   const sortedTopics = {};
   for (const key of Object.keys(topicsMap).sort()) {
     sortedTopics[key] = topicsMap[key];

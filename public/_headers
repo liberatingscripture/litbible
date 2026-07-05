@@ -16,17 +16,25 @@
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
 
+# CORS + JSON type for the whole API surface. Cache-Control is intentionally NOT
+# set here: Cloudflare _headers *appends* (it does not override) when several
+# rules match a path, so a broad `max-age` here would concatenate with the
+# `no-store` below into a self-contradictory `public, max-age=3600, no-store` on
+# every sync-critical file. Caching is therefore opted into per-file instead.
 /api/*
   Access-Control-Allow-Origin: *
   Content-Type: application/json
+
+# content.json is the large, stable full-NT artifact and is safe to edge-cache.
+/api/content.json
   Cache-Control: public, max-age=3600
 
 # The apps gate on version.json, then must read a manifest and data files that
-# match it. If those were edge-cached (max-age=3600) they could lag a version
-# bump by up to an hour — a client would see the new version but download stale
-# hashes/bytes. Keep the sync-critical files fresh so a version change is
-# immediately consistent end-to-end. (These are only fetched when the version
-# actually changed, so the cost is bounded.)
+# match it. If those were edge-cached they could lag a version bump — a client
+# would see the new version but download stale hashes/bytes. Keep the sync-
+# critical files fresh (plain no-store, no conflicting directive) so a version
+# change is immediately consistent end-to-end. (These are only fetched when the
+# version actually changed, so the cost is bounded.)
 /api/version.json
   Cache-Control: no-store
 
