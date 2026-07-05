@@ -1,6 +1,7 @@
 {
   "bookKey": "luke",
   "chapter": 7,
+  "indexed": true,
   "type": "scripture",
   "title": "Luke 7",
   "description": "Luke 7 in the Liberation and Inclusion Translation (LIT).",

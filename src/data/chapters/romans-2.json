@@ -1,6 +1,7 @@
 {
   "bookKey": "romans",
   "chapter": 2,
+  "indexed": true,
   "type": "scripture",
   "title": "Romans 2",
   "description": "Romans 2 in the Liberation and Inclusion Translation (LIT).",

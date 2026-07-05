@@ -1,6 +1,7 @@
 {
   "bookKey": "1peter",
   "chapter": 3,
+  "indexed": true,
   "type": "scripture",
   "title": "1 Peter 3",
   "description": "1 Peter 3 in the Liberation and Inclusion Translation (LIT).",

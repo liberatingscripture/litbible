@@ -1,6 +1,7 @@
 {
   "bookKey": "luke",
   "chapter": 5,
+  "indexed": true,
   "type": "scripture",
   "title": "Luke 5",
   "description": "Luke 5 in the Liberation and Inclusion Translation (LIT).",

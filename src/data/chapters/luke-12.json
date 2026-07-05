@@ -1,6 +1,7 @@
 {
   "bookKey": "luke",
   "chapter": 12,
+  "indexed": true,
   "type": "scripture",
   "title": "Luke 12",
   "description": "Luke 12 in the Liberation and Inclusion Translation (LIT).",

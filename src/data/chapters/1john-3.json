@@ -1,6 +1,7 @@
 {
   "bookKey": "1john",
   "chapter": 3,
+  "indexed": true,
   "type": "scripture",
   "title": "1 John 3",
   "description": "1 John 3 in the Liberation and Inclusion Translation (LIT).",

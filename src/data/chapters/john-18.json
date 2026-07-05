@@ -1,6 +1,7 @@
 {
   "bookKey": "john",
   "chapter": 18,
+  "indexed": true,
   "type": "scripture",
   "title": "John 18",
   "description": "John 18 in the Liberation and Inclusion Translation (LIT).",

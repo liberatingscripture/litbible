@@ -1,6 +1,7 @@
 {
   "bookKey": "luke",
   "chapter": 10,
+  "indexed": true,
   "type": "scripture",
   "title": "Luke 10",
   "description": "Luke 10 in the Liberation and Inclusion Translation (LIT).",

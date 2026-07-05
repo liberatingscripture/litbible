@@ -1,6 +1,7 @@
 {
   "bookKey": "mark",
   "chapter": 1,
+  "indexed": true,
   "type": "scripture",
   "title": "Mark 1",
   "description": "Mark 1 in the Liberation and Inclusion Translation (LIT).",

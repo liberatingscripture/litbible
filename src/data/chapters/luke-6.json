@@ -1,6 +1,7 @@
 {
   "bookKey": "luke",
   "chapter": 6,
+  "indexed": true,
   "type": "scripture",
   "title": "Luke 6",
   "description": "Luke 6 in the Liberation and Inclusion Translation (LIT).",

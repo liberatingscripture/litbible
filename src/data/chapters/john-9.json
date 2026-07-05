@@ -1,6 +1,7 @@
 {
   "bookKey": "john",
   "chapter": 9,
+  "indexed": true,
   "type": "scripture",
   "title": "John 9",
   "description": "John 9 in the Liberation and Inclusion Translation (LIT).",

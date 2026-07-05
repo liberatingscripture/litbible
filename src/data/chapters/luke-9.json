@@ -1,6 +1,7 @@
 {
   "bookKey": "luke",
   "chapter": 9,
+  "indexed": true,
   "type": "scripture",
   "title": "Luke 9",
   "description": "Luke 9 in the Liberation and Inclusion Translation (LIT).",

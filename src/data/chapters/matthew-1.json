@@ -1,6 +1,7 @@
 {
   "bookKey": "matthew",
   "chapter": 1,
+  "indexed": true,
   "type": "scripture",
   "title": "Matthew 1",
   "description": "Matthew 1 in the Liberation and Inclusion Translation (LIT).",

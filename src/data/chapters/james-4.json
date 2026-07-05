@@ -1,6 +1,7 @@
 {
   "bookKey": "james",
   "chapter": 4,
+  "indexed": true,
   "type": "scripture",
   "title": "James 4",
   "description": "James 4 in the Liberation and Inclusion Translation (LIT).",

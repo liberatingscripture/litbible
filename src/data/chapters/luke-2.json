@@ -1,6 +1,7 @@
 {
   "bookKey": "luke",
   "chapter": 2,
+  "indexed": true,
   "type": "scripture",
   "title": "Luke 2",
   "description": "Luke 2 in the Liberation and Inclusion Translation (LIT).",

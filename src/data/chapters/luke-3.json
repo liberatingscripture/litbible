@@ -1,6 +1,7 @@
 {
   "bookKey": "luke",
   "chapter": 3,
+  "indexed": true,
   "type": "scripture",
   "title": "Luke 3",
   "description": "Luke 3 in the Liberation and Inclusion Translation (LIT).",

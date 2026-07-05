@@ -1,6 +1,7 @@
 {
   "bookKey": "1peter",
   "chapter": 5,
+  "indexed": true,
   "type": "scripture",
   "title": "1 Peter 5",
   "description": "1 Peter 5 in the Liberation and Inclusion Translation (LIT).",

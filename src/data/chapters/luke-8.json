@@ -1,6 +1,7 @@
 {
   "bookKey": "luke",
   "chapter": 8,
+  "indexed": true,
   "type": "scripture",
   "title": "Luke 8",
   "description": "Luke 8 in the Liberation and Inclusion Translation (LIT).",

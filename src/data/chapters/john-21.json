@@ -1,6 +1,7 @@
 {
   "bookKey": "john",
   "chapter": 21,
+  "indexed": true,
   "type": "scripture",
   "title": "John 21",
   "description": "John 21 in the Liberation and Inclusion Translation (LIT).",

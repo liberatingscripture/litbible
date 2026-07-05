@@ -1,6 +1,7 @@
 {
   "bookKey": "luke",
   "chapter": 4,
+  "indexed": true,
   "type": "scripture",
   "title": "Luke 4",
   "description": "Luke 4 in the Liberation and Inclusion Translation (LIT).",

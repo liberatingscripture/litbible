@@ -1,6 +1,7 @@
 {
   "bookKey": "luke",
   "chapter": 11,
+  "indexed": true,
   "type": "scripture",
   "title": "Luke 11",
   "description": "Luke 11 in the Liberation and Inclusion Translation (LIT).",

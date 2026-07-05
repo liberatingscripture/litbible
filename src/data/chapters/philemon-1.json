@@ -1,6 +1,7 @@
 {
   "bookKey": "philemon",
   "chapter": 1,
+  "indexed": true,
   "type": "scripture",
   "title": "Philemon",
   "description": "Philemon in the Liberation and Inclusion Translation (LIT).",

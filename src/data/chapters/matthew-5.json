@@ -1,6 +1,7 @@
 {
   "bookKey": "matthew",
   "chapter": 5,
+  "indexed": true,
   "type": "scripture",
   "title": "Matthew 5",
   "description": "Matthew 5 in the Liberation and Inclusion Translation (LIT).",

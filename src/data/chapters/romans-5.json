@@ -1,6 +1,7 @@
 {
   "bookKey": "romans",
   "chapter": 5,
+  "indexed": true,
   "type": "scripture",
   "title": "Romans 5",
   "description": "Romans 5 in the Liberation and Inclusion Translation (LIT).",

@@ -1,6 +1,7 @@
 {
   "bookKey": "romans",
   "chapter": 3,
+  "indexed": true,
   "type": "scripture",
   "title": "Romans 3",
   "description": "Romans 3 in the Liberation and Inclusion Translation (LIT).",

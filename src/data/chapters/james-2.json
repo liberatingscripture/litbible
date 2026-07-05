@@ -1,6 +1,7 @@
 {
   "bookKey": "james",
   "chapter": 2,
+  "indexed": true,
   "type": "scripture",
   "title": "James 2",
   "description": "James 2 in the Liberation and Inclusion Translation (LIT).",

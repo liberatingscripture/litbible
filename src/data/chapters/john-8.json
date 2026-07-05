@@ -1,6 +1,7 @@
 {
   "bookKey": "john",
   "chapter": 8,
+  "indexed": true,
   "type": "scripture",
   "title": "John 8",
   "description": "John 8 in the Liberation and Inclusion Translation (LIT).",

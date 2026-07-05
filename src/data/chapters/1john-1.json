@@ -1,6 +1,7 @@
 {
   "bookKey": "1john",
   "chapter": 1,
+  "indexed": true,
   "type": "scripture",
   "title": "1 John 1",
   "description": "1 John 1 in the Liberation and Inclusion Translation (LIT).",
