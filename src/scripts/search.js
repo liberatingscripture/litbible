@@ -24,9 +24,11 @@ import {
   topicsIndexSubjectItem,
   bucketSearchResults,
   getMatchLocations,
-  getMetaRangesFromAnchors,
   pickAnchorHref,
-  expandToOccurrences,
+  loadVerseIndex,
+  searchVerses,
+  verseHitHref,
+  highlightVerseHit,
   loadTopicsIndex,
   MODE_LABELS,
 } from "./search-core.js";
@@ -331,15 +333,14 @@ async function loadPagefind() {
   return pagefindMod;
 }
 
-// Build a deep link to the nearest anchor at/before the first NON-meta match.
+// Build a deep link to the nearest anchor at/before the first match.
 async function hrefToFirstMatch(result) {
   const d = await result.data();
 
-  const metaRanges = getMetaRangesFromAnchors(d?.anchors);
   const locs = getMatchLocations(d);
-  const url = pickAnchorHref(d, metaRanges, locs);
+  const url = pickAnchorHref(d, locs);
 
-  return { url, data: d, metaRanges, locs };
+  return { url, data: d, locs };
 }
 
 // ---- Sorting: book/chapter order (optional) ----
@@ -385,7 +386,7 @@ function displayQueryLabel(qRaw) {
   return q;
 }
 
-// `items` are enriched entries ({ d, metaRanges, locs, ... }) so the term
+// `items` are enriched entries ({ d, locs, ... }) so the term
 // label derives from the same anchor computation as the deep link.
 function renderGlossary(items, qPhrase) {
   glossaryEl.innerHTML = "";
@@ -393,7 +394,7 @@ function renderGlossary(items, qPhrase) {
     const li = document.createElement("li");
     li.className = "result";
 
-    const term = glossaryTermFromResult(it.d, it.metaRanges, it.locs, qPhrase);
+    const term = glossaryTermFromResult(it.d, it.locs, qPhrase);
 
     li.innerHTML = `
       <a class="result-link" href="${escapeHtml(it.d.url)}">
@@ -866,36 +867,43 @@ async function runFullSearch() {
 
   setStatus(`Searching for "${displayQ}"...`);
 
-  const pagefind = await loadPagefind();
+  const { mode } = readState();
+  const wantKeyword = mode === "all" || mode === "keyword";
 
-  const filters = {};
-  if (book) filters.book = book;
-
-  const { pfQuery, exactSingleToken, exactToken } = buildPfQuery(q);
-
-  const search = await pagefind.search(
-    pfQuery,
-    Object.keys(filters).length ? { filters } : undefined,
-  );
-
-  const resolvedAll = await Promise.all(
-    search.results.map((r) => hrefToFirstMatch(r)),
-  );
+  // Scripture keyword search scans the verse index; Pagefind covers
+  // glossary/articles. Start the verse-index fetch first so the two loads
+  // overlap on first use.
+  const versePromise = wantKeyword ? loadVerseIndex(base) : null;
 
   const qUnquoted = displayQ;
   const qPhrase = normalizePhrase(qUnquoted);
 
+  // A book filter excludes everything Pagefind still indexes (glossary and
+  // article pages carry no book filter value), so skip it entirely then. A
+  // Pagefind load failure degrades to verse-index-only results.
+  let resolvedAll = [];
+  if (!book) {
+    try {
+      const pagefind = await loadPagefind();
+      const { pfQuery } = buildPfQuery(q);
+      const search = await pagefind.search(pfQuery);
+      resolvedAll = await Promise.all(
+        search.results.map((r) => hrefToFirstMatch(r)),
+      );
+    } catch (err) {
+      console.warn("[search] Pagefind unavailable:", err);
+      resolvedAll = [];
+    }
+  }
+
   // Flat result objects (Pagefind data + anchored url + relevance rank) are
   // what the render/cache layer consumes; enrichment wraps them with the
-  // match signals the shared bucketing runs on. metaRanges/locs are passed
-  // through from hrefToFirstMatch so the anchor choice and the bucketing
-  // signals share one computation.
-  const enriched = resolvedAll.map(({ url, data, metaRanges, locs }, i) =>
+  // match signals the shared bucketing runs on. locs are passed through from
+  // hrefToFirstMatch so the anchor choice and the bucketing signals share
+  // one computation.
+  const enriched = resolvedAll.map(({ url, data, locs }, i) =>
     enrichSearchResult({ ...data, url, __relevanceRank: i }, i, {
       qPhrase,
-      exactSingleToken,
-      exactToken,
-      metaRanges,
       locs,
     }),
   );
@@ -960,17 +968,34 @@ async function runFullSearch() {
 
   const buckets = bucketSearchResults(enriched, { extraSubjectItems });
 
-  // Glossary stays enriched (renderGlossary needs metaRanges/locs to name
-  // the matched entry); the other buckets flatten to the d shape the
-  // sort/render/expand layer consumes.
+  // Glossary stays enriched (renderGlossary needs locs to name the matched
+  // entry); the other buckets flatten to the d shape the sort/render layer
+  // consumes.
   const glossaryMatches = buckets.glossary;
   const subjectMatchesRaw = buckets.subject.map((it) => it.d);
   const articleMatchesRaw = buckets.article.map((it) => it.d);
 
-  // Expand keyword results into per-occurrence cards
-  const keywordExpanded = buckets.keyword
-    .map((it) => it.d)
-    .flatMap((item) => expandToOccurrences(item, displayQ));
+  // Scripture keyword results: one card per matching verse, shaped like the
+  // occurrence cards renderKeyword groups by chapter (__baseUrl). Hits come
+  // back in canonical Bible order, so the relevance rank IS Bible order.
+  const verseIndex = versePromise ? await versePromise : null;
+  const verseHits = verseIndex
+    ? searchVerses(verseIndex, q, { bookKey: book })
+    : [];
+
+  const keywordCards = verseHits.map((h, i) => {
+    const chapterTitle = `${bookKeyToLabel(h.bookKey)} ${h.chapter}`;
+    return {
+      url: verseHitHref(h),
+      excerpt: `<sup>${h.verse}</sup>&nbsp;${highlightVerseHit(h)}`,
+      meta: { title: chapterTitle },
+      title: chapterTitle,
+      __relevanceRank: i,
+      __occurrenceIndex: h.verse,
+      __baseUrl: `/${h.bookKey}-${h.chapter}`,
+      __matchCount: h.runs.length,
+    };
+  });
 
   lastSearchCache = {
     displayQ,
@@ -978,7 +1003,7 @@ async function runFullSearch() {
     glossaryMatches,
     subjectMatchesRaw,
     articleMatchesRaw,
-    keywordMatchesRaw: keywordExpanded,
+    keywordMatchesRaw: keywordCards,
   };
 
   renderFromCache();
