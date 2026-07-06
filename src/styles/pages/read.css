@@ -473,7 +473,7 @@ body.bg-cream > main {
   justify-content: space-between;
   align-items: center;
   gap: 12px;
-  color: var(--ink);
+  color: rgba(var(--ink-rgb), 0.92);
   user-select: none;
 }
 
