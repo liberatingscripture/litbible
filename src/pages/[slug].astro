@@ -288,7 +288,7 @@ if (typeof chaptersInBook === "number" && n < chaptersInBook) {
                 <ol class="footnotes">
                   {footnotes.map((fn) => (
                     <li id={fn.id}>
-                      <p>
+                      <div class="fn-body">
                         <a
                           href={`#${fn.refId}`}
                           class="footnote-backlink"
@@ -297,7 +297,7 @@ if (typeof chaptersInBook === "number" && n < chaptersInBook) {
                           {fn.label}
                         </a>
                         <span set:html={fn.html} />
-                      </p>
+                      </div>
                     </li>
                   ))}
                 </ol>
@@ -482,7 +482,7 @@ if (typeof chaptersInBook === "number" && n < chaptersInBook) {
       margin: 0 0 10px;
     }
 
-    .footnotes p {
+    .footnotes .fn-body {
       margin: 0;
       line-height: 1.6;
     }
