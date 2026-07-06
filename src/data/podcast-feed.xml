@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:podcast="https://podcastindex.org/namespace/1.0">
     <channel>
-        <generator>RedCircle VERIFY_TOKEN_59ffbfb2-f814-469a-8522-416bb67c15f6  -- Rendered At Sat, 13 Jun 2026 07:06:34 &#43;0000</generator>
+        <generator>RedCircle VERIFY_TOKEN_59ffbfb2-f814-469a-8522-416bb67c15f6  -- Rendered At Fri, 03 Jul 2026 03:42:40 &#43;0000</generator>
         <title>Found in Translation</title>
         <link>https://redcircle.com/shows/found-in-translation</link>
         <language>en-US</language>
@@ -52,7 +52,7 @@
         
 
         
-        <itunes:explicit>no</itunes:explicit>
+        <itunes:explicit>false</itunes:explicit>
         
         
         
@@ -79,7 +79,7 @@
                 <itunes:duration>3133</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -103,7 +103,7 @@
                 <itunes:duration>2906</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -128,7 +128,7 @@
                 <itunes:duration>2976</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -152,7 +152,7 @@
                 <itunes:duration>2574</itunes:duration>
                 
                 
-                <itunes:explicit>yes</itunes:explicit>
+                <itunes:explicit>true</itunes:explicit>
                 
             </item>
         
@@ -176,7 +176,7 @@
                 <itunes:duration>2830</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -200,7 +200,7 @@
                 <itunes:duration>2211</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -224,7 +224,7 @@
                 <itunes:duration>2023</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -248,7 +248,7 @@
                 <itunes:duration>332</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -273,7 +273,7 @@
                 <itunes:duration>3606</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -298,7 +298,7 @@
                 <itunes:duration>4329</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -323,7 +323,7 @@
                 <itunes:duration>4920</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -348,7 +348,7 @@
                 <itunes:duration>4210</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -373,7 +373,7 @@
                 <itunes:duration>4564</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -397,7 +397,7 @@
                 <itunes:duration>3585</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -421,7 +421,7 @@
                 <itunes:duration>4538</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -445,7 +445,7 @@
                 <itunes:duration>4570</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -469,7 +469,7 @@
                 <itunes:duration>3456</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -493,7 +493,7 @@
                 <itunes:duration>4201</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -518,7 +518,7 @@
                 <itunes:duration>3792</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -542,7 +542,7 @@
                 <itunes:duration>3985</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -566,7 +566,7 @@
                 <itunes:duration>4278</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -590,7 +590,7 @@
                 <itunes:duration>4209</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -614,7 +614,7 @@
                 <itunes:duration>3903</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -638,7 +638,7 @@
                 <itunes:duration>4331</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -662,7 +662,7 @@
                 <itunes:duration>3562</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -686,7 +686,7 @@
                 <itunes:duration>2128</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -711,7 +711,7 @@
                 <itunes:duration>375</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -736,7 +736,7 @@
                 <itunes:duration>4419</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -761,7 +761,7 @@
                 <itunes:duration>3612</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -786,7 +786,7 @@
                 <itunes:duration>3356</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -811,7 +811,7 @@
                 <itunes:duration>3715</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -836,7 +836,7 @@
                 <itunes:duration>3087</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -861,7 +861,7 @@
                 <itunes:duration>3099</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -886,7 +886,7 @@
                 <itunes:duration>2507</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -911,7 +911,7 @@
                 <itunes:duration>2826</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -936,7 +936,7 @@
                 <itunes:duration>2916</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -961,7 +961,7 @@
                 <itunes:duration>3355</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -986,7 +986,7 @@
                 <itunes:duration>4403</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -1011,7 +1011,7 @@
                 <itunes:duration>3609</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -1036,7 +1036,7 @@
                 <itunes:duration>697</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -1061,7 +1061,7 @@
                 <itunes:duration>3291</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -1086,7 +1086,7 @@
                 <itunes:duration>3106</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -1111,7 +1111,7 @@
                 <itunes:duration>3169</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -1136,7 +1136,7 @@
                 <itunes:duration>2999</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -1161,7 +1161,7 @@
                 <itunes:duration>3365</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -1186,7 +1186,7 @@
                 <itunes:duration>2944</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -1211,7 +1211,7 @@
                 <itunes:duration>1998</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -1236,7 +1236,7 @@
                 <itunes:duration>3675</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -1261,7 +1261,7 @@
                 <itunes:duration>2753</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -1286,7 +1286,7 @@
                 <itunes:duration>2058</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -1311,7 +1311,7 @@
                 <itunes:duration>2902</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -1336,7 +1336,7 @@
                 <itunes:duration>2416</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -1361,7 +1361,7 @@
                 <itunes:duration>3351</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -1386,7 +1386,7 @@
                 <itunes:duration>2559</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -1411,7 +1411,7 @@
                 <itunes:duration>2898</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -1436,7 +1436,7 @@
                 <itunes:duration>2097</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -1461,7 +1461,7 @@
                 <itunes:duration>1879</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -1486,7 +1486,7 @@
                 <itunes:duration>2542</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -1511,7 +1511,7 @@
                 <itunes:duration>3003</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -1536,7 +1536,7 @@
                 <itunes:duration>2881</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -1561,7 +1561,7 @@
                 <itunes:duration>1630</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -1586,7 +1586,7 @@
                 <itunes:duration>1965</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -1611,7 +1611,7 @@
                 <itunes:duration>162</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -1636,7 +1636,7 @@
                 <itunes:duration>2492</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -1661,7 +1661,7 @@
                 <itunes:duration>2373</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -1686,7 +1686,7 @@
                 <itunes:duration>2021</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -1711,7 +1711,7 @@
                 <itunes:duration>2201</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -1736,7 +1736,7 @@
                 <itunes:duration>3659</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -1761,7 +1761,7 @@
                 <itunes:duration>2302</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -1786,7 +1786,7 @@
                 <itunes:duration>2338</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -1811,7 +1811,7 @@
                 <itunes:duration>2262</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -1836,7 +1836,7 @@
                 <itunes:duration>2046</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -1861,7 +1861,7 @@
                 <itunes:duration>75</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -1886,7 +1886,7 @@
                 <itunes:duration>3333</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -1911,7 +1911,7 @@
                 <itunes:duration>2925</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -1936,7 +1936,7 @@
                 <itunes:duration>3587</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -1961,7 +1961,7 @@
                 <itunes:duration>3690</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -1986,7 +1986,7 @@
                 <itunes:duration>2874</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -2011,7 +2011,7 @@
                 <itunes:duration>3233</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -2036,7 +2036,7 @@
                 <itunes:duration>3259</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -2061,7 +2061,7 @@
                 <itunes:duration>1920</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -2086,7 +2086,7 @@
                 <itunes:duration>3407</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -2111,7 +2111,7 @@
                 <itunes:duration>2845</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -2136,7 +2136,7 @@
                 <itunes:duration>3425</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -2161,7 +2161,7 @@
                 <itunes:duration>3100</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -2186,7 +2186,7 @@
                 <itunes:duration>2675</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -2211,7 +2211,7 @@
                 <itunes:duration>2756</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -2236,7 +2236,7 @@
                 <itunes:duration>3744</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -2261,7 +2261,7 @@
                 <itunes:duration>3529</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -2286,7 +2286,7 @@
                 <itunes:duration>4219</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -2311,7 +2311,7 @@
                 <itunes:duration>4091</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -2336,7 +2336,7 @@
                 <itunes:duration>4054</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -2361,7 +2361,7 @@
                 <itunes:duration>4981</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -2386,7 +2386,7 @@
                 <itunes:duration>2944</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -2411,7 +2411,7 @@
                 <itunes:duration>3901</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -2436,7 +2436,7 @@
                 <itunes:duration>2810</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -2461,7 +2461,7 @@
                 <itunes:duration>2291</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -2486,7 +2486,7 @@
                 <itunes:duration>2680</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -2511,7 +2511,7 @@
                 <itunes:duration>3480</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -2536,7 +2536,7 @@
                 <itunes:duration>2801</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -2561,7 +2561,7 @@
                 <itunes:duration>3009</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -2586,7 +2586,7 @@
                 <itunes:duration>3571</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -2611,7 +2611,7 @@
                 <itunes:duration>2875</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -2636,7 +2636,7 @@
                 <itunes:duration>3174</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -2661,7 +2661,7 @@
                 <itunes:duration>3459</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -2686,7 +2686,7 @@
                 <itunes:duration>3626</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -2711,7 +2711,7 @@
                 <itunes:duration>2608</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -2736,7 +2736,7 @@
                 <itunes:duration>2122</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
@@ -2761,7 +2761,7 @@
                 <itunes:duration>309</itunes:duration>
                 
                 
-                <itunes:explicit>no</itunes:explicit>
+                <itunes:explicit>false</itunes:explicit>
                 
             </item>
         
