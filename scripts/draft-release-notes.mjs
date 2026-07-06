@@ -240,6 +240,12 @@ const modifiedArticles = modifiedFiles.filter((f) => ARTICLE_RE.test(f));
 
 const changes = [];
 
+// Metadata-only chapter changes (no reader-visible text/footnote change) are
+// collected here and collapsed into a single entry after the loops, so a
+// repo-wide metadata pass (e.g. the `indexed` flag or a `topics` retag) can't
+// flood the changelog.
+const metadataOnly = [];
+
 // newByBook collects both brand-new chapter files AND placeholder→real upgrades.
 // It is emitted after both passes so placeholders detected in the modified loop
 // are included in the grouping.
@@ -361,7 +367,7 @@ for (const file of modifiedChapters) {
         action: "removed",
         diff: `removed "${truncate(stripHtml(oldFn.html), 120)}"`,
       });
-    } else if (oldFn && newFn && oldFn.html !== newFn.html) {
+    } else if (oldFn && newFn && stripHtml(oldFn.html) !== stripHtml(newFn.html)) {
       const verse = findFootnoteVerse(newParas, newFn.label);
       fnDiffs.push({
         label: newFn.label,
@@ -484,11 +490,7 @@ for (const file of modifiedChapters) {
   const hasFnChanges = filteredFnDiffs.length > 0 || relabelSummary !== null;
 
   if (!hasTextChanges && !hasFnChanges) {
-    changes.push({
-      type: "metadata_updated",
-      description: `${label} ${chapter} — metadata updated`,
-      location: scriptureLocation(bookKey, chapter),
-    });
+    metadataOnly.push({ bookKey, chapter, label });
     continue;
   }
 
@@ -637,6 +639,23 @@ for (const file of modifiedArticles) {
   changes.push({
     type: "article_updated",
     description: `Article updated: ${basename(file, ".md").replace(/-/g, " ")}`,
+  });
+}
+
+// ── Metadata-only chapter changes (collapsed) ────────────────────────────────
+// One line for a single chapter, a count for many. A bulk metadata pass can
+// never flood the changelog again.
+if (metadataOnly.length === 1) {
+  const { bookKey, chapter, label } = metadataOnly[0];
+  changes.push({
+    type: "metadata_updated",
+    description: `${label} ${chapter} — metadata updated`,
+    location: scriptureLocation(bookKey, chapter),
+  });
+} else if (metadataOnly.length > 1) {
+  changes.push({
+    type: "metadata_updated",
+    description: `Metadata updated (${metadataOnly.length} chapters)`,
   });
 }
 
