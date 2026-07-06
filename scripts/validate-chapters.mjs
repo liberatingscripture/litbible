@@ -169,9 +169,10 @@ for (const filePath of files) {
   }
 
   // ── Verse number sequence checks ──────────────────────────────────────────
-  // A verse number may appear twice (a verse spanning a paragraph break repeats
-  // its number, deduped at render time), but must never decrease, and gaps are
-  // only allowed for known SBLGNT omissions.
+  // Each verse id must appear exactly once (duplicates are invalid HTML and make
+  // the #vN anchor ambiguous), must never decrease, and gaps are only allowed for
+  // known SBLGNT omissions. A verse spanning a paragraph break keeps its marker
+  // only at its start; the continuation paragraph carries no marker.
   if (Array.isArray(data.paragraphs)) {
     const paraHtml = data.paragraphs.join("\n");
     const verses = [...paraHtml.matchAll(/<sup id="v(\d+)" class="vn"/g)].map(
@@ -194,13 +195,16 @@ for (const filePath of files) {
         }
       }
 
-      // Repetition: at most twice
+      // Uniqueness: each verse id must appear exactly once. A repeat is invalid
+      // HTML (epubcheck rejects duplicate ids) and makes the #vN anchor ambiguous;
+      // the continuation paragraph of a paragraph-spanning verse carries no marker.
       const counts = new Map();
       for (const v of verses) counts.set(v, (counts.get(v) ?? 0) + 1);
       for (const [v, n] of counts) {
-        if (n > 2) {
-          warnings.push(
-            `verse v${v} appears ${n} times (max expected is 2, for a verse spanning a paragraph break)`
+        if (n > 1) {
+          errors.push(
+            `duplicate verse id: v${v} appears ${n} times (must be unique — the ` +
+              `continuation paragraph of a verse spanning a paragraph break carries no marker)`
           );
         }
       }

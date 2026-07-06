@@ -2,8 +2,13 @@
   "invariants": [
     {
       "id": "indexed_flag",
-      "rule": "Optional boolean field. Set to false on placeholder/stub chapters to suppress Pagefind indexing. Remove this field (do not set to true) when real content replaces the stub. The validator will warn if indexed:false is present on a chapter with real content.",
+      "rule": "Publication-state flag. Placeholder/stub chapters are `indexed: false`; published chapters with real content are `indexed: true`. Both states must be explicit and set on every chapter — never omit it. PRIMARY PURPOSE: draft-release-notes.mjs emits a \"chapter added\" entry when a chapter transitions from false to true, so leaving a real chapter fieldless breaks that explicit false→true signal. SECONDARY EFFECT: consumers read `indexed !== false`, so `indexed: false` also keeps stub (\"coming soon\") pages out of Pagefind search results (see shouldIndex in [slug].astro) — desired, since placeholder pages should not be searchable. The chapter validator additionally uses `indexed: false` to recognize a stub and skip its \"no verse markers\" check, so stubs must carry it. For a real chapter, `true` and absent behave identically in both consumers; `true` is required only to keep the release-notes lifecycle an explicit two-state (false→true) machine rather than one relying on field absence.",
       "severity": "high"
+    },
+    {
+      "id": "unique_verse_ids",
+      "rule": "Each verse marker id (id=\"vN\" on <sup class=\"vn\">) must appear exactly once per chapter. A verse that spans a paragraph break keeps its marker only at its start; the continuation paragraph carries NO marker (this is what makes the number appear once). Duplicate ids are invalid HTML — epubcheck rejects them and the #vN deep-link anchor becomes ambiguous — so a repeated verse number is always a bug, never a style choice. The chapter validator enforces uniqueness as an error (any verse id appearing more than once fails validation and blocks the pre-commit hook).",
+      "severity": "fatal"
     }
   ]
 }
