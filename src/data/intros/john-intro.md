@@ -120,6 +120,7 @@ By contrast, Jesus willingly faces death not to maintain the status quo but to e
 This tension highlights Jesus’ commitment to true justice, even at great personal cost, in opposition to the elite and powerful’s complicity in injustice to maintain power and appease oppressors.
 </li>
 </ul>
+</li>
 <li>
 <strong>Liberation from Darkness and Fear</strong>
 
