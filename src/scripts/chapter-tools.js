@@ -21,45 +21,31 @@ function init(container) {
   initFootnotePopovers(container);
 }
 
-/* ── Shared: verse marker lookup and ranges ───────────────────────────── */
+/* ── Shared: verse span lookup ────────────────────────────────────────── */
 
-function verseSups(container) {
-  return [...container.querySelectorAll("sup.vn")];
+// Each verse's content is wrapped in `<span data-verse="N">` at build time
+// (see wrapVerseSegments in src/lib/chapter-html.ts); a verse that crosses
+// block boundaries has one span per block, all with the same number.
+
+function verseSpans(container, verse) {
+  return [...container.querySelectorAll(`[data-verse="${verse}"]`)];
 }
 
 /**
- * Build a DOM Range covering verses start..end: from the start verse's
- * marker to just before the next verse marker after the range (a repeated
- * number is the same verse continuing across a paragraph break, so it is
- * included). Returns null if the start verse does not exist.
+ * DOM Ranges covering verses start..end — one per verse span, so
+ * paragraph-crossing verses need no boundary math. Empty array when the
+ * verses do not exist.
  */
-function buildVerseRange(container, start, end, { includeMarker = true } = {}) {
-  const sups = verseSups(container);
-  const nums = sups.map((s) => parseInt(s.textContent, 10));
-  const startIdx = nums.findIndex((n) => n === start);
-  if (startIdx === -1) return null;
-
-  let boundary = null;
-  for (let i = startIdx; i < sups.length; i++) {
-    if (nums[i] > end) {
-      boundary = sups[i];
-      break;
+function verseRanges(container, start, end) {
+  const ranges = [];
+  for (let v = start; v <= end; v++) {
+    for (const span of verseSpans(container, v)) {
+      const range = document.createRange();
+      range.selectNodeContents(span);
+      ranges.push(range);
     }
   }
-
-  const range = document.createRange();
-  if (includeMarker) {
-    range.setStartBefore(sups[startIdx].closest(".vglue") || sups[startIdx]);
-  } else {
-    range.setStartAfter(sups[startIdx]);
-  }
-  if (boundary) {
-    range.setEndBefore(boundary.closest(".vglue") || boundary);
-  } else {
-    const paras = container.querySelectorAll(".p");
-    range.setEndAfter(paras[paras.length - 1]);
-  }
-  return range;
+  return ranges;
 }
 
 /* ── Shared: one floating panel at a time ─────────────────────────────── */
@@ -179,9 +165,9 @@ function initVerseHighlight(container) {
     if (!m) return;
     const start = Number(m[1]);
     const end = m[2] ? Math.max(start, Number(m[2])) : start;
-    const range = buildVerseRange(container, start, end);
-    if (!range) return;
-    CSS.highlights.set("lit-verse-range", new Highlight(range));
+    const ranges = verseRanges(container, start, end);
+    if (!ranges.length) return;
+    CSS.highlights.set("lit-verse-range", new Highlight(...ranges));
     showClearChip(formatRef(start, end));
   }
 
@@ -207,44 +193,19 @@ function getVerseUrl(start, end) {
 }
 
 /**
- * Extract the plain text of one verse (everything after its number marker
- * up to the next different verse number), skipping footnote refs and the
- * hidden hyphen-wordbreak helpers.
+ * Extract the plain text of one verse from its data-verse span(s),
+ * skipping verse-number markers and footnote refs. Spans in different
+ * blocks (poetry lines, paragraph breaks) join with a space.
  */
 function getSingleVerseText(container, verse) {
-  const range = buildVerseRange(container, verse, verse, { includeMarker: false });
-  if (!range) return "";
+  const parts = verseSpans(container, verse).map((span) => {
+    const clone = span.cloneNode(true);
+    clone.querySelectorAll("sup.fn-ref, sup.vn").forEach((s) => s.remove());
+    return clone.textContent;
+  });
 
-  const walker = document.createTreeWalker(
-    range.commonAncestorContainer,
-    NodeFilter.SHOW_TEXT,
-    {
-      acceptNode(node) {
-        if (!range.intersectsNode(node)) return NodeFilter.FILTER_REJECT;
-        if (node.parentElement?.closest("sup.fn-ref, sup.vn, .pf-wordbreak")) {
-          return NodeFilter.FILTER_REJECT;
-        }
-        return NodeFilter.FILTER_ACCEPT;
-      },
-    }
-  );
-
-  let text = "";
-  let prevBlock = null;
-  while (walker.nextNode()) {
-    const node = walker.currentNode;
-    let value = node.nodeValue;
-    if (node === range.startContainer) value = value.slice(range.startOffset);
-    if (node === range.endContainer) value = value.slice(0, range.endOffset);
-    // Crossing into a new block element (poetry line, paragraph break)
-    // needs an explicit space — there is no whitespace text node between
-    // minified blocks, so words would otherwise run together.
-    const block = node.parentElement?.closest("p, blockquote, li, div");
-    if (prevBlock && block !== prevBlock) text += " ";
-    prevBlock = block;
-    text += value;
-  }
-  return text
+  return parts
+    .join(" ")
     .replace(/[​‌‍⁠﻿]/g, "") // zero-width characters
     .replace(/\s+/g, " ")
     .trim();
@@ -297,8 +258,9 @@ function menuButton(label, onClick) {
 
 function setSelectionHighlight(container, start, end) {
   if (!supportsHighlight) return;
-  const range = buildVerseRange(container, start, end);
-  if (range) CSS.highlights.set("lit-verse-select", new Highlight(range));
+  const ranges = verseRanges(container, start, end);
+  if (ranges.length)
+    CSS.highlights.set("lit-verse-select", new Highlight(...ranges));
 }
 
 function openVerseMenu(container, sup, anchorVerse, start, end) {

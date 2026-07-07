@@ -99,57 +99,68 @@ function normalizeStudyVerseGlue(html: string): string {
 }
 
 /**
- * Pagefind-friendly hyphen normalization:
- * Keep the real hyphen in the visible text, but inject a zero-width, indexable space
- * AFTER the hyphen so Pagefind can treat word-word as word<space>word.
+ * Wrap each verse's inline content in `<span data-verse="N">` so verse
+ * boundaries are DOM containers (CSS-targetable highlighting, trivial text
+ * extraction in chapter-tools.js) instead of runtime TreeWalker
+ * reconstructions. A verse that spans block boundaries (paragraph breaks,
+ * poetry lines) gets one span per block, all sharing the same data-verse.
  *
- * - Only operates OUTSIDE tags (so it won't touch ids/attrs like luke-4-p11).
- * - Only targets hyphen-minus between word chars: /[0-9A-Za-z]-[0-9A-Za-z]/
+ * Splitting each `<p>`'s inner HTML at `<span class="vglue">` openings is
+ * nesting-safe by validated corpus invariants (see validate-chapters):
+ * every vglue sits at tag-depth 0 within its block and every block is
+ * balanced, so each segment is complete markup. Text before a chapter's
+ * first verse marker is left unwrapped.
  *
- * Replacement:
- *   "-" becomes "-<span class="pf-wordbreak"> </span>"
- *
- * This avoids the blockquote-only wrapping bug where a separate hyphen element can
- * get kicked to the next line by itself.
+ * `state.currentVerse` threads the active verse across paragraphs — pass
+ * one state object per chapter.
  */
-function injectHyphenWordbreaks(html: string): string {
-  const s = String(html ?? "");
-  if (!s.includes("-")) return s;
+export type StudyVerseState = { currentVerse: number | null };
 
-  const isWord = (ch: string) => /[0-9A-Za-z]/.test(ch);
+function wrapVerseSegments(html: string, state: StudyVerseState): string {
+  const wrapSeg = (seg: string, verse: number) =>
+    `<span data-verse="${verse}">${seg}</span>`;
 
-  let out = "";
-  let inTag = false;
+  return String(html ?? "").replace(
+    /(<p\b[^>]*>)([\s\S]*?)(<\/p>)/gi,
+    (_match, open: string, inner: string, close: string) => {
+      const starts = [...inner.matchAll(/<span class="vglue">/g)].map(
+        (m) => m.index as number,
+      );
 
-  for (let i = 0; i < s.length; i++) {
-    const ch = s[i];
-
-    if (ch === "<") {
-      inTag = true;
-      out += ch;
-      continue;
-    }
-
-    if (ch === ">") {
-      inTag = false;
-      out += ch;
-      continue;
-    }
-
-    if (!inTag && ch === "-") {
-      const prev = i > 0 ? s[i - 1] : "";
-      const next = i + 1 < s.length ? s[i + 1] : "";
-
-      if (isWord(prev) && isWord(next)) {
-        out += `-<span class="pf-wordbreak" aria-hidden="true"> </span>`;
-        continue;
+      // No verse marker in this block: the whole line continues the
+      // current verse (e.g. an unnumbered poetry line).
+      if (!starts.length) {
+        return state.currentVerse && inner.trim()
+          ? open + wrapSeg(inner, state.currentVerse) + close
+          : _match;
       }
-    }
 
-    out += ch;
-  }
+      let out = open;
 
-  return out;
+      const pre = inner.slice(0, starts[0]);
+      out +=
+        state.currentVerse && pre.trim()
+          ? wrapSeg(pre, state.currentVerse)
+          : pre;
+
+      for (let i = 0; i < starts.length; i++) {
+        const seg = inner.slice(starts[i], starts[i + 1] ?? inner.length);
+        const vm = seg.match(
+          /<sup\b[^>]*\bclass=(['"])[^'"]*\bvn\b[^'"]*\1[^>]*>(\d+)/i,
+        );
+        const verse = vm ? Number(vm[2]) : state.currentVerse;
+
+        if (verse) {
+          out += wrapSeg(seg, verse);
+          state.currentVerse = verse;
+        } else {
+          out += seg;
+        }
+      }
+
+      return out + close;
+    },
+  );
 }
 
 /**
@@ -250,26 +261,29 @@ function normalizeReadVerseGlue(html: string): string {
 /* ── Entry points ────────────────────────────────────────────────────── */
 
 /**
- * Full Study View pipeline for one paragraph. `seenVerseIds` must be a fresh
- * Set per chapter (duplicate verse ids are only dropped within a chapter).
+ * Full Study View pipeline for one paragraph. `seenVerseIds` and
+ * `verseState` must be fresh per chapter (duplicate verse ids are only
+ * dropped — and the current verse only carries — within a chapter).
  */
 export function prepareStudyParagraph(
   html: string,
   bookKey: string,
   chapter: number,
   seenVerseIds: Set<string>,
+  verseState: StudyVerseState,
 ): string {
   const osisBook = OSIS_BOOKS[bookKey] ?? "";
-  return addOsisIds(
-    addHbqAria(
-      injectHyphenWordbreaks(
+  return wrapVerseSegments(
+    addOsisIds(
+      addHbqAria(
         normalizeHbqVerseGlue(
           normalizeStudyVerseGlue(dropDuplicateVerseIds(html, seenVerseIds)),
         ),
       ),
+      osisBook,
+      chapter,
     ),
-    osisBook,
-    chapter,
+    verseState,
   );
 }
 

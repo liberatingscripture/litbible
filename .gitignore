@@ -33,3 +33,4 @@ pnpm-debug.log*
 public/api/
 public/search/topics.json
 public/topics-index.json
+public/search/verses.json

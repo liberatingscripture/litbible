@@ -65,6 +65,13 @@ const topicsList: string[] = Array.isArray(topics)
 const shouldIndex =
   typeof indexProp === "boolean" ? indexProp : pagefindType !== "search";
 
+// Scripture CHAPTER pages are intentionally NOT Pagefind-indexed: their
+// keyword search runs against the verse index (public/search/verses.json —
+// see searchVerses in search-core.js) and their topics come from
+// public/topics-index.json. Pagefind still indexes intros (and, elsewhere,
+// glossary/articles). `shouldIndex` stays in charge of robots noindex.
+const pagefindIndexable = shouldIndex && pagefindType !== "scripture";
+
 const isSearchPage = pagefindType === "search";
 const isScriptureLike =
   pagefindType === "scripture" || pagefindType === "intro";
@@ -153,12 +160,12 @@ if (headerKind === "chapter") {
     <div
       class="scripture-main"
       aria-labelledby={isScriptureLike ? "chapter-title" : undefined}
-      data-pagefind-body={shouldIndex ? true : undefined}
-      data-pagefind-ignore={shouldIndex ? undefined : true}
-      data-type={shouldIndex ? pagefindType : undefined}
-      data-book={shouldIndex ? pagefindBook : undefined}
-      data-chapter={shouldIndex ? pagefindChapter : undefined}
-      data-pagefind-filter={shouldIndex
+      data-pagefind-body={pagefindIndexable ? true : undefined}
+      data-pagefind-ignore={pagefindIndexable ? undefined : true}
+      data-type={pagefindIndexable ? pagefindType : undefined}
+      data-book={pagefindIndexable ? pagefindBook : undefined}
+      data-chapter={pagefindIndexable ? pagefindChapter : undefined}
+      data-pagefind-filter={pagefindIndexable
         ? "type[data-type], book[data-book], chapter[data-chapter]"
         : undefined}
     >
@@ -169,7 +176,7 @@ if (headerKind === "chapter") {
          ========================================================= */
       }
       {
-        shouldIndex ? (
+        pagefindIndexable ? (
           <>
             {/* Avoid duplicate title meta on scripture/intro pages.
                 ScriptureHeader's <h1> already carries data-pagefind-meta="title". */}

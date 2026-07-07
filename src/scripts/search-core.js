@@ -1,13 +1,13 @@
 // src/scripts/search-core.js
 //
 // Shared search logic used by BOTH the SearchBar tray (searchbar.js) and the
-// full /search page (search.js). Everything here is framework-free and
-// side-effect-free: reference parsing, book aliases, Pagefind query building,
-// result-location math, and the topics-index loader.
+// full /search page (search.js): reference parsing, book aliases, the
+// verse-index scanner (scripture keyword search), Pagefind query building
+// (articles/glossary), result-location math, and the topics-index loader.
 //
 // Rule of thumb: if a behavior must agree between the tray and the full page
-// (what counts as a reference, how a query is quoted, which anchors are
-// content vs meta), it lives here. Page-specific rendering stays in the
+// (what counts as a reference, how a query is quoted, how a verse hit is
+// labelled and linked), it lives here. Page-specific rendering stays in the
 // respective entry scripts.
 
 import { BOOK_ORDER, bookKeyToLabel } from "../data/books.js";
@@ -238,10 +238,11 @@ export function normalizePhrase(s) {
 }
 
 /**
- * Build the Pagefind query for a raw user query.
+ * Build the Pagefind query for a raw user query. Pagefind only covers
+ * articles/glossary/intros now (scripture keyword search runs against the
+ * verse index — see searchVerses), but the quoting rules still shape those
+ * page-level results:
  * - Explicitly quoted queries pass through (single-token gets exact matching).
- * - Hyphenated single tokens are rewritten to match the index's
- *   "word- word" tokenization (see injectHyphenWordbreaks in [slug].astro).
  * - Multi-word queries become exact phrases.
  * - Very short tokens (1–4 chars) are quoted for exact-only matching.
  */
@@ -261,14 +262,6 @@ export function buildPfQuery(raw) {
 
   // Normalize fancy dashes to "-" for consistent matching.
   const canon = q0.replace(/[‐‑‒–—−]/g, "-");
-
-  if (!/\s+/.test(canon) && /[\p{L}\p{N}]-(?=[\p{L}\p{N}])/u.test(canon)) {
-    const pfPhrase = canon.replace(
-      /([\p{L}\p{N}])-([\p{L}\p{N}])/gu,
-      "$1- $2",
-    );
-    return { pfQuery: `"${pfPhrase}"`, exactSingleToken: false, exactToken: "" };
-  }
 
   if (/\s+/.test(canon)) {
     return { pfQuery: `"${canon}"`, exactSingleToken: false, exactToken: "" };
@@ -305,26 +298,6 @@ export function stripTags(html) {
   return String(html || "").replace(/<[^>]+>/g, "");
 }
 
-export function isWordChar(ch) {
-  if (!ch) return false;
-  return /[\p{L}\p{N}_]/u.test(ch);
-}
-
-export function textHasWholeWord(text, term) {
-  if (!text || !term) return false;
-
-  const s = String(text).toLowerCase();
-  const t = escapeRegExp(String(term).toLowerCase());
-
-  const re = new RegExp(`(^|[^\\p{L}\\p{N}_])${t}([^\\p{L}\\p{N}_]|$)`, "u");
-  return re.test(s);
-}
-
-export function textHasPhrase(text, phrase) {
-  if (!text || !phrase) return false;
-  return normalizePhrase(text).includes(normalizePhrase(phrase));
-}
-
 /**
  * Split a Pagefind meta value (topics/tags) into trimmed phrases.
  * Accepts an array or a delimited string; "|" and "/" count as commas.
@@ -355,37 +328,6 @@ export function parseMetaList(metaValue) {
     .filter(Boolean);
 
   return parts.length ? parts : [raw];
-}
-
-/** True when the excerpt contains a <mark>ed term as a whole word. */
-export function excerptHasWholeWordMarkedTerm(excerptHtml, term) {
-  if (!excerptHtml || !term) return false;
-
-  const s = String(excerptHtml)
-    .replace(/<mark>/gi, "\u0001")
-    .replace(/<\/mark>/gi, "\u0002")
-    .replace(/<[^>]+>/g, "");
-
-  const t = String(term).toLowerCase();
-
-  for (let i = 0; i < s.length; i++) {
-    if (s[i] !== "\u0001") continue;
-
-    const start = i + 1;
-    const end = s.indexOf("\u0002", start);
-    if (end === -1) break;
-
-    const marked = s.slice(start, end);
-    if (marked.toLowerCase() === t) {
-      const before = s[i - 1];
-      const after = s[end + 1];
-      if (!isWordChar(before) && !isWordChar(after)) return true;
-    }
-
-    i = end;
-  }
-
-  return false;
 }
 
 /* ── Fuzzy topic suggestions ─────────────────────────────────────────── */
@@ -554,77 +496,19 @@ export function getMatchLocations(d) {
     : [];
 }
 
-/**
- * Meta-like hidden zones (topics/subjects/tags spans) as a UNION of word
- * ranges. Matches inside these zones are not "real" body matches.
- */
-export function getMetaRangesFromAnchors(anchors) {
-  if (!Array.isArray(anchors)) return [];
-
-  const pairs = [
-    ["pf-subjects-start", "pf-subjects-end"],
-    ["pf-tags-start", "pf-tags-end"],
-  ];
-
-  const ranges = [];
-
-  for (const [startId, endId] of pairs) {
-    const start = anchors.find((a) => a?.id === startId)?.location;
-    const end = anchors.find((a) => a?.id === endId)?.location;
-    if (typeof start === "number" && typeof end === "number") {
-      ranges.push(start <= end ? { start, end } : { start: end, end: start });
-    }
-  }
-
-  ranges.sort((a, b) => a.start - b.start);
-
-  const merged = [];
-  for (const r of ranges) {
-    const last = merged[merged.length - 1];
-    if (!last || r.start > last.end) merged.push({ ...r });
-    else last.end = Math.max(last.end, r.end);
-  }
-
-  return merged;
-}
-
-export function isInAnyRange(n, ranges) {
-  return (ranges || []).some((r) => n >= r.start && n <= r.end);
-}
-
-export function hasNonMetaMatch(locs, metaRanges) {
-  if (!metaRanges || metaRanges.length === 0) return true;
-  return (locs || []).some((n) => !isInAnyRange(n, metaRanges));
-}
-
-export function pickBestNonMetaLocation(locs, metaRanges) {
-  if (!Array.isArray(locs) || !locs.length) return null;
-  if (!metaRanges || metaRanges.length === 0) return locs[0];
-
-  const nonMeta = locs.filter((n) => !isInAnyRange(n, metaRanges));
-  return nonMeta.length ? nonMeta[0] : locs[0];
-}
-
-/** Content anchors only (meta-zone markers removed), sorted by location. */
+/** Anchors with ids, sorted by word location. */
 export function contentAnchors(anchors) {
   return (Array.isArray(anchors) ? [...anchors] : [])
-    .filter((a) => {
-      const id = a?.id ? String(a.id) : "";
-      if (!id) return false;
-      if (id.startsWith("pf-topics-")) return false;
-      if (id.startsWith("pf-tags-")) return false;
-      if (id.startsWith("pf-subjects-")) return false;
-      return true;
-    })
+    .filter((a) => !!a?.id)
     .sort((a, b) => (a?.location ?? 0) - (b?.location ?? 0));
 }
 
 /**
- * The nearest content anchor at/before the first non-meta match, or null
- * when there is nothing to anchor to.
+ * The nearest anchor at/before the first match, or null when there is
+ * nothing to anchor to.
  */
-export function pickContentAnchor(d, metaRanges, locs) {
-  const chosenLoc = pickBestNonMetaLocation(locs, metaRanges);
+export function pickContentAnchor(d, locs) {
+  const chosenLoc = Array.isArray(locs) && locs.length ? locs[0] : null;
 
   if (
     typeof chosenLoc !== "number" ||
@@ -645,184 +529,337 @@ export function pickContentAnchor(d, metaRanges, locs) {
 }
 
 /**
- * Deep link to the nearest content anchor at/before the first non-meta
- * match. Falls back to the page URL when there is nothing to anchor to.
+ * Deep link to the nearest anchor at/before the first match. Falls back to
+ * the page URL when there is nothing to anchor to.
  */
-export function pickAnchorHref(d, metaRanges, locs) {
-  const chosen = pickContentAnchor(d, metaRanges, locs);
+export function pickAnchorHref(d, locs) {
+  const chosen = pickContentAnchor(d, locs);
   return chosen?.id ? `${d.url}#${chosen.id}` : d.url;
 }
 
-/* ── Per-occurrence expansion ────────────────────────────────────────── */
+/* ── Verse index (scripture keyword search) ──────────────────────────── */
+
+// Scripture keyword search runs against /search/verses.json (generated by
+// scripts/build-verse-index.mjs) instead of Pagefind: the whole NT is small
+// enough (~850 KB raw, ~270 KB gzipped) to ship as plain text and scan
+// linearly, which gives verse-exact results, true counts, and clean
+// `/john-3#v16` deep links. The file is fetched lazily — only when a
+// scripture keyword search actually runs — then held in memory and HTTP
+// cache.
+//
+// Matching is whole-word/phrase: both the query and the verse text are
+// tokenized on non-alphanumerics (so hyphens and apostrophes act as word
+// boundaries: "well" matches "well-known"), and multi-word queries must
+// appear as consecutive tokens. Two niceties, both derived client-side
+// from the shipped corpus vocabulary, apply to single unquoted tokens of
+// 5+ chars (mirroring what buildPfQuery's quoting rules exempted — quoted
+// queries, phrases, and 1–4 char tokens stay exact):
+// - RELATED FORMS: the vocabulary is stemmed (src/lib/word-stem.mjs) and
+//   grouped at load, and a query token expands to its stem group, so
+//   "liberation" also finds "liberate" (what Pagefind's stemming gave).
+// - TYPO CORRECTION: when a query has zero hits, the nearest vocabulary
+//   word by edit distance is searched instead ("jeribulem" → results for
+//   "jerusalem"), reported via the hit list's `correction`.
+
+import { stemWord, foldDiacritics } from "../lib/word-stem.mjs";
+
+const WORD_RE = /[\p{L}\p{N}]+/gu;
+
+/** Comparable token: lowercased, diacritics folded ("lemá" → "lema"). */
+function foldToken(s) {
+  return foldDiacritics(s.toLowerCase());
+}
+
+let verseIndexPromise = null;
 
 /**
- * Scan a result's raw content for whole-word matches of the term and group
- * them by their nearest content anchor. Returns a Map(anchorId → { anchor,
- * matches }) or null when the content can't be scanned or nothing matches
- * (callers treat null as "one occurrence: the item itself").
+ * Load /search/verses.json once. Resolves to
+ * { verses, vocab, formsByStem } —
+ * verses: { bookKey: { chapter: ["verse 1 text", ...] } };
+ * vocab: every distinct corpus word (typo-correction candidates);
+ * formsByStem: Map(stem → [surface forms]) for related-form expansion —
+ * or null on failure (a failed fetch is retried on the next call).
  */
-function scanOccurrenceGroups(item, searchTerm) {
-  const content = item?.content || "";
-  const anchors = Array.isArray(item?.anchors) ? item.anchors : [];
-  const term = String(searchTerm || "")
-    .toLowerCase()
-    .trim();
+export function loadVerseIndex(base) {
+  if (!verseIndexPromise) {
+    verseIndexPromise = (async () => {
+      try {
+        const res = await fetch(`${base}search/verses.json`);
+        if (!res.ok) throw new Error(`verses.json missing (${res.status})`);
 
-  if (!content || !term || term.length < 2) {
-    return null;
-  }
+        const json = await res.json();
+        const verses =
+          json?.verses && typeof json.verses === "object" ? json.verses : null;
+        if (!verses) throw new Error("verses.json has no .verses object.");
 
-  const sortedAnchors = contentAnchors(anchors);
+        const vocab = Array.isArray(json.vocab) ? json.vocab : [];
 
-  const escapedTerm = escapeRegExp(term);
-  const regex = new RegExp(
-    `(?<![\\p{L}\\p{N}_])${escapedTerm}(?![\\p{L}\\p{N}_])`,
-    "giu",
-  );
+        // Group the vocabulary by stem once (~6.4k words, a few ms).
+        // Stemming corpus words and query words with the same function is
+        // what makes related-form matching correct.
+        const formsByStem = new Map();
+        for (const word of vocab) {
+          const stem = stemWord(word);
+          if (!formsByStem.has(stem)) formsByStem.set(stem, []);
+          formsByStem.get(stem).push(word);
+        }
 
-  // Pagefind anchor locations are word indexes, not character offsets.
-  function charIndexToWordIndex(charIdx) {
-    let words = 0;
-    for (let i = 0; i < charIdx && i < content.length; i++) {
-      if (content[i] === " " && i > 0 && content[i - 1] !== " ") {
-        words++;
+        return { verses, vocab, formsByStem };
+      } catch (e) {
+        console.warn("[search] Failed to load verse index:", e);
+        verseIndexPromise = null;
+        return null;
       }
-    }
-    return words;
+    })();
   }
+  return verseIndexPromise;
+}
 
-  const matchPositions = [];
-  let m;
-  while ((m = regex.exec(content)) !== null) {
-    matchPositions.push({
-      index: m.index, // character position (for excerpt slicing)
-      length: m[0].length,
-      wordIndex: charIndexToWordIndex(m.index), // word position (for anchors)
-    });
+/** Comparable word tokens of a query ("God’s Reign!" → ["god","s","reign"]). */
+export function tokenizeQuery(raw) {
+  const tokens = [];
+  for (const m of String(raw || "").matchAll(WORD_RE)) {
+    tokens.push(foldToken(m[0]));
   }
-
-  if (matchPositions.length === 0) {
-    return null;
-  }
-
-  function findNearestAnchor(wordIndex) {
-    let best = null;
-    for (const a of sortedAnchors) {
-      if (typeof a.location !== "number") continue;
-      if (a.location <= wordIndex) best = a;
-      else break;
-    }
-    return best;
-  }
-
-  // Group matches by anchor ID — one "occurrence" per anchor region
-  const groups = new Map();
-  for (const pos of matchPositions) {
-    const anchor = findNearestAnchor(pos.wordIndex);
-    const key = anchor?.id || "__no_anchor__";
-    if (!groups.has(key)) {
-      groups.set(key, { anchor, matches: [] });
-    }
-    groups.get(key).matches.push(pos);
-  }
-
-  return groups;
+  return tokens;
 }
 
 /**
- * Count per-occurrence keyword matches without building excerpt cards —
- * the tray's status line only needs the number. Matches
- * expandToOccurrences' grouping exactly (unscannable content counts as 1).
+ * Character ranges of each occurrence of the query-token sequence in one
+ * verse's text (offsets index the ORIGINAL text, for highlighting). Each
+ * matcher is a string (exact token) or a Set of acceptable tokens (related
+ * forms). Occurrences don't overlap: matching resumes after each hit.
  */
-export function countOccurrences(item, searchTerm) {
-  const groups = scanOccurrenceGroups(item, searchTerm);
-  return groups ? groups.size : 1;
+function findTokenRuns(text, qMatchers) {
+  const words = [];
+  for (const m of text.matchAll(WORD_RE)) {
+    words.push({
+      w: foldToken(m[0]),
+      start: m.index,
+      end: m.index + m[0].length,
+    });
+  }
+
+  const runs = [];
+  const n = qMatchers.length;
+
+  for (let i = 0; i + n <= words.length; i++) {
+    let ok = true;
+    for (let j = 0; j < n; j++) {
+      const q = qMatchers[j];
+      const w = words[i + j].w;
+      if (q instanceof Set ? !q.has(w) : w !== q) {
+        ok = false;
+        break;
+      }
+    }
+    if (ok) {
+      runs.push({ start: words[i].start, end: words[i + n - 1].end });
+      i += n - 1;
+    }
+  }
+
+  return runs;
+}
+
+/** True when the related-form/typo niceties apply (see section comment). */
+function isExpandableQuery(qTokens, rawQuery) {
+  return (
+    qTokens.length === 1 &&
+    qTokens[0].length >= 5 &&
+    !isExplicitlyQuoted(normalizeQuotes(rawQuery))
+  );
+}
+
+/** Token matchers for one query: the token's stem group when expandable. */
+function buildMatchers(index, qTokens, expandable) {
+  if (expandable) {
+    const group = index.formsByStem?.get(stemWord(qTokens[0]));
+    if (group) return [new Set([qTokens[0], ...group])];
+  }
+  return qTokens;
 }
 
 /**
- * Expand one Pagefind result into per-occurrence cards (deep-link URL,
- * highlighted excerpt) — one card per anchor group. Returns [item]
- * unchanged when the content can't be scanned.
+ * Nearest vocabulary word to a mistyped token. Auto-showing results for a
+ * different word is a high-confidence act, so beyond the fuzzy-topic
+ * distance threshold a candidate must look like a genuine misspelling:
+ * share the token's first two letters (typos rarely hit a word's start)
+ * and be within one character of its length (substitutions/transpositions/
+ * a single indel — not wholesale deletions). Distance-3 corrections must
+ * additionally share a 3-char suffix: "jeribulem" → "jerusalem" (…lem)
+ * passes, but "forgivness" → "foreigners" is refused — the LIT corpus has
+ * no word near some queries, and no answer beats a misleading one (the
+ * glossary/topic buckets still guide those). Refused queries fall through
+ * to the softer "Did you mean" topic pills. Ties prefer the alphabetically
+ * first word (vocab is sorted, so first-wins).
  */
-export function expandToOccurrences(item, searchTerm) {
-  const groups = scanOccurrenceGroups(item, searchTerm);
-  if (!groups) {
-    return [item];
+function nearestVocabWord(vocab, token) {
+  const threshold = Math.max(2, Math.ceil(token.length * 0.3));
+  const prefix = token.slice(0, 2);
+  const suffix = token.slice(-3);
+  let best = null;
+  let bestDist = threshold + 1;
+
+  for (const word of vocab || []) {
+    if (word === token) continue;
+    if (!word.startsWith(prefix)) continue;
+    if (Math.abs(word.length - token.length) > 1) continue;
+    const dist = levenshtein(token, word);
+    if (dist >= bestDist) continue;
+    if (dist > 2 && !word.endsWith(suffix)) continue;
+    best = word;
+    bestDist = dist;
   }
 
-  const content = item.content;
-  const escapedTerm = escapeRegExp(
-    String(searchTerm || "")
-      .toLowerCase()
-      .trim(),
+  return bestDist <= threshold ? best : null;
+}
+
+function scanVerses(verses, qMatchers, bookKey, exactToken) {
+  const hits = [];
+  const books = bookKey ? [bookKey] : BOOK_ORDER;
+
+  for (const bk of books) {
+    const chapters = verses[bk];
+    if (!chapters) continue;
+
+    const chapterNums = Object.keys(chapters)
+      .map(Number)
+      .sort((a, b) => a - b);
+
+    for (const ch of chapterNums) {
+      const verseTexts = chapters[ch];
+      if (!Array.isArray(verseTexts)) continue;
+
+      for (let vi = 0; vi < verseTexts.length; vi++) {
+        const text = verseTexts[vi];
+        if (!text) continue;
+
+        const runs = findTokenRuns(text, qMatchers);
+        if (!runs.length) continue;
+
+        // How many runs are the token as typed (vs a related form) —
+        // relevance ranks those first, like Pagefind ranked exact matches
+        // above stemmed ones.
+        const exactRuns = exactToken
+          ? runs.filter(
+              (r) => foldToken(text.slice(r.start, r.end)) === exactToken,
+            ).length
+          : runs.length;
+
+        hits.push({
+          bookKey: bk,
+          chapter: ch,
+          verse: vi + 1,
+          text,
+          runs,
+          exactRuns,
+        });
+      }
+    }
+  }
+
+  return hits;
+}
+
+/**
+ * Scan the verse index for a query. Returns { hits, correction }:
+ * hits — [{ bookKey, chapter, verse, text, runs }] in canonical Bible
+ * order, one per matching verse, `runs` holding the char ranges of every
+ * occurrence; correction — the vocabulary word actually searched when the
+ * typed token had no hits ("" when the query matched as typed), for the
+ * UIs' "showing results for …" note.
+ *
+ * `index` is loadVerseIndex's { verses, vocab, formsByStem }. Single
+ * unquoted tokens of 5+ chars expand to their related-form group and fall
+ * back to typo correction; everything else matches exactly.
+ */
+export function searchVerses(index, rawQuery, { bookKey = "" } = {}) {
+  const verses = index?.verses;
+  const qTokens = tokenizeQuery(rawQuery);
+  if (!verses || !qTokens.length) return { hits: [], correction: "" };
+
+  const expandable = isExpandableQuery(qTokens, rawQuery);
+
+  let hits = scanVerses(
+    verses,
+    buildMatchers(index, qTokens, expandable),
+    bookKey,
+    expandable ? qTokens[0] : null,
   );
 
-  const baseUrl = (item.url || "").replace(/#.*$/, "");
-  const results = [];
-  let occIdx = 0;
-
-  for (const [anchorId, group] of groups) {
-    const hash = anchorId !== "__no_anchor__" && anchorId ? `#${anchorId}` : "";
-    const url = `${baseUrl}${hash}`;
-
-    // Excerpt from the FIRST match in this group, with a window of context
-    const firstMatch = group.matches[0];
-    const WINDOW = 80; // chars before and after the match
-    let excerptStart = Math.max(0, firstMatch.index - WINDOW);
-    let excerptEnd = Math.min(
-      content.length,
-      firstMatch.index + firstMatch.length + WINDOW,
-    );
-
-    // Snap to word boundaries
-    if (excerptStart > 0) {
-      const spaceAfter = content.indexOf(" ", excerptStart);
-      if (spaceAfter !== -1 && spaceAfter < firstMatch.index) {
-        excerptStart = spaceAfter + 1;
-      }
+  if (!hits.length && expandable) {
+    const corrected = nearestVocabWord(index.vocab, qTokens[0]);
+    if (corrected) {
+      hits = scanVerses(
+        verses,
+        buildMatchers(index, [corrected], true),
+        bookKey,
+        corrected,
+      );
+      if (hits.length) return { hits, correction: corrected };
     }
-    if (excerptEnd < content.length) {
-      const spaceBefore = content.lastIndexOf(" ", excerptEnd);
-      if (spaceBefore > firstMatch.index + firstMatch.length) {
-        excerptEnd = spaceBefore;
-      }
-    }
-
-    const excerptText = content.slice(excerptStart, excerptEnd);
-
-    // Highlight ALL occurrences of the term within the excerpt window
-    const excerptEscaped = escapeHtml(excerptText);
-    const highlightRegex = new RegExp(
-      `(?<![\\p{L}\\p{N}_])(${escapedTerm})(?![\\p{L}\\p{N}_])`,
-      "giu",
-    );
-    const highlighted = excerptEscaped.replace(highlightRegex, "<mark>$1</mark>");
-
-    const prefix = excerptStart > 0 ? "…" : "";
-    const suffix = excerptEnd < content.length ? "…" : "";
-    const excerptHtml = `${prefix}${highlighted}${suffix}`;
-
-    // Strip leading verse numbers from the excerpt for cleaner display.
-    const cleanedExcerpt = excerptHtml.replace(/^(…?)(\d{1,3})\s/, "$1");
-
-    results.push({
-      url,
-      excerpt: cleanedExcerpt,
-      meta: item.meta,
-      title: item.title,
-      content: item.content,
-      anchors: item.anchors,
-      filters: item.filters,
-      __relevanceRank: item.__relevanceRank ?? 9999,
-      __occurrenceIndex: occIdx,
-      __baseUrl: baseUrl,
-      __anchorId: anchorId,
-      __matchCount: group.matches.length,
-    });
-    occIdx++;
   }
 
-  return results;
+  return { hits, correction: "" };
+}
+
+/**
+ * Relevance order for verse hits (a NEW array; the input stays in Bible
+ * order): verses containing the token as typed rank above related-form
+ * matches (like Pagefind ranked exact above stemmed), more occurrences
+ * rank above fewer, and Bible order breaks ties. The tray's top results
+ * and the /search "Relevance" sort both use this.
+ */
+export function rankVerseHits(hits) {
+  return hits
+    .map((hit, bibleIdx) => ({ hit, bibleIdx }))
+    .sort((a, b) => {
+      const aExact = a.hit.exactRuns > 0 ? 1 : 0;
+      const bExact = b.hit.exactRuns > 0 ? 1 : 0;
+      if (aExact !== bExact) return bExact - aExact;
+      if (a.hit.runs.length !== b.hit.runs.length) {
+        return b.hit.runs.length - a.hit.runs.length;
+      }
+      return a.bibleIdx - b.bibleIdx;
+    })
+    .map(({ hit }) => hit);
+}
+
+/** "John 3:16" label for a verse hit. */
+export function verseHitLabel(hit) {
+  return formatReferenceLabel({
+    bookKey: hit.bookKey,
+    chapter: hit.chapter,
+    verse: hit.verse,
+    rangeEnd: null,
+  });
+}
+
+/** Study View deep link ("/john-3#v16") for a verse hit. */
+export function verseHitHref(hit) {
+  return makeStudyReferenceHref({
+    bookKey: hit.bookKey,
+    chapter: hit.chapter,
+    verse: hit.verse,
+    rangeEnd: null,
+  });
+}
+
+/** Escaped verse text with each matched run wrapped in <mark>. */
+export function highlightVerseHit(hit) {
+  const { text, runs } = hit;
+  let out = "";
+  let pos = 0;
+
+  for (const r of runs) {
+    out += `${escapeHtml(text.slice(pos, r.start))}<mark>${escapeHtml(
+      text.slice(r.start, r.end),
+    )}</mark>`;
+    pos = r.end;
+  }
+
+  return out + escapeHtml(text.slice(pos));
 }
 
 /* ── Result enrichment + bucketing ───────────────────────────────────── */
@@ -888,11 +925,11 @@ export function glossaryTermsFromDom() {
  * multi-word traditional terms and lossy ids like "hell-hades"), then to
  * explicit meta, then the cleaned page title.
  *
- * Takes the same precomputed metaRanges/locs as pickAnchorHref so the term
- * label and the deep link are guaranteed to name the same entry.
+ * Takes the same precomputed locs as pickAnchorHref so the term label and
+ * the deep link are guaranteed to name the same entry.
  */
-export function glossaryTermFromResult(d, metaRanges, locs, fallback = "") {
-  const anchor = pickContentAnchor(d, metaRanges, locs);
+export function glossaryTermFromResult(d, locs, fallback = "") {
+  const anchor = pickContentAnchor(d, locs);
   const anchorId =
     anchor && anchor.element === "h2" ? String(anchor.id || "") : "";
 
@@ -919,19 +956,11 @@ export function glossaryTermFromResult(d, metaRanges, locs, fallback = "") {
 
 /**
  * Compute the per-result match signals both surfaces bucket on:
- * - metaRanges/locs: where the matches sit relative to hidden meta zones
- *   (accepted precomputed so callers that already derived them — e.g. for
- *   pickAnchorHref — keep a single source of truth)
+ * - locs: match word-locations (accepted precomputed so callers that already
+ *   derived them — e.g. for pickAnchorHref — keep a single source of truth)
  * - subjectHit: the query exactly matches one of the page's topics/tags
- * - contentHit: the query appears in the visible excerpt text
- * - wholeWordOk: exact single-token queries matched as a whole word
  */
-export function enrichSearchResult(
-  d,
-  relevanceRank,
-  { qPhrase, exactSingleToken, exactToken, metaRanges, locs },
-) {
-  metaRanges = metaRanges ?? getMetaRangesFromAnchors(d?.anchors);
+export function enrichSearchResult(d, relevanceRank, { qPhrase, locs }) {
   locs = locs ?? getMatchLocations(d);
 
   const subjects = [
@@ -939,42 +968,26 @@ export function enrichSearchResult(
     ...parseMetaList(d?.meta?.tags),
   ];
 
-  const excerptText = stripTags(d?.excerpt);
-  const isSingleToken = !!qPhrase && !qPhrase.includes(" ");
-
-  const wholeWordOk =
-    !exactSingleToken ||
-    excerptHasWholeWordMarkedTerm(d?.excerpt, exactToken) ||
-    textHasWholeWord(excerptText, exactToken);
-
-  const contentHit = !qPhrase
-    ? false
-    : isSingleToken
-      ? textHasWholeWord(excerptText, qPhrase)
-      : textHasPhrase(excerptText, qPhrase);
-
   const subjectHit =
     !!qPhrase && subjects.map(normalizePhrase).includes(qPhrase);
 
-  return { d, relevanceRank, metaRanges, locs, subjectHit, contentHit, wholeWordOk };
+  return { d, relevanceRank, locs, subjectHit };
 }
 
 /** Enriched-item shape for docs that come from the topics index, not Pagefind. */
 export function topicsIndexSubjectItem(d) {
   return {
     d,
-    metaRanges: [],
     locs: [],
     subjectHit: true,
-    contentHit: false,
-    wholeWordOk: true,
   };
 }
 
 /**
  * The filter → dedupe → bucket orchestration shared by the tray and the
- * /search page. Takes enriched items (see enrichSearchResult) and returns
- * { glossary, subject, article, keyword }:
+ * /search page. Takes enriched Pagefind items (see enrichSearchResult) and
+ * returns { glossary, subject, article } — the scripture KEYWORD bucket
+ * comes from searchVerses, not from Pagefind, so it is not built here:
  *
  * - glossary: exclusive bucket, Pagefind relevance order
  * - subject: exact topic hits (plus/instead of `extraSubjectItems` from the
@@ -982,8 +995,6 @@ export function topicsIndexSubjectItem(d) {
  *   extras exist, otherwise extras merge in with URL dedupe), Bible order
  * - article: every non-scripture non-glossary URL from either source,
  *   relevance order
- * - keyword: real body matches only (non-meta location, not an intro, not a
- *   topics-only hit, whole word when the query demands it), relevance order
  */
 export function bucketSearchResults(
   enriched,
@@ -1011,14 +1022,6 @@ export function bucketSearchResults(
     }
   }
 
-  let keyword = nonGlossary.filter((it) => {
-    if (String(it.d?.meta?.type || "") === "intro") return false;
-    if (!hasNonMetaMatch(it.locs, it.metaRanges)) return false;
-    if (it.subjectHit && !it.contentHit) return false;
-    // wholeWordOk is always true for non-exact queries.
-    return it.wholeWordOk;
-  });
-
   const article = [];
   const articleSeen = new Set();
   const collectArticle = (it) => {
@@ -1027,22 +1030,19 @@ export function bucketSearchResults(
     articleSeen.add(url);
     article.push(it);
   };
-  // Scan ALL non-glossary hits (not just bucket survivors) so articles
-  // aren't lost by the stricter keyword filters, then any article URLs
-  // that only came in via the topics index.
+  // Scan ALL non-glossary hits, then any article URLs that only came in via
+  // the topics index.
   for (const it of nonGlossary) collectArticle(it);
   for (const it of subject) collectArticle(it);
 
   subject = subject.filter((it) => !isArticleResultUrl(it.d?.url || ""));
-  keyword = keyword.filter((it) => !isArticleResultUrl(it.d?.url || ""));
 
   subject.sort((a, b) =>
     bibleOrderCompareHref(a.d?.url || "", b.d?.url || ""),
   );
-  keyword.sort((a, b) => (a.relevanceRank ?? 9999) - (b.relevanceRank ?? 9999));
   article.sort((a, b) => (a.relevanceRank ?? 9999) - (b.relevanceRank ?? 9999));
 
-  return { glossary, subject, article, keyword };
+  return { glossary, subject, article };
 }
 
 /* ── Topics index loader ─────────────────────────────────────────────── */

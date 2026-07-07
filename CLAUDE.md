@@ -32,7 +32,9 @@ companion iOS/Android apps consume.
 - **Language**: TypeScript (strict mode, `astro/tsconfigs/strict`)
 - **Styling**: Vanilla CSS (no utility framework). Global stylesheet + a
   per-page stylesheet under `src/styles/pages/`
-- **Search**: Pagefind (static, build-time index over `dist/`)
+- **Search**: two engines — scripture keyword search scans a build-generated
+  verse index (`public/search/verses.json`, fetched lazily by the client);
+  Pagefind (static, build-time index over `dist/`) covers glossary + articles
 - **Fonts**: `@fontsource` (Crimson Text, Fraunces, Inter, OpenDyslexic)
 - **Icons**: simple-icons
 - **Client JS**: Hand-written vanilla JS in `src/scripts/` (progressive
@@ -48,6 +50,7 @@ npm run preview           # Build + astro preview locally
 npm run validate:chapters # Validate all chapter JSON (structure + references)
 npm run fix:chapters      # Re-serialize chapter JSON to normalize formatting
 npm run build:topics      # Regenerate topics indexes only
+npm run build:verses      # Regenerate the verse search index only
 npm run build:api         # Regenerate public/api/content.json only
 npm run build:manifest    # Regenerate API manifest + /api/data for the mobile apps
 npm run draft:release-notes -- --since <ref>  # Draft a release-notes entry from git diff
@@ -62,7 +65,12 @@ npm run draft:release-notes -- --since <ref>  # Draft a release-notes entry from
    `public/search/topics.json` (autocomplete) from chapter `topics` arrays.
    Output is deterministic (sorted, no timestamps) so it doesn't churn the sync
    content hash.
-3. `build:manifest` — generates `public/api/manifest.json` + `public/api/version.json`
+3. `build:verses` — generates `public/search/verses.json`, the verse-level
+   plain-text index the client scans for scripture keyword search, plus the
+   corpus `vocab` used client-side for related-form matching and typo
+   correction (drafts excluded, deterministic output). A website asset, NOT
+   part of the app contract — it must never move under `public/api/`.
+4. `build:manifest` — generates `public/api/manifest.json` + `public/api/version.json`
    and copies content files into `public/api/data/` (chapters, intros, intro
    `images/`, plus `topics.json` and `translation-commitments.json`) so the
    native apps can diff hashes and download only changed files. **This step owns
@@ -70,11 +78,13 @@ npm run draft:release-notes -- --since <ref>  # Draft a release-notes entry from
    so it changes on *every* content publish (including multiple on the same day)
    and stays stable when nothing changed. The apps gate all syncing on this
    string — see the app-sync note below.
-4. `build:api` — generates `public/api/content.json` (full NT in canonical
+5. `build:api` — generates `public/api/content.json` (full NT in canonical
    order). Runs *after* `build:manifest` and reads the shared `version` from
    `version.json` so all three API artifacts report the same version.
-5. `astro build` — compiles the site to `dist/`.
-6. `pagefind --site dist` — builds the search index into `dist/pagefind/`.
+6. `astro build` — compiles the site to `dist/`.
+7. `pagefind --site dist` — indexes glossary + article pages into
+   `dist/pagefind/` (scripture chapter pages are deliberately not
+   Pagefind-indexed — see Search below).
 
 ## Project Structure
 
@@ -98,7 +108,8 @@ src/
   layouts/           # Layout, ScriptureLayout, ReadLayout, SearchLayout
   lib/               # Server-side build helpers: chapter-html.ts (the shared
                      #   scripture-HTML transform pipeline — prepareStudyParagraph
-                     #   / prepareReadParagraph), draft-chapters.mjs (single source
+                     #   / prepareReadParagraph; Study wraps each verse in a
+                     #   data-verse span), draft-chapters.mjs (single source
                      #   for indexed:false draft data — used by astro.config.mjs
                      #   and ReadMenu), fetchPodcastEpisodes.ts
   pages/             # File-based routes (see Routing below)
@@ -127,7 +138,7 @@ emails/              # Standalone HTML email templates (not part of the site bui
 | `/read/<book>` | `read/[book].astro` | Continuous reading view of a book |
 | `/articles`, `/articles/<slug>` | `articles.astro`, `articles/[...slug].astro` | Articles |
 | `/glossary` | `glossary.astro` | Glossary |
-| `/search` | `search.astro` | Pagefind search UI |
+| `/search` | `search.astro` | Full search UI (verse index + Pagefind) |
 | `/release-notes` | `release-notes.astro` | "What's new" |
 | others | `about`, `contact`, `courses`, `support`, `privacy`, `unsubscribe`, `found-in-translation-podcast`, `liberating-scripture-collective`, `translation-commitments`, `404` |
 
@@ -141,6 +152,7 @@ the sitemap filter live in `astro.config.mjs`.
 | `validate-chapters.mjs` | Validates chapter JSON (with `--fix` to re-serialize). Driven by `chapter_json_invariants.json`. |
 | `chapter_json_invariants.json` | Documents validation rules (e.g. the `indexed` flag). |
 | `build-topics-index.mjs` | Topic indexes (`normalizeTopic` slugifies labels). |
+| `build-verse-index.mjs` | `public/search/verses.json` — per-verse plain text for client-side scripture keyword search. |
 | `build-api-json.mjs` | `public/api/content.json`. |
 | `build-api-manifest.mjs` | `public/api/manifest.json` + `public/api/data/` for the native apps. |
 | `fetch-podcast-feed.mjs` | Refresh podcast XML snapshot (non-fatal on failure). |
@@ -170,16 +182,20 @@ Each file in `src/data/chapters/` follows this structure:
 - **`type`** is `"scripture"` on every chapter (not a genre label).
 - **Verse numbers** are `<sup id="vN" class="vn">N</sup>`, always wrapped as
   `<span class="vglue"><sup…></sup>&nbsp;<first word>…</span>` so the number
-  stays glued to the verse's first word.
+  stays glued to the verse's first word. At render time (website only — raw
+  JSON is never modified) the Study View wraps each verse's content in
+  `<span data-verse="N">` so verse boundaries are DOM containers; keep every
+  vglue at tag-depth 0 inside its block or that wrapping breaks.
 - **`topics`** are free-text labels (e.g. `"Nicodemus"`), not pre-slugged.
   `build-topics-index.mjs` normalizes them into slugs and groups chapters that
   share a topic.
 - **`footnotes`** are HTML strings; the verse text references them via
   `<sup class="fn-ref">` anchors (Pagefind excludes these — see `pagefind.yml`).
 - **`indexed: false`** (optional) marks an in-progress **draft/stub chapter**.
-  56 of 260 chapters are currently drafts. This flag has four downstream
+  54 of 260 chapters are currently drafts. This flag has four downstream
   effects, so handle it carefully:
-  1. Pagefind skips the page (kept out of search).
+  1. `build-verse-index.mjs` excludes the chapter from the verse search index
+     (kept out of search).
   2. `astro.config.mjs` excludes the slug from the sitemap, and a `/read/<book>`
      page is excluded only when *every* chapter of that book is a draft.
   3. The page is `noindex`'d.
@@ -210,18 +226,38 @@ collection); they're read directly by the intro pages and the API manifest.
   `revelation`. Source of truth is `src/data/books.js` (`BOOKS`, `BOOK_ORDER`).
 - **Chapter file naming**: `{bookKey}-{chapter}.json` (e.g. `1corinthians-1.json`).
 - **Generated files are git-ignored** and regenerated at build time:
-  `public/api/`, `public/search/topics.json`, `public/topics-index.json`,
-  `dist/`, `.astro/`. Don't hand-edit them.
+  `public/api/`, `public/search/topics.json`, `public/search/verses.json`,
+  `public/topics-index.json`, `dist/`, `.astro/`. Don't hand-edit them.
 - **No client JS framework**, but `src/scripts/` *does* hold vanilla JS for
   progressive enhancement (verse highlighting/menus, footnote popovers, reading
   mode, search). Everything must degrade gracefully without JS.
-- **Search is split into three client modules** in `src/scripts/`:
-  `search-core.js` holds all logic that must agree between the SearchBar tray
-  and the full `/search` page (book aliases, reference parsing, Pagefind query
-  building, result-location math, topics-index loading); `searchbar.js` is the
-  tray UI (loaded by `SearchBar.astro`); `search.js` is the `/search` page UI.
-  Never duplicate parsing/bucketing logic into the UI modules — add it to
-  `search-core.js` so both surfaces stay in sync.
+- **Search is two engines behind three client modules** in `src/scripts/`:
+  - *Scripture keyword search* scans `public/search/verses.json` (built by
+    `build-verse-index.mjs`) in the client — verse-exact results ("John 3:16"
+    → `/john-3#v16`), whole-word/phrase matching (hyphens/apostrophes are
+    word boundaries, diacritics folded: "lema" matches "lemá"). Default
+    ordering is relevance (`rankVerseHits`: exact-form matches above
+    related forms, more occurrences above fewer), with Bible order as the
+    /search sort toggle. The file also ships the corpus `vocab`, from which
+    the client derives two niceties for single unquoted tokens of 5+ chars:
+    related-form matching ("liberation" finds "liberate" — the vocabulary
+    is stem-grouped at load with `src/lib/word-stem.mjs`) and typo
+    correction on zero hits ("jeribulem" → results for "jerusalem", with a
+    "showing results for…" note; deliberately conservative — see
+    `nearestVocabWord`). Quoted queries, phrases, and short tokens stay
+    exact. The file (~275 KB gzipped) is fetched lazily, only when a
+    keyword search actually runs. Scripture chapter pages are deliberately
+    NOT in the Pagefind index.
+  - *Pagefind* covers glossary + articles only; *topics* come from
+    `public/topics-index.json`. A book filter skips Pagefind entirely
+    (nothing it indexes carries a book filter value).
+  - Module split: `search-core.js` holds all logic that must agree between
+    the SearchBar tray and the full `/search` page (book aliases, reference
+    parsing, the verse-index scanner, Pagefind query building, bucketing,
+    topics-index loading); `searchbar.js` is the tray UI (loaded by
+    `SearchBar.astro`); `search.js` is the `/search` page UI. Never duplicate
+    parsing/bucketing logic into the UI modules — add it to `search-core.js`
+    so both surfaces stay in sync.
 - **Mobile apps are first-class consumers** of `public/api/` output — changing
   chapter/intro/manifest shape can break them. Treat the API as a contract.
   The **sync contract**: both apps poll `version.json` first and do nothing
@@ -273,10 +309,11 @@ collection); they're read directly by the intro pages and the API manifest.
 | `astro.config.mjs` | Site config, redirects, sitemap/noindex draft logic |
 | `content.config.ts` | Content-collection schemas |
 | `scripts/validate-chapters.mjs` | Chapter validator (pre-commit + CI safety net) |
-| `pagefind.yml` | Search index config (excludes footnote refs) |
+| `scripts/build-verse-index.mjs` | Verse search index generator (`public/search/verses.json`) |
+| `pagefind.yml` | Pagefind config for glossary/article indexing (excludes footnote refs) |
 | `public/_headers` | Security + caching headers; also RFC 8288 `Link` headers for agent discovery (Cloudflare Pages) |
 | `public/.well-known/api-catalog` | RFC 9727/9264 `linkset+json` catalog of the public API |
 | `public/llms.txt`, `llms-full.txt` | LLM-readable site description + AI-usage policy |
 
-> The top-level `README.md` is the default Astro starter README and is **not**
-> a reliable description of this project — rely on this file instead.
+> The top-level `README.md` is the lighter human-facing overview; this file is
+> the deep reference. Keep both in sync per the note at the top.

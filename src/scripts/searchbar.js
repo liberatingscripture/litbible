@@ -26,7 +26,11 @@ import {
   topicsIndexSubjectItem,
   bucketSearchResults,
   pickAnchorHref,
-  countOccurrences,
+  loadVerseIndex,
+  searchVerses,
+  rankVerseHits,
+  verseHitLabel,
+  verseHitHref,
   loadTopicsIndex,
   MODE_LABELS,
 } from "./search-core.js";
@@ -571,10 +575,6 @@ const _initSearchbars = async () => {
       const mySeq = ++searchSeq;
 
       try {
-        const pf = await ensurePagefind();
-        if (!pf) return;
-        if (mySeq !== searchSeq) return;
-
         const ref = parseReference(q);
         const bookOnly = !ref ? parseBookOnly(q) : null;
         const jump = ref
@@ -587,12 +587,10 @@ const _initSearchbars = async () => {
         // Show jump row (if any) AND keep searching for results.
         renderJump(jump);
 
-        const filters = {};
-
         // If the user typed a reference or book-only query, ignore the active
         // book filter to avoid "I forgot I filtered" confusion and to allow
-        // article hits to appear.
-        if (activeBook && !hasJump) filters.book = [activeBook];
+        // glossary/article hits to appear.
+        const keywordBook = hasJump ? "" : activeBook;
 
         status.textContent = "Searching…";
         groupsEl.innerHTML = "";
@@ -635,25 +633,41 @@ const _initSearchbars = async () => {
           return;
         }
 
-        const { pfQuery, exactSingleToken, exactToken } = buildPfQuery(q);
+        // Scripture keyword search scans the verse index; Pagefind covers
+        // glossary/articles. Start the verse-index fetch before awaiting
+        // Pagefind so the two loads overlap on first use.
+        const wantKeyword = activeMode === "all" || activeMode === "keyword";
+        const versePromise = wantKeyword ? loadVerseIndex(base) : null;
 
-        const res = await pf.search(
-          pfQuery,
-          Object.keys(filters).length ? { filters } : undefined,
-        );
+        // A book filter excludes everything Pagefind still indexes (glossary
+        // and article pages carry no book filter value), so skip it then. A
+        // Pagefind load failure degrades to verse-index-only results.
+        let resolvedAll = [];
+        if (!keywordBook) {
+          const pf = await ensurePagefind();
+          if (mySeq !== searchSeq) return;
+
+          if (pf) {
+            const { pfQuery } = buildPfQuery(q);
+            const res = await pf.search(pfQuery);
+            if (mySeq !== searchSeq) return;
+
+            resolvedAll = await Promise.all(
+              res.results.map(async (r, i) => {
+                const d = await r.data();
+                return enrichSearchResult(d, i, { qPhrase });
+              }),
+            );
+            if (mySeq !== searchSeq) return;
+          }
+        }
+
+        const verseIndex = versePromise ? await versePromise : null;
         if (mySeq !== searchSeq) return;
 
-        const resolvedAll = await Promise.all(
-          res.results.map(async (r, i) => {
-            const d = await r.data();
-            return enrichSearchResult(d, i, {
-              qPhrase,
-              exactSingleToken,
-              exactToken,
-            });
-          }),
-        );
-        if (mySeq !== searchSeq) return;
+        const { hits: verseHits, correction: verseCorrection } = verseIndex
+          ? searchVerses(verseIndex, q, { bookKey: keywordBook })
+          : { hits: [], correction: "" };
 
         // When the query IS a known topic, the topics index replaces the
         // Pagefind subject hits (it's the canonical topic → chapters list).
@@ -673,42 +687,41 @@ const _initSearchbars = async () => {
           glossary: glossaryMatches,
           subject: subjectMatches,
           article: articleMatches,
-          keyword: keywordMatchesFiltered,
         } = bucketSearchResults(resolvedAll, {
           extraSubjectItems,
           replaceSubject: true,
         });
 
         const glossaryItems = glossaryMatches.slice(0, 6).map((it) => ({
-          title: glossaryTermFromResult(it.d, it.metaRanges, it.locs, qUnquoted),
-          href: pickAnchorHref(it.d, it.metaRanges, it.locs),
+          title: glossaryTermFromResult(it.d, it.locs, qUnquoted),
+          href: pickAnchorHref(it.d, it.locs),
         }));
 
         const subjectItems = subjectMatches.slice(0, 6).map((it) => ({
           title: it.d?.meta?.title ? it.d.meta.title : it.d.title || it.d.url,
           href: it?.d?.anchors?.length
-            ? pickAnchorHref(it.d, it.metaRanges, it.locs)
+            ? pickAnchorHref(it.d, it.locs)
             : it.d.url,
         }));
 
         const articleItems = articleMatches.slice(0, 6).map((it) => ({
           title: it.d?.meta?.title ? it.d.meta.title : it.d.title || it.d.url,
-          href: pickAnchorHref(it.d, it.metaRanges, it.locs),
+          href: pickAnchorHref(it.d, it.locs),
         }));
 
-        const keywordItems = keywordMatchesFiltered.slice(0, 6).map((it) => ({
-          title: it.d?.meta?.title ? it.d.meta.title : it.d.title || it.d.url,
-          href: pickAnchorHref(it.d, it.metaRanges, it.locs),
-        }));
+        // Verse-exact keyword results: "John 3:16" linking to /john-3#v16.
+        // Most-relevant six first, as the Pagefind tray did.
+        const keywordItems = rankVerseHits(verseHits)
+          .slice(0, 6)
+          .map((h) => ({
+            title: verseHitLabel(h),
+            href: verseHitHref(h),
+          }));
 
         const gCount = glossaryMatches.length;
         const sCount = subjectMatches.length;
         const aCount = articleMatches.length;
-        // Count-only path: the status line doesn't need excerpt cards.
-        const kCount = keywordMatchesFiltered.reduce(
-          (n, it) => n + countOccurrences(it.d, qUnquoted),
-          0,
-        );
+        const kCount = verseHits.length; // one match = one verse
         const sep = " • ";
 
         // Only include counts for sections visible under the current mode
@@ -725,7 +738,10 @@ const _initSearchbars = async () => {
         if (showA && aCount)
           parts.push(`${aCount} article match${aCount === 1 ? "" : "es"}`);
         if (showK)
-          parts.push(`${kCount} keyword match${kCount === 1 ? "" : "es"}`);
+          parts.push(
+            `${kCount} keyword match${kCount === 1 ? "" : "es"}` +
+              (verseCorrection ? ` for “${verseCorrection}”` : ""),
+          );
         status.textContent = parts.join(sep);
 
         renderGroups({

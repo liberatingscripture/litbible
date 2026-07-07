@@ -107,8 +107,15 @@ const paragraphsRaw = Array.isArray(chapterData?.paragraphs)
 const shouldIndex = chapterData?.indexed !== false;
 
 const seenVerseIds = new Set<string>();
+const verseState = { currentVerse: null as number | null };
 const paragraphs = paragraphsRaw.map((html) =>
-  prepareStudyParagraph(html, normalizedBookKey, props.chapter, seenVerseIds),
+  prepareStudyParagraph(
+    html,
+    normalizedBookKey,
+    props.chapter,
+    seenVerseIds,
+    verseState,
+  ),
 );
 
 const footnotes = Array.isArray(chapterData?.footnotes)
@@ -367,16 +374,6 @@ if (typeof chaptersInBook === "number" && n < chaptersInBook) {
     }
     .chapter-paragraphs :global(.fn-ref a:hover) {
       text-decoration: underline;
-    }
-
-    /* --- Hyphen-as-space indexing helpers --- */
-    .chapter-paragraphs :global(.pf-wordbreak) {
-      display: inline-block;
-      width: 0;
-      overflow: hidden;
-      white-space: nowrap;
-      font-size: 0;
-      line-height: 0;
     }
 
     /* Chapter CTAs — prev left, next right. margin-left:auto keeps a lone
