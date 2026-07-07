@@ -689,6 +689,7 @@ function renderFromCache() {
     subjectMatchesRaw,
     articleMatchesRaw,
     keywordMatchesRaw,
+    keywordCorrection,
     qPhrase,
   } = lastSearchCache;
 
@@ -765,7 +766,9 @@ function renderFromCache() {
   setStatus(
     `Searching for "${displayQ}" - ${matchTotal} match${
       matchTotal === 1 ? "" : "es"
-    } (${glossaryCount} glossary, ${subjectCount} topic, ${articleCount} article, ${keywordTotal} keyword)`,
+    } (${glossaryCount} glossary, ${subjectCount} topic, ${articleCount} article, ${keywordTotal} keyword${
+      keywordCorrection ? ` — showing results for “${keywordCorrection}”` : ""
+    })`,
   );
 
   // Only show glossary/subject on page 1
@@ -979,9 +982,9 @@ async function runFullSearch() {
   // occurrence cards renderKeyword groups by chapter (__baseUrl). Hits come
   // back in canonical Bible order, so the relevance rank IS Bible order.
   const verseIndex = versePromise ? await versePromise : null;
-  const verseHits = verseIndex
+  const { hits: verseHits, correction: keywordCorrection } = verseIndex
     ? searchVerses(verseIndex, q, { bookKey: book })
-    : [];
+    : { hits: [], correction: "" };
 
   const keywordCards = verseHits.map((h, i) => {
     const chapterTitle = `${bookKeyToLabel(h.bookKey)} ${h.chapter}`;
@@ -1004,6 +1007,7 @@ async function runFullSearch() {
     subjectMatchesRaw,
     articleMatchesRaw,
     keywordMatchesRaw: keywordCards,
+    keywordCorrection,
   };
 
   renderFromCache();

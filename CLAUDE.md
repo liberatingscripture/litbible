@@ -67,9 +67,9 @@ npm run draft:release-notes -- --since <ref>  # Draft a release-notes entry from
    content hash.
 3. `build:verses` — generates `public/search/verses.json`, the verse-level
    plain-text index the client scans for scripture keyword search, plus the
-   stem-grouped `forms` vocabulary for related-form matching (drafts
-   excluded, deterministic output). A website asset, NOT part of the app
-   contract — it must never move under `public/api/`.
+   corpus `vocab` used client-side for related-form matching and typo
+   correction (drafts excluded, deterministic output). A website asset, NOT
+   part of the app contract — it must never move under `public/api/`.
 4. `build:manifest` — generates `public/api/manifest.json` + `public/api/version.json`
    and copies content files into `public/api/data/` (chapters, intros, intro
    `images/`, plus `topics.json` and `translation-commitments.json`) so the
@@ -235,14 +235,16 @@ collection); they're read directly by the intro pages and the API manifest.
   - *Scripture keyword search* scans `public/search/verses.json` (built by
     `build-verse-index.mjs`) in the client — verse-exact results ("John 3:16"
     → `/john-3#v16`) in canonical Bible order, whole-word/phrase matching
-    (hyphens/apostrophes are word boundaries). A single unquoted token of 5+
-    chars also matches its related forms ("liberation" finds "liberate"):
-    the index ships stem-groups of the corpus vocabulary, and the query is
-    stemmed with the SAME stemmer (`src/lib/word-stem.mjs`, shared by the
-    build script and the client — never let the two sides diverge). Quoted
-    queries, phrases, and short tokens stay exact. The file (~270 KB
-    gzipped) is fetched lazily, only when a keyword search actually runs.
-    Scripture chapter pages are deliberately NOT in the Pagefind index.
+    (hyphens/apostrophes are word boundaries). The file also ships the
+    corpus `vocab`, from which the client derives two niceties for single
+    unquoted tokens of 5+ chars: related-form matching ("liberation" finds
+    "liberate" — the vocabulary is stem-grouped at load with
+    `src/lib/word-stem.mjs`) and typo correction on zero hits ("jeribulem"
+    → results for "jerusalem", with a "showing results for…" note;
+    deliberately conservative — see `nearestVocabWord`). Quoted queries,
+    phrases, and short tokens stay exact. The file (~275 KB gzipped) is
+    fetched lazily, only when a keyword search actually runs. Scripture
+    chapter pages are deliberately NOT in the Pagefind index.
   - *Pagefind* covers glossary + articles only; *topics* come from
     `public/topics-index.json`. A book filter skips Pagefind entirely
     (nothing it indexes carries a book filter value).

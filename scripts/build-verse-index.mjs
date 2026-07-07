@@ -8,26 +8,27 @@
 // Shape (index 0 = verse 1; "" for verse numbers with no content):
 //   {
 //     "verses": { "<bookKey>": { "<chapter>": ["verse 1 text", ...] } },
-//     "forms":  [["liberate","liberated","liberation"], ...]
+//     "vocab":  ["abandon", "abandoned", ...]
 //   }
 //
-// `forms` groups the corpus vocabulary by shared word stem (only groups
-// with 2+ surface forms — singletons add nothing over exact matching). The
-// client stems a query token with the SAME stemmer (src/lib/word-stem.mjs)
-// and expands it to its group, which is how "liberation" also finds
-// "liberate" — the related-forms behavior Pagefind's stemming used to give
-// scripture search.
+// `vocab` is every distinct word in the included verses, sorted. The client
+// (search-core.js) derives BOTH search niceties from it at load time:
+// related-form matching ("liberation" also finds "liberate" — it stems the
+// vocabulary with src/lib/word-stem.mjs and groups shared stems) and
+// typo correction ("jeribulem" → results for "jerusalem" — nearest vocab
+// word by edit distance when a query has no hits). Shipping the raw
+// vocabulary rather than precomputed stem groups keeps the stemmer in ONE
+// place (the client) so build and query can never disagree.
 //
 // Draft chapters ("indexed": false) are excluded so search never surfaces
 // untranslated stubs. Output is deterministic (canonical book order, numeric
-// chapter order, sorted form groups, no timestamps). This file is a website
-// asset, NOT part of the mobile-app API contract — it must never move under
+// chapter order, sorted vocab, no timestamps). This file is a website asset,
+// NOT part of the mobile-app API contract — it must never move under
 // public/api/.
 
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { BOOK_ORDER } from "../src/data/books.js";
-import { stemWord } from "../src/lib/word-stem.mjs";
 
 const ROOT = process.cwd();
 const CHAPTERS_DIR = path.join(ROOT, "src", "data", "chapters");
@@ -134,34 +135,27 @@ async function main() {
     versesObj[bookKey] = bookObj;
   }
 
-  // Related-form groups: every distinct word in the corpus, grouped by stem.
-  const byStem = new Map();
+  // Corpus vocabulary: every distinct word in the included verses.
+  const vocabSet = new Set();
   for (const chapters of byBook.values()) {
     for (const verses of chapters.values()) {
       for (const text of verses) {
         for (const m of text.matchAll(/[\p{L}\p{N}]+/gu)) {
-          const word = m[0].toLowerCase();
-          const stem = stemWord(word);
-          if (!byStem.has(stem)) byStem.set(stem, new Set());
-          byStem.get(stem).add(word);
+          vocabSet.add(m[0].toLowerCase());
         }
       }
     }
   }
-
-  const forms = [...byStem.values()]
-    .filter((set) => set.size >= 2)
-    .map((set) => [...set].sort())
-    .sort((a, b) => a[0].localeCompare(b[0]));
+  const vocab = [...vocabSet].sort();
 
   await fs.mkdir(path.dirname(OUT_FILE), { recursive: true });
   await fs.writeFile(
     OUT_FILE,
-    JSON.stringify({ verses: versesObj, forms }),
+    JSON.stringify({ verses: versesObj, vocab }),
     "utf8",
   );
   console.log(
-    `Wrote ${OUT_FILE} (${chapterCount} chapters, ${verseCount} verses, ${forms.length} related-form groups)`,
+    `Wrote ${OUT_FILE} (${chapterCount} chapters, ${verseCount} verses, ${vocab.length} vocabulary words)`,
   );
 }
 

@@ -550,12 +550,16 @@ export function pickAnchorHref(d, locs) {
 // Matching is whole-word/phrase: both the query and the verse text are
 // tokenized on non-alphanumerics (so hyphens and apostrophes act as word
 // boundaries: "well" matches "well-known"), and multi-word queries must
-// appear as consecutive tokens. A single unquoted token of 5+ chars also
-// matches its RELATED FORMS ("liberation" finds "liberate"): the index
-// ships stem-groups of the corpus vocabulary, and the query token is
-// stemmed with the same stemmer (src/lib/word-stem.mjs) to pick its group —
-// mirroring what Pagefind's stemming did, and what buildPfQuery's quoting
-// rules exempted (quoted queries, phrases, and 1–4 char tokens stay exact).
+// appear as consecutive tokens. Two niceties, both derived client-side
+// from the shipped corpus vocabulary, apply to single unquoted tokens of
+// 5+ chars (mirroring what buildPfQuery's quoting rules exempted — quoted
+// queries, phrases, and 1–4 char tokens stay exact):
+// - RELATED FORMS: the vocabulary is stemmed (src/lib/word-stem.mjs) and
+//   grouped at load, and a query token expands to its stem group, so
+//   "liberation" also finds "liberate" (what Pagefind's stemming gave).
+// - TYPO CORRECTION: when a query has zero hits, the nearest vocabulary
+//   word by edit distance is searched instead ("jeribulem" → results for
+//   "jerusalem"), reported via the hit list's `correction`.
 
 import { stemWord } from "../lib/word-stem.mjs";
 
@@ -564,8 +568,10 @@ const WORD_RE = /[\p{L}\p{N}]+/gu;
 let verseIndexPromise = null;
 
 /**
- * Load /search/verses.json once. Resolves to { verses, formsByStem } —
+ * Load /search/verses.json once. Resolves to
+ * { verses, vocab, formsByStem } —
  * verses: { bookKey: { chapter: ["verse 1 text", ...] } };
+ * vocab: every distinct corpus word (typo-correction candidates);
  * formsByStem: Map(stem → [surface forms]) for related-form expansion —
  * or null on failure (a failed fetch is retried on the next call).
  */
@@ -581,16 +587,19 @@ export function loadVerseIndex(base) {
           json?.verses && typeof json.verses === "object" ? json.verses : null;
         if (!verses) throw new Error("verses.json has no .verses object.");
 
-        // All forms in a group share a stem by construction, so any member
-        // yields the group's key.
+        const vocab = Array.isArray(json.vocab) ? json.vocab : [];
+
+        // Group the vocabulary by stem once (~6.4k words, a few ms).
+        // Stemming corpus words and query words with the same function is
+        // what makes related-form matching correct.
         const formsByStem = new Map();
-        for (const group of Array.isArray(json.forms) ? json.forms : []) {
-          if (Array.isArray(group) && group.length >= 2) {
-            formsByStem.set(stemWord(group[0]), group);
-          }
+        for (const word of vocab) {
+          const stem = stemWord(word);
+          if (!formsByStem.has(stem)) formsByStem.set(stem, []);
+          formsByStem.get(stem).push(word);
         }
 
-        return { verses, formsByStem };
+        return { verses, vocab, formsByStem };
       } catch (e) {
         console.warn("[search] Failed to load verse index:", e);
         verseIndexPromise = null;
@@ -648,30 +657,60 @@ function findTokenRuns(text, qMatchers) {
   return runs;
 }
 
-/**
- * Scan the verse index for a query. Returns hits in canonical Bible order:
- * [{ bookKey, chapter, verse, text, runs }] — one hit per matching verse,
- * `runs` holding the char ranges of every occurrence in that verse.
- *
- * `index` is loadVerseIndex's { verses, formsByStem }. Single unquoted
- * tokens of 5+ chars expand to their related-form group (see the section
- * comment above); everything else matches exactly.
- */
-export function searchVerses(index, rawQuery, { bookKey = "" } = {}) {
-  const verses = index?.verses;
-  const qTokens = tokenizeQuery(rawQuery);
-  if (!verses || !qTokens.length) return [];
-
-  let qMatchers = qTokens;
-  if (
+/** True when the related-form/typo niceties apply (see section comment). */
+function isExpandableQuery(qTokens, rawQuery) {
+  return (
     qTokens.length === 1 &&
     qTokens[0].length >= 5 &&
     !isExplicitlyQuoted(normalizeQuotes(rawQuery))
-  ) {
+  );
+}
+
+/** Token matchers for one query: the token's stem group when expandable. */
+function buildMatchers(index, qTokens, expandable) {
+  if (expandable) {
     const group = index.formsByStem?.get(stemWord(qTokens[0]));
-    if (group) qMatchers = [new Set([qTokens[0], ...group])];
+    if (group) return [new Set([qTokens[0], ...group])];
+  }
+  return qTokens;
+}
+
+/**
+ * Nearest vocabulary word to a mistyped token. Auto-showing results for a
+ * different word is a high-confidence act, so beyond the fuzzy-topic
+ * distance threshold a candidate must look like a genuine misspelling:
+ * share the token's first two letters (typos rarely hit a word's start)
+ * and be within one character of its length (substitutions/transpositions/
+ * a single indel — not wholesale deletions). Distance-3 corrections must
+ * additionally share a 3-char suffix: "jeribulem" → "jerusalem" (…lem)
+ * passes, but "forgivness" → "foreigners" is refused — the LIT corpus has
+ * no word near some queries, and no answer beats a misleading one (the
+ * glossary/topic buckets still guide those). Refused queries fall through
+ * to the softer "Did you mean" topic pills. Ties prefer the alphabetically
+ * first word (vocab is sorted, so first-wins).
+ */
+function nearestVocabWord(vocab, token) {
+  const threshold = Math.max(2, Math.ceil(token.length * 0.3));
+  const prefix = token.slice(0, 2);
+  const suffix = token.slice(-3);
+  let best = null;
+  let bestDist = threshold + 1;
+
+  for (const word of vocab || []) {
+    if (word === token) continue;
+    if (!word.startsWith(prefix)) continue;
+    if (Math.abs(word.length - token.length) > 1) continue;
+    const dist = levenshtein(token, word);
+    if (dist >= bestDist) continue;
+    if (dist > 2 && !word.endsWith(suffix)) continue;
+    best = word;
+    bestDist = dist;
   }
 
+  return bestDist <= threshold ? best : null;
+}
+
+function scanVerses(verses, qMatchers, bookKey) {
   const hits = [];
   const books = bookKey ? [bookKey] : BOOK_ORDER;
 
@@ -700,6 +739,46 @@ export function searchVerses(index, rawQuery, { bookKey = "" } = {}) {
   }
 
   return hits;
+}
+
+/**
+ * Scan the verse index for a query. Returns { hits, correction }:
+ * hits — [{ bookKey, chapter, verse, text, runs }] in canonical Bible
+ * order, one per matching verse, `runs` holding the char ranges of every
+ * occurrence; correction — the vocabulary word actually searched when the
+ * typed token had no hits ("" when the query matched as typed), for the
+ * UIs' "showing results for …" note.
+ *
+ * `index` is loadVerseIndex's { verses, vocab, formsByStem }. Single
+ * unquoted tokens of 5+ chars expand to their related-form group and fall
+ * back to typo correction; everything else matches exactly.
+ */
+export function searchVerses(index, rawQuery, { bookKey = "" } = {}) {
+  const verses = index?.verses;
+  const qTokens = tokenizeQuery(rawQuery);
+  if (!verses || !qTokens.length) return { hits: [], correction: "" };
+
+  const expandable = isExpandableQuery(qTokens, rawQuery);
+
+  let hits = scanVerses(
+    verses,
+    buildMatchers(index, qTokens, expandable),
+    bookKey,
+  );
+
+  if (!hits.length && expandable) {
+    const corrected = nearestVocabWord(index.vocab, qTokens[0]);
+    if (corrected) {
+      hits = scanVerses(
+        verses,
+        buildMatchers(index, [corrected], true),
+        bookKey,
+      );
+      if (hits.length) return { hits, correction: corrected };
+    }
+  }
+
+  return { hits, correction: "" };
 }
 
 /** "John 3:16" label for a verse hit. */

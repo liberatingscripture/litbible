@@ -664,9 +664,9 @@ const _initSearchbars = async () => {
         const verseIndex = versePromise ? await versePromise : null;
         if (mySeq !== searchSeq) return;
 
-        const verseHits = verseIndex
+        const { hits: verseHits, correction: verseCorrection } = verseIndex
           ? searchVerses(verseIndex, q, { bookKey: keywordBook })
-          : [];
+          : { hits: [], correction: "" };
 
         // When the query IS a known topic, the topics index replaces the
         // Pagefind subject hits (it's the canonical topic → chapters list).
@@ -734,7 +734,10 @@ const _initSearchbars = async () => {
         if (showA && aCount)
           parts.push(`${aCount} article match${aCount === 1 ? "" : "es"}`);
         if (showK)
-          parts.push(`${kCount} keyword match${kCount === 1 ? "" : "es"}`);
+          parts.push(
+            `${kCount} keyword match${kCount === 1 ? "" : "es"}` +
+              (verseCorrection ? ` for “${verseCorrection}”` : ""),
+          );
         status.textContent = parts.join(sep);
 
         renderGroups({
