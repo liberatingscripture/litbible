@@ -191,9 +191,12 @@ Each file in `src/data/chapters/` follows this structure:
   share a topic.
 - **`footnotes`** are HTML strings; the verse text references them via
   `<sup class="fn-ref">` anchors (Pagefind excludes these — see `pagefind.yml`).
-- **`indexed: false`** (optional) marks an in-progress **draft/stub chapter**.
-  54 of 260 chapters are currently drafts. This flag has four downstream
-  effects, so handle it carefully:
+- **`indexed`** is an explicit two-state publication flag on EVERY chapter:
+  `false` marks an in-progress **draft/stub chapter**, `true` a published one
+  — never omit it (the release-notes generator emits "chapter added" on the
+  explicit false→true transition, and the validator enforces the rules in
+  `chapter_json_invariants.json`). 54 of 260 chapters are currently drafts.
+  `indexed: false` has four downstream effects, so handle it carefully:
   1. `build-verse-index.mjs` excludes the chapter from the verse search index
      (kept out of search).
   2. `astro.config.mjs` excludes the slug from the sitemap, and a `/read/<book>`
@@ -201,8 +204,7 @@ Each file in `src/data/chapters/` follows this structure:
   3. The page is `noindex`'d.
   4. `ReadMenu.astro` marks the chapter "(draft)" (dimmed) in its chapter
      dropdown.
-  **Remove the field** (do not set it to `true`) when real content lands. The
-  validator warns if `indexed:false` remains on a chapter that has real content.
+  **Flip it to `true`** (do not delete the field) when real content lands.
 - Always run `npm run validate:chapters` after editing chapter JSON. The
   pre-commit hook validates staged chapter files automatically.
 
