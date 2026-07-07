@@ -561,9 +561,14 @@ export function pickAnchorHref(d, locs) {
 //   word by edit distance is searched instead ("jeribulem" → results for
 //   "jerusalem"), reported via the hit list's `correction`.
 
-import { stemWord } from "../lib/word-stem.mjs";
+import { stemWord, foldDiacritics } from "../lib/word-stem.mjs";
 
 const WORD_RE = /[\p{L}\p{N}]+/gu;
+
+/** Comparable token: lowercased, diacritics folded ("lemá" → "lema"). */
+function foldToken(s) {
+  return foldDiacritics(s.toLowerCase());
+}
 
 let verseIndexPromise = null;
 
@@ -610,11 +615,11 @@ export function loadVerseIndex(base) {
   return verseIndexPromise;
 }
 
-/** Lowercased word tokens of a query ("God’s Reign!" → ["god","s","reign"]). */
+/** Comparable word tokens of a query ("God’s Reign!" → ["god","s","reign"]). */
 export function tokenizeQuery(raw) {
   const tokens = [];
   for (const m of String(raw || "").matchAll(WORD_RE)) {
-    tokens.push(m[0].toLowerCase());
+    tokens.push(foldToken(m[0]));
   }
   return tokens;
 }
@@ -629,7 +634,7 @@ function findTokenRuns(text, qMatchers) {
   const words = [];
   for (const m of text.matchAll(WORD_RE)) {
     words.push({
-      w: m[0].toLowerCase(),
+      w: foldToken(m[0]),
       start: m.index,
       end: m.index + m[0].length,
     });
@@ -710,7 +715,7 @@ function nearestVocabWord(vocab, token) {
   return bestDist <= threshold ? best : null;
 }
 
-function scanVerses(verses, qMatchers, bookKey) {
+function scanVerses(verses, qMatchers, bookKey, exactToken) {
   const hits = [];
   const books = bookKey ? [bookKey] : BOOK_ORDER;
 
@@ -733,7 +738,23 @@ function scanVerses(verses, qMatchers, bookKey) {
         const runs = findTokenRuns(text, qMatchers);
         if (!runs.length) continue;
 
-        hits.push({ bookKey: bk, chapter: ch, verse: vi + 1, text, runs });
+        // How many runs are the token as typed (vs a related form) —
+        // relevance ranks those first, like Pagefind ranked exact matches
+        // above stemmed ones.
+        const exactRuns = exactToken
+          ? runs.filter(
+              (r) => foldToken(text.slice(r.start, r.end)) === exactToken,
+            ).length
+          : runs.length;
+
+        hits.push({
+          bookKey: bk,
+          chapter: ch,
+          verse: vi + 1,
+          text,
+          runs,
+          exactRuns,
+        });
       }
     }
   }
@@ -764,6 +785,7 @@ export function searchVerses(index, rawQuery, { bookKey = "" } = {}) {
     verses,
     buildMatchers(index, qTokens, expandable),
     bookKey,
+    expandable ? qTokens[0] : null,
   );
 
   if (!hits.length && expandable) {
@@ -773,12 +795,35 @@ export function searchVerses(index, rawQuery, { bookKey = "" } = {}) {
         verses,
         buildMatchers(index, [corrected], true),
         bookKey,
+        corrected,
       );
       if (hits.length) return { hits, correction: corrected };
     }
   }
 
   return { hits, correction: "" };
+}
+
+/**
+ * Relevance order for verse hits (a NEW array; the input stays in Bible
+ * order): verses containing the token as typed rank above related-form
+ * matches (like Pagefind ranked exact above stemmed), more occurrences
+ * rank above fewer, and Bible order breaks ties. The tray's top results
+ * and the /search "Relevance" sort both use this.
+ */
+export function rankVerseHits(hits) {
+  return hits
+    .map((hit, bibleIdx) => ({ hit, bibleIdx }))
+    .sort((a, b) => {
+      const aExact = a.hit.exactRuns > 0 ? 1 : 0;
+      const bExact = b.hit.exactRuns > 0 ? 1 : 0;
+      if (aExact !== bExact) return bExact - aExact;
+      if (a.hit.runs.length !== b.hit.runs.length) {
+        return b.hit.runs.length - a.hit.runs.length;
+      }
+      return a.bibleIdx - b.bibleIdx;
+    })
+    .map(({ hit }) => hit);
 }
 
 /** "John 3:16" label for a verse hit. */

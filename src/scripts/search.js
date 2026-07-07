@@ -27,6 +27,7 @@ import {
   pickAnchorHref,
   loadVerseIndex,
   searchVerses,
+  rankVerseHits,
   verseHitHref,
   highlightVerseHit,
   loadTopicsIndex,
@@ -980,20 +981,25 @@ async function runFullSearch() {
 
   // Scripture keyword results: one card per matching verse, shaped like the
   // occurrence cards renderKeyword groups by chapter (__baseUrl). Hits come
-  // back in canonical Bible order, so the relevance rank IS Bible order.
+  // back in Bible order; __relevanceRank carries the rankVerseHits order so
+  // the Relevance/Book-order sort toggle keeps both meanings.
   const verseIndex = versePromise ? await versePromise : null;
   const { hits: verseHits, correction: keywordCorrection } = verseIndex
     ? searchVerses(verseIndex, q, { bookKey: book })
     : { hits: [], correction: "" };
 
-  const keywordCards = verseHits.map((h, i) => {
+  const relevanceRank = new Map(
+    rankVerseHits(verseHits).map((h, i) => [h, i]),
+  );
+
+  const keywordCards = verseHits.map((h) => {
     const chapterTitle = `${bookKeyToLabel(h.bookKey)} ${h.chapter}`;
     return {
       url: verseHitHref(h),
       excerpt: `<sup>${h.verse}</sup>&nbsp;${highlightVerseHit(h)}`,
       meta: { title: chapterTitle },
       title: chapterTitle,
-      __relevanceRank: i,
+      __relevanceRank: relevanceRank.get(h) ?? 9999,
       __occurrenceIndex: h.verse,
       __baseUrl: `/${h.bookKey}-${h.chapter}`,
       __matchCount: h.runs.length,

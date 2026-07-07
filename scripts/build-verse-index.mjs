@@ -29,6 +29,7 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { BOOK_ORDER } from "../src/data/books.js";
+import { foldDiacritics } from "../src/lib/word-stem.mjs";
 
 const ROOT = process.cwd();
 const CHAPTERS_DIR = path.join(ROOT, "src", "data", "chapters");
@@ -135,13 +136,14 @@ async function main() {
     versesObj[bookKey] = bookObj;
   }
 
-  // Corpus vocabulary: every distinct word in the included verses.
+  // Corpus vocabulary: every distinct word in the included verses,
+  // diacritics folded to match the client's token comparison.
   const vocabSet = new Set();
   for (const chapters of byBook.values()) {
     for (const verses of chapters.values()) {
       for (const text of verses) {
         for (const m of text.matchAll(/[\p{L}\p{N}]+/gu)) {
-          vocabSet.add(m[0].toLowerCase());
+          vocabSet.add(foldDiacritics(m[0].toLowerCase()));
         }
       }
     }

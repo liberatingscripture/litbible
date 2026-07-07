@@ -13,6 +13,18 @@ function isVowel(ch) {
   return VOWELS.includes(ch);
 }
 
+/**
+ * Strip diacritics ("lemá" → "lema", "naïve" → "naive") so accented corpus
+ * words match unaccented queries — Pagefind folded these too. Applied to
+ * TOKENS on both the build side (vocabulary) and the client side (query and
+ * verse tokens); the visible verse text keeps its accents.
+ */
+export function foldDiacritics(s) {
+  return String(s || "")
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "");
+}
+
 /** Snowball "short syllable" ending at index i (inclusive). */
 function endsWithShortSyllable(w) {
   const n = w.length;

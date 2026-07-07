@@ -28,6 +28,7 @@ import {
   pickAnchorHref,
   loadVerseIndex,
   searchVerses,
+  rankVerseHits,
   verseHitLabel,
   verseHitHref,
   loadTopicsIndex,
@@ -709,10 +710,13 @@ const _initSearchbars = async () => {
         }));
 
         // Verse-exact keyword results: "John 3:16" linking to /john-3#v16.
-        const keywordItems = verseHits.slice(0, 6).map((h) => ({
-          title: verseHitLabel(h),
-          href: verseHitHref(h),
-        }));
+        // Most-relevant six first, as the Pagefind tray did.
+        const keywordItems = rankVerseHits(verseHits)
+          .slice(0, 6)
+          .map((h) => ({
+            title: verseHitLabel(h),
+            href: verseHitHref(h),
+          }));
 
         const gCount = glossaryMatches.length;
         const sCount = subjectMatches.length;

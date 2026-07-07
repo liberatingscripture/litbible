@@ -234,17 +234,20 @@ collection); they're read directly by the intro pages and the API manifest.
 - **Search is two engines behind three client modules** in `src/scripts/`:
   - *Scripture keyword search* scans `public/search/verses.json` (built by
     `build-verse-index.mjs`) in the client — verse-exact results ("John 3:16"
-    → `/john-3#v16`) in canonical Bible order, whole-word/phrase matching
-    (hyphens/apostrophes are word boundaries). The file also ships the
-    corpus `vocab`, from which the client derives two niceties for single
-    unquoted tokens of 5+ chars: related-form matching ("liberation" finds
-    "liberate" — the vocabulary is stem-grouped at load with
-    `src/lib/word-stem.mjs`) and typo correction on zero hits ("jeribulem"
-    → results for "jerusalem", with a "showing results for…" note;
-    deliberately conservative — see `nearestVocabWord`). Quoted queries,
-    phrases, and short tokens stay exact. The file (~275 KB gzipped) is
-    fetched lazily, only when a keyword search actually runs. Scripture
-    chapter pages are deliberately NOT in the Pagefind index.
+    → `/john-3#v16`), whole-word/phrase matching (hyphens/apostrophes are
+    word boundaries, diacritics folded: "lema" matches "lemá"). Default
+    ordering is relevance (`rankVerseHits`: exact-form matches above
+    related forms, more occurrences above fewer), with Bible order as the
+    /search sort toggle. The file also ships the corpus `vocab`, from which
+    the client derives two niceties for single unquoted tokens of 5+ chars:
+    related-form matching ("liberation" finds "liberate" — the vocabulary
+    is stem-grouped at load with `src/lib/word-stem.mjs`) and typo
+    correction on zero hits ("jeribulem" → results for "jerusalem", with a
+    "showing results for…" note; deliberately conservative — see
+    `nearestVocabWord`). Quoted queries, phrases, and short tokens stay
+    exact. The file (~275 KB gzipped) is fetched lazily, only when a
+    keyword search actually runs. Scripture chapter pages are deliberately
+    NOT in the Pagefind index.
   - *Pagefind* covers glossary + articles only; *topics* come from
     `public/topics-index.json`. A book filter skips Pagefind entirely
     (nothing it indexes carries a book filter value).
