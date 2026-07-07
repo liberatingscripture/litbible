@@ -66,7 +66,8 @@ npm run draft:release-notes -- --since <ref>  # Draft a release-notes entry from
    Output is deterministic (sorted, no timestamps) so it doesn't churn the sync
    content hash.
 3. `build:verses` — generates `public/search/verses.json`, the verse-level
-   plain-text index the client scans for scripture keyword search (drafts
+   plain-text index the client scans for scripture keyword search, plus the
+   stem-grouped `forms` vocabulary for related-form matching (drafts
    excluded, deterministic output). A website asset, NOT part of the app
    contract — it must never move under `public/api/`.
 4. `build:manifest` — generates `public/api/manifest.json` + `public/api/version.json`
@@ -233,8 +234,13 @@ collection); they're read directly by the intro pages and the API manifest.
 - **Search is two engines behind three client modules** in `src/scripts/`:
   - *Scripture keyword search* scans `public/search/verses.json` (built by
     `build-verse-index.mjs`) in the client — verse-exact results ("John 3:16"
-    → `/john-3#v16`) in canonical Bible order, exact whole-word/phrase
-    matching (hyphens/apostrophes are word boundaries). The file (~250 KB
+    → `/john-3#v16`) in canonical Bible order, whole-word/phrase matching
+    (hyphens/apostrophes are word boundaries). A single unquoted token of 5+
+    chars also matches its related forms ("liberation" finds "liberate"):
+    the index ships stem-groups of the corpus vocabulary, and the query is
+    stemmed with the SAME stemmer (`src/lib/word-stem.mjs`, shared by the
+    build script and the client — never let the two sides diverge). Quoted
+    queries, phrases, and short tokens stay exact. The file (~270 KB
     gzipped) is fetched lazily, only when a keyword search actually runs.
     Scripture chapter pages are deliberately NOT in the Pagefind index.
   - *Pagefind* covers glossary + articles only; *topics* come from
