@@ -410,7 +410,10 @@ function initFootnotePopovers(container) {
 
     const body = document.createElement("div");
     body.className = "lit-panel__body";
-    const content = note.querySelector("p")?.cloneNode(true);
+    // The note's content wrapper is <div class="fn-body"> ([slug].astro —
+    // a div because footnote HTML can contain block elements); "p" is the
+    // pre-2026-07 markup, kept as a fallback.
+    const content = note.querySelector(".fn-body, p")?.cloneNode(true);
     if (content) {
       content.querySelector(".footnote-backlink")?.remove();
       body.appendChild(content);
