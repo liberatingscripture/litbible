@@ -1,10 +1,19 @@
 # Site Audit Fix List
 
 From the comprehensive audit of 2026-07-07 (developer, QA, SEO, end-user, editor,
-marketing, accessibility, HR/governance, and security passes). Items marked
-**Priority** are the seven highest-impact fixes; everything else is **TBD** —
-agreed in principle, scheduled later. Delete items as they land (or move them to
-release notes); this file is a punch list, not a changelog.
+marketing, accessibility, HR/governance, and security passes). The seven
+**Priority** fixes are done (commit `9e3a875`). Remaining items are grouped by
+which model should run them:
+
+- **Sonnet** — mechanical, fully specified edits; run as ONE batch session.
+- **Opus** — well-scoped implementation work; run one session per item.
+- **Fable** — judgment, security, design, or brand voice; owner in the loop.
+- **Owner** — decisions or dashboard access no model has.
+
+Every item below is written to stand alone — a fresh session should be able to
+execute from the item text without this conversation. After any code item:
+`npm run build` must pass, and changed pages should be spot-checked in
+`npm run dev`. Delete items as they land; this is a punch list, not a changelog.
 
 ## Priority
 
@@ -14,166 +23,304 @@ release notes); this file is a punch list, not a changelog.
 
 - [x] **P2 — Link the privacy policy (and decide `/courses`).**
   DONE (privacy): Privacy link added to the footer "Connect" column
-  (`SiteFooter.astro`). OPEN (owner decision): `/courses` is still unlinked —
-  add it to the nav/footer once there's content, or park it deliberately.
+  (`SiteFooter.astro`). The `/courses` decision is tracked under **Owner**.
 
 - [x] **P3 — Bring the privacy policy in line with actual data flows.**
   DONE: `privacy.astro` now discloses the Formspree-processed contact form,
   Cloudflare Turnstile, and the `lit_welcome_v2` cookie + localStorage
   preferences; effective date bumped to 2026-07-07. Owner confirmed neither
-  app is live yet, so the scope/lede now frame the "(app)" sections as
-  describing the in-development iOS/Android apps, effective at launch
-  (Android-specific details to be documented at release).
+  app is live yet, so the scope/lede frame the "(app)" sections as describing
+  the in-development iOS/Android apps, effective at launch.
 
 - [x] **P4 — Fix brand-green contrast for text.**
   DONE: added `--green-text: #0F6B33` (≈ 4.9:1 on cream, ≈ 6.7:1 on white;
   dark mode keeps `#3abf6a`) and switched green-as-text usages to it across
-  global.css, articles.css, read.css, contact/courses/podcast page CSS, the
-  scripture pages (footnote refs, backlinks, verse numbers, panel links), and
-  the article back/top links. `--link` now points at `--green-text`.
-  Green-on-ink text (homepage curtain CTAs, newsletter/unsubscribe submit
-  hovers) already passed and keeps `--green`. The 16px chapter CTAs and
-  back-to-top button backgrounds were darkened to `--green-text` (white label
-  now ≈ 6.7:1). REMAINING (moved to TBD): sweep the other white-on-`--green`
-  buttons (header Read Now, ReadMenu Study/Read, search buttons, intro pages)
-  to confirm each qualifies as WCAG large text at 3:1 or darken them too.
+  the stylesheets and scripture pages; `--link` now points at `--green-text`;
+  16px chapter CTA / back-to-top backgrounds darkened. Follow-on button sweep
+  is an **Opus** item below.
 
 - [x] **P5 — Make the scripture-menu tooltip screen-reader accessible.**
-  DONE: the tooltip content now has an id and the button references it via
-  `aria-describedby`, so the instructions are announced as the button's
-  description (while `aria-hidden` keeps them out of its name).
+  DONE: tooltip content is referenced by the button via `aria-describedby`.
 
 - [x] **P6 — Keyboard access for the verse copy/share menu.**
-  DONE (`chapter-tools.js`): verse numbers get `role="button"`, `tabindex=0`,
-  `aria-label`, and `aria-haspopup` at init; Enter/Space activates the menu;
-  keyboard-opened menus restore focus to the verse number on close (pointer
-  taps deliberately don't, to avoid scroll jumps); Tab now cycles inside the
-  verse/footnote panels instead of escaping into the page.
+  DONE (`chapter-tools.js`): verse numbers are keyboard-operable buttons;
+  Tab cycles inside panels; keyboard-opened menus restore focus on close.
 
 - [x] **P7 — Add a CI workflow.**
-  DONE: `.github/workflows/ci.yml` runs `npm ci`, `validate:chapters`, and the
-  full production build on pushes to main and all PRs. Follow-on (tracked in
-  TBD): tests for `search-core.js` parsing and a post-build link check.
+  DONE: `.github/workflows/ci.yml` validates chapters and runs the full build
+  on push/PR. Tests and link checking are **Opus** items below.
 
-## TBD
+## Sonnet — one batch session
 
-### Developer / code health
+> Prompt shape: "Work through the Sonnet checklist in FIXLIST.md top to
+> bottom. Make exactly the changes described; don't expand scope. Run
+> `npm run build` at the end."
 
-- [ ] **Disambiguate the `index` prop across layouts.** `Layout.astro` uses
-  `index` for Pagefind and `noindex` for robots; `ScriptureLayout.astro` uses
-  `index` for robots. Rename to `pagefindIndex` / `robotsIndex` (or similar).
-- [ ] **Comment the glossary Pagefind subtlety.** `glossary.astro` relies on an
-  inner `data-pagefind-body` overriding the `data-pagefind-ignore` Layout puts
-  on `<body>`; document why this works so nobody "fixes" it.
-- [ ] **Normalize the npm `build` script** — it mixes `npm run build:topics`
-  with direct `node scripts/...` calls for sibling steps.
-- [ ] **Resolve the `data-theme` dead end.** CSS supports an explicit
-  light/dark override (`:root[data-theme=...]`) but no UI ever sets it. Either
-  ship a theme toggle (natural neighbor for the "Aa" tray) or remove the hooks.
-- [ ] **Unit tests for `search-core.js`** (reference parsing, ranking, typo
-  correction) — highest-value test target of the ~4,500 untested client-JS lines.
-- [ ] **Post-build link checker over `dist/`** to catch broken internal anchors
-  (e.g. `/read#license`-style cross-page anchors) and dead hrefs.
+- [ ] **Fix the /read lede grammar.** In `src/pages/read.astro`, the hero
+  paragraph reads "ready for your study, scrutinize, celebrate, and use in
+  your faith circles". Change to "ready for you to study, scrutinize,
+  celebrate, and use in your faith circles". Touch nothing else in the
+  sentence.
 
-### SEO / social
+- [ ] **"FAQ's" → "FAQs".** In `src/pages/about.astro`, the table-of-contents
+  link text is `FAQ's`. Change to `FAQs`. (The section heading itself already
+  reads "Frequently Asked Questions" — leave it.)
 
-- [ ] **Upgrade article metadata:** `og:type=article`, `article:published_time`,
-  `Article`/`BlogPosting` JSON-LD, and `twitter:card=summary_large_image` when a
-  hero image exists (`articles/[...slug].astro`, `Layout.astro`).
-- [ ] **Stop hardcoding `og:image` dimensions.** `Layout.astro` always emits
-  1000×1000 even when `ogImage` is overridden with a non-square article hero.
-- [ ] **Canonical trailing-slash consistency:** `/privacy` and
-  `/translation-commitments` omit the trailing slash; every other page includes
-  it. Standardize on with-slash (matches the directory build format).
-- [ ] **Per-chapter/verse OG share images.** Build-time text-on-brand-green
-  cards would materially improve link previews for the most-shared content.
+- [ ] **Normalize apostrophes/quotes in about.astro.** The earlier sections
+  use curly quotes (I'm, don't) and later sections use straight ones. Convert
+  all straight apostrophes and double quotes in RENDERED TEXT to curly
+  (' " ") throughout `src/pages/about.astro`. Do NOT touch HTML attributes,
+  frontmatter, or code — only visible prose. Verify the page renders.
 
-### Accessibility follow-ons
+- [ ] **`http://` → `https://` on the CC license link.** In
+  `src/pages/read.astro`, the license link href is
+  `http://creativecommons.org/licenses/by-nc-nd/4.0/?ref=chooser-v1`. Change
+  the scheme to `https://` (keep the query string).
 
-- [ ] **Audit remaining white-on-`--green` buttons** (header Read Now CTA,
-  ReadMenu Study/Read, search page buttons, intro-page CTAs, home question
-  cards, 404 CTAs): confirm each label qualifies as WCAG "large text" (≥18.66px
-  bold or ≥24px, where 3:1 suffices — #209D50/white is ≈3.5:1) or switch its
-  background to `--green-text` like the chapter CTAs.
-- [ ] **Homepage hero text contrast:** cream/white text on the green hero
-  (`bg="green"`) is ≈2.6–3.5:1 — verify the display-size text passes the 3:1
-  large-text bar and adjust weights/sizes if not.
+- [ ] **Canonical trailing-slash consistency.** `src/pages/privacy.astro`
+  (canonical + the JSON-LD `url` and `isPartOf` fields where they carry the
+  page URL) and `src/pages/translation-commitments.astro` (canonical) omit the
+  trailing slash; every other page includes it. Add the trailing slash to
+  match (e.g. `https://litbible.net/privacy/`).
 
-### End-user experience
+- [ ] **Stop hardcoding og:image dimensions.** In `src/layouts/Layout.astro`,
+  `og:image:width`/`og:image:height` are always `1000`. Emit those two meta
+  tags ONLY when the default logo is used (i.e. when the `ogImage` prop was
+  NOT provided); when a page passes `ogImage`, omit width/height rather than
+  lying about them.
 
-- [ ] **Rein in the welcome popover.** It fires on any first pageview —
-  including shared verse deep links, where it competes with the verse
-  highlight — and qualifies as an intrusive interstitial for mobile search
-  entrances (SEO risk too). Show it on the homepage only, or after the second
-  pageview.
-- [ ] **Differentiate the two Facebook icons** in the footer (LIT vs podcast) —
-  currently identical for sighted users, distinguished only by aria-label.
-- [ ] **Stop opening internal links in new tabs** in article bodies (e.g. the
-  2 Corinthians article's scripture link).
-- [ ] **Longer-term: simplify the ReadMenu** (book/chapter dropdowns + two
-  submit buttons need an instructional tooltip — a sign the control carries too
-  much). A single "Go to passage" affordance could remove the need entirely.
+- [ ] **Remove target="_blank" from internal article links.** Grep
+  `src/content/articles/*.md` for `target="_blank"` on hrefs that point to
+  litbible.net pages or root-relative paths (e.g. `/2corinthians-13`). Remove
+  the `target` and `rel` attributes from those internal links only; leave
+  genuinely external links alone.
 
-### Editorial
+- [ ] **Normalize the npm build script.** In `package.json`, the `build`
+  script mixes `npm run build:topics` with direct `node scripts/...` calls.
+  Rewrite it to call the npm aliases consistently:
+  `node scripts/fetch-podcast-feed.mjs && npm run build:topics && npm run build:verses && npm run build:manifest && npm run build:api && astro build && pagefind --site dist`
+  (order must not change — see the Build Pipeline section of CLAUDE.md).
 
-- [ ] **Grammar in the /read lede** (`read.astro`): "ready for your study,
-  scrutinize, celebrate, and use" → "study, scrutiny, celebration, and use" (or
-  "for you to study, scrutinize…").
-- [ ] **Untangle the two meanings of "draft"** in the About FAQ ("All books are
-  currently drafts… Most books are complete") vs. the site's `(draft)` markers
-  for `indexed:false` stubs. Reword the FAQ answer.
-- [ ] **"FAQ's" → "FAQs"** (`about.astro`).
-- [ ] **Normalize curly vs. straight apostrophes** across `about.astro` (mixed
-  section by section).
+- [ ] **Comment the glossary Pagefind subtlety.** In
+  `src/pages/glossary.astro`, just above the
+  `<section class="glossary-entries" data-pagefind-body ...>` element, add a
+  code comment explaining: Layout puts `data-pagefind-ignore` on `<body>`
+  (because the page doesn't pass `index`), and this inner `data-pagefind-body`
+  is what opts the entries back INTO the Pagefind index — removing either
+  attribute breaks glossary search. No behavior change.
 
-### Marketing
+- [ ] **Stronger contact-form honeypot.** In `src/pages/contact.astro`, the
+  `_gotcha` honeypot is `<input type="hidden">`, which most bots skip. Change
+  it to `type="text"` with `tabindex="-1"`, `autocomplete="off"`,
+  `aria-hidden="true"`, and hide it visually via a class (e.g. reuse the
+  pattern from SiteFooter's `footer-newsletter__honeypot`, or add a
+  `.contact-honeypot { position:absolute; left:-9999px; }` rule in
+  `src/styles/pages/contact.css`). The submit handler already checks its
+  value — don't change the JS.
 
-- [x] **Consolidate email capture.** DONE: the `/courses` Formspree signup
-  (a pre-Brevo vestige, per the owner) was removed; the Email Updates section
-  now points to the footer's Brevo newsletter form. The contact form stays on
-  Formspree by design.
-- [ ] **Verify Cloudflare Web Analytics is actually enabled** — the privacy
-  policy asserts it, and it's the only visibility into traffic.
+- [ ] **Differentiate the two footer Facebook icons.** In
+  `src/components/SiteFooter.astro`, the LIT Facebook link and the podcast
+  Facebook link render identical icons, distinguishable only by aria-label.
+  Add a small visible text label under each social icon (e.g. "LIT",
+  "Threads", "Bluesky", "Instagram", "Podcast") OR at minimum under the two
+  Facebook icons — tiny (0.65–0.7rem), muted color `rgba(var(--ink-rgb),.7)`,
+  centered under the icon. Keep the existing aria-labels.
 
-### Security
+- [ ] **Governance boilerplate.** Create three files at repo root (drafts for
+  owner review; keep each short and warm in tone, matching the project's
+  voice — see README.md):
+  - `CONTRIBUTING.md` — how to report translation feedback (the /contact
+    page), how to file issues/PRs, pointer to CLAUDE.md for repo internals,
+    note that chapter JSON edits must pass `npm run validate:chapters`.
+  - `SECURITY.md` — report vulnerabilities privately via
+    https://litbible.net/contact (not public issues); no bounty; static site,
+    but the API feeds mobile apps so takes reports seriously.
+  - `CODE_OF_CONDUCT.md` — Contributor Covenant v2.1, contact route = the
+    site contact form.
+  - Do NOT create LICENSE — that's gated on the **Owner** license decision
+    below.
 
-- [ ] **Self-host the contact form on Cloudflare (drop Formspree).**
-  Replace the Formspree backend with a small Cloudflare Worker + Email Routing
-  (`send_email` binding — free tier), keeping the existing form markup and
-  Turnstile widget:
+## Opus — one session per item
+
+- [ ] **(O1) Article metadata upgrade.** Articles currently ship
+  `og:type=website`, no per-article JSON-LD, and `twitter:card=summary` even
+  with hero images. In `src/layouts/Layout.astro`, add optional props
+  (e.g. `ogType`, `twitterCard`) defaulting to current behavior; in
+  `src/pages/articles/[...slug].astro`, pass `ogType="article"`,
+  `twitterCard="summary_large_image"` when `heroImage` exists, emit
+  `article:published_time` (from `data.date`), and add a `BlogPosting`
+  JSON-LD block (headline, description, datePublished, author from
+  frontmatter `author` or "Brandon C. Vélez Johnson", image when heroImage,
+  publisher = Liberating Scripture Collective, url). Acceptance: view-source
+  of one article shows all new tags; non-article pages are byte-identical in
+  the head except untouched; `npm run build` passes.
+
+- [ ] **(O2) Rename the ambiguous `index` prop.** `Layout.astro` uses `index`
+  (Pagefind body opt-in) + `noindex` (robots); `ScriptureLayout.astro` uses
+  `index` for ROBOTS; `ReadLayout.astro` forwards `index` to Layout's
+  Pagefind meaning. Rename to unambiguous names (suggest `pagefindIndex` and
+  `robotsNoindex`/`robotsIndex`) across ALL layouts and callers (grep for
+  `index=` in src/pages and src/layouts). Behavior must be identical.
+  Acceptance checklist after build: draft chapters (e.g. any
+  `indexed:false` chapter) still emit `noindex,follow`; `/search`, `/404`,
+  `/unsubscribe` still noindex; glossary + articles + intros still appear in
+  the Pagefind index (`dist/pagefind/` exists and search works in preview);
+  scripture chapter pages still are NOT Pagefind-indexed.
+
+- [ ] **(O3) Rein in the welcome popover.** `src/components/WelcomePopover.astro`
+  currently shows on ANY first pageview (cookie `lit_welcome_v2`), including
+  shared verse deep links, and counts as an intrusive interstitial for mobile
+  search entrances. Change the show condition to: homepage only
+  (`location.pathname === "/"`), OR (better) any page on the visitor's
+  second+ pageview — track a session pageview count in sessionStorage.
+  Never show when `location.hash` matches `#v\d+` (arriving at a shared
+  verse). Keep the cookie dismissal logic unchanged. Acceptance: first visit
+  to `/john-3#v16` shows no popover; homepage first visit shows it; dismissal
+  still persists 30 days.
+
+- [ ] **(O4) Unit tests for search-core.** `src/scripts/search-core.js`
+  (~1,100 lines) has zero tests. Use Node's built-in `node:test` runner (no
+  new deps). If the module imports browser globals at top level, do the
+  minimal refactor to keep pure logic importable in Node (no behavior
+  change). Cover at minimum: book-alias + reference parsing ("John 3:16",
+  "1 cor 13", "jn 3:16-18", bare book names), verse-index scanning
+  (whole-word + phrase + diacritic folding: "lema" matches "lemá"),
+  `rankVerseHits` ordering (exact form above related, more occurrences above
+  fewer), and `nearestVocabWord` conservatism (corrects "jeribulem"→
+  "jerusalem"; does NOT correct short/quoted tokens). Add `"test"` script to
+  package.json and a test step to `.github/workflows/ci.yml` before the
+  build step.
+
+- [ ] **(O5) Post-build link checker.** New `scripts/check-links.mjs`: walk
+  `dist/**/*.html`, collect every internal `href` (root-relative and
+  litbible.net-absolute) including `#fragment` parts, and verify (a) the
+  target page exists in dist, (b) when a fragment is present, an element
+  with that id exists in the target page's HTML. No network requests. Exit 1
+  with a readable report on failures. Wire into CI after `npm run build`
+  (e.g. `npm run check:links`). Known tricky case it must catch:
+  cross-page anchors like `/read#license` and `/read#sblgnt-disclaimer`.
+
+- [ ] **(O6) White-on-green button contrast sweep.** #209D50 with white text
+  is ≈3.5:1 — passes WCAG only as "large text" (≥18.66px bold, or ≥24px any
+  weight). For each remaining `--green`-background control — header "Read
+  Now" CTA (global.css), ReadMenu Study/Read buttons (`ReadMenu.astro`),
+  search page buttons (`search.astro`), intro-page CTA
+  (`[book]-intro.astro`), home question-card CTAs + callout CTA (home.css /
+  global.css), 404 CTAs (`404.astro`), podcast page buttons
+  (found-in-translation-podcast.css), courses signup link (courses.css uses
+  white bg — skip) — measure the computed font-size/weight in dev tools,
+  and either (a) leave it if it qualifies as large text, or (b) switch its
+  background to `var(--green-text)` like `.chapter-cta`. Record the verdict
+  per button in the commit message. Do NOT touch the green page hero
+  backgrounds (that's a Fable item).
+
+- [ ] **(O7) data-theme toggle — GATED on the Owner decision below.** If the
+  owner wants it: add a light/dark toggle to the "Aa" tray in
+  `SiteHeader.astro` (three states: system/light/dark), persist in
+  localStorage, apply `data-theme` on `<html>` in a pre-paint inline script
+  exactly like the existing `dyslexic-font` snippet in `Layout.astro` (avoid
+  a flash), and note that `Layout.astro`'s critical dark-mode CSS uses
+  `prefers-color-scheme` — it must respect the override too. If the owner
+  declines: delete the `:root[data-theme=...]` rules from global.css,
+  translation-commitments.css, and found-in-translation-podcast.css instead.
+
+## Fable — one session each, owner in the loop
+
+- [ ] **(F1) Self-host the contact form on Cloudflare (drop Formspree).**
+  Replace the Formspree backend with a small Cloudflare Worker + Email
+  Routing (`send_email` binding — free tier), keeping the existing form
+  markup and Turnstile widget:
   - Worker routed at e.g. `litbible.net/contact/submit` (NOT under `/api/*`,
     which is the app-sync contract namespace). Must be a real Worker — Pages
     Functions don't support the email binding.
   - Worker verifies the Turnstile token server-side (`siteverify` + secret
-    stored as a Worker secret) — an upgrade over today, where nothing verifies
-    the token on our side.
+    stored as a Worker secret) — an upgrade over today, where nothing
+    verifies the token on our side.
   - Sends from `contact@litbible.net` with `Reply-To:` set to the submitter,
     to a verified Email Routing destination address (the owner's inbox).
   - No-JS fallback: native POST works; Worker redirects to a branded thanks
     page.
-  - One-time dashboard steps: enable/verify Email Routing destination, add
-    Turnstile secret, attach the route; deploy via `wrangler` from a small
-    project in the repo (e.g. `workers/contact-form/`).
+  - One-time dashboard steps (owner): enable/verify the Email Routing
+    destination, add the Turnstile secret, attach the route; deploy via
+    `wrangler` from a small project in the repo (e.g. `workers/contact-form/`).
   - Follow-ups when it ships: update `privacy.astro` (remove the Formspree
-    disclosure), retire the Formspree forms (`mbdlnpgz` contact, and the
-    already-removed `mgovgpoo` courses endpoint) in the Formspree dashboard,
-    and consider a Cloudflare rate-limiting rule on the endpoint.
+    disclosure), retire the Formspree forms (`mbdlnpgz` contact; the courses
+    `mgovgpoo` endpoint is already unused) in the Formspree dashboard, and
+    consider a Cloudflare rate-limiting rule on the endpoint.
   - Avoid stale guidance: the free MailChannels-from-Workers path died in
-    Aug 2024; Cloudflare Email Service (arbitrary recipients) is beta/paid and
-    not needed here.
+    Aug 2024; Cloudflare Email Service (arbitrary recipients) is beta/paid
+    and not needed here.
 
-- [ ] **Add a Content-Security-Policy** (start report-only, given Brevo /
-  Turnstile / GiveLively third-party scripts) and confirm HSTS is applied at
-  the Cloudflare layer (`public/_headers` currently has neither).
-- [ ] **`http://` → `https://`** on the CC license link in `read.astro`.
-- [ ] **Stronger honeypots:** the Formspree `_gotcha` fields are
-  `type="hidden"`; a CSS-hidden text input catches more bots.
+- [ ] **(F2) Content-Security-Policy rollout.** `public/_headers` has no CSP.
+  Inventory every third-party origin actually loaded: sibforms.com +
+  Brevo main.js (footer newsletter), challenges.cloudflare.com (Turnstile),
+  secure.givelively.org (donate widget on /support), plus inline scripts
+  (Astro inline snippets — will need 'unsafe-inline' for script/style or a
+  refactor to hashes). Ship `Content-Security-Policy-Report-Only` first in
+  `_headers`, watch for violations on the deployed site (dev/preview do NOT
+  apply `_headers`), then enforce. Also confirm HSTS is enabled at the
+  Cloudflare zone level (owner: dashboard → SSL/TLS → Edge Certificates).
+  Danger zone: a wrong CSP silently breaks the newsletter form, contact
+  Turnstile, and donations — test all three on the deployed preview branch
+  before enforcing.
 
-### Governance (HR hat)
+- [ ] **(F3) Per-chapter OG share images.** Design + build-time generation of
+  branded social cards (book + chapter, brand green, wordmark) for the 260
+  chapter pages, written to `public/og/` (or generated into dist) and wired
+  via the existing `ogImage` prop in `[slug].astro`; also set
+  `twitter:card=summary_large_image` for chapters. Constraints: deterministic
+  output (no timestamps — same reason as build:topics), keep build time
+  reasonable, do NOT put them under `public/api/` (app contract). Requires
+  owner sign-off on the visual design before implementation.
 
-- [ ] **Add a LICENSE file.** The code currently has no license at all
-  (all-rights-reserved by default) — state a code license (e.g. MIT) with the
-  content carve-out (CC BY-NC-ND for the translation and LIT content).
-- [ ] **Add CONTRIBUTING.md and a code of conduct** — the site invites
-  collaboration; the repo doesn't say how.
-- [ ] **Add SECURITY.md** (vulnerability-report contact).
+- [ ] **(F4) Simplify the ReadMenu.** The book/chapter dropdowns + Study/Read
+  buttons need an instructional tooltip — a sign the control carries too
+  much. Explore a single "Go to passage" affordance (one input with
+  typeahead over books/chapters, or a two-step picker) that removes the need
+  for instructions entirely. Prototype behind the existing markup as
+  progressive enhancement; must work without JS (the current form is the
+  fallback). Owner reviews the prototype before it replaces anything. Note:
+  a rejected earlier idea was search-bar type-ahead (see memory: type-ahead
+  was rejected for search) — this is navigation, not search, but expect the
+  owner to have opinions.
+
+- [ ] **(F5) Homepage hero + green-page text contrast.** Cream `#E1DFD9` on
+  brand green `#209D50` is ≈2.6:1 — below even the 3:1 large-text bar. This
+  is the homepage hero and any `bg="green"` page. Fixing it is a brand
+  decision (darken the green surface? lighten text to white ≈3.5:1 and
+  enlarge? add a scrim?), so bring options to the owner with mockups rather
+  than just changing tokens. Coordinate with O6 so the site doesn't end up
+  with three greens.
+
+- [ ] **(F6) Untangle the two meanings of "draft".** The About FAQ says "All
+  books are currently drafts… Most books are complete, but some aren't
+  available yet" — which collides with the site's `(draft)` markers on
+  `indexed:false` stub chapters (ReadMenu) and reads as self-contradictory.
+  Rewrite the FAQ answer in the owner's voice to distinguish: (a) published
+  books that are complete-but-will-be-revised (the whole LIT is a living
+  first edition), vs (b) unpublished stub chapters marked "(draft)" in the
+  chapter menu. Owner approves wording — this is how the project describes
+  its own maturity.
+
+## Owner — decisions & dashboard tasks (no model)
+
+- [ ] **Decide `/courses`:** link it in the nav/footer, or park it
+  deliberately until course content exists. (It's currently reachable only
+  by URL.)
+- [ ] **Pick the code license** (suggest MIT for code, with an explicit note
+  that scripture/translation content remains CC BY-NC-ND 4.0). Once chosen,
+  the Sonnet batch can write the LICENSE file.
+- [ ] **Decide the theme toggle** (gates Opus item O7): ship a light/dark
+  toggle, or remove the unused `data-theme` CSS hooks.
+- [ ] **Cloudflare dashboard:** verify Web Analytics is actually enabled (the
+  privacy policy asserts it); confirm HSTS under SSL/TLS → Edge Certificates
+  (feeds F2).
+- [ ] **Formspree dashboard:** delete the retired courses form endpoint
+  (`mgovgpoo`) so stray submissions can't land anywhere.
+
+## Completed from TBD
+
+- [x] **Consolidate email capture.** The `/courses` Formspree signup (a
+  pre-Brevo vestige, per the owner) was removed; the Email Updates section
+  now points to the footer's Brevo newsletter form. The contact form stays on
+  Formspree until F1 ships.
