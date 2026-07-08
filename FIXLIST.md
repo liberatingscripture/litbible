@@ -276,6 +276,39 @@ execute from the item text without this conversation. After any code item:
   was rejected for search) — this is navigation, not search, but expect the
   owner to have opinions.
 
+  **Owner's current lean (2026-07-07):** a **two-step grid popover** (the
+  YouVersion / Blue Letter Bible pattern) — a trigger button opens a panel of
+  book buttons, picking a book reveals a grid of chapter numbers, picking a
+  chapter navigates. Rationale/constraints from the design discussion:
+  - **No second text field.** The SearchBar already sits on every page that
+    shows the ReadMenu (ScriptureLayout / ReadLayout / SearchLayout), and it
+    already jumps on typed references ("John 3:16"). Two text inputs would
+    reintroduce the "which box do I type in?" confusion — so the picker stays
+    a *non-text* control. (A navigation-suggestion upgrade to the SearchBar was
+    discussed and deliberately deferred; leave the SearchBar alone for now.)
+  - **The real problem was the Study/Read *mode* fork, not the two dropdowns.**
+    Collapse to a single commit action — no separate Study vs Read buttons.
+  - **Idle state shows current location** (like the selects do today): the
+    closed trigger reflects the current passage — e.g. `John 3`, `John ·
+    Introduction`, `Matthew 5 (draft)` on a draft page, `John` on a
+    `/read/{book}` continuous view, and a neutral `Go to passage` where there
+    is no current passage (home, `/read`, `/search`). All server-renderable
+    from the `currentBook`/`currentChapter` props ReadMenu already receives.
+    Because every pick is a full page navigation (static site, no SPA state),
+    the label never needs client-side syncing — the next server render shows it.
+  - **Open state, two steps, each anchored to current:** book grid with the
+    current book highlighted + focused; chapter grid with the current chapter
+    highlighted, `Introduction` as its own cell, and drafts marked *visually*
+    (dimmed / badge) rather than the "(draft)" text suffix. NT scale is kind
+    here — 27 books, largest ~28 chapters, so both grids stay small.
+  - **Open items to settle at build time:** (a) the no-JS fallback for the
+    custom trigger — cleanest is to server-render it as a real `<a>` (to
+    `/read` or the book page) already showing the current-location label, then
+    JS upgrades that same element into the popover; (b) the a11y you now own —
+    trigger `aria-haspopup`/`aria-expanded` + accessible name folding in the
+    value, plus popover focus trap, Esc-to-close, roving-tabindex grid, and
+    focus return to the trigger. Owner still wants to see a mockup before build.
+
 - [ ] **(F5) Homepage hero + green-page text contrast.** Cream `#E1DFD9` on
   brand green `#209D50` is ≈2.6:1 — below even the 3:1 large-text bar. This
   is the homepage hero and any `bg="green"` page. Fixing it is a brand
