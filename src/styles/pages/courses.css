@@ -111,7 +111,7 @@
   cursor: pointer;
 
   background: var(--surface-raised);
-  color: var(--green);
+  color: var(--green-text);
 
   padding: 14px 34px;
   border-radius: 10px;
@@ -140,6 +140,18 @@
   opacity: 0.7;
   cursor: not-allowed;
   transform: none;
+}
+
+/* Same visual as the button, but rendered as an anchor (jumps to the
+   footer newsletter form — the Brevo form can't be duplicated up here) */
+.signup__button--link {
+  display: inline-block;
+  text-decoration: none;
+}
+
+.signup__button--link:hover,
+.signup__button--link:focus {
+  text-decoration: none;
 }
 
 .signup__status {

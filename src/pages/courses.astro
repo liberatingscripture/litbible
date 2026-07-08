@@ -55,38 +55,15 @@ import "../styles/pages/courses.css";
       <div class="courses-updates__inner">
         <h2 id="email-updates-title">Email Updates</h2>
         <p class="courses-updates__lead">
-          Sign up with your email address to receive news and updates.
+          Course news goes out through the LIT Bible newsletter, along with new
+          translations and articles.
         </p>
 
-        <form
-          class="signup"
-          action="https://formspree.io/f/mgovgpoo"
-          method="POST"
-          data-formspree
-        >
-          <label class="sr-only" for="email">Email address</label>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            inputmode="email"
-            autocomplete="email"
-            required
-            placeholder="Email Address"
-          />
-          <input type="hidden" name="source" value="courses" />
-
-          {/* Honeypot (spam trap) */}
-          <input
-            type="hidden"
-            name="_gotcha"
-            value=""
-          />
-
-          <button class="signup__button" type="submit">SIGN UP</button>
-
-          <p class="signup__status" role="status" aria-live="polite"></p>
-        </form>
+        {/* The newsletter form itself lives in the site footer (Brevo markup
+            requires fixed element ids, so it can't be duplicated here). */}
+        <a class="signup__button signup__button--link" href="#footer-newsletter-heading">
+          Sign up below
+        </a>
 
         <p class="courses-updates__note">
           Your information will not be sold or shared in any way.
@@ -111,47 +88,5 @@ import "../styles/pages/courses.css";
       </div>
     </section>
 
-    <script is:inline>
-      (() => {
-        const form = document.querySelector("form[data-formspree]");
-        if (!form) return;
-
-        const status = form.querySelector(".signup__status");
-        const button = form.querySelector('button[type="submit"]');
-
-        form.addEventListener("submit", async (e) => {
-          // Allow non-JS fallback if anything weird happens
-          e.preventDefault();
-
-          // Honeypot filled? Pretend success.
-          const hp = form.querySelector('input[name="_gotcha"]');
-          if (hp && hp.value) return;
-
-          status.textContent = "";
-          button.disabled = true;
-
-          try {
-            const data = new FormData(form);
-            const res = await fetch(form.action, {
-              method: "POST",
-              body: data,
-              headers: { Accept: "application/json" },
-            });
-
-            if (res.ok) {
-              form.reset();
-              status.textContent = "Thanks — you’re signed up.";
-            } else {
-              status.textContent =
-                "Something went wrong. Please try again in a moment.";
-            }
-          } catch {
-            status.textContent = "Network error. Please try again in a moment.";
-          } finally {
-            button.disabled = false;
-          }
-        });
-      })();
-    </script>
   </div>
 </Layout>

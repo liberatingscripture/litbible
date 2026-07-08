@@ -41,9 +41,17 @@ const {
               class="read-layout__tip"
               data-readmenu-tip
               aria-label="How to use the scripture menu"
+              aria-describedby="readmenu-tip-content"
             >
               <span class="read-layout__tip-dot" aria-hidden="true">i</span>
-              <span class="read-layout__tooltip" aria-hidden="true">
+              {/* aria-hidden keeps the instructions out of the button's NAME;
+                  aria-describedby still pulls them in as its DESCRIPTION, so
+                  screen readers announce the full how-to on focus. */}
+              <span
+                class="read-layout__tooltip"
+                id="readmenu-tip-content"
+                aria-hidden="true"
+              >
                 <strong>Scripture menu</strong><br />
                 <strong>1)</strong> To read or study a <strong>BOOK</strong>, select it in the first dropdown, then press:<br />
                 • <strong>Study</strong>: opens the book introduction in Study View.<br />
@@ -155,7 +163,7 @@ const {
         });
 
         window.addEventListener("resize", () => {
-          if (isOpen) requestAnimationFrame(position);
+          if (btn.dataset.tipOpen === "true") requestAnimationFrame(position);
         });
       }
     })();

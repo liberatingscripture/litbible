@@ -117,6 +117,26 @@ function showPanel(trigger, el, { restoreFocus = null, onClose = null, extra = n
     el.style.top = top + "px";
   }
 
+  // Keep Tab cycling inside the panel while it's open (it's appended to the
+  // end of <body>, so without this Tab would silently leave the dialog).
+  // Escape closes and, for keyboard-opened panels, restores focus.
+  el.addEventListener("keydown", (e) => {
+    if (e.key !== "Tab") return;
+    const focusables = el.querySelectorAll(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    if (!focusables.length) return;
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+    if (e.shiftKey && (document.activeElement === first || document.activeElement === el)) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  });
+
   openPanel = { el, trigger, restoreFocus, onClose, ...extra };
   return el;
 }
@@ -263,7 +283,7 @@ function setSelectionHighlight(container, start, end) {
     CSS.highlights.set("lit-verse-select", new Highlight(...ranges));
 }
 
-function openVerseMenu(container, sup, anchorVerse, start, end) {
+function openVerseMenu(container, sup, anchorVerse, start, end, { restoreFocus = null } = {}) {
   const ref = formatRef(start, end);
   const url = getVerseUrl(start, end);
 
@@ -317,6 +337,9 @@ function openVerseMenu(container, sup, anchorVerse, start, end) {
 
   showPanel(sup, panel, {
     preferAbove: true,
+    // Only keyboard activations restore focus to the verse number on close —
+    // for pointer taps a focus() could scroll the page back to the verse.
+    restoreFocus,
     onClose: () => {
       if (supportsHighlight) CSS.highlights.delete("lit-verse-select");
     },
@@ -328,34 +351,59 @@ function openVerseMenu(container, sup, anchorVerse, start, end) {
   panel.focus({ preventScroll: true });
 }
 
+function handleVerseActivation(container, sup, { viaKeyboard = false } = {}) {
+  const verse = parseInt(sup.textContent, 10);
+  if (!Number.isFinite(verse)) return;
+
+  const opts = { restoreFocus: viaKeyboard ? sup : null };
+
+  // Menu already open: activating the selection's only verse closes it;
+  // activating any other verse number extends the selection to a range.
+  if (openPanel?.kind === "verse") {
+    const { anchorVerse, start, end } = openPanel;
+    if (start === end && verse === start) {
+      closePanel();
+      return;
+    }
+    openVerseMenu(
+      container,
+      sup,
+      anchorVerse,
+      Math.min(anchorVerse, verse),
+      Math.max(anchorVerse, verse),
+      opts
+    );
+    return;
+  }
+
+  openVerseMenu(container, sup, verse, verse, verse, opts);
+}
+
 function initVerseMenu(container) {
+  // Verse numbers act as buttons (open the copy/share menu), so expose them
+  // to the keyboard and accessibility tree. Enhancement-only, like the menu
+  // itself: without JS they stay plain superscripts.
+  container.querySelectorAll("sup.vn").forEach((sup) => {
+    sup.setAttribute("role", "button");
+    sup.setAttribute("tabindex", "0");
+    sup.setAttribute("aria-label", "Verse " + (sup.textContent || "").trim());
+    sup.setAttribute("aria-haspopup", "dialog");
+  });
+
   container.addEventListener("click", (e) => {
     const sup = e.target.closest("sup.vn");
     if (!sup || !container.contains(sup)) return;
-
-    const verse = parseInt(sup.textContent, 10);
-    if (!Number.isFinite(verse)) return;
     e.stopPropagation();
+    handleVerseActivation(container, sup);
+  });
 
-    // Menu already open: tapping the selection's only verse closes it;
-    // tapping any other verse number extends the selection to a range.
-    if (openPanel?.kind === "verse") {
-      const { anchorVerse, start, end } = openPanel;
-      if (start === end && verse === start) {
-        closePanel();
-        return;
-      }
-      openVerseMenu(
-        container,
-        sup,
-        anchorVerse,
-        Math.min(anchorVerse, verse),
-        Math.max(anchorVerse, verse)
-      );
-      return;
-    }
-
-    openVerseMenu(container, sup, verse, verse, verse);
+  container.addEventListener("keydown", (e) => {
+    if (e.key !== "Enter" && e.key !== " ") return;
+    const sup = e.target.closest?.("sup.vn");
+    if (!sup || !container.contains(sup)) return;
+    e.preventDefault();
+    e.stopPropagation();
+    handleVerseActivation(container, sup, { viaKeyboard: true });
   });
 }
 

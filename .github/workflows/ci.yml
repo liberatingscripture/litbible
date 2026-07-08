@@ -1,0 +1,32 @@
+# CI safety net: the chapter validator otherwise runs only in the local
+# pre-commit hook, which --no-verify, GitHub web edits, and hookless clones
+# all bypass. This validates every chapter and does a full production build
+# (topics/verse/API generation + Astro + Pagefind) on each push and PR.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate chapter JSON
+        run: npm run validate:chapters
+
+      # fetch:podcast (first build step) is non-fatal by design — a feed
+      # outage reuses the committed XML snapshot and the build continues.
+      - name: Build site
+        run: npm run build

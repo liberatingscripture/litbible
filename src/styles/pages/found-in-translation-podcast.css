@@ -214,7 +214,7 @@ body:has(.fit-page) .site-header.has-bg {
 .fit-platform:hover {
   transform: translateY(-2px);
   background: var(--surface-raised);
-  color: var(--green);
+  color: var(--green-text);
   border-color: rgba(var(--ink-rgb), 0.12);
   box-shadow: 0 14px 30px rgba(0, 0, 0, 0.18);
 }
@@ -250,7 +250,7 @@ body:has(.fit-page) .site-header.has-bg {
 
 .fit-section--green {
   /* The green block itself */
-  background-color: var(--green);
+  background-color: var(--green-text);
   color: #fff;
 
   /* Make room so content doesn’t collide with curves */
@@ -712,7 +712,7 @@ body:has(.fit-page) .site-header.has-bg {
 }
 
 .fit-season-top:hover {
-  color: var(--green);
+  color: var(--green-text);
 }
 
 .fit-season-top:focus-visible {

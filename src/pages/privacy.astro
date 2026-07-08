@@ -5,7 +5,7 @@ import "../styles/pages/privacy.css";
 
 <Layout
   title="Privacy Policy | LIT Bible"
-  description="The LIT Bible website and app privacy policy. Your reading life is your own — we collect nothing personally identifiable, and everything you create stays on your device."
+  description="The LIT Bible privacy policy. Your reading life is your own — the site collects personal information only when you choose to send it, and the upcoming apps keep everything you create on your device."
   canonical="https://litbible.net/privacy"
 >
   <Fragment slot="head">
@@ -14,8 +14,8 @@ import "../styles/pages/privacy.css";
       "@type": "WebPage",
       "name": "Privacy Policy — LIT Bible",
       "url": "https://litbible.net/privacy",
-      "dateModified": "2026-05-23",
-      "description": "The LIT Bible website and app privacy policy. Your reading life is your own — we collect nothing personally identifiable, and everything you create stays on your device.",
+      "dateModified": "2026-07-07",
+      "description": "The LIT Bible privacy policy. Your reading life is your own — the site collects personal information only when you choose to send it, and the upcoming apps keep everything you create on your device.",
       "isPartOf": {
         "@type": "WebSite",
         "name": "LIT Bible",
@@ -35,12 +35,13 @@ import "../styles/pages/privacy.css";
       <div class="privacy-header__inner">
         <h1 id="privacy-title" class="privacy-title">Privacy Policy</h1>
         <p class="privacy-effective">
-          Effective date: <time datetime="2026-05-23">May 23, 2026</time>
+          Effective date: <time datetime="2026-07-07">July 7, 2026</time>
         </p>
         <p class="privacy-lede">
           The LIT Bible is built on a simple principle: your reading life is
           your own. This policy describes what data the LIT Bible website
-          (litbible.net) and iOS app collect and how.
+          (litbible.net) collects, and how the companion mobile apps are
+          designed to handle data when they launch.
         </p>
       </div>
     </header>
@@ -50,20 +51,50 @@ import "../styles/pages/privacy.css";
       <section aria-labelledby="privacy-scope">
         <h2 id="privacy-scope">Scope</h2>
         <p>
-          This policy applies to both the LIT Bible website at litbible.net
-          and the LIT Bible iOS app. Where a section applies only to one or
-          the other, it is labeled accordingly.
+          This policy applies to the LIT Bible website at litbible.net. The
+          companion iOS and Android apps are in development and not yet
+          released; the sections labeled "(app)" describe how the apps are
+          designed to handle data and take effect when the apps launch. Where
+          a detail is platform-specific (for example, iCloud sync on iOS),
+          it is described as such — Android equivalents will be documented
+          here at release.
         </p>
       </section>
 
       <section aria-labelledby="privacy-collect">
         <h2 id="privacy-collect">What we collect</h2>
         <p>
-          <strong>Website:</strong> The only personal information collected is
-          your email address, and only if you choose to subscribe to the mailing
-          list. Brevo manages the mailing list, storing email addresses solely
-          to send LIT Bible updates. Users can unsubscribe anytime using links
-          in emails.
+          <strong>Website:</strong> The site collects personal information only
+          when you actively submit it:
+        </p>
+        <ul>
+          <li>
+            <strong>Mailing list:</strong> If you subscribe, your email address
+            is stored by Brevo, which manages the mailing list solely to send
+            LIT Bible updates. You can unsubscribe anytime using links in
+            emails.
+          </li>
+          <li>
+            <strong>Contact form:</strong> Messages sent through the contact
+            form (name, email, message) are delivered to our inbox by
+            Formspree, a form-processing service, subject to{" "}
+            <a href="https://formspree.io/legal/privacy-policy/">Formspree's privacy policy</a>.
+            We use what you send only to respond to you; it is never sold or
+            shared.
+          </li>
+        </ul>
+        <p>
+          These forms are protected from spam by Cloudflare Turnstile, a
+          privacy-preserving alternative to CAPTCHAs that does not track you
+          across sites.
+        </p>
+        <p>
+          <strong>Cookies:</strong> The site sets one cookie of its own — a
+          small flag (<code>lit_welcome_v2</code>) remembering that you have
+          dismissed the one-time welcome message, so it doesn't reappear. It
+          contains no personal data and expires after 30 days. Your reading
+          preferences (such as the dyslexia-friendly font setting) are stored
+          in your browser's local storage and never leave your device.
         </p>
         <p>
           The site uses Cloudflare Web Analytics, which is privacy-preserving

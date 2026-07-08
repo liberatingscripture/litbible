@@ -50,7 +50,7 @@ body.bg-cream > main {
 }
 
 .read-lede a {
-  color: var(--green, #209d50);
+  color: var(--green-text, #0f6b33);
   text-decoration: underline;
   text-underline-offset: 3px;
 }
@@ -95,8 +95,8 @@ body.bg-cream > main {
 }
 
 .whats-new__trigger[aria-expanded="true"] {
-  border-color: var(--green, #209d50);
-  color: var(--green, #209d50);
+  border-color: var(--green-text, #0f6b33);
+  color: var(--green-text, #0f6b33);
 }
 
 .whats-new__dot {
@@ -219,7 +219,7 @@ body.bg-cream > main {
   text-align: center;
   font-size: 0.85rem;
   font-weight: 600;
-  color: var(--green, #209d50);
+  color: var(--green-text, #0f6b33);
   text-decoration: none;
 }
 
@@ -301,7 +301,7 @@ body.bg-cream > main {
 .view-card__link {
   font-size: 0.95rem;
   font-weight: 600;
-  color: var(--green, #209d50);
+  color: var(--green-text, #0f6b33);
   text-decoration: none;
   margin-top: auto;
 }

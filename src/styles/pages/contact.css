@@ -126,7 +126,7 @@
 
 .contact-button:hover {
   background: var(--surface-raised);
-  color: var(--green);
+  color: var(--green-text);
   transform: translateY(-2px);
   box-shadow: 0 16px 34px rgba(0, 0, 0, 0.18);
 }

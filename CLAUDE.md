@@ -122,7 +122,8 @@ public/              # Static assets + generated output (api/, search/, topics-i
                      #   llms.txt, llms-full.txt, _headers, images/, icons)
 emails/              # Standalone HTML email templates (not part of the site build)
 .githooks/           # pre-commit hook (validates staged chapter JSON)
-.github/workflows/   # release-notes.yml (auto-updates release-notes.json on push)
+.github/workflows/   # ci.yml (chapter validation + full build on push/PR),
+                     #   release-notes.yml (auto-updates release-notes.json on push)
 ```
 
 > Note: client-side code lives in `src/scripts/` while build-time Node scripts
