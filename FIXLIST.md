@@ -118,14 +118,6 @@ execute from the item text without this conversation. After any code item:
   `src/styles/pages/contact.css`). The submit handler already checks its
   value — don't change the JS.
 
-- [ ] **Differentiate the two footer Facebook icons.** In
-  `src/components/SiteFooter.astro`, the LIT Facebook link and the podcast
-  Facebook link render identical icons, distinguishable only by aria-label.
-  Add a small visible text label under each social icon (e.g. "LIT",
-  "Threads", "Bluesky", "Instagram", "Podcast") OR at minimum under the two
-  Facebook icons — tiny (0.65–0.7rem), muted color `rgba(var(--ink-rgb),.7)`,
-  centered under the icon. Keep the existing aria-labels.
-
 - [ ] **Governance boilerplate.** Create three files at repo root (drafts for
   owner review; keep each short and warm in tone, matching the project's
   voice — see README.md):
@@ -307,6 +299,15 @@ execute from the item text without this conversation. After any code item:
 - [ ] **Decide `/courses`:** link it in the nav/footer, or park it
   deliberately until course content exists. (It's currently reachable only
   by URL.)
+- [ ] **Decide the twin footer Facebook icons.** The footer shows identical
+  Facebook icons for LIT Bible and the Found in Translation podcast,
+  distinguishable only by aria-label. Owner is leaning toward: REMOVE the
+  podcast Facebook link from `SiteFooter.astro` and ADD it to the podcast
+  page (`found-in-translation-podcast.astro`) alongside the Apple
+  Podcasts/Spotify/YouTube links, reusing the `.fit-platform` button pattern
+  rather than the footer's icon-list styling. This makes the footer purely
+  LIT-brand social (no differentiation needed at all). Once confirmed, this
+  is a Sonnet-sized change.
 - [ ] **Pick the code license** (suggest MIT for code, with an explicit note
   that scripture/translation content remains CC BY-NC-ND 4.0). Once chosen,
   the Sonnet batch can write the LICENSE file.
