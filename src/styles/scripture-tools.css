@@ -78,66 +78,20 @@
   }
 }
 
-/* ReadMenu: stacked on scripture-layout pages */
-.scripture-layout .read-menu {
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-start;
-  margin-top: 0;
-}
-
-/* Keep dropdowns tidy (but do NOT force buttons to match) */
-.scripture-layout .read-menu select {
-  width: 100%;
-  max-width: 260px;
-}
-
-/* Do NOT force buttons full-width in scripture layouts */
-.scripture-layout .read-menu button {
-  width: auto;
-  max-width: none;
-}
-
-/* Ensure Study/Read stay side-by-side */
-.scripture-layout .read-menu__actions {
-  display: flex;
-  gap: 10px;
-  flex-wrap: nowrap;
+/* ReadMenu trigger: left-aligned in the tools bar's left column on desktop,
+   centered when the bar stacks on mobile */
+.scripture-layout .read-menu-wrap,
+.scripture-tools__left .read-menu-wrap {
   justify-content: flex-start;
 }
 
-/* Defensive: override any inherited width rules */
-.scripture-layout .read-menu__actions button {
-  width: auto;
-  max-width: none;
-}
-
-/* Mobile: center the ReadMenu horizontally */
 @media (max-width: 900px) {
-  /* Let the left column take full width so it can center its contents */
   .scripture-tools__left {
     justify-self: stretch;
   }
 
-  /* Center the ReadMenu controls as a stack */
-  .scripture-layout .read-menu {
-    align-items: center;
-  }
-
-  /* Keep selects a nice readable width while centered */
-  .scripture-layout .read-menu select {
-    width: min(100%, 260px);
-    max-width: none; /* width above already caps it */
-  }
-
-  /* Buttons: keep side-by-side and not forced to select width */
-  .scripture-layout .read-menu__actions {
+  .scripture-layout .read-menu-wrap,
+  .scripture-tools__left .read-menu-wrap {
     justify-content: center;
-    flex-wrap: nowrap;
-  }
-
-  .scripture-layout .read-menu__actions button {
-    width: auto;
-    max-width: none;
   }
 }

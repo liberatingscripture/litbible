@@ -1,245 +1,364 @@
 ---
-import { BOOKS as books, BOOK_ORDER, bookKeyToLabel } from "../data/books.js";
+import {
+  BOOKS as books,
+  BOOK_ORDER,
+  BOOK_ABBREVIATIONS,
+  bookKeyToLabel,
+} from "../data/books.js";
 import { scanDraftChapters } from "../lib/draft-chapters.mjs";
 const { currentBook = "", currentChapter = "" } = Astro.props;
 
 const currentBookKey = currentBook
   ? String(currentBook).toLowerCase().replace(/[^0-9a-z]/g, "")
   : "";
-const initialChapterCount = currentBookKey
-  ? ((books as Record<string, number>)[currentBookKey] ?? 0)
-  : 0;
+const knownBook = Boolean((books as Record<string, number>)[currentBookKey]);
 
-// Draft chapters ("indexed": false) get a "(draft)" marker in the chapter
-// list so readers aren't surprised by untranslated stubs. Shared derivation
-// with the sitemap filter in astro.config.mjs.
+// Draft chapters ("indexed": false) are dimmed with a dot marker in the
+// chapter grid. Shared derivation with the sitemap filter in astro.config.mjs.
 const DRAFT_CHAPTERS = scanDraftChapters().draftChaptersByBook;
 
-const initialDrafts = new Set(DRAFT_CHAPTERS[currentBookKey] ?? []);
+// The trigger label mirrors the current passage. Every pick is a full page
+// navigation (static site), so the label never needs client-side syncing —
+// the next server render shows the new location.
+const chapterNum = /^\d+$/.test(String(currentChapter))
+  ? Number(currentChapter)
+  : null;
+const isIntro = String(currentChapter) === "intro";
+const isDraftChapter =
+  knownBook &&
+  chapterNum !== null &&
+  (DRAFT_CHAPTERS[currentBookKey] ?? []).includes(chapterNum);
+
+let triggerLabel = "Go to passage";
+if (knownBook && isIntro) {
+  triggerLabel = `${bookKeyToLabel(currentBookKey)} · Intro`;
+} else if (knownBook && chapterNum !== null) {
+  triggerLabel = `${bookKeyToLabel(currentBookKey)} ${chapterNum}`;
+} else if (knownBook) {
+  triggerLabel = bookKeyToLabel(currentBookKey);
+}
+
+// No-JS fallback: the trigger is a real link — the book's continuous Reading
+// Mode page when there is a current book, the /read landing page otherwise.
+// JS upgrades it in place into the popover trigger button.
+const fallbackHref = knownBook ? `/read/${currentBookKey}` : "/read";
 ---
 
 <div class="read-menu-wrap">
-  <form
+  <nav
     class="read-menu"
+    aria-label="Go to passage"
     data-books={JSON.stringify(books)}
+    data-abbrs={JSON.stringify(BOOK_ABBREVIATIONS)}
     data-drafts={JSON.stringify(DRAFT_CHAPTERS)}
-    data-current-book={currentBook || undefined}
-    data-current-chapter={currentChapter || undefined}
-    novalidate
+    data-current-book={knownBook ? currentBookKey : undefined}
+    data-current-chapter={knownBook ? String(currentChapter) : undefined}
   >
-    <label for="book-select" class="sr-only">Select a New Testament book</label>
-    <select id="book-select">
-      <option value="">Select a Book</option>
-      {BOOK_ORDER.map((key) => (
-        <option value={key}>{bookKeyToLabel(key)}</option>
-      ))}
-    </select>
-
-    <label for="chapter-select" class="sr-only">Select a chapter</label>
-    <select id="chapter-select" disabled={!initialChapterCount}>
-      <option value="">Select a Chapter</option>
-      {initialChapterCount > 0 && (
+    <a class="read-menu__trigger" href={fallbackHref} data-rm-trigger>
+      <svg
+        class="read-menu__icon"
+        viewBox="0 0 24 24"
+        width="1em"
+        height="1em"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+      </svg>
+      {knownBook && <span class="sr-only">Go to passage. Current:&nbsp;</span>}
+      <span class="read-menu__label">{triggerLabel}</span>
+      {isDraftChapter && (
         <>
-          <option value="intro" selected={currentChapter === "intro"}>Introduction</option>
-          {Array.from({ length: initialChapterCount }, (_, i) => i + 1).map((i) => (
-            <option
-              value={String(i)}
-              selected={currentChapter === String(i)}
-              class={initialDrafts.has(i) ? "draft-option" : undefined}
-            >
-              {initialDrafts.has(i) ? `Chapter ${i} (draft)` : `Chapter ${i}`}
-            </option>
-          ))}
+          <span class="read-menu__draft-dot" aria-hidden="true"></span>
+          <span class="sr-only">(draft)</span>
         </>
       )}
-    </select>
-
-    <div class="read-menu__actions">
-      <button
-        id="study-button"
-        type="submit"
-        name="mode"
-        value="study"
-        aria-label="Open selected passage in study mode"
-        disabled
+      <svg
+        class="read-menu__chevron"
+        viewBox="0 0 24 24"
+        width="1em"
+        height="1em"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+        focusable="false"
       >
-        Study
-      </button>
-
-      <button
-        id="read-button"
-        type="submit"
-        name="mode"
-        value="read"
-        aria-label="Open selected passage in reading mode"
-        disabled
-      >
-        Read
-      </button>
-    </div>
-  </form>
+        <path d="m6 9 6 6 6-6"></path>
+      </svg>
+    </a>
+  </nav>
 
   <script is:inline>
     (() => {
       const root = document.currentScript?.previousElementSibling;
-      if (!(root instanceof HTMLFormElement)) return;
+      if (!(root instanceof HTMLElement)) return;
+      // No native popover support: keep the plain fallback link.
+      if (!("showPopover" in HTMLElement.prototype)) return;
 
-      const books = JSON.parse(root.getAttribute("data-books") || "{}");
+      let books = {};
+      let abbrs = {};
       let drafts = {};
       try {
+        books = JSON.parse(root.getAttribute("data-books") || "{}");
+        abbrs = JSON.parse(root.getAttribute("data-abbrs") || "{}");
         drafts = JSON.parse(root.getAttribute("data-drafts") || "{}");
       } catch {
-        drafts = {};
-      }
-
-      const bookSelect = root.querySelector("#book-select");
-      const chapterSelect = root.querySelector("#chapter-select");
-      const studyButton = root.querySelector("#study-button");
-      const readButton = root.querySelector("#read-button");
-
-      if (
-        !(bookSelect instanceof HTMLSelectElement) ||
-        !(chapterSelect instanceof HTMLSelectElement) ||
-        !(studyButton instanceof HTMLButtonElement) ||
-        !(readButton instanceof HTMLButtonElement)
-      ) {
         return;
       }
+      const ORDER = Object.keys(books);
+      if (!ORDER.length) return;
 
-      function slugifyBook(name) {
-        return String(name)
-          .toLowerCase()
-          .replace(/[^0-9a-z]/g, "");
+      const curBook = root.getAttribute("data-current-book") || "";
+      const curChapter = root.getAttribute("data-current-chapter") || "";
+
+      const link = root.querySelector("[data-rm-trigger]");
+      if (!(link instanceof HTMLAnchorElement)) return;
+
+      function label(key) {
+        const m = String(key).match(/^(\d+)?([a-z]+)$/);
+        if (!m) return String(key);
+        return (
+          (m[1] ? m[1] + " " : "") +
+          m[2].charAt(0).toUpperCase() +
+          m[2].slice(1)
+        );
+      }
+      const draftSetOf = (key) => new Set(drafts[key] || []);
+      const isFullDraft = (key) =>
+        (drafts[key] || []).length > 0 &&
+        (drafts[key] || []).length === books[key];
+      const anyFullDraftBook = ORDER.some(isFullDraft);
+
+      // Upgrade the fallback link into the popover trigger button, keeping
+      // its rendered content (icon, current-location label, chevron).
+      const trigger = document.createElement("button");
+      trigger.type = "button";
+      trigger.className = link.className;
+      trigger.innerHTML = link.innerHTML;
+      trigger.setAttribute("aria-haspopup", "dialog");
+      trigger.setAttribute("aria-expanded", "false");
+      link.replaceWith(trigger);
+
+      const panel = document.createElement("div");
+      panel.className = "read-menu__panel";
+      panel.setAttribute("popover", "");
+      panel.setAttribute("role", "dialog");
+      panel.setAttribute("aria-label", "Go to passage");
+      root.appendChild(panel);
+
+      function positionPanel() {
+        const r = trigger.getBoundingClientRect();
+        const width = Math.min(560, window.innerWidth - 24);
+        panel.style.width = width + "px";
+        let left = r.left + r.width / 2 - width / 2;
+        left = Math.max(12, Math.min(left, window.innerWidth - width - 12));
+        panel.style.left = Math.round(left) + "px";
+        let top = r.bottom + 8;
+        const height = panel.getBoundingClientRect().height;
+        top = Math.max(12, Math.min(top, window.innerHeight - height - 12));
+        panel.style.top = Math.round(top) + "px";
       }
 
-      function buildStudyHref(bookKey, chapter) {
-        if (!bookKey) return "";
-        if (!chapter || chapter === "intro") return `/${bookKey}-intro`;
-        return `/${bookKey}-${chapter}`;
-      }
-
-      function buildReadHref(bookKey, chapter) {
-        if (!bookKey) return "";
-        // If no chapter selected, go to the book reading view landing page.
-        if (!chapter) return `/read/${bookKey}`;
-        if (chapter === "intro") return buildStudyHref(bookKey, chapter);
-        return `/read/${bookKey}#ch-${chapter}`;
-      }
-
-      function setButtonsDisabled(disabled) {
-        studyButton.disabled = disabled;
-        readButton.disabled = disabled;
-      }
-
-      function populateChapters(key, afterPopulate) {
-        chapterSelect.innerHTML = '<option value="">Select a Chapter</option>';
-        chapterSelect.disabled = true;
-
-        if (books[key]) {
-          const fragment = document.createDocumentFragment();
-          const draftSet = new Set(drafts[key] || []);
-
-          const intro = document.createElement("option");
-          intro.value = "intro";
-          intro.textContent = "Introduction";
-          fragment.appendChild(intro);
-
-          for (let i = 1; i <= books[key]; i++) {
-            const opt = document.createElement("option");
-            opt.value = String(i);
-            if (draftSet.has(i)) {
-              opt.textContent = `Chapter ${i} (draft)`;
-              opt.className = "draft-option";
-            } else {
-              opt.textContent = `Chapter ${i}`;
-            }
-            fragment.appendChild(opt);
-          }
-
-          chapterSelect.appendChild(fragment);
-          chapterSelect.disabled = false;
-          if (afterPopulate) afterPopulate();
+      function legendEl(readingModeKey) {
+        const foot = document.createElement("div");
+        foot.className = "read-menu__foot";
+        const legend = document.createElement("span");
+        legend.className = "read-menu__legend";
+        legend.innerHTML =
+          '<span class="read-menu__draft-dot" aria-hidden="true"></span> draft — translation in progress';
+        foot.appendChild(legend);
+        if (readingModeKey) {
+          const a = document.createElement("a");
+          a.className = "read-menu__reading-link";
+          a.href = "/read/" + readingModeKey;
+          a.textContent = "Open " + label(readingModeKey) + " in Reading Mode →";
+          foot.appendChild(a);
         }
+        return foot;
       }
 
-      bookSelect.addEventListener("change", () => {
-        const key = slugifyBook(bookSelect.value);
-
-        // Defer all DOM work past the next paint so the event handler returns
-        // immediately (minimises INP processing time). Buttons + chapters both
-        // update after the select's visual change is already rendered.
-        requestAnimationFrame(() => {
-          setButtonsDisabled(!key);
-          setTimeout(() => populateChapters(key), 0);
+      // Roving tabindex: one tab stop per grid; arrows move within it.
+      function wireGrid(grid, focusTarget) {
+        const cells = Array.from(grid.children);
+        for (const c of cells) c.tabIndex = c === focusTarget ? 0 : -1;
+        grid.addEventListener("keydown", (e) => {
+          const i = cells.indexOf(document.activeElement);
+          if (i < 0) return;
+          const cols = getComputedStyle(grid)
+            .gridTemplateColumns.split(" ").length;
+          let j = null;
+          if (e.key === "ArrowRight") j = Math.min(i + 1, cells.length - 1);
+          else if (e.key === "ArrowLeft") j = Math.max(i - 1, 0);
+          else if (e.key === "ArrowDown") j = Math.min(i + cols, cells.length - 1);
+          else if (e.key === "ArrowUp") j = Math.max(i - cols, 0);
+          else if (e.key === "Home") j = 0;
+          else if (e.key === "End") j = cells.length - 1;
+          if (j === null) return;
+          e.preventDefault();
+          cells[i].tabIndex = -1;
+          cells[j].tabIndex = 0;
+          cells[j].focus();
         });
-      });
-
-      // No longer gate buttons on chapter selection; keep listener optional/no-op.
-      chapterSelect.addEventListener("change", () => {
-        // Buttons remain enabled as long as a book is selected.
-        const key = slugifyBook(bookSelect.value);
-        setButtonsDisabled(!key);
-      });
-
-      // Pre-select current book/chapter if provided via data attributes
-      const initBook = root.getAttribute("data-current-book");
-      const initChapter = root.getAttribute("data-current-chapter");
-      if (initBook) {
-        for (const opt of bookSelect.options) {
-          if (slugifyBook(opt.value) === initBook) {
-            bookSelect.value = opt.value;
-            break;
-          }
-        }
-        const key = slugifyBook(initBook);
-        setButtonsDisabled(!key);
-        if (chapterSelect.options.length > 1) {
-          // Options already server-rendered — just set the selected value.
-          if (initChapter) chapterSelect.value = initChapter;
-        } else {
-          // Fallback for contexts without SSR chapter options (e.g. search page ReadMenu).
-          populateChapters(key, () => {
-            if (initChapter) chapterSelect.value = initChapter;
-          });
-        }
       }
 
-      const submitStudyFromKeyboard = (event) => {
-        if (event.key !== "Enter") return;
-        event.preventDefault();
+      function showBooks(focusKey) {
+        panel.innerHTML = "";
+        const head = document.createElement("p");
+        head.className = "read-menu__head";
+        head.textContent = "Choose a book";
+        panel.appendChild(head);
 
-        // Enter submits "study" by default, even if chapter isn't selected.
-        if (!studyButton.disabled) root.requestSubmit(studyButton);
-      };
+        const grid = document.createElement("div");
+        grid.className = "read-menu__grid read-menu__grid--books";
+        let focusTarget = null;
+        for (const key of ORDER) {
+          const b = document.createElement("button");
+          b.type = "button";
+          b.className =
+            "read-menu__cell" +
+            (key === curBook ? " read-menu__cell--current" : "") +
+            (isFullDraft(key) ? " read-menu__cell--draft" : "");
+          b.textContent = abbrs[key] || label(key);
+          b.title = label(key);
+          b.setAttribute(
+            "aria-label",
+            label(key) + (isFullDraft(key) ? " (draft)" : ""),
+          );
+          b.addEventListener("click", () => showChapters(key));
+          grid.appendChild(b);
+          if (key === (focusKey || curBook)) focusTarget = b;
+        }
+        panel.appendChild(grid);
+        if (anyFullDraftBook) panel.appendChild(legendEl(""));
 
-      bookSelect.addEventListener("keydown", submitStudyFromKeyboard);
-      chapterSelect.addEventListener("keydown", submitStudyFromKeyboard);
+        wireGrid(grid, focusTarget || grid.firstElementChild);
+        positionPanel();
+        (focusTarget || grid.firstElementChild).focus();
+      }
 
-      root.addEventListener("submit", (event) => {
-        event.preventDefault();
+      function showChapters(key) {
+        panel.innerHTML = "";
+        const head = document.createElement("div");
+        head.className = "read-menu__bar";
+        const back = document.createElement("button");
+        back.type = "button";
+        back.className = "read-menu__back";
+        back.innerHTML = "&#8249; Books";
+        back.addEventListener("click", () => showBooks(key));
+        const name = document.createElement("span");
+        name.className = "read-menu__book-name";
+        name.textContent = label(key);
+        const spacer = document.createElement("span");
+        spacer.className = "read-menu__bar-spacer";
+        head.append(back, name, spacer);
+        panel.appendChild(head);
 
-        const book = slugifyBook(bookSelect.value);
-        const chapter = chapterSelect.value || ""; // may be empty now
-        if (!book) return;
+        const draftSet = draftSetOf(key);
+        const grid = document.createElement("div");
+        grid.className = "read-menu__grid read-menu__grid--chapters";
 
-        const submitter = event.submitter;
-        const mode =
-          submitter instanceof HTMLButtonElement && submitter.value
-            ? submitter.value
-            : "study";
+        // Chapter cells are real links: middle-click, long-press, and
+        // "open in new tab" all behave, and the popover closes on unload.
+        const intro = document.createElement("a");
+        intro.className =
+          "read-menu__cell read-menu__cell--intro" +
+          (key === curBook && curChapter === "intro"
+            ? " read-menu__cell--current"
+            : "");
+        intro.href = "/" + key + "-intro";
+        intro.textContent = "Introduction";
+        grid.appendChild(intro);
 
-        const href =
-          mode === "read"
-            ? buildReadHref(book, chapter)
-            : buildStudyHref(book, chapter);
+        let focusTarget = intro;
+        for (let i = 1; i <= books[key]; i++) {
+          const a = document.createElement("a");
+          a.className =
+            "read-menu__cell" +
+            (key === curBook && curChapter === String(i)
+              ? " read-menu__cell--current"
+              : "") +
+            (draftSet.has(i) ? " read-menu__cell--draft" : "");
+          a.href = "/" + key + "-" + i;
+          a.textContent = String(i);
+          if (draftSet.has(i)) {
+            a.setAttribute("aria-label", "Chapter " + i + " (draft)");
+          }
+          grid.appendChild(a);
+          if (key === curBook && curChapter === String(i)) focusTarget = a;
+        }
+        panel.appendChild(grid);
+        panel.appendChild(legendEl(key));
 
-        if (href) requestAnimationFrame(() => { window.location.href = href; });
+        wireGrid(grid, focusTarget);
+        positionPanel();
+        focusTarget.focus();
+      }
+
+      trigger.addEventListener("click", () => {
+        if (panel.matches(":popover-open")) {
+          panel.hidePopover();
+        } else {
+          panel.showPopover();
+          showBooks("");
+        }
       });
+
+      panel.addEventListener("toggle", (e) => {
+        trigger.setAttribute(
+          "aria-expanded",
+          e.newState === "open" ? "true" : "false",
+        );
+      });
+
+      // Keep Tab inside the open panel (the grids expose one tab stop each,
+      // so the cycle is: back button → grid → footer link).
+      panel.addEventListener("keydown", (e) => {
+        if (e.key !== "Tab") return;
+        const focusables = Array.from(
+          panel.querySelectorAll('a[href], button:not([tabindex="-1"])'),
+        );
+        if (!focusables.length) return;
+        const tabbables = focusables.filter((el) => el.tabIndex !== -1);
+        const first = tabbables[0];
+        const last = tabbables[tabbables.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      });
+
+      window.addEventListener("resize", () => {
+        if (panel.matches(":popover-open")) positionPanel();
+      });
+      window.addEventListener(
+        "scroll",
+        () => {
+          if (panel.matches(":popover-open")) panel.hidePopover();
+        },
+        { passive: true },
+      );
     })();
   </script>
 
-  <style>
-    .sr-only {
+  <style is:global>
+    .read-menu-wrap {
+      display: flex;
+      justify-content: center;
+    }
+
+    .read-menu .sr-only {
       position: absolute;
       width: 1px;
       height: 1px;
@@ -251,85 +370,258 @@ const initialDrafts = new Set(DRAFT_CHAPTERS[currentBookKey] ?? []);
       border: 0;
     }
 
+    /* --green-text flips to a LIGHT green in dark mode (it's a text token),
+       so anywhere we use it as a background needs a paired foreground that
+       flips to dark ink. */
     .read-menu {
-      display: flex;
-      justify-content: center;
+      --rm-draft-dot: #8a5a00;
+      --rm-accent-bg: var(--green-text);
+      --rm-accent-fg: #ffffff;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .read-menu {
+        --rm-draft-dot: #d9a462;
+        --rm-accent-fg: #1d231c;
+      }
+    }
+
+    :root[data-theme="dark"] .read-menu {
+      --rm-draft-dot: #d9a462;
+      --rm-accent-fg: #1d231c;
+    }
+
+    .read-menu__trigger {
+      display: inline-flex;
       align-items: center;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 2.2rem;
-    }
-
-    .read-menu__actions {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-
-    .read-menu select,
-    .read-menu button {
-      padding: 10px;
+      gap: 8px;
+      padding: 10px 18px;
       font-size: 16px;
-      border-radius: 10px;
+      font-weight: 500;
+      font-family: inherit;
       border: none;
+      border-radius: 999px;
       background-color: var(--surface-input);
       color: var(--text);
       box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+      cursor: pointer;
+      text-decoration: none;
       transition:
         background-color 0.2s ease,
         color 0.2s ease;
     }
 
-    .read-menu__actions button {
-      min-width: 88px;
-      padding: 6px 12px;
-      font-size: 0.9rem;
-      border-radius: 999px;
+    .read-menu__trigger:hover {
+      background-color: var(--rm-accent-bg);
+      color: var(--rm-accent-fg);
     }
 
-    .read-menu select:hover:not(:disabled),
-    .read-menu button:hover:not(:disabled) {
-      background-color: var(--green);
-      color: #ffffff;
+    .read-menu__icon {
+      color: var(--green-text);
+      font-size: 17px;
+      flex: none;
     }
 
-    .read-menu select:disabled,
-    .read-menu button:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
+    .read-menu__trigger:hover .read-menu__icon {
+      color: var(--rm-accent-fg);
     }
 
-    /* Draft chapters are dimmed in the list; the "(draft)" text suffix is
-       the reliable marker (option styling support varies by browser). */
-    .read-menu select :global(option.draft-option) {
-      color: rgba(var(--ink-rgb), 0.55);
+    .read-menu__chevron {
+      font-size: 14px;
+      opacity: 0.55;
+      flex: none;
     }
 
-    .read-menu button {
-      background-color: var(--cta-bg);
-      color: var(--cta-text);
+    .read-menu__draft-dot {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--rm-draft-dot);
+      flex: none;
+    }
+
+    .read-menu__panel {
+      position: fixed;
+      inset: auto;
+      margin: 0;
+      padding: 14px;
+      border: 1px solid rgba(var(--ink-rgb), 0.18);
+      border-radius: 12px;
+      background: var(--surface-raised);
+      color: var(--text);
+      box-shadow: 0 18px 44px rgba(0, 0, 0, 0.18);
+      width: min(560px, calc(100vw - 24px));
+      max-height: calc(100vh - 24px);
+      overflow-y: auto;
+    }
+
+    .read-menu__head {
+      margin: 2px 2px 10px;
+      font-size: 0.85rem;
+      color: rgba(var(--ink-rgb), 0.65);
+    }
+
+    .read-menu__bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin: 0 0 10px;
+    }
+
+    .read-menu__back {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      font-family: inherit;
+      border: none;
+      border-radius: 6px;
+      background: transparent;
+      color: var(--green-text);
       cursor: pointer;
     }
 
-    .read-menu button#study-button {
-      background-color: var(--green);
-      color: #ffffff;
+    .read-menu__back:hover {
+      background: rgba(var(--ink-rgb), 0.1);
     }
 
-    .read-menu button#study-button:hover:not(:disabled) {
-      background-color: var(--ink);
-      color: #ffffff;
+    .read-menu__book-name {
+      font-size: 0.9rem;
+      font-weight: 600;
     }
 
-    @media (max-width: 560px) {
-      .read-menu__actions {
-        justify-content: center;
-      }
+    .read-menu__bar-spacer {
+      width: 52px;
+    }
 
-      .read-menu__actions button {
-        flex: 0 0 auto;
+    .read-menu__grid {
+      display: grid;
+      gap: 4px;
+    }
+
+    /* auto-fill + a measured minimum: the column count adapts to the
+       available width (and to wider fonts) instead of overflowing. */
+    .read-menu__grid--books {
+      grid-template-columns: repeat(
+        auto-fill,
+        minmax(var(--rm-book-min, 62px), 1fr)
+      );
+    }
+
+    .read-menu__grid--chapters {
+      grid-template-columns: repeat(
+        auto-fill,
+        minmax(var(--rm-chapter-min, 48px), 1fr)
+      );
+    }
+
+    /* OpenDyslexic is much wider than Inter — raise the floors so labels
+       never clip inside their tiles. */
+    html.dyslexic-font .read-menu__grid--books {
+      --rm-book-min: 100px;
+    }
+
+    html.dyslexic-font .read-menu__grid--chapters {
+      --rm-chapter-min: 56px;
+    }
+
+    .read-menu__cell {
+      position: relative;
+      display: block;
+      padding: 12px 2px;
+      font-size: 0.85rem;
+      font-family: inherit;
+      text-align: center;
+      white-space: nowrap;
+      border: none;
+      border-radius: 8px;
+      /* ink-tint instead of --surface-input: in dark mode the input token
+         matches --surface-raised, which would make tiles invisible */
+      background-color: rgba(var(--ink-rgb), 0.06);
+      color: var(--text);
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    /* Touch screens: taller tiles so every cell clears ~44px targets */
+    @media (pointer: coarse) {
+      .read-menu__cell {
+        padding-top: 14px;
+        padding-bottom: 14px;
       }
+    }
+
+    .read-menu__cell:hover {
+      background-color: rgba(var(--ink-rgb), 0.12);
+    }
+
+    .read-menu__cell:focus-visible,
+    .read-menu__trigger:focus-visible,
+    .read-menu__back:focus-visible {
+      outline: 2px solid var(--green-text);
+      outline-offset: 1px;
+    }
+
+    .read-menu__cell--current {
+      background-color: var(--rm-accent-bg);
+      color: var(--rm-accent-fg);
+      font-weight: 600;
+    }
+
+    .read-menu__cell--current:hover {
+      background-color: var(--rm-accent-bg);
+    }
+
+    .read-menu__cell--draft {
+      opacity: 0.55;
+    }
+
+    .read-menu__cell--draft::after {
+      content: "";
+      position: absolute;
+      top: 4px;
+      right: 5px;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--rm-draft-dot);
+    }
+
+    .read-menu__cell--intro {
+      grid-column: 1 / -1;
+    }
+
+    .read-menu__foot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 12px 2px 0;
+      font-size: 0.78rem;
+      color: rgba(var(--ink-rgb), 0.65);
+    }
+
+    .read-menu__legend .read-menu__draft-dot {
+      width: 5px;
+      height: 5px;
+      margin-right: 2px;
+      vertical-align: 1px;
+    }
+
+    .read-menu__reading-link {
+      color: var(--green-text);
+      font-weight: 600;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .read-menu__reading-link:hover {
+      text-decoration: underline;
     }
   </style>
 </div>

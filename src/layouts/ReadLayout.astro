@@ -35,41 +35,8 @@ const {
     {
       showTools && (
         <section class="read-layout__tools" aria-label="Reading tools">
-          <div class="read-layout__menu-with-tip" aria-label="Scripture menu">
-            <button
-              type="button"
-              class="read-layout__tip"
-              data-readmenu-tip
-              aria-label="How to use the scripture menu"
-              aria-describedby="readmenu-tip-content"
-            >
-              <span class="read-layout__tip-dot" aria-hidden="true">i</span>
-              {/* aria-hidden keeps the instructions out of the button's NAME;
-                  aria-describedby still pulls them in as its DESCRIPTION, so
-                  screen readers announce the full how-to on focus. */}
-              <span
-                class="read-layout__tooltip"
-                id="readmenu-tip-content"
-                aria-hidden="true"
-              >
-                <strong>Scripture menu</strong><br />
-                <strong>1)</strong> To read or study a <strong>BOOK</strong>, select it in the first dropdown, then press:<br />
-                • <strong>Study</strong>: opens the book introduction in Study View.<br />
-                • <strong>Read</strong>: opens to that book page in Reading View.<br />
-                <br />
-                <strong>2)</strong> To read or study a <strong>CHAPTER</strong>, select a book in the first dropdown, select a chapter in the second dropdown,
-                then press:<br />
-                • <strong>Study</strong>: opens the chapter page in Study View<br />
-                • <strong>Read</strong>: opens to that chapter in Reading View.
-              </span>
-            </button>
-
-            <div class="read-layout__menu">
-              <ReadMenu />
-            </div>
-
-            <!-- Spacer keeps ReadMenu centered when the tip is on the left -->
-            <div class="read-layout__tip-spacer" aria-hidden="true"></div>
+          <div class="read-layout__menu">
+            <ReadMenu />
           </div>
 
           <SearchBar placeholder="Search" fullSearchHref="/search" />
@@ -84,90 +51,6 @@ const {
     <slot name="bands" />
   </div>
 
-  <script is:inline>
-    (() => {
-      const buttons = Array.from(
-        document.querySelectorAll("[data-readmenu-tip]"),
-      );
-
-      for (const btn of buttons) {
-        if (!(btn instanceof HTMLButtonElement)) continue;
-        if (btn.dataset.enhanced === "true") continue;
-        btn.dataset.enhanced = "true";
-
-        const tip = btn.querySelector(".read-layout__tooltip");
-        if (!(tip instanceof HTMLElement)) continue;
-
-        let isLocked = false;
-
-        const close = () => {
-          if (!isLocked && btn.dataset.tipOpen !== "true") return;
-          isLocked = false;
-          btn.dataset.tipOpen = "false";
-        };
-
-        const position = () => {
-          const pad = 12;
-          const gap = 10;
-
-          // Ensure measurable
-          btn.dataset.tipOpen = "true";
-
-          const btnRect = btn.getBoundingClientRect();
-          const tipRect = tip.getBoundingClientRect();
-
-          // Center on the icon
-          let left = btnRect.left + btnRect.width / 2 - tipRect.width / 2;
-          left = Math.max(
-            pad,
-            Math.min(left, window.innerWidth - tipRect.width - pad),
-          );
-
-          // Prefer above; fallback below
-          let top = btnRect.top - tipRect.height - gap;
-          if (top < pad) top = btnRect.bottom + gap;
-
-          top = Math.max(
-            pad,
-            Math.min(top, window.innerHeight - tipRect.height - pad),
-          );
-
-          btn.style.setProperty("--tip-x", `${left}px`);
-          btn.style.setProperty("--tip-y", `${top}px`);
-        };
-
-        const open = () => {
-          btn.dataset.tipOpen = "true";
-          requestAnimationFrame(position);
-        };
-
-        // Hover/focus for desktop
-        btn.addEventListener("mouseenter", () => open());
-        btn.addEventListener("mouseleave", () => { if (!isLocked) close(); });
-        btn.addEventListener("focus", () => open());
-        btn.addEventListener("blur", () => { if (!isLocked) close(); });
-
-        // Click locks open; second click closes
-        btn.addEventListener("click", (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          if (isLocked) close();
-          else { isLocked = true; open(); }
-        });
-
-        // Close on outside click
-        document.addEventListener("click", (e) => {
-          const t = e.target;
-          if (!(t instanceof Element)) return;
-          if (!btn.contains(t)) close();
-        });
-
-        window.addEventListener("resize", () => {
-          if (btn.dataset.tipOpen === "true") requestAnimationFrame(position);
-        });
-      }
-    })();
-  </script>
 </Layout>
 
 <style>
@@ -192,159 +75,17 @@ const {
     gap: 26px;
   }
 
-  /* Desktop/tablet: keep ReadMenu centered, but keep the tooltip icon right next to it */
-  .read-layout__menu-with-tip {
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    align-items: center;
-    column-gap: 8px;
-  }
-
-  /* Icon sits at the right edge of the left spacer (adjacent to menu) */
-  .read-layout__tip {
-    justify-self: end;
-
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-
-    width: 28px;
-    height: 28px;
-    border-radius: 999px;
-    border: 1px solid rgba(var(--ink-rgb), 0.22);
-    background: var(--surface-raised);
-    color: var(--text);
-    cursor: pointer;
-    padding: 0;
-
-    --tip-x: 12px;
-    --tip-y: 12px;
-  }
-
-  /* Menu sits in centered auto column */
   .read-layout__menu {
-    justify-self: center;
+    display: flex;
+    justify-content: center;
     min-width: 0;
   }
 
-  /* Right spacer preserves symmetry */
-  .read-layout__tip-spacer {
-    justify-self: start;
-    width: 28px;
-    height: 28px;
-  }
-
-  .read-layout__tip:focus-visible {
-    outline: 2px solid rgba(32, 157, 80, 0.6);
-    outline-offset: 2px;
-  }
-
-  .read-layout__tip-dot {
-    font-size: 0.95rem;
-    font-weight: 800;
-    line-height: 1;
-    color: var(--text);
-    opacity: 0.85;
-  }
-
-  .read-layout__tooltip {
-    position: fixed;
-    z-index: 1100;
-    left: var(--tip-x);
-    top: var(--tip-y);
-
-    width: max-content;
-    max-width: min(420px, calc(100vw - 24px));
-
-    padding: 12px 14px;
-    border-radius: 12px;
-    border: 1px solid rgba(var(--ink-rgb), 0.18);
-    background: var(--surface-raised);
-    color: var(--text);
-    box-shadow: 0 18px 44px rgba(0, 0, 0, 0.18);
-
-    font-size: 0.95rem;
-    line-height: 1.5;
-
-    white-space: normal;
-    overflow-wrap: anywhere;
-
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-
-    transform: translateY(8px);
-  }
-
-  .read-layout__tip[data-tip-open="true"] .read-layout__tooltip {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
-  }
-
-  /* Don’t let ReadMenu add extra top margin inside this section */
-  .read-layout__tools :global(.read-menu) {
-    margin-top: 0;
-  }
-
-  /* Mobile: restore original ReadMenu sizing context (so 50%/70% widths behave like before),
-     and place the tip icon near the left edge of the centered controls. */
   @media (max-width: 640px) {
     .read-layout__tools {
       padding-top: 22px;
       padding-bottom: 30px;
       gap: 30px;
-    }
-
-    /* Stop using the desktop centering grid on mobile (it shrinks the container). */
-    .read-layout__menu-with-tip {
-      display: block;
-      position: relative;
-    }
-
-    .read-layout__menu {
-      width: 100%;
-      justify-self: unset;
-    }
-
-    .read-layout__tip-spacer {
-      display: none;
-    }
-
-    /* Place icon just left of the centered 50% selects (left edge is ~25%). */
-    .read-layout__tip {
-      position: absolute;
-      z-index: 2;
-      top: 6px;
-      left: max(8px, calc(25% - 36px));
-    }
-
-    .read-layout__tools :global(.read-menu) {
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      flex-wrap: nowrap;
-      gap: 12px;
-    }
-
-    .read-layout__tools :global(.read-menu select),
-    .read-layout__tools :global(.read-menu button) {
-      width: 50%;
-      max-width: 50%;
-    }
-  }
-
-  @media (max-width: 380px) {
-    /* 70% selects => left edge ~15% */
-    .read-layout__tip {
-      left: max(8px, calc(15% - 36px));
-    }
-
-    .read-layout__tools :global(.read-menu select),
-    .read-layout__tools :global(.read-menu button) {
-      width: 70%;
-      max-width: 70%;
     }
   }
 

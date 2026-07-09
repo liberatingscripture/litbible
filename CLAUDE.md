@@ -100,7 +100,8 @@ src/
     chapters/        # 260 JSON files — one per NT chapter (e.g. john-3.json)
     intros/          # Book intro Markdown, one per book (e.g. john-intro.md)
     books.js         # NT book constants: BOOKS (chapter counts), BOOK_ORDER,
-                     #   bookKeyToLabel() — the single source for book names
+                     #   bookKeyToLabel(), BOOK_ABBREVIATIONS — the single
+                     #   source for book names
     podcast-feed.xml # Committed podcast snapshot (refreshed by fetch:podcast)
     podcastOverrides.json     # Manual episode metadata overrides
     release-notes.json        # "What's new" entries (auto-appended in CI)
@@ -203,8 +204,11 @@ Each file in `src/data/chapters/` follows this structure:
   2. `astro.config.mjs` excludes the slug from the sitemap, and a `/read/<book>`
      page is excluded only when *every* chapter of that book is a draft.
   3. The page is `noindex`'d.
-  4. `ReadMenu.astro` marks the chapter "(draft)" (dimmed) in its chapter
-     dropdown.
+  4. `ReadMenu.astro` (the "Go to passage" picker — a popover with a book
+     grid then a chapter grid, server-rendered as a plain link for no-JS)
+     dims the chapter with a dot marker in its chapter grid, keeps "(draft)"
+     in the cell's accessible name, and dims a book in the book grid when
+     *every* chapter of that book is a draft.
   **Flip it to `true`** (do not delete the field) when real content lands.
 - Always run `npm run validate:chapters` after editing chapter JSON. The
   pre-commit hook validates staged chapter files automatically.

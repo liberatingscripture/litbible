@@ -60,6 +60,38 @@ export const BOOK_ORDER = [
   "revelation",
 ];
 
+// Short labels for compact UI (the ReadMenu book grid). SBL-style, except
+// James stays unabbreviated ("Jas" is opaque to readers new to scripture).
+export const BOOK_ABBREVIATIONS = {
+  matthew: "Matt",
+  mark: "Mark",
+  luke: "Luke",
+  john: "John",
+  acts: "Acts",
+  romans: "Rom",
+  "1corinthians": "1 Cor",
+  "2corinthians": "2 Cor",
+  galatians: "Gal",
+  ephesians: "Eph",
+  philippians: "Phil",
+  colossians: "Col",
+  "1thessalonians": "1 Thess",
+  "2thessalonians": "2 Thess",
+  "1timothy": "1 Tim",
+  "2timothy": "2 Tim",
+  titus: "Titus",
+  philemon: "Phlm",
+  hebrews: "Heb",
+  james: "James",
+  "1peter": "1 Pet",
+  "2peter": "2 Pet",
+  "1john": "1 John",
+  "2john": "2 John",
+  "3john": "3 John",
+  jude: "Jude",
+  revelation: "Rev",
+};
+
 export function bookKeyToLabel(key) {
   const m = String(key).match(/^(\d+)?([a-z]+)$/i);
   if (!m) return String(key);

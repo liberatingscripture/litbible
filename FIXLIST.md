@@ -13,7 +13,9 @@ which model should run them:
 Every item below is written to stand alone — a fresh session should be able to
 execute from the item text without this conversation. After any code item:
 `npm run build` must pass, and changed pages should be spot-checked in
-`npm run dev`. Delete items as they land; this is a punch list, not a changelog.
+`npm run dev`. This is a living checklist: when an item lands, mark it `[x]`
+and add a short DONE note (see the Priority section for the pattern) — don't
+delete it.
 
 ## Priority
 
@@ -62,9 +64,10 @@ execute from the item text without this conversation. After any code item:
   celebrate, and use in your faith circles". Touch nothing else in the
   sentence.
 
-- [ ] **"FAQ's" → "FAQs".** In `src/pages/about.astro`, the table-of-contents
-  link text is `FAQ's`. Change to `FAQs`. (The section heading itself already
-  reads "Frequently Asked Questions" — leave it.)
+- [ ] **"FAQ’s" → "FAQs".** In `src/pages/about.astro`, the table-of-contents
+  link text is `FAQ’s` — note the CURLY apostrophe (U+2019); grepping for a
+  straight `FAQ's` finds nothing. Change to `FAQs`. (The section heading
+  itself already reads "Frequently Asked Questions" — leave it.)
 
 - [ ] **Normalize apostrophes/quotes in about.astro.** The earlier sections
   use curly quotes (I'm, don't) and later sections use straight ones. Convert
@@ -265,49 +268,21 @@ execute from the item text without this conversation. After any code item:
   reasonable, do NOT put them under `public/api/` (app contract). Requires
   owner sign-off on the visual design before implementation.
 
-- [ ] **(F4) Simplify the ReadMenu.** The book/chapter dropdowns + Study/Read
-  buttons need an instructional tooltip — a sign the control carries too
-  much. Explore a single "Go to passage" affordance (one input with
-  typeahead over books/chapters, or a two-step picker) that removes the need
-  for instructions entirely. Prototype behind the existing markup as
-  progressive enhancement; must work without JS (the current form is the
-  fallback). Owner reviews the prototype before it replaces anything. Note:
-  a rejected earlier idea was search-bar type-ahead (see memory: type-ahead
-  was rejected for search) — this is navigation, not search, but expect the
-  owner to have opinions.
-
-  **Owner's current lean (2026-07-07):** a **two-step grid popover** (the
-  YouVersion / Blue Letter Bible pattern) — a trigger button opens a panel of
-  book buttons, picking a book reveals a grid of chapter numbers, picking a
-  chapter navigates. Rationale/constraints from the design discussion:
-  - **No second text field.** The SearchBar already sits on every page that
-    shows the ReadMenu (ScriptureLayout / ReadLayout / SearchLayout), and it
-    already jumps on typed references ("John 3:16"). Two text inputs would
-    reintroduce the "which box do I type in?" confusion — so the picker stays
-    a *non-text* control. (A navigation-suggestion upgrade to the SearchBar was
-    discussed and deliberately deferred; leave the SearchBar alone for now.)
-  - **The real problem was the Study/Read *mode* fork, not the two dropdowns.**
-    Collapse to a single commit action — no separate Study vs Read buttons.
-  - **Idle state shows current location** (like the selects do today): the
-    closed trigger reflects the current passage — e.g. `John 3`, `John ·
-    Introduction`, `Matthew 5 (draft)` on a draft page, `John` on a
-    `/read/{book}` continuous view, and a neutral `Go to passage` where there
-    is no current passage (home, `/read`, `/search`). All server-renderable
-    from the `currentBook`/`currentChapter` props ReadMenu already receives.
-    Because every pick is a full page navigation (static site, no SPA state),
-    the label never needs client-side syncing — the next server render shows it.
-  - **Open state, two steps, each anchored to current:** book grid with the
-    current book highlighted + focused; chapter grid with the current chapter
-    highlighted, `Introduction` as its own cell, and drafts marked *visually*
-    (dimmed / badge) rather than the "(draft)" text suffix. NT scale is kind
-    here — 27 books, largest ~28 chapters, so both grids stay small.
-  - **Open items to settle at build time:** (a) the no-JS fallback for the
-    custom trigger — cleanest is to server-render it as a real `<a>` (to
-    `/read` or the book page) already showing the current-location label, then
-    JS upgrades that same element into the popover; (b) the a11y you now own —
-    trigger `aria-haspopup`/`aria-expanded` + accessible name folding in the
-    value, plus popover focus trap, Esc-to-close, roving-tabindex grid, and
-    focus return to the trigger. Owner still wants to see a mockup before build.
+- [x] **(F4) Simplify the ReadMenu.**
+  DONE (2026-07-08, owner approved mockups first): `ReadMenu.astro` is now a
+  "Go to passage" popover — a pill trigger showing the current passage
+  (`John 3`, `John · Intro`, draft dot on draft chapters, neutral `Go to
+  passage` when none) opens a book grid (SBL abbreviations from
+  `BOOK_ABBREVIATIONS` in books.js; James unabbreviated), then a chapter grid
+  (Introduction cell, drafts dimmed with a dot + "(draft)" accessible name,
+  `Open {Book} in Reading Mode →` footer link). Single commit action (Study
+  page); Study/Read buttons, both dropdowns, and ReadLayout's instructional
+  tooltip are gone. No-JS fallback: the trigger server-renders as a real link
+  to `/read/{book}` (or `/read`); JS upgrades it via the native Popover API
+  (feature-gated). A11y: aria-haspopup/expanded, focus trap, Esc + focus
+  return, roving-tabindex grids. Grids are auto-fill with measured minimums
+  (wider floors under `html.dyslexic-font`), taller cells on touch screens,
+  and dark mode pairs the light green with ink text (`--rm-accent-*`).
 
 - [ ] **(F5) Homepage hero + green-page text contrast.** Cream `#E1DFD9` on
   brand green `#209D50` is ≈2.6:1 — below even the 3:1 large-text bar. This

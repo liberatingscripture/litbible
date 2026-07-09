@@ -378,27 +378,6 @@ body.bg-cream > main {
 }
 
 /* =========================================================
-   ReadMenu: stack cleanly on mobile
-   ========================================================= */
-
-@media (max-width: 640px) {
-  .read-menu {
-    flex-direction: column;
-    align-items: stretch;
-    justify-content: flex-start;
-    flex-wrap: nowrap;
-    gap: 12px;
-    margin-top: 2rem;
-  }
-
-  .read-menu select,
-  .read-menu button {
-    width: 50%;
-    max-width: 50%;
-  }
-}
-
-/* =========================================================
    Scripture Disclaimer (full-bleed, flush to footer)
    ========================================================= */
 

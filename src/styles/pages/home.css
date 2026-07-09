@@ -395,47 +395,6 @@
   padding-bottom: 0.5rem; /* was 6rem */
 }
 
-/* ================================
-   ReadMenu in title block
-   Stack on mobile, row on desktop
-   (does NOT resize controls)
-   ================================ */
-
-.title-menu {
-  margin-top: 0rem; /* was 3rem */
-  display: flex;
-  justify-content: center;
-}
-
-/* Only ever one child now: .read-menu-wrap */
-.title-menu > .read-menu-wrap {
-  display: flex;
-  justify-content: center;
-}
-
-/* Target the actual control row/stack */
-.title-menu .read-menu {
-  margin-top: 0rem; /* was 2.2rem */
-}
-
-/* Desktop: row */
-@media (min-width: 761px) {
-  .title-menu .read-menu {
-    flex-direction: row;
-    flex-wrap: wrap;
-  }
-}
-
-/* Mobile: stacked, keep intrinsic widths */
-@media (max-width: 760px) {
-  .title-menu .read-menu {
-    flex-direction: column;
-    flex-wrap: nowrap;
-    align-items: center;
-    gap: 1.25rem;
-  }
-}
-
 /* =========================================================
    Intro block — full-bleed white band on green canvas
    ========================================================= */
