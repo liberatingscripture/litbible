@@ -276,8 +276,10 @@ delete it.
   (palette), so output is deterministic with no system-font dependency.
   `[slug].astro` + `[book]-intro.astro` pass `ogImage` (forwarded through
   ScriptureLayout) and `twitter:card=summary_large_image`; this also
-  completed the Sonnet og:image-dimensions item above. Emblem is the
-  approved vector redraw, not the logo PNG composite.
+  completed the Sonnet og:image-dimensions item above. Emblem is the real
+  logo (`public/images/lit-logo.png`), sharp-composited into the ring after
+  rasterization (follow-up fix — the first pass shipped the mockup's vector
+  redraw by mistake).
 
 - [x] **(F4) Simplify the ReadMenu.**
   DONE (2026-07-08, owner approved mockups first): `ReadMenu.astro` is now a
