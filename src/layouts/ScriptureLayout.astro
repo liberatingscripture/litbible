@@ -316,22 +316,18 @@ if (headerKind === "chapter") {
         white-space: nowrap;
       }
 
-      /* Ensure the right tools column aligns from the top (desktop/tablet) */
       @media (min-width: 641px) {
         :global(.scripture-tools__right) {
           justify-self: end;
-          align-self: start;
         }
       }
 
-      /* Reading View pill: right column, aligned and slightly lowered */
+      /* Reading View pill: right column, on the shared toolbar row */
       .reading-view-right {
-        margin-top: 2.25rem;
         display: flex;
         justify-content: flex-end;
       }
 
-      /* quieter, and nudged further RIGHT */
       .reading-view-pill {
         display: inline-flex;
         align-items: center;
@@ -353,8 +349,6 @@ if (headerKind === "chapter") {
         line-height: 1;
 
         box-shadow: 0 2px 7px rgba(0, 0, 0, 0.035);
-
-        transform: translateX(28px);
       }
 
       /* cycle icon */
@@ -407,7 +401,6 @@ if (headerKind === "chapter") {
         .reading-view-pill {
           font-size: 0.9rem;
           padding: 11px 16px;
-          transform: none;
         }
 
         .reading-view-pill__icon {

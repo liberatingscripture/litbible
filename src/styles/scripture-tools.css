@@ -9,6 +9,16 @@
   overflow: visible;
 }
 
+/* Desktop: the header's "Aa" toggle hangs ~36px below the header bar at the
+   far right; give the toolbar row enough top clearance to pass under it with
+   room to spare, so the row reads as page content rather than header chrome
+   (the row is right-flush with the viewport edge between ~900-1380px). */
+@media (min-width: 901px) {
+  .scripture-tools {
+    padding-top: 64px;
+  }
+}
+
 /* Wide container: tools bar is wider than reading column */
 .scripture-tools__inner {
   margin: 0 auto;
@@ -22,7 +32,9 @@
     minmax(640px, 1fr)
     minmax(200px, 260px);
 
-  align-items: start;
+  /* One toolbar row: trigger, search, and Reading View pill share a
+     vertical center instead of staggering */
+  align-items: center;
   gap: 18px;
 
   overflow: visible;
@@ -41,9 +53,6 @@
   position: relative;
   overflow: visible;
   z-index: 90;
-
-  /* Desktop: push the search column down */
-  padding-top: 79px;
 }
 
 .scripture-tools__right {
@@ -59,7 +68,6 @@
 
   .scripture-tools__center {
     justify-self: stretch;
-    padding-top: 0; /* Mobile/stacked: remove extra gap */
   }
 
   /* NEW: when stacked, center the right column */
@@ -67,14 +75,10 @@
     justify-self: center;
   }
 
-  /* NEW: center the Reading View pill + remove desktop nudge */
+  /* NEW: center the Reading View pill when stacked */
   .scripture-layout .reading-view-right {
     justify-content: center;
     margin-top: 0.75rem;
-  }
-
-  .scripture-layout .reading-view-pill {
-    transform: none;
   }
 }
 

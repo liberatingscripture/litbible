@@ -394,16 +394,20 @@ const fallbackHref = knownBook ? `/read/${currentBookKey}` : "/read";
     .read-menu__trigger {
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       gap: 8px;
+      /* Match the Reading View pill's width so the toolbar's two ends feel
+         balanced; long labels ("2 Thessalonians 3") still grow past it. */
+      min-width: 227px;
       padding: 10px 18px;
       font-size: 16px;
       font-weight: 500;
       font-family: inherit;
-      border: none;
+      border: 1px solid rgba(var(--ink-rgb), 0.11);
       border-radius: 999px;
       background-color: var(--surface-input);
       color: var(--text);
-      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 2px 7px rgba(0, 0, 0, 0.08);
       cursor: pointer;
       text-decoration: none;
       transition:
