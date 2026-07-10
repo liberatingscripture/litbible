@@ -16,7 +16,8 @@ JSON APIs that the companion iOS and Android apps consume.
 
 Built with [Astro](https://astro.build) and TypeScript. Scripture search runs
 against a build-generated verse index (verse-exact results and deep links);
-[Pagefind](https://pagefind.app) covers the glossary and articles. No front-end
+[Pagefind](https://pagefind.app) covers the glossary, articles, and book
+introductions. No front-end
 framework — interactivity is plain JavaScript layered on as progressive
 enhancement, so the site works fully with JavaScript disabled.
 

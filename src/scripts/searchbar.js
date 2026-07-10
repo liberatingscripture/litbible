@@ -406,13 +406,20 @@ const _initSearchbars = async () => {
       return true;
     }
 
-    function renderGroups({ glossary, subject, articles, keyword }) {
+    function renderGroups({ glossary, subject, articles, keyword, intros = [] }) {
       const glossaryCount = glossary.length;
       const subjectCount = subject.length;
       const articlesCount = articles.length;
       const keywordCount = keyword.length;
+      const introsCount = intros.length;
 
-      if (!glossaryCount && !subjectCount && !articlesCount && !keywordCount) {
+      if (
+        !glossaryCount &&
+        !subjectCount &&
+        !articlesCount &&
+        !keywordCount &&
+        !introsCount
+      ) {
         groupsEl.innerHTML = "";
         return;
       }
@@ -452,6 +459,16 @@ const _initSearchbars = async () => {
               <div class="searchbar__group">
                 <div class="searchbar__group-title">${MODE_LABELS.subject}</div>
                 ${renderList(subject)}
+              </div>
+            `
+            : ""
+        }
+        ${
+          introsCount && (activeMode === "all" || activeMode === "intro")
+            ? `
+              <div class="searchbar__group">
+                <div class="searchbar__group-title">${MODE_LABELS.intro}</div>
+                ${renderList(intros)}
               </div>
             `
             : ""
@@ -639,8 +656,9 @@ const _initSearchbars = async () => {
         const wantKeyword = activeMode === "all" || activeMode === "keyword";
         const versePromise = wantKeyword ? loadVerseIndex(base) : null;
 
-        // A book filter excludes everything Pagefind still indexes (glossary
-        // and article pages carry no book filter value), so skip it then. A
+        // A book filter routes to scripture-only results, so skip Pagefind
+        // then (glossary/article pages carry no book value; intro pages do,
+        // but book-filtered searches stay scripture-only by design). A
         // Pagefind load failure degrades to verse-index-only results.
         let resolvedAll = [];
         if (!keywordBook) {
@@ -687,6 +705,7 @@ const _initSearchbars = async () => {
           glossary: glossaryMatches,
           subject: subjectMatches,
           article: articleMatches,
+          intro: introMatches,
         } = bucketSearchResults(resolvedAll, {
           extraSubjectItems,
           replaceSubject: true,
@@ -709,6 +728,13 @@ const _initSearchbars = async () => {
           href: pickAnchorHref(it.d, it.locs),
         }));
 
+        // "Mark — Introduction", never the bare page title, so intro hits
+        // can't read as scripture chapter results.
+        const introItems = introMatches.slice(0, 6).map((it) => ({
+          title: scriptureResultTitle(it.d?.url || "", it.d?.meta?.title || "Introduction"),
+          href: pickAnchorHref(it.d, it.locs),
+        }));
+
         // Verse-exact keyword results: "John 3:16" linking to /john-3#v16.
         // Most-relevant six first, as the Pagefind tray did.
         const keywordItems = rankVerseHits(verseHits)
@@ -721,6 +747,7 @@ const _initSearchbars = async () => {
         const gCount = glossaryMatches.length;
         const sCount = subjectMatches.length;
         const aCount = articleMatches.length;
+        const iCount = introMatches.length;
         const kCount = verseHits.length; // one match = one verse
         const sep = " • ";
 
@@ -728,6 +755,7 @@ const _initSearchbars = async () => {
         const showG = activeMode === "all" || activeMode === "glossary";
         const showS = activeMode === "all" || activeMode === "subject";
         const showA = activeMode === "all" || activeMode === "article";
+        const showI = activeMode === "all" || activeMode === "intro";
         const showK = activeMode === "all" || activeMode === "keyword";
 
         const parts = [];
@@ -735,6 +763,8 @@ const _initSearchbars = async () => {
           parts.push(`${gCount} glossary match${gCount === 1 ? "" : "es"}`);
         if (showS)
           parts.push(`${sCount} topic match${sCount === 1 ? "" : "es"}`);
+        if (showI && iCount)
+          parts.push(`${iCount} book intro match${iCount === 1 ? "" : "es"}`);
         if (showA && aCount)
           parts.push(`${aCount} article match${aCount === 1 ? "" : "es"}`);
         if (showK)
@@ -749,6 +779,7 @@ const _initSearchbars = async () => {
           subject: subjectItems,
           articles: articleItems,
           keyword: keywordItems,
+          intros: introItems,
         });
         renderActiveFilters();
 
@@ -756,6 +787,7 @@ const _initSearchbars = async () => {
           (showG ? gCount : 0) +
           (showS ? sCount : 0) +
           (showA ? aCount : 0) +
+          (showI ? iCount : 0) +
           (showK ? kCount : 0);
         if (totalCount === 0) {
           if (qPhrase && qPhrase.includes(" ")) {

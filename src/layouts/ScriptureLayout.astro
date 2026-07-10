@@ -76,8 +76,9 @@ const shouldIndex =
 // Scripture CHAPTER pages are intentionally NOT Pagefind-indexed: their
 // keyword search runs against the verse index (public/search/verses.json —
 // see searchVerses in search-core.js) and their topics come from
-// public/topics-index.json. Pagefind still indexes intros (and, elsewhere,
-// glossary/articles). `shouldIndex` stays in charge of robots noindex.
+// public/topics-index.json. Pagefind indexes intros (their prose — hits
+// display under the "Book introductions" search group) and, elsewhere,
+// glossary/articles. `shouldIndex` stays in charge of robots noindex.
 const pagefindIndexable = shouldIndex && pagefindType !== "scripture";
 
 const isSearchPage = pagefindType === "search";

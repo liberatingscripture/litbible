@@ -35,6 +35,7 @@ companion iOS/Android apps consume.
 - **Search**: two engines — scripture keyword search scans a build-generated
   verse index (`public/search/verses.json`, fetched lazily by the client);
   Pagefind (static, build-time index over `dist/`) covers glossary + articles
+  + book intros
 - **Fonts**: `@fontsource` (Crimson Text, Fraunces, Inter, OpenDyslexic)
 - **Icons**: simple-icons
 - **Client JS**: Hand-written vanilla JS in `src/scripts/` (progressive
@@ -91,8 +92,8 @@ npm run draft:release-notes -- --since <ref>  # Draft a release-notes entry from
    `twitter:card=summary_large_image`. A website asset, NOT part of the app
    contract — it must never move under `public/api/`.
 7. `astro build` — compiles the site to `dist/`.
-8. `pagefind --site dist` — indexes glossary + article pages into
-   `dist/pagefind/` (scripture chapter pages are deliberately not
+8. `pagefind --site dist` — indexes glossary + article + book-intro pages
+   into `dist/pagefind/` (scripture chapter pages are deliberately not
    Pagefind-indexed — see Search below).
 
 ## Project Structure
@@ -269,9 +270,13 @@ collection); they're read directly by the intro pages and the API manifest.
     exact. The file (~275 KB gzipped) is fetched lazily, only when a
     keyword search actually runs. Scripture chapter pages are deliberately
     NOT in the Pagefind index.
-  - *Pagefind* covers glossary + articles only; *topics* come from
-    `public/topics-index.json`. A book filter skips Pagefind entirely
-    (nothing it indexes carries a book filter value).
+  - *Pagefind* covers glossary + articles + book intros; *topics* come from
+    `public/topics-index.json`. Intro hits render in a dedicated "Book
+    introductions" group (a fifth bucket from `bucketSearchResults`, Bible
+    order, titled "Mark — Introduction") so they can't be confused with
+    scripture results — an owner decision (2026-07-09). A book filter still
+    skips Pagefind entirely (glossary/articles carry no book value; intros
+    do, but book-filtered searches stay scripture-only by design).
   - Module split: `search-core.js` holds all logic that must agree between
     the SearchBar tray and the full `/search` page (book aliases, reference
     parsing, the verse-index scanner, Pagefind query building, bucketing,
