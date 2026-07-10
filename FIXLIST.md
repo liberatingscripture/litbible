@@ -199,7 +199,12 @@ delete it.
 - [ ] **(O6) White-on-green button contrast sweep.** #209D50 with white text
   is ≈3.5:1 — passes WCAG only as "large text" (≥18.66px bold, or ≥24px any
   weight). For each remaining `--green`-background control — header "Read
-  Now" CTA (global.css), ReadMenu Study/Read buttons (`ReadMenu.astro`),
+  Now" CTA (global.css), chapter Previous/Next buttons
+  (`ScriptureHeader.astro` — hardcoded `#209d50` + white text), the
+  SearchBar submit button (`SearchBar.astro` `.searchbar__submit`, green bg
+  + white arrow icon — NOTE: only rendered at ≤900px viewports, so test at
+  narrow widths or it will be missed; icon-only controls need 3:1 for the
+  graphic, not the text rule),
   search page buttons (`search.astro`), intro-page CTA
   (`[book]-intro.astro`), home question-card CTAs + callout CTA (home.css /
   global.css), 404 CTAs (`404.astro`), podcast page buttons
