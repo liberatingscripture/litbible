@@ -43,11 +43,13 @@ const refEl = $("[data-search-ref]");
 
 const groupGlossary = $("#group-glossary");
 const groupSubject = $("#group-subject");
+const groupIntros = $("#group-intros");
 const groupArticles = $("#group-articles");
 const groupKeyword = $("#group-keyword");
 
 const glossaryEl = $("#results-glossary");
 const subjectEl = $("#results-subject");
+const introsEl = $("#results-intros");
 const articlesEl = $("#results-articles");
 const keywordEl = $("#results-keyword");
 
@@ -201,7 +203,8 @@ function readState() {
     modeRaw === "subject" ||
     modeRaw === "keyword" ||
     modeRaw === "glossary" ||
-    modeRaw === "article"
+    modeRaw === "article" ||
+    modeRaw === "intro"
       ? modeRaw
       : "all";
 
@@ -566,6 +569,29 @@ function renderArticles(items) {
   }
 }
 
+function renderIntros(items) {
+  introsEl.innerHTML = "";
+  for (const r of items) {
+    const li = document.createElement("li");
+    li.className = "result";
+
+    // "Mark — Introduction", never the bare page title, so intro hits
+    // can't read as scripture chapter results.
+    const displayTitle = scriptureResultTitle(
+      r.url,
+      r.meta?.title || r.title || "Introduction",
+    );
+
+    li.innerHTML = `
+      <a class="result-link" href="${escapeHtml(r.url)}">
+        <div class="result-title">${escapeHtml(displayTitle)}</div>
+      </a>
+    `;
+
+    introsEl.appendChild(li);
+  }
+}
+
 function applyCollapse(listEl) {
   const items = listEl.querySelectorAll(":scope > li");
 
@@ -689,6 +715,7 @@ function renderFromCache() {
     glossaryMatches,
     subjectMatchesRaw,
     articleMatchesRaw,
+    introMatchesRaw,
     keywordMatchesRaw,
     keywordCorrection,
     qPhrase,
@@ -697,13 +724,17 @@ function renderFromCache() {
   // Topics always display in canonical book order
   const subjectMatches = [...subjectMatchesRaw].sort(compareByBookOrder);
   const articleMatches = sortMaybe(articleMatchesRaw, sort);
+  // Intros are already Bible-ordered by the shared bucketing.
+  const introMatches = introMatchesRaw || [];
   const keywordMatchesAll = sortMaybe(keywordMatchesRaw, sort);
 
   const glossaryCount = glossaryMatches.length;
   const subjectCount = subjectMatches.length;
   const articleCount = articleMatches.length;
+  const introCount = introMatches.length;
   const keywordTotal = keywordMatchesAll.length;
-  const matchTotal = glossaryCount + subjectCount + articleCount + keywordTotal;
+  const matchTotal =
+    glossaryCount + subjectCount + articleCount + introCount + keywordTotal;
 
   const parsedJump = parseReferenceJump(q);
   setRefBanner(
@@ -767,7 +798,7 @@ function renderFromCache() {
   setStatus(
     `Searching for "${displayQ}" - ${matchTotal} match${
       matchTotal === 1 ? "" : "es"
-    } (${glossaryCount} glossary, ${subjectCount} topic, ${articleCount} article, ${keywordTotal} keyword${
+    } (${glossaryCount} glossary, ${subjectCount} topic, ${introCount} book intro, ${articleCount} article, ${keywordTotal} keyword${
       keywordCorrection ? ` — showing results for “${keywordCorrection}”` : ""
     })`,
   );
@@ -778,6 +809,7 @@ function renderFromCache() {
   const showGlossary =
     (mode === "all" || mode === "glossary") && showMetaBuckets;
   const showSubject = (mode === "all" || mode === "subject") && showMetaBuckets;
+  const showIntros = (mode === "all" || mode === "intro") && showMetaBuckets;
   const showArticles =
     (mode === "all" || mode === "article") && showMetaBuckets;
   const showKeyword = mode === "all" || mode === "keyword";
@@ -797,6 +829,15 @@ function renderFromCache() {
   } else {
     groupSubject.hidden = true;
     subjectEl.innerHTML = "";
+  }
+
+  if (showIntros && introCount) {
+    groupIntros.hidden = false;
+    renderIntros(introMatches.slice(0, 27));
+    applyCollapse(introsEl);
+  } else {
+    groupIntros.hidden = true;
+    introsEl.innerHTML = "";
   }
 
   if (showArticles && articleCount) {
@@ -827,11 +868,13 @@ function renderFromCache() {
 function clearResults() {
   groupGlossary.hidden = true;
   groupSubject.hidden = true;
+  groupIntros.hidden = true;
   groupArticles.hidden = true;
   groupKeyword.hidden = true;
 
   glossaryEl.innerHTML = "";
   subjectEl.innerHTML = "";
+  introsEl.innerHTML = "";
   articlesEl.innerHTML = "";
   keywordEl.innerHTML = "";
 
@@ -882,8 +925,9 @@ async function runFullSearch() {
   const qUnquoted = displayQ;
   const qPhrase = normalizePhrase(qUnquoted);
 
-  // A book filter excludes everything Pagefind still indexes (glossary and
-  // article pages carry no book filter value), so skip it entirely then. A
+  // A book filter routes to scripture-only results, so skip Pagefind
+  // entirely then (glossary/article pages carry no book value; intro pages
+  // do, but book-filtered searches stay scripture-only by design). A
   // Pagefind load failure degrades to verse-index-only results.
   let resolvedAll = [];
   if (!book) {
@@ -978,6 +1022,7 @@ async function runFullSearch() {
   const glossaryMatches = buckets.glossary;
   const subjectMatchesRaw = buckets.subject.map((it) => it.d);
   const articleMatchesRaw = buckets.article.map((it) => it.d);
+  const introMatchesRaw = buckets.intro.map((it) => it.d);
 
   // Scripture keyword results: one card per matching verse, shaped like the
   // occurrence cards renderKeyword groups by chapter (__baseUrl). Hits come
@@ -1012,6 +1057,7 @@ async function runFullSearch() {
     glossaryMatches,
     subjectMatchesRaw,
     articleMatchesRaw,
+    introMatchesRaw,
     keywordMatchesRaw: keywordCards,
     keywordCorrection,
   };

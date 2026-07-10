@@ -102,12 +102,13 @@ const glossaryTerms = Object.fromEntries(
               <option value="keyword">Keyword matches</option>
               <option value="glossary">Glossary matches</option>
               <option value="article">Article matches</option>
+              <option value="intro">Book introductions</option>
             </select>
 
             <button
               type="button"
               class="searchbar__tip"
-              aria-label="About results type (All, Topic, Keyword, Glossary, Article)"
+              aria-label="About results type (All, Topic, Keyword, Glossary, Article, Book introductions)"
             >
               <span class="searchbar__tip-dot" aria-hidden="true">i</span>
               <span class="searchbar__tooltip" aria-hidden="true">
@@ -117,7 +118,9 @@ const glossaryTerms = Object.fromEntries(
                 />
                 <strong>Glossary</strong>: terms from the glossary page only,
                 both LIT and traditional.<br />
-                <strong>Article</strong>: matches from article pages only.
+                <strong>Article</strong>: matches from article pages only.<br />
+                <strong>Book introductions</strong>: matches from the book intro
+                pages only.
               </span>
             </button>
           </div>

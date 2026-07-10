@@ -22,6 +22,7 @@ export const MODE_LABELS = {
   keyword: "Keyword matches",
   glossary: "Glossary matches",
   article: "Article matches",
+  intro: "Book introductions",
 };
 
 /* ── Book aliases and reference parsing ─────────────────────────────── */
@@ -877,6 +878,12 @@ export function isArticleResultUrl(url) {
   return !!url && !parseScripturePath(url) && !isGlossaryUrl(url);
 }
 
+/** Book-introduction pages (/mark-intro) — bucketed separately so intro
+ * hits are never mistaken for scripture chapter results. */
+export function isIntroResultUrl(url) {
+  return !!parseScripturePath(url)?.isIntro;
+}
+
 function cleanGlossaryTitle(s) {
   let t = String(s || "").trim();
   t = t.replace(/^glossary\s*[-—:]\s*/i, "");
@@ -986,10 +993,14 @@ export function topicsIndexSubjectItem(d) {
 /**
  * The filter → dedupe → bucket orchestration shared by the tray and the
  * /search page. Takes enriched Pagefind items (see enrichSearchResult) and
- * returns { glossary, subject, article } — the scripture KEYWORD bucket
- * comes from searchVerses, not from Pagefind, so it is not built here:
+ * returns { glossary, subject, article, intro } — the scripture KEYWORD
+ * bucket comes from searchVerses, not from Pagefind, so it is not built here:
  *
  * - glossary: exclusive bucket, Pagefind relevance order
+ * - intro: exclusive bucket for book-introduction pages (owner decision
+ *   2026-07-09: intro prose is Pagefind-indexed, but hits must display
+ *   under their own "Book introductions" label so they can't be confused
+ *   with scripture results), Bible order
  * - subject: exact topic hits (plus/instead of `extraSubjectItems` from the
  *   topics index — `replaceSubject` replaces Pagefind subject hits when
  *   extras exist, otherwise extras merge in with URL dedupe), Bible order
@@ -1001,9 +1012,12 @@ export function bucketSearchResults(
   { extraSubjectItems = [], replaceSubject = false } = {},
 ) {
   const glossary = [];
+  const intro = [];
   const nonGlossary = [];
   for (const it of enriched) {
-    (isGlossaryResult(it.d) ? glossary : nonGlossary).push(it);
+    if (isGlossaryResult(it.d)) glossary.push(it);
+    else if (isIntroResultUrl(it.d?.url || "")) intro.push(it);
+    else nonGlossary.push(it);
   }
 
   let subject = nonGlossary.filter((it) => it.subjectHit);
@@ -1041,8 +1055,9 @@ export function bucketSearchResults(
     bibleOrderCompareHref(a.d?.url || "", b.d?.url || ""),
   );
   article.sort((a, b) => (a.relevanceRank ?? 9999) - (b.relevanceRank ?? 9999));
+  intro.sort((a, b) => bibleOrderCompareHref(a.d?.url || "", b.d?.url || ""));
 
-  return { glossary, subject, article };
+  return { glossary, subject, article, intro };
 }
 
 /* ── Topics index loader ─────────────────────────────────────────────── */

@@ -68,6 +68,8 @@ const nextCtaHref = `/${bookKey}-1`;
   chapter="intro"
   type="intro"
   topics={topics}
+  ogImage={`${Astro.site ? Astro.site.origin : "https://litbible.net"}/og/${bookKey}-intro.png`}
+  twitterCard="summary_large_image"
 >
   <Fragment slot="head">
     <script type="application/ld+json" set:html={JSON.stringify({
@@ -85,10 +87,14 @@ const nextCtaHref = `/${bookKey}-1`;
     {/* H1 is rendered by ScriptureHeader inside ScriptureLayout */}
 
     {
-      /* You said: only topics/subjects should be indexed on intro pages.
-         So we ignore body content for Pagefind. */
+      /* Intro prose IS Pagefind-indexed (owner decision 2026-07-09,
+         superseding the earlier topics-only rule, which in practice left
+         intro pages with zero indexable words so Pagefind dropped them
+         entirely). Hits render under the dedicated "Book introductions"
+         group in both search surfaces — see bucketSearchResults in
+         search-core.js — so they can't be confused with scripture results. */
     }
-    <section class="intro" data-pagefind-ignore>
+    <section class="intro">
       {
         IntroContent ? (
           <IntroContent />

@@ -86,11 +86,12 @@ delete it.
   trailing slash; every other page includes it. Add the trailing slash to
   match (e.g. `https://litbible.net/privacy/`).
 
-- [ ] **Stop hardcoding og:image dimensions.** In `src/layouts/Layout.astro`,
-  `og:image:width`/`og:image:height` are always `1000`. Emit those two meta
-  tags ONLY when the default logo is used (i.e. when the `ogImage` prop was
-  NOT provided); when a page passes `ogImage`, omit width/height rather than
-  lying about them.
+- [x] **Stop hardcoding og:image dimensions.**
+  DONE (with F3, which needed it): `Layout.astro` emits
+  `og:image:width`/`height` only when `ogImage` was NOT provided (default
+  logo); pages passing their own image omit the dimensions. Layout also
+  gained a `twitterCard` prop (default `"summary"`, unchanged for existing
+  pages).
 
 - [ ] **Remove target="_blank" from internal article links.** Grep
   `src/content/articles/*.md` for `target="_blank"` on hrefs that point to
@@ -259,14 +260,24 @@ delete it.
   Turnstile, and donations — test all three on the deployed preview branch
   before enforcing.
 
-- [ ] **(F3) Per-chapter OG share images.** Design + build-time generation of
-  branded social cards (book + chapter, brand green, wordmark) for the 260
-  chapter pages, written to `public/og/` (or generated into dist) and wired
-  via the existing `ogImage` prop in `[slug].astro`; also set
-  `twitter:card=summary_large_image` for chapters. Constraints: deterministic
-  output (no timestamps — same reason as build:topics), keep build time
-  reasonable, do NOT put them under `public/api/` (app contract). Requires
-  owner sign-off on the visual design before implementation.
+- [x] **(F3) Per-chapter OG share images.**
+  DONE (2026-07-09, owner approved the design via mockups first): 287 cards
+  (260 chapters + 27 intros) generated to `public/og/` (git-ignored, ~4.4 MB)
+  by `scripts/build-og-images.mjs`, wired into `npm run build` before
+  `astro build`. Approved design: 1200×630 ink field (#1D231C), emblem
+  line-art in a brand-green ring, reference in Fraunces display cut (opsz
+  144, wt 500), green accent bar, Inter wordmark line, green litbible.net.
+  Two compositions, one width-measured switch: short references render on
+  one line beside a left-centered emblem; long ones ("2 Thessalonians 3")
+  move the emblem to the top-left corner and take the full width. Intro
+  cards set "Intro" in green where the chapter number would sit. Rendering
+  is opentype.js text→paths (fonts committed in `scripts/og/fonts/` with
+  OFL.txt; Inter is charset-subsetted — see that README) + sharp SVG→PNG
+  (palette), so output is deterministic with no system-font dependency.
+  `[slug].astro` + `[book]-intro.astro` pass `ogImage` (forwarded through
+  ScriptureLayout) and `twitter:card=summary_large_image`; this also
+  completed the Sonnet og:image-dimensions item above. Emblem is the
+  approved vector redraw, not the logo PNG composite.
 
 - [x] **(F4) Simplify the ReadMenu.**
   DONE (2026-07-08, owner approved mockups first): `ReadMenu.astro` is now a

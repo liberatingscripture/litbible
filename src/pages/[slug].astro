@@ -182,6 +182,8 @@ if (typeof chaptersInBook === "number" && n < chaptersInBook) {
   type="scripture"
   topics={topics}
   index={shouldIndex}
+  ogImage={`${Astro.site ? Astro.site.origin : "https://litbible.net"}/og/${chapterSlug}.png`}
+  twitterCard="summary_large_image"
 >
   <Fragment slot="head">
     {/* Citation meta — helps academic crawlers and AI systems attribute the text */}
