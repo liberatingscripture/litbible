@@ -53,6 +53,7 @@ npm run build:topics      # Regenerate topics indexes only
 npm run build:verses      # Regenerate the verse search index only
 npm run build:api         # Regenerate public/api/content.json only
 npm run build:manifest    # Regenerate API manifest + /api/data for the mobile apps
+npm run build:og          # Regenerate the chapter/intro share cards (public/og/)
 npm run draft:release-notes -- --since <ref>  # Draft a release-notes entry from git diff
 ```
 
@@ -81,8 +82,16 @@ npm run draft:release-notes -- --since <ref>  # Draft a release-notes entry from
 5. `build:api` — generates `public/api/content.json` (full NT in canonical
    order). Runs *after* `build:manifest` and reads the shared `version` from
    `version.json` so all three API artifacts report the same version.
-6. `astro build` — compiles the site to `dist/`.
-7. `pagefind --site dist` — indexes glossary + article pages into
+6. `build:og` — generates `public/og/<slug>.png`, a 1200×630 social share card
+   for every chapter and book-intro page (owner-approved design: ink field,
+   emblem in a green ring, Fraunces display-cut reference). Text is converted
+   to SVG paths with opentype.js using fonts committed in `scripts/og/fonts/`
+   (no system-font dependency), then rasterized with sharp — deterministic
+   output. The pages reference the cards via Layout's `ogImage` prop plus
+   `twitter:card=summary_large_image`. A website asset, NOT part of the app
+   contract — it must never move under `public/api/`.
+7. `astro build` — compiles the site to `dist/`.
+8. `pagefind --site dist` — indexes glossary + article pages into
    `dist/pagefind/` (scripture chapter pages are deliberately not
    Pagefind-indexed — see Search below).
 
@@ -119,8 +128,11 @@ src/
   styles/            # global.css, read-mode.css, scripture-tools.css, articles.css,
                      #   pages/<page>.css (per-page stylesheets)
 scripts/             # BUILD/validation Node scripts (.mjs) — see below
-public/              # Static assets + generated output (api/, search/, topics-index.json,
-                     #   llms.txt, llms-full.txt, _headers, images/, icons)
+                     #   (og/fonts/ holds the committed TTFs the share-card
+                     #   generator renders with — see its README)
+public/              # Static assets + generated output (api/, og/, search/,
+                     #   topics-index.json, llms.txt, llms-full.txt, _headers,
+                     #   images/, icons)
 emails/              # Standalone HTML email templates (not part of the site build)
 .githooks/           # pre-commit hook (validates staged chapter JSON)
 .github/workflows/   # ci.yml (chapter validation + full build on push/PR),
@@ -157,6 +169,7 @@ the sitemap filter live in `astro.config.mjs`.
 | `build-verse-index.mjs` | `public/search/verses.json` — per-verse plain text for client-side scripture keyword search. |
 | `build-api-json.mjs` | `public/api/content.json`. |
 | `build-api-manifest.mjs` | `public/api/manifest.json` + `public/api/data/` for the native apps. |
+| `build-og-images.mjs` | `public/og/` — per-chapter/intro share cards (fonts in `scripts/og/fonts/`). |
 | `fetch-podcast-feed.mjs` | Refresh podcast XML snapshot (non-fatal on failure). |
 | `draft-release-notes.mjs` | Drafts release-notes entries from git diffs (used by CI). |
 
@@ -233,8 +246,9 @@ collection); they're read directly by the intro pages and the API manifest.
   `revelation`. Source of truth is `src/data/books.js` (`BOOKS`, `BOOK_ORDER`).
 - **Chapter file naming**: `{bookKey}-{chapter}.json` (e.g. `1corinthians-1.json`).
 - **Generated files are git-ignored** and regenerated at build time:
-  `public/api/`, `public/search/topics.json`, `public/search/verses.json`,
-  `public/topics-index.json`, `dist/`, `.astro/`. Don't hand-edit them.
+  `public/api/`, `public/og/`, `public/search/topics.json`,
+  `public/search/verses.json`, `public/topics-index.json`, `dist/`, `.astro/`.
+  Don't hand-edit them.
 - **No client JS framework**, but `src/scripts/` *does* hold vanilla JS for
   progressive enhancement (verse highlighting/menus, footnote popovers, reading
   mode, search). Everything must degrade gracefully without JS.
@@ -273,7 +287,7 @@ collection); they're read directly by the intro pages and the API manifest.
   task + on-demand pull-to-refresh). Only on a change do they fetch
   `manifest.json` and download the files whose SHA-256 hashes moved. **So the
   whole system only works if `version` bumps on every content publish** — which
-  is why it's content-derived (see build step 3), not date-only. The sync-
+  is why it's content-derived (see build step 4), not date-only. The sync-
   critical files (`version.json`, `manifest.json`, `data/*`) are served
   `no-store` in `public/_headers` so a version bump is never served alongside a
   stale manifest or data file.

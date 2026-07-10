@@ -40,6 +40,14 @@ const {
    * (Defaults to false for search pages, true otherwise)
    */
   index: indexProp,
+
+  /**
+   * Social share image (absolute URL) + matching Twitter card type,
+   * forwarded to Layout. Chapter/intro pages pass their generated
+   * /og/<slug>.png card here.
+   */
+  ogImage,
+  twitterCard,
 } = Astro.props;
 
 const pagefindBook = book ?? "";
@@ -91,7 +99,7 @@ if (headerKind === "chapter") {
 }
 ---
 
-<Layout title={title} description={description} canonical={canonical} bg={bg} noindex={!shouldIndex}>
+<Layout title={title} description={description} canonical={canonical} bg={bg} noindex={!shouldIndex} ogImage={ogImage} twitterCard={twitterCard}>
   <slot slot="head" name="head" />
 
   <div class={`scripture-layout scripture-layout--${pagefindType}`}>

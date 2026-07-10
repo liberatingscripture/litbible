@@ -9,8 +9,9 @@
     "build:verses": "node scripts/build-verse-index.mjs",
     "build:api": "node scripts/build-api-json.mjs",
     "build:manifest": "node scripts/build-api-manifest.mjs",
+    "build:og": "node scripts/build-og-images.mjs",
     "fetch:podcast": "node scripts/fetch-podcast-feed.mjs",
-    "build": "node scripts/fetch-podcast-feed.mjs && npm run build:topics && node scripts/build-verse-index.mjs && node scripts/build-api-manifest.mjs && node scripts/build-api-json.mjs && astro build && pagefind --site dist",
+    "build": "node scripts/fetch-podcast-feed.mjs && npm run build:topics && node scripts/build-verse-index.mjs && node scripts/build-api-manifest.mjs && node scripts/build-api-json.mjs && node scripts/build-og-images.mjs && astro build && pagefind --site dist",
     "preview": "npm run build && astro preview",
     "validate:chapters": "node scripts/validate-chapters.mjs",
     "fix:chapters": "node scripts/validate-chapters.mjs --fix",
@@ -28,6 +29,7 @@
   "devDependencies": {
     "@astrojs/sitemap": "^3.7.3",
     "jsonc-parser": "^3.3.1",
+    "opentype.js": "^2.0.0",
     "pagefind": "^1.0.0"
   }
 }

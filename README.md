@@ -41,8 +41,8 @@ npm run dev        # start the dev server at http://localhost:4321
 
 The production build runs in stages: refresh the podcast feed → generate topic
 indexes → generate the verse search index → generate the mobile-app manifest →
-generate the JSON API → compile the site with Astro → build the Pagefind search
-index.
+generate the JSON API → generate chapter share images → compile the site with
+Astro → build the Pagefind search index.
 
 ## Project layout
 
