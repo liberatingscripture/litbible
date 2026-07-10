@@ -283,6 +283,13 @@ delete it.
   return, roving-tabindex grids. Grids are auto-fill with measured minimums
   (wider floors under `html.dyslexic-font`), taller cells on touch screens,
   and dark mode pairs the light green with ink text (`--rm-accent-*`).
+  Follow-up polish (076f2de): the scripture-tools bar collapsed onto one
+  vertically-centered toolbar row (trigger / search / Reading View pill) —
+  the stagger offsets and the pill's translateX overflow were fossils of the
+  old two-row select stack; the trigger matches the pill's width (227px,
+  seats "2 Thessalonians 3") and hairline+soft-shadow treatment; the row
+  takes 64px desktop top clearance to pass under the header's floating "Aa"
+  toggle instead of colliding with it at ~1200–1380px viewports.
 
 - [ ] **(F5) Homepage hero + green-page text contrast.** Cream `#E1DFD9` on
   brand green `#209D50` is ≈2.6:1 — below even the 3:1 large-text bar. This
