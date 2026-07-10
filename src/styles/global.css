@@ -629,17 +629,6 @@ a:focus {
 }
 
 
-/* Green header variant */
-.site-header--green .site-header__font-toggle {
-  border-color: rgba(255, 255, 255, 0.5);
-  color: var(--white);
-}
-
-.site-header--green .site-header__font-toggle:hover,
-.site-header--green .site-header__font-toggle:focus {
-  border-color: var(--white);
-}
-
 
 /* ----- Tray panel ----- */
 .font-tray {
@@ -1087,66 +1076,42 @@ html.menu-open body {
    Apply by adding .site-header--green to the header element
    ========================================================= */
 
+/* Ink text on green, same as the default header over a bg-green page (the
+   homepage look). The old white-text treatment failed WCAG AA on the small
+   nav links (white on #209D50 is 3.5:1; 4.5:1 needed) — ink is 4.6:1. */
 .site-header--green {
   background: var(--green);
 }
 
-/* Brand + nav text becomes white */
-.site-header--green .site-header__brand,
-.site-header--green .site-header__title,
-.site-header--green .site-nav__list > li > a {
-  color: var(--white);
-}
-
-/* Desktop underline becomes white instead of black */
-.site-header--green
-  .site-nav__list
-  > li:not(.site-nav__cta-item)
-  > a::after {
-  background-color: var(--white);
-}
-
-/* Brand hover shadow stays legal and visible */
-.site-header--green .site-header__brand:hover .site-header__title,
-.site-header--green .site-header__brand:focus .site-header__title {
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.28);
-}
-
-/* Hamburger tile: inherit green is fine, but bars must become white */
+/* Hamburger tile: a slight tint so the button reads against the green */
 .site-header--green .site-header__menu-toggle {
-  background: rgba(0, 0, 0, 0.10); /* gives contrast on green */
-}
-
-.site-header--green .menu-icon::before,
-.site-header--green .menu-icon::after {
-  background: var(--white);
+  background: rgba(0, 0, 0, 0.10);
 }
 
 /* =========================================================
-   Site Header: green background mode — CTA fix
-   Make the CTA rest state WHITE (curtain), reveal GREEN on hover
+   Header text on green stays ink in dark mode
    ========================================================= */
 
-/* CTA: base layer should be green */
-.site-header--green .site-nav__cta-item > a.site-header__cta::after {
-  background: var(--green);
+/* Green header surfaces keep the brand green in dark mode (body.bg-green and
+   .site-header--green backgrounds never flip), so the text inside must not
+   pick up the dark-scheme light tokens — that lands cream on #209D50 at
+   ~2.7:1. Re-pin the bar's local tokens to the light-scheme inks. Scoped to
+   __inner so the font tray and mobile overlay (same <header> element, own
+   dark surfaces) keep the flipped tokens. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) body.bg-green .site-header__inner,
+  :root:not([data-theme="light"]) .site-header--green .site-header__inner {
+    --text: var(--ink);
+    --text-strong: var(--black);
+    --ink-rgb: 29, 35, 28;
+  }
 }
 
-/* CTA: curtain overlay should be white (this is what you’re missing) */
-.site-header--green .site-nav__cta-item > a.site-header__cta::before {
-  background: var(--white);
-}
-
-/* Rest state (curtain down): black text on white */
-.site-header--green .site-nav__cta-item > a.site-header__cta {
-  border-color: var(--white);
-  color: var(--ink);
-}
-
-/* Hover/focus (curtain up): white text on green */
-.site-header--green .site-nav__cta-item > a.site-header__cta:hover,
-.site-header--green .site-nav__cta-item > a.site-header__cta:focus {
-  color: var(--white);
+:root[data-theme="dark"] body.bg-green .site-header__inner,
+:root[data-theme="dark"] .site-header--green .site-header__inner {
+  --text: var(--ink);
+  --text-strong: var(--black);
+  --ink-rgb: 29, 35, 28;
 }
 
 

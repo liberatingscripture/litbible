@@ -31,7 +31,11 @@
   margin: 0 auto 22px;
   max-width: 62ch;
   font-size: 1.05rem;
-  opacity: 0.95;
+  /* Ink at full opacity, not the hero's inherited white: at this size white
+     on #209D50 is 3.5:1 and WCAG AA needs 4.5:1; ink is 4.6:1. The title
+     above stays white — it always renders as large text (3:1 bar). */
+  color: var(--ink);
+  opacity: 1;
 }
 
 .articles-hero__search {

@@ -204,11 +204,15 @@ delete it.
   (`[book]-intro.astro`), home question-card CTAs + callout CTA (home.css /
   global.css), 404 CTAs (`404.astro`), podcast page buttons
   (found-in-translation-podcast.css), courses signup link (courses.css uses
-  white bg — skip) — measure the computed font-size/weight in dev tools,
+  white bg — skip), articles newsletter Subscribe button + article CTA
+  (`articles.css` `.btn`/`.btn--cta` — the Subscribe button measured failing
+  at 13.3px white-on-green during F5), contact submit (contact.css),
+  unsubscribe submit (unsubscribe.css — already ink text, just verify) —
+  measure the computed font-size/weight in dev tools,
   and either (a) leave it if it qualifies as large text, or (b) switch its
   background to `var(--green-text)` like `.chapter-cta`. Record the verdict
-  per button in the commit message. Do NOT touch the green page hero
-  backgrounds (that's a Fable item).
+  per button in the commit message. The green page hero backgrounds were
+  handled by F5 (ink text on green — done); don't re-touch those surfaces.
 
 - [ ] **(O7) data-theme toggle — GATED on the Owner decision below.** If the
   owner wants it: add a light/dark toggle to the "Aa" tray in
@@ -304,23 +308,40 @@ delete it.
   takes 64px desktop top clearance to pass under the header's floating "Aa"
   toggle instead of colliding with it at ~1200–1380px viewports.
 
-- [ ] **(F5) Homepage hero + green-page text contrast.** Cream `#E1DFD9` on
-  brand green `#209D50` is ≈2.6:1 — below even the 3:1 large-text bar. This
-  is the homepage hero and any `bg="green"` page. Fixing it is a brand
-  decision (darken the green surface? lighten text to white ≈3.5:1 and
-  enlarge? add a scrim?), so bring options to the owner with mockups rather
-  than just changing tokens. Coordinate with O6 so the site doesn't end up
-  with three greens.
+- [x] **(F5) Homepage hero + green-page text contrast.**
+  DONE (2026-07-09, owner picked "ink text on green" from live mockups). The
+  premise was partly wrong: a rendered-page audit showed the hero was never
+  failing — its text sits in ink on the cream SVG scroll (~12:1), same for
+  the title block. The real failures and their fixes:
+  - Homepage green chat bubbles and question-card answer paragraphs: white
+    on `#209D50` is 3.5:1 at sub-24px sizes (AA needs 4.5:1) → text switched
+    to `--ink` (4.6:1, holds in dark mode since green surfaces and `--ink`
+    never flip). Large white headings (card questions, section titles) stay
+    white — they always clear the 3:1 large-text bar.
+  - Articles hero subtitle (`articles.css`): same white-on-green failure →
+    ink at full opacity; the large "Articles" title stays white.
+  - `.site-header--green` (articles pages): its white-text treatment failed
+    on the small nav links, so the variant now only paints the background
+    green + tints the hamburger tile, inheriting the default ink text — the
+    exact look of the homepage header over the green body.
+  - Dark-mode header on green (was ~2.7:1 cream-on-green): green header
+    surfaces keep brand green in dark mode, so `global.css` re-pins
+    `--text`/`--text-strong`/`--ink-rgb` to the light-scheme inks on
+    `.site-header__inner` (scoped there so the font tray and mobile overlay,
+    which live in the same `<header>` with their own dark surfaces, keep the
+    flipped tokens).
+  Out of scope, punted to O6's button sweep: articles newsletter Subscribe
+  button + article `.btn--cta`, podcast/contact/unsubscribe green buttons.
 
-- [ ] **(F6) Untangle the two meanings of "draft".** The About FAQ says "All
-  books are currently drafts… Most books are complete, but some aren't
-  available yet" — which collides with the site's `(draft)` markers on
-  `indexed:false` stub chapters (ReadMenu) and reads as self-contradictory.
-  Rewrite the FAQ answer in the owner's voice to distinguish: (a) published
-  books that are complete-but-will-be-revised (the whole LIT is a living
-  first edition), vs (b) unpublished stub chapters marked "(draft)" in the
-  chapter menu. Owner approves wording — this is how the project describes
-  its own maturity.
+- [x] **(F6) Untangle the two meanings of "draft".**
+  DONE (2026-07-09, owner picked the wording from three drafted options): the
+  About FAQ answer to "What texts are available right now?" was rewritten so
+  the word "draft" is reserved for unpublished stub chapters (the "(draft)"
+  markers in the chapter menu), while published books are described as a
+  "living first edition: complete and usable now" that the owner plans to
+  revise. Two paragraphs: availability first, revision caveat second. The
+  /read lede's "solid drafts" phrasing was left as-is (owner flagged, not
+  changed — no "(draft)" markers adjacent there to collide with).
 
 ## Owner — decisions & dashboard tasks (no model)
 

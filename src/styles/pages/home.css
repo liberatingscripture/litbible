@@ -722,7 +722,11 @@
 .chat-bubble--right {
   margin-left: auto;
   background: var(--green);
-  color: #ffffff;
+  /* Ink, not white: white on #209D50 is 3.5:1 and this text can render below
+     24px, where WCAG AA needs 4.5:1. Ink is 4.6:1. --ink does not flip in
+     dark mode, and the bubble stays brand green there, so this holds in both
+     schemes. */
+  color: var(--ink);
 }
 
 /* Optional “single-word reply” look */
@@ -868,7 +872,12 @@
 .question-card__answer {
   font-family: Inter, "Inter Fallback", system-ui, -apple-system,
     BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  color: var(--white);
+  /* Ink, not white: this sits directly on the green page background and can
+     render below 24px, where white on #209D50 (3.5:1) fails AA's 4.5:1.
+     Ink is 4.6:1 and holds in dark mode too (green page bg stays green,
+     --ink never flips). The white .question-card__question headings above
+     stay white — they always qualify as large text (3:1 bar). */
+  color: var(--ink);
   margin: 0;
   font-size: clamp(1.2rem, 1.6vw, 1.85rem);
   line-height: 1.55;
