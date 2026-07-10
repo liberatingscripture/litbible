@@ -3,6 +3,14 @@
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=()
+  # CSP, currently REPORT-ONLY (F2): browsers log would-be violations to the
+  # console but block nothing. Watch the deployed site (dev/preview don't apply
+  # _headers), especially the newsletter form, contact Turnstile, /support
+  # donate widget, and the podcast embeds; when a full pass is clean, rename to
+  # Content-Security-Policy to enforce. 'unsafe-inline' covers Astro's is:inline
+  # scripts (JSON-LD data blocks are exempt from script-src). *.sibforms.com
+  # doesn't match the bare apex, hence both entries.
+  Content-Security-Policy-Report-Only: default-src 'self'; script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://sibforms.com https://*.sibforms.com https://secure.givelively.org; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://secure.givelively.org; font-src 'self'; connect-src 'self' https://formspree.io https://sibforms.com https://*.sibforms.com https://secure.givelively.org; frame-src https://challenges.cloudflare.com https://embed.podcasts.apple.com https://www.youtube.com https://open.spotify.com https://secure.givelively.org; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self' https://formspree.io https://sibforms.com https://*.sibforms.com; frame-ancestors 'none'
   # Agent discovery (RFC 8288) — advertise the API catalog and machine-readable docs.
   Link: </.well-known/api-catalog>; rel="api-catalog"; type="application/linkset+json"
   Link: </llms-full.txt>; rel="service-doc"; type="text/plain"

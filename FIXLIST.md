@@ -251,7 +251,18 @@ delete it.
     Aug 2024; Cloudflare Email Service (arbitrary recipients) is beta/paid
     and not needed here.
 
-- [ ] **(F2) Content-Security-Policy rollout.** `public/_headers` has no CSP.
+- [ ] **(F2) Content-Security-Policy rollout.** IN PROGRESS (2026-07-09):
+  owner completed the dashboard half (encryption mode strict, HSTS enabled
+  6-month max-age / no subdomains / no preload, Always Use HTTPS confirmed;
+  the no-sniff toggle was left OFF because `_headers` already sends it).
+  `Content-Security-Policy-Report-Only` is drafted in `public/_headers` with
+  the full origin inventory — the audit found three origins FIXLIST missed:
+  the podcast page's Apple/YouTube/Spotify player iframes (frame-src). Next:
+  test on a deployed branch preview (newsletter form, contact Turnstile,
+  /support donate widget, podcast embeds) with the console open, extend the
+  allowlist for anything the third-party scripts load transitively, then
+  rename the header to `Content-Security-Policy` to enforce. Original item:
+  `public/_headers` has no CSP.
   Inventory every third-party origin actually loaded: sibforms.com +
   Brevo main.js (footer newsletter), challenges.cloudflare.com (Turnstile),
   secure.givelively.org (donate widget on /support), plus inline scripts
