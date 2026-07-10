@@ -26,11 +26,14 @@
 
   display: grid;
 
-  /* Symmetric side columns so the center stays visually centered */
+  /* Symmetric side columns so the center stays visually centered. Side
+     minimums must fit the 227px trigger/pill (they overlap the search
+     field if the columns compress below the pills' width); the center
+     flexes instead. */
   grid-template-columns:
-    minmax(200px, 260px)
-    minmax(640px, 1fr)
-    minmax(200px, 260px);
+    minmax(227px, 260px)
+    minmax(320px, 1fr)
+    minmax(227px, 260px);
 
   /* One toolbar row: trigger, search, and Reading View pill share a
      vertical center instead of staggering */
