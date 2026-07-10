@@ -271,7 +271,10 @@ const glossaryTerms = Object.fromEntries(
     fill: currentColor;
   }
 
-  @media (max-width: 1024px) {
+  /* Visible submit button only where the tools band stacks (matches the
+     scripture-tools.css tablet/mobile breakpoint) — above 900px the toolbar
+     is a single desktop row and the button would crowd the search column. */
+  @media (max-width: 900px) {
     .searchbar__submit {
       display: inline-flex;
       align-items: center;
