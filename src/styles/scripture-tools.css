@@ -62,8 +62,44 @@
   justify-self: end;
 }
 
-/* Responsive: stack tools */
-@media (max-width: 900px) {
+/* ReadMenu trigger: left-aligned in the tools bar's left column (desktop
+   and the tablet band); the ≤640px block below centers it instead */
+.scripture-layout .read-menu-wrap,
+.scripture-tools__left .read-menu-wrap {
+  justify-content: flex-start;
+}
+
+/* Tablet band (641-900px): search takes the full top row; the two
+   equal-width pills sit under it as a symmetric pair — picker left,
+   Reading View right — echoing the desktop composition. */
+@media (max-width: 900px) and (min-width: 641px) {
+  .scripture-tools__inner {
+    grid-template-columns: 1fr 1fr;
+    width: min(720px, calc(100% - 32px));
+    row-gap: 14px;
+  }
+
+  .scripture-tools__center {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    justify-self: stretch;
+  }
+
+  .scripture-tools__left {
+    grid-row: 2;
+    grid-column: 1;
+    justify-self: start;
+  }
+
+  .scripture-tools__right {
+    grid-row: 2;
+    grid-column: 2;
+    justify-self: end;
+  }
+}
+
+/* Mobile (≤640px): single centered stack — picker, search, Reading View */
+@media (max-width: 640px) {
   .scripture-tools__inner {
     grid-template-columns: 1fr;
     width: min(720px, calc(100% - 32px));
@@ -73,28 +109,17 @@
     justify-self: stretch;
   }
 
-  /* NEW: when stacked, center the right column */
+  .scripture-tools__left {
+    justify-self: stretch;
+  }
+
   .scripture-tools__right {
     justify-self: center;
   }
 
-  /* NEW: center the Reading View pill when stacked */
   .scripture-layout .reading-view-right {
     justify-content: center;
     margin-top: 0.75rem;
-  }
-}
-
-/* ReadMenu trigger: left-aligned in the tools bar's left column on desktop,
-   centered when the bar stacks on mobile */
-.scripture-layout .read-menu-wrap,
-.scripture-tools__left .read-menu-wrap {
-  justify-content: flex-start;
-}
-
-@media (max-width: 900px) {
-  .scripture-tools__left {
-    justify-self: stretch;
   }
 
   .scripture-layout .read-menu-wrap,
