@@ -22,7 +22,7 @@
 import { EmailMessage } from "cloudflare:email";
 // The browser build — the Node build drags in node:path/os, which Workers
 // would need the nodejs_compat flag for.
-import { createMimeMessage } from "mimetext/browser";
+import { createMimeMessage, Mailbox } from "mimetext/browser";
 
 const LIMITS = { name: 200, email: 254, message: 10000 };
 
@@ -78,32 +78,34 @@ export default {
       return respond(403, "turnstile");
     }
 
-    const msg = createMimeMessage();
-    msg.setSender({ name: "LIT Bible contact form", addr: env.FROM_EMAIL });
-    msg.setRecipient(env.DEST_EMAIL);
-    msg.setHeader("Reply-To", email);
-    msg.setSubject(`litbible.net contact — ${name}`);
-    msg.addMessage({
-      contentType: "text/plain",
-      data: [
-        "New message from the litbible.net contact form.",
-        "",
-        `Name:  ${name}`,
-        `Email: ${email}`,
-        "",
-        "Message:",
-        message,
-        "",
-        `— Sent ${new Date().toISOString()}; reply to this email to answer.`,
-      ].join("\n"),
-    });
-
     try {
+      const msg = createMimeMessage();
+      msg.setSender({ name: "LIT Bible contact form", addr: env.FROM_EMAIL });
+      msg.setRecipient(env.DEST_EMAIL);
+      // mimetext validates known headers: Reply-To must be a Mailbox, not a
+      // bare string (a string throws MIMETEXT_INVALID_HEADER_VALUE).
+      msg.setHeader("Reply-To", new Mailbox(email));
+      msg.setSubject(`litbible.net contact — ${name}`);
+      msg.addMessage({
+        contentType: "text/plain",
+        data: [
+          "New message from the litbible.net contact form.",
+          "",
+          `Name:  ${name}`,
+          `Email: ${email}`,
+          "",
+          "Message:",
+          message,
+          "",
+          `— Sent ${new Date().toISOString()}; reply to this email to answer.`,
+        ].join("\n"),
+      });
+
       await env.CONTACT_EMAIL.send(
         new EmailMessage(env.FROM_EMAIL, env.DEST_EMAIL, msg.asRaw()),
       );
     } catch (err) {
-      console.error("send_email failed:", err);
+      console.error("send failed:", err);
       return respond(500, "send-failed");
     }
 
@@ -126,7 +128,17 @@ async function verifyTurnstile(env, token, request) {
       },
     );
     const verdict = await res.json();
-    return verdict.success === true;
+    if (verdict.success !== true) {
+      // Only Turnstile's error codes — no submitter data. Visible in
+      // `wrangler tail`; distinguishes a misconfigured secret
+      // (invalid-input-secret) from a bad/expired token.
+      console.warn(
+        "turnstile rejected:",
+        JSON.stringify(verdict["error-codes"] ?? []),
+      );
+      return false;
+    }
+    return true;
   } catch {
     return false;
   }
