@@ -232,9 +232,17 @@ delete it.
 ## Fable — one session each, owner in the loop
 
 - [x] **(F1) Self-host the contact form on Cloudflare (drop Formspree).**
-  DONE (2026-07-10, code side; **owner deploy steps below are the gate for
-  merging this branch** — the form 404s if it lands on main first). What
-  shipped:
+  DONE (2026-07-11, live and verified end-to-end: owner deployed the Worker,
+  submitted the form, and received the email with a working Reply-To). Two
+  bugs surfaced only on live submits and were fixed + redeployed the same
+  night: the Turnstile secret had been stored under the wrong secret name
+  (diagnosed via the Worker's siteverify error-code logging:
+  `invalid-input-secret`), and mimetext threw on a bare-string `Reply-To`
+  header — it requires its `Mailbox` type. The email's "Sent ..." footer
+  line shows the SENDER's local time (`request.cf.timezone`, UTC fallback)
+  since the `Date:` header already localizes to the reader; submissions are
+  rate-limited 5/min per IP via a `[[ratelimits]]` binding (429 + friendly
+  message, no dashboard rule). What shipped:
   - `workers/contact-form/` — a standalone Worker (not a Pages Function)
     routed at `litbible.net/contact/submit`: verifies the Turnstile token
     server-side (`siteverify`, secret in `TURNSTILE_SECRET`), honors the
@@ -253,12 +261,10 @@ delete it.
     ('self' covers the Worker) and from the report-only `connect-src`.
     `privacy.astro` Formspree disclosure replaced (delivery by Cloudflare,
     no separate form processor); effective date bumped to 2026-07-10.
-  - Owner runbook (detailed in `workers/contact-form/README.md`): verify an
-    Email Routing destination address, `npx wrangler login`, set the
-    `TURNSTILE_SECRET` + `DEST_EMAIL` secrets, `npm run deploy`, smoke-test
-    JS + no-JS submits — then merge this branch. After it ships: delete the
-    Formspree forms (`mbdlnpgz`; `mgovgpoo` already unused) and consider a
-    rate-limiting rule on `/contact/submit`.
+  - One-time setup lives in `workers/contact-form/README.md` (Email Routing
+    destination, `TURNSTILE_SECRET` + `DEST_EMAIL` secrets, `npm run
+    deploy`). Remaining owner follow-up: delete the Formspree forms
+    (`mbdlnpgz`; `mgovgpoo` already unused) in their dashboard.
 
 - [x] **(F2) Content-Security-Policy rollout.**
   DONE (2026-07-10) with a deliberate owner decision that DIFFERS from the
