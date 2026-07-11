@@ -150,10 +150,24 @@ const fallbackHref = knownBook ? `/read/${currentBookKey}` : "/read";
 
       const panel = document.createElement("div");
       panel.className = "read-menu__panel";
+      panel.id = "read-menu-panel-" + Math.random().toString(36).slice(2, 8);
       panel.setAttribute("popover", "");
       panel.setAttribute("role", "dialog");
       panel.setAttribute("aria-label", "Go to passage");
       root.appendChild(panel);
+
+      // Declare the trigger as this popover's invoker (rather than driving
+      // showPopover()/hidePopover() from a plain click listener). Clicking
+      // OUTSIDE the panel still light-dismisses exactly as before — that's
+      // unchanged, auto popovers do that natively either way. What this
+      // adds: the spec exempts a click on a popover's own declared invoker
+      // from counting as an "outside" click, so a second click on the
+      // trigger now toggles the panel closed. Without this, that second
+      // click was light-dismissing it and THEN our own click handler
+      // (seeing it already closed) was reopening it in the same tick — so
+      // clicking the trigger again while open never visibly closed it.
+      trigger.setAttribute("popovertarget", panel.id);
+      trigger.setAttribute("popovertargetaction", "toggle");
 
       function positionPanel() {
         const r = trigger.getBoundingClientRect();
@@ -303,20 +317,14 @@ const fallbackHref = knownBook ? `/read/${currentBookKey}` : "/read";
         focusTarget.focus();
       }
 
-      trigger.addEventListener("click", () => {
-        if (panel.matches(":popover-open")) {
-          panel.hidePopover();
-        } else {
-          panel.showPopover();
-          showBooks("");
-        }
-      });
-
+      // Open/close is now driven by the browser via the invoker relationship
+      // above (trigger click toggles; outside click still light-dismisses).
+      // We just react to the state change: populate the book grid fresh
+      // each time it opens, and keep aria-expanded in sync.
       panel.addEventListener("toggle", (e) => {
-        trigger.setAttribute(
-          "aria-expanded",
-          e.newState === "open" ? "true" : "false",
-        );
+        const isOpen = e.newState === "open";
+        trigger.setAttribute("aria-expanded", isOpen ? "true" : "false");
+        if (isOpen) showBooks("");
       });
 
       // Keep Tab inside the open panel (the grids expose one tab stop each,
