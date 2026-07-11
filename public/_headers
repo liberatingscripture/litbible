@@ -3,14 +3,25 @@
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=()
-  # CSP, currently REPORT-ONLY (F2): browsers log would-be violations to the
-  # console but block nothing. Watch the deployed site (dev/preview don't apply
-  # _headers), especially the newsletter form, contact Turnstile, /support
-  # donate widget, and the podcast embeds; when a full pass is clean, rename to
-  # Content-Security-Policy to enforce. 'unsafe-inline' covers Astro's is:inline
-  # scripts (JSON-LD data blocks are exempt from script-src). *.sibforms.com
-  # doesn't match the bare apex, hence both entries.
-  Content-Security-Policy-Report-Only: default-src 'self'; script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://sibforms.com https://*.sibforms.com https://secure.givelively.org; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://secure.givelively.org; font-src 'self'; connect-src 'self' https://formspree.io https://sibforms.com https://*.sibforms.com https://secure.givelively.org; frame-src https://challenges.cloudflare.com https://embed.podcasts.apple.com https://www.youtube.com https://open.spotify.com https://secure.givelively.org; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self' https://formspree.io https://sibforms.com https://*.sibforms.com; frame-ancestors 'none'
+  # CSP is deliberately SPLIT in two (F2, owner decision 2026-07-10) — revisit
+  # only if the site ever gains logins/accounts (see CLAUDE.md):
+  # 1) ENFORCED structural directives. These constrain attackers, never
+  #    integrations — no future widget/embed ever needs them edited.
+  #    frame-ancestors backs up X-Frame-Options above; form-action means our
+  #    forms can only submit to endpoints we've named (update it if a form
+  #    backend changes, e.g. F1's contact Worker replacing Formspree).
+  Content-Security-Policy: frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self' https://formspree.io https://sibforms.com https://*.sibforms.com
+  # 2) REPORT-ONLY resource allowlist: logs to the console, blocks nothing.
+  #    Kept as documentation of every third-party origin the site uses and as
+  #    free telemetry; enforcing it was rejected because a missed origin would
+  #    silently break the newsletter/Turnstile/donate widgets ("future you
+  #    forgets _headers exists" is likelier than the threat it stops on a
+  #    static no-login site). 'unsafe-inline' covers Astro's is:inline scripts
+  #    (JSON-LD data blocks are exempt). *.sibforms.com doesn't match the bare
+  #    apex, hence both entries. The GiveLively payment step (Stripe/PayPal
+  #    card fields) was never exercised with a console open, so its origins
+  #    may be missing here — harmless in report-only.
+  Content-Security-Policy-Report-Only: default-src 'self'; script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://sibforms.com https://*.sibforms.com https://secure.givelively.org; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://secure.givelively.org; font-src 'self'; connect-src 'self' https://formspree.io https://sibforms.com https://*.sibforms.com https://secure.givelively.org; frame-src https://challenges.cloudflare.com https://embed.podcasts.apple.com https://www.youtube.com https://open.spotify.com https://secure.givelively.org; media-src 'self'
   # Agent discovery (RFC 8288) — advertise the API catalog and machine-readable docs.
   Link: </.well-known/api-catalog>; rel="api-catalog"; type="application/linkset+json"
   Link: </llms-full.txt>; rel="service-doc"; type="text/plain"

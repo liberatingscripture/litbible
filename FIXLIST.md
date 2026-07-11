@@ -251,29 +251,34 @@ delete it.
     Aug 2024; Cloudflare Email Service (arbitrary recipients) is beta/paid
     and not needed here.
 
-- [ ] **(F2) Content-Security-Policy rollout.** IN PROGRESS (2026-07-09):
-  owner completed the dashboard half (encryption mode strict, HSTS enabled
-  6-month max-age / no subdomains / no preload, Always Use HTTPS confirmed;
-  the no-sniff toggle was left OFF because `_headers` already sends it).
-  `Content-Security-Policy-Report-Only` is drafted in `public/_headers` with
-  the full origin inventory — the audit found three origins FIXLIST missed:
-  the podcast page's Apple/YouTube/Spotify player iframes (frame-src). Next:
-  test on a deployed branch preview (newsletter form, contact Turnstile,
-  /support donate widget, podcast embeds) with the console open, extend the
-  allowlist for anything the third-party scripts load transitively, then
-  rename the header to `Content-Security-Policy` to enforce. Original item:
-  `public/_headers` has no CSP.
-  Inventory every third-party origin actually loaded: sibforms.com +
-  Brevo main.js (footer newsletter), challenges.cloudflare.com (Turnstile),
-  secure.givelively.org (donate widget on /support), plus inline scripts
-  (Astro inline snippets — will need 'unsafe-inline' for script/style or a
-  refactor to hashes). Ship `Content-Security-Policy-Report-Only` first in
-  `_headers`, watch for violations on the deployed site (dev/preview do NOT
-  apply `_headers`), then enforce. Also confirm HSTS is enabled at the
-  Cloudflare zone level (owner: dashboard → SSL/TLS → Edge Certificates).
-  Danger zone: a wrong CSP silently breaks the newsletter form, contact
-  Turnstile, and donations — test all three on the deployed preview branch
-  before enforcing.
+- [x] **(F2) Content-Security-Policy rollout.**
+  DONE (2026-07-10) with a deliberate owner decision that DIFFERS from the
+  original item: the full resource allowlist is NOT enforced. What shipped:
+  - Owner dashboard half: encryption mode strict, HSTS enabled (6-month
+    max-age, no subdomains, no preload), Always Use HTTPS confirmed; the
+    dashboard no-sniff toggle left OFF (`_headers` already sends it).
+  - `public/_headers` now sends a SPLIT CSP. Enforced: structural directives
+    only (`frame-ancestors 'none'`, `object-src 'none'`, `base-uri 'self'`,
+    `form-action` allowlist) — these constrain attackers, never integrations.
+    Report-Only: the full resource allowlist (script/connect/frame/img/etc.),
+    kept as origin documentation + console telemetry.
+  - Why not enforce: the site is static with no logins/secrets, so the
+    realistic threat (third-party supply-chain compromise) is modest, while
+    the enforced allowlist's failure mode — a future integration silently
+    broken because `_headers` wasn't updated — is likelier on a solo project.
+    Revisit if the site ever gains accounts/sessions (noted in CLAUDE.md).
+  - Testing that informed this: Claude-in-Chrome preview run (zero violations;
+    newsletter/contact submits couldn't complete there — Turnstile error
+    110200, preview hostname not on the site key) + production Report-Only
+    run (Turnstile validated, contact form sent, zero violations). The
+    GiveLively payment step was walked to the pay button by the owner but
+    without a console open, so Stripe/PayPal origins may be absent from the
+    report-only list — harmless by design.
+  - Discovered en route: the podcast page's Apple/YouTube/Spotify player
+    iframes were missing from this item's original inventory; the footer
+    newsletter form throws a pre-existing sibforms `main.js` TypeError on
+    submit with no visible user feedback (NOT CSP-related — worth its own
+    look someday).
 
 - [x] **(F3) Per-chapter OG share images.**
   DONE (2026-07-09, owner approved the design via mockups first): 287 cards
