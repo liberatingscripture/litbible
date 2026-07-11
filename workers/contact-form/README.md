@@ -56,9 +56,16 @@ otherwise the form posts into a 404.
 
 - Delete the retired Formspree forms in their dashboard (`mbdlnpgz` contact;
   `mgovgpoo` courses — already unused).
-- Consider a Cloudflare **rate-limiting rule** on `litbible.net/contact/submit`
-  (e.g. 5 requests/minute per IP) — Turnstile gates bots, rate limiting caps
-  cost.
+
+## Abuse protection
+
+Two layers, both in the Worker (no dashboard rules):
+
+- **Turnstile** server-side verification gates bots.
+- A **rate-limiting binding** (`[[ratelimits]]` in `wrangler.toml`) caps
+  submissions at 5/minute per client IP → 429 with a "wait a minute"
+  message. It's best-effort per Cloudflare location — fine for capping
+  cost on a contact form, not a security boundary.
 
 ## Development notes
 

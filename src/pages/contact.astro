@@ -143,7 +143,9 @@ import "../styles/pages/contact.css";
                 status.textContent =
                   res.status === 403
                     ? "The security check could not be verified. Please complete it again and resend."
-                    : "Something went wrong. Please try again in a moment.";
+                    : res.status === 429
+                      ? "Several messages were sent in a short time. Please wait a minute and try again."
+                      : "Something went wrong. Please try again in a moment.";
                 // Turnstile tokens are single-use: the server consumed this
                 // one, so a retry needs a fresh widget pass.
                 if (window.turnstile) window.turnstile.reset();

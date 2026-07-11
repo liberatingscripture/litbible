@@ -52,6 +52,17 @@ export default {
           ? errorPage(status, error)
           : seeOther(new URL("/contact/thanks/", request.url));
 
+    // Per-IP rate limit (5/min, wrangler.toml [[ratelimits]]) before doing
+    // any real work. Fail open on a binding hiccup — a broken limiter
+    // shouldn't take the contact form down.
+    try {
+      const ip = request.headers.get("CF-Connecting-IP") || "unknown";
+      const { success } = await env.RATE_LIMITER.limit({ key: ip });
+      if (!success) return respond(429, "rate-limited");
+    } catch (err) {
+      console.warn("rate limiter unavailable:", err);
+    }
+
     let form;
     try {
       form = await request.formData();
@@ -97,7 +108,7 @@ export default {
           "Message:",
           message,
           "",
-          `— Sent ${new Date().toISOString()}; reply to this email to answer.`,
+          `— ${sentLine(request)}; reply to this email to answer.`,
         ].join("\n"),
       });
 
@@ -112,6 +123,27 @@ export default {
     return respond(200);
   },
 };
+
+// The email footer shows the SENDER's local time (from Cloudflare's
+// IP-geolocation zone on the request) — the mail client already localizes
+// the Date: header to the reader's zone, so sender-local is the one piece
+// of timing context the header can't provide.
+function sentLine(request) {
+  const zone = request.cf?.timezone;
+  if (zone) {
+    try {
+      const when = new Intl.DateTimeFormat("en-US", {
+        timeZone: zone,
+        dateStyle: "medium",
+        timeStyle: "long",
+      }).format(new Date());
+      return `Sent ${when} (sender's local time)`;
+    } catch {
+      // fall through to UTC
+    }
+  }
+  return `Sent ${new Date().toISOString()}`;
+}
 
 async function verifyTurnstile(env, token, request) {
   if (!token) return false;
@@ -155,7 +187,9 @@ function errorPage(status, error) {
       ? "The security check could not be verified. Please go back, complete the checkbox again, and resend."
       : error === "missing-fields"
         ? "Please go back and fill in your name, a valid email address, and a message."
-        : "Something went wrong sending your message. Please go back and try again in a moment.";
+        : error === "rate-limited"
+          ? "Several messages arrived from your connection in a short time. Please wait a minute, then go back and try again."
+          : "Something went wrong sending your message. Please go back and try again in a moment.";
   const html = `<!doctype html>
 <html lang="en">
 <head>
