@@ -308,6 +308,20 @@ collection); they're read directly by the intro pages and the API manifest.
   `draft-release-notes.mjs` for the field-by-field spec. (A stable per-footnote
   `footnoteId` for exact-footnote deep links is intentionally not emitted yet —
   it needs a matching stable anchor in the chapter JSON first.)
+- **Security headers / CSP** live in `public/_headers` (deploy-only — `dev`
+  and `astro preview` don't apply them). The CSP is deliberately split (owner
+  decision 2026-07-10): an ENFORCED header carries only structural directives
+  that can never break an integration (`frame-ancestors`, `object-src`,
+  `base-uri`, `form-action`), while the full resource allowlist
+  (script/connect/frame/img/etc.) is `Content-Security-Policy-Report-Only` —
+  documentation + telemetry, blocks nothing. Two maintenance rules:
+  (1) if a form's backend changes (e.g. a self-hosted contact Worker replacing
+  Formspree), update the enforced `form-action` list in the same change;
+  (2) when adding any new third-party integration, add its origins to the
+  report-only allowlist so it stays an accurate inventory. **Revisit enforcing
+  the full policy if the site ever gains logins/accounts/sessions** (e.g. a
+  members area) — the "static site with no secrets" premise behind the
+  report-only decision stops holding at that point.
 - **Agent/AI discovery surface** lives in static files, all served as-is from
   `public/`. They only take effect on a deployed Cloudflare Pages site — `dev`
   and `astro preview` do **not** apply `_headers`:
