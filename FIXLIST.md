@@ -231,30 +231,34 @@ delete it.
 
 ## Fable — one session each, owner in the loop
 
-- [ ] **(F1) Self-host the contact form on Cloudflare (drop Formspree).**
-  Replace the Formspree backend with a small Cloudflare Worker + Email
-  Routing (`send_email` binding — free tier), keeping the existing form
-  markup and Turnstile widget:
-  - Worker routed at e.g. `litbible.net/contact/submit` (NOT under `/api/*`,
-    which is the app-sync contract namespace). Must be a real Worker — Pages
-    Functions don't support the email binding.
-  - Worker verifies the Turnstile token server-side (`siteverify` + secret
-    stored as a Worker secret) — an upgrade over today, where nothing
-    verifies the token on our side.
-  - Sends from `contact@litbible.net` with `Reply-To:` set to the submitter,
-    to a verified Email Routing destination address (the owner's inbox).
-  - No-JS fallback: native POST works; Worker redirects to a branded thanks
-    page.
-  - One-time dashboard steps (owner): enable/verify the Email Routing
-    destination, add the Turnstile secret, attach the route; deploy via
-    `wrangler` from a small project in the repo (e.g. `workers/contact-form/`).
-  - Follow-ups when it ships: update `privacy.astro` (remove the Formspree
-    disclosure), retire the Formspree forms (`mbdlnpgz` contact; the courses
-    `mgovgpoo` endpoint is already unused) in the Formspree dashboard, and
-    consider a Cloudflare rate-limiting rule on the endpoint.
-  - Avoid stale guidance: the free MailChannels-from-Workers path died in
-    Aug 2024; Cloudflare Email Service (arbitrary recipients) is beta/paid
-    and not needed here.
+- [x] **(F1) Self-host the contact form on Cloudflare (drop Formspree).**
+  DONE (2026-07-10, code side; **owner deploy steps below are the gate for
+  merging this branch** — the form 404s if it lands on main first). What
+  shipped:
+  - `workers/contact-form/` — a standalone Worker (not a Pages Function)
+    routed at `litbible.net/contact/submit`: verifies the Turnstile token
+    server-side (`siteverify`, secret in `TURNSTILE_SECRET`), honors the
+    `_gotcha` honeypot server-side (pretends success, sends nothing), then
+    sends via the `send_email` binding from `contact@litbible.net` with
+    `Reply-To:` = submitter. The destination inbox is the `DEST_EMAIL`
+    secret so no personal address is committed. MIME built with `mimetext`
+    (Cloudflare's documented path); header-bound fields are
+    whitespace-collapsed against header injection.
+  - `contact.astro` posts to `/contact/submit`; the fetch path keeps the
+    inline status UX (plus a specific message and a Turnstile reset on a
+    403 verify failure — tokens are single-use). No-JS native POST
+    303-redirects to the new branded `/contact/thanks/` page (noindex,
+    sitemap-excluded).
+  - `_headers`: `formspree.io` removed from the enforced `form-action`
+    ('self' covers the Worker) and from the report-only `connect-src`.
+    `privacy.astro` Formspree disclosure replaced (delivery by Cloudflare,
+    no separate form processor); effective date bumped to 2026-07-10.
+  - Owner runbook (detailed in `workers/contact-form/README.md`): verify an
+    Email Routing destination address, `npx wrangler login`, set the
+    `TURNSTILE_SECRET` + `DEST_EMAIL` secrets, `npm run deploy`, smoke-test
+    JS + no-JS submits — then merge this branch. After it ships: delete the
+    Formspree forms (`mbdlnpgz`; `mgovgpoo` already unused) and consider a
+    rate-limiting rule on `/contact/submit`.
 
 - [x] **(F2) Content-Security-Policy rollout.**
   DONE (2026-07-10) with a deliberate owner decision that DIFFERS from the

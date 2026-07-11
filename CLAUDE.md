@@ -135,6 +135,9 @@ public/              # Static assets + generated output (api/, og/, search/,
                      #   topics-index.json, llms.txt, llms-full.txt, _headers,
                      #   images/, icons)
 emails/              # Standalone HTML email templates (not part of the site build)
+workers/             # Cloudflare Workers, deployed separately via wrangler (NOT
+                     #   part of the site build): contact-form/ backs the
+                     #   /contact/submit form endpoint — see its README
 .githooks/           # pre-commit hook (validates staged chapter JSON)
 .github/workflows/   # ci.yml (chapter validation + full build on push/PR),
                      #   release-notes.yml (auto-updates release-notes.json on push)
@@ -308,6 +311,12 @@ collection); they're read directly by the intro pages and the API manifest.
   `draft-release-notes.mjs` for the field-by-field spec. (A stable per-footnote
   `footnoteId` for exact-footnote deep links is intentionally not emitted yet —
   it needs a matching stable anchor in the chapter JSON first.)
+- **The contact form is self-hosted**: `/contact` posts to `/contact/submit`,
+  a standalone Cloudflare Worker in `workers/contact-form/` (deliberately
+  outside `/api/*`, the app-sync namespace) that verifies the Turnstile token
+  server-side and delivers mail via Email Routing's `send_email` binding. It
+  deploys separately from the site (owner-run `wrangler deploy` — see its
+  README); no-JS POSTs 303-redirect to `/contact/thanks/`.
 - **Security headers / CSP** live in `public/_headers` (deploy-only — `dev`
   and `astro preview` don't apply them). The CSP is deliberately split (owner
   decision 2026-07-10): an ENFORCED header carries only structural directives
@@ -315,8 +324,9 @@ collection); they're read directly by the intro pages and the API manifest.
   `base-uri`, `form-action`), while the full resource allowlist
   (script/connect/frame/img/etc.) is `Content-Security-Policy-Report-Only` —
   documentation + telemetry, blocks nothing. Two maintenance rules:
-  (1) if a form's backend changes (e.g. a self-hosted contact Worker replacing
-  Formspree), update the enforced `form-action` list in the same change;
+  (1) if a form's backend changes (as when the self-hosted contact Worker
+  replaced Formspree), update the enforced `form-action` list in the same
+  change;
   (2) when adding any new third-party integration, add its origins to the
   report-only allowlist so it stays an accurate inventory. **Revisit enforcing
   the full policy if the site ever gains logins/accounts/sessions** (e.g. a

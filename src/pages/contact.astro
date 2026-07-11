@@ -26,11 +26,15 @@ import "../styles/pages/contact.css";
           decoding="async"
         />
 
+        {/* Posts to the contact-form Worker (workers/contact-form/), which
+            verifies the Turnstile token server-side and delivers the message
+            via Cloudflare Email Routing. A native no-JS POST works too: the
+            Worker 303-redirects to /contact/thanks/. */}
         <form
           class="contact-form"
-          action="https://formspree.io/f/mbdlnpgz"
+          action="/contact/submit"
           method="POST"
-          data-formspree
+          data-contact-form
         >
           <input type="hidden" name="source" value="contact" />
 
@@ -97,7 +101,7 @@ import "../styles/pages/contact.css";
 
       <script is:inline>
         (() => {
-          const form = document.querySelector("form[data-formspree]");
+          const form = document.querySelector("form[data-contact-form]");
           if (!form) return;
 
           const status = form.querySelector(".contact-status");
@@ -137,7 +141,12 @@ import "../styles/pages/contact.css";
               } else {
                 status.className = "contact-status is-error";
                 status.textContent =
-                  "Something went wrong. Please try again in a moment.";
+                  res.status === 403
+                    ? "The security check could not be verified. Please complete it again and resend."
+                    : "Something went wrong. Please try again in a moment.";
+                // Turnstile tokens are single-use: the server consumed this
+                // one, so a retry needs a fresh widget pass.
+                if (window.turnstile) window.turnstile.reset();
               }
             } catch {
               status.className = "contact-status is-error";
