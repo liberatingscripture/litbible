@@ -328,6 +328,19 @@ delete it.
   seats "2 Thessalonians 3") and hairline+soft-shadow treatment; the row
   takes 64px desktop top clearance to pass under the header's floating "Aa"
   toggle instead of colliding with it at ~1200–1380px viewports.
+  Further follow-ups: (a86d7bb) toolbar side-column minimums raised to
+  227px (they were 200px, so the trigger could overlap the search field
+  between ~900–1200px); (0e103c3) symmetric two-row layout for the
+  641–900px tablet band (full-width search on top, matched pills below,
+  echoing the desktop composition) instead of the old single centered
+  stack in that range; (a62079f) SearchBar's visible-submit-button
+  breakpoint realigned from 1024px to 900px to match where the tools band
+  actually stacks; (d3de9ca) the trigger's second click now closes the
+  popover — it's declared as the panel's popover invoker
+  (`popovertarget`/`popovertargetaction="toggle"`) rather than driven by a
+  plain click listener calling `showPopover()`/`hidePopover()` by hand,
+  which was racing with the browser's own light-dismiss (outside-click
+  still closes it, unchanged).
 
 - [x] **(F5) Homepage hero + green-page text contrast.**
   DONE (2026-07-09, owner picked "ink text on green" from live mockups). The
