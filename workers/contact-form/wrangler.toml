@@ -1,0 +1,33 @@
+# LIT Bible contact-form backend (FIXLIST F1).
+#
+# This is a standalone Cloudflare Worker (NOT a Pages Function — Pages
+# Functions don't support the send_email binding). It is deployed separately
+# from the site with `npm run deploy` in this directory; see README.md for
+# the one-time dashboard setup (Email Routing destination, secrets, route).
+#
+# The route lives at /contact/submit deliberately — /api/* is the mobile-app
+# sync contract namespace and must stay Pages-served (see CLAUDE.md).
+
+name = "litbible-contact-form"
+main = "src/index.js"
+compatibility_date = "2026-06-01"
+
+routes = [
+  { pattern = "litbible.net/contact/submit", zone_name = "litbible.net" }
+]
+
+# Email Routing send binding. The destination is intentionally NOT pinned
+# here: the recipient inbox is set as the DEST_EMAIL secret so a personal
+# address never lands in the public repo. Cloudflare still requires it to be
+# a verified Email Routing destination address on this zone.
+[[send_email]]
+name = "CONTACT_EMAIL"
+
+[vars]
+# Must be an address on a domain with Email Routing enabled (this zone).
+FROM_EMAIL = "contact@litbible.net"
+
+# Secrets (set once with `npx wrangler secret put <NAME>` — see README.md):
+#   TURNSTILE_SECRET — the Turnstile secret key for the site's widget
+#   DEST_EMAIL       — the inbox that receives contact messages (a verified
+#                      Email Routing destination address)

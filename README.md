@@ -59,6 +59,7 @@ src/
   styles/          # CSS
 scripts/           # Build & validation scripts (Node.js)
 public/            # Static assets + generated output (API, search index)
+workers/           # Cloudflare Worker for the contact form (deployed separately)
 ```
 
 ## Editing the scripture text

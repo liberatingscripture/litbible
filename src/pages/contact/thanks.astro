@@ -1,0 +1,41 @@
+---
+// Landing page for the contact-form Worker's no-JS success redirect
+// (workers/contact-form/ 303s native POSTs here). JS-enabled submits show an
+// inline status message on /contact instead and never see this page.
+import Layout from "../../layouts/Layout.astro";
+import "../../styles/pages/contact.css";
+---
+
+<Layout
+  title="Message sent | Liberation and Inclusion Translation"
+  description="Your message to the Liberation and Inclusion Translation (LIT) team has been sent."
+  noindex={true}
+>
+  <div class="contact-page">
+    <section class="contact-hero" aria-labelledby="thanks-title">
+      <div class="contact-inner">
+        <h1 id="thanks-title">Thank you!</h1>
+
+        <p class="contact-lead">
+          Your message has been sent. I read everything that comes in and will
+          get back to you as soon as I can.
+        </p>
+
+        <img
+          class="contact-logo"
+          src="/images/lit-logo.png"
+          alt="Liberation and Inclusion Translation logo."
+          loading="lazy"
+          decoding="async"
+        />
+
+        <a class="contact-button" href="/">Back to the homepage</a>
+
+        <p class="contact-privacy">
+          In the meantime, you're welcome to <a href="/read/">keep reading</a>
+          or browse the <a href="/articles/">articles</a>.
+        </p>
+      </div>
+    </section>
+  </div>
+</Layout>

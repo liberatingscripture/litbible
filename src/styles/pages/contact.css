@@ -124,6 +124,13 @@
     color 160ms ease;
 }
 
+/* The /contact/thanks page reuses the CTA style on a link */
+a.contact-button {
+  display: inline-block;
+  justify-self: center;
+  text-decoration: none;
+}
+
 .contact-button:hover {
   background: var(--surface-raised);
   color: var(--green-text);

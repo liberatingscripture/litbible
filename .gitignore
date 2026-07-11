@@ -27,6 +27,10 @@ pnpm-debug.log*
 # VS Code settings (optional)
 .vscode/
 
+# wrangler local state / dry-run bundles (workers/)
+.wrangler/
+.wrangler-check/
+
 # Claude Code
 .claude/worktrees/
 .claude/launch.json
