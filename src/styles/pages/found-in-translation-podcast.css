@@ -13,14 +13,14 @@
   --fit-curve-h: 92px;        /* height of the curve graphic */
   --fit-curve-stroke: 10px;   /* visible “line” thickness */
   --fit-cream: #E1DFD9;       /* match your global --cream */
-  --fit-white: #ffffff;
+  --fit-white: #FAFAF8;       /* near-white raised surface (matches --surface-raised) */
 
   /* SVG curves (top + bottom) */
   --fit-wave-top-cream: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%201440%20120'%20preserveAspectRatio='none'%3E%3Cpath%20d='M0%200H1440V70Q720%20130%200%2070Z'%20fill='%23E1DFD9'/%3E%3C/svg%3E");
-  --fit-wave-top-white: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%201440%20120'%20preserveAspectRatio='none'%3E%3Cpath%20d='M0%200H1440V70Q720%20130%200%2070Z'%20fill='%23ffffff'/%3E%3C/svg%3E");
+  --fit-wave-top-white: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%201440%20120'%20preserveAspectRatio='none'%3E%3Cpath%20d='M0%200H1440V70Q720%20130%200%2070Z'%20fill='%23FAFAF8'/%3E%3C/svg%3E");
 
   --fit-wave-bot-cream: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%201440%20120'%20preserveAspectRatio='none'%3E%3Cpath%20d='M0%2050Q720%20-10%201440%2050V120H0Z'%20fill='%23E1DFD9'/%3E%3C/svg%3E");
-  --fit-wave-bot-white: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%201440%20120'%20preserveAspectRatio='none'%3E%3Cpath%20d='M0%2050Q720%20-10%201440%2050V120H0Z'%20fill='%23ffffff'/%3E%3C/svg%3E");
+  --fit-wave-bot-white: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%201440%20120'%20preserveAspectRatio='none'%3E%3Cpath%20d='M0%2050Q720%20-10%201440%2050V120H0Z'%20fill='%23FAFAF8'/%3E%3C/svg%3E");
 
   /* Prevent any 100vw bleed from causing horizontal scroll */
   overflow-x: clip;
@@ -28,18 +28,18 @@
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) .fit-page {
-    --fit-wave-top-cream: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%201440%20120'%20preserveAspectRatio='none'%3E%3Cpath%20d='M0%200H1440V70Q720%20130%200%2070Z'%20fill='%231a1e1a'/%3E%3C/svg%3E");
-    --fit-wave-top-white: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%201440%20120'%20preserveAspectRatio='none'%3E%3Cpath%20d='M0%200H1440V70Q720%20130%200%2070Z'%20fill='%232e322e'/%3E%3C/svg%3E");
-    --fit-wave-bot-cream: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%201440%20120'%20preserveAspectRatio='none'%3E%3Cpath%20d='M0%2050Q720%20-10%201440%2050V120H0Z'%20fill='%231a1e1a'/%3E%3C/svg%3E");
-    --fit-wave-bot-white: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%201440%20120'%20preserveAspectRatio='none'%3E%3Cpath%20d='M0%2050Q720%20-10%201440%2050V120H0Z'%20fill='%232e322e'/%3E%3C/svg%3E");
+    --fit-wave-top-cream: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%201440%20120'%20preserveAspectRatio='none'%3E%3Cpath%20d='M0%200H1440V70Q720%20130%200%2070Z'%20fill='%230E0E0F'/%3E%3C/svg%3E");
+    --fit-wave-top-white: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%201440%20120'%20preserveAspectRatio='none'%3E%3Cpath%20d='M0%200H1440V70Q720%20130%200%2070Z'%20fill='%231d1d1f'/%3E%3C/svg%3E");
+    --fit-wave-bot-cream: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%201440%20120'%20preserveAspectRatio='none'%3E%3Cpath%20d='M0%2050Q720%20-10%201440%2050V120H0Z'%20fill='%230E0E0F'/%3E%3C/svg%3E");
+    --fit-wave-bot-white: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%201440%20120'%20preserveAspectRatio='none'%3E%3Cpath%20d='M0%2050Q720%20-10%201440%2050V120H0Z'%20fill='%231d1d1f'/%3E%3C/svg%3E");
   }
 }
 
 :root[data-theme="dark"] .fit-page {
-  --fit-wave-top-cream: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%201440%20120'%20preserveAspectRatio='none'%3E%3Cpath%20d='M0%200H1440V70Q720%20130%200%2070Z'%20fill='%231a1e1a'/%3E%3C/svg%3E");
-  --fit-wave-top-white: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%201440%20120'%20preserveAspectRatio='none'%3E%3Cpath%20d='M0%200H1440V70Q720%20130%200%2070Z'%20fill='%232e322e'/%3E%3C/svg%3E");
-  --fit-wave-bot-cream: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%201440%20120'%20preserveAspectRatio='none'%3E%3Cpath%20d='M0%2050Q720%20-10%201440%2050V120H0Z'%20fill='%231a1e1a'/%3E%3C/svg%3E");
-  --fit-wave-bot-white: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%201440%20120'%20preserveAspectRatio='none'%3E%3Cpath%20d='M0%2050Q720%20-10%201440%2050V120H0Z'%20fill='%232e322e'/%3E%3C/svg%3E");
+  --fit-wave-top-cream: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%201440%20120'%20preserveAspectRatio='none'%3E%3Cpath%20d='M0%200H1440V70Q720%20130%200%2070Z'%20fill='%230E0E0F'/%3E%3C/svg%3E");
+  --fit-wave-top-white: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%201440%20120'%20preserveAspectRatio='none'%3E%3Cpath%20d='M0%200H1440V70Q720%20130%200%2070Z'%20fill='%231d1d1f'/%3E%3C/svg%3E");
+  --fit-wave-bot-cream: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%201440%20120'%20preserveAspectRatio='none'%3E%3Cpath%20d='M0%2050Q720%20-10%201440%2050V120H0Z'%20fill='%230E0E0F'/%3E%3C/svg%3E");
+  --fit-wave-bot-white: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%201440%20120'%20preserveAspectRatio='none'%3E%3Cpath%20d='M0%2050Q720%20-10%201440%2050V120H0Z'%20fill='%231d1d1f'/%3E%3C/svg%3E");
 }
 
 /* Header is NOT inside .fit-page, so .fit-page .site-header won't hit.
