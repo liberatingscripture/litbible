@@ -2,6 +2,14 @@
    Contact page
    ========================================================= */
 
+/* Honeypot spam trap (contact.astro + app-support.astro): visually and
+   keyboard hidden, but present in the tab/DOM order so most bots that
+   auto-fill every field still fill it in. Real users never see or reach it. */
+.contact-honeypot {
+  position: absolute;
+  left: -9999px;
+}
+
 .contact-page {
   background: var(--page-bg);
   color: var(--text);

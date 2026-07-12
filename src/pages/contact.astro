@@ -40,9 +40,13 @@ import "../styles/pages/contact.css";
 
           {/* Honeypot (spam trap) */}
           <input
-            type="hidden"
+            type="text"
             name="_gotcha"
             value=""
+            tabindex="-1"
+            autocomplete="off"
+            aria-hidden="true"
+            class="contact-honeypot"
           />
 
           <div class="field">

@@ -11,7 +11,7 @@
     "build:manifest": "node scripts/build-api-manifest.mjs",
     "build:og": "node scripts/build-og-images.mjs",
     "fetch:podcast": "node scripts/fetch-podcast-feed.mjs",
-    "build": "node scripts/fetch-podcast-feed.mjs && npm run build:topics && node scripts/build-verse-index.mjs && node scripts/build-api-manifest.mjs && node scripts/build-api-json.mjs && node scripts/build-og-images.mjs && astro build && pagefind --site dist",
+    "build": "node scripts/fetch-podcast-feed.mjs && npm run build:topics && npm run build:verses && npm run build:manifest && npm run build:api && npm run build:og && astro build && pagefind --site dist",
     "preview": "npm run build && astro preview",
     "validate:chapters": "node scripts/validate-chapters.mjs",
     "fix:chapters": "node scripts/validate-chapters.mjs --fix",

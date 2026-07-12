@@ -42,7 +42,7 @@ Let’s look in Mark to see what we find there.
 >
 > 63 The high priest, tearing his clothes, said, “Do we still need witnesses? 64 You heard the disrespect! What is made clear for you?” They all decided against him as being deserving of death.
 >
-> (<a href="/mark-14" target="_blank" rel="noopener noreferrer">Mark 14:45-49, 55-64 LIT</a>)
+> (<a href="/mark-14">Mark 14:45-49, 55-64 LIT</a>)
 
 Why would Jesus’ supposed threat to tear apart the temple be worthy of the death penalty? There’s no directive about that in Torah, so what’s the deal?
 
@@ -114,7 +114,7 @@ Let’s take a look at what comes next.
 >
 > 16 The soldiers led him away inside the courtyard (the one at the Roman headquarters) and called together the whole cohort. 17 They clothed him in purple, and after braiding one, put a crown of thorns on him. 18 Then, they began to salute him, “Hello, king of the Jews!” 19 and repeatedly struck him over the head with a staff and spit on him. Then, getting on their knees, they began paying homage to him. 20 After they had mocked him, they stripped him of the purple and put his clothes on him. Then they led him outside to crucify him.
 >
-> (<a href="/mark-15" target="_blank" rel="noopener noreferrer">Mark 15:1-20 LIT</a>)
+> (<a href="/mark-15">Mark 15:1-20 LIT</a>)
 
 There are a lot of pieces here that continue to point to political elements.
 
@@ -138,7 +138,7 @@ The lead priests, wanting to continue to solidify their opposition to Jesus, sti
 >
 > 38 The curtain of the temple was split in two from top to bottom. 39 When the centurion who was standing in front of him saw that that was how he let out his life-breath, he said, “This person really was the Son of God!”
 >
-> (<a href="/mark-15" target="_blank" rel="noopener noreferrer">Mark 15:24-39 LIT</a>)
+> (<a href="/mark-15">Mark 15:24-39 LIT</a>)
 
 Again, several elements here point to political realities.
 

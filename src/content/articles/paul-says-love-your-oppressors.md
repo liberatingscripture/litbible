@@ -24,7 +24,7 @@ As with most things that have to do with Jesus, the immediate context of the ver
 
 > 9 Love must be without pretending. Since you are horrified at what causes harm and are joined together by what is beneficial, 10 and since you are mutually affectionate with familial love toward each other and lead the way in valuing each other, 11 and since you are not hesitant in earnestness and are bubbling over with Life-breath and are enslaved workers for the Lord, 12 and since you celebrate the hope and endure the oppression and persevere with prayer, 13 and since you share in meeting the needs of those who are designated for sacred purposes and pursue hospitality, 14 wish well-being on those who pursue you with intent to harm; wish them well, and do not wish them hardship. 15 Celebrate with those who celebrate. Weep with those who weep. 16 Think of each other as equals, not thinking of yourselves as higher but yielding to those of low status. Do not come to think of yourselves as exceptional. 17 Not paying back harm for harm to anyone and considering what is beneficial from the perspective of all people, 18 as far as it is up to you, be at peace with all people. 19 Loved ones, that includes not avenging yourselves. Instead, give anger space since it is written, “Carrying out justice is for me to do; I will repay it,” says the Lord. 20 Rather, if the one who is hostile to you is hungry, feed them. If they are thirsty, give them something to drink. Doing so piles up burning coals on their head.” 21 Do not be conquered by harmfulness, but instead conquer harmfulness with beneficialness to others.
 >
-> (<a href="/romans-12" target="_blank" rel="noopener noreferrer">Romans 12:9-21 LIT</a>)
+> (<a href="/romans-12">Romans 12:9-21 LIT</a>)
 
 Love has an absolute aversion to causing harm to others and affinity to what causes well-being for others. This paragraph makes that point and affirms that the readers already know it and fit that description in how they treat each other. It acknowledges that they endure oppression, and then it asks them to do something really hard. To paraphrase with the words of Jesus, it asks them to love their enemies, those who oppress them.
 
@@ -34,7 +34,7 @@ It’s explicitly in that context that chapter 13 starts making what seems to be
 
 > 1 Each living being should cooperate with the authorities who arise over them since no authority figure exists without being under God, and those that exist are arranged under God. 2 Therefore, whoever is organized in opposition against the authority has risen against God’s arrangement, and those who rise against it will take on decisive action against themselves 3 (Those who lead are not fearful to those with beneficial actions but with harmful). Do you want to have no reason to fear the authority? Do what is beneficial, and you will have the authority’s approval. 4 They are God’s servant for your benefit. But if you do harm, be afraid, for it isn’t for nothing that they carry the sword; they are God’s servant of injustice with anger against the one who practices harm. 5 Because of this, it is necessary to cooperate, not only because of the anger but also because of shared understanding.
 >
-> (<a href="/romans-13" target="_blank" rel="noopener noreferrer">Romans 13:1-5 LIT</a>)
+> (<a href="/romans-13">Romans 13:1-5 LIT</a>)
 
 Now, I know, even looking at this after reading chapter 12, it still sounds a lot like “obey authorities no matter what,” right? Stay with me. For the social context, I want to quote Thom Stark and see if his work can bring things into focus a bit.
 
@@ -116,7 +116,7 @@ Remember, the relevant section isn’t over yet. Keep going through verse 10.
 
 > 6 That’s also why you complete your tribute payment—because the representative servants of God are those who persevere in this very thing. 7 Give away everything that is owed—tributes to whomever claims a tribute, tax to whomever claims a tax, fear to whomever elicits fear, and treating as having value whomever deserves being treated as having value. 8 Owe nothing to anyone except love to each other. Whoever loves the other fulfills Torah. 9 You see, the part that says, “Do not engage in marital infidelity, do not murder, do not steal, do not crave” (and any other directive) is summarized with this saying: “Love your neighbor as yourself.” 10 Love doesn’t produce harm to the neighbor. Therefore, love is the fulfillment of Torah.
 >
-> (<a href="/romans-13" target="_blank" rel="noopener noreferrer">Romans 13:6-10 LIT</a>)
+> (<a href="/romans-13">Romans 13:6-10 LIT</a>)
 
 It continues along the lines of “Give to Caesar what is Caesar’s and to God what is God’s,” another example of ambiguous “dissembling” that says something that the oppressed would understand but that the privileged and powerful would have a hard time pinpointing.
 
@@ -130,6 +130,6 @@ And I stand with Paul in saying about them,
 
 > 28 And just as they knowingly decided not to hold close to God, God handed them over to a degrading mind to do things that aren’t appropriate, 29 having been filled with every injustice, disgraceful behavior, greed, and abuse and being full of spite, murder, competitiveness, deception, and malice, being whisperers, 30 people who speak badly of others, who are horrifying to God, violent, arrogant, frauds, inventors of harm, who disregard parents, 31 who are uncomprehending, disunited, cruel, and without loving-faithfulness. 32 These people know thoroughly what God has declared to be right, that those who practice these kinds of things are equivalent with death, yet they not only do them but also applaud those who practice them.
 >
-> (<a href="/romans-1" target="_blank" rel="noopener noreferrer">Romans 1:28-32 LIT</a>)
+> (<a href="/romans-1">Romans 1:28-32 LIT</a>)
 
 Don’t be a tyrant, and don’t support tyrants. Love your enemies, and pray for them, but not to support what they’re doing but precisely so that they’ll transform they’re thinking and what they do, and we may all find liberation together. Let’s all conquer harmfulness with love that promotes well-being for all.

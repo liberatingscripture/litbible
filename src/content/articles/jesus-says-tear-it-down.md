@@ -47,7 +47,7 @@ Now, take a look for yourself at what it says when you actually read it all toge
 >
 > 2 Jesus said to him, “Do you see these grand buildings? There is not a single stone here that will be left upon another, that will not be torn apart.”
 >
-> (<a href="/mark-12" target="_blank" rel="noopener noreferrer">Mark 12:38-13:2 LIT</a>)
+> (<a href="/mark-12">Mark 12:38-13:2 LIT</a>)
 
 What connections do you make when you read it together?
 

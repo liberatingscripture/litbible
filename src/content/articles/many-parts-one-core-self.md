@@ -18,7 +18,7 @@ Romans 7 has a section like that. I’ll be honest. I got really excited when I 
 >
 > 21 Therefore, I find the Torah when I want me to do the right thing because the harmful thing is present within me. 22 You see, I delight in the Torah of God in my core self, 23 but I see a different torah among my parts that wages war against the Torah of my mind and takes me prisoner with the torah of deviation, with the one that is among my parts. 24 I am a person in suffering! Who will rescue me from this deathly body!
 >
-> (<a href="/romans-7" target="_blank" rel="noopener noreferrer">Romans 7:15b-24 LIT</a>)
+> (<a href="/romans-7">Romans 7:15b-24 LIT</a>)
 
 This is a pretty well-known passage, but it had never occurred to me to look at it through the lens of what’s called externalization.
 

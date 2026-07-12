@@ -16,7 +16,7 @@ Sure enough, when the Greek is a future tense, the English should be future too.
 >
 > 35 After sitting down, he called the Twelve and told them, “If anyone wants to be first, they <em><strong>will</strong></em> be last of all and enslaved to all.”
 >
-> (<a href="/mark-9" target="_blank" rel="noopener noreferrer">Mark 9:33-35 LIT</a>)
+> (<a href="/mark-9">Mark 9:33-35 LIT</a>)
 
 I understand the logic of the traditional reading. It sounds pretty Christlike in some ways: leaders should serve people, not dominate them. Yes, good!
 

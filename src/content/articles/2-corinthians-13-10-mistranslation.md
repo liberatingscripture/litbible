@@ -53,7 +53,7 @@ Every major translation arbitrarily adds the words “have to,” and that addit
 
 Here’s my translation, which stays closer to the Greek:
 
-> “That’s why I’m writing these things while I’m away, so that—in alignment with the freedom that the Liberating Sovereign gave me for building up, not tearing down—I won’t treat you harshly when I’m there” (<a href="/2corinthians-13" target="_blank" rel="noopener noreferrer">2 Corinthians 13:10</a>).
+> “That’s why I’m writing these things while I’m away, so that—in alignment with the freedom that the Liberating Sovereign gave me for building up, not tearing down—I won’t treat you harshly when I’m there” (<a href="/2corinthians-13">2 Corinthians 13:10</a>).
 
 Do you see the shift? I’ll break it down. It’s subtle but essential.
 
@@ -95,7 +95,7 @@ It’s not nonsense.
 
 People thinking it’s nonsense is nothing new though. Paul addressed that very thing in his first letter to the Corinthians:
 
-> “22 You see, Jews demand signs and Greeks seek out worldly wisdom, 23 but we announce a crucified Christ, both an obstacle for Jews and nonsense to other peoples, 24 but to those who are called, both Jews and Greeks, we announce Christ as God’s powerful act and God’s wisdom. 25 The supposed nonsense of God is wiser than what humans consider wisdom, and the supposed weakness of God is stronger than what humans consider strength” (<a href="/1corinthians-1" target="_blank" rel="noopener noreferrer">1 Corinthians 1:22-25</a>).
+> “22 You see, Jews demand signs and Greeks seek out worldly wisdom, 23 but we announce a crucified Christ, both an obstacle for Jews and nonsense to other peoples, 24 but to those who are called, both Jews and Greeks, we announce Christ as God’s powerful act and God’s wisdom. 25 The supposed nonsense of God is wiser than what humans consider wisdom, and the supposed weakness of God is stronger than what humans consider strength” (<a href="/1corinthians-1">1 Corinthians 1:22-25</a>).
 
 Worldly wisdom can’t imagine a world in which controlling others isn’t necessary. Worldly strength assumes violence is a required tool for survival.
 
@@ -103,7 +103,7 @@ It’s natural to believe these things. But Paul insists on something contrary t
 
 And of course, Paul isn’t inventing something new. Jesus himself had already addressed what it means to be called to leadership in the Heavenly Reign, with its counterintuitive logic that flips the world’s assumptions about power upside-down:
 
-> “You see how the leaders of other peoples lord over them, and the powerful people impose control over them. 26 It will not be that way with you. Instead, whichever of you wants to become important among you will be a servant among you, 27 and whichever of you wants to be first will take on the role of a worker enslaved to the rest of you” (<a href="/matthew-20" target="_blank" rel="noopener noreferrer">Matthew 20:25-27</a>).
+> “You see how the leaders of other peoples lord over them, and the powerful people impose control over them. 26 It will not be that way with you. Instead, whichever of you wants to become important among you will be a servant among you, 27 and whichever of you wants to be first will take on the role of a worker enslaved to the rest of you” (<a href="/matthew-20">Matthew 20:25-27</a>).
 
 We all forget this teaching sometimes though. It’s impossible to hold onto it all the time because every system, every institution, every group, and every relationship is saturated with the message that strength means power over others. We do our best to resist it, but it takes constant effort.
 
@@ -117,10 +117,10 @@ When we let domination slip into our lives, into the church, and even into the B
 
 And as Paul said,
 
-> “You see, though we walk in bodies, we don’t go on the march according to self-serving impulses because the tools of our campaign are not self-serving but are empowered by God for tearing down fortresses—dismantling assumptions and every barrier raised against the understanding of God, driving every pattern of thought toward the Christlike way of humble responsiveness” (<a href="/2corinthians-10" target="_blank" rel="noopener noreferrer">2 Corinthians 10:3-5</a>).
+> “You see, though we walk in bodies, we don’t go on the march according to self-serving impulses because the tools of our campaign are not self-serving but are empowered by God for tearing down fortresses—dismantling assumptions and every barrier raised against the understanding of God, driving every pattern of thought toward the Christlike way of humble responsiveness” (<a href="/2corinthians-10">2 Corinthians 10:3-5</a>).
 
 Like Paul, we have to be willing to endure any cost rather than embrace coercion of others. Like Paul, we have to take pride not in power over others but in the willingness to endure any hardship if it means empowering others.
 
 Like Paul, when we are weak, that’s when we’re strong.
 
-Anything less is not the gospel of Christ, “who humbled himself, taking listening to instruction as far as death, even death by a cross” (<a href="/philippians-2" target="_blank" rel="noopener noreferrer">Philippians 2:8</a>).
+Anything less is not the gospel of Christ, “who humbled himself, taking listening to instruction as far as death, even death by a cross” (<a href="/philippians-2">Philippians 2:8</a>).

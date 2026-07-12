@@ -22,7 +22,7 @@ Despite the faults of those of us who call ourselves followers of Jesus—and ce
 
 But there’s one story that can make that challenging for some of us.
 
-If you know it, you might already be thinking of it: the story about Jesus and the Canaanite (Syrophoenician) woman from <a href="/matthew-15" target="_blank" rel="noopener noreferrer">Matthew 15</a> and <a href="/mark-7" target="_blank" rel="noopener noreferrer">Mark 7</a>.
+If you know it, you might already be thinking of it: the story about Jesus and the Canaanite (Syrophoenician) woman from <a href="/matthew-15">Matthew 15</a> and <a href="/mark-7">Mark 7</a>.
 
 Matthew 15 refers to her ethnic identity as Canaanite, and Mark 7 refers to her by the region where she lived. Either way, it’s emphasizing that she’s a Gentile. She’s the <em>other</em>.
 
@@ -75,7 +75,7 @@ Here’s my rendering of the passage:
 >
 > 28 Then Jesus answered her, “Madam, your trust is impressive! May what you hope for happen,” and her daughter was restored from that moment on.
 >
-> (<a href="/matthew-15" target="_blank" rel="noopener noreferrer">Matthew 15:21-27 LIT</a>)
+> (<a href="/matthew-15">Matthew 15:21-27 LIT</a>)
 
 I know, it’s still hard to read without cringing, but if you’ve made it this far, stay with me. The most significant change is in verse 27. Let’s focus on that before filling in the gaps.
 
@@ -149,7 +149,7 @@ Let’s look at it all together again:
 >
 > 27 “Yes, sir,” she replied, “<em>In fact, that’s because</em> the pets eat the scraps that fall from their master’s table.”
 >
-> (<a href="/matthew-15" target="_blank" rel="noopener noreferrer">Matthew 15:26-27 LIT</a>).
+> (<a href="/matthew-15">Matthew 15:26-27 LIT</a>).
 
 Jesus is not contemptuously calling her a dog and saying she doesn’t deserve anything because she’s not from Israel. He’s using the image of children and their pets to talk about appropriateness, purpose, and timing. The word for ‘dog’ here is an affectionate term for puppies or pet dogs, not the word for feral dogs that appears elsewhere. Even that word for feral dogs was not used as an insult in Greek the way it is used in English.
 
@@ -159,13 +159,13 @@ Then the real impact is in her response. She does, in fact, understand what he�
 
 There’s enough to go around. Giving the leftovers to the pets doesn’t take anything away from the children. The woman asserts that Jesus helping her won’t take away from what he does for Jewish people. Fear of scarcity is what drives oppression, and this woman reminds Jesus of his own message: the Heavenly Reign is about providing and including people in abundance, not excluding people to protect ourselves from scarcity.
 
-Of course, she’s right, and Jesus affirms that. He gives her the same response he gave to the Gentile Centurion in (<a href="/matthew-8" target="_blank" rel="noopener noreferrer">Matthew 8</a>).
+Of course, she’s right, and Jesus affirms that. He gives her the same response he gave to the Gentile Centurion in (<a href="/matthew-8">Matthew 8</a>).
 
 In fact, that’s the whole point of including this story in Matthew and Mark. It’s wedged between two stories of miraculous provision where food abounded and there were plenty of leftovers: the feeding of the 5,000 and the feeding of the 4,000.
 
 The 5,000 were in a Jewish region, and the 4,000 were in a Gentile region. The point of Matthew 14-15 is to show that Jesus abundantly provides for everyone—Jews and Gentiles both. This story is part of that.
 
-It shows us Jesus already fulfilling what Paul defines as the good news in <a href="/galatians-3" target="_blank" rel="noopener noreferrer">Galatians 3:8</a>: that through Abraham’s seed (whom he identifies as Christ), “All peoples will receive a share in the pronouncement of well-being through you.” (LIT).
+It shows us Jesus already fulfilling what Paul defines as the good news in <a href="/galatians-3">Galatians 3:8</a>: that through Abraham’s seed (whom he identifies as Christ), “All peoples will receive a share in the pronouncement of well-being through you.” (LIT).
 
 Why, then does he ignore her in the beginning? I honestly don’t know. My guess is that he’s not planning to stop for anyone in that moment, that he was on his way somewhere else and he was lost in thought or that in his mind it wasn’t the right time.
 

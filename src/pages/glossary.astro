@@ -218,6 +218,10 @@ const menuData = {
         </script>
 
         <!-- ENTRIES BLOCK -->
+        <!-- Layout puts data-pagefind-ignore on <body> for this page (since
+             it doesn't pass the `index` prop). The data-pagefind-body below
+             opts this section back INTO the Pagefind index — removing either
+             attribute breaks glossary search. -->
         <section
           class="glossary-entries"
           data-pagefind-body

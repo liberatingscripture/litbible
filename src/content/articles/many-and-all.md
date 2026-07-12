@@ -37,7 +37,7 @@ Where it took me wasn’t exactly where I expected, but it wasn’t exactly shoc
 >
 > 18 Therefore, like how through one shortfall the result for all people was a verdict against them, similarly, it’s also through one verdict of being just that the result for all people was recognition of justness, life. 19 Just as through the one’s refusal to listen, the many were set up to be people who deviate, similarly, also through the one’s consent to listen, the many were set up to be people who are just. 20 Yet, additionally, Torah came in so that the shortfall would be excessive, but where deviation was excessive, generosity overflowed even more 21 so that just as deviation reigned with death, similarly generosity would also reign through justness resulting in agelong life through Jesus Christ our Lord.
 >
-> (<a href="/romans-5" target="_blank" rel="noopener noreferrer">Romans 5:1-21 LIT</a>)
+> (<a href="/romans-5">Romans 5:1-21 LIT</a>)
 
 Here's how I’ve distilled the flow of the argument:
 
@@ -68,13 +68,13 @@ I may have broken my brain trying to hold it all together, paying attention both
 
 If we believe Paul knew what he was talking about, he seems to be claiming that the verdict of justness and life for all people that Jesus secured is as fully universal as the verdict of deviation and death secured by Adam.
 
-It certainly fits Paul’s definition as the good news being that all people groups would be praised as worthy according to the promise to Abraham cited in <a href="/galatians-3" target="_blank" rel="noopener noreferrer">Galatians 3:6-8</a>. (Read more about that at <a href="/articles/radical-gospel-of-easter" target="_blank" rel="noopener noreferrer">litbible.net/articles/radical-gospel-of-easter</a>.)
+It certainly fits Paul’s definition as the good news being that all people groups would be praised as worthy according to the promise to Abraham cited in <a href="/galatians-3">Galatians 3:6-8</a>. (Read more about that at <a href="/articles/radical-gospel-of-easter">litbible.net/articles/radical-gospel-of-easter</a>.)
 
 Even more, Jesus’ own words actually pair ‘all’ and ‘many’ in a synonymous way. We just have to know to look for it. He uses it to refer to whom he came to liberate by paying the price for their freedom.
 
 > 43 However, that’s not how it is among you. Just the opposite, whoever wants to become important among you will be a servant among you, 44 and whoever wants to be first among you will be enslaved to all. 45 You see, the Son of Humanity also came not to be served but to serve and to give his very being as the price of freeing many people from enslavement.”
 >
-> (<a href="/mark-10" target="_blank" rel="noopener noreferrer">Mark 10:43-45 LIT</a>)
+> (<a href="/mark-10">Mark 10:43-45 LIT</a>)
 
 Once we know that’s how Paul, Jesus, and other biblical figures are using these words, ‘all’ and ‘many,’ we can also start to look for them when they’re not right next to each other. It makes things click into place in new ways. Let’s see what happens to how we hear Jesus’ words as he was preparing for his own execution:
 
@@ -86,7 +86,7 @@ Once we know that’s how Paul, Jesus, and other biblical figures are using thes
 >
 > 24 “This is my blood of the covenant,” he said, “poured out lavishly for the sake of many.”
 >
-> (<a href="/mark-14" target="_blank" rel="noopener noreferrer">Mark 14:22-24 LIT</a>)
+> (<a href="/mark-14">Mark 14:22-24 LIT</a>)
 
 Reading things with careful attention to context starts to shift things for me. It starts to have larger implications that simply word choice. It starts to expand things—from simply 'many'—to all.
 

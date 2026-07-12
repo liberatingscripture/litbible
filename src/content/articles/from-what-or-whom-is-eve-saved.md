@@ -34,7 +34,7 @@ Here's how the chapter reads now:
 >
 > 11 May a woman learn with full cooperation undisturbed, 12 but I’m not directing the woman to take over teaching and domineer over a man, just to be undisturbed. 13 You see, first, Adam was formed, and then Eve was formed. 14 Adam was not tricked, but the woman, who was tricked, came to be in a sidestep. 15 However, Eve will be liberated through having had children if they persist with self-discipline in faithfulness, love, and designation for sacred purposes.
 >
-> (<a href="/1timothy-2" target="_blank" rel="noopener noreferrer">1 Timothy 2 LIT</a>)
+> (<a href="/1timothy-2">1 Timothy 2 LIT</a>)
 
 When I looked at it again closely, a new thought struck me. What if "Eve will be liberated" from something I didn't expect? What if it's from Adam's domination?
 
@@ -48,7 +48,7 @@ Here are verses 1-4 again:
 
 > 1 First of all, therefore, I encourage making requests, prayers, intercessions, and giving thanks for all people— 2 even for those who reign and for all who are connected with supremacy—so that we may lead a stable and undisturbed life with complete respect and dignity. 3 This is pleasing and welcomed from the perspective of God our Liberator, 4 who wants all people to be liberated and to come toward an understanding of truth.
 
-Keep in mind, there is more information in the footnotes on the <a href="/1timothy-2" target="_blank" rel="noopener noreferrer">1 Timothy 2 page</a>, but here are some of the more relevant pieces.
+Keep in mind, there is more information in the footnotes on the <a href="/1timothy-2">1 Timothy 2 page</a>, but here are some of the more relevant pieces.
 
 There is an ongoing theme of domination and avoiding both being victims and perpetrators of that domination throughout the chapter, and it starts in the first sentence.
 

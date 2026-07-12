@@ -22,7 +22,7 @@ I’ll explain more after the quotation. Take a look at it here (or even compare
 >
 > 20 “What goes out from a person,” he said, “That is what makes the person unconsecrated. 21 You see, from inside—from people’s hearts—go out harmful deliberations, sexual exploitation, theft, murder, 22 marital infidelity, greed, actions that cause others hardship, fraud, lack of restraint, pursuing oppressive gain, speaking disrespectfully, thinking of oneself as above others, and carelessness. 23 All these harmful things go out from the inside and make the person unconsecrated.”
 >
-> (<a href="/mark-7" target="_blank" rel="noopener noreferrer">Mark 7:14-23 LIT</a>)
+> (<a href="/mark-7">Mark 7:14-23 LIT</a>)
 
 As I see it, there are two major shifts. The first is the difference between ‘defiled’ and ‘unconsecrated’ (and how I understand holiness and clean/unclean imagery). What comes to mind when you think of something being defiled? I get a visceral nose-wrinkling, queasy-making disgust response in my body. I almost get a visual image in my mind of something smeared with feces. Certainly, ‘unclean’ would be an accurate—if somewhat understated—description of that.
 
@@ -42,7 +42,7 @@ Here's the other thing I’m noticing as I reflect on what I saw as I translated
 
 > LIT: You see, from inside—from people’s hearts—go out harmful deliberations, sexual exploitation, theft, murder, marital infidelity, greed, actions that cause others hardship, fraud, lack of restraint, pursuing oppressive gain, speaking disrespectfully, thinking of oneself as above others, and carelessness.
 >
-> (<a href="/mark-14" target="_blank" rel="noopener noreferrer">Mark 7:21-22 LIT</a>)
+> (<a href="/mark-14">Mark 7:21-22 LIT</a>)
 
 > ESV: For from within, out of the heart of man, come evil thoughts, sexual immorality, theft, murder, adultery, coveting, wickedness, deceit, sensuality, envy, slander, pride, foolishness.
 >

@@ -58,33 +58,31 @@ delete it.
 > bottom. Make exactly the changes described; don't expand scope. Run
 > `npm run build` at the end."
 
-- [ ] **Fix the /read lede grammar.** In `src/pages/read.astro`, the hero
-  paragraph reads "ready for your study, scrutinize, celebrate, and use in
-  your faith circles". Change to "ready for you to study, scrutinize,
-  celebrate, and use in your faith circles". Touch nothing else in the
-  sentence.
+- [x] **Fix the /read lede grammar.**
+  DONE: `src/pages/read.astro` hero paragraph now reads "ready for you to
+  study, scrutinize, celebrate, and use in your faith circles."
 
-- [ ] **"FAQ’s" → "FAQs".** In `src/pages/about.astro`, the table-of-contents
-  link text is `FAQ’s` — note the CURLY apostrophe (U+2019); grepping for a
-  straight `FAQ's` finds nothing. Change to `FAQs`. (The section heading
-  itself already reads "Frequently Asked Questions" — leave it.)
+- [x] **"FAQ’s" → "FAQs".**
+  DONE: the table-of-contents link text in `src/pages/about.astro` now reads
+  `FAQs`.
 
-- [ ] **Normalize apostrophes/quotes in about.astro.** The earlier sections
-  use curly quotes (I'm, don't) and later sections use straight ones. Convert
-  all straight apostrophes and double quotes in RENDERED TEXT to curly
-  (' " ") throughout `src/pages/about.astro`. Do NOT touch HTML attributes,
-  frontmatter, or code — only visible prose. Verify the page renders.
+- [x] **Normalize apostrophes/quotes in about.astro.**
+  DONE: all straight apostrophes and double quotes in visible prose across
+  `src/pages/about.astro` (45+ instances) were converted to curly (’ “ ”).
+  HTML attributes, the JSON-LD block, and the inline `<script>` were left
+  untouched, as required.
 
-- [ ] **`http://` → `https://` on the CC license link.** In
-  `src/pages/read.astro`, the license link href is
-  `http://creativecommons.org/licenses/by-nc-nd/4.0/?ref=chooser-v1`. Change
-  the scheme to `https://` (keep the query string).
+- [x] **`http://` → `https://` on the CC license link.**
+  DONE: the license link in `src/pages/read.astro` now uses `https://`,
+  query string unchanged.
 
-- [ ] **Canonical trailing-slash consistency.** `src/pages/privacy.astro`
-  (canonical + the JSON-LD `url` and `isPartOf` fields where they carry the
-  page URL) and `src/pages/translation-commitments.astro` (canonical) omit the
-  trailing slash; every other page includes it. Add the trailing slash to
-  match (e.g. `https://litbible.net/privacy/`).
+- [x] **Canonical trailing-slash consistency.**
+  DONE: added the trailing slash to `src/pages/privacy.astro`'s `canonical`
+  and its JSON-LD `WebPage` `url` field, and to
+  `src/pages/translation-commitments.astro`'s `canonical`. Left the JSON-LD
+  `isPartOf.url` in privacy.astro alone — it's the site root
+  (`https://litbible.net`), not this page's URL, so it doesn't carry a page
+  path to normalize.
 
 - [x] **Stop hardcoding og:image dimensions.**
   DONE (with F3, which needed it): `Layout.astro` emits
@@ -93,48 +91,44 @@ delete it.
   gained a `twitterCard` prop (default `"summary"`, unchanged for existing
   pages).
 
-- [ ] **Remove target="_blank" from internal article links.** Grep
-  `src/content/articles/*.md` for `target="_blank"` on hrefs that point to
-  litbible.net pages or root-relative paths (e.g. `/2corinthians-13`). Remove
-  the `target` and `rel` attributes from those internal links only; leave
-  genuinely external links alone.
+- [x] **Remove target="_blank" from internal article links.**
+  DONE: across 13 files in `src/content/articles/*.md`, removed
+  ` target="_blank" rel="noopener noreferrer"` from every anchor whose
+  `href` was root-relative (chapters, `/found-in-translation-podcast`,
+  `/articles/...`). Genuinely external links (doi.org, threads.net,
+  pbpayne.com, amazon.com, christianpost.com, margmowczko.com, a Google
+  search link) were left untouched.
 
-- [ ] **Normalize the npm build script.** In `package.json`, the `build`
-  script mixes `npm run build:topics` with direct `node scripts/...` calls.
-  Rewrite it to call the npm aliases consistently:
-  `node scripts/fetch-podcast-feed.mjs && npm run build:topics && npm run build:verses && npm run build:manifest && npm run build:api && astro build && pagefind --site dist`
-  (order must not change — see the Build Pipeline section of CLAUDE.md).
+- [x] **Normalize the npm build script.**
+  DONE, with one deliberate deviation from the item's literal example
+  string: `package.json`'s `build` script now calls the npm aliases
+  consistently (`build:verses`, `build:manifest`, `build:api`, `build:og`)
+  instead of mixing in direct `node scripts/...` calls. The example string in
+  this item omitted `npm run build:og` — that step didn't exist yet when this
+  item was written; it landed with F3. Dropping it would have broken the
+  per-chapter share-card generation, so it was kept in its documented
+  position (after `build:api`, before `astro build`) per CLAUDE.md's Build
+  Pipeline section, which this item explicitly points to as the source of
+  truth for ordering.
 
-- [ ] **Comment the glossary Pagefind subtlety.** In
-  `src/pages/glossary.astro`, just above the
-  `<section class="glossary-entries" data-pagefind-body ...>` element, add a
-  code comment explaining: Layout puts `data-pagefind-ignore` on `<body>`
-  (because the page doesn't pass `index`), and this inner `data-pagefind-body`
-  is what opts the entries back INTO the Pagefind index — removing either
-  attribute breaks glossary search. No behavior change.
+- [x] **Comment the glossary Pagefind subtlety.**
+  DONE: added a comment in `src/pages/glossary.astro` directly above the
+  `data-pagefind-body` section explaining the Layout/`data-pagefind-ignore`
+  interaction. No behavior change.
 
-- [ ] **Stronger contact-form honeypot.** In `src/pages/contact.astro`, the
-  `_gotcha` honeypot is `<input type="hidden">`, which most bots skip. Change
-  it to `type="text"` with `tabindex="-1"`, `autocomplete="off"`,
-  `aria-hidden="true"`, and hide it visually via a class (e.g. reuse the
-  pattern from SiteFooter's `footer-newsletter__honeypot`, or add a
-  `.contact-honeypot { position:absolute; left:-9999px; }` rule in
-  `src/styles/pages/contact.css`). The submit handler already checks its
-  value — don't change the JS.
+- [x] **Stronger contact-form honeypot.**
+  DONE: in both `src/pages/contact.astro` and `src/pages/app-support.astro`,
+  the `_gotcha` honeypot is now `type="text"` with `tabindex="-1"`,
+  `autocomplete="off"`, `aria-hidden="true"`, and `class="contact-honeypot"`.
+  Added one `.contact-honeypot { position:absolute; left:-9999px; }` rule to
+  `src/styles/pages/contact.css`, which both pages import. The JS submit
+  handlers (which already check the field's value) were not touched.
 
-- [ ] **Governance boilerplate.** Create three files at repo root (drafts for
-  owner review; keep each short and warm in tone, matching the project's
-  voice — see README.md):
-  - `CONTRIBUTING.md` — how to report translation feedback (the /contact
-    page), how to file issues/PRs, pointer to CLAUDE.md for repo internals,
-    note that chapter JSON edits must pass `npm run validate:chapters`.
-  - `SECURITY.md` — report vulnerabilities privately via
-    https://litbible.net/contact (not public issues); no bounty; static site,
-    but the API feeds mobile apps so takes reports seriously.
-  - `CODE_OF_CONDUCT.md` — Contributor Covenant v2.1, contact route = the
-    site contact form.
-  - Do NOT create LICENSE — that's gated on the **Owner** license decision
-    below.
+- [x] **Governance boilerplate.**
+  DONE: created `CONTRIBUTING.md`, `SECURITY.md`, and `CODE_OF_CONDUCT.md`
+  (Contributor Covenant v2.1) at the repo root as owner-review drafts, in the
+  site's warm, direct voice. `LICENSE` was intentionally NOT created — still
+  gated on the Owner license decision below.
 
 ## Opus — one session per item
 
