@@ -313,7 +313,12 @@ collection); they're read directly by the intro pages and the API manifest.
   letter-cascade note, split out of `description`). See the docblock in
   `draft-release-notes.mjs` for the field-by-field spec. (A stable per-footnote
   `footnoteId` for exact-footnote deep links is intentionally not emitted yet —
-  it needs a matching stable anchor in the chapter JSON first.)
+  it needs a matching stable anchor in the chapter JSON first.) The drafter
+  reports **reader-facing changes only**: modified chapters diff rendered verse/
+  footnote text (attribute- or metadata-only chapter edits collapse to one
+  "metadata updated" line), and modified intros/glossary/articles are compared
+  with HTML attributes and whitespace normalized away — so a mechanical edit
+  (e.g. stripping `target="_blank"` from a link) produces no changelog entry.
 - **The contact + app-support forms are self-hosted**: `/contact` posts to
   `/contact/submit` and `/app-support` posts to `/app-support/submit`, both
   served by a single standalone Cloudflare Worker in `workers/contact-form/`

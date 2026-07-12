@@ -7,6 +7,12 @@
  * For modified chapters, identifies whether paragraphs or footnotes changed
  * and extracts the affected verse numbers.
  *
+ * Reader-facing text only: modified chapters already diff rendered verse/
+ * footnote text (attribute- or metadata-only chapter edits collapse to one
+ * "metadata updated" line), and modified intros/glossary/articles are compared
+ * with HTML attributes and whitespace normalized away, so mechanical edits
+ * (e.g. stripping target="_blank" from links) don't produce changelog noise.
+ *
  * Each change object carries (see the release-notes.json schema shared with the
  * iOS/Android apps):
  *   - type         change category (footnote_updated, text_updated, chapter_added, …)
@@ -73,6 +79,45 @@ function gitChanged(diffFilter) {
     .trim()
     .split("\n")
     .filter(Boolean);
+}
+
+/** Raw file content at baseRef, or null if the file didn't exist there. */
+function fileAtBase(file) {
+  try {
+    return execSync(`git show "${baseRef}:${file}"`, {
+      cwd: root,
+      stdio: ["pipe", "pipe", "ignore"],
+    }).toString();
+  } catch {
+    return null;
+  }
+}
+
+/** Normalize markup so that non-content HTML attributes (target, rel, class,
+ *  id, style, role, tabindex, loading, decoding, aria-*, data-*) and
+ *  insignificant whitespace don't register as changes. Visible text and
+ *  semantic attributes (href, src, alt, title) are preserved, so genuine edits
+ *  still count — but mechanical ones (e.g. stripping target="_blank"/rel from a
+ *  link) don't. */
+function normalizeMarkup(text) {
+  return (text ?? "")
+    .replace(
+      /\s+(?:target|rel|class|id|style|role|tabindex|loading|decoding|aria-[\w-]+|data-[\w-]+)\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi,
+      ""
+    )
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/** True if a modified markdown file's reader-facing content changed between
+ *  baseRef and HEAD. Attribute-only and whitespace-only edits return false, so
+ *  they don't create a release-notes row. */
+function markdownContentChanged(file) {
+  const before = fileAtBase(file);
+  if (before === null) return true; // no base version — treat as a real change
+  const path = resolve(root, file);
+  const after = existsSync(path) ? readFileSync(path, "utf-8") : "";
+  return normalizeMarkup(before) !== normalizeMarkup(after);
 }
 
 
@@ -588,8 +633,10 @@ for (const bookKey of BOOK_ORDER) {
 for (const file of [...addedIntros, ...modifiedIntros]) {
   const m = file.match(INTRO_RE);
   if (!m) continue;
-  const label = bookKeyToLabel(m[1]);
   const isNew = addedIntros.includes(file);
+  // Skip modified intros whose reader-facing text didn't actually change.
+  if (!isNew && !markdownContentChanged(file)) continue;
+  const label = bookKeyToLabel(m[1]);
   changes.push({
     type: "intro_updated",
     description: `${label} Introduction ${isNew ? "added" : "updated"}`,
@@ -620,6 +667,8 @@ for (const file of addedGlossary) {
 }
 
 for (const file of modifiedGlossary) {
+  // Skip modified glossary entries whose reader-facing text didn't change.
+  if (!markdownContentChanged(file)) continue;
   const traditional = readGlossaryTraditional(file);
   changes.push({
     type: "glossary_updated",
@@ -636,6 +685,9 @@ for (const file of addedArticles) {
   });
 }
 for (const file of modifiedArticles) {
+  // Skip modified articles whose reader-facing text didn't change (e.g. an
+  // attribute-only link cleanup).
+  if (!markdownContentChanged(file)) continue;
   changes.push({
     type: "article_updated",
     description: `Article updated: ${basename(file, ".md").replace(/-/g, " ")}`,
