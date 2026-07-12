@@ -1,0 +1,148 @@
+---
+/**
+ * Big screens — the universal app on tablets and foldables.
+ * Shows the multi-pane Study view: notes/highlights beside the text.
+ *
+ * The two devices are composed at real-life scale: an iPad Air in
+ * landscape is 178.5mm tall, the unfolded Pixel 9 Fold is 155.2mm — a
+ * 1.150 : 1 ratio. Both framed PNGs are cropped tight to the device, so
+ * the Fold image height is simply pinned to 155.2/178.5 = 0.8695 of the
+ * iPad's. The Fold overlaps slightly and sits in front (z-index).
+ */
+
+const foldImage = '/screenshots/Android Foldable - Philippians 2 - Lent.png';
+const ipadImage = '/screenshots/iPad - Philippians 2 - Ordinary Time.png';
+---
+
+<section class="bigscreens">
+  <div class="container bigscreens__inner">
+    <header class="bigscreens__head">
+      <span class="bigscreens__eyebrow">On the big screen</span>
+      <h2 class="bigscreens__title">Expand your views,<br />and your view.</h2>
+      <p class="bigscreens__body">
+        A second panel fans open on iPad and foldable phones, bringing your
+        notes, glossary, and more on one side, the passage on the other.
+      </p>
+    </header>
+
+    <div class="bigscreens__stage">
+      <figure class="bigscreens__device bigscreens__device--pad">
+        <img
+          src={ipadImage}
+          alt="LIT Bible on an iPad Air in landscape — the My Notes panel beside Philippians 2 in the side-by-side study view"
+          class="bigscreens__shot bigscreens__shot--pad"
+          width="2640"
+          height="1920"
+          loading="lazy"
+          decoding="async"
+        />
+      </figure>
+
+      <figure class="bigscreens__device bigscreens__device--fold">
+        <img
+          src={foldImage}
+          alt="LIT Bible on an unfolded Pixel 9 Fold — a notes and highlights panel beside Philippians 2, in Lent purple"
+          class="bigscreens__shot bigscreens__shot--fold"
+          width="2204"
+          height="2274"
+          loading="lazy"
+          decoding="async"
+        />
+      </figure>
+    </div>
+  </div>
+</section>
+
+<style>
+  .bigscreens {
+    padding-block: var(--space-8);
+  }
+
+  /* ---- Head ---- */
+  .bigscreens__head {
+    max-width: var(--measure-prose);
+    margin: 0 auto;
+    text-align: center;
+  }
+  .bigscreens__eyebrow {
+    display: inline-block;
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-caps);
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: var(--space-3);
+  }
+  .bigscreens__title {
+    font-family: var(--font-serif);
+    font-size: var(--text-3xl);
+    letter-spacing: -0.025em;
+    line-height: var(--leading-tight);
+  }
+  .bigscreens__body {
+    margin-top: var(--space-4);
+    margin-inline: auto;
+    max-width: 52ch;
+    font-size: var(--text-lg);
+    line-height: var(--leading-loose);
+    color: var(--text-soft);
+  }
+
+  /* ---- Device stage ----
+     iPad height drives the composition (--pad-h); the Fold is pinned to
+     0.8695 of it for real-life scale. They overlap and bottom-align, like
+     two devices on a desk. Scales fluidly via vw, no breakpoint needed. */
+  .bigscreens__stage {
+    --pad-h: clamp(150px, 40vw, 420px);
+    --fold-scale: 0.8695; /* 155.2mm / 178.5mm */
+
+    margin-top: var(--space-8);
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+  }
+
+  .bigscreens__device {
+    margin: 0;
+    position: relative;
+  }
+  .bigscreens__device--pad {
+    z-index: 1;
+  }
+  .bigscreens__device--fold {
+    z-index: 2;
+    /* Overlap onto the iPad's near edge by ~15% of the iPad height. */
+    margin-left: calc(var(--pad-h) * -0.15);
+  }
+
+  .bigscreens__shot {
+    display: block;
+    width: auto;
+    border-radius: 18px;
+    filter:
+      drop-shadow(0 22px 34px rgba(0, 0, 0, 0.22))
+      drop-shadow(0 8px 14px rgba(0, 0, 0, 0.12));
+  }
+  .bigscreens__shot--pad {
+    height: var(--pad-h);
+  }
+  .bigscreens__shot--fold {
+    height: calc(var(--pad-h) * var(--fold-scale));
+  }
+
+  /* Phones: at real scale the pair shrinks past legibility, so show just
+     the foldable — larger, no overlap — so the second panel actually reads.
+     The iPad is named in the copy and returns on wider screens. */
+  @media (max-width: 600px) {
+    .bigscreens__device--pad {
+      display: none;
+    }
+    .bigscreens__device--fold {
+      margin-left: 0;
+    }
+    .bigscreens__shot--fold {
+      height: auto;
+      width: min(86vw, 340px);
+    }
+  }
+</style>

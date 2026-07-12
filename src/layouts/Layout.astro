@@ -29,10 +29,11 @@ const ogImageUrl = ogImage ?? `${siteOrigin}/images/lit-logo.png`;
 // Critical inline style values — prevent FOUC before external stylesheet loads.
 // green pages stay green in dark mode (brand color); all others flip to dark bg.
 const isGreen = bg === "green";
-const criticalBg    = isGreen ? "#209D50" : "#E1DFD9";
-const criticalColor = isGreen ? "#E1DFD9" : "#1d231c";
-const criticalDarkBg    = isGreen ? "#209D50" : "#1a1e1a";
-const criticalDarkColor = isGreen ? "#E1DFD9" : "#e4e2dc";
+const isWhite = bg === "white";
+const criticalBg        = isGreen ? "#209D50" : isWhite ? "#FAFAF8" : "#E1DFD9";
+const criticalColor     = isGreen ? "#E1DFD9" : "#1d231c";
+const criticalDarkBg    = isGreen ? "#209D50" : isWhite ? "#1d1d1f" : "#0E0E0F";
+const criticalDarkColor = isGreen ? "#E1DFD9" : "#F0F0F0";
 // scrollbar-gutter, header min-height, and main min-height are reserved here
 // (not just in global.css) so the early paint shares the final layout geometry.
 // .site-header covers the outer element; .site-header__inner covers the inner.

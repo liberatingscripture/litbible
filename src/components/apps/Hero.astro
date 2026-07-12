@@ -1,0 +1,115 @@
+---
+import PlatformIcon from './PlatformIcon.astro';
+---
+
+<section class="hero">
+  <div class="hero__inner container">
+    <div class="hero__copy">
+      <h1 class="hero__title">A New Testament that's <em>for</em> everyone.</h1>
+      <p class="hero__sub">
+        The Liberation &amp; Inclusion Translation, a fresh and opinionated
+        rendering from the Greek, crafted with the marginalized as our
+        cornerstone.
+      </p>
+      <div class="hero__ctas">
+        <a href="#join" class="btn btn-primary"><PlatformIcon platform="ios" />Join the iOS beta</a>
+        <a href="#join" class="btn btn-secondary"><PlatformIcon platform="android" />Join the Android beta</a>
+      </div>
+    </div>
+    <div class="hero__image">
+      <div class="hero__phones">
+        <img
+          src="/screenshots/Android - John 1 - Ordinary Time.png"
+          alt="LIT Bible on Android, showing John 1 — 'In the beginning was the Conversation'"
+          class="hero__phone hero__phone--android"
+          width="1187"
+          height="2513"
+          decoding="async"
+        />
+        <img
+          src="/screenshots/iPhone - John 1 - Ordinary Time.png"
+          alt="LIT Bible on iPhone, showing John 1 — 'In the beginning was the Conversation'"
+          class="hero__phone hero__phone--ios"
+          width="1350"
+          height="2760"
+          fetchpriority="high"
+          decoding="async"
+        />
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    padding-top: var(--space-7);
+    padding-bottom: var(--space-7);
+  }
+  .hero__inner {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-9);
+    align-items: center;
+  }
+  @media (min-width: 900px) {
+    .hero__inner {
+      grid-template-columns: 1.2fr 1fr;
+      gap: var(--space-8);
+    }
+  }
+  .hero__title {
+    font-size: var(--text-5xl);
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    max-width: 16ch;
+  }
+  .hero__sub {
+    font-family: var(--font-serif);
+    font-size: var(--text-xl);
+    line-height: var(--leading-snug);
+    color: var(--text-soft);
+    max-width: 36ch;
+    margin-top: var(--space-5);
+  }
+  .hero__ctas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin-top: var(--space-7);
+  }
+  .hero__beta {
+    font-size: var(--text-sm);
+    color: var(--text-faint);
+    margin-top: var(--space-4);
+  }
+  .hero__image {
+    display: flex;
+    justify-content: center;
+  }
+  @media (min-width: 900px) {
+    .hero__image {
+      justify-content: flex-end;
+    }
+  }
+  /* Two phones, slightly overlapped — iPhone in front, Android behind.
+     Front-facing platform parity at the very top of the page. */
+  .hero__phones {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    width: 100%;
+    max-width: 420px;
+  }
+  .hero__phone {
+    width: 56%;
+    height: auto;
+    display: block;
+  }
+  .hero__phone--android {
+    z-index: 1;
+  }
+  .hero__phone--ios {
+    margin-left: -13%;
+    z-index: 2;
+  }
+</style>

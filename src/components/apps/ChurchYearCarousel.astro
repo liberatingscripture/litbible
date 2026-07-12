@@ -1,0 +1,269 @@
+---
+/**
+ * Church-year carousel — Hebrews 1 cycling through 5 liturgical seasons.
+ * Background, chip, and screenshot update together.
+ *
+ * Card tint is computed with color-mix() from the season's --season-* token,
+ * so it auto-uses the bright dark-mode accents. Light/dark only differ by the
+ * tint amount (--cy-tint) and the surface it composites over (--cy-base).
+ */
+
+import { getCollection } from 'astro:content';
+
+const seasons = (await getCollection('seasons')).sort(
+  (a, b) => a.data.order - b.data.order
+);
+---
+
+<div
+  class="church-year"
+  data-carousel
+  style={`--cy-accent: var(${seasons[0].data.colorVar});`}
+>
+  <div class="church-year__copy">
+    <h3 class="church-year__title">Mark sacred time.</h3>
+    <p class="church-year__body">
+      LIT Bible quietly honors the church year by adorning your
+      reading with the liturgical season's colors: royal blue through
+      Advent, red for the twelve days of Christmas, purple in Lent,
+      gold for Easter, and forest green through Ordinary Time.
+
+      Or choose from one of our hand-picked alternatives.
+    </p>
+
+    <!-- Chip row -->
+    <div class="church-year__chips" role="list">
+      {seasons.map((s, i) => (
+        <button
+          class="church-year__chip"
+          role="listitem"
+          data-index={String(i)}
+          data-accent-var={s.data.colorVar}
+          aria-pressed={i === 0 ? 'true' : 'false'}
+        >
+          <span
+            class="church-year__dot"
+            style={`background-color: var(${s.data.colorVar});`}
+            aria-hidden="true"
+          ></span>
+          <span class="church-year__chip-label">{s.data.name}</span>
+        </button>
+      ))}
+    </div>
+  </div>
+
+  <!-- Screenshot stack -->
+  <div
+    class="church-year__stage"
+    role="group"
+    aria-label="Hebrews chapter 1, cycling through five liturgical seasons"
+  >
+    {seasons.map((s, i) => (
+      <div
+        class={`church-year__frame${i === 0 ? ' is-active' : ''}`}
+        data-index={String(i)}
+        aria-label={`Hebrews 1 with ${s.data.name} accent color`}
+      >
+        <img
+          src={s.data.image}
+          alt={`LIT Bible showing Hebrews 1 with ${s.data.name} accent color`}
+          class="church-year__phone"
+          loading="lazy"
+          decoding="async"
+          width="603"
+          height="1311"
+        />
+      </div>
+    ))}
+  </div>
+</div>
+
+<script>
+  const carousel = document.querySelector('[data-carousel]') as HTMLElement | null;
+  if (carousel) {
+    const frames = Array.from(carousel.querySelectorAll<HTMLElement>('.church-year__frame'));
+    const chips  = Array.from(carousel.querySelectorAll<HTMLButtonElement>('.church-year__chip'));
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const DURATION = 3800;
+
+    let current = 0;
+    let timer: number | undefined;
+
+    function applyChip(chip: HTMLButtonElement, active: boolean) {
+      const v = chip.dataset.accentVar ?? '';
+      chip.classList.toggle('is-active', active);
+      chip.setAttribute('aria-pressed', active ? 'true' : 'false');
+      chip.style.color       = active ? `var(${v})` : '';
+      chip.style.borderColor = active ? `var(${v})` : '';
+    }
+
+    // Point the card tint at the current season's token. Light/dark amount and
+    // base are handled entirely in CSS, so this works in both modes.
+    function setAccent() {
+      const v = chips[current].dataset.accentVar ?? '';
+      carousel.style.setProperty('--cy-accent', `var(${v})`);
+    }
+
+    function goTo(index: number) {
+      applyChip(chips[current], false);
+      frames[current].classList.remove('is-active');
+
+      current = ((index % frames.length) + frames.length) % frames.length;
+
+      frames[current].classList.add('is-active');
+      applyChip(chips[current], true);
+      setAccent();
+    }
+
+    function startTimer() {
+      if (prefersReduced) return;
+      clearInterval(timer);
+      timer = setInterval(() => goTo(current + 1), DURATION) as unknown as number;
+    }
+
+    chips.forEach((chip, i) => {
+      chip.addEventListener('click', () => { goTo(i); startTimer(); });
+    });
+
+    if (!prefersReduced) {
+      carousel.addEventListener('mouseenter', () => clearInterval(timer));
+      carousel.addEventListener('mouseleave', startTimer);
+    }
+
+    // Boot — frame 0 already has is-active in HTML; sync the chip + tint.
+    applyChip(chips[0], true);
+    setAccent();
+    startTimer();
+  }
+</script>
+
+<style>
+  /* ---- Section card ---- */
+  .church-year {
+    /* Light: 8% accent over white === the original hardcoded tints. */
+    --cy-tint: 8%;
+    --cy-base: var(--surface-raised);
+
+    margin-top: var(--space-8);
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-8);
+    align-items: center;
+    border-radius: var(--radius-lg);
+    padding: var(--space-7) var(--space-6);
+    background: color-mix(in srgb, var(--cy-accent, transparent) var(--cy-tint), var(--cy-base));
+    transition: background-color 0.7s ease;
+  }
+  @media (min-width: 760px) {
+    .church-year {
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-9);
+      padding: var(--space-8);
+    }
+  }
+
+  /* ---- Copy ---- */
+  .church-year__title {
+    font-family: var(--font-serif);
+    font-size: var(--text-2xl);
+    font-weight: 500;
+    letter-spacing: var(--tracking-tight);
+    margin-bottom: var(--space-4);
+  }
+  .church-year__body {
+    font-size: var(--text-lg);
+    line-height: var(--leading-loose);
+    color: var(--text);
+    max-width: 42ch;
+    margin-bottom: var(--space-6);
+  }
+
+  /* ---- Chip row ---- */
+  .church-year__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+  .church-year__chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: 99px;
+    border: 1.5px solid var(--rule);
+    background: transparent;
+    color: var(--text-soft);
+    font-size: var(--text-sm);
+    font-family: inherit;
+    cursor: pointer;
+    transition: border-color 0.2s ease, color 0.2s ease;
+    line-height: 1;
+  }
+  .church-year__chip:hover {
+    border-color: currentColor;
+  }
+  /* Touch: enlarge the pill to a comfortable tap target. */
+  @media (pointer: coarse) {
+    .church-year__chip {
+      min-height: 44px;
+      padding-inline: var(--space-4);
+    }
+  }
+  .church-year__dot {
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 50%;
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+  }
+  .church-year__chip.is-active .church-year__dot {
+    transform: scale(1.3);
+  }
+  .church-year__chip-label {
+    font-weight: inherit;
+  }
+  .church-year__chip.is-active .church-year__chip-label {
+    font-weight: 500;
+  }
+
+  /* ---- Screenshot stage ---- */
+  .church-year__stage {
+    position: relative;
+    width: 100%;
+    max-width: 320px;
+    margin: 0 auto;
+    aspect-ratio: 1206 / 2622;
+  }
+  .church-year__frame {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+  }
+  .church-year__frame.is-active {
+    opacity: 1;
+  }
+  .church-year__phone {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+
+  /* ---- Dark: brighter accents (via the tokens) + more tint over an
+     elevated surface, so the seasonal hue actually carries. ---- */
+  @media (prefers-color-scheme: dark) {
+    .church-year {
+      --cy-tint: 15%;
+      --cy-base: var(--bg-soft);
+    }
+  }
+
+  /* ---- Reduced motion: no cycling, chips still work ---- */
+  @media (prefers-reduced-motion: reduce) {
+    .church-year,
+    .church-year__frame {
+      transition: none;
+    }
+  }
+</style>

@@ -1,369 +1,249 @@
 /* =========================================================
-   Apps promo page (/apps)
-   Uses global.css design tokens so light/dark/dyslexic all
-   come for free. No hardcoded palette colors.
+   /apps — LIT Bible mobile-apps promo page.
+
+   Design ported from the standalone app-promo (BDRhodes/LIT-app-Promo).
+   Everything here is scoped under `.apps` so the promo's design system does
+   not leak into the rest of the site. The section components carry their own
+   Astro-scoped <style> blocks and reference the token NAMES defined here.
+
+   Reconciliation with the site brand:
+   - Structural tokens (type scale, spacing, radii, easings) + the seasonal
+     liturgical colors are kept verbatim from the promo.
+   - Serif maps to the site's Crimson Text (--serif); the hero display cut uses
+     Fraunces, like the homepage.
+   - Sans is Inter (shared already).
+   - Accent maps to the site's a11y green: --green-text (dark enough to double
+     as an accessible surface behind the near-white button/selection text).
+   - Surface/text tokens follow the near-white / near-black brand from
+     global.css; --text is inherited (themes correctly), so it is NOT redefined.
    ========================================================= */
 
 .apps {
-  background-color: var(--page-bg);
-  color: var(--text);
-  min-height: 100vh;
-  padding-block: clamp(3.5rem, 8vw, 6rem);
-  padding-inline: clamp(1.25rem, 4vw, 2.5rem);
+  /* ---- Type scale (verbatim) ---- */
+  --text-xs: 0.8125rem;
+  --text-sm: 0.9375rem;
+  --text-base: 1.0625rem;
+  --text-lg: 1.1875rem;
+  --text-xl: 1.4375rem;
+  --text-2xl: 1.875rem;
+  --text-3xl: 2.5rem;
+  --text-4xl: 3.5rem;
+  --text-5xl: 5rem;
+
+  --leading-tight: 1.15;
+  --leading-snug: 1.30;
+  --leading-normal: 1.50;
+  --leading-loose: 1.70;
+
+  --tracking-tight: -0.02em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.01em;
+  --tracking-caps: 0.08em;
+
+  /* ---- Space (verbatim) ---- */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4.5rem;
+  --space-9: 6rem;
+  --space-10: 9rem;
+
+  /* ---- Measures + radii + easings (verbatim) ---- */
+  --measure-text: 36rem;
+  --measure-prose: 42rem;
+  --measure-wide: 64rem;
+  --measure-full: 80rem;
+
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-xl: 32px;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* ---- Fonts → site families ---- */
+  --font-sans: Inter, "Inter Fallback", system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-serif: var(--serif); /* Crimson Text (site reading serif) */
+
+  /* ---- Color → site brand (light) ---- */
+  --accent: var(--green-text); /* a11y green: text + accessible surface */
+  --bg: var(--surface-raised);  /* page surface — used for button/selection text color */
+  --bg-soft: #F2F2EE;           /* subtle section tint base */
+  --text-soft: #5A5A57;
+  --text-faint: #8A8A85;
+  --rule: rgba(26, 26, 26, 0.10);
+  --rule-soft: rgba(26, 26, 26, 0.05);
+
+  /* ---- Seasonal liturgical colors (verbatim, light) ---- */
+  --season-advent: #1A4FA0;
+  --season-christmas: #C62D25;
+  --season-lent: #800080;
+  --season-easter: #B8860B; /* darkened gold: accessible as title text on light, matches the app */
+  --season-ot: #186420;
 }
 
-/* =========================================================
-   Hero
-   ========================================================= */
+/* Dark mode — follow the site's dual mechanism (system pref + data-theme).
+   --text/--bg/--accent already track global.css tokens; only the promo-only
+   surface/text/rule/season tokens need dark values here. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .apps {
+    --bg-soft: #161617;
+    --text-soft: #A8A8A6;
+    --text-faint: #6E6E6A;
+    --rule: rgba(240, 240, 240, 0.10);
+    --rule-soft: rgba(240, 240, 240, 0.05);
 
-.apps-hero {
-  position: relative;
-  isolation: isolate;
-  margin-bottom: clamp(3rem, 6vw, 4.5rem);
+    --season-advent: #6BA3E8;
+    --season-christmas: #F05252;
+    --season-lent: #CC66CC;
+    --season-easter: #D4AF37;
+    --season-ot: #4DB84D;
+  }
+}
+:root[data-theme="dark"] .apps {
+  --bg-soft: #161617;
+  --text-soft: #A8A8A6;
+  --text-faint: #6E6E6A;
+  --rule: rgba(240, 240, 240, 0.10);
+  --rule-soft: rgba(240, 240, 240, 0.05);
+
+  --season-advent: #6BA3E8;
+  --season-christmas: #F05252;
+  --season-lent: #CC66CC;
+  --season-easter: #D4AF37;
+  --season-ot: #4DB84D;
 }
 
-.apps-hero::before {
-  content: "";
-  position: absolute;
-  inset: -2.5rem -1rem -1.5rem -1rem;
-  z-index: -1;
-
-  background:
-    radial-gradient(
-      720px 340px at 30% 0%,
-      rgba(32, 157, 80, 0.1),
-      rgba(32, 157, 80, 0) 70%
-    ),
-    radial-gradient(
-      560px 320px at 95% 40%,
-      rgba(var(--ink-rgb), 0.06),
-      rgba(var(--ink-rgb), 0) 70%
-    );
-
-  filter: blur(2px);
-  opacity: 0.9;
-  pointer-events: none;
+/* Hero scale relaxes on narrow viewports (verbatim behavior). */
+@media (max-width: 640px) {
+  .apps {
+    --text-3xl: 2rem;
+    --text-4xl: 2.75rem;
+    --text-5xl: 3.25rem;
+  }
 }
 
-.apps-hero__grid {
-  max-width: min(1200px, 100%);
-  margin-inline: auto;
-
-  display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
-  gap: clamp(1.5rem, 4vw, 3rem);
-  align-items: center;
-}
-
-.apps-hero__copy {
-  max-width: 60ch;
-}
-
-.apps-eyebrow {
-  margin: 0 0 1.25rem 0;
-  font-size: 0.82rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: rgba(var(--ink-rgb), 0.65);
-}
-
-.apps-hero h1 {
-  font-family: var(--serif, serif);
-  font-size: clamp(2.6rem, 5vw, 3.6rem);
-  line-height: 1.05;
-  margin: 0 0 1.5rem 0;
-  color: var(--text-strong);
-}
-
-.apps-lede {
-  font-size: clamp(1.15rem, 0.8vw + 1rem, 1.35rem);
-  line-height: 1.7;
+/* ---- Reset bits the promo components assume ---- */
+.apps :is(h1, h2, h3, h4, h5, h6, p, figure, blockquote) {
   margin: 0;
 }
-
-/* Store badge row */
-.apps-store-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.85rem;
-  margin-top: 1.9rem;
-}
-
-/* Coming-soon (non-link) badge. Styled to the site, NOT an imitation of the
-   official Apple/Google artwork. Replaced by real badges at launch. */
-.apps-badge--soon {
-  display: inline-flex;
-  flex-direction: column;
-  justify-content: center;
-
-  padding: 0.6rem 1.15rem;
-  border-radius: 12px;
-
-  border: 1px solid rgba(var(--ink-rgb), 0.22);
-  background: rgba(var(--surface-rgb), 0.55);
-  color: var(--text);
-
-  line-height: 1.15;
-}
-
-.apps-badge__kicker {
-  font-size: 0.72rem;
-  letter-spacing: 0.03em;
-  color: rgba(var(--ink-rgb), 0.6);
-}
-
-.apps-badge__store {
-  font-size: 1.15rem;
-  font-weight: 700;
-}
-
-/* Live store links (used after launch when the badges are swapped in) */
-.apps-store-link {
-  display: inline-flex;
-  transition: transform 160ms ease, opacity 180ms ease;
-}
-
-.apps-store-link:hover,
-.apps-store-link:focus-visible {
-  transform: translateY(-1px);
-  opacity: 0.92;
-  outline: none;
-}
-
-.apps-store-link img {
-  height: 60px;
-  width: auto;
+.apps img {
   display: block;
+  max-width: 100%;
+  height: auto;
+}
+.apps button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
 }
 
-.apps-notify {
-  margin: 1.5rem 0 0;
-  font-size: 1rem;
-  line-height: 1.6;
-  color: rgba(var(--ink-rgb), 0.78);
+/* ---- Base typography (scoped; class specificity wins over global elements) ---- */
+.apps h1,
+.apps h2,
+.apps h3 {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-tight);
+  color: var(--text);
+}
+.apps h1 {
+  font-size: var(--text-5xl);
+  font-weight: 400;
+  letter-spacing: -0.025em;
+}
+.apps h2 {
+  font-size: var(--text-3xl);
+  font-weight: 500;
+}
+.apps h3 {
+  font-size: var(--text-xl);
+  font-weight: 600;
+  font-family: var(--font-sans); /* sans for callout titles */
+  letter-spacing: var(--tracking-normal);
+  line-height: var(--leading-snug);
+}
+.apps p {
+  line-height: var(--leading-normal);
+  max-width: var(--measure-text);
+}
+.apps a {
+  color: var(--green-text);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  transition: opacity 200ms var(--ease-out);
+}
+.apps a:hover {
+  opacity: 0.7;
+}
+.apps em,
+.apps .greek {
+  font-style: italic;
+  font-family: var(--font-serif);
 }
 
-/* =========================================================
-   Phone mock (hero art)
-   ========================================================= */
-
-.apps-hero__media {
-  display: flex;
-  justify-content: center;
+/* The hero headline uses the Fraunces display cut (like the homepage). */
+.apps .hero__title {
+  font-family: "Fraunces", "Fraunces Fallback", Georgia, "Times New Roman", serif;
 }
 
-.apps-phone {
-  position: relative;
-  width: min(280px, 72vw);
-  aspect-ratio: 9 / 19;
-
-  border-radius: 38px;
-  padding: 14px;
-
-  background: linear-gradient(
-    160deg,
-    rgba(var(--ink-rgb), 0.16),
-    rgba(var(--ink-rgb), 0.28)
-  );
-  border: 1px solid rgba(var(--ink-rgb), 0.2);
-  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.22);
-}
-
-.apps-phone__notch {
-  position: absolute;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 42%;
-  height: 22px;
-  border-radius: 0 0 14px 14px;
-  background: rgba(var(--ink-rgb), 0.32);
-  z-index: 2;
-}
-
-.apps-phone__screen {
-  height: 100%;
-  border-radius: 26px;
-
-  background: var(--surface-raised);
-  border: 1px solid rgba(var(--ink-rgb), 0.08);
-
-  display: flex;
-  flex-direction: column;
+/* ---- Buttons (CTA) ---- */
+.apps .btn {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.4rem;
-  padding: 1.5rem 1.25rem 2rem;
-  text-align: center;
+  gap: var(--space-2);
+  padding: 0.85rem 1.25rem;
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: var(--tracking-wide);
+  border-radius: var(--radius-md);
+  transition: all 200ms var(--ease-out);
+  text-decoration: none;
+}
+.apps .btn-primary {
+  background: var(--text);
+  color: var(--bg);
+}
+.apps .btn-primary:hover {
+  opacity: 1;
+  background: var(--green-text); /* deep green passes AA behind near-white text */
+  color: var(--bg);
+}
+.apps .btn-secondary {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--rule);
+}
+.apps .btn-secondary:hover {
+  opacity: 1;
+  border-color: var(--text);
+  background: var(--bg-soft);
 }
 
-.apps-phone__logo {
-  width: min(120px, 46%);
-  height: auto;
-  margin-bottom: 0.35rem;
+/* ---- Container ---- */
+.apps .container {
+  width: 100%;
+  max-width: var(--measure-full);
+  margin-inline: auto;
+  padding-inline: clamp(1.25rem, 4vw, 3rem);
 }
 
-.apps-phone__wordmark {
-  margin: 0;
-  font-family: var(--serif, serif);
-  font-size: 1.7rem;
-  font-weight: 700;
-  color: var(--text-strong);
-}
-
-.apps-phone__sub {
-  margin: 0;
-  font-size: 0.82rem;
-  line-height: 1.35;
-  color: rgba(var(--ink-rgb), 0.65);
-  max-width: 22ch;
-}
-
-.apps-phone__chip {
-  margin-top: 0.9rem;
-  padding: 0.35rem 0.9rem;
-  border-radius: 999px;
-
-  font-size: 0.72rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  font-weight: 700;
-
+/* ---- Selection ---- */
+.apps ::selection {
   background: var(--green);
-  color: #fff;
-}
-
-/* =========================================================
-   Content column
-   ========================================================= */
-
-.apps-content {
-  max-width: min(1100px, 100%);
-  margin-inline: auto;
-}
-
-.apps-section {
-  margin-top: clamp(3.2rem, 6vw, 4.5rem);
-}
-
-.apps-section h2 {
-  font-family: var(--serif, serif);
-  font-size: clamp(1.9rem, 3.2vw, 2.5rem);
-  line-height: 1.2;
-  margin: 0 0 1rem 0;
-  color: var(--text-strong);
-  text-align: center;
-}
-
-.apps-section__lead {
-  max-width: 60ch;
-  margin: 0 auto 2rem;
-  text-align: center;
-  font-size: clamp(1.1rem, 0.55vw + 1rem, 1.28rem);
-  line-height: 1.7;
-  color: rgba(var(--ink-rgb), 0.85);
-}
-
-/* Feature cards */
-.apps-cards {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1rem;
-}
-
-.apps-card {
-  border: 1px solid rgba(var(--ink-rgb), 0.12);
-  border-radius: 16px;
-  padding: 1.4rem;
-
-  background: rgba(var(--surface-rgb), 0.55);
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.05);
-}
-
-.apps-card h3 {
-  font-family: var(--serif, serif);
-  font-size: clamp(1.2rem, 0.9vw + 1.05rem, 1.4rem);
-  line-height: 1.2;
-  margin: 0 0 0.6rem 0;
-  color: var(--text-strong);
-}
-
-.apps-card p {
-  margin: 0;
-  font-size: 1.02rem;
-  line-height: 1.6;
-}
-
-/* Commitments band */
-.apps-commitments {
-  max-width: 72ch;
-  margin-inline: auto;
-  text-align: center;
-}
-
-.apps-commitments p {
-  font-size: clamp(1.1rem, 0.55vw + 1rem, 1.24rem);
-  line-height: 1.75;
-}
-
-.apps-commitments a {
-  color: var(--link);
-}
-
-.apps-commitments__links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1.25rem;
-  justify-content: center;
-  margin-top: 1.5rem;
-}
-
-.apps-textlink {
-  font-weight: 600;
-}
-
-/* Closing CTA */
-.apps-cta {
-  max-width: 62ch;
-  margin-inline: auto;
-  text-align: center;
-}
-
-.apps-cta p {
-  font-size: clamp(1.1rem, 0.55vw + 1rem, 1.24rem);
-  line-height: 1.75;
-}
-
-/* =========================================================
-   Responsive
-   ========================================================= */
-
-@media (max-width: 920px) {
-  .apps-hero__grid {
-    grid-template-columns: 1fr;
-  }
-
-  .apps-hero__media {
-    order: -1;
-  }
-
-  .apps-cards {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 620px) {
-  .apps-cards {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* =========================================================
-   Reduced motion
-   ========================================================= */
-
-@media (prefers-reduced-motion: reduce) {
-  .apps-store-link {
-    transition: none;
-  }
+  color: var(--bg);
 }

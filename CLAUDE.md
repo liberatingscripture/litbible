@@ -102,10 +102,13 @@ npm run draft:release-notes -- --since <ref>  # Draft a release-notes entry from
 src/
   assets/            # Bundled assets (SVGs) processed by Astro
   components/        # Reusable .astro components (SiteHeader, SearchBar, cards, …)
+                     #   apps/ holds the /apps promo page sections
   content/
     articles/        # Blog/teaching articles (Markdown, ~13 files)
     glossary/        # Glossary entries (Markdown w/ frontmatter, ~31 files)
-  content.config.ts  # Astro content-collection schemas (articles + glossary)
+    callouts/, examples/, seasons/   # /apps promo section content (Markdown)
+  content.config.ts  # Astro content-collection schemas (articles, glossary,
+                     #   + apps: callouts/examples/seasons)
   data/
     chapters/        # 260 JSON files — one per NT chapter (e.g. john-3.json)
     intros/          # Book intro Markdown, one per book (e.g. john-intro.md)
@@ -159,7 +162,7 @@ workers/             # Cloudflare Workers, deployed separately via wrangler (NOT
 | `/glossary` | `glossary.astro` | Glossary |
 | `/search` | `search.astro` | Full search UI (verse index + Pagefind) |
 | `/release-notes` | `release-notes.astro` | "What's new" |
-| `/apps` | `apps.astro` | LIT Bible mobile-apps promo page (footer-linked) |
+| `/apps` | `apps.astro` | Mobile-apps promo page (footer-linked). Body design ported from `BDRhodes/LIT-app-Promo`; section content lives in the `callouts`/`examples`/`seasons` collections; scoped styles in `src/styles/pages/apps.css`; components under `src/components/apps/`. Uses `bg="white"` (near-white surface). |
 | `/app-support` | `app-support.astro` | App support contact form (linked from inside the apps, not the site nav; `/app-support/thanks` is the no-JS success page) |
 | others | `about`, `contact` (+ `contact/thanks`), `courses`, `support`, `privacy`, `unsubscribe`, `found-in-translation-podcast`, `liberating-scripture-collective`, `translation-commitments`, `404` |
 
@@ -235,7 +238,7 @@ Each file in `src/data/chapters/` follows this structure:
 
 ## Content Collections (`src/content.config.ts`)
 
-Two collections, both loaded via Astro's `glob` loader:
+Five collections, all loaded via Astro's `glob` loader. Two are site-wide:
 
 - **`articles`** — `src/content/articles/*.md`. Schema: `title`, `date`,
   optional `author`/`description`/`heroImage`/`featured`, `tags[]`.
@@ -243,6 +246,16 @@ Two collections, both loaded via Astro's `glob` loader:
   term with the LIT rendering (`greek`, `lit`, `litMenu`, `srOnly`, optional
   `note`/`menuTraditional`). Files are named `<traditional>-<lit>.md`
   (e.g. `hell-hades.md`).
+
+Three drive the `/apps` promo page only (section content as data, edited without
+touching component code — consumed by `src/components/apps/*`):
+
+- **`callouts`** — reader-feature cards (`title`, `order`, `platform`, `mode`,
+  `accent`, `imageSide`, `image`).
+- **`examples`** — LIT-vs-traditional passage comparisons (`reference`,
+  `placement`, `comparison`, `litText`, `traditionalText`, `note`).
+- **`seasons`** — church-year carousel frames (`name`, `order`, `colorVar`,
+  `image`).
 
 Book intros in `src/data/intros/` are plain Markdown (not a content
 collection); they're read directly by the intro pages and the API manifest.

@@ -220,6 +220,24 @@ delete it.
   per button in the commit message. The green page hero backgrounds were
   handled by F5 (ink text on green — done); don't re-touch those surfaces.
 
+  **Addition — note the `::selection` green.** The site's text-selection
+  highlight (`::selection` in global.css) uses `var(--green)` as the
+  background, matched by the ported `/apps` page. Owner likes this and it
+  should stay; call out its contrast (selected text color against the green
+  highlight) in the audit alongside the other green-background surfaces above,
+  since it's a green-bg + text case this item would otherwise miss.
+
+  **Addition — white vs. near-white audit.** The 2026-07-12 brand-surface
+  rebrand (see `--surface-raised` in global.css) softened *raised surfaces*
+  from pure `#FFFFFF` to near-white `#FAFAF8` (and the dark surfaces to a
+  deeper near-black) site-wide, deliberately leaving white-as-TEXT-or-graphic
+  (green/dark-mode CTA labels, toggle knobs, hamburger bars, etc.) untouched.
+  As part of this item, sweep the codebase for any remaining stark `#FFFFFF`/
+  `#fff`/`white` **surface** usages that were missed by that rebrand (search
+  `src/styles/**/*.css` and component `<style>` blocks) and soften them to the
+  near-white token if contrast still holds at the new value — same rule as
+  before: surfaces and body text are fair game, text/graphics-on-color are not.
+
 - [ ] **(O7) data-theme toggle — GATED on the Owner decision below.** If the
   owner wants it: add a light/dark toggle to the "Aa" tray in
   `SiteHeader.astro` (three states: system/light/dark), persist in

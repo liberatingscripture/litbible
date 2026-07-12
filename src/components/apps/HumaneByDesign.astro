@@ -1,0 +1,107 @@
+---
+/**
+ * Humane by design — the translation's convictions, embodied in the app.
+ * Privacy, no account, offline, accessibility. Framed as conviction, not
+ * spec sheet. Every claim here is true; receipts live at /privacy.
+ */
+---
+
+<section class="humane">
+  <div class="container humane__inner">
+    <header class="humane__head">
+      <span class="humane__eyebrow">Humane by design</span>
+      <h2 class="humane__title">Your reading life is your own.</h2>
+      <p class="humane__negations" aria-hidden="true">
+        <span>No ads.</span>
+        <span>No account.</span>
+        <span>No one watching.</span>
+      </p>
+    </header>
+
+    <div class="humane__body">
+      <p>
+        Open the app to start reading: no sign-up, no email, nothing to
+        create. Your highlights and notes live in a private database on your
+        own device, synced to your other devices using your Apple or Google
+        account. We can't see them.
+      </p>
+      <p>
+        The entire LIT Bible is already on your phone, so you never have to
+        worry about waiting for a chapter or footnote to load while you're on
+        the subway, a plane, or a backpacking trip. And you can set the type,
+        spacing, and accessibility features to whatever your eyes or ears
+        want. It respects your system text size and works with your screen
+        reader, because a Bible that's <em>for</em> everyone should be enjoyable
+        <em>by</em> everyone.
+      </p>
+      <p class="humane__more">
+        <a href="/privacy">
+          Read our privacy commitments →
+        </a>
+      </p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .humane {
+    padding-block: var(--space-8);
+    background: var(--bg-soft);
+  }
+  .humane__inner {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+  }
+  @media (min-width: 820px) {
+    .humane__inner {
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-9);
+      align-items: start;
+    }
+  }
+
+  .humane__eyebrow {
+    display: inline-block;
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-caps);
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: var(--space-3);
+  }
+  .humane__title {
+    font-family: var(--font-serif);
+    font-size: var(--text-3xl);
+    letter-spacing: -0.025em;
+    line-height: var(--leading-tight);
+  }
+  .humane__negations {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-4);
+    margin-top: var(--space-5);
+    font-family: var(--font-serif);
+    font-size: var(--text-xl);
+    color: var(--accent);
+  }
+
+  .humane__body {
+    max-width: 46ch;
+    font-size: var(--text-lg);
+    line-height: var(--leading-loose);
+    color: var(--text);
+  }
+  .humane__body p + p {
+    margin-top: var(--space-5);
+  }
+  .humane__body em {
+    font-style: italic;
+  }
+  .humane__more {
+    font-size: var(--text-base);
+  }
+  .humane__more a {
+    color: var(--accent);
+  }
+</style>
