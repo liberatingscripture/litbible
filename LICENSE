@@ -1,0 +1,52 @@
+LIT Bible — Licensing
+=====================
+
+This repository holds two kinds of material under two different licenses.
+
+1. SOFTWARE — the website's source code (Astro components, layouts, scripts,
+   styles, build tooling, configuration). Licensed under the MIT License
+   (full text below). You may copy, modify, and reuse it freely, including
+   for commercial purposes.
+
+2. CONTENT — the Liberation and Inclusion Translation (LIT) scripture text,
+   footnotes, book introductions, glossary entries, and articles. Licensed
+   under Creative Commons Attribution-NonCommercial-NoDerivatives 4.0
+   International (CC BY-NC-ND 4.0). You may share it with attribution, but
+   NOT sell it and NOT distribute altered versions.
+   Summary:    https://creativecommons.org/licenses/by-nc-nd/4.0/
+   Legal code: https://creativecommons.org/licenses/by-nc-nd/4.0/legalcode
+   See also the license notice at https://litbible.net/read#license
+
+Which files are CONTENT (CC BY-NC-ND 4.0), not SOFTWARE:
+  - src/data/chapters/            (scripture chapter text)
+  - src/data/intros/              (book introductions)
+  - src/content/articles/         (articles)
+  - src/content/glossary/         (glossary entries)
+  - src/data/translation-commitments.json
+  - any LIT translation text or editorial prose wherever else it appears
+
+Everything not listed above is SOFTWARE under the MIT License. The MIT grant
+below does NOT extend to the CONTENT.
+
+------------------------------------------------------------------------------
+MIT License (SOFTWARE only)
+
+Copyright (c) 2026 Brandon C. Vélez Johnson / Liberating Scripture Collective
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

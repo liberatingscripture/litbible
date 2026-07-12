@@ -49,7 +49,12 @@ committed. `npm run fix:chapters` can auto-fix formatting issues.
 
 ## License note
 
-The site's code and the LIT translation text are licensed differently — see
-the license notice on [litbible.net/read](https://litbible.net/read#license)
-for how the translation itself may be reused. If you're contributing code,
-you're doing so under the terms in this repository.
+This repository is split-licensed (see [`LICENSE`](LICENSE)): the **code** is
+under the permissive MIT License — reuse it freely, even commercially — while
+the **translation text and other content** (chapters, footnotes, intros,
+glossary, articles) is under Creative Commons
+Attribution-NonCommercial-NoDerivatives 4.0 (CC BY-NC-ND 4.0), so it may be
+shared with attribution but not sold or altered. See also the notice on
+[litbible.net/read](https://litbible.net/read#license). If you contribute code,
+you're offering it under the MIT terms; translation feedback isn't a code
+contribution.

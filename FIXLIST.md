@@ -395,9 +395,13 @@ delete it.
   rather than the footer's icon-list styling. This makes the footer purely
   LIT-brand social (no differentiation needed at all). Once confirmed, this
   is a Sonnet-sized change.
-- [ ] **Pick the code license** (suggest MIT for code, with an explicit note
-  that scripture/translation content remains CC BY-NC-ND 4.0). Once chosen,
-  the Sonnet batch can write the LICENSE file.
+- [x] **Pick the code license.**
+  DONE (2026-07-11): split license — owner doesn't mind others reusing the
+  CODE for its functionality but wants the CONTENT protected. So `LICENSE`
+  puts the site code under the permissive MIT License and the LIT translation
+  text/footnotes/intros/glossary/articles under CC BY-NC-ND 4.0, with an
+  explicit file-area breakdown of which is which. CONTRIBUTING.md's "License
+  note" updated to match.
 - [ ] **Decide the theme toggle** (gates Opus item O7): ship a light/dark
   toggle, or remove the unused `data-theme` CSS hooks.
 - [ ] **Cloudflare dashboard:** verify Web Analytics is actually enabled (the
