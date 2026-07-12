@@ -84,7 +84,7 @@
   --season-advent: #1A4FA0;
   --season-christmas: #C62D25;
   --season-lent: #800080;
-  --season-easter: #D4AF37;
+  --season-easter: #B8860B; /* darkened gold: accessible as title text on light, matches the app */
   --season-ot: #186420;
 }
 

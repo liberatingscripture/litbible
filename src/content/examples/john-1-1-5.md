@@ -11,5 +11,5 @@ traditionalText: |
   In the beginning was the Word, and the Word was with God, and the Word was God. He was in the beginning with God. All things came into being through him, and without him not one thing came into being.
 
   What has come into being in him was life, and the life was the light of all people. The light shines in the darkness, and the darkness did not overcome it.
-note: "Traditional versions render logos as 'Word'; LIT translates it as 'Conversation' — stressing relational communication over static decree."
+note: "Traditional versions render logos as 'Word'; LIT translates it as 'Conversation,' stressing relational communication over static decree."
 ---
