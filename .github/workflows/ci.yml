@@ -31,3 +31,7 @@ jobs:
       # outage reuses the committed XML snapshot and the build continues.
       - name: Build site
         run: npm run build
+
+      # Verify every internal href/#fragment in dist/ resolves (no network).
+      - name: Check internal links
+        run: npm run check:links

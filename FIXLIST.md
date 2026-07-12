@@ -181,14 +181,21 @@ delete it.
   package.json and a test step to `.github/workflows/ci.yml` before the
   build step.
 
-- [ ] **(O5) Post-build link checker.** New `scripts/check-links.mjs`: walk
-  `dist/**/*.html`, collect every internal `href` (root-relative and
-  litbible.net-absolute) including `#fragment` parts, and verify (a) the
-  target page exists in dist, (b) when a fragment is present, an element
-  with that id exists in the target page's HTML. No network requests. Exit 1
-  with a readable report on failures. Wire into CI after `npm run build`
-  (e.g. `npm run check:links`). Known tricky case it must catch:
-  cross-page anchors like `/read#license` and `/read#sblgnt-disclaimer`.
+- [x] **(O5) Post-build link checker.**
+  DONE: new `scripts/check-links.mjs` walks `dist/**/*.html`, extracts every
+  internal `href` (root-relative, litbible.net-absolute, and same-page
+  fragment-only), resolves each to its dist file using Astro's directory
+  format (`/read` → `dist/read/index.html`, exact file for assets like
+  `/rss.xml`, trailing slash tolerated), and verifies (a) the target page/file
+  exists and (b) any `#fragment` matches an `id`/`name` in the resolved target
+  (empty and `#top` treated as always-valid). Skips external/`mailto:`/`tel:`/
+  `javascript:`/protocol-relative links; no network requests. Exits 1 with a
+  report grouped by source page. Added `check:links` to `package.json` and a
+  "Check internal links" step to `.github/workflows/ci.yml` after Build site.
+  Verified: clean run over the real site (349 pages, 26,383 links, exit 0) —
+  the flagged cross-page anchors `/read#license` and `/read#sblgnt-disclaimer`
+  resolve to `dist/read/index.html` and pass; a negative test (bogus page
+  target + bogus fragment injected into a built page) exits 1 naming both.
 
 - [ ] **(O6) White-on-green button contrast sweep.** #209D50 with white text
   is ≈3.5:1 — passes WCAG only as "large text" (≥18.66px bold, or ≥24px any
