@@ -159,12 +159,15 @@ workers/             # Cloudflare Workers, deployed separately via wrangler (NOT
 | `/glossary` | `glossary.astro` | Glossary |
 | `/search` | `search.astro` | Full search UI (verse index + Pagefind) |
 | `/release-notes` | `release-notes.astro` | "What's new" |
-| `/apps` | `apps.astro` | LIT Bible mobile-apps promo page (footer-linked) |
 | `/app-support` | `app-support.astro` | App support contact form (linked from inside the apps, not the site nav; `/app-support/thanks` is the no-JS success page) |
 | others | `about`, `contact` (+ `contact/thanks`), `courses`, `support`, `privacy`, `unsubscribe`, `found-in-translation-podcast`, `liberating-scripture-collective`, `translation-commitments`, `404` |
 
 Redirects (`/read-now`→`/read`, `/podcast`→`/found-in-translation-podcast`) and
 the sitemap filter live in `astro.config.mjs`.
+
+The mobile-apps promo is **not** a route in this repo: it lives at the external
+subdomain `app.litbible.net` (separate repo `BDRhodes/LIT-app-Promo`, its own
+Cloudflare Pages deploy), and the footer "Apps" link points straight to it.
 
 ## Build / Validation Scripts (`scripts/`)
 
