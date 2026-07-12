@@ -1,0 +1,128 @@
+---
+/**
+ * §2 — A first taste. A single side-by-side: the LIT rendering of the
+ * hero passage (John 1) against a familiar translation. One taste, not a
+ * seminar — the translation's depth lives at litbible.net.
+ */
+import { getCollection } from 'astro:content';
+
+const entry = (await getCollection('examples')).find(
+  (e) => e.data.placement === 'hero'
+);
+
+function lite(md: string): string {
+  return md
+    .replace(/\*([^*]+)\*/g, '<em>$1</em>')
+    .replace(/\n\n+/g, '</p><p>')
+    .replace(/^/, '<p>')
+    .replace(/$/, '</p>');
+}
+---
+
+{entry && (
+  <section class="examples">
+    <div class="container">
+      <header class="examples__head">
+        <span class="examples__eyebrow">A first taste</span>
+        <h2 class="examples__title">What does it actually read like?</h2>
+      </header>
+
+      <article class="example">
+        <h3 class="example__reference">{entry.data.reference}</h3>
+        <div class="example__columns">
+          <div class="example__col example__col--lit">
+            <span class="example__label">LIT</span>
+            <div class="example__text" set:html={lite(entry.data.litText.trim())}></div>
+          </div>
+          <div class="example__col example__col--trad">
+            <span class="example__label">{entry.data.comparison}</span>
+            <div class="example__text example__text--trad" set:html={lite(entry.data.traditionalText.trim())}></div>
+          </div>
+        </div>
+        {entry.data.note && <p class="example__note">{entry.data.note}</p>}
+      </article>
+    </div>
+  </section>
+)}
+
+<style>
+  .examples {
+    padding-block: var(--space-8);
+  }
+  .examples__head {
+    max-width: var(--measure-prose);
+    margin-bottom: var(--space-8);
+  }
+  .examples__eyebrow {
+    display: inline-block;
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-caps);
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: var(--space-3);
+  }
+  .examples__title {
+    font-family: var(--font-serif);
+    font-size: var(--text-3xl);
+    letter-spacing: -0.02em;
+    line-height: var(--leading-snug);
+  }
+
+  .example {
+    max-width: var(--measure-wide);
+  }
+  .example__reference {
+    font-family: var(--font-serif);
+    font-size: var(--text-2xl);
+    font-weight: 500;
+    letter-spacing: var(--tracking-tight);
+    color: var(--text);
+    margin-bottom: var(--space-6);
+  }
+  .example__columns {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+  }
+  @media (min-width: 720px) {
+    .example__columns {
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-8);
+    }
+  }
+  .example__col {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+  .example__label {
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-caps);
+    font-weight: 600;
+    color: var(--text-faint);
+  }
+  .example__col--lit .example__label {
+    color: var(--accent);
+  }
+  .example__text {
+    font-family: var(--font-serif);
+    font-size: var(--text-lg);
+    line-height: var(--leading-loose);
+    color: var(--text);
+  }
+  .example__text :global(p + p) {
+    margin-top: var(--space-4);
+  }
+  .example__text--trad {
+    color: var(--text-soft);
+  }
+  .example__note {
+    margin-top: var(--space-6);
+    font-size: var(--text-sm);
+    color: var(--text-faint);
+    font-style: italic;
+    max-width: 60ch;
+  }
+</style>

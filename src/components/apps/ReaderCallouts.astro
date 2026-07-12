@@ -1,0 +1,119 @@
+---
+import { getCollection, render } from 'astro:content';
+import ChurchYearCarousel from './ChurchYearCarousel.astro';
+
+const callouts = (await getCollection('callouts')).sort(
+  (a, b) => a.data.order - b.data.order
+);
+
+---
+
+<section class="reader">
+  <div class="container">
+    <div class="reader__callouts">
+      {callouts.map(async (c, i) => {
+        const { Content } = await render(c);
+        const side = c.data.imageSide;
+        return (
+          <article
+            class={`callout callout--image-${side}`}
+            style={`--callout-accent: var(--season-${c.data.accent});`}
+          >
+            <div class="callout__copy">
+              <h3 class="callout__title">{c.data.title}</h3>
+              <div class="callout__body">
+                <Content />
+              </div>
+            </div>
+            <div class="callout__image">
+              {c.data.image && (
+                <img
+                  src={c.data.image}
+                  alt={`${c.data.platform === 'android' ? 'Android' : 'iOS'} ${c.data.mode === 'dark' ? 'dark mode' : 'light mode'}: ${c.data.title}`}
+                  class="callout__phone"
+                  loading="lazy"
+                  decoding="async"
+                />
+              )}
+            </div>
+          </article>
+        );
+      })}
+    </div>
+
+    <ChurchYearCarousel />
+  </div>
+</section>
+
+<style>
+  .reader {
+    padding-block: var(--space-8);
+  }
+
+  .reader__callouts {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-7);
+  }
+
+  .callout {
+    /* Light: 8% accent over the near-white raised surface. */
+    --tint: 8%;
+    --tint-base: var(--surface-raised);
+
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-7);
+    align-items: center;
+    background: color-mix(in srgb, var(--callout-accent, transparent) var(--tint), var(--tint-base));
+    border-radius: var(--radius-lg);
+    padding: var(--space-7) var(--space-6);
+  }
+  @media (min-width: 760px) {
+    .callout {
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-9);
+      padding: var(--space-8);
+    }
+    .callout--image-left .callout__image { order: -1; }
+  }
+  /* Dark: brighter accents (via the --season-* tokens) + more tint over an
+     elevated surface, so the seasonal hue actually carries. */
+  @media (prefers-color-scheme: dark) {
+    .callout {
+      --tint: 15%;
+      --tint-base: var(--bg-soft);
+    }
+  }
+
+  .callout__title {
+    font-family: var(--font-serif);
+    font-size: var(--text-2xl);
+    font-weight: 500;
+    letter-spacing: var(--tracking-tight);
+    color: var(--callout-accent);
+    margin-bottom: var(--space-4);
+    max-width: 18ch;
+  }
+  .callout__body {
+    font-size: var(--text-lg);
+    line-height: var(--leading-loose);
+    color: var(--text);
+    max-width: 38ch;
+  }
+  .callout__body :global(em) {
+    font-family: var(--font-serif);
+    font-style: italic;
+  }
+
+  .callout__image {
+    display: flex;
+    justify-content: center;
+  }
+  .callout__phone {
+    width: 100%;
+    max-width: 280px;
+    height: auto;
+    display: block;
+  }
+</style>

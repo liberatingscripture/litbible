@@ -1,0 +1,249 @@
+/* =========================================================
+   /apps — LIT Bible mobile-apps promo page.
+
+   Design ported from the standalone app-promo (BDRhodes/LIT-app-Promo).
+   Everything here is scoped under `.apps` so the promo's design system does
+   not leak into the rest of the site. The section components carry their own
+   Astro-scoped <style> blocks and reference the token NAMES defined here.
+
+   Reconciliation with the site brand:
+   - Structural tokens (type scale, spacing, radii, easings) + the seasonal
+     liturgical colors are kept verbatim from the promo.
+   - Serif maps to the site's Crimson Text (--serif); the hero display cut uses
+     Fraunces, like the homepage.
+   - Sans is Inter (shared already).
+   - Accent maps to the site's a11y green: --green-text (dark enough to double
+     as an accessible surface behind the near-white button/selection text).
+   - Surface/text tokens follow the near-white / near-black brand from
+     global.css; --text is inherited (themes correctly), so it is NOT redefined.
+   ========================================================= */
+
+.apps {
+  /* ---- Type scale (verbatim) ---- */
+  --text-xs: 0.8125rem;
+  --text-sm: 0.9375rem;
+  --text-base: 1.0625rem;
+  --text-lg: 1.1875rem;
+  --text-xl: 1.4375rem;
+  --text-2xl: 1.875rem;
+  --text-3xl: 2.5rem;
+  --text-4xl: 3.5rem;
+  --text-5xl: 5rem;
+
+  --leading-tight: 1.15;
+  --leading-snug: 1.30;
+  --leading-normal: 1.50;
+  --leading-loose: 1.70;
+
+  --tracking-tight: -0.02em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.01em;
+  --tracking-caps: 0.08em;
+
+  /* ---- Space (verbatim) ---- */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4.5rem;
+  --space-9: 6rem;
+  --space-10: 9rem;
+
+  /* ---- Measures + radii + easings (verbatim) ---- */
+  --measure-text: 36rem;
+  --measure-prose: 42rem;
+  --measure-wide: 64rem;
+  --measure-full: 80rem;
+
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-xl: 32px;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* ---- Fonts → site families ---- */
+  --font-sans: Inter, "Inter Fallback", system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-serif: var(--serif); /* Crimson Text (site reading serif) */
+
+  /* ---- Color → site brand (light) ---- */
+  --accent: var(--green-text); /* a11y green: text + accessible surface */
+  --bg: var(--surface-raised);  /* page surface — used for button/selection text color */
+  --bg-soft: #F2F2EE;           /* subtle section tint base */
+  --text-soft: #5A5A57;
+  --text-faint: #8A8A85;
+  --rule: rgba(26, 26, 26, 0.10);
+  --rule-soft: rgba(26, 26, 26, 0.05);
+
+  /* ---- Seasonal liturgical colors (verbatim, light) ---- */
+  --season-advent: #1A4FA0;
+  --season-christmas: #C62D25;
+  --season-lent: #800080;
+  --season-easter: #D4AF37;
+  --season-ot: #186420;
+}
+
+/* Dark mode — follow the site's dual mechanism (system pref + data-theme).
+   --text/--bg/--accent already track global.css tokens; only the promo-only
+   surface/text/rule/season tokens need dark values here. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .apps {
+    --bg-soft: #161617;
+    --text-soft: #A8A8A6;
+    --text-faint: #6E6E6A;
+    --rule: rgba(240, 240, 240, 0.10);
+    --rule-soft: rgba(240, 240, 240, 0.05);
+
+    --season-advent: #6BA3E8;
+    --season-christmas: #F05252;
+    --season-lent: #CC66CC;
+    --season-easter: #D4AF37;
+    --season-ot: #4DB84D;
+  }
+}
+:root[data-theme="dark"] .apps {
+  --bg-soft: #161617;
+  --text-soft: #A8A8A6;
+  --text-faint: #6E6E6A;
+  --rule: rgba(240, 240, 240, 0.10);
+  --rule-soft: rgba(240, 240, 240, 0.05);
+
+  --season-advent: #6BA3E8;
+  --season-christmas: #F05252;
+  --season-lent: #CC66CC;
+  --season-easter: #D4AF37;
+  --season-ot: #4DB84D;
+}
+
+/* Hero scale relaxes on narrow viewports (verbatim behavior). */
+@media (max-width: 640px) {
+  .apps {
+    --text-3xl: 2rem;
+    --text-4xl: 2.75rem;
+    --text-5xl: 3.25rem;
+  }
+}
+
+/* ---- Reset bits the promo components assume ---- */
+.apps :is(h1, h2, h3, h4, h5, h6, p, figure, blockquote) {
+  margin: 0;
+}
+.apps img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+.apps button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+/* ---- Base typography (scoped; class specificity wins over global elements) ---- */
+.apps h1,
+.apps h2,
+.apps h3 {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-tight);
+  color: var(--text);
+}
+.apps h1 {
+  font-size: var(--text-5xl);
+  font-weight: 400;
+  letter-spacing: -0.025em;
+}
+.apps h2 {
+  font-size: var(--text-3xl);
+  font-weight: 500;
+}
+.apps h3 {
+  font-size: var(--text-xl);
+  font-weight: 600;
+  font-family: var(--font-sans); /* sans for callout titles */
+  letter-spacing: var(--tracking-normal);
+  line-height: var(--leading-snug);
+}
+.apps p {
+  line-height: var(--leading-normal);
+  max-width: var(--measure-text);
+}
+.apps a {
+  color: var(--green-text);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  transition: opacity 200ms var(--ease-out);
+}
+.apps a:hover {
+  opacity: 0.7;
+}
+.apps em,
+.apps .greek {
+  font-style: italic;
+  font-family: var(--font-serif);
+}
+
+/* The hero headline uses the Fraunces display cut (like the homepage). */
+.apps .hero__title {
+  font-family: "Fraunces", "Fraunces Fallback", Georgia, "Times New Roman", serif;
+}
+
+/* ---- Buttons (CTA) ---- */
+.apps .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: 0.85rem 1.25rem;
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: var(--tracking-wide);
+  border-radius: var(--radius-md);
+  transition: all 200ms var(--ease-out);
+  text-decoration: none;
+}
+.apps .btn-primary {
+  background: var(--text);
+  color: var(--bg);
+}
+.apps .btn-primary:hover {
+  opacity: 1;
+  background: var(--green-text); /* deep green passes AA behind near-white text */
+  color: var(--bg);
+}
+.apps .btn-secondary {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--rule);
+}
+.apps .btn-secondary:hover {
+  opacity: 1;
+  border-color: var(--text);
+  background: var(--bg-soft);
+}
+
+/* ---- Container ---- */
+.apps .container {
+  width: 100%;
+  max-width: var(--measure-full);
+  margin-inline: auto;
+  padding-inline: clamp(1.25rem, 4vw, 3rem);
+}
+
+/* ---- Selection ---- */
+.apps ::selection {
+  background: var(--green);
+  color: var(--bg);
+}

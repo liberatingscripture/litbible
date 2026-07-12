@@ -1,0 +1,29 @@
+---
+import Layout from "../layouts/Layout.astro";
+import "../styles/pages/apps.css";
+import Hero from "../components/apps/Hero.astro";
+import ExamplesSlider from "../components/apps/ExamplesSlider.astro";
+import ReaderCallouts from "../components/apps/ReaderCallouts.astro";
+import BigScreens from "../components/apps/BigScreens.astro";
+import HumaneByDesign from "../components/apps/HumaneByDesign.astro";
+import JoinBeta from "../components/apps/JoinBeta.astro";
+import AboutTranslation from "../components/apps/AboutTranslation.astro";
+---
+
+<Layout
+  title="LIT Bible Apps | Liberation and Inclusion Translation"
+  description="The LIT Bible app for iPhone and Android: the full Liberation and Inclusion Translation, plus notes, highlights, daily and Lectionary readings, and offline access. Private, no account, no ads."
+  canonical="https://litbible.net/apps/"
+  bg="white"
+  index
+>
+  <div class="apps">
+    <Hero />
+    <ExamplesSlider />
+    <ReaderCallouts />
+    <BigScreens />
+    <HumaneByDesign />
+    <JoinBeta />
+    <AboutTranslation />
+  </div>
+</Layout>
