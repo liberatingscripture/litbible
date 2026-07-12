@@ -12,8 +12,12 @@ name = "litbible-contact-form"
 main = "src/index.js"
 compatibility_date = "2026-06-01"
 
+# One Worker backs two forms. The route pathname selects the per-form config
+# (destination inbox, Turnstile secret, subject, thanks/back URLs) inside
+# src/index.js. Both stay OUTSIDE /api/* (the mobile-app sync namespace).
 routes = [
-  { pattern = "litbible.net/contact/submit", zone_name = "litbible.net" }
+  { pattern = "litbible.net/contact/submit", zone_name = "litbible.net" },
+  { pattern = "litbible.net/app-support/submit", zone_name = "litbible.net" }
 ]
 
 # Email Routing send binding. The destination is intentionally NOT pinned
@@ -37,6 +41,16 @@ simple = { limit = 5, period = 60 }
 FROM_EMAIL = "contact@litbible.net"
 
 # Secrets (set once with `npx wrangler secret put <NAME>` — see README.md):
-#   TURNSTILE_SECRET — the Turnstile secret key for the site's widget
-#   DEST_EMAIL       — the inbox that receives contact messages (a verified
-#                      Email Routing destination address)
+#   TURNSTILE_SECRET             — Turnstile secret for the /contact widget
+#   DEST_EMAIL                   — inbox that receives /contact messages (a
+#                                  verified Email Routing destination address)
+#   DISPLAY_TO                   — optional: address shown in the /contact To:
+#                                  header (a branded alias) while delivery still
+#                                  goes to DEST_EMAIL; omit to show DEST_EMAIL
+#   APP_SUPPORT_TURNSTILE_SECRET — Turnstile secret for the /app-support widget
+#                                  (a SEPARATE dashboard widget from contact's)
+#   APP_SUPPORT_DEST_EMAIL       — inbox that receives /app-support messages
+#                                  (its own verified Email Routing destination)
+#   APP_SUPPORT_DISPLAY_TO       — optional: address shown in the /app-support
+#                                  To: header while delivery still goes to
+#                                  APP_SUPPORT_DEST_EMAIL; omit to show it

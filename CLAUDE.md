@@ -136,8 +136,9 @@ public/              # Static assets + generated output (api/, og/, search/,
                      #   images/, icons)
 emails/              # Standalone HTML email templates (not part of the site build)
 workers/             # Cloudflare Workers, deployed separately via wrangler (NOT
-                     #   part of the site build): contact-form/ backs the
-                     #   /contact/submit form endpoint — see its README
+                     #   part of the site build): contact-form/ backs both the
+                     #   /contact/submit and /app-support/submit form endpoints
+                     #   (two routes, one Worker) — see its README
 .githooks/           # pre-commit hook (validates staged chapter JSON)
 .github/workflows/   # ci.yml (chapter validation + full build on push/PR),
                      #   release-notes.yml (auto-updates release-notes.json on push)
@@ -158,7 +159,9 @@ workers/             # Cloudflare Workers, deployed separately via wrangler (NOT
 | `/glossary` | `glossary.astro` | Glossary |
 | `/search` | `search.astro` | Full search UI (verse index + Pagefind) |
 | `/release-notes` | `release-notes.astro` | "What's new" |
-| others | `about`, `contact`, `courses`, `support`, `privacy`, `unsubscribe`, `found-in-translation-podcast`, `liberating-scripture-collective`, `translation-commitments`, `404` |
+| `/apps` | `apps.astro` | LIT Bible mobile-apps promo page (footer-linked) |
+| `/app-support` | `app-support.astro` | App support contact form (linked from inside the apps, not the site nav; `/app-support/thanks` is the no-JS success page) |
+| others | `about`, `contact` (+ `contact/thanks`), `courses`, `support`, `privacy`, `unsubscribe`, `found-in-translation-podcast`, `liberating-scripture-collective`, `translation-commitments`, `404` |
 
 Redirects (`/read-now`→`/read`, `/podcast`→`/found-in-translation-podcast`) and
 the sitemap filter live in `astro.config.mjs`.
@@ -311,12 +314,23 @@ collection); they're read directly by the intro pages and the API manifest.
   `draft-release-notes.mjs` for the field-by-field spec. (A stable per-footnote
   `footnoteId` for exact-footnote deep links is intentionally not emitted yet —
   it needs a matching stable anchor in the chapter JSON first.)
-- **The contact form is self-hosted**: `/contact` posts to `/contact/submit`,
-  a standalone Cloudflare Worker in `workers/contact-form/` (deliberately
-  outside `/api/*`, the app-sync namespace) that verifies the Turnstile token
-  server-side and delivers mail via Email Routing's `send_email` binding. It
-  deploys separately from the site (owner-run `wrangler deploy` — see its
-  README); no-JS POSTs 303-redirect to `/contact/thanks/`.
+- **The contact + app-support forms are self-hosted**: `/contact` posts to
+  `/contact/submit` and `/app-support` posts to `/app-support/submit`, both
+  served by a single standalone Cloudflare Worker in `workers/contact-form/`
+  (deliberately outside `/api/*`, the app-sync namespace) that verifies the
+  Turnstile token server-side and delivers mail via Email Routing's
+  `send_email` binding. The Worker keys off the request pathname to pick a
+  per-form config: each form has its own Turnstile widget (own secret) and its
+  own destination inbox, so app-support mail lands in a different inbox than
+  contact mail. Each route also takes an optional `*_DISPLAY_TO` secret — a
+  branded alias shown in the `To:` header while delivery still targets the real
+  (verified) inbox, with a one-time retry if Cloudflare rejects the mismatch
+  (mirrors the liberatingscripture.org contact Worker). It deploys separately
+  from the site (owner-run `wrangler
+  deploy` — see its README, which also carries the one-time dashboard/secret
+  setup for the app-support route); no-JS POSTs 303-redirect to the matching
+  `…/thanks/` page. **Adding a route means redeploying the Worker before the
+  site deploy that publishes the new form**, or the POST hits the Pages 404.
 - **Security headers / CSP** live in `public/_headers` (deploy-only — `dev`
   and `astro preview` don't apply them). The CSP is deliberately split (owner
   decision 2026-07-10): an ENFORCED header carries only structural directives

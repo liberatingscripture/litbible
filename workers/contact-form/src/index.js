@@ -1,17 +1,32 @@
 /**
- * litbible.net contact-form backend (FIXLIST F1).
+ * litbible.net form backend (FIXLIST F1).
  *
- * Routed at POST litbible.net/contact/submit. Replaces Formspree:
- *   1. verifies the Cloudflare Turnstile token server-side (siteverify) —
- *      previously nothing checked the token on our side;
+ * ONE Worker serves TWO routes, selected by the request pathname:
+ *   - POST /contact/submit      → the /contact page
+ *   - POST /app-support/submit  → the /app-support page (LIT Bible apps)
+ *
+ * The two forms are near-identical but NOT the same: each has its own
+ * Turnstile widget (own secret) and its own destination inbox, so the
+ * per-route config (`formConfig`) picks the subject line, destination email,
+ * Turnstile secret, and success/error URLs. Everything else is shared.
+ *
+ * For each request the Worker:
+ *   1. verifies the Cloudflare Turnstile token server-side (siteverify) with
+ *      the route's secret — nothing else checks the token on our side;
  *   2. sends the message via the Email Routing send_email binding, from
  *      FROM_EMAIL (contact@litbible.net) with Reply-To set to the submitter,
- *      to the verified destination inbox (DEST_EMAIL secret).
+ *      to the route's verified destination inbox.
+ *
+ * The route's optional DISPLAY_TO secret sets the address SHOWN in the To:
+ * header (a branded alias) while the delivery envelope still targets the real
+ * destination inbox — so a quoted/forwarded copy never reveals the underlying
+ * address. If the platform rejects the header/envelope mismatch, the send is
+ * retried once with the header matching the envelope.
  *
  * Two client paths, mirroring the old Formspree behavior:
- *   - The contact page's fetch() submit sends `Accept: application/json`
- *     and gets a JSON verdict ({ ok: true } or { ok: false, error }).
- *   - A native no-JS POST gets a 303 redirect to /contact/thanks/ on
+ *   - The page's fetch() submit sends `Accept: application/json` and gets a
+ *     JSON verdict ({ ok: true } or { ok: false, error }).
+ *   - A native no-JS POST gets a 303 redirect to the route's thanks page on
  *     success, or a small self-contained HTML error page (a static site
  *     can't render per-request errors, so the Worker carries its own).
  *
@@ -25,6 +40,39 @@ import { EmailMessage } from "cloudflare:email";
 import { createMimeMessage, Mailbox } from "mimetext/browser";
 
 const LIMITS = { name: 200, email: 254, message: 10000 };
+
+// The app-support form's "Which app?" select. Anything outside this set (or a
+// missing field) collapses to "Not sure" so a tampered POST can't inject text.
+const ALLOWED_PLATFORMS = new Set(["iOS", "Android", "Not sure"]);
+
+// Per-route configuration. The route pathname (gated by wrangler.toml `routes`)
+// picks the destination inbox, Turnstile secret, subject, and redirect targets.
+// `displayTo` is the OPTIONAL address shown in the email's To: header (a
+// branded alias) while delivery still targets `destEmail`; unset falls back to
+// `destEmail` (see the send block for the header/envelope-mismatch retry).
+// Unknown paths fall back to the contact config rather than crashing.
+function formConfig(pathname, env) {
+  if (pathname.startsWith("/app-support")) {
+    return {
+      kind: "app-support",
+      subjectFor: (name) => `litbible.net app support — ${name}`,
+      destEmail: env.APP_SUPPORT_DEST_EMAIL,
+      displayTo: env.APP_SUPPORT_DISPLAY_TO,
+      turnstileSecret: env.APP_SUPPORT_TURNSTILE_SECRET,
+      thanksPath: "/app-support/thanks/",
+      backPath: "/app-support/",
+    };
+  }
+  return {
+    kind: "contact",
+    subjectFor: (name) => `litbible.net contact — ${name}`,
+    destEmail: env.DEST_EMAIL,
+    displayTo: env.DISPLAY_TO,
+    turnstileSecret: env.TURNSTILE_SECRET,
+    thanksPath: "/contact/thanks/",
+    backPath: "/contact/",
+  };
+}
 
 // Header-bound fields must never carry CR/LF (header injection) — collapse
 // all whitespace runs. The message body keeps its newlines.
@@ -42,6 +90,8 @@ export default {
       });
     }
 
+    const cfg = formConfig(new URL(request.url).pathname, env);
+
     const wantsJson = (request.headers.get("Accept") || "").includes(
       "application/json",
     );
@@ -49,8 +99,8 @@ export default {
       wantsJson
         ? Response.json(error ? { ok: false, error } : { ok: true }, { status })
         : error
-          ? errorPage(status, error)
-          : seeOther(new URL("/contact/thanks/", request.url));
+          ? errorPage(status, error, cfg.backPath)
+          : seeOther(new URL(cfg.thanksPath, request.url));
 
     // Per-IP rate limit (5/min, wrangler.toml [[ratelimits]]) before doing
     // any real work. Fail open on a binding hiccup — a broken limiter
@@ -84,37 +134,35 @@ export default {
       return respond(400, "missing-fields");
     }
 
+    // App-support only: which app the report is about. Whitelisted so a
+    // tampered POST can't inject arbitrary text into the email.
+    let platform = "";
+    if (cfg.kind === "app-support") {
+      const raw = headerSafe(form.get("platform"), 20);
+      platform = ALLOWED_PLATFORMS.has(raw) ? raw : "Not sure";
+    }
+
     const token = String(form.get("cf-turnstile-response") || "");
-    if (!(await verifyTurnstile(env, token, request))) {
+    if (!(await verifyTurnstile(cfg.turnstileSecret, token, request))) {
       return respond(403, "turnstile");
     }
 
+    const fields = { name, email, message, platform };
     try {
-      const msg = createMimeMessage();
-      msg.setSender({ name: "LIT Bible contact form", addr: env.FROM_EMAIL });
-      msg.setRecipient(env.DEST_EMAIL);
-      // mimetext validates known headers: Reply-To must be a Mailbox, not a
-      // bare string (a string throws MIMETEXT_INVALID_HEADER_VALUE).
-      msg.setHeader("Reply-To", new Mailbox(email));
-      msg.setSubject(`litbible.net contact — ${name}`);
-      msg.addMessage({
-        contentType: "text/plain",
-        data: [
-          "New message from the litbible.net contact form.",
-          "",
-          `Name:  ${name}`,
-          `Email: ${email}`,
-          "",
-          "Message:",
-          message,
-          "",
-          `— ${sentLine(request)}; reply to this email to answer.`,
-        ].join("\n"),
-      });
-
-      await env.CONTACT_EMAIL.send(
-        new EmailMessage(env.FROM_EMAIL, env.DEST_EMAIL, msg.asRaw()),
-      );
+      // Delivery envelope always targets destEmail; the To: header shows
+      // displayTo (a branded alias) when set. If Cloudflare rejects the
+      // header/envelope mismatch, retry once with the header matching the
+      // envelope so the message still gets through.
+      const displayTo = cfg.displayTo || cfg.destEmail;
+      try {
+        await env.CONTACT_EMAIL.send(buildEmail(env, request, cfg, fields, displayTo));
+      } catch (err) {
+        if (displayTo === cfg.destEmail) throw err;
+        console.warn("DISPLAY_TO send rejected, retrying with DEST_EMAIL:", err);
+        await env.CONTACT_EMAIL.send(
+          buildEmail(env, request, cfg, fields, cfg.destEmail),
+        );
+      }
     } catch (err) {
       console.error("send failed:", err);
       return respond(500, "send-failed");
@@ -123,6 +171,37 @@ export default {
     return respond(200);
   },
 };
+
+// Build the outbound message. `toHeader` is the address shown in the To:
+// header (branded alias or the real inbox); the delivery envelope always
+// targets cfg.destEmail regardless.
+function buildEmail(env, request, cfg, { name, email, message, platform }, toHeader) {
+  const msg = createMimeMessage();
+  msg.setSender({ name: "LIT Bible contact form", addr: env.FROM_EMAIL });
+  msg.setRecipient(toHeader);
+  // mimetext validates known headers: Reply-To must be a Mailbox, not a
+  // bare string (a string throws MIMETEXT_INVALID_HEADER_VALUE).
+  msg.setHeader("Reply-To", new Mailbox(email));
+  msg.setSubject(cfg.subjectFor(name));
+  msg.addMessage({
+    contentType: "text/plain",
+    data: [
+      cfg.kind === "app-support"
+        ? "New message from the litbible.net app support form."
+        : "New message from the litbible.net contact form.",
+      "",
+      `Name:  ${name}`,
+      `Email: ${email}`,
+      ...(platform ? [`App:   ${platform}`] : []),
+      "",
+      "Message:",
+      message,
+      "",
+      `— ${sentLine(request)}; reply to this email to answer.`,
+    ].join("\n"),
+  });
+  return new EmailMessage(env.FROM_EMAIL, cfg.destEmail, msg.asRaw());
+}
 
 // The email footer shows the SENDER's local time (from Cloudflare's
 // IP-geolocation zone on the request) — the mail client already localizes
@@ -145,7 +224,7 @@ function sentLine(request) {
   return `Sent ${new Date().toISOString()}`;
 }
 
-async function verifyTurnstile(env, token, request) {
+async function verifyTurnstile(secret, token, request) {
   if (!token) return false;
   try {
     const res = await fetch(
@@ -153,7 +232,7 @@ async function verifyTurnstile(env, token, request) {
       {
         method: "POST",
         body: new URLSearchParams({
-          secret: env.TURNSTILE_SECRET,
+          secret,
           response: token,
           remoteip: request.headers.get("CF-Connecting-IP") || "",
         }),
@@ -181,7 +260,9 @@ const seeOther = (url) =>
 
 // Minimal branded error page for the no-JS path. Matches the site's cream/ink
 // palette; self-contained because the Worker can't reach into the static site.
-function errorPage(status, error) {
+// `backPath` returns the reader to the form they came from (/contact/ or
+// /app-support/).
+function errorPage(status, error, backPath = "/contact/") {
   const detail =
     error === "turnstile"
       ? "The security check could not be verified. Please go back, complete the checkbox again, and resend."
@@ -210,7 +291,7 @@ function errorPage(status, error) {
 <main>
 <h1>Your message didn&rsquo;t send</h1>
 <p>${detail}</p>
-<p><a href="/contact/">Back to the contact form</a></p>
+<p><a href="${backPath}">Back to the form</a></p>
 </main>
 </body>
 </html>`;

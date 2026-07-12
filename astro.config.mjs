@@ -27,6 +27,7 @@ export default defineConfig({
         const slug = new URL(page).pathname.replace(/^\/|\/$/g, '');
         if (slug === 'unsubscribe') return false; // noindex utility page
         if (slug === 'contact/thanks') return false; // noindex form-success page
+        if (slug === 'app-support/thanks') return false; // noindex form-success page
         // /read/<book> aggregate pages for books that are entirely drafts
         if (slug.startsWith('read/') && fullyDraftBooks.has(slug.slice('read/'.length))) {
           return false;

@@ -1,0 +1,179 @@
+---
+import Layout from "../layouts/Layout.astro";
+import "../styles/pages/contact.css";
+---
+
+<Layout
+  title="App Support | Liberation and Inclusion Translation"
+  description="Get help with the LIT Bible iPhone and Android apps. Report a problem, ask a question, or send feedback to the team behind the Liberation and Inclusion Translation."
+  canonical="https://litbible.net/app-support/"
+>
+  <div class="contact-page">
+    <section class="contact-hero" aria-labelledby="app-support-title">
+      <div class="contact-inner">
+        <h1 id="app-support-title">App support</h1>
+
+        <p class="contact-lead">
+          Something not working, or an idea to make the app better? Tell us
+          what happened and what you expected to happen. The more detail you
+          can share, the faster we can help.
+        </p>
+
+        <img
+          class="contact-logo"
+          src="/images/lit-logo.png"
+          alt="Liberation and Inclusion Translation logo."
+          loading="lazy"
+          decoding="async"
+        />
+
+        {/* Posts to the contact-form Worker (workers/contact-form/), which
+            serves both /contact/submit and /app-support/submit. It verifies
+            the Turnstile token server-side and delivers the message via
+            Cloudflare Email Routing to the app-support inbox. A native no-JS
+            POST works too: the Worker 303-redirects to /app-support/thanks/. */}
+        <form
+          class="contact-form"
+          action="/app-support/submit"
+          method="POST"
+          data-contact-form
+        >
+          <input type="hidden" name="source" value="app-support" />
+
+          {/* Honeypot (spam trap) */}
+          <input type="hidden" name="_gotcha" value="" />
+
+          <div class="field">
+            <label for="name">Name</label>
+            <input
+              id="name"
+              name="name"
+              type="text"
+              autocomplete="name"
+              required
+              placeholder="Your name"
+            />
+          </div>
+
+          <div class="field">
+            <label for="email">Email</label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              inputmode="email"
+              autocomplete="email"
+              required
+              placeholder="you@example.com"
+            />
+          </div>
+
+          <div class="field">
+            <label for="platform">Which app?</label>
+            <select id="platform" name="platform">
+              <option value="Not sure">Not sure / other</option>
+              <option value="iOS">iPhone or iPad (iOS)</option>
+              <option value="Android">Android</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="message">What's going on?</label>
+            <textarea
+              id="message"
+              name="message"
+              rows="7"
+              required
+              placeholder="Describe the problem or your feedback. If it's a bug, what were you doing when it happened?"
+            ></textarea>
+          </div>
+
+          <div class="contact-turnstile-row">
+            {/* Turnstile sitekey for the app-support widget (its own dashboard
+                widget, separate from /contact's). Site keys are public by
+                design. The matching SECRET key is set as the Worker's
+                APP_SUPPORT_TURNSTILE_SECRET — see workers/contact-form/README.md. */}
+            <div class="cf-turnstile" data-sitekey="0x4AAAAAAD0IEcrO41zUIZfI"></div>
+            <p class="contact-status" role="status" aria-live="polite" aria-atomic="true"></p>
+          </div>
+
+          <button class="contact-button" type="submit">Send message</button>
+
+          <p class="contact-privacy">
+            This form sends your message to our support inbox and is not
+            intended for sensitive personal information.
+            <br />
+            <br />
+            We will never sell or share your information. Have a general
+            question about the translation instead? Use the
+            <a href="/contact/">contact page</a>.
+          </p>
+        </form>
+      </div>
+
+      <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer is:inline></script>
+
+      <script is:inline>
+        (() => {
+          const form = document.querySelector("form[data-contact-form]");
+          if (!form) return;
+
+          const status = form.querySelector(".contact-status");
+          const button = form.querySelector('button[type="submit"]');
+
+          form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            // Honeypot filled? Pretend success.
+            const hp = form.querySelector('input[name="_gotcha"]');
+            if (hp && hp.value) return;
+
+            // Turnstile token missing? Block submission.
+            const turnstileToken = form.querySelector('input[name="cf-turnstile-response"]');
+            if (!turnstileToken || !turnstileToken.value) {
+              status.textContent = "Please complete the security check before sending.";
+              return;
+            }
+
+            status.className = "contact-status";
+            status.textContent = "";
+            button.disabled = true;
+
+            try {
+              const data = new FormData(form);
+              const res = await fetch(form.action, {
+                method: "POST",
+                body: data,
+                headers: { Accept: "application/json" },
+              });
+
+              if (res.ok) {
+                form.reset();
+                status.className = "contact-status is-success";
+                status.textContent = "Thanks — your message has been sent.";
+                if (window.turnstile) window.turnstile.reset();
+              } else {
+                status.className = "contact-status is-error";
+                status.textContent =
+                  res.status === 403
+                    ? "The security check could not be verified. Please complete it again and resend."
+                    : res.status === 429
+                      ? "Several messages were sent in a short time. Please wait a minute and try again."
+                      : "Something went wrong. Please try again in a moment.";
+                // Turnstile tokens are single-use: the server consumed this
+                // one, so a retry needs a fresh widget pass.
+                if (window.turnstile) window.turnstile.reset();
+              }
+            } catch {
+              status.className = "contact-status is-error";
+              status.textContent =
+                "Network error. Please try again in a moment.";
+            } finally {
+              button.disabled = false;
+            }
+          });
+        })();
+      </script>
+    </section>
+  </div>
+</Layout>
