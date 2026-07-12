@@ -2,27 +2,35 @@
 import Layout from "../layouts/Layout.astro";
 import "../styles/pages/apps.css";
 
-/*
-  ┌───────────────────────────────────────────────────────────────────────┐
-  │ LAUNCH-DAY EDITS — do these when the apps go live in the stores.        │
-  │                                                                         │
-  │ 1. STORE LINKS. Fill in the two URLs below, then in the markup replace  │
-  │    the `.apps-store-row` "coming soon" block with the commented-out     │
-  │    `<!-- LIVE STORE BADGES -->` block a few lines under it. That block   │
-  │    references /images/app-store-badge.svg and                           │
-  │    /images/google-play-badge.png — drop the OFFICIAL badge artwork in    │
-  │    public/images/ first (Apple: developer marketing resources; Google:  │
-  │    https://play.google.com/intl/en_us/badges/). Do not recolor or       │
-  │    redraw the badges; official artwork only.                            │
-  │ 2. SCREENSHOTS. Replace the `.apps-phone` CSS mock in the hero with a    │
-  │    real screenshot: swap the inner `.apps-phone__screen` markup for      │
-  │    `<img src="/images/app-screenshot-1.png" ... />`. Repeat for the     │
-  │    `.apps-gallery` slots lower down if you add a gallery.               │
-  │ 3. COPY. Change the "coming soon" framing to "available now": the        │
-  │    `.apps-eyebrow`, the hero `<h1>`, the hero lede, and the closing CTA  │
-  │    heading/paragraph are the only spots that say "coming soon".         │
-  └───────────────────────────────────────────────────────────────────────┘
-*/
+/* ─────────────────────────────────────────────────────────────────────────
+   LAUNCH-DAY EDITS — do these when the apps go live in the stores.
+   ─────────────────────────────────────────────────────────────────────────
+   ON THIS PAGE:
+
+   1. STORE LINKS. Fill in the two URLs below, then in the markup replace the
+      `.apps-store-row` "coming soon" block with the commented-out
+      `<!-- LIVE STORE BADGES -->` block a few lines under it. That block
+      references /images/app-store-badge.svg and /images/google-play-badge.png
+      — drop the OFFICIAL badge artwork in public/images/ first (Apple:
+      developer marketing resources; Google:
+      https://play.google.com/intl/en_us/badges/). Do not recolor or redraw
+      the badges; official artwork only.
+   2. SCREENSHOTS. Replace the `.apps-phone` CSS mock in the hero with a real
+      screenshot: swap the inner `.apps-phone__screen` markup for
+      `<img src="/images/app-screenshot-1.png" ... />`. Repeat for any gallery
+      slots you add lower down.
+   3. COPY. Change the "coming soon" framing to "available now": the
+      `.apps-eyebrow`, the hero `<h1>`, the hero lede, and the closing CTA
+      heading/paragraph are the only spots that say "coming soon".
+
+   ELSEWHERE — cross-promote the apps once they are live:
+
+   4. /read PAGE. Add a short mention of the apps on src/pages/read.astro (the
+      reading landing) with a link to /apps for more information.
+   5. liberatingscripture.org. Add LIT Bible apps info on the org site,
+      probably on the existing /lit-bible/ page, or possibly a new /apps page
+      there. (Separate repo: C:\Users\bcjoh\GitHub\liberatingscripture.github.io)
+   ───────────────────────────────────────────────────────────────────────── */
 
 // Filled in at launch (see LAUNCH-DAY EDITS above).
 const APP_STORE_URL = ""; // e.g. https://apps.apple.com/app/id...
