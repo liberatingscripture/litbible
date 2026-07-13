@@ -256,15 +256,11 @@ body.bg-cream > main {
 
 .views-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
+  /* Auto-fit within the shared 72ch content width: 3-up on desktop, then
+     reflows to 2-up / 1-up on its own as the width shrinks. */
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
   text-align: left;
-}
-
-@media (max-width: 640px) {
-  .views-grid {
-    grid-template-columns: 1fr;
-  }
 }
 
 .view-card {
@@ -279,10 +275,19 @@ body.bg-cream > main {
   flex-direction: column;
 }
 
-@media (max-width: 640px) {
-  .view-card {
-    display: block;
-  }
+/* Badge on the "coming soon" apps card */
+.view-card__badge {
+  align-self: flex-start;
+  display: inline-block;
+  margin: 0 0 10px;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: rgba(var(--ink-rgb), 0.06);
+  color: var(--green-text, #0f6b33);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
 
 .view-card__title {
