@@ -42,8 +42,14 @@ import PlatformIcon from './PlatformIcon.astro';
 
 <style>
   .hero {
-    padding-top: var(--space-7);
-    padding-bottom: var(--space-7);
+    padding-top: var(--space-6);
+    padding-bottom: var(--space-6);
+  }
+  @media (max-width: 640px) {
+    .hero {
+      padding-top: var(--space-5);
+      padding-bottom: var(--space-5);
+    }
   }
   .hero__inner {
     display: grid;
