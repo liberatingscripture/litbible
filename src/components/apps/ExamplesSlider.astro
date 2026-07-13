@@ -47,7 +47,12 @@ function lite(md: string): string {
 
 <style>
   .examples {
-    padding-block: var(--space-8);
+    padding-block: var(--space-7);
+  }
+  @media (max-width: 640px) {
+    .examples {
+      padding-block: var(--space-6);
+    }
   }
   .examples__head {
     max-width: var(--measure-prose);

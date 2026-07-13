@@ -45,8 +45,13 @@
 
 <style>
   .humane {
-    padding-block: var(--space-8);
+    padding-block: var(--space-7);
     background: var(--bg-soft);
+  }
+  @media (max-width: 640px) {
+    .humane {
+      padding-block: var(--space-6);
+    }
   }
   .humane__inner {
     display: grid;
