@@ -132,18 +132,28 @@ delete it.
 
 ## Opus — one session per item
 
-- [ ] **(O1) Article metadata upgrade.** Articles currently ship
-  `og:type=website`, no per-article JSON-LD, and `twitter:card=summary` even
-  with hero images. In `src/layouts/Layout.astro`, add optional props
-  (e.g. `ogType`, `twitterCard`) defaulting to current behavior; in
-  `src/pages/articles/[...slug].astro`, pass `ogType="article"`,
-  `twitterCard="summary_large_image"` when `heroImage` exists, emit
-  `article:published_time` (from `data.date`), and add a `BlogPosting`
-  JSON-LD block (headline, description, datePublished, author from
-  frontmatter `author` or "Brandon C. Vélez Johnson", image when heroImage,
-  publisher = Liberating Scripture Collective, url). Acceptance: view-source
-  of one article shows all new tags; non-article pages are byte-identical in
-  the head except untouched; `npm run build` passes.
+- [x] **(O1) Article metadata upgrade.**
+  DONE (2026-07-13): `src/layouts/Layout.astro` gained an `ogType = "website"`
+  prop (placed after the existing `twitterCard` prop) and its hardcoded
+  `og:type` meta now reads `{ogType}` — so every non-article page still emits
+  `og:type=website` and stays byte-identical in the head. `twitterCard` was
+  already a Layout prop, so no change there. `src/pages/articles/[...slug].astro`
+  now passes `ogType="article"` and `twitterCard={heroImage ?
+  "summary_large_image" : "summary"}`, and its head slot emits (after the
+  existing BreadcrumbList) an `article:published_time` meta (`data.date`
+  ISO) plus a `BlogPosting` JSON-LD block — headline, description
+  (`pageDescriptionRaw || undefined`), datePublished, author (`data.author ??
+  "Brandon C. Vélez Johnson"`), image (when heroImage), publisher =
+  Liberating Scripture Collective, url. `JSON.stringify` drops undefined keys,
+  so description/image cleanly vanish when absent (all current articles do have
+  a hero, so the no-hero path is code-only today). Verified against built HTML:
+  an article page emits `og:type=article`, `summary_large_image`,
+  `article:published_time`, and a valid all-fields `BlogPosting` (author
+  fallback confirmed on an article with no `author` frontmatter); `/about`
+  still shows `og:type=website` + `twitter:card=summary` with zero stray
+  article tags; `npm run build` passes (347 pages + Pagefind). Orthogonal to
+  F3's generated `/og/` scripture cards — those ride the untouched
+  `ogImage`/`twitterCard` props, and scripture pages never set `ogType`.
 
 - [ ] **(O2) Rename the ambiguous `index` prop.** `Layout.astro` uses `index`
   (Pagefind body opt-in) + `noindex` (robots); `ScriptureLayout.astro` uses
