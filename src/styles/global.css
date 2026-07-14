@@ -660,9 +660,7 @@ a:focus {
   margin-bottom: 14px;
 }
 
-/* Always in OpenDyslexic — serves as a font preview */
 .font-tray__heading {
-  font-family: 'OpenDyslexic', sans-serif !important;
   font-size: 0.9375rem;
   font-weight: 700;
   margin: 0;
@@ -696,6 +694,25 @@ a:focus {
   justify-content: space-between;
   gap: 12px;
   cursor: pointer;
+}
+
+.font-tray__label {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* Serves as a live font preview for the dyslexia-friendly toggle */
+.font-tray__label--preview {
+  font-family: 'OpenDyslexic', sans-serif !important;
+  font-weight: 700;
+}
+
+.font-tray__control {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
 }
 
 .font-tray__status {
@@ -757,10 +774,93 @@ a:focus {
   outline-offset: 2px;
 }
 
+/* ----- Theme row (fieldset reset) ----- */
+.font-tray__row--theme {
+  display: block;
+  border: 0;
+  margin: 14px 0 0;
+  padding: 0;
+  min-width: 0;
+  cursor: default; /* not the label-row pointer; only the segments are clickable */
+}
+
+.font-tray__legend {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--text);
+  padding: 0;
+  margin: 0 0 8px;
+  line-height: 1.2;
+}
+
+/* ----- Segmented theme control ----- */
+.font-tray__seg {
+  display: flex;
+  background: var(--surface-input);
+  border: 1px solid rgba(var(--ink-rgb), 0.13);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.font-tray__seg-option {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  padding: 6px 8px;
+  cursor: pointer;
+}
+
+.font-tray__seg-option + .font-tray__seg-option {
+  border-left: 1px solid rgba(var(--ink-rgb), 0.13);
+}
+
+.font-tray__seg-input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.font-tray__seg-text {
+  font-size: 0.875rem;
+  color: var(--text);
+  transition: color 150ms ease;
+}
+
+/* Selected pill: ink-on-green (~4.6:1) passes AA at this text size in both
+   themes since neither --ink nor --green shift with the theme; white-on-green
+   only reaches ~3.5:1 and would fail. */
+.font-tray__seg-input:checked + .font-tray__seg-text {
+  color: var(--ink);
+}
+
+.font-tray__seg-option:has(.font-tray__seg-input:checked) {
+  background: var(--green);
+  transition: background 150ms ease;
+}
+
+/* Ring must stay visible on the SELECTED segment too (green bg): a --green ring
+   would be green-on-green. --text contrasts against both the neutral field and
+   the green pill, and tracks the theme (ink in light, near-white in dark). */
+.font-tray__seg-input:focus-visible + .font-tray__seg-text {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .site-header__font-toggle,
   .font-tray__track,
-  .font-tray__track::after {
+  .font-tray__track::after,
+  .font-tray__seg-text,
+  .font-tray__seg-option {
     transition: none;
   }
 }

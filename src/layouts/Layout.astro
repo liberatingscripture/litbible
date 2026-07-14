@@ -40,7 +40,11 @@ const criticalDarkColor = isGreen ? "#E1DFD9" : "#F0F0F0";
 // .site-header covers the outer element; .site-header__inner covers the inner.
 // main{min-height:50svh} keeps the early paint from starting at height:0
 // before content arrives, avoiding a large layout shift on long pages.
-const criticalCSS = `html,body{margin:0;padding:0}html{scrollbar-gutter:stable}body{background:${criticalBg};color:${criticalColor}}.site-header{min-height:80px}.site-header__inner{min-height:80px;box-sizing:border-box}main{min-height:50svh}@media(prefers-color-scheme:dark){body{background:${criticalDarkBg};color:${criticalDarkColor}}}`;
+// The dark block mirrors global.css's dual mechanism so the pre-paint data-theme
+// attribute overrides it on first paint: the media rule is guarded with
+// :not([data-theme="light"]) (so a forced-light user on a dark OS gets no dark
+// frame), and an explicit :root[data-theme="dark"] rule forces dark on any OS.
+const criticalCSS = `html,body{margin:0;padding:0}html{scrollbar-gutter:stable}body{background:${criticalBg};color:${criticalColor}}.site-header{min-height:80px}.site-header__inner{min-height:80px;box-sizing:border-box}main{min-height:50svh}@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) body{background:${criticalDarkBg};color:${criticalDarkColor}}}:root[data-theme="dark"] body{background:${criticalDarkBg};color:${criticalDarkColor}}`;
 ---
 
 <!doctype html>
@@ -49,6 +53,9 @@ const criticalCSS = `html,body{margin:0;padding:0}html{scrollbar-gutter:stable}b
     <meta charset="utf-8" />
     <!-- Apply dyslexic-font class before first paint to avoid flash of default font -->
     <script is:inline>try{if(localStorage.getItem('dyslexic-font')==='1')document.documentElement.classList.add('dyslexic-font')}catch(_){}</script>
+    <!-- Apply the saved theme (light/dark) before first paint to avoid a flash of the wrong scheme.
+         Absence of 'lit-theme' = system: no attribute, CSS follows prefers-color-scheme. -->
+    <script is:inline>try{var t=localStorage.getItem('lit-theme');if(t==='light'||t==='dark'){document.documentElement.setAttribute('data-theme',t);document.documentElement.style.colorScheme=t;}}catch(_){}</script>
     <title>{title}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
