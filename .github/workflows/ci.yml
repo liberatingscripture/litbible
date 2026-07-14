@@ -27,6 +27,9 @@ jobs:
       - name: Validate chapter JSON
         run: npm run validate:chapters
 
+      - name: Run unit tests
+        run: npm test
+
       # fetch:podcast (first build step) is non-fatal by design — a feed
       # outage reuses the committed XML snapshot and the build continues.
       - name: Build site
