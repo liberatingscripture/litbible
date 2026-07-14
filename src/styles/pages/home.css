@@ -954,10 +954,12 @@ a.question-cta:focus::before {
   clip-path: inset(0 0 100% 0 round 16px);
 }
 
-/* End-state text: ink on green */
+/* End-state text: ink on green. Pinned to --ink (not --text) so it stays ink
+   on the revealed LIT-green base in BOTH themes — --text is light in dark mode,
+   which would drop to ~3.3:1 on green. Ink-on-green is 4.6:1. */
 a.question-cta:hover,
 a.question-cta:focus {
-  color: var(--text);
+  color: var(--ink);
   text-decoration: none;
 }
 
