@@ -145,17 +145,36 @@ delete it.
   of one article shows all new tags; non-article pages are byte-identical in
   the head except untouched; `npm run build` passes.
 
-- [ ] **(O2) Rename the ambiguous `index` prop.** `Layout.astro` uses `index`
-  (Pagefind body opt-in) + `noindex` (robots); `ScriptureLayout.astro` uses
-  `index` for ROBOTS; `ReadLayout.astro` forwards `index` to Layout's
-  Pagefind meaning. Rename to unambiguous names (suggest `pagefindIndex` and
-  `robotsNoindex`/`robotsIndex`) across ALL layouts and callers (grep for
-  `index=` in src/pages and src/layouts). Behavior must be identical.
-  Acceptance checklist after build: draft chapters (e.g. any
-  `indexed:false` chapter) still emit `noindex,follow`; `/search`, `/404`,
-  `/unsubscribe` still noindex; glossary + articles + intros still appear in
-  the Pagefind index (`dist/pagefind/` exists and search works in preview);
-  scripture chapter pages still are NOT Pagefind-indexed.
+- [x] **(O2) Rename the ambiguous `index` prop.**
+  DONE (2026-07-13): the overloaded `index` prop is gone. `Layout.astro` now
+  takes `pagefindIndex` (Pagefind body opt-in) + `robotsNoindex` (robots meta);
+  `ReadLayout` + `SearchLayout` forward `pagefindIndex`; `ScriptureLayout` takes
+  a positive-polarity `robotsIndex` caller prop (its internal `shouldIndex`
+  computation is unchanged, just reads the renamed prop) and forwards
+  `robotsNoindex={!shouldIndex}`. All callers updated: Pagefind-meaning
+  `index=` → `pagefindIndex=` (`read.astro`, `search.astro`,
+  `read/[book].astro`); robots-meaning `index=` → `robotsIndex=`
+  (`[slug].astro`); `noindex=` → `robotsNoindex=` (`404`, `unsubscribe`,
+  `app-support/thanks`, `contact/thanks`, `read/[book].astro`). The four layouts
+  routed the *same* old prop name to opposite concerns (SearchLayout→Pagefind,
+  ScriptureLayout→robots), which is exactly the footgun this removes; the new
+  names are deliberately asymmetric to make that visible.
+  **One intended behavior change (owner-approved 2026-07-13):** `/search` was
+  `index,follow` (Pagefind-excluded but never robots-noindexed — an oversight,
+  since SearchLayout never routed its prop to robots). It now emits
+  `noindex,follow` via `SearchLayout` forwarding `robotsNoindex={isSearchPage}`
+  — standard practice for on-site search pages. `/glossary` +
+  `/translation-commitments` were checked and left `index,follow` (content
+  pages, same as `/about`). NOTE for future: the robots prop is unrelated to
+  release-notes — those key off each chapter JSON's `indexed` field
+  (false→true), which separately also drives the draft-chapter robots noindex.
+  Verified: `npm run build` passes; a before/after SHA manifest of all 349
+  `dist/**/*.html` shows exactly ONE changed file (`dist/search/index.html`,
+  robots flip) and 348 byte-identical — proof of a clean rename. Spot-checks
+  pass: draft `acts-1` → `noindex,follow`, published `john-3` → `index,follow`
+  (body Pagefind-ignored), `mark-intro` → `index,follow` (Pagefind-indexed),
+  `/search`+`/404`+`/unsubscribe` → `noindex,follow`; `dist/pagefind/` present;
+  source grep shows zero bare `index=`/`noindex=` left on any layout element.
 
 - [x] **(O3) Rein in the welcome popover.**
   DONE (2026-07-13): gated the popover show condition in

@@ -115,8 +115,8 @@ const description = `Read ${bookName} in continuous scroll with Reading Mode.`;
   title={title}
   description={description}
   bg="cream"
-  index={false}
-  noindex={allChaptersDraft}
+  pagefindIndex={false}
+  robotsNoindex={allChaptersDraft}
 >
   <Fragment slot="head">
     <script type="application/ld+json" set:html={JSON.stringify({

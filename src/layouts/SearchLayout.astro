@@ -38,7 +38,7 @@ const {
    * If false, keep this page OUT of Pagefind indexing
    * (Defaults to false for search pages, true otherwise)
    */
-  index: indexProp,
+  pagefindIndex: pagefindIndexProp,
 } = Astro.props;
 
 const pagefindBook = book ?? "";
@@ -56,7 +56,7 @@ const topicsString = Array.isArray(topics)
     : "";
 
 const shouldIndex =
-  typeof indexProp === "boolean" ? indexProp : pagefindType !== "search";
+  typeof pagefindIndexProp === "boolean" ? pagefindIndexProp : pagefindType !== "search";
 
 const isSearchPage = pagefindType === "search";
 
@@ -72,7 +72,8 @@ const baseUrl = import.meta.env.BASE_URL || "/";
   description={description}
   canonical={canonical}
   bg={bg}
-  index={shouldIndex}
+  pagefindIndex={shouldIndex}
+  robotsNoindex={isSearchPage}
 >
   <slot slot="head" name="head" />
 

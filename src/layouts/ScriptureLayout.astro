@@ -36,10 +36,11 @@ const {
   showToolsSearch = true,
 
   /**
-   * If false, keep this page OUT of Pagefind indexing
+   * Controls the robots meta (noindex/index) via Layout, and — for intro
+   * pages — whether this page emits its own Pagefind meta/body indexing.
    * (Defaults to false for search pages, true otherwise)
    */
-  index: indexProp,
+  robotsIndex: robotsIndexProp,
 
   /**
    * Social share image (absolute URL) + matching Twitter card type,
@@ -71,7 +72,7 @@ const topicsList: string[] = Array.isArray(topics)
     : [];
 
 const shouldIndex =
-  typeof indexProp === "boolean" ? indexProp : pagefindType !== "search";
+  typeof robotsIndexProp === "boolean" ? robotsIndexProp : pagefindType !== "search";
 
 // Scripture CHAPTER pages are intentionally NOT Pagefind-indexed: their
 // keyword search runs against the verse index (public/search/verses.json —
@@ -100,7 +101,7 @@ if (headerKind === "chapter") {
 }
 ---
 
-<Layout title={title} description={description} canonical={canonical} bg={bg} noindex={!shouldIndex} ogImage={ogImage} twitterCard={twitterCard}>
+<Layout title={title} description={description} canonical={canonical} bg={bg} robotsNoindex={!shouldIndex} ogImage={ogImage} twitterCard={twitterCard}>
   <slot slot="head" name="head" />
 
   <div class={`scripture-layout scripture-layout--${pagefindType}`}>

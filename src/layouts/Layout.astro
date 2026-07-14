@@ -12,8 +12,8 @@ const {
   canonical,
   bg = "cream",
   headerClass = "",
-  index = false, // ✅ default: do NOT index generic pages
-  noindex = false, // when true → <meta name="robots" content="noindex,follow">
+  pagefindIndex = false, // ✅ default: do NOT Pagefind-index generic pages
+  robotsNoindex = false, // when true → <meta name="robots" content="noindex,follow">
   ogImage,
   twitterCard = "summary", // "summary_large_image" for pages with wide ogImage art
   hideFooterNewsletter = false, // pages with their own Brevo form (e.g. /unsubscribe)
@@ -51,7 +51,7 @@ const criticalCSS = `html,body{margin:0;padding:0}html{scrollbar-gutter:stable}b
     <title>{title}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
-    <meta name="robots" content={noindex ? "noindex,follow" : "index,follow"} />
+    <meta name="robots" content={robotsNoindex ? "noindex,follow" : "index,follow"} />
     {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
 
     <!-- Open Graph -->
@@ -110,11 +110,11 @@ const criticalCSS = `html,body{margin:0;padding:0}html{scrollbar-gutter:stable}b
 <slot name="head" />
   </head>
 
-  <body class={`bg-${bg}`} data-pagefind-ignore={index ? undefined : true}>
+  <body class={`bg-${bg}`} data-pagefind-ignore={pagefindIndex ? undefined : true}>
     <a href="#main-content" class="skip-link">Skip to content</a>
     <SiteHeader class={headerClass} />
 
-    <main id="main-content" data-pagefind-body={index ? true : undefined}>
+    <main id="main-content" data-pagefind-body={pagefindIndex ? true : undefined}>
       <slot />
     </main>
 
