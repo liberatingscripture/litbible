@@ -272,6 +272,20 @@ collection); they're read directly by the intro pages and the API manifest.
 - **No client JS framework**, but `src/scripts/` *does* hold vanilla JS for
   progressive enhancement (verse highlighting/menus, footnote popovers, reading
   mode, search). Everything must degrade gracefully without JS.
+- **Theming (light/dark) is a dual mechanism.** Dark-mode tokens are declared
+  twice — `@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) … }`
+  (follow the OS) and `:root[data-theme="dark"] … }` (explicit override) — in
+  `global.css` and mirrored in a few page stylesheets (`apps.css`,
+  `found-in-translation-podcast.css`, `translation-commitments.css`) and
+  `ReadMenu.astro`. The header "Aa" tray (`SiteHeader.astro`, heading
+  **"Display"**) is a 3-state control (**System / Light / Dark**) persisted in
+  `localStorage['lit-theme']` (`light`/`dark`; **key absent = System**).
+  `Layout.astro` stamps `data-theme` on `<html>` in a pre-paint `is:inline`
+  script (beside the dyslexic-font one) and mirrors `documentElement.style.colorScheme`,
+  so there's no flash; its inline `criticalCSS` carries the same guarded pair so a
+  forced theme wins the first paint. No JS → no attribute → OS pref governs. When
+  adding a dark-mode style anywhere, use BOTH selectors or the toggle's "force
+  light/dark" states will leak.
 - **Search is two engines behind three client modules** in `src/scripts/`:
   - *Scripture keyword search* scans `public/search/verses.json` (built by
     `build-verse-index.mjs`) in the client — verse-exact results ("John 3:16"

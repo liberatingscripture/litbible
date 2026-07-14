@@ -302,15 +302,42 @@ delete it.
   near-white token if contrast still holds at the new value — same rule as
   before: surfaces and body text are fair game, text/graphics-on-color are not.
 
-- [ ] **(O7) data-theme toggle — GATED on the Owner decision below.** If the
-  owner wants it: add a light/dark toggle to the "Aa" tray in
-  `SiteHeader.astro` (three states: system/light/dark), persist in
-  localStorage, apply `data-theme` on `<html>` in a pre-paint inline script
-  exactly like the existing `dyslexic-font` snippet in `Layout.astro` (avoid
-  a flash), and note that `Layout.astro`'s critical dark-mode CSS uses
-  `prefers-color-scheme` — it must respect the override too. If the owner
-  declines: delete the `:root[data-theme=...]` rules from global.css,
-  translation-commitments.css, and found-in-translation-podcast.css instead.
+- [x] **(O7) data-theme toggle — SHIPPED.**
+  DONE (2026-07-14, owner decided to ship): added a 3-state light/dark control
+  to the header "Aa" tray. The `:root[data-theme=…]` CSS was already a full dual
+  mechanism (`@media(prefers-color-scheme:dark){:root:not([data-theme="light"])…}`
+  + `:root[data-theme="dark"]…`) across `global.css` + `apps.css` +
+  `found-in-translation-podcast.css` + `translation-commitments.css` +
+  `ReadMenu.astro`; only the UI control and a pre-paint attribute-setter were
+  missing. What shipped:
+  - `SiteHeader.astro`: the "Aa" tray heading is now **Display** (both trigger
+    buttons' `sr-only` labels + the close label relabeled to "Display
+    settings"); the dyslexia switch gained a visible "Dyslexia-friendly font"
+    label (carrying the OpenDyslexic preview moved off the heading) and a new
+    **Theme** `<fieldset>` holds a segmented radio group (System / Light / Dark,
+    native arrow-key a11y). Wiring lives in the existing idle-deferred
+    `initFontTray`: on change it sets/removes `data-theme` on `<html>`, mirrors
+    `style.colorScheme`, and writes/removes `localStorage['lit-theme']`
+    (`light`/`dark`; System removes both, so absence = System). `syncTheme()`
+    runs at init and on each tray open so the control reflects the live state.
+  - `Layout.astro`: a pre-paint `<script is:inline>` (beside the dyslexic-font
+    one) stamps `data-theme` + `colorScheme` from storage before first paint;
+    the inline `criticalCSS` dark block was brought in line with the dual
+    pattern (guarded media rule + explicit `:root[data-theme="dark"] body`) so a
+    forced theme doesn't flash the opposite scheme on first paint.
+  - `global.css`: segmented-control styles (selected pill is ink-on-green,
+    ~4.6:1 and stable in both themes since neither `--ink` nor `--green` flips;
+    focus ring uses `--text` so it stays visible on the green pill), all
+    token-based so it adapts under `data-theme="dark"`.
+  Semantics: System removes the attribute (CSS falls back to
+  `prefers-color-scheme`, live-updates on OS change with zero JS); Light forces
+  `data-theme="light"`; Dark forces `data-theme="dark"`. No-JS = tray never
+  opens, no attribute set, OS pref governs. Verified in dev across both emulated
+  OS schemes: all three states; both no-flash directions (forced-dark on a light
+  OS paints dark on first load, forced-light on a dark OS paints cream with no
+  dark frame); persistence across reload; System live-updating on an OS flip;
+  keyboard operation (Tab + arrow keys, visible focus ring); and `npm run build`
+  passes. CLAUDE.md gained a "Theming" convention bullet.
 
 ## Fable — one session each, owner in the loop
 
@@ -491,8 +518,10 @@ delete it.
   text/footnotes/intros/glossary/articles under CC BY-NC-ND 4.0, with an
   explicit file-area breakdown of which is which. CONTRIBUTING.md's "License
   note" updated to match.
-- [ ] **Decide the theme toggle** (gates Opus item O7): ship a light/dark
-  toggle, or remove the unused `data-theme` CSS hooks.
+- [x] **Decide the theme toggle** (gates Opus item O7).
+  DONE (2026-07-14): owner chose to **ship** the light/dark toggle. The
+  `data-theme` CSS hooks were kept and wired up, not removed. Implemented as
+  O7 above.
 - [ ] **Cloudflare dashboard:** verify Web Analytics is actually enabled (the
   privacy policy asserts it); confirm HSTS under SSL/TLS → Edge Certificates
   (feeds F2).

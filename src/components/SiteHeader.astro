@@ -49,7 +49,7 @@ const { class: className = "" } = Astro.props;
             data-font-toggle
           >
             <span aria-hidden="true">Aa</span>
-            <span class="sr-only">Accessibility font settings</span>
+            <span class="sr-only">Display settings</span>
           </button>
         </li>
       </ul>
@@ -64,7 +64,7 @@ const { class: className = "" } = Astro.props;
         data-font-toggle
       >
         <span aria-hidden="true">Aa</span>
-        <span class="sr-only">Accessibility font settings</span>
+        <span class="sr-only">Display settings</span>
       </button>
       <button
         class="site-header__menu-toggle"
@@ -83,20 +83,41 @@ const { class: className = "" } = Astro.props;
   <!-- Shared tray — position: fixed, positioned by JS below whichever button opened it -->
   <div class="font-tray" id="fontTray" hidden role="dialog" aria-labelledby="fontTrayHeading">
     <div class="font-tray__header">
-      <p class="font-tray__heading" id="fontTrayHeading">Accessibility Font</p>
-      <button type="button" class="font-tray__close" aria-label="Close font settings">
+      <p class="font-tray__heading" id="fontTrayHeading">Display</p>
+      <button type="button" class="font-tray__close" aria-label="Close display settings">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
           <path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
         </svg>
       </button>
     </div>
     <label class="font-tray__row">
-      <span class="font-tray__status" id="dyslexicFontStatus" aria-hidden="true">Off</span>
-      <span class="font-tray__switch">
-        <input type="checkbox" class="font-tray__checkbox" id="dyslexicFontCheckbox" aria-label="Dyslexia-friendly font" />
-        <span class="font-tray__track" aria-hidden="true"></span>
+      <span class="font-tray__label font-tray__label--preview">Dyslexia-friendly font</span>
+      <span class="font-tray__control">
+        <span class="font-tray__status" id="dyslexicFontStatus" aria-hidden="true">Off</span>
+        <span class="font-tray__switch">
+          <input type="checkbox" class="font-tray__checkbox" id="dyslexicFontCheckbox" aria-label="Dyslexia-friendly font" />
+          <span class="font-tray__track" aria-hidden="true"></span>
+        </span>
       </span>
     </label>
+
+    <fieldset class="font-tray__row font-tray__row--theme">
+      <legend class="font-tray__legend">Theme</legend>
+      <div class="font-tray__seg">
+        <label class="font-tray__seg-option">
+          <input type="radio" class="font-tray__seg-input" name="lit-theme" value="system" data-theme-radio />
+          <span class="font-tray__seg-text">System</span>
+        </label>
+        <label class="font-tray__seg-option">
+          <input type="radio" class="font-tray__seg-input" name="lit-theme" value="light" data-theme-radio />
+          <span class="font-tray__seg-text">Light</span>
+        </label>
+        <label class="font-tray__seg-option">
+          <input type="radio" class="font-tray__seg-input" name="lit-theme" value="dark" data-theme-radio />
+          <span class="font-tray__seg-text">Dark</span>
+        </label>
+      </div>
+    </fieldset>
   </div>
 
   <!-- Mobile overlay menu -->
@@ -221,6 +242,8 @@ const { class: className = "" } = Astro.props;
 
       if (!tray || !closeBtn || !checkbox || !toggleBtns.length) return;
 
+      const themeRadios = Array.from(tray.querySelectorAll('[data-theme-radio]'));
+
       // Move the tray out of the header's stacking context (.site-header has
       // z-index:10) so its own z-index competes at the top level — otherwise
       // it renders behind page elements like the ScriptureMenu on study pages.
@@ -233,6 +256,13 @@ const { class: className = "" } = Astro.props;
       const syncStatus = (active) => {
         checkbox.checked = active;
         if (statusEl) statusEl.textContent = active ? 'On' : 'Off';
+      };
+
+      const currentTheme = () => document.documentElement.getAttribute('data-theme') || 'system';
+
+      const syncTheme = () => {
+        const active = currentTheme();
+        for (const radio of themeRadios) radio.checked = radio.value === active;
       };
 
       const positionTray = (btn) => {
@@ -253,6 +283,7 @@ const { class: className = "" } = Astro.props;
       const openTray = (btn) => {
         activeBtn = btn;
         syncStatus(document.documentElement.classList.contains('dyslexic-font'));
+        syncTheme();
         positionTray(btn);
         tray.hidden = false;
         btn.setAttribute('aria-expanded', 'true');
@@ -296,7 +327,28 @@ const { class: className = "" } = Astro.props;
         } catch (_) {}
       });
 
+      for (const radio of themeRadios) {
+        radio.addEventListener('change', () => {
+          if (!radio.checked) return;
+          const v = radio.value; // 'system' | 'light' | 'dark'
+          const root = document.documentElement;
+          if (v === 'light' || v === 'dark') {
+            root.setAttribute('data-theme', v);
+            root.style.colorScheme = v;
+          } else {
+            root.removeAttribute('data-theme');
+            root.style.colorScheme = '';
+          }
+          try {
+            v === 'system'
+              ? localStorage.removeItem('lit-theme')
+              : localStorage.setItem('lit-theme', v);
+          } catch (_) {}
+        });
+      }
+
       syncStatus(document.documentElement.classList.contains('dyslexic-font'));
+      syncTheme();
     };
     if ("requestIdleCallback" in window) {
       requestIdleCallback(initFontTray, { timeout: 2000 });
