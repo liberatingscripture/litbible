@@ -367,7 +367,16 @@
     "welcome-popover",
   ) as HTMLDialogElement;
 
-  if (dialog && !getCookie(COOKIE_NAME)) {
+  let pageviews = 1;
+  try {
+    pageviews = (parseInt(sessionStorage.getItem("lit_pv") || "0", 10) || 0) + 1;
+    sessionStorage.setItem("lit_pv", String(pageviews));
+  } catch (_) { /* storage unavailable → treat as first pageview */ }
+
+  const isVerseDeepLink = /^#v\d+$/.test(location.hash);
+  const eligible = !isVerseDeepLink && pageviews >= 2;
+
+  if (dialog && !getCookie(COOKIE_NAME) && eligible) {
     // Open once the main thread is idle so the page's load-time long tasks
     // (fonts, header scripts) finish first. The popover forces an immediate
     // first interaction (the close click); opening it before those tasks
