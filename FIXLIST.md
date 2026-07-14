@@ -207,18 +207,43 @@ delete it.
   `/glossary` (2nd pageview) → shows once; dismiss-then-reload → stays closed
   with `lit_welcome_v2=1` set.
 
-- [ ] **(O4) Unit tests for search-core.** `src/scripts/search-core.js`
-  (~1,100 lines) has zero tests. Use Node's built-in `node:test` runner (no
-  new deps). If the module imports browser globals at top level, do the
-  minimal refactor to keep pure logic importable in Node (no behavior
-  change). Cover at minimum: book-alias + reference parsing ("John 3:16",
-  "1 cor 13", "jn 3:16-18", bare book names), verse-index scanning
-  (whole-word + phrase + diacritic folding: "lema" matches "lemá"),
-  `rankVerseHits` ordering (exact form above related, more occurrences above
-  fewer), and `nearestVocabWord` conservatism (corrects "jeribulem"→
-  "jerusalem"; does NOT correct short/quoted tokens). Add `"test"` script to
-  package.json and a test step to `.github/workflows/ci.yml` before the
-  build step.
+- [x] **(O4) Unit tests for search-core.**
+  DONE (2026-07-13): added `test/search-core.test.js` — 35 tests using Node's
+  built-in `node:test` + `node:assert/strict`, **no new deps**. **No refactor
+  was needed**: `search-core.js` imports no browser globals at top level
+  (`document` is touched only inside `glossaryTermsFromDom`, guarded by
+  `typeof document === "undefined"`; `fetch` only inside the async
+  `loadVerseIndex`/`loadTopicsIndex`), and `package.json` is already
+  `"type": "module"`, so Node imports the module and its chain
+  (`../data/books.js`, `../lib/word-stem.mjs`) directly. The scanner is fully
+  injectable — a local `makeIndex(verses, vocab)` helper builds the
+  `{ verses, vocab, formsByStem }` object exactly as `loadVerseIndex` does
+  (grouping vocab by the REAL `stemWord`), so related-form matching is tested
+  against the actual stemmer with no fetch and no disk fixtures. Coverage: all
+  four required areas — reference + book-alias parsing (incl. the negatives
+  "genesis 1:1"→null, "John"→null, reversed range drops `rangeEnd`); verse
+  scanning (whole-word, phrase = consecutive tokens, hyphen/apostrophe
+  boundary, diacritic folding "lema"↔"lemá", related-form expansion
+  "liberation"→"liberate", `bookKey` scoping); `rankVerseHits` ordering
+  (exact-over-related, more-runs-over-fewer, stable ties, returns a new array
+  without mutating input); and `nearestVocabWord` conservatism (via
+  `searchVerses().correction`: corrects "jeribulem"→"jerusalem", refuses
+  quoted tokens, refuses ≤4-char tokens, refuses the distance-3 no-suffix pair
+  "forgivness"/"foreigners"). `nearestVocabWord`/`findTokenRuns` aren't
+  exported, so they're covered as black boxes through `searchVerses`. Also
+  added a handful of adjacent-contract helper tests (`buildPfQuery` quoting
+  rules, `formatReferenceLabel`, `makeStudyReferenceHref`, `highlightVerseHit`
+  mark-wrapping + HTML escaping). Wired `"test"` into `package.json` and a
+  `Run unit tests` step into `.github/workflows/ci.yml` (after Validate
+  chapter JSON, before Build site).
+  **One deviation from the item's literal example string:** the item said
+  `"test": "node --test test/"`, but on Node 24 (this repo's engine) the
+  bare-directory positional yields a spurious failure — the runner treats it
+  as an entry module, not a search root. Used the correct current-Node syntax
+  `"test": "node --test \"test/**/*.js\""` instead (same intent: scan only
+  `test/`). Verified: `npm test` → 35/35 pass; the subagent's full
+  `npm run build` → green (347 pages + Pagefind). Tests only; zero behavior
+  change to `search-core.js`.
 
 - [x] **(O5) Post-build link checker.**
   DONE: new `scripts/check-links.mjs` walks `dist/**/*.html`, extracts every
