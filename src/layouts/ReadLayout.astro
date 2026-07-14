@@ -13,7 +13,7 @@ type Props = {
    * If false, keep this page OUT of Pagefind indexing.
    * Default: true for reading pages.
    */
-  index?: boolean;
+  pagefindIndex?: boolean;
 };
 
 const {
@@ -21,11 +21,11 @@ const {
   description = "",
   bg = "cream",
   showTools = true,
-  index = true,
+  pagefindIndex = true,
 } = Astro.props as Props;
 ---
 
-<Layout title={title} description={description} bg={bg} index={index}>
+<Layout title={title} description={description} bg={bg} pagefindIndex={pagefindIndex}>
   <slot slot="head" name="head" />
   <div class="read-layout">
     <header class="read-layout__hero">
