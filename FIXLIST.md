@@ -157,16 +157,26 @@ delete it.
   the Pagefind index (`dist/pagefind/` exists and search works in preview);
   scripture chapter pages still are NOT Pagefind-indexed.
 
-- [ ] **(O3) Rein in the welcome popover.** `src/components/WelcomePopover.astro`
-  currently shows on ANY first pageview (cookie `lit_welcome_v2`), including
-  shared verse deep links, and counts as an intrusive interstitial for mobile
-  search entrances. Change the show condition to: homepage only
-  (`location.pathname === "/"`), OR (better) any page on the visitor's
-  second+ pageview — track a session pageview count in sessionStorage.
-  Never show when `location.hash` matches `#v\d+` (arriving at a shared
-  verse). Keep the cookie dismissal logic unchanged. Acceptance: first visit
-  to `/john-3#v16` shows no popover; homepage first visit shows it; dismissal
-  still persists 30 days.
+- [x] **(O3) Rein in the welcome popover.**
+  DONE (2026-07-13): gated the popover show condition in
+  `src/components/WelcomePopover.astro` with two new checks, leaving all
+  dismissal logic (30-day `lit_welcome_v2` cookie, X/backdrop/Escape/CTA
+  handlers, requestIdleCallback deferral) untouched: (1) a session pageview
+  counter in `sessionStorage` (`lit_pv`, try/catch-wrapped, falls back to
+  "first pageview" when storage is unavailable) so it only shows on the
+  visitor's 2nd-or-later pageview; (2) a `/^#v\d+$/` guard on `location.hash`
+  so shared-verse deep links never trigger it.
+  **Deliberate deviation from the acceptance text above:** the owner overrode
+  "homepage first visit shows it." Google's intrusive-interstitial penalty
+  targets a modal on the page a user lands on FROM SEARCH, and the homepage is
+  a top search-landing page, so a homepage-first-view popover is close to the
+  worst case for the very penalty this item exists to avoid. Final rule shows
+  it on NO session entrance (homepage included) — only from the 2nd+ pageview,
+  which is internal navigation, not a search entrance. Verified via `npm run
+  build` (passes) + 5 dev-server browser scenarios: fresh `/` → no popover;
+  fresh `/glossary` → no popover; fresh `/john-3#v16` → no popover; `/` then
+  `/glossary` (2nd pageview) → shows once; dismiss-then-reload → stays closed
+  with `lit_welcome_v2=1` set.
 
 - [ ] **(O4) Unit tests for search-core.** `src/scripts/search-core.js`
   (~1,100 lines) has zero tests. Use Node's built-in `node:test` runner (no
