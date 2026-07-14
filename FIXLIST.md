@@ -261,46 +261,63 @@ delete it.
   resolve to `dist/read/index.html` and pass; a negative test (bogus page
   target + bogus fragment injected into a built page) exits 1 naming both.
 
-- [ ] **(O6) White-on-green button contrast sweep.** #209D50 with white text
-  is ≈3.5:1 — passes WCAG only as "large text" (≥18.66px bold, or ≥24px any
-  weight). For each remaining `--green`-background control — header "Read
-  Now" CTA (global.css), chapter Previous/Next buttons
-  (`ScriptureHeader.astro` — hardcoded `#209d50` + white text), the
-  SearchBar submit button (`SearchBar.astro` `.searchbar__submit`, green bg
-  + white arrow icon — NOTE: only rendered at ≤900px viewports, so test at
-  narrow widths or it will be missed; icon-only controls need 3:1 for the
-  graphic, not the text rule),
-  search page buttons (`search.astro`), intro-page CTA
-  (`[book]-intro.astro`), home question-card CTAs + callout CTA (home.css /
-  global.css), 404 CTAs (`404.astro`), podcast page buttons
-  (found-in-translation-podcast.css), courses signup link (courses.css uses
-  white bg — skip), articles newsletter Subscribe button + article CTA
-  (`articles.css` `.btn`/`.btn--cta` — the Subscribe button measured failing
-  at 13.3px white-on-green during F5), contact submit (contact.css),
-  unsubscribe submit (unsubscribe.css — already ink text, just verify) —
-  measure the computed font-size/weight in dev tools,
-  and either (a) leave it if it qualifies as large text, or (b) switch its
-  background to `var(--green-text)` like `.chapter-cta`. Record the verdict
-  per button in the commit message. The green page hero backgrounds were
-  handled by F5 (ink text on green — done); don't re-touch those surfaces.
-
-  **Addition — note the `::selection` green.** The site's text-selection
-  highlight (`::selection` in global.css) uses `var(--green)` as the
-  background, matched by the ported `/apps` page. Owner likes this and it
-  should stay; call out its contrast (selected text color against the green
-  highlight) in the audit alongside the other green-background surfaces above,
-  since it's a green-bg + text case this item would otherwise miss.
-
-  **Addition — white vs. near-white audit.** The 2026-07-12 brand-surface
-  rebrand (see `--surface-raised` in global.css) softened *raised surfaces*
-  from pure `#FFFFFF` to near-white `#FAFAF8` (and the dark surfaces to a
-  deeper near-black) site-wide, deliberately leaving white-as-TEXT-or-graphic
-  (green/dark-mode CTA labels, toggle knobs, hamburger bars, etc.) untouched.
-  As part of this item, sweep the codebase for any remaining stark `#FFFFFF`/
-  `#fff`/`white` **surface** usages that were missed by that rebrand (search
-  `src/styles/**/*.css` and component `<style>` blocks) and soften them to the
-  near-white token if contrast still holds at the new value — same rule as
-  before: surfaces and body text are fair game, text/graphics-on-color are not.
+- [x] **(O6) White-on-green button contrast sweep.**
+  DONE (2026-07-14, owner picked the direction from live light/dark mockups):
+  white on `--green` (#209D50) is only ≈3.5:1 — passes WCAG AA only as large
+  text. The item's prescribed fix ("switch background to `var(--green-text)`
+  like `.chapter-cta`") **could not be followed literally**: `--green-text` is a
+  *text* token that FLIPS to a light `#3abf6a` in dark mode, where white text
+  drops to ≈2.4:1. Since the dark toggle (O7) shipped the same day, that made
+  `.chapter-cta` (shipped white-on-`--green-text` in P4) a **live dark-mode
+  bug**. Owner chose a **two-green convention** instead: a new theme-invariant
+  token **`--green-deep: #0F6B33`** ("Deep Green", defined once in `:root`, NOT
+  in the dark blocks) for solid buttons/CTAs — white text is 6.6:1 in BOTH
+  themes — paired with `--green` (LIT Green) for surfaces. The clean rule:
+  **Deep Green = every solid button; LIT Green = surfaces + non-button icon
+  accents.**
+  - **Fixed → Deep Green + white (6.6:1 both themes):** `.nav-button`
+    (ScriptureHeader, was hardcoded `#209d50`, 16px), `.menu-overlay__cta`
+    (mobile "Read Now", 17.6px), `.suggest-word`/`.search-ref__link`/`.pager-btn`
+    (search.astro, 14–16px), `.not-found__cta` (404, 15.2px), `.chapter-cta`
+    (intro page — was `--green`, 16px), `.fit-platform` (podcast, 15.2px),
+    `.btn--cta` (articles Subscribe/CTA, ≈13.3px), `.contact-button` (15.2px),
+    and — owner follow-up in the same session — `.searchbar__submit`
+    (SearchBar.astro; white *icon*, was passing at 3:1 but switched to match the
+    Prev/Next buttons for consistency). All keep their existing `--ink`/surface
+    hovers.
+  - **`.chapter-cta` (scripture, `[slug].astro`) dark bug fixed:** its
+    `var(--green-text)` background → `var(--green-deep)`. Byte-identical in light,
+    2.4:1 → 6.6:1 in dark.
+  - **Curtain CTAs** (`.site-header__cta` desktop "Read Now"; `a.question-cta`
+    home): rest state is green-on-ink (4.6:1, PASS both themes) so the base was
+    left LIT green; but the hover-reveal color was pinned from
+    `--text-strong`/`--text` to **`--ink`** so the label stays ink-on-green in
+    dark too (was light-on-green ≈3.3:1 on hover; imperceptible in light where
+    `--text-strong` is `#000`).
+  - **Hover-only white-on-green pills** (podcast `.fit-ep__links a:hover`,
+    `.fit-season-arrow:hover`, `.fit-season-nav a:hover`): hover background →
+    `--green-deep`.
+  - **`.courses-updates__lead`** (green section, sub-24px) → `--ink` (F5 surface
+    pattern; `/courses` is unlinked but the fix is trivially correct).
+  - **Left as-is (PASS, verdict recorded):** F5's ink-on-green (`.footer-cta`,
+    `.chat-bubble--right`, `.question-card__answer`, `.articles-hero__subtitle`,
+    `.footer-newsletter__submit`, `.unsub-form__submit`); green surfaces with
+    white *large* headings; graphics on green (toggle knob white circle 3.5:1 ≥
+    3:1 non-text; checked seg pill ink-on-green ≈4.6:1).
+  - **`::selection` addition:** the item's premise was off — there is **no**
+    site-wide `::selection` rule; only `.apps ::selection` (apps.css) paints LIT
+    Green with near-white text (≈3.5:1). Owner endorses it and selection state
+    isn't held to AA 4.5:1, so it stays — documented here, not changed.
+  - **White-vs-near-white surface audit addition:** **clean, no changes.** Every
+    surface token is already near-white (`--surface-raised`/`--surface-input:
+    #FAFAF8`); the only literal `#fff`/`var(--white)` backgrounds are *graphics*
+    (toggle knobs `global.css` + `glossary.css`, hamburger bars `global.css`),
+    correctly left pure.
+  Verified: `npm run build` passes (347 pages + Pagefind); browser spot-checks in
+  both emulated themes (scripture Prev/Next + bottom CTAs, `/search` pager,
+  mobile "Read Now" overlay, podcast/articles buttons, searchbar arrow) — every
+  fixed control is legible white-on-deep-green in dark, and Deep Green reads as an
+  intentional shade against LIT Green. Note added to CLAUDE.md's Theming bullet.
 
 - [x] **(O7) data-theme toggle — SHIPPED.**
   DONE (2026-07-14, owner decided to ship): added a 3-state light/dark control

@@ -64,6 +64,12 @@
      surfaces, buttons with large/bold labels, and graphics. On dark (ink)
      backgrounds plain --green passes and stays. */
   --green-text: #0F6B33;
+  /* Deep Green: the solid-button/CTA green. White text on it is 6.6:1 (passes
+     AA at any size). Unlike --green-text (a text token that FLIPS to a light
+     green in dark mode), this is THEME-INVARIANT — do NOT redefine it in the
+     dark blocks below, or white-on-green buttons would break in dark mode.
+     Pairs with --green (LIT Green) surfaces as an intentional two-tone. */
+  --green-deep: #0F6B33;
   --ink: #1D231C;
   --ink-rgb: 29, 35, 28;
   --surface-rgb: 250, 250, 248;
@@ -542,10 +548,13 @@ a:focus {
   clip-path: inset(0 0 100% 0 round 14px);
 }
 
-/* Reveal end-state text color */
+/* Reveal end-state text color. Ink (not --text-strong): the curtain lifts to
+   reveal the LIT-green base, so the revealed label sits on green and must be
+   ink in BOTH themes (--text-strong is light in dark mode → ~3.3:1 on green).
+   Ink-on-green is 4.6:1; imperceptible vs. black in light mode. */
 .site-nav__cta-item > a.site-header__cta:hover,
 .site-nav__cta-item > a.site-header__cta:focus {
-  color: var(--text-strong);
+  color: var(--ink);
   text-decoration: none;
 }
 
@@ -1104,7 +1113,7 @@ html.menu-open body {
 .menu-overlay__cta {
   margin-top: 12px;
 
-  background: var(--green);
+  background: var(--green-deep);
   color: var(--white);
   border-radius: 14px;
   padding: 16px 28px;

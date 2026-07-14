@@ -286,6 +286,16 @@ collection); they're read directly by the intro pages and the API manifest.
   forced theme wins the first paint. No JS → no attribute → OS pref governs. When
   adding a dark-mode style anywhere, use BOTH selectors or the toggle's "force
   light/dark" states will leak.
+- **Two brand greens, by role (all theme-invariant).** `--green` (#209D50 "LIT
+  Green") is for large **surfaces** (heroes, questions block, chat bubbles) and
+  non-button icon accents — it carries **ink** text (4.6:1) or white *large*
+  headings, never small white text (only 3.5:1). `--green-deep` (#0F6B33 "Deep
+  Green") is for **solid buttons/CTAs** with **white** labels (6.6:1). Both are
+  fixed in dark mode, so a Deep-Green button stays readable in both themes and
+  reads as an intentional second shade against LIT-Green surfaces. Do NOT use
+  `--green-text` as a *button background* — it's a link/text token that flips to
+  a light green in dark mode (white-on-it fails). For a green button, reach for
+  `--green-deep`; for green text on a light background, `--green-text`.
 - **Search is two engines behind three client modules** in `src/scripts/`:
   - *Scripture keyword search* scans `public/search/verses.json` (built by
     `build-verse-index.mjs`) in the client — verse-exact results ("John 3:16"

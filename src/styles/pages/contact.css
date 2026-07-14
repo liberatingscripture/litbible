@@ -128,10 +128,10 @@
 .contact-button {
   justify-self: center;
 
-  border: 2px solid var(--green);
+  border: 2px solid var(--green-deep);
   cursor: pointer;
 
-  background: var(--green);
+  background: var(--green-deep);
   color: #ffffff;
 
   padding: 14px 34px;
