@@ -16,6 +16,7 @@ const {
   noindex = false, // when true → <meta name="robots" content="noindex,follow">
   ogImage,
   twitterCard = "summary", // "summary_large_image" for pages with wide ogImage art
+  ogType = "website", // "article" for article pages (Open Graph og:type)
   hideFooterNewsletter = false, // pages with their own Brevo form (e.g. /unsubscribe)
 } = Astro.props;
 
@@ -55,7 +56,7 @@ const criticalCSS = `html,body{margin:0;padding:0}html{scrollbar-gutter:stable}b
     {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
 
     <!-- Open Graph -->
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={ogType} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     {canonicalUrl && <meta property="og:url" content={canonicalUrl} />}
