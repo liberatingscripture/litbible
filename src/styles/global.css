@@ -532,13 +532,16 @@ a:focus {
 
 /* Green reveal layer — hidden at rest (fully clipped), wipes UP from the bottom
    edge on hover: visually the same "curtain raise" as before, but inverted so
-   no green pixel exists anywhere near the edges at rest. Sits on the padding
-   box; overflow:hidden supplies the corner rounding. */
+   no green pixel exists anywhere near the edges at rest. Needs its OWN
+   border-radius: the browser does not round the overflow clip on this animated
+   layer (square corners on hover without it). Radius mismatch at the corners is
+   safe in this scheme — anything the green under-covers is ink on ink. */
 .site-nav__cta-item > a.site-header__cta::before {
   content: "";
   position: absolute;
   inset: 0;
   background: var(--green);
+  border-radius: inherit;
 
   /* Fully clipped at rest (top inset 100%) */
   clip-path: inset(100% 0 0 0);
