@@ -404,9 +404,11 @@ const fallbackHref = knownBook ? `/read/${currentBookKey}` : "/read";
       align-items: center;
       justify-content: center;
       gap: 8px;
-      /* Match the Reading View pill's width so the toolbar's two ends feel
-         balanced; long labels ("2 Thessalonians 3") still grow past it. */
-      min-width: 227px;
+      /* Pinned to the same floor as the Reading View pill (whose fixed
+         "Switch to Reading View" label renders ~243px) so the toolbar's two
+         ends are the same size; long labels ("2 Thessalonians 3") still grow
+         past it. Keep this in sync with .reading-view-pill in ScriptureLayout. */
+      min-width: 245px;
       padding: 10px 18px;
       font-size: 16px;
       font-weight: 500;

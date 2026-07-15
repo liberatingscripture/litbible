@@ -123,6 +123,7 @@
   text-decoration: none;
   line-height: 1.1;
   user-select: none;
+  cursor: pointer;
 
   display: inline-flex;
   align-items: center;
@@ -151,22 +152,47 @@
 }
 /* ---------------------------------------------------------- */
 
-/* Neutralize icon line-box inflation inside the Study switch */
+/* Wide mode: keep the two Zone-3 actions (Return to Beginning + Switch view)
+   on a shared vertical center. The container is otherwise a plain block, so its
+   inline-flex children align by baseline — which differs between the arrow glyph
+   and the SVG icon and leaves them ~2px out of alignment. (Sheet mode already
+   flexes this container in the small-mode block below.) */
+.rm-page .rm-toolbar__z3-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.38rem;
+}
+
+/* Neutralize icon line-box inflation inside the Study switch, and give the
+   glyph the picker's green accent so the "switch views" control reads as part
+   of the same family (at toolbar scale, not a full pill). */
 .rm-page .rm-toolbar a.rm-switch .reading-view-pill__icon,
 .rm-page .rm-toolbar a.rm-switch .rm-cycle-icon {
   display: inline-flex;
   align-items: center;
   line-height: 1;
+  color: var(--green-text);
 }
 
 .rm-page .rm-toolbar a.rm-switch .reading-view-pill__icon {
   font-size: 1em;
 }
 
+/* Standard hover: solid green fill with the label/icon flipping to the paired
+   fg (white light / dark ink dark). --green-text flips per theme, so this one
+   rule covers both. Matches the ReadMenu picker, the resume chip, and the Aa
+   header button. */
 .rm-page .rm-toolbar a:hover,
 .rm-page .rm-toolbar button:hover {
   text-decoration: none;
-  background: rgba(32, 157, 80, 0.12);
+  background: var(--green-text);
+  color: var(--on-green-fill);
+  border-color: transparent;
+}
+
+/* The Study-switch's green magnifier flips to the fg color on hover too. */
+.rm-page .rm-toolbar a.rm-switch:hover .reading-view-pill__icon {
+  color: var(--on-green-fill);
 }
 
 .rm-page [data-rm-toc-toggle],
@@ -178,6 +204,14 @@
 .rm-page .rm-toolbar button[aria-pressed="true"] {
   border-color: rgba(32, 157, 80, 0.7);
   background: rgba(32, 157, 80, 0.16);
+}
+
+/* Pressed toggles also fill on hover (this beats the tint above, which would
+   otherwise win by equal specificity + source order). */
+.rm-page .rm-toolbar button[aria-pressed="true"]:hover {
+  background: var(--green-text);
+  color: var(--on-green-fill);
+  border-color: transparent;
 }
 
 .rm-page .rm-toolbar .rm-cta {
@@ -322,7 +356,8 @@ html.rm-tools-open {
 }
 
 .rm-page .rm-resume-chip button:hover {
-  background: rgba(32, 157, 80, 0.12);
+  background: var(--green-text);
+  color: var(--on-green-fill);
 }
 
 .rm-page .rm-resume-chip [data-rm-resume-dismiss] {
@@ -406,6 +441,10 @@ html.rm-tools-open {
 .rm-page .rm-toolbar[data-rm-open="toc"] [data-rm-toc-toggle],
 .rm-page .rm-toolbar[data-rm-open="aa"] [data-rm-aa-toggle] {
   background: var(--surface-raised);
+  /* Keep the open tab's own text color on hover: it sits attached to its panel
+     and deliberately does NOT take the green fill, so it must out-specify the
+     base hover's color too or the label would go invisible. */
+  color: var(--text);
   border-color: rgba(var(--ink-rgb), 0.22);
   border-bottom-color: transparent;
   border-radius: 10px 10px 0 0;
@@ -615,10 +654,14 @@ html.rm-tools-open {
   background: rgba(32, 157, 80, 0.16);
 }
 
-/* Hover polish */
+/* Hover: the standard green fill + fg flip (matches the toolbar/chip). Setting
+   color here is required — the base toolbar hover would otherwise leave the
+   label in the fill's fg color over only a tint, which is illegible in dark. */
 .rm-page .rm-toc [data-rm-group-tab]:hover,
 .rm-page .rm-toc [data-rm-chapter-btn]:hover {
-  background: rgba(32, 157, 80, 0.12);
+  background: var(--green-text);
+  color: var(--on-green-fill);
+  border-color: transparent;
 }
 
 /* =========================================================
@@ -956,10 +999,7 @@ html[data-rm-leading="roomy"] .rm-page .rm-reader {
     overflow: visible;
   }
 
-  .rm-page .rm-toolbar button:hover,
-  .rm-page .rm-toolbar a:hover {
-    background: rgba(32, 157, 80, 0.14);
-  }
+  /* Sheet mode inherits the base green-fill hover (no override needed). */
 
   .rm-page .rm-toolbar .rm-cta {
     background: var(--green, #209d50);
@@ -987,6 +1027,8 @@ html[data-rm-leading="roomy"] .rm-page .rm-reader {
 
     border-color: rgba(32, 157, 80, 0.7);
     background: rgba(32, 157, 80, 0.16);
+    /* Active toggle keeps its own label color on hover (not the green fill). */
+    color: var(--text);
   }
 
   /* Caret (speech-bubble pointer) */
