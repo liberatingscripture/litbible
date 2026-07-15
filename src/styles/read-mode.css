@@ -260,6 +260,7 @@
   font-size: 0;
   line-height: 1;
   user-select: none;
+  cursor: pointer;
 
   box-shadow: 0 12px 22px rgba(0, 0, 0, 0.24);
   transition:
