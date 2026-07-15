@@ -508,15 +508,18 @@ a:focus {
   padding: 14px 26px;
   border-radius: 12px;
 
-  /* Green base is the anchor's OWN background — natively clipped by
-     border-radius, so there is no separate rounded layer to fringe at the
-     corners. The ::before ink curtain overlays it and lifts on hover. */
-  background: var(--green);
+  /* Rest background is INK — the same color as the border, so the anti-aliased
+     seam between background and border can never show a stray color, even at
+     fractional devicePixelRatios (e.g. 1.25) where layer edges land mid-device-
+     pixel. (A green background here WILL fringe around the whole button: the
+     border/background boundary AA lets the underlying color leak, regardless of
+     background-clip. Keep every color at the edges ink at rest.) */
+  background: var(--ink);
 
   /* End-state border */
   border: 2px solid var(--ink);
 
-  /* Start-state text (green on ink curtain) */
+  /* Start-state text (green on ink) */
   color: var(--green);
 
   white-space: nowrap;
@@ -527,33 +530,33 @@ a:focus {
   z-index: 0;
 }
 
-/* Curtain overlay (ink) — sits exactly on the padding box so overflow:hidden
-   clips it uniformly. No -2px outset and no separate rounded green layer, so the
-   corners can't fringe. */
+/* Green reveal layer — hidden at rest (fully clipped), wipes UP from the bottom
+   edge on hover: visually the same "curtain raise" as before, but inverted so
+   no green pixel exists anywhere near the edges at rest. Sits on the padding
+   box; overflow:hidden supplies the corner rounding. */
 .site-nav__cta-item > a.site-header__cta::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: var(--ink);
-  border-radius: inherit;
+  background: var(--green);
 
-  /* Fully covering at rest; overflow:hidden supplies the corner rounding. */
-  clip-path: inset(0 0 0 0);
+  /* Fully clipped at rest (top inset 100%) */
+  clip-path: inset(100% 0 0 0);
   transition: clip-path 380ms ease-in-out;
 
-  /* Above the green anchor background, below the label span (z-index: 1). */
+  /* Above the ink anchor background, below the label span (z-index: 1). */
   z-index: 0;
 }
 
-/* Hover/focus: raise the curtain to reveal the green base */
+/* Hover/focus: the green sweeps up to fill the button */
 .site-nav__cta-item > a.site-header__cta:hover::before,
 .site-nav__cta-item > a.site-header__cta:focus::before {
-  clip-path: inset(0 0 100% 0);
+  clip-path: inset(0 0 0 0);
 }
 
-/* Reveal end-state text color. Ink (not --text-strong): the curtain lifts to
-   reveal the LIT-green base, so the revealed label sits on green and must be
-   ink in BOTH themes (--text-strong is light in dark mode → ~3.3:1 on green).
+/* Reveal end-state text color. Ink (not --text-strong): the green sweeps up to
+   fill the button, so the revealed label sits on green and must be ink in BOTH
+   themes (--text-strong is light in dark mode → ~3.3:1 on green).
    Ink-on-green is 4.6:1; imperceptible vs. black in light mode. */
 .site-nav__cta-item > a.site-header__cta:hover,
 .site-nav__cta-item > a.site-header__cta:focus {
