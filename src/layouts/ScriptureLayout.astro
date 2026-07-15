@@ -135,8 +135,8 @@ if (headerKind === "chapter") {
                       <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none"
                            stroke="currentColor" stroke-width="2" stroke-linecap="round"
                            stroke-linejoin="round" aria-hidden="true" focusable="false">
-                        <path d="M1 4v6h6"/>
-                        <path d="M3.51 15a9 9 0 1 0 .49-4.5"/>
+                        <path d="M8 21h12a2 2 0 0 0 2-2v-2H10v2a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v3h4"/>
+                        <path d="M19 17V5a2 2 0 0 0-2-2H4"/>
                       </svg>
                     </span>
                     <span>Switch to Reading View</span>
@@ -338,58 +338,71 @@ if (headerKind === "chapter") {
         justify-content: flex-end;
       }
 
+      /* Mirror the ReadMenu picker's trigger so the two ends of the tools bar
+         read as one design family. --green-text flips to a LIGHT green in dark
+         mode (it's a text token), so where we use it as the hover fill it needs
+         a paired foreground that flips to dark ink. */
       .reading-view-pill {
+        --rvp-accent-fg: #ffffff;
+
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        gap: 0.55rem;
+        gap: 8px;
 
-        padding: 11px 16px;
+        /* Pinned to the same floor as the ReadMenu picker trigger so the
+           toolbar's two ends are the same size. Keep in sync with ReadMenu. */
+        min-width: 245px;
+        padding: 10px 18px;
         border-radius: 999px;
 
-        background: rgba(var(--surface-rgb), 0.78);
+        background: var(--surface-input);
         border: 1px solid rgba(var(--ink-rgb), 0.11);
 
-        color: rgba(var(--ink-rgb), 0.68);
+        color: var(--text);
         text-decoration: none;
         user-select: none;
 
-        font-weight: 600;
-        font-size: 0.92rem;
+        font-weight: 500;
+        font-size: 16px;
         line-height: 1;
 
-        box-shadow: 0 2px 7px rgba(0, 0, 0, 0.035);
+        box-shadow: 0 2px 7px rgba(0, 0, 0, 0.08);
+        transition:
+          background-color 0.2s ease,
+          color 0.2s ease;
       }
 
-      /* cycle icon */
+      @media (prefers-color-scheme: dark) {
+        :global(:root:not([data-theme="light"])) .reading-view-pill {
+          --rvp-accent-fg: #1d231c;
+        }
+      }
+
+      :global(:root[data-theme="dark"]) .reading-view-pill {
+        --rvp-accent-fg: #1d231c;
+      }
+
       .reading-view-pill__icon {
         display: inline-flex;
         align-items: center;
-        font-size: 1.08rem;
+        color: var(--green-text);
+        font-size: 17px;
         line-height: 1;
-
-        text-shadow:
-          0 -1px 0 rgba(255, 255, 255, 0.75),
-          /* top highlight */ 0 1px 0 rgba(var(--ink-rgb), 0.16),
-          /* subtle bottom edge */ 0 2px 4px rgba(0, 0, 0, 0.22); /* drop shadow */
-
-        transform: translateY(-0.5px) rotate(-8deg);
-        opacity: 0.88;
       }
 
       .reading-view-pill:hover {
-        border-color: rgba(var(--ink-rgb), 0.17);
-        color: rgba(var(--ink-rgb), 0.84);
-        background: rgba(var(--surface-rgb), 0.92);
+        background: var(--green-text);
+        color: var(--rvp-accent-fg);
       }
 
       .reading-view-pill:hover .reading-view-pill__icon {
-        opacity: 1;
-        transform: translateY(-1px) rotate(-8deg);
-        text-shadow:
-          0 -1px 0 rgba(255, 255, 255, 0.85),
-          0 1px 0 rgba(var(--ink-rgb), 0.18),
-          0 3px 6px rgba(0, 0, 0, 0.26);
+        color: var(--rvp-accent-fg);
+      }
+
+      .reading-view-pill:focus-visible {
+        outline: 2px solid var(--green-text);
+        outline-offset: 1px;
       }
 
       /* Mobile-only breathing room BETWEEN the two tool columns.
@@ -406,19 +419,6 @@ if (headerKind === "chapter") {
         .reading-view-right {
           margin-top: 0.75rem;
           justify-content: center;
-        }
-
-        .reading-view-pill {
-          font-size: 0.9rem;
-          padding: 11px 16px;
-        }
-
-        .reading-view-pill__icon {
-          transform: translateY(-0.5px) rotate(-8deg);
-        }
-
-        .reading-view-pill:hover .reading-view-pill__icon {
-          transform: translateY(-1px) rotate(-8deg);
         }
       }
 

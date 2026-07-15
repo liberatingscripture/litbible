@@ -64,6 +64,11 @@
      surfaces, buttons with large/bold labels, and graphics. On dark (ink)
      backgrounds plain --green passes and stays. */
   --green-text: #0F6B33;
+  /* Foreground paired with a --green-text FILL (the site's standard hover):
+     white on the deep-green light fill, dark ink on the light-green dark fill.
+     Same pairing the pills encode locally as --rm-accent-fg / --rvp-accent-fg.
+     Flip it in BOTH dark blocks below alongside --green-text. */
+  --on-green-fill: #ffffff;
   /* Deep Green: the solid-button/CTA green. White text on it is 6.6:1 (passes
      AA at any size). Unlike --green-text (a text token that FLIPS to a light
      green in dark mode), this is THEME-INVARIANT — do NOT redefine it in the
@@ -113,6 +118,7 @@
     --text-strong: #F7F7F7;
     --link: #3abf6a;
     --green-text: #3abf6a;
+    --on-green-fill: #1d231c;
     --border: #2a2a2c;
     --cta-bg: #d4d2cc;
     --cta-text: #1a1e1a;
@@ -131,6 +137,7 @@
   --text-strong: #F7F7F7;
   --link: #3abf6a;
   --green-text: #3abf6a;
+  --on-green-fill: #1d231c;
   --border: #2a2a2c;
   --cta-bg: #d4d2cc;
   --cta-text: #1a1e1a;
@@ -469,10 +476,11 @@ a:focus {
   transform: scaleX(1);
 }
 
-/* Belt + suspenders: CTA NEVER gets an underline pseudo-element */
-.site-nav__cta-item > a::after {
-  display: none !important;
-}
+/* NOTE: do not add a blanket `.site-nav__cta-item > a::after { display:none }`
+   here to "kill the underline" — the underline rule above already excludes the
+   CTA via :not(.site-nav__cta-item), and the CTA repurposes its ::after as the
+   green base of the curtain reveal. Hiding it leaves the hover state revealing
+   the page background (illegible ink-on-dark in dark mode). */
 
 /* ---------------------------------------------------------
    CTA inside nav (desktop position)
@@ -636,9 +644,13 @@ a:focus {
   transition: border-color 150ms ease, background 150ms ease, color 150ms ease;
 }
 
-.site-header__font-toggle:hover,
-.site-header__font-toggle:focus {
-  border-color: var(--text);
+/* Standard hover: solid green fill with the label flipping to the paired fg
+   (white light / dark ink dark), matching the ReadMenu picker and the read-mode
+   toolbar/chip. Keyboard focus uses the global green :focus-visible ring. */
+.site-header__font-toggle:hover {
+  background: var(--green-text);
+  color: var(--on-green-fill);
+  border-color: transparent;
 }
 
 .site-header__font-toggle:focus:not(:focus-visible) {
