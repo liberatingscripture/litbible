@@ -6,7 +6,24 @@ import {
   bookKeyToLabel,
 } from "../data/books.js";
 import { scanDraftChapters } from "../lib/draft-chapters.mjs";
-const { currentBook = "", currentChapter = "" } = Astro.props;
+
+/**
+ * mode="study" (default): the standalone "Go to passage" pill. Chapter picks
+ *   navigate to Study View pages (/john-3); the footer offers Reading Mode.
+ * mode="read": the compact trigger embedded in the Reading View toolbar.
+ *   Chapter picks stay in Reading Mode (/read/<book>#ch-N — same-book picks
+ *   are intercepted by read-mode.js for an in-page smooth scroll); the footer
+ *   offers Study View instead. The trigger label doubles as the live
+ *   location readout: `label` sets the initial text and read-mode.js updates
+ *   it (and data-current-chapter on the root) as the reader scrolls.
+ */
+const {
+  currentBook = "",
+  currentChapter = "",
+  mode = "study",
+  label = "",
+} = Astro.props;
+const isReadMode = mode === "read";
 
 const currentBookKey = currentBook
   ? String(currentBook).toLowerCase().replace(/[^0-9a-z]/g, "")
@@ -24,13 +41,18 @@ const chapterNum = /^\d+$/.test(String(currentChapter))
   ? Number(currentChapter)
   : null;
 const isIntro = String(currentChapter) === "intro";
+// The read-mode trigger label live-updates with scroll, so a build-time
+// draft dot would go stale — suppress it there.
 const isDraftChapter =
+  !isReadMode &&
   knownBook &&
   chapterNum !== null &&
   (DRAFT_CHAPTERS[currentBookKey] ?? []).includes(chapterNum);
 
 let triggerLabel = "Go to passage";
-if (knownBook && isIntro) {
+if (label) {
+  triggerLabel = label;
+} else if (knownBook && isIntro) {
   triggerLabel = `${bookKeyToLabel(currentBookKey)} · Intro`;
 } else if (knownBook && chapterNum !== null) {
   triggerLabel = `${bookKeyToLabel(currentBookKey)} ${chapterNum}`;
@@ -40,14 +62,18 @@ if (knownBook && isIntro) {
 
 // No-JS fallback: the trigger is a real link — the book's continuous Reading
 // Mode page when there is a current book, the /read landing page otherwise.
-// JS upgrades it in place into the popover trigger button.
-const fallbackHref = knownBook ? `/read/${currentBookKey}` : "/read";
+// In read mode the reader is already ON /read/<book>, so fall back to the
+// /read landing (the book list). JS upgrades it in place into the popover
+// trigger button.
+const fallbackHref =
+  !isReadMode && knownBook ? `/read/${currentBookKey}` : "/read";
 ---
 
 <div class="read-menu-wrap">
   <nav
-    class="read-menu"
+    class:list={["read-menu", isReadMode && "read-menu--compact"]}
     aria-label="Go to passage"
+    data-mode={mode}
     data-books={JSON.stringify(books)}
     data-abbrs={JSON.stringify(BOOK_ABBREVIATIONS)}
     data-drafts={JSON.stringify(DRAFT_CHAPTERS)}
@@ -72,7 +98,9 @@ const fallbackHref = knownBook ? `/read/${currentBookKey}` : "/read";
         <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
       </svg>
       {knownBook && <span class="sr-only">Go to passage. Current:&nbsp;</span>}
-      <span class="read-menu__label">{triggerLabel}</span>
+      <span class="read-menu__label" data-rm-where={isReadMode ? "" : undefined}
+        >{triggerLabel}</span
+      >
       {isDraftChapter && (
         <>
           <span class="read-menu__draft-dot" aria-hidden="true"></span>
@@ -117,8 +145,13 @@ const fallbackHref = knownBook ? `/read/${currentBookKey}` : "/read";
       const ORDER = Object.keys(books);
       if (!ORDER.length) return;
 
+      const isRead = root.getAttribute("data-mode") === "read";
       const curBook = root.getAttribute("data-current-book") || "";
-      const curChapter = root.getAttribute("data-current-chapter") || "";
+      // In read mode read-mode.js rewrites data-current-chapter as the reader
+      // scrolls, so the value must be re-read every time a grid is built (a
+      // captured const would freeze the highlight at chapter 1).
+      const getCurChapter = () =>
+        root.getAttribute("data-current-chapter") || "";
 
       const link = root.querySelector("[data-rm-trigger]");
       if (!(link instanceof HTMLAnchorElement)) return;
@@ -154,7 +187,11 @@ const fallbackHref = knownBook ? `/read/${currentBookKey}` : "/read";
       panel.setAttribute("popover", "");
       panel.setAttribute("role", "dialog");
       panel.setAttribute("aria-label", "Go to passage");
-      root.appendChild(panel);
+      // The panel is fixed-position in the top layer, so DOM placement is
+      // purely stylistic — appending to <body> keeps it out of any host
+      // container's style scope (the reading toolbar styles its descendant
+      // buttons generically), so the picker renders identically everywhere.
+      document.body.appendChild(panel);
 
       // Declare the trigger as this popover's invoker (rather than driving
       // showPopover()/hidePopover() from a plain click listener). Clicking
@@ -182,7 +219,9 @@ const fallbackHref = knownBook ? `/read/${currentBookKey}` : "/read";
         panel.style.top = Math.round(top) + "px";
       }
 
-      function legendEl(readingModeKey) {
+      // The footer's cross-view link flips with the mode: Study View pages
+      // offer Reading Mode, the Reading View toolbar offers Study View.
+      function legendEl(crossViewKey) {
         const foot = document.createElement("div");
         foot.className = "read-menu__foot";
         const legend = document.createElement("span");
@@ -190,14 +229,40 @@ const fallbackHref = knownBook ? `/read/${currentBookKey}` : "/read";
         legend.innerHTML =
           '<span class="read-menu__draft-dot" aria-hidden="true"></span> draft — translation in progress';
         foot.appendChild(legend);
-        if (readingModeKey) {
+        if (crossViewKey) {
           const a = document.createElement("a");
           a.className = "read-menu__reading-link";
-          a.href = "/read/" + readingModeKey;
-          a.textContent = "Open " + label(readingModeKey) + " in Reading Mode →";
+          if (isRead) {
+            const cur = getCurChapter();
+            const ch = crossViewKey === curBook && /^\d+$/.test(cur) ? cur : "1";
+            a.href = "/" + crossViewKey + "-" + ch;
+            a.textContent = "Open " + label(crossViewKey) + " in Study View →";
+          } else {
+            a.href = "/read/" + crossViewKey;
+            a.textContent =
+              "Open " + label(crossViewKey) + " in Reading Mode →";
+          }
           foot.appendChild(a);
         }
         return foot;
+      }
+
+      // Explicit close for the panel: on touch layouts (notably the reading
+      // toolbar's bottom sheet) the panel can cover its own trigger, and a
+      // tap outside would light-dismiss the sheet along with the picker —
+      // this closes just the picker and hands focus back to the trigger.
+      function closeBtn() {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "read-menu__close";
+        b.setAttribute("aria-label", "Close");
+        b.innerHTML =
+          '<svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+        b.addEventListener("click", () => {
+          panel.hidePopover();
+          trigger.focus();
+        });
+        return b;
       }
 
       // Roving tabindex: one tab stop per grid; arrows move within it.
@@ -226,9 +291,12 @@ const fallbackHref = knownBook ? `/read/${currentBookKey}` : "/read";
 
       function showBooks(focusKey) {
         panel.innerHTML = "";
-        const head = document.createElement("p");
-        head.className = "read-menu__head";
-        head.textContent = "Choose a book";
+        const head = document.createElement("div");
+        head.className = "read-menu__bar";
+        const title = document.createElement("p");
+        title.className = "read-menu__head";
+        title.textContent = "Choose a book";
+        head.append(title, closeBtn());
         panel.appendChild(head);
 
         const grid = document.createElement("div");
@@ -271,17 +339,18 @@ const fallbackHref = knownBook ? `/read/${currentBookKey}` : "/read";
         const name = document.createElement("span");
         name.className = "read-menu__book-name";
         name.textContent = label(key);
-        const spacer = document.createElement("span");
-        spacer.className = "read-menu__bar-spacer";
-        head.append(back, name, spacer);
+        head.append(back, name, closeBtn());
         panel.appendChild(head);
 
         const draftSet = draftSetOf(key);
+        const curChapter = getCurChapter();
         const grid = document.createElement("div");
         grid.className = "read-menu__grid read-menu__grid--chapters";
 
         // Chapter cells are real links: middle-click, long-press, and
         // "open in new tab" all behave, and the popover closes on unload.
+        // Read mode links stay in Reading Mode (/read/<book>#ch-N); intros
+        // only exist as Study pages, so that cell's href never changes.
         const intro = document.createElement("a");
         intro.className =
           "read-menu__cell read-menu__cell--intro" +
@@ -301,7 +370,7 @@ const fallbackHref = knownBook ? `/read/${currentBookKey}` : "/read";
               ? " read-menu__cell--current"
               : "") +
             (draftSet.has(i) ? " read-menu__cell--draft" : "");
-          a.href = "/" + key + "-" + i;
+          a.href = isRead ? "/read/" + key + "#ch-" + i : "/" + key + "-" + i;
           a.textContent = String(i);
           if (draftSet.has(i)) {
             a.setAttribute("aria-label", "Chapter " + i + " (draft)");
@@ -319,12 +388,17 @@ const fallbackHref = knownBook ? `/read/${currentBookKey}` : "/read";
 
       // Open/close is now driven by the browser via the invoker relationship
       // above (trigger click toggles; outside click still light-dismisses).
-      // We just react to the state change: populate the book grid fresh
-      // each time it opens, and keep aria-expanded in sync.
+      // We just react to the state change and populate the panel fresh each
+      // time it opens. Read mode opens on the CURRENT book's chapter grid —
+      // the trigger label names the book, so the tap implies "move within
+      // it", and mid-read jumps are overwhelmingly within-book ("‹ Books"
+      // is the way up). Study mode keeps its book-grid opening.
       panel.addEventListener("toggle", (e) => {
         const isOpen = e.newState === "open";
         trigger.setAttribute("aria-expanded", isOpen ? "true" : "false");
-        if (isOpen) showBooks("");
+        if (!isOpen) return;
+        if (isRead && curBook && books[curBook]) showChapters(curBook);
+        else showBooks("");
       });
 
       // Keep Tab inside the open panel (the grids expose one tab stop each,
@@ -380,21 +454,25 @@ const fallbackHref = knownBook ? `/read/${currentBookKey}` : "/read";
 
     /* --green-text flips to a LIGHT green in dark mode (it's a text token),
        so anywhere we use it as a background needs a paired foreground that
-       flips to dark ink. */
-    .read-menu {
+       flips to dark ink. The panel is appended to <body> (not the nav), so
+       it must be named alongside .read-menu to receive these. */
+    .read-menu,
+    .read-menu__panel {
       --rm-draft-dot: #8a5a00;
       --rm-accent-bg: var(--green-text);
       --rm-accent-fg: #ffffff;
     }
 
     @media (prefers-color-scheme: dark) {
-      .read-menu {
+      .read-menu,
+      .read-menu__panel {
         --rm-draft-dot: #d9a462;
         --rm-accent-fg: #1d231c;
       }
     }
 
-    :root[data-theme="dark"] .read-menu {
+    :root[data-theme="dark"] .read-menu,
+    :root[data-theme="dark"] .read-menu__panel {
       --rm-draft-dot: #d9a462;
       --rm-accent-fg: #1d231c;
     }
@@ -428,6 +506,29 @@ const fallbackHref = knownBook ? `/read/${currentBookKey}` : "/read";
     .read-menu__trigger:hover {
       background-color: var(--rm-accent-bg);
       color: var(--rm-accent-fg);
+    }
+
+    /* Compact variant (read-mode toolbar): no pill floor — the trigger sits
+       inline beside the progress cluster and takes the toolbar's button
+       chrome (read-mode.css sizes it; these drop the standalone-pill extras). */
+    .read-menu--compact .read-menu__trigger {
+      min-width: 0;
+      gap: 6px;
+      box-shadow: none;
+      white-space: nowrap;
+    }
+
+    .read-menu--compact .read-menu__icon {
+      font-size: 15px;
+    }
+
+    .read-menu--compact .read-menu__chevron {
+      font-size: 12px;
+    }
+
+    .read-menu--compact .read-menu__label {
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .read-menu__icon {
@@ -484,16 +585,52 @@ const fallbackHref = knownBook ? `/read/${currentBookKey}` : "/read";
       margin: 0 0 10px;
     }
 
+    .read-menu__bar .read-menu__head {
+      margin: 0;
+    }
+
+    .read-menu__close {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      padding: 0;
+      border: none;
+      border-radius: 6px;
+      background: transparent;
+      color: rgba(var(--ink-rgb), 0.7);
+      cursor: pointer;
+      flex: none;
+      font-size: 15px;
+    }
+
+    .read-menu__close:hover {
+      background: rgba(var(--ink-rgb), 0.1);
+      color: var(--text);
+    }
+
+    /* Touch screens: give the close a full-size target */
+    @media (pointer: coarse) {
+      .read-menu__close {
+        width: 40px;
+        height: 40px;
+      }
+    }
+
+    /* The way up to the book grid. Read mode opens the panel directly on
+       the chapter view, so this is the primary cross-book affordance there —
+       a bordered chip keeps it discoverable without shouting. */
     .read-menu__back {
       display: inline-flex;
       align-items: center;
       gap: 4px;
-      padding: 4px 8px;
+      padding: 5px 10px;
       font-size: 0.85rem;
       font-weight: 600;
       font-family: inherit;
-      border: none;
-      border-radius: 6px;
+      border: 1px solid rgba(var(--ink-rgb), 0.15);
+      border-radius: 999px;
       background: transparent;
       color: var(--green-text);
       cursor: pointer;
@@ -506,10 +643,6 @@ const fallbackHref = knownBook ? `/read/${currentBookKey}` : "/read";
     .read-menu__book-name {
       font-size: 0.9rem;
       font-weight: 600;
-    }
-
-    .read-menu__bar-spacer {
-      width: 52px;
     }
 
     .read-menu__grid {
@@ -575,7 +708,8 @@ const fallbackHref = knownBook ? `/read/${currentBookKey}` : "/read";
 
     .read-menu__cell:focus-visible,
     .read-menu__trigger:focus-visible,
-    .read-menu__back:focus-visible {
+    .read-menu__back:focus-visible,
+    .read-menu__close:focus-visible {
       outline: 2px solid var(--green-text);
       outline-offset: 1px;
     }

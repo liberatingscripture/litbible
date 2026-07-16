@@ -36,27 +36,6 @@ function getChapterNumbers(total: number): number[] {
   return Array.from({ length: total }, (_, i) => i + 1);
 }
 
-function getTocGroupSize(total: number): number {
-  if (total <= 10) return 0;
-  if (total <= 30) return 5;
-  return 10;
-}
-
-function buildTocGroups(total: number, size: number) {
-  if (!size) return [] as Array<{ label: string; chapters: number[] }>;
-
-  const groups: Array<{ label: string; chapters: number[] }> = [];
-  for (let start = 1; start <= total; start += size) {
-    const end = Math.min(total, start + size - 1);
-    groups.push({
-      label: `${start}-${end}`,
-      chapters: getChapterNumbers(end - start + 1).map((n) => n + start - 1),
-    });
-  }
-
-  return groups;
-}
-
 export function getStaticPaths() {
   return BOOK_ORDER.filter(
     (bookKey) => typeof (BOOKS as Record<string, number>)[bookKey] === "number",
@@ -92,8 +71,6 @@ const chapters = getChapterNumbers(chapterTotal).map((chapter) => {
   };
 });
 
-const tocGroupSize = getTocGroupSize(chapterTotal);
-const tocGroups = buildTocGroups(chapterTotal, tocGroupSize);
 const chapterNumbers = getChapterNumbers(chapterTotal);
 
 // De-index the read-view aggregate when every chapter of the book is a draft
@@ -129,19 +106,17 @@ const description = `Read ${bookName} in continuous scroll with Reading Mode.`;
       ]
     })} />
   </Fragment>
+  {/* The passage picker lives in the sticky toolbar below (always in
+      reach), so the top bar carries only search. */}
   <section
-    class="scripture-tools"
+    class="scripture-tools scripture-tools--search-only"
     data-pagefind-ignore
     aria-label="Scripture tools"
   >
     <div class="scripture-tools__inner">
-      <div class="scripture-tools__left" aria-label="Jump to passage">
-        <ReadMenu currentBook={bookKey} />
-      </div>
       <div class="scripture-tools__center" aria-label="Search the LIT">
         <SearchBar fullSearchHref="/search" />
       </div>
-      <div class="scripture-tools__right" aria-hidden="true"></div>
     </div>
   </section>
 
@@ -162,15 +137,6 @@ const description = `Read ${bookName} in continuous scroll with Reading Mode.`;
     >
       <div class="rm-toolbar__row">
         <div class="rm-toolbar__cluster rm-toolbar__cluster--left">
-          <button
-            type="button"
-            data-rm-toc-toggle
-            aria-expanded="false"
-            aria-controls="rm-toc-panel"
-          >
-            Go to chapter
-          </button>
-
           <button
             type="button"
             data-rm-aa-toggle
@@ -196,9 +162,12 @@ const description = `Read ${bookName} in continuous scroll with Reading Mode.`;
         </div>
 
         <div class="rm-toolbar__cluster rm-toolbar__cluster--center">
-          <span class="rm-where" data-rm-where
-            >{bookName} &middot; Chapter 1</span
-          >
+          <ReadMenu
+            mode="read"
+            currentBook={bookKey}
+            currentChapter="1"
+            label={`${bookName} · Chapter 1`}
+          />
 
           <div class="rm-toolbar__progress">
             <span class="rm-progress" data-rm-progress>0%</span>
@@ -256,82 +225,6 @@ const description = `Read ${bookName} in continuous scroll with Reading Mode.`;
       </div>
 
       <div class="rm-toolbar__panels">
-        <div id="rm-toc-panel" class="rm-toc" data-rm-toc-panel hidden>
-          <div class="rm-toc__list">
-            {
-              !tocGroupSize ? (
-                <>
-                  <p class="rm-toc__chapters-label">Chapters</p>
-                  <ol>
-                    {chapterNumbers.map((chapter) => (
-                      <li>
-                        <button
-                          type="button"
-                          data-rm-target={`ch-${chapter}`}
-                          data-rm-chapter-btn={chapter}
-                        >
-                          {chapter}
-                        </button>
-                      </li>
-                    ))}
-                  </ol>
-                </>
-              ) : (
-                <>
-                  <p class="rm-toc__chapters-label">Chapters</p>
-                  <div
-                    class="rm-toc__group-tabs"
-                    role="tablist"
-                    aria-label="Chapter groups"
-                  >
-                    {tocGroups.map((group, index) => (
-                      <button
-                        type="button"
-                        role="tab"
-                        data-rm-group-tab={index}
-                        data-rm-group-start={group.chapters[0]}
-                        data-rm-group-end={
-                          group.chapters[group.chapters.length - 1]
-                        }
-                        aria-selected={index === 0 ? "true" : "false"}
-                      >
-                        {group.label}
-                      </button>
-                    ))}
-                  </div>
-
-                  {tocGroups.map((group, index) => (
-                    <div
-                      class="rm-toc__group-panel"
-                      role="tabpanel"
-                      data-rm-group-panel={index}
-                      data-rm-group-start={group.chapters[0]}
-                      data-rm-group-end={
-                        group.chapters[group.chapters.length - 1]
-                      }
-                      hidden={index !== 0}
-                    >
-                      <ol>
-                        {group.chapters.map((chapter) => (
-                          <li>
-                            <button
-                              type="button"
-                              data-rm-target={`ch-${chapter}`}
-                              data-rm-chapter-btn={chapter}
-                            >
-                              {chapter}
-                            </button>
-                          </li>
-                        ))}
-                      </ol>
-                    </div>
-                  ))}
-                </>
-              )
-            }
-          </div>
-        </div>
-
         <div id="rm-aa-panel" class="rm-aa" data-rm-aa-panel hidden>
           <div class="rm-aa__group">
             <p class="rm-aa__group-title">Font Size</p>
