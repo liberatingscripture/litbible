@@ -69,6 +69,15 @@
   justify-content: flex-start;
 }
 
+/* Search-only variant (Reading View pages): the passage picker lives in the
+   sticky reading toolbar instead, so the bar holds just the search field —
+   one centered column at every width. Out-specifies the breakpoint
+   grid-template-columns overrides below (0,2,0 vs 0,1,0). */
+.scripture-tools--search-only .scripture-tools__inner {
+  grid-template-columns: minmax(0, 680px);
+  justify-content: center;
+}
+
 /* Tablet band (641-900px): search takes the full top row; the two
    equal-width pills sit under it as a symmetric pair — picker left,
    Reading View right — echoing the desktop composition. */

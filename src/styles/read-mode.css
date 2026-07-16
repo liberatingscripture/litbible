@@ -74,11 +74,19 @@
   display: none;
 }
 
-.rm-page .rm-where {
-  font-size: 0.84rem;
-  color: rgba(var(--ink-rgb), 0.9);
-  white-space: nowrap;
-  user-select: none;
+/* Passage picker (ReadMenu mode="read") in the toolbar center: the generic
+   .rm-toolbar button/a rules below give its trigger the standard toolbar
+   chrome (padding, 0.82rem type, 9px radius, green-fill hover); these just
+   keep the wrap shrinkable so a long label can ellipsize instead of
+   overflowing the row. The picker's own compact-variant styles (in
+   ReadMenu.astro) drop the standalone pill's 245px floor and shadow. */
+.rm-page .rm-toolbar .read-menu-wrap {
+  min-width: 0;
+}
+
+.rm-page .rm-toolbar .read-menu {
+  min-width: 0;
+  display: flex;
 }
 
 .rm-page .rm-progress {
@@ -112,18 +120,22 @@
   background: var(--green, #209d50);
 }
 
+/* Toolbar controls follow the site's utility-pill recipe (the Study tools
+   bar: 999px pill, surface-input fill, faint ink border, soft shadow) at
+   toolbar density. */
 .rm-page .rm-toolbar button,
 .rm-page .rm-toolbar a {
-  border: 1px solid rgba(var(--ink-rgb), 0.22);
-  border-radius: 9px;
-  background: var(--surface-raised);
+  border: 1px solid rgba(var(--ink-rgb), 0.11);
+  border-radius: 999px;
+  background: var(--surface-input);
   color: var(--text);
-  padding: 0.35rem 0.55rem;
+  padding: 0.35rem 0.7rem;
   font-size: 0.82rem;
   text-decoration: none;
   line-height: 1.1;
   user-select: none;
   cursor: pointer;
+  box-shadow: 0 2px 7px rgba(0, 0, 0, 0.08);
 
   display: inline-flex;
   align-items: center;
@@ -195,7 +207,6 @@
   color: var(--on-green-fill);
 }
 
-.rm-page [data-rm-toc-toggle],
 .rm-page [data-rm-study-toggle],
 .rm-page [data-rm-aa-toggle] {
   position: relative;
@@ -212,17 +223,6 @@
   background: var(--green-text);
   color: var(--on-green-fill);
   border-color: transparent;
-}
-
-.rm-page .rm-toolbar .rm-cta {
-  background: var(--green, #209d50);
-  color: #fff;
-  border-color: transparent;
-}
-
-.rm-page .rm-toolbar .rm-cta:hover {
-  background: var(--ink, #1d231c);
-  color: #fff;
 }
 
 /* Wide mode: close is hidden (FAB + sheet controls appear in small mode) */
@@ -248,7 +248,9 @@
   border: 1px solid rgba(var(--ink-rgb), 0.2);
   border-radius: 14px;
 
-  background: var(--green, #209d50);
+  /* Solid button = Deep Green (two-greens rule: white glyphs never sit on
+     LIT Green at small sizes). Hover matches the chapter CTAs. */
+  background: var(--green-deep, #0f6b33);
   color: #fff;
 
   width: 3rem;
@@ -265,7 +267,12 @@
   box-shadow: 0 12px 22px rgba(0, 0, 0, 0.24);
   transition:
     opacity 220ms ease,
-    transform 220ms ease;
+    transform 220ms ease,
+    background-color 0.2s ease;
+}
+
+.rm-page .rm-fab:hover {
+  background: var(--ink, #1d231c);
 }
 
 .rm-page .rm-fab__icon {
@@ -378,7 +385,6 @@ html.rm-tools-open {
 }
 
 .rm-page .rm-study,
-.rm-page .rm-toc,
 .rm-page .rm-aa {
   background: var(--surface-raised);
   border: 1px solid rgba(var(--ink-rgb), 0.18);
@@ -386,7 +392,6 @@ html.rm-tools-open {
   padding: 0.58rem;
 }
 
-.rm-page .rm-toc,
 .rm-page .rm-aa {
   position: relative;
   overflow: visible;
@@ -394,12 +399,10 @@ html.rm-tools-open {
 }
 
 .rm-page .rm-study[hidden],
-.rm-page .rm-toc[hidden],
 .rm-page .rm-aa[hidden] {
   display: none;
 }
 
-.rm-page .rm-toolbar[data-rm-open="toc"] .rm-toolbar__panels,
 .rm-page .rm-toolbar[data-rm-open="study"] .rm-toolbar__panels,
 .rm-page .rm-toolbar[data-rm-open="aa"] .rm-toolbar__panels {
   margin-top: var(--rm-tray-gap);
@@ -419,27 +422,16 @@ html.rm-tools-open {
   cursor: not-allowed;
 }
 
-/* rm-toc__actions removed from markup; remove its styling too. */
-
-/* UPDATED: without the actions row, rm-toc__list no longer needs its
-   border-top + margin-top/padding-top divider strip. */
-.rm-page .rm-toc__list {
-  max-height: min(48vh, 380px);
-  overflow: auto;
-}
-
 /* =========================================================
-   TAB EFFECT (wide mode): attach “Go to chapter” + “Aa” to trays
+   TAB EFFECT (wide mode): attach “Aa” to its tray
    ========================================================= */
 
-/* When a tray is open, reduce the gap so it feels connected */
-.rm-page .rm-toolbar[data-rm-open="toc"] .rm-toolbar__panels,
+/* When the tray is open, reduce the gap so it feels connected */
 .rm-page .rm-toolbar[data-rm-open="aa"] .rm-toolbar__panels {
   margin-top: 0.2rem;
 }
 
-/* Active tab buttons: become “tabs” and merge with panel border */
-.rm-page .rm-toolbar[data-rm-open="toc"] [data-rm-toc-toggle],
+/* Active tab button: becomes a “tab” and merges with the panel border */
 .rm-page .rm-toolbar[data-rm-open="aa"] [data-rm-aa-toggle] {
   background: var(--surface-raised);
   /* Keep the open tab's own text color on hover: it sits attached to its panel
@@ -456,7 +448,6 @@ html.rm-tools-open {
 }
 
 /* Pull the open panel up to meet the tab and hide the seam */
-.rm-page .rm-toolbar[data-rm-open="toc"] .rm-toc,
 .rm-page .rm-toolbar[data-rm-open="aa"] .rm-aa {
   margin-top: -1px;
   border-top-left-radius: 0;
@@ -517,152 +508,6 @@ html.rm-tools-open {
 .rm-page .rm-aa .rm-aa__buttons:last-child,
 .rm-page .rm-aa [data-rm-aa-options]:last-child {
   margin-bottom: 0;
-}
-
-/* =========================================================
-   TOC: Chapter selector visuals (groups row + active caret + green band)
-   ========================================================= */
-
-/* Make sure hidden group panels truly disappear (belt + suspenders) */
-.rm-page .rm-toc [data-rm-group-panel][hidden] {
-  display: none !important;
-}
-
-/* Tighten "Chapters" label spacing (kills default <p> margins) */
-.rm-page .rm-toc__chapters-label {
-  margin: 0 0 0rem;
-}
-
-/* Group tabs row */
-.rm-page .rm-toc [data-rm-group-tab] {
-  position: relative;
-  border: 1px solid rgba(var(--ink-rgb), 0.22);
-  border-radius: 999px;
-  background: var(--surface-raised);
-  color: var(--text);
-  padding: 0.28rem 0.55rem;
-  font-size: 0.82rem;
-  line-height: 1.1;
-  white-space: nowrap;
-}
-
-/* Active group: green tint + border */
-.rm-page .rm-toc [data-rm-group-tab][aria-selected="true"] {
-  border-color: rgba(32, 157, 80, 0.7);
-  background: rgba(32, 157, 80, 0.16);
-}
-
-/* Speech-bubble caret for active group */
-.rm-page .rm-toc [data-rm-group-tab][aria-selected="true"]::after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%) rotate(45deg);
-  bottom: -7px;
-  width: 12px;
-  height: 12px;
-  background: rgba(32, 157, 80, 0.16);
-  border-right: 1px solid rgba(32, 157, 80, 0.7);
-  border-bottom: 1px solid rgba(32, 157, 80, 0.7);
-  border-left: 0;
-  border-top: 0;
-}
-
-/* The active group's chapter-number "band" */
-.rm-page .rm-toc [data-rm-group-panel]:not([hidden]) {
-  margin-top: 0.55rem;
-  padding: 0.75rem;
-  border-radius: 14px;
-  background: rgba(32, 157, 80, 0.1);
-  border: 1px solid rgba(32, 157, 80, 0.22);
-}
-
-/* --- CRITICAL FIX: the chapter numbers must be a ROW (not a vertical list) --- */
-/* Handle either <ol>/<ul> or any nested list inside the active group panel */
-.rm-page .rm-toc [data-rm-group-panel]:not([hidden]) > ol,
-.rm-page .rm-toc [data-rm-group-panel]:not([hidden]) > ul,
-.rm-page .rm-toc [data-rm-group-panel]:not([hidden]) ol,
-.rm-page .rm-toc [data-rm-group-panel]:not([hidden]) ul {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  align-items: center;
-
-  padding: 0;
-  margin: 0;
-  list-style: none;
-}
-
-/* Remove list numbering/bullets even if something else reintroduces it */
-.rm-page .rm-toc [data-rm-group-panel]:not([hidden]) ol,
-.rm-page .rm-toc [data-rm-group-panel]:not([hidden]) ul {
-  list-style-type: none;
-}
-
-.rm-page .rm-toc [data-rm-group-panel]:not([hidden]) li {
-  display: inline-flex;
-  margin: 0;
-  padding: 0;
-}
-
-/* =========================================================
-   TOC (ungrouped, <= 10 chapters): make the plain <ol> a pill ROW too
-   ========================================================= */
-
-.rm-page .rm-toc .rm-toc__list > ol {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  align-items: center;
-
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.rm-page .rm-toc .rm-toc__list > ol > li {
-  display: inline-flex;
-  margin: 0;
-  padding: 0;
-}
-
-/* Extra insurance: kill markers in browsers that get cute */
-.rm-page .rm-toc .rm-toc__list > ol > li::marker {
-  content: "";
-}
-
-/* Chapter pills (buttons) */
-.rm-page .rm-toc [data-rm-chapter-btn] {
-  width: 2.35rem;
-  height: 2.35rem;
-  border-radius: 999px;
-
-  border: 1px solid rgba(var(--ink-rgb), 0.22);
-  background: var(--surface-raised);
-  color: var(--text);
-
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  font-size: 0.9rem;
-  line-height: 1;
-}
-
-/* Active chapter highlight (aria-current set by JS) */
-.rm-page .rm-toc [data-rm-chapter-btn][aria-current="true"] {
-  border-color: rgba(32, 157, 80, 0.75);
-  background: rgba(32, 157, 80, 0.16);
-}
-
-/* Hover: the standard green fill + fg flip (matches the toolbar/chip). Setting
-   color here is required — the base toolbar hover would otherwise leave the
-   label in the fill's fg color over only a tint, which is illegible in dark. */
-.rm-page .rm-toc [data-rm-group-tab]:hover,
-.rm-page .rm-toc [data-rm-chapter-btn]:hover {
-  background: var(--green-text);
-  color: var(--on-green-fill);
-  border-color: transparent;
 }
 
 /* =========================================================
@@ -867,8 +712,14 @@ html[data-rm-leading="roomy"] .rm-page .rm-reader {
   }
 
 
-  /* Bottom sheet (hidden by default) */
+  /* Bottom sheet (hidden by default). Flex column so the button row's
+     clusters (via display:contents below) and the Aa tray are orderable
+     siblings — that lets the tray open directly under its toggle row. */
   .rm-page .rm-toolbar {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
     position: fixed;
     left: 0;
     right: 0;
@@ -921,12 +772,10 @@ html[data-rm-leading="roomy"] .rm-page .rm-reader {
     transform: translateY(0) scale(1);
   }
 
-  /* In sheet mode, stack the row */
+  /* In sheet mode the row's box dissolves so its clusters join the toolbar's
+     flex column as direct siblings of the Aa tray (see the reorder below). */
   .rm-page .rm-toolbar__row {
-    flex-direction: column;
-    align-items: stretch;
-    justify-content: flex-start;
-    gap: 0.5rem;
+    display: contents;
   }
 
   .rm-page .rm-toolbar__cluster {
@@ -939,42 +788,61 @@ html[data-rm-leading="roomy"] .rm-page .rm-reader {
 
   /* ---------------------------------------------------------
      SHEET MODE: reorder stacked rows
-     Desired top-to-bottom: Zone 3 (right), Zone 2 (center), Zone 1 (left)
-     --------------------------------------------------------- */
+     Top-to-bottom: Zone 1 (left: Aa/Numbers/Focus), Zone 2 (center:
+     picker + progress), Zone 3 (right: Return / Switch actions). The close
+     is lifted out of flow to the sheet's top-right corner (below), so the
+     two action pills keep a clean single row at the bottom. */
 
-  .rm-page .rm-toolbar__cluster--right {
-    order: 1; /* Zone 3: top row */
+  .rm-page .rm-toolbar__cluster--left {
+    order: 1; /* Zone 1: top row */
+    /* Keep the centered toggles clear of the corner close on both sides
+       (symmetric, so they stay visually centered). */
+    padding-inline: 2.6rem;
+  }
+
+  /* The Aa tray opens right under its toggle row (order 2), not at the far
+     bottom — so it reads as attached to the Aa button. */
+  .rm-page .rm-toolbar__panels {
+    order: 2;
+    margin-top: 0;
+  }
+
+  /* When no tray is open the panels container would still claim a flex-gap
+     slot (it has zero height but the column gap applies), leaving a dead
+     band under the toggles — collapse it out entirely until Aa opens. */
+  .rm-page .rm-toolbar:not([data-rm-open="aa"]) .rm-toolbar__panels {
+    display: none;
   }
 
   .rm-page .rm-toolbar__cluster--center {
-    order: 2; /* Zone 2: middle row */
+    order: 3; /* Zone 2: middle row */
+    /* Picker trigger + progress cluster: allow a wrap on narrow phones so a
+       long label ("2 Thessalonians · Chapter 3") can't overflow the sheet. */
+    flex-wrap: wrap;
+    row-gap: 0.4rem;
   }
 
-  .rm-page .rm-toolbar__cluster--left {
-    order: 3; /* Zone 1: bottom row */
-  }
-
-  /* Zone 3: keep center actions centered, close at right */
   .rm-page .rm-toolbar__cluster--right {
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
+    order: 4; /* Zone 3: bottom row */
+  }
+
+  /* Zone 3: the two action pills, centered on one row. The close no longer
+     sits here (it's absolutely positioned at the sheet corner), so the pills
+     have the full row width and never get crowded. */
+  .rm-page .rm-toolbar__cluster--right {
+    display: flex;
     align-items: center;
-    column-gap: 0.5rem;
-    gap: 0;
+    justify-content: center;
+    gap: 0.5rem;
     min-width: 0;
   }
 
   .rm-page .rm-toolbar__cluster--right > :not(.rm-toolbar__close) {
-    grid-column: 2;
-    justify-self: center;
-
     display: inline-flex;
     align-items: center;
     justify-content: center;
 
     flex-wrap: nowrap;
-    white-space: nowrap;
-
     gap: 0.5rem;
     min-width: 0;
   }
@@ -984,33 +852,22 @@ html[data-rm-leading="roomy"] .rm-page .rm-reader {
     white-space: nowrap;
   }
 
-  .rm-page .rm-toolbar__cluster--right .rm-toolbar__close {
-    grid-column: 3;
-    justify-self: end;
+  /* Close: lifted to the sheet's top-right corner (conventional bottom-sheet
+     dismiss), clear of every row. */
+  .rm-page .rm-toolbar__close {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    z-index: 1;
   }
 
-  /* Controls (sheet mode) */
+  /* Controls (sheet mode): same pill recipe as wide mode, a notch denser.
+     (Also inherits the base green-fill hover.) */
   .rm-page .rm-toolbar button,
   .rm-page .rm-toolbar a {
-    padding: 0.32rem 0.48rem;
+    padding: 0.32rem 0.62rem;
     font-size: 0.8rem;
-
-    background: rgba(32, 157, 80, 0.08);
-    border-color: rgba(var(--ink-rgb), 0.3);
     overflow: visible;
-  }
-
-  /* Sheet mode inherits the base green-fill hover (no override needed). */
-
-  .rm-page .rm-toolbar .rm-cta {
-    background: var(--green, #209d50);
-    color: #fff;
-    border-color: transparent;
-  }
-
-  .rm-page .rm-toolbar .rm-cta:hover {
-    background: var(--ink, #1d231c);
-    color: #fff;
   }
 
   /* =========================================================
@@ -1019,7 +876,6 @@ html[data-rm-leading="roomy"] .rm-page .rm-reader {
      ========================================================= */
 
   /* Undo the desktop “tab merge” behavior in sheet mode */
-  .rm-page .rm-toolbar[data-rm-open="toc"] [data-rm-toc-toggle],
   .rm-page .rm-toolbar[data-rm-open="aa"] [data-rm-aa-toggle] {
     top: 0;
     margin-bottom: 0;
@@ -1033,7 +889,6 @@ html[data-rm-leading="roomy"] .rm-page .rm-reader {
   }
 
   /* Caret (speech-bubble pointer) */
-  .rm-page .rm-toolbar[data-rm-open="toc"] [data-rm-toc-toggle]::after,
   .rm-page .rm-toolbar[data-rm-open="aa"] [data-rm-aa-toggle]::after {
     content: "";
     position: absolute;
@@ -1055,19 +910,19 @@ html[data-rm-leading="roomy"] .rm-page .rm-reader {
     align-items: center;
     justify-content: center;
 
-    width: 2.6rem;
-    height: 2.6rem;
+    width: 2.15rem;
+    height: 2.15rem;
     padding: 0;
 
-    background: var(--green, #209d50) !important;
+    background: var(--green-deep, #0f6b33) !important;
     border: 1px solid rgba(var(--ink-rgb), 0.2) !important;
-    border-radius: 14px !important;
+    border-radius: 12px !important;
 
     font-size: 0 !important;
     line-height: 0 !important;
 
     text-shadow: none;
-    box-shadow: 0 12px 22px rgba(0, 0, 0, 0.24);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.22);
   }
 
   .rm-page .rm-toolbar button.rm-toolbar__close:hover {
@@ -1075,8 +930,8 @@ html[data-rm-leading="roomy"] .rm-page .rm-reader {
   }
 
   .rm-page .rm-toolbar button.rm-toolbar__close .rm-x {
-    width: 1.5rem;
-    height: 1.5rem;
+    width: 1.2rem;
+    height: 1.2rem;
     display: block;
   }
 

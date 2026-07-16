@@ -231,7 +231,13 @@ Each file in `src/data/chapters/` follows this structure:
      grid then a chapter grid, server-rendered as a plain link for no-JS)
      dims the chapter with a dot marker in its chapter grid, keeps "(draft)"
      in the cell's accessible name, and dims a book in the book grid when
-     *every* chapter of that book is a draft.
+     *every* chapter of that book is a draft. The picker has two modes: the
+     default standalone pill on Study/Search pages, and `mode="read"` — a
+     compact trigger embedded in the Reading View toolbar whose label IS the
+     live "Book · Chapter N" readout (`read-mode.js` keeps the label and the
+     root's `data-current-chapter` updated on scroll, and intercepts
+     same-book chapter picks for an in-page scroll; other books navigate to
+     `/read/<book>#ch-N`).
   **Flip it to `true`** (do not delete the field) when real content lands.
 - Always run `npm run validate:chapters` after editing chapter JSON. The
   pre-commit hook validates staged chapter files automatically.

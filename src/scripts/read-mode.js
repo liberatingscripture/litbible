@@ -95,7 +95,12 @@ function initReadMode() {
   const bookKey = String(page.dataset.rmBook || "").trim();
   const bookTitle = String(page.dataset.rmBookTitle || "").trim() || "Book";
 
+  // The live location label is the passage picker's trigger label
+  // (ReadMenu mode="read" stamps data-rm-where on it); the picker root also
+  // carries data-current-chapter, which we keep in sync so its chapter grid
+  // highlights the chapter the reader is actually at.
   const whereEl = page.querySelector("[data-rm-where]");
+  const readMenuRoot = page.querySelector(".rm-toolbar .read-menu");
   const progressEl = page.querySelector("[data-rm-progress]");
   const progressBar = page.querySelector("[data-rm-progress-bar]");
 
@@ -107,20 +112,6 @@ function initReadMode() {
 
   const aaToggle = page.querySelector("[data-rm-aa-toggle]");
   const aaPanel = page.querySelector("[data-rm-aa-panel]");
-
-  const tocToggle = page.querySelector("[data-rm-toc-toggle]");
-  const tocPanel = page.querySelector("[data-rm-toc-panel]");
-
-  const tocTargets = Array.from(page.querySelectorAll("[data-rm-target]"));
-  const tocChapterButtons = Array.from(
-    page.querySelectorAll("[data-rm-chapter-btn]"),
-  ).filter((el) => el instanceof HTMLButtonElement);
-  const tocGroupTabs = Array.from(
-    page.querySelectorAll("[data-rm-group-tab]"),
-  ).filter((el) => el instanceof HTMLButtonElement);
-  const tocGroupPanels = Array.from(
-    page.querySelectorAll("[data-rm-group-panel]"),
-  ).filter((el) => el instanceof HTMLElement);
 
   const resumeChip = page.querySelector("[data-rm-resume-chip]");
   const resumeGo = page.querySelector("[data-rm-resume-go]");
@@ -186,8 +177,6 @@ function initReadMode() {
 
   let activeFocusTarget = null;
   const visibleFocusTargets = new Set();
-  let tocSelectedGroup = -1;
-  let tocUserSelectedGroupWhileOpen = false;
 
   const studyChapterHref = (chapter) => `/${bookKey}-${chapter}`;
 
@@ -254,18 +243,12 @@ function initReadMode() {
   }
 
   function setToolbarOpenState(state) {
-    const open = state === "toc" || state === "aa" ? state : "";
-    toolbar.dataset.rmOpen = open;
+    toolbar.dataset.rmOpen = state === "aa" ? state : "";
   }
 
   function closePanels() {
-    if (tocPanel instanceof HTMLElement) tocPanel.hidden = true;
     if (aaPanel instanceof HTMLElement) aaPanel.hidden = true;
-    tocUserSelectedGroupWhileOpen = false;
 
-    if (tocToggle instanceof HTMLButtonElement) {
-      tocToggle.setAttribute("aria-expanded", "false");
-    }
     if (aaToggle instanceof HTMLButtonElement) {
       aaToggle.setAttribute("aria-expanded", "false");
     }
@@ -275,28 +258,15 @@ function initReadMode() {
   }
 
   function openPanel(panelName) {
-    const openToc = panelName === "toc";
     const openAa = panelName === "aa";
 
-    if (tocPanel instanceof HTMLElement) tocPanel.hidden = !openToc;
     if (aaPanel instanceof HTMLElement) aaPanel.hidden = !openAa;
 
-    if (tocToggle instanceof HTMLButtonElement) {
-      tocToggle.setAttribute("aria-expanded", openToc ? "true" : "false");
-    }
     if (aaToggle instanceof HTMLButtonElement) {
       aaToggle.setAttribute("aria-expanded", openAa ? "true" : "false");
     }
 
-    if (openToc) setToolbarOpenState("toc");
-    else if (openAa) setToolbarOpenState("aa");
-    else setToolbarOpenState("");
-
-    if (!openToc) {
-      tocUserSelectedGroupWhileOpen = false;
-    } else {
-      syncTocGroupToActiveChapter(true);
-    }
+    setToolbarOpenState(openAa ? "aa" : "");
 
     requestAnimationFrame(updateToolbarOffset);
   }
@@ -413,62 +383,11 @@ function initReadMode() {
     if (persist) safeSet(STORAGE.focus, focusMode);
   }
 
-  function getGroupIndexForChapter(chapter) {
-    if (!tocGroupPanels.length) return -1;
-
-    const chapterNum = Number(chapter) || 1;
-    for (let i = 0; i < tocGroupPanels.length; i += 1) {
-      const panel = tocGroupPanels[i];
-      const start = Number(panel.dataset.rmGroupStart || 0);
-      const end = Number(panel.dataset.rmGroupEnd || 0);
-      if (chapterNum >= start && chapterNum <= end) return i;
-    }
-
-    return 0;
-  }
-
-  function setTocGroupSelection(index, fromUser = false) {
-    if (!tocGroupTabs.length || !tocGroupPanels.length) return;
-
-    const bounded = clamp(Number(index) || 0, 0, tocGroupPanels.length - 1);
-    tocSelectedGroup = bounded;
-
-    for (let i = 0; i < tocGroupTabs.length; i += 1) {
-      const tab = tocGroupTabs[i];
-      tab.setAttribute("aria-selected", i === bounded ? "true" : "false");
-    }
-
-    for (let i = 0; i < tocGroupPanels.length; i += 1) {
-      tocGroupPanels[i].hidden = i !== bounded;
-    }
-
-    if (fromUser) tocUserSelectedGroupWhileOpen = true;
-  }
-
-  function syncTocGroupToActiveChapter(force = false) {
-    if (!tocGroupTabs.length || !tocGroupPanels.length) return;
-
-    const tocIsOpen = tocPanel instanceof HTMLElement && !tocPanel.hidden;
-    if (!force && tocIsOpen && tocUserSelectedGroupWhileOpen) return;
-
-    const nextGroup = getGroupIndexForChapter(activeChapter);
-    if (nextGroup < 0) return;
-    if (tocSelectedGroup === nextGroup && !force) return;
-    setTocGroupSelection(nextGroup, false);
-  }
-
-  function updateActiveChapterButton() {
-    if (!tocChapterButtons.length) return;
-
-    for (const button of tocChapterButtons) {
-      const chapter = Number(button.dataset.rmChapterBtn || 0);
-      const isCurrent = chapter === activeChapter;
-      if (isCurrent) {
-        button.setAttribute("aria-current", "true");
-      } else {
-        button.removeAttribute("aria-current");
-      }
-    }
+  // The picker rebuilds its chapter grid from data-current-chapter on every
+  // open, so keeping the attribute fresh is all the sync it needs.
+  function syncReadMenuChapter() {
+    if (!(readMenuRoot instanceof HTMLElement)) return;
+    readMenuRoot.setAttribute("data-current-chapter", String(activeChapter));
   }
 
   function updateStudySwitchHref() {
@@ -483,8 +402,6 @@ function initReadMode() {
   function setActiveChapter(nextChapter) {
     const bounded = clamp(Number(nextChapter) || 1, 1, chapterAnchors.length);
     if (activeChapter === bounded) {
-      syncTocGroupToActiveChapter(false);
-      updateActiveChapterButton();
       updateStudySwitchHref();
       return;
     }
@@ -495,8 +412,7 @@ function initReadMode() {
       whereEl.textContent = `${bookTitle} · Chapter ${activeChapter}`;
     }
 
-    syncTocGroupToActiveChapter(false);
-    updateActiveChapterButton();
+    syncReadMenuChapter();
     updateStudySwitchHref();
   }
 
@@ -511,6 +427,23 @@ function initReadMode() {
     }
 
     return Number(winner.dataset.rmChapter || 1) || 1;
+  }
+
+  // Which chapter anchor would a given scrollY land in (same rule as the
+  // active-chapter line)? Used to validate saved resume offsets, which go
+  // stale whenever layout changed since they were saved (viewport width,
+  // font settings, toolbar changes all reflow the page).
+  function chapterIdAtScrollY(y) {
+    const line = y + window.innerHeight * ACTIVE_CHAPTER_LINE;
+    let winner = chapterAnchors[0];
+
+    for (const anchor of chapterAnchors) {
+      const top = anchor.getBoundingClientRect().top + window.scrollY;
+      if (top <= line) winner = anchor;
+      else break;
+    }
+
+    return winner.id;
   }
 
   function updateProgress() {
@@ -666,6 +599,17 @@ function initReadMode() {
   // ---------------------------------------------------------
 
   function closeMobileTools({ focusFab = false } = {}) {
+    // The passage picker rides on the sheet — close its popover along with
+    // it rather than leaving it floating over the closed sheet.
+    try {
+      const openPopover = document.querySelector(
+        ".read-menu__panel:popover-open",
+      );
+      if (openPopover instanceof HTMLElement) openPopover.hidePopover();
+    } catch {
+      // :popover-open unsupported — nothing to close.
+    }
+
     // Clean up any drag styles/state
     resetSheetDragStyles();
     dragActive = false;
@@ -815,8 +759,7 @@ function initReadMode() {
   // Ensure button structure early, before first label set.
   ensureStartOverButtonStructure();
 
-  syncTocGroupToActiveChapter(true);
-  updateActiveChapterButton();
+  syncReadMenuChapter();
   updateStudySwitchHref();
 
   updateProgress();
@@ -901,13 +844,6 @@ function initReadMode() {
     setTimeout(startFocusObserver, 200);
   }
 
-  if (tocToggle instanceof HTMLButtonElement) {
-    tocToggle.addEventListener("click", () => {
-      const shouldOpen = !(tocPanel instanceof HTMLElement) || tocPanel.hidden;
-      openPanel(shouldOpen ? "toc" : "none");
-    });
-  }
-
   if (aaToggle instanceof HTMLButtonElement) {
     aaToggle.addEventListener("click", () => {
       const shouldOpen = !(aaPanel instanceof HTMLElement) || aaPanel.hidden;
@@ -915,28 +851,50 @@ function initReadMode() {
     });
   }
 
-  for (const tab of tocGroupTabs) {
-    tab.addEventListener("click", () => {
-      const idx = Number(tab.dataset.rmGroupTab);
-      if (!Number.isFinite(idx)) return;
-      setTocGroupSelection(idx, true);
-    });
-  }
+  // Same-book picks from the passage picker are /read/<book>#ch-N links that
+  // target THIS page: intercept them for an in-page smooth scroll instead of
+  // a hard hash jump. Other books' links (and modified clicks) navigate
+  // normally. The picker popover hangs off <body>, so listen on document.
+  const normalizePath = (p) => p.replace(/\/+$/, "") || "/";
 
-  for (const target of tocTargets) {
-    if (!(target instanceof HTMLButtonElement)) continue;
+  document.addEventListener("click", (event) => {
+    if (event.defaultPrevented) return;
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+      return;
+    }
+    if (!(event.target instanceof Element)) return;
 
-    target.addEventListener("click", () => {
-      const anchor = String(target.dataset.rmTarget || "").trim();
-      if (!anchor) return;
+    const link = event.target.closest('a[href*="#ch-"]');
+    if (!(link instanceof HTMLAnchorElement)) return;
 
-      if (scrollToAnchor(anchor)) {
-        setHash(anchor);
-      }
+    let url;
+    try {
+      url = new URL(link.href, window.location.href);
+    } catch {
+      return;
+    }
+    if (url.origin !== window.location.origin) return;
+    if (normalizePath(url.pathname) !== normalizePath(window.location.pathname)) {
+      return;
+    }
 
-      closePanels();
-    });
-  }
+    const anchor = decodeURIComponent(url.hash.replace(/^#/, ""));
+    if (!chapterById.has(anchor)) return;
+
+    event.preventDefault();
+
+    // Close the picker explicitly: scrolling light-dismisses it anyway, but
+    // re-picking the current chapter produces no scroll at all.
+    try {
+      const openPopover = document.querySelector(":popover-open");
+      if (openPopover instanceof HTMLElement) openPopover.hidePopover();
+    } catch {
+      // :popover-open unsupported — the picker is a plain link there.
+    }
+
+    if (scrollToAnchor(anchor)) setHash(anchor);
+    closeMobileTools();
+  });
 
   if (markersToggle instanceof HTMLButtonElement) {
     markersToggle.addEventListener("click", () => {
@@ -978,7 +936,15 @@ function initReadMode() {
 
       const y = Number(target.scrollY);
 
-      if (Number.isFinite(y)) {
+      // Only trust the saved pixel offset if it still lands in the chapter
+      // the chip promised — otherwise deliver the chapter start.
+      const offsetIsStale =
+        Number.isFinite(y) &&
+        typeof target.anchor === "string" &&
+        chapterById.has(target.anchor) &&
+        chapterIdAtScrollY(Math.max(0, y)) !== target.anchor;
+
+      if (Number.isFinite(y) && !offsetIsStale) {
         window.scrollTo({
           top: Math.max(0, y),
           behavior: prefersReducedMotion ? "auto" : "smooth",
@@ -1052,6 +1018,20 @@ function initReadMode() {
   document.addEventListener("click", (event) => {
     if (!(event.target instanceof Node)) return;
 
+    // A detached target means another handler already rebuilt the UI around
+    // it (the passage picker replaces its grid in place on a book pick), so
+    // containment can't be judged — treat it as an inside click.
+    if (!event.target.isConnected) return;
+
+    // The picker panel lives on <body> (top-layer popover), not in the
+    // toolbar — its clicks are toolbar interactions all the same.
+    if (
+      event.target instanceof Element &&
+      event.target.closest(".read-menu__panel")
+    ) {
+      return;
+    }
+
     const clickedToolbar = toolbar.contains(event.target);
     const clickedFab =
       fabToggle instanceof HTMLButtonElement && fabToggle.contains(event.target);
@@ -1065,13 +1045,20 @@ function initReadMode() {
 
     // Only close panels if one is actually open — avoids unnecessary
     // getBoundingClientRect() in updateToolbarOffset() on every document click.
-    const tocOpen = tocPanel instanceof HTMLElement && !tocPanel.hidden;
     const aaOpen = aaPanel instanceof HTMLElement && !aaPanel.hidden;
-    if (tocOpen || aaOpen) closePanels();
+    if (aaOpen) closePanels();
   });
 
   document.addEventListener("keydown", (event) => {
     if (event.key !== "Escape") return;
+
+    // With the passage picker open, this Escape is the popover's native
+    // light-dismiss — don't also collapse the sheet/panels behind it.
+    try {
+      if (document.querySelector(":popover-open")) return;
+    } catch {
+      // Selector unsupported → no popover can be open; fall through.
+    }
 
     if (resumeChipTarget) {
       hideResumeChip();
