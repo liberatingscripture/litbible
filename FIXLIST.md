@@ -2,7 +2,10 @@
 
 From the comprehensive audit of 2026-07-07 (developer, QA, SEO, end-user, editor,
 marketing, accessibility, HR/governance, and security passes). The seven
-**Priority** fixes are done (commit `9e3a875`). Remaining items are grouped by
+**Priority** fixes are done (commit `9e3a875`). A second comprehensive audit ran
+**2026-07-16** (same hats plus legal, performance, and disability passes;
+findings verified against the live site where relevant) — its additions sit in a
+dated subsection at the end of each model's list. Remaining items are grouped by
 which model should run them:
 
 - **Sonnet** — mechanical, fully specified edits; run as ONE batch session.
@@ -129,6 +132,90 @@ delete it.
   (Contributor Covenant v2.1) at the repo root as owner-review drafts, in the
   site's warm, direct voice. `LICENSE` was intentionally NOT created — still
   gated on the Owner license decision below.
+
+### Added from the 2026-07-16 audit
+
+- [ ] **Add an `engines` field to package.json.**
+  `"engines": { "node": ">=22.12" }` (Astro 6's requirement, already documented
+  in README). Makes a too-old Node fail fast at install instead of erroring
+  mid-build.
+
+- [ ] **Em-dash sweep in visible page prose.**
+  Owner style rule: no em dashes in published page copy — rephrase with
+  commas/periods/colons, changing as few words as possible. Locations found:
+  `src/pages/about.astro` prose paragraphs (~lines 237–240, 396, 429–430);
+  `src/pages/release-notes.astro` lede (~line 33); `src/pages/read.astro`
+  license bullets (~193–201 — the "**Attribution** — You must…" separators can
+  become colons); and the user-facing form status strings "Thanks — your
+  message has been sent." in `contact.astro` (~143) and `app-support.astro`
+  (~161), e.g. "Thanks! Your message has been sent." Leave code comments, page
+  `title` tags, `alt` text, and JSON-LD alone.
+
+- [ ] **Title-tag separator consistency.**
+  `src/pages/unsubscribe.astro` titles itself "Unsubscribe — LIT Bible"; every
+  other page uses "| Liberation and Inclusion Translation". Change it to
+  "Unsubscribe | Liberation and Inclusion Translation".
+
+- [ ] **Footer Threads link → final URL.**
+  `SiteFooter.astro` links `https://threads.net/lit.bible`, which 301-hops
+  three times before landing at `https://www.threads.com/@lit.bible` (verified
+  live 2026-07-16). Link the final URL directly.
+
+- [ ] **Doc drift: document the test suite and link checker.**
+  `npm test` (`test/search-core.test.js`), `npm run check:links`
+  (`scripts/check-links.mjs`), and the `test/` directory all exist and run in
+  CI, but appear nowhere in CLAUDE.md (Common Commands, the scripts table,
+  Project Structure) or README's command table. Add them to both, per
+  CLAUDE.md's own keep-me-accurate rule.
+
+- [ ] **Demote the article pages' sr-only index `<h1>` to a `<div>`.**
+  `src/pages/articles/[...slug].astro` renders TWO h1s: the sr-only Pagefind
+  index surface (~line 129) and the visible `.article__title` (~line 182) —
+  screen-reader users hear the title twice. The result title is safe to change
+  under (it comes from the explicit `data-pagefind-meta="title"` span at ~132,
+  not the h1); add `data-pagefind-weight="7"` to the replacement div so
+  title-keyword ranking weight is preserved. Verify with `npm run build` + a
+  search spot-check that article hits still rank and label the same.
+
+- [ ] **Align workflow Node versions.**
+  `.github/workflows/release-notes.yml` uses Node 20; `ci.yml` uses 24. Bump
+  release-notes.yml to 24.
+
+- [ ] **Add a Dependabot config.**
+  `.github/dependabot.yml`: weekly `npm` updates for `/` and
+  `/workers/contact-form`, plus `github-actions`. Today advisories only
+  surface when someone remembers to run `npm audit` (the 2 known low-sev
+  esbuild ones are dev-server-only; see the Owner Astro 7 item).
+
+- [ ] **Dark-scheme `theme-color` meta.**
+  `Layout.astro` pins `<meta name="theme-color" content="#209D50">`, so mobile
+  browser chrome stays LIT green on dark pages. Add a second meta with
+  `media="(prefers-color-scheme: dark)"` and the dark page bg (`#0E0E0F`).
+  Note: the Aa-tray forced theme won't update this without JS — acceptable;
+  OS-level dark is the common case. Skip if the owner prefers brand green
+  everywhere.
+
+- [ ] **Add width/height to the contact-page logo.**
+  The `.contact-logo` `<img>` in `contact.astro` has no intrinsic dimension
+  attributes (layout-shift risk as it loads). Add `width`/`height` matching
+  `public/images/lit-logo.png`'s intrinsic square dimensions (CSS already
+  scales it via `width: min(260px, 60vw)`).
+
+- [ ] **Reduced-motion guard for the homepage underline animation.**
+  `index.astro`'s `[data-animate="underline"]` IntersectionObserver adds
+  `.is-visible` without checking `prefers-reduced-motion` (the chat-bubble
+  script right below it DOES check). Confirm `home.css` disables the
+  `.callout-underline-path` draw under reduced motion; if not, add the CSS
+  guard (preferred — keeps the underline visible, just not animated) or
+  mirror the chat script's matchMedia early-return.
+
+- [ ] **Contributor plumbing for the BDR workflow.**
+  Add `.github/ISSUE_TEMPLATE/` (two forms: a technical bug report; a
+  content/translation-feedback form that points to /contact per
+  CONTRIBUTING.md), a PR template (checklist: `npm run validate:chapters` if
+  chapters touched, `npm run build` passes, scope stays inside the agreed
+  area), and a `CODEOWNERS` file (`* @liberatingscripture`) so every PR
+  auto-requests the owner's review.
 
 ## Opus — one session per item
 
@@ -356,6 +443,66 @@ delete it.
   keyboard operation (Tab + arrow keys, visible focus ring); and `npm run build`
   passes. CLAUDE.md gained a "Theming" convention bullet.
 
+### Added from the 2026-07-16 audit
+
+- [ ] **(O8) Image weight overhaul.**
+  The single biggest real-world performance problem found in the 2026-07-16
+  audit. `public/images/articles/` is 19 MB (`geiser-stars.jpg` 6.4 MB,
+  `jesus-and-pilate.jpg` 5.0 MB) and the article page emits
+  `<link rel="preload" as="image">` for its hero
+  (`articles/[...slug].astro`), so those bytes download at top priority.
+  `public/screenshots/` is 13 MB of ~0.7–1.1 MB phone PNGs feeding `/apps`
+  (its lazy-loading discipline is already correct — this is purely
+  format/size). `lit-logo.png` (148 KB) loads eagerly on EVERY page as a 48px
+  header logo; `lsc-logo-square.png` (332 KB) loads eagerly in the welcome
+  popover at ~104px; `gdj-frame-7313859.svg` is 924 KB. Fix: resize photos
+  and screenshots to ~2× their max display width and convert to WebP (sharp
+  is already a dependency via build:og), generate small logo variants for the
+  header/popover slots, run SVGO on the big SVG, and update every reference.
+  Do NOT touch `public/images/campaigns/` (referenced by already-sent
+  emails) or `public/og/` (generated). Acceptance: articles dir ≤ ~3 MB,
+  screenshots ≤ ~3 MB, no single page-loaded image over ~250 KB, visual
+  spot-check of /apps + two article heroes + header/popover logos in dev, and
+  `npm run build` + `npm run check:links` pass.
+
+- [ ] **(O9) Unit tests for chapter-html.ts.**
+  `src/lib/chapter-html.ts` (prepareStudyParagraph / prepareReadParagraph) is
+  the shared transform that wraps each verse in `<span data-verse>` — every
+  Study View page depends on it, and it has zero tests. Follow the O4 pattern
+  (node:test + node:assert/strict, no new deps). Cover: vglue handling, verse
+  spans opening/closing at tag-depth 0, duplicate-verse-id handling via
+  `seenVerseIds`, footnote-ref pass-through, and verse state carrying across
+  paragraphs.
+
+- [ ] **(O10) Tests for the contact-form Worker.**
+  `workers/contact-form/src/index.js` is untested. Use
+  `@cloudflare/vitest-pool-workers` (devDependency inside
+  `workers/contact-form/` only — keep the site's root deps clean). Cover:
+  non-POST → 405; filled `_gotcha` honeypot → pretend success, nothing sent;
+  missing fields → 400; CR/LF collapse in name/email (header injection);
+  platform whitelist fallback to "Not sure"; Turnstile failure → 403; the
+  JSON (`Accept: application/json`) vs no-JS 303 paths; and the DISPLAY_TO
+  header/envelope retry. Mock the siteverify fetch and the send binding.
+
+- [ ] **(O11) Golden tests for draft-release-notes.mjs.**
+  Its change-object output is a documented contract with the mobile apps
+  (see the script's docblock: `description`, additive `detail`/`location`/
+  `relabel`). Add fixture-based tests — either a temp git repo with small
+  before/after chapter/intro/glossary edits, or (better) refactor the
+  diff-to-changes core into a pure function tests can call directly. Assert
+  the field shapes and the "attribute-/metadata-only chapter edits collapse
+  to one metadata line" behavior.
+
+- [ ] **(O12) Footer newsletter no-JS fallback.**
+  `SiteFooter.astro` ships the Subscribe button `disabled` and only enables
+  it when Brevo's `main.js` loads — with JS off the form is dead, the one
+  exception to the site's no-JS principle (the /unsubscribe Brevo form works
+  no-JS). Evaluate first, then fix: test whether a native POST to the
+  sibforms action succeeds without main.js/Turnstile (mirror the unsubscribe
+  form's behavior); if Brevo rejects it, add a `<noscript>` note linking
+  Brevo's hosted subscribe page instead. Don't guess — verify actual Brevo
+  behavior before choosing.
+
 ## Fable — one session each, owner in the loop
 
 - [x] **(F1) Self-host the contact form on Cloudflare (drop Formspree).**
@@ -514,11 +661,28 @@ delete it.
   /read lede's "solid drafts" phrasing was left as-is (owner flagged, not
   changed — no "(draft)" markers adjacent there to collide with).
 
+### Added from the 2026-07-16 audit
+
+- [ ] **(F7) Continuity / disaster-recovery doc.**
+  (Owner in the loop — needs dashboard knowledge only they have.) The repo is
+  the content store, which is great, but the deploy config and secrets live
+  only in dashboards. Write a short `DISASTER-RECOVERY.md`: which dashboards
+  exist (Cloudflare Pages project, Email Routing destinations, the two
+  Turnstile widgets, the Worker + rate-limit binding, Brevo, RedCircle,
+  GiveLively), which wrangler secrets must be re-set from scratch (the six
+  named in `workers/contact-form/wrangler.toml`'s comments), DNS, and the
+  from-zero redeploy path (clone → `npm ci` → `npm run build` → Pages;
+  `wrangler deploy` for the Worker). Names and locations only — no secret
+  VALUES anywhere in the file.
+
 ## Owner — decisions & dashboard tasks (no model)
 
 - [ ] **Decide `/courses`:** link it in the nav/footer, or park it
   deliberately until course content exists. (It's currently reachable only
-  by URL.)
+  by URL.) *2026-07-16 audit note:* it's live (200), in the sitemap, and
+  linked from nowhere — an indexed orphan. If parking it, also set
+  `robotsNoindex` and exclude it from the sitemap filter in
+  `astro.config.mjs` until it launches (Sonnet-sized once decided).
 - [ ] **Decide the twin footer Facebook icons.** The footer shows identical
   Facebook icons for LIT Bible and the Found in Translation podcast,
   distinguishable only by aria-label. Owner is leaning toward: REMOVE the
@@ -541,9 +705,41 @@ delete it.
   O7 above.
 - [ ] **Cloudflare dashboard:** verify Web Analytics is actually enabled (the
   privacy policy asserts it); confirm HSTS under SSL/TLS → Edge Certificates
-  (feeds F2).
+  (feeds F2). *2026-07-16 audit evidence:* the live homepage HTML carries NO
+  `cloudflareinsights` beacon, so Web Analytics is **not collecting** —
+  either enable it (and add `static.cloudflareinsights.com` to script-src +
+  `cloudflareinsights.com` to connect-src in the report-only CSP in
+  `public/_headers`, per that file's own maintenance rule) or reword
+  `privacy.astro`'s analytics paragraph to match reality. HSTS was confirmed
+  live (`max-age=15552000`).
 - [ ] **Formspree dashboard:** delete the retired courses form endpoint
   (`mgovgpoo`) so stray submissions can't land anywhere.
+
+### Added from the 2026-07-16 audit
+
+- [ ] **Newsletter email compliance (CAN-SPAM).** The committed campaign
+  template `emails/pentecost-2026.html` ends with a copyright line only — no
+  unsubscribe link and no physical postal address, both legally required in
+  marketing email. Verify in the Brevo dashboard whether Brevo appends its
+  own footer to custom-HTML campaigns (if it does, past sends are fine); for
+  future templates, bake in an unsubscribe link (the site has `/unsubscribe`,
+  but Brevo's `{{ unsubscribe }}` tag is the reliable per-recipient one) and
+  the org's mailing address. Two copy nits in that template for next time:
+  "poured about the Sacred Life-breath" (likely "poured out") and "in the
+  the work LSC is doing" (doubled "the").
+- [ ] **Decide Astro 7 timing.** `npm audit` shows 2 low-severity advisories
+  (esbuild dev-server file read on Windows, via Astro ≤6) whose only fix is
+  the breaking Astro 7 upgrade. Exposure is the LOCAL dev server, not the
+  shipped site, so this is not urgent — but decide when to schedule the
+  upgrade (an Opus item once decided; 7.1.0 is current as of 2026-07-16).
+- [ ] **Confirm the Apple Pay domain file is still needed.**
+  `public/.well-known/apple-developer-merchantid-domain-association` —
+  presumably GiveLively's Apple Pay verification. Confirm it's intentional
+  and current; delete it if the integration that required it is gone.
+- [ ] **Decide where `/apps` should surface.** The strongest conversion page
+  on the site is footer-only ("Learn" column). If the app beta push matters,
+  give it a header nav slot or a homepage question-card; once placement is
+  decided, implementation is Sonnet-sized.
 
 ## Completed from TBD
 
