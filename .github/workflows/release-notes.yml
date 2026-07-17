@@ -19,6 +19,12 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0 # full history needed for git diff in the script
+          # main requires PRs for the default GITHUB_TOKEN (github-actions[bot]),
+          # which isn't on the branch-ruleset bypass list. RELEASE_NOTES_PAT is a
+          # fine-grained PAT scoped to Contents: Read and write on this repo,
+          # owned by a bypass-listed account, so this workflow can keep pushing
+          # its auto-generated commit straight to main.
+          token: ${{ secrets.RELEASE_NOTES_PAT }}
 
       - uses: actions/setup-node@v4
         with:
