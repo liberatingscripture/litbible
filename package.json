@@ -13,6 +13,7 @@
     "fetch:podcast": "node scripts/fetch-podcast-feed.mjs",
     "build": "node scripts/fetch-podcast-feed.mjs && npm run build:topics && npm run build:verses && npm run build:manifest && npm run build:api && npm run build:og && astro build && pagefind --site dist",
     "preview": "npm run build && astro preview",
+    "check": "astro check",
     "validate:chapters": "node scripts/validate-chapters.mjs",
     "check:links": "node scripts/check-links.mjs",
     "test": "node --test \"test/**/*.js\"",
@@ -29,9 +30,11 @@
     "simple-icons": "^16.7.0"
   },
   "devDependencies": {
+    "@astrojs/check": "^0.9.9",
     "@astrojs/sitemap": "^3.7.3",
     "jsonc-parser": "^3.3.1",
     "opentype.js": "^2.0.0",
-    "pagefind": "^1.0.0"
+    "pagefind": "^1.0.0",
+    "typescript": "^6.0.3"
   }
 }
