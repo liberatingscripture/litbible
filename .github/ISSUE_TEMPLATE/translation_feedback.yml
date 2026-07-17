@@ -1,0 +1,23 @@
+name: Translation feedback
+description: Feedback on the LIT translation itself — a rendering, a footnote, a passage that doesn't read right.
+labels: ["translation"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for engaging with the translation! Feedback on the text itself
+        (word choices, footnotes, passages that don't read right) is best sent
+        through the **[contact page](https://litbible.net/contact)** — it goes
+        directly to the translator and is read personally. You don't need a
+        GitHub account or any technical background to use it.
+
+        This issue form is for **technical** problems with the site (broken
+        links, rendering bugs, build failures) — see the "Bug report" template
+        for that. See [CONTRIBUTING.md](../../CONTRIBUTING.md) for more.
+  - type: textarea
+    id: feedback
+    attributes:
+      label: If you'd still like to leave feedback here
+      description: We'll read it, but the contact form above reaches the translator faster.
+    validations:
+      required: false
