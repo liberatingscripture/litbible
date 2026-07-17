@@ -135,10 +135,20 @@ delete it.
 
 ### Added from the 2026-07-16 audit
 
-- [ ] **Add an `engines` field to package.json.**
-  `"engines": { "node": ">=22.12" }` (Astro 6's requirement, already documented
-  in README). Makes a too-old Node fail fast at install instead of erroring
-  mid-build.
+- [x] **Update Astro to the latest 6.x release.**
+  DONE: `package.json`'s `astro` range was already `^6.4.6`, but
+  `package-lock.json` was still resolved to 6.4.6 while 6.4.8 was current on
+  npm. Ran `npm install astro@^6`, which bumped both the resolved lockfile
+  version and the `package.json` floor to `^6.4.8`. Deliberately stayed on
+  the 6.x line (Astro 7 is a separate, undecided upgrade — see the Owner
+  "Decide Astro 7 timing" item). Verified: `npm run check` (0 errors),
+  `npm test` (35/35), `npm run build` (347 pages + Pagefind), `npm run
+  check:links` (26,701 links, 0 broken) all pass; dev server confirms
+  `astro v6.4.8` at startup.
+
+- [x] **Add an `engines` field to package.json.**
+  DONE: added `"engines": { "node": ">=22.12" }` to `package.json`, right
+  after `"type": "module"`.
 
 - [ ] **Em-dash sweep in visible page prose.**
   Owner style rule: no em dashes in published page copy — rephrase with
@@ -151,15 +161,13 @@ delete it.
   (~161), e.g. "Thanks! Your message has been sent." Leave code comments, page
   `title` tags, `alt` text, and JSON-LD alone.
 
-- [ ] **Title-tag separator consistency.**
-  `src/pages/unsubscribe.astro` titles itself "Unsubscribe — LIT Bible"; every
-  other page uses "| Liberation and Inclusion Translation". Change it to
-  "Unsubscribe | Liberation and Inclusion Translation".
+- [x] **Title-tag separator consistency.**
+  DONE: `src/pages/unsubscribe.astro`'s title now reads "Unsubscribe |
+  Liberation and Inclusion Translation", matching every other page.
 
-- [ ] **Footer Threads link → final URL.**
-  `SiteFooter.astro` links `https://threads.net/lit.bible`, which 301-hops
-  three times before landing at `https://www.threads.com/@lit.bible` (verified
-  live 2026-07-16). Link the final URL directly.
+- [x] **Footer Threads link → final URL.**
+  DONE: `SiteFooter.astro` now links `https://www.threads.com/@lit.bible`
+  directly, skipping the three-hop redirect chain.
 
 - [x] **Doc drift: document the test suite and link checker.**
   DONE (2026-07-16, landed alongside wiring in `npm run check`): added
@@ -169,54 +177,48 @@ delete it.
   validation, type-check, unit tests, full build, link check) instead of the
   stale "chapter validation + full build" description.
 
-- [ ] **Demote the article pages' sr-only index `<h1>` to a `<div>`.**
-  `src/pages/articles/[...slug].astro` renders TWO h1s: the sr-only Pagefind
-  index surface (~line 129) and the visible `.article__title` (~line 182) —
-  screen-reader users hear the title twice. The result title is safe to change
-  under (it comes from the explicit `data-pagefind-meta="title"` span at ~132,
-  not the h1); add `data-pagefind-weight="7"` to the replacement div so
-  title-keyword ranking weight is preserved. Verify with `npm run build` + a
-  search spot-check that article hits still rank and label the same.
+- [x] **Demote the article pages' sr-only index `<h1>` to a `<div>`.**
+  DONE: `src/pages/articles/[...slug].astro`'s sr-only Pagefind index surface
+  is now `<div data-pagefind-weight="7">{indexTitle}</div>` instead of an
+  `<h1>`, so `.article__title` is the page's only h1. Verified in-browser:
+  exactly one `<h1>` per article page, and the div still carries the weight
+  attribute; `npm run build` + Pagefind indexing (41 pages) unaffected.
 
-- [ ] **Align workflow Node versions.**
-  `.github/workflows/release-notes.yml` uses Node 20; `ci.yml` uses 24. Bump
-  release-notes.yml to 24.
+- [x] **Align workflow Node versions.**
+  DONE: `.github/workflows/release-notes.yml` now uses `node-version: '24'`,
+  matching `ci.yml`.
 
-- [ ] **Add a Dependabot config.**
-  `.github/dependabot.yml`: weekly `npm` updates for `/` and
-  `/workers/contact-form`, plus `github-actions`. Today advisories only
-  surface when someone remembers to run `npm audit` (the 2 known low-sev
-  esbuild ones are dev-server-only; see the Owner Astro 7 item).
+- [x] **Dark-scheme `theme-color` meta.**
+  DONE: added a second `<meta name="theme-color">` to `Layout.astro`, scoped
+  to `media="(prefers-color-scheme: dark)"`. **Deviation from the item's
+  suggested value:** uses `#0F6B33` (`--green-deep`, owner's decision) rather
+  than the dark page background — a theme-invariant brand green instead of
+  near-black chrome. Verified in-browser: both metas present with correct
+  `content`/`media`.
 
-- [ ] **Dark-scheme `theme-color` meta.**
-  `Layout.astro` pins `<meta name="theme-color" content="#209D50">`, so mobile
-  browser chrome stays LIT green on dark pages. Add a second meta with
-  `media="(prefers-color-scheme: dark)"` and the dark page bg (`#0E0E0F`).
-  Note: the Aa-tray forced theme won't update this without JS — acceptable;
-  OS-level dark is the common case. Skip if the owner prefers brand green
-  everywhere.
+- [x] **Add width/height to the contact-page logo.**
+  DONE: `.contact-logo` in `contact.astro` now has `width="1000"
+  height="1000"`, matching `lit-logo.png`'s confirmed 1000×1000 intrinsic
+  size (verified via the PNG's IHDR chunk and in-browser `naturalWidth`/
+  `naturalHeight`). CSS display scaling (`width: min(260px, 60vw)`)
+  unaffected.
 
-- [ ] **Add width/height to the contact-page logo.**
-  The `.contact-logo` `<img>` in `contact.astro` has no intrinsic dimension
-  attributes (layout-shift risk as it loads). Add `width`/`height` matching
-  `public/images/lit-logo.png`'s intrinsic square dimensions (CSS already
-  scales it via `width: min(260px, 60vw)`).
+- [x] **Reduced-motion guard for the homepage underline animation.**
+  DONE: confirmed `.callout-underline-path`'s draw transition had no
+  reduced-motion guard (only the desktop CTA curtain-wipe did). Added
+  `transition: none` for `.callout-underline-path` inside the existing
+  `@media (prefers-reduced-motion: reduce)` block in `home.css` — CSS-only
+  fix, keeps the underline visible via the unaffected `.is-visible` toggle,
+  just skips the animated draw. Verified the compiled rule lands correctly
+  in the built CSS.
 
-- [ ] **Reduced-motion guard for the homepage underline animation.**
-  `index.astro`'s `[data-animate="underline"]` IntersectionObserver adds
-  `.is-visible` without checking `prefers-reduced-motion` (the chat-bubble
-  script right below it DOES check). Confirm `home.css` disables the
-  `.callout-underline-path` draw under reduced motion; if not, add the CSS
-  guard (preferred — keeps the underline visible, just not animated) or
-  mirror the chat script's matchMedia early-return.
-
-- [ ] **Contributor plumbing for the BDR workflow.**
-  Add `.github/ISSUE_TEMPLATE/` (two forms: a technical bug report; a
-  content/translation-feedback form that points to /contact per
-  CONTRIBUTING.md), a PR template (checklist: `npm run validate:chapters` if
-  chapters touched, `npm run build` passes, scope stays inside the agreed
-  area), and a `CODEOWNERS` file (`* @liberatingscripture`) so every PR
-  auto-requests the owner's review.
+- [x] **Contributor plumbing for the BDR workflow.**
+  DONE: added `.github/ISSUE_TEMPLATE/bug_report.yml` (technical bug report
+  form) and `.github/ISSUE_TEMPLATE/translation_feedback.yml` (points to
+  `/contact` per CONTRIBUTING.md's existing "Translation feedback" section),
+  `.github/PULL_REQUEST_TEMPLATE.md` (checklist: `validate:chapters` if
+  chapters touched, `npm run build` passes, scope stays in the agreed area),
+  and root `CODEOWNERS` (`* @liberatingscripture`).
 
 ## Opus — one session per item
 
@@ -743,6 +745,16 @@ delete it.
   F1/F2.
 
 ### Added from the 2026-07-16 audit
+
+- [ ] **Enable native Dependabot security alerts (no version-update PRs).**
+  Repo Settings → Security → Dependabot alerts. Surfaces known
+  vulnerabilities (email/GitHub notification) with zero recurring owner
+  effort — no `dependabot.yml`, no weekly version-bump PRs to review/merge.
+  Chosen over a full `dependabot.yml` (routine PRs every week) or a scheduled
+  `npm audit` CI workflow (still needs someone to notice failures) because it
+  directly closes the "advisories only surface when someone remembers to run
+  `npm audit`" gap with the least ongoing owner overhead. One-time toggle,
+  no code change.
 
 - [ ] **Newsletter email compliance (CAN-SPAM).** The committed campaign
   template `emails/pentecost-2026.html` ends with a copyright line only — no

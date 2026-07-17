@@ -582,8 +582,12 @@
   }
 }
 
-/* Reduced motion (desktop) */
+/* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
+  .callout-underline-path {
+    transition: none;
+  }
+
   @media (min-width: 901px) {
     a.callout-cta.footer-cta::before {
       transition: none;
