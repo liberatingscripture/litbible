@@ -516,18 +516,29 @@ delete it.
 
 ## Owner — decisions & dashboard tasks (no model)
 
-- [ ] **Decide `/courses`:** link it in the nav/footer, or park it
-  deliberately until course content exists. (It's currently reachable only
-  by URL.)
-- [ ] **Decide the twin footer Facebook icons.** The footer shows identical
-  Facebook icons for LIT Bible and the Found in Translation podcast,
-  distinguishable only by aria-label. Owner is leaning toward: REMOVE the
-  podcast Facebook link from `SiteFooter.astro` and ADD it to the podcast
-  page (`found-in-translation-podcast.astro`) alongside the Apple
-  Podcasts/Spotify/YouTube links, reusing the `.fit-platform` button pattern
-  rather than the footer's icon-list styling. This makes the footer purely
-  LIT-brand social (no differentiation needed at all). Once confirmed, this
-  is a Sonnet-sized change.
+- [x] **Decide `/courses`.**
+  DONE (2026-07-16): owner chose to **park it deliberately** until course
+  content exists. No nav/footer link; the page stays reachable by URL only.
+  Nothing to change in code — this records the decision so a future session
+  doesn't "helpfully" link it. Revisit when there are actual courses to sell.
+- [x] **Decide the twin footer Facebook icons.**
+  DONE (2026-07-16, owner approved a live mockup in both themes + mobile):
+  the podcast Facebook link moved out of `SiteFooter.astro` (its `<li>` in the
+  social list is gone; the LIT Facebook icon stays), leaving the footer purely
+  LIT-brand social. It landed on the podcast page
+  (`found-in-translation-podcast.astro`) as a **text link, not a fourth
+  `.fit-platform` pill** — the owner's constraint: the pill row is a
+  listen/watch affordance (Apple/Spotify/YouTube are places to consume the
+  show), while the Facebook page is informational/community, so it needs its
+  own visual tier. What shipped: a centered `.fit-follow` link ("Follow the
+  show on Facebook" with a small inline `siFacebook` glyph, `aria-hidden`)
+  directly under `.fit-platform-links` inside the `.fit-platforms` grid;
+  styled in `found-in-translation-podcast.css` as sentence-case
+  `--green-text` (auto-flips in dark mode — no page dark rules needed),
+  underline on hover, focus ring matching the pills. Verified in dev at
+  desktop + 375px mobile in light and dark: correct colors both themes
+  (#0F6B33 / #3abf6a), tier difference reads clearly, accessible name is the
+  plain link text, no console errors.
 - [x] **Pick the code license.**
   DONE (2026-07-11): split license — owner doesn't mind others reusing the
   CODE for its functionality but wants the CONTENT protected. So `LICENSE`
@@ -539,11 +550,19 @@ delete it.
   DONE (2026-07-14): owner chose to **ship** the light/dark toggle. The
   `data-theme` CSS hooks were kept and wired up, not removed. Implemented as
   O7 above.
-- [ ] **Cloudflare dashboard:** verify Web Analytics is actually enabled (the
-  privacy policy asserts it); confirm HSTS under SSL/TLS → Edge Certificates
-  (feeds F2).
-- [ ] **Formspree dashboard:** delete the retired courses form endpoint
-  (`mgovgpoo`) so stray submissions can't land anywhere.
+- [x] **Cloudflare dashboard: Web Analytics + HSTS.**
+  DONE (2026-07-16): owner confirmed **Web Analytics is enabled**, so
+  `privacy.astro`'s claim that the site uses Cloudflare Web Analytics is
+  accurate. **HSTS is on** — already recorded in F2's DONE note (6-month
+  max-age, no subdomains, no preload); this line was stale.
+- [x] **Formspree dashboard: delete the retired form endpoints.**
+  DONE (2026-07-16): owner deleted **both** forms — the retired courses signup
+  (`mgovgpoo`) and the contact form (`mbdlnpgz`) that F1's self-hosted
+  Cloudflare Worker replaced. (This line originally named only `mgovgpoo`;
+  F1's DONE note is what added `mbdlnpgz` to the follow-up.) Formspree is now
+  fully out of the stack: no endpoints live, no site code posts to it, and the
+  `_headers` CSP + `privacy.astro` disclosures were already de-Formspree'd in
+  F1/F2.
 
 ## Completed from TBD
 

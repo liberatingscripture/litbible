@@ -2,6 +2,7 @@
 import Layout from "../layouts/Layout.astro";
 import "../styles/pages/found-in-translation-podcast.css";
 import PodcastEpisodesFlat from "../components/PodcastEpisodesFlat.astro";
+import { siFacebook } from "simple-icons";
 
 // Update these paths to match what’s in /public/images/
 const heroImage = "/images/scopio-0b189831-4e0b-46c8-a758-c743663d7611.webp";
@@ -108,6 +109,23 @@ const coverImage = "/images/fit-cover.webp";
           YouTube
         </a>
       </div>
+
+      <a
+        class="fit-follow"
+        href="https://www.facebook.com/FoundinTranslationPodcast"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <svg
+          class="fit-follow__icon"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <path d={siFacebook.path}></path>
+        </svg>
+        Follow the show on Facebook
+      </a>
     </section>
 
     <!-- LATEST -->
