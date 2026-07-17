@@ -8,6 +8,8 @@ on:
       - 'src/data/intros/**'
       - 'src/content/articles/**'
       - 'src/content/glossary/**'
+  # Manual re-run, e.g. to backfill notes after a missed or failed run.
+  workflow_dispatch:
 
 jobs:
   update-release-notes:
