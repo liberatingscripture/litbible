@@ -48,8 +48,11 @@ companion iOS/Android apps consume.
 npm run dev               # Dev server at localhost:4321
 npm run build             # Full production build (see pipeline below)
 npm run preview           # Build + astro preview locally
+npm run check             # Type-check .astro/.ts files (astro check)
 npm run validate:chapters # Validate all chapter JSON (structure + references)
 npm run fix:chapters      # Re-serialize chapter JSON to normalize formatting
+npm run check:links       # Verify every internal href/#fragment in dist/ resolves
+npm test                  # Run the node:test unit suite (test/*.test.js)
 npm run build:topics      # Regenerate topics indexes only
 npm run build:verses      # Regenerate the verse search index only
 npm run build:api         # Regenerate public/api/content.json only
@@ -143,7 +146,8 @@ workers/             # Cloudflare Workers, deployed separately via wrangler (NOT
                      #   /contact/submit and /app-support/submit form endpoints
                      #   (two routes, one Worker) — see its README
 .githooks/           # pre-commit hook (validates staged chapter JSON)
-.github/workflows/   # ci.yml (chapter validation + full build on push/PR),
+.github/workflows/   # ci.yml (chapter validation, type-check, unit tests, full
+                     #   build, and internal-link check on push/PR),
                      #   release-notes.yml (auto-updates release-notes.json on push)
 ```
 

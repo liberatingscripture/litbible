@@ -161,12 +161,13 @@ delete it.
   three times before landing at `https://www.threads.com/@lit.bible` (verified
   live 2026-07-16). Link the final URL directly.
 
-- [ ] **Doc drift: document the test suite and link checker.**
-  `npm test` (`test/search-core.test.js`), `npm run check:links`
-  (`scripts/check-links.mjs`), and the `test/` directory all exist and run in
-  CI, but appear nowhere in CLAUDE.md (Common Commands, the scripts table,
-  Project Structure) or README's command table. Add them to both, per
-  CLAUDE.md's own keep-me-accurate rule.
+- [x] **Doc drift: document the test suite and link checker.**
+  DONE (2026-07-16, landed alongside wiring in `npm run check`): added
+  `npm test`, `npm run check:links`, and `npm run check` to CLAUDE.md's
+  Common Commands and README's command table; CLAUDE.md's `.github/workflows/`
+  project-structure line now says what `ci.yml` actually runs (chapter
+  validation, type-check, unit tests, full build, link check) instead of the
+  stale "chapter validation + full build" description.
 
 - [ ] **Demote the article pages' sr-only index `<h1>` to a `<div>`.**
   `src/pages/articles/[...slug].astro` renders TWO h1s: the sr-only Pagefind

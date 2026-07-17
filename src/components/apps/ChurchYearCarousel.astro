@@ -100,6 +100,7 @@ const seasons = (await getCollection('seasons')).sort(
     // Point the card tint at the current season's token. Light/dark amount and
     // base are handled entirely in CSS, so this works in both modes.
     function setAccent() {
+      if (!carousel) return;
       const v = chips[current].dataset.accentVar ?? '';
       carousel.style.setProperty('--cy-accent', `var(${v})`);
     }
