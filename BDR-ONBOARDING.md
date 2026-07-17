@@ -46,6 +46,11 @@ Here's the shape of the whole thing, in one breath:
 > and if they're happy, they press the button that makes it part of the real website.
 > Nothing you do goes live until BVJ approves it. You cannot break the live site.
 
+And that's not just good manners you have to remember. `main` is **protected**: if
+you (or your Claude Code) ever try to push to it directly, GitHub simply refuses.
+Your work can only reach the site through a reviewed pull request that passes CI.
+The safety rails are real, not advisory.
+
 That last sentence is the important one. **This process is designed so that you
 cannot accidentally damage anything.** Your changes sit in a separate, safe copy
 until BVJ reviews and accepts them. Relax into that.
@@ -401,7 +406,8 @@ git merge origin/main       # Claude Code resolves any conflicts, then re-push
 - Ask BVJ when unsure — a question is cheaper than an unwanted change.
 
 **Don't**
-- Don't commit directly to `main` or merge your own PR.
+- Don't commit directly to `main` or merge your own PR. (GitHub will block the
+  first one outright — `main` is protected.)
 - Don't edit files outside your scope (the `/apps` and `/privacy` pages) without
   checking with BVJ.
 - Don't change existing rules/tokens in `global.css` or existing behavior in
@@ -416,6 +422,13 @@ git merge origin/main       # Claude Code resolves any conflicts, then re-push
 
 ## 9. When something goes wrong (it's fine — nothing is on fire)
 
+- **My push to `main` was rejected.** Good — that's the protection doing its job,
+  not you breaking something. `main` only accepts reviewed pull requests. Ask
+  Claude Code to move your work onto a branch and open a PR instead; nothing is
+  lost.
+- **My PR says "Required status check `build` is expected" or won't merge yet.**
+  It's waiting on CI to finish and on BVJ's approval. Both are required before the
+  merge button unlocks. Nothing for you to do but wait (or fix a red ✗).
 - **CI shows a red ✗ on my PR.** Something in the build or checks failed. On the
   PR page, click **Details** next to the failed check to read the log, tell Claude
   Code what it says, fix it locally, run the pre-flight checks, and push again.
