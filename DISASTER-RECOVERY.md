@@ -43,7 +43,7 @@ exist and which *kind* of identity owns each.
 | Brevo | Newsletter list + the three sibforms forms (footer subscribe, /courses subscribe, /unsubscribe) | The primary admin identity |
 | RedCircle | *Found in Translation* podcast; feed `https://feeds.redcircle.com/59ffbfb2-f814-469a-8522-416bb67c15f6` | **Managed by BDR**, not the site owner — audio recovery goes through them |
 | GiveLively | Donation widget on /support (`secure.givelively.org/widgets/simple_donation/liberating-scripture-collective`) | A Collective-domain (liberatingscripture.org) identity |
-| Resend | `send.litbible.net` sending domain (DNS records exist; nothing in this repo uses it) | *TODO — record in the private doc which login, and what sends through it* |
+| Resend | `send.litbible.net` sending domain (nothing in this repo uses it — set up for the mobile-app development side) | **Managed by BDR**, not the site owner — like RedCircle, recovery goes through them |
 | Bluesky | The account with handle `@litbible.net` (verified by the `_atproto` DNS record) | The primary admin identity |
 
 ## The dependency chain (read this first in a real emergency)
@@ -170,8 +170,12 @@ send.litbible.net             TXT    "v=spf1 include:amazonses.com ~all"
 resend._domainkey.litbible.net TXT   "p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDE/7c+OCggxgVvc6kTuoVrFyYcRUtjrdoa4WLX+qAZU0E692d05SF+Hr5BGykNpzOVkf9pVX+NCHYvQTzyD+E39cqOdH9hDpCWxTnlWpn35c7uoeGU+JEZQGsQJCW9RPbq95QKcoO0k2c5LBXB/K8sHORypNh+RraEcCyioPUFoQIDAQAB"
 ```
 
-<!-- TODO(owner): what uses Resend? Nothing in this repo sends through it,
-so note here which project/account it belongs to. -->
+The Resend account is **BDR's**, set up as part of mobile-app development
+(owner recollection, 2026-07-18) — nothing in this repo sends through it.
+Note that the root-domain SPF above also authorizes Resend, so mail from
+that account can authenticate as `@litbible.net`; if BDR ever retires it,
+remove `include:spf.resend.com` from the root SPF and delete these three
+records.
 
 **Domain verifications & identity:**
 

@@ -818,8 +818,10 @@ delete it.
   Bluesky handle verification, an A2A agent-discovery SVCB record, and an
   OpenAI domain verification; and the fact that the Brevo subscriber list is
   the one dataset with no second copy (no export kept, noted plainly).
-  Two small TODOs remain in the doc for the owner: what Resend is used for,
-  and which Bluesky account owns the handle.
+  Follow-up same day: the two TODOs resolved — the Bluesky handle
+  (@litbible.net) belongs to the primary admin identity, and the Resend
+  sending domain is BDR's (mobile-app development side), recorded like
+  RedCircle as BDR-managed.
   (Owner in the loop — needs dashboard knowledge only they have.) The repo is
   the content store, which is great, but the deploy config and secrets live
   only in dashboards. Write a short `DISASTER-RECOVERY.md`: which dashboards
