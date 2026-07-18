@@ -44,7 +44,7 @@ exist and which *kind* of identity owns each.
 | RedCircle | *Found in Translation* podcast; feed `https://feeds.redcircle.com/59ffbfb2-f814-469a-8522-416bb67c15f6` | **Managed by BDR**, not the site owner — audio recovery goes through them |
 | GiveLively | Donation widget on /support (`secure.givelively.org/widgets/simple_donation/liberating-scripture-collective`) | A Collective-domain (liberatingscripture.org) identity |
 | Resend | `send.litbible.net` sending domain (DNS records exist; nothing in this repo uses it) | *TODO — record in the private doc which login, and what sends through it* |
-| Bluesky | The account whose handle is verified as `litbible.net` (`_atproto` DNS record) | *TODO — record in the private doc which account* |
+| Bluesky | The account with handle `@litbible.net` (verified by the `_atproto` DNS record) | The primary admin identity |
 
 ## The dependency chain (read this first in a real emergency)
 
