@@ -468,24 +468,129 @@ delete it.
   spot-check of /apps + two article heroes + header/popover logos in dev, and
   `npm run build` + `npm run check:links` pass.
 
-- [ ] **(O9) Unit tests for chapter-html.ts.**
-  `src/lib/chapter-html.ts` (prepareStudyParagraph / prepareReadParagraph) is
-  the shared transform that wraps each verse in `<span data-verse>` — every
-  Study View page depends on it, and it has zero tests. Follow the O4 pattern
-  (node:test + node:assert/strict, no new deps). Cover: vglue handling, verse
-  spans opening/closing at tag-depth 0, duplicate-verse-id handling via
-  `seenVerseIds`, footnote-ref pass-through, and verse state carrying across
-  paragraphs.
+- [x] **(O9) Unit tests for chapter-html.ts.**
+  DONE (2026-07-16): added `test/chapter-html.test.js` — 25 tests using Node's
+  built-in `node:test` + `node:assert/strict`, **no new deps**, following the O4
+  pattern exactly. `chapter-html.ts` is TypeScript but is entirely erasable
+  syntax (type aliases, parameter annotations, one `as`), so it imports directly
+  with an explicit `.ts` extension via Node's automatic type stripping —
+  confirmed empirically on Node 24.16.0, no loader and no transpiler dep. Tests
+  exercise `prepareStudyParagraph`/`prepareReadParagraph` as black boxes only;
+  the nine internal passes stay unexported, the same discipline as O4's
+  `nearestVocabWord`/`findTokenRuns`-via-`searchVerses` coverage. Coverage: all
+  five named areas — vglue whitespace normalization (a literal `&nbsp;` entity
+  and a real U+00A0 char both normalize; Reading Mode moves the id off the
+  `<sup>` onto `.rm-verse-anchor`); `wrapVerseSegments` splitting at tag-depth 0
+  (single- and multi-verse paragraphs, leading unmarked text left unwrapped,
+  marker-less continuation paragraphs, empty/whitespace-only `<p>` passthrough);
+  duplicate verse ids via `seenVerseIds` (the Mark 14:62 paragraph-spanning case
+  — visible number kept, duplicate id dropped, a fresh Set restores it; Reading
+  Mode's dedupe-BEFORE-namespace order verified directly, since the duplicate
+  ends up with no `rm-verse-anchor` at all); footnote-ref pass-through (`<sup
+  class="fn-ref">` untouched with no id/`data-osis` in Study, fully stripped in
+  Reading Mode); and verse-state carrying (one `verseState` threaded across
+  three `prepareStudyParagraph` calls carries into unmarked continuation blocks;
+  a fresh state doesn't). Also pinned `addOsisIds` (known book, unknown book →
+  no attribute, already-present not doubled), `rewriteVerseIdsAndAnchors`,
+  `addHbqAria`, and `normalizeHbqVerseGlue` (including idempotence).
+  **Deliberate deviation:** bumped `package.json` `engines.node` from `>=22.12`
+  to `>=22.18` — type stripping (which the direct `.ts` import needs) is only
+  on-by-default from 22.18, so the stated floor was claiming a Node range where
+  `npm test` would actually fail. CI and local dev both run Node 24, so nothing
+  changes in practice; the manifest now just tells the truth. (The Sonnet item
+  above deliberately set `>=22.12`, so this shouldn't pass unnoticed.)
+  Verified (tests as first landed): `npm test` → 60/60 pass (35 existing
+  search-core + 25 new); `npm run check` → 0 errors (33 pre-existing unrelated
+  `is:inline` hints); `git diff src/lib/chapter-html.ts` → empty at that point.
+  **Mutation-tested** to prove the assertions bite: five deliberate bugs
+  (data-verse attribute renamed, dedupe disabled, footnote stripping disabled,
+  OSIS injection disabled, verse state not carrying) each failed exactly the
+  expected tests.
+  **Bug found while writing the tests, then fixed as a follow-up (2026-07-17):**
+  the vglue separator alternation (`&nbsp;` or a literal U+00A0) in all three glue passes
+  (`normalizeStudyVerseGlue`, `normalizeReadVerseGlue`, `normalizeHbqVerseGlue`)
+  only matched a literal `&nbsp;` entity or a real U+00A0 between the verse
+  `<sup>` and its first word — a plain ASCII space failed to match, so the span
+  passed through unnormalized (and in Reading Mode the verse id never moved onto
+  `.rm-verse-anchor`, so a `#book-ch-vN` deep link would target a `<sup>` that is
+  hidden when verse numbers are toggled off). Dormant, not live: a scan of all
+  260 chapters found every one of 6319 vglue spans uses `&nbsp;` — but **nothing
+  validates that** (the chapter validator only enforces `indexed` + verse-id
+  uniqueness; the `wrapVerseSegments` docstring's "validated corpus invariants
+  (see validate-chapters)" phrasing overstated it), so a hand-edited plain space
+  would silently render unglued. Fix: widened the alternation to `(?:&nbsp;|\s)` in all three passes
+  (`\s` subsumes U+00A0, so existing handling is preserved) and rewrote the three
+  O9 tests that had pinned the old behavior into ones that assert normalization
+  (plain space → `&nbsp;`, a run of spaces collapses, Reading Mode still moves
+  the id), plus a guard that only one separator is consumed (a doubled `&nbsp;`
+  keeps its second as text). Proven safe on real content: rendering all 260
+  chapters through both pipelines before vs after is **byte-identical** (same
+  SHA-256), since no chapter uses a plain space today — the change only adds a
+  self-healing path. Re-verified: `npm test` → 63/63 pass; `npm run check` → 0
+  errors; and the three new tests each fail against the pristine pre-fix file
+  (swapped it in to confirm they bite). Also corrected the `wrapVerseSegments`
+  docstring, which had claimed the vglue tag-depth-0 convention was
+  validator-enforced; it isn't.
 
-- [ ] **(O10) Tests for the contact-form Worker.**
-  `workers/contact-form/src/index.js` is untested. Use
-  `@cloudflare/vitest-pool-workers` (devDependency inside
-  `workers/contact-form/` only — keep the site's root deps clean). Cover:
-  non-POST → 405; filled `_gotcha` honeypot → pretend success, nothing sent;
-  missing fields → 400; CR/LF collapse in name/email (header injection);
-  platform whitelist fallback to "Not sure"; Turnstile failure → 403; the
-  JSON (`Accept: application/json`) vs no-JS 303 paths; and the DISPLAY_TO
-  header/envelope retry. Mock the siteverify fetch and the send binding.
+- [x] **(O10) Tests for the contact-form Worker.**
+  DONE (2026-07-16): added `workers/contact-form/test/index.test.js` — 39 tests
+  via `@cloudflare/vitest-pool-workers`, with the pool + `vitest` as
+  devDependencies **inside `workers/contact-form/` only**, so the site's root
+  deps stay clean and root `npm test`'s `test/**/*.js` glob never picks them up.
+  Tests run inside workerd, so `cloudflare:email` / `EmailMessage` are the real
+  thing rather than mocks. The Worker's entry is `fetch(request, env)` with
+  `env` as a plain parameter, so each test calls it directly with a hand-built
+  env — `CONTACT_EMAIL.send` and `RATE_LIMITER.limit` are plain spies and no
+  real send_email or ratelimit binding is ever provisioned (that being the
+  fragile part of a pool setup). Turnstile's siteverify, the only outbound
+  fetch, is stubbed per test.
+  **Two deviations from the item text, both forced by the current library:**
+  (1) `defineWorkersConfig` from `@cloudflare/vitest-pool-workers/config` no
+  longer exists — 0.18.x removed that subpath entirely and replaced it with a
+  Vite plugin, so `vitest.config.js` uses `cloudflareTest({ wrangler: {
+  configPath } })` from the package root. (2) The pool pins `vitest@^4.1.0` via
+  peerDeps, so it's two devDeps, not one.
+  **Two discoveries worth recording, both of which would have produced silently
+  vacuous tests:** an outbound `EmailMessage`'s MIME is NOT readable via `.raw`
+  (it's undefined) — workerd stores it under the namespaced own property
+  `"EmailMessage::raw"`. The suite reads it through a guarded `rawOf()` helper
+  that throws a named error if that property ever disappears, so a workerd
+  rename fails loudly instead of quietly making every body assertion vacuous.
+  And while the body is `7bit` plain text (directly assertable), the **Subject
+  is RFC 2047 base64-encoded** (`=?utf-8?B?…?=`) because the subject template
+  contains an em dash — so the suite decodes encoded-words before comparing.
+  Coverage: all eight named areas — non-POST → 405 + `Allow: POST`; honeypot
+  (pretends success, sends nothing, and doesn't even spend a siteverify call; an
+  empty `_gotcha` still sends normally); missing/malformed fields → 400
+  `missing-fields` (six cases); CR/LF collapse (a `\r\nBcc:` name collapses to
+  one line and no `Bcc:` header appears; a CR/LF email fails validation → 400)
+  plus `LIMITS` truncation (name 200, message 10000); platform whitelist
+  (iOS/Android/Not sure pass through, a tampered value collapses to "Not sure",
+  missing → "Not sure", and the contact route emits no App line at all);
+  Turnstile → 403 (rejected verdict; a missing token short-circuits WITHOUT a
+  siteverify call; a throwing siteverify fails closed); JSON vs no-JS paths
+  (`{ok:true}` vs a 303 to the route's thanks page, and the branded noindex
+  error page with the right status and `backPath`); and the DISPLAY_TO alias +
+  retry (alias shown in `To:` while the envelope targets the real inbox; a
+  rejected alias retries once with the header matching the envelope, envelope
+  unchanged on both attempts; no alias → no retry → 500 `send-failed`;
+  retry-also-fails → 500).
+  Two additions beyond the item's list: **route selection**
+  (`/app-support/submit` uses its own inbox, secret, subject and thanks path; an
+  unknown path falls back to the contact config) and the **rate limiter** (429
+  `rate-limited` keyed by `CF-Connecting-IP`; a throwing limiter **fails open**,
+  which is the documented intent).
+  Also wired a separate `worker-tests` job into `.github/workflows/ci.yml` (its
+  own `npm ci`, `working-directory: workers/contact-form`) — the root `npm ci`
+  never installs this package, so without its own job the suite would never run
+  in CI and would rot. Worker README gained a matching note.
+  Verified: `npm ci` + `npm test` from clean → 39/39 pass; `npm run check`
+  (`wrangler deploy --dry-run`) still bundles with identical bindings; `git diff
+  workers/contact-form/src/index.js` → empty. **Mutation-tested** to prove the
+  assertions bite: five deliberate bugs (honeypot disabled, whitespace collapse
+  removed, retry removed, platform whitelist bypassed, envelope switched to the
+  alias) each failed exactly the expected tests. Tests only; zero behavior
+  change to the Worker.
 
 - [ ] **(O11) Golden tests for draft-release-notes.mjs.**
   Its change-object output is a documented contract with the mobile apps
