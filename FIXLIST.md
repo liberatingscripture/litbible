@@ -795,7 +795,33 @@ delete it.
 
 ### Added from the 2026-07-16 audit
 
-- [ ] **(F7) Continuity / disaster-recovery doc.**
+- [x] **(F7) Continuity / disaster-recovery doc.**
+  DONE (2026-07-18, owner supplied the dashboard facts live): wrote
+  `DISASTER-RECOVERY.md` at the repo root, SPLIT for privacy since the repo
+  is public (owner decision): the committed doc holds everything structural
+  (dashboards, secret names, DNS inventory, redeploy path) while specific
+  login addresses, the password-vault location, and recovery contacts live
+  in a private "LIT Bible — Accounts & Recovery" doc in the Collective's
+  Google Drive, which the repo doc points to. Beyond the item's original
+  list it captured: a seventh secret the item missed (`RELEASE_NOTES_PAT`, the GitHub
+  Actions fine-grained PAT that lets release-notes.yml push to main); Google
+  Workspace as the actual mail host (MX → Google — Cloudflare Email Routing
+  is send-side only, powering the Worker's send_email binding); the registrar
+  (Porkbun, under the owner's personal identity, NOT the litbible one);
+  a "dependency chain" section documenting that the primary admin identity
+  is the master login/vault for Cloudflare+GitHub+Brevo while its own mail
+  depends on the Porkbun registration + Cloudflare zone + Workspace
+  subscription (mitigations confirmed in place); the full 22-record DNS
+  inventory captured verbatim from live DNS (public data, safe to commit),
+  which surfaced integrations the repo knew nothing about — a Resend/SES
+  sending domain on send.litbible.net (purpose TODO, owner to fill), a
+  Bluesky handle verification, an A2A agent-discovery SVCB record, and an
+  OpenAI domain verification; and the fact that the Brevo subscriber list is
+  the one dataset with no second copy (no export kept, noted plainly).
+  Follow-up same day: the two TODOs resolved — the Bluesky handle
+  (@litbible.net) belongs to the primary admin identity, and the Resend
+  sending domain is BDR's (mobile-app development side), recorded like
+  RedCircle as BDR-managed.
   (Owner in the loop — needs dashboard knowledge only they have.) The repo is
   the content store, which is great, but the deploy config and secrets live
   only in dashboards. Write a short `DISASTER-RECOVERY.md`: which dashboards

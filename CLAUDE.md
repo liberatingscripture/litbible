@@ -435,6 +435,7 @@ collection); they're read directly by the intro pages and the API manifest.
 | `public/_headers` | Security + caching headers; also RFC 8288 `Link` headers for agent discovery (Cloudflare Pages) |
 | `public/.well-known/api-catalog` | RFC 9727/9264 `linkset+json` catalog of the public API |
 | `public/llms.txt`, `llms-full.txt` | LLM-readable site description + AI-usage policy |
+| `DISASTER-RECOVERY.md` | Continuity doc: every dashboard/secret behind the deploy (names only, no values) + the DNS inventory + from-zero redeploy path. Update it when an integration, secret, or DNS record is added/removed. |
 
 > The top-level `README.md` is the lighter human-facing overview; this file is
 > the deep reference. Keep both in sync per the note at the top.

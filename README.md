@@ -77,6 +77,13 @@ npm run validate:chapters
 A git pre-commit hook also validates staged chapter files automatically, so a
 malformed chapter can't be committed.
 
+## If something breaks badly
+
+`DISASTER-RECOVERY.md` at the repo root lists every dashboard and secret
+(by name, never value) behind the deployed site — Cloudflare, the domain,
+email, the works — plus the from-zero redeploy path. Keep it updated when
+an integration or secret changes.
+
 ## A note for contributors using Claude Code
 
 This repo includes a `CLAUDE.md` file with detailed operational guidance for the
