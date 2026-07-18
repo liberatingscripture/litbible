@@ -592,14 +592,38 @@ delete it.
   alias) each failed exactly the expected tests. Tests only; zero behavior
   change to the Worker.
 
-- [ ] **(O11) Golden tests for draft-release-notes.mjs.**
-  Its change-object output is a documented contract with the mobile apps
-  (see the script's docblock: `description`, additive `detail`/`location`/
-  `relabel`). Add fixture-based tests — either a temp git repo with small
-  before/after chapter/intro/glossary edits, or (better) refactor the
-  diff-to-changes core into a pure function tests can call directly. Assert
-  the field shapes and the "attribute-/metadata-only chapter edits collapse
-  to one metadata line" behavior.
+- [x] **(O11) Golden tests for draft-release-notes.mjs.**
+  DONE (2026-07-17). Took the "(better)" route: extracted the diff→changes
+  core into a pure `buildChanges({ addedFiles, modifiedFiles, readBase,
+  readNow })` in `scripts/lib/release-notes-core.mjs` (git/fs injected via two
+  reader callbacks; no argv/process/git of its own), leaving
+  `draft-release-notes.mjs` a thin CLI/git shell. Added
+  `test/draft-release-notes.test.js` — 17 fixture cases (in-memory base/now
+  file maps, no git, no disk) asserting the full change-object shapes:
+  chapter_added (incl. whole-book "Philemon added" and placeholder false→true),
+  text_updated (single + multi-verse en-dash range with `v. N:` detail prefixes
+  and min-verse anchor), footnote_added vs footnote_updated, both relabel-cascade
+  directions (insert +1 / remove -1 → `relabel` field populated, clause kept out
+  of `description`, type stays footnote_updated), metadata-only collapse (single
+  line + `Metadata updated (N chapters)` flood-guard), intros/glossary/articles
+  (incl. quoted+unquoted `traditional:` frontmatter and attribute-only edits
+  emitting nothing).
+  **One traced bug fixed along the way (owner-approved).** The docblock, CLAUDE.md,
+  and this item all claimed attribute-*or*-metadata-only chapter edits collapse
+  to a metadata line, but only metadata-only did: an attribute-only edit inside
+  paragraph HTML (a `class`/`id` retag) slipped past the verse-text diff, then
+  the paragraph fallback compared *raw* HTML and emitted a bogus `text_updated`
+  row — a repo-wide id/class pass would have flooded the changelog. Fix: the
+  fallback now compares `normalizeMarkup(stripFootnoteRefs(p))` (same normalizer
+  already used for intros/glossary/articles), so attribute-only paragraph edits
+  collapse to `metadata_updated` as documented; verse extraction still reads the
+  raw paragraph for `id="vN"`.
+  Verified: **byte-for-byte identical** output vs the pre-refactor script on a
+  real 92-change range (`--since HEAD~200`; the range has zero attribute-only
+  chapter edits, so fix 1b is inert there → truly identical); `npm test` →
+  63→**80** pass; `npm run check` clean. **Mutation-tested**: reverting fix 1b,
+  un-collapsing metadata-only, and dropping the `relabel` split each failed
+  exactly the guarding test(s).
 
 - [ ] **(O12) Footer newsletter no-JS fallback.**
   `SiteFooter.astro` ships the Subscribe button `disabled` and only enables
