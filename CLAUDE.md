@@ -189,7 +189,8 @@ the sitemap filter live in `astro.config.mjs`.
 | `build-api-manifest.mjs` | `public/api/manifest.json` + `public/api/data/` for the native apps. |
 | `build-og-images.mjs` | `public/og/` — per-chapter/intro share cards (fonts in `scripts/og/fonts/`). |
 | `fetch-podcast-feed.mjs` | Refresh podcast XML snapshot (non-fatal on failure). |
-| `draft-release-notes.mjs` | Drafts release-notes entries from git diffs (used by CI). |
+| `draft-release-notes.mjs` | CLI/git shell: drafts release-notes entries from git diffs (used by CI). Delegates the diff→changes logic to `lib/release-notes-core.mjs`. |
+| `lib/release-notes-core.mjs` | Pure `buildChanges()` core of the drafter — no git/fs/argv of its own (readBase/readNow injected). Unit-tested directly (`test/draft-release-notes.test.js`) since its output shape is an app contract. |
 
 ## Chapter JSON Format
 
