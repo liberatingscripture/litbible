@@ -141,6 +141,13 @@ Two layers, both in the Worker (no dashboard rules):
 
 ## Development notes
 
+- `npm test` runs this Worker's own vitest suite inside workerd (via
+  `@cloudflare/vitest-pool-workers`) — no deploy, no network, no secrets.
+  `cloudflare:email` is real; the tests call `fetch(request, env)` with a
+  hand-built env, so `CONTACT_EMAIL.send` and `RATE_LIMITER.limit` are spies and
+  siteverify is stubbed. Note this package has its **own** dependency tree — the
+  site's root `npm ci` doesn't install it (deliberate: vitest/workerd stay out of
+  the site build), so CI runs it as a separate `worker-tests` job.
 - `npm run check` bundles the Worker without deploying (no auth needed) —
   CI-friendly sanity check.
 - `npm run dev` runs it locally, but `send_email` is simulated: wrangler

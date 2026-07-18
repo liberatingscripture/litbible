@@ -6,12 +6,15 @@
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
+    "test": "vitest run",
     "check": "wrangler deploy --dry-run --outdir=.wrangler-check"
   },
   "dependencies": {
     "mimetext": "^3.0.27"
   },
   "devDependencies": {
+    "@cloudflare/vitest-pool-workers": "^0.18.5",
+    "vitest": "^4.1.10",
     "wrangler": "^4.0.0"
   }
 }

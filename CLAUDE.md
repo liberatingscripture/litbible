@@ -144,10 +144,14 @@ emails/              # Standalone HTML email templates (not part of the site bui
 workers/             # Cloudflare Workers, deployed separately via wrangler (NOT
                      #   part of the site build): contact-form/ backs both the
                      #   /contact/submit and /app-support/submit form endpoints
-                     #   (two routes, one Worker) — see its README
+                     #   (two routes, one Worker) — see its README. Has its OWN
+                     #   package.json + deps (incl. its vitest suite, `npm test`
+                     #   in that dir); root `npm ci`/`npm test` don't reach it
 .githooks/           # pre-commit hook (validates staged chapter JSON)
-.github/workflows/   # ci.yml (chapter validation, type-check, unit tests, full
-                     #   build, and internal-link check on push/PR),
+.github/workflows/   # ci.yml — `build` job (chapter validation, type-check, unit
+                     #   tests, full build, internal-link check on push/PR) plus a
+                     #   separate `worker-tests` job (workers/contact-form has its
+                     #   own dep tree, so it needs its own npm ci);
                      #   release-notes.yml (auto-updates release-notes.json on push)
 ```
 

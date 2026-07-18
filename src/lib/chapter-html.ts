@@ -53,7 +53,7 @@ function normalizeHbqVerseGlue(html: string): string {
       }
 
       return lineHtml.replace(
-        /^(<p\b[^>]*class=(['"])[^'"]*\bhbq-line\b[^'"]*\2[^>]*>\s*(?:<span class="rm-verse-anchor"[^>]*>\s*<\/span>\s*)*)<span class="vglue">\s*(<sup\b[^>]*\bclass=(['"])[^'"]*\bvn\b[^'"]*\4[^>]*>[\s\S]*?<\/sup>)\s*(?:&nbsp;|\u00a0)\s*([\s\S]*?)<\/span>([\s\S]*?)(<\/p>)$/i,
+        /^(<p\b[^>]*class=(['"])[^'"]*\bhbq-line\b[^'"]*\2[^>]*>\s*(?:<span class="rm-verse-anchor"[^>]*>\s*<\/span>\s*)*)<span class="vglue">\s*(<sup\b[^>]*\bclass=(['"])[^'"]*\bvn\b[^'"]*\4[^>]*>[\s\S]*?<\/sup>)\s*(?:&nbsp;|\s)\s*([\s\S]*?)<\/span>([\s\S]*?)(<\/p>)$/i,
         (
           _match: string,
           lineOpen: string,
@@ -88,10 +88,20 @@ function normalizeHbqVerseGlue(html: string): string {
 
 /* ── Study View passes ───────────────────────────────────────────────── */
 
-/** Normalize `.vglue` whitespace so the verse number stays glued to the verse's first word. */
+/**
+ * Normalize `.vglue` whitespace so the verse number stays glued to the verse's
+ * first word.
+ *
+ * The separator between `</sup>` and the first word may be an `&nbsp;` entity
+ * (the corpus convention — all vglue spans use it today) or any literal
+ * whitespace; `\s` covers a real U+00A0 as well. Whatever it is, it is rewritten
+ * to `&nbsp;`. Accepting a plain space matters because nothing validates the
+ * `&nbsp;` convention: a hand-edited chapter using a plain space would otherwise
+ * fail this pattern entirely and pass through unglued.
+ */
 function normalizeStudyVerseGlue(html: string): string {
   return String(html ?? "").replace(
-    /<span class="vglue">\s*(<sup\b[^>]*\bclass=(['"])[^'"]*\bvn\b[^'"]*\2[^>]*>[\s\S]*?<\/sup>)\s*(?:&nbsp;|\u00a0)\s*([\s\S]*?)<\/span>/gi,
+    /<span class="vglue">\s*(<sup\b[^>]*\bclass=(['"])[^'"]*\bvn\b[^'"]*\2[^>]*>[\s\S]*?<\/sup>)\s*(?:&nbsp;|\s)\s*([\s\S]*?)<\/span>/gi,
     (_match, sup: string, _quote: string, text: string) => {
       return `<span class="vglue">${sup}&nbsp;${text}</span>`;
     },
@@ -106,10 +116,11 @@ function normalizeStudyVerseGlue(html: string): string {
  * poetry lines) gets one span per block, all sharing the same data-verse.
  *
  * Splitting each `<p>`'s inner HTML at `<span class="vglue">` openings is
- * nesting-safe by validated corpus invariants (see validate-chapters):
- * every vglue sits at tag-depth 0 within its block and every block is
- * balanced, so each segment is complete markup. Text before a chapter's
- * first verse marker is left unwrapped.
+ * nesting-safe by corpus convention: every vglue sits at tag-depth 0 within
+ * its block and every block is balanced, so each segment is complete markup.
+ * (This is a convention the authored JSON follows, not something the chapter
+ * validator currently enforces — it checks only `indexed` and verse-id
+ * uniqueness.) Text before a chapter's first verse marker is left unwrapped.
  *
  * `state.currentVerse` threads the active verse across paragraphs — pass
  * one state object per chapter.
@@ -241,7 +252,7 @@ function rewriteVerseIdsAndAnchors(
  */
 function normalizeReadVerseGlue(html: string): string {
   return String(html || "").replace(
-    /<span class="vglue">\s*(<sup\b[^>]*\bclass=(['"])[^'"]*\bvn\b[^'"]*\2[^>]*>[\s\S]*?<\/sup>)\s*(?:&nbsp;|\u00a0)\s*([\s\S]*?)<\/span>/gi,
+    /<span class="vglue">\s*(<sup\b[^>]*\bclass=(['"])[^'"]*\bvn\b[^'"]*\2[^>]*>[\s\S]*?<\/sup>)\s*(?:&nbsp;|\s)\s*([\s\S]*?)<\/span>/gi,
     (_match, sup: string, _quote: string, text: string) => {
       const idMatch = sup.match(/\bid=(['"])([^'"]+)\1/i);
       const verseId = idMatch?.[2] ? String(idMatch[2]) : "";
