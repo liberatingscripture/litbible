@@ -8,14 +8,15 @@
  * files via Layout's ogImage prop. A website asset, NOT part of the app
  * contract — it must never move under public/api/.
  *
- * Design (owner-approved 2026-07-09, FIXLIST F3): ink field, the real logo
- * (public/images/lit-logo.png) in a brand-green ring, the reference in
- * Fraunces (display cut, opsz 144), a green accent bar, the wordmark line
- * in Inter, litbible.net bottom-right. One switch, two compositions:
- *   - If "<Book> <N>" fits at 148px beside a left-centered emblem, it
- *     renders on that single line (most books).
- *   - Otherwise the emblem moves to the top-left corner and the reference
- *     takes the full card width on one line, shrunk to fit ("2 Thessalonians 3").
+ * Design (owner-approved 2026-07-09, FIXLIST F3; reworked 2026-07-19 for
+ * legibility when the card is scaled down to a phone-sized link preview).
+ * One full-card composition on an ink field, so nothing floats in dead space:
+ *   - Top-left brand lockup: the real logo (public/images/lit-logo.png) in a
+ *     brand-green ring, with the wordmark line (Inter) beside it.
+ *   - Hero reference in Fraunces (display cut, opsz 144), shrunk to fit the
+ *     full card width, so short refs ("John 3") render large and the longest
+ *     ("2 Thessalonians 3") still fills the line.
+ *   - Green accent bar under the reference; litbible.net bottom-right.
  * Intro cards set "Intro" in green where the chapter number would sit.
  *
  * Rendering: text is converted to SVG paths with opentype.js using fonts
@@ -57,8 +58,34 @@ function loadFont(file) {
 const fraunces = loadFont("fraunces-opsz144-500.ttf");
 const inter = loadFont("inter-400.ttf");
 
+/**
+ * Serialize an opentype Path to SVG path data. We do NOT use opentype's own
+ * `path.toPathData()` because it has a number-formatting bug that emits the
+ * literal string "NaN" for some finite control points at certain font
+ * size / x-origin combinations (e.g. "John " at 200px, x=90). The SVG
+ * rasterizer then silently stops parsing the path at that token, dropping
+ * every glyph after it. The Path command coordinates themselves are always
+ * finite, so formatting them here sidesteps the bug entirely.
+ */
+function pathData(path, prec = 2) {
+  const f = (n) => {
+    if (!Number.isFinite(n)) throw new Error(`non-finite path coord: ${n}`);
+    return Number(n.toFixed(prec)).toString();
+  };
+  let d = "";
+  for (const c of path.commands) {
+    if (c.type === "M") d += `M${f(c.x)} ${f(c.y)}`;
+    else if (c.type === "L") d += `L${f(c.x)} ${f(c.y)}`;
+    else if (c.type === "C")
+      d += `C${f(c.x1)} ${f(c.y1)} ${f(c.x2)} ${f(c.y2)} ${f(c.x)} ${f(c.y)}`;
+    else if (c.type === "Q") d += `Q${f(c.x1)} ${f(c.y1)} ${f(c.x)} ${f(c.y)}`;
+    else if (c.type === "Z") d += "Z";
+  }
+  return d;
+}
+
 function textPath(font, text, x, y, size, attrs = "") {
-  const d = font.getPath(text, x, y, size).toPathData(2);
+  const d = pathData(font.getPath(text, x, y, size));
   return `<path d="${d}" ${attrs}/>`;
 }
 
@@ -69,11 +96,10 @@ function width(font, text, size) {
 /**
  * The emblem is the real logo (public/images/lit-logo.png — dark-green disc
  * with the white globe/flame/laurels/book line-art), composited by sharp
- * into the green ring after the SVG rasterizes. Two pre-resized buffers,
- * one per composition; diameters leave a small gap inside the ring stroke.
+ * into the green ring after the SVG rasterizes. Sits in the top-left brand
+ * lockup; the diameter leaves a small gap inside the ring stroke.
  */
-const EMBLEM_SHORT = { cx: 180, cy: 315, r: 80, d: 146 };
-const EMBLEM_LONG = { cx: 165, cy: 135, r: 58, d: 104 };
+const EMBLEM = { cx: 150, cy: 116, r: 60, d: 104 };
 
 const logoBuffers = new Map();
 function logoAt(d) {
@@ -98,45 +124,36 @@ function logoAt(d) {
 function cardSVG(label, suffix, suffixFill) {
   const seg1 = `${label} `;
   const shared = `<rect width="${WIDTH}" height="${HEIGHT}" fill="${INK}"/>`;
-  const siteW = width(inter, SITE, 22);
-  const footer = textPath(inter, SITE, 1100 - siteW, 580, 22, `fill="${GREEN_LIGHT}"`);
+  const e = EMBLEM;
 
-  // Short composition: emblem left-center, reference at 148px from x=350.
-  const SHORT_SIZE = 148;
-  const shortW =
-    width(fraunces, seg1, SHORT_SIZE) + width(fraunces, suffix, SHORT_SIZE);
-  if (shortW <= 750) {
-    const seg1W = width(fraunces, seg1, SHORT_SIZE);
-    const e = EMBLEM_SHORT;
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH}" height="${HEIGHT}" viewBox="0 0 ${WIDTH} ${HEIGHT}">
-${shared}
-<circle cx="${e.cx}" cy="${e.cy}" r="${e.r}" fill="none" stroke="${GREEN}" stroke-width="4"/>
-${textPath(fraunces, seg1, 350, 345, SHORT_SIZE, `fill="${CREAM_BRIGHT}"`)}
-${textPath(fraunces, suffix, 350 + seg1W, 345, SHORT_SIZE, `fill="${suffixFill}"`)}
-<rect x="356" y="385" width="150" height="7" fill="${GREEN}"/>
-${textPath(inter, WORDMARK, 356, 455, 27, `fill="${CREAM}" fill-opacity="0.7"`)}
-${footer}
-</svg>`;
-    return { svg, emblem: e };
-  }
+  // Top-left brand lockup: emblem ring + wordmark, vertically centered on
+  // the emblem so it reads as one unit.
+  const wordmarkX = e.cx + e.r + 26;
+  const lockup = `<circle cx="${e.cx}" cy="${e.cy}" r="${e.r}" fill="none" stroke="${GREEN}" stroke-width="6"/>
+${textPath(inter, WORDMARK, wordmarkX, 128, 32, `fill="${CREAM}"`)}`;
 
-  // Long composition: emblem top-left, full-width reference shrunk to fit.
-  let size = 106;
+  // Footer, bottom-right — anchors the corner opposite the lockup.
+  const siteW = width(inter, SITE, 30);
+  const footer = textPath(inter, SITE, 1110 - siteW, 582, 30, `fill="${GREEN_LIGHT}"`);
+
+  // Hero reference: one line, shrunk to fill the full card width (x=90..1110).
+  // Short refs land at MAX; the longest ("2 Thessalonians 3") shrink to fit.
+  const MAX = 200;
+  const MAXW = 1020;
+  let size = MAX;
   while (
-    size > 40 &&
-    width(fraunces, seg1, size) + width(fraunces, suffix, size) > 990
+    size > 72 &&
+    width(fraunces, seg1, size) + width(fraunces, suffix, size) > MAXW
   ) {
     size -= 2;
   }
   const seg1W = width(fraunces, seg1, size);
-  const e = EMBLEM_LONG;
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH}" height="${HEIGHT}" viewBox="0 0 ${WIDTH} ${HEIGHT}">
 ${shared}
-<circle cx="${e.cx}" cy="${e.cy}" r="${e.r}" fill="none" stroke="${GREEN}" stroke-width="3.5"/>
-${textPath(fraunces, seg1, 105, 400, size, `fill="${CREAM_BRIGHT}"`)}
-${textPath(fraunces, suffix, 105 + seg1W, 400, size, `fill="${suffixFill}"`)}
-<rect x="110" y="437" width="150" height="7" fill="${GREEN}"/>
-${textPath(inter, WORDMARK, 110, 505, 27, `fill="${CREAM}" fill-opacity="0.7"`)}
+${lockup}
+${textPath(fraunces, seg1, 90, 378, size, `fill="${CREAM_BRIGHT}"`)}
+${textPath(fraunces, suffix, 90 + seg1W, 378, size, `fill="${suffixFill}"`)}
+<rect x="94" y="452" width="180" height="10" fill="${GREEN}"/>
 ${footer}
 </svg>`;
   return { svg, emblem: e };
