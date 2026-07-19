@@ -130,11 +130,11 @@ function cardSVG(label, suffix, suffixFill) {
   // the emblem so it reads as one unit.
   const wordmarkX = e.cx + e.r + 26;
   const lockup = `<circle cx="${e.cx}" cy="${e.cy}" r="${e.r}" fill="none" stroke="${GREEN}" stroke-width="6"/>
-${textPath(inter, WORDMARK, wordmarkX, 129, 38, `fill="${CREAM}"`)}`;
+${textPath(inter, WORDMARK, wordmarkX, 131, 44, `fill="${CREAM}"`)}`;
 
   // Footer, bottom-right — anchors the corner opposite the lockup.
-  const siteW = width(inter, SITE, 36);
-  const footer = textPath(inter, SITE, 1110 - siteW, 582, 36, `fill="${GREEN_LIGHT}"`);
+  const siteW = width(inter, SITE, 42);
+  const footer = textPath(inter, SITE, 1110 - siteW, 582, 42, `fill="${GREEN_LIGHT}"`);
 
   // Hero reference: one line, shrunk to fill the full card width (x=90..1110).
   // Short refs land at MAX; the longest ("2 Thessalonians 3") shrink to fit.
