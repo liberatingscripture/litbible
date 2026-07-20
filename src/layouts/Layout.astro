@@ -4,7 +4,7 @@ import SiteHeader from "../components/SiteHeader.astro";
 import interLatin400Url from "@fontsource/inter/files/inter-latin-400-normal.woff2";
 import crimsonLatin600Url from "@fontsource/crimson-text/files/crimson-text-latin-600-normal.woff2";
 import SiteFooter from "../components/SiteFooter.astro";
-import WelcomePopover from "../components/WelcomePopover.astro";
+import AppsLaunchPopover from "../components/AppsLaunchPopover.astro";
 
 const {
   title = "Liberation and Inclusion Translation",
@@ -128,6 +128,6 @@ const criticalCSS = `html,body{margin:0;padding:0}html{scrollbar-gutter:stable}b
     </main>
 
     <SiteFooter hideNewsletter={hideFooterNewsletter} />
-    <WelcomePopover />
+    <AppsLaunchPopover />
   </body>
 </html>
