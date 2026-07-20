@@ -6,6 +6,7 @@
  * Both apps are live: iOS on the App Store, Android on Google Play.
  */
 import PlatformIcon from './PlatformIcon.astro';
+import AppIcons from './AppIcons.astro';
 
 const iosUrl = 'https://apps.apple.com/app/id6772577879';
 const androidUrl =
@@ -15,6 +16,7 @@ const androidUrl =
 <section id="join" class="get-app">
   <div class="container get-app__inner">
     <h2 class="get-app__title">Take it with you.</h2>
+    <AppIcons size={68} class="get-app__icons" />
     <p class="get-app__lede">
       The complete Liberation &amp; Inclusion Translation, free on iPhone and
       Android.
@@ -52,6 +54,9 @@ const androidUrl =
     font-size: var(--text-4xl);
     letter-spacing: -0.025em;
     line-height: var(--leading-tight);
+  }
+  .get-app__icons {
+    margin-top: var(--space-4);
   }
   .get-app__lede {
     margin-top: var(--space-4);

@@ -1,0 +1,67 @@
+---
+/**
+ * The LIT Bible app icon on both platforms, shown as a pair.
+ *
+ * The two are genuinely different art, not one icon rendered twice: iOS ships
+ * the full leather-book artwork, Android the bare gradient mark. They're
+ * normalized to the same rounded square here so the pair reads as one unit.
+ *
+ * The Android mark arrives on transparency and its lime end washes out on the
+ * light surface, so it keeps an ink tile (the same one it wears on-device);
+ * the iOS art already carries its own background and only needs the corner
+ * radius. Padding is fixed rather than a percentage — percentage padding
+ * resolves against the containing block, not the icon, which silently
+ * collapses the mark in a wide container.
+ */
+interface Props {
+  /** Edge length of each icon, in px. */
+  size?: number;
+  class?: string;
+}
+const { size = 72, class: className } = Astro.props;
+const pad = Math.round(size * 0.09);
+---
+
+<div class:list={["app-icons", className]} style={`--icon-size: ${size}px; --icon-pad: ${pad}px;`}>
+  <img
+    src="/images/lit-app-icon-ios.webp"
+    alt="The LIT Bible app icon on iOS"
+    class="app-icons__icon app-icons__icon--ios"
+    width={size}
+    height={size}
+    loading="lazy"
+    decoding="async"
+  />
+  <img
+    src="/images/lit-app-icon.svg"
+    alt="The LIT Bible app icon on Android"
+    class="app-icons__icon app-icons__icon--android"
+    width={size}
+    height={size}
+    loading="lazy"
+  />
+</div>
+
+<style>
+  .app-icons {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--icon-size) * 0.14);
+    flex-shrink: 0;
+  }
+
+  .app-icons__icon {
+    display: block;
+    width: var(--icon-size);
+    height: auto;
+    aspect-ratio: 1;
+    border-radius: 22%;
+    flex-shrink: 0;
+  }
+
+  .app-icons__icon--android {
+    background: #1b2318;
+    padding: var(--icon-pad);
+    box-sizing: border-box;
+  }
+</style>

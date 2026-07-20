@@ -43,6 +43,7 @@ import { BOOKS, bookKeyToLabel } from "../src/data/books.js";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
 const OUT_DIR = path.join(ROOT, "public", "og");
+const IMAGES = path.join(ROOT, "public", "images");
 
 const WIDTH = 1200;
 const HEIGHT = 630;
@@ -187,6 +188,126 @@ ${footer}
   return { svg, emblem: e };
 }
 
+// A rounded-corner square tile cropped (cover) from a source image.
+async function roundedTile(src, sizePx, radius) {
+  const base = await sharp(src)
+    .resize(sizePx, sizePx, { fit: "cover", position: "centre" })
+    .toBuffer();
+  const mask = Buffer.from(
+    `<svg width="${sizePx}" height="${sizePx}"><rect width="${sizePx}" height="${sizePx}" rx="${radius}" ry="${radius}"/></svg>`,
+  );
+  return sharp(base)
+    .composite([{ input: mask, blend: "dest-in" }])
+    .png()
+    .toBuffer();
+}
+
+/**
+ * The /apps share card: same top-left brand lockup as the chapter cards, a
+ * static "The LIT Bible App" headline (narrowed to leave room on the right),
+ * and both platform icons stacked there as home-screen tiles — the two are
+ * different art (iOS the leather-book artwork, Android the bare gradient
+ * mark), so the pair says "on both stores" without any text. The Android
+ * mark gets the same ink tile it wears in-app, lifted to #2A3227 (rather than
+ * the card's own INK) so it doesn't vanish into the field the way it would at
+ * the in-app #1b2318, which is all but identical to this card's ink.
+ */
+function appsCardSVG() {
+  const shared = `<rect width="${WIDTH}" height="${HEIGHT}" fill="${INK}"/>`;
+  const e = EMBLEM;
+  const wordmarkX = e.cx + e.r + 26;
+  // The full WORDMARK ("The Liberation & Inclusion Translation") runs under
+  // the icon tiles on the right at its usual size, so this card's lockup uses
+  // the short site name instead — the headline below already says "The LIT
+  // Bible App", so nothing is lost.
+  const lockup = `<circle cx="${e.cx}" cy="${e.cy}" r="${e.r}" fill="none" stroke="${GREEN}" stroke-width="6"/>
+${textPath(inter, "LIT Bible", wordmarkX, 131, 44, `fill="${CREAM}"`)}`;
+
+  const title = "The LIT Bible App";
+  const MAXW = 700; // leaves room for the icon tiles stacked on the right
+  let size = 108;
+  while (size > 56 && width(fraunces, title, size) > MAXW) size -= 2;
+  const titlePath = textPath(
+    fraunces,
+    title,
+    90,
+    378,
+    size,
+    `fill="${CREAM_BRIGHT}"`,
+  );
+
+  const site = "litbible.net";
+  const footer = textPath(inter, site, 90, 582, 42, `fill="${GREEN_LIGHT}"`);
+
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH}" height="${HEIGHT}" viewBox="0 0 ${WIDTH} ${HEIGHT}">
+${shared}
+${lockup}
+${titlePath}
+<rect x="94" y="452" width="180" height="10" fill="${GREEN}"/>
+${footer}
+</svg>`;
+  return { svg, emblem: e };
+}
+
+async function appsCard() {
+  const { svg, emblem } = appsCardSVG();
+  const logo = await logoAt(emblem.d);
+
+  const tile = 224;
+  const radius = 50; // squircle-ish, the way an app icon is masked
+  const x = WIDTH - 90 - tile;
+  const gap = 28;
+  const totalH = tile * 2 + gap;
+  const top = Math.round((HEIGHT - totalH) / 2);
+
+  const ios = await roundedTile(
+    path.join(IMAGES, "lit-app-icon-ios.webp"),
+    tile,
+    radius,
+  );
+
+  const inset = Math.round(tile * 0.09);
+  const mark = await sharp(path.join(IMAGES, "lit-app-icon.svg"))
+    .resize(tile - inset * 2, tile - inset * 2, {
+      fit: "contain",
+      background: { r: 0, g: 0, b: 0, alpha: 0 },
+    })
+    .png()
+    .toBuffer();
+  const androidTile = await sharp({
+    create: {
+      width: tile,
+      height: tile,
+      channels: 4,
+      background: { r: 42, g: 50, b: 39, alpha: 1 }, // #2A3227
+    },
+  })
+    .composite([
+      { input: mark, left: inset, top: inset },
+      {
+        input: Buffer.from(
+          `<svg width="${tile}" height="${tile}"><rect width="${tile}" height="${tile}" rx="${radius}" ry="${radius}"/></svg>`,
+        ),
+        blend: "dest-in",
+      },
+    ])
+    .png()
+    .toBuffer();
+
+  await sharp(Buffer.from(svg))
+    .composite([
+      {
+        input: logo,
+        left: Math.round(emblem.cx - emblem.d / 2),
+        top: Math.round(emblem.cy - emblem.d / 2),
+      },
+      { input: ios, left: x, top },
+      { input: androidTile, left: x, top: top + tile + gap },
+    ])
+    .png({ compressionLevel: 9, palette: true })
+    .toFile(path.join(OUT_DIR, "apps.png"));
+}
+
 async function renderCard(slug, label, suffix, suffixFill) {
   const { svg, emblem } = cardSVG(label, suffix, suffixFill);
   const logo = await logoAt(emblem.d);
@@ -281,6 +402,8 @@ for (let i = 0; i < jobs.length; i += CONCURRENCY) {
   );
 }
 await renderAppsCard();
+
+await appsCard();
 
 console.log(
   `build-og-images: wrote ${jobs.length + 1} cards to public/og/ in ${((Date.now() - started) / 1000).toFixed(1)}s`,
