@@ -354,6 +354,20 @@ collection); they're read directly by the intro pages and the API manifest.
   critical files (`version.json`, `manifest.json`, `data/*`) are served
   `no-store` in `public/_headers` so a version bump is never served alongside a
   stale manifest or data file.
+- **One announcement popover at a time.** `Layout.astro` renders exactly ONE
+  popover component (currently `AppsLaunchPopover.astro`, the iOS/Android
+  launch). Retiring an announcement means swapping that import and leaving the
+  old component in the repo **unimported**, not deleting it
+  (`WelcomePopover.astro` is the retired Collective announcement) — so a past
+  one can be brought back by swapping the import back. Two rules for any
+  replacement: (1) give it a **fresh cookie name**, or everyone who dismissed
+  the previous announcement never sees the new one; (2) carry over the show
+  gating — 2nd-or-later pageview via the `lit_pv` sessionStorage counter, plus
+  the `/^#v\d+$/` verse-deep-link guard — which exists to avoid Google's
+  intrusive-interstitial penalty on search-landing pages (FIXLIST O3, an owner
+  decision). The popover also suppresses itself on a small path allowlist
+  (`SUPPRESSED_PATHS`): `/apps`, its own CTA destination, and `/privacy`, which
+  people open to read terms rather than to be pitched to.
 - **Release notes are automated**: pushing changes to chapters, intros, glossary,
   or articles on `main` triggers `.github/workflows/release-notes.yml`, which
   runs `draft-release-notes.mjs` and commits to `release-notes.json`. That file

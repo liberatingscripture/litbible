@@ -277,6 +277,9 @@ delete it.
   source grep shows zero bare `index=`/`noindex=` left on any layout element.
 
 - [x] **(O3) Rein in the welcome popover.**
+  UPDATE (2026-07-20): `WelcomePopover.astro` is now retired (kept unimported);
+  the active popover is `AppsLaunchPopover.astro`, which carries this same
+  gating forward. The rules below still govern any replacement popover.
   DONE (2026-07-13): gated the popover show condition in
   `src/components/WelcomePopover.astro` with two new checks, leaving all
   dismissal logic (30-day `lit_welcome_v2` cookie, X/backdrop/Escape/CTA

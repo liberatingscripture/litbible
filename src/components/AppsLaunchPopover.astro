@@ -1,25 +1,26 @@
 ---
-// RETIRED (2026-07-20) — the Liberating Scripture Collective announcement.
-// Superseded by AppsLaunchPopover.astro, which Layout.astro now renders. Kept
-// unimported (not deleted) so this announcement can be brought back by swapping
-// the import in Layout.astro. Layout renders exactly ONE popover; if this one
-// is ever reinstated alongside another, they would stack as competing modals.
-// Cookie: lit_welcome_v2 (30-day expiry) — already set for anyone who dismissed
-// it, so reinstating as-is would show it to new visitors only.
+// AppsLaunchPopover — announces the iOS + Android app release. Shown once per
+// visitor (cookie lit_apps_launch_v1, 30-day expiry), and only from the 2nd
+// pageview of a session so it never fires on a search entrance. This is the
+// site's single active announcement slot: Layout renders exactly one popover
+// component, and retired ones (see WelcomePopover.astro) stay in the repo
+// unimported so a past announcement can be brought back by swapping the
+// import in Layout.astro.
+import PlatformIcon from "./apps/PlatformIcon.astro";
 ---
 
 <dialog
-  id="welcome-popover"
-  class="welcome-dialog"
-  aria-labelledby="welcome-title"
+  id="apps-launch-popover"
+  class="applaunch-dialog"
+  aria-labelledby="applaunch-title"
   aria-modal="true"
 >
-  <div class="welcome-inner">
+  <div class="applaunch-inner">
     <button
       type="button"
-      id="welcome-close"
-      class="welcome-close"
-      aria-label="Close welcome message"
+      id="applaunch-close"
+      class="applaunch-close"
+      aria-label="Close app announcement"
     >
       <svg
         width="20"
@@ -47,53 +48,43 @@
       </svg>
     </button>
 
-    <div class="welcome-logo">
+    <div class="applaunch-logo">
       <img
-        src="/images/lsc-logo-square.png"
-        alt="Liberating Scripture Collective logo"
+        src="/images/lit-app-icon.svg"
+        alt="LIT Bible app icon"
         width="104"
         height="104"
         loading="eager"
       />
     </div>
 
-    <h2 id="welcome-title" class="welcome-title">
-      Introducing the Liberating Scripture Collective
+    <p class="applaunch-eyebrow">Now available</p>
+
+    <h2 id="applaunch-title" class="applaunch-title">
+      The LIT Bible app is here
     </h2>
-    <p class="welcome-subtitle">
-      We support the work of creating the LIT Bible and build open-access, trauma-informed scripture resources for liberation and belonging.
+    <p class="applaunch-subtitle">
+      Read the Liberation and Inclusion Translation on your phone. Free, with no
+      account and no ads.
     </p>
 
-    <ul class="welcome-features" aria-label="About the Liberating Scripture Collective">
-      <li class="welcome-feature">
-        <div class="welcome-feature-icon" aria-hidden="true">
-          <svg
-            width="22"
-            height="22"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-            <circle cx="9" cy="7" r="4"></circle>
-            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-          </svg>
+    <ul class="applaunch-features" aria-label="About the LIT Bible apps">
+      <li class="applaunch-feature">
+        <div class="applaunch-feature-icon applaunch-feature-icon--platforms" aria-hidden="true">
+          <PlatformIcon platform="ios" />
+          <PlatformIcon platform="android" />
         </div>
         <div>
-          <strong>A 501(c)(3) nonprofit</strong>
+          <strong>On iPhone and Android</strong>
           <span
-            >Founded by Brandon Vélez Johnson to sustain the LIT Bible and build
-            the wider ecosystem of translation, learning, and spiritual support
-            around it.</span
+            >Now on the App Store and Google Play. Daily and Lectionary
+            readings, notes and highlights, and the whole New Testament
+            offline.</span
           >
         </div>
       </li>
-      <li class="welcome-feature">
-        <div class="welcome-feature-icon" aria-hidden="true">
+      <li class="applaunch-feature">
+        <div class="applaunch-feature-icon" aria-hidden="true">
           <svg
             width="22"
             height="22"
@@ -109,30 +100,31 @@
           </svg>
         </div>
         <div>
-          <strong>A collaborative community</strong>
+          <strong>Immersive reading</strong>
           <span
-            >The Collective invites people into the work through feedback, conversation,
-            and partnership, because liberation is not a solo project.</span
+            >Toggle off verse numbers, chapter numbers, and footnote markers,
+            and scripture reads the way it was first written: as letters and
+            stories.</span
           >
         </div>
       </li>
     </ul>
 
-    <div class="welcome-ctas">
-      <a href="/liberating-scripture-collective/" class="welcome-cta-primary">Learn more</a>
+    <div class="applaunch-ctas">
+      <a href="/apps" class="applaunch-cta-primary">Get the app</a>
     </div>
   </div>
 </dialog>
 
 <style>
   /* Backdrop */
-  .welcome-dialog::backdrop {
+  .applaunch-dialog::backdrop {
     background: rgba(0, 0, 0, 0.55);
     transition: opacity 0.25s ease;
   }
 
   /* Dialog container */
-  .welcome-dialog {
+  .applaunch-dialog {
     position: fixed;
     inset: 0;
     margin: auto;
@@ -153,23 +145,23 @@
       transform 0.15s ease;
   }
 
-  .welcome-dialog[open] {
+  .applaunch-dialog[open] {
     opacity: 1;
     transform: translateY(0) scale(1);
   }
 
-  .welcome-dialog[open].is-closing {
+  .applaunch-dialog[open].is-closing {
     opacity: 0;
     transform: translateY(12px) scale(0.98);
     pointer-events: none;
   }
 
-  .welcome-dialog[open].is-closing::backdrop {
+  .applaunch-dialog[open].is-closing::backdrop {
     opacity: 0;
   }
 
   /* Inner padding */
-  .welcome-inner {
+  .applaunch-inner {
     position: relative;
     padding: clamp(1rem, 3vw, 1.5rem);
     display: flex;
@@ -180,7 +172,7 @@
   }
 
   /* Close button */
-  .welcome-close {
+  .applaunch-close {
     position: absolute;
     top: 1rem;
     right: 1rem;
@@ -201,37 +193,45 @@
       background 0.15s;
   }
 
-  .welcome-close:hover,
-  .welcome-close:focus-visible {
+  .applaunch-close:hover,
+  .applaunch-close:focus-visible {
     opacity: 1;
     background: rgba(var(--ink-rgb, 29, 35, 28), 0.08);
     outline: none;
   }
 
-  /* Logo */
-  .welcome-logo {
+  .applaunch-logo {
     margin-bottom: 0.75rem;
   }
 
-  .welcome-logo img {
+  .applaunch-logo img {
     display: block;
-    /* Scale down on narrow screens so the larger desktop size never eats the
-       popover's vertical headroom on phones (height:auto keeps it square and
-       preserves the reserved aspect ratio from the width/height attrs). */
-    width: clamp(88px, 24vw, 104px);
+    width: clamp(80px, 22vw, 96px);
     height: auto;
-    /* The square asset includes the "Liberating Scripture Collective" wordmark,
-       so it must NOT be cropped to a circle — a 50% radius slices the bottom
-       corners and cuts into the lettering. A modest rounded-square keeps the
-       full mark visible. */
-    border-radius: 14px;
-    padding: 6px;
+    /* The app mark is a bright gradient on transparency, and its lime end
+       (#BDF76B) all but vanishes against the light-theme surface (#FAFAF8).
+       The ink tile keeps the whole gradient legible in BOTH themes and frames
+       the mark the way an app icon actually appears on a home screen. The
+       colour is fixed, not tokenised, so the tile can't invert out from under
+       the gradient in dark mode. */
+    border-radius: 22%;
     background: #1b2318;
+    padding: 9%;
     box-sizing: border-box;
   }
 
+  /* Eyebrow */
+  .applaunch-eyebrow {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--green-text, #0f6b33);
+    margin: 0 0 0.4rem 0;
+  }
+
   /* Title */
-  .welcome-title {
+  .applaunch-title {
     font-family: "Crimson Text", "Crimson Fallback", Georgia, "Times New Roman",
       serif;
     font-size: clamp(1.5rem, 4vw, 2rem);
@@ -242,7 +242,7 @@
   }
 
   /* Subtitle */
-  .welcome-subtitle {
+  .applaunch-subtitle {
     font-size: 1rem;
     color: var(--text, #1d231c);
     opacity: 0.75;
@@ -250,7 +250,7 @@
   }
 
   /* Feature list */
-  .welcome-features {
+  .applaunch-features {
     list-style: none;
     margin: 0 0 1.25rem 0;
     padding: 0;
@@ -261,7 +261,7 @@
     text-align: left;
   }
 
-  .welcome-feature {
+  .applaunch-feature {
     display: flex;
     align-items: flex-start;
     gap: 0.875rem;
@@ -270,25 +270,38 @@
     padding: 0.75rem 1rem;
   }
 
-  .welcome-feature-icon {
+  /* Fixed-width icon column, left-aligned. The platforms row holds two marks
+     and the others hold one, so without a shared column width the rows' text
+     would start at different x positions. */
+  .applaunch-feature-icon {
     flex-shrink: 0;
     margin-top: 2px;
+    width: 38px;
+    display: flex;
+    align-items: center;
     color: var(--green-text, #0f6b33);
   }
 
-  .welcome-feature div:last-child {
+  .applaunch-feature-icon--platforms {
+    gap: 0.35rem;
+    /* PlatformIcon sizes itself in em, so this sets the pair's optical weight
+       to match the 22px stroke icons in the other rows. */
+    font-size: 17px;
+  }
+
+  .applaunch-feature div:last-child {
     display: flex;
     flex-direction: column;
     gap: 0.2rem;
   }
 
-  .welcome-feature strong {
+  .applaunch-feature strong {
     font-size: 0.975rem;
     font-weight: 600;
     color: var(--text-strong, #000);
   }
 
-  .welcome-feature span {
+  .applaunch-feature span {
     font-size: 0.9rem;
     line-height: 1.45;
     color: var(--text, #1d231c);
@@ -296,7 +309,7 @@
   }
 
   /* CTA buttons */
-  .welcome-ctas {
+  .applaunch-ctas {
     display: flex;
     flex-wrap: wrap;
     gap: 0.75rem;
@@ -304,8 +317,7 @@
     width: 100%;
   }
 
-  .welcome-cta-primary,
-  .welcome-cta-secondary {
+  .applaunch-cta-primary {
     display: inline-block;
     padding: 0.65rem 1.5rem;
     border-radius: 6px;
@@ -314,35 +326,24 @@
     text-decoration: none;
     transition: opacity 0.15s;
     cursor: pointer;
+    /* Deep Green + white is the solid-button pairing and is theme-invariant,
+       so the launch CTA reads as the same branded button in light and dark.
+       The --cta-bg/--cta-text pair the retired popover used inverts in dark
+       mode and lands as a neutral grey chip. */
+    background: var(--green-deep, #0f6b33);
+    color: #fff;
   }
 
-  .welcome-cta-primary {
-    background: var(--cta-bg, #1d231c);
-    color: var(--cta-text, #209d50);
-  }
-
-  .welcome-cta-secondary {
-    background: transparent;
-    color: var(--text-strong, #000);
-    border: 1.5px solid rgba(var(--ink-rgb, 29, 35, 28), 0.25);
-  }
-
-  .welcome-cta-primary:hover,
-  .welcome-cta-primary:focus-visible {
+  .applaunch-cta-primary:hover,
+  .applaunch-cta-primary:focus-visible {
     opacity: 0.85;
     text-decoration: none;
     outline-offset: 3px;
   }
-
-  .welcome-cta-secondary:hover,
-  .welcome-cta-secondary:focus-visible {
-    background: rgba(var(--ink-rgb, 29, 35, 28), 0.06);
-    text-decoration: none;
-  }
 </style>
 
 <script>
-  const COOKIE_NAME = "lit_welcome_v2";
+  const COOKIE_NAME = "lit_apps_launch_v1";
   const COOKIE_DAYS = 30;
 
   function getCookie(name: string): string | null {
@@ -362,14 +363,14 @@
   }
 
   function dismissAndSet() {
-    if (dialog.classList.contains('is-closing')) return;
+    if (dialog.classList.contains("is-closing")) return;
     setCookie(COOKIE_NAME, "1", COOKIE_DAYS);
-    dialog.classList.add('is-closing');
+    dialog.classList.add("is-closing");
     setTimeout(() => dialog.close(), 250);
   }
 
   const dialog = document.getElementById(
-    "welcome-popover",
+    "apps-launch-popover",
   ) as HTMLDialogElement;
 
   let pageviews = 1;
@@ -378,14 +379,20 @@
     sessionStorage.setItem("lit_pv", String(pageviews));
   } catch (_) { /* storage unavailable → treat as first pageview */ }
 
+  // Never on a session entrance (a modal on a search-landing page is exactly
+  // what Google's intrusive-interstitial penalty targets), never on a shared
+  // verse deep link, and never on /apps (the CTA's own destination) or
+  // /privacy (a page people open to read terms, not to be pitched to).
+  const SUPPRESSED_PATHS = /^\/(apps|privacy)\/?$/;
   const isVerseDeepLink = /^#v\d+$/.test(location.hash);
-  const eligible = !isVerseDeepLink && pageviews >= 2;
+  const isSuppressedPath = SUPPRESSED_PATHS.test(location.pathname);
+  const eligible = !isVerseDeepLink && !isSuppressedPath && pageviews >= 2;
 
   if (dialog && !getCookie(COOKIE_NAME) && eligible) {
     // Open once the main thread is idle so the page's load-time long tasks
     // (fonts, header scripts) finish first. The popover forces an immediate
     // first interaction (the close click); opening it before those tasks
-    // settle is what inflated INP (input delay) on #welcome-close. The
+    // settle is what inflated INP (input delay) on the close button. The
     // timeout guarantees it still appears promptly even on a busy thread.
     const show = () => dialog.showModal();
     if ("requestIdleCallback" in window) {
@@ -397,10 +404,10 @@
 
   // Close on X button
   document
-    .getElementById("welcome-close")
+    .getElementById("applaunch-close")
     ?.addEventListener("click", dismissAndSet);
 
-  // Close on backdrop click (click lands on the <dialog> element itself, not .welcome-inner)
+  // Close on backdrop click (click lands on the <dialog> element itself, not .applaunch-inner)
   dialog?.addEventListener("click", (e) => {
     if (e.target === dialog) dismissAndSet();
   });
@@ -412,11 +419,9 @@
   });
 
   // CTA links close the popover and set cookie before navigating
-  dialog
-    ?.querySelectorAll(".welcome-cta-primary, .welcome-cta-secondary")
-    .forEach((link) => {
-      link.addEventListener("click", () =>
-        setCookie(COOKIE_NAME, "1", COOKIE_DAYS),
-      );
-    });
+  dialog?.querySelectorAll(".applaunch-cta-primary").forEach((link) => {
+    link.addEventListener("click", () =>
+      setCookie(COOKIE_NAME, "1", COOKIE_DAYS),
+    );
+  });
 </script>
