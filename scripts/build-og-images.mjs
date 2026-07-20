@@ -3,10 +3,11 @@
  * build-og-images.mjs — per-chapter / per-intro social share cards.
  *
  * Generates public/og/<slug>.png (1200×630) for every chapter page
- * (john-3.png) and every book intro (john-intro.png). Wired into the build
- * before `astro build`; [slug].astro and [book]-intro.astro reference the
- * files via Layout's ogImage prop. A website asset, NOT part of the app
- * contract — it must never move under public/api/.
+ * (john-3.png), every book intro (john-intro.png), and the /apps promo page
+ * (apps.png). Wired into the build before `astro build`; [slug].astro,
+ * [book]-intro.astro and apps.astro reference the files via Layout's ogImage
+ * prop. A website asset, NOT part of the app contract — it must never move
+ * under public/api/.
  *
  * Design (owner-approved 2026-07-09, FIXLIST F3; reworked 2026-07-19 for
  * legibility when the card is scaled down to a phone-sized link preview).
@@ -18,6 +19,13 @@
  *     ("2 Thessalonians 3") still fills the line.
  *   - Green accent bar under the reference; litbible.net bottom-right.
  * Intro cards set "Intro" in green where the chapter number would sit.
+ *
+ * The /apps card is a sibling composition on the same ink field, but its
+ * hero visual is the APP mark (public/images/lit-app-icon.svg — the same
+ * gradient icon the launch popover shows), set in a rounded tile on the right
+ * so it reads the way the icon appears on a home screen. The site emblem is
+ * deliberately absent there: two logos on one card compete, and the wordmark
+ * line alone carries the brand.
  *
  * Rendering: text is converted to SVG paths with opentype.js using fonts
  * committed under scripts/og/fonts/ (see the README there), then sharp
@@ -84,7 +92,27 @@ function pathData(path, prec = 2) {
   return d;
 }
 
+/**
+ * Fail loudly on a character the font can't render. inter-400.ttf is
+ * deliberately character-subsetted (see scripts/og/fonts/README.md) and does
+ * NOT carry comma, apostrophe, or any dash — opentype silently substitutes
+ * .notdef, so an unguarded string ships a tofu box in a card nobody
+ * re-inspects. Widen the subset or reword the card copy.
+ */
+function assertGlyphs(font, text) {
+  const missing = [
+    ...new Set([...text].filter((c) => font.charToGlyphIndex(c) === 0)),
+  ];
+  if (missing.length) {
+    throw new Error(
+      `font is missing glyphs ${JSON.stringify(missing.join(""))} for text ${JSON.stringify(text)} — ` +
+        `see scripts/og/fonts/README.md`,
+    );
+  }
+}
+
 function textPath(font, text, x, y, size, attrs = "") {
+  assertGlyphs(font, text);
   const d = pathData(font.getPath(text, x, y, size));
   return `<path d="${d}" ${attrs}/>`;
 }
@@ -174,6 +202,66 @@ async function renderCard(slug, label, suffix, suffixFill) {
     .toFile(path.join(OUT_DIR, `${slug}.png`));
 }
 
+/**
+ * The /apps share card. Text column on the left, app-icon tile on the right.
+ *
+ * The mark is a bright gradient on transparency, so it sits in a tile one
+ * step lighter than the field (not the popover's near-ink tile, which would
+ * disappear against this background) with the same 22% corner radius — an
+ * app icon, framed as an app icon.
+ */
+const APP_TILE = { x: 810, y: 160, size: 300, pad: 30, r: 66 };
+
+function appsCardSVG() {
+  const t = APP_TILE;
+  // Text column runs from the card margin to a gutter left of the tile.
+  const X = 90;
+  const COLW = t.x - 60 - X;
+
+  // Hero shrinks to fit the column, same auto-fit rule as the chapter cards.
+  let heroSize = 140;
+  while (heroSize > 80 && width(fraunces, "LIT Bible", heroSize) > COLW) {
+    heroSize -= 2;
+  }
+
+  const siteW = width(inter, SITE, 42);
+  // The wordmark sits ABOVE the tile, so it spans the full card width and can
+  // hold the chapter cards' 44px — matching them matters, because at a
+  // 300px-wide phone link preview a smaller cut turns to mush.
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH}" height="${HEIGHT}" viewBox="0 0 ${WIDTH} ${HEIGHT}">
+<rect width="${WIDTH}" height="${HEIGHT}" fill="${INK}"/>
+<rect x="${t.x}" y="${t.y}" width="${t.size}" height="${t.size}" rx="${t.r}" fill="#262E24"/>
+${textPath(inter, WORDMARK, X, 110, 44, `fill="${CREAM}"`)}
+${textPath(fraunces, "LIT Bible", X, 292, heroSize, `fill="${CREAM_BRIGHT}"`)}
+${textPath(inter, "for iPhone & Android", X, 356, 46, `fill="${GREEN_LIGHT}"`)}
+<rect x="${X + 4}" y="400" width="180" height="10" fill="${GREEN}"/>
+${textPath(inter, "Free with no account and no ads.", X, 482, 34, `fill="${CREAM}"`)}
+${textPath(inter, SITE, 1110 - siteW, 582, 42, `fill="${GREEN_LIGHT}"`)}
+</svg>`;
+}
+
+async function renderAppsCard() {
+  const t = APP_TILE;
+  const inner = t.size - t.pad * 2;
+  // density: the source is a 200-unit viewBox, so rasterize well above the
+  // target size and let sharp downsample — otherwise the thin gradient bands
+  // alias badly.
+  const icon = await sharp(
+    path.join(ROOT, "public", "images", "lit-app-icon.svg"),
+    { density: 300 },
+  )
+    .resize(inner, inner)
+    .png()
+    .toBuffer();
+
+  await sharp(Buffer.from(appsCardSVG()))
+    .composite([{ input: icon, left: t.x + t.pad, top: t.y + t.pad }])
+    // No `palette` here (unlike the chapter cards): quantizing to 256 colours
+    // bands the icon's gradient visibly.
+    .png({ compressionLevel: 9 })
+    .toFile(path.join(OUT_DIR, "apps.png"));
+}
+
 const jobs = [];
 for (const [bookKey, chapterCount] of Object.entries(BOOKS)) {
   const label = bookKeyToLabel(bookKey);
@@ -192,7 +280,8 @@ for (let i = 0; i < jobs.length; i += CONCURRENCY) {
     jobs.slice(i, i + CONCURRENCY).map((args) => renderCard(...args)),
   );
 }
+await renderAppsCard();
 
 console.log(
-  `build-og-images: wrote ${jobs.length} cards to public/og/ in ${((Date.now() - started) / 1000).toFixed(1)}s`,
+  `build-og-images: wrote ${jobs.length + 1} cards to public/og/ in ${((Date.now() - started) / 1000).toFixed(1)}s`,
 );
