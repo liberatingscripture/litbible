@@ -1,149 +1,71 @@
 ---
 /**
- * §5 — Join the beta. Two columns: iOS TestFlight, Android Firebase App Distribution.
+ * §5 — Closing CTA. The end-of-scroll "get the app" band: after the value
+ * props, invite the download. Echoes the hero's two store buttons.
  *
- * URLs are config-driven below — easy to swap when the beta ends and the
- * app moves to public store listings. Just change the two const blocks.
+ * Both apps are live: iOS on the App Store, Android on Google Play.
  */
 import PlatformIcon from './PlatformIcon.astro';
 
-const iosBeta = {
-  label: 'Join the iOS beta',
-  url: 'https://testflight.apple.com/join/zMfW7KuE',
-  programName: 'TestFlight',
-};
-
-const androidBeta = {
-  label: 'Join the Android beta',
-  url: 'https://appdistribution.firebase.dev/i/4ba4bdf61d23da7d',
-  programName: 'Firebase App Distribution',
-};
-
+const iosUrl = 'https://apps.apple.com/app/id6772577879';
+const androidUrl =
+  'https://play.google.com/store/apps/details?id=com.litbible.app&pcampaignid=web_share';
 ---
 
-<section id="join" class="join-beta">
-  <div class="container">
-    <header class="join-beta__head">
-      <h2 class="join-beta__title">Join the beta.</h2>
-      <p class="join-beta__lede">
-        Open beta on both platforms. A couple of clicks of setup, then share
-        your feedback and preview upcoming features.
-      </p>
-    </header>
-
-    <div class="join-beta__columns">
-      <div class="join-beta__col">
-        <img
-          src="/screenshots/iPhone - Matthew 5 - Ordinary Time.png"
-          alt="LIT Bible on iPhone — Matthew 5, the Beatitudes, with display options panel"
-          class="join-beta__phone"
-          loading="lazy"
-          decoding="async"
-        />
-        <h3 class="join-beta__platform">iOS · {iosBeta.programName}</h3>
-        <ol class="join-beta__steps" role="list">
-          <li>Tap <strong>{iosBeta.label}</strong>. The link opens TestFlight.</li>
-          <li>Install TestFlight, Apple's official beta-testing app.</li>
-          <li>Tap <strong>Accept</strong>, then <strong>Install</strong>. LIT Bible appears on your home screen with a small TestFlight dot next to its name. The dot goes away at launch.</li>
-        </ol>
-        <a href={iosBeta.url} class="btn btn-primary join-beta__cta" rel="external">
-          <PlatformIcon platform="ios" />{iosBeta.label} →
-        </a>
-      </div>
-
-      <div class="join-beta__col">
-        <img
-          src="/screenshots/Android - Matthew 5 - Ordinary Time.png"
-          alt="LIT Bible on Android — Matthew 5, the Beatitudes, in Ordinary Time green"
-          class="join-beta__phone"
-          loading="lazy"
-          decoding="async"
-        />
-        <h3 class="join-beta__platform">Android · {androidBeta.programName}</h3>
-        <ol class="join-beta__steps" role="list">
-          <li>Tap <strong>{androidBeta.label}</strong>. You'll land on a Firebase invitation page.</li>
-          <li>Sign in with the Google account you want the app on, accept the invitation, and install Google's App Tester if you don't have it. (One-time step.)</li>
-          <li>Tap <strong>Install</strong> for LIT Bible. Android may ask you to allow installation from this source; it walks you through it.</li>
-        </ol>
-        <a href={androidBeta.url} class="btn btn-primary join-beta__cta" rel="external">
-          <PlatformIcon platform="android" />{androidBeta.label} →
-        </a>
-      </div>
+<section id="join" class="get-app">
+  <div class="container get-app__inner">
+    <h2 class="get-app__title">Take it with you.</h2>
+    <p class="get-app__lede">
+      The complete Liberation &amp; Inclusion Translation, free on iPhone and
+      Android.
+    </p>
+    <div class="get-app__ctas">
+      <a href={iosUrl} class="btn btn-primary" rel="external">
+        <PlatformIcon platform="ios" />Download on the App Store
+      </a>
+      <a href={androidUrl} class="btn btn-secondary" rel="external">
+        <PlatformIcon platform="android" />Get it on Google Play
+      </a>
     </div>
-
   </div>
 </section>
 
 <style>
-  .join-beta {
-    padding-block: var(--space-6);
+  .get-app {
+    padding-block: var(--space-8);
   }
   @media (max-width: 640px) {
-    .join-beta {
-      padding-block: var(--space-5);
+    .get-app {
+      padding-block: var(--space-6);
     }
   }
-  .join-beta__head {
+  .get-app__inner {
     max-width: var(--measure-prose);
-    margin-bottom: var(--space-8);
-  }
-  .join-beta__title {
-    font-size: var(--text-3xl);
-    letter-spacing: -0.025em;
-  }
-  .join-beta__lede {
-    font-family: var(--font-serif);
-    font-size: var(--text-xl);
-    color: var(--text-soft);
-    line-height: var(--leading-snug);
-    margin-top: var(--space-3);
-  }
-  .join-beta__columns {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: var(--space-8);
-  }
-  @media (min-width: 760px) {
-    .join-beta__columns {
-      grid-template-columns: 1fr 1fr;
-      gap: var(--space-9);
-    }
-  }
-  .join-beta__phone {
-    width: 100%;
-    max-width: 240px;
-    height: auto;
-    display: block;
-    margin-bottom: var(--space-6);
-  }
-  .join-beta__platform {
-    font-family: var(--font-serif);
-    font-size: var(--text-xl);
-    font-weight: 500;
-    letter-spacing: var(--tracking-tight);
-    color: var(--accent);
-    margin-bottom: var(--space-5);
-  }
-  .join-beta__steps {
-    list-style: decimal;
-    padding-left: 1.5rem;
+    margin-inline: auto;
     display: flex;
     flex-direction: column;
-    gap: var(--space-3);
-    margin-bottom: var(--space-6);
+    align-items: center;
+    text-align: center;
   }
-  .join-beta__steps li {
-    line-height: var(--leading-normal);
-    color: var(--text);
-    max-width: 42ch;
+  .get-app__title {
+    font-family: var(--font-serif);
+    font-size: var(--text-4xl);
+    letter-spacing: -0.025em;
+    line-height: var(--leading-tight);
   }
-  .join-beta__cta {
-    width: 100%;
+  .get-app__lede {
+    margin-top: var(--space-4);
+    max-width: 44ch;
+    font-family: var(--font-serif);
+    font-size: var(--text-xl);
+    line-height: var(--leading-snug);
+    color: var(--text-soft);
+  }
+  .get-app__ctas {
+    display: flex;
+    flex-wrap: wrap;
     justify-content: center;
-  }
-  @media (min-width: 760px) {
-    .join-beta__cta {
-      width: auto;
-    }
+    gap: var(--space-3);
+    margin-top: var(--space-6);
   }
 </style>

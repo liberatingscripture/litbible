@@ -80,6 +80,13 @@
   --rule: rgba(26, 26, 26, 0.10);
   --rule-soft: rgba(26, 26, 26, 0.05);
 
+  /* ---- Comparison cards (the "A first taste" section) ----
+     Cards float as raised surfaces on the section's --bg-soft band.
+     LIT keeps a faint green wash (composited over the raised surface in
+     the component); the traditional card is the plain raised surface. */
+  --card-lit: rgba(32, 157, 80, 0.09); /* faint LIT-green wash */
+  --card-trad: var(--bg);               /* plain raised surface */
+
   /* ---- Seasonal liturgical colors (verbatim, light) ---- */
   --season-advent: #1A4FA0;
   --season-christmas: #C62D25;
@@ -99,6 +106,8 @@
     --rule: rgba(240, 240, 240, 0.10);
     --rule-soft: rgba(240, 240, 240, 0.05);
 
+    --card-lit: rgba(77, 184, 77, 0.14);
+
     --season-advent: #6BA3E8;
     --season-christmas: #F05252;
     --season-lent: #CC66CC;
@@ -112,6 +121,8 @@
   --text-faint: #6E6E6A;
   --rule: rgba(240, 240, 240, 0.10);
   --rule-soft: rgba(240, 240, 240, 0.05);
+
+  --card-lit: rgba(77, 184, 77, 0.14);
 
   --season-advent: #6BA3E8;
   --season-christmas: #F05252;
@@ -232,6 +243,13 @@
   opacity: 1;
   border-color: var(--text);
   background: var(--bg-soft);
+}
+/* Non-interactive "coming soon" pill — reads as a button, but static. */
+.apps .btn--soon {
+  background: var(--bg-soft);
+  color: var(--text-soft);
+  border: 1px solid var(--rule);
+  cursor: default;
 }
 
 /* ---- Container ---- */
