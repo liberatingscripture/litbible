@@ -275,7 +275,7 @@ body.bg-cream > main {
   flex-direction: column;
 }
 
-/* Badge on the "coming soon" apps card */
+/* Badge on the apps card */
 .view-card__badge {
   align-self: flex-start;
   display: inline-block;
