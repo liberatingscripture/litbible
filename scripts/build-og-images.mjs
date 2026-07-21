@@ -67,6 +67,7 @@ function loadFont(file) {
 
 const fraunces = loadFont("fraunces-opsz144-500.ttf");
 const inter = loadFont("inter-400.ttf");
+const interItalic = loadFont("inter-400italic.ttf");
 
 /**
  * Serialize an opentype Path to SVG path data. We do NOT use opentype's own
@@ -253,6 +254,18 @@ function appsCardSVG() {
   }
 
   const siteW = width(inter, SITE, 42);
+
+  // The tagline is the site's own hero line ("A New Testament that's <em>for</em>
+  // everyone.") — "for" renders in Inter Italic (the roman face's own italic,
+  // not a switch to Fraunces) so the emphasis survives without breaking the
+  // tagline's smaller-caption typography.
+  const taglineSize = 34;
+  const taglinePre = "A New Testament that's ";
+  const taglineEm = "for";
+  const taglinePost = " everyone.";
+  const taglinePreW = width(inter, taglinePre, taglineSize);
+  const taglineEmW = width(interItalic, taglineEm, taglineSize);
+
   // The wordmark sits ABOVE the icons, so it spans the full card width and
   // can hold the chapter cards' 44px — matching them matters, because at a
   // 300px-wide phone link preview a smaller cut turns to mush.
@@ -263,7 +276,9 @@ ${textPath(inter, WORDMARK, X, 110, 44, `fill="${CREAM}"`)}
 ${textPath(fraunces, "LIT Bible", X, 292, heroSize, `fill="${CREAM_BRIGHT}"`)}
 ${textPath(inter, "for iPhone & Android", X, 356, 46, `fill="${GREEN_LIGHT}"`)}
 <rect x="${X + 4}" y="400" width="180" height="10" fill="${GREEN}"/>
-${textPath(inter, "A New Testament that's for everyone.", X, 482, 34, `fill="${CREAM}"`)}
+${textPath(inter, taglinePre, X, 482, taglineSize, `fill="${CREAM}"`)}
+${textPath(interItalic, taglineEm, X + taglinePreW, 482, taglineSize, `fill="${CREAM}"`)}
+${textPath(inter, taglinePost, X + taglinePreW + taglineEmW, 482, taglineSize, `fill="${CREAM}"`)}
 ${textPath(inter, SITE, 1110 - siteW, 582, 42, `fill="${GREEN_LIGHT}"`)}
 </svg>`;
 }
