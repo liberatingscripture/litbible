@@ -1727,7 +1727,7 @@ a.footer-cta > span {
   max-width: 34ch;
 }
 
-/* Brevo status panels — hidden by default, shown by main.js */
+/* Status panels — hidden until the submit handler adds .is-visible */
 .footer-newsletter__message {
   display: none;
   align-items: center;
@@ -1738,6 +1738,11 @@ a.footer-cta > span {
   border-radius: 6px;
   border: 1px solid transparent;
   margin-bottom: 0.25rem;
+}
+
+/* flex, not block — the panel lays out an icon beside its text */
+.footer-newsletter__message.is-visible {
+  display: flex;
 }
 
 .footer-newsletter__message--error {
@@ -1819,9 +1824,10 @@ a.footer-cta > span {
   outline-offset: 2px;
 }
 
+/* Only disabled while a submit is in flight. */
 .footer-newsletter__submit:disabled {
-  opacity: 1;
-  cursor: pointer;
+  opacity: 0.6;
+  cursor: default;
 }
 
 .footer-newsletter__field-error {
