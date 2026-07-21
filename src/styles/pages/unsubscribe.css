@@ -29,7 +29,7 @@
   margin: 0;
 }
 
-/* Status panels — hidden by default, toggled by Brevo main.js */
+/* Status panels — hidden until the submit handler adds .is-visible */
 .unsub-message {
   display: none;
   align-items: center;
@@ -39,6 +39,11 @@
   padding: 0.6rem 0.75rem;
   border-radius: 6px;
   border: 1px solid transparent;
+}
+
+/* flex, not block — the panel lays out an icon beside its text */
+.unsub-message.is-visible {
+  display: flex;
 }
 
 .unsub-message--error {
@@ -125,6 +130,12 @@
 .unsub-form__submit:focus-visible {
   outline: 2px solid var(--green);
   outline-offset: 2px;
+}
+
+/* Only disabled while a submit is in flight. */
+.unsub-form__submit:disabled {
+  opacity: 0.6;
+  cursor: default;
 }
 
 .unsub-form__field-error {
