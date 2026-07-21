@@ -203,28 +203,25 @@ async function roundedTile(src, sizePx, radius) {
 }
 
 /**
- * The /apps share card: same top-left brand lockup as the chapter cards, a
- * static "The LIT Bible App" headline (narrowed to leave room on the right),
- * and both platform icons stacked there as home-screen tiles — the two are
- * different art (iOS the leather-book artwork, Android the bare gradient
- * mark), so the pair says "on both stores" without any text. The Android
- * mark gets the same ink tile it wears in-app, lifted to #2A3227 (rather than
- * the card's own INK) so it doesn't vanish into the field the way it would at
- * the in-app #1b2318, which is all but identical to this card's ink.
+ * The /apps share card: same top-left brand lockup as the chapter cards (the
+ * full WORDMARK, same as every other card), a static "The LIT Bible App"
+ * headline, and both platform icons stacked below the lockup as home-screen
+ * tiles — the two are different art (iOS the leather-book artwork, Android
+ * the bare gradient mark), so the pair says "on both stores" without any
+ * text. The Android mark gets the same ink tile it wears in-app, lifted to
+ * #2A3227 (rather than the card's own INK) so it doesn't vanish into the
+ * field the way it would at the in-app #1b2318, which is all but identical
+ * to this card's ink.
  */
 function appsCardSVG() {
   const shared = `<rect width="${WIDTH}" height="${HEIGHT}" fill="${INK}"/>`;
   const e = EMBLEM;
   const wordmarkX = e.cx + e.r + 26;
-  // The full WORDMARK ("The Liberation & Inclusion Translation") runs under
-  // the icon tiles on the right at its usual size, so this card's lockup uses
-  // the short site name instead — the headline below already says "The LIT
-  // Bible App", so nothing is lost.
   const lockup = `<circle cx="${e.cx}" cy="${e.cy}" r="${e.r}" fill="none" stroke="${GREEN}" stroke-width="6"/>
-${textPath(inter, "LIT Bible", wordmarkX, 131, 44, `fill="${CREAM}"`)}`;
+${textPath(inter, WORDMARK, wordmarkX, 131, 44, `fill="${CREAM}"`)}`;
 
   const title = "The LIT Bible App";
-  const MAXW = 700; // leaves room for the icon tiles stacked on the right
+  const MAXW = 700; // leaves room for the icon tiles on the right
   let size = 108;
   while (size > 56 && width(fraunces, title, size) > MAXW) size -= 2;
   const titlePath = textPath(
@@ -253,12 +250,18 @@ async function appsCard() {
   const { svg, emblem } = appsCardSVG();
   const logo = await logoAt(emblem.d);
 
-  const tile = 224;
-  const radius = 50; // squircle-ish, the way an app icon is masked
+  // At the full WORDMARK's length the lockup row runs almost the full card
+  // width, so the tiles sit in the band below it rather than beside it —
+  // smaller than the other cards' art (224px) to fit between the lockup and
+  // the footer.
+  const tile = 150;
+  const radius = 34; // squircle-ish, the way an app icon is masked — same ratio as 50/224
   const x = WIDTH - 90 - tile;
-  const gap = 28;
+  const gap = 24;
   const totalH = tile * 2 + gap;
-  const top = Math.round((HEIGHT - totalH) / 2);
+  const bandTop = 172; // clears the lockup's ring + wordmark
+  const bandBottom = 520; // clears the footer
+  const top = bandTop + Math.round((bandBottom - bandTop - totalH) / 2);
 
   const ios = await roundedTile(
     path.join(IMAGES, "lit-app-icon-ios.webp"),
