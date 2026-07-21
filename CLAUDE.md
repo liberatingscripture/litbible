@@ -90,16 +90,18 @@ npm run draft:release-notes -- --since <ref>  # Draft a release-notes entry from
    for every chapter and book-intro page (owner-approved design: ink field,
    emblem in a green ring, Fraunces display-cut reference), plus `apps.png`
    for `/apps` — a sibling composition on the same ink field whose hero visual
-   is the gradient **app** icon (`public/images/lit-app-icon.svg`, the mark the
-   launch popover shows) in a rounded tile, with no site emblem so the two
-   logos don't compete. Text is converted to SVG paths with opentype.js using
-   fonts committed in `scripts/og/fonts/` (no system-font dependency), then
+   is **both** platform icons (`public/images/lit-app-icon-ios.webp` and
+   `lit-app-icon.svg`, the same pair the launch popover shows), stacked
+   vertically in rounded tiles, with no site emblem so the two logos don't
+   compete. Text is converted to SVG paths with opentype.js using fonts
+   committed in `scripts/og/fonts/` (no system-font dependency), then
    rasterized with sharp — deterministic output. **`inter-400.ttf` is
-   character-subsetted** (no comma, apostrophe, or dash), so new card copy is
+   character-subsetted** (no comma, colon, or dash), so new card copy is
    glyph-checked at build time and throws rather than shipping a tofu box —
-   reword, or re-subset per that directory's README. The pages reference the
-   cards via Layout's `ogImage` prop plus `twitter:card=summary_large_image`.
-   A website asset, NOT part of the app contract — it must never move under
+   reword, or widen the subset per that directory's README. The pages
+   reference the cards via Layout's `ogImage` prop plus
+   `twitter:card=summary_large_image`. A website asset, NOT part of the app
+   contract — it must never move under
    `public/api/`.
 7. `astro build` — compiles the site to `dist/`.
 8. `pagefind --site dist` — indexes glossary + article + book-intro pages

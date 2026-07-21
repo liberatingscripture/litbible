@@ -7,14 +7,23 @@ network access — same rendering on every machine and in CI.
 | File | Family | Source |
 |------|--------|--------|
 | `fraunces-opsz144-500.ttf` | Fraunces, weight 500, optical size 144 (display cut) | Google Fonts static instance of the Fraunces variable font |
-| `inter-400.ttf` | Inter, weight 400, subset to `A-Z a-z 0-9 & . space` | Google Fonts (`text=` subset) |
+| `inter-400.ttf` | Inter, weight 400, subset to `A-Z a-z 0-9 & . ' space` | Google Fonts (`text=` subset) |
 
 The Inter file is character-subsetted on purpose: the full Inter TTF carries
 GSUB lookups opentype.js can't parse, and the card strings it renders (the
 wordmark line, `litbible.net`, and the `/apps` card's copy) only need this
-charset. Note what is therefore **absent**: comma, apostrophe, colon, and
-every dash. If a card ever needs new Inter characters, re-download with a
-wider `text=` parameter.
+charset. Note what is therefore **absent**: comma, colon, and every dash
+(apostrophe was added for the `/apps` card's "that's" — see below). If a card
+ever needs new Inter characters, re-download with a wider `text=` parameter.
+
+To regenerate: request the legacy (non-variable) Google Fonts CSS endpoint
+with an old-browser user agent, which serves a raw TTF instead of WOFF2/EOT —
+`curl -A "Mozilla/5.0 (Linux; U; Android 2.2) AppleWebKit/533.1 (KHTML, like
+Gecko) Version/4.0 Mobile Safari/533.1"
+"https://fonts.googleapis.com/css?family=Inter:400&text=<url-encoded chars>"`
+returns a `@font-face` with a `format('truetype')` `src` URL; download that
+URL. (A plain modern UA, or omitting the UA override, returns EOT — a
+different container opentype.js can't parse either — so the UA matters.)
 
 opentype substitutes `.notdef` for a missing character without erroring, which
 would ship a tofu box in a card nobody re-inspects, so `build-og-images.mjs`
