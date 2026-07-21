@@ -7,6 +7,7 @@
 // unimported so a past announcement can be brought back by swapping the
 // import in Layout.astro.
 import PlatformIcon from "./apps/PlatformIcon.astro";
+import AppIcons from "./apps/AppIcons.astro";
 ---
 
 <dialog
@@ -48,15 +49,7 @@ import PlatformIcon from "./apps/PlatformIcon.astro";
       </svg>
     </button>
 
-    <div class="applaunch-logo">
-      <img
-        src="/images/lit-app-icon.svg"
-        alt="LIT Bible app icon"
-        width="104"
-        height="104"
-        loading="eager"
-      />
-    </div>
+    <AppIcons size={84} class="applaunch-logo" />
 
     <p class="applaunch-eyebrow">Now available</p>
 
@@ -200,24 +193,10 @@ import PlatformIcon from "./apps/PlatformIcon.astro";
     outline: none;
   }
 
+  /* AppIcons handles its own sizing and Android tiling; this only places the
+     pair. */
   .applaunch-logo {
     margin-bottom: 0.75rem;
-  }
-
-  .applaunch-logo img {
-    display: block;
-    width: clamp(80px, 22vw, 96px);
-    height: auto;
-    /* The app mark is a bright gradient on transparency, and its lime end
-       (#BDF76B) all but vanishes against the light-theme surface (#FAFAF8).
-       The ink tile keeps the whole gradient legible in BOTH themes and frames
-       the mark the way an app icon actually appears on a home screen. The
-       colour is fixed, not tokenised, so the tile can't invert out from under
-       the gradient in dark mode. */
-    border-radius: 22%;
-    background: #1b2318;
-    padding: 9%;
-    box-sizing: border-box;
   }
 
   /* Eyebrow */

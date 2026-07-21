@@ -21,9 +21,10 @@
  * Intro cards set "Intro" in green where the chapter number would sit.
  *
  * The /apps card is a sibling composition on the same ink field, but its
- * hero visual is the APP mark (public/images/lit-app-icon.svg — the same
- * gradient icon the launch popover shows), set in a rounded tile on the right
- * so it reads the way the icon appears on a home screen. The site emblem is
+ * hero visual is both platform icons (iOS's leather-book artwork and
+ * Android's gradient mark, public/images/lit-app-icon*.{webp,svg} — the same
+ * pair the launch popover shows) side by side in rounded tiles on the right,
+ * so it reads the way the icons appear on a home screen. The site emblem is
  * deliberately absent there: two logos on one card compete, and the wordmark
  * line alone carries the brand.
  *
@@ -43,6 +44,7 @@ import { BOOKS, bookKeyToLabel } from "../src/data/books.js";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
 const OUT_DIR = path.join(ROOT, "public", "og");
+const IMAGES = path.join(ROOT, "public", "images");
 
 const WIDTH = 1200;
 const HEIGHT = 630;
@@ -187,6 +189,20 @@ ${footer}
   return { svg, emblem: e };
 }
 
+// A rounded-corner square tile cropped (cover) from a source image.
+async function roundedTile(src, sizePx, radius) {
+  const base = await sharp(src)
+    .resize(sizePx, sizePx, { fit: "cover", position: "centre" })
+    .toBuffer();
+  const mask = Buffer.from(
+    `<svg width="${sizePx}" height="${sizePx}"><rect width="${sizePx}" height="${sizePx}" rx="${radius}" ry="${radius}"/></svg>`,
+  );
+  return sharp(base)
+    .composite([{ input: mask, blend: "dest-in" }])
+    .png()
+    .toBuffer();
+}
+
 async function renderCard(slug, label, suffix, suffixFill) {
   const { svg, emblem } = cardSVG(label, suffix, suffixFill);
   const logo = await logoAt(emblem.d);
@@ -203,20 +219,23 @@ async function renderCard(slug, label, suffix, suffixFill) {
 }
 
 /**
- * The /apps share card. Text column on the left, app-icon tile on the right.
- *
- * The mark is a bright gradient on transparency, so it sits in a tile one
- * step lighter than the field (not the popover's near-ink tile, which would
- * disappear against this background) with the same 22% corner radius — an
- * app icon, framed as an app icon.
+ * The /apps share card. Text column on the left; on the right, both platform
+ * icons as home-screen tiles, side by side in the footprint a single tile
+ * used to fill. The two are different art — iOS the leather-book artwork
+ * (its own background, so `roundedTile` just needs to mask the corners),
+ * Android the bare gradient mark on a tile one step lighter than the field
+ * (not the popover's near-ink tile, which would disappear against this
+ * background) — drawn straight into the SVG, since the icon's own 10%
+ * padding keeps it clear of the rounded corners without a separate mask.
  */
-const APP_TILE = { x: 810, y: 160, size: 300, pad: 30, r: 66 };
+const ICONS = { x: 810, y: 160, size: 138, gap: 24, radius: 30 }; // radius ~22% of size, matching the app's own icon corners
 
 function appsCardSVG() {
-  const t = APP_TILE;
-  // Text column runs from the card margin to a gutter left of the tile.
+  const { x, y, size, gap, radius } = ICONS;
+  const androidX = x + size + gap;
+  // Text column runs from the card margin to a gutter left of the icons.
   const X = 90;
-  const COLW = t.x - 60 - X;
+  const COLW = x - 60 - X;
 
   // Hero shrinks to fit the column, same auto-fit rule as the chapter cards.
   let heroSize = 140;
@@ -225,12 +244,12 @@ function appsCardSVG() {
   }
 
   const siteW = width(inter, SITE, 42);
-  // The wordmark sits ABOVE the tile, so it spans the full card width and can
-  // hold the chapter cards' 44px — matching them matters, because at a
+  // The wordmark sits ABOVE the icons, so it spans the full card width and
+  // can hold the chapter cards' 44px — matching them matters, because at a
   // 300px-wide phone link preview a smaller cut turns to mush.
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH}" height="${HEIGHT}" viewBox="0 0 ${WIDTH} ${HEIGHT}">
 <rect width="${WIDTH}" height="${HEIGHT}" fill="${INK}"/>
-<rect x="${t.x}" y="${t.y}" width="${t.size}" height="${t.size}" rx="${t.r}" fill="#262E24"/>
+<rect x="${androidX}" y="${y}" width="${size}" height="${size}" rx="${radius}" fill="#262E24"/>
 ${textPath(inter, WORDMARK, X, 110, 44, `fill="${CREAM}"`)}
 ${textPath(fraunces, "LIT Bible", X, 292, heroSize, `fill="${CREAM_BRIGHT}"`)}
 ${textPath(inter, "for iPhone & Android", X, 356, 46, `fill="${GREEN_LIGHT}"`)}
@@ -241,23 +260,33 @@ ${textPath(inter, SITE, 1110 - siteW, 582, 42, `fill="${GREEN_LIGHT}"`)}
 }
 
 async function renderAppsCard() {
-  const t = APP_TILE;
-  const inner = t.size - t.pad * 2;
+  const { x, y, size, gap, radius } = ICONS;
+  const androidX = x + size + gap;
+  const pad = Math.round(size * 0.1);
+
+  const ios = await roundedTile(
+    path.join(IMAGES, "lit-app-icon-ios.webp"),
+    size,
+    radius,
+  );
+
   // density: the source is a 200-unit viewBox, so rasterize well above the
   // target size and let sharp downsample — otherwise the thin gradient bands
   // alias badly.
-  const icon = await sharp(
-    path.join(ROOT, "public", "images", "lit-app-icon.svg"),
-    { density: 300 },
-  )
-    .resize(inner, inner)
+  const androidMark = await sharp(path.join(IMAGES, "lit-app-icon.svg"), {
+    density: 300,
+  })
+    .resize(size - pad * 2, size - pad * 2)
     .png()
     .toBuffer();
 
   await sharp(Buffer.from(appsCardSVG()))
-    .composite([{ input: icon, left: t.x + t.pad, top: t.y + t.pad }])
+    .composite([
+      { input: ios, left: x, top: y },
+      { input: androidMark, left: androidX + pad, top: y + pad },
+    ])
     // No `palette` here (unlike the chapter cards): quantizing to 256 colours
-    // bands the icon's gradient visibly.
+    // bands the Android icon's gradient visibly.
     .png({ compressionLevel: 9 })
     .toFile(path.join(OUT_DIR, "apps.png"));
 }
