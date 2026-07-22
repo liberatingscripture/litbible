@@ -233,6 +233,20 @@ const { hideNewsletter = false } = Astro.props;
           />
           <input type="hidden" name="locale" value="en" />
         </form>
+
+        {/* No-JS honesty note. Brevo requires a Cloudflare Turnstile token, and
+            Turnstile can't render without JS — the server silently drops a
+            token-less POST while returning {"success":true} to the client. So
+            with JS off the form looks like it submits but subscribes nobody. No
+            fallback can fix that (Brevo's hosted page and /contact both also
+            gate on Turnstile), so rather than link to a route that can't work,
+            we hide the form and say so plainly. Inert when JS is on. */}
+        <noscript>
+          <style is:inline>.footer-newsletter__form { display: none; }</style>
+          <p class="footer-newsletter__desc">
+            Subscribing requires JavaScript.
+          </p>
+        </noscript>
       </section>
       )}
     </div>
