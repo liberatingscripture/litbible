@@ -628,15 +628,43 @@ delete it.
   un-collapsing metadata-only, and dropping the `relabel` split each failed
   exactly the guarding test(s).
 
-- [ ] **(O12) Footer newsletter no-JS fallback.**
-  `SiteFooter.astro` ships the Subscribe button `disabled` and only enables
-  it when Brevo's `main.js` loads — with JS off the form is dead, the one
-  exception to the site's no-JS principle (the /unsubscribe Brevo form works
-  no-JS). Evaluate first, then fix: test whether a native POST to the
-  sibforms action succeeds without main.js/Turnstile (mirror the unsubscribe
-  form's behavior); if Brevo rejects it, add a `<noscript>` note linking
-  Brevo's hosted subscribe page instead. Don't guess — verify actual Brevo
-  behavior before choosing.
+- [x] **(O12) Footer newsletter no-JS fallback.**
+  DONE (2026-07-21). The item's premise was already stale: `SiteFooter.astro`
+  had been refactored (commits `c28bf1c`/`6722f64`, same-day) to drop Brevo's
+  `main.js` and POST via its own `fetch`, so the Subscribe button is no longer
+  shipped `disabled`. What remained open was whether Brevo's server accepts a
+  no-JS submission, which sends no `cf-turnstile-response` token (the
+  `.cf-turnstile` widget only renders once JS injects `api.js` on interaction).
+  **Verified, not guessed (and the first read was wrong, then corrected):** a
+  controlled token-less POST to the sibforms `action` URL returned **HTTP 200
+  `{"success":true}`** — which looks like acceptance but is a **decoy**. sibforms
+  returns success to the *client* regardless, then enforces Turnstile
+  server-side silently, so a bot can't tell accept from reject. Two independent
+  checks proved nothing was actually subscribed: (1) the owner checked the Brevo
+  subscriber list and the test contact was **not there**; (2) a Gmail search
+  (inbox + spam + trash, Brevo/Sendinblue senders + the plus-address) found
+  **no** double-opt-in confirmation email. A single-opt-in accept would have
+  added the contact directly; a double-opt-in accept would have sent a confirm
+  email; both falsified ⇒ **Brevo silently drops the token-less POST.**
+  **So the no-JS footer form is a silent no-op** — it appears to submit but
+  subscribes nobody, and the browser lands on a raw `{"success":true}` page.
+  **No fallback can make no-JS subscription actually work:** the blocker is
+  Turnstile, which needs JS, and Brevo's embed, Brevo's hosted `/serve/` page,
+  and the `/contact` form all gate on the *same* Turnstile-enforcing path.
+  Owner decision: don't pretend otherwise. Fix only the real harm — the false
+  success. **Fix shipped:** a `<noscript>` block in `SiteFooter.astro` that hides
+  the form (`<style is:inline>.footer-newsletter__form{display:none}</style>`;
+  the status panels are already `display:none` until JS) and shows one honest
+  line, "Subscribing requires JavaScript." No link (every subscribe/contact route
+  needs JS too, so a link would imply a path that doesn't exist). Inert when JS is
+  on (>99% of visitors), so the working form is untouched.
+  **Test side effect, disclosed:** the verification POST created one
+  pending/unconfirmed Brevo contact for a plus-address of the owner's own inbox
+  (`bcjohnson7+litnojstest@gmail.com`); owner can delete it from the Brevo
+  dashboard. **Related latent issue (out of scope):** `SubscribeStrip.astro` on
+  the parked/unlinked `/courses` has a JS fallback that submits with an empty
+  token when Turnstile is unavailable — by this finding that path silently fails
+  while showing success; worth a follow-up if `/courses` is ever revived.
 
 ## Fable — one session each, owner in the loop
 
