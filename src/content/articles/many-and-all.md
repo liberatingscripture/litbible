@@ -5,7 +5,7 @@ author: Brandon C. Vélez Johnson
 description: Josiah Hawthorne's question, dissecting the meaning of "all" and "many" in biblical context is intriguing. Romans 5 illustrates how Adam's actions impacted "all" and "many," with Jesus counteracting the verdict for "all" and "many." Examining similar usage by Jesus and Paul reveals a synonymous connotation, suggesting the message of liberation might in fact be for more people than we've often been told.
 tags: ["Romans 5", "Adam", "universalism", "Christ"]
 featured: false
-heroImage: "/images/articles/stars-and-sand.jpeg"
+heroImage: "/images/articles/stars-and-sand.webp"
 ---
 
 Josiah Hawthorne asked a question via what is now the toXic corpse of what used to be Twitter. (Josiah Hawthorne is also on Threads as <a href="https://www.threads.net/@josiahhawthornesreceipts" target="_blank" rel="noopener noreferrer">@josiahhawthornesreceipts</a>.)

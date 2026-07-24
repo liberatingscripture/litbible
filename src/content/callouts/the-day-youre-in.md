@@ -5,7 +5,7 @@ platform: ios
 mode: light
 accent: easter
 imageSide: left
-image: "/screenshots/iPhone - Today - Easter.png"
+image: "/screenshots/iPhone - Today - Easter.webp"
 ---
 
 Next Sunday's readings from the Revised Common Lectionary are always a tap away. Or settle into our year-long daily reading plan.

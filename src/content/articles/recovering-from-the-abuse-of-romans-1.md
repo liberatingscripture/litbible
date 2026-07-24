@@ -16,7 +16,7 @@ tags:
     "homosexuality",
   ]
 featured: false
-heroImage: "/images/articles/upside-down-sunrise.png"
+heroImage: "/images/articles/upside-down-sunrise.webp"
 ---
 
 What if Romans 1 doesn’t criticize what or whom you’ve been told it does?

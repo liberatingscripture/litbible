@@ -5,7 +5,7 @@ author: Brandon C. Vélez Johnson
 description: I'm noticing in my translation work on Mark 7, the impact of the shift from ‘defiled’ to ‘unconsecrated’ and how traditional translations are harmful. Jesus' criticism is about how people treat each other, not religious codes. The LIT emphasizes social and systemic issues, while the ESV focuses on individual piety. The overall message is about prioritizing people over virtue signaling.
 tags: ["Mark 7", "Purity", "Defiled", "Clean", "Unclean"]
 featured: false
-heroImage: "/images/articles/pexels-photo-88808.png"
+heroImage: "/images/articles/pexels-photo-88808.webp"
 ---
 
 This week, I’m working through translating Mark, and I spent time on this section on Mark 7. There are a few words that stand out to me as needing some clarification.

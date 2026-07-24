@@ -13,7 +13,7 @@ tags:
     "submission",
   ]
 featured: false
-heroImage: "/images/articles/woman-shh.png"
+heroImage: "/images/articles/woman-shh.webp"
 ---
 
 You may have heard that Romans 13 says to submit to all authorities because God put them over us. It’s understandable that you’ve heard that and that people teach that. At first glance, that’s what it looks like. But, as usual, there’s more to the story.

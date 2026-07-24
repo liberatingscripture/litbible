@@ -15,7 +15,7 @@ tags:
     "greed",
   ]
 featured: false
-heroImage: "/images/articles/brooklyn-museum-the-widows-mite-le-denier-de-la-veuve-james-tissot-3fc49e.jpg"
+heroImage: "/images/articles/brooklyn-museum-the-widows-mite-le-denier-de-la-veuve-james-tissot-3fc49e.webp"
 ---
 
 What if I told you Jesus doesn’t hold up the widow who gave everything she had as a shining example of spiritual devotion?

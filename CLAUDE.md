@@ -148,7 +148,13 @@ scripts/             # BUILD/validation Node scripts (.mjs) — see below
                      #   generator renders with — see its README)
 public/              # Static assets + generated output (api/, og/, search/,
                      #   topics-index.json, llms.txt, llms-full.txt, _headers,
-                     #   images/, icons)
+                     #   images/, icons). Page-loaded raster images are WebP,
+                     #   resized to ~2x display size — no astro:assets pipeline,
+                     #   so files are optimized ahead of time and referenced by
+                     #   plain URL string (frontmatter/src/JSON)
+_source-images/      # Pre-WebP originals for public/images/articles/ and
+                     #   public/screenshots/, archived (not shipped — outside
+                     #   public/) for future re-editing; see its README
 emails/              # Standalone HTML email templates (not part of the site build)
 workers/             # Cloudflare Workers, deployed separately via wrangler (NOT
                      #   part of the site build): contact-form/ backs both the

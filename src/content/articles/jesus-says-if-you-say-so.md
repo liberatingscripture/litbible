@@ -18,7 +18,7 @@ tags:
     "subversive",
   ]
 featured: false
-heroImage: "/images/articles/jesus-and-pilate.jpg"
+heroImage: "/images/articles/jesus-and-pilate.webp"
 ---
 
 You’ve probably heard the idea that the religious leaders wanted Jesus dead because he claimed to be God, right?
