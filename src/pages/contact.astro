@@ -144,7 +144,7 @@ import "../styles/pages/contact.css";
               if (res.ok) {
                 form.reset();
                 status.className = "contact-status is-success";
-                status.textContent = "Thanks — your message has been sent.";
+                status.textContent = "Thanks! Your message has been sent.";
                 if (window.turnstile) window.turnstile.reset();
               } else {
                 status.className = "contact-status is-error";

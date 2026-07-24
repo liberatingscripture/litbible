@@ -150,16 +150,26 @@ delete it.
   DONE: added `"engines": { "node": ">=22.12" }` to `package.json`, right
   after `"type": "module"`.
 
-- [ ] **Em-dash sweep in visible page prose.**
-  Owner style rule: no em dashes in published page copy — rephrase with
-  commas/periods/colons, changing as few words as possible. Locations found:
-  `src/pages/about.astro` prose paragraphs (~lines 237–240, 396, 429–430);
-  `src/pages/release-notes.astro` lede (~line 33); `src/pages/read.astro`
-  license bullets (~193–201 — the "**Attribution** — You must…" separators can
-  become colons); and the user-facing form status strings "Thanks — your
-  message has been sent." in `contact.astro` (~143) and `app-support.astro`
-  (~161), e.g. "Thanks! Your message has been sent." Leave code comments, page
-  `title` tags, `alt` text, and JSON-LD alone.
+- [x] **Em-dash sweep in visible page prose.**
+  DONE (2026-07-23, owner walked through each dash). Nine standalone em dashes
+  in visible prose replaced: `about.astro` "life together — not fear-based" →
+  comma; `read.astro` license bullets (Attribution/NonCommercial/No
+  Derivatives) → colons; `release-notes.astro` lede → colon;
+  `contact.astro` + `app-support.astro` status strings → "Thanks! Your message
+  has been sent."; plus two the original audit MISSED and this sweep caught —
+  `liberating-scripture-collective.astro` "not gatekeeping — giving people" →
+  colon, and `[slug].astro` chapter-pending notice "living translation —
+  chapters…" → period. **Owner chose to KEEP** the two *parenthetical* em-dash
+  pairs in `about.astro`'s personal-narrative prose (~237–240, 429–430) — the
+  paired-aside dashes carry the voice and the alternatives (parens, sentence
+  split) read worse. **Left alone by owner decision:** three `<meta
+  name="description">` strings with em dashes (`release-notes.astro:26`,
+  `contact.astro:8`, `courses.astro:8`) — published copy but not on-page prose,
+  outside this item's scope. Also deliberately untouched: the visible
+  "Book — Introduction" heading (`ScriptureHeader.astro`), an intentional
+  structured label documented in CLAUDE.md as the search-bucket format (owner
+  decision 2026-07-09); and all code comments / `alt` / `title` / citation
+  meta. Verified with `npm run check` (0 errors, 0 warnings).
 
 - [x] **Title-tag separator consistency.**
   DONE: `src/pages/unsubscribe.astro`'s title now reads "Unsubscribe |
