@@ -1028,10 +1028,25 @@ S9, O9, and O8.
   `public/.well-known/apple-developer-merchantid-domain-association` —
   presumably GiveLively's Apple Pay verification. Confirm it's intentional
   and current; delete it if the integration that required it is gone.
-- [ ] **Decide where `/apps` should surface.** The strongest conversion page
+- [x] **Decide where `/apps` should surface.** The strongest conversion page
   on the site is footer-only ("Learn" column). If the app beta push matters,
   give it a header nav slot or a homepage question-card; once placement is
   decided, implementation is Sonnet-sized.
+  DONE (2026-07-23, owner-decided): the "footer-only" premise was already out
+  of date. `/apps` surfaces in three places: the footer "Learn" column, the
+  sitewide `AppsLaunchPopover` (auto-shows on the 2nd+ pageview, "Get the app"
+  CTA), and a contextual view-card on `/read`. So rather than rescue a
+  neglected page, we added one durable, on-voice, high-traffic surface: a
+  **homepage question-card**. Because a 4th card orphans a row in the existing
+  3-column `.questions-grid`, the owner chose to round the block out to **six**
+  cards, also adding cards for the **Liberating Scripture Collective** and
+  **Articles** — six auto-flow into a clean 3×2 with zero grid rework. New
+  Apps/LSC media are icon/logo tiles (`lit-app-icon-ios.webp`; a new
+  `lsc-logo-square.webp`, resized from the heavy 2200px PNG per the WebP
+  convention). **Rejected:** a header nav slot (crowds the content-focused nav,
+  worsens title truncation, must be triplicated across desktop/no-JS/mobile,
+  and is redundant with the sitewide popover) and a secondary CTA beside the
+  "really good stuff" callout (dilutes a deliberately single-CTA moment).
 
 ## Completed from TBD
 
