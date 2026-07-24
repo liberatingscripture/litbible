@@ -1,0 +1,13 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.litbible.app",
+      "sha256_cert_fingerprints": [
+        "8B:48:D8:26:63:E9:1C:1F:65:DB:D4:26:C1:76:A4:FA:83:F8:FC:C8:AC:0D:DA:17:8B:30:72:A9:E1:F9:D7:49",
+        "D5:FC:11:49:29:D0:8D:26:16:84:FC:D3:B2:2A:19:7B:65:A3:9B:CD:FC:9D:99:DC:E8:65:53:F0:F3:30:94:45"
+      ]
+    }
+  }
+]
