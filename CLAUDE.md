@@ -180,7 +180,7 @@ workers/             # Cloudflare Workers, deployed separately via wrangler (NOT
 | `/search` | `search.astro` | Full search UI (verse index + Pagefind) |
 | `/release-notes` | `release-notes.astro` | "What's new" |
 | `/apps` | `apps.astro` | Mobile-apps promo page (footer-linked). Body design ported from `BDRhodes/LIT-app-Promo`; section content lives in the `callouts`/`examples`/`seasons` collections; scoped styles in `src/styles/pages/apps.css`; components under `src/components/apps/`. Uses `bg="white"` (near-white surface). |
-| `/app-support` | `app-support.astro` | App support contact form (linked from inside the apps, not the site nav; `/app-support/thanks` is the no-JS success page) |
+| `/app-support` | `app-support.astro` | App support contact form (linked from inside the apps, not the site nav; `/app-support/thanks` is the native-POST fallback success page) |
 | others | `about`, `contact` (+ `contact/thanks`), `courses`, `support`, `privacy`, `unsubscribe`, `found-in-translation-podcast`, `liberating-scripture-collective`, `translation-commitments`, `404` |
 
 Redirects (`/read-now`→`/read`, `/podcast`→`/found-in-translation-podcast`) and
@@ -408,9 +408,11 @@ collection); they're read directly by the intro pages and the API manifest.
   (mirrors the liberatingscripture.org contact Worker). It deploys separately
   from the site (owner-run `wrangler
   deploy` — see its README, which also carries the one-time dashboard/secret
-  setup for the app-support route); no-JS POSTs 303-redirect to the matching
-  `…/thanks/` page. **Adding a route means redeploying the Worker before the
-  site deploy that publishes the new form**, or the POST hits the Pages 404.
+  setup for the app-support route); native POSTs (the fallback when fetch is
+  blocked; Turnstile still needs JS to render, so a genuinely JS-less visitor
+  can't pass the check) 303-redirect to the matching `…/thanks/` page.
+  **Adding a route means redeploying the Worker before the site deploy that
+  publishes the new form**, or the POST hits the Pages 404.
 - **Security headers / CSP** live in `public/_headers` (deploy-only — `dev`
   and `astro preview` don't apply them). The CSP is deliberately split (owner
   decision 2026-07-10): an ENFORCED header carries only structural directives

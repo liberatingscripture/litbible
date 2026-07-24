@@ -120,9 +120,12 @@ npm run deploy
 ```
 
 **E. Then deploy the site**, and smoke-test `/app-support` on production: submit
-with JS on (inline success), once with JS off (should land on
-`/app-support/thanks/`), confirm the message reaches the NEW inbox with a
-working Reply-To, and confirm `/contact` still delivers to the original inbox.
+with JS on (inline success), then again with DevTools blocking `fetch` (JS
+otherwise on, so Turnstile still renders and the form falls back to a native
+POST — should land on `/app-support/thanks/`; Turnstile needs JS to render, so
+a genuinely JS-off submit will always 403), confirm the message reaches the
+NEW inbox with a working Reply-To, and confirm `/contact` still delivers to
+the original inbox.
 
 ## Follow-ups after it ships
 
