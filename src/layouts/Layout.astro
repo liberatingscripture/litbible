@@ -5,6 +5,7 @@ import interLatin400Url from "@fontsource/inter/files/inter-latin-400-normal.wof
 import crimsonLatin600Url from "@fontsource/crimson-text/files/crimson-text-latin-600-normal.woff2";
 import SiteFooter from "../components/SiteFooter.astro";
 import AppsLaunchPopover from "../components/AppsLaunchPopover.astro";
+import AppInstallBanner from "../components/AppInstallBanner.astro";
 
 const {
   title = "Liberation and Inclusion Translation",
@@ -121,6 +122,7 @@ const criticalCSS = `html,body{margin:0;padding:0}html{scrollbar-gutter:stable}b
 
   <body class={`bg-${bg}`} data-pagefind-ignore={pagefindIndex ? undefined : true}>
     <a href="#main-content" class="skip-link">Skip to content</a>
+    <AppInstallBanner />
     <SiteHeader class={headerClass} />
 
     <main id="main-content" data-pagefind-body={pagefindIndex ? true : undefined}>

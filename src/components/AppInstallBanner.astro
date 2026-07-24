@@ -1,0 +1,136 @@
+---
+/**
+ * App-install banner — a slim, dismissible bar at the very top of every page
+ * that offers the LIT Bible app to mobile visitors: Google Play on Android,
+ * the App Store on iOS. Desktop never sees it, and it stays gone once
+ * dismissed (remembered in localStorage).
+ *
+ * It ships HIDDEN and is revealed by an inline script only on the matching
+ * mobile platform, so desktop/other visitors see nothing and there's no
+ * layout flash. With JS off it never appears (the /apps page and footer still
+ * link to the apps) — a pure progressive enhancement.
+ *
+ * Styling uses the site's own global tokens (--surface-raised, --text,
+ * --green-deep, --ink-rgb), which already flip for light/dark via global.css,
+ * so the banner is theme-correct with no dark-mode rules of its own.
+ */
+---
+
+<aside id="lit-app-banner" class="litab" hidden aria-label="Get the LIT Bible app">
+  <div class="litab__inner">
+    <img id="litab-icon" class="litab__icon" src="/images/lit-app-icon-ios.webp" alt="" width="44" height="44" decoding="async" />
+    <div class="litab__txt">
+      <strong>LIT Bible</strong>
+      <span>Free. No account, no ads.</span>
+    </div>
+    <a id="litab-cta" class="litab__cta" href="https://apps.apple.com/app/id6772577879" rel="external noopener">Get app</a>
+    <button class="litab__x" type="button" aria-label="Dismiss">&times;</button>
+  </div>
+</aside>
+
+<script is:inline>
+  (function () {
+    var KEY = "lit_app_banner_dismissed";
+    try { if (localStorage.getItem(KEY) === "1") return; } catch (e) {}
+    var ua = navigator.userAgent || "";
+    var isAndroid = /Android/i.test(ua);
+    // iPadOS 13+ reports as "Macintosh"; distinguish it by touch support.
+    var isIOS = !isAndroid &&
+      (/iPad|iPhone|iPod/i.test(ua) || (/Macintosh/i.test(ua) && "ontouchend" in document));
+    if (!isAndroid && !isIOS) return;
+
+    var b = document.getElementById("lit-app-banner");
+    if (!b) return;
+    var icon = document.getElementById("litab-icon");
+    var cta = document.getElementById("litab-cta");
+
+    if (isAndroid) {
+      b.setAttribute("data-platform", "android");
+      icon.src = "/images/lit-app-icon.svg";
+      cta.href = "https://play.google.com/store/apps/details?id=com.litbible.app&pcampaignid=web_share";
+    } else {
+      b.setAttribute("data-platform", "ios");
+      icon.src = "/images/lit-app-icon-ios.webp";
+      cta.href = "https://apps.apple.com/app/id6772577879";
+    }
+
+    b.hidden = false;
+    b.querySelector(".litab__x").addEventListener("click", function () {
+      b.hidden = true;
+      try { localStorage.setItem(KEY, "1"); } catch (e) {}
+    });
+  })();
+</script>
+
+<style>
+  .litab {
+    background: var(--surface-raised);
+    border-bottom: 1px solid rgba(var(--ink-rgb), 0.12);
+    font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  .litab__inner {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 8px 14px;
+  }
+  .litab__icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    flex: none;
+    box-sizing: border-box;
+  }
+  /* The Android mark arrives on transparency and washes out on a light
+     surface, so it wears the same ink tile it has on-device (matches AppIcons). */
+  .litab[data-platform="android"] .litab__icon {
+    background: #1b2318;
+    padding: 5px;
+  }
+  .litab__txt {
+    flex: 1;
+    min-width: 0;
+    line-height: 1.25;
+  }
+  .litab__txt strong {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .litab__txt span {
+    display: block;
+    font-size: 12px;
+    color: rgba(var(--ink-rgb), 0.66);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .litab__cta {
+    flex: none;
+    background: var(--green-deep);
+    color: #fff;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 16px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+  .litab__cta:active {
+    opacity: 0.9;
+  }
+  .litab__x {
+    flex: none;
+    background: none;
+    border: 0;
+    color: rgba(var(--ink-rgb), 0.5);
+    font-size: 22px;
+    line-height: 1;
+    padding: 6px 8px;
+    min-width: 40px;
+    cursor: pointer;
+  }
+</style>
