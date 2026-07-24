@@ -1,7 +1,8 @@
 ---
-// Landing page for the contact-form Worker's no-JS success redirect
-// (workers/contact-form/ 303s native POSTs here). JS-enabled submits show an
-// inline status message on /contact instead and never see this page.
+// Landing page for the contact-form Worker's native-POST success redirect
+// (workers/contact-form/ 303s native POSTs here — the fallback when fetch is
+// blocked). JS-enabled fetch submits show an inline status message on
+// /contact instead and never see this page.
 import Layout from "../../layouts/Layout.astro";
 import "../../styles/pages/contact.css";
 ---

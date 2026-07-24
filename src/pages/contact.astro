@@ -29,9 +29,11 @@ import "../styles/pages/contact.css";
         />
 
         {/* Posts to the contact-form Worker (workers/contact-form/), which
-            verifies the Turnstile token server-side and delivers the message
-            via Cloudflare Email Routing. A native no-JS POST works too: the
-            Worker 303-redirects to /contact/thanks/. */}
+            verifies the Turnstile token server-side and delivers via
+            Cloudflare Email Routing. The form also degrades to a native
+            POST (e.g. if fetch is blocked); Turnstile still requires JS to
+            render, so a truly JS-less visitor can't pass the check. The
+            Worker 303-redirects to /contact/thanks/ on success. */}
         <form
           class="contact-form"
           action="/contact/submit"

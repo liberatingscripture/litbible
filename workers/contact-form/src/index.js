@@ -26,9 +26,12 @@
  * Two client paths, mirroring the old Formspree behavior:
  *   - The page's fetch() submit sends `Accept: application/json` and gets a
  *     JSON verdict ({ ok: true } or { ok: false, error }).
- *   - A native no-JS POST gets a 303 redirect to the route's thanks page on
+ *   - A native POST (the form's fallback when JS is available but fetch
+ *     fails or is blocked) gets a 303 redirect to the route's thanks page on
  *     success, or a small self-contained HTML error page (a static site
  *     can't render per-request errors, so the Worker carries its own).
+ *     Turnstile still requires JS to render, so this path can't help a
+ *     genuinely JS-less visitor pass the check.
  *
  * The `_gotcha` honeypot is honored server-side too: a filled honeypot
  * "succeeds" without sending anything, same as the client-side check.
@@ -258,14 +261,15 @@ async function verifyTurnstile(secret, token, request) {
 const seeOther = (url) =>
   new Response(null, { status: 303, headers: { Location: url.href } });
 
-// Minimal branded error page for the no-JS path. Matches the site's cream/ink
-// palette; self-contained because the Worker can't reach into the static site.
+// Minimal branded error page for the native-POST path. Matches the site's
+// cream/ink palette; self-contained because the Worker can't reach into the
+// static site.
 // `backPath` returns the reader to the form they came from (/contact/ or
 // /app-support/).
 function errorPage(status, error, backPath = "/contact/") {
   const detail =
     error === "turnstile"
-      ? "The security check could not be verified. Please go back, complete the checkbox again, and resend."
+      ? "The security check could not be verified. Please go back, complete it again if it is shown, and resend. (The check requires JavaScript.)"
       : error === "missing-fields"
         ? "Please go back and fill in your name, a valid email address, and a message."
         : error === "rate-limited"

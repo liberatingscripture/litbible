@@ -80,6 +80,51 @@ const { class: className = "" } = Astro.props;
     </div>
   </div>
 
+  <!-- No-JS navigation fallback. Under 1100px the real nav collapses to the
+       JS-only overlay, whose toggle does nothing without JS. Render a plain
+       nav row (only shown < 1101px, where .site-nav is hidden) and hide the
+       JS-only toggles. Mirrors SiteFooter's noscript pattern: <style is:inline>
+       with global selectors, since the styled elements are Astro-scoped.
+       Keep this link list in sync with the desktop nav above. -->
+  <noscript>
+    <style is:inline>
+      /* JS-only controls do nothing without JS — hide both toggles at every
+         width. !important beats the scoped display rules on these buttons. */
+      .site-header__menu-toggle,
+      .site-header__font-toggle { display: none !important; }
+      /* Fallback nav: only under 1101px, where the real .site-nav is hidden.
+         On desktop the real nav works without JS, so keep the fallback out. */
+      .site-header__noscript-nav {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.15rem 0.4rem;
+        padding: 0.4rem var(--gutter) 0.7rem;
+        border-top: 1px solid var(--border);
+      }
+      .site-header__noscript-nav a {
+        font-family: Inter, sans-serif;
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: var(--text);
+        text-decoration: none;
+        padding: 0.3rem 0.5rem;
+        border-radius: 8px;
+      }
+      @media (min-width: 1101px) {
+        .site-header__noscript-nav { display: none; }
+      }
+    </style>
+    <nav class="site-header__noscript-nav" aria-label="Primary">
+      <a href="/about">About</a>
+      <a href="/translation-commitments">Commitments</a>
+      <a href="/glossary">Glossary</a>
+      <a href="/found-in-translation-podcast">Podcast</a>
+      <a href="/articles">Articles</a>
+      <a href="/read">Read Now</a>
+    </nav>
+  </noscript>
+
   <!-- Shared tray — position: fixed, positioned by JS below whichever button opened it -->
   <div class="font-tray" id="fontTray" hidden role="dialog" aria-labelledby="fontTrayHeading">
     <div class="font-tray__header">
@@ -152,12 +197,30 @@ const { class: className = "" } = Astro.props;
 
       let lastActive = null;
 
+      // Background regions to remove from the tab order and a11y tree while
+      // the dialog is open. Deliberately excludes .site-header__inner (the
+      // menu toggle that closes the dialog lives inside it, and there's no
+      // in-panel close button) — the existing Tab-cycle handler below keeps
+      // keyboard focus off the rest of the still-live header instead. inert
+      // covers everything outside the header; the manual trap covers the
+      // header itself. The AppsLaunchPopover <dialog> and the font tray
+      // (hidden until opened) need no handling — both are already out of the
+      // tab order/a11y tree when closed.
+      const bgRegions = [
+        document.querySelector(".skip-link"),
+        document.getElementById("main-content"),
+        document.querySelector(".site-footer"),
+        document.querySelector(".footer-license-band"),
+      ].filter(Boolean);
+
       const setOpenState = (open) => {
         overlay.classList.toggle("is-open", open);
         overlay.setAttribute("aria-hidden", open ? "false" : "true");
 
         toggle.setAttribute("aria-expanded", open ? "true" : "false");
         toggle.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+
+        for (const el of bgRegions) el.inert = open;
 
         // Defer scroll-lock to the next frame so the paint of the visual
         // open/close state isn't blocked by a full layout recalculation

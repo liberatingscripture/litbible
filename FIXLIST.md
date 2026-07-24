@@ -666,6 +666,55 @@ delete it.
   token when Turnstile is unavailable — by this finding that path silently fails
   while showing success; worth a follow-up if `/courses` is ever revived.
 
+### Ported from the liberatingscripture.github.io FIXLIST (2026-07-23)
+
+The sibling `liberatingscripture.github.io` (LSC) repo's audit was built mostly
+by porting *from* litbible, but its 2026-07-18 audit surfaced a few original
+findings that turned out to apply here too. Source: LSC's `FIXLIST.md`, items
+S9, O9, and O8.
+
+- [x] **(O13) Stop overstating the no-JS contact path (= LSC's S9).**
+  DONE 2026-07-23: Cloudflare Turnstile can't render without JS, so a
+  genuinely JS-less visitor can never obtain a token and a true no-JS POST
+  always fails the Worker's server-side check with a 403 — the native-POST
+  path's real value is resilience when JS is on but `fetch` fails or is
+  blocked. Reworded the misleading "a native no-JS POST works too" claim (and
+  its variants) in `src/pages/contact.astro`, `src/pages/app-support.astro`,
+  the docblock in `workers/contact-form/src/index.js`, the errorPage
+  Turnstile-branch string (`workers/contact-form/src/index.js` ~line 271, now
+  "…complete it again if it is shown, and resend. (The check requires
+  JavaScript.)"), both `contact/thanks.astro` / `app-support/thanks.astro`
+  header comments, the smoke-test step in `workers/contact-form/README.md`,
+  and the contact-form bullet in `CLAUDE.md`. Copy/comments only, no behavior
+  change; the live errorPage string updates only after the next
+  `wrangler deploy`.
+- [x] **(O14) No-JS navigation fallback in the header (= LSC's O9).**
+  DONE 2026-07-23: under litbible's 1100px breakpoint the desktop `.site-nav`
+  is `display:none` and the hamburger menu is JS-only, so a phone visitor with
+  JS off had no working header navigation (the footer nav still worked, so
+  they weren't fully stranded, but this broke CLAUDE.md's "everything must
+  degrade gracefully without JS" invariant). Added a `<noscript>` block to
+  `src/components/SiteHeader.astro` (mirroring the existing SiteFooter
+  no-JS pattern: global selectors in a `<style is:inline>`, since the
+  header's real elements are Astro-scoped) that hides both JS-only toggles at
+  every width and shows a plain nav row under 1101px with the same links as
+  the desktop nav plus Read Now.
+- [x] **(O15) Contain focus/AT in the mobile menu dialog (~ LSC's O8, adapted).**
+  DONE 2026-07-23: the mobile dialog already had `aria-modal="true"` and a
+  manual Tab focus-trap, but nothing removed the background content from the
+  accessibility tree, so a screen reader's virtual cursor could still wander
+  into it. Did NOT copy LSC's approach verbatim — LSC inerts its entire
+  header inner because its mobile panel has its own in-panel close button;
+  litbible's panel has none (the hamburger↔✕ toggle inside
+  `.site-header__inner` is the only close control), so inerting the inner
+  would have broken it. Instead, `setOpenState` in `SiteHeader.astro` now
+  toggles native `inert` on the true background regions only — `.skip-link`,
+  `#main-content`, `.site-footer`, `.footer-license-band` — while keeping
+  `.site-header__inner` live and keeping the existing manual Tab-trap to
+  contain keyboard focus within the still-live header. The `AppsLaunchPopover`
+  `<dialog>` and the font tray need no handling; both are already out of the
+  tab order/a11y tree when closed.
+
 ## Fable — one session each, owner in the loop
 
 - [x] **(F1) Self-host the contact form on Cloudflare (drop Formspree).**
