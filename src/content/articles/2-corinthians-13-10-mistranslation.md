@@ -12,7 +12,7 @@ tags:
     "weakness-as-power",
   ]
 featured: false
-heroImage: "/images/articles/inverted-chess.jpg"
+heroImage: "/images/articles/inverted-chess.webp"
 ---
 
 What book of the New Testament do you think of as the clearest discussion of cruciformity? Of the upside-down logic of God’s reign? Of pure, distilled liberation theology?

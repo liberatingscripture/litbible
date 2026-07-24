@@ -13,7 +13,7 @@ tags:
     "Syrophoenician Woman",
   ]
 featured: false
-heroImage: "/images/articles/banquet-table.png"
+heroImage: "/images/articles/banquet-table.webp"
 ---
 
 We all know that Christianity has a really poor track record of actually loving people, but for those of us who still have a connection with it, it’s because of, well, Jesus.

@@ -15,7 +15,7 @@ tags:
     "submission",
   ]
 featured: false
-heroImage: "/images/articles/sunrise-silhouette.jpeg"
+heroImage: "/images/articles/sunrise-silhouette.webp"
 ---
 
 I recently published my translation of 1 Timothy, and I thought to share it with a Facebook group about biblical egalitarianism (the idea that the Bible affirms interchangeable roles and equal value for men and women, with no divinely instituted hierarchy). The admins of the group are scholars, and they declined to approve my post, but not because they disagreed with my point. Instead, they pointed out more research I needed to do.

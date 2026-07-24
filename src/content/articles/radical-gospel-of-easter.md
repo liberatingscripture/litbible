@@ -18,7 +18,7 @@ tags:
     "self-preservation",
   ]
 featured: false
-heroImage: "/images/articles/abundant-harvest.png"
+heroImage: "/images/articles/abundant-harvest.webp"
 ---
 
 At Easter, we focus on life. Life being renewed. The plants waking up, animals being born, flowers blooming, the sun shining, and a new day dawning.

@@ -14,7 +14,7 @@ tags:
     "faith",
   ]
 featured: true
-heroImage: "/images/articles/geiser-stars.jpg"
+heroImage: "/images/articles/geiser-stars.webp"
 ---
 
 What does the Bible say to people living under tyranny and oppression? Should we fight back, passively resign ourselves to suffering, or hope only for the afterlife? Is there hope now, or is it only promised after we die? What encouragement does it offer to those who refuse to give up on a world dominated by harm and injustice? The calling is active and dynamic. Peacemaking, love, and faithfulness are anything but passive.

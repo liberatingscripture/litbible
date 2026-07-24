@@ -461,25 +461,33 @@ delete it.
 
 ### Added from the 2026-07-16 audit
 
-- [ ] **(O8) Image weight overhaul.**
-  The single biggest real-world performance problem found in the 2026-07-16
-  audit. `public/images/articles/` is 19 MB (`geiser-stars.jpg` 6.4 MB,
-  `jesus-and-pilate.jpg` 5.0 MB) and the article page emits
-  `<link rel="preload" as="image">` for its hero
-  (`articles/[...slug].astro`), so those bytes download at top priority.
-  `public/screenshots/` is 13 MB of ~0.7–1.1 MB phone PNGs feeding `/apps`
-  (its lazy-loading discipline is already correct — this is purely
-  format/size). `lit-logo.png` (148 KB) loads eagerly on EVERY page as a 48px
-  header logo; `lsc-logo-square.png` (332 KB) loads eagerly in the welcome
-  popover at ~104px; `gdj-frame-7313859.svg` is 924 KB. Fix: resize photos
-  and screenshots to ~2× their max display width and convert to WebP (sharp
-  is already a dependency via build:og), generate small logo variants for the
-  header/popover slots, run SVGO on the big SVG, and update every reference.
-  Do NOT touch `public/images/campaigns/` (referenced by already-sent
-  emails) or `public/og/` (generated). Acceptance: articles dir ≤ ~3 MB,
-  screenshots ≤ ~3 MB, no single page-loaded image over ~250 KB, visual
-  spot-check of /apps + two article heroes + header/popover logos in dev, and
-  `npm run build` + `npm run check:links` pass.
+- [x] **(O8) Image weight overhaul.**
+  DONE (2026-07-23): converted every `public/images/articles/*` (13 files) and
+  `public/screenshots/**/*` (15 files, incl. `carousel/`) from JPEG/PNG to
+  WebP via a throwaway `sharp` script — longest edge 1600px/q74 for article
+  heroes (also the OG/Twitter/JSON-LD image; accepted as WebP, no separate
+  JPEG), 1000–1300px/q80 for screenshots (crisp UI text). `public/images/
+  articles/` went 19 MB → 872 KB; `public/screenshots/` went 12.6 MB → 960 KB.
+  All 13 `heroImage:` frontmatter values + the 5 `seasons/` and 3 `callouts/`
+  `image:` values + `Hero.astro`/`BigScreens.astro` `src`/consts updated to
+  `.webp`. Added `public/images/lit-logo-96.webp` (96×96, ~4 KB) for the 48px
+  header logo slot in `SiteHeader.astro` (`lit-logo.png` stays, still needed
+  by the OG fallback and `build:og` source); the footer logo actually renders
+  up to 220px (not 48px as originally scoped), so it — plus `404.astro`,
+  `contact.astro`, `app-support.astro`, and both `thanks.astro` pages — was
+  repointed to the **existing** `lit-logo.webp` (1000px, 36 KB) instead of
+  the new tiny variant. SVGO (path-precision 0, safe since these render
+  ≤336px with CSS
+  grayscale/blend filters) took `gdj-frame-7313859.svg` 924 KB → 180 KB,
+  plus the two other commitment icons on the same page for free
+  (`schmidsi-holy-spirit-1412527.svg` 313 KB → 33 KB, `gdj-tree-7989436.svg`
+  99 KB → 39 KB). `lsc-logo-square.png` (332 KB) turned out to be dead
+  weight — only the retired, unimported `WelcomePopover.astro` references it,
+  not the active `AppsLaunchPopover`; left as-is, no load impact. Originals
+  moved (not deleted) to a new top-level, non-shipped `_source-images/`
+  (owner chose to archive, not delete). `public/images/campaigns/` and
+  `public/og/` untouched. `npm run build` + `check:links` + `check` pass;
+  visual spot-check in dev.
 
 - [x] **(O9) Unit tests for chapter-html.ts.**
   DONE (2026-07-16): added `test/chapter-html.test.js` — 25 tests using Node's

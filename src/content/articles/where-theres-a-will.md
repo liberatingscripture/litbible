@@ -5,7 +5,7 @@ author: Brandon C. Vélez Johnson
 description: There's something off in the translation of Mark 9:35. Why do most translations read 'must' instead of 'will'? It impacts how we see what Jesus is saying about serving others and Christlike leadership. Jesus aims for full inclusion and mutual support, rejecting ego-driven hierarchy.
 tags: ["Mark 9", "leadership", "liberation", "first", "last"]
 featured: false
-heroImage: "/images/articles/pexels-photo-7005502.png"
+heroImage: "/images/articles/pexels-photo-7005502.webp"
 ---
 
 As I was translating Mark 9 recently, I stumbled over a slight change that first had me scratching my head, then doubting myself. It propelled me to my Greek grammar textbook to double check my understanding of tenses.
