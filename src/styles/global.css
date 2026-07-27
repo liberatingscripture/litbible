@@ -1333,7 +1333,6 @@ a.footer-cta > span {
 .footer-inner {
   max-width: 1200px;
   margin: 0 auto;
-  position: relative;
   display: grid;
   grid-template-columns: 1fr 1fr;
   align-items: start;
@@ -1346,7 +1345,6 @@ a.footer-cta > span {
 
 .footer-left {
   grid-column: 1;
-  padding-right: 140px;
   justify-self: start;
 }
 
@@ -1451,33 +1449,11 @@ a.footer-cta > span {
 }
 
 /* =========================
-   Center logo
-   ========================= */
-
-.footer-center {
-  position: absolute;
-  left: 50%;
-  top: 0;
-  transform: translateX(-50%);
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  width: 220px;
-}
-
-.footer-center img {
-  display: block;
-}
-
-/* =========================
    Right area
    ========================= */
 
 .footer-right {
   grid-column: 2;
-  padding-left: 180px;
   justify-self: start;
 
   display: flex;
@@ -1521,62 +1497,34 @@ a.footer-cta > span {
 
 /* =========================
    Footer — Mid-width fix (tablet)
-   Put logo in normal flow so nothing gets shoved offscreen.
    ========================= */
 @media (max-width: 1248px) {
   .footer-inner {
-    /* keep two columns for left + right, and let logo take a full row */
-    position: static; /* stops absolute child math from breaking layout */
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    grid-template-areas:
-      "left right"
-      "center center";
+    grid-template-areas: "left right";
     row-gap: 2.5rem;
     column-gap: 2rem;
   }
 
   .footer-left {
     grid-area: left;
-    padding-right: 0; /* remove desktop “make room for logo” padding */
     min-width: 0;
   }
 
   .footer-right {
     grid-area: right;
-    padding-left: 0; /* remove desktop “make room for logo” padding */
     min-width: 0;
 
     /* your desktop centers everything; at mid widths that looks odd + wastes space */
     align-items: flex-start;
   }
-
-  .footer-center {
-    grid-area: center;
-
-    /* undo absolute centering */
-    position: static;
-    left: auto;
-    top: auto;
-    transform: none;
-
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .footer-center img {
-    max-width: min(220px, 55vw);
-    height: auto;
-  }
-
 }
 
 /* =========================
    Footer — Mobile layout fix
    Desktop unchanged.
    Mobile order:
-   CTA → left → logo → license
+   left → newsletter → license
    + Nav stays 2 columns
    + Social icons move below both columns
    + Headings stay above links
@@ -1595,21 +1543,16 @@ a.footer-cta > span {
     /* Mobile stacking order */
     grid-template-areas:
       "left"
-      "newsletter"
-      "center";
+      "newsletter";
 
     row-gap: 2.25rem;
     column-gap: 0;
-
-    /* The logo is absolute on desktop; on mobile we need normal flow */
-    position: static;
   }
 
   /* LEFT (nav) */
   .footer-left {
     grid-area: left;
     grid-column: auto;
-    padding-right: 0;
     justify-self: stretch;
   }
 
@@ -1653,32 +1596,9 @@ a.footer-cta > span {
     padding: 0;
   }
 
-  /* CENTER (logo) */
-  .footer-center {
-    grid-area: center;
-
-    /* Undo absolute centering */
-    position: static;
-    left: auto;
-    top: auto;
-    transform: none;
-
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .footer-center img {
-    max-width: min(220px, 70vw);
-    height: auto;
-    margin: 0 auto;
-  }
-
   /* RIGHT wrapper — normal block on mobile, sits in newsletter grid area */
   .footer-right {
     grid-area: newsletter;
-    padding-left: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -1872,13 +1792,28 @@ a.footer-cta > span {
   padding: 1.25rem 2rem;
 }
 
-.footer-license-band__text {
+/* The site mark signs off beside the license line, rather than sitting as a
+   centerpiece above the columns — see the note in SiteFooter.astro. */
+.footer-license-band__inner {
   max-width: 1200px;
   margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.875rem;
+}
+
+.footer-license-band__mark {
+  flex-shrink: 0;
+  display: block;
+}
+
+.footer-license-band__text {
+  margin: 0;
   font-size: 0.875rem;
   line-height: 1.5;
   color: var(--text);
-  text-align: center;
+  text-align: left;
 }
 
 .footer-license-band__text a {
@@ -1896,8 +1831,12 @@ a.footer-cta > span {
     padding: 1rem 1.25rem;
   }
 
-  .footer-license-band__text {
-    text-align: left;
+  /* Narrow enough that the mark + text lockup would squeeze the text into a
+     thin column, so stack and left-align them. */
+  .footer-license-band__inner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
   }
 }
 

@@ -111,15 +111,6 @@ const { hideNewsletter = false } = Astro.props;
       </nav>
     </div>
 
-    <div class="footer-center" aria-label="Site logo">
-      <img
-        src="/images/lit-logo-2026-ring.svg"
-        alt="Liberation and Inclusion Translation logo"
-        width="220"
-        height="220"
-      />
-    </div>
-
     <div class="footer-right">
       {!hideNewsletter && (
       <section
@@ -253,19 +244,34 @@ const { hideNewsletter = false } = Astro.props;
   </div>
 </footer>
 
-{/* License subfooter — full-width band, outside <footer> */}
+{/* License subfooter — full-width band, outside <footer>. The site mark signs
+    off here rather than sitting as a centerpiece above: the footer surface is
+    --surface-raised, the same color as the emblem's own disc, so a large mark
+    reads as a bare green ring. alt="" because it's decorative — the header
+    carries the named logo, and the text beside it already names the work. */}
 <div class="footer-license-band">
-  <p class="footer-license-band__text">
-    The <strong>Liberation and Inclusion Translation of the Bible (LIT)</strong
-    >™ © 2024 by Brandon C. Vélez&nbsp;Johnson is licensed under
-    <a
-      href="https://creativecommons.org/licenses/by-nc-nd/4.0/"
-      rel="license noopener noreferrer"
-      target="_blank"
-    >
-      CC BY-NC-ND 4.0
-    </a>
-  </p>
+  <div class="footer-license-band__inner">
+    <img
+      class="footer-license-band__mark"
+      src="/images/lit-logo-2026-ring.svg"
+      alt=""
+      width="44"
+      height="44"
+      loading="lazy"
+      decoding="async"
+    />
+    <p class="footer-license-band__text">
+      The <strong>Liberation and Inclusion Translation of the Bible (LIT)</strong
+      >™ © 2024 by Brandon C. Vélez&nbsp;Johnson is licensed under
+      <a
+        href="https://creativecommons.org/licenses/by-nc-nd/4.0/"
+        rel="license noopener noreferrer"
+        target="_blank"
+      >
+        CC BY-NC-ND 4.0
+      </a>
+    </p>
+  </div>
 </div>
 
 {/* Newsletter submit. Turnstile is lazy-loaded on first interaction with the
