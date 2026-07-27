@@ -12,8 +12,9 @@
  * Design (owner-approved 2026-07-09, FIXLIST F3; reworked 2026-07-19 for
  * legibility when the card is scaled down to a phone-sized link preview).
  * One full-card composition on an ink field, so nothing floats in dead space:
- *   - Top-left brand lockup: the real logo (public/images/lit-logo.png) in a
- *     brand-green ring, with the wordmark line (Inter) beside it.
+ *   - Top-left brand lockup: the ringed site logo
+ *     (public/images/lit-logo-2026-ring.svg — the asset carries its own
+ *     brand-green band), with the wordmark line (Inter) beside it.
  *   - Hero reference in Fraunces (display cut, opsz 144), shrunk to fit the
  *     full card width, so short refs ("John 3") render large and the longest
  *     ("2 Thessalonians 3") still fills the line.
@@ -125,19 +126,23 @@ function width(font, text, size) {
 }
 
 /**
- * The emblem is the real logo (public/images/lit-logo.png — dark-green disc
- * with the white globe/flame/laurels/book line-art), composited by sharp
- * into the green ring after the SVG rasterizes. Sits in the top-left brand
- * lockup; the diameter leaves a small gap inside the ring stroke.
+ * The emblem is the ringed variant of the site logo
+ * (public/images/lit-logo-2026-ring.svg), composited by sharp after the SVG
+ * rasterizes. The card no longer draws a ring of its own — the asset carries
+ * the brand-green band itself, so `d` is the full outer diameter (the old
+ * geometry was a 104px mark inside a separate r60/6px stroke, outer 126) and
+ * `r` is that outer radius, used only to place the wordmark beside it.
  */
-const EMBLEM = { cx: 150, cy: 116, r: 60, d: 104 };
+const EMBLEM = { cx: 150, cy: 116, r: 63, d: 126 };
 
 const logoBuffers = new Map();
 function logoAt(d) {
   if (!logoBuffers.has(d)) {
     logoBuffers.set(
       d,
-      sharp(path.join(ROOT, "public", "images", "lit-logo.png"))
+      sharp(path.join(ROOT, "public", "images", "lit-logo-2026-ring.svg"), {
+        density: 600,
+      })
         .resize(d, d)
         .png()
         .toBuffer(),
@@ -157,11 +162,10 @@ function cardSVG(label, suffix, suffixFill) {
   const shared = `<rect width="${WIDTH}" height="${HEIGHT}" fill="${INK}"/>`;
   const e = EMBLEM;
 
-  // Top-left brand lockup: emblem ring + wordmark, vertically centered on
-  // the emblem so it reads as one unit.
-  const wordmarkX = e.cx + e.r + 26;
-  const lockup = `<circle cx="${e.cx}" cy="${e.cy}" r="${e.r}" fill="none" stroke="${GREEN}" stroke-width="6"/>
-${textPath(inter, WORDMARK, wordmarkX, 131, 44, `fill="${CREAM}"`)}`;
+  // Top-left brand lockup: wordmark beside the emblem (composited later),
+  // vertically centered on it so the two read as one unit.
+  const wordmarkX = e.cx + e.r + 23;
+  const lockup = textPath(inter, WORDMARK, wordmarkX, 131, 44, `fill="${CREAM}"`);
 
   // Footer, bottom-right — anchors the corner opposite the lockup.
   const siteW = width(inter, SITE, 42);

@@ -42,6 +42,7 @@ npm run dev        # start the dev server at http://localhost:4321
 | `npm run fix:chapters` | Auto-fix chapter JSON formatting |
 | `npm test` | Run the unit test suite |
 | `npm run check:links` | Verify every internal link in a production build resolves |
+| `npm run build:favicons` | Regenerate the favicon and app-icon set from the emblem SVGs (only needed when the logo changes) |
 
 The production build runs in stages: refresh the podcast feed → generate topic
 indexes → generate the verse search index → generate the mobile-app manifest →
