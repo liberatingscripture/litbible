@@ -1042,7 +1042,23 @@ S9, O9, and O8.
   the breaking Astro 7 upgrade. Exposure is the LOCAL dev server, not the
   shipped site, so this is not urgent — but decide when to schedule the
   upgrade (an Opus item once decided; 7.1.0 is current as of 2026-07-16).
-- [ ] **Confirm the Apple Pay domain file is still needed.**
+- [x] **Confirm the Apple Pay domain file is still needed.**
+  KEEP (2026-07-27). The item said to delete it "if the integration that
+  required it is gone" — it is not gone, so the file stays. Evidence:
+  (1) `src/pages/support.astro:21` still loads the GiveLively donation widget
+  from `secure.givelively.org`, and `:121` still renders its mount div;
+  (2) the commit that added the file, `c741a05`, is titled "add Apple Pay
+  domain association file for GiveLively"; (3) the file decodes (hex → JSON) to
+  a valid Apple Pay merchant domain association — `pspId`, `version: 1`,
+  `createdOn` 2024-05-08, and a 4418-char PKCS#7 signature. Note the format
+  carries **no expiry field**, so it cannot go stale in the repo on its own;
+  validity lives in Apple's certificate and the PSP-side registration. Deleting
+  it would break Apple Pay in the donate flow and re-verification needs
+  dashboard access, so the asymmetry favors keeping an inert public token.
+  Residual (owner-only, not blocking): nobody has confirmed Apple Pay still
+  *appears* in the GiveLively checkout. Open /support in Safari on an Apple
+  device and look. That is the same unexercised payment step F2 flagged for its
+  report-only CSP origins, so both could be checked in one pass.
   `public/.well-known/apple-developer-merchantid-domain-association` —
   presumably GiveLively's Apple Pay verification. Confirm it's intentional
   and current; delete it if the integration that required it is gone.
