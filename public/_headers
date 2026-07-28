@@ -20,10 +20,18 @@
   #    forgets _headers exists" is likelier than the threat it stops on a
   #    static no-login site). 'unsafe-inline' covers Astro's is:inline scripts
   #    (JSON-LD data blocks are exempt). *.sibforms.com doesn't match the bare
-  #    apex, hence both entries. The GiveLively payment step (Stripe/PayPal
+  #    apex, hence both entries. sibforms is deliberately NOT in script-src:
+  #    no page loads Brevo's main.js (SiteFooter.astro's docblock explains why),
+  #    so Brevo is a fetch/POST target only — connect-src + form-action, never
+  #    a script origin. cloudflareinsights is the Web Analytics RUM beacon:
+  #    Cloudflare EDGE-INJECTS it, so it appears in no source file here, and it
+  #    is skipped for non-browser user agents — a plain `curl` of the homepage
+  #    shows no beacon and looks broken. Verify with a browser UA before
+  #    concluding it is missing (a 2026-07-16 audit and a 2026-07-27 recheck
+  #    both drew the wrong conclusion this way). The GiveLively payment step (Stripe/PayPal
   #    card fields) was never exercised with a console open, so its origins
   #    may be missing here — harmless in report-only.
-  Content-Security-Policy-Report-Only: default-src 'self'; script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://sibforms.com https://*.sibforms.com https://secure.givelively.org; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://secure.givelively.org; font-src 'self'; connect-src 'self' https://sibforms.com https://*.sibforms.com https://secure.givelively.org; frame-src https://challenges.cloudflare.com https://embed.podcasts.apple.com https://www.youtube.com https://open.spotify.com https://secure.givelively.org; media-src 'self'
+  Content-Security-Policy-Report-Only: default-src 'self'; script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://static.cloudflareinsights.com https://secure.givelively.org; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://secure.givelively.org; font-src 'self'; connect-src 'self' https://sibforms.com https://*.sibforms.com https://cloudflareinsights.com https://secure.givelively.org; frame-src https://challenges.cloudflare.com https://embed.podcasts.apple.com https://www.youtube.com https://open.spotify.com https://secure.givelively.org; media-src 'self'
   # Agent discovery (RFC 8288) — advertise the API catalog and machine-readable docs.
   Link: </.well-known/api-catalog>; rel="api-catalog"; type="application/linkset+json"
   Link: </llms-full.txt>; rel="service-doc"; type="text/plain"

@@ -977,8 +977,31 @@ S9, O9, and O8.
   accurate. **HSTS is on** — already recorded in F2's DONE note (6-month
   max-age, no subdomains, no preload); this line was stale. HSTS was also
   confirmed on the live site by the 2026-07-16 audit (`max-age=15552000`).
-- [ ] **Web Analytics follow-up: enabled in the dashboard, but no beacon in
-  the served HTML.** The 2026-07-16 audit fetched the live homepage and found
+- [x] **Web Analytics follow-up: enabled in the dashboard, but no beacon in
+  the served HTML.**
+  CLOSED (2026-07-27) — **the premise was a measurement artifact; Web Analytics
+  works and always did.** The owner produced a dashboard screenshot showing Web
+  Analytics for litbible.net with 34 visits / 44 page views in 24h and
+  **populated Core Web Vitals (LCP/INP/CLS)**. CWV is decisive: it can ONLY come
+  from the RUM beacon, since edge/Traffic analytics cannot measure it.
+  **Root cause of the false finding:** Cloudflare **edge-injects** the beacon
+  (so it is in no source file in this repo) and **skips injection for
+  non-browser user agents**. A plain `curl` therefore gets a beacon-free page.
+  Proven by controlled fetch: same URL, curl UA → 48,366 bytes, no beacon;
+  browser UA → 48,725 bytes, and the 359-byte delta is exactly the
+  `static.cloudflareinsights.com/beacon.min.js` tag with its `data-cf-beacon`
+  token. Both the 2026-07-16 audit and a 2026-07-27 recheck fell into this.
+  **Lesson worth keeping:** never conclude an edge-injected script is missing
+  from a non-browser fetch. `public/_headers` now carries a comment saying so.
+  **The CSP half WAS real and is fixed in the same change:** the beacon has been
+  loading in production while absent from the report-only allowlist, so it was
+  logging violations on every page view and the allowlist under-claimed. Added
+  `https://static.cloudflareinsights.com` to `script-src` and
+  `https://cloudflareinsights.com` to `connect-src`.
+  Also note `privacy.astro`'s Cloudflare Web Analytics disclosure is accurate as
+  written; no change needed there.
+  Original item text below.
+  The 2026-07-16 audit fetched the live homepage and found
   NO `static.cloudflareinsights.com` / `beacon.min.js` snippet — Web
   Analytics measures nothing without its client-side beacon, so "enabled"
   and "collecting" currently disagree (both can be true: enrolled, but JS
@@ -999,7 +1022,8 @@ S9, O9, and O8.
 
 ### Added from the 2026-07-16 audit
 
-- [ ] **Enable native Dependabot security alerts (no version-update PRs).**
+- [x] **Enable native Dependabot security alerts (no version-update PRs).**
+  DONE (2026-07-27): owner enabled Dependabot alerts in the repo settings.
   Repo Settings → Security → Dependabot alerts. Surfaces known
   vulnerabilities (email/GitHub notification) with zero recurring owner
   effort — no `dependabot.yml`, no weekly version-bump PRs to review/merge.
@@ -1009,7 +1033,24 @@ S9, O9, and O8.
   `npm audit`" gap with the least ongoing owner overhead. One-time toggle,
   no code change.
 
-- [ ] **Newsletter email compliance (CAN-SPAM).** The committed campaign
+- [x] **Newsletter email compliance (CAN-SPAM).**
+  CLOSED (2026-07-27, owner decision): that campaign was the FIRST newsletter,
+  sent while the process was still being worked out, and the owner is not
+  concerned about it retroactively. The Brevo-footer question below was
+  therefore not chased. Future campaigns are expected to carry the required
+  footer.
+  **Why this can't recur (owner, same day):** subsequent newsletters are
+  authored **in Brevo's editor, not in this repo**. Brevo's editor supplies the
+  unsubscribe link and the campaign footer itself, so the compliance gap was
+  specific to that one hand-built HTML campaign. `emails/pentecost-2026.html` is
+  therefore an **archive of a one-off**, not a template anyone should copy — it
+  is the only file in `emails/` and it does end in raw markup with no
+  unsubscribe link and no postal address (verified 2026-07-27), which is exactly
+  why it shouldn't be treated as a starting point. CLAUDE.md's `emails/` line
+  was corrected to say so. The two copy nits below are recorded for the record
+  only; they don't apply to Brevo-authored sends.
+  Original item text below.
+  The committed campaign
   template `emails/pentecost-2026.html` ends with a copyright line only — no
   unsubscribe link and no physical postal address, both legally required in
   marketing email. Verify in the Brevo dashboard whether Brevo appends its
@@ -1024,7 +1065,23 @@ S9, O9, and O8.
   the breaking Astro 7 upgrade. Exposure is the LOCAL dev server, not the
   shipped site, so this is not urgent — but decide when to schedule the
   upgrade (an Opus item once decided; 7.1.0 is current as of 2026-07-16).
-- [ ] **Confirm the Apple Pay domain file is still needed.**
+- [x] **Confirm the Apple Pay domain file is still needed.**
+  KEEP (2026-07-27). The item said to delete it "if the integration that
+  required it is gone" — it is not gone, so the file stays. Evidence:
+  (1) `src/pages/support.astro:21` still loads the GiveLively donation widget
+  from `secure.givelively.org`, and `:121` still renders its mount div;
+  (2) the commit that added the file, `c741a05`, is titled "add Apple Pay
+  domain association file for GiveLively"; (3) the file decodes (hex → JSON) to
+  a valid Apple Pay merchant domain association — `pspId`, `version: 1`,
+  `createdOn` 2024-05-08, and a 4418-char PKCS#7 signature. Note the format
+  carries **no expiry field**, so it cannot go stale in the repo on its own;
+  validity lives in Apple's certificate and the PSP-side registration. Deleting
+  it would break Apple Pay in the donate flow and re-verification needs
+  dashboard access, so the asymmetry favors keeping an inert public token.
+  Residual (owner-only, not blocking): nobody has confirmed Apple Pay still
+  *appears* in the GiveLively checkout. Open /support in Safari on an Apple
+  device and look. That is the same unexercised payment step F2 flagged for its
+  report-only CSP origins, so both could be checked in one pass.
   `public/.well-known/apple-developer-merchantid-domain-association` —
   presumably GiveLively's Apple Pay verification. Confirm it's intentional
   and current; delete it if the integration that required it is gone.

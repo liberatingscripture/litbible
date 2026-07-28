@@ -158,7 +158,12 @@ public/              # Static assets + generated output (api/, og/, search/,
 _source-images/      # Pre-WebP originals for public/images/articles/ and
                      #   public/screenshots/, archived (not shipped — outside
                      #   public/) for future re-editing; see its README
-emails/              # Standalone HTML email templates (not part of the site build)
+emails/              # Archive of hand-built HTML campaigns (not part of the site
+                     #   build, and NOT a template source). Newsletters are
+                     #   authored in Brevo's editor, which supplies the
+                     #   unsubscribe link + footer; don't build the next one by
+                     #   copying the file here, which predates that and has
+                     #   neither
 workers/             # Cloudflare Workers, deployed separately via wrangler (NOT
                      #   part of the site build): contact-form/ backs both the
                      #   /contact/submit and /app-support/submit form endpoints
