@@ -6,7 +6,9 @@
       "Bash(node scripts/build-api-manifest.mjs)",
       "Bash(node -e ' *)",
       "Bash(npm ci *)",
-      "Bash(npm run *)"
+      "Bash(npm run *)",
+      "Bash(gh pr *)",
+      "Bash(npm audit *)"
     ]
   }
 }
