@@ -808,6 +808,11 @@
   background: var(--green);
   color: var(--white);
   padding: clamp(44px, 7vw, 84px) 0 clamp(56px, 8vw, 96px);
+  /* --green is theme-invariant, so the LSC dove mark in the fourth card pins
+     its own disc/dove pair rather than inheriting the page's — otherwise it
+     would flip to a light disc in dark mode on a band that never got darker. */
+  --lsc-mark-disc: #1D231C;
+  --lsc-mark-bird: #FAFAF8;
 }
 
 .questions-block__inner {
@@ -859,6 +864,14 @@
   height: 100%;
   object-fit: cover; /* crop, don’t distort */
   object-position: center;
+}
+
+/* The LSC dove mark isn't a photo — it's a coin whose disc already opposes the
+   surface, so it fills the square rather than being cropped into it, and the
+   card shows through at the corners. */
+.question-card__media--mark .lsc-mark {
+  width: 100%;
+  height: 100%;
 }
 
 /* H3 question */

@@ -1,0 +1,64 @@
+---
+/**
+ * The LSC dove mark, inline.
+ *
+ * Inline SVG rather than <img src="...">, because an externally-referenced SVG
+ * is its own document and cannot read the page's CSS custom properties — and
+ * reading them is the entire point. The two colors come from --lsc-mark-disc /
+ * --lsc-mark-bird, which flip with the theme in global.css, so one component
+ * covers every surface.
+ *
+ * The treatment is an inverted coin: the disc opposes the surface, the dove
+ * opposes the disc. A surface that is a fixed darkness in BOTH themes would need
+ * to pin its own pair locally so it doesn't flip when the rest of the page does;
+ * none of this site's three LSC placements is one.
+ *
+ * Geometry lives in src/lib/lsc-mark.mjs. Mirrored from
+ * liberatingscripture.org's repo, which owns the mark — keep the two in step.
+ */
+import { BOX, DOVE_PATHS, artTransform } from "../lib/lsc-mark.mjs";
+
+interface Props {
+  /** Edge length, in px. */
+  size?: number;
+  class?: string;
+  /**
+   * Accessible name. Omit for decorative uses (adjacent text already names the
+   * org); supply it where the mark is the only thing identifying the link.
+   */
+  title?: string;
+}
+
+const { size = 40, class: className, title } = Astro.props;
+const transform = artTransform();
+---
+
+<svg
+  class:list={["lsc-mark", className]}
+  viewBox={`0 0 ${BOX} ${BOX}`}
+  width={size}
+  height={size}
+  role={title ? "img" : undefined}
+  aria-hidden={title ? undefined : "true"}
+  focusable="false"
+>
+  {title && <title>{title}</title>}
+  <circle cx={BOX / 2} cy={BOX / 2} r={BOX / 2} fill="var(--lsc-mark-disc)" />
+  <g transform={transform}>
+    {DOVE_PATHS.map(d => (
+      <path
+        d={d}
+        fill="var(--lsc-mark-bird)"
+        stroke="var(--lsc-mark-bird)"
+        stroke-width="0.264583"
+      />
+    ))}
+  </g>
+</svg>
+
+<style>
+  .lsc-mark {
+    display: block;
+    flex-shrink: 0;
+  }
+</style>

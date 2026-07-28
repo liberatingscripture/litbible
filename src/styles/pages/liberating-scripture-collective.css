@@ -48,10 +48,13 @@
   filter: drop-shadow(0 12px 26px rgba(0, 0, 0, 0.18));
 }
 
+/* --lockup-size drives the NAME's type size as well, so it stays put; the mark
+   takes a fraction of it. The old art was a 3:2 landscape lockup that rendered
+   180×120 at full --lockup-size; the dove mark is square, so at that same width
+   it would stand half again as tall and overpower the name beside it. */
 .lsc-logo--hero {
   flex: 0 0 auto;
-  width: var(--lockup-size);
-  border-radius: 16px;
+  width: calc(var(--lockup-size) * 0.78);
 }
 
 .lsc-lockup__name {

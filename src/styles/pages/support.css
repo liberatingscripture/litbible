@@ -224,23 +224,13 @@
   white-space: nowrap;
 }
 
-/* Wrapper uses the SAME surface as the band so the logo’s
-   transparent pixels blend into the surrounding card. */
-/* --- Replace these two blocks in support.css --- */
-
-.support-band__logo-wrap {
-  display: block;
-  flex-shrink: 0;
-  width: var(--brand-size);
-
-  /* keep clean rounding */
-  border-radius: 10px;
-  overflow: hidden;
-}
-
+/* The dove mark carries its own disc, which opposes whatever surface it sits on
+   (see --lsc-mark-disc in global.css), so it needs no wrapper to sit against
+   the band. --brand-size also drives the name's type size beside it; the mark
+   takes a fraction of it so the square coin doesn't tower over the two lines. */
 .support-band__logo {
-  display: block;
-  width: 100%;
+  flex-shrink: 0;
+  width: calc(var(--brand-size) * 0.8);
   height: auto;
 }
 

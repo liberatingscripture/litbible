@@ -139,7 +139,8 @@ src/
                      #   / prepareReadParagraph; Study wraps each verse in a
                      #   data-verse span), draft-chapters.mjs (single source
                      #   for indexed:false draft data — used by astro.config.mjs
-                     #   and ReadMenu), fetchPodcastEpisodes.ts
+                     #   and ReadMenu), fetchPodcastEpisodes.ts,
+                     #   lsc-mark.mjs (see The LSC brand mark below)
   pages/             # File-based routes (see Routing below)
   scripts/           # CLIENT-side vanilla JS (chapter-tools, read-mode,
                      #   search-core + searchbar + search — see Search below)
@@ -348,6 +349,27 @@ collection); they're read directly by the intro pages and the API manifest.
   set drifts from the source the way the previous emblem's hand-vectorized
   `favicon.svg` drifted from its raster master. The retired emblem and its icon
   set are archived in `_source-images/retired-emblem-2024/`.
+- **The LSC brand mark is a different mark, mirrored from
+  liberatingscripture.org.** Don't confuse it with the site emblem above: that
+  one is LIT's, this one is the *organization's*. The Liberating Scripture
+  Collective's dove appears on three pages here —
+  `/liberating-scripture-collective` (hero lockup), `/support` (donate band),
+  and the home page's fourth question card — via `src/components/LscMark.astro`
+  + `src/lib/lsc-mark.mjs`, both copied verbatim from the LSC repo, which owns
+  the mark. **When it changes there, re-copy both files.** Nothing is generated
+  on this side; LSC's repo carries the build script for its favicon/OG forms,
+  and `build:favicons` here has nothing to do with it.
+  Both marks sit on a disc, but they solve the light/dark problem in opposite
+  ways, so don't cross the wires: the LIT emblem's disc is a *fixed* `#FAFAF8`
+  (hence the ringed variant, so it stays contained on near-white pages), while
+  the LSC dove's is an *inverted coin* — the disc opposes the surface and the
+  dove opposes the disc, driven by `--lsc-mark-disc` / `--lsc-mark-bird` in
+  `global.css` (declared in all three blocks, per the dual-mechanism rule
+  above). A surface that is a fixed darkness in **both** themes must pin its own
+  pair locally or the mark disappears into its own background in one theme —
+  `.questions-block` (a fixed `--green` band) does exactly that in `home.css`.
+  Inline SVG is load-bearing here: an `<img src>` to an external SVG can't read
+  these custom properties at all.
 - **Search is two engines behind three client modules** in `src/scripts/`:
   - *Scripture keyword search* scans `public/search/verses.json` (built by
     `build-verse-index.mjs`) in the client — verse-exact results ("John 3:16"
