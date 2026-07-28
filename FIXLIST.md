@@ -1016,14 +1016,16 @@ S9, O9, and O8.
   concerned about it retroactively. The Brevo-footer question below was
   therefore not chased. Future campaigns are expected to carry the required
   footer.
-  **One thing a future session should know:** `emails/pentecost-2026.html` is
-  still the ONLY file in `emails/`, so it is the de facto starting point for the
-  next campaign, and it ends in raw markup with no unsubscribe link and no
-  postal address (verified 2026-07-27). If the next newsletter is built by
-  copying it, the gap comes back. Whoever writes it should add Brevo's
-  per-recipient `{{ unsubscribe }}` tag and the org's mailing address, or the
-  template should be fixed at that point. The two copy nits below still stand
-  for reuse.
+  **Why this can't recur (owner, same day):** subsequent newsletters are
+  authored **in Brevo's editor, not in this repo**. Brevo's editor supplies the
+  unsubscribe link and the campaign footer itself, so the compliance gap was
+  specific to that one hand-built HTML campaign. `emails/pentecost-2026.html` is
+  therefore an **archive of a one-off**, not a template anyone should copy — it
+  is the only file in `emails/` and it does end in raw markup with no
+  unsubscribe link and no postal address (verified 2026-07-27), which is exactly
+  why it shouldn't be treated as a starting point. CLAUDE.md's `emails/` line
+  was corrected to say so. The two copy nits below are recorded for the record
+  only; they don't apply to Brevo-authored sends.
   Original item text below.
   The committed campaign
   template `emails/pentecost-2026.html` ends with a copyright line only — no
