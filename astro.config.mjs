@@ -30,12 +30,15 @@ export default defineConfig({
   compressHTML: true,
 
   // Astro 7 renders .md with Sätteri, its native pipeline, instead of
-  // remark/rehype. On this content that changed published copy in three ways:
-  // a closing curly quote flipped to an opening one in an article, "..."
-  // rendered as ". . ." in the glossary, and an unclosed <li>/<ul> in
-  // 2peter-intro.md stopped being auto-corrected. Staying on the unified
-  // processor keeps rendering identical to Astro 6; revisit deliberately,
-  // as a content change with the owner, rather than as an upgrade side effect.
+  // remark/rehype. On this content that changed published copy two ways: a
+  // closing curly quote flipped to an opening one in an article, and "..."
+  // rendered as ". . ." in the glossary. Staying on the unified processor
+  // keeps rendering identical to Astro 6; revisit deliberately, as a content
+  // change with the owner, rather than as an upgrade side effect.
+  // (Sätteri also stopped auto-closing an unclosed <li>/<ul> in
+  // 2peter-intro.md. That was a real latent bug, not a Sätteri fault, and it
+  // is now fixed — so it is NOT a reason to stay on unified. All Markdown
+  // content currently balances, so a future switch would not resurface it.)
   markdown: { processor: unified() },
 
   redirects: {

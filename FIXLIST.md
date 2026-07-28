@@ -796,20 +796,40 @@ S9, O9, and O8.
     no invalid HTML in any `.astro` file. `@astrojs/sitemap` and `@astrojs/rss`
     declare no peer deps; `@astrojs/check` accepts the repo's TypeScript 6.
 
-- [ ] **(O17) Unclosed `<li>`/`<ul>` in `src/data/intros/2peter-intro.md`.**
-  Found while diffing the O16 upgrade; **pre-existing, not caused by it, and
-  live on the site today.** Line 61 opens an `<li>` that is never closed, and
-  the `<ul>` opened at line 51 never closes — so the entire "Takeaways on
-  Liberation and Inclusion" section (the `<h2>` and its three paragraphs) is
-  nested inside a bullet of the "Key Passages" list. Astro 6's remark pipeline
-  silently auto-closed both tags at EOF, which is why it renders as a bullet
-  rather than as broken markup; Sätteri does not, which is how it surfaced.
-  The stray `<li>` at line 61 looks like a paste error — the intended structure
-  is almost certainly `</ul>` after line 60's `</li>`, then the `<h2>` at top
-  level. **Left for the owner**: it changes the structure of published prose,
-  so it's a content call, not a mechanical fix. A repo-wide scan of all
-  `src/data/intros/` and `src/content/` Markdown found **this file only** — it
-  is not systemic.
+- [x] **(O17) Unclosed `<li>`/`<ul>` in `src/data/intros/2peter-intro.md`.**
+  DONE (2026-07-28, owner approved once the intent was shown to be
+  unambiguous). Found while diffing the O16 upgrade; **pre-existing, not caused
+  by it, and live on the site until this fix.** Line 61 opened an `<li>` that
+  was never closed, and the `<ul>` opened at line 51 never closed — so the
+  entire "Takeaways on Liberation and Inclusion" section (the `<h2>` and its
+  three paragraphs) rendered nested inside a bullet of the "Key Passages" list.
+  Astro 6's remark pipeline silently auto-closed both tags at EOF, which is why
+  it looked like a stray bullet rather than broken markup; Sätteri does not,
+  which is how it surfaced.
+  **The fix was a single token**: line 61's `<li>` should have been `</ul>`.
+  That one substitution closes both unbalanced tags at once — the `<li>` stops
+  being opened and the `<ul>` gets its closer. Corroborated three ways, so this
+  was mechanical rather than a judgment call (an earlier draft of this item
+  wrongly assumed the intent was ambiguous and deferred it to the owner):
+  (1) 24 intros carry the `<h2>Takeaways on Liberation and Inclusion</h2>`
+  heading and **23 of 24** precede it with `</ul>` + a blank line — 2 Peter was
+  the lone exception, preceded by `</li>` + `<li>`; (2) this same file already
+  closes its two earlier lists exactly that way (`</ul>` before
+  `<h2>Structure</h2>`, `</ol>` before `<h2>Key Passages</h2>`); (3) no `<h2>`
+  is nested inside a list item anywhere in the corpus, and the other three Key
+  Passages bullets are single quoted verses, not multi-paragraph essays.
+  Verified: the unbalanced-HTML scan over all of `src/data/intros/` and
+  `src/content/` now reports **0 files** (it found this one file only, so the
+  problem was never systemic); the rendered heading moved out of the `<li>` to
+  top level; and a dist diff against the pre-fix build shows **exactly 1 page
+  changed** (`2peter-intro`) with **0 pages changed in rendered text** — the
+  words are identical, only their nesting moved. `npm run build`,
+  `npm run check` (0 errors), `npm test` (80/80), `npm run check:links`
+  (28,785 links), `npm run validate:chapters` (260 valid) all pass.
+  **Expected app-sync effect:** this is a real content publish, so the manifest
+  `contentHash` moved `ee851670` → `30bddf67` and the apps will sync the intro.
+  That is correct behavior, and it is the only content change in the Astro 7
+  branch — the upgrade itself moved nothing.
 
 ## Fable — one session each, owner in the loop
 
