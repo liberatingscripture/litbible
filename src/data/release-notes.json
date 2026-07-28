@@ -1,5 +1,16 @@
 [
   {
+    "version": "2026-07-28",
+    "date": "2026-07-28",
+    "label": "July 28, 2026",
+    "changes": [
+      {
+        "type": "intro_updated",
+        "description": "2 Peter Introduction updated"
+      }
+    ]
+  },
+  {
     "version": "2026-07-06",
     "date": "2026-07-06",
     "label": "July 6, 2026",
