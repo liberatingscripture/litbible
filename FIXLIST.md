@@ -999,7 +999,8 @@ S9, O9, and O8.
 
 ### Added from the 2026-07-16 audit
 
-- [ ] **Enable native Dependabot security alerts (no version-update PRs).**
+- [x] **Enable native Dependabot security alerts (no version-update PRs).**
+  DONE (2026-07-27): owner enabled Dependabot alerts in the repo settings.
   Repo Settings → Security → Dependabot alerts. Surfaces known
   vulnerabilities (email/GitHub notification) with zero recurring owner
   effort — no `dependabot.yml`, no weekly version-bump PRs to review/merge.

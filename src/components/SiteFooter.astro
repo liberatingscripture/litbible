@@ -16,8 +16,10 @@ import { siFacebook, siThreads, siBluesky, siInstagram } from "simple-icons";
  * We POST with our own fetch instead, the same approach SubscribeStrip.astro
  * already uses on /courses. Do not "restore" main.js; its failure is silent.
  *
- * /unsubscribe loads main.js separately and is untouched by this — but it very
- * likely has the same latent bug, since it uses the same simplified markup.
+ * /unsubscribe no longer loads main.js either (it hit the same latent bug and
+ * was converted to its own fetch — see that page's docblock), so as of
+ * 2026-07-27 no page on the site loads Brevo's script. That's why sibforms
+ * appears in _headers' connect-src and form-action but not script-src.
  */
 const { hideNewsletter = false } = Astro.props;
 ---
