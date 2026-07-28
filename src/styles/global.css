@@ -92,6 +92,14 @@
   --surface-raised: #FAFAF8;
   --surface-input: #FAFAF8;
 
+  /* The Liberating Scripture Collective dove mark (components/LscMark.astro).
+     It's an "inverted coin": the disc OPPOSES the surface, and the dove opposes
+     the disc. Flip both in the dark blocks. A surface that is a fixed darkness
+     in both themes would pin its own pair locally so it doesn't invert with the
+     page. Mirrored from liberatingscripture.org, which owns the mark. */
+  --lsc-mark-disc: #1D231C;
+  --lsc-mark-bird: #FAFAF8;
+
   /* CTA */
   --cta-bg: var(--ink);
   --cta-text: var(--green);
@@ -120,6 +128,8 @@
     --green-text: #3abf6a;
     --on-green-fill: #1d231c;
     --border: #2a2a2c;
+    --lsc-mark-disc: #F0F0F0;
+    --lsc-mark-bird: #1D231C;
     --cta-bg: #d4d2cc;
     --cta-text: #1a1e1a;
   }
@@ -139,6 +149,8 @@
   --green-text: #3abf6a;
   --on-green-fill: #1d231c;
   --border: #2a2a2c;
+  --lsc-mark-disc: #F0F0F0;
+  --lsc-mark-bird: #1D231C;
   --cta-bg: #d4d2cc;
   --cta-text: #1a1e1a;
 }

@@ -2,6 +2,7 @@
 // src/pages/support.astro
 import Layout from "../layouts/Layout.astro";
 import "../styles/pages/support.css";
+import LscMark from "../components/LscMark.astro";
 
 const donateHref = "#donate";
 const lscSiteHref = "https://liberatingscripture.org";
@@ -78,16 +79,7 @@ const lscContactHref = "https://liberatingscripture.org/contact";
       <section id="donate" class="support-section">
         <div class="support-band" aria-label="Donate to support the work">
           <div class="support-band__brand">
-            <!-- Wrapper provides the “surface” color so transparent pixels blend in -->
-            <span class="support-band__logo-wrap" aria-hidden="true">
-              <img
-                class="support-band__logo"
-                src="/images/lsc-logo-gold.png"
-                alt=""
-                loading="lazy"
-                decoding="async"
-              />
-            </span>
+            <LscMark size={120} class="support-band__logo" />
 
             <div class="support-band__brand-text">
               <span>Liberating Scripture<br />Collective</span>

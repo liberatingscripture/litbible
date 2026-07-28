@@ -6,6 +6,7 @@
 // is ever reinstated alongside another, they would stack as competing modals.
 // Cookie: lit_welcome_v2 (30-day expiry) — already set for anyone who dismissed
 // it, so reinstating as-is would show it to new visitors only.
+import LscMark from "./LscMark.astro";
 ---
 
 <dialog
@@ -48,13 +49,7 @@
     </button>
 
     <div class="welcome-logo">
-      <img
-        src="/images/lsc-logo-square.png"
-        alt="Liberating Scripture Collective logo"
-        width="104"
-        height="104"
-        loading="eager"
-      />
+      <LscMark size={104} title="Liberating Scripture Collective logo" />
     </div>
 
     <h2 id="welcome-title" class="welcome-title">
@@ -213,21 +208,12 @@
     margin-bottom: 0.75rem;
   }
 
-  .welcome-logo img {
-    display: block;
+  .welcome-logo :global(.lsc-mark) {
     /* Scale down on narrow screens so the larger desktop size never eats the
-       popover's vertical headroom on phones (height:auto keeps it square and
-       preserves the reserved aspect ratio from the width/height attrs). */
+       popover's vertical headroom on phones. */
     width: clamp(88px, 24vw, 104px);
     height: auto;
-    /* The square asset includes the "Liberating Scripture Collective" wordmark,
-       so it must NOT be cropped to a circle — a 50% radius slices the bottom
-       corners and cuts into the lettering. A modest rounded-square keeps the
-       full mark visible. */
-    border-radius: 14px;
-    padding: 6px;
-    background: #1b2318;
-    box-sizing: border-box;
+    margin-inline: auto;
   }
 
   /* Title */

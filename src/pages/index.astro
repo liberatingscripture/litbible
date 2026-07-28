@@ -1,6 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import "../styles/pages/home.css";
+import LscMark from "../components/LscMark.astro";
 import frauncesLatin500Url from "@fontsource/fraunces/files/fraunces-latin-500-normal.woff2";
 ---
 
@@ -358,14 +359,10 @@ import frauncesLatin500Url from "@fontsource/fraunces/files/fraunces-latin-500-n
 
         <!-- Card 4 -->
         <article class="question-card">
-          <div class="question-card__media">
-            <img
-              src="/images/lsc-logo-square.webp"
-              alt="The Liberating Scripture Collective logo: a gold flame rising from an open book"
-              width="600"
-              height="600"
-              loading="lazy"
-              decoding="async"
+          <div class="question-card__media question-card__media--mark">
+            <LscMark
+              size={600}
+              title="The Liberating Scripture Collective logo: a dove taking flight"
             />
           </div>
 
