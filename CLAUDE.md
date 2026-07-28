@@ -184,6 +184,11 @@ workers/             # Cloudflare Workers, deployed separately via wrangler (NOT
                      #   separate `worker-tests` job (workers/contact-form has its
                      #   own dep tree, so it needs its own npm ci);
                      #   release-notes.yml (auto-updates release-notes.json on push)
+.github/dependabot.yml  # Three update streams: npm at `/`, npm at
+                     #   `/workers/contact-form` (separate dep tree), and
+                     #   github-actions. Minor/patch are grouped into one weekly
+                     #   PR per stream; majors stay ungrouped so each gets the
+                     #   hand-checked treatment (see the Astro 7 pins above)
 ```
 
 > Note: client-side code lives in `src/scripts/` while build-time Node scripts

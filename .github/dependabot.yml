@@ -1,0 +1,67 @@
+# Dependabot configuration.
+#
+# Three update streams, because the repo has two independent npm dependency
+# trees plus the workflows:
+#   1. /                      — the Astro site
+#   2. /workers/contact-form  — the Cloudflare Worker (its own package.json +
+#                               lockfile; root `npm ci` never reaches it)
+#   3. GitHub Actions used by .github/workflows/
+#
+# Minor and patch bumps are GROUPED into one PR per stream per week, so routine
+# churn arrives as a single reviewable change instead of a scattered pile.
+# Major bumps are deliberately left UNGROUPED — they get their own PR, because
+# a major needs the same hand-checked treatment the Astro 7 upgrade got (verify
+# the rendered-output diff, then pin back any default that changes published
+# copy — see astro.config.mjs).
+version: 2
+
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: build
+      include: scope
+    groups:
+      site-minor-and-patch:
+        patterns:
+          - "*"
+        update-types:
+          - minor
+          - patch
+
+  - package-ecosystem: npm
+    directory: /workers/contact-form
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: build
+      include: scope
+    groups:
+      worker-minor-and-patch:
+        patterns:
+          - "*"
+        update-types:
+          - minor
+          - patch
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: ci
+      include: scope
+    groups:
+      actions-minor-and-patch:
+        patterns:
+          - "*"
+        update-types:
+          - minor
+          - patch
