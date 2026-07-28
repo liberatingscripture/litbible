@@ -58,6 +58,8 @@ npm run build:verses      # Regenerate the verse search index only
 npm run build:api         # Regenerate public/api/content.json only
 npm run build:manifest    # Regenerate API manifest + /api/data for the mobile apps
 npm run build:og          # Regenerate the chapter/intro share cards (public/og/)
+npm run build:favicons    # Regenerate the favicon/touch/manifest icons from the emblem SVGs
+                          #   (on demand only — outputs are committed, not built)
 npm run draft:release-notes -- --since <ref>  # Draft a release-notes entry from git diff
 ```
 
@@ -88,7 +90,7 @@ npm run draft:release-notes -- --since <ref>  # Draft a release-notes entry from
    `version.json` so all three API artifacts report the same version.
 6. `build:og` — generates `public/og/<slug>.png`, a 1200×630 social share card
    for every chapter and book-intro page (owner-approved design: ink field,
-   emblem in a green ring, Fraunces display-cut reference), plus `apps.png`
+   the ringed emblem, Fraunces display-cut reference), plus `apps.png`
    for `/apps` — a sibling composition on the same ink field whose hero visual
    is **both** platform icons (`public/images/lit-app-icon-ios.webp` and
    `lit-app-icon.svg`, the same pair the launch popover shows), stacked
@@ -203,6 +205,7 @@ the sitemap filter live in `astro.config.mjs`.
 | `build-api-json.mjs` | `public/api/content.json`. |
 | `build-api-manifest.mjs` | `public/api/manifest.json` + `public/api/data/` for the native apps. |
 | `build-og-images.mjs` | `public/og/` — per-chapter/intro share cards (fonts in `scripts/og/fonts/`). |
+| `build-favicons.mjs` | Favicon/touch/manifest icons from the emblem SVGs. **Not** in the build — run by hand when the emblem changes. |
 | `fetch-podcast-feed.mjs` | Refresh podcast XML snapshot (non-fatal on failure). |
 | `draft-release-notes.mjs` | CLI/git shell: drafts release-notes entries from git diffs (used by CI). Delegates the diff→changes logic to `lib/release-notes-core.mjs`. |
 | `lib/release-notes-core.mjs` | Pure `buildChanges()` core of the drafter — no git/fs/argv of its own (readBase/readNow injected). Unit-tested directly (`test/draft-release-notes.test.js`) since its output shape is an app contract. |
@@ -326,6 +329,25 @@ collection); they're read directly by the intro pages and the API manifest.
   `--green-text` as a *button background* — it's a link/text token that flips to
   a light green in dark mode (white-on-it fails). For a green button, reach for
   `--green-deep`; for green text on a light background, `--green-text`.
+- **The site emblem ships as two SVG variants**, `public/images/lit-logo-2026.svg`
+  (plain) and `lit-logo-2026-ring.svg` (with a `--green` band). Same glyph, same
+  `#FAFAF8` disc — the disc is deliberately the `--surface-raised` token, so on
+  the `bg="white"` pages (`/apps`, `/glossary`) the plain variant's disc
+  disappears into the page and the mark loses its containment. **That's why every
+  on-page use takes the ringed variant**, including the OG cards (which no longer
+  draw a ring of their own — `build-og-images.mjs` composites the ringed asset at
+  its full outer diameter). The band runs *outside* the disc rather than being
+  stroked into it, so both variants keep an identical glyph-to-disc ratio
+  (0.84422); if you resize one, preserve that. The plain variant is for contexts
+  that supply their own frame or need every pixel at tiny sizes — the band
+  degrades to a hairline below ~24px, which is why the **tab favicons use plain
+  and the touch/manifest icons use ringed**. `lit-logo-2026-ring.png` (1000×1000)
+  is the raster fallback for the default `ogImage` only. Every icon is generated
+  from these two SVGs by `npm run build:favicons` — never hand-edit
+  `public/favicon.*`, `apple-touch-icon.png`, or `web-app-manifest-*.png`, or the
+  set drifts from the source the way the previous emblem's hand-vectorized
+  `favicon.svg` drifted from its raster master. The retired emblem and its icon
+  set are archived in `_source-images/retired-emblem-2024/`.
 - **Search is two engines behind three client modules** in `src/scripts/`:
   - *Scripture keyword search* scans `public/search/verses.json` (built by
     `build-verse-index.mjs`) in the client — verse-exact results ("John 3:16"

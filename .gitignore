@@ -31,6 +31,9 @@ pnpm-debug.log*
 .wrangler/
 .wrangler-check/
 
+# scratch/throwaway work (comparison pages, etc.) — never part of the build
+scratch/
+
 # Claude Code
 .claude/worktrees/
 .claude/launch.json

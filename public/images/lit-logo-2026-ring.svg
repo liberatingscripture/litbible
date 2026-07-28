@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
-  <title>LIT Bible emblem (2026) — plain variant, no ring</title>
+  <title>LIT Bible emblem (2026) — ringed variant</title>
   <defs>
-    <linearGradient id="lit2026" x1="20.28" x2="193.36" y1="54.92" y2="154.85" gradientTransform="matrix(1 0 0 -1 0 199.89)" gradientUnits="userSpaceOnUse">
+    <linearGradient id="lit2026r" x1="20.28" x2="193.36" y1="54.92" y2="154.85" gradientTransform="matrix(1 0 0 -1 0 199.89)" gradientUnits="userSpaceOnUse">
       <stop offset="0" stop-color="#41d87b"/>
       <stop offset=".14" stop-color="#209d50"/>
       <stop offset=".3" stop-color="#209d50"/>
@@ -9,13 +9,13 @@
       <stop offset=".68" stop-color="#1d231c"/>
     </linearGradient>
   </defs>
-  <!-- Disc is the surface-raised token (#FAFAF8), the one /apps and /glossary
-       run on. r99.5 rather than r100 so the four extremes don't sit on the
-       viewBox edge and get shaved flat. Glyph is exactly concentric, enclosing
-       circle r84, i.e. glyph:disc = 0.84422, the same ratio as the ringed
-       variant. -->
-  <circle cx="100" cy="100" r="99.5" fill="#FAFAF8"/>
-  <g fill="url(#lit2026)" fill-rule="evenodd" transform="translate(21.123 5.769)scale(.86687)">
+  <!-- The LIT-green band runs r90.5 to r99.5, entirely OUTSIDE the disc, so it
+       takes none of the glyph-to-disc breathing room: disc and glyph scale down
+       together and glyph:disc stays 0.84422, identical to the plain variant.
+       The disc overlaps the band by 0.5 to avoid an antialiasing seam. -->
+  <circle cx="100" cy="100" r="95" fill="none" stroke="#209D50" stroke-width="9"/>
+  <circle cx="100" cy="100" r="91" fill="#FAFAF8"/>
+  <g fill="url(#lit2026r)" fill-rule="evenodd" transform="translate(28.257 14.292)scale(.78846)">
     <path d="M136.9 86.3h-23.2V63.1c0-25.2-20.4-45.6-45.6-45.6S22.6 38 22.6 63.1v114.3h114.3c25.2 0 45.6-20.4 45.6-45.5S162 86.3 136.9 86.3m0 81.7H32V63.1C32 43.2 48.2 27 68.1 27s36.1 16.2 36.1 36.1v32.7h32.6c19.9-.1 36.2 16 36.3 35.9s-16 36.2-35.9 36.3z"/>
     <path d="M136.9 100.1H100v-37c0-17.6-14.2-31.8-31.8-31.8S36.4 45.5 36.4 63.1v100.6h100.5c17.6 0 31.8-14.2 31.8-31.8s-14.2-31.8-31.8-31.8m0 54.1H45.8V63.1c0-12.3 10-22.3 22.3-22.3s22.3 10 22.3 22.3v46.4h46.4c12.3 0 22.3 10 22.3 22.3s-9.9 22.4-22.2 22.4"/>
     <path d="M136.9 113.8H86.2V63.1c0-10-8.1-18.1-18.1-18.1S50 53.1 50 63.1v86.8h86.8c10 .1 18.1-8 18.2-17.9.1-10-8-18.1-17.9-18.2zm0 26.7H59.5V63.1c0-4.7 3.9-8.6 8.6-8.6s8.6 3.8 8.6 8.6v60.2h60.1c4.7 0 8.6 3.9 8.6 8.6s-3.8 8.6-8.5 8.6"/>
