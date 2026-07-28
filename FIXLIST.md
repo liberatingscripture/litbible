@@ -1010,7 +1010,22 @@ S9, O9, and O8.
   `npm audit`" gap with the least ongoing owner overhead. One-time toggle,
   no code change.
 
-- [ ] **Newsletter email compliance (CAN-SPAM).** The committed campaign
+- [x] **Newsletter email compliance (CAN-SPAM).**
+  CLOSED (2026-07-27, owner decision): that campaign was the FIRST newsletter,
+  sent while the process was still being worked out, and the owner is not
+  concerned about it retroactively. The Brevo-footer question below was
+  therefore not chased. Future campaigns are expected to carry the required
+  footer.
+  **One thing a future session should know:** `emails/pentecost-2026.html` is
+  still the ONLY file in `emails/`, so it is the de facto starting point for the
+  next campaign, and it ends in raw markup with no unsubscribe link and no
+  postal address (verified 2026-07-27). If the next newsletter is built by
+  copying it, the gap comes back. Whoever writes it should add Brevo's
+  per-recipient `{{ unsubscribe }}` tag and the org's mailing address, or the
+  template should be fixed at that point. The two copy nits below still stand
+  for reuse.
+  Original item text below.
+  The committed campaign
   template `emails/pentecost-2026.html` ends with a copyright line only — no
   unsubscribe link and no physical postal address, both legally required in
   marketing email. Verify in the Brevo dashboard whether Brevo appends its
