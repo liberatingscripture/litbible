@@ -25,7 +25,7 @@
     "draft:release-notes": "node scripts/draft-release-notes.mjs"
   },
   "dependencies": {
-    "@astrojs/rss": "^4.0.18",
+    "@astrojs/rss": "^4.0.19",
     "@fontsource/crimson-text": "^5.2.7",
     "@fontsource/fraunces": "^5.2.9",
     "@fontsource/inter": "^5.2.8",
