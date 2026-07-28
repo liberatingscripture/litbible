@@ -977,8 +977,31 @@ S9, O9, and O8.
   accurate. **HSTS is on** — already recorded in F2's DONE note (6-month
   max-age, no subdomains, no preload); this line was stale. HSTS was also
   confirmed on the live site by the 2026-07-16 audit (`max-age=15552000`).
-- [ ] **Web Analytics follow-up: enabled in the dashboard, but no beacon in
-  the served HTML.** The 2026-07-16 audit fetched the live homepage and found
+- [x] **Web Analytics follow-up: enabled in the dashboard, but no beacon in
+  the served HTML.**
+  CLOSED (2026-07-27) — **the premise was a measurement artifact; Web Analytics
+  works and always did.** The owner produced a dashboard screenshot showing Web
+  Analytics for litbible.net with 34 visits / 44 page views in 24h and
+  **populated Core Web Vitals (LCP/INP/CLS)**. CWV is decisive: it can ONLY come
+  from the RUM beacon, since edge/Traffic analytics cannot measure it.
+  **Root cause of the false finding:** Cloudflare **edge-injects** the beacon
+  (so it is in no source file in this repo) and **skips injection for
+  non-browser user agents**. A plain `curl` therefore gets a beacon-free page.
+  Proven by controlled fetch: same URL, curl UA → 48,366 bytes, no beacon;
+  browser UA → 48,725 bytes, and the 359-byte delta is exactly the
+  `static.cloudflareinsights.com/beacon.min.js` tag with its `data-cf-beacon`
+  token. Both the 2026-07-16 audit and a 2026-07-27 recheck fell into this.
+  **Lesson worth keeping:** never conclude an edge-injected script is missing
+  from a non-browser fetch. `public/_headers` now carries a comment saying so.
+  **The CSP half WAS real and is fixed in the same change:** the beacon has been
+  loading in production while absent from the report-only allowlist, so it was
+  logging violations on every page view and the allowlist under-claimed. Added
+  `https://static.cloudflareinsights.com` to `script-src` and
+  `https://cloudflareinsights.com` to `connect-src`.
+  Also note `privacy.astro`'s Cloudflare Web Analytics disclosure is accurate as
+  written; no change needed there.
+  Original item text below.
+  The 2026-07-16 audit fetched the live homepage and found
   NO `static.cloudflareinsights.com` / `beacon.min.js` snippet — Web
   Analytics measures nothing without its client-side beacon, so "enabled"
   and "collecting" currently disagree (both can be true: enrolled, but JS
