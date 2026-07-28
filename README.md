@@ -23,7 +23,10 @@ enhancement, so the site works fully with JavaScript disabled.
 
 ## Getting started
 
-You'll need [Node.js](https://nodejs.org) v22.12 or newer (required by Astro 6).
+You'll need [Node.js](https://nodejs.org) at or above the floor in
+`package.json`'s `engines` field. (That floor is set by the test suite, which
+relies on Node's built-in TypeScript type stripping, not by Astro — Astro's own
+minimum is lower.)
 
 ```sh
 npm install        # install dependencies (also wires up the git pre-commit hook)

@@ -28,7 +28,15 @@ companion iOS/Android apps consume.
 
 ## Tech Stack
 
-- **Framework**: Astro 6 (static site generator; `output` is static)
+- **Framework**: Astro 7 (static site generator; `output` is static). Two Astro 7
+  defaults are **deliberately pinned back to their Astro 6 behavior** in
+  `astro.config.mjs`, each with a comment explaining why — `compressHTML: true`
+  (the new `'jsx'` default joins deliberately-spaced adjacent inline text, which
+  corrupts accessible names and Pagefind's extracted text) and
+  `markdown: { processor: unified() }` (the new Sätteri Markdown pipeline
+  changes published copy). Don't drop either without re-running a
+  rendered-output diff; adopting Sätteri is a **content** decision for the
+  owner, not an upgrade side effect.
 - **Language**: TypeScript (strict mode, `astro/tsconfigs/strict`)
 - **Styling**: Vanilla CSS (no utility framework). Global stylesheet + a
   per-page stylesheet under `src/styles/pages/`

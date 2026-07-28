@@ -733,6 +733,104 @@ S9, O9, and O8.
   `<dialog>` and the font tray need no handling; both are already out of the
   tab order/a11y tree when closed.
 
+### Added 2026-07-28
+
+- [x] **(O16) Astro 6 → 7 upgrade.**
+  DONE (2026-07-28). Landed in two commits so the risky half is reviewable on
+  its own. **Result: `npm audit` 8 vulnerabilities → 0, and the rendered site is
+  content-neutral.**
+  - **Commit 1 (lockfile only):** `npm audit fix` cleared the five advisories
+    that never needed Astro 7 — `@astrojs/rss` 4.0.18→4.0.19 (XML injection;
+    the only one that *ships*, via `src/pages/rss.xml.js`), plus build-time
+    `fast-uri`, `js-yaml`, `postcss`, `svgo`. All 349 dist HTML files stayed
+    byte-identical.
+  - **Commit 2:** `astro@^7.1.4`, plus **`sharp` promoted to an explicit
+    devDependency**. `scripts/build-og-images.mjs` and `build-favicons.mjs`
+    both `import sharp` but it was never in `package.json` — it had been riding
+    Astro 6's transitive `dependencies.sharp`. Astro 7 demotes sharp to an
+    *optionalDependency* whose range (`^0.34.0 || ^0.35.0`) still admits the
+    CVE-affected 0.34.x, so declaring it directly both fixes the libvips
+    advisory and stops `build:og` being one `--no-optional` away from failing.
+  - **Two Astro 7 defaults were deliberately pinned back**, each commented in
+    `astro.config.mjs`. This was not caution for its own sake — both were caught
+    changing real output:
+    1. **`compressHTML: true`** (Astro 7 defaults to `'jsx'`). JSX whitespace
+       rules join adjacent inline text that the markup deliberately spaced:
+       "LIT Bible" + "Free. No account, no ads." → `LIT BibleFree. No account,
+       no ads.`, the "Aa" trigger's sr-only label → `AaDisplay settings`, and
+       the nav → `AboutCommitmentsGlossaryPodcastArticles`. Prose bodies were
+       fine; **accessible names and Pagefind's extracted text were not** —
+       Pagefind's word count moved 2952 → 2996 under the new default and
+       returned to exactly 2952 once pinned.
+    2. **`markdown: { processor: unified() }`** (Astro 7 defaults to its native
+       Sätteri pipeline; requires `@astrojs/markdown-remark` as a devDep).
+       Sätteri changed **published copy** in three ways: a closing curly quote
+       flipped to an opening one in `matthew-15-canaanite-woman`, `...` rendered
+       as `. . .` in the glossary, and the `2peter-intro.md` list bug below
+       stopped being auto-corrected. Note installing `@astrojs/markdown-remark`
+       alone does NOT switch the engine back — the `markdown.processor` option
+       is what does it.
+    **Adopting either new default is a content decision for the owner, not an
+    upgrade side effect.** Both are cheap to revisit later behind the same diff.
+  - **Verification** (the O2 byte-manifest precedent, extended): built Astro 6
+    and Astro 7 trees side by side and compared them three ways — raw hashes,
+    markup with build-tool cosmetics normalized away, and *rendered text* with
+    block tags treated as visual breaks and inline tags as nothing (so a lost
+    inter-inline space shows up as joined words). Final result vs Astro 6: **346
+    pages differ only in benign whitespace, 2 are byte-identical, and exactly 1
+    page differs in rendered text** — `/found-in-translation-podcast`, where
+    Astro 7 *adds* a space between an episode title and its date that Astro 6
+    was swallowing. An improvement, not a regression.
+    Also passing: `npm run check` (0 errors, 0 warnings), `npm test` (80/80),
+    `npm run check:links` (349 pages, 28,785 links, 0 broken), `npm run build`
+    (347 pages + Pagefind + 288 OG cards, so sharp works — libvips 8.18.3), and
+    a dev-server smoke test under Vite 8 (chapter + intro pages 200).
+  - **Not a concern, confirmed rather than assumed:** the app-sync `version`
+    string is derived from *source* content hashes, so it did not move across
+    the upgrade (`contentHash` stayed `ee851670`). Installed apps will not see a
+    spurious sync. Build got faster too (astro build 19.6s → 12.4s; Vite 8 ships
+    Rolldown, which is also what removes the esbuild advisory).
+  - Nothing in the repo tripped the other Astro 7 breaking changes: no
+    `src/fetch.ts`, no `@astrojs/db`, no view transitions, no container
+    renderers, no remark/rehype plugins, and the stricter Rust compiler found
+    no invalid HTML in any `.astro` file. `@astrojs/sitemap` and `@astrojs/rss`
+    declare no peer deps; `@astrojs/check` accepts the repo's TypeScript 6.
+
+- [x] **(O17) Unclosed `<li>`/`<ul>` in `src/data/intros/2peter-intro.md`.**
+  DONE (2026-07-28, owner approved once the intent was shown to be
+  unambiguous). Found while diffing the O16 upgrade; **pre-existing, not caused
+  by it, and live on the site until this fix.** Line 61 opened an `<li>` that
+  was never closed, and the `<ul>` opened at line 51 never closed — so the
+  entire "Takeaways on Liberation and Inclusion" section (the `<h2>` and its
+  three paragraphs) rendered nested inside a bullet of the "Key Passages" list.
+  Astro 6's remark pipeline silently auto-closed both tags at EOF, which is why
+  it looked like a stray bullet rather than broken markup; Sätteri does not,
+  which is how it surfaced.
+  **The fix was a single token**: line 61's `<li>` should have been `</ul>`.
+  That one substitution closes both unbalanced tags at once — the `<li>` stops
+  being opened and the `<ul>` gets its closer. Corroborated three ways, so this
+  was mechanical rather than a judgment call (an earlier draft of this item
+  wrongly assumed the intent was ambiguous and deferred it to the owner):
+  (1) 24 intros carry the `<h2>Takeaways on Liberation and Inclusion</h2>`
+  heading and **23 of 24** precede it with `</ul>` + a blank line — 2 Peter was
+  the lone exception, preceded by `</li>` + `<li>`; (2) this same file already
+  closes its two earlier lists exactly that way (`</ul>` before
+  `<h2>Structure</h2>`, `</ol>` before `<h2>Key Passages</h2>`); (3) no `<h2>`
+  is nested inside a list item anywhere in the corpus, and the other three Key
+  Passages bullets are single quoted verses, not multi-paragraph essays.
+  Verified: the unbalanced-HTML scan over all of `src/data/intros/` and
+  `src/content/` now reports **0 files** (it found this one file only, so the
+  problem was never systemic); the rendered heading moved out of the `<li>` to
+  top level; and a dist diff against the pre-fix build shows **exactly 1 page
+  changed** (`2peter-intro`) with **0 pages changed in rendered text** — the
+  words are identical, only their nesting moved. `npm run build`,
+  `npm run check` (0 errors), `npm test` (80/80), `npm run check:links`
+  (28,785 links), `npm run validate:chapters` (260 valid) all pass.
+  **Expected app-sync effect:** this is a real content publish, so the manifest
+  `contentHash` moved `ee851670` → `30bddf67` and the apps will sync the intro.
+  That is correct behavior, and it is the only content change in the Astro 7
+  branch — the upgrade itself moved nothing.
+
 ## Fable — one session each, owner in the loop
 
 - [x] **(F1) Self-host the contact form on Cloudflare (drop Formspree).**
@@ -1060,7 +1158,18 @@ S9, O9, and O8.
   the org's mailing address. Two copy nits in that template for next time:
   "poured about the Sacred Life-breath" (likely "poured out") and "in the
   the work LSC is doing" (doubled "the").
-- [ ] **Decide Astro 7 timing.** `npm audit` shows 2 low-severity advisories
+- [x] **Decide Astro 7 timing.**
+  DONE (2026-07-28): decided **now**, and executed — see **(O16)** under Opus.
+  The item's premise had gone stale: by 2026-07-28 `npm audit` reported **8
+  vulnerabilities (1 low, 1 moderate, 6 high)**, not the 2 low-severity ones
+  recorded here, and three of the highs were in Astro itself (view-transition
+  and `renderHTMLElement` XSS, fixed in ≥7.0.10). Real exposure for *this* site
+  was still ~nil — no view transitions, no hydrated islands, no framework
+  renderers, fully prerendered, no user input reaching the renderer — so this
+  was never an emergency. But "only the local dev server is exposed" had
+  stopped being an accurate description, which is what the deferral rested on.
+  Original item text below.
+  `npm audit` shows 2 low-severity advisories
   (esbuild dev-server file read on Windows, via Astro ≤6) whose only fix is
   the breaking Astro 7 upgrade. Exposure is the LOCAL dev server, not the
   shipped site, so this is not urgent — but decide when to schedule the

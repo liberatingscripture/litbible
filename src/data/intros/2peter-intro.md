@@ -58,7 +58,8 @@ Amid skepticism about the fulfillment of divine promises, the letter reassures r
 <li>
 <strong>2 Peter 3:9:</strong> "The Lord isn’t stalling the Promise as some think of stalling; instead, the Lord is patient for your benefit since he doesn’t want anyone to be destroyed but for everyone to turn toward transforming their mind."
 </li>
-<li>
+</ul>
+
 <h2>Takeaways on Liberation and Inclusion</h2>
 
 2 Peter offers insights into justice, liberation, and inclusion. It acknowledges the challenges of deception, oppression, and moral distraction, while offering a hopeful vision of restoration through ethical living and divine intervention. The letter warns against false teachers who exploit others and lead them into paths contrary to Christ’s life and message. This exploitation is a form of oppression that undermines the community’s integrity. Divine justice is framed as liberation—freeing individuals and communities from the corruption of the world system and enabling their participation in God’s purposes.
