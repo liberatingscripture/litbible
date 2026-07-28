@@ -30,7 +30,7 @@
     "@fontsource/fraunces": "^5.2.9",
     "@fontsource/inter": "^5.2.8",
     "@fontsource/opendyslexic": "^5.2.5",
-    "astro": "^6.4.8",
+    "astro": "^7.1.4",
     "simple-icons": "^16.7.0"
   },
   "devDependencies": {
