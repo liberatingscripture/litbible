@@ -1130,6 +1130,13 @@ S9, O9, and O8.
   directly closes the "advisories only surface when someone remembers to run
   `npm audit`" gap with the least ongoing owner overhead. One-time toggle,
   no code change.
+  FOLLOW-UP (2026-07-28): owner also enabled **Grouped security updates**
+  (Settings → Code security), so advisory-driven PRs arrive as one PR per
+  ecosystem per directory instead of one per advisory. Also a settings-only
+  toggle — `dependabot.yml`'s groups are `applies-to: version-updates` and
+  don't touch that track. Caveat recorded in the config header: a grouped
+  security PR can include a major bump, since security updates ignore the
+  `update-types` filters.
 
 - [x] **Newsletter email compliance (CAN-SPAM).**
   CLOSED (2026-07-27, owner decision): that campaign was the FIRST newsletter,
