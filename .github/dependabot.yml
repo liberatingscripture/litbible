@@ -13,6 +13,22 @@
 # a major needs the same hand-checked treatment the Astro 7 upgrade got (verify
 # the rendered-output diff, then pin back any default that changes published
 # copy — see astro.config.mjs).
+#
+# SECURITY updates are a separate track and are NOT configured here. Every
+# `groups:` block below is `applies-to: version-updates` (the default), so it
+# only shapes the scheduled bumps above. Advisory-driven PRs are grouped by the
+# repo setting instead — Settings → Code security → "Grouped security updates"
+# (on since 2026-07-28) — which opens one PR per ecosystem per directory.
+# Two consequences worth knowing before reviewing one:
+#   - A grouped security PR can contain a MAJOR bump. Security updates ignore
+#     the `update-types` filters below, so the "majors get their own PR" rule
+#     above holds for version updates only; check a security PR for majors
+#     before merging.
+#   - `open-pull-requests-limit` doesn't apply to it either — that caps
+#     version-update PRs only.
+# Adding a group here with `applies-to: security-updates` would OVERRIDE the
+# repo toggle for that stream; don't, unless the intent is to take that track
+# back into config.
 version: 2
 
 updates:

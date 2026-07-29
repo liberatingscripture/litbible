@@ -8,7 +8,10 @@
       "Bash(npm ci *)",
       "Bash(npm run *)",
       "Bash(gh pr *)",
-      "Bash(npm audit *)"
+      "Bash(npm audit *)",
+      "Bash(git ls-remote *)",
+      "Bash(gh api *)",
+      "Bash(npm test *)"
     ]
   }
 }
