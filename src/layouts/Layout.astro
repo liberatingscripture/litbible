@@ -52,8 +52,11 @@ const criticalCSS = `html,body{margin:0;padding:0}html{scrollbar-gutter:stable}b
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <!-- Apply dyslexic-font class before first paint to avoid flash of default font -->
-    <script is:inline>try{if(localStorage.getItem('dyslexic-font')==='1')document.documentElement.classList.add('dyslexic-font')}catch(_){}</script>
+    <!-- Apply the saved reader font before first paint to avoid a flash of the default font.
+         Absence of 'lit-font' = default fonts: no attribute, no accessibility font downloaded.
+         The legacy boolean 'dyslexic-font' key is still read as a fallback so readers who
+         turned OpenDyslexic on before the three-way control shipped aren't reset. -->
+    <script is:inline>try{var f=localStorage.getItem('lit-font')||(localStorage.getItem('dyslexic-font')==='1'?'dyslexic':'');if(f==='dyslexic'||f==='atkinson')document.documentElement.setAttribute('data-font',f)}catch(_){}</script>
     <!-- Apply the saved theme (light/dark) before first paint to avoid a flash of the wrong scheme.
          Absence of 'lit-theme' = system: no attribute, CSS follows prefers-color-scheme. -->
     <script is:inline>try{var t=localStorage.getItem('lit-theme');if(t==='light'||t==='dark'){document.documentElement.setAttribute('data-theme',t);document.documentElement.style.colorScheme=t;}}catch(_){}</script>

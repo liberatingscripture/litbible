@@ -9,10 +9,16 @@
 @import "@fontsource/crimson-text/latin-700.css";
 @import "@fontsource/fraunces/latin-400.css";
 @import "@fontsource/fraunces/latin-500.css";
-/* OpenDyslexic — loaded but only downloaded by the browser when the
-   html.dyslexic-font class is active and the font-family rule applies */
+/* Reader-selectable accessibility fonts. Both are declared here but only
+   downloaded by the browser when the matching html[data-font] rule at the
+   bottom of this file applies, so a default page load fetches neither.
+   Atkinson Hyperlegible Next is variable: one file per style covers
+   weights 200-800, so no weight is synthesized and no per-weight import
+   list has to be kept in sync with the site's usage. */
 @import "@fontsource/opendyslexic/latin.css";
 @import "@fontsource/opendyslexic/latin-italic.css";
+@import "@fontsource-variable/atkinson-hyperlegible-next/wght.css";
+@import "@fontsource-variable/atkinson-hyperlegible-next/wght-italic.css";
 
 /* =========================================================
    Metric-matched fallback fonts (to minimize CLS from font swap)
@@ -721,101 +727,18 @@ a:focus {
 .font-tray__close:hover { background: rgba(var(--ink-rgb), 0.08); }
 .font-tray__close:focus:not(:focus-visible) { outline: none; }
 
-/* ----- Toggle row ----- */
+/* ----- Setting rows (both controls are fieldsets) ----- */
 .font-tray__row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  cursor: pointer;
-}
-
-.font-tray__label {
-  font-size: 0.9375rem;
-  font-weight: 600;
-  color: var(--text);
-}
-
-/* Serves as a live font preview for the dyslexia-friendly toggle */
-.font-tray__label--preview {
-  font-family: 'OpenDyslexic', sans-serif !important;
-  font-weight: 700;
-}
-
-.font-tray__control {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-shrink: 0;
-}
-
-.font-tray__status {
-  font-size: 0.9375rem;
-  color: var(--text);
-  min-width: 2ch;
-}
-
-/* ----- Toggle switch ----- */
-.font-tray__switch {
-  position: relative;
-  display: inline-block;
-  width: 44px;
-  height: 26px;
-  flex-shrink: 0;
-}
-
-.font-tray__checkbox {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  opacity: 0;
-  cursor: pointer;
-  z-index: 1;
-}
-
-.font-tray__track {
-  position: absolute;
-  inset: 0;
-  border-radius: 13px;
-  background: rgba(var(--ink-rgb), 0.2);
-  pointer-events: none;
-  transition: background 200ms ease;
-}
-
-.font-tray__track::after {
-  content: '';
-  position: absolute;
-  top: 3px;
-  left: 3px;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: var(--white);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.22);
-  transition: transform 200ms ease;
-}
-
-.font-tray__checkbox:checked + .font-tray__track { background: var(--green); }
-
-.font-tray__checkbox:checked + .font-tray__track::after {
-  transform: translateX(18px);
-}
-
-.font-tray__checkbox:focus-visible + .font-tray__track {
-  outline: 2px solid var(--green);
-  outline-offset: 2px;
-}
-
-/* ----- Theme row (fieldset reset) ----- */
-.font-tray__row--theme {
   display: block;
   border: 0;
-  margin: 14px 0 0;
+  margin: 0;
   padding: 0;
   min-width: 0;
-  cursor: default; /* not the label-row pointer; only the segments are clickable */
+  cursor: default; /* only the individual options are clickable */
+}
+
+.font-tray__row--theme {
+  margin-top: 14px;
 }
 
 .font-tray__legend {
@@ -825,6 +748,91 @@ a:focus {
   padding: 0;
   margin: 0 0 8px;
   line-height: 1.2;
+}
+
+/* ----- Font list -----
+   A stacked radio list rather than a segmented control like Theme below:
+   each option is named by its font and set in it, so the list previews
+   itself, and font names are too long to crowd into segments. Those
+   previews are the only reason the two accessibility fonts get fetched on
+   tray open (the tray is display:none until then, so a default page load
+   still downloads neither). */
+.font-tray__fonts {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.font-tray__font-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 9px;
+  border-radius: 9px;
+  cursor: pointer;
+  transition: background 150ms ease;
+}
+
+.font-tray__font-option:hover {
+  background: rgba(var(--ink-rgb), 0.06);
+}
+
+.font-tray__font-option:has(.font-tray__font-input:checked) {
+  background: rgba(var(--ink-rgb), 0.09);
+}
+
+.font-tray__font-input {
+  flex-shrink: 0;
+  width: 17px;
+  height: 17px;
+  margin: 0;
+  /* Neither green clears 3:1 non-text contrast in BOTH themes, so this is one
+     of the rare tokens that has to flip: Deep Green reads on the light tray
+     (6.6:1) but sinks into the dark one (~2.2:1), where LIT Green carries it.
+     Both selectors below per the dual dark-mode mechanism. */
+  accent-color: var(--green-deep);
+  cursor: pointer;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .font-tray__font-input {
+    accent-color: var(--green);
+  }
+}
+
+:root[data-theme="dark"] .font-tray__font-input {
+  accent-color: var(--green);
+}
+
+.font-tray__font-input:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
+
+.font-tray__font-label {
+  min-width: 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.25;
+}
+
+/* Each preview must out-specify the site-wide `html[data-font=…] *` override,
+   which is itself !important — otherwise every label renders in whichever font
+   is currently active and the list stops previewing anything. !important alone
+   does NOT do it: that override scores (0,1,1), so a lone class at (0,1,0)
+   loses. The redundant-looking .font-tray__fonts prefix is what wins it, at
+   (0,2,0). Keep both parts of every selector below. */
+.font-tray__fonts .font-tray__font-label--default {
+  font-family: Inter, 'Inter Fallback', sans-serif !important;
+}
+
+.font-tray__fonts .font-tray__font-label--dyslexic {
+  font-family: 'OpenDyslexic', sans-serif !important;
+}
+
+.font-tray__fonts .font-tray__font-label--atkinson {
+  font-family: 'Atkinson Hyperlegible Next Variable', sans-serif !important;
 }
 
 /* ----- Segmented theme control ----- */
@@ -891,8 +899,7 @@ a:focus {
 
 @media (prefers-reduced-motion: reduce) {
   .site-header__font-toggle,
-  .font-tray__track,
-  .font-tray__track::after,
+  .font-tray__font-option,
   .font-tray__seg-text,
   .font-tray__seg-option {
     transition: none;
@@ -2044,24 +2051,34 @@ html {
 .chiasm-line.lvl-4{ padding-left: 5rem; }
 
 /* =========================================================
-   Dyslexia-friendly font mode
-   Activated by html.dyslexic-font (toggled via header button,
-   persisted in localStorage). The @font-face declarations are
-   declared at the top of this file; the browser only downloads
-   the font files when this class is present and the rule applies.
+   Reader-selectable font modes
+   Activated by html[data-font] (set from the header's Display tray
+   and persisted in localStorage['lit-font']; absent = default fonts).
+   Two audiences, two fonts: OpenDyslexic anchors letter shapes for
+   dyslexic readers, Atkinson Hyperlegible disambiguates confusable
+   characters for low-vision readers. The @font-face declarations sit
+   at the top of this file; the browser only downloads a font's files
+   when the matching rule below applies.
    ========================================================= */
-html.dyslexic-font,
-html.dyslexic-font * {
+html[data-font="dyslexic"],
+html[data-font="dyslexic"] * {
   font-family: 'OpenDyslexic', sans-serif !important;
 }
 
-/* Mobile nav: OpenDyslexic glyphs are wider — scale down so links fit the overlay */
-html.dyslexic-font .menu-overlay__nav a {
+html[data-font="atkinson"],
+html[data-font="atkinson"] * {
+  font-family: 'Atkinson Hyperlegible Next Variable', sans-serif !important;
+}
+
+/* Mobile nav: OpenDyslexic glyphs are wider — scale down so links fit the
+   overlay. Deliberately dyslexic-only: Atkinson's metrics are close to
+   Inter's, so it must not inherit OpenDyslexic's width compensations. */
+html[data-font="dyslexic"] .menu-overlay__nav a {
   font-size: 1.7rem;
 }
 
 @media (max-width: 520px) {
-  html.dyslexic-font .menu-overlay__nav a {
+  html[data-font="dyslexic"] .menu-overlay__nav a {
     font-size: 1.45rem;
   }
 }

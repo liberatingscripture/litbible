@@ -44,7 +44,10 @@ companion iOS/Android apps consume.
   verse index (`public/search/verses.json`, fetched lazily by the client);
   Pagefind (static, build-time index over `dist/`) covers glossary + articles
   + book intros
-- **Fonts**: `@fontsource` (Crimson Text, Fraunces, Inter, OpenDyslexic)
+- **Fonts**: `@fontsource` (Crimson Text, Fraunces, Inter) plus two
+  reader-selectable accessibility fonts, OpenDyslexic and Atkinson
+  Hyperlegible Next (the latter variable, via `@fontsource-variable`) — see
+  the Display tray note below
 - **Icons**: simple-icons
 - **Client JS**: Hand-written vanilla JS in `src/scripts/` (progressive
   enhancement only — no client framework, no hydration). The site is fully
@@ -334,14 +337,37 @@ collection); they're read directly by the intro pages and the API manifest.
   `global.css` and mirrored in a few page stylesheets (`apps.css`,
   `found-in-translation-podcast.css`, `translation-commitments.css`) and
   `ReadMenu.astro`. The header "Aa" tray (`SiteHeader.astro`, heading
-  **"Display"**) is a 3-state control (**System / Light / Dark**) persisted in
-  `localStorage['lit-theme']` (`light`/`dark`; **key absent = System**).
-  `Layout.astro` stamps `data-theme` on `<html>` in a pre-paint `is:inline`
-  script (beside the dyslexic-font one) and mirrors `documentElement.style.colorScheme`,
-  so there's no flash; its inline `criticalCSS` carries the same guarded pair so a
-  forced theme wins the first paint. No JS → no attribute → OS pref governs. When
-  adding a dark-mode style anywhere, use BOTH selectors or the toggle's "force
-  light/dark" states will leak.
+  **"Display"**) holds the Theme half: a 3-state control
+  (**System / Light / Dark**) persisted in `localStorage['lit-theme']`
+  (`light`/`dark`; **key absent = System**). `Layout.astro` stamps `data-theme`
+  on `<html>` in a pre-paint `is:inline` script (beside the font one) and
+  mirrors `documentElement.style.colorScheme`, so there's no flash; its inline
+  `criticalCSS` carries the same guarded pair so a forced theme wins the first
+  paint. No JS → no attribute → OS pref governs. When adding a dark-mode style
+  anywhere, use BOTH selectors or the toggle's "force light/dark" states will
+  leak.
+- **The reader font is the Display tray's other half, and works the same way.**
+  A 3-state radio list (**Default / Atkinson Hyperlegible / OpenDyslexic**,
+  each option set in the font it selects so the list previews itself) writes
+  `data-font` on `<html>` (`dyslexic` | `atkinson`; **attribute absent =
+  default fonts**) and persists to `localStorage['lit-font']`, with a pre-paint
+  `is:inline` script in `Layout.astro` to avoid a flash. Two audiences, not one:
+  OpenDyslexic anchors letter shapes for dyslexic readers, Atkinson
+  Hyperlegible disambiguates confusable characters for low-vision readers.
+  Three rules:
+  1. The pre-paint script **also reads the retired boolean
+     `localStorage['dyslexic-font']`** as a fallback, so readers who enabled
+     OpenDyslexic before the three-way control shipped aren't reset. The tray
+     deletes that key on any font change. Don't drop the fallback.
+  2. Each `html[data-font=…]` rule overrides `font-family` on `*` with
+     `!important`, so **the tray's own preview labels carry `!important` too** —
+     otherwise the list renders entirely in the active font and previews
+     nothing.
+  3. The width compensations (home hero + CTA in `home.css`, mobile nav in
+     `global.css`, ReadMenu grid floors, and the header's forced short title in
+     `SiteHeader.astro`) are scoped to `[data-font="dyslexic"]` **only**.
+     OpenDyslexic is far wider than Inter; Atkinson is not, and must not
+     inherit them.
 - **Two brand greens, by role (all theme-invariant).** `--green` (#209D50 "LIT
   Green") is for large **surfaces** (heroes, questions block, chat bubbles) and
   non-button icon accents — it carries **ink** text (4.6:1) or white *large*
