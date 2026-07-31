@@ -378,8 +378,18 @@
 
 /* Extra safety for tiny screens */
 @media (max-width: 420px) {
+  /* The 2.75rem floor used to win here, pinning the title at 44px however
+     narrow the screen got, and "Translation" then rendered 307.8px wide in a
+     240px column. A single word too wide for its column can't be centred —
+     the line box pins to the content edge and the word spills right — so the
+     title sat ~34px right of centre AND pushed the whole page sideways by
+     28px (31px in Atkinson). Text overflow like this adds to scrollWidth
+     without widening any element's box, which is why an element-by-element
+     hunt finds nothing and only bisection points here.
+     Floor lowered so the 10vw term governs at phone widths: "Translation"
+     now measures 223.9px (Inter) / 226.5px (Atkinson) against 240px. */
   .title-large {
-    font-size: clamp(2.75rem, 10.6vw, 3.9rem);
+    font-size: clamp(1.8rem, 10vw, 3.9rem);
     letter-spacing: 0.014em;
   }
 }
@@ -461,6 +471,14 @@
   width: 100vw;
   left: 50%;
   margin-left: -50vw;
+
+  /* Seam killer: hide 1px subpixel gap above (intro -> callout).
+     Both bands are --surface-raised over the green canvas, and their shared
+     edge lands on a fractional device pixel (e.g. 2876.875 at dpr 2), so the
+     two edges round independently and the green shows through the crack.
+     Same trick .intro uses against title-block, and .callout-diagonal uses
+     below. The 1px overlap is invisible: both sides are the same colour. */
+  margin-top: -1px;
 
   background: var(--surface-raised);
   padding: 0;
@@ -1069,11 +1087,84 @@ html[data-font="dyslexic"] .title-large {
 }
 
 @media (max-width: 420px) {
+  /* Same long-word problem as the base rule above, just at a smaller size:
+     the 7.5vw term put "Translation" at 282.9px against a 264px column, so
+     it sat ~10px right of centre. Eased to 7vw -> 247.6px. This one never
+     reached the page edge, so it cost centring but not horizontal scroll. */
   html[data-font="dyslexic"] .title-large {
-    font-size: clamp(1.6rem, 7.5vw, 2.4rem);
+    font-size: clamp(1.4rem, 7vw, 2.4rem);
+  }
+
+  /* Hero quote: three words in this copy — "marginalized", "communities."
+     and "authoritarianism," — are single words wider than the scroll's safe
+     interior in OpenDyslexic (202.7px against 170.4px of column at 320px).
+     A word that can't fit its column doesn't centre: the line box pins to
+     the content edge and the word spills right, so those three lines sat
+     ~11-16px right of every other line and the quote read visibly
+     off-centre. Every other line measured dead centre, and Inter (165.4px)
+     and Atkinson (169.6px) both just fit, so this is OpenDyslexic-only.
+
+     Fixed by widening the safe interior first (70% -> 78%, and trimming its
+     padding) and only then easing the type down, per the buy-back-space-
+     before-shrinking rule. Breaking or hyphenating the long words would also
+     "fix" it and is the wrong trade here: split words are precisely what
+     OpenDyslexic readers need least. Leaves ~13px of slack at 320px, so
+     nudging this copy is safe; a substantially longer word is not. */
+  html[data-font="dyslexic"] .hero-inner {
+    width: 78%;
+    padding-inline: 0.8rem;
+  }
+
+  html[data-font="dyslexic"] .hero-lead {
+    font-size: 1.38rem;
+  }
+
+  html[data-font="dyslexic"] .hero-question {
+    font-size: 1.12rem;
   }
 }
 
 html[data-font="dyslexic"] .callout-head {
   font-size: clamp(1.6rem, 3vw, 2.6rem);
+}
+
+/* The desktop callout CTA hangs off the panel's right edge, and hangs far
+   enough to push the page sideways in EVERY font: measured at a 902px
+   viewport, ~17px of horizontal scroll in Inter, ~11px in Atkinson, ~58px in
+   OpenDyslexic. The band runs from the 901px breakpoint up to ~1100px, where
+   the panel hits its 58rem cap and the slack beside it finally outgrows the
+   overhang.
+
+   Worth knowing before touching this: the button computes to display:inline,
+   because a.footer-cta (0,1,1) beats .callout-cta (0,1,0) and so wins
+   `position`. Transforms don't apply to inline boxes, which means
+   .callout-cta's `transform: translate(-65%, 0%)` above has never done
+   anything — the box just grows rightward from a fixed anchor, so the
+   overhang is a fixed distance rather than the intended share of the
+   button's width. Don't "fix" that by switching to inline-block: the
+   translate would finally apply and move the button ~97px left of where it
+   has always shipped. That's a design change, not a bug fix.
+
+   So pull it back by however much the viewport is short, and no more. The
+   50% term is half the panel's content box (percentages here resolve against
+   .callout-panel), 50vw is half the viewport, and --cta-overhang covers the
+   button's overhang plus a gutter. min() clamps at 0, so the designed
+   position is untouched wherever it already fits.
+
+   The overhang is a custom property because the button's width is
+   font-dependent. Both values are measured, not derived, and both assume the
+   CURRENT label ("Read Now") — much longer copy needs them re-measured. The
+   base value also carries Atkinson, whose button is narrower than Inter's. */
+.callout-cta {
+  --cta-overhang: 165px;
+}
+
+html[data-font="dyslexic"] .callout-cta {
+  --cta-overhang: 206px;
+}
+
+@media (min-width: 901px) {
+  a.callout-cta.footer-cta {
+    margin-left: min(0px, calc(50vw - 50% - var(--cta-overhang)));
+  }
 }

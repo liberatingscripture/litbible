@@ -1053,6 +1053,17 @@ html.menu-open .site-header__menu-toggle .menu-icon::after {
   }
 }
 
+/* Narrowest phones: "LIT Bible" at 1.85rem needs 129px in Atkinson against
+   the 123px the row can spare at 320px, so the wordmark lost its last
+   letters; Inter fits with exactly 0px to spare, which is its own warning.
+   Ease both. OpenDyslexic has its own, larger reduction in the reader-font
+   section and out-specifies this. */
+@media (max-width: 360px) {
+  .site-header__title {
+    font-size: 1.7rem;
+  }
+}
+
 /* =========================================================
    Full-screen overlay menu (mobile)
    Fade in/out + animated link entrance
@@ -1193,6 +1204,23 @@ html.menu-open body {
 @media (max-width: 520px) {
   .menu-overlay__nav a {
     font-size: 2.05rem;
+  }
+}
+
+/* Narrow phones: 2.05rem still renders the longest link, "Commitments", at
+   307px against the panel's ~250px interior (min(560px, 92vw) less padding),
+   and it's one unbreakable word, so it overran the panel whenever the menu
+   was open. The dyslexic rule in the reader-font section already steps down
+   below 520px, which is why OpenDyslexic was the only font that fit here. */
+@media (max-width: 400px) {
+  /* Reclaim the panel's side padding first — 22px a side is a lot of the
+     294px this panel gets at 320px — then step the type. */
+  .menu-overlay__panel {
+    padding-inline: 10px;
+  }
+
+  .menu-overlay__nav a {
+    font-size: 1.6rem;
   }
 }
 
@@ -1638,6 +1666,22 @@ a.footer-cta > span {
     width: 100%;
     max-width: 320px;
   }
+
+  /* The email field's intrinsic width (~196px, from the input's default
+     size) is the min-content of this whole column, so .footer-right sized
+     itself to 320px inside a 256px grid area at a 320px viewport and the
+     overflow-x:hidden above clipped ~32px off the Subscribe button rather
+     than scrolling the page. Zero the field so it contributes nothing
+     intrinsically, and let the form fill the column so flex-grow hands the
+     field the width that is actually available (~132px at 320px). Font
+     agnostic: the field's default size drives this in all three. */
+  .footer-newsletter__form {
+    width: 100%;
+  }
+
+  .footer-newsletter__input {
+    width: 0;
+  }
 }
 
 /* =========================
@@ -2082,6 +2126,87 @@ html[data-font="dyslexic"] .menu-overlay__nav a {
     font-size: 1.45rem;
   }
 }
+
+/* Narrow phones: even 1.45rem leaves "Commitments" at 309.8px, wider than
+   the panel's interior. The base rule beside the overlay styles reclaims the
+   panel padding for every font; OpenDyslexic needs the extra step on top. */
+@media (max-width: 400px) {
+  html[data-font="dyslexic"] .menu-overlay__nav a {
+    font-size: 1.2rem;
+  }
+}
+
+/* Header: collapse to the hamburger earlier. The desktop nav row measures
+   ~1009px in OpenDyslexic (vs ~747px in Inter), which leaves the brand's
+   minmax(0, 1fr) column nothing to work with: it shrinks to ~54px and
+   .site-header__title's overflow:hidden clips the wordmark to zero width,
+   so the nav appears to sit on top of the site title. Nothing here can be
+   solved by swapping to the short title — "LIT Bible" alone is ~213px in
+   OpenDyslexic, and check() in SiteHeader.astro already forces it.
+   Brand (48px logo + 14px gap + 213px title) + 18px gaps + 24px padding +
+   the nav needs ~1344px, so hand the nav to the overlay below 1400px and
+   keep every label at its readable size. Mirrors the 1100px block above,
+   which still governs the other two fonts. */
+@media (max-width: 1400px) {
+  html[data-font="dyslexic"] .site-header__inner {
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: 12px;
+  }
+
+  html[data-font="dyslexic"] .site-nav {
+    display: none;
+  }
+
+  html[data-font="dyslexic"] .site-header__menu-toggle {
+    display: inline-flex;
+  }
+
+  html[data-font="dyslexic"] .site-header__title .title-truncatable {
+    overflow: visible;
+    text-overflow: clip;
+  }
+
+  /* The nav is gone, so its Aa goes with it and the actions Aa takes over.
+     Needs to out-specify the min-width:1101px rule that hides it. */
+  html[data-font="dyslexic"] .site-header__font-toggle--nav {
+    display: none;
+  }
+
+  html[data-font="dyslexic"]
+    .site-header__actions
+    .site-header__font-toggle--actions {
+    display: inline-flex;
+  }
+}
+
+/* Phones: even the short title overruns the row once the logo and the
+   Aa/hamburger pair (~110px in OpenDyslexic) take their share — 213px of
+   wordmark into ~171px of space at 375px. Scale it with the viewport so it
+   fits from 320px up instead of being silently clipped. */
+@media (max-width: 640px) {
+  html[data-font="dyslexic"] .site-header__title {
+    font-size: clamp(0.95rem, 4.6vw, 1.85rem);
+  }
+}
+
+/* Footer newsletter: the email field's intrinsic width (from its size
+   attribute) is ~327px in OpenDyslexic, and with "Subscribe" at ~170px the
+   row's max-content reaches ~497px — wider than its 1fr grid track, so
+   .footer-right blows the track out and pushes the page sideways (~61px at
+   920px, on every page, since this is SiteFooter). Zeroing the width lets
+   flex-grow size the field from the space that's actually there, keeping
+   the field and button joined on one line.
+
+   Bounded to the two-column footer on purpose: below 721px the grid is a
+   single 1fr column and .footer-right centers instead of shrink-to-fit, so
+   there is no track to blow out and a zero-width field would collapse to
+   ~29px against the button's 170px. */
+@media (min-width: 721px) {
+  html[data-font="dyslexic"] .footer-newsletter__input {
+    width: 0;
+  }
+}
+
 /* =========================
    Chapter tools (Study View): verse-range highlight, verse menu,
    footnote popovers — see src/scripts/chapter-tools.js
