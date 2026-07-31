@@ -363,11 +363,33 @@ collection); they're read directly by the intro pages and the API manifest.
      `!important`, so **the tray's own preview labels carry `!important` too** —
      otherwise the list renders entirely in the active font and previews
      nothing.
-  3. The width compensations (home hero + CTA in `home.css`, mobile nav in
-     `global.css`, ReadMenu grid floors, and the header's forced short title in
-     `SiteHeader.astro`) are scoped to `[data-font="dyslexic"]` **only**.
+  3. The width compensations are scoped to `[data-font="dyslexic"]` **only**.
      OpenDyslexic is far wider than Inter; Atkinson is not, and must not
-     inherit them.
+     inherit them. They live in `home.css` (hero titles, the hero scroll's
+     safe interior, the question CTA), `global.css` (mobile nav, the header's
+     earlier nav collapse + phone title scale, the footer newsletter field
+     above 721px), `ReadMenu.astro` (grid floors), and `SiteHeader.astro` (the
+     forced short title). Prefer **buying back space over shrinking type** —
+     an accessibility font is the last thing that should be made smaller. The
+     header hands the nav to the hamburger below 1400px rather than
+     compressing it; the hero scroll's interior is widened before its type is
+     eased; only the phone-width header title, where there is genuinely no
+     space left, scales down.
+     The one shared mechanism is the **callout CTA**: the clamp that keeps it
+     inside the viewport applies to every font, and only its `--cta-overhang`
+     value is per-font. Don't re-scope it to dyslexic — it overflows in all
+     three.
+  4. **A word wider than its column can't be centred** — the line box pins to
+     the content edge and the word spills right, and text overflow adds to
+     `scrollWidth` without widening any element's box. This has bitten three
+     places on the home page alone (`.title-large`, the hero quote, the
+     overlay's "Commitments"), always as "the text looks pushed right" plus
+     unexplained horizontal scroll. When hunting it, **bisect by hiding
+     sections** — an element-by-element scan for overflowing boxes finds
+     nothing, and `position: fixed` overlays report as false positives.
+     Fix by giving the word room, not by breaking it: `overflow-wrap` and
+     hyphenation split words, which is the opposite of what dyslexic readers
+     need.
 - **Two brand greens, by role (all theme-invariant).** `--green` (#209D50 "LIT
   Green") is for large **surfaces** (heroes, questions block, chat bubbles) and
   non-button icon accents — it carries **ink** text (4.6:1) or white *large*
