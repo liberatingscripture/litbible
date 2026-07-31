@@ -135,16 +135,26 @@ const { class: className = "" } = Astro.props;
         </svg>
       </button>
     </div>
-    <label class="font-tray__row">
-      <span class="font-tray__label font-tray__label--preview">Dyslexia-friendly font</span>
-      <span class="font-tray__control">
-        <span class="font-tray__status" id="dyslexicFontStatus" aria-hidden="true">Off</span>
-        <span class="font-tray__switch">
-          <input type="checkbox" class="font-tray__checkbox" id="dyslexicFontCheckbox" aria-label="Dyslexia-friendly font" />
-          <span class="font-tray__track" aria-hidden="true"></span>
-        </span>
-      </span>
-    </label>
+    {/* Each option is named by its font and rendered in it, so the list
+        previews itself. "Default" has no single font name to give: it means
+        the site's normal typography (Inter, Crimson Text, Fraunces). */}
+    <fieldset class="font-tray__row font-tray__row--font">
+      <legend class="font-tray__legend">Font</legend>
+      <div class="font-tray__fonts">
+        <label class="font-tray__font-option">
+          <input type="radio" class="font-tray__font-input" name="lit-font" value="default" data-font-radio />
+          <span class="font-tray__font-label font-tray__font-label--default">Default</span>
+        </label>
+        <label class="font-tray__font-option">
+          <input type="radio" class="font-tray__font-input" name="lit-font" value="atkinson" data-font-radio />
+          <span class="font-tray__font-label font-tray__font-label--atkinson">Atkinson Hyperlegible</span>
+        </label>
+        <label class="font-tray__font-option">
+          <input type="radio" class="font-tray__font-input" name="lit-font" value="dyslexic" data-font-radio />
+          <span class="font-tray__font-label font-tray__font-label--dyslexic">OpenDyslexic</span>
+        </label>
+      </div>
+    </fieldset>
 
     <fieldset class="font-tray__row font-tray__row--theme">
       <legend class="font-tray__legend">Theme</legend>
@@ -299,12 +309,11 @@ const { class: className = "" } = Astro.props;
     const initFontTray = () => {
       const tray = document.getElementById('fontTray');
       const closeBtn = tray?.querySelector('.font-tray__close');
-      const checkbox = document.getElementById('dyslexicFontCheckbox');
-      const statusEl = document.getElementById('dyslexicFontStatus');
       const toggleBtns = Array.from(document.querySelectorAll('[data-font-toggle]'));
 
-      if (!tray || !closeBtn || !checkbox || !toggleBtns.length) return;
+      if (!tray || !closeBtn || !toggleBtns.length) return;
 
+      const fontRadios = Array.from(tray.querySelectorAll('[data-font-radio]'));
       const themeRadios = Array.from(tray.querySelectorAll('[data-theme-radio]'));
 
       // Move the tray out of the header's stacking context (.site-header has
@@ -316,9 +325,11 @@ const { class: className = "" } = Astro.props;
 
       let activeBtn = null;
 
-      const syncStatus = (active) => {
-        checkbox.checked = active;
-        if (statusEl) statusEl.textContent = active ? 'On' : 'Off';
+      const currentFont = () => document.documentElement.getAttribute('data-font') || 'default';
+
+      const syncFont = () => {
+        const active = currentFont();
+        for (const radio of fontRadios) radio.checked = radio.value === active;
       };
 
       const currentTheme = () => document.documentElement.getAttribute('data-theme') || 'system';
@@ -345,7 +356,7 @@ const { class: className = "" } = Astro.props;
 
       const openTray = (btn) => {
         activeBtn = btn;
-        syncStatus(document.documentElement.classList.contains('dyslexic-font'));
+        syncFont();
         syncTheme();
         positionTray(btn);
         tray.hidden = false;
@@ -378,17 +389,28 @@ const { class: className = "" } = Astro.props;
         if (!tray.hidden) closeTray(false);
       }, { passive: true });
 
-      checkbox.addEventListener('change', () => {
-        const active = checkbox.checked;
-        document.documentElement.classList.toggle('dyslexic-font', active);
-        syncStatus(active);
-        window.dispatchEvent(new Event('resize'));
-        try {
-          active
-            ? localStorage.setItem('dyslexic-font', '1')
-            : localStorage.removeItem('dyslexic-font');
-        } catch (_) {}
-      });
+      for (const radio of fontRadios) {
+        radio.addEventListener('change', () => {
+          if (!radio.checked) return;
+          const v = radio.value; // 'default' | 'dyslexic' | 'atkinson'
+          const root = document.documentElement;
+          if (v === 'default') {
+            root.removeAttribute('data-font');
+          } else {
+            root.setAttribute('data-font', v);
+          }
+          // The header title measures itself against the active font
+          window.dispatchEvent(new Event('resize'));
+          try {
+            v === 'default'
+              ? localStorage.removeItem('lit-font')
+              : localStorage.setItem('lit-font', v);
+            // Retire the pre-three-way key so its fallback can't later
+            // resurrect OpenDyslexic over a newer choice
+            localStorage.removeItem('dyslexic-font');
+          } catch (_) {}
+        });
+      }
 
       for (const radio of themeRadios) {
         radio.addEventListener('change', () => {
@@ -410,7 +432,7 @@ const { class: className = "" } = Astro.props;
         });
       }
 
-      syncStatus(document.documentElement.classList.contains('dyslexic-font'));
+      syncFont();
       syncTheme();
     };
     if ("requestIdleCallback" in window) {
@@ -440,8 +462,9 @@ const { class: className = "" } = Astro.props;
       if (!titleEl || !longEl || !truncEl || !altEl) return;
 
       const check = () => {
-        // Dyslexic font is wider — always use the short title to avoid overflow
-        if (document.documentElement.classList.contains("dyslexic-font")) {
+        // OpenDyslexic is wider — always use the short title to avoid overflow.
+        // Atkinson's metrics are near Inter's, so it measures normally.
+        if (document.documentElement.getAttribute("data-font") === "dyslexic") {
           longEl.style.display = "none";
           altEl.style.display = "inline";
           return;

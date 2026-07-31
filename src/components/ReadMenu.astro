@@ -668,11 +668,11 @@ const fallbackHref =
 
     /* OpenDyslexic is much wider than Inter — raise the floors so labels
        never clip inside their tiles. */
-    html.dyslexic-font .read-menu__grid--books {
+    html[data-font="dyslexic"] .read-menu__grid--books {
       --rm-book-min: 100px;
     }
 
-    html.dyslexic-font .read-menu__grid--chapters {
+    html[data-font="dyslexic"] .read-menu__grid--chapters {
       --rm-chapter-min: 56px;
     }
 
