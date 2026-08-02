@@ -1,9 +1,112 @@
 ---
 import { getCollection, render } from "astro:content";
 import Layout from "../layouts/Layout.astro";
+import { BOOK_ORDER, bookKeyToLabel } from "../data/books.js";
 import "../styles/pages/glossary.css";
 
 const rawEntries = await getCollection("glossary");
+
+/**
+ * Phase 1 alignment records (src/data/alignment/, built by
+ * scripts/build-alignment.mjs) — where each term's LIT rendering actually
+ * appears in the published text. A glossary entry says what `pneuma` becomes;
+ * this says where, and how often.
+ *
+ * A term is shown ONLY when every one of its records is `distinctive`. Terms
+ * with an ambiguous rendering are held back entirely rather than shown
+ * partially: `sarx` also renders as the ordinary word "family", which the
+ * scan cannot tell from a vocative "Family," so publishing its
+ * self-preservation subtotal would read as a reviewed count when it is really
+ * an unreviewed fragment. Those surface once the records are reviewed.
+ */
+type AlignmentRecord = {
+  ref: string;
+  english: { text: string; n: number }[];
+  term: {
+    greek: string;
+    traditional: string;
+    glossary: string;
+    form: string;
+  } | null;
+  confidence: "distinctive" | "common";
+};
+
+type AlignmentFile = {
+  bookKey: string;
+  chapter: number;
+  records: AlignmentRecord[];
+};
+
+type OccurrenceRef = { bookKey: string; chapter: number; verse: number };
+
+type FormOccurrences = {
+  label: string;
+  count: number;
+  books: number;
+  refs: OccurrenceRef[];
+};
+
+const alignmentModules = import.meta.glob<{ default: AlignmentFile }>(
+  "../data/alignment/*.json",
+  { eager: true },
+);
+
+const BOOK_RANK = new Map(
+  (BOOK_ORDER as string[]).map((key, i) => [key, i] as const),
+);
+const bookRank = (key: string) => BOOK_RANK.get(key) ?? Number.MAX_SAFE_INTEGER;
+
+const occurrencesByTerm: Record<string, FormOccurrences[]> = (() => {
+  const byTerm = new Map<
+    string,
+    { pure: boolean; forms: Map<string, OccurrenceRef[]> }
+  >();
+
+  for (const mod of Object.values(alignmentModules)) {
+    const { bookKey, chapter, records } = mod.default;
+    for (const record of records ?? []) {
+      const id = record.term?.glossary;
+      const form = record.term?.form;
+      if (!id || !form) continue;
+
+      let entry = byTerm.get(id);
+      if (!entry) byTerm.set(id, (entry = { pure: true, forms: new Map() }));
+      if (record.confidence !== "distinctive") entry.pure = false;
+
+      // Group by the glossary rendering, not the written text: "Life-breath",
+      // "life-breath", and "life-breaths" are one rendering to a reader. The
+      // records keep each written variant, so Romans 8:2's deliberate
+      // "Torah"/"torah" pair survives in the data even though the count here
+      // shows them together.
+      let refs = entry.forms.get(form);
+      if (!refs) entry.forms.set(form, (refs = []));
+      refs.push({
+        bookKey,
+        chapter,
+        verse: Number(record.ref.split(".").pop()),
+      });
+    }
+  }
+
+  const out: Record<string, FormOccurrences[]> = {};
+  for (const [id, entry] of byTerm) {
+    if (!entry.pure) continue;
+    out[id] = [...entry.forms.entries()]
+      .map(([label, refs]) => ({
+        label,
+        count: refs.length,
+        books: new Set(refs.map((r) => r.bookKey)).size,
+        refs: refs.sort(
+          (a, b) =>
+            bookRank(a.bookKey) - bookRank(b.bookKey) ||
+            a.chapter - b.chapter ||
+            a.verse - b.verse,
+        ),
+      }))
+      .sort((a, b) => b.count - a.count);
+  }
+  return out;
+})();
 
 // Two sorted views — each menu and the initial page order use their own sort key.
 const byLit = [...rawEntries].sort((a, b) => a.data.litMenu.localeCompare(b.data.litMenu));
@@ -296,6 +399,35 @@ const menuData = {
                     <div class="entry-body" data-pagefind-ignore>
                       <Content />
                     </div>
+
+                    {/* Where the rendering actually appears. Plain
+                        <details> so the list works with JS disabled. */}
+                    {occurrencesByTerm[data.id] && (
+                      <div class="entry-occurrences" data-pagefind-ignore>
+                        <h3 class="occ-title">Where it appears</h3>
+                        {occurrencesByTerm[data.id].map((form) => (
+                          <details class="occ">
+                            <summary class="occ-summary">
+                              <span class="occ-form">{form.label}</span>
+                              <span class="occ-count">
+                                {form.count} {form.count === 1 ? "time" : "times"}
+                                {" in "}
+                                {form.books} {form.books === 1 ? "book" : "books"}
+                              </span>
+                            </summary>
+                            <ul class="occ-list">
+                              {form.refs.map((ref) => (
+                                <li>
+                                  <a href={`/${ref.bookKey}-${ref.chapter}#v${ref.verse}`}>
+                                    {bookKeyToLabel(ref.bookKey)} {ref.chapter}:{ref.verse}
+                                  </a>
+                                </li>
+                              ))}
+                            </ul>
+                          </details>
+                        ))}
+                      </div>
+                    )}
                   </article>
                 );
               })}

@@ -1,0 +1,158 @@
+{
+  "bookKey": "mark",
+  "chapter": 9,
+  "records": [
+    {
+      "ref": "Mark.9.23",
+      "english": [
+        {
+          "text": "trusts",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pistis",
+        "traditional": "Faith",
+        "glossary": "faith-trust",
+        "form": "trust"
+      },
+      "confidence": "common",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
+      "ref": "Mark.9.24",
+      "english": [
+        {
+          "text": "trust",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pistis",
+        "traditional": "Faith",
+        "glossary": "faith-trust",
+        "form": "trust"
+      },
+      "confidence": "common",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
+      "ref": "Mark.9.25",
+      "english": [
+        {
+          "text": "unclean",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "akathartos",
+        "traditional": "Unclean",
+        "glossary": "unclean-unclean",
+        "form": "unclean"
+      },
+      "confidence": "common",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
+      "ref": "Mark.9.38",
+      "english": [
+        {
+          "text": "demons",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "daimonion",
+        "traditional": "Demon",
+        "glossary": "demon-demon",
+        "form": "demon"
+      },
+      "confidence": "common",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
+      "ref": "Mark.9.42",
+      "english": [
+        {
+          "text": "trust",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pistis",
+        "traditional": "Faith",
+        "glossary": "faith-trust",
+        "form": "trust"
+      },
+      "confidence": "common",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
+      "ref": "Mark.9.43",
+      "english": [
+        {
+          "text": "Hinnom Valley",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "Gehenna",
+        "traditional": "Gehenna/Hell",
+        "glossary": "gehenna-hinnom-valley",
+        "form": "Hinnom Valley"
+      },
+      "confidence": "distinctive",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
+      "ref": "Mark.9.45",
+      "english": [
+        {
+          "text": "Hinnom Valley",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "Gehenna",
+        "traditional": "Gehenna/Hell",
+        "glossary": "gehenna-hinnom-valley",
+        "form": "Hinnom Valley"
+      },
+      "confidence": "distinctive",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
+      "ref": "Mark.9.47",
+      "english": [
+        {
+          "text": "Hinnom Valley",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "Gehenna",
+        "traditional": "Gehenna/Hell",
+        "glossary": "gehenna-hinnom-valley",
+        "form": "Hinnom Valley"
+      },
+      "confidence": "distinctive",
+      "source": "glossary-scan",
+      "status": "auto"
+    }
+  ]
+}

@@ -1,0 +1,82 @@
+{
+  "bookKey": "1john",
+  "chapter": 1,
+  "records": [
+    {
+      "ref": "1John.1.7",
+      "english": [
+        {
+          "text": "deviation",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hamartia",
+        "traditional": "Sin",
+        "glossary": "sin-deviation",
+        "form": "deviation"
+      },
+      "confidence": "distinctive",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
+      "ref": "1John.1.8",
+      "english": [
+        {
+          "text": "deviation",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hamartia",
+        "traditional": "Sin",
+        "glossary": "sin-deviation",
+        "form": "deviation"
+      },
+      "confidence": "distinctive",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
+      "ref": "1John.1.9",
+      "english": [
+        {
+          "text": "deviations",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hamartia",
+        "traditional": "Sin",
+        "glossary": "sin-deviation",
+        "form": "deviation"
+      },
+      "confidence": "distinctive",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
+      "ref": "1John.1.9",
+      "english": [
+        {
+          "text": "deviations",
+          "n": 2
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hamartia",
+        "traditional": "Sin",
+        "glossary": "sin-deviation",
+        "form": "deviation"
+      },
+      "confidence": "distinctive",
+      "source": "glossary-scan",
+      "status": "auto"
+    }
+  ]
+}

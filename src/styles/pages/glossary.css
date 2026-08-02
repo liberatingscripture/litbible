@@ -398,3 +398,90 @@
 .entries-underline-svg{
   display: none !important;
 }
+
+/* =========================================================
+   OCCURRENCES  (phase 1 alignment data)
+   Where a term's LIT rendering actually appears. Secondary to
+   the definition, so it sits smaller and quieter beneath it.
+   Colors come from existing tokens, which already carry their
+   own light/dark pairs — no new dark-mode rules needed here.
+   ========================================================= */
+
+.entry-occurrences{
+  margin-top: 1.15rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid rgba(var(--ink-rgb), 0.14);
+  max-width: 44em;
+}
+
+.occ-title{
+  margin: 0 0 0.5rem;
+  font-size: clamp(13px, 1.05vw, 15px);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text);
+  opacity: 0.72;
+}
+
+.occ + .occ{ margin-top: 0.3rem; }
+
+.occ-summary{
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 0.35rem 0;
+  font-size: clamp(15px, 1.5vw, 18px);
+}
+
+.occ-summary::-webkit-details-marker{ display: none; }
+
+/* --green-text, not --lit-green: the latter is theme-invariant #209D50 and
+   is the SURFACE green, which only clears AA as link text by a hair on the
+   dark background. --green-text is the link/text token and flips to a light
+   green in dark mode. */
+.occ-summary::before{
+  content: "▸";
+  display: inline-block;
+  color: var(--green-text, var(--lit-green));
+  transition: transform 160ms ease;
+}
+
+.occ[open] > .occ-summary::before{ transform: rotate(90deg); }
+
+.occ-form{
+  font-weight: 700;
+  color: var(--text-strong);
+}
+
+.occ-count{
+  color: var(--text);
+  opacity: 0.75;
+  font-size: 0.86em;
+}
+
+.occ-list{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 0.85rem;
+  margin: 0.35rem 0 0.6rem;
+  padding: 0 0 0 1.15rem;
+  list-style: none;
+}
+
+.occ-list a{
+  color: var(--green-text, var(--lit-green));
+  text-decoration: none;
+  font-size: clamp(14px, 1.3vw, 16px);
+  white-space: nowrap;
+}
+
+.occ-list a:hover,
+.occ-list a:focus-visible{ text-decoration: underline; }
+
+@media (prefers-reduced-motion: reduce){
+  .occ-summary::before{ transition: none; }
+}
