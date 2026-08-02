@@ -436,15 +436,29 @@ export function buildChanges({ addedFiles, modifiedFiles, readBase, readNow }) {
       relabeledToSet.add(toLabel);
     }
 
-    // Remove pure relabelings from per-footnote diffs so they aren't listed
-    // individually as added/removed/updated.
-    const filteredFnDiffs = fnDiffs.filter((d) => {
-      if (d.action === "added" && relabeledToSet.has(d.label)) return false;
-      if (d.action === "removed" && relabeledFromSet.has(d.label)) return false;
+    // Remove pure relabelings from per-footnote diffs, and reclassify the one
+    // label where the cascade actually started.
+    //
+    // The id-based loop above compares label-to-label, so at the insertion or
+    // removal point it sees "old content X, new content Y" and calls it an edit.
+    // It isn't: at that label a note was inserted (or removed) and everything
+    // after it shifted. Reporting it as an edit produces a before → after diff
+    // between two unrelated notes — e.g. inserting a note at q reads as though
+    // the note formerly at q had been rewritten, when it merely moved to r.
+    //
+    // Four cases for a label-collision "update", by where its two sides came
+    // from and went to:
+    //   new from elsewhere + old moved elsewhere → pure relabel (drop it)
+    //   new is genuinely new + old moved elsewhere → INSERTION at this label
+    //   new from elsewhere + old is gone          → REMOVAL at this label
+    //   neither                                   → a real edit (keep as-is)
+    // The insertion/removal readings only apply when this label participates in
+    // a detected cascade; without one, an unrelated rewrite stays an edit.
+    const filteredFnDiffs = [];
+    for (const d of fnDiffs) {
+      if (d.action === "added" && relabeledToSet.has(d.label)) continue;
+      if (d.action === "removed" && relabeledFromSet.has(d.label)) continue;
       if (d.action === "updated") {
-        // A label-collision "update" is actually a relabeling cascade if the new
-        // content originated from a different old label AND the old content moved
-        // to a different new label.
         const newFn = newFnMap.get(`fn-${d.label}`);
         const oldFn = oldFnMap.get(`fn-${d.label}`);
         if (newFn && oldFn) {
@@ -454,11 +468,33 @@ export function buildChanges({ addedFiles, modifiedFiles, readBase, readNow }) {
           const oldMovedElsewhere =
             newContentToLabel.has(oldFn.html) &&
             newContentToLabel.get(oldFn.html) !== d.label;
-          if (newCameFromElsewhere && oldMovedElsewhere) return false;
+
+          if (newCameFromElsewhere && oldMovedElsewhere) continue;
+
+          if (!newCameFromElsewhere && oldMovedElsewhere && relabeledFromSet.has(d.label)) {
+            filteredFnDiffs.push({
+              ...d,
+              action: "added",
+              diff: `added "${truncate(stripHtml(newFn.html), 120)}"`,
+            });
+            continue;
+          }
+
+          if (newCameFromElsewhere && !oldMovedElsewhere && relabeledToSet.has(d.label)) {
+            filteredFnDiffs.push({
+              ...d,
+              action: "removed",
+              // The removed note's verse comes from the OLD paragraphs — this
+              // label now points at whichever note shifted up into its place.
+              verse: findFootnoteVerse(oldParas, d.label) ?? d.verse,
+              diff: `removed "${truncate(stripHtml(oldFn.html), 120)}"`,
+            });
+            continue;
+          }
         }
       }
-      return true;
-    });
+      filteredFnDiffs.push(d);
+    }
 
     // Summarize relabelings as a range (e.g. "footnotes formerly g–q relabeled h–r").
     // Sort by position in the original footnote arrays, not alphabetically, so that
@@ -512,9 +548,15 @@ export function buildChanges({ addedFiles, modifiedFiles, readBase, readNow }) {
       const fnVerses = filteredFnDiffs.map((d) => d.verse).filter(Boolean);
       const verseStr = fnVerses.length ? formatVerseRange(fnVerses) : "";
       const ref = verseStr ? `${label} ${chapter}:${verseStr}` : `${label} ${chapter}`;
-      const allAdded =
-        filteredFnDiffs.length > 0 && filteredFnDiffs.every((d) => d.action === "added");
-      const action = allAdded ? "added" : "updated";
+      // When every diff in the bucket agrees on what happened, say so ("added" /
+      // "removed" / "updated"); a mixed bucket falls back to the umbrella
+      // "updated". `type` stays within the two footnote values the apps already
+      // know — a removal is described precisely but still typed
+      // footnote_updated, since introducing a third value would be a contract
+      // change for a client that may not handle it.
+      const actions = new Set(filteredFnDiffs.map((d) => d.action));
+      const action = actions.size === 1 ? [...actions][0] : "updated";
+      const allAdded = filteredFnDiffs.length > 0 && action === "added";
       const fnWord = filteredFnDiffs.length === 1 ? "footnote" : "footnotes";
 
       // description stays self-contained (keeps the human verse ref + footnote
@@ -540,8 +582,11 @@ export function buildChanges({ addedFiles, modifiedFiles, readBase, readNow }) {
           .join("; ");
       }
 
+      // A cascade no longer forces footnote_updated: now that the insertion
+      // point is identified rather than read as an edit, an inserted note is a
+      // genuine footnote_added and the letter shift rides along in `relabel`.
       const entry = {
-        type: allAdded && !relabelSummary ? "footnote_added" : "footnote_updated",
+        type: allAdded ? "footnote_added" : "footnote_updated",
         description,
       };
       if (detail) entry.detail = detail;

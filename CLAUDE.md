@@ -714,8 +714,12 @@ collection); they're read directly by the intro pages and the API manifest.
   change carries a self-contained `description` plus additive/optional
   enrichment — `detail` (pure before→after), `location` (`bookKey`/`chapter`/
   `verse` for deep-linking scripture changes), and `relabel` (the footnote
-  letter-cascade note, split out of `description`). See the docblock in
-  `draft-release-notes.mjs` for the field-by-field spec. (A stable per-footnote
+  letter-cascade note, split out of `description`). A footnote inserted or
+  removed mid-chapter is reported as **added/removed at the label where the
+  cascade starts**, not as an edit of the note it displaced — otherwise the
+  `detail` pairs two unrelated notes and reads as though the displaced one was
+  rewritten. See the docblock in `draft-release-notes.mjs` for the field-by-field
+  spec. (A stable per-footnote
   `footnoteId` for exact-footnote deep links is intentionally not emitted yet —
   it needs a matching stable anchor in the chapter JSON first.) The drafter
   reports **reader-facing changes only**: modified chapters diff rendered verse/

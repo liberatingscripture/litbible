@@ -28,6 +28,21 @@
  * All of location/detail/relabel are additive and optional; `description` alone
  * always renders a complete row for apps that haven't adopted the new fields.
  *
+ * Inserted/removed vs. edited footnotes. When a note is inserted or removed
+ * mid-chapter every later letter shifts, and a naive label-to-label comparison
+ * reads the shift's starting label as an edit — pairing two unrelated notes into
+ * a "before → after" that claims the displaced note was rewritten. The core
+ * identifies that label instead and reports it as added or removed, wording
+ * `description` accordingly ("footnote q added" / "footnote q removed") and
+ * putting only the genuinely new or deleted text in `detail`. The letter shift
+ * itself still rides along in `relabel`.
+ *   - `type` for an insertion is footnote_added even when `relabel` is present
+ *     (a cascade no longer forces footnote_updated).
+ *   - a removal is described precisely but stays typed footnote_updated: there
+ *     is deliberately no footnote_removed value, since adding one would be a
+ *     breaking contract change for a client that doesn't know it.
+ * Buckets holding a mix of actions keep the umbrella "updated" wording and type.
+ *
  * This file is the CLI/git shell only: it parses args, resolves the base ref,
  * lists changed files, reads their old/new content, then delegates all diff→
  * changes logic to buildChanges() in scripts/lib/release-notes-core.mjs (the

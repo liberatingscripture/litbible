@@ -199,30 +199,80 @@ test("footnote appended at end (no cascade): footnote_added", () => {
   ]);
 });
 
-test("footnote inserted mid-list: relabel cascade split into its own field, type stays footnote_updated", () => {
+test("footnote inserted mid-list: reported as ADDED, not as an edit of the note it displaced", () => {
   // Insert a new note at label b; old b→c, c→d cascade.
   const base = chapterJson({ paragraphs: [para("p1", verse(1, "Word.", ["a", "b", "c"]))], footnotes: [fn("a", "A"), fn("b", "B"), fn("c", "C")] });
   const now = chapterJson({ paragraphs: [para("p1", verse(1, "Word.", ["a", "b", "c", "d"]))], footnotes: [fn("a", "A"), fn("b", "NEW"), fn("c", "B"), fn("d", "C")] });
   const changes = run({ [F]: base }, { [F]: now }, { modified: [F] });
   assert.equal(changes.length, 1);
   const [c] = changes;
-  // The relabel note lives ONLY in `relabel`; description keeps the human ref + letter.
-  assert.equal(c.type, "footnote_updated"); // relabelSummary present ⇒ never footnote_added
-  assert.equal(c.description, "John 3:1 — footnote b updated");
+  // Label b is where the cascade STARTED — a note was inserted there, and "B"
+  // merely moved to c. Reporting '"B" → "NEW"' would claim B was rewritten.
+  assert.equal(c.type, "footnote_added");
+  assert.equal(c.description, "John 3:1 — footnote b added");
+  assert.equal(c.detail, 'added "NEW"');
+  // The relabel note still lives ONLY in `relabel`, never in the description.
   assert.ok(!/relabel/.test(c.description));
   assert.equal(c.relabel, "footnotes formerly b–c relabeled c–d");
-  assert.equal(c.detail, '"B" → "NEW"');
 });
 
-test("footnote removed mid-list: negative-shift cascade also reported via relabel", () => {
+test("footnote removed mid-list: reported as REMOVED, not as an edit at the vacated label", () => {
   // Remove note B; old c→b, d→c cascade (shift -1).
   const base = chapterJson({ paragraphs: [para("p1", verse(1, "Word.", ["a", "b", "c", "d"]))], footnotes: [fn("a", "A"), fn("b", "B"), fn("c", "C"), fn("d", "D")] });
   const now = chapterJson({ paragraphs: [para("p1", verse(1, "Word.", ["a", "b", "c"]))], footnotes: [fn("a", "A"), fn("b", "C"), fn("c", "D")] });
   const changes = run({ [F]: base }, { [F]: now }, { modified: [F] });
   assert.equal(changes.length, 1);
-  assert.equal(changes[0].type, "footnote_updated");
-  assert.equal(changes[0].relabel, "footnotes formerly c–d relabeled b–c");
-  assert.ok(!/relabel/.test(changes[0].description));
+  const [c] = changes;
+  // Stays footnote_updated on purpose: there is no footnote_removed in the
+  // app contract, so the precision lives in description/detail instead.
+  assert.equal(c.type, "footnote_updated");
+  assert.equal(c.description, "John 3:1 — footnote b removed");
+  assert.equal(c.detail, 'removed "B"');
+  assert.equal(c.relabel, "footnotes formerly c–d relabeled b–c");
+  assert.ok(!/relabel/.test(c.description));
+});
+
+test("footnote edited in place while a cascade runs elsewhere stays an edit", () => {
+  // Insert NEW at b (cascade b→c, c→d) AND genuinely rewrite the note at a.
+  // The rewrite at a must not be swept up by the insertion reclassification.
+  const base = chapterJson({ paragraphs: [para("p1", verse(1, "Word.", ["a", "b", "c"]))], footnotes: [fn("a", "A old"), fn("b", "B"), fn("c", "C")] });
+  const now = chapterJson({ paragraphs: [para("p1", verse(1, "Word.", ["a", "b", "c", "d"]))], footnotes: [fn("a", "A new"), fn("b", "NEW"), fn("c", "B"), fn("d", "C")] });
+  const changes = run({ [F]: base }, { [F]: now }, { modified: [F] });
+  assert.equal(changes.length, 1);
+  const [c] = changes;
+  // Mixed bucket (one edit + one insertion) ⇒ umbrella wording and type.
+  assert.equal(c.type, "footnote_updated");
+  assert.equal(c.description, "John 3:1 — footnotes a, b updated");
+  assert.match(c.detail, /fn\. a .*"old" → "new"/);
+  assert.match(c.detail, /fn\. b .*added "NEW"/);
+  assert.equal(c.relabel, "footnotes formerly b–c relabeled c–d");
+});
+
+test("real-world Luke 5:32 shape: insertion at q with a q–u → r–v cascade", () => {
+  // The change that exposed this: a metanoia note inserted at q pushed the
+  // "sons of the wedding hall" note from q to r, and the drafter reported it
+  // as though that note had been rewritten into the metanoia note.
+  const LUKE = "src/data/chapters/luke-5.json"; // book/chapter come from the PATH
+  const labels = ["p", "q", "r", "s", "t", "u"];
+  const base = chapterJson({
+    bookKey: "luke",
+    chapter: 5,
+    paragraphs: [para("p1", verse(32, "I haven't come.", ["p"])), para("p2", verse(34, "You can't.", ["q", "r", "s", "t"])), para("p3", verse(39, "No one.", ["u"]))],
+    footnotes: labels.map((l, i) => fn(l, `NOTE ${i}`)),
+  });
+  const now = chapterJson({
+    bookKey: "luke",
+    chapter: 5,
+    paragraphs: [para("p1", verse(32, "I haven't come.", ["p", "q"])), para("p2", verse(34, "You can't.", ["r", "s", "t", "u"])), para("p3", verse(39, "No one.", ["v"]))],
+    footnotes: [fn("p", "NOTE 0"), fn("q", "METANOIA"), ...labels.slice(1).map((l, i) => fn(String.fromCharCode(l.charCodeAt(0) + 1), `NOTE ${i + 1}`))],
+  });
+  const changes = run({ [LUKE]: base }, { [LUKE]: now }, { modified: [LUKE] });
+  const fnChange = changes.find((c) => c.type.startsWith("footnote"));
+  assert.equal(fnChange.type, "footnote_added");
+  assert.equal(fnChange.description, "Luke 5:32 — footnote q added");
+  assert.equal(fnChange.detail, 'added "METANOIA"');
+  assert.equal(fnChange.relabel, "footnotes formerly q–u relabeled r–v");
+  assert.deepEqual(fnChange.location, { bookKey: "luke", chapter: 5, verse: 32 });
 });
 
 /* ── 4. Metadata-only + attribute-only collapse (FIXLIST O11 core behaviors) ── */

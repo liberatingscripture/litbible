@@ -1,5 +1,33 @@
 [
   {
+    "version": "2026-08-02",
+    "date": "2026-08-02",
+    "label": "August 2, 2026",
+    "changes": [
+      {
+        "type": "text_updated",
+        "description": "Luke 5:32 — text updated",
+        "detail": "added \"to reorient their minds\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 5,
+          "verse": 32
+        }
+      },
+      {
+        "type": "footnote_added",
+        "description": "Luke 5:32 — footnote q added",
+        "detail": "added \"The Greek word metanoia is traditionally translated as ‘repent.’ The meaning of metanoia is ‘change the mind’ or ‘trans…\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 5,
+          "verse": 32
+        },
+        "relabel": "footnotes formerly q–u relabeled r–v"
+      }
+    ]
+  },
+  {
     "version": "2026-07-28",
     "date": "2026-07-28",
     "label": "July 28, 2026",
