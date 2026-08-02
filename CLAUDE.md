@@ -391,7 +391,16 @@ git clone --depth 1 https://github.com/morphgnt/sblgnt.git .morphgnt
 ```
 
 Without it the run still succeeds, verdicts on disk are preserved rather than
-blanked, and it says so. `MORPHGNT_DIR` overrides the location.
+blanked, and it says so. (The review tool is the opposite — it refuses to
+start; see below.)
+
+**Keep the clone OUTSIDE the repo and point `MORPHGNT_DIR` at it.** The default
+location resolves per-checkout, so a clone made inside a worktree is lost the
+moment that worktree is removed, and every other worktree re-downloads its own
+copy. One clone somewhere permanent plus `MORPHGNT_DIR` in the user environment
+serves every checkout, and both `build-alignment.mjs` and the review tool read
+the same variable. The in-repo `.gitignore` entry stays as a safety net for a
+clone made the default way.
 
 `scripts/lib/glossary-lemmas.mjs` bridges the glossary's transliterated
 headword (`sarx`) to real lemmas (`σάρξ`), and is an **editorial** config: the

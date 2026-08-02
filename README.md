@@ -120,6 +120,10 @@ Greek text — the tool tells you how to fetch one if it's missing. That copy is
 reference for the tool only; nothing from it is published, and it stays out of
 the repository.
 
+Clone it once somewhere permanent outside the repo and set `MORPHGNT_DIR` to
+that path. Both this tool and `build:alignment` read the variable, so a single
+copy serves every checkout instead of one per working directory.
+
 ## If something breaks badly
 
 `DISASTER-RECOVERY.md` at the repo root lists every dashboard and secret
