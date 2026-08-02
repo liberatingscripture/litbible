@@ -18,6 +18,7 @@
         "form": "messenger"
       },
       "confidence": "common",
+      "lemma": "present",
       "source": "glossary-scan",
       "status": "auto"
     },
@@ -37,6 +38,7 @@
         "form": "sacred"
       },
       "confidence": "common",
+      "lemma": "absent",
       "source": "glossary-scan",
       "status": "auto"
     },
@@ -56,6 +58,7 @@
         "form": "sacred"
       },
       "confidence": "common",
+      "lemma": "present",
       "source": "glossary-scan",
       "status": "auto"
     },
@@ -75,6 +78,7 @@
         "form": "life-breath"
       },
       "confidence": "distinctive",
+      "lemma": "present",
       "source": "glossary-scan",
       "status": "auto"
     }

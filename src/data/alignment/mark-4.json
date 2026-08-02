@@ -18,6 +18,7 @@
         "form": "The Adversary"
       },
       "confidence": "distinctive",
+      "lemma": "present",
       "source": "glossary-scan",
       "status": "auto"
     },
@@ -37,6 +38,7 @@
         "form": "the heavens"
       },
       "confidence": "common",
+      "lemma": "present",
       "source": "glossary-scan",
       "status": "auto"
     },
@@ -56,6 +58,7 @@
         "form": "trust"
       },
       "confidence": "common",
+      "lemma": "present",
       "source": "glossary-scan",
       "status": "auto"
     }

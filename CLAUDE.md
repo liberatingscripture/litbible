@@ -237,7 +237,9 @@ the sitemap filter live in `astro.config.mjs`.
 | `build-api-manifest.mjs` | `public/api/manifest.json` + `public/api/data/` for the native apps. |
 | `build-og-images.mjs` | `public/og/` — per-chapter/intro share cards (fonts in `scripts/og/fonts/`). |
 | `build-favicons.mjs` | Favicon/touch/manifest icons from the emblem SVGs. **Not** in the build — run by hand when the emblem changes. |
-| `build-alignment.mjs` | `src/data/alignment/` — scans published chapters for glossary-term renderings. **Not** in the build; its output is committed and merges with prior human review. See The Alignment Dataset below. |
+| `build-alignment.mjs` | `src/data/alignment/` — scans published chapters for glossary-term renderings, then checks each against MorphGNT. **Not** in the build; its output is committed and merges with prior human review. See The Alignment Dataset below. |
+| `lib/morphgnt.mjs` | Reads a gitignored local MorphGNT working copy (lemma-per-verse). Absent → verification skipped, prior verdicts kept. |
+| `lib/glossary-lemmas.mjs` | Editorial map: glossary id → the Greek lemmas that commitment covers. Validated against the corpus at load. |
 | `fetch-podcast-feed.mjs` | Refresh podcast XML snapshot (non-fatal on failure). |
 | `draft-release-notes.mjs` | CLI/git shell: drafts release-notes entries from git diffs (used by CI). Delegates the diff→changes logic to `lib/release-notes-core.mjs`. |
 | `lib/release-notes-core.mjs` | Pure `buildChanges()` core of the drafter — no git/fs/argv of its own (readBase/readNow injected). Unit-tested directly (`test/draft-release-notes.test.js`) since its output shape is an app contract. |
@@ -349,7 +351,54 @@ coverage grows:
   match is effectively certain) or `common` (ordinary English that may or may
   not be rendering the Greek: "trust", "clean"). The `DISTINCTIVE` set in the
   script is an editorial judgment, not a derivable rule.
+- `lemma` is the **Greek-side check** — `present`, `absent`, or `unchecked` —
+  and is deliberately a separate axis from `confidence`. See below.
 - `status` is `auto` until a human reviews it.
+
+### Greek verification (MorphGNT)
+
+`build-alignment.mjs` checks each record against a local MorphGNT/SBLGNT
+working copy: does the lemma this record claims actually occur in this verse?
+**MorphGNT is a tool here, not a dependency and not redistributed** — its
+lemmatization is CC BY-SA 3.0 and the SBLGNT text carries its own EULA, so the
+corpus is gitignored and nothing from it is copied into `src/` or `public/`.
+Clone it by hand when you need to re-verify:
+
+```bash
+git clone --depth 1 https://github.com/morphgnt/sblgnt.git .morphgnt
+```
+
+Without it the run still succeeds, verdicts on disk are preserved rather than
+blanked, and it says so. `MORPHGNT_DIR` overrides the location.
+
+`scripts/lib/glossary-lemmas.mjs` bridges the glossary's transliterated
+headword (`sarx`) to real lemmas (`σάρξ`), and is an **editorial** config: the
+question is which Greek words a commitment covers, not what the dictionary form
+is. Every lemma is validated against the corpus at load, so a bad accent fails
+loudly. Erring inclusive is safer — a missing lemma makes good records read
+`absent` and hides them. **A term whose contradiction rate is far above its
+neighbours usually means a lemma missing from that map, not translator
+inconsistency.**
+
+Anything the check can't speak to is `unchecked`, never `absent` — versification
+gaps must not look like errors (the pericope adulterae and the Romans doxology
+are exactly this, and are the reason the guard exists).
+
+The inverse of the scan — verses where the lemma occurs but no rendering matched
+— is written to `alignment-coverage.json`, the actual work list. That file *is* a
+lemma concordance, so it's gitignored rather than committed.
+
+**What this check established, and it governs the roadmap:** the glossary's
+`lit` field is a **headline, not a rendering inventory**. It states the
+interpretive commitment; the running text realizes it several ways. `metanoia`
+is glossed "reorienting the mind" but appears as "transformation of the mind",
+"the reorienting of minds", "reorienting your mind"; `blasphemia` is glossed
+"disrespectfulness" but appears as "contemptuous speech", "slanderous
+accusation", "speaking disrespectfully" — and never as the glossed word, which
+is why both terms score 0% coverage. So an English-first scan can only ever find
+what it was told to look for. **Seed future work from the lemma side, where the
+verse list is complete by construction, and classify; don't seed from the
+English side and discover.**
 
 **The output is committed, not gitignored** — unlike every other generated
 artifact here, it carries review state. Re-running merges: any record marked

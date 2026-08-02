@@ -18,6 +18,7 @@
         "form": "standing up"
       },
       "confidence": "common",
+      "lemma": "absent",
       "source": "glossary-scan",
       "status": "auto"
     },
@@ -37,6 +38,7 @@
         "form": "restoration"
       },
       "confidence": "common",
+      "lemma": "present",
       "source": "glossary-scan",
       "status": "auto"
     },
@@ -56,6 +58,7 @@
         "form": "the heavens"
       },
       "confidence": "common",
+      "lemma": "present",
       "source": "glossary-scan",
       "status": "auto"
     },
@@ -75,6 +78,7 @@
         "form": "sacred"
       },
       "confidence": "common",
+      "lemma": "absent",
       "source": "glossary-scan",
       "status": "auto"
     },
@@ -94,6 +98,7 @@
         "form": "sacred"
       },
       "confidence": "common",
+      "lemma": "absent",
       "source": "glossary-scan",
       "status": "auto"
     }

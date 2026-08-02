@@ -18,6 +18,7 @@
         "form": "False Accuser"
       },
       "confidence": "distinctive",
+      "lemma": "present",
       "source": "glossary-scan",
       "status": "auto"
     },
@@ -37,6 +38,7 @@
         "form": "clean"
       },
       "confidence": "common",
+      "lemma": "present",
       "source": "glossary-scan",
       "status": "auto"
     },
@@ -56,6 +58,7 @@
         "form": "clean"
       },
       "confidence": "common",
+      "lemma": "present",
       "source": "glossary-scan",
       "status": "auto"
     },
@@ -75,6 +78,7 @@
         "form": "clean"
       },
       "confidence": "common",
+      "lemma": "present",
       "source": "glossary-scan",
       "status": "auto"
     },
@@ -94,6 +98,7 @@
         "form": "trust"
       },
       "confidence": "common",
+      "lemma": "present",
       "source": "glossary-scan",
       "status": "auto"
     },
@@ -113,6 +118,7 @@
         "form": "The Adversary"
       },
       "confidence": "distinctive",
+      "lemma": "present",
       "source": "glossary-scan",
       "status": "auto"
     }

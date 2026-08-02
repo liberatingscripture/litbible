@@ -18,6 +18,7 @@
         "form": "praise"
       },
       "confidence": "common",
+      "lemma": "present",
       "source": "glossary-scan",
       "status": "auto"
     },
@@ -37,6 +38,7 @@
         "form": "family"
       },
       "confidence": "common",
+      "lemma": "absent",
       "source": "glossary-scan",
       "status": "auto"
     }

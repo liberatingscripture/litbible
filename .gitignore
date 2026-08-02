@@ -42,3 +42,11 @@ public/search/topics.json
 public/topics-index.json
 public/search/verses.json
 public/og/
+
+# MorphGNT working copy — a build-time VALIDATOR for the alignment dataset, not
+# a dependency and not redistributed. Its lemmatization is CC BY-SA 3.0 and the
+# SBLGNT text carries its own EULA, so the corpus and the lemma work-list it
+# produces stay out of the repo. See The Alignment Dataset in CLAUDE.md.
+#   git clone --depth 1 https://github.com/morphgnt/sblgnt.git .morphgnt
+.morphgnt/
+alignment-coverage.json

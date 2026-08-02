@@ -18,6 +18,7 @@
         "form": "The Adversary"
       },
       "confidence": "distinctive",
+      "lemma": "present",
       "source": "glossary-scan",
       "status": "auto"
     },
@@ -37,6 +38,7 @@
         "form": "demon"
       },
       "confidence": "common",
+      "lemma": "present",
       "source": "glossary-scan",
       "status": "auto"
     }
