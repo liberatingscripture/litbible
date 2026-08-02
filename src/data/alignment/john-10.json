@@ -26,8 +26,8 @@
       "ref": "John.10.21",
       "english": [
         {
-          "text": "demons",
-          "n": 1
+          "text": "demon",
+          "n": 2
         }
       ],
       "greek": [],
@@ -46,8 +46,8 @@
       "ref": "John.10.21",
       "english": [
         {
-          "text": "demon",
-          "n": 2
+          "text": "demons",
+          "n": 1
         }
       ],
       "greek": [],

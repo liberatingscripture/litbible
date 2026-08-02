@@ -20,14 +20,24 @@ import path from "node:path";
 import { BOOK_ORDER } from "../../src/data/books.js";
 
 /**
+ * @param {object} [opts]
+ * @param {boolean} [opts.withTokens] Also keep every token in verse order.
+ *   Off by default because build-alignment only needs "is this lemma here?",
+ *   and holding ~138k token objects to answer that is waste. The review tool
+ *   needs the tokens themselves, so it opts in.
  * @returns {Promise<null | {
  *   lemmasByRef: Map<string, Set<string>>,   // "Rom.8.3" -> lemmas in that verse
  *   refsByLemma: Map<string, string[]>,      // lemma -> refs, canonical order
+ *   tokensByRef: Map<string, Token[]> | null,
  *   verses: Set<string>,                     // every ref SBLGNT actually has
  *   lemmas: Set<string>,
  * }>}
+ *
+ * @typedef {{ t: number, text: string, word: string, lemma: string,
+ *             pos: string, parse: string }} Token
+ *   `t` is 1-based position within its verse — the anchor phase 2 records use.
  */
-export async function loadMorphGnt(dir, osisByBookKey) {
+export async function loadMorphGnt(dir, osisByBookKey, { withTokens = false } = {}) {
   let files;
   try {
     files = (await fs.readdir(dir)).filter((f) => f.endsWith("-morphgnt.txt"));
@@ -38,6 +48,7 @@ export async function loadMorphGnt(dir, osisByBookKey) {
 
   const lemmasByRef = new Map();
   const refsByLemma = new Map();
+  const tokensByRef = withTokens ? new Map() : null;
   const verses = new Set();
   const lemmas = new Set();
 
@@ -67,8 +78,24 @@ export async function loadMorphGnt(dir, osisByBookKey) {
         if (refs) refs.push(ref);
         else refsByLemma.set(lemma, [ref]);
       }
+
+      if (tokensByRef) {
+        // Lines are verse-sequential within a file and the files sort into
+        // canonical order, so appending is enough — `t` is just the token's
+        // position in the verse and needs no second pass.
+        let toks = tokensByRef.get(ref);
+        if (!toks) tokensByRef.set(ref, (toks = []));
+        toks.push({
+          t: toks.length + 1,
+          pos: cols[1],
+          parse: cols[2],
+          text: cols[3], // with punctuation, as printed
+          word: cols[4], // punctuation stripped
+          lemma,
+        });
+      }
     }
   }
 
-  return { lemmasByRef, refsByLemma, verses, lemmas };
+  return { lemmasByRef, refsByLemma, tokensByRef, verses, lemmas };
 }

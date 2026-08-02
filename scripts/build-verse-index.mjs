@@ -30,6 +30,7 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import { BOOK_ORDER } from "../src/data/books.js";
 import { foldDiacritics } from "../src/lib/word-stem.mjs";
+import { splitChapterVerses } from "./lib/verse-text.mjs";
 
 const ROOT = process.cwd();
 const CHAPTERS_DIR = path.join(ROOT, "src", "data", "chapters");
@@ -37,50 +38,13 @@ const OUT_FILE = path.join(ROOT, "public", "search", "verses.json");
 
 const BOOK_RANK = new Map(BOOK_ORDER.map((k, i) => [k, i]));
 
-/** Strip markup down to searchable plain text (chapters only use a few entities). */
-function htmlToPlainText(html) {
-  return String(html || "")
-    .replace(
-      /<sup\b[^>]*class=(['"])[^'"]*\bfn-ref\b[^'"]*\1[^>]*>[\s\S]*?<\/sup>/gi,
-      "",
-    )
-    // Block boundaries (poetry lines, paragraphs) separate words; inline
-    // tags sit inside words' natural whitespace and are dropped outright so
-    // punctuation isn't pushed off its word ("meshiah," not "meshiah ,").
-    .replace(/<\/?(?:p|blockquote|br)\b[^>]*>/gi, " ")
-    .replace(/<[^>]+>/g, "")
-    .replace(/&nbsp;/g, " ")
-    .replace(/&mdash;/g, "—")
-    .replace(/&#39;/g, "'")
-    .replace(/&amp;/g, "&")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
 /**
- * Split one chapter's joined paragraph HTML into per-verse plain text.
- * A verse that spans a paragraph break repeats its `id="vN"` sup at the start
- * of the continuation paragraph; the continuation text is appended to the
- * verse's first chunk (mirroring dropDuplicateVerseIds at render time).
+ * The shipped shape: a DENSE array, index 0 = verse 1, "" for gaps. The client
+ * indexes into it directly, so it can't be sparse and can't be a Map.
+ * Splitting itself is shared — see lib/verse-text.mjs.
  */
 function extractVerses(paragraphs) {
-  const joined = (paragraphs || []).join(" ");
-  const parts = joined.split(/<sup\b[^>]*\bid="v(\d+)"[^>]*>/);
-
-  // parts = [before-verse-1, "1", chunk, "2", chunk, ...]
-  const byVerse = new Map();
-  for (let i = 1; i < parts.length; i += 2) {
-    const verse = Number(parts[i]);
-    if (!Number.isFinite(verse) || verse <= 0) continue;
-
-    // The chunk still starts with the sup's own text: "N</sup>…".
-    const chunkHtml = String(parts[i + 1] || "").replace(/^\d+<\/sup>/, "");
-    const text = htmlToPlainText(chunkHtml);
-    if (!text) continue;
-
-    byVerse.set(verse, byVerse.has(verse) ? `${byVerse.get(verse)} ${text}` : text);
-  }
-
+  const byVerse = splitChapterVerses(paragraphs);
   if (!byVerse.size) return null;
 
   const maxVerse = Math.max(...byVerse.keys());

@@ -73,6 +73,8 @@ npm run build:favicons    # Regenerate the favicon/touch/manifest icons from the
                           #   (on demand only — outputs are committed, not built)
 npm run build:alignment   # Rescan the text for glossary-term renderings (src/data/alignment/)
                           #   (on demand only — output is committed and carries review state)
+npm run review:alignment  # Localhost review tool for that dataset (see below). Needs the
+                          #   MorphGNT clone; writes to src/data/alignment/ as you decide
 npm run draft:release-notes -- --since <ref>  # Draft a release-notes entry from git diff
 ```
 
@@ -165,6 +167,12 @@ src/
 scripts/             # BUILD/validation Node scripts (.mjs) — see below
                      #   (og/fonts/ holds the committed TTFs the share-card
                      #   generator renders with — see its README)
+  alignment-review/  # Localhost-only review tool for src/data/alignment/.
+                     #   NOT part of any build and never shipped: its ui/ is
+                     #   served from the Node process by exact-path allowlist,
+                     #   deliberately NOT from public/ (Astro copies public/
+                     #   into dist/ as a filesystem op — .gitignore there
+                     #   prevents committing, not deploying)
 public/              # Static assets + generated output (api/, og/, search/,
                      #   topics-index.json, llms.txt, llms-full.txt, _headers,
                      #   images/, icons). Page-loaded raster images are WebP,
@@ -238,8 +246,12 @@ the sitemap filter live in `astro.config.mjs`.
 | `build-og-images.mjs` | `public/og/` — per-chapter/intro share cards (fonts in `scripts/og/fonts/`). |
 | `build-favicons.mjs` | Favicon/touch/manifest icons from the emblem SVGs. **Not** in the build — run by hand when the emblem changes. |
 | `build-alignment.mjs` | `src/data/alignment/` — scans published chapters for glossary-term renderings, then checks each against MorphGNT. **Not** in the build; its output is committed and merges with prior human review. See The Alignment Dataset below. |
-| `lib/morphgnt.mjs` | Reads a gitignored local MorphGNT working copy (lemma-per-verse). Absent → verification skipped, prior verdicts kept. |
+| `alignment-review/server.mjs` | `npm run review:alignment` — the localhost review UI (`store.mjs` = fs + corpus, `review-core.mjs` = pure logic, `ui/` = vanilla HTML/CSS/JS). Node builtins only, no deps. |
+| `lib/morphgnt.mjs` | Reads a gitignored local MorphGNT working copy (lemma-per-verse; `{withTokens}` also keeps every token in verse order, which only the review tool needs). Absent → verification skipped, prior verdicts kept. |
 | `lib/glossary-lemmas.mjs` | Editorial map: glossary id → the Greek lemmas that commitment covers. Validated against the corpus at load. |
+| `lib/alignment-merge.mjs` | Record identity, merge, and ordering for `src/data/alignment/` — the contract between the scanner and the review tool. Unit-tested. |
+| `lib/alignment-forms.mjs` | How a glossary rendering is matched against verse text, and how `english[].n` is counted. Shared so both writers number occurrences identically. |
+| `lib/verse-text.mjs` | Chapter HTML → per-verse plain text. Shared by `build-verse-index.mjs`, `build-alignment.mjs`, and the review tool. (`release-notes-core.mjs` keeps its own, deliberately — see below.) |
 | `fetch-podcast-feed.mjs` | Refresh podcast XML snapshot (non-fatal on failure). |
 | `draft-release-notes.mjs` | CLI/git shell: drafts release-notes entries from git diffs (used by CI). Delegates the diff→changes logic to `lib/release-notes-core.mjs`. |
 | `lib/release-notes-core.mjs` | Pure `buildChanges()` core of the drafter — no git/fs/argv of its own (readBase/readNow injected). Unit-tested directly (`test/draft-release-notes.test.js`) since its output shape is an app contract. |
@@ -353,7 +365,17 @@ coverage grows:
   script is an editorial judgment, not a derivable rule.
 - `lemma` is the **Greek-side check** — `present`, `absent`, or `unchecked` —
   and is deliberately a separate axis from `confidence`. See below.
-- `status` is `auto` until a human reviews it.
+- `status` is `auto` until a human reviews it, then `confirmed`,
+  `no-rendering`, or `rejected`. A reviewed record carries `confidence: null`
+  — `confidence` answers "is this English string unambiguous *out* of context",
+  which is a scanner heuristic a human verdict supersedes rather than restates.
+- `source` is `glossary-scan` or `review`. A rejected scan record keeps
+  `source: "glossary-scan"` and flips only its `status`, so the next rescan
+  matches it by key and can't resurrect it.
+- `english: []` with `term.form: null` is the **`no-rendering`** record: the
+  Greek is here and the translation has no distinct rendering for it. A
+  first-class answer, not a skip — it's how a term reaches fully-reviewed
+  without inventing renderings for verses that have none.
 
 ### Greek verification (MorphGNT)
 
@@ -400,22 +422,76 @@ what it was told to look for. **Seed future work from the lemma side, where the
 verse list is complete by construction, and classify; don't seed from the
 English side and discover.**
 
+### The review tool (`npm run review:alignment`)
+
+The tool that does that seeding. It serves a localhost-only UI on port 4500
+(`--port` to change) and writes decisions straight into `src/data/alignment/`
+as you make them — no save step, so a crash costs at most one decision.
+**Unlike `build-alignment.mjs` it cannot degrade without the MorphGNT clone
+and refuses to start**: the queue *is* the lemma's verse list, so there is no
+tool without it.
+
+One term per page, every verse where its Greek occurs, in Bible order — an
+owner decision, because **consistency across verses is the judgment being
+made** and a running "renderings so far" tally is the thing you review
+against. Verses the scan already matched arrive with a proposal; the rest
+arrive blank, which is the whole point. A separate **Absent** tab clears
+`lemma: "absent"` false positives in bulk, grouped by (term, rendering) — 185
+of the 447 are one mistake, `flesh-body` matching the vocative *adelphoi*.
+Bulk-accepting the ~1,750 records where the scan and the lemma check already
+agree is **opt-in per term**, never automatic (also an owner decision).
+
+Two structural rules it exists inside:
+
+1. **`scripts/lib/alignment-merge.mjs` is the contract** between the two
+   writers, and the rules are asymmetric on purpose. A review record usually
+   has *no* counterpart in a rescan — capturing renderings the glossary
+   doesn't list is the point — so a non-`glossary-scan` record with no key
+   match is carried forward unconditionally. Read that file's header before
+   touching how records are keyed or ordered. Ordering is deliberately
+   independent of `source`/`status`, or a review session churns the diff.
+   `recordKey` must tolerate `english: []` and `term: null`.
+2. **The UI lives in `scripts/alignment-review/ui/`, not `public/`.** Astro
+   copies `public/` into `dist/` as a filesystem operation, so `.gitignore`
+   there stops a commit but not a deploy. The server hands out those three
+   files by exact-path allowlist.
+
+`applyReviewDecision` treats `(ref, glossary)` as a fully owned slot, so **a
+verse rendering the term twice must submit both spans in one call** — two
+sequential single-span writes would have the second erase the first.
+
 **The output is committed, not gitignored** — unlike every other generated
-artifact here, it carries review state. Re-running merges: any record marked
-something other than `auto` keeps its status and its `greek`, and records whose
-English no longer matches are reported before being dropped. That's also why
+artifact here, it carries review state. Re-running merges: a reviewed record is
+kept *whole* (hand-edits to `term.form` and phase-2 `greek` survive, not just
+its status), review-only records are carried, and scan records whose English no
+longer matches are reported before being dropped. That's also why
 `build:alignment` is **not** in `npm run build` — a build must never rewrite
 source (same precedent as `build:favicons`). A website asset, NOT part of the
 app contract; it must never move under `public/api/`.
 
 **Rendering** is the "Where it appears" block on `/glossary` (see
 `glossary.astro` + the OCCURRENCES section of `pages/glossary.css`), a
-`<details>` per rendering, so it works without JS. One display rule: a term
-shows occurrences **only when every one of its records is `distinctive`**. A
-partial count reads as a reviewed total when it's an unreviewed fragment — this
-is why `flesh-body` is absent (its "family" form is ambiguous; cf. Rom 8:12,
-where the vocative *adelphoi* matches the string but isn't *sarx*). The block
-is `data-pagefind-ignore`d so verse lists don't swamp the glossary's index.
+`<details>` per rendering, so it works without JS. It is
+`data-pagefind-ignore`d so verse lists don't swamp the glossary's index.
+
+The display rule there is a **publishing** decision, not a technical one: a
+partial count reads as a reviewed total, so a term appears only when every
+record it would show is one we can vouch for, and a single record we can
+neither vouch for nor rule out withholds the whole term. Per record:
+
+| | |
+|---|---|
+| **ignored** | `rejected` / `no-rendering`, and anything with `lemma: "absent"` — a known false positive says nothing either way about the rest of the term |
+| **shown** | `status: "confirmed"`, or an `auto` + `distinctive` record the Greek doesn't contradict |
+| **withholds the term** | `auto` + `common` and not contradicted — an unreviewed match on ordinary English ("trust", "clean") |
+
+That last row is why `flesh-body` is still absent: it also renders as the
+ordinary word "family", which the scan can't tell from a vocative "Family,"
+(cf. Rom 8:12, *adelphoi*). Reviewing those records is what surfaces it. The
+rule is also why the review tool and this gate had to ship together — a
+bulk-rejected record keeps `confidence: "common"` forever, so under the old
+"every record is `distinctive`" rule no amount of review could ever release a
+term.
 
 ## Content Collections (`src/content.config.ts`)
 
@@ -701,6 +777,8 @@ collection); they're read directly by the intro pages and the API manifest.
 | `scripts/validate-chapters.mjs` | Chapter validator (pre-commit + CI safety net) |
 | `scripts/build-verse-index.mjs` | Verse search index generator (`public/search/verses.json`) |
 | `scripts/build-alignment.mjs` | Alignment-record generator (`src/data/alignment/`, committed output) |
+| `scripts/lib/alignment-merge.mjs` | Merge contract between the alignment scanner and the review tool |
+| `scripts/alignment-review/` | Localhost review tool for the alignment dataset (`npm run review:alignment`) |
 | `pagefind.yml` | Pagefind config for glossary/article indexing (excludes footnote refs) |
 | `public/_headers` | Security + caching headers; also RFC 8288 `Link` headers for agent discovery (Cloudflare Pages) |
 | `public/.well-known/api-catalog` | RFC 9727/9264 `linkset+json` catalog of the public API |

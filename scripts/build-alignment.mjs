@@ -57,16 +57,20 @@
 // work list, written to alignment-coverage.json. That file IS a lemma
 // concordance, so it's gitignored rather than committed.
 //
-// NOTE: splitChapterVerses below duplicates the verse-splitting in
-// build-verse-index.mjs. Worth consolidating into src/lib/ once one of them
-// needs to change; left duplicated here so this change doesn't touch the
-// search index.
+// THIS IS NOT THE ONLY WRITER of src/data/alignment/. scripts/alignment-review/
+// writes reviewer decisions into the same files, including records for
+// renderings this scan structurally cannot find. lib/alignment-merge.mjs holds
+// the rules that keep the two from clobbering each other; read its header
+// before changing anything about how records are keyed or ordered.
 
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { BOOK_ORDER } from "../src/data/books.js";
 import { loadMorphGnt } from "./lib/morphgnt.mjs";
 import { GLOSSARY_LEMMAS } from "./lib/glossary-lemmas.mjs";
+import { splitChapterVerses } from "./lib/verse-text.mjs";
+import { findFormMatches } from "./lib/alignment-forms.mjs";
+import { mergeScanWithExisting, recordKey } from "./lib/alignment-merge.mjs";
 
 const ROOT = process.cwd();
 const CHAPTERS_DIR = path.join(ROOT, "src", "data", "chapters");
@@ -117,37 +121,6 @@ const DISTINCTIVE = new Set([
 // entry as a whole isn't (sarx also renders as the ordinary word "family").
 const DISTINCTIVE_FORMS = new Set(["self-preservation"]);
 
-/** Strip markup down to plain text. Mirrors htmlToPlainText in build-verse-index.mjs. */
-function htmlToPlainText(html) {
-  return String(html || "")
-    .replace(
-      /<sup\b[^>]*class=(['"])[^'"]*\bfn-ref\b[^'"]*\1[^>]*>[\s\S]*?<\/sup>/gi,
-      "",
-    )
-    .replace(/<\/?(?:p|blockquote|br)\b[^>]*>/gi, " ")
-    .replace(/<[^>]+>/g, "")
-    .replace(/&nbsp;/g, " ")
-    .replace(/&mdash;/g, "—")
-    .replace(/&#39;/g, "'")
-    .replace(/&amp;/g, "&")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
-/** Split one chapter's paragraphs into a Map(verseNumber -> plain text). */
-function splitChapterVerses(paragraphs) {
-  const parts = (paragraphs || []).join(" ").split(/<sup\b[^>]*\bid="v(\d+)"[^>]*>/);
-  const byVerse = new Map();
-  for (let i = 1; i < parts.length; i += 2) {
-    const verse = Number(parts[i]);
-    if (!Number.isFinite(verse) || verse <= 0) continue;
-    const text = htmlToPlainText(String(parts[i + 1] || "").replace(/^\d+<\/sup>/, ""));
-    if (!text) continue;
-    byVerse.set(verse, byVerse.has(verse) ? `${byVerse.get(verse)} ${text}` : text);
-  }
-  return byVerse;
-}
-
 /** Minimal frontmatter reader — the glossary schema is flat key: value. */
 function readFrontmatter(raw) {
   const m = String(raw).match(/^---\r?\n([\s\S]*?)\r?\n---/);
@@ -158,17 +131,6 @@ function readFrontmatter(raw) {
     if (kv) out[kv[1]] = kv[2].trim().replace(/^["'](.*)["']$/, "$1");
   }
   return out;
-}
-
-const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-
-/**
- * Match a surface form as a whole word, allowing a plural or possessive tail.
- * Lookarounds rather than \b because forms contain hyphens ("life-breath"),
- * where \b would happily match inside a longer hyphenated compound.
- */
-function formPattern(form) {
-  return new RegExp(`(?<![\\w-])${escapeRe(form)}(?:['’]s|e?s)?(?![\\w-])`, "gi");
 }
 
 async function loadTerms() {
@@ -208,17 +170,43 @@ function lemmaVerdict(corpus, ref, glossaryId) {
   return lemmas.some((l) => inVerse.has(l)) ? "present" : "absent";
 }
 
-/** Stable identity for merging across runs. */
-const recordKey = (r) =>
-  `${r.ref}|${r.term.glossary}|${r.english[0].text.toLowerCase()}|${r.english[0].n}`;
+const alignmentFile = (bookKey, chapter) =>
+  path.join(OUT_DIR, `${bookKey}-${chapter}.json`);
 
+const exists = (file) =>
+  fs.access(file).then(
+    () => true,
+    () => false,
+  );
+
+/**
+ * Prior records for one chapter, keyed for merging.
+ *
+ * A missing file is the normal first-run case and returns empty. Anything else
+ * — malformed JSON, an unreadable file — is REPORTED, never swallowed: an
+ * empty map here silently discards every reviewed status in that chapter, and
+ * the file is then rewritten without them.
+ */
 async function readExisting(file) {
+  let raw;
   try {
-    const data = JSON.parse(await fs.readFile(file, "utf8"));
+    raw = await fs.readFile(file, "utf8");
+  } catch (err) {
+    if (err.code !== "ENOENT") {
+      console.error(`  cannot read ${path.relative(ROOT, file)}: ${err.message}`);
+    }
+    return new Map();
+  }
+  try {
+    const data = JSON.parse(raw);
     const map = new Map();
     for (const r of data.records || []) map.set(recordKey(r), r);
     return map;
-  } catch {
+  } catch (err) {
+    console.error(
+      `  ${path.relative(ROOT, file)} is not valid alignment JSON (${err.message}) — ` +
+        `its review state will be LOST if this run rewrites it. Fix or delete it.`,
+    );
     return new Map();
   }
 }
@@ -284,17 +272,13 @@ async function main() {
         // "faithful trust" doesn't also emit a bare "trust" record.
         const claimed = [];
         for (const form of term.forms) {
-          let n = 0;
-          for (const m of text.matchAll(formPattern(form))) {
-            const start = m.index;
-            const end = start + m[0].length;
-            n++;
+          for (const { text: matched, start, end, n } of findFormMatches(text, form)) {
             if (claimed.some(([s, e]) => start < e && end > s)) continue;
             claimed.push([start, end]);
             const ref = `${osis}.${data.chapter}.${verse}`;
             records.push({
               ref,
-              english: [{ text: m[0], n }],
+              english: [{ text: matched, n }],
               greek: [],
               term: {
                 greek: term.greek,
@@ -320,7 +304,12 @@ async function main() {
       }
     }
 
-    if (records.length) byChapter.push({ bookKey, chapter: data.chapter, records });
+    // Chapters with no scan hits are still carried when a file already exists:
+    // that is exactly the motivating case, a chapter whose only records came
+    // from review because the glossary lists no form the scan could find.
+    if (records.length || (await exists(alignmentFile(bookKey, data.chapter)))) {
+      byChapter.push({ bookKey, chapter: data.chapter, records });
+    }
   }
 
   // Canonical order so the on-disk set is stable run to run.
@@ -331,48 +320,48 @@ async function main() {
   await fs.mkdir(OUT_DIR, { recursive: true });
   let total = 0;
   let preserved = 0;
+  let carried = 0;
   let dropped = 0;
 
-  for (const { bookKey, chapter, records } of byChapter) {
-    const file = path.join(OUT_DIR, `${bookKey}-${chapter}.json`);
+  const written = [];
+  for (const { bookKey, chapter, records: scanned } of byChapter) {
+    const file = alignmentFile(bookKey, chapter);
     const existing = await readExisting(file);
-    const seen = new Set();
+    const merged = mergeScanWithExisting({
+      scanned,
+      existing,
+      corpusAvailable: Boolean(corpus),
+    });
 
-    for (const r of records) {
-      const key = recordKey(r);
-      seen.add(key);
-      const prev = existing.get(key);
-      // Human review survives a rescan; everything else is regenerated.
-      if (prev && prev.status !== "auto") {
-        r.status = prev.status;
-        if (prev.greek?.length) r.greek = prev.greek;
-        preserved++;
-      }
-      // Without the corpus we have nothing to say about the Greek, so keep
-      // whatever the last verified run concluded rather than blanking it.
-      if (!corpus && prev?.lemma) r.lemma = prev.lemma;
-    }
-    for (const [key, prev] of existing) {
-      if (!seen.has(key) && prev.status !== "auto") {
-        dropped++;
-        console.warn(`  stale ${prev.status} record no longer matches: ${key}`);
-      }
+    preserved += merged.preserved;
+    carried += merged.carried;
+    for (const { key, record } of merged.stale) {
+      dropped++;
+      console.warn(`  stale ${record.status} record no longer matches: ${key}`);
     }
 
     await fs.writeFile(
       file,
-      `${JSON.stringify({ bookKey, chapter, records }, null, 2)}\n`,
+      `${JSON.stringify({ bookKey, chapter, records: merged.records }, null, 2)}\n`,
       "utf8",
     );
-    total += records.length;
+    total += merged.records.length;
+    written.push(merged.records);
   }
 
-  const all = byChapter.flatMap((c) => c.records);
-  const distinctive = all.filter((r) => r.confidence === "distinctive").length;
+  const all = written.flat();
+  // Reviewed records are counted apart from the two confidence buckets, not
+  // folded into "common" — `confidence` is null on them by design, and a
+  // reviewed record is the opposite of an unreviewed ambiguous one.
+  const auto = all.filter((r) => r.status === "auto");
+  const reviewed = all.length - auto.length;
+  const distinctive = auto.filter((r) => r.confidence === "distinctive").length;
+  const common = auto.length - distinctive;
   console.log(
     `Wrote ${byChapter.length} files to ${path.relative(ROOT, OUT_DIR)} — ` +
-      `${total} records (${distinctive} distinctive, ${total - distinctive} common), ` +
-      `${preserved} reviewed records preserved${dropped ? `, ${dropped} stale` : ""}`,
+      `${total} records (${distinctive} distinctive, ${common} common, ` +
+      `${reviewed} reviewed), ${preserved} preserved, ${carried} review-only carried` +
+      `${dropped ? `, ${dropped} stale` : ""}`,
   );
 
   if (!corpus) return;
@@ -393,6 +382,7 @@ async function main() {
 async function writeCoverage(corpus, records, publishedChapters) {
   const recordedRefs = new Map(); // glossary id -> Set(ref)
   for (const r of records) {
+    if (!r.term?.glossary) continue; // phase 2 will emit term-less tokens
     let set = recordedRefs.get(r.term.glossary);
     if (!set) recordedRefs.set(r.term.glossary, (set = new Set()));
     set.add(r.ref);
@@ -409,7 +399,7 @@ async function writeCoverage(corpus, records, publishedChapters) {
     const recorded = recordedRefs.get(id) || new Set();
     const missing = [...inScope].filter((ref) => !recorded.has(ref));
     const absent = records.filter(
-      (r) => r.term.glossary === id && r.lemma === "absent",
+      (r) => r.term?.glossary === id && r.lemma === "absent" && r.status !== "rejected",
     ).length;
     terms.push({
       glossary: id,

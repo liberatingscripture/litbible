@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Alignment Review</title>
+<meta name="robots" content="noindex, nofollow" />
+<link rel="stylesheet" href="/app.css" />
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="topbar">
+  <h1 class="topbar__title">Alignment Review</h1>
+  <nav class="tabs" role="tablist" aria-label="View">
+    <button type="button" role="tab" id="tab-terms" class="tab is-active"
+            aria-selected="true" aria-controls="view-terms" data-view="terms">
+      Terms
+    </button>
+    <button type="button" role="tab" id="tab-absent" class="tab"
+            aria-selected="false" aria-controls="view-absent" data-view="absent">
+      Absent
+    </button>
+  </nav>
+  <p class="topbar__status" id="global-status" role="status" aria-live="polite"></p>
+</header>
+
+<main id="main">
+  <!-- Terms view: sidebar of terms (worst-progress-first) + the selected
+       term's review page. Everything for one term lives on a single page —
+       consistency across verses is the judgment being made, so the reviewer
+       needs the whole queue and the accumulating renderings in view together. -->
+  <section id="view-terms" class="view" role="tabpanel" aria-labelledby="tab-terms">
+    <aside class="term-sidebar" id="term-sidebar" aria-label="Terms">
+      <p class="sidebar-loading">Loading terms&hellip;</p>
+    </aside>
+    <div class="term-main" id="term-main">
+      <p class="empty-state">Select a term from the list to begin reviewing.</p>
+    </div>
+  </section>
+
+  <!-- Absent view: scan records whose Greek check contradicts the English
+       match, grouped by (glossary, form), largest group first. -->
+  <section id="view-absent" class="view" role="tabpanel" aria-labelledby="tab-absent" hidden>
+    <div class="absent-main" id="absent-main">
+      <p class="empty-state">Loading&hellip;</p>
+    </div>
+  </section>
+</main>
+
+<div id="toast-region" aria-live="assertive" class="toast-region"></div>
+
+<script type="module" src="/app.js"></script>
+</body>
+</html>

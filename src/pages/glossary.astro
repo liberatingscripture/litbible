@@ -8,16 +8,27 @@ const rawEntries = await getCollection("glossary");
 
 /**
  * Phase 1 alignment records (src/data/alignment/, built by
- * scripts/build-alignment.mjs) — where each term's LIT rendering actually
- * appears in the published text. A glossary entry says what `pneuma` becomes;
- * this says where, and how often.
+ * scripts/build-alignment.mjs, reviewed via scripts/alignment-review/) — where
+ * each term's LIT rendering actually appears in the published text. A glossary
+ * entry says what `pneuma` becomes; this says where, and how often.
  *
- * A term is shown ONLY when every one of its records is `distinctive`. Terms
- * with an ambiguous rendering are held back entirely rather than shown
- * partially: `sarx` also renders as the ordinary word "family", which the
- * scan cannot tell from a vocative "Family," so publishing its
- * self-preservation subtotal would read as a reviewed count when it is really
- * an unreviewed fragment. Those surface once the records are reviewed.
+ * THE DISPLAY RULE, and it is a publishing decision rather than a technical
+ * one: a partial count reads as a reviewed total. So a term appears only when
+ * every record we would show is one we can actually vouch for, and a single
+ * record we can neither vouch for nor rule out withholds the whole term.
+ *
+ *   ignored       `rejected` / `no-rendering`, and anything the Greek check
+ *                 contradicts (`lemma: "absent"`) — a known false positive
+ *                 says nothing either way about the rest of the term
+ *   shown         a human confirmed it, or the scan matched a rendering
+ *                 distinctive enough that a string match is effectively
+ *                 certain and the Greek doesn't contradict it
+ *   withholds     an unreviewed match on ordinary English ("trust", "clean"),
+ *                 which may or may not be rendering the Greek at all
+ *
+ * That last case is why `sarx` is currently absent: it also renders as the
+ * ordinary word "family", which the scan cannot tell from a vocative
+ * "Family," (cf. Rom 8:12). Reviewing those records is what surfaces it.
  */
 type AlignmentRecord = {
   ref: string;
@@ -26,9 +37,11 @@ type AlignmentRecord = {
     greek: string;
     traditional: string;
     glossary: string;
-    form: string;
+    form: string | null;
   } | null;
-  confidence: "distinctive" | "common";
+  confidence: "distinctive" | "common" | null;
+  lemma?: "present" | "absent" | "unchecked";
+  status?: "auto" | "confirmed" | "no-rendering" | "rejected";
 };
 
 type AlignmentFile = {
@@ -56,6 +69,15 @@ const BOOK_RANK = new Map(
 );
 const bookRank = (key: string) => BOOK_RANK.get(key) ?? Number.MAX_SAFE_INTEGER;
 
+/** See the display rule above. Returns null for a record that says nothing. */
+function verdict(record: AlignmentRecord): "show" | "withhold" | null {
+  const status = record.status ?? "auto";
+  if (status === "rejected" || status === "no-rendering") return null;
+  if (record.lemma === "absent") return null;
+  if (status === "confirmed") return "show";
+  return record.confidence === "distinctive" ? "show" : "withhold";
+}
+
 const occurrencesByTerm: Record<string, FormOccurrences[]> = (() => {
   const byTerm = new Map<
     string,
@@ -66,12 +88,23 @@ const occurrencesByTerm: Record<string, FormOccurrences[]> = (() => {
     const { bookKey, chapter, records } = mod.default;
     for (const record of records ?? []) {
       const id = record.term?.glossary;
-      const form = record.term?.form;
-      if (!id || !form) continue;
+      if (!id) continue;
 
+      const call = verdict(record);
+      if (!call) continue;
+
+      // One unvouchable record withholds the term, even though the record
+      // itself contributes no count — a subtotal presented as a total is the
+      // failure mode this guards against.
       let entry = byTerm.get(id);
       if (!entry) byTerm.set(id, (entry = { pure: true, forms: new Map() }));
-      if (record.confidence !== "distinctive") entry.pure = false;
+      if (call === "withhold") {
+        entry.pure = false;
+        continue;
+      }
+
+      const form = record.term?.form;
+      if (!form) continue;
 
       // Group by the glossary rendering, not the written text: "Life-breath",
       // "life-breath", and "life-breaths" are one rendering to a reader. The
@@ -90,7 +123,10 @@ const occurrencesByTerm: Record<string, FormOccurrences[]> = (() => {
 
   const out: Record<string, FormOccurrences[]> = {};
   for (const [id, entry] of byTerm) {
-    if (!entry.pure) continue;
+    // A term whose every record was ignored (all reviewed to "no rendering",
+    // say) is settled, not shown — an empty "Where it appears" block would
+    // claim the opposite of what the data says.
+    if (!entry.pure || !entry.forms.size) continue;
     out[id] = [...entry.forms.entries()]
       .map(([label, refs]) => ({
         label,
