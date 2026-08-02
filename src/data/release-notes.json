@@ -15,9 +15,9 @@
         }
       },
       {
-        "type": "footnote_updated",
-        "description": "Luke 5:32 — footnote q updated",
-        "detail": "\"Literally, this reads, “sons of the wedding hall,” an idiom…\" → \"The Greek word metanoia is traditionally translated as ‘rep…\"",
+        "type": "footnote_added",
+        "description": "Luke 5:32 — footnote q added",
+        "detail": "added \"The Greek word metanoia is traditionally translated as ‘repent.’ The meaning of metanoia is ‘change the mind’ or ‘trans…\"",
         "location": {
           "bookKey": "luke",
           "chapter": 5,
