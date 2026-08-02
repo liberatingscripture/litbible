@@ -186,6 +186,26 @@
       "ref": "Matt.7.23",
       "english": [
         {
+          "text": "openly acknowledge",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "homologia",
+        "traditional": "Confession",
+        "glossary": "confession-open-acknowledgement",
+        "form": "openly acknowledge"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.7.23",
+      "english": [
+        {
           "text": "Torah",
           "n": 1
         }

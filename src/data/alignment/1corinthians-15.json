@@ -263,6 +263,26 @@
       "status": "auto"
     },
     {
+      "ref": "1Cor.15.33",
+      "english": [
+        {
+          "text": "Cruel",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "kakos",
+        "traditional": "Bad",
+        "glossary": "bad-harmful",
+        "form": "Cruel"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "1Cor.15.40",
       "english": [
         {

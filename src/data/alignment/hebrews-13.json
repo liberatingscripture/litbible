@@ -123,6 +123,26 @@
       "status": "auto"
     },
     {
+      "ref": "Heb.13.15",
+      "english": [
+        {
+          "text": "acknowledging",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "homologia",
+        "traditional": "Confession",
+        "glossary": "confession-open-acknowledgement",
+        "form": "acknowledging"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Heb.13.17",
       "english": [
         {

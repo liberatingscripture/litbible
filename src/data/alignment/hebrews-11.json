@@ -226,6 +226,26 @@
       "ref": "Heb.11.13",
       "english": [
         {
+          "text": "acknowledged",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "homologia",
+        "traditional": "Confession",
+        "glossary": "confession-open-acknowledgement",
+        "form": "acknowledged"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Heb.11.13",
+      "english": [
+        {
           "text": "faithfulness",
           "n": 1
         }

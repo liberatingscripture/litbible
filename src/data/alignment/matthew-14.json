@@ -3,6 +3,26 @@
   "chapter": 14,
   "records": [
     {
+      "ref": "Matt.14.7",
+      "english": [
+        {
+          "text": "agree",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "homologia",
+        "traditional": "Confession",
+        "glossary": "confession-open-acknowledgement",
+        "form": "agree"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Matt.14.19",
       "english": [
         {

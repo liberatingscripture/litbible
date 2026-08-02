@@ -46,6 +46,26 @@
       "ref": "Mark.2.7",
       "english": [
         {
+          "text": "He is being disrespectful",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "blasphemia",
+        "traditional": "Blasphemy",
+        "glossary": "blasphemy-disrespectfulness",
+        "form": "He is being disrespectful"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Mark.2.7",
+      "english": [
+        {
           "text": "deviations",
           "n": 1
         }

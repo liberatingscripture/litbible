@@ -43,6 +43,26 @@
       "status": "auto"
     },
     {
+      "ref": "Gal.6.1",
+      "english": [
+        {
+          "text": "sidestepping",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "paraptoma",
+        "traditional": "Transgression",
+        "glossary": "trespass-shortfall",
+        "form": "sidestepping"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Gal.6.2",
       "english": [
         {

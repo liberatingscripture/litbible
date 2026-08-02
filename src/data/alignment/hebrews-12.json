@@ -143,6 +143,26 @@
       "status": "auto"
     },
     {
+      "ref": "Heb.12.17",
+      "english": [
+        {
+          "text": "change his mind",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "metanoia",
+        "traditional": "Repentance",
+        "glossary": "repentance-reorient-mind",
+        "form": "change his mind"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Heb.12.22",
       "english": [
         {

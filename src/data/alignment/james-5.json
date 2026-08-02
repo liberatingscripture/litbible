@@ -126,6 +126,26 @@
       "ref": "Jas.5.16",
       "english": [
         {
+          "text": "acknowledge",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "homologia",
+        "traditional": "Confession",
+        "glossary": "confession-open-acknowledgement",
+        "form": "acknowledge"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Jas.5.16",
+      "english": [
+        {
           "text": "deviations",
           "n": 1
         }

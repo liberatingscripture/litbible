@@ -26,6 +26,26 @@
       "ref": "Rom.15.9",
       "english": [
         {
+          "text": "publicly acknowledge",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "homologia",
+        "traditional": "Confession",
+        "glossary": "confession-open-acknowledgement",
+        "form": "publicly acknowledge"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.15.9",
+      "english": [
+        {
           "text": "faithfulness",
           "n": 1
         }

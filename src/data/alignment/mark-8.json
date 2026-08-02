@@ -43,6 +43,26 @@
       "status": "auto"
     },
     {
+      "ref": "Mark.8.33",
+      "english": [
+        {
+          "text": "Adversary",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "Satanas",
+        "traditional": "Satan",
+        "glossary": "satan-adversary",
+        "form": "Adversary"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Mark.8.35",
       "english": [
         {

@@ -26,6 +26,26 @@
       "ref": "Phil.2.11",
       "english": [
         {
+          "text": "speak aloud",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "homologia",
+        "traditional": "Confession",
+        "glossary": "confession-open-acknowledgement",
+        "form": "speak aloud"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Phil.2.11",
+      "english": [
+        {
           "text": "renown",
           "n": 1
         }

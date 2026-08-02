@@ -143,6 +143,26 @@
       "status": "auto"
     },
     {
+      "ref": "John.12.42",
+      "english": [
+        {
+          "text": "acknowledging",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "homologia",
+        "traditional": "Confession",
+        "glossary": "confession-open-acknowledgement",
+        "form": "acknowledging"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "John.12.43",
       "english": [
         {

@@ -86,6 +86,26 @@
       "ref": "Heb.4.14",
       "english": [
         {
+          "text": "acknowledgement",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "homologia",
+        "traditional": "Confession",
+        "glossary": "confession-open-acknowledgement",
+        "form": "acknowledgement"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Heb.4.14",
+      "english": [
+        {
           "text": "the heavens",
           "n": 1
         }

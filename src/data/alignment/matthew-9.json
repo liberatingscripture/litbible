@@ -23,6 +23,26 @@
       "status": "auto"
     },
     {
+      "ref": "Matt.9.3",
+      "english": [
+        {
+          "text": "What he’s saying is disrespectful",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "blasphemia",
+        "traditional": "Blasphemy",
+        "glossary": "blasphemy-disrespectfulness",
+        "form": "What he’s saying is disrespectful"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Matt.9.5",
       "english": [
         {

@@ -146,6 +146,26 @@
       "ref": "1Cor.14.20",
       "english": [
         {
+          "text": "harmfulness",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "kakos",
+        "traditional": "Bad",
+        "glossary": "bad-harmful",
+        "form": "harmfulness"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Cor.14.20",
+      "english": [
+        {
           "text": "Family",
           "n": 1
         }
