@@ -110,6 +110,13 @@ renders it. The review tool closes that gap by working from the Greek instead.
 It lists every verse where a term's Greek word occurs, proposes a rendering
 where it can, and records what you decide.
 
+Because a rendering gets typed one verse at a time, it tends to fragment across
+its own inflections ("cleanse", "cleansed", "cleansing" recorded as three
+different things). The tool watches for that: it suggests a rendering you've
+already established when you pick a new span, and its **Consolidate** control
+proposes groups to combine. It only ever proposes. Whether two wordings are one
+rendering is a judgment about the translation, so you pick the label.
+
 ```sh
 npm run review:alignment
 ```

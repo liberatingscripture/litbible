@@ -420,8 +420,16 @@ main {
   box-shadow: var(--shadow);
 }
 
+.renderings-panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+}
+
 .renderings-panel__title {
-  margin: 0 0 0.4rem;
+  margin: 0;
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -429,9 +437,69 @@ main {
   font-weight: 700;
 }
 
+.renderings-panel__consolidate-toggle {
+  flex: 0 0 auto;
+}
+
 .renderings-panel__empty {
   color: var(--ink-faint);
   font-size: 0.85rem;
+}
+
+/* Consolidation: a suggested group of renderings that likely fragment one
+   rendering, with an editable canonical label and a per-group Apply. See
+   review-core.mjs's "Rendering consolidation" header — this only ever
+   proposes; the reviewer decides. */
+
+.consolidate-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--border);
+}
+
+.consolidate-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.5rem 0.6rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.consolidate-group__members {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--ink-muted);
+}
+
+.consolidate-group__controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.consolidate-group__label {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.82rem;
+  color: var(--ink-muted);
+  flex: 1 1 220px;
+}
+
+.consolidate-group__input {
+  flex: 1 1 auto;
+  min-width: 140px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  padding: 0.3rem 0.5rem;
+  background: var(--surface);
+  color: var(--ink);
 }
 
 .rendering-chips {
@@ -632,6 +700,26 @@ main {
 .span-row__hint {
   font-size: 0.75rem;
   color: var(--ink-faint);
+}
+
+/* The quiet "grouped under…" note under a span whose form field just got
+   redirected to an existing rendering by suggestForm(). Silence is the
+   normal case — this only ever appears when the suggestion differs from
+   what the reviewer actually clicked. */
+
+.span-row__suggestion {
+  margin: -0.15rem 0 0.15rem;
+  padding-left: 1.1rem;
+  font-size: 0.78rem;
+  color: var(--ink-faint);
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.2rem;
+}
+
+.span-row__suggestion-btn {
+  padding: 0 0.3rem;
 }
 
 .verse-row__actions {

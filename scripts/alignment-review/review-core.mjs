@@ -16,6 +16,7 @@
 // with a proposal; the rest arrive blank, which is the point.
 
 import { findFormMatches } from "../lib/alignment-forms.mjs";
+import { stemWord, foldDiacritics } from "../../src/lib/word-stem.mjs";
 
 /**
  * Word spans in a verse, for the UI's click-to-select.
@@ -190,6 +191,158 @@ export function progressForTerm({ queue, recordsByRef }) {
   let done = 0;
   for (const ref of queue) if (isDecided(recordsByRef.get(ref))) done++;
   return { total: queue.length, done, remaining: queue.length - done };
+}
+
+// -----------------------------------------------------------------------
+// Rendering consolidation
+//
+// THE PROBLEM. `term.form` is free text, and the UI defaults it to the span
+// the reviewer clicked, so one rendering fragments across its inflections:
+// katharos came out of review as clean / cleanse / cleansed / cleansing /
+// cleanses / sincere, and metanoia as 22 forms over 31 verses. `/glossary`
+// publishes one <details> per form, so fragmentation is not untidiness — it
+// is what a reader sees.
+//
+// WHY THIS ONLY EVER SUGGESTS. Stem equality is a good filter and a bad
+// judge. It groups "reorient their mind" with "reorienting of minds"
+// (obviously one rendering) but leaves "transformation of the mind" separate
+// (arguably also one), and it would happily fold "The Adversary" into
+// "Adversary" where the capital is a title, not a sentence start. Which
+// forms are ONE rendering is an editorial question about the translation.
+// So: the signature proposes groups, a human picks the canonical label.
+//
+// The stemmer is src/lib/word-stem.mjs, the same Porter2 the search index
+// uses for related-form matching. One notion of "related form" in the repo,
+// not two.
+// -----------------------------------------------------------------------
+
+/**
+ * Dropped before stemming so determiners and possessives don't split a
+ * rendering: "reorient their mind" / "reorienting of minds" / "reorient your
+ * minds" all have to reach the same signature. Deliberately short — every
+ * word here is one a reviewer can no longer distinguish renderings by, and
+ * "not" or "no" would be a meaning change, so they stay out of the list.
+ */
+const FORM_STOPWORDS = new Set([
+  "a", "an", "the", "of", "to", "in", "on", "for", "with", "and", "that", "this",
+  "my", "your", "our", "their", "his", "her", "its",
+]);
+
+/**
+ * The grouping key for a rendering: case-folded, de-accented, stopword-free,
+ * stemmed, order preserved.
+ *
+ * Order is kept because these are phrases, not bags of words — "mind
+ * reorienting" is not the same rendering as "reorienting mind", and a
+ * sorted signature would claim it was.
+ *
+ * Returns "" for a form that is nothing but stopwords, which callers treat as
+ * "no signature" rather than as a group everything empty belongs to.
+ */
+export function formSignature(form) {
+  return String(form ?? "")
+    .toLowerCase()
+    .split(/[^\p{L}\p{N}'’-]+/u)
+    .filter(Boolean)
+    .map((w) => foldDiacritics(w).replace(/['’]s$/, ""))
+    .filter((w) => !FORM_STOPWORDS.has(w))
+    .map(stemWord)
+    .join(" ");
+}
+
+/**
+ * The rendering an about-to-be-confirmed span most likely belongs to, or null
+ * to leave the reviewer with the literal text they selected.
+ *
+ * Only established renderings are candidates (`renderings` is the confirmed
+ * tally), so this cannot invent a grouping — it can only pull a new verse
+ * into a decision already made. An exact case-insensitive hit wins outright;
+ * otherwise the most-used form carrying the same signature does, on the
+ * grounds that the rendering a reviewer has already chosen 33 times is the
+ * one they mean.
+ *
+ * @param {{ text: string, renderings: {form: string, count: number}[] }} args
+ */
+export function suggestForm({ text, renderings }) {
+  const signature = formSignature(text);
+  if (!signature) return null;
+  const needle = String(text ?? "").toLowerCase();
+
+  let best = null;
+  for (const r of renderings || []) {
+    if (!r?.form) continue;
+    if (String(r.form).toLowerCase() === needle) return r.form;
+    if (formSignature(r.form) !== signature) continue;
+    if (!best || (r.count ?? 0) > (best.count ?? 0)) best = r;
+  }
+  return best ? best.form : null;
+}
+
+/**
+ * Renderings that share a signature and could therefore be one rendering,
+ * biggest group first. Groups of one are omitted — there is nothing to
+ * decide about them.
+ *
+ * `canonical` is a SUGGESTION (the most-used member, ties broken by the
+ * lowercase form, since a capital is usually just sentence-initial). The
+ * caller is expected to let a human override it before anything is written.
+ */
+export function planFormMerges(renderings) {
+  const bySignature = new Map();
+  for (const r of renderings || []) {
+    if (!r?.form) continue;
+    const signature = formSignature(r.form);
+    if (!signature) continue;
+    let group = bySignature.get(signature);
+    if (!group) bySignature.set(signature, (group = []));
+    group.push({ form: r.form, count: r.count ?? 0 });
+  }
+
+  const groups = [];
+  for (const [signature, members] of bySignature) {
+    if (members.length < 2) continue;
+    members.sort(
+      (a, b) =>
+        b.count - a.count ||
+        Number(/^[A-Z]/.test(a.form)) - Number(/^[A-Z]/.test(b.form)) ||
+        a.form.localeCompare(b.form),
+    );
+    groups.push({
+      signature,
+      canonical: members[0].form,
+      members,
+      total: members.reduce((sum, m) => sum + m.count, 0),
+    });
+  }
+  return groups.sort((a, b) => b.total - a.total || a.signature.localeCompare(b.signature));
+}
+
+/**
+ * Rewrite `term.form` on this term's confirmed records, returning a new array
+ * and how many records changed. Nothing else moves.
+ *
+ * CONFIRMED ONLY, and that restriction is load-bearing. A hand-edited form on
+ * an `auto` record would be silently reverted by the next `build:alignment`
+ * run — mergeScanWithExisting() keeps a prior record whole only when it is
+ * non-`auto`, and otherwise takes the scanner's freshly built one. Offering
+ * to rename a record the scanner is about to overwrite would be a lie, so the
+ * rename simply doesn't reach those.
+ *
+ * Identity is safe: recordKey() is (ref, glossary, english[0].text, n), and
+ * none of those is touched here. So a renamed record still matches its
+ * scanner counterpart on the next rescan and merges rather than duplicating.
+ */
+export function renameFormInRecords({ records, termId, fromForms, to }) {
+  const from = new Set(fromForms || []);
+  const target = String(to ?? "");
+  let changed = 0;
+  const next = (records || []).map((r) => {
+    if (r.term?.glossary !== termId || r.status !== "confirmed") return r;
+    if (!from.has(r.term?.form) || r.term.form === target) return r;
+    changed++;
+    return { ...r, term: { ...r.term, form: target } };
+  });
+  return { records: changed ? next : records, changed };
 }
 
 /**

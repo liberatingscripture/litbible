@@ -11,20 +11,42 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createStore } from "./store.mjs";
 
-const ROOT = path.dirname(fileURLToPath(import.meta.url));
-const UI_DIR = path.join(ROOT, "ui");
+const HERE = path.dirname(fileURLToPath(import.meta.url));
+const REPO_ROOT = path.resolve(HERE, "..", "..");
+const UI_DIR = path.join(HERE, "ui");
 
 const DEFAULT_PORT = 4500;
 const MAX_BODY_BYTES = 64 * 1024;
 
+const JS_TYPE = "text/javascript; charset=utf-8";
+
 /**
  * Exact-path allowlist for static files — never a path-join from user input.
- * The UI is three files; anything else is a 404, not a filesystem lookup.
+ * Every servable URL is spelled out here; anything else is a 404, not a
+ * filesystem lookup.
+ *
+ * The three /lib/ + /src/ entries are NOT a directory mount. The UI needs
+ * formSignature()/suggestForm() to group renderings as the reviewer clicks,
+ * and those live in review-core.mjs — which is pure and browser-safe, so the
+ * browser imports the real module rather than the UI keeping a second copy of
+ * a rule that has to agree with the server's. The URLs are chosen so that
+ * review-core's own relative specifiers ("../lib/alignment-forms.mjs",
+ * "../../src/lib/word-stem.mjs") resolve to the other two entries unchanged;
+ * if you move any of these files, the URLs here have to move with them.
  */
 const STATIC_FILES = {
-  "/": { file: "index.html", type: "text/html; charset=utf-8" },
-  "/app.css": { file: "app.css", type: "text/css; charset=utf-8" },
-  "/app.js": { file: "app.js", type: "text/javascript; charset=utf-8" },
+  "/": { file: path.join(UI_DIR, "index.html"), type: "text/html; charset=utf-8" },
+  "/app.css": { file: path.join(UI_DIR, "app.css"), type: "text/css; charset=utf-8" },
+  "/app.js": { file: path.join(UI_DIR, "app.js"), type: JS_TYPE },
+  "/lib/review-core.mjs": { file: path.join(HERE, "review-core.mjs"), type: JS_TYPE },
+  "/lib/alignment-forms.mjs": {
+    file: path.join(REPO_ROOT, "scripts", "lib", "alignment-forms.mjs"),
+    type: JS_TYPE,
+  },
+  "/src/lib/word-stem.mjs": {
+    file: path.join(REPO_ROOT, "src", "lib", "word-stem.mjs"),
+    type: JS_TYPE,
+  },
 };
 
 function resolvePort() {
@@ -84,12 +106,14 @@ async function serveStatic(res, pathname) {
   const entry = STATIC_FILES[pathname];
   if (!entry) return sendJson(res, 404, { error: `Not found: ${pathname}` });
   try {
-    const body = await fs.readFile(path.join(UI_DIR, entry.file));
+    const body = await fs.readFile(entry.file);
     res.writeHead(200, { "Content-Type": entry.type, "Content-Length": body.length });
     res.end(body);
   } catch (err) {
     if (err.code === "ENOENT") {
-      return sendJson(res, 404, { error: `UI asset missing: ${entry.file}` });
+      return sendJson(res, 404, {
+        error: `UI asset missing: ${path.relative(REPO_ROOT, entry.file)}`,
+      });
     }
     throw err;
   }
@@ -115,6 +139,18 @@ async function handleApi(store, req, res, method, pathname) {
       decodeURIComponent(m[2]),
       body,
     );
+    return sendJson(res, 200, result);
+  }
+
+  m = pathname.match(/^\/api\/terms\/([^/]+)\/form-merges$/);
+  if (method === "GET" && m) {
+    return sendJson(res, 200, store.getFormMerges(decodeURIComponent(m[1])));
+  }
+
+  m = pathname.match(/^\/api\/terms\/([^/]+)\/merge-forms$/);
+  if (method === "POST" && m) {
+    const body = await readJsonBody(req);
+    const result = await store.mergeForms(decodeURIComponent(m[1]), body);
     return sendJson(res, 200, result);
   }
 

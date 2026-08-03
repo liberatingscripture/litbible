@@ -40,6 +40,8 @@ import {
   isDecided,
   progressForTerm,
   groupAbsentRecordsByPattern,
+  planFormMerges,
+  renameFormInRecords,
 } from "./review-core.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -371,6 +373,7 @@ class AlignmentStore {
         lemmas: term.lemmas,
       },
       renderings: stats.renderings,
+      formMerges: planFormMerges(stats.renderings),
       progress: stats.progress,
       doubleConfirmed: stats.doubleConfirmedCount,
       verses: stats.queue.map((ref) =>
@@ -439,6 +442,7 @@ class AlignmentStore {
       records: finalRecords,
       progress: stats.progress,
       renderings: stats.renderings,
+      formMerges: planFormMerges(stats.renderings),
       decided: isDecided(finalRecords),
     };
   }
@@ -504,6 +508,56 @@ class AlignmentStore {
       verses: verseCount,
       progress: stats.progress,
       renderings: stats.renderings,
+      formMerges: planFormMerges(stats.renderings),
+    };
+  }
+
+  /**
+   * Groups of this term's confirmed renderings that look like one rendering
+   * fragmented across its inflections. Suggestions only — see
+   * review-core.mjs's consolidation header for why nothing here is automatic.
+   */
+  getFormMerges(termId) {
+    const term = this.termsById.get(termId);
+    if (!term) throw httpError(404, `Unknown term: ${termId}`);
+    return { ok: true, formMerges: planFormMerges(this.renderingsForTerm(termId)) };
+  }
+
+  /**
+   * Relabel a set of this term's confirmed renderings to one canonical form.
+   * Rewrites `term.form` and nothing else, across every chapter file the term
+   * touches, each written at most once.
+   */
+  async mergeForms(termId, body) {
+    const term = this.termsById.get(termId);
+    if (!term) throw httpError(404, `Unknown term: ${termId}`);
+
+    const to = typeof body?.to === "string" ? body.to.trim() : "";
+    if (!to) throw httpError(400, "merge requires a non-empty `to` form");
+    const from = Array.isArray(body?.from) ? body.from.filter((f) => typeof f === "string") : [];
+    if (!from.length) throw httpError(400, "merge requires a non-empty `from` array");
+
+    let changed = 0;
+    for (const entry of [...this.chapters.values()]) {
+      const result = renameFormInRecords({
+        records: entry.records,
+        termId,
+        fromForms: from,
+        to,
+      });
+      if (!result.changed) continue;
+      changed += result.changed;
+      await this.writeChapterFile(entry.bookKey, entry.chapter, result.records);
+    }
+
+    const stats = this.computeTermStats(term);
+    return {
+      ok: true,
+      changed,
+      to,
+      renderings: stats.renderings,
+      progress: stats.progress,
+      formMerges: planFormMerges(stats.renderings),
     };
   }
 

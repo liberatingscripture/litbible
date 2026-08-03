@@ -18,6 +18,13 @@
 // textContent/createElement, never string-built HTML, so there is nothing
 // to escape and nothing to get wrong.
 
+// suggestForm() groups a fresh span under an existing rendering rather than
+// founding a new one for every inflection ("cleansing" -> "cleanse"). It's
+// the same pure logic the server uses to plan consolidation, imported
+// directly rather than duplicated — see server.mjs's STATIC_FILES comment
+// for why this URL resolves.
+import { suggestForm } from "/lib/review-core.mjs";
+
 // -----------------------------------------------------------------------
 // State
 // -----------------------------------------------------------------------
@@ -39,6 +46,7 @@ const state = {
   focusedRef: null,
   absentGroups: [],
   absentLoaded: false,
+  consolidateOpen: false, // whether the renderings panel's consolidate section is expanded
 };
 
 let spanCounter = 0;
@@ -295,9 +303,17 @@ function onWordClick(row, idx) {
   // Keep the form field in sync with the selection unless the reviewer has
   // hand-edited it (e.g. typed "reorienting the mind" over a literal
   // "transformation of the mind" selection) — that override must survive
-  // further clicks.
+  // further clicks. When it's not dirty, prefer an existing rendering this
+  // selection probably belongs to over the literal words clicked, so
+  // "cleansing" defaults into the "cleanse" bucket instead of founding a new
+  // one. Nothing extra is stashed on the span for this: renderSpanEditor
+  // re-derives the literal text from the same word range and compares it
+  // against span.form to decide whether to show the "grouped under…" note,
+  // so there is exactly one source of truth for "what was clicked."
   if (!span.formDirty) {
-    span.form = spanText(row.verse, span);
+    const literal = spanText(row.verse, span);
+    const suggestion = suggestForm({ text: literal, renderings: state.termPage?.renderings || [] });
+    span.form = suggestion || literal;
   }
 
   setFocusedRef(row.ref);
@@ -412,6 +428,25 @@ function renderSpanEditor(row) {
     }
 
     wrap.appendChild(line);
+
+    // Quiet by design: silence is the normal case (formDirty, or the
+    // suggestion and the literal selection agree). Only note it when
+    // suggestForm() actually redirected the field somewhere the reviewer
+    // didn't click, and give a one-click way back to the literal words.
+    const literal = spanText(row.verse, span);
+    if (!span.formDirty && span.form && span.form !== literal) {
+      const note = document.createElement("p");
+      note.className = "span-row__suggestion";
+      note.append(`grouped under “${span.form}” — `);
+      note.appendChild(
+        mkBtn(`use “${literal}” instead`, "btn btn--ghost btn--small span-row__suggestion-btn", () => {
+          span.form = literal;
+          span.formDirty = true;
+          rerenderRow(row);
+        }),
+      );
+      wrap.appendChild(note);
+    }
   });
 
   wrap.appendChild(
@@ -595,6 +630,7 @@ function applyServerUpdate(result) {
 
   state.termPage.progress = result.progress;
   state.termPage.renderings = result.renderings;
+  state.termPage.formMerges = result.formMerges;
 
   const badge = document.getElementById("term-progress-badge");
   if (badge) badge.textContent = formatProgress(result.progress);
@@ -631,6 +667,7 @@ async function acceptAllDoubleConfirmed() {
     const result = await api(`/api/terms/${encodeURIComponent(state.selectedTermId)}/accept-double-confirmed`, {
       method: "POST",
     });
+    if (state.termPage) state.termPage.formMerges = result.formMerges;
     showToast(`Accepted ${result.confirmed} record${result.confirmed === 1 ? "" : "s"} across ${result.verses} verse${result.verses === 1 ? "" : "s"}.`);
     // The response doesn't enumerate which verses moved, so the simplest
     // correct thing is to reload the term page wholesale.
@@ -672,10 +709,35 @@ function applyRenderingToFocusedRow(form) {
 function populateRenderingsPanel(wrap) {
   wrap.replaceChildren();
 
+  const header = document.createElement("div");
+  header.className = "renderings-panel__header";
+
   const title = document.createElement("p");
   title.className = "renderings-panel__title";
   title.textContent = "Renderings so far";
-  wrap.appendChild(title);
+  header.appendChild(title);
+
+  // Hidden entirely when there's nothing to consolidate — an owner decision
+  // in review-core.mjs's "Rendering consolidation" header: the tool only
+  // ever SUGGESTS groupings, so a term with no fragmentation gets no control
+  // at all rather than a button that opens onto an empty list.
+  const formMerges = state.termPage?.formMerges || [];
+  if (formMerges.length) {
+    header.appendChild(
+      mkBtn(
+        `Consolidate (${formMerges.length} group${formMerges.length === 1 ? "" : "s"})`,
+        "btn btn--ghost btn--small renderings-panel__consolidate-toggle",
+        () => {
+          state.consolidateOpen = !state.consolidateOpen;
+          populateRenderingsPanel(wrap);
+        },
+      ),
+    );
+  } else {
+    state.consolidateOpen = false;
+  }
+
+  wrap.appendChild(header);
 
   const renderings = state.termPage?.renderings || [];
   if (!renderings.length) {
@@ -683,30 +745,112 @@ function populateRenderingsPanel(wrap) {
     empty.className = "renderings-panel__empty";
     empty.textContent = "No confirmed renderings yet.";
     wrap.appendChild(empty);
-    return;
+  } else {
+    const chips = document.createElement("div");
+    chips.className = "rendering-chips";
+
+    for (const r of renderings) {
+      const chip = document.createElement("button");
+      chip.type = "button";
+      chip.className = "rendering-chip";
+      chip.title = `Apply "${r.form}" to the focused row`;
+
+      const label = document.createElement("span");
+      label.textContent = r.form;
+      const count = document.createElement("span");
+      count.className = "rendering-chip__count";
+      count.textContent = String(r.count);
+
+      chip.append(label, count);
+      chip.addEventListener("click", () => applyRenderingToFocusedRow(r.form));
+      chips.appendChild(chip);
+    }
+
+    wrap.appendChild(chips);
   }
 
-  const chips = document.createElement("div");
-  chips.className = "rendering-chips";
+  if (state.consolidateOpen && formMerges.length) {
+    wrap.appendChild(renderConsolidateSection(formMerges));
+  }
+}
 
-  for (const r of renderings) {
-    const chip = document.createElement("button");
-    chip.type = "button";
-    chip.className = "rendering-chip";
-    chip.title = `Apply "${r.form}" to the focused row`;
+// -----------------------------------------------------------------------
+// Rendering consolidation — the "Consolidate" toggle on the renderings
+// panel. Each group is a SUGGESTION (see review-core.mjs); nothing here
+// writes anything until the reviewer edits/accepts a canonical label and
+// clicks that group's own Apply.
+// -----------------------------------------------------------------------
 
-    const label = document.createElement("span");
-    label.textContent = r.form;
-    const count = document.createElement("span");
-    count.className = "rendering-chip__count";
-    count.textContent = String(r.count);
+function renderConsolidateSection(groups) {
+  const section = document.createElement("div");
+  section.className = "consolidate-section";
 
-    chip.append(label, count);
-    chip.addEventListener("click", () => applyRenderingToFocusedRow(r.form));
-    chips.appendChild(chip);
+  for (const group of groups) {
+    section.appendChild(renderConsolidateGroup(group));
   }
 
-  wrap.appendChild(chips);
+  return section;
+}
+
+function renderConsolidateGroup(group) {
+  const row = document.createElement("div");
+  row.className = "consolidate-group";
+
+  const members = document.createElement("p");
+  members.className = "consolidate-group__members";
+  members.textContent = group.members.map((m) => `${m.form} (${m.count})`).join(" · ");
+  row.appendChild(members);
+
+  const controls = document.createElement("div");
+  controls.className = "consolidate-group__controls";
+
+  const label = document.createElement("label");
+  label.className = "consolidate-group__label";
+  label.append("Keep as: ");
+
+  const input = document.createElement("input");
+  input.type = "text";
+  input.className = "consolidate-group__input";
+  input.value = group.canonical;
+  label.appendChild(input);
+  controls.appendChild(label);
+
+  const applyBtn = mkBtn("Apply", "btn btn--primary btn--small", async () => {
+    const to = input.value.trim();
+    if (!to) {
+      showToast("Enter a label to consolidate these renderings under.", { error: true });
+      return;
+    }
+
+    applyBtn.disabled = true;
+    applyBtn.textContent = "Applying…";
+    input.disabled = true;
+    setGlobalStatus("Consolidating renderings…");
+
+    try {
+      const result = await api(`/api/terms/${encodeURIComponent(state.selectedTermId)}/merge-forms`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ from: group.members.map((m) => m.form), to }),
+      });
+      showToast(`Consolidated ${result.changed} record${result.changed === 1 ? "" : "s"} under “${result.to}”.`);
+      // Verse rows show saved forms in their settled summary, so the
+      // simplest correct thing after a relabel is to reload the term page
+      // wholesale rather than trying to patch every affected row in place.
+      await loadTermPage(state.selectedTermId);
+    } catch (err) {
+      showToast(err.message, { error: true });
+      applyBtn.disabled = false;
+      applyBtn.textContent = "Apply";
+      input.disabled = false;
+    } finally {
+      setGlobalStatus("");
+    }
+  });
+  controls.appendChild(applyBtn);
+
+  row.appendChild(controls);
+  return row;
 }
 
 function renderRenderingsPanel() {
@@ -846,6 +990,9 @@ async function selectTerm(id) {
   if (state.selectedTermId === id && state.termPage) return;
   state.selectedTermId = id;
   state.focusedRef = null;
+  // A fresh term's fragmentation is a new question; don't carry the previous
+  // term's open consolidate section over onto it.
+  state.consolidateOpen = false;
   renderTermSidebar();
   await loadTermPage(id);
 }
@@ -1144,6 +1291,7 @@ init();
 // GET  /api/terms/:id
 //   -> { term: {id, greek, traditional, lit, forms, lemmas},
 //        renderings: [{form, count}],
+//        formMerges: [{ signature, canonical, members: [{form, count}], total }],
 //        progress: {total, done, remaining},
 //        doubleConfirmed,
 //        verses: [{ ref, bookKey, chapter, verse, label, text,
@@ -1151,12 +1299,31 @@ init();
 //                    decided, doubleConfirmed,
 //                    proposal: {text,start,end,form,n} | null }] }
 //
+//   formMerges is the "renderings that look like one rendering fragmented"
+//   groups planFormMerges() proposes (review-core.mjs) — groups of 2+,
+//   biggest first, empty when there's nothing to consolidate. It's a
+//   SUGGESTION only; nothing writes until the reviewer hits a group's Apply.
+//
 // POST /api/terms/:id/verses/:ref
 //   body {action:"confirm", spans:[{text,start,form}]} | {action:"no-rendering"}
-//   -> {ok, ref, records, progress, renderings, decided}
+//   -> {ok, ref, records, progress, renderings, formMerges, decided}
 //
 // POST /api/terms/:id/accept-double-confirmed
-//   -> {ok, confirmed, verses, progress, renderings}
+//   -> {ok, confirmed, verses, progress, renderings, formMerges}
+//
+// GET  /api/terms/:id/form-merges
+//   -> {ok, formMerges: [{ signature, canonical, members: [{form, count}], total }]}
+//   Same shape as GET /api/terms/:id's formMerges; the term payload already
+//   carries it, so the UI doesn't call this separately.
+//
+// POST /api/terms/:id/merge-forms
+//   body {from: string[], to: string}
+//   -> {ok, changed, to, renderings, progress, formMerges}
+//   Relabels `term.form` to `to` on every confirmed record for this term
+//   whose form is in `from`. The UI doesn't read `formMerges` off this
+//   response; it reloads the whole term page on success instead, since a
+//   relabel can move which verse rows are "grouped under…" in ways cheaper
+//   to just refetch than to patch in place.
 //
 // GET  /api/absent
 //   -> { groups: [{ id, glossary, form, count,

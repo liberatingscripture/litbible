@@ -246,7 +246,7 @@ the sitemap filter live in `astro.config.mjs`.
 | `build-og-images.mjs` | `public/og/` — per-chapter/intro share cards (fonts in `scripts/og/fonts/`). |
 | `build-favicons.mjs` | Favicon/touch/manifest icons from the emblem SVGs. **Not** in the build — run by hand when the emblem changes. |
 | `build-alignment.mjs` | `src/data/alignment/` — scans published chapters for glossary-term renderings, then checks each against MorphGNT. **Not** in the build; its output is committed and merges with prior human review. See The Alignment Dataset below. |
-| `alignment-review/server.mjs` | `npm run review:alignment` — the localhost review UI (`store.mjs` = fs + corpus, `review-core.mjs` = pure logic, `ui/` = vanilla HTML/CSS/JS). Node builtins only, no deps. |
+| `alignment-review/server.mjs` | `npm run review:alignment` — the localhost review UI (`store.mjs` = fs + corpus, `review-core.mjs` = pure logic *also served to the browser*, `ui/` = vanilla HTML/CSS/JS). Node builtins only, no deps. |
 | `lib/morphgnt.mjs` | Reads a gitignored local MorphGNT working copy (lemma-per-verse; `{withTokens}` also keeps every token in verse order, which only the review tool needs). Absent → verification skipped, prior verdicts kept. |
 | `lib/glossary-lemmas.mjs` | Editorial map: glossary id → the Greek lemmas that commitment covers. Validated against the corpus at load. |
 | `lib/alignment-merge.mjs` | Record identity, merge, and ordering for `src/data/alignment/` — the contract between the scanner and the review tool. Unit-tested. |
@@ -462,12 +462,45 @@ Two structural rules it exists inside:
    `recordKey` must tolerate `english: []` and `term: null`.
 2. **The UI lives in `scripts/alignment-review/ui/`, not `public/`.** Astro
    copies `public/` into `dist/` as a filesystem operation, so `.gitignore`
-   there stops a commit but not a deploy. The server hands out those three
-   files by exact-path allowlist.
+   there stops a commit but not a deploy. The server hands out each file by
+   **exact-path allowlist** — `STATIC_FILES` in `server.mjs`, never a
+   path-join from the request. Three of its entries sit outside `ui/`
+   (`review-core.mjs` and the two pure libs it imports) because the browser
+   imports the *real* grouping module rather than keeping a second copy of a
+   rule that has to agree with the server's; their URLs are chosen so
+   review-core's own relative specifiers resolve unchanged, so moving any of
+   those files means moving its URL too.
 
 `applyReviewDecision` treats `(ref, glossary)` as a fully owned slot, so **a
 verse rendering the term twice must submit both spans in one call** — two
 sequential single-span writes would have the second erase the first.
+
+### Rendering consolidation
+
+`term.form` is free text and the UI defaults it to the words the reviewer
+clicked, so one rendering fragments across its inflections: `katharos` came out
+of review as clean / cleanse / cleansed / cleansing / cleanses / sincere, and
+`metanoia` as 22 forms over 31 verses. `/glossary` publishes one `<details>`
+per form, so **fragmentation is reader-visible, not untidiness**.
+
+`formSignature` in `review-core.mjs` is the grouping key — case-folded,
+de-accented, stopword-stripped, Porter2-stemmed via `src/lib/word-stem.mjs`
+(the *same* stemmer the search index uses for related-form matching; one
+notion of "related form" in the repo, not two), **word order preserved**
+because these are phrases. From it: `suggestForm` defaults a newly selected
+span to an established rendering, and `planFormMerges` proposes groups the
+`Consolidate` control applies via `renameFormInRecords`.
+
+**All of it suggests; none of it decides.** Stem equality is a good filter and
+a bad judge — it groups "reorient their mind" with "reorienting of minds" but
+leaves "transformation of the mind" separate, and would fold "The Adversary"
+into "Adversary" where the capital is a title. Which forms are *one rendering*
+is an editorial question about the translation, so a human picks the canonical
+label. Renaming touches **`confirmed` records only**: a hand-edited form on an
+`auto` record would be silently reverted by the next scan, since
+`mergeScanWithExisting` keeps a prior record whole only when it is non-`auto`.
+Identity is unaffected either way — `recordKey` is (ref, glossary,
+`english[0].text`, `n`), and none of those is a form.
 
 **The output is committed, not gitignored** — unlike every other generated
 artifact here, it carries review state. Re-running merges: a reviewed record is

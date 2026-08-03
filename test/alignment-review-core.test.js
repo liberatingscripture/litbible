@@ -21,6 +21,10 @@ import {
   isDecided,
   progressForTerm,
   groupAbsentRecordsByPattern,
+  formSignature,
+  suggestForm,
+  planFormMerges,
+  renameFormInRecords,
 } from "../scripts/alignment-review/review-core.mjs";
 import { recordKey } from "../scripts/lib/alignment-merge.mjs";
 import { findFormMatches } from "../scripts/lib/alignment-forms.mjs";
@@ -266,4 +270,353 @@ test("groupAbsentRecordsByPattern: groups by (glossary, form) sorted largest fir
   assert.equal(groups[0].records.length, 3);
   assert.equal(groups[1].id, "flesh-body|self-preservation");
   assert.equal(groups[1].records.length, 1);
+});
+
+/* ── 9. formSignature ────────────────────────────────────────────────────── */
+
+test("formSignature: inflections of one rendering collapse to the same signature", () => {
+  const sig1 = formSignature("cleanse");
+  const sig2 = formSignature("cleansed");
+  const sig3 = formSignature("cleansing");
+  const sig4 = formSignature("cleanses");
+  assert.equal(sig1, sig2);
+  assert.equal(sig2, sig3);
+  assert.equal(sig3, sig4);
+  assert(sig1.length > 0);
+});
+
+test("formSignature: 'clean' (adjective) produces a different signature from 'cleanse' (verb)", () => {
+  const cleanSig = formSignature("clean");
+  const cleanseSig = formSignature("cleanse");
+  assert.notEqual(cleanSig, cleanseSig);
+});
+
+test("formSignature: determiners and possessives are ignored, so deterministic phrases collapse", () => {
+  const sig1 = formSignature("reorient their mind");
+  const sig2 = formSignature("reorienting of minds");
+  const sig3 = formSignature("reorienting your mind");
+  assert.equal(sig1, sig2);
+  assert.equal(sig2, sig3);
+});
+
+test("formSignature: word order matters — 'reorienting mind' and 'mind reorienting' produce different signatures", () => {
+  const forward = formSignature("reorienting mind");
+  const backward = formSignature("mind reorienting");
+  assert.notEqual(forward, backward);
+});
+
+test("formSignature: case and diacritics are folded", () => {
+  const lower = formSignature("reawakening");
+  const upper = formSignature("Reawakening");
+  const accented = formSignature("reawakénìng");
+  assert.equal(lower, upper);
+  assert.equal(upper, accented);
+});
+
+test("formSignature: a form that is nothing but stopwords returns empty string", () => {
+  assert.equal(formSignature("the of"), "");
+  assert.equal(formSignature("a the an"), "");
+});
+
+test("formSignature: null/undefined/empty input returns empty string without throwing", () => {
+  assert.equal(formSignature(null), "");
+  assert.equal(formSignature(undefined), "");
+  assert.equal(formSignature(""), "");
+});
+
+/* ── 10. suggestForm ─────────────────────────────────────────────────────── */
+
+test("suggestForm: an exact case-insensitive match wins outright even against higher count", () => {
+  const text = "cleansing";
+  const renderings = [
+    { form: "cleanse", count: 40 },
+    { form: "cleansing", count: 1 },
+  ];
+  assert.equal(suggestForm({ text, renderings }), "cleansing");
+});
+
+test("suggestForm: with no exact match, the highest-count rendering sharing the signature wins", () => {
+  const text = "cleansed";
+  const renderings = [
+    { form: "cleanse", count: 10 },
+    { form: "cleansing", count: 3 },
+  ];
+  assert.equal(suggestForm({ text, renderings }), "cleanse");
+});
+
+test("suggestForm: returns null when nothing shares the signature", () => {
+  const text = "purified";
+  const renderings = [
+    { form: "cleanse", count: 10 },
+    { form: "cleansing", count: 3 },
+  ];
+  assert.equal(suggestForm({ text, renderings }), null);
+});
+
+test("suggestForm: returns null for stopword-only or empty text", () => {
+  assert.equal(suggestForm({ text: "the of", renderings: [{ form: "cleanse", count: 5 }] }), null);
+  assert.equal(suggestForm({ text: "", renderings: [{ form: "cleanse", count: 5 }] }), null);
+});
+
+test("suggestForm: handles empty/missing renderings array without throwing", () => {
+  assert.equal(suggestForm({ text: "cleansing", renderings: [] }), null);
+  assert.equal(suggestForm({ text: "cleansing", renderings: undefined }), null);
+});
+
+/* ── 11. planFormMerges ──────────────────────────────────────────────────── */
+
+test("planFormMerges: groups 2+ same-signature forms and omits singletons", () => {
+  const renderings = [
+    { form: "cleanse", count: 10 },
+    { form: "cleansing", count: 3 },
+    { form: "purify", count: 8 }, // different signature, singleton
+  ];
+  const groups = planFormMerges(renderings);
+  assert.equal(groups.length, 1);
+  assert.equal(groups[0].members.length, 2);
+  assert(groups[0].members.some((m) => m.form === "cleanse"));
+  assert(groups[0].members.some((m) => m.form === "cleansing"));
+});
+
+test("planFormMerges: canonical defaults to the highest-count member", () => {
+  const renderings = [
+    { form: "cleanse", count: 10 },
+    { form: "cleansing", count: 3 },
+  ];
+  const groups = planFormMerges(renderings);
+  assert.equal(groups[0].canonical, "cleanse");
+});
+
+test("planFormMerges: ties on count prefer lowercase over capitalized form", () => {
+  // "Abide" / "abiding" share the stem "abid", and "Abide".localeCompare("abiding")
+  // is -1 — so the alphabetical tie-break alone would pick the capitalized form.
+  // Only the case rule produces "abiding", which is what makes this fixture
+  // able to fail. ("Cruel"/"cruel" cannot: localeCompare already returns 1
+  // there, so lowercase wins with or without the rule.)
+  const groups = planFormMerges([
+    { form: "Abide", count: 1 },
+    { form: "abiding", count: 1 },
+  ]);
+  assert.equal(groups[0].canonical, "abiding");
+});
+
+test("planFormMerges: a sentence-initial capital does not become the canonical label", () => {
+  const groups = planFormMerges([
+    { form: "Cruel", count: 1 },
+    { form: "cruel", count: 1 },
+  ]);
+  assert.equal(groups[0].canonical, "cruel");
+});
+
+test("planFormMerges: total is the sum of member counts", () => {
+  const renderings = [
+    { form: "cleanse", count: 10 },
+    { form: "cleansed", count: 3 },
+    { form: "cleansing", count: 5 },
+  ];
+  const groups = planFormMerges(renderings);
+  assert.equal(groups[0].total, 18);
+});
+
+test("planFormMerges: groups are ordered by total descending", () => {
+  const renderings = [
+    { form: "small", count: 1 },
+    { form: "smalls", count: 1 },
+    { form: "cleanse", count: 10 },
+    { form: "cleansing", count: 5 },
+  ];
+  const groups = planFormMerges(renderings);
+  assert.equal(groups.length, 2);
+  assert.equal(groups[0].total, 15); // cleanse family
+  assert.equal(groups[1].total, 2); // small family
+});
+
+test("planFormMerges: empty/missing input returns empty array", () => {
+  assert.deepEqual(planFormMerges([]), []);
+  assert.deepEqual(planFormMerges(undefined), []);
+  assert.deepEqual(planFormMerges(null), []);
+});
+
+/* ── 12. renameFormInRecords ─────────────────────────────────────────────── */
+
+test("renameFormInRecords: renames term.form on matching records and reports correct changed count", () => {
+  const record1 = {
+    ref: "Rom.8.3",
+    english: [{ text: "self-preservation", n: 1 }],
+    term: { glossary: "flesh-body", form: "self-preservation" },
+    status: "confirmed",
+  };
+  const record2 = {
+    ref: "Rom.8.4",
+    english: [{ text: "self-preservation", n: 1 }],
+    term: { glossary: "flesh-body", form: "self-preservation" },
+    status: "confirmed",
+  };
+  const records = [record1, record2];
+  const result = renameFormInRecords({
+    records,
+    termId: "flesh-body",
+    fromForms: ["self-preservation"],
+    to: "bodily desire",
+  });
+  assert.equal(result.changed, 2);
+  assert.equal(result.records[0].term.form, "bodily desire");
+  assert.equal(result.records[1].term.form, "bodily desire");
+});
+
+test("renameFormInRecords: only touches status: confirmed records", () => {
+  const auto = {
+    ref: "Rom.8.3",
+    english: [{ text: "self-preservation", n: 1 }],
+    term: { glossary: "flesh-body", form: "self-preservation" },
+    status: "auto",
+  };
+  const confirmed = {
+    ref: "Rom.8.4",
+    english: [{ text: "self-preservation", n: 1 }],
+    term: { glossary: "flesh-body", form: "self-preservation" },
+    status: "confirmed",
+  };
+  const records = [auto, confirmed];
+  const result = renameFormInRecords({
+    records,
+    termId: "flesh-body",
+    fromForms: ["self-preservation"],
+    to: "bodily desire",
+  });
+  assert.equal(result.changed, 1); // only confirmed changed
+  assert.equal(result.records[0].term.form, "self-preservation"); // auto untouched
+  assert.equal(result.records[1].term.form, "bodily desire"); // confirmed changed
+});
+
+test("renameFormInRecords: only touches records for the given termId", () => {
+  const flesh = {
+    ref: "Rom.8.3",
+    english: [{ text: "self-preservation", n: 1 }],
+    term: { glossary: "flesh-body", form: "self-preservation" },
+    status: "confirmed",
+  };
+  const other = {
+    ref: "Rom.8.4",
+    english: [{ text: "self-preservation", n: 1 }],
+    term: { glossary: "different-term", form: "self-preservation" },
+    status: "confirmed",
+  };
+  const records = [flesh, other];
+  const result = renameFormInRecords({
+    records,
+    termId: "flesh-body",
+    fromForms: ["self-preservation"],
+    to: "bodily desire",
+  });
+  assert.equal(result.changed, 1);
+  assert.equal(result.records[0].term.form, "bodily desire");
+  assert.equal(result.records[1].term.form, "self-preservation"); // different termId, untouched
+});
+
+test("renameFormInRecords: does not mutate input array or input record objects", () => {
+  const original = {
+    ref: "Rom.8.3",
+    english: [{ text: "self-preservation", n: 1 }],
+    term: { glossary: "flesh-body", form: "self-preservation" },
+    status: "confirmed",
+  };
+  const records = [original];
+  const result = renameFormInRecords({
+    records,
+    termId: "flesh-body",
+    fromForms: ["self-preservation"],
+    to: "bodily desire",
+  });
+  // Original should be untouched
+  assert.equal(original.term.form, "self-preservation");
+  assert.equal(records, records); // input array reference unchanged if no change
+  // Result should have the change
+  assert.equal(result.records[0].term.form, "bodily desire");
+  assert.notEqual(result.records, records); // new array created
+});
+
+test("renameFormInRecords: leaves ref, english, status, lemma untouched on renamed records", () => {
+  const record = {
+    ref: "Rom.8.3",
+    english: [{ text: "self-preservation", n: 1 }],
+    greek: [],
+    term: { glossary: "flesh-body", form: "self-preservation" },
+    confidence: "distinctive",
+    lemma: "present",
+    source: "review",
+    status: "confirmed",
+  };
+  const result = renameFormInRecords({
+    records: [record],
+    termId: "flesh-body",
+    fromForms: ["self-preservation"],
+    to: "bodily desire",
+  });
+  const renamed = result.records[0];
+  assert.equal(renamed.ref, "Rom.8.3");
+  assert.deepEqual(renamed.english, [{ text: "self-preservation", n: 1 }]);
+  assert.equal(renamed.status, "confirmed");
+  assert.equal(renamed.lemma, "present");
+  assert.equal(renamed.source, "review");
+});
+
+test("renameFormInRecords: returns same array reference when nothing matches", () => {
+  const records = [
+    {
+      ref: "Rom.8.3",
+      english: [{ text: "something", n: 1 }],
+      term: { glossary: "other-term", form: "something" },
+      status: "confirmed",
+    },
+  ];
+  const result = renameFormInRecords({
+    records,
+    termId: "flesh-body",
+    fromForms: ["self-preservation"],
+    to: "bodily desire",
+  });
+  assert.equal(result.changed, 0);
+  assert.equal(result.records, records); // same reference
+});
+
+test("renameFormInRecords: records already carrying target form are not counted as changed", () => {
+  const records = [
+    {
+      ref: "Rom.8.3",
+      english: [{ text: "bodily desire", n: 1 }],
+      term: { glossary: "flesh-body", form: "bodily desire" },
+      status: "confirmed",
+    },
+  ];
+  const result = renameFormInRecords({
+    records,
+    termId: "flesh-body",
+    fromForms: ["bodily desire"],
+    to: "bodily desire",
+  });
+  assert.equal(result.changed, 0);
+});
+
+test("renameFormInRecords: handles empty records array, missing fromForms, and term: null without throwing", () => {
+  assert.doesNotThrow(() => {
+    renameFormInRecords({ records: [], termId: "flesh-body", fromForms: [], to: "new" });
+  });
+  assert.doesNotThrow(() => {
+    renameFormInRecords({ records: [], termId: "flesh-body", fromForms: undefined, to: "new" });
+  });
+  const recordWithNullTerm = {
+    ref: "Rom.8.3",
+    english: [{ text: "something", n: 1 }],
+    term: null,
+    status: "confirmed",
+  };
+  assert.doesNotThrow(() => {
+    renameFormInRecords({
+      records: [recordWithNullTerm],
+      termId: "flesh-body",
+      fromForms: ["something"],
+      to: "new",
+    });
+  });
 });
