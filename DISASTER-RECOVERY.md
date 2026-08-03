@@ -217,8 +217,17 @@ shell history). Documented in `wrangler.toml`'s comments:
 
 | Name | What it is |
 |------|------------|
-| `RELEASE_NOTES_PAT` | Fine-grained PAT (Contents: read/write on this repo, owned by a branch-ruleset-bypass account) that lets `release-notes.yml` push its auto-generated commit straight to `main`. If it expires or is revoked, the workflow fails on the push step; mint a new fine-grained PAT with the same scope and update the secret. |
-| `LSC_SYNC_TOKEN` | Fine-grained PAT scoped to **`liberatingscripture/liberatingscripture.github.io`** only, with **Issues: read/write**. Lets `apps-mirror-notify.yml` open an issue on the LSC repo when a mirrored `/apps` file or `/privacy` changes here. The built-in `GITHUB_TOKEN` cannot write to another repo, which is why this exists. **Non-fatal**: if it's missing or expired the workflow logs a warning and exits 0 rather than failing the build, so the only symptom is that LSC stops being told. Re-mint with the same scope and update the secret. |
+| `RELEASE_NOTES_PAT` | Fine-grained PAT (Contents: read/write on this repo, owned by a branch-ruleset-bypass account) that lets `release-notes.yml` push its auto-generated commit straight to `main`. If it is revoked, the workflow fails on the push step; mint a new fine-grained PAT with the same scope and update the secret. |
+| `LSC_SYNC_TOKEN` | Fine-grained PAT scoped to **`liberatingscripture/liberatingscripture.github.io`** only, with **Issues: read/write**. Lets `apps-mirror-notify.yml` open an issue on the LSC repo when a mirrored `/apps` file or `/privacy` changes here. The built-in `GITHUB_TOKEN` cannot write to another repo, which is why this exists. Two distinct failure modes: if the secret is **absent** the workflow logs a warning and exits 0, so the run stays green and the only symptom is that LSC silently stops being told; if the token is **present but revoked** the `gh` call 401s and the step fails red under Actions' default `bash -e`. Recovery either way: re-mint with the same scope and update the secret. |
+
+**Both are deliberately set to never expire.** These workflows are meant to
+run unattended for long stretches, and a lapsed token is a recurring, quiet
+failure in exchange for a control that only ever bounds the window of an
+*undetected* leak. The accepted trade is that **nothing rotates them for you,
+so revoking by hand is the only kill switch** — which is what makes this
+section worth keeping accurate. If the owning account is ever compromised,
+pull `RELEASE_NOTES_PAT` first: it can write to `main` past the branch
+ruleset, where `LSC_SYNC_TOKEN` can only open issues on a public repo.
 
 There are **no other secrets**. The site build needs none (the podcast fetch
 is an unauthenticated public feed; Brevo/GiveLively integrations are
