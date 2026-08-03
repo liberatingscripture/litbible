@@ -1,5 +1,22 @@
 [
   {
+    "version": "2026-08-03",
+    "date": "2026-08-03",
+    "label": "August 3, 2026",
+    "changes": [
+      {
+        "type": "text_updated",
+        "description": "Romans 8:28 — text updated",
+        "detail": "\"intention.\" → \"intention, for what’s beneficial.\"",
+        "location": {
+          "bookKey": "romans",
+          "chapter": 8,
+          "verse": 28
+        }
+      }
+    ]
+  },
+  {
     "version": "2026-08-02",
     "date": "2026-08-02",
     "label": "August 2, 2026",

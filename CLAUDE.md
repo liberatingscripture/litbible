@@ -178,10 +178,14 @@ public/              # Static assets + generated output (api/, og/, search/,
                      #   images/, icons). Page-loaded raster images are WebP,
                      #   resized to ~2x display size — no astro:assets pipeline,
                      #   so files are optimized ahead of time and referenced by
-                     #   plain URL string (frontmatter/src/JSON)
+                     #   plain URL string (frontmatter/src/JSON).
+                     #   assets/screenshots/ holds the /apps phone+tablet shots,
+                     #   MIRRORED to the LSC site — lowercase-kebab names, no
+                     #   spaces, so the two repos' components stay byte-identical
+                     #   (see The /apps mirror below)
 _source-images/      # Pre-WebP originals for public/images/articles/ and
-                     #   public/screenshots/, archived (not shipped — outside
-                     #   public/) for future re-editing; see its README
+                     #   public/assets/screenshots/, archived (not shipped —
+                     #   outside public/) for future re-editing; see its README
 emails/              # Archive of hand-built HTML campaigns (not part of the site
                      #   build, and NOT a template source). Newsletters are
                      #   authored in Brevo's editor, which supplies the
@@ -199,7 +203,10 @@ workers/             # Cloudflare Workers, deployed separately via wrangler (NOT
                      #   tests, full build, internal-link check on push/PR) plus a
                      #   separate `worker-tests` job (workers/contact-form has its
                      #   own dep tree, so it needs its own npm ci);
-                     #   release-notes.yml (auto-updates release-notes.json on push)
+                     #   release-notes.yml (auto-updates release-notes.json on push);
+                     #   apps-mirror-notify.yml (tells the LSC repo when a
+                     #   mirrored /apps file or /privacy changes — see
+                     #   The /apps mirror below)
 .github/dependabot.yml  # Three update streams: npm at `/`, npm at
                      #   `/workers/contact-form` (separate dep tree), and
                      #   github-actions. Minor/patch are grouped into one weekly
@@ -739,6 +746,41 @@ collection); they're read directly by the intro pages and the API manifest.
   decision). The popover also suppresses itself on a small path allowlist
   (`SUPPRESSED_PATHS`): `/apps`, its own CTA destination, and `/privacy`, which
   people open to read terms rather than to be pitched to.
+- **The /apps mirror: litbible is upstream for the LSC site.**
+  `liberatingscripture.org/apps` is the same page, and these files are kept
+  **byte-for-byte identical** in both repos at the same paths: everything under
+  `src/components/apps/`, `src/styles/pages/apps.css`, and the section content
+  in `src/content/{callouts,examples,seasons}/`. Edit them **here**; LSC copies
+  them across. Two things are deliberately NOT mirrored — `src/pages/apps.astro`
+  (two sites can't share a canonical URL, so LSC keeps its own Layout props and
+  JSON-LD) and LSC's `apps-bridge.css` (which exists precisely so `apps.css` can
+  stay a pure mirror).
+  The screenshot **bytes** under `public/assets/screenshots/` are a third,
+  different case. They were an exception until LSC adopted litbible's
+  ~2x-display-size copies (FIXLIST O8); the 12 files both repos ship are now
+  byte-identical. But they are **matched by hand, not enforced**:
+  `check-apps-mirror.mjs` reads every file as UTF-8 and folds CRLF, which
+  mangles binaries, so putting them in `MIRRORED` would need a hash path the
+  script doesn't have. Re-copy them if either side re-exports, and note that
+  `_source-images/screenshots/` here now holds the only full-resolution
+  originals outside LSC's git history.
+  This is why **`public/assets/` is the mirrored asset tree** — `assets/screenshots/`
+  and the two `assets/images/lit-app-icon.*` files use lowercase-kebab names with
+  no spaces so both repos' components can carry identical `src` strings.
+  `public/images/` is litbible-only and **cannot move**: it's referenced ~191
+  times across ~84 files including chapter JSON, which ships to the native apps
+  as an API contract.
+  Enforcement runs from both ends. LSC's `apps-mirror.yml` fails a PR that edits
+  a mirrored file into a state that doesn't match litbible's `main`, scoped to
+  the PR's own changed files so LSC lagging behind never reddens an unrelated PR.
+  In this repo, `.github/workflows/apps-mirror-notify.yml` opens (or comments on)
+  an issue in the LSC repo when a mirrored file lands on `main`. It's
+  **notify-only by design** — LSC being briefly behind is normal, and failing
+  litbible's CI over it would put a red X on a contributor who did nothing wrong.
+  It needs the `LSC_SYNC_TOKEN` secret and skips with a warning if it's absent.
+  That same workflow also watches `/privacy`, which is **not** a mirror: the two
+  policies cover two different entities and are written separately (owner
+  decision), so the notification says "review", never "copy".
 - **Release notes are automated**: pushing changes to chapters, intros, glossary,
   or articles on `main` triggers `.github/workflows/release-notes.yml`, which
   runs `draft-release-notes.mjs` and commits to `release-notes.json`. That file
@@ -808,6 +850,29 @@ collection); they're read directly by the intro pages and the API manifest.
     `search=yes`, `ai-input=yes` (RAG/inference welcome). The site has no auth,
     MCP server, or write API, so OAuth/MCP/WebMCP discovery files are intentionally
     absent — don't add them without a real backing service.
+
+## Git Workflow
+
+- **`main` is protected** — direct pushes are rejected; changes land via PR.
+  Session work typically happens in a per-task branch/worktree (e.g.
+  `.claude/worktrees/<task>/` on branch `claude/<task>`).
+- **After a PR you opened is merged, clean up the branch and worktree** in
+  the same session rather than leaving them for later:
+  1. `git push origin --delete <branch>` — delete the remote branch (GitHub's
+     "delete branch" button does the same thing; do this even if the repo
+     doesn't auto-delete on merge).
+  2. `git worktree remove <path>` from a **different** worktree (a worktree
+     can't remove itself while it's the current directory) — then
+     `git branch -d <branch>` to delete the now-unreachable local branch.
+  3. If `git worktree remove` reports the directory as busy/permission-denied,
+     the *session itself* is still rooted there (its own working directory) —
+     git will still unregister it from `git worktree list`, but the leftover
+     directory can't be deleted until that session ends. Say so plainly rather
+     than retrying; don't touch other worktree directories under
+     `.claude/worktrees/` that aren't the one just merged, since those are
+     other sessions' in-progress work.
+- Skip this cleanup for a branch/worktree still mid-task, or one the user
+  says to keep.
 
 ## Important Files
 
