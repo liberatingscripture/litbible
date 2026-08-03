@@ -46,6 +46,26 @@
       "ref": "Rom.1.4",
       "english": [
         {
+          "text": "reawakening",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "anastasis",
+        "traditional": "Resurrection",
+        "glossary": "resurrection-reawakening",
+        "form": "reawakening"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.1.4",
+      "english": [
+        {
           "text": "Life-breath",
           "n": 1
         }
@@ -456,6 +476,26 @@
         "traditional": "Bad",
         "glossary": "bad-harmful",
         "form": "abuse"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.1.29",
+      "english": [
+        {
+          "text": "disgraceful behavior",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "poneros",
+        "traditional": "Evil",
+        "glossary": "evil-hardship",
+        "form": "disgraceful behavior"
       },
       "confidence": null,
       "lemma": "present",

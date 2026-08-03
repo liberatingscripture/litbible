@@ -43,6 +43,26 @@
       "status": "auto"
     },
     {
+      "ref": "Luke.19.22",
+      "english": [
+        {
+          "text": "worthless",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "poneros",
+        "traditional": "Evil",
+        "glossary": "evil-hardship",
+        "form": "worthless"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Luke.19.38",
       "english": [
         {

@@ -223,6 +223,26 @@
       "status": "auto"
     },
     {
+      "ref": "1John.3.12",
+      "english": [
+        {
+          "text": "oppressive",
+          "n": 2
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "poneros",
+        "traditional": "Evil",
+        "glossary": "evil-hardship",
+        "form": "oppressive"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "1John.3.13",
       "english": [
         {

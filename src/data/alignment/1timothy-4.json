@@ -6,6 +6,26 @@
       "ref": "1Tim.4.1",
       "english": [
         {
+          "text": "demonic",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "daimonion",
+        "traditional": "Demon",
+        "glossary": "demon-demon",
+        "form": "demonic"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Tim.4.1",
+      "english": [
+        {
           "text": "faithfulness",
           "n": 1
         }

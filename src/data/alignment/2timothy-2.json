@@ -103,6 +103,26 @@
       "status": "auto"
     },
     {
+      "ref": "2Tim.2.18",
+      "english": [
+        {
+          "text": "Reawakening",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "anastasis",
+        "traditional": "Resurrection",
+        "glossary": "resurrection-reawakening",
+        "form": "Reawakening"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "2Tim.2.21",
       "english": [
         {

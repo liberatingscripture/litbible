@@ -123,6 +123,26 @@
       "status": "auto"
     },
     {
+      "ref": "Luke.3.19",
+      "english": [
+        {
+          "text": "oppressive",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "poneros",
+        "traditional": "Evil",
+        "glossary": "evil-hardship",
+        "form": "oppressive"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Luke.3.21",
       "english": [
         {

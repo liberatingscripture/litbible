@@ -66,6 +66,26 @@
       "ref": "2Pet.1.9",
       "english": [
         {
+          "text": "cleansing",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "katharos",
+        "traditional": "Clean",
+        "glossary": "clean-clean",
+        "form": "cleansing"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "2Pet.1.9",
+      "english": [
+        {
           "text": "deviations",
           "n": 1
         }

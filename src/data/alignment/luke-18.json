@@ -183,6 +183,26 @@
       "status": "auto"
     },
     {
+      "ref": "Luke.18.33",
+      "english": [
+        {
+          "text": "will rise up",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "anastasis",
+        "traditional": "Resurrection",
+        "glossary": "resurrection-reawakening",
+        "form": "will rise up"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Luke.18.42",
       "english": [
         {

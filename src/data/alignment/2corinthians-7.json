@@ -6,6 +6,26 @@
       "ref": "2Cor.7.1",
       "english": [
         {
+          "text": "cleanse",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "katharos",
+        "traditional": "Clean",
+        "glossary": "clean-clean",
+        "form": "cleanse"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "2Cor.7.1",
+      "english": [
+        {
           "text": "sacred",
           "n": 1
         }

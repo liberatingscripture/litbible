@@ -103,6 +103,26 @@
       "status": "auto"
     },
     {
+      "ref": "2Tim.3.13",
+      "english": [
+        {
+          "text": "who inflict harm",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "poneros",
+        "traditional": "Evil",
+        "glossary": "evil-hardship",
+        "form": "who inflict harm"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "2Tim.3.15",
       "english": [
         {

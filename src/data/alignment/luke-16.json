@@ -80,7 +80,7 @@
       "confidence": "common",
       "lemma": "present",
       "source": "glossary-scan",
-      "status": "auto"
+      "status": "confirmed"
     },
     {
       "ref": "Luke.16.23",
@@ -136,6 +136,26 @@
         "traditional": "Repentance",
         "glossary": "repentance-reorient-mind",
         "form": "reorient their minds"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.16.31",
+      "english": [
+        {
+          "text": "raised up",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "anastasis",
+        "traditional": "Resurrection",
+        "glossary": "resurrection-reawakening",
+        "form": "raised up"
       },
       "confidence": null,
       "lemma": "present",

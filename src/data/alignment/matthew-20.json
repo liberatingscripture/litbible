@@ -1,0 +1,26 @@
+{
+  "bookKey": "matthew",
+  "chapter": 20,
+  "records": [
+    {
+      "ref": "Matt.20.15",
+      "english": [
+        {
+          "text": "corrupted",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "poneros",
+        "traditional": "Evil",
+        "glossary": "evil-hardship",
+        "form": "corrupted"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    }
+  ]
+}

@@ -146,6 +146,26 @@
       "ref": "Heb.3.12",
       "english": [
         {
+          "text": "destructive",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "poneros",
+        "traditional": "Evil",
+        "glossary": "evil-hardship",
+        "form": "destructive"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Heb.3.12",
+      "english": [
+        {
           "text": "Family",
           "n": 1
         }
