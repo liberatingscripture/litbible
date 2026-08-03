@@ -35,7 +35,7 @@
         "greek": "homologia",
         "traditional": "Confession",
         "glossary": "confession-open-acknowledgement",
-        "form": "acknowledges"
+        "form": "acknowledged"
       },
       "confidence": null,
       "lemma": "present",
@@ -75,7 +75,7 @@
         "greek": "homologia",
         "traditional": "Confession",
         "glossary": "confession-open-acknowledgement",
-        "form": "acknowledge"
+        "form": "acknowledged"
       },
       "confidence": null,
       "lemma": "present",
@@ -155,7 +155,7 @@
         "greek": "homologia",
         "traditional": "Confession",
         "glossary": "confession-open-acknowledgement",
-        "form": "acknowledges"
+        "form": "acknowledged"
       },
       "confidence": null,
       "lemma": "present",

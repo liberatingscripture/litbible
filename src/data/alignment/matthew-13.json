@@ -15,7 +15,7 @@
         "greek": "kalos",
         "traditional": "Good [1]",
         "glossary": "good-admirable",
-        "form": "fertile"
+        "form": "healthy"
       },
       "confidence": null,
       "lemma": "present",
@@ -55,7 +55,7 @@
         "greek": "kalos",
         "traditional": "Good [1]",
         "glossary": "good-admirable",
-        "form": "fertile"
+        "form": "healthy"
       },
       "confidence": null,
       "lemma": "present",
@@ -155,7 +155,7 @@
         "greek": "poneros",
         "traditional": "Evil",
         "glossary": "evil-hardship",
-        "form": "harm"
+        "form": "harmful"
       },
       "confidence": null,
       "lemma": "present",
@@ -335,7 +335,7 @@
         "greek": "poneros",
         "traditional": "Evil",
         "glossary": "evil-hardship",
-        "form": "those who cause hardship"
+        "form": "a cause of hardship"
       },
       "confidence": null,
       "lemma": "present",

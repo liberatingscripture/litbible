@@ -275,7 +275,7 @@
         "greek": "blasphemia",
         "traditional": "Blasphemy",
         "glossary": "blasphemy-disrespectfulness",
-        "form": "contemptuous speech"
+        "form": "speaking with contempt"
       },
       "confidence": null,
       "lemma": "present",
@@ -435,7 +435,7 @@
         "greek": "poneros",
         "traditional": "Evil",
         "glossary": "evil-hardship",
-        "form": "corrupted"
+        "form": "corrupt"
       },
       "confidence": null,
       "lemma": "present",
@@ -555,7 +555,7 @@
         "greek": "metanoia",
         "traditional": "Repentance",
         "glossary": "repentance-reorient-mind",
-        "form": "transformed their minds"
+        "form": "reorienting the mind"
       },
       "confidence": null,
       "lemma": "present",

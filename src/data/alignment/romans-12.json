@@ -115,7 +115,7 @@
         "greek": "poneros",
         "traditional": "Evil",
         "glossary": "evil-hardship",
-        "form": "harm"
+        "form": "harmful"
       },
       "confidence": null,
       "lemma": "present",
@@ -295,7 +295,7 @@
         "greek": "kakos",
         "traditional": "Bad",
         "glossary": "bad-harmful",
-        "form": "harmfulness"
+        "form": "harm"
       },
       "confidence": null,
       "lemma": "present",
@@ -315,7 +315,7 @@
         "greek": "kakos",
         "traditional": "Bad",
         "glossary": "bad-harmful",
-        "form": "harmfulness"
+        "form": "harm"
       },
       "confidence": null,
       "lemma": "present",

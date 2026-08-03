@@ -15,7 +15,7 @@
         "greek": "katharos",
         "traditional": "Clean",
         "glossary": "clean-clean",
-        "form": "cleansed"
+        "form": "cleanse"
       },
       "confidence": null,
       "lemma": "present",
@@ -75,7 +75,7 @@
         "greek": "metanoia",
         "traditional": "Repentance",
         "glossary": "repentance-reorient-mind",
-        "form": "transform their mind"
+        "form": "reorienting the mind"
       },
       "confidence": null,
       "lemma": "present",
@@ -95,7 +95,7 @@
         "greek": "metanoia",
         "traditional": "Repentance",
         "glossary": "repentance-reorient-mind",
-        "form": "transformed their minds"
+        "form": "reorienting the mind"
       },
       "confidence": null,
       "lemma": "present",
@@ -195,7 +195,7 @@
         "greek": "homologia",
         "traditional": "Confession",
         "glossary": "confession-open-acknowledgement",
-        "form": "acknowledge"
+        "form": "acknowledged"
       },
       "confidence": null,
       "lemma": "present",

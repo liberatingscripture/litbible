@@ -55,7 +55,7 @@
         "greek": "kalos",
         "traditional": "Good [1]",
         "glossary": "good-admirable",
-        "form": "honorably"
+        "form": "honorable"
       },
       "confidence": null,
       "lemma": "present",
@@ -75,7 +75,7 @@
         "greek": "kakos",
         "traditional": "Bad",
         "glossary": "bad-harmful",
-        "form": "harmful"
+        "form": "harm"
       },
       "confidence": "common",
       "lemma": "present",

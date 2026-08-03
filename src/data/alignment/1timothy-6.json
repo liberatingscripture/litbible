@@ -15,7 +15,7 @@
         "greek": "blasphemia",
         "traditional": "Blasphemy",
         "glossary": "blasphemy-disrespectfulness",
-        "form": "be discredited"
+        "form": "discredit"
       },
       "confidence": null,
       "lemma": "present",
@@ -75,7 +75,7 @@
         "greek": "blasphemia",
         "traditional": "Blasphemy",
         "glossary": "blasphemy-disrespectfulness",
-        "form": "speaking disrespectfully"
+        "form": "speak disrespectfully"
       },
       "confidence": null,
       "lemma": "present",
@@ -175,7 +175,7 @@
         "greek": "homologia",
         "traditional": "Confession",
         "glossary": "confession-open-acknowledgement",
-        "form": "acknowledgment"
+        "form": "acknowledged"
       },
       "confidence": null,
       "lemma": "present",
@@ -255,7 +255,7 @@
         "greek": "homologia",
         "traditional": "Confession",
         "glossary": "confession-open-acknowledgement",
-        "form": "acknowledgment"
+        "form": "acknowledged"
       },
       "confidence": null,
       "lemma": "present",

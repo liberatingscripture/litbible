@@ -35,7 +35,7 @@
         "greek": "katharos",
         "traditional": "Clean",
         "glossary": "clean-clean",
-        "form": "cleansed"
+        "form": "cleanse"
       },
       "confidence": null,
       "lemma": "present",
@@ -55,7 +55,7 @@
         "greek": "katharos",
         "traditional": "Clean",
         "glossary": "clean-clean",
-        "form": "cleansing"
+        "form": "cleanse"
       },
       "confidence": null,
       "lemma": "present",
@@ -135,7 +135,7 @@
         "greek": "blasphemia",
         "traditional": "Blasphemy",
         "glossary": "blasphemy-disrespectfulness",
-        "form": "speaks disrespectful things"
+        "form": "speak disrespectfully"
       },
       "confidence": null,
       "lemma": "present",
@@ -255,7 +255,7 @@
         "greek": "metanoia",
         "traditional": "Repentance",
         "glossary": "repentance-reorient-mind",
-        "form": "reorient their minds"
+        "form": "reorienting the mind"
       },
       "confidence": null,
       "lemma": "present",

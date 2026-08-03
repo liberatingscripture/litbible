@@ -115,7 +115,7 @@
         "greek": "anastasis",
         "traditional": "Resurrection",
         "glossary": "resurrection-reawakening",
-        "form": "Get up"
+        "form": "get up"
       },
       "confidence": null,
       "lemma": "present",
@@ -135,7 +135,7 @@
         "greek": "poneros",
         "traditional": "Evil",
         "glossary": "evil-hardship",
-        "form": "oppression"
+        "form": "oppressive"
       },
       "confidence": null,
       "lemma": "present",
@@ -215,7 +215,7 @@
         "greek": "katharos",
         "traditional": "Clean",
         "glossary": "clean-clean",
-        "form": "cleansing"
+        "form": "cleanse"
       },
       "confidence": null,
       "lemma": "present",

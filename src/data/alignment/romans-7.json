@@ -815,7 +815,7 @@
         "greek": "kalos",
         "traditional": "Good [1]",
         "glossary": "good-admirable",
-        "form": "that benefit others"
+        "form": "beneficial"
       },
       "confidence": null,
       "lemma": "present",
@@ -855,7 +855,7 @@
         "greek": "kakos",
         "traditional": "Bad",
         "glossary": "bad-harmful",
-        "form": "harmful"
+        "form": "harm"
       },
       "confidence": "common",
       "lemma": "present",
@@ -935,7 +935,7 @@
         "greek": "kakos",
         "traditional": "Bad",
         "glossary": "bad-harmful",
-        "form": "harmful"
+        "form": "harm"
       },
       "confidence": "common",
       "lemma": "present",

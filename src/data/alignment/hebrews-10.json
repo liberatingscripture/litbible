@@ -55,7 +55,7 @@
         "greek": "katharos",
         "traditional": "Clean",
         "glossary": "clean-clean",
-        "form": "cleansed"
+        "form": "cleanse"
       },
       "confidence": null,
       "lemma": "present",
@@ -455,7 +455,7 @@
         "greek": "poneros",
         "traditional": "Evil",
         "glossary": "evil-hardship",
-        "form": "harm"
+        "form": "harmful"
       },
       "confidence": null,
       "lemma": "present",
@@ -495,7 +495,7 @@
         "greek": "homologia",
         "traditional": "Confession",
         "glossary": "confession-open-acknowledgement",
-        "form": "acknowledgment"
+        "form": "acknowledged"
       },
       "confidence": null,
       "lemma": "present",

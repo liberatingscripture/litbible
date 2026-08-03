@@ -35,7 +35,7 @@
         "greek": "kakos",
         "traditional": "Bad",
         "glossary": "bad-harmful",
-        "form": "harmful"
+        "form": "harm"
       },
       "confidence": "common",
       "lemma": "present",
@@ -75,7 +75,7 @@
         "greek": "blasphemia",
         "traditional": "Blasphemy",
         "glossary": "blasphemy-disrespectfulness",
-        "form": "speaking disrespectfully"
+        "form": "speak disrespectfully"
       },
       "confidence": null,
       "lemma": "present",
@@ -95,7 +95,7 @@
         "greek": "poneros",
         "traditional": "Evil",
         "glossary": "evil-hardship",
-        "form": "that cause others hardship"
+        "form": "a cause of hardship"
       },
       "confidence": null,
       "lemma": "present",

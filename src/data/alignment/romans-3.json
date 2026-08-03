@@ -75,7 +75,7 @@
         "greek": "kakos",
         "traditional": "Bad",
         "glossary": "bad-harmful",
-        "form": "harmful"
+        "form": "harm"
       },
       "confidence": "common",
       "lemma": "present",
@@ -95,7 +95,7 @@
         "greek": "blasphemia",
         "traditional": "Blasphemy",
         "glossary": "blasphemy-disrespectfulness",
-        "form": "being slandered"
+        "form": "slander"
       },
       "confidence": null,
       "lemma": "present",
