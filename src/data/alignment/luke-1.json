@@ -443,6 +443,26 @@
       "status": "auto"
     },
     {
+      "ref": "Luke.1.53",
+      "english": [
+        {
+          "text": "good",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "agathos",
+        "traditional": "Good [2]",
+        "glossary": "good-beneficial",
+        "form": "good"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Luke.1.61",
       "english": [
         {

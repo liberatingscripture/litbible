@@ -63,6 +63,26 @@
       "status": "auto"
     },
     {
+      "ref": "Luke.8.8",
+      "english": [
+        {
+          "text": "fertile",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "agathos",
+        "traditional": "Good [2]",
+        "glossary": "good-beneficial",
+        "form": "fertile"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Luke.8.12",
       "english": [
         {
@@ -156,6 +176,26 @@
         "traditional": "Good [1]",
         "glossary": "good-admirable",
         "form": "healthy"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.8.15",
+      "english": [
+        {
+          "text": "fertile",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "agathos",
+        "traditional": "Good [2]",
+        "glossary": "good-beneficial",
+        "form": "fertile"
       },
       "confidence": null,
       "lemma": "present",

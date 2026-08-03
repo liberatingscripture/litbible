@@ -443,6 +443,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Matt.12.34",
+      "english": [
+        {
+          "text": "wholesome",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "agathos",
+        "traditional": "Good [2]",
+        "glossary": "good-beneficial",
+        "form": "wholesome"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Matt.12.35",
       "english": [
         {
@@ -496,6 +516,66 @@
         "traditional": "Evil",
         "glossary": "evil-hardship",
         "form": "rotten"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.12.35",
+      "english": [
+        {
+          "text": "wholesome",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "agathos",
+        "traditional": "Good [2]",
+        "glossary": "good-beneficial",
+        "form": "wholesome"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.12.35",
+      "english": [
+        {
+          "text": "wholesome",
+          "n": 2
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "agathos",
+        "traditional": "Good [2]",
+        "glossary": "good-beneficial",
+        "form": "wholesome"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.12.35",
+      "english": [
+        {
+          "text": "wholesome",
+          "n": 3
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "agathos",
+        "traditional": "Good [2]",
+        "glossary": "good-beneficial",
+        "form": "wholesome"
       },
       "confidence": null,
       "lemma": "present",

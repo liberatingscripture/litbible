@@ -326,6 +326,26 @@
       "ref": "Matt.5.45",
       "english": [
         {
+          "text": "well-being",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "agathos",
+        "traditional": "Good [2]",
+        "glossary": "good-beneficial",
+        "form": "well-being"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.5.45",
+      "english": [
+        {
           "text": "the heavens",
           "n": 1
         }

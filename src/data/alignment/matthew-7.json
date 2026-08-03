@@ -60,7 +60,7 @@
       "confidence": "common",
       "lemma": "present",
       "source": "glossary-scan",
-      "status": "auto"
+      "status": "confirmed"
     },
     {
       "ref": "Matt.7.11",
@@ -80,7 +80,7 @@
       "confidence": "common",
       "lemma": "present",
       "source": "glossary-scan",
-      "status": "auto"
+      "status": "confirmed"
     },
     {
       "ref": "Matt.7.11",
@@ -143,6 +143,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Matt.7.17",
+      "english": [
+        {
+          "text": "healthy",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "agathos",
+        "traditional": "Good [2]",
+        "glossary": "good-beneficial",
+        "form": "healthy"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Matt.7.18",
       "english": [
         {
@@ -180,6 +200,26 @@
       "confidence": "common",
       "lemma": "present",
       "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.7.18",
+      "english": [
+        {
+          "text": "healthy",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "agathos",
+        "traditional": "Good [2]",
+        "glossary": "good-beneficial",
+        "form": "healthy"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
       "status": "confirmed"
     },
     {

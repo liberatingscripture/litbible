@@ -323,6 +323,26 @@
       "status": "auto"
     },
     {
+      "ref": "John.1.46",
+      "english": [
+        {
+          "text": "useful",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "agathos",
+        "traditional": "Good [2]",
+        "glossary": "good-beneficial",
+        "form": "useful"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "John.1.50",
       "english": [
         {
