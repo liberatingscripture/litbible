@@ -165,10 +165,14 @@ public/              # Static assets + generated output (api/, og/, search/,
                      #   images/, icons). Page-loaded raster images are WebP,
                      #   resized to ~2x display size — no astro:assets pipeline,
                      #   so files are optimized ahead of time and referenced by
-                     #   plain URL string (frontmatter/src/JSON)
+                     #   plain URL string (frontmatter/src/JSON).
+                     #   assets/screenshots/ holds the /apps phone+tablet shots,
+                     #   MIRRORED to the LSC site — lowercase-kebab names, no
+                     #   spaces, so the two repos' components stay byte-identical
+                     #   (see The /apps mirror below)
 _source-images/      # Pre-WebP originals for public/images/articles/ and
-                     #   public/screenshots/, archived (not shipped — outside
-                     #   public/) for future re-editing; see its README
+                     #   public/assets/screenshots/, archived (not shipped —
+                     #   outside public/) for future re-editing; see its README
 emails/              # Archive of hand-built HTML campaigns (not part of the site
                      #   build, and NOT a template source). Newsletters are
                      #   authored in Brevo's editor, which supplies the
