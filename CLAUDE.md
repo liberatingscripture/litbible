@@ -509,12 +509,19 @@ collection); they're read directly by the intro pages and the API manifest.
   **byte-for-byte identical** in both repos at the same paths: everything under
   `src/components/apps/`, `src/styles/pages/apps.css`, and the section content
   in `src/content/{callouts,examples,seasons}/`. Edit them **here**; LSC copies
-  them across. Three things are deliberately NOT mirrored — `src/pages/apps.astro`
+  them across. Two things are deliberately NOT mirrored — `src/pages/apps.astro`
   (two sites can't share a canonical URL, so LSC keeps its own Layout props and
-  JSON-LD), LSC's `apps-bridge.css` (which exists precisely so `apps.css` can
-  stay a pure mirror), and the screenshot **bytes** (same filenames, but litbible
-  ships copies downscaled to ~2x display size per FIXLIST O8, while LSC ships
-  full-resolution originals).
+  JSON-LD) and LSC's `apps-bridge.css` (which exists precisely so `apps.css` can
+  stay a pure mirror).
+  The screenshot **bytes** under `public/assets/screenshots/` are a third,
+  different case. They were an exception until LSC adopted litbible's
+  ~2x-display-size copies (FIXLIST O8); the 12 files both repos ship are now
+  byte-identical. But they are **matched by hand, not enforced**:
+  `check-apps-mirror.mjs` reads every file as UTF-8 and folds CRLF, which
+  mangles binaries, so putting them in `MIRRORED` would need a hash path the
+  script doesn't have. Re-copy them if either side re-exports, and note that
+  `_source-images/screenshots/` here now holds the only full-resolution
+  originals outside LSC's git history.
   This is why **`public/assets/` is the mirrored asset tree** — `assets/screenshots/`
   and the two `assets/images/lit-app-icon.*` files use lowercase-kebab names with
   no spaces so both repos' components can carry identical `src` strings.
