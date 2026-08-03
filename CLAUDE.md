@@ -609,6 +609,29 @@ collection); they're read directly by the intro pages and the API manifest.
     MCP server, or write API, so OAuth/MCP/WebMCP discovery files are intentionally
     absent — don't add them without a real backing service.
 
+## Git Workflow
+
+- **`main` is protected** — direct pushes are rejected; changes land via PR.
+  Session work typically happens in a per-task branch/worktree (e.g.
+  `.claude/worktrees/<task>/` on branch `claude/<task>`).
+- **After a PR you opened is merged, clean up the branch and worktree** in
+  the same session rather than leaving them for later:
+  1. `git push origin --delete <branch>` — delete the remote branch (GitHub's
+     "delete branch" button does the same thing; do this even if the repo
+     doesn't auto-delete on merge).
+  2. `git worktree remove <path>` from a **different** worktree (a worktree
+     can't remove itself while it's the current directory) — then
+     `git branch -d <branch>` to delete the now-unreachable local branch.
+  3. If `git worktree remove` reports the directory as busy/permission-denied,
+     the *session itself* is still rooted there (its own working directory) —
+     git will still unregister it from `git worktree list`, but the leftover
+     directory can't be deleted until that session ends. Say so plainly rather
+     than retrying; don't touch other worktree directories under
+     `.claude/worktrees/` that aren't the one just merged, since those are
+     other sessions' in-progress work.
+- Skip this cleanup for a branch/worktree still mid-task, or one the user
+  says to keep.
+
 ## Important Files
 
 | Path | Purpose |
