@@ -503,6 +503,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Heb.10.24",
+      "english": [
+        {
+          "text": "gracious",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "kalos",
+        "traditional": "Good [1]",
+        "glossary": "good-admirable",
+        "form": "gracious"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Heb.10.27",
       "english": [
         {

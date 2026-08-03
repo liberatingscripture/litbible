@@ -143,6 +143,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Jas.2.7",
+      "english": [
+        {
+          "text": "respectable",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "kalos",
+        "traditional": "Good [1]",
+        "glossary": "good-admirable",
+        "form": "respectable"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Jas.2.8",
       "english": [
         {

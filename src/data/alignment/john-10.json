@@ -3,6 +3,66 @@
   "chapter": 10,
   "records": [
     {
+      "ref": "John.10.11",
+      "english": [
+        {
+          "text": "selfless",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "kalos",
+        "traditional": "Good [1]",
+        "glossary": "good-admirable",
+        "form": "selfless"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "John.10.11",
+      "english": [
+        {
+          "text": "selfless",
+          "n": 2
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "kalos",
+        "traditional": "Good [1]",
+        "glossary": "good-admirable",
+        "form": "selfless"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "John.10.14",
+      "english": [
+        {
+          "text": "selfless",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "kalos",
+        "traditional": "Good [1]",
+        "glossary": "good-admirable",
+        "form": "selfless"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "John.10.20",
       "english": [
         {
@@ -123,6 +183,26 @@
       "status": "auto"
     },
     {
+      "ref": "John.10.32",
+      "english": [
+        {
+          "text": "selfless",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "kalos",
+        "traditional": "Good [1]",
+        "glossary": "good-admirable",
+        "form": "selfless"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "John.10.33",
       "english": [
         {
@@ -136,6 +216,26 @@
         "traditional": "Blasphemy",
         "glossary": "blasphemy-disrespectfulness",
         "form": "pretentiousness"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "John.10.33",
+      "english": [
+        {
+          "text": "selfless",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "kalos",
+        "traditional": "Good [1]",
+        "glossary": "good-admirable",
+        "form": "selfless"
       },
       "confidence": null,
       "lemma": "present",

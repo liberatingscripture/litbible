@@ -63,6 +63,26 @@
       "status": "auto"
     },
     {
+      "ref": "1Tim.4.4",
+      "english": [
+        {
+          "text": "valuable",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "kalos",
+        "traditional": "Good [1]",
+        "glossary": "good-admirable",
+        "form": "valuable"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "1Tim.4.5",
       "english": [
         {
@@ -140,7 +160,7 @@
       "confidence": "common",
       "lemma": "present",
       "source": "glossary-scan",
-      "status": "auto"
+      "status": "confirmed"
     },
     {
       "ref": "1Tim.4.8",

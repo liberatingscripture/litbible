@@ -3,6 +3,26 @@
   "chapter": 26,
   "records": [
     {
+      "ref": "Matt.26.10",
+      "english": [
+        {
+          "text": "beautiful",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "kalos",
+        "traditional": "Good [1]",
+        "glossary": "good-admirable",
+        "form": "beautiful"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Matt.26.13",
       "english": [
         {
@@ -21,6 +41,26 @@
       "lemma": "present",
       "source": "glossary-scan",
       "status": "auto"
+    },
+    {
+      "ref": "Matt.26.24",
+      "english": [
+        {
+          "text": "better",
+          "n": 2
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "kalos",
+        "traditional": "Good [1]",
+        "glossary": "good-admirable",
+        "form": "better"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
     },
     {
       "ref": "Matt.26.26",

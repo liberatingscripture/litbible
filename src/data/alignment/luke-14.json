@@ -61,6 +61,26 @@
       "lemma": "present",
       "source": "glossary-scan",
       "status": "confirmed"
+    },
+    {
+      "ref": "Luke.14.34",
+      "english": [
+        {
+          "text": "helpful",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "kalos",
+        "traditional": "Good [1]",
+        "glossary": "good-admirable",
+        "form": "helpful"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
     }
   ]
 }

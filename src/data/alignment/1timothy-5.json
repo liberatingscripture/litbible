@@ -60,7 +60,7 @@
       "confidence": "common",
       "lemma": "present",
       "source": "glossary-scan",
-      "status": "auto"
+      "status": "confirmed"
     },
     {
       "ref": "1Tim.5.10",
@@ -161,6 +161,26 @@
       "lemma": "present",
       "source": "glossary-scan",
       "status": "auto"
+    },
+    {
+      "ref": "1Tim.5.25",
+      "english": [
+        {
+          "text": "honorable",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "kalos",
+        "traditional": "Good [1]",
+        "glossary": "good-admirable",
+        "form": "honorable"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
     }
   ]
 }

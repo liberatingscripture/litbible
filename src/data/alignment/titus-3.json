@@ -103,6 +103,46 @@
       "status": "auto"
     },
     {
+      "ref": "Titus.3.8",
+      "english": [
+        {
+          "text": "honorable",
+          "n": 2
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "kalos",
+        "traditional": "Good [1]",
+        "glossary": "good-admirable",
+        "form": "honorable"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Titus.3.8",
+      "english": [
+        {
+          "text": "honorable actions",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "kalos",
+        "traditional": "Good [1]",
+        "glossary": "good-admirable",
+        "form": "honorable actions"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Titus.3.9",
       "english": [
         {
@@ -141,6 +181,26 @@
       "lemma": "present",
       "source": "glossary-scan",
       "status": "auto"
+    },
+    {
+      "ref": "Titus.3.14",
+      "english": [
+        {
+          "text": "kind actions",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "kalos",
+        "traditional": "Good [1]",
+        "glossary": "good-admirable",
+        "form": "kind actions"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
     },
     {
       "ref": "Titus.3.15",

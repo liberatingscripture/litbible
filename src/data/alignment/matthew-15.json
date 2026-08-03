@@ -243,6 +243,26 @@
       "status": "auto"
     },
     {
+      "ref": "Matt.15.26",
+      "english": [
+        {
+          "text": "appropriate",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "kalos",
+        "traditional": "Good [1]",
+        "glossary": "good-admirable",
+        "form": "appropriate"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Matt.15.28",
       "english": [
         {

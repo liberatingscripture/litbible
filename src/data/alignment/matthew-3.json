@@ -83,6 +83,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Matt.3.10",
+      "english": [
+        {
+          "text": "excellent",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "kalos",
+        "traditional": "Good [1]",
+        "glossary": "good-admirable",
+        "form": "excellent"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Matt.3.11",
       "english": [
         {

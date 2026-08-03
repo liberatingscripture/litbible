@@ -3,6 +3,26 @@
   "chapter": 2,
   "records": [
     {
+      "ref": "1Tim.2.3",
+      "english": [
+        {
+          "text": "pleasing",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "kalos",
+        "traditional": "Good [1]",
+        "glossary": "good-admirable",
+        "form": "pleasing"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "1Tim.2.7",
       "english": [
         {

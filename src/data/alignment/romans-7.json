@@ -726,6 +726,26 @@
       "ref": "Rom.7.16",
       "english": [
         {
+          "text": "right",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "kalos",
+        "traditional": "Good [1]",
+        "glossary": "good-admirable",
+        "form": "right"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.7.16",
+      "english": [
+        {
           "text": "Torah",
           "n": 1
         }
@@ -781,6 +801,26 @@
       "lemma": "present",
       "source": "glossary-scan",
       "status": "auto"
+    },
+    {
+      "ref": "Rom.7.18",
+      "english": [
+        {
+          "text": "that benefit others",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "kalos",
+        "traditional": "Good [1]",
+        "glossary": "good-admirable",
+        "form": "that benefit others"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
     },
     {
       "ref": "Rom.7.18",
@@ -921,6 +961,26 @@
       "lemma": "absent",
       "source": "glossary-scan",
       "status": "auto"
+    },
+    {
+      "ref": "Rom.7.21",
+      "english": [
+        {
+          "text": "right",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "kalos",
+        "traditional": "Good [1]",
+        "glossary": "good-admirable",
+        "form": "right"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
     },
     {
       "ref": "Rom.7.21",

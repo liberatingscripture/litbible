@@ -286,6 +286,26 @@
       "ref": "Jas.4.17",
       "english": [
         {
+          "text": "kindly",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "kalos",
+        "traditional": "Good [1]",
+        "glossary": "good-admirable",
+        "form": "kindly"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Jas.4.17",
+      "english": [
+        {
           "text": "deviation",
           "n": 1
         }

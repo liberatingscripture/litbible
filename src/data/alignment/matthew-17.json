@@ -3,6 +3,26 @@
   "chapter": 17,
   "records": [
     {
+      "ref": "Matt.17.4",
+      "english": [
+        {
+          "text": "wonderful",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "kalos",
+        "traditional": "Good [1]",
+        "glossary": "good-admirable",
+        "form": "wonderful"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Matt.17.18",
       "english": [
         {

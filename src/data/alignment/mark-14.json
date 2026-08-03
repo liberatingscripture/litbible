@@ -3,6 +3,26 @@
   "chapter": 14,
   "records": [
     {
+      "ref": "Mark.14.6",
+      "english": [
+        {
+          "text": "beautiful",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "kalos",
+        "traditional": "Good [1]",
+        "glossary": "good-admirable",
+        "form": "beautiful"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Mark.14.9",
       "english": [
         {
@@ -21,6 +41,26 @@
       "lemma": "present",
       "source": "glossary-scan",
       "status": "auto"
+    },
+    {
+      "ref": "Mark.14.21",
+      "english": [
+        {
+          "text": "preferable",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "kalos",
+        "traditional": "Good [1]",
+        "glossary": "good-admirable",
+        "form": "preferable"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
     },
     {
       "ref": "Mark.14.22",

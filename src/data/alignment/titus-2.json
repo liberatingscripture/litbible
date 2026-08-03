@@ -83,6 +83,26 @@
       "status": "auto"
     },
     {
+      "ref": "Titus.2.7",
+      "english": [
+        {
+          "text": "kind actions",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "kalos",
+        "traditional": "Good [1]",
+        "glossary": "good-admirable",
+        "form": "kind actions"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Titus.2.10",
       "english": [
         {
@@ -156,6 +176,26 @@
         "traditional": "Clean",
         "glossary": "clean-clean",
         "form": "cleanse"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Titus.2.14",
+      "english": [
+        {
+          "text": "kind actions",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "kalos",
+        "traditional": "Good [1]",
+        "glossary": "good-admirable",
+        "form": "kind actions"
       },
       "confidence": null,
       "lemma": "present",

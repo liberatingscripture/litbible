@@ -126,6 +126,26 @@
       "ref": "Matt.5.16",
       "english": [
         {
+          "text": "honorable",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "kalos",
+        "traditional": "Good [1]",
+        "glossary": "good-admirable",
+        "form": "honorable"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.5.16",
+      "english": [
+        {
           "text": "the heavens",
           "n": 1
         }

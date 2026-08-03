@@ -163,6 +163,26 @@
       "status": "auto"
     },
     {
+      "ref": "Gal.6.9",
+      "english": [
+        {
+          "text": "worthwhile",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "kalos",
+        "traditional": "Good [1]",
+        "glossary": "good-admirable",
+        "form": "worthwhile"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Gal.6.12",
       "english": [
         {
