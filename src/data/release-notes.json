@@ -34,6 +34,16 @@
           "chapter": 5,
           "verse": 14
         }
+      },
+      {
+        "type": "text_updated",
+        "description": "Luke 2:13 — text updated",
+        "detail": "\"a vast heavenly multitude\" → \"with the messenger a vast heavenly multitude,\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 2,
+          "verse": 13
+        }
       }
     ]
   },
