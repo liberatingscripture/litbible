@@ -502,6 +502,36 @@ main {
   color: var(--ink);
 }
 
+/* Custom merge card: the escape hatch for a merge the stemmer's signature
+   can't see (no stem-mate at all, e.g. "stepping around" -> "sidestep").
+   One checkbox per rendering, no filtering — reuses .consolidate-group's
+   card chrome and .consolidate-group__controls/__label/__input verbatim. */
+
+.consolidate-group__custom-title {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.consolidate-custom__options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 0.9rem;
+}
+
+.consolidate-custom__option {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.82rem;
+  color: var(--ink-muted);
+}
+
+.consolidate-custom__option input[type="checkbox"] {
+  margin: 0;
+}
+
 .rendering-chips {
   display: flex;
   flex-wrap: wrap;

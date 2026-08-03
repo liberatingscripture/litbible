@@ -717,15 +717,23 @@ function populateRenderingsPanel(wrap) {
   title.textContent = "Renderings so far";
   header.appendChild(title);
 
-  // Hidden entirely when there's nothing to consolidate — an owner decision
-  // in review-core.mjs's "Rendering consolidation" header: the tool only
-  // ever SUGGESTS groupings, so a term with no fragmentation gets no control
-  // at all rather than a button that opens onto an empty list.
+  const renderings = state.termPage?.renderings || [];
   const formMerges = state.termPage?.formMerges || [];
-  if (formMerges.length) {
+
+  // The button appears whenever there's anything to fold — a stemmer group,
+  // OR two-plus renderings a human can fold by hand via the Custom merge
+  // card even with no proposed group at all. That second path matters: a
+  // rendering with no stem-mate ("stepping around" next to "sidestep") can
+  // never appear in a planFormMerges() group, so gating the button on
+  // formMerges alone would make it unreachable. Hidden only when there's
+  // truly nothing to consolidate (0 or 1 renderings).
+  const canConsolidate = renderings.length >= 2;
+  if (canConsolidate) {
     header.appendChild(
       mkBtn(
-        `Consolidate (${formMerges.length} group${formMerges.length === 1 ? "" : "s"})`,
+        formMerges.length
+          ? `Consolidate (${formMerges.length} group${formMerges.length === 1 ? "" : "s"})`
+          : "Consolidate",
         "btn btn--ghost btn--small renderings-panel__consolidate-toggle",
         () => {
           state.consolidateOpen = !state.consolidateOpen;
@@ -739,7 +747,6 @@ function populateRenderingsPanel(wrap) {
 
   wrap.appendChild(header);
 
-  const renderings = state.termPage?.renderings || [];
   if (!renderings.length) {
     const empty = document.createElement("p");
     empty.className = "renderings-panel__empty";
@@ -769,8 +776,8 @@ function populateRenderingsPanel(wrap) {
     wrap.appendChild(chips);
   }
 
-  if (state.consolidateOpen && formMerges.length) {
-    wrap.appendChild(renderConsolidateSection(formMerges));
+  if (state.consolidateOpen && canConsolidate) {
+    wrap.appendChild(renderConsolidateSection(formMerges, renderings));
   }
 }
 
@@ -781,13 +788,20 @@ function populateRenderingsPanel(wrap) {
 // clicks that group's own Apply.
 // -----------------------------------------------------------------------
 
-function renderConsolidateSection(groups) {
+function renderConsolidateSection(groups, renderings) {
   const section = document.createElement("div");
   section.className = "consolidate-section";
 
   for (const group of groups) {
     section.appendChild(renderConsolidateGroup(group));
   }
+
+  // Always last, and always present (this function only ever runs when
+  // renderings.length >= 2 — see populateRenderingsPanel's canConsolidate).
+  // The stemmer's groups are a convenience for the common case; this card
+  // is the escape hatch for everything it can't see, one checkbox per
+  // rendering with no signature filter at all.
+  section.appendChild(renderCustomMergeCard(renderings));
 
   return section;
 }
@@ -851,6 +865,98 @@ function renderConsolidateGroup(group) {
 
   row.appendChild(controls);
   return row;
+}
+
+/**
+ * The escape hatch for a merge the stemmer can't see: "stepping around"
+ * shares no stem with "sidestep", so it can never land in a planFormMerges()
+ * group, but it's the same editorial call as any grouped merge — the reviewer
+ * just has to make it without a suggestion. Every rendering gets a checkbox
+ * (no signature filter), 1+ selected is a valid merge (folding a single
+ * singleton into an existing label is the common case here), and it posts to
+ * the exact same endpoint the group cards use.
+ */
+function renderCustomMergeCard(renderings) {
+  const card = document.createElement("div");
+  card.className = "consolidate-group";
+
+  const title = document.createElement("p");
+  title.className = "consolidate-group__custom-title";
+  title.textContent = "Custom merge";
+  card.appendChild(title);
+
+  const options = document.createElement("div");
+  options.className = "consolidate-custom__options";
+
+  const checkboxes = [];
+  for (const r of renderings) {
+    const option = document.createElement("label");
+    option.className = "consolidate-custom__option";
+
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.value = r.form;
+    checkbox.addEventListener("change", () => {
+      applyBtn.disabled = !checkboxes.some((c) => c.checked);
+    });
+    checkboxes.push(checkbox);
+    option.appendChild(checkbox);
+
+    option.append(` ${r.form} (${r.count})`);
+    options.appendChild(option);
+  }
+  card.appendChild(options);
+
+  const controls = document.createElement("div");
+  controls.className = "consolidate-group__controls";
+
+  const label = document.createElement("label");
+  label.className = "consolidate-group__label";
+  label.append("Keep as: ");
+
+  const input = document.createElement("input");
+  input.type = "text";
+  input.className = "consolidate-group__input";
+  label.appendChild(input);
+  controls.appendChild(label);
+
+  const applyBtn = mkBtn("Apply", "btn btn--primary btn--small", async () => {
+    const from = checkboxes.filter((c) => c.checked).map((c) => c.value);
+    const to = input.value.trim();
+    if (!to) {
+      showToast("Enter a label to consolidate these renderings under.", { error: true });
+      return;
+    }
+
+    applyBtn.disabled = true;
+    applyBtn.textContent = "Applying…";
+    input.disabled = true;
+    checkboxes.forEach((c) => (c.disabled = true));
+    setGlobalStatus("Consolidating renderings…");
+
+    try {
+      const result = await api(`/api/terms/${encodeURIComponent(state.selectedTermId)}/merge-forms`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ from, to }),
+      });
+      showToast(`Consolidated ${result.changed} record${result.changed === 1 ? "" : "s"} under “${result.to}”.`);
+      await loadTermPage(state.selectedTermId);
+    } catch (err) {
+      showToast(err.message, { error: true });
+      applyBtn.disabled = false;
+      applyBtn.textContent = "Apply";
+      input.disabled = false;
+      checkboxes.forEach((c) => (c.disabled = false));
+    } finally {
+      setGlobalStatus("");
+    }
+  });
+  applyBtn.disabled = true; // nothing checked yet
+  controls.appendChild(applyBtn);
+
+  card.appendChild(controls);
+  return card;
 }
 
 function renderRenderingsPanel() {
