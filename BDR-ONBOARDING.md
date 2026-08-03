@@ -227,9 +227,12 @@ any other page, so you can work in them with confidence.
   `src/content/seasons/*.md` — the *text and data* for the apps page's sections
   (feature cards, translation comparisons, church-year frames). Editing the words
   here is the safest kind of change.
-- `public/screenshots/*` — the phone/tablet screenshots the apps page displays.
-  New images go under `public/` and are referenced by an absolute path like
-  `/screenshots/your-image.png`.
+- `public/assets/screenshots/*` — the phone/tablet screenshots the apps page
+  displays. New images go under `public/` and are referenced by an absolute path
+  like `/assets/screenshots/your-image.webp`. Name them in lowercase-kebab with
+  no spaces: these files are mirrored to the Liberating Scripture Collective
+  site, and matching names are what let the two repos share the same components
+  byte-for-byte.
 - `src/content.config.ts` — **only** the `callouts`, `examples`, or `seasons`
   schema blocks, and only if a content field genuinely needs to change. Do **not**
   touch the `articles` or `glossary` schemas in that file.

@@ -2,5 +2,5 @@
 name: Advent
 order: 1
 colorVar: "--season-advent"
-image: "/screenshots/carousel/iPhone - Hebrews 1 - Advent.webp"
+image: "/assets/screenshots/carousel/hebrews-1-advent.webp"
 ---

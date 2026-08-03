@@ -22,7 +22,7 @@
  * Intro cards set "Intro" in green where the chapter number would sit.
  *
  * The /apps card is a sibling composition on the same ink field, but its
- * hero visual is the Android gradient mark (public/images/lit-app-icon.svg —
+ * hero visual is the Android gradient mark (public/assets/images/lit-app-icon.svg —
  * the same mark the launch popover shows) in a rounded tile on the right, so
  * it reads the way the icon appears on a home screen. (The popover and
  * in-page CTAs show both platform icons; this card stays single-icon — the
@@ -46,6 +46,9 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
 const OUT_DIR = path.join(ROOT, "public", "og");
 const IMAGES = path.join(ROOT, "public", "images");
+// The app icons live under public/assets/ because that tree is mirrored to the
+// LSC site — see CLAUDE.md "The /apps mirror".
+const ASSET_IMAGES = path.join(ROOT, "public", "assets", "images");
 
 const WIDTH = 1200;
 const HEIGHT = 630;
@@ -276,7 +279,7 @@ async function renderAppsCard() {
   // density: the source is a 200-unit viewBox, so rasterize well above the
   // target size and let sharp downsample — otherwise the thin gradient bands
   // alias badly.
-  const androidMark = await sharp(path.join(IMAGES, "lit-app-icon.svg"), {
+  const androidMark = await sharp(path.join(ASSET_IMAGES, "lit-app-icon.svg"), {
     density: 300,
   })
     .resize(size - pad * 2, size - pad * 2)

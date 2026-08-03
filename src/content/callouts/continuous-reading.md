@@ -5,7 +5,7 @@ platform: android
 mode: light
 accent: advent
 imageSide: right
-image: "/screenshots/Android - Romans 8 - Advent.webp"
+image: "/assets/screenshots/android-romans-8.webp"
 ---
 
 Enjoy each gospel, epistle, and antifascist apocalyptic tract as literature: hide chapter drop-caps, verse markers, and footnotes. Scroll through the entire book without a Next button between artificial chapters.

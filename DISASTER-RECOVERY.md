@@ -39,7 +39,7 @@ exist and which *kind* of identity owns each.
 | Cloudflare | `litbible.net` zone (DNS), Pages project, the Worker, Email Routing (send-side), both Turnstile widgets | The primary admin identity |
 | Google Workspace | litbible.net mail (the owner's mailbox; `contact@` sender identity's domain); admin console at admin.google.com | The primary admin identity (this *is* that account) |
 | Porkbun (registrar) | `litbible.net` registration | The owner's **personal** identity — a separate account, with the Porkbun password in *that* account's own manager |
-| GitHub | `liberatingscripture/litbible` repo, Actions, branch ruleset, `RELEASE_NOTES_PAT` secret | The primary admin identity |
+| GitHub | `liberatingscripture/litbible` repo, Actions, branch ruleset, `RELEASE_NOTES_PAT` + `LSC_SYNC_TOKEN` secrets | The primary admin identity |
 | Brevo | Newsletter list + the three sibforms forms (footer subscribe, /courses subscribe, /unsubscribe) | The primary admin identity |
 | RedCircle | *Found in Translation* podcast; feed `https://feeds.redcircle.com/59ffbfb2-f814-469a-8522-416bb67c15f6` | **Managed by BDR**, not the site owner — audio recovery goes through them |
 | GiveLively | Donation widget on /support (`secure.givelively.org/widgets/simple_donation/liberating-scripture-collective`) | A Collective-domain (liberatingscripture.org) identity |
@@ -213,11 +213,12 @@ shell history). Documented in `wrangler.toml`'s comments:
 | `APP_SUPPORT_DEST_EMAIL` | Verified destination for /app-support mail |
 | `APP_SUPPORT_DISPLAY_TO` | Optional alias for /app-support's `To:` header |
 
-**GitHub Actions secret** (repo → Settings → Secrets → Actions):
+**GitHub Actions secrets** (repo → Settings → Secrets → Actions):
 
 | Name | What it is |
 |------|------------|
 | `RELEASE_NOTES_PAT` | Fine-grained PAT (Contents: read/write on this repo, owned by a branch-ruleset-bypass account) that lets `release-notes.yml` push its auto-generated commit straight to `main`. If it expires or is revoked, the workflow fails on the push step; mint a new fine-grained PAT with the same scope and update the secret. |
+| `LSC_SYNC_TOKEN` | Fine-grained PAT scoped to **`liberatingscripture/liberatingscripture.github.io`** only, with **Issues: read/write**. Lets `apps-mirror-notify.yml` open an issue on the LSC repo when a mirrored `/apps` file or `/privacy` changes here. The built-in `GITHUB_TOKEN` cannot write to another repo, which is why this exists. **Non-fatal**: if it's missing or expired the workflow logs a warning and exits 0 rather than failing the build, so the only symptom is that LSC stops being told. Re-mint with the same scope and update the secret. |
 
 There are **no other secrets**. The site build needs none (the podcast fetch
 is an unauthenticated public feed; Brevo/GiveLively integrations are

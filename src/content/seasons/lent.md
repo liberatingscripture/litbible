@@ -2,5 +2,5 @@
 name: Lent
 order: 3
 colorVar: "--season-lent"
-image: "/screenshots/carousel/iPhone - Hebrews 1 - Lent.webp"
+image: "/assets/screenshots/carousel/hebrews-1-lent.webp"
 ---

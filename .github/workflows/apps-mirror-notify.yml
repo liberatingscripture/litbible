@@ -1,0 +1,139 @@
+name: Notify LSC of mirrored changes
+
+# litbible is upstream for two things the Liberating Scripture Collective site
+# also publishes:
+#
+#   1. /apps  — the components, apps.css, and section content under
+#               src/content/{callouts,examples,seasons} are mirrored
+#               byte-for-byte. LSC's CI enforces that; this job is what tells
+#               LSC there is something to copy.
+#   2. /privacy — NOT a mirror. The two policies cover two different entities
+#               and are written separately (owner decision). They are meant to
+#               stay in substantive agreement, so a change here is a prompt to
+#               review LSC's page, never something to copy across.
+#
+# Deliberately notify-only. It does not gate anything on litbible: LSC being
+# behind is normal and momentary, and failing litbible's own CI over it would
+# put a red X on the contributor who did nothing wrong.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/components/apps/**'
+      - 'src/styles/pages/apps.css'
+      - 'src/content/callouts/**'
+      - 'src/content/examples/**'
+      - 'src/content/seasons/**'
+      - 'src/pages/privacy.astro'
+      - 'src/styles/pages/privacy.css'
+  workflow_dispatch:
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 2
+
+      - name: Collect what changed
+        id: changed
+        run: |
+          RANGE="${{ github.event.before }}..${{ github.sha }}"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] \
+             || ! git rev-parse --quiet --verify "${{ github.event.before }}^{commit}" >/dev/null; then
+            RANGE="HEAD~1..HEAD"
+          fi
+
+          ALL=$(git diff --name-only $RANGE)
+
+          MIRROR=$(echo "$ALL" | grep -E \
+            '^(src/components/apps/|src/styles/pages/apps\.css|src/content/(callouts|examples|seasons)/)' \
+            || true)
+          PRIVACY=$(echo "$ALL" | grep -E '^src/(pages/privacy\.astro|styles/pages/privacy\.css)$' || true)
+
+          {
+            echo "mirror<<EOF"; echo "$MIRROR"; echo "EOF"
+            echo "privacy<<EOF"; echo "$PRIVACY"; echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+          if [ -z "$MIRROR" ] && [ -z "$PRIVACY" ]; then
+            echo "nothing=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Open or update the sync issue on LSC
+        if: steps.changed.outputs.nothing != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.LSC_SYNC_TOKEN }}
+          LSC_REPO: liberatingscripture/liberatingscripture.github.io
+          MIRROR: ${{ steps.changed.outputs.mirror }}
+          PRIVACY: ${{ steps.changed.outputs.privacy }}
+          COMMIT_URL: ${{ github.event.head_commit.url }}
+        run: |
+          if [ -z "$GH_TOKEN" ]; then
+            echo "::warning::LSC_SYNC_TOKEN is not set — skipping the LSC notification."
+            echo "Add a fine-grained PAT scoped to $LSC_REPO (issues: write) as the"
+            echo "LSC_SYNC_TOKEN repository secret to enable this."
+            exit 0
+          fi
+
+          BODY=$(mktemp)
+          {
+            echo "litbible published a change to content the LSC site also carries."
+            echo
+            echo "Source commit: ${COMMIT_URL:-${{ github.sha }}}"
+            echo
+
+            if [ -n "$MIRROR" ]; then
+              echo "## /apps — mirrored, copy these across"
+              echo
+              echo "These files are meant to be byte-for-byte identical. Copy them"
+              echo "rather than re-implementing, then let CI confirm:"
+              echo
+              echo '```bash'
+              echo "$MIRROR" | while read -r f; do
+                [ -n "$f" ] || continue
+                echo "curl -fsSL https://raw.githubusercontent.com/${{ github.repository }}/main/$f -o $f"
+              done
+              echo '```'
+              echo
+              echo "Then: \`node scripts/check-apps-mirror.mjs\`"
+              echo
+            fi
+
+            if [ -n "$PRIVACY" ]; then
+              echo "## /privacy — NOT a mirror, review by hand"
+              echo
+              echo "litbible changed:"
+              echo
+              echo "$PRIVACY" | while read -r f; do
+                [ -n "$f" ] || continue
+                echo "- \`$f\`"
+              done
+              echo
+              echo "The two privacy pages are written separately and cover different"
+              echo "entities, so there is nothing to copy. Read the change and decide"
+              echo "whether LSC's policy needs the same substantive update."
+              echo
+            fi
+          } > "$BODY"
+
+          gh label create apps-mirror \
+            --repo "$LSC_REPO" \
+            --color 0F6B33 \
+            --description "Upstream litbible change waiting to be carried across" \
+            2>/dev/null || true
+
+          EXISTING=$(gh issue list --repo "$LSC_REPO" --state open \
+            --label apps-mirror --limit 1 --json number --jq '.[0].number // empty')
+
+          if [ -n "$EXISTING" ]; then
+            gh issue comment "$EXISTING" --repo "$LSC_REPO" --body-file "$BODY"
+            echo "Commented on existing issue #$EXISTING"
+          else
+            gh issue create --repo "$LSC_REPO" \
+              --title "Carry across litbible's latest /apps + /privacy changes" \
+              --label apps-mirror \
+              --body-file "$BODY"
+          fi
