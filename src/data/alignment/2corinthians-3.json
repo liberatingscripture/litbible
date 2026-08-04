@@ -6,6 +6,26 @@
       "ref": "2Cor.3.3",
       "english": [
         {
+          "text": "flesh",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "sarx",
+        "traditional": "Flesh",
+        "glossary": "flesh-body",
+        "form": "flesh"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "2Cor.3.3",
+      "english": [
+        {
           "text": "Life-breath",
           "n": 1
         }

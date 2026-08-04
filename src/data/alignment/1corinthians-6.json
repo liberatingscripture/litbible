@@ -283,6 +283,26 @@
       "status": "auto"
     },
     {
+      "ref": "1Cor.6.16",
+      "english": [
+        {
+          "text": "flesh",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "sarx",
+        "traditional": "Flesh",
+        "glossary": "flesh-body",
+        "form": "flesh"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "1Cor.6.17",
       "english": [
         {

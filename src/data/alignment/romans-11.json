@@ -143,6 +143,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Rom.11.14",
+      "english": [
+        {
+          "text": "my people",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "sarx",
+        "traditional": "Flesh",
+        "glossary": "flesh-body",
+        "form": "lineage"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Rom.11.16",
       "english": [
         {
@@ -300,7 +320,7 @@
       "confidence": "distinctive",
       "lemma": "present",
       "source": "glossary-scan",
-      "status": "auto"
+      "status": "confirmed"
     },
     {
       "ref": "Rom.11.30",

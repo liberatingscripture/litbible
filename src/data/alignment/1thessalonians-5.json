@@ -183,6 +183,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "1Thess.5.15",
+      "english": [
+        {
+          "text": "benefit",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "agathos",
+        "traditional": "Good [2]",
+        "glossary": "good-beneficial",
+        "form": "benefit"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "1Thess.5.19",
       "english": [
         {

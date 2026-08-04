@@ -43,6 +43,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "2Tim.2.8",
+      "english": [
+        {
+          "text": "triumphant message",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "euangelion",
+        "traditional": "Gospel",
+        "glossary": "gospel-triumphant-message",
+        "form": "The Triumphant Message"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "2Tim.2.10",
       "english": [
         {
@@ -136,6 +156,26 @@
         "traditional": "Resurrection",
         "glossary": "resurrection-reawakening",
         "form": "reawakening"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "2Tim.2.21",
+      "english": [
+        {
+          "text": "helpful",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "agathos",
+        "traditional": "Good [2]",
+        "glossary": "good-beneficial",
+        "form": "helpful"
       },
       "confidence": null,
       "lemma": "present",

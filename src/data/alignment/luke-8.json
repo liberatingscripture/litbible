@@ -3,6 +3,26 @@
   "chapter": 8,
   "records": [
     {
+      "ref": "Luke.8.1",
+      "english": [
+        {
+          "text": "news of the triumph",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "euangelion",
+        "traditional": "Gospel",
+        "glossary": "gospel-triumphant-message",
+        "form": "news of triumph"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Luke.8.2",
       "english": [
         {

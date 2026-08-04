@@ -63,6 +63,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "2John.1.7",
+      "english": [
+        {
+          "text": "embodiment",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "sarx",
+        "traditional": "Flesh",
+        "glossary": "flesh-body",
+        "form": "body"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "2John.1.11",
       "english": [
         {

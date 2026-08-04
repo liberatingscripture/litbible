@@ -226,6 +226,26 @@
       "ref": "1Tim.3.16",
       "english": [
         {
+          "text": "bodily",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "sarx",
+        "traditional": "Flesh",
+        "glossary": "flesh-body",
+        "form": "body"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Tim.3.16",
+      "english": [
+        {
           "text": "renown",
           "n": 1
         }

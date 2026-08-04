@@ -40,7 +40,7 @@
       "confidence": "distinctive",
       "lemma": "present",
       "source": "glossary-scan",
-      "status": "auto"
+      "status": "confirmed"
     },
     {
       "ref": "1Cor.15.2",
@@ -80,7 +80,7 @@
       "confidence": "distinctive",
       "lemma": "present",
       "source": "glossary-scan",
-      "status": "auto"
+      "status": "confirmed"
     },
     {
       "ref": "1Cor.15.3",
@@ -343,6 +343,46 @@
       "status": "confirmed"
     },
     {
+      "ref": "1Cor.15.39",
+      "english": [
+        {
+          "text": "bodies",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "sarx",
+        "traditional": "Flesh",
+        "glossary": "flesh-body",
+        "form": "body"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Cor.15.39",
+      "english": [
+        {
+          "text": "body",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "sarx",
+        "traditional": "Flesh",
+        "glossary": "flesh-body",
+        "form": "body"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "1Cor.15.40",
       "english": [
         {
@@ -466,7 +506,7 @@
       "ref": "1Cor.15.50",
       "english": [
         {
-          "text": "Family",
+          "text": "Flesh",
           "n": 1
         }
       ],
@@ -475,12 +515,12 @@
         "greek": "sarx",
         "traditional": "Flesh",
         "glossary": "flesh-body",
-        "form": "family"
+        "form": "flesh"
       },
-      "confidence": "common",
+      "confidence": null,
       "lemma": "present",
-      "source": "glossary-scan",
-      "status": "auto"
+      "source": "review",
+      "status": "confirmed"
     },
     {
       "ref": "1Cor.15.56",

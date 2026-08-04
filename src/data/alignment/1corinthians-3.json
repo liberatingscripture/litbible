@@ -6,26 +6,6 @@
       "ref": "1Cor.3.1",
       "english": [
         {
-          "text": "Family",
-          "n": 1
-        }
-      ],
-      "greek": [],
-      "term": {
-        "greek": "sarx",
-        "traditional": "Flesh",
-        "glossary": "flesh-body",
-        "form": "family"
-      },
-      "confidence": "common",
-      "lemma": "present",
-      "source": "glossary-scan",
-      "status": "auto"
-    },
-    {
-      "ref": "1Cor.3.1",
-      "english": [
-        {
           "text": "self-preservation",
           "n": 1
         }
@@ -40,7 +20,7 @@
       "confidence": "distinctive",
       "lemma": "present",
       "source": "glossary-scan",
-      "status": "auto"
+      "status": "confirmed"
     },
     {
       "ref": "1Cor.3.3",
@@ -80,7 +60,7 @@
       "confidence": "distinctive",
       "lemma": "present",
       "source": "glossary-scan",
-      "status": "auto"
+      "status": "confirmed"
     },
     {
       "ref": "1Cor.3.3",
@@ -100,7 +80,7 @@
       "confidence": "distinctive",
       "lemma": "present",
       "source": "glossary-scan",
-      "status": "auto"
+      "status": "confirmed"
     },
     {
       "ref": "1Cor.3.4",

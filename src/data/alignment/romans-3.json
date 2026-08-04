@@ -206,6 +206,26 @@
       "ref": "Rom.3.20",
       "english": [
         {
+          "text": "lineage",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "sarx",
+        "traditional": "Flesh",
+        "glossary": "flesh-body",
+        "form": "lineage"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.3.20",
+      "english": [
+        {
           "text": "Torah",
           "n": 1
         }

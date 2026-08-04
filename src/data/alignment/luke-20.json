@@ -6,6 +6,26 @@
       "ref": "Luke.20.1",
       "english": [
         {
+          "text": "news of triumph",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "euangelion",
+        "traditional": "Gospel",
+        "glossary": "gospel-triumphant-message",
+        "form": "news of triumph"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.20.1",
+      "english": [
+        {
           "text": "sacred",
           "n": 1
         }

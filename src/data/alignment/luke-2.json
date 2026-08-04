@@ -43,6 +43,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Luke.2.10",
+      "english": [
+        {
+          "text": "news of triumph",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "euangelion",
+        "traditional": "Gospel",
+        "glossary": "gospel-triumphant-message",
+        "form": "news of triumph"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Luke.2.13",
       "english": [
         {

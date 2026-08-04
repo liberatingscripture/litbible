@@ -46,6 +46,26 @@
       "ref": "2Cor.12.7",
       "english": [
         {
+          "text": "body",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "sarx",
+        "traditional": "Flesh",
+        "glossary": "flesh-body",
+        "form": "body"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "2Cor.12.7",
+      "english": [
+        {
           "text": "the Adversary",
           "n": 1
         }

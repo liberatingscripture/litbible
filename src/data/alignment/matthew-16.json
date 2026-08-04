@@ -126,6 +126,26 @@
       "ref": "Matt.16.17",
       "english": [
         {
+          "text": "flesh",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "sarx",
+        "traditional": "Flesh",
+        "glossary": "flesh-body",
+        "form": "flesh"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.16.17",
+      "english": [
+        {
           "text": "the heavens",
           "n": 1
         }

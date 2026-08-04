@@ -63,6 +63,26 @@
       "status": "auto"
     },
     {
+      "ref": "Eph.4.11",
+      "english": [
+        {
+          "text": "heralds of victory",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "euangelion",
+        "traditional": "Gospel",
+        "glossary": "gospel-triumphant-message",
+        "form": "heralds of victory"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Eph.4.12",
       "english": [
         {

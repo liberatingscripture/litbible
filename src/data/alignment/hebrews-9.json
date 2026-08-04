@@ -146,6 +146,26 @@
       "ref": "Heb.9.10",
       "english": [
         {
+          "text": "physical body",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "sarx",
+        "traditional": "Flesh",
+        "glossary": "flesh-body",
+        "form": "body"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Heb.9.10",
+      "english": [
+        {
           "text": "restoration",
           "n": 1
         }
@@ -216,6 +236,26 @@
         "traditional": "Clean",
         "glossary": "clean-clean",
         "form": "cleanse"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Heb.9.13",
+      "english": [
+        {
+          "text": "body",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "sarx",
+        "traditional": "Flesh",
+        "glossary": "flesh-body",
+        "form": "body"
       },
       "confidence": null,
       "lemma": "present",
