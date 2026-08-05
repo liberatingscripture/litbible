@@ -1,5 +1,22 @@
 [
   {
+    "version": "2026-08-04",
+    "date": "2026-08-04",
+    "label": "August 4, 2026",
+    "changes": [
+      {
+        "type": "text_updated",
+        "description": "Luke 5:23 — text updated",
+        "detail": "\"forgiven\" → \"dismissed\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 5,
+          "verse": 23
+        }
+      }
+    ]
+  },
+  {
     "version": "2026-08-03",
     "date": "2026-08-03",
     "label": "August 3, 2026",
