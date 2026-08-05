@@ -506,6 +506,26 @@
       "ref": "1Cor.15.50",
       "english": [
         {
+          "text": "Family",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "sarx",
+        "traditional": "Flesh",
+        "glossary": "flesh-body",
+        "form": "family"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
+      "ref": "1Cor.15.50",
+      "english": [
+        {
           "text": "Flesh",
           "n": 1
         }

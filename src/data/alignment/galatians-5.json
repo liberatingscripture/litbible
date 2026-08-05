@@ -166,6 +166,26 @@
       "ref": "Gal.5.13",
       "english": [
         {
+          "text": "Family",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "sarx",
+        "traditional": "Flesh",
+        "glossary": "flesh-body",
+        "form": "family"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
+      "ref": "Gal.5.13",
+      "english": [
+        {
           "text": "self-preservation",
           "n": 1
         }
