@@ -13,6 +13,16 @@
           "chapter": 5,
           "verse": 23
         }
+      },
+      {
+        "type": "text_updated",
+        "description": "Luke 16:17 — text updated",
+        "detail": "\"fall.\" → \"fall from Torah.\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 16,
+          "verse": 17
+        }
       }
     ]
   },
