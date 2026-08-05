@@ -546,6 +546,26 @@
       "ref": "1Cor.15.56",
       "english": [
         {
+          "text": "norms",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "nomos",
+        "traditional": "Law",
+        "glossary": "law-torah",
+        "form": "norms"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Cor.15.56",
+      "english": [
+        {
           "text": "deviation",
           "n": 1
         }

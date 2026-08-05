@@ -83,6 +83,26 @@
       "status": "auto"
     },
     {
+      "ref": "John.15.25",
+      "english": [
+        {
+          "text": "Hebrew Bible",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "nomos",
+        "traditional": "Law",
+        "glossary": "law-torah",
+        "form": "Hebrew scriptures"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "John.15.26",
       "english": [
         {
