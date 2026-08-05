@@ -63,6 +63,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Matt.11.13",
+      "english": [
+        {
+          "text": "Hebrew scriptures",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "nomos",
+        "traditional": "Law",
+        "glossary": "law-torah",
+        "form": "Hebrew scriptures"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Matt.11.18",
       "english": [
         {

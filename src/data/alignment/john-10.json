@@ -43,6 +43,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "John.10.12",
+      "english": [
+        {
+          "text": "abandon",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "aphiemi",
+        "traditional": "Forgiveness",
+        "glossary": "forgiveness-letting-go",
+        "form": "abandon"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "John.10.14",
       "english": [
         {
@@ -260,7 +280,7 @@
       "confidence": "distinctive",
       "lemma": "present",
       "source": "glossary-scan",
-      "status": "auto"
+      "status": "confirmed"
     },
     {
       "ref": "John.10.36",

@@ -26,6 +26,26 @@
       "ref": "Heb.6.1",
       "english": [
         {
+          "text": "moving on",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "aphiemi",
+        "traditional": "Forgiveness",
+        "glossary": "forgiveness-letting-go",
+        "form": "moving on"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Heb.6.1",
+      "english": [
+        {
           "text": "transforming the mind",
           "n": 1
         }

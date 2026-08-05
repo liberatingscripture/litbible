@@ -3,6 +3,26 @@
   "chapter": 12,
   "records": [
     {
+      "ref": "John.12.7",
+      "english": [
+        {
+          "text": "Leave her alone",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "aphiemi",
+        "traditional": "Forgiveness",
+        "glossary": "forgiveness-letting-go",
+        "form": "leave alone"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "John.12.11",
       "english": [
         {
@@ -80,7 +100,7 @@
       "confidence": "distinctive",
       "lemma": "present",
       "source": "glossary-scan",
-      "status": "auto"
+      "status": "confirmed"
     },
     {
       "ref": "John.12.36",

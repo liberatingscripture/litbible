@@ -246,6 +246,26 @@
       "ref": "Col.1.14",
       "english": [
         {
+          "text": "dismissal",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "aphiemi",
+        "traditional": "Forgiveness",
+        "glossary": "forgiveness-letting-go",
+        "form": "dismissed"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Col.1.14",
+      "english": [
+        {
           "text": "liberation",
           "n": 1
         }

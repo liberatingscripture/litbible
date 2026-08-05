@@ -86,6 +86,26 @@
       "ref": "1John.2.12",
       "english": [
         {
+          "text": "dismissed",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "aphiemi",
+        "traditional": "Forgiveness",
+        "glossary": "forgiveness-letting-go",
+        "form": "dismissed"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1John.2.12",
+      "english": [
+        {
           "text": "deviations",
           "n": 1
         }

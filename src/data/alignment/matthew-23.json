@@ -160,7 +160,7 @@
       "confidence": "distinctive",
       "lemma": "present",
       "source": "glossary-scan",
-      "status": "auto"
+      "status": "confirmed"
     },
     {
       "ref": "Matt.23.23",
@@ -335,7 +335,7 @@
         "greek": "aphiemi",
         "traditional": "Forgiveness",
         "glossary": "forgiveness-letting-go",
-        "form": "abandoned"
+        "form": "abandon"
       },
       "confidence": null,
       "lemma": "present",

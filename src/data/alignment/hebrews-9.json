@@ -400,7 +400,7 @@
       "confidence": "distinctive",
       "lemma": "present",
       "source": "glossary-scan",
-      "status": "auto"
+      "status": "confirmed"
     },
     {
       "ref": "Heb.9.22",
@@ -435,12 +435,12 @@
         "greek": "aphiemi",
         "traditional": "Forgiveness",
         "glossary": "forgiveness-letting-go",
-        "form": "letting go"
+        "form": "let go"
       },
       "confidence": "common",
       "lemma": "present",
       "source": "glossary-scan",
-      "status": "auto"
+      "status": "confirmed"
     },
     {
       "ref": "Heb.9.22",
@@ -460,7 +460,7 @@
       "confidence": "distinctive",
       "lemma": "present",
       "source": "glossary-scan",
-      "status": "auto"
+      "status": "confirmed"
     },
     {
       "ref": "Heb.9.23",

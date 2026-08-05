@@ -3,6 +3,26 @@
   "chapter": 18,
   "records": [
     {
+      "ref": "John.18.8",
+      "english": [
+        {
+          "text": "let these people go",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "aphiemi",
+        "traditional": "Forgiveness",
+        "glossary": "forgiveness-letting-go",
+        "form": "let go"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "John.18.14",
       "english": [
         {

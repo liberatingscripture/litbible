@@ -503,6 +503,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Rom.1.27",
+      "english": [
+        {
+          "text": "abandoned",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "aphiemi",
+        "traditional": "Forgiveness",
+        "glossary": "forgiveness-letting-go",
+        "form": "abandon"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Rom.1.29",
       "english": [
         {

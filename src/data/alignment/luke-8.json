@@ -443,6 +443,26 @@
       "status": "auto"
     },
     {
+      "ref": "Luke.8.51",
+      "english": [
+        {
+          "text": "let",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "aphiemi",
+        "traditional": "Forgiveness",
+        "glossary": "forgiveness-letting-go",
+        "form": "allow"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Luke.8.55",
       "english": [
         {

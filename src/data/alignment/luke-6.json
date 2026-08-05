@@ -263,6 +263,26 @@
       "status": "auto"
     },
     {
+      "ref": "Luke.6.42",
+      "english": [
+        {
+          "text": "let",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "aphiemi",
+        "traditional": "Forgiveness",
+        "glossary": "forgiveness-letting-go",
+        "form": "allow"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Luke.6.43",
       "english": [
         {
