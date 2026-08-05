@@ -286,6 +286,26 @@
       "ref": "Mark.3.28",
       "english": [
         {
+          "text": "dismissed",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "aphiemi",
+        "traditional": "Forgiveness",
+        "glossary": "forgiveness-letting-go",
+        "form": "dismissed"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Mark.3.28",
+      "english": [
+        {
           "text": "deviation",
           "n": 1
         }
@@ -316,6 +336,26 @@
         "traditional": "Blasphemy",
         "glossary": "blasphemy-disrespectfulness",
         "form": "slanderous accusation"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Mark.3.29",
+      "english": [
+        {
+          "text": "dismissal",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "aphiemi",
+        "traditional": "Forgiveness",
+        "glossary": "forgiveness-letting-go",
+        "form": "dismissed"
       },
       "confidence": null,
       "lemma": "present",

@@ -666,6 +666,26 @@
       "ref": "Luke.1.77",
       "english": [
         {
+          "text": "releasing",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "aphiemi",
+        "traditional": "Forgiveness",
+        "glossary": "forgiveness-letting-go",
+        "form": "release"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.1.77",
+      "english": [
+        {
           "text": "liberation",
           "n": 1
         }

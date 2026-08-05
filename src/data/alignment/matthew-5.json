@@ -203,6 +203,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Matt.5.24",
+      "english": [
+        {
+          "text": "leave",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "aphiemi",
+        "traditional": "Forgiveness",
+        "glossary": "forgiveness-letting-go",
+        "form": "leave"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Matt.5.29",
       "english": [
         {
@@ -296,6 +316,26 @@
         "traditional": "Evil",
         "glossary": "evil-hardship",
         "form": "oppressive"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.5.40",
+      "english": [
+        {
+          "text": "send",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "aphiemi",
+        "traditional": "Forgiveness",
+        "glossary": "forgiveness-letting-go",
+        "form": "send"
       },
       "confidence": null,
       "lemma": "present",

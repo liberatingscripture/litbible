@@ -3,6 +3,26 @@
   "chapter": 7,
   "records": [
     {
+      "ref": "Matt.7.4",
+      "english": [
+        {
+          "text": "get rid",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "aphiemi",
+        "traditional": "Forgiveness",
+        "glossary": "forgiveness-letting-go",
+        "form": "get rid"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Matt.7.6",
       "english": [
         {

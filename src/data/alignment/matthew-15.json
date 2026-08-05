@@ -83,6 +83,26 @@
       "status": "auto"
     },
     {
+      "ref": "Matt.15.14",
+      "english": [
+        {
+          "text": "Ignore",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "aphiemi",
+        "traditional": "Forgiveness",
+        "glossary": "forgiveness-letting-go",
+        "form": "Ignore"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Matt.15.18",
       "english": [
         {

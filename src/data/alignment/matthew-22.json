@@ -63,6 +63,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Matt.22.22",
+      "english": [
+        {
+          "text": "left",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "aphiemi",
+        "traditional": "Forgiveness",
+        "glossary": "forgiveness-letting-go",
+        "form": "left"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Matt.22.23",
       "english": [
         {
@@ -96,6 +116,26 @@
         "traditional": "Resurrection",
         "glossary": "resurrection-reawakening",
         "form": "raise"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.22.25",
+      "english": [
+        {
+          "text": "released",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "aphiemi",
+        "traditional": "Forgiveness",
+        "glossary": "forgiveness-letting-go",
+        "form": "release"
       },
       "confidence": null,
       "lemma": "present",
