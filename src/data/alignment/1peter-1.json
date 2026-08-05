@@ -6,6 +6,26 @@
       "ref": "1Pet.1.2",
       "english": [
         {
+          "text": "sacred",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hagios",
+        "traditional": "Holy",
+        "glossary": "holy-sacred",
+        "form": "sacred"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
+      "ref": "1Pet.1.2",
+      "english": [
+        {
           "text": "Life-breath",
           "n": 1
         }

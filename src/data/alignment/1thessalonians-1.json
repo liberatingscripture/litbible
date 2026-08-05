@@ -86,6 +86,26 @@
       "ref": "1Thess.1.6",
       "english": [
         {
+          "text": "Sacred",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hagios",
+        "traditional": "Holy",
+        "glossary": "holy-sacred",
+        "form": "sacred"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
+      "ref": "1Thess.1.6",
+      "english": [
+        {
           "text": "Life-breath",
           "n": 1
         }
