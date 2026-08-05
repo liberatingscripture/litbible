@@ -23,6 +23,46 @@
           "chapter": 16,
           "verse": 17
         }
+      },
+      {
+        "type": "text_updated",
+        "description": "1 Peter 1:2 — text updated",
+        "detail": "\"a purpose\" → \"sacred purposes\"",
+        "location": {
+          "bookKey": "1peter",
+          "chapter": 1,
+          "verse": 2
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "1 Thessalonians 1:6 — text updated",
+        "detail": "added \"Sacred\"",
+        "location": {
+          "bookKey": "1thessalonians",
+          "chapter": 1,
+          "verse": 6
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Jude 1:3, 14 — text updated",
+        "detail": "v. 3: \"a purpose.\" → \"sacred purposes.\"; v. 14: \"a purpose\" → \"sacred purposes\"",
+        "location": {
+          "bookKey": "jude",
+          "chapter": 1,
+          "verse": 3
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Jude 1:3, 14 — footnotes f, ff updated",
+        "detail": "fn. f (v. 3): \"a purpose’\" → \"sacred purposes’\"; fn. ff (v. 14): \"a purpose”\" → \"sacred purposes”\"",
+        "location": {
+          "bookKey": "jude",
+          "chapter": 1,
+          "verse": 3
+        }
       }
     ]
   },
