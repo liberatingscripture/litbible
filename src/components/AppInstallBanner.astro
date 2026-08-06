@@ -1,29 +1,30 @@
 ---
 /**
- * App-install banner — a slim, dismissible bar at the very top of every page
- * that offers the LIT Bible app to mobile visitors: Google Play on Android,
- * the App Store on iOS. Desktop never sees it, and it stays gone once
- * dismissed (remembered in localStorage).
+ * Android app-install banner — a slim, dismissible bar at the top of every page
+ * offering the LIT Bible app on Google Play. Android mobile browsers only:
+ * hidden on iOS and desktop, and gone once dismissed (localStorage).
  *
- * It ships HIDDEN and is revealed by an inline script only on the matching
- * mobile platform, so desktop/other visitors see nothing and there's no
- * layout flash. With JS off it never appears (the /apps page and footer still
- * link to the apps) — a pure progressive enhancement.
+ * iOS is handled separately by Apple's Smart App Banner (the apple-itunes-app
+ * <meta> tag in Layout.astro), which can hand an already-installed app the
+ * current page — something a web page can neither detect nor do. No equivalent
+ * exists for Android, so this banner covers that platform.
  *
- * Styling uses the site's own global tokens (--surface-raised, --text,
- * --green-deep, --ink-rgb), which already flip for light/dark via global.css,
- * so the banner is theme-correct with no dark-mode rules of its own.
+ * Ships HIDDEN and is revealed by an inline script only on Android, so everyone
+ * else sees nothing and there's no layout flash. With JS off it never appears
+ * (the /apps page and footer still link to the app) — pure progressive
+ * enhancement. Styling uses the site's global tokens (--surface-raised, --text,
+ * --green-deep, --ink-rgb), so it's theme-correct with no dark-mode rules here.
  */
 ---
 
-<aside id="lit-app-banner" class="litab" hidden aria-label="Get the LIT Bible app">
+<aside id="lit-app-banner" class="litab" data-platform="android" hidden aria-label="Get the LIT Bible app on Google Play">
   <div class="litab__inner">
-    <img id="litab-icon" class="litab__icon" src="/assets/images/lit-app-icon-ios.webp" alt="" width="44" height="44" decoding="async" />
+    <img class="litab__icon" src="/assets/images/lit-app-icon.svg" alt="" width="44" height="44" decoding="async" />
     <div class="litab__txt">
       <strong>LIT Bible</strong>
       <span>Free. No account, no ads.</span>
     </div>
-    <a id="litab-cta" class="litab__cta" href="https://apps.apple.com/app/id6772577879" rel="external noopener">Get app</a>
+    <a class="litab__cta" href="https://play.google.com/store/apps/details?id=com.litbible.app&pcampaignid=web_share" rel="external noopener">Get app</a>
     <button class="litab__x" type="button" aria-label="Dismiss">&times;</button>
   </div>
 </aside>
@@ -32,28 +33,9 @@
   (function () {
     var KEY = "lit_app_banner_dismissed";
     try { if (localStorage.getItem(KEY) === "1") return; } catch (e) {}
-    var ua = navigator.userAgent || "";
-    var isAndroid = /Android/i.test(ua);
-    // iPadOS 13+ reports as "Macintosh"; distinguish it by touch support.
-    var isIOS = !isAndroid &&
-      (/iPad|iPhone|iPod/i.test(ua) || (/Macintosh/i.test(ua) && "ontouchend" in document));
-    if (!isAndroid && !isIOS) return;
-
+    if (!/Android/i.test(navigator.userAgent || "")) return;
     var b = document.getElementById("lit-app-banner");
     if (!b) return;
-    var icon = document.getElementById("litab-icon");
-    var cta = document.getElementById("litab-cta");
-
-    if (isAndroid) {
-      b.setAttribute("data-platform", "android");
-      icon.src = "/assets/images/lit-app-icon.svg";
-      cta.href = "https://play.google.com/store/apps/details?id=com.litbible.app&pcampaignid=web_share";
-    } else {
-      b.setAttribute("data-platform", "ios");
-      icon.src = "/assets/images/lit-app-icon-ios.webp";
-      cta.href = "https://apps.apple.com/app/id6772577879";
-    }
-
     b.hidden = false;
     b.querySelector(".litab__x").addEventListener("click", function () {
       b.hidden = true;

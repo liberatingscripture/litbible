@@ -1,0 +1,129 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": [
+          "9KL9F7A3CR.com.litbible.app"
+        ],
+        "components": [
+          {
+            "/": "/matthew-*",
+            "comment": "matthew chapters and intro, with or without a trailing slash"
+          },
+          {
+            "/": "/mark-*",
+            "comment": "mark chapters and intro, with or without a trailing slash"
+          },
+          {
+            "/": "/luke-*",
+            "comment": "luke chapters and intro, with or without a trailing slash"
+          },
+          {
+            "/": "/john-*",
+            "comment": "john chapters and intro, with or without a trailing slash"
+          },
+          {
+            "/": "/acts-*",
+            "comment": "acts chapters and intro, with or without a trailing slash"
+          },
+          {
+            "/": "/romans-*",
+            "comment": "romans chapters and intro, with or without a trailing slash"
+          },
+          {
+            "/": "/1corinthians-*",
+            "comment": "1corinthians chapters and intro, with or without a trailing slash"
+          },
+          {
+            "/": "/2corinthians-*",
+            "comment": "2corinthians chapters and intro, with or without a trailing slash"
+          },
+          {
+            "/": "/galatians-*",
+            "comment": "galatians chapters and intro, with or without a trailing slash"
+          },
+          {
+            "/": "/ephesians-*",
+            "comment": "ephesians chapters and intro, with or without a trailing slash"
+          },
+          {
+            "/": "/philippians-*",
+            "comment": "philippians chapters and intro, with or without a trailing slash"
+          },
+          {
+            "/": "/colossians-*",
+            "comment": "colossians chapters and intro, with or without a trailing slash"
+          },
+          {
+            "/": "/1thessalonians-*",
+            "comment": "1thessalonians chapters and intro, with or without a trailing slash"
+          },
+          {
+            "/": "/2thessalonians-*",
+            "comment": "2thessalonians chapters and intro, with or without a trailing slash"
+          },
+          {
+            "/": "/1timothy-*",
+            "comment": "1timothy chapters and intro, with or without a trailing slash"
+          },
+          {
+            "/": "/2timothy-*",
+            "comment": "2timothy chapters and intro, with or without a trailing slash"
+          },
+          {
+            "/": "/titus-*",
+            "comment": "titus chapters and intro, with or without a trailing slash"
+          },
+          {
+            "/": "/philemon-*",
+            "comment": "philemon chapters and intro, with or without a trailing slash"
+          },
+          {
+            "/": "/hebrews-*",
+            "comment": "hebrews chapters and intro, with or without a trailing slash"
+          },
+          {
+            "/": "/james-*",
+            "comment": "james chapters and intro, with or without a trailing slash"
+          },
+          {
+            "/": "/1peter-*",
+            "comment": "1peter chapters and intro, with or without a trailing slash"
+          },
+          {
+            "/": "/2peter-*",
+            "comment": "2peter chapters and intro, with or without a trailing slash"
+          },
+          {
+            "/": "/1john-*",
+            "comment": "1john chapters and intro, with or without a trailing slash"
+          },
+          {
+            "/": "/2john-*",
+            "comment": "2john chapters and intro, with or without a trailing slash"
+          },
+          {
+            "/": "/3john-*",
+            "comment": "3john chapters and intro, with or without a trailing slash"
+          },
+          {
+            "/": "/jude-*",
+            "comment": "jude chapters and intro, with or without a trailing slash"
+          },
+          {
+            "/": "/revelation-*",
+            "comment": "revelation chapters and intro, with or without a trailing slash"
+          },
+          {
+            "/": "/glossary",
+            "comment": "glossary index; #term-slug selects an entry"
+          },
+          {
+            "/": "/glossary/",
+            "comment": "same, trailing-slash form"
+          }
+        ]
+      }
+    ]
+  }
+}
