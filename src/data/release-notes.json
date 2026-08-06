@@ -1,5 +1,22 @@
 [
   {
+    "version": "2026-08-05",
+    "date": "2026-08-05",
+    "label": "August 5, 2026",
+    "changes": [
+      {
+        "type": "text_updated",
+        "description": "1 Corinthians 1:21 — text updated",
+        "detail": "\"In regard to God’s wisdom, the world system did not underst…\" → \"Since, in regard to God’s wisdom, the world system did not …\"",
+        "location": {
+          "bookKey": "1corinthians",
+          "chapter": 1,
+          "verse": 21
+        }
+      }
+    ]
+  },
+  {
     "version": "2026-08-04",
     "date": "2026-08-04",
     "label": "August 4, 2026",
