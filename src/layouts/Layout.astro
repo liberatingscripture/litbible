@@ -66,6 +66,15 @@ const criticalCSS = `html,body{margin:0;padding:0}html{scrollbar-gutter:stable}b
     <meta name="robots" content={robotsNoindex ? "noindex,follow" : "index,follow"} />
     {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
 
+    {/* Apple Smart App Banner (iOS Safari). Unlike a plain link, this flips its
+        button from GET to OPEN when the app is installed and hands it the page.
+        app-argument is this page's canonical URL, so OPEN lands on the passage.
+        Fragments (#v3) aren't known at render time, so it resolves at chapter
+        level; verse precision comes from Universal Links (apple-app-site-association). */}
+    {canonicalUrl && (
+      <meta name="apple-itunes-app" content={`app-id=6772577879, app-argument=${canonicalUrl}`} />
+    )}
+
     <!-- Open Graph -->
     <meta property="og:type" content={ogType} />
     <meta property="og:title" content={title} />
