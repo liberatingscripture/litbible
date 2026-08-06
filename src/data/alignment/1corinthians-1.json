@@ -163,6 +163,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "1Cor.1.18",
+      "english": [
+        {
+          "text": "restored",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "soterios",
+        "traditional": "Salvation",
+        "glossary": "salvation-liberation",
+        "form": "restoration"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "1Cor.1.26",
       "english": [
         {
@@ -215,7 +235,7 @@
         "greek": "hagios",
         "traditional": "Holy",
         "glossary": "holy-sacred",
-        "form": "sacredness"
+        "form": "sacred"
       },
       "confidence": null,
       "lemma": "present",

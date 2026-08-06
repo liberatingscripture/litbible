@@ -23,6 +23,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Luke.6.9",
+      "english": [
+        {
+          "text": "provide recovery",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "soterios",
+        "traditional": "Salvation",
+        "glossary": "salvation-liberation",
+        "form": "provide recovery"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Luke.6.18",
       "english": [
         {

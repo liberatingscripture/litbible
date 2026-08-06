@@ -163,6 +163,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Matt.8.25",
+      "english": [
+        {
+          "text": "save",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "soterios",
+        "traditional": "Salvation",
+        "glossary": "salvation-liberation",
+        "form": "save"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Matt.8.26",
       "english": [
         {

@@ -3,6 +3,26 @@
   "chapter": 10,
   "records": [
     {
+      "ref": "John.10.9",
+      "english": [
+        {
+          "text": "protected",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "soterios",
+        "traditional": "Salvation",
+        "glossary": "salvation-liberation",
+        "form": "protected"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "John.10.11",
       "english": [
         {
