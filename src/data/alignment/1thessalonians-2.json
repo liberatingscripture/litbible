@@ -186,6 +186,26 @@
       "ref": "1Thess.2.16",
       "english": [
         {
+          "text": "liberated",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "soterios",
+        "traditional": "Salvation",
+        "glossary": "salvation-liberation",
+        "form": "liberation"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Thess.2.16",
+      "english": [
+        {
           "text": "deviations",
           "n": 1
         }

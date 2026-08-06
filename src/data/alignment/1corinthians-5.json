@@ -66,6 +66,26 @@
       "ref": "1Cor.5.5",
       "english": [
         {
+          "text": "restored",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "soterios",
+        "traditional": "Salvation",
+        "glossary": "salvation-liberation",
+        "form": "restoration"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Cor.5.5",
+      "english": [
+        {
           "text": "the Adversary's",
           "n": 1
         }

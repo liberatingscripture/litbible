@@ -143,6 +143,26 @@
       "status": "auto"
     },
     {
+      "ref": "Heb.11.7",
+      "english": [
+        {
+          "text": "protection",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "soterios",
+        "traditional": "Salvation",
+        "glossary": "salvation-liberation",
+        "form": "protection"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Heb.11.8",
       "english": [
         {

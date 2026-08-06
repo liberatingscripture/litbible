@@ -203,6 +203,26 @@
       "status": "auto"
     },
     {
+      "ref": "1Cor.1.21",
+      "english": [
+        {
+          "text": "restoring",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "soterios",
+        "traditional": "Salvation",
+        "glossary": "salvation-liberation",
+        "form": "restoration"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "1Cor.1.26",
       "english": [
         {

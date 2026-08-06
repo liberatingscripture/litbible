@@ -203,6 +203,26 @@
       "status": "auto"
     },
     {
+      "ref": "Eph.5.23",
+      "english": [
+        {
+          "text": "caregiver",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "soterios",
+        "traditional": "Salvation",
+        "glossary": "salvation-liberation",
+        "form": "caregiver"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Eph.5.26",
       "english": [
         {

@@ -226,6 +226,26 @@
       "ref": "Eph.1.13",
       "english": [
         {
+          "text": "rescue",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "soterios",
+        "traditional": "Salvation",
+        "glossary": "salvation-liberation",
+        "form": "rescue"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Eph.1.13",
+      "english": [
+        {
           "text": "Life-breath",
           "n": 1
         }

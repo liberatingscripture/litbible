@@ -423,6 +423,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "1Pet.3.21",
+      "english": [
+        {
+          "text": "restores",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "soterios",
+        "traditional": "Salvation",
+        "glossary": "salvation-liberation",
+        "form": "restoration"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "1Pet.3.22",
       "english": [
         {
