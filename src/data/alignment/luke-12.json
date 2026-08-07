@@ -300,7 +300,7 @@
       "confidence": "common",
       "lemma": "present",
       "source": "glossary-scan",
-      "status": "auto"
+      "status": "confirmed"
     },
     {
       "ref": "Luke.12.39",
@@ -316,6 +316,26 @@
         "traditional": "Forgiveness",
         "glossary": "forgiveness-letting-go",
         "form": "allow"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.12.56",
+      "english": [
+        {
+          "text": "sky",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ouranos",
+        "traditional": "Heaven",
+        "glossary": "heaven-sky",
+        "form": "sky"
       },
       "confidence": null,
       "lemma": "present",

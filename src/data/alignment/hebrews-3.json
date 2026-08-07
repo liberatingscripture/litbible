@@ -46,6 +46,26 @@
       "ref": "Heb.3.1",
       "english": [
         {
+          "text": "heavens",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ouranos",
+        "traditional": "Heaven",
+        "glossary": "heaven-sky",
+        "form": "the heavens"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Heb.3.1",
+      "english": [
+        {
           "text": "sacred",
           "n": 1
         }

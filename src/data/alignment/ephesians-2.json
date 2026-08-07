@@ -163,6 +163,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Eph.2.6",
+      "english": [
+        {
+          "text": "heavens",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ouranos",
+        "traditional": "Heaven",
+        "glossary": "heaven-sky",
+        "form": "the heavens"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Eph.2.7",
       "english": [
         {

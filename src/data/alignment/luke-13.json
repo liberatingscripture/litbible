@@ -83,6 +83,21 @@
       "status": "confirmed"
     },
     {
+      "ref": "Luke.13.19",
+      "english": [],
+      "greek": [],
+      "term": {
+        "greek": "ouranos",
+        "traditional": "Heaven",
+        "glossary": "heaven-sky",
+        "form": null
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "no-rendering"
+    },
+    {
       "ref": "Luke.13.23",
       "english": [
         {
