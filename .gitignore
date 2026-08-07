@@ -37,6 +37,7 @@ scratch/
 # Claude Code
 .claude/worktrees/
 .claude/launch.json
+.claude/settings.local.json
 public/api/
 public/search/topics.json
 public/topics-index.json

@@ -1,5 +1,176 @@
 [
   {
+    "version": "2026-08-07",
+    "date": "2026-08-07",
+    "label": "August 7, 2026",
+    "changes": [
+      {
+        "type": "text_updated",
+        "description": "2 Timothy 4:18 — text updated",
+        "detail": "\"divine\" → \"heavenly\"",
+        "location": {
+          "bookKey": "2timothy",
+          "chapter": 4,
+          "verse": 18
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "2 Timothy 4:18 — footnote j removed",
+        "detail": "removed \"Literally, ‘heavenly’\"",
+        "location": {
+          "bookKey": "2timothy",
+          "chapter": 4,
+          "verse": 18
+        },
+        "relabel": "footnotes formerly k–l relabeled j–k"
+      },
+      {
+        "type": "text_updated",
+        "description": "Colossians 4:1 — text updated",
+        "detail": "\"divine Lord.\" → \"Lord in the heavens.\"",
+        "location": {
+          "bookKey": "colossians",
+          "chapter": 4,
+          "verse": 1
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Ephesians 6:9 — text updated",
+        "detail": "\"divine Lord is over both them and you,\" → \"Lord in the heavens is both theirs and yours,\"",
+        "location": {
+          "bookKey": "ephesians",
+          "chapter": 6,
+          "verse": 9
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Ephesians 6:9, 24 — footnotes n, o, mm removed",
+        "detail": "fn. n (v. 9): removed \"Literally, 'in the sky' and traditionally, 'in Heaven.'\"; fn. o (v. 9): removed \"Or 'the divine Lord is theirs and yours'\"; fn. mm (v. 24): removed \"Literally something like 'who love our Lord, Jesus Christ, with undyingness.'\"",
+        "location": {
+          "bookKey": "ephesians",
+          "chapter": 6,
+          "verse": 9
+        },
+        "relabel": "footnotes formerly p–ll relabeled n–jj"
+      },
+      {
+        "type": "text_updated",
+        "description": "James 5:12 — text updated",
+        "detail": "added \"heavens nor by the\"",
+        "location": {
+          "bookKey": "james",
+          "chapter": 5,
+          "verse": 12
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Mark 10:21 — text updated",
+        "detail": "\"what God values.\" → \"what’s valuable in the heavens.\"",
+        "location": {
+          "bookKey": "mark",
+          "chapter": 10,
+          "verse": 21
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Mark 10:21 — footnote u removed",
+        "detail": "removed \"Literally “have treasure in the heavens”\"",
+        "location": {
+          "bookKey": "mark",
+          "chapter": 10,
+          "verse": 21
+        },
+        "relabel": "footnotes formerly v–pp relabeled u–oo"
+      },
+      {
+        "type": "text_updated",
+        "description": "Mark 11:25 — text updated",
+        "detail": "\"divine Father\" → \"Father who is in the heavens\"",
+        "location": {
+          "bookKey": "mark",
+          "chapter": 11,
+          "verse": 25
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Mark 11:25 — footnote u removed",
+        "detail": "removed \"Literally, ‘father in the heavens’\"",
+        "location": {
+          "bookKey": "mark",
+          "chapter": 11,
+          "verse": 25
+        },
+        "relabel": "footnotes formerly v–y relabeled u–x"
+      },
+      {
+        "type": "text_updated",
+        "description": "Mark 12:25 — text updated",
+        "detail": "\"divine messengers.\" → \"messengers in the heavens.\"",
+        "location": {
+          "bookKey": "mark",
+          "chapter": 12,
+          "verse": 25
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Matthew 12:50 — text updated",
+        "detail": "added \"who is in the heavens\"",
+        "location": {
+          "bookKey": "matthew",
+          "chapter": 12,
+          "verse": 50
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Matthew 15:13 — text updated",
+        "detail": "\"divine\" → \"heavenly\"",
+        "location": {
+          "bookKey": "matthew",
+          "chapter": 15,
+          "verse": 13
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Matthew 22:30 — text updated",
+        "detail": "\"messengers.\" → \"messengers in the heavens.\"",
+        "location": {
+          "bookKey": "matthew",
+          "chapter": 22,
+          "verse": 30
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Matthew 23:9 — text updated",
+        "detail": "\"divine\" → \"heavenly\"",
+        "location": {
+          "bookKey": "matthew",
+          "chapter": 23,
+          "verse": 9
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Matthew 24:36 — text updated",
+        "detail": "\"the messengers.\" → \"messengers from the heavens.\"",
+        "location": {
+          "bookKey": "matthew",
+          "chapter": 24,
+          "verse": 36
+        }
+      }
+    ]
+  },
+  {
     "version": "2026-08-05",
     "date": "2026-08-05",
     "label": "August 5, 2026",
