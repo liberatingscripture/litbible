@@ -318,11 +318,10 @@ SBLGNT omits, without either choice being ad hoc.
 
 | Passage | SBLGNT | LIT |
 |---------|--------|-----|
-| Romans 16:24 | present (with TR/Byz; NA28, WH, Tregelles, THGNT omit) | printed |
-| Romans 16:25–27 (doxology) | absent | **retained**, divergence footnoted |
-| John 7:53–8:11 | absent (John 7 ends at v52, John 8 opens at v12) | **retained**, divergence footnoted |
-| Mark 16:9–20 | present | printed |
-| John 5:4 | absent | omitted, traditional rendering quoted in a footnote |
+| Romans 16:24 | present (with TR/Byz; NA28, WH, Tregelles, THGNT omit) | printed, **bracketed** |
+| Romans 16:25–27 (doxology) | absent | **retained, bracketed**, divergence footnoted |
+| John 7:53–8:11 | absent (John 7 ends at v52, John 8 opens at v12) | **retained, bracketed**, divergence footnoted |
+| Mark 16:9–20 | present | printed, **bracketed** |
 
 Mark 16 is in that table specifically to head off a wrong inference: SBLGNT
 does *not* drop every famously disputed passage, so "SBL omits it" has to be
@@ -331,14 +330,36 @@ checked per passage, never assumed from the passage's reputation.
 **The rule for divergences:** where LIT departs from SBLGNT in either
 direction, a chapter footnote says so and names SBLGNT as the source text.
 Retaining or omitting non-SBLGNT material *silently* is the thing this policy
-exists to prevent. Worked examples of the house voice: `romans-16.json` fn-m
-(a verse SBLGNT keeps that other editions drop) and fn-n, plus `john-7.json`
-fn-ff plus `john-8.json` fn-k (kept byte-identical to each other) for retained
-passages, and `john-5.json` fn-c for the older single-verse omission pattern.
+exists to prevent.
 
-A verse-number gap is therefore usually intentional — John 5:4 is the live
-example — so read the chapter's footnotes before "fixing" one by importing
-text from another edition.
+### Bracketed passages
+
+Text whose authenticity or placement is contested is wrapped in literal `[|`
+and `|]` markers in the paragraph HTML (not a CSS class — plain characters in
+the text). The convention is strict and has two halves:
+
+- `[|` sits at the **start of the paragraph**, immediately followed by a
+  footnote marker, then the `vglue` span.
+- ` |]` closes the passage at the **end of its last paragraph**, immediately
+  followed by a second footnote marker.
+- **Both markers carry the same footnote text**, so a reader who meets either
+  end gets the whole explanation. That is why those footnote pairs are
+  byte-identical, and they must be edited together.
+
+Live examples: `mark-16.json` (e/m), `john-7.json` ff → `john-8.json` k
+(a pair that spans a chapter boundary), `john-9.json` (q/r),
+`john-11.json` (w/z), and `romans-16.json` (m/n for verse 24, o/r for the
+doxology).
+
+### Verse-number gaps
+
+A gap is deliberate: it marks a traditional verse the source text does not
+carry. **Never "fix" one by importing text from another edition.** Nine
+published chapters currently have them — Matthew 17:21, 18:11, 23:14;
+Mark 7:16, 9:44, 9:46, 11:26, 15:28; Luke 17:36; John 5:4 — and
+`john-5.json` fn-c is the worked example of the footnote that explains one.
+Regenerate the list rather than trusting this sentence: scan every
+`indexed !== false` chapter for missing `id="vN"` markers.
 
 ## Content Collections (`src/content.config.ts`)
 
