@@ -377,7 +377,104 @@ test("articles: added/updated de-hyphenate the slug; attribute-only edit emits n
   );
 });
 
-/* ── 6. Empty result ──────────────────────────────────────────────────── */
+/* ── 6. Bracketed passages ────────────────────────────────────────────────
+ * `[|` and `|]` wrap passages whose authenticity or placement is contested
+ * (Mark 16:9–20, John 7:53–8:11, Romans 16:24 and 25–27). They are literal
+ * characters in the paragraph text, not markup, and the opening marker leads
+ * its paragraph AHEAD of the first verse glue. See "Bracketed passages" in
+ * CLAUDE.md. */
+
+/** A footnote-reference superscript, as it appears attached to a bracket marker. */
+const fnRef = (l) =>
+  `<sup class="fn-ref"><a id="fnref-${l}" href="#fn-${l}" role="doc-noteref">${l}</a></sup>`;
+
+test("bracketed passage: markers never reach detail, and the preceding verse isn't blamed", () => {
+  // The real Romans 16 shape: a new verse arrives inside its own bracketed
+  // paragraph, so the opening `[|` sits before that paragraph's first vglue.
+  const before = chapterJson({ paragraphs: [para("p1", verse(23, "Quartus greets you."))] });
+  const after = chapterJson({
+    paragraphs: [
+      para("p1", verse(23, "Quartus greets you.")),
+      `<p id="p2">[|${fnRef("a")} ${verse(24, "The generosity be with you all.")} |]${fnRef("b")}</p>`,
+    ],
+    footnotes: [fn("a", "Why verse 24 is here."), fn("b", "Why verse 24 is here.")],
+  });
+
+  const textChange = run({ [F]: before }, { [F]: after }, { modified: [F] }).find(
+    (c) => c.type === "text_updated",
+  );
+
+  // Verse 23 is untouched; without the strip it absorbs the trailing `[|` of
+  // the next paragraph and gets reported as changed.
+  assert.equal(textChange.description, "John 3:24 — text updated");
+  assert.equal(textChange.location.verse, 24);
+  assert.equal(textChange.detail, 'added "The generosity be with you all."');
+  assert.ok(!textChange.detail.includes("[|"), "detail leaked an opening marker");
+  assert.ok(!textChange.detail.includes("|]"), "detail leaked a closing marker");
+});
+
+test("bracket-only edit: still surfaces as a text change, but carries no bracket junk", () => {
+  const before = chapterJson({ paragraphs: [para("p1", verse(9, "After he reawakened."))] });
+  const after = chapterJson({
+    paragraphs: [`<p id="p1">[| ${verse(9, "After he reawakened.")} |]</p>`],
+  });
+
+  const changes = run({ [F]: before }, { [F]: after }, { modified: [F] });
+  const textChange = changes.find((c) => c.type === "text_updated");
+
+  // Bracketing is reader-visible, so it must not be swallowed into
+  // metadata_updated — but there is no wording change to describe.
+  assert.ok(textChange, "a bracket-only edit should still produce a row");
+  assert.equal(textChange.description, "John 3:9 — text updated");
+  assert.equal(textChange.detail, undefined);
+});
+
+test("opening-bracket footnote resolves forward to the verse it introduces", () => {
+  const before = chapterJson({ paragraphs: [para("p1", verse(9, "After he reawakened."))] });
+  const after = chapterJson({
+    paragraphs: [`<p id="p1">[|${fnRef("a")} ${verse(9, "After he reawakened.")}</p>`],
+    footnotes: [fn("a", "Not in the oldest manuscripts.")],
+  });
+
+  const fnChange = run({ [F]: before }, { [F]: after }, { modified: [F] }).find((c) =>
+    c.type.startsWith("footnote"),
+  );
+
+  // No verse marker precedes this reference, so the backward scan finds
+  // nothing and the note would otherwise land with no verse at all.
+  assert.equal(fnChange.location.verse, 9);
+  assert.match(fnChange.description, /John 3:9 — footnote a added/);
+});
+
+test("a continuation paragraph's footnote is NOT dragged forward to the next verse", () => {
+  // Guards the fall-forward above. A verse spanning a paragraph break carries
+  // its marker only at the start, so the continuation paragraph opens with no
+  // vglue — the same "no preceding verse marker" shape as an opening bracket,
+  // but its notes belong to the verse already in progress. This is common:
+  // ~97 paragraphs in the corpus (dialogue and poetry blockquotes) look like
+  // this, so an unguarded fall-forward would misattribute all of them.
+  const paras = (refs) => [
+    para("p1", verse(9, "After he reawakened.")),
+    `<p id="p2">still verse nine${refs}${verse(10, "Then the next thing.")}</p>`,
+  ];
+  const before = chapterJson({ paragraphs: paras("") });
+  const after = chapterJson({
+    paragraphs: paras(fnRef("a")),
+    footnotes: [fn("a", "A note on the tail of verse 9.")],
+  });
+
+  const fnChange = run({ [F]: before }, { [F]: after }, { modified: [F] }).find((c) =>
+    c.type.startsWith("footnote"),
+  );
+
+  // Resolves to no verse at all, which is pre-existing behaviour: the backward
+  // scan never looks into earlier paragraphs. What matters here is that the
+  // bracket fall-forward doesn't make it worse by claiming verse 10.
+  assert.equal(fnChange.location.verse, undefined, "must not jump forward to verse 10");
+  assert.equal(fnChange.description, "John 3 — footnote a added");
+});
+
+/* ── 7. Empty result ──────────────────────────────────────────────────── */
 
 test("no relevant files: buildChanges returns an empty array", () => {
   assert.deepEqual(run({}, {}, { added: [], modified: [] }), []);
