@@ -354,12 +354,22 @@ doxology).
 ### Verse-number gaps
 
 A gap is deliberate: it marks a traditional verse the source text does not
-carry. **Never "fix" one by importing text from another edition.** Nine
-published chapters currently have them — Matthew 17:21, 18:11, 23:14;
-Mark 7:16, 9:44, 9:46, 11:26, 15:28; Luke 17:36; John 5:4 — and
-`john-5.json` fn-c is the worked example of the footnote that explains one.
-Regenerate the list rather than trusting this sentence: scan every
-`indexed !== false` chapter for missing `id="vN"` markers.
+carry. **Never "fix" one by importing text from another edition.**
+
+**Every gap is already explained, and the note lives at the gap boundary**,
+because there is no verse of its own to hang it on. It attaches to the first
+footnote marker of the *following* verse in most chapters, or to the last
+marker of the *preceding* verse (`luke-17.json` fn-cc, at the end of v35).
+Each note names the traditional verse number, says why it is left out, and
+quotes the traditional rendering. **Before concluding that a gap is
+undocumented, check the markers on both adjacent verses** — searching only
+the following verse will miss the Luke pattern and make a documented gap look
+silent.
+
+Nine published chapters have gaps: Matthew 17:21, 18:11, 23:14; Mark 7:16,
+9:44, 9:46, 11:26, 15:28; Luke 17:36; John 5:4. Regenerate that list rather
+than trusting this sentence — scan every `indexed !== false` chapter for
+missing `id="vN"` markers.
 
 ## Content Collections (`src/content.config.ts`)
 
