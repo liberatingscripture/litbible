@@ -24,12 +24,31 @@
       },
       {
         "type": "text_updated",
-        "description": "Romans 16:20, 23–24, 27 — text updated",
-        "detail": "v. 20: added \"Christ\"; v. 23: added \"[|\"; v. 24: added \"The generosity of our Lord Jesus Christ be with you all. Amen. |] [|\"; v. 27: added \"|]\"",
+        "description": "Romans 16:20 — text updated",
+        "detail": "added \"Christ\"",
         "location": {
           "bookKey": "romans",
           "chapter": 16,
           "verse": 20
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Romans 16:24 — verse added",
+        "detail": "added \"The generosity of our Lord Jesus Christ be with you all. Amen.\"",
+        "location": {
+          "bookKey": "romans",
+          "chapter": 16,
+          "verse": 24
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Romans 16:24 and 25–27 — now bracketed as contested text, the same marking used at Mark 16:9–20 and John 7:53–8:11",
+        "location": {
+          "bookKey": "romans",
+          "chapter": 16,
+          "verse": 24
         }
       },
       {
