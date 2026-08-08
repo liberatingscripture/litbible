@@ -302,6 +302,34 @@ Each file in `src/data/chapters/` follows this structure:
 - Always run `npm run validate:chapters` after editing chapter JSON. The
   pre-commit hook validates staged chapter files automatically.
 
+## Translation Source Text (SBLGNT)
+
+The **SBL Greek New Testament** (Holmes, ed.) is the official source text for
+the LIT New Testament. It is *not* interchangeable with NA28/UBS5 — it differs
+from them in 540+ variation units, and a few of those change **which verses
+exist at all**. So a verse-number gap, or a chapter that ends earlier than
+expected, is usually intentional: read the chapter's footnotes before
+"fixing" it by importing text from another edition.
+
+| Passage | SBLGNT | LIT |
+|---------|--------|-----|
+| Romans 16:24 | present (with TR/Byz; NA28, WH, Tregelles, THGNT omit) | printed, and ends the chapter |
+| Romans 16:25–27 (doxology) | absent | dropped from the running text, translation preserved in a footnote |
+| John 7:53–8:11 | absent (John 7 ends at v52, John 8 opens at v12) | **retained** — a deliberate owner decision |
+| Mark 16:9–20 | present | printed |
+
+Mark 16 is in that table specifically to head off a wrong inference: SBLGNT
+does *not* drop every famously disputed passage, so "SBL omits it" has to be
+checked per passage, never assumed from the passage's reputation.
+
+**The rule for divergences:** where LIT departs from SBLGNT in either
+direction, a chapter footnote says so and names SBLGNT as the source text.
+Retaining or omitting non-SBLGNT material *silently* is the thing this policy
+exists to prevent. Worked examples of the house voice live in
+`romans-16.json` — fn-m for a verse SBLGNT keeps that other editions drop,
+fn-n for a passage SBLGNT drops with the LIT translation held in the footnote
+— alongside the older single-verse pattern in `john-5.json` fn-c.
+
 ## Content Collections (`src/content.config.ts`)
 
 Five collections, all loaded via Astro's `glob` loader. Two are site-wide:
