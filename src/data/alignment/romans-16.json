@@ -203,6 +203,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Rom.16.24",
+      "english": [
+        {
+          "text": "generosity",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "charis",
+        "traditional": "Grace",
+        "glossary": "grace-generosity",
+        "form": "generosity"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
       "ref": "Rom.16.26",
       "english": [
         {

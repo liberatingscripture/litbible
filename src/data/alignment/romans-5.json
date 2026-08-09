@@ -346,6 +346,26 @@
       "ref": "Rom.5.15",
       "english": [
         {
+          "text": "generosity",
+          "n": 2
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "charis",
+        "traditional": "Grace",
+        "glossary": "grace-generosity",
+        "form": "generosity"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
+      "ref": "Rom.5.15",
+      "english": [
+        {
           "text": "deviation",
           "n": 1
         }
