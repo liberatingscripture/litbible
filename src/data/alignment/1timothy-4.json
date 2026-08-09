@@ -243,6 +243,26 @@
       "status": "auto"
     },
     {
+      "ref": "1Tim.4.14",
+      "english": [
+        {
+          "text": "gift",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "charis",
+        "traditional": "Grace",
+        "glossary": "grace-generosity",
+        "form": "gift"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "1Tim.4.16",
       "english": [
         {

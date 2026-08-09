@@ -23,6 +23,26 @@
       "status": "auto"
     },
     {
+      "ref": "Phil.2.9",
+      "english": [
+        {
+          "text": "generously gave",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "charis",
+        "traditional": "Grace",
+        "glossary": "grace-generosity",
+        "form": "generously gave"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Phil.2.10",
       "english": [
         {

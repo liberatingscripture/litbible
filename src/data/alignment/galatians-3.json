@@ -526,6 +526,26 @@
       "ref": "Gal.3.18",
       "english": [
         {
+          "text": "generous",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "charis",
+        "traditional": "Grace",
+        "glossary": "grace-generosity",
+        "form": "generously"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Gal.3.18",
+      "english": [
+        {
           "text": "Torah",
           "n": 1
         }

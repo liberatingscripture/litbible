@@ -343,6 +343,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "1Tim.1.12",
+      "english": [
+        {
+          "text": "grateful",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "charis",
+        "traditional": "Grace",
+        "glossary": "grace-generosity",
+        "form": "grateful"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "1Tim.1.13",
       "english": [
         {

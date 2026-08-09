@@ -243,6 +243,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "2Thess.2.16",
+      "english": [
+        {
+          "text": "generously gave",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "charis",
+        "traditional": "Grace",
+        "glossary": "grace-generosity",
+        "form": "generously gave"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "2Thess.2.17",
       "english": [
         {

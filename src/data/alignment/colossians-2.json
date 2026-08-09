@@ -166,6 +166,26 @@
       "ref": "Col.2.13",
       "english": [
         {
+          "text": "granted",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "charis",
+        "traditional": "Grace",
+        "glossary": "grace-generosity",
+        "form": "granted"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Col.2.13",
+      "english": [
+        {
           "text": "shortfalls",
           "n": 1
         }

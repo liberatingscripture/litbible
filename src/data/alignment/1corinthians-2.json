@@ -166,6 +166,26 @@
       "ref": "1Cor.2.12",
       "english": [
         {
+          "text": "generously given",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "charis",
+        "traditional": "Grace",
+        "glossary": "grace-generosity",
+        "form": "generously given"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Cor.2.12",
+      "english": [
+        {
           "text": "Life-breath",
           "n": 1
         }

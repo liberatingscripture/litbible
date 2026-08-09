@@ -226,6 +226,26 @@
       "ref": "2Tim.4.22",
       "english": [
         {
+          "text": "good fortune",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "charis",
+        "traditional": "Grace",
+        "glossary": "grace-generosity",
+        "form": "Good fortune"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "2Tim.4.22",
+      "english": [
+        {
           "text": "life-breath",
           "n": 1
         }
