@@ -166,6 +166,26 @@
       "ref": "2Tim.4.18",
       "english": [
         {
+          "text": "heavenly",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ouranos",
+        "traditional": "Heaven",
+        "glossary": "heaven-sky",
+        "form": "the heavens"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "2Tim.4.18",
+      "english": [
+        {
           "text": "liberate",
           "n": 1
         }

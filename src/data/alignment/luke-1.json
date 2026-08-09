@@ -243,6 +243,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Luke.1.30",
+      "english": [
+        {
+          "text": "appreciation",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "charis",
+        "traditional": "Grace",
+        "glossary": "grace-generosity",
+        "form": "appreciation"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Luke.1.34",
       "english": [
         {

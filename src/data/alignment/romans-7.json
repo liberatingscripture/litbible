@@ -1146,6 +1146,26 @@
       "ref": "Rom.7.25",
       "english": [
         {
+          "text": "Thanks",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "charis",
+        "traditional": "Grace",
+        "glossary": "grace-generosity",
+        "form": "thanks"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.7.25",
+      "english": [
+        {
           "text": "Torah",
           "n": 1
         }

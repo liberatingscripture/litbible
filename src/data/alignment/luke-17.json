@@ -143,6 +143,26 @@
       "status": "auto"
     },
     {
+      "ref": "Luke.17.9",
+      "english": [
+        {
+          "text": "gratitude",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "charis",
+        "traditional": "Grace",
+        "glossary": "grace-generosity",
+        "form": "gratitude"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Luke.17.14",
       "english": [
         {
