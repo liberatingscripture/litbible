@@ -23,6 +23,13 @@ export function htmlToPlainText(html) {
     // punctuation isn't pushed off its word ("meshiah," not "meshiah ,").
     .replace(/<\/?(?:p|blockquote|br)\b[^>]*>/gi, " ")
     .replace(/<[^>]+>/g, "")
+    // The `[|` / `|]` markers wrapping contested passages (see "Bracketed
+    // passages" in CLAUDE.md) are literal CHARACTERS in the paragraph text,
+    // not markup, so the tag strip above leaves them behind. Removed here,
+    // before the whitespace collapse below, so the gap a marker leaves does
+    // not survive as a double space. See the attribution note on
+    // splitChapterVerses.
+    .replace(/\[\||\|\]/g, "")
     .replace(/&nbsp;/g, " ")
     .replace(/&mdash;/g, "—")
     .replace(/&#39;/g, "'")
@@ -37,6 +44,21 @@ export function htmlToPlainText(html) {
  * A verse that spans a paragraph break repeats its `id="vN"` sup at the start
  * of the continuation paragraph; the continuation text is appended to the
  * verse's first chunk (mirroring dropDuplicateVerseIds at render time).
+ *
+ * WHY htmlToPlainText DROPS THE BRACKET MARKERS, AND WHY IT MATTERS HERE.
+ * Splitting on `id="vN"` sups means a chunk runs from one verse marker to the
+ * next — so anything sitting between the end of a verse and the *following*
+ * verse's marker is filed under the EARLIER verse. The opening `[|` leads its
+ * paragraph, ahead of that paragraph's first verse marker, so before the strip
+ * it landed on the previous verse: Mark 16:8 carried verse 9's marker, John
+ * 7:52 carried 7:53's, Romans 16:23 carried 16:24's. Not just cosmetic — the
+ * shipped search index reported characters for verses that do not contain
+ * them. Removing the markers in htmlToPlainText resolves both the stray
+ * characters and the misattribution, since nothing is left over to misfile.
+ *
+ * `release-notes-core.mjs` hit the identical bug on its own splitter and fixed
+ * it the same way (PR #89); the two implementations stay separate on purpose,
+ * per the header above.
  *
  * @param {string[]} paragraphs
  * @returns {Map<number, string>}

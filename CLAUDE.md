@@ -371,10 +371,16 @@ Live examples: `mark-16.json` (e/m), `john-7.json` ff → `john-8.json` k
 `john-11.json` (w/z), and `romans-16.json` (m/n for verse 24, o/r for the
 doxology).
 
-**These markers are literal characters in the plain text every verse-text
-reader extracts** (`scripts/lib/verse-text.mjs`, shared by the shipped search
-index and the alignment tooling below), not styling the extraction strips —
-see that file's own note on the boundary-attribution bug this caused.
+**These markers are literal characters, not markup, so every plain-text
+reader has to remove them explicitly** — a tag strip walks straight past
+them. Two do: `scripts/lib/verse-text.mjs` (behind the shipped search index
+and the alignment tooling below) and `scripts/lib/release-notes-core.mjs`
+(`stripBracketMarkers`). Both carry a note explaining the same
+boundary-attribution bug: a verse chunk runs from one verse marker to the
+next, and the opening `[|` leads its paragraph *ahead of* that paragraph's
+first marker, so an unremoved marker is filed under the **previous** verse.
+A third reader would need the same removal — the markers are the reason the
+strip exists, not decoration.
 
 ### Verse-number gaps
 
