@@ -18,27 +18,7 @@
 // the tests stay black-box, the same convention test/chapter-html.test.js
 // documents for that module's internal passes.
 
-/** Remove the literal `[|` / `|]` markers that wrap contested passages (see
- *  "Bracketed passages" in CLAUDE.md). They are plain characters in the
- *  paragraph text rather than markup, so tag stripping leaves them in place and
- *  they reach the shipped index — a reader landing on Mark 16:8 saw the snippet
- *  end with a bare `[|`.
- *
- *  They also skew attribution. The opening marker leads its paragraph, which
- *  puts it BEFORE that paragraph's first verse marker, so the split in
- *  extractVerses filed it under the PREVIOUS verse: Mark 16:8 carried verse 9's
- *  marker, John 7:52 carried 7:53's, Romans 16:23 carried 16:24's. Removing the
- *  marker fixes that for free — with nothing left in the previous verse's chunk,
- *  there is nothing to misfile.
- *
- *  A deliberate mirror of stripBracketMarkers in
- *  scripts/lib/release-notes-core.mjs, which fixed the same defect in the
- *  changelog path. That copy carries an exception for its paragraph-level
- *  fallback comparison; there is no equivalent fallback here, so this one
- *  applies unconditionally. */
-function stripBracketMarkers(text) {
-  return String(text ?? "").replace(/\[\||\|\]/g, "");
-}
+import { stripBracketMarkers } from "../../src/lib/bracket-markers.mjs";
 
 /** Strip markup down to searchable plain text (chapters only use a few entities). */
 function htmlToPlainText(html) {
@@ -58,9 +38,10 @@ function htmlToPlainText(html) {
       .replace(/&#39;/g, "'")
       .replace(/&amp;/g, "&"),
   )
-    // Collapse LAST, once the markers are gone. A closing marker is not always
-    // paragraph-final: John 9:39 reads `Jesus said, |] “I came…`, so the gap a
-    // stripped marker leaves behind would otherwise ship as a double space.
+    // Collapse LAST, once the markers are gone — see the ordering rule in
+    // src/lib/bracket-markers.mjs. Stripping here also repairs attribution:
+    // an opening `[|` used to land in the PREVIOUS verse's chunk (Mark 16:8
+    // carried verse 9's marker, Romans 16:23 carried 16:24's).
     .replace(/\s+/g, " ")
     .trim();
 }

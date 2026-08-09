@@ -179,6 +179,24 @@ for (const filePath of files) {
       (m) => Number(m[1])
     );
 
+    // Suffixed verse ids (id="v41b") are not a supported shape. They were once
+    // used to re-show a verse number on a continuation paragraph while dodging
+    // the uniqueness check below, but every consumer matches id="v(\d+)" — so a
+    // suffixed marker is invisible to the verse split (its digits leak into the
+    // text as a stray number), gets no data-osis, is never namespaced in Reading
+    // Mode, and makes the changelog blame the wrong verse. The corpus convention
+    // is that a continuation paragraph carries NO marker; 187 paragraphs across
+    // 76 chapters already do it that way. To share just part of a verse, link to
+    // the block's own id (see "Sharing part of a verse" in CLAUDE.md).
+    // The suffix must start with a letter: `v\d+[^"]+` would backtrack and match
+    // a plain id="v14" as "v1" + "4".
+    for (const m of paraHtml.matchAll(/<sup id="(v\d+[a-z][^"]*)" class="vn"/g)) {
+      errors.push(
+        `suffixed verse id: id="${m[1]}" — a continuation paragraph carries no ` +
+          `verse marker (drop the <sup> and its vglue wrapper)`
+      );
+    }
+
     if (verses.length === 0) {
       if (data.indexed !== false) {
         warnings.push(
