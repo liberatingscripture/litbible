@@ -106,8 +106,28 @@ function stripFootnoteRefs(html) {
   return (html ?? "").replace(/<sup class="fn-ref">.*?<\/sup>/g, "");
 }
 
+/** Remove the literal `[|` / `|]` markers that wrap contested passages (see
+ *  "Bracketed passages" in CLAUDE.md). They are plain characters in the
+ *  paragraph text rather than markup, so stripHtml leaves them in place and
+ *  they reach reader-facing detail strings as `added "[|"`, which means
+ *  nothing to someone reading Translation Updates in the apps.
+ *
+ *  They also skew attribution. The opening marker leads its paragraph, which
+ *  puts it BEFORE that paragraph's first verse marker, so the vglue split in
+ *  extractVerseTexts files it under the PREVIOUS verse and reports a verse
+ *  that never changed.
+ *
+ *  Deliberately NOT applied to the paragraph-level fallback comparison in
+ *  buildChanges: leaving the markers visible there means a bracket-only edit
+ *  still surfaces as a real "text updated" row (with no detail) instead of
+ *  vanishing from the changelog altogether. */
+function stripBracketMarkers(text) {
+  return (text ?? "").replace(/\[\||\|\]/g, "");
+}
+
 /** Build a Map<verseNumber, plainText> from an array of paragraph HTML strings.
- *  Footnote references are stripped before extraction so only body text is compared.
+ *  Footnote references and bracket markers are stripped before extraction so
+ *  only body text is compared.
  *
  *  NOT scripts/lib/verse-text.mjs, deliberately. That one feeds the search index
  *  and the alignment dataset, which read a verse once; this one compares two
@@ -122,7 +142,12 @@ function extractVerseTexts(paragraphs) {
     const m = part.match(/<sup id="v(\d+)"/);
     if (!m) continue;
     const vNum = parseInt(m[1], 10);
-    const text = stripHtml(part).replace(/^\d+\s*/, "").trim();
+    // Collapse whitespace again after removing the markers, so the gap a
+    // stripped `[|` leaves behind doesn't read as a text change of its own.
+    const text = stripBracketMarkers(stripHtml(part))
+      .replace(/\s+/g, " ")
+      .replace(/^\d+\s*/, "")
+      .trim();
     verses.set(vNum, text);
   }
   return verses;
@@ -137,6 +162,18 @@ function findFootnoteVerse(paragraphs, fnLabel) {
     const before = para.substring(0, idx);
     const matches = [...before.matchAll(/id="v(\d+)"/g)];
     if (matches.length) return parseInt(matches[matches.length - 1][1], 10);
+    // No verse marker precedes the reference. That is the opening `[|` of a
+    // bracketed passage, whose footnote marker leads the paragraph ahead of
+    // the first vglue, so the note introduces the verse that FOLLOWS it.
+    // Guarded on the bracket rather than falling forward unconditionally: a
+    // paragraph that merely continues a verse from the previous paragraph
+    // carries no marker of its own (see "unique_verse_ids" in
+    // chapter_json_invariants.json), and its notes belong to that earlier
+    // verse, not to the next one.
+    if (before.includes("[|")) {
+      const forward = para.substring(idx).match(/id="v(\d+)"/);
+      if (forward) return parseInt(forward[1], 10);
+    }
   }
   return null;
 }

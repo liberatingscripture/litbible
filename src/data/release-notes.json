@@ -1,5 +1,70 @@
 [
   {
+    "version": "2026-08-08",
+    "date": "2026-08-08",
+    "label": "August 8, 2026",
+    "changes": [
+      {
+        "type": "footnote_updated",
+        "description": "John 7 — footnote ff updated",
+        "detail": "\"That fact\" → \"The SBL Greek New Testament, the source text for this trans…\"",
+        "location": {
+          "bookKey": "john",
+          "chapter": 7
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "John 8 — footnote k updated",
+        "detail": "\"That fact\" → \"The SBL Greek New Testament, the source text for this trans…\"",
+        "location": {
+          "bookKey": "john",
+          "chapter": 8
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Romans 16:20 — text updated",
+        "detail": "added \"Christ\"",
+        "location": {
+          "bookKey": "romans",
+          "chapter": 16,
+          "verse": 20
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Romans 16:24 — verse added",
+        "detail": "added \"The generosity of our Lord Jesus Christ be with you all. Amen.\"",
+        "location": {
+          "bookKey": "romans",
+          "chapter": 16,
+          "verse": 24
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Romans 16:24 and 25–27 — now bracketed as contested text, the same marking used at Mark 16:9–20 and John 7:53–8:11",
+        "location": {
+          "bookKey": "romans",
+          "chapter": 16,
+          "verse": 24
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Romans 16:24, 27 — footnotes m, n, o, r updated",
+        "detail": "fn. m: \"There is no verse 24. Verses 25–27 contain a doxology that …\" → \"This verse is not included in most modern critical editions…\"; fn. n (v. 24): added \"This verse is not included in most modern critical editions, which move from verse 23 directly to the doxology numbered…\"; fn. o: added \"Verses 25–27 contain a doxology that appears in nearly all, but not universally all, manuscripts, however, it appears i…\"; fn. r (v. 27): added \"Verses 25–27 contain a doxology that appears in nearly all, but not universally all, manuscripts, however, it appears i…\"",
+        "location": {
+          "bookKey": "romans",
+          "chapter": 16,
+          "verse": 24
+        },
+        "relabel": "footnotes formerly n–o relabeled p–q"
+      }
+    ]
+  },
+  {
     "version": "2026-08-07",
     "date": "2026-08-07",
     "label": "August 7, 2026",

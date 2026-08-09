@@ -322,6 +322,80 @@ Each file in `src/data/chapters/` follows this structure:
 - Always run `npm run validate:chapters` after editing chapter JSON. The
   pre-commit hook validates staged chapter files automatically.
 
+## Translation Source Text (SBLGNT)
+
+The **SBL Greek New Testament** (Holmes, ed.) is the official source text for
+the LIT New Testament. It is *not* interchangeable with NA28/UBS5 — it differs
+from them in 540+ variation units, and a few of those change **which verses
+exist at all**.
+
+**The governing principle: the source text decides wording, reception decides
+inclusion.** SBLGNT settles which Greek is being rendered and how. Whether a
+long-received passage appears in the translation *at all* is a canon-boundary
+question, which LIT answers by how the church has actually held and used the
+text. That is why LIT can follow SBLGNT closely and still print passages
+SBLGNT omits, without either choice being ad hoc.
+
+| Passage | SBLGNT | LIT |
+|---------|--------|-----|
+| Romans 16:24 | present (with TR/Byz; NA28, WH, Tregelles, THGNT omit) | printed, **bracketed** |
+| Romans 16:25–27 (doxology) | absent | **retained, bracketed**, divergence footnoted |
+| John 7:53–8:11 | absent (John 7 ends at v52, John 8 opens at v12) | **retained, bracketed**, divergence footnoted |
+| Mark 16:9–20 | present | printed, **bracketed** |
+
+Mark 16 is in that table specifically to head off a wrong inference: SBLGNT
+does *not* drop every famously disputed passage, so "SBL omits it" has to be
+checked per passage, never assumed from the passage's reputation.
+
+**The rule for divergences:** where LIT departs from SBLGNT in either
+direction, a chapter footnote says so and names SBLGNT as the source text.
+Retaining or omitting non-SBLGNT material *silently* is the thing this policy
+exists to prevent.
+
+### Bracketed passages
+
+Text whose authenticity or placement is contested is wrapped in literal `[|`
+and `|]` markers in the paragraph HTML (not a CSS class — plain characters in
+the text). The convention is strict and has two halves:
+
+- `[|` sits at the **start of the paragraph**, immediately followed by a
+  footnote marker, then the `vglue` span.
+- ` |]` closes the passage at the **end of its last paragraph**, immediately
+  followed by a second footnote marker.
+- **Both markers carry the same footnote text**, so a reader who meets either
+  end gets the whole explanation. That is why those footnote pairs are
+  byte-identical, and they must be edited together.
+
+Live examples: `mark-16.json` (e/m), `john-7.json` ff → `john-8.json` k
+(a pair that spans a chapter boundary), `john-9.json` (q/r),
+`john-11.json` (w/z), and `romans-16.json` (m/n for verse 24, o/r for the
+doxology).
+
+**These markers are literal characters in the plain text every verse-text
+reader extracts** (`scripts/lib/verse-text.mjs`, shared by the shipped search
+index and the alignment tooling below), not styling the extraction strips —
+see that file's own note on the boundary-attribution bug this caused.
+
+### Verse-number gaps
+
+A gap is deliberate: it marks a traditional verse the source text does not
+carry. **Never "fix" one by importing text from another edition.**
+
+**Every gap is already explained, and the note lives at the gap boundary**,
+because there is no verse of its own to hang it on. It attaches to the first
+footnote marker of the *following* verse in most chapters, or to the last
+marker of the *preceding* verse (`luke-17.json` fn-cc, at the end of v35).
+Each note names the traditional verse number, says why it is left out, and
+quotes the traditional rendering. **Before concluding that a gap is
+undocumented, check the markers on both adjacent verses** — searching only
+the following verse will miss the Luke pattern and make a documented gap look
+silent.
+
+Nine published chapters have gaps: Matthew 17:21, 18:11, 23:14; Mark 7:16,
+9:44, 9:46, 11:26, 15:28; Luke 17:36; John 5:4. Regenerate that list rather
+than trusting this sentence — scan every `indexed !== false` chapter for
+missing `id="vN"` markers.
+
 ## The Alignment Dataset (`src/data/alignment/`)
 
 A Greek↔English index of the translation: one JSON file per chapter
