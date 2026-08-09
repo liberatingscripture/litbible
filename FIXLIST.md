@@ -1220,6 +1220,88 @@ S9, O9, and O8.
   worsens title truncation, must be triplicated across desktop/no-JS/mobile,
   and is redundant with the sitewide popover) and a secondary CTA beside the
   "really good stuff" callout (dilutes a deliberately single-CTA moment).
+- [x] **Decide whether a verse number may visibly repeat on a continuation
+  paragraph** (raised 2026-08-08 while fixing the bracket-marker leak in the
+  search index; PR did *not* touch chapter JSON, by design). Two published
+  chapters do it via a suffixed id: `john-7.json` p18 `id="v41b"` and
+  `john-8.json` p8 `id="v11b"`, each re-showing the number when a verse spans a
+  paragraph break. They are the only two corpus-wide.
+  **Why it needs you:** whether the number repeats is typographic/editorial, not
+  technical. Three shapes exist and only one is documented — `unique_verse_ids`
+  in `scripts/chapter_json_invariants.json` says a continuation paragraph
+  carries *no* marker; `dropDuplicateVerseIds()` in `src/lib/chapter-html.ts`
+  handles a *repeated* one (but there are zero duplicate ids in the corpus, and
+  its cited example, Mark 14:62, no longer spans a break, so it has no live
+  input); the `b` suffix is a third shape that slips past the validator, whose
+  scan (`/<sup id="v(\d+)" class="vn"/`) can't see it at all.
+  **What it currently costs** (all reproduced, none fixed by that PR):
+  1. A stray digit ships in the search index — John 8:11 reads
+     `…she said. 11 So Jesus said,…`. Attribution is otherwise right.
+  2. `addOsisIds()` requires `id="v(\d+)"`, so that one `<sup>` gets no
+     `data-osis` while every sibling verse number has one.
+  3. Reading Mode doesn't namespace it: `/read/john` emits
+     `<span class="rm-verse-anchor" id="v41b">` beside `id="john-7-v42"`. No
+     collision today; nothing links to it.
+  4. **Worst one — the changelog reaches the apps.**
+     `extractVerseTexts` drops the continuation chunk entirely, so a real
+     one-word edit to John 7:41's continuation emitted
+     `"John 7:42 — text updated"` with no detail: a wrong verse reference in the
+     apps' Translation Updates feed.
+  Study View is unaffected (`wrapVerseSegments` reads the sup's visible digits,
+  so `data-verse="41"` is correct).
+  **Roughly, the options.** (a) Keep the repeat and make it a supported shape:
+  pick one canonical form, teach the four regexes and the validator about it,
+  document it in the invariants file. (b) Drop the repeat: remove the two
+  `<sup>`s so the continuation carries no marker, matching the documented rule
+  and every other chapter. (c) Leave as-is and accept the four costs. Once you
+  choose, the code side is Sonnet- or Opus-sized depending on which.
+  DONE (2026-08-09, owner chose (b) *plus* a real solution for what the suffix
+  was reaching for). The owner's recollection was that it existed to make part
+  of a verse separately shareable — a quotation set apart from its
+  introduction. Two findings settled it. (1) **The suffix never delivered
+  that:** verified on the live page, tapping *either* "11" opened the same
+  menu, copied the whole of verse 11, and linked `#v11`, because
+  `wrapVerseSegments` wraps both paragraphs as `data-verse="11"`. (2) **The
+  shape it was aiming at is a block quote continuing a verse** — 19 published
+  cases (1 Peter 2:6, 1 Timothy 3:16, 1 Corinthians 6:18 …), none using a
+  suffix, and every one already carrying a stable, book-namespaced anchor on
+  the blockquote itself. The anchor infrastructure existed and sat unused; only
+  the affordance was missing.
+  Shipped: both `<sup>`s removed, so those paragraphs now match the 187 silent
+  continuations (John 8:11's continuation now matches John 8:12's, two
+  paragraphs below it on the same screen); a `no_suffixed_verse_ids` validator
+  rule so it can't return unnoticed; and an **"Or copy one part"** group in the
+  verse menu — one button per block, copying that part's text + reference +
+  `#<block-id>`, with those anchors now highlighting on arrival the way `#v16`
+  does. A block-quote part keeps its line breaks. Fixed in passing: bracket
+  markers were leaking into Copy verse / Share… (Mark 16:8 shared as
+  `…afraid. [|`), a third consumer the earlier index fix missed, now behind the
+  shared `src/lib/bracket-markers.mjs`. Two stray "words" — literally `11` and
+  `41` — fell out of the search vocabulary as a result.
+
+- [ ] **Decide whether "Copy verse" should keep poetry line breaks too.**
+  The new per-part copy keeps them (a block quote shares as four lines, which
+  is how the poetry is set); the older whole-verse "Copy verse" still joins
+  everything with spaces, so copying 1 Peter 2:6 entire gives a run-on
+  `…in scripture: Look, I placed a stone in Zion A valuable, choice…`. Left
+  alone deliberately — changing it alters copy output for every poetry verse on
+  the site, which is a reader-facing call rather than a side effect of building
+  the part feature. If you want them aligned, it is a small change in
+  `getSingleVerseText` (`src/scripts/chapter-tools.js`): join `.hbq-line` spans
+  with a newline instead of a space. Sonnet-sized once decided.
+
+- [ ] **Consider sharing any selected text, not just whole blocks.**
+  (Raised 2026-08-09 alongside the part-sharing work; the owner picked the
+  block-level approach for now and asked to keep this on the list.) Today a
+  reader can share a whole verse, a verse range, or one block of a verse. The
+  general form is: select any run of text, get "Copy with reference" — which
+  handles a half-sentence, a phrase spanning two verses, or part of a poetry
+  quotation, none of which the block-level menu reaches. Substantially bigger
+  than what shipped: it needs selection tracking, working out which verses a
+  selection spans (the `data-verse` spans make this tractable), building the
+  reference string for a partial range, and a mobile story that doesn't fight
+  the OS text-selection UI. Opus-sized, with design input on where the
+  affordance appears.
 
 ## Completed from TBD
 
