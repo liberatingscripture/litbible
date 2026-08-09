@@ -1,5 +1,32 @@
 [
   {
+    "version": "2026-08-09",
+    "date": "2026-08-09",
+    "label": "August 9, 2026",
+    "changes": [
+      {
+        "type": "text_updated",
+        "description": "John 7:41 — text updated",
+        "detail": "added \"Then, the first ones said, “No, because the Christ doesn’t come from Galilee, right?\"",
+        "location": {
+          "bookKey": "john",
+          "chapter": 7,
+          "verse": 41
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "John 8:11 — text updated",
+        "detail": "added \"So Jesus said, “I’m not deciding against you either. Go on your way, and from now on, don’t deviate anymore.”\"",
+        "location": {
+          "bookKey": "john",
+          "chapter": 8,
+          "verse": 11
+        }
+      }
+    ]
+  },
+  {
     "version": "2026-08-08",
     "date": "2026-08-08",
     "label": "August 8, 2026",
