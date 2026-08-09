@@ -1220,6 +1220,41 @@ S9, O9, and O8.
   worsens title truncation, must be triplicated across desktop/no-JS/mobile,
   and is redundant with the sitewide popover) and a secondary CTA beside the
   "really good stuff" callout (dilutes a deliberately single-CTA moment).
+- [ ] **Decide whether a verse number may visibly repeat on a continuation
+  paragraph** (raised 2026-08-08 while fixing the bracket-marker leak in the
+  search index; PR did *not* touch chapter JSON, by design). Two published
+  chapters do it via a suffixed id: `john-7.json` p18 `id="v41b"` and
+  `john-8.json` p8 `id="v11b"`, each re-showing the number when a verse spans a
+  paragraph break. They are the only two corpus-wide.
+  **Why it needs you:** whether the number repeats is typographic/editorial, not
+  technical. Three shapes exist and only one is documented — `unique_verse_ids`
+  in `scripts/chapter_json_invariants.json` says a continuation paragraph
+  carries *no* marker; `dropDuplicateVerseIds()` in `src/lib/chapter-html.ts`
+  handles a *repeated* one (but there are zero duplicate ids in the corpus, and
+  its cited example, Mark 14:62, no longer spans a break, so it has no live
+  input); the `b` suffix is a third shape that slips past the validator, whose
+  scan (`/<sup id="v(\d+)" class="vn"/`) can't see it at all.
+  **What it currently costs** (all reproduced, none fixed by that PR):
+  1. A stray digit ships in the search index — John 8:11 reads
+     `…she said. 11 So Jesus said,…`. Attribution is otherwise right.
+  2. `addOsisIds()` requires `id="v(\d+)"`, so that one `<sup>` gets no
+     `data-osis` while every sibling verse number has one.
+  3. Reading Mode doesn't namespace it: `/read/john` emits
+     `<span class="rm-verse-anchor" id="v41b">` beside `id="john-7-v42"`. No
+     collision today; nothing links to it.
+  4. **Worst one — the changelog reaches the apps.**
+     `extractVerseTexts` drops the continuation chunk entirely, so a real
+     one-word edit to John 7:41's continuation emitted
+     `"John 7:42 — text updated"` with no detail: a wrong verse reference in the
+     apps' Translation Updates feed.
+  Study View is unaffected (`wrapVerseSegments` reads the sup's visible digits,
+  so `data-verse="41"` is correct).
+  **Roughly, the options.** (a) Keep the repeat and make it a supported shape:
+  pick one canonical form, teach the four regexes and the validator about it,
+  document it in the invariants file. (b) Drop the repeat: remove the two
+  `<sup>`s so the continuation carries no marker, matching the documented rule
+  and every other chapter. (c) Leave as-is and accept the four costs. Once you
+  choose, the code side is Sonnet- or Opus-sized depending on which.
 
 ## Completed from TBD
 

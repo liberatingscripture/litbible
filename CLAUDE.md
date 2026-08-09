@@ -234,7 +234,7 @@ the sitemap filter live in `astro.config.mjs`.
 | `validate-chapters.mjs` | Validates chapter JSON (with `--fix` to re-serialize). Driven by `chapter_json_invariants.json`. |
 | `chapter_json_invariants.json` | Documents validation rules (e.g. the `indexed` flag). |
 | `build-topics-index.mjs` | Topic indexes (`normalizeTopic` slugifies labels). |
-| `build-verse-index.mjs` | `public/search/verses.json` — per-verse plain text for client-side scripture keyword search. |
+| `build-verse-index.mjs` | fs/CLI shell: walks the chapter files, skips drafts, derives the corpus `vocab`, and writes `public/search/verses.json` — per-verse plain text for client-side scripture keyword search. Delegates the HTML→verse-text extraction to `lib/verse-index-core.mjs`. |
 | `build-api-json.mjs` | `public/api/content.json`. |
 | `build-api-manifest.mjs` | `public/api/manifest.json` + `public/api/data/` for the native apps. |
 | `build-og-images.mjs` | `public/og/` — per-chapter/intro share cards (fonts in `scripts/og/fonts/`). |
@@ -242,6 +242,7 @@ the sitemap filter live in `astro.config.mjs`.
 | `fetch-podcast-feed.mjs` | Refresh podcast XML snapshot (non-fatal on failure). |
 | `draft-release-notes.mjs` | CLI/git shell: drafts release-notes entries from git diffs (used by CI). Delegates the diff→changes logic to `lib/release-notes-core.mjs`. |
 | `lib/release-notes-core.mjs` | Pure `buildChanges()` core of the drafter — no git/fs/argv of its own (readBase/readNow injected). Unit-tested directly (`test/draft-release-notes.test.js`) since its output shape is an app contract. |
+| `lib/verse-index-core.mjs` | Pure `extractVerses()` core of the verse-index builder — paragraph HTML → per-verse plain text, no fs of its own. Unit-tested directly (`test/build-verse-index.test.js`): `verses.json` isn't an app contract, but it's the whole search surface for scripture, so an extraction regression ships straight to readers. |
 
 ## Chapter JSON Format
 
@@ -340,8 +341,10 @@ the text). The convention is strict and has two halves:
 
 - `[|` sits at the **start of the paragraph**, immediately followed by a
   footnote marker, then the `vglue` span.
-- ` |]` closes the passage at the **end of its last paragraph**, immediately
-  followed by a second footnote marker.
+- ` |]` closes the passage at the **end of the passage**, immediately followed
+  by a second footnote marker. That is usually the end of a paragraph, but not
+  always — where the contested text stops mid-verse the marker does too
+  (`john-9.json`: `Jesus said, |]`, closing 9:38–39a).
 - **Both markers carry the same footnote text**, so a reader who meets either
   end gets the whole explanation. That is why those footnote pairs are
   byte-identical, and they must be edited together.
@@ -350,6 +353,19 @@ Live examples: `mark-16.json` (e/m), `john-7.json` ff → `john-8.json` k
 (a pair that spans a chapter boundary), `john-9.json` (q/r),
 `john-11.json` (w/z), and `romans-16.json` (m/n for verse 24, o/r for the
 doxology).
+
+**The markers are reader-facing in rendered HTML but must never reach a
+plain-text extractor.** Being literal characters rather than markup, they
+survive tag stripping, and an opening `[|` leads its paragraph *ahead of* that
+paragraph's first verse marker — so a naive verse split files it under the
+**previous** verse and reports characters for a verse that does not contain
+them. Both extraction paths therefore strip them, each with its own
+`stripBracketMarkers` applied before the whitespace collapse (the collapse must
+run last, or a removed marker ships as a double space):
+`scripts/lib/verse-index-core.mjs` (search index) and
+`scripts/lib/release-notes-core.mjs` (changelog — that copy deliberately
+exempts its paragraph-level fallback; see its docblock). Any future consumer
+that flattens paragraphs to text needs the same strip.
 
 ### Verse-number gaps
 
