@@ -60,7 +60,7 @@
       "confidence": "distinctive",
       "lemma": "present",
       "source": "glossary-scan",
-      "status": "auto"
+      "status": "confirmed"
     },
     {
       "ref": "Eph.3.6",
@@ -95,7 +95,7 @@
         "greek": "charis",
         "traditional": "Grace",
         "glossary": "grace-generosity",
-        "form": "generously"
+        "form": "generosity"
       },
       "confidence": null,
       "lemma": "present",
@@ -240,7 +240,7 @@
       "confidence": "distinctive",
       "lemma": "present",
       "source": "glossary-scan",
-      "status": "auto"
+      "status": "confirmed"
     },
     {
       "ref": "Eph.3.17",

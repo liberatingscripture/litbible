@@ -15,7 +15,7 @@
         "greek": "charis",
         "traditional": "Grace",
         "glossary": "grace-generosity",
-        "form": "generously"
+        "form": "generosity"
       },
       "confidence": null,
       "lemma": "present",
@@ -80,6 +80,26 @@
       "confidence": "common",
       "lemma": "present",
       "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.11.8",
+      "english": [
+        {
+          "text": "spiritual",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pneuma",
+        "traditional": "Spirit",
+        "glossary": "spirit-life-breath",
+        "form": "spiritual"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
       "status": "confirmed"
     },
     {

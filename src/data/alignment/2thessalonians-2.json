@@ -23,6 +23,46 @@
       "status": "auto"
     },
     {
+      "ref": "2Thess.2.2",
+      "english": [
+        {
+          "text": "spirit-breath",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pneuma",
+        "traditional": "Spirit",
+        "glossary": "spirit-life-breath",
+        "form": "spirit-breaths"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "2Thess.2.8",
+      "english": [
+        {
+          "text": "breath",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pneuma",
+        "traditional": "Spirit",
+        "glossary": "spirit-life-breath",
+        "form": "breath"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "2Thess.2.9",
       "english": [
         {
@@ -160,7 +200,7 @@
       "confidence": "distinctive",
       "lemma": "present",
       "source": "glossary-scan",
-      "status": "auto"
+      "status": "confirmed"
     },
     {
       "ref": "2Thess.2.14",
@@ -255,7 +295,7 @@
         "greek": "charis",
         "traditional": "Grace",
         "glossary": "grace-generosity",
-        "form": "generously gave"
+        "form": "give generously"
       },
       "confidence": null,
       "lemma": "present",

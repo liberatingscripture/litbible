@@ -20,7 +20,7 @@
       "confidence": "distinctive",
       "lemma": "present",
       "source": "glossary-scan",
-      "status": "auto"
+      "status": "confirmed"
     },
     {
       "ref": "Eph.4.4",
@@ -40,7 +40,7 @@
       "confidence": "distinctive",
       "lemma": "present",
       "source": "glossary-scan",
-      "status": "auto"
+      "status": "confirmed"
     },
     {
       "ref": "Eph.4.7",
@@ -180,7 +180,7 @@
       "confidence": "distinctive",
       "lemma": "present",
       "source": "glossary-scan",
-      "status": "auto"
+      "status": "confirmed"
     },
     {
       "ref": "Eph.4.27",
@@ -320,7 +320,7 @@
       "confidence": "distinctive",
       "lemma": "present",
       "source": "glossary-scan",
-      "status": "auto"
+      "status": "confirmed"
     },
     {
       "ref": "Eph.4.31",
@@ -375,7 +375,7 @@
         "greek": "charis",
         "traditional": "Grace",
         "glossary": "grace-generosity",
-        "form": "generously"
+        "form": "generosity"
       },
       "confidence": null,
       "lemma": "present",
@@ -395,7 +395,7 @@
         "greek": "charis",
         "traditional": "Grace",
         "glossary": "grace-generosity",
-        "form": "generously"
+        "form": "generosity"
       },
       "confidence": null,
       "lemma": "present",

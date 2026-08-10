@@ -55,7 +55,27 @@
         "greek": "charis",
         "traditional": "Grace",
         "glossary": "grace-generosity",
-        "form": "granted"
+        "form": "give generously"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.7.21",
+      "english": [
+        {
+          "text": "spirits",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pneuma",
+        "traditional": "Spirit",
+        "glossary": "spirit-life-breath",
+        "form": "spirit"
       },
       "confidence": null,
       "lemma": "present",
@@ -235,7 +255,7 @@
         "greek": "charis",
         "traditional": "Grace",
         "glossary": "grace-generosity",
-        "form": "generously"
+        "form": "generosity"
       },
       "confidence": null,
       "lemma": "present",
@@ -255,7 +275,7 @@
         "greek": "charis",
         "traditional": "Grace",
         "glossary": "grace-generosity",
-        "form": "generously"
+        "form": "generosity"
       },
       "confidence": null,
       "lemma": "present",

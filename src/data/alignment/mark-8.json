@@ -43,6 +43,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Mark.8.12",
+      "english": [
+        {
+          "text": "breath",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pneuma",
+        "traditional": "Spirit",
+        "glossary": "spirit-life-breath",
+        "form": "breath"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Mark.8.13",
       "english": [
         {
