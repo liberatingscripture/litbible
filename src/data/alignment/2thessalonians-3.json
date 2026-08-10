@@ -23,6 +23,26 @@
       "status": "auto"
     },
     {
+      "ref": "2Thess.3.1",
+      "english": [
+        {
+          "text": "renowned",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "doxa",
+        "traditional": "Glory",
+        "glossary": "glory-praiseworthiness",
+        "form": "renown"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "2Thess.3.2",
       "english": [
         {

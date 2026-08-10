@@ -66,6 +66,26 @@
       "ref": "2Tim.2.10",
       "english": [
         {
+          "text": "expectation",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "doxa",
+        "traditional": "Glory",
+        "glossary": "glory-praiseworthiness",
+        "form": "expectation"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "2Tim.2.10",
+      "english": [
+        {
           "text": "liberation",
           "n": 1
         }

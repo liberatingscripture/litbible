@@ -43,6 +43,26 @@
       "status": "auto"
     },
     {
+      "ref": "Jas.2.1",
+      "english": [
+        {
+          "text": "shining example",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "doxa",
+        "traditional": "Glory",
+        "glossary": "glory-praiseworthiness",
+        "form": "shining example"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Jas.2.4",
       "english": [
         {

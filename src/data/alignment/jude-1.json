@@ -203,6 +203,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Jude.1.8",
+      "english": [
+        {
+          "text": "imposing reputations",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "doxa",
+        "traditional": "Glory",
+        "glossary": "glory-praiseworthiness",
+        "form": "imposing reputations"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Jude.1.9",
       "english": [
         {
@@ -503,6 +523,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Jude.1.24",
+      "english": [
+        {
+          "text": "praiseworthiness",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "doxa",
+        "traditional": "Glory",
+        "glossary": "glory-praiseworthiness",
+        "form": "praiseworthy"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Jude.1.25",
       "english": [
         {
@@ -520,7 +560,7 @@
       "confidence": "common",
       "lemma": "present",
       "source": "glossary-scan",
-      "status": "auto"
+      "status": "confirmed"
     },
     {
       "ref": "Jude.1.25",

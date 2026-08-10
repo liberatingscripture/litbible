@@ -123,6 +123,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "2Pet.2.10",
+      "english": [
+        {
+          "text": "impressive reputations",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "doxa",
+        "traditional": "Glory",
+        "glossary": "glory-praiseworthiness",
+        "form": "impressive reputations"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "2Pet.2.11",
       "english": [
         {

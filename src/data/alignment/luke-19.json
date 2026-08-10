@@ -106,6 +106,26 @@
       "ref": "Luke.19.38",
       "english": [
         {
+          "text": "honor",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "doxa",
+        "traditional": "Glory",
+        "glossary": "glory-praiseworthiness",
+        "form": "honor"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.19.38",
+      "english": [
+        {
           "text": "the heavens",
           "n": 1
         }

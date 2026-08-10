@@ -403,6 +403,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "1Cor.12.26",
+      "english": [
+        {
+          "text": "highly esteemed",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "doxa",
+        "traditional": "Glory",
+        "glossary": "glory-praiseworthiness",
+        "form": "highly esteemed"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "1Cor.12.28",
       "english": [
         {

@@ -83,6 +83,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Heb.9.5",
+      "english": [
+        {
+          "text": "radiant",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "doxa",
+        "traditional": "Glory",
+        "glossary": "glory-praiseworthiness",
+        "form": "radiant"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Heb.9.8",
       "english": [
         {

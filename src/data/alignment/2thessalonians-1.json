@@ -143,6 +143,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "2Thess.1.9",
+      "english": [
+        {
+          "text": "renowned",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "doxa",
+        "traditional": "Glory",
+        "glossary": "glory-praiseworthiness",
+        "form": "renown"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "2Thess.1.10",
       "english": [
         {

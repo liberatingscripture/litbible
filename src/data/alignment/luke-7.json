@@ -23,6 +23,26 @@
       "status": "auto"
     },
     {
+      "ref": "Luke.7.16",
+      "english": [
+        {
+          "text": "praising",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "doxa",
+        "traditional": "Glory",
+        "glossary": "glory-praiseworthiness",
+        "form": "praise"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Luke.7.21",
       "english": [
         {

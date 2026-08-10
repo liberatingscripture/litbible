@@ -263,6 +263,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Luke.12.27",
+      "english": [
+        {
+          "text": "grandeur",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "doxa",
+        "traditional": "Glory",
+        "glossary": "glory-praiseworthiness",
+        "form": "grandeur"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Luke.12.28",
       "english": [
         {

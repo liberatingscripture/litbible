@@ -106,6 +106,26 @@
       "ref": "Eph.1.6",
       "english": [
         {
+          "text": "praiseworthiness",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "doxa",
+        "traditional": "Glory",
+        "glossary": "glory-praiseworthiness",
+        "form": "praiseworthy"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Eph.1.6",
+      "english": [
+        {
           "text": "generosity",
           "n": 1
         }
@@ -240,7 +260,7 @@
       "confidence": "common",
       "lemma": "present",
       "source": "glossary-scan",
-      "status": "auto"
+      "status": "confirmed"
     },
     {
       "ref": "Eph.1.13",
@@ -340,7 +360,7 @@
       "confidence": "common",
       "lemma": "present",
       "source": "glossary-scan",
-      "status": "auto"
+      "status": "confirmed"
     },
     {
       "ref": "Eph.1.14",
@@ -406,6 +426,26 @@
       "ref": "Eph.1.17",
       "english": [
         {
+          "text": "renowned",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "doxa",
+        "traditional": "Glory",
+        "glossary": "glory-praiseworthiness",
+        "form": "renown"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Eph.1.17",
+      "english": [
+        {
           "text": "spirit",
           "n": 1
         }
@@ -416,6 +456,26 @@
         "traditional": "Spirit",
         "glossary": "spirit-life-breath",
         "form": "spirit"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Eph.1.18",
+      "english": [
+        {
+          "text": "renowned",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "doxa",
+        "traditional": "Glory",
+        "glossary": "glory-praiseworthiness",
+        "form": "renown"
       },
       "confidence": null,
       "lemma": "present",

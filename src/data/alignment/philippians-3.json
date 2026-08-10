@@ -303,6 +303,26 @@
       "status": "auto"
     },
     {
+      "ref": "Phil.3.19",
+      "english": [
+        {
+          "text": "honor",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "doxa",
+        "traditional": "Glory",
+        "glossary": "glory-praiseworthiness",
+        "form": "honor"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Phil.3.20",
       "english": [
         {
@@ -336,6 +356,26 @@
         "traditional": "Salvation",
         "glossary": "salvation-liberation",
         "form": "liberation"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Phil.3.21",
+      "english": [
+        {
+          "text": "renowned",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "doxa",
+        "traditional": "Glory",
+        "glossary": "glory-praiseworthiness",
+        "form": "renown"
       },
       "confidence": null,
       "lemma": "present",

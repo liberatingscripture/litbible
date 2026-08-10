@@ -246,6 +246,26 @@
       "ref": "Matt.19.28",
       "english": [
         {
+          "text": "praiseworthy",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "doxa",
+        "traditional": "Glory",
+        "glossary": "glory-praiseworthiness",
+        "form": "praiseworthy"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.19.28",
+      "english": [
+        {
           "text": "restoration",
           "n": 1
         }

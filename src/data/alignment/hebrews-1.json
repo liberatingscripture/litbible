@@ -26,6 +26,26 @@
       "ref": "Heb.1.3",
       "english": [
         {
+          "text": "praiseworthy presence",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "doxa",
+        "traditional": "Glory",
+        "glossary": "glory-praiseworthiness",
+        "form": "praiseworthy presence"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Heb.1.3",
+      "english": [
+        {
           "text": "deviations",
           "n": 1
         }
