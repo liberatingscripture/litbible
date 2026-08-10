@@ -14,6 +14,17 @@
 # the rendered-output diff, then pin back any default that changes published
 # copy — see astro.config.mjs).
 #
+# That rule is weaker than it looks, and the gap is worth knowing before
+# trusting a group PR's title: `update-types` classifies the DIRECT dependency
+# only, and semver treats 0.x specially, so a 0.19 -> 0.20 move counts as a
+# MINOR and the filter admits it — transitive majors and all. That is how
+# @cloudflare/vitest-pool-workers 0.19 -> 0.20 carried miniflare 4 -> 5 (a
+# PRERELEASE, 5.x-alpha) and zod 3 -> 4 into a PR labelled "minor-and-patch"
+# (2026-08-10, PR #95). Nothing to fix there — it is dev-only and upstream's
+# choice for the whole 0.20 line — but on any stream with 0.x direct deps,
+# read the lockfile diff rather than the title. The worker stream is the one
+# that has them today.
+#
 # SECURITY updates are a separate track and are NOT configured here. Every
 # `groups:` block below is `applies-to: version-updates` (the default), so it
 # only shapes the scheduled bumps above. Advisory-driven PRs are grouped by the
