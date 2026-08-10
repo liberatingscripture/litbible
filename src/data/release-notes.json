@@ -23,6 +23,26 @@
           "chapter": 10,
           "verse": 37
         }
+      },
+      {
+        "type": "text_updated",
+        "description": "Hebrews 11:33 — text updated",
+        "detail": "\"They\" → \"With faithfulness, they\"",
+        "location": {
+          "bookKey": "hebrews",
+          "chapter": 11,
+          "verse": 33
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "John 16:30 — text updated",
+        "detail": "\"you.”\" → \"you. Because of that, we trust that you came from God.”\"",
+        "location": {
+          "bookKey": "john",
+          "chapter": 16,
+          "verse": 30
+        }
       }
     ]
   },
