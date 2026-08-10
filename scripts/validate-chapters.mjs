@@ -277,19 +277,48 @@ for (const filePath of files) {
     }
   }
 
-  // ── Prose straight-quote check (footnotes) ────────────────────────────────
-  // In footnote HTML, strip HTML tags and flag any remaining ASCII double
-  // quotes (U+0022) — prose quotes should be Unicode curly quotes.
-  if (Array.isArray(data.footnotes)) {
-    for (const fn of data.footnotes) {
-      if (!fn.html) continue;
-      const prose = fn.html.replace(/<[^>]+>/g, "");
-      if (prose.includes('"')) {
-        warnings.push(
-          `footnote fn-${fn.label} contains straight ASCII double quotes in prose text — use curly quotes (\u201c\u201d) instead`
+  // ── Prose straight-quote check (paragraphs + footnotes) ───────────────────
+  // Strip HTML tags (so attribute quotes are exempt) and flag any remaining
+  // ASCII quotes (U+0022, U+0027). Prose must use the Unicode curly forms:
+  // opening/closing doubles for quotations, singles for nested quotations,
+  // and the right single quote for apostrophes and possessives.
+  //
+  // Errors, not warnings: a warning fails neither CI nor the pre-commit hook,
+  // and an unenforced rule is how 439 straight quotes accumulated across 96
+  // chapters before the 2026-08 cleanup. Paragraphs are checked alongside
+  // footnotes — the original rule covered footnotes only, so straight quotes
+  // in the scripture text itself were never caught at all.
+  const straightQuoteChecks = [
+    ['"', "double", "“”"],
+    ["'", "single", "‘’ (or ’ for an apostrophe)"],
+  ];
+  const checkProse = (html, where) => {
+    if (typeof html !== "string") return;
+    const prose = html.replace(/<[^>]+>/g, "");
+    for (const [char, name, replacement] of straightQuoteChecks) {
+      if (prose.includes(char)) {
+        errors.push(
+          `${where} contains straight ASCII ${name} quotes in prose text — use curly quotes ${replacement} instead`
         );
       }
     }
+    // Same defect in disguise: an entity survives a literal-character scan but
+    // decodes to a straight quote in the rendered page and the verse index.
+    const entity = prose.match(/&(?:quot|apos|#0*3[49]|#x2[27]);/i);
+    if (entity) {
+      errors.push(
+        `${where} contains an entity-encoded straight quote (${entity[0]}) in prose text — write the curly character directly`
+      );
+    }
+  };
+  if (Array.isArray(data.paragraphs)) {
+    data.paragraphs.forEach((p, i) => {
+      const id = typeof p === "string" ? p.match(/id="([^"]+)"/)?.[1] : null;
+      checkProse(p, `paragraph ${id ?? i + 1}`);
+    });
+  }
+  if (Array.isArray(data.footnotes)) {
+    for (const fn of data.footnotes) checkProse(fn.html, `footnote fn-${fn.label}`);
   }
 
   // ── Report ────────────────────────────────────────────────────────────────
