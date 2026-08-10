@@ -140,7 +140,7 @@
       "confidence": "common",
       "lemma": "present",
       "source": "glossary-scan",
-      "status": "auto"
+      "status": "confirmed"
     },
     {
       "ref": "1Pet.1.5",
@@ -180,7 +180,7 @@
       "confidence": "common",
       "lemma": "present",
       "source": "glossary-scan",
-      "status": "auto"
+      "status": "confirmed"
     },
     {
       "ref": "1Pet.1.7",
@@ -220,7 +220,7 @@
       "confidence": "common",
       "lemma": "present",
       "source": "glossary-scan",
-      "status": "auto"
+      "status": "confirmed"
     },
     {
       "ref": "1Pet.1.8",
@@ -260,7 +260,7 @@
       "confidence": "common",
       "lemma": "present",
       "source": "glossary-scan",
-      "status": "auto"
+      "status": "confirmed"
     },
     {
       "ref": "1Pet.1.9",
@@ -600,7 +600,7 @@
       "confidence": "common",
       "lemma": "present",
       "source": "glossary-scan",
-      "status": "auto"
+      "status": "confirmed"
     },
     {
       "ref": "1Pet.1.21",
@@ -620,7 +620,7 @@
       "confidence": "common",
       "lemma": "present",
       "source": "glossary-scan",
-      "status": "auto"
+      "status": "confirmed"
     },
     {
       "ref": "1Pet.1.21",
@@ -695,7 +695,7 @@
         "greek": "doxa",
         "traditional": "Glory",
         "glossary": "glory-praiseworthiness",
-        "form": "grandeur"
+        "form": "honor"
       },
       "confidence": null,
       "lemma": "present",

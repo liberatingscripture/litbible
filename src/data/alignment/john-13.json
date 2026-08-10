@@ -100,7 +100,7 @@
       "confidence": "common",
       "lemma": "present",
       "source": "glossary-scan",
-      "status": "auto"
+      "status": "confirmed"
     },
     {
       "ref": "John.13.21",
@@ -155,7 +155,7 @@
         "greek": "doxa",
         "traditional": "Glory",
         "glossary": "glory-praiseworthiness",
-        "form": "praiseworthy"
+        "form": "praiseworthiness"
       },
       "confidence": null,
       "lemma": "present",
@@ -175,7 +175,7 @@
         "greek": "doxa",
         "traditional": "Glory",
         "glossary": "glory-praiseworthiness",
-        "form": "praiseworthy"
+        "form": "praiseworthiness"
       },
       "confidence": null,
       "lemma": "present",
@@ -195,7 +195,7 @@
         "greek": "doxa",
         "traditional": "Glory",
         "glossary": "glory-praiseworthiness",
-        "form": "praiseworthy"
+        "form": "praiseworthiness"
       },
       "confidence": null,
       "lemma": "present",
@@ -215,7 +215,7 @@
         "greek": "doxa",
         "traditional": "Glory",
         "glossary": "glory-praiseworthiness",
-        "form": "praiseworthy"
+        "form": "praiseworthiness"
       },
       "confidence": null,
       "lemma": "present",
@@ -235,7 +235,7 @@
         "greek": "doxa",
         "traditional": "Glory",
         "glossary": "glory-praiseworthiness",
-        "form": "praiseworthy"
+        "form": "praiseworthiness"
       },
       "confidence": null,
       "lemma": "present",

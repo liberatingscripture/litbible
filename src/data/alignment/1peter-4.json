@@ -215,7 +215,7 @@
         "greek": "doxa",
         "traditional": "Glory",
         "glossary": "glory-praiseworthiness",
-        "form": "praiseworthy"
+        "form": "praiseworthiness"
       },
       "confidence": null,
       "lemma": "present",
@@ -235,7 +235,7 @@
         "greek": "doxa",
         "traditional": "Glory",
         "glossary": "glory-praiseworthiness",
-        "form": "praiseworthy"
+        "form": "praiseworthiness"
       },
       "confidence": null,
       "lemma": "present",
@@ -255,7 +255,7 @@
         "greek": "doxa",
         "traditional": "Glory",
         "glossary": "glory-praiseworthiness",
-        "form": "praiseworthy"
+        "form": "praiseworthiness"
       },
       "confidence": null,
       "lemma": "present",
@@ -275,7 +275,7 @@
         "greek": "doxa",
         "traditional": "Glory",
         "glossary": "glory-praiseworthiness",
-        "form": "praiseworthy"
+        "form": "praiseworthiness"
       },
       "confidence": null,
       "lemma": "present",
@@ -335,7 +335,7 @@
         "greek": "doxa",
         "traditional": "Glory",
         "glossary": "glory-praiseworthiness",
-        "form": "praiseworthy"
+        "form": "praiseworthiness"
       },
       "confidence": null,
       "lemma": "present",
@@ -376,6 +376,26 @@
         "traditional": "Salvation",
         "glossary": "salvation-liberation",
         "form": "liberation"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Pet.4.19",
+      "english": [
+        {
+          "text": "faithful",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pistis",
+        "traditional": "Faith",
+        "glossary": "faith-trust",
+        "form": "faithfulness"
       },
       "confidence": null,
       "lemma": "present",

@@ -60,7 +60,7 @@
       "confidence": "common",
       "lemma": "present",
       "source": "glossary-scan",
-      "status": "auto"
+      "status": "confirmed"
     },
     {
       "ref": "1Cor.15.2",
@@ -220,7 +220,7 @@
       "confidence": "common",
       "lemma": "present",
       "source": "glossary-scan",
-      "status": "auto"
+      "status": "confirmed"
     },
     {
       "ref": "1Cor.15.12",
@@ -280,7 +280,7 @@
       "confidence": "common",
       "lemma": "present",
       "source": "glossary-scan",
-      "status": "auto"
+      "status": "confirmed"
     },
     {
       "ref": "1Cor.15.17",
@@ -300,7 +300,7 @@
       "confidence": "common",
       "lemma": "present",
       "source": "glossary-scan",
-      "status": "auto"
+      "status": "confirmed"
     },
     {
       "ref": "1Cor.15.17",
@@ -415,7 +415,7 @@
         "greek": "doxa",
         "traditional": "Glory",
         "glossary": "glory-praiseworthiness",
-        "form": "praiseworthy"
+        "form": "praiseworthiness"
       },
       "confidence": null,
       "lemma": "present",
@@ -435,7 +435,7 @@
         "greek": "doxa",
         "traditional": "Glory",
         "glossary": "glory-praiseworthiness",
-        "form": "praiseworthy"
+        "form": "praiseworthiness"
       },
       "confidence": null,
       "lemma": "present",
@@ -495,7 +495,7 @@
         "greek": "doxa",
         "traditional": "Glory",
         "glossary": "glory-praiseworthiness",
-        "form": "praiseworthy"
+        "form": "praiseworthiness"
       },
       "confidence": null,
       "lemma": "present",
@@ -515,7 +515,7 @@
         "greek": "doxa",
         "traditional": "Glory",
         "glossary": "glory-praiseworthiness",
-        "form": "praiseworthy"
+        "form": "praiseworthiness"
       },
       "confidence": null,
       "lemma": "present",
@@ -535,7 +535,7 @@
         "greek": "doxa",
         "traditional": "Glory",
         "glossary": "glory-praiseworthiness",
-        "form": "praiseworthy"
+        "form": "praiseworthiness"
       },
       "confidence": null,
       "lemma": "present",
@@ -555,7 +555,7 @@
         "greek": "doxa",
         "traditional": "Glory",
         "glossary": "glory-praiseworthiness",
-        "form": "praiseworthy"
+        "form": "praiseworthiness"
       },
       "confidence": null,
       "lemma": "present",
@@ -595,7 +595,7 @@
         "greek": "doxa",
         "traditional": "Glory",
         "glossary": "glory-praiseworthiness",
-        "form": "praiseworthy"
+        "form": "praiseworthiness"
       },
       "confidence": null,
       "lemma": "present",

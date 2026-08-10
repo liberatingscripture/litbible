@@ -75,7 +75,7 @@
         "greek": "doxa",
         "traditional": "Glory",
         "glossary": "glory-praiseworthiness",
-        "form": "praiseworthy"
+        "form": "praiseworthiness"
       },
       "confidence": null,
       "lemma": "present",
@@ -180,7 +180,7 @@
       "confidence": "common",
       "lemma": "present",
       "source": "glossary-scan",
-      "status": "auto"
+      "status": "confirmed"
     },
     {
       "ref": "Rom.6.10",

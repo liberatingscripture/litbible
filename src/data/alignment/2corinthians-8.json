@@ -120,7 +120,7 @@
       "confidence": "common",
       "lemma": "present",
       "source": "glossary-scan",
-      "status": "auto"
+      "status": "confirmed"
     },
     {
       "ref": "2Cor.8.7",
@@ -335,7 +335,7 @@
         "greek": "doxa",
         "traditional": "Glory",
         "glossary": "glory-praiseworthiness",
-        "form": "credit"
+        "form": "honor"
       },
       "confidence": null,
       "lemma": "present",

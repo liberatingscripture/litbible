@@ -40,7 +40,7 @@
       "confidence": "common",
       "lemma": "present",
       "source": "glossary-scan",
-      "status": "auto"
+      "status": "confirmed"
     },
     {
       "ref": "John.12.16",
@@ -55,7 +55,7 @@
         "greek": "doxa",
         "traditional": "Glory",
         "glossary": "glory-praiseworthiness",
-        "form": "publicly endorsed"
+        "form": "publicly endorse"
       },
       "confidence": null,
       "lemma": "present",
@@ -75,7 +75,7 @@
         "greek": "doxa",
         "traditional": "Glory",
         "glossary": "glory-praiseworthiness",
-        "form": "publicly endorsed"
+        "form": "publicly endorse"
       },
       "confidence": null,
       "lemma": "present",
@@ -115,7 +115,7 @@
         "greek": "doxa",
         "traditional": "Glory",
         "glossary": "glory-praiseworthiness",
-        "form": "praiseworthy"
+        "form": "praiseworthiness"
       },
       "confidence": null,
       "lemma": "present",
@@ -135,7 +135,7 @@
         "greek": "doxa",
         "traditional": "Glory",
         "glossary": "glory-praiseworthiness",
-        "form": "praiseworthy"
+        "form": "praiseworthiness"
       },
       "confidence": null,
       "lemma": "present",
@@ -155,7 +155,7 @@
         "greek": "doxa",
         "traditional": "Glory",
         "glossary": "glory-praiseworthiness",
-        "form": "praiseworthy"
+        "form": "praiseworthiness"
       },
       "confidence": null,
       "lemma": "present",
@@ -240,7 +240,7 @@
       "confidence": "common",
       "lemma": "present",
       "source": "glossary-scan",
-      "status": "auto"
+      "status": "confirmed"
     },
     {
       "ref": "John.12.37",
@@ -260,7 +260,27 @@
       "confidence": "common",
       "lemma": "present",
       "source": "glossary-scan",
-      "status": "auto"
+      "status": "confirmed"
+    },
+    {
+      "ref": "John.12.38",
+      "english": [
+        {
+          "text": "trusted",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pistis",
+        "traditional": "Faith",
+        "glossary": "faith-trust",
+        "form": "trust"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
     },
     {
       "ref": "John.12.39",
@@ -280,7 +300,7 @@
       "confidence": "common",
       "lemma": "present",
       "source": "glossary-scan",
-      "status": "auto"
+      "status": "confirmed"
     },
     {
       "ref": "John.12.41",
@@ -295,7 +315,7 @@
         "greek": "doxa",
         "traditional": "Glory",
         "glossary": "glory-praiseworthiness",
-        "form": "praiseworthy"
+        "form": "praiseworthiness"
       },
       "confidence": null,
       "lemma": "present",
@@ -323,6 +343,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "John.12.42",
+      "english": [
+        {
+          "text": "trusted",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pistis",
+        "traditional": "Faith",
+        "glossary": "faith-trust",
+        "form": "trust"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "John.12.43",
       "english": [
         {
@@ -380,7 +420,7 @@
       "confidence": "common",
       "lemma": "present",
       "source": "glossary-scan",
-      "status": "auto"
+      "status": "confirmed"
     },
     {
       "ref": "John.12.44",
@@ -400,7 +440,7 @@
       "confidence": "common",
       "lemma": "present",
       "source": "glossary-scan",
-      "status": "auto"
+      "status": "confirmed"
     },
     {
       "ref": "John.12.46",
@@ -420,7 +460,7 @@
       "confidence": "common",
       "lemma": "present",
       "source": "glossary-scan",
-      "status": "auto"
+      "status": "confirmed"
     },
     {
       "ref": "John.12.47",

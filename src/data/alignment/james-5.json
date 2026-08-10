@@ -146,6 +146,26 @@
       "ref": "Jas.5.15",
       "english": [
         {
+          "text": "trusting",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pistis",
+        "traditional": "Faith",
+        "glossary": "faith-trust",
+        "form": "trust"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Jas.5.15",
+      "english": [
+        {
           "text": "dismiss",
           "n": 1
         }

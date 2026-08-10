@@ -206,6 +206,26 @@
       "ref": "Gal.6.10",
       "english": [
         {
+          "text": "faithful",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pistis",
+        "traditional": "Faith",
+        "glossary": "faith-trust",
+        "form": "faithfulness"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Gal.6.10",
+      "english": [
+        {
           "text": "benefit",
           "n": 1
         }

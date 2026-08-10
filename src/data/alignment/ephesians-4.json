@@ -43,6 +43,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Eph.4.5",
+      "english": [
+        {
+          "text": "allegiance",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pistis",
+        "traditional": "Faith",
+        "glossary": "faith-trust",
+        "form": "allegiance"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Eph.4.7",
       "english": [
         {
@@ -140,7 +160,7 @@
       "confidence": "common",
       "lemma": "present",
       "source": "glossary-scan",
-      "status": "auto"
+      "status": "confirmed"
     },
     {
       "ref": "Eph.4.19",

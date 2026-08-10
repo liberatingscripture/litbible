@@ -95,7 +95,7 @@
         "greek": "doxa",
         "traditional": "Glory",
         "glossary": "glory-praiseworthiness",
-        "form": "celebrated"
+        "form": "praise"
       },
       "confidence": null,
       "lemma": "present",
@@ -366,6 +366,26 @@
       "ref": "Gal.1.23",
       "english": [
         {
+          "text": "allegiance",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pistis",
+        "traditional": "Faith",
+        "glossary": "faith-trust",
+        "form": "allegiance"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Gal.1.23",
+      "english": [
+        {
           "text": "the triumphant message",
           "n": 1
         }
@@ -395,7 +415,7 @@
         "greek": "doxa",
         "traditional": "Glory",
         "glossary": "glory-praiseworthiness",
-        "form": "celebrated"
+        "form": "praise"
       },
       "confidence": null,
       "lemma": "present",

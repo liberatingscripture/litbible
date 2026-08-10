@@ -66,6 +66,26 @@
       "ref": "Matt.27.42",
       "english": [
         {
+          "text": "commit",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pistis",
+        "traditional": "Faith",
+        "glossary": "faith-trust",
+        "form": "commitment"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.27.42",
+      "english": [
+        {
           "text": "restore",
           "n": 2
         }
