@@ -198,7 +198,10 @@ workers/             # Cloudflare Workers, deployed separately via wrangler (NOT
                      #   `/workers/contact-form` (separate dep tree), and
                      #   github-actions. Minor/patch are grouped into one weekly
                      #   PR per stream; majors stay ungrouped so each gets the
-                     #   hand-checked treatment (see the Astro 7 pins above).
+                     #   hand-checked treatment (see the Astro 7 pins above) —
+                     #   but that only classifies the DIRECT dep, so a 0.x
+                     #   "minor" can still carry transitive majors into a
+                     #   grouped PR (see the file's header comment).
                      #   Security-advisory PRs are a SEPARATE track this file
                      #   doesn't configure — grouped by the repo's "Grouped
                      #   security updates" setting, and they can carry a major
