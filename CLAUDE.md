@@ -247,7 +247,7 @@ the sitemap filter live in `astro.config.mjs`.
 | `validate-chapters.mjs` | Validates chapter JSON (with `--fix` to re-serialize). Driven by `chapter_json_invariants.json`. |
 | `chapter_json_invariants.json` | Documents validation rules (e.g. the `indexed` flag). |
 | `build-topics-index.mjs` | Topic indexes (`normalizeTopic` slugifies labels). |
-| `build-verse-index.mjs` | `public/search/verses.json` — per-verse plain text for client-side scripture keyword search. |
+| `build-verse-index.mjs` | fs/CLI shell: walks the chapter files, skips drafts, derives the corpus `vocab`, and writes `public/search/verses.json` — per-verse plain text for client-side scripture keyword search. Delegates the HTML→verse-text extraction to `lib/verse-index-core.mjs`. |
 | `build-api-json.mjs` | `public/api/content.json`. |
 | `build-api-manifest.mjs` | `public/api/manifest.json` + `public/api/data/` for the native apps. |
 | `build-og-images.mjs` | `public/og/` — per-chapter/intro share cards (fonts in `scripts/og/fonts/`). |
@@ -258,10 +258,11 @@ the sitemap filter live in `astro.config.mjs`.
 | `lib/glossary-lemmas.mjs` | Editorial map: glossary id → the Greek lemmas that commitment covers. Validated against the corpus at load. |
 | `lib/alignment-merge.mjs` | Record identity, merge, and ordering for `src/data/alignment/` — the contract between the scanner and the review tool. Unit-tested. |
 | `lib/alignment-forms.mjs` | How a glossary rendering is matched against verse text, and how `english[].n` is counted. Shared so both writers number occurrences identically. |
-| `lib/verse-text.mjs` | Chapter HTML → per-verse plain text. Shared by `build-verse-index.mjs`, `build-alignment.mjs`, and the review tool. (`release-notes-core.mjs` keeps its own, deliberately — see below.) |
+| `lib/verse-text.mjs` | **The** chapter HTML → per-verse plain-text splitter (`Map<verse, text>`). Shared by `lib/verse-index-core.mjs`, `build-alignment.mjs`, and the review tool, so search and the alignment dataset can never disagree on where a verse starts and ends. (`release-notes-core.mjs` keeps its own, deliberately — see below.) |
 | `fetch-podcast-feed.mjs` | Refresh podcast XML snapshot (non-fatal on failure). |
 | `draft-release-notes.mjs` | CLI/git shell: drafts release-notes entries from git diffs (used by CI). Delegates the diff→changes logic to `lib/release-notes-core.mjs`. |
 | `lib/release-notes-core.mjs` | Pure `buildChanges()` core of the drafter — no git/fs/argv of its own (readBase/readNow injected). Unit-tested directly (`test/draft-release-notes.test.js`) since its output shape is an app contract. |
+| `lib/verse-index-core.mjs` | Pure `extractVerses()` core of the verse-index builder, no fs of its own: reshapes `lib/verse-text.mjs`'s Map into the dense array `verses.json` ships (index 0 = verse 1, `""` for gaps) — the only part of extraction that is search-specific. Unit-tested directly (`test/build-verse-index.test.js`): `verses.json` isn't an app contract, but it's the whole search surface for scripture, so an extraction regression ships straight to readers. |
 
 ## Chapter JSON Format
 
@@ -291,6 +292,19 @@ Each file in `src/data/chapters/` follows this structure:
   JSON is never modified) the Study View wraps each verse's content in
   `<span data-verse="N">` so verse boundaries are DOM containers; keep every
   vglue at tag-depth 0 inside its block or that wrapping breaks.
+- **A verse that spans a paragraph break carries its marker only ONCE**, at its
+  start; the continuation paragraph opens with plain text and no marker. That
+  is the corpus convention (187 continuation paragraphs across 76 published
+  chapters) and it is what a mid-verse speaker change or a quotation set as
+  poetry looks like. `state.currentVerse` in `wrapVerseSegments` threads the
+  open verse across blocks, so the continuation still renders inside the right
+  `data-verse` span. **Never re-show the number with a suffixed id**
+  (`id="v41b"`): every consumer matches `id="v(\d+)"`, so a suffixed marker is
+  invisible to the verse split (its digits leak into the extracted text as a
+  stray number, and into the search vocabulary as a word), gets no `data-osis`,
+  is never namespaced in Reading Mode, and makes the changelog blame the next
+  verse. The validator rejects it. To let a reader share just part of a verse,
+  see below.
 - **`topics`** are free-text labels (e.g. `"Nicodemus"`), not pre-slugged.
   `build-topics-index.mjs` normalizes them into slugs and groups chapters that
   share a topic.
@@ -321,6 +335,32 @@ Each file in `src/data/chapters/` follows this structure:
   **Flip it to `true`** (do not delete the field) when real content lands.
 - Always run `npm run validate:chapters` after editing chapter JSON. The
   pre-commit hook validates staged chapter files automatically.
+
+### Sharing part of a verse
+
+Some verses are worth sharing in pieces: a verse that introduces a quotation
+and then sets it as poetry (19 published block quotes continue a verse this
+way — 1 Peter 2:6, 1 Timothy 3:16, 1 Corinthians 6:18), or a mid-verse speaker
+change that opens a new paragraph.
+
+**The anchor is the block's own id, which every authored paragraph and
+blockquote already has** (`john-8-p9`, `1peter-2-p2`). Nothing extra is
+authored for this. Those ids are already book-namespaced, so the same anchor
+resolves in Reading Mode too — `rewriteVerseIdsAndAnchors` rewrites only
+`id="vN"` and leaves them alone.
+
+`verseParts()` in `chapter-tools.js` groups a verse's `data-verse` spans by
+their **outermost** block, so a poetry quotation is one part rather than one
+per line, and narrows each part to that verse's spans, so a blockquote holding
+two verses doesn't hand back both. When a verse has more than one part the
+verse menu grows an "Or copy one part" group, one button per part, copying the
+part's text plus the reference plus `#<block-id>`. A blockquote part keeps its
+line breaks (the line structure is part of what is being quoted); prose parts
+join with a space. `partHighlight()` makes those anchors highlight on arrival
+the way `#v16` does, rather than merely scrolling.
+
+Parts are offered for a single verse only — a range already spans blocks by
+nature, and a button per block would bury the whole-range actions.
 
 ## Translation Source Text (SBLGNT)
 
@@ -360,8 +400,10 @@ the text). The convention is strict and has two halves:
 
 - `[|` sits at the **start of the paragraph**, immediately followed by a
   footnote marker, then the `vglue` span.
-- ` |]` closes the passage at the **end of its last paragraph**, immediately
-  followed by a second footnote marker.
+- ` |]` closes the passage at the **end of the passage**, immediately followed
+  by a second footnote marker. That is usually the end of a paragraph, but not
+  always — where the contested text stops mid-verse the marker does too
+  (`john-9.json`: `Jesus said, |]`, closing 9:38–39a).
 - **Both markers carry the same footnote text**, so a reader who meets either
   end gets the whole explanation. That is why those footnote pairs are
   byte-identical, and they must be edited together.
@@ -371,16 +413,28 @@ Live examples: `mark-16.json` (e/m), `john-7.json` ff → `john-8.json` k
 `john-11.json` (w/z), and `romans-16.json` (m/n for verse 24, o/r for the
 doxology).
 
-**These markers are literal characters, not markup, so every plain-text
-reader has to remove them explicitly** — a tag strip walks straight past
-them. Two do: `scripts/lib/verse-text.mjs` (behind the shipped search index
-and the alignment tooling below) and `scripts/lib/release-notes-core.mjs`
-(`stripBracketMarkers`). Both carry a note explaining the same
-boundary-attribution bug: a verse chunk runs from one verse marker to the
-next, and the opening `[|` leads its paragraph *ahead of* that paragraph's
-first marker, so an unremoved marker is filed under the **previous** verse.
-A third reader would need the same removal — the markers are the reason the
-strip exists, not decoration.
+**The markers are reader-facing in rendered HTML but must never reach a
+plain-text extractor.** Being literal characters rather than markup, they
+survive tag stripping, and an opening `[|` leads its paragraph *ahead of* that
+paragraph's first verse marker — so a naive verse split files it under the
+**previous** verse and reports characters for a verse that does not contain
+them. `stripBracketMarkers` in **`src/lib/bracket-markers.mjs`** is the single
+source; it sits in `src/lib/` (not `scripts/lib/`) because both the build and
+the client import it, the same arrangement as `src/lib/word-stem.mjs`. Three
+consumers today:
+
+| Consumer | What leaked before |
+|----------|--------------------|
+| `scripts/lib/verse-text.mjs` | search results ending in a bare `[\|`, and the same misfiling in the alignment dataset |
+| `scripts/lib/release-notes-core.mjs` | `added "[\|"` in the apps' Translation Updates |
+| `src/scripts/chapter-tools.js` | Copy verse / Share… handing a reader `…afraid. [\|` |
+
+**Always strip before collapsing whitespace** — a closing marker is not always
+paragraph-final (John 9:39 reads `Jesus said, |] “I came…`), so the gap it
+leaves would otherwise ship as a double space. The changelog copy deliberately
+exempts its paragraph-level *fallback* comparison so a bracket-only edit still
+produces a row; that exception is at the call site, not in the shared helper.
+Any future consumer that flattens paragraphs to text needs the same strip.
 
 ### Verse-number gaps
 

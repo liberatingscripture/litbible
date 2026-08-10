@@ -2395,6 +2395,25 @@ html[data-font="dyslexic"] .menu-overlay__nav a {
   cursor: default;
 }
 
+/* "Or copy one part" — heads the per-block buttons the verse menu adds when a
+   verse spans a block quote or a mid-verse paragraph break. A hairline rule
+   separates them from the whole-verse actions above. */
+.lit-panel__subheading {
+  margin: 8px 0 4px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(var(--ink-rgb), 0.12);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: rgba(var(--ink-rgb), 0.55);
+}
+
+/* Part previews are a line of scripture, so let them wrap rather than forcing
+   the panel wider; they sit visually below the fixed-label actions. */
+.lit-panel__subheading + [role="group"] .lit-panel__btn {
+  font-size: 0.9rem;
+  line-height: 1.35;
+}
+
 .lit-panel__body p {
   margin: 0;
 }

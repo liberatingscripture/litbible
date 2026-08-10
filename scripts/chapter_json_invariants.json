@@ -9,6 +9,11 @@
       "id": "unique_verse_ids",
       "rule": "Each verse marker id (id=\"vN\" on <sup class=\"vn\">) must appear exactly once per chapter. A verse that spans a paragraph break keeps its marker only at its start; the continuation paragraph carries NO marker (this is what makes the number appear once). Duplicate ids are invalid HTML — epubcheck rejects them and the #vN deep-link anchor becomes ambiguous — so a repeated verse number is always a bug, never a style choice. The chapter validator enforces uniqueness as an error (any verse id appearing more than once fails validation and blocks the pre-commit hook).",
       "severity": "fatal"
+    },
+    {
+      "id": "no_suffixed_verse_ids",
+      "rule": "A verse marker id is exactly \"v\" + digits. Suffixed forms (id=\"v41b\") are rejected. They existed in john-7 and john-8 as a way to re-show a verse number on a continuation paragraph while slipping past unique_verse_ids, and every consumer matches id=\"v(\\d+)\", so the suffixed marker was invisible to all of them: the verse split in build-verse-index left its digits in the extracted text as a stray number (and in the search vocabulary as the words \"11\" and \"41\"), addOsisIds gave it no data-osis, rewriteVerseIdsAndAnchors left an un-namespaced id on the Reading Mode page, and extractVerseTexts dropped the continuation chunk so an edit to it was reported against the FOLLOWING verse in the apps' Translation Updates feed. The convention is the one unique_verse_ids already states — a continuation paragraph carries no marker (187 such paragraphs across 76 published chapters). To let a reader share just part of a verse, link the block's own id (see \"Sharing part of a verse\" in CLAUDE.md); no marker is needed for that.",
+      "severity": "fatal"
     }
   ]
 }

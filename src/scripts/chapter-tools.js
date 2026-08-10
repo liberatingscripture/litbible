@@ -14,6 +14,11 @@
 // 3. Footnote popovers — tapping a footnote letter shows the note inline
 //    (bottom sheet on small screens), with a link through to the full
 //    footnotes section.
+//
+// A verse that spans blocks (a quotation set as a block quote, a mid-verse
+// speaker change) can also be shared one PART at a time — see "parts" below.
+
+import { stripBracketMarkers } from "../lib/bracket-markers.mjs";
 
 function init(container) {
   initVerseHighlight(container);
@@ -151,14 +156,20 @@ function removeClearChip() {
   clearChip = null;
 }
 
+// The hash the current highlight came from, so clearing knows whether the hash
+// in the address bar is ours to drop. Covers both forms (#v16, #v16-18 and a
+// part anchor like #1peter-2-p2) without re-testing their patterns here.
+let highlightedHash = null;
+
 function clearHashHighlight() {
   if (!supportsHighlight) return;
   if (!CSS.highlights.has("lit-verse-range")) return;
   CSS.highlights.delete("lit-verse-range");
   removeClearChip();
-  if (/^#v\d+(?:-\d+)?$/.test(window.location.hash)) {
+  if (highlightedHash && window.location.hash === highlightedHash) {
     history.replaceState(null, "", window.location.pathname + window.location.search);
   }
+  highlightedHash = null;
 }
 
 function showClearChip(refLabel) {
@@ -175,20 +186,61 @@ function showClearChip(refLabel) {
   document.body.appendChild(clearChip);
 }
 
+/**
+ * Ranges + label for a PART anchor (`#john-8-p9`, `#1peter-2-p2`) — the id of
+ * a single paragraph or block quote, as produced by the verse menu's part
+ * buttons. Highlighting these means a link to part of a verse lands the same
+ * way `#v16` does instead of merely scrolling. Returns null for any other hash.
+ */
+function partHighlight(container, hash) {
+  // Guard the selector: ids here are always `<book>-<ch>-p<n>`, and anything
+  // exotic (a footnote hash, an injected value) must not reach querySelector.
+  if (!/^#[A-Za-z][\w-]*$/.test(hash)) return null;
+
+  const el = container.querySelector(hash);
+  if (!el || !el.matches("p[id], blockquote[id]")) return null;
+
+  const spans = [...el.querySelectorAll("[data-verse]")];
+  if (!spans.length) return null;
+
+  const ranges = spans.map((span) => {
+    const range = document.createRange();
+    range.selectNodeContents(span);
+    return range;
+  });
+  const verses = [...new Set(spans.map((s) => Number(s.dataset.verse)))].sort(
+    (a, b) => a - b
+  );
+  return { ranges, label: formatRef(verses[0], verses[verses.length - 1]) };
+}
+
 function initVerseHighlight(container) {
   if (!supportsHighlight) return;
 
   function applyFromHash() {
     CSS.highlights.delete("lit-verse-range");
     removeClearChip();
-    const m = window.location.hash.match(/^#v(\d+)(?:-(\d+))?$/);
-    if (!m) return;
-    const start = Number(m[1]);
-    const end = m[2] ? Math.max(start, Number(m[2])) : start;
-    const ranges = verseRanges(container, start, end);
+    highlightedHash = null;
+
+    const hash = window.location.hash;
+    const m = hash.match(/^#v(\d+)(?:-(\d+))?$/);
+
+    let ranges, label;
+    if (m) {
+      const start = Number(m[1]);
+      const end = m[2] ? Math.max(start, Number(m[2])) : start;
+      ranges = verseRanges(container, start, end);
+      label = formatRef(start, end);
+    } else {
+      const part = partHighlight(container, hash);
+      if (!part) return;
+      ({ ranges, label } = part);
+    }
+
     if (!ranges.length) return;
     CSS.highlights.set("lit-verse-range", new Highlight(...ranges));
-    showClearChip(formatRef(start, end));
+    highlightedHash = hash;
+    showClearChip(label);
   }
 
   applyFromHash();
@@ -207,9 +259,78 @@ function formatRef(start, end) {
   return end > start ? base + "–" + end : base;
 }
 
+function pageUrl() {
+  return window.location.origin + window.location.pathname.replace(/\/$/, "");
+}
+
 function getVerseUrl(start, end) {
-  const base = window.location.origin + window.location.pathname.replace(/\/$/, "");
-  return base + "#v" + start + (end > start ? "-" + end : "");
+  return pageUrl() + "#v" + start + (end > start ? "-" + end : "");
+}
+
+/**
+ * The blocks one verse's content is spread across, in document order.
+ *
+ * Most verses occupy a single <p>. Two shapes spill past one block: a
+ * quotation set as poetry lives in a <blockquote> (one .hbq-line <p> per line,
+ * every line carrying the same data-verse), and a mid-verse speaker change
+ * opens a new <p> that carries no verse marker of its own. In both cases a
+ * reader may want the quoted part on its own rather than the whole verse —
+ * 19 published block quotes continue a verse this way (1 Peter 2:6, 1 Timothy
+ * 3:16, 1 Corinthians 6:18 …).
+ *
+ * Grouped by the OUTERMOST block, so a poetry quotation is one part rather
+ * than one per line, and narrowed to this verse's spans, so a blockquote
+ * holding two verses doesn't hand back both. Only blocks carrying an id are
+ * offered: the id is what makes a part linkable, and every authored paragraph
+ * and blockquote has one, already book-namespaced (`john-8-p9`,
+ * `1peter-2-p2`) so the same anchor resolves in Reading Mode too.
+ */
+function verseParts(container, verse) {
+  const byBlock = new Map(); // insertion order = document order
+  for (const span of verseSpans(container, verse)) {
+    const block = span.closest("blockquote[id]") || span.closest("p[id]");
+    if (!block) continue;
+    if (!byBlock.has(block)) byBlock.set(block, []);
+    byBlock.get(block).push(span);
+  }
+
+  const parts = [];
+  for (const [block, spans] of byBlock) {
+    const lines = spans.map((span) => cleanForShare(blockText(span))).filter(Boolean);
+    if (!lines.length) continue;
+    // A quotation set as poetry keeps its line breaks when shared — the line
+    // structure is part of what is being quoted. Prose spans inside one block
+    // are just wrapped text, so they join with a space. (The whole-verse
+    // "Copy verse" above still space-joins throughout; see FIXLIST.)
+    const text = lines.join(block.tagName === "BLOCKQUOTE" ? "\n" : " ");
+    parts.push({ id: block.id, text, plain: lines.join(" ") });
+  }
+  return parts;
+}
+
+/** A short preview of a part, for its menu button. */
+function partLabel(text) {
+  const MAX = 34;
+  if (text.length <= MAX) return text;
+  // Trim back to a word boundary so the preview doesn't end mid-word.
+  return text.slice(0, MAX).replace(/\s+\S*$/, "") + "…";
+}
+
+/** Plain text of one element, minus verse numbers and footnote letters. */
+function blockText(el) {
+  const clone = el.cloneNode(true);
+  clone.querySelectorAll("sup.fn-ref, sup.vn").forEach((s) => s.remove());
+  return clone.textContent;
+}
+
+/** Tidy extracted text for the clipboard / share sheet. */
+function cleanForShare(text) {
+  // Bracket markers are reader-facing on the page but junk once the text is
+  // lifted off it — strip BEFORE collapsing, per src/lib/bracket-markers.mjs.
+  return stripBracketMarkers(text)
+    .replace(/[​‌‍⁠﻿]/g, "") // zero-width characters
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 /**
@@ -218,17 +339,7 @@ function getVerseUrl(start, end) {
  * blocks (poetry lines, paragraph breaks) join with a space.
  */
 function getSingleVerseText(container, verse) {
-  const parts = verseSpans(container, verse).map((span) => {
-    const clone = span.cloneNode(true);
-    clone.querySelectorAll("sup.fn-ref, sup.vn").forEach((s) => s.remove());
-    return clone.textContent;
-  });
-
-  return parts
-    .join(" ")
-    .replace(/[​‌‍⁠﻿]/g, "") // zero-width characters
-    .replace(/\s+/g, " ")
-    .trim();
+  return cleanForShare(verseSpans(container, verse).map(blockText).join(" "));
 }
 
 /**
@@ -328,6 +439,32 @@ function openVerseMenu(container, sup, anchorVerse, start, end, { restoreFocus =
       }
     });
     panel.appendChild(shareBtn);
+  }
+
+  // Parts: only for a single verse. A range already spans blocks by nature, so
+  // offering a part per block would bury the whole-range actions.
+  const parts = start === end ? verseParts(container, start) : [];
+  if (parts.length > 1) {
+    const partsHeading = document.createElement("p");
+    partsHeading.className = "lit-panel__subheading";
+    partsHeading.id = "lit-parts-heading";
+    partsHeading.textContent = "Or copy one part";
+    panel.appendChild(partsHeading);
+
+    const list = document.createElement("div");
+    list.setAttribute("role", "group");
+    list.setAttribute("aria-labelledby", partsHeading.id);
+
+    for (const part of parts) {
+      const partUrl = pageUrl() + "#" + part.id;
+      const btn = menuButton(partLabel(part.plain), () =>
+        copyToClipboard(part.text + "\n— " + ref + " (LIT)\n" + partUrl)
+      );
+      // The visible label is truncated; give assistive tech the full text.
+      btn.setAttribute("aria-label", "Copy “" + part.plain + "”");
+      list.appendChild(btn);
+    }
+    panel.appendChild(list);
   }
 
   const hint = document.createElement("p");

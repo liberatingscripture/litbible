@@ -25,33 +25,23 @@
 // chapter order, sorted vocab, no timestamps). This file is a website asset,
 // NOT part of the mobile-app API contract — it must never move under
 // public/api/.
+//
+// This module is the fs/CLI half only. The paragraph-HTML → per-verse plain-text
+// extraction lives in ./lib/verse-index-core.mjs so it can be unit-tested
+// directly (test/build-verse-index.test.js) — same split, same reason, as
+// draft-release-notes.mjs and ./lib/release-notes-core.mjs.
 
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { BOOK_ORDER } from "../src/data/books.js";
 import { foldDiacritics } from "../src/lib/word-stem.mjs";
-import { splitChapterVerses } from "./lib/verse-text.mjs";
+import { extractVerses } from "./lib/verse-index-core.mjs";
 
 const ROOT = process.cwd();
 const CHAPTERS_DIR = path.join(ROOT, "src", "data", "chapters");
 const OUT_FILE = path.join(ROOT, "public", "search", "verses.json");
 
 const BOOK_RANK = new Map(BOOK_ORDER.map((k, i) => [k, i]));
-
-/**
- * The shipped shape: a DENSE array, index 0 = verse 1, "" for gaps. The client
- * indexes into it directly, so it can't be sparse and can't be a Map.
- * Splitting itself is shared — see lib/verse-text.mjs.
- */
-function extractVerses(paragraphs) {
-  const byVerse = splitChapterVerses(paragraphs);
-  if (!byVerse.size) return null;
-
-  const maxVerse = Math.max(...byVerse.keys());
-  const verses = [];
-  for (let v = 1; v <= maxVerse; v++) verses.push(byVerse.get(v) || "");
-  return verses;
-}
 
 async function main() {
   const files = (await fs.readdir(CHAPTERS_DIR)).filter((f) =>

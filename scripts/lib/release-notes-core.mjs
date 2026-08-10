@@ -16,6 +16,7 @@
 import { basename } from "path";
 
 import { BOOKS, BOOK_ORDER, bookKeyToLabel } from "../../src/data/books.js";
+import { stripBracketMarkers } from "../../src/lib/bracket-markers.mjs";
 
 // ── Pure helpers ──────────────────────────────────────────────────────────────
 
@@ -104,25 +105,6 @@ function stripHtml(html) {
  *  text comparisons aren't affected by footnote additions/removals. */
 function stripFootnoteRefs(html) {
   return (html ?? "").replace(/<sup class="fn-ref">.*?<\/sup>/g, "");
-}
-
-/** Remove the literal `[|` / `|]` markers that wrap contested passages (see
- *  "Bracketed passages" in CLAUDE.md). They are plain characters in the
- *  paragraph text rather than markup, so stripHtml leaves them in place and
- *  they reach reader-facing detail strings as `added "[|"`, which means
- *  nothing to someone reading Translation Updates in the apps.
- *
- *  They also skew attribution. The opening marker leads its paragraph, which
- *  puts it BEFORE that paragraph's first verse marker, so the vglue split in
- *  extractVerseTexts files it under the PREVIOUS verse and reports a verse
- *  that never changed.
- *
- *  Deliberately NOT applied to the paragraph-level fallback comparison in
- *  buildChanges: leaving the markers visible there means a bracket-only edit
- *  still surfaces as a real "text updated" row (with no detail) instead of
- *  vanishing from the changelog altogether. */
-function stripBracketMarkers(text) {
-  return (text ?? "").replace(/\[\||\|\]/g, "");
 }
 
 /** Build a Map<verseNumber, plainText> from an array of paragraph HTML strings.
@@ -361,6 +343,11 @@ export function buildChanges({ addedFiles, modifiedFiles, readBase, readNow }) {
     // instead collapses to a single "metadata updated" line, matching how the
     // docblock and CLAUDE.md describe attribute-/metadata-only chapter edits.
     // Verse extraction below still reads the RAW paragraph (it needs id="vN").
+    //
+    // stripBracketMarkers is deliberately NOT applied here, unlike in
+    // extractVerseTexts above: leaving the markers visible to this comparison
+    // means a bracket-only edit still surfaces as a real "text updated" row
+    // (with no detail) rather than vanishing from the changelog altogether.
     const normPara = (p) => normalizeMarkup(stripFootnoteRefs(p ?? ""));
     if (
       textDiffs.length === 0 &&
