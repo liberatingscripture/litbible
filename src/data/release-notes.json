@@ -13,6 +13,47 @@
           "chapter": 8,
           "verse": 4
         }
+      },
+      {
+        "type": "text_updated",
+        "description": "Galatians 3:14 — text updated",
+        "detail": "added \"of the Life-breath\"",
+        "location": {
+          "bookKey": "galatians",
+          "chapter": 3,
+          "verse": 14
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "John 13:21, 31 — text updated",
+        "detail": "v. 21: \"deeply agitated\" → \"agitated in his spirit\"; v. 31: \"God's\" → \"God’s\"",
+        "location": {
+          "bookKey": "john",
+          "chapter": 13,
+          "verse": 21
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "John 13:10, 19, 21 — footnotes k, q, r updated",
+        "detail": "fn. k (v. 10): \"'y’all.'\" → \"‘y’all.’\"; fn. q (v. 19): \"am.”\" → \"am.’\"; fn. r (v. 21): removed \"Literally, ‘agitated in spirit’\"",
+        "location": {
+          "bookKey": "john",
+          "chapter": 13,
+          "verse": 10
+        },
+        "relabel": "footnotes formerly s–cc relabeled r–bb"
+      },
+      {
+        "type": "text_updated",
+        "description": "Matthew 22:43 — text updated",
+        "detail": "\"“Then how,” he said to them, “did David\" → \"He said to them, “Then how did David, connected with the Li…\"",
+        "location": {
+          "bookKey": "matthew",
+          "chapter": 22,
+          "verse": 43
+        }
       }
     ]
   },

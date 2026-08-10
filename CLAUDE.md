@@ -333,6 +333,21 @@ Each file in `src/data/chapters/` follows this structure:
      same-book chapter picks for an in-page scroll; other books navigate to
      `/read/<book>#ch-N`).
   **Flip it to `true`** (do not delete the field) when real content lands.
+- **Prose uses curly quotes only** — `“ ”` for quotations, `‘ ’` nested, `’`
+  for apostrophes and possessives. Straight ASCII quotes are a **validation
+  error** in both `paragraphs` and `footnotes[].html` (attributes are exempt,
+  since the check strips tags first). **Entity forms are rejected too**
+  (`&quot;`, `&#39;`, …) — they slip past any literal-character scan while
+  still decoding to a straight quote in the page and in `verses.json`, which
+  is how 19 of them survived the first pass of that cleanup. Prime notation
+  is not a quote: the chiasm labels in `1corinthians-11` fn-b use U+2032
+  (`A B C D D′ C′ B′ A′`). It's an error rather than a warning
+  because the predecessor rule was a footnote-only *warning* about straight
+  doubles, and 439 straight quotes accumulated under it across 96 chapters
+  before the 2026-08 cleanup. Watch the related defect the validator can't
+  see: a curly opener paired with a *wrong-direction* curly closer
+  (`‘lord”`), which is well-formed to the checker but reads as a mismatched
+  pair. That cleanup fixed 12 of those.
 - Always run `npm run validate:chapters` after editing chapter JSON. The
   pre-commit hook validates staged chapter files automatically.
 
