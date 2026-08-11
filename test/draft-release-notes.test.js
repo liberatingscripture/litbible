@@ -275,6 +275,66 @@ test("real-world Luke 5:32 shape: insertion at q with a q–u → r–v cascade"
   assert.deepEqual(fnChange.location, { bookKey: "luke", chapter: 5, verse: 32 });
 });
 
+test("cascade past TWIN notes: duplicate bodies pair by occurrence, not by text", () => {
+  // A chapter may carry the same note text twice — the bracketed-passage
+  // convention requires it ([| and |] footnote the same explanation), and 85 of
+  // 260 chapters have some duplicate body. Matching notes by text alone paired
+  // the wrong copies once a cascade shifted them.
+  //
+  // Shape from ephesians-6: twins "TWIN" at d and e; remove the note at b.
+  // Correct reading: only b removed, c–e → b–d.
+  const base = chapterJson({
+    paragraphs: [para("p1", verse(1, "Word.", ["a", "b", "c"]), verse(2, "More.", ["d", "e"]))],
+    footnotes: [fn("a", "A"), fn("b", "B"), fn("c", "C"), fn("d", "TWIN"), fn("e", "TWIN")],
+  });
+  const now = chapterJson({
+    paragraphs: [para("p1", verse(1, "Word.", ["a", "b"]), verse(2, "More.", ["c", "d"]))],
+    footnotes: [fn("a", "A"), fn("b", "C"), fn("c", "TWIN"), fn("d", "TWIN")],
+  });
+  const changes = run({ [F]: base }, { [F]: now }, { modified: [F] });
+  assert.equal(changes.length, 1);
+  const [c] = changes;
+  // Before the fix: "footnotes b, e removed" — a phantom removal of e, whose
+  // text had merely moved to d — with the range truncated to "c–d → b–c".
+  assert.equal(c.description, "John 3:1 — footnote b removed");
+  assert.equal(c.detail, 'removed "B"');
+  assert.equal(c.relabel, "footnotes formerly c–e relabeled b–d");
+});
+
+test("twin notes with no cascade: an edit elsewhere doesn't drag them into a relabel", () => {
+  const withTwins = (aBody) => ({
+    paragraphs: [para("p1", verse(1, "Word.", ["a", "b", "c"]))],
+    footnotes: [fn("a", aBody), fn("b", "TWIN"), fn("c", "TWIN")],
+  });
+  const changes = run(
+    { [F]: chapterJson(withTwins("A old")) },
+    { [F]: chapterJson(withTwins("A new")) },
+    { modified: [F] },
+  );
+  assert.equal(changes.length, 1);
+  const [c] = changes;
+  assert.equal(c.description, "John 3:1 — footnote a updated");
+  assert.ok(!("relabel" in c), "twins that never moved must not read as a cascade");
+});
+
+test("insertion before twin notes: reported as added, with the full range", () => {
+  const base = chapterJson({
+    paragraphs: [para("p1", verse(1, "Word.", ["a", "b", "c"]))],
+    footnotes: [fn("a", "A"), fn("b", "TWIN"), fn("c", "TWIN")],
+  });
+  const now = chapterJson({
+    paragraphs: [para("p1", verse(1, "Word.", ["a", "b", "c", "d"]))],
+    footnotes: [fn("a", "A"), fn("b", "NEW"), fn("c", "TWIN"), fn("d", "TWIN")],
+  });
+  const changes = run({ [F]: base }, { [F]: now }, { modified: [F] });
+  assert.equal(changes.length, 1);
+  const [c] = changes;
+  assert.equal(c.type, "footnote_added");
+  assert.equal(c.description, "John 3:1 — footnote b added");
+  assert.equal(c.detail, 'added "NEW"');
+  assert.equal(c.relabel, "footnotes formerly b–c relabeled c–d");
+});
+
 /* ── 4. Metadata-only + attribute-only collapse (FIXLIST O11 core behaviors) ── */
 
 test("metadata-only chapter edit: identical rendered content collapses to one metadata_updated line", () => {
