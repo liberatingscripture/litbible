@@ -466,7 +466,10 @@ const menuData = {
                         <details> so the list works with JS disabled. */}
                     {occurrencesByTerm[data.id] && (
                       <div class="entry-occurrences" data-pagefind-ignore>
-                        <h3 class="occ-title">Where it appears</h3>
+                        <details class="occ-group">
+                          <summary class="occ-title">
+                            <h3>Where it appears</h3>
+                          </summary>
                         {occurrencesByTerm[data.id].map((form) => (
                           <details class="occ">
                             <summary class="occ-summary">
@@ -495,6 +498,7 @@ const menuData = {
                             </ul>
                           </details>
                         ))}
+                        </details>
                       </div>
                     )}
                   </article>
