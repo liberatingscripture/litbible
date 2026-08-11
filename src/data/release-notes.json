@@ -187,6 +187,16 @@
           "chapter": 3,
           "verse": 22
         }
+      },
+      {
+        "type": "text_updated",
+        "description": "John 8:6–8 — text updated",
+        "detail": "v. 6: added \"Then Jesus, after bending down, wrote on the ground with a finger.\"; v. 7: \"Then Jesus, after bending down, wrote on the ground with a …\" → \"When they continued asking him, he stood up. “Whichever of …\"; v. 8: removed \"“Whichever of you has no deviation,” he said to them, “be the first to throw a stone at her.”\"",
+        "location": {
+          "bookKey": "john",
+          "chapter": 8,
+          "verse": 6
+        }
       }
     ]
   },
