@@ -2,7 +2,7 @@
 id: spirit-life-breath
 traditional: Spirit
 greek: pneuma
-lit: life-breath
+lit: Life-breath
 litMenu: Life-breath / Spirit-breath
 srOnly: Spirit life-breath life breath
 ---
