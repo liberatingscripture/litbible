@@ -482,6 +482,32 @@
 .occ-list a:hover,
 .occ-list a:focus-visible{ text-decoration: underline; }
 
+/* [hidden] is a UA rule the LI would otherwise honor, but state it here so a
+   future display rule on .occ-list li can't quietly outrank it. */
+.occ-list li[hidden]{ display: none; }
+
+/* Injected by script only — a no-JS page has every link already, so there is
+   nothing for this to reveal and it is never rendered. */
+.occ-more{
+  display: inline-block;
+  margin: 0 0 0.6rem 1.15rem;
+  padding: 0.28rem 0.7rem;
+  border: 1px solid rgba(var(--ink-rgb), 0.22);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--green-text, var(--lit-green));
+  font: inherit;
+  font-size: clamp(13px, 1.2vw, 15px);
+  cursor: pointer;
+}
+
+.occ-more:hover{ border-color: rgba(var(--ink-rgb), 0.4); }
+
+.occ-more:focus-visible{
+  outline: 2px solid var(--green-text, var(--lit-green));
+  outline-offset: 2px;
+}
+
 @media (prefers-reduced-motion: reduce){
   .occ-summary::before{ transition: none; }
 }

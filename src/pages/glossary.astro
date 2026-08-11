@@ -54,7 +54,11 @@ type OccurrenceRef = { bookKey: string; chapter: number; verse: number };
 
 type FormOccurrences = {
   label: string;
+  /** Occurrences — a verse rendering the term four times counts four. */
   count: number;
+  /** Distinct verses, which is what `refs` lists. Below `count` when a verse
+   *  renders the term more than once (Romans 2:12 carries "Torah" 4x). */
+  verses: number;
   books: number;
   refs: OccurrenceRef[];
 };
@@ -63,6 +67,12 @@ const alignmentModules = import.meta.glob<{ default: AlignmentFile }>(
   "../data/alignment/*.json",
   { eager: true },
 );
+
+/** How many verse links a rendering shows before the "show more" batching
+ *  kicks in — and the size of each subsequent batch. Purely a client-side
+ *  reveal: every link is server-rendered, so with JS off the full list is
+ *  there. */
+const OCC_CAP = 30;
 
 const BOOK_RANK = new Map(
   (BOOK_ORDER as string[]).map((key, i) => [key, i] as const),
@@ -128,17 +138,33 @@ const occurrencesByTerm: Record<string, FormOccurrences[]> = (() => {
     // claim the opposite of what the data says.
     if (!entry.pure || !entry.forms.size) continue;
     out[id] = [...entry.forms.entries()]
-      .map(([label, refs]) => ({
-        label,
-        count: refs.length,
-        books: new Set(refs.map((r) => r.bookKey)).size,
-        refs: refs.sort(
+      .map(([label, refs]) => {
+        const sorted = refs.sort(
           (a, b) =>
             bookRank(a.bookKey) - bookRank(b.bookKey) ||
             a.chapter - b.chapter ||
             a.verse - b.verse,
-        ),
-      }))
+        );
+        // One link per verse. The records are per-OCCURRENCE, so a verse
+        // rendering the term more than once produced one ref each — and a
+        // reader meeting "Romans 2:12" four times in a row reads it as a bug,
+        // not as the frequency claim it actually is. The count above still
+        // carries that frequency.
+        const seen = new Set<string>();
+        const unique = sorted.filter((r) => {
+          const key = `${r.bookKey}|${r.chapter}|${r.verse}`;
+          if (seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        });
+        return {
+          label,
+          count: sorted.length,
+          verses: unique.length,
+          books: new Set(unique.map((r) => r.bookKey)).size,
+          refs: unique,
+        };
+      })
       .sort((a, b) => b.count - a.count);
   }
   return out;
@@ -447,11 +473,18 @@ const menuData = {
                               <span class="occ-form">{form.label}</span>
                               <span class="occ-count">
                                 {form.count} {form.count === 1 ? "time" : "times"}
+                                {/* Only say "across N verses" when it differs
+                                    from the occurrence count — otherwise the
+                                    list length and the headline disagree with
+                                    no explanation. */}
+                                {form.verses !== form.count && (
+                                  <>{" across "}{form.verses} verses</>
+                                )}
                                 {" in "}
                                 {form.books} {form.books === 1 ? "book" : "books"}
                               </span>
                             </summary>
-                            <ul class="occ-list">
+                            <ul class="occ-list" data-occ-cap={form.refs.length > OCC_CAP ? String(OCC_CAP) : undefined}>
                               {form.refs.map((ref) => (
                                 <li>
                                   <a href={`/${ref.bookKey}-${ref.chapter}#v${ref.verse}`}>
@@ -469,6 +502,52 @@ const menuData = {
               })}
 
               <script type="module" data-pagefind-ignore>
+                // --- occurrence lists: reveal long ref lists in batches ---
+                // Every link is server-rendered, so this only ever HIDES. With
+                // JS off the full list is already on the page, which is why the
+                // button is injected here rather than authored in the markup.
+                for (const list of document.querySelectorAll(".occ-list[data-occ-cap]")) {
+                  const step = Number(list.dataset.occCap) || 30;
+                  const items = Array.from(list.children);
+                  if (items.length <= step) continue;
+
+                  const button = document.createElement("button");
+                  button.type = "button";
+                  button.className = "occ-more";
+
+                  let shown = step;
+                  const render = () => {
+                    items.forEach((li, i) => {
+                      li.hidden = i >= shown;
+                    });
+                    const left = items.length - shown;
+                    if (left <= 0) {
+                      button.remove();
+                      return;
+                    }
+                    button.textContent =
+                      left <= step ? `Show last ${left}` : `Show ${step} more`;
+                    // Count is in the accessible name too — "Show 30 more"
+                    // alone doesn't say more of what, out of context.
+                    button.setAttribute(
+                      "aria-label",
+                      `${button.textContent} of ${items.length} verses`,
+                    );
+                  };
+
+                  button.addEventListener("click", () => {
+                    const firstNew = items[shown];
+                    shown = Math.min(shown + step, items.length);
+                    render();
+                    // Keep the reader's place: focus the first newly revealed
+                    // link rather than letting focus die with the button.
+                    if (firstNew) firstNew.querySelector("a")?.focus();
+                  });
+
+                  render();
+                  list.after(button);
+                }
+
                 // --- intersection observer: adds .is-visible and triggers redraw ---
                 const entries = Array.from(
                   document.querySelectorAll(".glossary-page .entry"),
