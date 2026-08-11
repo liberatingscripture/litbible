@@ -53,6 +53,58 @@
           "chapter": 19,
           "verse": 11
         }
+      },
+      {
+        "type": "text_updated",
+        "description": "Hebrews 9:13 — text updated",
+        "detail": "\"unclean\" → \"ordinary\"",
+        "location": {
+          "bookKey": "hebrews",
+          "chapter": 9,
+          "verse": 13
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Hebrews 9:13 — footnotes l, m updated",
+        "detail": "fn. l (v. 13): \"Red heifer ashes sprinkled on those made unclean\" → \"Reference to Numbers 19:1-10\"; fn. m (v. 13): added \"The Greek word koinoo, often translated as “defiles” or “makes unclean,” more literally means “to make common” or “to m…\"",
+        "location": {
+          "bookKey": "hebrews",
+          "chapter": 9,
+          "verse": 13
+        },
+        "relabel": "footnotes formerly m–u relabeled n–v"
+      },
+      {
+        "type": "text_updated",
+        "description": "Matthew 15:18, 20 — text updated",
+        "detail": "v. 18: \"unclean—\" → \"ordinary—\"; v. 20: \"unclean. Eating without washing their hands doesn’t make so…\" → \"ordinary. Eating without washing their hands doesn’t make s…\"",
+        "location": {
+          "bookKey": "matthew",
+          "chapter": 15,
+          "verse": 18
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Romans 14:14 — text updated",
+        "detail": "\"unclean in itself, except for the one who considers it to b…\" → \"ordinary in itself, except for the one who considers it to …\"",
+        "location": {
+          "bookKey": "romans",
+          "chapter": 14,
+          "verse": 14
+        }
+      },
+      {
+        "type": "footnote_added",
+        "description": "Romans 14:14 — footnote d added",
+        "detail": "added \"The Greek word koinos, often translated as “unclean,” more literally means “common” or “ordinary.” It is related to koi…\"",
+        "location": {
+          "bookKey": "romans",
+          "chapter": 14,
+          "verse": 14
+        },
+        "relabel": "footnotes formerly d–e relabeled e–f"
       }
     ]
   },
