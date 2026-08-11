@@ -68,11 +68,24 @@ const alignmentModules = import.meta.glob<{ default: AlignmentFile }>(
   { eager: true },
 );
 
-/** How many verse links a rendering shows before the "show more" batching
- *  kicks in — and the size of each subsequent batch. Purely a client-side
- *  reveal: every link is server-rendered, so with JS off the full list is
- *  there. */
-const OCC_CAP = 30;
+/** Batch size for the "show more" reveal on a rendering's verse list — and
+ *  how many it shows before batching starts.
+ *
+ *  Two sizes, because a wide viewport fits several refs per row and 25 barely
+ *  fills the block, while on a phone each row holds two or three and 50 is a
+ *  wall. The page is statically rendered, so the choice can only be made in
+ *  the client; these are emitted as data attributes rather than hardcoded in
+ *  the script so the threshold below and the steps stay one source of truth.
+ *
+ *  The threshold MUST be the narrow step: a list of 30 needs batching on a
+ *  phone even though a desktop shows it whole. 900px matches the page's own
+ *  primary breakpoint.
+ *
+ *  Purely a client-side reveal — every link is server-rendered, so with JS
+ *  off the full list is already there. */
+const OCC_STEP_NARROW = 25;
+const OCC_STEP_WIDE = 50;
+const OCC_BREAKPOINT = 900;
 
 const BOOK_RANK = new Map(
   (BOOK_ORDER as string[]).map((key, i) => [key, i] as const),
@@ -511,7 +524,13 @@ const menuData = {
                                 </span>
                               </span>
                             </summary>
-                            <ul class="occ-list" data-occ-cap={form.refs.length > OCC_CAP ? String(OCC_CAP) : undefined}>
+                            <ul
+                              class="occ-list"
+                              data-occ-cap={form.refs.length > OCC_STEP_NARROW ? "" : undefined}
+                              data-occ-narrow={form.refs.length > OCC_STEP_NARROW ? String(OCC_STEP_NARROW) : undefined}
+                              data-occ-wide={form.refs.length > OCC_STEP_NARROW ? String(OCC_STEP_WIDE) : undefined}
+                              data-occ-breakpoint={form.refs.length > OCC_STEP_NARROW ? String(OCC_BREAKPOINT) : undefined}
+                            >
                               {form.refs.map((ref) => (
                                 <li>
                                   <a href={`/${ref.bookKey}-${ref.chapter}#v${ref.verse}`}>
@@ -535,15 +554,24 @@ const menuData = {
                 // JS off the full list is already on the page, which is why the
                 // button is injected here rather than authored in the markup.
                 for (const list of document.querySelectorAll(".occ-list[data-occ-cap]")) {
-                  const step = Number(list.dataset.occCap) || 30;
+                  const narrow = Number(list.dataset.occNarrow) || 25;
+                  const wide = Number(list.dataset.occWide) || 50;
+                  const mq = window.matchMedia(
+                    `(min-width: ${Number(list.dataset.occBreakpoint) || 900}px)`,
+                  );
+                  // Read per use, not captured once: a rotate or resize then
+                  // sizes the NEXT batch correctly without resetting what the
+                  // reader has already revealed.
+                  const step = () => (mq.matches ? wide : narrow);
+
                   const items = Array.from(list.children);
-                  if (items.length <= step) continue;
+                  if (items.length <= step()) continue;
 
                   const button = document.createElement("button");
                   button.type = "button";
                   button.className = "occ-more";
 
-                  let shown = step;
+                  let shown = step();
                   const render = () => {
                     items.forEach((li, i) => {
                       li.hidden = i >= shown;
@@ -554,8 +582,8 @@ const menuData = {
                       return;
                     }
                     button.textContent =
-                      left <= step ? `Show last ${left}` : `Show ${step} more`;
-                    // Count is in the accessible name too — "Show 30 more"
+                      left <= step() ? `Show last ${left}` : `Show ${step()} more`;
+                    // Count is in the accessible name too — "Show 50 more"
                     // alone doesn't say more of what, out of context.
                     button.setAttribute(
                       "aria-label",
@@ -563,9 +591,15 @@ const menuData = {
                     );
                   };
 
+                  // Crossing the breakpoint mid-read changes the batch size, so
+                  // relabel the button. Never re-hides what is already shown.
+                  mq.addEventListener("change", () => {
+                    if (button.isConnected) render();
+                  });
+
                   button.addEventListener("click", () => {
                     const firstNew = items[shown];
-                    shown = Math.min(shown + step, items.length);
+                    shown = Math.min(shown + step(), items.length);
                     render();
                     // Keep the reader's place: focus the first newly revealed
                     // link rather than letting focus die with the button.
