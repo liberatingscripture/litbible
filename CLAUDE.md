@@ -766,11 +766,31 @@ collection); they're read directly by the intro pages and the API manifest.
 - **`main` is protected** — direct pushes are rejected; changes land via PR.
   Session work typically happens in a per-task branch/worktree (e.g.
   `.claude/worktrees/<task>/` on branch `claude/<task>`).
+- **Squash, merge-commit, and rebase are all enabled — pick one per PR and say
+  why.** Don't infer the answer from recent history: `main` used merge commits
+  for most of its life and switched to squash only around PR #101, so the last
+  few commits read as a rule when they're really a transition. The merge is the
+  owner's call each time (see the protection note above), and the method is part
+  of what to put in front of them rather than decide silently.
+  - *Squash* — one logical change, or a branch whose commits are WIP noise
+    ("fix typo", "address review"). Nearly every content PR. It also keeps one
+    commit per publish, which suits `draft-release-notes.mjs --since <ref>` and
+    the content-derived API `version`.
+  - *Rebase* — commits that are individually meaningful and each independently
+    valid (extract a helper, then change behavior using it). Squashing those
+    destroys the reviewable sequence.
+  - *Merge commit* — when "these commits landed together as #NNN" is the useful
+    unit, or the branch topology is worth keeping for a later bisect.
 - **After a PR you opened is merged, clean up the branch and worktree** in
   the same session rather than leaving them for later:
   1. `git push origin --delete <branch>` — delete the remote branch (GitHub's
-     "delete branch" button does the same thing; do this even if the repo
-     doesn't auto-delete on merge).
+     "delete branch" button does the same thing; the repo does **not**
+     auto-delete on merge, so this step is never optional). Note that
+     `gh pr merge --delete-branch` is unreliable from a worktree: after merging
+     it tries to switch the local checkout to `main`, which fails when `main` is
+     checked out in the primary worktree, and it can abort before deleting the
+     remote branch. The merge itself still succeeds — verify with
+     `git ls-remote --heads origin <branch>` rather than trusting its exit.
   2. `git worktree remove <path>` from a **different** worktree (a worktree
      can't remove itself while it's the current directory) — then
      `git branch -d <branch>` to delete the now-unreachable local branch.
