@@ -66,6 +66,26 @@
       "ref": "Titus.1.4",
       "english": [
         {
+          "text": "shared",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "koine",
+        "traditional": "Defiled/Profane",
+        "glossary": "defiled-common",
+        "form": "shared"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Titus.1.4",
+      "english": [
+        {
           "text": "faithfulness",
           "n": 1
         }

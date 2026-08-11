@@ -60,27 +60,7 @@
       "confidence": "common",
       "lemma": "present",
       "source": "glossary-scan",
-      "status": "auto"
-    },
-    {
-      "ref": "Matt.15.11",
-      "english": [
-        {
-          "text": "ordinary",
-          "n": 2
-        }
-      ],
-      "greek": [],
-      "term": {
-        "greek": "koine",
-        "traditional": "Defiled/Profane",
-        "glossary": "defiled-common",
-        "form": "ordinary"
-      },
-      "confidence": "common",
-      "lemma": "present",
-      "source": "glossary-scan",
-      "status": "auto"
+      "status": "confirmed"
     },
     {
       "ref": "Matt.15.13",

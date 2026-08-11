@@ -646,6 +646,26 @@
       "ref": "Heb.10.29",
       "english": [
         {
+          "text": "worthless",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "koine",
+        "traditional": "Defiled/Profane",
+        "glossary": "defiled-common",
+        "form": "worthless"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Heb.10.29",
+      "english": [
+        {
           "text": "generosity",
           "n": 1
         }
