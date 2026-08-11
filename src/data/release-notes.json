@@ -43,6 +43,16 @@
           "chapter": 16,
           "verse": 30
         }
+      },
+      {
+        "type": "text_updated",
+        "description": "John 19:11 — text updated",
+        "detail": "\"up,”\" → \"up. That’s why the one who handed me over to you has the bi…\"",
+        "location": {
+          "bookKey": "john",
+          "chapter": 19,
+          "verse": 11
+        }
       }
     ]
   },
