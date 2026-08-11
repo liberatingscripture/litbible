@@ -1,5 +1,16 @@
 [
   {
+    "version": "2026-08-11",
+    "date": "2026-08-11",
+    "label": "August 11, 2026",
+    "changes": [
+      {
+        "type": "glossary_updated",
+        "description": "Glossary entry for Spirit updated"
+      }
+    ]
+  },
+  {
     "version": "2026-08-10",
     "date": "2026-08-10",
     "label": "August 10, 2026",
