@@ -414,12 +414,19 @@
    own light/dark pairs — no new dark-mode rules needed here.
    ========================================================= */
 
+/* Deliberately no border-top. A rule here read as a divider BETWEEN the entry
+   and its own locations, competing with .entry's border-bottom and making it
+   ambiguous which entry the list belonged to. Whitespace does the grouping;
+   the only rule is .entry's, which separates one entry from the next. */
 .entry-occurrences{
   margin-top: 1.15rem;
-  padding-top: 0.9rem;
-  border-top: 1px solid rgba(var(--ink-rgb), 0.14);
+  padding-top: 0.25rem;
   max-width: 44em;
 }
+
+/* No rule of any kind here — full-width read as an entry boundary (the signal
+   .entry's border-bottom already carries) and even a short stub added a mark
+   the grouping doesn't need. Whitespace plus the heading does the work. */
 
 /* Now a <summary>: the whole rendering list is collapsed until asked for. */
 .occ-title{
@@ -437,6 +444,37 @@
 }
 
 .occ-title::-webkit-details-marker{ display: none; }
+
+/* Affordance. The triangle alone is easy to miss at this size, and on touch
+   there is no hover to discover it with — so the rendering count carries the
+   real signal that something is behind the disclosure, and hover/focus
+   confirms it for pointer and keyboard. */
+.occ-title-count{
+  margin-left: 0.5rem;
+  text-indent: 0;
+  font-weight: 400;
+  /* Sized off the RENDERING row's font, not the title's, so it lands at the
+     same absolute size as each row's "242 times…" count. An em of the title
+     would compute smaller — the title's own clamp is tighter, and uppercase
+     reads larger, so a matching ratio would not look like a matching size. */
+  font-size: calc(clamp(15px, 1.5vw, 18px) * 0.86);
+  letter-spacing: 0.02em;
+  text-transform: none;
+  opacity: 0.8;
+}
+
+.occ-title:hover,
+.occ-summary:hover{ opacity: 1; }
+
+.occ-title:hover h3,
+.occ-summary:hover .occ-form{ text-decoration: underline; }
+
+.occ-title:focus-visible,
+.occ-summary:focus-visible{
+  outline: 2px solid var(--green-text, var(--lit-green));
+  outline-offset: 3px;
+  border-radius: 4px;
+}
 
 /* Kept as a heading so the entry still appears in the document outline and
    screen-reader heading navigation — a <summary> alone is not a heading. */
@@ -510,6 +548,10 @@
   opacity: 0.75;
   font-size: 0.86em;
 }
+
+/* Keep each quantity with its noun. Left to wrap freely the count broke as
+   "...in 23" / "books", stranding a bare number at the end of a line. */
+.occ-nw{ white-space: nowrap; }
 
 .occ-list{
   display: flex;

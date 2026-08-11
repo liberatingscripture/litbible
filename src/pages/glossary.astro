@@ -469,22 +469,35 @@ const menuData = {
                         <details class="occ-group">
                           <summary class="occ-title">
                             <h3>Where it appears</h3>
+                            <span class="occ-title-count">{
+                              occurrencesByTerm[data.id].length === 1
+                                ? "1 occurrence"
+                                : `${occurrencesByTerm[data.id].length} occurrences`
+                            }</span>
                           </summary>
                         {occurrencesByTerm[data.id].map((form) => (
                           <details class="occ">
                             <summary class="occ-summary">
                               <span class="occ-form">{form.label}</span>
+                              {/* Each quantity is glued to its noun — see
+                                  .occ-nw. Only say "across N verses" when it
+                                  differs from the occurrence count, or the
+                                  list length and the headline disagree with
+                                  no explanation. */}
                               <span class="occ-count">
-                                {form.count} {form.count === 1 ? "time" : "times"}
-                                {/* Only say "across N verses" when it differs
-                                    from the occurrence count — otherwise the
-                                    list length and the headline disagree with
-                                    no explanation. */}
+                                <span class="occ-nw">
+                                  {form.count} {form.count === 1 ? "time" : "times"}
+                                </span>
                                 {form.verses !== form.count && (
-                                  <>{" across "}{form.verses} verses</>
+                                  <>
+                                    {" across "}
+                                    <span class="occ-nw">{form.verses} verses</span>
+                                  </>
                                 )}
                                 {" in "}
-                                {form.books} {form.books === 1 ? "book" : "books"}
+                                <span class="occ-nw">
+                                  {form.books} {form.books === 1 ? "book" : "books"}
+                                </span>
                               </span>
                             </summary>
                             <ul class="occ-list" data-occ-cap={form.refs.length > OCC_CAP ? String(OCC_CAP) : undefined}>
