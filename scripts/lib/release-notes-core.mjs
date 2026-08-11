@@ -408,28 +408,53 @@ export function buildChanges({ addedFiles, modifiedFiles, readBase, readNow }) {
     // Build content → label maps using each array's own ordering as the sort key.
     const oldLabelOrder = new Map(oldFns.map((f, i) => [f.label, i]));
     const newLabelOrder = new Map(newFns.map((f, i) => [f.label, i]));
-    // Use first-occurrence preference so duplicate HTML values (e.g. the same
-    // "Traditionally, 'flesh'" note appearing twice in a chapter) don't get
-    // misidentified as relabelings of each other.
-    const oldContentToLabel = new Map();
-    for (const f of oldFns) if (!oldContentToLabel.has(f.html)) oldContentToLabel.set(f.html, f.label);
-    const newContentToLabel = new Map();
-    for (const f of newFns) if (!newContentToLabel.has(f.html)) newContentToLabel.set(f.html, f.label);
+    // Pair notes by (content, occurrence index), NOT by content alone. A chapter
+    // can legitimately carry the same note text more than once — the bracketed-
+    // passage convention requires it, since the opening `[|` and closing `|]`
+    // markers footnote the same explanation, and 85 of 260 chapters have some
+    // duplicate body. Matching on text alone pairs the wrong copies as soon as a
+    // cascade shifts them: in ephesians-6 (twin "undyingness" notes at jj and kk)
+    // removing footnote b truncated the range to "c–ii relabeled b–hh" and
+    // reported a phantom removal of kk, a note that had merely moved to jj.
+    // The Nth copy of a body in the old file pairs with the Nth copy in the new.
+    const occurrenceKeys = (fns) => {
+      const seen = new Map();
+      return fns.map((f) => {
+        const n = seen.get(f.html) ?? 0;
+        seen.set(f.html, n + 1);
+        return `${n} ${f.html}`;
+      });
+    };
+    const oldKeys = occurrenceKeys(oldFns);
+    const newKeys = occurrenceKeys(newFns);
+    const keyToLabel = (keys, fns) => {
+      const m = new Map();
+      keys.forEach((k, i) => { if (!m.has(k)) m.set(k, fns[i].label); });
+      return m;
+    };
+    const oldKeyToLabel = keyToLabel(oldKeys, oldFns);
+    const newKeyToLabel = keyToLabel(newKeys, newFns);
+
+    // Label ↔ label correspondence, derived from that pairing.
+    const oldToNewLabel = new Map();
+    oldKeys.forEach((k, i) => {
+      const to = newKeyToLabel.get(k);
+      if (to !== undefined) oldToNewLabel.set(oldFns[i].label, to);
+    });
+    const newToOldLabel = new Map();
+    newKeys.forEach((k, i) => {
+      const from = oldKeyToLabel.get(k);
+      if (from !== undefined) newToOldLabel.set(newFns[i].label, from);
+    });
 
     const relabelCandidates = []; // { fromLabel, toLabel, shift }
 
     for (const oldFn of oldFns) {
-      // Skip if the footnote at this label is unchanged — it's not being relabeled.
-      const sameIdNewFn = newFnMap.get(oldFn.id);
-      if (sameIdNewFn?.html === oldFn.html) continue;
-
-      const newLabel = newContentToLabel.get(oldFn.html);
+      // A note that pairs to its own label didn't move — nothing to relabel.
+      // (This subsumes the old "same id, same html" skip, and unlike that check
+      // it stays correct when a twin sits at the label being compared.)
+      const newLabel = oldToNewLabel.get(oldFn.label);
       if (newLabel === undefined || newLabel === oldFn.label) continue;
-
-      // Skip if the target label already held this same content in the old file —
-      // that would be coincidental duplicate content, not a cascade relabeling.
-      const sameIdOldFn = oldFnMap.get(`fn-${newLabel}`);
-      if (sameIdOldFn?.html === oldFn.html) continue;
 
       const shift =
         (newLabelOrder.get(newLabel) ?? 0) - (oldLabelOrder.get(oldFn.label) ?? 0);
@@ -487,11 +512,9 @@ export function buildChanges({ addedFiles, modifiedFiles, readBase, readNow }) {
         const oldFn = oldFnMap.get(`fn-${d.label}`);
         if (newFn && oldFn) {
           const newCameFromElsewhere =
-            oldContentToLabel.has(newFn.html) &&
-            oldContentToLabel.get(newFn.html) !== d.label;
+            newToOldLabel.has(d.label) && newToOldLabel.get(d.label) !== d.label;
           const oldMovedElsewhere =
-            newContentToLabel.has(oldFn.html) &&
-            newContentToLabel.get(oldFn.html) !== d.label;
+            oldToNewLabel.has(d.label) && oldToNewLabel.get(d.label) !== d.label;
 
           if (newCameFromElsewhere && oldMovedElsewhere) continue;
 

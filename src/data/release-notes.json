@@ -105,6 +105,88 @@
           "verse": 14
         },
         "relabel": "footnotes formerly d–e relabeled e–f"
+      },
+      {
+        "type": "text_updated",
+        "description": "2 Peter 1:13 — text updated",
+        "detail": "\"appropriate\" → \"right\"",
+        "location": {
+          "bookKey": "2peter",
+          "chapter": 1,
+          "verse": 13
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "2 Peter 1:13 — footnote t removed",
+        "detail": "removed \"Traditionally, ‘righteous’ or ‘right.’ Also possible, ‘just.’\"",
+        "location": {
+          "bookKey": "2peter",
+          "chapter": 1,
+          "verse": 13
+        },
+        "relabel": "footnotes formerly u–ii relabeled t–hh"
+      },
+      {
+        "type": "text_updated",
+        "description": "Ephesians 6:1 — text updated",
+        "detail": "\"Lord since this is part of the vision for all things well.\" → \"lord since this is part of justness.\"",
+        "location": {
+          "bookKey": "ephesians",
+          "chapter": 6,
+          "verse": 1
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Ephesians 6:1, 14, 24 — footnotes b, bb, kk updated",
+        "detail": "fn. b (v. 1): removed \"Traditionally, ‘righteous.’ In many places, ‘just’ is the appropriate translation and is often how things fit God’s vis…\"; fn. bb (v. 14): added \"‘your’ is plural while ‘waist’ is singular.\"; fn. kk (v. 24): removed \"Literally something like ‘who love our Lord, Jesus Christ, with undyingness.’\"",
+        "location": {
+          "bookKey": "ephesians",
+          "chapter": 6,
+          "verse": 1
+        },
+        "relabel": "footnotes formerly c–bb relabeled b–aa"
+      },
+      {
+        "type": "text_updated",
+        "description": "Matthew 11:19 — text updated",
+        "detail": "\"Wisdom is proven by her actions.”\" → \"By her actions, Wisdom is proven just.”\"",
+        "location": {
+          "bookKey": "matthew",
+          "chapter": 11,
+          "verse": 19
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Matthew 13:17 — text updated",
+        "detail": "\"teachers\" → \"people who lived justly\"",
+        "location": {
+          "bookKey": "matthew",
+          "chapter": 13,
+          "verse": 17
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Philippians 1:7 — text updated",
+        "detail": "\"justified\" → \"right\"",
+        "location": {
+          "bookKey": "philippians",
+          "chapter": 1,
+          "verse": 7
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Romans 3:22 — text updated",
+        "detail": "\"faithfulness of Jesus Christ\" → \"justness of God, through the faithfulness of Jesus Christ,\"",
+        "location": {
+          "bookKey": "romans",
+          "chapter": 3,
+          "verse": 22
+        }
       }
     ]
   },
