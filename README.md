@@ -95,6 +95,11 @@ Unlike the rest of the generated output, these files are **committed**: they
 carry review state, so re-running the generator merges with what a human has
 already checked rather than overwriting it.
 
+Every glossary term has now been reviewed verse by verse against the Greek, so
+all of them publish a rendering list. Editing the scripture text can reopen
+that — a new or reworded verse arrives unreviewed, and one unreviewed match on
+an ordinary English word withholds its whole term until someone looks at it.
+
 ```sh
 npm run build:alignment
 ```
