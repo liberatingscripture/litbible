@@ -14,6 +14,8 @@
     "build:manifest": "node scripts/build-api-manifest.mjs",
     "build:og": "node scripts/build-og-images.mjs",
     "build:favicons": "node scripts/build-favicons.mjs",
+    "build:alignment": "node scripts/build-alignment.mjs",
+    "review:alignment": "node scripts/alignment-review/server.mjs",
     "fetch:podcast": "node scripts/fetch-podcast-feed.mjs",
     "build": "node scripts/fetch-podcast-feed.mjs && npm run build:topics && npm run build:verses && npm run build:manifest && npm run build:api && npm run build:og && astro build && pagefind --site dist",
     "preview": "npm run build && astro preview",

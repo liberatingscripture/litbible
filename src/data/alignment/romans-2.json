@@ -1,0 +1,806 @@
+{
+  "bookKey": "romans",
+  "chapter": 2,
+  "records": [
+    {
+      "ref": "Rom.2.4",
+      "english": [
+        {
+          "text": "transformation of your mind",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "metanoia",
+        "traditional": "Repentance",
+        "glossary": "repentance-reorient-mind",
+        "form": "reorienting the mind"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.2.7",
+      "english": [
+        {
+          "text": "renown",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "doxa",
+        "traditional": "Glory",
+        "glossary": "glory-praiseworthiness",
+        "form": "renown"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.2.7",
+      "english": [
+        {
+          "text": "benefit",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "agathos",
+        "traditional": "Good [2]",
+        "glossary": "good-beneficial",
+        "form": "benefit"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.2.9",
+      "english": [
+        {
+          "text": "harm",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "kakos",
+        "traditional": "Bad",
+        "glossary": "bad-harmful",
+        "form": "harm"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.2.10",
+      "english": [
+        {
+          "text": "renown",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "doxa",
+        "traditional": "Glory",
+        "glossary": "glory-praiseworthiness",
+        "form": "renown"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.2.10",
+      "english": [
+        {
+          "text": "generosity",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "agathos",
+        "traditional": "Good [2]",
+        "glossary": "good-beneficial",
+        "form": "generous"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.2.10",
+      "english": [
+        {
+          "text": "generosity",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "charis",
+        "traditional": "Grace",
+        "glossary": "grace-generosity",
+        "form": "generosity"
+      },
+      "confidence": "common",
+      "lemma": "absent",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
+      "ref": "Rom.2.12",
+      "english": [
+        {
+          "text": "Torah",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "nomos",
+        "traditional": "Law",
+        "glossary": "law-torah",
+        "form": "Torah"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.2.12",
+      "english": [
+        {
+          "text": "Torah",
+          "n": 2
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "nomos",
+        "traditional": "Law",
+        "glossary": "law-torah",
+        "form": "Torah"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.2.12",
+      "english": [
+        {
+          "text": "Torah",
+          "n": 3
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "nomos",
+        "traditional": "Law",
+        "glossary": "law-torah",
+        "form": "Torah"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.2.12",
+      "english": [
+        {
+          "text": "Torah",
+          "n": 4
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "nomos",
+        "traditional": "Law",
+        "glossary": "law-torah",
+        "form": "Torah"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.2.12",
+      "english": [
+        {
+          "text": "deviated",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hamartia",
+        "traditional": "Sin",
+        "glossary": "sin-deviation",
+        "form": "deviation"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.2.12",
+      "english": [
+        {
+          "text": "deviated",
+          "n": 2
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hamartia",
+        "traditional": "Sin",
+        "glossary": "sin-deviation",
+        "form": "deviation"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.2.13",
+      "english": [
+        {
+          "text": "Torah",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "nomos",
+        "traditional": "Law",
+        "glossary": "law-torah",
+        "form": "Torah"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.2.13",
+      "english": [
+        {
+          "text": "Torah",
+          "n": 2
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "nomos",
+        "traditional": "Law",
+        "glossary": "law-torah",
+        "form": "Torah"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.2.13",
+      "english": [
+        {
+          "text": "aligned",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "dikaiosune",
+        "traditional": "Righteousness",
+        "glossary": "righteousness-justness",
+        "form": "alignment"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.2.13",
+      "english": [
+        {
+          "text": "aligned",
+          "n": 2
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "dikaiosune",
+        "traditional": "Righteousness",
+        "glossary": "righteousness-justness",
+        "form": "alignment"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.2.14",
+      "english": [
+        {
+          "text": "Torah",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "nomos",
+        "traditional": "Law",
+        "glossary": "law-torah",
+        "form": "Torah"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.2.14",
+      "english": [
+        {
+          "text": "Torah",
+          "n": 2
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "nomos",
+        "traditional": "Law",
+        "glossary": "law-torah",
+        "form": "Torah"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.2.14",
+      "english": [
+        {
+          "text": "Torah",
+          "n": 3
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "nomos",
+        "traditional": "Law",
+        "glossary": "law-torah",
+        "form": "Torah"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.2.14",
+      "english": [
+        {
+          "text": "Torah",
+          "n": 4
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "nomos",
+        "traditional": "Law",
+        "glossary": "law-torah",
+        "form": "Torah"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.2.15",
+      "english": [
+        {
+          "text": "Torah",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "nomos",
+        "traditional": "Law",
+        "glossary": "law-torah",
+        "form": "Torah"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.2.16",
+      "english": [
+        {
+          "text": "triumphant message",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "euangelion",
+        "traditional": "Gospel",
+        "glossary": "gospel-triumphant-message",
+        "form": "The Triumphant Message"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.2.17",
+      "english": [
+        {
+          "text": "Torah",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "nomos",
+        "traditional": "Law",
+        "glossary": "law-torah",
+        "form": "Torah"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.2.18",
+      "english": [
+        {
+          "text": "Torah",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "nomos",
+        "traditional": "Law",
+        "glossary": "law-torah",
+        "form": "Torah"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.2.20",
+      "english": [
+        {
+          "text": "Torah",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "nomos",
+        "traditional": "Law",
+        "glossary": "law-torah",
+        "form": "Torah"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.2.23",
+      "english": [
+        {
+          "text": "Torah",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "nomos",
+        "traditional": "Law",
+        "glossary": "law-torah",
+        "form": "Torah"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.2.23",
+      "english": [
+        {
+          "text": "Torah",
+          "n": 2
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "nomos",
+        "traditional": "Law",
+        "glossary": "law-torah",
+        "form": "Torah"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.2.23",
+      "english": [
+        {
+          "text": "sidestepping",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "paraptoma",
+        "traditional": "Transgression",
+        "glossary": "trespass-shortfall",
+        "form": "sidestep"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.2.24",
+      "english": [
+        {
+          "text": "being slandered",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "blasphemia",
+        "traditional": "Blasphemy",
+        "glossary": "blasphemy-disrespectfulness",
+        "form": "slander"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.2.25",
+      "english": [
+        {
+          "text": "Torah",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "nomos",
+        "traditional": "Law",
+        "glossary": "law-torah",
+        "form": "Torah"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.2.25",
+      "english": [
+        {
+          "text": "Torah",
+          "n": 2
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "nomos",
+        "traditional": "Law",
+        "glossary": "law-torah",
+        "form": "Torah"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.2.25",
+      "english": [
+        {
+          "text": "sidestepper",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "paraptoma",
+        "traditional": "Transgression",
+        "glossary": "trespass-shortfall",
+        "form": "sidestep"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.2.26",
+      "english": [
+        {
+          "text": "Torah",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "nomos",
+        "traditional": "Law",
+        "glossary": "law-torah",
+        "form": "Torah"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.2.26",
+      "english": [
+        {
+          "text": "standards",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "dikaiosune",
+        "traditional": "Righteousness",
+        "glossary": "righteousness-justness",
+        "form": "standards"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.2.27",
+      "english": [
+        {
+          "text": "Torah",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "nomos",
+        "traditional": "Law",
+        "glossary": "law-torah",
+        "form": "Torah"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.2.27",
+      "english": [
+        {
+          "text": "Torah",
+          "n": 2
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "nomos",
+        "traditional": "Law",
+        "glossary": "law-torah",
+        "form": "Torah"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.2.27",
+      "english": [
+        {
+          "text": "sidestepper",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "paraptoma",
+        "traditional": "Transgression",
+        "glossary": "trespass-shortfall",
+        "form": "sidestep"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.2.28",
+      "english": [
+        {
+          "text": "physical appearance",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "sarx",
+        "traditional": "Flesh",
+        "glossary": "flesh-body",
+        "form": "body"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.2.29",
+      "english": [
+        {
+          "text": "Life-breath",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pneuma",
+        "traditional": "Spirit",
+        "glossary": "spirit-life-breath",
+        "form": "Life-breath"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    }
+  ]
+}

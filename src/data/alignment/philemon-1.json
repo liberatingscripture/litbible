@@ -1,0 +1,306 @@
+{
+  "bookKey": "philemon",
+  "chapter": 1,
+  "records": [
+    {
+      "ref": "Phlm.1.1",
+      "english": [
+        {
+          "text": "Family",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "sarx",
+        "traditional": "Flesh",
+        "glossary": "flesh-body",
+        "form": "family"
+      },
+      "confidence": "common",
+      "lemma": "absent",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
+      "ref": "Phlm.1.2",
+      "english": [
+        {
+          "text": "Family",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "sarx",
+        "traditional": "Flesh",
+        "glossary": "flesh-body",
+        "form": "family"
+      },
+      "confidence": "common",
+      "lemma": "absent",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
+      "ref": "Phlm.1.3",
+      "english": [
+        {
+          "text": "Good fortune",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "charis",
+        "traditional": "Grace",
+        "glossary": "grace-generosity",
+        "form": "Good fortune"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Phlm.1.5",
+      "english": [
+        {
+          "text": "faithfulness",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pistis",
+        "traditional": "Faith",
+        "glossary": "faith-trust",
+        "form": "faithfulness"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Phlm.1.5",
+      "english": [
+        {
+          "text": "sacred",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hagios",
+        "traditional": "Holy",
+        "glossary": "holy-sacred",
+        "form": "sacred"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Phlm.1.6",
+      "english": [
+        {
+          "text": "faithfulness",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pistis",
+        "traditional": "Faith",
+        "glossary": "faith-trust",
+        "form": "faithfulness"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Phlm.1.6",
+      "english": [
+        {
+          "text": "well-being",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "agathos",
+        "traditional": "Good [2]",
+        "glossary": "good-beneficial",
+        "form": "well-being"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Phlm.1.7",
+      "english": [
+        {
+          "text": "sacred",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hagios",
+        "traditional": "Holy",
+        "glossary": "holy-sacred",
+        "form": "sacred"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Phlm.1.13",
+      "english": [
+        {
+          "text": "news of victory",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "euangelion",
+        "traditional": "Gospel",
+        "glossary": "gospel-triumphant-message",
+        "form": "news of triumph"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Phlm.1.14",
+      "english": [
+        {
+          "text": "generosity",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "agathos",
+        "traditional": "Good [2]",
+        "glossary": "good-beneficial",
+        "form": "generous"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Phlm.1.14",
+      "english": [
+        {
+          "text": "generosity",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "charis",
+        "traditional": "Grace",
+        "glossary": "grace-generosity",
+        "form": "generosity"
+      },
+      "confidence": "common",
+      "lemma": "absent",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
+      "ref": "Phlm.1.16",
+      "english": [
+        {
+          "text": "personally",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "sarx",
+        "traditional": "Flesh",
+        "glossary": "flesh-body",
+        "form": "personally"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Phlm.1.22",
+      "english": [
+        {
+          "text": "given generously",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "charis",
+        "traditional": "Grace",
+        "glossary": "grace-generosity",
+        "form": "give generously"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Phlm.1.25",
+      "english": [
+        {
+          "text": "good fortune",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "charis",
+        "traditional": "Grace",
+        "glossary": "grace-generosity",
+        "form": "Good fortune"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Phlm.1.25",
+      "english": [
+        {
+          "text": "life-breath",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pneuma",
+        "traditional": "Spirit",
+        "glossary": "spirit-life-breath",
+        "form": "Life-breath"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    }
+  ]
+}

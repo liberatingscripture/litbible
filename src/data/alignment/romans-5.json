@@ -1,0 +1,906 @@
+{
+  "bookKey": "romans",
+  "chapter": 5,
+  "records": [
+    {
+      "ref": "Rom.5.1",
+      "english": [
+        {
+          "text": "faithfulness",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pistis",
+        "traditional": "Faith",
+        "glossary": "faith-trust",
+        "form": "faithfulness"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.5.1",
+      "english": [
+        {
+          "text": "just",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "dikaiosune",
+        "traditional": "Righteousness",
+        "glossary": "righteousness-justness",
+        "form": "justness"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.5.2",
+      "english": [
+        {
+          "text": "faithfulness",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pistis",
+        "traditional": "Faith",
+        "glossary": "faith-trust",
+        "form": "faithfulness"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.5.2",
+      "english": [
+        {
+          "text": "praiseworthiness",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "doxa",
+        "traditional": "Glory",
+        "glossary": "glory-praiseworthiness",
+        "form": "praiseworthiness"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.5.2",
+      "english": [
+        {
+          "text": "generosity",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "charis",
+        "traditional": "Grace",
+        "glossary": "grace-generosity",
+        "form": "generosity"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.5.5",
+      "english": [
+        {
+          "text": "Sacred",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hagios",
+        "traditional": "Holy",
+        "glossary": "holy-sacred",
+        "form": "sacred"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.5.5",
+      "english": [
+        {
+          "text": "Life-breath",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pneuma",
+        "traditional": "Spirit",
+        "glossary": "spirit-life-breath",
+        "form": "Life-breath"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.5.7",
+      "english": [
+        {
+          "text": "kind",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "agathos",
+        "traditional": "Good [2]",
+        "glossary": "good-beneficial",
+        "form": "kind"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.5.7",
+      "english": [
+        {
+          "text": "justice",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "dikaiosune",
+        "traditional": "Righteousness",
+        "glossary": "righteousness-justness",
+        "form": "justice"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.5.8",
+      "english": [
+        {
+          "text": "deviating",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hamartia",
+        "traditional": "Sin",
+        "glossary": "sin-deviation",
+        "form": "deviation"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.5.9",
+      "english": [
+        {
+          "text": "just",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "dikaiosune",
+        "traditional": "Righteousness",
+        "glossary": "righteousness-justness",
+        "form": "justness"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.5.9",
+      "english": [
+        {
+          "text": "liberated",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "soterios",
+        "traditional": "Salvation",
+        "glossary": "salvation-liberation",
+        "form": "liberation"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.5.10",
+      "english": [
+        {
+          "text": "liberated",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "soterios",
+        "traditional": "Salvation",
+        "glossary": "salvation-liberation",
+        "form": "liberation"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.5.12",
+      "english": [
+        {
+          "text": "deviation",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hamartia",
+        "traditional": "Sin",
+        "glossary": "sin-deviation",
+        "form": "deviation"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.5.12",
+      "english": [
+        {
+          "text": "deviation",
+          "n": 2
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hamartia",
+        "traditional": "Sin",
+        "glossary": "sin-deviation",
+        "form": "deviation"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.5.13",
+      "english": [
+        {
+          "text": "Torah",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "nomos",
+        "traditional": "Law",
+        "glossary": "law-torah",
+        "form": "Torah"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.5.13",
+      "english": [
+        {
+          "text": "Torah",
+          "n": 2
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "nomos",
+        "traditional": "Law",
+        "glossary": "law-torah",
+        "form": "Torah"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.5.13",
+      "english": [
+        {
+          "text": "deviation",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hamartia",
+        "traditional": "Sin",
+        "glossary": "sin-deviation",
+        "form": "deviation"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.5.13",
+      "english": [
+        {
+          "text": "deviation",
+          "n": 2
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hamartia",
+        "traditional": "Sin",
+        "glossary": "sin-deviation",
+        "form": "deviation"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.5.14",
+      "english": [
+        {
+          "text": "deviate",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hamartia",
+        "traditional": "Sin",
+        "glossary": "sin-deviation",
+        "form": "deviation"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.5.14",
+      "english": [
+        {
+          "text": "sidestepping",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "paraptoma",
+        "traditional": "Transgression",
+        "glossary": "trespass-shortfall",
+        "form": "sidestep"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.5.15",
+      "english": [
+        {
+          "text": "generosity",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "charis",
+        "traditional": "Grace",
+        "glossary": "grace-generosity",
+        "form": "generosity"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.5.15",
+      "english": [
+        {
+          "text": "generosity",
+          "n": 2
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "charis",
+        "traditional": "Grace",
+        "glossary": "grace-generosity",
+        "form": "generosity"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.5.15",
+      "english": [
+        {
+          "text": "deviation",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hamartia",
+        "traditional": "Sin",
+        "glossary": "sin-deviation",
+        "form": "deviation"
+      },
+      "confidence": "distinctive",
+      "lemma": "absent",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
+      "ref": "Rom.5.15",
+      "english": [
+        {
+          "text": "shortfall",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "paraptoma",
+        "traditional": "Transgression",
+        "glossary": "trespass-shortfall",
+        "form": "shortfall"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.5.15",
+      "english": [
+        {
+          "text": "shortfall",
+          "n": 2
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "paraptoma",
+        "traditional": "Transgression",
+        "glossary": "trespass-shortfall",
+        "form": "shortfall"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.5.16",
+      "english": [
+        {
+          "text": "generosity",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "charis",
+        "traditional": "Grace",
+        "glossary": "grace-generosity",
+        "form": "generosity"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.5.16",
+      "english": [
+        {
+          "text": "just",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "dikaiosune",
+        "traditional": "Righteousness",
+        "glossary": "righteousness-justness",
+        "form": "justness"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.5.16",
+      "english": [
+        {
+          "text": "deviated",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hamartia",
+        "traditional": "Sin",
+        "glossary": "sin-deviation",
+        "form": "deviation"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.5.16",
+      "english": [
+        {
+          "text": "shortfalls",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "paraptoma",
+        "traditional": "Transgression",
+        "glossary": "trespass-shortfall",
+        "form": "shortfall"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.5.17",
+      "english": [
+        {
+          "text": "generosity",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "charis",
+        "traditional": "Grace",
+        "glossary": "grace-generosity",
+        "form": "generosity"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.5.17",
+      "english": [
+        {
+          "text": "justness",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "dikaiosune",
+        "traditional": "Righteousness",
+        "glossary": "righteousness-justness",
+        "form": "justness"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.5.17",
+      "english": [
+        {
+          "text": "shortfall",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "paraptoma",
+        "traditional": "Transgression",
+        "glossary": "trespass-shortfall",
+        "form": "shortfall"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.5.18",
+      "english": [
+        {
+          "text": "just",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "dikaiosune",
+        "traditional": "Righteousness",
+        "glossary": "righteousness-justness",
+        "form": "justness"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.5.18",
+      "english": [
+        {
+          "text": "justness",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "dikaiosune",
+        "traditional": "Righteousness",
+        "glossary": "righteousness-justness",
+        "form": "justness"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.5.18",
+      "english": [
+        {
+          "text": "shortfall",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "paraptoma",
+        "traditional": "Transgression",
+        "glossary": "trespass-shortfall",
+        "form": "shortfall"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.5.19",
+      "english": [
+        {
+          "text": "just",
+          "n": 2
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "dikaiosune",
+        "traditional": "Righteousness",
+        "glossary": "righteousness-justness",
+        "form": "justness"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.5.19",
+      "english": [
+        {
+          "text": "deviate",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hamartia",
+        "traditional": "Sin",
+        "glossary": "sin-deviation",
+        "form": "deviation"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.5.20",
+      "english": [
+        {
+          "text": "generosity",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "charis",
+        "traditional": "Grace",
+        "glossary": "grace-generosity",
+        "form": "generosity"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.5.20",
+      "english": [
+        {
+          "text": "Torah",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "nomos",
+        "traditional": "Law",
+        "glossary": "law-torah",
+        "form": "Torah"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.5.20",
+      "english": [
+        {
+          "text": "deviation",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hamartia",
+        "traditional": "Sin",
+        "glossary": "sin-deviation",
+        "form": "deviation"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.5.20",
+      "english": [
+        {
+          "text": "shortfall",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "paraptoma",
+        "traditional": "Transgression",
+        "glossary": "trespass-shortfall",
+        "form": "shortfall"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.5.21",
+      "english": [
+        {
+          "text": "generosity",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "charis",
+        "traditional": "Grace",
+        "glossary": "grace-generosity",
+        "form": "generosity"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.5.21",
+      "english": [
+        {
+          "text": "justness",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "dikaiosune",
+        "traditional": "Righteousness",
+        "glossary": "righteousness-justness",
+        "form": "justness"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.5.21",
+      "english": [
+        {
+          "text": "deviation",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hamartia",
+        "traditional": "Sin",
+        "glossary": "sin-deviation",
+        "form": "deviation"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    }
+  ]
+}

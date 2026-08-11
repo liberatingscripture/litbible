@@ -1,0 +1,446 @@
+{
+  "bookKey": "mark",
+  "chapter": 9,
+  "records": [
+    {
+      "ref": "Mark.9.5",
+      "english": [
+        {
+          "text": "precious",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "kalos",
+        "traditional": "Good [1]",
+        "glossary": "good-admirable",
+        "form": "precious"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Mark.9.9",
+      "english": [
+        {
+          "text": "reawakened",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "anastasis",
+        "traditional": "Resurrection",
+        "glossary": "resurrection-reawakening",
+        "form": "reawakening"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Mark.9.10",
+      "english": [
+        {
+          "text": "to reawaken",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "anastasis",
+        "traditional": "Resurrection",
+        "glossary": "resurrection-reawakening",
+        "form": "reawakening"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Mark.9.17",
+      "english": [
+        {
+          "text": "spirit-breath",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pneuma",
+        "traditional": "Spirit",
+        "glossary": "spirit-life-breath",
+        "form": "spirit-breaths"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Mark.9.20",
+      "english": [
+        {
+          "text": "spirit-breath",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pneuma",
+        "traditional": "Spirit",
+        "glossary": "spirit-life-breath",
+        "form": "spirit-breaths"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Mark.9.23",
+      "english": [
+        {
+          "text": "trusts",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pistis",
+        "traditional": "Faith",
+        "glossary": "faith-trust",
+        "form": "trust"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Mark.9.24",
+      "english": [
+        {
+          "text": "trust",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pistis",
+        "traditional": "Faith",
+        "glossary": "faith-trust",
+        "form": "trust"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Mark.9.25",
+      "english": [
+        {
+          "text": "spirit-breath",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pneuma",
+        "traditional": "Spirit",
+        "glossary": "spirit-life-breath",
+        "form": "spirit-breaths"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Mark.9.25",
+      "english": [
+        {
+          "text": "spirit-breath",
+          "n": 2
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pneuma",
+        "traditional": "Spirit",
+        "glossary": "spirit-life-breath",
+        "form": "spirit-breaths"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Mark.9.25",
+      "english": [
+        {
+          "text": "unclean",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "akathartos",
+        "traditional": "Unclean",
+        "glossary": "unclean-unclean",
+        "form": "unclean"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Mark.9.27",
+      "english": [
+        {
+          "text": "stood up",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "anastasis",
+        "traditional": "Resurrection",
+        "glossary": "resurrection-reawakening",
+        "form": "stood up"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Mark.9.31",
+      "english": [
+        {
+          "text": "reawaken",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "anastasis",
+        "traditional": "Resurrection",
+        "glossary": "resurrection-reawakening",
+        "form": "reawakening"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Mark.9.38",
+      "english": [
+        {
+          "text": "demons",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "daimonion",
+        "traditional": "Demon",
+        "glossary": "demon-demon",
+        "form": "demon"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Mark.9.42",
+      "english": [
+        {
+          "text": "trust",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pistis",
+        "traditional": "Faith",
+        "glossary": "faith-trust",
+        "form": "trust"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Mark.9.42",
+      "english": [
+        {
+          "text": "preferable",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "kalos",
+        "traditional": "Good [1]",
+        "glossary": "good-admirable",
+        "form": "preferable"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Mark.9.43",
+      "english": [
+        {
+          "text": "Hinnom Valley",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "Gehenna",
+        "traditional": "Gehenna/Hell",
+        "glossary": "gehenna-hinnom-valley",
+        "form": "Hinnom Valley"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Mark.9.43",
+      "english": [
+        {
+          "text": "preferable",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "kalos",
+        "traditional": "Good [1]",
+        "glossary": "good-admirable",
+        "form": "preferable"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Mark.9.45",
+      "english": [
+        {
+          "text": "Hinnom Valley",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "Gehenna",
+        "traditional": "Gehenna/Hell",
+        "glossary": "gehenna-hinnom-valley",
+        "form": "Hinnom Valley"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Mark.9.45",
+      "english": [
+        {
+          "text": "preferable",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "kalos",
+        "traditional": "Good [1]",
+        "glossary": "good-admirable",
+        "form": "preferable"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Mark.9.47",
+      "english": [
+        {
+          "text": "Hinnom Valley",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "Gehenna",
+        "traditional": "Gehenna/Hell",
+        "glossary": "gehenna-hinnom-valley",
+        "form": "Hinnom Valley"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Mark.9.47",
+      "english": [
+        {
+          "text": "preferable",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "kalos",
+        "traditional": "Good [1]",
+        "glossary": "good-admirable",
+        "form": "preferable"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Mark.9.50",
+      "english": [
+        {
+          "text": "desirable",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "kalos",
+        "traditional": "Good [1]",
+        "glossary": "good-admirable",
+        "form": "desirable"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    }
+  ]
+}

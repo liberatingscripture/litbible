@@ -1,0 +1,106 @@
+{
+  "bookKey": "1corinthians",
+  "chapter": 13,
+  "records": [
+    {
+      "ref": "1Cor.13.1",
+      "english": [
+        {
+          "text": "messengers",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "angelos",
+        "traditional": "Angel",
+        "glossary": "angel-message",
+        "form": "messenger"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Cor.13.2",
+      "english": [
+        {
+          "text": "trust",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pistis",
+        "traditional": "Faith",
+        "glossary": "faith-trust",
+        "form": "trust"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Cor.13.5",
+      "english": [
+        {
+          "text": "harm",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "kakos",
+        "traditional": "Bad",
+        "glossary": "bad-harmful",
+        "form": "harm"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Cor.13.7",
+      "english": [
+        {
+          "text": "trusts",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pistis",
+        "traditional": "Faith",
+        "glossary": "faith-trust",
+        "form": "trust"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Cor.13.13",
+      "english": [
+        {
+          "text": "trust",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pistis",
+        "traditional": "Faith",
+        "glossary": "faith-trust",
+        "form": "trust"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    }
+  ]
+}

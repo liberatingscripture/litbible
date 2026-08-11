@@ -182,7 +182,14 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  background: rgba(var(--surface-rgb), 0.88);
+  /* Near-opaque, NOT 0.88 + blur. The pill scrolls over body text, and the
+     blur is not dependable: it computes to `none` in contexts that report
+     CSS.supports('backdrop-filter') === true (no GPU compositing), which
+     also means an @supports fallback never fires. At 0.88 with no blur the
+     text underneath stays legible through the pill and the whole thing reads
+     as a rendering fault. Legibility can't rest on an effect that silently
+     drops; the blur stays as enhancement where it does apply. */
+  background: rgb(var(--surface-rgb));
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(var(--ink-rgb), 0.08);
@@ -397,4 +404,203 @@
 .entries-strike-svg,
 .entries-underline-svg{
   display: none !important;
+}
+
+/* =========================================================
+   OCCURRENCES  (phase 1 alignment data)
+   Where a term's LIT rendering actually appears. Secondary to
+   the definition, so it sits smaller and quieter beneath it.
+   Colors come from existing tokens, which already carry their
+   own light/dark pairs — no new dark-mode rules needed here.
+   ========================================================= */
+
+/* Deliberately no border-top. A rule here read as a divider BETWEEN the entry
+   and its own locations, competing with .entry's border-bottom and making it
+   ambiguous which entry the list belonged to. Whitespace does the grouping;
+   the only rule is .entry's, which separates one entry from the next. */
+.entry-occurrences{
+  margin-top: 1.15rem;
+  padding-top: 0.25rem;
+  max-width: 44em;
+}
+
+/* No rule of any kind here — full-width read as an entry boundary (the signal
+   .entry's border-bottom already carries) and even a short stub added a mark
+   the grouping doesn't need. Whitespace plus the heading does the work. */
+
+/* Now a <summary>: the whole rendering list is collapsed until asked for. */
+.occ-title{
+  cursor: pointer;
+  list-style: none;
+  margin: 0;
+  padding: 0.15rem 0 0.15rem 1.15rem;
+  text-indent: -1.15rem;
+  font-size: clamp(15px, 1.35vw, 18px);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-strong);
+  opacity: 0.9;
+}
+
+.occ-title::-webkit-details-marker{ display: none; }
+
+/* Affordance. The triangle alone is easy to miss at this size, and on touch
+   there is no hover to discover it with — so the rendering count carries the
+   real signal that something is behind the disclosure, and hover/focus
+   confirms it for pointer and keyboard. */
+.occ-title-count{
+  margin-left: 0.5rem;
+  text-indent: 0;
+  font-weight: 400;
+  /* Sized off the RENDERING row's font, not the title's, so it lands at the
+     same absolute size as each row's "242 times…" count. An em of the title
+     would compute smaller — the title's own clamp is tighter, and uppercase
+     reads larger, so a matching ratio would not look like a matching size. */
+  font-size: calc(clamp(15px, 1.5vw, 18px) * 0.86);
+  letter-spacing: 0.02em;
+  text-transform: none;
+  opacity: 0.8;
+}
+
+.occ-title:hover,
+.occ-summary:hover{ opacity: 1; }
+
+.occ-title:hover h3,
+.occ-summary:hover .occ-form{ text-decoration: underline; }
+
+.occ-title:focus-visible,
+.occ-summary:focus-visible{
+  outline: 2px solid var(--green-text, var(--lit-green));
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* Kept as a heading so the entry still appears in the document outline and
+   screen-reader heading navigation — a <summary> alone is not a heading. */
+.occ-title h3{
+  display: inline;
+  margin: 0;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  color: inherit;
+}
+
+.occ-group[open] > .occ-title{ margin-bottom: 0.5rem; }
+
+.occ + .occ{ margin-top: 0.3rem; }
+
+/* Hanging indent, not flex-wrap. As a wrapping flex row the count dropped to
+   a new line starting at the container edge — under the disclosure triangle,
+   out of line with everything else. Inline layout with a negative text-indent
+   pulls the marker out to the left and lands every wrapped line on 1.15rem,
+   the same left edge as .occ-list below, so a summary that wraps still reads
+   as one column. */
+.occ-summary{
+  cursor: pointer;
+  list-style: none;
+  /* 2.3rem, double the marker column: a wrapped line lands clearly INSIDE the
+     label rather than level with it, so the continuation reads as belonging
+     to the row above instead of starting a new one. */
+  padding: 0.35rem 0 0.35rem 2.3rem;
+  text-indent: -2.3rem;
+  font-size: clamp(15px, 1.5vw, 18px);
+}
+
+.occ-summary::-webkit-details-marker{ display: none; }
+
+/* --green-text, not --lit-green: the latter is theme-invariant #209D50 and
+   is the SURFACE green, which only clears AA as link text by a hair on the
+   dark background. --green-text is the link/text token and flips to a light
+   green in dark mode. */
+.occ-summary::before,
+.occ-title::before{
+  content: "▸";
+  /* inline-block so the rotate below actually applies — transform is a no-op
+     on a plain inline box. */
+  display: inline-block;
+  /* Fixed column so every marker on the page shares one left edge, but the
+     glyph is much narrower than the column, so flush it right or the label
+     drifts away from its own marker as the type gets larger. */
+  width: 1.15rem;
+  text-align: right;
+  color: var(--green-text, var(--lit-green));
+  transition: transform 160ms ease;
+}
+
+.occ[open] > .occ-summary::before,
+.occ-group[open] > .occ-title::before{ transform: rotate(90deg); }
+
+/* text-indent is inherited by inline children, so reset it here or the label
+   gets pulled left a second time. */
+.occ-form{
+  text-indent: 0;
+  font-weight: 700;
+  color: var(--text-strong);
+}
+
+/* The gap the old flex `gap` used to provide. */
+.occ-count{
+  margin-left: 0.4rem;
+  text-indent: 0;
+  color: var(--text);
+  opacity: 0.75;
+  font-size: 0.86em;
+}
+
+/* Keep each quantity with its noun. Left to wrap freely the count broke as
+   "...in 23" / "books", stranding a bare number at the end of a line. */
+.occ-nw{ white-space: nowrap; }
+
+.occ-list{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 0.85rem;
+  margin: 0.35rem 0 0.6rem;
+  padding: 0 0 0 1.15rem;
+  list-style: none;
+}
+
+.occ-list a{
+  color: var(--green-text, var(--lit-green));
+  text-decoration: none;
+  font-size: clamp(14px, 1.3vw, 16px);
+  white-space: nowrap;
+  /* "Show more" focuses the first newly revealed link, which scrolls it into
+     view — clear the sticky jump pill so focus never lands under it. */
+  scroll-margin-top: 72px;
+}
+
+.occ-list a:hover,
+.occ-list a:focus-visible{ text-decoration: underline; }
+
+/* [hidden] is a UA rule the LI would otherwise honor, but state it here so a
+   future display rule on .occ-list li can't quietly outrank it. */
+.occ-list li[hidden]{ display: none; }
+
+/* Injected by script only — a no-JS page has every link already, so there is
+   nothing for this to reveal and it is never rendered. */
+.occ-more{
+  display: inline-block;
+  margin: 0 0 0.6rem 1.15rem;
+  padding: 0.28rem 0.7rem;
+  border: 1px solid rgba(var(--ink-rgb), 0.22);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--green-text, var(--lit-green));
+  font: inherit;
+  font-size: clamp(13px, 1.2vw, 15px);
+  cursor: pointer;
+}
+
+.occ-more:hover{ border-color: rgba(var(--ink-rgb), 0.4); }
+
+.occ-more:focus-visible{
+  outline: 2px solid var(--green-text, var(--lit-green));
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce){
+  .occ-summary::before{ transition: none; }
 }

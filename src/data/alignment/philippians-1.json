@@ -1,0 +1,486 @@
+{
+  "bookKey": "philippians",
+  "chapter": 1,
+  "records": [
+    {
+      "ref": "Phil.1.1",
+      "english": [
+        {
+          "text": "sacred",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hagios",
+        "traditional": "Holy",
+        "glossary": "holy-sacred",
+        "form": "sacred"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Phil.1.2",
+      "english": [
+        {
+          "text": "Good fortune",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "charis",
+        "traditional": "Grace",
+        "glossary": "grace-generosity",
+        "form": "Good fortune"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Phil.1.5",
+      "english": [
+        {
+          "text": "the triumphant message",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "euangelion",
+        "traditional": "Gospel",
+        "glossary": "gospel-triumphant-message",
+        "form": "The Triumphant Message"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Phil.1.6",
+      "english": [
+        {
+          "text": "beneficial",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "agathos",
+        "traditional": "Good [2]",
+        "glossary": "good-beneficial",
+        "form": "beneficial"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Phil.1.7",
+      "english": [
+        {
+          "text": "the triumphant message",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "euangelion",
+        "traditional": "Gospel",
+        "glossary": "gospel-triumphant-message",
+        "form": "The Triumphant Message"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Phil.1.7",
+      "english": [
+        {
+          "text": "generosity",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "charis",
+        "traditional": "Grace",
+        "glossary": "grace-generosity",
+        "form": "generosity"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Phil.1.7",
+      "english": [
+        {
+          "text": "right",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "dikaiosune",
+        "traditional": "Righteousness",
+        "glossary": "righteousness-justness",
+        "form": "right"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Phil.1.11",
+      "english": [
+        {
+          "text": "high reputation",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "doxa",
+        "traditional": "Glory",
+        "glossary": "glory-praiseworthiness",
+        "form": "reputation"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Phil.1.11",
+      "english": [
+        {
+          "text": "justness",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "dikaiosune",
+        "traditional": "Righteousness",
+        "glossary": "righteousness-justness",
+        "form": "justness"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Phil.1.12",
+      "english": [
+        {
+          "text": "Family",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "sarx",
+        "traditional": "Flesh",
+        "glossary": "flesh-body",
+        "form": "family"
+      },
+      "confidence": "common",
+      "lemma": "absent",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
+      "ref": "Phil.1.12",
+      "english": [
+        {
+          "text": "the triumphant message",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "euangelion",
+        "traditional": "Gospel",
+        "glossary": "gospel-triumphant-message",
+        "form": "The Triumphant Message"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Phil.1.14",
+      "english": [
+        {
+          "text": "Family",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "sarx",
+        "traditional": "Flesh",
+        "glossary": "flesh-body",
+        "form": "family"
+      },
+      "confidence": "common",
+      "lemma": "absent",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
+      "ref": "Phil.1.16",
+      "english": [
+        {
+          "text": "the triumphant message",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "euangelion",
+        "traditional": "Gospel",
+        "glossary": "gospel-triumphant-message",
+        "form": "The Triumphant Message"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Phil.1.19",
+      "english": [
+        {
+          "text": "liberation",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "soterios",
+        "traditional": "Salvation",
+        "glossary": "salvation-liberation",
+        "form": "liberation"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Phil.1.19",
+      "english": [
+        {
+          "text": "Life-breath",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pneuma",
+        "traditional": "Spirit",
+        "glossary": "spirit-life-breath",
+        "form": "Life-breath"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Phil.1.22",
+      "english": [
+        {
+          "text": "body",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "sarx",
+        "traditional": "Flesh",
+        "glossary": "flesh-body",
+        "form": "body"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Phil.1.24",
+      "english": [
+        {
+          "text": "body",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "sarx",
+        "traditional": "Flesh",
+        "glossary": "flesh-body",
+        "form": "body"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Phil.1.25",
+      "english": [
+        {
+          "text": "faithfulness",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pistis",
+        "traditional": "Faith",
+        "glossary": "faith-trust",
+        "form": "faithfulness"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Phil.1.27",
+      "english": [
+        {
+          "text": "faithfulness",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pistis",
+        "traditional": "Faith",
+        "glossary": "faith-trust",
+        "form": "faithfulness"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Phil.1.27",
+      "english": [
+        {
+          "text": "the triumphant message",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "euangelion",
+        "traditional": "Gospel",
+        "glossary": "gospel-triumphant-message",
+        "form": "The Triumphant Message"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Phil.1.27",
+      "english": [
+        {
+          "text": "Life-breath",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pneuma",
+        "traditional": "Spirit",
+        "glossary": "spirit-life-breath",
+        "form": "Life-breath"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Phil.1.28",
+      "english": [
+        {
+          "text": "liberation",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "soterios",
+        "traditional": "Salvation",
+        "glossary": "salvation-liberation",
+        "form": "liberation"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Phil.1.29",
+      "english": [
+        {
+          "text": "faithful",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pistis",
+        "traditional": "Faith",
+        "glossary": "faith-trust",
+        "form": "faithfulness"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Phil.1.29",
+      "english": [
+        {
+          "text": "generously",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "charis",
+        "traditional": "Grace",
+        "glossary": "grace-generosity",
+        "form": "generosity"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    }
+  ]
+}

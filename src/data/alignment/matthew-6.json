@@ -1,0 +1,486 @@
+{
+  "bookKey": "matthew",
+  "chapter": 6,
+  "records": [
+    {
+      "ref": "Matt.6.1",
+      "english": [
+        {
+          "text": "the heavens",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ouranos",
+        "traditional": "Heaven",
+        "glossary": "heaven-sky",
+        "form": "the heavens"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.6.1",
+      "english": [
+        {
+          "text": "justice",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "dikaiosune",
+        "traditional": "Righteousness",
+        "glossary": "righteousness-justness",
+        "form": "justice"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.6.2",
+      "english": [
+        {
+          "text": "thought of highly",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "doxa",
+        "traditional": "Glory",
+        "glossary": "glory-praiseworthiness",
+        "form": "reputation"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.6.9",
+      "english": [
+        {
+          "text": "the heavens",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ouranos",
+        "traditional": "Heaven",
+        "glossary": "heaven-sky",
+        "form": "the heavens"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.6.9",
+      "english": [
+        {
+          "text": "sacred",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hagios",
+        "traditional": "Holy",
+        "glossary": "holy-sacred",
+        "form": "sacred"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.6.10",
+      "english": [
+        {
+          "text": "the heavens",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ouranos",
+        "traditional": "Heaven",
+        "glossary": "heaven-sky",
+        "form": "the heavens"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.6.12",
+      "english": [
+        {
+          "text": "release",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "aphiemi",
+        "traditional": "Forgiveness",
+        "glossary": "forgiveness-letting-go",
+        "form": "release"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.6.12",
+      "english": [
+        {
+          "text": "release",
+          "n": 2
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "aphiemi",
+        "traditional": "Forgiveness",
+        "glossary": "forgiveness-letting-go",
+        "form": "release"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.6.13",
+      "english": [
+        {
+          "text": "hardship",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "poneros",
+        "traditional": "Evil",
+        "glossary": "evil-hardship",
+        "form": "hardship"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.6.14",
+      "english": [
+        {
+          "text": "let go",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "aphiemi",
+        "traditional": "Forgiveness",
+        "glossary": "forgiveness-letting-go",
+        "form": "let go"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.6.14",
+      "english": [
+        {
+          "text": "let go",
+          "n": 2
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "aphiemi",
+        "traditional": "Forgiveness",
+        "glossary": "forgiveness-letting-go",
+        "form": "let go"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.6.14",
+      "english": [
+        {
+          "text": "the heavens",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ouranos",
+        "traditional": "Heaven",
+        "glossary": "heaven-sky",
+        "form": "the heavens"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.6.14",
+      "english": [
+        {
+          "text": "shortfalls",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "paraptoma",
+        "traditional": "Transgression",
+        "glossary": "trespass-shortfall",
+        "form": "shortfall"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.6.15",
+      "english": [
+        {
+          "text": "let go",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "aphiemi",
+        "traditional": "Forgiveness",
+        "glossary": "forgiveness-letting-go",
+        "form": "let go"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.6.15",
+      "english": [
+        {
+          "text": "let go",
+          "n": 2
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "aphiemi",
+        "traditional": "Forgiveness",
+        "glossary": "forgiveness-letting-go",
+        "form": "let go"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.6.15",
+      "english": [
+        {
+          "text": "shortfalls",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "paraptoma",
+        "traditional": "Transgression",
+        "glossary": "trespass-shortfall",
+        "form": "shortfall"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.6.20",
+      "english": [
+        {
+          "text": "the heavens",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ouranos",
+        "traditional": "Heaven",
+        "glossary": "heaven-sky",
+        "form": "the heavens"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.6.23",
+      "english": [
+        {
+          "text": "corrupted",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "poneros",
+        "traditional": "Evil",
+        "glossary": "evil-hardship",
+        "form": "corrupt"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.6.26",
+      "english": [
+        {
+          "text": "the heavens",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ouranos",
+        "traditional": "Heaven",
+        "glossary": "heaven-sky",
+        "form": "the heavens"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.6.29",
+      "english": [
+        {
+          "text": "grandeur",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "doxa",
+        "traditional": "Glory",
+        "glossary": "glory-praiseworthiness",
+        "form": "honor"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.6.30",
+      "english": [
+        {
+          "text": "trust",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pistis",
+        "traditional": "Faith",
+        "glossary": "faith-trust",
+        "form": "trust"
+      },
+      "confidence": "common",
+      "lemma": "absent",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
+      "ref": "Matt.6.32",
+      "english": [
+        {
+          "text": "heavenly",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ouranos",
+        "traditional": "Heaven",
+        "glossary": "heaven-sky",
+        "form": "the heavens"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.6.33",
+      "english": [
+        {
+          "text": "justness",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "dikaiosune",
+        "traditional": "Righteousness",
+        "glossary": "righteousness-justness",
+        "form": "justness"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.6.34",
+      "english": [
+        {
+          "text": "trouble",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "kakos",
+        "traditional": "Bad",
+        "glossary": "bad-harmful",
+        "form": "trouble"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    }
+  ]
+}

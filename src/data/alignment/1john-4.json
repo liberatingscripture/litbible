@@ -1,0 +1,346 @@
+{
+  "bookKey": "1john",
+  "chapter": 4,
+  "records": [
+    {
+      "ref": "1John.4.1",
+      "english": [
+        {
+          "text": "trust",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pistis",
+        "traditional": "Faith",
+        "glossary": "faith-trust",
+        "form": "trust"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1John.4.1",
+      "english": [
+        {
+          "text": "spirit-breath",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pneuma",
+        "traditional": "Spirit",
+        "glossary": "spirit-life-breath",
+        "form": "spirit-breaths"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1John.4.1",
+      "english": [
+        {
+          "text": "spirit-breaths",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pneuma",
+        "traditional": "Spirit",
+        "glossary": "spirit-life-breath",
+        "form": "spirit-breaths"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1John.4.2",
+      "english": [
+        {
+          "text": "acknowledges",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "homologia",
+        "traditional": "Confession",
+        "glossary": "confession-open-acknowledgement",
+        "form": "acknowledged"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1John.4.2",
+      "english": [
+        {
+          "text": "bodily",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "sarx",
+        "traditional": "Flesh",
+        "glossary": "flesh-body",
+        "form": "body"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1John.4.2",
+      "english": [
+        {
+          "text": "Life-breath",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pneuma",
+        "traditional": "Spirit",
+        "glossary": "spirit-life-breath",
+        "form": "Life-breath"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1John.4.3",
+      "english": [
+        {
+          "text": "acknowledge",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "homologia",
+        "traditional": "Confession",
+        "glossary": "confession-open-acknowledgement",
+        "form": "acknowledged"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1John.4.3",
+      "english": [
+        {
+          "text": "spirit-breath",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pneuma",
+        "traditional": "Spirit",
+        "glossary": "spirit-life-breath",
+        "form": "spirit-breaths"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1John.4.6",
+      "english": [
+        {
+          "text": "Life-breath",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pneuma",
+        "traditional": "Spirit",
+        "glossary": "spirit-life-breath",
+        "form": "Life-breath"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1John.4.10",
+      "english": [
+        {
+          "text": "deviations",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hamartia",
+        "traditional": "Sin",
+        "glossary": "sin-deviation",
+        "form": "deviation"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1John.4.13",
+      "english": [
+        {
+          "text": "Life-breath",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pneuma",
+        "traditional": "Spirit",
+        "glossary": "spirit-life-breath",
+        "form": "Life-breath"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1John.4.14",
+      "english": [
+        {
+          "text": "liberator",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "soterios",
+        "traditional": "Salvation",
+        "glossary": "salvation-liberation",
+        "form": "liberation"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1John.4.15",
+      "english": [
+        {
+          "text": "acknowledges",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "homologia",
+        "traditional": "Confession",
+        "glossary": "confession-open-acknowledgement",
+        "form": "acknowledged"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1John.4.16",
+      "english": [
+        {
+          "text": "trust",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pistis",
+        "traditional": "Faith",
+        "glossary": "faith-trust",
+        "form": "trust"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1John.4.20",
+      "english": [
+        {
+          "text": "Family",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "sarx",
+        "traditional": "Flesh",
+        "glossary": "flesh-body",
+        "form": "family"
+      },
+      "confidence": "common",
+      "lemma": "absent",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
+      "ref": "1John.4.20",
+      "english": [
+        {
+          "text": "Family",
+          "n": 2
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "sarx",
+        "traditional": "Flesh",
+        "glossary": "flesh-body",
+        "form": "family"
+      },
+      "confidence": "common",
+      "lemma": "absent",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
+      "ref": "1John.4.21",
+      "english": [
+        {
+          "text": "Family",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "sarx",
+        "traditional": "Flesh",
+        "glossary": "flesh-body",
+        "form": "family"
+      },
+      "confidence": "common",
+      "lemma": "absent",
+      "source": "glossary-scan",
+      "status": "auto"
+    }
+  ]
+}

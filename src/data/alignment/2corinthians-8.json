@@ -1,0 +1,346 @@
+{
+  "bookKey": "2corinthians",
+  "chapter": 8,
+  "records": [
+    {
+      "ref": "2Cor.8.1",
+      "english": [
+        {
+          "text": "Family",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "sarx",
+        "traditional": "Flesh",
+        "glossary": "flesh-body",
+        "form": "family"
+      },
+      "confidence": "common",
+      "lemma": "absent",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
+      "ref": "2Cor.8.1",
+      "english": [
+        {
+          "text": "generosity",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "charis",
+        "traditional": "Grace",
+        "glossary": "grace-generosity",
+        "form": "generosity"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "2Cor.8.4",
+      "english": [
+        {
+          "text": "gift",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "charis",
+        "traditional": "Grace",
+        "glossary": "grace-generosity",
+        "form": "gift"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "2Cor.8.4",
+      "english": [
+        {
+          "text": "sacred",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hagios",
+        "traditional": "Holy",
+        "glossary": "holy-sacred",
+        "form": "sacred"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "2Cor.8.6",
+      "english": [
+        {
+          "text": "generosity",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "charis",
+        "traditional": "Grace",
+        "glossary": "grace-generosity",
+        "form": "generosity"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "2Cor.8.7",
+      "english": [
+        {
+          "text": "faithfulness",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pistis",
+        "traditional": "Faith",
+        "glossary": "faith-trust",
+        "form": "faithfulness"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "2Cor.8.7",
+      "english": [
+        {
+          "text": "generosity",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "charis",
+        "traditional": "Grace",
+        "glossary": "grace-generosity",
+        "form": "generosity"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "2Cor.8.9",
+      "english": [
+        {
+          "text": "generosity",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "charis",
+        "traditional": "Grace",
+        "glossary": "grace-generosity",
+        "form": "generosity"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "2Cor.8.16",
+      "english": [
+        {
+          "text": "Thanks",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "charis",
+        "traditional": "Grace",
+        "glossary": "grace-generosity",
+        "form": "thanks"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "2Cor.8.18",
+      "english": [
+        {
+          "text": "Family",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "sarx",
+        "traditional": "Flesh",
+        "glossary": "flesh-body",
+        "form": "family"
+      },
+      "confidence": "common",
+      "lemma": "absent",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
+      "ref": "2Cor.8.18",
+      "english": [
+        {
+          "text": "the triumphant message",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "euangelion",
+        "traditional": "Gospel",
+        "glossary": "gospel-triumphant-message",
+        "form": "The Triumphant Message"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "2Cor.8.19",
+      "english": [
+        {
+          "text": "renown",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "doxa",
+        "traditional": "Glory",
+        "glossary": "glory-praiseworthiness",
+        "form": "renown"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "2Cor.8.19",
+      "english": [
+        {
+          "text": "gift",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "charis",
+        "traditional": "Grace",
+        "glossary": "grace-generosity",
+        "form": "gift"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "2Cor.8.21",
+      "english": [
+        {
+          "text": "honorable",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "kalos",
+        "traditional": "Good [1]",
+        "glossary": "good-admirable",
+        "form": "honorable"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "2Cor.8.22",
+      "english": [
+        {
+          "text": "Family",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "sarx",
+        "traditional": "Flesh",
+        "glossary": "flesh-body",
+        "form": "family"
+      },
+      "confidence": "common",
+      "lemma": "absent",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
+      "ref": "2Cor.8.23",
+      "english": [
+        {
+          "text": "Family",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "sarx",
+        "traditional": "Flesh",
+        "glossary": "flesh-body",
+        "form": "family"
+      },
+      "confidence": "common",
+      "lemma": "absent",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
+      "ref": "2Cor.8.23",
+      "english": [
+        {
+          "text": "credit",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "doxa",
+        "traditional": "Glory",
+        "glossary": "glory-praiseworthiness",
+        "form": "honor"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    }
+  ]
+}

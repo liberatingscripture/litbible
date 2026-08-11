@@ -1,0 +1,726 @@
+{
+  "bookKey": "1timothy",
+  "chapter": 1,
+  "records": [
+    {
+      "ref": "1Tim.1.1",
+      "english": [
+        {
+          "text": "liberator",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "soterios",
+        "traditional": "Salvation",
+        "glossary": "salvation-liberation",
+        "form": "liberation"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Tim.1.2",
+      "english": [
+        {
+          "text": "faithfulness",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pistis",
+        "traditional": "Faith",
+        "glossary": "faith-trust",
+        "form": "faithfulness"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Tim.1.2",
+      "english": [
+        {
+          "text": "generosity",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "charis",
+        "traditional": "Grace",
+        "glossary": "grace-generosity",
+        "form": "generosity"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Tim.1.4",
+      "english": [
+        {
+          "text": "faithfulness",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pistis",
+        "traditional": "Faith",
+        "glossary": "faith-trust",
+        "form": "faithfulness"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Tim.1.5",
+      "english": [
+        {
+          "text": "clean",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "katharos",
+        "traditional": "Clean",
+        "glossary": "clean-clean",
+        "form": "clean"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Tim.1.5",
+      "english": [
+        {
+          "text": "faithfulness",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pistis",
+        "traditional": "Faith",
+        "glossary": "faith-trust",
+        "form": "faithfulness"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Tim.1.5",
+      "english": [
+        {
+          "text": "generous kindness",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "agathos",
+        "traditional": "Good [2]",
+        "glossary": "good-beneficial",
+        "form": "kind"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Tim.1.8",
+      "english": [
+        {
+          "text": "beautiful",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "kalos",
+        "traditional": "Good [1]",
+        "glossary": "good-admirable",
+        "form": "beautiful"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Tim.1.8",
+      "english": [
+        {
+          "text": "Torah",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "nomos",
+        "traditional": "Law",
+        "glossary": "law-torah",
+        "form": "Torah"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Tim.1.8",
+      "english": [
+        {
+          "text": "Torah",
+          "n": 2
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "nomos",
+        "traditional": "Law",
+        "glossary": "law-torah",
+        "form": "Torah"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Tim.1.9",
+      "english": [
+        {
+          "text": "sacred",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hagios",
+        "traditional": "Holy",
+        "glossary": "holy-sacred",
+        "form": "sacred"
+      },
+      "confidence": "common",
+      "lemma": "absent",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
+      "ref": "1Tim.1.9",
+      "english": [
+        {
+          "text": "sacred",
+          "n": 2
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hagios",
+        "traditional": "Holy",
+        "glossary": "holy-sacred",
+        "form": "sacred"
+      },
+      "confidence": "common",
+      "lemma": "absent",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
+      "ref": "1Tim.1.9",
+      "english": [
+        {
+          "text": "Torah",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "nomos",
+        "traditional": "Law",
+        "glossary": "law-torah",
+        "form": "Torah"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Tim.1.9",
+      "english": [
+        {
+          "text": "Torah",
+          "n": 2
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "nomos",
+        "traditional": "Law",
+        "glossary": "law-torah",
+        "form": "Torah"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Tim.1.9",
+      "english": [
+        {
+          "text": "Torah",
+          "n": 3
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "nomos",
+        "traditional": "Law",
+        "glossary": "law-torah",
+        "form": "Torah"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Tim.1.9",
+      "english": [
+        {
+          "text": "alignment",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "dikaiosune",
+        "traditional": "Righteousness",
+        "glossary": "righteousness-justness",
+        "form": "alignment"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Tim.1.9",
+      "english": [
+        {
+          "text": "deviating",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hamartia",
+        "traditional": "Sin",
+        "glossary": "sin-deviation",
+        "form": "deviation"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Tim.1.11",
+      "english": [
+        {
+          "text": "entrusted",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pistis",
+        "traditional": "Faith",
+        "glossary": "faith-trust",
+        "form": "trust"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Tim.1.11",
+      "english": [
+        {
+          "text": "praiseworthy",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "doxa",
+        "traditional": "Glory",
+        "glossary": "glory-praiseworthiness",
+        "form": "praiseworthiness"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Tim.1.11",
+      "english": [
+        {
+          "text": "Triumphant Message",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "euangelion",
+        "traditional": "Gospel",
+        "glossary": "gospel-triumphant-message",
+        "form": "The Triumphant Message"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Tim.1.12",
+      "english": [
+        {
+          "text": "faithful",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pistis",
+        "traditional": "Faith",
+        "glossary": "faith-trust",
+        "form": "faithfulness"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Tim.1.12",
+      "english": [
+        {
+          "text": "grateful",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "charis",
+        "traditional": "Grace",
+        "glossary": "grace-generosity",
+        "form": "gratitude"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Tim.1.13",
+      "english": [
+        {
+          "text": "spoke disrespectfully",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "blasphemia",
+        "traditional": "Blasphemy",
+        "glossary": "blasphemy-disrespectfulness",
+        "form": "speak disrespectfully"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Tim.1.14",
+      "english": [
+        {
+          "text": "faithfulness",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pistis",
+        "traditional": "Faith",
+        "glossary": "faith-trust",
+        "form": "faithfulness"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Tim.1.14",
+      "english": [
+        {
+          "text": "generosity",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "charis",
+        "traditional": "Grace",
+        "glossary": "grace-generosity",
+        "form": "generosity"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Tim.1.15",
+      "english": [
+        {
+          "text": "trustworthy",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pistis",
+        "traditional": "Faith",
+        "glossary": "faith-trust",
+        "form": "trust"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Tim.1.15",
+      "english": [
+        {
+          "text": "liberate",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "soterios",
+        "traditional": "Salvation",
+        "glossary": "salvation-liberation",
+        "form": "liberation"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Tim.1.15",
+      "english": [
+        {
+          "text": "deviate",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hamartia",
+        "traditional": "Sin",
+        "glossary": "sin-deviation",
+        "form": "deviation"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Tim.1.16",
+      "english": [
+        {
+          "text": "trust",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pistis",
+        "traditional": "Faith",
+        "glossary": "faith-trust",
+        "form": "trust"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Tim.1.17",
+      "english": [
+        {
+          "text": "praise",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "doxa",
+        "traditional": "Glory",
+        "glossary": "glory-praiseworthiness",
+        "form": "praise"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Tim.1.18",
+      "english": [
+        {
+          "text": "honorable",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "kalos",
+        "traditional": "Good [1]",
+        "glossary": "good-admirable",
+        "form": "honorable"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Tim.1.19",
+      "english": [
+        {
+          "text": "faithfulness",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pistis",
+        "traditional": "Faith",
+        "glossary": "faith-trust",
+        "form": "faithfulness"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Tim.1.19",
+      "english": [
+        {
+          "text": "faithfulness",
+          "n": 2
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pistis",
+        "traditional": "Faith",
+        "glossary": "faith-trust",
+        "form": "faithfulness"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Tim.1.19",
+      "english": [
+        {
+          "text": "kind",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "agathos",
+        "traditional": "Good [2]",
+        "glossary": "good-beneficial",
+        "form": "kind"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Tim.1.20",
+      "english": [
+        {
+          "text": "treat people disrespectfully",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "blasphemia",
+        "traditional": "Blasphemy",
+        "glossary": "blasphemy-disrespectfulness",
+        "form": "disrespect"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Tim.1.20",
+      "english": [
+        {
+          "text": "the Adversary",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "Satanas",
+        "traditional": "Satan",
+        "glossary": "satan-adversary",
+        "form": "The Adversary"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    }
+  ]
+}

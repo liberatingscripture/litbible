@@ -1,0 +1,426 @@
+{
+  "bookKey": "luke",
+  "chapter": 10,
+  "records": [
+    {
+      "ref": "Luke.10.13",
+      "english": [
+        {
+          "text": "reoriented their mind",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "metanoia",
+        "traditional": "Repentance",
+        "glossary": "repentance-reorient-mind",
+        "form": "reorienting the mind"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.10.14",
+      "english": [
+        {
+          "text": "justice",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "dikaiosune",
+        "traditional": "Righteousness",
+        "glossary": "righteousness-justness",
+        "form": "justice"
+      },
+      "confidence": "common",
+      "lemma": "absent",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
+      "ref": "Luke.10.15",
+      "english": [
+        {
+          "text": "the heavens",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ouranos",
+        "traditional": "Heaven",
+        "glossary": "heaven-sky",
+        "form": "the heavens"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.10.15",
+      "english": [
+        {
+          "text": "underworld",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "Hades",
+        "traditional": "Hell/Hades",
+        "glossary": "hell-hades",
+        "form": "underworld"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.10.17",
+      "english": [
+        {
+          "text": "demons",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "daimonion",
+        "traditional": "Demon",
+        "glossary": "demon-demon",
+        "form": "demon"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.10.18",
+      "english": [
+        {
+          "text": "the heavens",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ouranos",
+        "traditional": "Heaven",
+        "glossary": "heaven-sky",
+        "form": "the heavens"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.10.18",
+      "english": [
+        {
+          "text": "the Adversary",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "Satanas",
+        "traditional": "Satan",
+        "glossary": "satan-adversary",
+        "form": "The Adversary"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.10.20",
+      "english": [
+        {
+          "text": "the heavens",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ouranos",
+        "traditional": "Heaven",
+        "glossary": "heaven-sky",
+        "form": "the heavens"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.10.20",
+      "english": [
+        {
+          "text": "spirits",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pneuma",
+        "traditional": "Spirit",
+        "glossary": "spirit-life-breath",
+        "form": "spirit"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.10.21",
+      "english": [
+        {
+          "text": "praise you publicly",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "homologia",
+        "traditional": "Confession",
+        "glossary": "confession-open-acknowledgement",
+        "form": "praise you publicly"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.10.21",
+      "english": [
+        {
+          "text": "praise",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "doxa",
+        "traditional": "Glory",
+        "glossary": "glory-praiseworthiness",
+        "form": "praise"
+      },
+      "confidence": "common",
+      "lemma": "absent",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
+      "ref": "Luke.10.21",
+      "english": [
+        {
+          "text": "the heavens",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ouranos",
+        "traditional": "Heaven",
+        "glossary": "heaven-sky",
+        "form": "the heavens"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.10.21",
+      "english": [
+        {
+          "text": "Sacred",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hagios",
+        "traditional": "Holy",
+        "glossary": "holy-sacred",
+        "form": "sacred"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.10.21",
+      "english": [
+        {
+          "text": "Life-breath",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pneuma",
+        "traditional": "Spirit",
+        "glossary": "spirit-life-breath",
+        "form": "Life-breath"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.10.25",
+      "english": [
+        {
+          "text": "Torah",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "nomos",
+        "traditional": "Law",
+        "glossary": "law-torah",
+        "form": "Torah"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.10.25",
+      "english": [
+        {
+          "text": "stood up",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "anastasis",
+        "traditional": "Resurrection",
+        "glossary": "resurrection-reawakening",
+        "form": "stood up"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.10.26",
+      "english": [
+        {
+          "text": "Torah",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "nomos",
+        "traditional": "Law",
+        "glossary": "law-torah",
+        "form": "Torah"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.10.29",
+      "english": [
+        {
+          "text": "justify",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "dikaiosune",
+        "traditional": "Righteousness",
+        "glossary": "righteousness-justness",
+        "form": "justness"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.10.30",
+      "english": [
+        {
+          "text": "left",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "aphiemi",
+        "traditional": "Forgiveness",
+        "glossary": "forgiveness-letting-go",
+        "form": "leave"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.10.37",
+      "english": [
+        {
+          "text": "Torah",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "nomos",
+        "traditional": "Law",
+        "glossary": "law-torah",
+        "form": "Torah"
+      },
+      "confidence": "distinctive",
+      "lemma": "absent",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
+      "ref": "Luke.10.42",
+      "english": [
+        {
+          "text": "choice",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "agathos",
+        "traditional": "Good [2]",
+        "glossary": "good-beneficial",
+        "form": "choice"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    }
+  ]
+}

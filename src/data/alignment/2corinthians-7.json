@@ -1,0 +1,206 @@
+{
+  "bookKey": "2corinthians",
+  "chapter": 7,
+  "records": [
+    {
+      "ref": "2Cor.7.1",
+      "english": [
+        {
+          "text": "cleanse",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "katharos",
+        "traditional": "Clean",
+        "glossary": "clean-clean",
+        "form": "cleanse"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "2Cor.7.1",
+      "english": [
+        {
+          "text": "body",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "sarx",
+        "traditional": "Flesh",
+        "glossary": "flesh-body",
+        "form": "body"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "2Cor.7.1",
+      "english": [
+        {
+          "text": "sacred",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hagios",
+        "traditional": "Holy",
+        "glossary": "holy-sacred",
+        "form": "sacred"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "2Cor.7.1",
+      "english": [
+        {
+          "text": "breath",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pneuma",
+        "traditional": "Spirit",
+        "glossary": "spirit-life-breath",
+        "form": "breath"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "2Cor.7.5",
+      "english": [
+        {
+          "text": "bodies",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "sarx",
+        "traditional": "Flesh",
+        "glossary": "flesh-body",
+        "form": "body"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "2Cor.7.9",
+      "english": [
+        {
+          "text": "transformed your mind",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "metanoia",
+        "traditional": "Repentance",
+        "glossary": "repentance-reorient-mind",
+        "form": "reorienting the mind"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "2Cor.7.10",
+      "english": [
+        {
+          "text": "transformation of the mind",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "metanoia",
+        "traditional": "Repentance",
+        "glossary": "repentance-reorient-mind",
+        "form": "reorienting the mind"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "2Cor.7.10",
+      "english": [
+        {
+          "text": "liberation",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "soterios",
+        "traditional": "Salvation",
+        "glossary": "salvation-liberation",
+        "form": "liberation"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "2Cor.7.11",
+      "english": [
+        {
+          "text": "justice",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "dikaiosune",
+        "traditional": "Righteousness",
+        "glossary": "righteousness-justness",
+        "form": "justice"
+      },
+      "confidence": "common",
+      "lemma": "absent",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
+      "ref": "2Cor.7.13",
+      "english": [
+        {
+          "text": "breath",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pneuma",
+        "traditional": "Spirit",
+        "glossary": "spirit-life-breath",
+        "form": "breath"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    }
+  ]
+}

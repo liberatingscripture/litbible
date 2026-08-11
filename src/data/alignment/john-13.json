@@ -1,0 +1,246 @@
+{
+  "bookKey": "john",
+  "chapter": 13,
+  "records": [
+    {
+      "ref": "John.13.2",
+      "english": [
+        {
+          "text": "False Accuser",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "diabolon",
+        "traditional": "Devil",
+        "glossary": "devil-false-accuser",
+        "form": "False Accuser"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "John.13.10",
+      "english": [
+        {
+          "text": "clean",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "katharos",
+        "traditional": "Clean",
+        "glossary": "clean-clean",
+        "form": "clean"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "John.13.10",
+      "english": [
+        {
+          "text": "clean",
+          "n": 2
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "katharos",
+        "traditional": "Clean",
+        "glossary": "clean-clean",
+        "form": "clean"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "John.13.11",
+      "english": [
+        {
+          "text": "clean",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "katharos",
+        "traditional": "Clean",
+        "glossary": "clean-clean",
+        "form": "clean"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "John.13.19",
+      "english": [
+        {
+          "text": "trust",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pistis",
+        "traditional": "Faith",
+        "glossary": "faith-trust",
+        "form": "trust"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "John.13.21",
+      "english": [
+        {
+          "text": "spirit",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pneuma",
+        "traditional": "Spirit",
+        "glossary": "spirit-life-breath",
+        "form": "spirit"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "John.13.27",
+      "english": [
+        {
+          "text": "the Adversary",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "Satanas",
+        "traditional": "Satan",
+        "glossary": "satan-adversary",
+        "form": "The Adversary"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "John.13.31",
+      "english": [
+        {
+          "text": "praiseworthiness",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "doxa",
+        "traditional": "Glory",
+        "glossary": "glory-praiseworthiness",
+        "form": "praiseworthiness"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "John.13.31",
+      "english": [
+        {
+          "text": "praiseworthiness",
+          "n": 2
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "doxa",
+        "traditional": "Glory",
+        "glossary": "glory-praiseworthiness",
+        "form": "praiseworthiness"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "John.13.32",
+      "english": [
+        {
+          "text": "praiseworthiness",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "doxa",
+        "traditional": "Glory",
+        "glossary": "glory-praiseworthiness",
+        "form": "praiseworthiness"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "John.13.32",
+      "english": [
+        {
+          "text": "praiseworthy",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "doxa",
+        "traditional": "Glory",
+        "glossary": "glory-praiseworthiness",
+        "form": "praiseworthiness"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "John.13.32",
+      "english": [
+        {
+          "text": "praiseworthy",
+          "n": 2
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "doxa",
+        "traditional": "Glory",
+        "glossary": "glory-praiseworthiness",
+        "form": "praiseworthiness"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    }
+  ]
+}

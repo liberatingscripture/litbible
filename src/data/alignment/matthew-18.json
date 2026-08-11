@@ -1,0 +1,526 @@
+{
+  "bookKey": "matthew",
+  "chapter": 18,
+  "records": [
+    {
+      "ref": "Matt.18.1",
+      "english": [
+        {
+          "text": "Heavenly",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ouranos",
+        "traditional": "Heaven",
+        "glossary": "heaven-sky",
+        "form": "the heavens"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.18.3",
+      "english": [
+        {
+          "text": "Heavenly",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ouranos",
+        "traditional": "Heaven",
+        "glossary": "heaven-sky",
+        "form": "the heavens"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.18.4",
+      "english": [
+        {
+          "text": "Heavenly",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ouranos",
+        "traditional": "Heaven",
+        "glossary": "heaven-sky",
+        "form": "the heavens"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.18.6",
+      "english": [
+        {
+          "text": "trust",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pistis",
+        "traditional": "Faith",
+        "glossary": "faith-trust",
+        "form": "trust"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.18.8",
+      "english": [
+        {
+          "text": "beneficial",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "kalos",
+        "traditional": "Good [1]",
+        "glossary": "good-admirable",
+        "form": "beneficial"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.18.8",
+      "english": [
+        {
+          "text": "beneficial",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "agathos",
+        "traditional": "Good [2]",
+        "glossary": "good-beneficial",
+        "form": "beneficial"
+      },
+      "confidence": "common",
+      "lemma": "absent",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
+      "ref": "Matt.18.9",
+      "english": [
+        {
+          "text": "Hinnom Valley",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "Gehenna",
+        "traditional": "Gehenna/Hell",
+        "glossary": "gehenna-hinnom-valley",
+        "form": "Hinnom Valley"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.18.9",
+      "english": [
+        {
+          "text": "beneficial",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "kalos",
+        "traditional": "Good [1]",
+        "glossary": "good-admirable",
+        "form": "beneficial"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.18.9",
+      "english": [
+        {
+          "text": "beneficial",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "agathos",
+        "traditional": "Good [2]",
+        "glossary": "good-beneficial",
+        "form": "beneficial"
+      },
+      "confidence": "common",
+      "lemma": "absent",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
+      "ref": "Matt.18.10",
+      "english": [
+        {
+          "text": "messengers",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "angelos",
+        "traditional": "Angel",
+        "glossary": "angel-message",
+        "form": "messenger"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.18.10",
+      "english": [
+        {
+          "text": "the heavens",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ouranos",
+        "traditional": "Heaven",
+        "glossary": "heaven-sky",
+        "form": "the heavens"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.18.10",
+      "english": [
+        {
+          "text": "the heavens",
+          "n": 2
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ouranos",
+        "traditional": "Heaven",
+        "glossary": "heaven-sky",
+        "form": "the heavens"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.18.12",
+      "english": [
+        {
+          "text": "leave",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "aphiemi",
+        "traditional": "Forgiveness",
+        "glossary": "forgiveness-letting-go",
+        "form": "leave"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.18.14",
+      "english": [
+        {
+          "text": "the heavens",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ouranos",
+        "traditional": "Heaven",
+        "glossary": "heaven-sky",
+        "form": "the heavens"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.18.15",
+      "english": [
+        {
+          "text": "deviates",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hamartia",
+        "traditional": "Sin",
+        "glossary": "sin-deviation",
+        "form": "deviation"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.18.18",
+      "english": [
+        {
+          "text": "the heavens",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ouranos",
+        "traditional": "Heaven",
+        "glossary": "heaven-sky",
+        "form": "the heavens"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.18.18",
+      "english": [
+        {
+          "text": "the heavens",
+          "n": 2
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ouranos",
+        "traditional": "Heaven",
+        "glossary": "heaven-sky",
+        "form": "the heavens"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.18.19",
+      "english": [
+        {
+          "text": "the heavens",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ouranos",
+        "traditional": "Heaven",
+        "glossary": "heaven-sky",
+        "form": "the heavens"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.18.21",
+      "english": [
+        {
+          "text": "release",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "aphiemi",
+        "traditional": "Forgiveness",
+        "glossary": "forgiveness-letting-go",
+        "form": "release"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.18.21",
+      "english": [
+        {
+          "text": "deviates",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hamartia",
+        "traditional": "Sin",
+        "glossary": "sin-deviation",
+        "form": "deviation"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.18.23",
+      "english": [
+        {
+          "text": "Heavenly",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ouranos",
+        "traditional": "Heaven",
+        "glossary": "heaven-sky",
+        "form": "the heavens"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.18.27",
+      "english": [
+        {
+          "text": "released",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "aphiemi",
+        "traditional": "Forgiveness",
+        "glossary": "forgiveness-letting-go",
+        "form": "release"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.18.32",
+      "english": [
+        {
+          "text": "oppressive",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "poneros",
+        "traditional": "Evil",
+        "glossary": "evil-hardship",
+        "form": "oppressive"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.18.32",
+      "english": [
+        {
+          "text": "released",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "aphiemi",
+        "traditional": "Forgiveness",
+        "glossary": "forgiveness-letting-go",
+        "form": "release"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.18.35",
+      "english": [
+        {
+          "text": "release",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "aphiemi",
+        "traditional": "Forgiveness",
+        "glossary": "forgiveness-letting-go",
+        "form": "release"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.18.35",
+      "english": [
+        {
+          "text": "heavenly",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ouranos",
+        "traditional": "Heaven",
+        "glossary": "heaven-sky",
+        "form": "the heavens"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    }
+  ]
+}

@@ -1,0 +1,86 @@
+{
+  "bookKey": "matthew",
+  "chapter": 20,
+  "records": [
+    {
+      "ref": "Matt.20.1",
+      "english": [
+        {
+          "text": "Heavenly",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ouranos",
+        "traditional": "Heaven",
+        "glossary": "heaven-sky",
+        "form": "the heavens"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.20.4",
+      "english": [
+        {
+          "text": "just",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "dikaiosune",
+        "traditional": "Righteousness",
+        "glossary": "righteousness-justness",
+        "form": "justness"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.20.15",
+      "english": [
+        {
+          "text": "corrupted",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "poneros",
+        "traditional": "Evil",
+        "glossary": "evil-hardship",
+        "form": "corrupt"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.20.15",
+      "english": [
+        {
+          "text": "generous",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "agathos",
+        "traditional": "Good [2]",
+        "glossary": "good-beneficial",
+        "form": "generous"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    }
+  ]
+}

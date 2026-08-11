@@ -1,0 +1,366 @@
+{
+  "bookKey": "matthew",
+  "chapter": 15,
+  "records": [
+    {
+      "ref": "Matt.15.2",
+      "english": [
+        {
+          "text": "sidestep",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "paraptoma",
+        "traditional": "Transgression",
+        "glossary": "trespass-shortfall",
+        "form": "sidestep"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.15.3",
+      "english": [
+        {
+          "text": "sidestep",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "paraptoma",
+        "traditional": "Transgression",
+        "glossary": "trespass-shortfall",
+        "form": "sidestep"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.15.11",
+      "english": [
+        {
+          "text": "ordinary",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "koine",
+        "traditional": "Defiled/Profane",
+        "glossary": "defiled-common",
+        "form": "ordinary"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.15.13",
+      "english": [
+        {
+          "text": "heavenly",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ouranos",
+        "traditional": "Heaven",
+        "glossary": "heaven-sky",
+        "form": "the heavens"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.15.14",
+      "english": [
+        {
+          "text": "Ignore",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "aphiemi",
+        "traditional": "Forgiveness",
+        "glossary": "forgiveness-letting-go",
+        "form": "Ignore"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.15.18",
+      "english": [
+        {
+          "text": "ordinary",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "koine",
+        "traditional": "Defiled/Profane",
+        "glossary": "defiled-common",
+        "form": "ordinary"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.15.18",
+      "english": [
+        {
+          "text": "unclean",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "akathartos",
+        "traditional": "Unclean",
+        "glossary": "unclean-unclean",
+        "form": "unclean"
+      },
+      "confidence": "common",
+      "lemma": "absent",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
+      "ref": "Matt.15.19",
+      "english": [
+        {
+          "text": "harmful",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "kakos",
+        "traditional": "Bad",
+        "glossary": "bad-harmful",
+        "form": "harmful"
+      },
+      "confidence": "common",
+      "lemma": "absent",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
+      "ref": "Matt.15.19",
+      "english": [
+        {
+          "text": "contemptuous speech",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "blasphemia",
+        "traditional": "Blasphemy",
+        "glossary": "blasphemy-disrespectfulness",
+        "form": "speaking with contempt"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.15.19",
+      "english": [
+        {
+          "text": "harmful",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "poneros",
+        "traditional": "Evil",
+        "glossary": "evil-hardship",
+        "form": "harmful"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.15.20",
+      "english": [
+        {
+          "text": "ordinary",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "koine",
+        "traditional": "Defiled/Profane",
+        "glossary": "defiled-common",
+        "form": "ordinary"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.15.20",
+      "english": [
+        {
+          "text": "unclean",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "akathartos",
+        "traditional": "Unclean",
+        "glossary": "unclean-unclean",
+        "form": "unclean"
+      },
+      "confidence": "common",
+      "lemma": "absent",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
+      "ref": "Matt.15.20",
+      "english": [
+        {
+          "text": "unclean",
+          "n": 2
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "akathartos",
+        "traditional": "Unclean",
+        "glossary": "unclean-unclean",
+        "form": "unclean"
+      },
+      "confidence": "common",
+      "lemma": "absent",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
+      "ref": "Matt.15.22",
+      "english": [
+        {
+          "text": "demons",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "daimonion",
+        "traditional": "Demon",
+        "glossary": "demon-demon",
+        "form": "demon"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.15.26",
+      "english": [
+        {
+          "text": "family",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "sarx",
+        "traditional": "Flesh",
+        "glossary": "flesh-body",
+        "form": "family"
+      },
+      "confidence": "common",
+      "lemma": "absent",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
+      "ref": "Matt.15.26",
+      "english": [
+        {
+          "text": "appropriate",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "kalos",
+        "traditional": "Good [1]",
+        "glossary": "good-admirable",
+        "form": "appropriate"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.15.28",
+      "english": [
+        {
+          "text": "trust",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pistis",
+        "traditional": "Faith",
+        "glossary": "faith-trust",
+        "form": "trust"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.15.31",
+      "english": [
+        {
+          "text": "praised",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "doxa",
+        "traditional": "Glory",
+        "glossary": "glory-praiseworthiness",
+        "form": "praise"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    }
+  ]
+}

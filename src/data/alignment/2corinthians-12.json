@@ -1,0 +1,226 @@
+{
+  "bookKey": "2corinthians",
+  "chapter": 12,
+  "records": [
+    {
+      "ref": "2Cor.12.1",
+      "english": [
+        {
+          "text": "beneficial",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "agathos",
+        "traditional": "Good [2]",
+        "glossary": "good-beneficial",
+        "form": "beneficial"
+      },
+      "confidence": "common",
+      "lemma": "absent",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
+      "ref": "2Cor.12.2",
+      "english": [
+        {
+          "text": "heaven",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ouranos",
+        "traditional": "Heaven",
+        "glossary": "heaven-sky",
+        "form": "the heavens"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "2Cor.12.7",
+      "english": [
+        {
+          "text": "messenger",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "angelos",
+        "traditional": "Angel",
+        "glossary": "angel-message",
+        "form": "messenger"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "2Cor.12.7",
+      "english": [
+        {
+          "text": "body",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "sarx",
+        "traditional": "Flesh",
+        "glossary": "flesh-body",
+        "form": "body"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "2Cor.12.7",
+      "english": [
+        {
+          "text": "the Adversary",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "Satanas",
+        "traditional": "Satan",
+        "glossary": "satan-adversary",
+        "form": "The Adversary"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "2Cor.12.9",
+      "english": [
+        {
+          "text": "generosity",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "charis",
+        "traditional": "Grace",
+        "glossary": "grace-generosity",
+        "form": "generosity"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "2Cor.12.13",
+      "english": [
+        {
+          "text": "gracious",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "charis",
+        "traditional": "Grace",
+        "glossary": "grace-generosity",
+        "form": "gracious"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "2Cor.12.18",
+      "english": [
+        {
+          "text": "Family",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "sarx",
+        "traditional": "Flesh",
+        "glossary": "flesh-body",
+        "form": "family"
+      },
+      "confidence": "common",
+      "lemma": "absent",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
+      "ref": "2Cor.12.18",
+      "english": [
+        {
+          "text": "Life-breath",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pneuma",
+        "traditional": "Spirit",
+        "glossary": "spirit-life-breath",
+        "form": "Life-breath"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "2Cor.12.21",
+      "english": [
+        {
+          "text": "transformed their mind",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "metanoia",
+        "traditional": "Repentance",
+        "glossary": "repentance-reorient-mind",
+        "form": "reorienting the mind"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "2Cor.12.21",
+      "english": [
+        {
+          "text": "uncleanness",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "akathartos",
+        "traditional": "Unclean",
+        "glossary": "unclean-unclean",
+        "form": "unclean"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    }
+  ]
+}

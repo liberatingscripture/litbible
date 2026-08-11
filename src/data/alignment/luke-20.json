@@ -1,0 +1,226 @@
+{
+  "bookKey": "luke",
+  "chapter": 20,
+  "records": [
+    {
+      "ref": "Luke.20.1",
+      "english": [
+        {
+          "text": "news of triumph",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "euangelion",
+        "traditional": "Gospel",
+        "glossary": "gospel-triumphant-message",
+        "form": "news of triumph"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.20.1",
+      "english": [
+        {
+          "text": "sacred",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hagios",
+        "traditional": "Holy",
+        "glossary": "holy-sacred",
+        "form": "sacred"
+      },
+      "confidence": "common",
+      "lemma": "absent",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
+      "ref": "Luke.20.4",
+      "english": [
+        {
+          "text": "the heavens",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ouranos",
+        "traditional": "Heaven",
+        "glossary": "heaven-sky",
+        "form": "the heavens"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.20.5",
+      "english": [
+        {
+          "text": "trust",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pistis",
+        "traditional": "Faith",
+        "glossary": "faith-trust",
+        "form": "trust"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.20.5",
+      "english": [
+        {
+          "text": "the heavens",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ouranos",
+        "traditional": "Heaven",
+        "glossary": "heaven-sky",
+        "form": "the heavens"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.20.20",
+      "english": [
+        {
+          "text": "genuine",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "dikaiosune",
+        "traditional": "Righteousness",
+        "glossary": "righteousness-justness",
+        "form": "genuine"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.20.27",
+      "english": [
+        {
+          "text": "Rising Up",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "anastasis",
+        "traditional": "Resurrection",
+        "glossary": "resurrection-reawakening",
+        "form": "rising up"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.20.33",
+      "english": [
+        {
+          "text": "Rising Up",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "anastasis",
+        "traditional": "Resurrection",
+        "glossary": "resurrection-reawakening",
+        "form": "rising up"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.20.35",
+      "english": [
+        {
+          "text": "Rising Up",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "anastasis",
+        "traditional": "Resurrection",
+        "glossary": "resurrection-reawakening",
+        "form": "rising up"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.20.36",
+      "english": [
+        {
+          "text": "messengers",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "angelos",
+        "traditional": "Angel",
+        "glossary": "angel-message",
+        "form": "messenger"
+      },
+      "confidence": "common",
+      "lemma": "absent",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
+      "ref": "Luke.20.36",
+      "english": [
+        {
+          "text": "Rising Up",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "anastasis",
+        "traditional": "Resurrection",
+        "glossary": "resurrection-reawakening",
+        "form": "rising up"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    }
+  ]
+}

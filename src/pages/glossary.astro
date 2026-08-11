@@ -1,9 +1,179 @@
 ---
 import { getCollection, render } from "astro:content";
 import Layout from "../layouts/Layout.astro";
+import { BOOK_ORDER, bookKeyToLabel } from "../data/books.js";
 import "../styles/pages/glossary.css";
 
 const rawEntries = await getCollection("glossary");
+
+/**
+ * Phase 1 alignment records (src/data/alignment/, built by
+ * scripts/build-alignment.mjs, reviewed via scripts/alignment-review/) — where
+ * each term's LIT rendering actually appears in the published text. A glossary
+ * entry says what `pneuma` becomes; this says where, and how often.
+ *
+ * THE DISPLAY RULE, and it is a publishing decision rather than a technical
+ * one: a partial count reads as a reviewed total. So a term appears only when
+ * every record we would show is one we can actually vouch for, and a single
+ * record we can neither vouch for nor rule out withholds the whole term.
+ *
+ *   ignored       `rejected` / `no-rendering`, and anything the Greek check
+ *                 contradicts (`lemma: "absent"`) — a known false positive
+ *                 says nothing either way about the rest of the term
+ *   shown         a human confirmed it, or the scan matched a rendering
+ *                 distinctive enough that a string match is effectively
+ *                 certain and the Greek doesn't contradict it
+ *   withholds     an unreviewed match on ordinary English ("trust", "clean"),
+ *                 which may or may not be rendering the Greek at all
+ *
+ * That last case is why `sarx` is currently absent: it also renders as the
+ * ordinary word "family", which the scan cannot tell from a vocative
+ * "Family," (cf. Rom 8:12). Reviewing those records is what surfaces it.
+ */
+type AlignmentRecord = {
+  ref: string;
+  english: { text: string; n: number }[];
+  term: {
+    greek: string;
+    traditional: string;
+    glossary: string;
+    form: string | null;
+  } | null;
+  confidence: "distinctive" | "common" | null;
+  lemma?: "present" | "absent" | "unchecked";
+  status?: "auto" | "confirmed" | "no-rendering" | "rejected";
+};
+
+type AlignmentFile = {
+  bookKey: string;
+  chapter: number;
+  records: AlignmentRecord[];
+};
+
+type OccurrenceRef = { bookKey: string; chapter: number; verse: number };
+
+type FormOccurrences = {
+  label: string;
+  /** Occurrences — a verse rendering the term four times counts four. */
+  count: number;
+  /** Distinct verses, which is what `refs` lists. Below `count` when a verse
+   *  renders the term more than once (Romans 2:12 carries "Torah" 4x). */
+  verses: number;
+  books: number;
+  refs: OccurrenceRef[];
+};
+
+const alignmentModules = import.meta.glob<{ default: AlignmentFile }>(
+  "../data/alignment/*.json",
+  { eager: true },
+);
+
+/** How many verse links a rendering shows before the "show more" batching
+ *  kicks in — and the size of each subsequent batch. Purely a client-side
+ *  reveal: every link is server-rendered, so with JS off the full list is
+ *  there. */
+const OCC_CAP = 30;
+
+const BOOK_RANK = new Map(
+  (BOOK_ORDER as string[]).map((key, i) => [key, i] as const),
+);
+const bookRank = (key: string) => BOOK_RANK.get(key) ?? Number.MAX_SAFE_INTEGER;
+
+/** See the display rule above. Returns null for a record that says nothing. */
+function verdict(record: AlignmentRecord): "show" | "withhold" | null {
+  const status = record.status ?? "auto";
+  if (status === "rejected" || status === "no-rendering") return null;
+  if (record.lemma === "absent") return null;
+  if (status === "confirmed") return "show";
+  return record.confidence === "distinctive" ? "show" : "withhold";
+}
+
+const occurrencesByTerm: Record<string, FormOccurrences[]> = (() => {
+  const byTerm = new Map<
+    string,
+    { pure: boolean; forms: Map<string, OccurrenceRef[]> }
+  >();
+
+  for (const mod of Object.values(alignmentModules)) {
+    const { bookKey, chapter, records } = mod.default;
+    for (const record of records ?? []) {
+      const id = record.term?.glossary;
+      if (!id) continue;
+
+      const call = verdict(record);
+      if (!call) continue;
+
+      // One unvouchable record withholds the term, even though the record
+      // itself contributes no count — a subtotal presented as a total is the
+      // failure mode this guards against.
+      let entry = byTerm.get(id);
+      if (!entry) byTerm.set(id, (entry = { pure: true, forms: new Map() }));
+      if (call === "withhold") {
+        entry.pure = false;
+        continue;
+      }
+
+      const form = record.term?.form;
+      if (!form) continue;
+
+      // Group by the glossary rendering, not the written text: "Life-breath",
+      // "life-breath", and "life-breaths" are one rendering to a reader. The
+      // records keep each written variant, so Romans 8:2's deliberate
+      // "Torah"/"torah" pair survives in the data even though the count here
+      // shows them together.
+      let refs = entry.forms.get(form);
+      if (!refs) entry.forms.set(form, (refs = []));
+      refs.push({
+        bookKey,
+        chapter,
+        verse: Number(record.ref.split(".").pop()),
+      });
+    }
+  }
+
+  const out: Record<string, FormOccurrences[]> = {};
+  for (const [id, entry] of byTerm) {
+    // A term whose every record was ignored (all reviewed to "no rendering",
+    // say) is settled, not shown — an empty "Where it appears" block would
+    // claim the opposite of what the data says.
+    if (!entry.pure || !entry.forms.size) continue;
+    out[id] = [...entry.forms.entries()]
+      .map(([label, refs]) => {
+        const sorted = refs.sort(
+          (a, b) =>
+            bookRank(a.bookKey) - bookRank(b.bookKey) ||
+            a.chapter - b.chapter ||
+            a.verse - b.verse,
+        );
+        // One link per verse. The records are per-OCCURRENCE, so a verse
+        // rendering the term more than once produced one ref each — and a
+        // reader meeting "Romans 2:12" four times in a row reads it as a bug,
+        // not as the frequency claim it actually is. The count above still
+        // carries that frequency.
+        const seen = new Set<string>();
+        const unique = sorted.filter((r) => {
+          const key = `${r.bookKey}|${r.chapter}|${r.verse}`;
+          if (seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        });
+        return {
+          label,
+          count: sorted.length,
+          verses: unique.length,
+          books: new Set(unique.map((r) => r.bookKey)).size,
+          refs: unique,
+        };
+      })
+      .sort((a, b) => b.count - a.count);
+  }
+  return out;
+})();
+
+/** Every occurrence the term's renderings account for, summed from the same
+ *  per-rendering counts the list shows. */
+const totalOccurrences = (id: string) =>
+  (occurrencesByTerm[id] ?? []).reduce((sum, form) => sum + form.count, 0);
 
 // Two sorted views — each menu and the initial page order use their own sort key.
 const byLit = [...rawEntries].sort((a, b) => a.data.litMenu.localeCompare(b.data.litMenu));
@@ -296,11 +466,116 @@ const menuData = {
                     <div class="entry-body" data-pagefind-ignore>
                       <Content />
                     </div>
+
+                    {/* Where the rendering actually appears. Plain
+                        <details> so the list works with JS disabled. */}
+                    {occurrencesByTerm[data.id] && (
+                      <div class="entry-occurrences" data-pagefind-ignore>
+                        <details class="occ-group">
+                          <summary class="occ-title">
+                            <h3>Where it appears</h3>
+                            {/* The term's total across every rendering — the
+                                sum of the per-rendering counts below, so it
+                                cannot disagree with them. Rendering COUNT is
+                                left out: the rows are few enough to take in
+                                at a glance, and the total is the number a
+                                reader is actually after. */}
+                            <span class="occ-title-count">{
+                              totalOccurrences(data.id) === 1
+                                ? "1 occurrence"
+                                : `${totalOccurrences(data.id).toLocaleString("en-US")} occurrences`
+                            }</span>
+                          </summary>
+                        {occurrencesByTerm[data.id].map((form) => (
+                          <details class="occ">
+                            <summary class="occ-summary">
+                              <span class="occ-form">{form.label}</span>
+                              {/* Each quantity is glued to its noun — see
+                                  .occ-nw. Only say "across N verses" when it
+                                  differs from the occurrence count, or the
+                                  list length and the headline disagree with
+                                  no explanation. */}
+                              <span class="occ-count">
+                                <span class="occ-nw">
+                                  {form.count} {form.count === 1 ? "time" : "times"}
+                                </span>
+                                {form.verses !== form.count && (
+                                  <>
+                                    {" across "}
+                                    <span class="occ-nw">{form.verses} verses</span>
+                                  </>
+                                )}
+                                {" in "}
+                                <span class="occ-nw">
+                                  {form.books} {form.books === 1 ? "book" : "books"}
+                                </span>
+                              </span>
+                            </summary>
+                            <ul class="occ-list" data-occ-cap={form.refs.length > OCC_CAP ? String(OCC_CAP) : undefined}>
+                              {form.refs.map((ref) => (
+                                <li>
+                                  <a href={`/${ref.bookKey}-${ref.chapter}#v${ref.verse}`}>
+                                    {bookKeyToLabel(ref.bookKey)} {ref.chapter}:{ref.verse}
+                                  </a>
+                                </li>
+                              ))}
+                            </ul>
+                          </details>
+                        ))}
+                        </details>
+                      </div>
+                    )}
                   </article>
                 );
               })}
 
               <script type="module" data-pagefind-ignore>
+                // --- occurrence lists: reveal long ref lists in batches ---
+                // Every link is server-rendered, so this only ever HIDES. With
+                // JS off the full list is already on the page, which is why the
+                // button is injected here rather than authored in the markup.
+                for (const list of document.querySelectorAll(".occ-list[data-occ-cap]")) {
+                  const step = Number(list.dataset.occCap) || 30;
+                  const items = Array.from(list.children);
+                  if (items.length <= step) continue;
+
+                  const button = document.createElement("button");
+                  button.type = "button";
+                  button.className = "occ-more";
+
+                  let shown = step;
+                  const render = () => {
+                    items.forEach((li, i) => {
+                      li.hidden = i >= shown;
+                    });
+                    const left = items.length - shown;
+                    if (left <= 0) {
+                      button.remove();
+                      return;
+                    }
+                    button.textContent =
+                      left <= step ? `Show last ${left}` : `Show ${step} more`;
+                    // Count is in the accessible name too — "Show 30 more"
+                    // alone doesn't say more of what, out of context.
+                    button.setAttribute(
+                      "aria-label",
+                      `${button.textContent} of ${items.length} verses`,
+                    );
+                  };
+
+                  button.addEventListener("click", () => {
+                    const firstNew = items[shown];
+                    shown = Math.min(shown + step, items.length);
+                    render();
+                    // Keep the reader's place: focus the first newly revealed
+                    // link rather than letting focus die with the button.
+                    if (firstNew) firstNew.querySelector("a")?.focus();
+                  });
+
+                  render();
+                  list.after(button);
+                }
+
                 // --- intersection observer: adds .is-visible and triggers redraw ---
                 const entries = Array.from(
                   document.querySelectorAll(".glossary-page .entry"),

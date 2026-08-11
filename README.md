@@ -46,6 +46,8 @@ npm run dev        # start the dev server at http://localhost:4321
 | `npm test` | Run the unit test suite |
 | `npm run check:links` | Verify every internal link in a production build resolves |
 | `npm run build:favicons` | Regenerate the favicon and app-icon set from the emblem SVGs (only needed when the logo changes) |
+| `npm run build:alignment` | Rescan the text for glossary-term renderings (only needed when the text or the glossary changes) |
+| `npm run review:alignment` | Open the local review tool for that dataset (see below) |
 
 The production build runs in stages: refresh the podcast feed → generate topic
 indexes → generate the verse search index → generate the mobile-app manifest →
@@ -57,6 +59,7 @@ Astro → build the Pagefind search index.
 ```
 src/
   data/chapters/   # 260 chapter JSON files — the scripture text
+  data/alignment/  # Where each Greek term's LIT rendering appears (see below)
   data/intros/     # Book introductions (Markdown)
   content/         # Glossary + articles (Markdown content collections)
   pages/           # Routes (scripture, reading view, glossary, articles, …)
@@ -80,6 +83,53 @@ npm run validate:chapters
 
 A git pre-commit hook also validates staged chapter files automatically, so a
 malformed chapter can't be committed.
+
+## The alignment dataset
+
+`src/data/alignment/` records where each Greek term's LIT rendering actually
+appears in the text — the corpus-wide view a footnote can't give you, since a
+footnote only ever speaks about its own verse. The glossary renders it as the
+"Where it appears" list under each entry.
+
+Unlike the rest of the generated output, these files are **committed**: they
+carry review state, so re-running the generator merges with what a human has
+already checked rather than overwriting it.
+
+```sh
+npm run build:alignment
+```
+
+Run it after editing the scripture text or the glossary. It isn't part of
+`npm run build` — a build shouldn't rewrite files you've reviewed.
+
+### Reviewing it
+
+The scan can only find renderings the glossary already lists, which is a real
+ceiling: the glossary's headline for a term is rarely the only way the text
+renders it. The review tool closes that gap by working from the Greek instead.
+It lists every verse where a term's Greek word occurs, proposes a rendering
+where it can, and records what you decide.
+
+Because a rendering gets typed one verse at a time, it tends to fragment across
+its own inflections ("cleanse", "cleansed", "cleansing" recorded as three
+different things). The tool watches for that: it suggests a rendering you've
+already established when you pick a new span, and its **Consolidate** control
+proposes groups to combine. It only ever proposes. Whether two wordings are one
+rendering is a judgment about the translation, so you pick the label.
+
+```sh
+npm run review:alignment
+```
+
+It opens on `localhost:4500` and saves each decision as you make it. It needs a
+local copy of the [MorphGNT](https://github.com/morphgnt/sblgnt) analysis of the
+Greek text — the tool tells you how to fetch one if it's missing. That copy is a
+reference for the tool only; nothing from it is published, and it stays out of
+the repository.
+
+Clone it once somewhere permanent outside the repo and set `MORPHGNT_DIR` to
+that path. Both this tool and `build:alignment` read the variable, so a single
+copy serves every checkout instead of one per working directory.
 
 ## If something breaks badly
 

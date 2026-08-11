@@ -109,7 +109,13 @@ function stripFootnoteRefs(html) {
 
 /** Build a Map<verseNumber, plainText> from an array of paragraph HTML strings.
  *  Footnote references and bracket markers are stripped before extraction so
- *  only body text is compared. */
+ *  only body text is compared.
+ *
+ *  NOT scripts/lib/verse-text.mjs, deliberately. That one feeds the search index
+ *  and the alignment dataset, which read a verse once; this one compares two
+ *  revisions of the SAME verse, so it splits on the vglue wrapper and decodes a
+ *  wider entity set — an entity left as a literal here would read as an edit.
+ *  It also backs an app-facing contract. Keep them separate. */
 function extractVerseTexts(paragraphs) {
   const combined = paragraphs.map(stripFootnoteRefs).join("\n");
   const parts = combined.split(/(?=<span class="vglue"><sup id="v\d+)/);
