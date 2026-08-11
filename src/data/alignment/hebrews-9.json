@@ -23,6 +23,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Heb.9.1",
+      "english": [
+        {
+          "text": "standards",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "dikaiosune",
+        "traditional": "Righteousness",
+        "glossary": "righteousness-justness",
+        "form": "standards"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Heb.9.2",
       "english": [
         {
@@ -186,6 +206,26 @@
       "ref": "Heb.9.10",
       "english": [
         {
+          "text": "regulations",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "dikaiosune",
+        "traditional": "Righteousness",
+        "glossary": "righteousness-justness",
+        "form": "regulations"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Heb.9.10",
+      "english": [
+        {
           "text": "restoration",
           "n": 1
         }
@@ -256,6 +296,26 @@
         "traditional": "Clean",
         "glossary": "clean-clean",
         "form": "cleanse"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Heb.9.13",
+      "english": [
+        {
+          "text": "ordinary",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "koine",
+        "traditional": "Defiled/Profane",
+        "glossary": "defiled-common",
+        "form": "ordinary"
       },
       "confidence": null,
       "lemma": "present",

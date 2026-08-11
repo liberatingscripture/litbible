@@ -446,6 +446,26 @@
       "ref": "Luke.5.32",
       "english": [
         {
+          "text": "aligned",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "dikaiosune",
+        "traditional": "Righteousness",
+        "glossary": "righteousness-justness",
+        "form": "alignment"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.5.32",
+      "english": [
+        {
           "text": "deviate",
           "n": 1
         }

@@ -366,6 +366,26 @@
       "ref": "1Pet.4.18",
       "english": [
         {
+          "text": "just",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "dikaiosune",
+        "traditional": "Righteousness",
+        "glossary": "righteousness-justness",
+        "form": "justness"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Pet.4.18",
+      "english": [
+        {
           "text": "liberated",
           "n": 1
         }

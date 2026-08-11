@@ -343,6 +343,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Luke.10.29",
+      "english": [
+        {
+          "text": "justify",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "dikaiosune",
+        "traditional": "Righteousness",
+        "glossary": "righteousness-justness",
+        "form": "justness"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Luke.10.30",
       "english": [
         {

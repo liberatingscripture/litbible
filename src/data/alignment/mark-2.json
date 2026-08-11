@@ -326,6 +326,26 @@
       "ref": "Mark.2.17",
       "english": [
         {
+          "text": "people who are just",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "dikaiosune",
+        "traditional": "Righteousness",
+        "glossary": "righteousness-justness",
+        "form": "justness"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Mark.2.17",
+      "english": [
+        {
           "text": "deviate",
           "n": 1
         }

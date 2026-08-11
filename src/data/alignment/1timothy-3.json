@@ -326,6 +326,26 @@
       "ref": "1Tim.3.16",
       "english": [
         {
+          "text": "just",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "dikaiosune",
+        "traditional": "Righteousness",
+        "glossary": "righteousness-justness",
+        "form": "justness"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Tim.3.16",
+      "english": [
+        {
           "text": "Life-breath",
           "n": 1
         }

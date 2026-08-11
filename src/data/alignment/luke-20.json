@@ -103,6 +103,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Luke.20.20",
+      "english": [
+        {
+          "text": "genuine",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "dikaiosune",
+        "traditional": "Righteousness",
+        "glossary": "righteousness-justness",
+        "form": "genuine"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Luke.20.27",
       "english": [
         {

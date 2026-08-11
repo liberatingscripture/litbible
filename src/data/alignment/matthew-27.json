@@ -23,6 +23,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Matt.27.19",
+      "english": [
+        {
+          "text": "innocent",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "dikaiosune",
+        "traditional": "Righteousness",
+        "glossary": "righteousness-justness",
+        "form": "innocent"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Matt.27.23",
       "english": [
         {

@@ -166,6 +166,26 @@
       "ref": "2Cor.5.21",
       "english": [
         {
+          "text": "justness",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "dikaiosune",
+        "traditional": "Righteousness",
+        "glossary": "righteousness-justness",
+        "form": "justness"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "2Cor.5.21",
+      "english": [
+        {
           "text": "deviation",
           "n": 1
         }
