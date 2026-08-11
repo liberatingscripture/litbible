@@ -240,7 +240,7 @@
       "confidence": "common",
       "lemma": "unchecked",
       "source": "glossary-scan",
-      "status": "auto"
+      "status": "confirmed"
     },
     {
       "ref": "Rom.16.27",
@@ -260,7 +260,7 @@
       "confidence": "common",
       "lemma": "unchecked",
       "source": "glossary-scan",
-      "status": "auto"
+      "status": "confirmed"
     }
   ]
 }

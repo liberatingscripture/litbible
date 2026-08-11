@@ -20,7 +20,7 @@
       "confidence": "common",
       "lemma": "unchecked",
       "source": "glossary-scan",
-      "status": "auto"
+      "status": "rejected"
     },
     {
       "ref": "John.8.5",
@@ -40,7 +40,27 @@
       "confidence": "distinctive",
       "lemma": "unchecked",
       "source": "glossary-scan",
-      "status": "auto"
+      "status": "confirmed"
+    },
+    {
+      "ref": "John.8.7",
+      "english": [
+        {
+          "text": "deviation",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hamartia",
+        "traditional": "Sin",
+        "glossary": "sin-deviation",
+        "form": "deviation"
+      },
+      "confidence": null,
+      "lemma": "unchecked",
+      "source": "review",
+      "status": "confirmed"
     },
     {
       "ref": "John.8.8",
@@ -60,7 +80,7 @@
       "confidence": "distinctive",
       "lemma": "unchecked",
       "source": "glossary-scan",
-      "status": "auto"
+      "status": "rejected"
     },
     {
       "ref": "John.8.15",
