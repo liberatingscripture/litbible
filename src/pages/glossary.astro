@@ -170,6 +170,11 @@ const occurrencesByTerm: Record<string, FormOccurrences[]> = (() => {
   return out;
 })();
 
+/** Every occurrence the term's renderings account for, summed from the same
+ *  per-rendering counts the list shows. */
+const totalOccurrences = (id: string) =>
+  (occurrencesByTerm[id] ?? []).reduce((sum, form) => sum + form.count, 0);
+
 // Two sorted views — each menu and the initial page order use their own sort key.
 const byLit = [...rawEntries].sort((a, b) => a.data.litMenu.localeCompare(b.data.litMenu));
 const byTraditional = [...rawEntries].sort((a, b) =>
@@ -469,10 +474,16 @@ const menuData = {
                         <details class="occ-group">
                           <summary class="occ-title">
                             <h3>Where it appears</h3>
+                            {/* The term's total across every rendering — the
+                                sum of the per-rendering counts below, so it
+                                cannot disagree with them. Rendering COUNT is
+                                left out: the rows are few enough to take in
+                                at a glance, and the total is the number a
+                                reader is actually after. */}
                             <span class="occ-title-count">{
-                              occurrencesByTerm[data.id].length === 1
+                              totalOccurrences(data.id) === 1
                                 ? "1 occurrence"
-                                : `${occurrencesByTerm[data.id].length} occurrences`
+                                : `${totalOccurrences(data.id).toLocaleString("en-US")} occurrences`
                             }</span>
                           </summary>
                         {occurrencesByTerm[data.id].map((form) => (
