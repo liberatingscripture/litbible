@@ -1121,12 +1121,18 @@ collection); they're read directly by the intro pages and the API manifest.
   the branch (`/src/<some-branch-only-file>` — Vite serves `src/` in dev) and
   check for a 200. To review a branch's pages, build it and serve its own
   `dist/`, which is the production render anyway.
-- **Squash, merge-commit, and rebase are all enabled — pick one per PR and say
-  why.** Don't infer the answer from recent history: `main` used merge commits
+- **Squash, merge-commit, and rebase are all enabled — pick one per PR, state
+  it, and proceed.** The choice is yours to make, not one to hand back: the
+  owner performs the merge (see the protection note above) and will say so if
+  they have a preference, but asking which method to use spends their attention
+  on a decision the branch itself answers. What's actually wanted is the
+  reasoning, so reason from *this* branch's shape rather than from habit — don't
+  infer the answer from recent history either, since `main` used merge commits
   for most of its life and switched to squash only around PR #101, so the last
-  few commits read as a rule when they're really a transition. The merge is the
-  owner's call each time (see the protection note above), and the method is part
-  of what to put in front of them rather than decide silently.
+  few commits read as a rule when they're really a transition. Note the
+  degenerate case: on a **single-commit** branch squash and rebase produce
+  identical history, so the only real question is linear vs. a merge node — say
+  that instead of dressing it up as a three-way call.
   - *Squash* — one logical change, or a branch whose commits are WIP noise
     ("fix typo", "address review"). Nearly every content PR. It also keeps one
     commit per publish, which suits `draft-release-notes.mjs --since <ref>` and
