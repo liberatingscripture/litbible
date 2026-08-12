@@ -48,6 +48,7 @@ npm run dev        # start the dev server at http://localhost:4321
 | `npm run build:favicons` | Regenerate the favicon and app-icon set from the emblem SVGs (only needed when the logo changes) |
 | `npm run build:alignment` | Rescan the text for glossary-term renderings (only needed when the text or the glossary changes) |
 | `npm run review:alignment` | Open the local review tool for that dataset (see below) |
+| `npm run audit:alignment` | Check that reviewed alignment records still match the text (run after editing chapters) |
 
 The production build runs in stages: refresh the podcast feed → generate topic
 indexes → generate the verse search index → generate the mobile-app manifest →
@@ -106,6 +107,19 @@ npm run build:alignment
 
 Run it after editing the scripture text or the glossary. It isn't part of
 `npm run build` — a build shouldn't rewrite files you've reviewed.
+
+That protection cuts both ways: because a reviewed record is never overwritten,
+rewording a verse leaves its record pointing at words the verse no longer has,
+and nothing reports it. So after editing chapters, also run:
+
+```sh
+npm run audit:alignment
+```
+
+It re-checks every reviewed record against the current text and lists the ones
+that no longer match. Delete a stale record rather than rejecting it — a
+rejected record still counts as decided, so it would never come back around for
+review.
 
 ### Reviewing it
 
