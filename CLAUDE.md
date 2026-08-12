@@ -75,6 +75,8 @@ npm run build:alignment   # Rescan the text for glossary-term renderings (src/da
                           #   (on demand only — output is committed and carries review state)
 npm run review:alignment  # Localhost review tool for that dataset (see below). Needs the
                           #   MorphGNT clone; writes to src/data/alignment/ as you decide
+npm run audit:alignment   # Re-check decided alignment records against the current text
+                          #   (--all to list every finding). Run after editing scripture
 npm run draft:release-notes -- --since <ref>  # Draft a release-notes entry from git diff
 ```
 
@@ -257,10 +259,12 @@ the sitemap filter live in `astro.config.mjs`.
 | `build-favicons.mjs` | Favicon/touch/manifest icons from the emblem SVGs. **Not** in the build — run by hand when the emblem changes. |
 | `build-alignment.mjs` | `src/data/alignment/` — scans published chapters for glossary-term renderings, then checks each against MorphGNT. **Not** in the build; its output is committed and merges with prior human review. See The Alignment Dataset below. |
 | `alignment-review/server.mjs` | `npm run review:alignment` — the localhost review UI (`store.mjs` = fs + corpus, `review-core.mjs` = pure logic *also served to the browser*, `ui/` = vanilla HTML/CSS/JS). Node builtins only, no deps. |
+| `audit-alignment.mjs` | fs/CLI shell: re-checks every *decided* alignment record against the current scripture text. **Not** in the build or CI — run by hand after editing chapters. Delegates the check to `lib/alignment-audit-core.mjs`. |
 | `lib/morphgnt.mjs` | Reads a gitignored local MorphGNT working copy (lemma-per-verse; `{withTokens}` also keeps every token in verse order, which only the review tool needs). Absent → verification skipped, prior verdicts kept. |
 | `lib/glossary-lemmas.mjs` | Editorial map: glossary id → the Greek lemmas that commitment covers. Validated against the corpus at load. |
 | `lib/alignment-merge.mjs` | Record identity, merge, and ordering for `src/data/alignment/` — the contract between the scanner and the review tool. Unit-tested. |
 | `lib/alignment-forms.mjs` | How a glossary rendering is matched against verse text, and how `english[].n` is counted. Shared so both writers number occurrences identically. |
+| `lib/alignment-audit-core.mjs` | Pure staleness check for decided records, no fs of its own. Imports `computeOccurrenceN` from the review tool rather than restating it — agreeing with the writer *is* the check. Unit-tested. |
 | `lib/verse-text.mjs` | **The** chapter HTML → per-verse plain-text splitter (`Map<verse, text>`). Shared by `lib/verse-index-core.mjs`, `build-alignment.mjs`, and the review tool, so search and the alignment dataset can never disagree on where a verse starts and ends. (`release-notes-core.mjs` keeps its own, deliberately — see below.) |
 | `fetch-podcast-feed.mjs` | Refresh podcast XML snapshot (non-fatal on failure). |
 | `draft-release-notes.mjs` | CLI/git shell: drafts release-notes entries from git diffs (used by CI). Delegates the diff→changes logic to `lib/release-notes-core.mjs`. |
@@ -600,19 +604,40 @@ praise, praiseworthiness, renown, honor, reputation, radiance; *koinos* as
 unconsecrated, shared, and worthless — never the glossed word. The scan alone
 would have found a fraction of these.
 
-**Re-audit decided records whenever the text changes.** `mergeScanWithExisting`
-keeps a non-`auto` record *whole*, which is right for preserving human judgment
-and means an upstream edit to a verse leaves its reviewed record silently
-stale — `build:alignment` reports dropped *scan* records and never reviewed
-ones. Check every decided record still describes its verse, mirroring
-`computeOccurrenceN` **including its substring fallback** (whole-word matching
-alone reports false positives: Mark 15:31 legitimately numbers "restore" as
-occurrence 2 by counting the one inside "restored"). When a record is stale,
-**delete it rather than marking it `rejected`** — `isDecided` treats any
-non-`auto` record as settling the verse, so rejecting buries it from the queue
-permanently, while deleting returns it to be decided. Repair in place only when
-the wording is unchanged and just the characters moved (a straight apostrophe
-turning curly). This is deliberately a manual check, not CI (owner decision).
+### Re-auditing decided records (`npm run audit:alignment`)
+
+**Run it whenever the scripture text changes, before committing decisions.**
+`mergeScanWithExisting` keeps a non-`auto` record *whole*, which is right for
+preserving human judgment and means an upstream edit to a verse leaves its
+reviewed record silently stale — `build:alignment` reports dropped *scan*
+records and never reviewed ones, so nothing else in the pipeline notices and
+`/glossary` goes on linking readers to a rendering the verse no longer carries.
+
+Deliberately **not** in CI, the pre-commit hook, or `npm run build` (owner
+decision): a finding needs an editorial judgment, so it's a prompt rather than a
+gate. It exits 1 when anything is stale, purely so it can be chained.
+
+The check asks whether there is *any* position in today's verse that
+`computeOccurrenceN` would number the way the record is numbered, which is what
+lets it cover that function's **substring fallback** as well as its form
+pattern. Re-deriving `n` by whole-word matching instead reports false positives
+at scale — Mark 15:31 legitimately numbers "restore" as occurrence 2 by counting
+the one inside "restored", and its confirmed form ("restoration") doesn't occur
+in the verse at all. That is why the check imports the real function rather than
+restating the rule: a second copy is the one way it could quietly stop being
+true.
+
+When a record is stale, **delete it rather than marking it `rejected`** —
+`isDecided` treats any non-`auto` record as settling the verse, so rejecting
+buries it from the queue permanently, while deleting returns it to be decided.
+Repair in place only when the wording is unchanged and just the characters moved
+(a straight apostrophe turning curly).
+
+`rejected` and `no-rendering` records are skipped: both assert the *absence* of
+a rendering, so re-checking a rejected record would just re-report the false
+positive its reviewer already dismissed. The corollary is that a `no-rendering`
+verse which has since *gained* a rendering is invisible here — that one surfaces
+in the review queue, not the audit.
 
 ### The review tool (`npm run review:alignment`)
 
@@ -1150,6 +1175,7 @@ collection); they're read directly by the intro pages and the API manifest.
 | `scripts/build-alignment.mjs` | Alignment-record generator (`src/data/alignment/`, committed output) |
 | `scripts/lib/alignment-merge.mjs` | Merge contract between the alignment scanner and the review tool |
 | `scripts/alignment-review/` | Localhost review tool for the alignment dataset (`npm run review:alignment`) |
+| `scripts/audit-alignment.mjs` | Staleness check for decided alignment records (`npm run audit:alignment`) — run after editing scripture |
 | `pagefind.yml` | Pagefind config for glossary/article indexing (excludes footnote refs) |
 | `public/_headers` | Security + caching headers; also RFC 8288 `Link` headers for agent discovery (Cloudflare Pages) |
 | `public/.well-known/api-catalog` | RFC 9727/9264 `linkset+json` catalog of the public API |
