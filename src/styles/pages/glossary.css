@@ -3,6 +3,14 @@
   --lit-ink:#1D231C;
   --paper: var(--surface-raised, #ffffff);
   --cream:#e9e6df; /* warm light gray like your screenshots */
+
+  /* Landing offset for every in-page anchor on this page: the jump pill is
+     sticky, so a target scrolled to 0 lands underneath it. Its bottom edge is
+     at 56px (top:16px + 40px tall) and neither number varies with viewport
+     width, so ONE value serves every breakpoint — the extra 24px is the gap
+     that makes the landing read as deliberate. One token because the two
+     consumers below are answering the same question; two numbers drift. */
+  --toc-anchor-offset: 80px;
 }
 
 /* =========================================================
@@ -287,11 +295,6 @@
 .entry{
   padding: 34px 0;
   border-bottom: 1px solid rgba(var(--ink-rgb),0.12);
-  scroll-margin-top: 120px;
-}
-
-@media (max-width: 900px){
-  .entry{ scroll-margin-top: 80px; }
 }
 
 /* =========================================================
@@ -302,6 +305,12 @@
    ========================================================= */
 
 .entry-title{
+  /* The anchor offset belongs HERE, not on .entry: the jump dropdown's targets
+     are `#<entry id>` and that id is on this h2. .entry carries no id (it's the
+     IntersectionObserver's handle, keyed off data-entry), so an offset there is
+     inert and the heading lands under the sticky pill. */
+  scroll-margin-top: var(--toc-anchor-offset);
+
   margin: 0 0 16px 0;
   font-size: clamp(28px, 3.2vw, 54px);
   font-weight: 500;
@@ -569,7 +578,7 @@
   white-space: nowrap;
   /* "Show more" focuses the first newly revealed link, which scrolls it into
      view — clear the sticky jump pill so focus never lands under it. */
-  scroll-margin-top: 72px;
+  scroll-margin-top: var(--toc-anchor-offset);
 }
 
 .occ-list a:hover,
