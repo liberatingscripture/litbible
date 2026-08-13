@@ -51,9 +51,15 @@ npm run dev        # start the dev server at http://localhost:4321
 | `npm run audit:alignment` | Check that reviewed alignment records still match the text (run after editing chapters) |
 
 The production build runs in stages: refresh the podcast feed → generate topic
-indexes → generate the verse search index → generate the mobile-app manifest →
-generate the JSON API → generate chapter share images → compile the site with
-Astro → build the Pagefind search index.
+indexes → generate the verse search index → generate the glossary feed →
+generate the mobile-app manifest → generate the JSON API → generate chapter
+share images → compile the site with Astro → build the Pagefind search index.
+
+The mobile apps sync their content from the JSON API, so a few build outputs are
+contracts rather than conveniences. The glossary feed is the fussiest of them —
+its shape has several ways to fail silently on one platform only, all documented
+in `scripts/lib/glossary-feed-core.mjs`. Read that header before changing how
+glossary entries are written or generated.
 
 ## Project layout
 

@@ -67,6 +67,7 @@ npm test                  # Run the node:test unit suite (test/*.test.js)
 npm run build:topics      # Regenerate topics indexes only
 npm run build:verses      # Regenerate the verse search index only
 npm run build:api         # Regenerate public/api/content.json only
+npm run build:glossary    # Regenerate the apps' glossary feed (public/glossary.json)
 npm run build:manifest    # Regenerate API manifest + /api/data for the mobile apps
 npm run build:og          # Regenerate the chapter/intro share cards (public/og/)
 npm run build:favicons    # Regenerate the favicon/touch/manifest icons from the emblem SVGs
@@ -94,18 +95,25 @@ npm run draft:release-notes -- --since <ref>  # Draft a release-notes entry from
    corpus `vocab` used client-side for related-form matching and typo
    correction (drafts excluded, deterministic output). A website asset, NOT
    part of the app contract — it must never move under `public/api/`.
-4. `build:manifest` — generates `public/api/manifest.json` + `public/api/version.json`
+4. `build:glossary` — generates `public/glossary.json`, the glossary feed the
+   apps sync, from the `src/content/glossary/*.md` collection (deterministic:
+   entries sorted by id, index keys sorted, no timestamps). Must run *before*
+   `build:manifest`, which resolves it as the generated source behind its
+   `glossary.json` declaration. See The Glossary Feed below — its shape is an
+   app contract with several silent failure modes.
+5. `build:manifest` — generates `public/api/manifest.json` + `public/api/version.json`
    and copies content files into `public/api/data/` (chapters, intros, intro
-   `images/`, plus `topics.json` and `translation-commitments.json`) so the
-   native apps can diff hashes and download only changed files. **This step owns
-   the content `version`**: it's `v<YYYYMMDD>.<8-char hash of all file hashes>`,
-   so it changes on *every* content publish (including multiple on the same day)
-   and stays stable when nothing changed. The apps gate all syncing on this
-   string — see the app-sync note below.
-5. `build:api` — generates `public/api/content.json` (full NT in canonical
+   `images/`, plus `glossary.json`, `topics.json` and
+   `translation-commitments.json`) so the native apps can diff hashes and
+   download only changed files. **This step owns the content `version`**: it's
+   `v<YYYYMMDD>.<8-char hash of all file hashes>`, so it changes on *every*
+   content publish (including multiple on the same day) and stays stable when
+   nothing changed. The apps gate all syncing on this string — see the app-sync
+   note below.
+6. `build:api` — generates `public/api/content.json` (full NT in canonical
    order). Runs *after* `build:manifest` and reads the shared `version` from
    `version.json` so all three API artifacts report the same version.
-6. `build:og` — generates `public/og/<slug>.png`, a 1200×630 social share card
+7. `build:og` — generates `public/og/<slug>.png`, a 1200×630 social share card
    for every chapter and book-intro page (owner-approved design: ink field,
    the ringed emblem, Fraunces display-cut reference), plus `apps.png`
    for `/apps` — a sibling composition on the same ink field whose hero visual
@@ -122,8 +130,8 @@ npm run draft:release-notes -- --since <ref>  # Draft a release-notes entry from
    `twitter:card=summary_large_image`. A website asset, NOT part of the app
    contract — it must never move under
    `public/api/`.
-7. `astro build` — compiles the site to `dist/`.
-8. `pagefind --site dist` — indexes glossary + article + book-intro pages
+8. `astro build` — compiles the site to `dist/`.
+9. `pagefind --site dist` — indexes glossary + article + book-intro pages
    into `dist/pagefind/` (scripture chapter pages are deliberately not
    Pagefind-indexed — see Search below).
 
@@ -255,6 +263,8 @@ the sitemap filter live in `astro.config.mjs`.
 | `build-verse-index.mjs` | fs/CLI shell: walks the chapter files, skips drafts, derives the corpus `vocab`, and writes `public/search/verses.json` — per-verse plain text for client-side scripture keyword search. Delegates the HTML→verse-text extraction to `lib/verse-index-core.mjs`. |
 | `build-api-json.mjs` | `public/api/content.json`. |
 | `build-api-manifest.mjs` | `public/api/manifest.json` + `public/api/data/` for the native apps. |
+| `build-glossary-json.mjs` | fs shell: reads `src/content/glossary/*.md` and writes `public/glossary.json`, the apps' glossary feed. Delegates every rule to `lib/glossary-feed-core.mjs`. |
+| `lib/glossary-feed-core.mjs` | Pure `buildGlossaryFeed()` core of that generator — frontmatter parse, Markdown→plain-prose flattening, the `index` maps, and the cross-reference check. Unit-tested directly (`test/build-glossary-feed.test.js`) since its output shape is an app contract. Its header documents the four silent failure modes. |
 | `build-og-images.mjs` | `public/og/` — per-chapter/intro share cards (fonts in `scripts/og/fonts/`). |
 | `build-favicons.mjs` | Favicon/touch/manifest icons from the emblem SVGs. **Not** in the build — run by hand when the emblem changes. |
 | `build-alignment.mjs` | `src/data/alignment/` — scans published chapters for glossary-term renderings, then checks each against MorphGNT. **Not** in the build; its output is committed and merges with prior human review. See The Alignment Dataset below. |
@@ -795,7 +805,13 @@ Five collections, all loaded via Astro's `glob` loader. Two are site-wide:
 - **`glossary`** — `src/content/glossary/*.md`. Schema pairs a `traditional`
   term with the LIT rendering (`greek`, `lit`, `litMenu`, `srOnly`, optional
   `note`/`menuTraditional`). Files are named `<traditional>-<lit>.md`
-  (e.g. `hell-hades.md`).
+  (e.g. `hell-hades.md`). **These files also feed the mobile apps** via
+  `build:glossary` (see The Glossary Feed below), so editing one is a publish to
+  both platforms. The two surfaces want different things from a body: the site
+  renders it as Markdown (`*kalos*` is italic), the apps need plain prose. The
+  generator bridges that by flattening emphasis, so keep using it — but richer
+  Markdown (links, headings, HTML) **fails the build** rather than reaching a
+  phone screen as literal syntax, because neither app can render it.
 
 Three drive the `/apps` promo page only (section content as data, edited without
 touching component code — consumed by `src/components/apps/*`):
@@ -817,7 +833,8 @@ collection); they're read directly by the intro pages and the API manifest.
 - **Chapter file naming**: `{bookKey}-{chapter}.json` (e.g. `1corinthians-1.json`).
 - **Generated files are git-ignored** and regenerated at build time:
   `public/api/`, `public/og/`, `public/search/topics.json`,
-  `public/search/verses.json`, `public/topics-index.json`, `dist/`, `.astro/`.
+  `public/search/verses.json`, `public/topics-index.json`,
+  `public/glossary.json`, `dist/`, `.astro/`.
   Don't hand-edit them. Two generators are deliberately **outside** this rule
   because their output is committed and hand-maintained — `build:favicons`
   (icons) and `build:alignment` (review state); neither runs in `npm run build`.
@@ -972,21 +989,50 @@ collection); they're read directly by the intro pages and the API manifest.
   task + on-demand pull-to-refresh). Only on a change do they fetch
   `manifest.json` and download the files whose SHA-256 hashes moved. **So the
   whole system only works if `version` bumps on every content publish** — which
-  is why it's content-derived (see build step 4), not date-only. The sync-
+  is why it's content-derived (see build step 5), not date-only. The sync-
   critical files (`version.json`, `manifest.json`, `data/*`) are served
   `no-store` in `public/_headers` so a version bump is never served alongside a
   stale manifest or data file.
   **An optional top-level file that never resolves is skipped silently.**
   `topLevelFiles` in `build-api-manifest.mjs` throws only for `required: true`
   entries; anything else missing takes the `// optional + missing → skip
-  silently` branch. `glossary.json` has sat there since the sync system was
-  built (2026-03) with a source, `src/data/glossary.json`, that has **never
-  existed** — so the API carries no glossary data at all, and nothing reports
-  it. Unresolved pending an answer from the app side about where their glossary
-  tab gets content; either generate the file or delete the declaration, but
-  don't leave the code stating an intention the build doesn't fulfil. Note the
-  glossary's real source is the content collection (`src/content/glossary/*.md`),
-  not `src/data/`.
+  silently` branch. `glossary.json` sat there as *optional* from 2026-03 to
+  2026-08 with a source, `src/data/glossary.json`, that never existed — so the
+  API carried no glossary data for five months and nothing reported it, while
+  both apps read a copy bundled into the binary and drifted apart from each
+  other. It is `required: true` now, and generated: see The Glossary Feed below.
+  **Treat any new optional entry with suspicion** — silence is its failure mode.
+- **The glossary feed (`build:glossary` → `/api/data/glossary.json`).** The
+  glossary's source of truth is the content collection
+  (`src/content/glossary/*.md`), never `src/data/`. `build-glossary-json.mjs`
+  compiles it to `public/glossary.json`, which `build:manifest` then picks up as
+  the generated fallback source — the same arrangement `topics.json` has with
+  `public/topics-index.json`, and the reason the file is gitignored rather than
+  committed. The rules the feed's shape must satisfy are documented at length in
+  `scripts/lib/glossary-feed-core.mjs`; the four that bite are:
+  1. **The top-level `index` object is required.** iOS's decoder throws without
+     it, then logs, *skips the hash update*, and continues — so the file
+     re-downloads on every sync forever, the glossary never updates, and no
+     error is ever user-visible. Android ignores the field entirely. Both
+     parsers tolerate *extra* keys, so shipping the whole entry schema is free;
+     it is a *missing* key that is fatal.
+  2. **`index.traditional` keys on `traditional`, `index.lit` on `litMenu`** —
+     not `menuTraditional`, not `lit`. Both are displayed text on both
+     platforms, and iOS's cross-reference lookup keys on them.
+  3. **Bodies are plain prose.** Neither app parses Markdown near the glossary
+     (Android draws plain text, iOS runs an inline *HTML* parser), so emphasis
+     markers and backslash escapes reach the screen literally. The generator
+     flattens them and throws on anything it can't flatten. Note the `.md`
+     intros are **not** Markdown either — their bodies are HTML with YAML
+     frontmatter, so "match the intros feed" is not the argument it looks like.
+  4. **`the entry for "X"` ships verbatim.** iOS turns that literal phrase into
+     in-app navigation by matching X against the index labels. Rewriting it as a
+     link loses the navigation silently, and an `https://` anchor in a body
+     renders on iOS as a tappable link that does nothing. Straight quotes are
+     load-bearing — the curly-quote convention is a *chapter JSON* rule and must
+     not be applied here. The generator fails the build on a cross-reference
+     that would land nowhere, because two of them were dead for months and
+     nothing reported it.
 - **One announcement popover at a time.** `Layout.astro` renders exactly ONE
   popover component (currently `AppsLaunchPopover.astro`, the iOS/Android
   launch). Retiring an announcement means swapping that import and leaving the
@@ -1178,6 +1224,7 @@ collection); they're read directly by the intro pages and the API manifest.
 | `content.config.ts` | Content-collection schemas |
 | `scripts/validate-chapters.mjs` | Chapter validator (pre-commit + CI safety net) |
 | `scripts/build-verse-index.mjs` | Verse search index generator (`public/search/verses.json`) |
+| `scripts/lib/glossary-feed-core.mjs` | The apps' glossary feed contract — read its header before changing anything about `/api/data/glossary.json` |
 | `scripts/build-alignment.mjs` | Alignment-record generator (`src/data/alignment/`, committed output) |
 | `scripts/lib/alignment-merge.mjs` | Merge contract between the alignment scanner and the review tool |
 | `scripts/alignment-review/` | Localhost review tool for the alignment dataset (`npm run review:alignment`) |
