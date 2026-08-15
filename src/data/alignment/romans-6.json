@@ -266,26 +266,6 @@
       "ref": "Rom.6.13",
       "english": [
         {
-          "text": "justice",
-          "n": 1
-        }
-      ],
-      "greek": [],
-      "term": {
-        "greek": "dikaiosune",
-        "traditional": "Righteousness",
-        "glossary": "righteousness-justness",
-        "form": "justice"
-      },
-      "confidence": "common",
-      "lemma": "present",
-      "source": "glossary-scan",
-      "status": "confirmed"
-    },
-    {
-      "ref": "Rom.6.13",
-      "english": [
-        {
           "text": "deviation",
           "n": 1
         }

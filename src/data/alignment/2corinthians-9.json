@@ -186,26 +186,6 @@
       "ref": "2Cor.9.13",
       "english": [
         {
-          "text": "praiseworthiness",
-          "n": 1
-        }
-      ],
-      "greek": [],
-      "term": {
-        "greek": "doxa",
-        "traditional": "Glory",
-        "glossary": "glory-praiseworthiness",
-        "form": "praiseworthiness"
-      },
-      "confidence": null,
-      "lemma": "present",
-      "source": "review",
-      "status": "confirmed"
-    },
-    {
-      "ref": "2Cor.9.13",
-      "english": [
-        {
           "text": "the triumphant message",
           "n": 1
         }
