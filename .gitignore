@@ -52,3 +52,9 @@ public/og/
 #   git clone --depth 1 https://github.com/morphgnt/sblgnt.git .morphgnt
 .morphgnt/
 alignment-coverage.json
+
+# scripts/reconcile/ — one-off Word-master reconciliation tooling (see its
+# README). out/ is regenerated scratch output (gate reports, the ledger, its
+# per-book Markdown); the tooling's source and tests under lib/ and test/
+# ARE committed, only this directory is not.
+scripts/reconcile/out/

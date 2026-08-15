@@ -495,7 +495,7 @@ A Greek↔English index of the translation: one JSON file per chapter
 a translation commitment appears. It exists because **footnotes answer "what
 happened in this verse" and can never answer "what does this translation do
 with this word"** — that second question ranges over the whole corpus, and all
-5,486 footnotes are invisible to both search engines (the verse index strips
+5,484 footnotes are invisible to both search engines (the verse index strips
 `fn-ref`, and chapter pages aren't Pagefind-indexed). These records are that
 missing aggregate.
 
@@ -1151,6 +1151,56 @@ collection); they're read directly by the intro pages and the API manifest.
     `search=yes`, `ai-input=yes` (RAG/inference welcome). The site has no auth,
     MCP server, or write API, so OAuth/MCP/WebMCP discovery files are intentionally
     absent — don't add them without a real backing service.
+
+## The Word masters (`scripts/reconcile/`)
+
+**The chapter JSON is not the origin of the translation.** The author writes in
+Word, one `.docx` per book, kept in OneDrive — those are the masters, and where
+the two disagree about wording the master wins. The JSON was seeded from them by
+a lossy import in 2026-02 which shortened notes, dropped a few entirely, added
+punctuation nobody wrote, and stripped macrons off transliterated Greek.
+`scripts/reconcile/` is the toolchain that measured and repaired that; August
+2026 restored 749 footnotes and 165 verses across 153 files.
+
+The masters are **read-only from this repo, always** — never edited to match the
+JSON, in either direction, and never committed (they are the author's working
+documents, and 17MB of unpacked XML besides). `MASTER_XML_DIR` points at an
+unpacked copy; see that directory's README.
+
+Four things about them that are not guessable and cost real time to rediscover:
+
+1. **A footnote reference is zero-width in Word.** It contributes no characters,
+   which is right for comparing wording and wrong for rebuilding HTML: a verse
+   rebuilt from master text alone loses every `<sup class="fn-ref">` anchor
+   inside it, and the note becomes unreachable. `validate-chapters.mjs` does
+   **not** catch this — it checks that every anchor has a footnote, never that
+   every footnote has an anchor. `build-ledger.mjs` re-inserts the repo's own
+   anchors at the master's positions and refuses the verse when the counts
+   disagree.
+2. **Verse numbers are usually superscript runs, but not always.** Eight
+   chapters type one as ordinary body text and Mark 5:39 is a *subscript*. Any
+   tool that trusts `<w:vertAlign>` alone walks past them; the digit-adjacency
+   scan finds all of them, and the two are cross-checked per chapter.
+3. **Restoring is a byte-level splice, never a reserialize.**
+   `build-api-manifest.mjs` hashes chapter files by raw bytes and most files are
+   not in canonical format, so a `JSON.parse`→`stringify` round-trip would move
+   every hash and force every app install to re-download the whole corpus for no
+   content change. `lib/json-splice.mjs` replaces one string value in place
+   under seven assertions; `verify-bytes.mjs` proves after the fact that nothing
+   but string values moved.
+4. **Word mixes straight and curly quotes**, so master text cannot be spliced in
+   raw — `curl-quotes.mjs` converts it first, and **refuses** rather than
+   guessing when a quotation is unbalanced. Those records go to hand review.
+
+`build-alignment.mjs`'s rule applies here too: **run `npm run audit:alignment`
+after any verse restore.** A reviewed alignment record survives a scan whole, so
+an edit to the verse under it leaves it silently stale — delete a stale record
+rather than rejecting it.
+
+`FOLLOW-UP-RECONCILIATION.md` carries what the restore deliberately left alone:
+the August edits to back-port *into* Word, the April–July window that needs a
+human, and the books with no usable master (Revelation has none; Acts's holds
+only 1:1–4; Luke's stops mid-21:38).
 
 ## Git Workflow
 
