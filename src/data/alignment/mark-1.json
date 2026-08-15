@@ -106,26 +106,6 @@
       "ref": "Mark.1.5",
       "english": [
         {
-          "text": "acknowledged aloud",
-          "n": 1
-        }
-      ],
-      "greek": [],
-      "term": {
-        "greek": "homologia",
-        "traditional": "Confession",
-        "glossary": "confession-open-acknowledgement",
-        "form": "openly acknowledge"
-      },
-      "confidence": null,
-      "lemma": "present",
-      "source": "review",
-      "status": "confirmed"
-    },
-    {
-      "ref": "Mark.1.5",
-      "english": [
-        {
           "text": "deviations",
           "n": 1
         }
