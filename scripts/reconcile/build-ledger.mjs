@@ -1,0 +1,663 @@
+#!/usr/bin/env node
+// Phase 2 of the approved plan ("## Phase 2 — Ledger (stop here for
+// review)"). Builds a full record of every master/repo footnote and verse
+// difference across the 206 `indexed: true` chapters, classifies each into
+// a bucket (A-E, or a deferred/repo-only existence-check outcome), and
+// writes `out/ledger.json` + one Markdown file per book + `out/INDEX.md`.
+//
+// *** WRITE-ONLY IN THIS SESSION. DO NOT RUN THIS SCRIPT. ***
+// Per the task's explicit instruction: this file must be written to
+// implement the plan's classification algorithm in full, but must not be
+// executed. Its own header in scripts/reconcile/README.md repeats this. The
+// classification thresholds in lib/word-diff.mjs are principled defaults
+// reasoned from the plan's description, not calibrated against a live run -
+// re-check them against real ledger output before trusting the bucket-A
+// subclass counts the plan cites (11 placeholder / 52+13 truncated-or-
+// summarized / 287+227 punctuation-or-case+66 case / 470+139 rewritten).
+//
+// Classification pipeline, per record, in order (plan: "Classification:
+// existence check -> cosmetic gate (normalize() equality -> bucket E) ->
+// settle window (git) -> word-level change shape via LCS -> bucket."):
+//   1. Existence check - does this footnote/verse exist on both sides, only
+//      in the master (deferred - a later PR's work, per the plan's
+//      "Deferred" list), or only in the repo (bucket D)?
+//   2. Cosmetic gate - normalize()-equal but raw-different -> bucket E,
+//      classification stops there (no git/LCS work needed).
+//   3. Settle window - walk the chapter file's own commit history (once per
+//      file, reused across every record in it - see lib/git-settle.mjs) to
+//      find when the record's CURRENT text first appeared, and classify
+//      that date into import-era / authored-apr-jul / august.
+//   4. Word-level shape - lib/word-diff.mjs's LCS diff, classified into a
+//      bucket-A subclass (placeholder / truncated-or-summarized /
+//      punctuation-or-case / rewritten).
+//   5. Bucket from window: import-era -> A, authored-apr-jul -> C,
+//      august -> B.
+//   Override (applied after the above, informational fields kept either
+//   way): a patch-construction warning, "structured" HTML the run-based
+//   master extractor could never have produced (a real hyperlink, list, or
+//   table - NOT the ordinary `<span class="vglue">` verse-marker wrapper or
+//   a footnote-ref `<a>`, both of which are standard on every record), or a
+//   bracketed chapter (mark-16, john-7/8/9/11, romans-16, whose paired
+//   footnotes are byte-identical by design and must move together) forces
+//   `forceHandReview` to a non-null reason. The natural bucket/subclass are
+//   NOT overwritten - hand-review is a disposition on top of the
+//   classification, not a replacement for it.
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+import { extractMasterChapters, extractMasterFootnotes } from "./lib/docx-verses.mjs";
+import { splitChapterVerses, extractRepoFootnoteOrder } from "./lib/repo-extract.mjs";
+import { normalize, classifyDiff } from "./lib/normalize.mjs";
+import { severity } from "./lib/classify.mjs";
+import { pairFootnotes } from "./lib/pair-footnotes.mjs";
+import { BOOKS, DOCX_TO_BOOKKEY, TRUNCATED_MASTERS, DOCUMENTED_GAPS } from "./lib/book-map.mjs";
+// NO_MASTER_BOOKS (revelation) is intentionally not iterated at all here -
+// it never appears in DOCX_TO_BOOKKEY, and every one of its chapters is a
+// draft (indexed:false) anyway per CLAUDE.md's Scope section, so there is
+// nothing for this ledger to compare.
+import { classifyShape } from "./lib/word-diff.mjs";
+import { getChapterHistory, findSettleCommit, findPreAugustValue, classifyWindow } from "./lib/git-settle.mjs";
+import { locateVerseSpanInParagraphs } from "./lib/verse-span.mjs";
+import { REF_MARK } from "./lib/docx-verses.mjs";
+import { curlify, auditWrongDirectionPairs } from "./lib/curl-quotes.mjs";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+// ---------------------------------------------------------------------
+// Configuration - same convention as gate-report.mjs (see its header and
+// scripts/reconcile/README.md).
+// ---------------------------------------------------------------------
+
+function argValue(flag) {
+  const pref = `--${flag}=`;
+  const found = process.argv.find((a) => a.startsWith(pref));
+  return found ? found.slice(pref.length) : undefined;
+}
+
+const DEFAULT_MASTER_XML_DIR =
+  "C:\\Users\\bcjoh\\AppData\\Local\\Temp\\claude\\C--Users-bcjoh-GitHub-litbible\\ddd3fc48-2f0f-4228-8fea-4b8565ba571e\\scratchpad\\docx-audit\\extracted";
+
+const MASTER_XML_DIR = argValue("master-dir") || process.env.MASTER_XML_DIR || DEFAULT_MASTER_XML_DIR;
+const REPO_ROOT = path.resolve(__dirname, "../..");
+const CHAPTERS_DIR = path.resolve(REPO_ROOT, "src/data/chapters");
+const OUT_DIR = argValue("out-dir") || path.resolve(__dirname, "out");
+const DECISIONS_PATH = path.join(OUT_DIR, "decisions.json");
+
+const BRACKETED_CHAPTERS = new Set(["mark-16", "john-7", "john-8", "john-9", "john-11", "romans-16"]);
+
+// ---------------------------------------------------------------------
+// Structured-HTML detector (plan: "Anything with a patch warning,
+// structured HTML (<div|span|a|ul|ol|table>), or a bracketed chapter is
+// forced to hand-review"). The run-based master extractor
+// (lib/docx-runs.mjs) only ever emits <em>/<b>/escaped text - never <div>,
+// <a>, <ul>, <ol>, or <table>, and never a <span> at all - so any of those
+// appearing in the REPO's current text signals hand-authored structure a
+// blind master-text overwrite would destroy. `<span class="vglue">` (every
+// verse's own marker wrapper) and a footnote-ref `<a>` (every paragraph
+// that cites a footnote) are the two standard, expected exceptions.
+// ---------------------------------------------------------------------
+
+const FNREF_ANCHOR_RE = /<sup class="fn-ref"><a id="fnref-[^"]+" href="#fn-[^"]+" role="doc-noteref">[a-z]+<\/a><\/sup>/g;
+
+function structuredHtmlReason(html) {
+  if (/<(div|ul|ol|table)\b/i.test(html)) return "contains <div>/<ul>/<ol>/<table> - never produced by the master extractor";
+  const withoutFnRef = html.replace(FNREF_ANCHOR_RE, "");
+  if (/<a\b/i.test(withoutFnRef)) return "contains a hyperlink (<a>) beyond the standard footnote-ref anchor";
+  const withoutVglue = html.replaceAll('<span class="vglue">', "");
+  if (/<span\b/i.test(withoutVglue)) return "contains a <span> beyond the standard vglue verse-marker wrapper";
+  return null;
+}
+
+// ---------------------------------------------------------------------
+// Decisions sidecar (plan: "Owner approvals land in a sidecar
+// out/decisions.json that apply.mjs reads, so ledger.json stays
+// regenerable"). Shape is this reconciliation's own convention, since the
+// plan doesn't fully specify it: { [recordId]: { decision: "approved" |
+// "rejected" | "deferred", note?: string } }. Re-check this shape against
+// whatever a human reviewer actually produces before Phase 3 relies on it.
+// ---------------------------------------------------------------------
+
+function loadDecisions() {
+  if (!existsSync(DECISIONS_PATH)) return {};
+  try {
+    return JSON.parse(readFileSync(DECISIONS_PATH, "utf8"));
+  } catch (e) {
+    console.error(`WARNING: ${DECISIONS_PATH} exists but isn't valid JSON (${e.message}) - treating as empty.`);
+    return {};
+  }
+}
+
+// ---------------------------------------------------------------------
+// Verse-patch construction: json-splice.mjs only ever replaces a whole JSON
+// string value, so restoring one verse means replacing its WHOLE containing
+// paragraphs[i] string with everything outside that verse's own span
+// byte-identical. The verse's own marker wrapper
+// (`<span class="vglue"><sup id="vN" class="vn">N</sup>&nbsp;FIRST_WORD
+// </span>`) has to be reconstructed around the NEW first word, since the
+// master has no concept of that wrapper at all (it's a repo/site
+// convention, not something Word formatting carries). Handles the common
+// case (new content's first word is plain text, no leading tag) and
+// declines the rest rather than risk splitting/mis-nesting a tag.
+// ---------------------------------------------------------------------
+
+const PLAIN_FIRST_WORD_RE = /^([^\s<]+)/;
+
+// A footnote reference is zero-width in the master, so master-derived verse
+// HTML carries no <sup class="fn-ref"> anchors at all. Restoring a verse from
+// it without putting them back deletes every anchor inside that verse: the
+// footnote stays in footnotes[] with nothing pointing at it, unreachable to
+// readers, and validate-chapters.mjs does not catch it (it checks that every
+// anchor has a footnote, never that every footnote has an anchor).
+//
+// extractMasterChapters({refMarkers:true}) leaves a REF_MARK-delimited
+// placeholder at each reference's position instead. The repo's OWN anchor
+// markup is then substituted back in, in order, taken from the span being
+// replaced - so the anchors are preserved verbatim (ids, hrefs, labels) and
+// only their POSITION comes from the master. Counts must agree exactly; a
+// mismatch means the master gained or lost a reference relative to the repo,
+// which is an editorial change to hand-review, not something to paper over.
+const REPO_ANCHOR_RE = /<sup\b[^>]*\bclass="fn-ref"[^>]*>[\s\S]*?<\/sup>/g;
+const REF_PLACEHOLDER_RE = new RegExp(`${REF_MARK}([^${REF_MARK}]*)${REF_MARK}`, "g");
+
+function restoreAnchors(masterHtml, oldVerseHtml) {
+  const placeholders = masterHtml.match(REF_PLACEHOLDER_RE) || [];
+  const anchors = oldVerseHtml.match(REPO_ANCHOR_RE) || [];
+  if (placeholders.length !== anchors.length) {
+    return {
+      ok: false,
+      reason:
+        `footnote-reference count differs (master ${placeholders.length}, repo ${anchors.length}) - ` +
+        `restoring would add or drop an anchor, so this verse needs hand-review`,
+    };
+  }
+  let i = 0;
+  return { ok: true, html: masterHtml.replace(REF_PLACEHOLDER_RE, () => anchors[i++]) };
+}
+
+function wrapFirstWordInVglue(verseNum, contentHtml) {
+  const m = PLAIN_FIRST_WORD_RE.exec(contentHtml);
+  if (!m) return null;
+  const firstWord = m[1];
+  const rest = contentHtml.slice(firstWord.length);
+  return `<span class="vglue"><sup id="v${verseNum}" class="vn">${verseNum}</sup>&nbsp;${firstWord}</span>${rest}`;
+}
+
+// `curlifiedMasterHtml` is nullable: build-ledger.mjs still wants
+// jsonPath/oldValue populated for review even when curlify() refused the
+// master text (quote-ambiguous) - only newValue stays null in that case.
+function buildVersePatch(paragraphs, verseNum, curlifiedMasterHtml) {
+  const loc = locateVerseSpanInParagraphs(paragraphs, verseNum);
+  if (!loc.found) {
+    return { jsonPath: null, oldValue: null, newValue: null, reason: "no id=\"vN\" marker for this verse found in the repo's current paragraphs" };
+  }
+  if (loc.spansMultipleParagraphs) {
+    return {
+      jsonPath: ["paragraphs", loc.paragraphIndices[0]],
+      oldValue: paragraphs[loc.paragraphIndices[0]],
+      newValue: null,
+      reason: `verse continues into paragraphs[${loc.paragraphIndices[1]}] with no marker of its own (a continuation, per CLAUDE.md) - not auto-patchable as a single string value`,
+    };
+  }
+  const para = paragraphs[loc.paragraphIndex];
+  if (curlifiedMasterHtml === null) {
+    return { jsonPath: ["paragraphs", loc.paragraphIndex], oldValue: para, newValue: null, reason: null };
+  }
+  const anchored = restoreAnchors(curlifiedMasterHtml, para.slice(loc.start, loc.end));
+  if (!anchored.ok) {
+    return { jsonPath: ["paragraphs", loc.paragraphIndex], oldValue: para, newValue: null, reason: anchored.reason };
+  }
+  const wrapped = wrapFirstWordInVglue(verseNum, anchored.html);
+  if (wrapped === null) {
+    return {
+      jsonPath: ["paragraphs", loc.paragraphIndex],
+      oldValue: para,
+      newValue: null,
+      reason: "restored text begins inside a formatting tag - the vglue marker rewrap needs manual construction",
+    };
+  }
+  const newParagraph = para.slice(0, loc.start) + wrapped + para.slice(loc.end);
+  return { jsonPath: ["paragraphs", loc.paragraphIndex], oldValue: para, newValue: newParagraph, reason: null };
+}
+
+// Same nullable-curlifiedMasterHtml convention as buildVersePatch above.
+function buildFootnotePatch(footnotesArr, refId, curlifiedMasterHtml) {
+  const idx = footnotesArr.findIndex((fn) => fn.refId === refId);
+  if (idx === -1) {
+    return { jsonPath: null, oldValue: null, newValue: null, reason: "repo footnote not found by refId (should not happen for a match/paired-differs pair)" };
+  }
+  const oldValue = footnotesArr[idx].html;
+  const jsonPath = ["footnotes", idx, "html"];
+  if (curlifiedMasterHtml === null) return { jsonPath, oldValue, newValue: null, reason: null };
+  return { jsonPath, oldValue, newValue: curlifiedMasterHtml, reason: null };
+}
+
+// ---------------------------------------------------------------------
+// Per-record classification (steps 2-5 of the pipeline; existence-check
+// outcomes are handled by the caller before this runs, since they skip
+// straight to bucket D/deferred without a cosmetic gate or settle window).
+// ---------------------------------------------------------------------
+
+function classifyExisting({ masterText, repoText, history, extractValue }) {
+  const diffKind = classifyDiff(masterText, repoText); // 'identical' | 'cosmetic' | 'real'
+  if (diffKind !== "real") {
+    return { bucket: diffKind === "cosmetic" ? "E" : null, subclass: diffKind === "cosmetic" ? "cosmetic" : null, cosmetic: diffKind === "cosmetic" };
+  }
+
+  const settledAt = findSettleCommit(history, repoText, extractValue);
+  const window = settledAt ? classifyWindow(settledAt.date) : null;
+  const preAugText = findPreAugustValue(history, extractValue);
+  const shape = classifyShape(masterText, repoText);
+
+  let bucket;
+  if (window === "import-era") bucket = "A";
+  else if (window === "authored-apr-jul") bucket = "C";
+  else if (window === "august") bucket = "B";
+  else bucket = "A"; // no history at all (file added and never touched again) - treat as settled from the start
+
+  return { bucket, subclass: shape.subclass, settledAt, window, shape, preAugText, cosmetic: false };
+}
+
+// ---------------------------------------------------------------------
+// Markdown rendering (one file per book - the plan explicitly rejects a
+// single 921KB REPORT.md as unreviewable).
+// ---------------------------------------------------------------------
+
+function mdEscape(s) {
+  return String(s ?? "").replace(/\|/g, "\\|").replace(/\n/g, " ");
+}
+
+function renderRecordMd(r) {
+  const lines = [];
+  lines.push(`### ${r.id}`);
+  lines.push("");
+  lines.push(`- kind: \`${r.kind}\`  bucket: **${r.bucket ?? "?"}**  subclass: \`${r.subclass ?? "-"}\``);
+  if (r.window) lines.push(`- window: \`${r.window}\`  settled: ${r.settledAt?.date ?? "-"} (${r.settledAt?.sha?.slice(0, 8) ?? "-"})`);
+  if (r.severity !== undefined) lines.push(`- severity: ${r.severity.toFixed(3)}`);
+  if (r.forceHandReview) lines.push(`- **HAND REVIEW REQUIRED**: ${r.forceHandReview}`);
+  lines.push(`- jsonPath: \`${JSON.stringify(r.jsonPath)}\``);
+  lines.push(`- decision: \`${r.decision ?? "pending"}\``);
+  lines.push("");
+  lines.push(`| master | current |`);
+  lines.push(`|---|---|`);
+  lines.push(`| ${mdEscape(r.text.master)} | ${mdEscape(r.text.current)} |`);
+  if (r.text.preAug !== undefined && r.text.preAug !== r.text.current) {
+    lines.push("");
+    lines.push(`pre-August text: ${mdEscape(r.text.preAug)}`);
+  }
+  lines.push("");
+  return lines.join("\n");
+}
+
+function renderBookMd(bookKey, records, wrongDirectionByChapter) {
+  const lines = [`# ${bookKey}`, ""];
+  const byBucket = new Map();
+  for (const r of records) {
+    if (!byBucket.has(r.bucket)) byBucket.set(r.bucket, []);
+    byBucket.get(r.bucket).push(r);
+  }
+  const bucketOrder = ["A", "B", "C", "D", "E", "deferred-master-only", null];
+  for (const b of bucketOrder) {
+    const list = byBucket.get(b);
+    if (!list || list.length === 0) continue;
+    lines.push(`## Bucket ${b ?? "(unclassified)"} (${list.length})`, "");
+    for (const r of list) lines.push(renderRecordMd(r));
+  }
+  const wd = wrongDirectionByChapter.get(bookKey) || [];
+  if (wd.length > 0) {
+    lines.push("## Pre-existing wrong-direction quote pairs (history, not this reconciliation)", "");
+    for (const f of wd) lines.push(`- ch.${f.chapter} ${f.where}: opener \`${f.opener}\` at ${f.openPos}, closer \`${f.closer}\` at ${f.closePos} (${f.kind})`);
+    lines.push("");
+  }
+  return lines.join("\n");
+}
+
+// ---------------------------------------------------------------------
+// Main
+// ---------------------------------------------------------------------
+
+if (!existsSync(MASTER_XML_DIR)) {
+  console.error(`Master XML directory not found: ${MASTER_XML_DIR}`);
+  console.error("Pass --master-dir=<path> or set MASTER_XML_DIR. See scripts/reconcile/README.md.");
+  process.exit(1);
+}
+if (!existsSync(OUT_DIR)) mkdirSync(OUT_DIR, { recursive: true });
+
+const decisions = loadDecisions();
+const records = [];
+const wrongDirectionByChapter = new Map(); // bookKey -> [{chapter, where, ...finding}]
+const deferredMasterOnly = []; // 8 real master-only footnotes + 13 master-has-extra verses, per the follow-up doc
+let chaptersProcessed = 0;
+let chaptersSkippedDraft = 0;
+
+function auditChapterStrings(bookKey, chapter, kind, label, html) {
+  const findings = auditWrongDirectionPairs(html);
+  if (findings.length === 0) return;
+  if (!wrongDirectionByChapter.has(bookKey)) wrongDirectionByChapter.set(bookKey, []);
+  for (const f of findings) {
+    wrongDirectionByChapter.get(bookKey).push({ chapter, where: `${kind} ${label}`, ...f });
+  }
+}
+
+for (const [docxName, bookKey] of Object.entries(DOCX_TO_BOOKKEY)) {
+  const chapterCount = BOOKS[bookKey];
+  const docXmlPath = path.join(MASTER_XML_DIR, docxName, "word", "document.xml");
+  const fnXmlPath = path.join(MASTER_XML_DIR, docxName, "word", "footnotes.xml");
+  if (!existsSync(docXmlPath) || !existsSync(fnXmlPath)) {
+    console.error(`Skipping ${bookKey}: master XML not found under ${MASTER_XML_DIR}\\${docxName}`);
+    continue;
+  }
+  const docXml = readFileSync(docXmlPath, "utf8");
+  const fnXml = readFileSync(fnXmlPath, "utf8");
+
+  const warnings = [];
+  const master = extractMasterChapters(docXml, chapterCount, { warnings, stripBrackets: true, refMarkers: true });
+  const footnoteTextMap = extractMasterFootnotes(fnXml, { warnings, stripBrackets: true });
+  // pair-footnotes.mjs's masterList lookup expects a plain STRING per id
+  // (`normalize(footnoteTextMap.get(x.id) || "")`), not the {plain,html,...}
+  // record extractMasterFootnotes returns - mirrors gate-report.mjs's own
+  // plainFootnoteMap transform (same two modules, same mismatch to bridge).
+  const plainFootnoteMap = new Map([...footnoteTextMap].map(([id, rec]) => [id, rec.plain]));
+  if (!master.ok && !TRUNCATED_MASTERS[bookKey]) {
+    console.error(`Skipping ${bookKey}: master extraction failed entirely - ${master.reason}`);
+    continue;
+  }
+
+  const truncInfo = TRUNCATED_MASTERS[bookKey];
+  const usableSet = truncInfo ? new Set(truncInfo.usableChapters) : null;
+
+  for (let c = 1; c <= chapterCount; c++) {
+    const repoPath = path.join(CHAPTERS_DIR, `${bookKey}-${c}.json`);
+    if (!existsSync(repoPath)) continue;
+    const repoRaw = readFileSync(repoPath, "utf8");
+    const repoJson = JSON.parse(repoRaw);
+    if (repoJson.indexed === false) {
+      chaptersSkippedDraft++;
+      continue;
+    }
+    if (usableSet && !usableSet.has(c)) continue; // truncated master, not comparable
+    const chData = master.chapters.get(c);
+    if (!chData) continue; // master chapter boundary not found
+
+    const chapterKey = `${bookKey}-${c}`;
+    const isBracketed = BRACKETED_CHAPTERS.has(chapterKey);
+    const relChapterPath = path.relative(REPO_ROOT, repoPath).split(path.sep).join("/");
+    const history = getChapterHistory(REPO_ROOT, relChapterPath);
+    chaptersProcessed++;
+
+    // Audit every current string in this chapter for pre-existing
+    // wrong-direction curly-quote pairs, regardless of whether it's part of
+    // any ledger record (plan: "over restored AND untouched strings").
+    repoJson.paragraphs.forEach((p, i) => auditChapterStrings(bookKey, c, "paragraph", `#${i}`, p));
+    for (const fn of repoJson.footnotes || []) auditChapterStrings(bookKey, c, "footnote", `fn-${fn.label}`, fn.html);
+
+    // ---------------- Scripture verses ----------------
+    const repoVerses = splitChapterVerses(repoJson.paragraphs);
+    const allVerseNums = new Set([...chData.verses.keys(), ...repoVerses.keys()]);
+    for (const v of [...allVerseNums].sort((a, b) => a - b)) {
+      const gapKey = `${bookKey}-${c}-${v}`;
+      const mRec = chData.verses.get(v);
+      const masterText = mRec ? mRec.plain : undefined;
+      const repoText = repoVerses.get(v);
+
+      if (masterText === undefined && repoText === undefined) continue;
+      if (masterText === undefined || repoText === undefined) {
+        if (DOCUMENTED_GAPS.has(gapKey)) continue; // both sides agreeing the verse is absent is expected
+        if (masterText !== undefined) {
+          deferredMasterOnly.push({ kind: "verse", bookKey, chapter: c, verse: v, masterText });
+        } else {
+          // Repo-only verse text with no master counterpart at all is
+          // outside this reconciliation's normal shape (verses don't get
+          // freely added the way footnotes do) - record as bucket D for
+          // visibility rather than silently dropping it.
+          records.push({
+            id: `${bookKey}-${c}-v${v}`,
+            kind: "verse",
+            bookKey,
+            chapter: c,
+            verse: v,
+            repoLabel: null,
+            jsonPath: null,
+            settledAt: null,
+            window: null,
+            shape: null,
+            bucket: "D",
+            subclass: "repo-only",
+            text: { master: null, preAug: undefined, current: repoText },
+            diff: null,
+            patch: { oldValue: null, newValue: null },
+            forceHandReview: "repo-only verse content with no master counterpart",
+            decision: decisions[`${bookKey}-${c}-v${v}`]?.decision ?? null,
+          });
+        }
+        continue;
+      }
+
+      const extractValue = (parsed) => {
+        try {
+          const verses = splitChapterVerses(parsed.paragraphs);
+          return verses.get(v);
+        } catch {
+          return undefined;
+        }
+      };
+      const cls = classifyExisting({ masterText, repoText, history, extractValue });
+      if (cls.bucket === "E" && cls.cosmetic) {
+        records.push({
+          id: `${bookKey}-${c}-v${v}`,
+          kind: "verse",
+          bookKey,
+          chapter: c,
+          verse: v,
+          repoLabel: null,
+          jsonPath: null,
+          settledAt: null,
+          window: null,
+          shape: null,
+          bucket: "E",
+          subclass: "cosmetic",
+          text: { master: masterText, preAug: undefined, current: repoText },
+          diff: null,
+          patch: { oldValue: null, newValue: null },
+          forceHandReview: null,
+          decision: decisions[`${bookKey}-${c}-v${v}`]?.decision ?? null,
+        });
+        continue;
+      }
+      if (cls.bucket === null) continue; // identical - nothing to record
+
+      const curlResult = curlify(mRec.html);
+      const patch = buildVersePatch(repoJson.paragraphs, v, curlResult.ok ? curlResult.result : null);
+      let forceHandReview = patch.reason;
+      if (!curlResult.ok) forceHandReview = forceHandReview || `quote-ambiguous: ${curlResult.reason}`;
+      if (isBracketed) forceHandReview = forceHandReview || "chapter carries a bracketed [|/|] passage - paired footnotes must move together";
+      // Structured-HTML is checked against the REPO paragraph that would be
+      // overwritten (patch.oldValue), not the master text - see
+      // structuredHtmlReason's header for why.
+      if (patch.jsonPath) {
+        const structReason = structuredHtmlReason(patch.oldValue || "");
+        if (structReason) forceHandReview = forceHandReview || structReason;
+      }
+
+      records.push({
+        id: `${bookKey}-${c}-v${v}`,
+        kind: "verse",
+        bookKey,
+        chapter: c,
+        verse: v,
+        repoLabel: null,
+        jsonPath: patch.jsonPath,
+        settledAt: cls.settledAt,
+        window: cls.window,
+        shape: cls.shape,
+        bucket: cls.bucket,
+        subclass: cls.subclass,
+        severity: severity(normalize(masterText), normalize(repoText)),
+        text: { master: masterText, preAug: cls.preAugText, current: repoText },
+        diff: cls.shape.diff.ops,
+        patch: { oldValue: patch.oldValue, newValue: patch.newValue },
+        forceHandReview,
+        decision: decisions[`${bookKey}-${c}-v${v}`]?.decision ?? null,
+      });
+    }
+
+    // ---------------- Footnotes ----------------
+    const repoFootnoteOrder = extractRepoFootnoteOrder(repoJson.paragraphs, repoJson.footnotes);
+    const paired = pairFootnotes(chData.footnotes, repoFootnoteOrder, plainFootnoteMap);
+
+    for (const p of paired) {
+      if (p.type === "master-only") {
+        const rec = footnoteTextMap.get(p.master.id);
+        deferredMasterOnly.push({ kind: "footnote", bookKey, chapter: c, masterId: p.master.id, verse: p.master.verse, masterText: rec?.plain });
+        continue;
+      }
+      if (p.type === "repo-only") {
+        const label = p.repo.footnote?.label ?? null;
+        records.push({
+          id: `${bookKey}-${c}-fn-${label ?? p.repo.refId}`,
+          kind: "footnote",
+          bookKey,
+          chapter: c,
+          verse: p.repo.verse,
+          repoLabel: label,
+          jsonPath: null,
+          settledAt: null,
+          window: null,
+          shape: null,
+          bucket: "D",
+          subclass: "repo-only",
+          text: { master: null, preAug: undefined, current: p.repo.text },
+          diff: null,
+          patch: { oldValue: p.repo.footnote?.html ?? null, newValue: null },
+          forceHandReview: isBracketed ? "chapter carries a bracketed [|/|] passage - paired footnotes must move together" : null,
+          decision: decisions[`${bookKey}-${c}-fn-${label ?? p.repo.refId}`]?.decision ?? null,
+        });
+        continue;
+      }
+
+      // match | paired-differs
+      const masterRec = footnoteTextMap.get(p.master.id);
+      const masterText = masterRec?.plain ?? "";
+      const repoText = p.repo.text ?? "";
+      const label = p.repo.footnote?.label ?? null;
+      const id = `${bookKey}-${c}-fn-${label ?? p.repo.refId}`;
+
+      const cls = classifyExisting({ masterText, repoText, history, extractValue: makeFootnoteExtractValue(p.repo.refId) });
+
+      const baseFields = {
+        id,
+        kind: "footnote",
+        bookKey,
+        chapter: c,
+        verse: p.repo.verse,
+        repoLabel: label,
+      };
+
+      if (cls.bucket === "E" && cls.cosmetic) {
+        records.push({
+          ...baseFields,
+          jsonPath: null,
+          settledAt: null,
+          window: null,
+          shape: null,
+          bucket: "E",
+          subclass: "cosmetic",
+          text: { master: masterText, preAug: undefined, current: repoText },
+          diff: null,
+          patch: { oldValue: null, newValue: null },
+          forceHandReview: null,
+          decision: decisions[id]?.decision ?? null,
+        });
+        continue;
+      }
+      if (cls.bucket === null) continue; // identical
+
+      let forceHandReview = null;
+      if (masterRec?.warning) forceHandReview = `master extraction warning: ${masterRec.warning}`;
+      const curlResult = curlify(masterRec?.html ?? "");
+      const patch = buildFootnotePatch(repoJson.footnotes, p.repo.refId, curlResult.ok ? curlResult.result : null);
+      if (!curlResult.ok) forceHandReview = forceHandReview || `quote-ambiguous: ${curlResult.reason}`;
+      if (isBracketed) forceHandReview = forceHandReview || "chapter carries a bracketed [|/|] passage - paired footnotes must move together";
+      const structReason = structuredHtmlReason(patch.oldValue ?? "");
+      if (structReason) forceHandReview = forceHandReview || structReason;
+
+      records.push({
+        ...baseFields,
+        jsonPath: patch.jsonPath,
+        settledAt: cls.settledAt,
+        window: cls.window,
+        shape: cls.shape,
+        bucket: cls.bucket,
+        subclass: cls.subclass,
+        severity: severity(normalize(masterText), normalize(repoText)),
+        text: { master: masterText, preAug: cls.preAugText, current: repoText },
+        diff: cls.shape.diff.ops,
+        patch: { oldValue: patch.oldValue, newValue: patch.newValue },
+        forceHandReview,
+        decision: decisions[id]?.decision ?? null,
+      });
+    }
+  }
+}
+
+// Footnote settle-window text extraction needs the SAME plain-text
+// flattening repo-extract.mjs uses for the CURRENT comparison
+// (footnoteHtmlToText), applied to each HISTORICAL commit's parsed JSON, so
+// "does this historical value equal current" compares like with like. This
+// is a factory rather than a top-level import cycle concern - kept next to
+// its one call site above for locality; `footnoteHtmlToText` itself is
+// re-exported from repo-extract.mjs.
+function makeFootnoteExtractValue(refId) {
+  return (parsed) => {
+    const order = extractRepoFootnoteOrder(parsed.paragraphs || [], parsed.footnotes || []);
+    const entry = order.find((o) => o.refId === refId);
+    return entry ? entry.text : undefined;
+  };
+}
+
+// ---------------------------------------------------------------------
+// Write output
+// ---------------------------------------------------------------------
+
+writeFileSync(path.join(OUT_DIR, "ledger.json"), JSON.stringify(records, null, 2) + "\n", "utf8");
+
+const booksDir = path.join(OUT_DIR, "books");
+if (!existsSync(booksDir)) mkdirSync(booksDir, { recursive: true });
+const recordsByBook = new Map();
+for (const r of records) {
+  if (!recordsByBook.has(r.bookKey)) recordsByBook.set(r.bookKey, []);
+  recordsByBook.get(r.bookKey).push(r);
+}
+for (const [bookKey, list] of recordsByBook) {
+  writeFileSync(path.join(booksDir, `${bookKey}.md`), renderBookMd(bookKey, list, wrongDirectionByChapter), "utf8");
+}
+
+// Deferred (master-only) list - a later PR's work per the plan's follow-up
+// document, not part of this ledger's bucket A-E disposition.
+writeFileSync(path.join(OUT_DIR, "deferred-master-only.json"), JSON.stringify(deferredMasterOnly, null, 2) + "\n", "utf8");
+
+// INDEX.md: per-book x per-bucket counts.
+{
+  const bucketCols = ["A", "B", "C", "D", "E"];
+  const lines = ["# Ledger index", "", `Chapters processed: ${chaptersProcessed} (drafts skipped: ${chaptersSkippedDraft})`, "", `| book | ${bucketCols.join(" | ")} | total |`, `|---|${bucketCols.map(() => "---").join("|")}|---|`];
+  const allBooks = [...recordsByBook.keys()].sort();
+  const totals = Object.fromEntries(bucketCols.map((b) => [b, 0]));
+  for (const bookKey of allBooks) {
+    const list = recordsByBook.get(bookKey);
+    const counts = Object.fromEntries(bucketCols.map((b) => [b, list.filter((r) => r.bucket === b).length]));
+    for (const b of bucketCols) totals[b] += counts[b];
+    lines.push(`| ${bookKey} | ${bucketCols.map((b) => counts[b]).join(" | ")} | ${list.length} |`);
+  }
+  lines.push(`| **total** | ${bucketCols.map((b) => totals[b]).join(" | ")} | ${records.length} |`);
+  lines.push("");
+  lines.push(`Deferred (master-only, later PR): ${deferredMasterOnly.length}`);
+  lines.push("");
+  const wdTotal = [...wrongDirectionByChapter.values()].reduce((sum, arr) => sum + arr.length, 0);
+  lines.push(`Pre-existing wrong-direction quote pairs found (history, not this change): ${wdTotal}`);
+  writeFileSync(path.join(OUT_DIR, "INDEX.md"), lines.join("\n") + "\n", "utf8");
+}
+
+console.log(`Wrote ${records.length} records to ${path.join(OUT_DIR, "ledger.json")}`);
+console.log(`Wrote ${recordsByBook.size} per-book Markdown files to ${booksDir}`);
+console.log(`Wrote ${path.join(OUT_DIR, "INDEX.md")}`);
+console.log(`Wrote ${deferredMasterOnly.length} deferred master-only records to ${path.join(OUT_DIR, "deferred-master-only.json")}`);
