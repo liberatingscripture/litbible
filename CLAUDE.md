@@ -63,7 +63,10 @@ npm run check             # Type-check .astro/.ts files (astro check)
 npm run validate:chapters # Validate all chapter JSON (structure + references)
 npm run fix:chapters      # Re-serialize chapter JSON to normalize formatting
 npm run check:links       # Verify every internal href/#fragment in dist/ resolves
-npm test                  # Run the node:test unit suite (test/*.test.js)
+npm test                  # Run the node:test unit suite — two roots: test/**/*.js
+                          #   and scripts/reconcile/test/**/*.mjs. Both globs are in
+                          #   the script; a new test root is invisible to CI until
+                          #   it is added there (the reconcile files sat unrun once)
 npm run build:topics      # Regenerate topics indexes only
 npm run build:verses      # Regenerate the verse search index only
 npm run build:api         # Regenerate public/api/content.json only
@@ -1205,7 +1208,13 @@ remaining import damage into the same bucket as the edit. Spans are classified
 keep the repo, whose markup is authored and which the Word master has none of),
 or `judgment` (the words differ — the only kind a person must answer, and it
 runs both ways: the repo has a typo in `1corinthians-10-fn-ee`, the master has
-one in `1corinthians-2-fn-q`). Decisions land in `out/decisions.json` with the
+one in `1corinthians-2-fn-q`). **Consecutive spans are classified as a group as
+well as singly**, because Word's run boundaries rarely match a word — `soter`
+arrives as five per-letter `<em>` pairs — and a cluster that changes no letter
+between its two sides is markup, not a question. **A record that is a wholesale
+rewrite opens as a whole-version comparison instead of a row of choosers**: five
+of them hold nearly half the questions, and per-span is unreadable at 92%
+changed. Decisions land in `out/decisions.json` with the
 SHA of the text they were made against; `apply.mjs --decision=approved` writes
 the composed value and refuses any decision whose ground has since moved. Same
 two structural rules as the alignment review tool: exact-path allowlist rather

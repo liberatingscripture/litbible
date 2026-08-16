@@ -24,7 +24,7 @@
     "check": "astro check",
     "validate:chapters": "node scripts/validate-chapters.mjs",
     "check:links": "node scripts/check-links.mjs",
-    "test": "node --test \"test/**/*.js\"",
+    "test": "node --test \"test/**/*.js\" \"scripts/reconcile/test/**/*.mjs\"",
     "fix:chapters": "node scripts/validate-chapters.mjs --fix",
     "draft:release-notes": "node scripts/draft-release-notes.mjs",
     "review:reconcile": "node scripts/reconcile/review/server.mjs"

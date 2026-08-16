@@ -141,6 +141,78 @@ export function diffSegments(oldValue, newValue) {
   }
   flushSame();
   flushHunk();
+  return markShuffleRuns(segments);
+}
+
+/** Most groups are two or three hunks; the longest real one in the corpus is
+ *  Luke's `soter` split into five per-character italic runs. The cap keeps
+ *  this from degenerating on a record that differs everywhere. */
+const MAX_SHUFFLE_RUN = 8;
+
+/**
+ * Text that merely crossed a tag boundary is not an editorial question.
+ *
+ * Two shapes produce this, and both were amber before it existed:
+ *
+ *   1. The `vglue` wrapper. Rebuilding a verse puts its first word inside the
+ *      span; five verses in the corpus close the span before the word instead.
+ *      The diff sees one hunk gaining "Finally," and another losing it.
+ *   2. Word's run boundaries. The masters routinely split one italic word into
+ *      several runs - `soter` arrives as five `<em>` pairs, one per letter,
+ *      and `hesed</em>,` as `hesed,</em>`. Extraction is faithful to that, so
+ *      the diff reports a cluster of hunks that between them change no letter.
+ *
+ * So runs of consecutive hunks are classified as well as single hunks: when
+ * the repo side of the whole run carries the same reader-visible text as the
+ * master side, the run is markup, and every hunk in it takes the kind the
+ * concatenation earns. The SHORTEST cancelling run wins, so this stays the
+ * least aggressive reading of the evidence.
+ *
+ * Two guards make it safe. Only `judgment` hunks are eligible, so a macron fix
+ * beside a markup move keeps its own "take the master" default. And the sides
+ * are concatenated in order with the untouched text between them included, so
+ * a genuine transposition ("cat...dog" against "dog...cat") does not cancel -
+ * only text that is actually identical does. Hunk indices are never touched;
+ * stored verdicts and `compose` key on them.
+ */
+function markShuffleRuns(segments) {
+  const positions = [];
+  for (let p = 0; p < segments.length; p++) if (segments[p].type === "hunk") positions.push(p);
+
+  const spanText = (fromIdx, toIdx) => {
+    let s = "";
+    for (let m = fromIdx; m < toIdx; m++) s += segments[m].text;
+    return s;
+  };
+
+  for (let a = 0; a < positions.length; a++) {
+    if (segments[positions[a]].kind !== "judgment") continue;
+
+    let repo = segments[positions[a]].from;
+    let master = segments[positions[a]].to;
+    let matched = -1;
+    let kind = null;
+
+    for (let b = a + 1; b < positions.length && b - a < MAX_SHUFFLE_RUN; b++) {
+      if (segments[positions[b]].kind !== "judgment") break;
+      const between = spanText(positions[b - 1] + 1, positions[b]);
+      repo += between + segments[positions[b]].from;
+      master += between + segments[positions[b]].to;
+      const k = classifyHunk(repo, master);
+      if (k !== "judgment") {
+        matched = b;
+        kind = k;
+        break; // shortest cancelling run
+      }
+    }
+
+    if (matched < 0) continue;
+    for (let m = a; m <= matched; m++) {
+      segments[positions[m]].kind = kind;
+      segments[positions[m]].shuffle = true;
+    }
+    a = matched; // a hunk belongs to at most one run
+  }
   return segments;
 }
 

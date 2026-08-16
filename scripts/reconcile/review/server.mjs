@@ -22,7 +22,11 @@ import { createHash } from "node:crypto";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { diffSegments, defaultVerdicts, compose, decisionFor, isReviewable, summarize } from "./review-core.mjs";
+import { diffSegments, compose, decisionFor, isReviewable, summarize } from "./review-core.mjs";
+// Book display names and canonical order. The queue is read book by book, so
+// "1 Corinthians 10" beats "1corinthians 10" on every card, and Bible order
+// beats alphabetical in the filter (Romans before 1 Corinthians, not after).
+import { bookKeyToLabel, BOOK_ORDER } from "../../../src/data/books.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const OUT_DIR = path.resolve(__dirname, "../out");
@@ -61,6 +65,7 @@ for (const r of ledger) {
     id: r.id,
     kind: r.kind,
     bookKey: r.bookKey,
+    bookLabel: bookKeyToLabel(r.bookKey) || r.bookKey,
     chapter: r.chapter,
     verse: r.verse ?? null,
     repoLabel: r.repoLabel ?? null,
@@ -72,6 +77,19 @@ for (const r of ledger) {
     segments,
   });
 }
+
+// Bible order, then chapter, then position in the chapter. Reviewing a book
+// end to end is how consistency gets judged, and the ledger's own order is by
+// file name, which interleaves 1 Corinthians 10 between chapters 1 and 2.
+const orderOf = new Map(BOOK_ORDER.map((k, i) => [k, i]));
+items.sort((a, b) => {
+  const ao = orderOf.has(a.bookKey) ? orderOf.get(a.bookKey) : Number.MAX_SAFE_INTEGER;
+  const bo = orderOf.has(b.bookKey) ? orderOf.get(b.bookKey) : Number.MAX_SAFE_INTEGER;
+  if (ao !== bo) return ao - bo;
+  if (a.chapter !== b.chapter) return a.chapter - b.chapter;
+  if ((a.verse ?? 0) !== (b.verse ?? 0)) return (a.verse ?? 0) - (b.verse ?? 0);
+  return String(a.repoLabel ?? "").localeCompare(String(b.repoLabel ?? ""));
+});
 
 if (items.length === 0) {
   console.error(`No reviewable records in bucket(s) ${BUCKETS.join(", ")}. Nothing to do.`);

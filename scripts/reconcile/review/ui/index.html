@@ -7,24 +7,54 @@
     <link rel="stylesheet" href="/style.css" />
   </head>
   <body>
-    <header>
-      <h1>Reconciliation review</h1>
-      <p class="lede">
-        Each highlighted span is one difference between the Word master and the repo.
-        Choose a side per span. <strong>Grey spans are pre-answered</strong>: mechanical ones (diacritics, quote
-        characters, spacing) take the master, structural ones (markup only, no word
-        changes) keep the repo. <strong>The amber spans are the real questions.</strong>
-      </p>
-      <div id="progress" class="progress" role="status"></div>
-    </header>
+    <header class="topbar">
+      <div class="topbar-inner">
+        <div class="titles">
+          <h1>Reconciliation review</h1>
+          <p class="lede">
+            Each amber box is one place the Word master and the repo disagree about wording.
+            Pick a side. Everything else is already answered.
+          </p>
+        </div>
 
-    <nav id="books" aria-label="Books"></nav>
+        <div class="progress-wrap">
+          <div class="bar" role="img" aria-label="Progress"><div class="bar-fill" id="bar-fill"></div></div>
+          <p class="progress" id="progress" role="status" aria-live="polite"></p>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <button id="jump" class="primary" type="button">Next unanswered <kbd>n</kbd></button>
+        <label class="check"><input type="checkbox" id="only-open" /> Only records with questions</label>
+        <button id="help-toggle" class="ghost" type="button" aria-expanded="false">Keyboard <kbd>?</kbd></button>
+      </div>
+
+      <nav id="books" aria-label="Filter by book"></nav>
+
+      <div id="help" class="help" hidden>
+        <dl>
+          <div><dt><kbd>n</kbd> / <kbd>p</kbd></dt><dd>next / previous unanswered box</dd></div>
+          <div><dt><kbd>1</kbd> or <kbd>←</kbd></dt><dd>keep the <b>repo</b> reading</dd></div>
+          <div><dt><kbd>2</kbd> or <kbd>→</kbd></dt><dd>take the <b>master</b> reading</dd></div>
+          <div><dt><kbd>u</kbd></dt><dd>un-answer the focused box</dd></div>
+          <div><dt><kbd>Ctrl</kbd>+<kbd>Z</kbd></dt><dd>undo the last choice</dd></div>
+        </dl>
+        <p>Answering a box moves you to the next one automatically. Decisions save as you make them.</p>
+      </div>
+
+      <ul class="legend">
+        <li><span class="key k-open"></span> unanswered — your call</li>
+        <li><span class="key k-master"></span> taking the master</li>
+        <li><span class="key k-repo"></span> keeping the repo</li>
+        <li><span class="key k-auto"></span> answered for you (spacing, accents, markup)</li>
+      </ul>
+    </header>
 
     <main id="records"></main>
 
     <footer>
       <p>
-        Decisions save as you make them, to <code>scripts/reconcile/out/decisions.json</code>.
+        Decisions save to <code>scripts/reconcile/out/decisions.json</code> the moment you make them.
         Apply them with <code>node scripts/reconcile/apply.mjs --decision=approved --write</code>.
       </p>
     </footer>

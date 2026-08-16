@@ -113,9 +113,70 @@ test("a record where every hunk keeps the repo is rejected, not approved", () =>
   assert.equal(decisionFor(taken, repo), "approved");
 });
 
+test("a word crossing a tag boundary is not a question", () => {
+  // ephesians-6-v10 and four others: the repo closes the vglue span before the
+  // verse's first word, the rebuilt master closes it after. The diff sees one
+  // hunk gaining "Finally," and another losing it. Read together they carry the
+  // same sentence, so neither is an editorial call.
+  const repo = '<span class="vglue"><sup id="v10" class="vn">10</sup>&nbsp;</span>Finally, be strong';
+  const master = '<span class="vglue"><sup id="v10" class="vn">10</sup>&nbsp;Finally,</span> be strong';
+  const segs = diffSegments(repo, master);
+  const hunkList = segs.filter((s) => s.type === "hunk");
+  assert.ok(hunkList.length >= 2, "expected the shuffle to split into hunks");
+  for (const h of hunkList) {
+    assert.notEqual(h.kind, "judgment", `${JSON.stringify(h.from)} -> ${JSON.stringify(h.to)} stayed a question`);
+  }
+  // Both sides remain reachable, and the defaults keep today's bytes.
+  const defaults = defaultVerdicts(segs);
+  assert.equal(compose(segs, defaults).undecided.length, 0);
+  assert.equal(compose(segs, defaults).resolved, repo);
+});
+
+test("pairing never retires a real wording change", () => {
+  // Two adjacent judgment hunks that do NOT cancel must both stay questions.
+  const segs = diffSegments("the swift brown fox", "the slow grey fox");
+  const hunkList = segs.filter((s) => s.type === "hunk");
+  assert.ok(hunkList.some((h) => h.kind === "judgment"));
+  const words = (s) => s.replace(/<[^>]*>/g, "");
+  assert.notEqual(words("the swift brown fox"), words("the slow grey fox"));
+});
+
+test("pairing leaves a mechanical hunk alone", () => {
+  // Only judgment halves are eligible, so a macron fix beside a markup move
+  // keeps its "take the master" default rather than being folded into a pair.
+  const segs = diffSegments("phtheiro <b>x</b>", "phtheírō x");
+  for (const s of segs) {
+    if (s.type === "hunk" && s.from.includes("phtheiro")) assert.equal(s.kind, "mechanical");
+  }
+});
+
 test("summarize counts all three kinds", () => {
   const segs = diffSegments('<b>x</b>phtheiro here', "phtheírō there");
   const counts = summarize([segs]);
   assert.equal(counts.total, counts.mechanical + counts.structural + counts.judgment);
   assert.ok(counts.total > 0);
+});
+
+test("a word split into per-character italic runs is not a question", () => {
+  // The masters routinely fragment one italic word across several runs.
+  // Extraction is faithful to that, so `soter` arrives as five <em> pairs and
+  // the diff reports a cluster of hunks that between them change no letter.
+  const repo = "the title <em>soter</em> carries";
+  const master = "the title <em>s</em><em>o</em><em>t</em><em>e</em><em>r</em> carries";
+  const segs = diffSegments(repo, master);
+  for (const s of segs) {
+    if (s.type === "hunk") assert.notEqual(s.kind, "judgment", `${JSON.stringify(s.from)} stayed a question`);
+  }
+  assert.equal(compose(segs, defaultVerdicts(segs)).resolved, repo);
+});
+
+test("a transposition is NOT cancelled by run pairing", () => {
+  // The guard that keeps run-matching honest: two hunks whose contents swap
+  // carry the same words in a different order, which is a real change.
+  const segs = diffSegments("the cat met the dog", "the dog met the cat");
+  const hunkList = segs.filter((s) => s.type === "hunk");
+  assert.ok(
+    hunkList.some((h) => h.kind === "judgment"),
+    "a swap must stay a question",
+  );
 });
