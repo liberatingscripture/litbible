@@ -33,6 +33,52 @@ Applied in seven commits, one per subclass, so any single class can be reverted
 on its own. Verse restores are separate from footnote restores because only
 verse edits can strand an alignment record.
 
+### The hand review that followed (2026-08-16)
+
+All 99 reviewable records in buckets B, C and D were decided in
+`npm run review:reconcile` and applied.
+
+| | |
+|---|---|
+| records decided | 99 — 65 approved, 34 kept as the repo has them |
+| chapter files changed | 36 |
+| string values changed | 65 |
+| alignment records deleted as stale | 1 (`1Thess.3.6`, "triumphant news") |
+| terms that left `/glossary` | none — still 31 |
+
+Two of the 65 needed hand treatment, both flagged `forceHandReview` because
+their chapter carries a bracketed passage. `john-11` fn-d turned out to be an
+ordinary footnote in a chapter that has brackets elsewhere. `romans-16` fn-o did
+not: it is half of the doxology pair, and **its twin fn-r was never queued for
+review at all** — the master prints that note once, so fn-r has no master
+counterpart, lands in bucket D and carries no patch. Applying fn-o alone split
+the pair. `scripts/reconcile/check-bracket-twins.mjs` exists because of that,
+and now enforces the rule CLAUDE.md states but nothing checked.
+
+## 0. The dash convention — one decision, corpus-wide
+
+Not a defect, and **not something the restore should decide record by record**,
+but worth settling once.
+
+Numeric ranges are written inconsistently across the corpus, and always have
+been: before any of this work there were 376 hyphen ranges (`19-31`) against 177
+en-dash ranges (`19–31`). The masters use a plain hyphen essentially throughout,
+because Word does not autocorrect a number range the way it autocorrects a dash
+between words. So every restore pulls the corpus toward the hyphen — it now
+stands at 420 against 147.
+
+That is the author's own typing winning, which is the right default for a
+restore. But if en dashes are wanted in ranges, that is a **single normalization
+pass over the whole corpus**, decided once, not a judgment made 567 times inside
+a review queue. The validator has no rule about it either way today.
+
+Regenerate the counts rather than trusting these:
+
+```bash
+grep -o '[0-9]-[0-9]' src/data/chapters/*.json | wc -l
+grep -o '[0-9]–[0-9]' src/data/chapters/*.json | wc -l
+```
+
 ## 1. August edits — back-port these to Word (58)
 
 40 footnotes, 18 verses. **The repo is right and Word is stale.** These are

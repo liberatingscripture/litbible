@@ -103,26 +103,6 @@
       "status": "confirmed"
     },
     {
-      "ref": "1Thess.3.6",
-      "english": [
-        {
-          "text": "triumphant news",
-          "n": 1
-        }
-      ],
-      "greek": [],
-      "term": {
-        "greek": "euangelion",
-        "traditional": "Gospel",
-        "glossary": "gospel-triumphant-message",
-        "form": "news of triumph"
-      },
-      "confidence": null,
-      "lemma": "present",
-      "source": "review",
-      "status": "confirmed"
-    },
-    {
       "ref": "1Thess.3.7",
       "english": [
         {

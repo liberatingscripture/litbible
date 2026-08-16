@@ -22,7 +22,7 @@ import { createHash } from "node:crypto";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { diffSegments, compose, decisionFor, isReviewable, summarize } from "./review-core.mjs";
+import { diffSegments, defaultVerdicts, compose, decisionFor, isReviewable, summarize } from "./review-core.mjs";
 // Book display names and canonical order. The queue is read book by book, so
 // "1 Corinthians 10" beats "1corinthians 10" on every card, and Bible order
 // beats alphabetical in the filter (Romans before 1 Corinthians, not after).
@@ -129,6 +129,38 @@ let decisions = loadDecisions();
   if (pruned) {
     saveDecisions();
     console.log(`Pruned ${pruned} decision(s) with nothing left to apply.`);
+  }
+}
+
+// Record the decision for any record the defaults already settle in full.
+//
+// A record whose spans are ALL mechanical or structural has no question in it -
+// it is decided the moment it loads, and the reviewer has no reason to click
+// it. But a decision is only ever written by a POST, so nothing was stored,
+// apply.mjs skipped it, and its restorations were silently dropped.
+// 1corinthians-11-fn-o (eikon -> eikōn, three times) and
+// 1corinthians-12-fn-hh (glossa -> glōssa) were exactly this: five macron
+// fixes that would have been lost with the reviewer believing they had
+// finished. Seeding them here writes the same value the POST path would.
+{
+  let seeded = 0;
+  for (const item of items) {
+    if (decisions[item.id]) continue;
+    const verdicts = defaultVerdicts(item.segments);
+    const { resolved, undecided } = compose(item.segments, verdicts);
+    if (undecided.length) continue; // a real question - leave it for the reviewer
+    const decision = decisionFor(resolved, findOldValue(item.id));
+    decisions[item.id] = {
+      decision,
+      verdicts,
+      baseSha: item.baseSha,
+      resolvedValue: decision === "approved" ? resolved : undefined,
+    };
+    seeded++;
+  }
+  if (seeded) {
+    saveDecisions();
+    console.log(`Seeded ${seeded} record(s) that the defaults settle outright.`);
   }
 }
 
