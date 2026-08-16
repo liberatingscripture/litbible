@@ -1193,7 +1193,43 @@ Four things about them that are not guessable and cost real time to rediscover:
    but string values moved.
 4. **Word mixes straight and curly quotes**, so master text cannot be spliced in
    raw — `curl-quotes.mjs` converts it first, and **refuses** rather than
-   guessing when a quotation is unbalanced. Those records go to hand review.
+   guessing when a quotation is unbalanced. A refusal is about the master's
+   *punctuation*, not its words, so `lib/quote-compose.mjs` **composes** such a
+   restore instead of converting it: a span differing in nothing but quote
+   characters takes the repo (whose quotes are already validator-clean), markup
+   takes the repo, everything else takes the master. Two gates then compare the
+   result against the repo's current text — it must satisfy the validator's
+   curly-quote rule, and must not introduce a wrong-direction pair the repo
+   didn't already have. Before that existed a refusal left `patch.newValue`
+   null, which put the record beyond the review tool as well as the applier.
+5. **A verse that is the LAST in its paragraph owns the string to its end**,
+   closing tags included, because they sit after its text and nothing else
+   claims them. The master has no markup at all, so rebuilding that span drops
+   the paragraph's `</p>` — which is how 59 paragraphs shipped unbalanced before
+   anyone noticed, a browser closing a dangling `<p>` at the next block element.
+   `lib/block-structure.mjs` is the single source for that rule now:
+   `build-ledger.mjs` holds the closing run back, `apply.mjs` refuses a write
+   that changes any paragraph's balance, and
+   `repair-unclosed-paragraphs.mjs` fixed what shipped.
+
+**Bucket A is evidence, not proof, and the held records are the worst place to
+forget that.** "This text settled during the import window" is good reason to
+think the repo is the damaged side, but records that a coarse rule held back for
+months are unusual by selection, and unusual correlates with the master having
+problems of its own — a doubled word, a dropped period, `[Miriam]` left in as an
+editorial mark, John 8 breaking verse 19 a sentence later than the repo does.
+`lib/restore-guards.mjs` holds the shapes found so far; the general lesson is
+that **these go through `npm run review:reconcile -- --buckets=A`, not through
+`apply.mjs`**. Applying the 53 clear records in one pass was tried and thrown
+away: six of them published a defect straight out of Word (`matthew-11:6` read
+"is has reason for gratitude", `matthew-2` fn-g "those group"), and six is a
+floor, since the scan that found them missed `mark-11` fn-h's "'divine'and".
+For scale, the hand review of buckets B/C/D kept the repo's own text in 34 of
+99 records.
+
+`check-master-hygiene.mjs` covers the other blind spot — a diff can never report
+what is wrong on *both* sides, and only one of the four multi-paragraph
+footnotes in the masters ever surfaced as a difference.
 
 `build-alignment.mjs`'s rule applies here too: **run `npm run audit:alignment`
 after any verse restore.** A reviewed alignment record survives a scan whole, so
@@ -1218,7 +1254,8 @@ changed. Decisions land in `out/decisions.json` with the
 SHA of the text they were made against; `apply.mjs --decision=approved` writes
 the composed value and refuses any decision whose ground has since moved. Same
 two structural rules as the alignment review tool: exact-path allowlist rather
-than `public/`, and the browser imports the real `review-core.mjs`.
+than `public/`, and the browser imports the real `review-core.mjs`. It defaults
+to buckets **B,C,D**; the import-era backlog is `-- --buckets=A`.
 
 `FOLLOW-UP-RECONCILIATION.md` carries what the restore deliberately left alone:
 the August edits to back-port *into* Word, the April–July window that needs a
@@ -1302,6 +1339,10 @@ only 1:1–4; Luke's stops mid-21:38).
 | `scripts/lib/alignment-merge.mjs` | Merge contract between the alignment scanner and the review tool |
 | `scripts/alignment-review/` | Localhost review tool for the alignment dataset (`npm run review:alignment`) |
 | `scripts/audit-alignment.mjs` | Staleness check for decided alignment records (`npm run audit:alignment`) — run after editing scripture |
+| `scripts/reconcile/lib/block-structure.mjs` | The one block-tag rule the restore pipeline shares — read it before touching how a paragraph's closing markup is handled |
+| `scripts/reconcile/lib/quote-compose.mjs` | Composes a restore when `curlify()` refuses the master's quotes, under two gates |
+| `scripts/reconcile/lib/restore-guards.mjs` | The shapes a machine must not settle (verse-boundary moves, editorial brackets, doubled words, a truncated master) |
+| `scripts/reconcile/check-master-hygiene.mjs` | Read-only master scan for defects a diff cannot see |
 | `pagefind.yml` | Pagefind config for glossary/article indexing (excludes footnote refs) |
 | `public/_headers` | Security + caching headers; also RFC 8288 `Link` headers for agent discovery (Cloudflare Pages) |
 | `public/.well-known/api-catalog` | RFC 9727/9264 `linkset+json` catalog of the public API |
