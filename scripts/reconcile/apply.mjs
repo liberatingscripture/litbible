@@ -31,7 +31,11 @@ import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { createHash } from "node:crypto";
+
 import { spliceValue } from "./lib/json-splice.mjs";
+
+const sha16 = (v) => createHash("sha256").update(v, "utf8").digest("hex").slice(0, 16);
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const CHAPTERS_DIR = path.resolve(__dirname, "../../src/data/chapters");
@@ -64,6 +68,9 @@ if (!existsSync(LEDGER_PATH)) {
 // ---------------------------------------------------------------------
 
 const ledger = JSON.parse(readFileSync(LEDGER_PATH, "utf8"));
+const DECISIONS_PATH = path.resolve(__dirname, "out/decisions.json");
+const decisionsFile = existsSync(DECISIONS_PATH) ? JSON.parse(readFileSync(DECISIONS_PATH, "utf8")) : {};
+for (const r of ledger) r.reviewDecision = decisionsFile[r.id];
 const selected = ledger.filter(
   (r) =>
     (WANT_DECISION == null ? r.bucket === WANT_BUCKET : r.decision === WANT_DECISION) &&
@@ -102,11 +109,35 @@ function editRange(oldValue, newValue) {
   return { start: a, end: oldValue.length - b, replacement: newValue.slice(a, newValue.length - b) };
 }
 
+/**
+ * The value to write for one record.
+ *
+ * A record reviewed hunk-by-hunk in the review tool carries a `resolvedValue`:
+ * the master's text where the reviewer took it and the repo's where they kept
+ * it, which is neither side's whole string. That value is what gets written,
+ * and only when the text it was composed against is still the text on disk -
+ * `baseSha` is checked against the record's current oldValue, so a decision
+ * made before a chapter was edited is refused rather than applied blind.
+ */
+function targetValue(record) {
+  const d = record.reviewDecision;
+  if (!d?.resolvedValue) return { ok: true, value: record.patch.newValue };
+  if (d.baseSha && d.baseSha !== sha16(record.patch.oldValue)) {
+    return {
+      ok: false,
+      reason: `review decision was made against different text (baseSha ${d.baseSha}) - re-review this record`,
+    };
+  }
+  return { ok: true, value: d.resolvedValue };
+}
+
 /** One patch per (file, jsonPath), composing multi-record groups or refusing. */
 function composeGroup(records) {
   const first = records[0];
   if (records.length === 1) {
-    return { ok: true, oldValue: first.patch.oldValue, newValue: first.patch.newValue, records };
+    const t = targetValue(first);
+    if (!t.ok) return { ok: false, reason: t.reason, records };
+    return { ok: true, oldValue: first.patch.oldValue, newValue: t.value, records };
   }
   const oldValue = first.patch.oldValue;
   for (const r of records) {
@@ -114,7 +145,10 @@ function composeGroup(records) {
       return { ok: false, reason: "records targeting one string disagree about its current value", records };
     }
   }
-  const ranges = records.map((r) => ({ r, ...editRange(oldValue, r.patch.newValue) })).sort((x, y) => x.start - y.start);
+  const targets = records.map((r) => ({ r, t: targetValue(r) }));
+  const badTarget = targets.find((x) => !x.t.ok);
+  if (badTarget) return { ok: false, reason: badTarget.t.reason, records };
+  const ranges = targets.map(({ r, t }) => ({ r, target: t.value, ...editRange(oldValue, t.value) })).sort((x, y) => x.start - y.start);
   for (let i = 1; i < ranges.length; i++) {
     if (ranges[i].start < ranges[i - 1].end) {
       return { ok: false, reason: "edit ranges overlap - cannot compose without guessing precedence", records };
@@ -131,7 +165,7 @@ function composeGroup(records) {
   // Each record's own change must survive composition intact.
   for (const rg of ranges) {
     const solo = oldValue.slice(0, rg.start) + rg.replacement + oldValue.slice(rg.end);
-    if (solo !== rg.r.patch.newValue) {
+    if (solo !== rg.target) {
       return { ok: false, reason: `composition would alter ${rg.r.id}'s own patch`, records };
     }
   }

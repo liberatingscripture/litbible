@@ -1197,6 +1197,20 @@ after any verse restore.** A reviewed alignment record survives a scan whole, so
 an edit to the verse under it leaves it silently stale — delete a stale record
 rather than rejecting it.
 
+**`npm run review:reconcile` is how the remaining differences get decided**, and
+it asks **per hunk, not per record** — because the dating that produced the
+buckets is per footnote and per verse, so one note edited in August carries its
+remaining import damage into the same bucket as the edit. Spans are classified
+`mechanical` (no word differs — take the master), `structural` (markup only —
+keep the repo, whose markup is authored and which the Word master has none of),
+or `judgment` (the words differ — the only kind a person must answer, and it
+runs both ways: the repo has a typo in `1corinthians-10-fn-ee`, the master has
+one in `1corinthians-2-fn-q`). Decisions land in `out/decisions.json` with the
+SHA of the text they were made against; `apply.mjs --decision=approved` writes
+the composed value and refuses any decision whose ground has since moved. Same
+two structural rules as the alignment review tool: exact-path allowlist rather
+than `public/`, and the browser imports the real `review-core.mjs`.
+
 `FOLLOW-UP-RECONCILIATION.md` carries what the restore deliberately left alone:
 the August edits to back-port *into* Word, the April–July window that needs a
 human, and the books with no usable master (Revelation has none; Acts's holds

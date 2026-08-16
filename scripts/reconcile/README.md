@@ -200,3 +200,54 @@ real chapter text during development, not assumed up front). The other
 history during development (not committed as throwaway scripts) but do not
 have formal `node:test` coverage — reasonable follow-up if `build-ledger.mjs`
 is ever run for real and its output needs debugging.
+
+## The review tool (`npm run review:reconcile`)
+
+Serves a localhost-only UI on port 4600 (`--port` to change; `--buckets=B,C,D`
+to scope it) and writes decisions straight into `out/decisions.json` as you make
+them — no save step, so a crash costs at most one span.
+
+**It asks per hunk, not per record.** Buckets B and C were dated per footnote and
+per verse, which is too coarse: a note edited in August carries whatever import
+damage it still had into bucket B alongside the edit, so one record routinely
+holds both. `1corinthians-10-fn-g` has stripped macrons (the master is right)
+and "reflects" → "highlights" (the repo is right) in the same footnote. Asking
+"master or repo?" about that record has no correct answer. Asking it about each
+span does.
+
+Each span is one of three kinds, and only the third needs a person:
+
+| kind | what differs | default |
+|---|---|---|
+| `mechanical` | no word at all — diacritics, quote characters, spacing | take the **master**; these are the import's known damage classes |
+| `structural` | markup only, same visible words | keep the **repo** — its markup is authored and the Word master has none |
+| `judgment` | the words | nothing; this is the question |
+
+The structural default direction is load-bearing. `1corinthians-11-fn-b` builds
+its chiasm out of `<span class="chiasm-key">` / `<span class="chiasm-text">`, and
+taking the master there would delete the whole structure while changing not one
+word.
+
+Judgment runs both ways, which is why it cannot be automated: the repo has a
+typo in `1corinthians-10-fn-ee` (`arazeloo` for `parazeloo`) and the master has
+one in `1corinthians-2-fn-q` (`Life-breah` for `Life-breath`).
+
+Two structural rules it lives inside, the same two as `scripts/alignment-review/`:
+
+1. **The UI is served from the Node process by exact-path allowlist**
+   (`STATIC_FILES` in `review/server.mjs`), never from `public/` — Astro copies
+   `public/` into `dist/` as a filesystem operation, so a `.gitignore` there
+   stops a commit but not a deploy. `review-core.mjs` is one of the allowlisted
+   paths because the browser imports the *real* module rather than a second copy
+   of rules that have to agree with the server's.
+2. **A decision records the SHA of the text it was made against.** `apply.mjs`
+   writes the composed `resolvedValue` — master where you took it, repo where you
+   kept it, which is neither side whole — and refuses it when `baseSha` no longer
+   matches the record. Edit a chapter, regenerate the ledger, and any decision
+   whose ground moved is re-asked rather than applied blind.
+
+Apply what you have decided, at any point:
+
+```bash
+node scripts/reconcile/apply.mjs --decision=approved --write
+```
