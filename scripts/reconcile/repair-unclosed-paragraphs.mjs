@@ -38,6 +38,7 @@ import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
 
 import { spliceValue } from "./lib/json-splice.mjs";
+import { missingClosers, trailingBlockClose } from "./lib/block-structure.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(__dirname, "../..");
@@ -53,28 +54,6 @@ const argValue = (flag, fallback) => {
 // inferred repair, never to source text - the paragraphs' content has
 // legitimately changed since.
 const BASE = argValue("base", "2cf906a~1");
-
-const BLOCK = "p|blockquote|div|ul|ol|li|h[1-6]";
-const BLOCK_TAG_RE = new RegExp(`<(/?)(${BLOCK})\\b[^>]*>`, "gi");
-const TRAILING_CLOSE_RE = new RegExp(`(?:</(?:${BLOCK})>)+$`, "i");
-
-/** The closing tags this string is missing, in the order they must be added,
- *  or "" when it is already balanced. */
-export function missingClosers(html) {
-  const stack = [];
-  BLOCK_TAG_RE.lastIndex = 0;
-  let m;
-  while ((m = BLOCK_TAG_RE.exec(html))) {
-    const [, slash, name] = m;
-    if (slash) {
-      const top = stack.pop();
-      if (top === undefined || top.toLowerCase() !== name.toLowerCase()) return null; // not merely truncated
-    } else {
-      stack.push(name);
-    }
-  }
-  return stack.reverse().map((n) => `</${n}>`).join("");
-}
 
 function baseVersion(relPath) {
   try {
@@ -102,8 +81,8 @@ for (const file of readdirSync(CHAPTERS_DIR).filter((f) => f.endsWith(".json")).
     if (missing === "") return;
 
     if (base === null) base = baseVersion(relPath) ?? false;
-    const wasBefore = base ? TRAILING_CLOSE_RE.exec(base.paragraphs?.[i] ?? "")?.[0] : undefined;
-    const expected = TRAILING_CLOSE_RE.exec(s + missing)?.[0];
+    const wasBefore = base ? trailingBlockClose(base.paragraphs?.[i] ?? "") : undefined;
+    const expected = trailingBlockClose(s + missing);
     if (base && wasBefore !== undefined && wasBefore !== expected) {
       findings.push({
         file,
@@ -112,7 +91,7 @@ for (const file of readdirSync(CHAPTERS_DIR).filter((f) => f.endsWith(".json")).
       });
       return;
     }
-    repairs.push({ index: i, oldValue: s, newValue: s + missing, missing, corroborated: wasBefore !== undefined });
+    repairs.push({ index: i, oldValue: s, newValue: s + missing, missing, corroborated: base !== false });
   });
 
   if (repairs.length === 0) continue;
@@ -124,7 +103,6 @@ for (const file of readdirSync(CHAPTERS_DIR).filter((f) => f.endsWith(".json")).
   }
 }
 
-const repaired = [];
 console.log("");
 for (const f of findings) console.log(`SKIPPED ${f.file} paragraphs[${f.index}]: ${f.problem}`);
 if (!WRITE) console.log("\nNothing was written. Re-run with --write to repair.");

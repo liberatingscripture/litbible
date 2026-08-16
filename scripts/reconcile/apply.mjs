@@ -34,6 +34,7 @@ import { fileURLToPath } from "node:url";
 import { createHash } from "node:crypto";
 
 import { spliceValue } from "./lib/json-splice.mjs";
+import { blockDelta } from "./lib/block-structure.mjs";
 
 const sha16 = (v) => createHash("sha256").update(v, "utf8").digest("hex").slice(0, 16);
 
@@ -136,7 +137,27 @@ function editRange(oldValue, newValue) {
 }
 
 /**
- * The value to write for one record.
+ * A record's writes, one per target string.
+ *
+ * Most records have exactly one. A verse that spans a paragraph break has two:
+ * it is a single verse in the Word master and two `paragraphs[]` strings here,
+ * so restoring it means writing both, and json-splice.mjs only ever replaces
+ * one string value. build-ledger.mjs emits those as `patch.edits` and keeps
+ * jsonPath/oldValue/newValue pointing at the FIRST of them, so every consumer
+ * that predates the field still sees a well-formed patch. Only this file reads
+ * `edits`, and all of a record's units land or none of them do - see the
+ * partial-write guard in the apply loop.
+ */
+function patchUnits(record) {
+  const edits = record.patch.edits;
+  if (!Array.isArray(edits) || edits.length === 0) {
+    return [{ record, jsonPath: record.jsonPath, oldValue: record.patch.oldValue, newValue: record.patch.newValue, multiParagraph: false }];
+  }
+  return edits.map((e) => ({ record, jsonPath: e.jsonPath, oldValue: e.oldValue, newValue: e.newValue, multiParagraph: true }));
+}
+
+/**
+ * The value to write for one unit.
  *
  * A record reviewed hunk-by-hunk in the review tool carries a `resolvedValue`:
  * the master's text where the reviewer took it and the repo's where they kept
@@ -145,10 +166,16 @@ function editRange(oldValue, newValue) {
  * `baseSha` is checked against the record's current oldValue, so a decision
  * made before a chapter was edited is refused rather than applied blind.
  */
-function targetValue(record) {
-  const d = record.reviewDecision;
-  if (!d?.resolvedValue) return { ok: true, value: record.patch.newValue };
-  if (d.baseSha && d.baseSha !== sha16(record.patch.oldValue)) {
+function targetValue(unit) {
+  const d = unit.record.reviewDecision;
+  if (!d?.resolvedValue) return { ok: true, value: unit.newValue };
+  if (unit.multiParagraph) {
+    return {
+      ok: false,
+      reason: "a review decision resolves one string, but this record writes two paragraphs - re-review it as a whole",
+    };
+  }
+  if (d.baseSha && d.baseSha !== sha16(unit.oldValue)) {
     return {
       ok: false,
       reason: `review decision was made against different text (baseSha ${d.baseSha}) - re-review this record`,
@@ -157,27 +184,27 @@ function targetValue(record) {
   return { ok: true, value: d.resolvedValue };
 }
 
-/** One patch per (file, jsonPath), composing multi-record groups or refusing. */
-function composeGroup(records) {
-  const first = records[0];
-  if (records.length === 1) {
+/** One patch per (file, jsonPath), composing multi-unit groups or refusing. */
+function composeGroup(units) {
+  const first = units[0];
+  if (units.length === 1) {
     const t = targetValue(first);
-    if (!t.ok) return { ok: false, reason: t.reason, records };
-    return { ok: true, oldValue: first.patch.oldValue, newValue: t.value, records };
+    if (!t.ok) return { ok: false, reason: t.reason, units };
+    return { ok: true, oldValue: first.oldValue, newValue: t.value, units };
   }
-  const oldValue = first.patch.oldValue;
-  for (const r of records) {
-    if (r.patch.oldValue !== oldValue) {
-      return { ok: false, reason: "records targeting one string disagree about its current value", records };
+  const oldValue = first.oldValue;
+  for (const u of units) {
+    if (u.oldValue !== oldValue) {
+      return { ok: false, reason: "records targeting one string disagree about its current value", units };
     }
   }
-  const targets = records.map((r) => ({ r, t: targetValue(r) }));
+  const targets = units.map((u) => ({ u, t: targetValue(u) }));
   const badTarget = targets.find((x) => !x.t.ok);
-  if (badTarget) return { ok: false, reason: badTarget.t.reason, records };
-  const ranges = targets.map(({ r, t }) => ({ r, target: t.value, ...editRange(oldValue, t.value) })).sort((x, y) => x.start - y.start);
+  if (badTarget) return { ok: false, reason: badTarget.t.reason, units };
+  const ranges = targets.map(({ u, t }) => ({ u, target: t.value, ...editRange(oldValue, t.value) })).sort((x, y) => x.start - y.start);
   for (let i = 1; i < ranges.length; i++) {
     if (ranges[i].start < ranges[i - 1].end) {
-      return { ok: false, reason: "edit ranges overlap - cannot compose without guessing precedence", records };
+      return { ok: false, reason: "edit ranges overlap - cannot compose without guessing precedence", units };
     }
   }
   let out = "";
@@ -192,20 +219,22 @@ function composeGroup(records) {
   for (const rg of ranges) {
     const solo = oldValue.slice(0, rg.start) + rg.replacement + oldValue.slice(rg.end);
     if (solo !== rg.target) {
-      return { ok: false, reason: `composition would alter ${rg.r.id}'s own patch`, records };
+      return { ok: false, reason: `composition would alter ${rg.u.record.id}'s own patch`, units };
     }
   }
-  return { ok: true, oldValue, newValue: out, records };
+  return { ok: true, oldValue, newValue: out, units };
 }
 
 const byFile = new Map();
 for (const r of selected) {
   const file = `${r.bookKey}-${r.chapter}.json`;
   if (!byFile.has(file)) byFile.set(file, new Map());
-  const key = JSON.stringify(r.jsonPath);
   const paths = byFile.get(file);
-  if (!paths.has(key)) paths.set(key, []);
-  paths.get(key).push(r);
+  for (const unit of patchUnits(r)) {
+    const key = JSON.stringify(unit.jsonPath);
+    if (!paths.has(key)) paths.set(key, []);
+    paths.get(key).push(unit);
+  }
 }
 
 // ---------------------------------------------------------------------
@@ -229,6 +258,23 @@ function footnoteTriples(parsed) {
   return (parsed.footnotes || []).map((f) => `${f.id}|${f.refId}|${f.label}`);
 }
 
+/**
+ * Opens-minus-closes for the block tags in each paragraph.
+ *
+ * The backstop for hazard 3: a verse that is the LAST in its paragraph owns
+ * the string to its end, so a restore rebuilt from master text - which has no
+ * markup at all - silently takes the `</p>` with it. 59 paragraphs reached
+ * production that way before anything noticed, because a browser closes a
+ * dangling `<p>` at the next block element and the page looks almost right.
+ * This is a per-paragraph DELTA rather than an absolute check so it reports
+ * the damage a run introduces without failing on damage already on disk.
+ */
+function blockBalance(parsed) {
+  return (parsed.paragraphs || [])
+    .map(blockDelta)
+    .join(",");
+}
+
 function structuralFingerprint(parsed) {
   return {
     topLevelKeys: Object.keys(parsed).join(","),
@@ -236,6 +282,7 @@ function structuralFingerprint(parsed) {
     verseMarkers: verseMarkerTags(parsed).join(" "),
     anchors: anchorIds(parsed).join(" "),
     footnotes: footnoteTriples(parsed).join(" "),
+    blockBalance: blockBalance(parsed),
     indexed: `${Object.hasOwn(parsed, "indexed")}:${JSON.stringify(parsed.indexed)}`,
   };
 }
@@ -251,6 +298,15 @@ function compareFingerprints(before, after) {
       problems.push(
         `footnote anchors changed (${b.length} -> ${a.length}${lost.length ? `, lost ${lost.join(", ")}` : ""}) ` +
           `- a footnote with no anchor is unreachable to readers and validate-chapters.mjs does not check this direction`,
+      );
+      continue;
+    }
+    if (key === "blockBalance") {
+      const b = before[key].split(",");
+      const a = after[key].split(",");
+      const moved = a.map((v, i) => (v === b[i] ? null : `paragraphs[${i}] ${b[i]} -> ${v}`)).filter(Boolean);
+      problems.push(
+        `block-tag balance changed (${moved.join("; ")}) - a restore rebuilt from master text has taken a paragraph's own closing tag with it`,
       );
       continue;
     }
@@ -273,20 +329,23 @@ for (const [file, paths] of [...byFile].sort(([a], [b]) => a.localeCompare(b))) 
   const before = structuralFingerprint(JSON.parse(originalRaw));
 
   let raw = originalRaw;
-  let appliedHere = 0;
   let fileFailed = null;
+  const appliedIds = new Set();
+  const refusedIds = new Set();
 
-  for (const [key, records] of paths) {
-    const group = composeGroup(records);
+  for (const [key, units] of paths) {
+    const ids = units.map((u) => u.record.id);
+    const group = composeGroup(units);
     if (!group.ok) {
-      refused.push({ file, key, reason: group.reason, ids: records.map((r) => r.id) });
+      refused.push({ file, key, reason: group.reason, ids });
+      for (const id of ids) refusedIds.add(id);
       continue;
     }
     try {
       raw = spliceValue(raw, JSON.parse(key), group.oldValue, group.newValue);
-      appliedHere += records.length;
+      for (const id of ids) appliedIds.add(id);
     } catch (e) {
-      fileFailed = `${records.map((r) => r.id).join(", ")}: ${e.message}`;
+      fileFailed = `${ids.join(", ")}: ${e.message}`;
       break;
     }
   }
@@ -295,17 +354,30 @@ for (const [file, paths] of [...byFile].sort(([a], [b]) => a.localeCompare(b))) 
     refused.push({ file, reason: fileFailed, ids: [] });
     continue; // originalRaw never written - this file is left exactly as it was
   }
-  if (appliedHere === 0) continue;
+
+  // A record that writes two paragraphs must land whole. If one of its units
+  // was refused while another spliced cleanly, the in-memory `raw` now holds
+  // half a verse - so the whole file is refused rather than written.
+  const partial = [...appliedIds].filter((id) => refusedIds.has(id));
+  if (partial.length) {
+    refused.push({
+      file,
+      reason: `multi-paragraph record(s) would land only partly, so nothing in this file was written`,
+      ids: partial,
+    });
+    continue;
+  }
+  if (appliedIds.size === 0) continue;
 
   const problems = compareFingerprints(before, structuralFingerprint(JSON.parse(raw)));
   if (problems.length) {
-    refused.push({ file, reason: `structural invariant failed: ${problems.join("; ")}`, ids: [...paths.values()].flat().map((r) => r.id) });
+    refused.push({ file, reason: `structural invariant failed: ${problems.join("; ")}`, ids: [...appliedIds] });
     continue;
   }
 
   if (WRITE) writeFileSync(full, raw, "utf8");
   filesChanged++;
-  recordsApplied += appliedHere;
+  recordsApplied += appliedIds.size;
 }
 
 // ---------------------------------------------------------------------

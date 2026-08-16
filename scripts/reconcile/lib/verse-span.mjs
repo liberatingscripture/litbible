@@ -18,6 +18,12 @@
 // structured-HTML rule, since CLAUDE.md's own examples of this pattern are
 // poetry set in a `<blockquote>`).
 
+import { splitTrailingBlockClose } from "./block-structure.mjs";
+
+// Re-exported so build-ledger.mjs takes its whole paragraph vocabulary from
+// one import; the rule itself belongs with the other block-structure rules.
+export { splitTrailingBlockClose };
+
 const VGLUE_MARKER_RE = /<span class="vglue"><sup id="v(\d+)" class="vn">\d+<\/sup>/g;
 
 /** Every verse marker's verse number and start offset (the `<span
@@ -70,4 +76,69 @@ export function locateVerseSpanInParagraphs(paragraphs, verseNum) {
     return { found: true, spansMultipleParagraphs: false, paragraphIndex: pi, start, end: paragraphs[pi].length };
   }
   return { found: false };
+}
+
+const OPEN_TAG_RE = /^<[a-z][^>]*>/i;
+const TRAILING_CLOSE_RE = /(?:<\/[a-z][^>]*>)+$/i;
+
+
+/**
+ * Cut a composed continuation verse back into its two paragraphs.
+ *
+ * A verse spanning a paragraph break is ONE run of text in the Word master and
+ * TWO strings in the repo, and the repo's break is authored, not accidental -
+ * `ephesians-1`/`2peter-1` open a letter as `From:` / `To:`, `matthew-20`
+ * turns a speaker mid-verse. Restoring the master's wording therefore means
+ * distributing it across the repo's existing paragraphs, which is a
+ * REFORMATTING question, not a question about which side is right.
+ *
+ * The split point is not searched for in the text: the words at the boundary
+ * are exactly the ones a restore may be changing, so matching on them would
+ * fail on the only records that matter. Instead the caller composes the two
+ * paragraphs TOGETHER against the master (review-core's diff sees the seam
+ * markup as a `structural` hunk, since it strips to nothing on both sides, and
+ * keeps the repo's), and this function finds the seam the composer preserved.
+ *
+ * @param {string} composed  repo head-span + tail-paragraph, composed against
+ *                           the master
+ * @param {string} headSpan  the repo's head paragraph from this verse's marker
+ *                           to the end of that string (so it ends in the
+ *                           paragraph's own closing tags)
+ * @param {string} tailPara  the repo's whole continuation paragraph
+ * @returns {{ok:true, head:string, tail:string} | {ok:false, reason:string}}
+ *   Every refusal keeps the record held rather than guessing.
+ */
+export function splitComposedAtParagraphSeam(composed, headSpan, tailPara) {
+  const openTag = OPEN_TAG_RE.exec(tailPara)?.[0];
+  if (!openTag) {
+    return { ok: false, reason: "the continuation paragraph does not begin with an opening tag, so its seam can't be located" };
+  }
+  const first = composed.indexOf(openTag);
+  if (first === -1) {
+    return { ok: false, reason: `composition did not preserve the continuation paragraph's opening tag (${openTag})` };
+  }
+  if (composed.indexOf(openTag, first + 1) !== -1) {
+    return { ok: false, reason: `the continuation paragraph's opening tag (${openTag}) occurs more than once in the composition, so the seam is ambiguous` };
+  }
+
+  const head = composed.slice(0, first);
+  const tail = composed.slice(first);
+
+  // Both sides must still close the way the repo's own strings close. This is
+  // what makes the cut safe: the master contributes no markup at all, so if
+  // either paragraph lost its closing tags the composition put text somewhere
+  // this function would otherwise happily slice through.
+  const headClose = TRAILING_CLOSE_RE.exec(headSpan)?.[0];
+  const tailClose = TRAILING_CLOSE_RE.exec(tailPara)?.[0];
+  if (!headClose || !head.endsWith(headClose)) {
+    return { ok: false, reason: `the head paragraph no longer ends with its own closing markup (${headClose ?? "none found"})` };
+  }
+  if (!tailClose || !tail.endsWith(tailClose)) {
+    return { ok: false, reason: `the continuation paragraph no longer ends with its own closing markup (${tailClose ?? "none found"})` };
+  }
+  if (findVerseMarkers(tail).length !== 0) {
+    return { ok: false, reason: "the composition moved a verse marker into the continuation paragraph, which must open with plain text (CLAUDE.md's single-marker convention)" };
+  }
+
+  return { ok: true, head, tail };
 }
