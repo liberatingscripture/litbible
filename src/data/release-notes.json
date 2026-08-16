@@ -1,20 +1,5 @@
 [
   {
-    "version": "2026-08-16",
-    "date": "2026-08-16",
-    "label": "August 16, 2026",
-    "changes": [
-      {
-        "type": "footnote_updated",
-        "description": "Sixty-three translation notes reviewed one difference at a time against the translator’s manuscripts, and updated where the manuscript reading was the fuller or more accurate one."
-      },
-      {
-        "type": "text_updated",
-        "description": "Scripture wording in a handful of verses matched back to the manuscripts, including 1 Corinthians 5:5, Ephesians 1:18 and 6:10, Hebrews 10:30, and Romans 9:22."
-      }
-    ]
-  },
-  {
     "version": "2026-08-13",
     "date": "2026-08-13",
     "label": "August 13, 2026",
