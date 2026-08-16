@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Reconciliation review</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Reconciliation review</h1>
+      <p class="lede">
+        Each highlighted span is one difference between the Word master and the repo.
+        Choose a side per span. <strong>Grey spans are pre-answered</strong>: mechanical ones (diacritics, quote
+        characters, spacing) take the master, structural ones (markup only, no word
+        changes) keep the repo. <strong>The amber spans are the real questions.</strong>
+      </p>
+      <div id="progress" class="progress" role="status"></div>
+    </header>
+
+    <nav id="books" aria-label="Books"></nav>
+
+    <main id="records"></main>
+
+    <footer>
+      <p>
+        Decisions save as you make them, to <code>scripts/reconcile/out/decisions.json</code>.
+        Apply them with <code>node scripts/reconcile/apply.mjs --decision=approved --write</code>.
+      </p>
+    </footer>
+
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>

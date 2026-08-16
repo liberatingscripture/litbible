@@ -26,7 +26,8 @@
     "check:links": "node scripts/check-links.mjs",
     "test": "node --test \"test/**/*.js\"",
     "fix:chapters": "node scripts/validate-chapters.mjs --fix",
-    "draft:release-notes": "node scripts/draft-release-notes.mjs"
+    "draft:release-notes": "node scripts/draft-release-notes.mjs",
+    "review:reconcile": "node scripts/reconcile/review/server.mjs"
   },
   "dependencies": {
     "@astrojs/rss": "^4.0.18",
