@@ -58,9 +58,16 @@ import { BOOKS, DOCX_TO_BOOKKEY, TRUNCATED_MASTERS, DOCUMENTED_GAPS } from "./li
 // nothing for this ledger to compare.
 import { classifyShape } from "./lib/word-diff.mjs";
 import { getChapterHistory, findSettleCommit, findPreAugustValue, classifyWindow } from "./lib/git-settle.mjs";
-import { locateVerseSpanInParagraphs } from "./lib/verse-span.mjs";
+import {
+  locateVerseSpanInParagraphs,
+  findVerseMarkers,
+  splitComposedAtParagraphSeam,
+  splitTrailingBlockClose,
+} from "./lib/verse-span.mjs";
 import { REF_MARK } from "./lib/docx-verses.mjs";
 import { curlify, auditWrongDirectionPairs } from "./lib/curl-quotes.mjs";
+import { composeRestore } from "./lib/quote-compose.mjs";
+import { verseBoundaryDisagreement, suspectRestore } from "./lib/restore-guards.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -84,7 +91,52 @@ const CHAPTERS_DIR = path.resolve(REPO_ROOT, "src/data/chapters");
 const OUT_DIR = argValue("out-dir") || path.resolve(__dirname, "out");
 const DECISIONS_PATH = path.join(OUT_DIR, "decisions.json");
 
+// Chapters carrying a contested passage wrapped in literal [| and |] markers
+// (CLAUDE.md, "Bracketed passages"). This used to hold EVERY record in these
+// chapters, which is far coarser than the hazard: 14 bucket-A records sat here
+// and not one of their spans contained a marker - john-11-fn-y is an ordinary
+// footnote held because John 11 has brackets somewhere else entirely.
+//
+// The real hazard is that the markers are literal characters, so they survive
+// into the extracted master text and a restore could move or drop one. That is
+// now checked per record (bracketMarkersAgree) against a SECOND, marker-
+// preserving extraction, rather than assumed. The pairing half of the old
+// justification - both footnotes of a pair are byte-identical by design and
+// must move together - is enforced by check-bracket-twins.mjs after applying.
 const BRACKETED_CHAPTERS = new Set(["mark-16", "john-7", "john-8", "john-9", "john-11", "romans-16"]);
+
+const BRACKET_MARKER_RE = /\[\||\|\]/g;
+
+const QUOTE_CHARS_G = /["'‘’‚‛“”„‟]/g;
+
+/** Do these two plain texts differ in nothing but quote characters and
+ *  whitespace? Asked of a whole record, where the answer decides whether a
+ *  finding belongs to the owner rather than to this repo. */
+function quotesAndSpacingOnly(a, b) {
+  const flatten = (s) => String(s ?? "").replace(QUOTE_CHARS_G, "").replace(/\s+/g, " ").trim();
+  return flatten(a) === flatten(b);
+}
+
+/** The bracket markers in every string this patch would rewrite must come out
+ *  of the restore exactly as they went in - same markers, same order. A check,
+ *  never a repair: a record that would move one keeps its hold. */
+function bracketMarkersAgree(patch) {
+  if (patch.newValue == null) return { ok: true };
+  const spans = patch.edits ?? [{ oldValue: patch.oldValue, newValue: patch.newValue }];
+  for (const s of spans) {
+    const before = (String(s.oldValue).match(BRACKET_MARKER_RE) || []).join(" ");
+    const after = (String(s.newValue).match(BRACKET_MARKER_RE) || []).join(" ");
+    if (before !== after) {
+      return {
+        ok: false,
+        reason:
+          `bracketed passage: restoring would change this string's [|/|] markers ` +
+          `(${before || "none"} -> ${after || "none"}) - they are reader-facing and their paired footnotes must move together`,
+      };
+    }
+  }
+  return { ok: true };
+}
 
 // ---------------------------------------------------------------------
 // Structured-HTML detector (plan: "Anything with a patch warning,
@@ -183,53 +235,179 @@ function wrapFirstWordInVglue(verseNum, contentHtml) {
   return `<span class="vglue"><sup id="v${verseNum}" class="vn">${verseNum}</sup>&nbsp;${firstWord}</span>${rest}`;
 }
 
-// `curlifiedMasterHtml` is nullable: build-ledger.mjs still wants
-// jsonPath/oldValue populated for review even when curlify() refused the
-// master text (quote-ambiguous) - only newValue stays null in that case.
-function buildVersePatch(paragraphs, verseNum, curlifiedMasterHtml) {
+// Both patch builders take the master's HTML twice over, and which one is
+// populated says how curlify() went:
+//
+//   curlified !== null            the ordinary path - splice it in.
+//   curlified === null, raw set   curlify() REFUSED this string as
+//                                 quote-ambiguous. The refusal is about the
+//                                 master's punctuation, not its words, so the
+//                                 restore is COMPOSED instead of converted -
+//                                 see lib/quote-compose.mjs. Before that
+//                                 existed these records died here with
+//                                 newValue null, which is what made
+//                                 quote-ambiguous the largest held group in
+//                                 bucket A by a factor of six.
+//   both null                     nothing to build (the caller only wants
+//                                 jsonPath/oldValue populated for review).
+//
+// A composed restore carries `quoteResolution` so the caller can tell the
+// three outcomes apart: "composed" (real words recovered), "repo-quotes-correct"
+// (every span resolved to the repo, so the two sides differ in punctuation
+// only), or null (no compose happened).
+function composeIfRefused(oldSpan, content, curlifiedMasterHtml) {
+  if (curlifiedMasterHtml !== null) return { ok: true, content, quoteResolution: null };
+  const composed = composeRestore(oldSpan, content, { quoteAmbiguous: true });
+  if (!composed.ok) return { ok: false, reason: composed.reason };
+  return {
+    ok: true,
+    content: composed.value,
+    quoteResolution: composed.unchanged ? "repo-quotes-correct" : "composed",
+  };
+}
+
+function buildVersePatch(paragraphs, verseNum, curlifiedMasterHtml, rawMasterHtml = null) {
   const loc = locateVerseSpanInParagraphs(paragraphs, verseNum);
   if (!loc.found) {
     return { jsonPath: null, oldValue: null, newValue: null, reason: "no id=\"vN\" marker for this verse found in the repo's current paragraphs" };
   }
+  const source = curlifiedMasterHtml ?? rawMasterHtml;
+
   if (loc.spansMultipleParagraphs) {
-    return {
-      jsonPath: ["paragraphs", loc.paragraphIndices[0]],
-      oldValue: paragraphs[loc.paragraphIndices[0]],
-      newValue: null,
-      reason: `verse continues into paragraphs[${loc.paragraphIndices[1]}] with no marker of its own (a continuation, per CLAUDE.md) - not auto-patchable as a single string value`,
-    };
+    return buildContinuationVersePatch(paragraphs, verseNum, loc, source, curlifiedMasterHtml);
   }
+
   const para = paragraphs[loc.paragraphIndex];
-  if (curlifiedMasterHtml === null) {
-    return { jsonPath: ["paragraphs", loc.paragraphIndex], oldValue: para, newValue: null, reason: null };
-  }
-  const anchored = restoreAnchors(curlifiedMasterHtml, para.slice(loc.start, loc.end));
-  if (!anchored.ok) {
-    return { jsonPath: ["paragraphs", loc.paragraphIndex], oldValue: para, newValue: null, reason: anchored.reason };
-  }
+  const jsonPath = ["paragraphs", loc.paragraphIndex];
+  if (source == null) return { jsonPath, oldValue: para, newValue: null, reason: null };
+
+  // The LAST verse in a paragraph owns the rest of the string, closing tags
+  // and all - locateVerseSpanInParagraphs returns `end = para.length` for it.
+  // The master has no markup whatsoever, so replacing that whole span drops
+  // the paragraph's `</p>`. That is not hypothetical: it is how 59 paragraphs
+  // on main lost their closing tag across the two restore PRs, undetected
+  // because a browser silently closes a `<p>` at the next block element.
+  // Splitting the closing run off and re-appending it verbatim means the
+  // restore can only ever rewrite the paragraph's CONTENT.
+  const oldSpan = para.slice(loc.start, loc.end);
+  const { body: oldBody, close: closeRun } = splitTrailingBlockClose(oldSpan);
+  const anchored = restoreAnchors(source, oldBody);
+  if (!anchored.ok) return { jsonPath, oldValue: para, newValue: null, reason: anchored.reason };
   const wrapped = wrapFirstWordInVglue(verseNum, anchored.html);
   if (wrapped === null) {
     return {
-      jsonPath: ["paragraphs", loc.paragraphIndex],
+      jsonPath,
       oldValue: para,
       newValue: null,
       reason: "restored text begins inside a formatting tag - the vglue marker rewrap needs manual construction",
     };
   }
-  const newParagraph = para.slice(0, loc.start) + wrapped + para.slice(loc.end);
-  return { jsonPath: ["paragraphs", loc.paragraphIndex], oldValue: para, newValue: newParagraph, reason: null };
+
+  const c = composeIfRefused(oldBody, wrapped, curlifiedMasterHtml);
+  if (!c.ok) return { jsonPath, oldValue: para, newValue: null, reason: c.reason };
+  if (c.quoteResolution === "repo-quotes-correct") {
+    return { jsonPath, oldValue: para, newValue: null, reason: null, quoteResolution: c.quoteResolution };
+  }
+
+  const newParagraph = para.slice(0, loc.start) + c.content + closeRun + para.slice(loc.end);
+  return { jsonPath, oldValue: para, newValue: newParagraph, reason: null, quoteResolution: c.quoteResolution };
+}
+
+// A verse that spans a paragraph break (CLAUDE.md's single-marker convention:
+// the marker sits at the verse's start, the continuation paragraph opens with
+// plain text). NEITHER SIDE IS WRONG HERE - Word has no paragraph structure to
+// compare against, and the repo's break is authored: `ephesians-1` and
+// `2peter-1` open a letter as `From:` / `To:`, `matthew-20` turns a speaker
+// mid-verse. Only the patch SHAPE was wrong, since json-splice.mjs replaces
+// one string value and this verse lives in two.
+//
+// The master's continuous text therefore has to be distributed across the two
+// paragraphs the repo already has. Rather than cut the master and hope the cut
+// lands where the repo's break does, both repo paragraphs are composed
+// TOGETHER against the master: review-core reads the seam markup
+// (`</p><p id="...">`) as a `structural` hunk, since it strips to nothing on
+// both sides, so the composition keeps the repo's own seam and the words fall
+// on whichever side the alignment puts them. splitComposedAtParagraphSeam then
+// cuts there, under assertions; every way it declines keeps the hold.
+function buildContinuationVersePatch(paragraphs, verseNum, loc, source, curlifiedMasterHtml) {
+  const [pi, pj] = loc.paragraphIndices;
+  const headPara = paragraphs[pi];
+  const tailPara = paragraphs[pj];
+  const jsonPath = ["paragraphs", pi];
+  const tailPath = ["paragraphs", pj];
+  const start = findVerseMarkers(headPara).find((mk) => mk.verse === verseNum).start;
+  const headSpan = headPara.slice(start);
+
+  if (source == null) {
+    return {
+      jsonPath,
+      oldValue: headPara,
+      newValue: null,
+      reason: `verse continues into paragraphs[${pj}] with no marker of its own (a continuation, per CLAUDE.md) - not auto-patchable as a single string value`,
+    };
+  }
+
+  const repoConcat = headSpan + tailPara;
+  const anchored = restoreAnchors(source, repoConcat);
+  if (!anchored.ok) return { jsonPath, oldValue: headPara, newValue: null, reason: anchored.reason };
+  const wrapped = wrapFirstWordInVglue(verseNum, anchored.html);
+  if (wrapped === null) {
+    return {
+      jsonPath,
+      oldValue: headPara,
+      newValue: null,
+      reason: "restored text begins inside a formatting tag - the vglue marker rewrap needs manual construction",
+    };
+  }
+
+  const composed = composeRestore(repoConcat, wrapped, { quoteAmbiguous: curlifiedMasterHtml === null });
+  if (!composed.ok) return { jsonPath, oldValue: headPara, newValue: null, reason: composed.reason };
+  const quoteResolution =
+    curlifiedMasterHtml !== null ? null : composed.unchanged ? "repo-quotes-correct" : "composed";
+  if (composed.unchanged) {
+    return { jsonPath, oldValue: headPara, newValue: null, reason: null, quoteResolution };
+  }
+
+  const split = splitComposedAtParagraphSeam(composed.value, headSpan, tailPara);
+  if (!split.ok) return { jsonPath, oldValue: headPara, newValue: null, reason: split.reason };
+
+  const newHead = headPara.slice(0, start) + split.head;
+  // `edits` is the additive half of the patch schema: the head paragraph stays
+  // in jsonPath/oldValue/newValue so every existing consumer keeps working,
+  // and only apply.mjs looks for the rest. All of them land or none do.
+  const edits = [];
+  if (newHead !== headPara) edits.push({ jsonPath, oldValue: headPara, newValue: newHead });
+  if (split.tail !== tailPara) edits.push({ jsonPath: tailPath, oldValue: tailPara, newValue: split.tail });
+  if (edits.length === 0) return { jsonPath, oldValue: headPara, newValue: null, reason: null, quoteResolution };
+
+  return {
+    jsonPath,
+    oldValue: headPara,
+    newValue: newHead,
+    reason: null,
+    quoteResolution,
+    edits,
+    spansParagraphs: true,
+  };
 }
 
 // Same nullable-curlifiedMasterHtml convention as buildVersePatch above.
-function buildFootnotePatch(footnotesArr, refId, curlifiedMasterHtml) {
+function buildFootnotePatch(footnotesArr, refId, curlifiedMasterHtml, rawMasterHtml = null) {
   const idx = footnotesArr.findIndex((fn) => fn.refId === refId);
   if (idx === -1) {
     return { jsonPath: null, oldValue: null, newValue: null, reason: "repo footnote not found by refId (should not happen for a match/paired-differs pair)" };
   }
   const oldValue = footnotesArr[idx].html;
   const jsonPath = ["footnotes", idx, "html"];
-  if (curlifiedMasterHtml === null) return { jsonPath, oldValue, newValue: null, reason: null };
-  return { jsonPath, oldValue, newValue: curlifiedMasterHtml, reason: null };
+  const source = curlifiedMasterHtml ?? rawMasterHtml;
+  if (source == null) return { jsonPath, oldValue, newValue: null, reason: null };
+
+  const c = composeIfRefused(oldValue, source, curlifiedMasterHtml);
+  if (!c.ok) return { jsonPath, oldValue, newValue: null, reason: c.reason };
+  if (c.quoteResolution === "repo-quotes-correct") {
+    return { jsonPath, oldValue, newValue: null, reason: null, quoteResolution: c.quoteResolution };
+  }
+  return { jsonPath, oldValue, newValue: c.content, reason: null, quoteResolution: c.quoteResolution };
 }
 
 // ---------------------------------------------------------------------
@@ -327,6 +505,11 @@ const decisions = loadDecisions();
 const records = [];
 const wrongDirectionByChapter = new Map(); // bookKey -> [{chapter, where, ...finding}]
 const deferredMasterOnly = []; // 8 real master-only footnotes + 13 master-has-extra verses, per the follow-up doc
+// Two findings that are the OWNER's to act on, not this repo's - see the
+// quoteResolution branches below for what separates them. Written to out/ and
+// summarized into FOLLOW-UP-RECONCILIATION.md; neither implies a repo change.
+const masterMalformedQuotes = []; // Word footnotes whose quotation doesn't balance
+const crossVerseQuoteBoundaries = []; // verses where a quotation's two ends sit in different verses
 let chaptersProcessed = 0;
 let chaptersSkippedDraft = 0;
 
@@ -353,6 +536,23 @@ for (const [docxName, bookKey] of Object.entries(DOCX_TO_BOOKKEY)) {
   const warnings = [];
   const master = extractMasterChapters(docXml, chapterCount, { warnings, stripBrackets: true, refMarkers: true });
   const footnoteTextMap = extractMasterFootnotes(fnXml, { warnings, stripBrackets: true });
+
+  // COMPARISON needs the markers stripped; RESTORATION does not. An opening
+  // `[|` leads its paragraph ahead of the first verse marker, so leaving it in
+  // would file the marker's characters under the wrong verse and make every
+  // bracketed chapter look like it had drifted. But the markers are
+  // reader-facing text, so a patch value built from the stripped extraction
+  // would silently delete them from the chapter it spliced into. Hence two
+  // extractions from the same XML: `master`/`footnoteTextMap` drive
+  // classification, and these drive `patch.newValue`.
+  //
+  // Only the three books that have a bracketed chapter pay for the second
+  // pass. Marker logic must run on the CONCATENATED text these produce, never
+  // on raw XML - John splits a marker across <w:t> runs, so a raw scan sees 2
+  // opens where the text has 3.
+  const bookHasBrackets = [...BRACKETED_CHAPTERS].some((k) => k.startsWith(`${bookKey}-`));
+  const masterKeep = bookHasBrackets ? extractMasterChapters(docXml, chapterCount, { stripBrackets: false, refMarkers: true }) : null;
+  const footnoteKeepMap = bookHasBrackets ? extractMasterFootnotes(fnXml, { stripBrackets: false }) : null;
   // pair-footnotes.mjs's masterList lookup expects a plain STRING per id
   // (`normalize(footnoteTextMap.get(x.id) || "")`), not the {plain,html,...}
   // record extractMasterFootnotes returns - mirrors gate-report.mjs's own
@@ -393,6 +593,10 @@ for (const [docxName, bookKey] of Object.entries(DOCX_TO_BOOKKEY)) {
 
     // ---------------- Scripture verses ----------------
     const repoVerses = splitChapterVerses(repoJson.paragraphs);
+    // Plain text per verse on the master side, in the same shape repoVerses
+    // has, so verseBoundaryDisagreement can compare a verse against its
+    // NEIGHBOURS on the other side.
+    const masterVerseText = new Map([...chData.verses].map(([n, rec]) => [n, rec.plain]));
     const allVerseNums = new Set([...chData.verses.keys(), ...repoVerses.keys()]);
     for (const v of [...allVerseNums].sort((a, b) => a - b)) {
       const gapKey = `${bookKey}-${c}-${v}`;
@@ -466,11 +670,52 @@ for (const [docxName, bookKey] of Object.entries(DOCX_TO_BOOKKEY)) {
       }
       if (cls.bucket === null) continue; // identical - nothing to record
 
-      const curlResult = curlify(mRec.html);
-      const patch = buildVersePatch(repoJson.paragraphs, v, curlResult.ok ? curlResult.result : null);
+      // Bracketed chapters get the marker-PRESERVING extraction for the patch
+      // value while classification keeps using the stripped one - see
+      // masterKeep's declaration.
+      const mKeep = masterKeep?.chapters.get(c)?.verses.get(v);
+      const patchSourceHtml = mKeep ? mKeep.html : mRec.html;
+      const curlResult = curlify(patchSourceHtml);
+      const patch = buildVersePatch(
+        repoJson.paragraphs,
+        v,
+        curlResult.ok ? curlResult.result : null,
+        curlResult.ok ? null : patchSourceHtml,
+      );
       let forceHandReview = patch.reason;
-      if (!curlResult.ok) forceHandReview = forceHandReview || `quote-ambiguous: ${curlResult.reason}`;
-      if (isBracketed) forceHandReview = forceHandReview || "chapter carries a bracketed [|/|] passage - paired footnotes must move together";
+      // Asked of the record's PLAIN texts, not of the compose outcome, so a
+      // verse whose patch failed for some other reason first (an anchor-count
+      // mismatch, or the wrong-direction gate firing on the very quote in
+      // question) still reaches the owner's list rather than being filed under
+      // whatever blocked it. Whitespace is folded here and deliberately not in
+      // isQuoteOnly, which has to stay exact to judge a single hunk.
+      const quoteOnlyDifference = !curlResult.ok && quotesAndSpacingOnly(masterText, repoText);
+      if (quoteOnlyDifference || patch.quoteResolution === "repo-quotes-correct") {
+        // Every span resolved to the repo, so the two sides differ in nothing
+        // but quote characters. What that MEANS depends on the kind, and the
+        // two are genuinely different findings:
+        //
+        // A footnote is a self-contained string, so an unbalanced quotation in
+        // it is a defect in the master (see the footnote branch below).
+        //
+        // A VERSE is a slice of running prose. A speech routinely opens in one
+        // verse and closes in another, so curlify refusing is expected and the
+        // difference is about WHICH verse carries the mark - john-12:31-32
+        // quotes the speech in the master and not at all in the repo, while
+        // matthew-9:22 closes it in the repo and not in the master. That is an
+        // editorial decision about the quotation's boundary, in both
+        // directions, and no rule settles it.
+        forceHandReview =
+          "cross-verse quotation boundary: the two sides differ only in quote characters, and the quotation " +
+          "opens or closes in a different verse - which verse carries the mark is an editorial decision";
+        crossVerseQuoteBoundaries.push({ id: `${bookKey}-${c}-v${v}`, bookKey, chapter: c, verse: v, master: masterText, repo: repoText });
+      } else if (!curlResult.ok && patch.newValue === null) {
+        forceHandReview = forceHandReview || `quote-ambiguous: ${curlResult.reason}`;
+      }
+      if (isBracketed) {
+        const bracketCheck = bracketMarkersAgree(patch);
+        if (!bracketCheck.ok) forceHandReview = forceHandReview || bracketCheck.reason;
+      }
       // Structured-HTML is checked against the REPO paragraph that would be
       // overwritten (patch.oldValue), not the master text - see
       // structuredHtmlReason's header for why.
@@ -478,6 +723,13 @@ for (const [docxName, bookKey] of Object.entries(DOCX_TO_BOOKKEY)) {
         const structReason = structuredHtmlReason(patch.oldValue || "");
         if (structReason) forceHandReview = forceHandReview || structReason;
       }
+      // Structural guards on the restore itself - see lib/restore-guards.mjs.
+      // These run last because they are the least about classification and the
+      // most about "a machine must not settle this one".
+      forceHandReview =
+        forceHandReview ||
+        verseBoundaryDisagreement(masterVerseText, repoVerses, v) ||
+        suspectRestore({ kind: "verse", masterText, repoText });
 
       records.push({
         id: `${bookKey}-${c}-v${v}`,
@@ -495,7 +747,7 @@ for (const [docxName, bookKey] of Object.entries(DOCX_TO_BOOKKEY)) {
         severity: severity(normalize(masterText), normalize(repoText)),
         text: { master: masterText, preAug: cls.preAugText, current: repoText },
         diff: cls.shape.diff.ops,
-        patch: { oldValue: patch.oldValue, newValue: patch.newValue },
+        patch: { oldValue: patch.oldValue, newValue: patch.newValue, edits: patch.edits, quoteResolution: patch.quoteResolution ?? null },
         forceHandReview,
         decision: decisions[`${bookKey}-${c}-v${v}`]?.decision ?? null,
       });
@@ -574,12 +826,49 @@ for (const [docxName, bookKey] of Object.entries(DOCX_TO_BOOKKEY)) {
 
       let forceHandReview = null;
       if (masterRec?.warning) forceHandReview = `master extraction warning: ${masterRec.warning}`;
-      const curlResult = curlify(masterRec?.html ?? "");
-      const patch = buildFootnotePatch(repoJson.footnotes, p.repo.refId, curlResult.ok ? curlResult.result : null);
-      if (!curlResult.ok) forceHandReview = forceHandReview || `quote-ambiguous: ${curlResult.reason}`;
-      if (isBracketed) forceHandReview = forceHandReview || "chapter carries a bracketed [|/|] passage - paired footnotes must move together";
+      const patchSourceHtml = footnoteKeepMap?.get(p.master.id)?.html ?? masterRec?.html ?? "";
+      // NOTE `patch.reason` is folded in below. It used to be ignored here
+      // because buildFootnotePatch could only ever fail one way ("repo
+      // footnote not found"), which cannot happen for a paired record; now
+      // that composing can decline, dropping it would report a stale
+      // quote-ambiguous reason in place of the real one.
+      const curlResult = curlify(patchSourceHtml);
+      const patch = buildFootnotePatch(
+        repoJson.footnotes,
+        p.repo.refId,
+        curlResult.ok ? curlResult.result : null,
+        curlResult.ok ? null : patchSourceHtml,
+      );
+      if (patch.quoteResolution === "repo-quotes-correct") {
+        // A footnote is a self-contained string: its quotation has to balance
+        // within it. So when the two sides differ in nothing but quote
+        // characters and curlify refused the master's, the MASTER is the
+        // malformed one and the repo is already right. There is nothing to
+        // restore, and the fix belongs in Word - it goes on the back-port list
+        // rather than staying held here forever.
+        masterMalformedQuotes.push({
+          id,
+          bookKey,
+          chapter: c,
+          label,
+          reason: curlResult.reason,
+          position: curlResult.position,
+          master: masterText,
+          repo: repoText,
+        });
+      } else {
+        forceHandReview = forceHandReview || patch.reason;
+        if (!curlResult.ok && patch.newValue === null) {
+          forceHandReview = forceHandReview || `quote-ambiguous: ${curlResult.reason}`;
+        }
+      }
+      if (isBracketed) {
+        const bracketCheck = bracketMarkersAgree(patch);
+        if (!bracketCheck.ok) forceHandReview = forceHandReview || bracketCheck.reason;
+      }
       const structReason = structuredHtmlReason(patch.oldValue ?? "");
       if (structReason) forceHandReview = forceHandReview || structReason;
+      forceHandReview = forceHandReview || suspectRestore({ kind: "footnote", masterText, repoText });
 
       records.push({
         ...baseFields,
@@ -592,7 +881,7 @@ for (const [docxName, bookKey] of Object.entries(DOCX_TO_BOOKKEY)) {
         severity: severity(normalize(masterText), normalize(repoText)),
         text: { master: masterText, preAug: cls.preAugText, current: repoText },
         diff: cls.shape.diff.ops,
-        patch: { oldValue: patch.oldValue, newValue: patch.newValue },
+        patch: { oldValue: patch.oldValue, newValue: patch.newValue, edits: patch.edits, quoteResolution: patch.quoteResolution ?? null },
         forceHandReview,
         decision: decisions[id]?.decision ?? null,
       });
@@ -635,6 +924,47 @@ for (const [bookKey, list] of recordsByBook) {
 // Deferred (master-only) list - a later PR's work per the plan's follow-up
 // document, not part of this ledger's bucket A-E disposition.
 writeFileSync(path.join(OUT_DIR, "deferred-master-only.json"), JSON.stringify(deferredMasterOnly, null, 2) + "\n", "utf8");
+
+// The two owner-side quote findings, as Markdown to paste into
+// FOLLOW-UP-RECONCILIATION.md. Both are lists of decisions only the author can
+// make; nothing here is a repo change, and nothing here is applied.
+{
+  const lines = [
+    "# Word back-port: footnotes whose quotation does not balance",
+    "",
+    `${masterMalformedQuotes.length} footnotes where the master and the repo differ in **nothing but quote characters**.`,
+    "A footnote is a self-contained string, so its quotation has to balance inside it - these do not,",
+    "and the repo already has them right. Nothing to restore; the fix is in Word.",
+    "",
+  ];
+  for (const q of masterMalformedQuotes) {
+    lines.push(`### ${q.id}`, "");
+    lines.push(`- refused: ${mdEscape(q.reason)}${q.position != null ? ` (at character ${q.position})` : ""}`);
+    lines.push(`- master: ${mdEscape(q.master)}`);
+    lines.push(`- repo:   ${mdEscape(q.repo)}`);
+    lines.push("");
+  }
+  writeFileSync(path.join(OUT_DIR, "word-backport-quotes.md"), lines.join("\n"), "utf8");
+}
+{
+  const lines = [
+    "# Cross-verse quotation boundaries",
+    "",
+    `${crossVerseQuoteBoundaries.length} verses where the two sides differ in **nothing but quote characters** and the`,
+    "quotation's other end sits in a different verse. Unlike the footnotes above, these run BOTH ways -",
+    "John 12:31-32 quotes the speech in Word and not at all in the repo, while Matthew 9:22 closes it in",
+    "the repo and not in Word - so neither side can be taken as right by rule. Each needs a decision about",
+    "where the quotation opens and closes; the repo side is then edited to match, and Word if it is wrong.",
+    "",
+  ];
+  for (const q of crossVerseQuoteBoundaries) {
+    lines.push(`### ${q.id}`, "");
+    lines.push(`- master: ${mdEscape(q.master)}`);
+    lines.push(`- repo:   ${mdEscape(q.repo)}`);
+    lines.push("");
+  }
+  writeFileSync(path.join(OUT_DIR, "cross-verse-quote-boundaries.md"), lines.join("\n"), "utf8");
+}
 
 // INDEX.md: per-book x per-bucket counts.
 {
