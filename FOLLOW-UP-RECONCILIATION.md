@@ -55,6 +55,23 @@ counterpart, lands in bucket D and carries no patch. Applying fn-o alone split
 the pair. `scripts/reconcile/check-bracket-twins.mjs` exists because of that,
 and now enforces the rule CLAUDE.md states but nothing checked.
 
+### The closing tags those two PRs cost (repaired 2026-08-16)
+
+Both restores dropped a closing block tag from paragraphs whose LAST verse they
+rewrote — 28 from the verse restore and 31 more from the hand review, 59 in all
+across 43 files. The corpus had none before them.
+
+The last verse in a paragraph owns the string to its end, closing tags included,
+and the Word master carries no markup at all, so rebuilding that span wrote
+content where `</p>` used to be. Nothing reported it: a browser closes a
+dangling `<p>` at the next block element, so the page looks very nearly right.
+
+Repaired by `scripts/reconcile/repair-unclosed-paragraphs.mjs`, which infers the
+missing tags from the string's own unclosed openers and then checks that
+inference against the pre-damage revision in git — all 59 reproduce the ending
+they had. `build-ledger.mjs` no longer produces it and `apply.mjs` now refuses a
+write that changes any paragraph's block-tag balance.
+
 ## 0. The dash convention — one decision, corpus-wide
 
 Not a defect, and **not something the restore should decide record by record**,
@@ -135,23 +152,127 @@ mix both, so matching Word here would fail the build.
 **This class regenerates on every future import.** The durable fix belongs in
 whatever converts a `.docx` into chapter JSON, not in another cleanup pass.
 
-## 5. Held for hand review (126 of bucket A)
+## 5. Bucket A — 72 records now waiting on you
 
-Import-era damage that is real but could not be repaired mechanically:
+These are import-era differences that could not be repaired mechanically. Until
+2026-08-16 all 126 of them were **held**, and 108 of those could not even be
+opened in the review tool: `curlify()` refuses master text whose quotation does
+not balance, and a refused record carried no `newValue`, so there was nothing
+for the tool to diff.
 
-| reason | count | why it stopped |
+That is fixed. `lib/quote-compose.mjs` composes a restore instead of converting
+one — quote characters and markup stay the repo's, words come from the master —
+so **bucket A went from 18 reviewable records to 72**:
+
+```bash
+npm run review:reconcile -- --buckets=A
+```
+
+**They are decisions, not writes.** Applying the 53 clear ones in a single pass
+was tried and thrown away, because six of them imported a defect straight out of
+Word:
+
+| record | what it would have published |
+|---|---|
+| `matthew-11:6` | "Anyone who isn't tripped up by me **is has** reason for gratitude" |
+| `matthew-2` fn-g | "the untrustworthiness of those **group**" |
+| `john-7` fn-a, `romans-1` fn-bb | each loses a sentence-final period |
+| `mark-11` fn-h | "'divine'**and** referred" — and this one was missed by the scan that found the others |
+
+Six is a floor, not a count. The scan is a handful of regexes and several
+under-report; the real number is unknown. Which fits the only evidence there is
+about how this set behaves under a person: the hand review above decided 99
+comparable records and **kept the repo's own text in 34 of them**.
+
+### The 51 that stay held
+
+| reason | count | why it stops |
 |---|---|---|
-| quote-ambiguous | ~100 | a quotation opens and never closes inside the string, so the converter cannot tell which way a mark should curl without reading the sentence |
-| bracketed chapter | 23 | `mark-16`, `john-7`, `john-8`, `john-9`, `john-11`, `romans-16` — the paired `[\|`/`\|]` footnotes are byte-identical by design and must be edited together |
-| verse continuation | 9 | the verse runs past its paragraph with no marker of its own, so it is not a single JSON string to replace |
-| footnote-reference count differs | 10 | the master and repo disagree on how many notes the verse carries, so restoring would add or drop an anchor |
-| hyperlink / multi-paragraph note | 4 | structure the master extractor cannot produce |
+| cross-verse quotation boundary | 16 | the two sides differ in nothing but quote characters, and the quotation's other end sits in a different verse — section 9 |
+| footnote-reference count differs | 14 | the two sides disagree on how many notes the verse carries, so restoring would add or drop an anchor |
+| would introduce a wrong-direction quote pair | 5 | the master's wording is wanted but arrives with `‘lord”`; taking it imports the defect section 10 exists to fix |
+| square brackets into scripture | 4 | John 11's master reads `[Miriam]` and `come to […] Miriam` |
+| verse-boundary disagreement | 4 | John 8:19–20 and 25–26; see below |
+| hyperlink in the footnote | 3 | structure the master extractor cannot produce |
+| doubled word / truncated master / mis-wrapped verse / blockquote continuation / multi-paragraph note | 5 | one each |
 
-The 10 anchor-count cases are worth a look regardless of the restore:
-`1corinthians-3:5`, `1corinthians-14:33`, `2corinthians-4:4`, `2peter-1:9`,
-`james-2:1`, `james-2:13`, `john-8:40`, `mark-6:50`, `matthew-6:2`,
-`matthew-11:8`. Each is a genuine editorial difference about how many notes a
-verse should have.
+The 14 anchor-count cases are worth a look regardless of the restore:
+`1corinthians-3:5`, `2corinthians-4:4`, `2peter-1:1`, `2peter-1:9`,
+`hebrews-10:5`, `james-2:1`, `james-2:13`, `john-8:39`, `john-8:40`, `luke-3:4`,
+`luke-7:22`, `mark-6:50`, `matthew-6:2`, `matthew-8:9`, `matthew-11:8`.
+
+### John 8:19–20 and 25–26 — a versification difference
+
+The master ends verse 19 one sentence later than the repo does, and the same at
+25. Both sides carry the same words and disagree about where the verse breaks.
+Restoring would have moved a sentence between two verses and silently
+invalidated every `#v19` deep link, alignment record and search result for the
+pair.
+
+This is the one finding in the whole reconciliation where the two sides disagree
+about the **shape** of the text rather than its wording, and it is unsurprising
+where it turned up: John 8 is where LIT keeps the pericope adulterae that SBLGNT
+omits, so the two sides are numbering around a passage they disagree about
+carrying at all.
+
+## 9. Cross-verse quotation boundaries — 16 verses, your call
+
+These differ from the master in **nothing but quote characters**, and the
+quotation's other end sits in a different verse. They run both ways, so no rule
+settles them:
+
+- **John 12:31–32** — Word quotes the speech; the repo does not mark it at all.
+- **Matthew 9:22** — the repo closes the quotation at `restored you.”`; Word
+  leaves it open.
+- **Luke 1:55, 68, 79** — the Magnificat and Benedictus, where Word closes a
+  song the repo leaves running.
+
+Each needs one decision about where the quotation opens and closes. The full
+list with both texts is written to `out/cross-verse-quote-boundaries.md`.
+
+## 10. Word back-port: footnotes whose quotation does not balance (22)
+
+A footnote is a self-contained string, so its quotation has to balance inside
+it. In 22 of them the master's does not and the repo's does — usually a
+wrong-direction pair (`“triumphant message’` for `“triumphant message”` in
+`1corinthians-9` fn-i, `1corinthians-15` fn-b, `mark-13` fn-i and `mark-16`
+fn-h, all four the same shared note), sometimes a missing closer
+(`‘right hand of the Majesty)` in `hebrews-1` fn-e). One is not a quote at all:
+`matthew-2` fn-d reads `its saying` in Word where the repo has `it’s saying`.
+
+**Nothing to restore here** — the repo is already right, and the composer
+settles these without a patch. The full list is written to
+`out/word-backport-quotes.md`.
+
+## 11. Word back-port: multi-paragraph footnotes (4)
+
+Found by `node scripts/reconcile/check-master-hygiene.mjs`, which scans the
+masters for defects a diff cannot see. Only one of these ever surfaced as a
+difference; the other three sit in notes whose text matches the repo, so nothing
+would have mentioned them.
+
+| master | repo footnote | fix |
+|---|---|---|
+| 1 Corinthians `w:id=295` (2 blocks) | `1corinthians-10` fn-gg | join — the repo carries it as one run of prose |
+| John `w:id=353` (2 blocks) | `john-12` fn-a | join |
+| Matthew `w:id=794` (2 blocks) | `matthew-28` fn-j | join |
+| 1 Corinthians `w:id=300` (3 blocks) | `1corinthians-11` fn-b | **not a mistake** — this is the chiasm, and its lines are real. Word wants `<w:br/>` line breaks rather than paragraph breaks so it stays one footnote. The repo already renders it as `<div class="chiasm">`, so no repo change either way. |
+
+Replace the paragraph break with a line break (Shift+Enter) in Word.
+
+## 12. Master-side defects found while composing restores
+
+Each is a real error in Word that a restore would otherwise import:
+
+- **`john-7` fn-q** reads `the path laid out in in Torah`.
+- **`john-2` fn-w** is cut off at `This is ‘they trusted the sc`. The repo
+  carries the import's own placeholder here (`This footnote text appears
+  truncated in the source… Verify and complete it before publishing`), so
+  **both sides need this one written**.
+- **`john-11`** reads `[Miriam]` in verses 20, 21 and 24 and `come to […]
+  Miriam` in verse 19 — in-progress editorial marks rather than punctuation.
+- **`matthew-11:6`** reads `is has reason for gratitude`.
+- **`matthew-2` fn-g** reads `the untrustworthiness of those group`.
 
 ## 6. Deferred to a later PR
 
