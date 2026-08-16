@@ -1,24 +1,5 @@
 [
   {
-    "version": "2026-08-15",
-    "date": "2026-08-15",
-    "label": "August 15, 2026",
-    "changes": [
-      {
-        "type": "text_updated",
-        "description": "Scripture text in 165 places across 25 books restored to the translator's manuscripts. Wording that had been shortened or altered when the text was first imported now reads as written."
-      },
-      {
-        "type": "footnote_updated",
-        "description": "749 translation notes restored to their full text. Some had been shortened to a summary, a few had lost their text entirely, and many had picked up punctuation the translator did not write."
-      },
-      {
-        "type": "footnote_updated",
-        "description": "Transliterated Greek in the notes now carries its long vowels again, so words such as dokimazo and te aletheia read as dokimazō and tē alētheia."
-      }
-    ]
-  },
-  {
     "version": "2026-08-13",
     "date": "2026-08-13",
     "label": "August 13, 2026",
