@@ -43,6 +43,14 @@ Nothing here is a defect. It is a list of what to type back into the masters so
 the two sides stop diverging. Per-record text is in `out/books/<book>.md` under
 "Bucket B".
 
+**Plus one that is not in that count.** Luke 19:48 changed on `main` on
+2026-08-13, after the masters were captured and after this branch was cut, so
+the ledger never saw it: "because all the people hung on his words" became
+"because the entire people hung on his words" (PR #117, `5108399`). Back-port it
+with the other 58. Anything else that lands on `main` before this PR merges is in
+the same position — compare `main` against the capture date rather than assuming
+this list is closed.
+
 ## 2. April–July work — your call, one at a time (95)
 
 88 footnotes, 7 verses. These differ from the masters and settled between
