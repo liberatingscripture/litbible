@@ -232,6 +232,31 @@ Judgment runs both ways, which is why it cannot be automated: the repo has a
 typo in `1corinthians-10-fn-ee` (`arazeloo` for `parazeloo`) and the master has
 one in `1corinthians-2-fn-q` (`Life-breah` for `Life-breath`).
 
+**Runs of spans are classified too, not just single spans.** Word keeps its own
+run boundaries, and they rarely match a word: `soter` arrives as five separate
+`<em>` pairs, one per letter, and `hesed</em>,` as `hesed,</em>`. Rebuilding a
+verse moves its first word inside the `vglue` span, which five verses in the
+corpus close before the word instead. Each of those produces a cluster of spans
+that individually look like wording changes and together change no letter. So
+consecutive `judgment` spans are re-checked as a group, shortest group first,
+and a group whose two sides carry identical visible text takes the kind the
+concatenation earns. That retired 70 of 366 false questions. Two guards keep it
+honest: only `judgment` spans are eligible, so a macron fix beside a markup move
+keeps its own default; and the sides are concatenated **in order** with the
+untouched text between them included, so a genuine transposition does not
+cancel. It leaves real finds standing — `matthew-21-fn-l` spells the same Greek
+word `hypsistois` once and `hupsistos` four times, and that stayed a question.
+
+**Records that are wholesale rewrites open as a whole-version comparison.**
+Per-span is the right question for a note with three spot edits and the wrong
+one for `matthew-12-fn-z`, which differs in 51 places across 92% of its text:
+rendered span by span it is a wall of choosers and neither version can be read
+as a sentence. Five records hold 129 of the 296 questions this way, so they open
+as two readings side by side with one button each, and a toggle down to spans
+for anyone who wants to mix. Taking a version sets only the `judgment` spans —
+`structural` ones keep their own default, so choosing the master can never
+delete authored markup.
+
 Two structural rules it lives inside, the same two as `scripts/alignment-review/`:
 
 1. **The UI is served from the Node process by exact-path allowlist**
