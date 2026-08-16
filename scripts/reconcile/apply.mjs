@@ -57,6 +57,21 @@ const WANT_BOOK = argValue("book", null);
 // record, which is why this reads r.decision rather than the file: the ledger
 // stays the single thing apply.mjs looks at.
 const WANT_DECISION = argValue("decision", null);
+// --ids=<id>,<id> names records explicitly and is the ONLY way past
+// forceHandReview. That flag is set on a whole chapter carrying a bracketed
+// [|/|] passage, which is deliberately coarse: john-11-fn-d is an ordinary
+// footnote held only because its chapter has brackets somewhere else. Naming a
+// record is the reviewer saying they checked that particular one, so every
+// other assertion still applies - a named record with no decision, no patch or
+// a moved baseSha is still refused.
+//
+// It does NOT relieve you of the pair rule. romans-16 fn-o and fn-r are the
+// same note printed at both ends of the doxology and are byte-identical by
+// design; applying one alone splits them. Run check-bracket-twins.mjs after.
+const WANT_IDS = (argValue("ids", "") || "")
+  .split(",")
+  .map((s) => s.trim())
+  .filter(Boolean);
 
 if (!existsSync(LEDGER_PATH)) {
   console.error(`Ledger not found: ${LEDGER_PATH}. Run build-ledger.mjs first.`);
@@ -73,8 +88,10 @@ const decisionsFile = existsSync(DECISIONS_PATH) ? JSON.parse(readFileSync(DECIS
 for (const r of ledger) r.reviewDecision = decisionsFile[r.id];
 const selected = ledger.filter(
   (r) =>
-    (WANT_DECISION == null ? r.bucket === WANT_BUCKET : r.decision === WANT_DECISION) &&
-    !r.forceHandReview &&
+    (WANT_IDS.length
+      ? WANT_IDS.includes(r.id)
+      : (WANT_DECISION == null ? r.bucket === WANT_BUCKET : r.decision === WANT_DECISION) &&
+        !r.forceHandReview) &&
     r.patch?.newValue != null &&
     r.patch?.oldValue != null &&
     Array.isArray(r.jsonPath) &&
@@ -82,6 +99,15 @@ const selected = ledger.filter(
     (WANT_SUBCLASS == null || r.subclass === WANT_SUBCLASS) &&
     (WANT_BOOK == null || r.bookKey === WANT_BOOK),
 );
+
+if (WANT_IDS.length) {
+  const missing = WANT_IDS.filter((id) => !selected.some((r) => r.id === id));
+  if (missing.length) {
+    console.error(`Named record(s) not applicable: ${missing.join(", ")}`);
+    console.error("They are absent from the ledger, or carry no patch to write.");
+    process.exit(1);
+  }
+}
 
 if (selected.length === 0) {
   console.error("No records matched the given filters. Nothing to do.");
