@@ -80,6 +80,54 @@ export function locateVerseSpanInParagraphs(paragraphs, verseNum) {
 
 const OPEN_TAG_RE = /^<[a-z][^>]*>/i;
 const TRAILING_CLOSE_RE = /(?:<\/[a-z][^>]*>)+$/i;
+const TRAILING_SPACE_RE = /\s+$/;
+
+/**
+ * Split the whitespace that SEPARATES this verse from the next off the end of
+ * its span, so a restore can only ever rewrite the verse's own content.
+ *
+ * locateVerseSpanInParagraphs ends a verse at the next verse's marker, so for
+ * every verse but the last in a paragraph the span includes the single space
+ * standing between `…sheep.` and `<span class="vglue">`. The Word master
+ * carries no such space - it has no marker to separate from - so composing a
+ * restore from master text drops it, and the page then renders `sheep.12 The`
+ * with the verse number glued to the previous sentence. Nothing catches it:
+ * `sup.vn` is `inline-block` and no CSS supplies the gap, so the separator has
+ * to be in the text, and the corpus agrees 4,159 to 3.
+ *
+ * This is the same defect as the lost `</p>` that splitTrailingBlockClose
+ * exists for, one level down, and it shipped the same way - 117 markers across
+ * the two restore PRs before anything looked.
+ *
+ * Apply AFTER splitTrailingBlockClose and re-append in span order
+ * (`content + sep + close`), since a span can end either `text ` or `text </p>`.
+ */
+export function splitTrailingSeparator(span) {
+  const s = String(span ?? "");
+  const sep = TRAILING_SPACE_RE.exec(s)?.[0] ?? "";
+  return { body: sep ? s.slice(0, -sep.length) : s, sep };
+}
+
+/**
+ * Every verse marker in `paragraphs` that no whitespace separates from what
+ * precedes it. A marker that OPENS its own block is excluded - it is preceded
+ * by the block's opening tag and needs no separator.
+ * @returns {Array<{paragraphIndex:number, verse:number, before:string}>}
+ */
+export function findUnseparatedVerseMarkers(paragraphs) {
+  const hits = [];
+  for (let pi = 0; pi < (paragraphs?.length ?? 0); pi++) {
+    const p = String(paragraphs[pi] ?? "");
+    VGLUE_MARKER_RE.lastIndex = 0;
+    let m;
+    while ((m = VGLUE_MARKER_RE.exec(p))) {
+      const before = p.slice(0, m.index);
+      if (before === "" || /\s$/.test(before) || /<[a-z][^>]*>$/i.test(before)) continue;
+      hits.push({ paragraphIndex: pi, verse: Number(m[1]), before: before.slice(-40) });
+    }
+  }
+  return hits;
+}
 
 
 /**

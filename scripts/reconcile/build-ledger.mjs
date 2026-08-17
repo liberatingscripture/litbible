@@ -63,6 +63,7 @@ import {
   findVerseMarkers,
   splitComposedAtParagraphSeam,
   splitTrailingBlockClose,
+  splitTrailingSeparator,
 } from "./lib/verse-span.mjs";
 import { REF_MARK } from "./lib/docx-verses.mjs";
 import { curlify, auditWrongDirectionPairs } from "./lib/curl-quotes.mjs";
@@ -289,8 +290,16 @@ function buildVersePatch(paragraphs, verseNum, curlifiedMasterHtml, rawMasterHtm
   // because a browser silently closes a `<p>` at the next block element.
   // Splitting the closing run off and re-appending it verbatim means the
   // restore can only ever rewrite the paragraph's CONTENT.
+  //
+  // The same argument applies to the single space standing between this verse
+  // and the next one's marker: it is inside this span (the span ends AT that
+  // marker) and the master has nothing corresponding to it, so composing from
+  // master text drops it and the verse number renders glued to the previous
+  // sentence. Peel it off with the closing tags and re-append both in span
+  // order - see splitTrailingSeparator.
   const oldSpan = para.slice(loc.start, loc.end);
-  const { body: oldBody, close: closeRun } = splitTrailingBlockClose(oldSpan);
+  const { body: withoutClose, close: closeRun } = splitTrailingBlockClose(oldSpan);
+  const { body: oldBody, sep: sepRun } = splitTrailingSeparator(withoutClose);
   const anchored = restoreAnchors(source, oldBody);
   if (!anchored.ok) return { jsonPath, oldValue: para, newValue: null, reason: anchored.reason };
   const wrapped = wrapFirstWordInVglue(verseNum, anchored.html);
@@ -309,7 +318,7 @@ function buildVersePatch(paragraphs, verseNum, curlifiedMasterHtml, rawMasterHtm
     return { jsonPath, oldValue: para, newValue: null, reason: null, quoteResolution: c.quoteResolution };
   }
 
-  const newParagraph = para.slice(0, loc.start) + c.content + closeRun + para.slice(loc.end);
+  const newParagraph = para.slice(0, loc.start) + c.content + sepRun + closeRun + para.slice(loc.end);
   return { jsonPath, oldValue: para, newValue: newParagraph, reason: null, quoteResolution: c.quoteResolution };
 }
 
