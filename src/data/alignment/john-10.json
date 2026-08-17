@@ -43,26 +43,6 @@
       "status": "confirmed"
     },
     {
-      "ref": "John.10.11",
-      "english": [
-        {
-          "text": "selfless",
-          "n": 2
-        }
-      ],
-      "greek": [],
-      "term": {
-        "greek": "kalos",
-        "traditional": "Good [1]",
-        "glossary": "good-admirable",
-        "form": "selfless"
-      },
-      "confidence": null,
-      "lemma": "present",
-      "source": "review",
-      "status": "confirmed"
-    },
-    {
       "ref": "John.10.12",
       "english": [
         {
