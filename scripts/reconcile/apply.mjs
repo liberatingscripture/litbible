@@ -35,6 +35,7 @@ import { createHash } from "node:crypto";
 
 import { spliceValue } from "./lib/json-splice.mjs";
 import { blockDelta } from "./lib/block-structure.mjs";
+import { findUnseparatedVerseMarkers } from "./lib/verse-span.mjs";
 
 const sha16 = (v) => createHash("sha256").update(v, "utf8").digest("hex").slice(0, 16);
 
@@ -275,6 +276,17 @@ function blockBalance(parsed) {
     .join(",");
 }
 
+// Verse markers with nothing separating them from the preceding text. The
+// master has no separator to contribute (it has no marker to separate from),
+// so a restore composed from master text silently eats the repo's - see
+// splitTrailingSeparator. Same failure class as blockBalance, and it shipped
+// undetected for the same reason: the page still renders, just wrong.
+function unseparatedMarkers(parsed) {
+  return findUnseparatedVerseMarkers(parsed.paragraphs || [])
+    .map((h) => `${h.paragraphIndex}:v${h.verse}`)
+    .join(" ");
+}
+
 function structuralFingerprint(parsed) {
   return {
     topLevelKeys: Object.keys(parsed).join(","),
@@ -283,6 +295,7 @@ function structuralFingerprint(parsed) {
     anchors: anchorIds(parsed).join(" "),
     footnotes: footnoteTriples(parsed).join(" "),
     blockBalance: blockBalance(parsed),
+    unseparatedMarkers: unseparatedMarkers(parsed),
     indexed: `${Object.hasOwn(parsed, "indexed")}:${JSON.stringify(parsed.indexed)}`,
   };
 }
@@ -307,6 +320,18 @@ function compareFingerprints(before, after) {
       const moved = a.map((v, i) => (v === b[i] ? null : `paragraphs[${i}] ${b[i]} -> ${v}`)).filter(Boolean);
       problems.push(
         `block-tag balance changed (${moved.join("; ")}) - a restore rebuilt from master text has taken a paragraph's own closing tag with it`,
+      );
+      continue;
+    }
+    if (key === "unseparatedMarkers") {
+      const b = new Set(before[key].split(" ").filter(Boolean));
+      const gained = after[key].split(" ").filter(Boolean).filter((x) => !b.has(x));
+      if (gained.length === 0) continue; // only lost some - a repair, not damage
+      problems.push(
+        `verse marker(s) lost the whitespace separating them from the preceding text (${gained.join(", ")}) ` +
+          `- the number would render glued to the previous sentence; no CSS supplies that gap. ` +
+          `A decision made in the review tool BEFORE splitTrailingSeparator landed has the loss baked into its ` +
+          `resolvedValue, so re-review the record or run repair-verse-separators.mjs after applying it`,
       );
       continue;
     }

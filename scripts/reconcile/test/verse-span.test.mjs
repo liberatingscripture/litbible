@@ -5,7 +5,9 @@ import {
   findVerseMarkers,
   locateVerseSpanInParagraphs,
   splitTrailingBlockClose,
+  splitTrailingSeparator,
   splitComposedAtParagraphSeam,
+  findUnseparatedVerseMarkers,
 } from "../lib/verse-span.mjs";
 import { missingClosers } from "../lib/block-structure.mjs";
 
@@ -81,4 +83,67 @@ test("missingClosers names exactly the tags a truncated paragraph lost", () => {
 test("missingClosers declines mis-nested markup rather than guessing", () => {
   assert.equal(missingClosers("<p>a</blockquote>"), null);
   assert.equal(missingClosers("</p>"), null);
+});
+
+// The separator between one verse and the next lives INSIDE the earlier
+// verse's span, because that span ends at the next verse's marker. The master
+// has no separator to contribute, so a restore that does not split it off
+// eats it - 135 markers across the two restore PRs did exactly that.
+
+test("a verse's span includes the space separating it from the next marker", () => {
+  const paras = [`<p id="x-p1">${vglue(1, "One")} word. ${vglue(2, "Two")} words.</p>`];
+  const loc = locateVerseSpanInParagraphs(paras, 1);
+  const span = paras[0].slice(loc.start, loc.end);
+  assert.ok(span.endsWith(" "), "the span really does end with the separator");
+  const { body, sep } = splitTrailingSeparator(span);
+  assert.equal(sep, " ");
+  assert.equal(body + sep, span, "recomposing is lossless");
+});
+
+test("the two splitters divide the work: closing tags take their own whitespace", () => {
+  // A LAST verse never leaked, because splitTrailingBlockClose's match already
+  // reaches back over the whitespace before the tag. Only a verse followed by
+  // another marker in the same paragraph ends in bare whitespace, and that is
+  // the case splitTrailingSeparator exists for.
+  const last = "text. </p>";
+  const { body: lastBody, close } = splitTrailingBlockClose(last);
+  assert.equal(close, " </p>", "the closer carries the whitespace with it");
+  assert.deepEqual(splitTrailingSeparator(lastBody), { body: "text.", sep: "" }, "nothing left to peel");
+  assert.equal(lastBody + close, last, "recomposing is lossless");
+
+  const middle = "text. ";
+  const { body: midBody, close: midClose } = splitTrailingBlockClose(middle);
+  assert.equal(midClose, "", "no closing tag to find");
+  const { body, sep } = splitTrailingSeparator(midBody);
+  assert.equal(body, "text.");
+  assert.equal(sep, " ");
+  assert.equal(body + sep + midClose, middle, "content + sep + close rebuilds the span");
+});
+
+test("splitTrailingSeparator is a no-op when there is nothing to peel", () => {
+  assert.deepEqual(splitTrailingSeparator("text."), { body: "text.", sep: "" });
+  assert.deepEqual(splitTrailingSeparator(""), { body: "", sep: "" });
+  assert.deepEqual(splitTrailingSeparator(null), { body: "", sep: "" });
+});
+
+test("findUnseparatedVerseMarkers flags a marker welded to the previous sentence", () => {
+  const paras = [`<p id="x-p1">${vglue(1, "One")} word.${vglue(2, "Two")} words.</p>`];
+  const hits = findUnseparatedVerseMarkers(paras);
+  assert.equal(hits.length, 1);
+  assert.equal(hits[0].verse, 2);
+  assert.equal(hits[0].paragraphIndex, 0);
+});
+
+test("findUnseparatedVerseMarkers accepts a marker that opens its own block", () => {
+  const paras = [
+    `<p id="x-p1">${vglue(1, "One")} word.</p>`,
+    `<blockquote id="x-p2" class="hbq"><p class="hbq-line">${vglue(2, "Two")} words.</p></blockquote>`,
+  ];
+  assert.deepEqual(findUnseparatedVerseMarkers(paras), [], "an opening tag is separator enough");
+});
+
+test("findUnseparatedVerseMarkers tolerates empty and missing input", () => {
+  assert.deepEqual(findUnseparatedVerseMarkers([]), []);
+  assert.deepEqual(findUnseparatedVerseMarkers(undefined), []);
+  assert.deepEqual(findUnseparatedVerseMarkers([""]), []);
 });
