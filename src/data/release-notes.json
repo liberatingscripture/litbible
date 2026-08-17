@@ -1,20 +1,5 @@
 [
   {
-    "version": "2026-08-16",
-    "date": "2026-08-16",
-    "label": "August 16, 2026",
-    "changes": [
-      {
-        "type": "text_updated",
-        "description": "Wording restored from the translation masters in 29 chapters"
-      },
-      {
-        "type": "text_updated",
-        "description": "Verse numbers no longer run into the preceding sentence in 135 places"
-      }
-    ]
-  },
-  {
     "version": "2026-08-13",
     "date": "2026-08-13",
     "label": "August 13, 2026",
