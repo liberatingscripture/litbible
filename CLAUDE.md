@@ -1211,6 +1211,25 @@ Four things about them that are not guessable and cost real time to rediscover:
    `build-ledger.mjs` holds the closing run back, `apply.mjs` refuses a write
    that changes any paragraph's balance, and
    `repair-unclosed-paragraphs.mjs` fixed what shipped.
+6. **A verse's span also holds the space separating it from the NEXT verse's
+   marker**, since the span ends *at* that marker. Same shape as 5 and it
+   shipped the same way: the master has no separator to contribute, so 135
+   markers ended up welded to the preceding sentence (`sheep.12 The`). Nothing
+   caught it — `sup.vn` is `inline-block` and no CSS supplies the gap, so the
+   separator has to be in the text; the corpus votes 4,159 to 3.
+   `splitTrailingSeparator` in `lib/verse-span.mjs` peels it,
+   `findUnseparatedVerseMarkers` backstops `apply.mjs`, and
+   `repair-verse-separators.mjs` fixed what shipped — repairing only where the
+   pre-restore revision shows a separator, so the author's own unseparated
+   markers stay untouched. **Note the interaction with the review tool:** a
+   decision made before this landed has the loss baked into its
+   `resolvedValue`, which `apply.mjs` writes in preference to the ledger's
+   patch, so such a record needs the repair script run after it.
+7. **A restore can flatten markup in the MIDDLE of a span too**, and that one is
+   not yet guarded. 13 `<p class="hbq-line">` breaks and one `<br>` were lost
+   this way — the Benedictus, Luke's woes, Matthew 13 — turning set poetry into
+   running prose. Block balance does not see it, because the opener and its
+   closer go together. See `FOLLOW-UP-RECONCILIATION.md` §13.
 
 **Bucket A is evidence, not proof, and the held records are the worst place to
 forget that.** "This text settled during the import window" is good reason to
@@ -1342,7 +1361,9 @@ only 1:1–4; Luke's stops mid-21:38).
 | `scripts/reconcile/lib/block-structure.mjs` | The one block-tag rule the restore pipeline shares — read it before touching how a paragraph's closing markup is handled |
 | `scripts/reconcile/lib/quote-compose.mjs` | Composes a restore when `curlify()` refuses the master's quotes, under two gates |
 | `scripts/reconcile/lib/restore-guards.mjs` | The shapes a machine must not settle (verse-boundary moves, editorial brackets, doubled words, a truncated master) |
+| `scripts/reconcile/lib/verse-span.mjs` | Where a verse begins and ends in `paragraphs[]`, and what a restore must hold back from either end of that span |
 | `scripts/reconcile/check-master-hygiene.mjs` | Read-only master scan for defects a diff cannot see |
+| `scripts/reconcile/repair-verse-separators.mjs` | One-off repair for verse markers an earlier restore welded to the preceding sentence |
 | `pagefind.yml` | Pagefind config for glossary/article indexing (excludes footnote refs) |
 | `public/_headers` | Security + caching headers; also RFC 8288 `Link` headers for agent discovery (Cloudflare Pages) |
 | `public/.well-known/api-catalog` | RFC 9727/9264 `linkset+json` catalog of the public API |

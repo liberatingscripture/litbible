@@ -3,26 +3,6 @@
   "chapter": 9,
   "records": [
     {
-      "ref": "Mark.9.5",
-      "english": [
-        {
-          "text": "precious",
-          "n": 1
-        }
-      ],
-      "greek": [],
-      "term": {
-        "greek": "kalos",
-        "traditional": "Good [1]",
-        "glossary": "good-admirable",
-        "form": "precious"
-      },
-      "confidence": null,
-      "lemma": "present",
-      "source": "review",
-      "status": "confirmed"
-    },
-    {
       "ref": "Mark.9.9",
       "english": [
         {

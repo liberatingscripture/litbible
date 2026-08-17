@@ -152,7 +152,20 @@ mix both, so matching Word here would fail the build.
 **This class regenerates on every future import.** The durable fix belongs in
 whatever converts a `.docx` into chapter JSON, not in another cleanup pass.
 
-## 5. Bucket A — 72 records now waiting on you
+## 5. Bucket A — reviewed 2026-08-16, 42 applied
+
+**Status: the 68 reviewable records were decided by hand — 58 approved, 10
+rejected.** 42 of the approvals applied cleanly. The other 16 carry a
+`forceHandReview` hold, which `apply.mjs` will only write when each is named
+explicitly with `--ids=`; they are listed at the end of this section.
+
+The 10 rejected records kept the repo's own text: `matthew-2-v5`,
+`matthew-2-fn-g`, `matthew-11-v6`, `matthew-15-fn-v`, `mark-11-fn-h`,
+`john-7-fn-a`, `john-7-fn-v`, `john-11-v20`, `john-11-v24`, `1peter-2-fn-z` —
+several of them the master-side defects in §12, caught in review exactly as
+that section predicted.
+
+The background below is kept because it explains what the records are.
 
 These are import-era differences that could not be repaired mechanically. Until
 2026-08-16 all 126 of them were **held**, and 108 of those could not even be
@@ -183,6 +196,26 @@ Six is a floor, not a count. The scan is a handful of regexes and several
 under-report; the real number is unknown. Which fits the only evidence there is
 about how this set behaves under a person: the hand review above decided 99
 comparable records and **kept the repo's own text in 34 of them**.
+
+### The 16 approved in review but still held by `apply.mjs`
+
+The review tool shows held records with their hold reason and lets them be
+answered; `apply.mjs` will not write one unless it is named. These were approved
+on 2026-08-16 and are **not applied**:
+
+| records | hold |
+|---|---|
+| `john-8-v19`, `-v20`, `-v25`, `-v26` | the versification difference below — approving these adopts the master's verse boundaries, which moves a sentence between two verses |
+| `matthew-18-v22`, `matthew-20-v13`, `mark-5-v28`, `john-12-v31`, `romans-3-v4` | cross-verse quotation boundary (§9) |
+| `john-11-v19`, `john-11-v21` | would write `[Miriam]` into scripture text |
+| `1corinthians-14-fn-z`, `-fn-ee` | hyperlink in the footnote |
+| `matthew-28-fn-j` | multi-paragraph footnote in the master (§11) |
+| `john-2-fn-w` | truncated in the master; broken on both sides (§12) |
+| `john-7-fn-q` | would import `in in Torah` (§12) |
+
+Six of them — the five cross-verse ones and `1corinthians-14-fn-z` — were
+**seeded automatically** when the tool started, because every hunk in them
+defaulted; they were not necessarily looked at.
 
 ### The 51 that stay held
 
@@ -273,6 +306,42 @@ Each is a real error in Word that a restore would otherwise import:
   Miriam` in verse 19 — in-progress editorial marks rather than punctuation.
 - **`matthew-11:6`** reads `is has reason for gratitude`.
 - **`matthew-2` fn-g** reads `the untrustworthiness of those group`.
+
+## 13. Poetry line breaks flattened by earlier restores — 14 places, needs you
+
+A restore rebuilds a verse's span from master text, and the master has no
+markup. Where the repo set a verse as poetry, the `<p class="hbq-line">` breaks
+inside that span were rebuilt away and the lines ran together as prose. Nothing
+caught it: block balance is unchanged, because the opener and its closer were
+removed as a pair.
+
+Counted against the last revision before the restores (`2cf906a~1`):
+
+| file | lost |
+|---|---|
+| `matthew-13` | 6 line breaks |
+| `luke-1` | 4 (the Benedictus) |
+| `luke-6` | 3 (the woes) |
+| `romans-9` | 1 `<br>` |
+
+**Not repaired here, because it is not mechanical.** Luke 6:24 shows why — the
+same restore that flattened its two lines also dropped the opening quotation
+mark:
+
+```
+before  <p class="hbq-line">…“However,</span> there are dire warnings for those who are wealthy</p>
+        <p class="hbq-line">because you have already received your comfort.</p>
+after   …However,</span> there are dire warnings for those who are wealthy because you have
+        already received your comfort.
+```
+
+Re-inserting the breaks means deciding where they fall in wording that has since
+changed, and whether the `“` comes back — both editorial. The pre-restore text
+is in git at `2cf906a~1` for every one of the 14.
+
+`build-ledger.mjs` still produces this. Guarding it means holding interior block
+markup back the way `splitTrailingBlockClose` and `splitTrailingSeparator` hold
+back the ends of a span, which is a larger change than either.
 
 ## 6. Deferred to a later PR
 
