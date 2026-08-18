@@ -150,18 +150,26 @@ function unescapeHtml(str: string): string {
  * Extract the text content of the first matching XML tag within a string.
  * Handles both plain and CDATA-wrapped content. Supports namespaced tags
  * (e.g. "itunes:season", "content:encoded").
+ *
+ * The `(?=[\s/>])` lookahead is load-bearing: it ends the tag NAME, so a tag
+ * whose name is a prefix of another tag's can't match it. Without it,
+ * `<itunes:episode[^>]*>` matches `<itunes:episodeType>` — `[^>]*` happily
+ * swallows the "Type" — and since RedCircle emits episodeType BEFORE episode,
+ * the match opened on the wrong tag and ran to the real `</itunes:episode>`,
+ * returning a blob of intervening XML instead of the episode number.
  */
 function extractTag(xml: string, tag: string): string {
   const escapedTag = tag.replace(':', '\\:');
+  const openTag = `<${escapedTag}(?=[\\s/>])[^>]*>`;
   const cdataRe = new RegExp(
-    `<${escapedTag}[^>]*><!\\[CDATA\\[([\\s\\S]*?)\\]\\]><\\/${escapedTag}>`,
+    `${openTag}<!\\[CDATA\\[([\\s\\S]*?)\\]\\]><\\/${escapedTag}>`,
     'i'
   );
   const cdataMatch = cdataRe.exec(xml);
   if (cdataMatch) return cdataMatch[1];
 
   const plainRe = new RegExp(
-    `<${escapedTag}[^>]*>([\\s\\S]*?)<\\/${escapedTag}>`,
+    `${openTag}([\\s\\S]*?)<\\/${escapedTag}>`,
     'i'
   );
   const plainMatch = plainRe.exec(xml);
