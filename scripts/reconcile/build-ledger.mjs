@@ -68,6 +68,7 @@ import {
 import { REF_MARK } from "./lib/docx-verses.mjs";
 import { curlify, auditWrongDirectionPairs } from "./lib/curl-quotes.mjs";
 import { composeRestore } from "./lib/quote-compose.mjs";
+import { restoreLinkAttributes } from "./lib/link-restore.mjs";
 import { verseBoundaryDisagreement, suspectRestore } from "./lib/restore-guards.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -300,7 +301,9 @@ function buildVersePatch(paragraphs, verseNum, curlifiedMasterHtml, rawMasterHtm
   const oldSpan = para.slice(loc.start, loc.end);
   const { body: withoutClose, close: closeRun } = splitTrailingBlockClose(oldSpan);
   const { body: oldBody, sep: sepRun } = splitTrailingSeparator(withoutClose);
-  const anchored = restoreAnchors(source, oldBody);
+  const linked = restoreLinkAttributes(source, oldBody);
+  if (!linked.ok) return { jsonPath, oldValue: para, newValue: null, reason: linked.reason };
+  const anchored = restoreAnchors(linked.html, oldBody);
   if (!anchored.ok) return { jsonPath, oldValue: para, newValue: null, reason: anchored.reason };
   const wrapped = wrapFirstWordInVglue(verseNum, anchored.html);
   if (wrapped === null) {
@@ -357,7 +360,9 @@ function buildContinuationVersePatch(paragraphs, verseNum, loc, source, curlifie
   }
 
   const repoConcat = headSpan + tailPara;
-  const anchored = restoreAnchors(source, repoConcat);
+  const linked = restoreLinkAttributes(source, repoConcat);
+  if (!linked.ok) return { jsonPath, oldValue: headPara, newValue: null, reason: linked.reason };
+  const anchored = restoreAnchors(linked.html, repoConcat);
   if (!anchored.ok) return { jsonPath, oldValue: headPara, newValue: null, reason: anchored.reason };
   const wrapped = wrapFirstWordInVglue(verseNum, anchored.html);
   if (wrapped === null) {
@@ -411,7 +416,10 @@ function buildFootnotePatch(footnotesArr, refId, curlifiedMasterHtml, rawMasterH
   const source = curlifiedMasterHtml ?? rawMasterHtml;
   if (source == null) return { jsonPath, oldValue, newValue: null, reason: null };
 
-  const c = composeIfRefused(oldValue, source, curlifiedMasterHtml);
+  const linked = restoreLinkAttributes(source, oldValue);
+  if (!linked.ok) return { jsonPath, oldValue, newValue: null, reason: linked.reason };
+
+  const c = composeIfRefused(oldValue, linked.html, curlifiedMasterHtml);
   if (!c.ok) return { jsonPath, oldValue, newValue: null, reason: c.reason };
   if (c.quoteResolution === "repo-quotes-correct") {
     return { jsonPath, oldValue, newValue: null, reason: null, quoteResolution: c.quoteResolution };
