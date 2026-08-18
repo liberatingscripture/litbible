@@ -170,7 +170,12 @@ src/
                      #   / prepareReadParagraph; Study wraps each verse in a
                      #   data-verse span), draft-chapters.mjs (single source
                      #   for indexed:false draft data — used by astro.config.mjs
-                     #   and ReadMenu), fetchPodcastEpisodes.ts,
+                     #   and ReadMenu), fetchPodcastEpisodes.ts +
+                     #   podcast-feed-core.ts (shell/core split: the shell holds
+                     #   the two imports Node can't resolve — the JSON overrides
+                     #   and podcast-feed.xml?raw — so the core stays import-free
+                     #   and `node --test` can reach it via type stripping. Keep
+                     #   the core's TypeScript erasable or the tests go dark),
                      #   lsc-mark.mjs (see The LSC brand mark below)
   pages/             # File-based routes (see Routing below)
   scripts/           # CLIENT-side vanilla JS (chapter-tools, read-mode,
