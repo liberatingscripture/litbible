@@ -1,22 +1,5 @@
 [
   {
-    "version": "2026-08-18",
-    "date": "2026-08-18",
-    "label": "August 18, 2026",
-    "changes": [
-      {
-        "type": "footnote_updated",
-        "description": "1 Corinthians 14:35 — footnote ee updated",
-        "detail": "\"See:\" → \"See the following articles for more information:\"",
-        "location": {
-          "bookKey": "1corinthians",
-          "chapter": 14,
-          "verse": 35
-        }
-      }
-    ]
-  },
-  {
     "version": "2026-08-13",
     "date": "2026-08-13",
     "label": "August 13, 2026",
