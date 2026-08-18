@@ -1,5 +1,20 @@
 [
   {
+    "version": "2026-08-18",
+    "date": "2026-08-18",
+    "label": "August 18, 2026",
+    "changes": [
+      {
+        "type": "text_updated",
+        "description": "Matthew 13:15 - a line of the Isaiah quotation restored"
+      },
+      {
+        "type": "text_updated",
+        "description": "John 8:19-20 and 25-26 - verse boundaries corrected"
+      }
+    ]
+  },
+  {
     "version": "2026-08-13",
     "date": "2026-08-13",
     "label": "August 13, 2026",
