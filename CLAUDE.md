@@ -256,7 +256,8 @@ workers/             # Cloudflare Workers, deployed separately via wrangler (NOT
 | `/release-notes` | `release-notes.astro` | "What's new" |
 | `/apps` | `apps.astro` | Mobile-apps promo page (footer-linked). Body design ported from `BDRhodes/LIT-app-Promo`; section content lives in the `callouts`/`examples`/`seasons` collections; scoped styles in `src/styles/pages/apps.css`; components under `src/components/apps/`. Uses `bg="white"` (near-white surface). |
 | `/app-support` | `app-support.astro` | App support contact form (linked from inside the apps, not the site nav; `/app-support/thanks` is the native-POST fallback success page) |
-| others | `about`, `contact` (+ `contact/thanks`), `courses`, `support`, `privacy`, `unsubscribe`, `found-in-translation-podcast`, `liberating-scripture-collective`, `translation-commitments`, `404` |
+| `/found-in-translation-podcast` | `found-in-translation-podcast.astro` | Podcast page (`/podcast` redirects here). The "All Episodes" list is RSS-driven off the `fetch:podcast` snapshot + `podcastOverrides.json`, but the **"Latest Episodes" YouTube and Apple/Spotify iframes above it are hand-pinned** — the YouTube one currently frames a *playlist* (`videoseries?list=…`). Nothing refreshes them, so they go stale silently when the show moves on; update by hand. A `youtu.be` or `/playlist?list=…` URL can't be framed (`X-Frame-Options`) — only `/embed/…`. |
+| others | `about`, `contact` (+ `contact/thanks`), `courses`, `support`, `privacy`, `unsubscribe`, `liberating-scripture-collective`, `translation-commitments`, `404` |
 
 Redirects (`/read-now`→`/read`, `/podcast`→`/found-in-translation-podcast`) and
 the sitemap filter live in `astro.config.mjs`.
