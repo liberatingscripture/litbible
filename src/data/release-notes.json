@@ -23,6 +23,76 @@
           "chapter": 8,
           "verse": 8
         }
+      },
+      {
+        "type": "text_updated",
+        "description": "John 12:31–32 — text updated",
+        "detail": "v. 31: \"Now\" → \"“Now\"; v. 32: \"me.\" → \"me.”\"",
+        "location": {
+          "bookKey": "john",
+          "chapter": 12,
+          "verse": 31
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Luke 1:46 — text updated",
+        "detail": "\"said, “My\" → \"said: My\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 1,
+          "verse": 46
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Luke 3:4, 6 — text updated",
+        "detail": "v. 4: \"wilderness,‘Prepare\" → \"wilderness,“Prepare\"; v. 6: \"God.\" → \"God.”\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 3,
+          "verse": 4
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Mark 7:8 — text updated",
+        "detail": "\"humans.\" → \"humans.”\"",
+        "location": {
+          "bookKey": "mark",
+          "chapter": 7,
+          "verse": 8
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Matthew 18:22 — text updated",
+        "detail": "\"times!”\" → \"times!\"",
+        "location": {
+          "bookKey": "matthew",
+          "chapter": 18,
+          "verse": 22
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Matthew 20:6–8, 11–12 — text updated",
+        "detail": "v. 6: \"“Then\" → \"Then\"; v. 7: \"“‘You\" → \"‘You\"; v. 8: \"“At\" → \"At\"; v. 11: \"“When\" → \"When\"; v. 12: \"‘and\" → \"‘And\"",
+        "location": {
+          "bookKey": "matthew",
+          "chapter": 20,
+          "verse": 6
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Matthew 5:13 — text updated",
+        "detail": "\"people.”\" → \"people.\"",
+        "location": {
+          "bookKey": "matthew",
+          "chapter": 5,
+          "verse": 13
+        }
       }
     ]
   },
