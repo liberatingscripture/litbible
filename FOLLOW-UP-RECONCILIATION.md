@@ -334,6 +334,12 @@ settles them:
 Each needs one decision about where the quotation opens and closes. The full
 list with both texts is written to `out/cross-verse-quote-boundaries.md`.
 
+**16 is confirmed against a fresh ledger (2026-08-18).** It briefly read 18:
+`hebrews-2-v8` and `hebrews-8-v8` were landing here, but they were not
+quotation-boundary questions at all — they were the duplicated-continuation
+defect, now repaired (§16). Unlike the counts elsewhere in this file, this one
+was never stale.
+
 ## 10. Word back-port: footnotes whose quotation does not balance (22)
 
 A footnote is a self-contained string, so its quotation has to balance inside
@@ -639,3 +645,85 @@ the repo) is not applied here.
 
 All four applied edits passed `validate-chapters`, `verify-bytes --base=main`,
 `audit:alignment` (0 stale), and the full test suite (354/354) before commit.
+
+## 16. Duplicated continuation text in Hebrews 2:8 and 8:8 (repaired 2026-08-18)
+
+Two published verses printed their continuation sentence **twice**. Found while
+investigating §9's list, which the fresh ledger reported as 18 rather than the
+16 recorded there — the two extra entries were not quotation-boundary questions
+at all, and §9's original count was right.
+
+| | repo shipped | should read |
+|---|---|---|
+| `hebrews-2` v8 | the commentary sentence in *both* the poetry blockquote (`arrangement`) and the prose paragraph after it (`coordination`) | once, in the prose paragraph, in the master's `arrangement` wording |
+| `hebrews-8` v8 | the quotation's first three lines flattened into the prose paragraph *and* set as poetry in the blockquote below | once, as poetry; the prose paragraph ends at `flawed by saying,` |
+
+Both entered at `ff34f59` (the bucket-A apply) and both are the same mechanism.
+Verse 8 spans two blocks in each chapter. The applier wrote the master's
+**whole** verse into the *first* block, while the text it duplicates stayed
+where it was in the second — so nothing was deleted and nothing looked wrong to
+any structural check. Block balance is unchanged, the validator passes, and the
+page renders as valid HTML that simply says the same thing twice.
+
+The masters settle both: Hebrews's `document.xml` sets the commentary as its own
+prose paragraph after the poetry line, and ends `by saying,` right before the
+quotation's lines. The repo's block structure already matched; only the
+distribution of text across it was wrong. The owner's approved wording is
+unchanged by the repair — `coordination`/`uncoordinated`/`coordinated` in
+`hebrews-2-p4` moved to `arrangement`/`unarranged`/`arranged`, which is what the
+approved record said and what the applier had written into the blockquote alone.
+Both verses now match their master token for token.
+
+Repaired by byte-level splice (`json-splice.mjs`), not through `apply.mjs` —
+like §14 these were not `decisions.json` records. `verify-bytes --base=main`
+PASS, `validate:chapters` 260/260, `audit:alignment` 0 stale, tests 357/357.
+
+### The detection bug behind it, now fixed
+
+`locateVerseSpanInParagraphs` decided a verse continued into the next paragraph
+by asking whether that paragraph **had no verse marker at all**. Almost no
+continuation paragraph satisfies that: it carries the continued text first and
+then opens a *later* verse in the same string. `hebrews-2-p4` continues v8 and
+then opens v9; `hebrews-8-p3` continues v8 as poetry and then opens v9.
+
+The rule found **122 of the corpus's 208 continuations**. The other 86, across
+54 files, were not merely unhandled — they were silently *mis*-handled, read as
+ordinary single-paragraph verses whose span runs to the end of the string. Any
+restore touching one writes the master's whole verse into the head block. Only
+two were ever actually applied, which is why only two shipped damaged.
+
+The test is now "does the next paragraph **open** with reader-visible text",
+which is what a continuation actually is (`opensWithContinuationText`). The
+bracket markers and footnote anchor that lead a bracketed passage come out
+first, since they belong to the verse whose marker follows them — `john-11-p16`
+opens `[|<sup class="fn-ref">…w…</sup>` and then verse 28, and is not a
+continuation of verse 27. Detection now covers 208 of 208.
+
+**This changes nothing in today's ledger** — none of the 86 currently differs
+from its master, so no record moved bucket, changed patch, or changed hold
+reason (verified by building the ledger with and without the change: identical).
+It is a guard against the next restore, not a re-run of the last one.
+
+Verified by perturbing `hebrews-2` v8 so it differed from the master and
+building the ledger both ways:
+
+| | `patch.newValue` |
+|---|---|
+| before the fix | rewrites the blockquote to end with the duplicated commentary — the shipped defect, reproduced |
+| after the fix | `null` — the record is held, and nothing is written |
+
+That held disposition is the correct one: `splitComposedAtParagraphSeam` refuses
+a tail paragraph carrying its own verse markers, so these route to hand-review
+rather than to a guess. Distributing a restore across a continuation whose tail
+opens a later verse is still not automated, and shouldn't be without a reviewer.
+
+**What this class needs from a human.** Block balance cannot see it, because
+nothing is unbalanced; `verify-bytes` cannot, because only string values moved;
+the validator cannot, because the HTML is well-formed. It is caught by reading
+the rendered verse, or by the scan below. Same lesson as §13 and §14: a restore
+that crosses a paragraph break needs eyes on the output.
+
+A corpus-wide scan for a verse repeating a 6-word run of its own text across
+blocks now reports **0** findings (it reported these 2 before the repair), and
+no other multi-block verse has drifted from its pre-restore revision except
+John 8:19/25, which is §14's intended repair.

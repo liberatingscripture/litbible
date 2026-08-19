@@ -8,7 +8,11 @@
 // Per CLAUDE.md's verse-marker convention, each verse is opened by
 // `<span class="vglue"><sup id="vN" class="vn">N</sup>...` and a verse that
 // spans a paragraph break carries its marker only ONCE, at its start - the
-// continuation paragraph opens with plain text and no marker at all. This
+// continuation paragraph opens with plain text carrying no marker of its own.
+// It does NOT follow that such a paragraph has no marker at all: it usually
+// goes on to open the next verse in the same string, and reading that as
+// "not a continuation" is what let two verses ship printing their
+// continuation sentence twice (see opensWithContinuationText). This
 // module handles the common single-paragraph case fully (returns the exact
 // [start,end) span to replace) and DETECTS but does not attempt to resolve
 // the continuation case - a verse whose content isn't fully contained in one
@@ -19,12 +23,47 @@
 // poetry set in a `<blockquote>`).
 
 import { splitTrailingBlockClose } from "./block-structure.mjs";
+import { stripBracketMarkers } from "../../../src/lib/bracket-markers.mjs";
 
 // Re-exported so build-ledger.mjs takes its whole paragraph vocabulary from
 // one import; the rule itself belongs with the other block-structure rules.
 export { splitTrailingBlockClose };
 
 const VGLUE_MARKER_RE = /<span class="vglue"><sup id="v(\d+)" class="vn">\d+<\/sup>/g;
+
+/**
+ * Does this paragraph OPEN with content belonging to the previous verse?
+ *
+ * This is what makes a paragraph a continuation, and the test cannot be "the
+ * paragraph carries no verse marker": most continuation paragraphs go on to
+ * open a LATER verse in the same string. `hebrews-2-p4` continues verse 8 and
+ * then opens verse 9; `hebrews-8-p3` continues verse 8 as poetry and then
+ * opens verse 9. Asking for a marker-free paragraph found 122 of the corpus's
+ * 208 continuations and missed the other 86 - and a missed one is not merely
+ * unhandled, it is silently MIS-handled: the verse looks single-paragraph, so
+ * a restore writes the master's whole verse into the head block while the
+ * continuation text stays where it was. That is how hebrews-2:8 and
+ * hebrews-8:8 shipped with their continuation sentence printed twice.
+ *
+ * What actually marks a continuation is reader-visible text standing before
+ * the paragraph's first marker. Two things routinely sit there and belong to
+ * the FOLLOWING verse rather than the previous one, so both come out before
+ * the question is asked: a bracketed passage's opening `[|`, and the footnote
+ * anchor that follows it - `john-11-p16` opens
+ * `[|<sup class="fn-ref">…w…</sup>` and then verse 28, which is not a
+ * continuation of verse 27.
+ */
+export function opensWithContinuationText(paragraphHtml) {
+  const markers = findVerseMarkers(paragraphHtml);
+  const lead = markers.length === 0 ? paragraphHtml : paragraphHtml.slice(0, markers[0].start);
+  return (
+    stripBracketMarkers(lead)
+      .replace(/<sup class="fn-ref">[\s\S]*?<\/sup>/g, "")
+      .replace(/<[^>]+>/g, "")
+      .replace(/&nbsp;/g, " ")
+      .trim() !== ""
+  );
+}
 
 /** Every verse marker's verse number and start offset (the `<span
  *  class="vglue">` that opens it) within one paragraph's raw HTML string. */
@@ -51,10 +90,12 @@ export function findVerseMarkers(paragraphHtml) {
  *       continues it markerless.
  *   {found:true, spansMultipleParagraphs:true, paragraphIndices}
  *     - this verse's marker paragraph has no later verse marker of its own,
- *       AND the very next paragraph has NO verse marker at all (a
- *       continuation, per CLAUDE.md) - not auto-locatable as a single
- *       string-value patch; `paragraphIndices` lists the paragraphs a human
- *       reviewer needs to look at, not a resolved span.
+ *       AND the very next paragraph OPENS with this verse's text (a
+ *       continuation, per CLAUDE.md - see opensWithContinuationText, and note
+ *       that such a paragraph usually goes on to open a later verse) - not
+ *       auto-locatable as a single string-value patch; `paragraphIndices`
+ *       lists the paragraphs a human reviewer needs to look at, not a
+ *       resolved span.
  */
 export function locateVerseSpanInParagraphs(paragraphs, verseNum) {
   for (let pi = 0; pi < paragraphs.length; pi++) {
@@ -68,9 +109,11 @@ export function locateVerseSpanInParagraphs(paragraphs, verseNum) {
     }
 
     // Last marker in this paragraph. Check whether the immediately
-    // following paragraph continues this verse without a marker of its own.
+    // following paragraph continues this verse without a marker of its own -
+    // which it does whenever it OPENS with text, whatever markers it carries
+    // later on. See opensWithContinuationText.
     const next = paragraphs[pi + 1];
-    if (next !== undefined && findVerseMarkers(next).length === 0) {
+    if (next !== undefined && opensWithContinuationText(next)) {
       return { found: true, spansMultipleParagraphs: true, paragraphIndices: [pi, pi + 1] };
     }
     return { found: true, spansMultipleParagraphs: false, paragraphIndex: pi, start, end: paragraphs[pi].length };

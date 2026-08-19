@@ -8,6 +8,7 @@ import {
   splitTrailingSeparator,
   splitComposedAtParagraphSeam,
   findUnseparatedVerseMarkers,
+  opensWithContinuationText,
 } from "../lib/verse-span.mjs";
 import { missingClosers } from "../lib/block-structure.mjs";
 
@@ -71,6 +72,44 @@ test("the continuation paragraph carries no marker of its own", () => {
   assert.equal(loc.spansMultipleParagraphs, true);
   assert.deepEqual(loc.paragraphIndices, [0, 1]);
   assert.equal(findVerseMarkers(paras[1]).length, 0);
+});
+
+// A continuation paragraph usually goes on to OPEN a later verse, so "has no
+// verse marker" was never the right test for one. It found 122 of the corpus's
+// 208 continuations, and the other 86 were not merely unhandled but silently
+// mis-handled - the verse read as single-paragraph, so a restore wrote the
+// master's whole verse into the head block and left the continuation text
+// standing in the next one. hebrews-2:8 and hebrews-8:8 shipped that way, each
+// printing its continuation sentence twice.
+test("a continuation paragraph is recognized even when it opens a later verse", () => {
+  const paras = [
+    `<blockquote id="p1" class="hbq"><p class="hbq-line">${vglue(8, "you")} arranged it.”</p></blockquote>`,
+    `<p id="p2">You see, with the arrangement of it. ${vglue(9, "but")} we see Jesus.</p>`,
+  ];
+  const loc = locateVerseSpanInParagraphs(paras, 8);
+  assert.equal(loc.spansMultipleParagraphs, true, "verse 8 continues into p2 ahead of verse 9's marker");
+  assert.deepEqual(loc.paragraphIndices, [0, 1]);
+});
+
+test("a paragraph that opens straight onto its own marker is not a continuation", () => {
+  const paras = [
+    `<p id="p1">${vglue(1, "One")} word.</p>`,
+    `<p id="p2">${vglue(2, "Two")} words.</p>`,
+  ];
+  const loc = locateVerseSpanInParagraphs(paras, 1);
+  assert.equal(loc.spansMultipleParagraphs, false);
+  assert.equal(loc.paragraphIndex, 0);
+});
+
+// A bracketed passage opens `[|` + the footnote anchor explaining it, and both
+// belong to the verse whose marker FOLLOWS them - john-11-p16 opens verse 28,
+// it does not continue verse 27.
+test("a bracket marker and its footnote anchor do not make a paragraph a continuation", () => {
+  const fnref = '<sup class="fn-ref"><a id="fnref-w" href="#fn-w" role="doc-noteref">w</a></sup>';
+  assert.equal(opensWithContinuationText(`<p id="p2">[|${fnref}${vglue(28, "After")} she said this.</p>`), false);
+  assert.equal(opensWithContinuationText(`<p id="p2">She said this. ${vglue(28, "After")} that.</p>`), true);
+  assert.equal(opensWithContinuationText('<p id="p2">plain continuation</p>'), true);
+  assert.equal(opensWithContinuationText('<p id="p2"></p>'), false);
 });
 
 test("missingClosers names exactly the tags a truncated paragraph lost", () => {
