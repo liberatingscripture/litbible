@@ -1,5 +1,32 @@
 [
   {
+    "version": "2026-08-19",
+    "date": "2026-08-19",
+    "label": "August 19, 2026",
+    "changes": [
+      {
+        "type": "text_updated",
+        "description": "Hebrews 2:8 — text updated",
+        "detail": "removed \"You see, with the coordination of everything under him, God left nothing uncoordinated under him. For now, we don’t yet…\"",
+        "location": {
+          "bookKey": "hebrews",
+          "chapter": 2,
+          "verse": 8
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Hebrews 8:8 — text updated",
+        "detail": "removed \"LORD, “When I will complete for the house of Israel And for the house of Judah, a new covenant “Look, days are coming,”…\"",
+        "location": {
+          "bookKey": "hebrews",
+          "chapter": 8,
+          "verse": 8
+        }
+      }
+    ]
+  },
+  {
     "version": "2026-08-18",
     "date": "2026-08-18",
     "label": "August 18, 2026",
