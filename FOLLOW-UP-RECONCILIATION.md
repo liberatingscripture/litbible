@@ -319,7 +319,10 @@ from master text (which carries no paragraph markup of its own) also relocated
 the paragraph break inside it. See §14 for what that broke and how it was
 fixed.
 
-## 9. Cross-verse quotation boundaries — 16 verses, your call
+## 9. Cross-verse quotation boundaries — 16 verses, all settled 2026-08-19
+
+**Resolved.** All sixteen were ruled on by the owner; see the disposition table
+below. The section is kept for the reasoning, which recurs.
 
 These differ from the master in **nothing but quote characters**, and the
 quotation's other end sits in a different verse. They run both ways, so no rule
@@ -339,6 +342,59 @@ list with both texts is written to `out/cross-verse-quote-boundaries.md`.
 quotation-boundary questions at all — they were the duplicated-continuation
 defect, now repaired (§16). Unlike the counts elsewhere in this file, this one
 was never stale.
+
+### The convention that decided most of them
+
+LIT uses the **running multi-paragraph quotation**: inside a continuing speech
+every paragraph re-opens with `“` and only the last one closes. Matthew 5 shows
+it cleanly — ten consecutive paragraphs (vv11, 13, 14, 17, 21, 27, 31, 33, 38,
+43) each open and none closes. So a *closer* belongs only where the speech
+actually ends, and a paragraph-initial *opener* is required wherever one
+continues. That plus "does narration resume here" settles every record.
+
+### Disposition (owner, 2026-08-19)
+
+Nine needed no repo change — the master was edited to match what the repo
+already had — and each is confirmed identical against masters re-downloaded
+2026-08-19.
+
+| verse | outcome |
+|---|---|
+| Matthew 9:22 | master fixed; repo already right (narration resumes inside the verse) |
+| Mark 5:28 | master fixed; repo already right (v29 resumes narration) |
+| John 9:41 | master fixed; repo already right (chapter ends, and John 10:1 opens its own quote) |
+| Romans 3:4 | master fixed; repo already right (v5 resumes Paul's argument) |
+| Luke 1:55, 68, 79 | marks removed in the master; repo already unmarked |
+| Luke 3:4, 3:6 | outer citation marks removed in the master |
+| Matthew 5:13 | repo dropped its closer — the only one in a run of ten paragraphs that all open and never close |
+| Matthew 18:22 | repo dropped its closer — v23 is in the *same paragraph* and continues the speech |
+| Mark 7:8 | repo gained the closer — v9 opens a fresh speech |
+| Luke 1:46 | repo took the master's comma→colon and dropped the opener |
+| Luke 3:4, 3:6 (inner) | the inner quote is promoted to primary now the outer level is gone, and closed at v6 |
+| John 12:31, 12:32 | repo gained the pair — v30's quote had already closed, v33 is the narrator's aside |
+| Matthew 20:1–16 | reformatted to one paragraph, mirroring the master — see below |
+
+**Matthew 20 was a formatting decision, not a punctuation one.** The owner
+reformatted the parable into a single paragraph in Word and updated its marks
+to suit, so the marks only cohere in that form: no intermediate re-openers, one
+`“` at v1 and one `”` at v16. Mirroring it here collapsed seven blocks into
+one, which merges v7's two speech turns into running prose and retires
+`matthew-20-p2` … `-p7` as share anchors. The later blocks deliberately keep
+their ids, so the file runs `p1`, `p8`, `p9` — a cosmetic numbering gap is far
+cheaper than renumbering and breaking every remaining anchor in the chapter.
+
+That merge is the one edit here `verify-bytes` cannot check. It shrinks the
+`paragraphs` array, so `spliceValue` cannot express it and the tool's
+"paragraph count identical" fingerprint fails by design — that assertion is
+right for a *restore*, and a deliberate structural edit is outside its remit.
+Its third finding, "formatting changed outside string values", is an artifact
+of span alignment failing across an array shrink, not a reserialize: the file
+is byte-identical outside a single 1646→1432 byte region (2299 bytes of common
+prefix, 12061 of common suffix, same indentation, same trailing newline). The
+merge script asserts instead that all 34 verse-marker tags and all 24 footnote
+anchors survive in order, that footnotes and every other top-level key are
+untouched, that every later paragraph is byte-identical, and that the result
+opens and closes exactly one `<p>`.
 
 ## 10. Word back-port: footnotes whose quotation does not balance (22)
 
@@ -400,7 +456,20 @@ Each is a real error in Word that a restore would otherwise import:
   the master 2026-08-18** — now reads `those groups`; a quote-style difference
   remains (see §15).
 
-## 13. Poetry line breaks flattened by earlier restores — 14 places, needs you
+## 13. Poetry line breaks flattened by earlier restores — 14 places, all repaired
+
+**Resolved — this section's "needs you" is stale.** All 14 are back on `main`:
+Luke 1's 4 (the Benedictus), Luke 6's 3 (the woes) and Romans 9's one `<br>` in
+`9c26ade` ("Re-break the poetry three restores flattened"), and Matthew 13's 6
+in `30c558a`. Verified by counting `<p class="hbq-line">` in all four files
+against `2cf906a~1`, the last pre-restore revision: every count matches, and
+Matthew 13's traces cleanly 9 → 3 at `4a3cdca` → 9 again at `30c558a`.
+
+The section is kept because the failure mode recurs and the repair is not
+mechanical — `9c26ade`'s own message records the judgment calls it needed
+(Luke 6's woes deliberately did *not* get their quotation marks back, and Luke
+1's line-initial capitals did). What is no longer true is that anything here is
+waiting on a decision.
 
 A restore rebuilds a verse's span from master text, and the master has no
 markup. Where the repo set a verse as poetry, the `<p class="hbq-line">` breaks
@@ -417,9 +486,9 @@ Counted against the last revision before the restores (`2cf906a~1`):
 | `luke-6` | 3 (the woes) |
 | `romans-9` | 1 `<br>` |
 
-**Not repaired here, because it is not mechanical.** Luke 6:24 shows why — the
-same restore that flattened its two lines also dropped the opening quotation
-mark:
+**Not mechanical**, which is why it took its own pass rather than riding along
+with a restore. Luke 6:24 shows why — the same restore that flattened its two
+lines also dropped the opening quotation mark:
 
 ```
 before  <p class="hbq-line">…“However,</span> there are dire warnings for those who are wealthy</p>
@@ -428,9 +497,10 @@ after   …However,</span> there are dire warnings for those who are wealthy bec
         already received your comfort.
 ```
 
-Re-inserting the breaks means deciding where they fall in wording that has since
+Re-inserting the breaks meant deciding where they fall in wording that had since
 changed, and whether the `“` comes back — both editorial. The pre-restore text
-is in git at `2cf906a~1` for every one of the 14.
+is in git at `2cf906a~1` for every one of the 14, which is where the repair took
+its break positions from while leaving today's wording alone.
 
 `build-ledger.mjs` still produces this. Guarding it means holding interior block
 markup back the way `splitTrailingBlockClose` and `splitTrailingSeparator` hold
