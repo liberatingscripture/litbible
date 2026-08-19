@@ -524,7 +524,7 @@ its break positions from while leaving today's wording alone.
 markup back the way `splitTrailingBlockClose` and `splitTrailingSeparator` hold
 back the ends of a span, which is a larger change than either.
 
-## 6. Master-only footnotes — reviewed 2026-08-19, 1 still open
+## 6. Master-only footnotes — reviewed and settled 2026-08-19
 
 `build-ledger.mjs` writes this list to `out/deferred-master-only.json` on
 every run; rebuild it rather than trusting the counts below. The 19 records
@@ -533,9 +533,9 @@ reason they sat undifferentiated for so long: "present in the master, absent
 from the repo" describes a Word placeholder, a deliberate repetition, and a
 genuine gap identically.
 
-The list stands at **13** after §17, §18 and §19 (Romans 8:15, the four
-footnote-only adds below, then Matthew 6:2 with its verse) and will read **12**
-once Luke's master is re-captured — the owner deleted the Luke 2:13 repetition in Word on
+The list stands at **12** after §17, §18 and §19 (Romans 8:15, the four
+footnote-only adds below, then Matthew 6:2 and 11:8 with their verses) and will
+read **11** once Luke's master is re-captured — the owner deleted the Luke 2:13 repetition in Word on
 2026-08-19, later than the Luke copy the current snapshot holds.
 
 - **11 are empty in the master** — a footnote reference plus a single space,
@@ -597,7 +597,12 @@ once Luke's master is re-captured — the owner deleted the Luke 2:13 repetition
   | record | the word the note glosses | master verse | repo verse | state |
   |---|---|---|---|---|
   | `matthew-6-v2` | *eleēmosynē*, "donations" | "when you give your compassionate donations," | "when you do your compassion work," | **restored 2026-08-19, §19** |
-  | `matthew-11-v8` | *malakos*, "soft" | "Someone dressed in soft clothing?" | "Someone finely dressed?" | open — bucket A queue |
+  | `matthew-11-v8` | *malakos*, "soft" | "Someone dressed in soft clothing?" | "Someone finely dressed?" | **restored 2026-08-19, §19** |
+
+  Both are settled, so nothing in §6 is outstanding. The general lesson is in
+  the pair: a master-only footnote at a verse the repo renders differently is
+  **one** record, not two, and splitting it produces a note anchored to text
+  that is not there.
 - **Verse-boundary shifts and master-has-extra-content verses**, including two
   substantive ones: `3john-1:10` and `1corinthians-15:43`. Still open.
 
@@ -980,12 +985,13 @@ all 5,483 footnotes in the corpus before anything was written.
 `astro check`, `check:links` (32,034 links, up 8 for the new anchor pairs),
 the full build and 357/357 tests pass.
 
-## 19. Matthew 6:2 — bucket A verse restored with its footnote (2026-08-19)
+## 19. §6's two verse-coupled records — restored 2026-08-19
 
-The first of §6's two verse-coupled records, and the pattern for the second.
-The owner approved the restore after review; the whole verse plus master #148
-went in as one change, because the note glosses a word only the master's
-wording contains.
+Both records where a master-only footnote glosses a word the repo's verse did
+not contain. Each went in as one change, verse plus note, because neither half
+stands without the other. The owner approved each after review.
+
+### 19a. Matthew 6:2
 
 | | |
 |---|---|
@@ -1050,3 +1056,59 @@ removed, no indentation, BOM or newline drift.
 confirmed record at Matt.6.2 is on "thought of highly", which no edit touched),
 `astro check`, `check:links` (32,036 links, up 2 for the new anchor pair), the
 full build and 357/357 tests pass.
+
+### 19b. Matthew 11:8
+
+Two words wide, with prefix and suffix byte-identical:
+
+> So what did you go out to see? Someone **[ dressed in soft clothing** /
+> **finely dressed ]**? No, people who wear …
+
+New **fn-d** carries master #278, 11 later labels shifted, 14 → 15 footnotes.
+
+**The evidence here did not depend on the master at all**, which is what made
+it the clearest bucket A record handled so far. The synoptic parallel is
+already in the repo intact: Luke 7:25 reads "Someone dressed in **soft**ˣ
+clothing?", and `luke-7` fn-x *opens with master #278 verbatim* before adding a
+second sentence of its own. And `1corinthians-6` fn-l — the long *malakos*
+argument, load-bearing for the translation — states that "The Bible clearly
+uses it that way in Matthew 11:8 and Luke 7:25." **The repo was contradicting
+its own cross-reference**: a reader following that pointer found "finely
+dressed", which does not show what the note says it shows.
+
+Look for that shape generally. A footnote elsewhere in the corpus that names a
+verse and a rendering is a **testable claim about that verse**, and the corpus
+has ~5,500 of them. Where the claim fails, either the note or the verse is
+stale, and the note usually is not.
+
+**The note is the twin's FIRST SENTENCE, not the whole twin.** §18's rule
+points at `luke-7` fn-x, but it is a *superset* — the second sentence is Luke's
+alone and the master does not repeat it at Matthew. Copying the twin whole
+would have imported content Word does not have at this verse. So the rule needs
+its corollary: **copy the twin only as far as the master's own note goes**, and
+assert the identity rather than assume it (the applier compares the extracted
+first sentence against master #278 with tags stripped, and refuses otherwise).
+
+**The owner reset the verse's wording during review**, so this does not match
+the 2026-08-19 snapshot — it matches the master as edited that day:
+
+> Someone dressed in soft[fn] clothing? No, people who wear **soft clothes**
+> live in royal palaces.
+
+Matthew renders *malakos* **twice**, so both halves now read "soft". Luke's
+second clause is a different Greek word and keeps "fine clothing", so the two
+parallels are deliberately **not** made identical. Worth remembering before
+"harmonizing" any synoptic pair from the English side: the parallel verses
+differ because the Greek does.
+
+The chapter's other count mismatch is unrelated and already tracked — Matthew
+11 shows 14 master anchors against 14 repo footnotes, which looks balanced
+until they are mapped: the repo was missing #278 at v8 and carries an extra
+note at v30 (`matthew-11-fn-n`, the *zugos* note) that the master has no anchor
+for, listed in §3 as repo-only content to back-port. **Equal counts are not
+agreement.**
+
+`validate-chapters` (260 valid), `audit:alignment` (0 stale of 3,586; no record
+sits at Matt.11.8 and *malakos* carries no glossary commitment), `astro check`,
+`check:links`, the full build and 357/357 tests pass. Skeleton-checked for
+reserialize the same way as 19a.
