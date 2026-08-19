@@ -41,6 +41,19 @@ real are future work, gated on a human reviewing the ledger this generates.
   next). Point every tool at it via `--master-dir=<path>` or the
   `MASTER_XML_DIR` environment variable — there is no committed default that
   works outside the session that built this tooling.
+
+  **Get the `.docx` files from the local OneDrive sync folder**, which on the
+  author's machine is `$OneDrive/Documents/Scripture & Spiritual Teaching/Bible
+  Translation/<Book>/<Book>.docx`. Copy them out to scratch and unpack the
+  copies; never unzip in place. That folder is the *live* master — the same
+  bytes as the cloud copy, verifiable against the `sha256Hash` Microsoft Graph
+  reports for the item — so it is both simpler and better evidenced than any
+  API route. Do **not** reach for the OneDrive connector: its download action
+  writes into a remote sandbox this machine cannot read, and the
+  `@microsoft.graph.downloadUrl` it can surface is bound to the connector's own
+  app identity and returns 401 from here. The connector is still useful for one
+  thing — reading `lastModifiedDateTime`, `size` and `sha256Hash` to check
+  whether a local copy is current without opening it.
 - **v1 audit artifacts** (`gate-report.mjs` only) — the prior audit's
   `results.json` and its own `docx-xml.mjs` extractor, read-only, so the
   Phase 1 gate can diff v2's output against v1's and (for the footnote-text-
