@@ -1241,8 +1241,13 @@ Four things about them that are not guessable and cost real time to rediscover:
 forget that.** "This text settled during the import window" is good reason to
 think the repo is the damaged side, but records that a coarse rule held back for
 months are unusual by selection, and unusual correlates with the master having
-problems of its own — a doubled word, a dropped period, `[Miriam]` left in as an
-editorial mark, John 8 breaking verse 19 a sentence later than the repo does.
+problems of its own — a doubled word, a dropped period, John 8 breaking verse 19
+a sentence later than the repo does. The inverse trap exists too: John 11's
+`[Martha and]`/`[Martha]` brackets (a supplied name clarifying who acts across
+vv19–24 and v39) looked exactly like one of these — an in-progress editorial
+mark — until the owner confirmed they publish as written, matching the
+`colossians-2-p3`/fn-j convention for a bracketed supplied phrase in body text.
+Don't classify a held record from its shape alone.
 `lib/restore-guards.mjs` holds the shapes found so far; the general lesson is
 that **these go through `npm run review:reconcile -- --buckets=A`, not through
 `apply.mjs`**. Applying the 53 clear records in one pass was tried and thrown
