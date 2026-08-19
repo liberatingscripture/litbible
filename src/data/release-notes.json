@@ -93,6 +93,48 @@
           "chapter": 5,
           "verse": 13
         }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "John 2:15, 24–25 — footnotes m, w, y, z updated",
+        "detail": "fn. m (v. 15): removed \"The Greek word ekcheo,\"; fn. w (v. 24): \"This footnote text appears truncated in the source (“they t…\" → \"The words ‘their commitment’ is not present in the Greek, b…\"; fn. y (v. 24): removed \"The words ‘their commitment’ is not present in the Greek, but the Greek wording must have something supplied to make se…\"; fn. z (v. 25): removed \"The Greek is something like “understood what was in/with humanity” or “understood what there was regarding humanity” in…\"",
+        "location": {
+          "bookKey": "john",
+          "chapter": 2,
+          "verse": 15
+        },
+        "relabel": "footnotes formerly n–v relabeled m–u"
+      },
+      {
+        "type": "text_updated",
+        "description": "Matthew 23:13, 23, 25, 27, 29 — text updated",
+        "detail": "v. 13: \"you\" → \"you,\"; v. 23: \"you\" → \"you,\"; v. 25: \"you\" → \"you,\"; v. 27: \"you\" → \"you,\"; v. 29: \"you\" → \"you,\"",
+        "location": {
+          "bookKey": "matthew",
+          "chapter": 23,
+          "verse": 13
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Matthew 5:22 — footnote ff updated",
+        "detail": "removed \"Comprised of religious leaders, it held authority over community matters,\"",
+        "location": {
+          "bookKey": "matthew",
+          "chapter": 5,
+          "verse": 22
+        }
+      },
+      {
+        "type": "footnote_added",
+        "description": "Romans 8:15 — footnote l added",
+        "detail": "added \"Traditionally, ‘sons.’ It carries the meaning of descendants, particularly heirs, and not only males.\"",
+        "location": {
+          "bookKey": "romans",
+          "chapter": 8,
+          "verse": 15
+        },
+        "relabel": "footnotes formerly l–v relabeled m–w"
       }
     ]
   },
