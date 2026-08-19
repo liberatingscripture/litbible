@@ -1034,10 +1034,12 @@ kind of thing a mechanical restore would leave behind:
   `repayment / payment / payment` across the three occurrences of the same
   sentence, so the divergence at v2 could not be settled without settling the
   other two. The owner's ruling is "repayment" at all three, and they made the
-  matching edit in the Word master the same day. **So the 2026-08-19 Matthew
-  snapshot is now behind the master at 6:5 and 6:16** — re-capture before
-  reading anything else out of it, including `matthew-11-v8` and
-  `matthew-23-v15`.
+  matching edit in the Word master the same day. That edit had not reached
+  OneDrive when this landed: the cloud copy still matched the 2026-08-19
+  snapshot byte for byte (578,048 bytes, `lastModified` 07:02Z), so it was
+  still sitting in an unsynced Word session. **Re-capture Matthew once it
+  syncs.** Until then the snapshot is current for everything except 6:5 and
+  6:16, which this change already carries.
 
 New **fn-c**, 32 later labels shifted, 34 → 35 footnotes. `verify-bytes`
 reports its known array-length false positive (§18); checked directly with the
