@@ -135,6 +135,50 @@
           "verse": 15
         },
         "relabel": "footnotes formerly l–v relabeled m–w"
+      },
+      {
+        "type": "footnote_added",
+        "description": "1 Corinthians 1:2 — footnote f added",
+        "detail": "added \"Traditionally, ‘the holy ones’ or ‘the saints’\"",
+        "location": {
+          "bookKey": "1corinthians",
+          "chapter": 1,
+          "verse": 2
+        },
+        "relabel": "footnotes formerly f–zz relabeled g–aaa"
+      },
+      {
+        "type": "footnote_added",
+        "description": "Galatians 1:15 — footnote n added",
+        "detail": "added \"Not ‘birth’ as some others translate it.\"",
+        "location": {
+          "bookKey": "galatians",
+          "chapter": 1,
+          "verse": 15
+        },
+        "relabel": "footnotes formerly n–y relabeled o–z"
+      },
+      {
+        "type": "footnote_added",
+        "description": "Luke 11:32 — footnote y added",
+        "detail": "added \"The Greek word metanoia is traditionally translated as ‘repent.’ The meaning of metanoia is ‘change the mind’ or ‘trans…\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 11,
+          "verse": 32
+        },
+        "relabel": "footnotes formerly y–ii relabeled z–jj"
+      },
+      {
+        "type": "footnote_added",
+        "description": "Mark 13:2 — footnote b added",
+        "detail": "added \"Compare this to Jeremiah 26:1-9.\"",
+        "location": {
+          "bookKey": "mark",
+          "chapter": 13,
+          "verse": 2
+        },
+        "relabel": "footnotes formerly b–aa relabeled c–bb"
       }
     ]
   },
