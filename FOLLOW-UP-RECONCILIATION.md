@@ -524,7 +524,7 @@ its break positions from while leaving today's wording alone.
 markup back the way `splitTrailingBlockClose` and `splitTrailingSeparator` hold
 back the ends of a span, which is a larger change than either.
 
-## 6. Master-only footnotes — reviewed 2026-08-19, 2 still open
+## 6. Master-only footnotes — reviewed 2026-08-19, 1 still open
 
 `build-ledger.mjs` writes this list to `out/deferred-master-only.json` on
 every run; rebuild it rather than trusting the counts below. The 19 records
@@ -533,9 +533,9 @@ reason they sat undifferentiated for so long: "present in the master, absent
 from the repo" describes a Word placeholder, a deliberate repetition, and a
 genuine gap identically.
 
-The list stands at **14** after §17 and §18 (Romans 8:15, then all four of the
-footnote-only adds below) and will read **13** once Luke's master is
-re-captured — the owner deleted the Luke 2:13 repetition in Word on
+The list stands at **13** after §17, §18 and §19 (Romans 8:15, the four
+footnote-only adds below, then Matthew 6:2 with its verse) and will read **12**
+once Luke's master is re-captured — the owner deleted the Luke 2:13 repetition in Word on
 2026-08-19, later than the Luke copy the current snapshot holds.
 
 - **11 are empty in the master** — a footnote reference plus a single space,
@@ -591,16 +591,13 @@ re-captured — the owner deleted the Luke 2:13 repetition in Word on
 
   The other two are **not** footnote adds and must not be handled as such —
   each glosses a word the repo's verse does not contain, because the verse
-  itself is an unresolved bucket A record:
+  itself is a bucket A record. Adding either note on its own would anchor it
+  to text that isn't there, so each has to move with its verse:
 
-  | record | master verse | repo verse |
-  |---|---|---|
-  | `matthew-6-v2` | "when you give your compassionate donations," | "when you do your compassion work," |
-  | `matthew-11-v8` | "Someone dressed in soft clothing?" | "Someone finely dressed?" |
-
-  Adding either note on its own would anchor it to text that isn't there.
-  They belong in the bucket A queue
-  (`npm run review:reconcile -- --buckets=A`), with the verse.
+  | record | the word the note glosses | master verse | repo verse | state |
+  |---|---|---|---|---|
+  | `matthew-6-v2` | *eleēmosynē*, "donations" | "when you give your compassionate donations," | "when you do your compassion work," | **restored 2026-08-19, §19** |
+  | `matthew-11-v8` | *malakos*, "soft" | "Someone dressed in soft clothing?" | "Someone finely dressed?" | open — bucket A queue |
 - **Verse-boundary shifts and master-has-extra-content verses**, including two
   substantive ones: `3john-1:10` and `1corinthians-15:43`. Still open.
 
@@ -982,3 +979,72 @@ all 5,483 footnotes in the corpus before anything was written.
 `validate-chapters` (260 valid), `audit:alignment` (0 stale of 3,586),
 `astro check`, `check:links` (32,034 links, up 8 for the new anchor pairs),
 the full build and 357/357 tests pass.
+
+## 19. Matthew 6:2 — bucket A verse restored with its footnote (2026-08-19)
+
+The first of §6's two verse-coupled records, and the pattern for the second.
+The owner approved the restore after review; the whole verse plus master #148
+went in as one change, because the note glosses a word only the master's
+wording contains.
+
+| | |
+|---|---|
+| **master** | So then, when you **give your compassionate donations**,ᶜ don't blow a trumpet ahead of you like the **pretenders** do … they have their full **repayment** already. |
+| **repo (before)** | So then, when you **do your compassion work**, don't blow a trumpet ahead of you like the **fakers** do … they have their full **payment** already. |
+
+Three word-level differences and a dropped anchor, all inside `paragraphs[0]`.
+The verse is now byte-identical to the master.
+
+**What made this one safe to settle, when bucket A generally is not.** The
+record is dated to the import commit and its severity is low (0.093), but
+neither of those is evidence about *which* side is damaged. Three independent
+signals were:
+
+1. **The anchor run matches 1:1 with a hole at v2.** Master #146/#147 (v1) =
+   repo fn-a/fn-b; #148 (v2) = nothing; #149 (v3) = repo fn-c; #150 (v5) =
+   repo fn-d. The same dropped-anchor-inside-a-matched-run shape as §18's
+   1 Cor 1:2 and Galatians 1:15, and the same `footnote-reference count
+   differs` guard held all three out of the automated restore.
+2. **"fakers" survived in exactly two places in the whole corpus** — here and
+   `matthew-23` v15, the other open bucket A record — against **21**
+   occurrences of "pretenders" across 14 chapters. Two holdouts against 21 is
+   residue, not a rendering choice.
+3. **v2 was the odd one out inside its own paragraph.** Repo v3 already read
+   "your compassionate donations" and v4 "your compassionate giving", both
+   matching the master. A deliberate revision would not have changed the first
+   member of a three-verse run and left the other two.
+
+The master side was read for defects of its own per the bucket A rule
+(§5, and `lib/restore-guards.mjs`): master v2 is clean, and both sides break
+v2/v3 at the same point.
+
+**The note came from the repo, not the master** — §18's rule. Master #148 is
+already in the corpus verbatim as `luke-12` fn-q, where it hangs on the same
+rendering ("give a compassionate donation." at 12:33). Here the two happen to
+be byte-identical, which the applier asserts rather than assumes.
+
+**Two things moved that the ledger record does not mention**, and both are the
+kind of thing a mechanical restore would leave behind:
+
+- **`topics` carried `"compassion work"`**, a label unique to this chapter and
+  plainly taken from the wording being replaced. It is now
+  `"compassionate donations"`. A verse restore should always be checked
+  against the chapter's topic labels for this.
+- **"full payment" → "full repayment" at v5 and v16 as well.** The master had
+  `repayment / payment / payment` across the three occurrences of the same
+  sentence, so the divergence at v2 could not be settled without settling the
+  other two. The owner's ruling is "repayment" at all three, and they made the
+  matching edit in the Word master the same day. **So the 2026-08-19 Matthew
+  snapshot is now behind the master at 6:5 and 6:16** — re-capture before
+  reading anything else out of it, including `matthew-11-v8` and
+  `matthew-23-v15`.
+
+New **fn-c**, 32 later labels shifted, 34 → 35 footnotes. `verify-bytes`
+reports its known array-length false positive (§18); checked directly with the
+blanked-string-literal skeleton instead — one boilerplate line added, nothing
+removed, no indentation, BOM or newline drift.
+
+`validate-chapters` (260 valid), `audit:alignment` (0 stale of 3,586 — the one
+confirmed record at Matt.6.2 is on "thought of highly", which no edit touched),
+`astro check`, `check:links` (32,036 links, up 2 for the new anchor pair), the
+full build and 357/357 tests pass.
