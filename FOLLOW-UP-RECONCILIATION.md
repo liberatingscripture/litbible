@@ -197,25 +197,25 @@ under-report; the real number is unknown. Which fits the only evidence there is
 about how this set behaves under a person: the hand review above decided 99
 comparable records and **kept the repo's own text in 34 of them**.
 
-### The 16 approved in review but still held by `apply.mjs`
+### Records approved in review but held by `apply.mjs` — 9 remain
 
 The review tool shows held records with their hold reason and lets them be
-answered; `apply.mjs` will not write one unless it is named. These were approved
-on 2026-08-16 and are **not applied**:
+answered; `apply.mjs` will not write one unless it is named. 16 were approved
+on 2026-08-16; **7 have since been applied** (2026-08-18): the four John 8
+versification records — which also needed a hand-authored follow-up, see §14 —
+both 1 Corinthians 14 hyperlink footnotes, and Matthew 28's multi-paragraph
+footnote. **9 remain, not applied:**
 
 | records | hold |
 |---|---|
-| `john-8-v19`, `-v20`, `-v25`, `-v26` | the versification difference below — approving these adopts the master's verse boundaries, which moves a sentence between two verses |
 | `matthew-18-v22`, `matthew-20-v13`, `mark-5-v28`, `john-12-v31`, `romans-3-v4` | cross-verse quotation boundary (§9) |
-| `john-11-v19`, `john-11-v21` | would write `[Miriam]` into scripture text |
-| `1corinthians-14-fn-z`, `-fn-ee` | hyperlink in the footnote |
-| `matthew-28-fn-j` | multi-paragraph footnote in the master (§11) |
+| `john-11-v19`, `john-11-v21` | would write `[Martha and]`/`[Martha]` into scripture text — **and the approval on file is now stale, see §15** |
 | `john-2-fn-w` | truncated in the master; broken on both sides (§12) |
-| `john-7-fn-q` | would import `in in Torah` (§12) |
+| `john-7-fn-q` | would have imported `in in Torah` — **that typo is now fixed in the master, see §12 and §15** |
 
-Six of them — the five cross-verse ones and `1corinthians-14-fn-z` — were
-**seeded automatically** when the tool started, because every hunk in them
-defaulted; they were not necessarily looked at.
+Five of the original 16 — the five cross-verse ones — were **seeded
+automatically** when the tool started, because every hunk in them defaulted;
+they were not necessarily looked at.
 
 ### The 51 that stay held
 
@@ -247,6 +247,12 @@ about the **shape** of the text rather than its wording, and it is unsurprising
 where it turned up: John 8 is where LIT keeps the pericope adulterae that SBLGNT
 omits, so the two sides are numbering around a passage they disagree about
 carrying at all.
+
+**Update, 2026-08-18: applied.** All four records were approved and applied —
+see §5. The restore itself went cleanly, but composing each verse's new span
+from master text (which carries no paragraph markup of its own) also relocated
+the paragraph break inside it. See §14 for what that broke and how it was
+fixed.
 
 ## 9. Cross-verse quotation boundaries — 16 verses, your call
 
@@ -287,7 +293,7 @@ would have mentioned them.
 | master | repo footnote | fix |
 |---|---|---|
 | 1 Corinthians `w:id=295` (2 blocks) | `1corinthians-10` fn-gg | join — the repo carries it as one run of prose |
-| John `w:id=353` (2 blocks) | `john-12` fn-a | join |
+| John `w:id=352` (2 blocks; was `353` at the 2026-08-16 capture — see §15) | `john-12` fn-a | join |
 | Matthew `w:id=794` (2 blocks) | `matthew-28` fn-j | join |
 | 1 Corinthians `w:id=300` (3 blocks) | `1corinthians-11` fn-b | **not a mistake** — this is the chiasm, and its lines are real. Word wants `<w:br/>` line breaks rather than paragraph breaks so it stays one footnote. The repo already renders it as `<div class="chiasm">`, so no repo change either way. |
 
@@ -297,15 +303,25 @@ Replace the paragraph break with a line break (Shift+Enter) in Word.
 
 Each is a real error in Word that a restore would otherwise import:
 
-- **`john-7` fn-q** reads `the path laid out in in Torah`.
+- **`john-7` fn-q** read `the path laid out in in Torah`. **Fixed in the
+  master 2026-08-18** — now reads `laid out in Torah`; the record is still
+  bucket A, but only a `Dikaios`/`dikaios` capitalization difference remains
+  (see §15).
 - **`john-2` fn-w** is cut off at `This is ‘they trusted the sc`. The repo
   carries the import's own placeholder here (`This footnote text appears
   truncated in the source… Verify and complete it before publishing`), so
-  **both sides need this one written**.
-- **`john-11`** reads `[Miriam]` in verses 20, 21 and 24 and `come to […]
-  Miriam` in verse 19 — in-progress editorial marks rather than punctuation.
-- **`matthew-11:6`** reads `is has reason for gratitude`.
-- **`matthew-2` fn-g** reads `the untrustworthiness of those group`.
+  **both sides need this one written**. Unchanged as of 2026-08-18.
+- **`john-11`** is an in-progress editorial mark, not punctuation, and it is
+  still moving: as of 2026-08-18 it reads `[Martha and]` in verse 19 and
+  `[Martha]` in verses 20, 21, 24 and 39 (was `[Miriam]` / `come to […]
+  Miriam` at the 2026-08-16 capture — the bracketed name itself changed, not
+  just its punctuation). See §15 — two decisions already on file for this
+  passage are now stale.
+- **`matthew-11:6`** read `is has reason for gratitude`. **Fixed in the
+  master 2026-08-18** — the record has fully settled.
+- **`matthew-2` fn-g** read `the untrustworthiness of those group`. **Fixed in
+  the master 2026-08-18** — now reads `those groups`; a quote-style difference
+  remains (see §15).
 
 ## 13. Poetry line breaks flattened by earlier restores — 14 places, needs you
 
@@ -387,3 +403,112 @@ Recorded so nobody re-derives them from scratch:
   `validate-chapters.mjs` does not catch it: it checks that every anchor has a
   footnote, never that every footnote has an anchor. That check is worth adding
   to the validator on its own merits.
+
+## 14. John 8:19–20 and 25–27 — paragraph structure lost by the versification restore (repaired 2026-08-18)
+
+Applying the four approved John 8 versification records (§5) moved a sentence
+across the verse boundary as intended, but composing each verse's new span
+from master text — which carries no paragraph markup of its own — also
+relocated the paragraph break inside it, landing the break at the new verse
+boundary instead of where it belonged:
+
+- **19–20**: Jesus's reply (`You don't recognize either me or my Father…`)
+  was pulled into the same paragraph as `they said to him, "Where is your
+  father?"`; the break belongs immediately before that reply, not at the
+  v19/v20 boundary.
+- **25–27**: same shape — `"Who are you?" they said` stayed alone in its own
+  paragraph, and the break needed to move back to before Jesus's answer.
+
+Caught by reading the rendered page after PR #130/#131 shipped, not by any
+automated check. Fixed by a direct byte-level splice (not through
+`apply.mjs` — this wasn't a `decisions.json` record) that moves the same text
+`apply.mjs` had already relocated, just to the other side of the paragraph
+tag, verified against the flattened (tag-stripped) text before and after to
+confirm no wording moved. Shipped in PR #133.
+
+Same root cause as §13 — a restore rebuilds a span from master text that
+carries no internal markup — but a different casualty (dialogue-paragraph
+attribution, not poetry lines), and mechanical enough to repair on sight
+rather than needing an editorial call. `build-ledger.mjs` does not guard
+against this class of defect any more than it does §13's; both need a human
+reading the rendered page after a paragraph-crossing restore, not just the
+validator.
+
+## 15. 2026-08-18 master re-check
+
+Re-copied the live masters for the books whose mtime had moved since the last
+capture — Matthew, John, Luke, Mark (1 Corinthians was already re-verified
+during the `1corinthians-14-fn-ee` work above) — and rebuilt the ledger
+against the combined snapshot. A `.docx` carries no "last checked" marker on
+this side, so the only reliable way to find what moved is comparing each live
+file's mtime against the snapshot's own copy time, then re-extracting and
+re-diffing both the footnote sequence (aligned by content, since a mid-document
+footnote insertion or deletion renumbers every later `w:id` and makes a
+raw-id diff report a false cascade of "changes") and the verse text (anchored
+by the verse's own visible number, which a footnote renumbering doesn't
+touch). The numbers in every section above already reflect this recheck.
+
+**Confirmed fixed in the master since 2026-08-16:**
+
+| record | was | now |
+|---|---|---|
+| `matthew-2-fn-g` | "those group" (§12) | "those groups" — wording fixed; a quote-style difference remains (master `["the ash heap"]`, repo `['the ash heap']`) |
+| `matthew-11-v6` | "is has reason for gratitude" (§12) | "has reason for gratitude" — fully settled |
+| `mark-11-fn-h` | "'divine'and referred" | "'divine' and referred" — fully settled |
+| `john-7-fn-a` | lost its sentence-final period | period restored — fully settled |
+| `john-7-fn-q` | "laid out in in Torah" (§12) | "laid out in Torah" — wording fixed; one capitalization difference remains (`Dikaios`/`dikaios`) |
+| `john-7-fn-v` | rejected in review (kept the repo's text) | now matches the repo exactly — fully settled |
+| `matthew-13-v15` | missing "And hearing is difficult for their ears," | clause present — fully settled |
+| `john-5-fn-o` | wording difference | fully settled |
+
+Several incidental copy-edits also landed and already agree with the repo, so
+nothing to back-port: a comma after "saying" in Matthew 1:20, a comma after
+"Judea" in Matthew 2:5, and "Christ" lowercased to "christ" in John 1:41 (the
+repo already had the lowercase form).
+
+**New since 2026-08-16, not yet in any list above:**
+
+- **John 11:19–24 is under active revision, not settled — don't apply the
+  approvals on file.** The master now brackets `[Martha and]` / `[Martha]`
+  through this passage (was `[Miriam]` / plain `Miriam` at the 2026-08-16
+  capture; §12's `john-11` bullet reflects the current text). The two
+  `approved` decisions on file for `john-11-v19` and `john-11-v21` (§5) were
+  composed against the earlier master reading and are stale twice over — the
+  bracketed name has changed again since, and both recorded `resolvedValue`s
+  are separately missing the verse-separator space the corpus later
+  standardized on (CLAUDE.md, Word masters §6). `john-11-v20` and `-v24`
+  remain correctly rejected (kept the repo's plain reading). **`john-11-v39`
+  is a new hold** picked up by the same edit: the master now brackets an
+  already-unambiguous `Martha` there too (`Martha, the sister of the
+  deceased` → `[Martha], the sister of the deceased`). Re-review the whole
+  passage once the Martha/Miriam split settles in Word, rather than trusting
+  the standing decisions.
+- **`john-2-fn-x` is now repo-only.** The master's "Literally, 'trusted in
+  his name.'…" footnote (John 2:23) was deleted from the master entirely —
+  the repo still carries it. Not the same record as §12's `john-2-fn-w` (the
+  truncated note nearby), though the deletion shifted every later footnote id
+  in John down by one, including the §11 multi-paragraph note's — it's
+  `w:id=352` now, not `353`. Worth remembering generally: a Word footnote's
+  raw `w:id` is not a stable identifier across edits made elsewhere in the
+  document. The repo footnote label (`john-12-fn-a`) is what stays put;
+  re-derive the current `w:id` with `check-master-hygiene.mjs` rather than
+  trusting a recorded number.
+- **`matthew-15-fn-v` gained a new sentence** (a link to the site's own
+  Matthew 15 Canaanite-woman article) since 2026-08-16. Only a trailing
+  period now differs from the repo's copy of that footnote, but it stays
+  held for the same structural reason as `1corinthians-14-fn-z` — a
+  hyperlink beyond the standard footnote-ref anchor.
+- **`matthew-23-v13` picked up a new comma** (`for you, pretenders,—`; the
+  repo doesn't have it yet). Not on any back-port list before now; noted here
+  since it's new.
+- Luke's master picked up one trivial capitalization fix (`the Theological
+  Dictionary` → `The Theological Dictionary`) and remains truncated at 21:38
+  as before (§7) — nothing else changed. Mark's only other change is the
+  `mark-11-fn-h` fix above.
+
+Nothing in the 58 August edits (§1), the 95 April–July records (§2), the 22
+malformed quote pairs (§10), or the 10 repo-only records (§3) changed for
+these five books as far as this recheck could tell — the specific examples
+named in each section were checked directly against the fresh text, though
+none of those sections were re-verified record-by-record the way bucket A
+was.
