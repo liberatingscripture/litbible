@@ -1236,6 +1236,20 @@ Four things about them that are not guessable and cost real time to rediscover:
    this way — the Benedictus, Luke's woes, Matthew 13 — turning set poetry into
    running prose. Block balance does not see it, because the opener and its
    closer go together. See `FOLLOW-UP-RECONCILIATION.md` §13.
+8. **A continuation paragraph usually opens a LATER verse**, so "the next
+   paragraph has no verse marker" never identified one. `hebrews-2-p4`
+   continues v8 and then opens v9. That rule found 122 of the corpus's 208
+   continuations, and the 86 it missed were read as ordinary single-paragraph
+   verses — so a restore wrote the master's *whole* verse into the head block
+   while the text it duplicates stayed in the next one. Hebrews 2:8 and 8:8
+   shipped printing their continuation sentence twice; nothing caught it,
+   because nothing is unbalanced, no wording is lost, and the HTML is valid.
+   `opensWithContinuationText` in `lib/verse-span.mjs` asks the right question
+   (does the next paragraph *open* with reader-visible text, once the bracket
+   markers and footnote anchor that belong to the following verse are taken
+   out). Detection is now 208 of 208, and such a record is **held**, not
+   patched — distributing a restore across a continuation is still a
+   reviewer's call. See `FOLLOW-UP-RECONCILIATION.md` §16.
 
 **Bucket A is evidence, not proof, and the held records are the worst place to
 forget that.** "This text settled during the import window" is good reason to
@@ -1372,7 +1386,7 @@ only 1:1–4; Luke's stops mid-21:38).
 | `scripts/reconcile/lib/block-structure.mjs` | The one block-tag rule the restore pipeline shares — read it before touching how a paragraph's closing markup is handled |
 | `scripts/reconcile/lib/quote-compose.mjs` | Composes a restore when `curlify()` refuses the master's quotes, under two gates |
 | `scripts/reconcile/lib/restore-guards.mjs` | The shapes a machine must not settle (verse-boundary moves, editorial brackets, doubled words, a truncated master) |
-| `scripts/reconcile/lib/verse-span.mjs` | Where a verse begins and ends in `paragraphs[]`, and what a restore must hold back from either end of that span |
+| `scripts/reconcile/lib/verse-span.mjs` | Where a verse begins and ends in `paragraphs[]`, what a restore must hold back from either end of that span, and how a continuation paragraph is recognized |
 | `scripts/reconcile/check-master-hygiene.mjs` | Read-only master scan for defects a diff cannot see |
 | `scripts/reconcile/repair-verse-separators.mjs` | One-off repair for verse markers an earlier restore welded to the preceding sentence |
 | `pagefind.yml` | Pagefind config for glossary/article indexing (excludes footnote refs) |
