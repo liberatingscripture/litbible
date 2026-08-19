@@ -163,7 +163,9 @@ The 10 rejected records kept the repo's own text: `matthew-2-v5`,
 `matthew-2-fn-g`, `matthew-11-v6`, `matthew-15-fn-v`, `mark-11-fn-h`,
 `john-7-fn-a`, `john-7-fn-v`, `john-11-v20`, `john-11-v24`, `1peter-2-fn-z` —
 several of them the master-side defects in §12, caught in review exactly as
-that section predicted.
+that section predicted. (`john-11-v20`/`-v24`'s rejections were correct
+against the master as it read that day — the master has since changed
+further and both were revisited and applied; see §15.)
 
 The background below is kept because it explains what the records are.
 
@@ -197,19 +199,21 @@ under-report; the real number is unknown. Which fits the only evidence there is
 about how this set behaves under a person: the hand review above decided 99
 comparable records and **kept the repo's own text in 34 of them**.
 
-### Records approved in review but held by `apply.mjs` — 9 remain
+### Records approved in review but held by `apply.mjs` — 7 remain
 
 The review tool shows held records with their hold reason and lets them be
 answered; `apply.mjs` will not write one unless it is named. 16 were approved
-on 2026-08-16; **7 have since been applied** (2026-08-18): the four John 8
+on 2026-08-16; **9 have since been applied** (2026-08-18): the four John 8
 versification records — which also needed a hand-authored follow-up, see §14 —
-both 1 Corinthians 14 hyperlink footnotes, and Matthew 28's multi-paragraph
-footnote. **9 remain, not applied:**
+both 1 Corinthians 14 hyperlink footnotes, Matthew 28's multi-paragraph
+footnote, and `john-11-v19`/`v21`. The John 11 pair was not applied from the
+approvals on file — those had gone stale twice over (§15) — but hand-composed
+fresh against the master's current reading, brackets retained per the owner's
+explicit instruction that they publish. **7 remain, not applied:**
 
 | records | hold |
 |---|---|
 | `matthew-18-v22`, `matthew-20-v13`, `mark-5-v28`, `john-12-v31`, `romans-3-v4` | cross-verse quotation boundary (§9) |
-| `john-11-v19`, `john-11-v21` | would write `[Martha and]`/`[Martha]` into scripture text — **and the approval on file is now stale, see §15** |
 | `john-2-fn-w` | truncated in the master; broken on both sides (§12) |
 | `john-7-fn-q` | would have imported `in in Torah` — **that typo is now fixed in the master, see §12 and §15** |
 
@@ -217,17 +221,20 @@ Five of the original 16 — the five cross-verse ones — were **seeded
 automatically** when the tool started, because every hunk in them defaulted;
 they were not necessarily looked at.
 
-### The 51 that stay held
+### The 47 that stay held
 
 | reason | count | why it stops |
 |---|---|---|
 | cross-verse quotation boundary | 16 | the two sides differ in nothing but quote characters, and the quotation's other end sits in a different verse — section 9 |
 | footnote-reference count differs | 14 | the two sides disagree on how many notes the verse carries, so restoring would add or drop an anchor |
 | would introduce a wrong-direction quote pair | 5 | the master's wording is wanted but arrives with `‘lord”`; taking it imports the defect section 10 exists to fix |
-| square brackets into scripture | 4 | John 11's master reads `[Miriam]` and `come to […] Miriam` |
 | verse-boundary disagreement | 4 | John 8:19–20 and 25–26; see below |
 | hyperlink in the footnote | 3 | structure the master extractor cannot produce |
 | doubled word / truncated master / mis-wrapped verse / blockquote continuation / multi-paragraph note | 5 | one each |
+
+(A sixth reason, "square brackets into scripture" — John 11's `[Martha and]` /
+`[Martha]`, 4 records — held this pool at 51 as of 2026-08-16. All four are
+now applied; see §15.)
 
 The 14 anchor-count cases are worth a look regardless of the restore:
 `1corinthians-3:5`, `2corinthians-4:4`, `2peter-1:1`, `2peter-1:9`,
@@ -311,12 +318,18 @@ Each is a real error in Word that a restore would otherwise import:
   carries the import's own placeholder here (`This footnote text appears
   truncated in the source… Verify and complete it before publishing`), so
   **both sides need this one written**. Unchanged as of 2026-08-18.
-- **`john-11`** is an in-progress editorial mark, not punctuation, and it is
-  still moving: as of 2026-08-18 it reads `[Martha and]` in verse 19 and
-  `[Martha]` in verses 20, 21, 24 and 39 (was `[Miriam]` / `come to […]
-  Miriam` at the 2026-08-16 capture — the bracketed name itself changed, not
-  just its punctuation). See §15 — two decisions already on file for this
-  passage are now stale.
+- **`john-11`** — not a defect. The master brackets `[Martha and]` (v19) and
+  `[Martha]` (vv20, 21, 24, 39) through the passage where Martha and Miriam
+  meet Jesus outside Bethany, correcting a genuine attribution error the repo
+  had carried since the import: vv19–24 named Miriam throughout, but v28
+  already had her "call her sister Miriam" (a self-reference, unreachable
+  unless the v19–27 speaker is someone else) and v30 already presupposed "the
+  place where **Martha** met with him" — both readings only make sense once
+  Martha, not Miriam, is the one who goes out to meet Jesus first. **The
+  owner confirmed 2026-08-18 that this revision is complete and that the
+  brackets are meant to publish**, not stripped — matching the corpus's
+  existing `colossians-2-p3`/fn-j convention for a supplied clarifying phrase
+  set directly in body text. Applied; see §15.
 - **`matthew-11:6`** read `is has reason for gratitude`. **Fixed in the
   master 2026-08-18** — the record has fully settled.
 - **`matthew-2` fn-g** read `the untrustworthiness of those group`. **Fixed in
@@ -468,21 +481,39 @@ repo already had the lowercase form).
 
 **New since 2026-08-16, not yet in any list above:**
 
-- **John 11:19–24 is under active revision, not settled — don't apply the
-  approvals on file.** The master now brackets `[Martha and]` / `[Martha]`
+- **John 11:19–24 was under active revision as of the capture above — resolved
+  later the same day.** The master brackets `[Martha and]` / `[Martha]`
   through this passage (was `[Miriam]` / plain `Miriam` at the 2026-08-16
-  capture; §12's `john-11` bullet reflects the current text). The two
-  `approved` decisions on file for `john-11-v19` and `john-11-v21` (§5) were
-  composed against the earlier master reading and are stale twice over — the
-  bracketed name has changed again since, and both recorded `resolvedValue`s
-  are separately missing the verse-separator space the corpus later
-  standardized on (CLAUDE.md, Word masters §6). `john-11-v20` and `-v24`
-  remain correctly rejected (kept the repo's plain reading). **`john-11-v39`
-  is a new hold** picked up by the same edit: the master now brackets an
-  already-unambiguous `Martha` there too (`Martha, the sister of the
-  deceased` → `[Martha], the sister of the deceased`). Re-review the whole
-  passage once the Martha/Miriam split settles in Word, rather than trusting
-  the standing decisions.
+  capture; §12's `john-11` bullet has the current text). The two `approved`
+  decisions on file for `john-11-v19` and `john-11-v21` (§5) were composed
+  against the earlier master reading and were stale twice over — the
+  bracketed name had changed again since, and both recorded `resolvedValue`s
+  were separately missing the verse-separator space the corpus later
+  standardized on (CLAUDE.md, Word masters §6) — so neither was applied as
+  filed. `john-11-v20` and `-v24` had been correctly rejected against the
+  pre-bracket reading (kept the repo's plain text), which made *them* stale
+  in the other direction once the master gained real content there.
+  `john-11-v39` was a new hold picked up by the same edit: the master now
+  brackets an already-unambiguous `Martha` there too (`Martha, the sister of
+  the deceased` → `[Martha], the sister of the deceased`).
+
+  **Update, 2026-08-18: applied.** The owner confirmed the same day that the
+  revision is complete and that the brackets are meant to publish — not
+  stripped, which was the working assumption in progress at that point,
+  reading too much into CLAUDE.md's "editorial mark" framing of the
+  pre-revision bracket (fixed there too, before it misled anyone else). The
+  internal evidence agrees: v28's "she...
+  called her sister Miriam" only parses if the v19–27 speaker is Martha, and
+  v30's "the place where Martha met with him" already assumed it. The
+  precedent for publishing a bracketed supplied phrase directly in verse text
+  already exists (`colossians-2-p3`, "You `[the Body of Christ]`", paired
+  with fn-j) — no CSS class, just literal characters. All five records
+  (`v19`, `v20`, `v21`, `v24`, `v39`) were hand-composed against the current
+  master text — brackets retained, verse-separator spacing intact — rather
+  than trusting any of the four stale decisions on file, and applied
+  directly via `spliceValue`, the same mechanism §14 used.
+  `validate-chapters`, `verify-bytes`, `audit:alignment`, and the full test
+  suite all pass against the result.
 - **`john-2-fn-x` is now repo-only.** The master's "Literally, 'trusted in
   his name.'…" footnote (John 2:23) was deleted from the master entirely —
   the repo still carries it. Not the same record as §12's `john-2-fn-w` (the
