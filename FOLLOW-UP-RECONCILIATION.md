@@ -1112,3 +1112,62 @@ agreement.**
 sits at Matt.11.8 and *malakos* carries no glossary commitment), `astro check`,
 `check:links`, the full build and 357/357 tests pass. Skeleton-checked for
 reserialize the same way as 19a.
+
+## 20. Matthew 23:15 — the last of the import's "fakers" (2026-08-19)
+
+A bucket A verse with **no footnote component at all**, unlike §19's pair. One
+clause differs and everything from "because" onward is byte-identical:
+
+> **[** "Things won't end well for you, pretenders—O Bible Scholars and
+> Pharisees—**"** / **"**You'd better watch out, **fakers**, Bible Scholars and
+> Pharisees,**" ]** because you wander dry places and sea…
+
+**Read the hold reason before assuming a record is doubtful.** This one carried
+`restored text begins inside a formatting tag — the vglue marker rewrap needs
+manual construction`, which is a **structural** hold: the splicer could not
+build the span, because v15's paragraph opens with an empty vglue followed by
+the traditional-verse-14 gap note before any text. Nothing about the record's
+*content* was ever in question. Done by hand the difficulty disappears, and the
+edit is a single string replacement. Bucket A holds are not one kind of thing
+either, and a structural hold is much cheaper to clear than an evidentiary one.
+
+**All three footnote anchors already agreed**, which is what distinguishes this
+from §19 and is worth checking first on any verse-only restore:
+
+| master | position | repo |
+|---|---|---|
+| #629 | verse start, before "Things" | fn-j (the traditional-v14 gap note) |
+| #630 | after "the child" | fn-k (*huios*) |
+| #631 | after "the Hinnom Valley" | fn-l (Gehenna) |
+
+So no cascade, no label shift, and the gap note stays exactly where the corpus
+convention puts it.
+
+**The argument does not need the master to be the better witness in general.**
+Matthew 23 is a formula chapter: v13, 23, 25, 27 and 29 all read "Things won't
+end well for you… pretenders—O Bible Scholars and Pharisees—because…", and v16
+varies only because its addressee is different ("O blind guides"). v15 departed
+in three ways at once — the opening clause, "fakers" for "pretenders", and the
+dropped "—O …—" apposition. Six of seven woes agreed with the master and the
+seventh was the one the import rewrote.
+
+**"fakers" is now gone from the corpus.** There were exactly two, this and
+Matthew 6:2 (§19a); "pretenders" stands at 17 occurrences in verse text and 11
+in footnotes across 15 chapters, with no exceptions left. A rendering surviving
+in **exactly the verses an unresolved ledger record covers** is a strong signal
+on its own, and cheap to test — count the corpus, not the verse.
+
+One thing deliberately left alone: the master's v13 reads `pretenders,—O` with
+a comma before the dash while v23/25/27/29 read `pretenders—O` without, and the
+repo mirrors the master in both. That inconsistency is the author's, not import
+damage, so v15 takes the majority form the master gives it at v15.
+
+Because no array length changed, **`verify-bytes` itself runs clean here** —
+"only paragraph/footnote string values changed; structure and formatting
+byte-identical", 1 manifest hash moving. Worth noting as the contrast case for
+§18's false positive: the tool is sound, and it is specifically an intentional
+*array-length* change that desynchronises its positional span alignment.
+
+`validate-chapters` (260 valid), `audit:alignment` (0 stale of 3,586 — the one
+confirmed record at Matt.23.15 is on "Hinnom Valley", in the untouched tail),
+`astro check`, `check:links`, the full build and 357/357 tests pass.
