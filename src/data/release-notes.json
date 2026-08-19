@@ -221,6 +221,16 @@
           "verse": 2
         },
         "relabel": "footnotes formerly c–hh relabeled d–ii"
+      },
+      {
+        "type": "text_updated",
+        "description": "Matthew 23:15 — text updated",
+        "detail": "\"“You’d better watch out, fakers, Bible Scholars and Pharise…\" → \"“Things won’t end well for you, pretenders—O Bible Scholars…\"",
+        "location": {
+          "bookKey": "matthew",
+          "chapter": 23,
+          "verse": 15
+        }
       }
     ]
   },
