@@ -13,6 +13,46 @@
           "chapter": 11,
           "verse": 19
         }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "1 Corinthians 16:22 — footnote j updated",
+        "detail": "removed \"(Greek: μαράνα θά)\"",
+        "location": {
+          "bookKey": "1corinthians",
+          "chapter": 16,
+          "verse": 22
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Luke 13:16 — text updated",
+        "detail": "\"18\" → \"eighteen\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 13,
+          "verse": 16
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 18:13 — footnote o updated",
+        "detail": "\"reconciliation—removing\" → \"reconciliation, removing\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 18,
+          "verse": 13
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 9:5 — footnote b updated",
+        "detail": "\"“evidence” or “testimony”\" → \"‘evidence’ or ‘testimony’\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 9,
+          "verse": 5
+        }
       }
     ]
   },
