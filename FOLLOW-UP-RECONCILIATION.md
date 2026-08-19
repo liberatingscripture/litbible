@@ -180,11 +180,13 @@ matching verse:
   form. This example has neither, instead being in the genitive case form,
   most likely indicating a possession or quality of Christ."
 - **`john-2-fn-x`** — "Literally, 'trusted in his name.' The idea is that
-  they trusted him enough to commit their allegiance to him." **Different
-  provenance from the other six**: this footnote (John 2:23) was in the
-  master and was deleted from it entirely sometime before 2026-08-16 (§15).
-  Back-port restores it rather than adding new content — confirmed 2026-08-18
-  that the deletion was not intentional.
+  they trusted him enough to commit their allegiance to him." **Settled
+  2026-08-19: nothing to back-port.** This one had a different provenance
+  from the other six — it was in the master, absent at the 2026-08-16 and
+  2026-08-18 captures, and back verbatim at the 2026-08-19 one, which is why
+  §15 recorded it as deleted and now corrects that. The two sides agree; the
+  record only ever existed because a live working document was caught
+  mid-edit.
 - **`john-13-fn-z`** — "It is not completely clear whether 'him' refers to
   God or to the Son of Humanity."
 - **`matthew-11-fn-n`** — "The Greek word for 'yoke' is zugos, the wooden
@@ -271,7 +273,7 @@ explicit instruction that they publish. **7 remain, not applied:**
 | records | hold |
 |---|---|
 | `matthew-18-v22`, `matthew-20-v13`, `mark-5-v28`, `john-12-v31`, `romans-3-v4` | cross-verse quotation boundary (§9) |
-| `john-2-fn-w` | truncated in the master; broken on both sides (§12) |
+| ~~`john-2-fn-w`~~ | was: truncated in the master, broken on both sides. **Settled 2026-08-19** — the owner deleted the note from the master, so the repo's placeholder was deleted too and the record no longer exists (§17) |
 | `john-7-fn-q` | would have imported `in in Torah` — **that typo is now fixed in the master, see §12 and §15** |
 
 Five of the original 16 — the five cross-verse ones — were **seeded
@@ -434,10 +436,26 @@ Each is a real error in Word that a restore would otherwise import:
   master 2026-08-18** — now reads `laid out in Torah`; the record is still
   bucket A, but only a `Dikaios`/`dikaios` capitalization difference remains
   (see §15).
-- **`john-2` fn-w** is cut off at `This is ‘they trusted the sc`. The repo
-  carries the import's own placeholder here (`This footnote text appears
-  truncated in the source… Verify and complete it before publishing`), so
-  **both sides need this one written**. Unchanged as of 2026-08-18.
+- **`john-2` fn-w** was cut off at `This is ‘they trusted the sc`, and the
+  repo carried the import's own placeholder in its place (`This footnote text
+  appears truncated in the source… Verify and complete it before publishing`)
+  — a note addressed to the author, published on the site since February.
+  **Resolved 2026-08-19: the owner deleted the note from the master**, so it
+  is deleted here too. See §17.
+- **A defect present on BOTH sides is invisible to every diff in this
+  toolchain.** That is the blind spot `check-master-hygiene.mjs` exists for,
+  and two footnotes had been sitting in it: `john-2` fn-m (`The Greek word
+  ekcheo,`) and `matthew-5` fn-ff (`…it held authority over community
+  matters,`) are truncated identically in Word and in the repo, so they
+  matched perfectly, never surfaced as a difference, and never entered a
+  bucket. Neither was found by comparing the two sides — they came out of
+  scanning the repo's *own* published footnotes for a note that ends
+  mid-sentence. That scan covered every `indexed` chapter and found no
+  others; the ~20 other candidates it surfaced are legitimate short glosses
+  ("Future tense", "From Colossae"), which is why the shape to look for is a
+  trailing comma or colon rather than merely a missing period. The owner
+  deleted the first and trimmed the second in Word on 2026-08-19; both are
+  applied here (§17).
 - **`john-11`** — not a defect. The master brackets `[Martha and]` (v19) and
   `[Martha]` (vv20, 21, 24, 39) through the passage where Martha and Miriam
   meet Jesus outside Bethany, correcting a genuine attribution error the repo
@@ -506,15 +524,70 @@ its break positions from while leaving today's wording alone.
 markup back the way `splitTrailingBlockClose` and `splitTrailingSeparator` hold
 back the ends of a span, which is a larger change than either.
 
-## 6. Deferred to a later PR
+## 6. Master-only footnotes — reviewed 2026-08-19, 6 still open
 
-- **19 footnotes present in the masters and absent from the repo.** Adding one
-  means inserting an anchor into the verse HTML *and* cascading every later
-  footnote letter in the chapter, so each is hand work. Listed in
-  `out/deferred-master-only.json`.
-- **9 empty footnotes in the masters.** Fix on the Word side.
+`build-ledger.mjs` writes this list to `out/deferred-master-only.json` on
+every run; rebuild it rather than trusting the counts below. The 19 records
+were reviewed on 2026-08-19 and are **not one kind of thing**, which is the
+reason they sat undifferentiated for so long: "present in the master, absent
+from the repo" describes a Word placeholder, a deliberate repetition, and a
+genuine gap identically.
+
+The list stands at **18** after this round (Romans 8:15 was applied, §17) and
+will read **17** once Luke's master is re-captured — the owner deleted the
+Luke 2:13 repetition in Word on 2026-08-19, later than the Luke copy the
+current snapshot holds.
+
+- **11 are empty in the master** — a footnote reference plus a single space,
+  two runs, no drawing, field or hyperlink (checked against the raw
+  `footnotes.xml`, not just through the extractor, since an extractor
+  returning nothing is exactly what a dropped hyperlink would also look
+  like). The owner confirmed these are **placeholders for footnotes not yet
+  written**, so there is nothing to import and no repo action: 1 Cor 6:17,
+  2 Peter 1:1 (×2), 2 Peter 1:9 (×2), Galatians 3:20, Luke 7:22,
+  Matthew 3:3, Matthew 4:6 (×2), Matthew 8:9.
+- **2 were a standing note repeated at a second anchor in the same chapter.**
+  The repo carries such notes once per chapter; the master had two.
+  **Luke 2:13** (the *angelos* note — the master had it at 1:11, 2:9, 2:13,
+  12:8 and 20:36, the repo at every one of those but the second in Luke 2)
+  was **deleted in the master 2026-08-19**, so nothing moves here.
+  **Romans 8:15 is the deliberate exception and was added** (§17): the
+  owner's ruling is that it and the v14 note gloss two *different English
+  words* — "heirs" and "children" — rendering the same Greek, so the
+  repetition is the point. Note the two are not the same text: the repo's
+  v14 note carries a closing sentence the v15 one does not.
+- **6 are genuinely absent content, and are the ones still open.** Four are
+  footnote-only adds, where the repo's verse already carries the anchor word:
+
+  | record | note | anchor | cost |
+  |---|---|---|---|
+  | 1 Cor 1:2 | `Traditionally, ‘the holy ones’ or ‘the saints’` | "dedicated for sacred purposes" | new fn-f, 47 later labels shift |
+  | Galatians 1:15 | `Not ‘birth’ as some others translate it.` | "from my mother's womb" | new fn-n, 12 shift |
+  | Luke 11:32 | the *metanoia* note | "they reoriented their minds" | new fn-y, 11 shift |
+  | Mark 13:2 | `Compare this to Jeremiah 26:1-9.` | end of v2 | new fn-b, 26 shift |
+
+  Luke 11:32 is the cleanest of the four and the clearest gap: the master
+  carries that note at 3:3, 5:32, 10:13, 11:32, 13:3, 15:7, 16:30 and 17:3,
+  and the repo has every one of those chapters except Luke 11 — the only one
+  with no copy at all, so it is a real loss rather than a repetition. Its
+  text needs no writing either: `luke-13` fn-b is the identical note already
+  in the repo's curly-quote convention, so it is a verbatim copy rather than
+  an import of the master's mixed-quote version.
+
+  The other two are **not** footnote adds and must not be handled as such —
+  each glosses a word the repo's verse does not contain, because the verse
+  itself is an unresolved bucket A record:
+
+  | record | master verse | repo verse |
+  |---|---|---|
+  | `matthew-6-v2` | "when you give your compassionate donations," | "when you do your compassion work," |
+  | `matthew-11-v8` | "Someone dressed in soft clothing?" | "Someone finely dressed?" |
+
+  Adding either note on its own would anchor it to text that isn't there.
+  They belong in the bucket A queue
+  (`npm run review:reconcile -- --buckets=A`), with the verse.
 - **Verse-boundary shifts and master-has-extra-content verses**, including two
-  substantive ones: `3john-1:10` and `1corinthians-15:43`.
+  substantive ones: `3john-1:10` and `1corinthians-15:43`. Still open.
 
 ## 7. Books with no usable master
 
@@ -648,24 +721,31 @@ repo already had the lowercase form).
   directly via `spliceValue`, the same mechanism §14 used.
   `validate-chapters`, `verify-bytes`, `audit:alignment`, and the full test
   suite all pass against the result.
-- **`john-2-fn-x` is now repo-only.** The master's "Literally, 'trusted in
-  his name.'…" footnote (John 2:23) was deleted from the master entirely —
-  the repo still carries it. Not the same record as §12's `john-2-fn-w` (the
-  truncated note nearby), though the deletion shifted every later footnote id
-  in John down by one, including the §11 multi-paragraph note's — it's
-  `w:id=352` now, not `353`. Worth remembering generally: a Word footnote's
-  raw `w:id` is not a stable identifier across edits made elsewhere in the
-  document. The repo footnote label (`john-12-fn-a`) is what stays put;
-  re-derive the current `w:id` with `check-master-hygiene.mjs` rather than
-  trusting a recorded number.
+- **`john-2-fn-x` was briefly repo-only, and is not any more — corrected
+  2026-08-19.** At the 2026-08-18 capture the master's "Literally, 'trusted
+  in his name.'…" footnote (John 2:23) was absent and this bullet recorded it
+  as deleted. At the 2026-08-19 capture it is back, verbatim: John's master
+  went from 612 footnotes to 613. **No repo action was ever required.**
+  The bullet is corrected rather than removed because both halves of it are
+  worth keeping. First, a Word footnote's raw `w:id` is not a stable
+  identifier across edits made elsewhere in the document — this one note
+  going and returning renumbered every later id in John twice, including the
+  §11 multi-paragraph note's. The repo footnote label (`john-12-fn-a`) is
+  what stays put; re-derive the current `w:id` with
+  `check-master-hygiene.mjs` rather than trusting a recorded number. Second,
+  a single capture showing an absence is not evidence of a deletion. The
+  masters are live working documents, so "gone" and "gone for good" look
+  identical in one snapshot, and only a repo-side change made on that basis
+  would be hard to walk back.
 - **`matthew-15-fn-v` gained a new sentence** (a link to the site's own
   Matthew 15 Canaanite-woman article) since 2026-08-16. Only a trailing
   period now differs from the repo's copy of that footnote, but it stays
   held for the same structural reason as `1corinthians-14-fn-z` — a
   hyperlink beyond the standard footnote-ref anchor.
-- **`matthew-23-v13` picked up a new comma** (`for you, pretenders,—`; the
-  repo doesn't have it yet). Not on any back-port list before now; noted here
-  since it's new.
+- **`matthew-23-v13` picked up a new comma** (`for you, pretenders,—`).
+  **Superseded 2026-08-19:** raising it surfaced that v13 would have been the
+  only woe line in the chapter carrying the comma, so the owner extended it
+  to all of them in Word. Applied — see §17.
 - Luke's master picked up one trivial capitalization fix (`the Theological
   Dictionary` → `The Theological Dictionary`) and remains truncated at 21:38
   as before (§7) — nothing else changed. Mark's only other change is the
@@ -797,3 +877,44 @@ A corpus-wide scan for a verse repeating a 6-word run of its own text across
 blocks now reports **0** findings (it reported these 2 before the repair), and
 no other multi-block verse has drifted from its pre-restore revision except
 John 8:19/25, which is §14's intended repair.
+
+## 17. 2026-08-19 master round — 4 chapters applied
+
+A second same-day capture of Matthew, John and Romans, after the owner acted
+on the three items §6, §12 and §15 had left hanging. Every edit below is a
+byte-level splice; nothing but the named string values moves.
+
+| record | change | why |
+|---|---|---|
+| `matthew-23` vv13, 23, 25, 27, 29 | add the comma in "for you, pretenders" | master edit, 2026-08-19 |
+| `matthew-5` fn-ff | drop the truncated trailing clause | master edit; the note was cut off on both sides |
+| `john-2` fn-m, fn-w | delete both, cascade the remaining 24 notes to a–x | deleted from the master |
+| `romans-8` v15 | add the second `Traditionally, ‘sons.’` note as fn-l, cascade l–v to m–w | owner ruling, §6 |
+
+**Matthew 23:15 is deliberately untouched.** The owner's edit put the comma
+on all six woe lines in Word, but only five of them are a comma edit here:
+the repo's v15 still carries the import-era wording (`“You’d better watch
+out, fakers, Bible Scholars and Pharisees…` against the master's `“Things
+won’t end well for you, pretenders—O Bible Scholars and Pharisees…`), so it
+is a bucket A verse record and has to be restored as a whole verse or not at
+all. Adding a comma to a sentence the master does not have would have made
+the two sides look closer while leaving the real difference in place — worth
+watching for generally, since a formula repeated across a chapter invites
+exactly that kind of partial match.
+
+**Two footnote deletions and one insertion, which the byte-level tooling
+does not directly support.** `spliceValue` replaces one JSON string value, so
+it cannot express an array that changes length. The approach used here, and
+worth reusing: do every *relabelling* first with `spliceValue` at the
+elements' current indices, then remove or insert whole elements by raw line
+range, highest index first so the earlier spans stay valid. `verify-bytes`
+then reports a false positive on those two files — "formatting changed
+outside string values… the reserialize signature" — because it aligns string
+spans positionally and an array-length change desynchronises that alignment.
+It is the same blind spot the Matthew 20 merge hit (§9). The real claim was
+checked directly instead: with every string literal in the raw file blanked,
+the before and after skeletons differ **only** by whole footnote-object
+blocks, with no indentation, BOM, newline or punctuation drift.
+
+`validate-chapters`, `audit:alignment` (0 stale of 3,586), `astro check`,
+`check:links`, the full build and 354/354 tests pass.
