@@ -1,5 +1,22 @@
 [
   {
+    "version": "2026-08-18",
+    "date": "2026-08-18",
+    "label": "August 18, 2026",
+    "changes": [
+      {
+        "type": "text_updated",
+        "description": "John 11:19–21, 24, 39 — text updated",
+        "detail": "v. 19: added \"[Martha and]\"; v. 20: \"Miriam heard Jesus was coming while\" → \"[Martha] heard Jesus was coming while Miriam was\"; v. 21: \"Miriam\" → \"[Martha]\"; v. 24: \"Miriam\" → \"[Martha]\"; v. 39: \"Martha,\" → \"[Martha],\"",
+        "location": {
+          "bookKey": "john",
+          "chapter": 11,
+          "verse": 19
+        }
+      }
+    ]
+  },
+  {
     "version": "2026-08-13",
     "date": "2026-08-13",
     "label": "August 13, 2026",
