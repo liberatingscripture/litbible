@@ -533,10 +533,12 @@ reason they sat undifferentiated for so long: "present in the master, absent
 from the repo" describes a Word placeholder, a deliberate repetition, and a
 genuine gap identically.
 
-The list stands at **12** after §17, §18 and §19 (Romans 8:15, the four
-footnote-only adds below, then Matthew 6:2 and 11:8 with their verses) and will
-read **11** once Luke's master is re-captured — the owner deleted the Luke 2:13 repetition in Word on
-2026-08-19, later than the Luke copy the current snapshot holds.
+**The list now stands at exactly 11, and all 11 are the empty Word
+placeholders below** — every record in it that had any content is resolved
+(§17, §18, §19, and the Luke 2:13 deletion the owner made in Word on
+2026-08-19, confirmed by the re-capture in §21). Nothing here is outstanding.
+Rebuild the file rather than trusting that sentence; a new chapter can reopen
+it at any time.
 
 - **11 are empty in the master** — a footnote reference plus a single space,
   two runs, no drawing, field or hyperlink (checked against the raw
@@ -1171,3 +1173,71 @@ byte-identical", 1 manifest hash moving. Worth noting as the contrast case for
 `validate-chapters` (260 valid), `audit:alignment` (0 stale of 3,586 — the one
 confirmed record at Matt.23.15 is on "Hinnom Valley", in the untouched tail),
 `astro check`, `check:links`, the full build and 357/357 tests pass.
+
+## 21. Master re-capture, 2026-08-19 evening
+
+Matthew and Luke were re-captured after the day's work and the ledger rebuilt
+against them. Three things came out of it.
+
+**Where the masters come from, which cost real time to rediscover.** They are
+**synced locally**, at `$OneDrive/Documents/Scripture & Spiritual Teaching/Bible
+Translation/<Book>/<Book>.docx` — copy out to scratch, unpack the copy, never
+touch the original. That copy is the live master: its SHA-256 matched the
+`sha256Hash` Microsoft Graph reports for the cloud item exactly. **The OneDrive
+connector cannot deliver bytes here** — its download action saves into a remote
+sandbox this machine has no path to, and the `@microsoft.graph.downloadUrl` it
+will surface is bound to the connector's app identity and 401s from anywhere
+else. What the connector *is* good for is metadata: `lastModifiedDateTime`,
+`size` and `sha256Hash` answer "is my copy current" without opening anything.
+Also recorded in `scripts/reconcile/README.md`.
+
+**Watch the sync lag, not the edit.** Matthew read `lastModified 07:02Z` while
+§19 was being written and only saved out at **21:44Z**, hours after the owner
+made the edits. A master edit is not visible here until Word writes it, so
+"the owner said they changed it" and "the master says so" are separate facts
+with a gap between them. §19a records one; this section closes it.
+
+**The five verses touched today are byte-identical to the current master** —
+Matthew 6:2, 6:5, 6:16, 11:8 and 23:15. That turns §19 and §20's claims from
+"applied as instructed" into "checked against the master as it now stands".
+
+**Luke's master went 749 → 748 footnotes**, the *angelos* anchor at 2:13 gone
+and the note still at 2:9, exactly as the owner described.
+
+### What the rebuilt ledger says
+
+558 records (was 561), 21 books both runs, and **11 deferred master-only
+records — all of them the empty Word placeholders**. §6 is done.
+
+Diffing two ledgers **by record id is misleading**, because a footnote id is
+`<book>-<chapter>-fn-<label>` and every insert cascades the labels after it. A
+naive id diff showed 17 resolved and 14 new; re-keying on (book, chapter, kind,
+verse, master text) so relabels cancel gives the real picture:
+
+| | |
+|---|---|
+| **resolved** | `matthew-6-v2`, `matthew-11-v8`, `matthew-23-v15` (§19, §20), plus `hebrews-2-v8` |
+| **new** | `luke-11-fn-y` only, bucket E/cosmetic |
+
+The one new record is **expected and correct**: §18 deliberately took the repo
+twin for that note, so it carries `<em>` and curly quotes the master's plain
+text does not. A cosmetic-bucket record is what "we chose the repo's
+conventions" looks like from the ledger's side, not a regression.
+
+`hebrews-2-v8` resolving is an incidental but useful confirmation. Its old
+record's `current` text still showed the §16 duplication — the continuation
+sentence printed twice — which means the ledger it came from predated that
+repair reaching the tree. The verse is now identical to the master at 191
+characters. **The §16 repair is on `main`.**
+
+### Rebuilding it
+
+```bash
+node scripts/reconcile/build-ledger.mjs --master-dir=<unpacked> --out-dir=<out>
+```
+
+A book missing from `--master-dir` is **skipped with a warning, not an error**,
+so a partial master directory silently yields a partial ledger whose counts look
+authoritative. Assemble the full 26-book directory before rebuilding, or compare
+per-book record counts against the previous run to prove no book dropped out
+(21 books, both runs, here).

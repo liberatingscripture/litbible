@@ -1174,7 +1174,11 @@ punctuation nobody wrote, and stripped macrons off transliterated Greek.
 The masters are **read-only from this repo, always** — never edited to match the
 JSON, in either direction, and never committed (they are the author's working
 documents, and 17MB of unpacked XML besides). `MASTER_XML_DIR` points at an
-unpacked copy; see that directory's README.
+unpacked copy; see that directory's README. **The `.docx` files come from the
+local OneDrive sync folder** (`$OneDrive/Documents/Scripture & Spiritual
+Teaching/Bible Translation/<Book>/<Book>.docx`) — copy out, unpack the copy.
+The OneDrive connector cannot deliver bytes to this machine and is only good
+for metadata; the README explains why.
 
 Four things about them that are not guessable and cost real time to rediscover:
 
