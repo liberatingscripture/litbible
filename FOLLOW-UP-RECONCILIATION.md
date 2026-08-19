@@ -524,7 +524,7 @@ its break positions from while leaving today's wording alone.
 markup back the way `splitTrailingBlockClose` and `splitTrailingSeparator` hold
 back the ends of a span, which is a larger change than either.
 
-## 6. Master-only footnotes — reviewed 2026-08-19, 6 still open
+## 6. Master-only footnotes — reviewed 2026-08-19, 2 still open
 
 `build-ledger.mjs` writes this list to `out/deferred-master-only.json` on
 every run; rebuild it rather than trusting the counts below. The 19 records
@@ -533,10 +533,10 @@ reason they sat undifferentiated for so long: "present in the master, absent
 from the repo" describes a Word placeholder, a deliberate repetition, and a
 genuine gap identically.
 
-The list stands at **18** after this round (Romans 8:15 was applied, §17) and
-will read **17** once Luke's master is re-captured — the owner deleted the
-Luke 2:13 repetition in Word on 2026-08-19, later than the Luke copy the
-current snapshot holds.
+The list stands at **14** after §17 and §18 (Romans 8:15, then all four of the
+footnote-only adds below) and will read **13** once Luke's master is
+re-captured — the owner deleted the Luke 2:13 repetition in Word on
+2026-08-19, later than the Luke copy the current snapshot holds.
 
 - **11 are empty in the master** — a footnote reference plus a single space,
   two runs, no drawing, field or hyperlink (checked against the raw
@@ -556,23 +556,38 @@ current snapshot holds.
   words* — "heirs" and "children" — rendering the same Greek, so the
   repetition is the point. Note the two are not the same text: the repo's
   v14 note carries a closing sentence the v15 one does not.
-- **6 are genuinely absent content, and are the ones still open.** Four are
-  footnote-only adds, where the repo's verse already carries the anchor word:
+- **6 are genuinely absent content.** Four were footnote-only adds, where the
+  repo's verse already carried the anchor word — **all four applied, §18**:
 
   | record | note | anchor | cost |
   |---|---|---|---|
-  | 1 Cor 1:2 | `Traditionally, ‘the holy ones’ or ‘the saints’` | "dedicated for sacred purposes" | new fn-f, 47 later labels shift |
-  | Galatians 1:15 | `Not ‘birth’ as some others translate it.` | "from my mother's womb" | new fn-n, 12 shift |
-  | Luke 11:32 | the *metanoia* note | "they reoriented their minds" | new fn-y, 11 shift |
-  | Mark 13:2 | `Compare this to Jeremiah 26:1-9.` | end of v2 | new fn-b, 26 shift |
+  | 1 Cor 1:2 | `Traditionally, ‘the holy ones’ or ‘the saints’` | "dedicated for sacred purposes" | new fn-f, 47 later labels shifted |
+  | Galatians 1:15 | `Not ‘birth’ as some others translate it.` | "from my mother's womb" | new fn-n, 12 shifted |
+  | Luke 11:32 | the *metanoia* note | "they reoriented their minds" | new fn-y, 11 shifted |
+  | Mark 13:2 | `Compare this to Jeremiah 26:1-9.` | end of v2 | new fn-b, 26 shifted |
 
-  Luke 11:32 is the cleanest of the four and the clearest gap: the master
-  carries that note at 3:3, 5:32, 10:13, 11:32, 13:3, 15:7, 16:30 and 17:3,
-  and the repo has every one of those chapters except Luke 11 — the only one
-  with no copy at all, so it is a real loss rather than a repetition. Its
-  text needs no writing either: `luke-13` fn-b is the identical note already
-  in the repo's curly-quote convention, so it is a verbatim copy rather than
-  an import of the master's mixed-quote version.
+  **Three of the four are notes the repo already carries elsewhere**, which is
+  worth stating plainly because "master-only" makes them sound like new
+  content. `Traditionally, ‘the holy ones’ or ‘the saints’` is byte-identical
+  to `2corinthians-1` fn-f and `2corinthians-8` fn-d; the *metanoia* note is
+  in seven other Luke chapters; `Compare this to Jeremiah 26:1-9.` is at the
+  synoptic parallel, `matthew-24` fn-a, with an extra Matthew-specific
+  sentence the master does not repeat at Mark. Only Galatians 1:15's note is
+  nowhere else in the corpus.
+
+  **The shape of each absence says import loss, not a later Word addition.**
+  Nothing dates the Word side — `git log -S` shows each string entering at the
+  import commit only because it appears in *other* chapters, and no master
+  snapshot older than 2026-08-16 survives — so the shape is the evidence:
+  1 Cor 1:2 and Galatians 1:15 are each a **dropped anchor inside an
+  otherwise matched run** (master #6/#7/#8 against repo fn-e/fn-f, and master
+  #14/#15 against repo fn-n), which is also exactly the
+  `footnote-reference count differs` hold that kept both verses out of the
+  restore; Luke 11:32 is the sole gap in a pattern the author keeps in 8 of 8
+  chapters; Mark 13:2 is the one place a cross-reference made at both
+  synoptic parallels is missing. A note *added* to Word after the import
+  would more likely be a new observation, not the single missing instance of
+  something repeated everywhere else.
 
   The other two are **not** footnote adds and must not be handled as such —
   each glosses a word the repo's verse does not contain, because the verse
@@ -918,3 +933,52 @@ blocks, with no indentation, BOM, newline or punctuation drift.
 
 `validate-chapters`, `audit:alignment` (0 stale of 3,586), `astro check`,
 `check:links`, the full build and 354/354 tests pass.
+
+## 18. §6's four footnote-only adds — applied 2026-08-19
+
+The four master-only footnotes whose verse already carried the anchor word.
+Each insert cascades every later footnote letter in its chapter, so all four
+are byte-level splices: relabel with `spliceValue` at the elements' current
+indices first, then insert the new object by raw line range.
+
+| record | new label | later labels shifted | text taken from |
+|---|---|---|---|
+| `1corinthians-1` v2 | fn-f | 47 | `2corinthians-1` fn-f, byte-identical to master #7 |
+| `galatians-1` v15 | fn-n | 12 | master #14 — the only one with no repo counterpart |
+| `luke-11` v32 | fn-y | 11 | `luke-13` fn-b |
+| `mark-13` v2 | fn-b | 26 | master #331 |
+
+**Two of the four took the repo's own copy rather than the master's**, and the
+reason generalizes: the master's footnote text is *plain*. Word does italics
+as run formatting, which plain extraction drops, and the author's Word
+punctuation mixes straight and curly quotes. The *metanoia* note is the clear
+case — the master's copy has no `<em>` on `metanoia`, `paenitere` or `shuv`
+and carries five straight quotes the validator rejects, while `luke-13` fn-b
+is the same sentence already in the repo's conventions. **When a note already
+exists elsewhere in the corpus, copy that one.** Import from the master only
+when there is no twin.
+
+**Galatians 1:15 needed a placement repair, not just an insert.** The repo's
+single anchor there sat after "womb" while its note is about the possessive
+pronoun in "by their" — master #15's own position. The import had dropped #14
+and left #15's text in #14's slot, so the note had been hanging off a word it
+does not describe. Inserting the new note without moving the old one would
+have stacked two markers on "womb" and left the mis-anchoring in place, so
+this mirrors the master: `womb`ⁿ `by their`ᵒ. Worth watching for generally —
+a verse where the master has one more anchor than the repo may have the
+*surviving* note in the wrong place, not merely one missing.
+
+`verify-bytes` reports its known false positive on all four files (array
+length changed, so its positional span alignment desynchronises and it reads
+the result as a reserialize — same blind spot as §17 and §9). Checked
+directly instead: with every string literal blanked, each file's skeleton
+gains **only** footnote-object boilerplate lines and loses nothing, with no
+indentation, BOM, newline or punctuation drift.
+
+The corpus label scheme those cascades follow is a…z, then aa…zz, then aaa…
+— repeated letters, not base-26. The helper used here was validated against
+all 5,483 footnotes in the corpus before anything was written.
+
+`validate-chapters` (260 valid), `audit:alignment` (0 stale of 3,586),
+`astro check`, `check:links` (32,034 links, up 8 for the new anchor pairs),
+the full build and 357/357 tests pass.
