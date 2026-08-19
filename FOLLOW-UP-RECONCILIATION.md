@@ -142,6 +142,63 @@ Two different things are mixed together here and they want opposite answers:
 
 Telling them apart needs a reader who knows the intent. Listed under "Bucket D".
 
+**Update, 2026-08-18: 7 of these decided — all back-port to Word.** (The "9
+footnotes, 1 verse" above is the same pre-2026-08-16 staleness §2 has — a
+fresh ledger rebuild puts the real remaining count at 7, all footnotes, all
+in books with a usable master.) None of the seven read as import inventions —
+each carries specific, checkable content (a real Dutch Bible-translation
+tradition, an exact Greek grammatical-case distinction, correctly-cited
+scripture translations) that an elaborating import has no mechanism to
+produce. This is the Word back-port list — type each into its footnote at the
+matching verse:
+
+- **`1corinthians-3-fn-f`** — "The verse gloss indicates the Lord is the one
+  trusted; the assignment is the Lord's, and the servants are the means."
+- **`1corinthians-15-fn-t`** — "In English, translations have traditionally
+  simply taken the Greek word and put it in English letters: baptizo to
+  'baptize.' The historical reason for this was that the first translators of
+  the Bible into English practiced infant baptism, and the Greek word
+  literally means 'dip' or 'immerse something in a liquid,' it didn't fit
+  with their doctrine and practice. Other languages translate it fully, so in
+  Dutch, for example, John is known as 'John the Dipper.' In addition to the
+  literal action of dipping or immersing in the water, this is clearly a
+  reference to ceremonial cleansing, preparing people for a sacred calling."
+- **`1corinthians-15-fn-cc`** — "Traditionally, 'Spiritual.' The Greek word
+  pneumatikon could be used to refer to something connected with or
+  pertaining to 'wind,' 'breath,' or an animating energy within people,
+  thought to be perceptible in the breath. Hebrew and Latin also use the same
+  word for all these concepts. In scripture, it typically calls back the
+  image to Genesis 1 and 2: "the Spirit of God was hovering over the surface
+  of the waters" (Genesis 1:2 NASB) and "the Lord God formed the human from
+  the topsoil of the fertile land and blew life's breath into [its]
+  nostrils. The human came to life." (Genesis 2:7 CEB)."
+- **`james-2-fn-a`** — "The Greek would most likely be 'faithfulness of' (or
+  possibly 'trust of') here rather than the traditional 'faith in.' The
+  construction is different than that places that could possibly be
+  translated with the English 'in' which usually include the Greek
+  preposition eis or at least the object of trust being in the dative case
+  form. This example has neither, instead being in the genitive case form,
+  most likely indicating a possession or quality of Christ."
+- **`john-2-fn-x`** — "Literally, 'trusted in his name.' The idea is that
+  they trusted him enough to commit their allegiance to him." **Different
+  provenance from the other six**: this footnote (John 2:23) was in the
+  master and was deleted from it entirely sometime before 2026-08-16 (§15).
+  Back-port restores it rather than adding new content — confirmed 2026-08-18
+  that the deletion was not intentional.
+- **`john-13-fn-z`** — "It is not completely clear whether 'him' refers to
+  God or to the Son of Humanity."
+- **`matthew-11-fn-n`** — "The Greek word for 'yoke' is zugos, the wooden
+  beam that joined a pair of working animals or that a laborer wore across
+  the shoulders to carry a load. It may be an allusion to the book of
+  Sirach, where Wisdom calls those who lack instruction to draw near to her
+  and put their necks under her yoke (Sirach 51:23-27). The same three
+  elements that appear here appear together there: an invitation to come, a
+  yoke, and the promise of rest (anapausis, the same word translated 'rest'
+  in v. 28). Sirach 6:24-30 develops the picture, where the yoke and fetters
+  of Wisdom that at first feel like a heavy burden become, in the end, rest,
+  a robe of honor, and a golden ornament. In this tradition the yoke stands
+  for a way of carrying instruction, not for forced labor."
+
 ## 4. Quote-style and whitespace differences (409)
 
 Cases where the two sides say the same words with different punctuation
@@ -544,3 +601,41 @@ these five books as far as this recheck could tell — the specific examples
 named in each section were checked directly against the fresh text, though
 none of those sections were re-verified record-by-record the way bucket A
 was.
+
+**Update, 2026-08-18: §2 rebuilt fresh, and worked record-by-record.** The 95
+count above was already stale by the time it was written — most of those 88
+footnotes had been resolved in the 2026-08-16 hand review without the section
+prose being updated to match. Rebuilding the ledger from a live re-copy of
+every master put the real remaining count at **7** (matching §3's real count
+of 7, not 10 — same staleness, same cause). All 7 were reviewed and decided
+this session:
+
+| record | decision | outcome |
+|---|---|---|
+| `1corinthians-16-fn-j` | repo drop the "(Greek: …)" gloss it added; master has none | **applied** |
+| `luke-13-v16` | match the master: spell out "eighteen" | **applied** |
+| `luke-18-fn-o` | match the master: em dash → comma before "removing" | **applied** |
+| `luke-9-fn-b` | match a same-day master edit: "evidence"/"testimony" → single curly quotes | **applied** |
+| `mark-15-fn-d` | owner fixed a mismatched quote pair (`"The people'` → `"The people"`) in Word same-day | **already matches — no repo change** |
+| `1corinthians-14-v33` | owner updated Word to match the repo's existing "contention"/"peace" wording | **confirmed match — no repo change** |
+| `luke-16-v14` | owner edit in Word only reached one of two malformed dashes in the sentence | **held — see below** |
+
+`luke-9-fn-b`'s single-quote form isn't a one-off: the repo's own `luke-18-fn-o`
+already uses single curly quotes the same way, for the same kind of thing —
+glossing a short English equivalent of a Greek/Aramaic term inline in a
+footnote, as distinct from an actual quotation. The fresh master text matches
+an existing corpus pattern, not just this one instruction.
+
+**`luke-16-v14` needs one more pass in Word, not a repo edit.** The verse
+reads "the Pharisees[dash]since they were attached to money[dash]heard these
+things" with two dashes that should presumably match. Before this round both
+were a doubled en dash (`––`, not a real em dash) where the repo has always
+had a single em dash (`—`) at both spots. The 2026-08-18 Word edit fixed only
+the second one — "money—heard" now matches the repo exactly, but
+"Pharisees––since" still reads as `––`. Per the standing rule for edits still
+in progress, this is reported rather than silently finished to match: the
+likely fix (drop the extra en dash to match the sentence's own other dash, and
+the repo) is not applied here.
+
+All four applied edits passed `validate-chapters`, `verify-bytes --base=main`,
+`audit:alignment` (0 stale), and the full test suite (354/354) before commit.
