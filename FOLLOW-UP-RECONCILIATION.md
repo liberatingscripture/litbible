@@ -543,3 +543,41 @@ these five books as far as this recheck could tell — the specific examples
 named in each section were checked directly against the fresh text, though
 none of those sections were re-verified record-by-record the way bucket A
 was.
+
+**Update, 2026-08-18: §2 rebuilt fresh, and worked record-by-record.** The 95
+count above was already stale by the time it was written — most of those 88
+footnotes had been resolved in the 2026-08-16 hand review without the section
+prose being updated to match. Rebuilding the ledger from a live re-copy of
+every master put the real remaining count at **7** (matching §3's real count
+of 7, not 10 — same staleness, same cause). All 7 were reviewed and decided
+this session:
+
+| record | decision | outcome |
+|---|---|---|
+| `1corinthians-16-fn-j` | repo drop the "(Greek: …)" gloss it added; master has none | **applied** |
+| `luke-13-v16` | match the master: spell out "eighteen" | **applied** |
+| `luke-18-fn-o` | match the master: em dash → comma before "removing" | **applied** |
+| `luke-9-fn-b` | match a same-day master edit: "evidence"/"testimony" → single curly quotes | **applied** |
+| `mark-15-fn-d` | owner fixed a mismatched quote pair (`"The people'` → `"The people"`) in Word same-day | **already matches — no repo change** |
+| `1corinthians-14-v33` | owner updated Word to match the repo's existing "contention"/"peace" wording | **confirmed match — no repo change** |
+| `luke-16-v14` | owner edit in Word only reached one of two malformed dashes in the sentence | **held — see below** |
+
+`luke-9-fn-b`'s single-quote form isn't a one-off: the repo's own `luke-18-fn-o`
+already uses single curly quotes the same way, for the same kind of thing —
+glossing a short English equivalent of a Greek/Aramaic term inline in a
+footnote, as distinct from an actual quotation. The fresh master text matches
+an existing corpus pattern, not just this one instruction.
+
+**`luke-16-v14` needs one more pass in Word, not a repo edit.** The verse
+reads "the Pharisees[dash]since they were attached to money[dash]heard these
+things" with two dashes that should presumably match. Before this round both
+were a doubled en dash (`––`, not a real em dash) where the repo has always
+had a single em dash (`—`) at both spots. The 2026-08-18 Word edit fixed only
+the second one — "money—heard" now matches the repo exactly, but
+"Pharisees––since" still reads as `––`. Per the standing rule for edits still
+in progress, this is reported rather than silently finished to match: the
+likely fix (drop the extra en dash to match the sentence's own other dash, and
+the repo) is not applied here.
+
+All four applied edits passed `validate-chapters`, `verify-bytes --base=main`,
+`audit:alignment` (0 stale), and the full test suite (354/354) before commit.
