@@ -221,20 +221,21 @@ Five of the original 16 — the five cross-verse ones — were **seeded
 automatically** when the tool started, because every hunk in them defaulted;
 they were not necessarily looked at.
 
-### The 47 that stay held
+### The 43 that stay held
 
 | reason | count | why it stops |
 |---|---|---|
 | cross-verse quotation boundary | 16 | the two sides differ in nothing but quote characters, and the quotation's other end sits in a different verse — section 9 |
 | footnote-reference count differs | 14 | the two sides disagree on how many notes the verse carries, so restoring would add or drop an anchor |
 | would introduce a wrong-direction quote pair | 5 | the master's wording is wanted but arrives with `‘lord”`; taking it imports the defect section 10 exists to fix |
-| verse-boundary disagreement | 4 | John 8:19–20 and 25–26; see below |
 | hyperlink in the footnote | 3 | structure the master extractor cannot produce |
 | doubled word / truncated master / mis-wrapped verse / blockquote continuation / multi-paragraph note | 5 | one each |
 
-(A sixth reason, "square brackets into scripture" — John 11's `[Martha and]` /
-`[Martha]`, 4 records — held this pool at 51 as of 2026-08-16. All four are
-now applied; see §15.)
+(Two more reasons held this pool higher as of 2026-08-16 and are gone now:
+"verse-boundary disagreement" — John 8:19–20 and 25–26, 4 records, applied
+2026-08-18, see below — and "square brackets into scripture" — John 11's
+`[Martha and]`/`[Martha]`, 4 records, applied 2026-08-18, see §15. 51 → 47 →
+43.)
 
 The 14 anchor-count cases are worth a look regardless of the restore:
 `1corinthians-3:5`, `2corinthians-4:4`, `2peter-1:1`, `2peter-1:9`,
