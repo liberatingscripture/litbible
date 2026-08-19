@@ -179,6 +179,48 @@
           "verse": 2
         },
         "relabel": "footnotes formerly b–aa relabeled c–bb"
+      },
+      {
+        "type": "text_updated",
+        "description": "Matthew 11:8 — text updated",
+        "detail": "\"finely dressed? No, people who wear fine things\" → \"dressed in soft clothing? No, people who wear soft clothes\"",
+        "location": {
+          "bookKey": "matthew",
+          "chapter": 11,
+          "verse": 8
+        }
+      },
+      {
+        "type": "footnote_added",
+        "description": "Matthew 11:8 — footnote d added",
+        "detail": "added \"This is the same word, malakos, that appears in 1 Corinthians 6:9 that is typically mistranslated as condemning being e…\"",
+        "location": {
+          "bookKey": "matthew",
+          "chapter": 11,
+          "verse": 8
+        },
+        "relabel": "footnotes formerly d–n relabeled e–o"
+      },
+      {
+        "type": "text_updated",
+        "description": "Matthew 6:2, 5, 16 — text updated",
+        "detail": "v. 2: \"do your compassion work, don’t blow a trumpet ahead of you …\" → \"give your compassionate donations, don’t blow a trumpet ahe…\"; v. 5: \"payment\" → \"repayment\"; v. 16: \"payment\" → \"repayment\"",
+        "location": {
+          "bookKey": "matthew",
+          "chapter": 6,
+          "verse": 2
+        }
+      },
+      {
+        "type": "footnote_added",
+        "description": "Matthew 6:2 — footnote c added",
+        "detail": "added \"This word is derived from the word for compassion, and it refers to almsgiving, or donations to the poor and people beg…\"",
+        "location": {
+          "bookKey": "matthew",
+          "chapter": 6,
+          "verse": 2
+        },
+        "relabel": "footnotes formerly c–hh relabeled d–ii"
       }
     ]
   },
