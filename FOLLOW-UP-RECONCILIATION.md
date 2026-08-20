@@ -72,10 +72,15 @@ inference against the pre-damage revision in git — all 59 reproduce the ending
 they had. `build-ledger.mjs` no longer produces it and `apply.mjs` now refuses a
 write that changes any paragraph's block-tag balance.
 
-## 0. The dash convention — one decision, corpus-wide
+## 0. The dash convention — SETTLED 2026-08-20 (repo only)
 
-Not a defect, and **not something the restore should decide record by record**,
-but worth settling once.
+Not a defect, and **not something the restore should decide record by record**.
+It was settled once, in a single pass: see §25. A numeric range takes an en dash
+in the repo; the masters keep hyphens, so this is deliberately not a back-port
+item and every future restore will pull individual ranges back toward the
+hyphen. Re-run the pass rather than fixing them one at a time.
+
+The original survey, kept for the reasoning:
 
 Numeric ranges are written inconsistently across the corpus, and always have
 been: before any of this work there were 376 hyphen ranges (`19-31`) against 177
@@ -1502,3 +1507,93 @@ one-rule change that keeps this class from ever accumulating again — but note 
 cannot be applied to `paragraphs`, where a quotation legitimately spans blocks
 and chapters (John 15–17 is one continuous speech), so it is a footnote-only
 rule.
+
+## 25. Where the remaining buckets actually live (triage, 2026-08-20)
+
+The standing question — "is all of this in the masters?" — has three different
+answers, and they point at two different lists. Rebuild the ledger before
+trusting any count here:
+
+```bash
+MASTER_XML_DIR=<your unpacked copy> node scripts/reconcile/build-ledger.mjs --out-dir=scripts/reconcile/out
+```
+
+At this capture: **547 records — E 487, B 46, A 9, D 4, C 1.**
+
+### Read the ledger's diff direction correctly
+
+`shape.diff.ops` marks a token **`added` when the REPO has it and the master
+does not**, and `removed` for the reverse. Getting that backwards inverts every
+conclusion — it makes a repo that is already correct look like the damaged side,
+and it cost a full re-derivation of bucket A during this session. Reconstruct a
+side and read the actual footnote before ruling.
+
+### Bucket A (9) — in the masters, and the **master** is the wrong side
+
+All nine exist in both. Each differs by a single quotation mark, and in every
+one the repo is already right, so **nothing here is a repo change.** These
+belong on the **master correction list**, not the back-port list.
+
+| record | repo (correct) | master (defective) |
+|---|---|---|
+| `1corinthians-9` fn-r | `not pulling my punches,’ so to speak.` | `…punches” so to speak.` |
+| `ephesians-4` fn-dd | `…you are to strip off…’` | `…strip off…”` |
+| `hebrews-1` fn-e | `‘right hand of the Majesty’)` | `‘right hand of the Majesty)` — no closer |
+| `hebrews-12` fn-b | `or ‘arena.’ The sense…` | `or ‘arena. The sense…` — no closer |
+| `john-18` fn-g | `‘lost to death,’ could be` | `‘lost to death, could be` — no closer |
+| `john-19` fn-p | `‘heard these logos (plural).’` | `…(plural).”` — wrong direction |
+| `john-19` fn-aa | `“look, your son.”` | `“look, your son.’` — wrong direction |
+| `matthew-4` fn-e | `peirazon, which means … a trial,”` | both commas missing (**owner ruled: repo correct**) |
+| `matthew-15` fn-v | `…/articles/matthew-15-canaanite-woman` | a trailing `.` after the URL |
+
+This is §10's list, still unresolved — the repo needed no patch, so nothing in
+the pipeline ever closed them out.
+
+### Bucket B (46) — **not** in the masters; this is the back-port list
+
+Bucket B *is* "the repo was edited after the import and Word never caught up," so
+by construction the masters do not carry this text. 27 predate this session; the
+other 19 are the shared-note normalization and quote repairs from §23 and §24,
+whose per-book instructions are already written out there.
+
+### Bucket D (4) — **not in the masters at all**
+
+These carry `text.master: null`: whole footnotes that exist only in the repo.
+Not a wording difference — Word has no counterpart to compare against.
+
+| record | what it is |
+|---|---|
+| `1corinthians-15` fn-t | the *baptizo* transliteration note |
+| `1corinthians-15` fn-cc | the *pneumatikon* note, with the Genesis 1–2 quotations |
+| `john-13` fn-z | "It is not completely clear whether ‘him’ refers to God or to the Son of Humanity." |
+| `matthew-11` fn-o | the *zugos* / Sirach yoke note |
+
+All four are substantive and clearly wanted, so they belong on the **back-port
+list** — paste them into Word — rather than being deleted from the repo. That is
+a ruling to confirm, not an inference the ledger can make.
+
+### Bucket C (1) — transient
+
+`romans-10-v11`, and only because the ledger was rebuilt mid-edit. It is the
+repair below, not a finding.
+
+### Also queued for back-port from this round
+
+| repo | master | fix |
+|---|---|---|
+| `romans-10` v11 | Romans | `The scripture says, everyone…` → `says, “Everyone…` |
+| `romans-12` v20 | Romans | `Rather, if the one…` → `Rather, “if the one…` |
+| `romans-13` fn-m | Romans | `Exodus 20-13-17` → `Exodus 20:13-17` — not a reference as written; the same master reads `Exodus 20:17` two notes earlier, and the `Deuteronomy 5:17-21` beside it is the same set of commandments |
+
+**The en-dash conversion is deliberately NOT on this list.** §0 is settled
+repo-only by owner ruling: 413 numeric ranges became en dashes here, and the
+masters keep hyphens.
+
+**But the ledger is not blind to it, so expect the counts to jump.** Rebuilding
+after the conversion took the ledger from 547 records to 817: bucket **E went
+from 487 to 756**, absorbing the ~269 notes whose only difference is now a dash,
+and two more landed in B where a dash change sits beside a real one. That is the
+right bucket — E is the cosmetic pile and nothing there needs a decision — but a
+future session comparing raw totals against §21 or §22 will otherwise read a
+deliberate normalization as a regression. **A and D are unmoved at 9 and 4,
+which is the number that actually matters.**
