@@ -43,6 +43,7 @@ npm run dev        # start the dev server at http://localhost:4321
 | `npm run check` | Type-check `.astro`/`.ts` files |
 | `npm run validate:chapters` | Check all chapter JSON files for errors |
 | `npm run fix:chapters` | Auto-fix chapter JSON formatting |
+| `npm run import:chapter` | Build chapter JSON from a Word master (see below) |
 | `npm test` | Run the unit test suite |
 | `npm run check:links` | Verify every internal link in a production build resolves |
 | `npm run build:favicons` | Regenerate the favicon and app-icon set from the emblem SVGs (only needed when the logo changes) |
@@ -90,6 +91,26 @@ npm run validate:chapters
 
 A git pre-commit hook also validates staged chapter files automatically, so a
 malformed chapter can't be committed.
+
+## Importing a chapter from Word
+
+The translation is written in Word, one document per book, and those documents
+are the masters. `npm run import:chapter` turns one into chapter JSON:
+
+```sh
+npm run import:chapter -- --docx="<path to a copy>" --book=philemon --chapter=1 --report
+```
+
+`--report` inspects and writes nothing, which is the normal first run. Copy the
+master out of OneDrive and point at the copy — the masters are read-only from
+this repo.
+
+The importer's promise is fidelity, not tidying: **no visible character of the
+master reaches the JSON altered**, apart from straight quotes becoming curly
+and numeric ranges taking an en dash. Anything else it notices — a typo, a
+quotation that never closes — it reports and refuses, so the fix happens in
+Word and the two sides stay in step. `CLAUDE.md` explains why that refusal is
+the feature.
 
 ## The alignment dataset
 

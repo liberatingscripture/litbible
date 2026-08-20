@@ -1681,3 +1681,54 @@ refetches those chapters once. The benefit is that **the corpus is now
 text-searchable for transliterations**, which it was not before — a scan for
 `ekdemeo` or `haya` found nothing at all while the letters were split across
 runs. That silence is the dangerous part: it looks exactly like absence.
+
+---
+
+## §27 — The importer, and the validator rules the reconciliation earned
+
+**Status: SETTLED 2026-08-20 (repo only).** Nothing here needs a Word-side
+change; §23–§26 still carry everything that does.
+
+Six months of reconciliation produced two artifacts worth more than the
+repairs themselves, because they are the parts that keep the damage from
+recurring.
+
+### `scripts/import-chapter.mjs` — so the next book is not the last one again
+
+Every defect class §1–§26 documents traces to one hand import in 2026-02. The
+importer's guarantee is stated in `lib/import-core.mjs` and in CLAUDE.md, and
+the load-bearing half of it is the *refusal*: two pre-approved changes are
+automated because `foldAllowed` can reverse them, and therefore the fidelity
+gate can see through them; everything else is reported and left alone. A third
+exception would have to extend that fold in the same change, or it would be
+reported as a fidelity failure on every import.
+
+Verified by round-tripping Philemon — 8/8 paragraphs, 16/16 footnotes,
+byte-identical verse text and footnotes against the reconciled repo copy — and
+by Titus 2, which correctly refuses on the one master-side defect §23's
+back-port table lists.
+
+### Five validator rules
+
+Each one exists because a real defect shipped past every check that came before
+it, and each is now covered by both a defect fixture and a near-miss control in
+`test/validate-chapters.test.js`. The controls are the important half: a rule
+that fired on the bracketed-passage opening, on two footnote anchors in a row,
+or on a URL in visible link text would be worse than no rule, because it would
+train whoever hit it to reach for `--fix`.
+
+| Rule | The defect it would have caught |
+|------|----------------------------------|
+| `footnote_quote_balance` | five *hupotasso* copies with no closing `”` (§23) |
+| `footnote_anchor_sequence` | `2corinthians-5` fn-f/fn-g transposed (§26) |
+| `verse_marker_separator` | 135 welded markers from restores, plus two from the import (§6, §26) |
+| `no_fragmented_tag_runs` | 187 Word run seams across 47 files (§26) |
+| `en_dash_numeric_ranges` | 413 hyphenated ranges (§25) |
+
+Note what the first rule still cannot see: it *counts* curly doubles, it does
+not *pair* them, so a note whose quotes balance while running the wrong
+direction (`‘lord”`) passes. Seven of those were fixed by hand in §24 and
+`auditWrongDirectionPairs` exists, but it is a read-only reconciliation tool
+and is deliberately not wired into the validator — its judgment about which
+mark is wrong needs a reader, not a gate.
+

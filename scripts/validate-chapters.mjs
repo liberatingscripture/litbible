@@ -18,6 +18,11 @@
 import { readFileSync, writeFileSync, readdirSync } from "fs";
 import { resolve, join, relative } from "path";
 import { fileURLToPath } from "url";
+// Where a verse begins inside a paragraph, and therefore what must sit before
+// its marker. Shared with the reconciliation toolchain rather than restated
+// here: a second copy of that rule is the one way it could quietly stop
+// agreeing with the tools that repair against it.
+import { findUnseparatedVerseMarkers } from "./reconcile/lib/verse-span.mjs";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const root = resolve(__dirname, "..");
@@ -40,6 +45,21 @@ const files =
 if (files.length === 0) {
   console.error("No chapter files found.");
   process.exit(1);
+}
+
+/** Visit every prose-bearing string in a chapter with a human-readable label.
+ *  Paragraphs are named by their own id where they have one, so a message can
+ *  point at "paragraph john-3-p1" rather than at an array index. */
+function forEachProse(data, visit) {
+  if (Array.isArray(data.paragraphs)) {
+    data.paragraphs.forEach((p, i) => {
+      const id = typeof p === "string" ? p.match(/id="([^"]+)"/)?.[1] : null;
+      visit(p, `paragraph ${id ?? i + 1}`);
+    });
+  }
+  if (Array.isArray(data.footnotes)) {
+    for (const fn of data.footnotes) visit(fn.html, `footnote fn-${fn.label}`);
+  }
 }
 
 // ── Required top-level fields ─────────────────────────────────────────────────
@@ -319,6 +339,119 @@ for (const filePath of files) {
   }
   if (Array.isArray(data.footnotes)) {
     for (const fn of data.footnotes) checkProse(fn.html, `footnote fn-${fn.label}`);
+  }
+
+  // ── Footnote quote balance ────────────────────────────────────────────────
+  // A footnote is a self-contained editorial object, so its curly double quotes
+  // must balance INSIDE it. Cheap, and it is what found every defect of the
+  // 2026-08 shared-note cleanup: five copies of the hupotasso note had lost the
+  // closing ” of a quotation from TDNT, and no master-vs-repo diff could raise
+  // it, because both sides were fragmented. Doubles only — a curly ’ is an
+  // apostrophe far more often than a nested closer, so singles cannot be counted.
+  if (Array.isArray(data.footnotes)) {
+    for (const fn of data.footnotes) {
+      const text = String(fn.html ?? "").replace(/<[^>]*>/g, "");
+      const open = (text.match(/“/g) || []).length;
+      const close = (text.match(/”/g) || []).length;
+      if (open !== close) {
+        errors.push(
+          `footnote fn-${fn.label} has unbalanced curly double quotes (${open} “ / ${close} ”) — a footnote must open and close its own quotations`
+        );
+      }
+    }
+  }
+
+  // ── Footnote anchor sequence ──────────────────────────────────────────────
+  // The anchors must appear in the document in the same order as footnotes[],
+  // because the labels are positional (a…z, then aa…zz) and a reader meets them
+  // in reading order. The referential check above proves each anchor RESOLVES,
+  // never that the sequence agrees — which is how 2corinthians-5 shipped fn-f
+  // and fn-g transposed (anchor order e g f h) with every link still working.
+  if (Array.isArray(data.paragraphs) && Array.isArray(data.footnotes)) {
+    const order = [...data.paragraphs.join("\n").matchAll(/id="fnref-([^"]+)"/g)].map((m) => m[1]);
+    const dupes = [...new Set(order.filter((l, i) => order.indexOf(l) !== i))];
+    if (dupes.length) {
+      errors.push(
+        `footnote anchor(s) appear more than once: ${dupes.map((d) => `fnref-${d}`).join(", ")} — the return link becomes ambiguous`
+      );
+    }
+    const seen = order.filter((l, i) => order.indexOf(l) === i);
+    const expected = data.footnotes.map((fn) => fn.label).filter((l) => seen.includes(l));
+    if (JSON.stringify(seen) !== JSON.stringify(expected)) {
+      let i = 0;
+      while (i < seen.length && seen[i] === expected[i]) i++;
+      errors.push(
+        `footnote anchors run out of order: at position ${i + 1} the text has "${seen[i]}" but footnotes[] has "${expected[i]}"`
+      );
+    }
+  }
+
+  // The helper hands back a fixed-width slice, so it can open mid-tag. Drop
+  // that leading fragment before stripping, or its attributes read as prose.
+  const tail = (before) =>
+    String(before)
+      .replace(/^[^<>]*>/, "")
+      .replace(/<[^>]*>/g, "")
+      .replace(/&nbsp;/g, " ")
+      .slice(-24);
+  // ── Verse-marker separators ───────────────────────────────────────────────
+  // sup.vn is inline-block and no CSS supplies a gap, so the space before a
+  // verse marker has to be in the text; without it the number welds to the
+  // preceding sentence ("sheep.12 The"). The one legitimate shape is a
+  // paragraph opening a bracketed passage, where the [| marker and its footnote
+  // anchor precede the first verse — that exemption lives here at the call
+  // site, not in the shared helper, matching how the changelog handles the
+  // same case.
+  if (Array.isArray(data.paragraphs)) {
+    for (const hit of findUnseparatedVerseMarkers(data.paragraphs)) {
+      const p = String(data.paragraphs[hit.paragraphIndex] ?? "");
+      if (/^<(?:p|blockquote)\b[^>]*>\[\|<sup class="fn-ref">/.test(p)) continue;
+      errors.push(
+        `verse ${hit.verse} marker has no separator before it — "…${tail(hit.before)}${hit.verse}" welds the number to the preceding sentence`
+      );
+    }
+  }
+
+  // ── Fragmented tag runs ───────────────────────────────────────────────────
+  // Word splits a styled phrase at every run boundary, and those boundaries
+  // rarely fall on a word: the 2026-02 import carried in
+  // <em>ekd</em><em>e</em><em>me</em><em>o</em>, which renders correctly and so
+  // hid for months while defeating every text search over the corpus (a search
+  // for "ekdemeo" finds nothing). Only attribute-less same-name seams count —
+  // two real <sup class="fn-ref"> anchors in a row are a legitimate shape.
+  {
+    const seamRe = /<\/([a-z]+)><\1>/g;
+    const scanSeams = (html, where) => {
+      for (const m of String(html ?? "").matchAll(seamRe)) {
+        errors.push(
+          `${where} splits a <${m[1]}> run at "${m[0]}" — collapse the seam so the phrase is one run and stays searchable`
+        );
+      }
+    };
+    forEachProse(data, scanSeams);
+  }
+
+  // ── En dash in numeric ranges ─────────────────────────────────────────────
+  // "Matthew 5:3–12", never a hyphen. A repo-only convention: the Word masters
+  // keep hyphens, because Word autocorrects a dash between WORDS and not
+  // between digits, so every restore from a master pulls ranges back toward the
+  // hyphen. Two exclusions — anything inside a tag (id="john-3-p1"), and a URL
+  // printed as visible link text, where an en dash breaks the link.
+  {
+    const isUrl = (tok) =>
+      tok.includes("://") ||
+      /(^|\/)www\./.test(tok) ||
+      /\b[a-z0-9-]+\.(?:com|org|net|edu|gov)\b/i.test(tok);
+    const scanRanges = (html, where) => {
+      for (const part of String(html ?? "").split(/(<[^>]*>)/).filter((_, i) => i % 2 === 0)) {
+        for (const tok of part.split(/\s+/)) {
+          if (/[0-9]-[0-9]/.test(tok) && !isUrl(tok)) {
+            errors.push(`${where} writes the numeric range "${tok}" with a hyphen — use an en dash (–)`);
+          }
+        }
+      }
+    };
+    forEachProse(data, scanRanges);
   }
 
   // ── Report ────────────────────────────────────────────────────────────────
