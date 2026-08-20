@@ -1597,3 +1597,87 @@ right bucket — E is the cosmetic pile and nothing there needs a decision — b
 future session comparing raw totals against §21 or §22 will otherwise read a
 deliberate normalization as a regression. **A and D are unmoved at 9 and 4,
 which is the number that actually matters.**
+
+## 26. The footnote-sequence audit — done (2026-08-20)
+
+The last outstanding repo-side item. Two sweeps over all 206 published chapters:
+anchors must appear in `paragraphs` in the same order as `footnotes[]`, and a
+verse marker must be separated from whatever precedes it.
+
+`validate-chapters.mjs` checks that every anchor **resolves** and that every
+footnote **is referenced** (the latter only as a warning), but never that the
+**sequence agrees** — which is how `james-2`'s anchors sat one position off
+through vv13–15 without anything reporting it.
+
+### Finding 1 — `2corinthians-5`, letters running `e g f h`
+
+The only chapter in the corpus out of order. The anchors were on the right
+words the whole time: *endemeo* ("at home") on "in our homeland", *ekdemeo*
+("away") on "out of our homeland" — which is also the master's note order
+(#66 *endemeo*, #67 *ekdemeo*). Only the letters were backwards.
+
+**So the repair is a swap, not a relabel.** Both note bodies swap and both
+anchors swap, which leaves every note attached to the same word it explains
+while the letters come out `e f g h`. Relabelling alone would have produced
+correct-looking letters with the two notes explaining each other's words.
+
+### Finding 2 — `matthew-12` v5 and v6, welded markers
+
+`…for the priests?<sup>b</sup><span class="vglue">` renders as `priests?ᵇ5`:
+`sup.vn` is `inline-block` and no CSS supplies the gap, so the separator has to
+be in the text. The corpus votes **758 to 2**.
+
+Two things make this different from §6's welded markers, and both had to be
+checked before touching it:
+
+1. **The master reads `priests? 5 Or`, with the space.** So this is a repo-side
+   import loss and there is nothing to back-port — the opposite of §6, where the
+   master had no separator to contribute.
+2. **Git history puts the loss at the original 2026-02 import, not at a
+   restore.** That is exactly why `repair-verse-separators.mjs` left them: it
+   repairs only where the *pre-restore* revision had a separator, so the
+   author's own unseparated markers stay untouched. An import-era loss is
+   invisible to that rule.
+
+### The third hit was not a defect
+
+`john-11` v28 is the **documented bracketed-passage opening** — `[|` at the
+start of the paragraph, then a footnote marker, then the `vglue` span. A
+paragraph-initial marker wants no separator. Any future run of this check must
+exempt that shape or it will report John 11, John 7, Mark 16 and Romans 16
+forever.
+
+### Fragmented `<em>` runs — collapsed (187 seams, 71 footnotes, 47 files)
+
+Found while writing the audit’s own guard, which failed to match `ekdemeo`
+because the corpus stored it as `<em>ekd</em><em>e</em><em>me</em><em>o</em>` —
+Word’s run boundaries surviving the import, the same thing CLAUDE.md notes about
+*soter* arriving as five per-letter pairs. Worst case was
+`<em>h</em><em>a</em><em>y</em><em>a</em>`. All 187 were in **footnotes**; verse
+text had none.
+
+**Only directly adjacent, attribute-less, same-name tags merge.** Two rules do
+the work:
+
+1. **A tag with attributes is never touched.** That is what keeps two real
+   `<sup class="fn-ref">` anchors in a row apart, and `<span class="vglue">`
+   spans apart. Merging either would be a genuine corruption.
+2. **A seam with anything between it is left alone**, including a single space:
+   `<em>a</em> <em>b</em>` is a different authoring choice from `<em>a b</em>`.
+
+The pass proves equivalence rather than asserting it. For each note it computes
+a **(text, formatting-per-character) map** — for every character of the stripped
+text, which tags are open over it — and refuses the edit unless that map is
+byte-identical before and after. Two HTML strings with the same map render
+identically, which is a stronger claim than comparing the stripped text alone.
+
+**`draft-release-notes.mjs` independently agreed**: it reported *no content
+changes* across all 47 files, because it compares rendered text with markup
+normalized away. So this round needed no skip entry — there was nothing to
+suppress.
+
+The cost was real but one-time: 47 manifest hashes move, so every app install
+refetches those chapters once. The benefit is that **the corpus is now
+text-searchable for transliterations**, which it was not before — a scan for
+`ekdemeo` or `haya` found nothing at all while the letters were split across
+runs. That silence is the dangerous part: it looks exactly like absence.
