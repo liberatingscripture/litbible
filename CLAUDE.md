@@ -646,11 +646,24 @@ in the verse at all. That is why the check imports the real function rather than
 restating the rule: a second copy is the one way it could quietly stop being
 true.
 
-When a record is stale, **delete it rather than marking it `rejected`** —
-`isDecided` treats any non-`auto` record as settling the verse, so rejecting
-buries it from the queue permanently, while deleting returns it to be decided.
-Repair in place only when the wording is unchanged and just the characters moved
-(a straight apostrophe turning curly).
+It reports **two kinds**, because they want opposite remedies. `Stale` means the
+record no longer describes its verse: **delete it rather than marking it
+`rejected`** — `isDecided` treats any non-`auto` record as settling the verse,
+so rejecting buries it from the queue permanently, while deleting returns it to
+be decided. `Casing drift` means it still numbers the right span and only the
+casing it preserved has moved: **repair `english[].text` in place**, since
+deleting would throw away a human verdict over a capital letter. Same call for a
+straight apostrophe that turned curly.
+
+That second kind exists because `computeOccurrenceN` is deliberately
+case-**insensitive** while `english[].text` separately preserves the casing as
+written, so a drifted record goes on numbering correctly and the staleness check
+alone passes it in silence. Decapitalizing three "Triumphant Message" verses in
+2026-08 drifted three confirmed records that way and exposed a fourth
+(`2Cor.2.12`) that had been drifted for months with nothing reporting it. The
+check is one matching position, not all of them — Romans 8:2 renders *nomos* as
+"Torah" and "torah" in the same verse on purpose, and demanding every candidate
+position match would report that pair as drift.
 
 `rejected` and `no-rendering` records are skipped: both assert the *absence* of
 a rendering, so re-checking a rejected record would just re-report the false
