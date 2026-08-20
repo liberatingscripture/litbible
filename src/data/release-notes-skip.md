@@ -34,3 +34,17 @@ Mark 6:50, Romans 3:13, Hebrews 10:5, Ephesians 1:1, James 2:1 and 2:13, John
 decapitalizations. They were skipped along with the rest at the owner's
 direction; if they should surface later, they can be hand-written into
 `release-notes.json` as a single short entry.
+
+## 2026-08-20 — the footnote-sequence audit
+
+Skipped 2 auto-drafted rows. Both would have been actively misleading rather
+than merely noisy:
+
+- *"2 Corinthians 5 — footnotes relabeled / footnotes formerly f relabeled g"* —
+  nothing was relabeled in any sense a reader would recognize. Two notes swapped
+  places so their letters run in document order, and each note still explains the
+  same word it always did.
+- *"Matthew 12:3–8 — text updated"*, with no detail — reads as though six verses
+  of the translation changed. Two spaces were restored.
+
+Neither changes a word of the translation.

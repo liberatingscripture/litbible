@@ -1597,3 +1597,68 @@ right bucket — E is the cosmetic pile and nothing there needs a decision — b
 future session comparing raw totals against §21 or §22 will otherwise read a
 deliberate normalization as a regression. **A and D are unmoved at 9 and 4,
 which is the number that actually matters.**
+
+## 26. The footnote-sequence audit — done (2026-08-20)
+
+The last outstanding repo-side item. Two sweeps over all 206 published chapters:
+anchors must appear in `paragraphs` in the same order as `footnotes[]`, and a
+verse marker must be separated from whatever precedes it.
+
+`validate-chapters.mjs` checks that every anchor **resolves** and that every
+footnote **is referenced** (the latter only as a warning), but never that the
+**sequence agrees** — which is how `james-2`'s anchors sat one position off
+through vv13–15 without anything reporting it.
+
+### Finding 1 — `2corinthians-5`, letters running `e g f h`
+
+The only chapter in the corpus out of order. The anchors were on the right
+words the whole time: *endemeo* ("at home") on "in our homeland", *ekdemeo*
+("away") on "out of our homeland" — which is also the master's note order
+(#66 *endemeo*, #67 *ekdemeo*). Only the letters were backwards.
+
+**So the repair is a swap, not a relabel.** Both note bodies swap and both
+anchors swap, which leaves every note attached to the same word it explains
+while the letters come out `e f g h`. Relabelling alone would have produced
+correct-looking letters with the two notes explaining each other's words.
+
+### Finding 2 — `matthew-12` v5 and v6, welded markers
+
+`…for the priests?<sup>b</sup><span class="vglue">` renders as `priests?ᵇ5`:
+`sup.vn` is `inline-block` and no CSS supplies the gap, so the separator has to
+be in the text. The corpus votes **758 to 2**.
+
+Two things make this different from §6's welded markers, and both had to be
+checked before touching it:
+
+1. **The master reads `priests? 5 Or`, with the space.** So this is a repo-side
+   import loss and there is nothing to back-port — the opposite of §6, where the
+   master had no separator to contribute.
+2. **Git history puts the loss at the original 2026-02 import, not at a
+   restore.** That is exactly why `repair-verse-separators.mjs` left them: it
+   repairs only where the *pre-restore* revision had a separator, so the
+   author's own unseparated markers stay untouched. An import-era loss is
+   invisible to that rule.
+
+### The third hit was not a defect
+
+`john-11` v28 is the **documented bracketed-passage opening** — `[|` at the
+start of the paragraph, then a footnote marker, then the `vglue` span. A
+paragraph-initial marker wants no separator. Any future run of this check must
+exempt that shape or it will report John 11, John 7, Mark 16 and Romans 16
+forever.
+
+### Left deliberately alone: fragmented `<em>` runs
+
+Found while writing the audit's own guard, which failed to match `ekdemeo`
+because the corpus stores it as `<em>ekd</em><em>e</em><em>me</em><em>o</em>` —
+Word's run boundaries surviving the import, the same thing CLAUDE.md notes about
+*soter* arriving as five per-letter pairs. **187 adjacent `</em><em>` seams
+across 71 footnotes**, worst case `<em>h</em><em>a</em><em>y</em><em>a</em>`.
+
+Collapsing them changes **nothing** a reader sees — the rendering is identical.
+It would move 71 footnote strings, hence 71 manifest hashes, hence a re-download
+on every app install, for zero reader benefit. So it is **not worth a pass of its
+own**; fold it into some future content publish that is already touching those
+files. Its one real cost is that it defeats text matching against the corpus, so
+**strip tags before matching a transliteration** — that is the lesson, not the
+seams.
