@@ -1647,18 +1647,37 @@ paragraph-initial marker wants no separator. Any future run of this check must
 exempt that shape or it will report John 11, John 7, Mark 16 and Romans 16
 forever.
 
-### Left deliberately alone: fragmented `<em>` runs
+### Fragmented `<em>` runs — collapsed (187 seams, 71 footnotes, 47 files)
 
-Found while writing the audit's own guard, which failed to match `ekdemeo`
-because the corpus stores it as `<em>ekd</em><em>e</em><em>me</em><em>o</em>` —
-Word's run boundaries surviving the import, the same thing CLAUDE.md notes about
-*soter* arriving as five per-letter pairs. **187 adjacent `</em><em>` seams
-across 71 footnotes**, worst case `<em>h</em><em>a</em><em>y</em><em>a</em>`.
+Found while writing the audit’s own guard, which failed to match `ekdemeo`
+because the corpus stored it as `<em>ekd</em><em>e</em><em>me</em><em>o</em>` —
+Word’s run boundaries surviving the import, the same thing CLAUDE.md notes about
+*soter* arriving as five per-letter pairs. Worst case was
+`<em>h</em><em>a</em><em>y</em><em>a</em>`. All 187 were in **footnotes**; verse
+text had none.
 
-Collapsing them changes **nothing** a reader sees — the rendering is identical.
-It would move 71 footnote strings, hence 71 manifest hashes, hence a re-download
-on every app install, for zero reader benefit. So it is **not worth a pass of its
-own**; fold it into some future content publish that is already touching those
-files. Its one real cost is that it defeats text matching against the corpus, so
-**strip tags before matching a transliteration** — that is the lesson, not the
-seams.
+**Only directly adjacent, attribute-less, same-name tags merge.** Two rules do
+the work:
+
+1. **A tag with attributes is never touched.** That is what keeps two real
+   `<sup class="fn-ref">` anchors in a row apart, and `<span class="vglue">`
+   spans apart. Merging either would be a genuine corruption.
+2. **A seam with anything between it is left alone**, including a single space:
+   `<em>a</em> <em>b</em>` is a different authoring choice from `<em>a b</em>`.
+
+The pass proves equivalence rather than asserting it. For each note it computes
+a **(text, formatting-per-character) map** — for every character of the stripped
+text, which tags are open over it — and refuses the edit unless that map is
+byte-identical before and after. Two HTML strings with the same map render
+identically, which is a stronger claim than comparing the stripped text alone.
+
+**`draft-release-notes.mjs` independently agreed**: it reported *no content
+changes* across all 47 files, because it compares rendered text with markup
+normalized away. So this round needed no skip entry — there was nothing to
+suppress.
+
+The cost was real but one-time: 47 manifest hashes move, so every app install
+refetches those chapters once. The benefit is that **the corpus is now
+text-searchable for transliterations**, which it was not before — a scan for
+`ekdemeo` or `haya` found nothing at all while the letters were split across
+runs. That silence is the dangerous part: it looks exactly like absence.
