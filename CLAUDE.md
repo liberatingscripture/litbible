@@ -62,6 +62,11 @@ npm run preview           # Build + astro preview locally
 npm run check             # Type-check .astro/.ts files (astro check)
 npm run validate:chapters # Validate all chapter JSON (structure + references)
 npm run fix:chapters      # Re-serialize chapter JSON to normalize formatting
+npm run import:chapter -- --docx=<path> --book=<key> --chapter=<n> --report
+                          # Build chapter JSON from a Word master (on demand only).
+                          #   --report inspects and writes nothing; that is the normal
+                          #   first run. See The Importer below for what it refuses to
+                          #   touch, and why that is the point
 npm run check:links       # Verify every internal href/#fragment in dist/ resolves
 npm test                  # Run the node:test unit suite — two roots: test/**/*.js
                           #   and scripts/reconcile/test/**/*.mjs. Both globs are in
@@ -268,8 +273,11 @@ the sitemap filter live in `astro.config.mjs`.
 
 | Script | Role |
 |--------|------|
-| `validate-chapters.mjs` | Validates chapter JSON (with `--fix` to re-serialize). Driven by `chapter_json_invariants.json`. |
+| `validate-chapters.mjs` | Validates chapter JSON (with `--fix` to re-serialize). Driven by `chapter_json_invariants.json`, which carries the reasoning for every rule — read it before adding or relaxing one. |
 | `chapter_json_invariants.json` | Documents validation rules (e.g. the `indexed` flag). |
+| `import-chapter.mjs` | Builds chapter JSON from a Word master `.docx`. **Not** in any build — run by hand when a book is ready. Its guarantee is fidelity, not cleanup: see The Importer below. |
+| `lib/import-core.mjs` | Pure transform layer of that importer — the two pre-approved changes, the structural ones, and the fidelity gate. Unit-tested directly (`test/import-core.test.js`), since the guarantee is the whole point. |
+| `lib/docx-zip.mjs` | Minimal `.docx` (zip) reader, so an import needs no manual unpack and no dependency. Reads stored + deflate; refuses zip64/encrypted/data-descriptor by name. |
 | `build-topics-index.mjs` | Topic indexes (`normalizeTopic` slugifies labels). |
 | `build-verse-index.mjs` | fs/CLI shell: walks the chapter files, skips drafts, derives the corpus `vocab`, and writes `public/search/verses.json` — per-verse plain text for client-side scripture keyword search. Delegates the HTML→verse-text extraction to `lib/verse-index-core.mjs`. |
 | `build-api-json.mjs` | `public/api/content.json`. |
@@ -385,6 +393,30 @@ Each file in `src/data/chapters/` follows this structure:
   touch: anything inside a tag (`id="john-3-p1"`), and a **URL printed as
   visible link text**, where an en dash breaks the link. The validator has no
   rule about it either way.
+- **Five further rules are enforced, all added 2026-08-20 after the
+  reconciliation** — each one exists because a real defect shipped past every
+  check that came before it. `scripts/chapter_json_invariants.json` carries the
+  full reasoning; in brief:
+  1. **Curly double quotes balance inside each footnote.** A footnote is a
+     self-contained editorial object. This one cheap rule found every defect of
+     the shared-note cleanup — including five copies of the *hupotasso* note
+     whose quotation from TDNT never closed, which no master-vs-repo diff could
+     have raised, because the note is stored in nine places and *both* sides
+     were fragmented. It counts, it does not pair, so a wrong-direction pair
+     (`‘lord”`) still passes.
+  2. **Footnote anchors run in `footnotes[]` order, each label once.** Labels
+     are positional, so the sequence is their whole meaning. The older
+     referential check proves each anchor *resolves*, a different claim
+     entirely: `2corinthians-5` shipped fn-f and fn-g transposed with every
+     link working and the two notes explaining each other's words.
+  3. **A verse marker is preceded by whitespace, or opens its block.** One
+     exemption, at the call site: a paragraph opening a bracketed passage.
+  4. **No adjacent attribute-less same-tag seam** (`</em><em>`). These render
+     correctly, which is why 187 of them hid for six months; the damage is that
+     the corpus stops being searchable, and a guard written as
+     `/ekdemeo/.test(html)` silently fails open.
+  5. **Numeric ranges take an en dash**, outside tags and outside URLs printed
+     as visible link text.
 - Always run `npm run validate:chapters` after editing chapter JSON. The
   pre-commit hook validates staged chapter files automatically.
 
@@ -1339,6 +1371,85 @@ to buckets **B,C,D**; the import-era backlog is `-- --buckets=A`.
 the August edits to back-port *into* Word, the April–July window that needs a
 human, and the books with no usable master (Revelation has none; Acts's holds
 only 1:1–4; Luke's stops mid-21:38).
+
+## The Importer (`npm run import:chapter`)
+
+How a Word master becomes chapter JSON. The 2026-02 import was done by hand
+and lossy — it shortened notes, dropped a few entirely, added punctuation
+nobody wrote, stripped macrons off transliterated Greek, welded verse markers
+to the preceding sentence, and fragmented every styled phrase at Word's run
+boundaries. Repairing that took six months and the whole of
+`scripts/reconcile/`. This exists so the next book does not need any of it.
+
+```bash
+npm run import:chapter -- --docx="<path>" --book=philemon --chapter=1 --report
+```
+
+`--docx` reads the `.docx` directly (via `lib/docx-zip.mjs`, no unpack step);
+`--xml-dir` takes an already-unpacked copy instead. `--all` does every chapter
+in the document. **`--report` inspects and writes nothing** — that is the
+normal first run. Copy the master out of OneDrive first and point at the copy;
+the masters are read-only from this repo, always.
+
+### The guarantee, which is the point
+
+**Not one visible character of the master reaches the JSON altered**, with
+exactly two pre-approved exceptions:
+
+1. straight quotes → curly quotes (the corpus convention)
+2. digit-hyphen-digit → en dash (repo-only — the masters keep hyphens)
+
+Everything else it notices is **reported and refused, never repaired**: a
+typo, a doubled word, a quotation that never closes. That is an owner
+decision, and it is not a limitation to route around. The masters are the
+origin of the translation, so a defect found during an import gets fixed in
+Word and re-imported; an importer that quietly corrected what it found would
+recreate the 2026-02 damage in the opposite direction, this time with no
+evidence anything had changed. A run with findings writes nothing unless
+`--approve` is passed.
+
+The two exceptions are safe to automate **precisely because they are
+reversible by rule**. `foldAllowed` folds both back out, so the fidelity gate
+can compare the master's own text against what was generated from it and see
+straight through them. Everything else shows up. **A third exception can only
+be added by extending that fold in the same change** — otherwise it would be
+reported as a fidelity failure on every import.
+
+A FIDELITY finding always refuses, and `--approve` does not override it: a
+divergence there is a bug in the *importer*, never in the master, because the
+master is the origin and anything the importer cannot reproduce from it is
+something the importer got wrong.
+
+### What it handles that a hand import did not
+
+- **A footnote reference is zero-width in Word.** It contributes no characters,
+  so a verse rebuilt from master text alone loses every `<sup class="fn-ref">`
+  anchor inside it and the note becomes unreachable. The importer places
+  anchors from the master's own reference positions.
+- **Verse numbers are usually superscript runs, but not always** — eight
+  chapters type one as body text and Mark 5:39 is a *subscript*. The
+  superscript pass and a blind digit-adjacency scan are cross-checked per
+  chapter, and a disagreement stops the run rather than picking a side.
+- **The verse-marker separator** has to be in the text (`sup.vn` is
+  inline-block and no CSS supplies the gap), and the master has none to
+  contribute, since the verse span ends *at* the next marker.
+- **Word's run boundaries rarely fall on a word**, so styled phrases arrive
+  fragmented (`<em>ekd</em><em>e</em><em>me</em><em>o</em>`). Collapsing them
+  changes no visible character and is what keeps the corpus searchable.
+
+### Verifying it
+
+The strongest available check is that it **reproduces an existing chapter
+exactly**. Philemon round-trips at 8/8 paragraphs, 16/16 footnotes, with the
+verse text and every footnote byte-identical to the reconciled repo copy — so
+run it against a finished book before trusting it on a new one. Titus 2 is the
+useful negative: it refuses, catching the one master-side defect §23's
+back-port table already lists.
+
+The pure layer is `lib/import-core.mjs` and is unit-tested directly
+(`test/import-core.test.js`), following the same shell/core split as
+`build-verse-index.mjs` and `build-glossary-json.mjs`. The shell holds fs,
+argv, and the scan; nothing else.
 
 ## Git Workflow
 
