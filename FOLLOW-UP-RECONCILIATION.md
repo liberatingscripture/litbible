@@ -96,7 +96,11 @@ grep -o '[0-9]-[0-9]' src/data/chapters/*.json | wc -l
 grep -o '[0-9]–[0-9]' src/data/chapters/*.json | wc -l
 ```
 
-## 1. August edits — back-port these to Word (58)
+## 1. August edits — back-port these to Word (58 → 27)
+
+> **The 58 is the original count and is stale.** A rebuild on 2026-08-20 puts
+> bucket B at **27**, because the owner has been typing these back as they came
+> up. Rebuild before working from any number in this section — see §22.
 
 40 footnotes, 18 verses. **The repo is right and Word is stale.** These are
 edits made on or after 2026-08-01, which the restore was explicitly told to
@@ -114,7 +118,13 @@ with the other 58. Anything else that lands on `main` before this PR merges is i
 the same position — compare `main` against the capture date rather than assuming
 this list is closed.
 
-## 2. April–July work — your call, one at a time (95)
+## 2. April–July work — your call, one at a time (95 → 0)
+
+> **This section is closed, and its 95 was never real after the first ledger
+> generation.** Every rebuild since 2026-08-16 has put bucket C at 2 or 3, and
+> the 2026-08-20 rebuild puts it at **0**. The count was carried forward in
+> prose and never re-derived, the same staleness §3 caught in itself. **The
+> ledger is the authority; this file is not.** See §22.
 
 88 footnotes, 7 verses. These differ from the masters and settled between
 2026-04 and 2026-07, which puts them in the window where the repo may hold
@@ -1241,3 +1251,107 @@ so a partial master directory silently yields a partial ledger whose counts look
 authoritative. Assemble the full 26-book directory before rebuilding, or compare
 per-book record counts against the previous run to prove no book dropped out
 (21 books, both runs, here).
+
+## 22. The 2026-08-19/20 review round — bucket A from 47 to 10
+
+Two sittings that took the reviewable pool from **47 records to 10**, working
+against masters re-captured three times as the owner edited Word alongside the
+review. Buckets now: **A 10, B 27, D 4, E 488** of 529 records.
+
+**All 10 remaining bucket A records are Word-side quotation defects** where the
+repo is already right — a missing closer (`‘arena.`, `‘right hand of the
+Majesty)`), or a wrong-direction pair (`‘not pulling my punches”`). Nothing in
+bucket A is a wording question any more. Two exceptions worth naming because
+they are not that: `matthew-2` fn-d and `matthew-4` fn-e, where the owner's own
+edits moved the master to a *deliberate* form the repo does not match (double
+quotes, and a comma treatment). Those are repo-follows-master decisions, not
+defects.
+
+Bucket D is down to 4 (`1corinthians-15` fn-t and fn-cc, `john-13` fn-z,
+`matthew-11` fn-o) — §3's list, minus what has been typed into Word since.
+
+### Five things this round established
+
+**1. A shared note is a corpus-wide normalization, never a queue item.** The
+euangelion note ("triumphant message") is duplicated **21 times** in the repo and
+the copies disagreed with each other — 11 closed with `’`, 10 with `”`, against
+an opener of `“`. The "‘ethnicity" note was 7 correct against 3 missing a closer.
+What makes this a trap is that **the same sentence lands in different buckets by
+accident of what else differs in its chapter**: `mark-14` fn-i was bucket A,
+`mark-13` fn-j bucket E, `mark-8` fn-r bucket B. A review queue filtered to
+bucket A shows a fraction of the copies and can never converge. Fixing the
+Gospels' masters then made five previously-agreeing repo copies stale, which is
+how the duplication surfaced at all. Same shape as §0's dash convention: decide
+once, apply everywhere, on both sides.
+
+**2. "footnote-reference count differs" is inflated by the empty placeholders.**
+Five held records were held only because the master's extra anchor pointed at one
+of §6's 11 empty Word footnotes. `matthew-8:9` (master 1, repo 0), `luke-7:22`
+(2 vs 1), `2peter-1:1` and `1:9` (3 vs 1) are all really 1-vs-1 or 0-vs-0, and
+each was a plain wording decision once that was seen. **Check a
+footnote-count hold against `deferred-master-only.json` before treating it as
+structural.**
+
+**3. `audit:alignment` cannot see a casing drift.** `computeOccurrenceN` matches
+case-**insensitively** — deliberately, and `english[].text` separately "preserves
+the casing as written". So decapitalizing "Triumphant Message" in three verses
+left three confirmed records claiming a casing the verse no longer had, and the
+audit reported 0 stale. A one-off scan for `verse.includes(e.text)` across all
+3,585 decided spans found those three **plus `2Cor.2.12`, which had been drifted
+before this round**. Worth folding into `audit-alignment.mjs` as a second check;
+it is cheap and it is invisible today.
+
+**4. A footnote that argues for the repo's wording is evidence — and so is one
+that argues against it.** §19b found the corpus contradicting its own
+cross-reference; this round found four more, in both directions:
+
+| | |
+|---|---|
+| `mark-6` fn-ff | *Or perhaps "Take heart!"…* — sitting on a text that read "Take heart!". The master's "Take courage!" makes it a real alternative, and matches Matthew 14:27 |
+| `james-2` fn-o | *"Compassion is related but only part of what's in view"* — on a verse rendering the word "compassion" three times |
+| `1corinthians-3` fn-f | explains the repo's reading specifically. Taking the master leaves it annotating nothing, so it was **deleted with the restore** |
+| `ephesians-1` fn-b | argues *Iesou* stands in apposition and closes with "I gave it to my sister, Miriam." The master's `Christ, Jesus` **is** that construction; the repo's "who is Jesus" was a paraphrase. Not orphaned — improved |
+
+The general rule: **read the notes inside a verse before ruling on its wording.**
+A note is a claim about the text it is attached to, and it can be checked.
+
+**5. Anchors can be off by one position across several verses.** In James 2 the
+repo's notes through vv13–15 each sat one anchor **early**: the "Or 'allegiance'…"
+note at the end of v13 instead of v14's "trust", and the *adelphos e adelphe* note
+on v14's "trust" instead of v15's "brother or sister". Neither is detectable from
+one verse — the count matched locally, and each note merely read oddly. It shows
+up only by lining the repo's anchor sequence up against the master's. Because
+document order was preserved, the repair needed no relabelling beyond the
+cascade from the deleted `fn-a`.
+
+### A placeholder that had shipped
+
+`2corinthians-10` fn-p published `Traditionally, ‘gospel’ or ‘good news.’ The
+word ‘gospel’ comes from the Anglo-Saxon term god-spell... [content unchanged]`
+to readers — an editing marker, live on the site, exactly the class as the
+`john-2` fn-w placeholder in §12. `1timothy-1` fn-z carried a three-sentence
+summary of the same note. Both were repaired from the corpus twin, which has
+**15 byte-identical copies**; §18's rule again, and the reason the twin is
+trustworthy is the count, not the fact that it exists.
+
+A corpus scan for the marker found no others, but the scan that found this one
+was the ledger, not a search — it surfaced as `truncated-or-summarized` against
+a master that had the full note. **The class to search for is a repo footnote
+much shorter than its master counterpart**, not a literal string.
+
+### John 8:39–40
+
+The last of the John 8 versification differences, and the same repair as §14's
+19–20 and 25–27: v40's marker moves after "…sought to accomplish.", so
+`john-8-p26` becomes a continuation paragraph of v39 opening with plain text.
+The master paragraphs it exactly that way. No words move; `#v39` and `#v40` now
+land where the master says they should.
+
+### Re-capture cadence
+
+The masters were re-captured three times in one evening and changed each time,
+because the owner was editing Word in response to the review. **Re-capture
+before every sitting, and diff the unpacked XML against the previous capture** — it
+is seconds, and it is the difference between reviewing the current master and an
+hours-old one (§21's sync-lag note). One capture found 1 Corinthians 14:33 had
+been brought into line with the repo with nothing else reporting it.
