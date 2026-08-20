@@ -1355,3 +1355,150 @@ before every sitting, and diff the unpacked XML against the previous capture** �
 is seconds, and it is the difference between reviewing the current master and an
 hours-old one (§21's sync-lag note). One capture found 1 Corinthians 14:33 had
 been brought into line with the repo with nothing else reporting it.
+
+## 23. Shared-note normalization, and the Word back-port it creates (2026-08-20)
+
+A ledger diff can only report where the two sides **disagree**. A note that is
+fragmented the same way in Word and in the repo is invisible to it — §12's
+both-sides class. Scanning the repo on its own found two families in that state,
+and one of them was publishing an unterminated quotation to readers.
+
+### The *hupotasso* / Theological Dictionary note — nine copies, five axes
+
+`1corinthians-14` fn-bb, `1peter-2` fn-z, `colossians-3` fn-ff, `ephesians-5`
+fn-r, `hebrews-2` fn-h, `james-4` fn-n, `luke-2` fn-aaa, `philippians-3` fn-n,
+`titus-2` fn-k.
+
+**Five of them opened `“A Greek military term…` and never closed it.**
+`validate-chapters.mjs` cannot see this — it rejects *straight* quotes, not
+unbalanced curly ones — so all five had been shipping an open quotation. The
+`.’`/`’.` ordering, the title's form, and the word's casing then varied on top
+of that, and `colossians-3` fn-ff carried the definition with **no attribution
+at all**, which is why it alone used `“…”` for the inner quotations: it had no
+outer frame to nest inside.
+
+Owner rulings (2026-08-20), now applied to all nine:
+
+| | ruling | why |
+|---|---|---|
+| A | `the Theological Dictionary…`, not `The` | matches the earlier 1 Peter ruling |
+| B | title italicized | it is a book title |
+| C | lowercase `<em>hupotasso</em>` | corpus runs 2,689 lowercase to 408 capitalized |
+| D | `leader’.` and `burden’.` — period **outside** | British convention, because that is how TDNT prints it. The note's own prose (`Traditionally, ‘submit to.’`) stays US, period inside |
+| E | `colossians-3` fn-ff gains the standard frame | 3:18 renders *hupotasso* as "cooperate with", so its opener is `Traditionally, ‘submit to.’` |
+| F | the democracy-of-Athens remark propagates to all nine | it was in only `hebrews-2` and `james-4` |
+
+**Where the quotation ends is a ruling, not a guess.** `hebrews-2` and `james-4`
+carry the Athens remark *after* the quotation; all three copies that already
+balanced close at `burden`, so that is where TDNT stops and the remark is the
+note's own gloss. The closer goes before it.
+
+The apply script asserts convergence rather than trusting nine hand edits: strip
+each note's preamble and `philippians-3`'s cross-reference, and **all nine must
+be one byte-identical string**. That assertion is the pass; the edits are just
+how it is reached.
+
+### Back-port to Word — the masters carry the identical fragmentation
+
+Six of the nine are unbalanced in Word too, so nothing here was a repo-side
+import defect and none of it appears in any bucket. Paste the canonical form
+over each note; the per-book column says what actually differs.
+
+```
+Traditionally, ‘submit to.’ According to the *Theological Dictionary of the New
+Testament*, *hupotasso* is “A Greek military term meaning ‘to arrange [troop
+divisions] in a military fashion under the command of a leader’. In non-military
+use, it was ‘a voluntary attitude of giving in, cooperating, assuming
+responsibility, and carrying a burden’.” In some contexts, like in the democracy
+of Athens, the one arranging the troops would take their stance among the ranks
+once everyone was in place, as a co-participant in the battle together.
+```
+
+(Italics where starred. Each book keeps its own opener — Ephesians and James
+read `‘submit.’`, Luke `‘was obedient to’ or ‘was subject to’ or ‘was submissive
+to.’`, Hebrews and Philippians open differently again, and Philippians keeps its
+`(also appearing in Colossians 3:18 and Ephesians 5:21)`.)
+
+| master | what to change |
+|---|---|
+| 1 Corinthians (14) | `The`→`the`, un-italicize `The`, `Hupotasso`→`hupotasso`, `burden.’`→`burden’.”`, **+ Athens** |
+| 1 Peter (2) | italicize title, `Hupotasso`→`hupotasso`, `burden.’”`→`burden’.”`, **+ Athens** |
+| Colossians (3) | **whole note** — it is currently the bare definition in straight double quotes with no attribution |
+| Ephesians (5) | italicize title, add the closing `”`, **+ Athens** |
+| Hebrews (2) | italicize title, add the closing `”` |
+| James (4) | `The`→`the`, un-italicize `The`, `Hupotasso`→`hupotasso`, add the closing `”` |
+| Luke (2) | `The`→`the`, un-italicize `The`, add the closing `”`, **+ Athens** |
+| Philippians (3) | italicize title, `Testatment`→`Testament`, **+ Athens** |
+| Titus (2) | italicize title, `burden.’`→`burden’.”`, **+ Athens** |
+
+Three more back-ports found in the same pass, all present in Word as well:
+
+| master | repo | fix |
+|---|---|---|
+| Ephesians | `ephesians-4` fn-jj | `it can be transated as` → `translated` |
+| John | `john-16` fn-g, `john-17` fn-w | `the path laid out in in Torah` → `in Torah`. §12 recorded this at `john-7` fn-q and it was fixed **only there**; the note has three copies |
+| Philippians | `philippians-3` fn-n | `New Testatment` → `New Testament` (also listed above) |
+
+### The lesson, which is §12's lesson at scale
+
+**A shared note is one editorial object stored in N places, and every one of
+those places is a chance for it to drift.** Three separate families have now
+needed this treatment — *euangelion*/"triumphant message" (23 copies),
+`‘ethnicity’` (10), and *hupotasso* (9) — and in each case the fragmentation was
+present on both sides, so no amount of master-vs-repo diffing would ever have
+raised it. The scan that finds them is a **repo-only** scan for near-duplicate
+footnotes, run against the corpus itself.
+
+The cheapest guard is the balance check: **a footnote is a self-contained
+string, so its curly quotes must balance inside it.** That one rule found all
+five broken *hupotasso* copies, plus the seven wrong-direction pairs in §24. It
+is not in the validator yet.
+
+## 24. Wrong-direction quote pairs — seven footnotes (2026-08-20)
+
+CLAUDE.md already names this defect: a curly opener paired with a
+*wrong-direction* curly closer (`‘lord”`), well-formed to the validator but a
+mismatched pair to a reader. The 2026-08 cleanup fixed 12 of them by eye. Seven
+survived, and the balance check finds them mechanically because **each one leaves
+its footnote's double quotes unbalanced**.
+
+All seven are in the masters identically, so none was an import defect and none
+appeared in any bucket.
+
+**Which mark is wrong is decided by the note's own internal parallel**, not by
+house style — that is what makes these mechanical rather than editorial:
+
+| footnote | read | fix | the parallel that decides it |
+|---|---|---|---|
+| `romans-2` fn-d | `Traditionally, “the judgment of God.’` | opener → `‘` | `Traditionally, ‘X.’` runs 1,078 to 28 corpus-wide |
+| `romans-2` fn-k | `Traditionally, “righteous judgment.’` | opener → `‘` | same |
+| `romans-1` fn-bb | `Literally, “I am a debtor’` | opener → `‘` | `or ‘I am indebted’` |
+| `2corinthians-5` fn-cc | `rather than “they’ or ‘he.’` | opener → `‘` | `or ‘he.’` |
+| `mark-3` fn-y | `“Master of the house” or “Master of the dynasty’` | closer → `”` | `“Master of the house”` |
+| `2peter-1` fn-aa | `use it that way: “by the Majestic Glory.’` | closer → `”` | multi-word phrases quoted from other translations take `“…”` (`1corinthians-1` fn-s, `matthew-27` fn-a, `luke-10` fn-kk) |
+| `colossians-2` fn-l | `it is saying, “here are the ways…` — never closes | add `”` at the note's end | no parallel; the paraphrase runs to the end |
+
+Note the two directions in that table. Four notes have the **opener** wrong and
+three the **closer**, and no single rule covers both — appealing to house style
+alone would have "corrected" `mark-3` fn-y into disagreeing with its own
+neighbouring phrase.
+
+**Back-port all seven to Word**, in the books above: Romans (three), 2
+Corinthians, Mark, 2 Peter, Colossians.
+
+### The check this leaves behind
+
+After §23 and this section, **no published footnote in the corpus has unbalanced
+double quotes** — the first time that has been true. It is a cheap invariant and
+a real one:
+
+```js
+const t = fn.html.replace(/<[^>]*>/g, "");
+(t.match(/“/g) || []).length === (t.match(/”/g) || []).length
+```
+
+It is **not** in `validate-chapters.mjs` yet. Adding it there would be a
+one-rule change that keeps this class from ever accumulating again — but note it
+cannot be applied to `paragraphs`, where a quotation legitimately spans blocks
+and chapters (John 15–17 is one continuous speech), so it is a footnote-only
+rule.
