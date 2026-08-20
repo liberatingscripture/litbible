@@ -35,10 +35,11 @@ jobs:
       - name: Find base ref
         id: base
         run: |
-          # Use the commit that last touched release-notes.json as the base,
-          # so we only report changes made since the last update.
-          # Falls back to the first commit if the file has never been updated.
-          LAST=$(git log --format="%H" -- src/data/release-notes.json | head -1)
+          # Base is the last commit touching EITHER the notes themselves or the
+          # skip marker. Advancing the marker in the same commit as a content
+          # change keeps that change out of the changelog - the range comes back
+          # empty and nothing is written. See src/data/release-notes-skip.md.
+          LAST=$(git log --format="%H" -1 -- src/data/release-notes.json src/data/release-notes-skip.md)
           if [ -z "$LAST" ]; then
             LAST=$(git rev-list --max-parents=0 HEAD)
           fi

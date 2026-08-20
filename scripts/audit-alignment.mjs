@@ -9,11 +9,17 @@
 // part of `npm run build` (owner decision): it is a judgment prompt, not a
 // gate. See "The Alignment Dataset" in CLAUDE.md.
 //
-// WHAT TO DO WITH A FINDING. Delete the stale record rather than marking it
-// `rejected` — isDecided treats ANY non-`auto` record as settling the verse, so
-// rejecting buries it from the review queue permanently, while deleting returns
-// it to be decided. Repair in place only when the wording is unchanged and just
-// the characters moved (a straight apostrophe turning curly).
+// WHAT TO DO WITH A FINDING, and it depends on which of the two kinds it is.
+//
+//   stale   the record no longer describes its verse. DELETE it rather than
+//           marking it `rejected` — isDecided treats ANY non-`auto` record as
+//           settling the verse, so rejecting buries it from the review queue
+//           permanently, while deleting returns it to be decided.
+//   casing  the record still points at the right span; only the casing it
+//           preserved has moved. REPAIR IT IN PLACE by setting english[].text
+//           to what the verse now reads. Deleting here would throw away a human
+//           verdict over a capital letter. Same call for a straight apostrophe
+//           that turned curly.
 //
 // This is the fs/CLI shell: it walks the files and hands plain Maps to
 // lib/alignment-audit-core.mjs, which holds the actual check.
@@ -86,9 +92,13 @@ async function main() {
     stale.push(...result.stale);
   }
 
+  const missing = stale.filter((f) => f.kind !== "casing");
+  const casing = stale.filter((f) => f.kind === "casing");
+
   console.log(`Alignment files      : ${files.length}`);
   console.log(`Decided records      : ${checked}`);
-  console.log(`Stale                : ${stale.length}`);
+  console.log(`Stale                : ${missing.length}`);
+  console.log(`Casing drift         : ${casing.length}`);
 
   if (orphaned.length) {
     console.log(
@@ -96,25 +106,39 @@ async function main() {
     );
   }
 
-  const shown = showAll ? stale : stale.slice(0, DETAIL_CAP);
-  for (const finding of shown) {
-    console.log(
-      `\n  ${finding.ref}  want "${finding.text}" ` +
-        `(n=${finding.n}, form "${finding.form}") — ${finding.reason}`,
-    );
-    if (finding.verseText) console.log(`    text: ${finding.verseText.slice(0, 175)}`);
-  }
-  if (stale.length > shown.length) {
-    console.log(`\n  …and ${stale.length - shown.length} more. Re-run with --all.`);
+  // Two separate lists, each with its own remedy, and each capped on its own so
+  // a handful of casing findings can never push the stale ones out of view.
+  for (const [label, findings] of [["STALE", missing], ["CASING DRIFT", casing]]) {
+    if (!findings.length) continue;
+    console.log(`\n── ${label} (${findings.length}) ──`);
+    const shown = showAll ? findings : findings.slice(0, DETAIL_CAP);
+    for (const finding of shown) {
+      console.log(
+        `\n  ${finding.ref}  want "${finding.text}" ` +
+          `(n=${finding.n}, form "${finding.form}") — ${finding.reason}`,
+      );
+      if (finding.actual) console.log(`    repair english[].text to: "${finding.actual}"`);
+      if (finding.verseText) console.log(`    text: ${finding.verseText.slice(0, 175)}`);
+    }
+    if (findings.length > shown.length) {
+      console.log(`\n  …and ${findings.length - shown.length} more. Re-run with --all.`);
+    }
   }
 
-  if (stale.length) {
+  if (missing.length) {
     console.log(
       "\nDelete a stale record rather than rejecting it — a rejected record still " +
         "counts as decided and never returns to the review queue.",
     );
-    process.exit(1);
   }
+  if (casing.length) {
+    console.log(
+      "\nRepair a casing finding in place — set english[].text to what the verse " +
+        "now reads. The record still points at the right span, so deleting it " +
+        "would throw away a human verdict over a capital letter.",
+    );
+  }
+  if (stale.length) process.exit(1);
 }
 
 main().catch((err) => {

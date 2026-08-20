@@ -163,6 +163,8 @@ src/
     podcast-feed.xml # Committed podcast snapshot (refreshed by fetch:podcast)
     podcastOverrides.json     # Manual episode metadata overrides
     release-notes.json        # "What's new" entries (auto-appended in CI)
+    release-notes-skip.md     # log of publishes deliberately kept out of that feed;
+                     #   touching it moves the workflow’s base ref (see below)
     translation-commitments.json
   layouts/           # Layout, ScriptureLayout, ReadLayout, SearchLayout
   lib/               # Server-side build helpers: chapter-html.ts (the shared
@@ -374,6 +376,15 @@ Each file in `src/data/chapters/` follows this structure:
   see: a curly opener paired with a *wrong-direction* curly closer
   (`‘lord”`), which is well-formed to the checker but reads as a mismatched
   pair. That cleanup fixed 12 of those.
+- **A numeric range takes an en dash** — `Matthew 5:3–12`, `verses 9–11`, not
+  a hyphen. Settled corpus-wide 2026-08-20 (413 conversions). It is a **repo**
+  convention only: the Word masters keep hyphens, because Word does not
+  autocorrect a number range the way it autocorrects a dash between words, so
+  every restore from a master pulls individual ranges back toward the hyphen.
+  Re-run the pass rather than fixing them one at a time. Two things it must not
+  touch: anything inside a tag (`id="john-3-p1"`), and a **URL printed as
+  visible link text**, where an en dash breaks the link. The validator has no
+  rule about it either way.
 - Always run `npm run validate:chapters` after editing chapter JSON. The
   pre-commit hook validates staged chapter files automatically.
 
@@ -646,11 +657,24 @@ in the verse at all. That is why the check imports the real function rather than
 restating the rule: a second copy is the one way it could quietly stop being
 true.
 
-When a record is stale, **delete it rather than marking it `rejected`** —
-`isDecided` treats any non-`auto` record as settling the verse, so rejecting
-buries it from the queue permanently, while deleting returns it to be decided.
-Repair in place only when the wording is unchanged and just the characters moved
-(a straight apostrophe turning curly).
+It reports **two kinds**, because they want opposite remedies. `Stale` means the
+record no longer describes its verse: **delete it rather than marking it
+`rejected`** — `isDecided` treats any non-`auto` record as settling the verse,
+so rejecting buries it from the queue permanently, while deleting returns it to
+be decided. `Casing drift` means it still numbers the right span and only the
+casing it preserved has moved: **repair `english[].text` in place**, since
+deleting would throw away a human verdict over a capital letter. Same call for a
+straight apostrophe that turned curly.
+
+That second kind exists because `computeOccurrenceN` is deliberately
+case-**insensitive** while `english[].text` separately preserves the casing as
+written, so a drifted record goes on numbering correctly and the staleness check
+alone passes it in silence. Decapitalizing three "Triumphant Message" verses in
+2026-08 drifted three confirmed records that way and exposed a fourth
+(`2Cor.2.12`) that had been drifted for months with nothing reporting it. The
+check is one matching position, not all of them — Romans 8:2 renders *nomos* as
+"Torah" and "torah" in the same verse on purpose, and demanding every candidate
+position match would report that pair as drift.
 
 `rejected` and `no-rendering` records are skipped: both assert the *absence* of
 a rendering, so re-checking a rejected record would just re-report the false
@@ -1093,7 +1117,13 @@ collection); they're read directly by the intro pages and the API manifest.
   decision), so the notification says "review", never "copy".
 - **Release notes are automated**: pushing changes to chapters, intros, glossary,
   or articles on `main` triggers `.github/workflows/release-notes.yml`, which
-  runs `draft-release-notes.mjs` and commits to `release-notes.json`. That file
+  runs `draft-release-notes.mjs` and commits to `release-notes.json`.
+  **To keep a publish OUT of the changelog**, touch `src/data/release-notes-skip.md`
+  in the same commit as the content change and log why there: the workflow
+  derives its base ref from the last commit touching *either* file, so the
+  drafter’s range comes back empty and nothing is written. Use it for mechanical
+  passes whose per-verse detail is noise, never for a wording change — the feed
+  below is what readers open to see those. That file
   is also synced to the apps (`/api/data/release-notes.json`) as their
   "Translation Updates" feed, so its **change-object shape is a contract**: each
   change carries a self-contained `description` plus additive/optional

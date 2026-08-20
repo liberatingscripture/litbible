@@ -213,3 +213,65 @@ test("an empty or absent records array is handled", () => {
     stale: [],
   });
 });
+
+/* ── 4. Casing drift, which the numbering check alone cannot see ──────────
+ * computeOccurrenceN is case-INSENSITIVE by design, while english[].text
+ * separately preserves the casing as written. A record can therefore go on
+ * numbering correctly while recording a capitalization the verse has lost, and
+ * for months nothing reported it. These are the live 2026-08-20 cases. */
+
+test("a record whose casing the verse has lost is reported as casing drift", () => {
+  const { stale } = auditChapterRecords({
+    chapter: 4,
+    verses: verses([[4, "not to see the light of the triumphant message of the radiant renown"]]),
+    records: [
+      record({ ref: "2Cor.4.4", text: "the Triumphant Message", form: "The Triumphant Message" }),
+    ],
+  });
+
+  assert.equal(stale.length, 1);
+  assert.equal(stale[0].kind, "casing", "the remedy is repair-in-place, not deletion");
+  assert.equal(stale[0].actual, "the triumphant message", "says what to repair it to");
+  assert.match(stale[0].reason, /numbers as n=1/);
+});
+
+test("casing that still matches is not reported", () => {
+  const { stale } = auditChapterRecords({
+    chapter: 4,
+    verses: verses([[4, "the light of the triumphant message"]]),
+    records: [
+      record({ ref: "2Cor.4.4", text: "triumphant message", form: "The Triumphant Message" }),
+    ],
+  });
+
+  assert.deepEqual(stale, []);
+});
+
+test("a verse carrying both casings does not report the one it numbers", () => {
+  // Romans 8:2 renders nomos as "Torah" and "torah" in the same verse,
+  // deliberately. Each record numbers its own occurrence, and requiring EVERY
+  // candidate position to match casing would call both of them drifted.
+  const ROM_8_2 = "the Torah of the Life-breath freed you from the torah of deviation";
+  const { stale } = auditChapterRecords({
+    chapter: 8,
+    verses: verses([[2, ROM_8_2]]),
+    records: [
+      record({ ref: "Rom.8.2", text: "Torah", n: 1, form: "Torah" }),
+      record({ ref: "Rom.8.2", text: "torah", n: 2, form: "Torah" }),
+    ],
+  });
+
+  assert.deepEqual(stale, []);
+});
+
+test("a missing rendering is kind 'missing', not casing", () => {
+  const { stale } = auditChapterRecords({
+    chapter: 3,
+    verses: verses([[5, "through whom you came to trust."]]),
+    records: [record({ ref: "1Cor.3.5", text: "trusted", form: "trust" })],
+  });
+
+  assert.equal(stale.length, 1);
+  assert.equal(stale[0].kind, "missing");
+  assert.equal(stale[0].actual, undefined);
+});

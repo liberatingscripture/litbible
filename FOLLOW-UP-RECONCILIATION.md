@@ -72,10 +72,15 @@ inference against the pre-damage revision in git — all 59 reproduce the ending
 they had. `build-ledger.mjs` no longer produces it and `apply.mjs` now refuses a
 write that changes any paragraph's block-tag balance.
 
-## 0. The dash convention — one decision, corpus-wide
+## 0. The dash convention — SETTLED 2026-08-20 (repo only)
 
-Not a defect, and **not something the restore should decide record by record**,
-but worth settling once.
+Not a defect, and **not something the restore should decide record by record**.
+It was settled once, in a single pass: see §25. A numeric range takes an en dash
+in the repo; the masters keep hyphens, so this is deliberately not a back-port
+item and every future restore will pull individual ranges back toward the
+hyphen. Re-run the pass rather than fixing them one at a time.
+
+The original survey, kept for the reasoning:
 
 Numeric ranges are written inconsistently across the corpus, and always have
 been: before any of this work there were 376 hyphen ranges (`19-31`) against 177
@@ -96,7 +101,11 @@ grep -o '[0-9]-[0-9]' src/data/chapters/*.json | wc -l
 grep -o '[0-9]–[0-9]' src/data/chapters/*.json | wc -l
 ```
 
-## 1. August edits — back-port these to Word (58)
+## 1. August edits — back-port these to Word (58 → 27)
+
+> **The 58 is the original count and is stale.** A rebuild on 2026-08-20 puts
+> bucket B at **27**, because the owner has been typing these back as they came
+> up. Rebuild before working from any number in this section — see §22.
 
 40 footnotes, 18 verses. **The repo is right and Word is stale.** These are
 edits made on or after 2026-08-01, which the restore was explicitly told to
@@ -114,7 +123,13 @@ with the other 58. Anything else that lands on `main` before this PR merges is i
 the same position — compare `main` against the capture date rather than assuming
 this list is closed.
 
-## 2. April–July work — your call, one at a time (95)
+## 2. April–July work — your call, one at a time (95 → 0)
+
+> **This section is closed, and its 95 was never real after the first ledger
+> generation.** Every rebuild since 2026-08-16 has put bucket C at 2 or 3, and
+> the 2026-08-20 rebuild puts it at **0**. The count was carried forward in
+> prose and never re-derived, the same staleness §3 caught in itself. **The
+> ledger is the authority; this file is not.** See §22.
 
 88 footnotes, 7 verses. These differ from the masters and settled between
 2026-04 and 2026-07, which puts them in the window where the repo may hold
@@ -1241,3 +1256,344 @@ so a partial master directory silently yields a partial ledger whose counts look
 authoritative. Assemble the full 26-book directory before rebuilding, or compare
 per-book record counts against the previous run to prove no book dropped out
 (21 books, both runs, here).
+
+## 22. The 2026-08-19/20 review round — bucket A from 47 to 10
+
+Two sittings that took the reviewable pool from **47 records to 10**, working
+against masters re-captured three times as the owner edited Word alongside the
+review. Buckets now: **A 10, B 27, D 4, E 488** of 529 records.
+
+**All 10 remaining bucket A records are Word-side quotation defects** where the
+repo is already right — a missing closer (`‘arena.`, `‘right hand of the
+Majesty)`), or a wrong-direction pair (`‘not pulling my punches”`). Nothing in
+bucket A is a wording question any more. Two exceptions worth naming because
+they are not that: `matthew-2` fn-d and `matthew-4` fn-e, where the owner's own
+edits moved the master to a *deliberate* form the repo does not match (double
+quotes, and a comma treatment). Those are repo-follows-master decisions, not
+defects.
+
+Bucket D is down to 4 (`1corinthians-15` fn-t and fn-cc, `john-13` fn-z,
+`matthew-11` fn-o) — §3's list, minus what has been typed into Word since.
+
+### Five things this round established
+
+**1. A shared note is a corpus-wide normalization, never a queue item.** The
+euangelion note ("triumphant message") is duplicated **21 times** in the repo and
+the copies disagreed with each other — 11 closed with `’`, 10 with `”`, against
+an opener of `“`. The "‘ethnicity" note was 7 correct against 3 missing a closer.
+What makes this a trap is that **the same sentence lands in different buckets by
+accident of what else differs in its chapter**: `mark-14` fn-i was bucket A,
+`mark-13` fn-j bucket E, `mark-8` fn-r bucket B. A review queue filtered to
+bucket A shows a fraction of the copies and can never converge. Fixing the
+Gospels' masters then made five previously-agreeing repo copies stale, which is
+how the duplication surfaced at all. Same shape as §0's dash convention: decide
+once, apply everywhere, on both sides.
+
+**2. "footnote-reference count differs" is inflated by the empty placeholders.**
+Five held records were held only because the master's extra anchor pointed at one
+of §6's 11 empty Word footnotes. `matthew-8:9` (master 1, repo 0), `luke-7:22`
+(2 vs 1), `2peter-1:1` and `1:9` (3 vs 1) are all really 1-vs-1 or 0-vs-0, and
+each was a plain wording decision once that was seen. **Check a
+footnote-count hold against `deferred-master-only.json` before treating it as
+structural.**
+
+**3. `audit:alignment` cannot see a casing drift.** `computeOccurrenceN` matches
+case-**insensitively** — deliberately, and `english[].text` separately "preserves
+the casing as written". So decapitalizing "Triumphant Message" in three verses
+left three confirmed records claiming a casing the verse no longer had, and the
+audit reported 0 stale. A one-off scan for `verse.includes(e.text)` across all
+3,585 decided spans found those three **plus `2Cor.2.12`, which had been drifted
+before this round**. Worth folding into `audit-alignment.mjs` as a second check;
+it is cheap and it is invisible today.
+
+**4. A footnote that argues for the repo's wording is evidence — and so is one
+that argues against it.** §19b found the corpus contradicting its own
+cross-reference; this round found four more, in both directions:
+
+| | |
+|---|---|
+| `mark-6` fn-ff | *Or perhaps "Take heart!"…* — sitting on a text that read "Take heart!". The master's "Take courage!" makes it a real alternative, and matches Matthew 14:27 |
+| `james-2` fn-o | *"Compassion is related but only part of what's in view"* — on a verse rendering the word "compassion" three times |
+| `1corinthians-3` fn-f | explains the repo's reading specifically. Taking the master leaves it annotating nothing, so it was **deleted with the restore** |
+| `ephesians-1` fn-b | argues *Iesou* stands in apposition and closes with "I gave it to my sister, Miriam." The master's `Christ, Jesus` **is** that construction; the repo's "who is Jesus" was a paraphrase. Not orphaned — improved |
+
+The general rule: **read the notes inside a verse before ruling on its wording.**
+A note is a claim about the text it is attached to, and it can be checked.
+
+**5. Anchors can be off by one position across several verses.** In James 2 the
+repo's notes through vv13–15 each sat one anchor **early**: the "Or 'allegiance'…"
+note at the end of v13 instead of v14's "trust", and the *adelphos e adelphe* note
+on v14's "trust" instead of v15's "brother or sister". Neither is detectable from
+one verse — the count matched locally, and each note merely read oddly. It shows
+up only by lining the repo's anchor sequence up against the master's. Because
+document order was preserved, the repair needed no relabelling beyond the
+cascade from the deleted `fn-a`.
+
+### A placeholder that had shipped
+
+`2corinthians-10` fn-p published `Traditionally, ‘gospel’ or ‘good news.’ The
+word ‘gospel’ comes from the Anglo-Saxon term god-spell... [content unchanged]`
+to readers — an editing marker, live on the site, exactly the class as the
+`john-2` fn-w placeholder in §12. `1timothy-1` fn-z carried a three-sentence
+summary of the same note. Both were repaired from the corpus twin, which has
+**15 byte-identical copies**; §18's rule again, and the reason the twin is
+trustworthy is the count, not the fact that it exists.
+
+A corpus scan for the marker found no others, but the scan that found this one
+was the ledger, not a search — it surfaced as `truncated-or-summarized` against
+a master that had the full note. **The class to search for is a repo footnote
+much shorter than its master counterpart**, not a literal string.
+
+### John 8:39–40
+
+The last of the John 8 versification differences, and the same repair as §14's
+19–20 and 25–27: v40's marker moves after "…sought to accomplish.", so
+`john-8-p26` becomes a continuation paragraph of v39 opening with plain text.
+The master paragraphs it exactly that way. No words move; `#v39` and `#v40` now
+land where the master says they should.
+
+### Re-capture cadence
+
+The masters were re-captured three times in one evening and changed each time,
+because the owner was editing Word in response to the review. **Re-capture
+before every sitting, and diff the unpacked XML against the previous capture** — it
+is seconds, and it is the difference between reviewing the current master and an
+hours-old one (§21's sync-lag note). One capture found 1 Corinthians 14:33 had
+been brought into line with the repo with nothing else reporting it.
+
+## 23. Shared-note normalization, and the Word back-port it creates (2026-08-20)
+
+A ledger diff can only report where the two sides **disagree**. A note that is
+fragmented the same way in Word and in the repo is invisible to it — §12's
+both-sides class. Scanning the repo on its own found two families in that state,
+and one of them was publishing an unterminated quotation to readers.
+
+### The *hupotasso* / Theological Dictionary note — nine copies, five axes
+
+`1corinthians-14` fn-bb, `1peter-2` fn-z, `colossians-3` fn-ff, `ephesians-5`
+fn-r, `hebrews-2` fn-h, `james-4` fn-n, `luke-2` fn-aaa, `philippians-3` fn-n,
+`titus-2` fn-k.
+
+**Five of them opened `“A Greek military term…` and never closed it.**
+`validate-chapters.mjs` cannot see this — it rejects *straight* quotes, not
+unbalanced curly ones — so all five had been shipping an open quotation. The
+`.’`/`’.` ordering, the title's form, and the word's casing then varied on top
+of that, and `colossians-3` fn-ff carried the definition with **no attribution
+at all**, which is why it alone used `“…”` for the inner quotations: it had no
+outer frame to nest inside.
+
+Owner rulings (2026-08-20), now applied to all nine:
+
+| | ruling | why |
+|---|---|---|
+| A | `the Theological Dictionary…`, not `The` | matches the earlier 1 Peter ruling |
+| B | title italicized | it is a book title |
+| C | lowercase `<em>hupotasso</em>` | corpus runs 2,689 lowercase to 408 capitalized |
+| D | `leader’.` and `burden’.` — period **outside** | British convention, because that is how TDNT prints it. The note's own prose (`Traditionally, ‘submit to.’`) stays US, period inside |
+| E | `colossians-3` fn-ff gains the standard frame | 3:18 renders *hupotasso* as "cooperate with", so its opener is `Traditionally, ‘submit to.’` |
+| F | the democracy-of-Athens remark propagates to all nine | it was in only `hebrews-2` and `james-4` |
+
+**Where the quotation ends is a ruling, not a guess.** `hebrews-2` and `james-4`
+carry the Athens remark *after* the quotation; all three copies that already
+balanced close at `burden`, so that is where TDNT stops and the remark is the
+note's own gloss. The closer goes before it.
+
+The apply script asserts convergence rather than trusting nine hand edits: strip
+each note's preamble and `philippians-3`'s cross-reference, and **all nine must
+be one byte-identical string**. That assertion is the pass; the edits are just
+how it is reached.
+
+### Back-port to Word — the masters carry the identical fragmentation
+
+Six of the nine are unbalanced in Word too, so nothing here was a repo-side
+import defect and none of it appears in any bucket. Paste the canonical form
+over each note; the per-book column says what actually differs.
+
+```
+Traditionally, ‘submit to.’ According to the *Theological Dictionary of the New
+Testament*, *hupotasso* is “A Greek military term meaning ‘to arrange [troop
+divisions] in a military fashion under the command of a leader’. In non-military
+use, it was ‘a voluntary attitude of giving in, cooperating, assuming
+responsibility, and carrying a burden’.” In some contexts, like in the democracy
+of Athens, the one arranging the troops would take their stance among the ranks
+once everyone was in place, as a co-participant in the battle together.
+```
+
+(Italics where starred. Each book keeps its own opener — Ephesians and James
+read `‘submit.’`, Luke `‘was obedient to’ or ‘was subject to’ or ‘was submissive
+to.’`, Hebrews and Philippians open differently again, and Philippians keeps its
+`(also appearing in Colossians 3:18 and Ephesians 5:21)`.)
+
+| master | what to change |
+|---|---|
+| 1 Corinthians (14) | `The`→`the`, un-italicize `The`, `Hupotasso`→`hupotasso`, `burden.’`→`burden’.”`, **+ Athens** |
+| 1 Peter (2) | italicize title, `Hupotasso`→`hupotasso`, `burden.’”`→`burden’.”`, **+ Athens** |
+| Colossians (3) | **whole note** — it is currently the bare definition in straight double quotes with no attribution |
+| Ephesians (5) | italicize title, add the closing `”`, **+ Athens** |
+| Hebrews (2) | italicize title, add the closing `”` |
+| James (4) | `The`→`the`, un-italicize `The`, `Hupotasso`→`hupotasso`, add the closing `”` |
+| Luke (2) | `The`→`the`, un-italicize `The`, add the closing `”`, **+ Athens** |
+| Philippians (3) | italicize title, `Testatment`→`Testament`, **+ Athens** |
+| Titus (2) | italicize title, `burden.’`→`burden’.”`, **+ Athens** |
+
+Three more back-ports found in the same pass, all present in Word as well:
+
+| master | repo | fix |
+|---|---|---|
+| Ephesians | `ephesians-4` fn-jj | `it can be transated as` → `translated` |
+| John | `john-16` fn-g, `john-17` fn-w | `the path laid out in in Torah` → `in Torah`. §12 recorded this at `john-7` fn-q and it was fixed **only there**; the note has three copies |
+| Philippians | `philippians-3` fn-n | `New Testatment` → `New Testament` (also listed above) |
+
+### The lesson, which is §12's lesson at scale
+
+**A shared note is one editorial object stored in N places, and every one of
+those places is a chance for it to drift.** Three separate families have now
+needed this treatment — *euangelion*/"triumphant message" (23 copies),
+`‘ethnicity’` (10), and *hupotasso* (9) — and in each case the fragmentation was
+present on both sides, so no amount of master-vs-repo diffing would ever have
+raised it. The scan that finds them is a **repo-only** scan for near-duplicate
+footnotes, run against the corpus itself.
+
+The cheapest guard is the balance check: **a footnote is a self-contained
+string, so its curly quotes must balance inside it.** That one rule found all
+five broken *hupotasso* copies, plus the seven wrong-direction pairs in §24. It
+is not in the validator yet.
+
+## 24. Wrong-direction quote pairs — seven footnotes (2026-08-20)
+
+CLAUDE.md already names this defect: a curly opener paired with a
+*wrong-direction* curly closer (`‘lord”`), well-formed to the validator but a
+mismatched pair to a reader. The 2026-08 cleanup fixed 12 of them by eye. Seven
+survived, and the balance check finds them mechanically because **each one leaves
+its footnote's double quotes unbalanced**.
+
+All seven are in the masters identically, so none was an import defect and none
+appeared in any bucket.
+
+**Which mark is wrong is decided by the note's own internal parallel**, not by
+house style — that is what makes these mechanical rather than editorial:
+
+| footnote | read | fix | the parallel that decides it |
+|---|---|---|---|
+| `romans-2` fn-d | `Traditionally, “the judgment of God.’` | opener → `‘` | `Traditionally, ‘X.’` runs 1,078 to 28 corpus-wide |
+| `romans-2` fn-k | `Traditionally, “righteous judgment.’` | opener → `‘` | same |
+| `romans-1` fn-bb | `Literally, “I am a debtor’` | opener → `‘` | `or ‘I am indebted’` |
+| `2corinthians-5` fn-cc | `rather than “they’ or ‘he.’` | opener → `‘` | `or ‘he.’` |
+| `mark-3` fn-y | `“Master of the house” or “Master of the dynasty’` | closer → `”` | `“Master of the house”` |
+| `2peter-1` fn-aa | `use it that way: “by the Majestic Glory.’` | closer → `”` | multi-word phrases quoted from other translations take `“…”` (`1corinthians-1` fn-s, `matthew-27` fn-a, `luke-10` fn-kk) |
+| `colossians-2` fn-l | `it is saying, “here are the ways…` — never closes | add `”` at the note's end | no parallel; the paraphrase runs to the end |
+
+Note the two directions in that table. Four notes have the **opener** wrong and
+three the **closer**, and no single rule covers both — appealing to house style
+alone would have "corrected" `mark-3` fn-y into disagreeing with its own
+neighbouring phrase.
+
+**Back-port all seven to Word**, in the books above: Romans (three), 2
+Corinthians, Mark, 2 Peter, Colossians.
+
+### The check this leaves behind
+
+After §23 and this section, **no published footnote in the corpus has unbalanced
+double quotes** — the first time that has been true. It is a cheap invariant and
+a real one:
+
+```js
+const t = fn.html.replace(/<[^>]*>/g, "");
+(t.match(/“/g) || []).length === (t.match(/”/g) || []).length
+```
+
+It is **not** in `validate-chapters.mjs` yet. Adding it there would be a
+one-rule change that keeps this class from ever accumulating again — but note it
+cannot be applied to `paragraphs`, where a quotation legitimately spans blocks
+and chapters (John 15–17 is one continuous speech), so it is a footnote-only
+rule.
+
+## 25. Where the remaining buckets actually live (triage, 2026-08-20)
+
+The standing question — "is all of this in the masters?" — has three different
+answers, and they point at two different lists. Rebuild the ledger before
+trusting any count here:
+
+```bash
+MASTER_XML_DIR=<your unpacked copy> node scripts/reconcile/build-ledger.mjs --out-dir=scripts/reconcile/out
+```
+
+At this capture: **547 records — E 487, B 46, A 9, D 4, C 1.**
+
+### Read the ledger's diff direction correctly
+
+`shape.diff.ops` marks a token **`added` when the REPO has it and the master
+does not**, and `removed` for the reverse. Getting that backwards inverts every
+conclusion — it makes a repo that is already correct look like the damaged side,
+and it cost a full re-derivation of bucket A during this session. Reconstruct a
+side and read the actual footnote before ruling.
+
+### Bucket A (9) — in the masters, and the **master** is the wrong side
+
+All nine exist in both. Each differs by a single quotation mark, and in every
+one the repo is already right, so **nothing here is a repo change.** These
+belong on the **master correction list**, not the back-port list.
+
+| record | repo (correct) | master (defective) |
+|---|---|---|
+| `1corinthians-9` fn-r | `not pulling my punches,’ so to speak.` | `…punches” so to speak.` |
+| `ephesians-4` fn-dd | `…you are to strip off…’` | `…strip off…”` |
+| `hebrews-1` fn-e | `‘right hand of the Majesty’)` | `‘right hand of the Majesty)` — no closer |
+| `hebrews-12` fn-b | `or ‘arena.’ The sense…` | `or ‘arena. The sense…` — no closer |
+| `john-18` fn-g | `‘lost to death,’ could be` | `‘lost to death, could be` — no closer |
+| `john-19` fn-p | `‘heard these logos (plural).’` | `…(plural).”` — wrong direction |
+| `john-19` fn-aa | `“look, your son.”` | `“look, your son.’` — wrong direction |
+| `matthew-4` fn-e | `peirazon, which means … a trial,”` | both commas missing (**owner ruled: repo correct**) |
+| `matthew-15` fn-v | `…/articles/matthew-15-canaanite-woman` | a trailing `.` after the URL |
+
+This is §10's list, still unresolved — the repo needed no patch, so nothing in
+the pipeline ever closed them out.
+
+### Bucket B (46) — **not** in the masters; this is the back-port list
+
+Bucket B *is* "the repo was edited after the import and Word never caught up," so
+by construction the masters do not carry this text. 27 predate this session; the
+other 19 are the shared-note normalization and quote repairs from §23 and §24,
+whose per-book instructions are already written out there.
+
+### Bucket D (4) — **not in the masters at all**
+
+These carry `text.master: null`: whole footnotes that exist only in the repo.
+Not a wording difference — Word has no counterpart to compare against.
+
+| record | what it is |
+|---|---|
+| `1corinthians-15` fn-t | the *baptizo* transliteration note |
+| `1corinthians-15` fn-cc | the *pneumatikon* note, with the Genesis 1–2 quotations |
+| `john-13` fn-z | "It is not completely clear whether ‘him’ refers to God or to the Son of Humanity." |
+| `matthew-11` fn-o | the *zugos* / Sirach yoke note |
+
+All four are substantive and clearly wanted, so they belong on the **back-port
+list** — paste them into Word — rather than being deleted from the repo. That is
+a ruling to confirm, not an inference the ledger can make.
+
+### Bucket C (1) — transient
+
+`romans-10-v11`, and only because the ledger was rebuilt mid-edit. It is the
+repair below, not a finding.
+
+### Also queued for back-port from this round
+
+| repo | master | fix |
+|---|---|---|
+| `romans-10` v11 | Romans | `The scripture says, everyone…` → `says, “Everyone…` |
+| `romans-12` v20 | Romans | `Rather, if the one…` → `Rather, “if the one…` |
+| `romans-13` fn-m | Romans | `Exodus 20-13-17` → `Exodus 20:13-17` — not a reference as written; the same master reads `Exodus 20:17` two notes earlier, and the `Deuteronomy 5:17-21` beside it is the same set of commandments |
+
+**The en-dash conversion is deliberately NOT on this list.** §0 is settled
+repo-only by owner ruling: 413 numeric ranges became en dashes here, and the
+masters keep hyphens.
+
+**But the ledger is not blind to it, so expect the counts to jump.** Rebuilding
+after the conversion took the ledger from 547 records to 817: bucket **E went
+from 487 to 756**, absorbing the ~269 notes whose only difference is now a dash,
+and two more landed in B where a dash change sits beside a real one. That is the
+right bucket — E is the cosmetic pile and nothing there needs a decision — but a
+future session comparing raw totals against §21 or §22 will otherwise read a
+deliberate normalization as a regression. **A and D are unmoved at 9 and 4,
+which is the number that actually matters.**
