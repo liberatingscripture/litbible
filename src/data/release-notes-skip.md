@@ -76,3 +76,12 @@ than merely noisy:
   of the translation changed. Two spaces were restored.
 
 Neither changes a word of the translation.
+
+## 2026-08-21 — the TDNT title italics
+
+Skipped 1 auto-drafted row: *"Metadata updated (3 chapters)"*, for Philippians
+3, 1 John 4, and Ephesians 4. Nothing about those chapters' metadata changed —
+the drafter reports it that way because it strips markup before comparing, and
+markup is all that moved. Three footnotes printed *Theological Dictionary of
+the New Testament* as plain text while the other nine citing it already set the
+title in italics. No wording changed in any of them.
