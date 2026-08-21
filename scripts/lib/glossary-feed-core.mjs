@@ -49,6 +49,21 @@
  *    are load-bearing; curly ones do not match. `assertCrossReferencesResolve`
  *    guards both.
  *
+ * 5. `draft: true` ENTRIES ARE WITHHELD, NOT REMOVED. An entry still being
+ *    written stays in `src/content/glossary/` and is excluded here, on
+ *    `/glossary`, and from the SearchBar term menu. It has to stay on disk:
+ *    `build-alignment.mjs` seeds its scan from these files, and a term with no
+ *    entry produces no scan records, so `mergeScanWithExisting` drops every
+ *    `glossary-scan` record it has — confirmed ones included, with only a
+ *    warning. Deleting an entry to unpublish it would quietly discard the
+ *    review behind it.
+ *
+ *    Drafts are still parsed and flattened, so a body that would break the
+ *    build breaks it now rather than on the day it is published — the same
+ *    bargain `validate-chapters.mjs` strikes by validating `indexed: false`
+ *    chapters. They are excluded only from `entries`, the `index`, and the
+ *    cross-reference check, since a draft may well reference another draft.
+ *
  * Determinism is a hard requirement, not tidiness: the content `version` the
  * apps gate all syncing on is derived from the hashes of every synced file, so
  * unstable output would bump the version on every build and re-sync every
@@ -91,6 +106,20 @@ export function readGlossaryFrontmatter(raw) {
     if (kv) out[kv[1]] = kv[2].trim().replace(/^["'](.*)["']$/, "$1");
   }
   return out;
+}
+
+/**
+ * Is this entry held back from publication?
+ *
+ * Accepts a boolean or the string `"true"` because two different parsers read
+ * the same frontmatter: Astro's YAML gives `content.config.ts` a real boolean,
+ * while `readGlossaryFrontmatter` above is a flat line scanner that hands back
+ * every value as a string. A check for `=== true` would pass every draft
+ * straight into the apps' feed while `/glossary` correctly hid it.
+ */
+export function isDraftEntry(frontmatter) {
+  const v = frontmatter?.draft;
+  return v === true || v === "true";
 }
 
 /** Splits an entry file into its frontmatter object and its raw body text. */
@@ -213,7 +242,7 @@ export function assertCrossReferencesResolve(entries, index) {
  */
 export function buildGlossaryFeed(files) {
   const entries = [];
-  const stats = { emphasisStripped: 0, escapesStripped: 0 };
+  const stats = { emphasisStripped: 0, escapesStripped: 0, drafts: 0 };
 
   for (const { name, raw } of files) {
     const parsed = parseEntryFile(raw);
@@ -233,7 +262,23 @@ export function buildGlossaryFeed(files) {
       if (key === "body") entry.body = toPlainProse(body, name);
       else if (frontmatter[key] !== undefined) entry[key] = frontmatter[key];
     }
+
+    // Parsed and flattened above, then dropped: a draft is checked like every
+    // other entry but never published. See rule 5 in the header.
+    if (isDraftEntry(frontmatter)) {
+      stats.drafts++;
+      continue;
+    }
     entries.push(entry);
+  }
+
+  // An all-draft collection would otherwise ship a well-formed empty feed, and
+  // both apps would treat that as "the glossary is now empty" rather than as a
+  // build mistake.
+  if (!entries.length) {
+    throw new Error(
+      `No publishable glossary entries: all ${stats.drafts} are marked draft: true`,
+    );
   }
 
   entries.sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));

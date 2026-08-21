@@ -5,6 +5,7 @@ greek: hupotasso
 lit: cooperate with / arrange
 litMenu: Cooperate with / Arrange
 srOnly: Submit submission cooperate arrange
+draft: true
 ---
 This is the word rendered "submit," "be subject to," or "be obedient to" in most translations, including in passages that have been used to demand obedience from wives, from enslaved people, and from anyone with less power in a relationship.
 

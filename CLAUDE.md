@@ -854,6 +854,10 @@ partial count reads as a reviewed total, so a term appears only when every
 record it would show is one we can vouch for, and a single record we can
 neither vouch for nor rule out withholds the whole term. Per record:
 
+(A term also disappears from `/glossary` when its entry carries `draft: true`,
+which is a separate axis — the records are fine, the entry is unpublished. Its
+alignment data keeps building either way; see the `glossary` collection below.)
+
 | | |
 |---|---|
 | **ignored** | `rejected` / `no-rendering`, and anything with `lemma: "absent"` — a known false positive says nothing either way about the rest of the term |
@@ -882,7 +886,7 @@ Five collections, all loaded via Astro's `glob` loader. Two are site-wide:
   optional `author`/`description`/`heroImage`/`featured`, `tags[]`.
 - **`glossary`** — `src/content/glossary/*.md`. Schema pairs a `traditional`
   term with the LIT rendering (`greek`, `lit`, `litMenu`, `srOnly`, optional
-  `note`/`menuTraditional`). Files are named `<traditional>-<lit>.md`
+  `note`/`menuTraditional`/`draft`). Files are named `<traditional>-<lit>.md`
   (e.g. `hell-hades.md`). **These files also feed the mobile apps** via
   `build:glossary` (see The Glossary Feed below), so editing one is a publish to
   both platforms. The two surfaces want different things from a body: the site
@@ -890,6 +894,19 @@ Five collections, all loaded via Astro's `glob` loader. Two are site-wide:
   generator bridges that by flattening emphasis, so keep using it — but richer
   Markdown (links, headings, HTML) **fails the build** rather than reaching a
   phone screen as literal syntax, because neither app can render it.
+  **`draft: true` withholds an entry without removing it** — it disappears from
+  `/glossary`, the SearchBar term menu, the apps' feed, and (because Pagefind
+  indexes the built page) the search index, while the file stays on disk. That
+  last part is the whole point: `build-alignment.mjs` seeds its scan from these
+  files, so **deleting an entry to unpublish it destroys the review behind it**
+  — a term the scan no longer produces loses every `glossary-scan` record it
+  has, confirmed ones included, with only a warning from
+  `mergeScanWithExisting`. Eight entries were held this way in 2026-08 and 203
+  reviewed records rode on it. The scanner is therefore deliberately blind to
+  the flag; every reader-facing consumer honors it. Drafts are still parsed and
+  flattened, so a body that would break the build breaks it now rather than on
+  publication day, and an all-draft collection is an error rather than an empty
+  glossary.
 
 Three drive the `/apps` promo page only (section content as data, edited without
 touching component code — consumed by `src/components/apps/*`):
@@ -1087,7 +1104,7 @@ collection); they're read directly by the intro pages and the API manifest.
   the generated fallback source — the same arrangement `topics.json` has with
   `public/topics-index.json`, and the reason the file is gitignored rather than
   committed. The rules the feed's shape must satisfy are documented at length in
-  `scripts/lib/glossary-feed-core.mjs`; the four that bite are:
+  `scripts/lib/glossary-feed-core.mjs`; the five that bite are:
   1. **The top-level `index` object is required.** iOS's decoder throws without
      it, then logs, *skips the hash update*, and continues — so the file
      re-downloads on every sync forever, the glossary never updates, and no
@@ -1111,6 +1128,10 @@ collection); they're read directly by the intro pages and the API manifest.
      not be applied here. The generator fails the build on a cross-reference
      that would land nowhere, because two of them were dead for months and
      nothing reported it.
+  5. **`draft: true` withholds an entry rather than removing it.** See the
+     `glossary` collection above for why the file has to stay on disk: the
+     alignment scanner seeds from it, and an entry deleted to unpublish it
+     takes its reviewed records with it.
 - **One announcement popover at a time.** `Layout.astro` renders exactly ONE
   popover component (currently `AppsLaunchPopover.astro`, the iOS/Android
   launch). Retiring an announcement means swapping that import and leaving the

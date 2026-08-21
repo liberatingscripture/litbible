@@ -5,6 +5,7 @@ greek: eusebeia
 lit: respectfulness
 litMenu: Respectfulness
 srOnly: Godliness godly respectfulness respect
+draft: true
 ---
 *Eusebeia* is not linguistically connected to the word for God, which is *theos*. The traditional rendering "godliness" introduces a connection the Greek does not make.
 

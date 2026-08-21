@@ -5,6 +5,7 @@ greek: hupokrites
 lit: pretender / pretense
 litMenu: Pretender / Pretense
 srOnly: Hypocrite pretender pretense
+draft: true
 ---
 *Hupokrites* is the ordinary Greek word for a stage actor, someone playing a role. It is related to *prosopon*, which was used of the masks actors wore. The emphasis falls on actions that are performed for an audience.
 

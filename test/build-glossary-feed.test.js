@@ -276,3 +276,56 @@ test("optional fields are omitted rather than emitted as null", () => {
   assert.equal("note" in entry, false);
   assert.equal("menuTraditional" in entry, false);
 });
+
+/* ── Drafts ───────────────────────────────────────────────────────────────── */
+
+test("a draft entry is withheld from the feed and from the index", () => {
+  const feed = build(
+    validEntry(),
+    validEntry({ id: "church-called-community", traditional: "Church", litMenu: "Called Community", draft: "true" }),
+  );
+  assert.deepEqual(
+    feed.entries.map((e) => e.id),
+    ["sin-deviation"],
+  );
+  assert.equal("Church" in feed.index.traditional, false);
+  assert.equal("Called Community" in feed.index.lit, false);
+});
+
+// The two frontmatter parsers disagree on type: Astro's YAML gives
+// content.config.ts a real boolean, readGlossaryFrontmatter gives this core the
+// string "true". A `=== true` check would hide the entry on /glossary and ship
+// it to every phone.
+test("draft is recognized from the string the flat parser produces", () => {
+  assert.equal(readGlossaryFrontmatter(validEntry({ draft: "true" }).raw).draft, "true");
+  assert.equal(build(validEntry(), validEntry({ id: "x", traditional: "X", litMenu: "X", draft: "true" })).entries.length, 1);
+});
+
+test("draft: false publishes, and `draft` never leaks into the emitted entry", () => {
+  const entry = build(validEntry({ draft: "false" })).entries[0];
+  assert.equal(entry.id, "sin-deviation");
+  assert.equal("draft" in entry, false);
+});
+
+test("drafts are still parsed, so a body that cannot be flattened fails now", () => {
+  assert.throws(
+    () => build(validEntry(), validEntry({ id: "x", traditional: "X", litMenu: "X", draft: "true" }, "A <em>rich</em> body.")),
+    /x\.md/,
+  );
+});
+
+test("a draft may reference another draft without failing the cross-reference check", () => {
+  const feed = build(
+    validEntry(),
+    validEntry(
+      { id: "a", traditional: "A", litMenu: "A", draft: "true" },
+      'See the entry for "B".',
+    ),
+    validEntry({ id: "b", traditional: "B", litMenu: "B", draft: "true" }),
+  );
+  assert.deepEqual(feed.entries.map((e) => e.id), ["sin-deviation"]);
+});
+
+test("an all-draft collection throws rather than shipping an empty glossary", () => {
+  assert.throws(() => build(validEntry({ draft: "true" })), /all 1 are marked draft/);
+});

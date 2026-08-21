@@ -138,6 +138,11 @@ async function loadTerms() {
   const terms = [];
   for (const f of files.sort()) {
     const fm = readFrontmatter(await fs.readFile(path.join(GLOSSARY_DIR, f), "utf8"));
+    // DELIBERATELY blind to `draft: true`, unlike every reader-facing consumer.
+    // The scan seeds from `lit`, and a term the scan does not produce loses
+    // every glossary-scan record it has on the next merge — confirmed ones with
+    // only a warning. Withholding an entry from readers must not throw away the
+    // review behind it, so drafts are scanned like any other term.
     if (!fm?.id || !fm.lit) continue;
     const forms = fm.lit
       .split("/")

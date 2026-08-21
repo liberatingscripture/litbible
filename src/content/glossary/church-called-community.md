@@ -5,6 +5,7 @@ greek: ekklesia
 lit: Called Community / community
 litMenu: Called Community / community
 srOnly: Church called community
+draft: true
 ---
 "Church" carries centuries of institutional weight that the Greek word does not. *Ekklesia* literally means "the group called out," those assembled together, having been called out from their homes for something, the way people would be called out for a town council meeting.
 
