@@ -63,6 +63,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "1Pet.5.5",
+      "english": [
+        {
+          "text": "cooperate with",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hupotasso",
+        "traditional": "Submit",
+        "glossary": "submit-cooperate",
+        "form": "cooperate with"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
       "ref": "1Pet.5.8",
       "english": [
         {

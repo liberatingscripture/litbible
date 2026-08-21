@@ -403,6 +403,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Col.1.18",
+      "english": [
+        {
+          "text": "Called Community",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ekklesia",
+        "traditional": "Church",
+        "glossary": "church-called-community",
+        "form": "Called Community"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
       "ref": "Col.1.20",
       "english": [
         {
@@ -566,6 +586,26 @@
       "ref": "Col.1.24",
       "english": [
         {
+          "text": "Called Community",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ekklesia",
+        "traditional": "Church",
+        "glossary": "church-called-community",
+        "form": "Called Community"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Col.1.24",
+      "english": [
+        {
           "text": "body",
           "n": 1
         }
@@ -596,6 +636,26 @@
         "traditional": "Holy",
         "glossary": "holy-sacred",
         "form": "sacred"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Col.1.27",
+      "english": [
+        {
+          "text": "people groups",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ethnos",
+        "traditional": "Gentiles",
+        "glossary": "gentiles-people-groups",
+        "form": "people groups"
       },
       "confidence": "common",
       "lemma": "present",

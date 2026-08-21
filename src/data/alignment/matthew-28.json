@@ -106,6 +106,26 @@
       "ref": "Matt.28.19",
       "english": [
         {
+          "text": "people groups",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ethnos",
+        "traditional": "Gentiles",
+        "glossary": "gentiles-people-groups",
+        "form": "people groups"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.28.19",
+      "english": [
+        {
           "text": "Sacred",
           "n": 1
         }

@@ -583,6 +583,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Heb.11.31",
+      "english": [
+        {
+          "text": "sex worker",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "porneia",
+        "traditional": "Sexual immorality",
+        "glossary": "immorality-exploitation",
+        "form": "sex workers"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Heb.11.33",
       "english": [
         {

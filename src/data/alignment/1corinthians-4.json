@@ -106,6 +106,26 @@
       "ref": "1Cor.4.17",
       "english": [
         {
+          "text": "Called Community",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ekklesia",
+        "traditional": "Church",
+        "glossary": "church-called-community",
+        "form": "Called Community"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Cor.4.17",
+      "english": [
+        {
           "text": "faithful",
           "n": 1
         }

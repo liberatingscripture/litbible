@@ -23,6 +23,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Matt.17.15",
+      "english": [
+        {
+          "text": "have compassion",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eleos",
+        "traditional": "Mercy",
+        "glossary": "mercy-loving-faithfulness",
+        "form": "act compassionately"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Matt.17.18",
       "english": [
         {

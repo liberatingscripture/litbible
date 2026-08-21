@@ -215,7 +215,7 @@
         "greek": "pneuma",
         "traditional": "Spirit",
         "glossary": "spirit-life-breath",
-        "form": "life-breath"
+        "form": "Life-breath"
       },
       "confidence": "distinctive",
       "lemma": "absent",
@@ -240,6 +240,46 @@
       "confidence": "common",
       "lemma": "present",
       "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Gal.3.8",
+      "english": [
+        {
+          "text": "other peoples",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ethnos",
+        "traditional": "Gentiles",
+        "glossary": "gentiles-people-groups",
+        "form": "other people groups"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Gal.3.8",
+      "english": [
+        {
+          "text": "peoples",
+          "n": 2
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ethnos",
+        "traditional": "Gentiles",
+        "glossary": "gentiles-people-groups",
+        "form": "peoples"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
       "status": "confirmed"
     },
     {
@@ -315,7 +355,7 @@
         "greek": "pneuma",
         "traditional": "Spirit",
         "glossary": "spirit-life-breath",
-        "form": "life-breath"
+        "form": "Life-breath"
       },
       "confidence": "distinctive",
       "lemma": "absent",
@@ -375,7 +415,7 @@
         "greek": "pneuma",
         "traditional": "Spirit",
         "glossary": "spirit-life-breath",
-        "form": "life-breath"
+        "form": "Life-breath"
       },
       "confidence": "distinctive",
       "lemma": "absent",
@@ -540,6 +580,26 @@
       "confidence": "common",
       "lemma": "present",
       "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Gal.3.14",
+      "english": [
+        {
+          "text": "other peoples",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ethnos",
+        "traditional": "Gentiles",
+        "glossary": "gentiles-people-groups",
+        "form": "other people groups"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
       "status": "confirmed"
     },
     {

@@ -243,6 +243,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Mark.5.19",
+      "english": [
+        {
+          "text": "loving faithfulness",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eleos",
+        "traditional": "Mercy",
+        "glossary": "mercy-loving-faithfulness",
+        "form": "loving-faithfulness"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
       "ref": "Mark.5.23",
       "english": [
         {

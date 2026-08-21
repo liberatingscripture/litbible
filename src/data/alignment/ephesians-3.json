@@ -3,6 +3,26 @@
   "chapter": 3,
   "records": [
     {
+      "ref": "Eph.3.1",
+      "english": [
+        {
+          "text": "other people groups",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ethnos",
+        "traditional": "Gentiles",
+        "glossary": "gentiles-people-groups",
+        "form": "other people groups"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Eph.3.2",
       "english": [
         {
@@ -66,6 +86,26 @@
       "ref": "Eph.3.6",
       "english": [
         {
+          "text": "other people groups",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ethnos",
+        "traditional": "Gentiles",
+        "glossary": "gentiles-people-groups",
+        "form": "other people groups"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Eph.3.6",
+      "english": [
+        {
           "text": "the triumphant message",
           "n": 1
         }
@@ -96,6 +136,26 @@
         "traditional": "Grace",
         "glossary": "grace-generosity",
         "form": "generosity"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Eph.3.8",
+      "english": [
+        {
+          "text": "other people groups",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ethnos",
+        "traditional": "Gentiles",
+        "glossary": "gentiles-people-groups",
+        "form": "other people groups"
       },
       "confidence": null,
       "lemma": "present",
@@ -156,6 +216,26 @@
         "traditional": "Holy",
         "glossary": "holy-sacred",
         "form": "sacred"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Eph.3.10",
+      "english": [
+        {
+          "text": "Called Community",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ekklesia",
+        "traditional": "Church",
+        "glossary": "church-called-community",
+        "form": "Called Community"
       },
       "confidence": "common",
       "lemma": "present",
@@ -316,6 +396,26 @@
         "traditional": "Holy",
         "glossary": "holy-sacred",
         "form": "sacred"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Eph.3.21",
+      "english": [
+        {
+          "text": "Called Community",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ekklesia",
+        "traditional": "Church",
+        "glossary": "church-called-community",
+        "form": "Called Community"
       },
       "confidence": "common",
       "lemma": "present",

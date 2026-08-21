@@ -63,26 +63,6 @@
       "status": "confirmed"
     },
     {
-      "ref": "John.8.8",
-      "english": [
-        {
-          "text": "deviation",
-          "n": 1
-        }
-      ],
-      "greek": [],
-      "term": {
-        "greek": "hamartia",
-        "traditional": "Sin",
-        "glossary": "sin-deviation",
-        "form": "deviation"
-      },
-      "confidence": "distinctive",
-      "lemma": "unchecked",
-      "source": "glossary-scan",
-      "status": "rejected"
-    },
-    {
       "ref": "John.8.15",
       "english": [
         {
@@ -320,6 +300,26 @@
       "confidence": "distinctive",
       "lemma": "present",
       "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "John.8.41",
+      "english": [
+        {
+          "text": "sexual violation",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "porneia",
+        "traditional": "Sexual immorality",
+        "glossary": "immorality-exploitation",
+        "form": "sexual violation"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
       "status": "confirmed"
     },
     {

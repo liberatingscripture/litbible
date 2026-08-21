@@ -106,6 +106,26 @@
       "ref": "Luke.20.20",
       "english": [
         {
+          "text": "pretending",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hupokrites",
+        "traditional": "Hypocrite",
+        "glossary": "hypocrite-faker",
+        "form": "pretender"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.20.20",
+      "english": [
+        {
           "text": "genuine",
           "n": 1
         }

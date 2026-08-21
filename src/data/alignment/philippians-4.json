@@ -126,6 +126,26 @@
       "ref": "Phil.4.15",
       "english": [
         {
+          "text": "community",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ekklesia",
+        "traditional": "Church",
+        "glossary": "church-called-community",
+        "form": "Called Community"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Phil.4.15",
+      "english": [
+        {
           "text": "the triumphant message",
           "n": 1
         }

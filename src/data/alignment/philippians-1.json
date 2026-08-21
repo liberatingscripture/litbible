@@ -46,6 +46,26 @@
       "ref": "Phil.1.5",
       "english": [
         {
+          "text": "community",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ekklesia",
+        "traditional": "Church",
+        "glossary": "church-called-community",
+        "form": "community"
+      },
+      "confidence": "common",
+      "lemma": "absent",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
+      "ref": "Phil.1.5",
+      "english": [
+        {
           "text": "the triumphant message",
           "n": 1
         }
@@ -261,6 +281,26 @@
       "lemma": "present",
       "source": "glossary-scan",
       "status": "confirmed"
+    },
+    {
+      "ref": "Phil.1.18",
+      "english": [
+        {
+          "text": "pretense",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hupokrites",
+        "traditional": "Hypocrite",
+        "glossary": "hypocrite-faker",
+        "form": "pretense"
+      },
+      "confidence": "common",
+      "lemma": "absent",
+      "source": "glossary-scan",
+      "status": "auto"
     },
     {
       "ref": "Phil.1.19",

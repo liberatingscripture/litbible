@@ -143,6 +143,26 @@
       "status": "auto"
     },
     {
+      "ref": "Luke.18.11",
+      "english": [
+        {
+          "text": "violating marriages",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "moicheia",
+        "traditional": "Adultery",
+        "glossary": "adultery-marital-infidelity",
+        "form": "violation of marriage covenant"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Luke.18.13",
       "english": [
         {
@@ -283,6 +303,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Luke.18.20",
+      "english": [
+        {
+          "text": "violate a marriage",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "moicheia",
+        "traditional": "Adultery",
+        "glossary": "adultery-marital-infidelity",
+        "form": "violation of marriage covenant"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Luke.18.22",
       "english": [
         {
@@ -363,6 +403,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Luke.18.32",
+      "english": [
+        {
+          "text": "foreign authorities",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ethnos",
+        "traditional": "Gentiles",
+        "glossary": "gentiles-people-groups",
+        "form": "foreign authorities"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Luke.18.33",
       "english": [
         {
@@ -376,6 +436,46 @@
         "traditional": "Resurrection",
         "glossary": "resurrection-reawakening",
         "form": "will rise up"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.18.38",
+      "english": [
+        {
+          "text": "have compassion",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eleos",
+        "traditional": "Mercy",
+        "glossary": "mercy-loving-faithfulness",
+        "form": "act compassionately"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.18.39",
+      "english": [
+        {
+          "text": "have compassion",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eleos",
+        "traditional": "Mercy",
+        "glossary": "mercy-loving-faithfulness",
+        "form": "act compassionately"
       },
       "confidence": null,
       "lemma": "present",

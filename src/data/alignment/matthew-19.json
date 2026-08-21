@@ -43,6 +43,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Matt.19.9",
+      "english": [
+        {
+          "text": "sexual infidelity",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "porneia",
+        "traditional": "Sexual immorality",
+        "glossary": "immorality-exploitation",
+        "form": "sexual violation"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Matt.19.12",
       "english": [
         {
@@ -156,6 +176,26 @@
         "traditional": "Good [2]",
         "glossary": "good-beneficial",
         "form": "good"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.19.18",
+      "english": [
+        {
+          "text": "affair",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "moicheia",
+        "traditional": "Adultery",
+        "glossary": "adultery-marital-infidelity",
+        "form": "marital infidelity"
       },
       "confidence": null,
       "lemma": "present",

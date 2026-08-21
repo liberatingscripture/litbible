@@ -203,6 +203,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Luke.17.13",
+      "english": [
+        {
+          "text": "show us compassion",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eleos",
+        "traditional": "Mercy",
+        "glossary": "mercy-loving-faithfulness",
+        "form": "act compassionately"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Luke.17.14",
       "english": [
         {

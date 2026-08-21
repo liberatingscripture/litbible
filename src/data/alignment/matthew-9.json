@@ -266,6 +266,26 @@
       "ref": "Matt.9.13",
       "english": [
         {
+          "text": "committed compassion",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eleos",
+        "traditional": "Mercy",
+        "glossary": "mercy-loving-faithfulness",
+        "form": "committed compassion"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.9.13",
+      "english": [
+        {
           "text": "alignment",
           "n": 1
         }
@@ -376,6 +396,26 @@
         "traditional": "Salvation",
         "glossary": "salvation-liberation",
         "form": "restoration"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.9.27",
+      "english": [
+        {
+          "text": "have compassion",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eleos",
+        "traditional": "Mercy",
+        "glossary": "mercy-loving-faithfulness",
+        "form": "act compassionately"
       },
       "confidence": null,
       "lemma": "present",

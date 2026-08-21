@@ -146,6 +146,26 @@
       "ref": "Phil.3.6",
       "english": [
         {
+          "text": "Called Community",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ekklesia",
+        "traditional": "Church",
+        "glossary": "church-called-community",
+        "form": "Called Community"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Phil.3.6",
+      "english": [
+        {
           "text": "Torah",
           "n": 1
         }
@@ -436,6 +456,26 @@
         "traditional": "Glory",
         "glossary": "glory-praiseworthiness",
         "form": "renown"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Phil.3.21",
+      "english": [
+        {
+          "text": "arranging",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hupotasso",
+        "traditional": "Submit",
+        "glossary": "submit-cooperate",
+        "form": "arrange"
       },
       "confidence": null,
       "lemma": "present",

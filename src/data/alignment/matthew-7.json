@@ -23,6 +23,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Matt.7.5",
+      "english": [
+        {
+          "text": "Pretender",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hupokrites",
+        "traditional": "Hypocrite",
+        "glossary": "hypocrite-faker",
+        "form": "pretender"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
       "ref": "Matt.7.6",
       "english": [
         {
