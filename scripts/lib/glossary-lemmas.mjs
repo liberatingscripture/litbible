@@ -18,9 +18,13 @@
 // accent fails loudly instead of silently matching nothing.
 
 export const GLOSSARY_LEMMAS = {
+  "adultery-marital-infidelity": ["μοιχεία", "μοιχεύω", "μοιχαλίς", "μοιχός"],
   "angel-message": ["ἄγγελος"],
   "bad-harmful": ["κακός", "κακία"],
   "blasphemy-disrespectfulness": ["βλασφημία", "βλασφημέω", "βλάσφημος"],
+  // ἐκλεκτός deliberately excluded — it shares ekklesia's root and its own
+  // footnotes, but it's rendered "chosen"/"called", never "Called Community".
+  "church-called-community": ["ἐκκλησία"],
   "clean-clean": ["καθαρός", "καθαρίζω", "καθαρισμός", "καθαρότης"],
   "confession-open-acknowledgement": ["ὁμολογία", "ὁμολογέω", "ἐξομολογέω"],
   "defiled-common": ["κοινός", "κοινόω"],
@@ -31,7 +35,9 @@ export const GLOSSARY_LEMMAS = {
   "flesh-body": ["σάρξ", "σάρκινος", "σαρκικός"],
   "forgiveness-letting-go": ["ἀφίημι", "ἄφεσις"],
   "gehenna-hinnom-valley": ["γέεννα"],
+  "gentiles-people-groups": ["ἔθνος"],
   "glory-praiseworthiness": ["δόξα", "δοξάζω"],
+  "godliness-respectfulness": ["εὐσέβεια", "εὐσεβής", "εὐσεβέω", "εὐσεβῶς"],
   "good-admirable": ["καλός"],
   "good-beneficial": ["ἀγαθός", "ἀγαθωσύνη"],
   "gospel-triumphant-message": ["εὐαγγέλιον", "εὐαγγελίζω", "εὐαγγελιστής"],
@@ -39,8 +45,16 @@ export const GLOSSARY_LEMMAS = {
   "heaven-sky": ["οὐρανός", "οὐράνιος", "ἐπουράνιος"],
   "hell-hades": ["ᾅδης"],
   "holy-sacred": ["ἅγιος", "ἁγιάζω", "ἁγιασμός", "ἁγιωσύνη"],
+  "hypocrite-faker": ["ὑποκριτής", "ὑπόκρισις", "ὑποκρίνομαι"],
+  // πορνεία's family only. μοιχεία is its own entry: the two sit side by side
+  // in vice lists (Matt 15:19) and render differently, so folding them would
+  // make each one's occurrence list wrong.
+  "immorality-exploitation": ["πορνεία", "πόρνη", "πόρνος", "πορνεύω", "ἐκπορνεύω"],
   // ἀνομία/ἄνομος deliberately excluded — "lawlessness" isn't a Torah rendering.
   "law-torah": ["νόμος", "νομικός"],
+  // ἐλεημοσύνη included: it's rendered "compassion work" (Matt 6:2), the same
+  // commitment realized as a practice rather than a disposition.
+  "mercy-loving-faithfulness": ["ἔλεος", "ἐλεάω", "ἐλεήμων", "ἐλεημοσύνη"],
   "repentance-reorient-mind": ["μετάνοια", "μετανοέω"],
   // ἐγείρω deliberately excluded — it's the ordinary "get up" across the
   // gospels, so including it would make `present` nearly free and stop the
@@ -51,6 +65,7 @@ export const GLOSSARY_LEMMAS = {
   "satan-adversary": ["Σατανᾶς"],
   "sin-deviation": ["ἁμαρτία", "ἁμαρτάνω", "ἁμάρτημα", "ἁμαρτωλός"],
   "spirit-life-breath": ["πνεῦμα", "πνευματικός"],
+  "submit-cooperate": ["ὑποτάσσω", "ὑποταγή"],
   "trespass-shortfall": ["παράπτωμα", "παράβασις", "παραβάτης", "παραβαίνω"],
   "unclean-unclean": ["ἀκάθαρτος", "ἀκαθαρσία"],
 };
