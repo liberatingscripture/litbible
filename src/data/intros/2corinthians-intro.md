@@ -59,7 +59,7 @@ The closing chapters (10–13) wrestle directly with accusations against Paul’
 
 <ul>
 <li>
-<strong>2 Corinthians 1:3–4:</strong> “May the God and Father of our Liberating Sovereign Jesus Christ be praised—the Father of motherly tenderness and the God of all comfort, who comforts us in all our crushing hardships, empowering us to comfort others in all their hardships through the same comfort we ourselves have received from God.”
+<strong>2 Corinthians 1:3–4:</strong> “May the God and Father of our Lord Jesus Christ be praised—the Father of motherly tenderness and the God of all comfort, who comforts us in all our crushing hardships, empowering us to comfort others in all their hardships through the same comfort we ourselves have received from God.”
 </li>
 <li>
 <strong>2 Corinthians 3:2–3:</strong> “You yourselves are our letter… not written with ink but with the Life-breath of the God-who-is-alive, not on stone tablets but on tablets made of hearts of flesh.”
