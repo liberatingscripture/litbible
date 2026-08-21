@@ -17,6 +17,7 @@ const {
 // is missing here.
 const glossaryTerms = Object.fromEntries(
   (await getCollection("glossary"))
+    .filter((e) => !e.data.draft)
     .sort((a, b) => a.data.id.localeCompare(b.data.id))
     .map((e) => [
       e.data.id,

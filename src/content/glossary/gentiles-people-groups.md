@@ -5,6 +5,7 @@ greek: ethnos
 lit: people groups
 litMenu: People groups
 srOnly: Gentiles people groups nations ethnicities
+draft: true
 ---
 "Gentiles" is not really a translation. It is a category word that has hardened over time into a label for outsiders, and it tells an English reader almost nothing about what the Greek says.
 

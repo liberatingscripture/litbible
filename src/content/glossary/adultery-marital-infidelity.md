@@ -5,6 +5,7 @@ greek: moicheia
 lit: marital infidelity
 litMenu: Marital infidelity
 srOnly: Adultery marital infidelity unfaithful
+draft: true
 ---
 The English word "adultery" has come to be associated with sexual shame, which is not the primary focus of the Greek. *Moicheia* focused on first-century legal status and the violation of a legal marriage agreement.
 

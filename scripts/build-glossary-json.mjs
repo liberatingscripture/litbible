@@ -55,6 +55,9 @@ async function main() {
     `   flattened to plain prose: ${stats.emphasisStripped} emphasis spans, ` +
       `${stats.escapesStripped} backslash escapes`,
   );
+  if (stats.drafts) {
+    console.log(`   withheld ${stats.drafts} entr${stats.drafts === 1 ? "y" : "ies"} marked draft`);
+  }
 }
 
 main().catch((err) => {

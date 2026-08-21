@@ -26,6 +26,16 @@ const glossary = defineCollection({
     srOnly: z.string(),
     note: z.string().optional(),
     menuTraditional: z.string().optional(),
+    /**
+     * Held back from every reader-facing surface — /glossary, the SearchBar
+     * term menu, and the apps' feed — while the entry is still being written.
+     * The file stays in the collection on purpose: `build-alignment.mjs` reads
+     * these files off disk as the scanner's seed, and an entry withdrawn from
+     * the directory takes its alignment records with it (an unmatched
+     * `glossary-scan` record is dropped by `mergeScanWithExisting` even once
+     * confirmed). Draft here means unpublished, never absent.
+     */
+    draft: z.boolean().optional(),
   }),
 });
 

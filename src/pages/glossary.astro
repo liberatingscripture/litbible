@@ -4,7 +4,10 @@ import Layout from "../layouts/Layout.astro";
 import { BOOK_ORDER, bookKeyToLabel } from "../data/books.js";
 import "../styles/pages/glossary.css";
 
-const rawEntries = await getCollection("glossary");
+// `draft: true` entries stay in the collection (build-alignment.mjs seeds off
+// the files) but never reach a reader. Filtering here also keeps them out of
+// Pagefind, which indexes the built page rather than the collection.
+const rawEntries = (await getCollection("glossary")).filter((e) => !e.data.draft);
 
 /**
  * Phase 1 alignment records (src/data/alignment/, built by

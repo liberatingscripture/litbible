@@ -5,6 +5,7 @@ greek: eleos
 lit: loving faithfulness / committed compassion
 litMenu: Loving faithfulness / Committed compassion
 srOnly: Mercy loving faithfulness committed compassion
+draft: true
 ---
 The English word "mercy" is sometimes used to communicate compassion, which is what is in view here. But "mercy" is also used for "pity" or for "relenting from enacting a punishment," and that has nothing to do with this Greek word. *Eleos* is used of taking care of people.
 

@@ -62,6 +62,11 @@ its shape has several ways to fail silently on one platform only, all documented
 in `scripts/lib/glossary-feed-core.mjs`. Read that header before changing how
 glossary entries are written or generated.
 
+A glossary entry that isn't ready yet takes `draft: true` in its frontmatter,
+which hides it from the site, the search index, and the apps. Mark it rather
+than deleting it — the alignment dataset is built by scanning these files, so a
+deleted entry takes its reviewed records with it.
+
 ## Project layout
 
 ```
