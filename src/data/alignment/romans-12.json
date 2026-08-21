@@ -166,7 +166,7 @@
       "ref": "Rom.12.8",
       "english": [
         {
-          "text": "committed compassion",
+          "text": "loving faithfulness",
           "n": 1
         }
       ],
@@ -175,11 +175,11 @@
         "greek": "eleos",
         "traditional": "Mercy",
         "glossary": "mercy-loving-faithfulness",
-        "form": "committed compassion"
+        "form": "loving-faithfulness"
       },
-      "confidence": "common",
+      "confidence": null,
       "lemma": "present",
-      "source": "glossary-scan",
+      "source": "review",
       "status": "confirmed"
     },
     {

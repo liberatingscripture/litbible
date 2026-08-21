@@ -386,7 +386,7 @@
       "ref": "Jas.2.13",
       "english": [
         {
-          "text": "compassion",
+          "text": "loving faithfulness",
           "n": 1
         }
       ],
@@ -395,7 +395,7 @@
         "greek": "eleos",
         "traditional": "Mercy",
         "glossary": "mercy-loving-faithfulness",
-        "form": "compassion"
+        "form": "loving-faithfulness"
       },
       "confidence": null,
       "lemma": "present",
@@ -406,7 +406,7 @@
       "ref": "Jas.2.13",
       "english": [
         {
-          "text": "compassion",
+          "text": "loving faithfulness",
           "n": 2
         }
       ],
@@ -415,7 +415,7 @@
         "greek": "eleos",
         "traditional": "Mercy",
         "glossary": "mercy-loving-faithfulness",
-        "form": "compassion"
+        "form": "loving-faithfulness"
       },
       "confidence": null,
       "lemma": "present",
@@ -426,7 +426,7 @@
       "ref": "Jas.2.13",
       "english": [
         {
-          "text": "Compassion",
+          "text": "Loving faithfulness",
           "n": 3
         }
       ],
@@ -435,7 +435,7 @@
         "greek": "eleos",
         "traditional": "Mercy",
         "glossary": "mercy-loving-faithfulness",
-        "form": "compassion"
+        "form": "loving-faithfulness"
       },
       "confidence": null,
       "lemma": "present",
