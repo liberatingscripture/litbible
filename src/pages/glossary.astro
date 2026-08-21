@@ -455,21 +455,25 @@ const menuData = {
 
                         <span class="sep" data-pagefind-ignore>&nbsp;–&nbsp;</span>
 
-                        {/* LIT word IS Pagefind-indexed */}
-                        <span class="entries-underline">
-                          {litParts.length === 1
-                            ? litParts[0]
-                            : litParts.map((part, i) => (
-                                <>
-                                  {i > 0 && (
-                                    <>
-                                      <span class="pf-slash-space"> </span>/<span class="pf-slash-space"> </span>
-                                    </>
-                                  )}
-                                  {part}
-                                </>
-                              ))}
-                        </span>
+                        {/* LIT word IS Pagefind-indexed.
+
+                            Each option gets its OWN .entries-underline span, so
+                            the ink scribble is drawn and revealed per option
+                            rather than as one stroke running through the slash.
+                            It also lets a long gloss (eleos: "loving
+                            faithfulness / committed compassion") drop each
+                            option onto its own line on a phone — see the
+                            .lit-part rules in pages/glossary.css. */}
+                        {litParts.map((part, i) => (
+                          <>
+                            {i > 0 && (
+                              <span class="lit-sep">
+                                <span class="pf-slash-space"> </span>/<span class="pf-slash-space"> </span>
+                              </span>
+                            )}
+                            <span class="entries-underline lit-part">{part}</span>
+                          </>
+                        ))}
 
                         {/* Optional parenthetical note — not indexed */}
                         {data.note && (
@@ -652,21 +656,69 @@ const menuData = {
                   return h >>> 0;
                 }
 
-                function makeScribblePath({ w, h, kind, seed }) {
+                /* Where the glyphs actually sit inside a line box, which is
+                   NOT a fixed fraction of it: OpenDyslexic reports a line box
+                   half again taller than its own ink, so a stroke placed at
+                   0.92 of the box lands on the NEXT line rather than under
+                   this one. Canvas gives both the font's metric box (from
+                   which the baseline follows by the half-leading rule) and the
+                   ink extent of this particular text. Cached per font+text —
+                   measureText is called once per distinct heading, not once
+                   per redraw. */
+                const inkMetricsCache = new Map();
+                let inkMeasureCtx = null;
+
+                function inkMetrics(span) {
+                  const cs = getComputedStyle(span);
+                  const fs = parseFloat(cs.fontSize) || 16;
+                  const font = `${cs.fontStyle} ${cs.fontWeight} ${fs}px ${cs.fontFamily}`;
+                  const text = (span.textContent || "").trim() || "Mx";
+                  const key = `${font}|${text}`;
+
+                  let m = inkMetricsCache.get(key);
+                  if (m) return m;
+
+                  inkMeasureCtx =
+                    inkMeasureCtx ||
+                    document.createElement("canvas").getContext("2d");
+                  inkMeasureCtx.font = font;
+                  const tm = inkMeasureCtx.measureText(text);
+
+                  const num = (v, fallback) =>
+                    typeof v === "number" && isFinite(v) ? v : fallback;
+
+                  m = {
+                    fs,
+                    fontAscent: num(tm.fontBoundingBoxAscent, fs * 0.8),
+                    fontDescent: num(tm.fontBoundingBoxDescent, fs * 0.2),
+                    inkAscent: num(tm.actualBoundingBoxAscent, fs * 0.7),
+                    inkDescent: num(tm.actualBoundingBoxDescent, fs * 0.16),
+                  };
+                  inkMetricsCache.set(key, m);
+                  return m;
+                }
+
+                function makeScribblePath({ w, h, kind, seed, metrics }) {
                   const rand = mulberry32(seed);
 
                   const padX = Math.max(2, w * 0.02);
                   const x0 = padX;
                   const x1 = w - padX;
 
-                  const yStrike = h * 0.55;
-                  const yUnderline = h * 0.92;
+                  const fs = metrics.fs;
+                  // Half-leading: the metric box is centred in the line box.
+                  const baseline =
+                    (h - (metrics.fontAscent + metrics.fontDescent)) / 2 +
+                    metrics.fontAscent;
+
+                  const yStrike = baseline - metrics.inkAscent * 0.42;
+                  const yUnderline = baseline + metrics.inkDescent + fs * 0.06;
                   const baseY = kind === "strike" ? yStrike : yUnderline;
 
                   const amp =
                     kind === "strike"
-                      ? Math.max(1.5, h * 0.1)
-                      : Math.max(1.2, h * 0.07);
+                      ? Math.max(1.5, fs * 0.09)
+                      : Math.max(1.2, fs * 0.06);
 
                   const points = [];
                   const steps = 6;
@@ -695,24 +747,77 @@ const menuData = {
                   return d;
                 }
 
+                /* One rect per visual LINE of the span's text.
+
+                   getClientRects() on the span itself gives one rect per line
+                   only while the span is inline; a .lit-part is a flex item,
+                   which CSS blockifies, so it always reports a single box —
+                   an option that wrapped (a long gloss in OpenDyslexic on a
+                   narrow phone) would get one underline under its last line
+                   and none under the first. A Range over the contents reports
+                   the line boxes regardless, and hugs the text rather than the
+                   box, so the scribble stops at the last word. */
+                function lineRects(span) {
+                  const range = document.createRange();
+                  range.selectNodeContents(span);
+
+                  const raw = Array.from(range.getClientRects()).filter(
+                    (r) => r.width > 1 && r.height > 1,
+                  );
+                  range.detach?.();
+
+                  if (!raw.length) {
+                    return Array.from(span.getClientRects()).filter(
+                      (r) => r.width > 1 && r.height > 1,
+                    );
+                  }
+
+                  // A line can be reported as several rects (one per text node
+                  // or nested element). Union them so each line draws once.
+                  const lines = [];
+                  raw.forEach((r) => {
+                    const hit = lines.find(
+                      (l) => Math.abs(l.top - r.top) <= Math.min(l.height, r.height) / 2,
+                    );
+                    if (!hit) {
+                      lines.push({ top: r.top, left: r.left, right: r.right, height: r.height });
+                      return;
+                    }
+                    hit.top = Math.min(hit.top, r.top);
+                    hit.left = Math.min(hit.left, r.left);
+                    hit.right = Math.max(hit.right, r.right);
+                    hit.height = Math.max(hit.height, r.height);
+                  });
+
+                  return lines.map((l) => ({
+                    top: l.top,
+                    left: l.left,
+                    width: l.right - l.left,
+                    height: l.height,
+                  }));
+                }
+
                 function clearInk(titleEl) {
                   titleEl
                     .querySelectorAll(":scope > .ink-svg")
                     .forEach((n) => n.remove());
                 }
 
-                function drawInkForSpan(span, kind) {
+                /* `order` staggers the reveal when a title carries more than
+                   one span of this kind — a multi-option gloss draws each
+                   option's underline in turn rather than all at once. A
+                   single-span title passes 0 and is unchanged. */
+                function drawInkForSpan(span, kind, order = 0) {
                   const title = span.closest(".entry-title");
                   if (!title) return;
 
                   const titleRect = title.getBoundingClientRect();
-                  const rects = Array.from(span.getClientRects()).filter(
-                    (r) => r.width > 1 && r.height > 1,
-                  );
+                  const rects = lineRects(span);
 
                   const seedBase = hashString(
                     (span.textContent || "").trim() + "|" + kind,
                   );
+                  const metrics = inkMetrics(span);
 
                   rects.forEach((r, idx) => {
                     const left = r.left - titleRect.left;
@@ -744,7 +849,7 @@ const menuData = {
 
                     path.setAttribute(
                       "d",
-                      makeScribblePath({ w, h, kind, seed }),
+                      makeScribblePath({ w, h, kind, seed, metrics }),
                     );
                     path.setAttribute("fill", "none");
                     path.setAttribute("stroke", "var(--lit-green)");
@@ -753,8 +858,8 @@ const menuData = {
 
                     const strokeW =
                       kind === "strike"
-                        ? Math.max(1.9, h * 0.105)
-                        : Math.max(1.8, h * 0.095);
+                        ? Math.max(1.9, metrics.fs * 0.085)
+                        : Math.max(1.8, metrics.fs * 0.075);
 
                     path.setAttribute("stroke-width", strokeW.toFixed(2));
 
@@ -763,6 +868,9 @@ const menuData = {
                     path.style.strokeDashoffset = `${len}`;
                     path.style.transition =
                       "stroke-dashoffset 900ms cubic-bezier(0.25, 0.8, 0.25, 1)";
+                    if (order > 0) {
+                      path.style.transitionDelay = `${order * 170}ms`;
+                    }
 
                     svg.appendChild(path);
                     title.appendChild(svg);
@@ -777,10 +885,10 @@ const menuData = {
                     clearInk(title);
                     title
                       .querySelectorAll(".entries-strike")
-                      .forEach((s) => drawInkForSpan(s, "strike"));
+                      .forEach((s, i) => drawInkForSpan(s, "strike", i));
                     title
                       .querySelectorAll(".entries-underline")
-                      .forEach((s) => drawInkForSpan(s, "underline"));
+                      .forEach((s, i) => drawInkForSpan(s, "underline", i));
                   });
 
                   // reveal immediately for already-visible entries (above fold)
