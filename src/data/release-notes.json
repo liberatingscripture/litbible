@@ -35,6 +35,264 @@
       {
         "type": "glossary_added",
         "description": "Glossary entry for Submit added"
+      },
+      {
+        "type": "text_updated",
+        "description": "2 Corinthians 1:2–3, 14 — text updated",
+        "detail": "v. 2: \"Liberating Sovereign\" → \"Lord\"; v. 3: \"Liberating Sovereign\" → \"Lord\"; v. 14: \"Liberating Sovereign,\" → \"Lord,\"",
+        "location": {
+          "bookKey": "2corinthians",
+          "chapter": 1,
+          "verse": 2
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "2 Corinthians 1:2 — footnote h updated",
+        "detail": "\"Traditionally, ‘Lord.’ The Greek word kurios, when applied …\" → \"The Greek word kurios, when applied to Jesus, can be transl…\"",
+        "location": {
+          "bookKey": "2corinthians",
+          "chapter": 1,
+          "verse": 2
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "2 Corinthians 10:8, 17–18 — text updated",
+        "detail": "v. 8: \"The One Who Is\" → \"The-One-Who-Is\"; v. 17: \"The One Who Is.”\" → \"The-One-Who-Is.”\"; v. 18: \"The One Who Is\" → \"The-One-Who-Is\"",
+        "location": {
+          "bookKey": "2corinthians",
+          "chapter": 10,
+          "verse": 8
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "2 Corinthians 10:8 — footnote m updated",
+        "detail": "\"“The One Who Is” is used to translate the Greek kurios (tra…\" → \"“The-One-Who-Is” is used to translate the Greek kurios (tra…\"",
+        "location": {
+          "bookKey": "2corinthians",
+          "chapter": 10,
+          "verse": 8
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "2 Corinthians 11:17, 31 — text updated",
+        "detail": "v. 17: \"Liberating Sovereign\" → \"Lord\"; v. 31: \"Liberating Sovereign\" → \"Lord\"",
+        "location": {
+          "bookKey": "2corinthians",
+          "chapter": 11,
+          "verse": 17
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "2 Corinthians 11:17 — footnote t updated",
+        "detail": "\"Traditionally, ‘Lord.’ The Greek word kurios, when applied …\" → \"The Greek word kurios, when applied to Jesus, can be transl…\"",
+        "location": {
+          "bookKey": "2corinthians",
+          "chapter": 11,
+          "verse": 17
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "2 Corinthians 12:1, 8 — text updated",
+        "detail": "v. 1: \"Liberating Sovereign.\" → \"Lord.\"; v. 8: \"The One Who Is\" → \"The-One-Who-Is\"",
+        "location": {
+          "bookKey": "2corinthians",
+          "chapter": 12,
+          "verse": 1
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "2 Corinthians 12:1, 8 — footnotes c, j updated",
+        "detail": "fn. c (v. 1): \"Traditionally, ‘Lord.’ The Greek word kurios, when applied …\" → \"The Greek word kurios, when applied to Jesus, can be transl…\"; fn. j (v. 8): \"“The One Who Is” is used to translate the Greek kurios (tra…\" → \"“The-One-Who-Is” is used to translate the Greek kurios (tra…\"",
+        "location": {
+          "bookKey": "2corinthians",
+          "chapter": 12,
+          "verse": 1
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "2 Corinthians 13:10, 13 — text updated",
+        "detail": "v. 10: \"Liberating Sovereign\" → \"Lord\"; v. 13: \"Liberating Sovereign\" → \"Lord\"",
+        "location": {
+          "bookKey": "2corinthians",
+          "chapter": 13,
+          "verse": 10
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "2 Corinthians 13:10 — footnote j updated",
+        "detail": "\"Traditionally, ‘Lord.’ The Greek word kurios, when applied …\" → \"The Greek word kurios, when applied to Jesus, can be transl…\"",
+        "location": {
+          "bookKey": "2corinthians",
+          "chapter": 13,
+          "verse": 10
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "2 Corinthians 2:12 — text updated",
+        "detail": "\"Sovereign One,\" → \"Lord,\"",
+        "location": {
+          "bookKey": "2corinthians",
+          "chapter": 2,
+          "verse": 12
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "2 Corinthians 2:12 — footnote f updated",
+        "detail": "\"Traditionally, ‘Lord.’ The Greek word kurios, when applied …\" → \"The Greek word kurios, when applied to Jesus, can be transl…\"",
+        "location": {
+          "bookKey": "2corinthians",
+          "chapter": 2,
+          "verse": 12
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "2 Corinthians 3:16–18 — text updated",
+        "detail": "v. 16: \"The One Who Is,\" → \"The-One-Who-Is,\"; v. 17: \"The One Who Is\" → \"The-One-Who-Is\"; v. 18: \"The One Who Is with unveiled faces are all transformed into…\" → \"The-One-Who-Is with unveiled faces are all transformed into…\"",
+        "location": {
+          "bookKey": "2corinthians",
+          "chapter": 3,
+          "verse": 16
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "2 Corinthians 3:16 — footnote m updated",
+        "detail": "\"Traditionally, ‘Lord.’ The Greek word kurios, when applied …\" → \"“The-One-Who-Is” is used to translate the Greek kurios (tra…\"",
+        "location": {
+          "bookKey": "2corinthians",
+          "chapter": 3,
+          "verse": 16
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "2 Corinthians 4:5 — text updated",
+        "detail": "\"Sovereign\" → \"Lord\"",
+        "location": {
+          "bookKey": "2corinthians",
+          "chapter": 4,
+          "verse": 5
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "2 Corinthians 4:5 — footnote g updated",
+        "detail": "\"Traditionally, ‘Lord.’ The Greek word kurios, when applied …\" → \"The Greek word kurios, when applied to Jesus, can be transl…\"",
+        "location": {
+          "bookKey": "2corinthians",
+          "chapter": 4,
+          "verse": 5
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "2 Corinthians 5:6, 8, 11 — text updated",
+        "detail": "v. 6: \"Liberating Sovereign.\" → \"Lord.\"; v. 8: \"Liberating Sovereign.\" → \"Lord.\"; v. 11: \"The One Who Is,\" → \"The-One-Who-Is,\"",
+        "location": {
+          "bookKey": "2corinthians",
+          "chapter": 5,
+          "verse": 6
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "2 Corinthians 5:6, 11 — footnotes h, j, k updated",
+        "detail": "fn. h (v. 6): \"Traditionally, ‘Lord.’ The Greek word kurios, when applied …\" → \"The Greek word kurios, when applied to Jesus, can be transl…\"; fn. j (v. 11): \"the Liberating Sovereign” is the respect that come from the…\" → \"The-One-Who-Is” is the respect that comes from The-One-Who-…\"; fn. k (v. 11): \"“The One Who Is” is used to translate the Greek kurios (tra…\" → \"“The-One-Who-Is” is used to translate the Greek kurios (tra…\"",
+        "location": {
+          "bookKey": "2corinthians",
+          "chapter": 5,
+          "verse": 6
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "2 Corinthians 6:17–18 — text updated",
+        "detail": "v. 17: \"The One Who Is,\" → \"The-One-Who-Is,\"; v. 18: \"The One Who Is\" → \"The-One-Who-Is\"",
+        "location": {
+          "bookKey": "2corinthians",
+          "chapter": 6,
+          "verse": 17
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "2 Corinthians 6 — footnote t updated",
+        "detail": "\"“The One Who Is” is used to translate the Greek kurios (tra…\" → \"“The-One-Who-Is” is used to translate the Greek kurios (tra…\"",
+        "location": {
+          "bookKey": "2corinthians",
+          "chapter": 6
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "2 Corinthians 7:1 — text updated",
+        "detail": "\"The One Who Is.\" → \"The-One-Who-Is.\"",
+        "location": {
+          "bookKey": "2corinthians",
+          "chapter": 7,
+          "verse": 1
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "2 Corinthians 7:1 — footnotes f, g updated",
+        "detail": "fn. f (v. 1): \"the Liberating Sovereign” is the respect that come from the…\" → \"The-One-Who-Is” is the respect that comes from The-One-Who-…\"; fn. g (v. 1): \"“The One Who Is” is used to translate the Greek kurios (tra…\" → \"“The-One-Who-Is” is used to translate the Greek kurios (tra…\"",
+        "location": {
+          "bookKey": "2corinthians",
+          "chapter": 7,
+          "verse": 1
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "2 Corinthians 8:5, 9, 19, 21 — text updated",
+        "detail": "v. 5: \"Liberating Sovereign\" → \"Lord\"; v. 9: \"Liberating Sovereign\" → \"Lord\"; v. 19: \"Liberating Sovereign\" → \"Lord\"; v. 21: \"Sovereign One’s viewpoint\" → \"viewpoint of The-One-Who-Is\"",
+        "location": {
+          "bookKey": "2corinthians",
+          "chapter": 8,
+          "verse": 5
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "2 Corinthians 8:5, 21 — footnotes e, l updated",
+        "detail": "fn. e (v. 5): \"Traditionally, ‘Lord.’ The Greek word kurios, when applied …\" → \"The Greek word kurios, when applied to Jesus, can be transl…\"; fn. l (v. 21): added \"“The-One-Who-Is” is used to translate the Greek kurios (traditionally, “Lord”) when it refers to God, especially in Heb…\"",
+        "location": {
+          "bookKey": "2corinthians",
+          "chapter": 8,
+          "verse": 5
+        },
+        "relabel": "footnotes formerly l relabeled m"
+      },
+      {
+        "type": "footnote_updated",
+        "description": "3 John 1:7 — footnote g updated",
+        "detail": "\"‘The One Who Is’\" → \"‘The-One-Who-Is’\"",
+        "location": {
+          "bookKey": "3john",
+          "chapter": 1,
+          "verse": 7
+        }
+      },
+      {
+        "type": "intro_updated",
+        "description": "2 Corinthians Introduction updated"
+      },
+      {
+        "type": "article_updated",
+        "description": "Article updated: 2 corinthians 13 10 mistranslation"
       }
     ]
   },
