@@ -274,6 +274,7 @@ the sitemap filter live in `astro.config.mjs`.
 | Script | Role |
 |--------|------|
 | `validate-chapters.mjs` | Validates chapter JSON (with `--fix` to re-serialize). Driven by `chapter_json_invariants.json`, which carries the reasoning for every rule — read it before adding or relaxing one. |
+| `lib/chapter-serialize.mjs` | The canonical on-disk form of a chapter file — the serializer behind `--fix`. Unit-tested, because `--fix` rewrites source in place. |
 | `chapter_json_invariants.json` | Documents validation rules (e.g. the `indexed` flag). |
 | `import-chapter.mjs` | Builds chapter JSON from a Word master `.docx`. **Not** in any build — run by hand when a book is ready. Its guarantee is fidelity, not cleanup: see The Importer below. |
 | `lib/import-core.mjs` | Pure transform layer of that importer — the two pre-approved changes, the structural ones, and the fidelity gate. Unit-tested directly (`test/import-core.test.js`), since the guarantee is the whole point. |
@@ -322,6 +323,18 @@ Each file in `src/data/chapters/` follows this structure:
 ```
 
 - **`type`** is `"scripture"` on every chapter (not a genre label).
+- **Each footnote object is written on ONE line**, as above — that is the
+  canonical serialization, produced by `scripts/lib/chapter-serialize.mjs` and
+  emitted by `npm run fix:chapters`. It exists so a footnote edit is a one-line
+  diff and a mid-chapter insertion reads as a block of shifted lines rather than
+  hundreds of re-indented fragments. **Never write a chapter file with
+  `JSON.stringify(data, null, 2)`** — it expands every footnote, so a script
+  that parses and re-serializes turns a two-word fix into a thousand-line diff.
+  For a small text edit, prefer raw-string replacement on the file text over a
+  parse/serialize round-trip. The reconciliation toolchain has its own, stricter
+  reason for the same rule (`lib/json-splice.mjs`): the API manifest hashes
+  chapter files by raw bytes, so a needless round-trip re-downloads the corpus
+  on every app install.
 - **Verse numbers** are `<sup id="vN" class="vn">N</sup>`, always wrapped as
   `<span class="vglue"><sup…></sup>&nbsp;<first word>…</span>` so the number
   stays glued to the verse's first word. At render time (website only — raw

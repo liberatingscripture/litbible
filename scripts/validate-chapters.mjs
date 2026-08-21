@@ -23,6 +23,10 @@ import { fileURLToPath } from "url";
 // here: a second copy of that rule is the one way it could quietly stop
 // agreeing with the tools that repair against it.
 import { findUnseparatedVerseMarkers } from "./reconcile/lib/verse-span.mjs";
+// The corpus's own on-disk shape, one footnote per line. --fix emitting plain
+// JSON.stringify disagreed with 133 of the 206 footnote-bearing chapters, so
+// running a documented command rewrote most of the corpus as formatting churn.
+import { serializeChapter } from "./lib/chapter-serialize.mjs";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const root = resolve(__dirname, "..");
@@ -466,7 +470,7 @@ for (const filePath of files) {
 
   // ── Fix mode: re-serialize to normalize formatting ────────────────────────
   if (fixMode && errors.length === 0) {
-    const normalized = JSON.stringify(data, null, 2) + "\n";
+    const normalized = serializeChapter(data);
     if (normalized !== raw) {
       writeFileSync(filePath, normalized, "utf-8");
       console.log(`  fixed ${rel}`);
