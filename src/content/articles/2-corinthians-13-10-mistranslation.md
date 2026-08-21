@@ -53,7 +53,7 @@ Every major translation arbitrarily adds the words “have to,” and that addit
 
 Here’s my translation, which stays closer to the Greek:
 
-> “That’s why I’m writing these things while I’m away, so that—in alignment with the freedom that the Liberating Sovereign gave me for building up, not tearing down—I won’t treat you harshly when I’m there” (<a href="/2corinthians-13">2 Corinthians 13:10</a>).
+> “That’s why I’m writing these things while I’m away, so that—in alignment with the freedom that the Lord gave me for building up, not tearing down—I won’t treat you harshly when I’m there” (<a href="/2corinthians-13">2 Corinthians 13:10</a>).
 
 Do you see the shift? I’ll break it down. It’s subtle but essential.
 
