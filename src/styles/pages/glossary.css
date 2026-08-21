@@ -354,6 +354,57 @@
   white-space: nowrap; /* keeps “ – ” together */
 }
 
+/* =========================================================
+   Multi-option gloss ("loving faithfulness / committed compassion")
+
+   Each option is its own .entries-underline flex item, so the ink scribble
+   is drawn and revealed per option instead of as one stroke running through
+   the slash. The slash is its own item; the title's column-gap supplies its
+   spacing, so it needs no padding of its own.
+   ========================================================= */
+
+.entry-title .lit-sep{
+  opacity: 0.7;
+}
+
+/* Phones and small tablets: the longest gloss (eleos, "loving faithfulness /
+   committed compassion") is wider than the column, so each option takes its
+   own line.
+
+   780px is measured, not chosen for tidiness: below ~770px the eleos title
+   needs more room than the column gives it and wraps anyway, leaving the
+   slash dangling at the end of the first line. Above that the whole title
+   fits on one line at every width, because the heading's font-size clamp
+   stops growing before the column does. */
+@media (max-width: 780px){
+  /* The slash becomes the line break. A zero-height, full-width flex item
+     pushes the next option onto a new line while the options themselves stay
+     shrink-wrapped — which matters, because the ink underline is drawn across
+     the span's client rect, so a full-width option would trail a scribble far
+     past its last word. The negative margin cancels one of the two row-gaps
+     this empty flex line would otherwise sit between. */
+  .entry-title .lit-sep{
+    flex: 0 0 100%;
+    height: 0;
+    margin-block: calc(-0.35rem / 2);
+    overflow: hidden;
+  }
+
+  /* A single option can still outrun a narrow viewport, and a line wider than
+     its column pushes the page sideways rather than wrapping. The ink is drawn
+     once per client rect, so a wrapped option gets one scribble per line. */
+  .entry-title .lit-part{
+    white-space: normal;
+
+    /* The title's 1.15 leading is tight enough that a wrapped option's ink
+       underline lands on the next line's capitals — badly so in OpenDyslexic,
+       whose glyphs fill more of the em than Fraunces does. Extra leading is
+       the fix rather than a shorter stroke: an accessibility font is the last
+       thing to make smaller. */
+    line-height: 1.4;
+  }
+}
+
 .entry-body p{
   margin: 0;
   font-size: clamp(18px, 2.1vw, 26px);
