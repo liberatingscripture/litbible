@@ -183,6 +183,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Gal.3.6",
+      "english": [
+        {
+          "text": "justice",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "dikaiosune",
+        "traditional": "Righteousness",
+        "glossary": "righteousness-justness",
+        "form": "justice"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
       "ref": "Gal.3.7",
       "english": [
         {

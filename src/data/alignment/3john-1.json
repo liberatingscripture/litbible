@@ -146,6 +146,26 @@
       "ref": "3John.1.10",
       "english": [
         {
+          "text": "community",
+          "n": 2
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ekklesia",
+        "traditional": "Church",
+        "glossary": "church-called-community",
+        "form": "community"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
+      "ref": "3John.1.10",
+      "english": [
+        {
           "text": "harmful",
           "n": 1
         }
@@ -168,6 +188,26 @@
         {
           "text": "Family",
           "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "sarx",
+        "traditional": "Flesh",
+        "glossary": "flesh-body",
+        "form": "family"
+      },
+      "confidence": "common",
+      "lemma": "absent",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
+      "ref": "3John.1.10",
+      "english": [
+        {
+          "text": "Family",
+          "n": 2
         }
       ],
       "greek": [],

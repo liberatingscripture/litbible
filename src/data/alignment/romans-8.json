@@ -306,6 +306,26 @@
       "ref": "Rom.8.5",
       "english": [
         {
+          "text": "self-preservation",
+          "n": 2
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "sarx",
+        "traditional": "Flesh",
+        "glossary": "flesh-body",
+        "form": "self-preservation"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
+      "ref": "Rom.8.5",
+      "english": [
+        {
           "text": "Life-breath",
           "n": 1
         }

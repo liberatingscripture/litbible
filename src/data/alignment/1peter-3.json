@@ -66,6 +66,26 @@
       "ref": "1Pet.3.5",
       "english": [
         {
+          "text": "arrange",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hupotasso",
+        "traditional": "Submit",
+        "glossary": "submit-cooperate",
+        "form": "arrange"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "rejected"
+    },
+    {
+      "ref": "1Pet.3.5",
+      "english": [
+        {
           "text": "cooperating",
           "n": 1
         }

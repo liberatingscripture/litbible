@@ -166,6 +166,26 @@
       "ref": "Jas.3.17",
       "english": [
         {
+          "text": "faithfulness",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pistis",
+        "traditional": "Faith",
+        "glossary": "faith-trust",
+        "form": "faithfulness"
+      },
+      "confidence": "common",
+      "lemma": "absent",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
+      "ref": "Jas.3.17",
+      "english": [
+        {
           "text": "pretenses",
           "n": 1
         }
