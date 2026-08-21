@@ -43,6 +43,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Mark.7.6",
+      "english": [
+        {
+          "text": "pretenders",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hupokrites",
+        "traditional": "Hypocrite",
+        "glossary": "hypocrite-faker",
+        "form": "pretender"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
       "ref": "Mark.7.8",
       "english": [
         {
@@ -221,6 +241,46 @@
       "lemma": "absent",
       "source": "glossary-scan",
       "status": "auto"
+    },
+    {
+      "ref": "Mark.7.21",
+      "english": [
+        {
+          "text": "sexual exploitation",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "porneia",
+        "traditional": "Sexual immorality",
+        "glossary": "immorality-exploitation",
+        "form": "sexual exploitation"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Mark.7.22",
+      "english": [
+        {
+          "text": "marital infidelity",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "moicheia",
+        "traditional": "Adultery",
+        "glossary": "adultery-marital-infidelity",
+        "form": "marital infidelity"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
     },
     {
       "ref": "Mark.7.22",

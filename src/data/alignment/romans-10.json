@@ -103,6 +103,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Rom.10.3",
+      "english": [
+        {
+          "text": "cooperated",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hupotasso",
+        "traditional": "Submit",
+        "glossary": "submit-cooperate",
+        "form": "cooperate with"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Rom.10.4",
       "english": [
         {
@@ -580,6 +600,46 @@
       "confidence": "common",
       "lemma": "present",
       "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.10.19",
+      "english": [
+        {
+          "text": "group of people",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ethnos",
+        "traditional": "Gentiles",
+        "glossary": "gentiles-people-groups",
+        "form": "people groups"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.10.19",
+      "english": [
+        {
+          "text": "people group",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ethnos",
+        "traditional": "Gentiles",
+        "glossary": "gentiles-people-groups",
+        "form": "people groups"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
       "status": "confirmed"
     }
   ]

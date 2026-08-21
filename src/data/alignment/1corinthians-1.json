@@ -26,6 +26,26 @@
       "ref": "1Cor.1.2",
       "english": [
         {
+          "text": "community",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ekklesia",
+        "traditional": "Church",
+        "glossary": "church-called-community",
+        "form": "Called Community"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Cor.1.2",
+      "english": [
+        {
           "text": "sacred",
           "n": 1
         }
@@ -121,6 +141,26 @@
       "lemma": "present",
       "source": "review",
       "status": "confirmed"
+    },
+    {
+      "ref": "1Cor.1.9",
+      "english": [
+        {
+          "text": "community",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ekklesia",
+        "traditional": "Church",
+        "glossary": "church-called-community",
+        "form": "community"
+      },
+      "confidence": "common",
+      "lemma": "absent",
+      "source": "glossary-scan",
+      "status": "auto"
     },
     {
       "ref": "1Cor.1.9",
@@ -256,6 +296,26 @@
         "traditional": "Salvation",
         "glossary": "salvation-liberation",
         "form": "restoration"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Cor.1.23",
+      "english": [
+        {
+          "text": "other peoples",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ethnos",
+        "traditional": "Gentiles",
+        "glossary": "gentiles-people-groups",
+        "form": "other people groups"
       },
       "confidence": null,
       "lemma": "present",

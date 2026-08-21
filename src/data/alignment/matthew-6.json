@@ -63,6 +63,126 @@
       "status": "confirmed"
     },
     {
+      "ref": "Matt.6.2",
+      "english": [
+        {
+          "text": "pretenders",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hupokrites",
+        "traditional": "Hypocrite",
+        "glossary": "hypocrite-faker",
+        "form": "pretender"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.6.2",
+      "english": [
+        {
+          "text": "compassion work",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eleos",
+        "traditional": "Mercy",
+        "glossary": "mercy-loving-faithfulness",
+        "form": "act compassionately"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.6.3",
+      "english": [
+        {
+          "text": "compassion work",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eleos",
+        "traditional": "Mercy",
+        "glossary": "mercy-loving-faithfulness",
+        "form": "act compassionately"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.6.4",
+      "english": [
+        {
+          "text": "compassion work",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eleos",
+        "traditional": "Mercy",
+        "glossary": "mercy-loving-faithfulness",
+        "form": "act compassionately"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.6.5",
+      "english": [
+        {
+          "text": "pretenders",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hupokrites",
+        "traditional": "Hypocrite",
+        "glossary": "hypocrite-faker",
+        "form": "pretender"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.6.7",
+      "english": [
+        {
+          "text": "people groups",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ethnos",
+        "traditional": "Gentiles",
+        "glossary": "gentiles-people-groups",
+        "form": "people groups"
+      },
+      "confidence": "common",
+      "lemma": "absent",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
       "ref": "Matt.6.9",
       "english": [
         {
@@ -323,6 +443,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Matt.6.16",
+      "english": [
+        {
+          "text": "pretenders",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hupokrites",
+        "traditional": "Hypocrite",
+        "glossary": "hypocrite-faker",
+        "form": "pretender"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
       "ref": "Matt.6.20",
       "english": [
         {
@@ -421,6 +561,26 @@
       "lemma": "absent",
       "source": "glossary-scan",
       "status": "auto"
+    },
+    {
+      "ref": "Matt.6.32",
+      "english": [
+        {
+          "text": "people groups",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ethnos",
+        "traditional": "Gentiles",
+        "glossary": "gentiles-people-groups",
+        "form": "people groups"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
     },
     {
       "ref": "Matt.6.32",

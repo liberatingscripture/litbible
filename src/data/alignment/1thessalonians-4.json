@@ -43,6 +43,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "1Thess.4.3",
+      "english": [
+        {
+          "text": "sexual exploitation",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "porneia",
+        "traditional": "Sexual immorality",
+        "glossary": "immorality-exploitation",
+        "form": "sexual exploitation"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
       "ref": "1Thess.4.4",
       "english": [
         {
@@ -60,6 +80,26 @@
       "confidence": "common",
       "lemma": "present",
       "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Thess.4.5",
+      "english": [
+        {
+          "text": "other peoples",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ethnos",
+        "traditional": "Gentiles",
+        "glossary": "gentiles-people-groups",
+        "form": "other people groups"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
       "status": "confirmed"
     },
     {

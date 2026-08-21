@@ -3,6 +3,66 @@
   "chapter": 5,
   "records": [
     {
+      "ref": "1Cor.5.1",
+      "english": [
+        {
+          "text": "people groups",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ethnos",
+        "traditional": "Gentiles",
+        "glossary": "gentiles-people-groups",
+        "form": "people groups"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Cor.5.1",
+      "english": [
+        {
+          "text": "Sexual exploitation",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "porneia",
+        "traditional": "Sexual immorality",
+        "glossary": "immorality-exploitation",
+        "form": "sexual exploitation"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Cor.5.1",
+      "english": [
+        {
+          "text": "sexual exploitation",
+          "n": 2
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "porneia",
+        "traditional": "Sexual immorality",
+        "glossary": "immorality-exploitation",
+        "form": "sexual exploitation"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
       "ref": "1Cor.5.3",
       "english": [
         {
@@ -203,6 +263,46 @@
       "status": "confirmed"
     },
     {
+      "ref": "1Cor.5.9",
+      "english": [
+        {
+          "text": "sexually exploitative",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "porneia",
+        "traditional": "Sexual immorality",
+        "glossary": "immorality-exploitation",
+        "form": "sexual exploitation"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Cor.5.10",
+      "english": [
+        {
+          "text": "sexually exploitative",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "porneia",
+        "traditional": "Sexual immorality",
+        "glossary": "immorality-exploitation",
+        "form": "sexual exploitation"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "1Cor.5.11",
       "english": [
         {
@@ -216,6 +316,66 @@
         "traditional": "Flesh",
         "glossary": "flesh-body",
         "form": "family"
+      },
+      "confidence": "common",
+      "lemma": "absent",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
+      "ref": "1Cor.5.11",
+      "english": [
+        {
+          "text": "sexually exploitative",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "porneia",
+        "traditional": "Sexual immorality",
+        "glossary": "immorality-exploitation",
+        "form": "sexual exploitation"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Cor.5.12",
+      "english": [
+        {
+          "text": "community",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ekklesia",
+        "traditional": "Church",
+        "glossary": "church-called-community",
+        "form": "community"
+      },
+      "confidence": "common",
+      "lemma": "absent",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
+      "ref": "1Cor.5.12",
+      "english": [
+        {
+          "text": "community",
+          "n": 2
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ekklesia",
+        "traditional": "Church",
+        "glossary": "church-called-community",
+        "form": "community"
       },
       "confidence": "common",
       "lemma": "absent",

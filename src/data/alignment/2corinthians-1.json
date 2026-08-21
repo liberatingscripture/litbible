@@ -6,6 +6,26 @@
       "ref": "2Cor.1.1",
       "english": [
         {
+          "text": "Community",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ekklesia",
+        "traditional": "Church",
+        "glossary": "church-called-community",
+        "form": "Called Community"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "2Cor.1.1",
+      "english": [
+        {
           "text": "Family",
           "n": 1
         }

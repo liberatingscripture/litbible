@@ -623,6 +623,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Rom.4.17",
+      "english": [
+        {
+          "text": "people groups",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ethnos",
+        "traditional": "Gentiles",
+        "glossary": "gentiles-people-groups",
+        "form": "people groups"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
       "ref": "Rom.4.18",
       "english": [
         {
@@ -636,6 +656,26 @@
         "traditional": "Faith",
         "glossary": "faith-trust",
         "form": "trust"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.4.18",
+      "english": [
+        {
+          "text": "people groups",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ethnos",
+        "traditional": "Gentiles",
+        "glossary": "gentiles-people-groups",
+        "form": "people groups"
       },
       "confidence": "common",
       "lemma": "present",

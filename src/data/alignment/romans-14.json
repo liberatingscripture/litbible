@@ -166,61 +166,41 @@
       "ref": "Rom.14.14",
       "english": [
         {
-          "text": "unclean",
-          "n": 1
-        }
-      ],
-      "greek": [],
-      "term": {
-        "greek": "akathartos",
-        "traditional": "Unclean",
-        "glossary": "unclean-unclean",
-        "form": "unclean"
-      },
-      "confidence": "common",
-      "lemma": "absent",
-      "source": "glossary-scan",
-      "status": "auto"
-    },
-    {
-      "ref": "Rom.14.14",
-      "english": [
-        {
-          "text": "unclean",
+          "text": "ordinary",
           "n": 2
         }
       ],
       "greek": [],
       "term": {
-        "greek": "akathartos",
-        "traditional": "Unclean",
-        "glossary": "unclean-unclean",
-        "form": "unclean"
+        "greek": "koine",
+        "traditional": "Defiled/Profane",
+        "glossary": "defiled-common",
+        "form": "ordinary"
       },
       "confidence": "common",
-      "lemma": "absent",
+      "lemma": "present",
       "source": "glossary-scan",
-      "status": "auto"
+      "status": "confirmed"
     },
     {
       "ref": "Rom.14.14",
       "english": [
         {
-          "text": "unclean",
+          "text": "ordinary",
           "n": 3
         }
       ],
       "greek": [],
       "term": {
-        "greek": "akathartos",
-        "traditional": "Unclean",
-        "glossary": "unclean-unclean",
-        "form": "unclean"
+        "greek": "koine",
+        "traditional": "Defiled/Profane",
+        "glossary": "defiled-common",
+        "form": "ordinary"
       },
       "confidence": "common",
-      "lemma": "absent",
+      "lemma": "present",
       "source": "glossary-scan",
-      "status": "auto"
+      "status": "confirmed"
     },
     {
       "ref": "Rom.14.15",

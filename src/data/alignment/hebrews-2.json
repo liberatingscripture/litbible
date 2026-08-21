@@ -123,6 +123,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Heb.2.5",
+      "english": [
+        {
+          "text": "arrange",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hupotasso",
+        "traditional": "Submit",
+        "glossary": "submit-cooperate",
+        "form": "arrange"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Heb.2.7",
       "english": [
         {
@@ -176,6 +196,86 @@
         "traditional": "Forgiveness",
         "glossary": "forgiveness-letting-go",
         "form": "leave"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Heb.2.8",
+      "english": [
+        {
+          "text": "arranged",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hupotasso",
+        "traditional": "Submit",
+        "glossary": "submit-cooperate",
+        "form": "arrange"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Heb.2.8",
+      "english": [
+        {
+          "text": "arranged",
+          "n": 3
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hupotasso",
+        "traditional": "Submit",
+        "glossary": "submit-cooperate",
+        "form": "arrange"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Heb.2.8",
+      "english": [
+        {
+          "text": "arrangement",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hupotasso",
+        "traditional": "Submit",
+        "glossary": "submit-cooperate",
+        "form": "arrange"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Heb.2.8",
+      "english": [
+        {
+          "text": "unarranged",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hupotasso",
+        "traditional": "Submit",
+        "glossary": "submit-cooperate",
+        "form": "arrange"
       },
       "confidence": null,
       "lemma": "present",
@@ -366,6 +466,26 @@
       "ref": "Heb.2.12",
       "english": [
         {
+          "text": "community",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ekklesia",
+        "traditional": "Church",
+        "glossary": "church-called-community",
+        "form": "Called Community"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Heb.2.12",
+      "english": [
+        {
           "text": "family",
           "n": 1
         }
@@ -501,6 +621,26 @@
       "lemma": "absent",
       "source": "glossary-scan",
       "status": "auto"
+    },
+    {
+      "ref": "Heb.2.17",
+      "english": [
+        {
+          "text": "compassionately committed",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eleos",
+        "traditional": "Mercy",
+        "glossary": "mercy-loving-faithfulness",
+        "form": "committed compassion"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
     },
     {
       "ref": "Heb.2.17",

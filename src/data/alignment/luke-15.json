@@ -321,6 +321,26 @@
       "lemma": "present",
       "source": "review",
       "status": "confirmed"
+    },
+    {
+      "ref": "Luke.15.30",
+      "english": [
+        {
+          "text": "prostitutes",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "porneia",
+        "traditional": "Sexual immorality",
+        "glossary": "immorality-exploitation",
+        "form": "sex workers"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
     }
   ]
 }

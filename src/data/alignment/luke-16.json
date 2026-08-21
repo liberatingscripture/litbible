@@ -203,6 +203,46 @@
       "status": "confirmed"
     },
     {
+      "ref": "Luke.16.18",
+      "english": [
+        {
+          "text": "violates an existing marriage",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "moicheia",
+        "traditional": "Adultery",
+        "glossary": "adultery-marital-infidelity",
+        "form": "violation of marriage covenant"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.16.18",
+      "english": [
+        {
+          "text": "violates an existing marriage",
+          "n": 2
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "moicheia",
+        "traditional": "Adultery",
+        "glossary": "adultery-marital-infidelity",
+        "form": "violation of marriage covenant"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Luke.16.22",
       "english": [
         {
@@ -240,6 +280,26 @@
       "confidence": "distinctive",
       "lemma": "present",
       "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.16.24",
+      "english": [
+        {
+          "text": "have compassion",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eleos",
+        "traditional": "Mercy",
+        "glossary": "mercy-loving-faithfulness",
+        "form": "act compassionately"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
       "status": "confirmed"
     },
     {

@@ -563,6 +563,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Luke.1.50",
+      "english": [
+        {
+          "text": "committed compassion",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eleos",
+        "traditional": "Mercy",
+        "glossary": "mercy-loving-faithfulness",
+        "form": "committed compassion"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
       "ref": "Luke.1.53",
       "english": [
         {
@@ -580,6 +600,46 @@
       "confidence": null,
       "lemma": "present",
       "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.1.54",
+      "english": [
+        {
+          "text": "committed compassion",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eleos",
+        "traditional": "Mercy",
+        "glossary": "mercy-loving-faithfulness",
+        "form": "committed compassion"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.1.58",
+      "english": [
+        {
+          "text": "committed compassion",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eleos",
+        "traditional": "Mercy",
+        "glossary": "mercy-loving-faithfulness",
+        "form": "committed compassion"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
       "status": "confirmed"
     },
     {
@@ -723,6 +783,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Luke.1.72",
+      "english": [
+        {
+          "text": "committed compassion",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eleos",
+        "traditional": "Mercy",
+        "glossary": "mercy-loving-faithfulness",
+        "form": "committed compassion"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
       "ref": "Luke.1.75",
       "english": [
         {
@@ -818,6 +898,26 @@
         "form": "deviation"
       },
       "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.1.78",
+      "english": [
+        {
+          "text": "committed compassion",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eleos",
+        "traditional": "Mercy",
+        "glossary": "mercy-loving-faithfulness",
+        "form": "committed compassion"
+      },
+      "confidence": "common",
       "lemma": "present",
       "source": "glossary-scan",
       "status": "confirmed"

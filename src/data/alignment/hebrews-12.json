@@ -123,6 +123,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Heb.12.9",
+      "english": [
+        {
+          "text": "cooperate with",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hupotasso",
+        "traditional": "Submit",
+        "glossary": "submit-cooperate",
+        "form": "cooperate with"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
       "ref": "Heb.12.10",
       "english": [
         {
@@ -203,6 +223,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Heb.12.16",
+      "english": [
+        {
+          "text": "used for sex",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "porneia",
+        "traditional": "Sexual immorality",
+        "glossary": "immorality-exploitation",
+        "form": "sexual violation"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Heb.12.17",
       "english": [
         {
@@ -256,6 +296,26 @@
         "traditional": "Heaven",
         "glossary": "heaven-sky",
         "form": "the heavens"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Heb.12.23",
+      "english": [
+        {
+          "text": "community",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ekklesia",
+        "traditional": "Church",
+        "glossary": "church-called-community",
+        "form": "Called Community"
       },
       "confidence": null,
       "lemma": "present",

@@ -23,6 +23,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Titus.1.1",
+      "english": [
+        {
+          "text": "respectfulness",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eusebeia",
+        "traditional": "Godliness",
+        "glossary": "godliness-respectfulness",
+        "form": "respectfulness"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
       "ref": "Titus.1.3",
       "english": [
         {

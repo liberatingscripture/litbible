@@ -203,6 +203,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Matt.21.31",
+      "english": [
+        {
+          "text": "sex workers",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "porneia",
+        "traditional": "Sexual immorality",
+        "glossary": "immorality-exploitation",
+        "form": "sex workers"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Matt.21.32",
       "english": [
         {
@@ -246,6 +266,26 @@
       "ref": "Matt.21.32",
       "english": [
         {
+          "text": "sex workers",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "porneia",
+        "traditional": "Sexual immorality",
+        "glossary": "immorality-exploitation",
+        "form": "sex workers"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.21.32",
+      "english": [
+        {
           "text": "justness",
           "n": 1
         }
@@ -276,6 +316,26 @@
         "traditional": "Bad",
         "glossary": "bad-harmful",
         "form": "brutal"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.21.43",
+      "english": [
+        {
+          "text": "people",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ethnos",
+        "traditional": "Gentiles",
+        "glossary": "gentiles-people-groups",
+        "form": "peoples"
       },
       "confidence": null,
       "lemma": "present",

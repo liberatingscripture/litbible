@@ -126,6 +126,26 @@
       "ref": "2Pet.3.11",
       "english": [
         {
+          "text": "respectfulness",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eusebeia",
+        "traditional": "Godliness",
+        "glossary": "godliness-respectfulness",
+        "form": "respectfulness"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "2Pet.3.11",
+      "english": [
+        {
           "text": "sacred",
           "n": 1
         }

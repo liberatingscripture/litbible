@@ -23,6 +23,26 @@
       "status": "auto"
     },
     {
+      "ref": "Jude.1.2",
+      "english": [
+        {
+          "text": "loving faithfulness",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eleos",
+        "traditional": "Mercy",
+        "glossary": "mercy-loving-faithfulness",
+        "form": "loving-faithfulness"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
       "ref": "Jude.1.3",
       "english": [
         {
@@ -200,6 +220,26 @@
       "confidence": "common",
       "lemma": "present",
       "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Jude.1.7",
+      "english": [
+        {
+          "text": "sexually exploiting",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "porneia",
+        "traditional": "Sexual immorality",
+        "glossary": "immorality-exploitation",
+        "form": "sexual exploitation"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
       "status": "confirmed"
     },
     {
@@ -483,6 +523,26 @@
       "status": "auto"
     },
     {
+      "ref": "Jude.1.21",
+      "english": [
+        {
+          "text": "loving faithfulness",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eleos",
+        "traditional": "Mercy",
+        "glossary": "mercy-loving-faithfulness",
+        "form": "loving-faithfulness"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
       "ref": "Jude.1.22",
       "english": [
         {
@@ -501,6 +561,26 @@
       "lemma": "absent",
       "source": "glossary-scan",
       "status": "auto"
+    },
+    {
+      "ref": "Jude.1.22",
+      "english": [
+        {
+          "text": "loving faithfulness",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eleos",
+        "traditional": "Mercy",
+        "glossary": "mercy-loving-faithfulness",
+        "form": "loving-faithfulness"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
     },
     {
       "ref": "Jude.1.23",
@@ -540,6 +620,26 @@
       "confidence": null,
       "lemma": "present",
       "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Jude.1.23",
+      "english": [
+        {
+          "text": "loving faithfulness",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eleos",
+        "traditional": "Mercy",
+        "glossary": "mercy-loving-faithfulness",
+        "form": "loving-faithfulness"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
       "status": "confirmed"
     },
     {

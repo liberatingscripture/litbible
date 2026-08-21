@@ -86,6 +86,26 @@
       "ref": "Matt.16.4",
       "english": [
         {
+          "text": "unfaithful",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "moicheia",
+        "traditional": "Adultery",
+        "glossary": "adultery-marital-infidelity",
+        "form": "unfaithfulness"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.16.4",
+      "english": [
+        {
           "text": "oppressive",
           "n": 1
         }
@@ -160,6 +180,26 @@
       "confidence": "common",
       "lemma": "present",
       "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.16.18",
+      "english": [
+        {
+          "text": "community",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ekklesia",
+        "traditional": "Church",
+        "glossary": "church-called-community",
+        "form": "Called Community"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
       "status": "confirmed"
     },
     {

@@ -43,11 +43,51 @@
       "status": "confirmed"
     },
     {
+      "ref": "Matt.15.7",
+      "english": [
+        {
+          "text": "Pretenders",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hupokrites",
+        "traditional": "Hypocrite",
+        "glossary": "hypocrite-faker",
+        "form": "pretender"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
       "ref": "Matt.15.11",
       "english": [
         {
           "text": "ordinary",
           "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "koine",
+        "traditional": "Defiled/Profane",
+        "glossary": "defiled-common",
+        "form": "ordinary"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.15.11",
+      "english": [
+        {
+          "text": "ordinary",
+          "n": 2
         }
       ],
       "greek": [],
@@ -123,24 +163,24 @@
       "status": "confirmed"
     },
     {
-      "ref": "Matt.15.18",
+      "ref": "Matt.15.19",
       "english": [
         {
-          "text": "unclean",
+          "text": "marital infidelity",
           "n": 1
         }
       ],
       "greek": [],
       "term": {
-        "greek": "akathartos",
-        "traditional": "Unclean",
-        "glossary": "unclean-unclean",
-        "form": "unclean"
+        "greek": "moicheia",
+        "traditional": "Adultery",
+        "glossary": "adultery-marital-infidelity",
+        "form": "marital infidelity"
       },
       "confidence": "common",
-      "lemma": "absent",
+      "lemma": "present",
       "source": "glossary-scan",
-      "status": "auto"
+      "status": "confirmed"
     },
     {
       "ref": "Matt.15.19",
@@ -203,6 +243,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Matt.15.19",
+      "english": [
+        {
+          "text": "sexual exploitation",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "porneia",
+        "traditional": "Sexual immorality",
+        "glossary": "immorality-exploitation",
+        "form": "sexual exploitation"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
       "ref": "Matt.15.20",
       "english": [
         {
@@ -226,41 +286,21 @@
       "ref": "Matt.15.20",
       "english": [
         {
-          "text": "unclean",
-          "n": 1
-        }
-      ],
-      "greek": [],
-      "term": {
-        "greek": "akathartos",
-        "traditional": "Unclean",
-        "glossary": "unclean-unclean",
-        "form": "unclean"
-      },
-      "confidence": "common",
-      "lemma": "absent",
-      "source": "glossary-scan",
-      "status": "auto"
-    },
-    {
-      "ref": "Matt.15.20",
-      "english": [
-        {
-          "text": "unclean",
+          "text": "ordinary",
           "n": 2
         }
       ],
       "greek": [],
       "term": {
-        "greek": "akathartos",
-        "traditional": "Unclean",
-        "glossary": "unclean-unclean",
-        "form": "unclean"
+        "greek": "koine",
+        "traditional": "Defiled/Profane",
+        "glossary": "defiled-common",
+        "form": "ordinary"
       },
       "confidence": "common",
-      "lemma": "absent",
+      "lemma": "present",
       "source": "glossary-scan",
-      "status": "auto"
+      "status": "confirmed"
     },
     {
       "ref": "Matt.15.22",
@@ -280,6 +320,26 @@
       "confidence": "common",
       "lemma": "present",
       "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.15.22",
+      "english": [
+        {
+          "text": "have compassion",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eleos",
+        "traditional": "Mercy",
+        "glossary": "mercy-loving-faithfulness",
+        "form": "act compassionately"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
       "status": "confirmed"
     },
     {

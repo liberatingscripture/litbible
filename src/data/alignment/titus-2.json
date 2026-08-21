@@ -103,6 +103,26 @@
       "status": "auto"
     },
     {
+      "ref": "Titus.2.5",
+      "english": [
+        {
+          "text": "cooperate with",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hupotasso",
+        "traditional": "Submit",
+        "glossary": "submit-cooperate",
+        "form": "cooperate with"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
       "ref": "Titus.2.7",
       "english": [
         {
@@ -120,6 +140,26 @@
       "confidence": null,
       "lemma": "present",
       "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Titus.2.9",
+      "english": [
+        {
+          "text": "cooperate with",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hupotasso",
+        "traditional": "Submit",
+        "glossary": "submit-cooperate",
+        "form": "cooperate with"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
       "status": "confirmed"
     },
     {
@@ -241,6 +281,26 @@
       "lemma": "absent",
       "source": "glossary-scan",
       "status": "auto"
+    },
+    {
+      "ref": "Titus.2.12",
+      "english": [
+        {
+          "text": "respectfulness",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eusebeia",
+        "traditional": "Godliness",
+        "glossary": "godliness-respectfulness",
+        "form": "respectfulness"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
     },
     {
       "ref": "Titus.2.13",

@@ -186,6 +186,26 @@
       "ref": "2Cor.9.13",
       "english": [
         {
+          "text": "praising",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "doxa",
+        "traditional": "Glory",
+        "glossary": "glory-praiseworthiness",
+        "form": "praise"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "2Cor.9.13",
+      "english": [
+        {
           "text": "the triumphant message",
           "n": 1
         }
@@ -221,6 +241,26 @@
       "lemma": "absent",
       "source": "glossary-scan",
       "status": "auto"
+    },
+    {
+      "ref": "2Cor.9.13",
+      "english": [
+        {
+          "text": "following through",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hupotasso",
+        "traditional": "Submit",
+        "glossary": "submit-cooperate",
+        "form": "following through"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
     },
     {
       "ref": "2Cor.9.14",

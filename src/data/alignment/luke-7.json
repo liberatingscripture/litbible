@@ -3,6 +3,26 @@
   "chapter": 7,
   "records": [
     {
+      "ref": "Luke.7.5",
+      "english": [
+        {
+          "text": "people",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ethnos",
+        "traditional": "Gentiles",
+        "glossary": "gentiles-people-groups",
+        "form": "peoples"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Luke.7.9",
       "english": [
         {

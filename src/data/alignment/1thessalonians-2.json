@@ -103,6 +103,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "1Thess.2.5",
+      "english": [
+        {
+          "text": "pretense",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hupokrites",
+        "traditional": "Hypocrite",
+        "glossary": "hypocrite-faker",
+        "form": "pretense"
+      },
+      "confidence": "common",
+      "lemma": "absent",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
       "ref": "1Thess.2.6",
       "english": [
         {
@@ -246,6 +266,26 @@
       "ref": "1Thess.2.14",
       "english": [
         {
+          "text": "communities",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ekklesia",
+        "traditional": "Church",
+        "glossary": "church-called-community",
+        "form": "Called Community"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Thess.2.14",
+      "english": [
+        {
           "text": "Family",
           "n": 1
         }
@@ -261,6 +301,26 @@
       "lemma": "absent",
       "source": "glossary-scan",
       "status": "auto"
+    },
+    {
+      "ref": "1Thess.2.16",
+      "english": [
+        {
+          "text": "other people groups",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ethnos",
+        "traditional": "Gentiles",
+        "glossary": "gentiles-people-groups",
+        "form": "other people groups"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
     },
     {
       "ref": "1Thess.2.16",

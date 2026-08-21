@@ -143,6 +143,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "2Pet.2.9",
+      "english": [
+        {
+          "text": "respectfully",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eusebeia",
+        "traditional": "Godliness",
+        "glossary": "godliness-respectfulness",
+        "form": "respectfulness"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "2Pet.2.10",
       "english": [
         {
@@ -256,6 +276,26 @@
         "traditional": "Blasphemy",
         "glossary": "blasphemy-disrespectfulness",
         "form": "speak disrespectfully"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "2Pet.2.14",
+      "english": [
+        {
+          "text": "infidelity",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "moicheia",
+        "traditional": "Adultery",
+        "glossary": "adultery-marital-infidelity",
+        "form": "unfaithfulness"
       },
       "confidence": null,
       "lemma": "present",

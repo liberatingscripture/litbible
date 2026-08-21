@@ -106,6 +106,46 @@
       "ref": "Rom.15.9",
       "english": [
         {
+          "text": "people groups",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ethnos",
+        "traditional": "Gentiles",
+        "glossary": "gentiles-people-groups",
+        "form": "people groups"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.15.9",
+      "english": [
+        {
+          "text": "people groups",
+          "n": 2
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ethnos",
+        "traditional": "Gentiles",
+        "glossary": "gentiles-people-groups",
+        "form": "people groups"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.15.9",
+      "english": [
+        {
           "text": "praises",
           "n": 1
         }
@@ -120,6 +160,106 @@
       "confidence": "common",
       "lemma": "present",
       "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.15.9",
+      "english": [
+        {
+          "text": "loving faithfulness",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eleos",
+        "traditional": "Mercy",
+        "glossary": "mercy-loving-faithfulness",
+        "form": "loving-faithfulness"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.15.10",
+      "english": [
+        {
+          "text": "other peoples",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ethnos",
+        "traditional": "Gentiles",
+        "glossary": "gentiles-people-groups",
+        "form": "other people groups"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.15.11",
+      "english": [
+        {
+          "text": "other peoples",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ethnos",
+        "traditional": "Gentiles",
+        "glossary": "gentiles-people-groups",
+        "form": "other people groups"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.15.12",
+      "english": [
+        {
+          "text": "other peoples",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ethnos",
+        "traditional": "Gentiles",
+        "glossary": "gentiles-people-groups",
+        "form": "other people groups"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.15.12",
+      "english": [
+        {
+          "text": "other peoples",
+          "n": 2
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ethnos",
+        "traditional": "Gentiles",
+        "glossary": "gentiles-people-groups",
+        "form": "other people groups"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
       "status": "confirmed"
     },
     {
@@ -266,6 +406,46 @@
       "ref": "Rom.15.16",
       "english": [
         {
+          "text": "people groups",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ethnos",
+        "traditional": "Gentiles",
+        "glossary": "gentiles-people-groups",
+        "form": "people groups"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.15.16",
+      "english": [
+        {
+          "text": "people groups",
+          "n": 2
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ethnos",
+        "traditional": "Gentiles",
+        "glossary": "gentiles-people-groups",
+        "form": "people groups"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.15.16",
+      "english": [
+        {
           "text": "the triumphant message",
           "n": 1
         }
@@ -338,6 +518,26 @@
         "form": "Life-breath"
       },
       "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.15.18",
+      "english": [
+        {
+          "text": "people groups",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ethnos",
+        "traditional": "Gentiles",
+        "glossary": "gentiles-people-groups",
+        "form": "people groups"
+      },
+      "confidence": "common",
       "lemma": "present",
       "source": "glossary-scan",
       "status": "confirmed"
@@ -426,6 +626,26 @@
       "ref": "Rom.15.26",
       "english": [
         {
+          "text": "community",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ekklesia",
+        "traditional": "Church",
+        "glossary": "church-called-community",
+        "form": "community"
+      },
+      "confidence": "common",
+      "lemma": "absent",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
+      "ref": "Rom.15.26",
+      "english": [
+        {
           "text": "sacred",
           "n": 1
         }
@@ -460,6 +680,26 @@
       "confidence": null,
       "lemma": "present",
       "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.15.27",
+      "english": [
+        {
+          "text": "people groups",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ethnos",
+        "traditional": "Gentiles",
+        "glossary": "gentiles-people-groups",
+        "form": "people groups"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
       "status": "confirmed"
     },
     {

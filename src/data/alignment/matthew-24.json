@@ -63,6 +63,46 @@
       "status": "confirmed"
     },
     {
+      "ref": "Matt.24.7",
+      "english": [
+        {
+          "text": "people",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ethnos",
+        "traditional": "Gentiles",
+        "glossary": "gentiles-people-groups",
+        "form": "peoples"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.24.9",
+      "english": [
+        {
+          "text": "people groups",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ethnos",
+        "traditional": "Gentiles",
+        "glossary": "gentiles-people-groups",
+        "form": "people groups"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
       "ref": "Matt.24.12",
       "english": [
         {
@@ -96,6 +136,26 @@
         "traditional": "Salvation",
         "glossary": "salvation-liberation",
         "form": "restoration"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.24.14",
+      "english": [
+        {
+          "text": "peoples",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ethnos",
+        "traditional": "Gentiles",
+        "glossary": "gentiles-people-groups",
+        "form": "peoples"
       },
       "confidence": null,
       "lemma": "present",
@@ -500,6 +560,26 @@
       "confidence": null,
       "lemma": "present",
       "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.24.51",
+      "english": [
+        {
+          "text": "pretenders",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hupokrites",
+        "traditional": "Hypocrite",
+        "glossary": "hypocrite-faker",
+        "form": "pretender"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
       "status": "confirmed"
     }
   ]

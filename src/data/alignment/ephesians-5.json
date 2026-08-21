@@ -26,6 +26,26 @@
       "ref": "Eph.5.3",
       "english": [
         {
+          "text": "sexual exploitation",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "porneia",
+        "traditional": "Sexual immorality",
+        "glossary": "immorality-exploitation",
+        "form": "sexual exploitation"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Eph.5.3",
+      "english": [
+        {
           "text": "uncleanness",
           "n": 1
         }
@@ -36,6 +56,26 @@
         "traditional": "Unclean",
         "glossary": "unclean-unclean",
         "form": "unclean"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Eph.5.5",
+      "english": [
+        {
+          "text": "sexually unethical",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "porneia",
+        "traditional": "Sexual immorality",
+        "glossary": "immorality-exploitation",
+        "form": "sexual violation"
       },
       "confidence": null,
       "lemma": "present",
@@ -203,6 +243,46 @@
       "status": "confirmed"
     },
     {
+      "ref": "Eph.5.21",
+      "english": [
+        {
+          "text": "cooperating with",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hupotasso",
+        "traditional": "Submit",
+        "glossary": "submit-cooperate",
+        "form": "cooperate with"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Eph.5.23",
+      "english": [
+        {
+          "text": "Called Community",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ekklesia",
+        "traditional": "Church",
+        "glossary": "church-called-community",
+        "form": "Called Community"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
       "ref": "Eph.5.23",
       "english": [
         {
@@ -216,6 +296,66 @@
         "traditional": "Salvation",
         "glossary": "salvation-liberation",
         "form": "caregiver"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Eph.5.24",
+      "english": [
+        {
+          "text": "Community",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ekklesia",
+        "traditional": "Church",
+        "glossary": "church-called-community",
+        "form": "Called Community"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Eph.5.24",
+      "english": [
+        {
+          "text": "cooperates with",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hupotasso",
+        "traditional": "Submit",
+        "glossary": "submit-cooperate",
+        "form": "cooperate with"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Eph.5.25",
+      "english": [
+        {
+          "text": "Community",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ekklesia",
+        "traditional": "Church",
+        "glossary": "church-called-community",
+        "form": "Called Community"
       },
       "confidence": null,
       "lemma": "present",
@@ -266,6 +406,26 @@
       "ref": "Eph.5.27",
       "english": [
         {
+          "text": "Community",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ekklesia",
+        "traditional": "Church",
+        "glossary": "church-called-community",
+        "form": "Called Community"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Eph.5.27",
+      "english": [
+        {
           "text": "sacred",
           "n": 1
         }
@@ -280,6 +440,26 @@
       "confidence": "common",
       "lemma": "present",
       "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Eph.5.29",
+      "english": [
+        {
+          "text": "Community",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ekklesia",
+        "traditional": "Church",
+        "glossary": "church-called-community",
+        "form": "Called Community"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
       "status": "confirmed"
     },
     {
@@ -316,6 +496,26 @@
         "traditional": "Flesh",
         "glossary": "flesh-body",
         "form": "body"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Eph.5.32",
+      "english": [
+        {
+          "text": "Community",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ekklesia",
+        "traditional": "Church",
+        "glossary": "church-called-community",
+        "form": "Called Community"
       },
       "confidence": null,
       "lemma": "present",

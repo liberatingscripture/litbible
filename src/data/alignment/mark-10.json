@@ -63,6 +63,46 @@
       "status": "confirmed"
     },
     {
+      "ref": "Mark.10.11",
+      "english": [
+        {
+          "text": "marital infidelity",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "moicheia",
+        "traditional": "Adultery",
+        "glossary": "adultery-marital-infidelity",
+        "form": "marital infidelity"
+      },
+      "confidence": "common",
+      "lemma": "absent",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
+      "ref": "Mark.10.12",
+      "english": [
+        {
+          "text": "marital infidelity",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "moicheia",
+        "traditional": "Adultery",
+        "glossary": "adultery-marital-infidelity",
+        "form": "marital infidelity"
+      },
+      "confidence": "common",
+      "lemma": "absent",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
       "ref": "Mark.10.14",
       "english": [
         {
@@ -140,6 +180,26 @@
       "confidence": null,
       "lemma": "present",
       "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Mark.10.19",
+      "english": [
+        {
+          "text": "marital infidelity",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "moicheia",
+        "traditional": "Adultery",
+        "glossary": "adultery-marital-infidelity",
+        "form": "marital infidelity"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
       "status": "confirmed"
     },
     {
@@ -243,6 +303,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Mark.10.33",
+      "english": [
+        {
+          "text": "foreign authorities",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ethnos",
+        "traditional": "Gentiles",
+        "glossary": "gentiles-people-groups",
+        "form": "foreign authorities"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Mark.10.34",
       "english": [
         {
@@ -276,6 +356,66 @@
         "traditional": "Glory",
         "glossary": "glory-praiseworthiness",
         "form": "renown"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Mark.10.42",
+      "english": [
+        {
+          "text": "people groups",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ethnos",
+        "traditional": "Gentiles",
+        "glossary": "gentiles-people-groups",
+        "form": "people groups"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Mark.10.47",
+      "english": [
+        {
+          "text": "loving-faithfulness",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eleos",
+        "traditional": "Mercy",
+        "glossary": "mercy-loving-faithfulness",
+        "form": "loving-faithfulness"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Mark.10.48",
+      "english": [
+        {
+          "text": "loving-faithfulness",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eleos",
+        "traditional": "Mercy",
+        "glossary": "mercy-loving-faithfulness",
+        "form": "loving-faithfulness"
       },
       "confidence": null,
       "lemma": "present",

@@ -426,6 +426,26 @@
       "ref": "Gal.5.19",
       "english": [
         {
+          "text": "sexual exploitation",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "porneia",
+        "traditional": "Sexual immorality",
+        "glossary": "immorality-exploitation",
+        "form": "sexual exploitation"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Gal.5.19",
+      "english": [
+        {
           "text": "uncleanness",
           "n": 1
         }

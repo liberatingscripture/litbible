@@ -83,6 +83,26 @@
       "status": "auto"
     },
     {
+      "ref": "1Tim.6.3",
+      "english": [
+        {
+          "text": "respectfulness",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eusebeia",
+        "traditional": "Godliness",
+        "glossary": "godliness-respectfulness",
+        "form": "respectfulness"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
       "ref": "1Tim.6.4",
       "english": [
         {
@@ -143,6 +163,46 @@
       "status": "confirmed"
     },
     {
+      "ref": "1Tim.6.5",
+      "english": [
+        {
+          "text": "respectfully",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eusebeia",
+        "traditional": "Godliness",
+        "glossary": "godliness-respectfulness",
+        "form": "respectfulness"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Tim.6.6",
+      "english": [
+        {
+          "text": "respectfully",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eusebeia",
+        "traditional": "Godliness",
+        "glossary": "godliness-respectfulness",
+        "form": "respectfulness"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "1Tim.6.10",
       "english": [
         {
@@ -196,6 +256,26 @@
         "traditional": "Faith",
         "glossary": "faith-trust",
         "form": "faithfulness"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Tim.6.11",
+      "english": [
+        {
+          "text": "respectfulness",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eusebeia",
+        "traditional": "Godliness",
+        "glossary": "godliness-respectfulness",
+        "form": "respectfulness"
       },
       "confidence": "common",
       "lemma": "present",

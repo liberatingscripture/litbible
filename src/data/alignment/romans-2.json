@@ -346,6 +346,26 @@
       "ref": "Rom.2.14",
       "english": [
         {
+          "text": "people of other groups",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ethnos",
+        "traditional": "Gentiles",
+        "glossary": "gentiles-people-groups",
+        "form": "other people groups"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.2.14",
+      "english": [
+        {
           "text": "Torah",
           "n": 1
         }
@@ -523,6 +543,46 @@
       "status": "confirmed"
     },
     {
+      "ref": "Rom.2.22",
+      "english": [
+        {
+          "text": "unfaithful in your marriage",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "moicheia",
+        "traditional": "Adultery",
+        "glossary": "adultery-marital-infidelity",
+        "form": "marital infidelity"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.2.22",
+      "english": [
+        {
+          "text": "unfaithful in your marriage",
+          "n": 2
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "moicheia",
+        "traditional": "Adultery",
+        "glossary": "adultery-marital-infidelity",
+        "form": "marital infidelity"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Rom.2.23",
       "english": [
         {
@@ -596,6 +656,26 @@
         "traditional": "Blasphemy",
         "glossary": "blasphemy-disrespectfulness",
         "form": "slander"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.2.24",
+      "english": [
+        {
+          "text": "other peoples",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ethnos",
+        "traditional": "Gentiles",
+        "glossary": "gentiles-people-groups",
+        "form": "other people groups"
       },
       "confidence": null,
       "lemma": "present",

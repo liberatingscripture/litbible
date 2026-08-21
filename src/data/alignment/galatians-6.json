@@ -303,6 +303,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Gal.6.16",
+      "english": [
+        {
+          "text": "compassion",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eleos",
+        "traditional": "Mercy",
+        "glossary": "mercy-loving-faithfulness",
+        "form": "compassion"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Gal.6.18",
       "english": [
         {

@@ -3,6 +3,26 @@
   "chapter": 13,
   "records": [
     {
+      "ref": "Rom.13.1",
+      "english": [
+        {
+          "text": "cooperate with",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hupotasso",
+        "traditional": "Submit",
+        "glossary": "submit-cooperate",
+        "form": "cooperate with"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
       "ref": "Rom.13.3",
       "english": [
         {
@@ -143,6 +163,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Rom.13.5",
+      "english": [
+        {
+          "text": "cooperate",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hupotasso",
+        "traditional": "Submit",
+        "glossary": "submit-cooperate",
+        "form": "cooperate with"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Rom.13.8",
       "english": [
         {
@@ -158,6 +198,26 @@
         "form": "Torah"
       },
       "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.13.9",
+      "english": [
+        {
+          "text": "marital infidelity",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "moicheia",
+        "traditional": "Adultery",
+        "glossary": "adultery-marital-infidelity",
+        "form": "marital infidelity"
+      },
+      "confidence": "common",
       "lemma": "present",
       "source": "glossary-scan",
       "status": "confirmed"

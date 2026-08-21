@@ -223,6 +223,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Matt.4.15",
+      "english": [
+        {
+          "text": "foreign peoples",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ethnos",
+        "traditional": "Gentiles",
+        "glossary": "gentiles-people-groups",
+        "form": "other people groups"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Matt.4.17",
       "english": [
         {

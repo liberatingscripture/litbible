@@ -63,6 +63,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "2Tim.3.5",
+      "english": [
+        {
+          "text": "respectfulness",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eusebeia",
+        "traditional": "Godliness",
+        "glossary": "godliness-respectfulness",
+        "form": "respectfulness"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
       "ref": "2Tim.3.6",
       "english": [
         {
@@ -116,6 +136,26 @@
         "traditional": "Faith",
         "glossary": "faith-trust",
         "form": "commitment"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "2Tim.3.12",
+      "english": [
+        {
+          "text": "respectfully",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eusebeia",
+        "traditional": "Godliness",
+        "glossary": "godliness-respectfulness",
+        "form": "respectfulness"
       },
       "confidence": null,
       "lemma": "present",
@@ -235,7 +275,7 @@
         "greek": "pneuma",
         "traditional": "Spirit",
         "glossary": "spirit-life-breath",
-        "form": "life-breath"
+        "form": "Life-breath"
       },
       "confidence": "distinctive",
       "lemma": "absent",

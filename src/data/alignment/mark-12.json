@@ -23,6 +23,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Mark.12.15",
+      "english": [
+        {
+          "text": "pretense",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hupokrites",
+        "traditional": "Hypocrite",
+        "glossary": "hypocrite-faker",
+        "form": "pretense"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Mark.12.18",
       "english": [
         {

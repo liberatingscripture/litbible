@@ -363,26 +363,6 @@
       "status": "confirmed"
     },
     {
-      "ref": "Heb.9.13",
-      "english": [
-        {
-          "text": "unclean",
-          "n": 1
-        }
-      ],
-      "greek": [],
-      "term": {
-        "greek": "akathartos",
-        "traditional": "Unclean",
-        "glossary": "unclean-unclean",
-        "form": "unclean"
-      },
-      "confidence": "common",
-      "lemma": "absent",
-      "source": "glossary-scan",
-      "status": "auto"
-    },
-    {
       "ref": "Heb.9.14",
       "english": [
         {

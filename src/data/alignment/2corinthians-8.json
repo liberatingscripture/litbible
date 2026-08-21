@@ -6,6 +6,26 @@
       "ref": "2Cor.8.1",
       "english": [
         {
+          "text": "Called Communities",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ekklesia",
+        "traditional": "Church",
+        "glossary": "church-called-community",
+        "form": "Called Community"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "2Cor.8.1",
+      "english": [
+        {
           "text": "Family",
           "n": 1
         }
@@ -186,6 +206,26 @@
       "ref": "2Cor.8.18",
       "english": [
         {
+          "text": "Called Communities",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ekklesia",
+        "traditional": "Church",
+        "glossary": "church-called-community",
+        "form": "Called Community"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "2Cor.8.18",
+      "english": [
+        {
           "text": "Family",
           "n": 1
         }
@@ -220,6 +260,26 @@
       "confidence": "distinctive",
       "lemma": "present",
       "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "2Cor.8.19",
+      "english": [
+        {
+          "text": "Called Communities",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ekklesia",
+        "traditional": "Church",
+        "glossary": "church-called-community",
+        "form": "Called Community"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
       "status": "confirmed"
     },
     {
@@ -306,6 +366,26 @@
       "ref": "2Cor.8.23",
       "english": [
         {
+          "text": "Called Communities",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ekklesia",
+        "traditional": "Church",
+        "glossary": "church-called-community",
+        "form": "Called Community"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "2Cor.8.23",
+      "english": [
+        {
           "text": "Family",
           "n": 1
         }
@@ -336,6 +416,26 @@
         "traditional": "Glory",
         "glossary": "glory-praiseworthiness",
         "form": "honor"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "2Cor.8.24",
+      "english": [
+        {
+          "text": "Called Communities",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ekklesia",
+        "traditional": "Church",
+        "glossary": "church-called-community",
+        "form": "Called Community"
       },
       "confidence": null,
       "lemma": "present",

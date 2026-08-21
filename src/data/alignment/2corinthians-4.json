@@ -3,6 +3,26 @@
   "chapter": 4,
   "records": [
     {
+      "ref": "2Cor.4.1",
+      "english": [
+        {
+          "text": "received compassion",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eleos",
+        "traditional": "Mercy",
+        "glossary": "mercy-loving-faithfulness",
+        "form": "act compassionately"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "2Cor.4.3",
       "english": [
         {

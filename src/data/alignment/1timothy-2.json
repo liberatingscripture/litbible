@@ -3,6 +3,26 @@
   "chapter": 2,
   "records": [
     {
+      "ref": "1Tim.2.2",
+      "english": [
+        {
+          "text": "respect",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eusebeia",
+        "traditional": "Godliness",
+        "glossary": "godliness-respectfulness",
+        "form": "respectfulness"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "1Tim.2.3",
       "english": [
         {
@@ -83,6 +103,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "1Tim.2.7",
+      "english": [
+        {
+          "text": "other peoples",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ethnos",
+        "traditional": "Gentiles",
+        "glossary": "gentiles-people-groups",
+        "form": "other people groups"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "1Tim.2.8",
       "english": [
         {
@@ -116,6 +156,26 @@
         "traditional": "Good [2]",
         "glossary": "good-beneficial",
         "form": "generous"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Tim.2.11",
+      "english": [
+        {
+          "text": "cooperation",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hupotasso",
+        "traditional": "Submit",
+        "glossary": "submit-cooperate",
+        "form": "cooperate with"
       },
       "confidence": null,
       "lemma": "present",

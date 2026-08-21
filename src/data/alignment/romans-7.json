@@ -106,6 +106,46 @@
       "ref": "Rom.7.3",
       "english": [
         {
+          "text": "maritally unfaithful",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "moicheia",
+        "traditional": "Adultery",
+        "glossary": "adultery-marital-infidelity",
+        "form": "marital infidelity"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.7.3",
+      "english": [
+        {
+          "text": "maritally unfaithful",
+          "n": 2
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "moicheia",
+        "traditional": "Adultery",
+        "glossary": "adultery-marital-infidelity",
+        "form": "marital infidelity"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.7.3",
+      "english": [
+        {
           "text": "Torah",
           "n": 1
         }

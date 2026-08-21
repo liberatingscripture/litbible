@@ -15,7 +15,7 @@
         "greek": "pneuma",
         "traditional": "Spirit",
         "glossary": "spirit-life-breath",
-        "form": "life-breath"
+        "form": "Life-breath"
       },
       "confidence": "distinctive",
       "lemma": "absent",
@@ -103,6 +103,46 @@
       "status": "confirmed"
     },
     {
+      "ref": "1Cor.11.16",
+      "english": [
+        {
+          "text": "Called Communities",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ekklesia",
+        "traditional": "Church",
+        "glossary": "church-called-community",
+        "form": "Called Community"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Cor.11.18",
+      "english": [
+        {
+          "text": "Called Community",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ekklesia",
+        "traditional": "Church",
+        "glossary": "church-called-community",
+        "form": "Called Community"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
       "ref": "1Cor.11.18",
       "english": [
         {
@@ -120,6 +160,26 @@
       "confidence": null,
       "lemma": "present",
       "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Cor.11.22",
+      "english": [
+        {
+          "text": "Called Community",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ekklesia",
+        "traditional": "Church",
+        "glossary": "church-called-community",
+        "form": "Called Community"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
       "status": "confirmed"
     },
     {
