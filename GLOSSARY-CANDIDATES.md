@@ -121,6 +121,7 @@ it is queued.
 | candidate | lemmas | queue | notes (verified / inventory) |
 |---|---|---|---|
 | manifest — *phaneroo* | `φανερόω`, `φανερός`, `φανερῶς`, `φανέρωσις` | 57 | 7 / 20 |
+| reveal — *apokalupto* | `ἀποκαλύπτω`, `ἀποκάλυψις` | 42 | 2 / 4 |
 | authority — *exousia* | `ἐξουσία` | 65 | 5 / 11 |
 | utterance — *rhema* | `ῥῆμα` | 48 | 7 / 9 |
 | wisdom — *sophia* | `σοφία`, `σοφός` | 54 | 3 / 9 |
@@ -129,6 +130,9 @@ it is queued.
 | image — *eikon* | `εἰκών` | 12 | 2 / 4 |
 
 All deferred 2026-08-21. *phaneroo* came from tier 1, the rest from tier 2.
+*phaneroo* and *apokalupto* are a **pair** — each of the two notes that defines
+one does so against the other — so they were deferred together and should be
+promoted together or not at all.
 
 ### manifest — *phaneroo*
 
@@ -157,7 +161,31 @@ What is already in hand, so a later session does not re-derive it:
   uses that phrase once (John 2:11) and reaches for "made visible" ten times
   more often. That gap also sets the entry filename, since the note frames the
   traditional side as 'revealed' while the inventory candidate key says
-  'manifest'.
+  'manifest'. `reveal-apokalupto` is deferred alongside it for the same reason
+  — see below.
+
+### reveal — *apokalupto*, *apokalupsis*
+
+**LIT keeps the traditional rendering here.** 38 of the 42 published verses read
+"reveal", "revealing" or "revelation". The four that do not are Luke 12:2
+("exposed"), 1 Corinthians 2:10 ("unveiled"), Ephesians 1:17 ("curious"), and
+Romans 2:5, where the sense is carried diffusely rather than by a word. A
+glossary entry documents a departure from the traditional rendering, and at this
+rate there is barely one to document.
+
+The inventory's 4 notes are 2, and **one of those is the *phaneroo* note**,
+which mentions *apokalupto* only in its closing sentence to say that 'revealed'
+"is often how apokalupto is translated, which has to do with uncovering or
+unveiling." So exactly one note argues an *apokalupto* rendering of its own:
+`ephesians-1` fn-r, on rendering *apokalupsis* as "curious" in Eph 1:17 — a
+single contextual choice ("a people characterized by a posture of discovery"),
+explicitly not a corpus-wide commitment, and it concedes in its first line that
+'revelation' is the correct translation.
+
+That is also what makes this the other half of the *phaneroo* pair: the
+distinction the 1 John note draws — illuminating versus uncovering — is the only
+place either word's commitment is actually stated, and it is stated once, about
+both.
 
 ### authority — *exousia*
 
