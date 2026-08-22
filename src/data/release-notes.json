@@ -551,6 +551,16 @@
       {
         "type": "article_updated",
         "description": "Article updated: radical gospel of easter"
+      },
+      {
+        "type": "text_updated",
+        "description": "Mark 1:4 — text updated",
+        "detail": "\"a\" → \"an\"",
+        "location": {
+          "bookKey": "mark",
+          "chapter": 1,
+          "verse": 4
+        }
       }
     ]
   },
