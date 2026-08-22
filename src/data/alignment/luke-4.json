@@ -158,6 +158,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Luke.4.8",
+      "english": [
+        {
+          "text": "serve as representative",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "latreuo",
+        "traditional": "Serve",
+        "glossary": "serve-serve-as-representative",
+        "form": "serve as representative"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
       "ref": "Luke.4.9",
       "english": [
         {

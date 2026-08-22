@@ -41,6 +41,10 @@ export const GLOSSARY_LEMMAS = {
   "devil-false-accuser": ["διάβολος"],
   "evil-hardship": ["πονηρός", "πονηρία"],
   "faith-trust": ["πίστις", "πιστός", "πιστεύω"],
+  // συγκοινωνός/συγκοινωνέω included: the sun- compound is rendered
+  // "coparticipants" (2 Cor 1:7), the same commitment intensified.
+  // κοινός is NOT here — it is defiled-common, a different claim.
+  "fellowship-community": ["κοινωνία", "κοινωνός", "κοινωνέω", "συγκοινωνός", "συγκοινωνέω"],
   "flesh-body": ["σάρξ", "σάρκινος", "σαρκικός"],
   "forgiveness-letting-go": ["ἀφίημι", "ἄφεσις"],
   "gehenna-hinnom-valley": ["γέεννα"],
@@ -72,6 +76,9 @@ export const GLOSSARY_LEMMAS = {
   "righteousness-justness": ["δικαιοσύνη", "δίκαιος", "δικαιόω", "δικαίωμα", "δικαίωσις"],
   "salvation-liberation": ["σωτηρία", "σωτήριος", "σωτήρ", "σῴζω"],
   "satan-adversary": ["Σατανᾶς"],
+  // προσκυνέω deliberately excluded — it is "bow down", a separate term
+  // (deferred). The two are named as different acts in Matt 4:10 / Luke 4:8.
+  "serve-serve-as-representative": ["λατρεύω", "λατρεία"],
   "sin-deviation": ["ἁμαρτία", "ἁμαρτάνω", "ἁμάρτημα", "ἁμαρτωλός"],
   "soul-very-being": ["ψυχή", "ψυχικός"],
   "spirit-life-breath": ["πνεῦμα", "πνευματικός"],
