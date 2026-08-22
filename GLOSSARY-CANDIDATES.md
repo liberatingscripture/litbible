@@ -11,8 +11,8 @@ on scoring well there and go on looking like the obvious next pick. Without a
 written reason, the next session re-derives the survey, reaches the same
 question, and asks it again.
 
-Every decision here is BVJ's. Queue sizes are regenerable and are the
-**published** verse count (drafts excluded); they grow as chapters land.
+Every decision here is BVJ's. Queue sizes are the **published** verse count
+(drafts excluded) and are regenerable; they grow as chapters land.
 
 ## The criterion
 
@@ -29,12 +29,39 @@ This is deliberately not the axis the inventory sorts on. Footnotes-per-queue-
 verse measures how much has already been said about a word, which is a decent
 proxy for *cost* and a poor one for *payload*.
 
+## Do not trust the inventory's footnote counts
+
+Every term triaged so far came in **below** its inventory `Notes` figure, most
+of them far below. Three causes, all of which inflate:
+
+1. **Anchors are counted, not notes.** A shared note reused across nine anchors
+   scores nine. The *phaneroo* note is one note appearing six times in 1 John.
+2. **Short transliterations nest inside longer ones.** `kopos` matches inside
+   *episkopos* and *allotriepiskopos*; `ponos` matches the etymology sentence
+   inside every *poneros* note, which belongs to a different entry entirely.
+3. **A long shared note matches on a word it merely mentions in passing.**
+
+A fourth error runs the other way and is worth knowing when re-checking:
+**transliterations carry macrons**, restored corpus-wide in the August 2026
+reconciliation. A search for `eikon` does not match *eikōn*. Fold diacritics
+(NFD, strip the combining range) before matching, or a real note goes missing.
+
+Queue sizes, by contrast, have matched the inventory exactly every time. Trust
+those. Re-derive `Notes` per term before letting it argue for anything.
+
 ## Not included
 
-### toil — *ponos*, *kopos*, *kopiao*
+| candidate | lemmas | queue | notes (verified / inventory) |
+|---|---|---|---|
+| toil — *ponos* | `πόνος`, `κόπος`, `κοπιάω` | 35 | 1 / 14 |
+| sabbath — *sabbaton* | `σάββατον` | 49 | 3 / 29 |
+| myth — *muthos* | `μῦθος` | 5 | 3 / 4 |
+| murder — *phoneuo* | `φονεύω`, `φόνος`, `φονεύς` | 17 | 1 / 8 |
 
-`πόνος`, `κόπος`, `κοπιάω` · 35 published verses (42 in SBLGNT) · set aside
-2026-08-21, from tier 1 of the inventory.
+All four set aside 2026-08-21, from tier 2 of the inventory except *ponos*,
+which came from tier 1.
+
+### toil — *ponos*, *kopos*, *kopiao*
 
 The renderings are legible and consistent — "work to exhaustion", "heavy
 labor", "hard work", "labor", "strive" — but they are ordinary English for an
@@ -42,38 +69,71 @@ ordinary Greek word. There is no traditional rendering being corrected and no
 reader assumption being unsettled.
 
 Two measurement notes, because the inventory rates this term highly and will
-keep doing so:
+keep doing so. **Its footnote score is an artifact**: most of the 14 mentions
+are the etymology sentence inside the *poneros* notes ("Rooted in *ponos*,
+which conveys toil, suffering, and hardship"), which belongs to `evil-hardship`
+and is already published; two more are substring matches on *episkopos*
+(`philippians-1` fn-a) and *allotriepiskopos* (`1peter-4` fn-q). Exactly one
+genuine note exists in the published corpus: `colossians-4` fn-h, "More
+literally, 'holds large toil.'" And **the candidate is misnamed** — *ponos*
+itself has one published verse (Col 4:13); its other three are in Revelation,
+which has no Word master. In the published text this candidate is *kopos* and
+*kopiao*.
 
-1. **Its footnote score is an artifact.** The 14 mentions that ranked it are
-   not about this word family. Most are the etymology sentence inside the
-   *poneros* notes ("Rooted in *ponos*, which conveys toil, suffering, and
-   hardship"), which belongs to `evil-hardship` and is already published. Two
-   more are substring matches: `kopos` nests inside *episkopos*
-   (`philippians-1` fn-a) and *allotriepiskopos* (`1peter-4` fn-q). Widening
-   the search past the transliterations to any footnote using toil or labor
-   language turns up exactly **one** genuine note in the published corpus:
-   `colossians-4` fn-h, "More literally, 'holds large toil.'"
-2. **The candidate is misnamed.** *ponos* itself has one published verse
-   (Col 4:13); its other three are in Revelation, which has no Word master. In
-   the published text this candidate is *kopos* and *kopiao*.
-
-There is also a sense split the entry would have had to carry: the idiom
+There is also a sense split an entry would have had to carry: the idiom
 *kopon parecho* is rendered "bothering" / "harassing" (Matt 26:10, Mark 14:6,
-Luke 11:7, Luke 18:5), which is a different claim about the Greek than "labor"
-and would need its own handling.
+Luke 11:7, Luke 18:5), a different claim about the Greek than "labor".
+
+### sabbath — *sabbaton*
+
+**The rendering is already invariant and already self-evident.** LIT renders
+`σάββατον` as "Shabbat" in all 45 published occurrences, with no variation at
+all — the only single-rendering term surveyed so far. A reader meeting
+"Shabbat" in the text can see that a transliteration decision has been made
+without an entry telling them so, and `mark-1` fn-u and `luke-13` fn-d already
+explain it where it first matters.
+
+The inventory's 29 notes are almost entirely notes that *use* the word while
+explaining something else — the day of preparation before Shabbat
+(`john-19` fn-r and fn-ff, `matthew-27` fn-nn), a Sabbath-desecration charge
+(`matthew-12` fn-d). Three argue the rendering: `mark-1` fn-u, `luke-13` fn-d,
+and `luke-6` fn-c on the bare genitive in *tou sabbatou*.
+
+### myth — *muthos*
+
+Five published verses, the smallest queue in the whole inventory outside the
+one-verse terms. The three notes are genuine and make the same point each time
+(the English "myth" implies untrue; *muthos* did not), which is a footnote's
+job rather than an entry's — an entry keyed to five verses would restate a note
+the reader has already met.
+
+### murder — *phoneuo*, *phonos*, *phoneus*
+
+**One** genuine note in the published corpus, `luke-18` fn-y, against the
+inventory's 8. The rendering does not depart from the traditional one in a way
+that needs defending.
 
 ## Deferred
 
 Deferred means the survey work is done and the answer could change — not that
 it is queued.
 
+| candidate | lemmas | queue | notes (verified / inventory) |
+|---|---|---|---|
+| manifest — *phaneroo* | `φανερόω`, `φανερός`, `φανερῶς`, `φανέρωσις` | 57 | 7 / 20 |
+| authority — *exousia* | `ἐξουσία` | 65 | 5 / 11 |
+| utterance — *rhema* | `ῥῆμα` | 48 | 7 / 9 |
+| wisdom — *sophia* | `σοφία`, `σοφός` | 54 | 3 / 9 |
+| discipline — *paideia* | `παιδεία`, `παιδεύω` | 13 | 4 / 4 |
+| nature — *phusis* | `φύσις`, `φυσικός` | 13 | 3 / 5 |
+| image — *eikon* | `εἰκών` | 12 | 2 / 4 |
+
+All deferred 2026-08-21. *phaneroo* came from tier 1, the rest from tier 2.
+
 ### manifest — *phaneroo*
 
-`φανερόω`, `φανερός`, `φανερῶς`, `φανέρωσις` · 57 published verses (62 in
-SBLGNT) · deferred 2026-08-21, from tier 1 of the inventory.
-
-**Instances and information are both sufficient. The payload is weak.** That
-is the whole reason, and it is the case the criterion above was written for.
+**Instances and information are both sufficient. The payload is weak.** That is
+the whole reason, and it is the case the criterion above was written for.
 
 What is already in hand, so a later session does not re-derive it:
 
@@ -92,12 +152,73 @@ What is already in hand, so a later session does not re-derive it:
   perceptible (5), made clear (4), revealed (3, all Colossians), displayed (3),
   apparent (2), distinguished (2), conspicuous / expose (2), brought to light
   (1).
-- One open editorial question if it is ever promoted: the 1 John note prefers
-  "brought to light" for the illumination echo in the root, but the running
-  text uses that phrase once (John 2:11) and reaches for "made visible" ten
-  times more often. That gap also sets the entry filename, since the note
-  frames the traditional side as 'revealed' while the inventory candidate key
-  says 'manifest'.
+- One open editorial question if it is promoted: the 1 John note prefers
+  "brought to light" for the illumination echo in the root, but the running text
+  uses that phrase once (John 2:11) and reaches for "made visible" ten times
+  more often. That gap also sets the entry filename, since the note frames the
+  traditional side as 'revealed' while the inventory candidate key says
+  'manifest'.
+
+### authority — *exousia*
+
+The five genuine notes concentrate in one passage rather than spreading across
+the corpus: `1corinthians-11` fn-t and fn-v carry the argument (the woman's
+*exousia* over her own head, and that *exousia* consistently means the agency
+or right of the person being discussed), with `2corinthians-13` fn-i on the
+root sense of freedom-to-act. `mark-10` fn-gg and `matthew-20` fn-r are about
+the *compounds* — *katexousiazo*, *exousiazo* — and the top-down force the
+`kata-` prefix adds, which is a related but distinct claim an entry would have
+to decide whether to absorb.
+
+### utterance — *rhema*
+
+The best-evidenced of the deferred six: seven genuine notes, four opening
+"Traditionally," and all making one consistent argument — this is *rhema*, not
+*logos*; it is audible speech, a saying, what comes from the mouth, and 'word'
+blurs the two. `hebrews-1` fn-d, `hebrews-11` fn-d, `john-3` fn-cc, `john-5`
+fn-gg, `john-6` fn-pp, `luke-3` fn-e, `matthew-4` fn-f.
+
+Note the entanglement: the argument is stated *against* `word-logos`, which
+sits in tier 3 at 229 verses and is itself undecided. Promoting *rhema* alone
+would publish half of a contrast.
+
+### wisdom — *sophia*
+
+Three genuine notes, all in 1 Corinthians 1–4, and the inventory's 9 is
+inflated by the *logos* notes matching in passing. `1corinthians-1` fn-aa is
+the substantial one and is explicitly about *this passage's* several uses of
+*sophia* rather than about the word generally; `1corinthians-3` fn-h and
+`1corinthians-4` fn-n distinguish *sophos* from *phronimos*. Passage-local
+argument, not a corpus-wide commitment.
+
+### discipline — *paideia*, *paideuo*
+
+The one term whose verified count matches the inventory exactly (4 of 4), and
+the argument is clean and repeated: *paideia* is a noun from the word for
+'child', "very literally the practice of 'childing'", covering everything
+parents do to help children grow, against the punitive freight English
+'discipline' carries. `hebrews-12` fn-h and fn-j, `ephesians-6` fn-g,
+`1timothy-1` fn-nn.
+
+Small queue (13 verses), so the cost of promoting it later is low.
+
+### nature — *phusis*, *phusikos*
+
+Three genuine notes, none opening "Traditionally," and they do not converge:
+`1corinthians-11` fn-bb renders *phusis* as "cultural convention" for
+contextual reasons, `galatians-2` fn-x says there is no good literal rendering
+at all, `galatians-4` fn-i ties it to 'by birth'. An entry would have to claim
+a consistency the notes themselves decline to claim.
+
+### image — *eikon*
+
+Two notes, both connecting *eikōn* to the creation narrative — `1corinthians-11`
+fn-o (Genesis 1:26–27 and 5:1–3, and Hebrew *tselem*) and `colossians-1` fn-r,
+which argues word order to preserve the Genesis 1 link. `romans-1` fn-rr is a
+bare alternative-rendering note ("Or 'image' or 'icon'").
+
+This is the term whose count the macron miss hid: `eikōn` does not match a
+search for `eikon`.
 
 ## Moving an entry
 
