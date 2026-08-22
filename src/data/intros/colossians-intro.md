@@ -110,7 +110,7 @@ Paul concludes with personal greetings and encouragement, highlighting the inter
 <li>
 <strong>"Colossians 2:11-15:</strong>
 
-"You [the Body of Christ] were circumcised through him with a circumcision not done with hands but with the removal of his personal body, with Christ’s circumcision, having been buried along with him through submersion, woken up along with him through the faithfulness of the work of God who woke him up from the dead and, you being dead because of your shortfalls and not being bodily circumcised, he brought you to life along with him—having granted the discharge of our shortfalls, erasing what was against us—the record of debt, the declarations which were made against us—and he lifted it from between us, nailing it to the cross. He humiliated the leaders and authorities publicly, stripping away their power and displaying triumph over them with it."
+"You [the Body of Christ] were circumcised through him with a circumcision not done with hands but with the removal of his personal body, with Christ’s circumcision, having been buried along with him through immersion, woken up along with him through the faithfulness of the work of God who woke him up from the dead and, you being dead because of your shortfalls and not being bodily circumcised, he brought you to life along with him—having granted the discharge of our shortfalls, erasing what was against us—the record of debt, the declarations which were made against us—and he lifted it from between us, nailing it to the cross. He humiliated the leaders and authorities publicly, stripping away their power and displaying triumph over them with it."
 
 </li>
 <li>

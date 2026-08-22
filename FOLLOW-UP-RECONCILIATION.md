@@ -1732,3 +1732,156 @@ direction (`‘lord”`) passes. Seven of those were fixed by hand in §24 and
 and is deliberately not wired into the validator — its judgment about which
 mark is wrong needs a reader, not a gate.
 
+
+## §28 — *baptizo* rendered "immerse" corpus-wide (2026-08-21)
+
+**Status: applied in the repo. This one IS a Word back-port** — unlike §0's dash
+convention, the masters are meant to carry it too, so the table below is the
+work list.
+
+### What it was
+
+The corpus rendered the *baptizo* family two different ways, split cleanly by
+book. Matthew, Luke and 1 Corinthians read **immerse / immersion / John the
+Immerser**; Mark, John, Romans, Galatians, Ephesians, Colossians and 1 Peter
+read **submerse / submersion / John the Submerser**. Both spellings are in the
+masters the same way, so this was never import damage — it is the translation's
+own vocabulary settling over time, with the earlier word left standing in the
+books drafted first.
+
+"immerse" wins, corpus-wide. 61 occurrences changed across 21 files, plus one
+verse restored from Word (Matthew 3:16, below).
+
+### How the scope was fixed
+
+**From the Greek side, not the English side.** This is the alignment dataset's
+lesson applied to a find-and-replace: an English-first scan can only ever find
+what it was told to look for, so it cannot tell you what you missed. Every
+*baptizo*-family lemma in MorphGNT/SBLGNT was pulled (βαπτίζω 77, βάπτισμα 19,
+βαπτιστής 12, βαπτισμός 4 — 112 tokens across 91 verses) and each verse's repo
+rendering read off `splitChapterVerses`. Regenerate rather than trusting these
+numbers.
+
+That is what proved the sweep complete, and it turned up four published verses
+the English scan would have reported as gaps — one of which was a real gap:
+
+| verse | lemma | renders as | disposition |
+|---|---|---|---|
+| Matthew 3:16 | βαπτίζω | *(nothing — "Right away, when Jesus came up from the water")* | **the verb was missing.** Fixed by the author in Word and pulled into the repo — see below |
+| Luke 11:38 | βαπτίζω | "washed" | left alone |
+| Hebrews 6:2, 9:10 | βαπτισμός | "washings" | left alone — but `hebrews-9` fn-j's `Or ‘submersions.’` **was** changed |
+
+**Matthew 3:16 is the case for doing this from the Greek side.** The verse is in
+a book that already read "immerse" throughout, it contains no form of the word
+in either spelling, and every check in the repo passed over it — no English scan
+of any kind would have raised it. Only asking "where does βαπτίζω occur, and
+what does each of those verses say" could, and what it found was not a
+terminology inconsistency but a **dropped verb**.
+
+βάπτω is a **different lemma** and is not in scope: it renders "dip" at Luke
+16:24, John 13:26 and Revelation 19:13, which is correct and untouched. All 23
+Acts verses and Revelation 19:13 are `indexed: false` drafts and carry no text
+yet, so Acts will need writing in the new vocabulary rather than converting.
+
+### Two words that were not on the list, and were changed anyway
+
+The pass was specified as submerse/submersion/Submerser. Two places read
+**"submerged"** instead, which no such list would catch and which would have
+been left reading "be submerged with the immersion I undergo":
+
+- `mark-10` v39 — the parallel clause in v38 reads "immersed with the immersion"
+- `galatians-3` fn-mm — "those who were submerged", against fn-kk's "after being
+  immersed" on the same page
+
+Both are in the masters as "submerged" too, so both are on the back-port table.
+
+### Topics arrays
+
+`topics` is not in the masters and is repo-only, so it is not a back-port item —
+but note what the pass found there. The corpus convention is to carry the
+traditional label *and* the LIT one as a pair: **"baptism" + "immersion"** (19
+chapters each) and **"John the Baptist" + "John the Immerser"** (12 each).
+
+`colossians-2`, `mark-1`, `mark-10` and `mark-11` already carried "immersion"
+beside "submersion", so those four had the **line deleted** rather than
+converted; `mark-7` carried only "submersion" and was converted. Four
+"John the Submerser" labels became "John the Immerser".
+
+**Left as found:** `mark-1`, `mark-6`, `mark-8` and `mark-11` carry
+"John the Immerser" with no "John the Baptist" beside it, which breaks the
+pairing convention everywhere else in the corpus. That is a pre-existing gap in
+the Mark topics, not something this pass created, and adding the traditional
+label is an editorial call.
+
+### Back-port to Word — every master carries the old word
+
+Counts verified by reading the `.docx` files directly out of the OneDrive sync
+folder (read-only; see `scripts/reconcile/README.md`). They match the repo's
+pre-change counts exactly, so a plain find-and-replace of `ubmers` → `mmers`
+per document does the whole job, with the two `ubmerg` spots handled separately.
+
+| master | body | notes | where |
+|---|---|---|---|
+| Mark | 18 | 7 | 1:4, 1:5, 1:8 ×2, 1:9, 6:14, 6:24, 6:25, 7:4 ×2, 8:28, 10:38 ×2, 10:39 ×2 (one is **submerged**), 11:30, 16:16; notes `mark-1` fn-e ×2, `mark-6` fn-l ×2, `mark-8` fn-n ×2, `mark-10` fn-dd |
+| John | 13 | — | 1:25, 1:26, 1:28, 1:31, 1:33 ×2, 3:22, 3:23 ×2, 3:26, 4:1, 4:2, 10:40 |
+| Romans | 3 | — | 6:3 ×2, 6:4 |
+| Galatians | 1 | 2 | 3:27; notes fn-kk, fn-mm (**submerged**) |
+| Ephesians | 1 | — | 4:5 |
+| Colossians | 1 | — | 2:12 |
+| 1 Peter | 1 | — | 3:21 |
+| 1 Corinthians | — | 1 | `1corinthians-10` fn-e "ritual submersion" — the body already reads "immerse" |
+| 1 John | — | 1 | `1john-3` fn-n "John the Submerser in Luke 1:57" |
+| Hebrews | — | 1 | `hebrews-9` fn-j "Or ‘submersions.’" |
+
+**Note the three mixed masters.** 1 Corinthians, 1 John and Hebrews already read
+"immerse" in the body (1 Corinthians) or have no body occurrence at all, and
+carry the old word only in a footnote — exactly the kind of stray a
+book-by-book eyeball misses.
+
+### The shared "Dipper" note keeps its explanation
+
+`mark-1` fn-e, `mark-6` fn-l and `mark-8` fn-n end with a sentence the
+Matthew/Luke copies of the same note do not have:
+
+> ‘Dipper’ sounds a little flippant in English, so I chose ‘Immerser’ as a
+> synonym, being defined as ‘someone who immerses.’
+
+It was updated in place, **not** deleted to match Matthew/Luke. The reasoning
+still holds word for word with the new term, and dropping authorial content is a
+separate editorial decision from a terminology pass.
+
+### Matthew 3:16 — the one record going the other way (master → repo)
+
+Everything else in this section flows repo → Word. This one does not: the author
+corrected the master, and the repo was brought up to it. Verified by reading
+`Matthew.docx` out of the OneDrive sync folder — the repo now matches the master
+word for word.
+
+| | |
+|---|---|
+| was | `Right away, when Jesus came up from the water—incredibly—the heavens…` |
+| now | `After Jesus was immersed, right away when he came up from the water—incredibly—the heavens…` |
+
+The `vglue` span moves with it, since the verse's first word changed from
+`Right` to `After`. **Nothing needs back-porting here — Word is already correct**,
+and a future ledger rebuild should show this verse as agreeing rather than as a
+new bucket record.
+
+### Two repo-only files also changed
+
+Neither is in any master: `src/data/intros/colossians-intro.md` (which quotes
+Colossians 2:12) and `src/content/articles/radical-gospel-of-easter.md` (which
+quotes Galatians 3:27). Any future article or intro quoting these passages needs
+the same treatment — nothing checks that a quotation still matches the chapter
+it quotes.
+
+### Checks run
+
+`validate:chapters` clean at 260 files; `audit:alignment` reports 0 stale and 0
+casing drift over 3,958 decided records (no glossary term covers *baptizo*, so
+no alignment record indexes this vocabulary); `npm run check` 0 errors; 415
+tests pass.
+
+**This is deliberately NOT a `release-notes-skip.md` case.** It is a wording
+change, which is precisely what the apps' Translation Updates feed exists to
+show, so the drafter should run normally on the merge.
