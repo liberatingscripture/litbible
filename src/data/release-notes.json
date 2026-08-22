@@ -1,5 +1,22 @@
 [
   {
+    "version": "2026-08-22",
+    "date": "2026-08-22",
+    "label": "August 22, 2026",
+    "changes": [
+      {
+        "type": "text_updated",
+        "description": "Titus 3:7 — text updated",
+        "detail": "\"life.\" → \"life.”\"",
+        "location": {
+          "bookKey": "titus",
+          "chapter": 3,
+          "verse": 7
+        }
+      }
+    ]
+  },
+  {
     "version": "2026-08-21",
     "date": "2026-08-21",
     "label": "August 21, 2026",
