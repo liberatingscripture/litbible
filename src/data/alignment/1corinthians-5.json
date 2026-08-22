@@ -343,46 +343,6 @@
       "status": "confirmed"
     },
     {
-      "ref": "1Cor.5.12",
-      "english": [
-        {
-          "text": "community",
-          "n": 1
-        }
-      ],
-      "greek": [],
-      "term": {
-        "greek": "ekklesia",
-        "traditional": "Church",
-        "glossary": "church-called-community",
-        "form": "community"
-      },
-      "confidence": "common",
-      "lemma": "absent",
-      "source": "glossary-scan",
-      "status": "auto"
-    },
-    {
-      "ref": "1Cor.5.12",
-      "english": [
-        {
-          "text": "community",
-          "n": 2
-        }
-      ],
-      "greek": [],
-      "term": {
-        "greek": "ekklesia",
-        "traditional": "Church",
-        "glossary": "church-called-community",
-        "form": "community"
-      },
-      "confidence": "common",
-      "lemma": "absent",
-      "source": "glossary-scan",
-      "status": "auto"
-    },
-    {
       "ref": "1Cor.5.13",
       "english": [
         {

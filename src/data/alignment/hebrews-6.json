@@ -183,26 +183,6 @@
       "status": "confirmed"
     },
     {
-      "ref": "Heb.6.7",
-      "english": [
-        {
-          "text": "pronouncement of well-being",
-          "n": 1
-        }
-      ],
-      "greek": [],
-      "term": {
-        "greek": "eulogeo",
-        "traditional": "Bless",
-        "glossary": "bless-pronouncement-of-well-being",
-        "form": "pronouncement of well-being"
-      },
-      "confidence": "common",
-      "lemma": "present",
-      "source": "glossary-scan",
-      "status": "auto"
-    },
-    {
       "ref": "Heb.6.9",
       "english": [
         {
@@ -261,6 +241,26 @@
       "lemma": "present",
       "source": "glossary-scan",
       "status": "confirmed"
+    },
+    {
+      "ref": "Heb.6.14",
+      "english": [
+        {
+          "text": "pronounce well-being",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eulogeo",
+        "traditional": "Bless",
+        "glossary": "bless-pronounce-well-being",
+        "form": "pronounce well-being"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "auto"
     },
     {
       "ref": "Heb.6.19",

@@ -626,26 +626,6 @@
       "ref": "Rom.15.26",
       "english": [
         {
-          "text": "community",
-          "n": 1
-        }
-      ],
-      "greek": [],
-      "term": {
-        "greek": "ekklesia",
-        "traditional": "Church",
-        "glossary": "church-called-community",
-        "form": "community"
-      },
-      "confidence": "common",
-      "lemma": "absent",
-      "source": "glossary-scan",
-      "status": "auto"
-    },
-    {
-      "ref": "Rom.15.26",
-      "english": [
-        {
           "text": "sacred",
           "n": 1
         }
@@ -721,26 +701,6 @@
       "lemma": "present",
       "source": "glossary-scan",
       "status": "confirmed"
-    },
-    {
-      "ref": "Rom.15.29",
-      "english": [
-        {
-          "text": "pronouncement of well-being",
-          "n": 1
-        }
-      ],
-      "greek": [],
-      "term": {
-        "greek": "eulogeo",
-        "traditional": "Bless",
-        "glossary": "bless-pronouncement-of-well-being",
-        "form": "pronouncement of well-being"
-      },
-      "confidence": "common",
-      "lemma": "present",
-      "source": "glossary-scan",
-      "status": "auto"
     },
     {
       "ref": "Rom.15.30",

@@ -66,6 +66,26 @@
       "ref": "Luke.14.14",
       "english": [
         {
+          "text": "have reason for gratitude",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "makarios",
+        "traditional": "Blessed",
+        "glossary": "blessed-have-reason-for-gratitude",
+        "form": "have reason for gratitude"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
+      "ref": "Luke.14.14",
+      "english": [
+        {
           "text": "rising up",
           "n": 1
         }

@@ -263,26 +263,6 @@
       "status": "confirmed"
     },
     {
-      "ref": "Phlm.1.17",
-      "english": [
-        {
-          "text": "community",
-          "n": 1
-        }
-      ],
-      "greek": [],
-      "term": {
-        "greek": "ekklesia",
-        "traditional": "Church",
-        "glossary": "church-called-community",
-        "form": "community"
-      },
-      "confidence": "common",
-      "lemma": "absent",
-      "source": "glossary-scan",
-      "status": "auto"
-    },
-    {
       "ref": "Phlm.1.22",
       "english": [
         {

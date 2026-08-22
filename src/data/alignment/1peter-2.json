@@ -186,26 +186,6 @@
       "ref": "1Pet.2.9",
       "english": [
         {
-          "text": "community",
-          "n": 1
-        }
-      ],
-      "greek": [],
-      "term": {
-        "greek": "ekklesia",
-        "traditional": "Church",
-        "glossary": "church-called-community",
-        "form": "community"
-      },
-      "confidence": "common",
-      "lemma": "absent",
-      "source": "glossary-scan",
-      "status": "auto"
-    },
-    {
-      "ref": "1Pet.2.9",
-      "english": [
-        {
           "text": "family",
           "n": 1
         }

@@ -2,7 +2,7 @@
 id: church-called-community
 traditional: Church
 greek: ekklesia
-lit: Called Community / community
+lit: Called Community
 litMenu: Called Community / community
 srOnly: Church called community
 ---

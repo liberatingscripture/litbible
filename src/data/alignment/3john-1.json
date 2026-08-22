@@ -157,9 +157,9 @@
         "glossary": "church-called-community",
         "form": "Called Community"
       },
-      "confidence": "common",
+      "confidence": null,
       "lemma": "present",
-      "source": "glossary-scan",
+      "source": "review",
       "status": "confirmed"
     },
     {

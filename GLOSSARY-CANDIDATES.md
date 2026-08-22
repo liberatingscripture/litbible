@@ -141,6 +141,7 @@ it is queued.
 | nature — *phusis* | `φύσις`, `φυσικός` | 13 | 3 / 5 |
 | image — *eikon* | `εἰκών` | 12 | 2 / 4 |
 | paradise — *paradeisos* | `παράδεισος` | 1 | 1 / 4 |
+| worship — *proskuneo* | `προσκυνέω` | 27 | 2 / — |
 
 All deferred 2026-08-21. *phaneroo* came from tier 1, the rest from tier 2.
 *phaneroo* and *apokalupto* are a **pair** — each of the two notes that defines
@@ -275,6 +276,32 @@ master at all, so neither can be reviewed yet.
 A one-verse entry states a commitment the corpus cannot yet show. **Revisit when
 Luke 23 publishes**, which takes it to two of three and makes the thief on the
 cross available, where the word does most of its pastoral work.
+
+### worship — *proskuneo*
+
+**Not an inventory candidate at all** — it has no row there, because it was
+folded into `worship-latreuo`. Separating the two (see the fifth problem above)
+left it standing on its own, and it is deferred as its own term rather than
+absorbed back.
+
+`προσκυνέω` renders as **bow down** in 25 of its 27 published verses — "they
+fell to the ground and bowed down to him", "you will bow down to the Lord your
+God". Two notes, neither opening "Traditionally,". The substantial one says the
+argument outright: *proskuneo* "is not really connected with the English
+etymology of 'worship,' which has to do with declaring something as having high
+worth. It's literally about bowing and kissing."
+
+Two things make it awkward to promote now, and both resolve with time rather
+than with a decision:
+
+1. **Half its corpus is unpublished.** 27 of 54 SBLGNT verses are published; the
+   rest are largely Revelation, which has no Word master. Revelation is where
+   *proskuneo* does its sharpest work, since the question there is who gets
+   bowed to.
+2. **It is entangled with *latreuo*, which is still open.** The two co-occur in
+   Matthew 4:10 and Luke 4:8, where bowing down and serving as representative
+   are set as a pair. Deciding one without the other repeats the *rhema* /
+   *logos* problem.
 
 ## Moving an entry
 

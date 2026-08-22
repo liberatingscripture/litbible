@@ -46,26 +46,6 @@
       "ref": "Phil.1.5",
       "english": [
         {
-          "text": "community",
-          "n": 1
-        }
-      ],
-      "greek": [],
-      "term": {
-        "greek": "ekklesia",
-        "traditional": "Church",
-        "glossary": "church-called-community",
-        "form": "community"
-      },
-      "confidence": "common",
-      "lemma": "absent",
-      "source": "glossary-scan",
-      "status": "auto"
-    },
-    {
-      "ref": "Phil.1.5",
-      "english": [
-        {
           "text": "the triumphant message",
           "n": 1
         }
