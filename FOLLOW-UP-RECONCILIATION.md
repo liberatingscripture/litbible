@@ -1838,6 +1838,31 @@ per document does the whole job, with the two `ubmerg` spots handled separately.
 carry the old word only in a footnote — exactly the kind of stray a
 book-by-book eyeball misses.
 
+### One article had to change with the noun — Mark 1:4
+
+*submersion* starts with a consonant sound and *immersion* does not, so the
+article in front of it stops agreeing. Exactly one place in the corpus reads
+`a submersion` rather than `the`:
+
+| | |
+|---|---|
+| was | `announcing a submersion of transformation of the mind` |
+| now | `announcing an immersion of transformation of the mind` |
+
+**The master is correct as it stands** (`a submersion`) and becomes wrong the
+moment the find-and-replace above is run, so `an` has to be typed in the same
+pass — this is the one spot in the Mark document where the replacement is not
+purely mechanical.
+
+It shipped, briefly: the substitution was verified against MorphGNT, the
+validator, the alignment audit, the type-check, 415 tests, a full build and the
+link check, and **none of them can see subject-article agreement**. What caught
+it was reading the auto-drafted release-notes entry, where the before→after pair
+printed `"…announcing a submersion" → "…announcing a immersion"` in plain sight.
+Worth remembering as a check in its own right: the changelog renders a wording
+change the way a reader meets it, which is a different question from whether the
+data is well-formed.
+
 ### The shared "Dipper" note keeps its explanation
 
 `mark-1` fn-e, `mark-6` fn-l and `mark-8` fn-n end with a sentence the
