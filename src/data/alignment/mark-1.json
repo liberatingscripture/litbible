@@ -126,6 +126,26 @@
       "ref": "Mark.1.8",
       "english": [
         {
+          "text": "immerse",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "baptizo",
+        "traditional": "Baptize",
+        "glossary": "baptize-immerse",
+        "form": "immerse"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
+      "ref": "Mark.1.8",
+      "english": [
+        {
           "text": "Sacred",
           "n": 1
         }

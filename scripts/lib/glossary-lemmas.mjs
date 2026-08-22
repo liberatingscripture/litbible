@@ -24,6 +24,9 @@ export const GLOSSARY_LEMMAS = {
   // ἱλαστήριον included: it is the ark's cover, rendered "reconciliation
   // cover" (Rom 3:25, Heb 9:5) — the place of the meeting, not a separate idea.
   "atonement-reconciliation": ["ἱλασμός", "ἱλαστήριον", "ἱλάσκομαι"],
+  // βαπτισμός included though it is rendered "ritual washings" (Heb 9:10),
+  // not "immerse" — erring inclusive, and the reviewer can call it no-rendering.
+  "baptize-immerse": ["βαπτίζω", "βάπτισμα", "βαπτιστής", "βαπτισμός"],
   "bad-harmful": ["κακός", "κακία"],
   "blasphemy-disrespectfulness": ["βλασφημία", "βλασφημέω", "βλάσφημος"],
   // μακάριος deliberately excluded — English collapses the two into "bless",
