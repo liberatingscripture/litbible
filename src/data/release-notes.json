@@ -293,6 +293,264 @@
       {
         "type": "article_updated",
         "description": "Article updated: 2 corinthians 13 10 mistranslation"
+      },
+      {
+        "type": "footnote_updated",
+        "description": "1 Corinthians 10:2 — footnote e updated",
+        "detail": "\"submersion\" → \"immersion\"",
+        "location": {
+          "bookKey": "1corinthians",
+          "chapter": 10,
+          "verse": 2
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "1 John 3:9 — footnote n updated",
+        "detail": "\"Submerser\" → \"Immerser\"",
+        "location": {
+          "bookKey": "1john",
+          "chapter": 3,
+          "verse": 9
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "1 Peter 3:21 — text updated",
+        "detail": "\"submersion\" → \"immersion\"",
+        "location": {
+          "bookKey": "1peter",
+          "chapter": 3,
+          "verse": 21
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Colossians 2:12 — text updated",
+        "detail": "\"submersion,\" → \"immersion,\"",
+        "location": {
+          "bookKey": "colossians",
+          "chapter": 2,
+          "verse": 12
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Ephesians 4:5 — text updated",
+        "detail": "\"submersion,\" → \"immersion,\"",
+        "location": {
+          "bookKey": "ephesians",
+          "chapter": 4,
+          "verse": 5
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Galatians 3:27 — text updated",
+        "detail": "\"submersed\" → \"immersed\"",
+        "location": {
+          "bookKey": "galatians",
+          "chapter": 3,
+          "verse": 27
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Galatians 3:27, 29 — footnotes kk, mm updated",
+        "detail": "fn. kk (v. 27): \"submersed,\" → \"immersed,\"; fn. mm (v. 29): \"submerged\" → \"immersed\"",
+        "location": {
+          "bookKey": "galatians",
+          "chapter": 3,
+          "verse": 27
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Hebrews 9:10 — footnote j updated",
+        "detail": "\"‘submersions.’\" → \"‘immersions.’\"",
+        "location": {
+          "bookKey": "hebrews",
+          "chapter": 9,
+          "verse": 10
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "John 1:25–26, 28, 31, 33 — text updated",
+        "detail": "v. 25: \"submerse\" → \"immerse\"; v. 26: \"submerse\" → \"immerse\"; v. 28: \"submersing\" → \"immersing\"; v. 31: \"submerse\" → \"immerse\"; v. 33: \"submerse people in water said to me, ‘On whomever you see t…\" → \"immerse people in water said to me, ‘On whomever you see th…\"",
+        "location": {
+          "bookKey": "john",
+          "chapter": 1,
+          "verse": 25
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "John 10:40 — text updated",
+        "detail": "\"submersing\" → \"immersing\"",
+        "location": {
+          "bookKey": "john",
+          "chapter": 10,
+          "verse": 40
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "John 3:22–23, 26 — text updated",
+        "detail": "v. 22: \"submersed\" → \"immersed\"; v. 23: \"submersing people in Aenon near Salim because a lot of wate…\" → \"immersing people in Aenon near Salim because a lot of water…\"; v. 26: \"submersing\" → \"immersing\"",
+        "location": {
+          "bookKey": "john",
+          "chapter": 3,
+          "verse": 22
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "John 4:1–2 — text updated",
+        "detail": "v. 1: \"submersing\" → \"immersing\"; v. 2: \"submersing\" → \"immersing\"",
+        "location": {
+          "bookKey": "john",
+          "chapter": 4,
+          "verse": 1
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Mark 1:4–5, 8–9 — text updated",
+        "detail": "v. 4: \"Submerser was in the Wilderness and announcing a submersion\" → \"Immerser was in the Wilderness and announcing a immersion\"; v. 5: \"submersed\" → \"immersed\"; v. 8: \"submersed you in water, but he will submerse\" → \"immersed you in water, but he will immerse\"; v. 9: \"submersed\" → \"immersed\"",
+        "location": {
+          "bookKey": "mark",
+          "chapter": 1,
+          "verse": 4
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Mark 1:4 — footnote e updated",
+        "detail": "\"‘Submerser’ as a synonym, being defined as ‘someone who sub…\" → \"‘Immerser’ as a synonym, being defined as ‘someone who imme…\"",
+        "location": {
+          "bookKey": "mark",
+          "chapter": 1,
+          "verse": 4
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Mark 10:38–39 — text updated",
+        "detail": "v. 38: \"submersed with the submersion\" → \"immersed with the immersion\"; v. 39: \"submerged with the submersion\" → \"immersed with the immersion\"",
+        "location": {
+          "bookKey": "mark",
+          "chapter": 10,
+          "verse": 38
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Mark 10:38 — footnote dd updated",
+        "detail": "\"submersion\" → \"immersion\"",
+        "location": {
+          "bookKey": "mark",
+          "chapter": 10,
+          "verse": 38
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Mark 11:30 — text updated",
+        "detail": "\"submersion\" → \"immersion\"",
+        "location": {
+          "bookKey": "mark",
+          "chapter": 11,
+          "verse": 30
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Mark 16:16 — text updated",
+        "detail": "\"submersed\" → \"immersed\"",
+        "location": {
+          "bookKey": "mark",
+          "chapter": 16,
+          "verse": 16
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Mark 6:14, 24–25 — text updated",
+        "detail": "v. 14: \"Submerser\" → \"Immerser\"; v. 24: \"Submerser,”\" → \"Immerser,”\"; v. 25: \"Submerser\" → \"Immerser\"",
+        "location": {
+          "bookKey": "mark",
+          "chapter": 6,
+          "verse": 14
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Mark 6:14 — footnote l updated",
+        "detail": "\"‘Submerser’ as a synonym, being defined as ‘someone who sub…\" → \"‘Immerser’ as a synonym, being defined as ‘someone who imme…\"",
+        "location": {
+          "bookKey": "mark",
+          "chapter": 6,
+          "verse": 14
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Mark 7:4 — text updated",
+        "detail": "\"submersing themselves. There are many other things they hav…\" → \"immersing themselves. There are many other things they have…\"",
+        "location": {
+          "bookKey": "mark",
+          "chapter": 7,
+          "verse": 4
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Mark 8:28 — text updated",
+        "detail": "\"Submerser,”\" → \"Immerser,”\"",
+        "location": {
+          "bookKey": "mark",
+          "chapter": 8,
+          "verse": 28
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Mark 8:28 — footnote n updated",
+        "detail": "\"‘Submerser’ as a synonym, being defined as ‘someone who sub…\" → \"‘Immerser’ as a synonym, being defined as ‘someone who imme…\"",
+        "location": {
+          "bookKey": "mark",
+          "chapter": 8,
+          "verse": 28
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Matthew 3:16 — text updated",
+        "detail": "\"Right away, when Jesus\" → \"After Jesus was immersed, right away when he\"",
+        "location": {
+          "bookKey": "matthew",
+          "chapter": 3,
+          "verse": 16
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Romans 6:3–4 — text updated",
+        "detail": "v. 3: \"submersed in connection with Christ Jesus was submersed\" → \"immersed in connection with Christ Jesus was immersed\"; v. 4: \"submersion\" → \"immersion\"",
+        "location": {
+          "bookKey": "romans",
+          "chapter": 6,
+          "verse": 3
+        }
+      },
+      {
+        "type": "intro_updated",
+        "description": "Colossians Introduction updated"
+      },
+      {
+        "type": "article_updated",
+        "description": "Article updated: radical gospel of easter"
       }
     ]
   },
