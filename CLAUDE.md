@@ -907,6 +907,12 @@ Five collections, all loaded via Astro's `glob` loader. Two are site-wide:
   flattened, so a body that would break the build breaks it now rather than on
   publication day, and an all-draft collection is an error rather than an empty
   glossary.
+  **Which words get an entry at all is an editorial judgment with its own
+  register.** Instance count and available information are necessary but not
+  sufficient; what decides it is whether the entry changes how a reader holds
+  the text. Candidates surveyed and set aside are recorded in
+  `GLOSSARY-CANDIDATES.md` with the reasoning, so a term is triaged once rather
+  than re-proposed every time a survey re-ranks it.
 
 Three drive the `/apps` promo page only (section content as data, edited without
 touching component code — consumed by `src/components/apps/*`):
@@ -1620,6 +1626,7 @@ argv, and the scan; nothing else.
 | `public/_headers` | Security + caching headers; also RFC 8288 `Link` headers for agent discovery (Cloudflare Pages) |
 | `public/.well-known/api-catalog` | RFC 9727/9264 `linkset+json` catalog of the public API |
 | `public/llms.txt`, `llms-full.txt` | LLM-readable site description + AI-usage policy |
+| `GLOSSARY-CANDIDATES.md` | Register of glossary candidates deliberately not included or deferred, and the payload criterion behind those calls. Read it before proposing a "next term." |
 | `DISASTER-RECOVERY.md` | Continuity doc: every dashboard/secret behind the deploy (names only, no values) + the DNS inventory + from-zero redeploy path. Update it when an integration, secret, or DNS record is added/removed. |
 
 > The top-level `README.md` is the lighter human-facing overview; this file is
