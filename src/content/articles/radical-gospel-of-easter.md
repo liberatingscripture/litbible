@@ -105,7 +105,7 @@ The Torah, and all of the Bible, is there to teach us and guide us, to help keep
 
 Galatians continues:
 
-> 26 For you are all children of God through the faithfulness of Christ Jesus, 27 for whoever of you were submersed for Christ, you covered yourselves with Christ. 28 One who is within is neither Jew nor Greek, neither enslaved nor free, not male and female: You are all one within Christ Jesus. 29 So if you are part of Christ, then you are Abraham’s seed, heirs for the purposes of a promise.
+> 26 For you are all children of God through the faithfulness of Christ Jesus, 27 for whoever of you were immersed for Christ, you covered yourselves with Christ. 28 One who is within is neither Jew nor Greek, neither enslaved nor free, not male and female: You are all one within Christ Jesus. 29 So if you are part of Christ, then you are Abraham’s seed, heirs for the purposes of a promise.
 >
 > (<a href="/galatians-3">Galatians 3:26-29 LIT</a>)
 
