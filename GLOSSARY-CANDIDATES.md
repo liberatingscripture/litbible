@@ -31,8 +31,9 @@ proxy for *cost* and a poor one for *payload*.
 
 ## Do not trust the inventory's footnote counts
 
-Every term triaged so far came in **below** its inventory `Notes` figure, most
-of them far below. Three causes, all of which inflate:
+Most terms triaged so far came in **below** their inventory `Notes` figure,
+several far below — *psuche* is 19 against 57, *phobos* 8 against 34. Three
+causes, all of which inflate:
 
 1. **Anchors are counted, not notes.** A shared note reused across nine anchors
    scores nine. The *phaneroo* note is one note appearing six times in 1 John.
@@ -41,13 +42,24 @@ of them far below. Three causes, all of which inflate:
    inside every *poneros* note, which belongs to a different entry entirely.
 3. **A long shared note matches on a word it merely mentions in passing.**
 
-A fourth error runs the other way and is worth knowing when re-checking:
-**transliterations carry macrons**, restored corpus-wide in the August 2026
-reconciliation. A search for `eikon` does not match *eikōn*. Fold diacritics
-(NFD, strip the combining range) before matching, or a real note goes missing.
+A fourth error runs the other way, and it is the dangerous one because it
+**hides** real notes rather than inventing them: **transliterations carry
+macrons**, restored corpus-wide in the August 2026 reconciliation. A search for
+`eikon` does not match *eikōn*. Fold diacritics (NFD, strip the combining range)
+before matching. This is why two terms came out *above* their inventory figure
+rather than below — *eulogeo* at 11 against 9, *baptizo* at 6 against 5.
 
 Queue sizes, by contrast, have matched the inventory exactly every time. Trust
 those. Re-derive `Notes` per term before letting it argue for anything.
+
+**A fifth problem is not about counting at all.** An inventory candidate can
+group lemmas that render *differently*, and the merged rendering column then
+misattributes one lemma's rendering to another. `worship-latreuo` grouped
+λατρεύω with προσκυνέω and reported both as "bow down before" — but that is
+προσκυνέω's rendering, and λατρεύω is rendered "serve as representative" in all
+19 of its published verses. The two co-occur in Matthew 4:10 and Luke 4:8, which
+is exactly how the error survives a spot check. Verify a candidate's lemmas
+render alike before treating it as one term.
 
 ## Not included
 
@@ -128,6 +140,7 @@ it is queued.
 | discipline — *paideia* | `παιδεία`, `παιδεύω` | 13 | 4 / 4 |
 | nature — *phusis* | `φύσις`, `φυσικός` | 13 | 3 / 5 |
 | image — *eikon* | `εἰκών` | 12 | 2 / 4 |
+| paradise — *paradeisos* | `παράδεισος` | 1 | 1 / 4 |
 
 All deferred 2026-08-21. *phaneroo* came from tier 1, the rest from tier 2.
 *phaneroo* and *apokalupto* are a **pair** — each of the two notes that defines
@@ -247,6 +260,21 @@ bare alternative-rendering note ("Or 'image' or 'icon'").
 
 This is the term whose count the macron miss hid: `eikōn` does not match a
 search for `eikon`.
+
+### paradise — *paradeisos*
+
+Deferred **on queue size, not on payload** — the only entry here set aside for
+that reason, and the reason it may not stay set aside for long.
+
+LIT renders it "the Garden", which departs from "paradise" completely, and the
+single note opens "Traditionally,". But only **one** verse is published
+(2 Cor 12:4, "was carried off to the Garden"). The other two are Luke 23:43 and
+Revelation 2:7 — Luke's chapter is still a draft and Revelation has no Word
+master at all, so neither can be reviewed yet.
+
+A one-verse entry states a commitment the corpus cannot yet show. **Revisit when
+Luke 23 publishes**, which takes it to two of three and makes the thief on the
+cross available, where the word does most of its pastoral work.
 
 ## Moving an entry
 

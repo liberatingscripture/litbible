@@ -246,6 +246,26 @@
       "ref": "Gal.3.8",
       "english": [
         {
+          "text": "pronouncement of well-being",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eulogeo",
+        "traditional": "Bless",
+        "glossary": "bless-pronouncement-of-well-being",
+        "form": "pronouncement of well-being"
+      },
+      "confidence": "common",
+      "lemma": "absent",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
+      "ref": "Gal.3.8",
+      "english": [
+        {
           "text": "faithfulness",
           "n": 1
         }
@@ -341,6 +361,26 @@
       "lemma": "present",
       "source": "glossary-scan",
       "status": "confirmed"
+    },
+    {
+      "ref": "Gal.3.9",
+      "english": [
+        {
+          "text": "pronouncement of well-being",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eulogeo",
+        "traditional": "Bless",
+        "glossary": "bless-pronouncement-of-well-being",
+        "form": "pronouncement of well-being"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "auto"
     },
     {
       "ref": "Gal.3.9",
@@ -581,6 +621,26 @@
       "lemma": "present",
       "source": "glossary-scan",
       "status": "confirmed"
+    },
+    {
+      "ref": "Gal.3.14",
+      "english": [
+        {
+          "text": "pronouncement of well-being",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eulogeo",
+        "traditional": "Bless",
+        "glossary": "bless-pronouncement-of-well-being",
+        "form": "pronouncement of well-being"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "auto"
     },
     {
       "ref": "Gal.3.14",

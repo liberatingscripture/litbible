@@ -19,11 +19,19 @@
 
 export const GLOSSARY_LEMMAS = {
   "adultery-marital-infidelity": ["μοιχεία", "μοιχεύω", "μοιχαλίς", "μοιχός"],
+  "almighty-sustainer-of-all": ["παντοκράτωρ"],
   "angel-message": ["ἄγγελος"],
+  // ἱλαστήριον included: it is the ark's cover, rendered "reconciliation
+  // cover" (Rom 3:25, Heb 9:5) — the place of the meeting, not a separate idea.
+  "atonement-reconciliation": ["ἱλασμός", "ἱλαστήριον", "ἱλάσκομαι"],
   "bad-harmful": ["κακός", "κακία"],
   "blasphemy-disrespectfulness": ["βλασφημία", "βλασφημέω", "βλάσφημος"],
   // ἐκλεκτός deliberately excluded — it shares ekklesia's root and its own
   // footnotes, but it's rendered "chosen"/"called", never "Called Community".
+  // μακάριος deliberately excluded — English collapses the two into "bless",
+  // but the words are unrelated in origin and meaning, and two published
+  // footnotes say so outright. It is its own candidate.
+  "bless-pronouncement-of-well-being": ["εὐλογέω", "εὐλογία", "εὐλογητός"],
   "church-called-community": ["ἐκκλησία"],
   "clean-clean": ["καθαρός", "καθαρίζω", "καθαρισμός", "καθαρότης"],
   "confession-open-acknowledgement": ["ὁμολογία", "ὁμολογέω", "ἐξομολογέω"],
@@ -64,6 +72,7 @@ export const GLOSSARY_LEMMAS = {
   "salvation-liberation": ["σωτηρία", "σωτήριος", "σωτήρ", "σῴζω"],
   "satan-adversary": ["Σατανᾶς"],
   "sin-deviation": ["ἁμαρτία", "ἁμαρτάνω", "ἁμάρτημα", "ἁμαρτωλός"],
+  "soul-very-being": ["ψυχή", "ψυχικός"],
   "spirit-life-breath": ["πνεῦμα", "πνευματικός"],
   "submit-cooperate": ["ὑποτάσσω", "ὑποταγή"],
   "trespass-shortfall": ["παράπτωμα", "παράβασις", "παραβάτης", "παραβαίνω"],

@@ -63,6 +63,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Heb.12.3",
+      "english": [
+        {
+          "text": "very beings",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "psuche",
+        "traditional": "Soul",
+        "glossary": "soul-very-being",
+        "form": "very being"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
       "ref": "Heb.12.4",
       "english": [
         {

@@ -463,6 +463,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Matt.18.24",
+      "english": [
+        {
+          "text": "reconciliation",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hilasmos",
+        "traditional": "Atonement",
+        "glossary": "atonement-reconciliation",
+        "form": "reconciliation"
+      },
+      "confidence": "common",
+      "lemma": "absent",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
       "ref": "Matt.18.27",
       "english": [
         {
