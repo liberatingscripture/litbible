@@ -54,6 +54,26 @@
           "chapter": 1,
           "verse": 52
         }
+      },
+      {
+        "type": "text_updated",
+        "description": "Luke 19:38 — text updated",
+        "detail": "\"The one who is coming has God’s favor,The\" → \"Praised be the one who is coming,The\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 19,
+          "verse": 38
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 19 — footnote v removed",
+        "detail": "removed \"The word ‘God’s’ has been added for clarity. The traditional translation of eulogemenos is ‘blessed is’ or ‘is blessed.…\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 19
+        },
+        "relabel": "footnotes formerly w–hh relabeled v–gg"
       }
     ]
   },
