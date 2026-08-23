@@ -443,6 +443,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "1Tim.6.15",
+      "english": [
+        {
+          "text": "has reason for gratitude",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "makarios",
+        "traditional": "Blessed",
+        "glossary": "blessed-have-reason-for-gratitude",
+        "form": "have reason for gratitude"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "1Tim.6.18",
       "english": [
         {

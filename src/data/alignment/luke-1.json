@@ -483,6 +483,46 @@
       "status": "confirmed"
     },
     {
+      "ref": "Luke.1.42",
+      "english": [
+        {
+          "text": "Praised",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eulogeo",
+        "traditional": "Bless",
+        "glossary": "bless-pronounce-well-being",
+        "form": "Praised"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.1.42",
+      "english": [
+        {
+          "text": "praised",
+          "n": 2
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eulogeo",
+        "traditional": "Bless",
+        "glossary": "bless-pronounce-well-being",
+        "form": "Praised"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Luke.1.45",
       "english": [
         {
@@ -723,6 +763,26 @@
       "status": "auto"
     },
     {
+      "ref": "Luke.1.64",
+      "english": [
+        {
+          "text": "praising",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eulogeo",
+        "traditional": "Bless",
+        "glossary": "bless-pronounce-well-being",
+        "form": "Praised"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Luke.1.67",
       "english": [
         {
@@ -760,6 +820,26 @@
       "confidence": "distinctive",
       "lemma": "present",
       "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.1.68",
+      "english": [
+        {
+          "text": "praised",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eulogeo",
+        "traditional": "Bless",
+        "glossary": "bless-pronounce-well-being",
+        "form": "Praised"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
       "status": "confirmed"
     },
     {

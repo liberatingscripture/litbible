@@ -641,6 +641,26 @@
       "lemma": "present",
       "source": "review",
       "status": "confirmed"
+    },
+    {
+      "ref": "Matt.23.39",
+      "english": [
+        {
+          "text": "Praised",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eulogeo",
+        "traditional": "Bless",
+        "glossary": "bless-pronounce-well-being",
+        "form": "Praised"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
     }
   ]
 }

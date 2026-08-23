@@ -23,6 +23,46 @@
       "status": "confirmed"
     },
     {
+      "ref": "Mark.11.9",
+      "english": [
+        {
+          "text": "Praised",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eulogeo",
+        "traditional": "Bless",
+        "glossary": "bless-pronounce-well-being",
+        "form": "Praised"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Mark.11.10",
+      "english": [
+        {
+          "text": "Praised",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eulogeo",
+        "traditional": "Bless",
+        "glossary": "bless-pronounce-well-being",
+        "form": "Praised"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Mark.11.11",
       "english": [
         {

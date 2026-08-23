@@ -503,6 +503,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Luke.2.28",
+      "english": [
+        {
+          "text": "praised",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eulogeo",
+        "traditional": "Bless",
+        "glossary": "bless-pronounce-well-being",
+        "form": "Praised"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Luke.2.30",
       "english": [
         {
@@ -560,6 +580,26 @@
       "confidence": "common",
       "lemma": "present",
       "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.2.34",
+      "english": [
+        {
+          "text": "spoke well-being",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eulogeo",
+        "traditional": "Bless",
+        "glossary": "bless-pronounce-well-being",
+        "form": "spoke well-being"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
       "status": "confirmed"
     },
     {

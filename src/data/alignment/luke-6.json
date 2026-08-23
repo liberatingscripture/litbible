@@ -203,6 +203,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Luke.6.28",
+      "english": [
+        {
+          "text": "Speak well-wishes",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eulogeo",
+        "traditional": "Bless",
+        "glossary": "bless-pronounce-well-being",
+        "form": "Speak well-wishes"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Luke.6.32",
       "english": [
         {

@@ -223,6 +223,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Matt.25.34",
+      "english": [
+        {
+          "text": "praised",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eulogeo",
+        "traditional": "Bless",
+        "glossary": "bless-pronounce-well-being",
+        "form": "Praised"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Matt.25.37",
       "english": [
         {
