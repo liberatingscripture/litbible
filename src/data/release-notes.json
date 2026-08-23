@@ -1,5 +1,63 @@
 [
   {
+    "version": "2026-08-23",
+    "date": "2026-08-23",
+    "label": "August 23, 2026",
+    "changes": [
+      {
+        "type": "text_updated",
+        "description": "1 Timothy 1:11–12 — text updated",
+        "detail": "v. 11: \"delighted God’s praiseworthy triumphant message\" → \"praiseworthy triumphant message of the God who has reason f…\"; v. 12: \"am grateful\" → \"give thanks to\"",
+        "location": {
+          "bookKey": "1timothy",
+          "chapter": 1,
+          "verse": 11
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "1 Timothy 1:11 — footnotes x, z updated",
+        "detail": "fn. x (v. 11): removed \"Traditionally, ‘blessed’ or ‘happy.’ This is the same word used in Matthew 5 and translated there and elsewhere as ‘gra…\"; fn. z (v. 11): added \"Traditionally, ‘blessed.’ There is not one English word that covers what is being described here. There is a sense of s…\"",
+        "location": {
+          "bookKey": "1timothy",
+          "chapter": 1,
+          "verse": 11
+        },
+        "relabel": "footnotes formerly y–z relabeled x–y"
+      },
+      {
+        "type": "text_updated",
+        "description": "1 Timothy 6:15 — text updated",
+        "detail": "\"gratified and only powerful one,\" → \"one who has reason for gratitude and only Sovereign,\"",
+        "location": {
+          "bookKey": "1timothy",
+          "chapter": 6,
+          "verse": 15
+        }
+      },
+      {
+        "type": "footnote_added",
+        "description": "1 Timothy 6:15 — footnote n added",
+        "detail": "added \"Traditionally, ‘blessed.’ There is not one English word that covers what is being described here. There is a sense of s…\"",
+        "location": {
+          "bookKey": "1timothy",
+          "chapter": 6,
+          "verse": 15
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Luke 1:52 — text updated",
+        "detail": "\"down the powerful\" → \"sovereigns down\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 1,
+          "verse": 52
+        }
+      }
+    ]
+  },
+  {
     "version": "2026-08-22",
     "date": "2026-08-22",
     "label": "August 22, 2026",
