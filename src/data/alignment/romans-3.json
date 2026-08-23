@@ -646,7 +646,7 @@
       "ref": "Rom.3.25",
       "english": [
         {
-          "text": "reconciliation",
+          "text": "reconciliation cover",
           "n": 1
         }
       ],
@@ -655,12 +655,12 @@
         "greek": "hilasmos",
         "traditional": "Atonement",
         "glossary": "atonement-reconciliation",
-        "form": "reconciliation"
+        "form": "reconciliation cover"
       },
-      "confidence": "common",
+      "confidence": null,
       "lemma": "present",
-      "source": "glossary-scan",
-      "status": "auto"
+      "source": "review",
+      "status": "confirmed"
     },
     {
       "ref": "Rom.3.25",

@@ -123,6 +123,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Heb.13.10",
+      "english": [
+        {
+          "text": "representative service",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "latreuo",
+        "traditional": "Serve",
+        "glossary": "serve-serve-as-representative",
+        "form": "representative service"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Heb.13.11",
       "english": [
         {
@@ -196,6 +216,26 @@
         "traditional": "Confession",
         "glossary": "confession-open-acknowledgement",
         "form": "acknowledged"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Heb.13.16",
+      "english": [
+        {
+          "text": "sharing",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "koinonia",
+        "traditional": "Fellowship",
+        "glossary": "fellowship-community",
+        "form": "share"
       },
       "confidence": null,
       "lemma": "present",

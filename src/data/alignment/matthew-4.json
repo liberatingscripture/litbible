@@ -163,6 +163,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Matt.4.10",
+      "english": [
+        {
+          "text": "representative",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "latreuo",
+        "traditional": "Serve",
+        "glossary": "serve-serve-as-representative",
+        "form": "serve as representative"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Matt.4.11",
       "english": [
         {

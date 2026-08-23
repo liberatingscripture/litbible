@@ -166,6 +166,26 @@
       "ref": "Luke.18.13",
       "english": [
         {
+          "text": "reconciled",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hilasmos",
+        "traditional": "Atonement",
+        "glossary": "atonement-reconciliation",
+        "form": "reconciliation"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.18.13",
+      "english": [
+        {
           "text": "the heavens",
           "n": 1
         }

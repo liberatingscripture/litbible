@@ -523,6 +523,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Matt.23.30",
+      "english": [
+        {
+          "text": "participated",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "koinonia",
+        "traditional": "Fellowship",
+        "glossary": "fellowship-community",
+        "form": "shared participation"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Matt.23.33",
       "english": [
         {

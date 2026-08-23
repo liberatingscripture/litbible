@@ -823,6 +823,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Luke.1.74",
+      "english": [
+        {
+          "text": "representatives",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "latreuo",
+        "traditional": "Serve",
+        "glossary": "serve-serve-as-representative",
+        "form": "serve as representative"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Luke.1.75",
       "english": [
         {

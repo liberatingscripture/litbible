@@ -280,7 +280,7 @@
       "confidence": "common",
       "lemma": "present",
       "source": "glossary-scan",
-      "status": "auto"
+      "status": "confirmed"
     },
     {
       "ref": "Rom.1.9",
@@ -656,6 +656,26 @@
         "traditional": "Unclean",
         "glossary": "unclean-unclean",
         "form": "unclean"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.1.25",
+      "english": [
+        {
+          "text": "served as representatives",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "latreuo",
+        "traditional": "Serve",
+        "glossary": "serve-serve-as-representative",
+        "form": "serve as representative"
       },
       "confidence": null,
       "lemma": "present",

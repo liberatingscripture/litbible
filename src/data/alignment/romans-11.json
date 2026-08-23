@@ -403,6 +403,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Rom.11.17",
+      "english": [
+        {
+          "text": "sharer",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "koinonia",
+        "traditional": "Fellowship",
+        "glossary": "fellowship-community",
+        "form": "sharer"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Rom.11.20",
       "english": [
         {

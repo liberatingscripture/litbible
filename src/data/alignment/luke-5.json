@@ -23,6 +23,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Luke.5.10",
+      "english": [
+        {
+          "text": "partners",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "koinonia",
+        "traditional": "Fellowship",
+        "glossary": "fellowship-community",
+        "form": "partners"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Luke.5.11",
       "english": [
         {

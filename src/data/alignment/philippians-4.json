@@ -123,6 +123,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Phil.4.14",
+      "english": [
+        {
+          "text": "participated",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "koinonia",
+        "traditional": "Fellowship",
+        "glossary": "fellowship-community",
+        "form": "shared participation"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Phil.4.15",
       "english": [
         {
@@ -146,7 +166,7 @@
       "ref": "Phil.4.15",
       "english": [
         {
-          "text": "community",
+          "text": "participated",
           "n": 1
         }
       ],
@@ -155,12 +175,12 @@
         "greek": "koinonia",
         "traditional": "Fellowship",
         "glossary": "fellowship-community",
-        "form": "community"
+        "form": "shared participation"
       },
-      "confidence": "common",
+      "confidence": null,
       "lemma": "present",
-      "source": "glossary-scan",
-      "status": "auto"
+      "source": "review",
+      "status": "confirmed"
     },
     {
       "ref": "Phil.4.15",

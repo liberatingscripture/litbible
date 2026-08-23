@@ -3,6 +3,26 @@
   "chapter": 16,
   "records": [
     {
+      "ref": "John.16.2",
+      "english": [
+        {
+          "text": "dutiful service",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "latreuo",
+        "traditional": "Serve",
+        "glossary": "serve-serve-as-representative",
+        "form": "representative service"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "John.16.8",
       "english": [
         {

@@ -86,6 +86,26 @@
       "ref": "Gal.6.6",
       "english": [
         {
+          "text": "share",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "koinonia",
+        "traditional": "Fellowship",
+        "glossary": "fellowship-community",
+        "form": "share"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Gal.6.6",
+      "english": [
+        {
           "text": "benefits",
           "n": 1
         }

@@ -123,6 +123,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "2Pet.1.4",
+      "english": [
+        {
+          "text": "sharers",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "koinonia",
+        "traditional": "Fellowship",
+        "glossary": "fellowship-community",
+        "form": "sharer"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "2Pet.1.5",
       "english": [
         {

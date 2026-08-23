@@ -166,6 +166,26 @@
       "ref": "Phlm.1.6",
       "english": [
         {
+          "text": "participation",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "koinonia",
+        "traditional": "Fellowship",
+        "glossary": "fellowship-community",
+        "form": "shared participation"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Phlm.1.6",
+      "english": [
+        {
           "text": "well-being",
           "n": 1
         }
@@ -300,7 +320,7 @@
       "confidence": "common",
       "lemma": "present",
       "source": "glossary-scan",
-      "status": "auto"
+      "status": "confirmed"
     },
     {
       "ref": "Phlm.1.22",

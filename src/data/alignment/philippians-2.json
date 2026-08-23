@@ -6,7 +6,7 @@
       "ref": "Phil.2.1",
       "english": [
         {
-          "text": "community",
+          "text": "sharing",
           "n": 1
         }
       ],
@@ -15,12 +15,12 @@
         "greek": "koinonia",
         "traditional": "Fellowship",
         "glossary": "fellowship-community",
-        "form": "community"
+        "form": "share"
       },
-      "confidence": "common",
+      "confidence": null,
       "lemma": "present",
-      "source": "glossary-scan",
-      "status": "auto"
+      "source": "review",
+      "status": "confirmed"
     },
     {
       "ref": "Phil.2.1",

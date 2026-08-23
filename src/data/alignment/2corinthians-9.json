@@ -186,6 +186,26 @@
       "ref": "2Cor.9.13",
       "english": [
         {
+          "text": "sharing",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "koinonia",
+        "traditional": "Fellowship",
+        "glossary": "fellowship-community",
+        "form": "share"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "2Cor.9.13",
+      "english": [
+        {
           "text": "praising",
           "n": 1
         }

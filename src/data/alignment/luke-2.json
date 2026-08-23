@@ -623,6 +623,26 @@
       "status": "auto"
     },
     {
+      "ref": "Luke.2.37",
+      "english": [
+        {
+          "text": "serving as a representative",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "latreuo",
+        "traditional": "Serve",
+        "glossary": "serve-serve-as-representative",
+        "form": "serve as representative"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Luke.2.39",
       "english": [
         {

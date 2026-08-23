@@ -186,6 +186,26 @@
       "ref": "Jas.3.17",
       "english": [
         {
+          "text": "trustworthy",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "agathos",
+        "traditional": "Good [2]",
+        "glossary": "good-beneficial",
+        "form": "trustworthy"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Jas.3.17",
+      "english": [
+        {
           "text": "pretenses",
           "n": 1
         }

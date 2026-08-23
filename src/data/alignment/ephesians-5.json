@@ -143,6 +143,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Eph.5.11",
+      "english": [
+        {
+          "text": "co-participants",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "koinonia",
+        "traditional": "Fellowship",
+        "glossary": "fellowship-community",
+        "form": "co-participant"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Eph.5.14",
       "english": [
         {

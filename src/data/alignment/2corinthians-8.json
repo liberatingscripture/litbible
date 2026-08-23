@@ -66,6 +66,26 @@
       "ref": "2Cor.8.4",
       "english": [
         {
+          "text": "shared participation",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "koinonia",
+        "traditional": "Fellowship",
+        "glossary": "fellowship-community",
+        "form": "shared participation"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "2Cor.8.4",
+      "english": [
+        {
           "text": "gift",
           "n": 1
         }
@@ -376,6 +396,26 @@
         "traditional": "Church",
         "glossary": "church-called-community",
         "form": "Called Community"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "2Cor.8.23",
+      "english": [
+        {
+          "text": "partner",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "koinonia",
+        "traditional": "Fellowship",
+        "glossary": "fellowship-community",
+        "form": "partners"
       },
       "confidence": null,
       "lemma": "present",
