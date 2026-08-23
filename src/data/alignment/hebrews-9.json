@@ -126,6 +126,26 @@
       "ref": "Heb.9.5",
       "english": [
         {
+          "text": "reconciliation",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hilasmos",
+        "traditional": "Atonement",
+        "glossary": "atonement-reconciliation",
+        "form": "reconciliation"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "rejected"
+    },
+    {
+      "ref": "Heb.9.5",
+      "english": [
+        {
           "text": "reconciliation cover",
           "n": 1
         }
