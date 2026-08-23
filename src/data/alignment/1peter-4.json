@@ -306,6 +306,26 @@
       "ref": "1Pet.4.14",
       "english": [
         {
+          "text": "gratified",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "makarios",
+        "traditional": "Blessed",
+        "glossary": "blessed-have-reason-for-gratitude",
+        "form": "gratified"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Pet.4.14",
+      "english": [
+        {
           "text": "praiseworthy",
           "n": 1
         }

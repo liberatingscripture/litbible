@@ -83,6 +83,26 @@
       "status": "auto"
     },
     {
+      "ref": "Jas.1.12",
+      "english": [
+        {
+          "text": "gratified",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "makarios",
+        "traditional": "Blessed",
+        "glossary": "blessed-have-reason-for-gratitude",
+        "form": "gratified"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Jas.1.13",
       "english": [
         {
@@ -281,6 +301,26 @@
       "lemma": "present",
       "source": "glossary-scan",
       "status": "auto"
+    },
+    {
+      "ref": "Jas.1.25",
+      "english": [
+        {
+          "text": "gratified",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "makarios",
+        "traditional": "Blessed",
+        "glossary": "blessed-have-reason-for-gratitude",
+        "form": "gratified"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
     },
     {
       "ref": "Jas.1.25",

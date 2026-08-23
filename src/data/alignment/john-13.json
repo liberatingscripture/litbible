@@ -83,6 +83,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "John.13.17",
+      "english": [
+        {
+          "text": "gratified",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "makarios",
+        "traditional": "Blessed",
+        "glossary": "blessed-have-reason-for-gratitude",
+        "form": "gratified"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "John.13.19",
       "english": [
         {

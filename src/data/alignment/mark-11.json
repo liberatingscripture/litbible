@@ -286,6 +286,26 @@
       "ref": "Mark.11.30",
       "english": [
         {
+          "text": "immersion",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "baptizo",
+        "traditional": "Baptize",
+        "glossary": "baptize-immerse",
+        "form": "immersion"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Mark.11.30",
+      "english": [
+        {
           "text": "the heavens",
           "n": 1
         }

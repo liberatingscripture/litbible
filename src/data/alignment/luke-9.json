@@ -106,6 +106,26 @@
       "ref": "Luke.9.19",
       "english": [
         {
+          "text": "Immerser",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "baptizo",
+        "traditional": "Baptize",
+        "glossary": "baptize-immerse",
+        "form": "Immerser"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.9.19",
+      "english": [
+        {
           "text": "risen up",
           "n": 1
         }

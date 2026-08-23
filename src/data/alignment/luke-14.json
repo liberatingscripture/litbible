@@ -80,7 +80,7 @@
       "confidence": "common",
       "lemma": "present",
       "source": "glossary-scan",
-      "status": "auto"
+      "status": "confirmed"
     },
     {
       "ref": "Luke.14.14",
@@ -116,6 +116,26 @@
         "traditional": "Righteousness",
         "glossary": "righteousness-justness",
         "form": "alignment"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.14.15",
+      "english": [
+        {
+          "text": "has reason for gratitude",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "makarios",
+        "traditional": "Blessed",
+        "glossary": "blessed-have-reason-for-gratitude",
+        "form": "have reason for gratitude"
       },
       "confidence": null,
       "lemma": "present",

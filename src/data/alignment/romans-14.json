@@ -426,6 +426,26 @@
       "ref": "Rom.14.22",
       "english": [
         {
+          "text": "gratified",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "makarios",
+        "traditional": "Blessed",
+        "glossary": "blessed-have-reason-for-gratitude",
+        "form": "gratified"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.14.22",
+      "english": [
+        {
           "text": "trust",
           "n": 1
         }

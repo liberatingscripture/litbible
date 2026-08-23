@@ -46,6 +46,26 @@
       "ref": "Eph.4.5",
       "english": [
         {
+          "text": "immersion",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "baptizo",
+        "traditional": "Baptize",
+        "glossary": "baptize-immerse",
+        "form": "immersion"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Eph.4.5",
+      "english": [
+        {
           "text": "allegiance",
           "n": 1
         }

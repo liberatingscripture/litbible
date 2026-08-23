@@ -266,6 +266,26 @@
       "ref": "Heb.9.10",
       "english": [
         {
+          "text": "ritual washings",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "baptizo",
+        "traditional": "Baptize",
+        "glossary": "baptize-immerse",
+        "form": "ritual washing"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Heb.9.10",
+      "english": [
+        {
           "text": "physical body",
           "n": 1
         }

@@ -163,6 +163,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Gal.4.15",
+      "english": [
+        {
+          "text": "gratification",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "makarios",
+        "traditional": "Blessed",
+        "glossary": "blessed-have-reason-for-gratitude",
+        "form": "gratification"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Gal.4.17",
       "english": [
         {
