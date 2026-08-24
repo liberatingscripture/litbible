@@ -227,7 +227,14 @@
   line-height: 1;
   letter-spacing: var(--tracking-wide);
   border-radius: var(--radius-md);
-  transition: all 200ms var(--ease-out);
+  /* Name the properties rather than `all`: only these four change on hover,
+     and `all` makes the engine consider every animatable property on each
+     state change. */
+  transition:
+    background-color 200ms var(--ease-out),
+    border-color 200ms var(--ease-out),
+    color 200ms var(--ease-out),
+    opacity 200ms var(--ease-out);
   text-decoration: none;
 }
 .apps .btn-primary {

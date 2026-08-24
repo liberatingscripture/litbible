@@ -995,6 +995,29 @@ collection); they're read directly by the intro pages and the API manifest.
      Fix by giving the word room, not by breaking it: `overflow-wrap` and
      hyphenation split words, which is the opposite of what dyslexic readers
      need.
+- **Text columns are sized with `--ch`, never the `ch` unit.** `ch` is the "0"
+  advance of *whichever font is currently painting*, so every column here was one
+  width under the metric-matched fallback face and another once the webfont
+  arrived: the box resized and, being `margin: 0 auto`, re-centred, sliding the
+  whole text block sideways mid-load. That was **0.256 CLS on scripture pages**
+  (Cloudflare RUM, attributed to `div.scripture-main`), the site's worst Core Web
+  Vital, and nothing in the repo pointed at it — `--content-width` was referenced
+  at 14 call sites and *defined at none*, so the `, 72ch` fallback silently ran
+  the site. `--ch` in `global.css` is an em fraction of the body font's "0",
+  re-declared under `html[data-font="dyslexic"]` and `[data-font="atkinson"]`;
+  because `Layout.astro` stamps `data-font` **before first paint**, the width is
+  settled from the first frame and no font swap can move it. Write
+  `calc(72 * var(--ch))` (still reads as "72 characters"), or `--content-width`
+  for the shared reading measure. Two things to know before touching it:
+  1. The values are **body/sans figures**. Inter's "0" is 0.631em, Crimson's
+     0.504em, so a column set in the serif needs its own number, not this token.
+  2. `--ch` is per-font rather than one constant because the accessibility fonts
+     have **no metric-matched fallback** (both stacks end at plain `sans-serif`),
+     which gave them the site's largest swings — ~10% for OpenDyslexic, ~16% for
+     Atkinson. Pinning per font also preserves each reader's existing measure,
+     notably OpenDyslexic's markedly shorter line: switching those readers to one
+     shared width would have lengthened their line by ~26%, the opposite of the
+     "buy back space" rule above.
 - **Two brand greens, by role (all theme-invariant).** `--green` (#209D50 "LIT
   Green") is for large **surfaces** (heroes, questions block, chat bubbles) and
   non-button icon accents — it carries **ink** text (4.6:1) or white *large*

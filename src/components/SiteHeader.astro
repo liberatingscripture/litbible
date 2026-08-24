@@ -504,16 +504,38 @@ const { class: className = "" } = Astro.props;
       );
       if (!headerInner) return;
 
+      // check() is a forced synchronous layout (it writes display, then reads
+      // offsetWidth/scrollWidth/getComputedStyle), so it must not run on every
+      // resize event: on mobile, showing and hiding the address bar fires resize
+      // repeatedly throughout a scroll, and each one would relayout the whole
+      // document. The answer can only change when the header's width changes or
+      // when the reader's font does, so re-measure only then. data-font is in
+      // the guard because the Display tray announces a font change by
+      // broadcasting a synthetic resize, which leaves the width untouched.
+      let lastWidth = -1;
+      let lastFont = "";
+      const checkIfChanged = () => {
+        const width = headerInner.clientWidth;
+        const font = document.documentElement.getAttribute("data-font") ?? "";
+        if (width === lastWidth && font === lastFont) return;
+        lastWidth = width;
+        lastFont = font;
+        check();
+      };
+
       const ro = new ResizeObserver(() => {
-        requestAnimationFrame(check);
+        requestAnimationFrame(checkIfChanged);
       });
       ro.observe(headerInner);
 
       // Also recheck on window resize as a fallback
-      window.addEventListener("resize", () => requestAnimationFrame(check));
+      window.addEventListener("resize", () => requestAnimationFrame(checkIfChanged), {
+        passive: true,
+      });
 
-      // Initial check
-      check();
+      // Initial check (also seeds the guard, so the ResizeObserver's own first
+      // callback doesn't immediately measure the same thing again)
+      checkIfChanged();
     };
     if ("requestIdleCallback" in window) {
       requestIdleCallback(initTitleFit, { timeout: 2000 });

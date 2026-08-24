@@ -116,7 +116,7 @@ body:has(.fit-page) .site-header.has-bg {
 
   color: rgba(var(--ink-rgb), 0.78);
 
-  max-width: 72ch;
+  max-width: calc(72 * var(--ch));
   margin: 0 auto;
 }
 
@@ -396,7 +396,7 @@ body:has(.fit-page) .site-header.has-bg {
    ========================= */
 
 .fit-episodes__inner {
-  max-width: 72ch;
+  max-width: calc(72 * var(--ch));
   margin: 0 auto;
 }
 

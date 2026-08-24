@@ -46,7 +46,7 @@ body.bg-cream > main {
   font-size: 1.05rem;
   line-height: 1.7;
   color: rgba(var(--ink-rgb), 0.85);
-  max-width: 68ch;
+  max-width: calc(68 * var(--ch));
 }
 
 .read-lede a {

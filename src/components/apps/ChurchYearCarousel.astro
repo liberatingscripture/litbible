@@ -88,6 +88,9 @@ const seasons = (await getCollection('seasons')).sort(
 
     let current = 0;
     let timer: number | undefined;
+    let hovered = false;
+    // No IntersectionObserver (very old browser) -> behave as it always did.
+    let onScreen = true;
 
     function applyChip(chip: HTMLButtonElement, active: boolean) {
       const v = chip.dataset.accentVar ?? '';
@@ -116,9 +119,20 @@ const seasons = (await getCollection('seasons')).sort(
       setAccent();
     }
 
-    function startTimer() {
-      if (prefersReduced) return;
+    function stopTimer() {
       clearInterval(timer);
+      timer = undefined;
+    }
+
+    // The cycle only runs while the section is actually on screen and the tab is
+    // visible. Each tick crossfades two full-height phone screenshots and
+    // transitions a color-mix() background across the whole card, so left ungated
+    // it repaints every 3.8s for the life of the page: work that competes with
+    // real interactions, and drains the battery of the very phones this page is
+    // recommending an app to, for a picture nobody is looking at.
+    function startTimer() {
+      if (prefersReduced || hovered || !onScreen || document.hidden) return;
+      stopTimer();
       timer = setInterval(() => goTo(current + 1), DURATION) as unknown as number;
     }
 
@@ -127,8 +141,20 @@ const seasons = (await getCollection('seasons')).sort(
     });
 
     if (!prefersReduced) {
-      carousel.addEventListener('mouseenter', () => clearInterval(timer));
-      carousel.addEventListener('mouseleave', startTimer);
+      carousel.addEventListener('mouseenter', () => { hovered = true; stopTimer(); });
+      carousel.addEventListener('mouseleave', () => { hovered = false; startTimer(); });
+
+      if ('IntersectionObserver' in window) {
+        onScreen = false;
+        new IntersectionObserver((entries) => {
+          onScreen = entries[0].isIntersecting;
+          if (onScreen) startTimer(); else stopTimer();
+        }, { rootMargin: '100px' }).observe(carousel);
+      }
+
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) stopTimer(); else startTimer();
+      });
     }
 
     // Boot — frame 0 already has is-active in HTML; sync the chip + tint.

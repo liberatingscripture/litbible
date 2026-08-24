@@ -19,7 +19,7 @@
 }
 
 .privacy-header__inner {
-  max-width: 65ch;
+  max-width: calc(65 * var(--ch));
   margin: 0 auto;
 }
 
@@ -48,7 +48,7 @@
    ========================================================= */
 
 .privacy-body {
-  max-width: 65ch;
+  max-width: calc(65 * var(--ch));
   margin: 0 auto;
   font-size: clamp(1rem, 0.4vw + 0.9rem, 1.15rem);
   line-height: 1.75;
