@@ -383,26 +383,6 @@
       "status": "confirmed"
     },
     {
-      "ref": "1Tim.4.15",
-      "english": [
-        {
-          "text": "immerse",
-          "n": 1
-        }
-      ],
-      "greek": [],
-      "term": {
-        "greek": "baptizo",
-        "traditional": "Baptize",
-        "glossary": "baptize-immerse",
-        "form": "immerse"
-      },
-      "confidence": "common",
-      "lemma": "absent",
-      "source": "glossary-scan",
-      "status": "auto"
-    },
-    {
       "ref": "1Tim.4.16",
       "english": [
         {

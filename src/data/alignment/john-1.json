@@ -273,13 +273,13 @@
       "greek": [],
       "term": {
         "greek": "baptizo",
-        "traditional": "Baptize",
-        "glossary": "baptize-immerse",
-        "form": "immerse"
+        "traditional": "Baptism",
+        "glossary": "baptism-immersion",
+        "form": "immersion"
       },
       "confidence": "common",
       "lemma": "present",
-      "source": "glossary-scan",
+      "source": "review",
       "status": "confirmed"
     },
     {
@@ -293,13 +293,13 @@
       "greek": [],
       "term": {
         "greek": "baptizo",
-        "traditional": "Baptize",
-        "glossary": "baptize-immerse",
-        "form": "immerse"
+        "traditional": "Baptism",
+        "glossary": "baptism-immersion",
+        "form": "immersion"
       },
       "confidence": "common",
       "lemma": "present",
-      "source": "glossary-scan",
+      "source": "review",
       "status": "confirmed"
     },
     {
@@ -313,9 +313,9 @@
       "greek": [],
       "term": {
         "greek": "baptizo",
-        "traditional": "Baptize",
-        "glossary": "baptize-immerse",
-        "form": "immerse"
+        "traditional": "Baptism",
+        "glossary": "baptism-immersion",
+        "form": "immersion"
       },
       "confidence": null,
       "lemma": "present",
@@ -353,13 +353,13 @@
       "greek": [],
       "term": {
         "greek": "baptizo",
-        "traditional": "Baptize",
-        "glossary": "baptize-immerse",
-        "form": "immerse"
+        "traditional": "Baptism",
+        "glossary": "baptism-immersion",
+        "form": "immersion"
       },
       "confidence": "common",
       "lemma": "present",
-      "source": "glossary-scan",
+      "source": "review",
       "status": "confirmed"
     },
     {
@@ -413,13 +413,13 @@
       "greek": [],
       "term": {
         "greek": "baptizo",
-        "traditional": "Baptize",
-        "glossary": "baptize-immerse",
-        "form": "immerse"
+        "traditional": "Baptism",
+        "glossary": "baptism-immersion",
+        "form": "immersion"
       },
       "confidence": "common",
       "lemma": "present",
-      "source": "glossary-scan",
+      "source": "review",
       "status": "confirmed"
     },
     {
@@ -427,19 +427,19 @@
       "english": [
         {
           "text": "immerses",
-          "n": 2
+          "n": 1
         }
       ],
       "greek": [],
       "term": {
         "greek": "baptizo",
-        "traditional": "Baptize",
-        "glossary": "baptize-immerse",
-        "form": "immerse"
+        "traditional": "Baptism",
+        "glossary": "baptism-immersion",
+        "form": "immersion"
       },
       "confidence": "common",
       "lemma": "present",
-      "source": "glossary-scan",
+      "source": "review",
       "status": "confirmed"
     },
     {
