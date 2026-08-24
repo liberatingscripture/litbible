@@ -520,9 +520,13 @@ html.rm-tools-open {
   text-align: center;
 }
 
+/* --ch rather than ch (see global.css): the column is still meant to widen with
+   the reader's own text-size choice (html[data-rm-font], further down), and --ch
+   is an em fraction, so it does. What it must no longer track is which font has
+   finished loading. Same 76 characters either way. */
 .rm-page .rm-reader {
   width: 100%;
-  max-width: 76ch;
+  max-width: calc(76 * var(--ch));
   margin: 0 auto;
   font-size: 1.04rem;
   --rm-line-height: 1.75;

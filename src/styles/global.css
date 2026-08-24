@@ -115,6 +115,24 @@
   --content-max: 1200px;                 /* default readable width */
   --container-max: 1400px;               /* wider container when needed */
 
+  /* Stand-in for the ch unit, as an em fraction of the body font's "0" advance.
+     Every text column here used to be sized in `ch`, which reads well but is
+     resolved against WHICHEVER FONT IS CURRENTLY PAINTING. So a column was one
+     width under the fallback face and another once the webfont arrived, resizing
+     and (being margin-auto) re-centring the whole text block mid-load: 0.25 CLS
+     on every scripture page, the site's worst Core Web Vital. This token is
+     driven by data-font instead, which Layout.astro stamps BEFORE first paint,
+     so the width is settled from the first frame and no font swap can move it.
+     Values are each family's measured "0" advance, so every column keeps exactly
+     the width its old `Nch` gave it. Body (sans) figures only: a column set in
+     Crimson would need its own, that face's "0" being 0.504em. */
+  --ch: 0.63086em; /* Inter */
+
+  /* The reading measure, shared by every long-form column (scripture, reading
+     view, search results, and the article-ish pages). Call sites keep a
+     `, 72ch` fallback so each rule still reads on its own. */
+  --content-width: calc(72 * var(--ch));
+
   /* Font stacks */
   --serif: "Crimson Text", "Crimson Fallback", Georgia, "Times New Roman", serif;
 }
@@ -2112,6 +2130,21 @@ html[data-font="dyslexic"] * {
 html[data-font="atkinson"],
 html[data-font="atkinson"] * {
   font-family: 'Atkinson Hyperlegible Next Variable', sans-serif !important;
+}
+
+/* Each mode carries its own --ch (see the token block up top), because neither
+   of these faces has a metric-matched fallback the way Inter and Crimson do:
+   both stacks end at plain sans-serif, which gave them the largest column swing
+   on the site when the real font landed (~10% for OpenDyslexic, ~16% for
+   Atkinson). Pinning per font also preserves each reader's existing measure,
+   notably OpenDyslexic's markedly shorter line: one shared width would have
+   lengthened it ~26%, against the buy-back-space rule these modes are built on. */
+html[data-font="dyslexic"] {
+  --ch: 0.5em;
+}
+
+html[data-font="atkinson"] {
+  --ch: 0.648em;
 }
 
 /* Mobile nav: OpenDyslexic glyphs are wider — scale down so links fit the

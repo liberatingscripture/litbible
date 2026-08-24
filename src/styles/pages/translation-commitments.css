@@ -35,7 +35,7 @@ body:has(.tc-page) .site-header__inner {
 
 .tc-lede {
   margin: 0 auto;
-  max-width: 62ch;
+  max-width: calc(62 * var(--ch));
   line-height: 1.6;
   color: rgba(var(--ink-rgb), 0.78);
 }
@@ -140,7 +140,7 @@ body:has(.tc-page) .site-header__inner {
   line-height: 1.7;
   color: rgba(var(--ink-rgb), 0.84);
   text-align: left;
-  max-width: 62ch;
+  max-width: calc(62 * var(--ch));
   margin-left: auto;
   margin-right: auto;
 }
@@ -154,7 +154,7 @@ body:has(.tc-page) .site-header__inner {
 }
 
 .tc-narrative__inner {
-  max-width: 78ch;
+  max-width: calc(78 * var(--ch));
   margin: 0 auto;
 
   /* key change: contrast against cream page */

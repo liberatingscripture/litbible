@@ -29,7 +29,7 @@
 
 .articles-hero__subtitle {
   margin: 0 auto 22px;
-  max-width: 62ch;
+  max-width: calc(62 * var(--ch));
   font-size: 1.05rem;
   /* Ink at full opacity, not the hero's inherited white: at this size white
      on #209D50 is 3.5:1 and WCAG AA needs 4.5:1; ink is 4.6:1. The title
@@ -227,7 +227,7 @@
 
 .featured__summary {
   margin: 0;
-  max-width: 62ch;
+  max-width: calc(62 * var(--ch));
   opacity: 0.9;
 }
 
@@ -502,7 +502,7 @@
 .article__dek {
   margin: 0;
   opacity: 0.9;
-  max-width: 70ch;
+  max-width: calc(70 * var(--ch));
   font-size: 1.05rem;
 }
 
@@ -515,7 +515,7 @@
 
 /* Markdown body defaults */
 .article__body {
-  max-width: 78ch;
+  max-width: calc(78 * var(--ch));
 }
 
 .article__body :is(p, ul, ol) {

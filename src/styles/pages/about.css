@@ -23,7 +23,7 @@
 }
 
 .about-hero__inner {
-  max-width: 60ch;
+  max-width: calc(60 * var(--ch));
   margin: 0 auto;
   position: relative;
 }
@@ -50,7 +50,7 @@
    ========================================================= */
 
 .about-body {
-  max-width: 60ch;
+  max-width: calc(60 * var(--ch));
   margin: 0 auto clamp(3.5rem, 7vw, 5rem);
 
   font-size: clamp(1.1rem, 0.55vw + 1rem, 1.3rem);
@@ -226,7 +226,7 @@
 /* Desktop: make TOC wider than the text column */
 @media (min-width: 901px) {
   .about-toc {
-    max-width: calc(var(--content-width, 72ch) + 5ch);
+    max-width: calc(var(--content-width, 72ch) + 5 * var(--ch));
   }
 }
 

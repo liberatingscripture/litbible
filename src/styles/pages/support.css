@@ -53,7 +53,7 @@
 }
 
 .support-hero__copy {
-  max-width: 72ch;
+  max-width: calc(72 * var(--ch));
 }
 
 .support-hero__media img {
@@ -154,7 +154,7 @@
    ========================================================= */
 
 .support-content {
-  max-width: 72ch;
+  max-width: calc(72 * var(--ch));
   margin-inline: auto;
 }
 

@@ -16,7 +16,7 @@
 
 .lsc-hero,
 .lsc-content {
-  max-width: 72ch;
+  max-width: calc(72 * var(--ch));
   margin-inline: auto;
 }
 
