@@ -80,7 +80,7 @@
       "confidence": "common",
       "lemma": "present",
       "source": "glossary-scan",
-      "status": "auto"
+      "status": "confirmed"
     },
     {
       "ref": "Heb.12.4",
@@ -256,6 +256,26 @@
         "traditional": "Sexual immorality",
         "glossary": "immorality-exploitation",
         "form": "sexual violation"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Heb.12.17",
+      "english": [
+        {
+          "text": "well-wishes",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eulogeo",
+        "traditional": "Bless",
+        "glossary": "bless-pronounce-well-being",
+        "form": "well-wishes"
       },
       "confidence": null,
       "lemma": "present",

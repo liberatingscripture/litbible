@@ -86,6 +86,26 @@
       "ref": "Heb.4.12",
       "english": [
         {
+          "text": "living being",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "psuche",
+        "traditional": "Soul",
+        "glossary": "soul-very-being",
+        "form": "living being"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Heb.4.12",
+      "english": [
+        {
           "text": "life-breath",
           "n": 1
         }

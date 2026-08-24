@@ -146,6 +146,26 @@
       "ref": "Rom.9.5",
       "english": [
         {
+          "text": "spoken well of",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eulogeo",
+        "traditional": "Bless",
+        "glossary": "bless-pronounce-well-being",
+        "form": "praise"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.9.5",
+      "english": [
+        {
           "text": "bodily",
           "n": 1
         }

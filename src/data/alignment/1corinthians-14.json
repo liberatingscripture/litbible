@@ -306,6 +306,26 @@
       "ref": "1Cor.14.16",
       "english": [
         {
+          "text": "speak praise",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eulogeo",
+        "traditional": "Bless",
+        "glossary": "bless-pronounce-well-being",
+        "form": "praise"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Cor.14.16",
+      "english": [
+        {
           "text": "praise",
           "n": 1
         }

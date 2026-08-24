@@ -495,7 +495,7 @@
         "greek": "eulogeo",
         "traditional": "Bless",
         "glossary": "bless-pronounce-well-being",
-        "form": "Praised"
+        "form": "praise"
       },
       "confidence": null,
       "lemma": "present",
@@ -515,7 +515,7 @@
         "greek": "eulogeo",
         "traditional": "Bless",
         "glossary": "bless-pronounce-well-being",
-        "form": "Praised"
+        "form": "praise"
       },
       "confidence": null,
       "lemma": "present",
@@ -580,7 +580,7 @@
       "confidence": "common",
       "lemma": "present",
       "source": "glossary-scan",
-      "status": "auto"
+      "status": "confirmed"
     },
     {
       "ref": "Luke.1.47",
@@ -775,7 +775,7 @@
         "greek": "eulogeo",
         "traditional": "Bless",
         "glossary": "bless-pronounce-well-being",
-        "form": "Praised"
+        "form": "praise"
       },
       "confidence": null,
       "lemma": "present",
@@ -835,7 +835,7 @@
         "greek": "eulogeo",
         "traditional": "Bless",
         "glossary": "bless-pronounce-well-being",
-        "form": "Praised"
+        "form": "praise"
       },
       "confidence": null,
       "lemma": "present",

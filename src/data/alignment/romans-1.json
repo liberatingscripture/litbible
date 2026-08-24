@@ -666,6 +666,26 @@
       "ref": "Rom.1.25",
       "english": [
         {
+          "text": "praised",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eulogeo",
+        "traditional": "Bless",
+        "glossary": "bless-pronounce-well-being",
+        "form": "praise"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.1.25",
+      "english": [
+        {
           "text": "served as representatives",
           "n": 1
         }

@@ -75,7 +75,7 @@
         "greek": "eulogeo",
         "traditional": "Bless",
         "glossary": "bless-pronounce-well-being",
-        "form": "spoke praise"
+        "form": "praise"
       },
       "confidence": null,
       "lemma": "present",
@@ -216,6 +216,46 @@
         "traditional": "Salvation",
         "glossary": "salvation-liberation",
         "form": "protection"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.9.24",
+      "english": [
+        {
+          "text": "life",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "psuche",
+        "traditional": "Soul",
+        "glossary": "soul-very-being",
+        "form": "life"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.9.24",
+      "english": [
+        {
+          "text": "life",
+          "n": 2
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "psuche",
+        "traditional": "Soul",
+        "glossary": "soul-very-being",
+        "form": "life"
       },
       "confidence": null,
       "lemma": "present",

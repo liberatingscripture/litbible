@@ -323,6 +323,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Matt.22.37",
+      "english": [
+        {
+          "text": "being",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "psuche",
+        "traditional": "Soul",
+        "glossary": "soul-very-being",
+        "form": "living being"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Matt.22.40",
       "english": [
         {

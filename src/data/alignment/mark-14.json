@@ -95,7 +95,7 @@
         "greek": "eulogeo",
         "traditional": "Bless",
         "glossary": "bless-pronounce-well-being",
-        "form": "speaking praise"
+        "form": "praise"
       },
       "confidence": null,
       "lemma": "present",
@@ -160,7 +160,7 @@
       "confidence": "common",
       "lemma": "present",
       "source": "glossary-scan",
-      "status": "auto"
+      "status": "confirmed"
     },
     {
       "ref": "Mark.14.38",
@@ -315,7 +315,7 @@
         "greek": "eulogeo",
         "traditional": "Bless",
         "glossary": "bless-pronounce-well-being",
-        "form": "Praised"
+        "form": "praise"
       },
       "confidence": null,
       "lemma": "present",

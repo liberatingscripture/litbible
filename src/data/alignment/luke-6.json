@@ -43,6 +43,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Luke.6.9",
+      "english": [
+        {
+          "text": "living being",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "psuche",
+        "traditional": "Soul",
+        "glossary": "soul-very-being",
+        "form": "living being"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Luke.6.18",
       "english": [
         {
@@ -215,7 +235,7 @@
         "greek": "eulogeo",
         "traditional": "Bless",
         "glossary": "bless-pronounce-well-being",
-        "form": "Speak well-wishes"
+        "form": "well-wishes"
       },
       "confidence": null,
       "lemma": "present",

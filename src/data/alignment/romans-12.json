@@ -323,6 +323,46 @@
       "status": "confirmed"
     },
     {
+      "ref": "Rom.12.14",
+      "english": [
+        {
+          "text": "wish them well",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eulogeo",
+        "traditional": "Bless",
+        "glossary": "bless-pronounce-well-being",
+        "form": "well-wishes"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.12.14",
+      "english": [
+        {
+          "text": "wish them well",
+          "n": 2
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eulogeo",
+        "traditional": "Bless",
+        "glossary": "bless-pronounce-well-being",
+        "form": "well-wishes"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Rom.12.17",
       "english": [
         {
