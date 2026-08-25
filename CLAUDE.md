@@ -1126,16 +1126,22 @@ collection); they're read directly by the intro pages and the API manifest.
   does not do is rewrite files already sitting in a working tree: a long-lived
   checkout keeps whatever line endings a file had when it was written,
   `git status` stays clean (`text=auto` compares normalized), and nothing
-  reports it. Six files had drifted that way by 2026-08 — two book intros and
-  four `/apps` mirror examples — which was enough to move
-  `build-api-manifest.mjs`'s per-file SHA-256s and therefore the
+  reports it. Twelve text files had drifted that way by 2026-08: two book
+  intros, four `/apps` mirror examples, three `/apps` mirror components, two
+  other components, and `pagefind.yml`. The two intros alone were enough to
+  move `build-api-manifest.mjs`'s per-file SHA-256s and therefore the
   content-derived `version`, so a local build and CI disagreed on the API
   version string while each was internally consistent. Production is unaffected
   (CI builds from a fresh clone), but **a local `dist/` then does not
   byte-reproduce the deployed one**, which silently invalidates any byte-level
   comparison — a rendered-output diff for an Astro upgrade, or an investigation
-  into why `version` moved. Detect by reading raw bytes
-  (`Buffer.includes(13)`); `grep -c $'\r'` over `git show` output misreports it.
+  into why `version` moved. **Scan repo-wide and skip binaries.** Match
+  `\r\n` in raw bytes over every tracked file, excluding any containing a
+  NUL byte: ~94 tracked images and fonts legitimately carry `0x0D`, so a bare
+  `Buffer.includes(13)` buries the real hits in false positives; and scoping the
+  scan to `src/data`/`src/content` misses the components and `pagefind.yml`
+  entirely. Both mistakes were made while finding these. `grep -c $'\r'` over
+  `git show` output misreports it in the other direction.
   Fix by forcing a re-checkout (`rm` the files, then `git checkout --` their
   directories); `git add --renormalize` is a no-op, because the blobs were
   already correct.
