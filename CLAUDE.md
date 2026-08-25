@@ -1120,6 +1120,31 @@ collection); they're read directly by the intro pages and the API manifest.
   both apps read a copy bundled into the binary and drifted apart from each
   other. It is `required: true` now, and generated: see The Glossary Feed below.
   **Treat any new optional entry with suspicion** — silence is its failure mode.
+- **Content files are hashed by RAW BYTES, so line endings are content.**
+  `.gitattributes` (`* text=auto eol=lf`) normalizes on commit, so a committed
+  blob can never carry CRLF and the *published* `version` is stable. What it
+  does not do is rewrite files already sitting in a working tree: a long-lived
+  checkout keeps whatever line endings a file had when it was written,
+  `git status` stays clean (`text=auto` compares normalized), and nothing
+  reports it. Twelve text files had drifted that way by 2026-08: two book
+  intros, four `/apps` mirror examples, three `/apps` mirror components, two
+  other components, and `pagefind.yml`. The two intros alone were enough to
+  move `build-api-manifest.mjs`'s per-file SHA-256s and therefore the
+  content-derived `version`, so a local build and CI disagreed on the API
+  version string while each was internally consistent. Production is unaffected
+  (CI builds from a fresh clone), but **a local `dist/` then does not
+  byte-reproduce the deployed one**, which silently invalidates any byte-level
+  comparison — a rendered-output diff for an Astro upgrade, or an investigation
+  into why `version` moved. **Scan repo-wide and skip binaries.** Match
+  `\r\n` in raw bytes over every tracked file, excluding any containing a
+  NUL byte: ~94 tracked images and fonts legitimately carry `0x0D`, so a bare
+  `Buffer.includes(13)` buries the real hits in false positives; and scoping the
+  scan to `src/data`/`src/content` misses the components and `pagefind.yml`
+  entirely. Both mistakes were made while finding these. `grep -c $'\r'` over
+  `git show` output misreports it in the other direction.
+  Fix by forcing a re-checkout (`rm` the files, then `git checkout --` their
+  directories); `git add --renormalize` is a no-op, because the blobs were
+  already correct.
 - **The glossary feed (`build:glossary` → `/api/data/glossary.json`).** The
   glossary's source of truth is the content collection
   (`src/content/glossary/*.md`), never `src/data/`. `build-glossary-json.mjs`
