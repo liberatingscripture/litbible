@@ -1120,6 +1120,25 @@ collection); they're read directly by the intro pages and the API manifest.
   both apps read a copy bundled into the binary and drifted apart from each
   other. It is `required: true` now, and generated: see The Glossary Feed below.
   **Treat any new optional entry with suspicion** — silence is its failure mode.
+- **Content files are hashed by RAW BYTES, so line endings are content.**
+  `.gitattributes` (`* text=auto eol=lf`) normalizes on commit, so a committed
+  blob can never carry CRLF and the *published* `version` is stable. What it
+  does not do is rewrite files already sitting in a working tree: a long-lived
+  checkout keeps whatever line endings a file had when it was written,
+  `git status` stays clean (`text=auto` compares normalized), and nothing
+  reports it. Six files had drifted that way by 2026-08 — two book intros and
+  four `/apps` mirror examples — which was enough to move
+  `build-api-manifest.mjs`'s per-file SHA-256s and therefore the
+  content-derived `version`, so a local build and CI disagreed on the API
+  version string while each was internally consistent. Production is unaffected
+  (CI builds from a fresh clone), but **a local `dist/` then does not
+  byte-reproduce the deployed one**, which silently invalidates any byte-level
+  comparison — a rendered-output diff for an Astro upgrade, or an investigation
+  into why `version` moved. Detect by reading raw bytes
+  (`Buffer.includes(13)`); `grep -c $'\r'` over `git show` output misreports it.
+  Fix by forcing a re-checkout (`rm` the files, then `git checkout --` their
+  directories); `git add --renormalize` is a no-op, because the blobs were
+  already correct.
 - **The glossary feed (`build:glossary` → `/api/data/glossary.json`).** The
   glossary's source of truth is the content collection
   (`src/content/glossary/*.md`), never `src/data/`. `build-glossary-json.mjs`
