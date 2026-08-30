@@ -1,5 +1,22 @@
 [
   {
+    "version": "2026-08-30",
+    "date": "2026-08-30",
+    "label": "August 30, 2026",
+    "changes": [
+      {
+        "type": "text_updated",
+        "description": "1 Corinthians 9:16 — text updated",
+        "detail": "\"I’d better watch out\" → \"how pitiable for me\"",
+        "location": {
+          "bookKey": "1corinthians",
+          "chapter": 9,
+          "verse": 16
+        }
+      }
+    ]
+  },
+  {
     "version": "2026-08-23",
     "date": "2026-08-23",
     "label": "August 23, 2026",
