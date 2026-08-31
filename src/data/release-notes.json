@@ -13,6 +13,26 @@
           "chapter": 9,
           "verse": 16
         }
+      },
+      {
+        "type": "text_updated",
+        "description": "1 Corinthians 10:16, 18–21 — text updated",
+        "detail": "v. 16: \"participation in the blood of Christ? Isn’t the bread that …\" → \"sharing in the blood of Christ? Isn’t the bread that we bre…\"; v. 18: \"participate in\" → \"share with\"; v. 19: \"matters\" → \"matters,\"; v. 20: \"participate\" → \"share\"; v. 21: \"cannot drink the cup of the Lord and the cup of demons. You…\" → \"aren’t able to drink both the cup of the Lord and the cup o…\"",
+        "location": {
+          "bookKey": "1corinthians",
+          "chapter": 10,
+          "verse": 16
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "1 Corinthians 10:16, 18, 20 — footnotes z, bb, dd updated",
+        "detail": "fn. z (v. 16): \"‘sharing.’\" → \"‘participation.’\"; fn. bb (v. 18): \"‘sharers.’\" → \"‘participants.’\"; fn. dd (v. 20): \"‘sharers.’\" → \"‘participants.’\"",
+        "location": {
+          "bookKey": "1corinthians",
+          "chapter": 10,
+          "verse": 16
+        }
       }
     ]
   },
