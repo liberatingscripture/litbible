@@ -37,7 +37,7 @@
     "@fontsource/fraunces": "^5.3.0",
     "@fontsource/inter": "^5.3.0",
     "@fontsource/opendyslexic": "^5.3.0",
-    "astro": "^7.2.4",
+    "astro": "^7.2.9",
     "simple-icons": "^16.28.0"
   },
   "devDependencies": {
