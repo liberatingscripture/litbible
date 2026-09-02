@@ -1,5 +1,135 @@
 [
   {
+    "version": "2026-09-01",
+    "date": "2026-09-01",
+    "label": "September 1, 2026",
+    "changes": [
+      {
+        "type": "text_updated",
+        "description": "2 Corinthians 5:10 — text updated",
+        "detail": "\"generous or corrupt.\" → \"beneficial or superficial.\"",
+        "location": {
+          "bookKey": "2corinthians",
+          "chapter": 5,
+          "verse": 10
+        }
+      },
+      {
+        "type": "footnote_added",
+        "description": "2 Corinthians 5:10 — footnote j added",
+        "detail": "added \"Traditionally, ‘bad’ or ‘evil.’ This is not poneros, the word usually translated that way. This word is phaulos, which …\"",
+        "location": {
+          "bookKey": "2corinthians",
+          "chapter": 5,
+          "verse": 10
+        },
+        "relabel": "footnotes formerly j–ee relabeled k–ff"
+      },
+      {
+        "type": "text_updated",
+        "description": "James 3:16 — text updated",
+        "detail": "\"mean-spirited\" → \"disreputable\"",
+        "location": {
+          "bookKey": "james",
+          "chapter": 3,
+          "verse": 16
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "James 3:16 — footnote o updated",
+        "detail": "\"It is not the usual poneros that is typically translated as…\" → \"This is not poneros, the word usually translated that way. …\"",
+        "location": {
+          "bookKey": "james",
+          "chapter": 3,
+          "verse": 16
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "John 3:20 — text updated",
+        "detail": "\"rottenness\" → \"disreputable things\"",
+        "location": {
+          "bookKey": "john",
+          "chapter": 3,
+          "verse": 20
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "John 3:20 — footnote y updated",
+        "detail": "\"The word phaulos means something like ‘low quality,’ or ‘lo…\" → \"Traditionally, ‘evil deeds.’ This is not poneros, the word …\"",
+        "location": {
+          "bookKey": "john",
+          "chapter": 3,
+          "verse": 20
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "John 5:29 — text updated",
+        "detail": "\"rottenness\" → \"superficial things\"",
+        "location": {
+          "bookKey": "john",
+          "chapter": 5,
+          "verse": 29
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "John 5:29 — footnote p updated",
+        "detail": "\"The word phaulos means something like ‘low quality,’ or ‘lo…\" → \"Traditionally, ‘evil.’ This is not poneros, the word usuall…\"",
+        "location": {
+          "bookKey": "john",
+          "chapter": 5,
+          "verse": 29
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Romans 9:11 — text updated",
+        "detail": "\"nasty,\" → \"superficial,\"",
+        "location": {
+          "bookKey": "romans",
+          "chapter": 9,
+          "verse": 11
+        }
+      },
+      {
+        "type": "footnote_added",
+        "description": "Romans 9:11 — footnote h added",
+        "detail": "added \"Traditionally, ‘bad’ or ‘evil.’ This is not poneros, the word usually translated that way. This word is phaulos, which …\"",
+        "location": {
+          "bookKey": "romans",
+          "chapter": 9,
+          "verse": 11
+        },
+        "relabel": "footnotes formerly h–ee relabeled i–ff"
+      },
+      {
+        "type": "text_updated",
+        "description": "Titus 2:8 — text updated",
+        "detail": "\"unethical.\" → \"disreputable.\"",
+        "location": {
+          "bookKey": "titus",
+          "chapter": 2,
+          "verse": 8
+        }
+      },
+      {
+        "type": "footnote_added",
+        "description": "Titus 2:8 — footnote m added",
+        "detail": "added \"Traditionally, ‘evil.’ This is not poneros, the word usually translated that way. This word is phaulos, which is about …\"",
+        "location": {
+          "bookKey": "titus",
+          "chapter": 2,
+          "verse": 8
+        },
+        "relabel": "footnotes formerly m–r relabeled n–s"
+      }
+    ]
+  },
+  {
     "version": "2026-08-30",
     "date": "2026-08-30",
     "label": "August 30, 2026",
