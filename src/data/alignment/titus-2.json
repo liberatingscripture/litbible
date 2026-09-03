@@ -306,26 +306,6 @@
       "ref": "Titus.2.13",
       "english": [
         {
-          "text": "praiseworthy",
-          "n": 1
-        }
-      ],
-      "greek": [],
-      "term": {
-        "greek": "doxa",
-        "traditional": "Glory",
-        "glossary": "glory-praiseworthiness",
-        "form": "praiseworthiness"
-      },
-      "confidence": null,
-      "lemma": "present",
-      "source": "review",
-      "status": "confirmed"
-    },
-    {
-      "ref": "Titus.2.13",
-      "english": [
-        {
           "text": "Liberator",
           "n": 1
         }
