@@ -1,5 +1,720 @@
 [
   {
+    "version": "2026-09-03",
+    "date": "2026-09-03",
+    "label": "September 3, 2026",
+    "changes": [
+      {
+        "type": "text_updated",
+        "description": "1 Corinthians 7:40 — text updated",
+        "detail": "\"she has even more reason for gratitude if she stays this way\" → \"how much more fortunate she is if she stays this way,\"",
+        "location": {
+          "bookKey": "1corinthians",
+          "chapter": 7,
+          "verse": 40
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "1 Corinthians 7:40 — footnote xx updated",
+        "detail": "\"Or ‘blessed.’ This is the same word translated traditionall…\" → \"Traditionally, ‘blessed.’ There is no single English word t…\"",
+        "location": {
+          "bookKey": "1corinthians",
+          "chapter": 7,
+          "verse": 40
+        }
+      },
+      {
+        "type": "footnote_added",
+        "description": "1 Corinthians 9:16 — footnote l added",
+        "detail": "added \"Traditionally, ‘woe to’ or ‘alas for.’ The Greek word is ouai, and in modern English ‘woe’ sounds vague or archaic. It’…\"",
+        "location": {
+          "bookKey": "1corinthians",
+          "chapter": 9,
+          "verse": 16
+        },
+        "relabel": "footnotes formerly l–t relabeled m–u"
+      },
+      {
+        "type": "text_updated",
+        "description": "1 Peter 3:14 — text updated",
+        "detail": "\"you are gratified.\" → \"how greatly fortunate you are.\"",
+        "location": {
+          "bookKey": "1peter",
+          "chapter": 3,
+          "verse": 14
+        }
+      },
+      {
+        "type": "footnote_added",
+        "description": "1 Peter 3:14 — footnote aa added",
+        "detail": "added \"Traditionally, ‘blessed.’ There is no single English word that covers what is being described here. This word is makari…\"",
+        "location": {
+          "bookKey": "1peter",
+          "chapter": 3,
+          "verse": 14
+        },
+        "relabel": "footnotes formerly aa–jj relabeled bb–kk"
+      },
+      {
+        "type": "text_updated",
+        "description": "1 Peter 4:14 — text updated",
+        "detail": "\"you are gratified\" → \"how greatly fortunate you are,\"",
+        "location": {
+          "bookKey": "1peter",
+          "chapter": 4,
+          "verse": 14
+        }
+      },
+      {
+        "type": "footnote_added",
+        "description": "1 Peter 4:14 — footnote p added",
+        "detail": "added \"Traditionally, ‘blessed.’ There is no single English word that covers what is being described here. This word is makari…\"",
+        "location": {
+          "bookKey": "1peter",
+          "chapter": 4,
+          "verse": 14
+        },
+        "relabel": "footnotes formerly p–u relabeled q–v"
+      },
+      {
+        "type": "text_updated",
+        "description": "1 Timothy 1:11 — text updated",
+        "detail": "\"has reason for gratitude,\" → \"lacks nothing,\"",
+        "location": {
+          "bookKey": "1timothy",
+          "chapter": 1,
+          "verse": 11
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "1 Timothy 1:11 — footnote z updated",
+        "detail": "\"not one English word that covers what is being described he…\" → \"no single English word that covers what is being described …\"",
+        "location": {
+          "bookKey": "1timothy",
+          "chapter": 1,
+          "verse": 11
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "1 Timothy 6:15 — text updated",
+        "detail": "\"has reason for gratitude and\" → \"lacks nothing, the\"",
+        "location": {
+          "bookKey": "1timothy",
+          "chapter": 6,
+          "verse": 15
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "1 Timothy 6:15 — footnote n updated",
+        "detail": "\"not one English word that covers what is being described he…\" → \"no single English word that covers what is being described …\"",
+        "location": {
+          "bookKey": "1timothy",
+          "chapter": 6,
+          "verse": 15
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "2 Timothy 4:1, 8 — text updated",
+        "detail": "v. 1: \"arrival\" → \"appearing\"; v. 8: \"arrival.\" → \"appearing.\"",
+        "location": {
+          "bookKey": "2timothy",
+          "chapter": 4,
+          "verse": 1
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "2 Timothy 4:10 — footnote h updated",
+        "detail": "\"arrival.”\" → \"appearing.”\"",
+        "location": {
+          "bookKey": "2timothy",
+          "chapter": 4,
+          "verse": 10
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Galatians 4:15 — text updated",
+        "detail": "\"gratification?\" → \"good fortune?\"",
+        "location": {
+          "bookKey": "galatians",
+          "chapter": 4,
+          "verse": 15
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Galatians 4:15 — footnote l updated",
+        "detail": "\"‘gratified’ (traditionally, ‘blessed’) in Matthew 5. Other …\" → \"‘how greatly fortunate’ (traditionally, ‘blessed’) in Matth…\"",
+        "location": {
+          "bookKey": "galatians",
+          "chapter": 4,
+          "verse": 15
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "James 1:12, 25 — text updated",
+        "detail": "v. 12: \"The individual who endures examination is gratified\" → \"How greatly fortunate is the individual who endures examina…\"; v. 25: \"work—that person will be gratified\" → \"work—how greatly fortunate that person will be\"",
+        "location": {
+          "bookKey": "james",
+          "chapter": 1,
+          "verse": 12
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "James 1:12 — footnote q updated",
+        "detail": "\"not one English word that covers what is being described he…\" → \"no single English word that covers what is being described …\"",
+        "location": {
+          "bookKey": "james",
+          "chapter": 1,
+          "verse": 12
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "James 3:9 — footnote g updated",
+        "detail": "\"Beatittudes\" → \"Beatitudes\"",
+        "location": {
+          "bookKey": "james",
+          "chapter": 3,
+          "verse": 9
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "James 5:11 — text updated",
+        "detail": "\"gratify those who endured it.\" → \"declare those who endured it greatly fortunate.\"",
+        "location": {
+          "bookKey": "james",
+          "chapter": 5,
+          "verse": 11
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "James 5:11 — footnote p updated",
+        "detail": "\"there is nothing in the word to suggest ‘consider’ is part …\" → \"the traditional addition of ‘consider’ seems to be an assum…\"",
+        "location": {
+          "bookKey": "james",
+          "chapter": 5,
+          "verse": 11
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "John 13:17 — text updated",
+        "detail": "\"you would be gratified\" → \"how greatly fortunate you are\"",
+        "location": {
+          "bookKey": "john",
+          "chapter": 13,
+          "verse": 17
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "John 13:17 — footnote n updated",
+        "detail": "\"not one English word that covers what is being described he…\" → \"no single English word that covers what is being described …\"",
+        "location": {
+          "bookKey": "john",
+          "chapter": 13,
+          "verse": 17
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "John 20:29 — text updated",
+        "detail": "\"“Those who don’t see me yet have trusted are truly gratifie…\" → \"“How greatly fortunate are those who don’t see me yet have …\"",
+        "location": {
+          "bookKey": "john",
+          "chapter": 20,
+          "verse": 29
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "John 20:29 — footnote n updated",
+        "detail": "\"not one English word that covers what is being described he…\" → \"no single English word that covers what is being described …\"",
+        "location": {
+          "bookKey": "john",
+          "chapter": 20,
+          "verse": 29
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Jude 1:11 — text updated",
+        "detail": "\"They’d better watch out\" → \"How pitiable are they,\"",
+        "location": {
+          "bookKey": "jude",
+          "chapter": 1,
+          "verse": 11
+        }
+      },
+      {
+        "type": "footnote_added",
+        "description": "Jude 1:11 — footnote x added",
+        "detail": "added \"Traditionally, ‘woe to’ or ‘alas for.’ The Greek word is ouai, and in modern English ‘woe’ sounds vague or archaic. It’…\"",
+        "location": {
+          "bookKey": "jude",
+          "chapter": 1,
+          "verse": 11
+        },
+        "relabel": "footnotes formerly x–zz relabeled y–aaa"
+      },
+      {
+        "type": "text_updated",
+        "description": "Luke 1:45, 48 — text updated",
+        "detail": "v. 45: \"She who trusted that what The-One-Who-Is declared to her wo…\" → \"How greatly fortunate is she who trusted that what The-One-…\"; v. 48: \"give me reason for gratitude\" → \"declare me greatly fortunate\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 1,
+          "verse": 45
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 1:42, 45, 48 — footnotes ww, xx, bbb updated",
+        "detail": "fn. ww (v. 42): \"‘blessed.’ There is not one English word that covers what i…\" → \"‘blessed’; however, it is not the same Greek word that is t…\"; fn. xx (v. 45): \"‘savior.’ This word soter refers to someone who provides se…\" → \"‘blessed.’ There is no single English word that covers what…\"; fn. bbb (v. 48): added \"Traditionally, ‘call me blessed.’ The word here is makarizo, related to makarios in the Beatitudes in Matthew 5. It is …\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 1,
+          "verse": 42
+        },
+        "relabel": "footnotes formerly aaa–eeee relabeled ccc–gggg"
+      },
+      {
+        "type": "text_updated",
+        "description": "Luke 10:13, 23 — text updated",
+        "detail": "v. 13: \"“Oh, Chorazin, this won’t end well for you! Oh, Bethsaida, …\" → \"“How pitiful are you, Chorazin! How pitiful are you, Bethsa…\"; v. 23: \"“Eyes that see what you see have reason for gratitude!\" → \"“How greatly fortunate are the eyes that see what you see!\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 10,
+          "verse": 13
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 10:13, 23 — footnotes g, t, u updated",
+        "detail": "fn. g (v. 13): added \"Traditionally, ‘woe to’ or ‘alas for.’ The Greek word is ouai, and in modern English ‘woe’ sounds vague or archaic. It’…\"; fn. t (v. 23): removed \"Traditionally, ‘blessed.’ There is not one English word that covers what is being described here. There is a sense of s…\"; fn. u (v. 23): added \"Traditionally, ‘blessed.’ There is no single English word that covers what is being described here. This word is makari…\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 10,
+          "verse": 13
+        },
+        "relabel": "footnotes formerly g–kk relabeled h–ll"
+      },
+      {
+        "type": "text_updated",
+        "description": "Luke 11:27–28, 42–44, 46–47, 52 — text updated",
+        "detail": "v. 27: \"“The womb that carried you and the breasts that nursed you …\" → \"“How greatly fortunate are the womb that carried you and th…\"; v. 28: \"it’s those who listen to God’s message and observe it who h…\" → \"how greatly fortunate are those who listen to God’s message…\"; v. 42: \"“Oh, Pharisees, this won’t end well for you!\" → \"“How pitiful are you, Pharisees!\"; v. 43: \"“Oh, Pharisees, this won’t end well for you!\" → \"“How pitiful are you, Pharisees!\"; v. 44: \"This won’t end well for\" → \"How pitiful are\"; v. 46: \"“Oh, Torah experts, this won’t end well for you either!”\" → \"“How pitiful are you too, Torah experts!”\"; v. 47: \"This won’t end well for\" → \"How pitiful are\"; v. 52: \"“Oh, Torah experts, this won’t end well for you!\" → \"“How pitiful are you, Torah experts!\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 11,
+          "verse": 27
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 11:27, 42 — footnotes s, ff updated",
+        "detail": "fn. s (v. 27): \"not one English word that covers what is being described he…\" → \"no single English word that covers what is being described …\"; fn. ff (v. 42): \"The Greek word ouai is often translated “woe,” but in moder…\" → \"Traditionally, ‘woe to’ or ‘alas for.’ The Greek word is ou…\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 11,
+          "verse": 27
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Luke 12:37–38, 43 — text updated",
+        "detail": "v. 37: \"Those enslaved workers—whom the slave holder finds keeping …\" → \"How greatly fortunate are those enslaved workers whom the s…\"; v. 38: \"they still have reason for gratitude.\" → \"how greatly fortunate they still are.\"; v. 43: \"That enslaved worker—whose slave holder arrives to find the…\" → \"How greatly fortunate is that enslaved worker whose slave h…\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 12,
+          "verse": 37
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 12:43 — footnote z updated",
+        "detail": "\"not one English word that covers what is being described he…\" → \"no single English word that covers what is being described …\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 12,
+          "verse": 43
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Luke 14:14–15 — text updated",
+        "detail": "v. 14: \"Since they have nothing to repay you with, you will still h…\" → \"And how greatly fortunate you will be, since they have noth…\"; v. 15: \"“Everyone who eats bread in the Reign of God has reason for…\" → \"“How greatly fortunate is everyone who eats bread in the Re…\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 14,
+          "verse": 14
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 14:14 — footnote i updated",
+        "detail": "\"not one English word that covers what is being described he…\" → \"no single English word that covers what is being described …\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 14,
+          "verse": 14
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Luke 17:1 — text updated",
+        "detail": "\"it won’t end well for\" → \"how pitiable is\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 17,
+          "verse": 1
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 17:1 — footnote b updated",
+        "detail": "\"The Greek word ouai is often translated “woe,” but in moder…\" → \"Traditionally, ‘woe to’ or ‘alas for.’ The Greek word is ou…\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 17,
+          "verse": 1
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Luke 6:20–22, 24–26 — text updated",
+        "detail": "v. 20: \"Those living in poverty have reason for gratitudebecause\" → \"How greatly fortunate are those living in povertybecause\"; v. 21: \"Those who now go hungry have reason for gratitudebecause yo…\" → \"How greatly fortunate are those who now go hungrybecause yo…\"; v. 22: \"When people hate you and when they exclude you, verbally ab…\" → \"How greatly fortunate are you when people hate you and when…\"; v. 24: \"However, there are dire warnings for those\" → \"Yet how pitiable are you\"; v. 25: \"There are dire warnings for those who have already been ful…\" → \"How pitiable are you who have already been fullbecause you …\"; v. 26: \"There are dire warnings for\" → \"How pitiable are\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 6,
+          "verse": 20
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 6:24 — footnotes w, y updated",
+        "detail": "fn. w: \"Literally, “throw out your name”\" → \"Traditionally, ‘blessed.’ There is no single English word t…\"; fn. y (v. 24): added \"Traditionally, ‘woe to’ or ‘alas for.’ The Greek word is ouai, and in modern English ‘woe’ sounds vague or archaic. It’…\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 6,
+          "verse": 24
+        },
+        "relabel": "footnotes formerly x–ll relabeled z–nn"
+      },
+      {
+        "type": "text_updated",
+        "description": "Luke 7:23 — text updated",
+        "detail": "\"Whoever is not tripped up by me has reason for gratitude.”\" → \"How greatly fortunate is anyone who isn’t tripped up by me!”\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 7,
+          "verse": 23
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 7:23 — footnote r updated",
+        "detail": "\"not one English word that covers what is being described he…\" → \"no single English word that covers what is being described …\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 7,
+          "verse": 23
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Mark 13:17 — text updated",
+        "detail": "\"hard it will be on women who are pregnant and nursing durin…\" → \"heartbreaking for those who are pregnant and those who are …\"",
+        "location": {
+          "bookKey": "mark",
+          "chapter": 13,
+          "verse": 17
+        }
+      },
+      {
+        "type": "footnote_added",
+        "description": "Mark 13:17 — footnote n added",
+        "detail": "added \"Traditionally, ‘woe to’ or ‘alas for.’ The Greek word is ouai, and in modern English ‘woe’ sounds vague or archaic. It’…\"",
+        "location": {
+          "bookKey": "mark",
+          "chapter": 13,
+          "verse": 17
+        },
+        "relabel": "footnotes formerly n–bb relabeled o–cc"
+      },
+      {
+        "type": "text_updated",
+        "description": "Mark 14:21 — text updated",
+        "detail": "\"hard it will be on\" → \"pitiable is\"",
+        "location": {
+          "bookKey": "mark",
+          "chapter": 14,
+          "verse": 21
+        }
+      },
+      {
+        "type": "footnote_added",
+        "description": "Mark 14:21 — footnote n added",
+        "detail": "added \"Traditionally, ‘woe to’ or ‘alas for.’ The Greek word is ouai, and in modern English ‘woe’ sounds vague or archaic. It’…\"",
+        "location": {
+          "bookKey": "mark",
+          "chapter": 14,
+          "verse": 21
+        },
+        "relabel": "footnotes formerly n–oo relabeled o–pp"
+      },
+      {
+        "type": "text_updated",
+        "description": "Matthew 11:6, 21 — text updated",
+        "detail": "v. 6: \"Anyone who isn’t tripped up by me has reason for gratitude!”\" → \"How greatly fortunate is anyone who isn’t tripped up by me!”\"; v. 21: \"“Watch out, Chorazin! Watch out,\" → \"“How pitiful are you, Chorazin! How pitiful are you,\"",
+        "location": {
+          "bookKey": "matthew",
+          "chapter": 11,
+          "verse": 6
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Matthew 11:6, 21 — footnotes b, n updated",
+        "detail": "fn. b (v. 6): \"not one English word that covers what is being described he…\" → \"no single English word that covers what is being described …\"; fn. n (v. 21): added \"Traditionally, ‘woe to’ or ‘alas for.’ The Greek word is ouai, and in modern English ‘woe’ sounds vague or archaic. It’…\"",
+        "location": {
+          "bookKey": "matthew",
+          "chapter": 11,
+          "verse": 6
+        },
+        "relabel": "footnotes formerly n–o relabeled o–p"
+      },
+      {
+        "type": "text_updated",
+        "description": "Matthew 13:16 — text updated",
+        "detail": "\"your eyes have reason for gratitude because they see, and y…\" → \"how greatly fortunate your eyes are, because they see, and …\"",
+        "location": {
+          "bookKey": "matthew",
+          "chapter": 13,
+          "verse": 16
+        }
+      },
+      {
+        "type": "footnote_added",
+        "description": "Matthew 13:16 — footnote k added",
+        "detail": "added \"Traditionally, ‘blessed.’ There is no single English word that covers what is being described here. This word is makari…\"",
+        "location": {
+          "bookKey": "matthew",
+          "chapter": 13,
+          "verse": 16
+        },
+        "relabel": "footnotes formerly k–nn relabeled l–oo"
+      },
+      {
+        "type": "text_updated",
+        "description": "Matthew 16:17 — text updated",
+        "detail": "\"“You have reason for gratitude,\" → \"“How greatly fortunate are you,\"",
+        "location": {
+          "bookKey": "matthew",
+          "chapter": 16,
+          "verse": 17
+        }
+      },
+      {
+        "type": "footnote_added",
+        "description": "Matthew 16:17 — footnote k added",
+        "detail": "added \"Traditionally, ‘blessed.’ There is no single English word that covers what is being described here. This word is makari…\"",
+        "location": {
+          "bookKey": "matthew",
+          "chapter": 16,
+          "verse": 17
+        },
+        "relabel": "footnotes formerly k–y relabeled l–z"
+      },
+      {
+        "type": "text_updated",
+        "description": "Matthew 18:7 — text updated",
+        "detail": "\"The world system that produces such obstacles had better wa…\" → \"How pitiable is the world system that produces such obstacl…\"",
+        "location": {
+          "bookKey": "matthew",
+          "chapter": 18,
+          "verse": 7
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Matthew 18:7 — footnotes e, f updated",
+        "detail": "fn. e (v. 7): added \"Traditionally, ‘woe to’ or ‘alas for.’ The Greek word is ouai, and in modern English ‘woe’ sounds vague or archaic. It’…\"; fn. f (v. 7): removed \"Traditionally, ‘woe to’ or ‘alas for’\"",
+        "location": {
+          "bookKey": "matthew",
+          "chapter": 18,
+          "verse": 7
+        },
+        "relabel": "footnotes formerly e relabeled f"
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Matthew 21 — footnote i updated",
+        "detail": "\"‘have reason for gratitude’\" → \"‘how greatly fortunate’\"",
+        "location": {
+          "bookKey": "matthew",
+          "chapter": 21
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Matthew 23:13, 15–16, 23, 25, 27, 29 — text updated",
+        "detail": "v. 13: \"“Things won’t end well for\" → \"“How pitiful are\"; v. 15: \"“Things won’t end well for\" → \"“How pitiful are\"; v. 16: \"“Things won’t end well for\" → \"“How pitiful are\"; v. 23: \"“Things won’t end well for you, pretenders—O Bible scholars\" → \"“How pitiful are you, pretenders—O Bible Scholars\"; v. 25: \"“Things won’t end well for\" → \"“How pitiful are\"; v. 27: \"“Things won’t end well for\" → \"“How pitiful are\"; v. 29: \"“Things won’t end well for\" → \"“How pitiful are\"",
+        "location": {
+          "bookKey": "matthew",
+          "chapter": 23,
+          "verse": 13
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Matthew 23:13 — footnotes h, i updated",
+        "detail": "fn. h (v. 13): \"This section is known as the ‘seven woes.’ Like Matthew 5:3…\" → \"Traditionally, ‘woe to’ or ‘alas for.’ The Greek word is ou…\"; fn. i (v. 13): added \"This section is known as the ‘seven woes.’ Like Matthew 5:3–11 follows the pattern of the ashrei declarations in the Ps…\"",
+        "location": {
+          "bookKey": "matthew",
+          "chapter": 23,
+          "verse": 13
+        },
+        "relabel": "footnotes formerly i–aa relabeled j–bb"
+      },
+      {
+        "type": "text_updated",
+        "description": "Matthew 24:19, 46 — text updated",
+        "detail": "v. 19: \"Anyone who is pregnant or has nursing babies at that time, …\" → \"How heartbreaking for those who are pregnant and those who …\"; v. 46: \"When their lord arrives and finds them working on these thi…\" → \"How greatly fortunate is that enslaved worker whose lord ar…\"",
+        "location": {
+          "bookKey": "matthew",
+          "chapter": 24,
+          "verse": 19
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Matthew 24:19, 46, 51 — footnotes s, uu, ww, xx updated",
+        "detail": "fn. s (v. 19): added \"Traditionally, ‘woe to’ or ‘alas for.’ The Greek word is ouai, and in modern English ‘woe’ sounds vague or archaic. It’…\"; fn. uu (v. 46): \"Or ‘in half’\" → \"Traditionally, ‘blessed.’ There is no single English word t…\"; fn. ww (v. 51): added \"Or ‘in half’\"; fn. xx (v. 51): added \"Literally, ‘portion’\"",
+        "location": {
+          "bookKey": "matthew",
+          "chapter": 24,
+          "verse": 19
+        },
+        "relabel": "footnotes formerly s–ss relabeled t–tt"
+      },
+      {
+        "type": "text_updated",
+        "description": "Matthew 26:24 — text updated",
+        "detail": "\"that person who because of them the Son of Humanity is hand…\" → \"how pitiable is that person who because of them the Son of …\"",
+        "location": {
+          "bookKey": "matthew",
+          "chapter": 26,
+          "verse": 24
+        }
+      },
+      {
+        "type": "footnote_added",
+        "description": "Matthew 26:24 — footnote f added",
+        "detail": "added \"Traditionally, ‘woe to’ or ‘alas for.’ The Greek word is ouai, and in modern English ‘woe’ sounds vague or archaic. It’…\"",
+        "location": {
+          "bookKey": "matthew",
+          "chapter": 26,
+          "verse": 24
+        },
+        "relabel": "footnotes formerly f–gg relabeled g–hh"
+      },
+      {
+        "type": "text_updated",
+        "description": "Matthew 5:3–11 — text updated",
+        "detail": "v. 3: \"The poor who are with the Life-breath have reason for grati…\" → \"How greatly fortunate are the poor who are with the Life-br…\"; v. 4: \"Those who are grieving have reason for gratitudebecause\" → \"How greatly fortunate are those who are grievingbecause\"; v. 5: \"Those who are gentle have reason for gratitudebecause\" → \"How greatly fortunate are those who are gentlebecause\"; v. 6: \"Those who hunger and thirst for justice have reason for gra…\" → \"How greatly fortunate are those who hunger and thirst for j…\"; v. 7: \"Those who are committed to compassion have reason for grati…\" → \"How greatly fortunate are those who are committed to compas…\"; v. 8: \"Those whose hearts are clean have reason for gratitudebecau…\" → \"How greatly fortunate are those whose hearts are cleanbecau…\"; v. 9: \"Those who make peace have reason for gratitudebecause\" → \"How greatly fortunate are those who make peacebecause\"; v. 10: \"Those who are harassed because of their justness have reaso…\" → \"How greatly fortunate are those who are harassed for their …\"; v. 11: \"“When people verbally abuse you and harass you and falsely …\" → \"“How greatly fortunate are you when people verbally abuse y…\"",
+        "location": {
+          "bookKey": "matthew",
+          "chapter": 5,
+          "verse": 3
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Matthew 5:3 — footnotes c, d, e updated",
+        "detail": "fn. c (v. 3): added \"Traditionally, ‘blessed.’ There is no single English word that covers what is being described here. This word is makari…\"; fn. d (v. 3): removed \"Traditionally, ‘blessed.’ There is not one English word that covers what is being described here. There is a sense of s…\"; fn. e (v. 3): \"reference to Deuteronomy 28:1–14 and the blessings discusse…\" → \"series of ashrei declarations, the pattern found throughout…\"",
+        "location": {
+          "bookKey": "matthew",
+          "chapter": 5,
+          "verse": 3
+        },
+        "relabel": "footnotes formerly c relabeled d"
+      },
+      {
+        "type": "text_updated",
+        "description": "Romans 14:22 — text updated",
+        "detail": "\"The one who does not judge themselves by what they esteem i…\" → \"How greatly fortunate is the one who does not judge themsel…\"",
+        "location": {
+          "bookKey": "romans",
+          "chapter": 14,
+          "verse": 22
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Romans 14:22 — footnote f updated",
+        "detail": "\"not one English word that covers what is being described he…\" → \"no single English word that covers what is being described …\"",
+        "location": {
+          "bookKey": "romans",
+          "chapter": 14,
+          "verse": 22
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Romans 4:6–9 — text updated",
+        "detail": "v. 6: \"gratification\" → \"good fortune\"; v. 7: \"“Gratified\" → \"“How greatly fortunate\"; v. 8: \"Gratified\" → \"How greatly fortunate\"; v. 9: \"gratification\" → \"good fortune\"",
+        "location": {
+          "bookKey": "romans",
+          "chapter": 4,
+          "verse": 6
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Romans 4:6–7, 9 — footnotes h, i, j, n updated",
+        "detail": "fn. h (v. 6): \"same word translated as ‘count’ in verse 8.\" → \"noun version of what is translated as ‘how greatly fortunat…\"; fn. i (v. 6): \"Traditionally, ‘blessed.’ The word carries both a sense of …\" → \"This is the same word translated as ‘count’ in verse 8.\"; fn. j (v. 7): \"Or ‘man’\" → \"Traditionally, ‘blessed.’ There is no single English word t…\"; fn. n (v. 9): added \"This is the noun version of what is translated as ‘how greatly fortunate’ (traditionally, ‘blessed’) in Matthew 5. The …\"",
+        "location": {
+          "bookKey": "romans",
+          "chapter": 4,
+          "verse": 6
+        },
+        "relabel": "footnotes formerly m–v relabeled o–x"
+      },
+      {
+        "type": "text_updated",
+        "description": "Titus 2:11, 13 — text updated",
+        "detail": "v. 11: \"been made visible\" → \"radiated\"; v. 13: \"gratifying hope and praiseworthy arrival of\" → \"hope and praiseworthy appearing—which lack for nothing—of\"",
+        "location": {
+          "bookKey": "titus",
+          "chapter": 2,
+          "verse": 11
+        }
+      },
+      {
+        "type": "footnote_added",
+        "description": "Titus 2:13 — footnote q added",
+        "detail": "added \"Traditionally, ‘blessed.’ There is no single English word that covers what is being described here. This word is makari…\"",
+        "location": {
+          "bookKey": "titus",
+          "chapter": 2,
+          "verse": 13
+        },
+        "relabel": "footnotes formerly q–s relabeled r–t"
+      }
+    ]
+  },
+  {
     "version": "2026-09-01",
     "date": "2026-09-01",
     "label": "September 1, 2026",
