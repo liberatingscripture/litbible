@@ -766,6 +766,26 @@
       "ref": "1Cor.7.40",
       "english": [
         {
+          "text": "how much more fortunate",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "makarios",
+        "traditional": "Blessed",
+        "glossary": "blessed-how-greatly-fortunate",
+        "form": "how greatly fortunate"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Cor.7.40",
+      "english": [
+        {
           "text": "Life-breath",
           "n": 1
         }

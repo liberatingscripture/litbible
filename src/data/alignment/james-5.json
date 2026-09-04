@@ -123,6 +123,26 @@
       "status": "auto"
     },
     {
+      "ref": "Jas.5.11",
+      "english": [
+        {
+          "text": "we declare those who endured it greatly fortunate",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "makarios",
+        "traditional": "Blessed",
+        "glossary": "blessed-how-greatly-fortunate",
+        "form": "declare greatly fortunate"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Jas.5.12",
       "english": [
         {
