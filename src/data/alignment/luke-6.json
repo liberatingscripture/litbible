@@ -43,6 +43,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Luke.6.9",
+      "english": [
+        {
+          "text": "living being",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "psuche",
+        "traditional": "Soul",
+        "glossary": "soul-very-being",
+        "form": "living being"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Luke.6.18",
       "english": [
         {
@@ -76,6 +96,86 @@
         "traditional": "Unclean",
         "glossary": "unclean-unclean",
         "form": "unclean"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.6.20",
+      "english": [
+        {
+          "text": "How greatly fortunate",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "makarios",
+        "traditional": "Blessed",
+        "glossary": "blessed-how-greatly-fortunate",
+        "form": "how greatly fortunate"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.6.21",
+      "english": [
+        {
+          "text": "How greatly fortunate",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "makarios",
+        "traditional": "Blessed",
+        "glossary": "blessed-how-greatly-fortunate",
+        "form": "how greatly fortunate"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.6.21",
+      "english": [
+        {
+          "text": "How greatly fortunate",
+          "n": 2
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "makarios",
+        "traditional": "Blessed",
+        "glossary": "blessed-how-greatly-fortunate",
+        "form": "how greatly fortunate"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.6.22",
+      "english": [
+        {
+          "text": "How greatly fortunate",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "makarios",
+        "traditional": "Blessed",
+        "glossary": "blessed-how-greatly-fortunate",
+        "form": "how greatly fortunate"
       },
       "confidence": "common",
       "lemma": "present",
@@ -120,6 +220,26 @@
       "confidence": "common",
       "lemma": "present",
       "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.6.28",
+      "english": [
+        {
+          "text": "Speak well-wishes",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eulogeo",
+        "traditional": "Bless",
+        "glossary": "bless-pronounce-well-being",
+        "form": "well-wishes"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
       "status": "confirmed"
     },
     {

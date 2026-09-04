@@ -443,6 +443,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "1Tim.6.15",
+      "english": [
+        {
+          "text": "lacks nothing",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "makarios",
+        "traditional": "Blessed",
+        "glossary": "blessed-how-greatly-fortunate",
+        "form": "lacks nothing"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
       "ref": "1Tim.6.18",
       "english": [
         {

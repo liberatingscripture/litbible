@@ -106,6 +106,26 @@
       "ref": "Matt.12.18",
       "english": [
         {
+          "text": "deeply",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "psuche",
+        "traditional": "Soul",
+        "glossary": "soul-very-being",
+        "form": "deeply"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.12.18",
+      "english": [
+        {
           "text": "Life-Breath",
           "n": 1
         }
@@ -232,9 +252,9 @@
       ],
       "greek": [],
       "term": {
-        "greek": "ekklesia",
-        "traditional": "Church",
-        "glossary": "church-called-community",
+        "greek": "koinonia",
+        "traditional": "Fellowship",
+        "glossary": "fellowship-community",
         "form": "community"
       },
       "confidence": "common",

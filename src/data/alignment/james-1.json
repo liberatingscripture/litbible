@@ -83,6 +83,26 @@
       "status": "auto"
     },
     {
+      "ref": "Jas.1.12",
+      "english": [
+        {
+          "text": "How greatly fortunate",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "makarios",
+        "traditional": "Blessed",
+        "glossary": "blessed-how-greatly-fortunate",
+        "form": "how greatly fortunate"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
       "ref": "Jas.1.13",
       "english": [
         {
@@ -260,6 +280,46 @@
       "confidence": null,
       "lemma": "present",
       "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Jas.1.21",
+      "english": [
+        {
+          "text": "very beings",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "psuche",
+        "traditional": "Soul",
+        "glossary": "soul-very-being",
+        "form": "very being"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Jas.1.25",
+      "english": [
+        {
+          "text": "how greatly fortunate",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "makarios",
+        "traditional": "Blessed",
+        "glossary": "blessed-how-greatly-fortunate",
+        "form": "how greatly fortunate"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
       "status": "confirmed"
     },
     {

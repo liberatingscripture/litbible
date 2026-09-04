@@ -183,6 +183,46 @@
       "status": "confirmed"
     },
     {
+      "ref": "1Pet.3.9",
+      "english": [
+        {
+          "text": "speaking well over",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eulogeo",
+        "traditional": "Bless",
+        "glossary": "bless-pronounce-well-being",
+        "form": "pronouncement of well-being"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Pet.3.9",
+      "english": [
+        {
+          "text": "well-being that has been spoken",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eulogeo",
+        "traditional": "Bless",
+        "glossary": "bless-pronounce-well-being",
+        "form": "pronouncement of well-being"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "1Pet.3.10",
       "english": [
         {
@@ -320,6 +360,26 @@
       "confidence": null,
       "lemma": "present",
       "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Pet.3.14",
+      "english": [
+        {
+          "text": "how greatly fortunate",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "makarios",
+        "traditional": "Blessed",
+        "glossary": "blessed-how-greatly-fortunate",
+        "form": "how greatly fortunate"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
       "status": "confirmed"
     },
     {
@@ -520,6 +580,46 @@
       "confidence": "distinctive",
       "lemma": "present",
       "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Pet.3.20",
+      "english": [
+        {
+          "text": "living beings",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "psuche",
+        "traditional": "Soul",
+        "glossary": "soul-very-being",
+        "form": "living being"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Pet.3.21",
+      "english": [
+        {
+          "text": "immersion",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "baptizo",
+        "traditional": "Baptism",
+        "glossary": "baptism-immersion",
+        "form": "immersion"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
       "status": "confirmed"
     },
     {

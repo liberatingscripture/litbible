@@ -19,9 +19,21 @@
 
 export const GLOSSARY_LEMMAS = {
   "adultery-marital-infidelity": ["μοιχεία", "μοιχεύω", "μοιχαλίς", "μοιχός"],
+  "almighty-sustainer-of-all": ["παντοκράτωρ"],
   "angel-message": ["ἄγγελος"],
+  // ἱλαστήριον included: it is the ark's cover, rendered "reconciliation
+  // cover" (Rom 3:25, Heb 9:5) — the place of the meeting, not a separate idea.
+  "atonement-reconciliation": ["ἱλασμός", "ἱλαστήριον", "ἱλάσκομαι"],
+  // βαπτισμός included though it is rendered "ritual washings" (Heb 9:10),
+  // not "immersion" — erring inclusive, and the reviewer can call it no-rendering.
+  "baptism-immersion": ["βαπτίζω", "βάπτισμα", "βαπτιστής", "βαπτισμός"],
   "bad-harmful": ["κακός", "κακία"],
   "blasphemy-disrespectfulness": ["βλασφημία", "βλασφημέω", "βλάσφημος"],
+  // μακάριος deliberately excluded — English collapses the two into "bless",
+  // but the words are unrelated in origin and meaning, and two published
+  // footnotes say so outright. It is its own candidate.
+  "bless-pronounce-well-being": ["εὐλογέω", "εὐλογία", "εὐλογητός"],
+  "blessed-how-greatly-fortunate": ["μακάριος", "μακαρίζω", "μακαρισμός"],
   // ἐκλεκτός deliberately excluded — it shares ekklesia's root and its own
   // footnotes, but it's rendered "chosen"/"called", never "Called Community".
   "church-called-community": ["ἐκκλησία"],
@@ -32,6 +44,10 @@ export const GLOSSARY_LEMMAS = {
   "devil-false-accuser": ["διάβολος"],
   "evil-hardship": ["πονηρός", "πονηρία"],
   "faith-trust": ["πίστις", "πιστός", "πιστεύω"],
+  // συγκοινωνός/συγκοινωνέω included: the sun- compound is rendered
+  // "coparticipants" (2 Cor 1:7), the same commitment intensified.
+  // κοινός is NOT here — it is defiled-common, a different claim.
+  "fellowship-community": ["κοινωνία", "κοινωνός", "κοινωνέω", "συγκοινωνός", "συγκοινωνέω"],
   "flesh-body": ["σάρξ", "σάρκινος", "σαρκικός"],
   "forgiveness-letting-go": ["ἀφίημι", "ἄφεσις"],
   "gehenna-hinnom-valley": ["γέεννα"],
@@ -63,7 +79,11 @@ export const GLOSSARY_LEMMAS = {
   "righteousness-justness": ["δικαιοσύνη", "δίκαιος", "δικαιόω", "δικαίωμα", "δικαίωσις"],
   "salvation-liberation": ["σωτηρία", "σωτήριος", "σωτήρ", "σῴζω"],
   "satan-adversary": ["Σατανᾶς"],
+  // προσκυνέω deliberately excluded — it is "bow down", a separate term
+  // (deferred). The two are named as different acts in Matt 4:10 / Luke 4:8.
+  "serve-serve-as-representative": ["λατρεύω", "λατρεία"],
   "sin-deviation": ["ἁμαρτία", "ἁμαρτάνω", "ἁμάρτημα", "ἁμαρτωλός"],
+  "soul-very-being": ["ψυχή", "ψυχικός"],
   "spirit-life-breath": ["πνεῦμα", "πνευματικός"],
   "submit-cooperate": ["ὑποτάσσω", "ὑποταγή"],
   "trespass-shortfall": ["παράπτωμα", "παράβασις", "παραβάτης", "παραβαίνω"],

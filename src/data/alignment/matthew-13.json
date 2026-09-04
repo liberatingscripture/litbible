@@ -43,6 +43,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Matt.13.16",
+      "english": [
+        {
+          "text": "how greatly fortunate",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "makarios",
+        "traditional": "Blessed",
+        "glossary": "blessed-how-greatly-fortunate",
+        "form": "how greatly fortunate"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
       "ref": "Matt.13.17",
       "english": [
         {

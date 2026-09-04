@@ -386,6 +386,26 @@
       "ref": "1Cor.12.13",
       "english": [
         {
+          "text": "immersed",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "baptizo",
+        "traditional": "Baptism",
+        "glossary": "baptism-immersion",
+        "form": "immersion"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Cor.12.13",
+      "english": [
+        {
           "text": "Life-breath",
           "n": 1
         }
@@ -461,6 +481,26 @@
       "lemma": "present",
       "source": "glossary-scan",
       "status": "confirmed"
+    },
+    {
+      "ref": "1Cor.12.28",
+      "english": [
+        {
+          "text": "Community",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "koinonia",
+        "traditional": "Fellowship",
+        "glossary": "fellowship-community",
+        "form": "community"
+      },
+      "confidence": "common",
+      "lemma": "absent",
+      "source": "glossary-scan",
+      "status": "auto"
     },
     {
       "ref": "1Cor.12.28",

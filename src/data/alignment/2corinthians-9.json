@@ -46,6 +46,46 @@
       "ref": "2Cor.9.5",
       "english": [
         {
+          "text": "freely given gift",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eulogeo",
+        "traditional": "Bless",
+        "glossary": "bless-pronounce-well-being",
+        "form": "promised gift"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "2Cor.9.5",
+      "english": [
+        {
+          "text": "promised gift",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eulogeo",
+        "traditional": "Bless",
+        "glossary": "bless-pronounce-well-being",
+        "form": "promised gift"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "2Cor.9.5",
+      "english": [
+        {
           "text": "Family",
           "n": 1
         }
@@ -61,6 +101,46 @@
       "lemma": "absent",
       "source": "glossary-scan",
       "status": "auto"
+    },
+    {
+      "ref": "2Cor.9.6",
+      "english": [
+        {
+          "text": "freely given gift",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eulogeo",
+        "traditional": "Bless",
+        "glossary": "bless-pronounce-well-being",
+        "form": "promised gift"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "2Cor.9.6",
+      "english": [
+        {
+          "text": "freely given gift",
+          "n": 2
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eulogeo",
+        "traditional": "Bless",
+        "glossary": "bless-pronounce-well-being",
+        "form": "promised gift"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
     },
     {
       "ref": "2Cor.9.8",
@@ -180,6 +260,26 @@
       "confidence": "distinctive",
       "lemma": "present",
       "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "2Cor.9.13",
+      "english": [
+        {
+          "text": "sharing",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "koinonia",
+        "traditional": "Fellowship",
+        "glossary": "fellowship-community",
+        "form": "share"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
       "status": "confirmed"
     },
     {

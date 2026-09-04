@@ -632,15 +632,15 @@
       ],
       "greek": [],
       "term": {
-        "greek": "ekklesia",
-        "traditional": "Church",
-        "glossary": "church-called-community",
+        "greek": "koinonia",
+        "traditional": "Fellowship",
+        "glossary": "fellowship-community",
         "form": "community"
       },
       "confidence": "common",
-      "lemma": "absent",
+      "lemma": "present",
       "source": "glossary-scan",
-      "status": "auto"
+      "status": "confirmed"
     },
     {
       "ref": "Rom.15.26",
@@ -660,6 +660,26 @@
       "confidence": "common",
       "lemma": "present",
       "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.15.27",
+      "english": [
+        {
+          "text": "participated",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "koinonia",
+        "traditional": "Fellowship",
+        "glossary": "fellowship-community",
+        "form": "shared participation"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
       "status": "confirmed"
     },
     {
@@ -720,6 +740,26 @@
       "confidence": "distinctive",
       "lemma": "present",
       "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.15.29",
+      "english": [
+        {
+          "text": "pronouncement of well-being",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eulogeo",
+        "traditional": "Bless",
+        "glossary": "bless-pronounce-well-being",
+        "form": "pronouncement of well-being"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
       "status": "confirmed"
     },
     {

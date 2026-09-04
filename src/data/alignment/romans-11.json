@@ -3,6 +3,26 @@
   "chapter": 11,
   "records": [
     {
+      "ref": "Rom.11.3",
+      "english": [
+        {
+          "text": "very life",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "psuche",
+        "traditional": "Soul",
+        "glossary": "soul-very-being",
+        "form": "life"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Rom.11.5",
       "english": [
         {
@@ -323,6 +343,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Rom.11.15",
+      "english": [
+        {
+          "text": "reconciliation",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hilasmos",
+        "traditional": "Atonement",
+        "glossary": "atonement-reconciliation",
+        "form": "reconciliation"
+      },
+      "confidence": "common",
+      "lemma": "absent",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
       "ref": "Rom.11.16",
       "english": [
         {
@@ -380,6 +420,26 @@
       "confidence": "common",
       "lemma": "present",
       "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Rom.11.17",
+      "english": [
+        {
+          "text": "sharer",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "koinonia",
+        "traditional": "Fellowship",
+        "glossary": "fellowship-community",
+        "form": "share"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
       "status": "confirmed"
     },
     {

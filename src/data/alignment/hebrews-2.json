@@ -486,6 +486,26 @@
       "ref": "Heb.2.12",
       "english": [
         {
+          "text": "community",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "koinonia",
+        "traditional": "Fellowship",
+        "glossary": "fellowship-community",
+        "form": "community"
+      },
+      "confidence": "common",
+      "lemma": "absent",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
+      "ref": "Heb.2.12",
+      "english": [
+        {
           "text": "family",
           "n": 1
         }
@@ -546,6 +566,26 @@
       "ref": "Heb.2.14",
       "english": [
         {
+          "text": "shared",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "koinonia",
+        "traditional": "Fellowship",
+        "glossary": "fellowship-community",
+        "form": "share"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Heb.2.14",
+      "english": [
+        {
           "text": "flesh",
           "n": 1
         }
@@ -580,6 +620,26 @@
       "confidence": "common",
       "lemma": "present",
       "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Heb.2.17",
+      "english": [
+        {
+          "text": "make peace",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hilasmos",
+        "traditional": "Atonement",
+        "glossary": "atonement-reconciliation",
+        "form": "make peace"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
       "status": "confirmed"
     },
     {

@@ -43,6 +43,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "John.15.13",
+      "english": [
+        {
+          "text": "very life",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "psuche",
+        "traditional": "Soul",
+        "glossary": "soul-very-being",
+        "form": "life"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "John.15.22",
       "english": [
         {

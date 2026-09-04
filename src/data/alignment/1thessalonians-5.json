@@ -306,6 +306,26 @@
       "ref": "1Thess.5.23",
       "english": [
         {
+          "text": "very being",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "psuche",
+        "traditional": "Soul",
+        "glossary": "soul-very-being",
+        "form": "very being"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Thess.5.23",
+      "english": [
+        {
           "text": "life-breath",
           "n": 1
         }

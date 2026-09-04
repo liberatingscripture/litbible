@@ -23,6 +23,46 @@
       "status": "confirmed"
     },
     {
+      "ref": "Mark.11.9",
+      "english": [
+        {
+          "text": "Praised",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eulogeo",
+        "traditional": "Bless",
+        "glossary": "bless-pronounce-well-being",
+        "form": "praise"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Mark.11.10",
+      "english": [
+        {
+          "text": "Praised",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eulogeo",
+        "traditional": "Bless",
+        "glossary": "bless-pronounce-well-being",
+        "form": "praise"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Mark.11.11",
       "english": [
         {
@@ -281,6 +321,26 @@
       "lemma": "absent",
       "source": "glossary-scan",
       "status": "auto"
+    },
+    {
+      "ref": "Mark.11.30",
+      "english": [
+        {
+          "text": "immersion",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "baptizo",
+        "traditional": "Baptism",
+        "glossary": "baptism-immersion",
+        "form": "immersion"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
     },
     {
       "ref": "Mark.11.30",

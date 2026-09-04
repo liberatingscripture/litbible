@@ -192,15 +192,15 @@
       ],
       "greek": [],
       "term": {
-        "greek": "ekklesia",
-        "traditional": "Church",
-        "glossary": "church-called-community",
+        "greek": "koinonia",
+        "traditional": "Fellowship",
+        "glossary": "fellowship-community",
         "form": "community"
       },
       "confidence": "common",
-      "lemma": "absent",
+      "lemma": "present",
       "source": "glossary-scan",
-      "status": "auto"
+      "status": "confirmed"
     },
     {
       "ref": "Gal.2.9",

@@ -66,6 +66,26 @@
       "ref": "Heb.6.2",
       "english": [
         {
+          "text": "ritual washings",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "baptizo",
+        "traditional": "Baptism",
+        "glossary": "baptism-immersion",
+        "form": "ritual washing"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Heb.6.2",
+      "english": [
+        {
           "text": "reawakening",
           "n": 1
         }
@@ -183,6 +203,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Heb.6.7",
+      "english": [
+        {
+          "text": "pronouncement of well-being",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eulogeo",
+        "traditional": "Bless",
+        "glossary": "bless-pronounce-well-being",
+        "form": "pronouncement of well-being"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Heb.6.9",
       "english": [
         {
@@ -236,6 +276,46 @@
         "traditional": "Faith",
         "glossary": "faith-trust",
         "form": "faithfulness"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Heb.6.14",
+      "english": [
+        {
+          "text": "pronounce well-being",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eulogeo",
+        "traditional": "Bless",
+        "glossary": "bless-pronounce-well-being",
+        "form": "pronouncement of well-being"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Heb.6.19",
+      "english": [
+        {
+          "text": "very being",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "psuche",
+        "traditional": "Soul",
+        "glossary": "soul-very-being",
+        "form": "very being"
       },
       "confidence": "common",
       "lemma": "present",

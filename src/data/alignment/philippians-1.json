@@ -52,15 +52,35 @@
       ],
       "greek": [],
       "term": {
-        "greek": "ekklesia",
-        "traditional": "Church",
-        "glossary": "church-called-community",
+        "greek": "koinonia",
+        "traditional": "Fellowship",
+        "glossary": "fellowship-community",
         "form": "community"
       },
       "confidence": "common",
-      "lemma": "absent",
+      "lemma": "present",
       "source": "glossary-scan",
-      "status": "auto"
+      "status": "rejected"
+    },
+    {
+      "ref": "Phil.1.5",
+      "english": [
+        {
+          "text": "participation",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "koinonia",
+        "traditional": "Fellowship",
+        "glossary": "fellowship-community",
+        "form": "shared participation"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
     },
     {
       "ref": "Phil.1.5",
@@ -100,6 +120,26 @@
       "confidence": "common",
       "lemma": "present",
       "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Phil.1.7",
+      "english": [
+        {
+          "text": "participants",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "koinonia",
+        "traditional": "Fellowship",
+        "glossary": "fellowship-community",
+        "form": "co-participant"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
       "status": "confirmed"
     },
     {
@@ -440,6 +480,26 @@
       "confidence": "distinctive",
       "lemma": "present",
       "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Phil.1.27",
+      "english": [
+        {
+          "text": "being",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "psuche",
+        "traditional": "Soul",
+        "glossary": "soul-very-being",
+        "form": "living being"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
       "status": "confirmed"
     },
     {

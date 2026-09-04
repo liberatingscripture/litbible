@@ -3,6 +3,26 @@
   "chapter": 3,
   "records": [
     {
+      "ref": "Matt.3.1",
+      "english": [
+        {
+          "text": "Immerser",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "baptizo",
+        "traditional": "Baptism",
+        "glossary": "baptism-immersion",
+        "form": "Immerser"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Matt.3.2",
       "english": [
         {
@@ -36,6 +56,26 @@
         "traditional": "Repentance",
         "glossary": "repentance-reorient-mind",
         "form": "reorienting the mind"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.3.6",
+      "english": [
+        {
+          "text": "immersed",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "baptizo",
+        "traditional": "Baptism",
+        "glossary": "baptism-immersion",
+        "form": "immersion"
       },
       "confidence": null,
       "lemma": "present",
@@ -83,6 +123,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Matt.3.7",
+      "english": [
+        {
+          "text": "immersion",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "baptizo",
+        "traditional": "Baptism",
+        "glossary": "baptism-immersion",
+        "form": "immersion"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Matt.3.8",
       "english": [
         {
@@ -118,6 +178,46 @@
         "form": "excellent"
       },
       "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.3.11",
+      "english": [
+        {
+          "text": "immerse",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "baptizo",
+        "traditional": "Baptism",
+        "glossary": "baptism-immersion",
+        "form": "immersion"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.3.11",
+      "english": [
+        {
+          "text": "immerse",
+          "n": 2
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "baptizo",
+        "traditional": "Baptism",
+        "glossary": "baptism-immersion",
+        "form": "immersion"
+      },
+      "confidence": "common",
       "lemma": "present",
       "source": "review",
       "status": "confirmed"
@@ -183,6 +283,66 @@
       "status": "confirmed"
     },
     {
+      "ref": "Matt.3.13",
+      "english": [
+        {
+          "text": "immersed",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "baptizo",
+        "traditional": "Baptism",
+        "glossary": "baptism-immersion",
+        "form": "immersion"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.3.14",
+      "english": [
+        {
+          "text": "immerse",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "baptizo",
+        "traditional": "Baptism",
+        "glossary": "baptism-immersion",
+        "form": "immersion"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.3.14",
+      "english": [
+        {
+          "text": "immerse",
+          "n": 2
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "baptizo",
+        "traditional": "Baptism",
+        "glossary": "baptism-immersion",
+        "form": "immersion"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Matt.3.15",
       "english": [
         {
@@ -236,6 +396,26 @@
         "traditional": "Righteousness",
         "glossary": "righteousness-justness",
         "form": "justness"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.3.16",
+      "english": [
+        {
+          "text": "immersed",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "baptizo",
+        "traditional": "Baptism",
+        "glossary": "baptism-immersion",
+        "form": "immersion"
       },
       "confidence": null,
       "lemma": "present",

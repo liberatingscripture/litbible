@@ -163,6 +163,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "1Cor.15.9",
+      "english": [
+        {
+          "text": "Community",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "koinonia",
+        "traditional": "Fellowship",
+        "glossary": "fellowship-community",
+        "form": "community"
+      },
+      "confidence": "common",
+      "lemma": "absent",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
       "ref": "1Cor.15.10",
       "english": [
         {
@@ -463,6 +483,46 @@
       "status": "confirmed"
     },
     {
+      "ref": "1Cor.15.29",
+      "english": [
+        {
+          "text": "immersed",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "baptizo",
+        "traditional": "Baptism",
+        "glossary": "baptism-immersion",
+        "form": "immersion"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Cor.15.29",
+      "english": [
+        {
+          "text": "immersed",
+          "n": 2
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "baptizo",
+        "traditional": "Baptism",
+        "glossary": "baptism-immersion",
+        "form": "immersion"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "1Cor.15.33",
       "english": [
         {
@@ -746,6 +806,46 @@
       "ref": "1Cor.15.44",
       "english": [
         {
+          "text": "animated by a person’s own life-force",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "psuche",
+        "traditional": "Soul",
+        "glossary": "soul-very-being",
+        "form": "life-force animated"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Cor.15.44",
+      "english": [
+        {
+          "text": "animated by a person’s own life-force",
+          "n": 2
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "psuche",
+        "traditional": "Soul",
+        "glossary": "soul-very-being",
+        "form": "life-force animated"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Cor.15.44",
+      "english": [
+        {
           "text": "Life-breath",
           "n": 1
         }
@@ -786,6 +886,26 @@
       "ref": "1Cor.15.45",
       "english": [
         {
+          "text": "life-force",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "psuche",
+        "traditional": "Soul",
+        "glossary": "soul-very-being",
+        "form": "life-force"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Cor.15.45",
+      "english": [
+        {
           "text": "life-giving breath",
           "n": 1
         }
@@ -796,6 +916,26 @@
         "traditional": "Spirit",
         "glossary": "spirit-life-breath",
         "form": "Life-breath"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Cor.15.46",
+      "english": [
+        {
+          "text": "life-force-animated",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "psuche",
+        "traditional": "Soul",
+        "glossary": "soul-very-being",
+        "form": "life-force animated"
       },
       "confidence": null,
       "lemma": "present",

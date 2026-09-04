@@ -486,6 +486,26 @@
       "ref": "1Cor.9.23",
       "english": [
         {
+          "text": "co-participant",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "koinonia",
+        "traditional": "Fellowship",
+        "glossary": "fellowship-community",
+        "form": "co-participant"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Cor.9.23",
+      "english": [
+        {
           "text": "the triumphant message",
           "n": 1
         }

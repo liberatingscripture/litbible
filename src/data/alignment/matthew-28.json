@@ -106,6 +106,26 @@
       "ref": "Matt.28.19",
       "english": [
         {
+          "text": "immersing",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "baptizo",
+        "traditional": "Baptism",
+        "glossary": "baptism-immersion",
+        "form": "immersion"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.28.19",
+      "english": [
+        {
           "text": "people groups",
           "n": 1
         }

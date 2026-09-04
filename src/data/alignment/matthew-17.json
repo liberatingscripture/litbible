@@ -23,6 +23,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Matt.17.13",
+      "english": [
+        {
+          "text": "Immerser",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "baptizo",
+        "traditional": "Baptism",
+        "glossary": "baptism-immersion",
+        "form": "Immerser"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Matt.17.15",
       "english": [
         {

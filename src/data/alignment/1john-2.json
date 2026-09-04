@@ -66,6 +66,26 @@
       "ref": "1John.2.2",
       "english": [
         {
+          "text": "reconciliation",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hilasmos",
+        "traditional": "Atonement",
+        "glossary": "atonement-reconciliation",
+        "form": "reconciliation"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1John.2.2",
+      "english": [
+        {
           "text": "deviations",
           "n": 1
         }

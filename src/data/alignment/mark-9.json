@@ -3,6 +3,26 @@
   "chapter": 9,
   "records": [
     {
+      "ref": "Mark.9.5",
+      "english": [
+        {
+          "text": "wonderful",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "kalos",
+        "traditional": "Good [1]",
+        "glossary": "good-admirable",
+        "form": "wonderful"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Mark.9.9",
       "english": [
         {

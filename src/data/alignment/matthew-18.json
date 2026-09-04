@@ -343,6 +343,46 @@
       "status": "confirmed"
     },
     {
+      "ref": "Matt.18.17",
+      "english": [
+        {
+          "text": "community",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "koinonia",
+        "traditional": "Fellowship",
+        "glossary": "fellowship-community",
+        "form": "community"
+      },
+      "confidence": "common",
+      "lemma": "absent",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
+      "ref": "Matt.18.17",
+      "english": [
+        {
+          "text": "community",
+          "n": 2
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "koinonia",
+        "traditional": "Fellowship",
+        "glossary": "fellowship-community",
+        "form": "community"
+      },
+      "confidence": "common",
+      "lemma": "absent",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
       "ref": "Matt.18.18",
       "english": [
         {
@@ -461,6 +501,26 @@
       "lemma": "present",
       "source": "review",
       "status": "confirmed"
+    },
+    {
+      "ref": "Matt.18.24",
+      "english": [
+        {
+          "text": "reconciliation",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hilasmos",
+        "traditional": "Atonement",
+        "glossary": "atonement-reconciliation",
+        "form": "reconciliation"
+      },
+      "confidence": "common",
+      "lemma": "absent",
+      "source": "glossary-scan",
+      "status": "auto"
     },
     {
       "ref": "Matt.18.27",

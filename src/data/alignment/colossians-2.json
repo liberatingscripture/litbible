@@ -126,6 +126,26 @@
       "ref": "Col.2.12",
       "english": [
         {
+          "text": "immersion",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "baptizo",
+        "traditional": "Baptism",
+        "glossary": "baptism-immersion",
+        "form": "immersion"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Col.2.12",
+      "english": [
+        {
           "text": "faithfulness",
           "n": 1
         }

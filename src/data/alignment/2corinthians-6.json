@@ -63,6 +63,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "2Cor.6.3",
+      "english": [
+        {
+          "text": "reconciliation",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hilasmos",
+        "traditional": "Atonement",
+        "glossary": "atonement-reconciliation",
+        "form": "reconciliation"
+      },
+      "confidence": "common",
+      "lemma": "absent",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
       "ref": "2Cor.6.6",
       "english": [
         {
@@ -166,6 +186,26 @@
       "ref": "2Cor.6.14",
       "english": [
         {
+          "text": "in common",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "koinonia",
+        "traditional": "Fellowship",
+        "glossary": "fellowship-community",
+        "form": "in common"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "2Cor.6.14",
+      "english": [
+        {
           "text": "Torah",
           "n": 1
         }
@@ -256,6 +296,26 @@
         "traditional": "Unclean",
         "glossary": "unclean-unclean",
         "form": "unclean"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "2Cor.6.18",
+      "english": [
+        {
+          "text": "Sustainer of All",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "pantokrator",
+        "traditional": "Almighty",
+        "glossary": "almighty-sustainer-of-all",
+        "form": "sustainer of all"
       },
       "confidence": "common",
       "lemma": "present",

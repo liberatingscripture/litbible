@@ -66,6 +66,26 @@
       "ref": "Phil.3.3",
       "english": [
         {
+          "text": "dutiful service",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "latreuo",
+        "traditional": "Serve",
+        "glossary": "serve-serve-as-representative",
+        "form": "representative service"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Phil.3.3",
+      "english": [
+        {
           "text": "Life-breath",
           "n": 1
         }
@@ -166,6 +186,26 @@
       "ref": "Phil.3.6",
       "english": [
         {
+          "text": "Community",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "koinonia",
+        "traditional": "Fellowship",
+        "glossary": "fellowship-community",
+        "form": "community"
+      },
+      "confidence": "common",
+      "lemma": "absent",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
+      "ref": "Phil.3.6",
+      "english": [
+        {
           "text": "Torah",
           "n": 1
         }
@@ -296,6 +336,26 @@
         "traditional": "Righteousness",
         "glossary": "righteousness-justness",
         "form": "justness"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Phil.3.10",
+      "english": [
+        {
+          "text": "participating",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "koinonia",
+        "traditional": "Fellowship",
+        "glossary": "fellowship-community",
+        "form": "shared participation"
       },
       "confidence": null,
       "lemma": "present",

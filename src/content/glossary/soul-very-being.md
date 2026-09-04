@@ -1,0 +1,9 @@
+---
+id: soul-very-being
+traditional: Soul
+greek: psuche
+lit: very being
+litMenu: Very being
+srOnly: Soul soul psyche very being self life
+---
+*Psuche* is used in a range of ways, all centered on the inner life force that animates each person. Similarly to pneuma, it refers to the breath, but focused on the body's movement, the act of respiration, drawing on the air to sustain life, rather than on the movement of the air itself. It was often used as a symbol for a person's life itself, the fact of being alive, and other times it refers to the inner person, the very self of who someone is. It is sometimes used to refer to a human being, and has a rough similarity to the Hebrew word *nephesh*, though they don't always align. The traditional rendering "soul" carries a much later idea, that a person is a material body with an immaterial soul housed inside it, and that the soul is the part that matters, surviving after the body dies. That idea comes from Greek philosophy, not from the Bible. When Jesus says not to be afraid of those who can destroy the body but not the *psuche*, he is not dividing a person into parts; he is saying to protect who you are, your character and commitments, rather than material security. Interestingly, it is used in such a variety of ways that it is sometimes presented as something precious to be protected and other times as something in competition with God's priorities. In those examples, it is framed as the energy in a person that seeks to protect and promote oneself in competition or disregard of others, in contrast with the spirit (or Life-breath) that fills a similar but opposite function, promoting life for all in cooperation and unity with one another. See also the entry for "Spirit" ("Life-breath") for the related question of what *pneuma* is doing, which is a different word and a different claim.

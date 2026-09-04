@@ -406,6 +406,26 @@
       "ref": "1Tim.1.11",
       "english": [
         {
+          "text": "lacks nothing",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "makarios",
+        "traditional": "Blessed",
+        "glossary": "blessed-how-greatly-fortunate",
+        "form": "lacks nothing"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Tim.1.11",
+      "english": [
+        {
           "text": "entrusted",
           "n": 1
         }
@@ -476,6 +496,26 @@
         "traditional": "Faith",
         "glossary": "faith-trust",
         "form": "faithfulness"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Tim.1.12",
+      "english": [
+        {
+          "text": "thanks",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "charis",
+        "traditional": "Grace",
+        "glossary": "grace-generosity",
+        "form": "thanks"
       },
       "confidence": null,
       "lemma": "present",

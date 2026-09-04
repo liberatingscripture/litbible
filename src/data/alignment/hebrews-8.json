@@ -83,6 +83,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Heb.8.5",
+      "english": [
+        {
+          "text": "serve as representatives",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "latreuo",
+        "traditional": "Serve",
+        "glossary": "serve-serve-as-representative",
+        "form": "serve as representative"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
       "ref": "Heb.8.10",
       "english": [
         {

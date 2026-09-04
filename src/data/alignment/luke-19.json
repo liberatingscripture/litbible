@@ -146,6 +146,26 @@
       "ref": "Luke.19.38",
       "english": [
         {
+          "text": "Praised",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "eulogeo",
+        "traditional": "Bless",
+        "glossary": "bless-pronounce-well-being",
+        "form": "praise"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.19.38",
+      "english": [
+        {
           "text": "honor",
           "n": 1
         }

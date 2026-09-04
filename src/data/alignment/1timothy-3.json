@@ -83,7 +83,47 @@
       "status": "confirmed"
     },
     {
+      "ref": "1Tim.3.5",
+      "english": [
+        {
+          "text": "community",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "koinonia",
+        "traditional": "Fellowship",
+        "glossary": "fellowship-community",
+        "form": "community"
+      },
+      "confidence": "common",
+      "lemma": "absent",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
       "ref": "1Tim.3.6",
+      "english": [
+        {
+          "text": "False Accuser",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "diabolon",
+        "traditional": "Devil",
+        "glossary": "devil-false-accuser",
+        "form": "False Accuser"
+      },
+      "confidence": "distinctive",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Tim.3.7",
       "english": [
         {
           "text": "False Accuser",
@@ -112,35 +152,15 @@
       ],
       "greek": [],
       "term": {
-        "greek": "ekklesia",
-        "traditional": "Church",
-        "glossary": "church-called-community",
+        "greek": "koinonia",
+        "traditional": "Fellowship",
+        "glossary": "fellowship-community",
         "form": "community"
       },
       "confidence": "common",
       "lemma": "absent",
       "source": "glossary-scan",
       "status": "auto"
-    },
-    {
-      "ref": "1Tim.3.7",
-      "english": [
-        {
-          "text": "False Accuser",
-          "n": 1
-        }
-      ],
-      "greek": [],
-      "term": {
-        "greek": "diabolon",
-        "traditional": "Devil",
-        "glossary": "devil-false-accuser",
-        "form": "False Accuser"
-      },
-      "confidence": "distinctive",
-      "lemma": "present",
-      "source": "glossary-scan",
-      "status": "confirmed"
     },
     {
       "ref": "1Tim.3.7",
@@ -321,6 +341,26 @@
       "lemma": "present",
       "source": "review",
       "status": "confirmed"
+    },
+    {
+      "ref": "1Tim.3.15",
+      "english": [
+        {
+          "text": "community",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "koinonia",
+        "traditional": "Fellowship",
+        "glossary": "fellowship-community",
+        "form": "community"
+      },
+      "confidence": "common",
+      "lemma": "absent",
+      "source": "glossary-scan",
+      "status": "auto"
     },
     {
       "ref": "1Tim.3.16",

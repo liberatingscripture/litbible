@@ -43,6 +43,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Heb.9.1",
+      "english": [
+        {
+          "text": "ritual service",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "latreuo",
+        "traditional": "Serve",
+        "glossary": "serve-serve-as-representative",
+        "form": "ritual service"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Heb.9.2",
       "english": [
         {
@@ -106,6 +126,46 @@
       "ref": "Heb.9.5",
       "english": [
         {
+          "text": "reconciliation",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hilasmos",
+        "traditional": "Atonement",
+        "glossary": "atonement-reconciliation",
+        "form": "reconciliation"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "rejected"
+    },
+    {
+      "ref": "Heb.9.5",
+      "english": [
+        {
+          "text": "reconciliation cover",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hilasmos",
+        "traditional": "Atonement",
+        "glossary": "atonement-reconciliation",
+        "form": "reconciliation cover"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Heb.9.5",
+      "english": [
+        {
           "text": "radiant",
           "n": 1
         }
@@ -116,6 +176,26 @@
         "traditional": "Glory",
         "glossary": "glory-praiseworthiness",
         "form": "radiance"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Heb.9.6",
+      "english": [
+        {
+          "text": "ritual representative services",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "latreuo",
+        "traditional": "Serve",
+        "glossary": "serve-serve-as-representative",
+        "form": "ritual representative service"
       },
       "confidence": null,
       "lemma": "present",
@@ -180,6 +260,46 @@
       "confidence": "distinctive",
       "lemma": "present",
       "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Heb.9.9",
+      "english": [
+        {
+          "text": "ritual representative service",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "latreuo",
+        "traditional": "Serve",
+        "glossary": "serve-serve-as-representative",
+        "form": "ritual representative service"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Heb.9.10",
+      "english": [
+        {
+          "text": "ritual washings",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "baptizo",
+        "traditional": "Baptism",
+        "glossary": "baptism-immersion",
+        "form": "ritual washing"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
       "status": "confirmed"
     },
     {
@@ -376,6 +496,26 @@
         "traditional": "Clean",
         "glossary": "clean-clean",
         "form": "cleanse"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Heb.9.14",
+      "english": [
+        {
+          "text": "representative service",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "latreuo",
+        "traditional": "Serve",
+        "glossary": "serve-serve-as-representative",
+        "form": "representative service"
       },
       "confidence": null,
       "lemma": "present",

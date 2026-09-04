@@ -283,6 +283,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "Jude.1.8",
+      "english": [
+        {
+          "text": "those with impressive reputations",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "doxa",
+        "traditional": "Glory",
+        "glossary": "glory-praiseworthiness",
+        "form": "reputation"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "Jude.1.9",
       "english": [
         {
@@ -396,6 +416,26 @@
         "traditional": "Sin",
         "glossary": "sin-deviation",
         "form": "deviation"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Jude.1.19",
+      "english": [
+        {
+          "text": "selfish",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "psuche",
+        "traditional": "Soul",
+        "glossary": "soul-very-being",
+        "form": "selfish"
       },
       "confidence": null,
       "lemma": "present",

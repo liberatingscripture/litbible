@@ -163,6 +163,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "2Cor.12.15",
+      "english": [
+        {
+          "text": "very beings",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "psuche",
+        "traditional": "Soul",
+        "glossary": "soul-very-being",
+        "form": "very being"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
       "ref": "2Cor.12.18",
       "english": [
         {

@@ -246,6 +246,26 @@
       "ref": "1Cor.2.14",
       "english": [
         {
+          "text": "animated by one’s own life-force",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "psuche",
+        "traditional": "Soul",
+        "glossary": "soul-very-being",
+        "form": "life-force animated"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "1Cor.2.14",
+      "english": [
+        {
           "text": "Life-breath",
           "n": 1
         }
