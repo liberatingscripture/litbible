@@ -711,6 +711,10 @@
           "verse": 13
         },
         "relabel": "footnotes formerly q–s relabeled r–t"
+      },
+      {
+        "type": "intro_updated",
+        "description": "Romans Introduction updated"
       }
     ]
   },
