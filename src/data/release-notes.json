@@ -1,5 +1,48 @@
 [
   {
+    "version": "2026-09-04",
+    "date": "2026-09-04",
+    "label": "September 4, 2026",
+    "changes": [
+      {
+        "type": "glossary_added",
+        "description": "Glossary entry for Almighty added"
+      },
+      {
+        "type": "glossary_added",
+        "description": "Glossary entry for Atonement added"
+      },
+      {
+        "type": "glossary_added",
+        "description": "Glossary entry for Baptism added"
+      },
+      {
+        "type": "glossary_added",
+        "description": "Glossary entry for Bless added"
+      },
+      {
+        "type": "glossary_added",
+        "description": "Glossary entry for Blessed added"
+      },
+      {
+        "type": "glossary_added",
+        "description": "Glossary entry for Fellowship added"
+      },
+      {
+        "type": "glossary_added",
+        "description": "Glossary entry for Serve added"
+      },
+      {
+        "type": "glossary_added",
+        "description": "Glossary entry for Soul added"
+      },
+      {
+        "type": "glossary_updated",
+        "description": "Glossary entry for Church updated"
+      }
+    ]
+  },
+  {
     "version": "2026-09-03",
     "date": "2026-09-03",
     "label": "September 3, 2026",
