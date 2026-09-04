@@ -46,7 +46,7 @@
       "ref": "Matt.13.16",
       "english": [
         {
-          "text": "have reason for gratitude",
+          "text": "how greatly fortunate",
           "n": 1
         }
       ],
@@ -54,13 +54,13 @@
       "term": {
         "greek": "makarios",
         "traditional": "Blessed",
-        "glossary": "blessed-have-reason-for-gratitude",
-        "form": "have reason for gratitude"
+        "glossary": "blessed-how-greatly-fortunate",
+        "form": "how greatly fortunate"
       },
       "confidence": "common",
       "lemma": "present",
       "source": "glossary-scan",
-      "status": "confirmed"
+      "status": "auto"
     },
     {
       "ref": "Matt.13.17",

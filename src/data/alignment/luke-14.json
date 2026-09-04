@@ -66,7 +66,7 @@
       "ref": "Luke.14.14",
       "english": [
         {
-          "text": "have reason for gratitude",
+          "text": "how greatly fortunate",
           "n": 1
         }
       ],
@@ -74,13 +74,13 @@
       "term": {
         "greek": "makarios",
         "traditional": "Blessed",
-        "glossary": "blessed-have-reason-for-gratitude",
-        "form": "have reason for gratitude"
+        "glossary": "blessed-how-greatly-fortunate",
+        "form": "how greatly fortunate"
       },
       "confidence": "common",
       "lemma": "present",
       "source": "glossary-scan",
-      "status": "confirmed"
+      "status": "auto"
     },
     {
       "ref": "Luke.14.14",
@@ -126,7 +126,7 @@
       "ref": "Luke.14.15",
       "english": [
         {
-          "text": "has reason for gratitude",
+          "text": "How greatly fortunate",
           "n": 1
         }
       ],
@@ -134,13 +134,13 @@
       "term": {
         "greek": "makarios",
         "traditional": "Blessed",
-        "glossary": "blessed-have-reason-for-gratitude",
-        "form": "have reason for gratitude"
+        "glossary": "blessed-how-greatly-fortunate",
+        "form": "how greatly fortunate"
       },
-      "confidence": null,
+      "confidence": "common",
       "lemma": "present",
-      "source": "review",
-      "status": "confirmed"
+      "source": "glossary-scan",
+      "status": "auto"
     },
     {
       "ref": "Luke.14.26",

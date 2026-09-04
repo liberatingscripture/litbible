@@ -33,7 +33,7 @@ export const GLOSSARY_LEMMAS = {
   // but the words are unrelated in origin and meaning, and two published
   // footnotes say so outright. It is its own candidate.
   "bless-pronounce-well-being": ["εὐλογέω", "εὐλογία", "εὐλογητός"],
-  "blessed-have-reason-for-gratitude": ["μακάριος", "μακαρίζω", "μακαρισμός"],
+  "blessed-how-greatly-fortunate": ["μακάριος", "μακαρίζω", "μακαρισμός"],
   // ἐκλεκτός deliberately excluded — it shares ekklesia's root and its own
   // footnotes, but it's rendered "chosen"/"called", never "Called Community".
   "church-called-community": ["ἐκκλησία"],

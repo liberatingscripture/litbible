@@ -166,26 +166,6 @@
       "ref": "Rom.4.6",
       "english": [
         {
-          "text": "gratification",
-          "n": 1
-        }
-      ],
-      "greek": [],
-      "term": {
-        "greek": "makarios",
-        "traditional": "Blessed",
-        "glossary": "blessed-have-reason-for-gratitude",
-        "form": "gratification"
-      },
-      "confidence": null,
-      "lemma": "present",
-      "source": "review",
-      "status": "confirmed"
-    },
-    {
-      "ref": "Rom.4.6",
-      "english": [
-        {
           "text": "justness",
           "n": 1
         }
@@ -206,7 +186,7 @@
       "ref": "Rom.4.7",
       "english": [
         {
-          "text": "Gratified",
+          "text": "How greatly fortunate",
           "n": 1
         }
       ],
@@ -214,13 +194,13 @@
       "term": {
         "greek": "makarios",
         "traditional": "Blessed",
-        "glossary": "blessed-have-reason-for-gratitude",
-        "form": "gratified"
+        "glossary": "blessed-how-greatly-fortunate",
+        "form": "how greatly fortunate"
       },
-      "confidence": null,
+      "confidence": "common",
       "lemma": "present",
-      "source": "review",
-      "status": "confirmed"
+      "source": "glossary-scan",
+      "status": "auto"
     },
     {
       "ref": "Rom.4.7",
@@ -266,7 +246,7 @@
       "ref": "Rom.4.8",
       "english": [
         {
-          "text": "Gratified",
+          "text": "How greatly fortunate",
           "n": 1
         }
       ],
@@ -274,13 +254,13 @@
       "term": {
         "greek": "makarios",
         "traditional": "Blessed",
-        "glossary": "blessed-have-reason-for-gratitude",
-        "form": "gratified"
+        "glossary": "blessed-how-greatly-fortunate",
+        "form": "how greatly fortunate"
       },
-      "confidence": null,
+      "confidence": "common",
       "lemma": "present",
-      "source": "review",
-      "status": "confirmed"
+      "source": "glossary-scan",
+      "status": "auto"
     },
     {
       "ref": "Rom.4.8",
@@ -300,26 +280,6 @@
       "confidence": "distinctive",
       "lemma": "present",
       "source": "glossary-scan",
-      "status": "confirmed"
-    },
-    {
-      "ref": "Rom.4.9",
-      "english": [
-        {
-          "text": "gratification",
-          "n": 1
-        }
-      ],
-      "greek": [],
-      "term": {
-        "greek": "makarios",
-        "traditional": "Blessed",
-        "glossary": "blessed-have-reason-for-gratitude",
-        "form": "gratification"
-      },
-      "confidence": null,
-      "lemma": "present",
-      "source": "review",
       "status": "confirmed"
     },
     {

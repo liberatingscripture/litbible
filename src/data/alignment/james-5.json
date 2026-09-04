@@ -123,26 +123,6 @@
       "status": "auto"
     },
     {
-      "ref": "Jas.5.11",
-      "english": [
-        {
-          "text": "gratify",
-          "n": 1
-        }
-      ],
-      "greek": [],
-      "term": {
-        "greek": "makarios",
-        "traditional": "Blessed",
-        "glossary": "blessed-have-reason-for-gratitude",
-        "form": "gratification"
-      },
-      "confidence": null,
-      "lemma": "present",
-      "source": "review",
-      "status": "confirmed"
-    },
-    {
       "ref": "Jas.5.12",
       "english": [
         {

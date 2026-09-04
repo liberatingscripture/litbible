@@ -306,7 +306,7 @@
       "ref": "1Pet.4.14",
       "english": [
         {
-          "text": "gratified",
+          "text": "how greatly fortunate",
           "n": 1
         }
       ],
@@ -314,13 +314,13 @@
       "term": {
         "greek": "makarios",
         "traditional": "Blessed",
-        "glossary": "blessed-have-reason-for-gratitude",
-        "form": "gratified"
+        "glossary": "blessed-how-greatly-fortunate",
+        "form": "how greatly fortunate"
       },
-      "confidence": null,
+      "confidence": "common",
       "lemma": "present",
-      "source": "review",
-      "status": "confirmed"
+      "source": "glossary-scan",
+      "status": "auto"
     },
     {
       "ref": "1Pet.4.14",

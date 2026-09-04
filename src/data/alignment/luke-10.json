@@ -326,7 +326,7 @@
       "ref": "Luke.10.23",
       "english": [
         {
-          "text": "have reason for gratitude",
+          "text": "How greatly fortunate",
           "n": 1
         }
       ],
@@ -334,13 +334,13 @@
       "term": {
         "greek": "makarios",
         "traditional": "Blessed",
-        "glossary": "blessed-have-reason-for-gratitude",
-        "form": "have reason for gratitude"
+        "glossary": "blessed-how-greatly-fortunate",
+        "form": "how greatly fortunate"
       },
       "confidence": "common",
       "lemma": "present",
       "source": "glossary-scan",
-      "status": "confirmed"
+      "status": "auto"
     },
     {
       "ref": "Luke.10.25",

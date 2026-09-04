@@ -766,26 +766,6 @@
       "ref": "1Cor.7.40",
       "english": [
         {
-          "text": "reason for gratitude",
-          "n": 1
-        }
-      ],
-      "greek": [],
-      "term": {
-        "greek": "makarios",
-        "traditional": "Blessed",
-        "glossary": "blessed-have-reason-for-gratitude",
-        "form": "have reason for gratitude"
-      },
-      "confidence": null,
-      "lemma": "present",
-      "source": "review",
-      "status": "confirmed"
-    },
-    {
-      "ref": "1Cor.7.40",
-      "english": [
-        {
           "text": "Life-breath",
           "n": 1
         }
