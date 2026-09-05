@@ -20,6 +20,47 @@
 @import "@fontsource-variable/atkinson-hyperlegible-next/wght.css";
 @import "@fontsource-variable/atkinson-hyperlegible-next/wght-italic.css";
 
+/* Bracket-marker glyph patch (⟦ U+27E6 / ⟧ U+27E7). These wrap the six
+   disputed-passage spans in scripture paragraphs (see "Bracketed passages"
+   in CLAUDE.md) and render inline with body text, but the Latin-only
+   subsets above don't include them — every text font here was built without
+   Mathematical Symbols-A coverage. unicode-range scopes each patch to just
+   these two codepoints under the SAME font-family name as the real face, so
+   the browser only fetches bracket-markers.otf on the six pages that
+   actually contain one, and uses it only for these two characters — every
+   other glyph still comes from the real font. Scoped to the three families
+   that can render scripture body text: Inter (default), and the two
+   reader-selectable accessibility fonts (OpenDyslexic, Atkinson Hyperlegible
+   Next Variable, which override body text everywhere via the html[data-font]
+   rules below). Regenerate the source file with `npm run build:bracket-font`
+   if the source glyphs ever change; see that script for why Noto Sans Math.
+
+   font-display is `block` here, NOT the `swap` the @fontsource faces above
+   use, and the difference is deliberate. `swap` is right for body text, where
+   showing the fallback immediately beats showing nothing. It is wrong for
+   these two: the fallback IS the failure mode this patch exists to prevent
+   (a system-font bracket, or a missing-glyph box), so swapping would flash
+   exactly the wrong glyph before correcting itself. The file is 1.7KB and
+   same-origin, so the block period is imperceptible. */
+@font-face {
+  font-family: "Inter";
+  src: url("/fonts/bracket-markers.otf") format("opentype");
+  font-display: block;
+  unicode-range: U+27E6-27E7;
+}
+@font-face {
+  font-family: "OpenDyslexic";
+  src: url("/fonts/bracket-markers.otf") format("opentype");
+  font-display: block;
+  unicode-range: U+27E6-27E7;
+}
+@font-face {
+  font-family: "Atkinson Hyperlegible Next Variable";
+  src: url("/fonts/bracket-markers.otf") format("opentype");
+  font-display: block;
+  unicode-range: U+27E6-27E7;
+}
+
 /* =========================================================
    Metric-matched fallback fonts (to minimize CLS from font swap)
    These render during the brief window before the real font loads

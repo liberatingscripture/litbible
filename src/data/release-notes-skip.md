@@ -85,3 +85,23 @@ the drafter reports it that way because it strips markup before comparing, and
 markup is all that moved. Three footnotes printed *Theological Dictionary of
 the New Testament* as plain text while the other nine citing it already set the
 title in italics. No wording changed in any of them.
+
+## 2026-09-05 — the disputed-passage bracket notation
+
+Skipped 6 auto-drafted rows, one per bracketed passage (Mark 16:9, Mark 16:20,
+John 7:53, John 8:11, John 9:38, John 9:39, John 11:28, John 11:32, Romans
+16:24, Romans 16:25–27). Each would have read *"… — text updated"* with no
+detail at all, because there is no wording to show: the markers that wrap a
+contested passage changed from the two-character `[|` / `|]` to the real
+double brackets `⟦` / `⟧` (U+27E6/U+27E7), the notation critical editions use
+for text of doubtful authenticity.
+
+The drafter produces those rows deliberately — its paragraph-level fallback
+comparison does NOT strip bracket markers, precisely so a bracket-only edit
+still surfaces rather than vanishing. That is the right default; here it is
+noise. A bare "text updated" on Mark 16:9 and John 7:53 tells a reader that
+two of the most contested passages in the New Testament changed, when what
+changed is the shape of the punctuation around them.
+
+Not a word of the translation moved: the six passages are byte-identical apart
+from those twelve characters.

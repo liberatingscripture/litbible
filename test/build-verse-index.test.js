@@ -39,19 +39,19 @@ const para = (id, ...parts) => `<p id="${id}">${parts.join(" ")}</p>`;
 const v = (verses, n) => verses[n - 1];
 
 /* ── 1. Bracketed passages ───────────────────────────────────────────────
- * `[|` and `|]` wrap passages whose authenticity or placement is contested
+ * `⟦` and `⟧` wrap passages whose authenticity or placement is contested
  * (Mark 16:9–20, John 7:53–8:11, John 9:38–39a, John 11:28–32, Romans 16:24
  * and 25–27). They are literal characters in the paragraph text, not markup,
  * and they are meant to be visible to a READER on the page — but never in an
  * extracted plain-text index. See "Bracketed passages" in CLAUDE.md. */
 
-test("opening [| does not leak into the preceding verse", () => {
+test("opening ⟦ does not leak into the preceding verse", () => {
   // The real Romans 16 shape: the bracketed passage opens a NEW paragraph, so
-  // its `[|` sits ahead of that paragraph's first vglue and therefore lands in
+  // its `⟦` sits ahead of that paragraph's first vglue and therefore lands in
   // the PREVIOUS verse's chunk when the split runs.
   const bracketed = extractVerses([
     para("p4", verse(23, "Quartus greets you.")),
-    `<p id="p5">[|${fnRef("m")} ${verse(24, "The generosity be with you all. Amen.")} |]${fnRef("n")}</p>`,
+    `<p id="p5">⟦${fnRef("m")} ${verse(24, "The generosity be with you all. Amen.")} ⟧${fnRef("n")}</p>`,
   ]);
 
   // Control: the identical chapter with the markers never authored at all.
@@ -69,33 +69,33 @@ test("opening [| does not leak into the preceding verse", () => {
   assert.equal(v(bracketed, 24), "The generosity be with you all. Amen.");
 });
 
-test("closing |] at the end of the last paragraph leaves no trailing junk", () => {
+test("closing ⟧ at the end of the last paragraph leaves no trailing junk", () => {
   // Mark 16:20 — the marker closes the passage at the very end of the chapter.
   const verses = extractVerses([
-    `<p id="p9">${verse(20, "They went out announcing him everywhere.")} |]${fnRef("m")}</p>`,
+    `<p id="p9">${verse(20, "They went out announcing him everywhere.")} ⟧${fnRef("m")}</p>`,
   ]);
 
   assert.equal(v(verses, 20), "They went out announcing him everywhere.");
 });
 
-test("closing |] mid-verse collapses to exactly one space", () => {
+test("closing ⟧ mid-verse collapses to exactly one space", () => {
   // John 9:39 — the bracket closes partway through a verse, NOT at a paragraph
-  // end: `Jesus said, |] “I came…`. This is why the whitespace collapse has to
+  // end: `Jesus said, ⟧ “I came…`. This is why the whitespace collapse has to
   // run after the strip rather than before it.
   const verses = extractVerses([
-    `<p id="p33">${verse(39, "Jesus said,")} |]${fnRef("r")} “I came for justice,</p>`,
+    `<p id="p33">${verse(39, "Jesus said,")} ⟧${fnRef("r")} “I came for justice,</p>`,
   ]);
 
   assert.equal(v(verses, 39), "Jesus said, “I came for justice,");
   assert.doesNotMatch(v(verses, 39), /\s\s/, "a stripped marker left a double space");
 });
 
-test("back-to-back |] [| at a passage boundary leaves no gap", () => {
+test("back-to-back ⟧ ⟦ at a passage boundary leaves no gap", () => {
   // Romans 16:24 — its own passage closes and the doxology's opens immediately
   // after, so BOTH markers land in verse 24's chunk.
   const verses = extractVerses([
-    `<p id="p5">[|${fnRef("m")} ${verse(24, "The generosity be with you all. Amen.")} |]${fnRef("n")}</p>`,
-    `<p id="p6">[|${fnRef("o")} ${verse(25, "To the one who is able.")} |]${fnRef("r")}</p>`,
+    `<p id="p5">⟦${fnRef("m")} ${verse(24, "The generosity be with you all. Amen.")} ⟧${fnRef("n")}</p>`,
+    `<p id="p6">⟦${fnRef("o")} ${verse(25, "To the one who is able.")} ⟧${fnRef("r")}</p>`,
   ]);
 
   assert.equal(v(verses, 24), "The generosity be with you all. Amen.");
@@ -105,8 +105,8 @@ test("back-to-back |] [| at a passage boundary leaves no gap", () => {
 test("no bracket marker survives extraction, in any position", () => {
   const verses = extractVerses([
     para("p1", verse(8, "They were afraid.")),
-    `<p id="p2">[|${fnRef("e")} ${verse(9, "After he reawakened.")}</p>`,
-    `<p id="p3">${verse(10, "She went and told,")} |]${fnRef("m")} weeping.</p>`,
+    `<p id="p2">⟦${fnRef("e")} ${verse(9, "After he reawakened.")}</p>`,
+    `<p id="p3">${verse(10, "She went and told,")} ⟧${fnRef("m")} weeping.</p>`,
   ]);
 
   for (const text of verses) {

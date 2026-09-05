@@ -148,7 +148,7 @@ for (const [docxName, bookKey] of Object.entries(DOCX_TO_BOOKKEY)) {
   masterFootnoteTotal += footnoteTextMap.size;
   for (const [id, rec] of footnoteTextMap) v2FullFootnoteText.set(`${bookKey}|${id}`, rec);
   if (v1ExtractFootnotes) {
-    // v1's extraction does NOT strip [|/|] bracket markers (docx-verses.mjs
+    // v1's extraction does NOT strip ⟦/⟧ bracket markers (docx-verses.mjs
     // does that, not docx-xml.mjs) and does NOT left-trim the separator
     // space - both real, expected, ALREADY-DOCUMENTED differences, not gate
     // failures. Apply the identical bracket-strip + left-trim v2 applies so
@@ -156,7 +156,9 @@ for (const [docxName, bookKey] of Object.entries(DOCX_TO_BOOKKEY)) {
     const v1FnMap = v1ExtractFootnotes(fnXml);
     for (const [id, rawText] of v1FnMap) {
       if (id === "-1" || id === "0") continue;
-      const stripped = rawText.replace(/\[\||\|\]/g, "").replace(/^\s+/, "");
+      // Both marker forms: this text comes from a MASTER, which still carries
+      // the retired [|/|] (see src/lib/bracket-markers.mjs).
+      const stripped = rawText.replace(/[⟦⟧]|\[\||\|\]/g, "").replace(/^\s+/, "");
       v1FullFootnoteText.set(`${bookKey}|${id}`, stripped);
     }
   }

@@ -880,8 +880,9 @@ The test is now "does the next paragraph **open** with reader-visible text",
 which is what a continuation actually is (`opensWithContinuationText`). The
 bracket markers and footnote anchor that lead a bracketed passage come out
 first, since they belong to the verse whose marker follows them — `john-11-p16`
-opens `[|<sup class="fn-ref">…w…</sup>` and then verse 28, and is not a
-continuation of verse 27. Detection now covers 208 of 208.
+opens `⟦<sup class="fn-ref">…w…</sup>` and then verse 28, and is not a
+continuation of verse 27. Detection now covers 208 of 208. (The repo moved from
+`[|`/`|]` to `⟦`/`⟧` on 2026-09-05; the masters still carry the old form.)
 
 **This changes nothing in today's ledger** — none of the 86 currently differs
 from its master, so no record moved bucket, changed patch, or changed hold
@@ -1641,8 +1642,9 @@ checked before touching it:
 
 ### The third hit was not a defect
 
-`john-11` v28 is the **documented bracketed-passage opening** — `[|` at the
-start of the paragraph, then a footnote marker, then the `vglue` span. A
+`john-11` v28 is the **documented bracketed-passage opening** — `⟦` at the
+start of the paragraph (`[|` when this was written; the repo moved to the real
+double brackets on 2026-09-05), then a footnote marker, then the `vglue` span. A
 paragraph-initial marker wants no separator. Any future run of this check must
 exempt that shape or it will report John 11, John 7, Mark 16 and Romans 16
 forever.

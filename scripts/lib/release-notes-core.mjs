@@ -125,7 +125,7 @@ function extractVerseTexts(paragraphs) {
     if (!m) continue;
     const vNum = parseInt(m[1], 10);
     // Collapse whitespace again after removing the markers, so the gap a
-    // stripped `[|` leaves behind doesn't read as a text change of its own.
+    // stripped `⟦` leaves behind doesn't read as a text change of its own.
     const text = stripBracketMarkers(stripHtml(part))
       .replace(/\s+/g, " ")
       .replace(/^\d+\s*/, "")
@@ -144,7 +144,7 @@ function findFootnoteVerse(paragraphs, fnLabel) {
     const before = para.substring(0, idx);
     const matches = [...before.matchAll(/id="v(\d+)"/g)];
     if (matches.length) return parseInt(matches[matches.length - 1][1], 10);
-    // No verse marker precedes the reference. That is the opening `[|` of a
+    // No verse marker precedes the reference. That is the opening `⟦` of a
     // bracketed passage, whose footnote marker leads the paragraph ahead of
     // the first vglue, so the note introduces the verse that FOLLOWS it.
     // Guarded on the bracket rather than falling forward unconditionally: a
@@ -152,7 +152,9 @@ function findFootnoteVerse(paragraphs, fnLabel) {
     // carries no marker of its own (see "unique_verse_ids" in
     // chapter_json_invariants.json), and its notes belong to that earlier
     // verse, not to the next one.
-    if (before.includes("[|")) {
+    // Both forms: this runs over BOTH sides of a git diff, and the older side
+    // can still carry the retired `[|` (see src/lib/bracket-markers.mjs).
+    if (before.includes("⟦") || before.includes("[|")) {
       const forward = para.substring(idx).match(/id="v(\d+)"/);
       if (forward) return parseInt(forward[1], 10);
     }
@@ -410,7 +412,7 @@ export function buildChanges({ addedFiles, modifiedFiles, readBase, readNow }) {
     const newLabelOrder = new Map(newFns.map((f, i) => [f.label, i]));
     // Pair notes by (content, occurrence index), NOT by content alone. A chapter
     // can legitimately carry the same note text more than once — the bracketed-
-    // passage convention requires it, since the opening `[|` and closing `|]`
+    // passage convention requires it, since the opening `⟦` and closing `⟧`
     // markers footnote the same explanation, and 85 of 260 chapters have some
     // duplicate body. Matching on text alone pairs the wrong copies as soon as a
     // cascade shifts them: in ephesians-6 (twin "undyingness" notes at jj and kk)
@@ -422,7 +424,7 @@ export function buildChanges({ addedFiles, modifiedFiles, readBase, readNow }) {
       return fns.map((f) => {
         const n = seen.get(f.html) ?? 0;
         seen.set(f.html, n + 1);
-        return `${n} ${f.html}`;
+        return `${n}\u0000${f.html}`;
       });
     };
     const oldKeys = occurrenceKeys(oldFns);

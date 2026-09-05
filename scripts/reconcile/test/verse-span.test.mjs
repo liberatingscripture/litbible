@@ -101,12 +101,12 @@ test("a paragraph that opens straight onto its own marker is not a continuation"
   assert.equal(loc.paragraphIndex, 0);
 });
 
-// A bracketed passage opens `[|` + the footnote anchor explaining it, and both
+// A bracketed passage opens `⟦` + the footnote anchor explaining it, and both
 // belong to the verse whose marker FOLLOWS them - john-11-p16 opens verse 28,
 // it does not continue verse 27.
 test("a bracket marker and its footnote anchor do not make a paragraph a continuation", () => {
   const fnref = '<sup class="fn-ref"><a id="fnref-w" href="#fn-w" role="doc-noteref">w</a></sup>';
-  assert.equal(opensWithContinuationText(`<p id="p2">[|${fnref}${vglue(28, "After")} she said this.</p>`), false);
+  assert.equal(opensWithContinuationText(`<p id="p2">⟦${fnref}${vglue(28, "After")} she said this.</p>`), false);
   assert.equal(opensWithContinuationText(`<p id="p2">She said this. ${vglue(28, "After")} that.</p>`), true);
   assert.equal(opensWithContinuationText('<p id="p2">plain continuation</p>'), true);
   assert.equal(opensWithContinuationText('<p id="p2"></p>'), false);

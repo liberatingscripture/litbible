@@ -48,9 +48,9 @@ const VGLUE_MARKER_RE = /<span class="vglue"><sup id="v(\d+)" class="vn">\d+<\/s
  * What actually marks a continuation is reader-visible text standing before
  * the paragraph's first marker. Two things routinely sit there and belong to
  * the FOLLOWING verse rather than the previous one, so both come out before
- * the question is asked: a bracketed passage's opening `[|`, and the footnote
+ * the question is asked: a bracketed passage's opening `⟦`, and the footnote
  * anchor that follows it - `john-11-p16` opens
- * `[|<sup class="fn-ref">…w…</sup>` and then verse 28, which is not a
+ * `⟦<sup class="fn-ref">…w…</sup>` and then verse 28, which is not a
  * continuation of verse 27.
  */
 export function opensWithContinuationText(paragraphHtml) {

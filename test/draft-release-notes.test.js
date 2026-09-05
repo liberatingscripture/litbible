@@ -277,7 +277,7 @@ test("real-world Luke 5:32 shape: insertion at q with a q–u → r–v cascade"
 
 test("cascade past TWIN notes: duplicate bodies pair by occurrence, not by text", () => {
   // A chapter may carry the same note text twice — the bracketed-passage
-  // convention requires it ([| and |] footnote the same explanation), and 85 of
+  // convention requires it (⟦ and ⟧ footnote the same explanation), and 85 of
   // 260 chapters have some duplicate body. Matching notes by text alone paired
   // the wrong copies once a cascade shifted them.
   //
@@ -438,7 +438,7 @@ test("articles: added/updated de-hyphenate the slug; attribute-only edit emits n
 });
 
 /* ── 6. Bracketed passages ────────────────────────────────────────────────
- * `[|` and `|]` wrap passages whose authenticity or placement is contested
+ * `⟦` and `⟧` wrap passages whose authenticity or placement is contested
  * (Mark 16:9–20, John 7:53–8:11, Romans 16:24 and 25–27). They are literal
  * characters in the paragraph text, not markup, and the opening marker leads
  * its paragraph AHEAD of the first verse glue. See "Bracketed passages" in
@@ -450,12 +450,12 @@ const fnRef = (l) =>
 
 test("bracketed passage: markers never reach detail, and the preceding verse isn't blamed", () => {
   // The real Romans 16 shape: a new verse arrives inside its own bracketed
-  // paragraph, so the opening `[|` sits before that paragraph's first vglue.
+  // paragraph, so the opening `⟦` sits before that paragraph's first vglue.
   const before = chapterJson({ paragraphs: [para("p1", verse(23, "Quartus greets you."))] });
   const after = chapterJson({
     paragraphs: [
       para("p1", verse(23, "Quartus greets you.")),
-      `<p id="p2">[|${fnRef("a")} ${verse(24, "The generosity be with you all.")} |]${fnRef("b")}</p>`,
+      `<p id="p2">⟦${fnRef("a")} ${verse(24, "The generosity be with you all.")} ⟧${fnRef("b")}</p>`,
     ],
     footnotes: [fn("a", "Why verse 24 is here."), fn("b", "Why verse 24 is here.")],
   });
@@ -464,19 +464,19 @@ test("bracketed passage: markers never reach detail, and the preceding verse isn
     (c) => c.type === "text_updated",
   );
 
-  // Verse 23 is untouched; without the strip it absorbs the trailing `[|` of
+  // Verse 23 is untouched; without the strip it absorbs the trailing `⟦` of
   // the next paragraph and gets reported as changed.
   assert.equal(textChange.description, "John 3:24 — text updated");
   assert.equal(textChange.location.verse, 24);
   assert.equal(textChange.detail, 'added "The generosity be with you all."');
-  assert.ok(!textChange.detail.includes("[|"), "detail leaked an opening marker");
-  assert.ok(!textChange.detail.includes("|]"), "detail leaked a closing marker");
+  assert.ok(!textChange.detail.includes("⟦"), "detail leaked an opening marker");
+  assert.ok(!textChange.detail.includes("⟧"), "detail leaked a closing marker");
 });
 
 test("bracket-only edit: still surfaces as a text change, but carries no bracket junk", () => {
   const before = chapterJson({ paragraphs: [para("p1", verse(9, "After he reawakened."))] });
   const after = chapterJson({
-    paragraphs: [`<p id="p1">[| ${verse(9, "After he reawakened.")} |]</p>`],
+    paragraphs: [`<p id="p1">⟦ ${verse(9, "After he reawakened.")} ⟧</p>`],
   });
 
   const changes = run({ [F]: before }, { [F]: after }, { modified: [F] });
@@ -492,7 +492,7 @@ test("bracket-only edit: still surfaces as a text change, but carries no bracket
 test("opening-bracket footnote resolves forward to the verse it introduces", () => {
   const before = chapterJson({ paragraphs: [para("p1", verse(9, "After he reawakened."))] });
   const after = chapterJson({
-    paragraphs: [`<p id="p1">[|${fnRef("a")} ${verse(9, "After he reawakened.")}</p>`],
+    paragraphs: [`<p id="p1">⟦${fnRef("a")} ${verse(9, "After he reawakened.")}</p>`],
     footnotes: [fn("a", "Not in the oldest manuscripts.")],
   });
 
