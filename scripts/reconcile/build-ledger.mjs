@@ -93,7 +93,7 @@ const CHAPTERS_DIR = path.resolve(REPO_ROOT, "src/data/chapters");
 const OUT_DIR = argValue("out-dir") || path.resolve(__dirname, "out");
 const DECISIONS_PATH = path.join(OUT_DIR, "decisions.json");
 
-// Chapters carrying a contested passage wrapped in literal [| and |] markers
+// Chapters carrying a contested passage wrapped in literal ⟦ and ⟧ markers
 // (CLAUDE.md, "Bracketed passages"). This used to hold EVERY record in these
 // chapters, which is far coarser than the hazard: 14 bucket-A records sat here
 // and not one of their spans contained a marker - john-11-fn-y is an ordinary
@@ -107,7 +107,11 @@ const DECISIONS_PATH = path.join(OUT_DIR, "decisions.json");
 // must move together - is enforced by check-bracket-twins.mjs after applying.
 const BRACKETED_CHAPTERS = new Set(["mark-16", "john-7", "john-8", "john-9", "john-11", "romans-16"]);
 
-const BRACKET_MARKER_RE = /\[\||\|\]/g;
+// BOTH forms, deliberately: the repo uses ⟦/⟧ and the masters still use the
+// retired [|/|], so a restore that would swap one for the other has to read as
+// "this patch changes the markers" (and be held) rather than as "the markers
+// vanished". See the note in src/lib/bracket-markers.mjs.
+const BRACKET_MARKER_RE = /[⟦⟧]|\[\||\|\]/g;
 
 const QUOTE_CHARS_G = /["'‘’‚‛“”„‟]/g;
 
@@ -132,7 +136,7 @@ function bracketMarkersAgree(patch) {
       return {
         ok: false,
         reason:
-          `bracketed passage: restoring would change this string's [|/|] markers ` +
+          `bracketed passage: restoring would change this string's ⟦/⟧ markers ` +
           `(${before || "none"} -> ${after || "none"}) - they are reader-facing and their paired footnotes must move together`,
       };
     }
@@ -555,7 +559,7 @@ for (const [docxName, bookKey] of Object.entries(DOCX_TO_BOOKKEY)) {
   const footnoteTextMap = extractMasterFootnotes(fnXml, { warnings, stripBrackets: true });
 
   // COMPARISON needs the markers stripped; RESTORATION does not. An opening
-  // `[|` leads its paragraph ahead of the first verse marker, so leaving it in
+  // `⟦` leads its paragraph ahead of the first verse marker, so leaving it in
   // would file the marker's characters under the wrong verse and make every
   // bracketed chapter look like it had drifted. But the markers are
   // reader-facing text, so a patch value built from the stripped extraction
@@ -798,7 +802,7 @@ for (const [docxName, bookKey] of Object.entries(DOCX_TO_BOOKKEY)) {
           text: { master: null, preAug: undefined, current: p.repo.text },
           diff: null,
           patch: { oldValue: p.repo.footnote?.html ?? null, newValue: null },
-          forceHandReview: isBracketed ? "chapter carries a bracketed [|/|] passage - paired footnotes must move together" : null,
+          forceHandReview: isBracketed ? "chapter carries a bracketed ⟦/⟧ passage - paired footnotes must move together" : null,
           decision: decisions[`${bookKey}-${c}-fn-${label ?? p.repo.refId}`]?.decision ?? null,
         });
         continue;

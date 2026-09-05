@@ -48,7 +48,7 @@
  *   - `topics` — free-text labels, empty on import
  *   - poetry / block quotes — Word paragraph breaks arrive as <p>, so a
  *     passage set as poetry needs <p class="hbq-line"> or <blockquote> by hand
- *   - bracketed passages — the [| … |] markers and their paired footnotes
+ *   - bracketed passages — the ⟦ … ⟧ markers and their paired footnotes
  * `indexed` is written FALSE: a fresh import is a draft until read against the
  * master. Flip it to true to publish.
  *
@@ -343,7 +343,7 @@ if (!flag("stdout")) {
     `\nStill yours to decide — deliberately not automated:\n` +
     `  - topics[] is empty\n` +
     `  - poetry / block quotes: Word paragraph breaks arrive as <p>\n` +
-    `  - bracketed passages: [| … |] and their paired footnotes\n` +
+    `  - bracketed passages: ⟦ … ⟧ and their paired footnotes\n` +
     `  - indexed is FALSE (draft). Flip it to true to publish.\n` +
     `\nThen run: npm run validate:chapters`);
 }

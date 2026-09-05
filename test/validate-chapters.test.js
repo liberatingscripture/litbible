@@ -119,10 +119,32 @@ test("a verse marker welded to the preceding sentence is rejected", () => {
 test("a bracketed passage may open with its marker and anchor before verse 1", () => {
   clean(
     validate({
-      paragraphs: [`<p id="john-3-p1">[|${anchor("a")}${verse(1, "One")} word |]${anchor("b")}</p>`],
+      paragraphs: [`<p id="john-3-p1">⟦${anchor("a")}${verse(1, "One")} word ⟧${anchor("b")}</p>`],
       footnotes: [note("a", "\u201cnote\u201d"), note("b", "\u201cnote\u201d")],
     })
   );
+});
+
+// ── old_bracket_markers ──────────────────────────────────────────────────────
+// Repo-only convention, like the en dash below: the Word masters still carry
+// `[|`/`|]`, so a restore, a fresh import of a bracketed book, or a hand-copy
+// out of Word can all put one back. Two ASCII characters render to a reader as
+// a literal "[|" and ride into every plain-text extractor, so this is fatal.
+
+test("a retired [| bracket marker is rejected", () => {
+  const out = validate({
+    paragraphs: [`<p id="john-3-p1">[|${anchor("a")}${verse(1, "One")} word |]${anchor("b")}</p>`],
+    footnotes: [note("a", "“note”"), note("b", "“note”")],
+  });
+  assert.match(out, /uses the retired bracket marker/);
+});
+
+test("a retired marker inside a footnote is rejected too", () => {
+  const out = validate({
+    paragraphs: [`<p id="john-3-p1">${verse(1, "One")} word${anchor("a")}</p>`],
+    footnotes: [note("a", "The passage runs [| to here.")],
+  });
+  assert.match(out, /uses the retired bracket marker/);
 });
 
 // ── no_fragmented_tag_runs ───────────────────────────────────────────────────

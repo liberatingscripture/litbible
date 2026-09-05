@@ -35,13 +35,26 @@ test("htmlToPlainText: decodes the entity set chapters actually use", () => {
 
 test("htmlToPlainText: removes the literal bracket markers around contested passages", () => {
   assert.equal(
+    htmlToPlainText("<p>⟦ The generosity be with you. ⟧</p>"),
+    "The generosity be with you.",
+  );
+});
+
+// The Word masters still carry the retired two-character markers, so the strip
+// has to keep recognizing them: the reconciliation pipeline runs master-derived
+// text through this helper to make it comparable to repo text, and an old-form
+// marker that slipped back into a chapter must stay invisible to extractors
+// rather than shipping as junk. The chapter validator rejects the old form in
+// the corpus; this keeps an escape harmless.
+test("htmlToPlainText: the retired [| and |] markers are stripped too", () => {
+  assert.equal(
     htmlToPlainText("<p>[| The generosity be with you. |]</p>"),
     "The generosity be with you.",
   );
 });
 
 test("htmlToPlainText: a removed marker leaves no double space behind", () => {
-  const text = htmlToPlainText("<p>before [| after</p>");
+  const text = htmlToPlainText("<p>before ⟦ after</p>");
   assert.equal(text, "before after");
   assert.ok(!/ {2}/.test(text), "should not contain a doubled space");
 });
@@ -56,15 +69,15 @@ test("splitChapterVerses: maps each verse number to its own text", () => {
 });
 
 // The regression this module's bracket strip exists for. Chunks run from one
-// verse marker to the NEXT, so the opening `[|` — which leads its paragraph,
+// verse marker to the NEXT, so the opening `⟦` — which leads its paragraph,
 // ahead of that paragraph's first verse marker — was filed under the previous
 // verse. Live cases were Mark 16:8 (carrying v9's marker), John 7:52 (7:53's),
 // and Romans 16:23 (16:24's).
 test("splitChapterVerses: an opening bracket marker does not leak onto the previous verse", () => {
   const verses = splitChapterVerses([
     `<p><span class="vglue">${verseSup(23)}&nbsp;Gaius</span> greets you.</p>`,
-    `<p>[|${fnRef("m")} <span class="vglue">${verseSup(24)}&nbsp;The</span> ` +
-      `generosity be with you. |]${fnRef("n")}</p>`,
+    `<p>⟦${fnRef("m")} <span class="vglue">${verseSup(24)}&nbsp;The</span> ` +
+      `generosity be with you. ⟧${fnRef("n")}</p>`,
   ]);
   assert.equal(verses.get(23), "Gaius greets you.");
   assert.equal(verses.get(24), "The generosity be with you.");
@@ -72,8 +85,8 @@ test("splitChapterVerses: an opening bracket marker does not leak onto the previ
 
 test("splitChapterVerses: a closing bracket marker does not survive in its own verse", () => {
   const verses = splitChapterVerses([
-    `<p>[|${fnRef("e")} <span class="vglue">${verseSup(20)}&nbsp;They</span> ` +
-      `went out announcing him. |]${fnRef("m")}</p>`,
+    `<p>⟦${fnRef("e")} <span class="vglue">${verseSup(20)}&nbsp;They</span> ` +
+      `went out announcing him. ⟧${fnRef("m")}</p>`,
   ]);
   assert.equal(verses.get(20), "They went out announcing him.");
 });

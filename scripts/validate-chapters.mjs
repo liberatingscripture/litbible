@@ -402,14 +402,14 @@ for (const filePath of files) {
   // sup.vn is inline-block and no CSS supplies a gap, so the space before a
   // verse marker has to be in the text; without it the number welds to the
   // preceding sentence ("sheep.12 The"). The one legitimate shape is a
-  // paragraph opening a bracketed passage, where the [| marker and its footnote
+  // paragraph opening a bracketed passage, where the ⟦ marker and its footnote
   // anchor precede the first verse — that exemption lives here at the call
   // site, not in the shared helper, matching how the changelog handles the
   // same case.
   if (Array.isArray(data.paragraphs)) {
     for (const hit of findUnseparatedVerseMarkers(data.paragraphs)) {
       const p = String(data.paragraphs[hit.paragraphIndex] ?? "");
-      if (/^<(?:p|blockquote)\b[^>]*>\[\|<sup class="fn-ref">/.test(p)) continue;
+      if (/^<(?:p|blockquote)\b[^>]*>⟦<sup class="fn-ref">/.test(p)) continue;
       errors.push(
         `verse ${hit.verse} marker has no separator before it — "…${tail(hit.before)}${hit.verse}" welds the number to the preceding sentence`
       );
@@ -456,6 +456,27 @@ for (const filePath of files) {
       }
     };
     forEachProse(data, scanRanges);
+  }
+
+  // ── Retired bracket-marker forms ──────────────────────────────────────────
+  // Contested passages take ⟦ / ⟧ (U+27E6/U+27E7). The retired `[|` and `|]`
+  // are rejected outright. Like the en-dash rule above this is repo-only — the
+  // Word masters still carry the old form — so every route back into the
+  // corpus is a live one: an approved restore, a fresh `import:chapter` of a
+  // bracketed book, a hand-copy out of Word. An old-form marker left in a
+  // chapter renders to a reader as literal "[|" and, being two ordinary ASCII
+  // characters, survives into the search index, the changelog, Copy/Share and
+  // the apps' feed. stripBracketMarkers still removes both forms so an escape
+  // is harmless; this is what keeps it from happening at all.
+  {
+    const scanRetired = (html, where) => {
+      for (const m of String(html ?? "").matchAll(/\[\||\|\]/g)) {
+        errors.push(
+          `${where} uses the retired bracket marker "${m[0]}" — contested passages take ⟦ (U+27E6) and ⟧ (U+27E7)`
+        );
+      }
+    };
+    forEachProse(data, scanRetired);
   }
 
   // ── Report ────────────────────────────────────────────────────────────────

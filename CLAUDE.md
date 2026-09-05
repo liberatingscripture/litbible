@@ -80,6 +80,8 @@ npm run build:manifest    # Regenerate API manifest + /api/data for the mobile a
 npm run build:og          # Regenerate the chapter/intro share cards (public/og/)
 npm run build:favicons    # Regenerate the favicon/touch/manifest icons from the emblem SVGs
                           #   (on demand only — outputs are committed, not built)
+npm run build:bracket-font # Regenerate public/fonts/bracket-markers.otf (the ⟦/⟧ glyph patch)
+                          #   (on demand only — output is committed, not built)
 npm run build:alignment   # Rescan the text for glossary-term renderings (src/data/alignment/)
                           #   (on demand only — output is committed and carries review state)
 npm run review:alignment  # Localhost review tool for that dataset (see below). Needs the
@@ -287,6 +289,7 @@ the sitemap filter live in `astro.config.mjs`.
 | `lib/glossary-feed-core.mjs` | Pure `buildGlossaryFeed()` core of that generator — frontmatter parse, Markdown→plain-prose flattening, the `index` maps, and the cross-reference check. Unit-tested directly (`test/build-glossary-feed.test.js`) since its output shape is an app contract. Its header documents the four silent failure modes. |
 | `build-og-images.mjs` | `public/og/` — per-chapter/intro share cards (fonts in `scripts/og/fonts/`). |
 | `build-favicons.mjs` | Favicon/touch/manifest icons from the emblem SVGs. **Not** in the build — run by hand when the emblem changes. |
+| `build-bracket-marker-font.mjs` | `public/fonts/bracket-markers.otf` — subsets the ⟦/⟧ disputed-passage glyphs out of Noto Sans Math, since the site's own webfonts are Latin-only. **Not** in the build — run by hand if the source glyphs ever change. See "Bracketed passages" below. |
 | `build-alignment.mjs` | `src/data/alignment/` — scans published chapters for glossary-term renderings, then checks each against MorphGNT. **Not** in the build; its output is committed and merges with prior human review. See The Alignment Dataset below. |
 | `alignment-review/server.mjs` | `npm run review:alignment` — the localhost review UI (`store.mjs` = fs + corpus, `review-core.mjs` = pure logic *also served to the browser*, `ui/` = vanilla HTML/CSS/JS). Node builtins only, no deps. |
 | `audit-alignment.mjs` | fs/CLI shell: re-checks every *decided* alignment record against the current scripture text. **Not** in the build or CI — run by hand after editing chapters. Delegates the check to `lib/alignment-audit-core.mjs`. |
@@ -491,16 +494,18 @@ exists to prevent.
 
 ### Bracketed passages
 
-Text whose authenticity or placement is contested is wrapped in literal `[|`
-and `|]` markers in the paragraph HTML (not a CSS class — plain characters in
-the text). The convention is strict and has two halves:
+Text whose authenticity or placement is contested is wrapped in literal `⟦`
+(U+27E6) and `⟧` (U+27E7) markers in the paragraph HTML (not a CSS class —
+plain characters in the text) — the same double-bracket notation critical
+editions (e.g. NA28) use for text of doubtful authenticity. The convention is
+strict and has two halves:
 
-- `[|` sits at the **start of the paragraph**, immediately followed by a
+- `⟦` sits at the **start of the paragraph**, immediately followed by a
   footnote marker, then the `vglue` span.
-- ` |]` closes the passage at the **end of the passage**, immediately followed
+- ` ⟧` closes the passage at the **end of the passage**, immediately followed
   by a second footnote marker. That is usually the end of a paragraph, but not
   always — where the contested text stops mid-verse the marker does too
-  (`john-9.json`: `Jesus said, |]`, closing 9:38–39a).
+  (`john-9.json`: `Jesus said, ⟧`, closing 9:38–39a).
 - **Both markers carry the same footnote text**, so a reader who meets either
   end gets the whole explanation. That is why those footnote pairs are
   byte-identical, and they must be edited together.
@@ -510,9 +515,48 @@ Live examples: `mark-16.json` (e/m), `john-7.json` ff → `john-8.json` k
 `john-11.json` (w/z), and `romans-16.json` (m/n for verse 24, o/r for the
 doxology).
 
+**⟦/⟧ is a repo-only convention, and the Word masters still carry the retired
+two-character forms `[|` and `|]`** — the same shape as the en-dash rule, and
+it has the same consequence: every route back into the corpus is live. An
+approved restore through `scripts/reconcile/`, a fresh `npm run import:chapter`
+of a bracketed book (the importer's whole guarantee is that it reproduces the
+master verbatim), or a hand-copy out of Word will each carry the old form in.
+Two things hold the line, and they are deliberately different in kind:
+
+- `stripBracketMarkers` strips **both** forms. That is what keeps master-derived
+  text comparable to repo text in the reconciliation pipeline (the master
+  extractor runs through this same helper), and it means an old-form marker
+  that does slip in stays invisible to every extractor rather than shipping as
+  junk. Do not "tidy" the retired half out of that regex.
+- The chapter validator's `old_bracket_markers` rule **rejects** the old form
+  outright, so the corpus itself stays single-form. Strip = harmless, validator
+  = absent.
+
+Converting the masters is a Word-side back-port, not a repo change; until that
+happens, expect the old form on the master side of any reconcile diff.
+
+**None of the site's self-hosted webfonts contain these codepoints** — every
+text font here (Inter, Crimson Text, Fraunces, OpenDyslexic, Atkinson
+Hyperlegible Next) ships as a Latin-only subset (see the font-import comment at
+the top of `global.css`), and U+27E6/U+27E7 sit in Miscellaneous Mathematical
+Symbols-A, well outside Latin. Rather than ship a whole symbols font (gated by
+`unicode-range` or not), `scripts/build-bracket-marker-font.mjs` subsets just
+those two glyphs out of Noto Sans Math (SIL OFL, pulled in as a devDependency
+used only by that script) into a ~1.7KB `public/fonts/bracket-markers.otf`.
+Three small `@font-face` rules in `global.css` — one each for `"Inter"`,
+`"OpenDyslexic"`, and `"Atkinson Hyperlegible Next Variable"`, every family
+that can actually render scripture body text — patch that file in under a
+`unicode-range: U+27E6-27E7` restriction, registered under the SAME
+`font-family` name as the real face. The browser only fetches the patch file
+on a page that actually contains one of these two characters (six chapter
+pages today), and only ever uses it for these two characters; every other
+glyph still comes from the real font. Regenerate the source file with
+`npm run build:bracket-font` if the chosen source glyphs ever change — it is
+deliberately **not** part of `npm run build`, same as `build:favicons`.
+
 **The markers are reader-facing in rendered HTML but must never reach a
 plain-text extractor.** Being literal characters rather than markup, they
-survive tag stripping, and an opening `[|` leads its paragraph *ahead of* that
+survive tag stripping, and an opening `⟦` leads its paragraph *ahead of* that
 paragraph's first verse marker — so a naive verse split files it under the
 **previous** verse and reports characters for a verse that does not contain
 them. `stripBracketMarkers` in **`src/lib/bracket-markers.mjs`** is the single
@@ -522,16 +566,39 @@ consumers today:
 
 | Consumer | What leaked before |
 |----------|--------------------|
-| `scripts/lib/verse-text.mjs` | search results ending in a bare `[\|`, and the same misfiling in the alignment dataset |
-| `scripts/lib/release-notes-core.mjs` | `added "[\|"` in the apps' Translation Updates |
-| `src/scripts/chapter-tools.js` | Copy verse / Share… handing a reader `…afraid. [\|` |
+| `scripts/lib/verse-text.mjs` | search results ending in a bare `⟦`, and the same misfiling in the alignment dataset |
+| `scripts/lib/release-notes-core.mjs` | `added "⟦"` in the apps' Translation Updates |
+| `src/scripts/chapter-tools.js` | Copy verse / Share… handing a reader `…afraid. ⟦` |
+
+The mobile apps consuming raw chapter HTML from `public/api/` (see "Mobile
+apps are first-class consumers" under Key Conventions) have no equivalent
+strip of their own today, so the same two characters can still reach a shared
+card or a screen reader on those platforms. That is a gap in the apps' own
+text-extraction, to be closed by porting this same rule on their side — not a
+reason to change what ships here, since the website's own search, changelog,
+and Copy/Share paths already strip the markers correctly.
 
 **Always strip before collapsing whitespace** — a closing marker is not always
-paragraph-final (John 9:39 reads `Jesus said, |] “I came…`), so the gap it
+paragraph-final (John 9:39 reads `Jesus said, ⟧ “I came…`), so the gap it
 leaves would otherwise ship as a double space. The changelog copy deliberately
 exempts its paragraph-level *fallback* comparison so a bracket-only edit still
 produces a row; that exception is at the call site, not in the shared helper.
 Any future consumer that flattens paragraphs to text needs the same strip.
+
+Beyond `stripBracketMarkers`'s three consumers, five places independently match
+these literal characters and must be kept in step with any future change — note
+which of them have to accept the master's old form too:
+
+| Site | Matches |
+|------|---------|
+| `validate-chapters.mjs` — `verse_marker_separator` exemption | ⟦ only (repo shape); `john-11-p16` is the one paragraph that depends on it |
+| `validate-chapters.mjs` — `old_bracket_markers` | `[\|`/`\|]` only (that is the rule) |
+| `lib/release-notes-core.mjs` — opening-bracket fall-forward | both; it reads both sides of a git diff |
+| `reconcile/build-ledger.mjs` — `BRACKET_MARKER_RE` | both, so a restore that would swap the form reads as "changes the markers" and is held |
+| `reconcile/check-bracket-twins.mjs` — `OPEN`/`CLOSE` | ⟦/⟧ only; it scans the repo, which the validator keeps single-form |
+
+`reconcile/gate-report.mjs` strips both forms for the same reason
+`build-ledger.mjs` does — its text comes from a master.
 
 ### Verse-number gaps
 
@@ -930,9 +997,11 @@ collection); they're read directly by the intro pages and the API manifest.
   `public/api/`, `public/og/`, `public/search/topics.json`,
   `public/search/verses.json`, `public/topics-index.json`,
   `public/glossary.json`, `dist/`, `.astro/`.
-  Don't hand-edit them. Two generators are deliberately **outside** this rule
+  Don't hand-edit them. Three generators are deliberately **outside** this rule
   because their output is committed and hand-maintained — `build:favicons`
-  (icons) and `build:alignment` (review state); neither runs in `npm run build`.
+  (icons), `build:alignment` (review state), and `build:bracket-font`
+  (`public/fonts/bracket-markers.otf`); none of the three runs in
+  `npm run build`.
 - **No client JS framework**, but `src/scripts/` *does* hold vanilla JS for
   progressive enhancement (verse highlighting/menus, footnote popovers, reading
   mode, search). Everything must degrade gracefully without JS.

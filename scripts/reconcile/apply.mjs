@@ -61,7 +61,7 @@ const WANT_BOOK = argValue("book", null);
 const WANT_DECISION = argValue("decision", null);
 // --ids=<id>,<id> names records explicitly and is the ONLY way past
 // forceHandReview. That flag is set on a whole chapter carrying a bracketed
-// [|/|] passage, which is deliberately coarse: john-11-fn-d is an ordinary
+// ⟦/⟧ passage, which is deliberately coarse: john-11-fn-d is an ordinary
 // footnote held only because its chapter has brackets somewhere else. Naming a
 // record is the reviewer saying they checked that particular one, so every
 // other assertion still applies - a named record with no decision, no patch or

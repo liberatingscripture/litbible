@@ -54,8 +54,8 @@ const FIX = process.argv.includes("--fix");
 const FROM = argValue("from", null);
 
 // The markers are literal characters in the paragraph HTML, not markup.
-const OPEN = String.fromCharCode(91, 124); // [|
-const CLOSE = String.fromCharCode(124, 93); // |]
+const OPEN = String.fromCodePoint(0x27e6); // ⟦
+const CLOSE = String.fromCodePoint(0x27e7); // ⟧
 
 /**
  * Every bracket marker in a chapter, in reading order, with the footnote label
