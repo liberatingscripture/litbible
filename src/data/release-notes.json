@@ -1,5 +1,49 @@
 [
   {
+    "version": "2026-09-06",
+    "date": "2026-09-06",
+    "label": "September 6, 2026",
+    "changes": [
+      {
+        "type": "text_updated",
+        "description": "2 Corinthians 1:8 — text updated",
+        "detail": "\"burdened\" → \"weighed down\"",
+        "location": {
+          "bookKey": "2corinthians",
+          "chapter": 1,
+          "verse": 8
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Luke 9:32 — text updated",
+        "detail": "\"overcome with\" → \"weighed down by\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 9,
+          "verse": 32
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Philemon 1:1–2 — text updated",
+        "location": {
+          "bookKey": "philemon",
+          "chapter": 1,
+          "verse": 1
+        }
+      },
+      {
+        "type": "chapter_added",
+        "description": "Luke 21 added",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 21
+        }
+      }
+    ]
+  },
+  {
     "version": "2026-09-04",
     "date": "2026-09-04",
     "label": "September 4, 2026",
