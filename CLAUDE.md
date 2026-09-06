@@ -467,11 +467,16 @@ nature, and a button per block would bury the whole-range actions.
 ### Poetry blocks (`hbq`)
 
 Quoted Hebrew and Semitic poetry is set as `<blockquote id="<block-id>"
-class="hbq">` holding one `<p class="hbq-line">` per line. The renderer adds
+class="hbq">` holding one `<p class="hbq-line">` per line. `addHbqAria` adds
 `role="group" aria-label="Poetry"` and points `aria-describedby` at
 "Formatted as Hebrew and Semitic poetry with indented parallel lines", so the
 markup is a **claim about the text**, not a styling choice, and a screen
-reader repeats it. Two rules follow:
+reader repeats it. Both views run that pass and both carry the
+`#hbq-description` target, so keep them in step: it was Study-only and
+class-first-only until 2026-09-06, which left 98 of the 108 rendered blocks
+silent (44 of 54 source blockquotes are written `id`-first, and Reading Mode
+announced none of them). Attribute order must never decide this. Two further
+rules:
 
 1. **`hbq` is for quotation.** Lines the author sets apart that are not quoted
    scripture do not get it. 2 Corinthians 6:2 is the case to reason from: the

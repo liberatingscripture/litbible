@@ -180,9 +180,17 @@ function wrapVerseSegments(html: string, state: StudyVerseState): string {
  * identify these as grouped poetic content.
  */
 function addHbqAria(html: string): string {
+  // Attribute ORDER must not decide whether a poetry block is announced. The
+  // predecessor matched /<blockquote\s+class="hbq"/, so it reached only the
+  // blockquotes written class-first — 10 of the corpus's 54, leaving 98 of the
+  // 108 rendered poetry blocks (Study + Reading Mode) with no role and no
+  // label, and the page's own #hbq-description referenced by a twelfth of them.
+  // Both orders are authored and both are correct HTML, so match on the class
+  // wherever it sits and insert ahead of the existing attributes. The negative
+  // lookahead for an existing role= keeps it idempotent.
   return String(html ?? "").replace(
-    /<blockquote\s+class="hbq"/g,
-    '<blockquote class="hbq" role="group" aria-label="Poetry" aria-describedby="hbq-description"',
+    /<blockquote(?![^>]*\brole=)((?=[^>]*\bclass="hbq")[^>]*)>/g,
+    '<blockquote role="group" aria-label="Poetry" aria-describedby="hbq-description"$1>',
   );
 }
 
@@ -313,9 +321,14 @@ export function prepareReadParagraph(
   // views share the same v\d+ matcher.
   const noFootnotes = removeFootnoteRefs(html);
   const deduped = dropDuplicateVerseIds(noFootnotes, seenVerseIds);
-  return normalizeHbqVerseGlue(
-    normalizeReadVerseGlue(
-      rewriteVerseIdsAndAnchors(deduped, bookKey, chapter),
+  // addHbqAria here too: Reading Mode renders the same poetry blocks and had
+  // never announced any of them. Its page carries the same #hbq-description
+  // target, so the describedby reference resolves on both views.
+  return addHbqAria(
+    normalizeHbqVerseGlue(
+      normalizeReadVerseGlue(
+        rewriteVerseIdsAndAnchors(deduped, bookKey, chapter),
+      ),
     ),
   );
 }

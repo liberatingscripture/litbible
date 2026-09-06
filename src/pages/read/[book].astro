@@ -288,6 +288,11 @@ const description = `Read ${bookName} in continuous scroll with Reading Mode.`;
     >
       <h1 class="rm-title">{bookName}</h1>
 
+      {/* Hidden description for Hebrew poetry blockquotes, referenced by
+          aria-describedby. Mirrors the one in [slug].astro; both views run the
+          same addHbqAria pass, so the reference must resolve on both. */}
+      <div id="hbq-description" hidden>Formatted as Hebrew and Semitic poetry with indented parallel lines</div>
+
       <div class="rm-text" data-rm-text>
         {
           chapters.map(({ chapter, paragraphs }) => (
