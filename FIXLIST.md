@@ -1331,18 +1331,25 @@ S9, O9, and O8.
   fallback in `buildChanges` — that is deliberate, and is why the 2026-09-06
   entry in `release-notes-skip.md` was still needed. See the next item.
 
-- [ ] **Decide whether a block-structure change should read as "metadata
-  updated" rather than "text updated".** (Raised 2026-09-06 by the item above.)
-  The paragraph-level fallback in `buildChanges` fires whenever `normalizeMarkup`
-  of the paragraphs differs, which catches attribute changes correctly (they
-  collapse to "metadata updated") but treats a change of *tags* — `<p>` + `<br>`
-  becoming an `hbq` blockquote — as a text edit. The apps then show
-  "Romans 3:11–31 — text updated" for a publish in which no word changed.
-  Being loud is the fallback's whole purpose (it is what makes a bracket-only
-  edit surface at all), so this is a **judgment about the feed**, not a bug:
-  is re-setting a passage as poetry a reader-facing change worth a row, and if
-  so should it say something other than "text updated"? Until it is decided,
-  `release-notes-skip.md` is the workaround. Owner decision, then Sonnet-sized.
+- [x] **Decide whether a block-structure change should read as "metadata
+  updated" rather than "text updated".** DONE 2026-09-06 — owner ruled
+  **neither**: "formatting only changes shouldn't make it to the release notes."
+  The paragraph-level fallback in `buildChanges` compared `normalizeMarkup`,
+  which strips *attributes* but keeps *tags*, so a change of tags read as a text
+  edit — the apps would have shown "Romans 3:11–31 — text updated" for a publish
+  in which no word changed, and the range was wrong too, because the comparison
+  ran per index and merging two paragraphs shifted every paragraph after it. It
+  now compares **extracted text**, joined so a paragraph-count change does not
+  cascade. A chapter edit that moves no visible character emits *nothing*, and
+  that deliberately includes the attribute-only case that used to produce a
+  "metadata updated" row: one such row has ever shipped, against a batch of 15
+  the owner suppressed by hand, so this is that suppression made automatic. A
+  genuine metadata edit (paragraphs and footnotes byte-identical,
+  `title`/`description`/`topics` moved) keeps its row. **Two things the change
+  deliberately does not swallow**, both with tests: a bracket-only edit, since
+  `⟦`/`⟧` are visible characters and `stripBracketMarkers` is not applied to
+  this comparison; and anything the per-verse split cannot see, which is the
+  whole reason the fallback exists.
 
 - [ ] **Consider sharing any selected text, not just whole blocks.**
   (Raised 2026-08-09 alongside the part-sharing work; the owner picked the

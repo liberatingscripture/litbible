@@ -153,12 +153,10 @@ silently disagreed on this point for as long as `hbq` has existed: 1 Peter 2:6,
 untouched on `main`, already extracts as `ZionA valuable, choice`. Logged in
 FIXLIST, and fixed the same day.
 
-**With that fix in, this publish still reports two bare `text_updated` rows** —
-the garbled `detail` is gone, but the *paragraph-level fallback* in
-`buildChanges` fires on any structural change to a paragraph, which is
-deliberate (it exists so a change verse extraction cannot see is never silently
-swallowed, and it is what makes a bracket-only edit surface). So the skip is not
-standing in for a fix that landed; it is the right tool on its own, because
-"Romans 3:11–31 — text updated" is still a claim about text that did not
-change. Whether a block-structure change should read as "metadata updated"
-instead is a separate call about the feed, and nobody has made it.
+**Both halves are fixed now, and this entry is kept as the belt to that
+braces.** The extractor fix removed the garbled `detail`; a second change made
+the paragraph-level fallback compare *extracted text* instead of markup, so a
+formatting-only edit emits nothing at all — this publish included. The skip
+still matters for one reason: it protects the window in which the content
+change merges **before** the drafter fix does, when the old behaviour would
+still write the two wrong rows.

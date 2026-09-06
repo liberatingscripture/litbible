@@ -357,27 +357,30 @@ export function buildChanges({ addedFiles, modifiedFiles, readBase, readNow }) {
       }
     }
 
-    // Fallback: if verse extraction found nothing but paragraphs clearly differ,
-    // fall back to paragraph-level detection so we never silently swallow changes.
-    // Compare normalized markup (attributes/whitespace stripped) so an attribute-
-    // only paragraph edit (e.g. a class/id retag) doesn't fire the fallback and
-    // instead collapses to a single "metadata updated" line, matching how the
-    // docblock and CLAUDE.md describe attribute-/metadata-only chapter edits.
-    // Verse extraction below still reads the RAW paragraph (it needs id="vN").
+    // Fallback: if verse extraction found nothing but the chapter's VISIBLE TEXT
+    // still differs, fall back to paragraph-level detection so a change the
+    // per-verse split cannot see is never silently swallowed.
+    //
+    // The comparison is on extracted text, NOT on markup. A change that leaves
+    // every visible character in place — retagging an attribute, or re-setting a
+    // passage as a poetry blockquote — is a formatting edit, and formatting does
+    // not belong in a reader-facing feed (owner, 2026-09-06). Comparing
+    // normalizeMarkup() instead reported "Romans 3:11-31 - text updated" for a
+    // publish in which no word changed, and the wrong verse range at that: the
+    // markup comparison is per index, so merging two paragraphs shifted every
+    // paragraph after it and flagged the rest of the chapter.
     //
     // stripBracketMarkers is deliberately NOT applied here, unlike in
-    // extractVerseTexts above: leaving the markers visible to this comparison
-    // means a bracket-only edit still surfaces as a real "text updated" row
-    // (with no detail) rather than vanishing from the changelog altogether.
-    const normPara = (p) => normalizeMarkup(stripFootnoteRefs(p ?? ""));
-    if (
-      textDiffs.length === 0 &&
-      JSON.stringify(oldParas.map(normPara)) !== JSON.stringify(newParas.map(normPara))
-    ) {
+    // extractVerseTexts above: the ⟦/⟧ markers are visible characters, so
+    // leaving them in means a bracket-only edit still surfaces as a real "text
+    // updated" row (with no detail) rather than vanishing from the changelog.
+    const paraText = (p) => stripHtml(stripFootnoteRefs(p ?? ""));
+    const joined = (paras) => paras.map(paraText).join(" ").replace(/\s+/g, " ").trim();
+    if (textDiffs.length === 0 && joined(oldParas) !== joined(newParas)) {
       const changedVerses = new Set();
       const maxLen = Math.max(oldParas.length, newParas.length);
       for (let i = 0; i < maxLen; i++) {
-        if (normPara(oldParas[i]) !== normPara(newParas[i])) {
+        if (paraText(oldParas[i]) !== paraText(newParas[i])) {
           for (const v of extractVerses(newParas[i] ?? oldParas[i] ?? "")) changedVerses.add(v);
         }
       }
@@ -591,7 +594,23 @@ export function buildChanges({ addedFiles, modifiedFiles, readBase, readNow }) {
     const hasFnChanges = filteredFnDiffs.length > 0 || relabelSummary !== null;
 
     if (!hasTextChanges && !hasFnChanges) {
-      metadataOnly.push({ bookKey, chapter, label });
+      // Nothing a reader could be shown changed. Two ways to get here, and they
+      // are not the same thing:
+      //
+      //  - The markup moved but every visible character stayed put: an
+      //    attribute retag, or a passage re-set as a poetry blockquote. That is
+      //    a FORMATTING edit and emits nothing at all (owner, 2026-09-06) —
+      //    release-notes.json is the apps' Translation Updates feed, and
+      //    "metadata updated" is still a row in it. One such row has ever
+      //    shipped, against a batch of 15 suppressed by hand through
+      //    release-notes-skip.md; this is that suppression made automatic.
+      //  - The paragraphs and footnotes are byte-identical and something else
+      //    in the file moved (title, description, topics). That is a genuine
+      //    metadata edit and keeps its row.
+      const formattingOnly =
+        JSON.stringify(oldParas) !== JSON.stringify(newParas) ||
+        JSON.stringify(oldFns) !== JSON.stringify(newFns);
+      if (!formattingOnly) metadataOnly.push({ bookKey, chapter, label });
       continue;
     }
 

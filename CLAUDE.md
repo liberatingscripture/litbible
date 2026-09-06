@@ -1400,11 +1400,24 @@ collection); they're read directly by the intro pages and the API manifest.
   spec. (A stable per-footnote
   `footnoteId` for exact-footnote deep links is intentionally not emitted yet —
   it needs a matching stable anchor in the chapter JSON first.) The drafter
-  reports **reader-facing changes only**: modified chapters diff rendered verse/
-  footnote text (attribute- or metadata-only chapter edits collapse to one
-  "metadata updated" line), and modified intros/glossary/articles are compared
-  with HTML attributes and whitespace normalized away — so a mechanical edit
-  (e.g. stripping `target="_blank"` from a link) produces no changelog entry.
+  reports **reader-facing changes only**, and the test of "reader-facing" is
+  **extracted text, never markup** (owner, 2026-09-06). Modified chapters diff
+  rendered verse/footnote text; a chapter edit that moves no visible character
+  — an attribute retag, a passage re-set as an `hbq` blockquote, two paragraphs
+  merged — is a **formatting** edit and emits *nothing at all*, not even a
+  "metadata updated" row. Only a genuine metadata edit (paragraphs and footnotes
+  byte-identical, `title`/`description`/`topics` moved) still collapses to that
+  line. Modified intros/glossary/articles are likewise compared with HTML
+  attributes and whitespace normalized away, so a mechanical edit (e.g.
+  stripping `target="_blank"` from a link) produces no changelog entry.
+  **Two things this must not swallow, both load-bearing:** a bracket-only edit
+  (`⟦`/`⟧` are visible characters, so they survive the text comparison on
+  purpose) and anything the per-verse split cannot see, which is what the
+  paragraph-level fallback in `buildChanges` is for. And note the asymmetry in
+  `stripHtml` that all of this rests on: a **block** tag becomes a space, an
+  **inline** tag vanishes — Word splits styled phrases mid-word, so
+  `<em>ekd</em><em>emeo</em>` has to rejoin, while deleting a `<p>` boundary
+  outright welded "ZionA valuable" into the apps' feed for months.
 - **The contact + app-support forms are self-hosted**: `/contact` posts to
   `/contact/submit` and `/app-support` posts to `/app-support/submit`, both
   served by a single standalone Cloudflare Worker in `workers/contact-form/`
