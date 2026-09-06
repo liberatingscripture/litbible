@@ -1590,6 +1590,28 @@ repair below, not a finding.
 repo-only by owner ruling: 413 numeric ranges became en dashes here, and the
 masters keep hyphens.
 
+### Queued from the Luke 21 import (2026-09-06)
+
+Found by running the repaired `import-chapter.mjs` against finished books and
+diffing the result. The repo is right in both; the master is the side to change.
+
+| repo | master | fix |
+|---|---|---|
+| `philemon-1` v2 | Philemon | `the assembly at your house` → `the community at your house`. Owner ruling 2026-09-06. The corpus renders *ekklesia* as "Called Community" 27 times and never as "assembly" — the two "assembly" uses in `luke-1` and `luke-8` translate a different word — so the master's wording is the outlier here. |
+**`philemon-1` fn-f is NOT on this list.** The master's
+`<em>presbuteros,</em>` is now normalized on the way in — see
+`liftTrailingPunctuation` — because which side of a tag a comma sits on is
+markup, not text. Owner ruling 2026-09-06. `luke-21` fn-p was the same shape
+and is fixed in the repo. **13 instances remain in 11 published chapters**
+(`1john-3`, `1timothy-1`, `ephesians-1`, `luke-1`, `luke-2`, `mark-5`,
+`matthew-20`, `matthew-5`, `matthew-6`, `matthew-9`, `titus-1`) from before the
+importer did this; they are a retroactive cleanup, not a back-port, since the
+masters need no change.
+
+Philemon's paragraph split is **not** a back-port item: the master is right
+(paragraphs open at v1a, v1b, v3, v4 — verse 1 spans the sender and recipient
+blocks) and the repo was corrected to match on 2026-09-06.
+
 **But the ledger is not blind to it, so expect the counts to jump.** Rebuilding
 after the conversion took the ledger from 547 records to 817: bucket **E went
 from 487 to 756**, absorbing the ~269 notes whose only difference is now a dash,

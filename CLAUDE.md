@@ -359,7 +359,9 @@ Each file in `src/data/chapters/` follows this structure:
   see below.
 - **`topics`** are free-text labels (e.g. `"Nicodemus"`), not pre-slugged.
   `build-topics-index.mjs` normalizes them into slugs and groups chapters that
-  share a topic.
+  share a topic. **Choosing them is an editorial judgment with its own rules —
+  see "Choosing topics" below.** They are repo-only (not in the masters), so a
+  fresh import writes `topics: []` and they are filled in by hand.
 - **`footnotes`** are HTML strings; the verse text references them via
   `<sup class="fn-ref">` anchors (Pagefind excludes these — see `pagefind.yml`).
 - **`indexed`** is an explicit two-state publication flag on EVERY chapter:
@@ -461,6 +463,39 @@ the way `#v16` does, rather than merely scrolling.
 
 Parts are offered for a single verse only — a range already spans blocks by
 nature, and a button per block would bury the whole-range actions.
+
+### Choosing topics
+
+**TOPICS.md is the authority; read it before adding or revising a `topics`
+array.** The rules are not derivable from the data, and the corpus does not
+uniformly follow them.
+
+The three things most often got wrong:
+
+1. **Tags are not a concordance.** Verse search already covers every word the
+   translation actually prints, so topics exist to cover what full-text search
+   *cannot*: traditional vocabulary LIT does not use ("repentance" for
+   "reorienting the mind"), names that appear nowhere in the text ("parable",
+   "the Good Samaritan"), and load-bearing themes. A concept is tagged only
+   where it is load-bearing — the **significance filter** — never on every
+   chapter whose text happens to contain the word.
+2. **Alternative-translation pairs are all-or-nothing.** If one side is present
+   the other must be: "Son of Man" + "Son of Humanity", "kingdom of God" +
+   "reign of God", "salvation" + "liberation". Carrying only the LIT label
+   leaves the chapter reachable only by readers who already know the
+   translation. TOPICS.md holds the full table and its group rules.
+3. **Search matches on exact prefix**, so a tag must begin with the word a
+   reader types first. Several tags for one concept at different entry points
+   ("the Good Samaritan" *and* "Good Samaritan") are deliberate, not duplicates.
+
+A chapter reaching 30+ tags needs re-review against the significance filter.
+There is **no validator rule for topics** — `validate-chapters.mjs` does not
+look at them — so the checks in TOPICS.md are run by hand.
+
+**A topic can go stale.** Labels are often drawn from LIT's own wording, so
+changing a verse's rendering can orphan one — `luke-12` carried
+`"compassion work"` after the text it came from was replaced. Re-check a
+chapter's topics whenever its wording changes.
 
 ## Translation Source Text (SBLGNT)
 
@@ -1597,11 +1632,26 @@ something the importer got wrong.
 ### Verifying it
 
 The strongest available check is that it **reproduces an existing chapter
-exactly**. Philemon round-trips at 8/8 paragraphs, 16/16 footnotes, with the
-verse text and every footnote byte-identical to the reconciled repo copy — so
-run it against a finished book before trusting it on a new one. Titus 2 is the
-useful negative: it refuses, catching the one master-side defect §23's
-back-port table already lists.
+exactly** — run it against a finished book before trusting it on a new one.
+Titus 2 is the useful negative: it refuses, catching the one master-side defect
+§23's back-port table already lists.
+
+**Philemon is that check.** It stands at **7/8 paragraphs and 16/16
+footnotes** as of 2026-09. The one remaining delta is a known **master-vs-repo
+wording** difference queued for back-port — p2 renders *ekklesia* as "the
+community" in the repo and "the assembly" in the master (the corpus says
+community; see `FOLLOW-UP-RECONCILIATION.md`) — so a clean run today is 7/8,
+not 8/8.
+
+That distinction is the thing to hold onto: **a Philemon delta is a
+master-vs-repo report, not automatically an importer bug**, and the two are
+told apart by asking which side is right rather than by the count moving. It
+briefly read 6/8 and 12/16, and *that* was the importer — a chapter-number
+heading leaking into paragraph 1 and a verse-initial token split across Word
+runs, both since fixed. The four footnote deltas were repo-only normalizations
+the importer now performs (edge-whitespace trimming, comma-lifting out of
+styled runs). Re-baseline these numbers when either side is deliberately
+changed, rather than treating an older figure as the target.
 
 The pure layer is `lib/import-core.mjs` and is unit-tested directly
 (`test/import-core.test.js`), following the same shell/core split as
@@ -1696,6 +1746,7 @@ argv, and the scan; nothing else.
 | `public/.well-known/api-catalog` | RFC 9727/9264 `linkset+json` catalog of the public API |
 | `public/llms.txt`, `llms-full.txt` | LLM-readable site description + AI-usage policy |
 | `GLOSSARY-CANDIDATES.md` | Register of glossary candidates deliberately not included or deferred, and the payload criterion behind those calls. Read it before proposing a "next term." |
+| `TOPICS.md` | **The authority on chapter `topics`** — the significance filter, the alternative-translation pair table, the prefix-search rule, casing, and the hand-run checks. Read it before adding or revising any topics array. |
 | `DISASTER-RECOVERY.md` | Continuity doc: every dashboard/secret behind the deploy (names only, no values) + the DNS inventory + from-zero redeploy path. Update it when an integration, secret, or DNS record is added/removed. |
 
 > The top-level `README.md` is the lighter human-facing overview; this file is
