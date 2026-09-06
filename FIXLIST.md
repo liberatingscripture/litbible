@@ -1279,16 +1279,36 @@ S9, O9, and O8.
   shared `src/lib/bracket-markers.mjs`. Two stray "words" — literally `11` and
   `41` — fell out of the search vocabulary as a result.
 
-- [ ] **Decide whether "Copy verse" should keep poetry line breaks too.**
-  The new per-part copy keeps them (a block quote shares as four lines, which
-  is how the poetry is set); the older whole-verse "Copy verse" still joins
-  everything with spaces, so copying 1 Peter 2:6 entire gives a run-on
-  `…in scripture: Look, I placed a stone in Zion A valuable, choice…`. Left
-  alone deliberately — changing it alters copy output for every poetry verse on
-  the site, which is a reader-facing call rather than a side effect of building
-  the part feature. If you want them aligned, it is a small change in
-  `getSingleVerseText` (`src/scripts/chapter-tools.js`): join `.hbq-line` spans
-  with a newline instead of a space. Sonnet-sized once decided.
+- [x] **Decide whether "Copy verse" should keep poetry line breaks too.**
+  DONE 2026-09-06 (owner: yes, align them). "Copy verse" and "Copy verses"
+  now keep a poetry quotation’s line breaks, matching the per-part copy that
+  shipped 2026-08-09. 1 Peter 2:6 copies as its lede then four lines instead
+  of the run-on `…in scripture: Look, I placed a stone in Zion A valuable,
+  choice…`. The rule lives in one place now — `joinSpanText` in
+  `src/scripts/chapter-tools.js`, which `verseParts` also uses, so the whole
+  verse and its parts can no longer disagree: a newline falls at every
+  boundary touching a poetry block (between its lines, and between it and the
+  prose leading in or out), everything else joins with a space. Prose
+  paragraph breaks are deliberately untouched (1 Corinthians 3:9 still copies
+  as one line). Ranges got the same treatment for coherence: a verse ending
+  inside poetry keeps the break before the next verse number, so 6–7 no
+  longer welds `shamed. 7 Therefore` onto a poetry line.
+
+- [ ] **Decide the same question for `<br>` poetry lines, which today copy with
+  NO separator at all.** (Found 2026-09-06 while doing the item above.) Not all
+  poetry is set as an `hbq` blockquote: three published chapters break lines with
+  a bare `<br>` inside one paragraph — Romans 3 (8), Romans 9 (3), and
+  2 Corinthians 6 (1), all of them quoted Psalm/Isaiah lines. `blockText` reads
+  `textContent`, which drops a `<br>` entirely, so 2 Corinthians 6:2 copies as
+  `…a welcome time!Look! Now is the Day…` — two sentences welded into one
+  word. That is a defect rather than a style call, but the fix implies the style
+  call too (space or newline?), and the owner's 2026-09-06 answer for blockquote
+  poetry says newline. Deliberately left out of that change because the fix is
+  not local to `blockText`: `cleanForShare` collapses `\s+` to a space, so it
+  would have to preserve a newline (`[^\S\n]+` then `/ *\n\s*/`), which
+  also touches the shipped per-part copy and the `plain` button labels
+  (flatten those separately). Sonnet-sized once decided; verify by copying
+  Romans 3:10–12 and 2 Corinthians 6:2.
 
 - [ ] **Consider sharing any selected text, not just whole blocks.**
   (Raised 2026-08-09 alongside the part-sharing work; the owner picked the

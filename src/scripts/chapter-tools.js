@@ -298,14 +298,38 @@ function verseParts(container, verse) {
   for (const [block, spans] of byBlock) {
     const lines = spans.map((span) => cleanForShare(blockText(span))).filter(Boolean);
     if (!lines.length) continue;
-    // A quotation set as poetry keeps its line breaks when shared — the line
-    // structure is part of what is being quoted. Prose spans inside one block
-    // are just wrapped text, so they join with a space. (The whole-verse
-    // "Copy verse" above still space-joins throughout; see FIXLIST.)
-    const text = lines.join(block.tagName === "BLOCKQUOTE" ? "\n" : " ");
-    parts.push({ id: block.id, text, plain: lines.join(" ") });
+    parts.push({ id: block.id, text: joinSpanText(spans), plain: lines.join(" ") });
   }
   return parts;
+}
+
+/**
+ * Join a verse’s spans into shareable text.
+ *
+ * A quotation set as poetry keeps its line breaks — the line structure is
+ * part of what is being quoted, and the per-part copy already shares it that
+ * way. So a newline falls at every boundary touching a poetry block: between
+ * its lines, and between it and the prose leading into or out of it. Anything
+ * else is wrapped text or a mid-verse paragraph break, which join with a
+ * space.
+ */
+function joinSpanText(spans) {
+  let out = "";
+  let prevPoetry = false;
+  for (const span of spans) {
+    const text = cleanForShare(blockText(span));
+    if (!text) continue;
+    const poetry = isPoetry(span);
+    if (out) out += poetry || prevPoetry ? "\n" : " ";
+    out += text;
+    prevPoetry = poetry;
+  }
+  return out;
+}
+
+/** Is this span one line of a quotation set as poetry? */
+function isPoetry(span) {
+  return !!span.closest("blockquote");
 }
 
 /** A short preview of a part, for its menu button. */
@@ -335,26 +359,41 @@ function cleanForShare(text) {
 
 /**
  * Extract the plain text of one verse from its data-verse span(s),
- * skipping verse-number markers and footnote refs. Spans in different
- * blocks (poetry lines, paragraph breaks) join with a space.
+ * skipping verse-number markers and footnote refs. Spans join per
+ * joinSpanText: a poetry quotation keeps its line breaks, prose does not.
  */
 function getSingleVerseText(container, verse) {
-  return cleanForShare(verseSpans(container, verse).map(blockText).join(" "));
+  return joinSpanText(verseSpans(container, verse));
+}
+
+/** Does this verse end inside a poetry quotation? */
+function endsInPoetry(container, verse) {
+  const spans = verseSpans(container, verse);
+  return spans.length > 0 && isPoetry(spans[spans.length - 1]);
 }
 
 /**
  * Text for a verse range. Multi-verse selections include the verse number
  * before each verse after the first, e.g.:
  *   "…agelong life. 17 God did not send… 18 The one who…"
+ *
+ * A verse ending inside a poetry quotation keeps that break before the next
+ * verse number, so the following verse does not run on from a poetry line.
  */
 function getVerseText(container, start, end) {
-  const parts = [];
+  let out = "";
+  let prev = null;
   for (let v = start; v <= end; v++) {
     const text = getSingleVerseText(container, v);
     if (!text) continue; // known SBLGNT omissions leave gaps
-    parts.push(parts.length === 0 ? text : v + " " + text);
+    if (prev === null) {
+      out = text;
+    } else {
+      out += (endsInPoetry(container, prev) ? "\n" : " ") + v + " " + text;
+    }
+    prev = v;
   }
-  return parts.join(" ");
+  return out;
 }
 
 async function copyToClipboard(text) {
