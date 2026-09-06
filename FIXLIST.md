@@ -1294,21 +1294,21 @@ S9, O9, and O8.
   inside poetry keeps the break before the next verse number, so 6–7 no
   longer welds `shamed. 7 Therefore` onto a poetry line.
 
-- [ ] **Decide the same question for `<br>` poetry lines, which today copy with
-  NO separator at all.** (Found 2026-09-06 while doing the item above.) Not all
-  poetry is set as an `hbq` blockquote: three published chapters break lines with
-  a bare `<br>` inside one paragraph — Romans 3 (8), Romans 9 (3), and
-  2 Corinthians 6 (1), all of them quoted Psalm/Isaiah lines. `blockText` reads
-  `textContent`, which drops a `<br>` entirely, so 2 Corinthians 6:2 copies as
-  `…a welcome time!Look! Now is the Day…` — two sentences welded into one
-  word. That is a defect rather than a style call, but the fix implies the style
-  call too (space or newline?), and the owner's 2026-09-06 answer for blockquote
-  poetry says newline. Deliberately left out of that change because the fix is
-  not local to `blockText`: `cleanForShare` collapses `\s+` to a space, so it
-  would have to preserve a newline (`[^\S\n]+` then `/ *\n\s*/`), which
-  also touches the shipped per-part copy and the `plain` button labels
-  (flatten those separately). Sonnet-sized once decided; verify by copying
-  Romans 3:10–12 and 2 Corinthians 6:2.
+- [ ] **Fix `<br>` poetry lines, which today copy with NO separator at all.**
+  (Found 2026-09-06 while doing the item above; narrowed the same day.) Not all
+  poetry is set as an `hbq` blockquote: some lines are broken with a bare `<br>`
+  inside one paragraph. `blockText` reads `textContent`, which drops a `<br>`
+  entirely, so 2 Corinthians 6:2 copies as `…a welcome time!Look! Now is the
+  Day…` — two sentences welded into one word. **Scope is now one published
+  verse.** Romans 3 and Romans 9 were the other two, and both were quoted
+  scripture, so they became `hbq` blockquotes instead (see "Poetry blocks" in
+  CLAUDE.md) and copy correctly. 2 Corinthians 6:2 stays a plain paragraph
+  deliberately — its two lines are Paul's own application, not the Isaiah
+  quotation — so it is the one case the code has to handle. The fix is not
+  local to `blockText`: `cleanForShare` collapses `\s+` to a space, so it must
+  learn to preserve a newline (`[^\S\n]+` then `/ *\n\s*/`), which also touches
+  the shipped per-part copy and the `plain` button labels (flatten those
+  separately). Sonnet-sized; verify by copying 2 Corinthians 6:2.
 
 - [ ] **Consider sharing any selected text, not just whole blocks.**
   (Raised 2026-08-09 alongside the part-sharing work; the owner picked the

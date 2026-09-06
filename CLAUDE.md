@@ -464,6 +464,45 @@ the way `#v16` does, rather than merely scrolling.
 Parts are offered for a single verse only — a range already spans blocks by
 nature, and a button per block would bury the whole-range actions.
 
+### Poetry blocks (`hbq`)
+
+Quoted Hebrew and Semitic poetry is set as `<blockquote id="<block-id>"
+class="hbq">` holding one `<p class="hbq-line">` per line. The renderer adds
+`role="group" aria-label="Poetry"` and points `aria-describedby` at
+"Formatted as Hebrew and Semitic poetry with indented parallel lines", so the
+markup is a **claim about the text**, not a styling choice, and a screen
+reader repeats it. Two rules follow:
+
+1. **`hbq` is for quotation.** Lines the author sets apart that are not quoted
+   scripture do not get it. 2 Corinthians 6:2 is the case to reason from: the
+   chapter's own fn-b ("Quotation of Isaiah 49:8") is anchored to the *prose*
+   sentence, and the two "Look! Now is a welcome time!" lines that follow are
+   Paul's own application — so they stay a plain paragraph, and the owner ruled
+   in 2026-09 that they should. Check where the "Quotation of X" footnote is
+   anchored before reaching for a blockquote.
+2. **One block, one quotation.** A block that stops mid-quotation splits it in
+   the rendering, and a block holding two quotations merges them. Romans
+   3:10–18 is the worked example: it is a catena of six OT quotations, and a
+   dropped paragraph break had left the Isaiah 59:7–8 half of it across two
+   blocks — p7 opened a quote mark and never closed it, p8 closed one it never
+   opened. Merging them made every block exactly one quotation. **The chapter
+   validator cannot see this**: its balanced-quote rule covers `footnotes[]`
+   only, never `paragraphs`, so quote balance per poetry block is checked by
+   hand.
+
+A `<br>` inside a `<p>` is the older way of setting lines and survives only
+where the lines are not a quotation. It is worse than `hbq` for more than
+looks: `blockText` in `chapter-tools.js` reads `textContent`, which drops a
+`<br>` with no separator, so Copy verse welds the two lines into one word.
+See FIXLIST.
+
+**Merging or removing a block retires its id rather than renumbering the
+blocks after it** (`matthew-20` runs p1 then p8 from an earlier merge). Block
+ids are shareable anchors — see "Sharing part of a verse" above — so
+renumbering would silently repoint a link that is already out there, while a
+gap costs nothing.
+
+
 ### Choosing topics
 
 **TOPICS.md is the authority; read it before adding or revising a `topics`
