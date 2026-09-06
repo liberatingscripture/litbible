@@ -20,6 +20,9 @@ import {
   enDashRanges,
   collapseRuns,
   fidelityDivergence,
+  chapterHeadingIndex,
+  firstTokenSpan,
+  liftTrailingPunctuation,
 } from "../scripts/lib/import-core.mjs";
 
 // ── labels ───────────────────────────────────────────────────────────────────
@@ -163,4 +166,164 @@ test("mapTextNodes visits text and skips tags", () => {
     mapTextNodes('<p id="a-1">x</p>', (t) => t.toUpperCase()),
     '<p id="a-1">X</p>'
   );
+});
+// ── chapterHeadingIndex ──────────────────────────────────────────────────────
+//
+// The master prints a big chapter number before verse 1 and the chapter's entry
+// range opens on it. Left in, it ships as literal body text at the head of the
+// first paragraph — `<b>21</b> ` before verse 1, which is what Luke 21 did.
+
+const text = (plain, html) => ({ kind: "text", plain, html: html ?? plain });
+const marker = (verse) => ({ kind: "verseMarker", verse });
+
+test("the chapter-number heading is located, so it can be dropped", () => {
+  const entries = [
+    { kind: "break" },
+    text("21", "<b>21</b>"),
+    text(" "),
+    marker(1),
+    text(" When "),
+  ];
+  assert.equal(chapterHeadingIndex(entries, 0, entries.length, 21), 1);
+});
+
+test("a single-chapter book has no heading to drop", () => {
+  // That branch anchors the range at verse 1's own digits.
+  const entries = [marker(1), text(" Paul, ")];
+  assert.equal(chapterHeadingIndex(entries, 0, entries.length, 1), -1);
+});
+
+test("real text before verse 1 is left alone rather than guessed at", () => {
+  const entries = [text("A Psalm of David"), marker(1), text(" Blessed ")];
+  assert.equal(chapterHeadingIndex(entries, 0, entries.length, 1), -1);
+});
+
+test("a heading that is not the chapter number is not dropped", () => {
+  const entries = [text("20", "<b>20</b>"), marker(1), text(" When ")];
+  assert.equal(chapterHeadingIndex(entries, 0, entries.length, 21), -1);
+});
+
+// ── firstTokenSpan ───────────────────────────────────────────────────────────
+//
+// Word's run boundaries do not respect words, so the token a verse number must
+// stay glued to can arrive split across runs. Reading only the first run glued
+// a bare `“`, or a lone `t`, and left the rest of the word outside the span.
+
+const glue = (entries, i = 0) =>
+  firstTokenSpan(entries, i, entries.length, {
+    escapeHtml: (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;"),
+    sameBlock: () => true,
+  });
+
+test("the ordinary case: one run holding the word and a space", () => {
+  const r = glue([text(" When Jesus looked ")]);
+  assert.equal(r.tokenHtml, "When");
+  assert.equal(r.tailHtml, " Jesus looked ");
+});
+
+test("an opening quote in its own run is glued to the word after it", () => {
+  // Luke 21:3 — ` “` / `Honestly` / `, I’m telling you,”
+  const r = glue([text(" “"), text("Honestly"), text(", I’m telling you,”")]);
+  assert.equal(r.tokenHtml, "“Honestly,");
+  assert.equal(r.tailHtml, " I’m telling you,”");
+  assert.equal(r.nextIndex, 3);
+});
+
+test("a word split mid-letter is rejoined", () => {
+  // Luke 21:26 — `t` / `here will be `
+  const r = glue([text(" "), text("t"), text("here will be ")]);
+  assert.equal(r.tokenHtml, "there");
+  assert.equal(r.tailHtml, " will be ");
+});
+
+test("a comma orphaned into the next run is glued back on", () => {
+  // Luke 21:32 — `Honestly` / `, I’m telling you`
+  const r = glue([text(" "), text("Honestly"), text(", I’m telling you")]);
+  assert.equal(r.tokenHtml, "Honestly,");
+  assert.equal(r.tailHtml, " I’m telling you");
+});
+
+test("markup inside the token is kept — the corpus shape at John 1:49", () => {
+  const r = glue([text(" “"), text("Rabbi", "<em>Rabbi</em>"), text(",” he said")]);
+  assert.equal(r.tokenHtml, "“<em>Rabbi</em>,”");
+  assert.equal(r.tailHtml, " he said");
+});
+
+test("a footnote anchor ends the token where it stands", () => {
+  const entries = [text(" Win"), { kind: "footnoteRef", id: "1" }, text(" your very selves")];
+  const r = glue(entries);
+  assert.equal(r.tokenHtml, "Win");
+  assert.equal(r.nextIndex, 1);
+});
+
+test("the token stops at a block boundary", () => {
+  const entries = [text(" When"), text("ever")];
+  const r = firstTokenSpan(entries, 0, entries.length, {
+    escapeHtml: (s) => s,
+    sameBlock: (j) => j === 0,
+  });
+  assert.equal(r.tokenHtml, "When");
+});
+
+test("a run carrying both markup and a space is not sliced", () => {
+  // Slicing that by a plain-text offset would not survive the tags. A short
+  // span is cosmetic; a mangled one is not.
+  const r = glue([text("Rabbi and", "<em>Rabbi and</em>")]);
+  assert.equal(r.tokenHtml, "");
+});
+
+// ── note trimming is gate-safe ───────────────────────────────────────────────
+//
+// Word leaves a trailing space on a note more often than not, and the corpus
+// carries none (5,511 of 5,512). The importer trims them; this is what makes
+// that safe rather than a third exception to the guarantee — the fold already
+// removes edge whitespace, so the gate cannot tell the two apart.
+
+test("the fold ignores edge whitespace, so trimming a note cannot fail the gate", () => {
+  assert.equal(fidelityDivergence("a note. ", "a note."), null);
+  assert.equal(fidelityDivergence(" a note.", "a note."), null);
+});
+
+test("trimming still cannot hide a real change at the end of a note", () => {
+  assert.ok(fidelityDivergence("give my bowels a reprieve. ", "give my bowels a rebuke."));
+});
+
+// ── liftTrailingPunctuation ──────────────────────────────────────────────────
+//
+// Word makes it easy to overshoot a selection by one character when
+// italicizing a word, so the comma lands inside the run. Published text runs
+// 1,133 commas after a closing tag against 13 before one.
+
+test("a comma is lifted out of the styled run it was typed inside", () => {
+  const r = liftTrailingPunctuation("related to <em>presbuteros,</em> ‘elder,’");
+  assert.equal(r.html, "related to <em>presbuteros</em>, ‘elder,’");
+  assert.equal(r.lifted, 1);
+});
+
+test("a semicolon is lifted too, and strong/i/b are covered", () => {
+  assert.equal(liftTrailingPunctuation("<strong>x;</strong>").html, "<strong>x</strong>;");
+  assert.equal(liftTrailingPunctuation("<i>x,</i>").html, "<i>x</i>,");
+});
+
+test("terminal punctuation is LEFT ALONE — it can belong to the run", () => {
+  // `i.e.` would be broken by moving its period; `Marana tha!` owns its mark.
+  for (const s of ["<em>i.e.</em>", "<em>Marana tha!</em>", "<em>arsenokoites.</em>", "<em>Really?</em>"]) {
+    assert.equal(liftTrailingPunctuation(s).html, s);
+  }
+});
+
+test("an abbreviation keeps its periods while its comma is lifted", () => {
+  assert.equal(liftTrailingPunctuation("<em>i.e.,</em>").html, "<em>i.e.</em>,");
+});
+
+test("a comma already outside is not moved again", () => {
+  const s = "<em>presbuteros</em>, ‘elder’";
+  assert.equal(liftTrailingPunctuation(s).html, s);
+  assert.equal(liftTrailingPunctuation(s).lifted, 0);
+});
+
+test("lifting a comma cannot fail the fidelity gate — no visible character moves", () => {
+  const before = "<em>presbuteros,</em> ‘elder’";
+  const after = liftTrailingPunctuation(before).html;
+  assert.equal(fidelityDivergence(visibleText(before), visibleText(after)), null);
 });
