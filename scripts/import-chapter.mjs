@@ -24,6 +24,18 @@
  * identical. Markup, footnote anchor letters, and whitespace runs are outside
  * that comparison by construction; every other character has to match.
  *
+ * Note what "visible" excludes: whitespace at the edges of a footnote. Word
+ * leaves a trailing space on a note more often than not, `foldAllowed` already
+ * trims the edges so the gate cannot see it either way, and the corpus is
+ * emphatic — 5,511 of 5,512 published notes carry none. So notes are trimmed,
+ * and that is a structural normalization rather than a third exception.
+ *
+ * A comma or semicolon typed inside a styled run is lifted out of it for the
+ * same reason — `<em>presbuteros,</em>` becomes `<em>presbuteros</em>,`. Which
+ * side of a tag the mark sits on is markup, not text, so the gate is blind to
+ * it and no visible character moves. See `liftTrailingPunctuation`, and note
+ * that it is deliberately limited to those two marks.
+ *
  * WHY THIS EXISTS. The 2026-02 import was hand-rolled and lossy in ways that
  * took six months to find (see FOLLOW-UP-RECONCILIATION.md). Each loss is
  * mechanical, so each is preventable at generation time:
@@ -43,6 +55,13 @@
  *      start; the continuation paragraph opens with plain text. (§8)
  *   5. Word's run boundaries fragment words across per-letter tags
  *      (<em>ekd</em><em>e</em>…). Collapsed — markup only, no text. (§26)
+ *   6. Those same run boundaries split the word a verse number must stay glued
+ *      to, so the token is gathered across runs — see `firstTokenSpan`. Reading
+ *      only the first run glued a bare quote mark, or a lone letter, and left
+ *      the rest of the word outside the span.
+ *   7. A multi-chapter book prints a chapter number before verse 1 and the
+ *      entry range opens on it. It is a heading, not scripture, and is dropped
+ *      from the build and the fidelity gate alike — see `chapterHeadingIndex`.
  *
  * WHAT IT DOES NOT DECIDE. Three things are editorial, and are left marked:
  *   - `topics` — free-text labels, empty on import
@@ -71,6 +90,7 @@ import { BOOKS, bookKeyToLabel } from "../src/data/books.js";
 import {
   labelFor, anchorFor, mapTextNodes, visibleText, foldAllowed,
   curlText, enDashRanges, collapseRuns, fidelityDivergence,
+  chapterHeadingIndex, firstTokenSpan, liftTrailingPunctuation,
 } from "./lib/import-core.mjs";
 
 const root = resolve(fileURLToPath(new URL(".", import.meta.url)), "..");
@@ -151,12 +171,15 @@ const enDash = (html, tally) => {
 function buildChapter(chapterNum) {
   const ch = scan.chapters.get(chapterNum);
   if (!ch) die(`chapter ${chapterNum} not found in this document`);
-  const tally = { curled: 0, dashed: 0, separators: 0, collapsed: 0 };
+  const tally = { curled: 0, dashed: 0, separators: 0, collapsed: 0, trimmed: 0, lifted: 0 };
 
   const labelOf = new Map();
   for (const f of ch.footnotes) if (!labelOf.has(f.id)) labelOf.set(f.id, labelFor(labelOf.size));
 
   const { start, end } = ch.entryRange;
+  // The master's big chapter number is a heading, not scripture. Dropped from
+  // the build and from the gate's master side alike — see chapterHeadingIndex.
+  const headingIdx = chapterHeadingIndex(entries, start, end, chapterNum);
   const blocks = [];
   let cur = null, curPara = -1, pending = null;
   const seen = [];
@@ -171,7 +194,7 @@ function buildChapter(chapterNum) {
 
   for (let i = start; i < end; i++) {
     const e = entries[i];
-    if (e.kind === "break") continue;
+    if (e.kind === "break" || i === headingIdx) continue;
     const p = paragraphOf(i);
     if (p !== curPara) openBlock(p);
 
@@ -193,22 +216,21 @@ function buildChapter(chapterNum) {
       continue;
     }
 
-    let html = e.html;
     if (pending !== null) {
-      const lead = e.plain.replace(/^[  ]+/, "");
-      if (lead === "") continue;                       // Word's separator space
-      html = html.slice(e.plain.length - lead.length);
-      const first = (/^(\S+)/.exec(lead) || [, lead])[1];
-      const firstHtml = escapeHtml(first);
-      if (html.startsWith(firstHtml)) {
-        cur.push(`<span class="vglue"><sup id="v${pending}" class="vn">${pending}</sup>&nbsp;${firstHtml}</span>`);
-        html = html.slice(firstHtml.length);
-      } else {
-        cur.push(`<span class="vglue"><sup id="v${pending}" class="vn">${pending}</sup>&nbsp;</span>`);
-      }
+      // The token can span several runs — Word breaks them mid-word. Consume
+      // whatever it takes, so the number stays glued to the whole first word.
+      const { tokenHtml, tailHtml, nextIndex } = firstTokenSpan(entries, i, end, {
+        escapeHtml,
+        sameBlock: (j) => paragraphOf(j) === p,
+      });
+      if (tokenHtml === "") continue;                  // Word's separator space
+      cur.push(`<span class="vglue"><sup id="v${pending}" class="vn">${pending}</sup>&nbsp;${tokenHtml}</span>`);
       pending = null;
+      i = nextIndex - 1;                               // the for-loop re-increments
+      if (tailHtml) cur.push(tailHtml);
+      continue;
     }
-    if (html) cur.push(html);
+    if (e.html) cur.push(e.html);
   }
   flushPending();
   if (cur) blocks.push(cur.join(""));
@@ -227,7 +249,9 @@ function buildChapter(chapterNum) {
   paras = paras.map((p, i) => {
     const where = `${bookKeyToLabel(bookKey)} ${chapterNum} paragraph ${i + 1}`;
     const before = p;
-    const out = collapseRuns(enDash(curlHtml(p, where, tally), tally));
+    const lift = liftTrailingPunctuation(collapseRuns(enDash(curlHtml(p, where, tally), tally)));
+    tally.lifted += lift.lifted;
+    const out = lift.html;
     tally.collapsed += (before.match(/<\/([a-z]+)><\1>/g) || []).length;
     return out;
   });
@@ -239,7 +263,15 @@ function buildChapter(chapterNum) {
     if (rec.paragraphCount > 1)
       note(where, "multi-paragraph footnote", `${rec.paragraphCount} paragraphs in Word`,
         "Replace the paragraph break with a line break (Shift+Enter) in the master.");
-    const html = collapseRuns(enDash(curlHtml(rec.html, where, tally), tally));
+    // Word leaves a trailing space on a note more often than not. It is not a
+    // visible character and `foldAllowed` already trims the edges, so the gate
+    // is indifferent — but the corpus is not: 5,511 of 5,512 published notes
+    // carry none, so leaving it in means hand-trimming after every import.
+    const liftNote = liftTrailingPunctuation(collapseRuns(enDash(curlHtml(rec.html, where, tally), tally)));
+    tally.lifted += liftNote.lifted;
+    const composed = liftNote.html;
+    const html = composed.trim();
+    if (html !== composed) tally.trimmed++;
     return { id: `fn-${label}`, refId: `fnref-${label}`, label, html, _master: rec.plain, _where: where };
   }).filter(Boolean);
 
@@ -259,6 +291,7 @@ function buildChapter(chapterNum) {
   let masterVisible = "";
   for (let i = start; i < end; i++) {
     const e = entries[i];
+    if (i === headingIdx) continue;                    // dropped from both sides
     if (e.kind === "text") masterVisible += e.plain;
     else if (e.kind === "verseMarker") masterVisible += ` ${e.verse} `;
     else if (e.kind === "break") masterVisible += " ";
@@ -297,7 +330,8 @@ const built = targets.map((n) => ({ n, ...buildChapter(n) }));
 const total = built.reduce((a, b) => ({
   curled: a.curled + b.tally.curled, dashed: a.dashed + b.tally.dashed,
   separators: a.separators + b.tally.separators, collapsed: a.collapsed + b.tally.collapsed,
-}), { curled: 0, dashed: 0, separators: 0, collapsed: 0 });
+  trimmed: a.trimmed + b.tally.trimmed, lifted: a.lifted + b.tally.lifted,
+}), { curled: 0, dashed: 0, separators: 0, collapsed: 0, trimmed: 0, lifted: 0 });
 
 console.log(`Pre-approved changes applied (the only visible characters touched):`);
 console.log(`  straight quotes curled : ${total.curled}`);
@@ -305,6 +339,8 @@ console.log(`  hyphens to en dashes   : ${total.dashed}`);
 console.log(`Structural, no visible character changed:`);
 console.log(`  verse-marker separators inserted : ${total.separators}`);
 console.log(`  fragmented tag runs collapsed    : ${total.collapsed}`);
+console.log(`  notes trimmed of edge whitespace : ${total.trimmed}`);
+console.log(`  commas lifted out of styled runs : ${total.lifted}`);
 
 if (findings.length) {
   const fatal = findings.some((f) => f.kind === "FIDELITY");
