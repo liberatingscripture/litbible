@@ -313,6 +313,34 @@ test("addHbqAria: adds role=\"group\" and aria-label=\"Poetry\" to blockquote.hb
   assert.ok(out.includes('aria-label="Poetry"'));
 });
 
+test("addHbqAria: attribute ORDER does not decide whether a poetry block is announced", () => {
+  // The corpus writes both orders, 44 id-first to 10 class-first. The
+  // predecessor matched /<blockquote\s+class="hbq"/ and so reached only the
+  // class-first ones, leaving 98 of the 108 rendered poetry blocks with no role
+  // and no label, and the page's own #hbq-description referenced by a twelfth
+  // of them. Both orders are authored and both are valid HTML.
+  const idFirst = '<blockquote id="romans-3-p3" class="hbq"><p class="hbq-line">Text</p></blockquote>';
+  const out = prepareStudyParagraph(idFirst, "romans", 3, new Set(), freshState());
+  assert.ok(out.includes('role="group"'), "id-first blockquote must still be announced");
+  assert.ok(out.includes('aria-label="Poetry"'));
+  assert.ok(out.includes('aria-describedby="hbq-description"'));
+  assert.ok(out.includes('id="romans-3-p3"'), "the block id must survive - it is a shareable anchor");
+});
+
+test("addHbqAria: leaves a non-hbq blockquote alone and does not double-inject", () => {
+  const other = '<blockquote id="x" class="other"><p>Text</p></blockquote>';
+  assert.ok(!prepareStudyParagraph(other, "john", 3, new Set(), freshState()).includes('role="group"'));
+
+  // Idempotent: Reading Mode and Study View run the same pipeline, and a block
+  // that already carries the role must not collect a second copy.
+  const once = prepareStudyParagraph(
+    '<blockquote id="p1" class="hbq"><p class="hbq-line">Text</p></blockquote>',
+    "john", 3, new Set(), freshState(),
+  );
+  const twice = prepareStudyParagraph(once, "john", 3, new Set(), freshState());
+  assert.equal((twice.match(/role="group"/g) ?? []).length, 1);
+});
+
 /* ── Extras: normalizeHbqVerseGlue ───────────────────────────────────── */
 
 test("normalizeHbqVerseGlue: splits a poetry line's verse glue into .hbq-first / .hbq-rest", () => {
