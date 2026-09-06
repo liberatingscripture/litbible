@@ -151,5 +151,12 @@ block boundary. `verse-text.mjs` maps `p|blockquote|br` to a space and does not.
 The two extractors are separate on purpose (see that function's header) and have
 silently disagreed on this point for as long as `hbq` has existed: 1 Peter 2:6,
 untouched on `main`, already extracts as `ZionA valuable, choice`. Logged in
-FIXLIST. Once it is fixed this publish would report nothing at all, which is the
-honest result — the skip is standing in for that.
+FIXLIST, and fixed the same day.
+
+**Both halves are fixed now, and this entry is kept as the belt to that
+braces.** The extractor fix removed the garbled `detail`; a second change made
+the paragraph-level fallback compare *extracted text* instead of markup, so a
+formatting-only edit emits nothing at all — this publish included. The skip
+still matters for one reason: it protects the window in which the content
+change merges **before** the drafter fix does, when the old behaviour would
+still write the two wrong rows.

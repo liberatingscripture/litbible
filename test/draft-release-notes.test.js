@@ -351,15 +351,31 @@ test("metadata-only chapter edit: identical rendered content collapses to one me
   ]);
 });
 
-test("attribute-only paragraph edit: a class/id-only change collapses to metadata_updated (fix 1b), not a noisy text_updated", () => {
+test("attribute-only paragraph edit: a class/id-only change emits NOTHING", () => {
+  // Was pinned to metadata_updated by fix 1b, whose point was that it must not
+  // be a noisy text_updated. The owner went further on 2026-09-06: a change
+  // that moves no visible character is formatting, and formatting does not
+  // belong in the apps' Translation Updates feed at all -- not even as a
+  // "metadata updated" row.
   const base = chapterJson({ paragraphs: [para("p1", verse(1, "Alpha word."))] });
   // Same visible text; only a non-content attribute (class) added to the <p>.
   const nowPara = '<p id="p1" class="lead"><span class="vglue"><sup id="v1" class="vn">1</sup>&nbsp;Alpha</span> word.</p>';
   const changes = run({ [F]: base }, { [F]: chapterJson({ paragraphs: [nowPara] }) }, { modified: [F] });
+  assert.deepEqual(changes, []);
+});
+
+test("a title/topics edit is still a real metadata_updated row", () => {
+  // The other way to reach the same branch, and it must NOT be swallowed: the
+  // paragraphs and footnotes are byte-identical and something else moved.
+  const paras = [para("p1", verse(1, "Alpha word."))];
+  const changes = run(
+    { [F]: chapterJson({ paragraphs: paras, title: "John 3" }) },
+    { [F]: chapterJson({ paragraphs: paras, title: "John 3 (revised)" }) },
+    { modified: [F] },
+  );
   assert.deepEqual(changes, [
     { type: "metadata_updated", description: "John 3 — metadata updated", location: { bookKey: "john", chapter: 3 } },
   ]);
-  assert.ok(!changes.some((c) => c.type === "text_updated"));
 });
 
 test("many metadata-only chapters: collapse to a single count line with no location (flood guard)", () => {
@@ -532,6 +548,87 @@ test("a continuation paragraph's footnote is NOT dragged forward to the next ver
   // bracket fall-forward doesn't make it worse by claiming verse 10.
   assert.equal(fnChange.location.verse, undefined, "must not jump forward to verse 10");
   assert.equal(fnChange.description, "John 3 — footnote a added");
+});
+
+/* ── 6b. Block boundaries are word boundaries ─────────────────────────── */
+
+// stripHtml used to delete every tag outright, so text welded across any block
+// boundary: 1 Peter 2:6's poetry lines extracted as "ZionA valuable, choice",
+// and the 1 Corinthians 11 fn-b chiasm as "teachingsB:Verse 3". Both sides of a
+// diff weld identically, which is why it hid for as long as hbq has existed --
+// it only surfaced when a change moved text ACROSS such a boundary. Since
+// release-notes.json is the apps' Translation Updates feed, the garbled string
+// shipped to a phone screen.
+
+/** A poetry blockquote: one <p class="hbq-line"> per line, as the corpus writes
+ *  it -- no whitespace between the lines' tags. */
+const hbq = (id, ...lines) =>
+  `<blockquote id="${id}" class="hbq">` +
+  lines.map((l) => `<p class="hbq-line">${l}</p>`).join("") +
+  `</blockquote>`;
+
+test("poetry lines do not weld: a verse set as hbq keeps a word boundary between its lines", () => {
+  const base = chapterJson({
+    paragraphs: [para("p1", verse(1, "It is written:")), hbq("p2", "a stone in Zion", "A valuable cornerstone")],
+  });
+  const now = chapterJson({
+    paragraphs: [para("p1", verse(1, "It is written:")), hbq("p2", "a stone in Zion", "A precious cornerstone")],
+  });
+  const changes = run({ [F]: base }, { [F]: now }, { modified: [F] });
+  assert.equal(changes.length, 1);
+  // The welding bug produced "ZionA valuable" / "ZionA precious" here.
+  assert.match(changes[0].detail, /valuable/);
+  assert.match(changes[0].detail, /precious/);
+  assert.ok(!/ZionA/.test(changes[0].detail), "must not weld across the line boundary");
+});
+
+test("re-setting <br> lines as hbq emits nothing: same words, different markup", () => {
+  // The Romans 9 case. Two bugs met here. The extractor used to weld across the
+  // block boundary and report `"people and"` -> `"peopleand"`; the fallback then
+  // compared MARKUP, so even with that fixed it still claimed "text updated" for
+  // a publish in which no word changed.
+  const base = chapterJson({
+    paragraphs: [`<p id="p1">${verse(1, "not been my people")}<br>and beloved she who has not been beloved.</p>`],
+  });
+  const now = chapterJson({
+    paragraphs: [hbq("p1", verse(1, "not been my people"), "and beloved she who has not been beloved.")],
+  });
+  assert.deepEqual(run({ [F]: base }, { [F]: now }, { modified: [F] }), []);
+});
+
+test("merging two paragraphs into one changes no text, so it emits nothing", () => {
+  // The Romans 3 p7+p8 merge. The old per-index markup comparison shifted every
+  // paragraph after the merge point and flagged the rest of the chapter
+  // ("Romans 3:11-31 - text updated"); comparing joined text does not.
+  const base = chapterJson({
+    paragraphs: [para("p1", verse(1, "Their feet are quick;")), para("p2", verse(2, "and the path of peace."))],
+  });
+  const now = chapterJson({
+    paragraphs: [hbq("p1", verse(1, "Their feet are quick;"), verse(2, "and the path of peace."))],
+  });
+  assert.deepEqual(run({ [F]: base }, { [F]: now }, { modified: [F] }), []);
+});
+
+test("a footnote's block markup is a word boundary too", () => {
+  const chiasm = (b) => `Outline:<div class="chiasm"><div>A: first</div><div>B: ${b}</div></div>`;
+  const changes = run(
+    { [F]: chapterJson({ paragraphs: [para("p1", verse(1, "Word.", ["a"]))], footnotes: [fn("a", chiasm("second"))] }) },
+    { [F]: chapterJson({ paragraphs: [para("p1", verse(1, "Word.", ["a"]))], footnotes: [fn("a", chiasm("third"))] }) },
+    { modified: [F] },
+  );
+  assert.equal(changes.length, 1);
+  assert.equal(changes[0].type, "footnote_updated");
+  assert.ok(!/firstB:/.test(changes[0].detail), "must not weld across the div boundary");
+});
+
+test("inline tags still vanish: Word splits a styled phrase mid-word", () => {
+  // <em>ekd</em><em>emeo</em> has to rejoin as one word, so inline tags must
+  // NOT become a space. Guards the other half of the stripHtml asymmetry.
+  const base = chapterJson({ paragraphs: [para("p1", verse(1, "The <em>ekd</em><em>emeo</em> reading."))] });
+  const now = chapterJson({ paragraphs: [para("p1", verse(1, "The <em>ekdemeo</em> changed."))] });
+  const changes = run({ [F]: base }, { [F]: now }, { modified: [F] });
+  assert.equal(changes.length, 1);
+  assert.ok(!/ekd emeo/.test(changes[0].detail), "inline tags must not introduce a space");
 });
 
 /* ── 7. Empty result ──────────────────────────────────────────────────── */
