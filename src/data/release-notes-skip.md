@@ -129,3 +129,27 @@ already outside the tag.
 `i.e.` ×8, where the period belongs to the abbreviation and lifting it would
 produce a broken `<em>i.e</em>.`; and `Marana tha!`, `Hoshea na!` ×2, `Shabbat?`,
 where the italicized expression owns its own mark.
+
+## 2026-09-06 — Romans 3 and Romans 9 OT quotations set as hbq poetry blocks
+
+Markup only. The Romans 3:10–18 catena and the Romans 9:25–26 Hosea quotations
+moved from `<p>` + `<br>` into `hbq` blockquotes, and Romans 3's p7/p8 were
+merged so each block holds exactly one quotation. **No word of the translation
+changed.** `scripts/lib/verse-text.mjs` extracts byte-identical verse text
+before and after, and `npm run audit:alignment` reports 0 stale / 0 drift.
+
+Both rows the drafter proposed were wrong, and for the same reason:
+
+- *"Romans 3:11–31 — text updated"* — nothing in those verses changed.
+- *"Romans 9:25–26 — text updated"*, detailed as `"people and"` → `"peopleand"`
+  — two words welded together, which is not what the page renders.
+
+The cause is a **live defect in the drafter, not in this change**:
+`stripHtml` in `scripts/lib/release-notes-core.mjs` removes tags with
+`.replace(/<[^>]+>/g, "")`, substituting nothing, so text welds across every
+block boundary. `verse-text.mjs` maps `p|blockquote|br` to a space and does not.
+The two extractors are separate on purpose (see that function's header) and have
+silently disagreed on this point for as long as `hbq` has existed: 1 Peter 2:6,
+untouched on `main`, already extracts as `ZionA valuable, choice`. Logged in
+FIXLIST. Once it is fixed this publish would report nothing at all, which is the
+honest result — the skip is standing in for that.

@@ -1294,21 +1294,40 @@ S9, O9, and O8.
   inside poetry keeps the break before the next verse number, so 6–7 no
   longer welds `shamed. 7 Therefore` onto a poetry line.
 
-- [ ] **Decide the same question for `<br>` poetry lines, which today copy with
-  NO separator at all.** (Found 2026-09-06 while doing the item above.) Not all
-  poetry is set as an `hbq` blockquote: three published chapters break lines with
-  a bare `<br>` inside one paragraph — Romans 3 (8), Romans 9 (3), and
-  2 Corinthians 6 (1), all of them quoted Psalm/Isaiah lines. `blockText` reads
-  `textContent`, which drops a `<br>` entirely, so 2 Corinthians 6:2 copies as
-  `…a welcome time!Look! Now is the Day…` — two sentences welded into one
-  word. That is a defect rather than a style call, but the fix implies the style
-  call too (space or newline?), and the owner's 2026-09-06 answer for blockquote
-  poetry says newline. Deliberately left out of that change because the fix is
-  not local to `blockText`: `cleanForShare` collapses `\s+` to a space, so it
-  would have to preserve a newline (`[^\S\n]+` then `/ *\n\s*/`), which
-  also touches the shipped per-part copy and the `plain` button labels
-  (flatten those separately). Sonnet-sized once decided; verify by copying
-  Romans 3:10–12 and 2 Corinthians 6:2.
+- [ ] **Fix `<br>` poetry lines, which today copy with NO separator at all.**
+  (Found 2026-09-06 while doing the item above; narrowed the same day.) Not all
+  poetry is set as an `hbq` blockquote: some lines are broken with a bare `<br>`
+  inside one paragraph. `blockText` reads `textContent`, which drops a `<br>`
+  entirely, so 2 Corinthians 6:2 copies as `…a welcome time!Look! Now is the
+  Day…` — two sentences welded into one word. **Scope is now one published
+  verse.** Romans 3 and Romans 9 were the other two, and both were quoted
+  scripture, so they became `hbq` blockquotes instead (see "Poetry blocks" in
+  CLAUDE.md) and copy correctly. 2 Corinthians 6:2 stays a plain paragraph
+  deliberately — its two lines are Paul's own application, not the Isaiah
+  quotation — so it is the one case the code has to handle. The fix is not
+  local to `blockText`: `cleanForShare` collapses `\s+` to a space, so it must
+  learn to preserve a newline (`[^\S\n]+` then `/ *\n\s*/`), which also touches
+  the shipped per-part copy and the `plain` button labels (flatten those
+  separately). Sonnet-sized; verify by copying 2 Corinthians 6:2.
+
+- [ ] **The changelog's text extractor welds words across every block boundary.**
+  (Found 2026-09-06 while converting the Romans poetry blocks.) `stripHtml` in
+  `scripts/lib/release-notes-core.mjs` removes tags with
+  `.replace(/<[^>]+>/g, "")` — substituting nothing — so any two blocks run
+  together. `scripts/lib/verse-text.mjs` maps `p|blockquote|br` to a space and
+  does not. The two extractors are deliberately separate (see that function's
+  header), and they have disagreed on this point for as long as `hbq` has
+  existed: 1 Peter 2:6, untouched, extracts as `ZionA valuable, choice`. It surfaced
+  as a `detail` of `"people and"` → `"peopleand"` on a change where nothing had
+  actually changed. **This is an app contract** — `release-notes.json` is the apps'
+  Translation Updates feed — so a real edit inside a poetry quotation would ship
+  welded words to a phone screen. Two effects: spurious `text_updated` rows for
+  markup-only edits (see the 2026-09-06 entry in `release-notes-skip.md`,
+  which exists only because of this), and garbled `detail` strings on genuine
+  ones. Fix is one line plus a golden test — substitute a space for block-level
+  tags, matching `verse-text.mjs` — but it changes drafter output, which is an
+  app-facing contract, so it wants its own change with `test/draft-release-notes.test.js`
+  extended. Sonnet-sized.
 
 - [ ] **Consider sharing any selected text, not just whole blocks.**
   (Raised 2026-08-09 alongside the part-sharing work; the owner picked the
