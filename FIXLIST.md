@@ -1310,24 +1310,39 @@ S9, O9, and O8.
   the shipped per-part copy and the `plain` button labels (flatten those
   separately). Sonnet-sized; verify by copying 2 Corinthians 6:2.
 
-- [ ] **The changelog's text extractor welds words across every block boundary.**
-  (Found 2026-09-06 while converting the Romans poetry blocks.) `stripHtml` in
-  `scripts/lib/release-notes-core.mjs` removes tags with
-  `.replace(/<[^>]+>/g, "")` — substituting nothing — so any two blocks run
-  together. `scripts/lib/verse-text.mjs` maps `p|blockquote|br` to a space and
-  does not. The two extractors are deliberately separate (see that function's
-  header), and they have disagreed on this point for as long as `hbq` has
-  existed: 1 Peter 2:6, untouched, extracts as `ZionA valuable, choice`. It surfaced
-  as a `detail` of `"people and"` → `"peopleand"` on a change where nothing had
-  actually changed. **This is an app contract** — `release-notes.json` is the apps'
-  Translation Updates feed — so a real edit inside a poetry quotation would ship
-  welded words to a phone screen. Two effects: spurious `text_updated` rows for
-  markup-only edits (see the 2026-09-06 entry in `release-notes-skip.md`,
-  which exists only because of this), and garbled `detail` strings on genuine
-  ones. Fix is one line plus a golden test — substitute a space for block-level
-  tags, matching `verse-text.mjs` — but it changes drafter output, which is an
-  app-facing contract, so it wants its own change with `test/draft-release-notes.test.js`
-  extended. Sonnet-sized.
+- [x] **The changelog's text extractor welds words across every block boundary.**
+  DONE 2026-09-06 (found and fixed the same day, while converting the Romans
+  poetry blocks). `stripHtml` in `scripts/lib/release-notes-core.mjs` removed
+  every tag with `.replace(/<[^>]+>/g, "")` — substituting nothing — so text ran
+  together across any block boundary, while `scripts/lib/verse-text.mjs` maps
+  `p|blockquote|br` to a space and did not. The two extractors are separate by
+  design and had disagreed on this for as long as `hbq` has existed: 1 Peter 2:6
+  extracted as `ZionA valuable, choice` and the 1 Corinthians 11 fn-b chiasm as
+  `teachingsB:Verse 3`. Both sides of a diff weld identically, which is why it
+  hid — it surfaced only when a change moved text ACROSS such a boundary, as
+  `"people and"` → `"peopleand"` on an edit that changed no word. That mattered
+  because `release-notes.json` is the apps' Translation Updates feed. Fixed by
+  substituting a space for `p`/`blockquote`/`div`/`br` before the general strip;
+  **inline tags must keep vanishing**, since Word splits styled phrases mid-word
+  (`<em>ekd</em><em>emeo</em>` has to rejoin), so the asymmetry is the fix and
+  four golden tests in `test/draft-release-notes.test.js` pin both halves.
+  **Scope note:** this fixed the garbled `detail` only. A markup-only structural
+  edit still emits a bare `text_updated` row, from the separate paragraph-level
+  fallback in `buildChanges` — that is deliberate, and is why the 2026-09-06
+  entry in `release-notes-skip.md` was still needed. See the next item.
+
+- [ ] **Decide whether a block-structure change should read as "metadata
+  updated" rather than "text updated".** (Raised 2026-09-06 by the item above.)
+  The paragraph-level fallback in `buildChanges` fires whenever `normalizeMarkup`
+  of the paragraphs differs, which catches attribute changes correctly (they
+  collapse to "metadata updated") but treats a change of *tags* — `<p>` + `<br>`
+  becoming an `hbq` blockquote — as a text edit. The apps then show
+  "Romans 3:11–31 — text updated" for a publish in which no word changed.
+  Being loud is the fallback's whole purpose (it is what makes a bracket-only
+  edit surface at all), so this is a **judgment about the feed**, not a bug:
+  is re-setting a passage as poetry a reader-facing change worth a row, and if
+  so should it say something other than "text updated"? Until it is decided,
+  `release-notes-skip.md` is the workaround. Owner decision, then Sonnet-sized.
 
 - [ ] **Consider sharing any selected text, not just whole blocks.**
   (Raised 2026-08-09 alongside the part-sharing work; the owner picked the

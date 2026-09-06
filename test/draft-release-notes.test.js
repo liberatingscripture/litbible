@@ -534,6 +534,78 @@ test("a continuation paragraph's footnote is NOT dragged forward to the next ver
   assert.equal(fnChange.description, "John 3 — footnote a added");
 });
 
+/* ── 6b. Block boundaries are word boundaries ─────────────────────────── */
+
+// stripHtml used to delete every tag outright, so text welded across any block
+// boundary: 1 Peter 2:6's poetry lines extracted as "ZionA valuable, choice",
+// and the 1 Corinthians 11 fn-b chiasm as "teachingsB:Verse 3". Both sides of a
+// diff weld identically, which is why it hid for as long as hbq has existed --
+// it only surfaced when a change moved text ACROSS such a boundary. Since
+// release-notes.json is the apps' Translation Updates feed, the garbled string
+// shipped to a phone screen.
+
+/** A poetry blockquote: one <p class="hbq-line"> per line, as the corpus writes
+ *  it -- no whitespace between the lines' tags. */
+const hbq = (id, ...lines) =>
+  `<blockquote id="${id}" class="hbq">` +
+  lines.map((l) => `<p class="hbq-line">${l}</p>`).join("") +
+  `</blockquote>`;
+
+test("poetry lines do not weld: a verse set as hbq keeps a word boundary between its lines", () => {
+  const base = chapterJson({
+    paragraphs: [para("p1", verse(1, "It is written:")), hbq("p2", "a stone in Zion", "A valuable cornerstone")],
+  });
+  const now = chapterJson({
+    paragraphs: [para("p1", verse(1, "It is written:")), hbq("p2", "a stone in Zion", "A precious cornerstone")],
+  });
+  const changes = run({ [F]: base }, { [F]: now }, { modified: [F] });
+  assert.equal(changes.length, 1);
+  // The welding bug produced "ZionA valuable" / "ZionA precious" here.
+  assert.match(changes[0].detail, /valuable/);
+  assert.match(changes[0].detail, /precious/);
+  assert.ok(!/ZionA/.test(changes[0].detail), "must not weld across the line boundary");
+});
+
+test("re-setting <br> lines as hbq reports no garbled detail", () => {
+  // The Romans 9 case: same words, <p> + <br> before, a poetry block after.
+  // A row still appears -- the paragraph-level fallback below fires on the
+  // structural change by design, and never staying silent is the point of it.
+  // What must NOT survive is a detail claiming words changed: before the
+  // stripHtml fix this read `"people and"` -> `"peopleand"`.
+  const base = chapterJson({
+    paragraphs: [`<p id="p1">${verse(1, "not been my people")}<br>and beloved she who has not been beloved.</p>`],
+  });
+  const now = chapterJson({
+    paragraphs: [hbq("p1", verse(1, "not been my people"), "and beloved she who has not been beloved.")],
+  });
+  const changes = run({ [F]: base }, { [F]: now }, { modified: [F] });
+  assert.equal(changes.length, 1);
+  assert.equal(changes[0].type, "text_updated");
+  assert.ok(!("detail" in changes[0]), "no word changed, so there is nothing to detail");
+});
+
+test("a footnote's block markup is a word boundary too", () => {
+  const chiasm = (b) => `Outline:<div class="chiasm"><div>A: first</div><div>B: ${b}</div></div>`;
+  const changes = run(
+    { [F]: chapterJson({ paragraphs: [para("p1", verse(1, "Word.", ["a"]))], footnotes: [fn("a", chiasm("second"))] }) },
+    { [F]: chapterJson({ paragraphs: [para("p1", verse(1, "Word.", ["a"]))], footnotes: [fn("a", chiasm("third"))] }) },
+    { modified: [F] },
+  );
+  assert.equal(changes.length, 1);
+  assert.equal(changes[0].type, "footnote_updated");
+  assert.ok(!/firstB:/.test(changes[0].detail), "must not weld across the div boundary");
+});
+
+test("inline tags still vanish: Word splits a styled phrase mid-word", () => {
+  // <em>ekd</em><em>emeo</em> has to rejoin as one word, so inline tags must
+  // NOT become a space. Guards the other half of the stripHtml asymmetry.
+  const base = chapterJson({ paragraphs: [para("p1", verse(1, "The <em>ekd</em><em>emeo</em> reading."))] });
+  const now = chapterJson({ paragraphs: [para("p1", verse(1, "The <em>ekdemeo</em> changed."))] });
+  const changes = run({ [F]: base }, { [F]: now }, { modified: [F] });
+  assert.equal(changes.length, 1);
+  assert.ok(!/ekd emeo/.test(changes[0].detail), "inline tags must not introduce a space");
+});
+
 /* ── 7. Empty result ──────────────────────────────────────────────────── */
 
 test("no relevant files: buildChanges returns an empty array", () => {

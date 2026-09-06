@@ -82,9 +82,28 @@ function scriptureLocation(bookKey, chapter, verse) {
   return loc;
 }
 
-/** Strip all HTML tags and decode common entities to plain text. */
+/** Strip all HTML tags and decode common entities to plain text.
+ *
+ *  A BLOCK-level tag becomes a space; an inline one vanishes. That asymmetry is
+ *  the whole point. A `<p>`/`<blockquote>`/`<div>`/`<br>` boundary is a word
+ *  boundary in the rendered page, so deleting it outright welds the two sides:
+ *  1 Peter 2:6’s poetry lines read as "ZionA valuable, choice" and the
+ *  1 Corinthians 11 fn-b chiasm as "teachingsB:Verse 3". Both sides of a diff
+ *  weld identically, so it stayed invisible until a change moved text ACROSS
+ *  such a boundary — setting the Romans 9 Hosea quotation as poetry reported
+ *  `"people and"` → `"peopleand"` for an edit that changed no word. Since
+ *  release-notes.json is the apps’ Translation Updates feed, that shipped to a
+ *  phone screen.
+ *
+ *  Inline tags must keep vanishing: Word breaks styled phrases at run
+ *  boundaries, so `<em>ekd</em><em>emeo</em>` has to rejoin as one word.
+ *
+ *  This matches scripts/lib/verse-text.mjs, which got it right. The two
+ *  extractors stay separate for the reasons in extractVerseTexts below, but
+ *  they must agree about where a word ends. */
 function stripHtml(html) {
   return (html ?? "")
+    .replace(/<\/?(?:p|blockquote|div|br)\b[^>]*>/gi, " ")
     .replace(/<[^>]+>/g, "")
     .replace(/&nbsp;/g, " ")
     .replace(/&amp;/g, "&")

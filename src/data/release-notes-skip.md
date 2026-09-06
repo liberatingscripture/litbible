@@ -151,5 +151,14 @@ block boundary. `verse-text.mjs` maps `p|blockquote|br` to a space and does not.
 The two extractors are separate on purpose (see that function's header) and have
 silently disagreed on this point for as long as `hbq` has existed: 1 Peter 2:6,
 untouched on `main`, already extracts as `ZionA valuable, choice`. Logged in
-FIXLIST. Once it is fixed this publish would report nothing at all, which is the
-honest result — the skip is standing in for that.
+FIXLIST, and fixed the same day.
+
+**With that fix in, this publish still reports two bare `text_updated` rows** —
+the garbled `detail` is gone, but the *paragraph-level fallback* in
+`buildChanges` fires on any structural change to a paragraph, which is
+deliberate (it exists so a change verse extraction cannot see is never silently
+swallowed, and it is what makes a bracket-only edit surface). So the skip is not
+standing in for a fix that landed; it is the right tool on its own, because
+"Romans 3:11–31 — text updated" is still a claim about text that did not
+change. Whether a block-structure change should read as "metadata updated"
+instead is a separate call about the feed, and nobody has made it.
