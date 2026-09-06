@@ -105,3 +105,27 @@ changed is the shape of the punctuation around them.
 
 Not a word of the translation moved: the six passages are byte-identical apart
 from those twelve characters.
+
+## 2026-09-06 — trailing punctuation lifted out of styled runs
+
+Skipped 2 auto-drafted rows for 19 punctuation moves across 16 chapters
+(13 commas, 6 periods), each shifting a mark from inside a closing `</em>` to
+outside it. The plain text of all 260 chapters is byte-identical before and
+after, so there is nothing a reader could be shown.
+
+One of the two would have been actively **wrong**, and it is the same artifact
+the 2026-08-20 footnote-sequence audit above ran into:
+
+- *"Luke 2 — footnotes relabeled / footnotes formerly ff relabeled q"* — no
+  footnote was relabeled. The drafter matches notes by content, so a note whose
+  bytes shift can look like a different letter's note.
+- *"Metadata updated (15 chapters)"* — the usual markup-only row.
+
+The substance is the retroactive half of the importer change in #171, which now
+performs this normalization on its own so imported chapters arrive with the mark
+already outside the tag.
+
+**Deliberately not lifted, and worth knowing before anyone "finishes" this pass:**
+`i.e.` ×8, where the period belongs to the abbreviation and lifting it would
+produce a broken `<em>i.e</em>.`; and `Marana tha!`, `Hoshea na!` ×2, `Shabbat?`,
+where the italicized expression owns its own mark.
