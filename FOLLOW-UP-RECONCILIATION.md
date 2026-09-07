@@ -1621,6 +1621,51 @@ future session comparing raw totals against §21 or §22 will otherwise read a
 deliberate normalization as a regression. **A and D are unmoved at 9 and 4,
 which is the number that actually matters.**
 
+### Queued from the *phobos* pass (2026-09-06)
+
+The five God-directed *phobos* sites went the other way from everything else in
+this file: the owner updated the masters first and the repo followed, so nothing
+about "take seriously" is owed to Word. Reading those masters is what surfaced
+the two items below.
+
+| repo | master | fix |
+|---|---|---|
+| `luke-1` v48 | Luke | `All generations will give me reason for gratitude` → `All generations will declare me greatly fortunate`, and restore the *makarizo* note the master no longer carries (repo fn-bbb, "Traditionally, 'call me blessed.'"). Owner ruling 2026-09-06: the repo is the right side. |
+
+Note the shape of that one, because it is the trap in reading any diff here.
+The master's wording is *newer*, and "reason for gratitude" is a rendering the
+author has used elsewhere, so it reads as the master leading the repo. It is
+not. The dropped footnote is the tell: a back-port restores a note the master
+lost, not one the repo never had.
+
+**The *kurios* / "The One Who Is" shared note is a third case and is NOT queued,
+because no side is currently right.** It is stored twice in 2 Corinthians and
+all four copies disagree:
+
+| copy | reads |
+|---|---|
+| repo `2corinthians-5` fn-l | `in particular moments and an ongoing reality` |
+| repo `2corinthians-7` fn-g | `in particular moments and as an ongoing reality` |
+| master 5:11 | `in particular moments and an ongoing reality` |
+| master 7:1 | `in particular moments ongoing reality` |
+
+Read the pairs, not the four. The **5:11 pair agrees**, so that copy is
+settled. Only 7:1 is open, and it splits into two different questions that must
+not be answered together:
+
+- **The master's 7:1 has lost words both repo copies carry.** That is a defect
+  on the master side whatever else is true, and it is a back-port.
+- **Whether the repo's `and as an` is an authored variant of 5:11's `and an`
+  is unknown**, and a shared note in this corpus genuinely does carry
+  per-anchor variants the repo mirrors on purpose. So do not "normalize" the
+  two repo copies to match; that is how authored variation gets overwritten.
+
+This is §23's shared-note fragmentation, and its lesson is the reason for the
+split above: a note held in more than one place drifts in each place
+independently, so no master-vs-repo diff can report it. Both sides are
+fragmented, and a difference is not evidence of a defect until one copy is
+missing something.
+
 ## 26. The footnote-sequence audit — done (2026-08-20)
 
 The last outstanding repo-side item. Two sweeps over all 206 published chapters:
