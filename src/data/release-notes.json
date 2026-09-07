@@ -1,5 +1,22 @@
 [
   {
+    "version": "2026-09-07",
+    "date": "2026-09-07",
+    "label": "September 7, 2026",
+    "changes": [
+      {
+        "type": "text_updated",
+        "description": "Luke 9:20, 32 — text updated",
+        "detail": "v. 20: \"Peter the Rock.\" → \"Peter.\"; v. 32: removed \"the Rock\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 9,
+          "verse": 20
+        }
+      }
+    ]
+  },
+  {
     "version": "2026-09-06",
     "date": "2026-09-06",
     "label": "September 6, 2026",
