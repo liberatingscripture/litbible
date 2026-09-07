@@ -31,6 +31,97 @@
           "bookKey": "luke",
           "chapter": 21
         }
+      },
+      {
+        "type": "text_updated",
+        "description": "1 Peter 2:17 — text updated",
+        "detail": "\"Defer to God.\" → \"Take God seriously.\"",
+        "location": {
+          "bookKey": "1peter",
+          "chapter": 2,
+          "verse": 17
+        }
+      },
+      {
+        "type": "footnote_added",
+        "description": "1 Peter 2:17 — footnote ee added",
+        "detail": "added \"Traditionally, ‘fear God.’ The phobos (fear) family of words covers a wide range in Greek, from terror to awe to seriou…\"",
+        "location": {
+          "bookKey": "1peter",
+          "chapter": 2,
+          "verse": 17
+        },
+        "relabel": "footnotes formerly ee–nn relabeled ff–oo"
+      },
+      {
+        "type": "text_updated",
+        "description": "2 Corinthians 5:11 — text updated",
+        "detail": "\"the respect of\" → \"taking seriously\"",
+        "location": {
+          "bookKey": "2corinthians",
+          "chapter": 5,
+          "verse": 11
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "2 Corinthians 5:11 — footnote k updated",
+        "detail": "\"The grammar provides no clues as to whether the “respect of…\" → \"Traditionally, ‘fear of.’ The phobos (fear) family of words…\"",
+        "location": {
+          "bookKey": "2corinthians",
+          "chapter": 5,
+          "verse": 11
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "2 Corinthians 7:1 — text updated",
+        "detail": "\"purposes with the respect of\" → \"purposes, taking seriously\"",
+        "location": {
+          "bookKey": "2corinthians",
+          "chapter": 7,
+          "verse": 1
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "2 Corinthians 7:1 — footnote f updated",
+        "detail": "\"The grammar provides no clues as to whether the “respect of…\" → \"Traditionally, ‘fear of.’ The phobos (fear) family of words…\"",
+        "location": {
+          "bookKey": "2corinthians",
+          "chapter": 7,
+          "verse": 1
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Luke 1:50 — text updated",
+        "detail": "\"respect God.\" → \"take God seriously.\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 1,
+          "verse": 50
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Romans 3:18 — text updated",
+        "detail": "\"deference to God\" → \"taking God seriously\"",
+        "location": {
+          "bookKey": "romans",
+          "chapter": 3,
+          "verse": 18
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Romans 3:18 — footnote u updated",
+        "detail": "\"Literally and traditionally, ‘God.’ This is the same word t…\" → \"Traditionally, ‘fear of God.’ The phobos (fear) family of w…\"",
+        "location": {
+          "bookKey": "romans",
+          "chapter": 3,
+          "verse": 18
+        }
       }
     ]
   },
