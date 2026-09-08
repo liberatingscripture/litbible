@@ -1666,6 +1666,33 @@ independently, so no master-vs-repo diff can report it. Both sides are
 fragmented, and a difference is not evidence of a defect until one copy is
 missing something.
 
+### The *en* + blood rendering (2026-09-07) — both sides updated, nothing owed
+
+Recorded for the reasoning, not as a back-port. Like the *phobos* pass above,
+the owner changed the master and the repo together on the same day, so Word is
+not behind.
+
+| repo | master | change |
+|---|---|---|
+| `1corinthians-11` v25 | 1 Corinthians | `the cup of the new covenant in my blood` → `the cup of the new covenant connected with my blood`. Owner ruling 2026-09-07, applied to both sides. |
+
+The construction is *en* + dative (`ἡ καινὴ διαθήκη ἐν τῷ ἐμῷ αἵματι`), and
+"in connection with" / "connected with" is the corpus's standard rendering of
+*en*: roughly 130 published verses across more than 30 books, and Romans 5:9
+already renders the same *en* + *haima* construction "in connection with his
+blood." 1 Corinthians 11:25 was the last place on this construction where the
+traditional locative "in" survived, which put it against the principle stated
+in at least five footnotes (1 Corinthians 12:6, 1 John 3:5, Colossians 3:7,
+Galatians 3:28, John 8:21) that "in" belongs only to location and duration.
+
+**No footnote was added, deliberately.** Romans 5:9 carries none on its *en*
+either, and neither do the great majority of the ~130. Annotating this one
+would make the standard rendering look like the exceptional one. The chapter's
+existing fn-nn (Jeremiah 31:31–34) already carries the covenant frame.
+
+Luke 22:20 will take the same rendering when that chapter is drafted, so the
+two closest parallels agree.
+
 ## 26. The footnote-sequence audit — done (2026-08-20)
 
 The last outstanding repo-side item. Two sweeps over all 206 published chapters:
