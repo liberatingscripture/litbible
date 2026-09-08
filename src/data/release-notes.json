@@ -13,6 +13,16 @@
           "chapter": 9,
           "verse": 20
         }
+      },
+      {
+        "type": "text_updated",
+        "description": "1 Corinthians 11:25 — text updated",
+        "detail": "\"in\" → \"connected with\"",
+        "location": {
+          "bookKey": "1corinthians",
+          "chapter": 11,
+          "verse": 25
+        }
       }
     ]
   },
