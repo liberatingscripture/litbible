@@ -1,5 +1,253 @@
 [
   {
+    "version": "2026-09-08",
+    "date": "2026-09-08",
+    "label": "September 8, 2026",
+    "changes": [
+      {
+        "type": "text_updated",
+        "description": "1 Corinthians 11:10–11 — text updated",
+        "detail": "v. 10: added \"the\"; v. 11: \"Moreover,\" → \"However,\"",
+        "location": {
+          "bookKey": "1corinthians",
+          "chapter": 11,
+          "verse": 10
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "1 Corinthians 11:2, 10 — footnotes b, t, u updated",
+        "detail": "fn. b (v. 2): \"Foundational relationships: Christ, man, woman, God C:Verse…\" → \"Metaphorical heads: Relationships of honor C:Verses 4–6 – P…\"; fn. t (v. 10): added \"the\"; fn. u (v. 10): added \"the\"",
+        "location": {
+          "bookKey": "1corinthians",
+          "chapter": 11,
+          "verse": 2
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "John 12:4 — text updated",
+        "detail": "\"“of Kerioth,”\" → \"“Ish-Kerioth,”\"",
+        "location": {
+          "bookKey": "john",
+          "chapter": 12,
+          "verse": 4
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "John 12:4 — footnote h updated",
+        "detail": "\"‘men\" → \"‘man\"",
+        "location": {
+          "bookKey": "john",
+          "chapter": 12,
+          "verse": 4
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "John 13:2, 26 — text updated",
+        "detail": "v. 2: \"“of Kerioth,”\" → \"“Ish-Kerioth,”\"; v. 26: \"“of Kerioth.”\" → \"“Ish-Kerioth.”\"",
+        "location": {
+          "bookKey": "john",
+          "chapter": 13,
+          "verse": 2
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "John 13:2, 26 — footnotes e, s updated",
+        "detail": "fn. e (v. 2): \"‘men\" → \"‘man\"; fn. s (v. 26): \"‘men\" → \"‘man\"",
+        "location": {
+          "bookKey": "john",
+          "chapter": 13,
+          "verse": 2
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "John 14:22 — text updated",
+        "detail": "\"“of Kerioth”),\" → \"“Ish-Kerioth”),\"",
+        "location": {
+          "bookKey": "john",
+          "chapter": 14,
+          "verse": 22
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "John 6:71 — text updated",
+        "detail": "\"“the Man of Kerioth.”\" → \"“Ish-Kerioth.”\"",
+        "location": {
+          "bookKey": "john",
+          "chapter": 6,
+          "verse": 71
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "John 6:71 — footnote ss updated",
+        "detail": "\"‘men\" → \"‘man\"",
+        "location": {
+          "bookKey": "john",
+          "chapter": 6,
+          "verse": 71
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 10:27 — footnote y updated",
+        "detail": "\"9:35).\" → \"9:25).\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 10,
+          "verse": 27
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 14:26 — footnote t updated",
+        "detail": "\"9:35).\" → \"9:25).\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 14,
+          "verse": 26
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Luke 4:32 — text updated",
+        "detail": "\"complete autonomy.\" → \"authority.\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 4,
+          "verse": 32
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 4:33, 36 — footnotes bb, ee updated",
+        "detail": "fn. bb (v. 33): \"word exousia is often translated as “authority” or “power,”…\" → \"term pneuma literally means “breath,” and is often translat…\"; fn. ee (v. 36): removed \"The Greek word exousia is often translated as “authority” or “power,” but its root meaning points to the freedom or rig…\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 4,
+          "verse": 33
+        },
+        "relabel": "footnotes formerly ff–kk relabeled dd–ii"
+      },
+      {
+        "type": "text_updated",
+        "description": "Luke 6:16 — text updated",
+        "detail": "\"“Man of Kirioth,”\" → \"“Ish-Kerioth,”\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 6,
+          "verse": 16
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 6:16 — footnote s updated",
+        "detail": "\"‘men\" → \"‘man\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 6,
+          "verse": 16
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 9:24 — footnote o updated",
+        "detail": "\"9:35).\" → \"9:25).\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 9,
+          "verse": 24
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Mark 14:10 — text updated",
+        "detail": "\"“the Man of Kerioth,”\" → \"“Ish-Kerioth,”\"",
+        "location": {
+          "bookKey": "mark",
+          "chapter": 14,
+          "verse": 10
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Mark 14:10 — footnote k updated",
+        "detail": "\"‘men\" → \"‘man\"",
+        "location": {
+          "bookKey": "mark",
+          "chapter": 14,
+          "verse": 10
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Mark 3:19 — text updated",
+        "detail": "\"“The Man of Kerioth”\" → \"“Ish-Kerioth”\"",
+        "location": {
+          "bookKey": "mark",
+          "chapter": 3,
+          "verse": 19
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Mark 3:19 — footnote s updated",
+        "detail": "\"‘men\" → \"‘man\"",
+        "location": {
+          "bookKey": "mark",
+          "chapter": 3,
+          "verse": 19
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Matthew 10:4 — text updated",
+        "detail": "\"“Man of Kerioth,”\" → \"“Ish-Kerioth,”\"",
+        "location": {
+          "bookKey": "matthew",
+          "chapter": 10,
+          "verse": 4
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Matthew 10:4 — footnote g updated",
+        "detail": "\"‘men\" → \"‘man\"",
+        "location": {
+          "bookKey": "matthew",
+          "chapter": 10,
+          "verse": 4
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Matthew 26:14 — text updated",
+        "detail": "\"“Man of Kerioth,”\" → \"“Ish-Kerioth,”\"",
+        "location": {
+          "bookKey": "matthew",
+          "chapter": 26,
+          "verse": 14
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Matthew 26:14 — footnote c updated",
+        "detail": "\"‘men\" → \"‘man\"",
+        "location": {
+          "bookKey": "matthew",
+          "chapter": 26,
+          "verse": 14
+        }
+      }
+    ]
+  },
+  {
     "version": "2026-09-07",
     "date": "2026-09-07",
     "label": "September 7, 2026",
