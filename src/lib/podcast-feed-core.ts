@@ -141,7 +141,7 @@ export function inferReadLink(title: string): string | null {
     );
     const match = t.match(pattern);
     if (match) {
-      return `https://litbible.net/${slug}-${match[1]}`;
+      return canonicalizeReadUrl(`https://litbible.net/${slug}-${match[1]}`);
     }
   }
 
@@ -189,6 +189,45 @@ export function extractTag(xml: string, tag: string): string {
   return plainMatch ? plainMatch[1] : '';
 }
 
+/**
+ * Canonicalize a litbible.net URL to the https apex form the site actually
+ * serves from.
+ *
+ * Read links come out of the RSS description exactly as they were typed into
+ * RedCircle, and four spellings of our own domain are in there today:
+ * https://litbible.net, https://www.litbible.net, http://litbible.net, and
+ * http://www.litbible.net. The http ones ship a plaintext hop from our own
+ * page, and the www ones land on a second hostname. Both are ours to fix, so
+ * every read link is rewritten to https + apex rather than corrected one
+ * episode at a time in podcastOverrides.json.
+ *
+ * The trailing slash is part of the canonical form, not a flourish: the site
+ * builds to directory format, so every page's own canonical tag and every
+ * sitemap entry ends in one, and a slashless path is 308'd to add it. Emitting
+ * it directly means a read link lands on the page rather than on a redirect to
+ * it. A last path segment that looks like a file keeps its shape.
+ *
+ * Only litbible.net is touched. A third-party read link (the Google Drive
+ * ones) is left exactly as written — rewriting somebody else's scheme or
+ * host is a guess, not a fix.
+ */
+export function canonicalizeReadUrl(url: string): string {
+  try {
+    const u = new URL(url);
+    if (u.hostname !== 'litbible.net' && u.hostname !== 'www.litbible.net') {
+      return url;
+    }
+    u.protocol = 'https:';
+    u.hostname = 'litbible.net';
+    if (!u.pathname.endsWith('/') && !/\.[^/]+$/.test(u.pathname)) {
+      u.pathname += '/';
+    }
+    return u.toString();
+  } catch {
+    return url;
+  }
+}
+
 function isContentPage(url: string): boolean {
   try {
     const u = new URL(url);
@@ -211,7 +250,7 @@ export function extractLinks(html: string): EpisodeLink[] {
     seen.add(url);
 
     if (url.includes('litbible.net/') && isContentPage(url)) {
-      links.push({ label: 'Read the passage', url });
+      links.push({ label: 'Read the passage', url: canonicalizeReadUrl(url) });
     } else if (url.includes('drive.google.com')) {
       links.push({ label: 'Read the passage', url, external: true });
     } else if (url.includes('podcasts.apple.com') && url.includes('i=')) {
@@ -305,7 +344,11 @@ export function parseEpisodes(
       if (overrideMatch.read) {
         // Replace any RSS-extracted read link with the corrected override URL
         links = links.filter((l) => l.label !== 'Read the passage');
-        links.push({ label: 'Read the passage', url: overrideMatch.read, external: false });
+        links.push({
+          label: 'Read the passage',
+          url: canonicalizeReadUrl(overrideMatch.read),
+          external: false,
+        });
       }
       if (
         overrideMatch.apple &&
