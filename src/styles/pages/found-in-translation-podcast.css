@@ -372,7 +372,6 @@ body:has(.fit-page) .site-header.has-bg {
  */
 .fit-embed--apple {
   max-width: 660px;
-  margin-bottom: 34px;
 
   /*
    * Apple draws its own rounded card, so the frame's corner has to agree with
@@ -392,6 +391,15 @@ body:has(.fit-page) .site-header.has-bg {
   aspect-ratio: 16 / 9;
 }
 
+/*
+ * The video and the two audio players want opposite things, which is why they
+ * are no longer one row of equal boxes: YouTube is 16:9 and wants width, while
+ * Apple and Spotify are both compact horizontal rows about 160px tall. So the
+ * video takes one column and the two rows stack in the other, where their
+ * combined height (160 + gap + 152) lands within about 35px of the video's —
+ * near enough to read as deliberate rather than as two things that failed to
+ * line up.
+ */
 .fit-embed-grid {
   width: min(1100px, 100%);
   margin: 0 auto;
@@ -399,19 +407,21 @@ body:has(.fit-page) .site-header.has-bg {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 26px;
-
-  /* The two players are honestly different heights now; centred reads better
-   * than top-aligned. */
   align-items: center;
 }
 
+.fit-embed-stack {
+  display: grid;
+  gap: 26px;
+}
+
 /*
- * The two players want different shapes, and giving them one shared height is
- * what cropped the video: 535x352 is 1.52, a YouTube frame is 16:9, and the
- * player covers the difference by cutting the poster off at both sides.
- * A ratio rather than a height keeps the whole frame visible at every width.
+ * A ratio, not a height: the frame used to be 535x352, a ratio of 1.52, and a
+ * YouTube frame is 16:9 — the player covers that difference by cutting the
+ * poster off at both sides, which is what cropped the thumbnail. The ratio
+ * keeps the whole frame visible at every width.
  */
-.fit-embed-grid .fit-embed--youtube iframe {
+.fit-embed--youtube iframe {
   /* height:auto is required — the iframe carries a height attribute, and a
    * definite height on both axes makes the browser ignore aspect-ratio. */
   height: auto;
@@ -425,7 +435,7 @@ body:has(.fit-page) .site-header.has-bg {
  * entirely. The title is a marquee at any size, so width, not height, is what
  * lets more of it sit still.
  */
-.fit-embed-grid .fit-embed--spotify iframe {
+.fit-embed--spotify iframe {
   height: 152px;
 }
 
