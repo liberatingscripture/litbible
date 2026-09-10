@@ -154,29 +154,6 @@ const coverImage = "/images/fit-cover.webp";
     >
       <h2 class="fit-h2">Latest Episodes</h2>
 
-      <div
-        class:list={[
-          "fit-embed",
-          "fit-embed--apple",
-          !appleEpisodeEmbed && "fit-embed--apple-show",
-        ]}
-        aria-label="Apple Podcasts embed"
-      >
-        <iframe
-          id="embedPlayer"
-          src={appleEmbedSrc}
-          height={appleEmbedHeight}
-          frameborder="0"
-          sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-top-navigation-by-user-activation"
-          allow="autoplay *; encrypted-media *; clipboard-write"
-          loading="lazy"
-          title={
-            appleEpisodeEmbed
-              ? "Latest episode of Found in Translation on Apple Podcasts"
-              : "Found in Translation on Apple Podcasts"
-          }></iframe>
-      </div>
-
       <div class="fit-embed-grid">
         <div class="fit-embed fit-embed--youtube" aria-label="YouTube embed">
           <iframe
@@ -191,13 +168,38 @@ const coverImage = "/images/fit-cover.webp";
             allowfullscreen></iframe>
         </div>
 
-        <div class="fit-embed fit-embed--spotify" aria-label="Spotify embed">
-          <iframe
-            src="https://open.spotify.com/embed/show/6S2wWaM5oqknwncPfOEyZ6?utm_source=generator&theme=0"
-            frameborder="0"
-            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-            loading="lazy"
-            title="Found in Translation on Spotify"></iframe>
+        <div class="fit-embed-stack">
+          <div
+            class:list={[
+              "fit-embed",
+              "fit-embed--apple",
+              !appleEpisodeEmbed && "fit-embed--apple-show",
+            ]}
+            aria-label="Apple Podcasts embed"
+          >
+            <iframe
+              id="embedPlayer"
+              src={appleEmbedSrc}
+              height={appleEmbedHeight}
+              frameborder="0"
+              sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-top-navigation-by-user-activation"
+              allow="autoplay *; encrypted-media *; clipboard-write"
+              loading="lazy"
+              title={
+                appleEpisodeEmbed
+                  ? "Latest episode of Found in Translation on Apple Podcasts"
+                  : "Found in Translation on Apple Podcasts"
+              }></iframe>
+          </div>
+
+          <div class="fit-embed fit-embed--spotify" aria-label="Spotify embed">
+            <iframe
+              src="https://open.spotify.com/embed/show/6S2wWaM5oqknwncPfOEyZ6?utm_source=generator&theme=0"
+              frameborder="0"
+              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+              loading="lazy"
+              title="Found in Translation on Spotify"></iframe>
+          </div>
         </div>
       </div>
     </section>
