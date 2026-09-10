@@ -141,7 +141,7 @@ export function inferReadLink(title: string): string | null {
     );
     const match = t.match(pattern);
     if (match) {
-      return `https://litbible.net/${slug}-${match[1]}`;
+      return canonicalizeReadUrl(`https://litbible.net/${slug}-${match[1]}`);
     }
   }
 
@@ -201,6 +201,12 @@ export function extractTag(xml: string, tag: string): string {
  * every read link is rewritten to https + apex rather than corrected one
  * episode at a time in podcastOverrides.json.
  *
+ * The trailing slash is part of the canonical form, not a flourish: the site
+ * builds to directory format, so every page's own canonical tag and every
+ * sitemap entry ends in one, and a slashless path is 308'd to add it. Emitting
+ * it directly means a read link lands on the page rather than on a redirect to
+ * it. A last path segment that looks like a file keeps its shape.
+ *
  * Only litbible.net is touched. A third-party read link (the Google Drive
  * ones) is left exactly as written — rewriting somebody else's scheme or
  * host is a guess, not a fix.
@@ -213,6 +219,9 @@ export function canonicalizeReadUrl(url: string): string {
     }
     u.protocol = 'https:';
     u.hostname = 'litbible.net';
+    if (!u.pathname.endsWith('/') && !/\.[^/]+$/.test(u.pathname)) {
+      u.pathname += '/';
+    }
     return u.toString();
   } catch {
     return url;
