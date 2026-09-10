@@ -373,6 +373,23 @@ body:has(.fit-page) .site-header.has-bg {
 .fit-embed--apple {
   max-width: 660px;
   margin-bottom: 34px;
+
+  /*
+   * Apple draws its own rounded card, so the frame's corner has to agree with
+   * it (12px, measured off .podcasts-episode) or the frame clips a wider curve
+   * than the card has and the mismatch reads as a halo.
+   */
+  border-radius: 12px;
+}
+
+/*
+ * The fallback show card is 16:9 at every width (measured 660/371, 600/338,
+ * 500/281, 360/203), unlike the episode row, which is a flat 160px however
+ * wide the frame is. So it gets a ratio and the row gets a number.
+ */
+.fit-embed--apple-show iframe {
+  height: auto;
+  aspect-ratio: 16 / 9;
 }
 
 .fit-embed-grid {
@@ -382,19 +399,39 @@ body:has(.fit-page) .site-header.has-bg {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 26px;
+
+  /* The two players are honestly different heights now; centred reads better
+   * than top-aligned. */
+  align-items: center;
 }
 
-.fit-embed-grid .fit-embed iframe {
-  height: 352px;
+/*
+ * The two players want different shapes, and giving them one shared height is
+ * what cropped the video: 535x352 is 1.52, a YouTube frame is 16:9, and the
+ * player covers the difference by cutting the poster off at both sides.
+ * A ratio rather than a height keeps the whole frame visible at every width.
+ */
+.fit-embed-grid .fit-embed--youtube iframe {
+  /* height:auto is required — the iframe carries a height attribute, and a
+   * definite height on both axes makes the browser ignore aspect-ratio. */
+  height: auto;
+  aspect-ratio: 16 / 9;
+}
+
+/*
+ * Spotify's compact height is the one that shows the most: the scrubber, the
+ * skip controls and the running time only appear below ~250px — the 352px
+ * layout spends that space on cover art instead and drops the transport
+ * entirely. The title is a marquee at any size, so width, not height, is what
+ * lets more of it sit still.
+ */
+.fit-embed-grid .fit-embed--spotify iframe {
+  height: 152px;
 }
 
 @media (max-width: 860px) {
   .fit-embed-grid {
     grid-template-columns: 1fr;
-  }
-
-  .fit-embed-grid .fit-embed iframe {
-    height: 360px;
   }
 }
 
