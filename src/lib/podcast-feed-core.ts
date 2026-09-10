@@ -148,6 +148,67 @@ export function inferReadLink(title: string): string | null {
   return null;
 }
 
+/**
+ * Turn an Apple Podcasts EPISODE URL into the URL its embed player is served
+ * from. Returns null for anything that is not one — a show URL, another host,
+ * or an unparseable string — so a caller can fall back deliberately.
+ *
+ * Why this exists: Apple's SHOW embed used to render a list of recent
+ * episodes, which is what the "Latest Episodes" section was built around.
+ * Apple has since replaced it with a single card whose only play button is the
+ * show's Trailer, so the show embed now advertises a 2021 teaser on a page
+ * headed "Latest Episodes" — and no height or parameter brings the list back
+ * (the card's DOM holds no episode list at any size).
+ *
+ * An episode embed still works, so the page derives one from the newest
+ * episode that has an Apple link. Deriving it at build time rather than
+ * pinning it by hand is the whole point: a pinned episode URL is exactly the
+ * kind of thing that silently goes stale, which is why the sibling YouTube and
+ * Spotify embeds are show-level in the first place.
+ */
+export function toAppleEmbedUrl(url: string): string | null {
+  try {
+    const u = new URL(url);
+    if (
+      u.hostname !== 'podcasts.apple.com' &&
+      u.hostname !== 'embed.podcasts.apple.com'
+    ) {
+      return null;
+    }
+    // The episode id. A show URL has no `i`, and is not what this builds.
+    if (!u.searchParams.get('i')) return null;
+
+    u.protocol = 'https:';
+    u.hostname = 'embed.podcasts.apple.com';
+    u.searchParams.set('itsct', 'podcast_box_player');
+    u.searchParams.set('itscg', '30200');
+    u.searchParams.set('ls', '1');
+    u.searchParams.set('theme', 'auto');
+    return u.toString();
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * The embed URL for the newest episode carrying an Apple link, or null.
+ *
+ * Episodes arrive newest-first (RedCircle's order, which parseEpisodes
+ * preserves), so this is a scan from the top. It skips past an episode with no
+ * Apple link rather than giving up: those links come from podcastOverrides.json
+ * by hand, so a just-published episode can be in the feed before its override
+ * is, and falling to the previous episode beats falling back to the Trailer.
+ */
+export function latestAppleEmbedUrl(episodes: Episode[]): string | null {
+  for (const ep of episodes) {
+    const apple = ep.links.find((l) => l.label === 'Listen on Apple Podcasts');
+    if (!apple) continue;
+    const embed = toAppleEmbedUrl(apple.url);
+    if (embed) return embed;
+  }
+  return null;
+}
+
 export function unescapeHtml(str: string): string {
   return str
     .replace(/&lt;/g, '<')

@@ -27,6 +27,8 @@ import {
   extractLinks,
   unescapeHtml,
   canonicalizeReadUrl,
+  toAppleEmbedUrl,
+  latestAppleEmbedUrl,
 } from "../src/lib/podcast-feed-core.ts";
 
 // RedCircle emits itunes:episodeType BEFORE itunes:episode — the ordering that
@@ -243,6 +245,75 @@ test("extractLinks: a Google Drive read link keeps its own scheme", () => {
       external: true,
     },
   ]);
+});
+
+// --------------------------------------------------------- Apple embed URLs
+
+test("toAppleEmbedUrl: moves an episode URL to the embed host, keeping the id", () => {
+  const out = toAppleEmbedUrl(
+    "https://podcasts.apple.com/us/podcast/some-episode/id1586737797?i=1000787232489"
+  );
+  const u = new URL(out);
+  assert.equal(u.hostname, "embed.podcasts.apple.com");
+  assert.equal(u.searchParams.get("i"), "1000787232489");
+  assert.equal(u.pathname, "/us/podcast/some-episode/id1586737797");
+});
+
+test("toAppleEmbedUrl: sets the player parameters the page needs", () => {
+  const u = new URL(toAppleEmbedUrl("https://podcasts.apple.com/us/podcast/some-episode/id1586737797?i=1000787232489"));
+  assert.equal(u.searchParams.get("theme"), "auto");
+  assert.equal(u.searchParams.get("itsct"), "podcast_box_player");
+  assert.equal(u.searchParams.get("itscg"), "30200");
+  assert.equal(u.searchParams.get("ls"), "1");
+});
+
+test("toAppleEmbedUrl: a SHOW url is not an episode embed", () => {
+  // No `i` — this is the URL whose embed only offers the Trailer.
+  assert.equal(
+    toAppleEmbedUrl("https://podcasts.apple.com/us/podcast/found-in-translation/id1586737797"),
+    null
+  );
+});
+
+test("toAppleEmbedUrl: another host is refused rather than rewritten", () => {
+  assert.equal(toAppleEmbedUrl("https://open.spotify.com/episode/abc?i=1"), null);
+  assert.equal(toAppleEmbedUrl("not a url"), null);
+});
+
+test("latestAppleEmbedUrl: takes the newest episode's Apple link", () => {
+  const episodes = [
+    { title: "newest", links: [{ label: "Listen on Apple Podcasts", url: "https://podcasts.apple.com/us/podcast/some-episode/id1586737797?i=1000787232489" }] },
+    { title: "older", links: [{ label: "Listen on Apple Podcasts", url: "https://podcasts.apple.com/us/podcast/old/id1586737797?i=111" }] },
+  ];
+  assert.equal(
+    new URL(latestAppleEmbedUrl(episodes)).searchParams.get("i"),
+    "1000787232489"
+  );
+});
+
+test("latestAppleEmbedUrl: falls past an episode whose override isn't in yet", () => {
+  // A just-published episode can reach the feed before its Apple link does.
+  // The previous episode beats falling back to the show's Trailer card.
+  const episodes = [
+    { title: "no apple link yet", links: [{ label: "Watch on YouTube", url: "https://youtu.be/x" }] },
+    { title: "older", links: [{ label: "Listen on Apple Podcasts", url: "https://podcasts.apple.com/us/podcast/some-episode/id1586737797?i=1000787232489" }] },
+  ];
+  assert.equal(
+    new URL(latestAppleEmbedUrl(episodes)).searchParams.get("i"),
+    "1000787232489"
+  );
+});
+
+test("latestAppleEmbedUrl: null when nothing has an Apple link", () => {
+  assert.equal(latestAppleEmbedUrl([{ title: "x", links: [] }]), null);
+  assert.equal(latestAppleEmbedUrl([]), null);
+});
+
+test("latestAppleEmbedUrl: reads the real parse output end to end", () => {
+  const body =
+    '<a href="https://podcasts.apple.com/us/podcast/x/id1586737797?i=999">apple</a>';
+  const episodes = parseEpisodes(item({ body }), {});
+  assert.equal(new URL(latestAppleEmbedUrl(episodes)).searchParams.get("i"), "999");
 });
 
 // -------------------------------------------------------------- unescapeHtml

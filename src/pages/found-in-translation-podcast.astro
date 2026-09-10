@@ -3,6 +3,22 @@ import Layout from "../layouts/Layout.astro";
 import "../styles/pages/found-in-translation-podcast.css";
 import PodcastEpisodesFlat from "../components/PodcastEpisodesFlat.astro";
 import { siFacebook } from "simple-icons";
+import { fetchEpisodes } from "../lib/fetchPodcastEpisodes";
+import { latestAppleEmbedUrl } from "../lib/podcast-feed-core";
+
+// Apple's show embed no longer lists recent episodes — it renders one card
+// whose only play button is the show's Trailer. So the Apple player here is
+// the newest episode that has an Apple link, derived at build time rather than
+// pinned by hand. See toAppleEmbedUrl for the whole story.
+//
+// The show embed stays as the fallback for the case where no episode carries
+// an Apple link yet. It is a taller card than the compact episode row, hence
+// the two heights; both are capped at Apple's own 660px in the stylesheet.
+const appleEpisodeEmbed = latestAppleEmbedUrl(await fetchEpisodes());
+const APPLE_SHOW_EMBED =
+  "https://embed.podcasts.apple.com/us/podcast/found-in-translation/id1586737797?itsct=podcast_box_player&itscg=30200&ls=1&theme=auto";
+const appleEmbedSrc = appleEpisodeEmbed ?? APPLE_SHOW_EMBED;
+const appleEmbedHeight = appleEpisodeEmbed ? 175 : 360;
 
 // Update these paths to match what’s in /public/images/
 const heroImage = "/images/scopio-0b189831-4e0b-46c8-a758-c743663d7611.webp";
@@ -138,13 +154,17 @@ const coverImage = "/images/fit-cover.webp";
       <div class="fit-embed fit-embed--apple" aria-label="Apple Podcasts embed">
         <iframe
           id="embedPlayer"
-          src="https://embed.podcasts.apple.com/us/podcast/found-in-translation/id1586737797?itsct=podcast_box_player&itscg=30200&ls=1&theme=auto"
-          height="450"
+          src={appleEmbedSrc}
+          height={appleEmbedHeight}
           frameborder="0"
           sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-top-navigation-by-user-activation"
           allow="autoplay *; encrypted-media *; clipboard-write"
           loading="lazy"
-          title="Found in Translation on Apple Podcasts"></iframe>
+          title={
+            appleEpisodeEmbed
+              ? "Latest episode of Found in Translation on Apple Podcasts"
+              : "Found in Translation on Apple Podcasts"
+          }></iframe>
       </div>
 
       <div class="fit-embed-grid">
