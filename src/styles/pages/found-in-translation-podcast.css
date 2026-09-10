@@ -363,8 +363,15 @@ body:has(.fit-page) .site-header.has-bg {
   border: 0;
 }
 
+/*
+ * 660px is Apple's own cap — it is what their embed generator emits
+ * (style="…max-width:660px…"), and it is load-bearing rather than cosmetic:
+ * both the compact episode row and the taller show card stop growing before
+ * the frame does, so a wider box leaves a dead band down the right-hand side.
+ * That band is what the 900px cap here used to show.
+ */
 .fit-embed--apple {
-  max-width: 900px;
+  max-width: 660px;
   margin-bottom: 34px;
 }
 
