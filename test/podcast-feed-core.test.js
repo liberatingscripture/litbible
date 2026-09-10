@@ -26,6 +26,7 @@ import {
   inferReadLink,
   extractLinks,
   unescapeHtml,
+  canonicalizeReadUrl,
 } from "../src/lib/podcast-feed-core.ts";
 
 // RedCircle emits itunes:episodeType BEFORE itunes:episode — the ordering that
@@ -162,6 +163,66 @@ test("extractLinks: a repeated href is only counted once", () => {
   assert.equal(extractLinks(html).length, 1);
 });
 
+// ------------------------------------------------------- canonicalizeReadUrl
+
+test("canonicalizeReadUrl: upgrades an http litbible link to https", () => {
+  assert.equal(
+    canonicalizeReadUrl("http://litbible.net/james-5"),
+    "https://litbible.net/james-5"
+  );
+});
+
+test("canonicalizeReadUrl: drops the www host, scheme included", () => {
+  assert.equal(
+    canonicalizeReadUrl("http://www.litbible.net/romans-8"),
+    "https://litbible.net/romans-8"
+  );
+  assert.equal(
+    canonicalizeReadUrl("https://www.litbible.net/romans-8"),
+    "https://litbible.net/romans-8"
+  );
+});
+
+test("canonicalizeReadUrl: an already-canonical link is unchanged", () => {
+  assert.equal(
+    canonicalizeReadUrl("https://litbible.net/mark-4"),
+    "https://litbible.net/mark-4"
+  );
+});
+
+test("canonicalizeReadUrl: a third-party host is left exactly as written", () => {
+  // Rewriting somebody else's scheme is a guess, not a fix.
+  const drive = "http://drive.google.com/file/d/abc/view";
+  assert.equal(canonicalizeReadUrl(drive), drive);
+});
+
+test("canonicalizeReadUrl: a hostname that merely ENDS in litbible.net is untouched", () => {
+  const impostor = "http://notlitbible.net/mark-4";
+  assert.equal(canonicalizeReadUrl(impostor), impostor);
+});
+
+test("canonicalizeReadUrl: an unparseable href is returned as-is", () => {
+  assert.equal(canonicalizeReadUrl("not a url"), "not a url");
+});
+
+test("extractLinks: an http read link is canonicalized on the way out", () => {
+  const html = '<a href="http://www.litbible.net/romans-8">read</a>';
+  assert.deepEqual(extractLinks(html), [
+    { label: "Read the passage", url: "https://litbible.net/romans-8" },
+  ]);
+});
+
+test("extractLinks: a Google Drive read link keeps its own scheme", () => {
+  const html = '<a href="http://drive.google.com/file/d/abc/view">read</a>';
+  assert.deepEqual(extractLinks(html), [
+    {
+      label: "Read the passage",
+      url: "http://drive.google.com/file/d/abc/view",
+      external: true,
+    },
+  ]);
+});
+
 // -------------------------------------------------------------- unescapeHtml
 
 test("unescapeHtml: decodes named and numeric entities, ampersand last", () => {
@@ -265,6 +326,13 @@ test("parseEpisodes: a read override DOES replace the feed's read link", () => {
   const [ep] = parseEpisodes(item({ body }), overrides);
   assert.equal(urlFor(ep, "Read the passage"), "https://litbible.net/john-1");
   assert.equal(labels(ep).filter((l) => l === "Read the passage").length, 1);
+});
+
+test("parseEpisodes: an http read override is canonicalized too", () => {
+  const body = '<a href="https://litbible.net/matthew-6">read</a>';
+  const overrides = { "Matthew 6": { read: "http://www.litbible.net/john-1" } };
+  const [ep] = parseEpisodes(item({ body }), overrides);
+  assert.equal(urlFor(ep, "Read the passage"), "https://litbible.net/john-1");
 });
 
 test("parseEpisodes: a season override wins over the feed's season", () => {
