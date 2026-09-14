@@ -1,5 +1,32 @@
 [
   {
+    "version": "2026-09-13",
+    "date": "2026-09-13",
+    "label": "September 13, 2026",
+    "changes": [
+      {
+        "type": "text_updated",
+        "description": "Galatians 1:11 — text updated",
+        "detail": "\"passed\" → \"handed\"",
+        "location": {
+          "bookKey": "galatians",
+          "chapter": 1,
+          "verse": 11
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Luke 11:4 — text updated",
+        "detail": "\"times\" → \"a time\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 11,
+          "verse": 4
+        }
+      }
+    ]
+  },
+  {
     "version": "2026-09-08",
     "date": "2026-09-08",
     "label": "September 8, 2026",
