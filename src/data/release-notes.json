@@ -1,5 +1,152 @@
 [
   {
+    "version": "2026-09-15",
+    "date": "2026-09-15",
+    "label": "September 15, 2026",
+    "changes": [
+      {
+        "type": "text_updated",
+        "description": "2 Corinthians 11:26 — text updated",
+        "detail": "\"ambushes,\" → \"armed outlaws,\"",
+        "location": {
+          "bookKey": "2corinthians",
+          "chapter": 11,
+          "verse": 26
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "2 Corinthians 11:26 — footnote bb updated",
+        "detail": "\"Literally, ‘robbers’ or ‘insurrectionists’\" → \"Or ‘robbers’ or ‘bandits’\"",
+        "location": {
+          "bookKey": "2corinthians",
+          "chapter": 11,
+          "verse": 26
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "John 10:1, 8 — text updated",
+        "detail": "v. 1: \"a robber.\" → \"an armed outlaw.\"; v. 8: \"robbers,\" → \"armed outlaws,\"",
+        "location": {
+          "bookKey": "john",
+          "chapter": 10,
+          "verse": 1
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "John 18:40 — text updated",
+        "detail": "\"a criminal.)\" → \"an armed outlaw.)\"",
+        "location": {
+          "bookKey": "john",
+          "chapter": 18,
+          "verse": 40
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "John 18:40 — footnote w updated",
+        "detail": "removed \"political criminal, a\"",
+        "location": {
+          "bookKey": "john",
+          "chapter": 18,
+          "verse": 40
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Luke 10:30, 36 — text updated",
+        "detail": "v. 30: \"robbers.\" → \"armed outlaws.\"; v. 36: \"robbers?”\" → \"armed outlaws?”\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 10,
+          "verse": 30
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Luke 19:46 — text updated",
+        "detail": "\"brigands!’”\" → \"violent outlaws!’”\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 19,
+          "verse": 46
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Mark 11:17 — text updated",
+        "detail": "\"‘hideout for robbers’!”\" → \"‘stronghold for violent outlaws’!”\"",
+        "location": {
+          "bookKey": "mark",
+          "chapter": 11,
+          "verse": 17
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Mark 14:48 — text updated",
+        "detail": "\"insurrectionist?\" → \"armed outlaw?\"",
+        "location": {
+          "bookKey": "mark",
+          "chapter": 14,
+          "verse": 48
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Mark 15:27 — text updated",
+        "detail": "\"insurrectionists\" → \"armed outlaws\"",
+        "location": {
+          "bookKey": "mark",
+          "chapter": 15,
+          "verse": 27
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Mark 15:27 — footnote o updated",
+        "detail": "\"‘outlaws’\" → \"‘brigands’\"",
+        "location": {
+          "bookKey": "mark",
+          "chapter": 15,
+          "verse": 27
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Matthew 21:13 — text updated",
+        "detail": "\"robbers!’”\" → \"violent outlaws!’”\"",
+        "location": {
+          "bookKey": "matthew",
+          "chapter": 21,
+          "verse": 13
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Matthew 26:55 — text updated",
+        "detail": "\"insurrectionist?\" → \"armed outlaw?\"",
+        "location": {
+          "bookKey": "matthew",
+          "chapter": 26,
+          "verse": 55
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Matthew 27:38, 44 — text updated",
+        "detail": "v. 38: \"rebels\" → \"armed outlaws\"; v. 44: \"rebels\" → \"armed outlaws\"",
+        "location": {
+          "bookKey": "matthew",
+          "chapter": 27,
+          "verse": 38
+        }
+      }
+    ]
+  },
+  {
     "version": "2026-09-13",
     "date": "2026-09-13",
     "label": "September 13, 2026",
