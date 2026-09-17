@@ -206,26 +206,6 @@
       "ref": "Luke.5.21",
       "english": [
         {
-          "text": "speaks disrespectful things",
-          "n": 1
-        }
-      ],
-      "greek": [],
-      "term": {
-        "greek": "blasphemia",
-        "traditional": "Blasphemy",
-        "glossary": "blasphemy-disrespectfulness",
-        "form": "speak disrespectfully"
-      },
-      "confidence": null,
-      "lemma": "present",
-      "source": "review",
-      "status": "confirmed"
-    },
-    {
-      "ref": "Luke.5.21",
-      "english": [
-        {
           "text": "dismiss",
           "n": 1
         }
