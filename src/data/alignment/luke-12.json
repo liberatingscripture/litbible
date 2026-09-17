@@ -126,26 +126,6 @@
       "ref": "Luke.12.10",
       "english": [
         {
-          "text": "speaks disrespectfully against",
-          "n": 1
-        }
-      ],
-      "greek": [],
-      "term": {
-        "greek": "blasphemia",
-        "traditional": "Blasphemy",
-        "glossary": "blasphemy-disrespectfulness",
-        "form": "speak disrespectfully"
-      },
-      "confidence": null,
-      "lemma": "present",
-      "source": "review",
-      "status": "confirmed"
-    },
-    {
-      "ref": "Luke.12.10",
-      "english": [
-        {
           "text": "let go",
           "n": 2
         }
