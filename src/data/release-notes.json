@@ -1,5 +1,163 @@
 [
   {
+    "version": "2026-09-16",
+    "date": "2026-09-16",
+    "label": "September 16, 2026",
+    "changes": [
+      {
+        "type": "text_updated",
+        "description": "Luke 12:10 — text updated",
+        "detail": "\"disrespectfully\" → \"with contempt\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 12,
+          "verse": 10
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 13:12 — footnote f updated",
+        "detail": "\"Jesus’ culture, it was done as a respectful\" → \"the culture of the time, it was a polite\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 13,
+          "verse": 12
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Luke 5:21 — text updated",
+        "detail": "\"speaks disrespectful\" → \"says such contemptuous\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 5,
+          "verse": 21
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 5:21 — footnote m updated",
+        "detail": "\"‘slander ‘defamation’\" → \"‘slander,’ ‘defamation,’\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 5,
+          "verse": 21
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Mark 14:64, 66, 69 — text updated",
+        "detail": "v. 64: \"disrespect!\" → \"contemptuous speech!\"; v. 66: \"little girls\" → \"women\"; v. 69: \"little girl,\" → \"enslaved woman,\"",
+        "location": {
+          "bookKey": "mark",
+          "chapter": 14,
+          "verse": 64
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Mark 14:64, 66 — footnotes ll, oo updated",
+        "detail": "fn. ll (v. 64): \"disrespectful\" → \"contemptuous\"; fn. oo (v. 66): added \"While most literally it means ‘girls’ this word (paidiske) was also used for enslaved women. ‘Women’ is used here based…\"",
+        "location": {
+          "bookKey": "mark",
+          "chapter": 14,
+          "verse": 64
+        },
+        "relabel": "footnotes formerly oo–pp relabeled pp–qq"
+      },
+      {
+        "type": "text_updated",
+        "description": "Mark 15:2 — text updated",
+        "detail": "\"“If you say so,”\" → \"“You yourself are saying it,”\"",
+        "location": {
+          "bookKey": "mark",
+          "chapter": 15,
+          "verse": 2
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Mark 2:7 — text updated",
+        "detail": "\"disrespectful!\" → \"contemptuous!\"",
+        "location": {
+          "bookKey": "mark",
+          "chapter": 2,
+          "verse": 7
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Mark 3:28–29 — text updated",
+        "detail": "v. 28: \"slanderous accusations if they make slanderous accusations—\" → \"speaking with contempt if they speak with contempt—\"; v. 29: \"makes a slanderous accusation\" → \"speaks with contempt\"",
+        "location": {
+          "bookKey": "mark",
+          "chapter": 3,
+          "verse": 28
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Mark 3:28 — footnote ff updated",
+        "detail": "removed \"The word ‘slander’ in English literally means a negative assertion about someone that is false. It is translated here a…\"",
+        "location": {
+          "bookKey": "mark",
+          "chapter": 3,
+          "verse": 28
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Mark 7:22 — text updated",
+        "detail": "\"disrespectfully,\" → \"with contempt,\"",
+        "location": {
+          "bookKey": "mark",
+          "chapter": 7,
+          "verse": 22
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Matthew 26:65, 69 — text updated",
+        "detail": "v. 65: \"disrespectfully about God! Do we still need witnesses? See,…\" → \"contemptuously about God! Do we still need witnesses? See, …\"; v. 69: \"girl\" → \"woman\"",
+        "location": {
+          "bookKey": "matthew",
+          "chapter": 26,
+          "verse": 65
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Matthew 26:64, 69 — footnotes h, cc, hh updated",
+        "detail": "fn. h: \"Judas, the high priest, and Pilate (Matthew 26:25, 26:64, 2…\" → \"Judas and the high priest (Matthew 26:25, 26:64).\"; fn. cc (v. 64): \"Judas, the high priest, and Pilate (Matthew 26:25, 26:64, 2…\" → \"Judas and the high priest (Matthew 26:25, 26:64).\"; fn. hh (v. 69): added \"While most literally it means ‘girl’ this word (paidiske) was also used for enslaved women. ‘Woman’ is used here based …\"",
+        "location": {
+          "bookKey": "matthew",
+          "chapter": 26,
+          "verse": 64
+        },
+        "relabel": "footnotes formerly hh relabeled ii"
+      },
+      {
+        "type": "text_updated",
+        "description": "Matthew 27:11 — text updated",
+        "detail": "\"“If you say so,”\" → \"“You yourself are saying it,”\"",
+        "location": {
+          "bookKey": "matthew",
+          "chapter": 27,
+          "verse": 11
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Matthew 27 — footnote f updated",
+        "detail": "\"Jesus uses the phrase su eipas in critical conversations wi…\" → \"Compare with Matthew 26:25, 64 where Jesus uses the phrase …\"",
+        "location": {
+          "bookKey": "matthew",
+          "chapter": 27
+        }
+      }
+    ]
+  },
+  {
     "version": "2026-09-15",
     "date": "2026-09-15",
     "label": "September 15, 2026",
