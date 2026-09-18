@@ -402,14 +402,17 @@ for (const filePath of files) {
   // sup.vn is inline-block and no CSS supplies a gap, so the space before a
   // verse marker has to be in the text; without it the number welds to the
   // preceding sentence ("sheep.12 The"). The one legitimate shape is a
-  // paragraph opening a bracketed passage, where the ⟦ marker and its footnote
-  // anchor precede the first verse — that exemption lives here at the call
-  // site, not in the shared helper, matching how the changelog handles the
-  // same case.
+  // paragraph opening a bracketed passage, where the ⟦ marker precedes the
+  // first verse — that exemption lives here at the call site, not in the
+  // shared helper, matching how the changelog handles the same case.
+  // Keyed on the ⟦ alone, not on what follows it: a span carries its note at
+  // its closing marker, so an opening ⟦ is usually followed straight by the
+  // verse (john-11), and only by a footnote anchor on the first page of a
+  // span that crosses a chapter boundary (john-7).
   if (Array.isArray(data.paragraphs)) {
     for (const hit of findUnseparatedVerseMarkers(data.paragraphs)) {
       const p = String(data.paragraphs[hit.paragraphIndex] ?? "");
-      if (/^<(?:p|blockquote)\b[^>]*>⟦<sup class="fn-ref">/.test(p)) continue;
+      if (/^<(?:p|blockquote)\b[^>]*>⟦/.test(p)) continue;
       errors.push(
         `verse ${hit.verse} marker has no separator before it — "…${tail(hit.before)}${hit.verse}" welds the number to the preceding sentence`
       );
