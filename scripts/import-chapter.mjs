@@ -87,6 +87,7 @@ import { scanDocumentEntries, scanFootnoteRecords, escapeHtml } from "./reconcil
 import { extractMasterChapters } from "./reconcile/lib/docx-verses.mjs";
 import { curlify, auditWrongDirectionPairs, matchesValidatorPredicate } from "./reconcile/lib/curl-quotes.mjs";
 import { BOOKS, bookKeyToLabel } from "../src/data/books.js";
+import { serializeChapter } from "./lib/chapter-serialize.mjs";
 import {
   labelFor, anchorFor, mapTextNodes, visibleText, foldAllowed,
   curlText, enDashRanges, collapseRuns, fidelityDivergence,
@@ -365,7 +366,11 @@ if (reportOnly) { console.log(`\n--report: nothing written.`); process.exit(find
 
 const outDir = val("out-dir") || join(root, "src", "data", "chapters");
 for (const { n, doc } of built) {
-  const json = JSON.stringify(doc, null, 2) + "\n";
+  // Canonical form, not plain stringify: a chapter file keeps each footnote
+  // on ONE line so a note edit is a one-line diff (CLAUDE.md). Writing the
+  // expanded form here left every imported chapter non-canonical until
+  // something else rewrote it, turning the next small edit into a reformat.
+  const json = serializeChapter(doc);
   if (flag("stdout")) { process.stdout.write(json); continue; }
   const out = val("out") || join(outDir, `${bookKey}-${n}.json`);
   if (existsSync(out) && !flag("force")) die(`${out} exists; pass --force to overwrite`);
