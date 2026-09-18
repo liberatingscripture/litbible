@@ -306,6 +306,46 @@
       "ref": "Mark.3.28",
       "english": [
         {
+          "text": "speak with contempt",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "blasphemia",
+        "traditional": "Blasphemy",
+        "glossary": "blasphemy-disrespectfulness",
+        "form": "speaking with contempt"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Mark.3.28",
+      "english": [
+        {
+          "text": "speaking with contempt",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "blasphemia",
+        "traditional": "Blasphemy",
+        "glossary": "blasphemy-disrespectfulness",
+        "form": "speaking with contempt"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Mark.3.28",
+      "english": [
+        {
           "text": "dismissed",
           "n": 1
         }
@@ -340,6 +380,26 @@
       "confidence": "distinctive",
       "lemma": "present",
       "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Mark.3.29",
+      "english": [
+        {
+          "text": "speaks with contempt",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "blasphemia",
+        "traditional": "Blasphemy",
+        "glossary": "blasphemy-disrespectfulness",
+        "form": "speaking with contempt"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
       "status": "confirmed"
     },
     {

@@ -1,0 +1,346 @@
+{
+  "bookKey": "luke",
+  "chapter": 21,
+  "records": [
+    {
+      "ref": "Luke.21.5",
+      "english": [
+        {
+          "text": "magnificent",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "kalos",
+        "traditional": "Good [1]",
+        "glossary": "good-admirable",
+        "form": "magnificent"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.21.5",
+      "english": [
+        {
+          "text": "sacred",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hagios",
+        "traditional": "Holy",
+        "glossary": "holy-sacred",
+        "form": "sacred"
+      },
+      "confidence": "common",
+      "lemma": "absent",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
+      "ref": "Luke.21.6",
+      "english": [
+        {
+          "text": "left",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "aphiemi",
+        "traditional": "Forgiveness",
+        "glossary": "forgiveness-letting-go",
+        "form": "leave"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.21.10",
+      "english": [
+        {
+          "text": "People group",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ethnos",
+        "traditional": "Gentiles",
+        "glossary": "gentiles-people-groups",
+        "form": "people groups"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.21.10",
+      "english": [
+        {
+          "text": "people group",
+          "n": 2
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ethnos",
+        "traditional": "Gentiles",
+        "glossary": "gentiles-people-groups",
+        "form": "people groups"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.21.11",
+      "english": [
+        {
+          "text": "the heavens",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ouranos",
+        "traditional": "Heaven",
+        "glossary": "heaven-sky",
+        "form": "the heavens"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.21.19",
+      "english": [
+        {
+          "text": "very selves",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "psuche",
+        "traditional": "Soul",
+        "glossary": "soul-very-being",
+        "form": "very self"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.21.24",
+      "english": [
+        {
+          "text": "other peoples",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ethnos",
+        "traditional": "Gentiles",
+        "glossary": "gentiles-people-groups",
+        "form": "other peoples"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.21.24",
+      "english": [
+        {
+          "text": "other peoples",
+          "n": 2
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ethnos",
+        "traditional": "Gentiles",
+        "glossary": "gentiles-people-groups",
+        "form": "other peoples"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.21.24",
+      "english": [
+        {
+          "text": "peoples",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ethnos",
+        "traditional": "Gentiles",
+        "glossary": "gentiles-people-groups",
+        "form": "other peoples"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.21.25",
+      "english": [
+        {
+          "text": "the peoples",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ethnos",
+        "traditional": "Gentiles",
+        "glossary": "gentiles-people-groups",
+        "form": "peoples"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.21.26",
+      "english": [
+        {
+          "text": "the heavens",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ouranos",
+        "traditional": "Heaven",
+        "glossary": "heaven-sky",
+        "form": "the heavens"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.21.27",
+      "english": [
+        {
+          "text": "honor",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "doxa",
+        "traditional": "Glory",
+        "glossary": "glory-praiseworthiness",
+        "form": "honor"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.21.28",
+      "english": [
+        {
+          "text": "liberation",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "soterios",
+        "traditional": "Salvation",
+        "glossary": "salvation-liberation",
+        "form": "liberation"
+      },
+      "confidence": "common",
+      "lemma": "absent",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
+      "ref": "Luke.21.33",
+      "english": [
+        {
+          "text": "The heavens",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "ouranos",
+        "traditional": "Heaven",
+        "glossary": "heaven-sky",
+        "form": "the heavens"
+      },
+      "confidence": "common",
+      "lemma": "present",
+      "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.21.37",
+      "english": [
+        {
+          "text": "sacred",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hagios",
+        "traditional": "Holy",
+        "glossary": "holy-sacred",
+        "form": "sacred"
+      },
+      "confidence": "common",
+      "lemma": "absent",
+      "source": "glossary-scan",
+      "status": "auto"
+    },
+    {
+      "ref": "Luke.21.38",
+      "english": [
+        {
+          "text": "sacred",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hagios",
+        "traditional": "Holy",
+        "glossary": "holy-sacred",
+        "form": "sacred"
+      },
+      "confidence": "common",
+      "lemma": "absent",
+      "source": "glossary-scan",
+      "status": "auto"
+    }
+  ]
+}

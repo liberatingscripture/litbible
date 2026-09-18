@@ -66,6 +66,26 @@
       "ref": "Mark.2.7",
       "english": [
         {
+          "text": "contemptuous",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "blasphemia",
+        "traditional": "Blasphemy",
+        "glossary": "blasphemy-disrespectfulness",
+        "form": "contemptuous speech"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Mark.2.7",
+      "english": [
+        {
           "text": "dismiss",
           "n": 1
         }

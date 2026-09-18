@@ -341,6 +341,26 @@
       "lemma": "present",
       "source": "review",
       "status": "confirmed"
+    },
+    {
+      "ref": "Mark.14.64",
+      "english": [
+        {
+          "text": "contemptuous speech",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "blasphemia",
+        "traditional": "Blasphemy",
+        "glossary": "blasphemy-disrespectfulness",
+        "form": "contemptuous speech"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
     }
   ]
 }
