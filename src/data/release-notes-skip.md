@@ -160,3 +160,43 @@ formatting-only edit emits nothing at all — this publish included. The skip
 still matters for one reason: it protects the window in which the content
 change merges **before** the drafter fix does, when the old behaviour would
 still write the two wrong rows.
+
+## 2026-09-17 — bracketed passages move to one note per reading surface
+
+Every bracketed passage used to print its explanatory footnote at **both**
+ends. That rule came from John 7:53–8:11, which spans two chapter pages and
+genuinely needs a note on each; it was then applied to the four spans that open
+and close inside one chapter, where the second copy explains nothing the reader
+cannot already see and has to be kept byte-identical forever.
+
+This publish removes the opening note from those four spans — `mark-16` fn-e,
+`john-9` fn-q, `john-11` fn-w, and `romans-16` fn-m and fn-o — and leaves the
+note at each span's close. John 7/8 keeps both copies, as the one span that
+occupies two surfaces.
+
+**Skipped because the changelog would report the label cascade, not the
+change.** Removing a footnote mid-chapter renumbers every note after it, so the
+drafter sees 31 relabelled footnotes across four chapters and reports them as
+footnote add/remove rows at each cascade start. None of that is a wording
+change and none of it is what a reader would want told. The substance — that a
+contested passage is now explained once, at its end — is worth a hand-written
+note if it is worth one at all, and is not per-verse detail.
+
+No scripture text changed in this publish. The notes themselves are untouched;
+only which end of a span carries one.
+
+**What the drafter actually produced, checked before skipping** — four rows,
+every one of them naming the wrong end:
+
+- *"John 11:32 — footnote z removed"* — 11:32 still has its note. The one
+  removed was fn-w, at 11:28.
+- *"John 9:39 — footnote r removed"*, *"Mark 16:20 — footnote m removed"*,
+  *"Romans 16:24, 27 — footnotes n, r removed"* — same inversion.
+
+The cause is inherent rather than a defect: the two copies were byte-identical,
+so when one of a pair disappears there is nothing in the text to say which. The
+drafter reports the later label and anchors `location` to its verse, which is
+precisely the verse that kept its note. Worth knowing that this failure mode is
+now close to extinct by construction — after this change the corpus holds one
+byte-identical pair in total (john-7 fn-ff / john-8 fn-k), so it can only arise
+again if that span is edited.

@@ -579,20 +579,33 @@ plain characters in the text) — the same double-bracket notation critical
 editions (e.g. NA28) use for text of doubtful authenticity. The convention is
 strict and has two halves:
 
-- `⟦` sits at the **start of the paragraph**, immediately followed by a
-  footnote marker, then the `vglue` span.
+- `⟦` opens the passage, usually at the **start of a paragraph** but not
+  always — Luke 22's opens mid-paragraph, after the close of 22:42.
 - ` ⟧` closes the passage at the **end of the passage**, immediately followed
-  by a second footnote marker. That is usually the end of a paragraph, but not
+  by a footnote marker. That is usually the end of a paragraph, but not
   always — where the contested text stops mid-verse the marker does too
   (`john-9.json`: `Jesus said, ⟧`, closing 9:38–39a).
-- **Both markers carry the same footnote text**, so a reader who meets either
-  end gets the whole explanation. That is why those footnote pairs are
-  byte-identical, and they must be edited together.
+- **One note per reading surface, at the span's last marker on that surface.**
+  A span that opens and closes in one chapter is one surface, so the note hangs
+  off the closing marker and **the opening bracket carries nothing**. A span
+  crossing a chapter boundary occupies two surfaces — a reader on the second
+  chapter never sees the opening bracket — so each chapter carries its own
+  copy, and those two **must stay byte-identical and be edited together**.
 
-Live examples: `mark-16.json` (e/m), `john-7.json` ff → `john-8.json` k
-(a pair that spans a chapter boundary), `john-9.json` (q/r),
-`john-11.json` (w/z), and `romans-16.json` (m/n for verse 24, o/r for the
-doxology).
+Until 2026-09 every span carried the note at *both* ends. That rule came from
+the one case that needs it (John 7:53–8:11, which spans two pages) and was
+then applied to four spans that sit on a single surface, where it bought
+nothing and cost a duplicate to keep in sync — a hazard
+`check-bracket-twins.mjs` exists because it had already bitten. Restating it as
+one-per-surface keeps the duplication exactly where it was earning its keep.
+The cost is Mark 16, the only span long enough (12 verses) that a reader can
+meet `⟦` and reach the note only at the far end.
+
+Live examples: `mark-16.json` (fn-l), `john-9.json` (fn-q), `john-11.json`
+(fn-y), `romans-16.json` (fn-m for verse 24, fn-p for the doxology), and
+`luke-22.json` (43–44) — each one note at the close. `john-7.json` ff →
+`john-8.json` k is the two-surface exception and the corpus's only remaining
+byte-identical pair.
 
 **⟦/⟧ is a repo-only convention, and the Word masters still carry the retired
 two-character forms `[|` and `|]`** — the same shape as the en-dash rule, and
@@ -670,7 +683,7 @@ which of them have to accept the master's old form too:
 
 | Site | Matches |
 |------|---------|
-| `validate-chapters.mjs` — `verse_marker_separator` exemption | ⟦ only (repo shape); `john-11-p16` is the one paragraph that depends on it |
+| `validate-chapters.mjs` — `verse_marker_separator` exemption | ⟦ only (repo shape), keyed on the bracket alone rather than on what follows it, since an opening ⟦ now usually runs straight into the verse; `john-11-p16` is the one paragraph that depends on it |
 | `validate-chapters.mjs` — `old_bracket_markers` | `[\|`/`\|]` only (that is the rule) |
 | `lib/release-notes-core.mjs` — opening-bracket fall-forward | both; it reads both sides of a git diff |
 | `reconcile/build-ledger.mjs` — `BRACKET_MARKER_RE` | both, so a restore that would swap the form reads as "changes the markers" and is held |
