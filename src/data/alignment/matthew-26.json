@@ -381,6 +381,46 @@
       "lemma": "present",
       "source": "glossary-scan",
       "status": "confirmed"
+    },
+    {
+      "ref": "Matt.26.65",
+      "english": [
+        {
+          "text": "contemptuous speech",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "blasphemia",
+        "traditional": "Blasphemy",
+        "glossary": "blasphemy-disrespectfulness",
+        "form": "contemptuous speech"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Matt.26.65",
+      "english": [
+        {
+          "text": "spoke contemptuously",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "blasphemia",
+        "traditional": "Blasphemy",
+        "glossary": "blasphemy-disrespectfulness",
+        "form": "speaking with contempt"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
     }
   ]
 }

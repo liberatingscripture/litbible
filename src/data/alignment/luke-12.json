@@ -126,6 +126,26 @@
       "ref": "Luke.12.10",
       "english": [
         {
+          "text": "speaks with contempt",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "blasphemia",
+        "traditional": "Blasphemy",
+        "glossary": "blasphemy-disrespectfulness",
+        "form": "speaking with contempt"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.12.10",
+      "english": [
+        {
           "text": "let go",
           "n": 2
         }
