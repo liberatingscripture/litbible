@@ -1,14 +1,362 @@
 {
   "bookKey": "luke",
   "chapter": 22,
-  "indexed": false,
   "type": "scripture",
   "title": "Luke 22",
   "description": "Luke 22 in the Liberation and Inclusion Translation (LIT).",
   "topics": [],
+  "indexed": false,
   "paragraphs": [
-    "<figure style=\"margin: 0; text-align: center;\">\n  <img src=\"/images/writing-in-progress.webp\" alt=\"Page in progress; check back soon\" style=\"display: block; margin: 0 auto; max-width: 400px; width: 100%; height: auto;\" />\n  <figcaption style=\"margin-top: 0.5rem; font-size: 0.95em;\">\n    There once was a page still unwritten, beware,<br>\n    Still brewing up thoughts in midair.<br>\n    This page is on hold,<br>\n    But soon will unfold,<br>\n    So check back, real words will be there.\n  </figcaption>\n</figure>",
-    "<br><h2>This page is still in progress. All books except <strong>Acts</strong>, <strong>Revelation</strong>, and part of <strong>Luke</strong> are currently available. Check back soon!</h2>"
+    "<p id=\"luke-22-p1\"><span class=\"vglue\"><sup id=\"v1\" class=\"vn\">1</sup>&nbsp;The</span> Feast of Unleavened Bread,<sup class=\"fn-ref\"><a id=\"fnref-a\" href=\"#fn-a\" role=\"doc-noteref\">a</a></sup> which is called Passover, was approaching. <span class=\"vglue\"><sup id=\"v2\" class=\"vn\">2</sup>&nbsp;The</span> lead priests and scripture scholars were looking for a way to do away with Jesus,<sup class=\"fn-ref\"><a id=\"fnref-b\" href=\"#fn-b\" role=\"doc-noteref\">b</a></sup> since they were afraid of the people. <span class=\"vglue\"><sup id=\"v3\" class=\"vn\">3</sup>&nbsp;The</span> Adversary<sup class=\"fn-ref\"><a id=\"fnref-c\" href=\"#fn-c\" role=\"doc-noteref\">c</a></sup> went into Judah,<sup class=\"fn-ref\"><a id=\"fnref-d\" href=\"#fn-d\" role=\"doc-noteref\">d</a></sup> the one called <em>Ish-Kerioth</em>,<sup class=\"fn-ref\"><a id=\"fnref-e\" href=\"#fn-e\" role=\"doc-noteref\">e</a></sup> who was one of the Twelve. <span class=\"vglue\"><sup id=\"v4\" class=\"vn\">4</sup>&nbsp;After</span> leaving, he spoke with the lead priests and officers of the temple guard about how to hand him over to them. <span class=\"vglue\"><sup id=\"v5\" class=\"vn\">5</sup>&nbsp;They</span> were overjoyed and arranged to give him money. <span class=\"vglue\"><sup id=\"v6\" class=\"vn\">6</sup>&nbsp;He</span> agreed and began looking for an opportunity to hand him over to them away from the crowd.</p>",
+    "<p id=\"luke-22-p2\"><span class=\"vglue\"><sup id=\"v7\" class=\"vn\">7</sup>&nbsp;Then</span> the day came for the Feast of Unleavened Bread, on which the Passover lamb was to be slaughtered. <span class=\"vglue\"><sup id=\"v8\" class=\"vn\">8</sup>&nbsp;Jesus</span><sup class=\"fn-ref\"><a id=\"fnref-f\" href=\"#fn-f\" role=\"doc-noteref\">f</a></sup> sent Peter and John,<sup class=\"fn-ref\"><a id=\"fnref-g\" href=\"#fn-g\" role=\"doc-noteref\">g</a></sup> saying, “Go prepare the Passover<sup class=\"fn-ref\"><a id=\"fnref-h\" href=\"#fn-h\" role=\"doc-noteref\">h</a></sup> for us to eat.”</p>",
+    "<p id=\"luke-22-p3\"><span class=\"vglue\"><sup id=\"v9\" class=\"vn\">9</sup>&nbsp;“Where</span> do you want us to prepare it?” they asked him.</p>",
+    "<p id=\"luke-22-p4\"><span class=\"vglue\"><sup id=\"v10\" class=\"vn\">10</sup>&nbsp;“Look,</span> when you enter the city,” he told them, “Someone<sup class=\"fn-ref\"><a id=\"fnref-i\" href=\"#fn-i\" role=\"doc-noteref\">i</a></sup> will meet you, carrying a jug of water. Follow him into the house where he goes inside, <span class=\"vglue\"><sup id=\"v11\" class=\"vn\">11</sup>&nbsp;and</span> tell the owner of the house, ‘The teacher says to you, “Where is the guest room<sup class=\"fn-ref\"><a id=\"fnref-j\" href=\"#fn-j\" role=\"doc-noteref\">j</a></sup> where I may eat with my students?”’ <span class=\"vglue\"><sup id=\"v12\" class=\"vn\">12</sup>&nbsp;He</span> will show you a large, furnished room upstairs. Prepare it there.” <span class=\"vglue\"><sup id=\"v13\" class=\"vn\">13</sup>&nbsp;When</span> they went, they found it just as he had told them, and they prepared the Passover.</p>",
+    "<p id=\"luke-22-p5\"><span class=\"vglue\"><sup id=\"v14\" class=\"vn\">14</sup>&nbsp;And</span> when the hour came, Jesus<sup class=\"fn-ref\"><a id=\"fnref-k\" href=\"#fn-k\" role=\"doc-noteref\">k</a></sup> took a seat at the table<sup class=\"fn-ref\"><a id=\"fnref-l\" href=\"#fn-l\" role=\"doc-noteref\">l</a></sup> and the commissioned ones<sup class=\"fn-ref\"><a id=\"fnref-m\" href=\"#fn-m\" role=\"doc-noteref\">m</a></sup> did so with him. <span class=\"vglue\"><sup id=\"v15\" class=\"vn\">15</sup>&nbsp;He</span> said to them, “I have longed<sup class=\"fn-ref\"><a id=\"fnref-n\" href=\"#fn-n\" role=\"doc-noteref\">n</a></sup> to eat this Passover with you before I suffer. <span class=\"vglue\"><sup id=\"v16\" class=\"vn\">16</sup>&nbsp;You</span> see, I’m telling you, I won’t eat it until it is fully realized<sup class=\"fn-ref\"><a id=\"fnref-o\" href=\"#fn-o\" role=\"doc-noteref\">o</a></sup> in God’s Reign.”</p>",
+    "<p id=\"luke-22-p6\"><span class=\"vglue\"><sup id=\"v17\" class=\"vn\">17</sup>&nbsp;Then</span> after picking up a cup and giving thanks, he said, “Take this and distribute it among yourselves <span class=\"vglue\"><sup id=\"v18\" class=\"vn\">18</sup>&nbsp;because,</span> I’m telling you, from now on, I won’t drink any of what is produced by the vine until God’s Reign comes.”</p>",
+    "<p id=\"luke-22-p7\"><span class=\"vglue\"><sup id=\"v19\" class=\"vn\">19</sup>&nbsp;Then</span> after taking some bread and giving thanks, he broke it and gave it to them, saying, “This is my body, given for your sake. Do this in remembrance of me.” <span class=\"vglue\"><sup id=\"v20\" class=\"vn\">20</sup>&nbsp;And</span> likewise, after they ate the meal, he took the cup, saying, “This cup that is poured for your sake is the new covenant connected with my blood. <span class=\"vglue\"><sup id=\"v21\" class=\"vn\">21</sup>&nbsp;But</span> look, the hand of the one who is handing me over is with me at the table. <span class=\"vglue\"><sup id=\"v22\" class=\"vn\">22</sup>&nbsp;After</span> all, certainly the Son of Humanity is going according to what has been appointed, but how pitiable for that person by whom he is handed over!” <span class=\"vglue\"><sup id=\"v23\" class=\"vn\">23</sup>&nbsp;Then</span> they began to explore together which of them might be about to do this.</p>",
+    "<p id=\"luke-22-p8\"><span class=\"vglue\"><sup id=\"v24\" class=\"vn\">24</sup>&nbsp;There</span> was also contentious rivalry among them about which of them seemed to be the most prominent. <span class=\"vglue\"><sup id=\"v25\" class=\"vn\">25</sup>&nbsp;So</span> Jesus said to them, “The kings of other peoples lord it over them, and those who hold authority over them are called ‘benefactors.’<sup class=\"fn-ref\"><a id=\"fnref-p\" href=\"#fn-p\" role=\"doc-noteref\">p</a></sup> <span class=\"vglue\"><sup id=\"v26\" class=\"vn\">26</sup>&nbsp;But</span> not so with you! Instead, the one who is most prominent among you must become like the youngest, and the one who leads like the one who serves. <span class=\"vglue\"><sup id=\"v27\" class=\"vn\">27</sup>&nbsp;After</span> all, who is more prominent, the one who is seated or the one who serves? Isn’t it the one who is seated? But I am among you as one who serves. <span class=\"vglue\"><sup id=\"v28\" class=\"vn\">28</sup>&nbsp;You</span> are the ones who have continued to stay with me throughout my times of testing. <span class=\"vglue\"><sup id=\"v29\" class=\"vn\">29</sup>&nbsp;And</span> I, in turn, pass down a Reign to you, just as my Father passed it down to me, <span class=\"vglue\"><sup id=\"v30\" class=\"vn\">30</sup>&nbsp;so</span> you may eat and drink at my table in my Reign. You will sit on thrones governing<sup class=\"fn-ref\"><a id=\"fnref-q\" href=\"#fn-q\" role=\"doc-noteref\">q</a></sup> the twelve tribes of Israel.</p>",
+    "<p id=\"luke-22-p9\"><span class=\"vglue\"><sup id=\"v31\" class=\"vn\">31</sup>&nbsp;“Simeon,</span> Simeon,<sup class=\"fn-ref\"><a id=\"fnref-r\" href=\"#fn-r\" role=\"doc-noteref\">r</a></sup> pay attention! The Adversary has demanded to sift<sup class=\"fn-ref\"><a id=\"fnref-s\" href=\"#fn-s\" role=\"doc-noteref\">s</a></sup> you<sup class=\"fn-ref\"><a id=\"fnref-t\" href=\"#fn-t\" role=\"doc-noteref\">t</a></sup> like wheat, <span class=\"vglue\"><sup id=\"v32\" class=\"vn\">32</sup>&nbsp;but</span> I have pleaded<sup class=\"fn-ref\"><a id=\"fnref-u\" href=\"#fn-u\" role=\"doc-noteref\">u</a></sup> for you so that your faithfulness won’t give out. When you return, support your Family members.”<sup class=\"fn-ref\"><a id=\"fnref-v\" href=\"#fn-v\" role=\"doc-noteref\">v</a></sup></p>",
+    "<p id=\"luke-22-p10\"><span class=\"vglue\"><sup id=\"v33\" class=\"vn\">33</sup>&nbsp;“Lord,”</span> he said to Jesus,<sup class=\"fn-ref\"><a id=\"fnref-w\" href=\"#fn-w\" role=\"doc-noteref\">w</a></sup> “I am ready to go with you to prison and death!”</p>",
+    "<p id=\"luke-22-p11\"><span class=\"vglue\"><sup id=\"v34\" class=\"vn\">34</sup>&nbsp;But</span> Jesus<sup class=\"fn-ref\"><a id=\"fnref-x\" href=\"#fn-x\" role=\"doc-noteref\">x</a></sup> said, “I’m telling you, Peter, the rooster won’t crow today until you have disowned knowing me three times.”</p>",
+    "<p id=\"luke-22-p12\"><span class=\"vglue\"><sup id=\"v35\" class=\"vn\">35</sup>&nbsp;Then</span> he said to them, “When I sent you without a pouch of money or a sack of provisions or even sandals, you didn’t lack for anything, did you?”</p>",
+    "<p id=\"luke-22-p13\">“Nothing,” they said.</p>",
+    "<p id=\"luke-22-p14\"><span class=\"vglue\"><sup id=\"v36\" class=\"vn\">36</sup>&nbsp;He</span> told them, “But now, whoever has a pouch of money, take it along, and the same with a sack of provisions, and whoever doesn’t have a short sword<sup class=\"fn-ref\"><a id=\"fnref-y\" href=\"#fn-y\" role=\"doc-noteref\">y</a></sup> should sell their cloak and buy one. <span class=\"vglue\"><sup id=\"v37\" class=\"vn\">37</sup>&nbsp;You</span> see,<sup class=\"fn-ref\"><a id=\"fnref-z\" href=\"#fn-z\" role=\"doc-noteref\">z</a></sup> I’m telling you that this scripture must be completed<sup class=\"fn-ref\"><a id=\"fnref-aa\" href=\"#fn-aa\" role=\"doc-noteref\">aa</a></sup> in connection with me: ‘And he was counted as being with<sup class=\"fn-ref\"><a id=\"fnref-bb\" href=\"#fn-bb\" role=\"doc-noteref\">bb</a></sup> people outside Torah<sup class=\"fn-ref\"><a id=\"fnref-cc\" href=\"#fn-cc\" role=\"doc-noteref\">cc</a></sup>.’<sup class=\"fn-ref\"><a id=\"fnref-dd\" href=\"#fn-dd\" role=\"doc-noteref\">dd</a></sup> After all, my part is reaching its completion.”<sup class=\"fn-ref\"><a id=\"fnref-ee\" href=\"#fn-ee\" role=\"doc-noteref\">ee</a></sup></p>",
+    "<p id=\"luke-22-p15\"><span class=\"vglue\"><sup id=\"v38\" class=\"vn\">38</sup>&nbsp;Then</span> they said, “Look, Lord, here are two swords.”</p>",
+    "<p id=\"luke-22-p16\">“It is enough,”<sup class=\"fn-ref\"><a id=\"fnref-ff\" href=\"#fn-ff\" role=\"doc-noteref\">ff</a></sup> he told them.</p>",
+    "<p id=\"luke-22-p17\"><span class=\"vglue\"><sup id=\"v39\" class=\"vn\">39</sup>&nbsp;After</span> leaving, Jesus<sup class=\"fn-ref\"><a id=\"fnref-gg\" href=\"#fn-gg\" role=\"doc-noteref\">gg</a></sup> went, as usual, to the Mount of Olives, and the students followed him too. <span class=\"vglue\"><sup id=\"v40\" class=\"vn\">40</sup>&nbsp;When</span> he came to the spot, he said to them, “Pray that you don’t come into a time of testing.”</p>",
+    "<p id=\"luke-22-p18\"><span class=\"vglue\"><sup id=\"v41\" class=\"vn\">41</sup>&nbsp;He</span> withdrew from them about a stone’s throw, and kneeling down, he prayed, <span class=\"vglue\"><sup id=\"v42\" class=\"vn\">42</sup>&nbsp;“Father,</span> if you’re willing, take this cup away from me. However, let what you want happen, not what I want.” <sup class=\"fn-ref\"><a id=\"fnref-hh\" href=\"#fn-hh\" role=\"doc-noteref\">hh</a></sup>⟦ <span class=\"vglue\"><sup id=\"v43\" class=\"vn\">43</sup>&nbsp;Then</span> a messenger from the heavens appeared to him, strengthening him.<sup class=\"fn-ref\"><a id=\"fnref-ii\" href=\"#fn-ii\" role=\"doc-noteref\">ii</a></sup> <span class=\"vglue\"><sup id=\"v44\" class=\"vn\">44</sup>&nbsp;Being</span> in anguish, he prayed more earnestly, and his sweat became like drops of blood falling to the ground. ⟧<sup class=\"fn-ref\"><a id=\"fnref-jj\" href=\"#fn-jj\" role=\"doc-noteref\">jj</a></sup></p>",
+    "<p id=\"luke-22-p19\"><span class=\"vglue\"><sup id=\"v45\" class=\"vn\">45</sup>&nbsp;After</span> getting up from prayer, when he came to the students, he found them asleep from grief. <span class=\"vglue\"><sup id=\"v46\" class=\"vn\">46</sup>&nbsp;“Why</span> are you sleeping?” he said to them. “Get up and pray that you don’t<sup class=\"fn-ref\"><a id=\"fnref-kk\" href=\"#fn-kk\" role=\"doc-noteref\">kk</a></sup> come into a time of testing!”</p>",
+    "<p id=\"luke-22-p20\"><span class=\"vglue\"><sup id=\"v47\" class=\"vn\">47</sup>&nbsp;While</span> he was still speaking, suddenly a crowd was there, and the one named Judah, one of the Twelve, was leading them. He approached Jesus to kiss him.<sup class=\"fn-ref\"><a id=\"fnref-ll\" href=\"#fn-ll\" role=\"doc-noteref\">ll</a></sup></p>",
+    "<p id=\"luke-22-p21\"><span class=\"vglue\"><sup id=\"v48\" class=\"vn\">48</sup>&nbsp;“Judah,”</span> Jesus said to him, “are you handing over the Son of Humanity with a kiss?”</p>",
+    "<p id=\"luke-22-p22\"><span class=\"vglue\"><sup id=\"v49\" class=\"vn\">49</sup>&nbsp;At</span> seeing what was happening, the others around him said, “Lord, should we strike them with swords?” <span class=\"vglue\"><sup id=\"v50\" class=\"vn\">50</sup>&nbsp;Then</span> one of them struck the person enslaved to the high priest and severed his right ear.</p>",
+    "<p id=\"luke-22-p23\"><span class=\"vglue\"><sup id=\"v51\" class=\"vn\">51</sup>&nbsp;“Allow</span> this much!”<sup class=\"fn-ref\"><a id=\"fnref-mm\" href=\"#fn-mm\" role=\"doc-noteref\">mm</a></sup> Jesus responded, and he held the man’s ear and restored him.</p>",
+    "<p id=\"luke-22-p24\"><span class=\"vglue\"><sup id=\"v52\" class=\"vn\">52</sup>&nbsp;Then</span> Jesus said to the lead priests, officers of the temple guard, and elders who had moved against him, “Did you come out with swords and clubs as if against an armed outlaw? <span class=\"vglue\"><sup id=\"v53\" class=\"vn\">53</sup>&nbsp;Each</span> day while I was with you in the sacred grounds, you didn’t stretch out your hands against me. But this is your time and the authority of darkness.”<sup class=\"fn-ref\"><a id=\"fnref-nn\" href=\"#fn-nn\" role=\"doc-noteref\">nn</a></sup></p>",
+    "<p id=\"luke-22-p25\"><span class=\"vglue\"><sup id=\"v54\" class=\"vn\">54</sup>&nbsp;Seizing</span> him, they took him and brought him to the high priest’s house, but Peter began following at a distance. <span class=\"vglue\"><sup id=\"v55\" class=\"vn\">55</sup>&nbsp;After</span> they made a fire in the middle of the courtyard and sat down together, Peter sat among them.</p>",
+    "<p id=\"luke-22-p26\"><span class=\"vglue\"><sup id=\"v56\" class=\"vn\">56</sup>&nbsp;After</span> seeing him sitting in the firelight and looking intently at him, an enslaved woman<sup class=\"fn-ref\"><a id=\"fnref-oo\" href=\"#fn-oo\" role=\"doc-noteref\">oo</a></sup> said, “This man was with him too!”</p>",
+    "<p id=\"luke-22-p27\"><span class=\"vglue\"><sup id=\"v57\" class=\"vn\">57</sup>&nbsp;But</span> he denied it, saying, “Madam,<sup class=\"fn-ref\"><a id=\"fnref-pp\" href=\"#fn-pp\" role=\"doc-noteref\">pp</a></sup> I don’t know him.”</p>",
+    "<p id=\"luke-22-p28\"><span class=\"vglue\"><sup id=\"v58\" class=\"vn\">58</sup>&nbsp;A</span> short time later, someone else who saw him stated, “You are one of them too.”</p>",
+    "<p id=\"luke-22-p29\">But Peter stated, “Sir,<sup class=\"fn-ref\"><a id=\"fnref-qq\" href=\"#fn-qq\" role=\"doc-noteref\">qq</a></sup> I am not.”</p>",
+    "<p id=\"luke-22-p30\"><span class=\"vglue\"><sup id=\"v59\" class=\"vn\">59</sup>&nbsp;After</span> about an hour, another person started insisting, “This man was definitely with him too, because he’s also Galilean!”</p>",
+    "<p id=\"luke-22-p31\"><span class=\"vglue\"><sup id=\"v60\" class=\"vn\">60</sup>&nbsp;But</span> Peter said, “Sir, I don’t know what you’re talking about!” Right then, as he was still speaking, a rooster crowed. <span class=\"vglue\"><sup id=\"v61\" class=\"vn\">61</sup>&nbsp;And</span> the Lord turned and looked right at Peter, and Peter remembered what the Lord had said, how he had told him, “You will disown me three times before the rooster crows today.” <span class=\"vglue\"><sup id=\"v62\" class=\"vn\">62</sup>&nbsp;Then</span> he went outside and sobbed with grief.</p>",
+    "<p id=\"luke-22-p32\"><span class=\"vglue\"><sup id=\"v63\" class=\"vn\">63</sup>&nbsp;The</span> men who were holding Jesus<sup class=\"fn-ref\"><a id=\"fnref-rr\" href=\"#fn-rr\" role=\"doc-noteref\">rr</a></sup> began mocking and beating him. <span class=\"vglue\"><sup id=\"v64\" class=\"vn\">64</sup>&nbsp;After</span> blindfolding him, they asked him repeatedly, “Prophesy! Who hit you?” <span class=\"vglue\"><sup id=\"v65\" class=\"vn\">65</sup>&nbsp;They</span> kept saying many other things, heaping contempt<sup class=\"fn-ref\"><a id=\"fnref-ss\" href=\"#fn-ss\" role=\"doc-noteref\">ss</a></sup> on him.</p>",
+    "<p id=\"luke-22-p33\"><span class=\"vglue\"><sup id=\"v66\" class=\"vn\">66</sup>&nbsp;When</span> daylight came, the elders of the people gathered, both the lead priests and the scripture scholars, and they led him away to their Sanhedrin.<sup class=\"fn-ref\"><a id=\"fnref-tt\" href=\"#fn-tt\" role=\"doc-noteref\">tt</a></sup> <span class=\"vglue\"><sup id=\"v67\" class=\"vn\">67</sup>&nbsp;They</span> said, “If you are the Christ,<sup class=\"fn-ref\"><a id=\"fnref-uu\" href=\"#fn-uu\" role=\"doc-noteref\">uu</a></sup> tell us.”</p>",
+    "<p id=\"luke-22-p34\">But he told them, “If I say it to you, you certainly won’t trust it. <span class=\"vglue\"><sup id=\"v68\" class=\"vn\">68</sup>&nbsp;Yet</span> if I ask, you certainly won’t answer. <span class=\"vglue\"><sup id=\"v69\" class=\"vn\">69</sup>&nbsp;From</span> now on, the Son of Humanity<sup class=\"fn-ref\"><a id=\"fnref-vv\" href=\"#fn-vv\" role=\"doc-noteref\">vv</a></sup> will be seated at the right hand<sup class=\"fn-ref\"><a id=\"fnref-ww\" href=\"#fn-ww\" role=\"doc-noteref\">ww</a></sup> of Power, of God.”<sup class=\"fn-ref\"><a id=\"fnref-xx\" href=\"#fn-xx\" role=\"doc-noteref\">xx</a></sup></p>",
+    "<p id=\"luke-22-p35\"><span class=\"vglue\"><sup id=\"v70\" class=\"vn\">70</sup>&nbsp;They</span> all said, “Then, are you the Son of God?”<sup class=\"fn-ref\"><a id=\"fnref-yy\" href=\"#fn-yy\" role=\"doc-noteref\">yy</a></sup></p>",
+    "<p id=\"luke-22-p36\">So he told them, “You yourselves are saying that I am.”<sup class=\"fn-ref\"><a id=\"fnref-zz\" href=\"#fn-zz\" role=\"doc-noteref\">zz</a></sup></p>",
+    "<p id=\"luke-22-p37\"><span class=\"vglue\"><sup id=\"v71\" class=\"vn\">71</sup>&nbsp;“Why</span> do we need any more testimony? After all, we heard it ourselves from his own mouth!” they said.</p>"
   ],
-  "footnotes": []
+  "footnotes": [
+    {
+      "id": "fn-a",
+      "refId": "fnref-a",
+      "label": "a",
+      "html": "See Exodus 12:1–20 and Deuteronomy 16:1–8."
+    },
+    {
+      "id": "fn-b",
+      "refId": "fnref-b",
+      "label": "b",
+      "html": "The name ‘Jesus’ is added for clarity."
+    },
+    {
+      "id": "fn-c",
+      "refId": "fnref-c",
+      "label": "c",
+      "html": "The word <em>satanas</em> was not a name. It meant ‘adversary’ in the sense of prosecutor or opponent. It carries the meaning of someone who is against another, trying to sabotage their efforts and their wellbeing, and against someone as a plaintiff in court. It is an enemy, but also someone accusing another of wrongdoing, whether truly or falsely. It’s not just about pointing out something bad, but actively moving to cause adversity for someone else. The concept of <em>Ha</em> <em>Shatan</em> in the Hebrew Bible was not the evil archnemesis of God that Christian teaching has turned it into. It was described as a member of the council of spiritual beings whose role was to test people to see how genuine they were. The clearest example of this is in the book of Job."
+    },
+    {
+      "id": "fn-d",
+      "refId": "fnref-d",
+      "label": "d",
+      "html": "Traditionally, ‘Judas.’ Judas is the English version of the Greek version (Ioudas) of the Hebrew name <em>Yehudah</em>, or ‘Judah’ as it is typically rendered in English translations of the Hebrew Bible."
+    },
+    {
+      "id": "fn-e",
+      "refId": "fnref-e",
+      "label": "e",
+      "html": "Traditionally, ‘Iscariot.’ It was likely not his name, however. It means ‘man of Kerioth’ which was a city of Moab that was condemned for its actions against Israel, and it was likely used as a label regarding his betrayal of Jesus. See Jeremiah 48:21–47 (especially verses 21–27)."
+    },
+    {
+      "id": "fn-f",
+      "refId": "fnref-f",
+      "label": "f",
+      "html": "The name ‘Jesus’ is added for clarity."
+    },
+    {
+      "id": "fn-g",
+      "refId": "fnref-g",
+      "label": "g",
+      "html": "The name ‘John’ is the English version of the Latin version of the Greek transliteration (<em>Ioannes</em>) of the Hebrew name <em>Yohanan</em> or in English translations of the Hebrew Bible, Johanan, which means “God has been gracious” or “My God is gracious.”"
+    },
+    {
+      "id": "fn-h",
+      "refId": "fnref-h",
+      "label": "h",
+      "html": "The word is <em>pascha</em> for both Passover and the Passover lamb."
+    },
+    {
+      "id": "fn-i",
+      "refId": "fnref-i",
+      "label": "i",
+      "html": "Many translations use ‘man’ here. The word is <em>anthropos</em>, which just means ‘person’ or ‘human.’ It is sometimes used for a man when distinguishing from a woman, but the usual term for that is <em>aner</em>. What does seem to indicate the person is a male is the pronouns. When a person’s gender is unspecified, Greek uses masculine pronouns, so the grammar leaves open the possibility of a man or woman, but Jesus seems to have someone in mind. In that case, if the person in mind were a woman, he would have used feminine pronouns. There is a common sermon point used about this verse that the strangeness of a man carrying the water was exactly the sign for the students to find the person easily; it does not hold up historically. While women were more frequently the ones responsible for carrying water, it was not so unheard of as the sermon tradition implies."
+    },
+    {
+      "id": "fn-j",
+      "refId": "fnref-j",
+      "label": "j",
+      "html": "This is the same word for ‘guest room’ as in Luke 2:7."
+    },
+    {
+      "id": "fn-k",
+      "refId": "fnref-k",
+      "label": "k",
+      "html": "The name ‘Jesus’ is added for clarity."
+    },
+    {
+      "id": "fn-l",
+      "refId": "fnref-l",
+      "label": "l",
+      "html": "Literally, ‘reclined,’ which was the posture for eating a meal in the culture."
+    },
+    {
+      "id": "fn-m",
+      "refId": "fnref-m",
+      "label": "m",
+      "html": "Traditionally, ‘apostles.’ The word means ‘someone who is sent to carry out a purpose’ and while it became used in a particular way in the church, it was not an inherently religious word in the Greek language."
+    },
+    {
+      "id": "fn-n",
+      "refId": "fnref-n",
+      "label": "n",
+      "html": "Literally, “I have desired with desire,” mirroring a Hebrew syntax that serves to emphasize intensity."
+    },
+    {
+      "id": "fn-o",
+      "refId": "fnref-o",
+      "label": "o",
+      "html": "Traditionally, ‘fulfilled.’ It could be translated as something like ‘given a fuller meaning.’ It literally means ‘filled full.’ Much like ‘order fulfillment’ when purchasing an order to be delivered, it means to act on something and bring it to reality in a new way."
+    },
+    {
+      "id": "fn-p",
+      "refId": "fnref-p",
+      "label": "p",
+      "html": "The Greek word here is <em>euergetes</em>, literally “one who does good work.” It was not a description but an honorific bestowed as part of a formal arrangement. Ptolemaic kings and others used it as royal titles, and Greek cities voted to bestow it on the wealthy and powerful, which involved inscribing it in stone, often alongside <em>soter</em> (‘liberator’ or ‘savior’). The benefactor would be someone who donated some object or project or resource to the city. Since the honor of a title never equaled the value of the donation, the city was permanently indebted to the benefactor, owing loyalty and ongoing favors. Most often, the title was given to people who held power over the city in some way, so that the people could stay in the powerful person’s good graces. The especially relevant point for this passage is that the benefactors didn’t give themselves the title; it was bestowed by the people they dominated, binding the people to themselves through a show of generosity that left the people permanently in their debt, not truly being a generous gift at all."
+    },
+    {
+      "id": "fn-q",
+      "refId": "fnref-q",
+      "label": "q",
+      "html": "The Greek here literally says ‘judging’ (<em>krinontes</em>). In biblical contexts, this does not indicate court proceedings and punishment but the role of the judges in the book of Judges. They were the leaders of the community, discerning how to keep the community thriving and protected."
+    },
+    {
+      "id": "fn-r",
+      "refId": "fnref-r",
+      "label": "r",
+      "html": "In English, repeating someone’s name twice can sound patronizing, but in the culture of the text, the repetition of a name in address is always a soft response, indicating compassion or pleading."
+    },
+    {
+      "id": "fn-s",
+      "refId": "fnref-s",
+      "label": "s",
+      "html": "Sifting was an idiom that indicated testing, with the image of determining what is genuine wheat grain and what is empty husk."
+    },
+    {
+      "id": "fn-t",
+      "refId": "fnref-t",
+      "label": "t",
+      "html": "The word ‘you’ is plural, indicating not just Simeon but at least all twelve commissioned ones and maybe all the people present."
+    },
+    {
+      "id": "fn-u",
+      "refId": "fnref-u",
+      "label": "u",
+      "html": "Traditionally, ‘prayed,’ but the word is more specific than any kind of prayer and isn’t exclusive to prayer. It is the verb for ‘be in need,’ ‘ask,’ or ‘beg,’ expressing strong need and the request to meet the need. It was used in many contexts, not just prayer to God."
+    },
+    {
+      "id": "fn-v",
+      "refId": "fnref-v",
+      "label": "v",
+      "html": "The word <em>adelphos</em> literally means ‘brother’ or ‘sibling.’ It was also frequently used to refer to ‘cousin’ or ‘relative,’ and even for members of the same ideological or ethnic group."
+    },
+    {
+      "id": "fn-w",
+      "refId": "fnref-w",
+      "label": "w",
+      "html": "The name ‘Jesus’ is added for clarity."
+    },
+    {
+      "id": "fn-x",
+      "refId": "fnref-x",
+      "label": "x",
+      "html": "The name ‘Jesus’ is added for clarity."
+    },
+    {
+      "id": "fn-y",
+      "refId": "fnref-y",
+      "label": "y",
+      "html": "The word here is <em>machaira</em>, specifically referring to a short sword or large knife, part of the equipment ordinarily included for travel."
+    },
+    {
+      "id": "fn-z",
+      "refId": "fnref-z",
+      "label": "z",
+      "html": "The Greek word <em>gar</em>, traditionally translated as ‘for’ and here rendered as ‘you see’ indicates that what comes next is the reason for the instruction just given, the change from taking nothing with them to now being told to bring money, provisions, and swords."
+    },
+    {
+      "id": "fn-aa",
+      "refId": "fnref-aa",
+      "label": "aa",
+      "html": "Or ‘fulfilled’ or ‘performed’ in the sense of bringing about an end result pointed to by the writing."
+    },
+    {
+      "id": "fn-bb",
+      "refId": "fnref-bb",
+      "label": "bb",
+      "html": "The quotation of Isaiah 53:12 here is different than the Septuagint Greek that it cites. The Septuagint reads <em>en</em> <em>tois</em> <em>anomois</em>, which means “among those outside Torah.” The Greek of Luke’s text here reads <em>meta</em> <em>anomon</em>, which is something closer to “with those outside Torah.” The preposition <em>meta</em> (‘with’) indicates accompaniment and is the same one used in verse 15 to indicate who would be his Passover companions. To refer to “those outside the Torah” or the ‘without-Torah’ ones would be a reference to Gentiles, people who had no connection with Torah or the Mosaic covenant. See the next footnote for more information."
+    },
+    {
+      "id": "fn-cc",
+      "refId": "fnref-cc",
+      "label": "cc",
+      "html": "The Greek word <em>nomos</em> means ‘law,’ ‘custom,’ or ‘established norm.’ The Septuagint (the Greek translation of the Hebrew Bible) used <em>nomos</em> to render <em>torah</em>, and the New Testament writers continued to use it with that sense in many places. It served as a Greek label for that body of writing rather than a rendering of what <em>torah</em> itself means, which is closer to ‘instruction’ or ‘direction.’ The word here is <em>anomos</em> (literally something like ‘no-law’ or, in this context, ‘no-torah’) and it is used in two ways across the New Testament. In one, it describes status: people outside the covenant community and therefore not under Torah, which would essentially be synonymous with ‘Gentile’ and not a statement about behavior. In the other, it describes people whose conduct is contrary to a moral standard, closer to ‘lawless.’ This verse is rendered as the first sense, based in part on how the word is used by the same biblical writer (Luke) in Acts 2:23."
+    },
+    {
+      "id": "fn-dd",
+      "refId": "fnref-dd",
+      "label": "dd",
+      "html": "Quotation of Isaiah 53:12"
+    },
+    {
+      "id": "fn-ee",
+      "refId": "fnref-ee",
+      "label": "ee",
+      "html": "The Greek phrase <em>telos</em> <em>echei</em> literally reads ‘has an end’ and is an idiom for being at an end or reaching the end. The root is the same as <em>telesthēnai</em> earlier in this verse, translated as ‘be completed.’ It can carry the sense of arriving at an intended goal or simply stopping. Both are likely meant here: what has been written about him arrives at its goal at the same time that he arrives at the end of his work and life. The subject in this sentence, <em>to peri</em> <em>emou</em>, is literally ‘the thing concerning me,’ which is what is rendered here as ‘my part.’"
+    },
+    {
+      "id": "fn-ff",
+      "refId": "fnref-ff",
+      "label": "ff",
+      "html": "The Greek <em>hikanon</em> <em>estin</em> literally means ‘it is enough’ or ‘it is sufficient.’ Many scholars interpret it as Jesus cutting off the conversation because he is exasperated that they misunderstood him. Though it’s possible, there is no grammatical indication, such as an imperative, that this is what is happening. In contrast, later in this chapter, in verse 51, the grammar does include an imperative when he stops one of his followers from using a sword against someone. This verse seems simply to be the natural end of an exchange, with Jesus responding to what they said. The confusion happens because Jesus’ followers respond to the part about a packing list for travel, but don’t acknowledge the Isaiah quotation. The reversal of the earlier instruction not to bring supplies is based on that quotation as applied to Jesus, and specifically how Jesus is counted as being with (seemingly as a companion) people outside Torah, i.e. Gentiles. What Jesus imagines they will do with the swords is debated, but whatever it is, later in this chapter, Jesus prevents them from using them for armed resistance."
+    },
+    {
+      "id": "fn-gg",
+      "refId": "fnref-gg",
+      "label": "gg",
+      "html": "The name ‘Jesus’ is added for clarity."
+    },
+    {
+      "id": "fn-hh",
+      "refId": "fnref-hh",
+      "label": "hh",
+      "html": "Luke 22:43–44 is a contested passage, appearing inconsistently among the earliest sources available. Many of the most reliable and earliest manuscripts don’t include it (including Papyrus 75, which is estimated to have been made about 200 CE), and many other early and reliable manuscripts do include it. Patristic writings make reference to it, including Justin Martyr’s <em>Dialogue with Trypho</em> and Irenaeus’ <em>Against Heresies</em>. This translation follows the SBL Greek New Testament, which includes it. The early usage of the passage is relevant for interpreting the significance of it today. Justin Martyr and Irenaeus’ use of it was to argue for the embodiment of Jesus, that he was a real human and not a divine manifestation that only seemed human (a view known as Docetism). The physical vulnerability, the sweat and exhaustion, were presented as the proof. In the late fourth century, Epiphanius of Salamis asserted that the verses were removed by scribes who found them troubling. Others have argued that it was added to provide support for arguments against Docetism. Either way, vulnerability is an essential part of Jesus’ story, and it has always made people uncomfortable, perhaps even to the point of removing it from the text."
+    },
+    {
+      "id": "fn-ii",
+      "refId": "fnref-ii",
+      "label": "ii",
+      "html": "The Greek word translated as “strengthening him” appears in the Septuagint version of Daniel 10:19 (showing up in the final clause of the following quotation). It is in the context of Daniel in conversation with a heavenly messenger. It reads: Again one in human form touched me and strengthened me. He said, “Do not fear, greatly beloved; you are safe. Be strong and courageous!” When he spoke to me, I was strengthened and said, “Let my lord speak, for you have strengthened me” (Daniel 10:18–19 NRSVue)."
+    },
+    {
+      "id": "fn-jj",
+      "refId": "fnref-jj",
+      "label": "jj",
+      "html": "See note at the beginning of verse 43."
+    },
+    {
+      "id": "fn-kk",
+      "refId": "fnref-kk",
+      "label": "kk",
+      "html": "Or “pray so you don’t”"
+    },
+    {
+      "id": "fn-ll",
+      "refId": "fnref-ll",
+      "label": "ll",
+      "html": "The word is <em>phileo</em>, which literally means ‘love’ or ‘have affection for’ or ‘be attached to’ and can also be used to mean ‘kiss’ as a way to demonstrate affection (though not only romantic or sexual affection as in American culture, but also in friendship or familial affection). It was a common cultural practice for students to kiss their teachers in greeting."
+    },
+    {
+      "id": "fn-mm",
+      "refId": "fnref-mm",
+      "label": "mm",
+      "html": "The Greek phrase here, <em>eate</em> <em>heos</em> <em>toutou</em>, appears nowhere else in the New Testament and may be unique in all Greek literature. It is a compressed phrase that leaves some of the meaning implicit, and its sense has to be worked out from context. The verb <em>eate</em> is plural and carries two basic meanings: permit and leave alone. The phrase <em>heos</em> <em>toutou</em> means “up to this point” or “this much”; it is uncommon in Greek but does appear in the Septuagint, in Exodus 7:16 and Leviticus 26:18. Most modern English translations render it with the ‘leave alone’ meaning of the verb, along the lines of “No more of this.” This translation renders it with the ‘permit’ meaning. The first one shows Jesus wants the swords to stop, but this translation addresses why the swords should stop: because what is happening is being allowed, just as Jesus prayed, saying, “Father, if you’re willing, take this cup away from me. However, let what you want happen, not what I want” in verse 42. This was the standard English rendering for nearly four centuries. Tyndale translated it as “Soffre ye thus farre forthe” (“suffer ye thus far forth”) in 1534, and subsequent translations kept that interpretation through the Geneva Bible, the King James Version, the American Standard Version and others through the 1920s before the tradition changed with the RSV in 1946 to “No more of this!” A comment preserved in the Greek catena on John, attributed to Apollinaris, calls the line a concession and observes that the word “up to” sets a limit and a check on the sword, reading it as the boundary of Jesus’ concession on swords in verses 36–38. The Gospel of John also makes the connection between the sword and the cup in John 18:11."
+    },
+    {
+      "id": "fn-nn",
+      "refId": "fnref-nn",
+      "label": "nn",
+      "html": "Compare with Luke 1:79 and Colossians 1:13."
+    },
+    {
+      "id": "fn-oo",
+      "refId": "fnref-oo",
+      "label": "oo",
+      "html": "While most literally it means ‘girl’ this word (<em>paidiske</em>) was also used for enslaved women. ‘Woman’ is used here based on Peter’s address of the person with <em>gunai</em> in verse 57; it refers to an adult woman, not a child."
+    },
+    {
+      "id": "fn-pp",
+      "refId": "fnref-pp",
+      "label": "pp",
+      "html": "Literally, the word means ‘woman.’ However, addressing a woman as ‘woman’ in our culture is considered rude, an attempt to put her in her place, especially when done by a man. In the culture of the time, it was a polite way to address someone."
+    },
+    {
+      "id": "fn-qq",
+      "refId": "fnref-qq",
+      "label": "qq",
+      "html": "The word here is <em>anthrope</em>, literally meaning ‘human’ or ‘person.’ It is the masculine equivalent to <em>gunai</em> as ‘woman’ or ‘madam’ in verse 57. It is a polite address for a male stranger, but it is not deferential like <em>kurios</em> or <em>epistates</em>."
+    },
+    {
+      "id": "fn-rr",
+      "refId": "fnref-rr",
+      "label": "rr",
+      "html": "The name ‘Jesus’ is added for clarity."
+    },
+    {
+      "id": "fn-ss",
+      "refId": "fnref-ss",
+      "label": "ss",
+      "html": "Traditionally, ‘blasphemously’ or ‘insulting’ from the Greek word <em>blasphemeo.</em> The Greek word means ‘revile,’ ‘defame,’ or ‘belittle.’"
+    },
+    {
+      "id": "fn-tt",
+      "refId": "fnref-tt",
+      "label": "tt",
+      "html": "Literally, it says ‘their <em>sunedrion</em>’ referring to a council, but based on the people who comprise it, it may refer to the council traditionally called the Sanhedrin in English from the same Greek word. Though there is scholarly debate about the historical reality, the tradition of the Mishnah is that the Sanhedrin was the highest Judean judicial and council body, handling religious, civil, and criminal cases."
+    },
+    {
+      "id": "fn-uu",
+      "refId": "fnref-uu",
+      "label": "uu",
+      "html": "<em>Christos</em> is the Greek translation of the Hebrew <em>meshiah</em> which has traditionally been transliterated as Messiah (and Christ) but translated would literally be “anointed.” The definition of ‘anointed’ is to be ‘smeared with ointment or oil’ and the biblical significance of anointing is to be selected by God (or a prophet of God) for a special appointment, usually king and sometimes other roles like priest or prophet, and experience a ceremony in which the prophet places oil on the head to signify that appointment."
+    },
+    {
+      "id": "fn-vv",
+      "refId": "fnref-vv",
+      "label": "vv",
+      "html": "Reference to Daniel 7:13–14"
+    },
+    {
+      "id": "fn-ww",
+      "refId": "fnref-ww",
+      "label": "ww",
+      "html": "Reference to Psalm 110:1"
+    },
+    {
+      "id": "fn-xx",
+      "refId": "fnref-xx",
+      "label": "xx",
+      "html": "The word <em>dunamis</em> literally means ‘power’ or ‘ability.’ It is sometimes used in place of referring to God directly, as was often the customary practice of the time. In Mark 14:62, it has this phrase without “of God” following. Luke seems to reference the same statement by Jesus but likely added “of God” for clarity for his non-Jewish audience."
+    },
+    {
+      "id": "fn-yy",
+      "refId": "fnref-yy",
+      "label": "yy",
+      "html": "“The Son of God” was a nickname for the emperor, a title taken on originally by Augustus Caesar, the son of Julius Caesar who was worshiped as divine, and was then used by other, subsequent emperors."
+    },
+    {
+      "id": "fn-zz",
+      "refId": "fnref-zz",
+      "label": "zz",
+      "html": "Compare with Luke 4:41, where demons are the ones naming him as Christ and Son of God."
+    }
+  ]
 }
