@@ -184,3 +184,19 @@ note if it is worth one at all, and is not per-verse detail.
 
 No scripture text changed in this publish. The notes themselves are untouched;
 only which end of a span carries one.
+
+**What the drafter actually produced, checked before skipping** — four rows,
+every one of them naming the wrong end:
+
+- *"John 11:32 — footnote z removed"* — 11:32 still has its note. The one
+  removed was fn-w, at 11:28.
+- *"John 9:39 — footnote r removed"*, *"Mark 16:20 — footnote m removed"*,
+  *"Romans 16:24, 27 — footnotes n, r removed"* — same inversion.
+
+The cause is inherent rather than a defect: the two copies were byte-identical,
+so when one of a pair disappears there is nothing in the text to say which. The
+drafter reports the later label and anchors `location` to its verse, which is
+precisely the verse that kept its note. Worth knowing that this failure mode is
+now close to extinct by construction — after this change the corpus holds one
+byte-identical pair in total (john-7 fn-ff / john-8 fn-k), so it can only arise
+again if that span is edited.
