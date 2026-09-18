@@ -1,5 +1,34 @@
 [
   {
+    "version": "2026-09-17",
+    "date": "2026-09-17",
+    "label": "September 17, 2026",
+    "changes": [
+      {
+        "type": "text_updated",
+        "description": "Luke 10:4 — text updated",
+        "detail": "\"bag,\" → \"sack of provisions,\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 10,
+          "verse": 4
+        }
+      },
+      {
+        "type": "chapter_added",
+        "description": "Luke 22 added",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 22
+        }
+      },
+      {
+        "type": "metadata_updated",
+        "description": "Metadata updated (6 chapters)"
+      }
+    ]
+  },
+  {
     "version": "2026-09-16",
     "date": "2026-09-16",
     "label": "September 16, 2026",
