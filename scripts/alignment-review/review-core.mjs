@@ -4,11 +4,12 @@
 //
 // THE INVERSION THIS IMPLEMENTS. build-alignment.mjs scans ENGLISH: it looks
 // for the renderings the glossary lists, so it can only ever find what it was
-// told to look for. That caps it at 54% coverage, and pins two terms at 0% —
-// `metanoia` is glossed "reorienting the mind" but the text reads
-// "transformation of the mind"; `blasphemia` is glossed "disrespectfulness"
-// but reads "contemptuous speech". Neither word is wrong; the glossary's `lit`
-// field is a HEADLINE, not a rendering inventory.
+// told to look for. That caps it at 54% coverage, and pinned two terms at 0%
+// when this tool was written — `metanoia` is glossed "reorienting the mind"
+// but the text reads "transformation of the mind", and `blasphemia` was then
+// glossed "disrespectfulness" while the text read "contemptuous speech" (that
+// headline has since been changed to match). Neither word is wrong; the
+// glossary's `lit` field is a HEADLINE, not a rendering inventory.
 //
 // So the review queue is seeded from the GREEK instead: every verse where the
 // term's lemma occurs. That list is complete by construction, and the reviewer
