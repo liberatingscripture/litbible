@@ -824,13 +824,14 @@ lemma concordance, so it's gitignored rather than committed.
 `lit` field is a **headline, not a rendering inventory**. It states the
 interpretive commitment; the running text realizes it several ways. `metanoia`
 is glossed "reorienting the mind" but appears as "transformation of the mind",
-"the reorienting of minds", "reorienting your mind"; `blasphemia` is glossed
-"disrespectfulness" but appears as "contemptuous speech", "slanderous
-accusation", "speaking disrespectfully" — and never as the glossed word, which
-is why both terms score 0% coverage. So an English-first scan can only ever find
-what it was told to look for. **Seed future work from the lemma side, where the
-verse list is complete by construction, and classify; don't seed from the
-English side and discover.**
+"the reorienting of minds", "reorienting your mind"; `blasphemia` was glossed
+"disrespectfulness" but appears as "speaking with contempt", "speak
+disrespectfully", "contemptuous speech", "slander" — and neither term rendered
+as its glossed word, which is why both scored 0% coverage. (Blasphemia's
+headline was changed to "contemptuous speech" in 2026-09; metanoia's gap
+stands.) So an English-first scan can only ever find what it was told to look
+for. **Seed future work from the lemma side, where the verse list is complete
+by construction, and classify; don't seed from the English side and discover.**
 
 Completing the review bore that out at scale: *pistis* came out as faithfulness
 and trust in comparable numbers plus commitment and allegiance; *doxa* as
@@ -1046,9 +1047,17 @@ Five collections, all loaded via Astro's `glob` loader. Two are site-wide:
 - **`glossary`** — `src/content/glossary/*.md`. Schema pairs a `traditional`
   term with the LIT rendering (`greek`, `lit`, `litMenu`, `srOnly`, optional
   `note`/`menuTraditional`/`draft`). Files are named `<traditional>-<lit>.md`
-  (e.g. `hell-hades.md`). **These files also feed the mobile apps** via
-  `build:glossary` (see The Glossary Feed below), so editing one is a publish to
-  both platforms. The two surfaces want different things from a body: the site
+  (e.g. `hell-hades.md`). **The `id` is a stable key, not a slug of `lit`** —
+  it is the `/glossary` anchor readers share, the apps' entry key, and
+  `term.glossary` in every alignment record (plus the `DISTINCTIVE` set in
+  `build-alignment.mjs` and the map in `glossary-lemmas.mjs`). So revising the
+  LIT rendering changes `lit`/`litMenu`/`srOnly` and leaves the id and filename
+  alone, the way a merged poetry block retires its id rather than renumbering:
+  `blasphemy-disrespectfulness` carries `lit: contemptuous speech`, and
+  `glory-praiseworthiness` carries `lit: praise / renown`.
+  **These files also feed the mobile apps** via `build:glossary` (see The
+  Glossary Feed below), so editing one is a publish to both platforms. The two
+  surfaces want different things from a body: the site
   renders it as Markdown (`*kalos*` is italic), the apps need plain prose. The
   generator bridges that by flattening emphasis, so keep using it — but richer
   Markdown (links, headings, HTML) **fails the build** rather than reaching a

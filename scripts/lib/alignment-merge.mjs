@@ -9,9 +9,9 @@
 //
 // The asymmetry that drives the rules: the scanner can only find renderings the
 // glossary already lists, and the whole point of the review tool is to capture
-// the ones it doesn't ("blasphemia" is glossed "disrespectfulness" but the text
-// reads "contemptuous speech"). A review record therefore usually has NO
-// counterpart in a rescan, and must survive one anyway.
+// the ones it doesn't ("metanoia" is glossed "reorienting the mind" but the
+// text also reads "transformation of the mind"). A review record therefore
+// usually has NO counterpart in a rescan, and must survive one anyway.
 //
 // STATUS VOCABULARY
 //   auto           written by the scanner, unreviewed
