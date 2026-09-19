@@ -11,6 +11,22 @@ on:
   # Manual re-run, e.g. to backfill notes after a missed or failed run.
   workflow_dispatch:
 
+# Serialize runs. Several content PRs merged close together used to start
+# several runs at once, each computing its entry against the tip it checked
+# out, and the ones that finished second and third lost a bare `git push` to
+# whichever merge landed meanwhile. Five PRs merged inside 30 seconds on
+# 2026-09-18 lost all three of their entries that way, including a published
+# chapter, and nothing failed loudly enough to notice - the apps read this file
+# as their Translation Updates feed, so a lost entry is a lost publish.
+#
+# Queueing rather than cancelling matters: a cancelled run is a dropped entry,
+# which is the failure this exists to prevent. A run that ends up with nothing
+# left to write (because the run ahead of it already covered those commits)
+# exits cleanly on its own.
+concurrency:
+  group: release-notes
+  cancel-in-progress: false
+
 jobs:
   update-release-notes:
     runs-on: ubuntu-latest
@@ -32,28 +48,51 @@ jobs:
         with:
           node-version: '24'
 
-      - name: Find base ref
-        id: base
+      - name: Draft, commit and push
         run: |
-          # Base is the last commit touching EITHER the notes themselves or the
-          # skip marker. Advancing the marker in the same commit as a content
-          # change keeps that change out of the changelog - the range comes back
-          # empty and nothing is written. See src/data/release-notes-skip.md.
-          LAST=$(git log --format="%H" -1 -- src/data/release-notes.json src/data/release-notes-skip.md)
-          if [ -z "$LAST" ]; then
-            LAST=$(git rev-list --max-parents=0 HEAD)
-          fi
-          echo "ref=$LAST" >> "$GITHUB_OUTPUT"
-
-      - name: Draft and write release notes
-        run: node scripts/draft-release-notes.mjs --since ${{ steps.base.outputs.ref }} --write
-
-      - name: Commit if changed
-        run: |
+          set -u
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          if ! git diff --quiet src/data/release-notes.json; then
+
+          # The base ref and the drafted entry are recomputed inside the loop,
+          # not once before it. A push can only be rejected because main moved,
+          # and if it moved then the range this run drafted against is already
+          # wrong - so a retry has to redo the work against the new tip rather
+          # than replay a stale commit. `reset --hard` throws the failed
+          # attempt away instead of rebasing it: both sides append to the same
+          # JSON array, so a rebase is a guaranteed conflict.
+          for attempt in 1 2 3 4 5; do
+            git fetch --quiet origin main
+            git reset --quiet --hard origin/main
+
+            # Base is the last commit touching EITHER the notes themselves or
+            # the skip marker. Advancing the marker in the same commit as a
+            # content change keeps that change out of the changelog - the range
+            # comes back empty and nothing is written. See
+            # src/data/release-notes-skip.md.
+            BASE=$(git log --format="%H" -1 -- src/data/release-notes.json src/data/release-notes-skip.md)
+            if [ -z "$BASE" ]; then
+              BASE=$(git rev-list --max-parents=0 HEAD)
+            fi
+
+            node scripts/draft-release-notes.mjs --since "$BASE" --write
+
+            if git diff --quiet src/data/release-notes.json; then
+              echo "Nothing to write for ${BASE}..$(git rev-parse --short HEAD)."
+              exit 0
+            fi
+
             git add src/data/release-notes.json
-            git commit -m "chore: auto-update release notes"
-            git push
-          fi
+            git commit --quiet -m "chore: auto-update release notes"
+
+            if git push --quiet; then
+              echo "Wrote release notes for ${BASE}..HEAD on attempt ${attempt}."
+              exit 0
+            fi
+
+            echo "Push rejected on attempt ${attempt}; main moved. Recomputing against the new tip."
+            sleep $(( attempt * 5 ))
+          done
+
+          echo "::error::Release notes could not be pushed after 5 attempts. Re-run this workflow manually (workflow_dispatch) to backfill."
+          exit 1
