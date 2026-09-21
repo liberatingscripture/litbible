@@ -38,8 +38,8 @@
     "@fontsource/fraunces": "^5.3.0",
     "@fontsource/inter": "^5.3.0",
     "@fontsource/opendyslexic": "^5.3.0",
-    "astro": "^7.3.2",
-    "simple-icons": "^16.30.0"
+    "astro": "^7.3.3",
+    "simple-icons": "^16.31.0"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
