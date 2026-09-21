@@ -1,5 +1,260 @@
 [
   {
+    "version": "2026-09-20",
+    "date": "2026-09-20",
+    "label": "September 20, 2026",
+    "changes": [
+      {
+        "type": "footnote_updated",
+        "description": "1 Corinthians 1:1 — footnote b updated",
+        "detail": "\"meshiah,\" → \"mashiach,\"",
+        "location": {
+          "bookKey": "1corinthians",
+          "chapter": 1,
+          "verse": 1
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "2 Corinthians 1:1 — footnote b updated",
+        "detail": "\"meshiah,\" → \"mashiach,\"",
+        "location": {
+          "bookKey": "2corinthians",
+          "chapter": 1,
+          "verse": 1
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Colossians 1:2 — footnote c updated",
+        "detail": "\"meshiah\" → \"mashiach\"",
+        "location": {
+          "bookKey": "colossians",
+          "chapter": 1,
+          "verse": 2
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Hebrews 11:26 — footnote mm updated",
+        "detail": "\"meshiah (Messiah) mean. ‘Anointed’ literally means having o…\" → \"mashiach (Messiah) mean. ‘Anointed’ literally means having …\"",
+        "location": {
+          "bookKey": "hebrews",
+          "chapter": 11,
+          "verse": 26
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Hebrews 3:6 — footnote e updated",
+        "detail": "\"meshiah\" → \"mashiach\"",
+        "location": {
+          "bookKey": "hebrews",
+          "chapter": 3,
+          "verse": 6
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "John 1:41 — text updated",
+        "detail": "\"meshiah!\" → \"mashiach!\"",
+        "location": {
+          "bookKey": "john",
+          "chapter": 1,
+          "verse": 41
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "John 1:20, 41 — footnotes r, ff updated",
+        "detail": "fn. r (v. 20): \"meshiah, which comes into English as ‘Messiah.’ Both christ…\" → \"mashiach, which comes into English as ‘Messiah.’ Both chris…\"; fn. ff (v. 41): \"meshiah\" → \"mashiach\"",
+        "location": {
+          "bookKey": "john",
+          "chapter": 1,
+          "verse": 20
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "John 2:18 — footnotes p, r updated",
+        "detail": "fn. p (v. 18): \"Ioudiaos\" → \"Ioudaios\"; fn. r (v. 18): \"meshiah,\" → \"mashiach,\"",
+        "location": {
+          "bookKey": "john",
+          "chapter": 2,
+          "verse": 18
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "John 4:25 — text updated",
+        "detail": "\"Meshiah\" → \"Mashiach\"",
+        "location": {
+          "bookKey": "john",
+          "chapter": 4,
+          "verse": 25
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 2:11, 26 — footnotes o, dd updated",
+        "detail": "fn. o (v. 11): \"meshiah\" → \"mashiach\"; fn. dd (v. 26): \"meshiah\" → \"mashiach\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 2,
+          "verse": 11
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 20:41 — footnote z updated",
+        "detail": "\"meshiah\" → \"mashiach\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 20,
+          "verse": 41
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 22:67 — footnote tt updated",
+        "detail": "\"meshiah\" → \"mashiach\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 22,
+          "verse": 67
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 3:15 — footnote w updated",
+        "detail": "\"meshiah\" → \"mashiach\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 3,
+          "verse": 15
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 4:41 — footnote hh updated",
+        "detail": "\"meshiah\" → \"mashiach\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 4,
+          "verse": 41
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 9 — footnote k updated",
+        "detail": "\"meshiah\" → \"mashiach\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 9
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Mark 1:1 — footnote b updated",
+        "detail": "\"meshiah and transform them into English words without trans…\" → \"mashiach and transform them into English words without tran…\"",
+        "location": {
+          "bookKey": "mark",
+          "chapter": 1,
+          "verse": 1
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Mark 12:35 — text updated",
+        "detail": "\"meshiah\" → \"mashiach\"",
+        "location": {
+          "bookKey": "mark",
+          "chapter": 12,
+          "verse": 35
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Mark 12:35 — footnote bb updated",
+        "detail": "\"meshiah and transform them into English words without trans…\" → \"mashiach and transform them into English words without tran…\"",
+        "location": {
+          "bookKey": "mark",
+          "chapter": 12,
+          "verse": 35
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Mark 13:21 — text updated",
+        "detail": "\"meshiah!\" → \"mashiach!\"",
+        "location": {
+          "bookKey": "mark",
+          "chapter": 13,
+          "verse": 21
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Mark 13:21–22 — footnotes p, q updated",
+        "detail": "fn. p (v. 21): \"meshiah and transform them into English words without trans…\" → \"mashiach and transform them into English words without tran…\"; fn. q (v. 22): \"meshiah\" → \"mashiach\"",
+        "location": {
+          "bookKey": "mark",
+          "chapter": 13,
+          "verse": 21
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Mark 14:61 — text updated",
+        "detail": "\"meshiah,\" → \"mashiach,\"",
+        "location": {
+          "bookKey": "mark",
+          "chapter": 14,
+          "verse": 61
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Mark 15:32 — footnote u updated",
+        "detail": "\"meshiah,\" → \"mashiach,\"",
+        "location": {
+          "bookKey": "mark",
+          "chapter": 15,
+          "verse": 32
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Mark 8 — footnote o updated",
+        "detail": "\"meshiah and transform them into English words without trans…\" → \"mashiach and transform them into English words without tran…\"",
+        "location": {
+          "bookKey": "mark",
+          "chapter": 8
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Matthew 1:1, 17 — footnotes b, e updated",
+        "detail": "fn. b (v. 1): \"meshiah\" → \"mashiach\"; fn. e (v. 17): \"meshiah\" → \"mashiach\"",
+        "location": {
+          "bookKey": "matthew",
+          "chapter": 1,
+          "verse": 1
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Matthew 11:2 — footnote a updated",
+        "detail": "\"Meshiah.\" → \"Mashiach.\"",
+        "location": {
+          "bookKey": "matthew",
+          "chapter": 11,
+          "verse": 2
+        }
+      }
+    ]
+  },
+  {
     "version": "2026-09-18",
     "date": "2026-09-18",
     "label": "September 18, 2026",
