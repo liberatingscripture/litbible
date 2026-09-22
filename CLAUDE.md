@@ -1701,6 +1701,13 @@ something the importer got wrong.
   chapters type one as body text and Mark 5:39 is a *subscript*. The
   superscript pass and a blind digit-adjacency scan are cross-checked per
   chapter, and a disagreement stops the run rather than picking a side.
+  **The refusal is scoped to the chapters being built** (2026-09-21). A book
+  is normally part-drafted, and an unformatted chapter says nothing about a
+  finished one: Luke 23 sat mid-sentence with its verse numbers still body
+  text, and a document-wide gate let that refuse Luke 22, which was finished,
+  formatted, and the chapter actually asked for. `--all` still checks every
+  chapter, because then every chapter is a target — narrowing changes which
+  chapters are examined, never how strictly one is.
 - **The verse-marker separator** has to be in the text (`sup.vn` is
   inline-block and no CSS supplies the gap), and the master has none to
   contribute, since the verse span ends *at* the next marker.
@@ -1721,6 +1728,15 @@ wording** difference queued for back-port — p2 renders *ekklesia* as "the
 community" in the repo and "the assembly" in the master (the corpus says
 community; see `FOLLOW-UP-RECONCILIATION.md`) — so a clean run today is 7/8,
 not 8/8.
+
+**Luke 22 is the larger check, added 2026-09-21**: 37 paragraphs and 51
+footnotes against Philemon's 8 and 16, and a narrative chapter rather than a
+letter. It stands at **36/37 paragraphs and 50/51 footnotes**, and both deltas
+are known and open rather than importer faults — p34 carries v69, where the
+repo's "at the right hand of the Power of God" stands over the master by owner
+ruling and is queued for back-port, and fn-bb is a note whose quotes `curlify`
+refuses, so the importer leaves the master's characters alone (correctly) while
+the repo carries a hand-curled version. Neither will close until Word changes.
 
 That distinction is the thing to hold onto: **a Philemon delta is a
 master-vs-repo report, not automatically an importer bug**, and the two are
