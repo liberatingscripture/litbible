@@ -566,26 +566,6 @@
       "ref": "Rom.1.18",
       "english": [
         {
-          "text": "disrespectfulness",
-          "n": 1
-        }
-      ],
-      "greek": [],
-      "term": {
-        "greek": "blasphemia",
-        "traditional": "Blasphemy",
-        "glossary": "blasphemy-disrespectfulness",
-        "form": "disrespectfulness"
-      },
-      "confidence": "distinctive",
-      "lemma": "absent",
-      "source": "glossary-scan",
-      "status": "auto"
-    },
-    {
-      "ref": "Rom.1.18",
-      "english": [
-        {
           "text": "the heavens",
           "n": 1
         }

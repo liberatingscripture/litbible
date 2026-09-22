@@ -123,26 +123,6 @@
       "status": "auto"
     },
     {
-      "ref": "Luke.22.37",
-      "english": [
-        {
-          "text": "Torah",
-          "n": 1
-        }
-      ],
-      "greek": [],
-      "term": {
-        "greek": "nomos",
-        "traditional": "Law",
-        "glossary": "law-torah",
-        "form": "Torah"
-      },
-      "confidence": "distinctive",
-      "lemma": "absent",
-      "source": "glossary-scan",
-      "status": "auto"
-    },
-    {
       "ref": "Luke.22.43",
       "english": [
         {

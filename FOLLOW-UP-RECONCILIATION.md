@@ -1690,8 +1690,46 @@ either, and neither do the great majority of the ~130. Annotating this one
 would make the standard rendering look like the exceptional one. The chapter's
 existing fn-nn (Jeremiah 31:31–34) already carries the covenant frame.
 
-Luke 22:20 will take the same rendering when that chapter is drafted, so the
-two closest parallels agree.
+Luke 22:20 was drafted and published on 2026-09-17 and does read "the new
+covenant connected with my blood", so the two closest parallels now agree in
+the text rather than in prospect.
+
+### Queued from the Luke 22 master review (2026-09-21)
+
+The owner revised Luke 22 in Word after the 2026-09-17 import, so for once the
+master led on almost everything: vv. 37 and 38 and footnotes bb, cc, ee and ff
+were ported into the repo verbatim. Only one row goes the other way.
+
+| repo | master | fix |
+|---|---|---|
+| `luke-22` v69 | Luke | `at the right hand of God's Power` → `at the right hand of the Power of God`. Owner ruling 2026-09-21: the repo is the right side. Both keep Luke's own "of God" (see repo fn-ww on Mark 14:62 lacking it); this is word order only. |
+
+Two master-side hygiene items were fixed on the way in rather than queued,
+because neither is a wording question:
+
+- **Straight quotes had crept into all four revised notes** (bb 4, cc 13, ee 3,
+  ff 4). Three curl cleanly. `fn-bb` is the one `curlify` refuses, at the
+  closer in `'with rebels.'`, which sits between a period and a space and so
+  has no direction in context. It was curled by hand at three sites and the
+  result checked with `foldAllowed`, which proves no visible character moved
+  but the quotes. The two judgments worth recording: `'et-posh'im` takes `’`
+  for both transliteration marks, matching `Nevi’im` / `Ya’aqov` / `tzeva’ot`
+  in the corpus and matching what `curlify` itself chose for the identical
+  `posh’im` in the sibling note; and `‘the Torahless’/’the lawless’` had a
+  wrong-direction opener, the defect class the validator cannot see.
+- **`fn-ee` lost the macron on `telesthēnai`.** Owner ruling 2026-09-21: the
+  removal was deliberate, so the repo followed the master to `telesthenai`.
+  Recorded because the 2026-02 import stripped macrons as damage, and the next
+  reader of that pattern should not assume this one was.
+
+**The importer cannot currently be run against Luke at all.** Luke 23 is in
+progress in the master (9 verses, stopping mid-sentence at v9) and its verse
+numbers are still typed as body text rather than superscript, which is verified
+in the raw XML: 22:71's `71` carries `vertAlign superscript` and 23:1's `1` does
+not. `superscriptCheck` is computed per chapter but gated book-wide, so an
+unformatted chapter refuses every chapter in the document, including finished
+ones. Either format those numbers in Word or narrow the gate to the chapters
+being built. This comparison was done with the reconcile extractor instead.
 
 ## 26. The footnote-sequence audit — done (2026-08-20)
 
