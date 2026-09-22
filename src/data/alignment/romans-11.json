@@ -506,26 +506,6 @@
       "ref": "Rom.11.26",
       "english": [
         {
-          "text": "disrespectfulness",
-          "n": 1
-        }
-      ],
-      "greek": [],
-      "term": {
-        "greek": "blasphemia",
-        "traditional": "Blasphemy",
-        "glossary": "blasphemy-disrespectfulness",
-        "form": "disrespectfulness"
-      },
-      "confidence": "distinctive",
-      "lemma": "absent",
-      "source": "glossary-scan",
-      "status": "auto"
-    },
-    {
-      "ref": "Rom.11.26",
-      "english": [
-        {
           "text": "liberated",
           "n": 1
         }

@@ -203,26 +203,6 @@
       "status": "auto"
     },
     {
-      "ref": "2Tim.2.16",
-      "english": [
-        {
-          "text": "disrespectfulness",
-          "n": 1
-        }
-      ],
-      "greek": [],
-      "term": {
-        "greek": "blasphemia",
-        "traditional": "Blasphemy",
-        "glossary": "blasphemy-disrespectfulness",
-        "form": "disrespectfulness"
-      },
-      "confidence": "distinctive",
-      "lemma": "absent",
-      "source": "glossary-scan",
-      "status": "auto"
-    },
-    {
       "ref": "2Tim.2.18",
       "english": [
         {
