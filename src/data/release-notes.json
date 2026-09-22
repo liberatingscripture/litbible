@@ -1,5 +1,32 @@
 [
   {
+    "version": "2026-09-21",
+    "date": "2026-09-21",
+    "label": "September 21, 2026",
+    "changes": [
+      {
+        "type": "text_updated",
+        "description": "Luke 22:37–38 — text updated",
+        "detail": "v. 37: \"people outside Torah.’\" → \"outlaws.’\"; v. 38: \"“It is\" → \"“It’s\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 22,
+          "verse": 37
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 22:37 — footnotes bb, cc, ee, ff updated",
+        "detail": "fn. bb (v. 37): \"those outside Torah.” The Greek of Luke’s text here reads m…\" → \"the outlaws (or ‘the Torahless’/‘the lawless’).” The Greek …\"; fn. cc (v. 37): \"This verse is rendered as the first sense, based in part on…\" → \"The Hebrew version of the same verse uses posh’im, ‘rebels,…\"; fn. ee (v. 37): \"telesthēnai\" → \"telesthenai\"; fn. ff: \"him. Though it’s possible, there is no grammatical indicati…\" → \"him, which is somewhat defensible based on several instance…\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 22,
+          "verse": 37
+        }
+      }
+    ]
+  },
+  {
     "version": "2026-09-20",
     "date": "2026-09-20",
     "label": "September 20, 2026",
