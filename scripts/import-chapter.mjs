@@ -48,6 +48,9 @@
  *      chapters type one as body text and Mark 5:39 is subscript. The
  *      superscript pass and the blind digit-adjacency scan are cross-checked
  *      per chapter; disagreement is fatal, never silently resolved. (2)
+ *      The refusal is scoped to the chapters being built, because a book is
+ *      usually part-drafted and an unformatted chapter says nothing about a
+ *      finished one. `--all` therefore still checks the whole document.
  *   3. A verse marker needs a real space before it — sup.vn is inline-block
  *      and no CSS supplies the gap, so the separator lives in the text or the
  *      marker welds to the previous sentence. (6)
@@ -129,10 +132,23 @@ const scan = extractMasterChapters(documentXml, BOOKS[bookKey], { warnings: scan
 const { entries, paragraphs } = scanDocumentEntries(documentXml, { warnings: scanWarnings });
 const footnoteBodies = footnotesXml ? scanFootnoteRecords(footnotesXml, { warnings: scanWarnings }) : new Map();
 
-if (!scan.superscriptCheck.ok) {
+const targets = all ? [...scan.chapters.keys()].sort((a, b) => a - b) : [Number(chapterArg)];
+
+// The cross-check is per chapter, so the refusal is too. A book is usually
+// part-drafted: Luke 23 sat mid-sentence with its verse numbers still typed as
+// body text, and gating on the whole document let that refuse Luke 22, which
+// was finished and formatted. Nothing was wrong with the chapter being asked
+// for. `--all` still checks every chapter, because then every chapter is a
+// target — the guarantee is unchanged for whatever is actually being built.
+const disagreed = scan.superscriptCheck.perChapter.filter((c) => !c.agree && targets.includes(c.chapter));
+if (disagreed.length) {
+  const detail = disagreed
+    .map((c) => `    chapter ${c.chapter}: digit scan ${c.digitSet.join(",") || "(none)"}\n` +
+                `${" ".repeat(15)}superscript ${c.superscriptSet.join(",") || "(none)"}`)
+    .join("\n");
   die("verse-number detection disagrees between the superscript pass and the blind digit scan.\n" +
       "  That is the \"verse number typed as body text or subscript\" case. Resolve it in the\n" +
-      "  master rather than trusting either side.");
+      "  master rather than trusting either side.\n" + detail);
 }
 
 // ── local helpers ────────────────────────────────────────────────────────────
@@ -325,7 +341,8 @@ function buildChapter(chapterNum) {
 }
 
 // ── run ──────────────────────────────────────────────────────────────────────
-const targets = all ? [...scan.chapters.keys()].sort((a, b) => a - b) : [Number(chapterArg)];
+// `targets` is resolved up by the superscript gate, which has to know what is
+// actually being built before it can refuse on it.
 const built = targets.map((n) => ({ n, ...buildChapter(n) }));
 
 const total = built.reduce((a, b) => ({
