@@ -48,6 +48,8 @@
   background: var(--green);
   color: #ffffff;
   overflow: hidden;
+  /* Fixed green in both themes: ink ring (4.58:1), not the page's. */
+  --focus-ring: var(--ink);
 
   /* breathing room under the hero */
   padding: 110px 0 110px;
@@ -236,7 +238,7 @@
 /* Focus states */
 .signup input[type="email"]:focus,
 .signup__button:focus {
-  outline: 3px solid rgba(255, 255, 255, 0.75);
+  outline: 3px solid var(--focus-ring);
   outline-offset: 3px;
 }
 

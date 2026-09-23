@@ -831,6 +831,9 @@
      would flip to a light disc in dark mode on a band that never got darker. */
   --lsc-mark-disc: #1D231C;
   --lsc-mark-bird: #FAFAF8;
+  /* Same reason for the focus ring: the question CTAs sit on the band, where
+     ink is 4.58:1 and the page's green ring is not. */
+  --focus-ring: var(--ink);
 }
 
 .questions-block__inner {

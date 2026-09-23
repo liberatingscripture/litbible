@@ -83,12 +83,18 @@ const callouts = (await getCollection('callouts')).sort(
     .callout--image-left .callout__image { order: -1; }
   }
   /* Dark: brighter accents (via the --season-* tokens) + more tint over an
-     elevated surface, so the seasonal hue actually carries. */
+     elevated surface, so the seasonal hue actually carries. Both theme
+     selectors, like every dark rule: the media query alone would give a reader
+     who forces light on a dark OS the dark tint under light-mode accents. */
   @media (prefers-color-scheme: dark) {
-    .callout {
+    :global(:root:not([data-theme="light"])) .callout {
       --tint: 15%;
       --tint-base: var(--bg-soft);
     }
+  }
+  :global(:root[data-theme="dark"]) .callout {
+    --tint: 15%;
+    --tint-base: var(--bg-soft);
   }
 
   .callout__title {

@@ -159,7 +159,7 @@
 }
 
 .faq-q:focus-visible {
-  outline: 2px solid rgba(32, 157, 80, 0.6);
+  outline: 2px solid var(--focus-ring);
   outline-offset: 2px;
   border-radius: 12px;
 }
@@ -281,7 +281,6 @@
 .about-toc__toggle:hover,
 .about-toc__toggle:focus-visible {
   transform: translateY(-1px);
-  outline: none;
 }
 
 /* Hamburger icon, morphs into X via .is-open */
@@ -370,7 +369,6 @@
 .about-toc a.footer-cta.about-toc__cta:focus-visible {
   opacity: 0.86;
   transform: translateY(-1px);
-  outline: none;
 }
 
 /* ---------------------------------------------------------

@@ -223,7 +223,7 @@ a.contact-button {
 .field textarea:focus,
 .field select:focus,
 .contact-button:focus {
-  outline: 3px solid rgba(32, 157, 80, 0.35);
+  outline: 3px solid var(--focus-ring);
   outline-offset: 3px;
 }
 
