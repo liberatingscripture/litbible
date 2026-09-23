@@ -1126,7 +1126,11 @@ collection); they're read directly by the intro pages and the API manifest.
   `criticalCSS` carries the same guarded pair so a forced theme wins the first
   paint. No JS → no attribute → OS pref governs. When adding a dark-mode style
   anywhere, use BOTH selectors or the toggle's "force light/dark" states will
-  leak.
+  leak. In an Astro-scoped `<style>`, write the root half as
+  `:global(:root:not([data-theme="light"])) .x` (as `ScriptureLayout.astro` and
+  the `/apps` components do), so the scoper leaves `:root` alone. The bare
+  media query is the common slip: three components shipped with it, which gave a
+  reader who forces light on a dark OS the dark values under light-mode colours.
 - **The reader font is the Display tray's other half, and works the same way.**
   A 3-state radio list (**Default / Atkinson Hyperlegible / OpenDyslexic**,
   each option set in the font it selects so the list previews itself) writes
@@ -1204,6 +1208,17 @@ collection); they're read directly by the intro pages and the API manifest.
   `--green-text` as a *button background* — it's a link/text token that flips to
   a light green in dark mode (white-on-it fails). For a green button, reach for
   `--green-deep`; for green text on a light background, `--green-text`.
+  **Keyboard focus rings are a third role: `--focus-ring`**, never a green
+  written directly. It defaults to `var(--green-text)` in `:root` and both dark
+  blocks, because a focus indicator needs 3:1 against the surface and LIT Green
+  manages only 2.63:1 on cream (3.35:1 on `#FAFAF8`), while the text green is
+  4.97:1 on cream, 6.34:1 on `#FAFAF8`, and ~7–8:1 in dark (`#3abf6a`).
+  Translucent rings (`rgba(32, 157, 80, 0.35)`) fail worse still, 1.4–2.0:1;
+  fourteen of them were routed through the token in 2026-09. The rings that use `--text` on
+  purpose (the Display tray's font and theme options) stay as they are. Don't
+  kill a ring with `outline: none` on `:focus-visible` either: `/support`,
+  `/liberating-scripture-collective`, the about TOC, and the launch popover's
+  close button all did, which left keyboard users a 1px lift or nothing at all.
 - **The site emblem ships as two SVG variants**, `public/images/lit-logo-2026.svg`
   (plain) and `lit-logo-2026-ring.svg` (with a `--green` band). Same glyph, same
   `#FAFAF8` disc — the disc is deliberately the `--surface-raised` token, so on
@@ -1244,6 +1259,42 @@ collection); they're read directly by the intro pages and the API manifest.
   `.questions-block` (a fixed `--green` band) does exactly that in `home.css`.
   Inline SVG is load-bearing here: an `<img src>` to an external SVG can't read
   these custom properties at all.
+- **The focus ring pins on fixed surfaces the same way the dove does.** An
+  outline is drawn *outside* its element, on the parent's surface, so what
+  decides its contrast is whatever the control sits on, never the control's own
+  fill. `--focus-ring` follows the theme, which is right on every themed
+  surface; a surface that is a **fixed colour in both themes** has to pin its
+  own value, in the same rule that sets its background where it can. The rule
+  is **pin where focusable controls sit directly on the fixed surface**, and
+  nowhere broader: a pin inherits, so pinning `body.bg-green` would push ink
+  into the home page's themed sections and footer, where it fails in dark mode.
+  That's why the green header pins on `.site-header__inner` (the font tray and
+  menu overlay share its `<header>` with surfaces of their own), and the
+  articles hero pins on its search form rather than on itself (its results
+  panel is themed). Measured with the WCAG 2 formula:
+
+  | Surface | Pinned where | Ring | Contrast |
+  |---|---|---|---|
+  | LIT Green header bar (`body.bg-green` home, `.site-header--green` articles) | `global.css`, on `.site-header__inner` | `--ink` | 4.58:1 |
+  | Skip link, which paints over those headers from `<body>` | `global.css` | `--ink` | 4.58:1 |
+  | `.questions-block` (home) | `home.css` | `--ink` | 4.58:1 |
+  | `.courses-updates` (`/courses`) | `courses.css` | `--ink` | 4.58:1 |
+  | `.articles-hero` search form | `articles.css`, on `.searchbar__form` | `--ink` | 4.58:1 |
+  | `.menu-overlay` (90% black in both themes) | `global.css` | `--green` | 5.02–5.95:1 by page |
+  | Menu toggle while open (it sits above the overlay) | `global.css`, `html.menu-open` | `--green` | same |
+
+  The default ring fails on LIT Green (1.89:1 light, 1.47:1 dark) and so does
+  cream (2.63:1), which is why ink is the pin there. No ink or Deep Green
+  surface holds a control today: every such fill in `src/` is a button or CTA
+  itself, whose ring lands on its parent. If one is added, use LSC's measured
+  values: on ink, `--green` (4.58:1); on `--green-deep`, `--cream` (4.97:1;
+  plain green there is 1.89:1). Fixed-green surfaces checked and left unpinned,
+  because nothing focusable sits on them directly: home `.hero`, the
+  `/read` `.license-band` (its controls sit on a themed card, so a pin would
+  leak into the card), the chat bubbles, and the glossary `.toggle-switch`
+  (a control, not a surface). LSC defines the same token (its PR #79). The
+  mirrored `/apps` files never name the ring; they get it from each site's
+  global `:focus-visible`, so a mirror copy needs no pin of its own.
 - **Search is two engines behind three client modules** in `src/scripts/`:
   - *Scripture keyword search* scans `public/search/verses.json` (built by
     `build-verse-index.mjs`) in the client — verse-exact results ("John 3:16"

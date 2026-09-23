@@ -147,6 +147,17 @@
   --lsc-mark-disc: #1D231C;
   --lsc-mark-bird: #FAFAF8;
 
+  /* Keyboard focus ring. A focus indicator needs 3:1 against the surface it is
+     drawn on, and LIT Green is only 2.63:1 on cream and 3.35:1 on #FAFAF8, so
+     rings use the darker text green (4.97:1 on cream, 6.62:1 on white; the dark
+     blocks' #3abf6a is ~7:1 on the dark page). Every green ring in src/ reads
+     this token; the deliberate --text rings (font tray) do not.
+     The outline is drawn OUTSIDE the element, on its parent's surface, so a
+     surface that is a fixed colour in both themes (LIT Green, ink, Deep Green,
+     the black menu overlay) pins its own value, the same way the dove mark
+     pins its disc/bird pair. See CLAUDE.md for the table of pins. */
+  --focus-ring: var(--green-text);
+
   /* CTA */
   --cta-bg: var(--ink);
   --cta-text: var(--green);
@@ -195,6 +206,7 @@
     --border: #2a2a2c;
     --lsc-mark-disc: #F0F0F0;
     --lsc-mark-bird: #1D231C;
+    --focus-ring: var(--green-text);
     --cta-bg: #d4d2cc;
     --cta-text: #1a1e1a;
   }
@@ -216,6 +228,7 @@
   --border: #2a2a2c;
   --lsc-mark-disc: #F0F0F0;
   --lsc-mark-bird: #1D231C;
+  --focus-ring: var(--green-text);
   --cta-bg: #d4d2cc;
   --cta-text: #1a1e1a;
 }
@@ -257,6 +270,17 @@ body.bg-cream {
 
 body.bg-green {
   background: var(--green);
+}
+
+/* Focus ring over the green header bar: ink is 4.58:1 on LIT Green, where the
+   default ring is 1.89:1 (and plain green 1:1). Pinned on __inner rather than
+   on the green surface itself, for the same reason as the text re-pin further
+   down: the font tray and the mobile overlay live in the same <header> with
+   surfaces of their own, and must not inherit it. Theme-invariant, like the
+   green, so it needs no dark-mode copy. */
+body.bg-green .site-header__inner,
+.site-header--green .site-header__inner {
+  --focus-ring: var(--ink);
 }
 
 /* Near-white surface pages (glossary, apps): the page background is the raised
@@ -343,7 +367,7 @@ a:focus {
 
 /* Global focus ring — visible keyboard focus for all interactive elements */
 :focus-visible {
-  outline: 2px solid var(--green, #209d50);
+  outline: 2px solid var(--focus-ring, #0f6b33);
   outline-offset: 2px;
 }
 
@@ -370,8 +394,15 @@ a:focus {
   font-weight: 600;
   font-size: 1rem;
   text-decoration: none;
-  outline: 2px solid var(--green, #209d50);
+  outline: 2px solid var(--focus-ring, #0f6b33);
   outline-offset: 2px;
+}
+
+/* The skip link is a child of <body> but paints over the header, so where that
+   header is LIT Green its ring takes the green-surface pin (see below). */
+body.bg-green .skip-link,
+body:has(.site-header--green) .skip-link {
+  --focus-ring: var(--ink);
 }
 
 /* Global reduced-motion safety net */
@@ -1062,9 +1093,11 @@ html.menu-open .site-header__menu-toggle {
   z-index: 10002;
 }
 
-/* Contrast boost (only while open) */
+/* Contrast boost (only while open). The button now sits over the overlay's
+   near-black scrim, not the header, so its ring takes the overlay's pin. */
 html.menu-open .site-header__menu-toggle {
   background: rgba(0, 0, 0, 0.22);
+  --focus-ring: var(--green);
 }
 
 html.menu-open .site-header__menu-toggle .menu-icon::before,
@@ -1139,6 +1172,9 @@ html.menu-open .site-header__menu-toggle .menu-icon::after {
   justify-content: center;
 
   background: rgba(0, 0, 0, 0.90);
+  /* Near-black in both themes, so the ring pins to LIT Green rather than
+     following the page (the light-theme ring is too dark to read here). */
+  --focus-ring: var(--green);
 
   opacity: 0;
   visibility: hidden;
@@ -1550,7 +1586,7 @@ a.footer-cta > span {
 
 /* Keyboard focus */
 .footer-col .social-links a:focus-visible {
-  outline: 2px solid var(--green);
+  outline: 2px solid var(--focus-ring);
   outline-offset: 3px;
 }
 
@@ -1862,7 +1898,7 @@ a.footer-cta > span {
 }
 
 .footer-newsletter__submit:focus-visible {
-  outline: 2px solid var(--green);
+  outline: 2px solid var(--focus-ring);
   outline-offset: 2px;
 }
 

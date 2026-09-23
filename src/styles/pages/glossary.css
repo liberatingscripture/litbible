@@ -131,7 +131,7 @@
 }
 
 .toggle-switch:focus-visible{
-  outline: 2px solid var(--lit-green);
+  outline: 2px solid var(--focus-ring);
   outline-offset: 2px;
 }
 
@@ -215,6 +215,12 @@
   outline: none;
   padding: 2px 4px;
   width: 220px;
+}
+/* The rule above out-specifies the global :focus-visible ring, so restore it
+   for keyboard users; the pill has no focus style of its own. */
+.glossary-toc__inner select:focus-visible{
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
 }
 
 .back-to-top{
@@ -531,7 +537,7 @@
 
 .occ-title:focus-visible,
 .occ-summary:focus-visible{
-  outline: 2px solid var(--green-text, var(--lit-green));
+  outline: 2px solid var(--focus-ring);
   outline-offset: 3px;
   border-radius: 4px;
 }
@@ -657,7 +663,7 @@
 .occ-more:hover{ border-color: rgba(var(--ink-rgb), 0.4); }
 
 .occ-more:focus-visible{
-  outline: 2px solid var(--green-text, var(--lit-green));
+  outline: 2px solid var(--focus-ring);
   outline-offset: 2px;
 }
 

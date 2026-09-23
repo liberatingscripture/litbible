@@ -131,7 +131,6 @@
 .button:focus-visible {
   transform: translateY(-1px);
   opacity: 0.92;
-  outline: none;
 }
 
 .button--primary {
@@ -281,7 +280,6 @@
 .card-carousel__btn:focus-visible {
   transform: translateY(-1px);
   opacity: 0.9;
-  outline: none;
 }
 
 /* =========================================================
@@ -383,7 +381,6 @@
 .lsc-card__link:hover,
 .lsc-card__link:focus-visible {
   text-decoration: underline;
-  outline: none;
 }
 
 .lsc-card__brief {

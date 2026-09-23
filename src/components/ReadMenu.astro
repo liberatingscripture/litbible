@@ -464,8 +464,8 @@ const fallbackHref =
     }
 
     @media (prefers-color-scheme: dark) {
-      .read-menu,
-      .read-menu__panel {
+      :root:not([data-theme="light"]) .read-menu,
+      :root:not([data-theme="light"]) .read-menu__panel {
         --rm-draft-dot: #d9a462;
         --rm-accent-fg: #1d231c;
       }
@@ -710,7 +710,7 @@ const fallbackHref =
     .read-menu__trigger:focus-visible,
     .read-menu__back:focus-visible,
     .read-menu__close:focus-visible {
-      outline: 2px solid var(--green-text);
+      outline: 2px solid var(--focus-ring);
       outline-offset: 1px;
     }
 

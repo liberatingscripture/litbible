@@ -1364,6 +1364,18 @@ S9, O9, and O8.
   the OS text-selection UI. Opus-sized, with design input on where the
   affordance appears.
 
+- [ ] **Decide the light-mode Easter gold on `/apps`.**
+  (Raised 2026-09-22 from liberatingscripture.org's contrast pass, LSC PR #79.)
+  `--season-easter: #B8860B` in `src/styles/pages/apps.css` measures **2.88:1**
+  as the 30px ReaderCallouts title on its own 8% tint over `#FAFAF8`, under the
+  3:1 that large text needs; it is the only season that fails (the other four
+  run 4.38 to 7.75 in both themes, and dark Easter `#D4AF37` is 6.53). Measured
+  candidates: `#9a6f09` 3.92:1 and `#8a6508` 4.59:1. The owner chose to leave it
+  for now, and not to change the app's palette. Two things to weigh when it is
+  picked up: the token's comment claims the value is "accessible as title text
+  on light", which is not true on the tinted card, and `apps.css` is mirrored to
+  LSC byte for byte, so whatever is chosen lands on both sites at once.
+
 ## Completed from TBD
 
 - [x] **Consolidate email capture.** The `/courses` Formspree signup (a

@@ -43,6 +43,13 @@
   margin: 0 auto;
 }
 
+/* The search input and button sit straight on the hero's fixed green, so their
+   ring is ink (4.58:1). Pinned on the form, not the hero: the results panel is
+   a sibling with a themed surface of its own and keeps the page's ring. */
+.articles-hero .searchbar__form {
+  --focus-ring: var(--ink);
+}
+
 /* Divider pill */
 .articles-hero__divider {
   margin-top: 34px;

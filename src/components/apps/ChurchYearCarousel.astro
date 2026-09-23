@@ -278,12 +278,17 @@ const seasons = (await getCollection('seasons')).sort(
   }
 
   /* ---- Dark: brighter accents (via the tokens) + more tint over an
-     elevated surface, so the seasonal hue actually carries. ---- */
+     elevated surface, so the seasonal hue actually carries. Both theme
+     selectors, so a forced light or dark theme wins over the OS. ---- */
   @media (prefers-color-scheme: dark) {
-    .church-year {
+    :global(:root:not([data-theme="light"])) .church-year {
       --cy-tint: 15%;
       --cy-base: var(--bg-soft);
     }
+  }
+  :global(:root[data-theme="dark"]) .church-year {
+    --cy-tint: 15%;
+    --cy-base: var(--bg-soft);
   }
 
   /* ---- Reduced motion: no cycling, chips still work ---- */
