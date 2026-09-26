@@ -88,15 +88,21 @@ function isSmallScreen() {
 
 /**
  * Show a panel near an inline trigger element (or as a bottom sheet on
- * small screens, or wherever `sheet` asks for one). Returns the panel element.
- * The trigger only needs getBoundingClientRect, so a selection can stand in
- * for an element.
+ * small screens). Returns the panel element. The trigger only needs
+ * getBoundingClientRect, so a selection can stand in for an element. `place`
+ * overrides both layouts: it gets the attached panel and returns its
+ * document-relative {left, top}.
  */
-function showPanel(trigger, el, { restoreFocus = null, onClose = null, extra = null, preferAbove = false, sheet = false } = {}) {
+function showPanel(trigger, el, { restoreFocus = null, onClose = null, extra = null, preferAbove = false, place = null } = {}) {
   closePanel();
   el.classList.add("lit-panel");
 
-  if (sheet || isSmallScreen()) {
+  if (place) {
+    document.body.appendChild(el);
+    const { left, top } = place(el);
+    el.style.left = left + "px";
+    el.style.top = top + "px";
+  } else if (isSmallScreen()) {
     el.classList.add("lit-panel--sheet");
     document.body.appendChild(el);
   } else {
@@ -709,12 +715,16 @@ function initFootnotePopovers(container) {
 // "16a" — the quoted words already show it's partial), and the link is the
 // ordinary verse link.
 //
-// Where it appears follows the input. A mouse selection gets the panel just
-// above the text; a touch selection gets a bottom sheet, because the phone's
-// own Copy / Share bubble already sits beside the selection and a page can't
-// add to it. Ordinary Copy is left alone: the reference is only ever added on
-// request. The verse menu stays the keyboard route, since this panel answers
-// a pointer gesture and never takes focus.
+// It always sits beside the selection, where the reader is looking; where
+// exactly follows the input. A mouse selection gets the panel just above the
+// text. A touch selection has to share that space with the phone's own
+// Copy / Share bubble, which a page can't add to or move, so the panel takes
+// the side the bubble isn't on (placeBesideTouchSelection). A bar pinned to
+// the bottom edge was tried first and was easy to miss, and it covered any
+// selection made near the bottom of the screen. Ordinary Copy is left alone:
+// the reference is only ever added on request. The verse menu stays the
+// keyboard route, since this panel answers a pointer gesture and never takes
+// focus.
 
 let lastPointerType = "mouse";
 let pointerDown = false;
@@ -827,7 +837,42 @@ function selectionShare(container, selection) {
   return { text, start, end, rect: extent.getBoundingClientRect(), key: start + "-" + end + ":" + text };
 }
 
-function openSelectionPanel(share, { sheet }) {
+// Room the phone's own selection UI needs, which a page can't measure: the
+// drag handle hanging below the last line, and the Copy / Share bubble, which
+// the OS puts above the selection when there's room and below it otherwise.
+const HANDLE_CLEARANCE = 28;
+const OS_BUBBLE_CLEARANCE = 64;
+const PANEL_EDGE = 12;
+
+/**
+ * Placement for a touch selection: beside it, where the reader is looking,
+ * on whichever side the OS bubble isn't. Normally just below the selection;
+ * below the bubble when a selection near the top pushes the bubble down; and
+ * above the bubble when there's no room below. A selection filling the screen
+ * leaves no clear side, so it falls back to the bottom edge.
+ */
+function placeBesideTouchSelection(rect) {
+  return (el) => {
+    el.style.maxWidth = window.innerWidth - 2 * PANEL_EDGE + "px";
+    const width = el.offsetWidth;
+    const height = el.offsetHeight;
+    const viewH = window.innerHeight;
+    const bubbleAbove = rect.top >= OS_BUBBLE_CLEARANCE;
+
+    const below = rect.bottom + HANDLE_CLEARANCE + (bubbleAbove ? 0 : OS_BUBBLE_CLEARANCE);
+    const above = rect.top - height - PANEL_EDGE - (bubbleAbove ? OS_BUBBLE_CLEARANCE : 0);
+    let top;
+    if (below + height <= viewH - PANEL_EDGE) top = below;
+    else if (above >= PANEL_EDGE) top = above;
+    else top = viewH - height - PANEL_EDGE;
+
+    let left = rect.left + rect.width / 2 - width / 2;
+    left = Math.max(PANEL_EDGE, Math.min(left, window.innerWidth - width - PANEL_EDGE));
+    return { left: window.scrollX + left, top: window.scrollY + top };
+  };
+}
+
+function openSelectionPanel(share, { touch }) {
   const ref = formatRef(share.start, share.end);
   const url = getVerseUrl(share.start, share.end);
 
@@ -835,6 +880,7 @@ function openSelectionPanel(share, { sheet }) {
   panel.setAttribute("role", "dialog");
   panel.setAttribute("aria-label", "Share selected text from " + ref);
   panel.classList.add("lit-panel--menu", "lit-panel--selection");
+  if (touch) panel.classList.add("lit-panel--touch");
   // Pressing a button would otherwise clear the selection (and move focus)
   // before the click lands.
   panel.addEventListener("mousedown", (e) => e.preventDefault());
@@ -864,7 +910,7 @@ function openSelectionPanel(share, { sheet }) {
 
   showPanel({ getBoundingClientRect: () => share.rect }, panel, {
     preferAbove: true,
-    sheet,
+    place: touch ? placeBesideTouchSelection(share.rect) : null,
     extra: { kind: "selection" },
   });
 }
@@ -908,7 +954,7 @@ function initSelectionShare(container) {
     }
     if (share.key === shownKey) return;
     shownKey = share.key;
-    openSelectionPanel(share, { sheet: lastPointerType !== "mouse" });
+    openSelectionPanel(share, { touch: lastPointerType !== "mouse" });
   }
 }
 

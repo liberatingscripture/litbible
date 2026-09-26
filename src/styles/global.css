@@ -2532,16 +2532,19 @@ html[data-font="dyslexic"] .menu-overlay__nav a {
   color: var(--green-text);
 }
 
-/* Selection sharing as a bottom sheet (touch): the reference on its own line,
-   then both actions side by side, so the sheet covers as little of the text
-   the reader is still adjusting as it can. */
-.lit-panel--selection.lit-panel--sheet {
+/* Selection sharing for a touch selection: it floats beside the selected text,
+   so it is kept short — the reference on its own line, then both actions side
+   by side — to cover as little of the surrounding text as it can. Padding and
+   gaps are trimmed so OpenDyslexic's two labels still share a row on a 375px
+   phone. */
+.lit-panel--selection.lit-panel--touch {
   flex-flow: row wrap;
   align-items: center;
-  gap: 6px 8px;
+  gap: 6px;
+  padding: 10px;
 }
 
-.lit-panel--selection.lit-panel--sheet .lit-panel__heading {
+.lit-panel--selection.lit-panel--touch .lit-panel__heading {
   flex: 1 0 100%;
   margin: 0;
 }
@@ -2549,9 +2552,10 @@ html[data-font="dyslexic"] .menu-overlay__nav a {
 /* Each label on one line, sized to its text; when the two can't share a row
    (OpenDyslexic runs far wider) Share wraps to its own row rather than the
    label breaking. */
-.lit-panel--selection.lit-panel--sheet .lit-panel__btn {
+.lit-panel--selection.lit-panel--touch .lit-panel__btn {
   flex: 1 1 auto;
   width: auto;
+  padding-inline: 8px;
   white-space: nowrap;
   text-align: center;
   background: rgba(var(--ink-rgb), 0.06);

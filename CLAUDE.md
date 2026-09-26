@@ -472,12 +472,18 @@ page and a panel offers **Copy with reference** and **Share…**, for a
 half-sentence, a phrase crossing two verses, or part of a poetry quotation.
 Four owner decisions (2026-09) shape it:
 
-1. **Where it appears follows the input**, not the screen width. A mouse
-   selection gets the panel just above the text. A touch selection gets a
-   bottom sheet, because the phone's own Copy / Share bubble already sits
-   beside the selection and a page can't add to it. `lastPointerType` decides.
-   Android Chrome's own "Touch to Search" bar can also appear at the bottom,
-   and nothing here can prevent the two meeting.
+1. **It sits beside the selection, and the side follows the input**, not the
+   screen width (`lastPointerType` decides). A mouse selection gets the panel
+   just above the text. A touch selection shares that space with the phone's
+   own Copy / Share bubble, which a page can't add to or move, so
+   `placeBesideTouchSelection` takes the side the bubble isn't on. That is
+   normally just below the selection, clearing the drag handle. When a
+   selection near the top pushes the bubble down, it goes below the bubble.
+   With no room below, it goes above the bubble. The two clearances are
+   estimates, because no API reports where the OS draws its menu. **A bar
+   pinned to the bottom edge was tried first and rejected on a real phone**:
+   it was easy to miss, and it covered any selection made near the bottom of
+   the screen.
 2. **The reference uses plain verse numbers** ("John 3:16", never "16a"),
    covering every verse the selection touches. The quoted words already show
    it's partial.
