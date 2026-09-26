@@ -298,7 +298,9 @@ function verseParts(container, verse) {
   for (const [block, spans] of byBlock) {
     const lines = spans.map((span) => cleanForShare(blockText(span))).filter(Boolean);
     if (!lines.length) continue;
-    parts.push({ id: block.id, text: joinSpanText(spans), plain: lines.join(" ") });
+    // `plain` feeds one-line button labels, so a <br> flattens to a space.
+    const plain = lines.join(" ").replace(/\n/g, " ");
+    parts.push({ id: block.id, text: joinSpanText(spans), plain });
   }
   return parts;
 }
@@ -306,23 +308,23 @@ function verseParts(container, verse) {
 /**
  * Join a verse’s spans into shareable text.
  *
- * A quotation set as poetry keeps its line breaks — the line structure is
- * part of what is being quoted, and the per-part copy already shares it that
- * way. So a newline falls at every boundary touching a poetry block: between
- * its lines, and between it and the prose leading into or out of it. Anything
- * else is wrapped text or a mid-verse paragraph break, which join with a
- * space.
+ * Text set as lines keeps its line breaks — for a quotation set as poetry the
+ * line structure is part of what is being quoted, and the per-part copy
+ * already shares it that way. So a newline falls at every boundary touching
+ * lines: between a poetry block's lines, and between lines and the prose
+ * leading into or out of them. Anything else is wrapped text or a mid-verse
+ * paragraph break, which join with a space.
  */
 function joinSpanText(spans) {
   let out = "";
-  let prevPoetry = false;
+  let prevLines = false;
   for (const span of spans) {
     const text = cleanForShare(blockText(span));
     if (!text) continue;
-    const poetry = isPoetry(span);
-    if (out) out += poetry || prevPoetry ? "\n" : " ";
+    const lines = isSetAsLines(span);
+    if (out) out += lines || prevLines ? "\n" : " ";
     out += text;
-    prevPoetry = poetry;
+    prevLines = lines;
   }
   return out;
 }
@@ -330,6 +332,17 @@ function joinSpanText(spans) {
 /** Is this span one line of a quotation set as poetry? */
 function isPoetry(span) {
   return !!span.closest("blockquote");
+}
+
+/**
+ * Is this span set as lines — poetry, or a paragraph broken with <br>?
+ *
+ * Kept apart from isPoetry on purpose: `hbq` is a claim that the lines are
+ * quoted scripture, while a <br> sets lines that are not (2 Corinthians 6:2,
+ * Paul's own application of the Isaiah quotation). Both still copy as lines.
+ */
+function isSetAsLines(span) {
+  return isPoetry(span) || !!span.querySelector("br");
 }
 
 /** A short preview of a part, for its menu button. */
@@ -340,10 +353,20 @@ function partLabel(text) {
   return text.slice(0, MAX).replace(/\s+\S*$/, "") + "…";
 }
 
+/**
+ * Marks a <br> in blockText's output until cleanForShare turns it into a
+ * newline. Not "\n" itself: source whitespace is insignificant and gets
+ * collapsed, so only a real <br> may survive as a line break.
+ */
+const LINE_BREAK = " ";
+
 /** Plain text of one element, minus verse numbers and footnote letters. */
 function blockText(el) {
   const clone = el.cloneNode(true);
   clone.querySelectorAll("sup.fn-ref, sup.vn").forEach((s) => s.remove());
+  // textContent drops a <br> with no separator, welding the lines either side
+  // into one word ("a welcome time!Look! Now is…").
+  clone.querySelectorAll("br").forEach((br) => br.replaceWith(LINE_BREAK));
   return clone.textContent;
 }
 
@@ -353,8 +376,10 @@ function cleanForShare(text) {
   // lifted off it — strip BEFORE collapsing, per src/lib/bracket-markers.mjs.
   return stripBracketMarkers(text)
     .replace(/[​‌‍⁠﻿]/g, "") // zero-width characters
-    .replace(/\s+/g, " ")
-    .trim();
+    .split(LINE_BREAK)
+    .map((line) => line.replace(/\s+/g, " ").trim())
+    .filter(Boolean)
+    .join("\n");
 }
 
 /**
@@ -366,10 +391,10 @@ function getSingleVerseText(container, verse) {
   return joinSpanText(verseSpans(container, verse));
 }
 
-/** Does this verse end inside a poetry quotation? */
-function endsInPoetry(container, verse) {
+/** Does this verse end inside text set as lines? */
+function endsInLines(container, verse) {
   const spans = verseSpans(container, verse);
-  return spans.length > 0 && isPoetry(spans[spans.length - 1]);
+  return spans.length > 0 && isSetAsLines(spans[spans.length - 1]);
 }
 
 /**
@@ -377,8 +402,8 @@ function endsInPoetry(container, verse) {
  * before each verse after the first, e.g.:
  *   "…agelong life. 17 God did not send… 18 The one who…"
  *
- * A verse ending inside a poetry quotation keeps that break before the next
- * verse number, so the following verse does not run on from a poetry line.
+ * A verse ending inside text set as lines keeps that break before the next
+ * verse number, so the following verse does not run on from its last line.
  */
 function getVerseText(container, start, end) {
   let out = "";
@@ -389,7 +414,7 @@ function getVerseText(container, start, end) {
     if (prev === null) {
       out = text;
     } else {
-      out += (endsInPoetry(container, prev) ? "\n" : " ") + v + " " + text;
+      out += (endsInLines(container, prev) ? "\n" : " ") + v + " " + text;
     }
     prev = v;
   }
