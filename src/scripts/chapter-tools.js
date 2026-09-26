@@ -14,6 +14,9 @@
 // 3. Footnote popovers — tapping a footnote letter shows the note inline
 //    (bottom sheet on small screens), with a link through to the full
 //    footnotes section.
+// 4. Selection sharing — selecting any run of scripture text offers Copy
+//    with reference / Share, for a half-sentence or a phrase crossing two
+//    verses, which the verse menu can't reach.
 //
 // A verse that spans blocks (a quotation set as a block quote, a mid-verse
 // speaker change) can also be shared one PART at a time — see "parts" below.
@@ -24,6 +27,7 @@ function init(container) {
   initVerseHighlight(container);
   initVerseMenu(container);
   initFootnotePopovers(container);
+  initSelectionShare(container);
 }
 
 /* ── Shared: verse span lookup ────────────────────────────────────────── */
@@ -84,13 +88,21 @@ function isSmallScreen() {
 
 /**
  * Show a panel near an inline trigger element (or as a bottom sheet on
- * small screens). Returns the panel element.
+ * small screens). Returns the panel element. The trigger only needs
+ * getBoundingClientRect, so a selection can stand in for an element. `place`
+ * overrides both layouts: it gets the attached panel and returns its
+ * document-relative {left, top}.
  */
-function showPanel(trigger, el, { restoreFocus = null, onClose = null, extra = null, preferAbove = false } = {}) {
+function showPanel(trigger, el, { restoreFocus = null, onClose = null, extra = null, preferAbove = false, place = null } = {}) {
   closePanel();
   el.classList.add("lit-panel");
 
-  if (isSmallScreen()) {
+  if (place) {
+    document.body.appendChild(el);
+    const { left, top } = place(el);
+    el.style.left = left + "px";
+    el.style.top = top + "px";
+  } else if (isSmallScreen()) {
     el.classList.add("lit-panel--sheet");
     document.body.appendChild(el);
   } else {
@@ -296,35 +308,51 @@ function verseParts(container, verse) {
 
   const parts = [];
   for (const [block, spans] of byBlock) {
-    const lines = spans.map((span) => cleanForShare(blockText(span))).filter(Boolean);
-    if (!lines.length) continue;
-    // `plain` feeds one-line button labels, so a <br> flattens to a space.
-    const plain = lines.join(" ").replace(/\n/g, " ");
-    parts.push({ id: block.id, text: joinSpanText(spans), plain });
+    const text = joinPieces(spans.map((span) => spanPiece(span)));
+    if (!text) continue;
+    // `plain` feeds one-line button labels, so every line break flattens.
+    parts.push({ id: block.id, text, plain: text.replace(/\n/g, " ") });
   }
   return parts;
 }
 
 /**
- * Join a verse’s spans into shareable text.
+ * One verse span as a piece of shareable text, carrying what joinPieces needs.
+ * `text` defaults to the whole span; a selection passes in only its share.
+ */
+function spanPiece(span, text = cleanForShare(blockText(span))) {
+  return { verse: Number(span.dataset.verse), lines: isSetAsLines(span), text };
+}
+
+/**
+ * Join span pieces into shareable text. This is the one rule behind Copy
+ * verse, Copy verses, the per-part copy, and a shared selection, so a
+ * selection of whole verses copies exactly what the verse menu does.
  *
  * Text set as lines keeps its line breaks — for a quotation set as poetry the
- * line structure is part of what is being quoted, and the per-part copy
- * already shares it that way. So a newline falls at every boundary touching
- * lines: between a poetry block's lines, and between lines and the prose
- * leading into or out of them. Anything else is wrapped text or a mid-verse
- * paragraph break, which join with a space.
+ * line structure is part of what is being quoted. Within a verse, a newline
+ * falls at every boundary touching lines: between a poetry block's lines, and
+ * between lines and the prose leading into or out of them. Anything else is
+ * wrapped text or a mid-verse paragraph break, which join with a space.
+ *
+ * Each verse after the first opens with its number:
+ *   "…agelong life. 17 God did not send… 18 The one who…"
+ * A verse ending inside lines keeps that break before the number, so the next
+ * verse does not run on from its last line.
  */
-function joinSpanText(spans) {
+function joinPieces(pieces) {
   let out = "";
-  let prevLines = false;
-  for (const span of spans) {
-    const text = cleanForShare(blockText(span));
-    if (!text) continue;
-    const lines = isSetAsLines(span);
-    if (out) out += lines || prevLines ? "\n" : " ";
-    out += text;
-    prevLines = lines;
+  let prev = null;
+  for (const piece of pieces) {
+    if (!piece.text) continue;
+    if (!prev) {
+      out = piece.text;
+    } else if (piece.verse === prev.verse) {
+      out += (piece.lines || prev.lines ? "\n" : " ") + piece.text;
+    } else {
+      out += (prev.lines ? "\n" : " ") + piece.verse + " " + piece.text;
+    }
+    prev = piece;
   }
   return out;
 }
@@ -358,7 +386,7 @@ function partLabel(text) {
  * newline. Not "\n" itself: source whitespace is insignificant and gets
  * collapsed, so only a real <br> may survive as a line break.
  */
-const LINE_BREAK = " ";
+const LINE_BREAK = "\u2028";
 
 /** Plain text of one element, minus verse numbers and footnote letters. */
 function blockText(el) {
@@ -383,42 +411,16 @@ function cleanForShare(text) {
 }
 
 /**
- * Extract the plain text of one verse from its data-verse span(s),
- * skipping verse-number markers and footnote refs. Spans join per
- * joinSpanText: a poetry quotation keeps its line breaks, prose does not.
- */
-function getSingleVerseText(container, verse) {
-  return joinSpanText(verseSpans(container, verse));
-}
-
-/** Does this verse end inside text set as lines? */
-function endsInLines(container, verse) {
-  const spans = verseSpans(container, verse);
-  return spans.length > 0 && isSetAsLines(spans[spans.length - 1]);
-}
-
-/**
- * Text for a verse range. Multi-verse selections include the verse number
- * before each verse after the first, e.g.:
- *   "…agelong life. 17 God did not send… 18 The one who…"
- *
- * A verse ending inside text set as lines keeps that break before the next
- * verse number, so the following verse does not run on from its last line.
+ * Text for a verse or verse range, from its data-verse spans, skipping
+ * verse-number markers and footnote refs. Known SBLGNT omissions have no
+ * spans, so a gap simply contributes nothing. Joined per joinPieces.
  */
 function getVerseText(container, start, end) {
-  let out = "";
-  let prev = null;
+  const pieces = [];
   for (let v = start; v <= end; v++) {
-    const text = getSingleVerseText(container, v);
-    if (!text) continue; // known SBLGNT omissions leave gaps
-    if (prev === null) {
-      out = text;
-    } else {
-      out += (endsInLines(container, prev) ? "\n" : " ") + v + " " + text;
-    }
-    prev = v;
+    for (const span of verseSpans(container, v)) pieces.push(spanPiece(span));
   }
-  return out;
+  return joinPieces(pieces);
 }
 
 async function copyToClipboard(text) {
@@ -451,6 +453,38 @@ function menuButton(label, onClick) {
   return btn;
 }
 
+/**
+ * Shared text with its attribution line. No added quotation marks — verses
+ * containing dialogue would otherwise produce nested double quotes; the
+ * attribution carries it.
+ */
+function withReference(text, ref) {
+  return text + "\n— " + ref + " (LIT)";
+}
+
+/** A Share… button for the native share sheet, or null where there is none. */
+function shareButton(ref, url, getText) {
+  if (!navigator.share) return null;
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "lit-panel__btn";
+  btn.textContent = "Share…";
+  btn.addEventListener("click", async () => {
+    const text = getText();
+    try {
+      await navigator.share({
+        title: ref + " (LIT)",
+        text: text ? withReference(text, ref) : ref + " (LIT)",
+        url,
+      });
+      closePanel();
+    } catch {
+      /* user cancelled the share sheet */
+    }
+  });
+  return btn;
+}
+
 function setSelectionHighlight(container, start, end) {
   if (!supportsHighlight) return;
   const ranges = verseRanges(container, start, end);
@@ -477,33 +511,13 @@ function openVerseMenu(container, sup, anchorVerse, start, end, { restoreFocus =
     menuButton(end > start ? "Copy verses" : "Copy verse", async () => {
       const text = getVerseText(container, start, end);
       if (!text) return false;
-      // No added quotation marks — verses containing dialogue would
-      // otherwise produce nested double quotes; attribution carries it.
-      return copyToClipboard(text + "\n— " + ref + " (LIT)\n" + url);
+      return copyToClipboard(withReference(text, ref) + "\n" + url);
     })
   );
   panel.appendChild(menuButton("Copy link", () => copyToClipboard(url)));
 
-  if (navigator.share) {
-    const shareBtn = document.createElement("button");
-    shareBtn.type = "button";
-    shareBtn.className = "lit-panel__btn";
-    shareBtn.textContent = "Share…";
-    shareBtn.addEventListener("click", async () => {
-      const text = getVerseText(container, start, end);
-      try {
-        await navigator.share({
-          title: ref + " (LIT)",
-          text: text ? text + "\n— " + ref + " (LIT)" : ref + " (LIT)",
-          url,
-        });
-        closePanel();
-      } catch {
-        /* user cancelled the share sheet */
-      }
-    });
-    panel.appendChild(shareBtn);
-  }
+  const shareBtn = shareButton(ref, url, () => getVerseText(container, start, end));
+  if (shareBtn) panel.appendChild(shareBtn);
 
   // Parts: only for a single verse. A range already spans blocks by nature, so
   // offering a part per block would bury the whole-range actions.
@@ -522,7 +536,7 @@ function openVerseMenu(container, sup, anchorVerse, start, end, { restoreFocus =
     for (const part of parts) {
       const partUrl = pageUrl() + "#" + part.id;
       const btn = menuButton(partLabel(part.plain), () =>
-        copyToClipboard(part.text + "\n— " + ref + " (LIT)\n" + partUrl)
+        copyToClipboard(withReference(part.text, ref) + "\n" + partUrl)
       );
       // The visible label is truncated; give assistive tech the full text.
       btn.setAttribute("aria-label", "Copy “" + part.plain + "”");
@@ -690,6 +704,258 @@ function initFootnotePopovers(container) {
     showPanel(a, panel, { restoreFocus: a });
     panel.focus({ preventScroll: true });
   });
+}
+
+/* ── 4. Selection sharing ─────────────────────────────────────────────── */
+
+// Select any run of scripture text and a small panel offers Copy with
+// reference / Share, for what the verse menu can't reach: a half-sentence, a
+// phrase crossing two verses, part of a poetry quotation. The reference names
+// the verses the selection touches in plain numbers ("John 3:16", never
+// "16a" — the quoted words already show it's partial), and the link is the
+// ordinary verse link.
+//
+// It always sits beside the selection, where the reader is looking; where
+// exactly follows the input. A mouse selection gets the panel just above the
+// text. A touch selection has to share that space with the phone's own
+// Copy / Share bubble, which a page can't add to or move, so the panel takes
+// the side the bubble isn't on (placeBesideTouchSelection). A bar pinned to
+// the bottom edge was tried first and was easy to miss, and it covered any
+// selection made near the bottom of the screen. Ordinary Copy is left alone:
+// the reference is only ever added on request. The verse menu stays the
+// keyboard route, since this panel answers a pointer gesture and never takes
+// focus.
+
+let lastPointerType = "mouse";
+let pointerDown = false;
+// The selection the panel was last shown for, so a dismissed panel (Escape,
+// or closing itself after a copy) stays closed until the selection changes.
+let shownKey = null;
+
+// Word characters for snapping. An apostrophe or hyphen counts only between
+// two of them ("don’t", "One-of-a-kind"), so a closing quote is never pulled
+// into the selection.
+const WORD_CHAR = /[\p{L}\p{M}\p{N}]/u;
+const WORD_JOINER = /['’-]/;
+
+function isWordCharAt(text, i) {
+  const ch = text[i];
+  if (!ch) return false;
+  if (WORD_CHAR.test(ch)) return true;
+  return (
+    WORD_JOINER.test(ch) &&
+    WORD_CHAR.test(text[i - 1] || "") &&
+    WORD_CHAR.test(text[i + 1] || "")
+  );
+}
+
+/**
+ * Widen a range that starts or ends mid-word to take in the whole word. Phones
+ * already select whole words; a mouse drag often doesn't. Within one text node
+ * only — a word split across nodes is rare enough to leave as selected.
+ */
+function snapToWords(range) {
+  const { startContainer: s, endContainer: e } = range;
+  if (s.nodeType === Node.TEXT_NODE) {
+    let i = range.startOffset;
+    if (isWordCharAt(s.data, i - 1) && isWordCharAt(s.data, i)) {
+      while (i > 0 && isWordCharAt(s.data, i - 1)) i--;
+      range.setStart(s, i);
+    }
+  }
+  if (e.nodeType === Node.TEXT_NODE) {
+    let j = range.endOffset;
+    if (isWordCharAt(e.data, j - 1) && isWordCharAt(e.data, j)) {
+      while (j < e.data.length && isWordCharAt(e.data, j)) j++;
+      range.setEnd(e, j);
+    }
+  }
+}
+
+/**
+ * Move a boundary that sits inside a verse number or footnote letter out past
+ * it. A range lying wholly inside one clones as bare digits, with no <sup>
+ * left for blockText to strip, so a selected "16" would share as scripture.
+ */
+function excludeMarkers(range) {
+  const markerAt = (node) =>
+    (node.nodeType === Node.ELEMENT_NODE ? node : node.parentElement)?.closest(
+      "sup.vn, sup.fn-ref"
+    );
+  const s = markerAt(range.startContainer);
+  if (s) range.setStartAfter(s);
+  const e = markerAt(range.endContainer);
+  if (e) range.setEndBefore(e);
+}
+
+/**
+ * What a selection would share, or null when it holds no scripture. Clamped
+ * to the verse spans, so a selection running into a heading or the footnotes
+ * shares only its scripture; snapped out to whole words; and joined by the
+ * same joinPieces rule as the verse menu, so selecting whole verses copies
+ * exactly what Copy verses does.
+ */
+function selectionShare(container, selection) {
+  if (!selection || !selection.rangeCount || selection.isCollapsed) return null;
+  const first = selection.getRangeAt(0);
+  const last = selection.getRangeAt(selection.rangeCount - 1);
+  const range = document.createRange();
+  range.setStart(first.startContainer, first.startOffset);
+  range.setEnd(last.endContainer, last.endOffset);
+  if (!range.intersectsNode(container)) return null;
+  excludeMarkers(range);
+  snapToWords(range);
+
+  const pieces = [];
+  let extent = null; // the scripture actually shared, for placing the panel
+  for (const span of container.querySelectorAll("[data-verse]")) {
+    if (!range.intersectsNode(span)) continue;
+    const part = document.createRange();
+    part.selectNodeContents(span);
+    if (part.compareBoundaryPoints(Range.START_TO_START, range) < 0) {
+      part.setStart(range.startContainer, range.startOffset);
+    }
+    if (part.compareBoundaryPoints(Range.END_TO_END, range) > 0) {
+      part.setEnd(range.endContainer, range.endOffset);
+    }
+    const holder = document.createElement("div");
+    holder.append(part.cloneContents());
+    const piece = spanPiece(span, cleanForShare(blockText(holder)));
+    if (!piece.text) continue; // e.g. only a verse number was caught
+    if (!extent) {
+      extent = document.createRange();
+      extent.setStart(part.startContainer, part.startOffset);
+    }
+    extent.setEnd(part.endContainer, part.endOffset);
+    pieces.push(piece);
+  }
+  if (!pieces.length) return null;
+
+  const text = joinPieces(pieces);
+  const start = pieces[0].verse;
+  const end = pieces[pieces.length - 1].verse;
+  return { text, start, end, rect: extent.getBoundingClientRect(), key: start + "-" + end + ":" + text };
+}
+
+// Room the phone's own selection UI needs, which a page can't measure: the
+// drag handle hanging below the last line, and the Copy / Share bubble, which
+// the OS puts above the selection when there's room and below it otherwise.
+const HANDLE_CLEARANCE = 28;
+const OS_BUBBLE_CLEARANCE = 64;
+const PANEL_EDGE = 12;
+
+/**
+ * Placement for a touch selection: beside it, where the reader is looking,
+ * on whichever side the OS bubble isn't. Normally just below the selection;
+ * below the bubble when a selection near the top pushes the bubble down; and
+ * above the bubble when there's no room below. A selection filling the screen
+ * leaves no clear side, so it falls back to the bottom edge.
+ */
+function placeBesideTouchSelection(rect) {
+  return (el) => {
+    el.style.maxWidth = window.innerWidth - 2 * PANEL_EDGE + "px";
+    const width = el.offsetWidth;
+    const height = el.offsetHeight;
+    const viewH = window.innerHeight;
+    const bubbleAbove = rect.top >= OS_BUBBLE_CLEARANCE;
+
+    const below = rect.bottom + HANDLE_CLEARANCE + (bubbleAbove ? 0 : OS_BUBBLE_CLEARANCE);
+    const above = rect.top - height - PANEL_EDGE - (bubbleAbove ? OS_BUBBLE_CLEARANCE : 0);
+    let top;
+    if (below + height <= viewH - PANEL_EDGE) top = below;
+    else if (above >= PANEL_EDGE) top = above;
+    else top = viewH - height - PANEL_EDGE;
+
+    let left = rect.left + rect.width / 2 - width / 2;
+    left = Math.max(PANEL_EDGE, Math.min(left, window.innerWidth - width - PANEL_EDGE));
+    return { left: window.scrollX + left, top: window.scrollY + top };
+  };
+}
+
+function openSelectionPanel(share, { touch }) {
+  const ref = formatRef(share.start, share.end);
+  const url = getVerseUrl(share.start, share.end);
+
+  const panel = document.createElement("div");
+  panel.setAttribute("role", "dialog");
+  panel.setAttribute("aria-label", "Share selected text from " + ref);
+  panel.classList.add("lit-panel--menu", "lit-panel--selection");
+  if (touch) panel.classList.add("lit-panel--touch");
+  // Pressing a button would otherwise clear the selection (and move focus)
+  // before the click lands.
+  panel.addEventListener("mousedown", (e) => e.preventDefault());
+
+  const heading = document.createElement("p");
+  heading.className = "lit-panel__heading";
+  heading.textContent = ref + " (LIT)";
+  panel.appendChild(heading);
+
+  // Once a button is pressed the panel finishes on its own ("Copied ✓", or
+  // the share sheet), even though a tap on a phone clears the selection.
+  const acting = () => {
+    if (openPanel?.el === panel) openPanel.acting = true;
+  };
+
+  panel.appendChild(
+    menuButton("Copy with reference", () => {
+      acting();
+      return copyToClipboard(withReference(share.text, ref) + "\n" + url);
+    })
+  );
+  const shareBtn = shareButton(ref, url, () => {
+    acting();
+    return share.text;
+  });
+  if (shareBtn) panel.appendChild(shareBtn);
+
+  showPanel({ getBoundingClientRect: () => share.rect }, panel, {
+    preferAbove: true,
+    place: touch ? placeBesideTouchSelection(share.rect) : null,
+    extra: { kind: "selection" },
+  });
+}
+
+function initSelectionShare(container) {
+  let timer = null;
+  const settle = () => {
+    clearTimeout(timer);
+    timer = setTimeout(update, 200);
+  };
+
+  document.addEventListener(
+    "pointerdown",
+    (e) => {
+      lastPointerType = e.pointerType || "mouse";
+      pointerDown = true;
+      // A new gesture may select the same words again; let it show the panel.
+      if (!openPanel?.el.contains(e.target)) shownKey = null;
+    },
+    true
+  );
+  const release = () => {
+    pointerDown = false;
+    settle();
+  };
+  document.addEventListener("pointerup", release, true);
+  document.addEventListener("pointercancel", release, true);
+  document.addEventListener("selectionchange", settle);
+
+  function update() {
+    // Mid-drag with a mouse: wait for the button to come up rather than
+    // chasing the selection as it grows.
+    if (pointerDown && lastPointerType === "mouse") return;
+
+    const share = selectionShare(container, document.getSelection());
+    const current = openPanel?.kind === "selection" ? openPanel : null;
+    if (!share) {
+      if (current && !current.acting) closePanel();
+      shownKey = null;
+      return;
+    }
+    if (share.key === shownKey) return;
+    shownKey = share.key;
+    openSelectionPanel(share, { touch: lastPointerType !== "mouse" });
+  }
 }
 
 /* ── Kickoff (after all module-level declarations) ────────────────────── */

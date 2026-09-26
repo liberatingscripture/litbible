@@ -1362,7 +1362,24 @@ S9, O9, and O8.
   this comparison; and anything the per-verse split cannot see, which is the
   whole reason the fallback exists.
 
-- [ ] **Consider sharing any selected text, not just whole blocks.**
+- [x] **Consider sharing any selected text, not just whole blocks.**
+  DONE 2026-09-25. Selecting scripture text on a chapter page now offers Copy
+  with reference and Share…. Owner picks, from an options write-up: the panel
+  floats just above a mouse selection and beside a touch selection, on the
+  side the phone's own bubble isn't using. A bottom-edge bar for touch was
+  tried first and dropped after the owner tested it on a phone: it was easy to
+  miss and covered selections near the bottom. The reference uses plain verse
+  numbers covering every verse touched, never "16a"; the link is the ordinary
+  verse link, not a text fragment; ordinary Copy is left alone. The selection
+  joins through the same `joinPieces` rule as the verse menu, which that rule
+  was extracted into for this. A capture of every Copy verse, adjacent-pair
+  range, and part copy across 15 chapters (1,172 outputs) matched byte for byte
+  before and after. Selecting whole verses copies exactly what Copy verses
+  does. Mid-word edges snap to whole words, and verse numbers and footnote
+  letters never leak into the text. See "Sharing a selection" in CLAUDE.md.
+  The touch clearances for the drag handle and the OS bubble are estimates,
+  since no API reports where the OS draws its menu. Check them on a phone if
+  the panel ever meets the bubble.
   (Raised 2026-08-09 alongside the part-sharing work; the owner picked the
   block-level approach for now and asked to keep this on the list.) Today a
   reader can share a whole verse, a verse range, or one block of a verse. The

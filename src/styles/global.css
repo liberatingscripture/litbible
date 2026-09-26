@@ -2532,6 +2532,35 @@ html[data-font="dyslexic"] .menu-overlay__nav a {
   color: var(--green-text);
 }
 
+/* Selection sharing for a touch selection: it floats beside the selected text,
+   so it is kept short — the reference on its own line, then both actions side
+   by side — to cover as little of the surrounding text as it can. Padding and
+   gaps are trimmed so OpenDyslexic's two labels still share a row on a 375px
+   phone. */
+.lit-panel--selection.lit-panel--touch {
+  flex-flow: row wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 10px;
+}
+
+.lit-panel--selection.lit-panel--touch .lit-panel__heading {
+  flex: 1 0 100%;
+  margin: 0;
+}
+
+/* Each label on one line, sized to its text; when the two can't share a row
+   (OpenDyslexic runs far wider) Share wraps to its own row rather than the
+   label breaking. */
+.lit-panel--selection.lit-panel--touch .lit-panel__btn {
+  flex: 1 1 auto;
+  width: auto;
+  padding-inline: 8px;
+  white-space: nowrap;
+  text-align: center;
+  background: rgba(var(--ink-rgb), 0.06);
+}
+
 /* Range-selection hint at the bottom of the verse menu */
 .lit-panel__hint {
   margin: 6px 0 0;

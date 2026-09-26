@@ -465,6 +465,54 @@ the way `#v16` does, rather than merely scrolling.
 Parts are offered for a single verse only — a range already spans blocks by
 nature, and a button per block would bury the whole-range actions.
 
+### Sharing a selection
+
+The general form of the above: select any run of scripture text on a chapter
+page and a panel offers **Copy with reference** and **Share…**, for a
+half-sentence, a phrase crossing two verses, or part of a poetry quotation.
+Four owner decisions (2026-09) shape it:
+
+1. **It sits beside the selection, and the side follows the input**, not the
+   screen width (`lastPointerType` decides). A mouse selection gets the panel
+   just above the text. A touch selection shares that space with the phone's
+   own Copy / Share bubble, which a page can't add to or move, so
+   `placeBesideTouchSelection` takes the side the bubble isn't on. That is
+   normally just below the selection, clearing the drag handle. When a
+   selection near the top pushes the bubble down, it goes below the bubble.
+   With no room below, it goes above the bubble. The two clearances are
+   estimates, because no API reports where the OS draws its menu. **A bar
+   pinned to the bottom edge was tried first and rejected on a real phone**:
+   it was easy to miss, and it covered any selection made near the bottom of
+   the screen.
+2. **The reference uses plain verse numbers** ("John 3:16", never "16a"),
+   covering every verse the selection touches. The quoted words already show
+   it's partial.
+3. **The link is the ordinary verse link** (`#v16`, `#v16-17`), not a
+   `#:~:text=` fragment, which would be long and silently fall back whenever
+   the words cross a footnote letter.
+4. **Ordinary Copy is left alone.** The reference is only ever added on
+   request. Appending it to Ctrl+C was rejected as clipboard hijacking.
+
+**`joinPieces` is the one join rule** behind Copy verse, Copy verses, the
+per-part copy, and a selection, so selecting whole verses copies exactly what
+Copy verses does (checked against every verse and adjacent pair on 15
+chapters). Don't give the selection its own joiner. Three details are easy to
+break:
+
+- A selection boundary inside a verse number or footnote letter is moved out
+  past it (`excludeMarkers`). A range lying wholly inside one clones as bare
+  digits, with no `<sup>` left for `blockText` to strip.
+- Mid-word boundaries snap out to the whole word, within one text node. An
+  apostrophe or hyphen counts only between letters, so a closing quote is
+  never pulled in.
+- The panel's `mousedown` is `preventDefault`ed, or pressing a button clears
+  the selection first. On a phone the tap clears it anyway, so the buttons
+  act on the share computed when the panel opened, never on the live
+  selection, and `acting` keeps a pressed panel open until it finishes.
+
+The panel never takes focus, so the verse-number menu stays the keyboard and
+screen-reader route to the same copy.
+
 ### Poetry blocks (`hbq`)
 
 Quoted Hebrew and Semitic poetry is set as `<blockquote id="<block-id>"
@@ -1875,7 +1923,7 @@ argv, and the scan; nothing else.
 | `src/data/books.js` | Source of truth for NT book list + chapter counts |
 | `src/pages/[slug].astro` | Scripture chapter pages (Study View) |
 | `src/pages/read/[book].astro` | Continuous reading view |
-| `src/scripts/chapter-tools.js` | Verse highlight/menu + footnote popovers |
+| `src/scripts/chapter-tools.js` | Verse highlight/menu, footnote popovers, and selection sharing |
 | `src/styles/global.css` | Main stylesheet |
 | `astro.config.mjs` | Site config, redirects, sitemap/noindex draft logic |
 | `content.config.ts` | Content-collection schemas |
