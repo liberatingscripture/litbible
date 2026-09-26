@@ -1294,7 +1294,18 @@ S9, O9, and O8.
   inside poetry keeps the break before the next verse number, so 6–7 no
   longer welds `shamed. 7 Therefore` onto a poetry line.
 
-- [ ] **Fix `<br>` poetry lines, which today copy with NO separator at all.**
+- [x] **Fix `<br>` poetry lines, which today copy with NO separator at all.**
+  DONE 2026-09-25. `blockText` in `src/scripts/chapter-tools.js` now swaps each
+  `<br>` for a U+2028 marker, and `cleanForShare` collapses whitespace per line
+  and joins the lines with `\n`. It uses a marker rather than keeping `\n` as
+  proposed below, so incidental source whitespace can never become a line
+  break. A span containing a `<br>` also counts as set in lines for joining
+  (`isSetAsLines`, kept separate from `isPoetry`, because only `hbq` claims a
+  quotation), so it gets poetry's newline on both sides. 2 Corinthians 6:2 now
+  copies as the prose lead-in, then its two lines, each on its own line. The
+  part button's label flattens the break to a space. Verified in the browser on
+  Copy verse, the part copy, and the 2–3 range, with 1 Peter 2:6, 1
+  Corinthians 3:9 and John 3:16–17 unchanged.
   (Found 2026-09-06 while doing the item above; narrowed the same day.) Not all
   poetry is set as an `hbq` blockquote: some lines are broken with a bare `<br>`
   inside one paragraph. `blockText` reads `textContent`, which drops a `<br>`
@@ -1363,18 +1374,6 @@ S9, O9, and O8.
   reference string for a partial range, and a mobile story that doesn't fight
   the OS text-selection UI. Opus-sized, with design input on where the
   affordance appears.
-
-- [ ] **Decide the light-mode Easter gold on `/apps`.**
-  (Raised 2026-09-22 from liberatingscripture.org's contrast pass, LSC PR #79.)
-  `--season-easter: #B8860B` in `src/styles/pages/apps.css` measures **2.88:1**
-  as the 30px ReaderCallouts title on its own 8% tint over `#FAFAF8`, under the
-  3:1 that large text needs; it is the only season that fails (the other four
-  run 4.38 to 7.75 in both themes, and dark Easter `#D4AF37` is 6.53). Measured
-  candidates: `#9a6f09` 3.92:1 and `#8a6508` 4.59:1. The owner chose to leave it
-  for now, and not to change the app's palette. Two things to weigh when it is
-  picked up: the token's comment claims the value is "accessible as title text
-  on light", which is not true on the tinted card, and `apps.css` is mirrored to
-  LSC byte for byte, so whatever is chosen lands on both sites at once.
 
 ## Completed from TBD
 

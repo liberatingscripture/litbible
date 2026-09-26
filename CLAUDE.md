@@ -456,9 +456,10 @@ their **outermost** block, so a poetry quotation is one part rather than one
 per line, and narrows each part to that verse's spans, so a blockquote holding
 two verses doesn't hand back both. When a verse has more than one part the
 verse menu grows an "Or copy one part" group, one button per part, copying the
-part's text plus the reference plus `#<block-id>`. A blockquote part keeps its
-line breaks (the line structure is part of what is being quoted); prose parts
-join with a space. `partHighlight()` makes those anchors highlight on arrival
+part's text plus the reference plus `#<block-id>`. Text set as lines — a
+blockquote, or a paragraph broken with `<br>` — keeps its line breaks (for
+poetry the line structure is part of what is being quoted); prose parts join
+with a space. `partHighlight()` makes those anchors highlight on arrival
 the way `#v16` does, rather than merely scrolling.
 
 Parts are offered for a single verse only — a range already spans blocks by
@@ -496,10 +497,14 @@ rules:
    hand.
 
 A `<br>` inside a `<p>` is the older way of setting lines and survives only
-where the lines are not a quotation. It is worse than `hbq` for more than
-looks: `blockText` in `chapter-tools.js` reads `textContent`, which drops a
-`<br>` with no separator, so Copy verse welds the two lines into one word.
-See FIXLIST.
+where the lines are not a quotation (2 Corinthians 6:2 is the one published
+case). Copy verse still shares it as lines: `blockText` in `chapter-tools.js`
+turns each `<br>` into a marker that `cleanForShare` makes a newline, because
+`textContent` alone drops a `<br>` with no separator and welded the two lines
+into one word until 2026-09. The marker is not `\n` itself, so incidental
+source whitespace can never turn into a line break. `isSetAsLines` gives such
+a paragraph the same newline boundaries as poetry, and is kept apart from
+`isPoetry` because only `hbq` claims the lines are quoted.
 
 **Merging or removing a block retires its id rather than renumbering the
 blocks after it** (`matthew-20` runs p1 then p8 from an earlier merge). Block
