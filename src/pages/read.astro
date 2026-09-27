@@ -3,12 +3,50 @@
 import ReadLayout from "../layouts/ReadLayout.astro";
 import "../styles/pages/read.css";
 import releaseNotes from "../data/release-notes.json";
+import { BOOK_ORDER, bookKeyToLabel } from "../data/books.js";
+import { scanDraftChapters } from "../lib/draft-chapters.mjs";
 
 const title = "Read | Liberation and Inclusion Translation";
 const description =
   "Read the Liberation and Inclusion Translation (LIT) online.";
 
 const recentNotes = releaseNotes.slice(0, 3);
+
+// The lede names what isn't finished yet. It comes from the chapters' own
+// indexed:false flags, so it stays true as drafts land: the hand-written
+// "part of Luke" had come to mean exactly Luke 23–24. Whole books first,
+// then partly drafted ones with their chapters, each in canonical order.
+const { draftChaptersByBook, fullyDraftBooks } = scanDraftChapters();
+
+/** [20, 23, 24] → "20, 23–24" */
+function chapterRuns(chapters: number[]): string {
+  const runs: string[] = [];
+  let start = chapters[0];
+  let prev = start;
+  for (const n of [...chapters.slice(1), Number.NaN]) {
+    if (n === prev + 1) {
+      prev = n;
+      continue;
+    }
+    runs.push(start === prev ? String(start) : `${start}–${prev}`);
+    start = n;
+    prev = n;
+  }
+  return runs.join(", ");
+}
+
+const unfinished = [
+  ...BOOK_ORDER.filter((k) => fullyDraftBooks.has(k)).map((k) => bookKeyToLabel(k)),
+  ...BOOK_ORDER.filter(
+    (k) => !fullyDraftBooks.has(k) && draftChaptersByBook[k]?.length,
+  ).map((k) => `${bookKeyToLabel(k)} ${chapterRuns(draftChaptersByBook[k])}`),
+].map((label) => `<strong>${label}</strong>`);
+
+const unfinishedList =
+  unfinished.length > 2
+    ? `${unfinished.slice(0, -1).join(", ")}, and ${unfinished.at(-1)}`
+    : unfinished.join(" and ");
+const exceptHtml = unfinished.length ? ` (all except ${unfinishedList})` : "";
 
 const TYPE_LABEL: Record<string, string> = {
   chapter_added: "Added",
@@ -47,12 +85,11 @@ const TYPE_LABEL: Record<string, string> = {
     <h1 class="read-title">Read the LIT Online</h1>
 
     <p class="read-lede">
-      I've got solid drafts of most of the New Testament (all except
-      <strong>Acts</strong>, <strong>Revelation</strong>, and part of <strong
-        >Luke</strong
-      >) ready for you to study, scrutinize, celebrate, and use in your faith
-      circles. This is a living project, so check back over time for the latest
-      version. Questions, comments, or insights?
+      I've got solid drafts of {unfinished.length ? "most of " : ""}the New
+      Testament<Fragment set:html={exceptHtml} /> ready for you to study,
+      scrutinize, celebrate, and use in your faith circles. This is a living
+      project, so check back over time for the latest version. Questions,
+      comments, or insights?
       <a href="/contact" style="white-space:nowrap">Drop me a line</a>.
     </p>
 
