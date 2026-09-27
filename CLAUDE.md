@@ -1215,7 +1215,8 @@ collection); they're read directly by the intro pages and the API manifest.
   `global.css` and mirrored in a few page stylesheets (`apps.css`,
   `found-in-translation-podcast.css`, `translation-commitments.css`) and
   `ReadMenu.astro`. The header "Aa" tray (`SiteHeader.astro`, heading
-  **"Display"**) holds the Theme half: a 3-state control
+  **"Display"**, the one panel for every reader setting; see the next two
+  bullets) holds Theme: a 3-state control
   (**System / Light / Dark**) persisted in `localStorage['lit-theme']`
   (`light`/`dark`; **key absent = System**). `Layout.astro` stamps `data-theme`
   on `<html>` in a pre-paint `is:inline` script (beside the font one) and
@@ -1228,7 +1229,7 @@ collection); they're read directly by the intro pages and the API manifest.
   the `/apps` components do), so the scoper leaves `:root` alone. The bare
   media query is the common slip: three components shipped with it, which gave a
   reader who forces light on a dark OS the dark values under light-mode colours.
-- **The reader font is the Display tray's other half, and works the same way.**
+- **The reader font is a Display tray setting too, and works the same way.**
   A 3-state radio list (**Default / Atkinson Hyperlegible / OpenDyslexic**,
   each option set in the font it selects so the list previews itself) writes
   `data-font` on `<html>` (`dyslexic` | `atkinson`; **attribute absent =
@@ -1272,6 +1273,47 @@ collection); they're read directly by the intro pages and the API manifest.
      Fix by giving the word room, not by breaking it: `overflow-wrap` and
      hyphenation split words, which is the opposite of what dyslexic readers
      need.
+- **Text size, line spacing, verse numbers and footnote letters are the rest
+  of the Display tray**, and follow the font's pattern exactly: an attribute
+  on `<html>` stamped before first paint by `Layout.astro`, absent for the
+  default, mirrored to one `localStorage` key each (`data-size` sm | lg | xl
+  in `lit-size`; `data-leading` roomy in `lit-leading`; `data-vn` off in
+  `lit-verse-numbers`; `data-fn` off in `lit-fn-letters`). There is **one
+  panel**: Reading View's toolbar "Aa" opens this same tray (it's a
+  `data-font-toggle`, like the header's two), which opens upward when there
+  is no room below. Five rules:
+  1. **They apply to the reading surfaces only**: Study View's column, book
+     intros, Reading View, and article bodies. Each surface multiplies its own
+     default by `--reading-scale` (16 / 18 / 20 / 23px at the 18px body size)
+     and adds `--reading-leading-extra` to its own line-height, so Medium and
+     Normal change nothing. The rest of the site is left to browser zoom.
+  2. **Size goes on the same element as the column's width**, so the width
+     (in `--ch`, an em fraction) grows with the text and a line keeps its
+     length in characters. Putting the size on the paragraphs instead would
+     shorten the line at every step up. The article page is the one
+     exception: its width is on the card and its size on the body inside, so
+     `--article-width` multiplies by `--reading-scale` itself.
+  3. **Reading View used to keep its own three settings** (`lit_rm_fontSize`,
+     `lit_rm_lineHeight`, `lit_rm_markers`). The pre-paint script still reads
+     them as fallbacks and the tray deletes each on change, the same
+     arrangement as `dyslexic-font`. Don't drop the fallbacks. Focus mode
+     stayed in Reading View's toolbar (`lit_rm_focus`).
+  4. **A hidden verse number or footnote letter in Study View is still a
+     control and a scroll target** (the verse menu's button, `#v16`, a
+     footnote's backlink), so it is clipped rather than removed, stays in the
+     tab order, and reappears while it has keyboard focus. The no-break space
+     after a number is wrapped in `.vn-gap` at render (`markVerseGap` in
+     `chapter-html.ts`) so it can hide too; left alone it doubles the gap
+     before every verse. Reading View is different: its numbers are not
+     controls, and turning them off also hides the chapter headings, as its
+     own button always did (hence "Verse and chapter numbers" there).
+  5. **Scripture pages pass `scriptureControls`** down through the layouts:
+     `"study"` from a chapter page with text, `"read"` from `/read/<book>`
+     (numbers only, since Reading View prints no footnote letters). Other
+     pages don't show the "Show" group at all.
+  Changing any of these reflows the page, so the tray pins the block at the
+  reading line and scrolls it back (`keepReadingPlace`), and lets that one
+  scroll through without closing itself.
 - **Text columns are sized with `--ch`, never the `ch` unit.** `ch` is the "0"
   advance of *whichever font is currently painting*, so every column here was one
   width under the metric-matched fallback face and another once the webfont
@@ -1284,8 +1326,23 @@ collection); they're read directly by the intro pages and the API manifest.
   re-declared under `html[data-font="dyslexic"]` and `[data-font="atkinson"]`;
   because `Layout.astro` stamps `data-font` **before first paint**, the width is
   settled from the first frame and no font swap can move it. Write
-  `calc(72 * var(--ch))` (still reads as "72 characters"), or `--content-width`
-  for the shared reading measure. Two things to know before touching it:
+  `calc(72 * var(--ch))` (still reads as "72 characters"). Two shared widths
+  are built from it: **`--reading-width`** (`--reading-measure` × `--ch`) for
+  long-form reading (Study View, intros, Reading View, article bodies), which
+  is the text column itself, so a surface with side padding adds it on top
+  (otherwise the same setting gives each view a different line). The measure
+  is **60** (owner, 2026-09-27), picked from side-by-side screenshots: about 77
+  characters a line in Inter and 85 in Atkinson, where the old 72 gave 92 and
+  102. The article card is sized from it as well (`--article-width` on the
+  article page), so the card's edges follow the text instead of leaving an
+  empty band beside it. The other width is
+  **`--content-width`** (72 × `--ch`) for the pages around it (/read, /search,
+  About, courses, commitments), which are not long-form reading and kept their
+  width when the reading measure narrowed. **Change `--reading-measure`, never
+  `--ch`, to move the reading line.** Both tokens are declared on `:root` and
+  resolve their em against the element that uses them, so size a column where
+  its text size is set (see the Display tray rules above). Two things to know
+  before touching `--ch`:
   1. The values are **body/sans figures**. Inter's "0" is 0.631em, Crimson's
      0.504em, so a column set in the serif needs its own number, not this token.
   2. `--ch` is per-font rather than one constant because the accessibility fonts
@@ -1312,7 +1369,7 @@ collection); they're read directly by the intro pages and the API manifest.
   4.97:1 on cream, 6.34:1 on `#FAFAF8`, and ~7–8:1 in dark (`#3abf6a`).
   Translucent rings (`rgba(32, 157, 80, 0.35)`) fail worse still, 1.4–2.0:1;
   fourteen of them were routed through the token in 2026-09. The rings that use `--text` on
-  purpose (the Display tray's font and theme options) stay as they are. Don't
+  purpose (the Display tray's options, whose selected segments are green) stay as they are. Don't
   kill a ring with `outline: none` on `:focus-visible` either: `/support`,
   `/liberating-scripture-collective`, the about TOC, and the launch popover's
   close button all did, which left keyboard users a 1px lift or nothing at all.
