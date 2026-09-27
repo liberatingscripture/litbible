@@ -1,8 +1,9 @@
 ---
 import ScriptureLayout from "../layouts/ScriptureLayout.astro";
-import { BOOKS as books, BOOK_ORDER, bookKeyToLabel } from "../data/books.js";
+import { BOOKS as books, bookKeyToLabel } from "../data/books.js";
 import { prepareStudyParagraph } from "../lib/chapter-html";
 import { linkRefs } from "../lib/scripture-refs-data.mjs";
+import ChapterCtas from "../components/ChapterCtas.astro";
 
 type Footnote = {
   id: string; // e.g. "fn-a"
@@ -126,56 +127,6 @@ const footnotes = (Array.isArray(chapterData?.footnotes)
   : []
 ).map((fn) => ({ ...fn, html: linkRefs(fn.html) }));
 
-/* Chapter CTAs (below text, above footnotes) */
-const chaptersInBook =
-  (books as Record<string, number>)[normalizedBookKey] ?? undefined;
-
-// Normalize BOOK_ORDER entries, just in case
-const ORDER = (Array.isArray(BOOK_ORDER) ? BOOK_ORDER : []).map(
-  normalizeBookKey,
-);
-const currentIndex = ORDER.indexOf(normalizedBookKey);
-const nextBookKey =
-  currentIndex >= 0 && currentIndex < ORDER.length - 1
-    ? ORDER[currentIndex + 1]
-    : null;
-
-let prevCta: { href: string; label: string } | null = null;
-let nextCta: { href: string; label: string } | null = null;
-
-const n = props.chapter;
-
-// Previous: chapter 1 goes to Intro (owned by /[book]-intro)
-if (n === 1) {
-  prevCta = {
-    href: `/${normalizedBookKey}-intro`,
-    label: `${bookName} Introduction`,
-  };
-} else if (n > 1) {
-  prevCta = {
-    href: `/${normalizedBookKey}-${n - 1}`,
-    label: `${bookName} ${n - 1}`,
-  };
-}
-
-// Next:
-// - Normal chapters: go to next chapter
-// - Final chapter: go to next book intro
-if (typeof chaptersInBook === "number" && n < chaptersInBook) {
-  nextCta = {
-    href: `/${normalizedBookKey}-${n + 1}`,
-    label: `${bookName} ${n + 1}`,
-  };
-} else if (
-  typeof chaptersInBook === "number" &&
-  n === chaptersInBook &&
-  nextBookKey
-) {
-  nextCta = {
-    href: `/${nextBookKey}-intro`,
-    label: `${bookKeyToLabel(nextBookKey)} Intro`,
-  };
-}
 ---
 
 <ScriptureLayout
@@ -265,29 +216,7 @@ if (typeof chaptersInBook === "number" && n < chaptersInBook) {
             </div>
 
             {/* Chapter CTAs (below scripture text, above footnotes) */}
-            {prevCta || nextCta ? (
-              <nav class="chapter-ctas" aria-label="Chapter navigation">
-                {prevCta ? (
-                  <a
-                    class="chapter-cta chapter-cta--prev"
-                    href={prevCta.href}
-                    aria-label={`Go to ${prevCta.label}`}
-                  >
-                    {prevCta.label}
-                  </a>
-                ) : null}
-
-                {nextCta ? (
-                  <a
-                    class="chapter-cta chapter-cta--next"
-                    href={nextCta.href}
-                    aria-label={`Go to ${nextCta.label}`}
-                  >
-                    {nextCta.label}
-                  </a>
-                ) : null}
-              </nav>
-            ) : null}
+            <ChapterCtas bookKey={normalizedBookKey} chapter={props.chapter} />
 
             {/* Footnotes: shown to readers, excluded from search indexing */}
             {footnotes.length ? (

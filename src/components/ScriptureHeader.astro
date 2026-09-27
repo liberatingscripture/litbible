@@ -1,5 +1,6 @@
 ---
-import { BOOKS, bookKeyToLabel } from "../data/books.js";
+import { bookKeyToLabel } from "../data/books.js";
+import { navFor } from "../lib/chapter-nav-data.mjs";
 
 /**
  * Props are OPTIONAL so <ScriptureHeader /> is valid anywhere.
@@ -9,7 +10,6 @@ export type Props = {
   kind?: "intro" | "chapter";
   bookKey?: string;
   chapter?: number;
-  chaptersInBook?: number;
 };
 
 const props = Astro.props as Props;
@@ -64,70 +64,22 @@ if (kind === "chapter") {
 
 const bookName = bookKey ? bookKeyToLabel(bookKey) : "";
 
-// Map + order
-const BOOKS_MAP = (BOOKS ?? {}) as Record<string, number>;
-const BOOK_ORDER = Object.keys(BOOKS_MAP).map(normalizeBookKey);
-
-const currentIndex = bookKey ? BOOK_ORDER.indexOf(bookKey) : -1;
-const prevBookKey = currentIndex > 0 ? BOOK_ORDER[currentIndex - 1] : null;
-const nextBookKey =
-  currentIndex >= 0 && currentIndex < BOOK_ORDER.length - 1
-    ? BOOK_ORDER[currentIndex + 1]
-    : null;
-
-const prevBookLastChapter =
-  prevBookKey && typeof BOOKS_MAP[prevBookKey] === "number"
-    ? BOOKS_MAP[prevBookKey]
-    : null;
-
-// Chapters in current book
-const chaptersInBook =
-  props.chaptersInBook ?? (bookKey ? BOOKS_MAP[bookKey] : undefined);
-
-let headingText = "";
-let prevHref: string | null = null;
-let nextHref: string | null = null;
+// Previous/Next come from the one shared rule, which steps over draft pages
+// (src/lib/chapter-nav.mjs), so these buttons, the bottom-of-page ones and a
+// draft page's links always agree.
+const nav = bookKey ? navFor(bookKey, kind === "intro" ? "intro" : (chapter ?? 1)) : null;
+const prevHref = nav?.prev?.href ?? null;
+const nextHref = nav?.next?.href ?? null;
 // Where each button goes, for its accessible name ("Previous: John 2"), so a
 // screen reader hears the destination the bottom-of-page links already name.
-let prevLabel = "";
-let nextLabel = "";
+const prevLabel = nav?.prev?.label ?? "";
+const nextLabel = nav?.next?.label ?? "";
 
-if (!bookKey) {
-  headingText = "Scripture";
-  prevHref = null;
-  nextHref = null;
-} else if (kind === "intro") {
-  headingText = `${bookName} — Introduction`;
-
-  // Intro previous -> previous book final chapter
-  prevHref =
-    prevBookKey && prevBookLastChapter
-      ? `/${prevBookKey}-${prevBookLastChapter}`
-      : null;
-  if (prevBookKey && prevBookLastChapter) {
-    prevLabel = `${bookKeyToLabel(prevBookKey)} ${prevBookLastChapter}`;
-  }
-
-  // Intro next -> chapter 1 of current book
-  nextHref = `/${bookKey}-1`;
-  nextLabel = `${bookName} 1`;
-} else {
-  const n = chapter ?? 1;
-  headingText = `${bookName} ${n}`;
-
-  // Chapter previous: chapter 1 -> intro
-  prevHref = n > 1 ? `/${bookKey}-${n - 1}` : `/${bookKey}-intro`;
-  prevLabel = n > 1 ? `${bookName} ${n - 1}` : `${bookName} introduction`;
-
-  // Chapter next: last chapter -> next book intro (don’t skip intros)
-  if (typeof chaptersInBook === "number" && n >= chaptersInBook) {
-    nextHref = nextBookKey ? `/${nextBookKey}-intro` : null;
-    if (nextBookKey) nextLabel = `${bookKeyToLabel(nextBookKey)} introduction`;
-  } else {
-    nextHref = `/${bookKey}-${n + 1}`;
-    nextLabel = `${bookName} ${n + 1}`;
-  }
-}
+const headingText = !bookKey
+  ? "Scripture"
+  : kind === "intro"
+    ? `${bookName} — Introduction`
+    : `${bookName} ${chapter ?? 1}`;
 ---
 
 <header class="scripture-header">

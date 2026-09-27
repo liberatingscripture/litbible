@@ -5,6 +5,7 @@ import "../styles/pages/read.css";
 import releaseNotes from "../data/release-notes.json";
 import { BOOK_ORDER, bookKeyToLabel } from "../data/books.js";
 import { scanDraftChapters } from "../lib/draft-chapters.mjs";
+import { chapterRuns } from "../lib/chapter-nav.mjs";
 import { releaseNoteLinker } from "../lib/release-note-linker";
 
 const title = "Read | Liberation and Inclusion Translation";
@@ -19,23 +20,6 @@ const linkDescription = await releaseNoteLinker();
 // "part of Luke" had come to mean exactly Luke 23–24. Whole books first,
 // then partly drafted ones with their chapters, each in canonical order.
 const { draftChaptersByBook, fullyDraftBooks } = scanDraftChapters();
-
-/** [20, 23, 24] → "20, 23–24" */
-function chapterRuns(chapters: number[]): string {
-  const runs: string[] = [];
-  let start = chapters[0];
-  let prev = start;
-  for (const n of [...chapters.slice(1), Number.NaN]) {
-    if (n === prev + 1) {
-      prev = n;
-      continue;
-    }
-    runs.push(start === prev ? String(start) : `${start}–${prev}`);
-    start = n;
-    prev = n;
-  }
-  return runs.join(", ");
-}
 
 const unfinished = [
   ...BOOK_ORDER.filter((k) => fullyDraftBooks.has(k)).map((k) => bookKeyToLabel(k)),

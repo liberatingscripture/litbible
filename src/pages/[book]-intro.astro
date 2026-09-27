@@ -1,7 +1,8 @@
 ---
 import ScriptureLayout from "../layouts/ScriptureLayout.astro";
-import { BOOKS, BOOK_ORDER, bookKeyToLabel } from "../data/books.js";
+import { BOOK_ORDER, bookKeyToLabel } from "../data/books.js";
 import { linkRefs } from "../lib/scripture-refs-data.mjs";
+import ChapterCtas from "../components/ChapterCtas.astro";
 
 // Load intro markdown files eagerly (so we can render immediately)
 type IntroMod = {
@@ -44,28 +45,6 @@ const topics = Array.isArray(introMod?.frontmatter?.topics)
 const title = `${bookName} — Introduction | Liberation and Inclusion Translation`;
 const description = `Introduction to ${bookName} in the Liberation and Inclusion Translation (LIT).`;
 
-// ---- compute “previous book’s final chapter” for the left CTA ----
-const BOOKS_MAP = BOOKS as Record<string, number>;
-
-const currentIndex = BOOK_ORDER.indexOf(bookKey);
-const prevBookKey = currentIndex > 0 ? BOOK_ORDER[currentIndex - 1] : null;
-
-const prevBookLastChapter =
-  prevBookKey && typeof BOOKS_MAP[prevBookKey] === "number"
-    ? BOOKS_MAP[prevBookKey]
-    : null;
-
-const prevCtaHref =
-  prevBookKey && prevBookLastChapter
-    ? `/${prevBookKey}-${prevBookLastChapter}`
-    : "/read";
-
-const prevCtaLabel = prevBookKey
-  ? `${bookKeyToLabel(prevBookKey)} ${prevBookLastChapter ?? ""}`.trim()
-  : "Read";
-
-// Next (intro always goes to chapter 1 of the current book)
-const nextCtaHref = `/${bookKey}-1`;
 ---
 
 <ScriptureLayout
@@ -111,23 +90,7 @@ const nextCtaHref = `/${bookKey}-1`;
       }
     </section>
 
-    <nav class="chapter-ctas" aria-label="Chapter navigation">
-      <a
-        class="chapter-cta chapter-cta--prev"
-        href={prevCtaHref}
-        aria-label={`Go to ${prevCtaLabel}`}
-      >
-        {prevCtaLabel}
-      </a>
-
-      <a
-        class="chapter-cta chapter-cta--next"
-        href={nextCtaHref}
-        aria-label={`Go to ${bookName} 1`}
-      >
-        {bookName} 1
-      </a>
-    </nav>
+    <ChapterCtas bookKey={bookKey} chapter="intro" />
   </article>
 
   <style>
