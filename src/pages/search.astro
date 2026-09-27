@@ -51,6 +51,9 @@ const description = "Search the Liberation & Inclusion Translation (LIT).";
 
       <div class="search-meta__status">
         <div id="search-status" aria-live="polite"></div>
+        <!-- Jump links to each result group, filled by search.js -->
+        <nav class="search-jumps" id="search-jumps" aria-label="Result groups" hidden>
+        </nav>
       </div>
 
       <div class="search-active-filters" id="search-active-filters" hidden>
@@ -60,27 +63,27 @@ const description = "Search the Liberation & Inclusion Translation (LIT).";
       <div class="search-ref" id="search-ref" data-search-ref hidden></div>
     </div>
 
-    <div class="group" id="group-glossary" hidden>
+    <div class="group" id="group-glossary" tabindex="-1" hidden>
       <div class="group-title">Glossary matches</div>
       <ol class="results" id="results-glossary"></ol>
     </div>
 
-    <div class="group" id="group-subject" hidden>
+    <div class="group" id="group-subject" tabindex="-1" hidden>
       <div class="group-title">Topic matches</div>
       <ol class="results" id="results-subject"></ol>
     </div>
 
-    <div class="group" id="group-intros" hidden>
+    <div class="group" id="group-intros" tabindex="-1" hidden>
       <div class="group-title">Book introductions</div>
       <ol class="results" id="results-intros"></ol>
     </div>
 
-    <div class="group" id="group-articles" hidden>
+    <div class="group" id="group-articles" tabindex="-1" hidden>
       <div class="group-title">Article matches</div>
       <ol class="results" id="results-articles"></ol>
     </div>
 
-    <div class="group" id="group-keyword" hidden>
+    <div class="group" id="group-keyword" tabindex="-1" hidden>
       <div class="group-title">Keyword matches</div>
       <ol class="results" id="results-keyword"></ol>
 
@@ -136,6 +139,39 @@ const description = "Search the Liberation & Inclusion Translation (LIT).";
   .search-meta__status {
     text-align: center;
     margin-top: 6px;
+  }
+
+  /* Jump links to the result groups, on one line under the count. The list
+     is built by search.js, hence :global. The separators are decoration, so
+     their alt text is empty, and each trails its item so a line that wraps
+     on a phone doesn't open with one. */
+  .search-jumps :global(ul) {
+    list-style: none;
+    margin: 6px 0 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    row-gap: 2px;
+  }
+
+  .search-jumps :global(li:not(:last-child)::after) {
+    content: "·";
+    content: "·" / "";
+    padding: 0 0.5em;
+    color: rgba(var(--ink-rgb), 0.5);
+  }
+
+  .search-jumps :global(a) {
+    color: var(--green-text);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .search-jumps :global(a:focus-visible) {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+    border-radius: 4px;
   }
 
   .search-active-filters {
@@ -267,6 +303,8 @@ const description = "Search the Liberation & Inclusion Translation (LIT).";
     max-width: var(--content-width, 72ch);
     margin: 0 auto;
     padding: 0 16px;
+    /* A jump link lands the group's title a little below the top edge. */
+    scroll-margin-top: 12px;
   }
 
   .group + .group {
@@ -316,6 +354,13 @@ const description = "Search the Liberation & Inclusion Translation (LIT).";
     margin: 0 0 6px;
     line-height: 1.25;
     color: var(--text-strong);
+  }
+
+  /* "Matthew 18 · debt forgiveness": the matched topic labels after a
+     chapter's title, in the excerpt's weight and colour. */
+  .search-page :global(.result-topics) {
+    font-weight: 400;
+    color: rgba(var(--ink-rgb), 0.78);
   }
 
   .search-page :global(.result-excerpt) {
