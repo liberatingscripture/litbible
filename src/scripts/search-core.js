@@ -10,7 +10,7 @@
 // labelled and linked), it lives here. Page-specific rendering stays in the
 // respective entry scripts.
 
-import { BOOK_ORDER, bookKeyToLabel } from "../data/books.js";
+import { BOOKS, BOOK_ORDER, bookKeyToLabel } from "../data/books.js";
 
 export { bookKeyToLabel };
 
@@ -207,6 +207,103 @@ export function makeStudyBookHref(bookKey) {
 
 export function makeReadBookHref(bookKey) {
   return `/read/${bookKey}`;
+}
+
+/* ── Mistyped addresses (the 404 page) ──────────────────────────────── */
+
+// The site builds to directory format, so a slashless page path is 308'd.
+// The 404 page links straight to the slashed form to skip that hop.
+function withTrailingSlash(href) {
+  const [path, hash] = href.split("#");
+  return `${path.replace(/\/?$/, "/")}${hash ? `#${hash}` : ""}`;
+}
+
+/**
+ * Turns the words of a URL path into reference text the parser reads:
+ * "john-3-16" → "john 3:16", "1-corinthians-13" → "1 corinthians 13".
+ * Hyphens after a colon stay, since there they mark a verse range.
+ */
+function pathWordsToReference(words) {
+  const [head, tail] = normalizeVerseSeparator(words).split(/:(.*)/);
+  const spaced = head.replace(/[/_+-]+/g, " ").trim();
+  if (tail !== undefined) return `${spaced}:${tail}`;
+  // Two or three trailing numbers are chapter, verse, and range end.
+  return spaced.replace(
+    /(\d+) (\d+)(?: (\d+))?$/,
+    (_, chapter, verse, end) => `${chapter}:${verse}${end ? `-${end}` : ""}`,
+  );
+}
+
+/**
+ * Reads a page address that 404'd the way the search box reads a reference,
+ * so a guessable scripture address still arrives: "/John-3", "/jn-3",
+ * "/1-corinthians-13", "/john-3-16", "/john/3", "/john-3.16",
+ * "/read/1-corinthians".
+ *
+ * Returns { href, label, sure } or null when the address names no book.
+ * `sure` is false when the book is clear but the chapter doesn't exist
+ * ("/john-30"), so the page can ask rather than send the reader somewhere
+ * they didn't mean.
+ */
+export function resolveMistypedPath(pathname) {
+  let path;
+  try {
+    path = decodeURIComponent(String(pathname || ""));
+  } catch {
+    return null;
+  }
+  path = path.toLowerCase().replace(/^\/+|\/+$/g, "");
+  if (!path) return null;
+
+  const readView = /^read\/(.+)$/.exec(path);
+  const words = readView ? readView[1] : path;
+
+  const intro = /^(.+?)[/_+ -]*intro(?:duction)?$/.exec(words);
+  if (intro && !readView) {
+    const book = parseBookOnly(intro[1].replace(/[/_+-]+/g, " "));
+    return book
+      ? {
+          href: withTrailingSlash(makeStudyBookHref(book.bookKey)),
+          label: `${bookKeyToLabel(book.bookKey)} introduction`,
+          sure: true,
+        }
+      : null;
+  }
+
+  const ref = parseReference(pathWordsToReference(words));
+  if (ref) {
+    const label = bookKeyToLabel(ref.bookKey);
+    if (ref.chapter > (BOOKS[ref.bookKey] || 0)) {
+      return {
+        href: withTrailingSlash(
+          readView
+            ? makeReadBookHref(ref.bookKey)
+            : makeStudyBookHref(ref.bookKey),
+        ),
+        label,
+        sure: false,
+      };
+    }
+    return {
+      href: withTrailingSlash(
+        readView ? makeReadReferenceHref(ref) : makeStudyReferenceHref(ref),
+      ),
+      label: formatReferenceLabel(ref),
+      sure: true,
+    };
+  }
+
+  const book = parseBookOnly(words.replace(/[/_+-]+/g, " "));
+  if (!book) return null;
+  return {
+    href: withTrailingSlash(
+      readView
+        ? makeReadBookHref(book.bookKey)
+        : makeStudyBookHref(book.bookKey),
+    ),
+    label: bookKeyToLabel(book.bookKey),
+    sure: true,
+  };
 }
 
 export function referenceJumpLabel(jump) {
