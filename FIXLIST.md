@@ -989,11 +989,18 @@ Details for each item are in the artifact (https://claude.ai/artifact/4ghJK72rd2
   confirm rather than assume) and keep the translation's own name out of
   the index. Q1 already changed the status wording.
 
-- [ ] **Make the release notes usable (U2).**
+- [x] **Make the release notes usable (U2).**
   Link every change (needs F1), show edits as struck old text beside new,
   filter by book and kind of change, collapse older months, and publish a
   feed. `release-notes.json`'s shape is an app contract and does not
   change.
+  DONE (2026-09-27): every change links (PR #216). Each detail now shows the
+  old text struck through beside the new, one line per verse or footnote
+  (409 of 410 details parse; the other shows as written). Months fold, newest
+  open. Each entry has a permalink id, which /read's "What's new" dates use.
+  Book and kind filters keep their choice in the query string. The record is
+  also an RSS feed, `/translation-updates.xml`, advertised in every page's
+  head. `release-notes.json` is unchanged.
 
 - [ ] **Printing and handouts (U5).**
   A print stylesheet (no site chrome, serif text, footnotes as endnotes,
