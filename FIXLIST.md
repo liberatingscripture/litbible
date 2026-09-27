@@ -913,16 +913,28 @@ Details for each item are in the artifact (https://claude.ai/artifact/4ghJK72rd2
   DONE (2026-09-26, PR #214): `SiteHeader.astro` swaps to "LIT Bible" as soon as "Translation"
   would clip, and re-measures after the webfont loads.
 
-- [ ] **Link scripture references outside the verse text (F1).**
-  Footnotes, intros, articles, release notes and glossary bodies print
-  references ("Romans 2:24") as plain text. Add a render-time linker, never a
-  JSON edit: match book names and abbreviations from `src/data/books.js`
-  (reuse `parseReference` in `search-core.js`) and link to
-  `/romans-2#v24` (ranges as `#v9-11`). Link release-note entries from
-  their stored `location`. In glossary bodies, turn `the entry for "X"`
-  into an in-page jump on the website only; the apps' feed must keep that
-  phrase verbatim (see The Glossary Feed in CLAUDE.md). X2 and X14 build on
-  this.
+- [x] **Link scripture references outside the verse text (F1).**
+  DONE (2026-09-27): `src/lib/scripture-refs.mjs` links references in footnotes,
+  intros, article and glossary bodies, and release-note rows when the page
+  renders; none of the data changes. It has its own book table rather than
+  `parseReference`, whose aliases (`re`, `ro`, `mt`) are too loose for prose
+  and which can't find a reference inside running text. Explicit references and
+  their list continuations only; a reference tagged with another translation
+  ("NRSVue", "ESV") stays plain, as BVJ ruled at plan review.
+  - Glossary "the entry for “X”" jumps on the page only, and release-note rows
+    naming an intro, glossary entry or article link by their fixed wording
+    (491 of 492 rows link).
+  - `check:links` now resolves verse ranges, so it checks every generated link.
+  - One content fix: `faithfulness-as-resistance` labelled Hebrews 11:39–40 as
+    "Hebrews 10:39-40" (its link already went to Hebrews 11).
+  - Follow-up, still open below: relative references.
+
+- [ ] **Relative scripture references (F1 follow-up).**
+  "vv. 9–11", "verse 10" and a bare "(1:20–25)" still print as plain text. The
+  linker can't assume the host chapter: `1corinthians-12` fn-hh and
+  `1corinthians-14` fn-c are the same note, and its "vv." means 1 Cor 14 in
+  both. A safe version would bind only to the last explicit reference in the
+  same note, and needs a pass over the 246 "verse(s) N" cases first.
 
 - [ ] **"Continue reading" for returning readers (F2).**
   Keep one last-read record in `localStorage` (book, chapter, verse, view,
@@ -1215,9 +1227,13 @@ need a mockup or a side-by-side the owner looks at before code.
   reviewed alignment data behind the same publishing gate as /glossary. Owner
   decides density and whether it's on by default.
 
-- [ ] **Reference previews (X2).**
-  After F1, show a verse popover (like footnotes) on scripture links in
-  footnotes, intros, articles, release notes and the glossary's lists.
+- [x] **Reference previews (X2).**
+  DONE (2026-09-27): `src/scripts/ref-preview.js`. Hover with a mouse, or tap on
+  a touch screen, to see up to six verses and "Open John 3 →"; a mouse click and
+  the keyboard still follow the link. Text comes from per-chapter files that
+  `build:verses` now writes (`public/search/chapters/`, ~2 KB each), not the
+  280 KB index. The Study View panel code moved to `src/scripts/lit-panel.js`
+  so the preview and the verse menu share one panel.
 
 - [ ] **"Go deeper" after each chapter (X3).**
   A short panel: the podcast episode on the chapter, articles that discuss
@@ -1605,9 +1621,10 @@ Details for each item are in the artifact (https://claude.ai/artifact/4ghJK72rd2
   (Phase 1 also widened the O3 verse-link guard to ranges, part links and
   Reading View verses, which enforces the existing rule.)
 
-- [ ] **/read copy once F1 ships (Q3, second half).**
-  "One chapter at a time with footnotes and cross-references" becomes true
-  only when references link (F1). Reword now, or wait for F1.
+- [x] **/read copy once F1 ships (Q3, second half).**
+  DONE (2026-09-27): no rewording needed. With F1, the references in Study
+  View's footnotes link and preview, so "footnotes and cross-references" is
+  true as written.
 
 - [ ] **Footnote letters outshine verse numbers (V4).**
   Regular weight and slightly smaller? A look decision.
