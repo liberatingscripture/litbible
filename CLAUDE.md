@@ -1536,6 +1536,32 @@ collection); they're read directly by the intro pages and the API manifest.
     how readers heard "Glossary glossary Translation glossary…" and each
     heading's keywords read aloud. Pagefind reads the HTML, not the
     accessibility tree, so hiding them costs the index nothing.
+  - *Pagefind searches metadata, not just body text.* A word in any
+    `data-pagefind-meta` value makes that page a hit even though the span is
+    `data-pagefind-ignore`, so **only put a meta on a page when something
+    reads it, and never boilerplate shared by a whole page type.** That is how
+    every intro matched "inclusion", "translation" and "lit" (a description
+    meta naming the translation, now dropped). Three rules follow from it:
+    1. **`image` is blanked site-wide** by `data-pagefind-meta="image:"` on
+       the footer emblem (`SiteFooter.astro`). Pagefind takes the first
+       `<img>` after the h1 anywhere on the page, which for intros was that
+       emblem ("lit", "logo", "ring" on all of them) and for articles is a
+       file name. No result shows an image. Only the static empty form
+       overrides the capture; `data-pagefind-ignore` on the image and an
+       empty meta element were both tried and don't.
+    2. **Pagefind keeps one value per meta key**, so a list is one
+       comma-separated span (`parseMetaList` splits it). One span per topic
+       kept only the last.
+    3. Text that belongs on the page but repeats across a page type gets
+       `data-pagefind-ignore` at render: the "Takeaways on Liberation and
+       Inclusion" heading ending most intros is stamped in `[book]-intro.astro`,
+       and the intro files keep it plain.
+  - */search opens with jump links* under the count ("117 verses · 47
+    chapters by topic · 24 introductions · …"), verses first because their
+    group sits last. They scroll and focus the group in script rather than
+    following the hash, since a fragment navigation fires `popstate`, which
+    re-renders the results. A topic card names the topics that matched it
+    when they differ from the query (a loose one-word match).
 - **Scripture references link at render, never in the data.** Footnotes
   (Study View), book intros, article bodies, glossary bodies, and release-note
   descriptions are passed through `linkScriptureRefs` (`src/lib/scripture-refs.mjs`,

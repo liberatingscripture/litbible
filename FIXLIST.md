@@ -980,7 +980,7 @@ Details for each item are in the artifact (https://claude.ai/artifact/4ghJK72rd2
   `<br>` by raw text edit, and all three placeholders now match the others.
   The drafter skips edits to draft chapters, so it writes no release-notes row.
 
-- [ ] **Search puts the usual answers last (F7).**
+- [x] **Search puts the usual answers last (F7).**
   Open /search with a one-line summary that doubles as jump links ("117
   verses · 47 chapters by topic · 27 introductions · 2 articles · 1 glossary
   entry"), show the matched topic on topic cards and Pagefind's excerpt on
@@ -988,6 +988,23 @@ Details for each item are in the artifact (https://claude.ai/artifact/4ghJK72rd2
   indexed text causes it (the pf-meta spans are `data-pagefind-ignore`, so
   confirm rather than assume) and keep the translation's own name out of
   the index. Q1 already changed the status wording.
+  DONE (2026-09-27): the count now reads "191 results for “liberation”", and
+  under it a list of jump links names each group that has results, verses
+  first. A topic card names the topics it matched when they aren't the query
+  itself ("Matthew 18 · lost sheep, parable of the lost sheep"), and intro
+  cards show Pagefind's excerpt. The cause was metadata, which Pagefind
+  searches even though the spans are ignored as body text. Four sources, all
+  fixed: every intro's description meta named "the Liberation and Inclusion
+  Translation (LIT)" (dropped, since nothing shows it); the "Takeaways on
+  Liberation and Inclusion" heading ending 24 intros (now
+  `data-pagefind-ignore`); the footer emblem, which Pagefind took as every
+  intro's `image` meta, so "lit", "logo" and "ring" matched them all
+  (`data-pagefind-meta="image:"` on it blanks the key site-wide); and the
+  intros' topics, the same five placeholders in every file, one span per
+  topic so that only "hospitality" survived (joined into one span, and not
+  passed for intros until they're real). Intros matching, before → after:
+  "translation" 27 → 7, "lit" 27 → 3, "inclusion" 27 → 19, "hospitality"
+  24 → 4, "ring" 26 → 0. What remains is the intros' own prose.
 
 - [x] **Make the release notes usable (U2).**
   Link every change (needs F1), show edits as struck old text beside new,
