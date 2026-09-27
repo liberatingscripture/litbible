@@ -2,7 +2,9 @@
 import ScriptureLayout from "../layouts/ScriptureLayout.astro";
 import { BOOK_ORDER, bookKeyToLabel } from "../data/books.js";
 import { linkRefs } from "../lib/scripture-refs-data.mjs";
+import { isDraftIntro } from "../lib/chapter-nav-data.mjs";
 import ChapterCtas from "../components/ChapterCtas.astro";
+import DraftPage from "../components/DraftPage.astro";
 
 // Load intro markdown files eagerly (so we can render immediately)
 type IntroMod = {
@@ -45,6 +47,10 @@ const topics = Array.isArray(introMod?.frontmatter?.topics)
 const title = `${bookName} — Introduction | Liberation and Inclusion Translation`;
 const description = `Introduction to ${bookName} in the Liberation and Inclusion Translation (LIT).`;
 
+// A placeholder intro (acts, luke and revelation in 2026-09) renders the draft
+// page, stays out of search engines, the sitemap and Pagefind, and is stepped
+// over by Previous/Next, the same as an indexed:false chapter.
+const isDraft = isDraftIntro(bookKey);
 ---
 
 <ScriptureLayout
@@ -54,6 +60,7 @@ const description = `Introduction to ${bookName} in the Liberation and Inclusion
   chapter="intro"
   type="intro"
   topics={topics}
+  robotsIndex={!isDraft}
   ogImage={`${Astro.site ? Astro.site.origin : "https://litbible.net"}/og/${bookKey}-intro.png`}
   twitterCard="summary_large_image"
 >
@@ -80,17 +87,21 @@ const description = `Introduction to ${bookName} in the Liberation and Inclusion
          group in both search surfaces — see bucketSearchResults in
          search-core.js — so they can't be confused with scripture results. */
     }
-    <section class="intro">
-      {
-        introHtml ? (
-          <Fragment set:html={introHtml} />
-        ) : (
-          <p>Intro content isn’t written yet for {bookName}.</p>
-        )
-      }
-    </section>
-
-    <ChapterCtas bookKey={bookKey} chapter="intro" />
+    {
+      isDraft ? (
+        <>
+          <DraftPage bookKey={bookKey} kind="intro" />
+          <ChapterCtas bookKey={bookKey} chapter="intro" showSkipped={false} />
+        </>
+      ) : (
+        <>
+          <section class="intro">
+            <Fragment set:html={introHtml} />
+          </section>
+          <ChapterCtas bookKey={bookKey} chapter="intro" />
+        </>
+      )
+    }
   </article>
 
   <style>

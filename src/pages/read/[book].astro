@@ -65,6 +65,7 @@ const chapters = getChapterNumbers(chapterTotal).map((chapter) => {
   const seenVerseIds = new Set<string>();
   return {
     chapter,
+    draft: chapterData?.indexed === false || rawParagraphs.length === 0,
     paragraphs: rawParagraphs.map((html) =>
       prepareReadParagraph(html, bookKey, chapter, seenVerseIds),
     ),
@@ -72,6 +73,21 @@ const chapters = getChapterNumbers(chapterTotal).map((chapter) => {
 });
 
 const chapterNumbers = getChapterNumbers(chapterTotal);
+
+// A run of draft chapters reads as one short notice rather than repeating the
+// placeholder for each (/read/acts used to print the same limerick 28 times).
+// Every chapter keeps its own #ch-N anchor, so ReadMenu's in-page jumps and a
+// saved resume position still land.
+type Section =
+  | { kind: "chapter"; chapter: number; paragraphs: string[] }
+  | { kind: "drafts"; chapters: number[] };
+const sections: Section[] = [];
+for (const c of chapters) {
+  const last = sections.at(-1);
+  if (!c.draft) sections.push({ kind: "chapter", chapter: c.chapter, paragraphs: c.paragraphs });
+  else if (last?.kind === "drafts") last.chapters.push(c.chapter);
+  else sections.push({ kind: "drafts", chapters: [c.chapter] });
+}
 
 // De-index the read-view aggregate when every chapter of the book is a draft
 // ("indexed": false). Mirrors the per-chapter noindex on Study View so a
@@ -295,21 +311,46 @@ const description = `Read ${bookName} in continuous scroll with Reading Mode.`;
 
       <div class="rm-text" data-rm-text>
         {
-          chapters.map(({ chapter, paragraphs }) => (
-            <>
-              <div
-                class="rm-ch-anchor"
-                id={`ch-${chapter}`}
-                data-rm-chapter={chapter}
-                aria-hidden="true"
-              />
-              <h2 class="rm-chapter">Chapter {chapter}</h2>
+          sections.map((section) =>
+            section.kind === "chapter" ? (
+              <>
+                <div
+                  class="rm-ch-anchor"
+                  id={`ch-${section.chapter}`}
+                  data-rm-chapter={section.chapter}
+                  aria-hidden="true"
+                />
+                <h2 class="rm-chapter">Chapter {section.chapter}</h2>
 
-              {paragraphs.map((html) => (
-                <div class="rm-block" set:html={html} />
-              ))}
-            </>
-          ))
+                {section.paragraphs.map((html) => (
+                  <div class="rm-block" set:html={html} />
+                ))}
+              </>
+            ) : (
+              <>
+                {section.chapters.map((chapter) => (
+                  <div
+                    class="rm-ch-anchor"
+                    id={`ch-${chapter}`}
+                    data-rm-chapter={chapter}
+                    data-rm-draft
+                    aria-hidden="true"
+                  />
+                ))}
+                <h2 class="rm-chapter">
+                  {section.chapters.length === 1
+                    ? `Chapter ${section.chapters[0]}`
+                    : `Chapters ${section.chapters[0]}–${section.chapters.at(-1)}`}
+                </h2>
+                <div class="rm-draft-stub">
+                  {section.chapters.length === 1
+                    ? "This chapter is still being translated."
+                    : "These chapters are still being translated."}{" "}
+                  <a href="#footer-newsletter-heading">Get updates by email</a>
+                </div>
+              </>
+            ),
+          )
         }
       </div>
     </article>

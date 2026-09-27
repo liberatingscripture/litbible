@@ -581,6 +581,17 @@ html.rm-tools-open {
   user-select: none;
 }
 
+/* A run of draft chapters is one stub carrying every chapter's anchor, so
+   the stacked zero-height anchors must not pick up the sibling spacing. */
+.rm-page .rm-text > .rm-ch-anchor + .rm-ch-anchor {
+  margin-top: 0;
+}
+
+.rm-page .rm-draft-stub {
+  color: rgba(var(--ink-rgb), 0.75);
+  font-style: italic;
+}
+
 .rm-page .rm-text p {
   line-height: var(--rm-line-height, 1.85);
 }
