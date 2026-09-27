@@ -22,8 +22,10 @@
 // speaker change) can also be shared one PART at a time — see "parts" below.
 
 import { stripBracketMarkers } from "../lib/bracket-markers.mjs";
+import { showPanel, closePanel, currentPanel, setEscapeFallback } from "./lit-panel.js";
 
 function init(container) {
+  setEscapeFallback(clearHashHighlight);
   initVerseHighlight(container);
   initVerseMenu(container);
   initFootnotePopovers(container);
@@ -57,106 +59,6 @@ function verseRanges(container, start, end) {
   return ranges;
 }
 
-/* ── Shared: one floating panel at a time ─────────────────────────────── */
-
-let openPanel = null;
-
-function closePanel() {
-  if (!openPanel) return;
-  const { el, restoreFocus, onClose } = openPanel;
-  openPanel = null;
-  el.remove();
-  if (onClose) onClose();
-  if (restoreFocus && document.contains(restoreFocus)) restoreFocus.focus();
-}
-
-document.addEventListener("click", (e) => {
-  if (openPanel && !openPanel.el.contains(e.target) && e.target !== openPanel.trigger && !openPanel.trigger?.contains?.(e.target)) {
-    closePanel();
-  }
-});
-
-document.addEventListener("keydown", (e) => {
-  if (e.key !== "Escape") return;
-  if (openPanel) closePanel();
-  else clearHashHighlight();
-});
-
-function isSmallScreen() {
-  return window.matchMedia("(max-width: 640px)").matches;
-}
-
-/**
- * Show a panel near an inline trigger element (or as a bottom sheet on
- * small screens). Returns the panel element. The trigger only needs
- * getBoundingClientRect, so a selection can stand in for an element. `place`
- * overrides both layouts: it gets the attached panel and returns its
- * document-relative {left, top}.
- */
-function showPanel(trigger, el, { restoreFocus = null, onClose = null, extra = null, preferAbove = false, place = null } = {}) {
-  closePanel();
-  el.classList.add("lit-panel");
-
-  if (place) {
-    document.body.appendChild(el);
-    const { left, top } = place(el);
-    el.style.left = left + "px";
-    el.style.top = top + "px";
-  } else if (isSmallScreen()) {
-    el.classList.add("lit-panel--sheet");
-    document.body.appendChild(el);
-  } else {
-    document.body.appendChild(el);
-    const rect = trigger.getBoundingClientRect();
-    const panelWidth = Math.min(380, window.innerWidth - 24);
-    el.style.maxWidth = panelWidth + "px";
-    const width = el.offsetWidth;
-    let left = window.scrollX + rect.left + rect.width / 2 - width / 2;
-    left = Math.max(window.scrollX + 12, Math.min(left, window.scrollX + window.innerWidth - width - 12));
-    const height = el.offsetHeight;
-    const fitsAbove = rect.top > height + 16;
-    const fitsBelow = rect.bottom + height + 16 <= window.innerHeight;
-    let top;
-    if (preferAbove ? fitsAbove : !fitsBelow && fitsAbove) {
-      // Above the trigger (the verse menu prefers this so the text that
-      // follows — where the user taps to extend a selection — stays clear)
-      top = window.scrollY + rect.top - height - 8;
-    } else {
-      top = window.scrollY + rect.bottom + 8;
-    }
-    // Final clamp: keep the panel fully inside the viewport even when
-    // neither side has room (e.g. very long footnotes)
-    top = Math.max(
-      window.scrollY + 12,
-      Math.min(top, window.scrollY + window.innerHeight - height - 12)
-    );
-    el.style.left = left + "px";
-    el.style.top = top + "px";
-  }
-
-  // Keep Tab cycling inside the panel while it's open (it's appended to the
-  // end of <body>, so without this Tab would silently leave the dialog).
-  // Escape closes and, for keyboard-opened panels, restores focus.
-  el.addEventListener("keydown", (e) => {
-    if (e.key !== "Tab") return;
-    const focusables = el.querySelectorAll(
-      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-    );
-    if (!focusables.length) return;
-    const first = focusables[0];
-    const last = focusables[focusables.length - 1];
-    if (e.shiftKey && (document.activeElement === first || document.activeElement === el)) {
-      e.preventDefault();
-      last.focus();
-    } else if (!e.shiftKey && document.activeElement === last) {
-      e.preventDefault();
-      first.focus();
-    }
-  });
-
-  openPanel = { el, trigger, restoreFocus, onClose, ...extra };
-  return el;
-}
 
 /* ── 1. Verse-range highlighting (from the URL hash) ──────────────────── */
 
@@ -574,8 +476,8 @@ function handleVerseActivation(container, sup, { viaKeyboard = false } = {}) {
 
   // Menu already open: activating the selection's only verse closes it;
   // activating any other verse number extends the selection to a range.
-  if (openPanel?.kind === "verse") {
-    const { anchorVerse, start, end } = openPanel;
+  if (currentPanel()?.kind === "verse") {
+    const { anchorVerse, start, end } = currentPanel();
     if (start === end && verse === start) {
       closePanel();
       return;
@@ -640,7 +542,7 @@ function initFootnotePopovers(container) {
     e.preventDefault();
     e.stopPropagation();
 
-    if (openPanel && openPanel.trigger === a) {
+    if (currentPanel() && currentPanel().trigger === a) {
       closePanel();
       return;
     }
@@ -692,7 +594,7 @@ function initFootnotePopovers(container) {
       ev.preventDefault();
       // Don't restore focus to the ref — that would scroll back up and
       // fight the navigation to the footnotes section.
-      if (openPanel) openPanel.restoreFocus = null;
+      if (currentPanel()) currentPanel().restoreFocus = null;
       closePanel();
       history.pushState(null, "", "#" + noteId);
       note.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -893,7 +795,7 @@ function openSelectionPanel(share, { touch }) {
   // Once a button is pressed the panel finishes on its own ("Copied ✓", or
   // the share sheet), even though a tap on a phone clears the selection.
   const acting = () => {
-    if (openPanel?.el === panel) openPanel.acting = true;
+    if (currentPanel()?.el === panel) currentPanel().acting = true;
   };
 
   panel.appendChild(
@@ -928,7 +830,7 @@ function initSelectionShare(container) {
       lastPointerType = e.pointerType || "mouse";
       pointerDown = true;
       // A new gesture may select the same words again; let it show the panel.
-      if (!openPanel?.el.contains(e.target)) shownKey = null;
+      if (!currentPanel()?.el.contains(e.target)) shownKey = null;
     },
     true
   );
@@ -946,7 +848,7 @@ function initSelectionShare(container) {
     if (pointerDown && lastPointerType === "mouse") return;
 
     const share = selectionShare(container, document.getSelection());
-    const current = openPanel?.kind === "selection" ? openPanel : null;
+    const current = currentPanel()?.kind === "selection" ? currentPanel() : null;
     if (!share) {
       if (current && !current.acting) closePanel();
       shownKey = null;
