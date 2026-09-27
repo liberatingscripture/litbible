@@ -77,6 +77,47 @@ test("parseReference: reversed range 'john 3:18-16' drops rangeEnd (end must be 
   assert.equal(ref.rangeEnd, null);
 });
 
+// A period (or, with no colon present, a comma) between digits separates
+// chapter from verse. The abbreviation period in "Rom." must keep working in
+// the same query, since the digit rule runs before periods are stripped.
+const REF = (bookKey, chapter, verse = null, rangeEnd = null) => ({
+  bookKey,
+  chapter,
+  verse,
+  rangeEnd,
+});
+for (const [input, expected] of [
+  ["john 3.16", REF("john", 3, 16)],
+  ["jn 3.16", REF("john", 3, 16)],
+  ["John.3.16", REF("john", 3, 16)],
+  ["john 3.16.", REF("john", 3, 16)],
+  ["Rom.8.3", REF("romans", 8, 3)],
+  ["Rom. 8.3", REF("romans", 8, 3)],
+  ["rom. 8.3", REF("romans", 8, 3)],
+  ["Rom. 8.3.", REF("romans", 8, 3)],
+  ["rom 8.28-30", REF("romans", 8, 28, 30)],
+  ["Rom. 8.28-30", REF("romans", 8, 28, 30)],
+  ["1 cor 13.4", REF("1corinthians", 13, 4)],
+  ["1 Cor. 13.4-7", REF("1corinthians", 13, 4, 7)],
+  ["2 Tim. 3.16", REF("2timothy", 3, 16)],
+  ["Rev 1.1", REF("revelation", 1, 1)],
+  ["John 3,16", REF("john", 3, 16)],
+  // Forms that already worked are unchanged.
+  ["rom. 8:28", REF("romans", 8, 28)],
+  ["Rom. 8:3", REF("romans", 8, 3)],
+  ["Rom. 8", REF("romans", 8)],
+  ["1 Cor. 13:4", REF("1corinthians", 13, 4)],
+]) {
+  test(`parseReference: '${input}' uses the period/comma separator rule`, () => {
+    assert.deepEqual(parseReference(input), expected);
+  });
+}
+
+test("parseReference: after a colon, a comma lists verses and is not a separator", () => {
+  // "Rom 8:28, 30" must not become "8:28:30"; it stays unparsed as before.
+  assert.equal(parseReference("Rom 8:28, 30"), null);
+});
+
 test("parseBookOnly: 'Romans' resolves the plain book name", () => {
   assert.deepEqual(parseBookOnly("Romans"), { bookKey: "romans" });
 });
