@@ -409,6 +409,47 @@ test("intro added and updated both use type intro_updated; attribute-only markdo
   );
 });
 
+test("intro: a frontmatter-only edit is metadata and emits nothing; a body edit still does", () => {
+  const IN = "src/data/intros/romans-intro.md";
+  const doc = (topics, body) =>
+    `---\ndescription: "Introduction to Romans in the LIT Bible."\ntopics:\n${topics
+      .map((t) => `  - ${t}`)
+      .join("\n")}\n---\n\n${body}\n`;
+  // Replacing the placeholder topics (2026-09) touched only the frontmatter.
+  assert.deepEqual(
+    run(
+      { [IN]: doc(["liberation", "empire"], "The letter to the Romans.") },
+      { [IN]: doc(["Pauline epistles", "justification"], "The letter to the Romans.") },
+      { modified: [IN] },
+    ),
+    [],
+  );
+  // CRLF frontmatter is still recognized as frontmatter.
+  assert.deepEqual(
+    run(
+      { [IN]: doc(["liberation"], "Body.").replace(/\n/g, "\r\n") },
+      { [IN]: doc(["grace"], "Body.") },
+      { modified: [IN] },
+    ),
+    [],
+  );
+  // The same file with a body change reports it, frontmatter edit or not.
+  assert.deepEqual(
+    run(
+      { [IN]: doc(["liberation"], "The letter to the Romans.") },
+      { [IN]: doc(["grace"], "The letter to the Romans, revised.") },
+      { modified: [IN] },
+    ),
+    [{ type: "intro_updated", description: "Romans Introduction updated" }],
+  );
+  // An intro that gains frontmatter around an unchanged body (a placeholder
+  // intro has none today) is not a text change either.
+  assert.deepEqual(
+    run({ [IN]: "<h2>In progress.</h2>\n" }, { [IN]: doc(["grace"], "<h2>In progress.</h2>") }, { modified: [IN] }),
+    [],
+  );
+});
+
 test("glossary: traditional frontmatter parsed quoted and unquoted; attribute-only edit emits nothing", () => {
   const GQ = "src/content/glossary/good-tov.md";
   const GU = "src/content/glossary/angel-messenger.md";
