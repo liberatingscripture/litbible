@@ -564,7 +564,7 @@ const menuData = {
                             >
                               {form.refs.map((ref) => (
                                 <li>
-                                  <a href={`/${ref.bookKey}-${ref.chapter}#v${ref.verse}`}>
+                                  <a class="sref" href={`/${ref.bookKey}-${ref.chapter}/#v${ref.verse}`}>
                                     {bookKeyToLabel(ref.bookKey)} {ref.chapter}:{ref.verse}
                                   </a>
                                 </li>
@@ -949,4 +949,8 @@ const menuData = {
       </div>
     </section>
   </div>
+  {/* Scripture reference previews (progressive enhancement) */}
+  <script>
+    import "../scripts/ref-preview.js";
+  </script>
 </Layout>
