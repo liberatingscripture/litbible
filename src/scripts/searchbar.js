@@ -638,7 +638,12 @@ const _initSearchbars = async () => {
 
           const sCount = subjectFromIndex.length;
 
-          status.textContent = `${sCount} topic match${sCount === 1 ? "" : "es"}`;
+          // A recognized reference shows its jump row; zero counts under it
+          // read as a failed search, so they are left out.
+          status.textContent =
+            hasJump && !sCount
+              ? ""
+              : `${sCount} topic match${sCount === 1 ? "" : "es"}`;
 
           renderGroups({
             glossary: [],
@@ -758,16 +763,18 @@ const _initSearchbars = async () => {
         const showI = activeMode === "all" || activeMode === "intro";
         const showK = activeMode === "all" || activeMode === "keyword";
 
+        // With a jump row showing, a zero count reads as a failed search, so
+        // only the kinds that matched are listed.
         const parts = [];
         if (showG && gCount)
           parts.push(`${gCount} glossary match${gCount === 1 ? "" : "es"}`);
-        if (showS)
+        if (showS && (sCount || !hasJump))
           parts.push(`${sCount} topic match${sCount === 1 ? "" : "es"}`);
         if (showI && iCount)
           parts.push(`${iCount} book intro match${iCount === 1 ? "" : "es"}`);
         if (showA && aCount)
           parts.push(`${aCount} article match${aCount === 1 ? "" : "es"}`);
-        if (showK)
+        if (showK && (kCount || !hasJump))
           parts.push(
             `${kCount} keyword match${kCount === 1 ? "" : "es"}` +
               (verseCorrection ? ` for “${verseCorrection}”` : ""),
@@ -789,7 +796,7 @@ const _initSearchbars = async () => {
           (showA ? aCount : 0) +
           (showI ? iCount : 0) +
           (showK ? kCount : 0);
-        if (totalCount === 0) {
+        if (totalCount === 0 && !hasJump) {
           if (qPhrase && qPhrase.includes(" ")) {
             const words = qPhrase
               .split(/\s+/)
