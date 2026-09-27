@@ -197,7 +197,8 @@ src/
                      #   render-time reference linker and its fs shell),
                      #   glossary-crossrefs.mjs, release-note-links.mjs +
                      #   release-note-linker.ts (see "Scripture references link
-                     #   at render" below)
+                     #   at render" below), release-notes-view.mjs (how
+                     #   /release-notes and its RSS feed present the JSON)
   pages/             # File-based routes (see Routing below)
   scripts/           # CLIENT-side vanilla JS (chapter-tools, read-mode,
                      #   search-core + searchbar + search — see Search below;
@@ -277,7 +278,7 @@ workers/             # Cloudflare Workers, deployed separately via wrangler (NOT
 | `/articles`, `/articles/<slug>` | `articles.astro`, `articles/[...slug].astro` | Articles |
 | `/glossary` | `glossary.astro` | Glossary |
 | `/search` | `search.astro` | Full search UI (verse index + Pagefind) |
-| `/release-notes` | `release-notes.astro` | "What's new" |
+| `/release-notes` | `release-notes.astro` | "What's new": the release notes by month, filterable by book and kind of change. `/translation-updates.xml` (`translation-updates.xml.js`) is the same record as RSS. See "Release notes are automated" below |
 | `/apps` | `apps.astro` | Mobile-apps promo page (footer-linked). Body design ported from `BDRhodes/LIT-app-Promo`; section content lives in the `callouts`/`examples`/`seasons` collections; scoped styles in `src/styles/pages/apps.css`; components under `src/components/apps/`. Uses `bg="white"` (near-white surface). |
 | `/app-support` | `app-support.astro` | App support contact form (linked from inside the apps, not the site nav; `/app-support/thanks` is the native-POST fallback success page) |
 | `/found-in-translation-podcast` | `found-in-translation-podcast.astro` | Podcast page (`/podcast` redirects here). The "All Episodes" list is RSS-driven off the `fetch:podcast` snapshot + `podcastOverrides.json`. Above it, the **"Latest Episodes" Spotify and YouTube iframes are hand-pinned** and nothing in the build refreshes them; both are deliberately **show-level, not episode-level**, so they don't go stale on their own — Spotify frames the show, and YouTube frames the channel's curated *"Found in Translation"* playlist (`videoseries?list=PLZJ2_…`), which the show owner keeps current. **The Apple one is the exception, and is derived at build time** (`latestAppleEmbedUrl`) from the newest episode carrying an Apple link: Apple retired the episode-list layout its show embed used to have, leaving a single card whose only play button is the show's *Trailer*, so a show-level Apple embed now advertises a 2021 teaser under a heading that says "Latest Episodes." No height or parameter brings the list back. Deriving the URL rather than pinning an episode keeps the anti-staleness property the other two get from being show-level. It falls back to the show embed (a taller card, hence the two heights) when no episode has an Apple link yet. **Both are capped at 660px**, Apple's own figure: neither card grows past it, so a wider frame shows a dead band down the right — which is what the previous 900px cap did. **The three embeds are deliberately three different shapes, measured off the rendered players, and must not be given one shared height again** (that is what cropped the video): Apple's episode row is a flat 160px at any width, Apple's show card and the YouTube frame are 16:9, and Spotify is 152px — its scrubber, skip controls and running time only appear below ~250px, so the taller layout shows *less*, not more. **Don't re-pin the YouTube one to a single video or a per-book playlist** — that's what silently went stale before (it sat on the app-launch episode, then on the 1 Corinthians playlist). The auto-uploads playlist (`UU` + the channel id minus `UC`) is the other self-maintaining option, rejected because it also carries the channel's Shorts. A `youtu.be` or `/playlist?list=…` URL can't be framed (`X-Frame-Options`) — only `/embed/…`. **"Read the passage" URLs are canonicalized to https + apex + trailing slash** (`canonicalizeReadUrl`), because the RSS description carries our own domain in four spellings — http/https × apex/www — exactly as it was typed into RedCircle, and the site builds to directory format so a slashless path is 308'd. Only litbible.net is rewritten; a third-party read link keeps its own scheme. |
@@ -1674,6 +1675,27 @@ collection); they're read directly by the intro pages and the API manifest.
   **inline** tag vanishes — Word splits styled phrases mid-word, so
   `<em>ekd</em><em>emeo</em>` has to rejoin, while deleting a `<p>` boundary
   outright welded "ZionA valuable" into the apps' feed for months.
+- **The release notes page and its RSS feed only present that JSON.**
+  `src/lib/release-notes-view.mjs` (pure, unit-tested) turns each change's
+  `detail` into old text struck through beside the new, groups entries by
+  month, and gives each entry an id; `src/scripts/release-notes.js` runs the
+  page's filters. Three things to keep in step:
+  1. **`parseDetail` restates the drafter's `detail` grammar** (`v. 21:` /
+     `fn. bb (v. 37):` prefixes, `"old" → "new"`, `added "…"`,
+     `removed "…"`, joined with `; `). A new shape in
+     `release-notes-core.mjs` needs a matching rule there. It degrades rather
+     than breaks: a detail that doesn't parse shows as written. Quoted text can
+     contain straight quotes (the 2026-08 cleanup logged them), so a quotation
+     ends where the grammar allows, never at the first `"`.
+  2. **Entry ids are permalinks** (`/release-notes/#2026-09-26`, used by the
+     feed and /read's "What's new"). A second publish on one day gets `-2`,
+     counted from the oldest entry so prepending never renumbers one.
+  3. **The filters read a row's book from `location`, else from the
+     description's leading label**, since older rows and intro and
+     new-chapter rows carry no `location`. A description that stopped
+     leading with the book label would drop out of the book filter.
+  The feed carries the 20 most recent publishes. It is a website asset, never
+  under `/api/`.
 - **The contact + app-support forms are self-hosted**: `/contact` posts to
   `/contact/submit` and `/app-support` posts to `/app-support/submit`, both
   served by a single standalone Cloudflare Worker in `workers/contact-form/`
