@@ -26,6 +26,8 @@ import Layout from "../layouts/Layout.astro";
         may have a typo.
       </p>
 
+      <p class="not-found__suggest" data-not-found-suggest hidden></p>
+
       <nav class="not-found__actions" aria-label="Quick links">
         <a class="not-found__cta" href="/read">Read the LIT</a>
         <a class="not-found__cta not-found__cta--outline" href="/search"
@@ -36,6 +38,37 @@ import Layout from "../layouts/Layout.astro";
     </div>
   </section>
 </Layout>
+
+<script>
+  // A guessable scripture address ("/John-3", "/john-3-16", "/jn-3",
+  // "/read/1-corinthians") lands here because the real one is
+  // "/john-3/#v16". Read it the way the search box reads a reference: a sure
+  // match goes straight there, a known book with a chapter it doesn't have
+  // gets a suggestion, and anything else leaves this page as it is.
+  import { resolveMistypedPath } from "../scripts/search-core.js";
+
+  const match = resolveMistypedPath(location.pathname);
+  const target = match && new URL(match.href, location.origin);
+
+  if (target && target.pathname !== location.pathname) {
+    if (match.sure) {
+      // A hash typed after a bare chapter ("/John-3#v16") still applies.
+      if (!target.hash && location.hash) target.hash = location.hash;
+      location.replace(target.href);
+    } else {
+      const suggest = document.querySelector<HTMLElement>(
+        "[data-not-found-suggest]",
+      );
+      if (suggest) {
+        const link = document.createElement("a");
+        link.href = target.pathname + target.hash;
+        link.textContent = match.label;
+        suggest.append("Did you mean ", link, "?");
+        suggest.hidden = false;
+      }
+    }
+  }
+</script>
 
 <style>
   .not-found {
@@ -66,6 +99,11 @@ import Layout from "../layouts/Layout.astro";
     line-height: 1.6;
     margin: 0 0 2rem;
     color: rgba(var(--ink-rgb), 0.78);
+  }
+
+  .not-found__suggest {
+    font-size: 1.1rem;
+    margin: -1rem 0 2rem;
   }
 
   .not-found__actions {

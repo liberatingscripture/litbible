@@ -18,6 +18,7 @@ import {
   searchVerses,
   rankVerseHits,
   highlightVerseHit,
+  resolveMistypedPath,
 } from "../src/scripts/search-core.js";
 import { stemWord } from "../src/lib/word-stem.mjs";
 
@@ -372,4 +373,54 @@ test("highlightVerseHit: wraps the matched run in <mark>", () => {
 
 test("highlightVerseHit: escapes HTML in the verse text", () => {
   assert.equal(highlightVerseHit({ text: "1 < 2", runs: [] }), "1 &lt; 2");
+});
+
+/* ── 6. Mistyped addresses (resolveMistypedPath, the 404 page) ───────── */
+
+// Every address the 2026-09 audit found ending on "Page not found", plus the
+// forms F8's separator rule adds. Hrefs carry the trailing slash so the
+// redirect skips the directory-format 308.
+for (const [path, href, label] of [
+  ["/John-3", "/john-3/", "John 3"],
+  ["/1-corinthians-13", "/1corinthians-13/", "1 Corinthians 13"],
+  ["/john-3-16", "/john-3/#v16", "John 3:16"],
+  ["/john/3", "/john-3/", "John 3"],
+  ["/jn-3", "/john-3/", "John 3"],
+  ["/john3", "/john-3/", "John 3"],
+  ["/john-3.16", "/john-3/#v16", "John 3:16"],
+  ["/john-3:16-18", "/john-3/#v16-18", "John 3:16–18"],
+  ["/john-3-16-18", "/john-3/#v16-18", "John 3:16–18"],
+  ["/jn-intro", "/john-intro/", "John introduction"],
+  ["/romans", "/romans-intro/", "Romans"],
+  ["/1-john", "/1john-intro/", "1 John"],
+  ["/read/1-corinthians", "/read/1corinthians/", "1 Corinthians"],
+  ["/read/jn-3", "/read/john/#ch-3", "John 3"],
+]) {
+  test(`resolveMistypedPath: '${path}' resolves to ${href}`, () => {
+    assert.deepEqual(resolveMistypedPath(path), { href, label, sure: true });
+  });
+}
+
+test("resolveMistypedPath: a chapter the book doesn't have asks rather than redirects", () => {
+  assert.deepEqual(resolveMistypedPath("/john-30"), {
+    href: "/john-intro/",
+    label: "John",
+    sure: false,
+  });
+});
+
+test("resolveMistypedPath: addresses that name no book return null", () => {
+  for (const path of [
+    "/asdf",
+    "/apps-old",
+    "/glossary-old",
+    "/mark-twain",
+    "/articles/missing-post",
+    "/john-0",
+    "/%E2%80%94",
+    "/%E0%A4%A",
+    "/",
+  ]) {
+    assert.equal(resolveMistypedPath(path), null, path);
+  }
 });
