@@ -994,7 +994,7 @@ Details for each item are in the artifact (https://claude.ai/artifact/4ghJK72rd2
   filter by book and kind of change, collapse older months, and publish a
   feed. `release-notes.json`'s shape is an app contract and does not
   change.
-  DONE (2026-09-27): every change links (PR #216). Each detail now shows the
+  DONE (2026-09-27, PR #222): every change links (PR #216). Each detail now shows the
   old text struck through beside the new, one line per verse or footnote
   (409 of 410 details parse; the other shows as written). Months fold, newest
   open. Each entry has a permalink id, which /read's "What's new" dates use.
