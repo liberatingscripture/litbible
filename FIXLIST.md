@@ -20,6 +20,14 @@ execute from the item text without this conversation. After any code item:
 and add a short DONE note (see the Priority section for the pattern) — don't
 delete it.
 
+A **feature audit** followed on **2026-09-26** (usability, look and feel,
+friction, accessibility, and ideas to explore; private artifact at
+https://claude.ai/artifact/4ghJK72rd2thnCX2mdmXkZ, with every number checked against the repo and the live site that day).
+Its items keep the artifact's IDs (F friction, U usability, A accessibility,
+V look, X ideas, Q quick fixes) and sit in a dated subsection at the end of
+each list. Phase 1 of its suggested order shipped the same day and is checked
+off. Items the artifact lists under "Set aside" are deliberately absent.
+
 ## Priority
 
 - [x] **P1 — Fix `isOpen` ReferenceError in the Read-page tooltip script.**
@@ -229,6 +237,49 @@ delete it.
   `.github/PULL_REQUEST_TEMPLATE.md` (checklist: `validate:chapters` if
   chapters touched, `npm run build` passes, scope stays in the agreed area),
   and root `CODEOWNERS` (`* @liberatingscripture`).
+
+### Added from the 2026-09-26 feature audit
+
+- [x] **Accept a period as the chapter:verse separator (F8).**
+  DONE (2026-09-26, audit Phase 1 PR): `cleanReferenceInput` in `src/scripts/search-core.js` turns a
+  period between two digits into a colon before it strips abbreviation
+  periods, so "John 3.16", "John.3.16" and "Rom. 8.3" jump like their colon
+  twins. A comma between digits does the same ("John 3,16") only while no
+  colon is present. Cases are in `test/search-core.test.js`.
+
+- [x] **Report /search results as a count (Q1).**
+  DONE (2026-09-26, audit Phase 1 PR): `renderFromCache` in `src/scripts/search.js` reads "194 results
+  for “liberation” (1 glossary, 47 topic, …)", listing only the kinds that
+  matched. Fixed on the way: a search with no results left "Searching for
+  "q"..." on screen for good.
+
+- [x] **Drop zero counts under a reference jump in the header tray (Q2).**
+  DONE (2026-09-26, audit Phase 1 PR): with a jump row showing, `src/scripts/searchbar.js` lists only
+  non-zero counts and skips the no-results suggestions.
+
+- [x] **Name the unfinished chapters on /read (Q3, first half).**
+  DONE (2026-09-26, audit Phase 1 PR): the lede is built from `scanDraftChapters()` and reads "all except
+  Acts, Revelation, and Luke 23–24". The other half of Q3 is under Owner.
+
+- [x] **Reading View side margins on phones (V2).**
+  DONE (2026-09-26, audit Phase 1 PR): `.rm-page` at ≤900px in `src/styles/read-mode.css` leaves 20px
+  a side (it was about 7px).
+
+- [x] **Control names (A3).**
+  DONE (2026-09-26, audit Phase 1 PR): the top Previous/Next buttons name their destination ("Previous:
+  John 2"), the Reading View pill uses the book's display name, and the
+  glossary's contact link covers "contact me here".
+
+- [x] **CLAUDE.md drift (Q7).**
+  DONE (2026-09-26, audit Phase 1 PR): draft count corrected to 52, and the footnote total is no longer
+  hard-coded.
+
+- [ ] **Web app manifest background and start URL (Q5).**
+  `public/site.webmanifest` has `"background_color": "#ffffff"` while the
+  site's page colour is cream (`--cream: #E1DFD9` in `global.css`), so an
+  installed app flashes white on launch, and it has no `start_url`. Set
+  `background_color` to `#E1DFD9` and add `"start_url": "/"`. The file is
+  hand-maintained: `build:favicons` writes the icons, not the manifest.
 
 ## Opus — one session per item
 
@@ -831,6 +882,115 @@ S9, O9, and O8.
   That is correct behavior, and it is the only content change in the Astro 7
   branch — the upgrade itself moved nothing.
 
+### Added from the 2026-09-26 feature audit
+
+Details for each item are in the artifact (https://claude.ai/artifact/4ghJK72rd2thnCX2mdmXkZ); the IDs match.
+
+- [x] **Tap targets for footnote letters (A1).**
+  DONE (2026-09-26, audit Phase 1 PR): `sup.fn-ref a` gets a centred overlay of at least 24×24px, stacked
+  above the verse number's (which keeps its 6px margins with the same 24px
+  floor). Verified at 375px on John 3: every footnote letter catches a tap
+  11px out on each side, including notes r and t.
+
+- [x] **Hide index-only search text from screen readers (A2).**
+  DONE (2026-09-26, audit Phase 1 PR): the `pf-meta` spans in `ScriptureLayout`/`SearchLayout` and the
+  glossary's `srOnly` span and index block are `aria-hidden`. Rebuilt
+  Pagefind index checked: glossary keywords and intro metadata still index.
+
+- [x] **Prefetch the previous and next chapter (U3).**
+  DONE (2026-09-26, audit Phase 1 PR): speculation rules in `ScriptureLayout.astro`, **prefetch** at
+  `moderate` eagerness. Deliberately not prerender, which would run page
+  scripts (the `lit_pv` popover counter, the popover, analytics) for a page
+  nobody opened. See CLAUDE.md.
+
+- [x] **Guessable scripture addresses on the 404 page (F6).**
+  DONE (2026-09-26, audit Phase 1 PR): `resolveMistypedPath` in `search-core.js` plus a script in
+  `404.astro`. "/John-3", "/jn-3", "/john-3-16", "/john/3",
+  "/1-corinthians-13" and "/read/1-corinthians" redirect; "/john-30" offers
+  "Did you mean John?".
+
+- [x] **Never truncate the site name (V3).**
+  DONE (2026-09-26, audit Phase 1 PR): `SiteHeader.astro` swaps to "LIT Bible" as soon as "Translation"
+  would clip, and re-measures after the webfont loads.
+
+- [ ] **Link scripture references outside the verse text (F1).**
+  Footnotes, intros, articles, release notes and glossary bodies print
+  references ("Romans 2:24") as plain text. Add a render-time linker, never a
+  JSON edit: match book names and abbreviations from `src/data/books.js`
+  (reuse `parseReference` in `search-core.js`) and link to
+  `/romans-2#v24` (ranges as `#v9-11`). Link release-note entries from
+  their stored `location`. In glossary bodies, turn `the entry for "X"`
+  into an in-page jump on the website only; the apps' feed must keep that
+  phrase verbatim (see The Glossary Feed in CLAUDE.md). X2 and X14 build on
+  this.
+
+- [ ] **"Continue reading" for returning readers (F2).**
+  Keep one last-read record in `localStorage` (book, chapter, verse, view,
+  time), written by Study View and Reading View, and offer "Continue: Romans
+  8" in the home hero, at the top of /read, and in the phone menu, with a way
+  to clear it. Add it to the privacy page's storage paragraph.
+
+- [ ] **Reading straight through runs into drafts (F4).**
+  Let Previous/Next skip to the nearest published page and say why ("Luke
+  23–24 are in progress · Next: John introduction"), and render draft pages
+  from a template whenever `indexed` is false. **Before retiring the
+  placeholder paragraph in the draft chapter JSON, check how both apps show a
+  draft**, since that text ships to them. Pairs with X15.
+
+- [ ] **Search puts the usual answers last (F7).**
+  Open /search with a one-line summary that doubles as jump links ("117
+  verses · 47 chapters by topic · 27 introductions · 2 articles · 1 glossary
+  entry"), show the matched topic on topic cards and Pagefind's excerpt on
+  intro cards. Every intro currently matches "inclusion"; find out which
+  indexed text causes it (the pf-meta spans are `data-pagefind-ignore`, so
+  confirm rather than assume) and keep the translation's own name out of
+  the index. Q1 already changed the status wording.
+
+- [ ] **Make the release notes usable (U2).**
+  Link every change (needs F1), show edits as struck old text beside new,
+  filter by book and kind of change, collapse older months, and publish a
+  feed. `release-notes.json`'s shape is an app contract and does not
+  change.
+
+- [ ] **Printing and handouts (U5).**
+  A print stylesheet (no site chrome, serif text, footnotes as endnotes,
+  credit line and address at the end) and a "Copy for a handout" verse-menu
+  action. The owner decides whether ordinary Copy verse should also carry
+  the verse link.
+
+- [ ] **Keyboard shortcuts (U4).**
+  Arrow keys (or `[` and `]`) for previous and next chapter, `/` to
+  focus search, `g` for Go to passage. Ignore them while typing or with a
+  modifier held, and list them in the Display tray.
+
+- [ ] **Missing doors in the menus (U6).**
+  A search icon beside "Aa" that opens the existing search tray on every
+  page (V3's title swap now leaves room for it; recheck at 1240–1440px), and
+  Glossary, Articles and "What's new" in the footer, Support in the phone
+  menu.
+
+- [ ] **Leftover shapes on /search and /articles (V6).**
+  Filters in one left-aligned row under the query, Go to passage above the
+  box at every width, the decorative bar reduced to a hairline or removed,
+  and the newsletter card moved below the featured article.
+
+- [ ] **Search the footnotes (X4).**
+  A notes index built with the site and loaded on demand (the verse index's
+  shape), shown as its own group, so "kingdom" finds the notes explaining
+  "reign"; plus a page of the notes that begin "Traditionally", grouped by
+  the traditional word. The owner confirms it's wanted first.
+
+- [ ] **Revision history on each chapter (X7).**
+  "Revised September 21, 2026 · see changes" under the title, opening that
+  chapter's entries from `release-notes.json` (most carry a `location`).
+
+- [ ] **Verse images for sharing (X8).**
+  "Make an image" in the verse and selection menus, drawn in the browser in
+  the share-card design (square and story sizes, carrying litbible.net).
+
+- [ ] **Copy link beside each glossary entry (Q4).**
+  The anchors exist (`/glossary#<id>`) but nothing shows how to share one.
+
 ## Fable — one session each, owner in the loop
 
 - [x] **(F1) Self-host the contact form on Cloudflare (drop Formspree).**
@@ -1028,6 +1188,48 @@ S9, O9, and O8.
   from-zero redeploy path (clone → `npm ci` → `npm run build` → Pages;
   `wrangler deploy` for the Worker). Names and locations only — no secret
   VALUES anywhere in the file.
+
+### Added from the 2026-09-26 feature audit
+
+Details for each item are in the artifact (https://claude.ai/artifact/4ghJK72rd2thnCX2mdmXkZ); the IDs match. These
+need a mockup or a side-by-side the owner looks at before code.
+
+- [ ] **Scripture starts low on a phone (F3).**
+  Fold the phone toolbar into one row (passage picker, a search icon that
+  expands in place, a Reading View icon), make the top Previous/Next quiet
+  chevrons beside the title, and aim for the first verse inside the top 40%
+  of the screen. Mock it up first.
+
+- [ ] **Line length and one Display panel (V1 with U1).**
+  Bring Study View's column to about 58–62 × `--ch` and give Reading View
+  the same measure and at least 18px type; then one Display panel on every
+  page (font, text size with an XL step, line spacing, theme, and verse
+  number and footnote marker toggles on scripture pages), applied before
+  first paint. Change only the multiplier, never the per-font `--ch`.
+  `--content-width` also sets /read, /search, About and the commitments
+  page, so review those together. Compare side by side before shipping.
+
+- [ ] **Term lens (X1).**
+  A quiet underline under glossary renderings in Study View opening a card
+  (traditional word, Greek, other renderings, glossary link), built from the
+  reviewed alignment data behind the same publishing gate as /glossary. Owner
+  decides density and whether it's on by default.
+
+- [ ] **Reference previews (X2).**
+  After F1, show a verse popover (like footnotes) on scripture links in
+  footnotes, intros, articles, release notes and the glossary's lists.
+
+- [ ] **"Go deeper" after each chapter (X3).**
+  A short panel: the podcast episode on the chapter, articles that discuss
+  it, glossary terms in it, and the book intro. Mock up first.
+
+- [ ] **Make /read a library (X12).**
+  A visible table of contents: books grouped, each with a line from its
+  intro, its status, and chapter links. Mock up first.
+
+- [ ] **Side notes on wide screens (X11).**
+  At 1280px and up, each footnote's first line in the margin beside its
+  verse. A design exploration.
 
 ## Owner — decisions & dashboard tasks (no model)
 
@@ -1391,6 +1593,47 @@ S9, O9, and O8.
   reference string for a partial range, and a mobile story that doesn't fight
   the OS text-selection UI. Opus-sized, with design input on where the
   affordance appears.
+
+### Added from the 2026-09-26 feature audit
+
+Details for each item are in the artifact (https://claude.ai/artifact/4ghJK72rd2thnCX2mdmXkZ); the IDs match.
+
+- [ ] **App promotion rules (F5, the rest).**
+  The privacy paragraph shipped in Phase 1 (2026-09-26). Still to decide: no launch modal on phones, where a banner already makes the pitch;
+  no modal on chapter or Reading View pages; a QR code beside the desktop
+  button; and one shared dismissal for the modal and the Android banner.
+  (Phase 1 also widened the O3 verse-link guard to ranges, part links and
+  Reading View verses, which enforces the existing rule.)
+
+- [ ] **/read copy once F1 ships (Q3, second half).**
+  "One chapter at a time with footnotes and cross-references" becomes true
+  only when references link (F1). Reword now, or wait for F1.
+
+- [ ] **Footnote letters outshine verse numbers (V4).**
+  Regular weight and slightly smaller? A look decision.
+
+- [ ] **The source notice after every chapter (V5).**
+  One attribution line plus a "Source text and license" disclosure, as /read
+  does. Check the SBLGNT license's attribution wording first.
+
+- [ ] **Straight and curly quotes in page prose (V7).**
+  A one-time pass over page prose, two intros and the search help text; it's
+  your prose, so say go. Any render-time smart-quote step must skip the
+  glossary feed, which keeps straight quotes for iOS.
+
+- [ ] **Article page title suffix (Q6).**
+  Articles end "| Articles | The Liberation & Inclusion Translation" while
+  other pages end "| Liberation and Inclusion Translation". Keep it if
+  deliberate.
+
+- [ ] **Decide which ideas to build (X5, X6, X9, X10, X13, X14, X15).**
+  X5 "This Sunday" lectionary page (shares lectionary data with the apps);
+  X6 browsable topic pages; X9 Listen in the device's voice; X10 opt-in notes
+  at passages with a history of harm (editorial, in your words); X13
+  bookmarks kept on the device (web versus apps); X14 linking Hebrew Bible
+  references to an outside text (after F1; your choice of source); X15
+  "tell me when Acts is published" (Brevo setup, pairs with F4). Each becomes
+  an Opus or Fable item once decided.
 
 ## Completed from TBD
 
