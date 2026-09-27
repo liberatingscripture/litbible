@@ -1,11 +1,8 @@
 ---
 description: "Introduction to Philemon in the LIT Bible."
 topics:
-  - liberation
-  - empire
-  - healing
-  - poverty
-  - hospitality
+  - Pauline epistles
+  - Prison Epistles
 ---
 
 The letter to Philemon is one of Paul’s most personal and tactful writings, addressing themes of reconciliation, liberation, and the transformative power of the Christ community. Paul writes on behalf of Onesimus, a man enslaved by Philemon, urging Philemon to welcome Onesimus back not as a slave but as a beloved brother in Christ. Though brief, this letter challenges social hierarchies and presents a radical vision of the Christ community as a place where all relationships are redefined by the liberative love of God.

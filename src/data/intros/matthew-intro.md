@@ -1,11 +1,17 @@
 ---
 description: "Introduction to Matthew in the LIT Bible."
 topics:
-  - liberation
-  - empire
-  - healing
-  - poverty
-  - hospitality
+  - Synoptic Gospels
+  - kingdom of heaven
+  - Heavenly Reign
+  - kingdom of God
+  - reign of God
+  - Messiah
+  - Christ
+  - disciples
+  - students
+  - chiasm
+  - Canaanite woman
 ---
 
 The Gospel of Matthew presents Jesus as the fulfillment of Hebrew scriptures and a teacher of wisdom, deeply rooted in the Jewish tradition yet radical in his message of inclusion and liberation. Often referred to as the "teacher's Gospel," Matthew unfolds in a deliberate structure, with extended discourses attributed to Jesus that shape the narrative around his vision for the Reign of God—a community centered on justice, mercy, and faithfulness. The book speaks directly to a Jewish audience, positioning Jesus as the new Moses who reinterprets the Torah in the tradition of Isaiah and other prophets to emphasize love, equity, and restorative justice.

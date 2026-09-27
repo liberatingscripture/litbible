@@ -1,11 +1,11 @@
 ---
 description: "Introduction to Hebrews in the LIT Bible."
 topics:
-  - liberation
-  - empire
-  - healing
-  - poverty
-  - hospitality
+  - Sabbath
+  - Shabbat
+  - apostasy
+  - repentance
+  - reorientation of the mind
 ---
 
 The book of Hebrews is thought to be written by Priscilla, who was a prominent leader and teacher in the church alongside her husband Aquila. The book itself does not name its author. Hebrews focuses on the uniqueness of Jesus and the faithfulness Jesus modeled and the church is to replicate. It speaks to early believers facing hardship, urging them to remain steadfast in their trust and commitment to Jesus as the ultimate mediator of a new, more liberating covenant. His example calls the community to endurance in living out love for one another, particularly in facing struggles and oppression. It is lived out most fully in the sacred calling to create peace among everyone, which means pursuing universal well-being throughout the community (Hebrews 12:14-15).

@@ -1,11 +1,10 @@
 ---
 description: "Introduction to 3 John in the LIT Bible."
 topics:
-  - liberation
-  - empire
-  - healing
-  - poverty
-  - hospitality
+  - Johannine letters
+  - Johannine epistles
+  - Catholic Epistles
+  - General Epistles
 ---
 
 The Third Epistle of John is the shortest book in the New Testament, yet it provides a compelling glimpse into the relational dynamics of early Christian communities. Written by "the elder," the letter is addressed to Gaius, a beloved individual praised for his commitment to the truth and his hospitality toward traveling messengers. It also highlights the challenges of dealing with self-serving leadership within the church.

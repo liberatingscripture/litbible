@@ -1,11 +1,8 @@
 ---
 description: "Introduction to 2 Corinthians in the LIT Bible."
 topics:
-  - liberation
-  - empire
-  - healing
-  - poverty
-  - hospitality
+  - Pauline epistles
+  - super apostles
 ---
 
 The letter of 2 Corinthians is Paul at his most vulnerable, most paradoxical, and arguably most profound. Written in the wake of strained relationships, emotional upheaval, and theological conflict, the letter serves both as a defense of Paul’s calling and a radical reframing of what true spiritual power looks like. Here, power is not domination; it’s embracing weakness for the sake of others. Strength comes through solidarity, not supremacy. And leadership is marked by serving at all costs, never demanding compliance or tearing people down.

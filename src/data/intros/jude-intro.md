@@ -1,11 +1,9 @@
 ---
 description: "Introduction to Jude in the LIT Bible."
 topics:
-  - liberation
-  - empire
-  - healing
-  - poverty
-  - hospitality
+  - Catholic Epistles
+  - General Epistles
+  - brother of Jesus
 ---
 
 The letter of Jude is a brief yet potent appeal to the early Christ-following community to remain steadfast in their commitment to God’s liberative vision while confronting corrupting influences that threatened their unity and trust. Attributed to Jude (or Judah), a biological sibling of Jesus (and James, aka Jacob) and leader in the early church, this letter is addressed to “the called who have been watched over by Jesus Christ and loved in connection with Father God” (Jude 1). Jude writes with a sense of urgency, encouraging the community to stand firm against false teachers whose distorted teachings compromise the values of love, justice, and sacred belonging central to God’s Reign.

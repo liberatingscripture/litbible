@@ -1,11 +1,11 @@
 ---
 description: "Introduction to 1 Thessalonians in the LIT Bible."
 topics:
-  - liberation
-  - empire
-  - healing
-  - poverty
-  - hospitality
+  - Pauline epistles
+  - second coming
+  - parousia
+  - rapture
+  - persecution
 ---
 
 The letter to the Thessalonians is one of Paul’s earliest writings, addressed to a young Christ community in the vibrant and diverse city of Thessalonica. This letter reflects the challenges and hopes of a group navigating faithfulness in the face of external pressure and internal questions. Paul encourages them to remain steadfast in their trust and commitment to the triumphant message (traditionally, “gospel”) while living as a countercultural community defined by love, mutual care, and hope in the liberating justice of God.

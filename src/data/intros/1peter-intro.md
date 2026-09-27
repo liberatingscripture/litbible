@@ -1,11 +1,11 @@
 ---
 description: "Introduction to 1 Peter in the LIT Bible."
 topics:
-  - liberation
-  - empire
-  - healing
-  - poverty
-  - hospitality
+  - Catholic Epistles
+  - General Epistles
+  - diaspora
+  - exiles
+  - household codes
 ---
 
 The letter of 1 Peter addresses a Christ community navigating life as marginalized and misunderstood within a broader society hostile to their values. It’s attributed to Simeon (Simon) Peter and written to members of the community of Christ scattered across Asia Minor (modern-day Türkiye). This letter offers hope, encouragement, and guidance for living faithfully in the midst of oppression and opposition. It emphasizes the transformative power of God’s liberative work, calling readers to embody values of love, justice, and humility as a testament to the power of God’s love to the world around them.

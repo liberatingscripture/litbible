@@ -1,11 +1,8 @@
 ---
 description: "Introduction to James in the LIT Bible."
 topics:
-  - liberation
-  - empire
-  - healing
-  - poverty
-  - hospitality
+  - Catholic Epistles
+  - General Epistles
 ---
 
 The letter of James, traditionally attributed to James (Jacob), the brother of Jesus, who became a leading figure in the church in Jerusalem and addresses the scattered communities of early followers of Jesus across the Roman Empire, offering guidance for living faithfully in a world rife with injustice and inequality. Written in the mid-first century, <em>James</em> reflects the struggles of a community navigating the tension between their allegiance to Jesus’ liberating vision and the oppressive systems of Roman rule and economic exploitation. Against this backdrop, James challenges his audience to embody justice, urging them to reject favoritism for the wealthy, confront oppression, and prioritize care for society's most vulnerable members—widows, orphans, and the impoverished.

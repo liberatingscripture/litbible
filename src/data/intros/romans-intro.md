@@ -1,11 +1,14 @@
 ---
 description: "Introduction to Romans in the LIT Bible."
 topics:
+  - Pauline epistles
+  - justification
+  - righteousness of God
+  - pistis Christou
+  - grace
+  - law
+  - salvation
   - liberation
-  - empire
-  - healing
-  - poverty
-  - hospitality
 ---
 
 The letter to the Romans is a pastoral message addressed to the early Christian community in Rome, calling them to faithfulness to the true good news of Christ. Paul challenges the divisions and assumptions about who qualifies for belonging (particularly between Jewish and non-Jewish Christians), emphasizing that all people are included in God’s liberating work through Jesus. This belonging is not based on obedience to the Torah, ethnic identity, or social status, but on God’s unmerited generosity. Paul commends the Roman believers for their commitment while urging them to resist pressures to conform to cultural hierarchies or exclusionary practices.

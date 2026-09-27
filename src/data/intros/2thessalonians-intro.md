@@ -1,11 +1,10 @@
 ---
 description: "Introduction to 2 Thessalonians in the LIT Bible."
 topics:
-  - liberation
-  - empire
-  - healing
-  - poverty
-  - hospitality
+  - Pauline epistles
+  - second coming
+  - parousia
+  - end times
 ---
 
 The letter of 2 Thessalonians is a pastoral response to a young Christ community grappling with challenges of persecution, misunderstandings about the return of Jesus, and internal struggles with community conduct. Building on themes from the first letter, Paul addresses the Thessalonians with encouragement, challenging harmful behavior, and refocusing, offering them a vision of perseverance grounded in God’s justice, mutual care, and hope for ultimate restoration.

@@ -1,11 +1,11 @@
 ---
 description: "Introduction to 2 John in the LIT Bible."
 topics:
-  - liberation
-  - empire
-  - healing
-  - poverty
-  - hospitality
+  - Catholic Epistles
+  - General Epistles
+  - elect lady
+  - antichrist
+  - docetism
 ---
 
 The Second Epistle of John is one of the shortest books in the New Testament, but its brevity does not diminish its meaning. Written by "the elder," the letter addresses "a chosen lady and her children," a metaphor widely understood as a local church and its members, so some argue that it could have been to a particular, prominent woman in the church and the people she led. The epistle emphasizes the importance of living out the teachings of Christ through love and faithfulness while remaining vigilant against those who distort these truths.
