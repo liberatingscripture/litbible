@@ -79,7 +79,7 @@ These stories teach us that faithfulness is not about avoiding hardship but bein
 
 The people in these examples were faithful, and they trusted that their actions mattered for building a more loving world, but as evidenced by the ongoing nature of the list and the horrific experiences they endured, the hoped for results were not immediate, often not experienced by those individuals at all.
 
-> "Though these people were all shown to be genuine by faithfulness, they did not experience the Promise of God, who foresaw something better concerning us, that they would not be made complete without us" (<a href="/hebrews-11">Hebrews 10:39-40</a>).
+> "Though these people were all shown to be genuine by faithfulness, they did not experience the Promise of God, who foresaw something better concerning us, that they would not be made complete without us" (<a href="/hebrews-11">Hebrews 11:39-40</a>).
 
 They trusted the Promise of God was coming, that God saw something better, but they did not get to see it for themselves. More people were to come to help bring it to completion: the rest of us who remain faithful, starting with Priscilla's original audience and continuing down through the centuries to today.
 
