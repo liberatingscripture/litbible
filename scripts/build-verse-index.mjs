@@ -26,6 +26,15 @@
 // NOT part of the mobile-app API contract — it must never move under
 // public/api/.
 //
+// It also writes public/search/chapters/<bookKey>-<chapter>.json, one array of
+// verse texts per published chapter, in the same shape as one chapter of
+// `verses`. Scripture-reference previews (src/scripts/ref-preview.js) read
+// these: a preview needs one chapter, and fetching that one is ~2 KB where
+// verses.json is ~280 KB. Same exclusions, same extraction, so a preview can
+// never show text that search wouldn't. The directory is rebuilt from scratch
+// each run, so a chapter that goes back to draft loses its file. Also a
+// website asset, never under public/api/.
+//
 // This module is the fs/CLI half only. The paragraph-HTML → per-verse plain-text
 // extraction lives in ./lib/verse-index-core.mjs so it can be unit-tested
 // directly (test/build-verse-index.test.js) — same split, same reason, as
@@ -40,6 +49,7 @@ import { extractVerses } from "./lib/verse-index-core.mjs";
 const ROOT = process.cwd();
 const CHAPTERS_DIR = path.join(ROOT, "src", "data", "chapters");
 const OUT_FILE = path.join(ROOT, "public", "search", "verses.json");
+const CHAPTER_DIR = path.join(ROOT, "public", "search", "chapters");
 
 const BOOK_RANK = new Map(BOOK_ORDER.map((k, i) => [k, i]));
 
@@ -113,6 +123,19 @@ async function main() {
   console.log(
     `Wrote ${OUT_FILE} (${chapterCount} chapters, ${verseCount} verses, ${vocab.length} vocabulary words)`,
   );
+
+  await fs.rm(CHAPTER_DIR, { recursive: true, force: true });
+  await fs.mkdir(CHAPTER_DIR, { recursive: true });
+  for (const [bookKey, chapters] of Object.entries(versesObj)) {
+    for (const [ch, verses] of Object.entries(chapters)) {
+      await fs.writeFile(
+        path.join(CHAPTER_DIR, `${bookKey}-${ch}.json`),
+        JSON.stringify(verses),
+        "utf8",
+      );
+    }
+  }
+  console.log(`Wrote ${chapterCount} chapter files to ${CHAPTER_DIR}`);
 }
 
 main().catch((err) => {

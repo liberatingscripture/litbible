@@ -2603,3 +2603,16 @@ html[data-font="dyslexic"] .menu-overlay__nav a {
   font-weight: 600;
   color: var(--green-text);
 }
+
+/* Scripture reference previews (ref-preview.js): the verses themselves, set a
+   step larger than a footnote because they are the thing being read. */
+.lit-panel--preview .ref-preview__text {
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+
+.ref-preview__vn {
+  font-size: 0.7em;
+  font-weight: 600;
+  color: rgba(var(--ink-rgb), 0.6);
+}
