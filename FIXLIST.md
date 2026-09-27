@@ -941,7 +941,7 @@ Details for each item are in the artifact (https://claude.ai/artifact/4ghJK72rd2
   time), written by Study View and Reading View, and offer "Continue: Romans
   8" in the home hero, at the top of /read, and in the phone menu, with a way
   to clear it. Add it to the privacy page's storage paragraph.
-  DONE (2026-09-27): `src/scripts/last-read.js` keeps `lit_last_read`.
+  DONE (2026-09-27, PR #218): `src/scripts/last-read.js` keeps `lit_last_read`.
   Study View writes it on arrival (at the `#v` verse) and as the reader
   scrolls; Reading View writes it beside its own resume save, through an
   `rm:position` event, because `read-mode.js` is served unbundled and can't
@@ -956,7 +956,7 @@ Details for each item are in the artifact (https://claude.ai/artifact/4ghJK72rd2
   from a template whenever `indexed` is false. **Before retiring the
   placeholder paragraph in the draft chapter JSON, check how both apps show a
   draft**, since that text ships to them. Pairs with X15.
-  DONE (2026-09-27): `src/lib/chapter-nav.mjs` is now the one rule behind
+  DONE (2026-09-27, PR #218): `src/lib/chapter-nav.mjs` is now the one rule behind
   the top buttons, the bottom buttons and a draft page's links, replacing
   three hand-rolled copies. It steps over drafts, and a line under the bottom
   buttons names what it stepped over ("Luke 23–24 are still being
