@@ -11,9 +11,9 @@
 // stripping (default-on from Node 22.18) imports it directly with the
 // explicit .ts extension below — no loader, no new deps.
 //
-// The module exports exactly two entry points; the nine internal passes
+// The module exports exactly two entry points; the ten internal passes
 // (dropDuplicateVerseIds, normalizeHbqVerseGlue, normalizeStudyVerseGlue,
-// wrapVerseSegments, addHbqAria, addOsisIds, removeFootnoteRefs,
+// markVerseGap, wrapVerseSegments, addHbqAria, addOsisIds, removeFootnoteRefs,
 // rewriteVerseIdsAndAnchors, normalizeReadVerseGlue) are deliberately
 // unexported so the two views can't drift apart — this suite tests only
 // through prepareStudyParagraph / prepareReadParagraph, as black boxes,
@@ -41,7 +41,7 @@ test("vglue: Study normalizes surrounding whitespace around a literal &nbsp; ent
   const out = prepareStudyParagraph(html, "john", 3, new Set(), freshState());
   assert.match(
     out,
-    /<span class="vglue"><sup id="v5" class="vn" data-osis="John\.3\.5">5<\/sup>&nbsp;Hello<\/span>/,
+    /<span class="vglue"><sup id="v5" class="vn" data-osis="John\.3\.5">5<\/sup><span class="vn-gap">&nbsp;<\/span>Hello<\/span>/,
   );
 });
 
@@ -50,7 +50,7 @@ test("vglue: Study normalizes a real U+00A0 character to the literal &nbsp; enti
   const html = `<p id="p1"><span class="vglue"><sup id="v6" class="vn">6</sup>${NBSP}Hello</span> world.</p>`;
   const out = prepareStudyParagraph(html, "john", 3, new Set(), freshState());
   assert.ok(out.includes("<sup"));
-  assert.match(out, /<\/sup>&nbsp;Hello<\/span>/);
+  assert.match(out, /<\/sup><span class="vn-gap">&nbsp;<\/span>Hello<\/span>/);
   assert.equal(out.includes(NBSP), false);
 });
 
@@ -65,7 +65,7 @@ test("vglue: Study normalizes a plain ASCII space to the literal &nbsp; entity",
   const out = prepareStudyParagraph(html, "john", 3, new Set(), freshState());
   assert.match(
     out,
-    /<span class="vglue"><sup id="v5" class="vn" data-osis="John\.3\.5">5<\/sup>&nbsp;Hello<\/span>/,
+    /<span class="vglue"><sup id="v5" class="vn" data-osis="John\.3\.5">5<\/sup><span class="vn-gap">&nbsp;<\/span>Hello<\/span>/,
   );
 });
 
@@ -73,7 +73,7 @@ test("vglue: Study collapses a run of plain spaces to a single &nbsp;", () => {
   const html =
     '<p id="p1"><span class="vglue"><sup id="v5" class="vn">5</sup>   Hello</span> world.</p>';
   const out = prepareStudyParagraph(html, "john", 3, new Set(), freshState());
-  assert.match(out, /<\/sup>&nbsp;Hello<\/span>/);
+  assert.match(out, /<\/sup><span class="vn-gap">&nbsp;<\/span>Hello<\/span>/);
 });
 
 // Regression guard for the separator alternation: only ONE separator is consumed,
@@ -83,7 +83,24 @@ test("vglue: Study consumes only one separator, leaving a doubled &nbsp; intact"
   const html =
     '<p id="p1"><span class="vglue"><sup id="v5" class="vn">5</sup>&nbsp;&nbsp;Hello</span></p>';
   const out = prepareStudyParagraph(html, "john", 3, new Set(), freshState());
-  assert.match(out, /<\/sup>&nbsp;&nbsp;Hello<\/span>/);
+  assert.match(out, /<\/sup><span class="vn-gap">&nbsp;<\/span>&nbsp;Hello<\/span>/);
+});
+
+// The Display tray can hide verse numbers, and the no-break space after one
+// has to hide with it or every verse opens on a doubled gap. Only the number's
+// own separator is wrapped: poetry lines join with a word joiner instead, and
+// a footnote letter followed by a space is not a verse gap.
+test("vglue: Study wraps only a verse number's own separator in .vn-gap", () => {
+  const prose =
+    '<p id="p1"><span class="vglue"><sup id="v5" class="vn">5</sup>&nbsp;Hello</span> world<sup class="fn-ref"><a href="#fn-a">a</a></sup>&nbsp;and more.</p>';
+  const out = prepareStudyParagraph(prose, "john", 3, new Set(), freshState());
+  assert.equal((out.match(/class="vn-gap"/g) || []).length, 1);
+  assert.ok(out.includes('</a></sup>&nbsp;and more.'));
+
+  const poetry =
+    '<blockquote class="hbq"><p class="hbq-line"><span class="vglue"><sup id="v10" class="vn">10</sup>&nbsp;Poetry words.</span></p></blockquote>';
+  const outPoetry = prepareStudyParagraph(poetry, "john", 3, new Set(), freshState());
+  assert.equal(outPoetry.includes("vn-gap"), false);
 });
 
 test("vglue: Reading Mode also normalizes a plain ASCII space, and still moves the id", () => {
@@ -118,7 +135,7 @@ test("verse spans: a single-verse paragraph is wrapped in one data-verse span", 
   const out = prepareStudyParagraph(html, "john", 3, new Set(), freshState());
   assert.equal(
     out,
-    '<p id="p1"><span data-verse="1"><span class="vglue"><sup id="v1" class="vn" data-osis="John.3.1">1</sup>&nbsp;There was a Pharisee.</span></span></p>',
+    '<p id="p1"><span data-verse="1"><span class="vglue"><sup id="v1" class="vn" data-osis="John.3.1">1</sup><span class="vn-gap">&nbsp;</span>There was a Pharisee.</span></span></p>',
   );
 });
 

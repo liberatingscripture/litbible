@@ -109,6 +109,22 @@ function normalizeStudyVerseGlue(html: string): string {
 }
 
 /**
+ * Wrap the no-break space after each verse number in `<span class="vn-gap">`,
+ * so that turning verse numbers off (Display tray, global.css) can hide the
+ * space along with the number. Left in place, it doubles the gap before every
+ * verse, which reads as a stray space mid-sentence ("and  he said"). Line
+ * breaking is unchanged: the space is still a no-break space inside `.vglue`.
+ * Runs after the poetry pass, whose lines join number and word with a
+ * zero-width word joiner instead and so have no gap to hide.
+ */
+function markVerseGap(html: string): string {
+  return String(html ?? "").replace(
+    /(<sup\b[^>]*\bclass=(['"])[^'"]*\bvn\b[^'"]*\2[^>]*>[^<]*<\/sup>)&nbsp;/gi,
+    '$1<span class="vn-gap">&nbsp;</span>',
+  );
+}
+
+/**
  * Wrap each verse's inline content in `<span data-verse="N">` so verse
  * boundaries are DOM containers (CSS-targetable highlighting, trivial text
  * extraction in chapter-tools.js) instead of runtime TreeWalker
@@ -295,8 +311,10 @@ export function prepareStudyParagraph(
   return wrapVerseSegments(
     addOsisIds(
       addHbqAria(
-        normalizeHbqVerseGlue(
-          normalizeStudyVerseGlue(dropDuplicateVerseIds(html, seenVerseIds)),
+        markVerseGap(
+          normalizeHbqVerseGlue(
+            normalizeStudyVerseGlue(dropDuplicateVerseIds(html, seenVerseIds)),
+          ),
         ),
       ),
       osisBook,
