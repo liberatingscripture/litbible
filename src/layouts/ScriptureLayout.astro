@@ -183,6 +183,10 @@ if (headerKind === "chapter") {
         /* =========================================================
          Pagefind meta fields (TEXT-based, not <meta content="...">)
          NOTE: These MUST be ignored for body indexing.
+         They are index-only, not screen-reader text, so each one is
+         aria-hidden too: Pagefind reads the HTML, not the accessibility
+         tree, and without it a screen reader heard the description, type,
+         book and topics ahead of the chapter heading.
          ========================================================= */
       }
       {
@@ -193,6 +197,7 @@ if (headerKind === "chapter") {
             {!isScriptureLike ? (
               <span
                 class="pf-meta"
+                aria-hidden="true"
                 data-pagefind-meta="title"
                 data-pagefind-ignore
               >
@@ -202,6 +207,7 @@ if (headerKind === "chapter") {
 
             <span
               class="pf-meta"
+              aria-hidden="true"
               data-pagefind-meta="description"
               data-pagefind-ignore
             >
@@ -209,6 +215,7 @@ if (headerKind === "chapter") {
             </span>
             <span
               class="pf-meta"
+              aria-hidden="true"
               data-pagefind-meta="type"
               data-pagefind-ignore
             >
@@ -216,6 +223,7 @@ if (headerKind === "chapter") {
             </span>
             <span
               class="pf-meta"
+              aria-hidden="true"
               data-pagefind-meta="book"
               data-pagefind-ignore
             >
@@ -223,6 +231,7 @@ if (headerKind === "chapter") {
             </span>
             <span
               class="pf-meta"
+              aria-hidden="true"
               data-pagefind-meta="chapter"
               data-pagefind-ignore
             >
@@ -233,6 +242,7 @@ if (headerKind === "chapter") {
               ? topicsList.map((t) => (
                   <span
                     class="pf-meta"
+                    aria-hidden="true"
                     data-pagefind-meta="topics"
                     data-pagefind-ignore
                   >

@@ -413,8 +413,10 @@ const menuData = {
           data-pagefind-body
           data-pagefind-filter="type:glossary"
         >
-          <!-- Index-only surface: just enough for search -->
-          <div class="sr-only">
+          <!-- Index-only surface: just enough for search. aria-hidden, since
+               a screen reader otherwise announces "Glossary glossary
+               Translation glossary…" before the first entry. -->
+          <div class="sr-only" aria-hidden="true">
             <span data-pagefind-meta="title">Glossary</span>
             <span data-pagefind-meta="type">glossary</span>
             <span data-pagefind-meta="description">
@@ -441,8 +443,10 @@ const menuData = {
                   >
                     <header class="entry-head">
                       <h2 class="entry-title" id={data.id}>
-                        {/* Index-only: search tokens for this entry */}
-                        <span class="sr-only">{data.srOnly}</span>
+                        {/* Index-only: search tokens for this entry. Hidden
+                            from screen readers too, which otherwise read them
+                            ahead of the heading's own words. */}
+                        <span class="sr-only" aria-hidden="true">{data.srOnly}</span>
 
                         <span class="entries-strike">
                           <strong>{data.traditional}</strong>
