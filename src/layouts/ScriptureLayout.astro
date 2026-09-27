@@ -6,6 +6,7 @@ import Layout from "./Layout.astro";
 import ReadMenu from "../components/ReadMenu.astro";
 import SearchBar from "../components/SearchBar.astro";
 import ScriptureHeader from "../components/ScriptureHeader.astro";
+import { bookKeyToLabel } from "../data/books.js";
 
 const {
   title = "Liberation and Inclusion Translation",
@@ -129,7 +130,7 @@ if (headerKind === "chapter") {
                   <a
                     class="reading-view-pill"
                     href={`/read/${pagefindBook}/#ch-${headerChapter ?? 1}`}
-                    aria-label={`Switch to Reading View for ${pagefindBook} ${headerChapter ?? 1}`}
+                    aria-label={`Switch to Reading View for ${bookKeyToLabel(pagefindBook)} ${headerChapter ?? 1}`}
                   >
                     <span class="reading-view-pill__icon" aria-hidden="true">
                       <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none"
