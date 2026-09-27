@@ -192,8 +192,12 @@ export function toPlainProse(raw, label = "body") {
     .trim();
 }
 
-/** iOS's cross-reference normalizer: case-folded, with `[`, `]` and `-` dropped. */
-function normalizeLabel(value) {
+/**
+ * iOS's cross-reference normalizer: case-folded, with `[`, `]` and `-` dropped.
+ * Exported so /glossary resolves the same phrases to the same entries when it
+ * links them on the page (src/lib/glossary-crossrefs.mjs).
+ */
+export function normalizeLabel(value) {
   return String(value)
     .toLowerCase()
     .replace(/[[\]\-]/g, "")

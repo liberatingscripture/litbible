@@ -3,6 +3,8 @@ import { getCollection, render } from "astro:content";
 import Layout from "../layouts/Layout.astro";
 import { BOOK_ORDER, bookKeyToLabel } from "../data/books.js";
 import { linkRefs } from "../lib/scripture-refs-data.mjs";
+import { linkGlossaryCrossRefs } from "../lib/glossary-crossrefs.mjs";
+import { normalizeLabel } from "../../scripts/lib/glossary-feed-core.mjs";
 import "../styles/pages/glossary.css";
 
 // `draft: true` entries stay in the collection (build-alignment.mjs seeds off
@@ -200,9 +202,20 @@ const byTraditional = [...rawEntries].sort((a, b) =>
   )
 );
 
+// Cross-references ("See the entry for “good [2]” below") resolve against the
+// same two labels the apps' feed indexes, through the feed's own normalizer,
+// so the page and iOS agree on where each phrase points.
+const labelToId = new Map<string, string>();
+for (const e of rawEntries) {
+  for (const label of [e.data.traditional, e.data.litMenu]) {
+    labelToId.set(normalizeLabel(label), e.data.id);
+  }
+}
+const resolveCrossRef = (label: string) => labelToId.get(normalizeLabel(label)) ?? null;
+
 // Render entries in LIT order (matches the default toggle state). Bodies go out
-// as strings so scripture references can be linked; the files, and the feed
-// built from them, keep their plain text. No entry uses a
+// as strings so scripture references and cross-references can be linked; the
+// files, and the feed built from them, keep their plain text. No entry uses a
 // Markdown image (the one thing render() adds), so the stored HTML is complete.
 const entries = await Promise.all(
   byLit.map(async (entry) => ({
@@ -210,7 +223,7 @@ const entries = await Promise.all(
     Content: (await render(entry)).Content,
     bodyHtml:
       entry.rendered?.html != null && !entry.rendered.metadata?.imagePaths?.length
-        ? linkRefs(entry.rendered.html)
+        ? linkGlossaryCrossRefs(linkRefs(entry.rendered.html), resolveCrossRef)
         : null,
   }))
 );
