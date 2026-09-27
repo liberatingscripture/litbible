@@ -253,7 +253,15 @@ const { hideNewsletter = false } = Astro.props;
     carries the named logo, and the text beside it already names the work. */}
 <div class="footer-license-band">
   <div class="footer-license-band__inner">
+    {/* data-pagefind-meta="image:" sets every page's search `image` to
+        nothing. Pagefind otherwise takes the first <img> after a page's h1,
+        which for intros and the glossary is this emblem, and it searches
+        metadata: every intro was a hit for "lit", "logo" and "ring", and an
+        article for words in its hero image's file name. No search result
+        shows an image. Only this static empty form overrides the capture;
+        data-pagefind-ignore and an empty meta element do not. */}
     <img
+      data-pagefind-meta="image:"
       class="footer-license-band__mark"
       src="/images/lit-logo-2026-ring.svg"
       alt=""
