@@ -189,10 +189,17 @@
   /* The long-form reading measure: Study View, Reading View, book intros and
      article bodies. Only --reading-measure is a design choice (--ch keeps its
      per-font value). Like --content-width it resolves against the font size
-     of the element that uses it, so a column keeps the same number of
-     characters per line whatever size its text is set at. */
+     of the element that uses it, so a column set at the reader's text size
+     widens with it and keeps the same number of characters per line. */
   --reading-measure: 60;
   --reading-width: calc(var(--reading-measure) * var(--ch));
+
+  /* The reader's text size and line spacing, chosen in the Display tray and
+     stamped on <html> before first paint (Layout.astro). A scale and an
+     addition rather than fixed values, so each reading surface keeps its own
+     default at Medium / Normal. */
+  --reading-scale: 1;
+  --reading-leading-extra: 0;
 
   /* Font stacks */
   --serif: "Crimson Text", "Crimson Fallback", Georgia, "Times New Roman", serif;
@@ -787,6 +794,10 @@ body:has(.site-header--green) .skip-link {
   border-radius: 14px;
   box-shadow: 0 8px 28px rgba(0, 0, 0, 0.13);
   padding: 16px;
+  /* The script caps max-height to the room on the side it opens toward;
+     past that the tray scrolls rather than running off the screen. */
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .font-tray[hidden] { display: none; }
@@ -836,7 +847,7 @@ body:has(.site-header--green) .skip-link {
   cursor: default; /* only the individual options are clickable */
 }
 
-.font-tray__row--theme {
+.font-tray__row + .font-tray__row {
   margin-top: 14px;
 }
 
@@ -934,7 +945,60 @@ body:has(.site-header--green) .skip-link {
   font-family: 'Atkinson Hyperlegible Next Variable', sans-serif !important;
 }
 
-/* ----- Segmented theme control ----- */
+/* ----- Show: verse numbers / footnote letters (scripture pages only) -----
+   Two independent on/off settings, so checkboxes, styled like the font rows. */
+.font-tray__checks {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.font-tray__check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 9px;
+  border-radius: 9px;
+  cursor: pointer;
+  transition: background 150ms ease;
+}
+
+.font-tray__check:hover {
+  background: rgba(var(--ink-rgb), 0.06);
+}
+
+.font-tray__check-input {
+  flex-shrink: 0;
+  width: 17px;
+  height: 17px;
+  margin: 0;
+  /* Same flip as the font radios above, for the same contrast reason */
+  accent-color: var(--green-deep);
+  cursor: pointer;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .font-tray__check-input {
+    accent-color: var(--green);
+  }
+}
+
+:root[data-theme="dark"] .font-tray__check-input {
+  accent-color: var(--green);
+}
+
+.font-tray__check-input:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
+
+.font-tray__check-label {
+  font-size: 0.9375rem;
+  color: var(--text);
+  line-height: 1.25;
+}
+
+/* ----- Segmented controls (theme, text size, line spacing) ----- */
 .font-tray__seg {
   display: flex;
   background: var(--surface-input);
@@ -999,6 +1063,7 @@ body:has(.site-header--green) .skip-link {
 @media (prefers-reduced-motion: reduce) {
   .site-header__font-toggle,
   .font-tray__font-option,
+  .font-tray__check,
   .font-tray__seg-text,
   .font-tray__seg-option {
     transition: none;
@@ -2282,6 +2347,24 @@ html[data-font="atkinson"] {
   --ch: 0.648em;
 }
 
+/* Text size and line spacing (Display tray). Medium and Normal carry no
+   attribute. The steps are 16 / 18 / 20 / 23px at the 18px body size. */
+html[data-size="sm"] {
+  --reading-scale: calc(16 / 18);
+}
+
+html[data-size="lg"] {
+  --reading-scale: calc(20 / 18);
+}
+
+html[data-size="xl"] {
+  --reading-scale: calc(23 / 18);
+}
+
+html[data-leading="roomy"] {
+  --reading-leading-extra: 0.25;
+}
+
 /* Mobile nav: OpenDyslexic glyphs are wider — scale down so links fit the
    overlay. Deliberately dyslexic-only: Atkinson's metrics are close to
    Inter's, so it must not inherit OpenDyslexic's width compensations. */
@@ -2452,6 +2535,30 @@ html[data-font="dyslexic"] .menu-overlay__nav a {
 .chapter-paragraphs sup.vn:active {
   opacity: 1;
   text-decoration-style: solid;
+}
+
+/* Display tray: verse numbers and footnote letters can be turned off in Study
+   View. Each one is also a control (the verse menu's button, the note's link)
+   and a scroll target (#v16, the note's backlink), so it is hidden visually
+   rather than removed: it stays in the tab order and reappears while it has
+   keyboard focus, the skip-link pattern. The .vn-gap after a number is its
+   no-break space (chapter-html.ts), which goes with it. Reading View has its
+   own rule (read-mode.css), and strips footnote letters at build. */
+html[data-vn="off"] .chapter-paragraphs sup.vn:not(:focus-visible),
+html[data-fn="off"] .chapter-paragraphs sup.fn-ref:not(:focus-within) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+html[data-vn="off"] .chapter-paragraphs sup.vn:not(:focus-visible) + .vn-gap {
+  display: none;
 }
 
 /* Floating panel shared by the verse menu and footnote popovers.

@@ -233,12 +233,15 @@ const indexTagsJoined = hyphensToSpacesForIndex(tags.join(", "));
      ========================= */
   .article-shell {
     padding: 22px var(--gutter) 86px;
-    /* The card is as wide as its text: the shared reading measure plus the
-       body's 22px side padding and the card's own. The search bar above
-       takes the same width so the two edges line up. */
+    /* The card is as wide as its text: the shared reading measure, at the
+       reader's text size (.article__body scales its own font by
+       --reading-scale, so the width scales with it here), plus the body's
+       22px side padding and the card's own. The search bar above takes the
+       same width so the two edges line up. */
     --article-card-pad: 18px;
     --article-width: calc(
-      var(--reading-width, 60ch) + 44px + 2 * var(--article-card-pad)
+      var(--reading-width, 60ch) * var(--reading-scale, 1) + 44px +
+        2 * var(--article-card-pad)
     );
   }
 

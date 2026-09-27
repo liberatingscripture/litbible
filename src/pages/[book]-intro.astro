@@ -105,11 +105,11 @@ const isDraft = isDraftIntro(bookKey);
   </article>
 
   <style>
-    /* Keep intro left-aligned (NOT centered). Its width comes from
-       .scripture-main (the shared reading measure). */
+    /* Keep intro left-aligned (NOT centered). Its width and text size come
+       from .scripture-main (the shared reading measure). */
     .intro :global(p) {
       margin: 0 0 12px;
-      line-height: 1.75;
+      line-height: calc(1.75 + var(--reading-leading-extra, 0));
       text-align: left;
     }
 

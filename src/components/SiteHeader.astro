@@ -1,5 +1,17 @@
 ---
-const { class: className = "" } = Astro.props;
+// scriptureControls: "study" on a chapter page (verse numbers and footnote
+// letters), "read" in Reading View (numbers only: it prints no footnote
+// letters, and its numbers setting hides the chapter headings too).
+const { class: className = "", scriptureControls } = Astro.props;
+
+// Text size steps. The visible letters are the usual abbreviations; the
+// radios carry the words for screen readers.
+const SIZE_OPTIONS = [
+  { value: "sm", short: "S", label: "Small" },
+  { value: "md", short: "M", label: "Medium" },
+  { value: "lg", short: "L", label: "Large" },
+  { value: "xl", short: "XL", label: "Extra large" },
+];
 ---
 
 <header class={`site-header ${className}`.trim()}>
@@ -125,7 +137,9 @@ const { class: className = "" } = Astro.props;
     </nav>
   </noscript>
 
-  <!-- Shared tray — position: fixed, positioned by JS below whichever button opened it -->
+  <!-- Shared tray — position: fixed, placed by JS beside whichever button opened it
+       (the two header buttons, or Reading View's toolbar Aa) -->
+
   <div class="font-tray" id="fontTray" hidden role="dialog" aria-labelledby="fontTrayHeading">
     <div class="font-tray__header">
       <p class="font-tray__heading" id="fontTrayHeading">Display</p>
@@ -138,7 +152,7 @@ const { class: className = "" } = Astro.props;
     {/* Each option is named by its font and rendered in it, so the list
         previews itself. "Default" has no single font name to give: it means
         the site's normal typography (Inter, Crimson Text, Fraunces). */}
-    <fieldset class="font-tray__row font-tray__row--font">
+    <fieldset class="font-tray__row">
       <legend class="font-tray__legend">Font</legend>
       <div class="font-tray__fonts">
         <label class="font-tray__font-option">
@@ -156,7 +170,7 @@ const { class: className = "" } = Astro.props;
       </div>
     </fieldset>
 
-    <fieldset class="font-tray__row font-tray__row--theme">
+    <fieldset class="font-tray__row">
       <legend class="font-tray__legend">Theme</legend>
       <div class="font-tray__seg">
         <label class="font-tray__seg-option">
@@ -173,6 +187,65 @@ const { class: className = "" } = Astro.props;
         </label>
       </div>
     </fieldset>
+
+    {/* Text size and line spacing apply to the reading surfaces (scripture in
+        both views, footnotes, intros, article bodies) through --reading-scale
+        and --reading-leading-extra in global.css; the rest of the site is
+        left to browser zoom. */}
+    <fieldset class="font-tray__row">
+      <legend class="font-tray__legend">Text size</legend>
+      <div class="font-tray__seg">
+        {SIZE_OPTIONS.map((option) => (
+          <label class="font-tray__seg-option">
+            <input
+              type="radio"
+              class="font-tray__seg-input"
+              name="lit-size"
+              value={option.value}
+              aria-label={option.label}
+              data-size-radio
+            />
+            <span class="font-tray__seg-text" aria-hidden="true">{option.short}</span>
+          </label>
+        ))}
+      </div>
+    </fieldset>
+
+    <fieldset class="font-tray__row">
+      <legend class="font-tray__legend">Line spacing</legend>
+      <div class="font-tray__seg">
+        <label class="font-tray__seg-option">
+          <input type="radio" class="font-tray__seg-input" name="lit-leading" value="normal" data-leading-radio />
+          <span class="font-tray__seg-text">Normal</span>
+        </label>
+        <label class="font-tray__seg-option">
+          <input type="radio" class="font-tray__seg-input" name="lit-leading" value="roomy" data-leading-radio />
+          <span class="font-tray__seg-text">Roomy</span>
+        </label>
+      </div>
+    </fieldset>
+
+    {
+      scriptureControls ? (
+        <fieldset class="font-tray__row">
+          <legend class="font-tray__legend">Show</legend>
+          <div class="font-tray__checks">
+            <label class="font-tray__check">
+              <input type="checkbox" class="font-tray__check-input" data-vn-check />
+              <span class="font-tray__check-label">
+                {scriptureControls === "read" ? "Verse and chapter numbers" : "Verse numbers"}
+              </span>
+            </label>
+            {scriptureControls === "study" ? (
+              <label class="font-tray__check">
+                <input type="checkbox" class="font-tray__check-input" data-fn-check />
+                <span class="font-tray__check-label">Footnote letters</span>
+              </label>
+            ) : null}
+          </div>
+        </fieldset>
+      ) : null
+    }
   </div>
 
   <!-- Mobile overlay menu -->
@@ -323,6 +396,10 @@ const { class: className = "" } = Astro.props;
 
       const fontRadios = Array.from(tray.querySelectorAll('[data-font-radio]'));
       const themeRadios = Array.from(tray.querySelectorAll('[data-theme-radio]'));
+      const sizeRadios = Array.from(tray.querySelectorAll('[data-size-radio]'));
+      const leadingRadios = Array.from(tray.querySelectorAll('[data-leading-radio]'));
+      const vnCheck = tray.querySelector('[data-vn-check]');
+      const fnCheck = tray.querySelector('[data-fn-check]');
 
       // Move the tray out of the header's stacking context (.site-header has
       // z-index:10) so its own z-index competes at the top level — otherwise
@@ -347,12 +424,117 @@ const { class: className = "" } = Astro.props;
         for (const radio of themeRadios) radio.checked = radio.value === active;
       };
 
+      // Text size, line spacing and the two scripture settings. Each is an
+      // attribute on <html> (absent = the default) mirrored to one storage
+      // key, exactly like the font above; Layout.astro stamps them before
+      // first paint. `legacy` is the Reading View key the setting replaced,
+      // which the pre-paint script still falls back to, so it is deleted on
+      // every change or it could resurrect an older choice.
+      const SETTINGS = {
+        size: { attr: 'data-size', key: 'lit-size', legacy: 'lit_rm_fontSize', fallback: 'md' },
+        leading: { attr: 'data-leading', key: 'lit-leading', legacy: 'lit_rm_lineHeight', fallback: 'normal' },
+        vn: { attr: 'data-vn', key: 'lit-verse-numbers', legacy: 'lit_rm_markers', fallback: 'on' },
+        fn: { attr: 'data-fn', key: 'lit-fn-letters', legacy: null, fallback: 'on' },
+      };
+
+      const currentSetting = (name) =>
+        document.documentElement.getAttribute(SETTINGS[name].attr) || SETTINGS[name].fallback;
+
+      const syncReading = () => {
+        const size = currentSetting('size');
+        for (const radio of sizeRadios) radio.checked = radio.value === size;
+        const leading = currentSetting('leading');
+        for (const radio of leadingRadios) radio.checked = radio.value === leading;
+        if (vnCheck) vnCheck.checked = currentSetting('vn') === 'on';
+        if (fnCheck) fnCheck.checked = currentSetting('fn') === 'on';
+      };
+
+      // Changing text size, spacing or numbers reflows the page, which would
+      // carry a reader's place away (in Reading View, a whole book's worth).
+      // Pin the line of text at the reading line (30% down, just inside the
+      // text column) and scroll it back to where it was. A paragraph's top
+      // is not enough: a long paragraph grows below its top, so the line
+      // being read still drifts. The tray is taken out of hit-testing while
+      // measuring, since it can sit over the text on a phone, and the one
+      // corrective scroll is let through without closing it.
+      let holdingPlace = false;
+      // In order of preference (a selector list would return whichever comes
+      // first in the document, which is always <main>).
+      const READING_SURFACES = ['.chapter-paragraphs', '.intro', '.rm-text', '.article__body', 'main'];
+      const lineAt = () => {
+        const surface = READING_SURFACES.map((s) => document.querySelector(s)).find(Boolean);
+        if (!surface) return null;
+        const x = surface.getBoundingClientRect().left + 24;
+        const y = window.innerHeight * 0.3;
+        tray.style.pointerEvents = 'none';
+        let node = null;
+        let offset = 0;
+        try {
+          if (document.caretPositionFromPoint) {
+            const pos = document.caretPositionFromPoint(x, y);
+            if (pos) ({ offsetNode: node, offset } = pos);
+          } else if (document.caretRangeFromPoint) {
+            const range = document.caretRangeFromPoint(x, y);
+            if (range) ({ startContainer: node, startOffset: offset } = range);
+          }
+        } finally {
+          tray.style.pointerEvents = '';
+        }
+        if (node?.nodeType !== Node.TEXT_NODE || !node.length) return null;
+        const range = document.createRange();
+        const start = Math.min(offset, node.length - 1);
+        range.setStart(node, start);
+        range.setEnd(node, start + 1);
+        return range;
+      };
+      const keepReadingPlace = (change) => {
+        const line = lineAt();
+        const before = line?.getClientRects()[0]?.top;
+        change();
+        const after = line?.getClientRects()[0]?.top;
+        if (before === undefined || after === undefined) return;
+        const delta = after - before;
+        if (Math.abs(delta) < 1) return;
+        holdingPlace = true;
+        window.scrollBy({ top: delta, behavior: 'instant' });
+        requestAnimationFrame(() => requestAnimationFrame(() => { holdingPlace = false; }));
+      };
+
+      const applySetting = (name, value) => {
+        const { attr, key, legacy, fallback } = SETTINGS[name];
+        const root = document.documentElement;
+        keepReadingPlace(() => {
+          if (value === fallback) root.removeAttribute(attr);
+          else root.setAttribute(attr, value);
+        });
+        try {
+          value === fallback ? localStorage.removeItem(key) : localStorage.setItem(key, value);
+          if (legacy) localStorage.removeItem(legacy);
+        } catch (_) {}
+      };
+
+      // Below the button, or above it when there isn't room below (Reading
+      // View's Aa sits in a bottom sheet on phones and tablets). Aligned to
+      // the button's right edge, or its left when that would run off the
+      // left of the screen (Reading View's Aa is at the toolbar's left end).
       const positionTray = (btn) => {
         const rect = btn.getBoundingClientRect();
         const margin = 8;
-        tray.style.top = `${rect.bottom + margin}px`;
-        tray.style.right = `${Math.max(margin, window.innerWidth - rect.right)}px`;
-        tray.style.left = 'auto';
+        tray.style.maxHeight = 'none';
+        const width = tray.offsetWidth;
+        const height = tray.offsetHeight;
+        const below = window.innerHeight - rect.bottom - margin * 2;
+        const above = rect.top - margin * 2;
+        const openAbove = height > below && above > below;
+        const room = openAbove ? above : below;
+        tray.style.maxHeight = `${Math.max(160, room)}px`;
+        tray.style.top = openAbove
+          ? `${Math.max(margin, rect.top - margin - Math.min(height, room))}px`
+          : `${rect.bottom + margin}px`;
+        let left = rect.right - width;
+        if (left < margin) left = Math.min(rect.left, window.innerWidth - width - margin);
+        tray.style.left = `${Math.max(margin, left)}px`;
+        tray.style.right = 'auto';
       };
 
       const closeTray = (returnFocus = true) => {
@@ -366,8 +548,11 @@ const { class: className = "" } = Astro.props;
         activeBtn = btn;
         syncFont();
         syncTheme();
-        positionTray(btn);
+        syncReading();
+        // Shown before it is placed, so it can be measured; both happen in
+        // this task, before any paint.
         tray.hidden = false;
+        positionTray(btn);
         btn.setAttribute('aria-expanded', 'true');
         requestAnimationFrame(() => closeBtn.focus({ preventScroll: true }));
       };
@@ -394,7 +579,7 @@ const { class: className = "" } = Astro.props;
 
       // Header isn't sticky — close on scroll so the fixed tray can't detach from its button
       window.addEventListener('scroll', () => {
-        if (!tray.hidden) closeTray(false);
+        if (!tray.hidden && !holdingPlace) closeTray(false);
       }, { passive: true });
 
       for (const radio of fontRadios) {
@@ -440,8 +625,24 @@ const { class: className = "" } = Astro.props;
         });
       }
 
+      for (const radio of sizeRadios) {
+        radio.addEventListener('change', () => {
+          if (radio.checked) applySetting('size', radio.value); // 'sm' | 'md' | 'lg' | 'xl'
+        });
+      }
+
+      for (const radio of leadingRadios) {
+        radio.addEventListener('change', () => {
+          if (radio.checked) applySetting('leading', radio.value); // 'normal' | 'roomy'
+        });
+      }
+
+      vnCheck?.addEventListener('change', () => applySetting('vn', vnCheck.checked ? 'on' : 'off'));
+      fnCheck?.addEventListener('change', () => applySetting('fn', fnCheck.checked ? 'on' : 'off'));
+
       syncFont();
       syncTheme();
+      syncReading();
     };
     if ("requestIdleCallback" in window) {
       requestIdleCallback(initFontTray, { timeout: 2000 });

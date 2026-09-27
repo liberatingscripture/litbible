@@ -110,6 +110,7 @@ const description = `Read ${bookName} in continuous scroll with Reading Mode.`;
   bg="cream"
   pagefindIndex={false}
   robotsNoindex={allChaptersDraft}
+  scriptureControls="read"
 >
   <Fragment slot="head">
     <script type="application/ld+json" set:html={JSON.stringify({
@@ -153,23 +154,17 @@ const description = `Read ${bookName} in continuous scroll with Reading Mode.`;
     >
       <div class="rm-toolbar__row">
         <div class="rm-toolbar__cluster rm-toolbar__cluster--left">
+          {/* Opens the site's Display tray (SiteHeader.astro), which holds
+              text size, line spacing and the Numbers setting for every page.
+              The toolbar is sticky, so this is the one within reach. */}
           <button
             type="button"
-            data-rm-aa-toggle
+            data-font-toggle
             aria-expanded="false"
-            aria-controls="rm-aa-panel"
-            aria-label="Typography controls"
+            aria-controls="fontTray"
           >
-            Aa
-          </button>
-
-          <button
-            type="button"
-            data-rm-markers-toggle
-            aria-pressed="true"
-            aria-label="Numbers: On"
-          >
-            Numbers: On
+            <span aria-hidden="true">Aa</span>
+            <span class="sr-only">Display settings</span>
           </button>
 
           <button type="button" data-rm-focus-toggle aria-pressed="false">
@@ -239,45 +234,6 @@ const description = `Read ${bookName} in continuous scroll with Reading Mode.`;
           </button>
         </div>
       </div>
-
-      <div class="rm-toolbar__panels">
-        <div id="rm-aa-panel" class="rm-aa" data-rm-aa-panel hidden>
-          <div class="rm-aa__group">
-            <p class="rm-aa__group-title">Font Size</p>
-            <div class="rm-aa__options">
-              <button type="button" data-rm-set="font:sm" aria-pressed="false"
-                >S</button
-              >
-              <button type="button" data-rm-set="font:md" aria-pressed="false"
-                >M</button
-              >
-              <button type="button" data-rm-set="font:lg" aria-pressed="false"
-                >L</button
-              >
-            </div>
-          </div>
-
-          <div class="rm-aa__group">
-            <p class="rm-aa__group-title">Line Height</p>
-            <div class="rm-aa__options">
-              <button
-                type="button"
-                data-rm-set="leading:normal"
-                aria-pressed="false"
-              >
-                Normal
-              </button>
-              <button
-                type="button"
-                data-rm-set="leading:roomy"
-                aria-pressed="false"
-              >
-                Roomy
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
 
     <button
@@ -299,7 +255,6 @@ const description = `Read ${bookName} in continuous scroll with Reading Mode.`;
     <article
       class="rm-reader"
       data-rm-reader
-      data-rm-markers="on"
       data-rm-focus="off"
     >
       <h1 class="rm-title">{bookName}</h1>
