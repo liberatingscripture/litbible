@@ -362,7 +362,11 @@ import AppIcons from "./apps/AppIcons.astro";
   // verse deep link, and never on /apps (the CTA's own destination) or
   // /privacy (a page people open to read terms, not to be pitched to).
   const SUPPRESSED_PATHS = /^\/(apps|privacy)\/?$/;
-  const isVerseDeepLink = /^#v\d+$/.test(location.hash);
+  // Every link a reader can share into scripture counts: a verse (#v16), a
+  // range (#v16-17, from Copy verses and selection sharing), part of a verse
+  // (#john-8-p9) and a Reading View verse (#john-3-v16).
+  const isVerseDeepLink =
+    /^#(?:v\d+(?:-\d+)?|[0-9a-z]+-\d+-[pv]\d+)$/.test(location.hash);
   const isSuppressedPath = SUPPRESSED_PATHS.test(location.pathname);
   const eligible = !isVerseDeepLink && !isSuppressedPath && pageviews >= 2;
 
