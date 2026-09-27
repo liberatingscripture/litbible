@@ -25,6 +25,15 @@ const DIST = path.join(ROOT, "dist");
 // element exists).
 const ALWAYS_VALID_FRAGMENTS = new Set(["", "top"]);
 
+// A verse range (#v16-18) is not an element id: chapter-tools.js reads it and
+// highlights the verses, and the page's inline script scrolls to the first.
+// It resolves when both ends exist, which is what applyFromHash needs.
+function fragmentResolves(ids, fragment) {
+  if (ids.has(fragment)) return true;
+  const range = fragment.match(/^v(\d+)-(\d+)$/);
+  return Boolean(range) && ids.has(`v${range[1]}`) && ids.has(`v${range[2]}`);
+}
+
 /** Recursively collect every *.html file under dir (posix-style absolute paths). */
 async function walkHtml(dir) {
   const out = [];
@@ -200,7 +209,7 @@ async function main() {
       // Fragment check.
       if (link.fragment && !ALWAYS_VALID_FRAGMENTS.has(link.fragment.toLowerCase())) {
         const ids = await idsFor(targetFile);
-        if (!ids.has(link.fragment)) {
+        if (!fragmentResolves(ids, link.fragment)) {
           const where =
             link.pathname === null
               ? "this page"
