@@ -1,0 +1,86 @@
+---
+// "Continue: Romans 8": back to where this reader last was, in the view they
+// were using. Hidden until src/scripts/last-read.js finds a record, so with no
+// JavaScript, no storage, or a first visit, nothing renders at all.
+// `class` is for the host page's spacing; put margins on it, not on a
+// wrapper, so a hidden chip takes no room.
+interface Props {
+  class?: string;
+}
+const { class: className } = Astro.props;
+---
+
+<div class:list={["continue-reading", className]} data-continue-reading hidden>
+  <a class="continue-reading__link" href="/read/" data-continue-link>
+    Continue: <span data-continue-label></span>
+  </a>
+  <button
+    type="button"
+    class="continue-reading__forget"
+    data-continue-forget
+    aria-label="Forget where I was reading"
+  >
+    <span aria-hidden="true">×</span>
+  </button>
+</div>
+
+<script>
+  import "../scripts/continue-reading.js";
+</script>
+
+<style>
+  .continue-reading {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    border: 1px solid rgba(var(--ink-rgb), 0.28);
+    border-radius: 999px;
+    background: var(--surface-raised);
+    font-size: 1rem;
+    line-height: 1.4;
+  }
+
+  /* Set on every element, not inherited: the home title block paints all its
+     descendants in Crimson (.title-block__inner *). The reader-font choice
+     still wins, since it is !important. */
+  .continue-reading,
+  .continue-reading * {
+    font-family: Inter, "Inter Fallback", system-ui, -apple-system, BlinkMacSystemFont,
+      "Segoe UI", sans-serif;
+  }
+
+  .continue-reading[hidden] {
+    display: none;
+  }
+
+  .continue-reading__link {
+    padding: 8px 6px 8px 18px;
+    color: var(--green-text);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .continue-reading__link:hover {
+    text-decoration: underline;
+  }
+
+  .continue-reading__forget {
+    display: inline-grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    margin-right: 4px;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: rgba(var(--ink-rgb), 0.7);
+    font-size: 1.25rem;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .continue-reading__forget:hover {
+    background: rgba(var(--ink-rgb), 0.08);
+    color: var(--text);
+  }
+</style>
