@@ -106,7 +106,7 @@
       "ref": "Matt.21.21",
       "english": [
         {
-          "text": "faithfulness",
+          "text": "trust",
           "n": 1
         }
       ],
@@ -115,7 +115,7 @@
         "greek": "pistis",
         "traditional": "Faith",
         "glossary": "faith-trust",
-        "form": "faithfulness"
+        "form": "trust"
       },
       "confidence": "common",
       "lemma": "present",
@@ -126,7 +126,7 @@
       "ref": "Matt.21.22",
       "english": [
         {
-          "text": "faithfulness",
+          "text": "trust",
           "n": 1
         }
       ],
@@ -135,7 +135,7 @@
         "greek": "pistis",
         "traditional": "Faith",
         "glossary": "faith-trust",
-        "form": "faithfulness"
+        "form": "trust"
       },
       "confidence": "common",
       "lemma": "present",

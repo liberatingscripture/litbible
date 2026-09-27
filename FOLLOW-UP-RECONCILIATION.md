@@ -1731,6 +1731,39 @@ unformatted chapter refuses every chapter in the document, including finished
 ones. Either format those numbers in Word or narrow the gate to the chapters
 being built. This comparison was done with the reconcile extractor instead.
 
+### Queued from the Matthew 21 *pistis* edit (2026-09-26)
+
+The owner made these in the repo first (PR #213). Both masters were read on
+2026-09-26 and still carry the old text at every row, so all three are owed to
+Word.
+
+| repo | master | fix |
+|---|---|---|
+| `matthew-21` v21, v22 | Matthew | `hold onto faithfulness` → `hold onto trust`, and `while maintaining faithfulness` → `while maintaining trust` |
+| `matthew-21` fn-u | Matthew | Everything after `a distancing from one’s` is replaced; the new ending is below. The note's first two sentences are unchanged. |
+| `james-1` fn-g | James | `‘assess’/’judge,’` → `‘assess’/‘judge,’`, a wrong-direction opener (the defect class the validator cannot see) |
+
+The new ending of `matthew-21` fn-u, to follow `a distancing from one’s`:
+
+> trust in the faithfulness and power of God the Liberator to respond to the
+> people crying out in their oppression. It suggests a relational or internal
+> separation from one’s own posture of trust and commitment to call on God, not
+> merely experiencing doubt. This seems to be an allusion to Psalm 20, which
+> repeatedly references God answering cries and petitions of the people,
+> granting their hearts’ desires. In verse 7, it makes reference to trust or
+> pride (though it’s a different word in the Greek version than *pistis*, the
+> word translated as ‘trust’ here) either in horses and chariots or in the name
+> of the Lord, i.e. military might or God. The mountain Jesus is discussing as
+> being tossed into the sea is the site of the Herodium, which was Herod’s
+> fortress, a prominent symbol of oppressing the people through ostentatious
+> military might.
+
+**The Psalm number was checked, and it is 20, not 21.** The owner's first draft
+said Psalm 21. Chariots and horses are Psalm 20:7 in English Bibles (20:8 in the
+Hebrew, 19:8 in the Septuagint, whose verb there is *megalynthēsometha*, not a
+*pistis* word). Psalm 21:7 is "the king trusts in the LORD", which has no
+chariots. The two are a paired prayer and thanksgiving, which is how they blur.
+
 ## 26. The footnote-sequence audit — done (2026-08-20)
 
 The last outstanding repo-side item. Two sweeps over all 206 published chapters:
