@@ -182,8 +182,11 @@ src/
                      #   scripture-HTML transform pipeline — prepareStudyParagraph
                      #   / prepareReadParagraph; Study wraps each verse in a
                      #   data-verse span), draft-chapters.mjs (single source
-                     #   for indexed:false draft data — used by astro.config.mjs,
-                     #   ReadMenu, and the /read lede), fetchPodcastEpisodes.ts +
+                     #   for indexed:false draft data, and for draft intros —
+                     #   used by astro.config.mjs, ReadMenu, and the /read
+                     #   lede), chapter-nav.mjs + chapter-nav-data.mjs (the one
+                     #   Previous/Next rule, which steps over drafts, and its
+                     #   build shell), fetchPodcastEpisodes.ts +
                      #   podcast-feed-core.ts (shell/core split: the shell holds
                      #   the two imports Node can't resolve — the JSON overrides
                      #   and podcast-feed.xml?raw — so the core stays import-free
@@ -199,7 +202,8 @@ src/
   scripts/           # CLIENT-side vanilla JS (chapter-tools, read-mode,
                      #   search-core + searchbar + search — see Search below;
                      #   lit-panel, the one floating panel every reader tool
-                     #   shares; ref-preview, scripture reference previews)
+                     #   shares; ref-preview, scripture reference previews;
+                     #   last-read + continue-reading, "Continue reading")
   styles/            # global.css, read-mode.css, scripture-tools.css, articles.css,
                      #   pages/<page>.css (per-page stylesheets)
 scripts/             # BUILD/validation Node scripts (.mjs) — see below
@@ -382,7 +386,7 @@ Each file in `src/data/chapters/` follows this structure:
   explicit false→true transition, and the validator enforces the rules in
   `chapter_json_invariants.json`). 52 of 260 chapters were drafts in 2026-09;
   count them rather than trusting that figure.
-  `indexed: false` has five downstream effects, so handle it carefully:
+  `indexed: false` has seven downstream effects, so handle it carefully:
   1. `build-verse-index.mjs` excludes the chapter from the verse search index
      (kept out of search).
   2. `astro.config.mjs` excludes the slug from the sitemap, and a `/read/<book>`
@@ -402,10 +406,30 @@ Each file in `src/data/chapters/` follows this structure:
   5. The `/read` lede names what isn't finished ("all except Acts,
      Revelation, and Luke 23–24"), built from `scanDraftChapters()` at
      build time: whole books first, then partly drafted books with their
-     chapter runs. It needs no edit when a draft lands. (The drafts' own
-     placeholder paragraph still hard-codes "part of Luke", but that is
-     chapter JSON the apps sync, so it changes only with the chapter.)
+     chapter runs. It needs no edit when a draft lands.
+  6. Previous/Next step over it (`src/lib/chapter-nav.mjs`, the one rule
+     behind the top buttons, the bottom buttons and a draft page's links),
+     and the bottom buttons say what was stepped over ("Luke 23–24 are still
+     being translated."). The page itself renders `DraftPage.astro` (the
+     photo, the limerick, the book's computed progress, ways onward) **on the
+     website only**: the placeholder paragraphs stay in the JSON because the
+     apps show them, and their last line ("part of Luke") went stale, which
+     is why the website stopped printing it.
+  7. Reading View (`read/[book].astro`) prints a run of drafts as one stub
+     ("Chapters 23–24"), keeping an empty `#ch-N` anchor for every chapter so
+     ReadMenu's in-page jumps and saved positions still resolve. Stacked
+     anchors must not take the sibling margin (`read-mode.css`).
   **Flip it to `true`** (do not delete the field) when real content lands.
+
+  **Book intros have no flag, so a draft intro is recognised by its
+  placeholder sentence** (`DRAFT_INTRO_MARKER` in `draft-chapters.mjs`,
+  "This page is still in progress"; acts, luke and revelation in 2026-09),
+  and a missing intro file counts as a draft. `scanDraftIntros()` feeds
+  effects 2, 3, and 6 above plus Pagefind (the page's `robotsIndex` is
+  false, which also switches its indexing off). Adding frontmatter to mark
+  them was rejected: the intro files sync to the apps, so the mark itself
+  would be a publish. When an intro is written, the sentence goes and
+  everything follows.
 - **Prose uses curly quotes only** — `“ ”` for quotations, `‘ ’` nested, `’`
   for apostrophes and possessives. Straight ASCII quotes are a **validation
   error** in both `paragraphs` and `footnotes[].html` (attributes are exempt,
@@ -1452,6 +1476,19 @@ collection); they're read directly by the intro pages and the API manifest.
   `src/scripts/lit-panel.js` is the one panel all reader tools share (verse
   menu, footnote popover, selection panel, preview): one open at a time, closed
   by an outside click or Escape.
+- **"Continue reading" is one record, `localStorage['lit_last_read']`**
+  (`{ v: 1, book, chapter, verse | null, view: "study" | "read", t }`), kept by
+  `src/scripts/last-read.js`. Study View writes it on arrival (at a `#vN`
+  verse) and as the reader scrolls, taking the last verse number above 30% of
+  the viewport; Reading View writes it whenever it saves its own per-book
+  resume position. `read-mode.js` is loaded through `?url`, so Vite serves it
+  unbundled and it **cannot import**: it announces each save with an
+  `rm:position` event, and a bundled script in `read/[book].astro` records
+  it. Draft chapters are never recorded. `ContinueReading.astro` (home title
+  block, top of /read) and a button in the phone menu offer it back, hidden
+  until a record exists, so no JS or no storage means nothing renders; the ×
+  forgets it everywhere. The privacy page's storage paragraph names it: keep
+  it there if the record ever changes shape or purpose.
 - **Chapter navigation is prefetched, never prerendered.** `ScriptureLayout`
   carries speculation rules that prefetch the Previous/Next buttons' and the
   bottom chapter links' targets at `moderate` eagerness. Don't upgrade it to
@@ -2013,6 +2050,7 @@ argv, and the scan; nothing else.
 | `src/pages/read/[book].astro` | Continuous reading view |
 | `src/scripts/chapter-tools.js` | Verse highlight/menu, footnote popovers, and selection sharing |
 | `src/lib/scripture-refs.mjs` | The render-time reference linker; read its header before widening what it links |
+| `src/lib/chapter-nav.mjs` | The one Previous/Next rule (steps over drafts); every chapter and intro nav reads it |
 | `src/styles/global.css` | Main stylesheet |
 | `astro.config.mjs` | Site config, redirects, sitemap/noindex draft logic |
 | `content.config.ts` | Content-collection schemas |

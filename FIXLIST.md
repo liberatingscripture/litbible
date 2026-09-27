@@ -936,18 +936,46 @@ Details for each item are in the artifact (https://claude.ai/artifact/4ghJK72rd2
   both. A safe version would bind only to the last explicit reference in the
   same note, and needs a pass over the 246 "verse(s) N" cases first.
 
-- [ ] **"Continue reading" for returning readers (F2).**
+- [x] **"Continue reading" for returning readers (F2).**
   Keep one last-read record in `localStorage` (book, chapter, verse, view,
   time), written by Study View and Reading View, and offer "Continue: Romans
   8" in the home hero, at the top of /read, and in the phone menu, with a way
   to clear it. Add it to the privacy page's storage paragraph.
+  DONE (2026-09-27): `src/scripts/last-read.js` keeps `lit_last_read`.
+  Study View writes it on arrival (at the `#v` verse) and as the reader
+  scrolls; Reading View writes it beside its own resume save, through an
+  `rm:position` event, because `read-mode.js` is served unbundled and can't
+  import. Drafts are never recorded. `ContinueReading.astro` sits under the
+  home title block and /read's heading, and the phone menu has a quieter
+  button above Read Now; the × forgets it everywhere at once. Privacy page
+  clause added and re-dated.
 
-- [ ] **Reading straight through runs into drafts (F4).**
+- [x] **Reading straight through runs into drafts (F4).**
   Let Previous/Next skip to the nearest published page and say why ("Luke
   23–24 are in progress · Next: John introduction"), and render draft pages
   from a template whenever `indexed` is false. **Before retiring the
   placeholder paragraph in the draft chapter JSON, check how both apps show a
   draft**, since that text ships to them. Pairs with X15.
+  DONE (2026-09-27): `src/lib/chapter-nav.mjs` is now the one rule behind
+  the top buttons, the bottom buttons and a draft page's links, replacing
+  three hand-rolled copies. It steps over drafts, and a line under the bottom
+  buttons names what it stepped over ("Luke 23–24 are still being
+  translated."). Draft chapters and the placeholder intros (Acts, Luke,
+  Revelation, found by their placeholder sentence) render `DraftPage.astro`
+  on the website only: the photo and limerick, computed progress ("22 of the
+  24 chapters of Luke are published so far."), and ways onward. The JSON and
+  intro files keep their placeholder, so the apps are unchanged and the
+  "check the apps first" caution never came into play. Draft intros are also
+  noindexed and left out of the sitemap and Pagefind. Reading View shows a run
+  of drafts as one stub ("Chapters 23–24") and keeps every `#ch-N` anchor.
+  Follow-up, still open below: the limerick's missing line break.
+
+- [ ] **Three draft placeholders miss a line break in the limerick.**
+  `acts-7`, `revelation-2` and `revelation-12` have no `<br>` after "This
+  page is on hold," so two lines of it run together. The website no longer
+  shows that text (it renders the draft page instead), but the apps still do,
+  from the chapter JSON. A one-character fix in each file, and a publish to
+  both apps, so it's your call whether it's worth a release.
 
 - [ ] **Search puts the usual answers last (F7).**
   Open /search with a one-line summary that doubles as jump links ("117
