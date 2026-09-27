@@ -108,8 +108,20 @@ function resolveBookKey(rawBookPart) {
   return BOOK_RANK.has(mapped) ? mapped : null;
 }
 
+// A period between two digits is a chapter:verse separator ("John 3.16", the
+// OSIS "John.3.16"), so it becomes a colon before the punctuation strip below
+// turns every other period (the one in "Rom.") into a space. A comma between
+// digits is the European form ("John 3,16"), but only while there is no
+// colon: after one, a comma lists verses ("Rom 8:28, 30").
+function normalizeVerseSeparator(s) {
+  const withColons = s.replace(/(\d)\.(\d)/g, "$1:$2");
+  return withColons.includes(":")
+    ? withColons
+    : withColons.replace(/(\d),(\d)/g, "$1:$2");
+}
+
 function cleanReferenceInput(raw) {
-  return String(raw || "")
+  return normalizeVerseSeparator(String(raw || ""))
     .trim()
     .toLowerCase()
     .replace(/[.,;()]/g, " ")
