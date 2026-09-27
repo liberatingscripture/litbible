@@ -1,6 +1,6 @@
 // test/release-notes-view.test.js
 //
-// src/lib/release-notes-view.mjs: how /release-notes presents
+// src/lib/release-notes-view.mjs: how /release-notes and its RSS feed present
 // release-notes.json. The detail strings below are real ones from the feed.
 
 import { test } from "node:test";
@@ -126,6 +126,12 @@ test("rendered detail: del/ins with spoken labels, escaped, one span per segment
     '<span class="rn-diff"><ins><span class="sr-only">Added: </span>of the Life-breath</ins></span>',
   );
   assert.equal(renderDetailHtml(`fn. a (v. 1): added “x”`), "fn. a (v. 1): added “x”");
+  // The feed, which has no CSS to make lines, joins segments with <br>.
+  assert.equal(
+    renderDetailHtml(`v. 1: added "a"; v. 2: minor formatting change`, { joiner: "<br>" }),
+    '<span class="rn-diff"><span class="rn-diff__label">v. 1</span> <ins><span class="sr-only">Added: </span>a</ins></span>' +
+      '<br><span class="rn-diff"><span class="rn-diff__label">v. 2</span> minor formatting change</span>',
+  );
   assert.equal(
     renderRelabelHtml("footnotes formerly ee–nn relabeled ff–oo"),
     '<span class="rn-diff rn-diff--note">Footnotes formerly ee–nn relabeled ff–oo</span>',

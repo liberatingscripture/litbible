@@ -25,6 +25,15 @@
   line-height: 1.6;
 }
 
+.rn-subscribe {
+  margin: 14px 0 0;
+  font-size: 0.9rem;
+}
+
+.rn-subscribe a {
+  color: var(--link);
+}
+
 /* FILTERS (revealed by script) */
 .rn-filters {
   display: flex;

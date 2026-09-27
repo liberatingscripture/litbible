@@ -1,4 +1,4 @@
-// How the release notes page presents release-notes.json.
+// How the release notes page and its RSS feed present release-notes.json.
 //
 // Pure and unit-tested (test/release-notes-view.test.js). The JSON is the
 // apps' Translation Updates feed and does not change for any of this: the
@@ -184,7 +184,8 @@ function escapeHtml(text) {
 }
 
 // A screen reader doesn't announce <del>/<ins> on its own, so each carries a
-// word that says which it is, hidden on the page by `sr-only`.
+// word that says which it is. `sr-only` hides it on the page; a feed reader
+// has no such class and shows it, which reads fine there too.
 const removed = (text) =>
   `<del><span class="sr-only">Removed: </span>${escapeHtml(text)}</del>`;
 const added = (text) =>
@@ -202,8 +203,10 @@ export function renderRelabelHtml(text) {
 /**
  * A change's `detail` as HTML: old text struck through beside the new, one
  * line per verse or footnote. Falls back to the escaped string unchanged.
+ * The page lays the segments out as lines with CSS; a feed reader has no CSS,
+ * so the feed passes `joiner: "<br>"`.
  */
-export function renderDetailHtml(detail) {
+export function renderDetailHtml(detail, { joiner = "" } = {}) {
   const segments = parseDetail(detail);
   if (!segments) return escapeHtml(detail ?? "");
   return segments
@@ -217,5 +220,5 @@ export function renderDetailHtml(detail) {
         : "minor formatting change";
       return `<span class="rn-diff">${label}${body}</span>`;
     })
-    .join("");
+    .join(joiner);
 }
