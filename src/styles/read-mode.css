@@ -683,10 +683,13 @@ html[data-rm-leading="roomy"] .rm-page .rm-reader {
   --rm-line-height: 2;
 }
 
-/* Keep your existing 900px page width tweak */
+/* Tablets and phones: 20px of margin a side. It was 0.9rem in total
+   (about 7px a side), which ran the text nearly edge to edge on a phone,
+   tighter than Study View's 16px. The toolbar is a fixed bottom sheet at
+   this width, so only the reading column narrows. */
 @media (max-width: 900px) {
   .rm-page {
-    width: min(100%, calc(100% - 0.9rem));
+    width: min(100%, calc(100% - 2.5rem));
   }
 
   .rm-page .rm-reader {
