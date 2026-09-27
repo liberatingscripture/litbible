@@ -1,4 +1,5 @@
-// Single source of truth for which chapters are drafts ("indexed": false).
+// Single source of truth for which chapters are drafts ("indexed": false),
+// and, below, which book intros are.
 //
 // Consumed by astro.config.mjs (sitemap filter — runs in plain Node before
 // Vite) and ReadMenu.astro ("(draft)" chapter markers — Astro frontmatter at
@@ -13,6 +14,7 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { BOOK_ORDER } from "../data/books.js";
 
 // Resolved from the working directory, not import.meta.url: when Vite
 // bundles this module for the Astro build, import.meta.url points at the
@@ -81,4 +83,37 @@ export function scanDraftChapters() {
 
   cached = { noindexSlugs, draftChaptersByBook, fullyDraftBooks };
   return cached;
+}
+
+// An intro has no `indexed` flag: it is Markdown the apps sync, and adding
+// frontmatter to a placeholder would publish a change to both platforms for
+// no reader-visible reason. A draft intro is instead recognised by the
+// placeholder sentence every one of them carries (acts, luke and revelation
+// in 2026-09). A book with no intro file at all counts as a draft too, so
+// Previous/Next never lands on the "isn't written yet" fallback page.
+export const DRAFT_INTRO_MARKER = "This page is still in progress";
+
+function resolveIntrosDir() {
+  const fromCwd = path.resolve(process.cwd(), "src/data/intros");
+  if (existsSync(fromCwd)) return fromCwd;
+  return fileURLToPath(new URL("../data/intros", import.meta.url));
+}
+
+let cachedIntros = null;
+
+/** @returns {Set<string>} book keys whose intro is a draft or missing */
+export function scanDraftIntros() {
+  if (cachedIntros) return cachedIntros;
+
+  const introsDir = resolveIntrosDir();
+  const drafts = new Set();
+  for (const bookKey of BOOK_ORDER) {
+    const file = path.join(introsDir, `${bookKey}-intro.md`);
+    if (!existsSync(file) || readFileSync(file, "utf-8").includes(DRAFT_INTRO_MARKER)) {
+      drafts.add(bookKey);
+    }
+  }
+
+  cachedIntros = drafts;
+  return cachedIntros;
 }

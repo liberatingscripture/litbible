@@ -1,0 +1,48 @@
+---
+// The big Previous/Next buttons at the foot of a chapter or intro page. Where
+// they go comes from the shared rule (src/lib/chapter-nav.mjs), which steps
+// over drafts, so a note under the buttons names what was stepped over:
+// otherwise Luke 22's "Next" landing on the John introduction reads as a
+// broken link. Button styling stays with each page (.chapter-ctas), as before.
+import { navFor } from "../lib/chapter-nav-data.mjs";
+
+interface Props {
+  bookKey: string;
+  chapter: number | "intro";
+  /** A draft page says where the text stands itself, so it skips the note. */
+  showSkipped?: boolean;
+}
+
+const { bookKey, chapter, showSkipped = true } = Astro.props;
+const { prev, next, prevSkipped, nextSkipped } = navFor(bookKey, chapter);
+const notes = showSkipped
+  ? [prevSkipped, nextSkipped].filter((s) => s !== null).map((s) => s.sentence)
+  : [];
+---
+
+{
+  (prev || next) && (
+    <nav class="chapter-ctas" aria-label="Chapter navigation">
+      {prev && (
+        <a class="chapter-cta chapter-cta--prev" href={prev.href} aria-label={`Go to ${prev.label}`}>
+          {prev.label}
+        </a>
+      )}
+      {next && (
+        <a class="chapter-cta chapter-cta--next" href={next.href} aria-label={`Go to ${next.label}`}>
+          {next.label}
+        </a>
+      )}
+    </nav>
+  )
+}
+{notes.length > 0 && <p class="chapter-ctas__note">{notes.join(" ")}</p>}
+
+<style>
+  .chapter-ctas__note {
+    margin: 0 0 14px;
+    text-align: center;
+    font-size: 0.95rem;
+    color: rgba(var(--ink-rgb), 0.75);
+  }
+</style>
