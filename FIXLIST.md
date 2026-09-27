@@ -1258,7 +1258,7 @@ need a mockup or a side-by-side the owner looks at before code.
   first paint. Change only the multiplier, never the per-font `--ch`.
   `--content-width` also sets /read, /search, About and the commitments
   page, so review those together. Compare side by side before shipping.
-  DONE (2026-09-27): a new `--reading-width` token (`--reading-measure` × `--ch`)
+  DONE (2026-09-27, PR #219): a new `--reading-width` token (`--reading-measure` × `--ch`)
   sets Study View, intros, Reading View and article bodies. The owner picked 60
   from side-by-side screenshots at 72, 62, 60, 58, 56 and 54: about 77
   characters a line in Inter and 85 in Atkinson, down from 92 and 102. The
