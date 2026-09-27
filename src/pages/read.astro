@@ -5,12 +5,14 @@ import "../styles/pages/read.css";
 import releaseNotes from "../data/release-notes.json";
 import { BOOK_ORDER, bookKeyToLabel } from "../data/books.js";
 import { scanDraftChapters } from "../lib/draft-chapters.mjs";
+import { releaseNoteLinker } from "../lib/release-note-linker";
 
 const title = "Read | Liberation and Inclusion Translation";
 const description =
   "Read the Liberation and Inclusion Translation (LIT) online.";
 
 const recentNotes = releaseNotes.slice(0, 3);
+const linkDescription = await releaseNoteLinker();
 
 // The lede names what isn't finished yet. It comes from the chapters' own
 // indexed:false flags, so it stays true as drafts land: the hand-written
@@ -121,9 +123,10 @@ const TYPE_LABEL: Record<string, string> = {
                       <span class="whats-new__badge">
                         {TYPE_LABEL[change.type] ?? "Updated"}
                       </span>
-                      <span class="whats-new__change-text">
-                        {change.description}
-                      </span>
+                      <span
+                        class="whats-new__change-text"
+                        set:html={linkDescription(change.description)}
+                      />
                     </li>
                   ))}
                 </ul>
