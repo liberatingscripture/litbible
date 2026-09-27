@@ -1567,10 +1567,13 @@ collection); they're read directly by the intro pages and the API manifest.
   **extracted text, never markup** (owner, 2026-09-06). Modified chapters diff
   rendered verse/footnote text; a chapter edit that moves no visible character
   — an attribute retag, a passage re-set as an `hbq` blockquote, two paragraphs
-  merged — is a **formatting** edit and emits *nothing at all*, not even a
-  "metadata updated" row. Only a genuine metadata edit (paragraphs and footnotes
-  byte-identical, `title`/`description`/`topics` moved) still collapses to that
-  line. Modified intros/glossary/articles are likewise compared with HTML
+  merged — is a **formatting** edit and emits *nothing at all*. A **metadata**
+  edit (paragraphs and footnotes byte-identical, `title`/`description`/`topics`
+  moved) emits nothing too (owner, 2026-09-27): it used to collapse to a
+  "metadata updated" row, but a topics retag tells a reader nothing about the
+  translation. `metadata_updated` survives only in the feed's older entries,
+  which is why the apps and the release notes page still know the type.
+  Modified intros/glossary/articles are likewise compared with HTML
   attributes and whitespace normalized away, so a mechanical edit (e.g.
   stripping `target="_blank"` from a link) produces no changelog entry.
   **Two things this must not swallow, both load-bearing:** a bracket-only edit

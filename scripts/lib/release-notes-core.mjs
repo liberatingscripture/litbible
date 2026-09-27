@@ -270,12 +270,6 @@ export function buildChanges({ addedFiles, modifiedFiles, readBase, readNow }) {
 
   const changes = [];
 
-  // Metadata-only chapter changes (no reader-visible text/footnote change) are
-  // collected here and collapsed into a single entry after the loops, so a
-  // repo-wide metadata pass (e.g. the `indexed` flag or a `topics` retag) can't
-  // flood the changelog.
-  const metadataOnly = [];
-
   // newByBook collects both brand-new chapter files AND placeholder→real upgrades.
   // It is emitted after both passes so placeholders detected in the modified loop
   // are included in the grouping.
@@ -594,23 +588,21 @@ export function buildChanges({ addedFiles, modifiedFiles, readBase, readNow }) {
     const hasFnChanges = filteredFnDiffs.length > 0 || relabelSummary !== null;
 
     if (!hasTextChanges && !hasFnChanges) {
-      // Nothing a reader could be shown changed. Two ways to get here, and they
-      // are not the same thing:
+      // Nothing a reader could be shown changed, so nothing is written. Two
+      // ways to get here, and neither is a translation update:
       //
       //  - The markup moved but every visible character stayed put: an
-      //    attribute retag, or a passage re-set as a poetry blockquote. That is
-      //    a FORMATTING edit and emits nothing at all (owner, 2026-09-06) —
-      //    release-notes.json is the apps' Translation Updates feed, and
-      //    "metadata updated" is still a row in it. One such row has ever
-      //    shipped, against a batch of 15 suppressed by hand through
-      //    release-notes-skip.md; this is that suppression made automatic.
+      //    attribute retag, or a passage re-set as a poetry blockquote. A
+      //    FORMATTING edit (owner, 2026-09-06).
       //  - The paragraphs and footnotes are byte-identical and something else
-      //    in the file moved (title, description, topics). That is a genuine
-      //    metadata edit and keeps its row.
-      const formattingOnly =
-        JSON.stringify(oldParas) !== JSON.stringify(newParas) ||
-        JSON.stringify(oldFns) !== JSON.stringify(newFns);
-      if (!formattingOnly) metadataOnly.push({ bookKey, chapter, label });
+      //    in the file moved: title, description, topics. A METADATA edit
+      //    (owner, 2026-09-27). These used to collapse to a "metadata updated"
+      //    row, but release-notes.json is the apps' Translation Updates feed,
+      //    and a topics retag tells a reader nothing about the translation.
+      //
+      // Both were a hand-kept suppression through release-notes-skip.md
+      // before they were automatic. The `metadata_updated` type stays in the
+      // apps' vocabulary only because the feed's older entries carry it.
       continue;
     }
 
@@ -764,23 +756,6 @@ export function buildChanges({ addedFiles, modifiedFiles, readBase, readNow }) {
     changes.push({
       type: "article_updated",
       description: `Article updated: ${basename(file, ".md").replace(/-/g, " ")}`,
-    });
-  }
-
-  // ── Metadata-only chapter changes (collapsed) ──────────────────────────────
-  // One line for a single chapter, a count for many. A bulk metadata pass can
-  // never flood the changelog again.
-  if (metadataOnly.length === 1) {
-    const { bookKey, chapter, label } = metadataOnly[0];
-    changes.push({
-      type: "metadata_updated",
-      description: `${label} ${chapter} — metadata updated`,
-      location: scriptureLocation(bookKey, chapter),
-    });
-  } else if (metadataOnly.length > 1) {
-    changes.push({
-      type: "metadata_updated",
-      description: `Metadata updated (${metadataOnly.length} chapters)`,
     });
   }
 
