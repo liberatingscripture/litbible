@@ -241,37 +241,37 @@ off. Items the artifact lists under "Set aside" are deliberately absent.
 ### Added from the 2026-09-26 feature audit
 
 - [x] **Accept a period as the chapter:verse separator (F8).**
-  DONE (2026-09-26, audit Phase 1 PR): `cleanReferenceInput` in `src/scripts/search-core.js` turns a
+  DONE (2026-09-26, PR #214): `cleanReferenceInput` in `src/scripts/search-core.js` turns a
   period between two digits into a colon before it strips abbreviation
   periods, so "John 3.16", "John.3.16" and "Rom. 8.3" jump like their colon
   twins. A comma between digits does the same ("John 3,16") only while no
   colon is present. Cases are in `test/search-core.test.js`.
 
 - [x] **Report /search results as a count (Q1).**
-  DONE (2026-09-26, audit Phase 1 PR): `renderFromCache` in `src/scripts/search.js` reads "194 results
+  DONE (2026-09-26, PR #214): `renderFromCache` in `src/scripts/search.js` reads "194 results
   for “liberation” (1 glossary, 47 topic, …)", listing only the kinds that
   matched. Fixed on the way: a search with no results left "Searching for
   "q"..." on screen for good.
 
 - [x] **Drop zero counts under a reference jump in the header tray (Q2).**
-  DONE (2026-09-26, audit Phase 1 PR): with a jump row showing, `src/scripts/searchbar.js` lists only
+  DONE (2026-09-26, PR #214): with a jump row showing, `src/scripts/searchbar.js` lists only
   non-zero counts and skips the no-results suggestions.
 
 - [x] **Name the unfinished chapters on /read (Q3, first half).**
-  DONE (2026-09-26, audit Phase 1 PR): the lede is built from `scanDraftChapters()` and reads "all except
+  DONE (2026-09-26, PR #214): the lede is built from `scanDraftChapters()` and reads "all except
   Acts, Revelation, and Luke 23–24". The other half of Q3 is under Owner.
 
 - [x] **Reading View side margins on phones (V2).**
-  DONE (2026-09-26, audit Phase 1 PR): `.rm-page` at ≤900px in `src/styles/read-mode.css` leaves 20px
+  DONE (2026-09-26, PR #214): `.rm-page` at ≤900px in `src/styles/read-mode.css` leaves 20px
   a side (it was about 7px).
 
 - [x] **Control names (A3).**
-  DONE (2026-09-26, audit Phase 1 PR): the top Previous/Next buttons name their destination ("Previous:
+  DONE (2026-09-26, PR #214): the top Previous/Next buttons name their destination ("Previous:
   John 2"), the Reading View pill uses the book's display name, and the
   glossary's contact link covers "contact me here".
 
 - [x] **CLAUDE.md drift (Q7).**
-  DONE (2026-09-26, audit Phase 1 PR): draft count corrected to 52, and the footnote total is no longer
+  DONE (2026-09-26, PR #214): draft count corrected to 52, and the footnote total is no longer
   hard-coded.
 
 - [ ] **Web app manifest background and start URL (Q5).**
@@ -887,30 +887,30 @@ S9, O9, and O8.
 Details for each item are in the artifact (https://claude.ai/artifact/4ghJK72rd2thnCX2mdmXkZ); the IDs match.
 
 - [x] **Tap targets for footnote letters (A1).**
-  DONE (2026-09-26, audit Phase 1 PR): `sup.fn-ref a` gets a centred overlay of at least 24×24px, stacked
+  DONE (2026-09-26, PR #214): `sup.fn-ref a` gets a centred overlay of at least 24×24px, stacked
   above the verse number's (which keeps its 6px margins with the same 24px
   floor). Verified at 375px on John 3: every footnote letter catches a tap
   11px out on each side, including notes r and t.
 
 - [x] **Hide index-only search text from screen readers (A2).**
-  DONE (2026-09-26, audit Phase 1 PR): the `pf-meta` spans in `ScriptureLayout`/`SearchLayout` and the
+  DONE (2026-09-26, PR #214): the `pf-meta` spans in `ScriptureLayout`/`SearchLayout` and the
   glossary's `srOnly` span and index block are `aria-hidden`. Rebuilt
   Pagefind index checked: glossary keywords and intro metadata still index.
 
 - [x] **Prefetch the previous and next chapter (U3).**
-  DONE (2026-09-26, audit Phase 1 PR): speculation rules in `ScriptureLayout.astro`, **prefetch** at
+  DONE (2026-09-26, PR #214): speculation rules in `ScriptureLayout.astro`, **prefetch** at
   `moderate` eagerness. Deliberately not prerender, which would run page
   scripts (the `lit_pv` popover counter, the popover, analytics) for a page
   nobody opened. See CLAUDE.md.
 
 - [x] **Guessable scripture addresses on the 404 page (F6).**
-  DONE (2026-09-26, audit Phase 1 PR): `resolveMistypedPath` in `search-core.js` plus a script in
+  DONE (2026-09-26, PR #214): `resolveMistypedPath` in `search-core.js` plus a script in
   `404.astro`. "/John-3", "/jn-3", "/john-3-16", "/john/3",
   "/1-corinthians-13" and "/read/1-corinthians" redirect; "/john-30" offers
   "Did you mean John?".
 
 - [x] **Never truncate the site name (V3).**
-  DONE (2026-09-26, audit Phase 1 PR): `SiteHeader.astro` swaps to "LIT Bible" as soon as "Translation"
+  DONE (2026-09-26, PR #214): `SiteHeader.astro` swaps to "LIT Bible" as soon as "Translation"
   would clip, and re-measures after the webfont loads.
 
 - [ ] **Link scripture references outside the verse text (F1).**
