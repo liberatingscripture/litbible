@@ -1,5 +1,42 @@
 [
   {
+    "version": "2026-09-26",
+    "date": "2026-09-26",
+    "label": "September 26, 2026",
+    "changes": [
+      {
+        "type": "footnote_updated",
+        "description": "James 1:6 — footnote g updated",
+        "detail": "\"‘assess’/’judge,’\" → \"‘assess’/‘judge,’\"",
+        "location": {
+          "bookKey": "james",
+          "chapter": 1,
+          "verse": 6
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Matthew 21:21–22 — text updated",
+        "detail": "v. 21: \"faithfulness\" → \"trust\"; v. 22: \"faithfulness.”\" → \"trust.”\"",
+        "location": {
+          "bookKey": "matthew",
+          "chapter": 21,
+          "verse": 21
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Matthew 21:21 — footnote u updated",
+        "detail": "\"commitment. It suggests a relational or internal separation…\" → \"trust in the faithfulness and power of God the Liberator to…\"",
+        "location": {
+          "bookKey": "matthew",
+          "chapter": 21,
+          "verse": 21
+        }
+      }
+    ]
+  },
+  {
     "version": "2026-09-21",
     "date": "2026-09-21",
     "label": "September 21, 2026",
