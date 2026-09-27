@@ -35,14 +35,22 @@ const introMod = (introModules as Record<string, IntroMod>)[introKey] ?? null;
 // Rendered as an HTML string rather than through the Markdown component, so
 // its scripture references ("Romans 2:24") can be linked on the way out. The
 // intro file itself, which the apps sync, keeps its plain text.
+//
+// The "Takeaways on Liberation and Inclusion" heading ends 24 of the 27
+// intros, which made every intro a search hit for "liberation" and
+// "inclusion". It stays on the page; Pagefind skips it.
 const introHtml = introMod?.compiledContent
-  ? linkRefs(await introMod.compiledContent())
+  ? linkRefs(await introMod.compiledContent()).replace(
+      /<h2(\s[^>]*)?>(\s*Takeaways on Liberation and Inclusion\s*)<\/h2>/g,
+      "<h2 data-pagefind-ignore$1>$2</h2>",
+    )
   : null;
 
-// Topics for indexing/filtering (frontmatter: topics: ["..."])
-const topics = Array.isArray(introMod?.frontmatter?.topics)
-  ? (introMod!.frontmatter!.topics as string[])
-  : [];
+// The intros' frontmatter `topics` are not passed on for indexing: in 2026-09
+// every intro carries the same five placeholders (liberation, empire,
+// healing, poverty, hospitality). Indexed, they made 24 intros a hit for
+// "hospitality", and would make every intro a hit for all five. Pass them to
+// ScriptureLayout again once each book has its own.
 
 const title = `${bookName} — Introduction | Liberation and Inclusion Translation`;
 const description = `Introduction to ${bookName} in the Liberation and Inclusion Translation (LIT).`;
@@ -59,7 +67,6 @@ const isDraft = isDraftIntro(bookKey);
   book={bookKey}
   chapter="intro"
   type="intro"
-  topics={topics}
   robotsIndex={!isDraft}
   ogImage={`${Astro.site ? Astro.site.origin : "https://litbible.net"}/og/${bookKey}-intro.png`}
   twitterCard="summary_large_image"

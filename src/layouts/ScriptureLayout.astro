@@ -71,7 +71,8 @@ const pagefindType = type ?? "scripture";
 
 /**
  * Normalize topics into an array of exact tag strings.
- * Keep multi-word tags intact. No joining. No slugging.
+ * Keep multi-word tags intact. No slugging. (The Pagefind meta below joins
+ * them into one comma-separated value.)
  */
 const topicsList: string[] = Array.isArray(topics)
   ? topics
@@ -222,7 +223,7 @@ if (headerKind === "chapter") {
          NOTE: These MUST be ignored for body indexing.
          They are index-only, not screen-reader text, so each one is
          aria-hidden too: Pagefind reads the HTML, not the accessibility
-         tree, and without it a screen reader heard the description, type,
+         tree, and without it a screen reader heard the type,
          book and topics ahead of the chapter heading.
          ========================================================= */
       }
@@ -242,14 +243,11 @@ if (headerKind === "chapter") {
               </span>
             ) : null}
 
-            <span
-              class="pf-meta"
-              aria-hidden="true"
-              data-pagefind-meta="description"
-              data-pagefind-ignore
-            >
-              {description}
-            </span>
+            {/* No description meta. Pagefind searches metadata, nothing
+                shows it, and every intro's description names "the
+                Liberation and Inclusion Translation (LIT)", which made all 27
+                intros a hit for "liberation", "inclusion", "translation" and
+                "lit". */}
             <span
               class="pf-meta"
               aria-hidden="true"
@@ -275,18 +273,19 @@ if (headerKind === "chapter") {
               {String(pagefindChapter)}
             </span>
 
-            {topicsList.length
-              ? topicsList.map((t) => (
-                  <span
-                    class="pf-meta"
-                    aria-hidden="true"
-                    data-pagefind-meta="topics"
-                    data-pagefind-ignore
-                  >
-                    {t}
-                  </span>
-                ))
-              : null}
+            {/* One span, comma-separated (parseMetaList splits it). Pagefind
+                keeps one value per key, so a span per topic kept only the
+                last. */}
+            {topicsList.length ? (
+              <span
+                class="pf-meta"
+                aria-hidden="true"
+                data-pagefind-meta="topics"
+                data-pagefind-ignore
+              >
+                {topicsList.join(", ")}
+              </span>
+            ) : null}
           </>
         ) : null
       }
