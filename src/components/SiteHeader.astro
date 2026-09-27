@@ -478,10 +478,11 @@ const { class: className = "" } = Astro.props;
         const navVisible = nav && getComputedStyle(nav).display !== "none";
 
         if (navVisible) {
-          // Desktop: ellipsis is active on .title-truncatable
-          // If truncatable word is fully clipped (its visible width ≈ 0), swap
-          const truncWidth = truncEl.offsetWidth;
-          if (truncWidth < 2) {
+          // Desktop: never let "Translation" trail off in an ellipsis. Swap
+          // to the short title as soon as the word can't show in full, not
+          // once it is fully clipped, which left "The Liberation & Inclusion
+          // Transla…" on a 1366px laptop.
+          if (truncEl.scrollWidth > truncEl.clientWidth + 1) {
             longEl.style.display = "none";
             altEl.style.display = "inline";
           }
@@ -536,6 +537,13 @@ const { class: className = "" } = Astro.props;
       // Initial check (also seeds the guard, so the ResizeObserver's own first
       // callback doesn't immediately measure the same thing again)
       checkIfChanged();
+
+      // The webfont swap changes the title's width without changing the
+      // header's, so the guard above would never re-measure after it.
+      document.fonts?.ready.then(() => {
+        lastWidth = -1;
+        checkIfChanged();
+      });
     };
     if ("requestIdleCallback" in window) {
       requestIdleCallback(initTitleFit, { timeout: 2000 });
