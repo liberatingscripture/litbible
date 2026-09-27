@@ -1250,7 +1250,7 @@ need a mockup or a side-by-side the owner looks at before code.
   chevrons beside the title, and aim for the first verse inside the top 40%
   of the screen. Mock it up first.
 
-- [ ] **Line length and one Display panel (V1 with U1).**
+- [x] **Line length and one Display panel (V1 with U1).**
   Bring Study View's column to about 58–62 × `--ch` and give Reading View
   the same measure and at least 18px type; then one Display panel on every
   page (font, text size with an XL step, line spacing, theme, and verse
@@ -1258,6 +1258,20 @@ need a mockup or a side-by-side the owner looks at before code.
   first paint. Change only the multiplier, never the per-font `--ch`.
   `--content-width` also sets /read, /search, About and the commitments
   page, so review those together. Compare side by side before shipping.
+  DONE (2026-09-27): a new `--reading-width` token (`--reading-measure` × `--ch`)
+  sets Study View, intros, Reading View and article bodies. The owner picked 60
+  from side-by-side screenshots at 72, 62, 60, 58, 56 and 54: about 77
+  characters a line in Inter and 85 in Atkinson, down from 92 and 102. The
+  article card now narrows with its text. `--content-width` stays at 72 for
+  /read, /search, About, courses and the commitments page, which aren't
+  long-form reading. The header's Display tray gained text size (S, M, L, XL),
+  line spacing (Normal, Roomy), and on scripture pages a "Show" group for verse
+  numbers and footnote letters, all stamped on `<html>` before first paint.
+  Reading View's own Aa panel and Numbers button are gone; its toolbar Aa opens
+  the same tray, and its old settings carry over. Reading View's default type
+  is now 18px, the same as Study View. Hidden verse numbers and footnote letters
+  stay focusable, so `#v16` and the keyboard verse menu still work, and the
+  tray holds the reader's line in place when a setting reflows the page.
 
 - [ ] **Term lens (X1).**
   A quiet underline under glossary renderings in Study View opening a card
