@@ -1,11 +1,10 @@
 ---
 description: "Introduction to 1 Corinthians in the LIT Bible."
 topics:
-  - liberation
-  - empire
-  - healing
-  - poverty
-  - hospitality
+  - Pauline epistles
+  - communion
+  - resurrection
+  - reawakening
 ---
 
 The letter of 1 Corinthians was written to a diverse and often divided Christ community in the cosmopolitan city of Corinth, made up primarily of non-Jewish members. Written by Paul, this letter addresses internal conflicts, ethical dilemmas, and the challenges of living faithfully within a society shaped by hierarchy, competition, and exploitation. Paul calls the community to embody the values of God’s Reign—a way of life marked by mutual care, equity, and faithfulness to the transformative message of Christ—all of which stands in direct opposition to the Wisdom of the world system.

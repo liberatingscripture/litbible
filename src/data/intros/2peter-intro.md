@@ -1,11 +1,11 @@
 ---
 description: "Introduction to 2 Peter in the LIT Bible."
 topics:
-  - liberation
-  - empire
-  - healing
-  - poverty
-  - hospitality
+  - Catholic Epistles
+  - General Epistles
+  - Simon Peter
+  - new heavens and new earth
+  - second coming
 ---
 
 The Second Letter of Peter addresses early Christ communities grappling with internal and external challenges: the influence of false teachers, skepticism about divine promises, and the need for ethical living. Attributed to Simeon Peter, this letter encourages steadfastness, vigilance, and growth in virtue while reaffirming the hope of God’s ultimate justice and restoration.

@@ -1,11 +1,11 @@
 ---
 description: "Introduction to Colossians in the LIT Bible."
 topics:
-  - liberation
-  - empire
-  - healing
-  - poverty
-  - hospitality
+  - Pauline epistles
+  - Prison Epistles
+  - Christology
+  - Colossian heresy
+  - household codes
 ---
 
 The letter to the Colossians is an impassioned reflection on Christ’s central role in God’s work of restoration and reconciliation, addressing a community navigating competing philosophies and religious pressures. Paul writes to affirm the fullness of God’s presence in Christ and the transformative power of his life, death, and resurrection. With Christ, all things are held together, and through him, all creation is reconciled. Colossians presents a vision of life transformed by this reality, where societal, cultural, and spiritual hierarchies are dismantled, creating a new humanity rooted in love, justice, and mutual care.

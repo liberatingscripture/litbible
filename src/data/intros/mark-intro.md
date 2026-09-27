@@ -1,11 +1,13 @@
 ---
 description: "Introduction to Mark in the LIT Bible."
 topics:
-  - liberation
-  - empire
-  - healing
-  - poverty
-  - hospitality
+  - Synoptic Gospels
+  - messianic secret
+  - Messiah
+  - Christ
+  - discipleship
+  - disciples
+  - students
 ---
 
 The Gospel of Mark is considered the earliest and one of the most concise accounts of Jesus' life and ministry, emphasizing action, urgency, and the mystery of Jesus' identity. Written in a dynamic narrative style, the book unfolds rapidly, moving from one event to another, presenting Jesus as the suffering servant and emphasizing the Reign of God as a countercultural force that upends the world's power structures.

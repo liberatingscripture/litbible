@@ -1,11 +1,12 @@
 ---
 description: "Introduction to Titus in the LIT Bible."
 topics:
-  - liberation
-  - empire
-  - healing
-  - poverty
-  - hospitality
+  - Pauline epistles
+  - Pastoral Epistles
+  - deutero-Pauline
+  - Savior
+  - liberator
+  - household codes
 ---
 
 The letter to Titus is a pastoral message traditionally attributed to Paul, offering guidance to his associate Titus on nurturing the Christ community in Crete. It is widely understood to have been written later by a different author—a practice known as pseudepigraphy. This method honored a teacher's legacy by addressing contemporary challenges in their name, aiming to preserve and adapt foundational teachings for new contexts.

@@ -1,11 +1,12 @@
 ---
 description: "Introduction to Galatians in the LIT Bible."
 topics:
-  - liberation
-  - empire
-  - healing
-  - poverty
-  - hospitality
+  - Pauline epistles
+  - gospel
+  - good news
+  - triumphant message
+  - Judaizers
+  - justification
 ---
 
 The letter to the Galatians is a passionate message written to a group of predominantly non-Jewish believers grappling with questions of identity and belonging. Galatians proclaims that Christ’s liberating work has created a new, expansive Family where all people are equal participants in God’s Reign of justice and love. Paul challenges attempts to impose cultural or religious barriers on this community, insisting that committed trust in God’s faithfulness, not adherence to Torah regulations, is the foundation of inclusion. Galatians stands as a declaration of freedom, calling believers to embody the Life-breath’s (Spirit’s) transformative work in a life of love and mutual care.

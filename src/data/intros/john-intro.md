@@ -1,11 +1,14 @@
 ---
 description: "Introduction to John in the LIT Bible."
 topics:
-  - liberation
-  - empire
-  - healing
-  - poverty
-  - hospitality
+  - Fourth Gospel
+  - Book of Glory
+  - beloved disciple
+  - Holy Spirit
+  - Sacred Life-breath
+  - eternal life
+  - everlasting life
+  - agelong life
 ---
 
 The Gospel of John presents a unique portrait of Jesus as the divine Conversation (Logos, traditionally, ‘Word’), who embodies God’s liberating presence in the world and disrupts cycles of injustice and oppression. Traditionally attributed to the Apostle John, the book itself does not name its author, and others including Lazarus have been proposed as likely authors. This book emphasizes Jesus’ identity as the light that dispels darkness and the life that overcomes death. It highlights the tension between systems of oppression, like those upheld by the high priest Caiaphas, and Jesus’ radical commitment to justice, love, and restoration, even to the point of laying down his own life for the sake of justice for others.

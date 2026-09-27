@@ -1,11 +1,12 @@
 ---
 description: "Introduction to 2 Timothy in the LIT Bible."
 topics:
-  - liberation
-  - empire
-  - healing
-  - poverty
-  - hospitality
+  - Pauline epistles
+  - Pastoral Epistles
+  - deutero-Pauline
+  - Holy Spirit
+  - Sacred Life-breath
+  - farewell letter
 ---
 
 The letter of 2 Timothy is a pastoral message written to a young leader navigating the complexities of guiding the Christ community in Ephesus. Traditionally attributed to Paul, the letter is now widely understood to have been written at a later time by a different author—a practice known as pseudepigraphy. Traditionally attributed to Paul, the letter is now widely understood to have been written at a later time by a different author—a practice known as pseudepigraphy.

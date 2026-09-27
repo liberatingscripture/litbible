@@ -1,11 +1,12 @@
 ---
 description: "Introduction to Ephesians in the LIT Bible."
 topics:
-  - liberation
-  - empire
-  - healing
-  - poverty
-  - hospitality
+  - Pauline epistles
+  - Prison Epistles
+  - deutero-Pauline
+  - grace
+  - household codes
+  - mutual submission
 ---
 
 The letter to the Ephesians has been traditionally ascribed to Paul, but many scholars think it was more likely written by one of Paul’s followers late in the first century. It is a passionate plea for the Christ community to embrace its sacred calling as a unified family, brought together by God’s unmerited generosity through Jesus. Likely written to circulate among several early churches, Ephesians urges believers to live out the reconciliation and restoration achieved through Christ. By breaking down barriers of hostility and division, Christ has created a new humanity—one family characterized by love, justice, and mutual care, creating a community where barriers of ethnicity, status, and gender are dismantled and replaced with relationships grounded in mutual care, humility, and love.

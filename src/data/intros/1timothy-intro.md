@@ -1,11 +1,10 @@
 ---
 description: "Introduction to 1 Timothy in the LIT Bible."
 topics:
-  - liberation
-  - empire
-  - healing
-  - poverty
-  - hospitality
+  - Pauline epistles
+  - Pastoral Epistles
+  - deutero-Pauline
+  - universal salvation
 ---
 
 The letter of 1 Timothy is a pastoral message written to a young leader navigating the complexities of guiding the Christ community in Ephesus. Traditionally attributed to Paul, the letter is now widely understood to have been written at a later time by a different author—a practice known as pseudepigraphy.

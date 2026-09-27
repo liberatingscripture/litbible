@@ -1,11 +1,14 @@
 ---
 description: "Introduction to 1 John in the LIT Bible."
 topics:
-  - liberation
-  - empire
-  - healing
-  - poverty
-  - hospitality
+  - Johannine letters
+  - Johannine epistles
+  - Catholic Epistles
+  - General Epistles
+  - docetism
+  - eternal life
+  - everlasting life
+  - agelong life
 ---
 
 The First Letter of John, traditionally attributed to John the Apostle, addresses early Christian communities grappling with internal divisions, false teachings about the reality or importance of existence in the created world, and external pressures against remaining faithful. Written to encourage and strengthen readers, the letter emphasizes love, truth, and faithfulness to Jesus Christ as the incarnate (having a physical body) Son of God. It calls for a life lived in light and love, urging believers to embody God’s justice and care for one another as reflections of divine love.

@@ -1,11 +1,11 @@
 ---
 description: "Introduction to Philippians in the LIT Bible."
 topics:
-  - liberation
-  - empire
-  - healing
-  - poverty
-  - hospitality
+  - Pauline epistles
+  - Prison Epistles
+  - kenosis
+  - kingdom of God
+  - reign of God
 ---
 
 The letter to the Philippians is a warm and personal message from Paul to a community he holds in high regard. Written during Paul’s imprisonment, this letter expresses gratitude despite the circumstances, emphasizing a life shaped by Christ's example of humility, self-giving love, and trust in God's purposes. Philippians calls its readers to unity and mutual care within the Christ community, highlighting the liberating and transformative power of a life centered on Christ. It invites the audience to embrace the paradox of finding strength in vulnerability, joy in trials, and triumph in selfless service.
