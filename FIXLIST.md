@@ -914,7 +914,7 @@ Details for each item are in the artifact (https://claude.ai/artifact/4ghJK72rd2
   would clip, and re-measures after the webfont loads.
 
 - [x] **Link scripture references outside the verse text (F1).**
-  DONE (2026-09-27): `src/lib/scripture-refs.mjs` links references in footnotes,
+  DONE (2026-09-27, PR #216): `src/lib/scripture-refs.mjs` links references in footnotes,
   intros, article and glossary bodies, and release-note rows when the page
   renders; none of the data changes. It has its own book table rather than
   `parseReference`, whose aliases (`re`, `ro`, `mt`) are too loose for prose
@@ -1228,7 +1228,7 @@ need a mockup or a side-by-side the owner looks at before code.
   decides density and whether it's on by default.
 
 - [x] **Reference previews (X2).**
-  DONE (2026-09-27): `src/scripts/ref-preview.js`. Hover with a mouse, or tap on
+  DONE (2026-09-27, PR #216): `src/scripts/ref-preview.js`. Hover with a mouse, or tap on
   a touch screen, to see up to six verses and "Open John 3 →"; a mouse click and
   the keyboard still follow the link. Text comes from per-chapter files that
   `build:verses` now writes (`public/search/chapters/`, ~2 KB each), not the
@@ -1622,7 +1622,7 @@ Details for each item are in the artifact (https://claude.ai/artifact/4ghJK72rd2
   Reading View verses, which enforces the existing rule.)
 
 - [x] **/read copy once F1 ships (Q3, second half).**
-  DONE (2026-09-27): no rewording needed. With F1, the references in Study
+  DONE (2026-09-27, PR #216): no rewording needed. With F1, the references in Study
   View's footnotes link and preview, so "footnotes and cross-references" is
   true as written.
 
