@@ -743,6 +743,16 @@ function renderFromCache() {
   );
 
   if (matchTotal === 0) {
+    // Always replace the "Searching for…" line, which otherwise stayed on
+    // screen after a search that found nothing. A recognized reference needs
+    // no line at all: the banner above already offers its jump.
+    statusEl.innerHTML = parsedJump
+      ? ""
+      : `No results for “${escapeHtml(displayQ)}.”`;
+    hideResultGroups();
+    renderActiveFiltersFull();
+    if (parsedJump) return;
+
     const qNorm = normalizePhrase(displayQ);
     if (qNorm.includes(" ")) {
       const words = qNorm.split(/\s+/).filter((w) => w.length >= MIN_QUERY_LEN);
@@ -776,9 +786,7 @@ function renderFromCache() {
               `<button type="button" class="suggest-word" data-suggest="${escapeHtml(s)}">${escapeHtml(s)}</button>`,
           )
           .join(" · ");
-        const current =
-          statusEl.innerHTML || `No results for “${escapeHtml(displayQ)}.”`;
-        statusEl.innerHTML = `${current}<br>Did you mean: ${sugLinks}`;
+        statusEl.innerHTML = `${statusEl.innerHTML}<br>Did you mean: ${sugLinks}`;
         statusEl.querySelectorAll("[data-suggest]").forEach((btn) => {
           btn.addEventListener("click", () => {
             if (input) input.value = btn.dataset.suggest;
@@ -787,20 +795,28 @@ function renderFromCache() {
         });
       }
     }
-
-    if (statusEl.innerHTML) {
-      // skip normal setStatus — we already set innerHTML
-      renderActiveFiltersFull();
-      return;
-    }
+    return;
   }
 
+  // "194 results for “liberation” (3 glossary, 191 keyword)": the breakdown
+  // names only the kinds that matched.
+  const breakdown = [
+    [glossaryCount, "glossary"],
+    [subjectCount, "topic"],
+    [introCount, "book intro"],
+    [articleCount, "article"],
+    [
+      keywordTotal,
+      keywordCorrection
+        ? `keyword, showing results for “${keywordCorrection}”`
+        : "keyword",
+    ],
+  ]
+    .filter(([count]) => count > 0)
+    .map(([count, label]) => `${count} ${label}`)
+    .join(", ");
   setStatus(
-    `Searching for "${displayQ}" - ${matchTotal} match${
-      matchTotal === 1 ? "" : "es"
-    } (${glossaryCount} glossary, ${subjectCount} topic, ${introCount} book intro, ${articleCount} article, ${keywordTotal} keyword${
-      keywordCorrection ? ` — showing results for “${keywordCorrection}”` : ""
-    })`,
+    `${matchTotal} result${matchTotal === 1 ? "" : "s"} for “${displayQ}” (${breakdown})`,
   );
 
   // Only show glossary/subject on page 1
@@ -866,6 +882,12 @@ function renderFromCache() {
 }
 
 function clearResults() {
+  hideResultGroups();
+  lastSearchCache = null;
+}
+
+/** Hides every result group and the pager, keeping the search cache. */
+function hideResultGroups() {
   groupGlossary.hidden = true;
   groupSubject.hidden = true;
   groupIntros.hidden = true;
@@ -879,7 +901,6 @@ function clearResults() {
   keywordEl.innerHTML = "";
 
   setPager(0, 1);
-  lastSearchCache = null;
 }
 
 async function runFullSearch() {
