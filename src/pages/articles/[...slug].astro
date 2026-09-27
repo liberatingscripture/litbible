@@ -233,10 +233,23 @@ const indexTagsJoined = hyphensToSpacesForIndex(tags.join(", "));
      ========================= */
   .article-shell {
     padding: 22px var(--gutter) 86px;
+    /* The card is as wide as its text: the shared reading measure plus the
+       body's 22px side padding and the card's own. The search bar above
+       takes the same width so the two edges line up. */
+    --article-card-pad: 18px;
+    --article-width: calc(
+      var(--reading-width, 60ch) + 44px + 2 * var(--article-card-pad)
+    );
+  }
+
+  @media (min-width: 900px) {
+    .article-shell {
+      --article-card-pad: 26px;
+    }
   }
 
   .article-top__inner {
-    width: min(860px, calc(100% - (var(--gutter) * 2)));
+    width: min(var(--article-width), calc(100% - (var(--gutter) * 2)));
     margin-inline: auto;
   }
 
@@ -249,8 +262,9 @@ const indexTagsJoined = hyphensToSpacesForIndex(tags.join(", "));
      Card (the ONLY card)
      ========================= */
   .article__card {
-    width: min(860px, calc(100% - (var(--gutter) * 2)));
+    width: min(var(--article-width), calc(100% - (var(--gutter) * 2)));
     margin-inline: auto;
+    padding: var(--article-card-pad);
 
     background: var(--surface-raised);
     border-radius: 22px;

@@ -180,10 +180,19 @@
      Crimson would need its own, that face's "0" being 0.504em. */
   --ch: 0.63086em; /* Inter */
 
-  /* The reading measure, shared by every long-form column (scripture, reading
-     view, search results, and the article-ish pages). Call sites keep a
-     `, 72ch` fallback so each rule still reads on its own. */
+  /* The width of the pages around the reading surfaces: /read, /search,
+     About, courses and the commitments page. Long-form reading has its own
+     measure, --reading-width, below. Call sites keep a `, 72ch` fallback so
+     each rule still reads on its own. */
   --content-width: calc(72 * var(--ch));
+
+  /* The long-form reading measure: Study View, Reading View, book intros and
+     article bodies. Only --reading-measure is a design choice (--ch keeps its
+     per-font value). Like --content-width it resolves against the font size
+     of the element that uses it, so a column keeps the same number of
+     characters per line whatever size its text is set at. */
+  --reading-measure: 60;
+  --reading-width: calc(var(--reading-measure) * var(--ch));
 
   /* Font stacks */
   --serif: "Crimson Text", "Crimson Fallback", Georgia, "Times New Roman", serif;
