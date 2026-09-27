@@ -178,8 +178,8 @@ src/
                      #   scripture-HTML transform pipeline — prepareStudyParagraph
                      #   / prepareReadParagraph; Study wraps each verse in a
                      #   data-verse span), draft-chapters.mjs (single source
-                     #   for indexed:false draft data — used by astro.config.mjs
-                     #   and ReadMenu), fetchPodcastEpisodes.ts +
+                     #   for indexed:false draft data — used by astro.config.mjs,
+                     #   ReadMenu, and the /read lede), fetchPodcastEpisodes.ts +
                      #   podcast-feed-core.ts (shell/core split: the shell holds
                      #   the two imports Node can't resolve — the JSON overrides
                      #   and podcast-feed.xml?raw — so the core stays import-free
@@ -266,7 +266,8 @@ workers/             # Cloudflare Workers, deployed separately via wrangler (NOT
 | `/apps` | `apps.astro` | Mobile-apps promo page (footer-linked). Body design ported from `BDRhodes/LIT-app-Promo`; section content lives in the `callouts`/`examples`/`seasons` collections; scoped styles in `src/styles/pages/apps.css`; components under `src/components/apps/`. Uses `bg="white"` (near-white surface). |
 | `/app-support` | `app-support.astro` | App support contact form (linked from inside the apps, not the site nav; `/app-support/thanks` is the native-POST fallback success page) |
 | `/found-in-translation-podcast` | `found-in-translation-podcast.astro` | Podcast page (`/podcast` redirects here). The "All Episodes" list is RSS-driven off the `fetch:podcast` snapshot + `podcastOverrides.json`. Above it, the **"Latest Episodes" Spotify and YouTube iframes are hand-pinned** and nothing in the build refreshes them; both are deliberately **show-level, not episode-level**, so they don't go stale on their own — Spotify frames the show, and YouTube frames the channel's curated *"Found in Translation"* playlist (`videoseries?list=PLZJ2_…`), which the show owner keeps current. **The Apple one is the exception, and is derived at build time** (`latestAppleEmbedUrl`) from the newest episode carrying an Apple link: Apple retired the episode-list layout its show embed used to have, leaving a single card whose only play button is the show's *Trailer*, so a show-level Apple embed now advertises a 2021 teaser under a heading that says "Latest Episodes." No height or parameter brings the list back. Deriving the URL rather than pinning an episode keeps the anti-staleness property the other two get from being show-level. It falls back to the show embed (a taller card, hence the two heights) when no episode has an Apple link yet. **Both are capped at 660px**, Apple's own figure: neither card grows past it, so a wider frame shows a dead band down the right — which is what the previous 900px cap did. **The three embeds are deliberately three different shapes, measured off the rendered players, and must not be given one shared height again** (that is what cropped the video): Apple's episode row is a flat 160px at any width, Apple's show card and the YouTube frame are 16:9, and Spotify is 152px — its scrubber, skip controls and running time only appear below ~250px, so the taller layout shows *less*, not more. **Don't re-pin the YouTube one to a single video or a per-book playlist** — that's what silently went stale before (it sat on the app-launch episode, then on the 1 Corinthians playlist). The auto-uploads playlist (`UU` + the channel id minus `UC`) is the other self-maintaining option, rejected because it also carries the channel's Shorts. A `youtu.be` or `/playlist?list=…` URL can't be framed (`X-Frame-Options`) — only `/embed/…`. **"Read the passage" URLs are canonicalized to https + apex + trailing slash** (`canonicalizeReadUrl`), because the RSS description carries our own domain in four spellings — http/https × apex/www — exactly as it was typed into RedCircle, and the site builds to directory format so a slashless path is 308'd. Only litbible.net is rewritten; a third-party read link keeps its own scheme. |
-| others | `about`, `contact` (+ `contact/thanks`), `courses`, `support`, `privacy`, `unsubscribe`, `liberating-scripture-collective`, `translation-commitments`, `404` |
+| `/404` | `404.astro` | Not found. Its script reads the address with `resolveMistypedPath` (in `search-core.js`, the same parser as the search box), so a guessable scripture address lands on its page: `/John-3`, `/jn-3`, `/john-3-16`, `/john/3`, `/1-corinthians-13`, `/read/1-corinthians`. A known book with a chapter it doesn't have (`/john-30`) gets "Did you mean John?" instead of a redirect; anything else, and no JS, leaves the page as it was. |
+| others | `about`, `contact` (+ `contact/thanks`), `courses`, `support`, `privacy`, `unsubscribe`, `liberating-scripture-collective`, `translation-commitments` |
 
 Redirects (`/read-now`→`/read`, `/podcast`→`/found-in-translation-podcast`) and
 the sitemap filter live in `astro.config.mjs`.
@@ -368,8 +369,9 @@ Each file in `src/data/chapters/` follows this structure:
   `false` marks an in-progress **draft/stub chapter**, `true` a published one
   — never omit it (the release-notes generator emits "chapter added" on the
   explicit false→true transition, and the validator enforces the rules in
-  `chapter_json_invariants.json`). 54 of 260 chapters are currently drafts.
-  `indexed: false` has four downstream effects, so handle it carefully:
+  `chapter_json_invariants.json`). 52 of 260 chapters were drafts in 2026-09;
+  count them rather than trusting that figure.
+  `indexed: false` has five downstream effects, so handle it carefully:
   1. `build-verse-index.mjs` excludes the chapter from the verse search index
      (kept out of search).
   2. `astro.config.mjs` excludes the slug from the sitemap, and a `/read/<book>`
@@ -386,6 +388,12 @@ Each file in `src/data/chapters/` follows this structure:
      root's `data-current-chapter` updated on scroll, and intercepts
      same-book chapter picks for an in-page scroll; other books navigate to
      `/read/<book>#ch-N`).
+  5. The `/read` lede names what isn't finished ("all except Acts,
+     Revelation, and Luke 23–24"), built from `scanDraftChapters()` at
+     build time: whole books first, then partly drafted books with their
+     chapter runs. It needs no edit when a draft lands. (The drafts' own
+     placeholder paragraph still hard-codes "part of Luke", but that is
+     chapter JSON the apps sync, so it changes only with the chapter.)
   **Flip it to `true`** (do not delete the field) when real content lands.
 - **Prose uses curly quotes only** — `“ ”` for quotations, `‘ ’` nested, `’`
   for apostrophes and possessives. Straight ASCII quotes are a **validation
@@ -771,8 +779,8 @@ A Greek↔English index of the translation: one JSON file per chapter
 (`<bookKey>-<chapter>.json`), holding a record for every place a term carrying
 a translation commitment appears. It exists because **footnotes answer "what
 happened in this verse" and can never answer "what does this translation do
-with this word"** — that second question ranges over the whole corpus, and all
-5,484 footnotes are invisible to both search engines (the verse index strips
+with this word"** — that second question ranges over the whole corpus, and
+every footnote (over 5,000 of them) is invisible to both search engines (the verse index strips
 `fn-ref`, and chapter pages aren't Pagefind-indexed). These records are that
 missing aggregate.
 
@@ -1378,7 +1386,29 @@ collection); they're read directly by the intro pages and the API manifest.
     topics-index loading); `searchbar.js` is the tray UI (loaded by
     `SearchBar.astro`); `search.js` is the `/search` page UI. Never duplicate
     parsing/bucketing logic into the UI modules — add it to `search-core.js`
-    so both surfaces stay in sync.
+    so both surfaces stay in sync. The 404 page's `resolveMistypedPath` lives
+    there for the same reason.
+  - *Reference parsing* accepts a period as the chapter:verse separator
+    ("John 3.16", the OSIS "John.3.16", "Rom. 8.3"): `cleanReferenceInput` turns
+    a period **between two digits** into a colon before it strips the
+    abbreviation periods. A comma between digits does the same ("John 3,16")
+    only while no colon is present, because after one a comma lists verses
+    ("Rom 8:28, 30").
+  - *Index-only text is `aria-hidden`, never just `sr-only`.* The
+    `pf-meta` spans in `ScriptureLayout`/`SearchLayout` and the glossary's
+    `srOnly` keyword span and index block exist only to feed Pagefind.
+    `sr-only` means the opposite (shown to screen readers alone), which is
+    how readers heard "Glossary glossary Translation glossary…" and each
+    heading's keywords read aloud. Pagefind reads the HTML, not the
+    accessibility tree, so hiding them costs the index nothing.
+- **Chapter navigation is prefetched, never prerendered.** `ScriptureLayout`
+  carries speculation rules that prefetch the Previous/Next buttons' and the
+  bottom chapter links' targets at `moderate` eagerness. Don't upgrade it to
+  prerender: a prerendered page runs its scripts, so it would count a pageview
+  toward the app popover's `lit_pv` gate (see the popover rule below), could
+  open the popover in a page nobody has seen yet, and may log an analytics visit
+  for a chapter nobody opened. None of those scripts check
+  `document.prerendering`.
 - **Mobile apps are first-class consumers** of `public/api/` output — changing
   chapter/intro/manifest shape can break them. Treat the API as a contract.
   The **sync contract**: both apps poll `version.json` first and do nothing
@@ -1469,7 +1499,9 @@ collection); they're read directly by the intro pages and the API manifest.
   replacement: (1) give it a **fresh cookie name**, or everyone who dismissed
   the previous announcement never sees the new one; (2) carry over the show
   gating — 2nd-or-later pageview via the `lit_pv` sessionStorage counter, plus
-  the `/^#v\d+$/` verse-deep-link guard — which exists to avoid Google's
+  the verse-deep-link guard, which covers every link a reader can share into
+  scripture (`#v16`, a range `#v16-17`, a part anchor `#john-8-p9`, a Reading
+  View verse `#john-3-v16`) — which exists to avoid Google's
   intrusive-interstitial penalty on search-landing pages (FIXLIST O3, an owner
   decision). The popover also suppresses itself on a small path allowlist
   (`SUPPRESSED_PATHS`): `/apps`, its own CTA destination, and `/privacy`, which
