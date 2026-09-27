@@ -105,6 +105,29 @@ if (headerKind === "chapter") {
 <Layout title={title} description={description} canonical={canonical} bg={bg} robotsNoindex={!shouldIndex} ogImage={ogImage} twitterCard={twitterCard}>
   <slot slot="head" name="head" />
 
+  {/* Fetch the previous or next chapter as soon as a reader shows intent
+      (hover, or pointer-down on touch), so the page is already here when the
+      click lands. Prefetch, never prerender: a prerendered page runs its
+      scripts, which would count a pageview toward the app popover's lit_pv
+      gate, could arm the popover itself, and might log an analytics visit
+      for a chapter nobody opened. Browsers without speculation rules ignore
+      this. */}
+  <script is:inline type="speculationrules" slot="head">
+    {
+      "prefetch": [
+        {
+          "where": {
+            "selector_matches": [
+              ".chapter-nav a.nav-button",
+              ".chapter-ctas a.chapter-cta"
+            ]
+          },
+          "eagerness": "moderate"
+        }
+      ]
+    }
+  </script>
+
   <div class={`scripture-layout scripture-layout--${pagefindType}`}>
     {
       (showToolsReadMenu || showToolsSearch) && (
