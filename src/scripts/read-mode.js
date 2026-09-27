@@ -1,14 +1,14 @@
 // src/scripts/read-mode.js
 
+// Text size, line spacing and verse numbers used to live here too, under
+// lit_rm_fontSize / lit_rm_lineHeight / lit_rm_markers. They moved to the
+// site's Display tray (SiteHeader.astro), which applies them before first
+// paint (Layout.astro still reads those three keys as fallbacks). Focus is
+// the one reading setting that stays Reading View's own.
 const STORAGE = {
-  markers: "lit_rm_markers",
-  font: "lit_rm_fontSize",
-  leading: "lit_rm_lineHeight",
   focus: "lit_rm_focus",
 };
 
-const FONT_OPTIONS = new Set(["sm", "md", "lg"]);
-const LEADING_OPTIONS = new Set(["normal", "roomy"]);
 const ON_OFF_OPTIONS = new Set(["on", "off"]);
 
 // Single source of truth for "sheet mode" (toolbar becomes a bottom sheet,
@@ -107,11 +107,7 @@ function initReadMode() {
   // Study switch (anchor) matches the current markup.
   const studySwitch = page.querySelector("[data-rm-study-switch]");
 
-  const markersToggle = page.querySelector("[data-rm-markers-toggle]");
   const focusToggle = page.querySelector("[data-rm-focus-toggle]");
-
-  const aaToggle = page.querySelector("[data-rm-aa-toggle]");
-  const aaPanel = page.querySelector("[data-rm-aa-panel]");
 
   const resumeChip = page.querySelector("[data-rm-resume-chip]");
   const resumeGo = page.querySelector("[data-rm-resume-go]");
@@ -121,8 +117,6 @@ function initReadMode() {
   const toolbarClose =
     page.querySelector("[data-rm-mobile-close]") ||
     page.querySelector("[data-rm-toolbar-close]");
-
-  const typographyButtons = Array.from(page.querySelectorAll("[data-rm-set]"));
 
   function isSheetMode() {
     return sheetModeQuery.matches;
@@ -151,19 +145,6 @@ function initReadMode() {
   ).filter((el) => el instanceof HTMLElement);
 
   let activeChapter = Number(chapterAnchors[0].dataset.rmChapter || 1) || 1;
-
-  let markersMode = ON_OFF_OPTIONS.has(safeGet(STORAGE.markers) || "")
-    ? safeGet(STORAGE.markers)
-    : "on";
-
-  const typographyState = {
-    font: FONT_OPTIONS.has(safeGet(STORAGE.font) || "")
-      ? safeGet(STORAGE.font)
-      : "md",
-    leading: LEADING_OPTIONS.has(safeGet(STORAGE.leading) || "")
-      ? safeGet(STORAGE.leading)
-      : "normal",
-  };
 
   let focusMode = ON_OFF_OPTIONS.has(safeGet(STORAGE.focus) || "")
     ? safeGet(STORAGE.focus)
@@ -242,35 +223,6 @@ function initReadMode() {
     window.history.replaceState(null, "", next);
   }
 
-  function setToolbarOpenState(state) {
-    toolbar.dataset.rmOpen = state === "aa" ? state : "";
-  }
-
-  function closePanels() {
-    if (aaPanel instanceof HTMLElement) aaPanel.hidden = true;
-
-    if (aaToggle instanceof HTMLButtonElement) {
-      aaToggle.setAttribute("aria-expanded", "false");
-    }
-
-    setToolbarOpenState("");
-    requestAnimationFrame(updateToolbarOffset);
-  }
-
-  function openPanel(panelName) {
-    const openAa = panelName === "aa";
-
-    if (aaPanel instanceof HTMLElement) aaPanel.hidden = !openAa;
-
-    if (aaToggle instanceof HTMLButtonElement) {
-      aaToggle.setAttribute("aria-expanded", openAa ? "true" : "false");
-    }
-
-    setToolbarOpenState(openAa ? "aa" : "");
-
-    requestAnimationFrame(updateToolbarOffset);
-  }
-
   let lastToolbarOffset = -1;
 
   function updateToolbarOffset() {
@@ -278,42 +230,6 @@ function initReadMode() {
     if (h === lastToolbarOffset) return;
     lastToolbarOffset = h;
     page.style.setProperty("--rm-toolbar-offset", `${h}px`);
-  }
-
-  function applyMarkers(mode, persist = true) {
-    markersMode = mode === "off" ? "off" : "on";
-    reader.dataset.rmMarkers = markersMode;
-
-    if (markersToggle instanceof HTMLButtonElement) {
-      const on = markersMode === "on";
-      markersToggle.setAttribute("aria-pressed", on ? "true" : "false");
-      markersToggle.textContent = on ? "Numbers: On" : "Numbers: Off";
-    }
-
-    if (persist) safeSet(STORAGE.markers, markersMode);
-  }
-
-  function applyTypography(persist = true) {
-    html.dataset.rmFont = typographyState.font;
-    html.dataset.rmLeading = typographyState.leading;
-
-    for (const button of typographyButtons) {
-      if (!(button instanceof HTMLButtonElement)) continue;
-
-      const token = String(button.dataset.rmSet || "");
-      const [group, value] = token.split(":");
-
-      const pressed =
-        (group === "font" && value === typographyState.font) ||
-        (group === "leading" && value === typographyState.leading);
-
-      button.setAttribute("aria-pressed", pressed ? "true" : "false");
-    }
-
-    if (!persist) return;
-
-    safeSet(STORAGE.font, typographyState.font);
-    safeSet(STORAGE.leading, typographyState.leading);
   }
 
   function clearFocusClass() {
@@ -616,10 +532,9 @@ function initReadMode() {
 
     if (isToolsOpen()) {
       html.classList.remove("rm-tools-open");
-      // closePanels() already queues updateToolbarOffset() via requestAnimationFrame —
-      // calling it synchronously here would force a layout read immediately after DOM
-      // mutations, causing layout thrashing. Let the rAF handle it.
-      closePanels();
+      // Deferred: a synchronous layout read straight after the class change
+      // would force layout mid-mutation.
+      requestAnimationFrame(updateToolbarOffset);
     }
 
     setFabExpanded(false);
@@ -770,8 +685,6 @@ function initReadMode() {
 
   updateProgress();
 
-  applyMarkers(markersMode || "on", false);
-  applyTypography(false);
   applyFocus(focusMode || "off", false);
 
   setReturnButtonState();
@@ -780,7 +693,6 @@ function initReadMode() {
   setFabExpanded(false);
 
   updateToolbarOffset();
-  setToolbarOpenState("");
 
   // Enable swipe-to-dismiss handling once
   enableSheetDrag();
@@ -850,13 +762,6 @@ function initReadMode() {
     setTimeout(startFocusObserver, 200);
   }
 
-  if (aaToggle instanceof HTMLButtonElement) {
-    aaToggle.addEventListener("click", () => {
-      const shouldOpen = !(aaPanel instanceof HTMLElement) || aaPanel.hidden;
-      openPanel(shouldOpen ? "aa" : "none");
-    });
-  }
-
   // Same-book picks from the passage picker are /read/<book>#ch-N links that
   // target THIS page: intercept them for an in-page smooth scroll instead of
   // a hard hash jump. Other books' links (and modified clicks) navigate
@@ -902,35 +807,9 @@ function initReadMode() {
     closeMobileTools();
   });
 
-  if (markersToggle instanceof HTMLButtonElement) {
-    markersToggle.addEventListener("click", () => {
-      applyMarkers(markersMode === "on" ? "off" : "on", true);
-    });
-  }
-
   if (focusToggle instanceof HTMLButtonElement) {
     focusToggle.addEventListener("click", () => {
       applyFocus(focusMode === "on" ? "off" : "on", true);
-    });
-  }
-
-  for (const button of typographyButtons) {
-    if (!(button instanceof HTMLButtonElement)) continue;
-
-    button.addEventListener("click", () => {
-      const token = String(button.dataset.rmSet || "");
-      const [group, value] = token.split(":");
-
-      if (group === "font" && FONT_OPTIONS.has(value)) {
-        typographyState.font = value;
-      } else if (group === "leading" && LEADING_OPTIONS.has(value)) {
-        typographyState.leading = value;
-      } else {
-        return;
-      }
-
-      applyTypography(true);
-      updateToolbarOffset();
     });
   }
 
@@ -991,7 +870,6 @@ function initReadMode() {
         restoreReturnLocation();
         returnLocationState = null;
         setReturnButtonState();
-        closePanels();
         return;
       }
 
@@ -1001,7 +879,6 @@ function initReadMode() {
       setReturnButtonState();
 
       clearResume(true);
-      closePanels();
     });
   }
 
@@ -1044,27 +921,24 @@ function initReadMode() {
 
     if (isSheetMode() && isToolsOpen() && !clickedToolbar && !clickedFab) {
       closeMobileTools();
-      return;
     }
-
-    if (clickedToolbar) return;
-
-    // Only close panels if one is actually open — avoids unnecessary
-    // getBoundingClientRect() in updateToolbarOffset() on every document click.
-    const aaOpen = aaPanel instanceof HTMLElement && !aaPanel.hidden;
-    if (aaOpen) closePanels();
   });
 
   document.addEventListener("keydown", (event) => {
     if (event.key !== "Escape") return;
 
     // With the passage picker open, this Escape is the popover's native
-    // light-dismiss — don't also collapse the sheet/panels behind it.
+    // light-dismiss — don't also collapse the sheet behind it.
     try {
       if (document.querySelector(":popover-open")) return;
     } catch {
       // Selector unsupported → no popover can be open; fall through.
     }
+
+    // Likewise the Display tray, which the toolbar's Aa opens: its own
+    // handler closes it, and the sheet under it should stay.
+    const displayTray = document.getElementById("fontTray");
+    if (displayTray instanceof HTMLElement && !displayTray.hidden) return;
 
     if (resumeChipTarget) {
       hideResumeChip();
@@ -1074,10 +948,7 @@ function initReadMode() {
     if (isSheetMode() && isToolsOpen()) {
       event.preventDefault();
       closeMobileTools({ focusFab: true });
-      return;
     }
-
-    closePanels();
   });
 
   let scrollRaf = 0;
@@ -1111,7 +982,6 @@ function initReadMode() {
 
   window.addEventListener("resize", () => {
     updateToolbarOffset();
-    setToolbarOpenState(toolbar.dataset.rmOpen || "");
     updateProgress();
     pickActiveFocusTarget();
   });

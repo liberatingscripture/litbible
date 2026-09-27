@@ -50,6 +50,13 @@ const {
    */
   ogImage,
   twitterCard,
+
+  /**
+   * The Display tray's verse-number / footnote-letter settings, forwarded to
+   * Layout. Chapter pages with text pass "study"; intros and drafts pass
+   * nothing, since they have neither.
+   */
+  scriptureControls,
 } = Astro.props;
 
 const pagefindBook = book ?? "";
@@ -102,7 +109,7 @@ if (headerKind === "chapter") {
 }
 ---
 
-<Layout title={title} description={description} canonical={canonical} bg={bg} robotsNoindex={!shouldIndex} ogImage={ogImage} twitterCard={twitterCard}>
+<Layout title={title} description={description} canonical={canonical} bg={bg} robotsNoindex={!shouldIndex} ogImage={ogImage} twitterCard={twitterCard} scriptureControls={scriptureControls}>
   <slot slot="head" name="head" />
 
   {/* Fetch the previous or next chapter as soon as a reader shows intent
@@ -344,10 +351,14 @@ if (headerKind === "chapter") {
     </section>
 
     <style>
-      /* --reading-width is the text itself, so the side padding is added on
-         top (border-box). */
+      /* The reader's text size (Display tray) is set here rather than on the
+         paragraphs, so the column's em-based width grows with it and the
+         line keeps its length in characters. The header and buttons inside
+         are sized in px/rem and stay put. --reading-width is the text
+         itself, so the side padding is added on top (border-box). */
       .scripture-main {
         margin: 0 auto;
+        font-size: calc(1em * var(--reading-scale, 1));
         max-width: calc(var(--reading-width, 72ch) + 32px);
         padding: 12px 16px 64px;
       }

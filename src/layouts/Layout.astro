@@ -19,6 +19,10 @@ const {
   twitterCard = "summary", // "summary_large_image" for pages with wide ogImage art
   ogType = "website", // "article" for article pages (Open Graph og:type)
   hideFooterNewsletter = false, // pages with their own Brevo form (e.g. /unsubscribe)
+  // Adds the Display tray's scripture settings: "study" (verse numbers and
+  // footnote letters) on chapter pages, "read" (numbers only; Reading View
+  // prints no footnote letters) on /read/<book>.
+  scriptureControls,
 } = Astro.props;
 
 // Auto-generate canonical URL from site config when not explicitly provided.
@@ -60,6 +64,13 @@ const criticalCSS = `html,body{margin:0;padding:0}html{scrollbar-gutter:stable}b
     <!-- Apply the saved theme (light/dark) before first paint to avoid a flash of the wrong scheme.
          Absence of 'lit-theme' = system: no attribute, CSS follows prefers-color-scheme. -->
     <script is:inline>try{var t=localStorage.getItem('lit-theme');if(t==='light'||t==='dark'){document.documentElement.setAttribute('data-theme',t);document.documentElement.style.colorScheme=t;}}catch(_){}</script>
+    <!-- Apply the saved text size, line spacing, and verse-number / footnote-letter
+         visibility before first paint, so nothing reflows after load. Each key's
+         absence is the default (Medium, Normal, shown). The three Reading View keys
+         that came before the shared Display tray (lit_rm_fontSize, lit_rm_lineHeight,
+         lit_rm_markers) are still read as fallbacks; the tray deletes each one when
+         its setting changes, so it can't resurrect an older choice. -->
+    <script is:inline>try{var s=localStorage,d=document.documentElement,z=s.getItem('lit-size')||s.getItem('lit_rm_fontSize'),l=s.getItem('lit-leading')||s.getItem('lit_rm_lineHeight'),n=s.getItem('lit-verse-numbers')||s.getItem('lit_rm_markers'),r=s.getItem('lit-fn-letters');if(z==='sm'||z==='lg'||z==='xl')d.setAttribute('data-size',z);if(l==='roomy')d.setAttribute('data-leading',l);if(n==='off')d.setAttribute('data-vn',n);if(r==='off')d.setAttribute('data-fn',r)}catch(_){}</script>
     <title>{title}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
@@ -143,7 +154,7 @@ const criticalCSS = `html,body{margin:0;padding:0}html{scrollbar-gutter:stable}b
   <body class={`bg-${bg}`} data-pagefind-ignore={pagefindIndex ? undefined : true}>
     <a href="#main-content" class="skip-link">Skip to content</a>
     <AppInstallBanner />
-    <SiteHeader class={headerClass} />
+    <SiteHeader class={headerClass} scriptureControls={scriptureControls} />
 
     <main id="main-content" data-pagefind-body={pagefindIndex ? true : undefined}>
       <slot />
