@@ -986,15 +986,66 @@ function initReadMode() {
     pickActiveFocusTarget();
   });
 
+  // Arriving on a link into the book (#ch-10 from Study View's "Switch to
+  // Reading View", #luke-10-v5 from search) has to land on that spot and
+  // stay there. The whole book is one page, tens of thousands of pixels
+  // tall, so anything that changes its height above the target after the
+  // first jump (a web font finishing, the Android app banner; the reader's
+  // text size is set before first paint) slides the text under a fixed
+  // scroll offset, and Safari has no scroll anchoring to put it back. An
+  // animated scroll made that worse: its destination is computed once, when
+  // it starts. So land instantly, then land again whenever the text's size
+  // changes, until the reader scrolls, touches, clicks or types.
+  function landOnHash(anchor) {
+    const target = document.getElementById(anchor);
+    if (!target) return;
+
+    const m = /^ch-(\d+)$/.exec(anchor) || /^[0-9a-z]+-(\d+)-v\d+$/.exec(anchor);
+    const chapter = m ? Number(m[1]) : null;
+    const stopEvents = ["wheel", "touchstart", "pointerdown", "keydown"];
+    let pinned = true;
+    let resizeObserver = null;
+
+    const land = () => {
+      if (!pinned) return;
+      // "auto" here would defer to the stylesheet's smooth scrolling.
+      const previous = html.style.scrollBehavior;
+      html.style.scrollBehavior = "auto";
+      target.scrollIntoView({ block: "start" });
+      html.style.scrollBehavior = previous;
+      setActiveChapter(chapter ?? findActiveChapterByViewportLine());
+      updateProgress();
+    };
+
+    const release = () => {
+      pinned = false;
+      for (const type of stopEvents) window.removeEventListener(type, release, true);
+      resizeObserver?.disconnect();
+    };
+
+    for (const type of stopEvents) {
+      window.addEventListener(type, release, { capture: true, passive: true });
+    }
+
+    land();
+    requestAnimationFrame(land);
+    if ("ResizeObserver" in window) {
+      resizeObserver = new ResizeObserver(() => land());
+      resizeObserver.observe(textRoot);
+    }
+    document.fonts?.ready.then(land);
+    window.addEventListener("load", land, { once: true });
+    // Held until the reader acts rather than for a guessed settling time: a
+    // re-land only ever returns someone who hasn't moved to where they
+    // already are. The cap just stops the observer on a page left open.
+    window.setTimeout(release, 10000);
+  }
+
   const hash = decodeURIComponent(window.location.hash.replace(/^#/, ""));
   const hashTarget = hash ? document.getElementById(hash) : null;
 
   if (hashTarget) {
-    requestAnimationFrame(() => {
-      scrollToAnchor(hash);
-      setActiveChapter(findActiveChapterByViewportLine());
-      updateProgress();
-    });
+    landOnHash(hash);
   } else {
     const canShowResume =
       !!resumeState &&
