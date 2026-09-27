@@ -2,10 +2,13 @@
 import Layout from "../layouts/Layout.astro";
 import "../styles/pages/release-notes.css";
 import releaseNotes from "../data/release-notes.json";
+import { releaseNoteLinker } from "../lib/release-note-linker";
 
 type Change = { type: string; description: string; detail?: string };
 type Entry = { version: string; date: string; label: string; changes: Change[] };
 const notes = releaseNotes as Entry[];
+// Each description links to what changed; the JSON keeps its plain text.
+const linkDescription = await releaseNoteLinker();
 
 const TYPE_LABEL: Record<string, string> = {
   chapter_added: "Added",
@@ -55,7 +58,7 @@ const TYPE_LABEL: Record<string, string> = {
                         {TYPE_LABEL[change.type] ?? "Updated"}
                       </span>
                       <span class="rn-change__body">
-                        <span class="rn-change__text">{change.description}</span>
+                        <span class="rn-change__text" set:html={linkDescription(change.description)} />
                         {change.detail && (
                           <span class="rn-change__detail">{change.detail}</span>
                         )}
