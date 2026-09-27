@@ -36,6 +36,12 @@ function normalizeMarkup(text) {
     .trim();
 }
 
+/** Drop a leading YAML frontmatter block (`---` … `---`), leaving the body.
+ *  Text with no frontmatter comes back unchanged. */
+function stripFrontmatter(text) {
+  return (text ?? "").replace(/^---[ \t]*\r?\n[\s\S]*?\r?\n---[ \t]*(?:\r?\n|$)/, "");
+}
+
 /** Extract all verse numbers found in an HTML string. */
 function extractVerses(html) {
   return [...(html ?? "").matchAll(/id="v(\d+)"/g)].map((m) =>
@@ -239,12 +245,13 @@ const GLOSSARY_RE = /^src\/content\/glossary\/(.+)\.md$/;
  */
 export function buildChanges({ addedFiles, modifiedFiles, readBase, readNow }) {
   /** True if a modified markdown file's reader-facing content changed. Attribute-
-   *  only and whitespace-only edits return false, so they don't create a row. */
-  function markdownContentChanged(file) {
+   *  only and whitespace-only edits return false, so they don't create a row.
+   *  `pick` narrows what counts as reader-facing (the whole file by default). */
+  function markdownContentChanged(file, pick = (text) => text) {
     const before = readBase(file);
     if (before === null) return true; // no base version — treat as a real change
     const after = readNow(file) ?? "";
-    return normalizeMarkup(before) !== normalizeMarkup(after);
+    return normalizeMarkup(pick(before)) !== normalizeMarkup(pick(after));
   }
 
   /** Read a glossary entry's `traditional:` frontmatter for a human-readable
@@ -711,7 +718,13 @@ export function buildChanges({ addedFiles, modifiedFiles, readBase, readNow }) {
     if (!m) continue;
     const isNew = addedIntros.includes(file);
     // Skip modified intros whose reader-facing text didn't actually change.
-    if (!isNew && !markdownContentChanged(file)) continue;
+    // Only the body counts: an intro's frontmatter is `description` and
+    // `topics`, which are metadata, so an edit confined to it writes nothing
+    // (owner, 2026-09-27, the same ruling as chapter metadata). Articles and
+    // glossary entries keep comparing the whole file, because their
+    // frontmatter holds what the reader sees: an article's title, and the
+    // glossary entry itself.
+    if (!isNew && !markdownContentChanged(file, stripFrontmatter)) continue;
     const label = bookKeyToLabel(m[1]);
     changes.push({
       type: "intro_updated",
