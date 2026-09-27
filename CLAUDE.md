@@ -1624,6 +1624,19 @@ collection); they're read directly by the intro pages and the API manifest.
   until a record exists, so no JS or no storage means nothing renders; the ×
   forgets it everywhere. The privacy page's storage paragraph names it: keep
   it there if the record ever changes shape or purpose.
+- **Reading View lands on a link instantly, then holds it.** `/read/<book>` is
+  the whole book on one page, tens of thousands of pixels tall, so arriving at
+  `#ch-10` (Study View's "Switch to Reading View") or `#luke-10-v25` (search)
+  is fragile: any height change above the target after the jump (a web font
+  finishing, the Android banner) slides the text under a fixed scroll offset,
+  and Safari has no scroll anchoring to undo it. (The reader's text size is
+  not one of them: the Display tray applies it before first paint.)
+  `landOnHash` in `read-mode.js` therefore jumps without animation (the
+  stylesheet's `scroll-behavior: smooth` is overridden for that one call, since
+  an animated scroll fixes its destination when it starts) and re-lands on
+  every resize of the text until the reader scrolls, touches, clicks or types.
+  Don't make that first landing smooth again: this replaced it after the owner
+  saw the switch land "at random places within the book" (2026-09-27).
 - **Chapter navigation is prefetched, never prerendered.** `ScriptureLayout`
   carries speculation rules that prefetch the Previous/Next buttons' and the
   bottom chapter links' targets at `moderate` eagerness. Don't upgrade it to
