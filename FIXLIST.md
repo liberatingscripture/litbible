@@ -1004,7 +1004,9 @@ Details for each item are in the artifact (https://claude.ai/artifact/4ghJK72rd2
   topic so that only "hospitality" survived (joined into one span, and not
   passed for intros until they're real). Intros matching, before → after:
   "translation" 27 → 7, "lit" 27 → 3, "inclusion" 27 → 19, "hospitality"
-  24 → 4, "ring" 26 → 0. What remains is the intros' own prose.
+  24 → 4, "ring" 26 → 0. What remains is the intros' own prose. The intros
+  got real topics on 2026-09-27 and pass them again; see TOPICS.md, "Book
+  intros".
 
 - [x] **Make the release notes usable (U2).**
   Link every change (needs F1), show edits as struck old text beside new,

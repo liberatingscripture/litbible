@@ -1,6 +1,7 @@
 # Topic tagging
 
-**This file is the authority on how a chapter's `topics` array is chosen.**
+**This file is the authority on how a chapter's `topics` array is chosen,
+and a book intro's (see "Book intros" at the end).**
 CLAUDE.md carries the short version and points here.
 
 An external `chapter_json_formatting.md` §9–§10 carried these rules previously.
@@ -253,3 +254,67 @@ that list, since partial sets are legitimate there — check it by hand.
 5. Report the tag count, the tags, a one-line justification for any borderline
    tag, and — separately — **the tags considered and rejected** under the
    significance filter. That rejected list is as useful for review as the tags.
+
+## Book intros
+
+The 24 finished book intros (`src/data/intros/<book>-intro.md`) carry `topics`
+too, as a YAML list in their frontmatter. **They are chosen by a different
+test from chapter tags, because they do a different job.**
+
+A chapter's tags feed `topics-index.json`, the "chapters by topic" group and
+the search box's autocomplete. An intro's feed none of those: they reach only
+Pagefind, as the page's `topics` metadata, and Pagefind already indexes every
+word of the intro itself. So **an intro tag earns its place only by adding a
+word the intro doesn't use**, once both are stemmed ("liberated" already
+covers "liberation"). A tag that restates the intro's own prose finds nothing
+new and is left off, however central it is: James carries no "faith and
+works", because a search for it already lands on the James intro. The one
+exception is the alternative-translation table above, whose pairs stay
+complete even when the intro already prints one side.
+
+What that leaves, in practice:
+
+- **Collection labels**, which no intro calls itself: Synoptic Gospels,
+  Pauline epistles (all thirteen letters that bear Paul's name), Prison
+  Epistles, Pastoral Epistles, Catholic Epistles + General Epistles,
+  Johannine letters + Johannine epistles.
+- **Traditional and scholarly names for what the intro discusses in its own
+  words:** justification, kenosis, parousia, messianic secret, docetism.
+  deutero-Pauline goes only where the intro itself raises authorship (the
+  hyphen is part of the term).
+- **Translation pairs**, where the intro makes the concept a theme. Matthew's
+  kingdom of heaven + Heavenly Reign is kept complete the same way.
+
+The book is the unit, so scene names and quotations stay on the chapters
+("armor of God" is on `ephesians-6`, not the Ephesians intro), and "What not
+to tag" applies unchanged. A frontmatter-only intro edit writes no release
+notes row: the drafter compares an intro's body only.
+
+**Intro tags go stale in the other direction from chapter tags.** When an
+intro's prose changes, a tag can become redundant because the prose now uses
+its word, or a pair partner can lose the word it was standing beside. Re-run
+this check, from the repo root, after editing an intro or its topics. It
+prints each tag with the words it adds, and flags one that adds none:
+
+```js
+// node check-intro-topics.mjs  (save in the repo root; delete after)
+import fs from "node:fs";
+import { stemWord, foldDiacritics } from "./src/lib/word-stem.mjs";
+const STOP = new Set(["the", "of", "and", "for", "in", "a", "is", "to"]);
+const toks = (s) =>
+  foldDiacritics(s.toLowerCase()).replace(/[’']s\b/g, "").replace(/[’']/g, "")
+    .split(/[^a-z0-9]+/).filter(Boolean);
+for (const f of fs.readdirSync("src/data/intros").filter((f) => f.endsWith(".md"))) {
+  const src = fs.readFileSync(`src/data/intros/${f}`, "utf8");
+  const fm = src.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+  const tags = fm ? [...fm[1].matchAll(/^\s+-\s+(.+?)\s*$/gm)].map((m) => m[1]) : [];
+  if (!tags.length) continue;
+  const body = src.slice(fm[0].length).replace(/<[^>]+>/g, " ");
+  const have = new Set(toks(body).map(stemWord));
+  console.log(`${f} (${tags.length})`);
+  for (const t of tags) {
+    const adds = toks(t).filter((w) => !STOP.has(w) && !have.has(stemWord(w)));
+    console.log(`   ${t}: ${adds.length ? "+" + adds.join(", +") : "ADDS NOTHING (keep only as a pair partner)"}`);
+  }
+}
+```
