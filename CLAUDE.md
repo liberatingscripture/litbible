@@ -68,6 +68,7 @@ npm run import:chapter -- --docx=<path> --book=<key> --chapter=<n> --report
                           #   first run. See The Importer below for what it refuses to
                           #   touch, and why that is the point
 npm run check:links       # Verify every internal href/#fragment in dist/ resolves
+                          #   (a verse range #v16-18 resolves when both ends exist)
 npm test                  # Run the node:test unit suite — two roots: test/**/*.js
                           #   and scripts/reconcile/test/**/*.mjs. Both globs are in
                           #   the script; a new test root is invisible to CI until
@@ -103,8 +104,11 @@ npm run draft:release-notes -- --since <ref>  # Draft a release-notes entry from
 3. `build:verses` — generates `public/search/verses.json`, the verse-level
    plain-text index the client scans for scripture keyword search, plus the
    corpus `vocab` used client-side for related-form matching and typo
-   correction (drafts excluded, deterministic output). A website asset, NOT
-   part of the app contract — it must never move under `public/api/`.
+   correction (drafts excluded, deterministic output). It also writes
+   `public/search/chapters/<book>-<chapter>.json`, one chapter's verses each,
+   which the reference previews fetch (~2 KB instead of the whole index). A
+   website asset, NOT part of the app contract — it must never move under
+   `public/api/`.
 4. `build:glossary` — generates `public/glossary.json`, the glossary feed the
    apps sync, from the `src/content/glossary/*.md` collection (deterministic:
    entries sorted by id, index keys sorted, no timestamps). Must run *before*
@@ -185,10 +189,17 @@ src/
                      #   and podcast-feed.xml?raw — so the core stays import-free
                      #   and `node --test` can reach it via type stripping. Keep
                      #   the core's TypeScript erasable or the tests go dark),
-                     #   lsc-mark.mjs (see The LSC brand mark below)
+                     #   lsc-mark.mjs (see The LSC brand mark below),
+                     #   scripture-refs.mjs + scripture-refs-data.mjs (the
+                     #   render-time reference linker and its fs shell),
+                     #   glossary-crossrefs.mjs, release-note-links.mjs +
+                     #   release-note-linker.ts (see "Scripture references link
+                     #   at render" below)
   pages/             # File-based routes (see Routing below)
   scripts/           # CLIENT-side vanilla JS (chapter-tools, read-mode,
-                     #   search-core + searchbar + search — see Search below)
+                     #   search-core + searchbar + search — see Search below;
+                     #   lit-panel, the one floating panel every reader tool
+                     #   shares; ref-preview, scripture reference previews)
   styles/            # global.css, read-mode.css, scripture-tools.css, articles.css,
                      #   pages/<page>.css (per-page stylesheets)
 scripts/             # BUILD/validation Node scripts (.mjs) — see below
@@ -1163,7 +1174,7 @@ collection); they're read directly by the intro pages and the API manifest.
 - **Chapter file naming**: `{bookKey}-{chapter}.json` (e.g. `1corinthians-1.json`).
 - **Generated files are git-ignored** and regenerated at build time:
   `public/api/`, `public/og/`, `public/search/topics.json`,
-  `public/search/verses.json`, `public/topics-index.json`,
+  `public/search/verses.json`, `public/search/chapters/`, `public/topics-index.json`,
   `public/glossary.json`, `dist/`, `.astro/`.
   Don't hand-edit them. Three generators are deliberately **outside** this rule
   because their output is committed and hand-maintained — `build:favicons`
@@ -1401,6 +1412,46 @@ collection); they're read directly by the intro pages and the API manifest.
     how readers heard "Glossary glossary Translation glossary…" and each
     heading's keywords read aloud. Pagefind reads the HTML, not the
     accessibility tree, so hiding them costs the index nothing.
+- **Scripture references link at render, never in the data.** Footnotes
+  (Study View), book intros, article bodies, glossary bodies, and release-note
+  descriptions are passed through `linkScriptureRefs` (`src/lib/scripture-refs.mjs`,
+  pure and unit-tested; `scripture-refs-data.mjs` is its fs shell) as the page is
+  built, so "Romans 2:24" becomes `<a class="sref" href="/romans-2/#v24">`. The
+  chapter JSON, the intro files, `release-notes.json` and the glossary feed all
+  keep their plain text, because the apps and the changelog read those. Five
+  rules, each a decision rather than a limitation:
+  1. **Explicit references only**: a book name or SBL abbreviation plus a
+     chapter, verse or range, and list continuations after one ("John 3:35;
+     5:20", "10:23, 33", "1 Corinthians 11 and 14"). Relative forms ("vv. 9–11",
+     "verse 10", a bare "(1:20–25)") stay plain: one footnote is stored
+     byte-identically in 1 Corinthians 12 and 14 and means chapter 14 in both, so
+     the host chapter is not a safe assumption. A bare number after a semicolon
+     is left alone too, since it could be a chapter or a verse.
+  2. **New Testament books only.** The Hebrew Bible has no pages here.
+  3. **A reference tagged with another translation stays plain** ("Mark 7:21–22
+     ESV", "(John 12:16 NIV)"): it cites *that* wording, and linking it to the LIT
+     text would misattribute the quotation (owner, 2026-09-27). The tag covers the
+     whole list before it. "LIT" is ours and links normally.
+  4. **A verse the page has no anchor for links the chapter** (a gap like Matthew
+     17:21, or a draft), which is what keeps `check:links` green. That checker
+     now resolves a range `#v16-18` when both ends exist, so it validates every
+     link this writes. Links to draft chapters carry `data-draft`.
+  5. **Existing links, `<code>`, and attributes are never touched**, so a
+     hand-written article link keeps its own target.
+  On `/glossary`, `linkGlossaryCrossRefs` also turns `the entry for “X”` into a
+  jump to that entry, resolving X through the feed's own `normalizeLabel` so the
+  page and iOS agree; the phrase itself ships verbatim (see The Glossary Feed).
+  Release-note rows that name an intro, a glossary entry or an article link by
+  their fixed wording (`release-note-links.mjs`).
+  **Previews** (`src/scripts/ref-preview.js`): hovering a reference with a mouse,
+  or tapping one on a touch screen, shows its verses (up to six) in the shared
+  floating panel with an "Open John 3 →" link. A mouse click and the keyboard
+  still just follow the link. They read the per-chapter files `build:verses`
+  writes, and apply to `a.sref`, the glossary's "Where it appears" lists, and
+  hand-written scripture links in article bodies, never to navigation.
+  `src/scripts/lit-panel.js` is the one panel all reader tools share (verse
+  menu, footnote popover, selection panel, preview): one open at a time, closed
+  by an outside click or Escape.
 - **Chapter navigation is prefetched, never prerendered.** `ScriptureLayout`
   carries speculation rules that prefetch the Previous/Next buttons' and the
   bottom chapter links' targets at `moderate` eagerness. Don't upgrade it to
@@ -1485,7 +1536,8 @@ collection); they're read directly by the intro pages and the API manifest.
      load-bearing — the curly-quote convention is a *chapter JSON* rule and must
      not be applied here. The generator fails the build on a cross-reference
      that would land nowhere, because two of them were dead for months and
-     nothing reported it.
+     nothing reported it. `/glossary` makes the same phrase a link on the page
+     only, at render, through the same `normalizeLabel`.
   5. **`draft: true` withholds an entry rather than removing it.** See the
      `glossary` collection above for why the file has to stay on disk: the
      alignment scanner seeds from it, and an entry deleted to unpublish it
@@ -1960,6 +2012,7 @@ argv, and the scan; nothing else.
 | `src/pages/[slug].astro` | Scripture chapter pages (Study View) |
 | `src/pages/read/[book].astro` | Continuous reading view |
 | `src/scripts/chapter-tools.js` | Verse highlight/menu, footnote popovers, and selection sharing |
+| `src/lib/scripture-refs.mjs` | The render-time reference linker; read its header before widening what it links |
 | `src/styles/global.css` | Main stylesheet |
 | `astro.config.mjs` | Site config, redirects, sitemap/noindex draft logic |
 | `content.config.ts` | Content-collection schemas |
