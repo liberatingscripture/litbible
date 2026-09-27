@@ -5,6 +5,7 @@ import "../../styles/articles.css";
 
 import { getCollection, render } from "astro:content";
 import type { CollectionEntry } from "astro:content";
+import { linkRefs } from "../../lib/scripture-refs-data.mjs";
 
 type ArticleEntry = CollectionEntry<"articles">;
 
@@ -23,6 +24,14 @@ const entry = entries.find((e) => e.id === slug);
 if (!entry) throw new Error(`Article not found: ${slug}`);
 
 const { Content } = await render(entry);
+// The body goes out as a string so its scripture references can be linked
+// (src/lib/scripture-refs.mjs). No article uses a Markdown image, which is the
+// one thing render() does that the stored HTML doesn't; if one ever does, the
+// component path below still renders it, just without links.
+const bodyHtml =
+  entry.rendered?.html != null && !entry.rendered.metadata?.imagePaths?.length
+    ? linkRefs(entry.rendered.html)
+    : null;
 const { data } = entry;
 
 /**
@@ -202,7 +211,7 @@ const indexTagsJoined = hyphensToSpacesForIndex(tags.join(", "));
       <div id="top" data-pagefind-ignore></div>
 
       <div class="article__body" data-pagefind-ignore>
-        <Content />
+        {bodyHtml != null ? <Fragment set:html={bodyHtml} /> : <Content />}
       </div>
 
       {/* Bottom nav */}

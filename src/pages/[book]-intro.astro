@@ -1,11 +1,13 @@
 ---
 import ScriptureLayout from "../layouts/ScriptureLayout.astro";
 import { BOOKS, BOOK_ORDER, bookKeyToLabel } from "../data/books.js";
+import { linkRefs } from "../lib/scripture-refs-data.mjs";
 
 // Load intro markdown files eagerly (so we can render immediately)
 type IntroMod = {
   frontmatter?: Record<string, any>;
   default: any; // MD/MDX component
+  compiledContent?: () => Promise<string>;
 };
 
 const introModules = import.meta.glob<IntroMod>("../data/intros/*-intro.md", {
@@ -27,7 +29,12 @@ const bookName = bookKeyToLabel(bookKey);
 // Match: ../data/intros/<book>-intro.md
 const introKey = `../data/intros/${bookKey}-intro.md`;
 const introMod = (introModules as Record<string, IntroMod>)[introKey] ?? null;
-const IntroContent = introMod?.default ?? null;
+// Rendered as an HTML string rather than through the Markdown component, so
+// its scripture references ("Romans 2:24") can be linked on the way out. The
+// intro file itself, which the apps sync, keeps its plain text.
+const introHtml = introMod?.compiledContent
+  ? linkRefs(await introMod.compiledContent())
+  : null;
 
 // Topics for indexing/filtering (frontmatter: topics: ["..."])
 const topics = Array.isArray(introMod?.frontmatter?.topics)
@@ -96,8 +103,8 @@ const nextCtaHref = `/${bookKey}-1`;
     }
     <section class="intro">
       {
-        IntroContent ? (
-          <IntroContent />
+        introHtml ? (
+          <Fragment set:html={introHtml} />
         ) : (
           <p>Intro content isn’t written yet for {bookName}.</p>
         )

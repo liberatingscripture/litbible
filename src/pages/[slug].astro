@@ -2,6 +2,7 @@
 import ScriptureLayout from "../layouts/ScriptureLayout.astro";
 import { BOOKS as books, BOOK_ORDER, bookKeyToLabel } from "../data/books.js";
 import { prepareStudyParagraph } from "../lib/chapter-html";
+import { linkRefs } from "../lib/scripture-refs-data.mjs";
 
 type Footnote = {
   id: string; // e.g. "fn-a"
@@ -118,9 +119,12 @@ const paragraphs = paragraphsRaw.map((html) =>
   ),
 );
 
-const footnotes = Array.isArray(chapterData?.footnotes)
+// References in a note ("Romans 2:24") link at render; the JSON the apps
+// read keeps its plain text. See src/lib/scripture-refs.mjs.
+const footnotes = (Array.isArray(chapterData?.footnotes)
   ? chapterData!.footnotes
-  : [];
+  : []
+).map((fn) => ({ ...fn, html: linkRefs(fn.html) }));
 
 /* Chapter CTAs (below text, above footnotes) */
 const chaptersInBook =
