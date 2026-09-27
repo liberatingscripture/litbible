@@ -357,4 +357,21 @@ const description = `Read ${bookName} in continuous scroll with Reading Mode.`;
   </section>
 
   <script type="module" src={readModeScript}></script>
+
+  {/* Continue reading: record where the reader is each time Reading View
+      saves its own resume position. Draft chapters are never recorded. */}
+  <script>
+    import { saveLastRead, verseAtReadingLine } from "../../scripts/last-read.js";
+
+    const page = document.querySelector(".rm-page[data-rm-root]");
+    page?.addEventListener("rm:position", (event) => {
+      const { book, chapter } = (event as CustomEvent<{ book: string; chapter: number }>).detail;
+      if (!book || !chapter) return;
+      if (document.getElementById(`ch-${chapter}`)?.hasAttribute("data-rm-draft")) return;
+      const prefix = `${book}-${chapter}-v`;
+      const markers = Array.from(document.querySelectorAll(`.rm-verse-anchor[id^="${prefix}"]`));
+      const verse = verseAtReadingLine(markers, (id: string) => Number(id.slice(prefix.length)) || null);
+      saveLastRead({ book, chapter, verse, view: "read" });
+    });
+  </script>
 </Layout>

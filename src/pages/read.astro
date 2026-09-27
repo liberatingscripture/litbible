@@ -6,6 +6,7 @@ import releaseNotes from "../data/release-notes.json";
 import { BOOK_ORDER, bookKeyToLabel } from "../data/books.js";
 import { scanDraftChapters } from "../lib/draft-chapters.mjs";
 import { chapterRuns } from "../lib/chapter-nav.mjs";
+import ContinueReading from "../components/ContinueReading.astro";
 import { releaseNoteLinker } from "../lib/release-note-linker";
 
 const title = "Read | Liberation and Inclusion Translation";
@@ -69,6 +70,8 @@ const TYPE_LABEL: Record<string, string> = {
     />
 
     <h1 class="read-title">Read the LIT Online</h1>
+
+    <ContinueReading class="read-continue" />
 
     <p class="read-lede">
       I've got solid drafts of {unfinished.length ? "most of " : ""}the New

@@ -41,6 +41,10 @@ body.bg-cream > main {
   line-height: 1.1;
 }
 
+.read-continue {
+  margin: 0 0 16px;
+}
+
 .read-lede {
   margin: 0 auto;
   font-size: 1.05rem;

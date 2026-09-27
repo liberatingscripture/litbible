@@ -206,7 +206,12 @@ const isDraftPage = !shouldIndex || paragraphs.length === 0;
       })} />
     )}
   </Fragment>
-  <article class="chapter">
+  {/* The last-read attributes arm Continue reading; drafts never set them. */}
+  <article
+    class="chapter"
+    data-last-read-book={isDraftPage ? undefined : normalizedBookKey}
+    data-last-read-chapter={isDraftPage ? undefined : props.chapter}
+  >
         {/* Hidden description for Hebrew poetry blockquotes referenced by aria-describedby */}
         <div id="hbq-description" hidden>Formatted as Hebrew and Semitic poetry with indented parallel lines</div>
         {/* H1 is provided by <ScriptureHeader /> in ScriptureLayout */}
@@ -503,6 +508,10 @@ const isDraftPage = !shouldIndex || paragraphs.length === 0;
   <script>
     import "../scripts/chapter-tools.js";
     import "../scripts/ref-preview.js";
+    import { trackStudyView } from "../scripts/last-read.js";
+
+    const lastReadRoot = document.querySelector("article.chapter[data-last-read-book]");
+    if (lastReadRoot instanceof HTMLElement) trackStudyView(lastReadRoot);
   </script>
 </ScriptureLayout>
 

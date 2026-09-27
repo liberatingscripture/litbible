@@ -651,6 +651,12 @@ function initReadMode() {
     safeSet(resumeKey, JSON.stringify({ anchor, scrollY }));
 
     resumeState = { anchor, scrollY };
+
+    // Site-wide "Continue reading" listens for this (read/[book].astro).
+    // This file is served unbundled (?url), so it can't import that module.
+    page.dispatchEvent(
+      new CustomEvent("rm:position", { detail: { book: bookKey, chapter: activeChapter } }),
+    );
   }
 
   function clearResume(andScrollTop = false) {

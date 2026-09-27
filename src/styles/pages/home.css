@@ -299,6 +299,11 @@
   margin-top: 1.25rem; /* was 1.85rem */
 }
 
+/* "Continue: Romans 8", shown only to a returning reader */
+.title-continue {
+  margin-top: 1.75rem;
+}
+
 /* =========================================================
    Desktop enhancement — scale EVERYTHING up
    + smallest text set to 38px
