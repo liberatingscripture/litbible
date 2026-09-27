@@ -2132,6 +2132,27 @@ blockquote.hbq .hbq-line .vn,
   pointer-events: auto;
 }
 
+/* A footnote letter is 4–19px wide and ~18px tall, well under the 24px
+   WCAG 2.2 target, so an invisible overlay centred on it makes up the rest
+   without moving the text. Where a letter sits just before the next verse
+   number the two overlays meet; z-index 1 (the verse number's stays auto)
+   lets the footnote win there, so its right edge no longer opens that
+   verse's menu. */
+.chapter-paragraphs sup.fn-ref a {
+  position: relative;
+}
+
+.chapter-paragraphs sup.fn-ref a::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: max(calc(100% + 12px), 24px);
+  height: max(calc(100% + 6px), 24px);
+  transform: translate(-50%, -50%);
+  z-index: 1;
+}
+
 /* Footnotes section backlink label (your markup: <a class="footnote-backlink">a</a>) */
 .footnotes .footnote-backlink,
 .footnotes .footnote-backlink * {
@@ -2365,8 +2386,10 @@ html[data-font="dyslexic"] .menu-overlay__nav a {
 }
 
 /* Verse numbers are tap targets for the verse menu. The ::after overlay
-   expands the touch hit area (~6px each side) without changing layout —
-   superscript digits alone are far below comfortable thumb-target size.
+   expands the touch hit area (6px each side, and never under 24px) without
+   changing layout — superscript digits alone are far below comfortable
+   thumb-target size. A footnote letter's overlay sits above this one where
+   they meet (see the footnote rules above).
    The resting green + dotted underline is the always-visible "tappable"
    affordance (touch devices never see :hover). */
 .chapter-paragraphs sup.vn {
@@ -2381,7 +2404,11 @@ html[data-font="dyslexic"] .menu-overlay__nav a {
 .chapter-paragraphs sup.vn::after {
   content: "";
   position: absolute;
-  inset: -6px;
+  left: 50%;
+  top: 50%;
+  width: max(calc(100% + 12px), 24px);
+  height: max(calc(100% + 12px), 24px);
+  transform: translate(-50%, -50%);
 }
 
 .chapter-paragraphs sup.vn:hover,
