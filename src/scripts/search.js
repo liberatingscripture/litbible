@@ -39,6 +39,7 @@ const base = String(import.meta.env.BASE_URL || "/").replace(/\/?$/, "/");
 const $ = (sel, root = document) => root.querySelector(sel);
 
 const statusEl = $("#search-status");
+const jumpsEl = $("#search-jumps");
 const refEl = $("[data-search-ref]");
 
 const groupGlossary = $("#group-glossary");
@@ -410,7 +411,11 @@ function renderGlossary(items, qPhrase) {
   }
 }
 
-function renderSubject(items) {
+// `topicLabels` maps a chapter's URL to the topic labels that matched it. A
+// card names them ("Matthew 18 · debt forgiveness") when they say something
+// the query doesn't, which is the case for a loose one-word match; a label
+// that is just the query repeated is left off.
+function renderSubject(items, topicLabels, qPhrase) {
   subjectEl.innerHTML = "";
   for (const r of items) {
     const li = document.createElement("li");
@@ -418,10 +423,16 @@ function renderSubject(items) {
 
     const fallbackTitle = r.meta?.title || r.title || "Result";
     const displayTitle = prettyTitleFromUrl(r.url, fallbackTitle);
+    const labels = (topicLabels?.get(r.url) || []).filter(
+      (label) => normalizePhrase(label) !== qPhrase,
+    );
+    const labelsHtml = labels.length
+      ? `<span class="result-topics"> · ${escapeHtml(labels.join(", "))}</span>`
+      : "";
 
     li.innerHTML = `
       <a class="result-link" href="${escapeHtml(r.url)}">
-        <div class="result-title">${escapeHtml(displayTitle)}</div>
+        <div class="result-title">${escapeHtml(displayTitle)}${labelsHtml}</div>
       </a>
     `;
 
@@ -581,10 +592,14 @@ function renderIntros(items) {
       r.url,
       r.meta?.title || r.title || "Introduction",
     );
+    // Pagefind's excerpt (escaped text with <mark> around the matches), so a
+    // reader can see why this introduction came up.
+    const excerptHtml = r.excerpt ? String(r.excerpt) : "";
 
     li.innerHTML = `
       <a class="result-link" href="${escapeHtml(r.url)}">
         <div class="result-title">${escapeHtml(displayTitle)}</div>
+        ${excerptHtml ? `<div class="result-excerpt">${excerptHtml}</div>` : ""}
       </a>
     `;
 
@@ -706,6 +721,39 @@ function buildPageRange(current, total) {
   return result;
 }
 
+/**
+ * Jump links under the count: "117 verses · 47 chapters by topic · …", one per
+ * group that is showing and has results. Verses come first because they are
+ * what most searches are for and their group sits last on the page, under
+ * the shorter ones. Shown only when there are two or more groups to choose
+ * between, which also keeps it off pages 2 and up (verses only).
+ */
+function renderJumps(groups) {
+  if (!jumpsEl) return;
+  const shown = groups.filter((g) => g.count > 0);
+  jumpsEl.replaceChildren();
+  jumpsEl.hidden = shown.length < 2;
+  if (jumpsEl.hidden) return;
+
+  const list = document.createElement("ul");
+  for (const g of shown) {
+    const li = document.createElement("li");
+    const a = document.createElement("a");
+    a.href = `#${g.target.id}`;
+    a.textContent = `${g.count} ${g.count === 1 ? g.one : g.many}`;
+    // Scroll and focus here rather than following the hash: a fragment
+    // navigation fires popstate, which re-renders the results.
+    a.addEventListener("click", (e) => {
+      e.preventDefault();
+      g.target.scrollIntoView({ block: "start" });
+      g.target.focus({ preventScroll: true });
+    });
+    li.appendChild(a);
+    list.appendChild(li);
+  }
+  jumpsEl.appendChild(list);
+}
+
 function renderFromCache() {
   const { page, sort, mode, q } = readState();
   if (!lastSearchCache) return;
@@ -714,6 +762,7 @@ function renderFromCache() {
     displayQ,
     glossaryMatches,
     subjectMatchesRaw,
+    subjectTopicLabels,
     articleMatchesRaw,
     introMatchesRaw,
     keywordMatchesRaw,
@@ -798,25 +847,13 @@ function renderFromCache() {
     return;
   }
 
-  // "194 results for “liberation” (3 glossary, 191 keyword)": the breakdown
-  // names only the kinds that matched.
-  const breakdown = [
-    [glossaryCount, "glossary"],
-    [subjectCount, "topic"],
-    [introCount, "book intro"],
-    [articleCount, "article"],
-    [
-      keywordTotal,
-      keywordCorrection
-        ? `keyword, showing results for “${keywordCorrection}”`
-        : "keyword",
-    ],
-  ]
-    .filter(([count]) => count > 0)
-    .map(([count, label]) => `${count} ${label}`)
-    .join(", ");
+  // "194 results for “liberation”". The per-group counts live in the jump
+  // links below it. A typo-corrected verse search says which word it used.
+  const count = `${matchTotal} result${matchTotal === 1 ? "" : "s"} for “${displayQ}”`;
   setStatus(
-    `${matchTotal} result${matchTotal === 1 ? "" : "s"} for “${displayQ}” (${breakdown})`,
+    keywordCorrection && keywordTotal
+      ? `${count} (showing verses for “${keywordCorrection}”)`
+      : count,
   );
 
   // Only show glossary/subject on page 1
@@ -830,6 +867,14 @@ function renderFromCache() {
     (mode === "all" || mode === "article") && showMetaBuckets;
   const showKeyword = mode === "all" || mode === "keyword";
 
+  renderJumps([
+    { count: showKeyword ? keywordTotal : 0, one: "verse", many: "verses", target: groupKeyword },
+    { count: showSubject ? subjectCount : 0, one: "chapter by topic", many: "chapters by topic", target: groupSubject },
+    { count: showIntros ? introCount : 0, one: "introduction", many: "introductions", target: groupIntros },
+    { count: showArticles ? articleCount : 0, one: "article", many: "articles", target: groupArticles },
+    { count: showGlossary ? glossaryCount : 0, one: "glossary entry", many: "glossary entries", target: groupGlossary },
+  ]);
+
   if (showGlossary && glossaryCount) {
     groupGlossary.hidden = false;
     renderGlossary(glossaryMatches.slice(0, 50), qPhrase);
@@ -840,7 +885,7 @@ function renderFromCache() {
 
   if (showSubject && subjectCount) {
     groupSubject.hidden = false;
-    renderSubject(subjectMatches.slice(0, 50));
+    renderSubject(subjectMatches.slice(0, 50), subjectTopicLabels, qPhrase);
     applyCollapse(subjectEl);
   } else {
     groupSubject.hidden = true;
@@ -893,6 +938,7 @@ function hideResultGroups() {
   groupIntros.hidden = true;
   groupArticles.hidden = true;
   groupKeyword.hidden = true;
+  renderJumps([]);
 
   glossaryEl.innerHTML = "";
   subjectEl.innerHTML = "";
@@ -982,6 +1028,9 @@ async function runFullSearch() {
   // to whole-word topic matches, capped to avoid an avalanche on broad
   // tokens (e.g., "god").
   const extraSubjectItems = [];
+  // Every label that matched each chapter, collected before bucketing keeps
+  // only the chapter's first item, so its card can name them all.
+  const subjectTopicLabels = new Map();
   const topicsData = await loadTopicsIndexOnce();
   if (topicsData) cachedTopicsList = topicsData.topicsList;
   if (topicsData && qPhrase) {
@@ -1016,6 +1065,13 @@ async function runFullSearch() {
 
       const docBook = normalizePhrase(String(doc?.book || ""));
       if (wantBook && docBook && docBook !== wantBook) continue;
+
+      const label = String(doc?.topic || "").trim();
+      if (label) {
+        const labels = subjectTopicLabels.get(url) || [];
+        if (!labels.includes(label)) labels.push(label);
+        subjectTopicLabels.set(url, labels);
+      }
 
       extraSubjectItems.push(
         topicsIndexSubjectItem({
@@ -1077,6 +1133,7 @@ async function runFullSearch() {
     qPhrase,
     glossaryMatches,
     subjectMatchesRaw,
+    subjectTopicLabels,
     articleMatchesRaw,
     introMatchesRaw,
     keywordMatchesRaw: keywordCards,
