@@ -2,6 +2,7 @@
 import { getCollection, render } from "astro:content";
 import Layout from "../layouts/Layout.astro";
 import { BOOK_ORDER, bookKeyToLabel } from "../data/books.js";
+import { linkRefs } from "../lib/scripture-refs-data.mjs";
 import "../styles/pages/glossary.css";
 
 // `draft: true` entries stay in the collection (build-alignment.mjs seeds off
@@ -199,11 +200,18 @@ const byTraditional = [...rawEntries].sort((a, b) =>
   )
 );
 
-// Render entries in LIT order (matches the default toggle state).
+// Render entries in LIT order (matches the default toggle state). Bodies go out
+// as strings so scripture references can be linked; the files, and the feed
+// built from them, keep their plain text. No entry uses a
+// Markdown image (the one thing render() adds), so the stored HTML is complete.
 const entries = await Promise.all(
   byLit.map(async (entry) => ({
     data: entry.data,
     Content: (await render(entry)).Content,
+    bodyHtml:
+      entry.rendered?.html != null && !entry.rendered.metadata?.imagePaths?.length
+        ? linkRefs(entry.rendered.html)
+        : null,
   }))
 );
 
@@ -430,7 +438,7 @@ const menuData = {
           <!-- Cream panel starts here -->
           <div class="entries-panel">
             <div class="wrap entries-wrap">
-              {entries.map(({ data, Content }) => {
+              {entries.map(({ data, Content, bodyHtml }) => {
                 const litParts = data.lit.split(" / ");
                 return (
                   <article
@@ -487,7 +495,7 @@ const menuData = {
 
                     {/* Definition body is NOT Pagefind-indexed */}
                     <div class="entry-body" data-pagefind-ignore>
-                      <Content />
+                      {bodyHtml != null ? <Fragment set:html={bodyHtml} /> : <Content />}
                     </div>
 
                     {/* Where the rendering actually appears. Plain
