@@ -87,6 +87,10 @@ const chaptersInBook =
 let headingText = "";
 let prevHref: string | null = null;
 let nextHref: string | null = null;
+// Where each button goes, for its accessible name ("Previous: John 2"), so a
+// screen reader hears the destination the bottom-of-page links already name.
+let prevLabel = "";
+let nextLabel = "";
 
 if (!bookKey) {
   headingText = "Scripture";
@@ -100,21 +104,28 @@ if (!bookKey) {
     prevBookKey && prevBookLastChapter
       ? `/${prevBookKey}-${prevBookLastChapter}`
       : null;
+  if (prevBookKey && prevBookLastChapter) {
+    prevLabel = `${bookKeyToLabel(prevBookKey)} ${prevBookLastChapter}`;
+  }
 
   // Intro next -> chapter 1 of current book
   nextHref = `/${bookKey}-1`;
+  nextLabel = `${bookName} 1`;
 } else {
   const n = chapter ?? 1;
   headingText = `${bookName} ${n}`;
 
   // Chapter previous: chapter 1 -> intro
   prevHref = n > 1 ? `/${bookKey}-${n - 1}` : `/${bookKey}-intro`;
+  prevLabel = n > 1 ? `${bookName} ${n - 1}` : `${bookName} introduction`;
 
   // Chapter next: last chapter -> next book intro (don’t skip intros)
   if (typeof chaptersInBook === "number" && n >= chaptersInBook) {
     nextHref = nextBookKey ? `/${nextBookKey}-intro` : null;
+    if (nextBookKey) nextLabel = `${bookKeyToLabel(nextBookKey)} introduction`;
   } else {
     nextHref = `/${bookKey}-${n + 1}`;
+    nextLabel = `${bookName} ${n + 1}`;
   }
 }
 ---
@@ -127,7 +138,7 @@ if (!bookKey) {
   <nav class="chapter-nav" aria-label="Chapter navigation">
     {
       prevHref ? (
-        <a class="nav-button" href={prevHref} aria-label="Go to previous page">
+        <a class="nav-button" href={prevHref} aria-label={`Previous: ${prevLabel}`}>
           ◀ Previous
         </a>
       ) : (
@@ -139,7 +150,7 @@ if (!bookKey) {
 
     {
       nextHref ? (
-        <a class="nav-button" href={nextHref} aria-label="Go to next page">
+        <a class="nav-button" href={nextHref} aria-label={`Next: ${nextLabel}`}>
           Next ▶
         </a>
       ) : (
