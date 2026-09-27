@@ -988,7 +988,7 @@ Details for each item are in the artifact (https://claude.ai/artifact/4ghJK72rd2
   indexed text causes it (the pf-meta spans are `data-pagefind-ignore`, so
   confirm rather than assume) and keep the translation's own name out of
   the index. Q1 already changed the status wording.
-  DONE (2026-09-27): the count now reads "191 results for “liberation”", and
+  DONE (2026-09-27, PR #220): the count now reads "191 results for “liberation”", and
   under it a list of jump links names each group that has results, verses
   first. A topic card names the topics it matched when they aren't the query
   itself ("Matthew 18 · lost sheep, parable of the lost sheep"), and intro
