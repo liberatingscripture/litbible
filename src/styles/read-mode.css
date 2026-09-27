@@ -519,13 +519,13 @@ html.rm-tools-open {
   text-align: center;
 }
 
-/* --ch rather than ch (see global.css): the column is still meant to widen with
-   the reader's own text-size choice (html[data-rm-font], further down), and --ch
-   is an em fraction, so it does. What it must no longer track is which font has
-   finished loading. Same 76 characters either way. */
+/* The shared reading measure (global.css). It is in --ch, an em fraction, so
+   the column still widens with the reader's own text-size choice
+   (html[data-rm-font], further down). What it must not track is which font
+   has finished loading, which is why it isn't the ch unit. */
 .rm-page .rm-reader {
   width: 100%;
-  max-width: calc(76 * var(--ch));
+  max-width: var(--reading-width, 76ch);
   margin: 0 auto;
   font-size: 1.04rem;
   --rm-line-height: 1.75;

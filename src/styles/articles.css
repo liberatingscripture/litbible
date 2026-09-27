@@ -520,11 +520,9 @@
   background: rgba(0, 0, 0, 0.12);
 }
 
-/* Markdown body defaults */
-.article__body {
-  max-width: calc(78 * var(--ch));
-}
-
+/* Markdown body defaults. The body's width is set by the card around it,
+   which the article page sizes to the shared reading measure (see
+   --article-width there). */
 .article__body :is(p, ul, ol) {
   line-height: 1.7;
 }
