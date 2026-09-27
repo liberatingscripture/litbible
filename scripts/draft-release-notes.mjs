@@ -7,9 +7,9 @@
  * For modified chapters, identifies whether paragraphs or footnotes changed
  * and extracts the affected verse numbers.
  *
- * Reader-facing text only: modified chapters already diff rendered verse/
- * footnote text (attribute- or metadata-only chapter edits collapse to one
- * "metadata updated" line), and modified intros/glossary/articles are compared
+ * Reader-facing text only: modified chapters diff rendered verse/footnote
+ * text (a chapter edit that moves only attributes or metadata such as topics
+ * writes nothing), and modified intros/glossary/articles are compared
  * with HTML attributes and whitespace normalized away, so mechanical edits
  * (e.g. stripping target="_blank" from links) don't produce changelog noise.
  *

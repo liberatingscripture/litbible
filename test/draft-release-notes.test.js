@@ -335,20 +335,20 @@ test("insertion before twin notes: reported as added, with the full range", () =
   assert.equal(c.relabel, "footnotes formerly b–c relabeled c–d");
 });
 
-/* ── 4. Metadata-only + attribute-only collapse (FIXLIST O11 core behaviors) ── */
+/* ── 4. Metadata-only and attribute-only edits write nothing ───────────── */
 
-test("metadata-only chapter edit: identical rendered content collapses to one metadata_updated line", () => {
-  // Paragraphs + footnotes byte-identical; only title/topics differ — but the
-  // diff never reads those, so this stands in for any non-content edit.
+test("metadata-only chapter edit: a title/topics change emits NOTHING", () => {
+  // Paragraphs + footnotes byte-identical; only title/topics differ. Until
+  // 2026-09-27 this collapsed to a "metadata updated" row. The owner ruled that
+  // release-notes.json, the apps' Translation Updates feed, carries changes to
+  // the translation only, and a topics retag isn't one.
   const paras = [para("p1", verse(1, "Unchanged verse."))];
   const changes = run(
     { [F]: chapterJson({ paragraphs: paras, title: "Old", topics: ["x"] }) },
     { [F]: chapterJson({ paragraphs: paras, title: "New", topics: ["y"] }) },
     { modified: [F] },
   );
-  assert.deepEqual(changes, [
-    { type: "metadata_updated", description: "John 3 — metadata updated", location: { bookKey: "john", chapter: 3 } },
-  ]);
+  assert.deepEqual(changes, []);
 });
 
 test("attribute-only paragraph edit: a class/id-only change emits NOTHING", () => {
@@ -364,21 +364,7 @@ test("attribute-only paragraph edit: a class/id-only change emits NOTHING", () =
   assert.deepEqual(changes, []);
 });
 
-test("a title/topics edit is still a real metadata_updated row", () => {
-  // The other way to reach the same branch, and it must NOT be swallowed: the
-  // paragraphs and footnotes are byte-identical and something else moved.
-  const paras = [para("p1", verse(1, "Alpha word."))];
-  const changes = run(
-    { [F]: chapterJson({ paragraphs: paras, title: "John 3" }) },
-    { [F]: chapterJson({ paragraphs: paras, title: "John 3 (revised)" }) },
-    { modified: [F] },
-  );
-  assert.deepEqual(changes, [
-    { type: "metadata_updated", description: "John 3 — metadata updated", location: { bookKey: "john", chapter: 3 } },
-  ]);
-});
-
-test("many metadata-only chapters: collapse to a single count line with no location (flood guard)", () => {
+test("a repo-wide metadata pass emits nothing, however many chapters it touches", () => {
   const F2 = "src/data/chapters/john-4.json";
   const p3 = [para("p1", verse(1, "a."))];
   const p4 = [para("p1", verse(1, "b."))];
@@ -387,8 +373,19 @@ test("many metadata-only chapters: collapse to a single count line with no locat
     { [F]: chapterJson({ paragraphs: p3, title: "n" }), [F2]: chapterJson({ chapter: 4, paragraphs: p4, title: "n" }) },
     { modified: [F, F2] },
   );
-  assert.deepEqual(changes, [{ type: "metadata_updated", description: "Metadata updated (2 chapters)" }]);
-  assert.ok(!("location" in changes[0]));
+  assert.deepEqual(changes, []);
+});
+
+test("a metadata edit riding along with a wording change keeps the wording row", () => {
+  // Dropping metadata rows must never swallow the real change in the same file.
+  const changes = run(
+    { [F]: chapterJson({ paragraphs: [para("p1", verse(1, "Alpha word."))], topics: ["x"] }) },
+    { [F]: chapterJson({ paragraphs: [para("p1", verse(1, "Beta word."))], topics: ["y"] }) },
+    { modified: [F] },
+  );
+  assert.equal(changes.length, 1);
+  assert.equal(changes[0].type, "text_updated");
+  assert.equal(changes[0].description, "John 3:1 — text updated");
 });
 
 /* ── 5. Intros / glossary / articles ──────────────────────────────────── */
@@ -498,8 +495,8 @@ test("bracket-only edit: still surfaces as a text change, but carries no bracket
   const changes = run({ [F]: before }, { [F]: after }, { modified: [F] });
   const textChange = changes.find((c) => c.type === "text_updated");
 
-  // Bracketing is reader-visible, so it must not be swallowed into
-  // metadata_updated — but there is no wording change to describe.
+  // Bracketing is reader-visible, so it must not be swallowed as a
+  // formatting edit — but there is no wording change to describe.
   assert.ok(textChange, "a bracket-only edit should still produce a row");
   assert.equal(textChange.description, "John 3:9 — text updated");
   assert.equal(textChange.detail, undefined);
