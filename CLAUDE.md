@@ -672,6 +672,15 @@ changing a verse's rendering can orphan one — `luke-12` carried
 `"compassion work"` after the text it came from was replaced. Re-check a
 chapter's topics whenever its wording changes.
 
+**Book intros carry `topics` too**, in their frontmatter, and they are chosen
+by a different test (TOPICS.md, "Book intros"). They reach only Pagefind, as
+the intro page's `topics` metadata, and never `topics-index.json`, so they
+add nothing unless they add a word the intro's own prose doesn't use: a
+collection label ("Pastoral Epistles"), a traditional or scholarly name
+("parousia"), or the other half of a translation pair. Until 2026-09 every
+intro carried the same five placeholders, which made all of them a search hit
+for "hospitality".
+
 ## Translation Source Text (SBLGNT)
 
 The **SBL Greek New Testament** (Holmes, ed.) is the official source text for
@@ -1792,6 +1801,10 @@ collection); they're read directly by the intro pages and the API manifest.
   Modified intros/glossary/articles are likewise compared with HTML
   attributes and whitespace normalized away, so a mechanical edit (e.g.
   stripping `target="_blank"` from a link) produces no changelog entry.
+  An intro is compared on its **body alone**: its frontmatter is
+  `description` and `topics`, so an edit confined to it is metadata and
+  writes nothing (owner, 2026-09-27). Articles and glossary entries still
+  compare the whole file, because their frontmatter is what the reader sees.
   **Two things this must not swallow, both load-bearing:** a bracket-only edit
   (`⟦`/`⟧` are visible characters, so they survive the text comparison on
   purpose) and anything the per-verse split cannot see, which is what the
@@ -2219,7 +2232,7 @@ argv, and the scan; nothing else.
 | `public/.well-known/api-catalog` | RFC 9727/9264 `linkset+json` catalog of the public API |
 | `public/llms.txt`, `llms-full.txt` | LLM-readable site description + AI-usage policy |
 | `GLOSSARY-CANDIDATES.md` | Register of glossary candidates deliberately not included or deferred, and the payload criterion behind those calls. Read it before proposing a "next term." |
-| `TOPICS.md` | **The authority on chapter `topics`** — the significance filter, the alternative-translation pair table, the prefix-search rule, casing, and the hand-run checks. Read it before adding or revising any topics array. |
+| `TOPICS.md` | **The authority on chapter and book-intro `topics`** — the significance filter, the alternative-translation pair table, the prefix-search rule, casing, and the hand-run checks. Read it before adding or revising any topics array. |
 | `DISASTER-RECOVERY.md` | Continuity doc: every dashboard/secret behind the deploy (names only, no values) + the DNS inventory + from-zero redeploy path. Update it when an integration, secret, or DNS record is added/removed. |
 
 > The top-level `README.md` is the lighter human-facing overview; this file is
