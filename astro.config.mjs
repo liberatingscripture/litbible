@@ -4,7 +4,7 @@ import { unified } from '@astrojs/markdown-remark';
 import sitemap from '@astrojs/sitemap';
 import os from 'os';
 import path from 'path';
-import { scanDraftChapters } from './src/lib/draft-chapters.mjs';
+import { scanDraftChapters, scanDraftIntros } from './src/lib/draft-chapters.mjs';
 
 // Chapter slugs marked "indexed": false (in-progress drafts) are noindex'd,
 // so they must also stay out of the sitemap. We also track per-book draft
@@ -13,6 +13,8 @@ import { scanDraftChapters } from './src/lib/draft-chapters.mjs';
 // even one published chapter (e.g. Luke) keep their read page in the sitemap.
 // Derivation is shared with ReadMenu.astro via src/lib/draft-chapters.mjs.
 const { noindexSlugs, fullyDraftBooks } = scanDraftChapters();
+// Placeholder book intros are noindex'd the same way (see scanDraftIntros).
+const draftIntroSlugs = new Set([...scanDraftIntros()].map((book) => `${book}-intro`));
 
 // https://astro.build/config
 export default defineConfig({
@@ -57,7 +59,7 @@ export default defineConfig({
         if (slug.startsWith('read/') && fullyDraftBooks.has(slug.slice('read/'.length))) {
           return false;
         }
-        return !noindexSlugs.has(slug);
+        return !noindexSlugs.has(slug) && !draftIntroSlugs.has(slug);
       },
     }),
   ],

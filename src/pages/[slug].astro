@@ -4,6 +4,7 @@ import { BOOKS as books, bookKeyToLabel } from "../data/books.js";
 import { prepareStudyParagraph } from "../lib/chapter-html";
 import { linkRefs } from "../lib/scripture-refs-data.mjs";
 import ChapterCtas from "../components/ChapterCtas.astro";
+import DraftPage from "../components/DraftPage.astro";
 
 type Footnote = {
   id: string; // e.g. "fn-a"
@@ -127,6 +128,9 @@ const footnotes = (Array.isArray(chapterData?.footnotes)
   : []
 ).map((fn) => ({ ...fn, html: linkRefs(fn.html) }));
 
+// A draft (or a chapter with no text yet) gets the draft page instead of its
+// stored placeholder; see src/components/DraftPage.astro.
+const isDraftPage = !shouldIndex || paragraphs.length === 0;
 ---
 
 <ScriptureLayout
@@ -207,7 +211,7 @@ const footnotes = (Array.isArray(chapterData?.footnotes)
         <div id="hbq-description" hidden>Formatted as Hebrew and Semitic poetry with indented parallel lines</div>
         {/* H1 is provided by <ScriptureHeader /> in ScriptureLayout */}
 
-        {paragraphs.length ? (
+        {!isDraftPage ? (
           <>
             <div class="chapter-paragraphs">
               {paragraphs.map((html) => (
@@ -254,20 +258,10 @@ const footnotes = (Array.isArray(chapterData?.footnotes)
             </div>
           </>
         ) : (
-          <div class="chapter-pending">
-            <p>
-              This chapter hasn't been translated yet. The LIT is a living
-              translation. Chapters are published as they're completed, so
-              check back soon.
-            </p>
-            <p>
-              In the meantime, you can{" "}
-              <a href={`/${normalizedBookKey}-intro`}>
-                read the {bookName} introduction
-              </a>{" "}
-              or <a href="/release-notes">see what's new</a>.
-            </p>
-          </div>
+          <>
+            <DraftPage bookKey={normalizedBookKey} kind="chapter" />
+            <ChapterCtas bookKey={normalizedBookKey} chapter={props.chapter} showSkipped={false} />
+          </>
         )}
   </article>
 

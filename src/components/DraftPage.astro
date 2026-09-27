@@ -1,0 +1,114 @@
+---
+// What a draft chapter or a draft book intro shows on the website, in place of
+// the placeholder stored in its data. The placeholder's last line ("All books
+// except Acts, Revelation, and part of Luke…") was hand-written once and went
+// stale; this page states the book's status from the draft flags instead.
+// The chapter JSON and intro file keep their placeholder, which is what the
+// apps show, so nothing here changes the app contract.
+import { BOOKS, bookKeyToLabel } from "../data/books.js";
+import { scanDraftChapters } from "../lib/draft-chapters.mjs";
+import { isDraftIntro } from "../lib/chapter-nav-data.mjs";
+
+interface Props {
+  bookKey: string;
+  kind: "chapter" | "intro";
+}
+
+const { bookKey, kind } = Astro.props;
+const book = bookKeyToLabel(bookKey);
+const total = (BOOKS as Record<string, number>)[bookKey] ?? 0;
+const drafts = new Set(scanDraftChapters().draftChaptersByBook[bookKey] ?? []);
+const published = total - drafts.size;
+
+let progress: string;
+if (published === 0) progress = `${book} isn’t published yet.`;
+else if (published === total) progress = total === 1 ? `${book} is published.` : `All ${total} chapters of ${book} are published.`;
+else progress = `${published} of the ${total} chapters of ${book} ${published === 1 ? "is" : "are"} published so far.`;
+
+// One way into the book's published text from here, when there is one.
+let into: { href: string; label: string } | null = null;
+if (kind === "chapter" && !isDraftIntro(bookKey)) {
+  into = { href: `/${bookKey}-intro/`, label: `Read the ${book} introduction` };
+} else if (kind === "intro") {
+  const first = Array.from({ length: total }, (_, i) => i + 1).find((c) => !drafts.has(c));
+  if (first) into = { href: `/${bookKey}-${first}/`, label: `Start with ${book} ${first}` };
+}
+---
+
+<div class="draft-page">
+  <figure class="draft-page__figure">
+    <img
+      src="/images/writing-in-progress.webp"
+      alt="Page in progress; check back soon"
+      width="2500"
+      height="1668"
+      decoding="async"
+    />
+    <figcaption>
+      There once was a page still unwritten, beware,<br />
+      Still brewing up thoughts in midair.<br />
+      This page is on hold,<br />
+      But soon will unfold,<br />
+      So check back, real words will be there.
+    </figcaption>
+  </figure>
+
+  <p>
+    {
+      kind === "intro"
+        ? "This introduction hasn’t been written yet. The LIT is a living translation, so check back soon."
+        : "This chapter hasn’t been translated yet. The LIT is a living translation. Chapters are published as they’re completed, so check back soon."
+    }
+  </p>
+  <p class="draft-page__progress">{progress}</p>
+
+  <ul class="draft-page__links">
+    {into && <li><a href={into.href}>{into.label}</a></li>}
+    <li><a href="#footer-newsletter-heading">Get updates by email</a></li>
+    <li><a href="/release-notes/">See what’s new</a></li>
+  </ul>
+</div>
+
+<style>
+  .draft-page {
+    margin: 0 auto 32px;
+    max-width: calc(60 * var(--ch));
+    text-align: center;
+  }
+
+  .draft-page__figure {
+    margin: 0 0 20px;
+  }
+
+  .draft-page__figure img {
+    display: block;
+    margin: 0 auto;
+    max-width: 400px;
+    width: 100%;
+    height: auto;
+  }
+
+  .draft-page__figure figcaption {
+    margin-top: 0.5rem;
+    font-size: 0.95em;
+  }
+
+  .draft-page p {
+    margin: 0 0 12px;
+    line-height: 1.6;
+  }
+
+  .draft-page__progress {
+    font-weight: 600;
+  }
+
+  .draft-page__links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px 24px;
+    margin: 18px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+</style>
