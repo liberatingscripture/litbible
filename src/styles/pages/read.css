@@ -173,8 +173,14 @@ body.bg-cream > main {
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: rgba(var(--ink-rgb), 0.45);
+  color: rgba(var(--ink-rgb), 0.6);
   margin-bottom: 8px;
+  text-decoration: none;
+}
+
+.whats-new__date:hover {
+  color: var(--link);
+  text-decoration: underline;
 }
 
 .whats-new__changes {

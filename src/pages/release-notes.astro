@@ -3,12 +3,29 @@ import Layout from "../layouts/Layout.astro";
 import "../styles/pages/release-notes.css";
 import releaseNotes from "../data/release-notes.json";
 import { releaseNoteLinker } from "../lib/release-note-linker";
+import { BOOK_ORDER, bookKeyToLabel } from "../data/books.js";
+import {
+  KINDS,
+  changeBook,
+  changeKind,
+  groupByMonth,
+  renderDetailHtml,
+  renderRelabelHtml,
+} from "../lib/release-notes-view.mjs";
 
-type Change = { type: string; description: string; detail?: string };
+type Change = { type: string; description: string; detail?: string; relabel?: string };
 type Entry = { version: string; date: string; label: string; changes: Change[] };
 const notes = releaseNotes as Entry[];
 // Each description links to what changed; the JSON keeps its plain text.
 const linkDescription = await releaseNoteLinker();
+
+const months = groupByMonth(notes);
+const total = notes.reduce((n, entry) => n + entry.changes.length, 0);
+const allChanges = notes.flatMap((entry) => entry.changes);
+// The filters offer only what the notes contain.
+const books = BOOK_ORDER.filter((key) => allChanges.some((c) => changeBook(c) === key));
+const kinds = KINDS.filter(([kind]) => allChanges.some((c) => changeKind(c.type) === kind));
+const plural = (n: number) => `${n} change${n === 1 ? "" : "s"}`;
 
 const TYPE_LABEL: Record<string, string> = {
   chapter_added: "Added",
@@ -43,32 +60,80 @@ const TYPE_LABEL: Record<string, string> = {
         notes.length === 0 ? (
           <p class="rn-empty">No updates recorded yet.</p>
         ) : (
-          <ol class="rn-list" reversed>
-            {notes.map((entry) => (
-              <li class="rn-entry">
-                <div class="rn-entry__header">
-                  <time class="rn-entry__date" datetime={entry.date}>
-                    {entry.label}
-                  </time>
-                </div>
-                <ul class="rn-changes">
-                  {entry.changes.map((change) => (
-                    <li class="rn-change" data-type={change.type}>
-                      <span class="rn-change__badge">
-                        {TYPE_LABEL[change.type] ?? "Updated"}
-                      </span>
-                      <span class="rn-change__body">
-                        <span class="rn-change__text" set:html={linkDescription(change.description)} />
-                        {change.detail && (
-                          <span class="rn-change__detail">{change.detail}</span>
-                        )}
-                      </span>
+          <>
+            {/* Script reveals it; without JS every change shows. */}
+            <form class="rn-filters" id="rn-filters" aria-label="Filter changes" hidden>
+              <label class="rn-filter">
+                <span class="rn-filter__label">Book</span>
+                <select class="rn-filter__select" id="rn-book" name="book">
+                  <option value="">All books</option>
+                  {books.map((key) => (
+                    <option value={key}>{bookKeyToLabel(key)}</option>
+                  ))}
+                </select>
+              </label>
+              <label class="rn-filter">
+                <span class="rn-filter__label">Kind of change</span>
+                <select class="rn-filter__select" id="rn-kind" name="kind">
+                  <option value="">All changes</option>
+                  {kinds.map(([kind, label]) => (
+                    <option value={kind}>{label}</option>
+                  ))}
+                </select>
+              </label>
+              <p class="rn-count" id="rn-count" aria-live="polite" data-total={total}>
+                {plural(total)}
+              </p>
+            </form>
+
+            {months.map((month, i) => (
+              <details class="rn-month" open={i === 0} data-default-open={i === 0 ? "" : undefined}>
+                <summary class="rn-month__summary">
+                  <h2 class="rn-month__title">{month.label}</h2>
+                  <span class="rn-month__count" data-total={month.count}>
+                    {plural(month.count)}
+                  </span>
+                </summary>
+                <ol class="rn-list">
+                  {month.entries.map(({ entry, id }) => (
+                    <li class="rn-entry" id={id}>
+                      <div class="rn-entry__header">
+                        <a class="rn-entry__date" href={`#${id}`}>
+                          <time datetime={entry.date}>{entry.label}</time>
+                        </a>
+                      </div>
+                      <ul class="rn-changes">
+                        {entry.changes.map((change) => (
+                          <li
+                            class="rn-change"
+                            data-type={change.type}
+                            data-kind={changeKind(change.type) ?? undefined}
+                            data-book={changeBook(change) ?? undefined}
+                          >
+                            <span class="rn-change__badge">
+                              {TYPE_LABEL[change.type] ?? "Updated"}
+                            </span>
+                            <span class="rn-change__body">
+                              <span class="rn-change__text" set:html={linkDescription(change.description)} />
+                              {(change.detail || change.relabel) && (
+                                <span
+                                  class="rn-change__detail"
+                                  set:html={
+                                    (change.detail ? renderDetailHtml(change.detail) : "") +
+                                    (change.relabel ? renderRelabelHtml(change.relabel) : "")
+                                  }
+                                />
+                              )}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
                     </li>
                   ))}
-                </ul>
-              </li>
+                </ol>
+              </details>
             ))}
-          </ol>
+          </>
         )
       }
     </main>
@@ -76,5 +141,8 @@ const TYPE_LABEL: Record<string, string> = {
   {/* Scripture reference previews (progressive enhancement) */}
   <script>
     import "../scripts/ref-preview.js";
+  </script>
+  <script>
+    import "../scripts/release-notes.js";
   </script>
 </Layout>

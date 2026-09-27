@@ -8,12 +8,15 @@ import { scanDraftChapters } from "../lib/draft-chapters.mjs";
 import { chapterRuns } from "../lib/chapter-nav.mjs";
 import ContinueReading from "../components/ContinueReading.astro";
 import { releaseNoteLinker } from "../lib/release-note-linker";
+import { entryIds } from "../lib/release-notes-view.mjs";
 
 const title = "Read | Liberation and Inclusion Translation";
 const description =
   "Read the Liberation and Inclusion Translation (LIT) online.";
 
 const recentNotes = releaseNotes.slice(0, 3);
+// Each date links to its entry on /release-notes.
+const recentIds = entryIds(releaseNotes).slice(0, 3);
 const linkDescription = await releaseNoteLinker();
 
 // The lede names what isn't finished yet. It comes from the chapters' own
@@ -99,11 +102,11 @@ const TYPE_LABEL: Record<string, string> = {
           </button>
 
           <div class="whats-new__panel" id="whatsNewPanel">
-            {recentNotes.map((entry) => (
+            {recentNotes.map((entry, i) => (
               <div class="whats-new__entry">
-                <time class="whats-new__date" datetime={entry.date}>
-                  {entry.label}
-                </time>
+                <a class="whats-new__date" href={`/release-notes/#${recentIds[i]}`}>
+                  <time datetime={entry.date}>{entry.label}</time>
+                </a>
                 <ul class="whats-new__changes">
                   {entry.changes.map((change) => (
                     <li class="whats-new__change" data-type={change.type}>
@@ -119,7 +122,7 @@ const TYPE_LABEL: Record<string, string> = {
                 </ul>
               </div>
             ))}
-            <a href="/release-notes" class="whats-new__all">
+            <a href="/release-notes/" class="whats-new__all">
               See all release notes →
             </a>
           </div>
