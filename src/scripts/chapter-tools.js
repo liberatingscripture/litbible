@@ -9,8 +9,8 @@
 //    unsupported; the scroll still works). A floating chip (or Esc)
 //    clears the highlight.
 // 2. Verse menu — tapping a verse number opens Copy verse / Copy link /
-//    Share. Tapping more verse numbers while the menu is open extends
-//    the selection to a range (e.g. John 3:16–18).
+//    Copy for a handout / Share. Tapping more verse numbers while the menu
+//    is open extends the selection to a range (e.g. John 3:16–18).
 // 3. Footnote popovers — tapping a footnote letter shows the note inline
 //    (bottom sheet on small screens), with a link through to the full
 //    footnotes section.
@@ -22,6 +22,7 @@
 // speaker change) can also be shared one PART at a time — see "parts" below.
 
 import { stripBracketMarkers } from "../lib/bracket-markers.mjs";
+import { LIT_CREDIT_LINE } from "../lib/lit-credit.mjs";
 import { showPanel, closePanel, currentPanel, setEscapeFallback } from "./lit-panel.js";
 
 function init(container) {
@@ -290,10 +291,21 @@ function partLabel(text) {
  */
 const LINE_BREAK = "\u2028";
 
-/** Plain text of one element, minus verse numbers and footnote letters. */
-function blockText(el) {
+/**
+ * Plain text of one element, minus verse numbers and footnote letters. Given
+ * a `notes` array (the handout copy), each footnote letter stays in the text
+ * as "[a]" instead, and the note it points to is pushed onto `notes`.
+ */
+function blockText(el, notes = null) {
   const clone = el.cloneNode(true);
-  clone.querySelectorAll("sup.fn-ref, sup.vn").forEach((s) => s.remove());
+  clone.querySelectorAll("sup.vn").forEach((s) => s.remove());
+  clone.querySelectorAll("sup.fn-ref").forEach((sup) => {
+    if (!notes) return sup.remove();
+    const label = sup.textContent.trim();
+    const id = (sup.querySelector("a")?.getAttribute("href") || "").replace(/^#/, "");
+    if (label && id) notes.push({ label, id });
+    sup.replaceWith(label ? "[" + label + "]" : "");
+  });
   // textContent drops a <br> with no separator, welding the lines either side
   // into one word ("a welcome time!Look! Now is…").
   clone.querySelectorAll("br").forEach((br) => br.replaceWith(LINE_BREAK));
@@ -304,7 +316,16 @@ function blockText(el) {
 function cleanForShare(text) {
   // Bracket markers are reader-facing on the page but junk once the text is
   // lifted off it — strip BEFORE collapsing, per src/lib/bracket-markers.mjs.
-  return stripBracketMarkers(text)
+  return tidyLines(stripBracketMarkers(text));
+}
+
+/**
+ * Collapse whitespace within each line, keeping the line breaks blockText
+ * marked. Separate from cleanForShare because a footnote is lifted as it
+ * stands: a note that named the bracket markers would need to keep them.
+ */
+function tidyLines(text) {
+  return text
     .replace(/[​‌‍⁠﻿]/g, "") // zero-width characters
     .split(LINE_BREAK)
     .map((line) => line.replace(/\s+/g, " ").trim())
@@ -323,6 +344,60 @@ function getVerseText(container, start, end) {
     for (const span of verseSpans(container, v)) pieces.push(spanPiece(span));
   }
   return joinPieces(pieces);
+}
+
+/**
+ * "Copy for a handout": the verses with their footnote letters kept as "[a]",
+ * the reference, each note those letters cite, then the attribution notice the
+ * license asks a handout to carry and the verse link. /read's license terms
+ * let a study guide or bulletin quote the notes too, provided they stay "in
+ * context with the scripture verses they reference", which is what keeping the
+ * letters does. The verses join per joinPieces, as Copy verse does.
+ */
+function getHandoutText(container, start, end, ref, url) {
+  const cited = [];
+  const pieces = [];
+  for (let v = start; v <= end; v++) {
+    for (const span of verseSpans(container, v)) {
+      pieces.push(spanPiece(span, cleanForShare(blockText(span, cited))));
+    }
+  }
+  const text = joinPieces(pieces);
+  if (!text) return "";
+
+  const seen = new Set();
+  const notes = [];
+  for (const { label, id } of cited) {
+    if (seen.has(id)) continue;
+    seen.add(id);
+    const note = noteText(id);
+    if (note) notes.push("[" + label + "] " + note);
+  }
+
+  return [withReference(text, ref), notes.join("\n"), LIT_CREDIT_LINE + "\n" + url]
+    .filter(Boolean)
+    .join("\n\n");
+}
+
+/**
+ * One footnote's text, from the footnotes list, without the letter link that
+ * opens it (the handout supplies "[a]"). Each block is a line of its own, and
+ * so is the prose after it: the 1 Corinthians 11 chiasm outline is a note made
+ * of one div per line, followed by a sentence, whose key ("A:") and text sit
+ * in adjacent spans.
+ */
+function noteText(id) {
+  const body = document.getElementById(id)?.querySelector(".fn-body, p");
+  if (!body) return "";
+  const clone = body.cloneNode(true);
+  clone.querySelector(".footnote-backlink")?.remove();
+  clone.querySelectorAll("div, p, li").forEach((el) => {
+    el.before(LINE_BREAK);
+    el.after(LINE_BREAK);
+  });
+  clone.querySelectorAll("br").forEach((br) => br.replaceWith(LINE_BREAK));
+  clone.querySelectorAll(".chiasm-key").forEach((el) => el.after(" "));
+  return tidyLines(clone.textContent);
 }
 
 async function copyToClipboard(text) {
@@ -417,6 +492,13 @@ function openVerseMenu(container, sup, anchorVerse, start, end, { restoreFocus =
     })
   );
   panel.appendChild(menuButton("Copy link", () => copyToClipboard(url)));
+  panel.appendChild(
+    menuButton("Copy for a handout", async () => {
+      const text = getHandoutText(container, start, end, ref, url);
+      if (!text) return false;
+      return copyToClipboard(text);
+    })
+  );
 
   const shareBtn = shareButton(ref, url, () => getVerseText(container, start, end));
   if (shareBtn) panel.appendChild(shareBtn);
