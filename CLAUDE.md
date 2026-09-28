@@ -557,6 +557,40 @@ break:
 The panel never takes focus, so the verse-number menu stays the keyboard and
 screen-reader route to the same copy.
 
+### Printing and handouts
+
+The license lets a study guide or bulletin quote the text **and its notes**,
+provided the notes stay with the verses they explain and the work carries a
+fixed attribution notice (/read, "Standing Exceptions"). Two features serve
+that, and both print the notice from **one constant, `LIT_CREDIT_LINE` in
+`src/lib/lit-credit.mjs`**, which /read's own terms also render. Change the
+notice there or nowhere.
+
+- **`src/styles/print.css`** (imported by `Layout.astro`, all `@media print`)
+  prints a chapter, an intro or a whole Reading View book as text and notes
+  only: black on white in any theme, Crimson Text (a reader's accessibility
+  font prints as chosen), 12pt times the Display tray's text size, with the
+  header, tools bar, Previous/Next, panels and Reading View's toolbar gone.
+  The footnotes stay the endnote list they are on screen, and the SBLGNT
+  notice still prints under a chapter or intro. `PrintCredit.astro` adds the
+  notice and the page's address ("litbible.net/john-3") at the end; it is a
+  `hidden` element the stylesheet reveals, so no screen or screen reader ever
+  meets it. Most rules are `!important` because page and component styles
+  bundle after it. Check a change by printing real PDFs (headless Chrome's
+  `--print-to-pdf` against a built `dist/`): the Browser pane cannot emulate
+  print media, and three of the fixes here (Reading View's phone-width
+  gutter, superscripts opening up their lines, a long note held whole leaving
+  a third of a sheet blank) showed only on paper.
+- **"Copy for a handout"** in the verse menu (`getHandoutText` in
+  `chapter-tools.js`) copies the verses with each footnote letter kept as
+  "[a]", the reference, each cited note in order, then the notice and the
+  verse link. The verses join per `joinPieces`, so they match Copy verse
+  exactly apart from the letters; `blockText` keeps the letters only when
+  handed a `notes` array. A note's own blocks each take a line, which is what
+  keeps the 1 Corinthians 11 chiasm outline legible. Notes skip the
+  bracket-marker strip (`tidyLines`, not `cleanForShare`), since a note is
+  quoted as it stands.
+
 ### Poetry blocks (`hbq`)
 
 Quoted Hebrew and Semitic poetry is set as `<blockquote id="<block-id>"

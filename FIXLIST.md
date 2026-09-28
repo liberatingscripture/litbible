@@ -1002,11 +1002,34 @@ Details for each item are in the artifact (https://claude.ai/artifact/4ghJK72rd2
   also an RSS feed, `/translation-updates.xml`, advertised in every page's
   head. `release-notes.json` is unchanged.
 
-- [ ] **Printing and handouts (U5).**
+- [x] **Printing and handouts (U5).**
   A print stylesheet (no site chrome, serif text, footnotes as endnotes,
   credit line and address at the end) and a "Copy for a handout" verse-menu
   action. The owner decides whether ordinary Copy verse should also carry
   the verse link.
+  DONE (2026-09-27): `src/styles/print.css` prints a chapter, an intro or a
+  whole Reading View book black on white in Crimson Text (or the reader's
+  accessibility font), at 12pt times the Display tray's text size, with the
+  site chrome, Previous/Next and the panels gone and the footnotes kept as the
+  endnote list. `PrintCredit.astro` ends each printout with the license's
+  attribution notice and the page's address ("litbible.net/john-3"), and the
+  SBLGNT notice still prints under a chapter or intro. John 3 prints on five
+  sheets. "Copy for a handout" in the verse menu copies the verses with their
+  footnote letters kept as "[a]", the reference, each cited note, the notice
+  and the verse link. The notice now lives once, in `src/lib/lit-credit.mjs`,
+  which /read's license terms read as well. The owner's question needed no
+  decision: Copy verse already carried the verse link, which is what the
+  license's social-media clause asks for.
+  Follow-up, still open below: Reading View has no SBLGNT notice.
+
+- [ ] **Reading View carries no SBLGNT source notice.**
+  Chapter and intro pages end with the notice crediting the SBLGNT, whose CC
+  BY 4.0 license asks for attribution. `/read/<book>` has none, on screen or
+  on paper, though it prints a whole book at once. The notice is written
+  inline in `ScriptureLayout.astro`, which Reading View doesn't use, so the
+  fix is a component both render. It adds visible text under Reading View's
+  last chapter, so it is a design call as well as a license one. Found while
+  adding the print credit (U5).
 
 - [ ] **Keyboard shortcuts (U4).**
   Arrow keys (or `[` and `]`) for previous and next chapter, `/` to
