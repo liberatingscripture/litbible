@@ -441,6 +441,24 @@ const menuData = {
                           <span data-pagefind-ignore> {data.note}</span>
                         )}
                       </h2>
+
+                      {/* A link to this entry, outside the heading so it stays
+                          out of the heading's name. Without JS it is an ordinary
+                          link; glossary-entry-links.js makes a click copy it. */}
+                      <a
+                        class="entry-link"
+                        href={`#${data.id}`}
+                        data-entry-link
+                        data-term={data.traditional}
+                        aria-label={`Link to the ${data.traditional} entry`}
+                        data-pagefind-ignore
+                      >
+                        <svg class="entry-link__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                          <path class="entry-link__chain" d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                          <path class="entry-link__chain" d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+                          <path class="entry-link__check" d="M5 12.5l4.5 4.5L19 7.5" />
+                        </svg>
+                      </a>
                     </header>
 
                     {/* Definition body is NOT Pagefind-indexed */}
@@ -886,8 +904,10 @@ const menuData = {
       </div>
     </section>
   </div>
-  {/* Scripture reference previews (progressive enhancement) */}
+  {/* Scripture reference previews and the entries' copy-link buttons
+      (progressive enhancement) */}
   <script>
     import "../scripts/ref-preview.js";
+    import "../scripts/glossary-entry-links.js";
   </script>
 </Layout>
