@@ -51,10 +51,11 @@
 }
 
 /* Divider pill */
+/* A hairline under the search box. It was a 10px rounded bar, which read as
+   an empty field or a loading placeholder (audit V6). */
 .articles-hero__divider {
   margin-top: 34px;
-  height: 10px;
-  border-radius: 999px;
+  height: 1px;
   width: min(520px, 100%);
   margin-left: auto;
   margin-right: auto;

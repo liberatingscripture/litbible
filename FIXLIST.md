@@ -1089,10 +1089,16 @@ Details for each item are in the artifact (https://claude.ai/artifact/4ghJK72rd2
   Glossary, Articles and "What's new" in the footer, Support in the phone
   menu.
 
-- [ ] **Leftover shapes on /search and /articles (V6).**
+- [x] **Leftover shapes on /search and /articles (V6).**
   Filters in one left-aligned row under the query, Go to passage above the
   box at every width, the decorative bar reduced to a hairline or removed,
   and the newsletter card moved below the featured article.
+  DONE (2026-09-28), in part, as the owner decided. The filters sit at the
+  left of every search tray now (a leftover `margin-left: auto` pushed both
+  menus right), and the /articles bar is a hairline. Go to passage stays
+  beside the box: it is there on purpose, and the tablet problem the audit
+  saw no longer happens (checked from 375 to 1280px). The newsletter strip
+  stays where it is.
 
 - [ ] **Search the footnotes (X4).**
   A notes index built with the site and loaded on demand (the verse index's
