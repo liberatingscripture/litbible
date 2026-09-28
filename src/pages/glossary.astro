@@ -5,6 +5,7 @@ import { BOOK_ORDER, bookKeyToLabel } from "../data/books.js";
 import { linkRefs } from "../lib/scripture-refs-data.mjs";
 import { linkGlossaryCrossRefs } from "../lib/glossary-crossrefs.mjs";
 import { normalizeLabel } from "../../scripts/lib/glossary-feed-core.mjs";
+import { gatedOccurrences } from "../lib/alignment-gate.mjs";
 import "../styles/pages/glossary.css";
 
 // `draft: true` entries stay in the collection (build-alignment.mjs seeds off
@@ -18,23 +19,8 @@ const rawEntries = (await getCollection("glossary")).filter((e) => !e.data.draft
  * each term's LIT rendering actually appears in the published text. A glossary
  * entry says what `pneuma` becomes; this says where, and how often.
  *
- * THE DISPLAY RULE, and it is a publishing decision rather than a technical
- * one: a partial count reads as a reviewed total. So a term appears only when
- * every record we would show is one we can actually vouch for, and a single
- * record we can neither vouch for nor rule out withholds the whole term.
- *
- *   ignored       `rejected` / `no-rendering`, and anything the Greek check
- *                 contradicts (`lemma: "absent"`) — a known false positive
- *                 says nothing either way about the rest of the term
- *   shown         a human confirmed it, or the scan matched a rendering
- *                 distinctive enough that a string match is effectively
- *                 certain and the Greek doesn't contradict it
- *   withholds     an unreviewed match on ordinary English ("trust", "clean"),
- *                 which may or may not be rendering the Greek at all
- *
- * That last case is why `sarx` is currently absent: it also renders as the
- * ordinary word "family", which the scan cannot tell from a vocative
- * "Family," (cf. Rom 8:12). Reviewing those records is what surfaces it.
+ * Which records and terms may be shown is the display gate in
+ * src/lib/alignment-gate.mjs, a publishing decision documented there.
  */
 type AlignmentRecord = {
   ref: string;
@@ -98,72 +84,23 @@ const BOOK_RANK = new Map(
 );
 const bookRank = (key: string) => BOOK_RANK.get(key) ?? Number.MAX_SAFE_INTEGER;
 
-/** See the display rule above. Returns null for a record that says nothing. */
-function verdict(record: AlignmentRecord): "show" | "withhold" | null {
-  const status = record.status ?? "auto";
-  if (status === "rejected" || status === "no-rendering") return null;
-  if (record.lemma === "absent") return null;
-  if (status === "confirmed") return "show";
-  return record.confidence === "distinctive" ? "show" : "withhold";
-}
-
 const occurrencesByTerm: Record<string, FormOccurrences[]> = (() => {
-  const byTerm = new Map<
-    string,
-    { pure: boolean; forms: Map<string, OccurrenceRef[]> }
-  >();
-
-  for (const mod of Object.values(alignmentModules)) {
-    const { bookKey, chapter, records } = mod.default;
-    for (const record of records ?? []) {
-      const id = record.term?.glossary;
-      if (!id) continue;
-
-      const call = verdict(record);
-      if (!call) continue;
-
-      // One unvouchable record withholds the term, even though the record
-      // itself contributes no count — a subtotal presented as a total is the
-      // failure mode this guards against.
-      let entry = byTerm.get(id);
-      if (!entry) byTerm.set(id, (entry = { pure: true, forms: new Map() }));
-      if (call === "withhold") {
-        entry.pure = false;
-        continue;
-      }
-
-      const form = record.term?.form;
-      if (!form) continue;
-
-      // Group by the glossary rendering, not the written text: "Life-breath",
-      // "life-breath", and "life-breaths" are one rendering to a reader. The
-      // records keep each written variant, so Romans 8:2's deliberate
-      // "Torah"/"torah" pair survives in the data even though the count here
-      // shows them together.
-      let refs = entry.forms.get(form);
-      if (!refs) entry.forms.set(form, (refs = []));
-      refs.push({
-        bookKey,
-        chapter,
-        verse: Number(record.ref.split(".").pop()),
-      });
-    }
-  }
+  const gated = gatedOccurrences(
+    Object.values(alignmentModules).map((mod) => mod.default),
+  );
 
   const out: Record<string, FormOccurrences[]> = {};
-  for (const [id, entry] of byTerm) {
-    // A term whose every record was ignored (all reviewed to "no rendering",
-    // say) is settled, not shown — an empty "Where it appears" block would
-    // claim the opposite of what the data says.
-    if (!entry.pure || !entry.forms.size) continue;
-    out[id] = [...entry.forms.entries()]
-      .map(([label, refs]) => {
-        const sorted = refs.sort(
-          (a, b) =>
-            bookRank(a.bookKey) - bookRank(b.bookKey) ||
-            a.chapter - b.chapter ||
-            a.verse - b.verse,
-        );
+  for (const [id, forms] of gated) {
+    out[id] = [...forms.entries()]
+      .map(([label, occurrences]) => {
+        const sorted = occurrences
+          .map(({ bookKey, chapter, verse }) => ({ bookKey, chapter, verse }))
+          .sort(
+            (a, b) =>
+              bookRank(a.bookKey) - bookRank(b.bookKey) ||
+              a.chapter - b.chapter ||
+              a.verse - b.verse,
+          );
         // One link per verse. The records are per-OCCURRENCE, so a verse
         // rendering the term more than once produced one ref each — and a
         // reader meeting "Romans 2:12" four times in a row reads it as a bug,
