@@ -4,6 +4,7 @@ import { BOOKS, BOOK_ORDER, bookKeyToLabel } from "../../data/books.js";
 import ReadMenu from "../../components/ReadMenu.astro";
 import SearchBar from "../../components/SearchBar.astro";
 import PrintCredit from "../../components/PrintCredit.astro";
+import SblgntNotice from "../../components/SblgntNotice.astro";
 import "../../styles/scripture-tools.css";
 import "../../styles/read-mode.css";
 import readModeScript from "../../scripts/read-mode.js?url";
@@ -314,6 +315,8 @@ const pageUrl = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : "";
       <PrintCredit url={pageUrl} />
     </article>
   </section>
+
+  <SblgntNotice />
 
   <script type="module" src={readModeScript}></script>
 

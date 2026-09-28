@@ -14,8 +14,8 @@
    - Verse numbers and footnote letters, unless the reader turned them off in
      the Display tray, which a printout follows like the screen does.
    - The footnotes, as the endnote list they already are, each with its letter.
-   - The SBLGNT source notice under a chapter or intro: the Greek text's
-     license asks for it.
+   - The SBLGNT source notice (SblgntNotice.astro) after a chapter, an intro
+     or a Reading View book: the Greek text's license asks for it.
    - The reader's text size (as a multiple of 12pt) and accessibility font.
      The default fonts print in the site's serif.
    ========================================================= */
