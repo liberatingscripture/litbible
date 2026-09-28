@@ -4,6 +4,7 @@ import { BOOKS as books, bookKeyToLabel } from "../data/books.js";
 import { prepareStudyParagraph } from "../lib/chapter-html";
 import { linkRefs } from "../lib/scripture-refs-data.mjs";
 import ChapterCtas from "../components/ChapterCtas.astro";
+import GoDeeper from "../components/GoDeeper.astro";
 import DraftPage from "../components/DraftPage.astro";
 import { getCollection } from "astro:content";
 import { termLensFor } from "../lib/term-lens-data.mjs";
@@ -145,6 +146,7 @@ const glossaryEntries = new Map(
 const termLens = isDraftPage
   ? null
   : termLensFor(normalizedBookKey, props.chapter, paragraphsRaw, glossaryEntries);
+const termOrder = [...new Set(termLens?.marks.map((m) => m.id) ?? [])];
 const termLensJson = termLens?.marks.length
   ? JSON.stringify({ marks: termLens.marks, terms: termLens.terms }).replace(/</g, "\\u003c")
   : null;
@@ -247,6 +249,9 @@ const termLensJson = termLens?.marks.length
 
             {/* Chapter CTAs (below scripture text, above footnotes) */}
             <ChapterCtas bookKey={normalizedBookKey} chapter={props.chapter} />
+
+            {/* Go deeper: episodes, articles, key terms and the book intro */}
+            <GoDeeper bookKey={normalizedBookKey} chapter={props.chapter} termOrder={termOrder} />
 
             {/* Footnotes: shown to readers, excluded from search indexing */}
             {footnotes.length ? (

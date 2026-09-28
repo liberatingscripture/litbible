@@ -1,0 +1,213 @@
+---
+// "Go deeper" under a published chapter: the podcast episodes, articles, key
+// terms and book introduction that go with it (src/lib/go-deeper-data.ts).
+// One row per kind that has something, so a chapter never shows an empty
+// heading, and nothing at all when no kind does. Episodes link out to their
+// platforms, since the podcast page has no per-episode anchors.
+//
+// Past the first two episodes or three articles, the rest wait behind a
+// "N more" disclosure (owner, 2026-09-28). It is a <details>, so it works
+// without JS and the page never shifts when it loads.
+import {
+  goDeeperFor,
+  type ArticleItem,
+  type EpisodeItem,
+  type Link,
+  type Row,
+  type TermItem,
+} from "../lib/go-deeper-data";
+
+interface Props {
+  bookKey: string;
+  chapter: number;
+  termOrder?: string[];
+}
+
+type Item = EpisodeItem | ArticleItem | TermItem | Link;
+
+const { bookKey, chapter, termOrder = [] } = Astro.props;
+const rows = await goDeeperFor(bookKey, chapter, termOrder);
+
+const groupsOf = (row: Row): Item[][] => [row.items, row.more];
+const moreLabel = (row: Row) => {
+  const n = row.more.length;
+  const noun = row.kind === "listen" ? "episode" : "article";
+  return `${n} more ${noun}${n === 1 ? "" : "s"}`;
+};
+---
+
+{
+  rows.length > 0 && (
+    <section class="go-deeper" aria-labelledby="go-deeper-title" data-pagefind-ignore>
+      <h2 id="go-deeper-title">Go deeper</h2>
+      <dl class="go-deeper__rows">
+        {rows.map((row) => (
+          <div class={`go-deeper__row go-deeper__row--${row.kind}`}>
+            <dt>{row.label}</dt>
+            <dd>
+              {row.kind === "terms" ? (
+                <p class="go-deeper__inline">
+                  {row.items.map((t, i) => <>{i > 0 && ", "}<a href={t.href}>{t.label}</a></>)}
+                </p>
+              ) : (
+                groupsOf(row).map((group, g) => {
+                  if (group.length === 0) return null;
+                  const list = (
+                    <ul class="go-deeper__list">
+                      {group.map((item) =>
+                        "links" in item ? (
+                          <li>
+                            <span class="go-deeper__episode">{item.title}</span>
+                            {/* One line each: a line break between the pieces
+                                would print as a space before the separator. */}
+                            <span class="go-deeper__platforms">
+                              {item.links.map((l, i) => <>{i > 0 && <span aria-hidden="true"> · </span>}<a href={l.href} rel="noopener">{l.label}</a></>)}
+                            </span>
+                          </li>
+                        ) : (
+                          <li>
+                            <a href={item.href}>{"title" in item ? item.title : item.label}</a>
+                          </li>
+                        ),
+                      )}
+                    </ul>
+                  );
+                  return g === 0 ? list : (
+                    <details class="go-deeper__more">
+                      <summary>{moreLabel(row)}</summary>
+                      {list}
+                    </details>
+                  );
+                })
+              )}
+            </dd>
+          </div>
+        ))}
+      </dl>
+    </section>
+  )
+}
+
+<style>
+  .go-deeper {
+    margin: 28px 0 8px;
+    padding: 18px 20px 6px;
+    border-radius: 14px;
+    background: var(--surface-raised);
+    border: 1px solid rgba(var(--ink-rgb), 0.1);
+  }
+
+  .go-deeper h2 {
+    margin: 0 0 12px;
+    font-size: 1.25rem;
+    line-height: 1.2;
+    font-weight: 700;
+  }
+
+  .go-deeper__rows {
+    margin: 0;
+  }
+
+  .go-deeper__row {
+    display: grid;
+    grid-template-columns: 7.5rem 1fr;
+    gap: 4px 16px;
+    padding: 10px 0 12px;
+    border-top: 1px solid rgba(var(--ink-rgb), 0.1);
+  }
+
+  .go-deeper dt {
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding-top: 0.2em;
+  }
+
+  .go-deeper dd {
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .go-deeper__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .go-deeper__list li + li {
+    margin-top: 8px;
+  }
+
+  .go-deeper__inline {
+    margin: 0;
+  }
+
+  .go-deeper__episode {
+    display: block;
+  }
+
+  .go-deeper__platforms {
+    font-size: 0.9rem;
+  }
+
+  .go-deeper a {
+    color: var(--link);
+  }
+
+  @media (max-width: 560px) {
+    .go-deeper__row {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* "N more": a quiet link-coloured summary with a chevron drawn in CSS, so
+     a screen reader hears the words and the expanded state, not a glyph. */
+  .go-deeper__more {
+    margin-top: 8px;
+  }
+
+  .go-deeper__more summary {
+    width: fit-content;
+    font-size: 0.9rem;
+    color: var(--link);
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .go-deeper__more summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .go-deeper__more summary::after {
+    content: "";
+    display: inline-block;
+    width: 0.4em;
+    height: 0.4em;
+    margin-left: 0.45em;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: translateY(-0.2em) rotate(45deg);
+    transition: transform 0.15s ease;
+  }
+
+  .go-deeper__more[open] summary {
+    margin-bottom: 8px;
+  }
+
+  .go-deeper__more[open] summary::after {
+    transform: translateY(0.05em) rotate(-135deg);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .go-deeper__more summary::after {
+      transition: none;
+    }
+  }
+
+  @media print {
+    .go-deeper {
+      display: none !important;
+    }
+  }
+</style>

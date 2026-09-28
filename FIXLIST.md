@@ -1364,13 +1364,22 @@ need a mockup or a side-by-side the owner looks at before code.
   280 KB index. The Study View panel code moved to `src/scripts/lit-panel.js`
   so the preview and the verse menu share one panel.
 
-- [ ] **"Go deeper" after each chapter (X3).**
+- [x] **"Go deeper" after each chapter (X3).**
   A short panel: the podcast episode on the chapter, articles that discuss
   it, glossary terms in it, and the book intro. Mock up first.
+  DONE (2026-09-28, PR #233): `GoDeeper.astro` under every published chapter, after
+  Previous/Next and above the notes (the owner's pick of the two
+  placements), with Listen, Read, Key terms and Book rows. Every chapter has
+  Key terms, 186 the intro, 81 an episode and 33 an article. Past two
+  episodes or three articles the rest sit behind an "N more" disclosure
+  rather than being cut, as the owner asked.
 
-- [ ] **Make /read a library (X12).**
+- [x] **Make /read a library (X12).**
   A visible table of contents: books grouped, each with a line from its
   intro, its status, and chapter links. Mock up first.
+  DONE (2026-09-28, PR #233): the owner decided against it at the Phase 3 checkpoint,
+  after seeing it built (cards on desktop, a row per book on phones, three
+  groups). Nothing shipped. Don't re-propose it without new reasons.
 
 - [ ] **Side notes on wide screens (X11).**
   At 1280px and up, each footnote's first line in the margin beside its
