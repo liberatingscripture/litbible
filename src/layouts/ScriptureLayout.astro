@@ -6,6 +6,7 @@ import Layout from "./Layout.astro";
 import ReadMenu from "../components/ReadMenu.astro";
 import SearchBar from "../components/SearchBar.astro";
 import ScriptureHeader from "../components/ScriptureHeader.astro";
+import PrintCredit from "../components/PrintCredit.astro";
 import { bookKeyToLabel } from "../data/books.js";
 
 const {
@@ -60,6 +61,10 @@ const {
 } = Astro.props;
 
 const pagefindBook = book ?? "";
+// The address a printed page carries (PrintCredit); Layout derives its
+// canonical link the same way.
+const pageUrl: string =
+  canonical ?? (Astro.site ? new URL(Astro.url.pathname, Astro.site).href : "");
 const pagefindChapter = chapter ?? "";
 const pagefindType = type ?? "scripture";
 
@@ -307,6 +312,8 @@ if (headerKind === "chapter") {
       </div>
 
       <slot />
+
+      {isScriptureLike ? <PrintCredit url={pageUrl} /> : null}
     </div>
 
     <section
