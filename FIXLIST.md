@@ -941,6 +941,11 @@ Details for each item are in the artifact (https://claude.ai/artifact/4ghJK72rd2
   `1corinthians-14` fn-c are the same note, and its "vv." means 1 Cor 14 in
   both. A safe version would bind only to the last explicit reference in the
   same note, and needs a pass over the 246 "verse(s) N" cases first.
+  Owner, 2026-09-28: not yet. A count that day found 288 of them in the
+  footnotes: 203 with no reference before them (197 in notes stored in one
+  chapter, 6 in shared notes), 30 after a New Testament reference, and 55
+  after a Hebrew Bible one ("Deuteronomy 6:1–5, particularly verse 2"). Those
+  55 must never bind to the host chapter; with X14 they could go to Sefaria.
 
 - [x] **"Continue reading" for returning readers (F2).**
   Keep one last-read record in `localStorage` (book, chapter, verse, view,
@@ -1114,15 +1119,23 @@ Details for each item are in the artifact (https://claude.ai/artifact/4ghJK72rd2
   saw no longer happens (checked from 375 to 1280px). The newsletter strip
   stays where it is.
 
-- [ ] **Search the footnotes (X4).**
+- [x] **Search the footnotes (X4).**
   A notes index built with the site and loaded on demand (the verse index's
   shape), shown as its own group, so "kingdom" finds the notes explaining
   "reign"; plus a page of the notes that begin "Traditionally", grouped by
   the traditional word. The owner confirms it's wanted first.
+  DECIDED (2026-09-28): not now, for either half. The search half isn't ruled
+  out for good; the "Traditionally" page is declined. For whoever reopens the
+  search half: the notes come to about 385 KB compressed, more than the whole
+  verse index, so Pagefind custom records (chunked, loaded per query) fit
+  better than one file, and a note stored in several chapters should show
+  once.
 
-- [ ] **Revision history on each chapter (X7).**
+- [x] **Revision history on each chapter (X7).**
   "Revised September 21, 2026 · see changes" under the title, opening that
   chapter's entries from `release-notes.json` (most carry a `location`).
+  DECIDED (2026-09-28): no. The record already lives on the release notes
+  page, which /read links. Don't re-propose it without new reasons.
 
 - [ ] **Verse images for sharing (X8).**
   "Make an image" in the verse and selection menus, drawn in the browser in
@@ -1828,6 +1841,8 @@ Details for each item are in the artifact (https://claude.ai/artifact/4ghJK72rd2
   references to an outside text (after F1; your choice of source); X15
   "tell me when Acts is published" (Brevo setup, pairs with F4). Each becomes
   an Opus or Fable item once decided.
+  X14 decided 2026-09-28: yes, linking to Sefaria with a map from English to
+  Hebrew verse numbers; built in its own PR. The rest are still open.
 
 ## Completed from TBD
 
