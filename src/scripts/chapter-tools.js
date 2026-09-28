@@ -1,8 +1,12 @@
 // src/scripts/chapter-tools.js
 //
-// Chapter-page (Study View) reader tools. All progressive enhancement:
-// without JS the page still scrolls to #vN anchors and footnote links
-// still jump to the footnotes section.
+// Scripture reader tools. All progressive enhancement: without JS the page
+// still scrolls to #vN anchors and footnote links still jump to the
+// footnotes section.
+//
+// Study View (a chapter page) gets all four; Reading View (a whole book on
+// /read/<book>) gets only the fourth, since its verse numbers aren't
+// controls and a verse's links and notes belong to its Study View page.
 //
 // 1. Verse-range highlighting — #v16 or #v16-18 softly highlights the
 //    addressed verses via the CSS Custom Highlight API (no-op where
@@ -15,8 +19,8 @@
 //    (bottom sheet on small screens), with a link through to the full
 //    footnotes section.
 // 4. Selection sharing — selecting any run of scripture text offers Copy
-//    with reference / Share, for a half-sentence or a phrase crossing two
-//    verses, which the verse menu can't reach.
+//    with reference / Copy for a handout / Share, for a half-sentence or a
+//    phrase crossing two verses, which the verse menu can't reach.
 //
 // A verse that spans blocks (a quotation set as a block quote, a mid-verse
 // speaker change) can also be shared one PART at a time — see "parts" below.
@@ -30,7 +34,64 @@ function init(container) {
   initVerseHighlight(container);
   initVerseMenu(container);
   initFootnotePopovers(container);
-  initSelectionShare(container);
+  initSelectionShare(studyView(container));
+}
+
+/* ── Shared: the two views ────────────────────────────────────────────── */
+
+// What selection sharing needs to know about the page it runs on. `scope`
+// is where a handout reads each verse's footnote letters and notes from:
+// the page itself in Study View, and in Reading View (which prints neither)
+// the chapter's Study View page, fetched once per chapter. It returns the
+// scope directly or a Promise of it, and null when it can't be had.
+
+function studyView(container) {
+  return {
+    container,
+    chapterOf: () => 0, // one chapter per page
+    spans: (_ch, verse) => verseSpans(container, verse),
+    ref: (_ch, start, end) => formatRef(start, end),
+    url: (_ch, start, end) => getVerseUrl(start, end),
+    scope: () => ({ container, root: document }),
+  };
+}
+
+function readingView(container) {
+  const page = container.closest("[data-rm-root]");
+  const book = page?.dataset.rmBook || "";
+  const title = page?.dataset.rmBookTitle || "";
+  const chapterUrl = (ch) => window.location.origin + "/" + book + "-" + ch;
+  const scopes = new Map();
+  return {
+    container,
+    // A whole book shares the page, so each block says which chapter it is
+    // (read/[book].astro).
+    chapterOf: (span) => Number(span.closest("[data-chapter]")?.dataset.chapter) || 0,
+    spans: (ch, verse) => [
+      ...container.querySelectorAll(`[data-chapter="${ch}"] [data-verse="${verse}"]`),
+    ],
+    ref: (ch, start, end) => title + " " + ch + ":" + start + (end > start ? "–" + end : ""),
+    // Links go to the verse on its Study View page, like every other shared
+    // verse link, where the reader who follows it finds the notes too.
+    url: (ch, start, end) => chapterUrl(ch) + "#v" + start + (end > start ? "-" + end : ""),
+    scope(ch) {
+      if (!scopes.has(ch)) {
+        scopes.set(
+          ch,
+          fetch(chapterUrl(ch) + "/")
+            .then((r) => (r.ok ? r.text() : null))
+            .then((html) => {
+              if (!html) return null;
+              const root = new DOMParser().parseFromString(html, "text/html");
+              const study = root.querySelector(".chapter-paragraphs");
+              return study ? { container: study, root } : null;
+            })
+            .catch(() => null)
+        );
+      }
+      return scopes.get(ch);
+    },
+  };
 }
 
 /* ── Shared: verse span lookup ────────────────────────────────────────── */
@@ -362,7 +423,16 @@ function getHandoutText(container, start, end, ref, url) {
       pieces.push(spanPiece(span, cleanForShare(blockText(span, cited))));
     }
   }
-  const text = joinPieces(pieces);
+  return assembleHandout(joinPieces(pieces), cited, document, ref, url);
+}
+
+/**
+ * A handout from its text (letters kept as "[a]") and the notes those letters
+ * cite, looked up in `root`: this page, or a fetched Study View page when the
+ * handout comes from Reading View. Shared by the verse menu and the selection
+ * bar, so the two lay a handout out identically.
+ */
+function assembleHandout(text, cited, root, ref, url) {
   if (!text) return "";
 
   const seen = new Set();
@@ -370,7 +440,7 @@ function getHandoutText(container, start, end, ref, url) {
   for (const { label, id } of cited) {
     if (seen.has(id)) continue;
     seen.add(id);
-    const note = noteText(id);
+    const note = noteText(id, root);
     if (note) notes.push("[" + label + "] " + note);
   }
 
@@ -386,8 +456,8 @@ function getHandoutText(container, start, end, ref, url) {
  * of one div per line, followed by a sentence, whose key ("A:") and text sit
  * in adjacent spans.
  */
-function noteText(id) {
-  const body = document.getElementById(id)?.querySelector(".fn-body, p");
+function noteText(id, root = document) {
+  const body = root.getElementById(id)?.querySelector(".fn-body, p");
   if (!body) return "";
   const clone = body.cloneNode(true);
   clone.querySelector(".footnote-backlink")?.remove();
@@ -407,6 +477,30 @@ async function copyToClipboard(text) {
   } catch {
     return false;
   }
+}
+
+/**
+ * Copy text that is still on its way: Reading View's handout waits on the
+ * chapter's Study View page for its notes. Safari lets a page write to the
+ * clipboard only while handling the tap, so the write starts at once with the
+ * text as a promise. Where that form isn't taken, wait for the text and write
+ * it then, which the other browsers allow for a few seconds after a tap.
+ */
+async function copyLater(textPromise) {
+  if (window.ClipboardItem && navigator.clipboard?.write) {
+    try {
+      const blob = textPromise.then((text) => {
+        if (!text) throw new Error("nothing to copy");
+        return new Blob([text], { type: "text/plain" });
+      });
+      await navigator.clipboard.write([new ClipboardItem({ "text/plain": blob })]);
+      return true;
+    } catch {
+      /* fall through to a plain write */
+    }
+  }
+  const text = await textPromise.catch(() => "");
+  return text ? copyToClipboard(text) : false;
 }
 
 function menuButton(label, onClick) {
@@ -693,11 +787,13 @@ function initFootnotePopovers(container) {
 /* ── 4. Selection sharing ─────────────────────────────────────────────── */
 
 // Select any run of scripture text and a small panel offers Copy with
-// reference / Share, for what the verse menu can't reach: a half-sentence, a
-// phrase crossing two verses, part of a poetry quotation. The reference names
-// the verses the selection touches in plain numbers ("John 3:16", never
-// "16a" — the quoted words already show it's partial), and the link is the
-// ordinary verse link.
+// reference / Copy for a handout / Share, for what the verse menu can't
+// reach: a half-sentence, a phrase crossing two verses, part of a poetry
+// quotation. The reference names the verses the selection touches in plain
+// numbers ("John 3:16", never "16a" — the quoted words already show it's
+// partial), and the link is the ordinary verse link on the Study View page,
+// in Reading View as well. Reading View has no verse menu, so this bar is its
+// only way to copy or share.
 //
 // It always sits beside the selection, where the reader is looking; where
 // exactly follows the input. A mouse selection gets the panel just above the
@@ -777,9 +873,16 @@ function excludeMarkers(range) {
  * to the verse spans, so a selection running into a heading or the footnotes
  * shares only its scripture; snapped out to whole words; and joined by the
  * same joinPieces rule as the verse menu, so selecting whole verses copies
- * exactly what Copy verses does.
+ * exactly what Copy verses does. In Reading View it is also clamped to the
+ * first chapter it touches, since one reference names one chapter.
+ *
+ * `startCount` and `endCount` place the two ends within their verses, as the
+ * number of characters before each one (see countable). That is how a handout
+ * finds the same words on a page that also prints footnote letters
+ * (selectionHandout), which in Reading View is a different page.
  */
-function selectionShare(container, selection) {
+function selectionShare(view, selection) {
+  const { container } = view;
   if (!selection || !selection.rangeCount || selection.isCollapsed) return null;
   const first = selection.getRangeAt(0);
   const last = selection.getRangeAt(selection.rangeCount - 1);
@@ -791,9 +894,12 @@ function selectionShare(container, selection) {
   snapToWords(range);
 
   const pieces = [];
+  let chapter = null;
   let extent = null; // the scripture actually shared, for placing the panel
   for (const span of container.querySelectorAll("[data-verse]")) {
     if (!range.intersectsNode(span)) continue;
+    const ch = view.chapterOf(span);
+    if (chapter !== null && ch !== chapter) break; // spans run in page order
     const part = document.createRange();
     part.selectNodeContents(span);
     if (part.compareBoundaryPoints(Range.START_TO_START, range) < 0) {
@@ -806,6 +912,7 @@ function selectionShare(container, selection) {
     holder.append(part.cloneContents());
     const piece = spanPiece(span, cleanForShare(blockText(holder)));
     if (!piece.text) continue; // e.g. only a verse number was caught
+    chapter = ch;
     if (!extent) {
       extent = document.createRange();
       extent.setStart(part.startContainer, part.startOffset);
@@ -818,7 +925,148 @@ function selectionShare(container, selection) {
   const text = joinPieces(pieces);
   const start = pieces[0].verse;
   const end = pieces[pieces.length - 1].verse;
-  return { text, start, end, rect: extent.getBoundingClientRect(), key: start + "-" + end + ":" + text };
+  const startSpans = view.spans(chapter, start);
+  const endSpans = view.spans(chapter, end);
+  return {
+    text,
+    chapter,
+    start,
+    end,
+    startCount: countUpTo(startSpans, extent.startContainer, extent.startOffset),
+    endCount: countUpTo(endSpans, extent.endContainer, extent.endOffset),
+    startText: verseCountable(startSpans),
+    endText: verseCountable(endSpans),
+    rect: extent.getBoundingClientRect(),
+    key: chapter + ":" + start + "-" + end + ":" + text,
+  };
+}
+
+/**
+ * The characters a selection's position is counted in: its text with every
+ * verse number, footnote letter and whitespace character left out. Both views
+ * render the same source, so this string is identical on either page, where
+ * whitespace (a verse number's no-break space, say) may not be.
+ */
+function countable(el) {
+  const clone = el.cloneNode(true);
+  clone.querySelectorAll("sup.vn, sup.fn-ref").forEach((s) => s.remove());
+  return clone.textContent.replace(/\s+/g, "");
+}
+
+function verseCountable(spans) {
+  return spans.map(countable).join("");
+}
+
+/** How many countable characters of a verse come before a point in it. */
+function countUpTo(spans, node, offset) {
+  const before = spans[0].ownerDocument.createRange();
+  before.setStart(spans[0], 0);
+  before.setEnd(node, offset);
+  const holder = document.createElement("div");
+  holder.append(before.cloneContents());
+  return countable(holder).length;
+}
+
+/**
+ * The point in a verse `n` countable characters in: just before the next one
+ * for a selection's start, just after the nth for its end.
+ */
+function pointAtCount(spans, n, isEnd) {
+  const doc = spans[0].ownerDocument;
+  let seen = 0;
+  for (const span of spans) {
+    const walker = doc.createTreeWalker(span, NodeFilter.SHOW_TEXT);
+    for (let t = walker.nextNode(); t; t = walker.nextNode()) {
+      if (t.parentElement?.closest("sup.vn, sup.fn-ref")) continue;
+      for (let i = 0; i < t.data.length; i++) {
+        if (/\s/.test(t.data[i])) continue;
+        if (!isEnd && seen === n) return { node: t, offset: i };
+        seen++;
+        if (isEnd && seen === n) return { node: t, offset: i + 1 };
+      }
+    }
+  }
+  const lastSpan = spans[spans.length - 1];
+  return { node: lastSpan, offset: lastSpan.childNodes.length };
+}
+
+// Nothing but punctuation: no letter, digit or space.
+const PUNCTUATION_ONLY = /^[^\s\p{L}\p{N}]*$/u;
+
+/**
+ * Carry a handout's end past a footnote letter that belongs to its last word.
+ * A note hangs off the word before it ("self-preservation,[a]"), so a
+ * selection ending on that word should bring the note, and the punctuation
+ * between them, with it. Nothing else is taken: any letter, digit or space
+ * before the next note stops the search.
+ */
+function extendOverNotes(point) {
+  const { node, offset } = point;
+  if (node.nodeType !== Node.TEXT_NODE) return point;
+  if (!PUNCTUATION_ONLY.test(node.data.slice(offset))) return point;
+  const verse = node.parentElement?.closest("[data-verse]");
+  let result = point;
+  let cur = node;
+  for (let step = 0; step < 6; step++) {
+    while (cur && cur !== verse && !cur.nextSibling) cur = cur.parentNode;
+    if (!cur || cur === verse) break;
+    cur = cur.nextSibling;
+    if (cur.nodeType === Node.ELEMENT_NODE && cur.matches("sup.fn-ref")) {
+      const parent = cur.parentNode;
+      result = { node: parent, offset: [...parent.childNodes].indexOf(cur) + 1 };
+      continue;
+    }
+    if (cur.nodeType === Node.TEXT_NODE && PUNCTUATION_ONLY.test(cur.data)) continue;
+    break;
+  }
+  return result;
+}
+
+/**
+ * "Copy for a handout" from a selection: the selected words with their
+ * footnote letters kept as "[a]", laid out as the verse menu's handout is.
+ * `scope` is the page to read letters and notes from. A verse whose text
+ * there doesn't match the selection's (it shouldn't: both views render the
+ * same source) is taken whole rather than guessed at.
+ */
+function selectionHandout(share, scope, ref, url) {
+  const { container, root } = scope;
+  const spansOf = (v) => [...container.querySelectorAll(`[data-verse="${v}"]`)];
+  const firstSpans = spansOf(share.start);
+  const lastSpans = spansOf(share.end);
+  if (!firstSpans.length || !lastSpans.length) return "";
+
+  const begin =
+    verseCountable(firstSpans) === share.startText
+      ? pointAtCount(firstSpans, share.startCount, false)
+      : null;
+  const finish =
+    verseCountable(lastSpans) === share.endText
+      ? extendOverNotes(pointAtCount(lastSpans, share.endCount, true))
+      : null;
+
+  const cited = [];
+  const pieces = [];
+  for (let v = share.start; v <= share.end; v++) {
+    for (const span of spansOf(v)) {
+      const part = span.ownerDocument.createRange();
+      part.selectNodeContents(span);
+      if (v === share.start && begin) {
+        const at = part.comparePoint(begin.node, begin.offset);
+        if (at > 0) continue; // the selection starts after this span
+        if (at === 0) part.setStart(begin.node, begin.offset);
+      }
+      if (v === share.end && finish) {
+        const at = part.comparePoint(finish.node, finish.offset);
+        if (at < 0) continue; // the selection ends before this span
+        if (at === 0) part.setEnd(finish.node, finish.offset);
+      }
+      const holder = document.createElement("div");
+      holder.append(part.cloneContents());
+      pieces.push(spanPiece(span, cleanForShare(blockText(holder, cited))));
+    }
+  }
+  return assembleHandout(joinPieces(pieces), cited, root, ref, url);
 }
 
 // Room the phone's own selection UI needs, which a page can't measure: the
@@ -856,9 +1104,12 @@ function placeBesideTouchSelection(rect) {
   };
 }
 
-function openSelectionPanel(share, { touch }) {
-  const ref = formatRef(share.start, share.end);
-  const url = getVerseUrl(share.start, share.end);
+function openSelectionPanel(view, share, { touch }) {
+  const ref = view.ref(share.chapter, share.start, share.end);
+  const url = view.url(share.chapter, share.start, share.end);
+  // Asked for now, so in Reading View the chapter's notes are usually on
+  // hand by the time "Copy for a handout" is pressed.
+  const scope = view.scope(share.chapter);
 
   const panel = document.createElement("div");
   panel.setAttribute("role", "dialog");
@@ -886,6 +1137,16 @@ function openSelectionPanel(share, { touch }) {
       return copyToClipboard(withReference(share.text, ref) + "\n" + url);
     })
   );
+  panel.appendChild(
+    menuButton("Copy for a handout", () => {
+      acting();
+      if (typeof scope?.then === "function") {
+        return copyLater(scope.then((s) => (s ? selectionHandout(share, s, ref, url) : "")));
+      }
+      const text = scope ? selectionHandout(share, scope, ref, url) : "";
+      return text ? copyToClipboard(text) : false;
+    })
+  );
   const shareBtn = shareButton(ref, url, () => {
     acting();
     return share.text;
@@ -899,7 +1160,7 @@ function openSelectionPanel(share, { touch }) {
   });
 }
 
-function initSelectionShare(container) {
+function initSelectionShare(view) {
   let timer = null;
   const settle = () => {
     clearTimeout(timer);
@@ -929,7 +1190,7 @@ function initSelectionShare(container) {
     // chasing the selection as it grows.
     if (pointerDown && lastPointerType === "mouse") return;
 
-    const share = selectionShare(container, document.getSelection());
+    const share = selectionShare(view, document.getSelection());
     const current = currentPanel()?.kind === "selection" ? currentPanel() : null;
     if (!share) {
       if (current && !current.acting) closePanel();
@@ -938,11 +1199,17 @@ function initSelectionShare(container) {
     }
     if (share.key === shownKey) return;
     shownKey = share.key;
-    openSelectionPanel(share, { touch: lastPointerType !== "mouse" });
+    openSelectionPanel(view, share, { touch: lastPointerType !== "mouse" });
   }
 }
 
 /* ── Kickoff (after all module-level declarations) ────────────────────── */
 
 const container = document.querySelector(".chapter-paragraphs");
-if (container) init(container);
+if (container) {
+  init(container);
+} else {
+  // Reading View: the selection bar only (see the header).
+  const reading = document.querySelector("[data-rm-root] .rm-text");
+  if (reading) initSelectionShare(readingView(reading));
+}

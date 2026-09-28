@@ -111,7 +111,7 @@ test("vglue: Reading Mode also normalizes a plain ASCII space, and still moves t
   // in Reading Mode, a #john-3-v16 deep link targets this span, not the <sup>.
   assert.match(
     out,
-    /^<p id="p1"><span class="rm-verse-anchor" id="john-3-v16" aria-hidden="true"><\/span><span class="vglue"><sup class="vn">16<\/sup>&nbsp;<\/span>For God so loved\.<\/p>$/,
+    /^<p id="p1"><span data-verse="16"><span class="rm-verse-anchor" id="john-3-v16" aria-hidden="true"><\/span><span class="vglue"><sup class="vn">16<\/sup>&nbsp;<\/span>For God so loved\.<\/span><\/p>$/,
   );
 });
 
@@ -121,10 +121,26 @@ test("vglue: Reading Mode moves the verse id off the <sup> onto a standalone .rm
   const out = prepareReadParagraph(html, "john", 3, new Set());
   assert.match(
     out,
-    /^<p id="p1"><span class="rm-verse-anchor" id="john-3-v16" aria-hidden="true"><\/span><span class="vglue"><sup class="vn">16<\/sup>&nbsp;<\/span>For God so loved\.<\/p>$/,
+    /^<p id="p1"><span data-verse="16"><span class="rm-verse-anchor" id="john-3-v16" aria-hidden="true"><\/span><span class="vglue"><sup class="vn">16<\/sup>&nbsp;<\/span>For God so loved\.<\/span><\/p>$/,
   );
   // The <sup> itself no longer carries an id.
   assert.equal(/<sup[^>]*\bid=/.test(out), false);
+});
+
+test("verse spans: Reading Mode wraps each verse like Study View, anchor inside its own verse", () => {
+  const state = { currentVerse: null };
+  const seen = new Set();
+  const p1 =
+    '<p id="p1"><span class="vglue"><sup id="v1" class="vn">1</sup>&nbsp;First verse.</span> <span class="vglue"><sup id="v2" class="vn">2</sup>&nbsp;Second</span> begins,</p>';
+  const p2 = '<p id="p2">and continues here.</p>';
+  const out1 = prepareReadParagraph(p1, "john", 3, seen, state);
+  const out2 = prepareReadParagraph(p2, "john", 3, seen, state);
+  // Each verse is one span, and verse 2's anchor opens verse 2's span rather
+  // than trailing verse 1's.
+  assert.match(out1, /<span data-verse="1"><span class="rm-verse-anchor" id="john-3-v1"/);
+  assert.match(out1, /<span data-verse="2"><span class="rm-verse-anchor" id="john-3-v2"/);
+  // The continuation paragraph belongs to verse 2, carried by the state.
+  assert.equal(out2, '<p id="p2"><span data-verse="2">and continues here.</span></p>');
 });
 
 /* ── 2. Verse spans opening/closing at tag-depth 0 (wrapVerseSegments) ─── */
