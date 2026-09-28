@@ -180,8 +180,8 @@ src/
   layouts/           # Layout, ScriptureLayout, ReadLayout, SearchLayout
   lib/               # Server-side build helpers: chapter-html.ts (the shared
                      #   scripture-HTML transform pipeline — prepareStudyParagraph
-                     #   / prepareReadParagraph; Study wraps each verse in a
-                     #   data-verse span), draft-chapters.mjs (single source
+                     #   / prepareReadParagraph; both views wrap each verse in
+                     #   a data-verse span), draft-chapters.mjs (single source
                      #   for indexed:false draft data, and for draft intros —
                      #   used by astro.config.mjs, ReadMenu, and the /read
                      #   lede), chapter-nav.mjs + chapter-nav-data.mjs (the one
@@ -358,9 +358,11 @@ Each file in `src/data/chapters/` follows this structure:
 - **Verse numbers** are `<sup id="vN" class="vn">N</sup>`, always wrapped as
   `<span class="vglue"><sup…></sup>&nbsp;<first word>…</span>` so the number
   stays glued to the verse's first word. At render time (website only — raw
-  JSON is never modified) the Study View wraps each verse's content in
+  JSON is never modified) both views wrap each verse's content in
   `<span data-verse="N">` so verse boundaries are DOM containers; keep every
-  vglue at tag-depth 0 inside its block or that wrapping breaks.
+  vglue at tag-depth 0 inside its block or that wrapping breaks. Reading
+  View's spans repeat from chapter to chapter, since a whole book shares the
+  page, so each of its blocks also carries `data-chapter`.
 - **A verse that spans a paragraph break carries its marker only ONCE**, at its
   start; the continuation paragraph opens with plain text and no marker. That
   is the corpus convention (187 continuation paragraphs across 76 published
@@ -511,9 +513,15 @@ nature, and a button per block would bury the whole-range actions.
 
 ### Sharing a selection
 
-The general form of the above: select any run of scripture text on a chapter
-page and a panel offers **Copy with reference** and **Share…**, for a
+The general form of the above: select any run of scripture text and a panel
+offers **Copy with reference**, **Copy for a handout** and **Share…**, for a
 half-sentence, a phrase crossing two verses, or part of a poetry quotation.
+It runs in **both views**, and in Reading View it is the only such tool: that
+view's verse numbers stay plain text, because a verse menu's actions (Copy
+link above all) belong to the chapter's Study View page (owner, 2026-09-28).
+In Reading View a selection is clamped to the first chapter it touches, since
+one reference names one chapter, and every link it produces is the Study View
+verse link (`/john-3#v16`), never a Reading View anchor.
 Four owner decisions (2026-09) shape it:
 
 1. **It sits beside the selection, and the side follows the input**, not the
@@ -555,7 +563,7 @@ break:
   selection, and `acting` keeps a pressed panel open until it finishes.
 
 The panel never takes focus, so the verse-number menu stays the keyboard and
-screen-reader route to the same copy.
+screen-reader route to the same copy (in Study View; Reading View has none).
 
 ### Printing and handouts
 
@@ -589,7 +597,25 @@ notice there or nowhere.
   handed a `notes` array. A note's own blocks each take a line, which is what
   keeps the 1 Corinthians 11 chiasm outline legible. Notes skip the
   bracket-marker strip (`tidyLines`, not `cleanForShare`), since a note is
-  quoted as it stands.
+  quoted as it stands. Both layouts go through `assembleHandout`.
+- **The selection bar copies a handout too** (`selectionHandout`), in both
+  views, so a handout can start mid-verse. Reading View prints no footnote
+  letters and has no notes on the page, so there the handout reads them from
+  the chapter's Study View page, fetched when the bar opens (`readingView` in
+  `chapter-tools.js`). Three things make that work:
+  1. **A selection's ends are recorded as counts, not DOM positions**: how
+     many characters of the verse come before each end, with verse numbers,
+     footnote letters and all whitespace left out (`countable`). Both views
+     render the same source, so those characters match on both pages even
+     where their whitespace differs. A verse whose text doesn't match is taken
+     whole rather than guessed at.
+  2. **The end moves past a footnote letter on its last word**, with any
+     punctuation between (`extendOverNotes`), so selecting a word brings the
+     note that hangs off it. Any letter, digit or space stops that.
+  3. **The clipboard write starts during the tap**, with the text as a
+     promise (`copyLater`), because Safari refuses a write that begins after
+     the fetch. Where a browser won't take that form, it waits for the text and
+     writes it then.
 
 ### Poetry blocks (`hbq`)
 
@@ -2221,7 +2247,7 @@ argv, and the scan; nothing else.
 | `src/data/books.js` | Source of truth for NT book list + chapter counts |
 | `src/pages/[slug].astro` | Scripture chapter pages (Study View) |
 | `src/pages/read/[book].astro` | Continuous reading view |
-| `src/scripts/chapter-tools.js` | Verse highlight/menu, footnote popovers, and selection sharing |
+| `src/scripts/chapter-tools.js` | Verse highlight/menu, footnote popovers, and selection sharing (Study View); the selection bar alone in Reading View |
 | `src/lib/scripture-refs.mjs` | The render-time reference linker; read its header before widening what it links |
 | `src/lib/chapter-nav.mjs` | The one Previous/Next rule (steps over drafts); every chapter and intro nav reads it |
 | `src/styles/global.css` | Main stylesheet |

@@ -65,11 +65,12 @@ const chapters = getChapterNumbers(chapterTotal).map((chapter) => {
     : [];
 
   const seenVerseIds = new Set<string>();
+  const verseState = { currentVerse: null as number | null };
   return {
     chapter,
     draft: chapterData?.indexed === false || rawParagraphs.length === 0,
     paragraphs: rawParagraphs.map((html) =>
-      prepareReadParagraph(html, bookKey, chapter, seenVerseIds),
+      prepareReadParagraph(html, bookKey, chapter, seenVerseIds, verseState),
     ),
   };
 });
@@ -280,8 +281,11 @@ const pageUrl = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : "";
                 />
                 <h2 class="rm-chapter">Chapter {section.chapter}</h2>
 
+                {/* data-chapter tells the selection bar (chapter-tools.js)
+                    which chapter selected text belongs to, since a whole
+                    book shares this page. */}
                 {section.paragraphs.map((html) => (
-                  <div class="rm-block" set:html={html} />
+                  <div class="rm-block" data-chapter={section.chapter} set:html={html} />
                 ))}
               </>
             ) : (
@@ -322,6 +326,13 @@ const pageUrl = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : "";
 
   {/* Continue reading: record where the reader is each time Reading View
       saves its own resume position. Draft chapters are never recorded. */}
+  {/* The selection bar, as in Study View. Only the bar: verse numbers stay
+      plain text here, since a verse menu's links and actions belong to the
+      chapter's Study View page. */}
+  <script>
+    import "../../scripts/chapter-tools.js";
+  </script>
+
   <script>
     import { saveLastRead, verseAtReadingLine } from "../../scripts/last-read.js";
 

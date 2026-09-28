@@ -140,6 +140,10 @@ function markVerseGap(html: string): string {
  *
  * `state.currentVerse` threads the active verse across paragraphs — pass
  * one state object per chapter.
+ *
+ * Both views run it. In Reading Mode a verse's empty `.rm-verse-anchor`
+ * sits just before its vglue (normalizeReadVerseGlue), so a segment starts
+ * at that anchor when there is one, keeping the anchor inside its own verse.
  */
 export type StudyVerseState = { currentVerse: number | null };
 
@@ -150,9 +154,11 @@ function wrapVerseSegments(html: string, state: StudyVerseState): string {
   return String(html ?? "").replace(
     /(<p\b[^>]*>)([\s\S]*?)(<\/p>)/gi,
     (_match, open: string, inner: string, close: string) => {
-      const starts = [...inner.matchAll(/<span class="vglue">/g)].map(
-        (m) => m.index as number,
-      );
+      const starts = [
+        ...inner.matchAll(
+          /(?:<span class="rm-verse-anchor"[^>]*><\/span>)?<span class="vglue">/g,
+        ),
+      ].map((m) => m.index as number);
 
       // No verse marker in this block: the whole line continues the
       // current verse (e.g. an unnumbered poetry line).
@@ -325,14 +331,15 @@ export function prepareStudyParagraph(
 }
 
 /**
- * Full Reading Mode pipeline for one paragraph. `seenVerseIds` must be a
- * fresh Set per chapter.
+ * Full Reading Mode pipeline for one paragraph. `seenVerseIds` and
+ * `verseState` must be fresh per chapter, as in Study View.
  */
 export function prepareReadParagraph(
   html: string,
   bookKey: string,
   chapter: number,
   seenVerseIds: Set<string>,
+  verseState: StudyVerseState = { currentVerse: null },
 ): string {
   // Dedupe before namespacing: vN → <book>-<ch>-vN is one-to-one within a
   // chapter, so dropping duplicate vN ids first is equivalent and lets both
@@ -342,11 +349,16 @@ export function prepareReadParagraph(
   // addHbqAria here too: Reading Mode renders the same poetry blocks and had
   // never announced any of them. Its page carries the same #hbq-description
   // target, so the describedby reference resolves on both views.
-  return addHbqAria(
-    normalizeHbqVerseGlue(
-      normalizeReadVerseGlue(
-        rewriteVerseIdsAndAnchors(deduped, bookKey, chapter),
+  // The verse spans come last, as in Study View: the verse menu and the
+  // selection bar (chapter-tools.js) read a verse's text from them.
+  return wrapVerseSegments(
+    addHbqAria(
+      normalizeHbqVerseGlue(
+        normalizeReadVerseGlue(
+          rewriteVerseIdsAndAnchors(deduped, bookKey, chapter),
+        ),
       ),
     ),
+    verseState,
   );
 }
