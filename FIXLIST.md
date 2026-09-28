@@ -1078,10 +1078,16 @@ Details for each item are in the artifact (https://claude.ai/artifact/4ghJK72rd2
   and a partial selection keeps the letters that fall inside it plus a note on
   its last word. See CLAUDE.md, "Printing and handouts".
 
-- [ ] **Keyboard shortcuts (U4).**
+- [x] **Keyboard shortcuts (U4).**
   Arrow keys (or `[` and `]`) for previous and next chapter, `/` to
   focus search, `g` for Go to passage. Ignore them while typing or with a
   modifier held, and list them in the Display tray.
+  DONE (2026-09-28): `src/scripts/keyboard-shortcuts.js`, on by default with a
+  Keyboard switch in the Display tray (`lit-shortcuts`), which single-key
+  shortcuts need under WCAG 2.1.4. The arrows work in Study View (the top
+  Previous/Next, now `rel="prev"`/`rel="next"`) and Reading View (the next
+  `#ch-N`), and stand down when the page scrolls sideways. The privacy page's
+  storage paragraph names the switch. See CLAUDE.md, "Keyboard shortcuts".
 
 - [x] **Missing doors in the menus (U6).**
   A search icon beside "Aa" that opens the existing search tray on every

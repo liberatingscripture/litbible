@@ -291,6 +291,23 @@ const SIZE_OPTIONS = [
       ) : null
     }
 
+    {/* Keyboard shortcuts (audit U4), handled by keyboard-shortcuts.js. The
+        switch is required for single-key shortcuts (WCAG 2.1.4). Hidden on a
+        small touch screen, where there is no keyboard to speak of. */}
+    <fieldset class="font-tray__row font-tray__row--keys">
+      <legend class="font-tray__legend">Keyboard</legend>
+      <div class="font-tray__checks">
+        <label class="font-tray__check">
+          <input type="checkbox" class="font-tray__check-input" data-keys-check aria-describedby="fontTrayKeys" />
+          <span class="font-tray__check-label">Keyboard shortcuts</span>
+        </label>
+      </div>
+      <ul class="font-tray__keys" id="fontTrayKeys">
+        <li><kbd>/</kbd> Search</li>
+        <li><kbd>g</kbd> Go to passage</li>
+        <li><kbd>←</kbd> <kbd>→</kbd> Previous or next chapter</li>
+      </ul>
+    </fieldset>
   </div>
 
   <!-- Mobile overlay menu -->
@@ -327,6 +344,7 @@ const SIZE_OPTIONS = [
   <script>
     import "../scripts/continue-reading.js";
     import "../scripts/header-search.js";
+    import "../scripts/keyboard-shortcuts.js";
   </script>
 
   <script>
@@ -453,6 +471,7 @@ const SIZE_OPTIONS = [
       const vnCheck = tray.querySelector('[data-vn-check]');
       const fnCheck = tray.querySelector('[data-fn-check]');
       const termsCheck = tray.querySelector('[data-terms-check]');
+      const keysCheck = tray.querySelector('[data-keys-check]');
 
       // Move the tray out of the header's stacking context (.site-header has
       // z-index:10) so its own z-index competes at the top level — otherwise
@@ -502,6 +521,13 @@ const SIZE_OPTIONS = [
         if (vnCheck) vnCheck.checked = currentSetting('vn') === 'on';
         if (fnCheck) fnCheck.checked = currentSetting('fn') === 'on';
         if (termsCheck) termsCheck.checked = currentSetting('terms') === 'on';
+        // Keyboard shortcuts change nothing on the page, so they have no
+        // attribute on <html>: keyboard-shortcuts.js reads the key itself.
+        if (keysCheck) {
+          let on = true;
+          try { on = localStorage.getItem('lit-shortcuts') !== 'off'; } catch (_) {}
+          keysCheck.checked = on;
+        }
       };
 
       // Changing text size, spacing or numbers reflows the page, which would
@@ -695,6 +721,13 @@ const SIZE_OPTIONS = [
       vnCheck?.addEventListener('change', () => applySetting('vn', vnCheck.checked ? 'on' : 'off'));
       fnCheck?.addEventListener('change', () => applySetting('fn', fnCheck.checked ? 'on' : 'off'));
       termsCheck?.addEventListener('change', () => applySetting('terms', termsCheck.checked ? 'on' : 'off'));
+      keysCheck?.addEventListener('change', () => {
+        try {
+          keysCheck.checked
+            ? localStorage.removeItem('lit-shortcuts')
+            : localStorage.setItem('lit-shortcuts', 'off');
+        } catch (_) {}
+      });
 
       syncFont();
       syncTheme();

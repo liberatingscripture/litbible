@@ -1076,6 +1076,37 @@ body:has(.site-header--green) .skip-link {
   line-height: 1.25;
 }
 
+/* ----- Keyboard: the shortcuts switch and the keys it covers (audit U4) -----
+   The list is indented to the label's text (padding + box + gap). Hidden on
+   a small touch screen, where there is no keyboard to speak of. */
+.font-tray__keys {
+  list-style: none;
+  margin: 2px 0 0;
+  padding: 0 9px 2px 36px;
+  display: grid;
+  gap: 4px;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: var(--text);
+}
+
+.font-tray__keys kbd {
+  display: inline-block;
+  min-width: 1.7em;
+  padding: 0 0.35em;
+  border: 1px solid rgba(var(--ink-rgb), 0.35);
+  border-radius: 5px;
+  font: inherit;
+  font-weight: 600;
+  text-align: center;
+}
+
+@media (max-width: 640px) and (pointer: coarse) {
+  .font-tray__row--keys {
+    display: none;
+  }
+}
+
 /* ----- Segmented controls (theme, text size, line spacing) ----- */
 .font-tray__seg {
   display: flex;
