@@ -242,6 +242,12 @@ const SIZE_OPTIONS = [
                 <span class="font-tray__check-label">Footnote letters</span>
               </label>
             ) : null}
+            {scriptureControls === "study" ? (
+              <label class="font-tray__check">
+                <input type="checkbox" class="font-tray__check-input" data-terms-check />
+                <span class="font-tray__check-label">Key terms</span>
+              </label>
+            ) : null}
           </div>
         </fieldset>
       ) : null
@@ -400,6 +406,7 @@ const SIZE_OPTIONS = [
       const leadingRadios = Array.from(tray.querySelectorAll('[data-leading-radio]'));
       const vnCheck = tray.querySelector('[data-vn-check]');
       const fnCheck = tray.querySelector('[data-fn-check]');
+      const termsCheck = tray.querySelector('[data-terms-check]');
 
       // Move the tray out of the header's stacking context (.site-header has
       // z-index:10) so its own z-index competes at the top level — otherwise
@@ -435,6 +442,7 @@ const SIZE_OPTIONS = [
         leading: { attr: 'data-leading', key: 'lit-leading', legacy: 'lit_rm_lineHeight', fallback: 'normal' },
         vn: { attr: 'data-vn', key: 'lit-verse-numbers', legacy: 'lit_rm_markers', fallback: 'on' },
         fn: { attr: 'data-fn', key: 'lit-fn-letters', legacy: null, fallback: 'on' },
+        terms: { attr: 'data-terms', key: 'lit-terms', legacy: null, fallback: 'on' },
       };
 
       const currentSetting = (name) =>
@@ -447,6 +455,7 @@ const SIZE_OPTIONS = [
         for (const radio of leadingRadios) radio.checked = radio.value === leading;
         if (vnCheck) vnCheck.checked = currentSetting('vn') === 'on';
         if (fnCheck) fnCheck.checked = currentSetting('fn') === 'on';
+        if (termsCheck) termsCheck.checked = currentSetting('terms') === 'on';
       };
 
       // Changing text size, spacing or numbers reflows the page, which would
@@ -639,6 +648,7 @@ const SIZE_OPTIONS = [
 
       vnCheck?.addEventListener('change', () => applySetting('vn', vnCheck.checked ? 'on' : 'off'));
       fnCheck?.addEventListener('change', () => applySetting('fn', fnCheck.checked ? 'on' : 'off'));
+      termsCheck?.addEventListener('change', () => applySetting('terms', termsCheck.checked ? 'on' : 'off'));
 
       syncFont();
       syncTheme();

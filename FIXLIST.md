@@ -1343,11 +1343,18 @@ need a mockup or a side-by-side the owner looks at before code.
   stay focusable, so `#v16` and the keyboard verse menu still work, and the
   tray holds the reader's line in place when a setting reflows the page.
 
-- [ ] **Term lens (X1).**
+- [x] **Term lens (X1).**
   A quiet underline under glossary renderings in Study View opening a card
   (traditional word, Greek, other renderings, glossary link), built from the
   reviewed alignment data behind the same publishing gate as /glossary. Owner
   decides density and whether it's on by default.
+  DONE (2026-09-28, PR #232): at the Phase 3 checkpoint the owner picked every use
+  over the first of each term, the card as mocked up, on by default with a
+  Key terms box in the Display tray, Study View only, and no tab stops. The
+  /glossary display gate moved into `src/lib/alignment-gate.mjs` so both read
+  one rule; the built /glossary page is byte-identical. 4,326 of 4,328 marks
+  land on the right words across the 208 published chapters, and the other
+  two were record errors fixed in the data.
 
 - [x] **Reference previews (X2).**
   DONE (2026-09-27, PR #216): `src/scripts/ref-preview.js`. Hover with a mouse, or tap on

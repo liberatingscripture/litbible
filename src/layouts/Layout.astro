@@ -71,7 +71,7 @@ const criticalCSS = `html,body{margin:0;padding:0}html{scrollbar-gutter:stable}b
          that came before the shared Display tray (lit_rm_fontSize, lit_rm_lineHeight,
          lit_rm_markers) are still read as fallbacks; the tray deletes each one when
          its setting changes, so it can't resurrect an older choice. -->
-    <script is:inline>try{var s=localStorage,d=document.documentElement,z=s.getItem('lit-size')||s.getItem('lit_rm_fontSize'),l=s.getItem('lit-leading')||s.getItem('lit_rm_lineHeight'),n=s.getItem('lit-verse-numbers')||s.getItem('lit_rm_markers'),r=s.getItem('lit-fn-letters');if(z==='sm'||z==='lg'||z==='xl')d.setAttribute('data-size',z);if(l==='roomy')d.setAttribute('data-leading',l);if(n==='off')d.setAttribute('data-vn',n);if(r==='off')d.setAttribute('data-fn',r)}catch(_){}</script>
+    <script is:inline>try{var s=localStorage,d=document.documentElement,z=s.getItem('lit-size')||s.getItem('lit_rm_fontSize'),l=s.getItem('lit-leading')||s.getItem('lit_rm_lineHeight'),n=s.getItem('lit-verse-numbers')||s.getItem('lit_rm_markers'),r=s.getItem('lit-fn-letters'),k=s.getItem('lit-terms');if(z==='sm'||z==='lg'||z==='xl')d.setAttribute('data-size',z);if(l==='roomy')d.setAttribute('data-leading',l);if(n==='off')d.setAttribute('data-vn',n);if(r==='off')d.setAttribute('data-fn',r);if(k==='off')d.setAttribute('data-terms',k)}catch(_){}</script>
     <title>{title}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />

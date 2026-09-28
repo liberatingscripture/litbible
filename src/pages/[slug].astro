@@ -5,6 +5,8 @@ import { prepareStudyParagraph } from "../lib/chapter-html";
 import { linkRefs } from "../lib/scripture-refs-data.mjs";
 import ChapterCtas from "../components/ChapterCtas.astro";
 import DraftPage from "../components/DraftPage.astro";
+import { getCollection } from "astro:content";
+import { termLensFor } from "../lib/term-lens-data.mjs";
 
 type Footnote = {
   id: string; // e.g. "fn-a"
@@ -131,6 +133,21 @@ const footnotes = (Array.isArray(chapterData?.footnotes)
 // A draft (or a chapter with no text yet) gets the draft page instead of its
 // stored placeholder; see src/components/DraftPage.astro.
 const isDraftPage = !shouldIndex || paragraphs.length === 0;
+
+// The term lens (src/scripts/term-lens.js): where this chapter's glossary
+// terms sit, from the reviewed alignment records that clear /glossary's
+// display gate. Draft glossary entries are left out, as /glossary leaves them.
+const glossaryEntries = new Map(
+  (await getCollection("glossary"))
+    .filter((e) => !e.data.draft)
+    .map((e) => [e.data.id, e.data]),
+);
+const termLens = isDraftPage
+  ? null
+  : termLensFor(normalizedBookKey, props.chapter, paragraphsRaw, glossaryEntries);
+const termLensJson = termLens?.marks.length
+  ? JSON.stringify({ marks: termLens.marks, terms: termLens.terms }).replace(/</g, "\\u003c")
+  : null;
 ---
 
 <ScriptureLayout
@@ -224,6 +241,9 @@ const isDraftPage = !shouldIndex || paragraphs.length === 0;
                 <div class="p" set:html={html} />
               ))}
             </div>
+            {termLensJson && (
+              <script type="application/json" id="term-lens-data" set:html={termLensJson} />
+            )}
 
             {/* Chapter CTAs (below scripture text, above footnotes) */}
             <ChapterCtas bookKey={normalizedBookKey} chapter={props.chapter} />
@@ -509,6 +529,7 @@ const isDraftPage = !shouldIndex || paragraphs.length === 0;
   <script>
     import "../scripts/chapter-tools.js";
     import "../scripts/ref-preview.js";
+    import "../scripts/term-lens.js";
     import { trackStudyView } from "../scripts/last-read.js";
 
     const lastReadRoot = document.querySelector("article.chapter[data-last-read-book]");
