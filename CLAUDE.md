@@ -200,13 +200,17 @@ src/
                      #   glossary-crossrefs.mjs, release-note-links.mjs +
                      #   release-note-linker.ts (see "Scripture references link
                      #   at render" below), release-notes-view.mjs (how
-                     #   /release-notes and its RSS feed present the JSON)
+                     #   /release-notes and its RSS feed present the JSON),
+                     #   alignment-gate.mjs (the one display gate for the
+                     #   alignment dataset), term-lens.mjs + term-lens-data.mjs
+                     #   (the term lens and its fs shell)
   pages/             # File-based routes (see Routing below)
   scripts/           # CLIENT-side vanilla JS (chapter-tools, read-mode,
                      #   search-core + searchbar + search — see Search below;
                      #   lit-panel, the one floating panel every reader tool
                      #   shares; ref-preview, scripture reference previews;
-                     #   last-read + continue-reading, "Continue reading")
+                     #   last-read + continue-reading, "Continue reading";
+                     #   term-lens, the Study View term underline and card)
   styles/            # global.css, read-mode.css, scripture-tools.css, articles.css,
                      #   pages/<page>.css (per-page stylesheets)
 scripts/             # BUILD/validation Node scripts (.mjs) — see below
@@ -1215,6 +1219,50 @@ bulk-rejected record keeps `confidence: "common"` forever, so under the old
 "every record is `distinctive`" rule no amount of review could ever release a
 term.
 
+**The gate is stated once, in `src/lib/alignment-gate.mjs`** (pure,
+unit-tested): `verdict()` per record and `gatedOccurrences()` for the
+corpus-wide fold. It has two readers, /glossary's list and the term lens
+below, so neither can publish a claim the other doesn't. Any new surface that
+shows where a term appears reads it too, rather than restating the table above.
+
+### The term lens (Study View)
+
+Every use of a glossary term in a Study View chapter carries a quiet dotted
+underline, and hovering one with a mouse (350 ms) or tapping it opens a card
+in the shared panel: the word as printed, "Traditionally *flesh* · Greek
+*sarx*", up to four other renderings with their corpus counts, and a link to
+the glossary entry. Four owner decisions (2026-09-28): **every use**, not just
+the first of each term; **on by default**, with a **Key terms** box in the
+Display tray to turn it off; **Study View only**, never Reading View, which is
+for immersion; and **no tab stops** (below). The pieces are
+`src/lib/term-lens.mjs` (pure, unit-tested), `term-lens-data.mjs` (its fs
+shell) and `src/scripts/term-lens.js`. Five rules:
+
+1. **It marks only what /glossary would show**: the gated records, minus any
+   term whose glossary entry is a draft. A lens that marked more would make a
+   claim the glossary page doesn't.
+2. **No chapter HTML and no data file changes.** The page carries a small JSON
+   block (`#term-lens-data`) giving each mark as "the kth case-insensitive
+   occurrence of this text in verse v", and the client finds it by walking the
+   verse's text with verse numbers and footnote letters skipped. `k` is worked
+   out at build by `locateSpan` from `computeOccurrenceN`, the same count both
+   alignment writers use, so the lens and the dataset can't disagree on which
+   occurrence a record means. Where the count's substring fallback numbers two
+   positions alike (Romans 3:5's "justness", once inside "unjustness"), the one
+   standing as a whole word wins. A mark whose text isn't where the build said
+   is skipped, never guessed.
+3. **Two records claiming the same words keep the first** in reading order;
+   the other is skipped rather than nested. A sweep of every published chapter
+   in 2026-09 placed 4,326 of 4,328 marks, and both misses were errors in the
+   records (1 Corinthians 5:8 and Mark 12:23), fixed in the data rather than
+   worked around here. Re-run that kind of sweep after a large review session.
+4. **Terms are not controls**: plain spans, with no role and no tab stop. A tab
+   stop per term would interrupt scripture mid-sentence, up to 60 times a
+   chapter (Romans 7). /glossary carries the same information for keyboard and
+   screen-reader readers.
+5. **Copy, handouts and the selection bar are unaffected**, since they read
+   the text, not the markup; the underline never prints (`print.css`).
+
 ## Content Collections (`src/content.config.ts`)
 
 Five collections, all loaded via Astro's `glob` loader. Two are site-wide:
@@ -1353,12 +1401,14 @@ collection); they're read directly by the intro pages and the API manifest.
      Fix by giving the word room, not by breaking it: `overflow-wrap` and
      hyphenation split words, which is the opposite of what dyslexic readers
      need.
-- **Text size, line spacing, verse numbers and footnote letters are the rest
-  of the Display tray**, and follow the font's pattern exactly: an attribute
-  on `<html>` stamped before first paint by `Layout.astro`, absent for the
-  default, mirrored to one `localStorage` key each (`data-size` sm | lg | xl
-  in `lit-size`; `data-leading` roomy in `lit-leading`; `data-vn` off in
-  `lit-verse-numbers`; `data-fn` off in `lit-fn-letters`). There is **one
+- **Text size, line spacing, verse numbers, footnote letters and key terms
+  are the rest of the Display tray**, and follow the font's pattern exactly:
+  an attribute on `<html>` stamped before first paint by `Layout.astro`,
+  absent for the default, mirrored to one `localStorage` key each
+  (`data-size` sm | lg | xl in `lit-size`; `data-leading` roomy in
+  `lit-leading`; `data-vn` off in `lit-verse-numbers`; `data-fn` off in
+  `lit-fn-letters`; `data-terms` off in `lit-terms`, the term lens's
+  switch, which Study View alone shows). There is **one
   panel**: Reading View's toolbar "Aa" opens this same tray (it's a
   `data-font-toggle`, like the header's two), which opens upward when there
   is no room below. Five rules:
@@ -2283,6 +2333,7 @@ argv, and the scan; nothing else.
 | `src/styles/global.css` | Main stylesheet |
 | `astro.config.mjs` | Site config, redirects, sitemap/noindex draft logic |
 | `content.config.ts` | Content-collection schemas |
+| `src/lib/alignment-gate.mjs` | The one display gate for the alignment dataset, read by /glossary and the term lens |
 | `scripts/validate-chapters.mjs` | Chapter validator (pre-commit + CI safety net) |
 | `scripts/build-verse-index.mjs` | Verse search index generator (`public/search/verses.json`) |
 | `scripts/lib/glossary-feed-core.mjs` | The apps' glossary feed contract — read its header before changing anything about `/api/data/glossary.json` |

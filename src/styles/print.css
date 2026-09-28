@@ -36,6 +36,11 @@
     text-shadow: none !important;
   }
 
+  /* The term lens's underline is a screen aid (term-lens.js). */
+  .chapter-paragraphs .term {
+    text-decoration: none !important;
+  }
+
   ::highlight(lit-verse-range),
   ::highlight(lit-verse-select) {
     background-color: transparent;
