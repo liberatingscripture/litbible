@@ -1,8 +1,13 @@
 ---
+import SearchBar from "./SearchBar.astro";
+
 // scriptureControls: "study" on a chapter page (verse numbers and footnote
 // letters), "read" in Reading View (numbers only: it prints no footnote
 // letters, and its numbers setting hides the chapter headings too).
-const { class: className = "", scriptureControls } = Astro.props;
+// headerSearch: a search icon beside "Aa" that opens a search strip under
+// the header, on pages with no search box of their own (see Layout's
+// pageSearch). Without JS the icon is a plain link to /search.
+const { class: className = "", scriptureControls, headerSearch = false } = Astro.props;
 
 // Text size steps. The visible letters are the usual abbreviations; the
 // radios carry the words for screen readers.
@@ -52,22 +57,42 @@ const SIZE_OPTIONS = [
 
         <li class="site-nav__cta-item">
           <a href="/read" class="site-header__cta"><span>Read Now</span></a>
-          <!-- Desktop: Aa sits below READ NOW -->
-          <button
-            class="site-header__font-toggle site-header__font-toggle--nav"
-            type="button"
-            aria-expanded="false"
-            aria-controls="fontTray"
-            data-font-toggle
-          >
-            <span aria-hidden="true">Aa</span>
-            <span class="sr-only">Display settings</span>
-          </button>
+          <!-- Desktop: search and Aa sit below READ NOW -->
+          <div class="site-header__nav-tools">
+            {headerSearch && (
+              <a href="/search" class="site-header__search site-header__search--nav" data-search-toggle aria-label="Search">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
+                     stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false">
+                  <circle cx="10.5" cy="10.5" r="6.5" />
+                  <path d="M15.5 15.5 21 21" />
+                </svg>
+              </a>
+            )}
+            <button
+              class="site-header__font-toggle site-header__font-toggle--nav"
+              type="button"
+              aria-expanded="false"
+              aria-controls="fontTray"
+              data-font-toggle
+            >
+              <span aria-hidden="true">Aa</span>
+              <span class="sr-only">Display settings</span>
+            </button>
+          </div>
         </li>
       </ul>
     </nav>
 
     <div class="site-header__actions">
+      {headerSearch && (
+        <a href="/search" class="site-header__search site-header__search--actions" data-search-toggle aria-label="Search">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false">
+            <circle cx="10.5" cy="10.5" r="6.5" />
+            <path d="M15.5 15.5 21 21" />
+          </svg>
+        </a>
+      )}
       <button
         class="site-header__font-toggle site-header__font-toggle--actions"
         type="button"
@@ -91,6 +116,19 @@ const SIZE_OPTIONS = [
       </button>
     </div>
   </div>
+
+  {headerSearch && (
+    <div class="site-header__search-strip" id="headerSearch" hidden>
+      <div class="site-header__search-inner">
+        <SearchBar placeholder="Search the LIT Bible" />
+        <button type="button" class="site-header__search-close" aria-label="Close search">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+            <path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  )}
 
   <!-- No-JS navigation fallback. Under 1100px the real nav collapses to the
        JS-only overlay, whose toggle does nothing without JS. Render a plain
@@ -252,6 +290,7 @@ const SIZE_OPTIONS = [
         </fieldset>
       ) : null
     }
+
   </div>
 
   <!-- Mobile overlay menu -->
@@ -264,11 +303,17 @@ const SIZE_OPTIONS = [
       tabindex="-1"
     >
       <nav class="menu-overlay__nav" aria-label="Primary (mobile)">
+        {/* Below 360px the header has no room for its search icon, so search
+            moves in here (global.css shows it only there). */}
+        {headerSearch && (
+          <a href="/search" class="menu-overlay__search" data-search-toggle>Search</a>
+        )}
         <a href="/about">About</a>
         <a href="/translation-commitments">Commitments</a>
         <a href="/glossary">Glossary</a>
         <a href="/found-in-translation-podcast">Podcast</a>
         <a href="/articles">Articles</a>
+        <a href="/support">Support</a>
 
         {/* Filled and shown by last-read.js for a returning reader */}
         <a href="/read/" class="menu-overlay__continue" data-continue-menu hidden>
@@ -281,6 +326,7 @@ const SIZE_OPTIONS = [
 
   <script>
     import "../scripts/continue-reading.js";
+    import "../scripts/header-search.js";
   </script>
 
   <script>

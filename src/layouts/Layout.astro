@@ -24,6 +24,10 @@ const {
   // footnote letters) on chapter pages, "read" (numbers only; Reading View
   // prints no footnote letters) on /read/<book>.
   scriptureControls,
+  // True on pages that carry their own search box (chapters, intros, /read,
+  // Reading View, /search, articles). Every other page gets the header's
+  // search icon instead, so each page has exactly one way in (audit U6).
+  pageSearch = false,
 } = Astro.props;
 
 // Auto-generate canonical URL from site config when not explicitly provided.
@@ -155,7 +159,7 @@ const criticalCSS = `html,body{margin:0;padding:0}html{scrollbar-gutter:stable}b
   <body class={`bg-${bg}`} data-pagefind-ignore={pagefindIndex ? undefined : true}>
     <a href="#main-content" class="skip-link">Skip to content</a>
     <AppInstallBanner />
-    <SiteHeader class={headerClass} scriptureControls={scriptureControls} />
+    <SiteHeader class={headerClass} scriptureControls={scriptureControls} headerSearch={!pageSearch} />
 
     <main id="main-content" data-pagefind-body={pagefindIndex ? true : undefined}>
       <slot />

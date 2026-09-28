@@ -25,7 +25,7 @@ const {
 } = Astro.props as Props;
 ---
 
-<Layout title={title} description={description} bg={bg} pagefindIndex={pagefindIndex}>
+<Layout title={title} description={description} bg={bg} pagefindIndex={pagefindIndex} pageSearch={showTools}>
   <slot slot="head" name="head" />
   <div class="read-layout">
     <header class="read-layout__hero">
