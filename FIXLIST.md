@@ -1061,7 +1061,7 @@ Details for each item are in the artifact (https://claude.ai/artifact/4ghJK72rd2
   Study View's verse menu. Reading View has no verse menu (its numbers aren't
   controls) and no selection bar, so it offered no way to copy anything, and
   the selection bar in Study View had no handout option.
-  DONE (2026-09-28): the selection bar now runs in Reading View as well, and
+  DONE (2026-09-28, PR #228): the selection bar now runs in Reading View as well, and
   offers Copy with reference, Copy for a handout and Share… in both views.
   Reading View's verse numbers stay plain, by the owner's call: a verse menu's
   links belong to the Study View page, so the bar is Reading View's one tool,
