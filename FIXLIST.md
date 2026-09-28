@@ -1308,11 +1308,17 @@ Details for each item are in the artifact (https://claude.ai/artifact/4ghJK72rd2
 Details for each item are in the artifact (https://claude.ai/artifact/4ghJK72rd2thnCX2mdmXkZ); the IDs match. These
 need a mockup or a side-by-side the owner looks at before code.
 
-- [ ] **Scripture starts low on a phone (F3).**
+- [x] **Scripture starts low on a phone (F3).**
   Fold the phone toolbar into one row (passage picker, a search icon that
   expands in place, a Reading View icon), make the top Previous/Next quiet
   chevrons beside the title, and aim for the first verse inside the top 40%
   of the screen. Mock it up first.
+  DONE (2026-09-28, PR #230): the owner picked the recommended variants at the Phase 3
+  checkpoint: an icon-only Reading View button, ‹ › beside the title, and one
+  row on tablets too. Romans 8's first verse now starts 35% of the way down an
+  Android phone with the app banner (was 66%), 27% on an iPhone (was 58%) and
+  33% at 768px (was 38%). Desktop is unchanged, and without JS a phone keeps
+  the old stack. The dead `[data-search-root]` script went with it.
 
 - [x] **Line length and one Display panel (V1 with U1).**
   Bring Study View's column to about 58–62 × `--ch` and give Reading View

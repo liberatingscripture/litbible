@@ -91,11 +91,13 @@ const headingText = !bookKey
     {
       prevHref ? (
         <a class="nav-button" href={prevHref} aria-label={`Previous: ${prevLabel}`}>
-          ◀ Previous
+          <span class="nav-button__full">◀ Previous</span>
+          <span class="nav-button__short" aria-hidden="true">‹</span>
         </a>
       ) : (
         <span class="nav-button nav-button--disabled" aria-disabled="true">
-          ◀ Previous
+          <span class="nav-button__full">◀ Previous</span>
+          <span class="nav-button__short" aria-hidden="true">‹</span>
         </span>
       )
     }
@@ -103,11 +105,13 @@ const headingText = !bookKey
     {
       nextHref ? (
         <a class="nav-button" href={nextHref} aria-label={`Next: ${nextLabel}`}>
-          Next ▶
+          <span class="nav-button__full">Next ▶</span>
+          <span class="nav-button__short" aria-hidden="true">›</span>
         </a>
       ) : (
         <span class="nav-button nav-button--disabled" aria-disabled="true">
-          Next ▶
+          <span class="nav-button__full">Next ▶</span>
+          <span class="nav-button__short" aria-hidden="true">›</span>
         </span>
       )
     }
@@ -162,5 +166,60 @@ const headingText = !bookKey
     opacity: 0.5;
     cursor: not-allowed;
     pointer-events: none;
+  }
+
+  .nav-button__short {
+    display: none;
+  }
+
+  /* Phones (audit F3): the top Previous/Next become 44px ‹ › either side of
+     the title, so the chapter starts sooner. The bottom buttons stay big.
+     Each keeps its accessible name ("Previous: Romans 7"). */
+  @media (max-width: 640px) {
+    .scripture-header {
+      position: relative;
+      margin: 6px 0 10px;
+    }
+
+    .chapter-title {
+      font-size: 28px;
+      line-height: 1.25;
+      margin: 0;
+      padding: 8px 52px;
+    }
+
+    .chapter-nav {
+      position: absolute;
+      inset: 0;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0;
+      pointer-events: none;
+    }
+
+    .nav-button {
+      pointer-events: auto;
+      width: 44px;
+      height: 44px;
+      padding: 0;
+      margin: 0;
+      border-radius: 999px;
+      font-size: 26px;
+      line-height: 1;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.18);
+    }
+
+    .nav-button--disabled {
+      visibility: hidden;
+    }
+
+    .nav-button__full {
+      display: none;
+    }
+
+    .nav-button__short {
+      display: inline;
+      margin-top: -3px;
+    }
   }
 </style>
