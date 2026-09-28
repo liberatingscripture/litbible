@@ -572,7 +572,7 @@ notice there or nowhere.
   font prints as chosen), 12pt times the Display tray's text size, with the
   header, tools bar, Previous/Next, panels and Reading View's toolbar gone.
   The footnotes stay the endnote list they are on screen, and the SBLGNT
-  notice still prints under a chapter or intro. `PrintCredit.astro` adds the
+  notice still prints after the text on all three. `PrintCredit.astro` adds the
   notice and the page's address ("litbible.net/john-3") at the end; it is a
   `hidden` element the stylesheet reveals, so no screen or screen reader ever
   meets it. Most rules are `!important` because page and component styles
@@ -701,6 +701,14 @@ checked per passage, never assumed from the passage's reputation.
 direction, a chapter footnote says so and names SBLGNT as the source text.
 Retaining or omitting non-SBLGNT material *silently* is the thing this policy
 exists to prevent.
+
+**Every page that prints the translation ends with the source-text notice**,
+`src/components/SblgntNotice.astro`, which credits the SBLGNT under its CC BY
+4.0 license: Study View chapters and intros (through `ScriptureLayout`) and
+Reading View. Reading View went without it until 2026-09-27, though it prints
+whole books; a new surface that prints scripture needs it too. The notice's
+wording and form live in that one component, so changing them (FIXLIST V5)
+changes every page at once.
 
 ### Bracketed passages
 
