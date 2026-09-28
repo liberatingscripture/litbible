@@ -274,12 +274,18 @@ off. Items the artifact lists under "Set aside" are deliberately absent.
   DONE (2026-09-26, PR #214): draft count corrected to 52, and the footnote total is no longer
   hard-coded.
 
-- [ ] **Web app manifest background and start URL (Q5).**
+- [x] **Web app manifest background and start URL (Q5).**
   `public/site.webmanifest` has `"background_color": "#ffffff"` while the
   site's page colour is cream (`--cream: #E1DFD9` in `global.css`), so an
   installed app flashes white on launch, and it has no `start_url`. Set
   `background_color` to `#E1DFD9` and add `"start_url": "/"`. The file is
   hand-maintained: `build:favicons` writes the icons, not the manifest.
+  DONE (2026-09-28): the background is cream, and the owner chose to stop the
+  site offering itself as an app instead of adding `start_url`: `display` is
+  now `browser`, so a home-screen icon opens in the browser and no browser
+  offers to install the website beside the real apps. A `start_url` would
+  have changed where a saved icon opens and may have made Android Chrome
+  offer the website as an install. See CLAUDE.md, the emblem bullet.
 
 ## Opus — one session per item
 
