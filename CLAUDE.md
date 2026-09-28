@@ -1523,6 +1523,12 @@ collection); they're read directly by the intro pages and the API manifest.
   set drifts from the source the way the previous emblem's hand-vectorized
   `favicon.svg` drifted from its raster master. The retired emblem and its icon
   set are archived in `_source-images/retired-emblem-2024/`.
+  The manifest itself, `public/site.webmanifest`, is hand-maintained (the
+  script writes its icons, not the file), and it says **`"display":
+  "browser"` on purpose** (owner, 2026-09-28): a home-screen icon opens the
+  site in the browser, and no browser offers to install the website as an app
+  beside the real iOS and Android apps. It said `standalone` until then, which
+  is what made the site installable. Don't set it back.
 - **The LSC brand mark is a different mark, mirrored from
   liberatingscripture.org.** Don't confuse it with the site emblem above: that
   one is LIT's, this one is the *organization's*. The Liberating Scripture
