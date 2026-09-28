@@ -156,8 +156,22 @@ if (headerKind === "chapter") {
             </div>
 
             <div class="scripture-tools__center" aria-label="Search the LIT">
+              {/* Phones, with JS: search starts as this button and opens in
+                  place of the row (see the script after this section). */}
+              {showToolsSearch ? (
+                <button type="button" class="tools-search-toggle" aria-label="Search" aria-expanded="false" hidden>
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
+                       stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false">
+                    <circle cx="10.5" cy="10.5" r="6.5" />
+                    <path d="M15.5 15.5 21 21" />
+                  </svg>
+                </button>
+              ) : null}
               {showToolsSearch ? (
                 <SearchBar />
+              ) : null}
+              {showToolsSearch ? (
+                <button type="button" class="tools-search-close" aria-label="Close search" hidden>×</button>
               ) : null}
             </div>
 
@@ -177,7 +191,8 @@ if (headerKind === "chapter") {
                         <path d="M19 17V5a2 2 0 0 0-2-2H4"/>
                       </svg>
                     </span>
-                    <span>Switch to Reading View</span>
+                    <span class="rvp-full">Switch to Reading View</span>
+                    <span class="rvp-short">Reading View</span>
                   </a>
                 </div>
               ) : null}
@@ -187,23 +202,44 @@ if (headerKind === "chapter") {
       )
     }
 
-    {
-      /* On /search we want the panel visible + in-flow (not dropdown).
-         This runs after hydration and simply removes the "hidden" state. */
-      isSearchPage && showToolsSearch ? (
-        <script is:inline>
-          {`
-            (() => {
-              const root = document.querySelector("[data-search-root]");
-              if (!root) return;
-              root.classList.add("is-open");
-              const panel = root.querySelector("[data-search-panel]");
-              if (panel) panel.hidden = false;
-            })();
-          `}
-        </script>
-      ) : null
-    }
+    {/* The compact phone toolbar (audit F3). Runs while the page is still
+        parsing, right after the toolbar, so the one-row layout is in place
+        before first paint and nothing shifts. Without JS phones keep the
+        stacked toolbar, whose search field works on its own. */}
+    {isScriptureLike && (showToolsReadMenu || showToolsSearch) && (
+      <script is:inline>
+          (() => {
+            const tools = document.querySelector(".scripture-layout .scripture-tools");
+            if (!tools) return;
+            tools.setAttribute("data-compact", "");
+            const toggle = tools.querySelector(".tools-search-toggle");
+            const close = tools.querySelector(".tools-search-close");
+            if (!toggle || !close) return;
+            toggle.hidden = false;
+            close.hidden = false;
+            const input = tools.querySelector(".searchbar__input");
+            const open = () => {
+              tools.setAttribute("data-search-open", "");
+              toggle.setAttribute("aria-expanded", "true");
+              input && input.focus();
+            };
+            const shut = () => {
+              if (!tools.hasAttribute("data-search-open")) return;
+              tools.removeAttribute("data-search-open");
+              toggle.setAttribute("aria-expanded", "false");
+              const bar = tools.querySelector("[data-searchbar]");
+              if (bar) bar.dataset.open = "false";
+              toggle.focus();
+            };
+            toggle.addEventListener("click", open);
+            close.addEventListener("click", shut);
+            tools.addEventListener("keydown", (e) => {
+              if (e.key === "Escape") shut();
+            });
+          })();
+      </script>
+    )}
+
 
     <div
       class="scripture-main"

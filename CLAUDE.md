@@ -1663,6 +1663,18 @@ collection); they're read directly by the intro pages and the API manifest.
   every resize of the text until the reader scrolls, touches, clicks or types.
   Don't make that first landing smooth again: this replaced it after the owner
   saw the switch land "at random places within the book" (2026-09-27).
+- **On a phone, Study View's toolbar is one row** (audit F3, owner
+  2026-09-28). At 640px and below the passage picker, a search button and an
+  icon-only Reading View link share one 44px row; search opens in place of the
+  row, and its × or Escape closes it and returns focus to the button. The top
+  Previous/Next become ‹ › beside the title and keep their names ("Previous:
+  Romans 7"); the big buttons at the foot stay. Tablets (641–900px) get one
+  row with a short "Reading View" label. The one-row layout hangs off
+  `data-compact`, which an inline script in `ScriptureLayout.astro` sets
+  while the page is still parsing, right after the toolbar, so it is in place
+  before first paint. **Keep that script inline**: a bundled module runs after
+  first paint, and the whole toolbar would visibly jump. Without JS a phone
+  keeps the stacked toolbar, whose search field works on its own.
 - **Chapter navigation is prefetched, never prerendered.** `ScriptureLayout`
   carries speculation rules that prefetch the Previous/Next buttons' and the
   bottom chapter links' targets at `moderate` eagerness. Don't upgrade it to
