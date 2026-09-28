@@ -1,0 +1,20 @@
+---
+// Printed pages only. `hidden` keeps it off every screen and out of the
+// accessibility tree; print.css shows it on paper. A sheet handed out on its
+// own then still says what it is, whose license it is under, and where the
+// rest of the text lives. Used by chapter and intro pages (ScriptureLayout)
+// and Reading View.
+import { LIT_CREDIT_LINE, printableUrl } from "../lib/lit-credit.mjs";
+
+interface Props {
+  /** The page's absolute URL, printed without its scheme. */
+  url?: string;
+}
+
+const { url } = Astro.props;
+---
+
+<div class="print-credit" hidden data-pagefind-ignore>
+  <p>{LIT_CREDIT_LINE}</p>
+  {url && <p>{printableUrl(url)}</p>}
+</div>

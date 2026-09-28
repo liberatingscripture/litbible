@@ -1,0 +1,204 @@
+/* =========================================================
+   Print (FIXLIST U5)
+
+   A printed page is the text and its notes, black on white, with the credit
+   the license asks for. Everything that only works on a screen goes: the
+   header and footer, the tools bar, Previous/Next, the panels, Reading View's
+   toolbar. Imported by Layout.astro after global.css, so it reaches every
+   page, and nothing here applies on screen.
+
+   Rules are !important where a page or component stylesheet, bundled after
+   this one, would otherwise win on source order at equal specificity.
+
+   What stays on paper, deliberately:
+   - Verse numbers and footnote letters, unless the reader turned them off in
+     the Display tray, which a printout follows like the screen does.
+   - The footnotes, as the endnote list they already are, each with its letter.
+   - The SBLGNT source notice under a chapter or intro: the Greek text's
+     license asks for it.
+   - The reader's text size (as a multiple of 12pt) and accessibility font.
+     The default fonts print in the site's serif.
+   ========================================================= */
+
+@page {
+  margin: 2cm 2.2cm;
+}
+
+@media print {
+  /* Black on white whatever the theme. A dark-theme page otherwise prints its
+     light text on white paper, since browsers drop backgrounds by default. */
+  *,
+  *::before,
+  *::after {
+    color: #000 !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  ::highlight(lit-verse-range),
+  ::highlight(lit-verse-select) {
+    background-color: transparent;
+    color: inherit;
+  }
+
+  /* Screen-only chrome. */
+  .skip-link,
+  .litab,
+  .site-header,
+  .font-tray,
+  .menu-overlay,
+  .scripture-tools,
+  .chapter-nav,
+  .chapter-ctas,
+  .back-to-top,
+  .site-footer,
+  .footer-license-band,
+  .applaunch-dialog,
+  .lit-panel,
+  .lit-clear-chip,
+  .continue-reading,
+  .rm-toolbar,
+  .rm-fab,
+  .rm-resume-chip,
+  .rm-draft-stub a,
+  .draft-page__links {
+    display: none !important;
+  }
+
+  /* The default fonts print in the site's serif. An accessibility font the
+     reader chose (html[data-font]) prints as chosen. */
+  html:not([data-font]) body,
+  html:not([data-font]) body * {
+    font-family: "Crimson Text", "Crimson Fallback", Georgia, "Times New Roman",
+      serif !important;
+  }
+
+  /* Links print as their text; a URL on paper is only useful in the credit.
+     Verse numbers lose their dotted "tappable" underline for the same reason. */
+  a,
+  a:visited,
+  sup.vn {
+    color: inherit !important;
+    text-decoration: none !important;
+  }
+
+  /* The reading surfaces fill the page's text block. Their size follows the
+     Display tray, 12pt at the default. */
+  .scripture-main,
+  .rm-page .rm-reader {
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    font-size: calc(12pt * var(--reading-scale, 1)) !important;
+  }
+
+  /* .rm-page sizes itself short of the viewport for a screen gutter, and a
+     sheet of paper is narrow enough to trip its phone-width rule. */
+  .scripture-layout,
+  .rm-page,
+  main {
+    width: auto !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* The screen's 1.75 leading runs a chapter onto extra sheets. The reader's
+     "Roomy" setting still adds its extra. */
+  .scripture-main p,
+  .rm-page .rm-reader p {
+    line-height: calc(1.45 + var(--reading-leading-extra, 0)) !important;
+  }
+
+  /* A verse number or footnote letter would otherwise open up the gap above
+     its own line, leaving the spacing uneven down the page. */
+  .scripture-main sup,
+  .rm-page .rm-reader sup {
+    line-height: 0 !important;
+  }
+
+  .chapter-title,
+  .rm-page .rm-title {
+    font-size: 20pt !important;
+    margin: 0 0 12pt !important;
+  }
+
+  .rm-page .rm-chapter {
+    font-size: 14pt !important;
+    margin: 16pt 0 6pt !important;
+  }
+
+  /* Focus mode dims every paragraph but one; paper shows them all. */
+  .rm-page .rm-reader * {
+    opacity: 1 !important;
+  }
+
+  /* Keep a line from being stranded, a heading from ending a page, and a
+     quotation set as poetry from splitting across two. A footnote may break:
+     some run half a page, and holding one whole left that much blank. */
+  p,
+  li {
+    orphans: 3;
+    widows: 3;
+  }
+
+  h1,
+  h2,
+  h3,
+  .rm-page .rm-chapter {
+    break-after: avoid;
+  }
+
+  blockquote,
+  figure,
+  img {
+    break-inside: avoid;
+  }
+
+  img {
+    max-width: 100% !important;
+  }
+
+  .footnotes-wrap {
+    font-size: 0.9em;
+    margin-top: 18pt !important;
+  }
+
+  .footnotes li {
+    line-height: 1.4 !important;
+  }
+
+  .scripture-disclaimer {
+    margin-top: 12pt !important;
+    padding: 0 !important;
+    break-inside: avoid;
+  }
+
+  .scripture-disclaimer__inner {
+    width: auto !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .scripture-disclaimer__inner p {
+    font-size: 8.5pt !important;
+    line-height: 1.35 !important;
+    margin: 0 0 3pt !important;
+  }
+
+  /* PrintCredit.astro: hidden on screen by its attribute. */
+  .print-credit[hidden] {
+    display: block !important;
+    margin-top: 18pt;
+    padding-top: 8pt;
+    border-top: 0.5pt solid #000;
+    font-size: 9pt;
+    break-inside: avoid;
+  }
+
+  .print-credit p {
+    margin: 0 0 3pt;
+  }
+}

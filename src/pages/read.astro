@@ -1,6 +1,7 @@
 ---
 // src/pages/read.astro
 import ReadLayout from "../layouts/ReadLayout.astro";
+import { LIT_CREDIT_LINE } from "../lib/lit-credit.mjs";
 import "../styles/pages/read.css";
 import releaseNotes from "../data/release-notes.json";
 import { BOOK_ORDER, bookKeyToLabel } from "../data/books.js";
@@ -254,9 +255,7 @@ const TYPE_LABEL: Record<string, string> = {
                   scripture verses they reference.
                 </li>
                 <li>
-                  The work includes the following attribution notice: "Scripture
-                  and footnote quotations are from the LIT Bible (litbible.net),
-                  used by permission under CC BY-NC-ND 4.0."
+                  The work includes the following attribution notice: "{LIT_CREDIT_LINE}"
                 </li>
               </ol>
 

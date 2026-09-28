@@ -3,6 +3,7 @@ import Layout from "../../layouts/Layout.astro";
 import { BOOKS, BOOK_ORDER, bookKeyToLabel } from "../../data/books.js";
 import ReadMenu from "../../components/ReadMenu.astro";
 import SearchBar from "../../components/SearchBar.astro";
+import PrintCredit from "../../components/PrintCredit.astro";
 import "../../styles/scripture-tools.css";
 import "../../styles/read-mode.css";
 import readModeScript from "../../scripts/read-mode.js?url";
@@ -102,6 +103,7 @@ const allChaptersDraft =
 
 const title = `${bookName} (Reading Mode) | Liberation and Inclusion Translation`;
 const description = `Read ${bookName} in continuous scroll with Reading Mode.`;
+const pageUrl = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : "";
 ---
 
 <Layout
@@ -308,6 +310,8 @@ const description = `Read ${bookName} in continuous scroll with Reading Mode.`;
           )
         }
       </div>
+
+      <PrintCredit url={pageUrl} />
     </article>
   </section>
 
