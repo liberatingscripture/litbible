@@ -1007,7 +1007,7 @@ Details for each item are in the artifact (https://claude.ai/artifact/4ghJK72rd2
   credit line and address at the end) and a "Copy for a handout" verse-menu
   action. The owner decides whether ordinary Copy verse should also carry
   the verse link.
-  DONE (2026-09-27): `src/styles/print.css` prints a chapter, an intro or a
+  DONE (2026-09-27, PR #223): `src/styles/print.css` prints a chapter, an intro or a
   whole Reading View book black on white in Crimson Text (or the reader's
   accessibility font), at 12pt times the Display tray's text size, with the
   site chrome, Previous/Next and the panels gone and the footnotes kept as the
