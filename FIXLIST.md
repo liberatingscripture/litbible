@@ -1108,8 +1108,13 @@ Details for each item are in the artifact (https://claude.ai/artifact/4ghJK72rd2
   "Make an image" in the verse and selection menus, drawn in the browser in
   the share-card design (square and story sizes, carrying litbible.net).
 
-- [ ] **Copy link beside each glossary entry (Q4).**
+- [x] **Copy link beside each glossary entry (Q4).**
   The anchors exist (`/glossary#<id>`) but nothing shows how to share one.
+  DONE (2026-09-28): a link icon beside each entry heading, outside the h2 so
+  the heading's name and the Pagefind index are unchanged. Without JS it is an
+  ordinary link to the entry; with JS a click copies the full address, shows a
+  check for two seconds and says so to a screen reader
+  (`src/scripts/glossary-entry-links.js`). Hidden in print.
 
 ## Fable — one session each, owner in the loop
 
