@@ -1571,8 +1571,9 @@ collection); they're read directly by the intro pages and the API manifest.
   edit (paragraphs and footnotes byte-identical, `title`/`description`/`topics`
   moved) emits nothing too (owner, 2026-09-27): it used to collapse to a
   "metadata updated" row, but a topics retag tells a reader nothing about the
-  translation. `metadata_updated` survives only in the feed's older entries,
-  which is why the apps and the release notes page still know the type.
+  translation. The feed's two older rows of that type were removed the same
+  day, so none remain; the apps and the release notes page still know the
+  type, which costs nothing and keeps them safe if one ever reappears.
   Modified intros/glossary/articles are likewise compared with HTML
   attributes and whitespace normalized away, so a mechanical edit (e.g.
   stripping `target="_blank"` from a link) produces no changelog entry.

@@ -351,10 +351,6 @@
           "bookKey": "luke",
           "chapter": 22
         }
-      },
-      {
-        "type": "metadata_updated",
-        "description": "Metadata updated (6 chapters)"
       }
     ]
   },
@@ -4384,10 +4380,6 @@
         "type": "footnote_updated",
         "description": "1 Corinthians 2:3 — footnote g updated",
         "detail": "fn. g (v. 3): \"\"in weakness (astheneia) and in fear (phobos) and in much t…\" → \"“in weakness (astheneia) and in fear (phobos) and in much t…\""
-      },
-      {
-        "type": "metadata_updated",
-        "description": "Philippians 2 — metadata updated"
       }
     ]
   },
