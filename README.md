@@ -47,6 +47,7 @@ npm run dev        # start the dev server at http://localhost:4321
 | `npm test` | Run the unit test suite |
 | `npm run check:links` | Verify every internal link in a production build resolves |
 | `npm run build:favicons` | Regenerate the favicon and app-icon set from the emblem SVGs (only needed when the logo changes) |
+| `npm run build:apps-qr` | Regenerate the QR code the app announcement shows on a computer (only needed if its address changes) |
 | `npm run build:alignment` | Rescan the text for glossary-term renderings (only needed when the text or the glossary changes) |
 | `npm run review:alignment` | Open the local review tool for that dataset (see below) |
 | `npm run audit:alignment` | Check that reviewed alignment records still match the text (run after editing chapters) |

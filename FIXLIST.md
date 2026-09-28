@@ -1736,12 +1736,20 @@ need a mockup or a side-by-side the owner looks at before code.
 
 Details for each item are in the artifact (https://claude.ai/artifact/4ghJK72rd2thnCX2mdmXkZ); the IDs match.
 
-- [ ] **App promotion rules (F5, the rest).**
+- [x] **App promotion rules (F5, the rest).**
   The privacy paragraph shipped in Phase 1 (2026-09-26). Still to decide: no launch modal on phones, where a banner already makes the pitch;
   no modal on chapter or Reading View pages; a QR code beside the desktop
   button; and one shared dismissal for the modal and the Android banner.
   (Phase 1 also widened the O3 verse-link guard to ranges, part links and
   Reading View verses, which enforces the existing rule.)
+  DONE (2026-09-28, PR #231), as the owner decided at the Phase 3 checkpoint. "Not
+  over scripture" became a rule for every announcement, and the rules every
+  announcement shares moved into `src/scripts/announcement-gate.js`
+  (`shouldAnnounce`), which the retired WelcomePopover now calls too. The
+  phone rule was declined, so the app announcement still opens on phones, and
+  in its place the modal and the Android banner share one dismissal: each reads
+  the other's flag, so nothing new is stored and the privacy page stands. On a
+  computer the modal shows a QR code to /apps (`npm run build:apps-qr`).
 
 - [x] **/read copy once F1 ships (Q3, second half).**
   DONE (2026-09-27, PR #216): no rewording needed. With F1, the references in Study

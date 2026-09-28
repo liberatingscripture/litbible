@@ -4,6 +4,11 @@
  * offering the LIT Bible app on Google Play. Android mobile browsers only:
  * hidden on iOS and desktop, and gone once dismissed (localStorage).
  *
+ * One dismissal with the app announcement (AppsLaunchPopover.astro, audit F5):
+ * the banner also stays down once that announcement has been closed (its
+ * cookie, lit_apps_launch_v1), and the announcement reads this banner's key.
+ * Each only reads the other's flag, so neither stores anything new.
+ *
  * iOS is handled separately by Apple's Smart App Banner (the apple-itunes-app
  * <meta> tag in Layout.astro), which can hand an already-installed app the
  * current page — something a web page can neither detect nor do. No equivalent
@@ -33,6 +38,7 @@
   (function () {
     var KEY = "lit_app_banner_dismissed";
     try { if (localStorage.getItem(KEY) === "1") return; } catch (e) {}
+    if (document.cookie.split("; ").some(function (c) { return c.indexOf("lit_apps_launch_v1=") === 0; })) return;
     if (!/Android/i.test(navigator.userAgent || "")) return;
     var b = document.getElementById("lit-app-banner");
     if (!b) return;

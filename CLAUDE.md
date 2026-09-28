@@ -83,6 +83,8 @@ npm run build:favicons    # Regenerate the favicon/touch/manifest icons from the
                           #   (on demand only — outputs are committed, not built)
 npm run build:bracket-font # Regenerate public/fonts/bracket-markers.otf (the ⟦/⟧ glyph patch)
                           #   (on demand only — output is committed, not built)
+npm run build:apps-qr     # Regenerate public/images/apps-qr.svg, the app announcement's QR code
+                          #   (on demand only — output is committed, not built)
 npm run build:alignment   # Rescan the text for glossary-term renderings (src/data/alignment/)
                           #   (on demand only — output is committed and carries review state)
 npm run review:alignment  # Localhost review tool for that dataset (see below). Needs the
@@ -307,6 +309,7 @@ the sitemap filter live in `astro.config.mjs`.
 | `build-og-images.mjs` | `public/og/` — per-chapter/intro share cards (fonts in `scripts/og/fonts/`). |
 | `build-favicons.mjs` | Favicon/touch/manifest icons from the emblem SVGs. **Not** in the build — run by hand when the emblem changes. |
 | `build-bracket-marker-font.mjs` | `public/fonts/bracket-markers.otf` — subsets the ⟦/⟧ disputed-passage glyphs out of Noto Sans Math, since the site's own webfonts are Latin-only. **Not** in the build — run by hand if the source glyphs ever change. See "Bracketed passages" below. |
+| `build-apps-qr.mjs` | `public/images/apps-qr.svg` — the QR code the app announcement shows on a computer, pointing at `https://litbible.net/apps/` with no tracking parameter. Uses `qrcode-generator` (MIT, no dependencies), a devDependency used only by this script. **Not** in the build — run by hand if the address ever changes. |
 | `build-alignment.mjs` | `src/data/alignment/` — scans published chapters for glossary-term renderings, then checks each against MorphGNT. **Not** in the build; its output is committed and merges with prior human review. See The Alignment Dataset below. |
 | `alignment-review/server.mjs` | `npm run review:alignment` — the localhost review UI (`store.mjs` = fs + corpus, `review-core.mjs` = pure logic *also served to the browser*, `ui/` = vanilla HTML/CSS/JS). Node builtins only, no deps. |
 | `audit-alignment.mjs` | fs/CLI shell: re-checks every *decided* alignment record against the current scripture text. **Not** in the build or CI — run by hand after editing chapters. Delegates the check to `lib/alignment-audit-core.mjs`. |
@@ -1278,11 +1281,11 @@ collection); they're read directly by the intro pages and the API manifest.
   `public/api/`, `public/og/`, `public/search/topics.json`,
   `public/search/verses.json`, `public/search/chapters/`, `public/topics-index.json`,
   `public/glossary.json`, `dist/`, `.astro/`.
-  Don't hand-edit them. Three generators are deliberately **outside** this rule
+  Don't hand-edit them. Four generators are deliberately **outside** this rule
   because their output is committed and hand-maintained — `build:favicons`
-  (icons), `build:alignment` (review state), and `build:bracket-font`
-  (`public/fonts/bracket-markers.otf`); none of the three runs in
-  `npm run build`.
+  (icons), `build:alignment` (review state), `build:bracket-font`
+  (`public/fonts/bracket-markers.otf`), and `build:apps-qr`
+  (`public/images/apps-qr.svg`); none of the four runs in `npm run build`.
 - **No client JS framework**, but `src/scripts/` *does* hold vanilla JS for
   progressive enhancement (verse highlighting/menus, footnote popovers, reading
   mode, search). Everything must degrade gracefully without JS.
@@ -1772,15 +1775,30 @@ collection); they're read directly by the intro pages and the API manifest.
   (`WelcomePopover.astro` is the retired Collective announcement) — so a past
   one can be brought back by swapping the import back. Two rules for any
   replacement: (1) give it a **fresh cookie name**, or everyone who dismissed
-  the previous announcement never sees the new one; (2) carry over the show
-  gating — 2nd-or-later pageview via the `lit_pv` sessionStorage counter, plus
-  the verse-deep-link guard, which covers every link a reader can share into
-  scripture (`#v16`, a range `#v16-17`, a part anchor `#john-8-p9`, a Reading
-  View verse `#john-3-v16`) — which exists to avoid Google's
-  intrusive-interstitial penalty on search-landing pages (FIXLIST O3, an owner
-  decision). The popover also suppresses itself on a small path allowlist
-  (`SUPPRESSED_PATHS`): `/apps`, its own CTA destination, and `/privacy`, which
-  people open to read terms rather than to be pitched to.
+  the previous announcement never sees the new one; (2) gate it with
+  **`shouldAnnounce`** from `src/scripts/announcement-gate.js`, which holds the
+  rules every announcement shares, whatever it is about:
+  1. never on a session's first pageview (the `lit_pv` sessionStorage
+     counter), which with the next rule exists to avoid Google's
+     intrusive-interstitial penalty on search-landing pages (FIXLIST O3, an
+     owner decision);
+  2. never on a link shared into scripture (`#v16`, a range `#v16-17`, a part
+     anchor `#john-8-p9`, a Reading View verse `#john-3-v16`);
+  3. never on `/apps`, its own CTA destination, or `/privacy`, which people
+     open to read terms rather than to be pitched to (`SUPPRESSED_PATHS`);
+  4. **never over scripture**: a Study View chapter or intro, or Reading View
+     (owner, 2026-09-28). A reader who chose a passage came to read it. An
+     announcement can opt out with `{ overScripture: true }`.
+  What belongs to one announcement stays in its component, passed to the gate
+  as `skip` or kept in its own markup, so the slot never learns about apps.
+  The app announcement adds two such rules (owner, 2026-09-28). It shares one
+  dismissal with the Android banner (`AppInstallBanner.astro`): each reads the
+  other's flag, the cookie one way and `lit_app_banner_dismissed` the other,
+  so closing either retires both without storing anything new. And on a
+  computer it shows a QR code to `/apps` (`public/images/apps-qr.svg`, from
+  `npm run build:apps-qr`), hidden on a phone or tablet by the same OS check
+  (`isAppPlatform`) and lazy-loaded so a closed dialog never fetches it. It
+  does show on phones: the owner declined a "not on phones" rule.
 - **The /apps mirror: litbible is upstream for the LSC site.**
   `liberatingscripture.org/apps` is the same page, and these files are kept
   **byte-for-byte identical** in both repos at the same paths: everything under
