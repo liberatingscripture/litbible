@@ -1020,9 +1020,9 @@ Details for each item are in the artifact (https://claude.ai/artifact/4ghJK72rd2
   which /read's license terms read as well. The owner's question needed no
   decision: Copy verse already carried the verse link, which is what the
   license's social-media clause asks for.
-  Follow-up, still open below: Reading View has no SBLGNT notice.
+  Follow-up below: Reading View's SBLGNT notice, since added.
 
-- [ ] **Reading View carries no SBLGNT source notice.**
+- [x] **Reading View carries no SBLGNT source notice.**
   Chapter and intro pages end with the notice crediting the SBLGNT, whose CC
   BY 4.0 license asks for attribution. `/read/<book>` has none, on screen or
   on paper, though it prints a whole book at once. The notice is written
@@ -1030,6 +1030,12 @@ Details for each item are in the artifact (https://claude.ai/artifact/4ghJK72rd2
   fix is a component both render. It adds visible text under Reading View's
   last chapter, so it is a design call as well as a license one. Found while
   adding the print credit (U5).
+  DONE (2026-09-27, PR #223): the owner wants it on screen. The notice moved,
+  word for word and with its styles, into `src/components/SblgntNotice.astro`,
+  which ScriptureLayout and Reading View both render. It closes Reading View
+  as a full-width band under the last chapter, as it does in Study View, and
+  prints there too. V5 (the notice's form) stays open, and a change to it now
+  reaches every page through the one component.
 
 - [ ] **Keyboard shortcuts (U4).**
   Arrow keys (or `[` and `]`) for previous and next chapter, `/` to
