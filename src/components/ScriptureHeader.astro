@@ -90,7 +90,7 @@ const headingText = !bookKey
   <nav class="chapter-nav" aria-label="Chapter navigation">
     {
       prevHref ? (
-        <a class="nav-button" href={prevHref} aria-label={`Previous: ${prevLabel}`}>
+        <a class="nav-button" href={prevHref} rel="prev" aria-label={`Previous: ${prevLabel}`}>
           <span class="nav-button__full">◀ Previous</span>
           <span class="nav-button__short" aria-hidden="true">‹</span>
         </a>
@@ -104,7 +104,7 @@ const headingText = !bookKey
 
     {
       nextHref ? (
-        <a class="nav-button" href={nextHref} aria-label={`Next: ${nextLabel}`}>
+        <a class="nav-button" href={nextHref} rel="next" aria-label={`Next: ${nextLabel}`}>
           <span class="nav-button__full">Next ▶</span>
           <span class="nav-button__short" aria-hidden="true">›</span>
         </a>

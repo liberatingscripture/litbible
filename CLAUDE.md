@@ -211,7 +211,10 @@ src/
                      #   lit-panel, the one floating panel every reader tool
                      #   shares; ref-preview, scripture reference previews;
                      #   last-read + continue-reading, "Continue reading";
-                     #   term-lens, the Study View term underline and card)
+                     #   term-lens, the Study View term underline and card;
+                     #   header-search, the header's search strip;
+                     #   keyboard-shortcuts; glossary-entry-links, the
+                     #   copy-link buttons on /glossary)
   styles/            # global.css, read-mode.css, scripture-tools.css, articles.css,
                      #   pages/<page>.css (per-page stylesheets)
 scripts/             # BUILD/validation Node scripts (.mjs) — see below
@@ -1773,6 +1776,19 @@ collection); they're read directly by the intro pages and the API manifest.
   before first paint. **Keep that script inline**: a bundled module runs after
   first paint, and the whole toolbar would visibly jump. Without JS a phone
   keeps the stacked toolbar, whose search field works on its own.
+- **Keyboard shortcuts** (`src/scripts/keyboard-shortcuts.js`, audit U4, owner
+  2026-09-28): `/` search, `g` Go to passage, and ← → or `[` `]` for the
+  previous and next chapter (Study View's top Previous/Next, found by their
+  `rel="prev"` / `rel="next"`, or the neighbouring `#ch-N` in Reading View).
+  They are on by default, with a Keyboard switch in the Display tray
+  (`localStorage['lit-shortcuts'] = 'off'`; no attribute on `<html>`, since
+  nothing renders differently). **The switch is required, not a nicety**:
+  single-key shortcuts fire when a speech-recognition user dictates a word
+  (WCAG 2.1.4). They stand down while the reader is typing or working a control
+  that owns those keys (a radio group, a menu, a grid, a dialog, the picker's
+  popover), whenever Ctrl, Alt or Cmd is held, and the arrows also stand down
+  whenever the page scrolls sideways, which is how someone zoomed in reads
+  along a line.
 - **Chapter navigation is prefetched, never prerendered.** `ScriptureLayout`
   carries speculation rules that prefetch the Previous/Next buttons' and the
   bottom chapter links' targets at `moderate` eagerness. Don't upgrade it to
