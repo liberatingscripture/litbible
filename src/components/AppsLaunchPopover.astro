@@ -1,13 +1,21 @@
 ---
 // AppsLaunchPopover — announces the iOS + Android app release. Shown once per
-// visitor (cookie lit_apps_launch_v1, 30-day expiry), and only from the 2nd
-// pageview of a session so it never fires on a search entrance. This is the
-// site's single active announcement slot: Layout renders exactly one popover
-// component, and retired ones (see WelcomePopover.astro) stay in the repo
-// unimported so a past announcement can be brought back by swapping the
-// import in Layout.astro.
+// visitor (cookie lit_apps_launch_v1, 30-day expiry), under the rules every
+// announcement shares (src/scripts/announcement-gate.js: never on a session's
+// first pageview, a shared verse link, /apps or /privacy, or over scripture).
+// This is the site's single active announcement slot: Layout renders exactly
+// one popover component, and retired ones (see WelcomePopover.astro) stay in
+// the repo unimported so a past announcement can be brought back by swapping
+// the import in Layout.astro.
+//
+// Its own rules, which belong to this announcement and not to the slot:
+//   - one dismissal with the Android app banner (AppInstallBanner.astro):
+//     closing either one retires both
+//   - a QR code on a computer only, pointing at /apps
+//     (public/images/apps-qr.svg, from npm run build:apps-qr)
 import PlatformIcon from "./apps/PlatformIcon.astro";
 import AppIcons from "./apps/AppIcons.astro";
+
 ---
 
 <dialog
@@ -104,6 +112,21 @@ import AppIcons from "./apps/AppIcons.astro";
     </ul>
 
     <div class="applaunch-ctas">
+      {/* On a computer, the phone it is about can reach /apps by camera. The
+          script hides it on a phone or tablet; loading="lazy" means a closed
+          dialog, or a hidden code, never fetches it. */}
+      <div class="applaunch-qr">
+        <img
+          class="applaunch-qr__code"
+          src="/images/apps-qr.svg"
+          width="132"
+          height="132"
+          alt=""
+          loading="lazy"
+          decoding="async"
+        />
+        <p class="applaunch-qr__label">Scan to get the app on your phone</p>
+      </div>
       <a href="/apps" class="applaunch-cta-primary">Get the app</a>
     </div>
   </div>
@@ -290,9 +313,38 @@ import AppIcons from "./apps/AppIcons.astro";
   .applaunch-ctas {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.75rem;
+    gap: 0.75rem 1.25rem;
     justify-content: center;
+    align-items: center;
     width: 100%;
+  }
+
+  /* The QR code keeps a white tile in both themes, since a camera needs dark
+     modules on light; the SVG carries its own quiet zone. */
+  .applaunch-qr {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-align: left;
+  }
+
+  .applaunch-qr__code {
+    display: block;
+    flex: none;
+    background: #fff;
+    border-radius: 8px;
+    border: 1px solid rgba(var(--ink-rgb, 29, 35, 28), 0.12);
+  }
+
+  .applaunch-dialog[data-app-platform] .applaunch-qr {
+    display: none;
+  }
+
+  .applaunch-qr__label {
+    margin: 0;
+    max-width: 11rem;
+    font-size: 0.9rem;
+    line-height: 1.4;
   }
 
   .applaunch-cta-primary {
@@ -321,18 +373,20 @@ import AppIcons from "./apps/AppIcons.astro";
 </style>
 
 <script>
+  import { shouldAnnounce, isAppPlatform } from "../scripts/announcement-gate.js";
+
   const COOKIE_NAME = "lit_apps_launch_v1";
   const COOKIE_DAYS = 30;
+  // The Android banner's own dismissal (AppInstallBanner.astro, which reads
+  // this announcement's cookie the same way). One dismissal covers both.
+  const BANNER_KEY = "lit_app_banner_dismissed";
 
-  function getCookie(name: string): string | null {
-    const match = document.cookie.match(
-      new RegExp(
-        "(?:^|; )" +
-          name.replace(/([.*+?^=!:${}()|[\]/\\])/g, "\\$1") +
-          "=([^;]*)",
-      ),
-    );
-    return match ? decodeURIComponent(match[1]) : null;
+  function bannerDismissed() {
+    try {
+      return localStorage.getItem(BANNER_KEY) === "1";
+    } catch (_) {
+      return false;
+    }
   }
 
   function setCookie(name: string, value: string, days: number) {
@@ -343,6 +397,9 @@ import AppIcons from "./apps/AppIcons.astro";
   function dismissAndSet() {
     if (dialog.classList.contains("is-closing")) return;
     setCookie(COOKIE_NAME, "1", COOKIE_DAYS);
+    // The banner reads the cookie on the next page; take it down on this one.
+    const banner = document.getElementById("lit-app-banner");
+    if (banner) banner.hidden = true;
     dialog.classList.add("is-closing");
     setTimeout(() => dialog.close(), 250);
   }
@@ -351,26 +408,13 @@ import AppIcons from "./apps/AppIcons.astro";
     "apps-launch-popover",
   ) as HTMLDialogElement;
 
-  let pageviews = 1;
-  try {
-    pageviews = (parseInt(sessionStorage.getItem("lit_pv") || "0", 10) || 0) + 1;
-    sessionStorage.setItem("lit_pv", String(pageviews));
-  } catch (_) { /* storage unavailable → treat as first pageview */ }
+  // The rules every announcement shares live in announcement-gate.js; this
+  // one adds the shared dismissal with the Android banner (audit F5).
+  const eligible = shouldAnnounce({ cookie: COOKIE_NAME, skip: bannerDismissed });
 
-  // Never on a session entrance (a modal on a search-landing page is exactly
-  // what Google's intrusive-interstitial penalty targets), never on a shared
-  // verse deep link, and never on /apps (the CTA's own destination) or
-  // /privacy (a page people open to read terms, not to be pitched to).
-  const SUPPRESSED_PATHS = /^\/(apps|privacy)\/?$/;
-  // Every link a reader can share into scripture counts: a verse (#v16), a
-  // range (#v16-17, from Copy verses and selection sharing), part of a verse
-  // (#john-8-p9) and a Reading View verse (#john-3-v16).
-  const isVerseDeepLink =
-    /^#(?:v\d+(?:-\d+)?|[0-9a-z]+-\d+-[pv]\d+)$/.test(location.hash);
-  const isSuppressedPath = SUPPRESSED_PATHS.test(location.pathname);
-  const eligible = !isVerseDeepLink && !isSuppressedPath && pageviews >= 2;
-
-  if (dialog && !getCookie(COOKIE_NAME) && eligible) {
+  if (dialog && eligible) {
+    // A QR code is for a computer; on a phone or tablet the button is the way.
+    if (isAppPlatform()) dialog.dataset.appPlatform = "";
     // Open once the main thread is idle so the page's load-time long tasks
     // (fonts, header scripts) finish first. The popover forces an immediate
     // first interaction (the close click); opening it before those tasks
