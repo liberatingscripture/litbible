@@ -115,6 +115,7 @@ const pageUrl = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : "";
   pagefindIndex={false}
   robotsNoindex={allChaptersDraft}
   scriptureControls="read"
+  pageSearch
 >
   <Fragment slot="head">
     <script type="application/ld+json" set:html={JSON.stringify({

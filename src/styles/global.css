@@ -724,32 +724,39 @@ body:has(.site-header--green) .skip-link {
    Accessibility font toggle + tray
    ========================================================= */
 
-/* Desktop: Aa floats below READ NOW, out of flow so nav height is unchanged */
+/* Desktop: search and Aa float below READ NOW, out of flow so nav height is
+   unchanged */
 .site-nav__cta-item {
   position: relative;
 }
 
-.site-header__font-toggle--nav {
+.site-header__nav-tools {
   position: absolute;
   top: calc(100% + 28px);
   right: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-/* Mobile: hide nav Aa; actions Aa stays in normal flow (left of hamburger) */
+/* Mobile: hide the nav's pair; the actions pair stays in normal flow (left of
+   the hamburger) */
 @media (max-width: 1100px) {
-  .site-header__font-toggle--nav {
+  .site-header__nav-tools {
     display: none;
   }
 }
 
-/* Desktop: hide actions Aa — specificity 020 beats base rule 010 */
+/* Desktop: hide the actions pair — specificity 020 beats base rule 010 */
 @media (min-width: 1101px) {
-  .site-header__actions .site-header__font-toggle--actions {
+  .site-header__actions .site-header__font-toggle--actions,
+  .site-header__actions .site-header__search--actions {
     display: none;
   }
 }
 
-.site-header__font-toggle {
+.site-header__font-toggle,
+.site-header__search {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -772,14 +779,85 @@ body:has(.site-header--green) .skip-link {
 /* Standard hover: solid green fill with the label flipping to the paired fg
    (white light / dark ink dark), matching the ReadMenu picker and the read-mode
    toolbar/chip. Keyboard focus uses the global green :focus-visible ring. */
-.site-header__font-toggle:hover {
+.site-header__font-toggle:hover,
+.site-header__search:hover {
   background: var(--green-text);
   color: var(--on-green-fill);
   border-color: transparent;
 }
 
-.site-header__font-toggle:focus:not(:focus-visible) {
+.site-header__font-toggle:focus:not(:focus-visible),
+.site-header__search:focus:not(:focus-visible) {
   outline: none;
+}
+
+/* The search icon (audit U6): a square version of the Aa tile beside it */
+.site-header__search {
+  padding: 0 9px;
+  text-decoration: none;
+}
+
+/* The strip it opens, under the header's top row. A raised band of its own,
+   so the default focus ring and text colours hold on the green home header
+   too. While it's open the header stacks above the page, so the results tray
+   (inside the header) isn't painted under a sticky element further down. */
+.site-header__search-strip {
+  background: var(--surface-raised);
+  border-top: 1px solid rgba(var(--ink-rgb), 0.12);
+  border-bottom: 1px solid rgba(var(--ink-rgb), 0.12);
+  padding: 12px var(--gutter);
+}
+
+.site-header:has(.site-header__search-strip:not([hidden])) {
+  z-index: 1000;
+}
+
+.site-header__search-inner {
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.site-header__search-inner .searchbar {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.site-header__search-close {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.site-header__search-close:hover {
+  background: rgba(var(--ink-rgb), 0.08);
+}
+
+/* Under 360px the short title and three header buttons don't fit (the title
+   ran 20–36px into them at 320px), so the icon gives way to a Search item in
+   the phone menu. The title keeps its size, per the "buy back space" rule. */
+.menu-overlay__nav a.menu-overlay__search {
+  display: none;
+}
+
+@media (max-width: 359px) {
+  .site-header__actions .site-header__search--actions {
+    display: none;
+  }
+
+  .menu-overlay__nav a.menu-overlay__search {
+    display: revert;
+  }
 }
 
 
@@ -1062,6 +1140,7 @@ body:has(.site-header--green) .skip-link {
 
 @media (prefers-reduced-motion: reduce) {
   .site-header__font-toggle,
+  .site-header__search,
   .font-tray__font-option,
   .font-tray__check,
   .font-tray__seg-text,
@@ -1243,7 +1322,13 @@ html.menu-open .site-header__menu-toggle .menu-icon::after {
   /* IMPORTANT: animatable hidden state (no display:none) */
   display: flex;
   align-items: center;
+  /* When the links are taller than the screen (a short phone, or any phone
+     held sideways), start at the top and scroll, rather than centring and
+     cutting off both ends. */
+  align-items: safe center;
   justify-content: center;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 
   background: rgba(0, 0, 0, 0.90);
   /* Near-black in both themes, so the ring pins to LIT Green rather than
@@ -1290,6 +1375,14 @@ html.menu-open body {
   gap: 28px;
   justify-items: center;
   text-align: center;
+}
+
+/* Short screens: close the gaps before anything scrolls. Eight links fit a
+   320×568 phone this way, and nine (with "Continue") fit 375×667. */
+@media (max-height: 760px) {
+  .menu-overlay__nav {
+    gap: clamp(12px, 2.8vh, 22px);
+  }
 }
 
 .menu-overlay__nav a {
@@ -2417,16 +2510,29 @@ html[data-font="dyslexic"] .menu-overlay__nav a {
     text-overflow: clip;
   }
 
-  /* The nav is gone, so its Aa goes with it and the actions Aa takes over.
-     Needs to out-specify the min-width:1101px rule that hides it. */
-  html[data-font="dyslexic"] .site-header__font-toggle--nav {
+  /* The nav is gone, so its search and Aa go with it and the actions pair
+     takes over. Needs to out-specify the min-width:1101px rule that hides it. */
+  html[data-font="dyslexic"] .site-header__nav-tools {
     display: none;
   }
 
   html[data-font="dyslexic"]
     .site-header__actions
-    .site-header__font-toggle--actions {
+    .site-header__font-toggle--actions,
+  html[data-font="dyslexic"]
+    .site-header__actions
+    .site-header__search--actions {
     display: inline-flex;
+  }
+}
+
+/* …except under 360px, where the search icon moves into the phone menu for
+   every font (see .menu-overlay__search). Needs the same specificity, later. */
+@media (max-width: 359px) {
+  html[data-font="dyslexic"]
+    .site-header__actions
+    .site-header__search--actions {
+    display: none;
   }
 }
 

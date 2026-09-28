@@ -1657,6 +1657,19 @@ collection); they're read directly by the intro pages and the API manifest.
     following the hash, since a fragment navigation fires `popstate`, which
     re-renders the results. A topic card names the topics that matched it
     when they differ from the query (a loose one-word match).
+  - *Every page has exactly one way in* (audit U6, owner 2026-09-28).
+    `SearchBar` renders once per page (its ids, `site-search-input` among
+    them, are fixed), so a page that carries its own box passes `pageSearch`
+    to `Layout`: chapters, intros and drafts (through `ScriptureLayout`),
+    `/read`, Reading View, `/search`, and the articles pages. Every other page
+    gets a search icon beside the header's "Aa". Without JS it's a link to
+    `/search`; with JS (`header-search.js`) it opens a strip under the header
+    holding the ordinary `SearchBar`, so its results tray is the one chapter
+    pages use, and Escape closes the tray and then the strip. Under 360px there
+    is no room for a third header button (the short title ran 20–36px into
+    them at 320px, in every font), so the icon moves into the phone menu as
+    "Search". **A new page with its own `SearchBar` must pass `pageSearch`**,
+    or it renders two.
 - **Scripture references link at render, never in the data.** Footnotes
   (Study View), book intros, article bodies, glossary bodies, and release-note
   descriptions are passed through `linkScriptureRefs` (`src/lib/scripture-refs.mjs`,

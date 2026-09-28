@@ -1083,11 +1083,19 @@ Details for each item are in the artifact (https://claude.ai/artifact/4ghJK72rd2
   focus search, `g` for Go to passage. Ignore them while typing or with a
   modifier held, and list them in the Display tray.
 
-- [ ] **Missing doors in the menus (U6).**
+- [x] **Missing doors in the menus (U6).**
   A search icon beside "Aa" that opens the existing search tray on every
   page (V3's title swap now leaves room for it; recheck at 1240–1440px), and
   Glossary, Articles and "What's new" in the footer, Support in the phone
   menu.
+  DONE (2026-09-28): pages without a search box of their own get the icon; it
+  opens a strip under the header holding the ordinary SearchBar (a link to
+  /search without JS). On desktop it sits beside Aa below Read Now, so the nav
+  loses no width. Under 360px it moves into the phone menu as "Search", since
+  the short title ran into three buttons at 320px. The footer's Learn column
+  gained Glossary, Articles, Read and What's new, and the phone menu Support;
+  the menu now tightens its gaps on short screens and scrolls rather than
+  cutting off its ends. See CLAUDE.md, "Every page has exactly one way in".
 
 - [x] **Leftover shapes on /search and /articles (V6).**
   Filters in one left-aligned row under the query, Go to passage above the
