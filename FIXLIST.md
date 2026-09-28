@@ -968,14 +968,17 @@ Details for each item are in the artifact (https://claude.ai/artifact/4ghJK72rd2
   "check the apps first" caution never came into play. Draft intros are also
   noindexed and left out of the sitemap and Pagefind. Reading View shows a run
   of drafts as one stub ("Chapters 23–24") and keeps every `#ch-N` anchor.
-  Follow-up, still open below: the limerick's missing line break.
+  Follow-up below: the limerick's missing line break, since fixed.
 
-- [ ] **Three draft placeholders miss a line break in the limerick.**
+- [x] **Three draft placeholders miss a line break in the limerick.**
   `acts-7`, `revelation-2` and `revelation-12` have no `<br>` after "This
   page is on hold," so two lines of it run together. The website no longer
   shows that text (it renders the draft page instead), but the apps still do,
   from the chapter JSON. A one-character fix in each file, and a publish to
   both apps, so it's your call whether it's worth a release.
+  DONE (2026-09-27, PR #224): the owner wanted it fixed. Each file gained the
+  `<br>` by raw text edit, and all three placeholders now match the others.
+  The drafter skips edits to draft chapters, so it writes no release-notes row.
 
 - [ ] **Search puts the usual answers last (F7).**
   Open /search with a one-line summary that doubles as jump links ("117
