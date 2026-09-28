@@ -203,7 +203,8 @@ src/
                      #   /release-notes and its RSS feed present the JSON),
                      #   alignment-gate.mjs (the one display gate for the
                      #   alignment dataset), term-lens.mjs + term-lens-data.mjs
-                     #   (the term lens and its fs shell)
+                     #   (the term lens and its fs shell), go-deeper.mjs +
+                     #   go-deeper-data.ts ("Go deeper" and its build shell)
   pages/             # File-based routes (see Routing below)
   scripts/           # CLIENT-side vanilla JS (chapter-tools, read-mode,
                      #   search-core + searchbar + search — see Search below;
@@ -1690,6 +1691,31 @@ collection); they're read directly by the intro pages and the API manifest.
   `src/scripts/lit-panel.js` is the one panel all reader tools share (verse
   menu, footnote popover, selection panel, preview): one open at a time, closed
   by an outside click or Escape.
+- **"Go deeper" closes every published chapter** (audit X3, owner
+  2026-09-28): `GoDeeper.astro`, right after Previous/Next and above the
+  notes, with one row per kind that has something (Listen, Read, Key terms,
+  Book), so a chapter never shows an empty row. Everything is worked out at
+  build (`go-deeper-data.ts`, with the pure rules in `go-deeper.mjs`):
+  - **Listen** takes the episodes whose **title** names the chapter
+    (`episodeChapters` in `podcast-feed-core.ts`: "Matthew 14 & 15",
+    "Matthew 16-18", "Hebrews 6b-9"; a dash after a verse is a verse range).
+    Only a title naming no chapter falls back to the "Read the passage" link,
+    since those links come from RedCircle as typed and three pointed at the
+    wrong chapter until overrides fixed them. `inferReadLink` keeps its
+    first-chapter contract for the podcast page. Episodes link out to Apple
+    Podcasts, Spotify and YouTube, because the podcast page has no
+    per-episode anchors.
+  - **Read** takes the articles whose rendered body links the chapter,
+    counting the render-time reference links (`a.sref`) as well as
+    hand-written ones, newest first.
+  - **Key terms** are the gated glossary terms, in the order the term lens
+    first marks them, linking to `/glossary/#id`; **Book** is the intro,
+    unless it is a draft.
+  - **Two episodes and three articles show**; the rest wait behind an
+    "N more" `<details>` (owner: a collapsing space, not a hard limit). It
+    needs no JS and shifts nothing on load. Galatians 3, Hebrews 6 and
+    Matthew 5 were the only chapters with any held back in 2026-09.
+  The section is `data-pagefind-ignore`d and hidden in print.
 - **"Continue reading" is one record, `localStorage['lit_last_read']`**
   (`{ v: 1, book, chapter, verse | null, view: "study" | "read", t }`), kept by
   `src/scripts/last-read.js`. Study View writes it on arrival (at a `#vN`

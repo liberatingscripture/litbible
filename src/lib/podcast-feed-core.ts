@@ -148,6 +148,72 @@ export function inferReadLink(title: string): string | null {
   return null;
 }
 
+export interface ChapterRef {
+  bookKey: string;
+  chapter: number;
+}
+
+// Longest names first, so "1 john" wins over "john" at the same position.
+const BOOK_NAME_RE = Object.keys(BOOK_ALIASES)
+  .sort((a, b) => b.length - a.length)
+  .join('|');
+
+// One chapter, with an optional verse or verse range and a half-chapter
+// letter: "6", "6b", "12:1-13", "1:24–32".
+const CHAPTER_PART = String.raw`(\d+)[ab]?(?::\d+[ab]?(?:\s*[-–]\s*\d+[ab]?)?)?`;
+
+const TITLE_REF_RE = new RegExp(
+  String.raw`(?<![\w])(${BOOK_NAME_RE})\s+${CHAPTER_PART}((?:\s*(?:&|and|,|[-–])\s*${CHAPTER_PART})*)`,
+  'gi'
+);
+const TITLE_MORE_RE = new RegExp(String.raw`\s*(&|and|,|[-–])\s*${CHAPTER_PART}`, 'gi');
+
+/**
+ * Every chapter an episode is about, for linking the episode from those
+ * chapters. Unlike inferReadLink, which keeps its first-chapter contract for
+ * the podcast page, this returns them all.
+ *
+ * The title decides when it names chapters: "Matthew 14 & 15", "Matthew
+ * 16-18", "Blood and Glory (Hebrews 6b-9)", "Galatians 3:6-29". A dash after a
+ * verse is a verse range, not a chapter range. Only a title that names no
+ * chapter falls back to the "Read the passage" link, because those links come
+ * from RedCircle as typed, and three once pointed at the wrong chapter (the
+ * Matthew 26 episode's went to 25) until podcastOverrides.json corrected them.
+ */
+export function episodeChapters(episode: Episode): ChapterRef[] {
+  const out: ChapterRef[] = [];
+  const seen = new Set<string>();
+  const add = (bookKey: string, chapter: number) => {
+    const key = `${bookKey}-${chapter}`;
+    if (!seen.has(key) && chapter > 0) {
+      seen.add(key);
+      out.push({ bookKey, chapter });
+    }
+  };
+
+  for (const m of episode.title.matchAll(TITLE_REF_RE)) {
+    const bookKey = BOOK_ALIASES[m[1].toLowerCase().replace(/\s+/g, ' ')];
+    if (!bookKey) continue;
+    let last = Number(m[2]);
+    add(bookKey, last);
+    for (const more of (m[3] || '').matchAll(TITLE_MORE_RE)) {
+      const next = Number(more[2]);
+      if (/[-–]/.test(more[1]) && next > last) {
+        for (let c = last + 1; c <= next; c++) add(bookKey, c);
+      } else {
+        add(bookKey, next);
+      }
+      last = next;
+    }
+  }
+  if (out.length) return out;
+
+  const read = episode.links.find((l) => l.label === 'Read the passage');
+  const m = read?.url.match(/^https:\/\/litbible\.net\/([0-9a-z]+)-(\d+)\/?$/);
+  if (m && Object.values(BOOK_ALIASES).includes(m[1])) add(m[1], Number(m[2]));
+  return out;
+}
+
 /**
  * Turn an Apple Podcasts EPISODE URL into the URL its embed player is served
  * from. Returns null for anything that is not one — a show URL, another host,
