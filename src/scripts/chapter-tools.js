@@ -13,7 +13,8 @@
 //    unsupported; the scroll still works). A floating chip (or Esc)
 //    clears the highlight.
 // 2. Verse menu — tapping a verse number opens Copy verse / Copy link /
-//    Copy for a handout / Share / Make an image. Tapping more verse numbers
+//    Copy for a handout / Share / Read aloud from here / Make an image.
+//    Tapping more verse numbers
 //    while the menu is open extends the selection to a range (e.g. John
 //    3:16–18).
 // 3. Footnote popovers — tapping a footnote letter shows the note inline
@@ -31,10 +32,23 @@ import { stripBracketMarkers } from "../lib/bracket-markers.mjs";
 import { LIT_CREDIT_LINE } from "../lib/lit-credit.mjs";
 import { showPanel, closePanel, currentPanel, setEscapeFallback } from "./lit-panel.js";
 import { imageStep } from "./verse-image.js";
+import { initReadAloud } from "./read-aloud.js";
+
+// Read aloud (audit X9), for the verse menu's "Read aloud from here"; null
+// where the browser can't speak, and in Reading View.
+let readAloud = null;
 
 function init(container) {
   setEscapeFallback(clearHashHighlight);
   initVerseHighlight(container);
+  const readAloudRoot = document.querySelector("[data-read-aloud]");
+  readAloud = initReadAloud({
+    container,
+    root: readAloudRoot,
+    startButton: readAloudRoot?.querySelector("button"),
+    verseText: (verse) => getVerseText(container, verse, verse, { numbers: false }),
+    title: getChapterRef(),
+  });
   initVerseMenu(container);
   initFootnotePopovers(container);
   initSelectionShare(studyView(container));
@@ -601,6 +615,18 @@ function openVerseMenu(container, sup, anchorVerse, start, end, { restoreFocus =
 
   const shareBtn = shareButton(ref, url, () => getVerseText(container, start, end));
   if (shareBtn) panel.appendChild(shareBtn);
+
+  if (readAloud) {
+    const listen = document.createElement("button");
+    listen.type = "button";
+    listen.className = "lit-panel__btn";
+    listen.textContent = "Read aloud from here";
+    listen.addEventListener("click", () => {
+      closePanel();
+      readAloud.startAt(start);
+    });
+    panel.appendChild(listen);
+  }
 
   panel.appendChild(
     imageStep({

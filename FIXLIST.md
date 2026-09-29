@@ -1903,6 +1903,10 @@ Details for each item are in the artifact (https://claude.ai/artifact/4ghJK72rd2
   draft pages and Reading View's draft stubs already offer "Get updates by
   email", which reaches the newsletter signup. X9 and X13 wait on the
   explanations the owner asked for.
+  Decided 2026-09-29, after the explanations: X13 deferred. X9 is built as
+  an experiment on `claude/x9-read-aloud` ("Read aloud" above each Study
+  View chapter, in the device's own voice), for the owner to try before
+  deciding whether it ships.
 
 ## Completed from TBD
 

@@ -42,7 +42,8 @@
   }
 
   ::highlight(lit-verse-range),
-  ::highlight(lit-verse-select) {
+  ::highlight(lit-verse-select),
+  ::highlight(lit-read-aloud) {
     background-color: transparent;
     color: inherit;
   }
@@ -54,6 +55,8 @@
   .font-tray,
   .menu-overlay,
   .scripture-tools,
+  .read-aloud,
+  .read-aloud-bar,
   .chapter-nav,
   .chapter-ctas,
   .back-to-top,

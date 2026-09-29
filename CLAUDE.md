@@ -209,7 +209,8 @@ src/
                      #   (the term lens and its fs shell), go-deeper.mjs +
                      #   go-deeper-data.ts ("Go deeper" and its build shell),
                      #   verse-image.mjs (the design and typesetting behind
-                     #   "Make an image")
+                     #   "Make an image"), read-aloud.mjs (what Read aloud
+                     #   says, in what pieces, and which voices it offers)
   pages/             # File-based routes (see Routing below)
   scripts/           # CLIENT-side vanilla JS (chapter-tools, read-mode,
                      #   search-core + searchbar + search — see Search below;
@@ -219,7 +220,8 @@ src/
                      #   term-lens, the Study View term underline and card;
                      #   header-search, the header's search strip;
                      #   keyboard-shortcuts; verse-image, which draws and
-                     #   hands on "Make an image"; glossary-entry-links, the
+                     #   hands on "Make an image"; read-aloud, the Study
+                     #   View player; glossary-entry-links, the
                      #   copy-link buttons on /glossary)
   styles/            # global.css, read-mode.css, scripture-tools.css, articles.css,
                      #   pages/<page>.css (per-page stylesheets)
@@ -626,6 +628,49 @@ phone isn't done in time, the button asks for one more tap ("Share image")
 rather than failing. The fonts are the site's own `@fontsource` faces, loaded
 into the canvas with `document.fonts.load` before anything is measured, since
 a canvas can't wait for a web font by itself.
+
+### Read aloud (an experiment)
+
+**"Read aloud"** sits above the text of every published Study View chapter
+and reads it in the device's own voice, through the Web Speech API (audit X9,
+built 2026-09-29 for the owner to try before deciding). No audio files, no
+server, no cost. `src/lib/read-aloud.mjs` is the pure half (the pieces the
+voice is given, verse-to-verse moves, which voices are offered), unit-tested;
+`src/scripts/read-aloud.js` speaks, highlights the verse being read
+(`::highlight(lit-read-aloud)`), keeps it in view, and runs the player bar at
+the foot of the screen. The verse menu adds "Read aloud from here". Six
+things to know:
+
+1. **It says what Copy verse copies** (`getVerseText` with `numbers: false`),
+   so verse numbers, footnote letters and bracket markers are never spoken,
+   which is the one thing it adds over a phone's own Speak Screen.
+2. **One piece at a time, two queued ahead.** A piece is a verse, a poetry
+   line, or part of a long verse cut after a sentence or clause (at most 200
+   characters): Chrome's online voices stop partway through an utterance
+   longer than about fifteen seconds, and 242 published verses run past 200
+   characters.
+3. **Pause cancels, and play starts the current piece again.** The API's
+   `pause()` does nothing on Android and can't resume an online voice in
+   Chrome. A generation count makes a cancelled piece's late events harmless.
+4. **Nothing speaks except in answer to a tap**, which Safari and Chrome both
+   require; the end of a chapter offers a link to the next one rather than
+   carrying on. The screen is kept awake while it reads (Screen Wake Lock),
+   since a phone that locks stops the voice.
+5. **A page can only use the voices the browser lists.** Siri's voices, and
+   the assistants' voices on Android and Windows, are not among them. The
+   list is English only, with Apple's novelty, MacinTalk and Eloquence voices
+   left out, voices on the device before online ones. It starts with the
+   reader's last choice, else a Premium, Enhanced or Natural voice on the
+   device in the reader's English (Safari still marks the plain voice as
+   default after a reader downloads a better one), else the device default,
+   and never with an online voice while the device has one (Chrome's "Google"
+   voices, Edge's "Online (Natural)" ones): those are made by the browser's
+   maker, so choosing one sends the words there, which the privacy page
+   says. Changing how voices are chosen can mean changing that page. The reader's voice and speed are kept
+   in `localStorage` (`lit-read-aloud-voice`, `lit-read-aloud-rate`).
+6. **The button appears only where the browser can speak**, revealed by an
+   inline script before first paint, so nothing moves. Not in Reading View,
+   yet.
 
 ### Printing and handouts
 
