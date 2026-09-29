@@ -1140,6 +1140,10 @@ Details for each item are in the artifact (https://claude.ai/artifact/4ghJK72rd2
 - [ ] **Verse images for sharing (X8).**
   "Make an image" in the verse and selection menus, drawn in the browser in
   the share-card design (square and story sizes, carrying litbible.net).
+  Owner, 2026-09-28: explore it. The exploration draws the images live, with
+  three looks, three typefaces, both sizes and six decisions to make
+  (https://claude.ai/artifact/HJfN6FR6FrkArCPycU86SV). Nothing is built in
+  the repo yet.
 
 - [x] **Copy link beside each glossary entry (Q4).**
   The anchors exist (`/glossary#<id>`) but nothing shows how to share one.
@@ -1443,9 +1447,10 @@ need a mockup or a side-by-side the owner looks at before code.
   cites psalms by English numbering only), plus four misspelled book names.
   FOLLOW-UP-RECONCILIATION.md §29 lists them for the Word back-port.
 
-- [ ] **Side notes on wide screens (X11).**
+- [x] **Side notes on wide screens (X11).**
   At 1280px and up, each footnote's first line in the margin beside its
   verse. A design exploration.
+  DECIDED (2026-09-28): no.
 
 ## Owner — decisions & dashboard tasks (no model)
 
@@ -1834,22 +1839,48 @@ Details for each item are in the artifact (https://claude.ai/artifact/4ghJK72rd2
   View's footnotes link and preview, so "footnotes and cross-references" is
   true as written.
 
-- [ ] **Footnote letters outshine verse numbers (V4).**
+- [x] **Footnote letters outshine verse numbers (V4).**
   Regular weight and slightly smaller? A look decision.
+  DECIDED (2026-09-28): no change. The owner is happy with the letters as
+  they are, and the Display tray already turns them off for anyone who
+  isn't.
 
-- [ ] **The source notice after every chapter (V5).**
+- [x] **The source notice after every chapter (V5).**
   One attribution line plus a "Source text and license" disclosure, as /read
   does. Check the SBLGNT license's attribution wording first.
+  DONE (2026-09-28): SBL asks for nothing beyond CC BY 4.0 itself, so the
+  owner ruled that the license's own terms are the requirement. The notice is
+  now one sentence that meets them alone (the edition's title linked to
+  sblgnt.com, its editor, the copyright notice, "translated from" for the
+  adaptation, and CC BY 4.0 linked), with the other four paragraphs in a
+  "Source text and license" disclosure. The link to the source text is new:
+  the old notice had none, and the license asks for one. The wording lives in
+  `SblgntCredits.astro`, which /read's license section now renders too,
+  instead of keeping its own copy. On paper the disclosure prints open and
+  both addresses are written out. See CLAUDE.md, "Translation Source Text".
 
-- [ ] **Straight and curly quotes in page prose (V7).**
+- [x] **Straight and curly quotes in page prose (V7).**
   A one-time pass over page prose, two intros and the search help text; it's
   your prose, so say go. Any render-time smart-quote step must skip the
   glossary feed, which keeps straight quotes for iOS.
+  DONE (2026-09-28): a one-time pass in the source, no render-time step. It
+  reached further than the audit counted: 17 intros and 12 articles as well
+  as the pages, the search help, and the /apps sections (which the LSC site
+  mirrors). About 740 marks in 50 files, and a check that nothing but quote
+  marks moved, apart from repairs made in the same commit: three quotations
+  that were broken before (a closing mark missing or misplaced), two
+  apostrophes pasted as U+201F, one quote turned the wrong way, and two
+  spacing slips. The intro and article commit touches
+  `release-notes-skip.md`. Left straight on purpose: the glossary entries,
+  release-notes.json (it records old text as it was), podcast episode
+  titles (they come from the podcast host as typed), and code.
 
-- [ ] **Article page title suffix (Q6).**
+- [x] **Article page title suffix (Q6).**
   Articles end "| Articles | The Liberation & Inclusion Translation" while
   other pages end "| Liberation and Inclusion Translation". Keep it if
   deliberate.
+  DONE (2026-09-28): it wasn't deliberate, so an article's title now ends
+  "| Liberation and Inclusion Translation" like every other page.
 
 - [ ] **Decide which ideas to build (X5, X6, X9, X10, X13, X14, X15).**
   X5 "This Sunday" lectionary page (shares lectionary data with the apps);
@@ -1860,7 +1891,11 @@ Details for each item are in the artifact (https://claude.ai/artifact/4ghJK72rd2
   "tell me when Acts is published" (Brevo setup, pairs with F4). Each becomes
   an Opus or Fable item once decided.
   X14 decided 2026-09-28: yes, linking to Sefaria with a map from English to
-  Hebrew verse numbers; built in its own PR. The rest are still open.
+  Hebrew verse numbers; built in its own PR.
+  Also decided 2026-09-28: X5 and X6 deferred; X10 no; X15 no, since the
+  draft pages and Reading View's draft stubs already offer "Get updates by
+  email", which reaches the newsletter signup. X9 and X13 wait on the
+  explanations the owner asked for.
 
 ## Completed from TBD
 
