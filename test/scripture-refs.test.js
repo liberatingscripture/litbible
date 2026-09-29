@@ -1,8 +1,9 @@
 // test/scripture-refs.test.js
 //
 // Unit tests for src/lib/scripture-refs.mjs, the render-time linker that turns
-// plain-text NT references in footnotes, intros, articles, glossary bodies and
-// release notes into links. Most cases are lifted from the corpus as it stood
+// plain-text references in footnotes, intros, articles, glossary bodies and
+// release notes into links: the New Testament to this site, the Hebrew Bible
+// to Sefaria (the numbering map itself is tested in sefaria-refs.test.js). Most cases are lifted from the corpus as it stood
 // on 2026-09-27, so each one is a shape a reader actually meets.
 
 import { test } from "node:test";
@@ -16,6 +17,18 @@ const hrefs = (html, opts) =>
   [...link(html, opts).matchAll(/<a class="sref" href="([^"]+)"[^>]*>([^<]*)<\/a>/g)].map(
     (m) => [m[2], m[1]]
   );
+const ebible = (html, opts) =>
+  [
+    ...link(html, opts).matchAll(
+      /<a class="ebible-ref" href="https:\/\/ebible\.org\/eng-web\/([^"]+)">([^<]*)<\/a>/g
+    ),
+  ].map((m) => [m[2], m[1]]);
+const sefaria = (html, opts) =>
+  [
+    ...link(html, opts).matchAll(
+      /<a class="sefaria-ref" href="https:\/\/www\.sefaria\.org\/([^"?]+)\?lang=en">([^<]*)<\/a>/g
+    ),
+  ].map((m) => [m[2], m[1]]);
 
 test("a single reference links to its verse, with a trailing slash", () => {
   assert.equal(
@@ -109,12 +122,110 @@ test("a one-chapter book's number is a verse", () => {
   assert.deepEqual(hrefs("Jude 5–7"), [["Jude 5–7", "/jude-1/#v5-7"]]);
 });
 
-test("Hebrew Bible references never link, and neither do their continuations", () => {
+test("Hebrew Bible references link to Sefaria, in Hebrew numbering", () => {
+  assert.deepEqual(sefaria("See Deuteronomy 30:15 and Psalm 22:1."), [
+    ["Deuteronomy 30:15", "Deuteronomy.30.15"],
+    ["Psalm 22:1", "Psalms.22.2"],
+  ]);
+  // A range keeps its end, across a chapter too; the numbering maps both ends.
+  assert.deepEqual(sefaria("Quotation of Joel 2:28–32; Isaiah 52:13–53:12."), [
+    ["Joel 2:28–32", "Joel.3.1-5"],
+    ["Isaiah 52:13–53:12", "Isaiah.52.13-53.12"],
+  ]);
+  // Continuations follow the same rules as the New Testament's.
+  assert.deepEqual(sefaria("Isaiah 7:14 and 8:8–10; 9:6"), [
+    ["Isaiah 7:14", "Isaiah.7.14"],
+    ["8:8–10", "Isaiah.8.8-10"],
+    ["9:6", "Isaiah.9.5"],
+  ]);
+  // A word between them ends the list, as it does for the New Testament.
+  assert.deepEqual(sefaria("Isaiah 7:1–10:4, especially 7:14"), [["Isaiah 7:1–10:4", "Isaiah.7.1-10.4"]]);
+  // A one-chapter book's number is a verse; a chapter the numbering moves
+  // links its exact Hebrew range.
+  assert.deepEqual(sefaria("Obadiah 15 and Malachi 4 and Job 38"), [
+    ["Obadiah 15", "Obadiah.1.15"],
+    ["Malachi 4", "Malachi.3.19-24"],
+    ["Job 38", "Job.38"],
+  ]);
+  // Both halves in one text, each to its own place.
+  assert.deepEqual(hrefs("(Genesis 1:2) and Mark 15:34"), [["Mark 15:34", "/mark-15/#v34"]]);
+  assert.deepEqual(sefaria("(Genesis 1:2) and Mark 15:34"), [["Genesis 1:2", "Genesis.1.2"]]);
+});
+
+test("a numbered book after a list is a new reference, not another verse", () => {
+  assert.deepEqual(hrefs("Romans 8:28 and 1 Corinthians 13:4"), [
+    ["Romans 8:28", "/romans-8/#v28"],
+    ["1 Corinthians 13:4", "/1corinthians-13/#v4"],
+  ]);
+  assert.deepEqual(sefaria("Isaiah 40:3, 5 and 1 Samuel 20:42"), [
+    ["Isaiah 40:3", "Isaiah.40.3"],
+    ["5", "Isaiah.40.5"],
+    ["1 Samuel 20:42", "I_Samuel.20.42-21.1"],
+  ]);
+  // A book neither half carries ends the list without linking itself.
+  assert.deepEqual(hrefs("Jude 14 and 1 Enoch 1:9"), [["Jude 14", "/jude-1/#v14"]]);
+  assert.equal(link("1 Enoch 1:9"), "1 Enoch 1:9");
+});
+
+test("a Hebrew Bible reference in another text's numbering or wording stays plain", () => {
+  for (const s of [
+    "(Genesis 2:7 CEB)",
+    "(Zechariah 9:10, Alter’s Translation)",
+    "Psalm 40:6 LXX",
+    "Psalm 51:4 (MT)",
+    "Romans 3:4 (LXX Ps 51:4) quotes",
+  ]) {
+    assert.deepEqual(sefaria(s), [], s);
+  }
+  // The Greek or Hebrew "of" a verse is still cited in English numbering.
+  assert.deepEqual(sefaria("the Hebrew of Psalm 51:4"), [["Psalm 51:4", "Psalms.51.6"]]);
+});
+
+test("the apocrypha link to the World English Bible on eBible.org", () => {
+  // The notes' own citations; a range opens at its first verse.
+  assert.deepEqual(ebible("Sirach 6:24–30; Sirach 14:20–27; Sirach 51:23–27; Wisdom 3:1"), [
+    ["Sirach 6:24–30", "SIR06.htm#V24"],
+    ["Sirach 14:20–27", "SIR14.htm#V20"],
+    ["Sirach 51:23–27", "SIR51.htm#V23"],
+    ["Wisdom 3:1", "WIS03.htm#V1"],
+  ]);
+  assert.deepEqual(ebible("an allusion to 2 Maccabees 7, where"), [["2 Maccabees 7", "2MA07.htm"]]);
+  assert.deepEqual(ebible("Wisdom of Solomon 7:1 and Tobit 4:15"), [
+    ["Wisdom of Solomon 7:1", "WIS07.htm#V1"],
+    ["Tobit 4:15", "TOB04.htm#V15"],
+  ]);
+  // None of them goes to Sefaria any more.
+  assert.deepEqual(sefaria("Sirach 51:23; Wisdom 3:1"), []);
+  // "Wisdom" is a word too, so it needs a verse.
+  assert.deepEqual(ebible("Wisdom 2:1 … the Wisdom 2 talk"), [["Wisdom 2:1", "WIS02.htm#V1"]]);
+  // A verse the WEB leaves out, as modern English Bibles do, isn't a reference.
+  assert.deepEqual(ebible("Sirach 26:20"), []);
+  // Tagged with another translation, it cites that wording.
+  assert.deepEqual(ebible("(Sirach 6:24 NRSV)"), []);
+});
+
+test("a book title in italics links with its numbers, the italics kept inside", () => {
   assert.equal(
-    link("Isaiah 7:1–10:4, especially 7:14 and 8:8–10"),
-    "Isaiah 7:1–10:4, especially 7:14 and 8:8–10"
+    link("a reference to <em>Wisdom of Solomon</em> 7:1–2, “I also"),
+    'a reference to <a class="ebible-ref" href="https://ebible.org/eng-web/WIS07.htm#V1"><em>Wisdom of Solomon</em> 7:1–2</a>, “I also'
   );
-  assert.deepEqual(hrefs("(Genesis 1:2 NASB) and Mark 15:34"), [["Mark 15:34", "/mark-15/#v34"]]);
+  assert.equal(
+    link("(e.g., <em>Wisdom of Solomon</em> 7–10; <em>Sirach</em> 24)"),
+    '(e.g., <a class="ebible-ref" href="https://ebible.org/eng-web/WIS07.htm"><em>Wisdom of Solomon</em> 7–10</a>; ' +
+      '<a class="ebible-ref" href="https://ebible.org/eng-web/SIR24.htm"><em>Sirach</em> 24</a>)'
+  );
+  assert.equal(link("<em>Romans</em> 8:28"), '<a class="sref" href="/romans-8/#v28"><em>Romans</em> 8:28</a>');
+  // Any other italic title is left exactly as it was, even one ending in a
+  // book's name.
+  for (const s of ["<em>Psalms of Solomon</em> 17", "Plato, <em>Republic</em> 413", "<em>Wisdom</em> is"]) {
+    assert.equal(link(s), s, s);
+  }
+});
+
+test("a chapter or verse English Bibles don't have is not a reference", () => {
+  assert.equal(link("Psalm 151:1"), "Psalm 151:1");
+  assert.equal(link("Malachi 5"), "Malachi 5");
+  assert.equal(link("Genesis 1:40"), "Genesis 1:40");
 });
 
 test("a reference tagged with another translation stays plain", () => {
