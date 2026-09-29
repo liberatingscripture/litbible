@@ -2898,6 +2898,65 @@ html[data-terms="off"] .chapter-paragraphs .term {
   background: rgba(var(--ink-rgb), 0.06);
 }
 
+/* "Make an image" (verse-image.js): one button that becomes the next question,
+   colour then size. Each question is one row the height of a button, so the
+   panel doesn't move as the steps change. */
+/* In the touch selection panel it takes a row of its own, stretched like the
+   other buttons there. */
+.lit-panel--touch .lit-image {
+  flex: 1 0 100%;
+  display: flex;
+}
+
+.lit-panel--touch .lit-image > * {
+  flex: 1 1 auto;
+}
+
+.lit-image__group {
+  display: flex;
+  gap: 6px;
+}
+
+.lit-image__group .lit-image__choice {
+  flex: 1 1 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: rgba(var(--ink-rgb), 0.06);
+  white-space: nowrap;
+}
+
+.lit-image__swatch {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  border: 1px solid;
+  border-radius: 4px;
+}
+
+.lit-image__shape {
+  flex: none;
+  border: 2px solid currentColor;
+  border-radius: 2px;
+}
+
+.lit-image__shape--square {
+  width: 14px;
+  height: 14px;
+}
+
+.lit-image__shape--story {
+  width: 10px;
+  height: 17px;
+}
+
+.lit-image__note {
+  margin: 0;
+  padding: 9px 10px;
+  font-size: 0.9rem;
+}
+
 /* Range-selection hint at the bottom of the verse menu */
 .lit-panel__hint {
   margin: 6px 0 0;

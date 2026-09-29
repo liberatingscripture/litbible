@@ -13,14 +13,16 @@
 //    unsupported; the scroll still works). A floating chip (or Esc)
 //    clears the highlight.
 // 2. Verse menu — tapping a verse number opens Copy verse / Copy link /
-//    Copy for a handout / Share. Tapping more verse numbers while the menu
-//    is open extends the selection to a range (e.g. John 3:16–18).
+//    Copy for a handout / Share / Make an image. Tapping more verse numbers
+//    while the menu is open extends the selection to a range (e.g. John
+//    3:16–18).
 // 3. Footnote popovers — tapping a footnote letter shows the note inline
 //    (bottom sheet on small screens), with a link through to the full
 //    footnotes section.
 // 4. Selection sharing — selecting any run of scripture text offers Copy
-//    with reference / Copy for a handout / Share, for a half-sentence or a
-//    phrase crossing two verses, which the verse menu can't reach.
+//    with reference / Copy for a handout / Share / Make an image, for a
+//    half-sentence or a phrase crossing two verses, which the verse menu
+//    can't reach.
 //
 // A verse that spans blocks (a quotation set as a block quote, a mid-verse
 // speaker change) can also be shared one PART at a time — see "parts" below.
@@ -28,6 +30,7 @@
 import { stripBracketMarkers } from "../lib/bracket-markers.mjs";
 import { LIT_CREDIT_LINE } from "../lib/lit-credit.mjs";
 import { showPanel, closePanel, currentPanel, setEscapeFallback } from "./lit-panel.js";
+import { imageStep } from "./verse-image.js";
 
 function init(container) {
   setEscapeFallback(clearHashHighlight);
@@ -302,9 +305,11 @@ function spanPiece(span, text = cleanForShare(blockText(span))) {
  * Each verse after the first opens with its number:
  *   "…agelong life. 17 God did not send… 18 The one who…"
  * A verse ending inside lines keeps that break before the number, so the next
- * verse does not run on from its last line.
+ * verse does not run on from its last line. A verse image leaves the numbers
+ * out (`numbers: false`), since its reference names the verses; every other
+ * boundary is the same.
  */
-function joinPieces(pieces) {
+function joinPieces(pieces, { numbers = true } = {}) {
   let out = "";
   let prev = null;
   for (const piece of pieces) {
@@ -314,7 +319,7 @@ function joinPieces(pieces) {
     } else if (piece.verse === prev.verse) {
       out += (piece.lines || prev.lines ? "\n" : " ") + piece.text;
     } else {
-      out += (prev.lines ? "\n" : " ") + piece.verse + " " + piece.text;
+      out += (prev.lines ? "\n" : " ") + (numbers ? piece.verse + " " : "") + piece.text;
     }
     prev = piece;
   }
@@ -399,12 +404,12 @@ function tidyLines(text) {
  * verse-number markers and footnote refs. Known SBLGNT omissions have no
  * spans, so a gap simply contributes nothing. Joined per joinPieces.
  */
-function getVerseText(container, start, end) {
+function getVerseText(container, start, end, options) {
   const pieces = [];
   for (let v = start; v <= end; v++) {
     for (const span of verseSpans(container, v)) pieces.push(spanPiece(span));
   }
-  return joinPieces(pieces);
+  return joinPieces(pieces, options);
 }
 
 /**
@@ -597,6 +602,18 @@ function openVerseMenu(container, sup, anchorVerse, start, end, { restoreFocus =
   const shareBtn = shareButton(ref, url, () => getVerseText(container, start, end));
   if (shareBtn) panel.appendChild(shareBtn);
 
+  panel.appendChild(
+    imageStep({
+      content: () => ({
+        text: getVerseText(container, start, end, { numbers: false }),
+        ref,
+        url,
+        shareText: withReference(getVerseText(container, start, end), ref) + "\n" + url,
+      }),
+      onDone: closePanel,
+    })
+  );
+
   // Parts: only for a single verse. A range already spans blocks by nature, so
   // offering a part per block would bury the whole-range actions.
   const parts = start === end ? verseParts(container, start) : [];
@@ -787,9 +804,9 @@ function initFootnotePopovers(container) {
 /* ── 4. Selection sharing ─────────────────────────────────────────────── */
 
 // Select any run of scripture text and a small panel offers Copy with
-// reference / Copy for a handout / Share, for what the verse menu can't
-// reach: a half-sentence, a phrase crossing two verses, part of a poetry
-// quotation. The reference names the verses the selection touches in plain
+// reference / Copy for a handout / Share / Make an image, for what the verse
+// menu can't reach: a half-sentence, a phrase crossing two verses, part of a
+// poetry quotation. The reference names the verses the selection touches in plain
 // numbers ("John 3:16", never "16a" — the quoted words already show it's
 // partial), and the link is the ordinary verse link on the Study View page,
 // in Reading View as well. Reading View has no verse menu, so this bar is its
@@ -923,12 +940,14 @@ function selectionShare(view, selection) {
   if (!pieces.length) return null;
 
   const text = joinPieces(pieces);
+  const imageText = joinPieces(pieces, { numbers: false });
   const start = pieces[0].verse;
   const end = pieces[pieces.length - 1].verse;
   const startSpans = view.spans(chapter, start);
   const endSpans = view.spans(chapter, end);
   return {
     text,
+    imageText,
     chapter,
     start,
     end,
@@ -1152,6 +1171,18 @@ function openSelectionPanel(view, share, { touch }) {
     return share.text;
   });
   if (shareBtn) panel.appendChild(shareBtn);
+  panel.appendChild(
+    imageStep({
+      content: () => ({
+        text: share.imageText,
+        ref,
+        url,
+        shareText: withReference(share.text, ref) + "\n" + url,
+      }),
+      onStart: acting,
+      onDone: closePanel,
+    })
+  );
 
   showPanel({ getBoundingClientRect: () => share.rect }, panel, {
     preferAbove: true,

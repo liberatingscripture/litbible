@@ -207,7 +207,9 @@ src/
                      #   alignment-gate.mjs (the one display gate for the
                      #   alignment dataset), term-lens.mjs + term-lens-data.mjs
                      #   (the term lens and its fs shell), go-deeper.mjs +
-                     #   go-deeper-data.ts ("Go deeper" and its build shell)
+                     #   go-deeper-data.ts ("Go deeper" and its build shell),
+                     #   verse-image.mjs (the design and typesetting behind
+                     #   "Make an image")
   pages/             # File-based routes (see Routing below)
   scripts/           # CLIENT-side vanilla JS (chapter-tools, read-mode,
                      #   search-core + searchbar + search — see Search below;
@@ -216,7 +218,8 @@ src/
                      #   last-read + continue-reading, "Continue reading";
                      #   term-lens, the Study View term underline and card;
                      #   header-search, the header's search strip;
-                     #   keyboard-shortcuts; glossary-entry-links, the
+                     #   keyboard-shortcuts; verse-image, which draws and
+                     #   hands on "Make an image"; glossary-entry-links, the
                      #   copy-link buttons on /glossary)
   styles/            # global.css, read-mode.css, scripture-tools.css, articles.css,
                      #   pages/<page>.css (per-page stylesheets)
@@ -560,9 +563,11 @@ Four owner decisions (2026-09) shape it:
    request. Appending it to Ctrl+C was rejected as clipboard hijacking.
 
 **`joinPieces` is the one join rule** behind Copy verse, Copy verses, the
-per-part copy, and a selection, so selecting whole verses copies exactly what
-Copy verses does (checked against every verse and adjacent pair on 15
-chapters). Don't give the selection its own joiner. Three details are easy to
+per-part copy, a selection, and a verse image, so selecting whole verses
+copies exactly what Copy verses does (checked against every verse and
+adjacent pair on 15 chapters). Don't give the selection its own joiner. The
+image passes `numbers: false`, which drops the verse numbers a range carries
+inline and changes no other boundary. Three details are easy to
 break:
 
 - A selection boundary inside a verse number or footnote letter is moved out
@@ -578,6 +583,49 @@ break:
 
 The panel never takes focus, so the verse-number menu stays the keyboard and
 screen-reader route to the same copy (in Study View; Reading View has none).
+
+### Verse images
+
+**"Make an image"** closes the verse menu and the selection panel, so it
+works in both views (audit X8, owner 2026-09-28). It draws the passage in the
+share-card design, in the reader's browser, and hands it on: the phone's
+share sheet on a phone or tablet, a download on a computer, told apart by the
+OS (`isAppPlatform`, the app announcement's test), never the screen width.
+Nothing is stored, and nothing leaves the device until the reader shares it.
+The pieces are `src/lib/verse-image.mjs` (the design and the typesetting,
+pure and unit-tested with a fake measure) and `src/scripts/verse-image.js`
+(drawing, and the button). The owner's decisions, made from an exploration
+page drawn by the same code:
+
+1. **One button that becomes the next question** each time it's answered:
+   "Make an image", then Ink or Paper, then Square or Story, then the share
+   sheet or the download. Each question is one row the height of a button,
+   so the panel never moves while it changes.
+2. **Two looks**: Ink, the share cards' own palette, and Paper, its light
+   sibling. **Both sizes**: 1080 square and 1080×1920 story, whose content
+   stays inside the area Instagram's own controls leave clear.
+3. **The verse in Crimson Text**, the reference in Fraunces, the wordmark and
+   address in Inter. The text is Copy verse's (`joinPieces`, footnote letters
+   and bracket markers gone, poetry kept as lines) without the inline verse
+   numbers, since the reference names the verses.
+4. **The chapter's own address** on the image ("litbible.net/john-3"), always
+   the site's name whatever host drew it. The owner counts it as the link back
+   the license's social-media exception asks for. The share sheet also gets
+   the same text Share… sends, link included.
+5. **Length is measured, not counted.** The text is set at the largest size
+   that fits, lines balanced, down to a floor that stays readable where the
+   image is seen (40px on a square, about 13px in a phone's feed; 44px on a
+   story), and a size whose floor can't hold it isn't offered. About 100
+   words of prose fit a square and 135 a story; poetry fits less. When
+   neither fits, the button says so instead of offering colors.
+
+**Safari only opens the share sheet from a fresh tap**, the same rule that
+shaped `copyLater`. So both images for the chosen look are drawn while the
+size question is showing, and the last tap shares one already made. If a slow
+phone isn't done in time, the button asks for one more tap ("Share image")
+rather than failing. The fonts are the site's own `@fontsource` faces, loaded
+into the canvas with `document.fonts.load` before anything is measured, since
+a canvas can't wait for a web font by itself.
 
 ### Printing and handouts
 
