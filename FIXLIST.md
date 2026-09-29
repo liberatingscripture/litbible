@@ -1137,13 +1137,18 @@ Details for each item are in the artifact (https://claude.ai/artifact/4ghJK72rd2
   DECIDED (2026-09-28): no. The record already lives on the release notes
   page, which /read links. Don't re-propose it without new reasons.
 
-- [ ] **Verse images for sharing (X8).**
+- [x] **Verse images for sharing (X8).**
   "Make an image" in the verse and selection menus, drawn in the browser in
   the share-card design (square and story sizes, carrying litbible.net).
   Owner, 2026-09-28: explore it. The exploration draws the images live, with
   three looks, three typefaces, both sizes and six decisions to make
-  (https://claude.ai/artifact/HJfN6FR6FrkArCPycU86SV). Nothing is built in
-  the repo yet.
+  (https://claude.ai/artifact/HJfN6FR6FrkArCPycU86SV).
+  DONE (2026-09-28), as the owner decided from it: Ink and Paper, the verse
+  in Crimson Text, both sizes, the chapter's address on the image (which the
+  owner counts as the license's link back), and the measured length rule. One
+  button becomes each next question (color, then size), then the share sheet
+  on a phone or a download on a computer. It is in the verse menu and in the
+  selection panel of both views. See CLAUDE.md, "Verse images".
 
 - [x] **Copy link beside each glossary entry (Q4).**
   The anchors exist (`/glossary#<id>`) but nothing shows how to share one.
