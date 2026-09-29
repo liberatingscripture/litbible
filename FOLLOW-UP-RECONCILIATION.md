@@ -2077,3 +2077,33 @@ tests pass.
 **This is deliberately NOT a `release-notes-skip.md` case.** It is a wording
 change, which is precisely what the apps' Translation Updates feed exists to
 show, so the drafter should run normally on the merge.
+
+## §29 — Citation fixes found by linking the Hebrew Bible (2026-09-28)
+
+Linking Hebrew Bible references to Sefaria (audit X14) made every citation
+clickable, which surfaced five that were wrong. The owner ruled on each, and
+all five were fixed in the repo by a one-line raw-text edit:
+
+| footnote | read | now |
+|---|---|---|
+| `romans-3` fn-n | `Quotation of Psalm 13:1–3` | `Psalm 14:1–3` |
+| `2corinthians-6` fn-v | `2 Samual 7:14` | `2 Samuel 7:14` |
+| `luke-10` fn-o | `Levitcus 19:13` | `Leviticus 19:13` |
+| `romans-2` fn-l | `Provers 24:12` | `Proverbs 24:12` |
+| `1corinthians-4` fn-c | `1: Corinthians 1:8` | `1 Corinthians 1:8` |
+
+Three more notes had their book titles in italics: `john-1` fn-n (Wisdom of
+Solomon 7:1–2), `luke-11` fn-ii (Wisdom of Solomon 7–10; Sirach 24) and
+`luke-11` fn-q (Psalms of Solomon 17). The owner had the italics dropped,
+since the notes don't italicize book titles.
+That is markup only, which a reconcile keeps from the repo, so it needs no
+back-port.
+
+Romans 3:10–12 quotes Psalm 14:1–3; 13:1–3 is the Septuagint's numbering. **The
+owner cites psalms by English chapter numbering only**, so a psalm citation
+that doesn't fit its quotation is an error to fix, not a numbering choice to
+preserve.
+
+**Back-port all five to Word**, in the books above: Romans (two), 2
+Corinthians, Luke, 1 Corinthians. Whether the masters carry the same slips was
+not checked; if they do, a restore from them would bring the slips back.
