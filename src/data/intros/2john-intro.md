@@ -8,9 +8,9 @@ topics:
   - docetism
 ---
 
-The Second Epistle of John is one of the shortest books in the New Testament, but its brevity does not diminish its meaning. Written by "the elder," the letter addresses "a chosen lady and her children," a metaphor widely understood as a local church and its members, so some argue that it could have been to a particular, prominent woman in the church and the people she led. The epistle emphasizes the importance of living out the teachings of Christ through love and faithfulness while remaining vigilant against those who distort these truths.
+The Second Epistle of John is one of the shortest books in the New Testament, but its brevity does not diminish its meaning. Written by “the elder,” the letter addresses “a chosen lady and her children,” a metaphor widely understood as a local church and its members, so some argue that it could have been to a particular, prominent woman in the church and the people she led. The epistle emphasizes the importance of living out the teachings of Christ through love and faithfulness while remaining vigilant against those who distort these truths.
 
-Traditionally attributed to John the Apostle, 2 John reflects the themes and style of the Johannine writings, emphasizing love, truth, and communal integrity. If its recipient, described as "a chosen lady and her children," was a symbolic representation of a church community, the closing verse—"The children of your chosen sister wish you well"—suggests warm connections between congregations in the early Christian movement.
+Traditionally attributed to John the Apostle, 2 John reflects the themes and style of the Johannine writings, emphasizing love, truth, and communal integrity. If its recipient, described as “a chosen lady and her children,” was a symbolic representation of a church community, the closing verse—“The children of your chosen sister wish you well”—suggests warm connections between congregations in the early Christian movement.
 
 <h2>Main Themes</h2>
 <ul>
@@ -23,7 +23,7 @@ The letter highlights that Christ’s teachings—centered on love, humility, an
 <li>
 <strong>Vigilance Against Misleading Teachings:</strong>
 
-The letter warns against "misleaders" who deny Jesus Christ’s incarnation. Such individuals, referred to as "competing christs," pose a danger to the community by undermining its faithfulness and unity. Affirming Jesus Christ’s bodily presence during his life is central to the letter, countering early teachings that denied His incarnation, which was a capitulation to Greek philosophy rather than Hebraic spiritual teaching. Recognizing Jesus as the embodied Son of God is essential for authentic trust and faithfulness to the message of Christ. The Greek philosophies influencing some of the church believed that matter and physical reality were unimportant at best and the source of suffering and evil at worst, which is a direct contradiction to the Torah’s assertion that God created everything and called it “very good.” The practical impact was that people’s material needs, like food and shelter, were being disregarded in favor of purely spiritual activities that seemed to transcend the body.
+The letter warns against “misleaders” who deny Jesus Christ’s incarnation. Such individuals, referred to as “competing christs,” pose a danger to the community by undermining its faithfulness and unity. Affirming Jesus Christ’s bodily presence during his life is central to the letter, countering early teachings that denied His incarnation, which was a capitulation to Greek philosophy rather than Hebraic spiritual teaching. Recognizing Jesus as the embodied Son of God is essential for authentic trust and faithfulness to the message of Christ. The Greek philosophies influencing some of the church believed that matter and physical reality were unimportant at best and the source of suffering and evil at worst, which is a direct contradiction to the Torah’s assertion that God created everything and called it “very good.” The practical impact was that people’s material needs, like food and shelter, were being disregarded in favor of purely spiritual activities that seemed to transcend the body.
 
 </li>
 </ul>
@@ -34,7 +34,7 @@ The letter warns against "misleaders" who deny Jesus Christ’s incarnation. Suc
 <strong>Greeting (Verses 1–3):</strong> The elder opens with well-wishes of grace, mercy, and peace from God and Jesus Christ, affirming their shared foundation in truth and love.
 </li>
 <li>
-<strong>Encouragement to Walk in Love (Verses 4–6):</strong> Joy is expressed over the recipients' faithfulness to the truth, with encouragement to continue loving one another through faithfulness to God’s directions.
+<strong>Encouragement to Walk in Love (Verses 4–6):</strong> Joy is expressed over the recipients’ faithfulness to the truth, with encouragement to continue loving one another through faithfulness to God’s directions.
 </li>
 <li>
 <strong>Warning Against Deceivers (Verses 7–11):</strong> The elder cautions the community to remain vigilant against false teachers, advising them to avoid supporting these individuals to protect the integrity of the faith community.
@@ -47,10 +47,10 @@ The letter warns against "misleaders" who deny Jesus Christ’s incarnation. Suc
 <h2>Key Passages</h2>
 <ul>
 <li>
-<strong>Verse 6:</strong> "And this is love: that we would walk according to God’s directions."
+<strong>Verse 6:</strong> “And this is love: that we would walk according to God’s directions.”
 </li>
 <li>
-<strong>Verse 7:</strong> "You see, many misleaders went out to the world, those who don’t acknowledge Jesus having come as the embodiment of Christ."
+<strong>Verse 7:</strong> “You see, many misleaders went out to the world, those who don’t acknowledge Jesus having come as the embodiment of Christ.”
 </li>
 </ul>
 

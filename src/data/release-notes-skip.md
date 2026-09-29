@@ -18,6 +18,14 @@ To skip a round: add an entry below, in the same commit as the content change.
 
 ---
 
+## 2026-09-28 — curly quotes in the intros and articles
+
+Skipped the rows for a quote-mark pass over the book intros and the articles:
+straight `'` and `"` became ’ ‘ “ ” in the prose, and nothing else moved
+(audit V7, which the owner approved as a one-time pass). Every intro and
+article it touched would otherwise have written an "updated" row with a
+detail full of quote marks that differ only in shape.
+
 ## 2026-09-28 — five citation fixes found by linking the Hebrew Bible
 
 Skipped the footnote rows for five one-word citation fixes: Romans 3 fn-n

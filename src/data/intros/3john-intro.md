@@ -7,7 +7,7 @@ topics:
   - General Epistles
 ---
 
-The Third Epistle of John is the shortest book in the New Testament, yet it provides a compelling glimpse into the relational dynamics of early Christian communities. Written by "the elder," the letter is addressed to Gaius, a beloved individual praised for his commitment to the truth and his hospitality toward traveling messengers. It also highlights the challenges of dealing with self-serving leadership within the church.
+The Third Epistle of John is the shortest book in the New Testament, yet it provides a compelling glimpse into the relational dynamics of early Christian communities. Written by “the elder,” the letter is addressed to Gaius, a beloved individual praised for his commitment to the truth and his hospitality toward traveling messengers. It also highlights the challenges of dealing with self-serving leadership within the church.
 
 Traditionally attributed to John the Apostle, 3 John reflects themes of love, truth, and mutual responsibility in community. The letter is directed to Gaius, who is commended for his sincere commitment to truth and hospitality toward traveling members of the Christ community while addressing concerns about a disruptive leader named Diotrephes. It also introduces Demetrius, a figure endorsed by the elder, possibly as a trustworthy bearer of the letter or as someone deserving of Gaius’s support.
 
@@ -22,7 +22,7 @@ The elder commends Gaius for his care toward itinerant members of the faith, sho
 <li>
 <strong>Integrity and Living Truthfully:</strong>
 
-Gaius is celebrated for "walking according to the truth," highlighting the value of living authentically in alignment with Christ's teachings. His example serves as a model for others in the community.
+Gaius is celebrated for “walking according to the truth,” highlighting the value of living authentically in alignment with Christ’s teachings. His example serves as a model for others in the community.
 
 </li>
 <li>
@@ -55,10 +55,10 @@ The letter contrasts Gaius’s commendable actions with the disruptive conduct o
 <h2>Key Passages</h2>
 <ul>
 <li>
-<strong>Verse 4:</strong> "I have no joy more significant than to hear my children are walking according to the truth."
+<strong>Verse 4:</strong> “I have no joy more significant than to hear my children are walking according to the truth.”
 </li>
 <li>
-<strong>Verse 11:</strong> "Beloved, don’t imitate hostility but kindness instead. Whoever acts with kindness is from God. Whoever acts with hostility has not seen God."
+<strong>Verse 11:</strong> “Beloved, don’t imitate hostility but kindness instead. Whoever acts with kindness is from God. Whoever acts with hostility has not seen God.”
 </li>
 </ul>
 
@@ -68,7 +68,7 @@ Liberation and inclusion resonate throughout 3 John:
 
 <ul>
 <li>
-<strong>Celebration of Belovedness:</strong> The elder’s address to Gaius as "Beloved" reinforces the inherent worth and dignity of every individual within the community.
+<strong>Celebration of Belovedness:</strong> The elder’s address to Gaius as “Beloved” reinforces the inherent worth and dignity of every individual within the community.
 </li>
 <li>
 <strong>Encouragement of Mutual Support:</strong> The call to support and hospitality for travelers fosters an environment of care and inclusion, ensuring that all members are valued and supported as an expression of the liberation, restoration, and well-being that are the cornerstones of Christ’s triumphant message.

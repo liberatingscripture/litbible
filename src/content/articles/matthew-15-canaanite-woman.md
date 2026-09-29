@@ -81,21 +81,21 @@ I know, it’s still hard to read without cringing, but if you’ve made it this
 
 Here’s how eight of the most widely used translations handle it:
 
-<strong>KJV</strong>: And she said, "Truth, Lord: yet the dogs eat of the crumbs which fall from their masters' table."
+<strong>KJV</strong>: And she said, “Truth, Lord: yet the dogs eat of the crumbs which fall from their masters’ table.”
 
-<strong>ESV</strong>: She said, "Yes, Lord, yet even the dogs eat the crumbs that fall from their masters' table."
+<strong>ESV</strong>: She said, “Yes, Lord, yet even the dogs eat the crumbs that fall from their masters’ table.”
 
-<strong>NASB</strong>: But she said, "Yes, Lord; but please help, for even the dogs feed on the crumbs which fall from their masters' table."
+<strong>NASB</strong>: But she said, “Yes, Lord; but please help, for even the dogs feed on the crumbs which fall from their masters’ table.”
 
-<strong>NIV</strong>: "Yes it is, Lord,” she said, "Even the dogs eat the crumbs that fall from their masters’ table."
+<strong>NIV</strong>: “Yes it is, Lord,” she said, “Even the dogs eat the crumbs that fall from their masters’ table.”
 
-<strong>NLT</strong>: She replied, "That’s true, Lord, but even dogs are allowed to eat the scraps that fall beneath their masters' table."
+<strong>NLT</strong>: She replied, “That’s true, Lord, but even dogs are allowed to eat the scraps that fall beneath their masters’ table.”
 
-<strong>NET</strong>: "Yes, Lord,” she replied, “but even the dogs eat the crumbs that fall from their masters’ table."
+<strong>NET</strong>: “Yes, Lord,” she replied, “but even the dogs eat the crumbs that fall from their masters’ table.”
 
-<strong>NRSVue</strong>: She said, "Yes, Lord, yet even the dogs eat the crumbs that fall from their masters' table."
+<strong>NRSVue</strong>: She said, “Yes, Lord, yet even the dogs eat the crumbs that fall from their masters’ table.”
 
-<strong>CEB</strong>: She said, “Yes, Lord. But even the dogs eat the crumbs that fall off their masters’ table."
+<strong>CEB</strong>: She said, “Yes, Lord. But even the dogs eat the crumbs that fall off their masters’ table.”
 
 That last one, the Common English Bible, is gaining popularity, though is probably the least well known of the bunch. It’s usually far and away my favorite of these. It still gets it wrong here. (There are actually two significant ones that do much better, but I’ll save that for later.)
 
@@ -127,9 +127,9 @@ Therefore, there is no situation when it is an acceptable translation for <em>ka
 
 To make it worse, there is a rule about what putting them together means, especially directly following an affirmative, which it does here.
 
-In "Greek Grammar Beyond the Basics," Daniel B. Wallace provides information about the combination of <em>gar</em> and <em>kai</em>. According to Wallace:
+In “Greek Grammar Beyond the Basics,” Daniel B. Wallace provides information about the combination of <em>gar</em> and <em>kai</em>. According to Wallace:
 
-> γάρ (<em>gar</em>) is a causal conjunction meaning 'for,' 'because,' or 'since,' and it typically introduces a clause that explains the reason for the preceding statement. When combined with καὶ (<em>kai</em>), as in καὶ γάρ (<em>kai gar</em>), the phrase adheres to the Second Position Rule in Koine Greek, where γάρ must occupy the second position in the clause. This combination often follows an affirmative statement to provide a clear and emphatic reason or explanation for that statement.
+> γάρ (<em>gar</em>) is a causal conjunction meaning ‘for,’ ‘because,’ or ‘since,’ and it typically introduces a clause that explains the reason for the preceding statement. When combined with καὶ (<em>kai</em>), as in καὶ γάρ (<em>kai gar</em>), the phrase adheres to the Second Position Rule in Koine Greek, where γάρ must occupy the second position in the clause. This combination often follows an affirmative statement to provide a clear and emphatic reason or explanation for that statement.
 >
 > (Wallace, <em>Greek Grammar Beyond the Basics</em>, p. 48)
 
@@ -153,7 +153,7 @@ Let’s look at it all together again:
 
 Jesus is not contemptuously calling her a dog and saying she doesn’t deserve anything because she’s not from Israel. He’s using the image of children and their pets to talk about appropriateness, purpose, and timing. The word for ‘dog’ here is an affectionate term for puppies or pet dogs, not the word for feral dogs that appears elsewhere. Even that word for feral dogs was not used as an insult in Greek the way it is used in English.
 
-He's essentially saying, “That’s not why I’m here right now.” He’s addressing her with the rhetoric of a teacher, affording a Gentile woman the same respect he affords Jewish men, with the expectation that she is smart enough to follow the conversation.
+He’s essentially saying, “That’s not why I’m here right now.” He’s addressing her with the rhetoric of a teacher, affording a Gentile woman the same respect he affords Jewish men, with the expectation that she is smart enough to follow the conversation.
 
 Then the real impact is in her response. She does, in fact, understand what he’s saying, and she asserts that what he says is true precisely because there’s already a plan for the puppies to be provided for.
 

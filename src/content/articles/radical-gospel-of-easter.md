@@ -2,7 +2,7 @@
 title: "The Radical Gospel of Easter"
 date: 2024-04-01
 author: Brandon C. Vélez Johnson
-description: "Easter celebrates the renewal of life amidst scarcity and anxiety. It signifies overcoming lifelessness with generosity and peace. This is reflected in biblical passages emphasizing unity, inclusion, and the promise of generosity for all. The emphasis is on Christ's faithfulness as a gift leading to universal inclusion. The message is clear: love and inclusion are paramount, and the promise of abundance is to be shared with all, fostering a culture of love and life for everyone. This is the essence of Easter and the Christian message."
+description: "Easter celebrates the renewal of life amidst scarcity and anxiety. It signifies overcoming lifelessness with generosity and peace. This is reflected in biblical passages emphasizing unity, inclusion, and the promise of generosity for all. The emphasis is on Christ’s faithfulness as a gift leading to universal inclusion. The message is clear: love and inclusion are paramount, and the promise of abundance is to be shared with all, fostering a culture of love and life for everyone. This is the essence of Easter and the Christian message."
 tags:
   [
     "Galatians 3",
@@ -87,7 +87,7 @@ No matter what was said or done or written afterward, it can’t take away or re
 
 Hebrews makes that assertion even more clear:
 
-> 13 When God made a promise to Abraham, since he had nothing more significant to swear by, he swore by himself, 14 “I will certainly praise you with well-wishes and increase your flourishing!" 15 And that’s how, after patiently persevering, he came upon the promise. 16 People swear by something greater than themselves, and the oath is a termination of any opportunity for response against agreement between them. 17 Regarding the promise, because God intended thoroughly to demonstrate his irrevocable intention to the heirs of the promise, he intervened with an oath. 18 That way, because of it being impossible for God to lie about these two irrevocable things, we who have sought refuge have strong encouragement to hold firmly onto the hope that has been presented. 19 That hope is like an anchor that we have for our very being, both reliable and stable, that extends into the inner room behind the curtain, 20 where Jesus entered as a forerunner on our behalf since he became “a high priest based on the order of Melchizedek throughout the Age.”
+> 13 When God made a promise to Abraham, since he had nothing more significant to swear by, he swore by himself, 14 “I will certainly praise you with well-wishes and increase your flourishing!” 15 And that’s how, after patiently persevering, he came upon the promise. 16 People swear by something greater than themselves, and the oath is a termination of any opportunity for response against agreement between them. 17 Regarding the promise, because God intended thoroughly to demonstrate his irrevocable intention to the heirs of the promise, he intervened with an oath. 18 That way, because of it being impossible for God to lie about these two irrevocable things, we who have sought refuge have strong encouragement to hold firmly onto the hope that has been presented. 19 That hope is like an anchor that we have for our very being, both reliable and stable, that extends into the inner room behind the curtain, 20 where Jesus entered as a forerunner on our behalf since he became “a high priest based on the order of Melchizedek throughout the Age.”
 >
 > (<a href="/hebrews-6">Hebrews 6:13-20 LIT</a>)
 

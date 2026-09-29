@@ -50,13 +50,13 @@ Amid skepticism about the fulfillment of divine promises, the letter reassures r
 <h2>Key Passages</h2>
 <ul>
 <li>
-<strong>2 Peter 1:3-4:</strong> "Everything of his divine power that promotes life and respectfulness has been given to us through knowledge about the one who called us to his own praiseworthiness and virtue. Because of those valuable and important things, he has given promises to us so that through these things you could become sharers in divine characteristics after escaping from the decay that is throughout the world system."
+<strong>2 Peter 1:3-4:</strong> “Everything of his divine power that promotes life and respectfulness has been given to us through knowledge about the one who called us to his own praiseworthiness and virtue. Because of those valuable and important things, he has given promises to us so that through these things you could become sharers in divine characteristics after escaping from the decay that is throughout the world system.”
 </li>
 <li>
-<strong>2 Peter 2:1-2:</strong> "But false prophets came to be among the people, just like false teachers will also be among you, who will sneak in destructive values and who reject the master who purchased them. Bringing on themselves quick destruction, many will also follow them away toward unrestrained indulgence, and because of them the true path will be slandered."
+<strong>2 Peter 2:1-2:</strong> “But false prophets came to be among the people, just like false teachers will also be among you, who will sneak in destructive values and who reject the master who purchased them. Bringing on themselves quick destruction, many will also follow them away toward unrestrained indulgence, and because of them the true path will be slandered.”
 </li>
 <li>
-<strong>2 Peter 3:9:</strong> "The Lord isn’t stalling the Promise as some think of stalling; instead, the Lord is patient for your benefit since he doesn’t want anyone to be destroyed but for everyone to turn toward transforming their mind."
+<strong>2 Peter 3:9:</strong> “The Lord isn’t stalling the Promise as some think of stalling; instead, the Lord is patient for your benefit since he doesn’t want anyone to be destroyed but for everyone to turn toward transforming their mind.”
 </li>
 </ul>
 

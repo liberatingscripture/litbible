@@ -23,13 +23,13 @@ Paul confronts the belief that non-Jewish believers must adopt Torah practices s
 <li>
 <strong>The Life-breath’s Transformative Work:</strong>
 
-Galatians highlights the role of the Life-breath (Spirit) in shaping the Christ community. Paul emphasizes that the evidence of God’s presence lies in the "fruit of the Life-breath"—love, joy, peace, patience, active kindness, beneficial living, faithfulness, gentleness, and self-restraint—rather than in adherence to religious or cultural rules. This life led by the Life-breath (Spirit) fosters a community rooted in justice and mutual care.
+Galatians highlights the role of the Life-breath (Spirit) in shaping the Christ community. Paul emphasizes that the evidence of God’s presence lies in the “fruit of the Life-breath”—love, joy, peace, patience, active kindness, beneficial living, faithfulness, gentleness, and self-restraint—rather than in adherence to religious or cultural rules. This life led by the Life-breath (Spirit) fosters a community rooted in justice and mutual care.
 
 </li>
 <li>
 <strong>Equality in Christ:</strong>
 
-Galatians proclaims a revolutionary vision of equality, declaring that divisions of ethnicity, social status, and gender are irrelevant to full inclusion in the Christ community. There is "neither Jew nor Greek, neither enslaved nor free, not male and female: You are all one within Christ Jesus." (Galatians 3:28 LIT). This statement upends traditional hierarchies, affirming that all roles in the church and family are open to everyone.
+Galatians proclaims a revolutionary vision of equality, declaring that divisions of ethnicity, social status, and gender are irrelevant to full inclusion in the Christ community. There is “neither Jew nor Greek, neither enslaved nor free, not male and female: You are all one within Christ Jesus.” (Galatians 3:28 LIT). This statement upends traditional hierarchies, affirming that all roles in the church and family are open to everyone.
 
 </li>
 <li>
@@ -65,19 +65,19 @@ Paul shifts to practical guidance, urging the community to live out their freedo
 <h2>Key Passages</h2>
 <ul>
 <li>
-<strong>Galatians 2:20:</strong> "So I live no longer as me, but Christ lives through me. So now whatever I live out with my body, I live with the faithfulness of the Son of God, who loved me and handed himself over for me."
+<strong>Galatians 2:20:</strong> “So I live no longer as me, but Christ lives through me. So now whatever I live out with my body, I live with the faithfulness of the Son of God, who loved me and handed himself over for me.”
 </li>
 <li>
-<strong>Galatians 3:8:</strong> "Scripture, expecting that God is making other peoples participants in justice by faithfulness, announced the triumphant message in advance to Abraham: ‘All peoples will be praised as worthy through you.’"
+<strong>Galatians 3:8:</strong> “Scripture, expecting that God is making other peoples participants in justice by faithfulness, announced the triumphant message in advance to Abraham: ‘All peoples will be praised as worthy through you.’”
 </li>
 <li>
-<strong>Galatians 3:28:</strong> "Anyone who is in Christ is neither Jew nor Greek, neither enslaved nor free, not male and female: You are all one within Christ Jesus."
+<strong>Galatians 3:28:</strong> “Anyone who is in Christ is neither Jew nor Greek, neither enslaved nor free, not male and female: You are all one within Christ Jesus.”
 </li>
 <li>
-<strong>Galatians 5:14:</strong> "The whole Torah can be fully lived out with one saying. Here it is: ‘Love your neighbor as yourself.’"
+<strong>Galatians 5:14:</strong> “The whole Torah can be fully lived out with one saying. Here it is: ‘Love your neighbor as yourself.’”
 </li>
 <li>
-<strong>Galatians 6:2:</strong> "Carry each other’s burdens, and in that way you will completely live out Christ’s Torah."
+<strong>Galatians 6:2:</strong> “Carry each other’s burdens, and in that way you will completely live out Christ’s Torah.”
 </li>
 </ul>
 
@@ -87,6 +87,6 @@ Galatians is a letter of liberation, dismantling systems of exclusion and oppres
 
 Paul’s emphasis on the fruit of the Life-breath insists that life in Christ is not defined by precise behavior codes but by a heart aligned with God’s justice and compassion. Love for one’s neighbor and inclusion supersede any specific behavior specification in the Torah. Galatians challenges believers to dismantle hierarchies, reject domination, and embrace a community where all are valued and empowered.
 
-The primary focus is on ethnic boundaries, but the inclusion of social status and gender in Galatians 3:28 is crucial to understanding the extent of liberation and inclusion the letter has in view. By emphasizing the irrelevance of even the most foundational distinction established in Genesis 1:27 (male and female), it undermines the relevance of all distinctions. The implication is that full inclusion—including participation in every level and facet of the church and God’s Family—is extended to men and women and nonbinary members of the Family, cisgender members and transgender members, straight and gay, members of any and all races and ethnicities, social status, and anything else that could be used as a barrier to full inclusion. Anything less is "a triumphant message besides what you have received" (Galatians 1:8-9 LIT).
+The primary focus is on ethnic boundaries, but the inclusion of social status and gender in Galatians 3:28 is crucial to understanding the extent of liberation and inclusion the letter has in view. By emphasizing the irrelevance of even the most foundational distinction established in Genesis 1:27 (male and female), it undermines the relevance of all distinctions. The implication is that full inclusion—including participation in every level and facet of the church and God’s Family—is extended to men and women and nonbinary members of the Family, cisgender members and transgender members, straight and gay, members of any and all races and ethnicities, social status, and anything else that could be used as a barrier to full inclusion. Anything less is “a triumphant message besides what you have received” (Galatians 1:8-9 LIT).
 
 This vision invites us to live in the freedom of Christ’s love, creating a world marked by justice, equality, and the transformative presence of God’s Life-breath. Through the lens of Galatians, the triumphant message (traditionally, ‘gospel’) becomes not just a message of personal salvation but a force for communal liberation and healing.

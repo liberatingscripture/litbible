@@ -2,7 +2,7 @@
 title: "Many and All"
 date: 2024-04-10
 author: Brandon C. Vélez Johnson
-description: Josiah Hawthorne's question, dissecting the meaning of "all" and "many" in biblical context is intriguing. Romans 5 illustrates how Adam's actions impacted "all" and "many," with Jesus counteracting the verdict for "all" and "many." Examining similar usage by Jesus and Paul reveals a synonymous connotation, suggesting the message of liberation might in fact be for more people than we've often been told.
+description: Josiah Hawthorne’s question, dissecting the meaning of “all” and “many” in biblical context is intriguing. Romans 5 illustrates how Adam’s actions impacted “all” and “many,” with Jesus counteracting the verdict for “all” and “many.” Examining similar usage by Jesus and Paul reveals a synonymous connotation, suggesting the message of liberation might in fact be for more people than we’ve often been told.
 tags: ["Romans 5", "Adam", "universalism", "Christ"]
 featured: false
 heroImage: "/images/articles/stars-and-sand.webp"
@@ -10,9 +10,9 @@ heroImage: "/images/articles/stars-and-sand.webp"
 
 Josiah Hawthorne asked a question via what is now the toXic corpse of what used to be Twitter. (Josiah Hawthorne is also on Threads as <a href="https://www.threads.net/@josiahhawthornesreceipts" target="_blank" rel="noopener noreferrer">@josiahhawthornesreceipts</a>.)
 
-Here's the question:
+Here’s the question:
 
-<blockquote class="twitter-tweet"><p lang="en" dir="ltr">Does Romans 5 make a deliberate distinction between &quot;the all&quot; (&quot;pas&quot;) and &quot;the many&quot; (&quot;polys&quot;)? Or are they intended to be synonymous?<br><br>Discuss. <a href="https://t.co/Ck23URGIrz">pic.twitter.com/Ck23URGIrz</a></p>&mdash; Josiah Hawthorne (@JosiahHawthorne) <a href="https://twitter.com/JosiahHawthorne/status/1777708634266271861?ref_src=twsrc%5Etfw">April 9, 2024</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+<blockquote class="twitter-tweet"><p lang="en" dir="ltr">Does Romans 5 make a deliberate distinction between “the all” (“pas”) and “the many” (“polys”)? Or are they intended to be synonymous?<br><br>Discuss. <a href="https://t.co/Ck23URGIrz">pic.twitter.com/Ck23URGIrz</a></p>&mdash; Josiah Hawthorne (@JosiahHawthorne) <a href="https://twitter.com/JosiahHawthorne/status/1777708634266271861?ref_src=twsrc%5Etfw">April 9, 2024</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 
 <p class="sr-only">
   X post by Josiah Hawthorne (@JosiahHawthorne). Tweet text: “Does Romans 5 make a deliberate
@@ -39,7 +39,7 @@ Where it took me wasn’t exactly where I expected, but it wasn’t exactly shoc
 >
 > (<a href="/romans-5">Romans 5:1-21 LIT</a>)
 
-Here's how I’ve distilled the flow of the argument:
+Here’s how I’ve distilled the flow of the argument:
 
 <ul>
 <li>
@@ -88,6 +88,6 @@ Once we know that’s how Paul, Jesus, and other biblical figures are using thes
 >
 > (<a href="/mark-14">Mark 14:22-24 LIT</a>)
 
-Reading things with careful attention to context starts to shift things for me. It starts to have larger implications that simply word choice. It starts to expand things—from simply 'many'—to all.
+Reading things with careful attention to context starts to shift things for me. It starts to have larger implications that simply word choice. It starts to expand things—from simply ‘many’—to all.
 
 How would you answer Josiah Hawthorne’s question?
