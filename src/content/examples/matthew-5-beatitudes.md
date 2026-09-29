@@ -35,5 +35,5 @@ traditionalText: |
   Blessed are the peacemakers, for they will be called children of God.
 
   Blessed are those who are persecuted because of righteousness, for theirs is the kingdom of heaven.
-note: "Where traditional versions say 'Blessed,' LIT reads 'have reason for gratitude.' 'Poor in spirit' becomes 'poor who are with the Life-breath.'"
+note: "Where traditional versions say ‘Blessed,’ LIT reads ‘have reason for gratitude.’ ‘Poor in spirit’ becomes ‘poor who are with the Life-breath.’"
 ---
