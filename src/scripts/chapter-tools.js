@@ -45,7 +45,7 @@ function init(container) {
   readAloud = initReadAloud({
     container,
     root: readAloudRoot,
-    startButton: readAloudRoot?.querySelector("button"),
+    startButtons: document.querySelectorAll("[data-read-aloud-start]"),
     verseText: (verse) => getVerseText(container, verse, verse, { numbers: false }),
     title: getChapterRef(),
   });

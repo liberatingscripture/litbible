@@ -10,6 +10,8 @@ export type Props = {
   kind?: "intro" | "chapter";
   bookKey?: string;
   chapter?: number;
+  /** A published chapter with text: the Read aloud icon after the title. */
+  readAloud?: boolean;
 };
 
 const props = Astro.props as Props;
@@ -83,9 +85,31 @@ const headingText = !bookKey
 ---
 
 <header class="scripture-header">
-  <h1 id="chapter-title" class="chapter-title" data-pagefind-meta="title">
-    {headingText}
-  </h1>
+  {/* The title sits in the middle of three columns, so an icon after it
+      leaves it centred. The icon is outside the h1, which keeps the
+      heading's name "Romans 8". */}
+  <div class="chapter-title-row">
+    <h1 id="chapter-title" class="chapter-title" data-pagefind-meta="title">
+      {headingText}
+    </h1>
+    {props.readAloud && kind === "chapter" ? (
+      <button
+        type="button"
+        class="read-aloud-start read-aloud-start--title"
+        data-read-aloud-start
+        aria-label={`Read ${headingText} aloud`}
+        title="Read aloud"
+      >
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+             aria-hidden="true" focusable="false">
+          <path d="M11 5 6 9H3v6h3l5 4z" fill="currentColor" />
+          <path d="M15.5 8.5a5 5 0 0 1 0 7" />
+          <path d="M18.5 5.5a9 9 0 0 1 0 13" />
+        </svg>
+      </button>
+    ) : null}
+  </div>
 
   <nav class="chapter-nav" aria-label="Chapter navigation">
     {
@@ -124,11 +148,25 @@ const headingText = !bookKey
     margin: 20px 0 18px;
   }
 
+  .chapter-title-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+    margin: 0 0 14px;
+  }
+
   .chapter-title {
+    grid-column: 2;
     font-size: 32px;
     line-height: 1.8;
-    margin: 0 0 14px;
+    margin: 0;
     text-align: center;
+  }
+
+  .read-aloud-start--title {
+    grid-column: 3;
+    justify-self: start;
+    margin-left: 6px;
   }
 
   .chapter-nav {
@@ -181,11 +219,28 @@ const headingText = !bookKey
       margin: 6px 0 10px;
     }
 
+    .chapter-title-row {
+      margin: 0;
+      padding: 0 52px;
+    }
+
     .chapter-title {
       font-size: 28px;
       line-height: 1.25;
-      margin: 0;
-      padding: 8px 52px;
+      padding: 8px 0;
+    }
+
+    /* Room for the icon on the right only. A short title stays centred
+       between the ‹ › buttons; the longest ("2 Thessalonians 3", 203px of
+       the 254px between them) moves a little left rather than wrapping. */
+    :global(html.can-speak[data-ra="title"]) .chapter-title-row {
+      grid-template-columns: minmax(0, 1fr) auto minmax(34px, 1fr);
+    }
+
+    .read-aloud-start--title {
+      width: 32px;
+      height: 32px;
+      margin-left: 2px;
     }
 
     .chapter-nav {

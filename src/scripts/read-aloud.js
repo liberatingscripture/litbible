@@ -99,7 +99,7 @@ function iconButton(name, label, className = "read-aloud-bar__btn") {
  * page shows it ("Romans 8"). Returns { startAt(verse) } for the verse menu,
  * or null when the browser can't speak.
  */
-export function initReadAloud({ container, root, startButton, verseText, title }) {
+export function initReadAloud({ container, root, startButtons = [], verseText, title }) {
   if (!readAloudSupported || !container || !root) return null;
 
   const supportsHighlight = typeof CSS !== "undefined" && "highlights" in CSS;
@@ -116,6 +116,7 @@ export function initReadAloud({ container, root, startButton, verseText, title }
   let finished = false;
   let wakeLock = null;
   let bar = null;
+  let lastStart = null; // the start control used, for focus when the bar closes
   let toggleBtn, prevBtn, nextBtn, whereBtn, statusEl, nextChapter, rateSelect, voiceSelect;
 
   let rate = Number(load(RATE_KEY));
@@ -251,7 +252,8 @@ export function initReadAloud({ container, root, startButton, verseText, title }
     bar?.remove();
     bar = null;
     document.documentElement.classList.remove("read-aloud-on");
-    startButton?.focus({ preventScroll: true });
+    // Back to the control that opened it, if it's showing.
+    if (lastStart?.offsetParent) lastStart.focus({ preventScroll: true });
   }
 
   /* ── The screen stays on while it reads ───────────────────────────── */
@@ -513,11 +515,14 @@ export function initReadAloud({ container, root, startButton, verseText, title }
     speakFrom(i < 0 ? 0 : i);
   }
 
-  startButton?.addEventListener("click", () => {
-    // A second press while the bar is open is a request to hear it from the
-    // top, which is what the button says.
-    startAt(null);
-  });
+  for (const btn of startButtons) {
+    btn.addEventListener("click", () => {
+      // A second press while the bar is open is a request to hear it from
+      // the top, which is what the button says.
+      lastStart = btn;
+      startAt(null);
+    });
+  }
 
   return { startAt };
 }
