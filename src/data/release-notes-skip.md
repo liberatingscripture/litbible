@@ -18,6 +18,18 @@ To skip a round: add an entry below, in the same commit as the content change.
 
 ---
 
+## 2026-09-28 — five citation fixes found by linking the Hebrew Bible
+
+Skipped the footnote rows for five one-word citation fixes: Romans 3 fn-n
+(Psalm 13:1–3 → 14:1–3, the psalm Romans 3:10–12 quotes), and four misspelled
+book names ("2 Samual", "Levitcus", "Provers", "1: Corinthians"). Linking
+Hebrew Bible references to Sefaria (audit X14) is what surfaced them. The same
+commit drops the italics on four book titles in three notes (John 1 fn-n,
+Luke 11 fn-ii and fn-q), which is formatting and would write no row anyway.
+
+Owner decision: typo fixes like these don't belong in the changelog. The list
+is in `FOLLOW-UP-RECONCILIATION.md` §29, for the Word back-port.
+
 ## 2026-08-21 — the eight new glossary entries
 
 Skipped 48 auto-drafted rows and hand-wrote a replacement entry in
