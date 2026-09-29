@@ -26,7 +26,7 @@ const ebible = (html, opts) =>
 const sefaria = (html, opts) =>
   [
     ...link(html, opts).matchAll(
-      /<a class="sefaria-ref" href="https:\/\/www\.sefaria\.org\/([^"?]+)\?lang=en">([^<]*)<\/a>/g
+      /<a class="sefaria-ref" href="https:\/\/www\.sefaria\.org\/([^"?]+)\?lang=en&amp;ven=[^"]+">([^<]*)<\/a>/g
     ),
   ].map((m) => [m[2], m[1]]);
 

@@ -2,8 +2,8 @@
 //
 // The Hebrew Bible half of the reference linker's outward links (audit X14,
 // owner 2026-09-28): "Deuteronomy 30:15" in a footnote links to that verse on
-// Sefaria, the free Jewish library, whose default English for the Hebrew Bible
-// is the JPS Tanakh. The New Testament links to this site's own pages
+// Sefaria, the free Jewish library, in the 2023 JPS Tanakh: Gender-Sensitive
+// Edition (see ENGLISH_VERSION). The New Testament links to this site's own pages
 // (scripture-refs.mjs) and the apocrypha to eBible.org (ebible-refs.mjs); this
 // module knows only the Hebrew Bible's books and numbering.
 //
@@ -266,6 +266,14 @@ function rangeRef(from, to) {
   return ref;
 }
 
+// The English a reader meets, named in every link so a change to Sefaria's
+// default can't change it (owner, 2026-09-29). It was already the default,
+// and was kept over the 1985 JPS, the 1917 JPS and the Koren Jerusalem Bible
+// as the one closest to the LIT's inclusive commitments; every Sefaria
+// version follows the same Hebrew numbering, so the map above holds for it.
+// Checked present in all 39 books. `ven` takes "english|<title>", spaces as _.
+const ENGLISH_VERSION = "english%7CTHE_JPS_TANAKH:_Gender-Sensitive_Edition";
+
 function url(key, ref) {
-  return `https://www.sefaria.org/${SEFARIA_TITLE[key].replace(/ /g, "_")}.${ref}?lang=en`;
+  return `https://www.sefaria.org/${SEFARIA_TITLE[key].replace(/ /g, "_")}.${ref}?lang=en&ven=${ENGLISH_VERSION}`;
 }

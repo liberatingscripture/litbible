@@ -1451,6 +1451,8 @@ need a mockup or a side-by-side the owner looks at before code.
   it on the owner's ruling: Romans 3 fn-n now cites Psalm 14:1–3 (the owner
   cites psalms by English numbering only), plus four misspelled book names.
   FOLLOW-UP-RECONCILIATION.md §29 lists them for the Word back-port.
+  Owner, 2026-09-29: stay with Sefaria (over bible.com's CEB) and with the
+  2023 JPS Gender-Sensitive Edition, now named in every link.
 
 - [x] **Side notes on wide screens (X11).**
   At 1280px and up, each footnote's first line in the margin beside its
