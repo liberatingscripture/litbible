@@ -755,9 +755,16 @@ exists to prevent.
 `src/components/SblgntNotice.astro`, which credits the SBLGNT under its CC BY
 4.0 license: Study View chapters and intros (through `ScriptureLayout`) and
 Reading View. Reading View went without it until 2026-09-27, though it prints
-whole books; a new surface that prints scripture needs it too. The notice's
-wording and form live in that one component, so changing them (FIXLIST V5)
-changes every page at once.
+whole books; a new surface that prints scripture needs it too. It is one
+sentence with the rest of the credit in a "Source text and license"
+disclosure (FIXLIST V5), and the wording lives in
+`src/components/SblgntCredits.astro`, which /read's license section renders
+too. **The requirement is CC BY 4.0's own**, since SBL asks for nothing
+beyond the license (owner, 2026-09-28): name the creators, keep the copyright
+notice, link the source text and the license, and say the work was adapted.
+The sentence (`part="line"`) does all of that by itself, so it must never
+lose a clause to the disclosure; print writes out both link addresses after
+it, since a link on paper can't be followed.
 
 ### Bracketed passages
 

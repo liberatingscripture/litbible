@@ -1,0 +1,70 @@
+---
+// The SBLGNT credit, in one place. The SBL Greek New Testament is licensed
+// under CC BY 4.0, and its site asks for nothing beyond the license, so the
+// license's own terms are the requirement (owner, 2026-09-28). Sharing an
+// adaptation means naming the creators, keeping the copyright notice,
+// linking the source text and the license, and saying it was changed.
+//
+// `part="line"` does all of that in one sentence, so it can stand alone:
+// SblgntNotice shows it after every chapter, with `part="rest"` in a
+// disclosure beneath it. /read prints the whole credit (`part="all"`).
+// print.css writes out each link's address after the line, since a link
+// on paper can't be followed.
+interface Props {
+  part?: "all" | "line" | "rest";
+}
+const { part = "all" } = Astro.props;
+
+const SOURCE_URL = "https://www.sblgnt.com/";
+const LICENSE_URL = "https://creativecommons.org/licenses/by/4.0/";
+---
+
+{
+  part === "line" && (
+    <p class="sblgnt-line">
+      The LIT is translated from{" "}
+      <a href={SOURCE_URL} rel="noopener noreferrer" target="_blank"><em>The Greek New Testament: SBL Edition</em></a>{" "}
+      (ed. Michael W. Holmes; © 2010 Society of Biblical Literature &amp;
+      Logos Bible Software), used under{" "}
+      <a href={LICENSE_URL} rel="noopener noreferrer" target="_blank">CC BY 4.0</a>.
+    </p>
+  )
+}
+{
+  part === "all" && (
+    <p>
+      The Liberation &amp; Inclusion Translation (LIT) is an original
+      English translation prepared from{" "}
+      <a href={SOURCE_URL} rel="noopener noreferrer" target="_blank"><em>The Greek New Testament: SBL Edition</em></a>{" "}
+      (ed. Michael W. Holmes; © 2010 Society of Biblical Literature &amp;
+      Logos Bible Software).
+    </p>
+  )
+}
+{
+  part !== "line" && (
+    <>
+      <p>
+        The SBLGNT is licensed under the Creative Commons Attribution 4.0,
+        International Licence (CC BY 4.0):{" "}
+        <a href={LICENSE_URL} rel="noopener noreferrer" target="_blank">{LICENSE_URL}</a>.
+        This translation constitutes an adaptation of that Greek text. Used
+        with permission.
+      </p>
+      <p>
+        Greek quotations are presented in transliterated form; accentuation
+        and punctuation follow LIT house style, mostly removed for
+        accessibility to readers without prior knowledge of Greek.
+      </p>
+      <p>
+        Portions of the SBL Greek text quoted here remain available under CC
+        BY 4.0; the NC-ND restrictions apply only to the original English
+        translation and other LIT-specific content.
+      </p>
+      <p>
+        The Society of Biblical Literature and Logos Bible Software do not
+        endorse the LIT Bible.
+      </p>
+    </>
+  )
+}
