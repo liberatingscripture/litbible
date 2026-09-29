@@ -197,6 +197,9 @@ src/
                      #   lsc-mark.mjs (see The LSC brand mark below),
                      #   scripture-refs.mjs + scripture-refs-data.mjs (the
                      #   render-time reference linker and its fs shell),
+                     #   sefaria-refs.mjs (the Hebrew Bible it links out to
+                     #   Sefaria, and the English→Hebrew verse map),
+                     #   ebible-refs.mjs (the apocrypha it links to eBible.org),
                      #   glossary-crossrefs.mjs, release-note-links.mjs +
                      #   release-note-linker.ts (see "Scripture references link
                      #   at render" below), release-notes-view.mjs (how
@@ -1677,7 +1680,8 @@ collection); they're read directly by the intro pages and the API manifest.
   (Study View), book intros, article bodies, glossary bodies, and release-note
   descriptions are passed through `linkScriptureRefs` (`src/lib/scripture-refs.mjs`,
   pure and unit-tested; `scripture-refs-data.mjs` is its fs shell) as the page is
-  built, so "Romans 2:24" becomes `<a class="sref" href="/romans-2/#v24">`. The
+  built, so "Romans 2:24" becomes `<a class="sref" href="/romans-2/#v24">`, and
+  "Deuteronomy 30:15" a `<a class="sefaria-ref">` to that verse on Sefaria. The
   chapter JSON, the intro files, `release-notes.json` and the glossary feed all
   keep their plain text, because the apps and the changelog read those. Five
   rules, each a decision rather than a limitation:
@@ -1687,12 +1691,46 @@ collection); they're read directly by the intro pages and the API manifest.
      "verse 10", a bare "(1:20–25)") stay plain: one footnote is stored
      byte-identically in 1 Corinthians 12 and 14 and means chapter 14 in both, so
      the host chapter is not a safe assumption. A bare number after a semicolon
-     is left alone too, since it could be a chapter or a verse.
-  2. **New Testament books only.** The Hebrew Bible has no pages here.
+     is left alone too, since it could be a chapter or a verse. A book title
+     set in italics links with its numbers (`<em>Sirach</em> 24`), the italics
+     kept inside the link: the linker reads one run of text at a time, so it
+     swaps a known title's tags for two private-use markers first and swaps
+     them back after. The notes don't italicize book titles (owner,
+     2026-09-28); this is for the next one that does.
+  2. **Other scripture links out** (audit X14, owner 2026-09-28): the Hebrew
+     Bible to Sefaria, the apocrypha to the World English Bible on eBible.org.
+     - **Sefaria, in Hebrew numbering.** `src/lib/sefaria-refs.mjs` holds the
+       books and the map, which is the whole job: the notes cite verses the
+       English way (the owner cites psalms by English numbering only), Sefaria
+       numbers them the Hebrew way, and the two part in 63 psalms (the heading
+       is verse 1, so "Psalm 22:1" is Hebrew 22:2) and 63 other chapters ("Joel
+       2:28" is Hebrew 3:1; the Decalogue's short commandments are one Hebrew
+       verse). The map was derived by comparing verse counts across all 39
+       books, then checked verse by verse against Sefaria's JPS 1917 text,
+       which found Psalm 13: the same length in both, numbered differently. So
+       **counts alone prove nothing, and the map changes only with the same
+       text check**, never from memory. A range keeps its end, since Sefaria
+       shows the passage, and a whole chapter the numbering moves links its
+       exact Hebrew range ("Malachi 4" is Malachi 3:19–24).
+     - **eBible.org for every apocryphal book** (`src/lib/ebible-refs.mjs`):
+       public domain, a nonprofit site with no ads, numbered as English Bibles
+       number these books, so no map. Sefaria was the first choice and was
+       dropped for these: its English covers only parts of them (Wisdom stops
+       at 2:3), translated from the Hebrew fragments and numbered differently
+       in places. The verse counts were read from eBible's own pages, including
+       the verses it leaves out as modern English Bibles do (Sirach 26:20–27).
+       A range opens at its first verse, since eBible can't highlight a span.
+       Sirach 30–36 is where English Bibles disagree with each other, so check
+       a citation there against the page. 1 Enoch isn't in the WEB and stays
+       plain.
   3. **A reference tagged with another translation stays plain** ("Mark 7:21–22
      ESV", "(John 12:16 NIV)"): it cites *that* wording, and linking it to the LIT
      text would misattribute the quotation (owner, 2026-09-27). The tag covers the
-     whole list before it. "LIT" is ours and links normally.
+     whole list before it. "LIT" is ours and links normally. A Hebrew Bible
+     reference that links out also stays plain when it names a text the other
+     site doesn't show, after it ("Psalm 40:6 LXX", "Alter's Translation") or
+     before it ("LXX Ps 51:4"), since that text's numbering or wording is the
+     one being cited.
   4. **A verse the page has no anchor for links the chapter** (a gap like Matthew
      17:21, or a draft), which is what keeps `check:links` green. That checker
      now resolves a range `#v16-18` when both ends exist, so it validates every
@@ -1709,7 +1747,8 @@ collection); they're read directly by the intro pages and the API manifest.
   floating panel with an "Open John 3 →" link. A mouse click and the keyboard
   still just follow the link. They read the per-chapter files `build:verses`
   writes, and apply to `a.sref`, the glossary's "Where it appears" lists, and
-  hand-written scripture links in article bodies, never to navigation.
+  hand-written scripture links in article bodies, never to navigation. A
+  Sefaria or eBible link has no preview; it is an ordinary link to another site.
   `src/scripts/lit-panel.js` is the one panel all reader tools share (verse
   menu, footnote popover, selection panel, preview): one open at a time, closed
   by an outside click or Escape.
@@ -2390,6 +2429,8 @@ argv, and the scan; nothing else.
 | `src/pages/read/[book].astro` | Continuous reading view |
 | `src/scripts/chapter-tools.js` | Verse highlight/menu, footnote popovers, and selection sharing (Study View); the selection bar alone in Reading View |
 | `src/lib/scripture-refs.mjs` | The render-time reference linker; read its header before widening what it links |
+| `src/lib/sefaria-refs.mjs` | The Hebrew Bible books the linker sends to Sefaria and the English→Hebrew verse map; change the map only after checking it against Sefaria's text |
+| `src/lib/ebible-refs.mjs` | The apocryphal books the linker sends to the World English Bible on eBible.org, with eBible's verse counts |
 | `src/lib/chapter-nav.mjs` | The one Previous/Next rule (steps over drafts); every chapter and intro nav reads it |
 | `src/styles/global.css` | Main stylesheet |
 | `astro.config.mjs` | Site config, redirects, sitemap/noindex draft logic |

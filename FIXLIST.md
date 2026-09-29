@@ -1425,6 +1425,24 @@ need a mockup or a side-by-side the owner looks at before code.
   after seeing it built (cards on desktop, a row per book on phones, three
   groups). Nothing shipped. Don't re-propose it without new reasons.
 
+- [x] **Link Hebrew Bible references to Sefaria (X14).**
+  "Deuteronomy 30:15" in a note, intro, article or glossary entry links to
+  that verse on Sefaria, whose default English is the JPS Tanakh. The owner
+  chose Sefaria and the numbering map, and asked for the apocrypha too.
+  DONE (2026-09-28): `src/lib/sefaria-refs.mjs`, read by the existing
+  linker; the linking itself changes no data file. English and Hebrew
+  numbering part in 63 psalms and 63 other chapters, and the map was
+  checked against Sefaria's JPS 1917 text for all 23,144 verses, which
+  caught Psalm 13 (same length in both, numbered differently). The
+  apocrypha link to the World English Bible on eBible.org instead
+  (`src/lib/ebible-refs.mjs`; owner's choice, since Sefaria's English
+  covers only parts of them): public domain, no ads, English numbering.
+  1 Enoch isn't in it and stays plain. References tagged LXX, MT or another
+  translation stay plain. Linking surfaced five wrong citations, fixed with
+  it on the owner's ruling: Romans 3 fn-n now cites Psalm 14:1–3 (the owner
+  cites psalms by English numbering only), plus four misspelled book names.
+  FOLLOW-UP-RECONCILIATION.md §29 lists them for the Word back-port.
+
 - [ ] **Side notes on wide screens (X11).**
   At 1280px and up, each footnote's first line in the margin beside its
   verse. A design exploration.

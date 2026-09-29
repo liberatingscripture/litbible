@@ -1,7 +1,10 @@
 // src/lib/scripture-refs.mjs
 //
-// Turns plain-text New Testament references in rendered HTML into links:
-// "Romans 2:24" → <a class="sref" href="/romans-2/#v24">Romans 2:24</a>.
+// Turns plain-text scripture references in rendered HTML into links:
+// "Romans 2:24" → <a class="sref" href="/romans-2/#v24">Romans 2:24</a>. The
+// Hebrew Bible links out to Sefaria (<a class="sefaria-ref">, with the verse
+// numbers mapped by sefaria-refs.mjs) and the apocrypha to the World English
+// Bible on eBible.org (<a class="ebible-ref">, ebible-refs.mjs).
 //
 // Website render only. It runs over footnote, intro, article, glossary and
 // release-note HTML as the page is built, and never over anything the apps
@@ -17,18 +20,27 @@
 //     ("John 3"), chapter:verse ("John 3:16"), or a range of either
 //     ("John 3:16–18", "Hebrews 6–9", "Galatians 5:25–6:1");
 //   - list continuations after one ("John 3:35; 5:20", "10:23, 33",
-//     "1 Corinthians 11 and 14").
+//     "1 Corinthians 11 and 14");
+//   - a book title set in italics, with its numbers ("<em>Sirach</em> 24"),
+//     the italics kept inside the link.
 // What it leaves alone:
 //   - relative forms ("vv. 9–11", "verse 10", a bare "(1:20–25)"): a footnote
 //     can be stored in two chapters and mean a third, so the host chapter is
 //     not a safe assumption;
-//   - Hebrew Bible books (only NT books are in the table);
+//   - a chapter or verse the book doesn't have (Psalm 151, "Daniel 3:35" in
+//     the Greek numbering), and a book neither site carries (1 Enoch);
 //   - a reference tagged with another translation ("Mark 7:21–22 ESV"): it
 //     cites that translation's wording, and linking it to the LIT text would
 //     misattribute the quotation. The tag covers the whole list before it.
+//     A reference that links to another site also stays plain when tagged
+//     with a text whose numbering or wording isn't the one shown there (LXX,
+//     MT, Alter's translation), since the link would open a different verse
+//     or wording;
 //   - anything already inside <a>, <script>, <style>, <code> or <pre>.
 
 import { BOOKS, BOOK_ORDER, BOOK_ABBREVIATIONS, bookKeyToLabel } from "../data/books.js";
+import { HB_BOOKS, chapterCount as hbChapterCount, sefariaHref } from "./sefaria-refs.mjs";
+import { APOCRYPHA, chapterCount as apocryphaChapterCount, ebibleHref } from "./ebible-refs.mjs";
 
 // Abbreviations beyond BOOK_ABBREVIATIONS that the corpus or SBL style uses.
 const EXTRA_NAMES = {
@@ -46,10 +58,27 @@ const OTHER_TRANSLATIONS = [
 const SP = String.raw`(?:\s|\u00a0|&nbsp;|&#160;)+`;
 const DASH = String.raw`(?:-|\u2013|&ndash;|&#8211;)`;
 
+// Books that link to another site, keyed by a prefix on the book key. And the
+// texts whose numbering or wording isn't the one those sites show, so a
+// reference tagged with them stays plain.
+const OUTBOUND = {
+  "sefaria:": { books: HB_BOOKS, chapterCount: hbChapterCount, href: sefariaHref, cls: "sefaria-ref" },
+  "ebible:": { books: APOCRYPHA, chapterCount: apocryphaChapterCount, href: ebibleHref, cls: "ebible-ref" },
+};
+const OUTBOUND_TAGS = [...OTHER_TRANSLATIONS, "LXX", "MT", "Septuagint", "Masoretic", "Alter", "JPS", "NJPS"];
+
 const NAME_TO_KEY = new Map();
 for (const key of BOOK_ORDER) {
   const names = [bookKeyToLabel(key), BOOK_ABBREVIATIONS[key], ...(EXTRA_NAMES[key] ?? [])];
   for (const name of names) if (name && !NAME_TO_KEY.has(name)) NAME_TO_KEY.set(name, key);
+}
+// Names that are ordinary words too ("Wisdom") count only with a verse.
+const VERSE_ONLY = new Set();
+for (const [prefix, { books }] of Object.entries(OUTBOUND)) {
+  for (const book of books) {
+    for (const name of book.names) if (!NAME_TO_KEY.has(name)) NAME_TO_KEY.set(name, prefix + book.key);
+    for (const name of book.verseOnly ?? []) VERSE_ONLY.add(name);
+  }
 }
 
 function escapeRe(s) {
@@ -62,11 +91,21 @@ const NAME_ALT = [...NAME_TO_KEY.keys()]
   .map((n) => escapeRe(n).replace(/ /g, SP))
   .join("|");
 
+// A book title set in italics ("<em>Wisdom of Solomon</em> 7:1–2") has a tag
+// between the name and its numbers, which the per-run pass can't see across.
+// linkScriptureRefs swaps such a title's tags for these two private-use
+// characters first, so the reference reads as one run, and swaps them back
+// after, inside the link. Only a known book name directly followed by a
+// number is swapped; any other italic title is left exactly as it was.
+const EM_OPEN = "\uE000";
+const EM_CLOSE = "\uE001";
+const EM_TITLE_RE = new RegExp(String.raw`<em>(${NAME_ALT})</em>(?=${SP}\d)`, "g");
+
 // A book name, optionally followed by a period, then the chapter-or-verse
 // number and an optional range. Not preceded by a letter, digit, or a number
 // and space (so the "John" inside "1 John" is never matched on its own).
 const REF_RE = new RegExp(
-  String.raw`(?<![A-Za-z0-9])(?<![123]${SP})(${NAME_ALT})\.?${SP}` +
+  String.raw`(?<![A-Za-z0-9])(?<![123]${SP})${EM_OPEN}?(${NAME_ALT})${EM_CLOSE}?\.?${SP}` +
     String.raw`(\d{1,3})(?::(\d{1,3}))?([a-c])?` +
     String.raw`(?:${DASH}(\d{1,3})(?::(\d{1,3}))?([a-c])?)?` +
     String.raw`(?![0-9A-Za-z]|:\d)`,
@@ -82,15 +121,27 @@ const CONT_RE = new RegExp(
     String.raw`(?![0-9A-Za-z]|:\d)`
 );
 
-const TAG_RE = new RegExp(
-  String.raw`^,?(?:\s|\u00a0|&nbsp;)*\(?(?:${OTHER_TRANSLATIONS.join("|")})(?![A-Za-z])`
-);
+// A numbered book's number ("and 1 Samuel", "and 1 Enoch") is not a verse
+// continuing the list before it, though it parses as one.
+const NUMBERED_BOOK_AHEAD = /^(?:\s|\u00a0|&nbsp;)+[A-Z]/;
+
+// An outbound reference qualified from in front ("LXX Ps 51:4") cites that
+// text's numbering or wording, so it stays plain like a tagged one.
+const QUALIFIER_BEHIND = /(?:LXX|MT|Septuagint|Masoretic)(?:\s|\u00a0|&nbsp;)*$/;
+
+const tagRe = (tags) =>
+  new RegExp(String.raw`^,?(?:\s|\u00a0|&nbsp;)*\(?(?:${tags.join("|")})(?![A-Za-z])`);
+const TAG_RE = tagRe(OTHER_TRANSLATIONS);
+const OUTBOUND_TAG_RE = tagRe(OUTBOUND_TAGS);
 
 /**
  * Resolves one parsed reference to a link target, or null when it isn't a
- * valid NT reference. `prev` is the reference this one continues, if any.
+ * valid reference. `prev` is the reference this one continues, if any.
  */
-function resolve(key, nums, { sep = null, prev = null } = {}, opts) {
+function resolve(key, nums, ctx = {}, opts) {
+  const colon = key.indexOf(":");
+  if (colon >= 0) return resolveOutbound(OUTBOUND[key.slice(0, colon + 1)], key.slice(colon + 1), nums, ctx);
+  const { sep = null, prev = null } = ctx;
   const [a, b, , c, d] = nums;
   const n = (x) => (x == null ? null : parseInt(x, 10));
   let chapter, verse = null, endVerse = null;
@@ -147,7 +198,52 @@ function resolve(key, nums, { sep = null, prev = null } = {}, opts) {
   };
 }
 
+/**
+ * The same parse for a book on another site, read in English numbering; the
+ * address comes from that site's module (for Sefaria, with the numbering
+ * mapped). A range keeps its end for the module to use: Sefaria shows the
+ * passage ("Isaiah 52:13–53:12"), eBible opens at its first verse.
+ */
+function resolveOutbound(source, key, nums, { sep = null, prev = null } = {}) {
+  const [a, b, , c, d] = nums;
+  const n = (x) => (x == null ? null : parseInt(x, 10));
+  let start;
+  let end = null;
+
+  if (b != null) {
+    start = { chapter: n(a), verse: n(b) };
+    if (c != null) end = d != null ? { chapter: n(c), verse: n(d) } : { chapter: start.chapter, verse: n(c) };
+  } else if (prev) {
+    if (prev.verse != null) {
+      if (sep === ";") return null;
+      start = { chapter: prev.chapter, verse: n(a) };
+      if (c != null && d == null) end = { chapter: start.chapter, verse: n(c) };
+    } else {
+      start = { chapter: n(a), verse: null };
+      if (c != null && d == null) end = { chapter: n(c), verse: null };
+    }
+  } else if (source.chapterCount(key) === 1) {
+    // "Obadiah 15": a one-chapter book's number is a verse.
+    start = { chapter: 1, verse: n(a) };
+    if (c != null && d == null) end = { chapter: 1, verse: n(c) };
+  } else {
+    start = { chapter: n(a), verse: null };
+    if (c != null) end = d != null ? { chapter: n(c), verse: n(d) } : { chapter: n(c), verse: null };
+  }
+
+  // A range that runs backwards isn't a range.
+  if (end) {
+    const backwards =
+      end.chapter < start.chapter ||
+      (end.chapter === start.chapter && (end.verse == null || start.verse == null || end.verse <= start.verse));
+    if (backwards) end = null;
+  }
+  const href = source.href(key, start, end);
+  return href ? { key, chapter: start.chapter, verse: start.verse, href, outbound: source.cls } : null;
+}
+
 function anchor(target, text) {
+  if (target.outbound) return `<a class="${target.outbound}" href="${target.href}">${text}</a>`;
   const draft = target.draft ? " data-draft" : "";
   return `<a class="sref" href="${target.href}"${draft}>${text}</a>`;
 }
@@ -159,9 +255,12 @@ function linkText(text, opts) {
   REF_RE.lastIndex = 0;
   let m;
   while ((m = REF_RE.exec(text))) {
-    const key = NAME_TO_KEY.get(m[1].replace(/(?:\s|\u00a0|&nbsp;|&#160;)+/g, " "));
+    const name = m[1].replace(/(?:\s|\u00a0|&nbsp;|&#160;)+/g, " ");
+    const key = NAME_TO_KEY.get(name);
+    if (VERSE_ONLY.has(name) && m[3] == null) continue;
     const first = key ? resolve(key, m.slice(2, 8), {}, opts) : null;
     if (!first) continue;
+    if (first.outbound && QUALIFIER_BEHIND.test(text.slice(0, m.index))) continue;
 
     // Collect the list this reference opens.
     const parts = [{ start: m.index, end: m.index + m[0].length, target: first }];
@@ -170,6 +269,8 @@ function linkText(text, opts) {
     for (;;) {
       const cm = CONT_RE.exec(text.slice(pos));
       if (!cm) break;
+      const bare = cm[3] == null && cm[5] == null && /^[1-4]$/.test(cm[2]);
+      if (bare && NUMBERED_BOOK_AHEAD.test(text.slice(pos + cm[0].length))) break;
       const sepRaw = cm[1].trim();
       const sep = sepRaw.startsWith(";") ? ";" : ",";
       const target = resolve(key, cm.slice(2, 8), { sep, prev }, opts);
@@ -182,7 +283,7 @@ function linkText(text, opts) {
     REF_RE.lastIndex = pos;
 
     // Tagged with another translation: the whole list stays plain.
-    if (TAG_RE.test(text.slice(pos))) continue;
+    if ((first.outbound ? OUTBOUND_TAG_RE : TAG_RE).test(text.slice(pos))) continue;
 
     for (const p of parts) {
       out += text.slice(last, p.start) + anchor(p.target, text.slice(p.start, p.end));
@@ -226,7 +327,8 @@ export function mapHtmlText(html, fn, skip = SKIP_TAGS) {
 }
 
 /**
- * Links every New Testament reference in `html`.
+ * Links every scripture reference in `html`: the New Testament to this site,
+ * the Hebrew Bible to Sefaria, and the apocrypha to eBible.org.
  *
  * @param {string} html
  * @param {object} [opts]
@@ -241,5 +343,9 @@ export function linkScriptureRefs(html, opts = {}) {
     hasVerse: opts.hasVerse ?? (() => true),
     isDraft: opts.isDraft ?? (() => false),
   };
-  return mapHtmlText(html, (text) => linkText(text, o));
+  const src = String(html);
+  if (src.includes(EM_OPEN) || src.includes(EM_CLOSE)) return mapHtmlText(src, (text) => linkText(text, o));
+  return mapHtmlText(src.replace(EM_TITLE_RE, `${EM_OPEN}$1${EM_CLOSE}`), (text) => linkText(text, o))
+    .replaceAll(EM_OPEN, "<em>")
+    .replaceAll(EM_CLOSE, "</em>");
 }
