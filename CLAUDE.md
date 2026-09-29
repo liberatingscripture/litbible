@@ -1767,6 +1767,16 @@ collection); they're read directly by the intro pages and the API manifest.
        text check**, never from memory. A range keeps its end, since Sefaria
        shows the passage, and a whole chapter the numbering moves links its
        exact Hebrew range ("Malachi 4" is Malachi 3:19–24).
+       **Every link names its English: the 2023 JPS Tanakh: Gender-Sensitive
+       Edition** (`ENGLISH_VERSION`, owner 2026-09-29), so a change to
+       Sefaria's default can't change what readers meet. It was already the
+       default and was kept, over the 1985 JPS, the 1917 JPS and the Koren
+       Jerusalem Bible, as the closest to the LIT's inclusive commitments,
+       knowing it parts from the LIT in places (Isaiah 53:12 has "sinners").
+       bible.com's CEB was weighed the same day (English numbering, so no
+       map) and declined: the owner would rather readers meet, and the site
+       support, Sefaria. Every Sefaria version shares the Hebrew numbering,
+       so swapping the version never touches the map.
      - **eBible.org for every apocryphal book** (`src/lib/ebible-refs.mjs`):
        public domain, a nonprofit site with no ads, numbered as English Bibles
        number these books, so no map. Sefaria was the first choice and was

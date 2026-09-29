@@ -243,7 +243,9 @@ function resolveOutbound(source, key, nums, { sep = null, prev = null } = {}) {
 }
 
 function anchor(target, text) {
-  if (target.outbound) return `<a class="${target.outbound}" href="${target.href}">${text}</a>`;
+  // An outbound address can carry a query string (Sefaria's names its English
+  // version), whose & must be written as &amp; inside an attribute.
+  if (target.outbound) return `<a class="${target.outbound}" href="${target.href.replace(/&/g, "&amp;")}">${text}</a>`;
   const draft = target.draft ? " data-draft" : "";
   return `<a class="sref" href="${target.href}"${draft}>${text}</a>`;
 }

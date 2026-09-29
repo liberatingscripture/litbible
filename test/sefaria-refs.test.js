@@ -12,7 +12,8 @@ import assert from "node:assert/strict";
 import { HB_BOOKS, chapterCount, isLinkable, toHebrew, sefariaHref } from "../src/lib/sefaria-refs.mjs";
 
 const S = "https://www.sefaria.org/";
-const href = (key, start, end) => sefariaHref(key, start, end)?.replace(S, "").replace("?lang=en", "") ?? null;
+const QUERY = "?lang=en&ven=english%7CTHE_JPS_TANAKH:_Gender-Sensitive_Edition";
+const href = (key, start, end) => sefariaHref(key, start, end)?.replace(S, "").replace(QUERY, "") ?? null;
 const cv = (chapter, verse = null) => ({ chapter, verse });
 
 test("all 39 books, with chapter counts English Bibles give", () => {
