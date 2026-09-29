@@ -20,7 +20,7 @@ At its core, Romans is not about moral behavior or the remedy for deviation (tra
 <li>
 <strong>Belonging in the Christ Community:</strong>
 
-Paul insists that inclusion in the Christ community is not based on obedience, ethnic identity, or social standing. Instead, it is available to all through the faithfulness of Jesus. He reframes the concept of "falling short" not as a condemnation but as evidence that belonging is not dependent on whether deviation is present or absent.
+Paul insists that inclusion in the Christ community is not based on obedience, ethnic identity, or social standing. Instead, it is available to all through the faithfulness of Jesus. He reframes the concept of “falling short” not as a condemnation but as evidence that belonging is not dependent on whether deviation is present or absent.
 
 </li>
 <li>
@@ -78,20 +78,20 @@ Paul shifts to guiding practical responses, urging the community to live out the
 
 <ul>
 <li>
-<strong>Romans 1:16-17:</strong> "You see, I’m not ashamed of the triumphant message since it is the power of God for restoration for everyone who is faithful, for Jews first and then also for Greeks. God’s justness is revealed by it because of faithfulness that results in faithfulness, just as it is written, ‘The just will be alive because of faithfulness.’"
+<strong>Romans 1:16-17:</strong> “You see, I’m not ashamed of the triumphant message since it is the power of God for restoration for everyone who is faithful, for Jews first and then also for Greeks. God’s justness is revealed by it because of faithfulness that results in faithfulness, just as it is written, ‘The just will be alive because of faithfulness.’”
 
 </li>
 <li>
-<strong>Romans 3:21-24:</strong> "Right now, the justness of God has been made visible separate from Torah (while being endorsed by Torah and the Prophets), and the faithfulness of Jesus Christ is for all the faithful. You see, there is no distinction since all people deviated and are in need of God’s praiseworthiness, and with his generosity, all are unconditionally considered just through the liberation purchased by paying the price of enslavement with Christ Jesus."
+<strong>Romans 3:21-24:</strong> “Right now, the justness of God has been made visible separate from Torah (while being endorsed by Torah and the Prophets), and the faithfulness of Jesus Christ is for all the faithful. You see, there is no distinction since all people deviated and are in need of God’s praiseworthiness, and with his generosity, all are unconditionally considered just through the liberation purchased by paying the price of enslavement with Christ Jesus.”
 </li>
 <li>
-<strong>Romans 8:35-39:</strong> "Who will separate us from Christ’s love? Oppression or disaster or persecution or famine or nakedness or danger or sword? It is just as it has been written: ‘For your sake, we are put to death the whole day; we are counted as sheep for slaughter.’ Just the opposite of being separated, with all these things we attain something that transcends victory through the one who loved us. You see, I have been convinced that neither death nor life, neither messengers nor leaders, neither things that are already here nor things that are going to be, neither powerful forces nor things that are high or low, nor any other creation will be able to separate us from God’s love, which is demonstrated with Christ Jesus our Lord."
+<strong>Romans 8:35-39:</strong> “Who will separate us from Christ’s love? Oppression or disaster or persecution or famine or nakedness or danger or sword? It is just as it has been written: ‘For your sake, we are put to death the whole day; we are counted as sheep for slaughter.’ Just the opposite of being separated, with all these things we attain something that transcends victory through the one who loved us. You see, I have been convinced that neither death nor life, neither messengers nor leaders, neither things that are already here nor things that are going to be, neither powerful forces nor things that are high or low, nor any other creation will be able to separate us from God’s love, which is demonstrated with Christ Jesus our Lord.”
 </li>
 <li>
-<strong>Romans 12:4-5:</strong> "You see, just like within one body we have many parts, but the parts don’t all have the same function, in the same way, we are many parts and one body in connection with Christ, and each person is a part of each other."
+<strong>Romans 12:4-5:</strong> “You see, just like within one body we have many parts, but the parts don’t all have the same function, in the same way, we are many parts and one body in connection with Christ, and each person is a part of each other.”
 </li>
 <li>
-<strong>Romans 15:7:</strong> "With that in mind, welcome each other, just as Christ also welcomed you, resulting in praise for God."
+<strong>Romans 15:7:</strong> “With that in mind, welcome each other, just as Christ also welcomed you, resulting in praise for God.”
 </li>
 </ul>
 

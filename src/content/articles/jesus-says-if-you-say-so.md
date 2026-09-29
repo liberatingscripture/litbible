@@ -1,8 +1,8 @@
 ---
-title: Jesus says, "If you Say So"
+title: Jesus says, “If you Say So”
 date: 2024-03-28
 author: Brandon C. Vélez Johnson
-description: The religious leaders didn't want Jesus dead for claiming to be God, but for threatening political power and status. Jesus' responses and actions were seen as political challenges, leading to his crucifixion. The events of Holy Week speak to resistance against political oppression and the struggle for liberation.
+description: The religious leaders didn’t want Jesus dead for claiming to be God, but for threatening political power and status. Jesus’ responses and actions were seen as political challenges, leading to his crucifixion. The events of Holy Week speak to resistance against political oppression and the struggle for liberation.
 tags:
   [
     "Mark 14",

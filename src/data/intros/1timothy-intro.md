@@ -22,7 +22,7 @@ At its core, the letter invites believers to foster a community where belonging 
 <li>
 <strong>Prayer and Universal Liberation</strong>
 
-The letter opens with a call to inclusive prayer for "all people—even for those who reign and for all who are connected with supremacy" (1 Timothy 2:1-2). This broad invitation to intercede for everyone reflects God’s desire for universal liberation and understanding of truth (1 Timothy 2:3-4). It highlights Jesus’ mediating role, described as “the human Christ Jesus, who gave himself as payment for the price to free many people from enslavement” (1 Timothy 2:5-6).
+The letter opens with a call to inclusive prayer for “all people—even for those who reign and for all who are connected with supremacy” (1 Timothy 2:1-2). This broad invitation to intercede for everyone reflects God’s desire for universal liberation and understanding of truth (1 Timothy 2:3-4). It highlights Jesus’ mediating role, described as “the human Christ Jesus, who gave himself as payment for the price to free many people from enslavement” (1 Timothy 2:5-6).
 
 </li>
 <li>
@@ -34,7 +34,7 @@ The letter opens with a call to inclusive prayer for "all people—even for thos
 <li>
 <strong>Leadership Through Humility and Service</strong>
 
-The letter outlines qualities for leaders within the Christ community, prioritizing integrity, humility, and the ability to care for others over wealth, power, or social status (1 Timothy 3:1-13). Leadership is presented not as a position of domination but as a sacred responsibility to model Christ’s self-giving love and to "raise hands that act in alignment with divine values, free from anger and arguing" (1 Timothy 2:8).
+The letter outlines qualities for leaders within the Christ community, prioritizing integrity, humility, and the ability to care for others over wealth, power, or social status (1 Timothy 3:1-13). Leadership is presented not as a position of domination but as a sacred responsibility to model Christ’s self-giving love and to “raise hands that act in alignment with divine values, free from anger and arguing” (1 Timothy 2:8).
 
 </li>
 <li>
@@ -46,13 +46,13 @@ A recurring theme is the call to protect and provide for the vulnerable, particu
 <li>
 <strong>Rejecting Exploitation and Greed</strong>
 
-1 Timothy warns against the dangers of materialism, stating that "attachment to money is a root of every sort of harm" (1 Timothy 6:10). Instead, believers are encouraged to pursue justice, faithfulness, and love, fostering a community of generosity and mutual care. The wealthy, in particular, are advised to "not think of themselves as above others" but to invest in the well-being of others and the "coming Age" through generosity and readiness to share (1 Timothy 6:17-19).
+1 Timothy warns against the dangers of materialism, stating that “attachment to money is a root of every sort of harm” (1 Timothy 6:10). Instead, believers are encouraged to pursue justice, faithfulness, and love, fostering a community of generosity and mutual care. The wealthy, in particular, are advised to “not think of themselves as above others” but to invest in the well-being of others and the “coming Age” through generosity and readiness to share (1 Timothy 6:17-19).
 
 </li>
 <li>
 <strong>Accountability and Integrity in Leadership</strong>
 
-The letter insists on the importance of accountability for leaders. Leaders who "labor with conversation and teaching" are recognized as worthy of "dual support" (1 Timothy 5:17-18). However, those who "deviate" are to be publicly exposed to protect the community and warn others (1 Timothy 5:20). This call to transparency ensures that no leader operates above accountability and that the safety of the community is prioritized.
+The letter insists on the importance of accountability for leaders. Leaders who “labor with conversation and teaching” are recognized as worthy of “dual support” (1 Timothy 5:17-18). However, those who “deviate” are to be publicly exposed to protect the community and warn others (1 Timothy 5:20). This call to transparency ensures that no leader operates above accountability and that the safety of the community is prioritized.
 
 </li>
 </ul>
@@ -90,31 +90,31 @@ The letter concludes with a challenge to pursue godliness and avoid the destruct
 <li>
 <strong>1 Timothy 2:1-4:</strong>
 
-"First of all, therefore, I encourage making requests, prayers, intercessions, and giving thanks for all people—even for those who reign and for all who are connected with supremacy—so that we may lead a stable and undisturbed life with complete respect and dignity. This is pleasing and welcomed from the perspective of God our Liberator, who wants all people to be liberated and to come toward an understanding of truth."
+“First of all, therefore, I encourage making requests, prayers, intercessions, and giving thanks for all people—even for those who reign and for all who are connected with supremacy—so that we may lead a stable and undisturbed life with complete respect and dignity. This is pleasing and welcomed from the perspective of God our Liberator, who wants all people to be liberated and to come toward an understanding of truth.”
 
 </li>
 <li>
 <strong>1 Timothy 4:1-5:</strong>
 
-"The Life-breath clearly says that in later times, some will abandon faithfulness, devoting themselves to misleading spirit-breaths and demonic teachings, because of phoniness on the part of those who speak lies, those who have cauterized their own attentiveness, those who forbid people to marry or require people to keep away from foods which God created for partaking with thanksgiving for the faithful and those who have understood the truth. You see, every creation of God is valuable, and nothing received with thanksgiving is to be discarded because it is being designated for sacred purposes by what God says and intercession."
+“The Life-breath clearly says that in later times, some will abandon faithfulness, devoting themselves to misleading spirit-breaths and demonic teachings, because of phoniness on the part of those who speak lies, those who have cauterized their own attentiveness, those who forbid people to marry or require people to keep away from foods which God created for partaking with thanksgiving for the faithful and those who have understood the truth. You see, every creation of God is valuable, and nothing received with thanksgiving is to be discarded because it is being designated for sacred purposes by what God says and intercession.”
 
 </li>
 <li>
 <strong>1 Timothy 5:20-22:</strong>
 
-"However, expose the elders who do deviate in front of everyone so that the rest will be warned. I swear in front of God and Christ Jesus and the chosen messengers that you would observe these things without there being any prejudice or anyone doing anything based on bias. Don’t lay hands on anyone hastily, but also don’t be complicit in other people’s deviations. Keep yourself genuine."
+“However, expose the elders who do deviate in front of everyone so that the rest will be warned. I swear in front of God and Christ Jesus and the chosen messengers that you would observe these things without there being any prejudice or anyone doing anything based on bias. Don’t lay hands on anyone hastily, but also don’t be complicit in other people’s deviations. Keep yourself genuine.”
 
 </li>
 <li>
 <strong>1 Timothy 6:6-11:</strong>
 
-"However, treating people respectfully is itself sufficiently great gain. You see, we brought nothing into the world, so neither can we bring anything out of it. When we have food and shelter, we’ll be satisfied with those. However, those who intend to be wealthy fall into testing and a trap and many foolish and injurious desires that plunge people into ruin and destruction. You see, attachment to money is a root of every sort of harm, by which some who reach for it have been led away from the commitment and inflicted many sorrows on themselves. However, as a person of God, run away from these things. Instead, pursue living justly, respectfulness, faithfulness, love, endurance, and gentleness."
+“However, treating people respectfully is itself sufficiently great gain. You see, we brought nothing into the world, so neither can we bring anything out of it. When we have food and shelter, we’ll be satisfied with those. However, those who intend to be wealthy fall into testing and a trap and many foolish and injurious desires that plunge people into ruin and destruction. You see, attachment to money is a root of every sort of harm, by which some who reach for it have been led away from the commitment and inflicted many sorrows on themselves. However, as a person of God, run away from these things. Instead, pursue living justly, respectfulness, faithfulness, love, endurance, and gentleness.”
 
 </li>
 <li>
 <strong>1 Timothy 6:17-19:</strong>
 
-"Pass it on to those who are wealthy in the present age not to think of themselves as above others or to have placed their hope in wealth because of uncertainty but, instead, in God who richly offers us everything for gratification. Pass on to them to be generous, to be wealthy in honorable actions, to be willing to give freely, inclined to share with others, investing in a noble foundation for themselves for the coming Age, so that they can take hold of what is truly life."
+“Pass it on to those who are wealthy in the present age not to think of themselves as above others or to have placed their hope in wealth because of uncertainty but, instead, in God who richly offers us everything for gratification. Pass on to them to be generous, to be wealthy in honorable actions, to be willing to give freely, inclined to share with others, investing in a noble foundation for themselves for the coming Age, so that they can take hold of what is truly life.”
 
 </li>
 </ul>
@@ -129,10 +129,10 @@ The letter concludes with a challenge to pursue godliness and avoid the destruct
 
 <ol>
 <li>
-<strong>Honoring Leaders Who Serve Well:</strong> Leaders who "labor with conversation and teaching" are described as worthy of "dual support" (1 Timothy 5:17-18), recognizing the value of their work. This aligns with the principles of equity and justice, ensuring that those who guide the community are treated with respect and adequately provided for.
+<strong>Honoring Leaders Who Serve Well:</strong> Leaders who “labor with conversation and teaching” are described as worthy of “dual support” (1 Timothy 5:17-18), recognizing the value of their work. This aligns with the principles of equity and justice, ensuring that those who guide the community are treated with respect and adequately provided for.
 </li>
 <li>
-<strong>Exposing Harmful Leadership:</strong> Leaders who deviate from the values of justice and integrity are to be held accountable. The directive to "expose the elders who do deviate in front of everyone so that the rest will be warned" (1 Timothy 5:20) reflects a commitment to transparency and communal safety. By making deviations public, the Christ community can address harm directly and deter others from similar behavior.
+<strong>Exposing Harmful Leadership:</strong> Leaders who deviate from the values of justice and integrity are to be held accountable. The directive to “expose the elders who do deviate in front of everyone so that the rest will be warned” (1 Timothy 5:20) reflects a commitment to transparency and communal safety. By making deviations public, the Christ community can address harm directly and deter others from similar behavior.
 </li>
 <li>
 <strong>Avoiding Bias and Prejudice:</strong> Leaders are called to exercise discernment without prejudice, favoritism, or retaliation for whistleblowing (1 Timothy 5:21), reinforcing that accountability must be applied equitably, regardless of status or relationships.
@@ -149,10 +149,10 @@ The instructions in 1 Timothy 2:9-15 that address men and women directly have of
 
 <ol>
 <li>
-<strong>Women’s Education as a Radical Affirmation:</strong> The directive for women to "learn with full cooperation undisturbed" (1 Timothy 2:11) is a striking departure from the norms of its time. In a culture where women were often excluded from formal education, this instruction affirms their equal right to learn and participate in the life of the Christ community. The emphasis on learning “undisturbed” (sometimes translated as “in quietness”) does not imply silence but rather an environment free from conflict or interruption, fostering respectful engagement with the teaching. 
+<strong>Women’s Education as a Radical Affirmation:</strong> The directive for women to “learn with full cooperation undisturbed” (1 Timothy 2:11) is a striking departure from the norms of its time. In a culture where women were often excluded from formal education, this instruction affirms their equal right to learn and participate in the life of the Christ community. The emphasis on learning “undisturbed” (sometimes translated as “in quietness”) does not imply silence but rather an environment free from conflict or interruption, fostering respectful engagement with the teaching. 
 </li>
 <li>
-<strong>Addressing Harmful Dynamics, Not Restricting Women’s Roles:</strong> The prohibition against women "domineering over men" (1 Timothy 2:12) critiques specific harmful behaviors rather than prescribing a universal restriction on women’s leadership. The Greek word <em>authentein</em>, often translated as “authority,” carries connotations of domineering or usurping authority rather than exercising legitimate leadership. This suggests the author was addressing a localized issue, possibly women who, newly empowered to learn and teach, were inadvertently replicating patriarchal models of domination by attempting to wield authority oppressively. Far from limiting women’s roles, this passage critiques domination itself—whether by men or women—and invites both genders to engage in worship and leadership in ways that foster mutual respect and cooperation. 
+<strong>Addressing Harmful Dynamics, Not Restricting Women’s Roles:</strong> The prohibition against women “domineering over men” (1 Timothy 2:12) critiques specific harmful behaviors rather than prescribing a universal restriction on women’s leadership. The Greek word <em>authentein</em>, often translated as “authority,” carries connotations of domineering or usurping authority rather than exercising legitimate leadership. This suggests the author was addressing a localized issue, possibly women who, newly empowered to learn and teach, were inadvertently replicating patriarchal models of domination by attempting to wield authority oppressively. Far from limiting women’s roles, this passage critiques domination itself—whether by men or women—and invites both genders to engage in worship and leadership in ways that foster mutual respect and cooperation. 
 </li>
 
 <li>
@@ -160,10 +160,10 @@ The instructions in 1 Timothy 2:9-15 that address men and women directly have of
 <strong>Reframing the Creation Narrative:</strong> The references to Adam and Eve in 1 Timothy 2:13-14 have been weaponized to suggest that women are inherently more prone to deception or unfit for leadership. However, such interpretations ignore the broader context of the letter and the intention behind these verses. The creation narrative is invoked here not to universalize Eve’s experience as a condemnation of all women, but to address a specific cultural context. In Ephesus, where myths surrounding women’s spiritual superiority and authority (possibly tied to Artemis worship) were prominent, this passage may have served as a corrective, emphasizing the shared vulnerability of humanity, both male and female, to deviation (<em>hamartia</em>).
 </p>
 <p>
-Furthermore, the reference to Eve’s deception does not suggest that all women are inherently gullible, deceptive, or culpable. The assertion that "Adam was not tricked, but the woman, being tricked, deviated" (1 Timothy 2:14) is not a judgment against Eve and commendation of Adam. In fact, it communicates the opposite. Eve’s deviation arose from being deceived—unknowingly participating in something harmful—while Adam fully understood what was at stake and consciously chose to act anyway. This framing shifts the focus from inherent gender traits to the dynamics of accountability and responsibility. Eve’s deception highlights the importance of proper teaching and understanding to prevent individuals from unknowingly participating in harm. Meanwhile, Adam’s choice emphasizes the weight of intentional actions and the need for accountability. Both men and women are called to learn, grow, and act with Christlike maturity and integrity within the Christ community.
+Furthermore, the reference to Eve’s deception does not suggest that all women are inherently gullible, deceptive, or culpable. The assertion that “Adam was not tricked, but the woman, being tricked, deviated” (1 Timothy 2:14) is not a judgment against Eve and commendation of Adam. In fact, it communicates the opposite. Eve’s deviation arose from being deceived—unknowingly participating in something harmful—while Adam fully understood what was at stake and consciously chose to act anyway. This framing shifts the focus from inherent gender traits to the dynamics of accountability and responsibility. Eve’s deception highlights the importance of proper teaching and understanding to prevent individuals from unknowingly participating in harm. Meanwhile, Adam’s choice emphasizes the weight of intentional actions and the need for accountability. Both men and women are called to learn, grow, and act with Christlike maturity and integrity within the Christ community.
 </p>
 <p>
-The closing verse, often translated as "women will be saved through childbearing," has been another source of misinterpretation. The more accurate translation—"However, Eve will be liberated through having had children if they persist with self-discipline in faithfulness, love, and designation for sacred purposes"—provides a more clear and restorative understanding. The liberation arising through having had children is not based on all women bearing children. Instead, it reflects the broader trajectory of restoration for all humanity as descendants of Eve specifically.
+The closing verse, often translated as “women will be saved through childbearing,” has been another source of misinterpretation. The more accurate translation—“However, Eve will be liberated through having had children if they persist with self-discipline in faithfulness, love, and designation for sacred purposes”—provides a more clear and restorative understanding. The liberation arising through having had children is not based on all women bearing children. Instead, it reflects the broader trajectory of restoration for all humanity as descendants of Eve specifically.
 </p>
 <p>
 The emphasis is on the community’s persistence in faithfulness, love, and sacred self-discipline. If everyone—men and women alike—lives into these values, the deviation introduced in the story of Adam and Eve will be corrected, setting a trajectory for the flourishing of all creation. This verse does not confine women to a domestic role but affirms the sacredness of humanity’s collective potential to embody God’s purposes. It points to the ultimate liberation of all people through their participation in God’s justice and love, undoing the consequences of deviation and bringing the Christ community into alignment with God’s Reign.
@@ -179,10 +179,10 @@ In 1 Timothy 6, the letter directly confronts materialism and the misuse of weal
 
 <ul>
 <li>
-The warning that "attachment to money is a root of every sort of harm" (1 Timothy 6:10) critiques systems of exploitation and the prioritization of profit over people. It challenges the community to embody generosity and justice, particularly for those in positions of power.
+The warning that “attachment to money is a root of every sort of harm” (1 Timothy 6:10) critiques systems of exploitation and the prioritization of profit over people. It challenges the community to embody generosity and justice, particularly for those in positions of power.
 </li>
 <li>
-The directive to wealthy members to "not think of themselves as above others" and to focus on being "generous... inclined to share with others" (1 Timothy 6:17-18) reinforces the value of equity and mutual care.
+The directive to wealthy members to “not think of themselves as above others” and to focus on being “generous... inclined to share with others” (1 Timothy 6:17-18) reinforces the value of equity and mutual care.
 </li>
 </ul>
 This chapter exposes the subtle ways wealth and power can distort relationships and calls the Christ community to resist systems of domination and inequity.
@@ -195,7 +195,7 @@ The instruction for enslaved followers of Christ to treat their enslavers with d
 
 Far from endorsing enslavement, this approach seeks to undermine the system from within by modeling an ethic of mutual care and respect that challenges the oppressive dynamics of the master-slave relationship. The instruction to honor enslavers is not about validating their power but about upholding the enslaved person’s dignity and agency in the face of dehumanization.
 
-The injunction not to “look down on 'faithful' enslavers” (1 Timothy 6:2) carries a subtle, almost satirical undertone. The phrase “’faithful’ enslavers” can be read as a critique of those who claim allegiance to Christ while perpetuating systems of oppression. By describing such individuals as “faithful,” the text exposes the dissonance between their actions and the values of justice and liberation inherent in the triumphant message.
+The injunction not to “look down on ‘faithful’ enslavers” (1 Timothy 6:2) carries a subtle, almost satirical undertone. The phrase “‘faithful’ enslavers” can be read as a critique of those who claim allegiance to Christ while perpetuating systems of oppression. By describing such individuals as “faithful,” the text exposes the dissonance between their actions and the values of justice and liberation inherent in the triumphant message.
 
 This instruction serves as a coded message within a context of systemic oppression, offering a way for the Christ community to navigate the realities of empire without explicitly challenging its structures—a necessity for survival under a violence-wielding government that upheld slavery as a cornerstone of its economy. This form of dissembling allowed the oppressed to maintain their faithfulness and integrity while subtly but firmly resisting the legitimacy of their oppressors’ actions.
 

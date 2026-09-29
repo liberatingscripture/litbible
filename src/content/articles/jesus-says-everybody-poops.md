@@ -2,7 +2,7 @@
 title: "Jesus Says Everybody Poops"
 date: 2024-03-07
 author: Brandon C. Vélez Johnson
-description: I'm noticing in my translation work on Mark 7, the impact of the shift from ‘defiled’ to ‘unconsecrated’ and how traditional translations are harmful. Jesus' criticism is about how people treat each other, not religious codes. The LIT emphasizes social and systemic issues, while the ESV focuses on individual piety. The overall message is about prioritizing people over virtue signaling.
+description: I’m noticing in my translation work on Mark 7, the impact of the shift from ‘defiled’ to ‘unconsecrated’ and how traditional translations are harmful. Jesus’ criticism is about how people treat each other, not religious codes. The LIT emphasizes social and systemic issues, while the ESV focuses on individual piety. The overall message is about prioritizing people over virtue signaling.
 tags: ["Mark 7", "Purity", "Defiled", "Clean", "Unclean"]
 featured: false
 heroImage: "/images/articles/pexels-photo-88808.webp"
@@ -26,7 +26,7 @@ I’ll explain more after the quotation. Take a look at it here (or even compare
 
 As I see it, there are two major shifts. The first is the difference between ‘defiled’ and ‘unconsecrated’ (and how I understand holiness and clean/unclean imagery). What comes to mind when you think of something being defiled? I get a visceral nose-wrinkling, queasy-making disgust response in my body. I almost get a visual image in my mind of something smeared with feces. Certainly, ‘unclean’ would be an accurate—if somewhat understated—description of that.
 
-But that’s not what it says. The Greek there is <em>koine</em>, which literally just means ‘common’ or ‘ordinary’ or 'normal.' The Greek dialect the Bible is written in is called Koine Greek. Certainly, we’re not thinking the Bible was written in <em>Defiled</em> Greek, are we?
+But that’s not what it says. The Greek there is <em>koine</em>, which literally just means ‘common’ or ‘ordinary’ or ‘normal.’ The Greek dialect the Bible is written in is called Koine Greek. Certainly, we’re not thinking the Bible was written in <em>Defiled</em> Greek, are we?
 
 So, the question is how is it ‘ordinary’? It’s the opposite of sacred. The opposite of sacred is not anti-sacred. It’s not attacking or against sacredness. It’s just not sacred. It’s ordinary.
 
@@ -38,7 +38,7 @@ The ‘clean’ and ‘unclean’ imagery is always about a sacred calling or pu
 
 Even more <em>ordinary</em> (see what I did there?) ways of being clean or unclean had the lens of sacred calling in view, such as eating certain types of meat (the sacred calling to taking care of your body in a nourishing and healthy way) or getting rid of mold (preparing a home for the sacred calling of providing people with shelter). Westerners have lost our awareness of the sacredness of reality and limit it only to explicitly religious activities for the most part. It makes it difficult to understand the Bible, which has a much more expansive view of sacredness.
 
-Here's the other thing I’m noticing as I reflect on what I saw as I translated. Take a look at these verses in two translations side-by-side:
+Here’s the other thing I’m noticing as I reflect on what I saw as I translated. Take a look at these verses in two translations side-by-side:
 
 > LIT: You see, from inside—from people’s hearts—go out harmful deliberations, sexual exploitation, theft, murder, marital infidelity, greed, actions that cause others hardship, fraud, lack of restraint, pursuing oppressive gain, speaking disrespectfully, thinking of oneself as above others, and carelessness.
 >

@@ -68,16 +68,16 @@ The second half of the letter shifts to practical instructions, urging the commu
 <h2>Key Passages</h2>
 <ul>
 <li>
-<strong>Ephesians 1:7, 8, 10b:</strong> " Through Christ we have the purchase of liberation from enslavement through his blood, the release of shortfalls, based on the richness of his generosity, which he shared lavishly for us regarding all wisdom and awareness … to bring under one Head everything connected with Christ, everything connected with him from the sky to the ground."
+<strong>Ephesians 1:7, 8, 10b:</strong> “Through Christ we have the purchase of liberation from enslavement through his blood, the release of shortfalls, based on the richness of his generosity, which he shared lavishly for us regarding all wisdom and awareness … to bring under one Head everything connected with Christ, everything connected with him from the sky to the ground.”
 </li>
 <li>
-<strong>Ephesians 2:14-16:</strong> "That’s because Christ is our peace, the one who made both groups into one and tore down the wall between us—the hostility—with his body. He took away the power of law from directives given through decrees, so that—using himself—he could make peace between the two and create one new Person and reconcile them both in the interest of God into one Body through the cross, having eliminated the hostility with himself"
+<strong>Ephesians 2:14-16:</strong> “That’s because Christ is our peace, the one who made both groups into one and tore down the wall between us—the hostility—with his body. He took away the power of law from directives given through decrees, so that—using himself—he could make peace between the two and create one new Person and reconcile them both in the interest of God into one Body through the cross, having eliminated the hostility with himself”
 </li>
 <li>
-<strong>Ephesians 4:1-3:</strong> "Walk appropriately for the calling with which you have been called: with complete humility and gentleness, with patience, putting up with each other with love, striving to protect the unity produced by the Life-breath with bonding peace."
+<strong>Ephesians 4:1-3:</strong> “Walk appropriately for the calling with which you have been called: with complete humility and gentleness, with patience, putting up with each other with love, striving to protect the unity produced by the Life-breath with bonding peace.”
 </li>
 <li>
-<strong>Ephesians 6:12:</strong> "Finally, be strengthened by the Lord and with the Lord's intense strength. Put on the battle gear associated with God in order to be able to withstand against the False Accuser’s schemes because our battle is not against blood and body but against the leaders, against the authorities, against the conquerors of the world system—who are characterized by this darkness—and against the things that are associated with the oppressive spirit-breath in the highest heavens."
+<strong>Ephesians 6:12:</strong> “Finally, be strengthened by the Lord and with the Lord’s intense strength. Put on the battle gear associated with God in order to be able to withstand against the False Accuser’s schemes because our battle is not against blood and body but against the leaders, against the authorities, against the conquerors of the world system—who are characterized by this darkness—and against the things that are associated with the oppressive spirit-breath in the highest heavens.”
 </li>
 </ul>
 
@@ -91,13 +91,13 @@ Ephesians 5 has often been used as a weapon against women and a tool to support 
 
 <ul>
 <li>
-While some Bible versions insert a heading between verses 21 and 22, this translation insists on faithfulness to the Greek, which is structured so that 21 and 22 are part of the same sentence: "As you are cooperating with each other with Christ’s respectfulness, wives do so with your husbands like with the Lord, since a husband is head of the wife like Christ is also the Head of the Assembly—he is the caregiver for the Body."
+While some Bible versions insert a heading between verses 21 and 22, this translation insists on faithfulness to the Greek, which is structured so that 21 and 22 are part of the same sentence: “As you are cooperating with each other with Christ’s respectfulness, wives do so with your husbands like with the Lord, since a husband is head of the wife like Christ is also the Head of the Assembly—he is the caregiver for the Body.”
 </li>
 <li>
-The continued thought clarifies the emphasis on mutual care rather than domination even further: "In the same way, husbands owe their wives love like they show to their own bodies. Whoever loves his wife loves himself. No one ever treated their own body maliciously; instead, they nurture it and take care of it tenderly, just as Christ also does for the Assembly since we are the parts of his Body" (Ephesians 5:28-30 LIT)
+The continued thought clarifies the emphasis on mutual care rather than domination even further: “In the same way, husbands owe their wives love like they show to their own bodies. Whoever loves his wife loves himself. No one ever treated their own body maliciously; instead, they nurture it and take care of it tenderly, just as Christ also does for the Assembly since we are the parts of his Body” (Ephesians 5:28-30 LIT)
 </li>
 <li>
-Finally, the traditional ‘see that’ in verse 33 is not grammatically a command. Instead, it is a conditional statement that should be translated as ‘so that’: "Nevertheless, each and every one of you: treat your wife with love like you treat yourself so that the wife can show respect to her husband."
+Finally, the traditional ‘see that’ in verse 33 is not grammatically a command. Instead, it is a conditional statement that should be translated as ‘so that’: “Nevertheless, each and every one of you: treat your wife with love like you treat yourself so that the wife can show respect to her husband.”
 </li>
 </ul>
 

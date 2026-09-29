@@ -15,7 +15,7 @@ Jude vividly critiques these individuals, describing their actions as self-servi
 <li>
 <strong>Guarding the Faithful Community</strong>
 
-Jude urges the community to "contend for the faithfulness given over permanently to those who have been dedicated for a purpose" (Jude 3). This call is rooted in a commitment to the liberative truth of Jesus, challenging the community to remain vigilant against teachings that distort justice and love.
+Jude urges the community to “contend for the faithfulness given over permanently to those who have been dedicated for a purpose” (Jude 3). This call is rooted in a commitment to the liberative truth of Jesus, challenging the community to remain vigilant against teachings that distort justice and love.
 
 </li>
 <li>
@@ -33,7 +33,7 @@ While Jude warns of the consequences of corruption, he also emphasizes God’s o
 <li>
 <strong>Belovedness and Perseverance</strong>
 
-The letter celebrates the community’s identity as beloved and calls them to "watch over yourselves with the love of God" (Jude 21), trusting in God’s faithfulness to sustain them. Jude’s doxology (Jude 24-25) affirms God’s power to protect the community and lead them toward liberation and ultimate restoration.
+The letter celebrates the community’s identity as beloved and calls them to “watch over yourselves with the love of God” (Jude 21), trusting in God’s faithfulness to sustain them. Jude’s doxology (Jude 24-25) affirms God’s power to protect the community and lead them toward liberation and ultimate restoration.
 
 </li>
 </ul>

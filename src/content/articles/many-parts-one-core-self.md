@@ -2,7 +2,7 @@
 title: "Many Parts, One Core Self"
 date: 2024-04-18
 author: Brandon C. Vélez Johnson
-description: The passage in Romans 7:15-24 can be seen through the lens of externalization, a common therapeutic concept. Paul separates his core self from the parts of him that follow a different set of values, similar to the therapeutic approach of separating a person from their problematic behaviors. This perspective encourages addressing the real issue, meeting legitimate needs in ways that don't cause harm, and seeking community support for healing and finding better solutions.
+description: The passage in Romans 7:15-24 can be seen through the lens of externalization, a common therapeutic concept. Paul separates his core self from the parts of him that follow a different set of values, similar to the therapeutic approach of separating a person from their problematic behaviors. This perspective encourages addressing the real issue, meeting legitimate needs in ways that don’t cause harm, and seeking community support for healing and finding better solutions.
 tags: ["Romans 7", "sin", "deviation", "counseling", "therapy"]
 featured: false
 heroImage: "/images/articles/parts-exposed.webp"

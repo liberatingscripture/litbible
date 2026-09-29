@@ -31,7 +31,7 @@ The letter invites the audience into a transformative new way of life, where the
 <li>
 <strong>Unity in the Christ Community:</strong>
 
-Colossians highlights the dismantling of divisions within the Christ community, emphasizing that all are included regardless of ethnicity, social status, or cultural background. In Christ, "there is no labeling people as Greek or Jew, circumcised or having foreskin, uncultured or uncivilized, enslaved or free." (Colossians 3:11 LIT), emphasizing the radical equality and mutual belonging of all members.
+Colossians highlights the dismantling of divisions within the Christ community, emphasizing that all are included regardless of ethnicity, social status, or cultural background. In Christ, “there is no labeling people as Greek or Jew, circumcised or having foreskin, uncultured or uncivilized, enslaved or free.” (Colossians 3:11 LIT), emphasizing the radical equality and mutual belonging of all members.
 
 </li>
 <li>
@@ -98,25 +98,25 @@ Paul concludes with personal greetings and encouragement, highlighting the inter
 > whether thrones or lordships or leaders or authorities,<br>
 > all things were created through him and for him.<br>
 > He comes before everyone,<br>
-> and everything has been brought together through him."
+> and everything has been brought together through him.”
 
 </li>
 <li>
 <strong>Colossians 2:6-7:</strong>
 
-“Therefore, just as you initially took Christ Jesus as Lord, continue walking with him just as you were taught, having been given roots, being built up to be like him, and established in faithfulness, overflowing with gratitude.
+“Therefore, just as you initially took Christ Jesus as Lord, continue walking with him just as you were taught, having been given roots, being built up to be like him, and established in faithfulness, overflowing with gratitude.”
 
 </li>
 <li>
-<strong>"Colossians 2:11-15:</strong>
+<strong>Colossians 2:11-15:</strong>
 
-"You [the Body of Christ] were circumcised through him with a circumcision not done with hands but with the removal of his personal body, with Christ’s circumcision, having been buried along with him through immersion, woken up along with him through the faithfulness of the work of God who woke him up from the dead and, you being dead because of your shortfalls and not being bodily circumcised, he brought you to life along with him—having granted the discharge of our shortfalls, erasing what was against us—the record of debt, the declarations which were made against us—and he lifted it from between us, nailing it to the cross. He humiliated the leaders and authorities publicly, stripping away their power and displaying triumph over them with it."
+“You [the Body of Christ] were circumcised through him with a circumcision not done with hands but with the removal of his personal body, with Christ’s circumcision, having been buried along with him through immersion, woken up along with him through the faithfulness of the work of God who woke him up from the dead and, you being dead because of your shortfalls and not being bodily circumcised, he brought you to life along with him—having granted the discharge of our shortfalls, erasing what was against us—the record of debt, the declarations which were made against us—and he lifted it from between us, nailing it to the cross. He humiliated the leaders and authorities publicly, stripping away their power and displaying triumph over them with it.”
 
 </li>
 <li>
 <strong>Colossians 3:11-14:</strong>
 
-"In that way of thinking, there is no labeling people as Greek or Jew, circumcised or having foreskin, uncultured or uncivilized, enslaved or free, but instead, Christ is everything and in everything. Therefore, as those whom God has chosen, sacred and beloved, put on compassion to your core, active kindness, humility, gentleness, and patience, putting up with each other and responding generously to each other if anyone has reason to complain against anyone else. Just like the lord responded generously to you, you also ought to do the same. And over all these, put on love, which completes the uniform. Let the peace of Christ—toward which you were called as one Body—govern decisions regarding your desires, and be thankful."
+“In that way of thinking, there is no labeling people as Greek or Jew, circumcised or having foreskin, uncultured or uncivilized, enslaved or free, but instead, Christ is everything and in everything. Therefore, as those whom God has chosen, sacred and beloved, put on compassion to your core, active kindness, humility, gentleness, and patience, putting up with each other and responding generously to each other if anyone has reason to complain against anyone else. Just like the lord responded generously to you, you also ought to do the same. And over all these, put on love, which completes the uniform. Let the peace of Christ—toward which you were called as one Body—govern decisions regarding your desires, and be thankful.”
 
 </li>
 </ul>
@@ -129,10 +129,10 @@ A clear example of this liberative message can be seen in Colossians 3:18-19, a 
 
 <ul>
 <li>
-<strong>Traditional Translation:</strong> "Wives, submit to your husbands, as is fitting in the Lord. Husbands, love your wives and do not be harsh with them."
+<strong>Traditional Translation:</strong> “Wives, submit to your husbands, as is fitting in the Lord. Husbands, love your wives and do not be harsh with them.”
 </li>
 <li>
-<strong>LIT Bible Translation:</strong> "Wives, cooperate with your husbands based on the lord; husbands, love your wives, and don’t be resentful toward them."
+<strong>LIT Bible Translation:</strong> “Wives, cooperate with your husbands based on the lord; husbands, love your wives, and don’t be resentful toward them.”
 </li>
 </ul>
 

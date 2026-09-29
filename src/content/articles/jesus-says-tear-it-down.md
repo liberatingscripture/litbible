@@ -2,7 +2,7 @@
 title: "Jesus Says Tear It Down"
 date: 2024-03-21
 author: Brandon C. Vélez Johnson
-description: Mark 12:38-13:2 is about more than a sweet old lady giving generously. Jesus criticizes those who exploit and oppress the poor, illustrating with the widow's selfless offering. The disciples' observation about the temple's funding indicates the burden on ordinary people for extravagant projects. This urges reflection on societal power dynamics and challenges simplistic messages about charitable giving.
+description: Mark 12:38-13:2 is about more than a sweet old lady giving generously. Jesus criticizes those who exploit and oppress the poor, illustrating with the widow’s selfless offering. The disciples’ observation about the temple’s funding indicates the burden on ordinary people for extravagant projects. This urges reflection on societal power dynamics and challenges simplistic messages about charitable giving.
 tags:
   [
     "Mark 12",

@@ -47,7 +47,7 @@ Romans doesn’t ever define the triumphant message in a single sentence, but th
 >
 > (<a href="/romans-4">Romans 4:13-17 LIT</a>)
 
-Here's another way Paul says it:
+Here’s another way Paul says it:
 
 > 8 Owe nothing to anyone except love to each other. Whoever loves the other fulfills Torah. 9 You see, the part that says, “Do not engage in marital infidelity, do not murder, do not steal, do not crave” (and any other directive) is summarized with this saying: “Love your neighbor as yourself.” 10 Love doesn’t produce harm to the neighbor. Therefore, love is the fulfillment of Torah.
 >
