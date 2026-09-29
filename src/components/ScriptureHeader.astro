@@ -95,7 +95,7 @@ const headingText = !bookKey
     {props.readAloud && kind === "chapter" ? (
       <button
         type="button"
-        class="read-aloud-start read-aloud-start--title"
+        class="read-aloud-start"
         data-read-aloud-start
         aria-label={`Read ${headingText} aloud`}
         title="Read aloud"
@@ -163,7 +163,7 @@ const headingText = !bookKey
     text-align: center;
   }
 
-  .read-aloud-start--title {
+  .read-aloud-start {
     grid-column: 3;
     justify-self: start;
     margin-left: 6px;
@@ -233,11 +233,11 @@ const headingText = !bookKey
     /* Room for the icon on the right only. A short title stays centred
        between the ‹ › buttons; the longest ("2 Thessalonians 3", 203px of
        the 254px between them) moves a little left rather than wrapping. */
-    :global(html.can-speak[data-ra="title"]) .chapter-title-row {
+    :global(html.can-speak) .chapter-title-row {
       grid-template-columns: minmax(0, 1fr) auto minmax(34px, 1fr);
     }
 
-    .read-aloud-start--title {
+    .read-aloud-start {
       width: 32px;
       height: 32px;
       margin-left: 2px;

@@ -61,7 +61,8 @@ const {
   scriptureControls,
 
   /**
-   * A published chapter with text: shows the Read aloud buttons (audit X9).
+   * A published chapter with text: the Read aloud icon beside the title
+   * (audit X9).
    */
   readAloud = false,
 } = Astro.props;
@@ -183,23 +184,6 @@ if (headerKind === "chapter") {
             <div class="scripture-tools__right" aria-label="Reading View">
               {pagefindType === "scripture" && headerKind === "chapter" ? (
                 <div class="reading-view-right" data-pagefind-ignore>
-                  {readAloud ? (
-                    <button
-                      type="button"
-                      class="read-aloud-start read-aloud-start--toolbar"
-                      data-read-aloud-start
-                      aria-label={`Read ${bookKeyToLabel(pagefindBook)} ${headerChapter ?? 1} aloud`}
-                      title="Read aloud"
-                    >
-                      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
-             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-             aria-hidden="true" focusable="false">
-          <path d="M11 5 6 9H3v6h3l5 4z" fill="currentColor" />
-          <path d="M15.5 8.5a5 5 0 0 1 0 7" />
-          <path d="M18.5 5.5a9 9 0 0 1 0 13" />
-        </svg>
-                    </button>
-                  ) : null}
                   <a
                     class="reading-view-pill"
                     href={`/read/${pagefindBook}/#ch-${headerChapter ?? 1}`}
@@ -410,7 +394,6 @@ if (headerKind === "chapter") {
       .reading-view-right {
         display: flex;
         justify-content: flex-end;
-        gap: 8px;
       }
 
       /* Mirror the ReadMenu picker's trigger so the two ends of the tools bar

@@ -1906,7 +1906,9 @@ Details for each item are in the artifact (https://claude.ai/artifact/4ghJK72rd2
   Decided 2026-09-29, after the explanations: X13 deferred. X9 is built as
   an experiment on `claude/x9-read-aloud` ("Read aloud" above each Study
   View chapter, in the device's own voice), for the owner to try before
-  deciding whether it ships.
+  deciding whether it ships. The owner asked for a much quieter button and
+  picked a speaker icon beside the chapter title from five placements tried
+  on phones (2026-09-29).
 
 ## Completed from TBD
 

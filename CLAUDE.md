@@ -631,9 +631,10 @@ a canvas can't wait for a web font by itself.
 
 ### Read aloud (an experiment)
 
-**"Read aloud"** sits above the text of every published Study View chapter
-and reads it in the device's own voice, through the Web Speech API (audit X9,
-built 2026-09-29 for the owner to try before deciding). No audio files, no
+**Read aloud** is a small speaker icon beside the title of every published
+Study View chapter, and reads the chapter in the device's own voice, through
+the Web Speech API (audit X9, built 2026-09-29 for the owner to try before
+deciding). No audio files, no
 server, no cost. `src/lib/read-aloud.mjs` is the pure half (the pieces the
 voice is given, verse-to-verse moves, which voices are offered), unit-tested;
 `src/scripts/read-aloud.js` speaks, highlights the verse being read
@@ -668,9 +669,17 @@ things to know:
    maker, so choosing one sends the words there, which the privacy page
    says. Changing how voices are chosen can mean changing that page. The reader's voice and speed are kept
    in `localStorage` (`lit-read-aloud-voice`, `lit-read-aloud-rate`).
-6. **The button appears only where the browser can speak**, revealed by an
-   inline script before first paint, so nothing moves. Not in Reading View,
-   yet.
+6. **The icon beside the title is the owner's pick of five places**
+   (2026-09-29), the quietest that still shows: a pill above the text, a small
+   link there, a toolbar icon and the verse menu alone were tried on phones
+   and set aside. It is grey, unframed, and outside the `h1`, so the heading's
+   name stays "Romans 8"; the title sits in the middle of three grid columns,
+   so it stays centred. On a phone the icon keeps 34px on the right only, so
+   the longest title ("2 Thessalonians 3") moves a little left rather than
+   wrapping, and wraps only on a screen narrower than 375px. It shows only
+   where the browser can speak: the chapter page's head script sets
+   `html.can-speak` before first paint, so nothing moves and a browser
+   without a voice never shows it. Not in Reading View, yet.
 
 ### Printing and handouts
 
