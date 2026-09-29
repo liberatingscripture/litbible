@@ -3,6 +3,7 @@
 import ReadLayout from "../layouts/ReadLayout.astro";
 import { LIT_CREDIT_LINE } from "../lib/lit-credit.mjs";
 import "../styles/pages/read.css";
+import SblgntCredits from "../components/SblgntCredits.astro";
 import releaseNotes from "../data/release-notes.json";
 import { BOOK_ORDER, bookKeyToLabel } from "../data/books.js";
 import { scanDraftChapters } from "../lib/draft-chapters.mjs";
@@ -286,41 +287,7 @@ const TYPE_LABEL: Record<string, string> = {
               Source text and translation credits (SBLGNT)
             </summary>
             <div class="license-faq-body sblgnt-credits">
-              <p>
-                The Liberation &amp; Inclusion Translation (LIT) is an original
-                English translation prepared from{" "}
-                <em>The Greek New Testament: SBL Edition</em>{" "}
-                (ed. Michael W. Holmes; © 2010 Society of Biblical Literature
-                &amp; Logos Bible Software).
-              </p>
-              <p>
-                The SBLGNT is licensed under the Creative Commons Attribution
-                4.0, International Licence (CC BY 4.0):{" "}
-                <a
-                  href="https://creativecommons.org/licenses/by/4.0/"
-                  rel="noopener noreferrer"
-                  target="_blank"
-                >
-                  https://creativecommons.org/licenses/by/4.0/
-                </a>
-                . This translation constitutes an adaptation of that Greek text.
-                Used with permission.
-              </p>
-              <p>
-                Greek quotations are presented in transliterated form;
-                accentuation and punctuation follow LIT house style, mostly
-                removed for accessibility to readers without prior knowledge of
-                Greek.
-              </p>
-              <p>
-                Portions of the SBL Greek text quoted here remain available
-                under CC BY 4.0; the NC-ND restrictions apply only to the
-                original English translation and other LIT-specific content.
-              </p>
-              <p>
-                The Society of Biblical Literature and Logos Bible Software do
-                not endorse the LIT Bible.
-              </p>
+              <SblgntCredits />
             </div>
           </details>
         </div>

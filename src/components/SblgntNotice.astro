@@ -2,8 +2,11 @@
 // The source-text notice: the LIT is an adaptation of the SBL Greek New
 // Testament, whose CC BY 4.0 license asks for this attribution. It closes
 // every page that prints the translation: Study View chapters and intros
-// (ScriptureLayout) and Reading View (read/[book].astro). print.css keeps it
-// on paper, in small type.
+// (ScriptureLayout) and Reading View (read/[book].astro). One sentence
+// carries the whole attribution and the rest of the credit waits in a
+// disclosure (FIXLIST V5); the wording is SblgntCredits.astro's, shared
+// with /read. print.css keeps it on paper, in small type, disclosure open.
+import SblgntCredits from "./SblgntCredits.astro";
 ---
 
 <section
@@ -12,38 +15,11 @@
   data-pagefind-ignore
 >
   <div class="scripture-disclaimer__inner">
-    <p>
-      The Liberation &amp; Inclusion Translation (LIT) is an original
-      English translation prepared from{" "}
-      <em>The Greek New Testament: SBL Edition</em> (ed. Michael W. Holmes; ©
-      2010 Society of Biblical Literature &amp; Logos Bible Software).
-    </p>
-    <p>
-      The SBLGNT is licensed under the Creative Commons Attribution 4.0,
-      International Licence (CC BY 4.0):{" "}
-      <a
-        href="https://creativecommons.org/licenses/by/4.0/"
-        rel="noopener noreferrer"
-        target="_blank"
-      >
-        https://creativecommons.org/licenses/by/4.0/</a
-      >. This translation constitutes an adaptation of that Greek text. Used
-      with permission.
-    </p>
-    <p>
-      Greek quotations are presented in transliterated form; accentuation
-      and punctuation follow LIT house style, mostly removed for
-      accessibility to readers without prior knowledge of Greek.
-    </p>
-    <p>
-      Portions of the SBL Greek text quoted here remain available under CC
-      BY 4.0; the NC-ND restrictions apply only to the original English
-      translation and other LIT-specific content.
-    </p>
-    <p>
-      The Society of Biblical Literature and Logos Bible Software do not
-      endorse the LIT Bible.
-    </p>
+    <SblgntCredits part="line" />
+    <details class="scripture-disclaimer__more">
+      <summary>Source text and license</summary>
+      <SblgntCredits part="rest" />
+    </details>
   </div>
 </section>
 
@@ -65,11 +41,56 @@
     color: rgba(var(--ink-rgb), 0.85);
   }
 
-  .scripture-disclaimer__inner p {
+  /* The paragraphs are SblgntCredits', so they need :global to be reached. */
+  .scripture-disclaimer__inner :global(p) {
     margin: 0 0 14px;
   }
 
-  .scripture-disclaimer__inner a {
+  .scripture-disclaimer__inner :global(a) {
     word-break: break-word;
+  }
+
+  .scripture-disclaimer__more summary {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    cursor: pointer;
+    list-style: none;
+    font-weight: 500;
+    color: var(--green-text);
+  }
+
+  .scripture-disclaimer__more summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .scripture-disclaimer__more summary::before {
+    content: "";
+    width: 0.45em;
+    height: 0.45em;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: rotate(-45deg);
+    transition: transform 0.15s ease;
+  }
+
+  .scripture-disclaimer__more[open] summary::before {
+    transform: rotate(45deg);
+  }
+
+  .scripture-disclaimer__more summary:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .scripture-disclaimer__more[open] summary {
+    margin-bottom: 6px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .scripture-disclaimer__more summary::before {
+      transition: none;
+    }
   }
 </style>

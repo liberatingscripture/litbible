@@ -193,6 +193,24 @@
     margin: 0 0 3pt !important;
   }
 
+  /* The attribution line links the source text and the license, and a link
+     can't be followed on paper, so both addresses are written out. */
+  .sblgnt-line a::after {
+    content: " (" attr(href) ")";
+  }
+
+  /* The rest of the credit prints open, without its summary. A browser that
+     can't style the disclosure's content prints the line alone, which meets
+     the license by itself. */
+  .scripture-disclaimer__more > summary {
+    display: none !important;
+  }
+
+  .scripture-disclaimer__more::details-content {
+    content-visibility: visible !important;
+    display: block !important;
+  }
+
   /* PrintCredit.astro: hidden on screen by its attribute. */
   .print-credit[hidden] {
     display: block !important;
