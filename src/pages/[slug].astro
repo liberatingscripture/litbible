@@ -163,8 +163,19 @@ const termLensJson = termLens?.marks.length
   ogImage={`${Astro.site ? Astro.site.origin : "https://litbible.net"}/og/${chapterSlug}.png`}
   twitterCard="summary_large_image"
   scriptureControls={isDraftPage ? undefined : "study"}
+  readAloud={!isDraftPage}
 >
   <Fragment slot="head">
+    {/* Read aloud (audit X9): marks a browser that can speak before first
+        paint, so the icon beside the title appears without moving anything
+        and a browser that can't never shows it. */}
+    {!isDraftPage && (
+      <script is:inline>
+        if (window.speechSynthesis && typeof SpeechSynthesisUtterance === "function") {
+          document.documentElement.classList.add("can-speak");
+        }
+      </script>
+    )}
     {/* Citation meta — helps academic crawlers and AI systems attribute the text */}
     <meta name="citation_title" content={`${bookName} ${chapterNumberLabel} — Liberation and Inclusion Translation`} />
     <meta name="citation_author" content="Vélez Johnson, Brandon C." />
@@ -238,6 +249,12 @@ const termLensJson = termLens?.marks.length
 
         {!isDraftPage ? (
           <>
+            {/* Read aloud (audit X9): the player bar is added inside this
+                block, just before the text in the tab order, though it shows
+                at the foot of the screen (src/scripts/read-aloud.js). The
+                button that starts it is the icon beside the title
+                (ScriptureHeader). */}
+            <div class="read-aloud" data-read-aloud data-pagefind-ignore></div>
             <div class="chapter-paragraphs">
               {paragraphs.map((html) => (
                 <div class="p" set:html={html} />

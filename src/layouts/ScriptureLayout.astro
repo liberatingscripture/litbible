@@ -59,6 +59,12 @@ const {
    * nothing, since they have neither.
    */
   scriptureControls,
+
+  /**
+   * A published chapter with text: the Read aloud icon beside the title
+   * (audit X9).
+   */
+  readAloud = false,
 } = Astro.props;
 
 const pagefindBook = book ?? "";
@@ -341,6 +347,7 @@ if (headerKind === "chapter") {
                 kind={headerKind}
                 bookKey={pagefindBook}
                 chapter={headerChapter}
+                readAloud={readAloud}
               />
             ) : null
           }

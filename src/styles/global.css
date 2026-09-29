@@ -2642,6 +2642,220 @@ html[data-font="dyslexic"] .menu-overlay__nav a {
   color: var(--green-text);
 }
 
+/* =========================
+   Read aloud (Study View, audit X9): the icon that starts it, the player bar
+   at the foot of the screen, and the verse being read. See
+   src/scripts/read-aloud.js. Sizes are in px so the reader's text size
+   (which scales .scripture-main) leaves the controls alone.
+   ========================= */
+
+/* The start control is a speaker icon beside the chapter title
+   (ScriptureHeader), chosen by the owner as the quietest place that still
+   shows. It appears only where the browser can speak (html.can-speak, set
+   before first paint by the chapter page). No frame, and a quiet grey that
+   turns green on hover: at 60% ink it keeps 4:1 against the page, over the
+   3:1 an icon needs. */
+.read-aloud-start {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: rgba(var(--ink-rgb), 0.6);
+  font: inherit;
+  cursor: pointer;
+}
+
+/* Kept to this one property, so ScriptureHeader's phone size wins. */
+html.can-speak .read-aloud-start {
+  display: inline-flex;
+}
+
+.read-aloud-start:hover {
+  background: rgba(32, 157, 80, 0.1);
+  color: var(--green-text);
+}
+
+.read-aloud-start:focus-visible,
+.read-aloud-bar button:focus-visible,
+.read-aloud-bar a:focus-visible,
+.read-aloud-bar select:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.read-aloud-bar {
+  position: fixed;
+  left: 50%;
+  bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  /* Over the page and the clear chip; under the panels (1100), so the verse
+     menu's sheet still covers it on a phone. */
+  z-index: 60;
+  box-sizing: border-box;
+  width: min(640px, calc(100vw - 24px));
+  padding: 6px 8px 8px;
+  border: 1px solid rgba(var(--ink-rgb), 0.12);
+  border-radius: 18px;
+  background: var(--surface-raised);
+  color: var(--text);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+  font-size: 15px;
+  line-height: 1.3;
+}
+
+.read-aloud-bar__controls {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.read-aloud-bar__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.read-aloud-bar__btn:hover {
+  background: rgba(32, 157, 80, 0.12);
+  color: var(--green-text);
+}
+
+.read-aloud-bar__btn--main,
+.read-aloud-bar__btn--main:hover {
+  width: 44px;
+  height: 44px;
+  background: var(--green-deep);
+  color: #fff;
+}
+
+.read-aloud-bar__now {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 0 6px;
+}
+
+.read-aloud-bar__where {
+  min-width: 0;
+  padding: 6px 4px;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+.read-aloud-bar__where:hover {
+  color: var(--green-text);
+}
+
+.read-aloud-bar__status {
+  font-size: 14px;
+  color: rgba(var(--ink-rgb), 0.75);
+}
+
+.read-aloud-bar__next-chapter {
+  color: var(--green-text);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.read-aloud-bar__settings {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin-top: 4px;
+  padding: 8px 6px 0;
+  border-top: 1px solid rgba(var(--ink-rgb), 0.08);
+}
+
+.read-aloud-bar__setting {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  font-size: 13px;
+  color: rgba(var(--ink-rgb), 0.75);
+}
+
+.read-aloud-bar__setting:last-child {
+  flex: 1 1 180px;
+}
+
+/* One row of settings on a phone, the voice list taking what's left. */
+@media (max-width: 480px) {
+  .read-aloud-bar__settings {
+    flex-wrap: nowrap;
+    gap: 12px;
+  }
+}
+
+.read-aloud-bar__setting select {
+  min-width: 0;
+  max-width: 100%;
+  padding: 5px 8px;
+  border: 1px solid rgba(var(--ink-rgb), 0.18);
+  border-radius: 8px;
+  background: var(--surface-input);
+  color: var(--text);
+  font: inherit;
+  font-size: 14px;
+}
+
+.read-aloud-bar__setting:last-child select {
+  flex: 1;
+}
+
+/* Room at the foot of the page for the bar, and the clear chip lifted over it. */
+html.read-aloud-on body {
+  padding-bottom: 150px;
+}
+
+html.read-aloud-on .lit-clear-chip {
+  bottom: calc(130px + env(safe-area-inset-bottom, 0px));
+}
+
+/* The verse being read. The class is the fallback for browsers without the
+   Custom Highlight API. */
+::highlight(lit-read-aloud),
+.chapter-paragraphs .is-read-aloud {
+  background-color: rgba(32, 157, 80, 0.22);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) ::highlight(lit-read-aloud),
+  :root:not([data-theme="light"]) .chapter-paragraphs .is-read-aloud {
+    background-color: rgba(32, 157, 80, 0.4);
+  }
+}
+
+:root[data-theme="dark"] ::highlight(lit-read-aloud),
+:root[data-theme="dark"] .chapter-paragraphs .is-read-aloud {
+  background-color: rgba(32, 157, 80, 0.4);
+}
+
 /* Verse numbers are tap targets for the verse menu. The ::after overlay
    expands the touch hit area (6px each side, and never under 24px) without
    changing layout — superscript digits alone are far below comfortable
