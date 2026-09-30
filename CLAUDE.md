@@ -436,7 +436,8 @@ Each file in `src/data/chapters/` follows this structure:
      *every* chapter of that book is a draft. The picker has two modes: the
      default standalone pill on Study/Search pages, and `mode="read"` — a
      compact trigger embedded in the Read View toolbar whose label IS the
-     live "Book · Chapter N" readout (`read-mode.js` keeps the label and the
+     live "Book N" readout, in the form Study View's picker uses
+     (`read-mode.js` keeps the label and the
      root's `data-current-chapter` updated on scroll, and intercepts
      same-book chapter picks for an in-page scroll; other books navigate to
      `/read/<book>#ch-N`).
@@ -1515,7 +1516,8 @@ collection); they're read directly by the intro pages and the API manifest.
      safe interior, the question CTA), `global.css` (mobile nav, the header's
      earlier nav collapse + phone title scale, the footer newsletter field
      above 721px, the reader panels' chip buttons' side padding),
-     `ReadMenu.astro` (grid floors), and `SiteHeader.astro` (the
+     `ReadMenu.astro` (grid floors), `read-mode.css` (Read View's toolbar
+     floor and its sheet buttons' side padding), and `SiteHeader.astro` (the
      forced short title). Prefer **buying back space over shrinking type** —
      an accessibility font is the last thing that should be made smaller. The
      header hands the nav to the hamburger below 1400px rather than

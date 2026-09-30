@@ -16,69 +16,77 @@
    WIDE MODE (default): sticky toolbar at top
    ========================================================= */
 
+/* The toolbar is the reading column's width, so its edges line up with the
+   text and with the search bar above it. The reader's text size is set here
+   as well because --reading-width is in --ch, an em fraction, which resolves
+   against the element that uses it: with the reader's size, the toolbar
+   resolves to exactly .rm-reader's width, at every text size. Nothing inside
+   is sized in em, so the controls keep their size.
+   It is that width at least, and wider only when its controls need more (in
+   OpenDyslexic, whose column is the site's narrowest; see below). It was a
+   fixed 1100px until 2026-09, sized for the page before the 60-character
+   measure, which left it about 210px past the text on each side. */
 .rm-page .rm-toolbar {
   position: sticky;
   top: 0;
   z-index: 70;
 
+  font-size: calc(1.125rem * var(--reading-scale, 1));
+  width: fit-content;
+  min-width: min(100%, var(--reading-width, 76ch));
+  max-width: 100%;
+  margin: 0 auto 1rem;
+
   background: var(--page-bg);
   border: 1px solid rgba(var(--ink-rgb), 0.2);
   border-radius: 12px;
   box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
-  padding: 0.55rem;
-  margin-bottom: 1rem;
+  padding: 6px;
 }
 
+/* OpenDyslexic's column is 540px (its --ch is the smallest) and its labels
+   the widest, so its controls run past the column. A fixed floor keeps the
+   bar from changing width while the reader scrolls (a readout gaining a
+   digit, the percentage reaching 100%). 840px holds the widest state,
+   measured at 834px: "2 Thessalonians 3", "100%", "Back to Top". It also
+   fits the narrowest page this bar appears on (901px). */
+@media (min-width: 901px) {
+  html[data-font="dyslexic"] .rm-page .rm-toolbar {
+    min-width: min(100%, 840px);
+  }
+}
+
+/* Where the reader is (the picker and the percentage), then the tools, then
+   the ways out. The first cluster takes the slack, so the other two sit at
+   the right end, as the view switch does in Study View's toolbar. */
 .rm-page .rm-toolbar__row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 0.56rem;
-  flex-wrap: nowrap;
+  gap: 12px;
 }
 
 .rm-page .rm-toolbar__cluster {
   display: flex;
   align-items: center;
-  gap: 0.38rem;
+  gap: 6px;
   min-width: 0;
 }
 
-/* Natural DOM order (Zone 1 — Zone 2 — Zone 3) */
-.rm-page .rm-toolbar__cluster--left,
-.rm-page .rm-toolbar__cluster--center,
-.rm-page .rm-toolbar__cluster--right {
-  order: 0;
+.rm-page .rm-toolbar__cluster--where {
+  flex: 1 1 auto;
+  gap: 10px;
 }
 
-.rm-page .rm-toolbar__cluster--left {
-  flex: 1 1 0;
-  justify-content: flex-start;
+.rm-page .rm-toolbar__cluster--tools,
+.rm-page .rm-toolbar__cluster--nav {
+  flex: none;
 }
 
-.rm-page .rm-toolbar__cluster--center {
-  flex: 0 1 auto;
-  justify-content: center;
-  gap: 0.56rem;
-  min-width: 0;
-}
-
-.rm-page .rm-toolbar__cluster--right {
-  flex: 1 1 0;
-  margin-left: auto;
-  justify-content: flex-end;
-}
-
-.rm-page .rm-toolbar__meta {
-  display: none;
-}
-
-/* Passage picker (ReadMenu mode="read") in the toolbar center: the generic
-   .rm-toolbar button/a rules below give its trigger the standard toolbar
-   chrome (padding, 0.82rem type, 9px radius, green-fill hover); these just
-   keep the wrap shrinkable so a long label can ellipsize instead of
-   overflowing the row. The picker's own compact-variant styles (in
-   ReadMenu.astro) drop the standalone pill's 245px floor and shadow. */
+/* Passage picker (ReadMenu mode="read"): the generic .rm-toolbar button/a
+   rules below give its trigger the standard toolbar chrome; these keep the
+   wrap shrinkable so a long label can ellipsize instead of overflowing the
+   row. The picker's own compact-variant styles (in ReadMenu.astro) drop the
+   standalone pill's 245px floor and shadow. */
 .rm-page .rm-toolbar .read-menu-wrap {
   min-width: 0;
 }
@@ -89,7 +97,8 @@
 }
 
 .rm-page .rm-progress {
-  font-size: 0.8rem;
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
   color: rgba(var(--ink-rgb), 0.78);
   white-space: nowrap;
   user-select: none;
@@ -98,18 +107,22 @@
 .rm-page .rm-toolbar__progress {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  flex-wrap: nowrap;
-  white-space: nowrap;
 }
 
+/* The progress bar is the toolbar's bottom border filling in, between the
+   rounded corners, rather than a 74px track in the row: the row needs that
+   room to fit the column. It is decoration (aria-hidden); the percentage
+   beside the picker carries the number. The toolbar is positioned (sticky
+   here, fixed as a sheet), so it is the bar's containing block. */
 .rm-page .rm-progressbar {
-  width: 74px;
-  height: 4px;
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: -1px;
+  height: 2px;
   border-radius: 999px;
-  background: rgba(var(--ink-rgb), 0.14);
   overflow: hidden;
-  flex: 0 0 auto;
+  pointer-events: none;
 }
 
 .rm-page .rm-progressbar > span {
@@ -121,17 +134,20 @@
 
 /* Toolbar controls follow the site's utility-pill recipe (the Study tools
    bar: 999px pill, surface-input fill, faint ink border, soft shadow) at
-   toolbar density. */
+   toolbar density: 36px, the header's own Aa. They were 27px with 13px
+   labels, a third smaller than the same picker in Study View. */
 .rm-page .rm-toolbar button,
 .rm-page .rm-toolbar a {
   border: 1px solid rgba(var(--ink-rgb), 0.11);
   border-radius: 999px;
   background: var(--surface-input);
   color: var(--text);
-  padding: 0.35rem 0.7rem;
-  font-size: 0.82rem;
+  min-height: 36px;
+  padding: 0 0.8rem;
+  font-size: 0.875rem;
   text-decoration: none;
-  line-height: 1.1;
+  line-height: 1.2;
+  white-space: nowrap;
   user-select: none;
   cursor: pointer;
   box-shadow: 0 2px 7px rgba(0, 0, 0, 0.08);
@@ -141,52 +157,50 @@
   justify-content: center;
 }
 
-/* --- Start Over button: icon + label spans (built by JS) --- */
-.rm-page .rm-toolbar [data-rm-start-over] {
-  gap: 0.45rem;
+.rm-page .rm-toolbar [data-font-toggle] {
+  min-width: 40px;
+  padding: 0 0.7rem;
+  gap: 0.4rem;
+}
+
+/* "Display" beside the Aa shows only in the bottom sheet. Here it stays in
+   the button's accessible name ("Display settings"), so it is clipped, not
+   removed. */
+.rm-page .rm-toolbar .rm-aa-text {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
   white-space: nowrap;
+}
+
+/* Back to Top / My Location: arrow + label (read-mode.js swaps both). */
+.rm-page .rm-toolbar [data-rm-start-over] {
+  gap: 0.4rem;
 }
 
 .rm-page .rm-toolbar [data-rm-start-over] .rm-btn-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 1.05em;
-  min-width: 1.05em;
+  width: 1em;
   line-height: 1;
-  transform: translateY(-0.02em);
 }
 
-.rm-page .rm-toolbar [data-rm-start-over] .rm-btn-label {
-  display: inline-block;
-  line-height: 1.1;
-}
-/* ---------------------------------------------------------- */
-
-/* Wide mode: keep the two Zone-3 actions (Return to Beginning + Switch view)
-   on a shared vertical center. The container is otherwise a plain block, so its
-   inline-flex children align by baseline — which differs between the arrow glyph
-   and the SVG icon and leaves them ~2px out of alignment. (Sheet mode already
-   flexes this container in the small-mode block below.) */
-.rm-page .rm-toolbar__z3-actions {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.38rem;
+/* The Study View switch: its glyph takes the picker's green accent, so the
+   "switch views" control reads as part of the same family. */
+.rm-page .rm-toolbar a.rm-switch {
+  gap: 0.4rem;
 }
 
-/* Neutralize icon line-box inflation inside the Study switch, and give the
-   glyph the picker's green accent so the "switch views" control reads as part
-   of the same family (at toolbar scale, not a full pill). */
-.rm-page .rm-toolbar a.rm-switch .reading-view-pill__icon,
 .rm-page .rm-toolbar a.rm-switch .rm-cycle-icon {
   display: inline-flex;
   align-items: center;
   line-height: 1;
-  color: var(--green-text);
-}
-
-.rm-page .rm-toolbar a.rm-switch .reading-view-pill__icon {
   font-size: 1em;
+  color: var(--green-text);
 }
 
 /* Standard hover: solid green fill with the label/icon flipping to the paired
@@ -201,8 +215,8 @@
   border-color: transparent;
 }
 
-/* The Study-switch's green magnifier flips to the fg color on hover too. */
-.rm-page .rm-toolbar a.rm-switch:hover .reading-view-pill__icon {
+/* The Study-switch's green glyph flips to the fg color on hover too. */
+.rm-page .rm-toolbar a.rm-switch:hover .rm-cycle-icon {
   color: var(--on-green-fill);
 }
 
@@ -554,14 +568,16 @@ html[data-vn="off"]
 }
 
 /* =========================================================
-   SMALL MODE (and everything that used to be “mid”):
-   Bottom-sheet + FAB.
-   The 1100px viewport breakpoint MUST stay in sync with the
+   SHEET MODE (tablets and phones): bottom sheet + FAB.
+   The 900px viewport breakpoint MUST stay in sync with the
    matchMedia() query in read-mode.js (single source of truth
-   for "sheet mode" across CSS and JS).
+   for "sheet mode" across CSS and JS). It was 1100px while the
+   toolbar was a fixed 1100px wide; sized to the column, the
+   toolbar fits down to here in every font, so a desktop window
+   this narrow keeps it rather than getting the touch sheet.
    ========================================================= */
 
-@media (max-width: 1100px) {
+@media (max-width: 900px) {
   /* FAB opens the bottom sheet */
   .rm-page .rm-fab {
     display: inline-flex;
@@ -573,14 +589,11 @@ html[data-vn="off"]
     scroll-margin-top: var(--rm-anchor-gap, 0px);
   }
 
-
-  /* Bottom sheet (hidden by default). Flex column so the button row's
-     clusters (via display:contents below) are orderable siblings. */
+  /* Bottom sheet (hidden by default). Full width on a phone; on a tablet a
+     card centred at the foot of the screen (left, right and auto margins
+     centre a fixed box), since a sheet the width of the screen spread a
+     few buttons across a thousand pixels. */
   .rm-page .rm-toolbar {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-
     position: fixed;
     left: 0;
     right: 0;
@@ -589,15 +602,19 @@ html[data-vn="off"]
 
     z-index: 260;
 
+    font-size: 1rem;
+    width: auto;
+    min-width: 0;
+    max-width: 30rem;
+    margin: 0 auto !important;
+
     background: var(--surface-raised);
     border: 1px solid rgba(var(--ink-rgb), 0.22);
-    border-radius: 14px 14px 0 0;
+    border-bottom: 0;
+    border-radius: 16px 16px 0 0;
 
-    /* Keep the sheet truly flush with the bottom edge, while respecting safe areas */
-    padding: 0.5rem;
-    padding-bottom: calc(0.5rem + env(safe-area-inset-bottom, 0px));
-
-    margin-bottom: 0 !important;
+    padding: 10px;
+    padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
 
     max-height: 0;
     opacity: 0;
@@ -606,7 +623,7 @@ html[data-vn="off"]
     overflow: hidden;
 
     transform: translateY(12px) scale(0.98);
-    transform-origin: bottom right;
+    transform-origin: bottom center;
 
     box-shadow: none;
     border-color: transparent;
@@ -633,124 +650,115 @@ html[data-vn="off"]
     transform: translateY(0) scale(1);
   }
 
-  /* In sheet mode the row's box dissolves so its clusters join the toolbar's
-     flex column as direct siblings (see the reorder below). */
+  /* Three rows: where the reader is (with the close beside it), the tools,
+     the ways out. Each pair takes exact halves, the rule the verse menu's
+     chip rows follow, and a button too wide for its half (OpenDyslexic on a
+     narrow phone) takes a line of its own rather than breaking its label or
+     running off the screen. */
   .rm-page .rm-toolbar__row {
-    display: contents;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
   }
 
   .rm-page .rm-toolbar__cluster {
-    width: 100%;
-    justify-content: center;
-    text-align: center;
-    margin-left: 0;
-    flex: 0 0 auto;
-  }
-
-  /* ---------------------------------------------------------
-     SHEET MODE: reorder stacked rows
-     Top-to-bottom: Zone 1 (left: Aa/Focus), Zone 2 (center:
-     picker + progress), Zone 3 (right: Return / Switch actions). The close
-     is lifted out of flow to the sheet's top-right corner (below), so the
-     two action pills keep a clean single row at the bottom. */
-
-  .rm-page .rm-toolbar__cluster--left {
-    order: 1; /* Zone 1: top row */
-    /* Keep the centered toggles clear of the corner close on both sides
-       (symmetric, so they stay visually centered). */
-    padding-inline: 2.6rem;
-  }
-
-  .rm-page .rm-toolbar__cluster--center {
-    order: 3; /* Zone 2: middle row */
-    /* Picker trigger + progress cluster: allow a wrap on narrow phones so a
-       long label ("2 Thessalonians · Chapter 3") can't overflow the sheet. */
     flex-wrap: wrap;
-    row-gap: 0.4rem;
+    gap: 8px;
   }
 
-  .rm-page .rm-toolbar__cluster--right {
-    order: 4; /* Zone 3: bottom row */
-  }
-
-  /* Zone 3: the two action pills, centered on one row. The close no longer
-     sits here (it's absolutely positioned at the sheet corner), so the pills
-     have the full row width and never get crowded. */
-  .rm-page .rm-toolbar__cluster--right {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    min-width: 0;
-  }
-
-  .rm-page .rm-toolbar__cluster--right > :not(.rm-toolbar__close) {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-
+  .rm-page .rm-toolbar__cluster--where {
     flex-wrap: nowrap;
-    gap: 0.5rem;
-    min-width: 0;
+    gap: 12px;
+    /* Clear of the close in the corner (44px and its gap). */
+    padding-right: 52px;
   }
 
-  .rm-page .rm-toolbar__cluster--right > :not(.rm-toolbar__close) > * {
-    flex: 0 0 auto;
-    white-space: nowrap;
+  .rm-page .rm-toolbar__cluster--where .read-menu-wrap,
+  .rm-page .rm-toolbar__cluster--where .read-menu,
+  .rm-page .rm-toolbar__cluster--where .read-menu__trigger {
+    flex: 1 1 auto;
   }
 
-  /* Close: lifted to the sheet's top-right corner (conventional bottom-sheet
-     dismiss), clear of every row. */
-  .rm-page .rm-toolbar__close {
-    position: absolute;
-    top: 0.5rem;
-    right: 0.5rem;
-    z-index: 1;
+  .rm-page .rm-toolbar__cluster--tools > *,
+  .rm-page .rm-toolbar__cluster--nav > * {
+    flex: 1 1 calc(50% - 4px);
   }
 
-  /* Controls (sheet mode): same pill recipe as wide mode, a notch denser.
-     (Also inherits the base green-fill hover.) */
+  /* The progress bar runs along the sheet's top edge instead. */
+  .rm-page .rm-progressbar {
+    top: -1px;
+    bottom: auto;
+    left: 16px;
+    right: 16px;
+  }
+
+  /* Controls (sheet mode): the same pill recipe, at the site's 44px touch
+     size, as the verse menu's chips and Study View's phone toolbar. */
   .rm-page .rm-toolbar button,
   .rm-page .rm-toolbar a {
-    padding: 0.32rem 0.62rem;
-    font-size: 0.8rem;
-    overflow: visible;
+    min-height: 44px;
+    font-size: 0.9375rem;
+    padding: 0 0.9rem;
   }
 
-  /* Close button */
+  /* OpenDyslexic: Back to Top and Study View needed 182px and 175px against
+     a half row of 166–173px on a phone, so each took a line. The side
+     padding only sets a button's minimum (each stretches to its half), so
+     trimming it changes nothing visible; the verse menu's chips do the same. */
+  html[data-font="dyslexic"] .rm-page .rm-toolbar button,
+  html[data-font="dyslexic"] .rm-page .rm-toolbar a {
+    padding-inline: 4px;
+  }
+
+  .rm-page .rm-toolbar .rm-aa-text {
+    position: static;
+    width: auto;
+    height: auto;
+    margin: 0;
+    overflow: visible;
+    clip: auto;
+  }
+
+  /* Close: a plain ×, like the Display panel's, in the sheet's top-right
+     corner beside the picker. It was a solid Deep Green tile, the heaviest
+     thing in the sheet. */
   .rm-page .rm-toolbar button.rm-toolbar__close {
     display: inline-flex;
     align-items: center;
     justify-content: center;
 
-    width: 2.15rem;
-    height: 2.15rem;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 1;
+
+    width: 44px;
+    height: 44px;
+    min-height: 0;
     padding: 0;
 
-    background: var(--green-deep, #0f6b33) !important;
-    border: 1px solid rgba(var(--ink-rgb), 0.2) !important;
-    border-radius: 12px !important;
-
-    font-size: 0 !important;
-    line-height: 0 !important;
-
-    text-shadow: none;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.22);
+    background: transparent;
+    border: 0;
+    border-radius: 10px;
+    box-shadow: none;
+    color: var(--text);
   }
 
   .rm-page .rm-toolbar button.rm-toolbar__close:hover {
-    background: var(--ink, #1d231c) !important;
+    background: rgba(var(--ink-rgb), 0.08);
+    color: var(--text);
   }
 
   .rm-page .rm-toolbar button.rm-toolbar__close .rm-x {
-    width: 1.2rem;
-    height: 1.2rem;
+    width: 20px;
+    height: 20px;
     display: block;
   }
 
   .rm-page .rm-toolbar button.rm-toolbar__close .rm-x path {
-    stroke: rgba(255, 255, 255, 0.98);
-    stroke-width: 1.6;
+    stroke: currentColor;
+    stroke-width: 2;
     stroke-linecap: round;
     fill: none;
   }
