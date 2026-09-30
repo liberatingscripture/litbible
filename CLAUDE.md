@@ -306,8 +306,8 @@ workers/             # Cloudflare Workers, deployed separately via wrangler (NOT
 |-------|------|---------|
 | `/<book>-<chapter>` | `[slug].astro` | Scripture chapter ("Study View") |
 | `/<book>-intro` | `[book]-intro.astro` | Book introduction |
-| `/read` | `read.astro` | Reading-mode landing |
-| `/read/<book>` | `read/[book].astro` | Continuous reading view of a book |
+| `/read` | `read.astro` | The /read landing (Study View, Read View, the apps) |
+| `/read/<book>` | `read/[book].astro` | Read View: a whole book on one page |
 | `/articles`, `/articles/<slug>` | `articles.astro`, `articles/[...slug].astro` | Articles |
 | `/glossary` | `glossary.astro` | Glossary |
 | `/search` | `search.astro` | Full search UI (verse index + Pagefind) |
@@ -394,7 +394,7 @@ Each file in `src/data/chapters/` follows this structure:
   stays glued to the verse's first word. At render time (website only — raw
   JSON is never modified) both views wrap each verse's content in
   `<span data-verse="N">` so verse boundaries are DOM containers; keep every
-  vglue at tag-depth 0 inside its block or that wrapping breaks. Reading
+  vglue at tag-depth 0 inside its block or that wrapping breaks. Read
   View's spans repeat from chapter to chapter, since a whole book shares the
   page, so each of its blocks also carries `data-chapter`.
 - **A verse that spans a paragraph break carries its marker only ONCE**, at its
@@ -407,7 +407,7 @@ Each file in `src/data/chapters/` follows this structure:
   (`id="v41b"`): every consumer matches `id="v(\d+)"`, so a suffixed marker is
   invisible to the verse split (its digits leak into the extracted text as a
   stray number, and into the search vocabulary as a word), gets no `data-osis`,
-  is never namespaced in Reading Mode, and makes the changelog blame the next
+  is never namespaced in Read View, and makes the changelog blame the next
   verse. The validator rejects it. To let a reader share just part of a verse,
   see below.
 - **`topics`** are free-text labels (e.g. `"Nicodemus"`), not pre-slugged.
@@ -435,7 +435,7 @@ Each file in `src/data/chapters/` follows this structure:
      in the cell's accessible name, and dims a book in the book grid when
      *every* chapter of that book is a draft. The picker has two modes: the
      default standalone pill on Study/Search pages, and `mode="read"` — a
-     compact trigger embedded in the Reading View toolbar whose label IS the
+     compact trigger embedded in the Read View toolbar whose label IS the
      live "Book · Chapter N" readout (`read-mode.js` keeps the label and the
      root's `data-current-chapter` updated on scroll, and intercepts
      same-book chapter picks for an in-page scroll; other books navigate to
@@ -452,7 +452,7 @@ Each file in `src/data/chapters/` follows this structure:
      website only**: the placeholder paragraphs stay in the JSON because the
      apps show them, and their last line ("part of Luke") went stale, which
      is why the website stopped printing it.
-  7. Reading View (`read/[book].astro`) prints a run of drafts as one stub
+  7. Read View (`read/[book].astro`) prints a run of drafts as one stub
      ("Chapters 23–24"), keeping an empty `#ch-N` anchor for every chapter so
      ReadMenu's in-page jumps and saved positions still resolve. Stacked
      anchors must not take the sibling margin (`read-mode.css`).
@@ -528,7 +528,7 @@ change that opens a new paragraph.
 **The anchor is the block's own id, which every authored paragraph and
 blockquote already has** (`john-8-p9`, `1peter-2-p2`). Nothing extra is
 authored for this. Those ids are already book-namespaced, so the same anchor
-resolves in Reading Mode too — `rewriteVerseIdsAndAnchors` rewrites only
+resolves in Read View too — `rewriteVerseIdsAndAnchors` rewrites only
 `id="vN"` and leaves them alone.
 
 `verseParts()` in `chapter-tools.js` groups a verse's `data-verse` spans by
@@ -551,12 +551,12 @@ The general form of the above: select any run of scripture text and a panel
 offers the verse menu's actions under the same names (see "One set of
 actions, two ways in" below), for a half-sentence, a phrase crossing two
 verses, or part of a poetry quotation. It runs in **both views**, and in
-Reading View it is the only such tool: that view's verse numbers stay plain
+Read View it is the only such tool: that view's verse numbers stay plain
 text, because the verse menu belongs to the chapter's Study View page (owner,
-2026-09-28). In Reading View a selection is clamped to the first chapter it
+2026-09-28). In Read View a selection is clamped to the first chapter it
 touches, since one reference names one chapter, and every link it produces,
 Copy link's included, is the Study View verse link (`/john-3#v16`), never a
-Reading View anchor.
+Read View anchor.
 Four owner decisions (2026-09) shape it:
 
 1. **It sits beside the selection, and the side follows the input**, not the
@@ -600,7 +600,7 @@ break:
   selection, and `acting` keeps a pressed panel open until it finishes.
 
 The panel never takes focus, so the verse-number menu stays the keyboard and
-screen-reader route to the same copy (in Study View; Reading View has none).
+screen-reader route to the same copy (in Study View; Read View has none).
 
 ### One set of actions, two ways in
 
@@ -710,10 +710,10 @@ that, and both print the notice from **one constant, `LIT_CREDIT_LINE` in
 notice there or nowhere.
 
 - **`src/styles/print.css`** (imported by `Layout.astro`, all `@media print`)
-  prints a chapter, an intro or a whole Reading View book as text and notes
+  prints a chapter, an intro or a whole Read View book as text and notes
   only: black on white in any theme, Crimson Text (a reader's accessibility
   font prints as chosen), 12pt times the Display tray's text size, with the
-  header, tools bar, Previous/Next, panels and Reading View's toolbar gone.
+  header, tools bar, Previous/Next, panels and Read View's toolbar gone.
   The footnotes stay the endnote list they are on screen, and the SBLGNT
   notice still prints after the text on all three. `PrintCredit.astro` adds the
   notice and the page's address ("litbible.net/john-3") at the end; it is a
@@ -721,7 +721,7 @@ notice there or nowhere.
   meets it. Most rules are `!important` because page and component styles
   bundle after it. Check a change by printing real PDFs (headless Chrome's
   `--print-to-pdf` against a built `dist/`): the Browser pane cannot emulate
-  print media, and three of the fixes here (Reading View's phone-width
+  print media, and three of the fixes here (Read View's phone-width
   gutter, superscripts opening up their lines, a long note held whole leaving
   a third of a sheet blank) showed only on paper.
 - **"Copy with notes"** in the verse menu (`getHandoutText` in
@@ -734,7 +734,7 @@ notice there or nowhere.
   bracket-marker strip (`tidyLines`, not `cleanForShare`), since a note is
   quoted as it stands. Both layouts go through `assembleHandout`.
 - **The selection bar copies a handout too** (`selectionHandout`), in both
-  views, so a handout can start mid-verse. Reading View prints no footnote
+  views, so a handout can start mid-verse. Read View prints no footnote
   letters and has no notes on the page, so there the handout reads them from
   the chapter's Study View page, fetched when the bar opens (`readingView` in
   `chapter-tools.js`). Three things make that work:
@@ -762,7 +762,7 @@ markup is a **claim about the text**, not a styling choice, and a screen
 reader repeats it. Both views run that pass and both carry the
 `#hbq-description` target, so keep them in step: it was Study-only and
 class-first-only until 2026-09-06, which left 98 of the 108 rendered blocks
-silent (44 of 54 source blockquotes are written `id`-first, and Reading Mode
+silent (44 of 54 source blockquotes are written `id`-first, and Read View
 announced none of them). Attribute order must never decide this. Two further
 rules:
 
@@ -875,7 +875,7 @@ exists to prevent.
 **Every page that prints the translation ends with the source-text notice**,
 `src/components/SblgntNotice.astro`, which credits the SBLGNT under its CC BY
 4.0 license: Study View chapters and intros (through `ScriptureLayout`) and
-Reading View. Reading View went without it until 2026-09-27, though it prints
+Read View. Read View went without it until 2026-09-27, though it prints
 whole books; a new surface that prints scripture needs it too. It is one
 sentence with the rest of the credit in a "Source text and license"
 disclosure (FIXLIST V5), and the wording lives in
@@ -1368,7 +1368,7 @@ in the shared panel: the word as printed, "Traditionally *flesh* · Greek
 *sarx*", up to four other renderings with their corpus counts, and a link to
 the glossary entry. Four owner decisions (2026-09-28): **every use**, not just
 the first of each term; **on by default**, with a **Key terms** box in the
-Display tray to turn it off; **Study View only**, never Reading View, which is
+Display tray to turn it off; **Study View only**, never Read View, which is
 for immersion; and **no tab stops** (below). The pieces are
 `src/lib/term-lens.mjs` (pure, unit-tested), `term-lens-data.mjs` (its fs
 shell) and `src/scripts/term-lens.js`. Five rules:
@@ -1545,11 +1545,11 @@ collection); they're read directly by the intro pages and the API manifest.
   `lit-leading`; `data-vn` off in `lit-verse-numbers`; `data-fn` off in
   `lit-fn-letters`; `data-terms` off in `lit-terms`, the term lens's
   switch, which Study View alone shows). There is **one
-  panel**: Reading View's toolbar "Aa" opens this same tray (it's a
+  panel**: Read View's toolbar "Aa" opens this same tray (it's a
   `data-font-toggle`, like the header's two), which opens upward when there
   is no room below. Five rules:
   1. **They apply to the reading surfaces only**: Study View's column, book
-     intros, Reading View, and article bodies. Each surface multiplies its own
+     intros, Read View, and article bodies. Each surface multiplies its own
      default by `--reading-scale` (16 / 18 / 20 / 23px at the 18px body size)
      and adds `--reading-leading-extra` to its own line-height, so Medium and
      Normal change nothing. The rest of the site is left to browser zoom.
@@ -1559,23 +1559,23 @@ collection); they're read directly by the intro pages and the API manifest.
      shorten the line at every step up. The article page is the one
      exception: its width is on the card and its size on the body inside, so
      `--article-width` multiplies by `--reading-scale` itself.
-  3. **Reading View used to keep its own three settings** (`lit_rm_fontSize`,
+  3. **Read View used to keep its own three settings** (`lit_rm_fontSize`,
      `lit_rm_lineHeight`, `lit_rm_markers`). The pre-paint script still reads
      them as fallbacks and the tray deletes each on change, the same
      arrangement as `dyslexic-font`. Don't drop the fallbacks. Focus mode
-     stayed in Reading View's toolbar (`lit_rm_focus`).
+     stayed in Read View's toolbar (`lit_rm_focus`).
   4. **A hidden verse number or footnote letter in Study View is still a
      control and a scroll target** (the verse menu's button, `#v16`, a
      footnote's backlink), so it is clipped rather than removed, stays in the
      tab order, and reappears while it has keyboard focus. The no-break space
      after a number is wrapped in `.vn-gap` at render (`markVerseGap` in
      `chapter-html.ts`) so it can hide too; left alone it doubles the gap
-     before every verse. Reading View is different: its numbers are not
+     before every verse. Read View is different: its numbers are not
      controls, and turning them off also hides the chapter headings, as its
      own button always did (hence "Verse and chapter numbers" there).
   5. **Scripture pages pass `scriptureControls`** down through the layouts:
      `"study"` from a chapter page with text, `"read"` from `/read/<book>`
-     (numbers only, since Reading View prints no footnote letters). Other
+     (numbers only, since Read View prints no footnote letters). Other
      pages don't show the "Show" group at all.
   Changing any of these reflows the page, so the tray pins the block at the
   reading line and scrolls it back (`keepReadingPlace`), and lets that one
@@ -1594,7 +1594,7 @@ collection); they're read directly by the intro pages and the API manifest.
   settled from the first frame and no font swap can move it. Write
   `calc(72 * var(--ch))` (still reads as "72 characters"). Two shared widths
   are built from it: **`--reading-width`** (`--reading-measure` × `--ch`) for
-  long-form reading (Study View, intros, Reading View, article bodies), which
+  long-form reading (Study View, intros, Read View, article bodies), which
   is the text column itself, so a surface with side padding adds it on top
   (otherwise the same setting gives each view a different line). The measure
   is **60** (owner, 2026-09-27), picked from side-by-side screenshots: about 77
@@ -1796,7 +1796,7 @@ collection); they're read directly by the intro pages and the API manifest.
     `SearchBar` renders once per page (its ids, `site-search-input` among
     them, are fixed), so a page that carries its own box passes `pageSearch`
     to `Layout`: chapters, intros and drafts (through `ScriptureLayout`),
-    `/read`, Reading View, `/search`, and the articles pages. Every other page
+    `/read`, Read View, `/search`, and the articles pages. Every other page
     gets a search icon beside the header's "Aa". Without JS it's a link to
     `/search`; with JS (`header-search.js`) it opens a strip under the header
     holding the ordinary `SearchBar`, so its results tray is the one chapter
@@ -1920,7 +1920,7 @@ collection); they're read directly by the intro pages and the API manifest.
   (`{ v: 1, book, chapter, verse | null, view: "study" | "read", t }`), kept by
   `src/scripts/last-read.js`. Study View writes it on arrival (at a `#vN`
   verse) and as the reader scrolls, taking the last verse number above 30% of
-  the viewport; Reading View writes it whenever it saves its own per-book
+  the viewport; Read View writes it whenever it saves its own per-book
   resume position. `read-mode.js` is loaded through `?url`, so Vite serves it
   unbundled and it **cannot import**: it announces each save with an
   `rm:position` event, and a bundled script in `read/[book].astro` records
@@ -1929,9 +1929,9 @@ collection); they're read directly by the intro pages and the API manifest.
   until a record exists, so no JS or no storage means nothing renders; the ×
   forgets it everywhere. The privacy page's storage paragraph names it: keep
   it there if the record ever changes shape or purpose.
-- **Reading View lands on a link instantly, then holds it.** `/read/<book>` is
+- **Read View lands on a link instantly, then holds it.** `/read/<book>` is
   the whole book on one page, tens of thousands of pixels tall, so arriving at
-  `#ch-10` (Study View's "Switch to Reading View") or `#luke-10-v25` (search)
+  `#ch-10` (Study View's "Switch to Read View") or `#luke-10-v25` (search)
   is fragile: any height change above the target after the jump (a web font
   finishing, the Android banner) slides the text under a fixed scroll offset,
   and Safari has no scroll anchoring to undo it. (The reader's text size is
@@ -1944,11 +1944,11 @@ collection); they're read directly by the intro pages and the API manifest.
   saw the switch land "at random places within the book" (2026-09-27).
 - **On a phone, Study View's toolbar is one row** (audit F3, owner
   2026-09-28). At 640px and below the passage picker, a search button and an
-  icon-only Reading View link share one 44px row; search opens in place of the
+  icon-only Read View link share one 44px row; search opens in place of the
   row, and its × or Escape closes it and returns focus to the button. The top
   Previous/Next become ‹ › beside the title and keep their names ("Previous:
   Romans 7"); the big buttons at the foot stay. Tablets (641–900px) get one
-  row with a short "Reading View" label. The one-row layout hangs off
+  row with a short "Read View" label. The one-row layout hangs off
   `data-compact`, which an inline script in `ScriptureLayout.astro` sets
   while the page is still parsing, right after the toolbar, so it is in place
   before first paint. **Keep that script inline**: a bundled module runs after
@@ -1957,7 +1957,7 @@ collection); they're read directly by the intro pages and the API manifest.
 - **Keyboard shortcuts** (`src/scripts/keyboard-shortcuts.js`, audit U4, owner
   2026-09-28): `/` search, `g` Go to passage, and ← → or `[` `]` for the
   previous and next chapter (Study View's top Previous/Next, found by their
-  `rel="prev"` / `rel="next"`, or the neighbouring `#ch-N` in Reading View).
+  `rel="prev"` / `rel="next"`, or the neighbouring `#ch-N` in Read View).
   They are on by default, with a Keyboard switch in the Display tray
   (`localStorage['lit-shortcuts'] = 'off'`; no attribute on `<html>`, since
   nothing renders differently). **The switch is required, not a nicety**:
@@ -2072,10 +2072,10 @@ collection); they're read directly by the intro pages and the API manifest.
      intrusive-interstitial penalty on search-landing pages (FIXLIST O3, an
      owner decision);
   2. never on a link shared into scripture (`#v16`, a range `#v16-17`, a part
-     anchor `#john-8-p9`, a Reading View verse `#john-3-v16`);
+     anchor `#john-8-p9`, a Read View verse `#john-3-v16`);
   3. never on `/apps`, its own CTA destination, or `/privacy`, which people
      open to read terms rather than to be pitched to (`SUPPRESSED_PATHS`);
-  4. **never over scripture**: a Study View chapter or intro, or Reading View
+  4. **never over scripture**: a Study View chapter or intro, or Read View
      (owner, 2026-09-28). A reader who chose a passage came to read it. An
      announcement can opt out with `{ overScripture: true }`.
   What belongs to one announcement stays in its component, passed to the gate
@@ -2565,8 +2565,8 @@ argv, and the scan; nothing else.
 |------|---------|
 | `src/data/books.js` | Source of truth for NT book list + chapter counts |
 | `src/pages/[slug].astro` | Scripture chapter pages (Study View) |
-| `src/pages/read/[book].astro` | Continuous reading view |
-| `src/scripts/chapter-tools.js` | Verse highlight/menu, footnote popovers, and selection sharing (Study View); the selection bar alone in Reading View |
+| `src/pages/read/[book].astro` | Read View (a whole book on one page) |
+| `src/scripts/chapter-tools.js` | Verse highlight/menu, footnote popovers, and selection sharing (Study View); the selection bar alone in Read View |
 | `src/lib/scripture-refs.mjs` | The render-time reference linker; read its header before widening what it links |
 | `src/lib/sefaria-refs.mjs` | The Hebrew Bible books the linker sends to Sefaria and the English→Hebrew verse map; change the map only after checking it against Sefaria's text |
 | `src/lib/ebible-refs.mjs` | The apocryphal books the linker sends to the World English Bible on eBible.org, with eBible's verse counts |

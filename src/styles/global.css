@@ -186,7 +186,7 @@
      each rule still reads on its own. */
   --content-width: calc(72 * var(--ch));
 
-  /* The long-form reading measure: Study View, Reading View, book intros and
+  /* The long-form reading measure: Study View, Read View, book intros and
      article bodies. Only --reading-measure is a design choice (--ch keeps its
      per-font value). Like --content-width it resolves against the font size
      of the element that uses it, so a column set at the reader's text size
@@ -2281,7 +2281,7 @@ blockquote.hbq {
   color: inherit;
 }
 
-/* Explicit parity targets: Read Mode + Study chapter text */
+/* Explicit parity targets: Read View + Study View text */
 .rm-page .rm-text blockquote.hbq,
 .chapter-paragraphs blockquote.hbq {
   margin: 0.6rem 0 0.9rem;
@@ -2679,7 +2679,7 @@ html[data-font="dyslexic"] .menu-overlay__nav a {
    and a scroll target (#v16, the note's backlink), so it is hidden visually
    rather than removed: it stays in the tab order and reappears while it has
    keyboard focus, the skip-link pattern. The .vn-gap after a number is its
-   no-break space (chapter-html.ts), which goes with it. Reading View has its
+   no-break space (chapter-html.ts), which goes with it. Read View has its
    own rule (read-mode.css), and strips footnote letters at build. */
 html[data-vn="off"] .chapter-paragraphs sup.vn:not(:focus-visible),
 html[data-fn="off"] .chapter-paragraphs sup.fn-ref:not(:focus-within) {

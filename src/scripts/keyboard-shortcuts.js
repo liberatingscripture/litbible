@@ -4,7 +4,7 @@
 //   /          search (the page's own box, or the header's search strip)
 //   g          Go to passage, where the page has the picker
 //   ← → [ ]    previous and next chapter: Study View's Previous/Next links,
-//              or the neighbouring chapter in Reading View
+//              or the neighbouring chapter in Read View
 //
 // On by default, with a "Keyboard shortcuts" box in the Display tray to turn
 // them off (localStorage["lit-shortcuts"] = "off"; absent = on). The off
@@ -86,7 +86,7 @@ function goToChapter(step) {
     link.click();
     return true;
   }
-  // Reading View: the whole book is on the page, so move to the next chapter
+  // Read View: the whole book is on the page, so move to the next chapter
   // heading. The picker's root tracks which chapter is being read.
   const current = Number(document.querySelector("[data-current-chapter]")?.dataset.currentChapter);
   if (!current) return false;

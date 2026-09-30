@@ -2,7 +2,7 @@
 //
 // "Continue reading": the one record of where a reader last was, across both
 // views, and the links that offer it back. Study View writes it as the page
-// is read (trackStudyView, below); Reading View writes it beside its own
+// is read (trackStudyView, below); Read View writes it beside its own
 // per-book resume position (read-mode.js). Draft chapters are never recorded.
 //
 // One key, lit_last_read, in localStorage:

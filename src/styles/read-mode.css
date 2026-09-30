@@ -486,7 +486,7 @@ html.rm-tools-open {
 /* END NEW */
 
 /* NUMBERS OFF (Display tray, html[data-vn="off"], stamped before first paint).
-   Reading View hides chapter headings along with verse numbers, as its own
+   Read View hides chapter headings along with verse numbers, as its own
    "Numbers" button always did, for unbroken text. Neither is a control here
    (verse anchors live on .rm-verse-anchor), so plain display:none is safe;
    Study View's rule is different (global.css). */
@@ -772,7 +772,7 @@ html[data-vn="off"]
   }
 }
 
-/* Reading Mode HBQ: anchors must not affect inline layout */
+/* Read View HBQ: anchors must not affect inline layout */
 .rm-page .rm-text blockquote.hbq .rm-verse-anchor {
   display: inline;
   width: 0;

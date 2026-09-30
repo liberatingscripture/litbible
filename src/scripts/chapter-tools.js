@@ -4,7 +4,7 @@
 // still scrolls to #vN anchors and footnote links still jump to the
 // footnotes section.
 //
-// Study View (a chapter page) gets all four; Reading View (a whole book on
+// Study View (a chapter page) gets all four; Read View (a whole book on
 // /read/<book>) gets only the fourth, since its verse numbers aren't
 // controls and a verse's links and notes belong to its Study View page.
 //
@@ -59,7 +59,7 @@ document.addEventListener(
 
 // What selection sharing needs to know about the page it runs on. `scope`
 // is where a handout reads each verse's footnote letters and notes from:
-// the page itself in Study View, and in Reading View (which prints neither)
+// the page itself in Study View, and in Read View (which prints neither)
 // the chapter's Study View page, fetched once per chapter. It returns the
 // scope directly or a Promise of it, and null when it can't be had.
 
@@ -277,7 +277,7 @@ function getVerseUrl(start, end) {
  * holding two verses doesn't hand back both. Only blocks carrying an id are
  * offered: the id is what makes a part linkable, and every authored paragraph
  * and blockquote has one, already book-namespaced (`john-8-p9`,
- * `1peter-2-p2`) so the same anchor resolves in Reading Mode too.
+ * `1peter-2-p2`) so the same anchor resolves in Read View too.
  */
 function verseParts(container, verse) {
   const byBlock = new Map(); // insertion order = document order
@@ -450,7 +450,7 @@ function getHandoutText(container, start, end, ref, url) {
 /**
  * A handout from its text (letters kept as "[a]") and the notes those letters
  * cite, looked up in `root`: this page, or a fetched Study View page when the
- * handout comes from Reading View. Shared by the verse menu and the selection
+ * handout comes from Read View. Shared by the verse menu and the selection
  * bar, so the two lay a handout out identically.
  */
 function assembleHandout(text, cited, root, ref, url) {
@@ -501,7 +501,7 @@ async function copyToClipboard(text) {
 }
 
 /**
- * Copy text that is still on its way: Reading View's handout waits on the
+ * Copy text that is still on its way: Read View's handout waits on the
  * chapter's Study View page for its notes. Safari lets a page write to the
  * clipboard only while handling the tap, so the write starts at once with the
  * text as a promise. Where that form isn't taken, wait for the text and write
@@ -939,7 +939,7 @@ function initFootnotePopovers(container) {
 // half-sentence, a phrase crossing two verses, part of a poetry quotation. The reference names the verses the selection touches in plain
 // numbers ("John 3:16", never "16a" — the quoted words already show it's
 // partial), and the link is the ordinary verse link on the Study View page,
-// in Reading View as well. Reading View has no verse menu, so this bar is its
+// in Read View as well. Read View has no verse menu, so this bar is its
 // only way to copy or share.
 //
 // It always sits beside the selection, where the reader is looking; where
@@ -1019,13 +1019,13 @@ function excludeMarkers(range) {
  * to the verse spans, so a selection running into a heading or the footnotes
  * shares only its scripture; snapped out to whole words; and joined by the
  * same joinPieces rule as the verse menu, so selecting whole verses copies
- * exactly what its Copy text does. In Reading View it is also clamped to
+ * exactly what its Copy text does. In Read View it is also clamped to
  * the first chapter it touches, since one reference names one chapter.
  *
  * `startCount` and `endCount` place the two ends within their verses, as the
  * number of characters before each one (see countable). That is how a handout
  * finds the same words on a page that also prints footnote letters
- * (selectionHandout), which in Reading View is a different page.
+ * (selectionHandout), which in Read View is a different page.
  */
 function selectionShare(view, selection) {
   const { container } = view;
@@ -1255,7 +1255,7 @@ function placeBesideTouchSelection(rect) {
 function openSelectionPanel(view, share, { touch }) {
   const ref = view.ref(share.chapter, share.start, share.end);
   const url = view.url(share.chapter, share.start, share.end);
-  // Asked for now, so in Reading View the chapter's notes are usually on
+  // Asked for now, so in Read View the chapter's notes are usually on
   // hand by the time "Copy with notes" is pressed.
   const scope = view.scope(share.chapter);
 
@@ -1375,7 +1375,7 @@ const container = document.querySelector(".chapter-paragraphs");
 if (container) {
   init(container);
 } else {
-  // Reading View: the selection bar only (see the header).
+  // Read View: the selection bar only (see the header).
   const reading = document.querySelector("[data-rm-root] .rm-text");
   if (reading) initSelectionShare(readingView(reading));
 }

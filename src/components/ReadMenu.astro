@@ -9,9 +9,9 @@ import { scanDraftChapters } from "../lib/draft-chapters.mjs";
 
 /**
  * mode="study" (default): the standalone "Go to passage" pill. Chapter picks
- *   navigate to Study View pages (/john-3); the footer offers Reading Mode.
- * mode="read": the compact trigger embedded in the Reading View toolbar.
- *   Chapter picks stay in Reading Mode (/read/<book>#ch-N — same-book picks
+ *   navigate to Study View pages (/john-3); the footer offers Read View.
+ * mode="read": the compact trigger embedded in the Read View toolbar.
+ *   Chapter picks stay in Read View (/read/<book>#ch-N — same-book picks
  *   are intercepted by read-mode.js for an in-page smooth scroll); the footer
  *   offers Study View instead. The trigger label doubles as the live
  *   location readout: `label` sets the initial text and read-mode.js updates
@@ -60,8 +60,8 @@ if (label) {
   triggerLabel = bookKeyToLabel(currentBookKey);
 }
 
-// No-JS fallback: the trigger is a real link — the book's continuous Reading
-// Mode page when there is a current book, the /read landing page otherwise.
+// No-JS fallback: the trigger is a real link — the book's continuous Read
+// View page when there is a current book, the /read landing page otherwise.
 // In read mode the reader is already ON /read/<book>, so fall back to the
 // /read landing (the book list). JS upgrades it in place into the popover
 // trigger button.
@@ -220,7 +220,7 @@ const fallbackHref =
       }
 
       // The footer's cross-view link flips with the mode: Study View pages
-      // offer Reading Mode, the Reading View toolbar offers Study View.
+      // offer Read View, the Read View toolbar offers Study View.
       function legendEl(crossViewKey) {
         const foot = document.createElement("div");
         foot.className = "read-menu__foot";
@@ -240,7 +240,7 @@ const fallbackHref =
           } else {
             a.href = "/read/" + crossViewKey;
             a.textContent =
-              "Open " + label(crossViewKey) + " in Reading Mode →";
+              "Open " + label(crossViewKey) + " in Read View →";
           }
           foot.appendChild(a);
         }
@@ -349,7 +349,7 @@ const fallbackHref =
 
         // Chapter cells are real links: middle-click, long-press, and
         // "open in new tab" all behave, and the popover closes on unload.
-        // Read mode links stay in Reading Mode (/read/<book>#ch-N); intros
+        // Read mode links stay in Read View (/read/<book>#ch-N); intros
         // only exist as Study pages, so that cell's href never changes.
         const intro = document.createElement("a");
         intro.className =
@@ -482,10 +482,11 @@ const fallbackHref =
       align-items: center;
       justify-content: center;
       gap: 8px;
-      /* Pinned to the same floor as the Reading View pill (whose fixed
-         "Switch to Reading View" label renders ~243px) so the toolbar's two
+      /* Pinned to the same floor as the Read View pill so the toolbar's two
          ends are the same size; long labels ("2 Thessalonians 3") still grow
-         past it. Keep this in sync with .reading-view-pill in ScriptureLayout. */
+         past it. The floor was sized for the pill's old "Switch to Reading
+         View" label (~243px); the shorter one now sits inside it. Keep this in
+         sync with .reading-view-pill in ScriptureLayout. */
       min-width: 245px;
       padding: 10px 18px;
       font-size: 16px;

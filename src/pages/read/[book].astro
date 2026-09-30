@@ -103,8 +103,8 @@ const allChaptersDraft =
   existingChapterData.length > 0 &&
   existingChapterData.every((data) => data.indexed === false);
 
-const title = `${bookName} (Reading Mode) | Liberation and Inclusion Translation`;
-const description = `Read ${bookName} in continuous scroll with Reading Mode.`;
+const title = `${bookName} (Read View) | Liberation and Inclusion Translation`;
+const description = `Read ${bookName} in continuous scroll with Read View.`;
 const pageUrl = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : "";
 ---
 
@@ -325,7 +325,7 @@ const pageUrl = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : "";
 
   <script type="module" src={readModeScript}></script>
 
-  {/* Continue reading: record where the reader is each time Reading View
+  {/* Continue reading: record where the reader is each time Read View
       saves its own resume position. Draft chapters are never recorded. */}
   {/* The selection bar, as in Study View. Only the bar: verse numbers stay
       plain text here, since a verse menu's links and actions belong to the
