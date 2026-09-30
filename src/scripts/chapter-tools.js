@@ -15,8 +15,8 @@
 // 2. Verse menu — tapping a verse number opens Copy text / Copy link /
 //    Copy with notes / Share / Make an image. Tapping more verse numbers
 //    while the menu is open extends the selection to a range (e.g. John
-//    3:16–18). On a phone it is a short sheet that stays open until
-//    closed.
+//    3:16–18). Its layout follows the input: a finger gets chips and a menu
+//    that stays open until closed, a mouse the rows of a computer's menu.
 // 3. Footnote popovers — tapping a footnote letter shows the note inline
 //    (bottom sheet on small screens), with a link through to the full
 //    footnotes section.
@@ -40,6 +40,20 @@ function init(container) {
   initFootnotePopovers(container);
   initSelectionShare(studyView(container));
 }
+
+/* ── Shared: the input ────────────────────────────────────────────────── */
+
+// The kind of pointer that last pressed the page: "mouse", "touch" or "pen".
+// Both panels take their layout from it, not from the screen width: a finger
+// gets the chip layout, a mouse the rows of a computer's menu.
+let lastPointerType = "mouse";
+document.addEventListener(
+  "pointerdown",
+  (e) => {
+    lastPointerType = e.pointerType || "mouse";
+  },
+  true
+);
 
 /* ── Shared: the two views ────────────────────────────────────────────── */
 
@@ -565,7 +579,7 @@ function shareButton(ref, url, getText) {
 
 /**
  * Buttons that share one row. The row is invisible except in the chip layout
- * (a phone's verse menu, a touch selection), where they sit side by side, a
+ * (either panel opened by a finger), where they sit side by side, a
  * pair in exact halves. A missing button (null: Share… where there is no
  * share sheet) leaves the rest the row.
  */
@@ -585,39 +599,110 @@ function setSelectionHighlight(container, start, end) {
     CSS.highlights.set("lit-verse-select", new Highlight(...ranges));
 }
 
-function openVerseMenu(container, sup, anchorVerse, start, end, { restoreFocus = null } = {}) {
+/** Put a pinned panel at a spot on the screen, kept inside the viewport. */
+function placeOnScreen(panel, left, top) {
+  const maxLeft = window.innerWidth - panel.offsetWidth - PANEL_EDGE;
+  const maxTop = window.innerHeight - panel.offsetHeight - PANEL_EDGE;
+  panel.style.left = Math.max(PANEL_EDGE, Math.min(left, maxLeft)) + "px";
+  panel.style.top = Math.max(PANEL_EDGE, Math.min(top, maxTop)) + "px";
+}
+
+/**
+ * Keep a panel where it is on the screen while the page scrolls under it, as
+ * a bottom sheet stays. `at` places it instead (the spot a previous menu
+ * held).
+ */
+function pinToScreen(panel, at = null) {
+  const rect = panel.getBoundingClientRect();
+  panel.classList.add("lit-panel--pinned");
+  placeOnScreen(panel, at ? at.left : rect.left, at ? at.top : rect.top);
+}
+
+/**
+ * Let a floating panel be dragged by its header, out of the way of the text
+ * it covers. A panel that scrolls with the text is pinned where it is first,
+ * so it stays where the reader drops it.
+ */
+function makeDraggable(panel, handle) {
+  handle.classList.add("lit-panel__header--drag");
+  handle.addEventListener("pointerdown", (e) => {
+    if (e.button !== 0 || e.target.closest("button")) return;
+    e.preventDefault(); // no text selection, no focus change
+    if (!panel.classList.contains("lit-panel--pinned")) pinToScreen(panel);
+    const x0 = e.clientX;
+    const y0 = e.clientY;
+    const left0 = parseFloat(panel.style.left);
+    const top0 = parseFloat(panel.style.top);
+    try {
+      handle.setPointerCapture(e.pointerId);
+    } catch {
+      /* no live pointer to capture (a synthetic event) */
+    }
+    panel.classList.add("lit-panel--dragging");
+    const move = (ev) => placeOnScreen(panel, left0 + ev.clientX - x0, top0 + ev.clientY - y0);
+    const end = () => {
+      handle.removeEventListener("pointermove", move);
+      handle.removeEventListener("pointerup", end);
+      handle.removeEventListener("pointercancel", end);
+      panel.classList.remove("lit-panel--dragging");
+    };
+    handle.addEventListener("pointermove", move);
+    handle.addEventListener("pointerup", end);
+    handle.addEventListener("pointercancel", end);
+  });
+}
+
+function openVerseMenu(
+  container,
+  sup,
+  anchorVerse,
+  start,
+  end,
+  { restoreFocus = null, touch = false } = {}
+) {
   const ref = formatRef(start, end);
   const url = getVerseUrl(start, end);
-  // On a phone the menu is a short sheet in the selection panel's chip
-  // layout, and it stays open through scrolling and taps on the text, so the
-  // text it covers can still be read and its verse numbers tapped. That
-  // needs a close button.
-  const phone = isSmallScreen();
+  // The text the menu covers must stay within reach. Opened by a finger, the
+  // menu takes the selection panel's chip layout and stays open through
+  // scrolling and taps on the text until its × closes it: on a phone as a
+  // short bottom sheet, wider beside the verse number, pinned to the screen
+  // so the text scrolls out from under it just the same. A mouse or the
+  // keyboard gets the rows of a computer's menu beside the number, never a
+  // sheet, closed by a click elsewhere as well. Beside the number, either
+  // one can be dragged aside by its header.
+  const sheet = touch && isSmallScreen();
+  const prev = currentPanel();
+  const keepAt =
+    prev?.kind === "verse" && prev.el.classList.contains("lit-panel--pinned")
+      ? { left: parseFloat(prev.el.style.left), top: parseFloat(prev.el.style.top) }
+      : null;
 
   const panel = document.createElement("div");
   panel.setAttribute("role", "dialog");
   panel.setAttribute("aria-label", ref + " options");
   panel.tabIndex = -1;
   panel.classList.add("lit-panel--menu");
-  if (phone) panel.classList.add("lit-panel--chips");
+  if (touch) panel.classList.add("lit-panel--chips");
 
+  const header = document.createElement("div");
+  header.className = "lit-panel__header";
+  if (!sheet) {
+    const grip = document.createElement("span");
+    grip.className = "lit-panel__grip";
+    grip.setAttribute("aria-hidden", "true");
+    header.appendChild(grip);
+  }
   const heading = document.createElement("p");
   heading.className = "lit-panel__heading";
   heading.textContent = ref + " (LIT)";
-  if (phone) {
-    const header = document.createElement("div");
-    header.className = "lit-panel__header";
-    const closeBtn = document.createElement("button");
-    closeBtn.type = "button";
-    closeBtn.className = "lit-panel__close";
-    closeBtn.setAttribute("aria-label", "Close");
-    closeBtn.textContent = "×";
-    closeBtn.addEventListener("click", closePanel);
-    header.append(heading, closeBtn);
-    panel.appendChild(header);
-  } else {
-    panel.appendChild(heading);
-  }
+  const closeBtn = document.createElement("button");
+  closeBtn.type = "button";
+  closeBtn.className = "lit-panel__close";
+  closeBtn.setAttribute("aria-label", "Close");
+  closeBtn.textContent = "×";
+  closeBtn.addEventListener("click", closePanel);
+  header.append(heading, closeBtn);
+  panel.appendChild(header);
 
   panel.appendChild(
     panelRow(
@@ -679,12 +764,13 @@ function openVerseMenu(container, sup, anchorVerse, start, end, { restoreFocus =
 
   const hint = document.createElement("p");
   hint.className = "lit-panel__hint";
-  hint.textContent = "Tap another verse number to select a range.";
+  hint.textContent = (touch ? "Tap" : "Click") + " another verse number to select a range.";
   panel.appendChild(hint);
 
   showPanel(sup, panel, {
     preferAbove: true,
-    persistent: phone,
+    sheet,
+    persistent: touch,
     // Only keyboard activations restore focus to the verse number on close —
     // for pointer taps a focus() could scroll the page back to the verse.
     restoreFocus,
@@ -693,6 +779,11 @@ function openVerseMenu(container, sup, anchorVerse, start, end, { restoreFocus =
     },
     extra: { kind: "verse", anchorVerse, start, end },
   });
+  if (!sheet) {
+    // Extending a range reopens the menu, which stays where it was put.
+    if (touch || keepAt) pinToScreen(panel, keepAt);
+    makeDraggable(panel, header);
+  }
   // After showPanel: its closePanel() of a previous menu would otherwise
   // delete the selection highlight we just set.
   setSelectionHighlight(container, start, end);
@@ -703,7 +794,10 @@ function handleVerseActivation(container, sup, { viaKeyboard = false } = {}) {
   const verse = parseInt(sup.textContent, 10);
   if (!Number.isFinite(verse)) return;
 
-  const opts = { restoreFocus: viaKeyboard ? sup : null };
+  const opts = {
+    restoreFocus: viaKeyboard ? sup : null,
+    touch: !viaKeyboard && lastPointerType !== "mouse",
+  };
 
   // Menu already open: activating the selection's only verse closes it;
   // activating any other verse number extends the selection to a range.
@@ -860,7 +954,6 @@ function initFootnotePopovers(container) {
 // keyboard route, since this panel answers a pointer gesture and never takes
 // focus.
 
-let lastPointerType = "mouse";
 let pointerDown = false;
 // The selection the panel was last shown for, so a dismissed panel (Escape,
 // or closing itself after a copy) stays closed until the selection changes.
@@ -1230,6 +1323,7 @@ function openSelectionPanel(view, share, { touch }) {
   showPanel({ getBoundingClientRect: () => share.rect }, panel, {
     preferAbove: true,
     place: touch ? placeBesideTouchSelection(share.rect) : null,
+    sheet: false,
     extra: { kind: "selection" },
   });
 }
@@ -1244,7 +1338,6 @@ function initSelectionShare(view) {
   document.addEventListener(
     "pointerdown",
     (e) => {
-      lastPointerType = e.pointerType || "mouse";
       pointerDown = true;
       // A new gesture may select the same words again; let it show the panel.
       if (!currentPanel()?.el.contains(e.target)) shownKey = null;

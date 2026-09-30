@@ -561,7 +561,7 @@ Four owner decisions (2026-09) shape it:
 
 1. **It sits beside the selection, and the side follows the input**, not the
    screen width (`lastPointerType` decides). A mouse selection gets the panel
-   just above the text. A touch selection shares that space with the phone's
+   just above the text, never a bottom sheet, even in a narrow window. A touch selection shares that space with the phone's
    own Copy / Share bubble, which a page can't add to or move, so
    `placeBesideTouchSelection` takes the side the bubble isn't on. That is
    normally just below the selection, clearing the drag handle. When a
@@ -615,7 +615,7 @@ the verse menu's extras are its own: "Or copy one part" and the range hint,
 both about whole verses. Both panels build from the same pieces
 (`menuButton`, `shareButton`, `imageStep`, `panelRow`), so keep them in step.
 
-**On a phone both use the chip layout** (`.lit-panel--chips`): tinted
+**Opened by a finger, both use the chip layout** (`.lit-panel--chips`): tinted
 buttons side by side in rows (`panelRow`), the three copies in one and
 Share… with Make an image in the next. The owner's rule is that **every
 two-button row matches every other**, in either panel, so a pair takes exact
@@ -625,19 +625,29 @@ pressed its questions take the row over from Share…, so the panel keeps its
 height. A label never breaks: a button too wide for its share (OpenDyslexic
 on a 375px phone) wraps to a line of its own.
 
-**The verse menu on a phone (≤640px) is a short bottom sheet that stays
-open** (`showPanel`'s `persistent`) through scrolling and taps on the text,
-so the text it covers can still be read and the verse numbers under it
-tapped to extend a range. Its ×, Escape, or tapping its lone verse number
-again closes it. The owner picked it from four mocked placements
-(2026-09-29): the old sheet of full-width rows, which covered about 40% of
-the screen and the tapped verse itself whenever that verse sat low; this
-compact sheet; and two that floated beside the verse number, pinned to the
-screen and draggable by a grip. **Whatever replaces it must keep the covered
-text reachable**, by staying open with a close button, by moving, or both
-(owner). On a computer the verse menu is unchanged: rows, beside the number,
-closed by an outside click. The selection panel keeps its own placement
-(decision 1 above) and closes when the selection clears.
+**The verse menu follows the input, as the selection panel does** (owner,
+2026-09-29), not the screen width, and **the text it covers must always stay
+within reach** (owner). So:
+
+| Opened by | Layout | Where | Closes on |
+|---|---|---|---|
+| a finger, ≤640px | chips | a short bottom sheet; the text scrolls out from under it | ×, Escape, its lone verse number |
+| a finger, wider (tablet) | chips | beside the verse number, pinned to the screen so the text scrolls under it, and draggable | ×, Escape, its lone verse number |
+| a mouse or the keyboard | rows | beside the verse number, scrolling with the text until dragged, then pinned where dropped | the same, or a click elsewhere |
+
+A finger's menu is `persistent` (`showPanel`), so taps on the text and
+scrolling leave it open and the verse numbers under it can still extend a
+range. Every verse menu has a ×, and every one beside its number drags by
+its header (the grip), because a menu moved off the text needs its own way
+to close. Extending a range reopens the menu where it was put. A mouse never
+gets a sheet, even in a narrow window, and neither does a mouse selection.
+
+The phone sheet was picked from four mocked placements (2026-09-29): the old
+sheet of full-width rows, which covered about 40% of the screen and the
+tapped verse itself whenever that verse sat low; this compact sheet; and two
+that floated beside the verse number, pinned and draggable. The selection
+panel keeps its own placement (decision 1 above) and closes when the
+selection clears.
 
 ### Verse images
 
@@ -1872,8 +1882,8 @@ collection); they're read directly by the intro pages and the API manifest.
   `src/scripts/lit-panel.js` is the one panel all reader tools share (verse
   menu, footnote popover, selection panel, preview): one open at a time, closed
   by an outside click or Escape. A `persistent` panel ignores the outside
-  click; only the phone's verse menu is one (see "One set of actions, two
-  ways in").
+  click; only a verse menu opened by a finger is one (see "One set of
+  actions, two ways in").
 - **"Go deeper" closes every published chapter** (audit X3, owner
   2026-09-28): `GoDeeper.astro`, right after Previous/Next and above the
   notes, with one row per kind that has something (Listen, Read, Key terms,

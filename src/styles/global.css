@@ -2869,8 +2869,9 @@ html[data-terms="off"] .chapter-paragraphs .term {
   color: var(--green-text);
 }
 
-/* Chip layout: the verse menu on a phone (a short bottom sheet) and the
-   selection panel for a touch selection (beside the selected words). Both
+/* Chip layout: the verse menu and the selection panel when a finger opened
+   them (the menu a short bottom sheet on a phone, a card beside the verse
+   number on a tablet; the selection panel beside the selected words). Both
    are kept short to cover as little text as they can: tinted buttons side
    by side in rows (.lit-panel__row), trimmed padding. The parts and the hint
    each take the whole width. */
@@ -2883,9 +2884,10 @@ html[data-terms="off"] .chapter-paragraphs .term {
   padding-bottom: calc(10px + env(safe-area-inset-bottom));
 }
 
-/* A panel sized to its content would size its halves to the two labels'
-   average, which the longer one can't fit into. */
-.lit-panel--selection.lit-panel--chips {
+/* Beside the text rather than a sheet: a panel sized to its content would
+   size its halves to the two labels' average, which the longer one can't
+   fit into. */
+.lit-panel--chips:not(.lit-panel--sheet) {
   width: min(380px, calc(100vw - 24px));
 }
 
@@ -3005,6 +3007,43 @@ html[data-terms="off"] .chapter-paragraphs .term {
   margin: 0;
   padding: 9px 10px;
   font-size: 0.9rem;
+}
+
+/* The verse menu beside its verse number: pinned to the screen while the
+   text scrolls under it (always for a finger, once dragged for a mouse),
+   and dragged by its header. */
+.lit-panel.lit-panel--pinned {
+  position: fixed;
+  max-height: calc(100vh - 24px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.lit-panel__header--drag {
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.lit-panel--dragging .lit-panel__header--drag {
+  cursor: grabbing;
+}
+
+.lit-panel--dragging {
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.3);
+}
+
+.lit-panel__grip {
+  flex: none;
+  width: 10px;
+  height: 16px;
+  margin-right: -2px;
+  background-image: radial-gradient(circle, rgba(var(--ink-rgb), 0.45) 1.3px, transparent 1.6px);
+  background-size: 5px 5px;
+}
+
+.lit-panel__header .lit-panel__heading {
+  flex: 1 1 auto;
 }
 
 /* Range-selection hint at the bottom of the verse menu */

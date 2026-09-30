@@ -4,7 +4,8 @@
 // footnote popovers and selection panel (chapter-tools.js), and scripture
 // reference previews (ref-preview.js). ONE panel is open at a time across all
 // of them: opening any panel closes the last, and an outside click or Escape
-// closes it (Escape only, for a persistent one: the verse menu on a phone). Moved here unchanged from chapter-tools.js when the previews
+// closes it (Escape only, for a persistent one: the verse menu a finger
+// opened). Moved here unchanged from chapter-tools.js when the previews
 // arrived (2026-09), so two modules could not each believe they owned the
 // screen. Styles are the .lit-panel rules in global.css.
 
@@ -56,10 +57,12 @@ export function isSmallScreen() {
  * small screens). Returns the panel element. The trigger only needs
  * getBoundingClientRect, so a selection can stand in for an element. `place`
  * overrides both layouts: it gets the attached panel and returns its
- * document-relative {left, top}. A `persistent` panel ignores outside clicks,
- * so the page stays usable around it; it needs a close button of its own.
+ * document-relative {left, top}. `sheet: false` keeps a small screen on the
+ * floating layout, for a panel a mouse opened. A `persistent` panel ignores
+ * outside clicks, so the page stays usable around it; it needs a close
+ * button of its own.
  */
-export function showPanel(trigger, el, { restoreFocus = null, onClose = null, extra = null, preferAbove = false, place = null, persistent = false } = {}) {
+export function showPanel(trigger, el, { restoreFocus = null, onClose = null, extra = null, preferAbove = false, place = null, sheet = true, persistent = false } = {}) {
   closePanel();
   el.classList.add("lit-panel");
 
@@ -68,7 +71,7 @@ export function showPanel(trigger, el, { restoreFocus = null, onClose = null, ex
     const { left, top } = place(el);
     el.style.left = left + "px";
     el.style.top = top + "px";
-  } else if (isSmallScreen()) {
+  } else if (sheet && isSmallScreen()) {
     el.classList.add("lit-panel--sheet");
     document.body.appendChild(el);
   } else {
