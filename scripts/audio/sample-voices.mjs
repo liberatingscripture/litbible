@@ -9,15 +9,15 @@
 //   node scripts/audio/sample-voices.mjs --chapter=john-11
 //   node scripts/audio/sample-voices.mjs --voices=en-US-JaneNeural
 //   node scripts/audio/sample-voices.mjs --dry-run       # the text and counts, no key needed
+//   node scripts/audio/sample-voices.mjs --verses        # also a verse-by-verse reading
 //
-// Each voice is read two ways, because the two ways are how a verse's timing
-// can be had:
-//   <chapter>-<voice>-paragraphs.mp3   a paragraph per request, the natural
-//                                      flow across verse breaks
-//   <chapter>-<voice>-verses.mp3       a verse per request, the only way to
-//                                      time a voice that reports no timings
-//                                      (the HD voices); listen for the seam
-//                                      where a sentence runs across a verse
+// Each voice reads <chapter>-<voice>-paragraphs.mp3: a paragraph per request,
+// the natural flow across verse breaks. That is how a standard voice's audio
+// would be made, since standard voices report where SSML bookmarks fall, so
+// verse timings come with it. --verses adds <chapter>-<voice>-verses.mp3 and
+// its timings, a verse per request: the only way to time a voice that
+// reports no timings (the DragonHD and HD Flash voices). Listen there for
+// the seam where a sentence runs across a verse.
 //
 // The text is what Read aloud says: verse numbers, footnote letters and
 // bracket markers left out (scripts/lib/verse-text.mjs), after "Romans,
@@ -40,17 +40,14 @@ import { bookKeyToLabel } from "../../src/data/books.js";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 
-// The owner's shortlist from the Voice Gallery (2026-09-29), with Andrew and
-// Steffan each in a standard and an HD version, so the same voice can be
-// heard both ways.
+// The owner's shortlist from the Voice Gallery (2026-09-29): standard voices
+// only (owner), for one price, exact verse timings and full pronunciation
+// control.
 const SHORTLIST = [
   "en-US-JaneNeural",
   "en-US-LolaMultilingualNeural",
-  "en-US-Tyler:DragonHDFlashLatestNeural",
   "en-US-AndrewMultilingualNeural",
-  "en-US-Andrew:DragonHDOmniLatestNeural",
   "en-US-SteffanMultilingualNeural",
-  "en-US-Steffan:DragonHDLatestNeural",
 ];
 
 // 48 kbps mono MP3: the size the storage estimates assume. Constant bit rate,
@@ -69,6 +66,7 @@ const chapterSlug = String(args.chapter || "romans-8");
 const voices = args.voices ? String(args.voices).split(",").filter(Boolean) : SHORTLIST;
 const outDir = path.resolve(String(args.out || path.join(os.homedir(), "LIT-voice-samples")));
 const dryRun = !!args["dry-run"];
+const withVerses = !!args.verses;
 
 /* ── The text ─────────────────────────────────────────────────────── */
 
@@ -87,10 +85,11 @@ const paragraphs = chapter.paragraphs
 const verses = [...splitChapterVerses(chapter.paragraphs)].map(([verse, text]) => ({ verse, text }));
 
 const chars = (list) => list.reduce((n, t) => n + t.length, 0);
-const perVoice = intro.length * 2 + chars(paragraphs) + chars(verses.map((v) => v.text));
+const perVoice =
+  intro.length + chars(paragraphs) + (withVerses ? intro.length + chars(verses.map((v) => v.text)) : 0);
 console.log(
   `${chapter.title}: ${paragraphs.length} paragraphs, ${verses.length} verses, ` +
-    `${perVoice.toLocaleString()} characters per voice (both readings), ` +
+    `${perVoice.toLocaleString()} characters per voice${withVerses ? " (both readings)" : ""}, ` +
     `${(perVoice * voices.length).toLocaleString()} in all for ${voices.length} voice(s).`
 );
 
@@ -190,6 +189,7 @@ for (const voice of voices) {
       "paragraphs"
     );
     fs.writeFileSync(path.join(outDir, `${chapterSlug}-${safe(voice)}-paragraphs.mp3`), flow.audio);
+    if (!withVerses) continue;
 
     const byVerse = await reading(voice, [{ text: intro }, ...verses], "verses");
     fs.writeFileSync(path.join(outDir, `${chapterSlug}-${safe(voice)}-verses.mp3`), byVerse.audio);
