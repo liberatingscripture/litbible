@@ -1542,12 +1542,13 @@ collection); they're read directly by the intro pages and the API manifest.
   an attribute on `<html>` stamped before first paint by `Layout.astro`,
   absent for the default, mirrored to one `localStorage` key each
   (`data-size` sm | lg | xl in `lit-size`; `data-leading` roomy in
-  `lit-leading`; `data-vn` off in `lit-verse-numbers`; `data-fn` off in
+  `lit-leading`; `data-vn` off in `lit-verse-numbers`, or `lit-read-numbers`
+  in Read View (rule 6); `data-fn` off in
   `lit-fn-letters`; `data-terms` off in `lit-terms`, the term lens's
   switch, which Study View alone shows). There is **one
   panel**: Read View's toolbar "Aa" opens this same tray (it's a
   `data-font-toggle`, like the header's two), which opens upward when there
-  is no room below. Five rules:
+  is no room below. Six rules:
   1. **They apply to the reading surfaces only**: Study View's column, book
      intros, Read View, and article bodies. Each surface multiplies its own
      default by `--reading-scale` (16 / 18 / 20 / 23px at the 18px body size)
@@ -1562,7 +1563,9 @@ collection); they're read directly by the intro pages and the API manifest.
   3. **Read View used to keep its own three settings** (`lit_rm_fontSize`,
      `lit_rm_lineHeight`, `lit_rm_markers`). The pre-paint script still reads
      them as fallbacks and the tray deletes each on change, the same
-     arrangement as `dyslexic-font`. Don't drop the fallbacks. Focus mode
+     arrangement as `dyslexic-font`. Don't drop the fallbacks.
+     `lit_rm_markers` is a fallback for Read View's numbers only (rule 6),
+     so only a change made in Read View deletes it. Focus mode
      stayed in Read View's toolbar (`lit_rm_focus`).
   4. **A hidden verse number or footnote letter in Study View is still a
      control and a scroll target** (the verse menu's button, `#v16`, a
@@ -1577,6 +1580,20 @@ collection); they're read directly by the intro pages and the API manifest.
      `"study"` from a chapter page with text, `"read"` from `/read/<book>`
      (numbers only, since Read View prints no footnote letters). Other
      pages don't show the "Show" group at all.
+  6. **Verse numbers are one setting per view** (owner, 2026-09-30). Every
+     other setting is the reader's everywhere; what a page shows depends on
+     what the page is for. They were one switch at first, so hiding
+     numbers to read a book straight through also hid them in Study View,
+     where (rule 4) a hidden number is a 1px box a finger can't tap, and the
+     verse menu vanished from touch screens with nothing on the page saying
+     why. That was 2026-09-27 to 09-30. Study View reads `lit-verse-numbers` alone. Read View reads
+     `lit-read-numbers`, then `lit_rm_markers`, then Study View's key, so
+     it **follows Study View until the reader sets it**, and nobody's Read
+     View changed when the switch split. That fallback is why the tray
+     stores Read View's value as set, `'on'` included (`keep` in its
+     `SETTINGS`): removing it at the default would hand the page back to
+     Study View's choice. Layout.astro learns the view from
+     `scriptureControls` through `define:vars`.
   Changing any of these reflows the page, so the tray pins the block at the
   reading line and scrolls it back (`keepReadingPlace`), and lets that one
   scroll through without closing itself.
@@ -1929,6 +1946,27 @@ collection); they're read directly by the intro pages and the API manifest.
   until a record exists, so no JS or no storage means nothing renders; the ×
   forgets it everywhere. The privacy page's storage paragraph names it: keep
   it there if the record ever changes shape or purpose.
+- **Study View and Read View differ in what a page holds, and that decides
+  where a new tool goes** (owner, 2026-09-30). Study View is one chapter
+  with everything the site has for it: footnotes, the verse menu, the term
+  lens, reference previews, Go deeper. Read View is a whole book on one page,
+  read straight through, with no notes and no page turn between chapters.
+  Since the shared Display tray and the shared copy actions, the two look
+  alike, so the rule is written down rather than re-argued per feature:
+  **Read View gets what serves reading a book straight through** (display
+  settings, the selection panel and its handouts, keeping and restoring a
+  place, print, focus mode), and **a tool about a verse or a word goes in
+  Study View only** unless the owner decides otherwise. The 2026-09-28 calls
+  on the term lens and the verse menu were this rule before it had a name.
+  Call them "Study View" and "Read View" in anything a reader sees. Until
+  2026-09-30 the site also said "Reading View" and "Reading Mode", as
+  FIXLIST.md and older commits still do; the `rm-` classes and `read-mode.js`
+  keep the old initials.
+  **Don't measure Read View with Cloudflare's Visits view.** A visit is a
+  page view whose referrer isn't the site, and Read View is reached almost
+  only from inside it (Study View's toolbar, the /read card, the search
+  links), so it barely appears there. Use page views, and remember one Read
+  View page view can hold a whole book where Study View logs one per chapter.
 - **Read View lands on a link instantly, then holds it.** `/read/<book>` is
   the whole book on one page, tens of thousands of pixels tall, so arriving at
   `#ch-10` (Study View's "Switch to Read View") or `#luke-10-v25` (search)
