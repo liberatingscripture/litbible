@@ -625,8 +625,9 @@ its questions take the row over from Share…, so the panel keeps its height.
 A label never breaks: a button too wide for its share wraps to a line of its
 own, which is a one-button line, not a two-button row split differently.
 OpenDyslexic's chip buttons carry 4px of side padding rather than 8px for
-that reason (it sets only their minimum width); even so, Share… and Make an
-image take a line each in the selection panel on a 375–389px phone.
+that reason (it sets only their minimum width). Measured in 2026-09, Share…
+and Make an image still take a line each in the phone sheet below 375px
+(360px Androids) and in the selection panel below about 400px.
 
 **The verse menu follows the input, as the selection panel does** (owner,
 2026-09-29), not the screen width, and **the text it covers must always stay
