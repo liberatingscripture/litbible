@@ -20,11 +20,15 @@
 # MINOR and the filter admits it — transitive majors and all. That is how
 # @cloudflare/vitest-pool-workers 0.19 -> 0.20 carried miniflare 4 -> 5 (a
 # PRERELEASE, 5.x-alpha) and zod 3 -> 4 into a PR labelled "minor-and-patch"
-# (2026-08-10, PR #95). Nothing to fix there — it is dev-only and upstream's
-# choice for the whole 0.20 line — but on any stream with 0.x direct deps,
-# read the lockfile diff rather than the title. The root stream is the one
-# that has them today (@astrojs/check, sharp). The worker's went to 1.x when
-# pool-workers was renamed @cloudflare/vitest-plugin (see stream 2).
+# (2026-08-10, PR #95). So every 0.x DIRECT dependency is excluded from its
+# stream's group below and gets a PR of its own, whatever Dependabot calls the
+# bump: a caret range like `^0.35` doesn't even admit 0.36, so a 0.x "minor"
+# is a major in all but name. Today that is @astrojs/check and sharp at the
+# root (sharp renders the share cards on every build). The worker has none
+# since pool-workers was renamed @cloudflare/vitest-plugin and went 1.x (see
+# stream 2). Keep each `exclude-patterns` list in step with the 0.x entries in
+# that stream's package.json. A group PR can still carry a transitive major in
+# through a 1.x direct dep, so read the lockfile diff rather than the title.
 #
 # SECURITY updates are a separate track and are NOT configured here. Every
 # `groups:` block below is `applies-to: version-updates` (the default), so it
@@ -49,7 +53,10 @@ updates:
     schedule:
       interval: weekly
       day: monday
-    open-pull-requests-limit: 5
+    # 7: the group PR, one for each 0.x package excluded from it (2), and room
+    # for four ungrouped majors at once. Raised from 5 when the 0.x exclusions
+    # arrived, so they couldn't crowd out a major.
+    open-pull-requests-limit: 7
     commit-message:
       prefix: build
       include: scope
@@ -57,6 +64,11 @@ updates:
       site-minor-and-patch:
         patterns:
           - "*"
+        # The root's 0.x direct deps; see the header for why each gets its own
+        # PR.
+        exclude-patterns:
+          - "@astrojs/check"
+          - "sharp"
         update-types:
           - minor
           - patch

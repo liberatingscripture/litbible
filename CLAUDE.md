@@ -275,10 +275,13 @@ workers/             # Cloudflare Workers, deployed separately via wrangler (NOT
                      #   `/workers/contact-form` (separate dep tree), and
                      #   github-actions. Minor/patch are grouped into one weekly
                      #   PR per stream; majors stay ungrouped so each gets the
-                     #   hand-checked treatment (see the Astro 7 pins above) —
-                     #   but that only classifies the DIRECT dep, so a 0.x
-                     #   "minor" can still carry transitive majors into a
-                     #   grouped PR (see the file's header comment).
+                     #   hand-checked treatment (see the Astro 7 pins above).
+                     #   0.x direct deps (@astrojs/check, sharp) are excluded
+                     #   from the groups too, since Dependabot grades a 0.x
+                     #   bump "minor" although `^0.35` won't admit 0.36; keep
+                     #   those lists in step with package.json. A group PR can
+                     #   still carry a transitive major (see the file's
+                     #   header comment).
                      #   The worker stream has a second group, `worker-runtime`,
                      #   so @cloudflare/vitest-plugin and wrangler always bump
                      #   together (bumped apart, they split the worker's tree).
