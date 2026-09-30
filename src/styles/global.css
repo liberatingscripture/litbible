@@ -2869,28 +2869,41 @@ html[data-terms="off"] .chapter-paragraphs .term {
   color: var(--green-text);
 }
 
-/* Selection sharing for a touch selection: it floats beside the selected text,
-   so it is kept short — the reference on its own line, then both actions side
-   by side — to cover as little of the surrounding text as it can. Padding and
-   gaps are trimmed so OpenDyslexic's two labels still share a row on a 375px
-   phone. */
-.lit-panel--selection.lit-panel--touch {
-  flex-flow: row wrap;
-  align-items: center;
+/* Chip layout: the verse menu and the selection panel when a finger opened
+   them (the menu a short bottom sheet on a phone, a card beside the verse
+   number on a tablet; the selection panel beside the selected words). Both
+   are kept short to cover as little text as they can: tinted buttons side
+   by side in rows (.lit-panel__row), trimmed padding. The parts and the hint
+   each take the whole width. */
+.lit-panel--chips {
   gap: 6px;
   padding: 10px;
 }
 
-.lit-panel--selection.lit-panel--touch .lit-panel__heading {
-  flex: 1 0 100%;
+.lit-panel--sheet.lit-panel--chips {
+  padding-bottom: calc(10px + env(safe-area-inset-bottom));
+}
+
+/* Beside the text rather than a sheet: a panel sized to its content would
+   size its halves to the two labels' average, which the longer one can't
+   fit into. */
+.lit-panel--chips:not(.lit-panel--sheet) {
+  width: min(380px, calc(100vw - 24px));
+}
+
+.lit-panel--chips .lit-panel__heading,
+.lit-panel--chips .lit-panel__header,
+.lit-panel--chips .lit-panel__subheading,
+.lit-panel--chips .lit-panel__hint {
   margin: 0;
 }
 
-/* Each label on one line, sized to its text; when the two can't share a row
-   (OpenDyslexic runs far wider) Share wraps to its own row rather than the
-   label breaking. */
-.lit-panel--selection.lit-panel--touch .lit-panel__btn {
-  flex: 1 1 auto;
+.lit-panel--chips .lit-panel__subheading {
+  margin-top: 2px;
+}
+
+/* Each label on one line. */
+.lit-panel--chips .lit-panel__btn {
   width: auto;
   padding-inline: 8px;
   white-space: nowrap;
@@ -2898,17 +2911,65 @@ html[data-terms="off"] .chapter-paragraphs .term {
   background: rgba(var(--ink-rgb), 0.06);
 }
 
+/* OpenDyslexic runs far wider, and Make an image needed 178px against a
+   half row of 174–177px, so Share… and Make an image each took a line. The
+   side padding only sets a button's minimum (they are wider than their
+   labels anyway), so trimming it changes nothing visible and brings the
+   minimum to 170px. */
+html[data-font="dyslexic"] .lit-panel--chips .lit-panel__btn {
+  padding-inline: 4px;
+}
+
+/* The parts are lines of scripture: left-aligned rows that wrap. */
+.lit-panel--chips .lit-panel__subheading + [role="group"] {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.lit-panel--chips .lit-panel__subheading + [role="group"] .lit-panel__btn {
+  white-space: normal;
+  text-align: left;
+}
+
+/* Buttons that share a row (panelRow in chapter-tools.js). Elsewhere the
+   row is invisible and they stack like the other buttons. */
+.lit-panel__row {
+  display: contents;
+}
+
+.lit-panel--chips .lit-panel__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* Shared out evenly, but never narrower than a label, so a button that
+   can't fit (OpenDyslexic on a narrow phone) wraps to a line of its own
+   rather than its label breaking. A pair takes exact halves, so every
+   two-button row in either panel matches: an even share from a zero basis
+   would hand Share… its padding on top of Make an image's. */
+.lit-panel--chips .lit-panel__row > * {
+  flex: 1 1 0;
+}
+
+.lit-panel--chips .lit-panel__row--halves > * {
+  flex-basis: calc(50% - 3px);
+}
+
 /* "Make an image" (verse-image.js): one button that becomes the next question,
    colour then size. Each question is one row the height of a button, so the
-   panel doesn't move as the steps change. */
-/* In the touch selection panel it takes a row of its own, stretched like the
-   other buttons there. */
-.lit-panel--touch .lit-image {
-  flex: 1 0 100%;
+   panel doesn't move as the steps change. In the chip layout it shares its
+   row with Share…, so once pressed its questions take the row over. */
+.lit-panel--chips .lit-panel__row:has(> .lit-image--open) > .lit-panel__share {
+  display: none;
+}
+
+.lit-panel--chips .lit-image {
   display: flex;
 }
 
-.lit-panel--touch .lit-image > * {
+.lit-panel--chips .lit-image > * {
   flex: 1 1 auto;
 }
 
@@ -2955,6 +3016,43 @@ html[data-terms="off"] .chapter-paragraphs .term {
   margin: 0;
   padding: 9px 10px;
   font-size: 0.9rem;
+}
+
+/* The verse menu beside its verse number: pinned to the screen while the
+   text scrolls under it (always for a finger, once dragged for a mouse),
+   and dragged by its header. */
+.lit-panel.lit-panel--pinned {
+  position: fixed;
+  max-height: calc(100vh - 24px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.lit-panel__header--drag {
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.lit-panel--dragging .lit-panel__header--drag {
+  cursor: grabbing;
+}
+
+.lit-panel--dragging {
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.3);
+}
+
+.lit-panel__grip {
+  flex: none;
+  width: 10px;
+  height: 16px;
+  margin-right: -2px;
+  background-image: radial-gradient(circle, rgba(var(--ink-rgb), 0.45) 1.3px, transparent 1.6px);
+  background-size: 5px 5px;
+}
+
+.lit-panel__header .lit-panel__heading {
+  flex: 1 1 auto;
 }
 
 /* Range-selection hint at the bottom of the verse menu */

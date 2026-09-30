@@ -17,7 +17,7 @@
 // Three consumers today:
 //   scripts/lib/verse-index-core.mjs  — the scripture search index
 //   scripts/lib/release-notes-core.mjs — the changelog the apps show
-//   src/scripts/chapter-tools.js      — Copy verse / Share… on a chapter page
+//   src/scripts/chapter-tools.js      — Copy text / Share… on a chapter page
 //
 // Two rules for any new consumer:
 //   1. Strip BEFORE collapsing whitespace, or the gap a removed marker leaves

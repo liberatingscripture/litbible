@@ -258,6 +258,9 @@ export function imageStep({ content, onStart = () => {}, onDone }) {
   const start = stepButton("Make an image");
   start.addEventListener("click", async () => {
     onStart();
+    // Marks a step past its first button, for a panel that shares its row
+    // with Share… (the chip layout gives the row over to the questions).
+    step.classList.add("lit-image--open");
     what = content();
     start.textContent = "Preparing…";
     start.setAttribute("aria-busy", "true");
