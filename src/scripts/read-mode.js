@@ -13,7 +13,7 @@ const ON_OFF_OPTIONS = new Set(["on", "off"]);
 
 // Single source of truth for "sheet mode" (toolbar becomes a bottom sheet,
 // FAB appears). MUST match the small-mode media query in read-mode.css.
-const sheetModeQuery = window.matchMedia("(max-width: 1100px)");
+const sheetModeQuery = window.matchMedia("(max-width: 900px)");
 
 // The viewport line (as a fraction of viewport height) that decides the
 // active chapter: the active chapter is the last anchor above this line.
@@ -186,7 +186,7 @@ function initReadMode() {
 
     const label = document.createElement("span");
     label.className = "rm-btn-label";
-    label.textContent = "Return to Beginning";
+    label.textContent = "Back to Top";
 
     startOverButton.append(icon, label);
 
@@ -325,7 +325,7 @@ function initReadMode() {
     activeChapter = bounded;
 
     if (whereEl instanceof HTMLElement) {
-      whereEl.textContent = `${bookTitle} · Chapter ${activeChapter}`;
+      whereEl.textContent = `${bookTitle} ${activeChapter}`;
     }
 
     syncReadMenuChapter();
@@ -594,9 +594,7 @@ function initReadMode() {
     ensureStartOverButtonStructure();
 
     const icon = returnLocationState ? "↓" : "↑";
-    const label = returnLocationState
-      ? "Return to Location"
-      : "Return to Beginning";
+    const label = returnLocationState ? "My Location" : "Back to Top";
 
     if (startOverIconEl instanceof HTMLElement) {
       startOverIconEl.textContent = icon;
@@ -608,12 +606,12 @@ function initReadMode() {
     if (returnLocationState) {
       startOverButton.setAttribute(
         "aria-label",
-        "Return to previous reading location",
+        "My Location: back to where you were reading",
       );
     } else {
       startOverButton.setAttribute(
         "aria-label",
-        "Return to the beginning of the book",
+        "Back to top of the book",
       );
     }
   }
@@ -674,7 +672,7 @@ function initReadMode() {
 
   // Initial UI state
   if (whereEl instanceof HTMLElement) {
-    whereEl.textContent = `${bookTitle} · Chapter ${activeChapter}`;
+    whereEl.textContent = `${bookTitle} ${activeChapter}`;
   }
 
   // Ensure button structure early, before first label set.

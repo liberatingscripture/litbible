@@ -157,32 +157,36 @@ const pageUrl = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : "";
       data-rm-toolbar
       data-pagefind-ignore
     >
+      {/* The bottom sheet's dismiss (hidden while this is the sticky bar).
+          First in the DOM because opening the sheet focuses it, so Tab
+          then runs through the controls in the order they appear. */}
+      <button
+        type="button"
+        class="rm-toolbar__close"
+        data-rm-mobile-close
+        aria-label="Close"
+      >
+        <svg
+          class="rm-x"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <path d="M6 6l12 12M18 6L6 18"></path>
+        </svg>
+      </button>
+
+      {/* Where the reader is, then the tools, then the ways out: the
+          picker leads and the view switch closes the row, as in Study
+          View's toolbar. The progress bar is drawn along the toolbar's
+          edge (read-mode.css), so only the percentage takes room here. */}
       <div class="rm-toolbar__row">
-        <div class="rm-toolbar__cluster rm-toolbar__cluster--left">
-          {/* Opens the site's Display tray (SiteHeader.astro), which holds
-              text size, line spacing and the Numbers setting for every page.
-              The toolbar is sticky, so this is the one within reach. */}
-          <button
-            type="button"
-            data-font-toggle
-            aria-expanded="false"
-            aria-controls="fontTray"
-          >
-            <span aria-hidden="true">Aa</span>
-            <span class="sr-only">Display settings</span>
-          </button>
-
-          <button type="button" data-rm-focus-toggle aria-pressed="false">
-            Focus: Off
-          </button>
-        </div>
-
-        <div class="rm-toolbar__cluster rm-toolbar__cluster--center">
+        <div class="rm-toolbar__cluster rm-toolbar__cluster--where">
           <ReadMenu
             mode="read"
             currentBook={bookKey}
             currentChapter="1"
-            label={`${bookName} · Chapter 1`}
+            label={`${bookName} 1`}
           />
 
           <div class="rm-toolbar__progress">
@@ -193,50 +197,55 @@ const pageUrl = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : "";
           </div>
         </div>
 
-        <div class="rm-toolbar__cluster rm-toolbar__cluster--right">
-          <div class="rm-toolbar__z3-actions">
-            <!-- UPDATED: arrow + swappable label -->
-            <button type="button" data-rm-start-over>
-              <span class="rm-arrow" aria-hidden="true"></span>
-              <span class="rm-start-over-label">Return to Beginning</span>
-            </button>
-
-            <a
-              href={`/${bookKey}-1`}
-              class="rm-switch"
-              data-rm-study-switch
-              aria-label={`Switch to Study View for ${bookName} chapter 1`}
-            >
-              <span
-                class="reading-view-pill__icon rm-cycle-icon"
-                aria-hidden="true"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none"
-                     stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                     stroke-linejoin="round" aria-hidden="true" focusable="false">
-                  <path d="M14 2v4a2 2 0 0 0 2 2h4"/>
-                  <path d="M4.268 21a2 2 0 0 0 1.727 1H18a2 2 0 0 0 2-2V7l-5-5H6a2 2 0 0 0-2 2v3"/>
-                  <path d="m9 18-1.5-1.5"/>
-                  <circle cx="5" cy="14" r="3"/>
-                </svg></span
-              >
-              <span>Switch to Study View</span>
-            </a>
-          </div>
-
+        <div class="rm-toolbar__cluster rm-toolbar__cluster--tools">
+          {/* Opens the site's Display tray (SiteHeader.astro), which holds
+              text size, line spacing and the Numbers setting for every page.
+              The toolbar is sticky, so this is the one within reach. The
+              word "Display" shows only in the bottom sheet, where the
+              button is half a row wide; the bar keeps it for screen
+              readers alone. */}
           <button
             type="button"
-            class="rm-toolbar__close"
-            data-rm-mobile-close
-            aria-label="Close"
+            data-font-toggle
+            aria-expanded="false"
+            aria-controls="fontTray"
           >
-            <svg
-              class="rm-x"
-              viewBox="0 0 24 24"
-              aria-hidden="true"
-              focusable="false"
-            >
-              <path d="M6 6l12 12M18 6L6 18"></path>
-            </svg>
+            <span aria-hidden="true">Aa</span>
+            <span class="rm-aa-text">Display</span><span class="sr-only"> settings</span>
           </button>
+
+          <button type="button" data-rm-focus-toggle aria-pressed="false">
+            Focus: Off
+          </button>
+        </div>
+
+        <div class="rm-toolbar__cluster rm-toolbar__cluster--nav">
+          {/* read-mode.js swaps the arrow and label to "My Location" once
+              the reader has gone back to the top. */}
+          <button type="button" data-rm-start-over>
+            <span class="rm-btn-icon" aria-hidden="true">↑</span>
+            <span class="rm-btn-label">Back to Top</span>
+          </button>
+
+          <a
+            href={`/${bookKey}-1`}
+            class="rm-switch"
+            data-rm-study-switch
+            aria-label={`Switch to Study View for ${bookName} chapter 1`}
+          >
+            <span
+              class="reading-view-pill__icon rm-cycle-icon"
+              aria-hidden="true"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none"
+                   stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                   stroke-linejoin="round" aria-hidden="true" focusable="false">
+                <path d="M14 2v4a2 2 0 0 0 2 2h4"/>
+                <path d="M4.268 21a2 2 0 0 0 1.727 1H18a2 2 0 0 0 2-2V7l-5-5H6a2 2 0 0 0-2 2v3"/>
+                <path d="m9 18-1.5-1.5"/>
+                <circle cx="5" cy="14" r="3"/>
+              </svg></span
+            >
+            <span>Study View</span>
+          </a>
         </div>
       </div>
     </div>
