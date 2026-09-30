@@ -618,12 +618,15 @@ both about whole verses. Both panels build from the same pieces
 **Opened by a finger, both use the chip layout** (`.lit-panel--chips`): tinted
 buttons side by side in rows (`panelRow`), the three copies in one and
 Share… with Make an image in the next. The owner's rule is that **every
-two-button row matches every other**, in either panel, so a pair takes exact
-halves; three share their row evenly without going narrower than a label. A
-missing Share… (no share sheet) leaves Make an image the whole row, and once
-pressed its questions take the row over from Share…, so the panel keeps its
-height. A label never breaks: a button too wide for its share (OpenDyslexic
-on a 375px phone) wraps to a line of its own.
+row with two buttons is split the same way**, in either panel: exact halves.
+Three share their row evenly without going narrower than a label. A missing
+Share… (no share sheet) leaves Make an image the whole row, and once pressed
+its questions take the row over from Share…, so the panel keeps its height.
+A label never breaks: a button too wide for its share wraps to a line of its
+own, which is a one-button line, not a two-button row split differently.
+OpenDyslexic's chip buttons carry 4px of side padding rather than 8px for
+that reason (it sets only their minimum width); even so, Share… and Make an
+image take a line each in the selection panel on a 375–389px phone.
 
 **The verse menu follows the input, as the selection panel does** (owner,
 2026-09-29), not the screen width, and **the text it covers must always stay
@@ -1506,7 +1509,8 @@ collection); they're read directly by the intro pages and the API manifest.
      inherit them. They live in `home.css` (hero titles, the hero scroll's
      safe interior, the question CTA), `global.css` (mobile nav, the header's
      earlier nav collapse + phone title scale, the footer newsletter field
-     above 721px), `ReadMenu.astro` (grid floors), and `SiteHeader.astro` (the
+     above 721px, the reader panels' chip buttons' side padding),
+     `ReadMenu.astro` (grid floors), and `SiteHeader.astro` (the
      forced short title). Prefer **buying back space over shrinking type** —
      an accessibility font is the last thing that should be made smaller. The
      header hands the nav to the hamburger below 1400px rather than

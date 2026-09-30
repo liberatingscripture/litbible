@@ -2911,6 +2911,15 @@ html[data-terms="off"] .chapter-paragraphs .term {
   background: rgba(var(--ink-rgb), 0.06);
 }
 
+/* OpenDyslexic runs far wider, and Make an image needed 178px against a
+   half row of 174–177px, so Share… and Make an image each took a line. The
+   side padding only sets a button's minimum (they are wider than their
+   labels anyway), so trimming it changes nothing visible and brings the
+   minimum to 170px. */
+html[data-font="dyslexic"] .lit-panel--chips .lit-panel__btn {
+  padding-inline: 4px;
+}
+
 /* The parts are lines of scripture: left-aligned rows that wrap. */
 .lit-panel--chips .lit-panel__subheading + [role="group"] {
   display: flex;
