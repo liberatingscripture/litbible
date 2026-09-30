@@ -507,11 +507,15 @@ const glossaryTerms = Object.fromEntries(
     gap: 8px;
   }
 
+  /* The reference and the hint are the link's two items. On a phone a long
+     reference ("1 Corinthians 13:4–7") and the hint don't fit one line, so
+     the hint wraps below rather than widening the page. */
   .searchbar__jump-link {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
+    gap: 2px 12px;
     text-decoration: none;
     padding: 12px 12px;
     border-radius: 14px;

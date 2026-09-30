@@ -352,13 +352,13 @@ const _initSearchbars = async () => {
       jumpRow.innerHTML = `
         <div class="searchbar__jump-links">
           <a class="searchbar__jump-link" href="${studyHref}">
-            Jump to <strong>${label}</strong>
+            <span>Jump to <strong>${label}</strong></span>
             <span class="searchbar__jump-hint">${
               isBook ? "intro, in Study View" : "in Study View, with notes"
             }</span>
           </a>
           <a class="searchbar__jump-link searchbar__jump-link--read" href="${readHref}">
-            Jump to <strong>${label}</strong>
+            <span>Jump to <strong>${label}</strong></span>
             <span class="searchbar__jump-hint">${
               isBook ? "whole book, in Read View" : "in Read View, whole book"
             }</span>
