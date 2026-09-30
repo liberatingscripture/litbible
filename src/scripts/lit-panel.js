@@ -4,8 +4,7 @@
 // footnote popovers and selection panel (chapter-tools.js), and scripture
 // reference previews (ref-preview.js). ONE panel is open at a time across all
 // of them: opening any panel closes the last, and an outside click or Escape
-// closes it (Escape only, for a persistent one: the verse menu a finger
-// opened). Moved here unchanged from chapter-tools.js when the previews
+// closes it. Moved here unchanged from chapter-tools.js when the previews
 // arrived (2026-09), so two modules could not each believe they owned the
 // screen. Styles are the .lit-panel rules in global.css.
 
@@ -30,7 +29,7 @@ export function closePanel() {
 }
 
 document.addEventListener("click", (e) => {
-  if (openPanel && !openPanel.persistent && !openPanel.el.contains(e.target) && e.target !== openPanel.trigger && !openPanel.trigger?.contains?.(e.target)) {
+  if (openPanel && !openPanel.el.contains(e.target) && e.target !== openPanel.trigger && !openPanel.trigger?.contains?.(e.target)) {
     closePanel();
   }
 });
@@ -58,11 +57,9 @@ export function isSmallScreen() {
  * getBoundingClientRect, so a selection can stand in for an element. `place`
  * overrides both layouts: it gets the attached panel and returns its
  * document-relative {left, top}. `sheet: false` keeps a small screen on the
- * floating layout, for a panel a mouse opened. A `persistent` panel ignores
- * outside clicks, so the page stays usable around it; it needs a close
- * button of its own.
+ * floating layout, for a panel a mouse opened.
  */
-export function showPanel(trigger, el, { restoreFocus = null, onClose = null, extra = null, preferAbove = false, place = null, sheet = true, persistent = false } = {}) {
+export function showPanel(trigger, el, { restoreFocus = null, onClose = null, extra = null, preferAbove = false, place = null, sheet = true } = {}) {
   closePanel();
   el.classList.add("lit-panel");
 
@@ -123,6 +120,6 @@ export function showPanel(trigger, el, { restoreFocus = null, onClose = null, ex
     }
   });
 
-  openPanel = { el, trigger, restoreFocus, onClose, persistent, ...extra };
+  openPanel = { el, trigger, restoreFocus, onClose, ...extra };
   return el;
 }
