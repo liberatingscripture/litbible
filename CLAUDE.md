@@ -256,7 +256,12 @@ workers/             # Cloudflare Workers, deployed separately via wrangler (NOT
                      #   /contact/submit and /app-support/submit form endpoints
                      #   (two routes, one Worker) — see its README. Has its OWN
                      #   package.json + deps (incl. its vitest suite, `npm test`
-                     #   in that dir); root `npm ci`/`npm test` don't reach it
+                     #   in that dir); root `npm ci`/`npm test` don't reach it.
+                     #   Its tests run in workerd via @cloudflare/vitest-plugin,
+                     #   which pins wrangler EXACTLY: our wrangler range must
+                     #   only admit that pin, or the tree splits into a second,
+                     #   nested wrangler/miniflare/workerd (README, "wrangler's
+                     #   version is set by…")
 .githooks/           # pre-commit hook (validates staged chapter JSON)
 .github/workflows/   # ci.yml — `build` job (chapter validation, type-check, unit
                      #   tests, full build, internal-link check on push/PR) plus a
@@ -274,6 +279,15 @@ workers/             # Cloudflare Workers, deployed separately via wrangler (NOT
                      #   but that only classifies the DIRECT dep, so a 0.x
                      #   "minor" can still carry transitive majors into a
                      #   grouped PR (see the file's header comment).
+                     #   The worker stream has a second group, `worker-runtime`,
+                     #   so @cloudflare/vitest-plugin and wrangler always bump
+                     #   together (bumped apart, they split the worker's tree).
+                     #   Dependabot can't follow a package rename: the plugin
+                     #   was @cloudflare/vitest-pool-workers until 2026-08, and
+                     #   the frozen old name drew no PRs for six weeks while the
+                     #   new one shipped the fixes. When an upstream package
+                     #   goes quiet while its siblings keep releasing, check its
+                     #   repo for a rename.
                      #   Security-advisory PRs are a SEPARATE track this file
                      #   doesn't configure — grouped by the repo's "Grouped
                      #   security updates" setting, and they can carry a major

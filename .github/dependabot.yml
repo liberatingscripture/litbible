@@ -22,8 +22,9 @@
 # PRERELEASE, 5.x-alpha) and zod 3 -> 4 into a PR labelled "minor-and-patch"
 # (2026-08-10, PR #95). Nothing to fix there — it is dev-only and upstream's
 # choice for the whole 0.20 line — but on any stream with 0.x direct deps,
-# read the lockfile diff rather than the title. The worker stream is the one
-# that has them today.
+# read the lockfile diff rather than the title. The root stream is the one
+# that has them today (@astrojs/check, sharp). The worker's went to 1.x when
+# pool-workers was renamed @cloudflare/vitest-plugin (see stream 2).
 #
 # SECURITY updates are a separate track and are NOT configured here. Every
 # `groups:` block below is `applies-to: version-updates` (the default), so it
@@ -60,19 +61,65 @@ updates:
           - minor
           - patch
 
+  # Stream 2, the Worker. Dependabot CANNOT FOLLOW A PACKAGE RENAME, and this
+  # is where that bit. @cloudflare/vitest-pool-workers froze at 0.22.0 on
+  # 2026-08-18 and continued as @cloudflare/vitest-plugin 1.0.0 two days later
+  # (cloudflare/workers-sdk#15074). The old name was never marked deprecated on
+  # npm, so Dependabot saw "0.22.0 is latest" for six weeks and proposed
+  # nothing, while the new name shipped release after release, including the
+  # fix for every open advisory in this tree. Silence from a stream is not
+  # proof a dependency is current: when an upstream package goes quiet while
+  # its siblings keep releasing, check its repo for a rename.
   - package-ecosystem: npm
     directory: /workers/contact-form
     schedule:
       interval: weekly
       day: monday
-    open-pull-requests-limit: 3
+    # 6: two group PRs, plus one ungrouped major for each of the 4 direct deps.
+    # That is the most this stream can legitimately want open at once, and a
+    # lower cap would starve it rather than quiet it.
+    open-pull-requests-limit: 6
     commit-message:
       prefix: build
       include: scope
     groups:
+      # The test runtime and the deploy CLI as ONE unit. Listed first on
+      # purpose: a dependency joins the first group it matches.
+      #
+      # @cloudflare/vitest-plugin depends on wrangler (and an alpha miniflare)
+      # at EXACT versions, and the two release in lockstep: each of the ten
+      # plugin releases 1.2.3 -> 1.3.3 pins the wrangler published 3.7 to 8.7
+      # minutes before it. So:
+      #   - Bumped TOGETHER, they land on matching versions and npm keeps one
+      #     flat wrangler, which both `npm test` and `npm run deploy` use.
+      #   - Bumped APART, the tree splits. With wrangler in the general group,
+      #     each group PR raised our wrangler range past the plugin's pin and
+      #     npm installed a second, nested wrangler + miniflare + workerd under
+      #     the plugin (#162, #179, #191, #205, #225 did exactly that). The
+      #     nested copies stay on the pinned versions whatever our range says,
+      #     so a wrangler bump never fixes an advisory in them.
+      #
+      # One known race: wrangler publishes a few minutes before the plugin, so
+      # a run landing in that window can propose a wrangler the plugin doesn't
+      # pin yet. The tell is a `vitest-plugin/node_modules/wrangler` key in the
+      # PR's lockfile; `@dependabot rebase` or the next weekly run resolves it.
+      #
+      # Every release of this pair, patches included, is a runtime swap (new
+      # workerd for the tests, new wrangler for the deploy), so verify one by
+      # comparing `npm run check`'s bundle with main's, not by its version.
+      worker-runtime:
+        patterns:
+          - "@cloudflare/vitest-plugin"
+          - "wrangler"
+        update-types:
+          - minor
+          - patch
       worker-minor-and-patch:
         patterns:
           - "*"
+        exclude-patterns:
+          - "@cloudflare/vitest-plugin"
+          - "wrangler"
         update-types:
           - minor
           - patch

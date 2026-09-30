@@ -145,12 +145,41 @@ Two layers, both in the Worker (no dashboard rules):
 ## Development notes
 
 - `npm test` runs this Worker's own vitest suite inside workerd (via
-  `@cloudflare/vitest-pool-workers`) — no deploy, no network, no secrets.
+  `@cloudflare/vitest-plugin`) — no deploy, no network, no secrets.
   `cloudflare:email` is real; the tests call `fetch(request, env)` with a
   hand-built env, so `CONTACT_EMAIL.send` and `RATE_LIMITER.limit` are spies and
   siteverify is stubbed. Note this package has its **own** dependency tree — the
   site's root `npm ci` doesn't install it (deliberate: vitest/workerd stay out of
   the site build), so CI runs it as a separate `worker-tests` job.
+- **`wrangler`'s version is set by `@cloudflare/vitest-plugin`, not by our
+  range.** The plugin depends on `wrangler`, `miniflare` and more at exact
+  versions, and each plugin release pins the wrangler published minutes before
+  it. Our `wrangler` range only has to *admit* that pin, and then npm keeps one
+  flat copy, which both `npm test` and `npm run deploy` use. Raise the range
+  past the pin and the tree splits: a second, nested wrangler + miniflare +
+  workerd appears under `node_modules/@cloudflare/vitest-plugin/`, and those
+  nested copies stay on the pinned versions whatever the range says, so a
+  wrangler-only bump can't clear an advisory in them. Dependabot bumps the two
+  together (the `worker-runtime` group in `.github/dependabot.yml`) for that
+  reason. To check a tree is flat, look for any
+  `node_modules/*/node_modules/(wrangler|miniflare|workerd)` key in
+  `package-lock.json`; there should be none.
+- **A bump of that pair is a runtime swap**, patch or not: it moves the workerd
+  the tests boot and the wrangler that deploys. Verify it that way: `npm ci`,
+  `npm audit`, `npm test`, then compare `npm run check`'s bundle
+  (`.wrangler-check/index.js` and `.map`) against one built from `main`. When
+  the harness moved to vitest-plugin 1.3.3 (wrangler 4.140.0 → 4.144.0), the
+  two came out byte-identical. `.wrangler-check/README.md` always differs,
+  since wrangler stamps the build time into it.
+- **The harness was renamed, and Dependabot can't follow a rename.** It was
+  `@cloudflare/vitest-pool-workers` until that froze at 0.22.0 (2026-08-18)
+  and continued as `@cloudflare/vitest-plugin` 1.0.0 (2026-08-20). npm never
+  marked the old name deprecated, so Dependabot proposed nothing for six weeks
+  while the new name carried the fix for every open advisory here. When an
+  upstream package goes quiet while its siblings keep releasing, check its
+  repo for a rename. Vitest 5 is still blocked on the plugin's peer range
+  (`npm view @cloudflare/vitest-plugin peerDependencies`), so a vitest 5 PR
+  fails `npm ci` with ERESOLVE until that range admits it.
 - `npm run check` bundles the Worker without deploying (no auth needed) —
   CI-friendly sanity check.
 - `npm run dev` runs it locally, but `send_email` is simulated: wrangler
