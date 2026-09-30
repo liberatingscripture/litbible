@@ -35,7 +35,7 @@
     minmax(320px, 1fr)
     minmax(227px, 260px);
 
-  /* One toolbar row: trigger, search, and Reading View pill share a
+  /* One toolbar row: trigger, search, and Read View pill share a
      vertical center instead of staggering */
   align-items: center;
   gap: 18px;
@@ -69,7 +69,7 @@
   justify-content: flex-start;
 }
 
-/* Search-only variant (Reading View pages): the passage picker lives in the
+/* Search-only variant (Read View pages): the passage picker lives in the
    sticky reading toolbar instead, so the bar holds just the search field —
    one centered column at every width. Out-specifies the breakpoint
    grid-template-columns overrides below (0,2,0 vs 0,1,0). */
@@ -79,7 +79,7 @@
 }
 
 /* Tablet band (641-900px): one row, like desktop, with the picker at its
-   own width, the search field taking the rest, and a shorter Reading View
+   own width, the search field taking the rest, and a shorter Read View
    label (audit F3). */
 @media (max-width: 900px) and (min-width: 641px) {
   .scripture-tools__inner {
@@ -99,7 +99,7 @@
   }
 }
 
-/* Mobile (≤640px): single centered stack — picker, search, Reading View */
+/* Mobile (≤640px): single centered stack — picker, search, Read View */
 @media (max-width: 640px) {
   .scripture-tools__inner {
     grid-template-columns: 1fr;
@@ -129,7 +129,7 @@
   }
 }
 
-/* The Reading View pill's short label, and the phone search controls, are
+/* The Read View pill's short label, and the phone search controls, are
    off everywhere until a rule below turns them on. */
 .rvp-short,
 .tools-search-toggle,
@@ -144,7 +144,7 @@
 }
 
 /* Phones with JS (data-compact, set by ScriptureLayout's inline script): one
-   row of passage picker, search button and Reading View button, 44px tall.
+   row of passage picker, search button and Read View button, 44px tall.
    Search opens in place of the row, with a × to close it. Without JS the
    stacked layout above stays. (audit F3) */
 .tools-search-toggle,

@@ -3,7 +3,7 @@
 
    A printed page is the text and its notes, black on white, with the credit
    the license asks for. Everything that only works on a screen goes: the
-   header and footer, the tools bar, Previous/Next, the panels, Reading View's
+   header and footer, the tools bar, Previous/Next, the panels, Read View's
    toolbar. Imported by Layout.astro after global.css, so it reaches every
    page, and nothing here applies on screen.
 
@@ -15,7 +15,7 @@
      the Display tray, which a printout follows like the screen does.
    - The footnotes, as the endnote list they already are, each with its letter.
    - The SBLGNT source notice (SblgntNotice.astro) after a chapter, an intro
-     or a Reading View book: the Greek text's license asks for it.
+     or a Read View book: the Greek text's license asks for it.
    - The reader's text size (as a multiple of 12pt) and accessibility font.
      The default fonts print in the site's serif.
    ========================================================= */

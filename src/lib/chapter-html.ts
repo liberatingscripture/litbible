@@ -6,7 +6,7 @@
 //
 // - Study View (/[slug].astro): one page per chapter. Keeps `#vN` verse ids,
 //   adds OSIS ids and Pagefind indexing helpers.
-// - Reading Mode (/read/[book].astro): all chapters of a book on one page.
+// - Read View (/read/[book].astro): all chapters of a book on one page.
 //   Strips footnote refs, namespaces verse ids to `<book>-<ch>-vN`, and moves
 //   each verse id onto a standalone anchor span so highlighting/anchoring
 //   works in the continuous layout.
@@ -21,7 +21,7 @@
  * repeated at the start of the continuation paragraph (e.g. Mark 14:62).
  * Keep the visible number but drop the duplicate id so HTML stays valid and
  * anchors target only the first occurrence. Both views run this on raw
- * `v<N>` ids (Reading Mode dedupes BEFORE namespacing them).
+ * `v<N>` ids (Read View dedupes BEFORE namespacing them).
  */
 function dropDuplicateVerseIds(html: string, seen: Set<string>): string {
   return html.replace(
@@ -141,7 +141,7 @@ function markVerseGap(html: string): string {
  * `state.currentVerse` threads the active verse across paragraphs — pass
  * one state object per chapter.
  *
- * Both views run it. In Reading Mode a verse's empty `.rm-verse-anchor`
+ * Both views run it. In Read View a verse's empty `.rm-verse-anchor`
  * sits just before its vglue (normalizeReadVerseGlue), so a segment starts
  * at that anchor when there is one, keeping the anchor inside its own verse.
  */
@@ -205,7 +205,7 @@ function addHbqAria(html: string): string {
   // Attribute ORDER must not decide whether a poetry block is announced. The
   // predecessor matched /<blockquote\s+class="hbq"/, so it reached only the
   // blockquotes written class-first — 10 of the corpus's 54, leaving 98 of the
-  // 108 rendered poetry blocks (Study + Reading Mode) with no role and no
+  // 108 rendered poetry blocks (Study + Read View) with no role and no
   // label, and the page's own #hbq-description referenced by a twelfth of them.
   // Both orders are authored and both are correct HTML, so match on the class
   // wherever it sits and insert ahead of the existing attributes. The negative
@@ -246,7 +246,7 @@ function addOsisIds(html: string, osisBook: string, chapter: number): string {
   );
 }
 
-/* ── Reading Mode passes ─────────────────────────────────────────────── */
+/* ── Read View passes ─────────────────────────────────────────────── */
 
 function removeFootnoteRefs(html: string): string {
   return String(html || "").replace(
@@ -275,10 +275,10 @@ function rewriteVerseIdsAndAnchors(
 }
 
 /**
- * Reading Mode's verse glue: like the Study version, but the verse id moves
+ * Read View's verse glue: like the Study version, but the verse id moves
  * off the <sup> onto an empty `.rm-verse-anchor` span placed before the
  * glued pair, so anchor targeting doesn't depend on the sup staying visible
- * (verse numbers can be toggled off in Reading Mode).
+ * (verse numbers can be toggled off in Read View).
  */
 function normalizeReadVerseGlue(html: string): string {
   return String(html || "").replace(
@@ -331,7 +331,7 @@ export function prepareStudyParagraph(
 }
 
 /**
- * Full Reading Mode pipeline for one paragraph. `seenVerseIds` and
+ * Full Read View pipeline for one paragraph. `seenVerseIds` and
  * `verseState` must be fresh per chapter, as in Study View.
  */
 export function prepareReadParagraph(
@@ -346,7 +346,7 @@ export function prepareReadParagraph(
   // views share the same v\d+ matcher.
   const noFootnotes = removeFootnoteRefs(html);
   const deduped = dropDuplicateVerseIds(noFootnotes, seenVerseIds);
-  // addHbqAria here too: Reading Mode renders the same poetry blocks and had
+  // addHbqAria here too: Read View renders the same poetry blocks and had
   // never announced any of them. Its page carries the same #hbq-description
   // target, so the describedby reference resolves on both views.
   // The verse spans come last, as in Study View: the verse menu and the

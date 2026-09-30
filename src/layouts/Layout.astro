@@ -21,11 +21,11 @@ const {
   ogType = "website", // "article" for article pages (Open Graph og:type)
   hideFooterNewsletter = false, // pages with their own Brevo form (e.g. /unsubscribe)
   // Adds the Display tray's scripture settings: "study" (verse numbers and
-  // footnote letters) on chapter pages, "read" (numbers only; Reading View
+  // footnote letters) on chapter pages, "read" (numbers only; Read View
   // prints no footnote letters) on /read/<book>.
   scriptureControls,
   // True on pages that carry their own search box (chapters, intros, /read,
-  // Reading View, /search, articles). Every other page gets the header's
+  // Read View, /search, articles). Every other page gets the header's
   // search icon instead, so each page has exactly one way in (audit U6).
   pageSearch = false,
 } = Astro.props;
@@ -71,7 +71,7 @@ const criticalCSS = `html,body{margin:0;padding:0}html{scrollbar-gutter:stable}b
     <script is:inline>try{var t=localStorage.getItem('lit-theme');if(t==='light'||t==='dark'){document.documentElement.setAttribute('data-theme',t);document.documentElement.style.colorScheme=t;}}catch(_){}</script>
     <!-- Apply the saved text size, line spacing, and verse-number / footnote-letter
          visibility before first paint, so nothing reflows after load. Each key's
-         absence is the default (Medium, Normal, shown). The three Reading View keys
+         absence is the default (Medium, Normal, shown). The three Read View keys
          that came before the shared Display tray (lit_rm_fontSize, lit_rm_lineHeight,
          lit_rm_markers) are still read as fallbacks; the tray deletes each one when
          its setting changes, so it can't resurrect an older choice. -->

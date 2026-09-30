@@ -1,7 +1,7 @@
 // test/chapter-html.test.js
 //
 // Unit tests for src/lib/chapter-html.ts — the shared server-side (build-time)
-// HTML transform pipeline that both Study View and Reading Mode use to prepare
+// HTML transform pipeline that both Study View and Read View use to prepare
 // chapter paragraphs. Run with `npm test` (node --test test/). No disk
 // fixtures: every case is a small inline HTML string shaped like real chapter
 // JSON `paragraphs` entries.
@@ -103,19 +103,19 @@ test("vglue: Study wraps only a verse number's own separator in .vn-gap", () => 
   assert.equal(outPoetry.includes("vn-gap"), false);
 });
 
-test("vglue: Reading Mode also normalizes a plain ASCII space, and still moves the id", () => {
+test("vglue: Read View also normalizes a plain ASCII space, and still moves the id", () => {
   const html =
     '<p id="p1"><span class="vglue"><sup id="v16" class="vn">16</sup> For God so loved.</span></p>';
   const out = prepareReadParagraph(html, "john", 3, new Set());
   // The id must still reach .rm-verse-anchor — when verse numbers are toggled off
-  // in Reading Mode, a #john-3-v16 deep link targets this span, not the <sup>.
+  // in Read View, a #john-3-v16 deep link targets this span, not the <sup>.
   assert.match(
     out,
     /^<p id="p1"><span data-verse="16"><span class="rm-verse-anchor" id="john-3-v16" aria-hidden="true"><\/span><span class="vglue"><sup class="vn">16<\/sup>&nbsp;<\/span>For God so loved\.<\/span><\/p>$/,
   );
 });
 
-test("vglue: Reading Mode moves the verse id off the <sup> onto a standalone .rm-verse-anchor span", () => {
+test("vglue: Read View moves the verse id off the <sup> onto a standalone .rm-verse-anchor span", () => {
   const html =
     '<p id="p1"><span class="vglue"><sup id="v16" class="vn">16</sup>&nbsp;For God so loved.</span></p>';
   const out = prepareReadParagraph(html, "john", 3, new Set());
@@ -127,7 +127,7 @@ test("vglue: Reading Mode moves the verse id off the <sup> onto a standalone .rm
   assert.equal(/<sup[^>]*\bid=/.test(out), false);
 });
 
-test("verse spans: Reading Mode wraps each verse like Study View, anchor inside its own verse", () => {
+test("verse spans: Read View wraps each verse like Study View, anchor inside its own verse", () => {
   const state = { currentVerse: null };
   const seen = new Set();
   const p1 =
@@ -234,7 +234,7 @@ test("duplicate ids: a fresh Set restores the id on what would otherwise be a du
   assert.match(out, /<sup id="v62" class="vn" data-osis="Mark\.14\.62">62<\/sup>/);
 });
 
-test("duplicate ids: Reading Mode dedupes BEFORE namespacing, so the duplicate loses its anchor entirely", () => {
+test("duplicate ids: Read View dedupes BEFORE namespacing, so the duplicate loses its anchor entirely", () => {
   const seen = new Set();
   const p1 =
     '<p id="p1"><span class="vglue"><sup id="v62" class="vn">62</sup>&nbsp;Jesus said.</span></p>';
@@ -263,7 +263,7 @@ test("footnote refs: Study keeps <sup class=\"fn-ref\"> intact with no verse id 
   assert.equal(/<sup class="fn-ref"[^>]*data-osis=/.test(out), false);
 });
 
-test("footnote refs: Reading Mode strips <sup class=\"fn-ref\"> entirely", () => {
+test("footnote refs: Read View strips <sup class=\"fn-ref\"> entirely", () => {
   const html =
     '<p id="p3"><span class="vglue"><sup id="v2" class="vn">2</sup>&nbsp;Some text<sup class="fn-ref">[a]</sup> more.</span></p>';
   const out = prepareReadParagraph(html, "john", 3, new Set());
@@ -323,14 +323,14 @@ test("addOsisIds: an already-present data-osis is not doubled", () => {
 
 /* ── Extras: rewriteVerseIdsAndAnchors ───────────────────────────────── */
 
-test("rewriteVerseIdsAndAnchors: namespaces id=\"v16\" to id=\"john-3-v16\" in Reading Mode", () => {
+test("rewriteVerseIdsAndAnchors: namespaces id=\"v16\" to id=\"john-3-v16\" in Read View", () => {
   const html =
     '<p id="p1"><span class="vglue"><sup id="v16" class="vn">16</sup>&nbsp;Text.</span></p>';
   const out = prepareReadParagraph(html, "john", 3, new Set());
   assert.ok(out.includes('id="john-3-v16"'));
 });
 
-test("rewriteVerseIdsAndAnchors: namespaces href=\"#v16\" to href=\"#john-3-v16\" in Reading Mode", () => {
+test("rewriteVerseIdsAndAnchors: namespaces href=\"#v16\" to href=\"#john-3-v16\" in Read View", () => {
   const html =
     '<p id="p1"><span class="vglue"><sup id="v16" class="vn">16</sup>&nbsp;Text with <a href="#v16">self link</a>.</span></p>';
   const out = prepareReadParagraph(html, "john", 3, new Set());
@@ -364,7 +364,7 @@ test("addHbqAria: leaves a non-hbq blockquote alone and does not double-inject",
   const other = '<blockquote id="x" class="other"><p>Text</p></blockquote>';
   assert.ok(!prepareStudyParagraph(other, "john", 3, new Set(), freshState()).includes('role="group"'));
 
-  // Idempotent: Reading Mode and Study View run the same pipeline, and a block
+  // Idempotent: Read View and Study View run the same pipeline, and a block
   // that already carries the role must not collect a second copy.
   const once = prepareStudyParagraph(
     '<blockquote id="p1" class="hbq"><p class="hbq-line">Text</p></blockquote>',

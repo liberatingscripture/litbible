@@ -175,13 +175,13 @@ if (headerKind === "chapter") {
               ) : null}
             </div>
 
-            <div class="scripture-tools__right" aria-label="Reading View">
+            <div class="scripture-tools__right" aria-label="Read View">
               {pagefindType === "scripture" && headerKind === "chapter" ? (
                 <div class="reading-view-right" data-pagefind-ignore>
                   <a
                     class="reading-view-pill"
                     href={`/read/${pagefindBook}/#ch-${headerChapter ?? 1}`}
-                    aria-label={`Switch to Reading View for ${bookKeyToLabel(pagefindBook)} ${headerChapter ?? 1}`}
+                    aria-label={`Switch to Read View for ${bookKeyToLabel(pagefindBook)} ${headerChapter ?? 1}`}
                   >
                     <span class="reading-view-pill__icon" aria-hidden="true">
                       <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none"
@@ -191,8 +191,8 @@ if (headerKind === "chapter") {
                         <path d="M19 17V5a2 2 0 0 0-2-2H4"/>
                       </svg>
                     </span>
-                    <span class="rvp-full">Switch to Reading View</span>
-                    <span class="rvp-short">Reading View</span>
+                    <span class="rvp-full">Switch to Read View</span>
+                    <span class="rvp-short">Read View</span>
                   </a>
                 </div>
               ) : null}
@@ -383,7 +383,7 @@ if (headerKind === "chapter") {
         }
       }
 
-      /* Reading View pill: right column, on the shared toolbar row */
+      /* Read View pill: right column, on the shared toolbar row */
       .reading-view-right {
         display: flex;
         justify-content: flex-end;

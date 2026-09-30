@@ -76,7 +76,7 @@ src/
   data/alignment/  # Where each Greek term's LIT rendering appears (see below)
   data/intros/     # Book introductions (Markdown)
   content/         # Glossary + articles (Markdown content collections)
-  pages/           # Routes (scripture, reading view, glossary, articles, …)
+  pages/           # Routes (scripture, Read View, glossary, articles, …)
   components/       # Reusable Astro UI components
   layouts/         # Page templates
   scripts/         # Client-side JavaScript (progressive enhancement)

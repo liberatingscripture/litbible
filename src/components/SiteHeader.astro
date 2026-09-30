@@ -2,7 +2,7 @@
 import SearchBar from "./SearchBar.astro";
 
 // scriptureControls: "study" on a chapter page (verse numbers and footnote
-// letters), "read" in Reading View (numbers only: it prints no footnote
+// letters), "read" in Read View (numbers only: it prints no footnote
 // letters, and its numbers setting hides the chapter headings too).
 // headerSearch: a search icon beside "Aa" that opens a search strip under
 // the header, on pages with no search box of their own (see Layout's
@@ -176,7 +176,7 @@ const SIZE_OPTIONS = [
   </noscript>
 
   <!-- Shared tray — position: fixed, placed by JS beside whichever button opened it
-       (the two header buttons, or Reading View's toolbar Aa) -->
+       (the two header buttons, or Read View's toolbar Aa) -->
 
   <div class="font-tray" id="fontTray" hidden role="dialog" aria-labelledby="fontTrayHeading">
     <div class="font-tray__header">
@@ -499,7 +499,7 @@ const SIZE_OPTIONS = [
       // Text size, line spacing and the two scripture settings. Each is an
       // attribute on <html> (absent = the default) mirrored to one storage
       // key, exactly like the font above; Layout.astro stamps them before
-      // first paint. `legacy` is the Reading View key the setting replaced,
+      // first paint. `legacy` is the Read View key the setting replaced,
       // which the pre-paint script still falls back to, so it is deleted on
       // every change or it could resurrect an older choice.
       const SETTINGS = {
@@ -531,7 +531,7 @@ const SIZE_OPTIONS = [
       };
 
       // Changing text size, spacing or numbers reflows the page, which would
-      // carry a reader's place away (in Reading View, a whole book's worth).
+      // carry a reader's place away (in Read View, a whole book's worth).
       // Pin the line of text at the reading line (30% down, just inside the
       // text column) and scroll it back to where it was. A paragraph's top
       // is not enough: a long paragraph grows below its top, so the line
@@ -594,10 +594,10 @@ const SIZE_OPTIONS = [
         } catch (_) {}
       };
 
-      // Below the button, or above it when there isn't room below (Reading
+      // Below the button, or above it when there isn't room below (Read
       // View's Aa sits in a bottom sheet on phones and tablets). Aligned to
       // the button's right edge, or its left when that would run off the
-      // left of the screen (Reading View's Aa is at the toolbar's left end).
+      // left of the screen (Read View's Aa is at the toolbar's left end).
       const positionTray = (btn) => {
         const rect = btn.getBoundingClientRect();
         const margin = 8;

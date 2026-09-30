@@ -9,11 +9,11 @@
 //     search-landing page is what Google's intrusive-interstitial penalty
 //     targets (FIXLIST O3)
 //   - never on a link shared into scripture: a verse (#v16), a range
-//     (#v16-17), part of a verse (#john-8-p9), a Reading View verse
+//     (#v16-17), part of a verse (#john-8-p9), a Read View verse
 //     (#john-3-v16)
 //   - never on /apps or /privacy, which people open to act on or to read
 //     terms, not to be pitched to
-//   - never over scripture: a Study View chapter or intro, or Reading View.
+//   - never over scripture: a Study View chapter or intro, or Read View.
 //     A reader who chose a passage came to read it (audit F5). An
 //     announcement can opt out with { overScripture: true }
 //

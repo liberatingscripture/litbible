@@ -207,8 +207,8 @@ for (const filePath of files) {
     // used to re-show a verse number on a continuation paragraph while dodging
     // the uniqueness check below, but every consumer matches id="v(\d+)" — so a
     // suffixed marker is invisible to the verse split (its digits leak into the
-    // text as a stray number), gets no data-osis, is never namespaced in Reading
-    // Mode, and makes the changelog blame the wrong verse. The corpus convention
+    // text as a stray number), gets no data-osis, is never namespaced in Read
+    // View, and makes the changelog blame the wrong verse. The corpus convention
     // is that a continuation paragraph carries NO marker; 187 paragraphs across
     // 76 chapters already do it that way. To share just part of a verse, link to
     // the block's own id (see "Sharing part of a verse" in CLAUDE.md).

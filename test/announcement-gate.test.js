@@ -110,7 +110,7 @@ test("isVerseDeepLink reads location.hash by default", () => {
 
 /* ── isOverScripture ───────────────────────────────────────────────────── */
 
-test("isOverScripture asks for a Study View chapter or intro, or Reading View", () => {
+test("isOverScripture asks for a Study View chapter or intro, or Read View", () => {
   let asked = "";
   const root = { querySelector: (sel) => ((asked = sel), null) };
   assert.equal(isOverScripture(root), false);

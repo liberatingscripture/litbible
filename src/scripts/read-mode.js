@@ -4,7 +4,7 @@
 // lit_rm_fontSize / lit_rm_lineHeight / lit_rm_markers. They moved to the
 // site's Display tray (SiteHeader.astro), which applies them before first
 // paint (Layout.astro still reads those three keys as fallbacks). Focus is
-// the one reading setting that stays Reading View's own.
+// the one reading setting that stays Read View's own.
 const STORAGE = {
   focus: "lit_rm_focus",
 };
@@ -613,7 +613,7 @@ function initReadMode() {
     } else {
       startOverButton.setAttribute(
         "aria-label",
-        "Return to beginning of reading view",
+        "Return to the beginning of the book",
       );
     }
   }
@@ -987,7 +987,7 @@ function initReadMode() {
   });
 
   // Arriving on a link into the book (#ch-10 from Study View's "Switch to
-  // Reading View", #luke-10-v5 from search) has to land on that spot and
+  // Read View", #luke-10-v5 from search) has to land on that spot and
   // stay there. The whole book is one page, tens of thousands of pixels
   // tall, so anything that changes its height above the target after the
   // first jump (a web font finishing, the Android app banner; the reader's
