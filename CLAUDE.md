@@ -633,17 +633,21 @@ and Make an image still take a line each in the phone sheet below 375px
 2026-09-29), not the screen width, and **the text it covers must always stay
 within reach** (owner). So:
 
-| Opened by | Layout | Where | Closes on |
-|---|---|---|---|
-| a finger, ≤640px | chips | a short bottom sheet; the text scrolls out from under it | ×, Escape, its lone verse number |
-| a finger, wider (tablet) | chips | beside the verse number, pinned to the screen so the text scrolls under it, and draggable | ×, Escape, its lone verse number |
-| a mouse or the keyboard | rows | beside the verse number, scrolling with the text until dragged, then pinned where dropped | the same, or a click elsewhere |
+| Opened by | Layout | Where |
+|---|---|---|
+| a finger, ≤640px | chips | a short bottom sheet; the text scrolls out from under it |
+| a finger, wider (tablet) | chips | beside the verse number, pinned to the screen so the text scrolls under it, and draggable |
+| a mouse or the keyboard | rows | beside the verse number, scrolling with the text until dragged, then pinned where dropped |
 
-A finger's menu is `persistent` (`showPanel`), so taps on the text and
-scrolling leave it open and the verse numbers under it can still extend a
-range. Every verse menu has a ×, and every one beside its number drags by
-its header (the grip), because a menu moved off the text needs its own way
-to close. Extending a range reopens the menu where it was put. A mouse never
+Every verse menu closes on its ×, Escape, tapping its lone verse number
+again, or a tap or click anywhere else, like every other panel, and none
+closes on a scroll. Tapping another verse number extends the range instead.
+For a day a finger's menu ignored taps elsewhere, so the text under it could
+be tapped; the owner found that annoying in practice (2026-09-29), and the
+sheet's scrolling and the card's drag keep that text within reach anyway.
+Every verse menu has a ×, and every one beside its number drags by its
+header (the grip), because a menu moved off the text needs its own way to
+close. Extending a range reopens the menu where it was put. A mouse never
 gets a sheet, even in a narrow window, and neither does a mouse selection.
 
 The phone sheet was picked from four mocked placements (2026-09-29): the old
@@ -1886,9 +1890,7 @@ collection); they're read directly by the intro pages and the API manifest.
   Sefaria or eBible link has no preview; it is an ordinary link to another site.
   `src/scripts/lit-panel.js` is the one panel all reader tools share (verse
   menu, footnote popover, selection panel, preview): one open at a time, closed
-  by an outside click or Escape. A `persistent` panel ignores the outside
-  click; only a verse menu opened by a finger is one (see "One set of
-  actions, two ways in").
+  by an outside click or Escape.
 - **"Go deeper" closes every published chapter** (audit X3, owner
   2026-09-28): `GoDeeper.astro`, right after Previous/Next and above the
   notes, with one row per kind that has something (Listen, Read, Key terms,

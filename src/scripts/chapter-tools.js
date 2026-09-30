@@ -15,8 +15,8 @@
 // 2. Verse menu — tapping a verse number opens Copy text / Copy link /
 //    Copy with notes / Share / Make an image. Tapping more verse numbers
 //    while the menu is open extends the selection to a range (e.g. John
-//    3:16–18). Its layout follows the input: a finger gets chips and a menu
-//    that stays open until closed, a mouse the rows of a computer's menu.
+//    3:16–18). Its layout follows the input: a finger gets chips, a mouse
+//    the rows of a computer's menu.
 // 3. Footnote popovers — tapping a footnote letter shows the note inline
 //    (bottom sheet on small screens), with a link through to the full
 //    footnotes section.
@@ -663,13 +663,13 @@ function openVerseMenu(
   const ref = formatRef(start, end);
   const url = getVerseUrl(start, end);
   // The text the menu covers must stay within reach. Opened by a finger, the
-  // menu takes the selection panel's chip layout and stays open through
-  // scrolling and taps on the text until its × closes it: on a phone as a
-  // short bottom sheet, wider beside the verse number, pinned to the screen
-  // so the text scrolls out from under it just the same. A mouse or the
-  // keyboard gets the rows of a computer's menu beside the number, never a
-  // sheet, closed by a click elsewhere as well. Beside the number, either
-  // one can be dragged aside by its header.
+  // menu takes the selection panel's chip layout: on a phone a short bottom
+  // sheet, wider a card beside the verse number, pinned to the screen so the
+  // text scrolls out from under it just the same. A mouse or the keyboard
+  // gets the rows of a computer's menu beside the number, never a sheet.
+  // Beside the number, either one can be dragged aside by its header. A
+  // scroll never closes it; a tap or click elsewhere does, as it closes
+  // every panel.
   const sheet = touch && isSmallScreen();
   const prev = currentPanel();
   const keepAt =
@@ -770,7 +770,6 @@ function openVerseMenu(
   showPanel(sup, panel, {
     preferAbove: true,
     sheet,
-    persistent: touch,
     // Only keyboard activations restore focus to the verse number on close —
     // for pointer taps a focus() could scroll the page back to the verse.
     restoreFocus,
