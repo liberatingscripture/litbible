@@ -205,12 +205,19 @@
   gap: 0.4rem;
 }
 
+/* The arrow is a text glyph, so it takes the icons' green here rather than
+   the label's colour; it was the one black icon in the row. */
 .rm-page .rm-toolbar [data-rm-start-over] .rm-btn-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 1em;
   line-height: 1;
+  color: var(--green-text);
+}
+
+.rm-page .rm-toolbar [data-rm-start-over]:hover .rm-btn-icon {
+  color: inherit;
 }
 
 /* The Study View switch: its glyph takes the picker's green accent, so the
