@@ -47,12 +47,13 @@
 /* OpenDyslexic's column is 540px (its --ch is the smallest) and its labels
    the widest, so its controls run past the column. A fixed floor keeps the
    bar from changing width while the reader scrolls (a readout gaining a
-   digit, the percentage reaching 100%). 840px holds the widest state,
-   measured at 834px: "2 Thessalonians 3", "100%", "Back to Top". It also
-   fits the narrowest page this bar appears on (901px). */
+   digit, the percentage reaching 100%). 850px holds the widest state,
+   measured at 843px: "2 Thessalonians 3", "100%", "Back to Top". It also
+   fits the narrowest page this bar appears on (866px at a 901px window).
+   Re-measure when a control gains width: the Focus icon alone took 21px. */
 @media (min-width: 901px) {
   html[data-font="dyslexic"] .rm-page .rm-toolbar {
-    min-width: min(100%, 840px);
+    min-width: min(100%, 850px);
   }
 }
 
@@ -135,7 +136,9 @@
 /* Toolbar controls follow the site's utility-pill recipe (the Study tools
    bar: 999px pill, surface-input fill, faint ink border, soft shadow) at
    toolbar density: 36px, the header's own Aa. They were 27px with 13px
-   labels, a third smaller than the same picker in Study View. */
+   labels, a third smaller than the same picker in Study View. The side
+   padding is what fits the widest row ("2 Thessalonians 3", "100%", "My
+   Location") inside the default font's 681px column, with 8px to spare. */
 .rm-page .rm-toolbar button,
 .rm-page .rm-toolbar a {
   border: 1px solid rgba(var(--ink-rgb), 0.11);
@@ -143,7 +146,7 @@
   background: var(--surface-input);
   color: var(--text);
   min-height: 36px;
-  padding: 0 0.8rem;
+  padding: 0 0.7rem;
   font-size: 0.875rem;
   text-decoration: none;
   line-height: 1.2;
@@ -163,9 +166,25 @@
   gap: 0.4rem;
 }
 
-/* "Display" beside the Aa shows only in the bottom sheet. Here it stays in
+/* Icons on the toolbar's buttons take the picker's green accent and flip
+   to the fill's foreground on hover, like the Study View switch's below. */
+.rm-page .rm-toolbar .rm-tool-icon {
+  flex: none;
+  color: var(--green-text);
+}
+
+.rm-page .rm-toolbar button:hover .rm-tool-icon {
+  color: inherit;
+}
+
+/* The bar's Display button is "Aa", like the header's. The faders icon and
+   the word "Display" show only in the bottom sheet; here the word stays in
    the button's accessible name ("Display settings"), so it is clipped, not
    removed. */
+.rm-page .rm-toolbar .rm-aa-icon {
+  display: none;
+}
+
 .rm-page .rm-toolbar .rm-aa-text {
   position: absolute;
   width: 1px;
@@ -174,6 +193,11 @@
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
+}
+
+/* Focus: icon + label (read-mode.js swaps the label). */
+.rm-page .rm-toolbar [data-rm-focus-toggle] {
+  gap: 0.4rem;
 }
 
 /* Back to Top / My Location: arrow + label (read-mode.js swaps both). */
@@ -709,6 +733,17 @@ html[data-vn="off"]
   html[data-font="dyslexic"] .rm-page .rm-toolbar button,
   html[data-font="dyslexic"] .rm-page .rm-toolbar a {
     padding-inline: 4px;
+  }
+
+  /* The Display button: faders and the word, icon first like the sheet's
+     other buttons. A lone "Aa" read as sparse in a half-row button, and
+     "Aa Display" as two labels. */
+  .rm-page .rm-toolbar .rm-aa-glyph {
+    display: none;
+  }
+
+  .rm-page .rm-toolbar .rm-aa-icon {
+    display: block;
   }
 
   .rm-page .rm-toolbar .rm-aa-text {
