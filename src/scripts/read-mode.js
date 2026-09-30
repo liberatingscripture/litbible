@@ -290,7 +290,9 @@ function initReadMode() {
     if (focusToggle instanceof HTMLButtonElement) {
       const on = focusMode === "on";
       focusToggle.setAttribute("aria-pressed", on ? "true" : "false");
-      focusToggle.textContent = on ? "Focus: On" : "Focus: Off";
+      // Only the label: the button also holds its icon.
+      const label = focusToggle.querySelector(".rm-focus-label") || focusToggle;
+      label.textContent = on ? "Focus: On" : "Focus: Off";
     }
 
     if (focusMode !== "on") clearFocusClass();

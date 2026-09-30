@@ -200,22 +200,37 @@ const pageUrl = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : "";
         <div class="rm-toolbar__cluster rm-toolbar__cluster--tools">
           {/* Opens the site's Display tray (SiteHeader.astro), which holds
               text size, line spacing and the Numbers setting for every page.
-              The toolbar is sticky, so this is the one within reach. The
-              word "Display" shows only in the bottom sheet, where the
-              button is half a row wide; the bar keeps it for screen
-              readers alone. */}
+              The toolbar is sticky, so this is the one within reach. The bar
+              shows "Aa", like the header's button; the bottom sheet, where
+              the button is half a row wide, shows a faders icon and the word
+              "Display", icon first like the sheet's other buttons. The bar
+              keeps the word for screen readers alone. */}
           <button
             type="button"
             data-font-toggle
             aria-expanded="false"
             aria-controls="fontTray"
           >
-            <span aria-hidden="true">Aa</span>
+            <span class="rm-aa-glyph" aria-hidden="true">Aa</span>
+            <svg class="rm-tool-icon rm-aa-icon" viewBox="0 0 24 24" width="1.1em" height="1.1em" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                 stroke-linejoin="round" aria-hidden="true" focusable="false">
+              <path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M2 14h4M10 8h4M18 16h4"/>
+            </svg>
             <span class="rm-aa-text">Display</span><span class="sr-only"> settings</span>
           </button>
 
+          {/* The icon is Focus itself: one line of text lit, the lines
+              around it dimmed. read-mode.js swaps only the label. */}
           <button type="button" data-rm-focus-toggle aria-pressed="false">
-            Focus: Off
+            <svg class="rm-tool-icon" viewBox="0 0 24 24" width="1.1em" height="1.1em" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                 aria-hidden="true" focusable="false">
+              <path d="M4 5h16" opacity=".5"/>
+              <path d="M4 12h16"/>
+              <path d="M4 19h11" opacity=".5"/>
+            </svg>
+            <span class="rm-focus-label">Focus: Off</span>
           </button>
         </div>
 
