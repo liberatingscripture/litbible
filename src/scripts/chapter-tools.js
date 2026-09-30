@@ -29,7 +29,7 @@
 
 import { stripBracketMarkers } from "../lib/bracket-markers.mjs";
 import { LIT_CREDIT_LINE } from "../lib/lit-credit.mjs";
-import { showPanel, closePanel, currentPanel, setEscapeFallback } from "./lit-panel.js";
+import { showPanel, closePanel, currentPanel, setEscapeFallback, isSmallScreen } from "./lit-panel.js";
 import { imageStep } from "./verse-image.js";
 
 function init(container) {
@@ -543,7 +543,7 @@ function shareButton(ref, url, getText) {
   if (!navigator.share) return null;
   const btn = document.createElement("button");
   btn.type = "button";
-  btn.className = "lit-panel__btn";
+  btn.className = "lit-panel__btn lit-panel__share";
   btn.textContent = "Share…";
   btn.addEventListener("click", async () => {
     const text = getText();
@@ -561,11 +561,90 @@ function shareButton(ref, url, getText) {
   return btn;
 }
 
+/**
+ * Share… and Make an image, as one row. The row is invisible except in the
+ * chip layout, where the two sit side by side and Make an image takes the
+ * whole row on a browser with no share sheet (shareBtn null).
+ */
+function shareAndImageRow(shareBtn, image) {
+  const row = document.createElement("div");
+  row.className = "lit-panel__row";
+  if (shareBtn) row.appendChild(shareBtn);
+  row.appendChild(image);
+  return row;
+}
+
 function setSelectionHighlight(container, start, end) {
   if (!supportsHighlight) return;
   const ranges = verseRanges(container, start, end);
   if (ranges.length)
     CSS.highlights.set("lit-verse-select", new Highlight(...ranges));
+}
+
+// MOCK, removed once the owner picks: where the verse menu opens on a phone
+// (?vm=). "sheet" is today's bottom sheet; "compact" is that sheet with the
+// selection panel's chip buttons; "float" sits beside the verse number with
+// the rows a computer shows; "chips" sits beside the number with the
+// selection panel's chips. Kept for the session, so it follows the reader
+// from chapter to chapter.
+const VM_PLACES = ["sheet", "compact", "float", "chips"];
+let vmPlace = null;
+
+function verseMenuPlace() {
+  if (vmPlace) return vmPlace;
+  let vm = null;
+  try {
+    vm = new URLSearchParams(location.search).get("vm");
+    if (VM_PLACES.includes(vm)) sessionStorage.setItem("lit-vm-mock", vm);
+    else vm = sessionStorage.getItem("lit-vm-mock");
+  } catch {
+    /* storage blocked: the URL alone decides */
+  }
+  vmPlace = VM_PLACES.includes(vm) ? vm : "sheet";
+  return vmPlace;
+}
+
+// MOCK: a floating verse menu on a phone is pinned to the screen, so the text
+// scrolls out from under it as a sheet's does, and its header drags it aside.
+function moveTo(panel, left, top) {
+  const maxLeft = window.innerWidth - panel.offsetWidth - PANEL_EDGE;
+  const maxTop = window.innerHeight - panel.offsetHeight - PANEL_EDGE;
+  panel.style.left = Math.max(PANEL_EDGE, Math.min(left, maxLeft)) + "px";
+  panel.style.top = Math.max(PANEL_EDGE, Math.min(top, maxTop)) + "px";
+}
+
+function pinToScreen(panel, at) {
+  const rect = panel.getBoundingClientRect();
+  panel.classList.add("lit-panel--pinned");
+  moveTo(panel, at ? at.left : rect.left, at ? at.top : rect.top);
+}
+
+function makeDraggable(panel, handle) {
+  handle.classList.add("lit-panel__header--drag");
+  handle.addEventListener("pointerdown", (e) => {
+    if (e.button !== 0 || e.target.closest("button")) return;
+    e.preventDefault();
+    const x0 = e.clientX;
+    const y0 = e.clientY;
+    const left0 = parseFloat(panel.style.left);
+    const top0 = parseFloat(panel.style.top);
+    try {
+      handle.setPointerCapture(e.pointerId);
+    } catch {
+      /* no live pointer to capture (a synthetic event) */
+    }
+    panel.classList.add("lit-panel--dragging");
+    const move = (ev) => moveTo(panel, left0 + ev.clientX - x0, top0 + ev.clientY - y0);
+    const end = () => {
+      handle.removeEventListener("pointermove", move);
+      handle.removeEventListener("pointerup", end);
+      handle.removeEventListener("pointercancel", end);
+      panel.classList.remove("lit-panel--dragging");
+    };
+    handle.addEventListener("pointermove", move);
+    handle.addEventListener("pointerup", end);
+    handle.addEventListener("pointercancel", end);
+  });
 }
 
 function openVerseMenu(container, sup, anchorVerse, start, end, { restoreFocus = null } = {}) {
@@ -577,11 +656,44 @@ function openVerseMenu(container, sup, anchorVerse, start, end, { restoreFocus =
   panel.setAttribute("aria-label", ref + " options");
   panel.tabIndex = -1;
   panel.classList.add("lit-panel--menu");
+  const place = isSmallScreen() ? verseMenuPlace() : null;
+  const floating = place === "float" || place === "chips";
+  if (place === "compact" || place === "chips") panel.classList.add("lit-panel--chips");
+  // Extending a range reopens the menu: a floating one stays where it was,
+  // which may be where the reader dragged it.
+  const prev = currentPanel();
+  const keepAt =
+    floating && prev?.kind === "verse" && prev.el.classList.contains("lit-panel--pinned")
+      ? { left: parseFloat(prev.el.style.left), top: parseFloat(prev.el.style.top) }
+      : null;
 
   const heading = document.createElement("p");
   heading.className = "lit-panel__heading";
   heading.textContent = ref + " (LIT)";
-  panel.appendChild(heading);
+
+  // MOCK: on a phone the menu stays open until it is closed, so it needs a
+  // close button; a floating one also carries a grip to drag it by.
+  const header = document.createElement("div");
+  if (place) {
+    header.className = "lit-panel__header";
+    if (floating) {
+      const grip = document.createElement("span");
+      grip.className = "lit-panel__grip";
+      grip.setAttribute("aria-hidden", "true");
+      header.appendChild(grip);
+    }
+    header.appendChild(heading);
+    const closeBtn = document.createElement("button");
+    closeBtn.type = "button";
+    closeBtn.className = "lit-panel__close";
+    closeBtn.setAttribute("aria-label", "Close");
+    closeBtn.textContent = "×";
+    closeBtn.addEventListener("click", closePanel);
+    header.appendChild(closeBtn);
+    panel.appendChild(header);
+  } else {
+    panel.appendChild(heading);
+  }
 
   panel.appendChild(
     menuButton(end > start ? "Copy verses" : "Copy verse", async () => {
@@ -600,18 +712,19 @@ function openVerseMenu(container, sup, anchorVerse, start, end, { restoreFocus =
   );
 
   const shareBtn = shareButton(ref, url, () => getVerseText(container, start, end));
-  if (shareBtn) panel.appendChild(shareBtn);
-
   panel.appendChild(
-    imageStep({
-      content: () => ({
-        text: getVerseText(container, start, end, { numbers: false }),
-        ref,
-        url,
-        shareText: withReference(getVerseText(container, start, end), ref) + "\n" + url,
-      }),
-      onDone: closePanel,
-    })
+    shareAndImageRow(
+      shareBtn,
+      imageStep({
+        content: () => ({
+          text: getVerseText(container, start, end, { numbers: false }),
+          ref,
+          url,
+          shareText: withReference(getVerseText(container, start, end), ref) + "\n" + url,
+        }),
+        onDone: closePanel,
+      })
+    )
   );
 
   // Parts: only for a single verse. A range already spans blocks by nature, so
@@ -647,6 +760,8 @@ function openVerseMenu(container, sup, anchorVerse, start, end, { restoreFocus =
 
   showPanel(sup, panel, {
     preferAbove: true,
+    sheet: !floating,
+    persistent: Boolean(place),
     // Only keyboard activations restore focus to the verse number on close —
     // for pointer taps a focus() could scroll the page back to the verse.
     restoreFocus,
@@ -655,6 +770,10 @@ function openVerseMenu(container, sup, anchorVerse, start, end, { restoreFocus =
     },
     extra: { kind: "verse", anchorVerse, start, end },
   });
+  if (floating) {
+    pinToScreen(panel, keepAt);
+    makeDraggable(panel, header);
+  }
   // After showPanel: its closePanel() of a previous menu would otherwise
   // delete the selection highlight we just set.
   setSelectionHighlight(container, start, end);
@@ -1134,7 +1253,7 @@ function openSelectionPanel(view, share, { touch }) {
   panel.setAttribute("role", "dialog");
   panel.setAttribute("aria-label", "Share selected text from " + ref);
   panel.classList.add("lit-panel--menu", "lit-panel--selection");
-  if (touch) panel.classList.add("lit-panel--touch");
+  if (touch) panel.classList.add("lit-panel--chips");
   // Pressing a button would otherwise clear the selection (and move focus)
   // before the click lands.
   panel.addEventListener("mousedown", (e) => e.preventDefault());
@@ -1170,18 +1289,20 @@ function openSelectionPanel(view, share, { touch }) {
     acting();
     return share.text;
   });
-  if (shareBtn) panel.appendChild(shareBtn);
   panel.appendChild(
-    imageStep({
-      content: () => ({
-        text: share.imageText,
-        ref,
-        url,
-        shareText: withReference(share.text, ref) + "\n" + url,
-      }),
-      onStart: acting,
-      onDone: closePanel,
-    })
+    shareAndImageRow(
+      shareBtn,
+      imageStep({
+        content: () => ({
+          text: share.imageText,
+          ref,
+          url,
+          shareText: withReference(share.text, ref) + "\n" + url,
+        }),
+        onStart: acting,
+        onDone: closePanel,
+      })
+    )
   );
 
   showPanel({ getBoundingClientRect: () => share.rect }, panel, {

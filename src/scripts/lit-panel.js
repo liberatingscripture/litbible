@@ -29,7 +29,7 @@ export function closePanel() {
 }
 
 document.addEventListener("click", (e) => {
-  if (openPanel && !openPanel.el.contains(e.target) && e.target !== openPanel.trigger && !openPanel.trigger?.contains?.(e.target)) {
+  if (openPanel && !openPanel.persistent && !openPanel.el.contains(e.target) && e.target !== openPanel.trigger && !openPanel.trigger?.contains?.(e.target)) {
     closePanel();
   }
 });
@@ -56,9 +56,11 @@ export function isSmallScreen() {
  * small screens). Returns the panel element. The trigger only needs
  * getBoundingClientRect, so a selection can stand in for an element. `place`
  * overrides both layouts: it gets the attached panel and returns its
- * document-relative {left, top}.
+ * document-relative {left, top}. `sheet: false` keeps a small screen on the
+ * floating layout instead of the bottom sheet. A `persistent` panel ignores
+ * outside clicks, so the page stays usable around it; it needs a close button.
  */
-export function showPanel(trigger, el, { restoreFocus = null, onClose = null, extra = null, preferAbove = false, place = null } = {}) {
+export function showPanel(trigger, el, { restoreFocus = null, onClose = null, extra = null, preferAbove = false, place = null, sheet = true, persistent = false } = {}) {
   closePanel();
   el.classList.add("lit-panel");
 
@@ -67,7 +69,7 @@ export function showPanel(trigger, el, { restoreFocus = null, onClose = null, ex
     const { left, top } = place(el);
     el.style.left = left + "px";
     el.style.top = top + "px";
-  } else if (isSmallScreen()) {
+  } else if (sheet && isSmallScreen()) {
     el.classList.add("lit-panel--sheet");
     document.body.appendChild(el);
   } else {
@@ -119,6 +121,6 @@ export function showPanel(trigger, el, { restoreFocus = null, onClose = null, ex
     }
   });
 
-  openPanel = { el, trigger, restoreFocus, onClose, ...extra };
+  openPanel = { el, trigger, restoreFocus, onClose, persistent, ...extra };
   return el;
 }
