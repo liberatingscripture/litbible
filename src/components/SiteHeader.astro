@@ -269,7 +269,7 @@ const SIZE_OPTIONS = [
           <legend class="font-tray__legend">Show</legend>
           <div class="font-tray__checks">
             <label class="font-tray__check">
-              <input type="checkbox" class="font-tray__check-input" data-vn-check />
+              <input type="checkbox" class="font-tray__check-input" data-vn-check data-vn-view={scriptureControls} />
               <span class="font-tray__check-label">
                 {scriptureControls === "read" ? "Verse and chapter numbers" : "Verse numbers"}
               </span>
@@ -502,10 +502,19 @@ const SIZE_OPTIONS = [
       // first paint. `legacy` is the Read View key the setting replaced,
       // which the pre-paint script still falls back to, so it is deleted on
       // every change or it could resurrect an older choice.
+      // Verse numbers are one setting per view. In Study View a number is
+      // the verse menu's button, so a shared switch meant that hiding numbers
+      // in Read View took the menu away on a touch screen. Read View's
+      // setting follows Study View's until the reader sets it, so it is
+      // stored as set (`keep`), 'on' included: removing it would hand it back
+      // to Study View's. Its legacy key was Read View's own before the tray.
+      const readView = vnCheck?.getAttribute('data-vn-view') === 'read';
       const SETTINGS = {
         size: { attr: 'data-size', key: 'lit-size', legacy: 'lit_rm_fontSize', fallback: 'md' },
         leading: { attr: 'data-leading', key: 'lit-leading', legacy: 'lit_rm_lineHeight', fallback: 'normal' },
-        vn: { attr: 'data-vn', key: 'lit-verse-numbers', legacy: 'lit_rm_markers', fallback: 'on' },
+        vn: readView
+          ? { attr: 'data-vn', key: 'lit-read-numbers', legacy: 'lit_rm_markers', fallback: 'on', keep: true }
+          : { attr: 'data-vn', key: 'lit-verse-numbers', legacy: null, fallback: 'on' },
         fn: { attr: 'data-fn', key: 'lit-fn-letters', legacy: null, fallback: 'on' },
         terms: { attr: 'data-terms', key: 'lit-terms', legacy: null, fallback: 'on' },
       };
@@ -582,14 +591,14 @@ const SIZE_OPTIONS = [
       };
 
       const applySetting = (name, value) => {
-        const { attr, key, legacy, fallback } = SETTINGS[name];
+        const { attr, key, legacy, fallback, keep } = SETTINGS[name];
         const root = document.documentElement;
         keepReadingPlace(() => {
           if (value === fallback) root.removeAttribute(attr);
           else root.setAttribute(attr, value);
         });
         try {
-          value === fallback ? localStorage.removeItem(key) : localStorage.setItem(key, value);
+          value === fallback && !keep ? localStorage.removeItem(key) : localStorage.setItem(key, value);
           if (legacy) localStorage.removeItem(legacy);
         } catch (_) {}
       };

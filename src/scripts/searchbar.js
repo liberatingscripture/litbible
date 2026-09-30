@@ -354,13 +354,13 @@ const _initSearchbars = async () => {
           <a class="searchbar__jump-link" href="${studyHref}">
             Jump to <strong>${label}</strong>
             <span class="searchbar__jump-hint">${
-              isBook ? "Intro (Study View)" : "in Study View"
+              isBook ? "intro, in Study View" : "in Study View, with notes"
             }</span>
           </a>
           <a class="searchbar__jump-link searchbar__jump-link--read" href="${readHref}">
             Jump to <strong>${label}</strong>
             <span class="searchbar__jump-hint">${
-              isBook ? "Book (Read View)" : "in Read View"
+              isBook ? "whole book, in Read View" : "in Read View, whole book"
             }</span>
           </a>
         </div>

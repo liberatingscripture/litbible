@@ -180,12 +180,12 @@ function renderReferenceActions(jump) {
   const studyLink = document.createElement("a");
   studyLink.className = "search-ref__link";
   studyLink.setAttribute("href", makeStudyJumpHref(jump));
-  studyLink.textContent = isBook ? "Jump (Study Intro)" : "Jump (Study View)";
+  studyLink.textContent = isBook ? "Intro in Study View" : "Study View, with notes";
 
   const readLink = document.createElement("a");
   readLink.className = "search-ref__link search-ref__link--read";
   readLink.setAttribute("href", makeReadJumpHref(jump));
-  readLink.textContent = isBook ? "Jump (Read Book)" : "Jump (Read View)";
+  readLink.textContent = isBook ? "Whole book in Read View" : "Read View, whole book";
 
   wrapper.append(label, studyLink, readLink);
   return wrapper;
