@@ -40,11 +40,17 @@ import { bookKeyToLabel } from "../../src/data/books.js";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 
-// The owner's shortlist from the Voice Gallery (2026-09-29).
+// The owner's shortlist from the Voice Gallery (2026-09-29), with Andrew and
+// Steffan each in a standard and an HD version, so the same voice can be
+// heard both ways.
 const SHORTLIST = [
   "en-US-JaneNeural",
   "en-US-LolaMultilingualNeural",
   "en-US-Tyler:DragonHDFlashLatestNeural",
+  "en-US-AndrewMultilingualNeural",
+  "en-US-Andrew:DragonHDOmniLatestNeural",
+  "en-US-SteffanMultilingualNeural",
+  "en-US-Steffan:DragonHDLatestNeural",
 ];
 
 // 48 kbps mono MP3: the size the storage estimates assume. Constant bit rate,
