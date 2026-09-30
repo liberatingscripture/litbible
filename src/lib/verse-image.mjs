@@ -100,7 +100,7 @@ export function balancedWrap(measure, text, maxW) {
 
 /**
  * Lines to draw, each `{ text, indent }` with the indent in px. Prose is
- * balanced. Text set as lines (poetry, which Copy verse hands over with
+ * balanced. Text set as lines (poetry, which Copy text hands over with
  * newlines) keeps its lines, and one too long for the measure wraps with a
  * hanging indent, as the site sets a quoted poem.
  */

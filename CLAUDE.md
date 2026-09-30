@@ -548,14 +548,15 @@ nature, and a button per block would bury the whole-range actions.
 ### Sharing a selection
 
 The general form of the above: select any run of scripture text and a panel
-offers **Copy with reference**, **Copy for a handout** and **Share…**, for a
-half-sentence, a phrase crossing two verses, or part of a poetry quotation.
-It runs in **both views**, and in Reading View it is the only such tool: that
-view's verse numbers stay plain text, because a verse menu's actions (Copy
-link above all) belong to the chapter's Study View page (owner, 2026-09-28).
-In Reading View a selection is clamped to the first chapter it touches, since
-one reference names one chapter, and every link it produces is the Study View
-verse link (`/john-3#v16`), never a Reading View anchor.
+offers the verse menu's actions under the same names (see "One set of
+actions, two ways in" below), for a half-sentence, a phrase crossing two
+verses, or part of a poetry quotation. It runs in **both views**, and in
+Reading View it is the only such tool: that view's verse numbers stay plain
+text, because the verse menu belongs to the chapter's Study View page (owner,
+2026-09-28). In Reading View a selection is clamped to the first chapter it
+touches, since one reference names one chapter, and every link it produces,
+Copy link's included, is the Study View verse link (`/john-3#v16`), never a
+Reading View anchor.
 Four owner decisions (2026-09) shape it:
 
 1. **It sits beside the selection, and the side follows the input**, not the
@@ -579,9 +580,9 @@ Four owner decisions (2026-09) shape it:
 4. **Ordinary Copy is left alone.** The reference is only ever added on
    request. Appending it to Ctrl+C was rejected as clipboard hijacking.
 
-**`joinPieces` is the one join rule** behind Copy verse, Copy verses, the
-per-part copy, a selection, and a verse image, so selecting whole verses
-copies exactly what Copy verses does (checked against every verse and
+**`joinPieces` is the one join rule** behind both panels' Copy text, the
+per-part copy, and a verse image, so selecting whole verses
+copies exactly what the verse menu does (checked against every verse and
 adjacent pair on 15 chapters). Don't give the selection its own joiner. The
 image passes `numbers: false`, which drops the verse numbers a range carries
 inline and changes no other boundary. Three details are easy to
@@ -600,6 +601,43 @@ break:
 
 The panel never takes focus, so the verse-number menu stays the keyboard and
 screen-reader route to the same copy (in Study View; Reading View has none).
+
+### One set of actions, two ways in
+
+The verse menu and the selection panel offer **the same actions under the
+same names** (owner, 2026-09-29): **Copy text** (the words, the reference and
+the verse link), **Copy link**, **Copy with notes** (the handout; see
+"Printing and handouts"), **Share…** and **Make an image**. Until then the
+verse menu said "Copy verse", which can't name half a verse, and the
+selection panel said "Copy with reference" and had no Copy link. The labels
+are kept short on purpose, so the three copies fit one row on a phone. Only
+the verse menu's extras are its own: "Or copy one part" and the range hint,
+both about whole verses. Both panels build from the same pieces
+(`menuButton`, `shareButton`, `imageStep`, `panelRow`), so keep them in step.
+
+**On a phone both use the chip layout** (`.lit-panel--chips`): tinted
+buttons side by side in rows (`panelRow`), the three copies in one and
+Share… with Make an image in the next. The owner's rule is that **every
+two-button row matches every other**, in either panel, so a pair takes exact
+halves; three share their row evenly without going narrower than a label. A
+missing Share… (no share sheet) leaves Make an image the whole row, and once
+pressed its questions take the row over from Share…, so the panel keeps its
+height. A label never breaks: a button too wide for its share (OpenDyslexic
+on a 375px phone) wraps to a line of its own.
+
+**The verse menu on a phone (≤640px) is a short bottom sheet that stays
+open** (`showPanel`'s `persistent`) through scrolling and taps on the text,
+so the text it covers can still be read and the verse numbers under it
+tapped to extend a range. Its ×, Escape, or tapping its lone verse number
+again closes it. The owner picked it from four mocked placements
+(2026-09-29): the old sheet of full-width rows, which covered about 40% of
+the screen and the tapped verse itself whenever that verse sat low; this
+compact sheet; and two that floated beside the verse number, pinned to the
+screen and draggable by a grip. **Whatever replaces it must keep the covered
+text reachable**, by staying open with a close button, by moving, or both
+(owner). On a computer the verse menu is unchanged: rows, beside the number,
+closed by an outside click. The selection panel keeps its own placement
+(decision 1 above) and closes when the selection clears.
 
 ### Verse images
 
@@ -622,7 +660,7 @@ page drawn by the same code:
    sibling. **Both sizes**: 1080 square and 1080×1920 story, whose content
    stays inside the area Instagram's own controls leave clear.
 3. **The verse in Crimson Text**, the reference in Fraunces, the wordmark and
-   address in Inter. The text is Copy verse's (`joinPieces`, footnote letters
+   address in Inter. The text is Copy text's (`joinPieces`, footnote letters
    and bracket markers gone, poetry kept as lines) without the inline verse
    numbers, since the reference names the verses.
 4. **The chapter's own address** on the image ("litbible.net/john-3"), always
@@ -668,10 +706,10 @@ notice there or nowhere.
   print media, and three of the fixes here (Reading View's phone-width
   gutter, superscripts opening up their lines, a long note held whole leaving
   a third of a sheet blank) showed only on paper.
-- **"Copy for a handout"** in the verse menu (`getHandoutText` in
+- **"Copy with notes"** in the verse menu (`getHandoutText` in
   `chapter-tools.js`) copies the verses with each footnote letter kept as
   "[a]", the reference, each cited note in order, then the notice and the
-  verse link. The verses join per `joinPieces`, so they match Copy verse
+  verse link. The verses join per `joinPieces`, so they match Copy text
   exactly apart from the letters; `blockText` keeps the letters only when
   handed a `notes` array. A note's own blocks each take a line, which is what
   keeps the 1 Corinthians 11 chiasm outline legible. Notes skip the
@@ -729,7 +767,7 @@ rules:
 
 A `<br>` inside a `<p>` is the older way of setting lines and survives only
 where the lines are not a quotation (2 Corinthians 6:2 is the one published
-case). Copy verse still shares it as lines: `blockText` in `chapter-tools.js`
+case). Copy text still shares it as lines: `blockText` in `chapter-tools.js`
 turns each `<br>` into a marker that `cleanForShare` makes a newline, because
 `textContent` alone drops a `<br>` with no separator and welded the two lines
 into one word until 2026-09. The marker is not `\n` itself, so incidental
@@ -920,7 +958,7 @@ consumers today:
 |----------|--------------------|
 | `scripts/lib/verse-text.mjs` | search results ending in a bare `⟦`, and the same misfiling in the alignment dataset |
 | `scripts/lib/release-notes-core.mjs` | `added "⟦"` in the apps' Translation Updates |
-| `src/scripts/chapter-tools.js` | Copy verse / Share… handing a reader `…afraid. ⟦` |
+| `src/scripts/chapter-tools.js` | Copy text / Share… handing a reader `…afraid. ⟦` |
 
 The mobile apps consuming raw chapter HTML from `public/api/` (see "Mobile
 apps are first-class consumers" under Key Conventions) have no equivalent
@@ -1833,7 +1871,9 @@ collection); they're read directly by the intro pages and the API manifest.
   Sefaria or eBible link has no preview; it is an ordinary link to another site.
   `src/scripts/lit-panel.js` is the one panel all reader tools share (verse
   menu, footnote popover, selection panel, preview): one open at a time, closed
-  by an outside click or Escape.
+  by an outside click or Escape. A `persistent` panel ignores the outside
+  click; only the phone's verse menu is one (see "One set of actions, two
+  ways in").
 - **"Go deeper" closes every published chapter** (audit X3, owner
   2026-09-28): `GoDeeper.astro`, right after Previous/Next and above the
   notes, with one row per kind that has something (Listen, Read, Key terms,

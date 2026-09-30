@@ -2869,15 +2869,12 @@ html[data-terms="off"] .chapter-paragraphs .term {
   color: var(--green-text);
 }
 
-/* Chip layout: the selection panel for a touch selection, and (MOCK, ?vm=
-   compact / chips) the verse menu on a phone. The selection panel floats
-   beside the selected text, so it is kept short — the reference on its own
-   line, then both actions side by side — to cover as little of the
-   surrounding text as it can. Padding and gaps are trimmed so OpenDyslexic's
-   two labels still share a row on a 375px phone. */
+/* Chip layout: the verse menu on a phone (a short bottom sheet) and the
+   selection panel for a touch selection (beside the selected words). Both
+   are kept short to cover as little text as they can: tinted buttons side
+   by side in rows (.lit-panel__row), trimmed padding. The parts and the hint
+   each take the whole width. */
 .lit-panel--chips {
-  flex-flow: row wrap;
-  align-items: center;
   gap: 6px;
   padding: 10px;
 }
@@ -2886,28 +2883,16 @@ html[data-terms="off"] .chapter-paragraphs .term {
   padding-bottom: calc(10px + env(safe-area-inset-bottom));
 }
 
-.lit-panel--chips .lit-panel__heading {
-  flex: 1 0 100%;
-  margin: 0;
+/* A panel sized to its content would size its halves to the two labels'
+   average, which the longer one can't fit into. */
+.lit-panel--selection.lit-panel--chips {
+  width: min(380px, calc(100vw - 24px));
 }
 
-/* The verse menu's header row (MOCK, ?vm=): the reference, then its close
-   button, across the whole width. */
-.lit-panel--chips .lit-panel__header {
-  flex: 1 0 100%;
-  margin: 0;
-}
-
-.lit-panel--chips .lit-panel__header .lit-panel__heading {
-  flex: 1 1 auto;
-}
-
-/* The verse menu's extras each take a whole row: the parts are lines of
-   scripture, so they stay left-aligned rows that wrap. */
+.lit-panel--chips .lit-panel__heading,
+.lit-panel--chips .lit-panel__header,
 .lit-panel--chips .lit-panel__subheading,
-.lit-panel--chips .lit-panel__hint,
-.lit-panel--chips .lit-panel__subheading + [role="group"] {
-  flex: 1 0 100%;
+.lit-panel--chips .lit-panel__hint {
   margin: 0;
 }
 
@@ -2915,23 +2900,8 @@ html[data-terms="off"] .chapter-paragraphs .term {
   margin-top: 2px;
 }
 
-.lit-panel--chips .lit-panel__subheading + [role="group"] {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.lit-panel--chips .lit-panel__subheading + [role="group"] .lit-panel__btn {
-  width: 100%;
-  white-space: normal;
-  text-align: left;
-}
-
-/* Each label on one line, sized to its text; when the two can't share a row
-   (OpenDyslexic runs far wider) Share wraps to its own row rather than the
-   label breaking. */
+/* Each label on one line. */
 .lit-panel--chips .lit-panel__btn {
-  flex: 1 1 auto;
   width: auto;
   padding-inline: 8px;
   white-space: nowrap;
@@ -2939,32 +2909,47 @@ html[data-terms="off"] .chapter-paragraphs .term {
   background: rgba(var(--ink-rgb), 0.06);
 }
 
-/* "Make an image" (verse-image.js): one button that becomes the next question,
-   colour then size. Each question is one row the height of a button, so the
-   panel doesn't move as the steps change. */
-/* Share… and Make an image share a row (shareAndImageRow in
-   chapter-tools.js). Elsewhere the row is invisible and the two stack like
-   the other buttons; in the chip layout they split it, and Make an image has
-   it alone where there is no share sheet. Once pressed, the image's questions
-   take the whole row, so the panel keeps its height. */
+/* The parts are lines of scripture: left-aligned rows that wrap. */
+.lit-panel--chips .lit-panel__subheading + [role="group"] {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.lit-panel--chips .lit-panel__subheading + [role="group"] .lit-panel__btn {
+  white-space: normal;
+  text-align: left;
+}
+
+/* Buttons that share a row (panelRow in chapter-tools.js). Elsewhere the
+   row is invisible and they stack like the other buttons. */
 .lit-panel__row {
   display: contents;
 }
 
 .lit-panel--chips .lit-panel__row {
   display: flex;
-  flex: 1 0 100%;
   flex-wrap: wrap;
   gap: 6px;
 }
 
-/* Equal halves, each at least as wide as its label, so a label that can't
-   fit half the row (OpenDyslexic on a narrow phone) takes a row of its own
-   rather than breaking. */
+/* Shared out evenly, but never narrower than a label, so a button that
+   can't fit (OpenDyslexic on a narrow phone) wraps to a line of its own
+   rather than its label breaking. A pair takes exact halves, so every
+   two-button row in either panel matches: an even share from a zero basis
+   would hand Share… its padding on top of Make an image's. */
 .lit-panel--chips .lit-panel__row > * {
-  flex: 1 1 calc(50% - 3px);
+  flex: 1 1 0;
 }
 
+.lit-panel--chips .lit-panel__row--halves > * {
+  flex-basis: calc(50% - 3px);
+}
+
+/* "Make an image" (verse-image.js): one button that becomes the next question,
+   colour then size. Each question is one row the height of a button, so the
+   panel doesn't move as the steps change. In the chip layout it shares its
+   row with Share…, so once pressed its questions take the row over. */
 .lit-panel--chips .lit-panel__row:has(> .lit-image--open) > .lit-panel__share {
   display: none;
 }
@@ -3020,42 +3005,6 @@ html[data-terms="off"] .chapter-paragraphs .term {
   margin: 0;
   padding: 9px 10px;
   font-size: 0.9rem;
-}
-
-/* MOCK (?vm= float / chips): a floating verse menu on a phone stays put on
-   the screen while the text scrolls under it, and its header drags it. */
-.lit-panel.lit-panel--pinned {
-  position: fixed;
-  max-height: calc(100vh - 24px);
-  overflow-y: auto;
-  overscroll-behavior: contain;
-}
-
-.lit-panel__header--drag {
-  cursor: grab;
-  touch-action: none;
-  user-select: none;
-}
-
-.lit-panel--dragging .lit-panel__header--drag {
-  cursor: grabbing;
-}
-
-.lit-panel--dragging {
-  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.3);
-}
-
-.lit-panel__grip {
-  flex: none;
-  width: 10px;
-  height: 16px;
-  margin-right: -2px;
-  background-image: radial-gradient(circle, rgba(var(--ink-rgb), 0.45) 1.3px, transparent 1.6px);
-  background-size: 5px 5px;
-}
-
-.lit-panel__header--drag .lit-panel__heading {
-  flex: 1 1 auto;
 }
 
 /* Range-selection hint at the bottom of the verse menu */
