@@ -28,25 +28,58 @@ on:
       - 'src/pages/privacy.astro'
       - 'src/styles/pages/privacy.css'
   workflow_dispatch:
+    inputs:
+      since:
+        description: >-
+          Report everything changed since this commit (a SHA, short SHA or
+          tag). Empty = just the latest commit on main. To backfill a gap, give
+          the last commit LSC was notified about.
+        required: false
+        default: ""
 
 jobs:
   notify:
     runs-on: ubuntu-latest
     steps:
+      # Full history, so a push's whole range is always diffable. This was
+      # fetch-depth: 2, with a fallback to HEAD~1..HEAD whenever the push's
+      # `before` commit wasn't in the clone. That is EVERY push of more than one
+      # commit, and pushes to main here usually are: from 2026-09-23 to 09-30,
+      # five pushes that changed mirrored /apps files and /privacy were each
+      # diffed by their last commit only, found nothing, and skipped the
+      # notification. Every run was green and LSC heard nothing for a week.
+      # The pack is ~50 MB and this job only runs when a watched path changes.
       - uses: actions/checkout@v7
         with:
-          fetch-depth: 2
+          fetch-depth: 0
 
       - name: Collect what changed
         id: changed
+        env:
+          EVENT: ${{ github.event_name }}
+          BEFORE: ${{ github.event.before }}
+          SINCE: ${{ inputs.since }}
         run: |
-          RANGE="${{ github.event.before }}..${{ github.sha }}"
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ] \
-             || ! git rev-parse --quiet --verify "${{ github.event.before }}^{commit}" >/dev/null; then
-            RANGE="HEAD~1..HEAD"
+          if [ "$EVENT" = "workflow_dispatch" ]; then
+            BASE="${SINCE:-HEAD~1}"
+          else
+            BASE="$BEFORE"
           fi
 
-          ALL=$(git diff --name-only $RANGE)
+          # Never narrow the range quietly: that is the failure mode above. If
+          # the base can't be found (a force-push rewrote it, or a typo in
+          # `since`), stop with an error a person will see, and say how to
+          # recover.
+          if ! BASE_SHA=$(git rev-parse --quiet --verify "${BASE}^{commit}"); then
+            echo "::error::Can't diff from '$BASE': not a commit in this repository."
+            echo "Re-run this workflow by hand with 'since' set to the last commit"
+            echo "the LSC repo was notified about, so nothing is skipped."
+            exit 1
+          fi
+
+          echo "Diffing $BASE_SHA..$GITHUB_SHA ($(git rev-list --count "$BASE_SHA..$GITHUB_SHA") commits)"
+          ALL=$(git diff --name-only "$BASE_SHA" "$GITHUB_SHA")
+          echo "base=$BASE_SHA" >> "$GITHUB_OUTPUT"
 
           MIRROR=$(echo "$ALL" | grep -E \
             '^(src/components/apps/|src/styles/pages/apps\.css|src/content/(callouts|examples|seasons)/)' \
@@ -70,6 +103,7 @@ jobs:
           MIRROR: ${{ steps.changed.outputs.mirror }}
           PRIVACY: ${{ steps.changed.outputs.privacy }}
           COMMIT_URL: ${{ github.event.head_commit.url }}
+          BASE_SHA: ${{ steps.changed.outputs.base }}
         run: |
           if [ -z "$GH_TOKEN" ]; then
             echo "::warning::LSC_SYNC_TOKEN is not set — skipping the LSC notification."
@@ -83,6 +117,7 @@ jobs:
             echo "litbible published a change to content the LSC site also carries."
             echo
             echo "Source commit: ${COMMIT_URL:-${{ github.sha }}}"
+            echo "Everything in this range: ${{ github.server_url }}/${{ github.repository }}/compare/${BASE_SHA}...${{ github.sha }}"
             echo
 
             if [ -n "$MIRROR" ]; then
