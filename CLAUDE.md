@@ -2160,6 +2160,14 @@ collection); they're read directly by the intro pages and the API manifest.
   **notify-only by design** — LSC being briefly behind is normal, and failing
   litbible's CI over it would put a red X on a contributor who did nothing wrong.
   It needs the `LSC_SYNC_TOKEN` secret and skips with a warning if it's absent.
+  It diffs each push's **whole range** (`before..sha`), so it checks out full
+  history. It used to fetch two commits deep and fall back to the last commit
+  alone whenever `before` was missing, which is every multi-commit push. For a
+  week (2026-09-23 to 09-30) that silently skipped five pushes touching
+  `/apps` and `/privacy`, with every run green. Don't reintroduce a shallow
+  fetch or a quiet fallback: if the base can't be found the job now fails with
+  an error. To backfill a gap, run it by hand with the `since` input set to
+  the last commit LSC was notified about; one issue then covers the range.
   That same workflow also watches `/privacy`, which is **not** a mirror: the two
   policies cover two different entities and are written separately (owner
   decision), so the notification says "review", never "copy".
