@@ -18,6 +18,14 @@ To skip a round: add an entry below, in the same commit as the content change.
 
 ---
 
+## 2026-10-01 — a stray parenthesis in two Mark notes
+
+Skipped the footnote rows for Mark 1 fn-a and Mark 10 fn-w, which lose the
+words "(or ‘Old English’)" after "Anglo-Saxon". The 2026-02 import put them
+there. No Word master has them, nor do the other 26 copies of the same
+*euangelion* note, so the two Mark copies now match everything else. Owner
+ruling: it doesn't belong. See `FOLLOW-UP-RECONCILIATION.md` §31.
+
 ## 2026-10-01 — quote-mark typos in nine footnotes
 
 Skipped the footnote rows for nine one-mark fixes: a stray space inside an
