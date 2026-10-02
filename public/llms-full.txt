@@ -69,13 +69,21 @@ Permitted with attribution:
   pipelines, retrieval-augmented chatbots, study apps, sermon prep tools, and academic
   research assistants — provided the purpose is helping users engage with the LIT Bible,
   not commercializing the translator's labor
+- Printing, displaying, or sharing any amount of the text and footnotes for noncommercial
+  use (classes, sermons, bulletins, handouts, personal study), including programs that
+  charge for participation when the LIT text itself is not what is sold
+- Quoting the text and footnotes in a commercial work without asking, as written, with
+  footnotes kept with their verses, short of a complete book, and with LIT material at
+  most half of the new work
 
 Not permitted:
 - General AI pre-training corpus inclusion (broad language model training unrelated to
   engaging with this specific text)
-- Any commercial product or service built on or around this text
-- Creating derivative translations or adaptations
-- Reproducing large portions of the text in other publications
+- Selling the LIT text itself, or any other commercial use outside the terms above,
+  without written permission
+- Creating derivative translations or adaptations, or replacing the LIT's words
+
+Full terms: https://litbible.net/read#license-terms
 
 The intent: if you are building something to help people read, study, or encounter this
 translation, you are welcome to use it. If you are trying to profit from it, contact us

@@ -1910,3 +1910,12 @@ Details for each item are in the artifact (https://claude.ai/artifact/4ghJK72rd2
   pre-Brevo vestige, per the owner) was removed; the Email Updates section
   now points to the footer's Brevo newsletter form. The contact form stays on
   Formspree until F1 ships.
+- [x] **Loosen the added license permissions on /read** (2026-10-01).
+  DONE: base license stays CC BY-NC-ND 4.0; the notice now grants, in addition,
+  any amount for noncommercial use (paid programs included when the LIT text is
+  not what is sold), blanks in teaching handouts (not substitutions), quotation
+  in commercial works within limits, and online sharing with no length cap plus
+  a request to link a chapter or book. Edited `read.astro` (`#license-terms`),
+  `LICENSE`, `CONTRIBUTING.md`, `public/llms.txt`, `public/llms-full.txt`.
+  Still to do outside this repo: link the notice from the iOS/Android apps
+  (BDR) and from the Study Desk when it exists.
