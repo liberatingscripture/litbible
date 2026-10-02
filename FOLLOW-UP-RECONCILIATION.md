@@ -2388,11 +2388,11 @@ reach that list, because something else in the record differs too:
 | `titus-3` v7 | Titus | close the quotation that opens at 3:4: `agelong life.”` (#152) |
 | `john-12` fn-q | John | add the three missing `’` closers in the Zechariah excerpts, after `affliction`, `earth` and `back to you` |
 
-### An owner call, not a back-port
+### Settled in the repo: the Mark "Old English" parenthesis
 
 `mark-1` fn-a and `mark-10` fn-w are copies of the *euangelion* note, and
-they alone read `from the Anglo-Saxon (or ‘Old English’) term`. No master copy
-has the parenthesis, nor do the other 26 repo copies, and it has been in the
-repo since the 2026-02 import. Either the import picked it up from an older
-draft, or it is a Mark-only addition worth keeping. The two copies also
-disagree with each other: Mark 1 has `‘Old English’`, Mark 10 `“Old English”`.
+they alone read `from the Anglo-Saxon (or ‘Old English’) term` (Mark 10 with
+double quotes). No master copy had the parenthesis, nor did the other 26 repo
+copies, and it had been in the repo since the 2026-02 import. **Owner ruling
+2026-10-01: it doesn't belong.** It was removed from both, so all 28 copies
+now read `from the Anglo-Saxon term`, as Word does. Nothing is owed to Word.
