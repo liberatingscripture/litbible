@@ -18,6 +18,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { scanDraftChapters } from "./draft-chapters.mjs";
 import { linkScriptureRefs } from "./scripture-refs.mjs";
+import { openExternalLinks } from "./external-links.mjs";
 
 function resolveChaptersDir() {
   const fromCwd = path.resolve(process.cwd(), "src/data/chapters");
@@ -53,7 +54,13 @@ export const refLinkOptions = {
   isDraft: (key, chapter) => scanDraftChapters().noindexSlugs.has(`${key}-${chapter}`),
 };
 
-/** Links the NT references in a rendered HTML string (website only). */
+/**
+ * Links the NT references in a rendered HTML string (website only), then opens
+ * every link that leaves the site in a new tab. This is the one call every
+ * rendered body already passes through (footnotes, intros, articles, glossary,
+ * release notes), which is why the new-tab rule lives here rather than in
+ * each page; the Sefaria and eBible links the linker writes get it too.
+ */
 export function linkRefs(html) {
-  return linkScriptureRefs(html, refLinkOptions);
+  return openExternalLinks(linkScriptureRefs(html, refLinkOptions));
 }
