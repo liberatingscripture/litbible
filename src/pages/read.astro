@@ -354,5 +354,35 @@ const TYPE_LABEL: Record<string, string> = {
 </script>
 
 <script>
+  // @ts-nocheck
+  // A fragment aimed at a <details> element itself leaves it closed (browsers
+  // only auto-open one when the target is inside it), so open the two license
+  // disclosures when a link names them. #license is the whole section and is
+  // left to the browser. Without JS the page is unchanged.
+  (() => {
+    const DISCLOSURES = ["license-terms", "sblgnt-disclaimer"];
+
+    function revealHash() {
+      let id = "";
+      try {
+        id = decodeURIComponent(location.hash.slice(1));
+      } catch {
+        return;
+      }
+      if (!DISCLOSURES.includes(id)) return;
+      const target = document.getElementById(id);
+      if (!target) return;
+      target.open = true;
+      // The stylesheet's smooth scrolling would animate toward a spot that
+      // moves as the page settles; land at once, as Read View does.
+      target.scrollIntoView({ block: "start", behavior: "instant" });
+    }
+
+    window.addEventListener("hashchange", revealHash);
+    revealHash();
+  })();
+</script>
+
+<script>
   import "../scripts/ref-preview.js";
 </script>
