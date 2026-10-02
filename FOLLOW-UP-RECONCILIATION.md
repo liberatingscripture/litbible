@@ -2107,3 +2107,65 @@ preserve.
 **Back-port all five to Word**, in the books above: Romans (two), 2
 Corinthians, Luke, 1 Corinthians. Whether the masters carry the same slips was
 not checked; if they do, a restore from them would bring the slips back.
+
+## §30 — Quote-mark typos in nine footnotes (2026-10-01)
+
+A scan of footnote text for four shapes found these: an opening quote followed
+by a space, an empty pair (`‘’`), a space before a closing quote, and a hyphen
+followed by an opening quote doing a closer's job. The validator sees none of
+them. Its quote rules cover straight quotes and the balance of *double*
+quotes, and a single mark facing the wrong way passes both. Each was fixed in
+the repo by a one-mark raw-text edit, and **every one is in the master
+identically** (checked against the `.docx` files in the OneDrive sync folder,
+2026-10-01), so all nine are owed to Word.
+
+| footnote | verse | master | read | now |
+|---|---|---|---|---|
+| `romans-8` fn-d | 8:3 | Romans | `Traditionally, ‘ flesh’` | `Traditionally, ‘flesh’` |
+| `romans-8` fn-e | 8:4 | Romans | `Or ‘’righteous action’` | `Or ‘righteous action’` |
+| `matthew-24` fn-gg | 24:31 | Matthew | `in a calling. ’ Additionally,` | `in a calling. Additionally,` |
+| `1john-1` fn-e | 1:3 | 1 John | `‘com-‘ (with)` | `‘com-’ (with)` |
+| `1john-1` fn-k | 1:9 | 1 John | `‘con-‘ (with/together)` | `‘con-’ (with/together)` |
+| `1john-4` fn-b | 4:2 | 1 John | `‘con-‘ (with/together)` | `‘con-’ (with/together)` |
+| `john-11` fn-t | 11:25 | John | `The ‘re-‘ in ‘resurrection’` | `The ‘re-’ in ‘resurrection’` |
+| `philippians-2` fn-h | 2:3 | Philippians | `than simply ’treat each other.’` | `than simply ‘treat each other.’` |
+| `ephesians-1` fn-q | 1:17 | Ephesians | `for ‘wisdom’—’spiritual wisdom` | `for ‘wisdom’—‘spiritual wisdom` |
+
+The first seven were the list the work started from. Philippians 2 turned up
+when the scan was re-run across the corpus, and Ephesians 1 when the same check
+was widened to a closing mark after a dash rather than a space. The verse text
+had none, and neither did the intros, glossary entries or articles. One hit was
+left alone: `luke-22` fn-bb's *’et-posh’im* is a transliteration, whose `’`
+marks the Hebrew letters (see §25, "Queued from the Luke 22 master review").
+
+**Matthew 24 fn-gg: the mark was stray, not misplaced.** No quotation in the
+note is open where it stands: ‘his chosen’, ‘his elect.’ and ‘church,’ all
+close. Moving it before the period, or closing up the space, would only have
+left a closer with no opener. `matthew-22` fn-g ends on the same sentence
+with no mark after it, in the repo and the master, and the repo's own fn-gg
+read `calling. Additionally,` until the 2026-08-15 restore. The mark went, with
+the space before it.
+
+**Three of the nine were right in the repo until a restore copied the master
+over them**: `romans-8` fn-d (`10e86eb`), `romans-8` fn-e and `matthew-24`
+fn-gg (both `2cf906a`). Each fix returns the note's text to what it was before
+that restore.
+`ephesians-1` fn-q came in with `77c49da`, which restored a note the import had
+summarized, so the repo never had that one right. The other five date from the
+2026-02 import. It is §12's lesson again: a master can carry a defect the repo
+did not have, and a defect on both sides never shows up in a diff, so fixing
+these in Word is what keeps the next restore or import from bringing them back.
+
+**Two sibling copies are wrong in Word and already right in the repo.** The
+*anastasis* note at John 5:29 (`john-5` fn-o, John master) and the *homologeo*
+note at 2 John 7 (`2john-1` fn-i, 2 John master) carry the same wrong-direction
+mark (`‘re-‘`, `‘con-‘`). The repo has had both right since the 2026-02 import.
+Fix them in the same pass.
+
+**Find the notes by verse, not letter.** The two sides don't always letter a
+note alike: the master has no counterpart for the repo's note at Matthew 24:19
+(added with the *ouai* retranslation, #166), so it letters the 24:31 note `ff`
+where the repo has `gg`.
+
+**Back-port all nine, plus the two siblings, to Word**: Romans (two), Matthew,
+1 John (three), John (two, at 5:29 and 11:25), Philippians, Ephesians, 2 John.

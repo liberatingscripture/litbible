@@ -18,6 +18,17 @@ To skip a round: add an entry below, in the same commit as the content change.
 
 ---
 
+## 2026-10-01 — quote-mark typos in nine footnotes
+
+Skipped the footnote rows for nine one-mark fixes: a stray space inside an
+opening quote (Romans 8 fn-d), a stray closing mark (Romans 8 fn-e, Matthew 24
+fn-gg), and a mark facing the wrong way (1 John 1 fn-e and fn-k, 1 John 4
+fn-b, John 11 fn-t, Philippians 2 fn-h, Ephesians 1 fn-q). No word of any
+note changed.
+
+Owner decision (2026-09-28, below): typo fixes don't belong in the changelog.
+The list is in `FOLLOW-UP-RECONCILIATION.md` §30, for the Word back-port.
+
 ## 2026-09-28 — curly quotes in the intros and articles
 
 Skipped the rows for a quote-mark pass over the book intros and the articles:
