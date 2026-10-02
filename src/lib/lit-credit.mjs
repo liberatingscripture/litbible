@@ -1,8 +1,8 @@
 // src/lib/lit-credit.mjs
 //
 // The attribution notice the LIT's license terms ask anyone quoting the text
-// to carry (/read, "Standing Exceptions for Ministry, Education, and Study",
-// item 4). One copy, because three places print it: those terms themselves,
+// to carry (/read, the notice item under both "Noncommercial use" and
+// "Quoting the LIT in a commercial work"). One copy, because three places print it: those terms themselves,
 // the credit line on a printed page (PrintCredit.astro), and "Copy for a
 // handout" in the verse menu (src/scripts/chapter-tools.js). It sits in
 // src/lib/ because both the build and the client import it, the same

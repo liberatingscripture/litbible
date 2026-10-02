@@ -39,11 +39,20 @@ Permitted with attribution:
 - Quoting, summarizing, or discussing passages for reading, study, or research
 - Building non-commercial tools that help people engage with this text (RAG pipelines,
   study apps, research assistants, sermon prep tools, academic projects)
+- Printing, displaying, or sharing any amount of the text and footnotes for noncommercial
+  use (classes, sermons, bulletins, handouts, personal study), including programs that
+  charge for participation when the LIT text itself is not what is sold
+- Quoting the text and footnotes in a commercial work without asking, as written, with
+  footnotes kept with their verses, short of a complete book, and with LIT material at
+  most half of the new work
 
 Not permitted:
 - General AI pre-training corpus inclusion (broad language model training)
-- Any commercial use of the text or derivatives built from it
-- Reproducing large portions in other publications without authorization
+- Selling the LIT text itself, or any other commercial use outside the terms above,
+  without written permission
+- Replacing or altering the LIT's words
+
+Full terms: https://litbible.net/read#license-terms
 
 If your purpose is helping people engage with the LIT Bible, you are welcome to use it.
 If your purpose is commercial, contact us first: https://liberatingscripture.org

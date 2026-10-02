@@ -705,7 +705,7 @@ a canvas can't wait for a web font by itself.
 
 The license lets a study guide or bulletin quote the text **and its notes**,
 provided the notes stay with the verses they explain and the work carries a
-fixed attribution notice (/read, "Standing Exceptions"). Two features serve
+fixed attribution notice (/read, "Noncommercial use" and "Quoting the LIT in a commercial work"). Two features serve
 that, and both print the notice from **one constant, `LIT_CREDIT_LINE` in
 `src/lib/lit-credit.mjs`**, which /read's own terms also render. Change the
 notice there or nowhere.

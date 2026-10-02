@@ -54,7 +54,9 @@ under the permissive MIT License — reuse it freely, even commercially — whil
 the **translation text and other content** (chapters, footnotes, intros,
 glossary, articles) is under Creative Commons
 Attribution-NonCommercial-NoDerivatives 4.0 (CC BY-NC-ND 4.0), so it may be
-shared with attribution but not sold or altered. See also the notice on
-[litbible.net/read](https://litbible.net/read#license). If you contribute code,
+shared with attribution but not sold or altered. The owner grants further
+permissions beyond that license (any amount for noncommercial use, and
+quotation in commercial works within limits); they are set out in the notice on
+[litbible.net/read](https://litbible.net/read#license-terms). If you contribute code,
 you're offering it under the MIT terms; translation feedback isn't a code
 contribution.
