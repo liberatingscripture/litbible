@@ -106,6 +106,8 @@ grep -o '[0-9]–[0-9]' src/data/chapters/*.json | wc -l
 > **The 58 is the original count and is stale.** A rebuild on 2026-08-20 puts
 > bucket B at **27**, because the owner has been typing these back as they came
 > up. Rebuild before working from any number in this section — see §22.
+> A rebuild on 2026-10-01 puts bucket B at **367**, almost all of it passes
+> made in the repo since; §31 sorts them into what is owed to Word.
 
 40 footnotes, 18 verses. **The repo is right and Word is stale.** These are
 edits made on or after 2026-08-01, which the restore was explicitly told to
@@ -2169,3 +2171,228 @@ where the repo has `gg`.
 
 **Back-port all nine, plus the two siblings, to Word**: Romans (two), Matthew,
 1 John (three), John (two, at 5:29 and 11:25), Philippians, Ephesians, 2 John.
+
+## §31 — Back-port audit against the current masters (2026-10-01)
+
+The ledger was rebuilt from all 26 masters, copied out of the OneDrive sync
+folder on 2026-10-01 (the newest were Luke, saved 2026-09-30, and Matthew,
+2026-09-27), into a scratch `--out-dir` so the August baseline in
+`scripts/reconcile/out/` stayed untouched. **367 records in bucket B, 30 in D,
+8 in A, 733 in E.** At the 2026-08-20 capture bucket B was 46 and D was 4.
+Every B and D record was traced to the commit that last set the repo side and
+checked against what this file already queues.
+
+In every row below the repo side is the one to copy into Word, unless the row
+says otherwise. Every A, B and D record in the rebuilt ledger is accounted for
+exactly once in this section or in a section it points to. The 17 master-only
+records go the other way and are §6's business.
+
+**A pass is named by the commit that last set each record, which can mislead.**
+Inserting a note reletters every note after it, and the ledger then dates
+those notes to the inserting commit. That is how `1corinthians-9` fn-s (the old
+fn-r quote defect) and `matthew-23` fn-r (a *hupokrites* edit) first appeared
+under #166. The tables below are sorted by what actually changed.
+
+### Already queued, so no new rows
+
+| what | records | where |
+|---|---|---|
+| *baptizo* → "immerse" (#150, #151) | 39 | §28 |
+| Shared notes, quotations and Romans 13 fn-m from the reconcile round | 19 of 23 | §23, §24, §25 (the other four are below: Mark 16:15, `john-12` fn-q, and the two Mark *euangelion* copies) |
+| *pistis* in Matthew 21 (#213) | 3 | §25, "Queued from the Matthew 21 *pistis* edit" |
+| Citation fixes | 5 | §29 |
+| Quote-mark typos | 3 | §30 |
+| Bucket A, master-side quote defects | 9 | §25's bucket A table, all still open. `1corinthians-9` fn-r is now fn-s, after #166 inserted a note ahead of it, which is why the ledger now files it in bucket B |
+| Repo-only notes at 1 Corinthians 15:29 and 15:44, John 13:32, Matthew 11:30 | 4 | §25's bucket D table (the *zugos* note is now `matthew-11` fn-p) |
+| Luke 1:48 and its *makarizo* note (`luke-1` fn-bbb) | 2 | §25, "Queued from the *phobos* pass" |
+| Philemon 2, "community" | 1 | §25, "Queued from the Luke 21 import" |
+
+### Nothing owed
+
+- **Bucket E (733)**: quote shape, spacing and the en-dash convention. §4 and §0
+  already rule these out.
+- **`1corinthians-11` fn-b**: the chiasm's labels, primes, en dashes and quote
+  shape. Only §11's line-break item stands.
+- **Luke 1:71 and 1:74, Mark 16:15**: whitespace and poetry markup only.
+- **`matthew-4` fn-x**: the repo sets ‘gospel’ in double quotes where the
+  master uses single. Both balance, so this is quote level, not a defect.
+
+### New: the passes made in the repo since the August capture
+
+Each table lists, per master, the verses, the notes that changed, and the notes
+the master does not have at all (bucket D, to be pasted in whole).
+
+**1. *ekklesia*, *ethnos* and *hupokrites* (`3a5208d` and `cc35481`,
+2026-08-20).** "assembly" → "community", "Assembly" → "Called Community" or
+"Community"; "ethnicities" → "people groups"; "Faker", "play-acting" and
+"phoniness" → "Pretender" or "pretense"; plus Mark 10:33 "Outsiders" → "foreign
+authorities", Galatians 2:2 "among all" → "among other", and the canonical
+*ekklesia* note at Ephesians 3 fn-n and Colossians 1 fn-y. These are the
+renamings the eight glossary entries of 2026-08-21 explain (see
+`release-notes-skip.md`). Philemon 2 is already queued and is left out here.
+
+| master | verses | notes changed | notes to add |
+|---|---|---|---|
+| Matthew | 7:5, 16:18, 18:17, 23:28 | `matthew-23` fn-r | |
+| Mark | 10:33 | | |
+| Romans | 16:1, 16:4, 16:5, 16:16, 16:23 | | |
+| 1 Corinthians | | `1corinthians-12` fn-hh, `1corinthians-14` fn-c | |
+| Galatians | 1:2, 1:13, 1:22, 2:2, 2:8, 2:12, 2:14, 2:15 | `galatians-2` fn-y | |
+| Ephesians | 1:22, 3:1, 3:6, 3:8, 3:10, 3:21, 5:23, 5:24, 5:25, 5:27, 5:29, 5:32 | `ephesians-1` fn-y, `ephesians-3` fn-a, `ephesians-3` fn-n, `ephesians-5` fn-s | |
+| Philippians | 3:6, 4:15 | | |
+| Colossians | 1:18, 4:15, 4:16 | `colossians-1` fn-y | |
+| 1 Thessalonians | 1:1, 2:14, 2:16 | | |
+| 2 Thessalonians | 1:1, 1:4 | | |
+| 1 Timothy | 3:5, 3:7, 3:15, 4:2, 5:16 | `1timothy-3` fn-t | |
+| Hebrews | 2:12, 12:23 | `hebrews-12` fn-ll | |
+| James | 5:14 | `james-4` fn-d | |
+| 1 John | | `1john-1` fn-c | |
+| 3 John | 6, 9 | | |
+
+**2. *kurios* in 2 Corinthians (#149, 2026-08-21).** The master still reads
+"Sovereign One" at 2:12 and "Sovereign" at 4:5, where the repo has "Lord",
+and "the Sovereign One’s viewpoint" at 8:21, where the repo has "the viewpoint
+of The-One-Who-Is". Everywhere
+else the master writes "The One Who Is" where the repo hyphenates it,
+"The-One-Who-Is". The shared *kurios* note (eight copies: fn-h in 1, fn-f in 2,
+fn-g in 4, fn-h in 5, fn-e in 8, fn-t in 11, fn-c in 12, fn-j in 13) was
+rewritten in the repo; paste the repo's text over each. The "The One Who Is"
+note (3 fn-m, 5 fn-l, 6 fn-t, 7 fn-g, 10 fn-m, 12 fn-j, and 3 John fn-g) needs
+the hyphenation only. **One exception: 7 fn-g's `and as an`** is §25's open
+question and is not part of this back-port.
+
+| master | verses | notes changed | notes to add |
+|---|---|---|---|
+| 2 Corinthians | 2:12, 3:16, 3:17, 3:18, 4:5, 6:17, 6:18, 8:21, 10:8, 10:17, 10:18, 12:8 | the 14 above | `2corinthians-8` fn-l |
+| 3 John | | `3john-1` fn-g | |
+
+**3. 1 Corinthians 9:16 and 10:16–21 (#160, #161, 2026-08-30).** 9:16 "I’d
+better watch out" → "how pitiable for me". 10:16–21 "participation" →
+"sharing" in the verses, with the notes swapped to match.
+
+| master | verses | notes changed | notes to add |
+|---|---|---|---|
+| 1 Corinthians | 9:16, 10:16, 10:18, 10:19, 10:20, 10:21 | `1corinthians-10` fn-z, fn-bb, fn-dd | |
+
+**4. *phaulos* (#164, 2026-09-01).** All six occurrences re-rendered
+("superficial", "disreputable", "beneficial"), with a new shared note.
+
+| master | verses | notes changed | notes to add |
+|---|---|---|---|
+| John | 3:20, 5:29 | `john-3` fn-y, `john-5` fn-p | |
+| Romans | 9:11 | | `romans-9` fn-h |
+| 2 Corinthians | 5:10 | | `2corinthians-5` fn-j |
+| Titus | 2:8 | | `titus-2` fn-m |
+| James | 3:16 | `james-3` fn-o | |
+
+**5. *makarios* and *ouai* (#166, 2026-09-03).** The largest: "have reason for
+gratitude" → "how greatly fortunate", "Things won’t end well for" → "How
+pitiful are", and both shared notes rewritten. 98 records changed and 20 notes
+are new to Word. The rewrites are too varied for find-and-replace, so copy each
+verse and note from the repo. The same commit also carried three edits outside
+those two words, included below: *epiphaneia* "arrival" → "appearing" at
+2 Timothy 4:1 and 4:8 (and its note, fn-h), "been made visible" → "radiated" at
+Titus 2:11, and the typo `Beatittudes` → `Beatitudes` in `james-3` fn-g.
+
+| master | verses | notes changed | notes to add |
+|---|---|---|---|
+| Matthew | 5:3–11, 11:6, 11:21, 13:16, 16:17, 18:7, 23:13, 23:15, 23:16, 23:23, 23:25, 23:27, 23:29, 24:19, 24:46, 26:24 | `matthew-5` fn-c, fn-d, fn-e; `matthew-11` fn-b; `matthew-18` fn-e, fn-f; `matthew-21` fn-i; `matthew-23` fn-i | `matthew-11` fn-n, `matthew-13` fn-k, `matthew-16` fn-k, `matthew-23` fn-h, `matthew-24` fn-s, `matthew-24` fn-uu, `matthew-26` fn-f |
+| Mark | 13:17, 14:21 | | `mark-13` fn-n, `mark-14` fn-n |
+| Luke | 1:45, 6:20–22, 6:24–26, 7:23, 10:13, 10:23, 11:27, 11:28, 11:42–44, 11:46, 11:47, 11:52, 12:37, 12:38, 12:43, 14:14, 14:15, 17:1 | `luke-1` fn-xx, `luke-7` fn-r, `luke-10` fn-u, `luke-11` fn-s, fn-ff, `luke-12` fn-z, `luke-14` fn-i, `luke-17` fn-b | `luke-1` fn-ww, `luke-6` fn-w, `luke-6` fn-y, `luke-10` fn-g |
+| John | 13:17, 20:29 | `john-13` fn-n, `john-20` fn-n | |
+| Romans | 4:6–9, 14:22 | `romans-4` fn-j, `romans-14` fn-f | `romans-4` fn-h, `romans-4` fn-n |
+| 1 Corinthians | 7:40 | `1corinthians-7` fn-xx | `1corinthians-9` fn-l |
+| Galatians | 4:15 | `galatians-4` fn-l | |
+| 1 Timothy | 1:11, 6:15 | `1timothy-1` fn-z, `1timothy-6` fn-n | |
+| 2 Timothy | 4:1, 4:8 | `2timothy-4` fn-h | |
+| Titus | 2:11 | | `titus-2` fn-q |
+| James | 1:12, 1:25, 5:11 | `james-1` fn-q, `james-3` fn-g, `james-5` fn-p | |
+| 1 Peter | 3:14, 4:14 | | `1peter-3` fn-aa, `1peter-4` fn-p |
+| Jude | 11 | | `jude-1` fn-x |
+
+Luke 1:48 is left out of this table because it is already queued (see above).
+
+**6. Iscariot as "Ish-Kerioth" (`80514d0`, `801e14b`, `cbad0f5`,
+2026-09-08).** "Man of Kerioth" and "of Kerioth" → "Ish-Kerioth" in the verses,
+and the shared note's `It means ‘men of Kerioth’` → `‘man of Kerioth’`.
+
+| master | verses | notes changed | notes to add |
+|---|---|---|---|
+| Matthew | 10:4, 26:14 | `matthew-10` fn-g, `matthew-26` fn-c | |
+| Mark | 3:19, 14:10 | `mark-3` fn-s, `mark-14` fn-k | |
+| John | 6:71, 12:4, 13:2, 13:26, 14:22 | `john-6` fn-ss, `john-12` fn-h, `john-13` fn-e, fn-s | |
+
+**7. *lestes* as "armed outlaw(s)" (#194, 2026-09-15).** Replaces "robbers",
+"insurrectionists", "rebels", "brigands", "ambushes" and "a criminal"; the
+temple saying becomes "stronghold for violent outlaws".
+
+| master | verses | notes changed | notes to add |
+|---|---|---|---|
+| Matthew | 21:13, 26:55, 27:38, 27:44 | | |
+| Mark | 11:17, 14:48, 15:27 | `mark-15` fn-o | |
+| Luke | 10:30, 10:36, 19:46 | | |
+| John | 10:1, 10:8, 18:40 | `john-18` fn-w | |
+| 2 Corinthians | 11:26 | `2corinthians-11` fn-bb | |
+
+**8. *blasphemia*, *su legeis* and *paidiske* in Matthew (`18cda52`,
+2026-09-16).** Matthew 27:11 "If you say so" → "You yourself are saying it",
+the *su eipas* note rewritten to match, and a new *paidiske* note at 26:69.
+Mark and Luke from the same commit already match their masters.
+
+| master | verses | notes changed | notes to add |
+|---|---|---|---|
+| Matthew | 27:11 | `matthew-26` fn-cc | `matthew-26` fn-hh |
+
+**9. *meshiah* → *mashiach* (#204, 2026-09-20).** A find-and-replace in each
+master, keeping the capital where there is one (John 4:25, Matthew 11 fn-a).
+
+| master | verses | notes changed | notes to add |
+|---|---|---|---|
+| Matthew | | `matthew-1` fn-b, fn-e; `matthew-11` fn-a | |
+| Mark | 12:35, 13:21, 14:61 | `mark-1` fn-b, `mark-8` fn-o, `mark-12` fn-bb, `mark-13` fn-p, fn-q, `mark-15` fn-u | |
+| John | 1:41, 4:25 | `john-1` fn-r, fn-ff; `john-2` fn-r | |
+| 1 Corinthians | | `1corinthians-1` fn-b | |
+| 2 Corinthians | | `2corinthians-1` fn-b | |
+| Colossians | | `colossians-1` fn-c | |
+| Hebrews | | `hebrews-3` fn-e, `hebrews-11` fn-mm | |
+
+### New: single edits
+
+The first five are what remains of §1's August list; nothing in this file named
+them individually.
+
+| repo | master | fix |
+|---|---|---|
+| `1peter-1` v2, `jude-1` v14 | 1 Peter, Jude | `dedicated for a purpose` → `dedicated for sacred purposes` (#83) |
+| `matthew-24` v36 | Matthew | `that day and time—` → `that day and time,` (#86) |
+| `john-7` v29 | John | `that’s who one sent me` → `that’s who sent me` (#93) |
+| `matthew-13` v17 | Matthew | `many prophets and just people` → `many prophets and people who lived justly` (#107) |
+| `1corinthians-14` fn-ee | 1 Corinthians | add the comma after `law”)`, and drop the trailing `/` from the article URL as printed |
+| `2corinthians-1` v8 | 2 Corinthians | `we were burdened` → `we were weighed down` (#171) |
+| `galatians-1` v11 | Galatians | `passed down` → `handed down` |
+| `luke-11` v4 | Luke | `bring us into times of testing` → `into a time of testing` |
+| `john-2` fn-p | John | `Ioudiaos` → `Ioudaios` (fixed in #204) |
+
+### New: quote defects in Word, repo already right
+
+§10's generated list (`out/word-backport-quotes.md`) now holds **22**. Two of
+its entries moved letter because notes were inserted before them
+(`2corinthians-5` fn-cc is now fn-dd, `matthew-26` fn-aa is now fn-bb), and one
+is new: `matthew-6` fn-v, where the master has a stray `”` after `decisions.`
+that #146 removed from the repo. Three more need the same Word fix but never
+reach that list, because something else in the record differs too:
+
+| repo | master | fix |
+|---|---|---|
+| `mark-13` fn-m | Mark | `‘Abomination of Desolation”` → `‘Abomination of Desolation.’` |
+| `titus-3` v7 | Titus | close the quotation that opens at 3:4: `agelong life.”` (#152) |
+| `john-12` fn-q | John | add the three missing `’` closers in the Zechariah excerpts, after `affliction`, `earth` and `back to you` |
+
+### An owner call, not a back-port
+
+`mark-1` fn-a and `mark-10` fn-w are copies of the *euangelion* note, and
+they alone read `from the Anglo-Saxon (or ‘Old English’) term`. No master copy
+has the parenthesis, nor do the other 26 repo copies, and it has been in the
+repo since the 2026-02 import. Either the import picked it up from an older
+draft, or it is a Mark-only addition worth keeping. The two copies also
+disagree with each other: Mark 1 has `‘Old English’`, Mark 10 `“Old English”`.
