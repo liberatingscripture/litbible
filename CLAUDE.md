@@ -1910,6 +1910,19 @@ collection); they're read directly by the intro pages and the API manifest.
   `src/scripts/lit-panel.js` is the one panel all reader tools share (verse
   menu, footnote popover, selection panel, preview): one open at a time, closed
   by an outside click or Escape.
+- **Every link that leaves the site opens in a new tab** (owner, 2026-10-01).
+  For rendered bodies that is `openExternalLinks` in `src/lib/external-links.mjs`
+  (pure, unit-tested), called from `linkRefs`, the one function footnotes,
+  intros, articles, glossary bodies and release notes already pass through, so
+  the Sefaria and eBible links get it too. It adds `target="_blank"` and
+  `rel="noopener noreferrer"` to an absolute http(s) anchor on another host,
+  extends an existing `rel` rather than replacing it, and leaves a link to
+  litbible.net in full alone. The chapter JSON, intro files and articles keep
+  their plain `<a href>`, since the apps read them and a `target` is a website
+  decision. Anchors written by hand in `.astro` files can't pass through a
+  string transform, so they carry the same two attributes in the markup; a
+  new one needs them too. Check with a scan of built `dist/` HTML for an
+  external anchor missing either.
 - **"Go deeper" closes every published chapter** (audit X3, owner
   2026-09-28): `GoDeeper.astro`, right after Previous/Next and above the
   notes, with one row per kind that has something (Listen, Read, Key terms,
