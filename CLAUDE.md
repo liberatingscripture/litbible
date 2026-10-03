@@ -924,6 +924,14 @@ Live examples: `mark-16.json` (fn-l), `john-9.json` (fn-q), `john-11.json`
 `john-8.json` k is the two-surface exception and the corpus's only remaining
 byte-identical pair.
 
+**Not every contested passage is bracketed, and that is not an oversight.**
+Luke 23:34a ("Father, let go of this for them…") is printed without
+brackets on purpose (owner, 2026-10-03), although its note (`luke-23.json`
+fn-u) makes the same "follows the SBLGNT, which includes it" point as Luke
+22:43–44's bracketed one. Brackets are an editorial choice per passage, made
+in the master, so don't add them because a note discusses the textual
+question.
+
 **⟦/⟧ is a repo-only convention, and the Word masters still carry the retired
 two-character forms `[|` and `|]`** — the same shape as the en-dash rule, and
 it has the same consequence: every route back into the corpus is live. An
