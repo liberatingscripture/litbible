@@ -268,14 +268,15 @@ Deferred **on queue size, not on payload** — the only entry here set aside for
 that reason, and the reason it may not stay set aside for long.
 
 LIT renders it "the Garden", which departs from "paradise" completely, and the
-single note opens "Traditionally,". But only **one** verse is published
-(2 Cor 12:4, "was carried off to the Garden"). The other two are Luke 23:43 and
-Revelation 2:7 — Luke's chapter is still a draft and Revelation has no Word
-master at all, so neither can be reviewed yet.
+single note opens "Traditionally,". When this was deferred only **one** verse
+was published (2 Cor 12:4, "was carried off to the Garden"). The other two are
+Luke 23:43 and Revelation 2:7, and Revelation has no Word master at all.
 
 A one-verse entry states a commitment the corpus cannot yet show. **Revisit when
 Luke 23 publishes**, which takes it to two of three and makes the thief on the
-cross available, where the word does most of its pastoral work.
+cross available, where the word does most of its pastoral work. **Luke 23
+published 2026-10-03, so this revisit is now due.** Its 23:43 reads "today you
+will be with me in the Garden", and its fn-aa opens "Traditionally, ‘Paradise.’"
 
 ### worship — *proskuneo*
 

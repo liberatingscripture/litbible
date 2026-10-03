@@ -442,12 +442,12 @@ Each file in `src/data/chapters/` follows this structure:
      same-book chapter picks for an in-page scroll; other books navigate to
      `/read/<book>#ch-N`).
   5. The `/read` lede names what isn't finished ("all except Acts,
-     Revelation, and Luke 23–24"), built from `scanDraftChapters()` at
+     Revelation, and Luke 24"), built from `scanDraftChapters()` at
      build time: whole books first, then partly drafted books with their
      chapter runs. It needs no edit when a draft lands.
   6. Previous/Next step over it (`src/lib/chapter-nav.mjs`, the one rule
      behind the top buttons, the bottom buttons and a draft page's links),
-     and the bottom buttons say what was stepped over ("Luke 23–24 are still
+     and the bottom buttons say what was stepped over ("Luke 24 is still
      being translated."). The page itself renders `DraftPage.astro` (the
      photo, the limerick, the book's computed progress, ways onward) **on the
      website only**: the placeholder paragraphs stay in the JSON because the
@@ -924,6 +924,14 @@ Live examples: `mark-16.json` (fn-l), `john-9.json` (fn-q), `john-11.json`
 `john-8.json` k is the two-surface exception and the corpus's only remaining
 byte-identical pair.
 
+**Not every contested passage is bracketed, and that is not an oversight.**
+Luke 23:34a ("Father, let go of this for them…") is printed without
+brackets on purpose (owner, 2026-10-03), although its note (`luke-23.json`
+fn-u) makes the same "follows the SBLGNT, which includes it" point as Luke
+22:43–44's bracketed one. Brackets are an editorial choice per passage, made
+in the master, so don't add them because a note discusses the textual
+question.
+
 **⟦/⟧ is a repo-only convention, and the Word masters still carry the retired
 two-character forms `[|` and `|]`** — the same shape as the en-dash rule, and
 it has the same consequence: every route back into the corpus is live. An
@@ -1024,8 +1032,8 @@ undocumented, check the markers on both adjacent verses** — searching only
 the following verse will miss the Luke pattern and make a documented gap look
 silent.
 
-Nine published chapters have gaps: Matthew 17:21, 18:11, 23:14; Mark 7:16,
-9:44, 9:46, 11:26, 15:28; Luke 17:36; John 5:4. Regenerate that list rather
+Ten published chapters have gaps: Matthew 17:21, 18:11, 23:14; Mark 7:16,
+9:44, 9:46, 11:26, 15:28; Luke 17:36, 23:17; John 5:4. Regenerate that list rather
 than trusting this sentence — scan every `indexed !== false` chapter for
 missing `id="vN"` markers.
 

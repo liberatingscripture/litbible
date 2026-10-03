@@ -1733,6 +1733,14 @@ unformatted chapter refuses every chapter in the document, including finished
 ones. Either format those numbers in Word or narrow the gate to the chapters
 being built. This comparison was done with the reconcile extractor instead.
 
+**Resolved 2026-10-03.** The gate was narrowed to the target chapters on
+2026-09-21, and the owner finished Luke 23 in Word and superscripted its verse
+numbers, so it was imported (all 56 verses less the 23:17 gap, 43 notes) and
+published. The one importer finding was a false positive: v30's “Fall on us!”
+sits inside ‘…’ inside Jesus’ “…”, a third level of nesting `curlify` refuses
+as double-inside-double. The master's quotes there were already curly and
+correctly nested, so the master's characters were written unchanged.
+
 ### Queued from the Matthew 21 *pistis* edit (2026-09-26)
 
 The owner made these in the repo first (PR #213). Both masters were read on
@@ -2372,6 +2380,8 @@ them individually.
 | `galatians-1` v11 | Galatians | `passed down` → `handed down` |
 | `luke-11` v4 | Luke | `bring us into times of testing` → `into a time of testing` |
 | `john-2` fn-p | John | `Ioudiaos` → `Ioudaios` (fixed in #204) |
+| `john-2` fn-p | John | `the capital city of the province of Judea` → `a prominent city in the Roman province of Judea`, the wording all three *Ioudaioi* notes now share (owner, 2026-10-03; the master read on that date still has both this and the spelling above) |
+| `luke-23` fn-c | Luke | `a prominent city of the Roman province` → `a prominent city in the Roman province`, to match fn-z (owner, 2026-10-03, the day Luke 23 was imported) |
 
 ### New: quote defects in Word, repo already right
 
