@@ -1,6 +1,14 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import "../styles/pages/about.css";
+import { scanDraftChapters } from "../lib/draft-chapters.mjs";
+import { joinList, unfinishedTexts } from "../lib/chapter-nav.mjs";
+
+// "What texts are available right now?" names what isn't finished, from the
+// chapters' own indexed:false flags, so it stays true as drafts land. Same
+// list as the /read lede.
+const unfinished = unfinishedTexts(scanDraftChapters());
+const unfinishedList = joinList(unfinished);
 ---
 
 <Layout
@@ -659,11 +667,21 @@ import "../styles/pages/about.css";
           <summary class="faq-q">What texts are available right now?</summary>
           <div class="faq-a">
             <p>
-              The New Testament is being translated and published progressively.
-              Most books are already published in full and ready to read on the
-              <a href="/read">Read Now</a> page. A few chapters aren’t finished
-              yet; those show up marked “(draft)” in the chapter menu until
-              they’re ready.
+              {unfinished.length ? (
+                <>
+                  The New Testament is being translated and published
+                  progressively. All of it is published and ready to
+                  <a href="/read">read</a> except {unfinishedList}, which
+                  {unfinished.length > 1 ? "are" : "is"} still being
+                  translated. Unfinished chapters show up marked “(draft)” in
+                  the chapter menu until they’re ready.
+                </>
+              ) : (
+                <>
+                  The whole New Testament is published and ready to
+                  <a href="/read">read</a>.
+                </>
+              )}
             </p>
             <p>
               Everything that’s published is a living first edition: complete
