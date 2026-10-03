@@ -2380,6 +2380,7 @@ them individually.
 | `galatians-1` v11 | Galatians | `passed down` → `handed down` |
 | `luke-11` v4 | Luke | `bring us into times of testing` → `into a time of testing` |
 | `john-2` fn-p | John | `Ioudiaos` → `Ioudaios` (fixed in #204) |
+| `john-2` fn-p | John | `the capital city of the province of Judea` → `a prominent city in the province of Judea`, matching `luke-23` fn-c and fn-z (owner, 2026-10-03; the master read on that date still has both this and the spelling above) |
 
 ### New: quote defects in Word, repo already right
 
