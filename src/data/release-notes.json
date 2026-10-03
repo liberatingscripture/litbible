@@ -1,5 +1,30 @@
 [
   {
+    "version": "2026-10-03",
+    "date": "2026-10-03",
+    "label": "October 3, 2026",
+    "changes": [
+      {
+        "type": "footnote_updated",
+        "description": "John 2:18 — footnote p updated",
+        "detail": "\"the capital city of the\" → \"a prominent city in the Roman\"",
+        "location": {
+          "bookKey": "john",
+          "chapter": 2,
+          "verse": 18
+        }
+      },
+      {
+        "type": "chapter_added",
+        "description": "Luke 23 added",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 23
+        }
+      }
+    ]
+  },
+  {
     "version": "2026-10-01",
     "date": "2026-10-01",
     "label": "October 1, 2026",
