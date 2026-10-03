@@ -1459,6 +1459,76 @@ need a mockup or a side-by-side the owner looks at before code.
   verse. A design exploration.
   DECIDED (2026-09-28): no.
 
+### Added 2026-10-02 from the Study Desk planning
+
+These came up while planning the Study Desk (plan, shared by link:
+https://claude.ai/artifact/8Eyhmzd1xGTUPrjkwwSUqp). Each is a project of its
+own, separate from the desk, and needs a mockup or an owner decision before
+code.
+
+- [ ] **LIT previews on other websites (name to be chosen).**
+  netbible.org has a "Drawer": a bookmarklet that opens a sidebar on any
+  website with the NET Bible and the reader's own notes. The owner wants a
+  LIT version under a name of its own ("LIT Previews" is only a working
+  name). Two shapes to choose between or combine:
+  - **For readers**: a bookmarklet or browser extension that opens the LIT
+    beside whatever page they're on, and later their Study Desk notebook.
+    An extension means a store listing and upkeep in each browser.
+  - **For site owners**: one script tag that a church site, a blog or
+    liberatingscripture.org adds, which turns the scripture references on
+    its pages into LIT links with the preview litbible.net already shows
+    (`src/scripts/ref-preview.js`). The parsing is ready to reuse:
+    `src/lib/scripture-refs.mjs` is pure and runs in a browser.
+  Things to settle: the per-chapter files it would read
+  (`public/search/chapters/`) are a website asset, not the apps' `/api/`
+  contract, so serving them to other sites needs CORS headers in
+  `public/_headers` and a decision that they are now a public interface
+  whose shape can't change freely. The embed must not restyle or slow the
+  host page, and must add no tracking. A reference tagged with another
+  translation ("John 3:16 NIV") stays plain, as it does here, and draft
+  chapters stay out. The preview's link back to litbible.net is the link the
+  license's "Sharing online" terms ask for. Mock it up first.
+
+- [ ] **Reading plans, on the website and in the apps.**
+  Owner, 2026-10-02: expected in the future. The apps are the more natural
+  home, but there's no reason a plan can't live on both. A separate project
+  from the Study Desk. Things to settle:
+  - **Which plans.** The LIT is a New Testament, and 52 of 260 chapters were
+    drafts in 2026-09 (count them again; Acts and Revelation are whole-book
+    drafts), so a plan has to skip drafts or wait for them. Candidates: the
+    New Testament in a year or in 90 days, a gospel at a time, the church
+    year (the /apps page already carries season content), or plans paired
+    with podcast episodes and articles, which "Go deeper" already matches to
+    chapters. netbible.org and YouVersion are the precedents.
+  - **Where progress lives.** Without an account, in the browser, the way
+    "Continue reading" keeps `lit_last_read`. With the Study Desk's optional
+    account, synced, so a plan started on a phone continues on a computer.
+    Either way the website and the apps need a shared plan format and day
+    numbering, agreed with BDR.
+  - **Which view a day's reading opens**: Study View or Read View.
+
+- [ ] **Footnotes sorted by kind (Study Desk idea S11).**
+  Owner, 2026-10-02: possibly a later project, not part of the Study Desk's
+  first launch. NET Bible marks each of its notes as a translator's note
+  (tn), a study note (sn) or a text-critical note (tc). If each LIT footnote
+  carried a kind (wording, background, source text, quotation; the
+  categories are the owner's to choose), the desk's footnote picker could
+  print one kind in a click, Study View could filter its notes, and the apps
+  could too. Things to weigh:
+  - **It's editorial work across more than 5,000 notes.** A few sort
+    themselves (the "Quotation of …" notes, the ones naming the SBLGNT), but
+    most need judgment, and a note stored byte-identically in several
+    chapters must get the same kind in each.
+  - **It changes the chapter files the apps read.** An optional field on each
+    `footnotes[]` object is additive, but it moves every chapter's hash, so
+    every app install downloads the corpus again once. Check with BDR that
+    both apps ignore unknown footnote keys. `chapter-serialize.mjs` and the
+    validator need to know the field. The release-notes drafter compares
+    footnote text, so a kind-only edit should write nothing; confirm it.
+  - **The Word masters have nowhere to put it**, so it would be a repo-only
+    field like `topics`: the importer writes none, and a reimport or a
+    restore must keep it.
+
 ## Owner — decisions & dashboard tasks (no model)
 
 - [x] **Decide `/courses`.**
