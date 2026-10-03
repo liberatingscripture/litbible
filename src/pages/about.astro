@@ -1,6 +1,16 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import "../styles/pages/about.css";
+import { scanDraftChapters } from "../lib/draft-chapters.mjs";
+import { joinList, unfinishedTexts } from "../lib/chapter-nav.mjs";
+
+// "What texts are available right now?" names what isn't finished, from the
+// chapters' own indexed:false flags, so it stays true as drafts land. Same
+// list as the /read lede. "When will the translation be finished?" reads the
+// same list to say "Most" or "The whole" of the New Testament, and drops its
+// 2027 first-draft hope once nothing is left to draft.
+const unfinished = unfinishedTexts(scanDraftChapters());
+const unfinishedList = joinList(unfinished);
 ---
 
 <Layout
@@ -659,11 +669,21 @@ import "../styles/pages/about.css";
           <summary class="faq-q">What texts are available right now?</summary>
           <div class="faq-a">
             <p>
-              The New Testament is being translated and published progressively.
-              Most books are already published in full and ready to read on the
-              <a href="/read">Read Now</a> page. A few chapters aren’t finished
-              yet; those show up marked “(draft)” in the chapter menu until
-              they’re ready.
+              {unfinished.length ? (
+                <>
+                  The New Testament is being translated and published
+                  progressively. All of it is published and ready to
+                  <a href="/read">read</a> except {unfinishedList}, which
+                  {unfinished.length > 1 ? "are" : "is"} still being
+                  translated. Unfinished chapters show up marked “(draft)” in
+                  the chapter menu until they’re ready.
+                </>
+              ) : (
+                <>
+                  The whole New Testament is published and ready to
+                  <a href="/read">read</a>.
+                </>
+              )}
             </p>
             <p>
               Everything that’s published is a living first edition: complete
@@ -679,9 +699,11 @@ import "../styles/pages/about.css";
           <div class="faq-a">
             <p>That’s hard to say.</p>
             <p>
-              More than half of the New Testament has been translated so far. My
-              hope is to complete a first full draft sometime in 2027. As my
-              understanding has deepened through this project, I’ve also noticed
+              {unfinished.length ? "Most of the" : "The whole"} New Testament
+              has been translated for the first edition. More revisions are
+              still to come.
+              {unfinished.length > 0 && "My hope is to complete a first full draft sometime in 2027."}
+              As my understanding has deepened through this project, I’ve also noticed
               ways earlier books can be improved.
             </p>
             <p>

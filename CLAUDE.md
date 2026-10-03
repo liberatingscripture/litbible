@@ -444,7 +444,9 @@ Each file in `src/data/chapters/` follows this structure:
   5. The `/read` lede names what isn't finished ("all except Acts,
      Revelation, and Luke 24"), built from `scanDraftChapters()` at
      build time: whole books first, then partly drafted books with their
-     chapter runs. It needs no edit when a draft lands.
+     chapter runs (`unfinishedTexts` in `chapter-nav.mjs`). The /about FAQ's
+     "What texts are available right now?" prints the same list. Neither
+     needs an edit when a draft lands.
   6. Previous/Next step over it (`src/lib/chapter-nav.mjs`, the one rule
      behind the top buttons, the bottom buttons and a draft page's links),
      and the bottom buttons say what was stepped over ("Luke 24 is still

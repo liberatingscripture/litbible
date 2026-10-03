@@ -10,10 +10,12 @@ import assert from "node:assert/strict";
 import {
   chapterRuns,
   describeSkipped,
+  joinList,
   neighbours,
   pageHref,
   pageLabel,
   readingSequence,
+  unfinishedTexts,
 } from "../src/lib/chapter-nav.mjs";
 import { BOOKS } from "../src/data/books.js";
 
@@ -114,4 +116,21 @@ test("chapterRuns collapses consecutive chapters into en-dash ranges", () => {
   assert.equal(chapterRuns([20, 23, 24]), "20, 23–24");
   assert.equal(chapterRuns([1]), "1");
   assert.equal(chapterRuns([1, 2, 3, 5, 7, 8]), "1–3, 5, 7–8");
+});
+
+test("unfinished texts name whole books first, then partial ones with their runs", () => {
+  assert.deepEqual(
+    unfinishedTexts({
+      draftChaptersByBook: { luke: [23, 24], acts: [1, 2], revelation: [1], john: [] },
+      fullyDraftBooks: new Set(["acts", "revelation"]),
+    }),
+    ["Acts", "Revelation", "Luke 23–24"],
+  );
+  assert.deepEqual(unfinishedTexts({ draftChaptersByBook: {}, fullyDraftBooks: new Set() }), []);
+});
+
+test("joinList reads as a sentence at every length", () => {
+  assert.equal(joinList(["Acts"]), "Acts");
+  assert.equal(joinList(["Acts", "Revelation"]), "Acts and Revelation");
+  assert.equal(joinList(["Acts", "Revelation", "Luke 23–24"]), "Acts, Revelation, and Luke 23–24");
 });

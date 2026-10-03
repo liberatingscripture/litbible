@@ -5,9 +5,8 @@ import { LIT_CREDIT_LINE } from "../lib/lit-credit.mjs";
 import "../styles/pages/read.css";
 import SblgntCredits from "../components/SblgntCredits.astro";
 import releaseNotes from "../data/release-notes.json";
-import { BOOK_ORDER, bookKeyToLabel } from "../data/books.js";
 import { scanDraftChapters } from "../lib/draft-chapters.mjs";
-import { chapterRuns } from "../lib/chapter-nav.mjs";
+import { joinList, unfinishedTexts } from "../lib/chapter-nav.mjs";
 import ContinueReading from "../components/ContinueReading.astro";
 import { releaseNoteLinker } from "../lib/release-note-linker";
 import { entryIds } from "../lib/release-notes-view.mjs";
@@ -23,21 +22,12 @@ const linkDescription = await releaseNoteLinker();
 
 // The lede names what isn't finished yet. It comes from the chapters' own
 // indexed:false flags, so it stays true as drafts land: the hand-written
-// "part of Luke" had come to mean exactly Luke 23–24. Whole books first,
-// then partly drafted ones with their chapters, each in canonical order.
-const { draftChaptersByBook, fullyDraftBooks } = scanDraftChapters();
-
-const unfinished = [
-  ...BOOK_ORDER.filter((k) => fullyDraftBooks.has(k)).map((k) => bookKeyToLabel(k)),
-  ...BOOK_ORDER.filter(
-    (k) => !fullyDraftBooks.has(k) && draftChaptersByBook[k]?.length,
-  ).map((k) => `${bookKeyToLabel(k)} ${chapterRuns(draftChaptersByBook[k])}`),
-].map((label) => `<strong>${label}</strong>`);
-
-const unfinishedList =
-  unfinished.length > 2
-    ? `${unfinished.slice(0, -1).join(", ")}, and ${unfinished.at(-1)}`
-    : unfinished.join(" and ");
+// "part of Luke" had come to mean exactly Luke 23–24. The /about FAQ
+// prints the same list (unfinishedTexts in chapter-nav.mjs).
+const unfinished = unfinishedTexts(scanDraftChapters()).map(
+  (label) => `<strong>${label}</strong>`,
+);
+const unfinishedList = joinList(unfinished);
 const exceptHtml = unfinished.length ? ` (all except ${unfinishedList})` : "";
 
 const TYPE_LABEL: Record<string, string> = {

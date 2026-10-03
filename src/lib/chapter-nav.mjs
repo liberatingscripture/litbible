@@ -56,9 +56,27 @@ export function pageLabel({ bookKey, chapter }) {
   return chapter === "intro" ? `${book} introduction` : `${book} ${chapter}`;
 }
 
-function joinList(parts) {
+export function joinList(parts) {
   if (parts.length <= 2) return parts.join(" and ");
   return `${parts.slice(0, -1).join(", ")}, and ${parts.at(-1)}`;
+}
+
+/**
+ * What isn't finished yet, as a reader would name it: whole draft books
+ * first, then partly drafted books with their chapter runs, each group in
+ * canonical order ("Acts", "Revelation", "Luke 23–24"). The /read lede and
+ * the /about FAQ both print this, so they can't disagree.
+ * @param {{ draftChaptersByBook: Record<string, number[]>,
+ *           fullyDraftBooks: Set<string> }} drafts
+ * @returns {string[]}
+ */
+export function unfinishedTexts({ draftChaptersByBook, fullyDraftBooks }) {
+  return [
+    ...BOOK_ORDER.filter((k) => fullyDraftBooks.has(k)).map((k) => bookKeyToLabel(k)),
+    ...BOOK_ORDER.filter(
+      (k) => !fullyDraftBooks.has(k) && draftChaptersByBook[k]?.length,
+    ).map((k) => `${bookKeyToLabel(k)} ${chapterRuns(draftChaptersByBook[k])}`),
+  ];
 }
 
 /**
