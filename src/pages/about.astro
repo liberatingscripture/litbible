@@ -7,7 +7,8 @@ import { joinList, unfinishedTexts } from "../lib/chapter-nav.mjs";
 // "What texts are available right now?" names what isn't finished, from the
 // chapters' own indexed:false flags, so it stays true as drafts land. Same
 // list as the /read lede. "When will the translation be finished?" reads the
-// same list to say "Most" or "The whole" of the New Testament.
+// same list to say "Most" or "The whole" of the New Testament, and drops its
+// 2027 first-draft hope once nothing is left to draft.
 const unfinished = unfinishedTexts(scanDraftChapters());
 const unfinishedList = joinList(unfinished);
 ---
@@ -698,10 +699,11 @@ const unfinishedList = joinList(unfinished);
           <div class="faq-a">
             <p>That’s hard to say.</p>
             <p>
-              {unfinished.length ? "Most" : "The whole"} of the New Testament
+              {unfinished.length ? "Most of the" : "The whole"} New Testament
               has been translated for the first edition. More revisions are
-              still to come. My hope is to complete a first full draft sometime in 2027. As my
-              understanding has deepened through this project, I’ve also noticed
+              still to come.
+              {unfinished.length > 0 && "My hope is to complete a first full draft sometime in 2027."}
+              As my understanding has deepened through this project, I’ve also noticed
               ways earlier books can be improved.
             </p>
             <p>
