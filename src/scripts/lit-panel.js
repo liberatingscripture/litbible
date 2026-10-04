@@ -28,8 +28,12 @@ export function closePanel() {
   if (restoreFocus && document.contains(restoreFocus)) restoreFocus.focus();
 }
 
+// An outside click closes without restoring focus: the reader has just put
+// focus somewhere else (the search box, say), and handing it back to the
+// trigger would steal it and scroll the page back to where the panel was.
 document.addEventListener("click", (e) => {
   if (openPanel && !openPanel.el.contains(e.target) && e.target !== openPanel.trigger && !openPanel.trigger?.contains?.(e.target)) {
+    openPanel.restoreFocus = null;
     closePanel();
   }
 });
