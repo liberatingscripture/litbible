@@ -2382,6 +2382,7 @@ them individually.
 | `john-2` fn-p | John | `Ioudiaos` → `Ioudaios` (fixed in #204) |
 | `john-2` fn-p | John | `the capital city of the province of Judea` → `a prominent city in the Roman province of Judea`, the wording all three *Ioudaioi* notes now share (owner, 2026-10-03; the master read on that date still has both this and the spelling above) |
 | `luke-23` fn-c | Luke | `a prominent city of the Roman province` → `a prominent city in the Roman province`, to match fn-z (owner, 2026-10-03, the day Luke 23 was imported) |
+| `matthew-3` fn-f, `matthew-9` fn-e, `1corinthians-8` fn-n, `1corinthians-15` fn-d, `2corinthians-5` fn-ee, `2corinthians-11` fn-m | Matthew, 1 Corinthians, 2 Corinthians | *hamartia* note: `ending up in at an unintended location` → `ending up at an unintended location` (owner, 2026-10-04; the owner fixed every Luke copy in Word the same day, and the repo's Luke copies match) |
 
 ### New: quote defects in Word, repo already right
 
