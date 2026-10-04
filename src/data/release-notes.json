@@ -1,5 +1,92 @@
 [
   {
+    "version": "2026-10-04",
+    "date": "2026-10-04",
+    "label": "October 4, 2026",
+    "changes": [
+      {
+        "type": "footnote_updated",
+        "description": "Luke 10:13 — footnote i updated",
+        "detail": "\"‘turn around’\" → \"‘return’\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 10,
+          "verse": 13
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 11:32 — footnote y updated",
+        "detail": "\"‘turn around’\" → \"‘return’\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 11,
+          "verse": 32
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 13:3 — footnote b updated",
+        "detail": "\"‘turn around’\" → \"‘return’\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 13,
+          "verse": 3
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 15:7 — footnote b updated",
+        "detail": "\"‘turn around’\" → \"‘return’\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 15,
+          "verse": 7
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 16:30 — footnote z updated",
+        "detail": "\"‘turn around’\" → \"‘return’\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 16,
+          "verse": 30
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 17:3 — footnote h updated",
+        "detail": "\"‘turn around’\" → \"‘return’\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 17,
+          "verse": 3
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 3:3 — footnote i updated",
+        "detail": "\"‘turn around’\" → \"‘return’\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 3,
+          "verse": 3
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 5:32 — footnote q updated",
+        "detail": "\"‘turn around’\" → \"‘return’\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 5,
+          "verse": 32
+        }
+      }
+    ]
+  },
+  {
     "version": "2026-10-03",
     "date": "2026-10-03",
     "label": "October 3, 2026",
