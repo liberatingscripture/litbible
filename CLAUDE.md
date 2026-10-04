@@ -441,8 +441,9 @@ Each file in `src/data/chapters/` follows this structure:
      root's `data-current-chapter` updated on scroll, and intercepts
      same-book chapter picks for an in-page scroll; other books navigate to
      `/read/<book>#ch-N`).
-  5. The `/read` lede names what isn't finished ("all except Acts,
-     Revelation, and Luke 24"), built from `scanDraftChapters()` at
+  5. The `/read` lede names what isn't finished ("all except Acts
+     and Revelation"; it also named Luke 24 until that chapter was
+     published on 2026-10-04), built from `scanDraftChapters()` at
      build time: whole books first, then partly drafted books with their
      chapter runs (`unfinishedTexts` in `chapter-nav.mjs`). The /about FAQ's
      "What texts are available right now?" prints the same list. Neither
@@ -450,7 +451,7 @@ Each file in `src/data/chapters/` follows this structure:
   6. Previous/Next step over it (`src/lib/chapter-nav.mjs`, the one rule
      behind the top buttons, the bottom buttons and a draft page's links),
      and the bottom buttons say what was stepped over ("Luke 24 is still
-     being translated."). The page itself renders `DraftPage.astro` (the
+     being translated." until 2026-10-04). The page itself renders `DraftPage.astro` (the
      photo, the limerick, the book's computed progress, ways onward) **on the
      website only**: the placeholder paragraphs stay in the JSON because the
      apps show them, and their last line ("part of Luke") went stale, which
