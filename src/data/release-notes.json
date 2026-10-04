@@ -83,6 +83,124 @@
           "chapter": 5,
           "verse": 32
         }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "1 Corinthians 15:3 — footnote d updated",
+        "detail": "removed \"in\"",
+        "location": {
+          "bookKey": "1corinthians",
+          "chapter": 15,
+          "verse": 3
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "1 Corinthians 8:12 — footnote n updated",
+        "detail": "removed \"in\"",
+        "location": {
+          "bookKey": "1corinthians",
+          "chapter": 8,
+          "verse": 12
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "2 Corinthians 11:7 — footnote m updated",
+        "detail": "removed \"in\"",
+        "location": {
+          "bookKey": "2corinthians",
+          "chapter": 11,
+          "verse": 7
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "2 Corinthians 5:21 — footnote ee updated",
+        "detail": "removed \"in\"",
+        "location": {
+          "bookKey": "2corinthians",
+          "chapter": 5,
+          "verse": 21
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 1:77 — footnote yyy updated",
+        "detail": "removed \"in\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 1,
+          "verse": 77
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 11:4 — footnote a updated",
+        "detail": "removed \"in\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 11,
+          "verse": 4
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 5:8 — footnote d updated",
+        "detail": "removed \"in\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 5,
+          "verse": 8
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 6:32 — footnote cc updated",
+        "detail": "removed \"in\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 6,
+          "verse": 32
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 7:37 — footnote ff updated",
+        "detail": "removed \"in\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 7,
+          "verse": 37
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Matthew 3:6 — footnote f updated",
+        "detail": "removed \"in\"",
+        "location": {
+          "bookKey": "matthew",
+          "chapter": 3,
+          "verse": 6
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Matthew 9:2 — footnote e updated",
+        "detail": "removed \"in\"",
+        "location": {
+          "bookKey": "matthew",
+          "chapter": 9,
+          "verse": 2
+        }
+      },
+      {
+        "type": "chapter_added",
+        "description": "Luke 24 added",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 24
+        }
       }
     ]
   },
