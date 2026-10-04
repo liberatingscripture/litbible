@@ -239,3 +239,14 @@ precisely the verse that kept its note. Worth knowing that this failure mode is
 now close to extinct by construction — after this change the corpus holds one
 byte-identical pair in total (john-7 fn-ff / john-8 fn-k), so it can only arise
 again if that span is edited.
+
+## 2026-10-04 — doubled “in” removed from the *hamartia* note (removed after the fact)
+
+Eleven copies of the shared *hamartia* note read “ending up in at an
+unintended location”; all now read “ending up at” (Luke 1, 5, 6, 7, 11;
+Matthew 3, 9; 1 Corinthians 8, 15; 2 Corinthians 5, 11). The owner ruled it
+an obvious typo, not news for readers. The drafter had already written eleven
+`removed "in"` rows into the 2026-10-04 entry when PR #257 merged, so they
+were deleted from `release-notes.json` by hand rather than kept out with this
+file in the same commit. The entry's other rows (the eight *epistrepho* notes
+and Luke 24) stand.
