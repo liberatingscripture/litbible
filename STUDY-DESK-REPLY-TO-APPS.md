@@ -12,8 +12,10 @@ Your IDs are used as they stand: R, T, P and W from iOS; A-R, A-F, A-M and
 A-Q from Android. As Android asked, every question is marked **for BDR**,
 **for iOS** or **for Android**.
 
-Files in the litbible repo (branch `claude/friendly-ritchie-xr22e4` until it
-merges):
+**`STUDY-DESK-FORMAT.md` comes with this reply** as a second file: it's the
+draft format sections 6 and 7 ask you to review. Its permanent home is the
+litbible repo, alongside the other files below (branch
+`claude/friendly-ritchie-xr22e4` until it merges):
 - `STUDY-DESK.md`: the plan and every decision, now including your replies
   and BVJ's answers;
 - `STUDY-DESK-FORMAT.md`: the record format, draft 1 (your W1 and W6);
@@ -292,22 +294,42 @@ leaves out.
   digits or footnote letters) without a migration?
 - Does the 32-character context suit you?
 
-## 8. To be decided (recorded in STUDY-DESK.md, not urgent)
+## 8. Everything still to be decided
 
-- How the reader's colour meanings appear in the apps (T6), **for BDR with
-  BVJ**.
-- Who owns the Google Cloud project, the CloudKit container setup and the
-  format spec (A-Q4, T8). Our lean: the spec stays in this repo.
-- The stores' privacy answers, including Play's "No data collected" (A-Q5,
-  P3).
-- How far a hidden passage reaches: daily readings, widgets, search, share
-  cards (A-Q9). The record shape is in the format.
-- Whether shared sheet links need anything hosted (T10, A-M8). The sheet
-  carried after the `#` needs nothing; short links would.
-- Whether the apps show notes that follow a word (N2) and concept marks
-  (H2), or only carry them (A-Q8).
-- The reader with both an Apple and an Android device (T4).
-- Who looks after a service, if plan B (T8, A-R7).
+All of it is open; nothing here is settled. The first group is for BVJ and
+BDR to settle together. The second is for the three Claudes to propose and
+BVJ and BDR to confirm. `STUDY-DESK.md` keeps the same list.
+
+**For BVJ and BDR together:**
+
+| Question | IDs | Where it stands |
+|---|---|---|
+| Plan A (each reader's own iCloud or Google Drive) or plan B (a LIT service) | T1, A-Q1 | Both open. BVJ's two requirements are in section 3; the website work for each is in section 4 |
+| What shifted since October 1 | — | For BDR (section 3) |
+| A way to keep a notebook for a reader who wants neither Apple nor Google | — | BVJ requires one. Under plan A, which third home, and when? |
+| End-to-end encryption under the chosen plan | T2, A-Q2, R3, A-R4 | Under plan A, LIT never holds notes but Apple or Google could read them. BVJ leaned end-to-end; BDR leans ordinary first |
+| Reading positions: shared between phone and desk, or not | T5, A-R6 | BVJ leans slightly against sharing them. BDR told Android they sync and iOS that it's open |
+| The notebook file (D1): a sync method, or export and import only | T3 | Waiting on both Claudes' pros and cons (section 5) |
+| The reader with both an Apple and an Android device | T4 | Known gap at launch, or a website bridge? |
+| How the reader's colour meanings appear in the apps | T6 | BDR wants to talk it through |
+| Who owns the Google Cloud project, the CloudKit container setup and the format spec | A-Q4, T8 | Our lean: the spec stays in the litbible repo |
+| Who looks after a service, if plan B | T8, A-R7 | No one named |
+| The stores' privacy answers, including Play's "No data collected" | A-Q5, P3 | Unverified under either plan |
+| How far a hidden passage reaches: daily readings, widgets, search, share cards | A-Q9 | The record shape is in the format |
+| Whether shared sheet links need anything hosted | T10, A-M8 | A sheet carried after the `#` needs nothing; short links would |
+| Whether the apps show notes that follow a word (N2) and concept marks (H2), or only carry them | A-Q8 | Our lean: carry only, at launch |
+| What must be live on February 10, and the fallback if one platform isn't ready | A-Q3 | The website builds in its own order (section 6) |
+
+**For the three Claudes to propose and the humans to confirm:**
+
+| Question | IDs | Draft 1 proposes |
+|---|---|---|
+| Bookmarks vs the apps' `bookmark` note marker | A-Q13 | Separate: a bookmark is its own kind |
+| One overlap rule for highlights | A-M5 | Android's rule |
+| When a mark's words are gone | A-Q6, A-F5 | The apps' approach; BVJ has no preference |
+| Context length | A-F6 | 32 characters |
+| Tombstones after the trash empties | A-Q14, A-F10 | Kept |
+| Each store's exact mapping | — | After plan A or B is chosen |
 
 ## 9. What we'd like back
 
