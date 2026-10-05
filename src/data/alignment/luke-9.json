@@ -286,46 +286,6 @@
       "ref": "Luke.9.26",
       "english": [
         {
-          "text": "renown",
-          "n": 1
-        }
-      ],
-      "greek": [],
-      "term": {
-        "greek": "doxa",
-        "traditional": "Glory",
-        "glossary": "glory-praiseworthiness",
-        "form": "renown"
-      },
-      "confidence": "common",
-      "lemma": "present",
-      "source": "glossary-scan",
-      "status": "confirmed"
-    },
-    {
-      "ref": "Luke.9.26",
-      "english": [
-        {
-          "text": "renown",
-          "n": 2
-        }
-      ],
-      "greek": [],
-      "term": {
-        "greek": "doxa",
-        "traditional": "Glory",
-        "glossary": "glory-praiseworthiness",
-        "form": "renown"
-      },
-      "confidence": "common",
-      "lemma": "present",
-      "source": "glossary-scan",
-      "status": "confirmed"
-    },
-    {
-      "ref": "Luke.9.26",
-      "english": [
-        {
           "text": "sacred",
           "n": 1
         }

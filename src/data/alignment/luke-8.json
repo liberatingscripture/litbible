@@ -503,46 +503,6 @@
       "status": "confirmed"
     },
     {
-      "ref": "Luke.8.48",
-      "english": [
-        {
-          "text": "faithfulness",
-          "n": 1
-        }
-      ],
-      "greek": [],
-      "term": {
-        "greek": "pistis",
-        "traditional": "Faith",
-        "glossary": "faith-trust",
-        "form": "faithfulness"
-      },
-      "confidence": "common",
-      "lemma": "present",
-      "source": "glossary-scan",
-      "status": "confirmed"
-    },
-    {
-      "ref": "Luke.8.48",
-      "english": [
-        {
-          "text": "liberated",
-          "n": 1
-        }
-      ],
-      "greek": [],
-      "term": {
-        "greek": "soterios",
-        "traditional": "Salvation",
-        "glossary": "salvation-liberation",
-        "form": "liberation"
-      },
-      "confidence": null,
-      "lemma": "present",
-      "source": "review",
-      "status": "confirmed"
-    },
-    {
       "ref": "Luke.8.50",
       "english": [
         {

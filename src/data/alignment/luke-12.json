@@ -146,26 +146,6 @@
       "ref": "Luke.12.10",
       "english": [
         {
-          "text": "let go",
-          "n": 2
-        }
-      ],
-      "greek": [],
-      "term": {
-        "greek": "aphiemi",
-        "traditional": "Forgiveness",
-        "glossary": "forgiveness-letting-go",
-        "form": "let go"
-      },
-      "confidence": null,
-      "lemma": "present",
-      "source": "review",
-      "status": "confirmed"
-    },
-    {
-      "ref": "Luke.12.10",
-      "english": [
-        {
           "text": "Sacred",
           "n": 1
         }

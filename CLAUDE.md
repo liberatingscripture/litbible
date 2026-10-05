@@ -773,7 +773,7 @@ reader repeats it. Both views run that pass and both carry the
 `#hbq-description` target, so keep them in step: it was Study-only and
 class-first-only until 2026-09-06, which left 98 of the 108 rendered blocks
 silent (44 of 54 source blockquotes are written `id`-first, and Read View
-announced none of them). Attribute order must never decide this. Two further
+announced none of them). Attribute order must never decide this. Three further
 rules:
 
 1. **`hbq` is for quotation.** Lines the author sets apart that are not quoted
@@ -792,6 +792,13 @@ rules:
    validator cannot see this**: its balanced-quote rule covers `footnotes[]`
    only, never `paragraphs`, so quote balance per poetry block is checked by
    hand.
+3. **A line follows the sense, not the verse.** Line breaks come from the
+   master's own lineation, so a verse number can fall mid-line and a line can
+   open lowercase: Luke 1:70–75 reads `God declared 71 liberation…` and
+   `That oath provides us 74 rescue…` (owner, 2026-10-05). Before that ruling
+   the repo had broken both lines at the verse marker, which split each
+   sentence across two lines. Don't "tidy" a mid-line marker back onto its own
+   line.
 
 A `<br>` inside a `<p>` is the older way of setting lines and survives only
 where the lines are not a quotation (2 Corinthians 6:2 is the one published

@@ -166,26 +166,6 @@
       "ref": "Luke.5.20",
       "english": [
         {
-          "text": "dismissed",
-          "n": 1
-        }
-      ],
-      "greek": [],
-      "term": {
-        "greek": "aphiemi",
-        "traditional": "Forgiveness",
-        "glossary": "forgiveness-letting-go",
-        "form": "dismissed"
-      },
-      "confidence": null,
-      "lemma": "present",
-      "source": "review",
-      "status": "confirmed"
-    },
-    {
-      "ref": "Luke.5.20",
-      "english": [
-        {
           "text": "deviations",
           "n": 1
         }
@@ -226,26 +206,6 @@
       "ref": "Luke.5.21",
       "english": [
         {
-          "text": "dismiss",
-          "n": 1
-        }
-      ],
-      "greek": [],
-      "term": {
-        "greek": "aphiemi",
-        "traditional": "Forgiveness",
-        "glossary": "forgiveness-letting-go",
-        "form": "dismissed"
-      },
-      "confidence": null,
-      "lemma": "present",
-      "source": "review",
-      "status": "confirmed"
-    },
-    {
-      "ref": "Luke.5.21",
-      "english": [
-        {
           "text": "deviations",
           "n": 1
         }
@@ -266,26 +226,6 @@
       "ref": "Luke.5.23",
       "english": [
         {
-          "text": "dismissed",
-          "n": 1
-        }
-      ],
-      "greek": [],
-      "term": {
-        "greek": "aphiemi",
-        "traditional": "Forgiveness",
-        "glossary": "forgiveness-letting-go",
-        "form": "dismissed"
-      },
-      "confidence": null,
-      "lemma": "present",
-      "source": "review",
-      "status": "confirmed"
-    },
-    {
-      "ref": "Luke.5.23",
-      "english": [
-        {
           "text": "deviations",
           "n": 1
         }
@@ -300,26 +240,6 @@
       "confidence": "distinctive",
       "lemma": "present",
       "source": "glossary-scan",
-      "status": "confirmed"
-    },
-    {
-      "ref": "Luke.5.24",
-      "english": [
-        {
-          "text": "dismiss",
-          "n": 1
-        }
-      ],
-      "greek": [],
-      "term": {
-        "greek": "aphiemi",
-        "traditional": "Forgiveness",
-        "glossary": "forgiveness-letting-go",
-        "form": "dismissed"
-      },
-      "confidence": null,
-      "lemma": "present",
-      "source": "review",
       "status": "confirmed"
     },
     {
