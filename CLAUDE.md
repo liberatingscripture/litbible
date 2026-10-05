@@ -1408,7 +1408,13 @@ shell) and `src/scripts/term-lens.js`. Five rules:
    chapter (Romans 7). /glossary carries the same information for keyboard and
    screen-reader readers.
 5. **Copy, handouts and the selection bar are unaffected**, since they read
-   the text, not the markup; the underline never prints (`print.css`).
+   the text, not the markup; the underline never prints (`print.css`). Plain
+   Ctrl+C is the exception that needs help: Chrome and Safari inline each
+   element's computed style into the copied HTML, so the underline pasted as
+   real formatting. A `copy` listener adds `.is-copying` to the chapter for
+   that one task, which drops the underline while the browser serializes;
+   the copy itself stays the browser's (decision 4 under "Sharing a
+   selection").
 
 ## Content Collections (`src/content.config.ts`)
 

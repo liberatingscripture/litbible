@@ -2718,6 +2718,13 @@ html[data-terms="off"] .chapter-paragraphs .term {
   cursor: auto;
 }
 
+/* Set by term-lens.js for the moment of a copy only: Chrome and Safari write
+   each element's computed style into the copied HTML, so without this the
+   underline pastes into a document as real formatting. */
+.chapter-paragraphs.is-copying .term {
+  text-decoration: none;
+}
+
 .term-card .term-card__origin em,
 .term-card .lit-panel__heading {
   font-style: italic;
