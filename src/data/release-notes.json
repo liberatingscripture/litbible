@@ -91,6 +91,498 @@
           "bookKey": "luke",
           "chapter": 24
         }
+      },
+      {
+        "type": "text_updated",
+        "description": "Luke 1:38, 43, 71, 74 — text updated",
+        "detail": "v. 38: \"Sovereign;\" → \"Lord;\"; v. 43: \"Sovereign\" → \"Lord\"; v. 71: \"Liberation\" → \"liberation\"; v. 74: \"Rescue\" → \"rescue\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 1,
+          "verse": 38
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 1:34, 40, 46, 51, 80 — footnotes pp, uu, xx, ggg, gggg, hhhh updated",
+        "detail": "fn. pp (v. 34): removed \"literally\"; fn. uu (v. 40): \"Traditionally, ‘Lord.’ The Greek word kurios, when applied …\" → \"Or ‘greeted warmly.’\"; fn. xx (v. 46): \"Traditionally, ‘blessed.’ There is no single English word t…\" → \"The Greek word here is psuche, the root of the English ‘psy…\"; fn. ggg (v. 51): added \"The Greek word kardia (usually translated “heart”) describes the deepest core of a person, where thoughts, feelings, de…\"; fn. gggg (v. 80): removed \"While this word can refer to undeveloped, wild areas in general, It was also the name of a specific region east of the …\"; fn. hhhh (v. 80): added \"While this word can refer to undeveloped, wild areas in general, it was also the name of a specific region east of the …\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 1,
+          "verse": 34
+        },
+        "relabel": "footnotes formerly ggg–ffff relabeled hhh–gggg"
+      },
+      {
+        "type": "text_updated",
+        "description": "Luke 10:9, 11, 13, 17, 25 — text updated",
+        "detail": "v. 9: \"reign\" → \"Reign\"; v. 11: \"you.’\" → \"you. But know this: God’s Reign has come near.’\"; v. 13: \"pitiful\" → \"pitiable\"; v. 17: \"as your representatives!”\" → \"in your name!”\"; v. 25: \"agelong life?”\" → \"the life of the coming Age?”\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 10,
+          "verse": 9
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 10:9, 17, 25, 27 — footnotes e, m, v, z updated",
+        "detail": "fn. e (v. 9): \"reign\" → \"Reign\"; fn. m (v. 17): \"Literally, ‘in your name.’\" → \"Doing something “in the name” of another does not mean to s…\"; fn. v (v. 25): \"There are several ways aionios can be translated, and it’s …\" → \"The Greek aionion (from aion, “age” or “eon”) is traditiona…\"; fn. z (v. 27): added \"This\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 10,
+          "verse": 9
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Luke 11:2, 20, 43–44, 47 — text updated",
+        "detail": "v. 2: \"reign\" → \"Reign\"; v. 20: \"reign\" → \"Reign\"; v. 43: \"elaborate greetings of respect\" → \"deferential greetings\"; v. 44: \"are you!\" → \"you are!\"; v. 47: \"are you!\" → \"you are!\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 11,
+          "verse": 2
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 11:22, 30, 39 — footnotes o, t, w, dd, ee updated",
+        "detail": "fn. o (v. 22): \"reign\" → \"Reign\"; fn. t: \"poneros,\" → \"poneros\"; fn. w (v. 30): added \"Reference to Ezekiel—“Son of Man” was how Ezekiel referred to himself—and to Daniel 7:13–27. This is one of the lofties…\"; fn. dd (v. 39): removed \"Traditionally, ‘evil.’ The Greek term poneros, includes a range of meanings beyond moral depravity, including harm, dec…\"; fn. ee (v. 39): added \"Traditionally, ‘evil.’ The Greek term poneros includes a range of meanings beyond moral depravity, including harm, deca…\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 11,
+          "verse": 22
+        },
+        "relabel": "footnotes formerly w–jj relabeled x–kk"
+      },
+      {
+        "type": "text_updated",
+        "description": "Luke 12:10, 14, 36–37, 42, 44, 46, 48 — text updated",
+        "detail": "v. 10: \"let go, but for anyone who speaks with contempt against the…\" → \"released, but for anyone who speaks with contempt against t…\"; v. 14: \"“Man,\" → \"“Friend,\"; v. 36: \"slave holder\" → \"enslaver\"; v. 37: \"slave holder\" → \"enslaver\"; v. 42: \"slave holder\" → \"enslaver\"; v. 44: \"slave holder\" → \"enslaver\"; v. 46: \"slave holder\" → \"enslaver\"; v. 48: \"slave holder\" → \"enslaver\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 12,
+          "verse": 10
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 12:5, 10, 14, 30, 32, 36, 43, 48, 56 — footnotes b, f, i, j, s, u, z, bb, ee, gg, hh, mm updated",
+        "detail": "fn. b (v. 5): \"Sparrows were among the cheapest animals sold for food or s…\" → \"Gehenna is the Greek transliteration of the Hebrew Ge Hinno…\"; fn. f (v. 10): \"Traditionally, ‘Spirit.’ The Greek word pneuma could be use…\" → \"The word here, traditionally translated as “forgiven,” is n…\"; fn. i (v. 10): \"This is another instance of The Greek word psuche, the root…\" → \"The word here, traditionally translated as “forgiven,” is n…\"; fn. j (v. 14): \"Ravens were considered unclean (see Leviticus 11:15; Deuter…\" → \"The word here is anthrope, literally meaning ‘human’ or ‘pe…\"; fn. s (v. 30): \"The Greek word kardia (usually translated “heart”) describe…\" → \"Traditionally, ‘nations’ or ‘Gentiles.’ The word ethne lite…\"; fn. u (v. 32): \"The Greek word kurios can mean “lord,” “master,” or “owner.…\" → \"Or ‘little’ or ‘small’ or ‘few’\"; fn. z (v. 36): \"Traditionally, ‘blessed.’ There is no single English word t…\" → \"The Greek word kurios can mean “lord,” “master,” or “owner.…\"; fn. bb (v. 48): removed \"Literally, “does things of equivalent weight with blows.” The adjective axios (“of equivalent weight”) is often rendere…\"; fn. ee (v. 43): added \"Traditionally, ‘blessed.’ There is no single English word that covers what is being described here. This word is makari…\"; fn. gg (v. 56): removed \"Traditionally translated as “hypocrites,” the Greek hupocrites was commonly used to describe stage actors or people pla…\"; fn. hh (v. 48): added \"Literally, “does things of equivalent weight with blows.” The adjective axios (“of equivalent weight”) is often rendere…\"; fn. mm (v. 56): added \"Traditionally translated as “hypocrites,” the Greek hupokrites was commonly used to describe stage actors or people pla…\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 12,
+          "verse": 5
+        },
+        "relabel": "footnotes formerly v–ii relabeled bb–oo"
+      },
+      {
+        "type": "text_updated",
+        "description": "Luke 13:2, 35 — text updated",
+        "detail": "v. 2: \"deviators more so\" → \"people who deviated more\"; v. 35: \"representing\" → \"in the name of\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 13,
+          "verse": 2
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 13:15, 35 — footnotes i, v, w, x updated",
+        "detail": "fn. i (v. 15): added \"Traditionally translated as “hypocrites,” the Greek hupokrites was commonly used to describe stage actors or people pla…\"; fn. v (v. 35): \"Citation of Psalm 118.\" → \"Doing something “in the name” of another does not mean to s…\"; fn. w (v. 35): added \"“The-One-Who-Is” is used to translate the Greek kurios (traditionally, “Lord”) when it refers to God, especially in Heb…\"; fn. x (v. 35): added \"Citation of Psalm 118:26\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 13,
+          "verse": 15
+        },
+        "relabel": "footnotes formerly i–t relabeled j–u"
+      },
+      {
+        "type": "text_updated",
+        "description": "Luke 14:21, 23 — text updated",
+        "detail": "v. 21: \"master.\" → \"enslaver.\"; v. 23: \"master\" → \"enslaver\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 14,
+          "verse": 21
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 14:12 — footnote f updated",
+        "detail": "added \"With Jesus’ insistence on a radically inclusive understanding of God’s instruction, it is always pushing further than w…\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 14,
+          "verse": 12
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Luke 15:17, 20 — text updated",
+        "detail": "v. 17: \"‘I’m\" → \"‘How many of my father’s hired workers have more than enoug…\"; v. 20: \"ached\" → \"was deeply moved\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 15,
+          "verse": 17
+        }
+      },
+      {
+        "type": "footnote_added",
+        "description": "Luke 15:10, 31 — footnotes e, i, j added",
+        "detail": "fn. e (v. 10): added \"The word angelos means ‘messenger,’ possibly used for spirit beings, but also used for human agents of God (or other pe…\"; fn. i: added \"The word here, splanchna, is often translated as ‘mercy’ and indicates deep compassion. Literally, it refers to lower a…\"; fn. j (v. 31): added \"Literally, just ‘Child,’ but it is meant to be tender and firm, not judgmental or patronizing. In English, adding ‘my’ …\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 15,
+          "verse": 10
+        },
+        "relabel": "footnotes formerly e–g relabeled f–h"
+      },
+      {
+        "type": "text_updated",
+        "description": "Luke 16:10, 20, 22 — text updated",
+        "detail": "v. 10: added \"things, and whoever is unjust in small things is also unjust in big\"; v. 20: \"poor man\" → \"man who was destitute\"; v. 22: \"poor one\" → \"one who was destitute\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 16,
+          "verse": 10
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 16:9, 15–16 — footnotes h, l, o, p updated",
+        "detail": "fn. h (v. 9): \"Jesus’s\" → \"Jesus’\"; fn. l (v. 15): added \"The Greek word kardia (usually translated “heart”) describes the deepest core of a person, where thoughts, feelings, de…\"; fn. o (v. 16): removed \"The Greek verb biazetai can indicate either middle or passive voice, and in this context is paired with the passive eua…\"; fn. p (v. 16): added \"The Greek verb biazetai can indicate either middle or passive voice, and in this context is paired with the passive eua…\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 16,
+          "verse": 9
+        },
+        "relabel": "footnotes formerly l–z relabeled m–aa"
+      },
+      {
+        "type": "text_updated",
+        "description": "Luke 17:3, 37 — text updated",
+        "detail": "v. 3: \"family\" → \"Family\"; v. 37: \"Lord?”\" → \"Sir?”\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 17,
+          "verse": 3
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 17:3, 5, 21 — footnotes d, e, k, v, w updated",
+        "detail": "fn. d (v. 3): \"heaoutois\" → \"heautois\"; fn. e (v. 3): added \"With Jesus’ insistence on a radically inclusive understanding of God’s instruction, it is always pushing further than w…\"; fn. k (v. 5): added \"The Greek word kurios, when applied to Jesus, can be translated in several ways, including ‘sir,’ ‘master,’ or ‘soverei…\"; fn. v (v. 21): removed \"There is scholarly debate whether this word should be translated as ‘among’ or ‘within.’ The fact that it is addressed …\"; fn. w (v. 21): added \"There is scholarly debate whether this word should be translated as ‘among’ or ‘within.’ The fact that it is addressed …\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 17,
+          "verse": 3
+        },
+        "relabel": "footnotes formerly k–dd relabeled l–ee"
+      },
+      {
+        "type": "text_updated",
+        "description": "Luke 18:40 — text updated",
+        "detail": "added \"When he had come close, Jesus asked him,\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 18,
+          "verse": 40
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 18:6, 20, 32, 40, 42 — footnotes c, x, y, dd, ee, gg, hh, ii updated",
+        "detail": "fn. c (v. 6): added \"The Greek word kurios, when applied to Jesus, can be translated in several ways, including ‘sir,’ ‘master,’ or ‘soverei…\"; fn. x (v. 20): removed \"The man’s question already hints at Deuteronomy 30:18–20, and Jesus’s response reinforces this connection. The Greek wo…\"; fn. y (v. 20): added \"The man’s question already hints at Deuteronomy 30:18–20, and Jesus’ response reinforces this connection. The Greek wor…\"; fn. dd (v. 32): removed \"Traditionally, ‘Gentiles.’ The word ethnoi literally means ‘nations’ (like ‘nationalities’ not ‘countries’) or ‘people …\"; fn. ee (v. 32): added \"Traditionally, ‘Gentiles.’ The word ethne literally means ‘nations’ (like ‘nationalities’ not ‘countries’) or ‘people g…\"; fn. gg (v. 40): \"Traditionally, ‘saved.’ This word carries a meaning of any …\" → \"The name ‘Jesus’ is added for clarity.\"; fn. hh (v. 42): added \"Traditionally, ‘faith.’ The Greek term pistis communicates meanings such as trust, faithfulness, commitment, and allegi…\"; fn. ii (v. 42): added \"Traditionally, ‘saved.’ This word carries a meaning of any kind of action to prevent or repair harm. Appropriate transl…\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 18,
+          "verse": 6
+        },
+        "relabel": "footnotes formerly c–ee relabeled d–ff"
+      },
+      {
+        "type": "text_updated",
+        "description": "Luke 19:38, 47 — text updated",
+        "detail": "v. 38: \"Lord!\" → \"The-One-Who-Is!\"; v. 47: \"Scripture\" → \"scripture\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 19,
+          "verse": 38
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 19:8, 45–46, 48 — footnotes g, w, x, aa, hh, ii, jj, kk updated",
+        "detail": "fn. g (v. 8): added \"The Greek word kurios, when applied to Jesus, can be translated in several ways, including ‘sir,’ ‘master,’ or ‘soverei…\"; fn. w: \"Traditionally, ‘glory’\" → \"Doing or being something “in the name” of another does not …\"; fn. x: \"The name ‘Jesus’ is added for clarity.\" → \"“The-One-Who-Is” is used to translate the Greek kurios (tra…\"; fn. aa: \"Traditionally, ‘enemies.’ The rendering ‘those hostile to y…\" → \"Quotation of Psalm 118:26\"; fn. hh (v. 45): added \"The name ‘Jesus’ is added for clarity.\"; fn. ii (v. 46): added \"Citation of Isaiah 56:7, but this story in Luke cannot be rightly understood without looking at the whole of Isaiah 56.…\"; fn. jj (v. 46): added \"The phrase here is from Jeremiah 7:11, but context of the whole chapter is in view where Jeremiah speaks on behalf of t…\"; fn. kk (v. 48): added \"Literally, ‘hung on what they heard’\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 19,
+          "verse": 8
+        },
+        "relabel": "footnotes formerly g–u relabeled h–v"
+      },
+      {
+        "type": "text_updated",
+        "description": "Luke 2:11, 36 — text updated",
+        "detail": "v. 11: \"sovereign\" → \"Lord\"; v. 36: \"Anna\" → \"Hannah\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 2,
+          "verse": 11
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 2:11, 32, 35–37 — footnotes p, hh, mm, oo, pp, rr updated",
+        "detail": "fn. p (v. 11): \"Traditionally, ‘Lord.’ The Greek word kurios, when applied …\" → \"The Greek word kurios, when applied to Jesus, can be transl…\"; fn. hh (v. 32): \"ethnoi\" → \"ethne\"; fn. mm (v. 35): \"here is psuche, the root of the English ‘psyche’ and ‘psych…\" → \"kardia (usually translated “heart”) describes the deepest c…\"; fn. oo (v. 36): added \"Traditionally, ‘Anna.’ Anna is the English transliteration of the Greek transliteration of Hannah. There’s a long histo…\"; fn. pp (v. 37): removed \"The word translated here as ‘serving as a representative’ is the Greek word leitourgia. It is often translated ‘service…\"; fn. rr (v. 37): added \"The word translated here as ‘serving as a representative’ is the Greek word latreuo. It is often translated ‘serve,’ wh…\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 2,
+          "verse": 11
+        },
+        "relabel": "footnotes formerly nn–bbb relabeled pp–ddd"
+      },
+      {
+        "type": "text_updated",
+        "description": "Luke 20:1, 19, 37, 39, 42, 44, 46 — text updated",
+        "detail": "v. 1: \"Scripture\" → \"scripture\"; v. 19: \"Scripture\" → \"scripture\"; v. 37: \"Lord\" → \"The-One-Who-Is\"; v. 39: \"Scripture\" → \"scripture\"; v. 42: \"The Lord said to my lord,\" → \"The-One-Who-Is Sovereign said to my sovereign,\"; v. 44: \"‘lord,’\" → \"‘sovereign,’\"; v. 46: \"Scripture\" → \"scripture\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 20,
+          "verse": 1
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 20:37, 47 — footnotes v, bb, dd, ee updated",
+        "detail": "fn. v (v. 37): added \"“The-One-Who-Is” is used to translate the Greek kurios (traditionally, “Lord”) when it refers to God, especially in Heb…\"; fn. bb: \"This word most literally means ‘house’ or ‘household’ but c…\" → \"“The-One-Who-Is” is used to translate the Greek kurios (tra…\"; fn. dd (v. 47): added \"This word most literally means ‘house’ or ‘household’ but can mean the belongings, assets, and resources one has for th…\"; fn. ee (v. 47): added \"The word prophasis means ‘a putting forward’ and can be used more neutrally as simply stating the reason for something,…\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 20,
+          "verse": 37
+        },
+        "relabel": "footnotes formerly v–z relabeled w–aa"
+      },
+      {
+        "type": "text_updated",
+        "description": "Luke 21:8 — text updated",
+        "detail": "\"in\" → \"because of\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 21,
+          "verse": 8
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 21:8–10, 12, 14, 16, 24, 34 — footnotes f, i, j, m, n, p, q, s, dd, ff, oo, pp, qq, rr updated",
+        "detail": "fn. f (v. 8): \"Literally, “I am,” which was the standard Greek way to anno…\" → \"Most translations render this as “in my name” but it uses a…\"; fn. i (v. 9): \"Traditionally, ‘nations’ or ‘Gentiles.’ The word ethnoi lit…\" → \"Or ‘uprisings’ or ‘upheavals’\"; fn. j (v. 10): \"The word egeiro has several uses, the most central being ‘g…\" → \"Traditionally, ‘nations’ or ‘Gentiles.’ The word ethne lite…\"; fn. m (v. 12): \"The phrase “because of my name” indicates that his reputati…\" → \"This is referring to violently seizing or arresting someone…\"; fn. n (v. 12): \"This is an awkward sentence to translate directly, and very…\" → \"The phrase “on account of my name” indicates that his reput…\"; fn. p (v. 14): added \"The Greek word kardia (usually translated “heart”) describes the deepest core of a person, where thoughts, feelings, de…\"; fn. q (v. 16): removed \"The word adelphos literally means ‘brother’ or ‘sibling.’ It was also frequently used to refer to ‘cousin’ or ‘relative…\"; fn. s (v. 16): added \"The word adelphos literally means ‘brother’ or ‘sibling.’ It was also frequently used to refer to ‘cousin’ or ‘relative…\"; fn. dd (v. 24): removed \"Traditionally, ‘nations’ or ‘Gentiles.’ The word ethnoi literally means ‘nations’ (like ‘nationalities’ not ‘countries’…\"; fn. ff (v. 24): added \"Traditionally, ‘nations’ or ‘Gentiles.’ The word ethne literally means ‘nations’ (like ‘nationalities’ not ‘countries’)…\"; fn. oo (v. 34): \"translated here as ‘of daily life’ is the adjective biotiko…\" → \"kardia (usually translated “heart”) describes the deepest c…\"; fn. pp (v. 34): added \"Compare with Luke 9:32, where the same word describes Peter and others being weighed down by sleep and not being ready …\"; fn. qq (v. 34): added \"The word ‘hangover’ is translating the Greek word kraipale, which overwhelmingly referred to the aftermath of heavy dri…\"; fn. rr (v. 34): added \"The Greek word translated here as ‘of daily life’ is the adjective biotikos, describing the ‘stresses’ as ones having t…\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 21,
+          "verse": 8
+        },
+        "relabel": "footnotes formerly o–ll relabeled q–nn"
+      },
+      {
+        "type": "text_updated",
+        "description": "Luke 22:33, 38, 49 — text updated",
+        "detail": "v. 33: \"“Lord,”\" → \"“Sir,”\"; v. 38: \"Lord,\" → \"sir,\"; v. 49: \"“Lord,\" → \"“Sir,\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 22,
+          "verse": 33
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 22:22, 25, 31–32, 43, 61, 67, 69–70 — footnotes p, q, r, v, y, z, ll, vv, zz, aaa, bbb, ccc, ddd, eee updated",
+        "detail": "fn. p (v. 22): \"The Greek word here is euergetes, literally “one who does g…\" → \"Reference to Ezekiel—“Son of Man” was how Ezekiel referred …\"; fn. q (v. 22): \"here literally says ‘judging’ (krinontes). In biblical cont…\" → \"word ouai is often translated “woe,” but in modern English …\"; fn. r (v. 25): \"In English, repeating someone’s name twice can sound patron…\" → \"Traditionally, ‘Gentiles.’ The word ethne literally means ‘…\"; fn. v (v. 31): \"The word adelphos literally means ‘brother’ or ‘sibling.’ I…\" → \"Sifting was an idiom that indicated testing, with the image…\"; fn. y (v. 32): added \"Traditionally, ‘faith.’ The Greek term pistis communicates meanings such as trust, faithfulness, commitment, and allegi…\"; fn. z (v. 32): added \"The word adelphos literally means ‘brother’ or ‘sibling.’ It was also frequently used to refer to ‘cousin’ or ‘relative…\"; fn. ll (v. 43): \"Greek phrase here, eate heos toutou, appears nowhere else i…\" → \"word angelos means ‘messenger,’ possibly used for spirit be…\"; fn. vv (v. 61): \"Reference to Psalm 110:1\" → \"The Greek word kurios, when applied to Jesus, can be transl…\"; fn. zz (v. 67): added \"Christos is the Greek translation of the Hebrew mashiach which has traditionally been transliterated as Messiah (and Ch…\"; fn. aaa (v. 69): added \"Reference to Daniel 7:13–14\"; fn. bbb (v. 69): added \"Reference to Psalm 110:1\"; fn. ccc (v. 69): added \"The word dunamis literally means ‘power’ or ‘ability.’ It is sometimes used in place of referring to God directly, as w…\"; fn. ddd (v. 70): added \"“The Son of God” was a nickname for the emperor, a title taken on originally by Augustus Caesar, the son of Julius Caes…\"; fn. eee: added \"Compare with Luke 4:41, where demons are the ones naming him as Christ and Son of God.\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 22,
+          "verse": 22
+        },
+        "relabel": "footnotes formerly w–gg relabeled aa–kk"
+      },
+      {
+        "type": "text_updated",
+        "description": "Luke 23:34–35, 47 — text updated",
+        "detail": "v. 34: \"let go of\" → \"release\"; v. 35: \"the Christ of God,\" → \"God’s Anointed,\"; v. 47: \"truly\" → \"really\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 23,
+          "verse": 34
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 23:46, 50 — footnotes ee, ii, jj updated",
+        "detail": "fn. ee (v. 46): added \"Traditionally, ‘Spirit.’ The Greek word pneuma could be used to refer to ‘wind,’ ‘breath,’ or an animating energy withi…\"; fn. ii (v. 50): removed \"Literally, “Look!” The word idou is used in a variety of ways, including to draw attention, introduce something surpris…\"; fn. jj (v. 50): added \"Literally, “Look!” The word idou is used in a variety of ways, including to draw attention, introduce something surpris…\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 23,
+          "verse": 46
+        },
+        "relabel": "footnotes formerly ee–qq relabeled ff–rr"
+      },
+      {
+        "type": "text_updated",
+        "description": "Luke 24:3, 7, 36, 46–47 — text updated",
+        "detail": "v. 3: \"body of the Lord Jesus.\" → \"body.\"; v. 7: \"be raised\" → \"rise\"; v. 36: \"them and said to them, “May there be well-being for you!”\" → \"them.\"; v. 46: added \"up\"; v. 47: \"in his name to all the earth,\" → \"because of his name to all peoples,\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 24,
+          "verse": 3
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 24:7, 10, 34, 47 — footnotes j, q, ee, ff, nn, oo, pp updated",
+        "detail": "fn. j (v. 7): \"Compare with Luke 9:22 and 18:33. Also, notice how this imp…\" → \"Reference to Ezekiel—“Son of Man” was how Ezekiel referred …\"; fn. q (v. 10): added \"Traditionally, ‘apostles.’ The word means ‘someone who is sent to carry out a purpose’ and while it became used in a pa…\"; fn. ee (v. 34): \"“Well-being” translates the Greek word eirene, which is oft…\" → \"The Greek word kurios, when applied to Jesus, can be transl…\"; fn. ff (v. 34): \"Jesus is doing the exact thing he instructed his students t…\" → \"Traditionally, ‘Simon.’ Simon is the English transliteratio…\"; fn. nn (v. 47): \"Doing something “in the name” of another does not mean to s…\" → \"The word in Greek here is hamartia, traditionally translate…\"; fn. oo (v. 47): added \"Most translations render this as “in my name” but it uses a different preposition here, epi rather than en, and it chan…\"; fn. pp (v. 47): added \"Traditionally, ‘nations’ or ‘Gentiles.’ The word ethne literally means ‘nations’ (like ‘nationalities’ not ‘countries’)…\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 24,
+          "verse": 7
+        },
+        "relabel": "footnotes formerly p–oo relabeled r–qq"
+      },
+      {
+        "type": "footnote_added",
+        "description": "Luke 3:15 — footnote w added",
+        "detail": "added \"The Greek word kardia (usually translated “heart”) describes the deepest core of a person, where thoughts, feelings, de…\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 3,
+          "verse": 15
+        },
+        "relabel": "footnotes formerly w–dd relabeled x–ee"
+      },
+      {
+        "type": "text_updated",
+        "description": "Luke 4:19, 24, 27, 43 — text updated",
+        "detail": "v. 19: \"the Sovereign One.”\" → \"The-One-Who-Is.”\"; v. 24: \"“Truly,\" → \"“Honestly,\"; v. 27: \"diseases\" → \"conditions\"; v. 43: \"reign\" → \"Reign\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 4,
+          "verse": 19
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 4:1, 10, 16, 27, 39, 41, 44 — footnotes c, o, s, cc, jj, kk, ll updated",
+        "detail": "fn. c (v. 1): \"It\" → \"it\"; fn. o (v. 10): \"Quotation of Psalm 91:11\" → \"The word angelos means ‘messenger,’ possibly used for spiri…\"; fn. s (v. 16): added \"This is traditionally ‘Sabbath.’ It’s from the Hebrew word Shabbat, which means ‘rest’ and was used to refer to the sev…\"; fn. cc (v. 27): \"Traditionally, ‘holy one’ or in other places ‘saint.’ Liter…\" → \"The Greek lepros is related to the English word “leprosy,” …\"; fn. jj (v. 39): added \"The Greek word diakoneo (literally means “attend to, wait on, provide for”) conveys a variety of meanings, from waiting…\"; fn. kk (v. 41): added \"Christos is the Greek translation of the Hebrew mashiach which has traditionally been transliterated as Messiah (and Ch…\"; fn. ll (v. 44): added \"Most Greek manuscripts read “Galilee” here; however, the oldest and most reliable manuscripts available read “Judea.” T…\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 4,
+          "verse": 1
+        },
+        "relabel": "footnotes formerly r–z relabeled t–bb"
+      },
+      {
+        "type": "text_updated",
+        "description": "Luke 5:12–13, 20–21, 23–24 — text updated",
+        "detail": "v. 12: \"disease\" → \"condition\"; v. 13: \"disease\" → \"condition\"; v. 20: \"dismissed\" → \"released\"; v. 21: \"dismiss\" → \"release\"; v. 23: \"dismissed\" → \"released\"; v. 24: \"dismiss\" → \"release\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 5,
+          "verse": 12
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 5:5, 12, 17, 20, 24 — footnotes c, g, j, m, o, q updated",
+        "detail": "fn. c (v. 5): \"‘Master,’\" → \"‘Master.’\"; fn. g (v. 12): \"Despite the Greek word lepra, being where the English word …\" → \"The Greek lepros is related to the English word “leprosy,” …\"; fn. j (v. 17): \"First-century Galilean houses were single-room, basalt-wall…\" → \"“The-One-Who-Is” is used to translate the Greek kurios (tra…\"; fn. m (v. 20): \"Traditionally, ‘this man speaks blasphemies’ from the Greek…\" → \"The word here is anthrope, literally meaning ‘human’ or ‘pe…\"; fn. o (v. 20): added \"The word here, traditionally translated as “forgiven,” is never directed toward a person but always directed toward wha…\"; fn. q (v. 24): added \"Reference to Ezekiel—“Son of Man” was how Ezekiel referred to himself—and to Daniel 7:13–27. This is one of the lofties…\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 5,
+          "verse": 5
+        },
+        "relabel": "footnotes formerly n–v relabeled r–z"
+      },
+      {
+        "type": "text_updated",
+        "description": "Luke 6:5 — text updated",
+        "detail": "\"The Son of Humanity is sovereign.”\" → \"the Son of Humanity is Lord.”\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 6,
+          "verse": 5
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 6:5, 9, 14, 41–42, 45–46 — footnotes d, e, f, l, m, jj, kk, ll, mm, oo, pp updated",
+        "detail": "fn. d (v. 5): \"Traditionally, ‘Lord.’ The Greek word kurios, when applied …\" → \"Reference to Ezekiel—“Son of Man” was how Ezekiel referred …\"; fn. e (v. 5): \"Literally, “them.” The words “Bible scholars and Pharisees”…\" → \"The Greek word kurios, when applied to Jesus, can be transl…\"; fn. f (v. 9): added \"Literally, “them.” The words “scripture scholars and Pharisees” are added for clarity.\"; fn. l (v. 14): removed \"Traditionally, ‘Simon,’ which mirrors the Greek form. However, that form is a the Greek transliteration of the Hebrew n…\"; fn. m (v. 14): added \"Traditionally, ‘Simon,’ which mirrors the Greek form. However, that form is the Greek transliteration of the Hebrew nam…\"; fn. jj (v. 41): removed \"The word adelphos, literally means ‘brother’ or ‘sibling.’ It was also frequently used to refer to ‘cousin’ or ‘relativ…\"; fn. kk (v. 41): \"Traditionally translated as “hypocrites,” the Greek hupocri…\" → \"The word adelphos literally means ‘brother’ or ‘sibling.’ I…\"; fn. ll (v. 42): \"Literally, this clause reads, “The good one [someone who do…\" → \"Traditionally translated as “hypocrites,” the Greek hupokri…\"; fn. mm (v. 45): \"Literally, this clause reads, “The oppressive one brings ou…\" → \"The Greek word kardia (usually translated “heart”) describe…\"; fn. oo (v. 45): added \"Literally, this clause reads, “The one who causes hardship brings out what causes hardship from their one that causes h…\"; fn. pp (v. 46): added \"Literally, this reads, “Why do you call me kurios, kurios.” There are several issues with translating kurios as ‘lord’ …\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 6,
+          "verse": 5
+        },
+        "relabel": "footnotes formerly f–ii relabeled g–jj"
+      },
+      {
+        "type": "text_updated",
+        "description": "Luke 7:22, 28, 47–50 — text updated",
+        "detail": "v. 22: \"diseases\" → \"conditions\"; v. 28: \"reign\" → \"Reign\"; v. 47: \"let go. But, for the one who showed little love, little has…\" → \"released. But, for the one who showed little love, little h…\"; v. 48: \"let go.”\" → \"released.”\"; v. 49: \"let go of\" → \"release\"; v. 50: \"faithfulness has liberated\" → \"trust has restored\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 7,
+          "verse": 22
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 7:21–22, 27, 34 — footnotes o, q, r, cc, gg updated",
+        "detail": "fn. o (v. 21): \"poneros,\" → \"poneros\"; fn. q (v. 22): \"Traditionally, “good news is brought to them.” The word her…\" → \"The Greek lepros is related to the English word “leprosy,” …\"; fn. r (v. 22): \"Traditionally, ‘blessed.’ There is no single English word t…\" → \"The word egeiro has several uses, the most central being ‘g…\"; fn. cc (v. 27): \"Or ‘generation’ or ‘lineage’ or any ‘group of people’ that …\" → \"Quotation of Malachi 3:1\"; fn. gg (v. 34): added \"Reference to Ezekiel—“Son of Man” was how Ezekiel referred to himself—and to Daniel 7:13–27. This is one of the lofties…\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 7,
+          "verse": 21
+        },
+        "relabel": "footnotes formerly dd–vv relabeled hh–zz"
+      },
+      {
+        "type": "text_updated",
+        "description": "Luke 8:1, 10, 48 — text updated",
+        "detail": "v. 1: \"reign.\" → \"Reign.\"; v. 10: \"reign,”\" → \"Reign,”\"; v. 48: \"faithfulness has liberated you. Go with\" → \"trust has restored you. Go in\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 8,
+          "verse": 1
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 8:2, 12, 19, 44 — footnotes b, j, n, o, p, bb, cc updated",
+        "detail": "fn. b (v. 2): \"poneros,\" → \"poneros\"; fn. j (v. 12): added \"This is a more literal translation of the Greek diabolon. There’s a history of it being transliterated into other langu…\"; fn. n (v. 19): removed \"The word adelphos, literally means ‘brother’ or ‘sibling.’ It was also frequently used to refer to ‘cousin’ or ‘relativ…\"; fn. o (v. 19): \"Traditionally, ‘Master,’ The Greek word here is epistata, a…\" → \"The word adelphos literally means ‘brother’ or ‘sibling.’ I…\"; fn. p: added \"Traditionally, ‘Master.’ The Greek word here is epistata, a respectful form of address used exclusively by Jesus’ disci…\"; fn. bb (v. 44): removed \"Traditionally, ‘Master,’ The Greek word here is epistata, a respectful form of address used exclusively by Jesus’ disci…\"; fn. cc: added \"Traditionally, ‘Master.’ The Greek word here is epistata, a respectful form of address used exclusively by Jesus’ disci…\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 8,
+          "verse": 2
+        },
+        "relabel": "footnotes formerly j–ll relabeled k–mm"
+      },
+      {
+        "type": "text_updated",
+        "description": "Luke 9:2, 11, 22, 24, 26–27, 48, 60, 62 — text updated",
+        "detail": "v. 2: \"reign\" → \"Reign\"; v. 11: \"reign,\" → \"Reign,\"; v. 22: \"“It’s inevitable\" → \"“It is necessary\"; v. 24: \"surrender it, and whoever surrenders\" → \"lose it, and whoever loses\"; v. 26: \"renown and with the renown\" → \"honor and with the honor\"; v. 27: \"Truly, I’m telling you, there are some standing here who wi…\" → \"Honestly, I’m telling you, there are some standing here who…\"; v. 48: \"what I stand for\" → \"my name\"; v. 60: \"reign.”\" → \"Reign.”\"; v. 62: \"reign,”\" → \"Reign,”\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 9,
+          "verse": 2
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Luke 9:5, 26, 31, 33, 49 — footnotes b, q, r, t, v, w, ee, hh updated",
+        "detail": "fn. b (v. 5): \"reign,\" → \"Reign,\"; fn. q (v. 26): \"Traditionally: ‘James.’ The Greek is Iakobos, from the Hebr…\" → \"Traditionally, ‘holy’\"; fn. r (v. 26): \"Traditionally, ‘appearing in glory.’ This phrase is ambiguo…\" → \"The word angelos means ‘messenger,’ possibly used for spiri…\"; fn. t (v. 31): \"Or ‘booths’ or ‘tabernacles. This is a reference to the fes…\" → \"Traditionally, ‘appearing in glory.’ This phrase is ambiguo…\"; fn. v (v. 33): added \"Traditionally, ‘Master.’ The Greek word here is epistata, a respectful form of address used exclusively by Jesus’ disci…\"; fn. w (v. 33): added \"Or ‘booths’ or ‘tabernacles.’ This is a reference to the festival of Sukkoth, also known as the Feast of Tabernacles, c…\"; fn. ee (v. 49): removed \"The phrase is literally, ‘in my name.’ The concept of ‘name’ in scripture is more than the set of sounds or letters use…\"; fn. hh (v. 49): added \"The phrase is literally, ‘in my name.’ The concept of ‘name’ in scripture is more than the set of sounds or letters use…\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 9,
+          "verse": 5
+        },
+        "relabel": "footnotes formerly u–kk relabeled x–nn"
       }
     ]
   },
