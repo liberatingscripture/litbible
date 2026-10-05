@@ -283,6 +283,16 @@ function wire() {
     openCard(hit.span, hit.mark, { hover: false });
     e.stopPropagation();
   });
+
+  // Ctrl+C copies the text, not the lens. Chrome and Safari serialize the
+  // selection with each element's computed style inlined, after the copy
+  // event and before the next task, so the underline comes off for exactly
+  // that window. The copy itself is left to the browser: nothing is added
+  // to or taken from what the reader selected.
+  document.addEventListener("copy", () => {
+    container.classList.add("is-copying");
+    setTimeout(() => container.classList.remove("is-copying"));
+  });
 }
 
 if (data && container) {
