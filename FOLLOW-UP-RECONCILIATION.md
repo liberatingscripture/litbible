@@ -629,7 +629,8 @@ it at any time.
 
 - **Revelation** has no master document at all.
 - **Acts**'s master holds only 1:1–4.
-- **Luke**'s master stops mid-21:38.
+- **Luke**'s master stopped mid-21:38 at the August capture. It now runs to
+  24:53, and Luke 21–24 were imported from it (2026-09-06 to 2026-10-04).
 
 Every affected chapter is currently `indexed: false`, so nothing published
 depends on them — but a master must exist before any of those chapters can be
@@ -2221,7 +2222,8 @@ under #166. The tables below are sorted by what actually changed.
   already rule these out.
 - **`1corinthians-11` fn-b**: the chiasm's labels, primes, en dashes and quote
   shape. Only §11's line-break item stands.
-- **Luke 1:71 and 1:74, Mark 16:15**: whitespace and poetry markup only.
+- **Mark 16:15**: whitespace and poetry markup only. (Luke 1:71 and 1:74 were
+  listed here too, until the owner ruled the master's lineation right. See §32.)
 - **`matthew-4` fn-x**: the repo sets ‘gospel’ in double quotes where the
   master uses single. Both balance, so this is quote level, not a defect.
 
@@ -2407,3 +2409,62 @@ double quotes). No master copy had the parenthesis, nor did the other 26 repo
 copies, and it had been in the repo since the 2026-02 import. **Owner ruling
 2026-10-01: it doesn't belong.** It was removed from both, so all 28 copies
 now read `from the Anglo-Saxon term`, as Word does. Nothing is owed to Word.
+
+## §32 — Luke brought into line with the revised master (2026-10-05)
+
+The owner revised all of Luke in Word against a whole-book consistency review,
+and all 24 Luke chapters were brought into line with that master. It was a
+merge, not an import: the importer's output would have dropped the repo's own
+structure (`hbq` blocks, paragraph ids, ⟦⟧, topics). So the master supplied the
+words, the notes, their order and where each anchor sits, and the repo kept its
+markup. Afterwards every Luke chapter matches the master in verse text, note
+text, note letters and anchor positions, with the one exception below.
+
+A first pass against an earlier copy of the master turned up six places where
+Word was the wrong side. The owner fixed them in Word before the merge: the
+note at 1:42 (dropped in error), the *makarios* back-ports at 1:45 and 6:22
+that had been missed, 14:14, `luke-23` fn-c, and 24:36.
+
+### Rows this closes
+
+Every Luke row queued for back-port is now in Word:
+
+- §25: `luke-1` v48 and its *makarizo* note, and `luke-22` v69
+- §29: `luke-10` fn-o (`Leviticus`)
+- §31: the Luke rows of pass 5 (*makarios* and *ouai*) and pass 7 (*lestes*),
+  `luke-11` v4, and `luke-23` fn-c
+
+### Luke 1:71 and 1:74 take the master's lineation
+
+This reverses §31's "nothing owed" line. The owner ruled that the repo was the
+wrong side: a poetry line follows the sense, not the verse. So 1:70–75 now
+breaks where Word does, with each verse number mid-line (`God declared 71
+liberation…`, `That oath provides us 74 rescue…`). CLAUDE.md, "Poetry blocks",
+rule 3.
+
+### Still owed to Word
+
+| repo | master | fix |
+|---|---|---|
+| `luke-5` fn-x (5:35) | Luke | `‘carried off”` → `‘carried off’`. The repo keeps its own closer, because the master's leaves the note with an unbalanced quote |
+
+### Alignment records sent back to review
+
+Sixteen confirmed records described renderings the revision replaced. They were
+deleted rather than rejected, so each verse returns to the queue in `npm run
+review:alignment`:
+
+| term | verses | was → now |
+|---|---|---|
+| `forgiveness-letting-go` | 5:20, 5:21, 5:23, 5:24, 7:47 (×2), 7:48, 7:49, 12:10 | "dismissed" / "let go" → "released" |
+| `faith-trust` | 7:50, 8:48 | "faithfulness" → "trust" |
+| `salvation-liberation` | 7:50, 8:48 | "liberated" → "restored" |
+| `glory-praiseworthiness` | 9:26 (×2) | "renown" → "honor" |
+| `sin-deviation` | 13:2 | "deviators" → "people who deviated" |
+
+1:71's record was repaired in place (casing only: "Liberation" →
+"liberation"). Luke 23–24 still have no alignment records at all.
+
+`luke-10` also gained the topic "life of the coming Age", now that 10:25 reads
+"the life of the coming Age", as 18:18 does. Its eternal/everlasting/agelong
+trio stays.
