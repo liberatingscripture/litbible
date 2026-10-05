@@ -603,6 +603,12 @@ break:
   act on the share computed when the panel opened, never on the live
   selection, and `acting` keeps a pressed panel open until it finishes.
 
+A footnote letter, verse number or key term clicked inside a live selection
+opens its own panel, and the selection survives the click, so the next
+`selectionchange` settle would reopen the selection panel over it. `openedKey`
+(the selection the panel last opened for, which a pointerdown doesn't clear)
+lets that panel keep the screen while the selection is unchanged.
+
 The panel never takes focus, so the verse-number menu stays the keyboard and
 screen-reader route to the same copy (in Study View; Read View has none).
 

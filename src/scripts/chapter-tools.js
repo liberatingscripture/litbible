@@ -957,6 +957,9 @@ let pointerDown = false;
 // The selection the panel was last shown for, so a dismissed panel (Escape,
 // or closing itself after a copy) stays closed until the selection changes.
 let shownKey = null;
+// The selection the panel was last opened for, kept across gestures (unlike
+// shownKey, which a new pointerdown clears).
+let openedKey = null;
 
 // Word characters for snapping. An apostrophe or hyphen counts only between
 // two of them ("don’t", "One-of-a-kind"), so a closing quote is never pulled
@@ -1364,7 +1367,15 @@ function initSelectionShare(view) {
       return;
     }
     if (share.key === shownKey) return;
-    shownKey = share.key;
+    // A footnote letter, verse number or key term clicked inside a live
+    // selection opens its own panel, and the selection survives the click.
+    // That panel was asked for; the selection panel it replaced must not
+    // take its place back a moment later.
+    if (currentPanel() && !current && share.key === openedKey) {
+      shownKey = share.key;
+      return;
+    }
+    shownKey = openedKey = share.key;
     openSelectionPanel(view, share, { touch: lastPointerType !== "mouse" });
   }
 }
