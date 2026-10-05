@@ -27,9 +27,10 @@ are recorded so they aren't re-argued.
   If either page and this file disagree, **this file is the newer record**,
   unless a page's version is later than the date above. Keep this file current
   rather than the pages (see "Keeping this file current" at the end).
-- **A brief for BDR's Claude** exists as a Markdown file BVJ was given on
-  2026-10-01 (revised 2026-10-02) to send to BDR. It is summarized under "The
-  brief for BDR" below, including the draft record format it proposes.
+- **A brief for BDR's Claude** is `STUDY-DESK-BRIEF-FOR-BDR.md`, written
+  2026-10-01 (revised 2026-10-02) for BVJ to send to BDR. It is summarized
+  under "The brief for BDR" below, including the draft record format it
+  proposes.
 - **Repo work already done because of the planning:**
   - The license on /read was loosened (PR #248, 2026-10-01); see "License".
   - /read now opens its license disclosure when a link names it (PR #250).
@@ -801,12 +802,15 @@ Better Auth, not Firebase):
 
 ### The brief for BDR
 
-A Markdown brief written for BDR's Claude (2026-10-01, revised 2026-10-02 to
-say /read now opens the terms on arrival). It explains the project, what the
-website will build, the decided account points, the store obligations, and
-asks BDR's Claude to read the app code before answering, correct our
-assumptions, and say what we missed. It went to BVJ to send; whether BDR has
-replied isn't recorded here yet. Its requests, in order: (1) link the license
+`STUDY-DESK-BRIEF-FOR-BDR.md`, written for BDR's Claude (2026-10-01, revised
+2026-10-02 to say /read now opens the terms on arrival). It explains the
+project, what the website will build, the decided account points, the store
+obligations, and asks BDR's Claude to read the app code before answering,
+correct our assumptions, and say what we missed. It went to BVJ to send;
+whether BDR has replied isn't recorded here yet. **When BDR's answers come
+back, record them in this file, and revise the brief if it is sent again.**
+It deliberately leaves out the 2026-10-02 netbible.org round (N10 and D7 are
+website-only; S11 and reading plans come later). Its requests, in order: (1) link the license
 terms from both apps; (2) agree the record format before any code; (3) choose
 the sign-in provider; (4) end-to-end encryption or not, and its cost to the
 apps (Keychain/Keystore, recovery, new devices); (5) today's iCloud and
