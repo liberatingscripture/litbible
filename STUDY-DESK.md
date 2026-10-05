@@ -1,0 +1,1336 @@
+# The LIT Study Desk
+
+The complete record of the Study Desk as planned so far: what it is, every idea
+with its status, every decision BVJ has made and why, the audit and how each
+finding was settled, the account and sync work planned with BDR, and the
+related projects that came out of it. **Nothing is built.** This file exists
+so a future session can pick the work up without the conversations that
+produced it.
+
+**Read this before proposing, designing or building any part of the desk.**
+Many ideas here were weighed and decided, some were declined, and the reasons
+are recorded so they aren't re-argued.
+
+## Where things stand (as of 2026-10-04)
+
+- **Status: planning only.** No desk code, page, data format or service
+  exists in the repo. The phases below have not started, and phase 0 (agree
+  the record format with BDR, pick the narrower reading column) comes before
+  any code.
+- **Two companion pages on claude.ai**, made while planning:
+  - **The plan**, https://claude.ai/artifact/8Eyhmzd1xGTUPrjkwwSUqp (version 12,
+    2026-10-02; shared with anyone who has the link). It has mockups this file
+    can only describe. This file carries all of its content and decisions.
+  - **The audit**, https://claude.ai/artifact/81jSLsvnsfq9gptpp7wJmX (version
+    2, 2026-10-01; private to BVJ). Its findings and BVJ's answers are all in
+    "The audit" below.
+  If either page and this file disagree, **this file is the newer record**,
+  unless a page's version is later than the date above. Keep this file current
+  rather than the pages (see "Keeping this file current" at the end).
+- **A brief for BDR's Claude** is `STUDY-DESK-BRIEF-FOR-BDR.md`, written
+  2026-10-01 (revised 2026-10-02) for BVJ to send to BDR. It is summarized
+  under "The brief for BDR" below, including the draft record format it
+  proposes.
+- **Repo work already done because of the planning:**
+  - The license on /read was loosened (PR #248, 2026-10-01); see "License".
+  - /read now opens its license disclosure when a link names it (PR #250).
+  - Nine footnote quote-mark typos found while planning were fixed
+    (`bf27a4a`).
+  - Three related projects went into FIXLIST (PR #253): LIT previews on other
+    websites, reading plans, and footnotes sorted by kind.
+  - BVJ had asked (2026-10-01) that no pull request open until they confirmed
+    the new license wording. That hold ended when BVJ deployed it (#248).
+
+## Names and IDs
+
+- The feature is the **LIT Study Desk**. Inside it, readers see three names
+  (BVJ, 2026-09-30): **Notebook** (everything a reader keeps), **Places**
+  (where they are reading) and **Sheets** (passages gathered for other
+  people).
+- On computers, where readers now have notes of their own, the verse menu's
+  and selection panel's **"Copy with notes" becomes "Copy with footnotes"**,
+  in both panels (decision 3, audit C26). Phones keep "Copy with notes",
+  since they have one kind of note. Update CLAUDE.md's "One set of actions,
+  two ways in" and "Printing and handouts" when this ships.
+- **Idea IDs**: N notes, B places and bookmarks, H highlights, S sheets, D the
+  desk as a whole. Ideas the audit added keep their **M** numbers. Audit
+  findings are **C1 to C27**. BVJ cites these IDs, so keep them stable; never
+  renumber.
+- **People**: BVJ is the owner (Brandon). BDR is the developer of the iOS and
+  Android apps and collaborates on accounts and sync.
+
+## Origin
+
+On 2026-09-30 BVJ asked whether an idea first pitched for the apps could work
+on the website: "Source sheets without accounts. Sefaria's best idea, adapted:
+let a user assemble passages plus their own notes into a sheet and export it as
+PDF or Markdown, entirely on device. Bible study leaders, the spiritual
+directors in your LSC directory, and seminary instructors would use this
+weekly, and it gives you a community feature without you having to run a
+social network or hold anyone's data."
+
+That grew into reader notes, then a whole desk: notes, bookmarks, highlights
+and sheets, explored creatively against how other sites do it, including
+whether the existing menus are enough, whether a new menu is needed, or
+something else entirely.
+
+## Ground rules (owner decisions)
+
+1. **Desktop only** (BVJ, 2026-09-30). Phones and tablets use the free apps.
+   "The apps are free btw, so there's no such thing as 'giving it away for
+   free' by having it on the website." Overlap with the apps is therefore not
+   a cost; the only question is what's useful at a desk.
+   - The gate is `isAppPlatform()` in `src/scripts/announcement-gate.js`, the
+     OS test behind "Make an image" and the app QR code. It treats an iPad
+     reporting itself as a Mac as an app platform. The notebook's code loads
+     through a dynamic import on computers only, so phones and tablets
+     download none of it.
+   - **Exception (audit C1): account pages work on every device.** Sign-in,
+     verification, password reset, account settings and deletion must work
+     on phones (Google Play requires a web deletion page, and people open
+     reset emails on phones). Gate the notebook, not the account.
+2. **No account is the default, forever.** Everything works without one. An
+   optional account adds sync (see "Accounts and sync").
+3. **Your words never look like the translation.** On screen, on paper and in
+   every export, the reader's text is set apart from LIT text. The reader's
+   words use an indigo color (the plan's `--mine`), never the site's green.
+   This also keeps sheets inside the license, which asks that the text be
+   quoted as written.
+4. **Blanks, never substitutions.** A handout may leave the LIT's words blank
+   for participants to fill in, as long as the answer is the LIT's own word.
+   It never prints other words in their place.
+5. **The apps' contract doesn't change** through phase 3: no change to chapter
+   JSON, `/api/`, the glossary feed or anything else the apps read. Accounts
+   add a separate service outside `/api/`.
+6. **Study View vs Read View** (CLAUDE.md's rule): Read View gets what serves
+   reading a book straight through; tools about a verse or a word go in Study
+   View. The desk follows it: notes are a Study View tool, and Read View gets
+   a smaller set (decision 2, audit C2).
+7. **Quiet controls** and the site's other existing rules apply: keyboard
+   shortcuts never use Ctrl, Alt or Cmd; every page keeps exactly one way in
+   to search; announcements never appear over scripture.
+
+## What desktop-only changes
+
+Several limits that came from phones fall away at a desk:
+- **The phone row rule stops applying.** A mouse or the keyboard opens the
+  verse menu as rows, never chips, so new actions don't have to share a row
+  on a phone screen.
+- **Hover is available.** The term lens already opens on hover; the margin
+  can offer a quiet "+" the same way.
+- **The margins are empty.** The reading column is about 681px at the default
+  text size, so a 1,280px window leaves about 300px a side. X11 would have put
+  footnotes in the right margin and was declined, so both margins are free
+  today, and narrowing the column at launch leaves more.
+- **Files, printers and projectors are here.** Chrome and Edge can save
+  straight into a file the reader picks.
+- **The gate already exists** (`isAppPlatform()`).
+- **The apps are free, so overlap costs nothing.**
+
+## Where to start (the plan's recommendation)
+
+1. The notebook itself, in the menus, the margin, the panel and the search
+   box: all four placements with N1. Everything else builds on it.
+2. Keep it safe in the reader's own file: D1. Browser storage alone can
+   vanish.
+3. Notes that notice the translation moved, and "What's new for you": N3 and
+   B3. The LIT changes weekly, and the data is already in the release notes.
+4. What only the LIT can offer: N2 and H2, from the reviewed alignment.
+5. Sheets built on the translation's own data: S1, S3, S4 and S10.
+6. One quick win needing no storage: N9.
+
+## The shape: one notebook, four verbs
+
+Each verb happens on the reading page, and everything a reader makes lands in
+one notebook, leaving it only by the reader's choice.
+
+- **Keep a place** (Places). Where you are reading. One exists already
+  ("Continue reading", `lit_last_read`), and Read View keeps another for every
+  book (`lit_rm_resume_<book>`).
+- **Mark words** (Highlights). Words you mark, in colors whose meaning you
+  name.
+- **Write a note** (Notes). Your words, attached to a verse or a range and
+  sometimes a phrase, always dated.
+- **Gather passages** (Sheets). Passages in an order you choose, with your own
+  text between them, made for other people.
+- Bookmarks: verses to come back to, each with an optional label.
+
+The notebook is kept in this browser, in the reader's own file if they choose
+one (D1), and in their account if they sign in. It is searchable from the
+site's search (D2).
+
+**Out, only when asked**: print a leader or participant copy, present on a
+projector, Markdown or a copy for Word, a link or a file, and a printed code
+that opens the app on a phone. Nothing leaves the computer unless the reader
+prints, exports, shares or signs in to sync.
+
+## Where it lives: four placements, all decided in
+
+BVJ asked whether the current menus suffice, whether a new menu is needed, or
+something else. The plan mocked four placements on Romans 8 at 1,200px.
+**Decided 2026-10-01: all four.** The menus are for doing, the margin for
+seeing, the panel for finding, and commands in search for people who prepare
+every week.
+
+1. **The current menus.** "Add a note", four highlight colors, "Bookmark" and
+   "Add to a sheet…" join the verse menu under a "Yours" heading (shortcuts N
+   and B were mocked), and the selection panel gets the same four in Study
+   View. A verse with a note gets a small dot on its number, and the menu
+   shows the note at the top. **In Read View the selection panel offers only
+   "Bookmark" and "Add to a sheet", plus "Highlight" only when Read View's
+   highlights are switched on** (audit C2; Add a note is left out). Gains:
+   nothing new to find, and the keyboard and screen-reader route already
+   exists. Costs: notes stay hidden until a menu opens, and the menu grows
+   from four actions to eight.
+2. **Your margin.** What you've written appears in the left margin beside its
+   verse, like pencil in a printed Bible. Hovering a line shows a "+" to start
+   a note (no tab stop, like the term lens). The right margin stays empty.
+   It needs about **230px of free space** beside the column, decided by the
+   space left, not the window width; otherwise it falls back to dots and the
+   panel (audit C9). The apps already mark notes in the left margin.
+   - **About X11**: the feature audit's X11 (footnotes in the margin on wide
+     screens) was declined on 2026-09-28. BVJ confirmed (2026-10-01) that the
+     reason for declining it doesn't rule out the reader's own notes in the
+     margin. The reason itself was never recorded, and BVJ doesn't recall it,
+     so don't cite it.
+3. **A notebook panel.** A Notebook button beside "Aa" opens a panel docked on
+   the right that stays open while you read: this chapter's notes, places,
+   sheets, everything, search, and (N10) "This verse". The text moves left to
+   make room. It is part of the page frame, not one of the shared floating
+   panels: floating panels (verse menu, footnote popovers, term lens,
+   selection panel) keep clear of it, and clicks inside it don't close them
+   (audit C12). Mock: tabs "Romans 8 / Places / Sheets / Everything / Search",
+   with "Kept in this browser · Keep it in a file…" at its foot.
+4. **Commands in search.** The search box "/" already opens also takes
+   commands: "note 8:28", "mark pistis", "add to Thursday", listed above the
+   results in "Do" and "Go to" groups. It reuses the existing reference
+   parser, so "jn 3.16" works. **No Ctrl K** (audit C11): the site never
+   overrides a browser shortcut (Ctrl K is Chrome's and Firefox's web
+   search), and every page keeps one way in to search.
+
+**Three answers that aren't a menu**, all in the plan too:
+- **A page of its own**: a notebook page with filters by book, kind and
+  label, search, and export. The panel's "Everything" tab opens it.
+- **A file the reader owns** (D1): the notebook as a Markdown file they can
+  open in Word, Obsidian or any text editor.
+- **Paper** (N9): print any chapter with a ruled margin.
+
+## The ideas (47)
+
+"New" means no Bible site or tool was found doing it; "Borrowed" names the
+source. Sizes run extra small to large. Status is BVJ's decision where one was
+made; "proposed" means it's in the plan without a separate decision (the
+plan as a whole was accepted; nothing was declined except where stated).
+
+### Notes
+
+- **N1. Notes in your margin.** Placement 2 above. Falls back to a dot on the
+  verse number and the panel without ~230px of free space (C9). Notes sit
+  outside the scripture's reading order, linked from the verse (C24).
+  Borrowed (Edwards's Blank Bible, the LIT apps). Medium. **Decided: the
+  margin is in.**
+- **N2. Notes that follow a word.** Write a note on a glossary term once and
+  it appears in the term lens card wherever that term is marked, about 4,300
+  places across published chapters. A note on *sarx* shows under
+  "self-preservation" in Romans 8 and under "family" in Mark 10:8. No Bible
+  site attaches a reader's note to a translation's concept across all its
+  renderings, because none has the reviewed alignment. New. Small to medium.
+  Proposed. Mock: the term lens card for "self-preservation" ("Traditionally
+  flesh · Greek sarx", also rendered body 65, family 10, self-serving impulses
+  8, flesh 7) with "Your note on sarx" and a "Mark sarx through Romans · 28"
+  button.
+- **N3. Notes that notice the translation moved.** Each note and highlight
+  keeps a **copy of its verse as it read when made**. When a later publish
+  changes the wording, the note says so and shows exactly what changed,
+  compared against that copy with quotes, dashes and spaces evened out, so
+  punctuation passes don't count (audit C3). The release notes supply the date
+  and reason when they have an entry. A highlight whose words are gone falls
+  back to the whole verse and offers to mark the new words. New. Medium.
+  Proposed. Mock: a note on Romans 4:7 from Aug 14 ("'Gratified,' not
+  'blessed'") flagged "Changed Sep 3, after you wrote this", with "Mark the
+  new words" and "Release note".
+  - Why the copy (C3): publishes logged in `release-notes-skip.md` produce no
+    entry, entries truncate long passages with "…", and the August passes
+    (439 straight quotes curled, 413 en dashes) changed no wording but would
+    trip a plain fingerprint.
+- **N4. Your own chains.** A reference typed in a note becomes a link with a
+  preview through the same linker the footnotes use (`linkScriptureRefs` is
+  pure and can run in the browser), and the cited verse shows "Mentioned in
+  your note on Romans 8:3–4." Borrowed (Thompson Chain-Reference, Obsidian).
+  Medium. Proposed.
+- **N5. A history with a passage.** Dated notes shown in order on a passage
+  you keep returning to: "You first wrote here in March 2025." Suits spiritual
+  direction. New. Small. Proposed.
+- **N6. Questions as their own kind.** Mark a note as a question; a sheet
+  gathers them into a "For discussion" section in passage order. Borrowed
+  (Logos Sermon Builder). Extra small. Proposed.
+- **N7. The interleaf.** A Display tray switch that opens a ruled band after
+  each paragraph holding your notes for it, like Edwards's blank leaves.
+  Works in windows too narrow for the margin. **Bands open only when the
+  reader asks**, so the page never jumps on load (audit C13; layout shift
+  was the site's worst Core Web Vital until the `--ch` fix). New. Small.
+  Proposed.
+- **N8. A note to yourself before a hard passage.** A private note before a
+  passage, with the passage **blurred** under it and one click (or Enter) to
+  show it. **Decided 2026-10-01: blur, one click to show** (BVJ's idea,
+  replacing "folded behind it": blurring keeps the passage's place and length
+  visible, and nothing moves when shown). Two details proposed with it: screen
+  readers get the same protection (the blurred verses are hidden from them
+  too, announced as "Passage hidden by your note" with a Show button), and it
+  works in both views, since Read View is where a reader meets a passage
+  without warning. Different from the feature audit's X10 (declined), which
+  would have been the translation speaking to everyone; here only the reader
+  speaks, to themselves. New. Medium. Sensitive. The mock deliberately names
+  no passage.
+- **N9. Print with room to write.** A print option setting the text in a
+  narrower column beside a wide ruled margin, like a journaling Bible. Stores
+  nothing; a variant of `print.css`. Borrowed (journaling Bibles). Extra
+  small. Can ship any time, independent of everything else.
+- **N10. One verse, everything about it.** Borrowed from netbible.org, whose
+  side panel follows the passage with the translation's notes and the
+  reader's. **Decided 2026-10-02: one verse at a time.** A "This verse" tab in
+  the Notebook panel shows the verse you picked (by its number or from the
+  verse menu) with its footnotes and your notes on it, and stays put while you
+  read on. It is also where other translations of that verse appear (D7). The
+  footnote letters, popovers and end list stay as they are. Small. Phase 1.
+- **M6. Print my annotated chapter or book.** A chapter, or a whole book from
+  Read View, printed with your notes in the margin and highlights shown. N9
+  is the blank version. New. Small. **Decided: yes.**
+- **M11. Notes on a footnote.** A note attaches to a footnote by quoting its
+  words, not its letter, so it survives relabeling; N3's notice applies when
+  the footnote is rewritten. New. Medium. **Decided: yes.**
+
+### Places and bookmarks
+
+- **B1. Places, plural.** "Continue reading" and Read View's per-book places
+  shown together, plus a few named ribbons ("Thursday group", "Morning
+  reading"). **A ribbon moves while you read from it**: open a book through
+  "Thursday group" and that ribbon follows you until you leave the book;
+  otherwise only "Continue reading" moves (audit C25). Partly new. Small.
+  Proposed.
+- **B2. Bookmarks that remember why.** An optional label and how you got there
+  (the search for "debt", the podcast episode, the Romans intro), so the list
+  reads like a trail. New. Small. Proposed.
+- **B3. What's new for you.** The release notes filtered to verses in your
+  notebook ("Three changes since your last visit touch your verses"), using
+  N3's comparison. New. Small. Proposed. The mock used three real changes:
+  Romans 4:6–9 (Sep 3, "Gratified" → "How greatly fortunate"), Galatians 3:27
+  (Aug 21, "submersed" → "immersed"), Romans 8:28 (Aug 3, "intention." →
+  "intention, for what's beneficial.").
+- **B4. Your marks beside the scrollbar.** In Read View, small ticks beside
+  the scrollbar show your places, and your highlights when Read View's
+  highlights are on. **No ticks for notes**, since Read View doesn't show them
+  (audit C14, decided). Borrowed (code editors, Chrome's find bar). Small.
+
+### Highlights and marks
+
+- **H1. Your own legend.** Four colors, the same number as the apps, each with
+  a meaning the reader names (promise, question, harm, liberation, anything).
+  Lists and exports group by meaning. Colors stay well away from the site's
+  selected-verse green. **Read View: highlights hidden by default**, with a
+  new Display tray switch stored per view the way verse numbers are
+  (decision 2); only then does Read View's selection panel offer Highlight
+  (C2). Every highlight is announced in words ("Verse 3, highlighted as
+  promise"), each color gets a second cue such as its own underline (C4,
+  WCAG 1.4.1), and **colors are stored by the apps' own color names** so they
+  match on every device (C8). Borrowed (inductive marking, Logos palettes).
+  Small. **Decided: off in Read View by default.**
+- **H2. Mark a concept through a book.** From the term lens card, mark every
+  place a term appears in a book across all its renderings. *Pistis* in
+  Galatians: 26 places (faithfulness 23, trust 2, allegiance 1); *sarx* in
+  Romans: 28 (self-preservation 18, body 6, lineage 3, family 1). Reads only
+  the records /glossary publishes (the alignment gate). **Saved as a rule**
+  ("mark pistis in Galatians"), worked out from the gated data on each load,
+  so marks follow newly reviewed records and new chapters (audit C23). New.
+  Medium. Proposed. Becomes exact once phase 2 of the alignment publishes.
+
+### Sheets
+
+- **S1. Sheets get their own page.** Add passages from the verse menu, a
+  selection or the notebook; drag into order; write your own text between
+  them. Saves on this computer as you type, like Sefaria's, with no account.
+  Passages always come from the live text. Borrowed (Sefaria). Large.
+  Proposed. Mock (`litbible.net/sheets/`): "Freedom and the Life-breath",
+  Thursday group, toolbar "Present / Print ▾ / Copy for Word / Save as
+  Markdown / Share…", per-passage controls "Blanks: deviation ▾" and
+  "Footnotes: 5 of 5 ▾", "+ Passage / + Your text / + Question", and side
+  cards for Key terms, License and Copies.
+- **S2. Text as of a date, checked before printing.** A sheet shows the
+  current text and the day it was checked, and flags a passage that changed
+  after you added it, using N3's comparison. New. Small. Proposed.
+- **S3. A key terms box, filled in for you.** Every glossary term in the
+  sheet's passages with its traditional word and the Greek ("self-
+  preservation, traditionally flesh, sarx"), printed as a box at the end.
+  Only the LIT has the data. New. Small. Proposed.
+- **S4. Leader and participant copies.** The leader's copy has every note,
+  including private ones, and the answers to blanks. The participant's copy
+  has the passages with their blanks, text marked to share, the questions,
+  ruled space to write, the key terms box and a code per chapter. Printed
+  sheets fit **US Letter or A4** (audit C27). The mocked participant copy
+  ("Thursday group · October 2, 2026 · Participant copy") prints the leader's
+  shared note, a QR code per chapter ("Scan to read Romans 8 in the LIT app";
+  the mock's codes were real, for `litbible.net/romans-8/#v1-4` and
+  `/galatians-5/#v13`), the key terms box with a line noting one term is left
+  blank and its answer is on the leader's copy, a "For discussion" list, and
+  at the foot `LIT_CREDIT_LINE` word for word plus each chapter's address
+  ("litbible.net/romans-8 · litbible.net/galatians-5"). Borrowed (classroom
+  handouts, Logos Sermon Builder). Medium. **Decided: blanks are in.**
+- **S5. Printed codes that open the app.** Each chapter on a printed sheet
+  carries a QR code: the app if installed, the website otherwise. The site's
+  `apple-app-site-association` already claims every book's chapter addresses
+  (`/<book>-*`) and `/glossary`; `assetlinks.json` uses `handle_all_urls`, and
+  the Android app keeps its own path list, which is worth checking. The
+  `qrcode-generator` library would move from a build-only devDependency to
+  something the page loads (C21). New. Small. Proposed.
+- **S6. Present mode, with a reveal.** Full screen, one passage at a time,
+  large type, arrow keys, for a projector or a video call; a projector screen
+  stays dark in either theme. An optional reveal (R) shows a key term's
+  traditional word first, then the LIT's rendering and its footnote (F).
+  The license lets a class, study group or sermon display any amount. New.
+  Medium. **Decided: the reveal is in** (decision 6).
+- **S7. A license check for commercial work.** An ordinary sheet shows no
+  limits at all: it adds the credit line, keeps footnotes beside their verses
+  and **links to the license terms**, and that's all. A checkbox, "This is for
+  a commercial project", turns on the commercial-quotation check: how much of
+  the work is LIT text against the 50% the terms allow, and whether the
+  quotations amount to a complete book. BVJ's original instruction: "The
+  meter should be absent or subtle and maybe only toggled on when someone
+  checks a box for 'working on a project for commercial use?' or something
+  like that." New. Small. **Decided: hidden unless commercial.**
+- **S8. Share without a server.** A file (the Markdown export carries the
+  sheet's data) or a link (the whole sheet after the #, which browsers never
+  send to a server). Test first: a developer traced Cloudflare's analytics
+  beacon reading the full address at start
+  (https://github.com/jwh3times/magic-agenda/issues/295), so the sheet page
+  clears the # part before the beacon runs; confirm in the network log. A
+  references-only sheet fits a QR code. A shared link opened on a phone or
+  tablet says to open it on a computer, and the address is chosen so the apps
+  could claim it later. Signed-in readers get short links (M14). Borrowed
+  technique. Medium. **Decided: computers only for now** (decision 4).
+- **S9. Copy for Word and Google Docs.** A rich copy keeping headings,
+  italics and the credit line, since most bulletins are built in Word.
+  Sefaria's export needs a Google account; this needs nothing. Borrowed
+  (Sefaria). Small. Proposed.
+- **S10. Blanks where the key terms go.** A participant copy can leave any
+  words blank, with answers on the leader's copy. The LIT-only kind: blank the
+  translation's key terms and print the traditional word beneath as the hint
+  ("traditionally sin" under a blank, then the LIT's "deviation"), the paper
+  version of S6's reveal. Blanks are omissions, never substitutions; the
+  license allows them for teaching. **The leader chooses which footnotes
+  print**, passage by passage, with Select all and Unselect all, and the sheet
+  **flags any footnote that would give a blank away**, leaving it unticked for
+  the leader to decide (audit C15). The mock used Romans 5:6–10 with
+  "deviating" blanked: footnote c ("Or 'people characterized by deviation' or
+  'deviant ones.' Traditionally, 'sinners,'…") is flagged "Gives away the
+  blank". New. Small. **Decided: blanks are in.**
+- **S11. Footnotes sorted by kind.** Borrowed from NET Bible, which labels
+  each note tn (translator's), sn (study) or tc (text-critical). LIT
+  footnotes could carry a kind (wording, background, source text, quotation;
+  categories BVJ's to choose) so the footnote picker prints one kind in a
+  click, Study View filters, and the apps could too. Editorial work across
+  5,000+ notes, and an optional field in chapter JSON the apps read. **Decided
+  2026-10-02: maybe a later project, not part of the first launch; in FIXLIST
+  to consider.** The desk doesn't depend on it. Large. Content, not code.
+- **M2. A presenter view on two screens.** The passage on the projector, and a
+  second window on the laptop with the leader's notes, questions and what
+  comes next. Chrome and Edge can place a window on a second screen (Window
+  Management API); elsewhere the leader drags it. The two windows stay in
+  step like two tabs (BroadcastChannel). Borrowed (presentation software).
+  Medium. **Decided: yes.**
+- **M3. A code on the screen so the room can follow along.** Present mode's
+  first screen shows S5's QR code. New. Extra small. **Decided: yes.**
+- **M4. A word study in one click.** From the term lens or a /glossary entry,
+  "Make a word study of sarx in Romans" builds a sheet of every gated place,
+  grouped by rendering, with the key terms box and starter questions. Could
+  take a Strong's number too once the Greek alignment publishes. New. Small to
+  medium. **Decided: yes.**
+- **M5. A sheet from a search or a topic.** On /search, "Add these verses to a
+  sheet" gathers the results (or ticked ones); a topic does the same with its
+  chapters. Small. **Decided: yes.**
+- **M9. Templates, including a contemplative one.** Bible study, sermon
+  preparation, a class session, or lectio divina's four movements (read,
+  reflect, pray, rest). Speaks to the spiritual directors named in the origin.
+  Small. **Decided: yes.**
+- **M14. Share links for signed-in readers.** A short read-only link that can
+  be switched off and needs no account to open; replaces S8's long links for
+  signed-in readers. Under end-to-end encryption the key travels after the #
+  (C19). Medium. Phase 4. **Decided: yes.**
+
+### Across the desk
+
+- **D1. Bring your own sync.** In Chrome and Edge (File System Access API;
+  Chrome 122+ offers "Allow on every visit"), the reader picks a file once,
+  perhaps in OneDrive, Dropbox or iCloud Drive, and the notebook saves into it
+  on every change; their cloud carries it to other computers with no account
+  and no LIT server. Firefox and Safari can't write to a chosen file, so they
+  get "Save a copy" and "Open a copy". The file is plain Markdown, and edits
+  made elsewhere come back in as long as the headings stay as written. Rules:
+  one source of truth at a time (C5, below); **a note missing from the file is
+  unreadable, never deleted**, deleting happens in the notebook or through an
+  explicit marker, and anything unparseable goes to a review list (C17). New.
+  Medium. Proposed. The mocked file format:
+
+  ```markdown
+  # My LIT notebook
+  <!-- lit-notebook 1 · saved 2026-09-30 12:04 -->
+
+  ## Romans 8:3–4
+  https://litbible.net/romans-8/#v3-4
+  Note · 2026-09-12
+
+  > rendered a verdict against deviation in
+  > self-preservation
+
+  Self-preservation as the drive to protect
+  my standing. Compare Galatians 5:13.
+
+  ## Romans 4:7
+  https://litbible.net/romans-4/#v7
+  Note · 2026-08-14 · verse changed 2026-09-03
+
+  "Gratified," not "blessed": the relief of
+  being let off, with nothing earned.
+
+  ## Places
+  - Thursday group: Luke 15:11
+  - Morning reading: Mark 4
+  ```
+
+- **D2. Search your notebook from the site's search.** The search tray and
+  /search add a "Your notebook" group, searched in the browser; nothing about
+  the query leaves the computer. Borrowed (ESV.org, Logos). Small. Proposed.
+- **D3. Commands in the search box.** Placement 4. Borrowed (desktop
+  software). Medium. **Decided: in the search box, no Ctrl K.**
+- **D4. Pop the notebook out.** Document Picture-in-Picture (Chrome, Edge, and
+  Firefox since 151) opens a small always-on-top window holding the notebook,
+  beside the text or a video call. Safari can't, so it's an extra, never the
+  only way. New, experimental. Small. Proposed.
+- **D5. Lock the notebook on a shared computer.** An optional passphrase
+  encrypts the notebook in the browser, for church offices and family
+  computers; a forgotten passphrase loses the notes for good, so it's opt-in
+  and says so. The same kind of reader-held key is how synced notes could
+  stay unreadable to the LIT, so **D5 is designed with the account's
+  encryption and built in phase 4**; a locked notebook writes an encrypted
+  file or pauses the file with a notice (audit C6). Borrowed technique.
+  Medium. **Decided: an option** (BVJ: "D5 is good for an option").
+- **D6. A first-time choice, and a page that explains it.** From BVJ's answer
+  to C5. The first time someone uses the notebook it asks "Where should your
+  notebook live?": keep it on this computer (no account; optionally also save
+  to a file) or create an account, each saying plainly what it means,
+  including what's lost if the browser is cleared. A page, **"Ways to keep
+  your notebook"**, linked from the choice and from sign-up, explains every
+  option and every way to sign in, and how to opt out or leave an account
+  later while keeping everything on the computer. Before accounts exist, the
+  choice offers the computer and the file and says accounts are coming.
+  Safari readers hear that Safari can clear a notebook after a week without a
+  visit (C18). In Firefox and Safari the file line becomes "Remind me to save
+  a copy". Small. **Decided.**
+- **D7. Compare a verse with other translations.** Borrowed from NET's
+  "Parallel". Other translations appear side by side in N10's "This verse"
+  tab. Status, 2026-10-02:
+  - **Decided: the KJV, stored on the site.** Public-domain text taken from
+    eBible.org or library.bible and kept on litbible.net like the LIT's own,
+    so it needs no key, no request and no tracking, and works even if API.bible
+    is ruled out. It gives readers the traditional wording they know. (In the
+    UK the KJV is still nominally under a Crown patent, which in practice
+    doesn't stop websites showing it.) Maybe others later: the American
+    Standard Version, the World English Bible or the Berean Standard Bible,
+    all public domain.
+  - **To consider: API.bible** (the American Bible Society's Scripture API)
+    for licensed translations. **BVJ's picks: NASB 2020, CSB, NIV.** BVJ's
+    API.bible dashboard offers the NIV 2011 (Biblica) and the CSB (Lifeway)
+    at $0 a month, and lists the NASB 2020 (pick 2020, not 1995). Its terms as
+    read 2026-10-02:
+    - The free Starter plan: public-domain and Creative Commons Bibles plus up
+      to three licensed ones, noncommercial only, 5,000 requests a month, and
+      "no ads, fees, freemium models or upsells"; worth confirming the site's
+      donation page doesn't count. More than three licensed translations
+      would mean a paid plan (Pro from $29 a month; commercial licenses from
+      $10 a month per translation; API.bible bars NIV commercial use).
+      Whether a paid plan allows more licensed translations for
+      noncommercial use is unconfirmed; ask.
+    - **A tracking script (FUMS, its Fair Use Management System)** must load
+      on pages showing licensed text: it reports views with a random device ID
+      and session ID, plus a hashed user ID when signed in, and sets no cookies
+      by its own account. The site deliberately doesn't measure who reads what
+      (M12), so it would load only when a reader opens the comparison, and the
+      privacy page would name it. Ask whether openly licensed Bibles need it.
+    - Keep the API key out of the page: a small Worker fetches and caches the
+      text; cached text must be refreshed at least every 30 days. That is the
+      desk's first server code before accounts, so it may wait for phase 4 or
+      get a Worker of its own. Add its origin to the CSP report-only list.
+    - Display rules: each version's copyright notice, no alteration, at most
+      500 consecutive verses at once, no text-to-speech or AI use of licensed
+      text, no AI training.
+  - **NRSVue and CEB are not on API.bible** (BVJ checked). Both cap free
+    quotation at 500 verses (and under 25% of a work, not a whole book), and
+    the NRSVue's terms count "all verses that can be accessed from the
+    website", so a tab that can show any verse needs a license for each. The
+    original 1989 NRSV is no longer licensed (except the Catholic edition), so
+    ask for the NRSVue. NRSVue: Petradi Rights Management for the National
+    Council of Churches (NCCrights@petradirights.com). CEB: Abingdon Press's
+    permission request form (about 15 business days). Either may charge a fee;
+    the site would host the text itself, like the KJV, with each publisher's
+    notice. Required notices: NRSVue "Scripture quotations are taken from the
+    New Revised Standard Version Updated Edition. Copyright © 2021 National
+    Council of Churches of Christ in the United States of America. Used by
+    permission."; CEB "Scripture quotations from the COMMON ENGLISH BIBLE. ©
+    Copyright 2011 COMMON ENGLISH BIBLE. All rights reserved. Used by
+    permission. (www.CommonEnglishBible.com)." I offered to draft both
+    requests; BVJ hasn't asked yet.
+  - **Verse numbering differs in places.** The LIT's 2 Corinthians 13 has 13
+    verses and its 3 John 15, where the KJV has 14 in each, so every
+    translation in the tab needs a small map, checked against its text the
+    way the Sefaria map was (counts alone prove nothing). The API.bible ones
+    need the same check.
+  - **In the LIT's verse gaps** (Matthew 17:21 and the rest), the KJV has the
+    traditional verse, so the tab can show it beside the LIT's note on why it
+    isn't there.
+  - **Fallback**, with no key, server or tracking: a plain link out to the
+    verse on STEP Bible (free, nonprofit, no ads) or Bible Gateway, the way
+    Hebrew Bible references link out to Sefaria. Bible Gateway also covers
+    the NRSVue and CEB until any license comes through.
+  - Still open: whether API.bible's tracking is acceptable, which other
+    free-to-share translations join the KJV, and whether to request the
+    NRSVue and CEB licenses. Borrowed (NET Bible). Medium with API.bible.
+- **M1. Hide my notes, in one keystroke.** A switch with a shortcut that hides
+  every note, highlight and mark at once, for sharing a screen or teaching
+  from Study View. N8 makes it matter. Present mode already leaves notes out.
+  Small. Privacy. **Decided: yes.**
+- **M7. A trash with undo.** Deleted notes and sheets wait 30 days; matters
+  more with sync, since a deletion reaches every device. Small. **Decided:
+  yes.**
+- **M8. Your own tags across everything.** One set of personal tags across
+  notes, highlights, bookmarks and sheets, filtered in the panel and on the
+  notebook page; covers named notebooks (Blue Letter Bible's takeaway).
+  **Decided: yes, name open**: if the site's topics are renamed tags (see
+  "Topics and tags"), the reader's own could be called labels. Small.
+- **M10. Your notebook where you already look.** A "Verses in my notebook"
+  filter on /release-notes; your note on a term on its /glossary entry; a
+  "Your notes here" row in Go deeper. New. Extra small. **Decided: yes.**
+- **M12. A help page, a quiet launch, and a way to say what's missing.** The
+  help page is D6's "Ways to keep your notebook", plus how to back up, how to
+  delete everything, and **a link to the license terms** for anything a
+  reader shares. A line in the release notes and the newsletter at launch
+  (the announcement slot never appears over scripture). A "Tell us what's
+  missing" link in the panel opening the contact form, because the site
+  deliberately doesn't measure who uses what. Small. **Decided: yes.**
+
+## How it would be built
+
+Through phase 3 everything runs in the reader's browser; accounts add a
+server. Most hard parts exist in the repo already.
+
+- **The gate**: `isAppPlatform()`, dynamic import on computers only; account
+  pages excepted (C1).
+- **Storage**: IndexedDB, one database, with BroadcastChannel keeping two open
+  tabs in step. Ask for persistent storage (`navigator.storage.persist()`):
+  Chrome grants by engagement, Firefox asks, Safari grants mainly to Home
+  Screen web apps. Safari's tracking prevention clears script-written storage
+  after seven days of Safari use without a visit, so the file (D1), an account
+  or an export is the real backup, and the notebook says when it was last
+  backed up. **Sync-ready from the first record**: a permanent ID, the time it
+  last changed, a deletion marker (tombstone), a copy of the verse as it read
+  (C3), and a version number on the format (C22).
+- **Anchors**: verse numbers carry `data-osis` ("Rom.8.3"), which keys a note
+  to its verse. A phrase note also quotes its words with a little text before
+  and after (the W3C Web Annotation TextQuoteSelector, the method Hypothesis
+  uses), found again each visit, falling back to the verse with N3's notice
+  when gone. **Footnote letters are never anchors**: the 2026-09-03 change to
+  Romans 4 relabeled notes m–v as o–x. **Phrase anchors read the text the way
+  Copy does**, through `countable` and `stripBracketMarkers` in
+  `chapter-tools.js`, so a quote taken in one view finds its words in the
+  other (C16). The notebook becomes another consumer that must strip ⟦ ⟧ (see
+  CLAUDE.md, "Bracketed passages"). Leave room for anchors on a Greek word
+  (book, chapter, verse, SBLGNT word position) for the later Greek project.
+- **Drawing**: highlights use the CSS Custom Highlight API (Chrome 105, Safari
+  17.2, Firefox 140), which the site already uses for a selected verse; it
+  paints without changing the DOM, so Copy text, handouts, the term lens and
+  search read exactly what they read today. It is invisible to screen
+  readers, hence C4. Margin notes are placed from the existing `data-verse`
+  spans and re-placed when the Display tray reflows the text.
+- **Accessibility**: a verse number with a note or highlight says so in words
+  ("Verse 3, has a note, highlighted as promise") and the panel lists
+  everything (C4). Notes sit outside the scripture's reading order, linked
+  with `aria-details` (C24). The verse menu stays the keyboard and screen-
+  reader route. Notes stay reachable from the margin and panel with verse
+  numbers or key terms switched off; say so in those settings' help text
+  (C10). The margin "+" adds no tab stop. Single-key shortcuts (N, B) obey the
+  existing Keyboard switch (WCAG 2.1.4).
+- **Formats**: Markdown for people, every heading linking to its verse. JSON
+  in the W3C Web Annotation shape for everything attached to the text (its
+  motivations cover bookmarking, commenting, highlighting, questioning,
+  tagging and linking), and a small versioned LIT format for sheets and
+  places, which Web Annotation can't express (C22). Printing through the
+  existing `print.css`, plus a rich copy for Word.
+- **Reuse**: `joinPieces` and `assembleHandout` for copying; `print.css`,
+  `PrintCredit` and `LIT_CREDIT_LINE` for paper; the shared panel
+  (`lit-panel.js`); `linkScriptureRefs`; the term lens data and the alignment
+  gate; `parseDetail` from the release notes page for N3's before and after.
+- **The contract**: no change to chapter JSON, `/api/`, the glossary feed or
+  anything the apps read. The privacy page gains one paragraph.
+- **Plumbing (C21)**: notebook, sheet and account pages are noindex and stay
+  out of the sitemap and Pagefind. Sign-in forms update the enforced CSP
+  `form-action` list. The account Worker gets its own CI job and Dependabot
+  stream (as `workers/contact-form/` has) and its secrets and DNS in
+  DISASTER-RECOVERY.md. The QR library ships to the page. `read-mode.js` can't
+  import modules (it's loaded via `?url`), so Read View talks to the notebook
+  through events, the way it reports reading positions (`rm:position`).
+- **Greek and Hebrew fonts (C27)**: self-hosted, loaded only on pages
+  containing those letters via `unicode-range`, the way
+  `public/fonts/bracket-markers.otf` loads. Check printed sheets and present
+  mode with both, and make sheets fit Letter and A4.
+- **The reading column**: currently `--reading-measure` 60 × `--ch` (about
+  681px at the default size, about 870px at the largest). **BVJ wants it
+  narrower when the desk launches** (C9), picked side by side like the
+  2026-09-27 choice of 60. Change `--reading-measure`, never `--ch`.
+
+## Accounts and sync
+
+Added 2026-10-01 after BVJ talked with BDR. This reverses the feature audit's
+"set aside: accounts and cloud sync on the web".
+
+**Decided by BVJ:**
+- **No-login stays.** Everything works without an account.
+- **An account adds full sync** of the notebook between the desktop website
+  and the iOS and Android apps.
+- **Sign-in methods**: email and password with two-step verification,
+  passkeys, Google, and Apple (BVJ said "iCloud account").
+- **First use asks** (D6), and a page explains every option including opting
+  out (BVJ's addition to C5: "maybe on the register page").
+- **BVJ leans toward end-to-end encryption** (C19), to settle with BDR.
+- **Account pages work on every device** (C1).
+- BDR is considering a **Mac app** (C18).
+
+**"Log in with iCloud" means Sign in with Apple** as an identity method. The
+notes then live in the LIT's sync service, not the reader's iCloud. Today's
+iPhone app syncs through the reader's own iCloud and never touches a LIT
+server. CloudKit JS could reach a signed-in person's private iCloud data from
+the website, but Android readers can't use it, so cross-platform sync needs a
+LIT service. Recommendation: Sign in with Apple as a way to log in, one LIT
+sync service for everyone with an account, today's iCloud and Android backup
+left as is for readers who never sign in, and their notes copied into the
+account when they do. How the apps handle that move is BDR's call.
+
+**What an account system takes:**
+- **A server**: a Worker at its own address (for example account.litbible.net)
+  with D1, in the existing Cloudflare account, outside `/api/`.
+- **Store rules**: Google sign-in in an iOS app requires an equivalent private
+  option, which Sign in with Apple satisfies (Apple guideline 4.8). Both
+  stores require in-app account deletion (Apple 5.1.1(v)); Google Play also
+  wants a web page for deletion requests. Deleting an account that used Sign
+  in with Apple must revoke Apple's tokens (`appleid.apple.com/auth/revoke`).
+  Both stores' privacy forms change.
+- **Email to any address** for verification and resets, which the contact
+  Worker's Email Routing can't send: Cloudflare Email Service (public beta
+  since April 2026, needs the paid Workers plan) or Brevo's transactional email
+  (Brevo already runs the newsletter). Mail to Apple's Hide My Email arrives
+  only once the sending domain is registered with Apple.
+- **One passkey everywhere**: add `webcredentials` to
+  `public/.well-known/apple-app-site-association` and `get_login_creds` to
+  `assetlinks.json`, plus the apps' own setup.
+- **Linking sign-in methods**: Google on Android and Apple on iPhone make two
+  accounts unless linked, and Hide My Email addresses won't match. "Add
+  another way to sign in" from the first version.
+- **2FA** for password accounts: an authenticator app plus recovery codes. No
+  SMS (cost, and numbers can be hijacked).
+- **Enforce the full CSP**: CLAUDE.md says to revisit enforcing it if the site
+  gains logins; this is that moment. Sign-up needs rate limits and bot
+  protection (Turnstile already guards the forms).
+- **New promises**: the privacy page says personal information is collected
+  only when someone chooses to send it, and that the LIT team can't see the
+  apps' backups; both need rewriting (the privacy page is shared work with
+  BDR). The site needs terms of service with a minimum age.
+- **Account basics (C20)**: signed-in devices with "sign out everywhere", a
+  full export from any device, changing an email address, and recovery codes
+  kept off the device if notes are end-to-end encrypted.
+- **Cost**: the paid Workers plan (about $5 a month) plus whatever sign-in
+  costs. Check prices when choosing.
+
+**Who handles sign-in** (BDR's view should decide; my lean is Supabase or
+Better Auth, not Firebase):
+
+| Option | Sign-in | For the apps | Where notes live | Trade-off |
+|---|---|---|---|---|
+| Better Auth on Cloudflare | All requested, via plugins | No official Swift/Kotlin SDK; apps call its HTTP endpoints | BVJ's Cloudflare (D1) | No new vendor, open source; the LIT runs it |
+| Supabase | All requested; passkeys in beta (mid-2026) | Official Swift and Kotlin SDKs for auth and data | Supabase's database | Least app work; a second vendor, open source |
+| Clerk, Auth0 and similar | All requested | Varies | With them | Specialists own security; price and lock-in vary |
+| Firebase | No built-in passkeys (mid-2026) | Mature | Google's servers | Leave it out |
+
+**How accounts change the plan:**
+- The local notebook stays the foundation; sync sits on top.
+- **One source of truth at a time (C5)**: signed out, the browser holds the
+  notebook and the file (D1) is its sync partner; signed in, the account is
+  the truth and the file becomes a one-way backup the site writes but no
+  longer reads; locked (D5), everything at rest is encrypted with the
+  reader's key, the file included (C6).
+- **Conflicts keep both versions** of a note edited on two devices before
+  syncing, and the reader chooses. Highlights, bookmarks and places take the
+  latest change. Deletions wait in the trash 30 days on every device (M7).
+- Sheets stay a computer feature for now (decision 4); synced sheets would
+  let the apps show them later.
+
+### BDR's list (11 items, all open)
+
+1. **Who handles sign-in** (the table above).
+2. **Whether the LIT can read synced notes.** Standard encryption vs end-to-
+   end, where only the reader's devices can read them (suits a trauma-informed
+   translation, N8 especially). The cost is a recovery key the reader must
+   keep. Much easier to decide before launch. BVJ leans end-to-end, which also
+   settles how share links work (C19).
+3. **What happens to today's iCloud and Android backup** when someone signs
+   in (and signs out, or deletes the account).
+4. **What syncs.** Notes, highlights, bookmarks and places certainly; sheets,
+   Display settings and reading positions?
+5. **Who looks after the service**: security updates and incident response.
+6. **One key for the lock, the file and the account (C6).** BVJ: probably yes.
+7. **The blur in the apps (C7).** Until the apps honor N8, its "hide this
+   passage" setting stays on the computer, and the notebook says so when a
+   signed-in reader sets it.
+8. **The apps keep what they can't show (C8).** Every client preserves record
+   kinds and fields it doesn't understand, and highlight colors are stored by
+   the apps' own color names.
+9. **Website accounts first? (M13)** Accounts could launch for computers
+   before the apps join, provided the record format is agreed first. BVJ:
+   probably.
+10. **A Mac app.** BDR is considering one: a home outside Safari's storage
+    limits (C18) that syncs like the other apps. Sheets, print and present
+    mode stay on the website unless it takes them on.
+11. **Link the license terms from both apps**, for example from About or
+    Settings, to `https://litbible.net/read#license-terms`, opening in a
+    browser. Waits on nothing; can go in the apps' next update.
+
+### The brief for BDR
+
+`STUDY-DESK-BRIEF-FOR-BDR.md`, written for BDR's Claude (2026-10-01, revised
+2026-10-02 to say /read now opens the terms on arrival). It explains the
+project, what the website will build, the decided account points, the store
+obligations, and asks BDR's Claude to read the app code before answering,
+correct our assumptions, and say what we missed. It went to BVJ to send;
+whether BDR has replied isn't recorded here yet. **When BDR's answers come
+back, record them in this file, and revise the brief if it is sent again.**
+It deliberately leaves out the 2026-10-02 netbible.org round (N10 and D7 are
+website-only; S11 and reading plans come later). Its requests, in order: (1) link the license
+terms from both apps; (2) agree the record format before any code; (3) choose
+the sign-in provider; (4) end-to-end encryption or not, and its cost to the
+apps (Keychain/Keystore, recovery, new devices); (5) today's iCloud and
+Android backups on sign-in, sign-out and deletion; (6) what syncs; (7) who
+maintains the service; (8) one key (C6); (9) the blur in the apps (C7);
+(10) keep unknown records and give the four color names (C8); (11) website
+accounts first (M13); (12) the Mac app.
+
+Assumptions it asked BDR's Claude to correct: notes and highlights are
+anchored to verse text somehow; the apps have exactly four highlight colors
+with internal names; iOS syncs notes through iCloud and Android relies on
+Auto Backup with no LIT server; iOS claims `/<book>-*` and `/glossary`, and
+Android's claimed paths live in its manifest; the apps extract text from raw
+chapter HTML without stripping ⟦ ⟧ (CLAUDE.md notes this gap); neither app
+has accounts or a server today.
+
+Prompts it raised: anchoring across a moving text (is TextQuoteSelector plus
+a verse copy workable on mobile; one shared normalization spec with test
+vectors from the corpus, since website and apps must strip verse numbers,
+footnote letters and ⟦ ⟧ and collapse whitespace identically, or a quote made
+on one platform won't be found on the other); migrating existing app notes
+(no IDs, verse copies or tombstones) without duplicates when two devices
+carry the same backed-up notes; mobile background sync limits, offline
+edits, clock skew under last-write-wins; whether records should carry the
+content `version` they were made against and whether the apps should show
+N3's notice too (the release notes feed already carries `location`); device
+key storage, biometric unlock, lost phones, new devices, and passkeys vs an
+E2EE key; store-review risks; deep links for printed codes and later sheet
+addresses, and nothing capturing /read or account pages by mistake;
+accessibility parity (highlights announced in words, a second cue besides
+color); anything the apps do that the website should copy; effort and order.
+
+The reply format it asked for: corrections; answers to requests 1 to 12 with
+a recommendation, reason and app-side cost (S, M, L); a review of the record
+format with the four color names; what we missed, most important first;
+questions only BVJ can decide.
+
+**The draft record format it proposed** (to react to, not adopt; phase 0 is
+agreeing the real one):
+
+```json
+{
+  "@context": "http://www.w3.org/ns/anno.jsonld",
+  "id": "urn:uuid:7f3c1e0a-...",
+  "type": "Annotation",
+  "motivation": ["highlighting", "commenting"],
+  "created": "2026-09-12T16:04:00Z",
+  "modified": "2026-09-12T16:10:00Z",
+  "body": { "type": "TextualBody", "format": "text/plain",
+            "value": "Self-preservation as the drive to protect my standing." },
+  "target": {
+    "source": "https://litbible.net/romans-8/",
+    "selector": [
+      { "type": "FragmentSelector", "value": "v3-4" },
+      { "type": "TextQuoteSelector",
+        "exact": "rendered a verdict against deviation in self-preservation",
+        "prefix": "under deviation and ", "suffix": " so that the Torah" }
+    ]
+  },
+  "lit": {
+    "schema": 1,
+    "osis": ["Rom.8.3", "Rom.8.4"],
+    "verseCopy": { "Rom.8.3": "…verse text as it read on 2026-09-12…" },
+    "contentVersion": "v20260912.ab12cd34",
+    "color": "<the apps' own color name>",
+    "deleted": false
+  }
+}
+```
+
+Two rules for every client (C8): keep what you don't understand, untouched,
+and write it back; store highlight colors by the apps' own names.
+
+## Ready for the Greek text
+
+A later project than the desk (BVJ, 2026-10-01): align every word of the
+Greek New Testament to the LIT, and eventually the Hebrew Bible; show the
+Greek beside the LIT; clicking a word in either lights its partner in the
+other and opens a bubble with morphology, Strong's number, root and perhaps
+lexical information. The desk shouldn't need rebuilding for it.
+
+- **Fonts now** (C27): self-hosted Greek and Hebrew fonts via `unicode-range`,
+  serving Greek and Hebrew typed into notes from the start. Candidates (all
+  SIL Open Font License), to compare beside Crimson Text: Gentium Plus or
+  Cardo for polytonic Greek; Ezra SIL, Cardo or Noto Serif Hebrew for pointed
+  Hebrew. No face is picked yet.
+- **Anchors that can point at a Greek word** (book, chapter, verse, SBLGNT
+  word position) beside the English quotes. Nothing uses it until the
+  alignment publishes.
+- **One bubble**: the shared floating panel the term lens uses, so the term
+  lens grows into the word bubble and N2's notes carry over.
+- **The data is shaped for it**: the alignment dataset's phase 2 records Greek
+  word positions and stays unpublished until it covers the whole New
+  Testament (owner decision). H2 becomes exact then.
+- **netbible.org already does this** (checked 2026-10-02): clicking a Greek
+  word lights its English partner, and English phrases are linked as units
+  (clicking "plainly evident" in John 3:21 selects both words). Its box shows
+  parsing code, Strong's number, transliteration, root and a short definition
+  (BVJ's list), at the foot of the Greek panel rather than over the text. Its
+  search takes Strong's numbers ("strong:25"), which M4 could too. A 2016
+  review faulted its Hebrew for lacking vowel points and its Greek and Hebrew
+  for not scaling with text size: here both follow the Display tray, and the
+  Hebrew is pointed.
+- **Licenses to settle before publishing**: SBLGNT text CC BY 4.0 (credited
+  already). MorphGNT's parsing and lemmas are CC BY-SA 3.0, so a published
+  layer built on them must be share-alike, which lets others reuse that layer
+  commercially: BVJ's decision. Hebrew: the Westminster Leningrad Codex is
+  public domain; the Open Scriptures Hebrew Bible morphology is CC BY 4.0.
+  Public-domain lexicons: Strong's (1890), Abbott-Smith (1922), Thayer, Dodson,
+  Brown-Driver-Briggs. BDAG and HALOT are copyrighted.
+
+## License
+
+**Changed 2026-10-01 and live** (PR #248). The wording is in
+`src/pages/read.astro`, in `<details id="license-terms">`; the canonical link
+is `https://litbible.net/read#license-terms`, which /read now opens on arrival
+(PR #250). The base license stays CC BY-NC-ND 4.0; only the added permissions
+changed. BVJ's intent:
+
+- **Noncommercial use has no amount limits**, whole books included, for
+  classes, studies, sermons, bulletins, study guides, retreats and personal
+  use, **including paid programs** (courses, tuition, retreat fees) as long as
+  the LIT text isn't what's sold. Quote as written, keep footnotes with their
+  verses, include `LIT_CREDIT_LINE`.
+- **Blanks yes, substitutions no**: fill-in-the-blank handouts are fine when
+  the answers are the LIT's own words; replacing the LIT's words with other
+  wording is not.
+- **Footnotes follow the same rules** as the text.
+- **Commercial quotation is allowed without asking** within limits: quoted as
+  written with footnotes kept, not a complete book, LIT material at most 50%
+  of the new work, and the credit line. Selling the LIT itself, in print or
+  digitally, needs BVJ's written permission.
+- **Online sharing**: any amount on noncommercial accounts, with a direct link
+  to litbible.net; "please link to a chapter or book rather than reposting
+  whole books" is a request, not a rule.
+- The grant is to "anyone who reads this notice or uses the LIT Bible website
+  or apps", covering LIT text and notes as written by the Collective, not
+  third-party material the footnotes quote, nor the SBLGNT's own terms.
+
+**What it means for the desk**: S7's commercial check is hidden unless a
+sheet is marked commercial; S10's blanks are allowed; S6 can display any
+amount. **Link the terms from the desk** (BVJ, 2026-10-01): from the help page
+(M12) from the start, and from every sheet's license card (S7) once sheets
+arrive. **The apps link to them too** (BDR's list, item 11). Everything the
+desk produces carries `LIT_CREDIT_LINE` from `src/lib/lit-credit.mjs`.
+
+**Borrowing ideas from other products** (BVJ asked whether, for example,
+borrowing Logos's handout idea risks liability): ideas, methods and features
+aren't protected by copyright (17 U.S.C. §102(b)); copying code, text,
+artwork, distinctive design or names is what to avoid, plus trademarks
+(don't use another product's names for features) and, rarely, patents. Every
+idea here is borrowed as an idea; nothing copies another product's code,
+text, design or name. Sefaria's code is GPL-3.0, so don't copy it either.
+
+## Privacy
+
+- Notes are plain text, always displayed as text, so nothing pasted into one
+  can run on the page.
+- Nothing leaves the computer unless the reader prints, exports, shares or
+  signs in to sync. A shared link carries its data after the #, cleared from
+  the address before analytics runs (S8).
+- Shared computers: a "Clear my notebook" control, a line saying the
+  notebook lives in this browser, and the optional lock (D5).
+- The privacy page gets one paragraph (what's stored, where, how to delete
+  it, and that it never reaches the LIT team unless the reader signs in);
+  accounts need a fuller rewrite, and API.bible's FUMS script would need
+  naming if adopted.
+
+## Considered and set aside
+
+So they don't come back as fresh suggestions:
+
+- **Taking over right-click**: it hides the browser's own menu (spelling,
+  translate, look up).
+- **A public gallery of sheets**: needs moderation and makes the LIT answer
+  for what strangers publish, even with accounts.
+- **AI summaries of a reader's notes**: same reason the feature audit set
+  aside "Ask an AI about this verse".
+- **Editing a sheet together, live**: heavy to build, harder under end-to-end
+  encryption; a shared file or link covers most of it.
+- **An email when your verses change (M15)**: declined 2026-10-01.
+- **Ctrl K for commands**: declined (C11); commands live in the search box.
+- **netbible.org's commentaries**: the LIT's footnotes already do that work,
+  in the translation's own voice.
+- **Anchoring notes to footnote letters**: letters shift whenever a note is
+  added or removed.
+
+## Order of work
+
+Each phase is usable on its own.
+
+0. **Before any code.** Agree the record format with BDR (C8, C22), even if
+   accounts come later: changing a format after people have notes in it is
+   the expensive kind of change. Pick the narrower reading column side by side
+   (C9), to ship with the desk.
+1. **The notebook.** The gate; storage with verse copies (C3); the menu
+   actions with Read View's smaller set (C2); the margin by free space (C9);
+   the panel (C12); commands in search (D3); the notebook page; the first-time
+   choice (D6); the file with its safety rules (D1, C5, C17); the Safari
+   warning (C18); places (B1, C25); accessibility (C4, C10, C24); anchors
+   (C16); the interleaf (N7, C13); hide my notes (M1); the trash (M7); your
+   own tags (M8); the "This verse" tab (N10); the help page (M12); Greek and
+   Hebrew fonts (C27); the plumbing (C21); the privacy paragraph; the link to
+   the license terms. Medium to large.
+2. **What only the LIT can do.** The revision layer behind N3, B3 and S2;
+   notes that follow a word and concept marks saved as rules (N2, H2, C23);
+   your own chains (N4); the word study (M4); your notebook where you already
+   look (M10); notes on a footnote (M11). Medium.
+3. **Sheets.** The sheet page (S1) with key terms (S3), leader and participant
+   copies (S4), blanks with the footnote picker (S10, C15), both paper sizes
+   (C27), the license card with its link and the commercial check (S7), and
+   the Word copy (S9); then printed codes (S5), present mode with the presenter
+   view and room code (S6, M2, M3), sheets from searches and templates (M5,
+   M9), annotated printing (M6) and shared links (S8). Large.
+4. **Accounts and sync, with BDR.** Account pages on every device (C1), one
+   source of truth (C5), one key and then the lock (C6, D5), the blur kept off
+   the apps until they honor it (C7), the encryption choices (C19), account
+   basics (C20), the Worker's plumbing (C21) and short share links (M14),
+   once BDR's list is settled. Large.
+
+**Any time, independent of all of it**: both apps link to the license terms
+(BDR's, item 11); N9, print with room to write. (/read opening the terms when
+a link names them was on this list and shipped in PR #250.) N5, N6, B2 and
+D4 aren't placed in a phase; they're small and fit wherever convenient. D7
+waits on its open questions; the KJV part could join N10 in phase 1.
+
+## Decisions
+
+### The seven (asked 2026-09-30, answered 2026-10-01)
+
+1. **Where it lives: all four options** (menus, margin, panel, commands in
+   search). X11's reason doesn't rule out reader notes in the margin.
+2. **Read View: highlights hidden by default**, with a Display tray switch
+   stored per view like verse numbers. Study View always shows them. Places
+   and scrollbar marks fit Read View; highlight ticks follow the switch.
+3. **Names: Notebook, Places, Sheets.** "Specifying footnotes instead of just
+   notes seems important when there are more than one kind." "Copy with
+   footnotes" on computers; phones keep "Copy with notes".
+4. **Phones: computers only, for now.** BVJ: "There's not a way to do this in
+   the apps right now. Computer for now. App integration might come later and
+   it would be good to leave it possible." Sheet addresses and the export
+   format are chosen so the apps can take them on later.
+5. **N8: blurred, one click to reveal**, instead of folded (BVJ: "What if
+   instead of 'folded behind it' it's blurred out with an easy (single click)
+   way to reveal it?").
+6. **Present mode keeps the reveal; handouts can have blanks; the commercial
+   check is hidden unless a sheet is marked commercial.**
+7. **Plan for the apps.** "We should plan for app integration later." Since
+   2026-10-01 that's the optional account (above). The W3C Web Annotation
+   shape is what the website, apps and server share for marks on the text.
+
+Also: D5 (the lock) is in as an option; accounts with no-login default.
+
+### The audit (2026-10-01)
+
+An audit re-read the plan end to end against itself, CLAUDE.md, BVJ's
+decisions and browser behavior. It found 27 conflicts and gaps (C) and 15
+missed ideas (M), and fixed 9 stale sentences in the plan. What it confirmed
+works: one notebook with sync on top; "your words never look like the
+translation" holds everywhere and keeps blanks inside the license; the reuse
+is real; the LIT-only ideas (N2, H2, S3, S6, S10) feed each other; the
+phases stand alone; existing rules are followed except where a finding says.
+BVJ answered every item on 2026-10-01.
+
+**Settle before building**
+- **C1. Account pages have to work on phones.** Fix: gate the notebook, not
+  the account. **Yes.**
+- **C2. Read View's selection panel vs the Read View decisions.** Highlights
+  would vanish as made; notes are a Study View tool. **Decided: leave out
+  Highlight and Add a note by default; offer Highlight only when Read View's
+  highlights are visible.** (Bookmark and Add to a sheet stay.)
+- **C3. Notes can't rely on the release notes.** Fix: keep a verse copy and
+  compare with quotes, dashes and spaces evened out; the release notes give
+  only date and reason. **Yes.**
+- **C4. Highlights are invisible to screen readers, meaning by color alone.**
+  Fix: announce them, name the meaning on hover and in lists and exports, a
+  second cue per color. **Yes.**
+- **C5. Two ways to sync can fight.** Fix: one source of truth at a time.
+  **Yes, plus a section explaining the login options including opting out,
+  and a first-time prompt to choose** (became D6).
+- **C6. The lock, the file and the account need one key.** Fix: design D5's
+  key once as the account's E2EE key; locked notebooks write an encrypted
+  file or pause it; build D5 after the encryption decision. **Probably yes,
+  pending BDR.**
+- **C7. The blur doesn't exist in the apps.** Fix: keep N8's setting on the
+  computer until the apps honor it. **On BDR's list.**
+- **C8. The apps have to carry what they can't show.** Fix: keep unknown
+  fields and kinds; colors by the apps' names. **Yes, and on BDR's list.**
+
+**Settle along the way**
+- **C9. The margin runs out of room more often.** At the largest text the
+  column is ~870px, leaving ~200px a side at 1,280px; with the panel open,
+  no room. Fix: decide by free space (~230px), fall back to dots and panel;
+  low-vision readers lose only the placement. **Yes; and narrow the reading
+  column further at launch** (BVJ: "We also recently narrowed the reading
+  column but not as much as we could have.").
+- **C10. Two Display settings switch off the ways in** (verse numbers hidden
+  hides note dots; key terms off hides N2 and H2). Fix: routes independent of
+  both, said in the settings' help text. **Yes.**
+- **C11. Ctrl K bends two rules.** Fix: fold commands into the "/" search
+  box. **Yes, no Ctrl K.**
+- **C12. The docked panel and floating panels share the screen.** Fix: the
+  dock is part of the frame. **Yes.**
+- **C13. The interleaf can make the page jump.** Fix: open bands on request
+  (or reserve space pre-paint); check Cloudflare's numbers after release.
+  **Yes.**
+- **C14. Read View's scrollbar marks point at notes it doesn't show.**
+  **Decided: ticks for places, and highlights when switched on; none for
+  notes.**
+- **C15. A footnote can give away a blank.** **Decided: flag it for the
+  leader, and give the leader checkboxes for which footnotes print, with
+  Select all and Unselect all, still flagging spoilers.**
+- **C16. Anchors must read the text the way Copy does.** **Yes.**
+- **C17. Editing the file elsewhere must never erase notes.** **Yes.**
+- **C18. Safari readers without an account are the most exposed.** Fix: say
+  so plainly, remind them to save a copy, offer an account once it exists.
+  **Yes; BDR is also considering a Mac app.**
+- **C19. End-to-end encryption rules out some server features** (M15's
+  personal emails, M14 without a key). Both can still work: the key after
+  the # for share links. **TBD with BDR, leaning end-to-end.**
+- **C20. Account basics the plan didn't list.** **Yes.**
+- **C21. New pages and services need the usual plumbing.** **Yes.**
+- **C22. Web Annotation fits marks on the text, not sheets or places.** Fix:
+  Web Annotation for marks, a small versioned LIT format for sheets and
+  places. **Yes.**
+- **C23. Concept marks should be saved as a rule.** **Yes.**
+- **C24. Notes must stay out of the scripture's reading order.** **Yes.**
+
+**Small**
+- **C25. Ribbons need a rule for when they move.** **Yes** (see B1).
+- **C26. Rename the footnote copy in both panels.** **Yes**; update CLAUDE.md
+  when it ships.
+- **C27. Greek, Hebrew and A4 paper.** **Yes, plus download Greek and Hebrew
+  fonts to the site** (and get the site ready for the Greek-text project).
+
+**Missed ideas**: M1 to M12 and M14 accepted (all listed under "The ideas"
+with their M numbers). **M13 (website accounts first)**: "Probably. TBD with
+BDR." **M15 (an email when your verses change)**: declined. Note on M4 and
+M8: BVJ is considering renaming the site's "topics" to "tags" (see below),
+which affects M8's name.
+
+### 2026-10-02 (netbible.org round)
+
+BVJ pointed out netbible.org was missing from the survey. Decisions:
+- **N10**: good for a single verse at a time.
+- **S11**: maybe a later project, not part of the initial launch; in FIXLIST.
+- **D7**: consider API.bible for side by side inside the desk; picks NASB
+  2020, CSB, NIV; the KJV yes, maybe others; NRSVue and CEB aren't on
+  API.bible (licensing them directly is open).
+- **LIT previews on other websites** (netbible.org's "Bible Drawer", which
+  needs a different name): a separate project, in FIXLIST.
+- **Reading plans**: anticipated, on both the website and the apps (the apps
+  are more natural for it); a separate project, in FIXLIST.
+- Commentaries: set aside.
+
+## Still open
+
+- **BDR's list**, all 11 items (above), starting with the record format.
+- **D7**: whether API.bible's tracking script is acceptable; which other
+  free-to-share translations join the KJV; whether to request NRSVue and CEB
+  licenses (and whether to have them drafted); whether the donation page
+  fits API.bible's free plan.
+- **Topics and tags.** BVJ is considering renaming today's topics to "tags"
+  and curating a smaller set of thematic study topics. If so: the chapter
+  JSON's `topics` field and `/api/data/topics.json` keep their names, because
+  the apps read them (rename on screen only, unless BDR changes the apps);
+  M8's personal tags need another name, such as labels; and a curated topic
+  could be published as a LIT-made sheet readers copy into their notebooks,
+  reviving the feature audit's X6 (browsable topic pages, deferred
+  2026-09-28) on the sheet machinery. Today's topics follow TOPICS.md and are
+  functionally tags for search reach.
+- **The narrower reading column**: to pick side by side before launch.
+- **Greek and Hebrew font faces**: not chosen.
+- **The Digital Bible Library** (library.bible, the American Bible Society's
+  library that API.bible draws from, and where YouVersion and Global.Bible get
+  texts): I raised **submitting the LIT to it** as a way to reach the Bible
+  App and API.bible developers. Requirements found: an organization account,
+  proof of ownership, a recommendation from UBS, Biblica or Wycliffe or
+  following the Forum of Bible Agencies International translation standards,
+  approval by a committee that admits "reputable organizations" that "follow
+  the historic tenets of Christianity", a license agreement with the United
+  Bible Societies, and text in USX (needs a converter from chapter JSON).
+  Frictions: weekly revisions to re-upload; a New Testament with drafts. BVJ
+  hasn't answered; it would be a distribution decision, separate from the
+  desk.
+
+## Related projects (in FIXLIST, separate from the desk)
+
+All three are in FIXLIST's "Added 2026-10-02 from the Study Desk planning"
+subsection (Fable list), with their considerations:
+- **LIT previews on other websites** (name to be chosen; "LIT Previews" is a
+  working name). Either a reader-side bookmarklet or extension that opens the
+  LIT (and later the notebook) beside any page, or a site-owner script tag
+  that turns references into LIT previews using `ref-preview.js` and
+  `scripture-refs.mjs`. Serving `public/search/chapters/` to other sites makes
+  them a public interface and needs CORS.
+- **Reading plans**, on the website and in the apps: which plans given the
+  drafts, where progress lives with and without an account, a shared plan
+  format agreed with BDR, which view a day opens.
+- **Footnotes sorted by kind** (S11).
+
+And outside FIXLIST: the **Greek-text alignment display** ("Ready for the
+Greek text" above), after the desk.
+
+## The survey (twelve sites and tools)
+
+| Site or tool | Account | Notes, highlights, bookmarks | Sheets and output | What to take |
+|---|---|---|---|---|
+| Sefaria | For notes and sheets | Private notes, saved texts, reading history | A sheet editor (now "Voices on Sefaria"); "Add to Sheet" in the library's side panel; saves as you type; private or public; collections; export to Google Docs or print | Sheets as a workspace of their own, fed from the reader |
+| YouVersion (bible.com) | Yes | On the web, highlights only; notes, labels, bookmarks, verse images and custom colors are app-only | Plans and verse images, in the app | The biggest platform keeps study tools in its app |
+| Bible Gateway | Free account | Highlights, notes, emoji reactions, synced | None | Light-touch reactions a desk doesn't need |
+| ESV.org | Free account | Select text for a note or highlight; formatted notes; a profile page lists and searches everything | None | One searchable list of everything |
+| Blue Letter Bible | Optional | Notebooks, unlimited colors, bookmarks, tags, cloud backup | None | Tags and named notebooks |
+| Logos | Paid | Notes in notebooks; highlight palettes; Visual Filters mark every use of a Greek lemma | Sermon Builder: manuscript, slides, handouts and questions together, handout blanks shown or hidden | Leader and participant copies; marking by Greek word |
+| NET Bible (netbible.org) | Free, for your own notes | Text plus a side panel following the passage: the translation's ~58,500 notes typed tn/sn/tc, commentaries, your notes, other Bibles, the Greek or Hebrew, a library; clicking a Greek word lights its English with parsing, Strong's, transliteration, root, definition; clicking English offers Highlight, Add Note, Parallel, search, share, bookmark; syncs with its iPhone app | None | The nearest thing to the LIT: notes beside the text, sorted by kind, and the planned Greek link |
+| STEP Bible | None | Bookmarks in cookies; settings in the address, which STEP tells you to save | None | No account, honest that browser storage is fragile |
+| Kindle and Readwise | Amazon | A notebook page to copy or print; Readwise sends to Notion, Obsidian and others | Exports | Send notes to tools people already keep |
+| Hypothesis | Yes | Anchors by quoting words with text before and after (W3C TextQuoteSelector) | None | How to anchor a note to a phrase |
+| Obsidian Bible plugins | None (local files) | Verse links inside Markdown notes; one surfaces everything written about a verse | The files | Plain files people own; links back from a verse |
+| The LIT apps | None | Four highlight colors, an inline note tool that quotes the words, a note mark in the left margin; iCloud or Android backup | None | Match their look and wording |
+
+**Four older ideas**: Jonathan Edwards's "Blank Bible" (a King James Bible
+interleaved with blank leaves, a red rule splitting each into two columns,
+5,000+ entries over three decades; Yale's Beinecke Library); the Thompson
+Chain-Reference Bible (first edition 1908; today 8,000+ topics, 100,000
+links); inductive marking (Precept: a color or symbol per key word, used the
+same way throughout); journaling Bibles (a wide ruled margin).
+
+**What the survey shows**: everyone with notes asks for an account, and the
+one site that doesn't (STEP) keeps bookmarks in cookies, so nobody has made
+account-free notes safe (D1 is the answer). There are two shapes: YouVersion
+keeps study tools in the app; Sefaria built its sheet editor for the desktop
+web, and the LIT can take Sefaria's shape. Preparation tools are paid or tied
+to an account, so a free, account-free set built on the translation's own
+data has no direct competitor. Every other text holds still; the LIT's
+release notes logged 491 changes from 2026-03-29 to 2026-09-30, 211 to
+wording, 342 naming the verse, which is the main risk and the source of N3,
+B3 and S2.
+
+## Facts to re-check before building
+
+Counts here were checked on 2026-09-30 to 2026-10-02 and drift:
+- Reading column 681px at the default size, ~870px at the largest;
+  `--reading-measure` 60.
+- About 4,300 term-lens marks; pistis in Galatians 26, sarx in Romans 28.
+- Release-note counts (491 / 211 / 342 as of 2026-09-30).
+- Browser support: Custom Highlight API (Chrome 105, Safari 17.2, Firefox
+  140); Document Picture-in-Picture (Chrome, Edge, Firefox 151); File System
+  Access (Chrome and Edge only).
+- API.bible plans and terms, NRSVue and CEB permission terms, Cloudflare
+  Email Service status, Supabase passkey status, Firebase passkeys.
+
+## Sources
+
+Sefaria: [export, print or share a sheet](https://help.sefaria.org/hc/en-us/articles/20532656851228-How-to-Export-Print-or-Share-a-Sheet),
+[Voices on Sefaria](https://voices.sefaria.org/sheets/674324),
+[accessing notes](https://help.sefaria.org/hc/en-us/articles/18612854451484-How-to-Access-Your-Notes).
+[YouVersion: Bible.com Bible tab](https://help.youversion.com/l/en/article/qi1gf7u75f-bible-com-bible).
+[Bible Gateway app](https://apps.apple.com/us/app/bible-gateway/id506512797).
+Crossway: [ESV.org notes](https://www.crossway.org/articles/esvorghow-to-create-notes/),
+[12 things about ESV.org](https://www.crossway.org/articles/12-things-you-might-not-know-about-esv-org/).
+[Blue Letter Bible review](https://learnofchrist.com/resources/blue-letter-bible).
+Logos: [Sermon Builder](https://support.logos.com/hc/en-us/articles/360016747391-Sermon-Builder),
+[notes](https://support.logos.com/hc/en-us/articles/360017978372-Record-Your-Insights-Using-Notes),
+[Visual Filters](https://community.logos.com/wiki/logos-user-wiki/to-sort/table-of-contents/visual-filter/).
+[STEP Bible personal setup](https://stepbibleguide.blogspot.com/p/personal.html).
+[Readwise Bookcision](https://readwise.io/bookcision).
+[W3C Web Annotation Data Model](https://www.w3.org/TR/annotation-model/).
+[Obsidian Scripture Thread](https://github.com/gitwesleyt/obsidian-scripture-thread).
+Edwards: [Sweeney (PDF)](https://henrycenter.tiu.edu/wp-content/uploads/2013/12/2013-Sept_Doug_Sweeney_Chapter-1.pdf),
+[Beinecke](https://beinecke.library.yale.edu/jonathanedwardshighlights2019).
+[DHQ on Thompson](https://digitalhumanities.org/dhq/vol/6/2/000137/000137.html).
+[Precept method](https://www.precept.org/study/precept-bible-study-method/).
+Browsers: [File System Access](https://developer.chrome.com/docs/capabilities/web-apis/file-system-access),
+[persistent file permissions](https://developer.chrome.com/blog/persistent-permissions-for-the-file-system-access-api),
+[WebKit tracking prevention](https://webkit.org/tracking-prevention/),
+[WebKit storage policy](https://webkit.org/blog/14403/updates-to-storage-policy/),
+[Custom Highlight API](https://frontendmasters.com/blog/using-the-custom-highlight-api/),
+[its accessibility (MDN issue)](https://github.com/mdn/content/issues/43408),
+[highlight annotations](https://jpcasabianca.com/journal/custom-highlight-api-annotations/),
+[Document Picture-in-Picture](https://developer.chrome.com/docs/web-platform/document-picture-in-picture),
+[the Cloudflare beacon and the address](https://github.com/jwh3times/magic-agenda/issues/295).
+Accounts: [Apple 4.8](https://9to5mac.com/2024/01/27/sign-in-with-apple-rules-app-store/),
+[Apple account deletion](https://developer.apple.com/news/?id=12m75xbj),
+[Google Play deletion](https://support.google.com/googleplay/android-developer/answer/13327111?hl=en),
+[passkey relying party ID](https://web.dev/articles/webauthn-rp-id),
+[passkeys across apps](https://www.corbado.com/blog/webauthn-relying-party-id-rpid-passkeys),
+[Apple private relay](https://docs.customer.io/messaging/channels/email/deliverability/authenticating-for-apple-private-email-relay/),
+[Cloudflare Email Service](https://blog.cloudflare.com/email-for-agents/),
+[CloudKit JS](https://cdn.apple-cloudkit.com/cloudkit-catalog/),
+[Better Auth](https://better-auth.com/),
+[Supabase passkeys](https://supabase.com/docs/guides/auth/passkeys),
+[Firebase passkeys](https://www.corbado.com/passkeys/firebase).
+NET Bible: [John 3](https://netbible.org/bible/John+3),
+[note abbreviations](https://bible.org/list-abbreviations-net-bible-footnotes),
+[Lumina review](https://bitesizedexegesis.com/2016/09/28/review-lumina/),
+[App Store](https://apps.apple.com/us/app/net-bible-formerly-lumina/id687558432).
+API.bible: [plans](https://api.bible/), [docs](https://docs.api.bible/),
+[Fair Use (FUMS)](https://docs.api.bible/guides/fair-use/),
+[terms](https://api.bible/terms-and-conditions),
+[licensing](https://care.api.bible/article/369-understanding-api-bible-licensing).
+Licensing: [NRSVue (Friendship Press)](https://www.friendshippress.org/pages/nrsvue-quick-faq),
+[CEB permissions](https://www.commonenglishbible.com/permissions).
+Digital Bible Library: [library.bible](https://library.bible/),
+[FAQ](https://care.library.bible/article/252-frequently-asked-questions),
+[review process](https://care.library.bible/article/138-our-review-process).
+Greek sources: [MorphGNT SBLGNT](https://github.com/morphgnt/sblgnt),
+[Open Scriptures Hebrew Bible](https://github.com/openscriptures/morphhb),
+[Abbott-Smith](https://github.com/translatable-exegetical-tools/Abbott-Smith),
+[Dodson](https://www.crosswire.org/sword/modules/ModInfo.jsp?modName=Dodson).
+
+## Keeping this file current
+
+- **This file is the repo's record of the desk.** When BVJ decides something,
+  BDR answers an item on the list, or a phase ships, update it in the same
+  change: move items from "Still open" to the decision log with the date, and
+  mark ideas built. Don't delete declined or superseded items; record the
+  outcome, the way FIXLIST does.
+- Keep idea and audit IDs stable.
+- Once the desk ships, CLAUDE.md gets the deep reference for how the built
+  feature works (as it has for the term lens and the selection panel); this
+  file stays the planning and decision history.
+- The claude.ai plan page may lag this file. Only update it if BVJ asks.
