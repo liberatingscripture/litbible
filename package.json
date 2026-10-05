@@ -18,6 +18,7 @@
     "build:bracket-font": "node scripts/build-bracket-marker-font.mjs",
     "build:apps-qr": "node scripts/build-apps-qr.mjs",
     "build:alignment": "node scripts/build-alignment.mjs",
+    "build:anchor-vectors": "node scripts/build-anchor-vectors.mjs",
     "review:alignment": "node scripts/alignment-review/server.mjs",
     "audit:alignment": "node scripts/audit-alignment.mjs",
     "fetch:podcast": "node scripts/fetch-podcast-feed.mjs",

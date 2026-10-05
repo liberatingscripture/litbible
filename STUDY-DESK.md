@@ -11,12 +11,29 @@ produced it.
 Many ideas here were weighed and decided, some were declined, and the reasons
 are recorded so they aren't re-argued.
 
-## Where things stand (as of 2026-10-04)
+## Where things stand (as of 2026-10-05)
 
 - **Status: planning only.** No desk code, page, data format or service
   exists in the repo. The phases below have not started, and phase 0 (agree
   the record format with BDR, pick the narrower reading column) comes before
   any code.
+- **Both apps replied to the brief on 2026-10-04** (see "The apps' replies"
+  below). BDR proposes that each reader's notebook stay in their own iCloud
+  or Google account, with the website reaching it from the browser and **no
+  LIT accounts or sync service**. That would replace most of "Accounts and
+  sync". It's the first thing to decide (talk-through item 1), and three
+  proofs come before it. BDR's goal is sync in both apps by **Ash Wednesday,
+  February 10, 2027**.
+- **BVJ answered on 2026-10-05** ("BVJ's answers" below):
+  - Both plans stay open. A reader who wants neither Apple nor Google must
+    keep a way in, and nobody may face silent sign-outs or lose work.
+  - The apps' License screen wording is approved.
+  - The website builds in its own order.
+- **Sent back (2026-10-05):** one reply to both apps
+  (`STUDY-DESK-REPLY-TO-APPS.md`) and draft 1 of the record format
+  (`STUDY-DESK-FORMAT.md`). The format comes with a reference implementation
+  (`scripts/lib/anchor-text.mjs`) and test vectors
+  (`test/fixtures/anchor-vectors.json`).
 - **Two companion pages on claude.ai**, made while planning:
   - **The plan**, https://claude.ai/artifact/8Eyhmzd1xGTUPrjkwwSUqp (version 12,
     2026-10-02; shared with anyone who has the link). It has mockups this file
@@ -690,6 +707,18 @@ server. Most hard parts exist in the repo already.
 Added 2026-10-01 after BVJ talked with BDR. This reverses the feature audit's
 "set aside: accounts and cloud sync on the web".
 
+**Correction (BVJ, 2026-10-05).** The list below says "Decided by BVJ", but
+BVJ remembers the first plan BVJ took to BDR as having no LIT account. On
+2026-10-01 it was BDR's pushback, that a universal account across all devices
+was better, that moved the plan toward one. Asking BDR what has shifted
+since is in the 2026-10-05 reply.
+
+**Contested since 2026-10-04.** BDR's replies propose no LIT accounts at all:
+each reader's notebook stays in their own iCloud or Google account, and the
+website reaches it from the browser (plan A in "The apps' replies" below).
+Until BVJ and BDR decide (talk-through item 1), read this section as plan B,
+the fallback. Supabase and Firebase are out under both plans.
+
 **Decided by BVJ:**
 - **No-login stays.** Everything works without an account.
 - **An account adds full sync** of the notebook between the desktop website
@@ -770,7 +799,10 @@ Better Auth, not Firebase):
 - Sheets stay a computer feature for now (decision 4); synced sheets would
   let the apps show them later.
 
-### BDR's list (11 items, all open)
+### BDR's list (11 items)
+
+Answered 2026-10-04. The answers, and what's still open, are under "The
+apps' replies" below. The list is kept as it was asked.
 
 1. **Who handles sign-in** (the table above).
 2. **Whether the LIT can read synced notes.** Standard encryption vs end-to-
@@ -806,9 +838,9 @@ Better Auth, not Firebase):
 2026-10-02 to say /read now opens the terms on arrival). It explains the
 project, what the website will build, the decided account points, the store
 obligations, and asks BDR's Claude to read the app code before answering,
-correct our assumptions, and say what we missed. It went to BVJ to send;
-whether BDR has replied isn't recorded here yet. **When BDR's answers come
-back, record them in this file, and revise the brief if it is sent again.**
+correct our assumptions, and say what we missed. BVJ sent it, and both apps
+replied on 2026-10-04 (recorded under "The apps' replies" below). **Revise
+the brief if it is sent again.**
 It deliberately leaves out the 2026-10-02 netbible.org round (N10 and D7 are
 website-only; S11 and reading plans come later). Its requests, in order: (1) link the license
 terms from both apps; (2) agree the record format before any code; (3) choose
@@ -883,6 +915,428 @@ agreeing the real one):
 
 Two rules for every client (C8): keep what you don't understand, untouched,
 and write it back; store highlight colors by the apps' own names.
+
+## The apps' replies (2026-10-04)
+
+Both replies came back on 2026-10-04. BDR's Claude wrote each one from that
+app's code, adding BDR's answers where the call was BDR's: "the iOS app's
+reply" (iOS repo at `3b9e136`, branch `next`, 2.0 in TestFlight) and "the
+Android reply". BVJ holds both documents. They aren't committed here because
+they quote the apps' private code. This section records what they say and
+what the review of them found (2026-10-05). Their IDs are kept so answers can
+be sent back against them:
+- **iOS reply**: **R1–R11** (BDR's rulings), **T1–T10** (for BVJ and BDR to
+  talk through), **P1–P3** (proofs), **W1–W7** (questions for this repo).
+- **Android reply**: **A-R1–A-R12** (answers to the brief's requests),
+  **A-F1–A-F13** (format changes), **A-M1–A-M13** (what we missed),
+  **A-Q1–A-Q14** (questions).
+
+Android asks that each question sent back be marked "for BDR" or "for the
+Android instance". Its Claude won't answer for BDR.
+
+### BDR's proposal: each platform's own cloud, and no LIT accounts
+
+Both replies lead with this proposal, which reverses most of "Accounts and
+sync" above, the section the brief described as decided. BDR, quoted in the
+Android reply: "Leaning hard toward a solution that's built entirely on each
+platform's own invisible data sync at a device-level login, extended with a
+'Sign in with Apple' and 'Sign in with Google' option for the website. It
+doesn't solve for cross-platform users (rare!) or users who don't want to use
+either login type (also rare) but maybe we can brainstorm options."
+
+- **Plan A (BDR's).** An iPhone reader's notebook stays in their own iCloud:
+  the app's CloudKit private database, container `iCloud.com.litbible.app`.
+  An Android reader's notebook moves into the hidden app-data folder of their
+  own Google Drive (scope `drive.appdata`). The website reaches either one
+  from the browser. **LIT holds nobody's notes**, so there are no LIT
+  accounts, passwords, two-step codes, reset emails, account pages, account
+  deletion or email service. "Sign in" means "connect the cloud your phone
+  already uses". On Apple's side that is CloudKit's web sign-in with the
+  reader's Apple Account, which opens this app's iCloud data to the page and
+  gives the website no email address. It is **not** the "Sign in with Apple"
+  identity product the Android reply quotes BDR naming; the iOS reply has
+  this right. BVJ's own words on 2026-10-01, "iCloud account", were closer to
+  plan A than this file's reading of them as Sign in with Apple.
+- **Plan B (the fallback).** If a proof fails, a LIT service on Cloudflare:
+  Workers and D1, Better Auth, called over plain HTTPS.
+- **Supabase and Firebase are out** under every plan (R1, A-R3). The iOS
+  repo has had this as a standing rule since a Supabase sync prototype was
+  built and deleted in spring 2026.
+- **Under plan A, BDR would also drop the notebook file (D1) as a way to
+  sync** (T3). It works only in Chromium browsers, and connecting iCloud or
+  Google does the same job from any browser, including for a reader with no
+  phone.
+- **Plan A leaves two readers uncovered.** One is a reader with both an
+  Apple and an Android device, whose two notebooks would never meet (T4).
+  BDR: "probably a known gap, but maybe the website bridges". The other is a
+  reader who wants neither sign-in. BDR: keep it open. The Android reply
+  lists four options for the first reader: the website merges both stores
+  while open; export and import; one app also speaks the other store; a
+  small LIT relay later.
+
+Before anyone commits to plan A, three things need proving:
+- **P1. The iOS app accepts a note the website writes into iCloud.** The test
+  has to pass on the current release and on 1.27. It covers edits, deletes,
+  long notes, an app edit keeping a field the app doesn't model, and listing
+  changes without new search indexes. Apple documents the record layout
+  for reading ("Reading CloudKit Records for Core Data": `CD_` record types
+  and fields, record names `CD_<Entity>_<UUID>`, the
+  `com.apple.coredata.cloudkit.zone` zone) and says CloudKit JS can reach
+  those records. Nothing documented says Core Data will import a record
+  another client wrote. BDR creates the CloudKit web token in BDR's developer
+  account.
+- **P2. Android's notes can be reached from the website. The Android reply
+  answered no.** Today they sit in Android Auto Backup: one file,
+  `backup/annotations.json`, uploaded about once a day and restored only
+  on a new install, which nothing else can read. Plan A means Android
+  builds Drive app-folder sync from nothing (M to L), and adds back a Google
+  library the app removed before 1.0. Still to prove: that the Android app
+  and the website, as two clients of one Google Cloud project, see the same
+  app-data folder, and what happens when a reader's Google storage is full.
+- **P3. Three unverified points.** Whether a reader with Advanced Data
+  Protection can use the website's iCloud sign-in. What each store's privacy
+  answers become under plan A. The shared Drive folder from P2.
+
+### BDR's rulings on the app side
+
+| Topic | iOS | Android |
+|---|---|---|
+| License link | In 2.0's public archive if the details are ready in time; otherwise 2.0.1 or November's 2.1 (R9) | In 1.3, this October. Needs two sentences of approved wording by mid-October (A-R1, A-Q10) |
+| Today's sync | iCloud stays for Apple readers whatever else is built (R2) | Turning sync off leaves the notes on the phone (A-R5); Auto Backup keeps running underneath |
+| Encryption | End-to-end only if recovery is safe; under plan A LIT never holds the notes, which BDR counts as meeting that (R3) | "Probably ordinary encryption to start, and E2E later" (A-R4) |
+| Bookmarks | Full bookmarks **and named ribbons** in the first synced release (R4) | Bookmarks sync. Android has none today, only the `bookmark` note marker, and doesn't mention ribbons |
+| Reading place | Open (T5) | Syncs (A-R6) |
+| Sheets | Kept in the reader's cloud, not shown in the app (R7) | Synced and carried untouched (A-R6) |
+| Display settings | Don't sync (R7) | Don't sync (A-R6) |
+| 30-day trash | The app matches it (R5) | Needs its own trash: Drive app-folder files can't be put in Drive's trash |
+| The blur (N8) | Honoured in the first synced release, VoiceOver included, on every route into a passage (R6) | Honoured in the launch build; a solid veil before Android 12 (A-R9) |
+| Colour names | `yellow` `green` `blue` `pink` (R8) | The same (A-R10) |
+| Note markers | Asks the website to carry all seven by name (R8) | Proposes `lit.noteType` (A-F3) |
+| How sync is offered | Under plan A the app has no sign-in screen at all | A Settings row and one dismissible mention in My Notes, never a prompt at launch (A-R3) |
+| Date | Ready by Ash Wednesday, **February 10, 2027**; app work may start after the November build (R10) | Full sync in the app on February 10; nothing public before December; building from about Christmas (A-R11) |
+| Mac app | Planned and may move to spring. Shares the phones' iCloud with no extra sync work; printing is among its first features; some notebook features may reach it before the phones (R11) | — |
+| Who looks after it | Nobody needed under plan A; open for plan B (T8) | Shared between BVJ and BDR, names to come (A-R7) |
+
+### What the apps already do
+
+The brief's assumptions underrated both apps. Built separately, they already
+do much of what N3 plans:
+
+| | iOS | Android | The website's plan |
+|---|---|---|---|
+| IDs | A UUID since the first release, the same on every Apple device | A UUID from creation, kept through backups | A permanent ID |
+| Highlight and note | Two records (`type`) | Two records (`type`) | One record, two motivations (the draft) |
+| Anchor | `paragraphId` (the paragraph's position in the chapter, from 0: `romans-ch8-p2`), UTF-16 offsets in the words-only text, `selectedText`, 20 characters of context each side (words only), `verse` and `endVerse` | Offsets in the text as displayed (verse numbers and footnote letters included, so never synced), the selected words, 20 characters each side **from the displayed text**, first verse only | Verse (`data-osis`) plus a TextQuoteSelector, reading the text the way Copy does (C16) |
+| When the words change | Same offset, then a unique match, then context to choose, then context alone (marked `shifted`, old words kept), then `orphaned`. A notice offers Re-read in Context, Keep, Delete (since 1.1) | Same place, unique match, context to choose, **adopt the words now between the context**, give up. A notice in two registers ("carried along", "couldn't find your words"); the reader's first wording is kept until they've seen it | Compare against the verse copy, then fall back to the whole verse with N3's notice |
+| Verse copy | None (`previousSelectedText` after a guess) | None | Yes (C3) |
+| Content version on a record | No; `changedInUpdate` names the update that moved it | No, though the app knows it | Yes |
+| Deletes | Removed outright. `isDeleted` exists but is unused, because flag flips on synced records propagated unreliably in testing | `isDeleted` plus a bumped `updatedAt`, never purged | A tombstone |
+| ⟦ ⟧ | Kept, and counted in offsets; removing them has waited in its roadmap since September | Kept; the strip isn't built yet | Stripped |
+| A highlight across paragraphs | One record per paragraph, sharing a `groupId` | Slices sharing a group ID, "internal; should not leak" | — |
+| Overlapping highlights | A same-colour highlight that overlaps or touches merges | Same colour touching merges (a space counts as touching, a line break doesn't); a new colour trims an old one | — |
+| Re-anchoring changes `modified` | Yes | Yes | — |
+| Reading place | One per book, in iCloud (book, chapter, paragraph, date) | One for the whole app, a scroll position in pixels, not backed up | `lit_last_read` (book, chapter, verse) plus Read View's place in each book |
+| Claimed links | 27 `/<book>-*` patterns and `/glossary`, from this repo's `apple-app-site-association` | `/{book}-{chapter}` per book in the manifest, `#v3` and `#v3-5` honoured; `/glossary` not claimed | — |
+| Accessibility | A highlight is colour only and VoiceOver doesn't announce it; notes have a marker glyph and a dotted underline. An accessibility push is planned around Christmas | A highlight is colour only and TalkBack doesn't announce it; My Notes shows an unlabelled colour dot; notes have a labelled margin mark | C4 |
+| Worth copying | Notes kept out of the phone's system search (BDR, September: a note is often grief, doubt or confession); whole-word selections that take closing punctuation | Deleting never asks and is always undoable from one bar | — |
+
+Both apps have **seven note markers**: `note`, `emphasis`, `question`,
+`heart`, `bookmark`, `lightbulb`, `flame` (iOS reads an old `star` as
+`emphasis`). The iOS app's book keys are the site's slugs, as the Android
+app's are, and neither app has an OSIS table.
+
+### Where the two replies disagree
+
+Same BDR, two apps. Each of these is a format decision, not a detail:
+1. **Reading place**: settled as syncing on Android (A-R6), open on iOS
+   (T5).
+2. **Deletes and the trash.** iOS wants the trash as a record kind of its
+   own (delete the live record, create a trash record), because flipping a
+   flag on synced records was unreliable. Android wants a tombstone kept
+   after the 30 days, with the content dropped, so that a phone restored
+   from an old backup can't bring a deleted note back (A-M3, A-F10). The
+   two fit together: a trash record holds the whole item for 30 days, then
+   only its ID and deletion time, indefinitely.
+3. **A highlight across paragraphs.** iOS asks the website to write one
+   record per paragraph with a group ID (W5). Android says the slicing is
+   internal and mustn't reach the shared format (A-F1).
+4. **Overlapping highlights**: two different merge rules. Unless they become
+   one, the clients will rewrite each other's marks back and forth (A-M5).
+5. **Context length**: both apps store 20 characters but measure them
+   differently. Android proposes 32 in normalized characters (A-F6).
+6. **When the words are gone.** Both apps place the mark on whatever now
+   sits between the old context, and flag it. The website's plan falls back
+   to the whole verse. Android raises this as BDR's call (A-F5, A-Q6). iOS
+   doesn't raise it.
+7. **Bookmarks.** iOS will build bookmarks and ribbons; Android promises
+   neither ribbons nor a way to show bookmarks yet. Both apps' `bookmark`
+   note marker is a different thing from the website's bookmarks (B2)
+   (A-Q13).
+8. **Encryption**: the two are worded differently but agree in effect.
+   Nothing is end-to-end at launch under either app's answer.
+9. **Start of app work**: after the November build (iOS), or about
+   Christmas (Android).
+10. **Links**: `/glossary` opens the iOS app but stays in the browser on
+    Android.
+
+### What the review found (checked against this repo, 2026-10-05)
+
+1. **The iOS paragraph ID isn't permanent.** `paragraphId` is a position in
+   `paragraphs[]`, and positions move. This repo keeps a block's own ID
+   permanent by retiring the IDs of merged blocks rather than renumbering,
+   and the position of everything after a merge still shifts. Twice so far
+   on published chapters:
+   - Matthew 20, 2026-08-18: 21 blocks became 15 when 20:1–16 was set as
+     one paragraph, moving the 14 blocks that hold 20:17–34.
+   - Romans 3, 2026-09-06: 12 blocks became 11 when the 3:10–18 catena was
+     set as poetry, moving the 4 that hold 3:18–31.
+
+   **Question for the iOS instance:** does re-anchoring look beyond the
+   stored paragraph? If not, notes made in those passages before those
+   dates were misplaced or orphaned. For the shared format: anchor on verse
+   and quote. If a paragraph is ever needed, use the block's own ID
+   (`romans-3-p9`), which never moves.
+2. **Ten bracketed paragraphs, not nine.** The iOS reply's list leaves out
+   `luke-22-p18` (Luke 22:43–44, published 2026-09-17).
+3. **The website has two text models today, and neither is the spec.**
+   `countable` places a selection and finds it again on the other view's
+   page. It drops verse numbers, footnote letters and all whitespace, but
+   **keeps ⟦ ⟧**. Copy text (`cleanForShare`) strips ⟦ ⟧, collapses
+   whitespace and keeps line breaks. So "read the text the way Copy does"
+   (C16) still has to be made precise.
+4. **Corpus facts for the spec** (all 210 published chapters):
+   - No word joiners, zero-width characters, soft hyphens, decomposed
+     accents or characters outside the Basic Multilingual Plane.
+   - `&nbsp;` appears only as an entity (6,540 times), never as a literal
+     character.
+   - The only published `<br>` is 2 Corinthians 6:2.
+   - Inline images appear only in draft placeholders (Acts and Revelation).
+
+   So the rules for Unicode composition, word joiners and images (iOS
+   §3.5, A-F4) are defensive, and their test vectors have to be made up.
+   UTF-16 offsets equal code-point offsets in today's text, and JavaScript,
+   Swift's `utf16` view and Kotlin all count UTF-16 natively.
+5. **The bracket strip is the apps catching up.** Both apps already have it
+   queued, and this repo strips ⟦ ⟧ in every extractor. Deciding T7 settles
+   the order, not the direction.
+6. **Under plan A the website is the only client that speaks both stores**,
+   and the only place a bridge could ever live. Neither reply sizes the
+   website's side; Android only asks (A-Q7). Two adapters, the iCloud schema
+   review and the spec are website work the plan's phase 4 never had.
+7. **iOS writes re-anchored offsets into the synced record.** Each Apple
+   device re-places its notes after a content update and saves the ones
+   that moved. The rule both replies want the website to keep (W2: resolve
+   for display, never write back) doesn't hold while the apps do this. Both
+   apps already plan to stop re-anchoring from changing `modified` (iOS
+   §3.9, A-M4). Under plan A the offsets also live in the iCloud record, so
+   each content update still sends a write from every Apple device. Ask
+   whether iOS can keep its offsets on the device instead.
+8. **Browser sessions without a server are short.** Google's browser-only
+   flow issues hour-long access tokens with no refresh token, and renewing
+   one opens a popup the reader has to start. CloudKit JS keeps its session
+   in browser storage, which Safari clears after seven days without a visit.
+   "Connect once" may become "connect most visits", so P1 and P2 should
+   both test a reader returning a week later. A small Worker that only
+   exchanges Google tokens would fix Google's half while holding no notes,
+   but it would hold a credential to readers' Drive folders.
+9. **Advanced Data Protection.** Apple's security guide says ADP end-to-end
+   encrypts CloudKit fields a developer marks as encrypted, **and all
+   CloudKit assets**. Core Data moves a value that won't fit in a 1MB
+   record into an asset field. So for an ADP reader, the website could
+   probably read ordinary fields but not an oversized note. That is an
+   inference, to check in P3.
+10. **The iCloud schema is permanent** (iOS §4.3). Website-only kinds
+    (sheets, labels, concept-mark rules, the colour legend) don't need
+    columns of their own. Put them in a zone the app never opens, under one
+    generic record type (kind, a JSON payload, a modified time), deployed
+    once. A later kind then needs no deploy, and the app can't damage what
+    it doesn't read. On Drive, one JSON file per record (A-F2) is already
+    generic.
+11. **Under either plan, the page will hold credentials to readers' notes.**
+    Under plan A that is a live token for their iCloud or Drive data, so a
+    script injected into litbible.net would become a notes leak. CLAUDE.md
+    says to revisit enforcing the full CSP "if the site ever gains
+    logins/accounts/sessions". This is that moment, and the CloudKit and
+    Google origins join the allowlist.
+12. **Ash Wednesday is Lent's first day**, when study leaders would want
+    sheets (phase 3). The current order puts sheets before sync. Under plan
+    A the apps' sync doesn't depend on the website: iOS syncs today, and
+    Android's Drive sync stands alone. The website can join after February
+    10 without holding the apps back. Under plan B everything waits on the
+    service. That is a schedule argument for plan A.
+
+### Proposed answers to W1–W7 (for BVJ to confirm)
+
+- **W1. The spec and its test vectors: yes, written here.** This repo has
+  the corpus, `stripBracketMarkers` and the extractors. Proposed rule:
+  - NFC.
+  - Drop verse numbers and footnote letters.
+  - Strip both bracket forms **before** collapsing whitespace (pending T7).
+  - `&nbsp;` becomes a space; zero-width characters are removed.
+  - A poetry line break or `<br>` becomes `\n`; other whitespace runs
+    collapse to one space.
+  - Quotes and dashes stay as written in anchors. They're evened out only
+    for N3's change comparison.
+  - Context is 32 characters each side, in this normalized text.
+  - Offsets, if any are ever shared, count UTF-16 code units.
+  - The spec also states the matching rule (A-F5), not only the
+    normalization.
+
+  Vectors:
+  - All ten bracketed paragraphs, including John 9:39's mid-verse `⟧`,
+    which is the double-space trap.
+  - A poetry block, plus Luke 1:70–75's verse numbers in mid-line.
+  - 2 Corinthians 6:2's `<br>`.
+  - A continuation paragraph (`hebrews-2-p4`).
+  - Adjacent footnote letters.
+  - Matthew 20 and Romans 3 before and after their merges.
+- **W2. Resolve for display, never write back: yes.** Only the reader's own
+  actions write: an edit, Keep, Mark the new words. It needs the apps to do
+  the same (finding 7).
+- **W3. The seven markers: yes, carried by name.** N6's question flag *is*
+  the `question` marker.
+- **W4. The website writes the quote, the verse and an empty `offsetSpace`,
+  and the app places the note on arrival** (the iOS reply's own
+  preference). This uses the path that already upgrades pre-1.1 records. P1
+  has to show that 1.27 and 2.0 draw nothing wrong in the meantime.
+  Computing the app's paragraph position would couple the website to a
+  number that moves (finding 1).
+- **W5. Yes, in the iCloud adapter only.** The website writes one record
+  per paragraph with a shared `groupId`, because that's iOS's physical
+  shape. The logical record and the export keep one highlight (Android's
+  A-F1). The spec says how a quote is cut at a paragraph boundary.
+- **W6. The complete list (draft).** Every record carries `id` (existing app
+  UUIDs carry over), `kind`, `schema`, `created`, `modified` (reader edits
+  only), `client` (A-F11) and `contentVersion`. Anything on the text also
+  carries `bookKey`, `chapter`, `verse` and `endVerse`, in the site's slugs
+  as the release notes feed's `location` already uses them; OSIS is derived
+  for the W3C export (A-F9). The kinds:
+  1. **highlight**: colour, quote, verse copy with its date (A-F8).
+  2. **note**: plain-text body, marker, an optional quote, verse copy.
+     Instead of verses, its target may be a footnote's quoted words (M11)
+     or a glossary term's ID (N2).
+  3. **hidden passage** (N8): a verse range and an optional note to self.
+  4. **bookmark** (B2): a verse, a label, and how the reader got there.
+  5. **place** (B1): the place in each book, and named ribbons.
+  6. **colour legend** (H1): the reader's meaning for each of the four
+     colours.
+  7. **concept-mark rule** (H2): a term, a book, a colour.
+  8. **label** (M8): a name; records list their labels.
+  9. **sheet** (S1 to S10): one structured document.
+  10. **trash entry** (M7): the whole item for 30 days, then only its ID and
+      deletion time.
+
+  Plus, optionally, a reserved envelope for an encrypted body (A-F12).
+  Under plan A, kinds 6 to 9 go in the generic zone (finding 10).
+- **W7. Keep new addresses clear of book slugs: yes.** `/sheets/`,
+  `/notebook/` and any account page are all clear. The rule: no path on the
+  site may start with `<bookKey>-` unless it is a chapter or intro. The
+  iOS app's claims live in this repo (`apple-app-site-association`), so
+  claiming sheet links later is a change here plus an app release.
+
+### The talk-through list
+
+In order. The first item blocks the rest. "Lean" is the review's
+recommendation, not a decision.
+
+| # | Question | IDs | Who decides | Where it stands |
+|---|---|---|---|---|
+| 1 | Plan A or plan B | T1, A-Q1 | BVJ with BDR | BDR leans hard to A. **Lean: A, if P1–P3 pass by the end of October.** It keeps the privacy page's promise that the site collects personal information only when someone chooses to send it, needs nobody on call, and lets the apps launch without the website. It moves work to the website (finding 6) |
+| 2 | Does "LIT never holds the notes" answer the end-to-end lean (C19)? | T2, A-Q2 | BVJ | Under plan A, Apple or Google could read the notes, as they can anything else in the account. LIT never could, and there is no recovery key to lose |
+| 3 | Brackets in anchors | T7 | BVJ; the apps follow | **Lean: strip** (finding 5) |
+| 4 | Reading positions: shared, or separate with ribbons crossing over | T5 (A-R6 says shared) | BVJ | **Lean: share one place per book**, stored as a verse (A-F13), so stopping on the phone moves the desk's Continue reading |
+| 5 | The notebook file | T3 | BVJ | **Lean, under A: keep the Markdown export and import** (item 6 needs it) and drop live save-in-place from phase 1 |
+| 6 | The reader with both Apple and Android devices; the reader who wants neither sign-in | T4 | BVJ, BDR | **Lean: a known gap at launch**, with export and import; the website bridge later. The reader who wants neither keeps the notebook in the browser |
+| 7 | When a mark's words are gone | A-Q6, A-F5 | BVJ, BDR | **Lean: one rule on all three.** Use the apps' rule, with the notice: place the mark on the words between the old context, keep the old words, and write nothing until the reader chooses Keep |
+| 8 | What must be live on February 10, and the fallback if one platform isn't ready | A-Q3 | BVJ, BDR | Under plan A, the website can join later |
+| 9 | Can the website build two storage adapters by February 10, alongside the desk? | A-Q7 | BVJ | Unsized (finding 6) |
+| 10 | Who owns the Google Cloud project, the CloudKit container and the spec | A-Q4, T8 | BVJ, BDR | The container is in BDR's developer account. **Lean: the spec and its vectors live in this repo** |
+| 11 | The stores' privacy answers ("No data collected" on Play) | A-Q5, P3 | BVJ, BDR | Unverified under plan A |
+| 12 | The apps' License screen wording | T9, A-Q10 | BVJ | **Needed by mid-October.** Draft: "The LIT Bible is licensed under CC BY-NC-ND 4.0, with added permissions: you may print, display and share any amount for noncommercial uses such as Bible studies, classes, sermons and bulletins, and you may quote it in commercial works within set limits. The full terms, including the credit line to use, are at litbible.net/read#license-terms." Android's existing "You may not distribute modified versions" stays accurate |
+| 13 | Do shared sheet links need something hosted? | T10, A-M8 | BVJ | S8's links carry the sheet after the #, so they need nothing hosted. Only M14's short links need a small store, holding sheets only |
+| 14 | The N8 record, and whether hiding reaches daily readings and widgets | A-Q9 | BVJ | Shape proposed in W6; both apps list every route a hidden passage must stay hidden on |
+| 15 | Colour meanings in the apps | T6 | BVJ, BDR | BDR wants to talk it through |
+| 16 | The alignment data in the apps: N2 and H2 shown, or only carried | A-Q8 | BVJ | **Lean: carried only, at launch** |
+| 17 | The QR address | A-Q11 | BVJ | Both apps agree on `https://litbible.net/romans-8/#v3-4` |
+| 18 | Bookmarks vs the `bookmark` marker; whether a quote may cross a verse or paragraph boundary | A-Q13 | the three Claudes propose | **Lean: bookmarks are their own kind**, and the marker stays a note's glyph |
+| 19 | Tombstones after the trash empties | A-Q14 | the Claudes | **Lean: yes** (disagreement 2) |
+
+Questions for the apps, to send back:
+- **For the iOS instance:** finding 1 (re-anchoring and paragraph positions);
+  finding 7 (offsets kept on the device); whether a different colour trims
+  an existing highlight; whether restoring an old device backup can bring a
+  deleted record back; whether a blockquote counts as one paragraph.
+- **For the Android instance:** whether the app's text model can drop
+  verse digits and footnote letters from its context strings without a
+  migration.
+- **For BDR:** items 1, 4, 6, 7, 8, 10, 11 and 15.
+
+### Dates (superseded 2026-10-05)
+
+The review proposed a schedule working back from February 10, 2027. **BVJ
+replaced it:** the website orders its work by what makes sense for the
+website, and finishes when it finishes. February 10 is BDR's goal for the
+apps.
+- Under plan A the apps don't wait on the website.
+- Under plan B the apps' sync needs the service first, which would put it
+  ahead of the website's own phases.
+
+The format still comes first, before Christmas as Android asked.
+
+### BVJ's answers (2026-10-05)
+
+- **Plan A or plan B (talk-through item 1): both stay open.**
+  - BVJ wants to know more about the website work each one means before
+    deciding. It is laid out in `STUDY-DESK-REPLY-TO-APPS.md`, section 4.
+  - BVJ asks BDR what shifted (see the correction under "Accounts and sync").
+- **Two requirements under either plan:**
+  - **A reader who wants neither Apple nor Google must still have a way to
+    keep their notebook.**
+  - **No repeated sign-in that isn't obvious, and no lost work.** BVJ named
+    two reliability worries: Google Drive sync, and Safari clearing a
+    CloudKit session.
+- **Timing:** see "Dates" above.
+- **License wording (item 12): approved as drafted.**
+- **Brackets in anchors (T7): strip them.**
+- **Reading positions (item 4): undecided, leaning slightly against
+  sharing them.** Open to more conversation.
+- **When a mark's words are gone (item 7): no preference.** Left to the
+  three Claudes. Draft 1 of the format adopts the apps' approach.
+- **The notebook file (item 5, T3): undecided.** BVJ wants both app Claudes'
+  pros and cons first.
+- **The reply goes as one document to both apps**, with platform-specific
+  parts marked. That is `STUDY-DESK-REPLY-TO-APPS.md`.
+- **The paragraph-position question goes to the apps now**, ahead of the
+  reply. It is section 1 of that document.
+- **The format drafts (W1, W6):**
+  - `STUDY-DESK-FORMAT.md` holds draft 1 of the record format.
+  - `scripts/lib/anchor-text.mjs` is the reference implementation.
+  - `test/fixtures/anchor-vectors.json` holds the test vectors, made by
+    `npm run build:anchor-vectors`.
+
+### To be decided
+
+BVJ asked (2026-10-05) for the less urgent questions to be listed here as
+needing a decision. None blocks the format.
+
+- **Plan A or plan B** (T1, A-Q1), with the two requirements above.
+- **Reading positions:** shared between phone and desk, or not (T5, A-R6).
+- **The notebook file (D1):** a sync method, or export and import only (T3).
+- **The reader with both an Apple and an Android device** (T4).
+- **End-to-end encryption under the chosen plan** (T2, A-Q2).
+- **How the reader's colour meanings appear in the apps** (T6), BVJ with
+  BDR.
+- **Ownership** of the Google Cloud project, the CloudKit container setup
+  and the format spec (A-Q4, T8). Lean: the spec stays in this repo.
+- **The stores' privacy answers**, including Play's "No data collected"
+  (A-Q5, P3).
+- **How far a hidden passage reaches** (A-Q9): daily readings, widgets,
+  search, share cards.
+- **Whether shared sheet links need anything hosted** (T10, A-M8).
+- **Whether the apps show N2 and H2, or only carry them** (A-Q8).
+- **Who looks after a service**, if plan B (T8, A-R7).
+- **In the format:** bookmarks vs the `bookmark` marker, and the overlap
+  rule for highlights (`STUDY-DESK-FORMAT.md`, "Still open").
 
 ## Ready for the Greek text
 
@@ -1168,7 +1622,9 @@ BVJ pointed out netbible.org was missing from the survey. Decisions:
 
 ## Still open
 
-- **BDR's list**, all 11 items (above), starting with the record format.
+- **"To be decided"** under "The apps' replies", starting with plan A or
+  plan B. The record format is drafted (`STUDY-DESK-FORMAT.md`) and waits on
+  both apps' review.
 - **D7**: whether API.bible's tracking script is acceptable; which other
   free-to-share translations join the KJV; whether to request NRSVue and CEB
   licenses (and whether to have them drafted); whether the donation page
