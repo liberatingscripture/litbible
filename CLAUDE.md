@@ -89,6 +89,9 @@ npm run build:alignment   # Rescan the text for glossary-term renderings (src/da
                           #   (on demand only — output is committed and carries review state)
 npm run review:alignment  # Localhost review tool for that dataset (see below). Needs the
                           #   MorphGNT clone; writes to src/data/alignment/ as you decide
+npm run build:anchor-vectors # Regenerate test/fixtures/anchor-vectors.json, the Study Desk
+                          #   anchor-text vectors the apps run (on demand only — committed,
+                          #   and its "before" texts come from git history)
 npm run audit:alignment   # Re-check decided alignment records against the current text
                           #   (--all to list every finding). Run after editing scripture
 npm run draft:release-notes -- --since <ref>  # Draft a release-notes entry from git diff
@@ -350,6 +353,8 @@ the sitemap filter live in `astro.config.mjs`.
 | `lib/alignment-forms.mjs` | How a glossary rendering is matched against verse text, and how `english[].n` is counted. Shared so both writers number occurrences identically. |
 | `lib/alignment-audit-core.mjs` | Pure staleness check for decided records, no fs of its own. Imports `computeOccurrenceN` from the review tool rather than restating it — agreeing with the writer *is* the check. Unit-tested. |
 | `lib/verse-text.mjs` | **The** chapter HTML → per-verse plain-text splitter (`Map<verse, text>`). Shared by `lib/verse-index-core.mjs`, `build-alignment.mjs`, and the review tool, so search and the alignment dataset can never disagree on where a verse starts and ends. (`release-notes-core.mjs` keeps its own, deliberately — see below.) |
+| `lib/anchor-text.mjs` | Reference implementation of the Study Desk's anchor text (`STUDY-DESK-FORMAT.md`): how the website and both apps read a chapter as text to place a reader's mark, and how they find it again after the wording moves. Built on `splitChapterVerses`, so a note, a search hit and an alignment record agree on where a verse is. Nothing on the site uses it yet. Unit-tested (`test/anchor-text.test.js`), which also checks the committed vectors against it. |
+| `build-anchor-vectors.mjs` | Writes `test/fixtures/anchor-vectors.json` from `lib/anchor-text.mjs`, copying every input into the file so the vectors survive corpus changes. **Not** in the build; needs full git history for its before-and-after cases. After a deliberate change to the rule, regenerate, bump `ANCHOR_SPEC_VERSION`, and tell the apps. |
 | `fetch-podcast-feed.mjs` | Refresh podcast XML snapshot (non-fatal on failure). |
 | `draft-release-notes.mjs` | CLI/git shell: drafts release-notes entries from git diffs (used by CI). Delegates the diff→changes logic to `lib/release-notes-core.mjs`. |
 | `lib/release-notes-core.mjs` | Pure `buildChanges()` core of the drafter — no git/fs/argv of its own (readBase/readNow injected). Unit-tested directly (`test/draft-release-notes.test.js`) since its output shape is an app contract. |
@@ -1495,11 +1500,13 @@ collection); they're read directly by the intro pages and the API manifest.
   `public/api/`, `public/og/`, `public/search/topics.json`,
   `public/search/verses.json`, `public/search/chapters/`, `public/topics-index.json`,
   `public/glossary.json`, `dist/`, `.astro/`.
-  Don't hand-edit them. Four generators are deliberately **outside** this rule
+  Don't hand-edit them. Five generators are deliberately **outside** this rule
   because their output is committed and hand-maintained — `build:favicons`
   (icons), `build:alignment` (review state), `build:bracket-font`
-  (`public/fonts/bracket-markers.otf`), and `build:apps-qr`
-  (`public/images/apps-qr.svg`); none of the four runs in `npm run build`.
+  (`public/fonts/bracket-markers.otf`), `build:apps-qr`
+  (`public/images/apps-qr.svg`), and `build:anchor-vectors`
+  (`test/fixtures/anchor-vectors.json`, which the apps fetch); none of the
+  five runs in `npm run build`.
 - **No client JS framework**, but `src/scripts/` *does* hold vanilla JS for
   progressive enhancement (verse highlighting/menus, footnote popovers, reading
   mode, search). Everything must degrade gracefully without JS.
@@ -2685,7 +2692,8 @@ argv, and the scan; nothing else.
 | `public/llms.txt`, `llms-full.txt` | LLM-readable site description + AI-usage policy |
 | `GLOSSARY-CANDIDATES.md` | Register of glossary candidates deliberately not included or deferred, and the payload criterion behind those calls. Read it before proposing a "next term." |
 | `TOPICS.md` | **The authority on chapter and book-intro `topics`** — the significance filter, the alternative-translation pair table, the prefix-search rule, casing, and the hand-run checks. Read it before adding or revising any topics array. |
-| `STUDY-DESK.md` | **The planning and decision record for the Study Desk** (notes, places, highlights and sheets on desktop, with optional account sync shared with the apps). Nothing is built yet. Every idea, audit finding, owner decision, open question and BDR item is there with its ID, as are the two apps' replies (2026-10-04) and the talk-through list built from them. Read it before proposing or building any part of the desk, and update it when a decision changes. `STUDY-DESK-BRIEF-FOR-BDR.md` is the brief written for BDR's Claude about the apps' side. |
+| `STUDY-DESK.md` | **The planning and decision record for the Study Desk** (notes, places, highlights and sheets on desktop, with optional account sync shared with the apps). Nothing is built yet. Every idea, audit finding, owner decision, open question and BDR item is there with its ID, as are the two apps' replies (2026-10-04) and the talk-through list built from them. Read it before proposing or building any part of the desk, and update it when a decision changes. `STUDY-DESK-BRIEF-FOR-BDR.md` is the brief written for BDR's Claude about the apps' side; `STUDY-DESK-REPLY-TO-APPS.md` is the website's answer to both apps' replies (2026-10-05). |
+| `STUDY-DESK-FORMAT.md` | **Draft record format for the Study Desk**, shared with both apps: the kinds of record, the anchor text, and how a mark is found again after the wording moves. Its executable form is `scripts/lib/anchor-text.mjs` with `test/fixtures/anchor-vectors.json`. Change the three together. |
 | `DISASTER-RECOVERY.md` | Continuity doc: every dashboard/secret behind the deploy (names only, no values) + the DNS inventory + from-zero redeploy path. Update it when an integration, secret, or DNS record is added/removed. |
 
 > The top-level `README.md` is the lighter human-facing overview; this file is

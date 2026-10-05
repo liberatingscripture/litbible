@@ -23,8 +23,17 @@ are recorded so they aren't re-argued.
   LIT accounts or sync service**. That would replace most of "Accounts and
   sync". It's the first thing to decide (talk-through item 1), and three
   proofs come before it. BDR's goal is sync in both apps by **Ash Wednesday,
-  February 10, 2027**. The apps' License screens need approved wording by
-  mid-October.
+  February 10, 2027**.
+- **BVJ answered on 2026-10-05** ("BVJ's answers" below):
+  - Both plans stay open. A reader who wants neither Apple nor Google must
+    keep a way in, and nobody may face silent sign-outs or lose work.
+  - The apps' License screen wording is approved.
+  - The website builds in its own order.
+- **Sent back (2026-10-05):** one reply to both apps
+  (`STUDY-DESK-REPLY-TO-APPS.md`) and draft 1 of the record format
+  (`STUDY-DESK-FORMAT.md`). The format comes with a reference implementation
+  (`scripts/lib/anchor-text.mjs`) and test vectors
+  (`test/fixtures/anchor-vectors.json`).
 - **Two companion pages on claude.ai**, made while planning:
   - **The plan**, https://claude.ai/artifact/8Eyhmzd1xGTUPrjkwwSUqp (version 12,
     2026-10-02; shared with anyone who has the link). It has mockups this file
@@ -698,6 +707,12 @@ server. Most hard parts exist in the repo already.
 Added 2026-10-01 after BVJ talked with BDR. This reverses the feature audit's
 "set aside: accounts and cloud sync on the web".
 
+**Correction (BVJ, 2026-10-05).** The list below says "Decided by BVJ", but
+BVJ remembers the first plan BVJ took to BDR as having no LIT account. On
+2026-10-01 it was BDR's pushback, that a universal account across all devices
+was better, that moved the plan toward one. Asking BDR what has shifted
+since is in the 2026-10-05 reply.
+
 **Contested since 2026-10-04.** BDR's replies propose no LIT accounts at all:
 each reader's notebook stays in their own iCloud or Google account, and the
 website reaches it from the browser (plan A in "The apps' replies" below).
@@ -1256,19 +1271,72 @@ Questions for the apps, to send back:
   migration.
 - **For BDR:** items 1, 4, 6, 7, 8, 10, 11 and 15.
 
-### Dates, working back from February 10, 2027
+### Dates (superseded 2026-10-05)
 
-| By | What | Why |
-|---|---|---|
-| Mid-October | License wording to both apps (item 12) | Android 1.3 ships this month |
-| End of October | P1, P2 and P3 run; T7 decided | Item 1 can't be decided without them |
-| Early November | Item 1 decided | iOS work may start after the November build. Android needs to know whether it's building Drive sync or sign-in to a LIT service |
-| Mid-November | W6 and W1, with vectors, drafted here and reviewed by both app instances | Everything below waits on the format |
-| December 1 | The format frozen; the iCloud schema reviewed | Android needs it before Christmas, and BDR's deploy is permanent |
-| Mid-December | BDR deploys the iCloud schema to production | Everyone builds against the real thing |
-| Christmas to late January | The app builds; the website's notebook and adapters | |
-| Late January | Submissions to App Store and Play review | Review time before Lent |
-| February 10, 2027 | Launch | Ash Wednesday |
+The review proposed a schedule working back from February 10, 2027. **BVJ
+replaced it:** the website orders its work by what makes sense for the
+website, and finishes when it finishes. February 10 is BDR's goal for the
+apps.
+- Under plan A the apps don't wait on the website.
+- Under plan B the apps' sync needs the service first, which would put it
+  ahead of the website's own phases.
+
+The format still comes first, before Christmas as Android asked.
+
+### BVJ's answers (2026-10-05)
+
+- **Plan A or plan B (talk-through item 1): both stay open.**
+  - BVJ wants to know more about the website work each one means before
+    deciding. It is laid out in `STUDY-DESK-REPLY-TO-APPS.md`, section 4.
+  - BVJ asks BDR what shifted (see the correction under "Accounts and sync").
+- **Two requirements under either plan:**
+  - **A reader who wants neither Apple nor Google must still have a way to
+    keep their notebook.**
+  - **No repeated sign-in that isn't obvious, and no lost work.** BVJ named
+    two reliability worries: Google Drive sync, and Safari clearing a
+    CloudKit session.
+- **Timing:** see "Dates" above.
+- **License wording (item 12): approved as drafted.**
+- **Brackets in anchors (T7): strip them.**
+- **Reading positions (item 4): undecided, leaning slightly against
+  sharing them.** Open to more conversation.
+- **When a mark's words are gone (item 7): no preference.** Left to the
+  three Claudes. Draft 1 of the format adopts the apps' approach.
+- **The notebook file (item 5, T3): undecided.** BVJ wants both app Claudes'
+  pros and cons first.
+- **The reply goes as one document to both apps**, with platform-specific
+  parts marked. That is `STUDY-DESK-REPLY-TO-APPS.md`.
+- **The paragraph-position question goes to the apps now**, ahead of the
+  reply. It is section 1 of that document.
+- **The format drafts (W1, W6):**
+  - `STUDY-DESK-FORMAT.md` holds draft 1 of the record format.
+  - `scripts/lib/anchor-text.mjs` is the reference implementation.
+  - `test/fixtures/anchor-vectors.json` holds the test vectors, made by
+    `npm run build:anchor-vectors`.
+
+### To be decided
+
+BVJ asked (2026-10-05) for the less urgent questions to be listed here as
+needing a decision. None blocks the format.
+
+- **Plan A or plan B** (T1, A-Q1), with the two requirements above.
+- **Reading positions:** shared between phone and desk, or not (T5, A-R6).
+- **The notebook file (D1):** a sync method, or export and import only (T3).
+- **The reader with both an Apple and an Android device** (T4).
+- **End-to-end encryption under the chosen plan** (T2, A-Q2).
+- **How the reader's colour meanings appear in the apps** (T6), BVJ with
+  BDR.
+- **Ownership** of the Google Cloud project, the CloudKit container setup
+  and the format spec (A-Q4, T8). Lean: the spec stays in this repo.
+- **The stores' privacy answers**, including Play's "No data collected"
+  (A-Q5, P3).
+- **How far a hidden passage reaches** (A-Q9): daily readings, widgets,
+  search, share cards.
+- **Whether shared sheet links need anything hosted** (T10, A-M8).
+- **Whether the apps show N2 and H2, or only carry them** (A-Q8).
+- **Who looks after a service**, if plan B (T8, A-R7).
+- **In the format:** bookmarks vs the `bookmark` marker, and the overlap
+  rule for highlights (`STUDY-DESK-FORMAT.md`, "Still open").
 
 ## Ready for the Greek text
 
@@ -1554,8 +1622,9 @@ BVJ pointed out netbible.org was missing from the survey. Decisions:
 
 ## Still open
 
-- **The talk-through list** under "The apps' replies", starting with plan A
-  or plan B, then the record format.
+- **"To be decided"** under "The apps' replies", starting with plan A or
+  plan B. The record format is drafted (`STUDY-DESK-FORMAT.md`) and waits on
+  both apps' review.
 - **D7**: whether API.bible's tracking script is acceptable; which other
   free-to-share translations join the KJV; whether to request NRSVue and CEB
   licenses (and whether to have them drafted); whether the donation page
