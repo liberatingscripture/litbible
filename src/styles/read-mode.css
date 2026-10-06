@@ -44,6 +44,18 @@
   padding: 6px;
 }
 
+/* The Study Desk preview (html[data-desk]) narrows the column to 52 and adds
+   a Notebook button, so the bar outgrows the column in every font, the way
+   OpenDyslexic's always has, and takes the same remedy: a floor holding the
+   widest state, measured at 718px in Inter ("2 Thessalonians 3", "100%",
+   "My Location"; 698px in Atkinson). Before the OpenDyslexic rule, so its
+   850px wins at the same specificity. */
+@media (min-width: 901px) {
+  html[data-desk] .rm-page .rm-toolbar {
+    min-width: min(100%, 725px);
+  }
+}
+
 /* OpenDyslexic's column is 540px (its --ch is the smallest) and its labels
    the widest, so its controls run past the column. A fixed floor keeps the
    bar from changing width while the reader scrolls (a readout gaining a
@@ -54,6 +66,13 @@
 @media (min-width: 901px) {
   html[data-font="dyslexic"] .rm-page .rm-toolbar {
     min-width: min(100%, 850px);
+  }
+
+  /* With the desk preview's Notebook button, measured at 887px. In a window
+     narrower than about 925px that is wider than the page, so the bar is
+     capped at the page's width there. */
+  html[data-desk][data-font="dyslexic"] .rm-page .rm-toolbar {
+    min-width: min(100%, 895px);
   }
 }
 
@@ -160,7 +179,8 @@
   justify-content: center;
 }
 
-.rm-page .rm-toolbar [data-font-toggle] {
+.rm-page .rm-toolbar [data-font-toggle],
+.rm-page .rm-toolbar [data-desk-toggle] {
   min-width: 40px;
   padding: 0 0.7rem;
   gap: 0.4rem;
@@ -185,7 +205,8 @@
   display: none;
 }
 
-.rm-page .rm-toolbar .rm-aa-text {
+.rm-page .rm-toolbar .rm-aa-text,
+.rm-page .rm-toolbar .rm-desk-text {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -753,7 +774,8 @@ html[data-vn="off"]
     display: block;
   }
 
-  .rm-page .rm-toolbar .rm-aa-text {
+  .rm-page .rm-toolbar .rm-aa-text,
+  .rm-page .rm-toolbar .rm-desk-text {
     position: static;
     width: auto;
     height: auto;

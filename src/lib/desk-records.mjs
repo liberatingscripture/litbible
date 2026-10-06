@@ -16,9 +16,12 @@
 //   7. A client on older text never corrects a record made on newer text.
 //      mayRewriteAnchor answers that from `contentVersion`.
 //
-// Deliberately NOT here yet: deleting (the `trash` record's fields and the
-// tombstone rules) and merging. Both are format questions waiting on BDR
-// (STUDY-DESK.md, "Questions for the apps"); see desk-merge, when it exists.
+// Deleting is here PROVISIONALLY (phase 1b, BVJ 2026-10-05): the `trash`
+// record's fields are the website's proposal to BDR (STUDY-DESK.md,
+// "Questions for the apps", item 20, question 4), built ahead of the answer
+// because nothing leaves the browser yet and only the preview writes records.
+// If the apps answer differently, migrateRecord is where the change goes.
+// Merging is still NOT here, and waits on the same answer.
 
 import { BOOKS } from "../data/books.js";
 import { makeAnchor, rangeOf, resolveAnchor } from "./anchor-core.mjs";
@@ -71,7 +74,7 @@ function newId() {
  */
 export function createRecord(kind, fields, { now, client, contentVersion, id } = {}) {
   if (!KINDS.includes(kind)) throw new Error(`desk-records: unknown kind "${kind}"`);
-  if (kind === "trash") throw new Error("desk-records: trash records aren't made here yet (format question for BDR)");
+  if (kind === "trash") throw new Error("desk-records: a trash record is made by trashRecord, from the record it holds");
   for (const f of FIXED) {
     if (fields && f in fields) throw new Error(`desk-records: "${f}" is set by createRecord, not passed in`);
   }
@@ -121,6 +124,71 @@ export function editRecord(record, changes, { now, client } = {}) {
     modified: now ?? new Date().toISOString(),
     ...(client ? { client } : {}),
   };
+}
+
+/* ── Deleting (provisional: talk-through item 20) ──────────────────────── */
+
+/** How long a trash record keeps the whole deleted record (M7). */
+export const TRASH_DAYS = 30;
+
+/**
+ * Delete a record: the trash record that replaces it. The live record is
+ * removed and this written in its place, never a flag on the live record
+ * (iOS found flag flips unreliable in sync). `record` holds the whole deleted
+ * record as it was, fields this code doesn't know included, so a record of any
+ * kind can be deleted and brought back intact.
+ */
+export function trashRecord(record, { now, client, contentVersion, id } = {}) {
+  if (!record || typeof record.id !== "string") throw new Error("desk-records: nothing to delete");
+  if (record.kind === "trash") throw new Error("desk-records: a trash record isn't deleted again");
+  const at = now ?? new Date().toISOString();
+  return {
+    id: id ?? newId(),
+    kind: "trash",
+    schema: SCHEMA_VERSION,
+    created: at,
+    modified: at,
+    client,
+    contentVersion,
+    labels: [],
+    deletedId: record.id,
+    deletedAt: at,
+    record,
+  };
+}
+
+/**
+ * Undo a deletion: the record the trash record holds, back in the notebook.
+ * Undoing is the reader acting, so `modified` moves (principle 4); that is what
+ * lets an undo outlast the deletion when two copies of the notebook meet
+ * (item 20, question 2). A record this code can't edit (an unknown kind, a
+ * newer schema) comes back exactly as it was deleted, per principle 6.
+ * Null when the trash record has been emptied and holds only its tombstone.
+ */
+export function restoreFromTrash(trash, { now, client } = {}) {
+  if (trash?.kind !== "trash") throw new Error("desk-records: not a trash record");
+  if (!trash.record) return null;
+  if (!canEdit(trash.record)) return trash.record;
+  return {
+    ...trash.record,
+    modified: now ?? new Date().toISOString(),
+    ...(client ? { client } : {}),
+  };
+}
+
+/**
+ * After TRASH_DAYS a trash record drops what it held and keeps only its
+ * tombstone (`deletedId`, `deletedAt`), indefinitely, so a stale backup can't
+ * bring the record back (A-F10). The same record when it isn't due yet, or is
+ * already empty. Emptying isn't the reader changing anything, so `modified`
+ * stays put.
+ */
+export function emptyTrashRecord(trash, now = new Date().toISOString()) {
+  if (trash?.kind !== "trash" || !("record" in trash)) return trash;
+  const due = Date.parse(trash.deletedAt) + TRASH_DAYS * 86_400_000;
+  if (!(Date.parse(now) >= due)) return trash;
+  const { record: _dropped, ...tombstone } = trash;
+  return tombstone;
 }
 
 /**

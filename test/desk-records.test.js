@@ -14,14 +14,18 @@ import {
   KINDS,
   MARKERS,
   SCHEMA_VERSION,
+  TRASH_DAYS,
   canEdit,
   compareContentVersions,
   createRecord,
   editRecord,
+  emptyTrashRecord,
   mayRewriteAnchor,
   migrateRecord,
   placeRecord,
   quoteFields,
+  restoreFromTrash,
+  trashRecord,
   validateRecord,
   verseCopyFor,
 } from "../src/lib/desk-records.mjs";
@@ -156,4 +160,65 @@ test("mayRewriteAnchor: never on older text than the record, nor when it can't t
   assert.equal(mayRewriteAnchor(h, "v20261101.00000000"), true);
   assert.equal(mayRewriteAnchor(h, "v20261001.00000000"), false);
   assert.equal(mayRewriteAnchor(h, "v20261005.00000000"), false);
+});
+
+/* ── Deleting (provisional: STUDY-DESK.md, talk-through item 20) ───────── */
+
+const later = "2026-10-06T09:30:00.000Z";
+const trashCtx = { now: later, client: "web/2026.10", contentVersion: ctx.contentVersion };
+
+test("trashRecord holds the whole record, unknown fields included, under a new id", () => {
+  const h = { ...highlight(), futureField: { kept: true } };
+  const t = trashRecord(h, { ...trashCtx, id: "trash-1" });
+  assert.equal(t.id, "trash-1");
+  assert.equal(t.kind, "trash");
+  assert.equal(t.schema, SCHEMA_VERSION);
+  assert.equal(t.created, later);
+  assert.equal(t.modified, later);
+  assert.equal(t.deletedId, h.id);
+  assert.equal(t.deletedAt, later);
+  assert.deepEqual(t.record, h);
+  assert.deepEqual(validateRecord(t), []);
+  assert.equal(canEdit(t), false, "a trash record is written whole, never edited");
+});
+
+test("trashRecord makes its own id, and refuses to delete a trash record", () => {
+  const t = trashRecord(highlight(), trashCtx);
+  assert.notEqual(t.id, ctx.id);
+  assert.throws(() => trashRecord(t, ctx));
+  assert.throws(() => trashRecord(null, ctx));
+});
+
+test("restoreFromTrash brings the record back with modified moved, since undoing is the reader acting", () => {
+  const h = { ...highlight(), futureField: 1 };
+  const t = trashRecord(h, trashCtx);
+  const back = restoreFromTrash(t, { now: "2026-10-06T09:31:00.000Z", client: "web/2026.11" });
+  assert.equal(back.id, h.id);
+  assert.equal(back.created, h.created);
+  assert.equal(back.modified, "2026-10-06T09:31:00.000Z");
+  assert.equal(back.client, "web/2026.11");
+  assert.equal(back.futureField, 1);
+  assert.deepEqual(back.quote, h.quote);
+});
+
+test("restoreFromTrash returns a record it can't edit exactly as it was deleted", () => {
+  const alien = { ...highlight(), kind: "voiceMemo", audio: "…" };
+  const t = trashRecord(alien, trashCtx);
+  assert.equal(restoreFromTrash(t, { now: "2026-10-07T00:00:00.000Z" }), alien);
+  assert.throws(() => restoreFromTrash(highlight(), ctx));
+});
+
+test("emptyTrashRecord keeps only the tombstone, and only after 30 days", () => {
+  const t = trashRecord(highlight(), { ...trashCtx, now: "2026-10-01T00:00:00.000Z" });
+  assert.equal(TRASH_DAYS, 30);
+  assert.equal(emptyTrashRecord(t, "2026-10-30T23:59:59.000Z"), t, "not due on day 29");
+  const empty = emptyTrashRecord(t, "2026-10-31T00:00:00.000Z");
+  assert.equal("record" in empty, false);
+  assert.equal(empty.deletedId, t.deletedId);
+  assert.equal(empty.deletedAt, t.deletedAt);
+  assert.equal(empty.modified, t.modified, "emptying isn't the reader changing anything");
+  assert.equal(emptyTrashRecord(empty, "2027-01-01T00:00:00.000Z"), empty);
+  assert.equal(restoreFromTrash(empty, ctx), null, "nothing left to bring back");
+  const h = highlight();
+  assert.equal(emptyTrashRecord(h, "2030-01-01T00:00:00.000Z"), h, "only trash records are emptied");
 });

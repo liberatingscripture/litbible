@@ -43,14 +43,9 @@ export function hasCookie(name) {
 export const isVerseDeepLink = (hash = location.hash) => VERSE_LINK.test(hash);
 export const isOverScripture = (root = document) => !!root.querySelector(SCRIPTURE_SURFACES);
 
-/**
- * iOS, iPadOS or Android, by the device's OS rather than the screen width.
- * iPadOS Safari reports a Mac, so a Mac with a touch screen counts as one.
- */
-export function isAppPlatform(nav = navigator) {
-  const ua = nav.userAgent || "";
-  return /iPhone|iPad|iPod|Android/i.test(ua) || (/Macintosh/.test(ua) && nav.maxTouchPoints > 1);
-}
+// iOS, iPadOS or Android, by the device's OS. It lives in src/lib/ now,
+// since the Study Desk's gate reads it too.
+export { isAppPlatform } from "../lib/app-platform.mjs";
 
 /**
  * Whether the announcement may open on this pageview. Counts the pageview

@@ -13,15 +13,21 @@ are recorded so they aren't re-argued.
 
 ## Where things stand (as of 2026-10-05)
 
-- **Status: phase 1a under way; nothing reader-facing yet.** No desk page,
-  panel or service exists. What exists:
+- **Status: phase 1b built, behind a preview switch; nothing reader-facing
+  yet.** Readers see and download none of it. `litbible.net/?desk=on` turns
+  the desk on in one browser on a computer, and `?desk=off` turns it off.
+  No desk page or service exists, and there is no way yet to make a mark.
+  What exists:
   - draft 1 of the record format (`STUDY-DESK-FORMAT.md`), with its
     reference implementation (`scripts/lib/anchor-text.mjs`) and test vectors
     (PR #268);
-  - three of phase 1a's foundations, pure modules no page imports yet: the
-    record kinds (`src/lib/desk-records.mjs`), the browser half of the anchor
-    text (`src/lib/desk-anchor-dom.mjs`), and the wording comparison
-    (`src/lib/desk-wording.mjs`). See "Order of work", 1a.
+  - three of phase 1a's foundations: the record kinds
+    (`src/lib/desk-records.mjs`), the browser half of the anchor text
+    (`src/lib/desk-anchor-dom.mjs`), and the wording comparison
+    (`src/lib/desk-wording.mjs`). See "Order of work", 1a;
+  - phase 1b's shell: the gate, the notebook in IndexedDB kept in step across
+    tabs, deletion with an undo bar (on the trash record's **provisional**
+    fields), and the docked Notebook panel. See "Order of work", 1b.
 
   **The development phases were planned on 2026-10-05** ("Order of work"
   below). The format is frozen before anything syncs (BVJ, 2026-10-05).
@@ -1598,8 +1604,8 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
        doesn't know (the format's principle 6). `modified` moves only through
        `editRecord` (principle 4). `mayRewriteAnchor` keeps a client on older
        text from rewriting a record made on newer text (principle 7). Trash
-       records aren't made here yet, since their fields are among BDR's
-       questions.
+       records were held back here, since their fields are among BDR's
+       questions; phase 1b added them provisionally (below).
      - **Built: the browser half of the anchor text**
        (`src/lib/desk-anchor-dom.mjs`). It reads a chapter's anchor text off
        the rendered page, with a map from each character back to the DOM, and
@@ -1634,6 +1640,59 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      BroadcastChannel and persistent storage; deletion as a `trash` record,
      undone from a bar rather than confirmed in a dialog (Android's practice,
      A-M12); the docked panel frame (C12); the plumbing (C21).
+     **Built** (BVJ's choices under "Decisions", 2026-10-05, phase 1b):
+     - **The switch and the gate.** `?desk=on` and `?desk=off` set or clear
+       `lit-desk-preview` in that browser; Layout.astro's pre-paint script
+       turns the desk on (`<html data-desk="on">`) only there and only on a
+       computer (`isAppPlatform`, moved to `src/lib/app-platform.mjs`;
+       `test/desk-prepaint.test.js` runs the inline script itself so the two
+       copies can't drift). `src/scripts/desk-gate.js` then imports the shell.
+       Readers download only the gate and a 300-byte helper. The shell adds
+       its stylesheet itself, because a CSS import would be gathered into
+       every page's stylesheet.
+     - **The notebook in IndexedDB** (`src/scripts/desk/store.js`, database
+       `lit-desk`), over a pure core (`src/lib/desk-store-core.mjs`) that
+       turns each change into a write plan. Tabs tell each other which
+       records moved over a BroadcastChannel. Persistent storage is asked for
+       on the first write, never on load. Trash past 30 days keeps only its
+       tombstone, emptied on open.
+     - **Deleting, provisionally.** `trashRecord`, `restoreFromTrash` and
+       `emptyTrashRecord` in `desk-records.mjs` use the website's proposed
+       fields (`deletedId`, `deletedAt`, `record`; item 20, question 4).
+       Undoing moves `modified`, which question 2 relies on. If BDR answers
+       differently, the change goes in `migrateRecord`.
+     - **The undo bar** (`src/scripts/desk/undo-bar.js`) has no timeout:
+       until the trash list (M7) exists it is the only way back, and a timed
+       one would fail WCAG 2.2.1.
+     - **The panel** (`src/scripts/desk/panel.js`): a Notebook button
+       (glyph and word) beside "Aa" in the header, and the glyph alone in
+       Read View's toolbar, both hidden by CSS unless the desk is on. It
+       opens a panel docked on the right: "This chapter" (Study View
+       chapters) and "Everything" tabs, each record with Delete, "Kept in
+       this browser" and whether the browser may clear it. A preview-only
+       "Add a sample note" button lets delete, undo and the tabs' keeping
+       in step be tried before 1c; **1c removes it.** Whether the panel is
+       open is remembered and reserved before first paint, so a page opening
+       with it doesn't shift.
+     - **The frame (C12).** While docked, the page gives up 340px on the
+       right, so the header and the text move left together. Floating
+       panels and the Display tray place themselves clear of it, and a click
+       inside it closes none of them; the single-key shortcuts stand down
+       inside it. **It docks only from 1360px windows (1760px in
+       OpenDyslexic)**, measured: the header's and toolbars' breakpoints read
+       the window's width, not the page's, and below that the header's short
+       title is clipped. In narrower windows the panel lies over the right
+       edge of the page, and under about 1270px it covers the ends of the
+       lines. Docking everywhere would need container queries in the header
+       and toolbars.
+     - **The 52 measure is on while the preview is on**, and Read View's
+       toolbar takes a floor of 725px (895px in OpenDyslexic) so it doesn't
+       change width as its labels change, as OpenDyslexic's already did.
+     - **Plumbing (C21)**: nothing new in 1b. There's no new page (so no
+       noindex, sitemap or Pagefind work), the shell is same-origin script
+       the report-only CSP already allows, and IndexedDB needs no CSP entry.
+       **The privacy paragraph waits for 1d**, as planned: only someone
+       holding the preview link stores anything.
    - **1c. Marks in Study View.** The "Yours" actions in the verse menu and
      selection panel; notes with the apps' seven markers; highlights in the
      four colours with the reader's own meanings (H1) and a second cue
@@ -1903,10 +1962,31 @@ the record kinds, the browser half of the anchor text, and the wording
 comparison now; hold the merge engine and the overlap rule for BDR to weigh
 in on soon.** The questions are talk-through item 20.
 
+### 2026-10-05 (phase 1b)
+
+BVJ asked for phase 1b and made three choices before it was built:
+- **Deleting: build it now, on the website's proposed trash fields, marked
+  provisional**, rather than wait for BDR. Nothing leaves the browser yet and
+  only the preview writes records, so a different answer from BDR costs one
+  migration.
+- **The preview switch is a link** (`?desk=on`, `?desk=off`), stored in that
+  browser. Readers see nothing.
+- **The 52 measure applies only while the preview is on.** Readers keep 60
+  until the desk is released.
+
+And one while it was being checked:
+- **The header button carries its name, "Notebook", beside the glyph**, to
+  make the new tool easier to find. "Study Desk" was weighed and left as the
+  project's name: the button opens the Notebook panel, and Notebook is the
+  name decided on 2026-10-01 (decision 3). Read View's toolbar keeps the
+  glyph alone, like its Display button, since that bar is already at its
+  widest.
+
 ## Still open
 
 - **The merge and overlap rules** (talk-through item 20), needed from BDR
-  before phase 1c.
+  before phase 1c. The trash record's fields (question 4) are built
+  provisionally in 1b, so BDR's answer may mean a migration.
 - **"To be decided"** under "The apps' replies", starting with plan A or
   plan B. The record format is drafted (`STUDY-DESK-FORMAT.md`) and waits on
   both apps' review.
