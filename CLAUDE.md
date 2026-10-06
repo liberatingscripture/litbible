@@ -47,7 +47,9 @@ companion iOS/Android apps consume.
 - **Fonts**: `@fontsource` (Crimson Text, Fraunces, Inter) plus two
   reader-selectable accessibility fonts, OpenDyslexic and Atkinson
   Hyperlegible Next (the latter variable, via `@fontsource-variable`) — see
-  the Display tray note below
+  the Display tray note below. All of them load Latin only; Greek and Hebrew
+  letters come from Inter's own Greek, Noto Sans Hebrew and Cardo, registered
+  by character range (see "Greek and Hebrew letters" under Key Conventions)
 - **Icons**: simple-icons
 - **Client JS**: Hand-written vanilla JS in `src/scripts/` (progressive
   enhancement only — no client framework, no hydration). The site is fully
@@ -225,6 +227,7 @@ src/
                      #   hands on "Make an image"; glossary-entry-links, the
                      #   copy-link buttons on /glossary)
   styles/            # global.css, read-mode.css, scripture-tools.css, articles.css,
+                     #   greek-hebrew-fonts.css (imported by global.css),
                      #   pages/<page>.css (per-page stylesheets)
 scripts/             # BUILD/validation Node scripts (.mjs) — see below
                      #   (og/fonts/ holds the committed TTFs the share-card
@@ -985,7 +988,11 @@ Three small `@font-face` rules in `global.css` — one each for `"Inter"`,
 `"OpenDyslexic"`, and `"Atkinson Hyperlegible Next Variable"`, every family
 that can actually render scripture body text — patch that file in under a
 `unicode-range: U+27E6-27E7` restriction, registered under the SAME
-`font-family` name as the real face. The browser only fetches the patch file
+`font-family` name as the real face, and at the same weight and style:
+Atkinson's rule declares its variable range, `200 800`. A browser joins faces
+of one family only when those descriptors match exactly, and until 2026-10 the
+Atkinson patch had none, so Atkinson readers' brackets drew from a system font
+(Cambria Math on Windows). The browser only fetches the patch file
 on a page that actually contains one of these two characters (six chapter
 pages today), and only ever uses it for these two characters; every other
 glyph still comes from the real font. Regenerate the source file with
@@ -1674,6 +1681,33 @@ collection); they're read directly by the intro pages and the API manifest.
      notably OpenDyslexic's markedly shorter line: switching those readers to one
      shared width would have lengthened their line by ~26%, the opposite of the
      "buy back space" rule above.
+- **Greek and Hebrew letters come from faces registered by character
+  range** (`src/styles/greek-hebrew-fonts.css`, Study Desk C27; the owner
+  picked the faces 2026-10-05). Every site font loads Latin only, so each rule
+  there puts a Greek or Hebrew file under an existing family name, the way the
+  ⟦ ⟧ patch does, and no font stack anywhere changes. In sans-serif text,
+  Greek is Inter's own (the `@fontsource/inter` package always had it;
+  Atkinson and OpenDyslexic, which have none, take Inter's too), and Hebrew is
+  Noto Sans Hebrew. In serif text (Crimson Text, which print uses, and
+  Fraunces) both come from Cardo. A file loads only on a page with its letters:
+  four articles and two chapters' footnotes had Greek in 2026-10, and nothing
+  had Hebrew. The file's header carries four rules, each learned by breaking
+  it; the two that bite:
+  1. **Copy the descriptors of a face the family already has.** A browser
+     joins faces of one family by range only when weight and style match
+     exactly, so a rule at a weight the family doesn't declare is never
+     reached, or worse, catches text at that weight and drops its Latin. The
+     first draft's Hebrew rule (`100 900` under Inter, whose faces are 400 to
+     700) was never used, and Crimson's 600 skipped Cardo's 700.
+  2. **Write the ranges out; never import Fontsource's per-subset CSS** for
+     this. Those files carry no `unicode-range`, so they claim every
+     character and load on every page. Their Hebrew range also claims a
+     hyphen and some combining marks Latin text shares, which are left out.
+  Check a change with `CSS.getPlatformFontsForNode` over the DevTools
+  protocol, on a built `dist/`: it names the file that drew each character.
+  Printing needs `Emulation.setEmulatedMedia` set to print and the fonts left
+  to load before `Page.printToPDF`. Otherwise headless Chrome prints fonts
+  used only in print in their stand-ins, which looks like a failure.
 - **Two brand greens, by role (all theme-invariant).** `--green` (#209D50 "LIT
   Green") is for large **surfaces** (heroes, questions block, chat bubbles) and
   non-button icon accents — it carries **ink** text (4.6:1) or white *large*

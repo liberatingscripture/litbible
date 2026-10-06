@@ -1,4 +1,6 @@
-/* Self-hosted fonts (via @fontsource) — Latin subset only (site is English) */
+/* Self-hosted fonts (via @fontsource) — Latin subset only (site is English).
+   Greek and Hebrew letters come from greek-hebrew-fonts.css, imported after
+   these, which adds them under the same family names. */
 @import "@fontsource/inter/latin-400.css";
 @import "@fontsource/inter/latin-500.css";
 @import "@fontsource/inter/latin-600.css";
@@ -19,6 +21,9 @@
 @import "@fontsource/opendyslexic/latin-italic.css";
 @import "@fontsource-variable/atkinson-hyperlegible-next/wght.css";
 @import "@fontsource-variable/atkinson-hyperlegible-next/wght-italic.css";
+/* Greek and Hebrew, under the families above. Must come after them: see the
+   file's header. */
+@import "./greek-hebrew-fonts.css";
 
 /* Bracket-marker glyph patch (⟦ U+27E6 / ⟧ U+27E7). These wrap the six
    disputed-passage spans in scripture paragraphs (see "Bracketed passages"
@@ -54,10 +59,16 @@
   font-display: block;
   unicode-range: U+27E6-27E7;
 }
+/* Atkinson's face is variable, declared 200 800, and a browser joins faces of
+   one family only when weight and style match exactly. Without the same range
+   here, this patch formed a set of its own that body text never reached, and
+   the brackets drew from a system font (Cambria Math on Windows) until
+   2026-10. See greek-hebrew-fonts.css, rule 4. */
 @font-face {
   font-family: "Atkinson Hyperlegible Next Variable";
   src: url("/fonts/bracket-markers.otf") format("opentype");
   font-display: block;
+  font-weight: 200 800;
   unicode-range: U+27E6-27E7;
 }
 

@@ -1,0 +1,438 @@
+/* Greek and Hebrew letters (Study Desk audit C27; the faces were picked by the
+   owner on 2026-10-05, see STUDY-DESK.md, "Decisions", phase 0 picks).
+
+   Every font imported in global.css is a Latin-only subset, so before this
+   file the site had no Greek or Hebrew of its own: the Greek words in a few
+   articles and footnotes fell back to whatever the reader's computer had.
+   Each rule here registers a Greek or Hebrew file under an EXISTING family
+   name, with a unicode-range limited to those letters. That is the same
+   arrangement as the ⟦ ⟧ patch in global.css, and it means:
+   - no font-family stack anywhere has to change;
+   - the browser uses these files for Greek or Hebrew characters only;
+   - a file is fetched only on a page that actually contains its letters.
+
+   The faces:
+   - Sans-serif text (Inter): Greek is Inter's own, from the @fontsource/inter
+     package the site already had (only its Latin subset was loaded). The
+     reader fonts Atkinson Hyperlegible Next and OpenDyslexic have no Greek,
+     so they take Inter's too.
+   - Hebrew in sans-serif text: Noto Sans Hebrew, since no site font has
+     Hebrew.
+   - Serif text (Crimson Text, the print face, and Fraunces): Cardo's Greek
+     and Hebrew, one scholarly face for both.
+
+   Four things to keep when editing:
+   1. The ranges are written out on purpose. Fontsource's per-subset files
+      (inter/greek-400.css) carry NO unicode-range, so importing one would
+      claim every character and be fetched on every page.
+   2. Fontsource's Hebrew range also claims U+0307-0308, U+200C-2010, U+20AA
+      and U+25CC, which Latin text shares. They are left out here, or a page
+      with no Hebrew would fetch the file and take its hyphen (U+2010) from it.
+   3. global.css must import this file AFTER the Fontsource imports. Where two
+      faces of one family cover a character, the browser tries the one
+      defined later first, and the Latin faces cover every character.
+   4. Each rule copies the weight and style of a face its family ALREADY has.
+      Browsers join faces of one family by character range only when those
+      descriptors match exactly; a rule at any other weight forms a set of its
+      own. Text at that weight then looks only there and loses the family's
+      Latin, and characters at the family's real weights never reach the rule.
+      So Inter's rules sit at 400, 500, 600 and 700; Atkinson's at 200 800, its
+      variable range; Crimson's 600 points at Cardo's 700, the nearest it has.
+      Atkinson's Greek is one static Inter file across that range, so Greek
+      in bold Atkinson text shows at regular weight. */
+
+/* Inter: its own Greek, one rule per weight the site loads (400, 500, 600, 700) */
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url("@fontsource/inter/files/inter-greek-400-normal.woff2") format("woff2");
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url("@fontsource/inter/files/inter-greek-ext-400-normal.woff2") format("woff2");
+  unicode-range: U+1F00-1FFF;
+}
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 500;
+  src: url("@fontsource/inter/files/inter-greek-500-normal.woff2") format("woff2");
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 500;
+  src: url("@fontsource/inter/files/inter-greek-ext-500-normal.woff2") format("woff2");
+  unicode-range: U+1F00-1FFF;
+}
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 600;
+  src: url("@fontsource/inter/files/inter-greek-600-normal.woff2") format("woff2");
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 600;
+  src: url("@fontsource/inter/files/inter-greek-ext-600-normal.woff2") format("woff2");
+  unicode-range: U+1F00-1FFF;
+}
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 700;
+  src: url("@fontsource/inter/files/inter-greek-700-normal.woff2") format("woff2");
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 700;
+  src: url("@fontsource/inter/files/inter-greek-ext-700-normal.woff2") format("woff2");
+  unicode-range: U+1F00-1FFF;
+}
+
+/* Inter: Hebrew from Noto Sans Hebrew. One variable file, declared at each of Inter's weights */
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url("@fontsource-variable/noto-sans-hebrew/files/noto-sans-hebrew-hebrew-wght-normal.woff2") format("woff2");
+  unicode-range: U+0590-05FF, U+FB1D-FB4F;
+}
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 500;
+  src: url("@fontsource-variable/noto-sans-hebrew/files/noto-sans-hebrew-hebrew-wght-normal.woff2") format("woff2");
+  unicode-range: U+0590-05FF, U+FB1D-FB4F;
+}
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 600;
+  src: url("@fontsource-variable/noto-sans-hebrew/files/noto-sans-hebrew-hebrew-wght-normal.woff2") format("woff2");
+  unicode-range: U+0590-05FF, U+FB1D-FB4F;
+}
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 700;
+  src: url("@fontsource-variable/noto-sans-hebrew/files/noto-sans-hebrew-hebrew-wght-normal.woff2") format("woff2");
+  unicode-range: U+0590-05FF, U+FB1D-FB4F;
+}
+
+/* Atkinson Hyperlegible Next (one variable face, 200 800, upright and italic): Inter's Greek, Noto's Hebrew */
+@font-face {
+  font-family: "Atkinson Hyperlegible Next Variable";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 200 800;
+  src: url("@fontsource/inter/files/inter-greek-400-normal.woff2") format("woff2");
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+@font-face {
+  font-family: "Atkinson Hyperlegible Next Variable";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 200 800;
+  src: url("@fontsource/inter/files/inter-greek-ext-400-normal.woff2") format("woff2");
+  unicode-range: U+1F00-1FFF;
+}
+@font-face {
+  font-family: "Atkinson Hyperlegible Next Variable";
+  font-style: italic;
+  font-display: swap;
+  font-weight: 200 800;
+  src: url("@fontsource/inter/files/inter-greek-400-italic.woff2") format("woff2");
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+@font-face {
+  font-family: "Atkinson Hyperlegible Next Variable";
+  font-style: italic;
+  font-display: swap;
+  font-weight: 200 800;
+  src: url("@fontsource/inter/files/inter-greek-ext-400-italic.woff2") format("woff2");
+  unicode-range: U+1F00-1FFF;
+}
+@font-face {
+  font-family: "Atkinson Hyperlegible Next Variable";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 200 800;
+  src: url("@fontsource-variable/noto-sans-hebrew/files/noto-sans-hebrew-hebrew-wght-normal.woff2") format("woff2");
+  unicode-range: U+0590-05FF, U+FB1D-FB4F;
+}
+@font-face {
+  font-family: "Atkinson Hyperlegible Next Variable";
+  font-style: italic;
+  font-display: swap;
+  font-weight: 200 800;
+  src: url("@fontsource-variable/noto-sans-hebrew/files/noto-sans-hebrew-hebrew-wght-normal.woff2") format("woff2");
+  unicode-range: U+0590-05FF, U+FB1D-FB4F;
+}
+
+/* OpenDyslexic (400 and 700, upright and italic): Inter's Greek, Noto's Hebrew */
+@font-face {
+  font-family: "OpenDyslexic";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url("@fontsource/inter/files/inter-greek-400-normal.woff2") format("woff2");
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+@font-face {
+  font-family: "OpenDyslexic";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url("@fontsource/inter/files/inter-greek-ext-400-normal.woff2") format("woff2");
+  unicode-range: U+1F00-1FFF;
+}
+@font-face {
+  font-family: "OpenDyslexic";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url("@fontsource-variable/noto-sans-hebrew/files/noto-sans-hebrew-hebrew-wght-normal.woff2") format("woff2");
+  unicode-range: U+0590-05FF, U+FB1D-FB4F;
+}
+@font-face {
+  font-family: "OpenDyslexic";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 700;
+  src: url("@fontsource/inter/files/inter-greek-700-normal.woff2") format("woff2");
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+@font-face {
+  font-family: "OpenDyslexic";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 700;
+  src: url("@fontsource/inter/files/inter-greek-ext-700-normal.woff2") format("woff2");
+  unicode-range: U+1F00-1FFF;
+}
+@font-face {
+  font-family: "OpenDyslexic";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 700;
+  src: url("@fontsource-variable/noto-sans-hebrew/files/noto-sans-hebrew-hebrew-wght-normal.woff2") format("woff2");
+  unicode-range: U+0590-05FF, U+FB1D-FB4F;
+}
+@font-face {
+  font-family: "OpenDyslexic";
+  font-style: italic;
+  font-display: swap;
+  font-weight: 400;
+  src: url("@fontsource/inter/files/inter-greek-400-italic.woff2") format("woff2");
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+@font-face {
+  font-family: "OpenDyslexic";
+  font-style: italic;
+  font-display: swap;
+  font-weight: 400;
+  src: url("@fontsource/inter/files/inter-greek-ext-400-italic.woff2") format("woff2");
+  unicode-range: U+1F00-1FFF;
+}
+@font-face {
+  font-family: "OpenDyslexic";
+  font-style: italic;
+  font-display: swap;
+  font-weight: 400;
+  src: url("@fontsource-variable/noto-sans-hebrew/files/noto-sans-hebrew-hebrew-wght-normal.woff2") format("woff2");
+  unicode-range: U+0590-05FF, U+FB1D-FB4F;
+}
+@font-face {
+  font-family: "OpenDyslexic";
+  font-style: italic;
+  font-display: swap;
+  font-weight: 700;
+  src: url("@fontsource/inter/files/inter-greek-700-italic.woff2") format("woff2");
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+@font-face {
+  font-family: "OpenDyslexic";
+  font-style: italic;
+  font-display: swap;
+  font-weight: 700;
+  src: url("@fontsource/inter/files/inter-greek-ext-700-italic.woff2") format("woff2");
+  unicode-range: U+1F00-1FFF;
+}
+@font-face {
+  font-family: "OpenDyslexic";
+  font-style: italic;
+  font-display: swap;
+  font-weight: 700;
+  src: url("@fontsource-variable/noto-sans-hebrew/files/noto-sans-hebrew-hebrew-wght-normal.woff2") format("woff2");
+  unicode-range: U+0590-05FF, U+FB1D-FB4F;
+}
+
+/* Crimson Text (400, 400 italic, 600, 700; the print face and the serif headings): Cardo */
+@font-face {
+  font-family: "Crimson Text";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url("@fontsource/cardo/files/cardo-greek-400-normal.woff2") format("woff2");
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+@font-face {
+  font-family: "Crimson Text";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url("@fontsource/cardo/files/cardo-greek-ext-400-normal.woff2") format("woff2");
+  unicode-range: U+1F00-1FFF;
+}
+@font-face {
+  font-family: "Crimson Text";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url("@fontsource/cardo/files/cardo-hebrew-400-normal.woff2") format("woff2");
+  unicode-range: U+0590-05FF, U+FB1D-FB4F;
+}
+@font-face {
+  font-family: "Crimson Text";
+  font-style: italic;
+  font-display: swap;
+  font-weight: 400;
+  src: url("@fontsource/cardo/files/cardo-greek-400-italic.woff2") format("woff2");
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+@font-face {
+  font-family: "Crimson Text";
+  font-style: italic;
+  font-display: swap;
+  font-weight: 400;
+  src: url("@fontsource/cardo/files/cardo-greek-ext-400-italic.woff2") format("woff2");
+  unicode-range: U+1F00-1FFF;
+}
+@font-face {
+  font-family: "Crimson Text";
+  font-style: italic;
+  font-display: swap;
+  font-weight: 400;
+  src: url("@fontsource/cardo/files/cardo-hebrew-400-italic.woff2") format("woff2");
+  unicode-range: U+0590-05FF, U+FB1D-FB4F;
+}
+@font-face {
+  font-family: "Crimson Text";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 600;
+  src: url("@fontsource/cardo/files/cardo-greek-700-normal.woff2") format("woff2");
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+@font-face {
+  font-family: "Crimson Text";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 600;
+  src: url("@fontsource/cardo/files/cardo-greek-ext-700-normal.woff2") format("woff2");
+  unicode-range: U+1F00-1FFF;
+}
+@font-face {
+  font-family: "Crimson Text";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 600;
+  src: url("@fontsource/cardo/files/cardo-hebrew-700-normal.woff2") format("woff2");
+  unicode-range: U+0590-05FF, U+FB1D-FB4F;
+}
+@font-face {
+  font-family: "Crimson Text";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 700;
+  src: url("@fontsource/cardo/files/cardo-greek-700-normal.woff2") format("woff2");
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+@font-face {
+  font-family: "Crimson Text";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 700;
+  src: url("@fontsource/cardo/files/cardo-greek-ext-700-normal.woff2") format("woff2");
+  unicode-range: U+1F00-1FFF;
+}
+@font-face {
+  font-family: "Crimson Text";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 700;
+  src: url("@fontsource/cardo/files/cardo-hebrew-700-normal.woff2") format("woff2");
+  unicode-range: U+0590-05FF, U+FB1D-FB4F;
+}
+
+/* Fraunces (400, 500; display headings): Cardo */
+@font-face {
+  font-family: "Fraunces";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url("@fontsource/cardo/files/cardo-greek-400-normal.woff2") format("woff2");
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+@font-face {
+  font-family: "Fraunces";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url("@fontsource/cardo/files/cardo-greek-ext-400-normal.woff2") format("woff2");
+  unicode-range: U+1F00-1FFF;
+}
+@font-face {
+  font-family: "Fraunces";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url("@fontsource/cardo/files/cardo-hebrew-400-normal.woff2") format("woff2");
+  unicode-range: U+0590-05FF, U+FB1D-FB4F;
+}
+@font-face {
+  font-family: "Fraunces";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 500;
+  src: url("@fontsource/cardo/files/cardo-greek-400-normal.woff2") format("woff2");
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+@font-face {
+  font-family: "Fraunces";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 500;
+  src: url("@fontsource/cardo/files/cardo-greek-ext-400-normal.woff2") format("woff2");
+  unicode-range: U+1F00-1FFF;
+}
+@font-face {
+  font-family: "Fraunces";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 500;
+  src: url("@fontsource/cardo/files/cardo-hebrew-400-normal.woff2") format("woff2");
+  unicode-range: U+0590-05FF, U+FB1D-FB4F;
+}
