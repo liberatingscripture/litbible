@@ -738,7 +738,19 @@ notice there or nowhere.
   `--print-to-pdf` against a built `dist/`): the Browser pane cannot emulate
   print media, and three of the fixes here (Read View's phone-width
   gutter, superscripts opening up their lines, a long note held whole leaving
-  a third of a sheet blank) showed only on paper.
+  a third of a sheet blank) showed only on paper. Two traps in that check:
+  1. **Set print media and wait for the fonts before printing** (over the
+     DevTools protocol, `Emulation.setEmulatedMedia` `{media: "print"}`, then
+     `document.fonts.ready`, then `Page.printToPDF`). Crimson Text is used
+     only in print, so a page laid out for the screen hasn't loaded it, and
+     the PDF comes out in Georgia.
+  2. **`pdftotext` can't see glyph changes.** Chrome's PDF maps a ligature
+     glyph back to its letters, so a label drawn as "ﬀ" + "f" still
+     extracts as "fff". Read the drawn glyphs from the content stream
+     instead. That is how the footnote letters were checked when they got
+     `font-variant-ligatures: none` (`global.css`, screen and print alike):
+     Crimson Text and OpenDyslexic both join f+f, so "fff" read as a
+     different label.
 - **"Copy with notes"** in the verse menu (`getHandoutText` in
   `chapter-tools.js`) copies the verses with each footnote letter kept as
   "[a]", the reference, each cited note in order, then the notice and the
