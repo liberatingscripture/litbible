@@ -278,6 +278,10 @@ and accounts would live under `/sheets/`, `/notebook/`, `/account/`.
   note changed on two devices. The website's proposals are in
   `STUDY-DESK.md`, "Questions for the apps" (talk-through item 20). One of
   them adds a field, `conflictOf`, on the second copy of a conflicting note.
+  The website's phase 1b builds the proposed trash fields (`deletedId`,
+  `deletedAt`, and `record` for the whole deleted record) **provisionally**,
+  in `src/lib/desk-records.mjs`. Only its preview writes them, and nothing
+  leaves the browser, so a different answer means a migration there.
 - Whether reading places sync (kind 5).
 - The sheet's inner shape.
 - Each store's exact mapping, once plan A or B is chosen.

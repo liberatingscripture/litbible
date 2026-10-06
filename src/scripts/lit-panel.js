@@ -7,6 +7,12 @@
 // closes it. Moved here unchanged from chapter-tools.js when the previews
 // arrived (2026-09), so two modules could not each believe they owned the
 // screen. Styles are the .lit-panel rules in global.css.
+//
+// The Study Desk's docked panel is not one of these: it is part of the page
+// frame (audit C12). A click inside it doesn't close a floating panel, and a
+// floating panel is placed clear of it.
+
+import { dockWidth, inDock } from "./desk-frame.js";
 
 let openPanel = null;
 
@@ -32,6 +38,7 @@ export function closePanel() {
 // focus somewhere else (the search box, say), and handing it back to the
 // trigger would steal it and scroll the page back to where the panel was.
 document.addEventListener("click", (e) => {
+  if (inDock(e.target)) return;
   if (openPanel && !openPanel.el.contains(e.target) && e.target !== openPanel.trigger && !openPanel.trigger?.contains?.(e.target)) {
     openPanel.restoreFocus = null;
     closePanel();
@@ -78,11 +85,12 @@ export function showPanel(trigger, el, { restoreFocus = null, onClose = null, ex
   } else {
     document.body.appendChild(el);
     const rect = trigger.getBoundingClientRect();
-    const panelWidth = Math.min(380, window.innerWidth - 24);
+    const room = window.innerWidth - dockWidth();
+    const panelWidth = Math.min(380, room - 24);
     el.style.maxWidth = panelWidth + "px";
     const width = el.offsetWidth;
     let left = window.scrollX + rect.left + rect.width / 2 - width / 2;
-    left = Math.max(window.scrollX + 12, Math.min(left, window.scrollX + window.innerWidth - width - 12));
+    left = Math.max(window.scrollX + 12, Math.min(left, window.scrollX + room - width - 12));
     const height = el.offsetHeight;
     const fitsAbove = rect.top > height + 16;
     const fitsBelow = rect.bottom + height + 16 <= window.innerHeight;

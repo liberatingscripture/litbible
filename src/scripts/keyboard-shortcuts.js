@@ -40,6 +40,9 @@ const KEYS_OWNED_BY = [
   "[role='tablist']",
   "[role='slider']",
   "dialog",
+  // The Study Desk's docked panel owns its keys: lists, tabs and, later,
+  // its own search.
+  "[data-desk-dock]",
 ].join(", ");
 
 function busy(target) {

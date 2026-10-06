@@ -7,6 +7,11 @@ import SearchBar from "./SearchBar.astro";
 // headerSearch: a search icon beside "Aa" that opens a search strip under
 // the header, on pages with no search box of their own (see Layout's
 // pageSearch). Without JS the icon is a plain link to /search.
+// The Notebook button beside "Aa" opens the Study Desk's docked panel, with
+// its name written out beside the glyph so the new tool can be found. It is
+// in every page's markup and hidden by global.css unless <html data-desk> is
+// set (a computer with the preview on; see Layout.astro), so it shows from
+// first paint without moving the header. desk-gate.js loads the desk.
 const { class: className = "", scriptureControls, headerSearch = false } = Astro.props;
 
 // Text size steps. The visible letters are the usual abbreviations; the
@@ -78,6 +83,20 @@ const SIZE_OPTIONS = [
               <span aria-hidden="true">Aa</span>
               <span class="sr-only">Display settings</span>
             </button>
+            <button
+              class="site-header__desk site-header__desk--nav"
+              type="button"
+              aria-expanded="false"
+              aria-controls="deskPanel"
+              data-desk-toggle
+            >
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
+                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                <rect x="5" y="3" width="14" height="18" rx="2" />
+                <path d="M9 3v18M12.5 8h3M12.5 12h3" />
+              </svg>
+              <span class="site-header__desk-label">Notebook</span>
+            </button>
           </div>
         </li>
       </ul>
@@ -102,6 +121,20 @@ const SIZE_OPTIONS = [
       >
         <span aria-hidden="true">Aa</span>
         <span class="sr-only">Display settings</span>
+      </button>
+      <button
+        class="site-header__desk site-header__desk--actions"
+        type="button"
+        aria-expanded="false"
+        aria-controls="deskPanel"
+        data-desk-toggle
+      >
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+          <rect x="5" y="3" width="14" height="18" rx="2" />
+          <path d="M9 3v18M12.5 8h3M12.5 12h3" />
+        </svg>
+        <span class="site-header__desk-label">Notebook</span>
       </button>
       <button
         class="site-header__menu-toggle"
@@ -345,6 +378,7 @@ const SIZE_OPTIONS = [
     import "../scripts/continue-reading.js";
     import "../scripts/header-search.js";
     import "../scripts/keyboard-shortcuts.js";
+    import "../scripts/desk-gate.js";
   </script>
 
   <script>
@@ -453,6 +487,8 @@ const SIZE_OPTIONS = [
 
   <script>
     // @ts-nocheck
+    import { isHoldingPlace, keepReadingPlace } from "../scripts/keep-reading-place.js";
+    import { dockWidth } from "../scripts/desk-frame.js";
     // Deferred to idle: this initializer does a synchronous document.body.appendChild
     // (forces reflow) and runs in the post-load script burst that inflates INP input
     // delay. Idle keeps it off the load-time long task; the "Aa" button still works
@@ -540,63 +576,17 @@ const SIZE_OPTIONS = [
       };
 
       // Changing text size, spacing or numbers reflows the page, which would
-      // carry a reader's place away (in Read View, a whole book's worth).
-      // Pin the line of text at the reading line (30% down, just inside the
-      // text column) and scroll it back to where it was. A paragraph's top
-      // is not enough: a long paragraph grows below its top, so the line
-      // being read still drifts. The tray is taken out of hit-testing while
-      // measuring, since it can sit over the text on a phone, and the one
-      // corrective scroll is let through without closing it.
-      let holdingPlace = false;
-      // In order of preference (a selector list would return whichever comes
-      // first in the document, which is always <main>).
-      const READING_SURFACES = ['.chapter-paragraphs', '.intro', '.rm-text', '.article__body', 'main'];
-      const lineAt = () => {
-        const surface = READING_SURFACES.map((s) => document.querySelector(s)).find(Boolean);
-        if (!surface) return null;
-        const x = surface.getBoundingClientRect().left + 24;
-        const y = window.innerHeight * 0.3;
-        tray.style.pointerEvents = 'none';
-        let node = null;
-        let offset = 0;
-        try {
-          if (document.caretPositionFromPoint) {
-            const pos = document.caretPositionFromPoint(x, y);
-            if (pos) ({ offsetNode: node, offset } = pos);
-          } else if (document.caretRangeFromPoint) {
-            const range = document.caretRangeFromPoint(x, y);
-            if (range) ({ startContainer: node, startOffset: offset } = range);
-          }
-        } finally {
-          tray.style.pointerEvents = '';
-        }
-        if (node?.nodeType !== Node.TEXT_NODE || !node.length) return null;
-        const range = document.createRange();
-        const start = Math.min(offset, node.length - 1);
-        range.setStart(node, start);
-        range.setEnd(node, start + 1);
-        return range;
-      };
-      const keepReadingPlace = (change) => {
-        const line = lineAt();
-        const before = line?.getClientRects()[0]?.top;
-        change();
-        const after = line?.getClientRects()[0]?.top;
-        if (before === undefined || after === undefined) return;
-        const delta = after - before;
-        if (Math.abs(delta) < 1) return;
-        holdingPlace = true;
-        window.scrollBy({ top: delta, behavior: 'instant' });
-        requestAnimationFrame(() => requestAnimationFrame(() => { holdingPlace = false; }));
-      };
-
+      // carry a reader's place away; keepReadingPlace pins it (see
+      // keep-reading-place.js). The tray is taken out of hit-testing while it
+      // measures, since it can sit over the text on a phone, and the one
+      // corrective scroll is let through without closing it (isHoldingPlace).
       const applySetting = (name, value) => {
         const { attr, key, legacy, fallback, keep } = SETTINGS[name];
         const root = document.documentElement;
         keepReadingPlace(() => {
           if (value === fallback) root.removeAttribute(attr);
           else root.setAttribute(attr, value);
-        });
+        }, { overlay: tray });
         try {
           value === fallback && !keep ? localStorage.removeItem(key) : localStorage.setItem(key, value);
           if (legacy) localStorage.removeItem(legacy);
@@ -621,8 +611,10 @@ const SIZE_OPTIONS = [
         tray.style.top = openAbove
           ? `${Math.max(margin, rect.top - margin - Math.min(height, room))}px`
           : `${rect.bottom + margin}px`;
-        let left = rect.right - width;
-        if (left < margin) left = Math.min(rect.left, window.innerWidth - width - margin);
+        // The Study Desk's docked panel takes the right edge when it's open.
+        const right = window.innerWidth - dockWidth();
+        let left = Math.min(rect.right, right - margin) - width;
+        if (left < margin) left = Math.min(rect.left, right - width - margin);
         tray.style.left = `${Math.max(margin, left)}px`;
         tray.style.right = 'auto';
       };
@@ -669,7 +661,7 @@ const SIZE_OPTIONS = [
 
       // Header isn't sticky — close on scroll so the fixed tray can't detach from its button
       window.addEventListener('scroll', () => {
-        if (!tray.hidden && !holdingPlace) closeTray(false);
+        if (!tray.hidden && !isHoldingPlace()) closeTray(false);
       }, { passive: true });
 
       for (const radio of fontRadios) {

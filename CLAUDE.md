@@ -215,9 +215,14 @@ src/
                      #   go-deeper-data.ts ("Go deeper" and its build shell),
                      #   verse-image.mjs (the design and typesetting behind
                      #   "Make an image"), anchor-core.mjs + desk-*.mjs (the
-                     #   Study Desk's foundations, no page imports them yet:
-                     #   records, the anchor text read off the page, and the
-                     #   wording comparison; see STUDY-DESK.md, phase 1a)
+                     #   Study Desk's pure modules: records, incl. the
+                     #   provisional trash record; the anchor text read off
+                     #   the page; the wording comparison; the notebook's
+                     #   write plans in desk-store-core), app-platform.mjs
+                     #   (the one "is this a phone or tablet" test, read by
+                     #   the desk's gate and the app announcement),
+                     #   content-version.mjs (the build's content version,
+                     #   stamped on <html> for desk records)
   pages/             # File-based routes (see Routing below)
   scripts/           # CLIENT-side vanilla JS (chapter-tools, read-mode,
                      #   search-core + searchbar + search — see Search below;
@@ -228,10 +233,15 @@ src/
                      #   header-search, the header's search strip;
                      #   keyboard-shortcuts; verse-image, which draws and
                      #   hands on "Make an image"; glossary-entry-links, the
-                     #   copy-link buttons on /glossary)
+                     #   copy-link buttons on /glossary; keep-reading-place,
+                     #   which holds the reader's line through a reflow;
+                     #   desk-gate + desk/, the Study Desk preview, and
+                     #   desk-frame, what every page knows about its dock;
+                     #   see "The Study Desk preview" below)
   styles/            # global.css, read-mode.css, scripture-tools.css, articles.css,
                      #   greek-hebrew-fonts.css (imported by global.css),
-                     #   pages/<page>.css (per-page stylesheets)
+                     #   pages/<page>.css (per-page stylesheets), desk.css
+                     #   (the desk's own; the shell adds it, never a page)
 scripts/             # BUILD/validation Node scripts (.mjs) — see below
                      #   (og/fonts/ holds the committed TTFs the share-card
                      #   generator renders with — see its README)
@@ -1656,8 +1666,10 @@ collection); they're read directly by the intro pages and the API manifest.
      Study View's choice. Layout.astro learns the view from
      `scriptureControls` through `define:vars`.
   Changing any of these reflows the page, so the tray pins the block at the
-  reading line and scrolls it back (`keepReadingPlace`), and lets that one
-  scroll through without closing itself.
+  reading line and scrolls it back (`keepReadingPlace`, in
+  `src/scripts/keep-reading-place.js`, which the Study Desk's panel uses
+  too), and lets that one scroll through without closing itself
+  (`isHoldingPlace`).
 - **Text columns are sized with `--ch`, never the `ch` unit.** `ch` is the "0"
   advance of *whichever font is currently painting*, so every column here was one
   width under the metric-matched fallback face and another once the webfont
@@ -1995,7 +2007,43 @@ collection); they're read directly by the intro pages and the API manifest.
   Sefaria or eBible link has no preview; it is an ordinary link to another site.
   `src/scripts/lit-panel.js` is the one panel all reader tools share (verse
   menu, footnote popover, selection panel, preview): one open at a time, closed
-  by an outside click or Escape.
+  by an outside click or Escape. A click inside the Study Desk's docked panel
+  doesn't count as outside, and a panel is placed clear of the dock (see
+  below).
+- **The Study Desk preview** (STUDY-DESK.md, phase 1b) is in production but
+  switched off for everyone: `?desk=on` turns it on in one browser on a
+  computer, `?desk=off` turns it off. STUDY-DESK.md is the record; what a
+  change elsewhere in the site has to respect:
+  1. **Layout.astro's pre-paint script decides it**, beside the theme and
+     font ones: `lit-desk-preview` plus `isAppPlatform` sets
+     `<html data-desk="on">`, and `lit-desk-panel` sets
+     `data-desk-panel="open"` so the dock's room is reserved before first
+     paint. The script repeats `src/lib/app-platform.mjs`'s test, since it
+     can't import; `test/desk-prepaint.test.js` runs it against the same
+     devices, so change the two together.
+  2. **Readers download none of it.** `desk-gate.js` imports
+     `src/scripts/desk/shell.js` only with `data-desk="on"`. The shell adds
+     `desk.css` itself as a `<style>` (`?inline`): **a plain CSS import is
+     gathered into every page's stylesheet by Astro even from a dynamic
+     import**, which is how the first build shipped it to everyone. The
+     Notebook buttons are in every page's markup, hidden by one
+     `html:not([data-desk]) [data-desk-toggle]` rule.
+  3. **The dock is part of the page frame (audit C12).** While it's docked,
+     `body` takes a 340px right margin, so floating panels and the Display
+     tray subtract `dockWidth()` (`src/scripts/desk-frame.js`) from the
+     window's width, and anything marked `[data-desk-dock]` counts as inside
+     it (no outside-click close, shortcuts stand down). **It docks only from
+     1360px windows (1760px in OpenDyslexic)**: the site's breakpoints read
+     the window, not the page, and below that the header's short title is
+     clipped. A narrower window gets the panel over the page instead. A new
+     fixed or full-width element should look at `--desk-dock-width`.
+  4. **While the preview is on, the reading measure is 52**, the width BVJ
+     picked for the desk's release, and Read View's toolbar takes a fixed
+     floor (725px; 895px in OpenDyslexic) because it outgrows the column.
+  5. **Records name the text they were made on** through
+     `<html data-content-version>`, which Layout.astro reads at build from
+     `public/api/version.json` (`src/lib/content-version.mjs`; "unversioned"
+     in dev before a build).
 - **Every link that leaves the site opens in a new tab** (owner, 2026-10-01).
   For rendered bodies that is `openExternalLinks` in `src/lib/external-links.mjs`
   (pure, unit-tested), called from `linkRefs`, the one function footnotes,
@@ -2741,7 +2789,7 @@ argv, and the scan; nothing else.
 | `public/llms.txt`, `llms-full.txt` | LLM-readable site description + AI-usage policy |
 | `GLOSSARY-CANDIDATES.md` | Register of glossary candidates deliberately not included or deferred, and the payload criterion behind those calls. Read it before proposing a "next term." |
 | `TOPICS.md` | **The authority on chapter and book-intro `topics`** — the significance filter, the alternative-translation pair table, the prefix-search rule, casing, and the hand-run checks. Read it before adding or revising any topics array. |
-| `STUDY-DESK.md` | **The planning and decision record for the Study Desk** (notes, places, highlights and sheets on desktop, with optional account sync shared with the apps). Only phase 1a's pure modules exist; nothing reader-facing is built. Every idea, audit finding, owner decision, open question and BDR item is there with its ID, as are the two apps' replies (2026-10-04) and the talk-through list built from them. Read it before proposing or building any part of the desk, and update it when a decision changes. `STUDY-DESK-BRIEF-FOR-BDR.md` is the brief written for BDR's Claude about the apps' side; `STUDY-DESK-REPLY-TO-APPS.md` is the website's answer to both apps' replies (2026-10-05). |
+| `STUDY-DESK.md` | **The planning and decision record for the Study Desk** (notes, places, highlights and sheets on desktop, with optional account sync shared with the apps). Phases 1a and 1b are built: the pure modules, and the shell behind a preview switch (`?desk=on`); nothing reader-facing is released. Every idea, audit finding, owner decision, open question and BDR item is there with its ID, as are the two apps' replies (2026-10-04) and the talk-through list built from them. Read it before proposing or building any part of the desk, and update it when a decision changes. `STUDY-DESK-BRIEF-FOR-BDR.md` is the brief written for BDR's Claude about the apps' side; `STUDY-DESK-REPLY-TO-APPS.md` is the website's answer to both apps' replies (2026-10-05). |
 | `STUDY-DESK-FORMAT.md` | **Draft record format for the Study Desk**, shared with both apps: the kinds of record, the anchor text, and how a mark is found again after the wording moves. Its executable form is `scripts/lib/anchor-text.mjs` (pure half in `src/lib/anchor-core.mjs`) with `test/fixtures/anchor-vectors.json`. Change them together. |
 | `DISASTER-RECOVERY.md` | Continuity doc: every dashboard/secret behind the deploy (names only, no values) + the DNS inventory + from-zero redeploy path. Update it when an integration, secret, or DNS record is added/removed. |
 

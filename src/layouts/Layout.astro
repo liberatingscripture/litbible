@@ -7,6 +7,8 @@ import crimsonLatin600Url from "@fontsource/crimson-text/files/crimson-text-lati
 import SiteFooter from "../components/SiteFooter.astro";
 import AppsLaunchPopover from "../components/AppsLaunchPopover.astro";
 import AppInstallBanner from "../components/AppInstallBanner.astro";
+import { APP_PLATFORM_UA } from "../lib/app-platform.mjs";
+import { contentVersion } from "../lib/content-version.mjs";
 
 const {
   title = "Liberation and Inclusion Translation",
@@ -58,7 +60,7 @@ const criticalCSS = `html,body{margin:0;padding:0}html{scrollbar-gutter:stable}b
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" data-content-version={contentVersion()}>
   <head>
     <meta charset="utf-8" />
     <!-- Apply the saved reader font before first paint to avoid a flash of the default font.
@@ -81,6 +83,14 @@ const criticalCSS = `html,body{margin:0;padding:0}html{scrollbar-gutter:stable}b
          lit-read-numbers, then lit_rm_markers (its own key before the tray), then
          Study View's, so it follows Study View until the reader sets it. -->
     <script is:inline define:vars={{ readView: scriptureControls === "read" }}>try{var s=localStorage,d=document.documentElement,z=s.getItem('lit-size')||s.getItem('lit_rm_fontSize'),l=s.getItem('lit-leading')||s.getItem('lit_rm_lineHeight'),n=readView?(s.getItem('lit-read-numbers')||s.getItem('lit_rm_markers')||s.getItem('lit-verse-numbers')):s.getItem('lit-verse-numbers'),r=s.getItem('lit-fn-letters'),k=s.getItem('lit-terms');if(z==='sm'||z==='lg'||z==='xl')d.setAttribute('data-size',z);if(l==='roomy')d.setAttribute('data-leading',l);if(n==='off')d.setAttribute('data-vn',n);if(r==='off')d.setAttribute('data-fn',r);if(k==='off')d.setAttribute('data-terms',k)}catch(_){}</script>
+    <!-- The Study Desk preview (STUDY-DESK.md, phase 1b). ?desk=on or ?desk=off sets or
+         clears lit-desk-preview in this browser (off clears lit-desk-panel too) and is
+         taken out of the address, so a copied link never carries it. With the flag on, and on a computer (the test in
+         src/lib/app-platform.mjs, repeated here since this script can't import),
+         data-desk="on" turns the desk on: desk-gate.js loads it, and global.css shows
+         the Notebook button and narrows the reading measure to 52. data-desk-panel
+         reserves the docked panel's room before first paint when it was left open. -->
+    <script is:inline define:vars={{ appUa: APP_PLATFORM_UA.source, appUaFlags: APP_PLATFORM_UA.flags }}>try{var d=document.documentElement,s=localStorage,u=new URL(location.href),q=u.searchParams.get('desk'),a=navigator.userAgent||'';if(q==='on'||q==='off'){if(q==='on')s.setItem('lit-desk-preview','on');else{s.removeItem('lit-desk-preview');s.removeItem('lit-desk-panel')}u.searchParams.delete('desk');history.replaceState(history.state,'',u.pathname+u.search+u.hash)}if(s.getItem('lit-desk-preview')==='on'&&!(new RegExp(appUa,appUaFlags).test(a)||(/Macintosh/.test(a)&&navigator.maxTouchPoints>1))){d.setAttribute('data-desk','on');if(s.getItem('lit-desk-panel')==='open')d.setAttribute('data-desk-panel','open')}}catch(_){}</script>
     <title>{title}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
