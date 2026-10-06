@@ -38,13 +38,21 @@ are recorded so they aren't re-argued.
   (`STUDY-DESK-FORMAT.md`). The format comes with a reference implementation
   (`scripts/lib/anchor-text.mjs`) and test vectors
   (`test/fixtures/anchor-vectors.json`).
-- **Two companion pages on claude.ai**, made while planning:
+- **Phase 0's two picks are made** (BVJ, 2026-10-05): the reading column
+  narrows to **52**, and **Cardo** is the serif for Greek and Hebrew. See
+  "Decisions", 2026-10-05 (phase 0 picks).
+- **Three companion pages on claude.ai**, made while planning:
   - **The plan**, https://claude.ai/artifact/8Eyhmzd1xGTUPrjkwwSUqp (version 12,
     2026-10-02; shared with anyone who has the link). It has mockups this file
     can only describe. This file carries all of its content and decisions.
   - **The audit**, https://claude.ai/artifact/81jSLsvnsfq9gptpp7wJmX (version
     2, 2026-10-01; private to BVJ). Its findings and BVJ's answers are all in
     "The audit" below.
+  - **Phase 0's comparison**, https://claude.ai/artifact/1PrmCppcMCdnF6wnvD1UvM
+    (version 1, 2026-10-05; private to BVJ). Real screenshots of Romans 8 at
+    each candidate measure, and the Greek and Hebrew faces side by side. The
+    measurements it rests on are under "Decisions", 2026-10-05 (phase 0
+    picks).
   If either page and this file disagree, **this file is the newer record**,
   unless a page's version is later than the date above. Keep this file current
   rather than the pages (see "Keeping this file current" at the end).
@@ -752,7 +760,9 @@ server. Most hard parts exist in the repo already.
 - **The reading column**: currently `--reading-measure` 60 × `--ch` (about
   681px at the default size, about 870px at the largest). **BVJ wants it
   narrower when the desk launches** (C9), picked side by side like the
-  2026-09-27 choice of 60. Change `--reading-measure`, never `--ch`.
+  2026-09-27 choice of 60. Change `--reading-measure`, never `--ch`. **Picked
+  2026-10-05: 52** (590px at the default size, 755px at the largest, in
+  Inter).
 
 ## Accounts and sync
 
@@ -1406,7 +1416,11 @@ lexical information. The desk shouldn't need rebuilding for it.
   serving Greek and Hebrew typed into notes from the start. Candidates (all
   SIL Open Font License), to compare beside Crimson Text: Gentium Plus or
   Cardo for polytonic Greek; Ezra SIL, Cardo or Noto Serif Hebrew for pointed
-  Hebrew. No face is picked yet.
+  Hebrew. **Picked 2026-10-05: Cardo** for both, in serif text and print, with
+  Inter's own Greek and Noto Sans Hebrew inside the site's sans-serif text
+  (see "Decisions", 2026-10-05, phase 0 picks). A Greek text panel will
+  also need the SBLGNT's text-critical signs (Romans 8:2 carries ⸀), so check
+  Cardo's coverage of them when that project starts.
 - **Anchors that can point at a Greek word** (book, chapter, verse, SBLGNT
   word position) beside the English quotes. Nothing uses it until the
   alignment publishes.
@@ -1526,11 +1540,12 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
 
 0. **The choices that come first.** None holds up phase 1a or 1b.
    - Pick the narrower reading column side by side (C9), to ship with the
-     desk. The margin in 1c waits on it.
+     desk. The margin in 1c waits on it. **Picked: 52** (2026-10-05).
    - Pick the Greek and Hebrew faces (C27). The Greek face is worth shipping
      as soon as it's picked: four articles and two chapters already contain
      Greek letters (138 and 21 characters, counted 2026-10-05), which show in
-     fallback fonts today.
+     fallback fonts today. **Picked: Cardo** (2026-10-05), shipping ahead of
+     the desk.
    - The apps' review of draft 1, then the freeze.
 1. **The notebook**, in four steps. Medium to large.
    - **1a. Foundations.** Pure, unit-tested modules, with no page yet:
@@ -1765,6 +1780,52 @@ development phases to be planned. Approved the same day:
 - **D8, a tutorial on first use that can be replayed**, added as BVJ's hope.
   Its details are open (see D8).
 
+### 2026-10-05 (phase 0 picks)
+
+BVJ picked both from the phase 0 comparison page (see "Where things stand").
+
+**The reading column: `--reading-measure` 52**, down from 60, set when the
+desk launches (C9). Measured on the real Romans 8 page in headless Chrome,
+counting the middle full line, with verse numbers and footnote letters left
+out:
+
+| Measure | Inter | Atkinson | OpenDyslexic | Column at Medium (Inter) |
+|---|---|---|---|---|
+| 60 (before) | 78 | 86 | 39 | 681px |
+| 56 | 72 | 79 | 36 | 636px |
+| 54 | 69 | 78 | 35 | 613px |
+| **52** | **67** | **74** | **34** | **590px** |
+| 50 | 64 | 71 | 32 | 568px |
+| 48 | 61 | 68 | 31 | 545px |
+
+- 52 puts Inter and Atkinson inside the 45–75 characters a line that
+  typographers aim for; 60 ran past it in both.
+- **The margin fits better than C9 assumed.** With the Notebook panel
+  closed, a note's 230px fits beside the text at 52 in every window from
+  1280px up, Extra large text included (255px free at 1280 and Extra large,
+  where 60 left 197px).
+- **The open panel is the tight case.** Assuming a 340px panel (its width
+  isn't designed), at 52 the margin works from windows of about 1400px at
+  Medium; 48 would be needed to keep it in 1366px laptops. Otherwise notes
+  fall back to dots and the panel's list, as C9 already planned.
+- **OpenDyslexic narrows too**, from 39 characters to 34. It was offered to
+  stay at 60 through one CSS rule; BVJ picked 52 without that exception.
+
+**Greek and Hebrew: Cardo**, for serif text and print and the later Greek
+text. The rest of the plan from the same page goes with it:
+- **Inside the site's sans-serif text, Greek comes from Inter itself.**
+  `@fontsource/inter`, already installed, ships Greek and polytonic Greek
+  subsets; the site loaded only its Latin. Atkinson and OpenDyslexic, which
+  have no Greek, take Inter's.
+- **Hebrew inside sans-serif text comes from Noto Sans Hebrew**, since no
+  site font has Hebrew.
+- **Crimson Text and Fraunces take Cardo's Greek and Hebrew.** Crimson Text
+  is the print face and has neither.
+- Each loads only on a page containing those letters: registered under the
+  existing family names with `unicode-range`, the way the ⟦ ⟧ patch is.
+- Gentium Plus with a Hebrew face was the alternative. Ezra SIL wasn't
+  compared, as Google Fonts doesn't carry it.
+
 ## Still open
 
 - **"To be decided"** under "The apps' replies", starting with plan A or
@@ -1783,9 +1844,6 @@ development phases to be planned. Approved the same day:
   reviving the feature audit's X6 (browsable topic pages, deferred
   2026-09-28) on the sheet machinery. Today's topics follow TOPICS.md and are
   functionally tags for search reach.
-- **The narrower reading column**: to pick side by side before phase 1c's
-  margin.
-- **Greek and Hebrew font faces**: not chosen.
 - **D8, the tutorial**: what counts as the first encounter, and how it meets
   D6's first-time choice.
 - **Whether to release the notebook after phase 1d**, decided when 1d is
@@ -1860,7 +1918,7 @@ B3 and S2.
 
 Counts here were checked on 2026-09-30 to 2026-10-02 and drift:
 - Reading column 681px at the default size, ~870px at the largest;
-  `--reading-measure` 60.
+  `--reading-measure` 60. At the chosen 52: 590px and 755px.
 - About 4,300 term-lens marks; pistis in Galatians 26, sarx in Romans 28.
 - Release-note counts (491 / 211 / 342 as of 2026-09-30).
 - Browser support: Custom Highlight API (Chrome 105, Safari 17.2, Firefox
