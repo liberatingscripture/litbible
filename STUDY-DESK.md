@@ -13,14 +13,25 @@ are recorded so they aren't re-argued.
 
 ## Where things stand (as of 2026-10-05)
 
-- **Status: planned, not built.** No desk feature, page or service exists
-  yet. What does exist is draft 1 of the record format
-  (`STUDY-DESK-FORMAT.md`), with its reference implementation
-  (`scripts/lib/anchor-text.mjs`) and test vectors (PR #268); nothing on the
-  site uses them yet. **The development phases were planned on 2026-10-05**
-  ("Order of work" below). Building can start now, and the format is frozen
-  before anything syncs (BVJ, 2026-10-05). Until then phase 0 read "agree the
-  record format before any code".
+- **Status: phase 1a under way; nothing reader-facing yet.** No desk page,
+  panel or service exists. What exists:
+  - draft 1 of the record format (`STUDY-DESK-FORMAT.md`), with its
+    reference implementation (`scripts/lib/anchor-text.mjs`) and test vectors
+    (PR #268);
+  - three of phase 1a's foundations, pure modules no page imports yet: the
+    record kinds (`src/lib/desk-records.mjs`), the browser half of the anchor
+    text (`src/lib/desk-anchor-dom.mjs`), and the wording comparison
+    (`src/lib/desk-wording.mjs`). See "Order of work", 1a.
+
+  **The development phases were planned on 2026-10-05** ("Order of work"
+  below). The format is frozen before anything syncs (BVJ, 2026-10-05).
+  Until then phase 0 read "agree the record format before any code".
+- **BDR's input is needed soon, on the merge and overlap rules.** BVJ held
+  phase 1a's merge engine and the highlight overlap rule for BDR to weigh in
+  on (2026-10-05), since both are format decisions all three clients must
+  share. **They are needed before phase 1c** (highlights in Study View) **and
+  1d** (importing a notebook file). The five questions are under "Questions
+  for the apps" (talk-through item 20).
 - **Both apps replied to the brief on 2026-10-04** (see "The apps' replies"
   below). BDR proposes that each reader's notebook stay in their own iCloud
   or Google account, with the website reaching it from the browser and **no
@@ -1326,6 +1337,7 @@ recommendation, not a decision.
 | 17 | The QR address | A-Q11 | BVJ | Both apps agree on `https://litbible.net/romans-8/#v3-4` |
 | 18 | Bookmarks vs the `bookmark` marker; whether a quote may cross a verse or paragraph boundary | A-Q13 | the three Claudes propose | **Lean: bookmarks are their own kind**, and the marker stays a note's glyph |
 | 19 | Tombstones after the trash empties | A-Q14 | the Claudes | **Lean: yes** (disagreement 2) |
+| 20 | **The merge and overlap rules. Needed soon, before phase 1c** | A-M5, A-F7, A-F10, A-Q14 | BDR, then the Claudes | BVJ held the website's merge engine and overlap rule for BDR's input (2026-10-05). Five questions, under "Questions for the apps" below |
 
 Questions for the apps, to send back:
 - **For the iOS instance:** finding 1 (re-anchoring and paragraph positions);
@@ -1336,6 +1348,34 @@ Questions for the apps, to send back:
   verse digits and footnote letters from its context strings without a
   migration.
 - **For BDR:** items 1, 4, 6, 7, 8, 10, 11 and 15.
+- **For BDR, soon (item 20): the merge and overlap rules.** The website
+  needs these before phase 1c, so it doesn't build rules the apps would then
+  undo. Each is a proposal to answer yes, no or "do it this way":
+  1. **Which write wins.** With no store revision to go by (importing a
+     file, say), the newer `modified` wins, accepting that a device whose
+     clock is wrong can make an older edit win. Where a store has a revision
+     (a CloudKit change tag, a Drive file version), the revision decides, as
+     the format already says (A-F7).
+  2. **Edits and deletions.** A record whose `modified` is later than a
+     trash record's `deletedAt` comes back, and the trash record is dropped.
+     That makes undo work across devices and lets an edit made offline
+     survive a deletion made elsewhere. It also relies on the clock, so a
+     slow clock could bring back a note someone deleted. Is that the
+     behaviour both apps want?
+  3. **A note changed on two devices.** Both versions are kept: the newer
+     keeps the ID, the other becomes a second note marked `conflictOf: <id>`.
+     The second note's ID is worked out from the original's ID, `modified`
+     and body, so importing the same file twice doesn't add it twice. That
+     would be a UUID version 8. Would either app reject a version-8 UUID?
+  4. **The trash record's fields**: `deletedId`, `deletedAt`, and `record`
+     for the whole deleted record (dropped after 30 days, leaving the
+     tombstone). When two devices delete the same record, the two trash
+     records collapse to one: the one still holding its content, then the
+     earliest, then the lowest ID.
+  5. **Overlapping highlights** (A-M5). Is it Android's rule (same colour
+     merges, a different colour trims the old one) or iOS's? And are marks
+     that were re-found as `changed`, `verse` or `lost` left alone, so making
+     a highlight never silently rewrites a mark the reader hasn't looked at?
 
 ### Dates (superseded 2026-10-05)
 
@@ -1403,6 +1443,9 @@ needing a decision. None blocks the format.
 - **Who looks after a service**, if plan B (T8, A-R7).
 - **In the format:** bookmarks vs the `bookmark` marker, and the overlap
   rule for highlights (`STUDY-DESK-FORMAT.md`, "Still open").
+- **The merge rules, the trash record's fields and the overlap rule**
+  (talk-through item 20). **More urgent than the rest of this list**: phase
+  1c waits on them.
 
 ## Ready for the Greek text
 
@@ -1544,25 +1587,47 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
    - Pick the Greek and Hebrew faces (C27). The Greek face is worth shipping
      as soon as it's picked: four articles and two chapters already contain
      Greek letters (138 and 21 characters, counted 2026-10-05), which show in
-     fallback fonts today. **Picked: Cardo** (2026-10-05), shipping ahead of
-     the desk in PR #270.
+     fallback fonts today. **Picked: Cardo** (2026-10-05), and shipped ahead
+     of the desk in PR #270.
    - The apps' review of draft 1, then the freeze.
 1. **The notebook**, in four steps. Medium to large.
-   - **1a. Foundations.** Pure, unit-tested modules, with no page yet:
-     - draft 1's record kinds, with `schema`, migration, and keeping any
-       field or kind the website doesn't know (the format's principle 6);
-     - the browser half of the anchor text: turning a selection on the page
-       into anchor-text positions and back, agreeing with
-       `scripts/lib/anchor-text.mjs` on every vector. This is the riskiest
-       piece, because the page's own text models (Copy's and `countable`'s)
-       are not the anchor text (review finding 3). It gets a sweep over every
-       published chapter, the way the term lens was swept;
-     - one merge engine, by `id`, `modified` and tombstones, keeping both
-       versions of a conflicting note. It imports a file in phase 1 and
-       becomes the sync engine in phase 4, since stores are homes, not
-       formats (the format's principle 2);
-     - the highlight overlap rule, and the "did the wording change?"
-       comparison (N3, C3).
+   - **1a. Foundations.** Pure, unit-tested modules, with no page yet.
+     Three are built and two are held for BDR (BVJ, 2026-10-05):
+     - **Built: draft 1's record kinds** (`src/lib/desk-records.mjs`), with
+       `schema`, a migration hook, and keeping any field or kind the website
+       doesn't know (the format's principle 6). `modified` moves only through
+       `editRecord` (principle 4). `mayRewriteAnchor` keeps a client on older
+       text from rewriting a record made on newer text (principle 7). Trash
+       records aren't made here yet, since their fields are among BDR's
+       questions.
+     - **Built: the browser half of the anchor text**
+       (`src/lib/desk-anchor-dom.mjs`). It reads a chapter's anchor text off
+       the rendered page, with a map from each character back to the DOM, and
+       turns a selection into anchor-text positions and back. The page's own
+       text models (Copy's and `countable`'s) are not the anchor text (review
+       finding 3), so it doesn't borrow either.
+       - `test/desk-anchor-dom.test.js` sweeps every published chapter
+         through both views' real render pipelines on each `npm test`. In
+         2026-10 all 210 matched `scripts/lib/anchor-text.mjs` verse by verse,
+         and every word mapped to the page and back.
+       - The same sweep was run once in a real browser against the built
+         site. All 210 chapters matched in both views, as did the live Romans
+         8 page with the term lens's 58 spans in place.
+       - Its header names the contract: no client script may add visible
+         text inside a verse span.
+       - The pure half of the reference (`normalizeAnchorText`, `makeAnchor`,
+         `resolveAnchor`) moved to `src/lib/anchor-core.mjs`, re-exported from
+         the old path, so the vectors and the apps' pointer are unchanged.
+     - **Built: the "did the wording change?" comparison** (N3, C3,
+       `src/lib/desk-wording.mjs`). It evens out quotes, dashes and spacing
+       (so August's passes don't count) but not case. A word-by-word diff
+       gives N3's "exactly what changed".
+     - **Held for BDR: one merge engine**, by `id`, `modified` and
+       tombstones, keeping both versions of a conflicting note. It would
+       import a file in phase 1 and become the sync engine in phase 4, since
+       stores are homes, not formats (the format's principle 2). Its rules
+       are format decisions (talk-through item 20).
+     - **Held for BDR: the highlight overlap rule** (A-M5, item 20).
    - **1b. The shell, behind a preview switch.** The gate and dynamic import,
      so readers download nothing until the desk is switched on for them; a
      preview switch, so BVJ can try it on the live site first; IndexedDB with
@@ -1828,8 +1893,20 @@ text. The rest of the plan from the same page goes with it:
 - Gentium Plus with a Hebrew face was the alternative. Ezra SIL wasn't
   compared, as Google Fonts doesn't carry it.
 
+### 2026-10-05 (phase 1a scope)
+
+BVJ asked to start phase 1a, then asked what the risks were. The largest was
+building format decisions ahead of the apps' review of draft 1: the merge
+rules, the trash record's fields, how a conflicting note is kept, and the
+overlap rule (still open as A-M5, and iOS's rule differs). **BVJ's call: build
+the record kinds, the browser half of the anchor text, and the wording
+comparison now; hold the merge engine and the overlap rule for BDR to weigh
+in on soon.** The questions are talk-through item 20.
+
 ## Still open
 
+- **The merge and overlap rules** (talk-through item 20), needed from BDR
+  before phase 1c.
 - **"To be decided"** under "The apps' replies", starting with plan A or
   plan B. The record format is drafted (`STUDY-DESK-FORMAT.md`) and waits on
   both apps' review.

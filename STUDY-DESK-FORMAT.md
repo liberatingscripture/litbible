@@ -15,7 +15,10 @@ Agreeing this now is safe under either plan.
 Three files go together:
 - this one, the spec;
 - `scripts/lib/anchor-text.mjs`, the reference implementation of the text
-  rule and of finding a mark again;
+  rule and of finding a mark again. Its pure half lives in
+  `src/lib/anchor-core.mjs` (since 2026-10-05), because the website's pages
+  use it too, and `anchor-text.mjs` re-exports all of it, so this is still
+  the one file to read;
 - `test/fixtures/anchor-vectors.json`, the test vectors, made by
   `npm run build:anchor-vectors`. Every input is copied into the file, so it
   stays valid as the translation changes. Each app runs it in its own tests.
@@ -267,7 +270,14 @@ and accounts would live under `/sheets/`, `/notebook/`, `/account/`.
 ## Still open in this file
 
 - Bookmarks vs the `bookmark` marker (kind 4).
-- The overlap rule.
+- **The overlap rule. Needed before the website's phase 1c.**
+- **How records merge, and the `trash` record's fields. Needed before the
+  website's phase 1c.** The format names `deletedId` and `deletedAt` but not
+  the field holding the deleted record, and says nothing yet about which
+  write wins without a store revision, an edit made after a deletion, or a
+  note changed on two devices. The website's proposals are in
+  `STUDY-DESK.md`, "Questions for the apps" (talk-through item 20). One of
+  them adds a field, `conflictOf`, on the second copy of a conflicting note.
 - Whether reading places sync (kind 5).
 - The sheet's inner shape.
 - Each store's exact mapping, once plan A or B is chosen.
