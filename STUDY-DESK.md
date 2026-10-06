@@ -1545,7 +1545,7 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      as soon as it's picked: four articles and two chapters already contain
      Greek letters (138 and 21 characters, counted 2026-10-05), which show in
      fallback fonts today. **Picked: Cardo** (2026-10-05), shipping ahead of
-     the desk.
+     the desk in PR #270.
    - The apps' review of draft 1, then the freeze.
 1. **The notebook**, in four steps. Medium to large.
    - **1a. Foundations.** Pure, unit-tested modules, with no page yet:
@@ -1823,6 +1823,8 @@ text. The rest of the plan from the same page goes with it:
   is the print face and has neither.
 - Each loads only on a page containing those letters: registered under the
   existing family names with `unicode-range`, the way the ⟦ ⟧ patch is.
+  Shipped ahead of the desk in PR #270 (`src/styles/greek-hebrew-fonts.css`),
+  which also fixed the ⟦ ⟧ patch for Atkinson readers.
 - Gentium Plus with a Hebrew face was the alternative. Ezra SIL wasn't
   compared, as Google Fonts doesn't carry it.
 
