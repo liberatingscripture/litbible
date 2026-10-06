@@ -13,10 +13,14 @@ are recorded so they aren't re-argued.
 
 ## Where things stand (as of 2026-10-05)
 
-- **Status: planning only.** No desk code, page, data format or service
-  exists in the repo. The phases below have not started, and phase 0 (agree
-  the record format with BDR, pick the narrower reading column) comes before
-  any code.
+- **Status: planned, not built.** No desk feature, page or service exists
+  yet. What does exist is draft 1 of the record format
+  (`STUDY-DESK-FORMAT.md`), with its reference implementation
+  (`scripts/lib/anchor-text.mjs`) and test vectors (PR #268); nothing on the
+  site uses them yet. **The development phases were planned on 2026-10-05**
+  ("Order of work" below). Building can start now, and the format is frozen
+  before anything syncs (BVJ, 2026-10-05). Until then phase 0 read "agree the
+  record format before any code".
 - **Both apps replied to the brief on 2026-10-04** (see "The apps' replies"
   below). BDR proposes that each reader's notebook stay in their own iCloud
   or Google account, with the website reaching it from the browser and **no
@@ -146,6 +150,9 @@ Several limits that came from phones fall away at a desk:
 
 ## Where to start (the plan's recommendation)
 
+The plan's first ordering, kept as written. "Order of work" below is the
+detailed version (2026-10-05).
+
 1. The notebook itself, in the menus, the margin, the panel and the search
    box: all four placements with N1. Everything else builds on it.
 2. Keep it safe in the reader's own file: D1. Browser storage alone can
@@ -232,7 +239,7 @@ every week.
   open in Word, Obsidian or any text editor.
 - **Paper** (N9): print any chapter with a ruled margin.
 
-## The ideas (47)
+## The ideas (48)
 
 "New" means no Bible site or tool was found doing it; "Borrowed" names the
 source. Sizes run extra small to large. Status is BVJ's decision where one was
@@ -610,6 +617,39 @@ plan as a whole was accepted; nothing was declined except where stated).
   - Still open: whether API.bible's tracking is acceptable, which other
     free-to-share translations join the KJV, and whether to request the
     NRSVue and CEB licenses. Borrowed (NET Bible). Medium with API.bible.
+- **D8. A tutorial on first use, which can be replayed.** BVJ, 2026-10-05:
+  "I hope to include a tutorial sequence for the Study Desk that runs on a
+  user's first encounter and can be replayed later if the user wishes." A
+  short guided sequence through the desk on the page in front of the reader:
+  the "Yours" actions in the verse menu, the margin, the Notebook panel,
+  commands in search, and where the notebook is kept. It can be replayed from
+  the help page (M12) and the Notebook panel. Borrowed (onboarding tours in
+  desktop and phone apps). Small to medium. Phase 1d. **BVJ's hope; the
+  details are open.** Proposed, for when it's designed:
+  - **What counts as the first encounter.** The first time the reader opens
+    the Notebook panel or uses one of the desk's actions, so the reader has
+    already chosen the desk, with a quiet one-time offer ("Take a short tour
+    of the Study Desk?") rather than a tour that starts by itself. Starting it
+    on a first visit to a chapter would put it over scripture on arrival,
+    which the announcement rules forbid (CLAUDE.md, "One announcement popover
+    at a time": never on a session's first pageview, never over scripture).
+  - **How it meets D6.** The first-time choice also runs on first use, so
+    the two need one order: the choice as a step of the tour, or the tour
+    after the choice.
+  - **Skippable at every step**, closed by Escape, never offered twice
+    unasked. Keyboard and screen readers can follow it: focus moves to each
+    step and returns to where the reader was. It respects reduced motion.
+  - **The tour makes nothing real.** A step that shows a note or a highlight
+    uses a sample that disappears when the tour ends, never a record in the
+    reader's notebook.
+  - **"Seen" is kept in this browser**, as a per-viewer convenience like the
+    Display settings, and doesn't sync (display settings don't: R7). A
+    cleared browser shows the offer again, which is harmless. The privacy
+    paragraph names the key.
+  - **It grows with the phases.** Each phase that adds something worth
+    showing adds a step. A reader who has already seen the tour gets a short
+    offer of just the new steps, not the whole tour again.
+  - Desktop only, like the rest of the notebook (ground rule 1).
 - **M1. Hide my notes, in one keystroke.** A switch with a shortcut that hides
   every note, highlight and mark at once, for sharing a screen or teaching
   from Study View. N8 makes it matter. Present mode already leaves notes out.
@@ -639,7 +679,7 @@ Through phase 3 everything runs in the reader's browser; accounts add a
 server. Most hard parts exist in the repo already.
 
 - **The gate**: `isAppPlatform()`, dynamic import on computers only; account
-  pages excepted (C1).
+  pages excepted (C1), if plan B gives the site any.
 - **Storage**: IndexedDB, one database, with BroadcastChannel keeping two open
   tabs in step. Ask for persistent storage (`navigator.storage.persist()`):
   Chrome grants by engagement, Firefox asks, Safari grants mainly to Home
@@ -648,7 +688,9 @@ server. Most hard parts exist in the repo already.
   or an export is the real backup, and the notebook says when it was last
   backed up. **Sync-ready from the first record**: a permanent ID, the time it
   last changed, a deletion marker (tombstone), a copy of the verse as it read
-  (C3), and a version number on the format (C22).
+  (C3), and a version number on the format (C22). Format draft 1 (2026-10-05)
+  makes a deletion its own `trash` record rather than a flag on the live
+  record, since iOS found flag flips unreliable in sync.
 - **Anchors**: verse numbers carry `data-osis` ("Rom.8.3"), which keys a note
   to its verse. A phrase note also quotes its words with a little text before
   and after (the W3C Web Annotation TextQuoteSelector, the method Hypothesis
@@ -660,6 +702,13 @@ server. Most hard parts exist in the repo already.
   other (C16). The notebook becomes another consumer that must strip ⟦ ⟧ (see
   CLAUDE.md, "Bracketed passages"). Leave room for anchors on a Greek word
   (book, chapter, verse, SBLGNT word position) for the later Greek project.
+  **Format draft 1 (2026-10-05) supersedes two parts of this.** A record
+  names its verses by `bookKey`, `chapter`, `verse` and `endVerse`, the site's
+  slugs, with OSIS derived only for the W3C export. Quotes are taken from the
+  format's anchor text (`scripts/lib/anchor-text.mjs`), not from `countable`
+  or Copy's text, which differ from each other (review finding 3). Phase 1a
+  builds the browser half: turning a selection on the page into anchor-text
+  positions and back, checked against the same vectors.
 - **Drawing**: highlights use the CSS Custom Highlight API (Chrome 105, Safari
   17.2, Firefox 140), which the site already uses for a selected verse; it
   paints without changing the DOM, so Copy text, handouts, the term lens and
@@ -679,7 +728,10 @@ server. Most hard parts exist in the repo already.
   motivations cover bookmarking, commenting, highlighting, questioning,
   tagging and linking), and a small versioned LIT format for sheets and
   places, which Web Annotation can't express (C22). Printing through the
-  existing `print.css`, plus a rich copy for Word.
+  existing `print.css`, plus a rich copy for Word. Draft 1 (2026-10-05)
+  refined this: the logical records in `STUDY-DESK-FORMAT.md` are the shared
+  form, each store maps them in its own way, and the W3C shape is the export
+  file for marks on the text.
 - **Reuse**: `joinPieces` and `assembleHandout` for copying; `print.css`,
   `PrintCredit` and `LIT_CREDIT_LINE` for paper; the shared panel
   (`lit-panel.js`); `linkScriptureRefs`; the term lens data and the alignment
@@ -1174,7 +1226,11 @@ Same BDR, two apps. Each of these is a format decision, not a detail:
   - Strip both bracket forms **before** collapsing whitespace (pending T7).
   - `&nbsp;` becomes a space; zero-width characters are removed.
   - A poetry line break or `<br>` becomes `\n`; other whitespace runs
-    collapse to one space.
+    collapse to one space. **Draft 1 changed this** (2026-10-05): every block
+    boundary, a poetry line or `<br>` included, becomes one space, so the
+    three implementations can't drift over line breaks. Poetry keeps its
+    lines on screen and in Copy text; only anchoring flattens them
+    (`STUDY-DESK-FORMAT.md`, "Why one space and not a newline").
   - Quotes and dashes stay as written in anchors. They're evened out only
     for N3's change comparison.
   - Context is 32 characters each side, in this normalized text.
@@ -1454,42 +1510,120 @@ So they don't come back as fresh suggestions:
 
 ## Order of work
 
-Each phase is usable on its own.
+Planned in detail on 2026-10-05, after both apps replied, and approved by BVJ
+the same day. Each phase is usable on its own, and **phases 1 to 3 need
+nothing from the apps**. The website builds in the order that suits it
+(BVJ's answers, 2026-10-05); February 10, 2027 is BDR's goal for the apps.
 
-0. **Before any code.** Agree the record format with BDR (C8, C22), even if
-   accounts come later: changing a format after people have notes in it is
-   the expensive kind of change. Pick the narrower reading column side by side
-   (C9), to ship with the desk.
-1. **The notebook.** The gate; storage with verse copies (C3); the menu
-   actions with Read View's smaller set (C2); the margin by free space (C9);
-   the panel (C12); commands in search (D3); the notebook page; the first-time
-   choice (D6); the file with its safety rules (D1, C5, C17); the Safari
-   warning (C18); places (B1, C25); accessibility (C4, C10, C24); anchors
-   (C16); the interleaf (N7, C13); hide my notes (M1); the trash (M7); your
-   own tags (M8); the "This verse" tab (N10); the help page (M12); Greek and
-   Hebrew fonts (C27); the plumbing (C21); the privacy paragraph; the link to
-   the license terms. Medium to large.
-2. **What only the LIT can do.** The revision layer behind N3, B3 and S2;
-   notes that follow a word and concept marks saved as rules (N2, H2, C23);
-   your own chains (N4); the word study (M4); your notebook where you already
-   look (M10); notes on a footnote (M11). Medium.
-3. **Sheets.** The sheet page (S1) with key terms (S3), leader and participant
-   copies (S4), blanks with the footnote picker (S10, C15), both paper sizes
-   (C27), the license card with its link and the commercial check (S7), and
-   the Word copy (S9); then printed codes (S5), present mode with the presenter
-   view and room code (S6, M2, M3), sheets from searches and templates (M5,
-   M9), annotated printing (M6) and shared links (S8). Large.
-4. **Accounts and sync, with BDR.** Account pages on every device (C1), one
-   source of truth (C5), one key and then the lock (C6, D5), the blur kept off
-   the apps until they honor it (C7), the encryption choices (C19), account
-   basics (C20), the Worker's plumbing (C21) and short share links (M14),
-   once BDR's list is settled. Large.
+**The format rule: freeze it before anything syncs** (BVJ, 2026-10-05). This
+replaced phase 0's "agree the record format before any code". Draft 1
+(`STUDY-DESK-FORMAT.md`) is written to be safe under plan A and plan B, and
+the local notebook is needed under both. Until sync arrives in phase 4,
+nothing leaves the browser except exports that the website reads back
+itself, and every record carries `schema`, so a change from the apps' review
+becomes a migration inside one module. Android asked for the freeze before
+Christmas, which is likely to come before phase 1 is ready to release anyway.
+
+0. **The choices that come first.** None holds up phase 1a or 1b.
+   - Pick the narrower reading column side by side (C9), to ship with the
+     desk. The margin in 1c waits on it.
+   - Pick the Greek and Hebrew faces (C27). The Greek face is worth shipping
+     as soon as it's picked: four articles and two chapters already contain
+     Greek letters (138 and 21 characters, counted 2026-10-05), which show in
+     fallback fonts today.
+   - The apps' review of draft 1, then the freeze.
+1. **The notebook**, in four steps. Medium to large.
+   - **1a. Foundations.** Pure, unit-tested modules, with no page yet:
+     - draft 1's record kinds, with `schema`, migration, and keeping any
+       field or kind the website doesn't know (the format's principle 6);
+     - the browser half of the anchor text: turning a selection on the page
+       into anchor-text positions and back, agreeing with
+       `scripts/lib/anchor-text.mjs` on every vector. This is the riskiest
+       piece, because the page's own text models (Copy's and `countable`'s)
+       are not the anchor text (review finding 3). It gets a sweep over every
+       published chapter, the way the term lens was swept;
+     - one merge engine, by `id`, `modified` and tombstones, keeping both
+       versions of a conflicting note. It imports a file in phase 1 and
+       becomes the sync engine in phase 4, since stores are homes, not
+       formats (the format's principle 2);
+     - the highlight overlap rule, and the "did the wording change?"
+       comparison (N3, C3).
+   - **1b. The shell, behind a preview switch.** The gate and dynamic import,
+     so readers download nothing until the desk is switched on for them; a
+     preview switch, so BVJ can try it on the live site first; IndexedDB with
+     BroadcastChannel and persistent storage; deletion as a `trash` record,
+     undone from a bar rather than confirmed in a dialog (Android's practice,
+     A-M12); the docked panel frame (C12); the plumbing (C21).
+   - **1c. Marks in Study View.** The "Yours" actions in the verse menu and
+     selection panel; notes with the apps' seven markers; highlights in the
+     four colours with the reader's own meanings (H1) and a second cue
+     besides colour (C4), modelled on the apps' marker glyph and dotted
+     underline; bookmarks; the margin, falling back to dots and the panel
+     (C9); the change notice, driven by the format's found, moved, changed,
+     verse and lost, in the apps' words (iOS: Re-read in Context, Keep,
+     Delete; Android: "carried along" and "couldn't find your words"); the
+     "This verse" tab (N10); Read View's smaller set, through events (C2);
+     hide my notes (M1); accessibility (C4, C10, C24).
+   - **1d. The notebook around them.** The notebook page; your notebook in
+     search, and commands in the search box (D2, D3); export and import in
+     Markdown and the W3C shape, which every plan needs; the first-time
+     choice (D6), worded without accounts until plan A or B is chosen; the
+     Safari warning (C18); places and ribbons, kept in this browser (B1,
+     C25); labels (M8, name open); the interleaf (N7, C13); the hidden
+     passage (N8); the tutorial (D8); the help page (M12); the privacy
+     paragraph; the link to the license terms. **Then decide whether to
+     release it to readers.** Saving live into a chosen file (D1) waits on
+     its decision (T3); export and import don't.
+2. **What only the LIT can do.** What's new for you and text checked before
+   printing (B3, S2), on 1a's comparison; notes that follow a word and
+   concept marks saved as rules (N2, H2, C23); your own chains (N4); the word
+   study (M4, once sheets exist); your notebook where you already look (M10);
+   notes on a footnote (M11). The core of N3, finding a mark again and saying
+   when its words changed, moved into phase 1, since every mark is re-found on
+   every load. Medium.
+3. **Sheets.** None of it waits on the apps: a sheet's inner shape is the
+   website's own, and under plan A sheets go in the iCloud zone the app never
+   opens. Phase 3 could move ahead of phase 2 if sheets for Lent matter (review
+   finding 12; Ash Wednesday is February 10, 2027). The sheet page (S1) with
+   key terms (S3), leader and participant copies (S4), blanks with the
+   footnote picker (S10, C15), both paper sizes (C27), the license card with
+   its link and the commercial check (S7), and the Word copy (S9); then
+   printed codes (S5), present mode with the presenter view and room code (S6,
+   M2, M3), sheets from searches and templates (M5, M9), annotated printing
+   (M6) and shared links (S8). Large.
+4. **Sync, with BDR.** Starts once plan A or B is chosen and the proofs (P1 to
+   P3) are in. Under both plans: a sync loop on 1a's merge engine, one source
+   of truth at a time (C5), connection status and "Reconnect", edits queued
+   while disconnected, the conflict screen, and enforcing the full content
+   security policy, since the page will hold a credential to readers' notes
+   (review finding 11). Plan A adds two connectors, iCloud (CloudKit JS) and
+   Google Drive, each with its own sign-in, limits and testing against real
+   accounts, and perhaps a token-only Worker for Google. Plan B adds the
+   service on Cloudflare, account pages on every device (C1) and account
+   basics (C20). Either way: one key and then the lock (C6, D5), the
+   encryption choice (C19), and short share links (M14). The website's side
+   of plan A hasn't been sized (A-Q7). Large.
 
 **Any time, independent of all of it**: both apps link to the license terms
-(BDR's, item 11); N9, print with room to write. (/read opening the terms when
-a link names them was on this list and shipped in PR #250.) N5, N6, B2 and
-D4 aren't placed in a phase; they're small and fit wherever convenient. D7
-waits on its open questions; the KJV part could join N10 in phase 1.
+(BDR's item 11: Android in 1.3, iOS in 2.0, 2.0.1 or 2.1); N9, print with
+room to write. (/read opening the terms when a link names them was on this
+list and shipped in PR #250.) N5, N6, B2 and D4 aren't placed in a phase;
+they're small and fit wherever convenient. D7 waits on its open questions;
+the KJV part could join N10 in phase 1c.
+
+**What changed from the first order of work** (2026-10-01, PR #262):
+- Phase 0's "before any code" became "freeze the format before anything
+  syncs".
+- Phase 1 was split into 1a to 1d, and the Greek and Hebrew fonts moved to
+  phase 0's choices.
+- N8 (the hidden passage) wasn't placed in any phase; it is now in 1d. D8,
+  the tutorial, was added there too.
+- The notebook file (D1) was split: export and import in 1d, live saving
+  after T3 is decided.
+- The core of N3 moved from phase 2 into phase 1.
+- Phase 4 was rewritten for plans A and B. Its "keep the blur off the apps
+  until they honor it" (C7) is probably moot, since both apps committed to
+  honor N8 in their first synced release (R6, A-R9).
 
 ## Decisions
 
@@ -1620,6 +1754,17 @@ BVJ pointed out netbible.org was missing from the survey. Decisions:
   are more natural for it); a separate project, in FIXLIST.
 - Commentaries: set aside.
 
+### 2026-10-05 (development phases)
+
+BVJ asked whether work could start before the apps' second round, and for the
+development phases to be planned. Approved the same day:
+- **Freeze the format before anything syncs**, in place of "agree the record
+  format before any code". Building starts now.
+- **The phases in "Order of work"**, with phase 1 in four steps (1a to 1d)
+  and N8 placed in 1d.
+- **D8, a tutorial on first use that can be replayed**, added as BVJ's hope.
+  Its details are open (see D8).
+
 ## Still open
 
 - **"To be decided"** under "The apps' replies", starting with plan A or
@@ -1638,8 +1783,13 @@ BVJ pointed out netbible.org was missing from the survey. Decisions:
   reviving the feature audit's X6 (browsable topic pages, deferred
   2026-09-28) on the sheet machinery. Today's topics follow TOPICS.md and are
   functionally tags for search reach.
-- **The narrower reading column**: to pick side by side before launch.
+- **The narrower reading column**: to pick side by side before phase 1c's
+  margin.
 - **Greek and Hebrew font faces**: not chosen.
+- **D8, the tutorial**: what counts as the first encounter, and how it meets
+  D6's first-time choice.
+- **Whether to release the notebook after phase 1d**, decided when 1d is
+  done.
 - **The Digital Bible Library** (library.bible, the American Bible Society's
   library that API.bible draws from, and where YouVersion and Global.Bible get
   texts): I raised **submitting the LIT to it** as a way to reach the Bible
