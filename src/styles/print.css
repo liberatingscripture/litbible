@@ -72,7 +72,8 @@
   }
 
   /* The default fonts print in the site's serif. An accessibility font the
-     reader chose (html[data-font]) prints as chosen. */
+     reader chose (html[data-font]) prints as chosen. The serif ligates f+f,
+     which footnote letters must not (global.css turns it off for them). */
   html:not([data-font]) body,
   html:not([data-font]) body * {
     font-family: "Crimson Text", "Crimson Fallback", Georgia, "Times New Roman",

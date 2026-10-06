@@ -2397,6 +2397,15 @@ blockquote.hbq .hbq-line .vn,
   user-select: none !important;
 }
 
+/* A footnote letter is one letter repeated (ff, fff), so a font's standard
+   ligatures would draw its first two f's as one glyph and "fff" would read
+   as a different label. Crimson Text (print) and OpenDyslexic ligate f+f;
+   Inter and Atkinson Hyperlegible Next have no ligatures to turn off. */
+.chapter-paragraphs sup.fn-ref,
+.footnotes .footnote-backlink {
+  font-variant-ligatures: none;
+}
+
 /* Don't paint selection highlight for these */
 .chapter-paragraphs sup.fn-ref::selection,
 .chapter-paragraphs sup.fn-ref *::selection,
