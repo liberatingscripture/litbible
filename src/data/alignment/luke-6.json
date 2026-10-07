@@ -266,7 +266,7 @@
       "ref": "Luke.6.32",
       "english": [
         {
-          "text": "deviating",
+          "text": "people who are deviating",
           "n": 1
         }
       ],
@@ -306,7 +306,7 @@
       "ref": "Luke.6.33",
       "english": [
         {
-          "text": "deviating",
+          "text": "People who are deviating",
           "n": 1
         }
       ],
@@ -346,8 +346,28 @@
       "ref": "Luke.6.34",
       "english": [
         {
-          "text": "deviate",
-          "n": 2
+          "text": "others who deviate",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hamartia",
+        "traditional": "Sin",
+        "glossary": "sin-deviation",
+        "form": "others who deviate"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.6.34",
+      "english": [
+        {
+          "text": "People who deviate",
+          "n": 1
         }
       ],
       "greek": [],
