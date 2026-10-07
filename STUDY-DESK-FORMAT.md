@@ -108,8 +108,10 @@ generated from `src/data/books.js` (A-F9). It's never stored.
    place), a verse, and `ribbon: true` for a named ribbon. Places are stored
    as verses, never scroll positions (A-F13). **Open:** whether each device's
    reading place syncs at all (BVJ leans slightly against).
-6. **`legend`** (H1): the reader's meaning for each of the four colours. One
-   per reader.
+6. ~~**`legend`**~~ (H1): **dropped 2026-10-07** (BVJ with BDR; colours carry
+   no named meanings). The number is kept so the kinds after it don't move.
+   Draft 1 had: the reader's meaning for each of the four colours, one per
+   reader.
 7. **`markRule`** (H2): a glossary term, a book and a colour, worked out
    from the published alignment on each load.
 8. **`label`** (M8): a name. Records list the labels on them.
@@ -257,7 +259,7 @@ and accounts would live under `/sheets/`, `/notebook/`, `/account/`.
     `offsetSpace`. The app places it on arrival (W4).
   - The app's existing offset fields stay its own private fields. The website
     ignores them (principle 3).
-  - Kinds only the website uses (legend, mark rules, labels, sheets) go in a
+  - Kinds only the website uses (mark rules, labels, sheets) go in a
     **separate zone the app never opens**, under one generic record type
     (`kind`, a JSON payload, `modified`). That type is deployed once and
     never needs another field.
