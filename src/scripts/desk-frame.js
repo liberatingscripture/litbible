@@ -14,27 +14,39 @@ export const DOCK_SELECTOR = "[data-desk-dock]";
  * without one; and the glossary gains a reading column for it, the same
  * day). Each gives its column, whose first selector also identifies
  * the page, and the page's heading, which the panel's "Notebook" heading
- * lines up with (BVJ, 2026-10-06), and optionally the element whose bottom
- * ends the panel's travel down the page (`end`; otherwise the end of <main>,
- * less the panel's usual gap). Read View's column is its toolbar and its
- * text together, since the toolbar is the wider.
+ * lines up with (BVJ, 2026-10-06), and where its reading area ends (`end`,
+ * below). Read View's column is its toolbar and its text together, since the
+ * toolbar is the wider.
  *
  * global.css hides the Notebook button on every other page with a :has()
  * rule naming the same first selectors; test/desk-frame.test.js holds the
  * two to each other. /search uses Study View's column class too, so Study
  * View is told apart by its layout's type.
  */
+
+// Where each page's reading area ends: the seam where the page's own
+// background meets the footer's colour, and the panel's travel stops `gap`
+// above it (BVJ, 2026-10-06: the same 16px it keeps on the right). On the
+// scripture pages the license band right above the footer (the source-text
+// notice, SblgntNotice) counts as part of the footer, so the seam is its
+// top. On the glossary it is the end of the cream band, and on an article
+// the panel stops exactly at the bottom of the card. Without an `end`, or
+// if its element is missing, the panel stops 16px above the end of <main>.
+const LICENSE_BAND = { selector: ".scripture-disclaimer", at: "top", gap: 16 };
+
 export const READING_SURFACES = [
-  { column: [".scripture-layout--scripture .scripture-main"], title: "#chapter-title" },
-  { column: [".scripture-layout--intro .scripture-main"], title: "#chapter-title" },
-  { column: [".rm-page .rm-reader", ".rm-page .rm-toolbar"], title: ".rm-page .rm-title" },
-  // The panel's travel ends at the bottom of the article's card, not at the
-  // footer (BVJ, 2026-10-06). Elsewhere it ends EDGE above the footer.
-  { column: [".article__card"], title: ".article__title", end: ".article__card" },
+  { column: [".scripture-layout--scripture .scripture-main"], title: "#chapter-title", end: LICENSE_BAND },
+  { column: [".scripture-layout--intro .scripture-main"], title: "#chapter-title", end: LICENSE_BAND },
+  { column: [".rm-page .rm-reader", ".rm-page .rm-toolbar"], title: ".rm-page .rm-title", end: LICENSE_BAND },
+  { column: [".article__card"], title: ".article__title", end: { selector: ".article__card", at: "bottom", gap: 0 } },
   // Its reading column exists only with the desk on (pages/glossary.css),
   // which is the only time this list is read. The panel lines up with the
   // first entry's heading, not the page's title (BVJ, 2026-10-06).
-  { column: [".glossary-entries .entries-wrap"], title: ".glossary-entries .entry-title" },
+  {
+    column: [".glossary-entries .entries-wrap"],
+    title: ".glossary-entries .entry-title",
+    end: { selector: ".glossary-entries .entries-panel", at: "bottom", gap: 16 },
+  },
 ];
 
 /** This page's reading surface, or null when the Notebook has no place here. */

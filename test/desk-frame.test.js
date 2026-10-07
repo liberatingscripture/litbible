@@ -36,3 +36,12 @@ test("readingSurface finds Study View, intros, Read View, articles and the gloss
   assert.equal(readingSurface(docWith(".scripture-layout--search .scripture-main")), null);
   assert.equal(readingSurface(docWith()), null);
 });
+
+test("each page names where its reading area ends; the license band counts as footer", () => {
+  const ends = Object.fromEntries(READING_SURFACES.map((s) => [s.column[0], s.end]));
+  for (const page of [".scripture-layout--scripture .scripture-main", ".scripture-layout--intro .scripture-main", ".rm-page .rm-reader"]) {
+    assert.deepEqual(ends[page], { selector: ".scripture-disclaimer", at: "top", gap: 16 }, page);
+  }
+  assert.deepEqual(ends[".article__card"], { selector: ".article__card", at: "bottom", gap: 0 });
+  assert.equal(ends[".glossary-entries .entries-wrap"].at, "bottom");
+});

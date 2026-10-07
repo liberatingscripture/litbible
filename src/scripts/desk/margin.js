@@ -2,13 +2,15 @@
 //
 // Puts the Notebook panel in the right margin beside the reading column
 // (src/lib/desk-margin.mjs has the rules). The panel sits in a "rail": an
-// absolutely positioned strip running down the margin to EDGE above the end
-// of <main> (on an article, to the bottom of its card). It starts so that the panel's "Notebook" heading lines up with the
-// top of the page's own heading ("Romans 8"; BVJ, 2026-10-06). Inside it the
-// panel is sticky, so it starts there and pins EDGE from the top of the
-// window as the reader scrolls. Its height is set so
-// its bottom stays EDGE above the bottom of the window (BVJ, 2026-10-06), or
-// at the rail's end once the footer comes into view.
+// absolutely positioned strip running down the margin to just above the seam
+// where the page meets the footer's colour (a license band above the footer
+// counts as footer; on an article it ends at the bottom of the card; see
+// desk-frame.js). It starts so that the panel's "Notebook" heading lines up
+// with the top of the page's own heading ("Romans 8"; BVJ, 2026-10-06).
+// Inside it the panel is sticky, so it starts there and pins EDGE from the
+// top of the window as the reader scrolls. Its height is set so its bottom
+// stays EDGE above the bottom of the window, or at the rail's end once that
+// comes into view.
 //
 // The rail is re-placed whenever the column or the page changes size (a new
 // text size from the Display tray, a window resize, the header's search strip
@@ -33,9 +35,14 @@ export function createRail(panel) {
   const surface = readingSurface();
   const columnEls = surface.column.map((s) => document.querySelector(s)).filter(Boolean);
   const titleEl = document.querySelector(surface.title) || main;
-  // Where the panel's travel ends: the article's card, or EDGE above the end
-  // of <main> (the footer's seam), the gap it keeps on the right.
-  const endEl = surface.end ? document.querySelector(surface.end) : null;
+  // Where the panel's travel ends, in document coordinates: the page's seam
+  // (desk-frame.js), or EDGE above the end of <main> where it has none.
+  const endEl = surface.end ? document.querySelector(surface.end.selector) : null;
+  const endY = () => {
+    if (!endEl) return main.getBoundingClientRect().bottom + window.scrollY - EDGE;
+    const box = endEl.getBoundingClientRect();
+    return (surface.end.at === "top" ? box.top : box.bottom) + window.scrollY - surface.end.gap;
+  };
 
   const rail = document.createElement("div");
   rail.className = "desk-rail";
@@ -112,9 +119,7 @@ export function createRail(panel) {
     rail.hidden = false;
     const inset = capTop(panelTitle) - panel.getBoundingClientRect().top;
     const top = capTop(titleEl) + window.scrollY - inset;
-    const bottom = endEl
-      ? endEl.getBoundingClientRect().bottom + window.scrollY
-      : main.getBoundingClientRect().bottom + window.scrollY - EDGE;
+    const bottom = endY();
     rail.style.top = `${top}px`;
     rail.style.height = `${Math.max(0, bottom - top)}px`;
     fitHeight();

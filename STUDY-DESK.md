@@ -1729,7 +1729,9 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
        `src/scripts/desk-frame.js`, matched by a `:has()` rule in
        global.css). The panel's "Notebook" heading lines up with the page's
        heading by the tops of their capitals, and the panel reaches down to
-       16px above the bottom of the window. Floating panels keep 12px clear
+       16px above the bottom of the window. At the end of a page it stops
+       16px above the seam with the footer's colour, the license band
+       counting as footer (on an article, at the bottom of the card). Floating panels keep 12px clear
        of it and a click inside it closes none of them; the single-key
        shortcuts stand down inside it.
      - **The 52 measure is on while the preview is on**, and Read View's
@@ -2047,6 +2049,12 @@ The rest of the same day's review:
   either.
 - **The panel reaches down to 16px above the bottom of the window**, the
   same gap it keeps from the right edge, and pins 16px from the top.
+- **At the end of the page it stops 16px above the seam where the page's
+  background meets the footer's colour.** A license band right above the
+  footer counts as footer, so on Study View, intros and Read View the seam
+  is the top of the source-text notice. On the glossary it is the end of the
+  cream band. On an article it stops exactly at the bottom of the card.
+  (The first version stopped at the footer element, below the license band.)
 - **Its "Notebook" heading lines up with the page's own heading**, by the
   tops of their capitals: the chapter title ("Romans 8"), Read View's book
   title, the article title, and on the glossary the first entry's heading.

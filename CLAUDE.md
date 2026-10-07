@@ -2039,7 +2039,10 @@ collection); they're read directly by the intro pages and the API manifest.
      the column moves left only as far as needed; the header never moves.
      **It appears only on the pages `READING_SURFACES`
      (`src/scripts/desk-frame.js`) lists**: Study View chapters and intros,
-     Read View, articles and the glossary, each with its column and heading.
+     Read View, articles and the glossary, each with its column, its heading
+     and its `end`: the seam where the page meets the footer's colour, which
+     on the scripture pages is the top of the license band (SblgntNotice),
+     since a band right above the footer counts as footer.
      Everywhere else there is no panel, no button (a `:has()` rule in
      global.css, held to the list by `test/desk-frame.test.js`), and the
      desk's code isn't loaded. **A new reading surface needs an entry in
