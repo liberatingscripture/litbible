@@ -7,8 +7,8 @@ the Android reply's A-F1 to A-F13. `STUDY-DESK.md` holds the plan and the
 decisions; this file holds only the format.
 
 **It doesn't depend on where notes are kept.** Whether they live in the
-reader's iCloud and Google Drive (plan A) or in a LIT service (plan B) is
-still open. This file describes the records themselves: what a note *is* and
+reader's iCloud and Google Drive (plan A) or in a LIT service (plan C since
+2026-10-07, end-to-end encrypted; formerly plan B) is still open. This file describes the records themselves: what a note *is* and
 which fields it has. A short section at the end maps them into each store.
 Agreeing this now is safe under either plan.
 
@@ -129,7 +129,10 @@ generated from `src/data/books.js` (A-F9). It's never stored.
     flipping a flag on the live record (iOS found flag flips unreliable).
 
 **Reserved:** `encryptedBody`, an envelope for an end-to-end encrypted body,
-unused for now (A-F12).
+unused for now (A-F12). Under plan C, BDR's proposal (2026-10-07) makes the
+envelope the standard wrapper for draft 2: id, revision, edit time and
+deletion time in the clear, everything else encrypted (`STUDY-DESK.md`, "One
+notebook, three homes").
 
 ## The quote (an anchor)
 
@@ -260,7 +263,9 @@ and accounts would live under `/sheets/`, `/notebook/`, `/account/`.
     never needs another field.
 - **Google Drive app folder (plan A).** One JSON file per record, named by
   `id` (A-F2), holding the logical record as written here.
-- **A LIT service (plan B).** One row per record holding the same JSON.
+- **A LIT service (plan C).** One row per record: the reader, `id`, a
+  revision, `modified` and the deletion time in the clear, and the record's
+  JSON encrypted.
 - **The export file.** For marks on the text: JSON in the W3C Web Annotation
   shape, where `TextQuoteSelector` is `quote`, `FragmentSelector` is
   `#v3-4`, `motivation` comes from `kind`, and the LIT fields go under
@@ -292,7 +297,11 @@ and accounts would live under `/sheets/`, `/notebook/`, `/account/`.
   untouched (principle 6), as they would any target they don't know.
 - Whether reading places sync (kind 5).
 - The sheet's inner shape.
-- Each store's exact mapping, once plan A or B is chosen.
+- Each store's exact mapping, once plan A or C is chosen.
+- **Draft 2's list** (BDR's proposal, 2026-10-07): rules a to e for
+  collisions, a placement value meaning "place me from my verses and quoted
+  words" for records the website writes, and the envelope above. See
+  `STUDY-DESK.md`, "To freeze before Christmas".
 
 **Vectors not yet included:**
 - **Adjacent footnote letters:** the corpus has none today.
