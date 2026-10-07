@@ -1535,6 +1535,27 @@ repo. **It calls BDR "Brandon"**; this file keeps BDR and BVJ. BVJ brought it
 in on 2026-10-07. It changes no code anywhere, and it replaces the
 three-instance back-and-forth: on BDR's side the proposal is now the record.
 
+**How the website answers (BVJ, 2026-10-07): through this file.** BDR's
+Claude reads this repo directly, so nothing is sent by hand and no new reply
+document is written; `STUDY-DESK-REPLY-TO-APPS.md` was the last. What the
+website has to say goes here, on `main`, with its date.
+
+**The website's answers to the proposal, so far (2026-10-07):**
+- **BVJ clearly prefers plan C**, launched with "don't sign in" as the
+  keep-it-in-your-own-cloud option and full plan A added later only if
+  readers ask. A preference, not an insistence or a decision. See "BVJ's
+  clear preference" below.
+- **The website's side is sized**, as the proposal asked: plan C 12–15
+  sessions if BDR's side builds the service, plan A 16–18 at launch plus the
+  upkeep, both as a reader's choice 26–31. See "Sizing the website's side".
+- **M14's short share links stay for signed-in readers** (a
+  recommendation, not decided); unsigned readers keep S8's long links and
+  printed codes. See "BVJ's clear preference".
+- **The encryption spec and its test vectors would be written here**, in
+  November, if plan C goes ahead (the sizing's first row).
+- Everything else in the proposal (rules a to e, the Zoom items, the
+  sequence) waits on BDR or on the Zoom.
+
 ### Three plans, not two
 
 The old plan B splits in two:
