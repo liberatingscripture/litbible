@@ -18,6 +18,14 @@ To skip a round: add an entry below, in the same commit as the content change.
 
 ---
 
+## 2026-10-06 — a doubled object in Romans 12:14
+
+Skipped the verse row for Romans 12:14, which loses one word: "wish them well
+those who pursue you" now reads "wish well those who pursue you". "Them" and
+the noun phrase after it named the same people. The second clause's "wish them
+well" is unchanged. Owner ruling: a typo-class slip, kept out of the changelog
+like the fixes below. The Word back-port is in `FOLLOW-UP-RECONCILIATION.md` §33.
+
 ## 2026-10-01 — a stray parenthesis in two Mark notes
 
 Skipped the footnote rows for Mark 1 fn-a and Mark 10 fn-w, which lose the
