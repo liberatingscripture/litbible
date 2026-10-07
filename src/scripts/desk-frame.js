@@ -14,7 +14,8 @@ export const DOCK_SELECTOR = "[data-desk-dock]";
  * without one; and the glossary gains a reading column for it, the same
  * day). Each gives its column, whose first selector also identifies
  * the page, and the page's heading, which the panel's "Notebook" heading
- * lines up with (BVJ, 2026-10-06), where its reading area ends (`end`,
+ * lines up with (BVJ, 2026-10-06), or instead `start`, an element whose top
+ * edge the panel's top edge lines up with, where its reading area ends (`end`,
  * below), and `move`: the elements that make up the column, which are what
  * move left when the margin is too narrow for the panel. Only those move, so
  * full-width bands (the license band, the glossary's cream band) and the tool
@@ -58,9 +59,16 @@ export const READING_SURFACES = [
   },
   {
     column: [".article__card"],
-    title: ".article__title",
+    // The panel's top edge lines up with the card's (BVJ, 2026-10-06): the
+    // card is its own object, picture first, and its title sits far enough
+    // down that a panel matched to it started below the fold, so opening it
+    // moved the card for no visible reason. Top to top, the two cards sit
+    // side by side and travel together down to the card's bottom.
+    start: ".article__card",
     end: { selector: ".article__card", at: "bottom", gap: 0 },
-    move: [".article-top__inner", ".article__card"],
+    // Only the card moves. The search bar above it stays put (BVJ,
+    // 2026-10-06): the panel starts level with the card, below it.
+    move: [".article__card"],
   },
   // Its reading column exists only with the desk on (pages/glossary.css),
   // which is the only time this list is read. The panel lines up with the

@@ -30,7 +30,7 @@ test("readingSurface finds Study View, intros, Read View, articles and the gloss
   assert.equal(readingSurface(docWith(".scripture-layout--scripture .scripture-main")), READING_SURFACES[0]);
   assert.equal(readingSurface(docWith(".scripture-layout--intro .scripture-main")), READING_SURFACES[1]);
   assert.equal(readingSurface(docWith(".rm-page .rm-reader")).title, ".rm-page .rm-title");
-  assert.equal(readingSurface(docWith(".article__card")).title, ".article__title");
+  assert.equal(readingSurface(docWith(".article__card")).start, ".article__card", "an article's panel starts level with its card");
   // /search uses .scripture-main inside its own layout type, and the home
   // page and the articles list have no reading column at all.
   assert.equal(readingSurface(docWith(".scripture-layout--search .scripture-main")), null);

@@ -2064,7 +2064,13 @@ The rest of the same day's review:
   (The first version stopped at the footer element, below the license band.)
 - **Its "Notebook" heading lines up with the page's own heading**, by the
   tops of their capitals: the chapter title ("Romans 8"), Read View's book
-  title, the article title, and on the glossary the first entry's heading.
+  title, and on the glossary the first entry's heading.
+- **On an article, the panel's top edge lines up with the card's top
+  edge** instead. Matched to the title, which sits below the article's
+  picture, the panel started below the fold, so opening it moved the card
+  with no panel in sight. Top to top, the two cards sit side by side. Where
+  the margin is too narrow, only the card moves; the search bar above it
+  stays put.
 - **The glossary gets a reading column with the desk on**, at the reading
   width and with the scripture pages' type sizes: the title as Study View's
   chapter title, each entry's heading as Read View's chapter headings, the

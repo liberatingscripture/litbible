@@ -34,7 +34,10 @@ export function createRail(panel) {
   const main = document.querySelector("main");
   const surface = readingSurface();
   const columnEls = surface.column.map((s) => document.querySelector(s)).filter(Boolean);
-  const titleEl = document.querySelector(surface.title) || main;
+  // Where the panel starts: its "Notebook" heading level with the page's
+  // heading, or (`start`) its top edge level with an element's top edge.
+  const startEl = surface.start ? document.querySelector(surface.start) : null;
+  const titleEl = (surface.title && document.querySelector(surface.title)) || main;
   // An element inside another one that moves would move twice, and the next
   // placement would then measure the double move and undo it (the glossary's
   // entries sit inside its hero's wrap), so only the outermost are kept.
@@ -123,8 +126,9 @@ export function createRail(panel) {
     rail.style.width = `${at.width}px`;
     rail.classList.toggle("desk-rail--over", at.over);
     rail.hidden = false;
-    const inset = capTop(panelTitle) - panel.getBoundingClientRect().top;
-    const top = capTop(titleEl) + window.scrollY - inset;
+    const top = startEl
+      ? startEl.getBoundingClientRect().top + window.scrollY
+      : capTop(titleEl) + window.scrollY - (capTop(panelTitle) - panel.getBoundingClientRect().top);
     const bottom = endY();
     rail.style.top = `${top}px`;
     rail.style.height = `${Math.max(0, bottom - top)}px`;

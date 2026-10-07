@@ -2044,7 +2044,8 @@ collection); they're read directly by the intro pages and the API manifest.
      **It appears only on the pages `READING_SURFACES`
      (`src/scripts/desk-frame.js`) lists**: Study View chapters and intros,
      Read View, articles and the glossary, each with its column, its heading
-     and its `end`: the seam where the page meets the footer's colour, which
+     (or, on an article, `start`: the card, whose top edge the panel's top
+     edge matches) and its `end`: the seam where the page meets the footer's colour, which
      on the scripture pages is the top of the license band (SblgntNotice),
      since a band right above the footer counts as footer.
      Everywhere else there is no panel, no button (a `:has()` rule in
