@@ -282,6 +282,14 @@ and accounts would live under `/sheets/`, `/notebook/`, `/account/`.
   `deletedAt`, and `record` for the whole deleted record) **provisionally**,
   in `src/lib/desk-records.mjs`. Only its preview writes them, and nothing
   leaves the browser, so a different answer means a migration there.
+- **Notes on glossary entries and articles** (STUDY-DESK.md, N11; BVJ,
+  2026-10-06). The website will let a reader attach a note to a glossary
+  entry or an article, as a whole or at quoted words, so `note` needs two
+  more targets: a glossary entry by its id (already a stable key), and an
+  article by its slug (which needs a rule against renaming). Quoting text
+  that has no verses needs an anchor-text rule of its own. **Website only**
+  unless BDR changes the apps. Until then the apps carry these records
+  untouched (principle 6), as they would any target they don't know.
 - Whether reading places sync (kind 5).
 - The sheet's inner shape.
 - Each store's exact mapping, once plan A or B is chosen.

@@ -2025,26 +2025,35 @@ collection); they're read directly by the intro pages and the API manifest.
      `desk.css` itself as a `<style>` (`?inline`): **a plain CSS import is
      gathered into every page's stylesheet by Astro even from a dynamic
      import**, which is how the first build shipped it to everyone. The
-     Notebook buttons are in every page's markup, hidden by one
-     `html:not([data-desk]) [data-desk-toggle]` rule.
+     Notebook buttons are in every page's markup, hidden by one rule in
+     global.css unless the desk is on and the page has a reading column.
   3. **The Notebook panel sits in the right margin, beside the reading
      column, and moves nothing where the margin is wide enough** (BVJ,
      2026-10-06: "fill the margin, not just push everything aside"; the
      first build pushed the whole page left). `src/lib/desk-margin.mjs` is
      the rule and `src/scripts/desk/margin.js` places it: a card in an
-     absolutely positioned rail from the top of the reading area to the end
-     of `<main>`, sticky inside it. Where the margin is too narrow, `<main>`
-     takes right padding so the column moves left only as far as needed; the
-     header never moves. Its column selectors (`SURFACES` in margin.js) are
-     Study View's `.scripture-main`, Read View's toolbar and text, and the
-     article card: **a new reading surface needs an entry there**, or the
-     page is treated as having no margin and its content makes room instead.
+     absolutely positioned rail down the margin to the end of `<main>`,
+     sticky inside it, reaching 16px above the bottom of the window, with its
+     "Notebook" heading level with the page's heading by the tops of their
+     capitals. Where the margin is too narrow, `<main>` takes right padding so
+     the column moves left only as far as needed; the header never moves.
+     **It appears only on the pages `READING_SURFACES`
+     (`src/scripts/desk-frame.js`) lists**: Study View chapters and intros,
+     Read View, articles and the glossary, each with its column and heading.
+     Everywhere else there is no panel, no button (a `:has()` rule in
+     global.css, held to the list by `test/desk-frame.test.js`), and the
+     desk's code isn't loaded. **A new reading surface needs an entry in
+     both.**
      Floating panels subtract `dockWidth()` (`src/scripts/desk-frame.js`)
      from the window's width, and anything marked `[data-desk-dock]` counts
      as inside it (no outside-click close, shortcuts stand down).
   4. **While the preview is on, the reading measure is 52**, the width BVJ
      picked for the desk's release, and Read View's toolbar takes a fixed
      floor (725px; 895px in OpenDyslexic) because it outgrows the column.
+     **The glossary also becomes a reading page** then (the end of
+     `pages/glossary.css`): one column at the reading width, with the
+     scripture pages' type sizes, all scaling with the Display tray's text
+     size. Readers keep the wide glossary until the desk is released.
   5. **Records name the text they were made on** through
      `<html data-content-version>`, which Layout.astro reads at build from
      `public/api/version.json` (`src/lib/content-version.mjs`; "unversioned"

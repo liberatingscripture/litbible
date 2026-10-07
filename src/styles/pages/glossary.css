@@ -724,3 +724,86 @@
 @media (prefers-reduced-motion: reduce){
   .occ-summary::before{ transition: none; }
 }
+
+/* =========================================================
+   THE STUDY DESK PREVIEW (html[data-desk]; STUDY-DESK.md, phase 1b)
+   With the desk on, the glossary reads like the other reading pages:
+   one column at the reading width (the desk's 52 measure, growing with
+   the Display tray's text size the way Study View's does), entries set
+   at the reading size, and the Notebook panel in the margin beside it
+   (src/scripts/desk-frame.js lists it as a reading surface). BVJ,
+   2026-10-06. Like the 52 measure, readers keep the wide glossary until
+   the desk is released.
+   ========================================================= */
+
+/* Size and width on the same element, as Study View does, so the column
+   keeps its length in characters at every text size. */
+html[data-desk] .glossary-page .wrap{
+  max-width: calc(var(--reading-width, 72ch) + 48px);
+  font-size: calc(1em * var(--reading-scale, 1));
+}
+
+/* Type sized as the scripture pages size theirs (BVJ, 2026-10-06), in em of
+   the column so the Display tray's text size moves it all together. At
+   Medium: the title as Study View's chapter title (32px), each entry's
+   heading as Read View's chapter headings (28.8px), and the text as
+   scripture's (18px, line height 1.75). The "Where it appears" lists are
+   already 18px, as the footnotes are. */
+html[data-desk] .glossary-hero h1{
+  font-size: calc(32em / 18);
+}
+
+html[data-desk] .glossary-hero p{
+  font-size: 1em;
+  line-height: calc(1.75 + var(--reading-leading-extra, 0));
+  max-width: none;
+}
+
+html[data-desk] .entry-title,
+html[data-desk] .entry-link{
+  font-size: 1.6em;
+}
+
+html[data-desk] .entry-body p{
+  font-size: 1em;
+  line-height: calc(1.75 + var(--reading-leading-extra, 0));
+  max-width: none;
+}
+
+html[data-desk] .entry-occurrences{
+  max-width: none;
+}
+
+/* The same sizes the lists have on a computer today (18, 15.5, 18, 16 and
+   15px at Medium), restated in em so they grow with the text too. */
+html[data-desk] .occ-title,
+html[data-desk] .occ-summary{
+  font-size: 1em;
+}
+
+html[data-desk] .occ-title-count{
+  font-size: 0.86em;
+}
+
+html[data-desk] .occ-list a{
+  font-size: calc(16em / 18);
+}
+
+html[data-desk] .occ-more{
+  font-size: calc(15em / 18);
+}
+
+/* The column is narrower than 780px at every window width now, so the
+   long glosses take the phone layout: each option on its own line, the
+   slash as the break (see the max-width: 780px block above). */
+html[data-desk] .entry-title .lit-sep{
+  flex: 0 0 100%;
+  height: 0;
+  margin-block: calc(-0.35rem / 2);
+  overflow: hidden;
+}
+
+html[data-desk] .entry-title .lit-part{
+  white-space: normal;
+  line-height: 1.4;
+}

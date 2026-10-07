@@ -17,20 +17,24 @@
 //      padding, so `pad` is twice the move. The header never moves.
 //   3. Even that isn't enough (a narrow window): the panel takes MIN_WIDTH at
 //      the window's edge and lies over the ends of the lines (`over`).
-// A page with no reading column (no margin to speak of) reserves the panel's
-// width on the right of <main> instead, so it never covers the content.
+// Only pages with a reading column have the panel at all
+// (src/scripts/desk-frame.js, READING_SURFACES); BVJ, 2026-10-06.
+//
+// Vertically, the panel runs from level with the text (or EDGE from the top
+// once the reader has scrolled past that) to EDGE above the bottom of the
+// window, the same gap it keeps from the window's right edge.
 
 export const GAP = 24; // between the column and the panel
 export const EDGE = 16; // between the panel and the window's edge
 export const MIN_WIDTH = 280;
 export const MAX_WIDTH = 440;
-export const PLAIN_WIDTH = 340; // on a page with no reading column
+export const MIN_HEIGHT = 240;
 
 /**
  * @param {object} m measurements, in px from the viewport's left edge
  * @param {number} m.viewport the width the page lays out in (clientWidth)
- * @param {{ left: number, right: number } | null} m.column the reading
- *   column as measured now, or null on a page without one
+ * @param {{ left: number, right: number }} m.column the reading column as
+ *   measured now
  * @param {{ left: number }} m.main <main>'s box
  * @param {number} [m.pad] the padding currently applied to <main>, so the
  *   column's unmoved position can be worked out (it sits pad / 2 to the left)
@@ -39,11 +43,6 @@ export const PLAIN_WIDTH = 340; // on a page with no reading column
  *   whether the panel lies over the text
  */
 export function placeInMargin({ viewport, column, main, pad = 0 }) {
-  if (!column) {
-    const width = Math.min(PLAIN_WIDTH, Math.max(0, viewport - 2 * EDGE));
-    return { left: viewport - EDGE - width, width, pad: width + GAP + EDGE, over: false };
-  }
-
   // Where the column would be with nothing moved.
   const left = column.left + pad / 2;
   const right = column.right + pad / 2;
@@ -63,4 +62,25 @@ export function placeInMargin({ viewport, column, main, pad = 0 }) {
     pad: Math.round(2 * move),
     over: move < need,
   };
+}
+
+/**
+ * The panel's height, given where its rail sits in the window: from its top
+ * (never above EDGE, since the panel pins there) to EDGE above the window's
+ * bottom. When the page's heading is low on the screen the panel is short,
+ * and it grows as the reader scrolls.
+ *
+ * Once the rail's end is on screen (the footer coming into view), the panel
+ * ends with it instead, but no shorter than MIN_HEIGHT (or the rail itself),
+ * so it rides up with the page rather than shrinking to nothing.
+ *
+ * @param {{ top: number, bottom: number }} rail the rail's box in the window
+ * @param {number} windowHeight
+ */
+export function panelHeight(rail, windowHeight) {
+  const top = Math.max(EDGE, rail.top);
+  const windowBottom = windowHeight - EDGE;
+  if (rail.bottom >= windowBottom) return Math.round(Math.max(0, windowBottom - top));
+  const floor = Math.min(MIN_HEIGHT, Math.max(0, rail.bottom - rail.top));
+  return Math.round(Math.max(floor, rail.bottom - top));
 }

@@ -3155,10 +3155,14 @@ html[data-font="dyslexic"] .lit-panel--chips .lit-panel__btn {
    undo bar) are in src/styles/desk.css and load with the desk. */
 
 /* Every Notebook button (the header's two, Read View's toolbar) is in the
-   markup for everyone and shown only with the desk on. !important because
-   each sits under a more specific display rule of its own (the header's
-   nav/actions pairs, Read View's toolbar buttons). */
-html:not([data-desk]) [data-desk-toggle] {
+   markup for everyone and shown only with the desk on, and only on a page
+   with a reading column for the panel to sit beside: the :has() list is the
+   first column selector of each entry in READING_SURFACES
+   (src/scripts/desk-frame.js), which test/desk-frame.test.js checks.
+   !important because each button sits under a more specific display rule of
+   its own (the header's nav/actions pairs, Read View's toolbar buttons). */
+html:not([data-desk]) [data-desk-toggle],
+body:not(:has(.scripture-layout--scripture .scripture-main, .scripture-layout--intro .scripture-main, .rm-page .rm-reader, .article__card, .glossary-entries .entries-wrap)) [data-desk-toggle] {
   display: none !important;
 }
 

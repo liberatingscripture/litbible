@@ -30,14 +30,15 @@
 }
 
 /* A card in the margin. Sticky, so it starts level with the text and pins
-   to the top of the window as the reader scrolls; as tall as its contents,
-   up to the window's height, with the list scrolling inside it. */
+   16px from the top of the window as the reader scrolls (EDGE in
+   src/lib/desk-margin.mjs, the same gap it keeps from the window's right
+   edge). margin.js sets its height so it reaches 16px above the bottom of
+   the window; the list scrolls inside it. */
 .desk-panel {
   position: sticky;
-  top: 12px;
+  top: 16px;
   box-sizing: border-box;
   width: 100%;
-  max-height: min(calc(100vh - 24px), 100%);
   display: flex;
   flex-direction: column;
   pointer-events: auto;

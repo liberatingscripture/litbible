@@ -9,7 +9,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { EDGE, GAP, MAX_WIDTH, MIN_WIDTH, PLAIN_WIDTH, placeInMargin } from "../src/lib/desk-margin.mjs";
+import { EDGE, GAP, MAX_WIDTH, MIN_HEIGHT, MIN_WIDTH, panelHeight, placeInMargin } from "../src/lib/desk-margin.mjs";
 
 /** A column `width` wide, centred in a page `viewport` wide, moved left by pad / 2. */
 function centred(viewport, width, pad = 0) {
@@ -67,10 +67,28 @@ test("a window too narrow to move far enough: the panel lies over the line ends"
   assert.equal(at.width, MIN_WIDTH);
 });
 
-test("a page with no reading column reserves the panel's room on the right of <main>", () => {
-  const at = placeInMargin({ viewport: 1425, column: null, main: { left: 0 } });
-  assert.equal(at.width, PLAIN_WIDTH);
-  assert.equal(at.left, 1425 - EDGE - PLAIN_WIDTH);
-  assert.equal(at.pad, PLAIN_WIDTH + GAP + EDGE);
-  assert.equal(at.over, false);
+/* ── Height: down to EDGE above the window's bottom ─────────────────── */
+
+test("at the top of the page the panel starts level with the text and reaches EDGE above the bottom", () => {
+  // The rail starts 202px down (Romans 8's title) and runs far below.
+  assert.equal(panelHeight({ top: 202, bottom: 5000 }, 860), 860 - EDGE - 202);
+});
+
+test("scrolled past the start, it pins EDGE from the top and fills the window less both gaps", () => {
+  assert.equal(panelHeight({ top: -1500, bottom: 3000 }, 860), 860 - 2 * EDGE);
+});
+
+test("at the footer it ends with the rail, until it would get shorter than MIN_HEIGHT", () => {
+  assert.equal(panelHeight({ top: -4000, bottom: 600 }, 860), 600 - EDGE);
+  assert.equal(panelHeight({ top: -4000, bottom: 100 }, 860), MIN_HEIGHT);
+});
+
+test("a heading low on the screen still ends the panel EDGE above the bottom, short until scrolled", () => {
+  // An article title 735px down an 860px window.
+  assert.equal(panelHeight({ top: 735, bottom: 6000 }, 860), 860 - EDGE - 735);
+  assert.equal(panelHeight({ top: 900, bottom: 6000 }, 860), 0, "below the window: nothing to show yet");
+});
+
+test("a rail ending on screen and shorter than MIN_HEIGHT caps the floor at its own height", () => {
+  assert.equal(panelHeight({ top: 300, bottom: 400 }, 860), 100);
 });

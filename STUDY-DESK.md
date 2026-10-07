@@ -345,6 +345,30 @@ plan as a whole was accepted; nothing was declined except where stated).
   verse menu) with its footnotes and your notes on it, and stays put while you
   read on. It is also where other translations of that verse appear (D7). The
   footnote letters, popovers and end list stay as they are. Small. Phase 1.
+- **N11. Notes on glossary entries and articles.** **BVJ, 2026-10-06:**
+  readers should be able to attach notes to glossary entries and articles
+  as well as to the scripture text. That covers both a note on an entry or
+  article as a whole and a note on a passage within it, quoted the way a
+  scripture note quotes its words. This is different from N2: N2's note
+  belongs to a term and follows it through the translation, while this one
+  belongs to the entry's or article's own text.
+  - **Website only, at least for now.** The apps have no articles, and
+    their glossary screens have nowhere to show a note, so neither app can
+    show these unless BDR changes the apps to match. Until then the apps
+    carry such records untouched (the format's principle 6), so a note
+    written on the website survives a trip through either app's store.
+  - **What it needs in the format:** two new targets for a `note`, beside
+    its verses, a footnote (M11) and a glossary term (N2). A glossary entry
+    is named by its id, which is already a stable key (CLAUDE.md, the
+    `glossary` collection). An article is named by its slug, which is its
+    file name, so renaming an article file would orphan its notes; that
+    needs a rule (keep slugs fixed, or carry a redirect) before this
+    ships. Quoting needs an anchor-text rule for text that has no verses.
+    See `STUDY-DESK-FORMAT.md`, "Still open".
+  - **The groundwork is in place.** Since 2026-10-06 the glossary has a
+    reading column with the desk on, and both pages show the Notebook panel
+    in the margin. Not yet placed in a phase: it needs 1c's marks first.
+    New. Medium. **Decided: yes.**
 - **M6. Print my annotated chapter or book.** A chapter, or a whole book from
   Read View, printed with your notes in the margin and highlights shown. N9
   is the blank version. New. Small. **Decided: yes.**
@@ -1357,6 +1381,12 @@ Questions for the apps, to send back:
   verse digits and footnote letters from its context strings without a
   migration.
 - **For BDR:** items 1, 4, 6, 7, 8, 10, 11 and 15.
+- **For BDR, to know (added 2026-10-06):** BVJ wants readers able to attach
+  notes to glossary entries and articles on the website (N11). Neither app
+  shows those today. The ask is only that both apps carry such records
+  untouched (the format's principle 6), and to say whether either app might
+  show them later, especially glossary notes, since the apps already have
+  the glossary.
 - **For BDR, soon (item 20): the merge and overlap rules.** The website
   needs these before phase 1c, so it doesn't build rules the apps would then
   undo. Each is a proposal to answer yes, no or "do it this way":
@@ -1693,11 +1723,15 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
          and the header never moves;
        - in a window too narrow for even that (about 900px), the panel lies
          over the ends of the lines.
-       Read View and article pages work the same way. A page with no
-       reading column (the home page, /glossary, the articles list) has no
-       margin to fill, so its content makes room for the panel on the right
-       instead. Floating panels keep 12px clear of it and a click inside it
-       closes none of them; the single-key shortcuts stand down inside it.
+       Read View, article pages and the glossary work the same way. Pages
+       with no reading column (the home page, the articles list, /search)
+       get no panel and no Notebook button at all (`READING_SURFACES` in
+       `src/scripts/desk-frame.js`, matched by a `:has()` rule in
+       global.css). The panel's "Notebook" heading lines up with the page's
+       heading by the tops of their capitals, and the panel reaches down to
+       16px above the bottom of the window. Floating panels keep 12px clear
+       of it and a click inside it closes none of them; the single-key
+       shortcuts stand down inside it.
      - **The 52 measure is on while the preview is on**, and Read View's
        toolbar takes a floor of 725px (895px in OpenDyslexic) so it doesn't
        change width as its labels change, as OpenDyslexic's already did.
@@ -2005,6 +2039,25 @@ enough. Where it isn't, the text moves only as far as it must and the header
 never moves; a page with no reading column makes room for it (see "Order of
 work", 1b, for the measurements). That also retired the 1360px docking floor
 and the pre-paint reservation the first build needed.
+
+The rest of the same day's review:
+- **The panel appears only on pages with a reading column**: Study View
+  chapters and intros, Read View, articles, and the glossary. Elsewhere
+  (the home page, the articles list, /search) there is no Notebook button
+  either.
+- **The panel reaches down to 16px above the bottom of the window**, the
+  same gap it keeps from the right edge, and pins 16px from the top.
+- **Its "Notebook" heading lines up with the page's own heading**, by the
+  tops of their capitals: the chapter title ("Romans 8"), Read View's book
+  title, the article title, and on the glossary the first entry's heading.
+- **The glossary gets a reading column with the desk on**, at the reading
+  width and with the scripture pages' type sizes: the title as Study View's
+  chapter title, each entry's heading as Read View's chapter headings, the
+  text at 18px with a 1.75 line height, all moving with the Display tray's
+  text size. Like the 52 measure, readers keep the old layout until the desk
+  is released.
+- **Notes on glossary entries and articles**, website only unless BDR
+  changes the apps: idea N11.
 
 ## Still open
 
