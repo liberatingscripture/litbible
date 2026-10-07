@@ -626,7 +626,11 @@
       "ref": "Luke.1.48",
       "english": [
         {
-          "text": "declare me greatly fortunate",
+          "text": "declare",
+          "n": 1
+        },
+        {
+          "text": "greatly fortunate",
           "n": 1
         }
       ],

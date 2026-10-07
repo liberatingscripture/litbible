@@ -5,7 +5,8 @@
 // (every use rather than the first of each, owner 2026-09-28), and opens
 // a small card about the term on hover (mouse) or tap (touch):
 //
-//   the word as printed
+//   the word as printed (a rendering split by another word reads as its
+//   pieces joined: "speaks about … contemptuously")
 //   Traditionally "flesh" · Greek "sarx"
 //   Also rendered: body (65), family (10), …
 //   a link to the glossary entry
@@ -152,17 +153,43 @@ function markOf(el) {
 }
 
 /** Every piece of one mark (a term can cross an <em>), in order. */
-function markText(span) {
-  const i = span.dataset.mark;
+function markText(i) {
   return [...container.querySelectorAll(`.term[data-mark="${i}"]`)]
     .map((s) => s.textContent)
     .join("")
     .trim();
 }
 
+/** The marks of one rendering: just this one, or every piece of a split one. */
+function groupOf(span, mark) {
+  if (mark.g === undefined) return [Number(span.dataset.mark)];
+  return data.marks.flatMap((m, i) => (m.g === mark.g ? [i] : []));
+}
+
+/**
+ * The rendering as printed. A rendering split by another word ("speaks about
+ * Christ contemptuously", where "Christ" renders something else) reads as its
+ * pieces joined, "speaks about … contemptuously", the label the alignment
+ * review tool gives it. A piece another term claimed was never placed, so it
+ * has no text here and drops out.
+ */
+function renderingText(span, mark) {
+  return groupOf(span, mark).map(markText).filter(Boolean).join(" … ");
+}
+
+/** Underline a split rendering's other pieces with the one under the pointer. */
+function lightSiblings(span, mark, on) {
+  if (mark.g === undefined) return;
+  for (const i of groupOf(span, mark)) {
+    for (const el of container.querySelectorAll(`.term[data-mark="${i}"]`)) {
+      el.classList.toggle("is-sibling-hover", on);
+    }
+  }
+}
+
 function buildCard(span, mark) {
   const term = data.terms[mark.id];
-  const word = markText(span);
+  const word = renderingText(span, mark);
 
   const panel = document.createElement("div");
   panel.setAttribute("role", "dialog");
@@ -254,6 +281,7 @@ function wire() {
     if (e.pointerType !== "mouse") return;
     const hit = markOf(e.target);
     if (!hit) return;
+    lightSiblings(hit.span, hit.mark, true);
     clearTimeout(closeTimer);
     const p = currentPanel();
     if (p?.trigger && p.kind === "term" && p.trigger.dataset.mark === hit.span.dataset.mark) return;
@@ -265,6 +293,7 @@ function wire() {
     if (e.pointerType !== "mouse") return;
     const hit = markOf(e.target);
     if (!hit || hit.span.contains(e.relatedTarget)) return;
+    lightSiblings(hit.span, hit.mark, false);
     clearTimeout(hoverTimer);
     if (currentPanel()?.kind === "term") scheduleClose();
   });

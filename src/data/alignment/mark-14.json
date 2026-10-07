@@ -6,7 +6,11 @@
       "ref": "Mark.14.6",
       "english": [
         {
-          "text": "Leave her alone",
+          "text": "Leave",
+          "n": 1
+        },
+        {
+          "text": "alone",
           "n": 1
         }
       ],

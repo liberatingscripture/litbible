@@ -157,8 +157,9 @@ export function auditChapterRecords({ chapter, records, verses }) {
       continue;
     }
 
-    // Every span, not just english[0]. Phase 1 never emits more than one, but
-    // phase 2 is many-to-many by design and each span is its own claim.
+    // Every span, not just english[0]. A rendering split by another word is
+    // one record with a span per piece, phase 2 is many-to-many by design,
+    // and each span is its own claim.
     for (const span of record.english) {
       const starts = candidateStarts(text, span.text);
       const numbering = starts.filter(

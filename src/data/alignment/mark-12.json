@@ -6,7 +6,11 @@
       "ref": "Mark.12.12",
       "english": [
         {
-          "text": "let him go",
+          "text": "let",
+          "n": 1
+        },
+        {
+          "text": "go",
           "n": 1
         }
       ],

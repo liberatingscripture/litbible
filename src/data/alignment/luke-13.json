@@ -46,7 +46,11 @@
       "ref": "Luke.13.8",
       "english": [
         {
-          "text": "leave it alone",
+          "text": "leave",
+          "n": 1
+        },
+        {
+          "text": "alone",
           "n": 1
         }
       ],

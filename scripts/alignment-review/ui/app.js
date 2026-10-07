@@ -23,7 +23,7 @@
 // the same pure logic the server uses to plan consolidation, imported
 // directly rather than duplicated — see server.mjs's STATIC_FILES comment
 // for why this URL resolves.
-import { suggestForm } from "/lib/review-core.mjs";
+import { suggestForm, joinParts, computeOccurrenceN } from "/lib/review-core.mjs";
 
 // -----------------------------------------------------------------------
 // State
@@ -49,10 +49,16 @@ const state = {
   consolidateOpen: false, // whether the renderings panel's consolidate section is expanded
 };
 
+// A span is ONE rendering, and so one record. A verse can hold several
+// ("+ add span"), one per distinct rendering of the term. A span's `parts`
+// are its runs of words: usually one, several when words rendering
+// something else sit inside it ("speaks about Christ contemptuously", where
+// all but "Christ" render blasphemeo). Parts are kept sorted and never
+// touch: two parts that meet are merged into one.
 let spanCounter = 0;
-function makeSpan() {
+function makeSpan(parts = []) {
   spanCounter += 1;
-  return { id: `span-${spanCounter}`, wordStart: null, wordEnd: null, form: "", formDirty: false };
+  return { id: `span-${spanCounter}`, parts, form: "", formDirty: false };
 }
 
 // -----------------------------------------------------------------------
@@ -134,8 +140,8 @@ function formatProgress(progress) {
 // Word-span geometry
 //
 // `words[].start`/`end` are character offsets into `verse.text`, half-open
-// (slice semantics: text.slice(start, end) === the word). A "span" the
-// reviewer builds is a contiguous run of word indices [wordStart, wordEnd].
+// (slice semantics: text.slice(start, end) === the word). A span's PART is
+// a contiguous run of word indices [wordStart, wordEnd].
 // -----------------------------------------------------------------------
 
 function wordRangeFromCharSpan(words, start, end) {
@@ -151,31 +157,34 @@ function wordRangeFromCharSpan(words, start, end) {
   return s === -1 ? null : { start: s, end: e };
 }
 
-function spanText(verse, span) {
-  if (span.wordStart == null || span.wordEnd == null) return "";
+function partText(verse, part) {
   const words = verse.words || [];
-  const a = words[span.wordStart];
-  const b = words[span.wordEnd];
+  const a = words[part.wordStart];
+  const b = words[part.wordEnd];
   if (!a || !b) return "";
   return verse.text.slice(a.start, b.end);
 }
 
-// Best-effort re-location of a confirmed record's English text back onto
-// word indices, so a settled row can be re-opened for editing with its
-// prior span still highlighted. This is convenience, not correctness —
-// the record itself (not this reconstruction) is what's saved; if the
-// text has shifted underneath it we just fail to highlight and the
-// reviewer re-picks words.
-function findNthOccurrence(hay, needle, n) {
+/** The words a span covers, as one label: "speaks about … contemptuously". */
+function spanText(verse, span) {
+  return joinParts(span.parts.map((p) => partText(verse, p)));
+}
+
+// Best-effort re-location of a confirmed record's English back onto word
+// indices, so a settled row can be re-opened for editing with its prior
+// span still highlighted. Each piece is found where computeOccurrenceN, the
+// count the record was written with, numbers it as `n`. This is
+// convenience, not correctness — the record itself (not this
+// reconstruction) is what's saved; if the text has shifted underneath it we
+// just fail to highlight that piece and the reviewer re-picks words.
+function locatePiece(verse, piece, form) {
+  const hay = verse.text.toLowerCase();
+  const needle = String(piece.text || "").toLowerCase();
   if (!needle) return -1;
-  const hayL = hay.toLowerCase();
-  const needleL = needle.toLowerCase();
-  let idx = -1;
-  for (let i = 0; i < n; i++) {
-    idx = hayL.indexOf(needleL, idx + 1);
-    if (idx === -1) return -1;
+  for (let i = hay.indexOf(needle); i !== -1; i = hay.indexOf(needle, i + 1)) {
+    if (computeOccurrenceN({ verseText: verse.text, form, text: piece.text, start: i }) === piece.n) return i;
   }
-  return idx;
+  return -1;
 }
 
 function spansFromRecords(verse) {
@@ -185,18 +194,19 @@ function spansFromRecords(verse) {
     const english = rec.english || [];
     if (!english.length) continue;
 
-    const joined = english.map((e) => e.text).join(" ");
-    const n = english[0]?.n || 1;
-    const start = findNthOccurrence(verse.text, joined, n);
-    const range = start === -1 ? null : wordRangeFromCharSpan(verse.words || [], start, start + joined.length);
+    const form = rec.term?.form ?? null;
+    const parts = [];
+    for (const piece of english) {
+      const start = locatePiece(verse, piece, form);
+      const range =
+        start === -1 ? null : wordRangeFromCharSpan(verse.words || [], start, start + piece.text.length);
+      if (range) parts.push({ wordStart: range.start, wordEnd: range.end });
+    }
 
-    spans.push({
-      id: makeSpan().id,
-      wordStart: range ? range.start : null,
-      wordEnd: range ? range.end : null,
-      form: rec.term?.form || joined,
-      formDirty: true,
-    });
+    const span = makeSpan(normalizeParts(parts));
+    span.form = form || joinParts(english.map((e) => e.text));
+    span.formDirty = true;
+    spans.push(span);
   }
   return spans;
 }
@@ -213,15 +223,9 @@ function buildRowState(verse) {
     spans = spansFromRecords(verse);
   } else if (verse.proposal) {
     const range = wordRangeFromCharSpan(verse.words || [], verse.proposal.start, verse.proposal.end);
-    spans = [
-      {
-        id: makeSpan().id,
-        wordStart: range ? range.start : null,
-        wordEnd: range ? range.end : null,
-        form: verse.proposal.form || verse.proposal.text || "",
-        formDirty: false,
-      },
-    ];
+    const span = makeSpan(range ? [{ wordStart: range.start, wordEnd: range.end }] : []);
+    span.form = verse.proposal.form || verse.proposal.text || "";
+    spans = [span];
   }
 
   return {
@@ -238,57 +242,67 @@ function buildRowState(verse) {
 // -----------------------------------------------------------------------
 // Word click -> span toggle
 //
-// Clicking a word toggles its membership in the row's ACTIVE span. Contiguous
-// selected words form the span, enforced here rather than left to the caller:
-//   - adjacent to the current range -> extends it
-//   - an edge word already in range -> shrinks it
-//   - a middle word already in range -> no single contiguous answer exists,
-//     so we restart the span at just that word (predictable > clever)
-//   - anywhere else -> starts a fresh single-word span
+// Clicking a word toggles its membership in the row's ACTIVE span. A plain
+// click works on one contiguous part:
+//   - adjacent to a part -> extends it
+//   - an edge word of a part -> shrinks it
+//   - a middle word of a part -> no single contiguous answer exists, so the
+//     span restarts at just that word (predictable > clever)
+//   - anywhere else -> the span restarts as a fresh single word
+// Ctrl-click (Cmd-click on a Mac) is how a rendering takes a SECOND part,
+// for one split by a word that renders something else:
+//   - outside every part and not adjacent -> starts a new part there
+//   - a middle word of a part -> removes it, splitting the part in two
+//   - otherwise as a plain click (extend or shrink), other parts kept
+// Neither touches the row's OTHER spans: a second rendering in the same
+// verse is "+ add span", and stays its own record.
 // -----------------------------------------------------------------------
 
-function applyWordToggle(span, idx) {
-  if (span.wordStart == null) {
-    span.wordStart = idx;
-    span.wordEnd = idx;
-    return;
+/** Sorted, non-empty, and merged wherever two parts meet. */
+function normalizeParts(parts) {
+  const sorted = parts
+    .filter((p) => p.wordStart != null && p.wordEnd != null && p.wordStart <= p.wordEnd)
+    .sort((a, b) => a.wordStart - b.wordStart);
+  const out = [];
+  for (const p of sorted) {
+    const last = out[out.length - 1];
+    if (last && p.wordStart <= last.wordEnd + 1) last.wordEnd = Math.max(last.wordEnd, p.wordEnd);
+    else out.push({ ...p });
   }
-
-  if (idx === span.wordStart - 1) {
-    span.wordStart = idx;
-    return;
-  }
-  if (idx === span.wordEnd + 1) {
-    span.wordEnd = idx;
-    return;
-  }
-
-  if (idx >= span.wordStart && idx <= span.wordEnd) {
-    if (idx === span.wordStart) {
-      if (span.wordStart === span.wordEnd) {
-        span.wordStart = null;
-        span.wordEnd = null;
-      } else {
-        span.wordStart += 1;
-      }
-      return;
-    }
-    if (idx === span.wordEnd) {
-      span.wordEnd -= 1;
-      return;
-    }
-    // Clicked word in the middle of the current selection.
-    span.wordStart = idx;
-    span.wordEnd = idx;
-    return;
-  }
-
-  // Not adjacent, not inside — start a fresh span here.
-  span.wordStart = idx;
-  span.wordEnd = idx;
+  return out;
 }
 
-function onWordClick(row, idx) {
+function applyWordToggle(span, idx, addPart = false) {
+  const restart = () => {
+    span.parts = [{ wordStart: idx, wordEnd: idx }];
+  };
+  const inside = span.parts.find((p) => idx >= p.wordStart && idx <= p.wordEnd);
+
+  if (inside) {
+    if (idx === inside.wordStart && idx === inside.wordEnd) {
+      span.parts = span.parts.filter((p) => p !== inside);
+    } else if (idx === inside.wordStart) {
+      inside.wordStart += 1;
+    } else if (idx === inside.wordEnd) {
+      inside.wordEnd -= 1;
+    } else if (addPart) {
+      span.parts.push({ wordStart: idx + 1, wordEnd: inside.wordEnd });
+      inside.wordEnd = idx - 1;
+    } else {
+      restart();
+    }
+  } else {
+    const before = span.parts.find((p) => idx === p.wordStart - 1);
+    const after = span.parts.find((p) => idx === p.wordEnd + 1);
+    if (before) before.wordStart = idx;
+    else if (after) after.wordEnd = idx;
+    else if (addPart) span.parts.push({ wordStart: idx, wordEnd: idx });
+    else restart();
+  }
+  span.parts = normalizeParts(span.parts);
+}
+
+function onWordClick(row, idx, addPart = false) {
   if (row.busy) return;
 
   let span = row.spans.find((s) => s.id === row.activeSpanId);
@@ -298,7 +312,7 @@ function onWordClick(row, idx) {
     row.activeSpanId = span.id;
   }
 
-  applyWordToggle(span, idx);
+  applyWordToggle(span, idx, addPart);
 
   // Keep the form field in sync with the selection unless the reviewer has
   // hand-edited it (e.g. typed "reorienting the mind" over a literal
@@ -326,9 +340,7 @@ function onWordClick(row, idx) {
 
 function spanMembershipForWord(row, idx) {
   for (let i = 0; i < row.spans.length; i++) {
-    const span = row.spans[i];
-    if (span.wordStart == null) continue;
-    if (idx >= span.wordStart && idx <= span.wordEnd) {
+    if (row.spans[i].parts.some((p) => idx >= p.wordStart && idx <= p.wordEnd)) {
       return { isAlt: i > 0 };
     }
   }
@@ -361,7 +373,7 @@ function renderVerseText(row) {
     }
 
     if (row.editing) {
-      wordEl.addEventListener("click", () => onWordClick(row, idx));
+      wordEl.addEventListener("click", (e) => onWordClick(row, idx, e.ctrlKey || e.metaKey));
     } else {
       wordEl.classList.add("is-readonly");
     }
@@ -457,6 +469,16 @@ function renderSpanEditor(row) {
       rerenderRow(row);
     }),
   );
+
+  // "+ add span" is a second RENDERING (its own record, counted on its own);
+  // Ctrl-click is a second PART of one rendering (one record, counted once).
+  // Easy to confuse, so say so.
+  const hint = document.createElement("p");
+  hint.className = "span-editor__hint";
+  hint.textContent =
+    "Ctrl-click (⌘-click) a word to add it as a separate part of the same rendering, " +
+    "when another word sits inside it. “+ add span” is for a second rendering in this verse.";
+  wrap.appendChild(hint);
 
   return wrap;
 }
@@ -583,11 +605,14 @@ async function submitRow(row, action) {
   let body;
   if (action === "confirm") {
     const spans = row.spans
-      .filter((s) => s.wordStart != null)
-      .map((s) => {
-        const text = spanText(row.verse, s);
-        return { text, start: row.verse.words[s.wordStart].start, form: (s.form || "").trim() || text };
-      });
+      .filter((s) => s.parts.length)
+      .map((s) => ({
+        form: (s.form || "").trim() || spanText(row.verse, s),
+        parts: s.parts.map((p) => ({
+          text: partText(row.verse, p),
+          start: row.verse.words[p.wordStart].start,
+        })),
+      }));
 
     if (!spans.length) {
       showToast('Select at least one span before confirming (or use "No rendering").', { error: true });
@@ -1411,7 +1436,10 @@ init();
 //   SUGGESTION only; nothing writes until the reviewer hits a group's Apply.
 //
 // POST /api/terms/:id/verses/:ref
-//   body {action:"confirm", spans:[{text,start,form}]} | {action:"no-rendering"}
+//   body {action:"confirm", spans:[{form, parts:[{text,start}]}]} | {action:"no-rendering"}
+//     (one span = one rendering = one record, and a verse may send several;
+//     parts > 1 when a rendering is split. The server also accepts the
+//     older single-run {text,start,form}.)
 //   -> {ok, ref, records, progress, renderings, formMerges, decided}
 //
 // POST /api/terms/:id/accept-double-confirmed

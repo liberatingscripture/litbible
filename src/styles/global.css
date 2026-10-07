@@ -2762,7 +2762,10 @@ html[data-vn="off"] .chapter-paragraphs sup.vn:not(:focus-visible) + .vn-gap {
   cursor: help;
 }
 
-.chapter-paragraphs .term:hover {
+/* .is-sibling-hover: the other pieces of a rendering split by another word
+   ("speaks about Christ contemptuously"), lit with the one under the pointer. */
+.chapter-paragraphs .term:hover,
+.chapter-paragraphs .term.is-sibling-hover {
   text-decoration-color: currentColor;
 }
 

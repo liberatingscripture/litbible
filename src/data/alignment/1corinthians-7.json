@@ -146,7 +146,11 @@
       "ref": "1Cor.7.12",
       "english": [
         {
-          "text": "send her away",
+          "text": "send",
+          "n": 1
+        },
+        {
+          "text": "away",
           "n": 1
         }
       ],
@@ -186,7 +190,11 @@
       "ref": "1Cor.7.13",
       "english": [
         {
-          "text": "send the man away",
+          "text": "send",
+          "n": 1
+        },
+        {
+          "text": "away",
           "n": 1
         }
       ],

@@ -186,7 +186,11 @@
       "ref": "Gal.1.7",
       "english": [
         {
-          "text": "message of Christ’s triumph",
+          "text": "message of",
+          "n": 1
+        },
+        {
+          "text": "triumph",
           "n": 1
         }
       ],

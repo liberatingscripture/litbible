@@ -16,6 +16,7 @@ import {
   buildAutoProposal,
   versesInScopeForTerm,
   buildConfirmRecord,
+  joinParts,
   buildNoRenderingRecord,
   reconcileConfirmations,
   isDecided,
@@ -26,7 +27,9 @@ import {
   planFormMerges,
   renameFormInRecords,
 } from "../scripts/alignment-review/review-core.mjs";
-import { recordKey } from "../scripts/lib/alignment-merge.mjs";
+import { recordKey, applyReviewDecision } from "../scripts/lib/alignment-merge.mjs";
+import { auditChapterRecords } from "../scripts/lib/alignment-audit-core.mjs";
+import { chapterMarks } from "../src/lib/term-lens.mjs";
 import { findFormMatches } from "../scripts/lib/alignment-forms.mjs";
 
 /* ── Fixture builder ──────────────────────────────────────────────────────
@@ -164,6 +167,83 @@ test("buildConfirmRecord: exact shape, including confidence: null, source: revie
     status: "confirmed",
   });
   assert.deepEqual(Object.keys(record), RECORD_KEY_ORDER);
+});
+
+/* A rendering split by a word that renders something else: everything but
+ * "Christ" renders the verb. One record, one piece per run of words. */
+const SPLIT_VERSE = "Whoever speaks about Christ contemptuously, and speaks about others kindly, is lost.";
+const SPLIT_TERM = { greek: "blasphemia", traditional: "Blasphemy", id: "blasphemy-disrespectfulness" };
+const at = (text, from = 0) => ({ text, start: SPLIT_VERSE.indexOf(text, from) });
+
+test("buildConfirmRecord: a split rendering is ONE record with a piece per part", () => {
+  const record = buildConfirmRecord({
+    ref: "Mark.15.29",
+    term: SPLIT_TERM,
+    // Out of order on purpose: pieces are written in reading order.
+    span: { parts: [at("contemptuously"), at("speaks about")] },
+    verseText: SPLIT_VERSE,
+  });
+  assert.deepEqual(record.english, [
+    { text: "speaks about", n: 1 },
+    { text: "contemptuously", n: 1 },
+  ]);
+  assert.equal(record.term.form, joinParts(["speaks about", "contemptuously"]));
+  assert.equal(record.term.form, "speaks about … contemptuously");
+  assert.deepEqual(Object.keys(record), RECORD_KEY_ORDER);
+});
+
+test("buildConfirmRecord: a later piece is numbered by its own occurrence", () => {
+  const second = SPLIT_VERSE.indexOf("speaks about", SPLIT_VERSE.indexOf("speaks about") + 1);
+  const record = buildConfirmRecord({
+    ref: "Mark.15.29",
+    term: SPLIT_TERM,
+    span: { form: "speak … kindly", parts: [{ text: "speaks about", start: second }, at("kindly")] },
+    verseText: SPLIT_VERSE,
+  });
+  assert.deepEqual(record.english, [
+    { text: "speaks about", n: 2 },
+    { text: "kindly", n: 1 },
+  ]);
+  assert.equal(record.term.form, "speak … kindly");
+});
+
+test("a split record and a separate record share one verse, and the audit and term lens read both back", () => {
+  const split = buildConfirmRecord({
+    ref: "Mark.15.29",
+    term: SPLIT_TERM,
+    span: { parts: [at("speaks about"), at("contemptuously")] },
+    verseText: SPLIT_VERSE,
+  });
+  const separate = buildConfirmRecord({
+    ref: "Mark.15.29",
+    term: SPLIT_TERM,
+    span: at("lost"),
+    verseText: SPLIT_VERSE,
+  });
+  const records = applyReviewDecision({
+    existingRecords: [],
+    ref: "Mark.15.29",
+    termGlossary: SPLIT_TERM.id,
+    records: [split, separate],
+  });
+  assert.equal(records.length, 2);
+  assert.notEqual(recordKey(split), recordKey(separate));
+
+  const verses = new Map([[29, SPLIT_VERSE]]);
+  assert.deepEqual(auditChapterRecords({ chapter: 15, records, verses }).stale, []);
+
+  const occurrences = records.map((record) => ({
+    id: SPLIT_TERM.id,
+    form: record.term.form,
+    verse: 29,
+    record,
+  }));
+  const { marks, unresolved } = chapterMarks(occurrences, verses);
+  assert.deepEqual(unresolved, []);
+  assert.deepEqual(
+    marks.map((m) => m.text),
+    ["speaks about", "contemptuously", "lost"],
+  );
 });
 
 test("buildNoRenderingRecord: exact shape — english: [] and term.form: null", () => {

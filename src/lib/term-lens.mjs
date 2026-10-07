@@ -101,29 +101,36 @@ export function renderingCounts(gated) {
  *   this chapter's entry from occurrencesByChapter()
  * @param {Map<number, string>} verses  splitChapterVerses(paragraphs)
  * @returns {{
- *   marks: { v: number, text: string, k: number, id: string, form: string }[],
+ *   marks: { v: number, text: string, k: number, id: string, form: string, g?: number }[],
  *   unresolved: { ref: string, text: string, n: number }[],
  * }}
  */
 export function chapterMarks(occurrences, verses) {
   const found = [];
   const unresolved = [];
+  let groups = 0;
   for (const { id, form, verse, record } of occurrences ?? []) {
     const text = verses.get(verse);
-    // Phase 1 records carry one span each, but the schema allows several.
-    for (const span of record.english ?? []) {
-      if (!span?.text) continue;
+    // A rendering split by another word ("speaks about Christ
+    // contemptuously") is one record with a span per piece. Each piece is
+    // marked, and the pieces share a group number `g` so the card can name
+    // the whole rendering rather than the piece under the pointer.
+    const pieces = (record.english ?? []).filter((span) => span?.text);
+    const g = pieces.length > 1 ? groups++ : undefined;
+    for (const span of pieces) {
       const at = text == null ? null : locateSpan(text, span, form);
       if (!at) {
         unresolved.push({ ref: record.ref, text: span.text, n: span.n });
         continue;
       }
-      found.push({ v: verse, start: at.start, text: span.text, k: at.k, id, form });
+      found.push({ v: verse, start: at.start, text: span.text, k: at.k, id, form, g });
     }
   }
   found.sort((a, b) => a.v - b.v || a.start - b.start);
   return {
-    marks: found.map(({ v, text, k, id, form }) => ({ v, text, k, id, form })),
+    marks: found.map(({ v, text, k, id, form, g }) =>
+      g === undefined ? { v, text, k, id, form } : { v, text, k, id, form, g },
+    ),
     unresolved,
   };
 }

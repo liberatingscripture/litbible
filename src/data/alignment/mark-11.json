@@ -6,7 +6,11 @@
       "ref": "Mark.11.6",
       "english": [
         {
-          "text": "let them go",
+          "text": "let",
+          "n": 1
+        },
+        {
+          "text": "go",
           "n": 1
         }
       ],
@@ -246,8 +250,36 @@
       "ref": "Mark.11.25",
       "english": [
         {
-          "text": "let it go",
+          "text": "let",
           "n": 1
+        },
+        {
+          "text": "go",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "aphiemi",
+        "traditional": "Forgiveness",
+        "glossary": "forgiveness-letting-go",
+        "form": "let go"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Mark.11.25",
+      "english": [
+        {
+          "text": "let",
+          "n": 2
+        },
+        {
+          "text": "go",
+          "n": 2
         }
       ],
       "greek": [],

@@ -303,26 +303,6 @@
       "status": "confirmed"
     },
     {
-      "ref": "John.11.44",
-      "english": [
-        {
-          "text": "let him go",
-          "n": 1
-        }
-      ],
-      "greek": [],
-      "term": {
-        "greek": "aphiemi",
-        "traditional": "Forgiveness",
-        "glossary": "forgiveness-letting-go",
-        "form": "let go"
-      },
-      "confidence": null,
-      "lemma": "present",
-      "source": "review",
-      "status": "confirmed"
-    },
-    {
       "ref": "John.11.45",
       "english": [
         {
@@ -360,26 +340,6 @@
       "confidence": "common",
       "lemma": "present",
       "source": "glossary-scan",
-      "status": "confirmed"
-    },
-    {
-      "ref": "John.11.48",
-      "english": [
-        {
-          "text": "let him go",
-          "n": 1
-        }
-      ],
-      "greek": [],
-      "term": {
-        "greek": "aphiemi",
-        "traditional": "Forgiveness",
-        "glossary": "forgiveness-letting-go",
-        "form": "let go"
-      },
-      "confidence": null,
-      "lemma": "present",
-      "source": "review",
       "status": "confirmed"
     },
     {
