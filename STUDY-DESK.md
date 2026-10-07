@@ -238,6 +238,16 @@ every week.
    It needs about **230px of free space** beside the column, decided by the
    space left, not the window width; otherwise it falls back to dots and the
    panel (audit C9). The apps already mark notes in the left margin.
+   - **Open: margin notes while the Notebook panel is open** (raised
+     2026-10-06). Since the panel moved into the right margin beside the
+     text, an open panel and the margin would show a chapter's notes twice.
+     **Recommendation (not decided): show margin notes only while the panel
+     is closed.** While it's open, its "This chapter" list would do the
+     margin's job, following the reading position and picking out the notes
+     for the verses on screen, and the left margin would show nothing. That
+     would also free the left side when room is tightest: an open panel can
+     move the text left (articles most), and the margin's 230px is then often
+     gone anyway. The other options are under "Still open".
    - **About X11**: the feature audit's X11 (footnotes in the margin on wide
      screens) was declined on 2026-09-28. BVJ confirmed (2026-10-01) that the
      reason for declining it doesn't rule out the reader's own notes in the
@@ -280,7 +290,9 @@ plan as a whole was accepted; nothing was declined except where stated).
   verse number and the panel without ~230px of free space (C9). Notes sit
   outside the scripture's reading order, linked from the verse (C24).
   Borrowed (Edwards's Blank Bible, the LIT apps). Medium. **Decided: the
-  margin is in.**
+  margin is in.** Open since 2026-10-06: whether it shows while the
+  Notebook panel is open (placement 2; recommended: no, the open panel's
+  chapter list follows the reading position instead).
 - **N2. Notes that follow a word.** Write a note on a glossary term once and
   it appears in the term lens card wherever that term is marked, about 4,300
   places across published chapters. A note on *sarx* shows under
@@ -1754,7 +1766,9 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      four colours with the reader's own meanings (H1) and a second cue
      besides colour (C4), modelled on the apps' marker glyph and dotted
      underline; bookmarks; the margin, falling back to dots and the panel
-     (C9); the change notice, driven by the format's found, moved, changed,
+     (C9), and what it does while the panel is open, to be decided first
+     (placement 2; recommended: nothing, with the panel's "This chapter"
+     list following the reading position instead); the change notice, driven by the format's found, moved, changed,
      verse and lost, in the apps' words (iOS: Re-read in Context, Keep,
      Delete; Android: "carried along" and "couldn't find your words"); the
      "This verse" tab (N10); Read View's smaller set, through events (C2);
@@ -2086,9 +2100,30 @@ The rest of the same day's review:
   the entries move; the hero stays centred**, since the panel starts level
   with the first entry. The glossary's column box matches Study View's
   exactly (the 52 measure plus 16px a side), so the two pages behave alike.
+- **Raised, not decided: margin notes while the Notebook panel is open.**
+  See "Still open".
 
 ## Still open
 
+- **Margin notes while the Notebook panel is open** (raised 2026-10-06;
+  BVJ to decide before phase 1c builds the margin). With the panel now in
+  the right margin beside the text, the left margin's notes (placement 2,
+  N1) and the panel's "This chapter" list would show a chapter's notes
+  twice. An open panel also takes room on the left, since the text moves
+  left when the margin can't hold it (on an article at 1162px, about 140px
+  is left, against the margin's 230px). The options:
+  1. **Keep both.** The two do different jobs (notes in place, an index),
+     so the doubling is tolerable.
+  2. **The open panel stands in for the margin.** Its "This chapter" list
+     follows the reading position, picking out the notes for the verses on
+     screen, and the left margin shows nothing until the panel closes.
+  3. **The margin shows only dots while the panel is open**, each linking to
+     its note in the panel.
+
+  **Recommendation: option 2.** It removes the doubling, frees the left
+  side exactly when room is tightest, and the panel's list is already in
+  verse order. Related: whether notes on articles (N11) use the margin at
+  all.
 - **The merge and overlap rules** (talk-through item 20), needed from BDR
   before phase 1c. The trash record's fields (question 4) are built
   provisionally in 1b, so BDR's answer may mean a migration.
