@@ -11,16 +11,16 @@ import assert from "node:assert/strict";
 
 import { EDGE, GAP, MAX_WIDTH, MIN_HEIGHT, MIN_WIDTH, panelHeight, placeInMargin } from "../src/lib/desk-margin.mjs";
 
-/** A column `width` wide, centred in a page `viewport` wide, moved left by pad / 2. */
-function centred(viewport, width, pad = 0) {
-  const left = (viewport - pad - width) / 2;
-  return { viewport, column: { left, right: left + width }, main: { left: 0 }, pad };
+/** A column `width` wide, centred in a page `viewport` wide, moved left by `shift`. */
+function centred(viewport, width, shift = 0) {
+  const left = (viewport - width) / 2 - shift;
+  return { viewport, column: { left, right: left + width }, main: { left: 0 }, shift };
 }
 
 test("a wide margin: the panel fills it, beside the text, and nothing moves", () => {
   const m = centred(1425, 622); // a 1440px window
   const at = placeInMargin(m);
-  assert.equal(at.pad, 0);
+  assert.equal(at.shift, 0);
   assert.equal(at.over, false);
   assert.equal(at.left, m.column.right + GAP);
   assert.equal(at.left + at.width, 1425 - EDGE);
@@ -32,7 +32,7 @@ test("a very wide margin: the panel stops at its widest and keeps to the text's 
   const at = placeInMargin(m);
   assert.equal(at.width, MAX_WIDTH);
   assert.equal(at.left, m.column.right + GAP);
-  assert.equal(at.pad, 0);
+  assert.equal(at.shift, 0);
 });
 
 test("exactly enough margin still moves nothing", () => {
@@ -40,7 +40,7 @@ test("exactly enough margin still moves nothing", () => {
   const width = viewport - 2 * (MIN_WIDTH + GAP + EDGE);
   const at = placeInMargin(centred(viewport, width));
   assert.equal(at.width, MIN_WIDTH);
-  assert.equal(at.pad, 0);
+  assert.equal(at.shift, 0);
 });
 
 test("a narrow margin: the column moves left only as far as the panel needs", () => {
@@ -48,14 +48,14 @@ test("a narrow margin: the column moves left only as far as the panel needs", ()
   const room = 1265 - EDGE - (m.column.right + GAP);
   const at = placeInMargin(m);
   assert.equal(at.width, MIN_WIDTH);
-  assert.equal(at.pad, Math.round(2 * (MIN_WIDTH - room)));
+  assert.equal(at.shift, Math.round(MIN_WIDTH - room));
   assert.equal(at.over, false);
   assert.equal(at.left, 1265 - EDGE - MIN_WIDTH);
 });
 
-test("the answer holds once applied: measuring the moved column gives the same padding", () => {
+test("the answer holds once applied: measuring the moved column gives the same move", () => {
   const first = placeInMargin(centred(1265, 787));
-  const again = placeInMargin(centred(1265, 787, first.pad));
+  const again = placeInMargin(centred(1265, 787, first.shift));
   assert.deepEqual(again, first);
 });
 
@@ -63,7 +63,7 @@ test("a window too narrow to move far enough: the panel lies over the line ends"
   const m = centred(885, 787); // a 900px window at Extra large
   const at = placeInMargin(m);
   assert.equal(at.over, true);
-  assert.equal(at.pad, Math.round(2 * m.column.left), "the column moves as far as its own margin allows");
+  assert.equal(at.shift, Math.round(m.column.left), "the column moves as far as its own margin allows");
   assert.equal(at.width, MIN_WIDTH);
 });
 

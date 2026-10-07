@@ -14,9 +14,12 @@ export const DOCK_SELECTOR = "[data-desk-dock]";
  * without one; and the glossary gains a reading column for it, the same
  * day). Each gives its column, whose first selector also identifies
  * the page, and the page's heading, which the panel's "Notebook" heading
- * lines up with (BVJ, 2026-10-06), and where its reading area ends (`end`,
- * below). Read View's column is its toolbar and its text together, since the
- * toolbar is the wider.
+ * lines up with (BVJ, 2026-10-06), where its reading area ends (`end`,
+ * below), and `move`: the elements that make up the column, which are what
+ * move left when the margin is too narrow for the panel. Only those move, so
+ * full-width bands (the license band, the glossary's cream band) and the tool
+ * row above the text stay put at their full width. Read View's column is its
+ * toolbar and its text together, since the toolbar is the wider.
  *
  * global.css hides the Notebook button on every other page with a :has()
  * rule naming the same first selectors; test/desk-frame.test.js holds the
@@ -35,10 +38,30 @@ export const DOCK_SELECTOR = "[data-desk-dock]";
 const LICENSE_BAND = { selector: ".scripture-disclaimer", at: "top", gap: 16 };
 
 export const READING_SURFACES = [
-  { column: [".scripture-layout--scripture .scripture-main"], title: "#chapter-title", end: LICENSE_BAND },
-  { column: [".scripture-layout--intro .scripture-main"], title: "#chapter-title", end: LICENSE_BAND },
-  { column: [".rm-page .rm-reader", ".rm-page .rm-toolbar"], title: ".rm-page .rm-title", end: LICENSE_BAND },
-  { column: [".article__card"], title: ".article__title", end: { selector: ".article__card", at: "bottom", gap: 0 } },
+  {
+    column: [".scripture-layout--scripture .scripture-main"],
+    title: "#chapter-title",
+    end: LICENSE_BAND,
+    move: [".scripture-layout--scripture .scripture-main"],
+  },
+  {
+    column: [".scripture-layout--intro .scripture-main"],
+    title: "#chapter-title",
+    end: LICENSE_BAND,
+    move: [".scripture-layout--intro .scripture-main"],
+  },
+  {
+    column: [".rm-page .rm-reader", ".rm-page .rm-toolbar"],
+    title: ".rm-page .rm-title",
+    end: LICENSE_BAND,
+    move: [".rm-page > .rm-toolbar", ".rm-page > .rm-resume-chip", ".rm-page > .rm-reader"],
+  },
+  {
+    column: [".article__card"],
+    title: ".article__title",
+    end: { selector: ".article__card", at: "bottom", gap: 0 },
+    move: [".article-top__inner", ".article__card"],
+  },
   // Its reading column exists only with the desk on (pages/glossary.css),
   // which is the only time this list is read. The panel lines up with the
   // first entry's heading, not the page's title (BVJ, 2026-10-06).
@@ -46,6 +69,11 @@ export const READING_SURFACES = [
     column: [".glossary-entries .entries-wrap"],
     title: ".glossary-entries .entry-title",
     end: { selector: ".glossary-entries .entries-panel", at: "bottom", gap: 16 },
+    // Only the entries move. The hero above them stays centred (BVJ,
+    // 2026-10-06): the panel starts level with the first entry, so the hero
+    // never shares its height. The cream band, which the hero's wrap also
+    // holds, stays put at full width.
+    move: [".glossary-entries .entries-wrap"],
   },
 ];
 

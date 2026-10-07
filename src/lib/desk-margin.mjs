@@ -12,9 +12,11 @@
 //      and keeps to the text's side when the margin is wider than that.
 //      Nothing on the page moves.
 //   2. It isn't: the column moves left only as far as the panel needs, and no
-//      further than the column's own left margin allows. The page moves by
-//      padding <main> on the right, which shifts a centred column by half the
-//      padding, so `pad` is twice the move. The header never moves.
+//      further than the column's own left margin allows. Only the column moves
+//      (a translate on its own elements, so nothing reflows): the header, the
+//      tool row and the full-width bands, the license band above the footer
+//      among them, stay where they are and keep their full width. An earlier
+//      version padded <main> instead, which cut the license band short.
 //   3. Even that isn't enough (a narrow window): the panel takes MIN_WIDTH at
 //      the window's edge and lies over the ends of the lines (`over`).
 // Only pages with a reading column have the panel at all
@@ -26,6 +28,11 @@
 
 export const GAP = 24; // between the column and the panel
 export const EDGE = 16; // between the panel and the window's edge
+// The narrowest the panel gets; where the margin is narrower, the text
+// column moves instead. 220px was tried, which kept the text still down to
+// about 1157px windows but left the panel noticeably narrow; BVJ chose the
+// 280px panel with the column moving (2026-10-06). The text moves from about
+// 1205px windows down at the default size (58px at 1162px).
 export const MIN_WIDTH = 280;
 export const MAX_WIDTH = 440;
 export const MIN_HEIGHT = 240;
@@ -36,20 +43,20 @@ export const MIN_HEIGHT = 240;
  * @param {{ left: number, right: number }} m.column the reading column as
  *   measured now
  * @param {{ left: number }} m.main <main>'s box
- * @param {number} [m.pad] the padding currently applied to <main>, so the
- *   column's unmoved position can be worked out (it sits pad / 2 to the left)
- * @returns {{ left: number, width: number, pad: number, over: boolean }}
- *   the panel's left edge and width, the padding <main> should have, and
- *   whether the panel lies over the text
+ * @param {number} [m.shift] how far the column is moved left already, so its
+ *   unmoved position can be worked out
+ * @returns {{ left: number, width: number, shift: number, over: boolean }}
+ *   the panel's left edge and width, how far left the column should be moved,
+ *   and whether the panel lies over the text
  */
-export function placeInMargin({ viewport, column, main, pad = 0 }) {
+export function placeInMargin({ viewport, column, main, shift = 0 }) {
   // Where the column would be with nothing moved.
-  const left = column.left + pad / 2;
-  const right = column.right + pad / 2;
+  const left = column.left + shift;
+  const right = column.right + shift;
 
   const room = viewport - EDGE - (right + GAP);
   if (room >= MIN_WIDTH) {
-    return { left: right + GAP, width: Math.min(room, MAX_WIDTH), pad: 0, over: false };
+    return { left: right + GAP, width: Math.min(room, MAX_WIDTH), shift: 0, over: false };
   }
 
   const need = MIN_WIDTH - room;
@@ -59,7 +66,7 @@ export function placeInMargin({ viewport, column, main, pad = 0 }) {
   return {
     left: viewport - EDGE - width,
     width,
-    pad: Math.round(2 * move),
+    shift: Math.round(move),
     over: move < need,
   };
 }

@@ -737,9 +737,13 @@
    ========================================================= */
 
 /* Size and width on the same element, as Study View does, so the column
-   keeps its length in characters at every text size. */
+   keeps its length in characters at every text size. The box matches Study
+   View's exactly (the text plus 16px a side), so the margin beside it, and
+   so the Notebook's room, is the same on both pages. */
 html[data-desk] .glossary-page .wrap{
-  max-width: calc(var(--reading-width, 72ch) + 48px);
+  max-width: calc(var(--reading-width, 72ch) + 32px);
+  padding-left: 16px;
+  padding-right: 16px;
   font-size: calc(1em * var(--reading-scale, 1));
 }
 

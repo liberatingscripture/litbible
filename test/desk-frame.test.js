@@ -37,6 +37,15 @@ test("readingSurface finds Study View, intros, Read View, articles and the gloss
   assert.equal(readingSurface(docWith()), null);
 });
 
+test("each page names the elements that make up its column, and never a full-width band", () => {
+  for (const s of READING_SURFACES) {
+    assert.ok(Array.isArray(s.move) && s.move.length > 0, s.column[0]);
+    for (const sel of s.move) {
+      assert.doesNotMatch(sel, /scripture-disclaimer|entries-panel|entries-top|glossary-entries$/, `${sel} would move a band`);
+    }
+  }
+});
+
 test("each page names where its reading area ends; the license band counts as footer", () => {
   const ends = Object.fromEntries(READING_SURFACES.map((s) => [s.column[0], s.end]));
   for (const page of [".scripture-layout--scripture .scripture-main", ".scripture-layout--intro .scripture-main", ".rm-page .rm-reader"]) {

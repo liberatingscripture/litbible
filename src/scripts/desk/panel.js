@@ -108,7 +108,7 @@ export function createPanel({ store, storeError, ctx }) {
     lastToggle = from ?? lastToggle;
     root.setAttribute("data-desk-panel", "open");
     panel.hidden = false;
-    rail.show(true);
+    rail.show();
     try { localStorage.setItem(OPEN_KEY, "open"); } catch (_) {}
     syncToggles();
     render();
@@ -118,7 +118,7 @@ export function createPanel({ store, storeError, ctx }) {
   function close() {
     root.removeAttribute("data-desk-panel");
     panel.hidden = true;
-    rail.hide(true);
+    rail.hide();
     try { localStorage.removeItem(OPEN_KEY); } catch (_) {}
     syncToggles();
     // Back to the button that opened it, or the first one showing.

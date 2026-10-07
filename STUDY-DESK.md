@@ -1714,13 +1714,20 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
        places it): level with the text, below the header and Study View's
        tool row, pinned to the top of the window while reading (CSS
        `sticky`), and gone before the footer. **Where the margin is wide
-       enough, nothing on the page moves.** Measured on Romans 8 with the 52
-       measure:
-       - at the default text size it fits from about 1205px windows up
-         (a 1280px window has 321px of margin);
-       - where it doesn't fit, the text moves left only as far as the panel
-         needs (31px at Large and 80px at Extra large in a 1280px window),
-         and the header never moves;
+       enough, nothing on the page moves.** The panel is at least 280px
+       wide. A 220px minimum was tried, which kept the text still in more
+       windows but made the panel noticeably narrow; BVJ chose the 280px
+       panel with the text moving where it must (2026-10-06). Measured on
+       Romans 8 and the glossary, which now have identical columns:
+       - at the default text size nothing moves in any window from about
+         1205px (a 1280px window has 321px of margin);
+       - below that, or at larger text sizes, the text moves left only as
+         far as the panel needs (58px in a 1162px window; at 1280px, 31px at
+         Large and 80px at Extra large);
+       - only the column moves (a translate on its own elements). The
+         header, the tool row and full-width bands such as the license band
+         stay put at full width. (An earlier version padded the page instead,
+         which cut the license band short and showed cream beside it.);
        - in a window too narrow for even that (about 900px), the panel lies
          over the ends of the lines.
        Read View, article pages and the glossary work the same way. Pages
@@ -2066,6 +2073,13 @@ The rest of the same day's review:
   is released.
 - **Notes on glossary entries and articles**, website only unless BDR
   changes the apps: idea N11.
+- **Where the margin is too narrow for the 280px panel, the text column
+  moves; the panel doesn't shrink** (a 220px minimum was tried and BVJ
+  chose the 280px panel). Only the column moves: never the header, the tool
+  row, the license band or the glossary's cream band. **On the glossary only
+  the entries move; the hero stays centred**, since the panel starts level
+  with the first entry. The glossary's column box matches Study View's
+  exactly (the 52 measure plus 16px a side), so the two pages behave alike.
 
 ## Still open
 

@@ -14,20 +14,20 @@
 //
 // The rail is re-placed whenever the column or the page changes size (a new
 // text size from the Display tray, a window resize, the header's search strip
-// opening). When the margin is too narrow, <main> takes padding on the right
-// so the column moves left only as far as the panel needs; the reader's line
-// is held through that move (keepReadingPlace).
+// opening). When the margin is too narrow, the column's own elements (the
+// page's `move` list) are translated left only as far as the panel needs.
+// Nothing reflows, so the reader's line stays put, and full-width bands such
+// as the license band keep their full width.
 //
 // Only loaded on a page with a reading column (desk-gate.js checks
 // readingSurface first).
 
 import { EDGE, panelHeight, placeInMargin } from "../../lib/desk-margin.mjs";
 import { readingSurface } from "../desk-frame.js";
-import { keepReadingPlace } from "../keep-reading-place.js";
 
 /**
  * @param {HTMLElement} panel the Notebook panel, which this moves into the rail
- * @returns {{ show: (keepPlace?: boolean) => void, hide: (keepPlace?: boolean) => void }}
+ * @returns {{ show: () => void, hide: () => void }}
  */
 export function createRail(panel) {
   const root = document.documentElement;
@@ -35,6 +35,12 @@ export function createRail(panel) {
   const surface = readingSurface();
   const columnEls = surface.column.map((s) => document.querySelector(s)).filter(Boolean);
   const titleEl = document.querySelector(surface.title) || main;
+  // An element inside another one that moves would move twice, and the next
+  // placement would then measure the double move and undo it (the glossary's
+  // entries sit inside its hero's wrap), so only the outermost are kept.
+  const moveEls = surface.move
+    .flatMap((s) => [...document.querySelectorAll(s)])
+    .filter((el, _, all) => !all.some((other) => other !== el && other.contains(el)));
   // Where the panel's travel ends, in document coordinates: the page's seam
   // (desk-frame.js), or EDGE above the end of <main> where it has none.
   const endEl = surface.end ? document.querySelector(surface.end.selector) : null;
@@ -52,7 +58,7 @@ export function createRail(panel) {
   const panelTitle = panel.querySelector(".desk-panel__title") ?? panel;
 
   let open = false;
-  let pad = 0;
+  let shift = 0;
 
   // The top of the capital letters on an element's first line, in the
   // window: the box of its first character, moved down by the space its font
@@ -60,9 +66,14 @@ export function createRail(panel) {
   // their capitals, the way the eye compares them, rather than by their boxes
   // (a larger font leaves more room above its capitals).
   const measure = document.createElement("canvas").getContext("2d");
+  // Text a reader doesn't see is skipped: the glossary's entry headings open
+  // with an off-screen label for the site search (.sr-only), which would
+  // otherwise stand in for the heading's first letter.
+  const visibleText = (n) =>
+    /\S/.test(n.nodeValue) && !n.parentElement?.closest(".sr-only, [hidden]");
   const capTop = (el) => {
     const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, {
-      acceptNode: (n) => (/\S/.test(n.nodeValue) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP),
+      acceptNode: (n) => (visibleText(n) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP),
     });
     const node = walker.nextNode();
     if (!node) return el.getBoundingClientRect().top;
@@ -83,14 +94,10 @@ export function createRail(panel) {
     return { left: Math.min(...rects.map((r) => r.left)), right: Math.max(...rects.map((r) => r.right)) };
   };
 
-  function setPad(next, keepPlace) {
-    if (next === pad) return;
-    const change = () => {
-      pad = next;
-      main.style.paddingRight = next ? `${next}px` : "";
-    };
-    if (keepPlace) keepReadingPlace(change);
-    else change();
+  function setShift(next) {
+    if (next === shift) return;
+    shift = next;
+    for (const el of moveEls) el.style.translate = next ? `${-next}px 0` : "";
   }
 
   // Down to EDGE above the bottom of the window, wherever the panel's top is.
@@ -98,19 +105,18 @@ export function createRail(panel) {
     panel.style.height = `${panelHeight(rail.getBoundingClientRect(), window.innerHeight)}px`;
   }
 
-  function place(keepPlace = false) {
+  function place() {
     if (!open) {
-      setPad(0, keepPlace);
+      setShift(0);
       rail.hidden = true;
       root.style.removeProperty("--desk-dock-width");
       root.style.removeProperty("--desk-bar-center");
       return;
     }
     const viewport = root.clientWidth;
-    const at = placeInMargin({ viewport, column: columnBox(), main: main.getBoundingClientRect(), pad });
-    setPad(at.pad, keepPlace);
+    const at = placeInMargin({ viewport, column: columnBox(), main: main.getBoundingClientRect(), shift });    setShift(at.shift);
 
-    // Measured after the padding, in document coordinates. The panel is shown
+    // Measured after the move, in document coordinates. The panel is shown
     // first so its own heading can be measured: the rail starts that far
     // above the page's heading.
     rail.style.left = `${at.left + window.scrollX}px`;
@@ -167,13 +173,13 @@ export function createRail(panel) {
   );
 
   return {
-    show(keepPlace = false) {
+    show() {
       open = true;
-      place(keepPlace);
+      place();
     },
-    hide(keepPlace = false) {
+    hide() {
       open = false;
-      place(keepPlace);
+      place();
     },
   };
 }

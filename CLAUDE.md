@@ -2035,8 +2035,12 @@ collection); they're read directly by the intro pages and the API manifest.
      absolutely positioned rail down the margin to the end of `<main>`,
      sticky inside it, reaching 16px above the bottom of the window, with its
      "Notebook" heading level with the page's heading by the tops of their
-     capitals. Where the margin is too narrow, `<main>` takes right padding so
-     the column moves left only as far as needed; the header never moves.
+     capitals. Where the margin is too narrow for its 280px minimum, the
+     column moves left only as far as needed, by a `translate` on the page's
+     `move` elements (desk-frame.js). Never pad `<main>` or move a wrapper
+     holding a full-width band: that cut the license band short and showed
+     cream beside it. Nested move elements are kept to the outermost, or the
+     inner one moves twice.
      **It appears only on the pages `READING_SURFACES`
      (`src/scripts/desk-frame.js`) lists**: Study View chapters and intros,
      Read View, articles and the glossary, each with its column, its heading
