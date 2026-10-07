@@ -163,6 +163,26 @@
       "status": "confirmed"
     },
     {
+      "ref": "John.14.18",
+      "english": [
+        {
+          "text": "leave",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "aphiemi",
+        "traditional": "Forgiveness",
+        "glossary": "forgiveness-letting-go",
+        "form": "leave"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
       "ref": "John.14.26",
       "english": [
         {

@@ -6,7 +6,7 @@
       "ref": "Luke.5.8",
       "english": [
         {
-          "text": "deviates",
+          "text": "man who deviates",
           "n": 1
         }
       ],
@@ -166,6 +166,26 @@
       "ref": "Luke.5.20",
       "english": [
         {
+          "text": "released",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "aphiemi",
+        "traditional": "Forgiveness",
+        "glossary": "forgiveness-letting-go",
+        "form": "release"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.5.20",
+      "english": [
+        {
           "text": "deviations",
           "n": 1
         }
@@ -206,6 +226,26 @@
       "ref": "Luke.5.21",
       "english": [
         {
+          "text": "release",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "aphiemi",
+        "traditional": "Forgiveness",
+        "glossary": "forgiveness-letting-go",
+        "form": "release"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.5.21",
+      "english": [
+        {
           "text": "deviations",
           "n": 1
         }
@@ -226,6 +266,26 @@
       "ref": "Luke.5.23",
       "english": [
         {
+          "text": "released",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "aphiemi",
+        "traditional": "Forgiveness",
+        "glossary": "forgiveness-letting-go",
+        "form": "release"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.5.23",
+      "english": [
+        {
           "text": "deviations",
           "n": 1
         }
@@ -240,6 +300,26 @@
       "confidence": "distinctive",
       "lemma": "present",
       "source": "glossary-scan",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Luke.5.24",
+      "english": [
+        {
+          "text": "release",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "aphiemi",
+        "traditional": "Forgiveness",
+        "glossary": "forgiveness-letting-go",
+        "form": "release"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
       "status": "confirmed"
     },
     {
@@ -406,7 +486,7 @@
       "ref": "Luke.5.32",
       "english": [
         {
-          "text": "deviate",
+          "text": "people who deviate",
           "n": 1
         }
       ],

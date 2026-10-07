@@ -266,27 +266,7 @@
       "ref": "Mark.2.15",
       "english": [
         {
-          "text": "deviated",
-          "n": 1
-        }
-      ],
-      "greek": [],
-      "term": {
-        "greek": "hamartia",
-        "traditional": "Sin",
-        "glossary": "sin-deviation",
-        "form": "deviation"
-      },
-      "confidence": null,
-      "lemma": "present",
-      "source": "review",
-      "status": "confirmed"
-    },
-    {
-      "ref": "Mark.2.16",
-      "english": [
-        {
-          "text": "deviated",
+          "text": "people who deviated",
           "n": 1
         }
       ],
@@ -307,6 +287,26 @@
       "english": [
         {
           "text": "deviators",
+          "n": 1
+        }
+      ],
+      "greek": [],
+      "term": {
+        "greek": "hamartia",
+        "traditional": "Sin",
+        "glossary": "sin-deviation",
+        "form": "deviation"
+      },
+      "confidence": null,
+      "lemma": "present",
+      "source": "review",
+      "status": "confirmed"
+    },
+    {
+      "ref": "Mark.2.16",
+      "english": [
+        {
+          "text": "people who deviated",
           "n": 1
         }
       ],
@@ -346,7 +346,7 @@
       "ref": "Mark.2.17",
       "english": [
         {
-          "text": "deviate",
+          "text": "people who deviate",
           "n": 1
         }
       ],
