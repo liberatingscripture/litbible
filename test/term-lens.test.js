@@ -196,10 +196,49 @@ test("chapterMarks: several english spans on one record yield one mark per locat
   ];
   const { marks, unresolved } = chapterMarks(occurrences, verses);
   assert.deepEqual(unresolved, []);
+  // One record, so one rendering: its pieces share a group.
   assert.deepEqual(marks, [
-    { v: 1, text: "Grace", k: 0, id: "t", form: null },
-    { v: 1, text: "truth", k: 0, id: "t", form: null },
+    { v: 1, text: "Grace", k: 0, id: "t", form: null, g: 0 },
+    { v: 1, text: "truth", k: 0, id: "t", form: null, g: 0 },
   ]);
+});
+
+test("chapterMarks: each split record gets its own group, and a one-piece record none", () => {
+  const verses = new Map([
+    [1, "He speaks about Christ contemptuously."],
+    [2, "They speak about Moses contemptuously, and speak with contempt."],
+  ]);
+  const split = (verse, n = 1) => ({
+    id: "b",
+    form: "speak about … contemptuously",
+    verse,
+    record: {
+      ref: `X.1.${verse}`,
+      english: [
+        { text: "speaks about", n },
+        { text: "contemptuously", n },
+      ].map((s) => (verse === 2 ? { ...s, text: s.text.replace("speaks", "speak") } : s)),
+    },
+  });
+  const single = {
+    id: "b",
+    form: "speak with contempt",
+    verse: 2,
+    record: { ref: "X.1.2", english: [{ text: "speak with contempt", n: 1 }] },
+  };
+  const { marks, unresolved } = chapterMarks([split(1), split(2), single], verses);
+  assert.deepEqual(unresolved, []);
+  assert.deepEqual(
+    marks.map((m) => [m.v, m.text, m.g]),
+    [
+      [1, "speaks about", 0],
+      [1, "contemptuously", 0],
+      [2, "speak about", 1],
+      [2, "contemptuously", 1],
+      [2, "speak with contempt", undefined],
+    ],
+  );
+  assert.ok(!("g" in marks[4]), "a one-piece rendering carries no `g` at all");
 });
 
 test("chapterMarks: a span with empty text is skipped, not counted as unresolved", () => {

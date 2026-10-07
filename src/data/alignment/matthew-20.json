@@ -146,7 +146,11 @@
       "ref": "Matt.20.30",
       "english": [
         {
-          "text": "give us your compassion",
+          "text": "give",
+          "n": 1
+        },
+        {
+          "text": "your compassion",
           "n": 1
         }
       ],
@@ -166,7 +170,11 @@
       "ref": "Matt.20.31",
       "english": [
         {
-          "text": "give us your compassion",
+          "text": "give",
+          "n": 1
+        },
+        {
+          "text": "your compassion",
           "n": 1
         }
       ],

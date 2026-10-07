@@ -186,7 +186,11 @@
       "ref": "John.6.39",
       "english": [
         {
-          "text": "will raise them up",
+          "text": "will raise",
+          "n": 1
+        },
+        {
+          "text": "up",
           "n": 1
         }
       ],
@@ -195,7 +199,7 @@
         "greek": "anastasis",
         "traditional": "Resurrection",
         "glossary": "resurrection-reawakening",
-        "form": "will raise them up"
+        "form": "will raise … up"
       },
       "confidence": null,
       "lemma": "present",
@@ -226,7 +230,11 @@
       "ref": "John.6.40",
       "english": [
         {
-          "text": "will raise them up",
+          "text": "will raise",
+          "n": 1
+        },
+        {
+          "text": "up",
           "n": 1
         }
       ],
@@ -235,7 +243,7 @@
         "greek": "anastasis",
         "traditional": "Resurrection",
         "glossary": "resurrection-reawakening",
-        "form": "will raise them up"
+        "form": "will raise … up"
       },
       "confidence": null,
       "lemma": "present",
@@ -286,7 +294,11 @@
       "ref": "John.6.44",
       "english": [
         {
-          "text": "will raise them up",
+          "text": "will raise",
+          "n": 1
+        },
+        {
+          "text": "up",
           "n": 1
         }
       ],
@@ -295,7 +307,7 @@
         "greek": "anastasis",
         "traditional": "Resurrection",
         "glossary": "resurrection-reawakening",
-        "form": "will raise them up"
+        "form": "will raise … up"
       },
       "confidence": null,
       "lemma": "present",
@@ -446,7 +458,11 @@
       "ref": "John.6.54",
       "english": [
         {
-          "text": "will raise them up",
+          "text": "will raise",
+          "n": 1
+        },
+        {
+          "text": "up",
           "n": 1
         }
       ],
@@ -455,7 +471,7 @@
         "greek": "anastasis",
         "traditional": "Resurrection",
         "glossary": "resurrection-reawakening",
-        "form": "will raise them up"
+        "form": "will raise … up"
       },
       "confidence": null,
       "lemma": "present",

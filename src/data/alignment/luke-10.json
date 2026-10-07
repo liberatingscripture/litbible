@@ -226,7 +226,11 @@
       "ref": "Luke.10.21",
       "english": [
         {
-          "text": "praise you publicly",
+          "text": "praise",
+          "n": 1
+        },
+        {
+          "text": "publicly",
           "n": 1
         }
       ],
@@ -235,7 +239,7 @@
         "greek": "homologia",
         "traditional": "Confession",
         "glossary": "confession-open-acknowledgement",
-        "form": "praise you publicly"
+        "form": "praise … publicly"
       },
       "confidence": null,
       "lemma": "present",

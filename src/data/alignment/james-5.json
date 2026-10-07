@@ -126,7 +126,11 @@
       "ref": "Jas.5.11",
       "english": [
         {
-          "text": "we declare those who endured it greatly fortunate",
+          "text": "we declare",
+          "n": 1
+        },
+        {
+          "text": "greatly fortunate",
           "n": 1
         }
       ],

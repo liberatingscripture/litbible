@@ -108,19 +108,42 @@ export function compareRefs(a, b, osisRank) {
 }
 
 /**
+ * How the pieces of a split rendering read as one label. The UI defaults a
+ * fresh form to this and the server falls back to it, so both must agree.
+ */
+export const PART_JOINER = " … ";
+export function joinParts(texts) {
+  return texts.join(PART_JOINER);
+}
+
+/**
+ * One rendering may be SPLIT by words that render something else:
+ * βλασφημεῖ τὸν Χριστόν as "speaks about Christ contemptuously", where
+ * everything but "Christ" renders the verb. That is one record whose
+ * `english` holds each piece, never one record per piece. Separate records
+ * would count two renderings ("speaks about", "contemptuously") where the
+ * translation made one, and /glossary would list both.
+ *
+ * Each piece's `n` is counted against the record's own form, exactly as the
+ * audit and the term lens recount it, so all three agree on which occurrence
+ * a piece means. (A split form never matches the form pattern, so in practice
+ * that is the plain substring count.)
+ *
  * Field order mirrors the scanner's records exactly, so diffs stay readable.
- * @param {{text: string, start: number, form?: string}} args.span
+ * @param {{text?: string, start?: number, parts?: {text: string, start: number}[], form?: string}} args.span
+ *   either one contiguous `{text, start}`, or `parts` for a split rendering
  */
 export function buildConfirmRecord({ ref, term, span, verseText, lemma = "present" }) {
-  const form = span.form || span.text;
+  const parts = (span.parts?.length ? [...span.parts] : [{ text: span.text, start: span.start }]).sort(
+    (a, b) => a.start - b.start,
+  );
+  const form = span.form || joinParts(parts.map((p) => p.text));
   return {
     ref,
-    english: [
-      {
-        text: span.text,
-        n: computeOccurrenceN({ verseText, form, text: span.text, start: span.start }),
-      },
-    ],
+    english: parts.map((p) => ({
+      text: p.text,
+      n: computeOccurrenceN({ verseText, form, text: p.text, start: p.start }),
+    })),
     greek: [], // phase 2 territory; review never fills it
     term: {
       greek: term.greek,

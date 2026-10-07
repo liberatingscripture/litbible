@@ -1132,6 +1132,19 @@ coverage grows:
 
 - `english` + `greek` is the **alignment link**; `term` is the **editorial
   annotation**. Both are arrays because phase 2 is many-to-many.
+- **A rendering split by another word is ONE record with one `english` piece
+  per run of words**: *blasphēmei ton Christon* as "speaks about Christ
+  contemptuously", where all but "Christ" renders the verb, is
+  `[{text: "speaks about"}, {text: "contemptuously"}]` with `term.form`
+  "speaks about … contemptuously". Two records would count two renderings
+  where the translation made one. A *second* rendering in the same verse is
+  still its own record. In the review tool, Ctrl-click (⌘-click) adds a part to
+  the active rendering, and "+ add span" starts another rendering. Each
+  piece's `n` is counted against the record's own `term.form`, which is how the
+  audit and the term lens recount it, so all three agree. The term lens marks
+  each piece, gives the pieces a shared group (`g` in `#term-lens-data`) so
+  hovering one lights them all, and heads the card with the whole rendering
+  ("speaks about … contemptuously").
 - `n` is the nth case-insensitive match of that form *within the verse*, while
   `text` preserves the casing as written. Load-bearing: Romans 8:2 renders
   `nomos` as "Torah" and "torah" in the same verse, deliberately.

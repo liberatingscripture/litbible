@@ -400,12 +400,29 @@ class AlignmentStore {
     if (action === "confirm") {
       const spans = Array.isArray(body?.spans) ? body.spans : null;
       if (!spans?.length) throw httpError(400, "confirm requires a non-empty spans array");
+      const verseText = this.verseIndex.get(ref)?.text ?? "";
       for (const span of spans) {
-        if (typeof span?.text !== "string" || !span.text || !Number.isFinite(span.start)) {
-          throw httpError(400, "each span needs a { text, start }");
+        // A span is one rendering: either one contiguous { text, start }, or
+        // { parts: [...] } when other words sit inside it (see
+        // buildConfirmRecord). Each piece must be the verse's own text at
+        // that offset, and pieces must not overlap.
+        const parts = Array.isArray(span?.parts) ? span.parts : [span];
+        if (!parts.length) throw httpError(400, "a span's parts array is empty");
+        for (const p of parts) {
+          if (typeof p?.text !== "string" || !p.text || !Number.isFinite(p.start)) {
+            throw httpError(400, "each span (or part) needs a { text, start }");
+          }
+          if (verseText.slice(p.start, p.start + p.text.length) !== p.text) {
+            throw httpError(400, `"${p.text}" is not at offset ${p.start} in ${ref}`);
+          }
+        }
+        const sorted = [...parts].sort((a, b) => a.start - b.start);
+        for (let i = 1; i < sorted.length; i++) {
+          if (sorted[i].start < sorted[i - 1].start + sorted[i - 1].text.length) {
+            throw httpError(400, "a span's parts overlap");
+          }
         }
       }
-      const verseText = this.verseIndex.get(ref)?.text ?? "";
       const built = spans.map((span) => buildConfirmRecord({ ref, term, span, verseText }));
       // Reconcile ONLY on confirm: a matched prior is a scanner "auto" record
       // whose provenance (source: "glossary-scan", its confidence) is worth

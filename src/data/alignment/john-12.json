@@ -6,7 +6,11 @@
       "ref": "John.12.7",
       "english": [
         {
-          "text": "Leave her alone",
+          "text": "Leave",
+          "n": 1
+        },
+        {
+          "text": "alone",
           "n": 1
         }
       ],

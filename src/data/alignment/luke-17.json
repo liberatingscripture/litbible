@@ -206,7 +206,11 @@
       "ref": "Luke.17.13",
       "english": [
         {
-          "text": "show us compassion",
+          "text": "show",
+          "n": 1
+        },
+        {
+          "text": "compassion",
           "n": 1
         }
       ],

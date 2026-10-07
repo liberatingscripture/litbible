@@ -206,7 +206,11 @@
       "ref": "John.8.29",
       "english": [
         {
-          "text": "send me away",
+          "text": "send",
+          "n": 1
+        },
+        {
+          "text": "away",
           "n": 1
         }
       ],
