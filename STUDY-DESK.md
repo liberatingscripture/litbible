@@ -11,7 +11,20 @@ produced it.
 Many ideas here were weighed and decided, some were declined, and the reasons
 are recorded so they aren't re-argued.
 
-## Where things stand (as of 2026-10-05)
+## Where things stand (as of 2026-10-07)
+
+- **Sync now has three plans, and BDR's proposal of 2026-10-07 is the newest
+  record of it** ("One notebook, three homes" below). Plan B splits into B
+  (full accounts with passwords) and **C (a thin LIT service, end-to-end
+  encrypted, signed into with Apple, Google or a passkey)**. The proposal
+  recommends C; BDR is torn between A and C and would lean A if it can be
+  shown to work. October's spikes test plan A against agreed pass marks,
+  with a decision proposed by October 31. A Zoom between BVJ and BDR takes
+  the open items. **BVJ clearly prefers launching C** (2026-10-07, firmer after
+  the sizing; a preference, not an insistence or a decision), with "don't
+  sign in" as the keep-it-in-your-own-cloud option (iCloud on Apple devices,
+  as today) and full A added later only if readers ask; the website's side
+  of each plan is sized in that section. Nothing is decided.
 
 - **Status: phase 1b built, behind a preview switch; nothing reader-facing
   yet.** Readers see and download none of it. `litbible.net/?desk=on` turns
@@ -38,7 +51,8 @@ are recorded so they aren't re-argued.
   on (2026-10-05), since both are format decisions all three clients must
   share. **They are needed before phase 1c** (highlights in Study View) **and
   1d** (importing a notebook file). The five questions are under "Questions
-  for the apps" (talk-through item 20).
+  for the apps" (talk-through item 20), and BDR's proposal restates them as
+  rules a to e with their alternatives, for BDR to approve by mid-October.
 - **Both apps replied to the brief on 2026-10-04** (see "The apps' replies"
   below). BDR proposes that each reader's notebook stay in their own iCloud
   or Google account, with the website reaching it from the browser and **no
@@ -104,7 +118,8 @@ are recorded so they aren't re-argued.
   findings are **C1 to C27**. BVJ cites these IDs, so keep them stable; never
   renumber.
 - **People**: BVJ is the owner (Brandon). BDR is the developer of the iOS and
-  Android apps and collaborates on accounts and sync.
+  Android apps and collaborates on accounts and sync. BDR's own documents
+  call BDR "Brandon"; this file always says BDR or BVJ.
 
 ## Origin
 
@@ -743,7 +758,7 @@ Through phase 3 everything runs in the reader's browser; accounts add a
 server. Most hard parts exist in the repo already.
 
 - **The gate**: `isAppPlatform()`, dynamic import on computers only; account
-  pages excepted (C1), if plan B gives the site any.
+  pages excepted (C1), if plan C gives the site any.
 - **Storage**: IndexedDB, one database, with BroadcastChannel keeping two open
   tabs in step. Ask for persistent storage (`navigator.storage.persist()`):
   Chrome grants by engagement, Firefox asks, Safari grants mainly to Home
@@ -836,6 +851,11 @@ each reader's notebook stays in their own iCloud or Google account, and the
 website reaches it from the browser (plan A in "The apps' replies" below).
 Until BVJ and BDR decide (talk-through item 1), read this section as plan B,
 the fallback. Supabase and Firebase are out under both plans.
+
+**Superseded in part (2026-10-07).** BDR's proposal splits this plan in two:
+plan B, accounts with passwords as below, and plan C, a thin service with no
+passwords and end-to-end encryption. BDR's privacy wording rule rules out
+plan B. See "One notebook, three homes".
 
 **Decided by BVJ:**
 - **No-login stays.** Everything works without an account.
@@ -1363,7 +1383,7 @@ recommendation, not a decision.
 
 | # | Question | IDs | Who decides | Where it stands |
 |---|---|---|---|---|
-| 1 | Plan A or plan B | T1, A-Q1 | BVJ with BDR | BDR leans hard to A. **Lean: A, if P1–P3 pass by the end of October.** It keeps the privacy page's promise that the site collects personal information only when someone chooses to send it, needs nobody on call, and lets the apps launch without the website. It moves work to the website (finding 6) |
+| 1 | Plan A or plan B (now **A or C**; see "One notebook, three homes") | T1, A-Q1 | BVJ with BDR | **2026-10-07:** BDR is torn between A and C; **BVJ clearly prefers C** (firmer after the website's sizing; not an insistence, not decided); the proposal recommends C and tests A with spikes, deciding by October 31. Before that: BDR leaned hard to A, and this review's 2026-10-05 lean, now superseded, was **A, if P1–P3 pass by the end of October.** It keeps the privacy page's promise that the site collects personal information only when someone chooses to send it, needs nobody on call, and lets the apps launch without the website. It moves work to the website (finding 6) |
 | 2 | Does "LIT never holds the notes" answer the end-to-end lean (C19)? | T2, A-Q2 | BVJ | Under plan A, Apple or Google could read the notes, as they can anything else in the account. LIT never could, and there is no recovery key to lose |
 | 3 | Brackets in anchors | T7 | BVJ; the apps follow | **Lean: strip** (finding 5) |
 | 4 | Reading positions: shared, or separate with ribbons crossing over | T5 (A-R6 says shared) | BVJ | **Lean: share one place per book**, stored as a verse (A-F13), so stopping on the phone moves the desk's Continue reading |
@@ -1371,7 +1391,7 @@ recommendation, not a decision.
 | 6 | The reader with both Apple and Android devices; the reader who wants neither sign-in | T4 | BVJ, BDR | **Lean: a known gap at launch**, with export and import; the website bridge later. The reader who wants neither keeps the notebook in the browser |
 | 7 | When a mark's words are gone | A-Q6, A-F5 | BVJ, BDR | **Lean: one rule on all three.** Use the apps' rule, with the notice: place the mark on the words between the old context, keep the old words, and write nothing until the reader chooses Keep |
 | 8 | What must be live on February 10, and the fallback if one platform isn't ready | A-Q3 | BVJ, BDR | Under plan A, the website can join later |
-| 9 | Can the website build two storage adapters by February 10, alongside the desk? | A-Q7 | BVJ | Unsized (finding 6) |
+| 9 | Can the website build two storage adapters by February 10, alongside the desk? | A-Q7 | BVJ | **Sized 2026-10-07:** 16–18 sessions at launch, more to keep up ("Sizing the website's side") |
 | 10 | Who owns the Google Cloud project, the CloudKit container and the spec | A-Q4, T8 | BVJ, BDR | The container is in BDR's developer account. **Lean: the spec and its vectors live in this repo** |
 | 11 | The stores' privacy answers ("No data collected" on Play) | A-Q5, P3 | BVJ, BDR | Unverified under plan A |
 | 12 | The apps' License screen wording | T9, A-Q10 | BVJ | **Needed by mid-October.** Draft: "The LIT Bible is licensed under CC BY-NC-ND 4.0, with added permissions: you may print, display and share any amount for noncommercial uses such as Bible studies, classes, sermons and bulletins, and you may quote it in commercial works within set limits. The full terms, including the credit line to use, are at litbible.net/read#license-terms." Android's existing "You may not distribute modified versions" stays accurate |
@@ -1476,7 +1496,12 @@ The format still comes first, before Christmas as Android asked.
 BVJ asked (2026-10-05) for the less urgent questions to be listed here as
 needing a decision. None blocks the format.
 
-- **Plan A or plan B** (T1, A-Q1), with the two requirements above.
+- **Plan A or plan C** (T1, A-Q1), with the two requirements above. Plan B
+  is out under BDR's privacy wording rule (2026-10-07). The Zoom items in
+  "One notebook, three homes" add: the recovery model for end-to-end
+  encryption, passkeys at launch, who builds and owns the service, February
+  10's scope and fallback, where shared sheet links live, and who rewrites
+  the privacy page and terms.
 - **Reading positions:** shared between phone and desk, or not (T5, A-R6).
 - **The notebook file (D1):** a sync method, or export and import only (T3).
 - **The reader with both an Apple and an Android device** (T4).
@@ -1491,12 +1516,466 @@ needing a decision. None blocks the format.
   search, share cards.
 - **Whether shared sheet links need anything hosted** (T10, A-M8).
 - **Whether the apps show N2 and H2, or only carry them** (A-Q8).
-- **Who looks after a service**, if plan B (T8, A-R7).
+- **Who looks after a service**, if plan C (T8, A-R7; Zoom item 4).
 - **In the format:** bookmarks vs the `bookmark` marker, and the overlap
   rule for highlights (`STUDY-DESK-FORMAT.md`, "Still open").
 - **The merge rules, the trash record's fields and the overlap rule**
   (talk-through item 20). **More urgent than the rest of this list**: phase
   1c waits on them.
+
+## One notebook, three homes (BDR's proposal, 2026-10-07)
+
+**The newest record of the sync question.** Where it and the sections above
+differ, this one wins. BDR's Claude wrote it with all three repos open:
+"One Notebook, Three Homes", draft 2, 2026-10-07,
+https://claude.ai/artifact/G4jgizQ8MTcggi4rJqez8r (anyone with the link). Its
+Markdown twin, `PROPOSAL-ONE-NOTEBOOK-THREE-HOMES-2026-10-06.md`, with an
+update log and checkboxes, is in BDR's LIT Handoff folder, outside every
+repo. **It calls BDR "Brandon"**; this file keeps BDR and BVJ. BVJ brought it
+in on 2026-10-07. It changes no code anywhere, and it replaces the
+three-instance back-and-forth: on BDR's side the proposal is now the record.
+
+**How the website answers (BVJ, 2026-10-07): through this file.** BDR's
+Claude reads this repo directly, so nothing is sent by hand and no new reply
+document is written; `STUDY-DESK-REPLY-TO-APPS.md` was the last. What the
+website has to say goes here, on `main`, with its date.
+
+**The website's answers to the proposal, so far (2026-10-07):**
+- **BVJ clearly prefers plan C**, launched with "don't sign in" as the
+  keep-it-in-your-own-cloud option and full plan A added later only if
+  readers ask. A preference, not an insistence or a decision. See "BVJ's
+  clear preference" below.
+- **The website's side is sized**, as the proposal asked: plan C 12–15
+  sessions if BDR's side builds the service, plan A 16–18 at launch plus the
+  upkeep, both as a reader's choice 26–31. See "Sizing the website's side".
+- **M14's short share links stay for signed-in readers** (a
+  recommendation, not decided); unsigned readers keep S8's long links and
+  printed codes. See "BVJ's clear preference".
+- **The encryption spec and its test vectors would be written here**, in
+  November, if plan C goes ahead (the sizing's first row).
+- **Capacity differs**: BVJ is on Claude Pro, BDR on the lower Max plan. So
+  it favours BDR's side building the plan C service (Zoom item 4's
+  recommendation), and the website's own pieces on the apps' path staying few
+  and small. See "Capacity" under the
+  sizing.
+- Everything else in the proposal (rules a to e, the Zoom items, the
+  sequence) waits on BDR or on the Zoom.
+
+### Three plans, not two
+
+The old plan B splits in two:
+- **Plan A, each reader's own cloud.** As in "BDR's proposal" above: the
+  app's iCloud private database or a Drive app-data folder, with the website
+  reaching in. The privacy page could say "LIT never holds your notes".
+- **Plan B, full LIT accounts**: passwords, two-step codes and reset emails,
+  plus Apple and Google. This is "Accounts and sync" as first written. At
+  best the privacy page could say "LIT holds your notes encrypted and
+  doesn't read them".
+- **Plan C, a thin LIT sync service, end-to-end encrypted.** A Worker with D1
+  at its own subdomain, outside `/api/`. Sign in with Apple, Sign in with
+  Google, or a passkey; no passwords, two-step codes or reset emails. Each
+  row holds the reader, the record's id, a revision, the edit time and the
+  deletion time in the clear, and everything else as ciphertext only the
+  reader's devices can open. Thirty days after a deletion it drops the blob
+  and keeps the row as the marker. iCloud keeps syncing a reader's Apple
+  devices as today, and no-login stays the default. The privacy page could
+  say "LIT holds your notes encrypted and can't read them". About $5 a
+  month.
+
+Older text in this file that says "plan B" means a LIT service in general,
+which is now B or C.
+
+**BDR's positions (2026-10-07):**
+- **Conflicted between A and C.** BDR would lean A if it can be shown to
+  work, because "no login needed in the apps" is the most it-just-works flow
+  the apps can offer. BDR's first reaction had leaned C.
+- **A wording rule for the privacy page:** if it changes, it must be able to
+  say LIT *can't* read the notes, not merely doesn't. That rules out plan B,
+  and plan C without end-to-end encryption. So under C, end-to-end ships
+  with the first synced release, and sync without it is not a fallback.
+- **Passkeys over passwords** with two-step codes for any LIT-run sign-in.
+  Under A there is no LIT sign-in to design.
+- **Leans against colour meanings** (H1) on any platform.
+- BDR confirmed that "Sign in with Apple" meant the familiar sign-in
+  buttons, which is plan C, not CloudKit's web sign-in.
+
+**BVJ's clear preference (2026-10-07), not an insistence and not a decision:
+launch plan C, with "don't sign
+in" as the keep-it-in-your-own-cloud option, and add full plan A later only
+if readers ask for it.** C already contains a version of A: an iPhone reader
+who never signs in keeps today's iCloud sync, and LIT holds nothing. What
+full A would add later is the website reaching into iCloud and Drive, and
+Android syncing through Drive. The format keeps the records the same in any
+store, so a second home stays an addition, not a redesign; the format freeze
+should keep it that way.
+
+What "don't sign in" means on each surface at launch:
+- **iPhone, iPad and the Mac app:** iCloud sync between the reader's Apple
+  devices, as today.
+- **Android:** the notes stay on the device, with Auto Backup restoring them
+  on a reinstall. No sync between Android devices without signing in.
+- **The website:** the notebook in the browser, with export and import.
+
+It began as a lean and became a clear preference once the sizing below
+showed C's website side as the smaller one at launch and far the smaller to
+keep up.
+
+Every feature that doesn't truly need cross-device sync works without
+signing in at all. The desk is already built that way (phases 1 to 3 run in the browser, and
+no-login stays, 2026-10-01), so this costs nothing extra. What then needs a
+sign-in: the notebook syncing between devices, and what rides on it ("What's
+new for you" and Continue reading following the reader, the devices page).
+One decided feature needs a sign-in without being sync: **M14's short share
+links**. Recommendation (not decided): keep them for signed-in readers. A
+service that hosts encrypted content it can't read, for anyone without an
+account, is a home for abuse nobody can moderate. Everyone still has S8's
+long links and printed codes, which need nothing hosted.
+
+**BDR's decisions for the apps** (BDR's to make):
+- **Android shows bookmarks** in its first synced release, as a Bookmarks
+  list in My Notes; ribbons if the schedule allows (2026-10-07).
+- **A hidden passage (N8) stays hidden everywhere scripture appears** in the
+  apps, with a solid veil on Android before Android 12.
+- **2026-10-05:** brackets are stripped from the apps' anchoring text (T7),
+  and **Android's highlight-overlap rule is adopted on iOS**, which answers
+  the apps' half of item 20's question 5.
+
+**The proposal recommends plan C** (a recommendation; nothing is decided).
+Its reasons:
+- It is the only plan that meets both of BVJ's requirements: a reader who
+  wants neither Apple nor Google has a way in (a passkey), and nobody is
+  signed out without noticing.
+- Plan A isn't serverless in practice. Silent Google reconnection from a
+  browser needs a server holding refresh tokens, a credential to readers'
+  Drive folders. A server holding records LIT can't read is the smaller
+  trust surface.
+- Plan A moves the hardest work to the website, which hasn't sized it
+  (finding 6).
+- Plan B's cost is mostly the passwords.
+- The service is the shape of the contact-form Worker this repo already runs.
+
+What would flip it to A: the spikes below pass, BVJ sizes the website's side
+and accepts it, and both accept the two readers A leaves out at launch. Then
+"LIT never holds your notes", with no recovery code for anyone to keep, is the
+stronger promise.
+
+Where each plan "just works":
+
+| | Plan A | Plan C |
+|---|---|---|
+| iPhone and iPad | Zero taps; sync is already on | One tap per device, only if the reader turns sync on |
+| Android | One Google consent; a sync engine built from nothing | One Google tap; a sync engine built from nothing |
+| The website | iCloud web sign-in (Apple ID, password, two-step code); Google's popup hourly unless a token server is added; Safari forgets a reader who stays away a week | One tap, and the reader stays signed in |
+| Recovery | Nothing new; the reader's Apple or Google recovery covers it | A recovery code to keep |
+| Left out at launch | A reader with an iPhone and an Android device; a reader who wants neither account | Nobody |
+| On call | Nobody, unless the token server is built | Someone, for a small service |
+
+Under A the iPhone app still needs a release, for the new kinds and the
+one-time permanent iCloud schema. "Works today" is true only of the website
+reading existing iPhone notes.
+
+### Proving plan A: the spikes
+
+P1 and P2, turned into tests with pass marks agreed before anyone runs them,
+so the result settles the question. They are throwaway pages outside all
+three repos. The kit is written (BDR's LIT Handoff `spikes/` folder: both probe
+pages, a README, a results sheet with the pass marks, a config template);
+the Android probe app for spike 2 isn't.
+
+- **BDR creates the credentials** (about an hour): a CloudKit web token for
+  the development environment, a throwaway Google Cloud project (Drive API,
+  an Android and a web client, the consent screen in testing), and two test
+  Apple IDs, one with Advanced Data Protection.
+- **Spike 1, iCloud from a web page** (two to three days, plus an eight-day
+  wait). The sign-in steps in Chrome and Safari; reading every field; **a
+  note the web writes in the app's own shape, appearing correctly in 1.27
+  and 2.0 (the make-or-break test)**; editing an app note from the web; an
+  app edit keeping a field only the website wrote; deleting; a note several
+  thousand characters long, and where Apple moves text into an attachment;
+  coming back after eight days away in Safari; the Advanced Data Protection
+  account; fetching only what changed.
+- **Spike 2, the Drive app folder from a phone and a web page** (about two
+  days). Both see the same folder; what a web reader sees when the hour-long
+  token runs out (this decides the token server); the phone a day later;
+  several Google accounts on one phone; disconnecting LIT in Google's
+  settings; changes since a saved cursor; a full quota (from the docs, not
+  simulated).
+- **Desk research:** the stores' privacy answers under A, and **BVJ's sizing
+  of the website's two adapters, the bridge for mixed readers, and a token
+  server** if spike 2 needs one.
+
+**A wins** if the write, edit, extra-field and delete tests pass on both app
+versions; the eight-day and Advanced Data Protection results are known and BVJ
+accepts their cost to readers; Google's hourly behaviour is acceptable or a
+token server is accepted; BVJ accepts the sizing; and both accept the two
+uncovered readers at launch, with export and import as their way. **C wins**
+if the write test fails on the version readers have, or the web's costs to
+readers are judged too high. Proposed: **decide by October 31.** The format
+work, and the app work marked "whatever the plan", don't change either way.
+
+### When notes collide: rules a to e
+
+Item 20's five questions, restated with their alternatives for BDR to
+approve: "a2 for notes and a1 for the rest; b2; c3; d1 with the three
+details; e2 and e2". **Recommendations, not decided.** Both app Claudes
+mostly agree.
+
+- **a. A note edited on two devices before they sync:** keep both, and the
+  reader picks. Highlights, bookmarks and places: the later write wins.
+  (Question 3.)
+- **b. Deleted on one device, edited on another:** the later action wins; the
+  service's revision decides where there is one, so clocks matter only
+  without it. (Question 2.)
+- **c. The trash:** 30 days, then a marker of a few bytes kept forever, so a
+  stale backup can't revive the note. (Question 4.)
+- **d. Overlapping highlights:** Android's rule, which BDR ruled for iOS,
+  with three details: highlights in different paragraphs never merge; a
+  trimmed remainder loses stray spaces at its edges; and a highlight carrying
+  an unread change notice is never touched by a new one, since its old words
+  are what the notice quotes. (Question 5.)
+- **e. Finding a mark after the wording changes**, two guards on draft 1's
+  `changed` step. A **size limit**: never guess a region much longer than
+  the original (Android's is about twice plus a little). A **context
+  floor**: with repeated words ("Amen."), trust a choice only when enough
+  context matches. Past either, the mark goes on the whole verse, with the
+  notice.
+
+### To freeze before Christmas (format draft 2)
+
+Rules a to e, each with a test case, and:
+- **Records the website writes carry a value telling the apps "place me
+  from my verses and quoted words".** This corrects W4: on shipped iOS a
+  blank placement field means "legacy", so a note written with an empty
+  `offsetSpace` would never reach the page. iOS proposed the new value.
+- Context is 32 characters each side of a quote, in the normalized text
+  (both apps agree).
+- Bookmarks are their own kind; the `bookmark` marker stays a note's glyph
+  (agreed).
+- A reading place is a verse, one per book, whether or not places sync.
+- Notes on glossary entries and articles (N11) name the entry by its id and
+  the article by its slug, with a rule against renaming article files.
+- **Under plan C the encrypted envelope is the standard wrapper**, not a
+  reserved field: id, revision, edit time and deletion time in the clear,
+  the rest encrypted. All merging happens on the reader's devices, which the
+  format already assumed.
+
+### Who builds what
+
+Under plan C with end-to-end encryption:
+- **Website (BVJ):** phases 1c, 1d, 2 and 3 in the website's own order.
+  Phase 4: one connector to the service, connection status and "Reconnect",
+  edits queued offline, the conflict screen, export and import. The
+  encryption layer in the browser (the notebook key, the recovery-code
+  screen, approving a new device). Sign-in pages that work on every device.
+  Enforcing the full CSP. The privacy page and terms (shared with BDR) and a
+  "Ways to keep your notebook" page. Sheet links on the service, with the
+  sheet's key in the part of the link browsers never send.
+  **Under A instead:** two adapters, the bridge, the token server, and
+  following the iCloud schema as it grows.
+- **iOS (BDR), whatever the plan:** the license link; the bracket strip;
+  placing marks by each paragraph's permanent id and searching the whole
+  chapter when needed (finding 1: marks made before 08-18 in Matthew
+  20:17–34 and before 09-06 in Romans 3:18–31 may sit on the wrong sentence
+  today); keeping offsets on the device, so a content update writes nothing
+  to iCloud (finding 7); a Recently Deleted trash; bookmarks and ribbons; the
+  hidden passage everywhere; the new record fields; different-colour
+  trimming; two small parser fixes; export and import with a registered file
+  type; VoiceOver announcing highlights. **Under C:** Sign in with Apple or a
+  passkey (never required), a sync client, in-app account deletion, the
+  privacy label, the notebook key in the Keychain with the recovery code,
+  and two sync engines side by side (iCloud between a reader's Apple
+  devices, the service as the hub), unless iOS's Claude picks a separate
+  store while signed in. **Under A:** deploy the permanent iCloud schema,
+  and prove the app takes records the website wrote.
+- **Android (BDR), whatever the plan:** the license link (1.3); searching the
+  whole chapter when a paragraph is retired; the bracket strip and shared
+  normalization; one migration for the new fields and a raw copy of each
+  record, since Android's backup reader drops fields it doesn't know today;
+  a per-book reading place as a verse; the Bookmarks list; the hidden
+  passage; TalkBack announcing highlights; export and import through the
+  system picker; the shared test cases as a unit test. **Under C:** Google or
+  a passkey through Credential Manager, a sync client, account deletion, the
+  key in the Keystore with the recovery code, the Data safety form. **Under
+  A:** Drive app-data sync from nothing, and a named owner for the Google
+  Cloud project (deleting or re-issuing it strands every reader's synced
+  notes).
+
+The shared test cases: iOS matched 556 of 558 verses (the two misses are
+small parser bugs, filed); Android has approved them as a unit test, not yet
+run.
+
+**Hidden-passage controls in the apps** (BDR asked: the Format menu or
+Settings?). The proposal recommends no Format-menu entry: the veil carries
+each passage's controls, My Notes lists hidden passages, and a quiet
+"Hidden passages" Settings page holds the "show all for now" override and
+the explanation. It also asks whether the apps should let a reader hide a
+passage from the selection menu. BDR's to decide.
+
+### The Zoom: BVJ with BDR
+
+Thirteen items, each with its options in the proposal. **The proposal's
+recommendations, none decided:**
+1. **Where notes live:** C on the evidence so far. The call's useful outcome
+   is agreeing the spikes' pass marks; the spikes decide by October 31.
+2. **End-to-end encryption and recovery:** K1 at launch. The first device
+   makes a key kept in its secure storage; a new device gets it by approval
+   from one that has it (a short code) or by the recovery code shown once at
+   setup. Lose every device and the code, and the notes are gone. K2 (the
+   passkey carries the key) to investigate later; K3 (encryption at rest
+   only) is ruled out by BDR's wording. Agree now the sentence the setup
+   screen says about a lost code. End-to-end rules out searching notes on the
+   server, computing "What's new for you" there, and staff ever recovering a
+   note, all of which the plan already does on the device.
+3. **Passkeys** at launch if the schedule holds once end-to-end is sized,
+   otherwise first after launch; the reader who wants neither account keeps
+   the browser notebook with export and import meanwhile.
+4. **Who builds and owns the service:** a separate small repo, built by BDR's
+   side, deployed to BVJ's Cloudflare, following this repo's conventions with
+   BVJ reviewing. Shared ownership with a one-page runbook. Name who owns the
+   Cloudflare account, the Apple developer account and the Google Cloud
+   project. **Capacity supports this** (see "Capacity" under the sizing): BVJ
+   is on Claude Pro and BDR on Max, so the service would cost the website's
+   side the most if it were built here.
+5. **Continue reading across devices:** one place per book if BVJ can live
+   with it, separate places if not (BVJ leaned slightly against,
+   2026-10-05).
+6. **Colour meanings (H1):** drop everywhere, website only, or read-only in
+   the apps. A taste call; whatever happens, each colour keeps a second
+   visual cue (C4).
+7. **The notebook file (D1):** export and import only.
+8. **The stores' declarations:** accept that "No data collected" ends (for
+   certain under C, probably on Android under A). The privacy policy changes
+   before the apps do.
+9. **Shared sheet links** live on the service, encrypted, with the key in
+   the link's fragment. (Item 13's lean had needed nothing hosted.)
+10. **February 10:** aim for full sync with end-to-end in both apps, and
+    declare the fallback now: the apps ship bookmarks and ribbons, the trash,
+    the hidden passage, the paragraph fix and export and import, and sync
+    follows in the next release, with iOS on iCloud throughout.
+11. **Glossary and article notes (N11):** carried unseen in the apps at
+    launch; whether the apps show glossary notes later.
+12. **The privacy page and terms:** the website's Claude drafts once the plan
+    is chosen, BDR reviews the app parts, and terms with a minimum age are
+    new.
+13. **A reader with an iPhone and an Android tablet:** C covers them; under A,
+    agree whether it's an accepted gap.
+
+### Proposed sequence to Ash Wednesday
+
+- **By mid-October:** BDR approves rules a to e (unblocks phase 1c) and
+  creates the spike credentials; the Zoom agrees the pass marks and, for C,
+  end-to-end, passkeys and ownership; Android runs the shared test cases.
+- **October:** the spikes (about three weeks, mostly the eight-day wait).
+  Android 1.3 with the license link; iOS 2.0 (about October 15), with the
+  link or in 2.0.1 or 2.1. **A or C by October 31.**
+- **November:** format draft 2 becomes the freeze candidate. Under C, the
+  envelope, the service scaffolded in development, and the key flow agreed
+  across all three; under A, the permanent iCloud schema designed whole and
+  Android's Drive sync designed. iOS 2.1 ships, and app sync work starts.
+- **By December 24:** the format frozen; the service on a staging address;
+  website phases 1c and 1d done or close.
+- **January:** both apps build sync with encryption; account deletion; store
+  forms; the privacy page and terms live before anything public.
+- **February 10, 2027:** both apps live with sync. The website's connector
+  lands whenever BVJ reaches it; sheets may come first for Lent.
+
+**The website still builds in its own order** (BVJ, 2026-10-05). The
+schedule's biggest risk, by the proposal's own account, is end-to-end
+encryption: a medium-sized piece on each of the three sides.
+
+### Sizing the website's side (2026-10-07)
+
+The proposal asked BVJ to size the website's work (finding 6, A-Q7). These
+are estimates, good to about half again either way. The unit is a
+**session**: one focused build ending in one reviewed PR, the size of phase
+1b (#277, about 1,900 lines). Each also costs BVJ a review, and the sync work
+costs BVJ hand testing on real accounts and devices besides. Work every plan
+needs (the merge engine, the local notebook, export and import, the format
+freeze) isn't counted.
+
+**Plan C, with the service built by BDR's side (Zoom item 4's
+recommendation):**
+
+| Piece | Sessions |
+|---|---|
+| The encryption spec and its test vectors, shared with both apps: the envelope, wrapping the notebook key with the recovery code, approving a new device. Written here, like the anchor text. **Due in November; the only website piece the apps' February 10 waits on** | 2 |
+| The encryption layer in the browser: the notebook key, the recovery-code screens, approving a new device. It also builds most of D5's lock, since the two share one key (C6) | 3 |
+| The connector: the sync loop, edits queued offline, status and "Reconnect", the conflict screen, merging the browser's notebook into the account at first sign-in (C5) | 3–4 |
+| Sign-in and account pages on every device (C1): Apple, Google, passkey; adding a way in; devices and "sign out everywhere"; deleting the account | 2 |
+| Passkey link files (`webcredentials`, `get_login_creds`) and enforcing the full CSP, after a week of the report-only data | 1–2 |
+| The privacy page, terms with a minimum age, "Ways to keep your notebook", D6's wording | 1–2, plus BVJ's own writing |
+| **Total** | **12–15**, plus reviewing three to five service PRs from BDR's side |
+
+If the website builds the service too, add 7–8: sign-in (Apple, Google,
+passkeys, linking, sessions) 3; the records API with its revision check,
+change cursor and the 30-day sweep 2; deletion, Apple token revocation, the
+web deletion page and rate limits 1–2; tests, runbook and
+`DISASTER-RECOVERY.md` 1. That is 19–23 in all.
+
+**Plan A, launch scope:**
+
+| Piece | Sessions |
+|---|---|
+| The iCloud adapter: CloudKit JS sign-in; the app's own records, sliced per paragraph, with the new placement value; the separate zone for website-only kinds; change tokens and change-tag conflicts; long notes as attachments; what an Advanced Data Protection reader sees. Needs BDR for the web token and every production schema deploy | 5–6 |
+| The Drive adapter: Google's browser sign-in, one file per record, the change cursor, version conflicts, a full quota, the reconnect | 3 |
+| The token server, if spike 2 shows hourly popups (likely to fail BVJ's "no sign-in that isn't obvious"). It holds a credential to every connected reader's Drive folder, and someone is on call for it | 2–3 |
+| The connector over two stores, and choosing which cloud | 4 |
+| CSP, the privacy page (simpler: "never holds"), D6's wording | 2 |
+| **Total** | **16–18**; 19–23 with the bridge for mixed readers (3–5), which can come later |
+
+Plan A also costs more after launch: **every change to the iOS app's iCloud
+model is a website change**, tested against real Apple accounts, for as long
+as both exist. Under C the website and the apps change only the shared
+format, together. Google's review of the Drive permission is unchecked.
+
+**Both, a choice per reader:** about **26–31**. C's 12–15, plus A's two
+adapters and token server (10–12), plus a choice screen, a pointer that tells
+a new device where the notebook lives, and moving a notebook between homes
+(3). Roughly double either plan, with both plans' risks on the schedule.
+
+**Where that leaves it.** C's website side is about the size of phase 3
+(sheets), and only its first two sessions sit on the apps' path to February
+10. A's is somewhat larger at launch, much larger to keep up, and none of it
+is on the apps' path; website readers wait for it instead. The two biggest
+unknowns are the device-approval step under C, the newest of these pieces
+to all three teams, and whether Core Data accepts website-written records
+under A (spike 1).
+
+**Capacity: the two sides don't have the same amount of Claude** (BVJ,
+2026-10-07). BVJ works on the **Claude Pro** plan; BDR has the **lower of the
+two Max plans**, about five times Pro's usage. Every session above runs in
+BVJ's Claude, so Pro's usage limits set the website's pace, and a
+website session takes more calendar time than the same work on BDR's side.
+What follows:
+- **Work that could live on either side goes better on BDR's.** Above all the
+  plan C service (Zoom item 4): building it here would add 7–8 sessions to
+  the side with the least room.
+- **It counts against plan A**, which puts its largest pieces, both
+  connectors and the token server, on the website.
+- **The website's pieces on the apps' path should stay few and small**: the
+  encryption spec and its vectors (November), reviewing the service's PRs,
+  and the privacy page and terms.
+- **BDR's Claude could draft website-side pieces** where that saves BVJ's
+  usage, as pull requests BVJ reviews. That would widen BDR's scope here
+  beyond /apps and /privacy (`BDR-ONBOARDING.md`), which is BVJ's call (not
+  decided). The encryption spec is the obvious candidate, with its test
+  vectors kept in this repo.
+- Phases 1c to 3 keep their own order and pace (BVJ, 2026-10-05).
+
+### Corrections it makes
+
+- **W4** (above): a blank placement field is "legacy" on shipped iOS; a new
+  value replaces it.
+- **Finding 1 is confirmed**: iOS keys a mark to a paragraph's position and
+  never looks outside it. Android keys by permanent id but orphans a retired
+  paragraph. Both fixes are the same: search the chapter.
+- **Android has Auto Backup only**; the iOS repo's doc saying it syncs
+  through a Drive folder was wrong. Plan A costs Android a sync engine built
+  from nothing.
+- **"Keep what you don't understand" isn't true on Android yet** (its backup
+  reader drops unknown fields); one migration fixes it.
+- **Reading places are open on both apps**; Android's "syncs" (A-R6) no
+  longer stands.
 
 ## Ready for the Greek text
 
@@ -1625,7 +2104,7 @@ nothing from the apps**. The website builds in the order that suits it
 
 **The format rule: freeze it before anything syncs** (BVJ, 2026-10-05). This
 replaced phase 0's "agree the record format before any code". Draft 1
-(`STUDY-DESK-FORMAT.md`) is written to be safe under plan A and plan B, and
+(`STUDY-DESK-FORMAT.md`) is written to be safe under plans A, B and C, and
 the local notebook is needed under both. Until sync arrives in phase 4,
 nothing leaves the browser except exports that the website reads back
 itself, and every record carries `schema`, so a change from the apps' review
@@ -1776,7 +2255,7 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
    - **1d. The notebook around them.** The notebook page; your notebook in
      search, and commands in the search box (D2, D3); export and import in
      Markdown and the W3C shape, which every plan needs; the first-time
-     choice (D6), worded without accounts until plan A or B is chosen; the
+     choice (D6), worded without accounts until plan A or C is chosen; the
      Safari warning (C18); places and ribbons, kept in this browser (B1,
      C25); labels (M8, name open); the interleaf (N7, C13); the hidden
      passage (N8); the tutorial (D8); the help page (M12); the privacy
@@ -1800,18 +2279,19 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
    printed codes (S5), present mode with the presenter view and room code (S6,
    M2, M3), sheets from searches and templates (M5, M9), annotated printing
    (M6) and shared links (S8). Large.
-4. **Sync, with BDR.** Starts once plan A or B is chosen and the proofs (P1 to
-   P3) are in. Under both plans: a sync loop on 1a's merge engine, one source
+4. **Sync, with BDR.** Starts once plan A or C is chosen and the proofs (P1 to
+   P3, now the spikes) are in. Under both plans: a sync loop on 1a's merge engine, one source
    of truth at a time (C5), connection status and "Reconnect", edits queued
    while disconnected, the conflict screen, and enforcing the full content
    security policy, since the page will hold a credential to readers' notes
    (review finding 11). Plan A adds two connectors, iCloud (CloudKit JS) and
    Google Drive, each with its own sign-in, limits and testing against real
-   accounts, and perhaps a token-only Worker for Google. Plan B adds the
+   accounts, and perhaps a token-only Worker for Google. Plan C (or B) adds the
    service on Cloudflare, account pages on every device (C1) and account
    basics (C20). Either way: one key and then the lock (C6, D5), the
-   encryption choice (C19), and short share links (M14). The website's side
-   of plan A hasn't been sized (A-Q7). Large.
+   encryption choice (C19), and short share links (M14). Sized on 2026-10-07
+   ("Sizing the website's side"): 12–15 sessions under C if BDR's side
+   builds the service, 16–18 under A. Large.
 
 **Any time, independent of all of it**: both apps link to the license terms
 (BDR's item 11: Android in 1.3, iOS in 2.0, 2.0.1 or 2.1); N9, print with
@@ -2128,7 +2608,7 @@ The rest of the same day's review:
   before phase 1c. The trash record's fields (question 4) are built
   provisionally in 1b, so BDR's answer may mean a migration.
 - **"To be decided"** under "The apps' replies", starting with plan A or
-  plan B. The record format is drafted (`STUDY-DESK-FORMAT.md`) and waits on
+  plan C ("One notebook, three homes", decision proposed by October 31). The record format is drafted (`STUDY-DESK-FORMAT.md`) and waits on
   both apps' review.
 - **D7**: whether API.bible's tracking script is acceptable; which other
   free-to-share translations join the KJV; whether to request NRSVue and CEB
