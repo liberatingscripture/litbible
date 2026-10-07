@@ -20,9 +20,10 @@ are recorded so they aren't re-argued.
   recommends C; BDR is torn between A and C and would lean A if it can be
   shown to work. October's spikes test plan A against agreed pass marks,
   with a decision proposed by October 31. A Zoom between BVJ and BDR takes
-  the open items. **BVJ leans C** (2026-10-07), with everything that doesn't
-  need cross-device sync usable without signing in; the website's side of
-  each plan is sized in that section. Nothing is decided.
+  the open items. **BVJ leans toward launching C** (2026-10-07), with "don't
+  sign in" as the keep-it-in-your-own-cloud option (iCloud on Apple devices,
+  as today) and full A added later only if readers ask; the website's side
+  of each plan is sized in that section. Nothing is decided.
 
 - **Status: phase 1b built, behind a preview switch; nothing reader-facing
   yet.** Readers see and download none of it. `litbible.net/?desk=on` turns
@@ -1571,9 +1572,24 @@ which is now B or C.
 - BDR confirmed that "Sign in with Apple" meant the familiar sign-in
   buttons, which is plan C, not CloudKit's web sign-in.
 
-**BVJ's lean (2026-10-07), not a decision: plan C, with every feature that
-doesn't truly need cross-device sync usable without signing in at all.** The
-desk is already built that way (phases 1 to 3 run in the browser, and
+**BVJ's lean (2026-10-07), not a decision: launch plan C, with "don't sign
+in" as the keep-it-in-your-own-cloud option, and add full plan A later only
+if readers ask for it.** C already contains a version of A: an iPhone reader
+who never signs in keeps today's iCloud sync, and LIT holds nothing. What
+full A would add later is the website reaching into iCloud and Drive, and
+Android syncing through Drive. The format keeps the records the same in any
+store, so a second home stays an addition, not a redesign; the format freeze
+should keep it that way.
+
+What "don't sign in" means on each surface at launch:
+- **iPhone, iPad and the Mac app:** iCloud sync between the reader's Apple
+  devices, as today.
+- **Android:** the notes stay on the device, with Auto Backup restoring them
+  on a reinstall. No sync between Android devices without signing in.
+- **The website:** the notebook in the browser, with export and import.
+
+Every feature that doesn't truly need cross-device sync works without
+signing in at all. The desk is already built that way (phases 1 to 3 run in the browser, and
 no-login stays, 2026-10-01), so this costs nothing extra. What then needs a
 sign-in: the notebook syncing between devices, and what rides on it ("What's
 new for you" and Continue reading following the reader, the devices page).
