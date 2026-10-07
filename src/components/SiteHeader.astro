@@ -488,7 +488,6 @@ const SIZE_OPTIONS = [
   <script>
     // @ts-nocheck
     import { isHoldingPlace, keepReadingPlace } from "../scripts/keep-reading-place.js";
-    import { dockWidth } from "../scripts/desk-frame.js";
     // Deferred to idle: this initializer does a synchronous document.body.appendChild
     // (forces reflow) and runs in the post-load script burst that inflates INP input
     // delay. Idle keeps it off the load-time long task; the "Aa" button still works
@@ -611,10 +610,8 @@ const SIZE_OPTIONS = [
         tray.style.top = openAbove
           ? `${Math.max(margin, rect.top - margin - Math.min(height, room))}px`
           : `${rect.bottom + margin}px`;
-        // The Study Desk's docked panel takes the right edge when it's open.
-        const right = window.innerWidth - dockWidth();
-        let left = Math.min(rect.right, right - margin) - width;
-        if (left < margin) left = Math.min(rect.left, right - width - margin);
+        let left = rect.right - width;
+        if (left < margin) left = Math.min(rect.left, window.innerWidth - width - margin);
         tray.style.left = `${Math.max(margin, left)}px`;
         tray.style.right = 'auto';
       };

@@ -27,7 +27,8 @@ are recorded so they aren't re-argued.
     (`src/lib/desk-wording.mjs`). See "Order of work", 1a;
   - phase 1b's shell: the gate, the notebook in IndexedDB kept in step across
     tabs, deletion with an undo bar (on the trash record's **provisional**
-    fields), and the docked Notebook panel. See "Order of work", 1b.
+    fields), and the Notebook panel in the right margin. See "Order of
+    work", 1b.
 
   **The development phases were planned on 2026-10-05** ("Order of work"
   below). The format is frozen before anything syncs (BVJ, 2026-10-05).
@@ -237,15 +238,27 @@ every week.
    It needs about **230px of free space** beside the column, decided by the
    space left, not the window width; otherwise it falls back to dots and the
    panel (audit C9). The apps already mark notes in the left margin.
+   - **Open: margin notes while the Notebook panel is open** (raised
+     2026-10-06). Since the panel moved into the right margin beside the
+     text, an open panel and the margin would show a chapter's notes twice.
+     **Recommendation (not decided): show margin notes only while the panel
+     is closed.** While it's open, its "This chapter" list would do the
+     margin's job, following the reading position and picking out the notes
+     for the verses on screen, and the left margin would show nothing. That
+     would also free the left side when room is tightest: an open panel can
+     move the text left (articles most), and the margin's 230px is then often
+     gone anyway. The other options are under "Still open".
    - **About X11**: the feature audit's X11 (footnotes in the margin on wide
      screens) was declined on 2026-09-28. BVJ confirmed (2026-10-01) that the
      reason for declining it doesn't rule out the reader's own notes in the
      margin. The reason itself was never recorded, and BVJ doesn't recall it,
      so don't cite it.
-3. **A notebook panel.** A Notebook button beside "Aa" opens a panel docked on
-   the right that stays open while you read: this chapter's notes, places,
-   sheets, everything, search, and (N10) "This verse". The text moves left to
-   make room. It is part of the page frame, not one of the shared floating
+3. **A notebook panel.** A Notebook button beside "Aa" opens a panel on the
+   right that stays open while you read: this chapter's notes, places,
+   sheets, everything, search, and (N10) "This verse". **It fills the right
+   margin beside the text, and the text stays put** (BVJ, 2026-10-06; the
+   plan first had the text move left to make room, and the first build moved
+   the whole page). It is part of the page frame, not one of the shared floating
    panels: floating panels (verse menu, footnote popovers, term lens,
    selection panel) keep clear of it, and clicks inside it don't close them
    (audit C12). Mock: tabs "Romans 8 / Places / Sheets / Everything / Search",
@@ -277,7 +290,9 @@ plan as a whole was accepted; nothing was declined except where stated).
   verse number and the panel without ~230px of free space (C9). Notes sit
   outside the scripture's reading order, linked from the verse (C24).
   Borrowed (Edwards's Blank Bible, the LIT apps). Medium. **Decided: the
-  margin is in.**
+  margin is in.** Open since 2026-10-06: whether it shows while the
+  Notebook panel is open (placement 2; recommended: no, the open panel's
+  chapter list follows the reading position instead).
 - **N2. Notes that follow a word.** Write a note on a glossary term once and
   it appears in the term lens card wherever that term is marked, about 4,300
   places across published chapters. A note on *sarx* shows under
@@ -342,6 +357,30 @@ plan as a whole was accepted; nothing was declined except where stated).
   verse menu) with its footnotes and your notes on it, and stays put while you
   read on. It is also where other translations of that verse appear (D7). The
   footnote letters, popovers and end list stay as they are. Small. Phase 1.
+- **N11. Notes on glossary entries and articles.** **BVJ, 2026-10-06:**
+  readers should be able to attach notes to glossary entries and articles
+  as well as to the scripture text. That covers both a note on an entry or
+  article as a whole and a note on a passage within it, quoted the way a
+  scripture note quotes its words. This is different from N2: N2's note
+  belongs to a term and follows it through the translation, while this one
+  belongs to the entry's or article's own text.
+  - **Website only, at least for now.** The apps have no articles, and
+    their glossary screens have nowhere to show a note, so neither app can
+    show these unless BDR changes the apps to match. Until then the apps
+    carry such records untouched (the format's principle 6), so a note
+    written on the website survives a trip through either app's store.
+  - **What it needs in the format:** two new targets for a `note`, beside
+    its verses, a footnote (M11) and a glossary term (N2). A glossary entry
+    is named by its id, which is already a stable key (CLAUDE.md, the
+    `glossary` collection). An article is named by its slug, which is its
+    file name, so renaming an article file would orphan its notes; that
+    needs a rule (keep slugs fixed, or carry a redirect) before this
+    ships. Quoting needs an anchor-text rule for text that has no verses.
+    See `STUDY-DESK-FORMAT.md`, "Still open".
+  - **The groundwork is in place.** Since 2026-10-06 the glossary has a
+    reading column with the desk on, and both pages show the Notebook panel
+    in the margin. Not yet placed in a phase: it needs 1c's marks first.
+    New. Medium. **Decided: yes.**
 - **M6. Print my annotated chapter or book.** A chapter, or a whole book from
   Read View, printed with your notes in the margin and highlights shown. N9
   is the blank version. New. Small. **Decided: yes.**
@@ -1354,6 +1393,12 @@ Questions for the apps, to send back:
   verse digits and footnote letters from its context strings without a
   migration.
 - **For BDR:** items 1, 4, 6, 7, 8, 10, 11 and 15.
+- **For BDR, to know (added 2026-10-06):** BVJ wants readers able to attach
+  notes to glossary entries and articles on the website (N11). Neither app
+  shows those today. The ask is only that both apps carry such records
+  untouched (the format's principle 6), and to say whether either app might
+  show them later, especially glossary notes, since the apps already have
+  the glossary.
 - **For BDR, soon (item 20): the merge and overlap rules.** The website
   needs these before phase 1c, so it doesn't build rules the apps would then
   undo. Each is a proposal to answer yes, no or "do it this way":
@@ -1667,24 +1712,47 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      - **The panel** (`src/scripts/desk/panel.js`): a Notebook button
        (glyph and word) beside "Aa" in the header, and the glyph alone in
        Read View's toolbar, both hidden by CSS unless the desk is on. It
-       opens a panel docked on the right: "This chapter" (Study View
-       chapters) and "Everything" tabs, each record with Delete, "Kept in
-       this browser" and whether the browser may clear it. A preview-only
-       "Add a sample note" button lets delete, undo and the tabs' keeping
-       in step be tried before 1c; **1c removes it.** Whether the panel is
-       open is remembered and reserved before first paint, so a page opening
-       with it doesn't shift.
-     - **The frame (C12).** While docked, the page gives up 340px on the
-       right, so the header and the text move left together. Floating
-       panels and the Display tray place themselves clear of it, and a click
-       inside it closes none of them; the single-key shortcuts stand down
-       inside it. **It docks only from 1360px windows (1760px in
-       OpenDyslexic)**, measured: the header's and toolbars' breakpoints read
-       the window's width, not the page's, and below that the header's short
-       title is clipped. In narrower windows the panel lies over the right
-       edge of the page, and under about 1270px it covers the ends of the
-       lines. Docking everywhere would need container queries in the header
-       and toolbars.
+       opens the panel: "This chapter" (Study View chapters) and
+       "Everything" tabs, each record with Delete, "Kept in this browser"
+       and whether the browser may clear it. A preview-only "Add a sample
+       note" button lets delete, undo and the tabs' keeping in step be tried
+       before 1c; **1c removes it.** Whether the panel is open is
+       remembered for the next page.
+     - **The panel sits in the margin (C12; BVJ, 2026-10-06).** As first
+       built it docked on the right and the whole page, header included,
+       moved left to make room; BVJ asked for it to fill the margin instead.
+       It is a card in the right margin beside the reading column
+       (`src/lib/desk-margin.mjs` holds the rule, `src/scripts/desk/margin.js`
+       places it): level with the text, below the header and Study View's
+       tool row, pinned to the top of the window while reading (CSS
+       `sticky`), and gone before the footer. **Where the margin is wide
+       enough, nothing on the page moves.** The panel is at least 280px
+       wide. A 220px minimum was tried, which kept the text still in more
+       windows but made the panel noticeably narrow; BVJ chose the 280px
+       panel with the text moving where it must (2026-10-06). Measured on
+       Romans 8 and the glossary, which now have identical columns:
+       - at the default text size nothing moves in any window from about
+         1205px (a 1280px window has 321px of margin);
+       - below that, or at larger text sizes, the text moves left only as
+         far as the panel needs (58px in a 1162px window; at 1280px, 31px at
+         Large and 80px at Extra large);
+       - only the column moves (a translate on its own elements). The
+         header, the tool row and full-width bands such as the license band
+         stay put at full width. (An earlier version padded the page instead,
+         which cut the license band short and showed cream beside it.);
+       - in a window too narrow for even that (about 900px), the panel lies
+         over the ends of the lines.
+       Read View, article pages and the glossary work the same way. Pages
+       with no reading column (the home page, the articles list, /search)
+       get no panel and no Notebook button at all (`READING_SURFACES` in
+       `src/scripts/desk-frame.js`, matched by a `:has()` rule in
+       global.css). The panel's "Notebook" heading lines up with the page's
+       heading by the tops of their capitals, and the panel reaches down to
+       16px above the bottom of the window. At the end of a page it stops
+       16px above the seam with the footer's colour, the license band
+       counting as footer (on an article, at the bottom of the card). Floating panels keep 12px clear
+       of it and a click inside it closes none of them; the single-key
+       shortcuts stand down inside it.
      - **The 52 measure is on while the preview is on**, and Read View's
        toolbar takes a floor of 725px (895px in OpenDyslexic) so it doesn't
        change width as its labels change, as OpenDyslexic's already did.
@@ -1698,7 +1766,9 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      four colours with the reader's own meanings (H1) and a second cue
      besides colour (C4), modelled on the apps' marker glyph and dotted
      underline; bookmarks; the margin, falling back to dots and the panel
-     (C9); the change notice, driven by the format's found, moved, changed,
+     (C9), and what it does while the panel is open, to be decided first
+     (placement 2; recommended: nothing, with the panel's "This chapter"
+     list following the reading position instead); the change notice, driven by the format's found, moved, changed,
      verse and lost, in the apps' words (iOS: Re-read in Context, Keep,
      Delete; Android: "carried along" and "couldn't find your words"); the
      "This verse" tab (N10); Read View's smaller set, through events (C2);
@@ -1982,8 +2052,78 @@ And one while it was being checked:
   glyph alone, like its Display button, since that bar is already at its
   widest.
 
+### 2026-10-06 (the panel's place)
+
+BVJ, after trying the merged preview: "The notebook should fill the margin,
+not just push everything aside." The panel had docked on the right with the
+whole page, header included, moving left to make room. It now sits in the
+right margin beside the text, and nothing moves where the margin is wide
+enough. Where it isn't, the text moves only as far as it must and the header
+never moves; a page with no reading column makes room for it (see "Order of
+work", 1b, for the measurements). That also retired the 1360px docking floor
+and the pre-paint reservation the first build needed.
+
+The rest of the same day's review:
+- **The panel appears only on pages with a reading column**: Study View
+  chapters and intros, Read View, articles, and the glossary. Elsewhere
+  (the home page, the articles list, /search) there is no Notebook button
+  either.
+- **The panel reaches down to 16px above the bottom of the window**, the
+  same gap it keeps from the right edge, and pins 16px from the top.
+- **At the end of the page it stops 16px above the seam where the page's
+  background meets the footer's colour.** A license band right above the
+  footer counts as footer, so on Study View, intros and Read View the seam
+  is the top of the source-text notice. On the glossary it is the end of the
+  cream band. On an article it stops exactly at the bottom of the card.
+  (The first version stopped at the footer element, below the license band.)
+- **Its "Notebook" heading lines up with the page's own heading**, by the
+  tops of their capitals: the chapter title ("Romans 8"), Read View's book
+  title, and on the glossary the first entry's heading.
+- **On an article, the panel's top edge lines up with the card's top
+  edge** instead. Matched to the title, which sits below the article's
+  picture, the panel started below the fold, so opening it moved the card
+  with no panel in sight. Top to top, the two cards sit side by side. Where
+  the margin is too narrow, only the card moves; the search bar above it
+  stays put.
+- **The glossary gets a reading column with the desk on**, at the reading
+  width and with the scripture pages' type sizes: the title as Study View's
+  chapter title, each entry's heading as Read View's chapter headings, the
+  text at 18px with a 1.75 line height, all moving with the Display tray's
+  text size. Like the 52 measure, readers keep the old layout until the desk
+  is released.
+- **Notes on glossary entries and articles**, website only unless BDR
+  changes the apps: idea N11.
+- **Where the margin is too narrow for the 280px panel, the text column
+  moves; the panel doesn't shrink** (a 220px minimum was tried and BVJ
+  chose the 280px panel). Only the column moves: never the header, the tool
+  row, the license band or the glossary's cream band. **On the glossary only
+  the entries move; the hero stays centred**, since the panel starts level
+  with the first entry. The glossary's column box matches Study View's
+  exactly (the 52 measure plus 16px a side), so the two pages behave alike.
+- **Raised, not decided: margin notes while the Notebook panel is open.**
+  See "Still open".
+
 ## Still open
 
+- **Margin notes while the Notebook panel is open** (raised 2026-10-06;
+  BVJ to decide before phase 1c builds the margin). With the panel now in
+  the right margin beside the text, the left margin's notes (placement 2,
+  N1) and the panel's "This chapter" list would show a chapter's notes
+  twice. An open panel also takes room on the left, since the text moves
+  left when the margin can't hold it (on an article at 1162px, about 140px
+  is left, against the margin's 230px). The options:
+  1. **Keep both.** The two do different jobs (notes in place, an index),
+     so the doubling is tolerable.
+  2. **The open panel stands in for the margin.** Its "This chapter" list
+     follows the reading position, picking out the notes for the verses on
+     screen, and the left margin shows nothing until the panel closes.
+  3. **The margin shows only dots while the panel is open**, each linking to
+     its note in the panel.
+
+  **Recommendation: option 2.** It removes the doubling, frees the left
+  side exactly when room is tightest, and the panel's list is already in
+  verse order. Related: whether notes on articles (N11) use the margin at
+  all.
 - **The merge and overlap rules** (talk-through item 20), needed from BDR
   before phase 1c. The trash record's fields (question 4) are built
   provisionally in 1b, so BDR's answer may mean a migration.
