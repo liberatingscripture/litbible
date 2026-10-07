@@ -2468,3 +2468,20 @@ review:alignment`:
 `luke-10` also gained the topic "life of the coming Age", now that 10:25 reads
 "the life of the coming Age", as 18:18 does. Its eternal/everlasting/agelong
 trio stays.
+
+## §33 — Romans 12:14, a doubled object (2026-10-06)
+
+The verse read "wish them well those who pursue you with intent to harm",
+which carries both a pronoun and the noun phrase it stands for. The owner had
+"them" dropped there; the second clause's "wish them well" stays, since that
+εὐλογεῖτε has no object in the Greek and the English supplies one. Found while
+checking alignment records for renderings split by another word.
+
+| repo | master | was → now |
+|---|---|---|
+| `romans-12` p (12:14) | Romans | `wish them well those who pursue you` → `wish well those who pursue you` |
+
+**Back-port to Word**: the Romans master (checked 2026-10-06) still carries the
+doubled "them", so a restore from it would bring it back. The two alignment
+records for that verse were repaired in place ("wish well" n=1, "wish them
+well" n=1).
