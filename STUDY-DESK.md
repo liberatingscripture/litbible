@@ -20,7 +20,8 @@ are recorded so they aren't re-argued.
   recommends C; BDR is torn between A and C and would lean A if it can be
   shown to work. October's spikes test plan A against agreed pass marks,
   with a decision proposed by October 31. A Zoom between BVJ and BDR takes
-  the open items. **BVJ leans toward launching C** (2026-10-07), with "don't
+  the open items. **BVJ clearly prefers launching C** (2026-10-07, firmer after
+  the sizing; a preference, not an insistence or a decision), with "don't
   sign in" as the keep-it-in-your-own-cloud option (iCloud on Apple devices,
   as today) and full A added later only if readers ask; the website's side
   of each plan is sized in that section. Nothing is decided.
@@ -1382,7 +1383,7 @@ recommendation, not a decision.
 
 | # | Question | IDs | Who decides | Where it stands |
 |---|---|---|---|---|
-| 1 | Plan A or plan B (now **A or C**; see "One notebook, three homes") | T1, A-Q1 | BVJ with BDR | **2026-10-07:** BDR is torn between A and C; BVJ leans C (not decided); the proposal recommends C and tests A with spikes, deciding by October 31. Before that: BDR leaned hard to A. **Lean: A, if P1–P3 pass by the end of October.** It keeps the privacy page's promise that the site collects personal information only when someone chooses to send it, needs nobody on call, and lets the apps launch without the website. It moves work to the website (finding 6) |
+| 1 | Plan A or plan B (now **A or C**; see "One notebook, three homes") | T1, A-Q1 | BVJ with BDR | **2026-10-07:** BDR is torn between A and C; **BVJ clearly prefers C** (firmer after the website's sizing; not an insistence, not decided); the proposal recommends C and tests A with spikes, deciding by October 31. Before that: BDR leaned hard to A, and this review's 2026-10-05 lean, now superseded, was **A, if P1–P3 pass by the end of October.** It keeps the privacy page's promise that the site collects personal information only when someone chooses to send it, needs nobody on call, and lets the apps launch without the website. It moves work to the website (finding 6) |
 | 2 | Does "LIT never holds the notes" answer the end-to-end lean (C19)? | T2, A-Q2 | BVJ | Under plan A, Apple or Google could read the notes, as they can anything else in the account. LIT never could, and there is no recovery key to lose |
 | 3 | Brackets in anchors | T7 | BVJ; the apps follow | **Lean: strip** (finding 5) |
 | 4 | Reading positions: shared, or separate with ribbons crossing over | T5 (A-R6 says shared) | BVJ | **Lean: share one place per book**, stored as a verse (A-F13), so stopping on the phone moves the desk's Continue reading |
@@ -1572,7 +1573,8 @@ which is now B or C.
 - BDR confirmed that "Sign in with Apple" meant the familiar sign-in
   buttons, which is plan C, not CloudKit's web sign-in.
 
-**BVJ's lean (2026-10-07), not a decision: launch plan C, with "don't sign
+**BVJ's clear preference (2026-10-07), not an insistence and not a decision:
+launch plan C, with "don't sign
 in" as the keep-it-in-your-own-cloud option, and add full plan A later only
 if readers ask for it.** C already contains a version of A: an iPhone reader
 who never signs in keeps today's iCloud sync, and LIT holds nothing. What
@@ -1587,6 +1589,10 @@ What "don't sign in" means on each surface at launch:
 - **Android:** the notes stay on the device, with Auto Backup restoring them
   on a reinstall. No sync between Android devices without signing in.
 - **The website:** the notebook in the browser, with export and import.
+
+It began as a lean and became a clear preference once the sizing below
+showed C's website side as the smaller one at launch and far the smaller to
+keep up.
 
 Every feature that doesn't truly need cross-device sync works without
 signing in at all. The desk is already built that way (phases 1 to 3 run in the browser, and
