@@ -1553,6 +1553,11 @@ website has to say goes here, on `main`, with its date.
   printed codes. See "BVJ's clear preference".
 - **The encryption spec and its test vectors would be written here**, in
   November, if plan C goes ahead (the sizing's first row).
+- **Capacity differs**: BVJ is on Claude Pro, BDR on the lower Max plan. So
+  it favours BDR's side building the plan C service (Zoom item 4's
+  recommendation), and the website's own pieces on the apps' path staying few
+  and small. See "Capacity" under the
+  sizing.
 - Everything else in the proposal (rules a to e, the Zoom items, the
   sequence) waits on BDR or on the Zoom.
 
@@ -1828,7 +1833,9 @@ recommendations, none decided:**
    side, deployed to BVJ's Cloudflare, following this repo's conventions with
    BVJ reviewing. Shared ownership with a one-page runbook. Name who owns the
    Cloudflare account, the Apple developer account and the Google Cloud
-   project.
+   project. **Capacity supports this** (see "Capacity" under the sizing): BVJ
+   is on Claude Pro and BDR on Max, so the service would cost the website's
+   side the most if it were built here.
 5. **Continue reading across devices:** one place per book if BVJ can live
    with it, separate places if not (BVJ leaned slightly against,
    2026-10-05).
@@ -1933,6 +1940,27 @@ is on the apps' path; website readers wait for it instead. The two biggest
 unknowns are the device-approval step under C, the newest of these pieces
 to all three teams, and whether Core Data accepts website-written records
 under A (spike 1).
+
+**Capacity: the two sides don't have the same amount of Claude** (BVJ,
+2026-10-07). BVJ works on the **Claude Pro** plan; BDR has the **lower of the
+two Max plans**, about five times Pro's usage. Every session above runs in
+BVJ's Claude, so Pro's usage limits set the website's pace, and a
+website session takes more calendar time than the same work on BDR's side.
+What follows:
+- **Work that could live on either side goes better on BDR's.** Above all the
+  plan C service (Zoom item 4): building it here would add 7–8 sessions to
+  the side with the least room.
+- **It counts against plan A**, which puts its largest pieces, both
+  connectors and the token server, on the website.
+- **The website's pieces on the apps' path should stay few and small**: the
+  encryption spec and its vectors (November), reviewing the service's PRs,
+  and the privacy page and terms.
+- **BDR's Claude could draft website-side pieces** where that saves BVJ's
+  usage, as pull requests BVJ reviews. That would widen BDR's scope here
+  beyond /apps and /privacy (`BDR-ONBOARDING.md`), which is BVJ's call (not
+  decided). The encryption spec is the obvious candidate, with its test
+  vectors kept in this repo.
+- Phases 1c to 3 keep their own order and pace (BVJ, 2026-10-05).
 
 ### Corrections it makes
 
