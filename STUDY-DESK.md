@@ -20,7 +20,9 @@ are recorded so they aren't re-argued.
   recommends C; BDR is torn between A and C and would lean A if it can be
   shown to work. October's spikes test plan A against agreed pass marks,
   with a decision proposed by October 31. A Zoom between BVJ and BDR takes
-  the open items. Nothing is decided.
+  the open items. **BVJ leans C** (2026-10-07), with everything that doesn't
+  need cross-device sync usable without signing in; the website's side of
+  each plan is sized in that section. Nothing is decided.
 
 - **Status: phase 1b built, behind a preview switch; nothing reader-facing
   yet.** Readers see and download none of it. `litbible.net/?desk=on` turns
@@ -1379,7 +1381,7 @@ recommendation, not a decision.
 
 | # | Question | IDs | Who decides | Where it stands |
 |---|---|---|---|---|
-| 1 | Plan A or plan B (now **A or C**; see "One notebook, three homes") | T1, A-Q1 | BVJ with BDR | **2026-10-07:** BDR is torn between A and C; the proposal recommends C and tests A with spikes, deciding by October 31. Before that: BDR leaned hard to A. **Lean: A, if P1–P3 pass by the end of October.** It keeps the privacy page's promise that the site collects personal information only when someone chooses to send it, needs nobody on call, and lets the apps launch without the website. It moves work to the website (finding 6) |
+| 1 | Plan A or plan B (now **A or C**; see "One notebook, three homes") | T1, A-Q1 | BVJ with BDR | **2026-10-07:** BDR is torn between A and C; BVJ leans C (not decided); the proposal recommends C and tests A with spikes, deciding by October 31. Before that: BDR leaned hard to A. **Lean: A, if P1–P3 pass by the end of October.** It keeps the privacy page's promise that the site collects personal information only when someone chooses to send it, needs nobody on call, and lets the apps launch without the website. It moves work to the website (finding 6) |
 | 2 | Does "LIT never holds the notes" answer the end-to-end lean (C19)? | T2, A-Q2 | BVJ | Under plan A, Apple or Google could read the notes, as they can anything else in the account. LIT never could, and there is no recovery key to lose |
 | 3 | Brackets in anchors | T7 | BVJ; the apps follow | **Lean: strip** (finding 5) |
 | 4 | Reading positions: shared, or separate with ribbons crossing over | T5 (A-R6 says shared) | BVJ | **Lean: share one place per book**, stored as a verse (A-F13), so stopping on the phone moves the desk's Continue reading |
@@ -1387,7 +1389,7 @@ recommendation, not a decision.
 | 6 | The reader with both Apple and Android devices; the reader who wants neither sign-in | T4 | BVJ, BDR | **Lean: a known gap at launch**, with export and import; the website bridge later. The reader who wants neither keeps the notebook in the browser |
 | 7 | When a mark's words are gone | A-Q6, A-F5 | BVJ, BDR | **Lean: one rule on all three.** Use the apps' rule, with the notice: place the mark on the words between the old context, keep the old words, and write nothing until the reader chooses Keep |
 | 8 | What must be live on February 10, and the fallback if one platform isn't ready | A-Q3 | BVJ, BDR | Under plan A, the website can join later |
-| 9 | Can the website build two storage adapters by February 10, alongside the desk? | A-Q7 | BVJ | Unsized (finding 6) |
+| 9 | Can the website build two storage adapters by February 10, alongside the desk? | A-Q7 | BVJ | **Sized 2026-10-07:** 16–18 sessions at launch, more to keep up ("Sizing the website's side") |
 | 10 | Who owns the Google Cloud project, the CloudKit container and the spec | A-Q4, T8 | BVJ, BDR | The container is in BDR's developer account. **Lean: the spec and its vectors live in this repo** |
 | 11 | The stores' privacy answers ("No data collected" on Play) | A-Q5, P3 | BVJ, BDR | Unverified under plan A |
 | 12 | The apps' License screen wording | T9, A-Q10 | BVJ | **Needed by mid-October.** Draft: "The LIT Bible is licensed under CC BY-NC-ND 4.0, with added permissions: you may print, display and share any amount for noncommercial uses such as Bible studies, classes, sermons and bulletins, and you may quote it in commercial works within set limits. The full terms, including the credit line to use, are at litbible.net/read#license-terms." Android's existing "You may not distribute modified versions" stays accurate |
@@ -1568,6 +1570,18 @@ which is now B or C.
 - **Leans against colour meanings** (H1) on any platform.
 - BDR confirmed that "Sign in with Apple" meant the familiar sign-in
   buttons, which is plan C, not CloudKit's web sign-in.
+
+**BVJ's lean (2026-10-07), not a decision: plan C, with every feature that
+doesn't truly need cross-device sync usable without signing in at all.** The
+desk is already built that way (phases 1 to 3 run in the browser, and
+no-login stays, 2026-10-01), so this costs nothing extra. What then needs a
+sign-in: the notebook syncing between devices, and what rides on it ("What's
+new for you" and Continue reading following the reader, the devices page).
+One decided feature needs a sign-in without being sync: **M14's short share
+links**. Recommendation (not decided): keep them for signed-in readers. A
+service that hosts encrypted content it can't read, for anyone without an
+account, is a home for abuse nobody can moderate. Everyone still has S8's
+long links and printed codes, which need nothing hosted.
 
 **BDR's decisions for the apps** (BDR's to make):
 - **Android shows bookmarks** in its first synced release, as a Bookmarks
@@ -1818,6 +1832,64 @@ recommendations, none decided:**
 **The website still builds in its own order** (BVJ, 2026-10-05). The
 schedule's biggest risk, by the proposal's own account, is end-to-end
 encryption: a medium-sized piece on each of the three sides.
+
+### Sizing the website's side (2026-10-07)
+
+The proposal asked BVJ to size the website's work (finding 6, A-Q7). These
+are estimates, good to about half again either way. The unit is a
+**session**: one focused build ending in one reviewed PR, the size of phase
+1b (#277, about 1,900 lines). Each also costs BVJ a review, and the sync work
+costs BVJ hand testing on real accounts and devices besides. Work every plan
+needs (the merge engine, the local notebook, export and import, the format
+freeze) isn't counted.
+
+**Plan C, with the service built by BDR's side (Zoom item 4's
+recommendation):**
+
+| Piece | Sessions |
+|---|---|
+| The encryption spec and its test vectors, shared with both apps: the envelope, wrapping the notebook key with the recovery code, approving a new device. Written here, like the anchor text. **Due in November; the only website piece the apps' February 10 waits on** | 2 |
+| The encryption layer in the browser: the notebook key, the recovery-code screens, approving a new device. It also builds most of D5's lock, since the two share one key (C6) | 3 |
+| The connector: the sync loop, edits queued offline, status and "Reconnect", the conflict screen, merging the browser's notebook into the account at first sign-in (C5) | 3–4 |
+| Sign-in and account pages on every device (C1): Apple, Google, passkey; adding a way in; devices and "sign out everywhere"; deleting the account | 2 |
+| Passkey link files (`webcredentials`, `get_login_creds`) and enforcing the full CSP, after a week of the report-only data | 1–2 |
+| The privacy page, terms with a minimum age, "Ways to keep your notebook", D6's wording | 1–2, plus BVJ's own writing |
+| **Total** | **12–15**, plus reviewing three to five service PRs from BDR's side |
+
+If the website builds the service too, add 7–8: sign-in (Apple, Google,
+passkeys, linking, sessions) 3; the records API with its revision check,
+change cursor and the 30-day sweep 2; deletion, Apple token revocation, the
+web deletion page and rate limits 1–2; tests, runbook and
+`DISASTER-RECOVERY.md` 1. That is 19–23 in all.
+
+**Plan A, launch scope:**
+
+| Piece | Sessions |
+|---|---|
+| The iCloud adapter: CloudKit JS sign-in; the app's own records, sliced per paragraph, with the new placement value; the separate zone for website-only kinds; change tokens and change-tag conflicts; long notes as attachments; what an Advanced Data Protection reader sees. Needs BDR for the web token and every production schema deploy | 5–6 |
+| The Drive adapter: Google's browser sign-in, one file per record, the change cursor, version conflicts, a full quota, the reconnect | 3 |
+| The token server, if spike 2 shows hourly popups (likely to fail BVJ's "no sign-in that isn't obvious"). It holds a credential to every connected reader's Drive folder, and someone is on call for it | 2–3 |
+| The connector over two stores, and choosing which cloud | 4 |
+| CSP, the privacy page (simpler: "never holds"), D6's wording | 2 |
+| **Total** | **16–18**; 19–23 with the bridge for mixed readers (3–5), which can come later |
+
+Plan A also costs more after launch: **every change to the iOS app's iCloud
+model is a website change**, tested against real Apple accounts, for as long
+as both exist. Under C the website and the apps change only the shared
+format, together. Google's review of the Drive permission is unchecked.
+
+**Both, a choice per reader:** about **26–31**. C's 12–15, plus A's two
+adapters and token server (10–12), plus a choice screen, a pointer that tells
+a new device where the notebook lives, and moving a notebook between homes
+(3). Roughly double either plan, with both plans' risks on the schedule.
+
+**Where that leaves it.** C's website side is about the size of phase 3
+(sheets), and only its first two sessions sit on the apps' path to February
+10. A's is somewhat larger at launch, much larger to keep up, and none of it
+is on the apps' path; website readers wait for it instead. The two biggest
+unknowns are the device-approval step under C, the newest of these pieces
+to all three teams, and whether Core Data accepts website-written records
+under A (spike 1).
 
 ### Corrections it makes
 
@@ -2146,8 +2218,9 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
    accounts, and perhaps a token-only Worker for Google. Plan C (or B) adds the
    service on Cloudflare, account pages on every device (C1) and account
    basics (C20). Either way: one key and then the lock (C6, D5), the
-   encryption choice (C19), and short share links (M14). The website's side
-   of plan A hasn't been sized (A-Q7). Large.
+   encryption choice (C19), and short share links (M14). Sized on 2026-10-07
+   ("Sizing the website's side"): 12–15 sessions under C if BDR's side
+   builds the service, 16–18 under A. Large.
 
 **Any time, independent of all of it**: both apps link to the license terms
 (BDR's item 11: Android in 1.3, iOS in 2.0, 2.0.1 or 2.1); N9, print with
