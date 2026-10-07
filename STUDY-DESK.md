@@ -253,16 +253,14 @@ every week.
    It needs about **230px of free space** beside the column, decided by the
    space left, not the window width; otherwise it falls back to dots and the
    panel (audit C9). The apps already mark notes in the left margin.
-   - **Open: margin notes while the Notebook panel is open** (raised
-     2026-10-06). Since the panel moved into the right margin beside the
-     text, an open panel and the margin would show a chapter's notes twice.
-     **Recommendation (not decided): show margin notes only while the panel
-     is closed.** While it's open, its "This chapter" list would do the
-     margin's job, following the reading position and picking out the notes
-     for the verses on screen, and the left margin would show nothing. That
-     would also free the left side when room is tightest: an open panel can
-     move the text left (articles most), and the margin's 230px is then often
-     gone anyway. The other options are under "Still open".
+   - **The reader chooses what the margin shows** (BVJ, 2026-10-07): a
+     switch with three settings, **notes shown, notes as dots, notes
+     hidden** (the wording can change). The margin and the Notebook panel do
+     different jobs and can both show at once: the margin puts each note
+     beside its verse, and the panel lists them. **A note in the panel takes
+     the reader to its place on the page**, beside its verse in the margin.
+     This replaced the 2026-10-06 recommendation to empty the margin while
+     the panel is open. The details still open are under "Still open".
    - **About X11**: the feature audit's X11 (footnotes in the margin on wide
      screens) was declined on 2026-09-28. BVJ confirmed (2026-10-01) that the
      reason for declining it doesn't rule out the reader's own notes in the
@@ -427,7 +425,12 @@ plan as a whole was accepted; nothing was declined except where stated).
 
 ### Highlights and marks
 
-- **H1. Your own legend.** Four colors, the same number as the apps, each with
+- **H1. Your own legend.** **The legend is dropped (BVJ, 2026-10-07, with
+  BDR): highlights are four colours with no names.** What stays from H1: the
+  colours, kept away from the site's green; Read View's switch; the words
+  for screen readers (the colour's name, "highlighted yellow"); the second
+  cue; and colours stored by the apps' names. As first planned: four
+  colors, the same number as the apps, each with
   a meaning the reader names (promise, question, harm, liberation, anything).
   Lists and exports group by meaning. Colors stay well away from the site's
   selected-verse green. **Read View: highlights hidden by default**, with a
@@ -1361,7 +1364,8 @@ Same BDR, two apps. Each of these is a format decision, not a detail:
   4. **bookmark** (B2): a verse, a label, and how the reader got there.
   5. **place** (B1): the place in each book, and named ribbons.
   6. **colour legend** (H1): the reader's meaning for each of the four
-     colours.
+     colours. **Dropped 2026-10-07**; the number is kept so the others
+     don't move.
   7. **concept-mark rule** (H2): a term, a book, a colour.
   8. **label** (M8): a name; records list their labels.
   9. **sheet** (S1 to S10): one structured document.
@@ -1397,7 +1401,7 @@ recommendation, not a decision.
 | 12 | The apps' License screen wording | T9, A-Q10 | BVJ | **Needed by mid-October.** Draft: "The LIT Bible is licensed under CC BY-NC-ND 4.0, with added permissions: you may print, display and share any amount for noncommercial uses such as Bible studies, classes, sermons and bulletins, and you may quote it in commercial works within set limits. The full terms, including the credit line to use, are at litbible.net/read#license-terms." Android's existing "You may not distribute modified versions" stays accurate |
 | 13 | Do shared sheet links need something hosted? | T10, A-M8 | BVJ | S8's links carry the sheet after the #, so they need nothing hosted. Only M14's short links need a small store, holding sheets only |
 | 14 | The N8 record, and whether hiding reaches daily readings and widgets | A-Q9 | BVJ | Shape proposed in W6; both apps list every route a hidden passage must stay hidden on |
-| 15 | Colour meanings in the apps | T6 | BVJ, BDR | BDR wants to talk it through |
+| 15 | Colour meanings in the apps | T6 | BVJ, BDR | **Settled 2026-10-07: dropped everywhere** (BVJ agreed with BDR's lean) |
 | 16 | The alignment data in the apps: N2 and H2 shown, or only carried | A-Q8 | BVJ | **Lean: carried only, at launch** |
 | 17 | The QR address | A-Q11 | BVJ | Both apps agree on `https://litbible.net/romans-8/#v3-4` |
 | 18 | Bookmarks vs the `bookmark` marker; whether a quote may cross a verse or paragraph boundary | A-Q13 | the three Claudes propose | **Lean: bookmarks are their own kind**, and the marker stays a note's glyph |
@@ -1506,8 +1510,8 @@ needing a decision. None blocks the format.
 - **The notebook file (D1):** a sync method, or export and import only (T3).
 - **The reader with both an Apple and an Android device** (T4).
 - **End-to-end encryption under the chosen plan** (T2, A-Q2).
-- **How the reader's colour meanings appear in the apps** (T6), BVJ with
-  BDR.
+- ~~How the reader's colour meanings appear in the apps~~ (T6): **settled
+  2026-10-07, colour meanings are dropped everywhere.**
 - **Ownership** of the Google Cloud project, the CloudKit container setup
   and the format spec (A-Q4, T8). Lean: the spec stays in this repo.
 - **The stores' privacy answers**, including Play's "No data collected"
@@ -1558,6 +1562,11 @@ website has to say goes here, on `main`, with its date.
   recommendation), and the website's own pieces on the apps' path staying few
   and small. See "Capacity" under the
   sizing.
+- **Colour meanings are dropped everywhere** (Zoom item 6; BVJ, 2026-10-07,
+  agreeing with BDR's lean). The format loses the `legend` kind.
+- **The website's margin is the reader's choice** (notes shown, as dots, or
+  hidden), beside the Notebook panel's list. Website only; nothing changes
+  for the apps.
 - Everything else in the proposal (rules a to e, the Zoom items, the
   sequence) waits on BDR or on the Zoom.
 
@@ -1839,9 +1848,9 @@ recommendations, none decided:**
 5. **Continue reading across devices:** one place per book if BVJ can live
    with it, separate places if not (BVJ leaned slightly against,
    2026-10-05).
-6. **Colour meanings (H1):** drop everywhere, website only, or read-only in
-   the apps. A taste call; whatever happens, each colour keeps a second
-   visual cue (C4).
+6. **Colour meanings (H1): decided 2026-10-07, dropped everywhere.** BVJ
+   agreed with BDR's lean, so it comes off the Zoom's list. Each colour keeps
+   a second visual cue (C4).
 7. **The notebook file (D1):** export and import only.
 8. **The stores' declarations:** accept that "No data collected" ends (for
    certain under C, probably on Android under A). The privacy policy changes
@@ -2220,7 +2229,13 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
          stay put at full width. (An earlier version padded the page instead,
          which cut the license band short and showed cream beside it.);
        - in a window too narrow for even that (about 900px), the panel lies
-         over the ends of the lines.
+         over the ends of the lines. **To change (BVJ, 2026-10-07; recorded,
+         not built yet):** once the panel would start covering text, it
+         becomes a **floating window the reader can expand and collapse**
+         instead of a card in the margin. Details to settle when it's built:
+         what it looks like collapsed (a small tab or button at the window's
+         edge is the likely form), whether it can be moved, and that it never
+         covers the text while collapsed.
        Read View, article pages and the glossary work the same way. Pages
        with no reading column (the home page, the articles list, /search)
        get no panel and no Notebook button at all (`READING_SURFACES` in
@@ -2242,12 +2257,13 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
        holding the preview link stores anything.
    - **1c. Marks in Study View.** The "Yours" actions in the verse menu and
      selection panel; notes with the apps' seven markers; highlights in the
-     four colours with the reader's own meanings (H1) and a second cue
+     four colours, with no named meanings (H1's legend was dropped 2026-10-07;
+     1c also takes `legend` out of `KINDS` in `src/lib/desk-records.mjs`), and a second cue
      besides colour (C4), modelled on the apps' marker glyph and dotted
      underline; bookmarks; the margin, falling back to dots and the panel
-     (C9), and what it does while the panel is open, to be decided first
-     (placement 2; recommended: nothing, with the panel's "This chapter"
-     list following the reading position instead); the change notice, driven by the format's found, moved, changed,
+     (C9), with the reader's switch for notes shown, as dots or hidden, and
+     the panel's notes taking the reader to their place (BVJ, 2026-10-07;
+     placement 2); the change notice, driven by the format's found, moved, changed,
      verse and lost, in the apps' words (iOS: Re-read in Context, Keep,
      Delete; Android: "carried along" and "couldn't find your words"); the
      "This verse" tab (N10); Read View's smaller set, through events (C2);
@@ -2581,29 +2597,48 @@ The rest of the same day's review:
   with the first entry. The glossary's column box matches Study View's
   exactly (the 52 measure plus 16px a side), so the two pages behave alike.
 - **Raised, not decided: margin notes while the Notebook panel is open.**
-  See "Still open".
+  Decided 2026-10-07 (below).
+
+### 2026-10-07 (the margin, and colour meanings)
+
+- **A narrow window gets a floating notebook** (a change to 1b, recorded
+  now and built later). Where the panel would start covering the text, it
+  becomes a floating window the reader can expand and collapse, instead of
+  lying over the ends of the lines. See "Order of work", 1b.
+- **The margin is the reader's choice.** A switch with three settings:
+  notes shown, notes as dots, notes hidden (the wording can change). The
+  left margin shows a note beside its verse; the Notebook panel on the right
+  lists them; both can show at once. **Each note in the panel takes the
+  reader to its place on the page.** Placement 2 and phase 1c follow this.
+  The switch's details are under "Still open", with recommendations.
+- **Colour meanings (H1's legend) are dropped**, everywhere. BVJ agreed with
+  BDR's lean (Zoom item 6), so this is settled for all three. Highlights
+  keep their four colours, stored by the apps' names (C8), each with a
+  second visual cue (C4). Screen readers announce the colour ("highlighted
+  yellow"). Lists and exports group by colour. Read View's highlights stay
+  off by default. The format drops the `legend` kind.
 
 ## Still open
 
-- **Margin notes while the Notebook panel is open** (raised 2026-10-06;
-  BVJ to decide before phase 1c builds the margin). With the panel now in
-  the right margin beside the text, the left margin's notes (placement 2,
-  N1) and the panel's "This chapter" list would show a chapter's notes
-  twice. An open panel also takes room on the left, since the text moves
-  left when the margin can't hold it (on an article at 1162px, about 140px
-  is left, against the margin's 230px). The options:
-  1. **Keep both.** The two do different jobs (notes in place, an index),
-     so the doubling is tolerable.
-  2. **The open panel stands in for the margin.** Its "This chapter" list
-     follows the reading position, picking out the notes for the verses on
-     screen, and the left margin shows nothing until the panel closes.
-  3. **The margin shows only dots while the panel is open**, each linking to
-     its note in the panel.
-
-  **Recommendation: option 2.** It removes the doubling, frees the left
-  side exactly when room is tightest, and the panel's list is already in
-  verse order. Related: whether notes on articles (N11) use the margin at
-  all.
+- **The margin switch's details** (decided in outline 2026-10-07; see
+  "Decisions", 2026-10-07). Recommendations, not decided:
+  1. **Where it lives: the Display tray's "Show" group**, beside verse
+     numbers, footnote letters and key terms, shown only while the desk is
+     on and only in Study View. It is a setting about how the page looks, and
+     that is where the reader already finds those.
+  2. **The default: notes shown.** "Shown" means shown where there is room:
+     where the free space beside the column is under about 230px (C9), notes
+     fall back to dots whatever the setting. An open panel leaves less room
+     on the left, so this happens more often then (on an article at 1162px,
+     about 140px is left).
+  3. **Going to a note from the panel** scrolls its verse into view and
+     briefly marks the note in the margin. With dots it opens that dot's
+     note; with notes hidden it marks the verse instead. Keyboard focus lands
+     on the note, so a screen-reader user hears it.
+  4. **M1 stays separate.** M1 hides every note, highlight and mark for a
+     moment (sharing a screen, teaching); the margin switch is a standing
+     preference about the margin. M1's shortcut overrides it while on.
+  5. **Notes on articles (N11)** use the same margin and the same switch.
 - **The merge and overlap rules** (talk-through item 20), needed from BDR
   before phase 1c. The trash record's fields (question 4) are built
   provisionally in 1b, so BDR's answer may mean a migration.
