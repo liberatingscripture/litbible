@@ -3148,10 +3148,11 @@ html[data-font="dyslexic"] .lit-panel--chips .lit-panel__btn {
    The Study Desk's frame (preview; STUDY-DESK.md, phase 1b)
    =========================================================
    Layout.astro's pre-paint script sets <html data-desk="on"> on a computer
-   with the preview switched on, and data-desk-panel="open" when the
-   Notebook panel was left open, so everything here holds from first paint.
-   The desk's own styles (the panel, its list, the undo bar) are in
-   src/styles/desk.css and load with the desk. */
+   with the preview switched on, so everything here holds from first paint.
+   The Notebook panel itself sits in the right margin beside the text and
+   moves nothing where the margin is wide enough (src/lib/desk-margin.mjs),
+   so it needs no room reserved here. Its styles (the panel, its list, the
+   undo bar) are in src/styles/desk.css and load with the desk. */
 
 /* Every Notebook button (the header's two, Read View's toolbar) is in the
    markup for everyone and shown only with the desk on. !important because
@@ -3165,34 +3166,4 @@ html:not([data-desk]) [data-desk-toggle] {
    for the preview only until the desk is released. --ch is untouched. */
 html[data-desk] {
   --reading-measure: 52;
-}
-
-/* The docked panel is part of the page frame (audit C12): while it's open
-   the page gives up its width on the right, so the header and the centred
-   text move left together. Floating panels read --desk-dock-width to stay
-   clear of it (desk-frame.js).
-   It docks only where the narrower page still gets the layout its own
-   breakpoints choose, since those read the window's width, not the page's.
-   The header is the tightest: with the full nav showing, the short title
-   ("LIT Bible", 118px) is clipped below about 1345px. Measured 2026-10-05:
-   1360px for Inter and Atkinson, and 1760px for OpenDyslexic, whose header
-   needs 1400px of its own. Below that the panel lies over the right edge
-   of the page instead. In a window under about 1270px that covers the ends
-   of the lines, so it is put away with its × or Escape. A layout that docks
-   in every window would need the header and the toolbars to answer to the
-   page's width (container queries), which is more than the preview needs. */
-html[data-desk-panel="open"] {
-  --desk-dock-width: 340px;
-}
-
-@media (min-width: 1360px) {
-  html[data-desk-panel="open"]:not([data-font="dyslexic"]) body {
-    margin-right: var(--desk-dock-width);
-  }
-}
-
-@media (min-width: 1760px) {
-  html[data-desk-panel="open"][data-font="dyslexic"] body {
-    margin-right: var(--desk-dock-width);
-  }
 }

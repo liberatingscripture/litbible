@@ -1,17 +1,16 @@
 // src/scripts/desk/panel.js
 //
-// The Notebook panel, docked on the right (STUDY-DESK.md, placement 3 and
-// audit C12). It is part of the page frame, not one of the shared floating
-// panels: global.css gives the page a right margin while it's open, so the
-// header and the text move left to make room, and the floating panels
-// (lit-panel.js, the Display tray) keep clear of it. A click inside it closes
-// none of them.
+// The Notebook panel, in the right margin beside the text (STUDY-DESK.md,
+// placement 3; BVJ 2026-10-06: it fills the margin rather than pushing the
+// page aside). margin.js places it. It is part of the page frame, not one of
+// the shared floating panels (audit C12): they keep clear of it, and a click
+// inside it closes none of them.
 //
 // Not modal: the reader goes on reading with it open, so focus moves in when
 // it opens and back to its button when it closes, and nothing is trapped.
-// Whether it's open is kept in localStorage['lit-desk-panel'], and
-// Layout.astro's pre-paint script reserves its room on the next page before
-// first paint, so a page opening with it never shifts.
+// Whether it's open is kept in localStorage['lit-desk-panel'], so the next
+// page opens with it. Where the margin is wide enough, which it is on most
+// computers, nothing moves when it appears.
 //
 // Phase 1b holds the frame only: a list of what the notebook keeps, with
 // Delete, and (preview only) a way to add a sample note so delete, undo and
@@ -21,7 +20,7 @@ import { createRecord, verseCopyFor } from "../../lib/desk-records.mjs";
 import { forChapter, kindName, liveRecords, recordHref, recordReference } from "../../lib/desk-store-core.mjs";
 import { pageAnchorText } from "../../lib/desk-anchor-dom.mjs";
 import { bookKeyToLabel } from "../../data/books.js";
-import { keepReadingPlace } from "../keep-reading-place.js";
+import { createRail } from "./margin.js";
 import { showUndo } from "./undo-bar.js";
 
 const OPEN_KEY = "lit-desk-panel";
@@ -54,7 +53,9 @@ export function createPanel({ store, storeError, ctx }) {
   panel.setAttribute("data-desk-dock", "");
   panel.setAttribute("aria-labelledby", "deskPanelTitle");
   panel.tabIndex = -1;
-  panel.hidden = root.dataset.deskPanel !== "open";
+  let startOpen = false;
+  try { startOpen = localStorage.getItem(OPEN_KEY) === "open"; } catch (_) {}
+  panel.hidden = !startOpen;
 
   const tabs = [
     ...(here ? [{ id: "chapter", label: here.label }] : []),
@@ -87,7 +88,7 @@ export function createPanel({ store, storeError, ctx }) {
       <p class="desk-panel__kept">Kept in this browser.</p>
       <p class="desk-panel__persist" hidden></p>
     </div>`;
-  document.body.appendChild(panel);
+  const rail = createRail(panel);
 
   const list = panel.querySelector(".desk-list");
   const empty = panel.querySelector(".desk-panel__empty");
@@ -105,10 +106,9 @@ export function createPanel({ store, storeError, ctx }) {
 
   function open(from) {
     lastToggle = from ?? lastToggle;
-    keepReadingPlace(() => {
-      root.setAttribute("data-desk-panel", "open");
-      panel.hidden = false;
-    });
+    root.setAttribute("data-desk-panel", "open");
+    panel.hidden = false;
+    rail.show(true);
     try { localStorage.setItem(OPEN_KEY, "open"); } catch (_) {}
     syncToggles();
     render();
@@ -116,10 +116,9 @@ export function createPanel({ store, storeError, ctx }) {
   }
 
   function close() {
-    keepReadingPlace(() => {
-      root.removeAttribute("data-desk-panel");
-      panel.hidden = true;
-    });
+    root.removeAttribute("data-desk-panel");
+    panel.hidden = true;
+    rail.hide(true);
     try { localStorage.removeItem(OPEN_KEY); } catch (_) {}
     syncToggles();
     // Back to the button that opened it, or the first one showing.
@@ -295,6 +294,10 @@ export function createPanel({ store, storeError, ctx }) {
   // Another tab opening or closing the panel doesn't move this one: each tab
   // keeps its own layout until the next page load.
 
+  if (startOpen) {
+    root.setAttribute("data-desk-panel", "open");
+    rail.show();
+  }
   syncToggles();
   render();
   return { open, close };

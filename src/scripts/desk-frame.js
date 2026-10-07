@@ -1,17 +1,17 @@
 // src/scripts/desk-frame.js
 //
-// What the rest of the page needs to know about the Study Desk's docked
-// panel, without loading the desk (STUDY-DESK.md, audit C12: the dock is
+// What the rest of the page needs to know about the Study Desk's Notebook
+// panel, without loading the desk (STUDY-DESK.md, audit C12: the panel is
 // part of the page frame, and floating panels keep clear of it). Tiny on
-// purpose: lit-panel.js and the Display tray import it on every page.
+// purpose: lit-panel.js imports it on every page.
 
 /** Matches the docked panel and anything inside it. */
 export const DOCK_SELECTOR = "[data-desk-dock]";
 
 /**
- * The width the docked panel takes from the right edge of the window, in px:
- * 0 unless it is open and docked (global.css sets --desk-dock-width only
- * then; a narrow window gets the panel over the text instead).
+ * How much of the window's width, from its right edge, the open panel keeps
+ * clear for itself, in px: from the panel's left edge to the window's edge,
+ * set by src/scripts/desk/margin.js. 0 when it's closed.
  */
 export function dockWidth() {
   if (!document.documentElement.hasAttribute("data-desk-panel")) return 0;

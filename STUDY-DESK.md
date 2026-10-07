@@ -27,7 +27,8 @@ are recorded so they aren't re-argued.
     (`src/lib/desk-wording.mjs`). See "Order of work", 1a;
   - phase 1b's shell: the gate, the notebook in IndexedDB kept in step across
     tabs, deletion with an undo bar (on the trash record's **provisional**
-    fields), and the docked Notebook panel. See "Order of work", 1b.
+    fields), and the Notebook panel in the right margin. See "Order of
+    work", 1b.
 
   **The development phases were planned on 2026-10-05** ("Order of work"
   below). The format is frozen before anything syncs (BVJ, 2026-10-05).
@@ -242,10 +243,12 @@ every week.
      reason for declining it doesn't rule out the reader's own notes in the
      margin. The reason itself was never recorded, and BVJ doesn't recall it,
      so don't cite it.
-3. **A notebook panel.** A Notebook button beside "Aa" opens a panel docked on
-   the right that stays open while you read: this chapter's notes, places,
-   sheets, everything, search, and (N10) "This verse". The text moves left to
-   make room. It is part of the page frame, not one of the shared floating
+3. **A notebook panel.** A Notebook button beside "Aa" opens a panel on the
+   right that stays open while you read: this chapter's notes, places,
+   sheets, everything, search, and (N10) "This verse". **It fills the right
+   margin beside the text, and the text stays put** (BVJ, 2026-10-06; the
+   plan first had the text move left to make room, and the first build moved
+   the whole page). It is part of the page frame, not one of the shared floating
    panels: floating panels (verse menu, footnote popovers, term lens,
    selection panel) keep clear of it, and clicks inside it don't close them
    (audit C12). Mock: tabs "Romans 8 / Places / Sheets / Everything / Search",
@@ -1667,24 +1670,34 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      - **The panel** (`src/scripts/desk/panel.js`): a Notebook button
        (glyph and word) beside "Aa" in the header, and the glyph alone in
        Read View's toolbar, both hidden by CSS unless the desk is on. It
-       opens a panel docked on the right: "This chapter" (Study View
-       chapters) and "Everything" tabs, each record with Delete, "Kept in
-       this browser" and whether the browser may clear it. A preview-only
-       "Add a sample note" button lets delete, undo and the tabs' keeping
-       in step be tried before 1c; **1c removes it.** Whether the panel is
-       open is remembered and reserved before first paint, so a page opening
-       with it doesn't shift.
-     - **The frame (C12).** While docked, the page gives up 340px on the
-       right, so the header and the text move left together. Floating
-       panels and the Display tray place themselves clear of it, and a click
-       inside it closes none of them; the single-key shortcuts stand down
-       inside it. **It docks only from 1360px windows (1760px in
-       OpenDyslexic)**, measured: the header's and toolbars' breakpoints read
-       the window's width, not the page's, and below that the header's short
-       title is clipped. In narrower windows the panel lies over the right
-       edge of the page, and under about 1270px it covers the ends of the
-       lines. Docking everywhere would need container queries in the header
-       and toolbars.
+       opens the panel: "This chapter" (Study View chapters) and
+       "Everything" tabs, each record with Delete, "Kept in this browser"
+       and whether the browser may clear it. A preview-only "Add a sample
+       note" button lets delete, undo and the tabs' keeping in step be tried
+       before 1c; **1c removes it.** Whether the panel is open is
+       remembered for the next page.
+     - **The panel sits in the margin (C12; BVJ, 2026-10-06).** As first
+       built it docked on the right and the whole page, header included,
+       moved left to make room; BVJ asked for it to fill the margin instead.
+       It is a card in the right margin beside the reading column
+       (`src/lib/desk-margin.mjs` holds the rule, `src/scripts/desk/margin.js`
+       places it): level with the text, below the header and Study View's
+       tool row, pinned to the top of the window while reading (CSS
+       `sticky`), and gone before the footer. **Where the margin is wide
+       enough, nothing on the page moves.** Measured on Romans 8 with the 52
+       measure:
+       - at the default text size it fits from about 1205px windows up
+         (a 1280px window has 321px of margin);
+       - where it doesn't fit, the text moves left only as far as the panel
+         needs (31px at Large and 80px at Extra large in a 1280px window),
+         and the header never moves;
+       - in a window too narrow for even that (about 900px), the panel lies
+         over the ends of the lines.
+       Read View and article pages work the same way. A page with no
+       reading column (the home page, /glossary, the articles list) has no
+       margin to fill, so its content makes room for the panel on the right
+       instead. Floating panels keep 12px clear of it and a click inside it
+       closes none of them; the single-key shortcuts stand down inside it.
      - **The 52 measure is on while the preview is on**, and Read View's
        toolbar takes a floor of 725px (895px in OpenDyslexic) so it doesn't
        change width as its labels change, as OpenDyslexic's already did.
@@ -1981,6 +1994,17 @@ And one while it was being checked:
   name decided on 2026-10-01 (decision 3). Read View's toolbar keeps the
   glyph alone, like its Display button, since that bar is already at its
   widest.
+
+### 2026-10-06 (the panel's place)
+
+BVJ, after trying the merged preview: "The notebook should fill the margin,
+not just push everything aside." The panel had docked on the right with the
+whole page, header included, moving left to make room. It now sits in the
+right margin beside the text, and nothing moves where the margin is wide
+enough. Where it isn't, the text moves only as far as it must and the header
+never moves; a page with no reading column makes room for it (see "Order of
+work", 1b, for the measurements). That also retired the 1360px docking floor
+and the pre-paint reservation the first build needed.
 
 ## Still open
 

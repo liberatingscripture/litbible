@@ -236,7 +236,7 @@ src/
                      #   copy-link buttons on /glossary; keep-reading-place,
                      #   which holds the reader's line through a reflow;
                      #   desk-gate + desk/, the Study Desk preview, and
-                     #   desk-frame, what every page knows about its dock;
+                     #   desk-frame, what every page knows about its panel;
                      #   see "The Study Desk preview" below)
   styles/            # global.css, read-mode.css, scripture-tools.css, articles.css,
                      #   greek-hebrew-fonts.css (imported by global.css),
@@ -2007,8 +2007,8 @@ collection); they're read directly by the intro pages and the API manifest.
   Sefaria or eBible link has no preview; it is an ordinary link to another site.
   `src/scripts/lit-panel.js` is the one panel all reader tools share (verse
   menu, footnote popover, selection panel, preview): one open at a time, closed
-  by an outside click or Escape. A click inside the Study Desk's docked panel
-  doesn't count as outside, and a panel is placed clear of the dock (see
+  by an outside click or Escape. A click inside the Study Desk's Notebook
+  panel doesn't count as outside, and a panel is placed clear of it (see
   below).
 - **The Study Desk preview** (STUDY-DESK.md, phase 1b) is in production but
   switched off for everyone: `?desk=on` turns it on in one browser on a
@@ -2016,9 +2016,8 @@ collection); they're read directly by the intro pages and the API manifest.
   change elsewhere in the site has to respect:
   1. **Layout.astro's pre-paint script decides it**, beside the theme and
      font ones: `lit-desk-preview` plus `isAppPlatform` sets
-     `<html data-desk="on">`, and `lit-desk-panel` sets
-     `data-desk-panel="open"` so the dock's room is reserved before first
-     paint. The script repeats `src/lib/app-platform.mjs`'s test, since it
+     `<html data-desk="on">`. The script repeats
+     `src/lib/app-platform.mjs`'s test, since it
      can't import; `test/desk-prepaint.test.js` runs it against the same
      devices, so change the two together.
   2. **Readers download none of it.** `desk-gate.js` imports
@@ -2028,15 +2027,21 @@ collection); they're read directly by the intro pages and the API manifest.
      import**, which is how the first build shipped it to everyone. The
      Notebook buttons are in every page's markup, hidden by one
      `html:not([data-desk]) [data-desk-toggle]` rule.
-  3. **The dock is part of the page frame (audit C12).** While it's docked,
-     `body` takes a 340px right margin, so floating panels and the Display
-     tray subtract `dockWidth()` (`src/scripts/desk-frame.js`) from the
-     window's width, and anything marked `[data-desk-dock]` counts as inside
-     it (no outside-click close, shortcuts stand down). **It docks only from
-     1360px windows (1760px in OpenDyslexic)**: the site's breakpoints read
-     the window, not the page, and below that the header's short title is
-     clipped. A narrower window gets the panel over the page instead. A new
-     fixed or full-width element should look at `--desk-dock-width`.
+  3. **The Notebook panel sits in the right margin, beside the reading
+     column, and moves nothing where the margin is wide enough** (BVJ,
+     2026-10-06: "fill the margin, not just push everything aside"; the
+     first build pushed the whole page left). `src/lib/desk-margin.mjs` is
+     the rule and `src/scripts/desk/margin.js` places it: a card in an
+     absolutely positioned rail from the top of the reading area to the end
+     of `<main>`, sticky inside it. Where the margin is too narrow, `<main>`
+     takes right padding so the column moves left only as far as needed; the
+     header never moves. Its column selectors (`SURFACES` in margin.js) are
+     Study View's `.scripture-main`, Read View's toolbar and text, and the
+     article card: **a new reading surface needs an entry there**, or the
+     page is treated as having no margin and its content makes room instead.
+     Floating panels subtract `dockWidth()` (`src/scripts/desk-frame.js`)
+     from the window's width, and anything marked `[data-desk-dock]` counts
+     as inside it (no outside-click close, shortcuts stand down).
   4. **While the preview is on, the reading measure is 52**, the width BVJ
      picked for the desk's release, and Read View's toolbar takes a fixed
      floor (725px; 895px in OpenDyslexic) because it outgrows the column.

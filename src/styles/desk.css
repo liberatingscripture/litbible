@@ -1,37 +1,60 @@
 /* src/styles/desk.css
-   The Study Desk's own styles: the docked Notebook panel and the undo bar.
+   The Study Desk's own styles: the Notebook panel in the margin, and the
+   undo bar.
    src/scripts/desk/shell.js imports it as text (?inline) and adds it as a
    <style>, so it loads only with the desk: a plain CSS import would be
    gathered into every page's stylesheet, dynamic import or not.
    What must hold before first paint (the Notebook buttons' visibility, the
-   page's right margin while the panel is open, the reading measure) is in
-   global.css instead, under "The Study Desk's frame".
+   reading measure) is in global.css instead, under "The Study Desk's
+   frame".
 
    Every colour is a theme token, so light and dark (forced or followed)
    need no rules of their own here. */
 
-/* ── The panel ─────────────────────────────────────────────────── */
+/* ── The rail and the panel ───────────────────────────────────── */
 
-.desk-panel {
-  position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
+/* The strip of right margin the panel lives in, placed by
+   src/scripts/desk/margin.js: from the top of the reading area to the end of
+   <main>, in document coordinates. It lets clicks through; only the panel
+   takes them. */
+.desk-rail {
+  position: absolute;
   /* Above the page and Read View's sticky toolbar (70), below the shared
-     floating panels (1100) and the Display tray (2000), which keep clear of
-     it anyway. */
+     floating panels (1100) and the Display tray (2000). */
   z-index: 900;
+  pointer-events: none;
+}
+
+.desk-rail[hidden] {
+  display: none;
+}
+
+/* A card in the margin. Sticky, so it starts level with the text and pins
+   to the top of the window as the reader scrolls; as tall as its contents,
+   up to the window's height, with the list scrolling inside it. */
+.desk-panel {
+  position: sticky;
+  top: 12px;
   box-sizing: border-box;
-  width: var(--desk-dock-width, 340px);
-  max-width: 100vw;
+  width: 100%;
+  max-height: min(calc(100vh - 24px), 100%);
   display: flex;
   flex-direction: column;
+  pointer-events: auto;
   background: var(--surface-raised);
   color: var(--text);
-  border-left: 1px solid rgba(var(--ink-rgb), 0.14);
-  box-shadow: -8px 0 24px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(var(--ink-rgb), 0.14);
+  border-radius: 14px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
   font-size: 0.9375rem;
   line-height: 1.5;
+}
+
+/* Where the margin can't hold it, it lies over the ends of the lines: a
+   firmer shadow says it's on top. */
+.desk-rail--over .desk-panel {
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.22);
 }
 
 .desk-panel[hidden] {
@@ -231,12 +254,12 @@ a.desk-item__ref:hover {
 
 /* ── The undo bar ──────────────────────────────────────────────── */
 
-/* Centred in the part of the window the page still has, so it never sits
-   under the docked panel. */
+/* Centred under the reading column (margin.js sets --desk-bar-center), so
+   it never sits under the panel in the margin. */
 .desk-undo__bar {
   position: fixed;
   bottom: 20px;
-  left: calc((100vw - var(--desk-dock-width, 0px)) / 2);
+  left: var(--desk-bar-center, 50%);
   transform: translateX(-50%);
   z-index: 950;
   box-sizing: border-box;
