@@ -2752,7 +2752,15 @@ tried out the behaviour above:
    2026-10-07). The apps underline them because their glyphs are subtle and
    notes open only on a tap; here the note sits beside its line and lights
    its words, and a second dotted underline would collide with the term
-   lens's. The noted words still need a route a screen reader hears (C24).
+   lens's. The noted words still need a route a screen reader hears (C24),
+   which 9 provides.
+9. **A note begins with the words it hangs on, for screen readers only**
+   (BVJ, 2026-10-07): "My note on ‘nothing is now a verdict’, Romans 8:1",
+   then the note, with the quoted words hidden from view. A long selection
+   is shortened to its first ten words or so and "…". The words come from
+   the record's own quote, so nothing new is stored. Nothing hidden goes
+   inside the scripture itself: Copy text, the handout and the desk's
+   anchor reader all read the verse's text off the page.
 
 ## Still open
 
@@ -2782,6 +2790,13 @@ tried out the behaviour above:
     panel's other choices. BVJ isn't sure yet.
   - **Playpen Sans's weight and size**, tuned on the real page (the
     comparison set every face at one nominal size).
+  - **How a screen reader learns a verse has notes** (recommended). Decision
+    9 tells a reader at a note what it is about, but notes sit outside the
+    scripture's reading order (C24), so nothing tells someone reading the
+    verse that one is there. Recommended: the verse number, already a
+    button and the keyboard's way into each verse, names the count
+    ("Verse 1, 1 note of mine"), and the verse menu lists that verse's notes
+    (the "This verse" tab, N10).
 - **The merge rules and the overlap rule's details** (talk-through item
   20; rules a to e), needed from BDR before phase 1c, as soon as possible, mid-October at the latest.
   The overlap rule itself is settled (rule d). The trash record's fields (question 4) are built
