@@ -2642,7 +2642,7 @@ The rest of the same day's review:
 
 BVJ went through the five recommendations for the switch and settled them,
 changing three, then settled the details that followed (1, 6, 8, 11 to
-13):
+15):
 1. **Two settings, not three: notes shown or hidden**, as a box labelled
    **"My notes"** in the "Show" group. The label has to tell the reader's
    notes apart from the translation's footnotes, which sit beside it as
@@ -2683,7 +2683,10 @@ changing three, then settled the details that followed (1, 6, 8, 11 to
 10. **Read View shows no notes.** It is for reading straight through, so
     the switch doesn't appear there and nothing a reader has written shows
     in its margin.
-11. **Notes that would collide stack.** Circles stack one above the other.
+11. **Notes that would collide sit in a row, or stack.** Circles for notes
+    on the same line or the lines just above and below it sit side by side
+    while the margin has room, and stack one above the other where it
+    doesn't.
     A note shown in full may run longer than the text it is attached to,
     and nothing changes for that alone. Only when it would run into the
     note below is it collapsed, by default, cut off where the next note
@@ -2697,6 +2700,11 @@ changing three, then settled the details that followed (1, 6, 8, 11 to
     note by note, so several can be open at once (or several closed, for a
     reader whose default is notes in full). It applies in the margin and in
     the panel, and isn't remembered once the reader leaves the page.
+14. **A cut-off note fades out** at its last line, so it never reads as a
+    complete note.
+15. **The keyboard matches the mouse.** Focus on a collapsed note expands
+    it while it has focus, as hover does; Enter or Space toggles it and it
+    stays that way, as a click does.
 
 ## Still open
 
@@ -2721,15 +2729,10 @@ changing three, then settled the details that followed (1, 6, 8, 11 to
      left as it could).
 - **The margin's remaining details** (BVJ settled the switch and the five
   details after it on 2026-10-07; see "Decisions", 2026-10-07 (the margin
-  switch)). Recommendations for 1c, not decided:
-  1. **A collapsed note shows that it is cut off**: its last line fades out,
-     so it never reads as a complete note.
-  2. **A click, or Enter or Space on a focused note, toggles it and it stays
-     that way** (13); hovering expands it only while the pointer is there.
-     So a keyboard reader has the same route as a click.
-  3. **The notebook's toggle for the two-line default sits at the foot of
-     the panel's list**, near "Kept in this browser", and is remembered like
-     the panel's other choices.
+  switch)). One left, to try in 1c:
+  - **Where the notebook's two-line toggle sits.** First try: the foot of
+    the panel's list, near "Kept in this browser", remembered like the
+    panel's other choices. BVJ isn't sure yet.
 - **The merge and overlap rules** (talk-through item 20), needed from BDR
   before phase 1c. The trash record's fields (question 4) are built
   provisionally in 1b, so BDR's answer may mean a migration.
