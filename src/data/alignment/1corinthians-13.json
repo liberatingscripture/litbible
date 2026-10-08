@@ -86,7 +86,7 @@
       "ref": "1Cor.13.13",
       "english": [
         {
-          "text": "trust",
+          "text": "faithful trust",
           "n": 1
         }
       ],
@@ -97,9 +97,9 @@
         "glossary": "faith-trust",
         "form": "trust"
       },
-      "confidence": "common",
+      "confidence": null,
       "lemma": "present",
-      "source": "glossary-scan",
+      "source": "review",
       "status": "confirmed"
     }
   ]
