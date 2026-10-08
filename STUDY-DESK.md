@@ -2641,8 +2641,8 @@ The rest of the same day's review:
 ### 2026-10-07 (the margin switch)
 
 BVJ went through the five recommendations for the switch and settled them,
-changing three, then settled the five details that followed (1, 6, 8, 11
-and 12):
+changing three, then settled the details that followed (1, 6, 8, 11 to
+13):
 1. **Two settings, not three: notes shown or hidden**, as a box labelled
    **"My notes"** in the "Show" group. The label has to tell the reader's
    notes apart from the translation's footnotes, which sit beside it as
@@ -2693,6 +2693,10 @@ and 12):
     lines by default**, expanding on hover or click as in the margin. A
     toggle in the notebook lets the reader change that default to notes
     shown in full.
+13. **Expanding or collapsing a note lasts for the visit to that page**,
+    note by note, so several can be open at once (or several closed, for a
+    reader whose default is notes in full). It applies in the margin and in
+    the panel, and isn't remembered once the reader leaves the page.
 
 ## Still open
 
@@ -2720,8 +2724,9 @@ and 12):
   switch)). Recommendations for 1c, not decided:
   1. **A collapsed note shows that it is cut off**: its last line fades out,
      so it never reads as a complete note.
-  2. **Keyboard focus expands a collapsed note**, as hover does, so a reader
-     without a mouse can read it, and Escape collapses it again.
+  2. **A click, or Enter or Space on a focused note, toggles it and it stays
+     that way** (13); hovering expands it only while the pointer is there.
+     So a keyboard reader has the same route as a click.
   3. **The notebook's toggle for the two-line default sits at the foot of
      the panel's list**, near "Kept in this browser", and is remembered like
      the panel's other choices.
