@@ -2054,6 +2054,12 @@ collection); they're read directly by the intro pages and the API manifest.
      holding a full-width band: that cut the license band short and showed
      cream beside it. Nested move elements are kept to the outermost, or the
      inner one moves twice.
+     **Where even moving the column leaves no room, the notebook floats**
+     (BVJ, 2026-10-07): expanded, it lies over the line ends; collapsed, it
+     is a tab at the window's edge that keeps clear of the text
+     (`placeFloating`, `nextCollapsed`). The column moves only as far as the
+     tab needs, the same in both states, so toggling never moves the text,
+     and it collapses by itself whenever it starts floating unasked.
      **It appears only on the pages `READING_SURFACES`
      (`src/scripts/desk-frame.js`) lists**: Study View chapters and intros,
      Read View, articles and the glossary, each with its column, its heading

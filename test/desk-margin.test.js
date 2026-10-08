@@ -9,7 +9,10 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { EDGE, GAP, MAX_WIDTH, MIN_HEIGHT, MIN_WIDTH, panelHeight, placeInMargin } from "../src/lib/desk-margin.mjs";
+import {
+  EDGE, GAP, MAX_WIDTH, MIN_HEIGHT, MIN_WIDTH, TAB_EDGE, TAB_GAP, TAB_WIDTH,
+  nextCollapsed, panelHeight, placeFloating, placeInMargin,
+} from "../src/lib/desk-margin.mjs";
 
 /** A column `width` wide, centred in a page `viewport` wide, moved left by `shift`. */
 function centred(viewport, width, shift = 0) {
@@ -91,4 +94,52 @@ test("a heading low on the screen still ends the panel EDGE above the bottom, sh
 
 test("a rail ending on screen and shorter than MIN_HEIGHT caps the floor at its own height", () => {
   assert.equal(panelHeight({ top: 300, bottom: 400 }, 860), 100);
+});
+
+/* ── A narrow window: the floating notebook ─────────────────────────── */
+
+test("floating: the column moves only as far as the collapsed tab needs", () => {
+  const m = centred(885, 787); // a 900px window at Extra large: 49px a side
+  const at = placeFloating(m);
+  const need = m.column.right + TAB_GAP - (885 - TAB_EDGE - TAB_WIDTH);
+  assert.equal(at.shift, Math.round(need));
+  assert.equal(at.tabOver, false);
+  assert.ok(m.column.right - at.shift + TAB_GAP <= at.tab.left, "the tab clears the moved text");
+  assert.equal(at.tab.left + at.tab.width, 885 - TAB_EDGE);
+});
+
+test("floating: where the margin already holds the tab, nothing moves", () => {
+  const at = placeFloating(centred(885, 622)); // default size: 131px a side
+  assert.equal(at.shift, 0);
+  assert.equal(at.tabOver, false);
+});
+
+test("floating: the expanded panel takes its narrowest width at the window's edge", () => {
+  const at = placeFloating(centred(885, 622));
+  assert.equal(at.panel.width, MIN_WIDTH);
+  assert.equal(at.panel.left + at.panel.width, 885 - EDGE);
+});
+
+test("floating: the answer holds once applied", () => {
+  const first = placeFloating(centred(885, 787));
+  assert.deepEqual(placeFloating(centred(885, 787, first.shift)), first);
+});
+
+test("floating: a column with no room to move leaves the tab over the text, and says so", () => {
+  const m = centred(800, 790);
+  const at = placeFloating(m);
+  assert.equal(at.tabOver, true);
+  assert.equal(at.shift, Math.round(m.column.left));
+});
+
+test("the notebook collapses when it starts floating, unless the reader is opening it", () => {
+  // A page opening with it remembered open, or a window narrowed under it.
+  assert.equal(nextCollapsed({ floating: true, wasFloating: false, collapsed: false, opening: false }), true);
+  // The reader pressing Notebook in a narrow window.
+  assert.equal(nextCollapsed({ floating: true, wasFloating: false, collapsed: false, opening: true }), false);
+  // Already floating: as the reader left it.
+  assert.equal(nextCollapsed({ floating: true, wasFloating: true, collapsed: false, opening: false }), false);
+  assert.equal(nextCollapsed({ floating: true, wasFloating: true, collapsed: true, opening: false }), true);
+  // In the margin it is never collapsed.
+  assert.equal(nextCollapsed({ floating: false, wasFloating: true, collapsed: true, opening: false }), false);
 });

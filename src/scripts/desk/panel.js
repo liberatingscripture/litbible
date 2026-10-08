@@ -12,6 +12,13 @@
 // page opens with it. Where the margin is wide enough, which it is on most
 // computers, nothing moves when it appears.
 //
+// In a window too narrow for it (margin.js says when), it floats: the reader
+// can collapse it to a tab at the window's edge and expand it again (BVJ,
+// 2026-10-07). It collapses by itself whenever it starts floating without
+// the reader asking to see it, so it never lands on the text unasked. The
+// Notebook buttons then expand it, Escape collapses it rather than closing
+// it, and its × still closes it.
+//
 // Phase 1b holds the frame only: a list of what the notebook keeps, with
 // Delete, and (preview only) a way to add a sample note so delete, undo and
 // the tabs keeping in step can be tried before 1c brings the real ways in.
@@ -32,6 +39,15 @@ function pageChapter() {
   const chapter = Number(article?.dataset.lastReadChapter);
   return bookKey && chapter ? { bookKey, chapter, label: `${bookKeyToLabel(bookKey)} ${chapter}` } : null;
 }
+
+const ICON_NOTEBOOK = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
+  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+  <rect x="5" y="3" width="14" height="18" rx="2" /><path d="M9 3v18M12.5 8h3M12.5 12h3" /></svg>`;
+
+// Toward the window's edge, where the collapsed tab waits.
+const ICON_COLLAPSE = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
+  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+  <path d="M6 6l6 6-6 6M13 6l6 6-6 6" /></svg>`;
 
 const ICON_CLOSE = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
   stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6 6 18" /></svg>`;
@@ -66,6 +82,7 @@ export function createPanel({ store, storeError, ctx }) {
     <div class="desk-panel__head">
       <h2 class="desk-panel__title" id="deskPanelTitle">Notebook</h2>
       <span class="desk-panel__badge">Preview</span>
+      <button type="button" class="desk-panel__collapse" aria-label="Collapse the notebook">${ICON_COLLAPSE}</button>
       <button type="button" class="desk-panel__close" aria-label="Close the notebook">${ICON_CLOSE}</button>
     </div>
     ${tabs.length > 1 ? `<div class="desk-panel__tabs" role="tablist" aria-label="Notebook">${tabs
@@ -88,7 +105,22 @@ export function createPanel({ store, storeError, ctx }) {
       <p class="desk-panel__kept">Kept in this browser.</p>
       <p class="desk-panel__persist" hidden></p>
     </div>`;
-  const rail = createRail(panel);
+  // The collapsed notebook, at the window's edge. Its name is its visible
+  // word; aria-expanded says the panel is folded away.
+  const tab = document.createElement("button");
+  tab.type = "button";
+  tab.className = "desk-tab";
+  tab.setAttribute("data-desk-dock", "");
+  tab.setAttribute("aria-controls", "deskPanel");
+  tab.setAttribute("aria-expanded", "false");
+  tab.innerHTML = `${ICON_NOTEBOOK}<span class="desk-tab__label">Notebook</span>`;
+
+  const rail = createRail(panel, tab, (state) => {
+    syncToggles();
+    // Focus follows the panel: off it as it folds away, unless the window
+    // narrowing did that and focus was elsewhere.
+    if (state.collapsed && panel.contains(document.activeElement)) tab.focus({ preventScroll: true });
+  });
 
   const list = panel.querySelector(".desk-list");
   const empty = panel.querySelector(".desk-panel__empty");
@@ -100,15 +132,17 @@ export function createPanel({ store, storeError, ctx }) {
 
   /* ── Opening and closing ─────────────────────────────────────────── */
 
-  const syncToggles = () => {
-    for (const t of toggles) t.setAttribute("aria-expanded", String(!panel.hidden));
-  };
+  // Expanded means the reader can see it: open, and not folded to its tab.
+  const shown = () => !panel.hidden && !rail.state().collapsed;
+  function syncToggles() {
+    for (const t of toggles) t.setAttribute("aria-expanded", String(shown()));
+  }
 
   function open(from) {
     lastToggle = from ?? lastToggle;
     root.setAttribute("data-desk-panel", "open");
     panel.hidden = false;
-    rail.show();
+    rail.show({ expand: true });
     try { localStorage.setItem(OPEN_KEY, "open"); } catch (_) {}
     syncToggles();
     render();
@@ -126,26 +160,49 @@ export function createPanel({ store, storeError, ctx }) {
     back?.focus({ preventScroll: true });
   }
 
+  function expand() {
+    rail.expand();
+    panel.focus({ preventScroll: true });
+  }
+
+  function collapse() {
+    rail.collapse();
+    tab.focus({ preventScroll: true });
+  }
+
+  // A Notebook button opens the panel, expands it when it's folded to its
+  // tab, and closes it when it's showing.
   for (const t of toggles) {
     t.addEventListener("click", (e) => {
       e.stopPropagation();
       if (panel.hidden) open(t);
-      else close();
+      else if (rail.state().collapsed) {
+        lastToggle = t;
+        expand();
+      } else close();
     });
   }
+  tab.addEventListener("click", (e) => {
+    e.stopPropagation();
+    expand();
+  });
+  panel.querySelector(".desk-panel__collapse").addEventListener("click", collapse);
   panel.querySelector(".desk-panel__close").addEventListener("click", close);
 
   // Escape closes the panel when focus is in it and nothing floating is open
   // over it; a floating panel (lit-panel.js) or the Display tray takes its own
-  // Escape first. Stopped here, so Study View's Escape fallback (clearing a
-  // selected verse) doesn't run as well.
+  // Escape first. Floating, it collapses instead, the way a floating window
+  // gets out of the way: the text comes back and the notebook stays a tab
+  // away. Stopped here, so Study View's Escape fallback (clearing a selected
+  // verse) doesn't run as well.
   panel.addEventListener("keydown", (e) => {
     if (e.key !== "Escape") return;
     if (document.querySelector(".lit-panel")) return;
     const tray = document.getElementById("fontTray");
     if (tray && !tray.hidden) return;
     e.stopPropagation();
-    close();
+    if (rail.state().floating) collapse();
+    else close();
   });
 
   /* ── Tabs ───────────────────────────────────────────────────────── */

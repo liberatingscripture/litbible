@@ -19,17 +19,29 @@
 // Nothing reflows, so the reader's line stays put, and full-width bands such
 // as the license band keep their full width.
 //
+// Where even that leaves no room (a narrow window), the notebook floats
+// (BVJ, 2026-10-07): expanded, the panel lies over the ends of the lines;
+// collapsed, the rail holds only a tab at the window's edge, clear of the
+// text. Either way the column moves only as far as the tab needs, so
+// expanding and collapsing never moves the text.
+//
 // Only loaded on a page with a reading column (desk-gate.js checks
 // readingSurface first).
 
-import { EDGE, panelHeight, placeInMargin } from "../../lib/desk-margin.mjs";
+import { EDGE, nextCollapsed, panelHeight, placeFloating, placeInMargin } from "../../lib/desk-margin.mjs";
 import { readingSurface } from "../desk-frame.js";
 
 /**
  * @param {HTMLElement} panel the Notebook panel, which this moves into the rail
- * @returns {{ show: () => void, hide: () => void }}
+ * @param {HTMLElement} tab the collapsed notebook's tab, likewise
+ * @param {(state: { floating: boolean, collapsed: boolean }) => void} onChange
+ *   told whenever the notebook starts or stops floating, or collapses or
+ *   expands, including when a placement does it (a window narrowed under it)
+ * @returns {{ show: (opts?: { expand?: boolean }) => void, hide: () => void,
+ *   collapse: () => void, expand: () => void,
+ *   state: () => { floating: boolean, collapsed: boolean } }}
  */
-export function createRail(panel) {
+export function createRail(panel, tab, onChange = () => {}) {
   const root = document.documentElement;
   const main = document.querySelector("main");
   const surface = readingSurface();
@@ -56,12 +68,17 @@ export function createRail(panel) {
   const rail = document.createElement("div");
   rail.className = "desk-rail";
   rail.hidden = true;
-  rail.append(panel);
+  rail.append(panel, tab);
   document.body.append(rail);
   const panelTitle = panel.querySelector(".desk-panel__title") ?? panel;
 
   let open = false;
   let shift = 0;
+  // Floating (the margin can't hold the panel) and collapsed to its tab.
+  // `opening` is the reader pressing Notebook, which asks to see it.
+  let floating = false;
+  let collapsed = false;
+  let opening = false;
 
   // The top of the capital letters on an element's first line, in the
   // window: the box of its first character, moved down by the space its font
@@ -109,37 +126,60 @@ export function createRail(panel) {
   }
 
   function place() {
+    const before = { floating, collapsed };
     if (!open) {
       setShift(0);
       rail.hidden = true;
+      floating = collapsed = false;
       root.style.removeProperty("--desk-dock-width");
       root.style.removeProperty("--desk-bar-center");
+      report(before);
       return;
     }
     const viewport = root.clientWidth;
-    const at = placeInMargin({ viewport, column: columnBox(), main: main.getBoundingClientRect(), shift });    setShift(at.shift);
+    const m = { viewport, column: columnBox(), main: main.getBoundingClientRect(), shift };
+    const at = placeInMargin(m);
+    const wasFloating = floating;
+    floating = at.over;
+    collapsed = nextCollapsed({ floating, wasFloating, collapsed, opening });
+    opening = false;
+    let box = at;
+    if (floating) {
+      const f = placeFloating(m);
+      box = { ...(collapsed ? f.tab : f.panel), shift: f.shift };
+    }
+    setShift(box.shift);
 
     // Measured after the move, in document coordinates. The panel is shown
     // first so its own heading can be measured: the rail starts that far
-    // above the page's heading.
-    rail.style.left = `${at.left + window.scrollX}px`;
-    rail.style.width = `${at.width}px`;
-    rail.classList.toggle("desk-rail--over", at.over);
+    // above the page's heading. The collapsed tab starts level with the top
+    // of the heading's capitals.
+    rail.style.left = `${box.left + window.scrollX}px`;
+    rail.style.width = `${box.width}px`;
+    rail.classList.toggle("desk-rail--floating", floating);
+    rail.classList.toggle("desk-rail--collapsed", collapsed);
     rail.hidden = false;
     const top = startEl
       ? startEl.getBoundingClientRect().top + window.scrollY
-      : capTop(titleEl) + window.scrollY - (capTop(panelTitle) - panel.getBoundingClientRect().top);
+      : collapsed
+        ? capTop(titleEl) + window.scrollY
+        : capTop(titleEl) + window.scrollY - (capTop(panelTitle) - panel.getBoundingClientRect().top);
     const bottom = endY();
     rail.style.top = `${top}px`;
     rail.style.height = `${Math.max(0, bottom - top)}px`;
-    fitHeight();
+    if (!collapsed) fitHeight();
 
     // For the floating panels (desk-frame.js) and the undo bar. From the
     // window's edge, scrollbar included, since that's what lit-panel.js
     // measures against (window.innerWidth).
-    root.style.setProperty("--desk-dock-width", `${window.innerWidth - at.left}px`);
+    root.style.setProperty("--desk-dock-width", `${window.innerWidth - box.left}px`);
     const col = columnBox();
     root.style.setProperty("--desk-bar-center", `${(col.left + col.right) / 2}px`);
+    report(before);
+  }
+
+  function report(before) {
+    if (before.floating !== floating || before.collapsed !== collapsed) onChange({ floating, collapsed });
   }
 
   // One placement per frame, however many observers fire.
@@ -166,7 +206,7 @@ export function createRail(panel) {
   window.addEventListener(
     "scroll",
     () => {
-      if (!open || fitting) return;
+      if (!open || collapsed || fitting) return;
       fitting = true;
       requestAnimationFrame(() => {
         fitting = false;
@@ -177,13 +217,29 @@ export function createRail(panel) {
   );
 
   return {
-    show() {
+    // `expand`: the reader asked to see it, so it opens expanded even in a
+    // narrow window. Restoring it on a new page doesn't.
+    show({ expand = false } = {}) {
       open = true;
+      opening = expand;
       place();
     },
     hide() {
       open = false;
       place();
     },
+    collapse() {
+      if (!floating || collapsed) return;
+      collapsed = true;
+      place();
+      onChange({ floating, collapsed });
+    },
+    expand() {
+      if (!collapsed) return;
+      collapsed = false;
+      place();
+      onChange({ floating, collapsed });
+    },
+    state: () => ({ floating, collapsed }),
   };
 }

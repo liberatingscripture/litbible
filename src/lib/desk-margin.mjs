@@ -17,8 +17,12 @@
 //      tool row and the full-width bands, the license band above the footer
 //      among them, stay where they are and keep their full width. An earlier
 //      version padded <main> instead, which cut the license band short.
-//   3. Even that isn't enough (a narrow window): the panel takes MIN_WIDTH at
-//      the window's edge and lies over the ends of the lines (`over`).
+//   3. Even that isn't enough (a narrow window): the panel floats (`over`).
+//      It becomes a window the reader can expand and collapse (BVJ,
+//      2026-10-07), placed by placeFloating below: expanded, it takes
+//      MIN_WIDTH at the window's edge and lies over the ends of the lines;
+//      collapsed, it is a tab at the window's edge that keeps clear of the
+//      text.
 // Only pages with a reading column have the panel at all
 // (src/scripts/desk-frame.js, READING_SURFACES); BVJ, 2026-10-06.
 //
@@ -90,4 +94,58 @@ export function panelHeight(rail, windowHeight) {
   if (rail.bottom >= windowBottom) return Math.round(Math.max(0, windowBottom - top));
   const floor = Math.min(MIN_HEIGHT, Math.max(0, rail.bottom - rail.top));
   return Math.round(Math.max(floor, rail.bottom - top));
+}
+
+/* ── A narrow window: the floating notebook ─────────────────────────── */
+
+// The collapsed notebook: a tab at the window's right edge, TAB_EDGE from it
+// and at least TAB_GAP from the text.
+export const TAB_WIDTH = 40;
+export const TAB_EDGE = 8;
+export const TAB_GAP = 8;
+
+/**
+ * Where the floating notebook goes, once placeInMargin has said the margin
+ * can't hold it (`over`). The column moves left only as far as the collapsed
+ * tab needs, and moves the same whether the notebook is expanded or
+ * collapsed, so expanding and collapsing it never moves the text under it.
+ * Expanded, the panel lies over the ends of the lines, as a floating window
+ * does; collapsed, the tab keeps clear of them (`tabOver` says it couldn't,
+ * which takes very large text in a window well under 900px).
+ *
+ * @param {object} m the same measurements placeInMargin takes
+ * @returns {{ panel: { left: number, width: number },
+ *   tab: { left: number, width: number }, shift: number, tabOver: boolean }}
+ */
+export function placeFloating({ viewport, column, main, shift = 0 }) {
+  const left = column.left + shift;
+  const right = column.right + shift;
+  const tabLeft = viewport - TAB_EDGE - TAB_WIDTH;
+  const need = Math.max(0, right + TAB_GAP - tabLeft);
+  const move = Math.min(need, Math.max(0, left - main.left));
+  const width = Math.min(MIN_WIDTH, Math.max(0, viewport - 2 * EDGE));
+  return {
+    panel: { left: viewport - EDGE - width, width },
+    tab: { left: tabLeft, width: TAB_WIDTH },
+    shift: Math.round(move),
+    tabOver: move < need,
+  };
+}
+
+/**
+ * Whether the open notebook is collapsed after a placement. It collapses
+ * whenever it starts floating, so it never lands on the text unasked: a page
+ * opening with the notebook remembered open, or a window narrowed under it.
+ * The exception is the reader opening it just now, which asks to see it.
+ * Otherwise it stays as the reader left it; in the margin it is never
+ * collapsed.
+ *
+ * @param {{ floating: boolean, wasFloating: boolean, collapsed: boolean,
+ *   opening: boolean }} s
+ */
+export function nextCollapsed({ floating, wasFloating, collapsed, opening }) {
+  if (!floating) return false;
+  if (opening) return false;
+  if (!wasFloating) return true;
+  return collapsed;
 }
