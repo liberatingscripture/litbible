@@ -2641,10 +2641,13 @@ The rest of the same day's review:
 ### 2026-10-07 (the margin switch)
 
 BVJ went through the five recommendations for the switch and settled them,
-changing three:
-1. **Two settings, not three: notes shown or hidden** ("Shown / Hidden" or
-   "On / Off"; the exact wording is still open). Dots stop being a setting
-   and become what "shown" turns into where there isn't room.
+changing three, then settled the five details that followed (1, 6, 8, 11
+and 12):
+1. **Two settings, not three: notes shown or hidden**, as a box labelled
+   **"My notes"** in the "Show" group. The label has to tell the reader's
+   notes apart from the translation's footnotes, which sit beside it as
+   "Footnote letters"; it matches M1's "Hide my notes". Dots stop being a
+   setting and become what "shown" turns into where there isn't room.
 2. **The switch is in two places, both full toggles**: the Display tray's
    "Show" group (beside verse numbers, footnote letters and key terms), and
    the Notebook panel itself, not a link from one to the other. They are
@@ -2662,8 +2665,10 @@ changing three:
    of a note shown in full, and alone in a circle where there isn't room.
    Notes are many per verse and each keeps its own marker, as in the apps,
    which syncing with them needs anyway.
-6. **A circle reacts on hover** with a small animation, and **a click opens
-   the note the way a footnote opens** (the shared panel).
+6. **A circle lifts slightly on hover**, the usual small raise, and **a
+   click opens the note the way a footnote opens** (the shared panel). A
+   reader whose system asks for reduced motion gets a colour change instead
+   of the movement.
 7. **Going to a note from the panel: as recommended.** The page scrolls the
    note's place into view and briefly marks it in the margin; a circle
    opens its note; with notes hidden the words are marked instead; focus
@@ -2671,12 +2676,23 @@ changing three:
    reader who picked the note in the panel can already read it there.
 8. **M1 stays separate, and the most recent action wins.** M1 hides every
    note, highlight and mark at once; turning notes on while M1 is on brings
-   the notes back, and turning M1 on after that hides them again.
+   the notes back, and only the notes (highlights and marks stay hidden);
+   turning M1 on after that hides them again.
 9. **Notes on articles and glossary entries (N11) use the same margin and
    the same switch.**
 10. **Read View shows no notes.** It is for reading straight through, so
     the switch doesn't appear there and nothing a reader has written shows
     in its margin.
+11. **Notes that would collide stack.** Circles stack one above the other.
+    A note shown in full may run longer than the text it is attached to,
+    and nothing changes for that alone. Only when it would run into the
+    note below is it collapsed, by default, cut off where the next note
+    begins; hovering or clicking expands it over the note below.
+12. **The Notebook panel's list leads each note with its glyph too**, so a
+    note looks the same in both places, and **each note is collapsed to two
+    lines by default**, expanding on hover or click as in the margin. A
+    toggle in the notebook lets the reader change that default to notes
+    shown in full.
 
 ## Still open
 
@@ -2699,20 +2715,16 @@ changing three:
      toggling never moves what's under it. The cost: expanded, it covers more
      of the line ends than the old card did (that moved the column as far
      left as it could).
-- **The margin's remaining details** (BVJ settled the switch 2026-10-07;
-  see "Decisions", 2026-10-07 (the margin switch)). To settle in 1c:
-  1. **The switch's wording**: "Notes: Shown / Hidden", or a "Notes" box in
-     the "Show" group, which reads as on and off like the boxes beside it.
-  2. **Two notes on the same line**: their glyphs side by side, or stacked
-     with the later one moved down until they clear. The same question for
-     notes shown in full, which can run longer than the text beside them.
-  3. **What the hover animation is**, and what it does for a reader who
-     asked their system for reduced motion (recommended: no movement, a
-     colour change only).
-  4. **When M1 is on and notes are turned on**, whether highlights and
-     marks stay hidden (recommended: yes; only notes come back).
-  5. **Whether the panel's list leads each note with its glyph too**
-     (recommended: yes, so a note looks the same in both places).
+- **The margin's remaining details** (BVJ settled the switch and the five
+  details after it on 2026-10-07; see "Decisions", 2026-10-07 (the margin
+  switch)). Recommendations for 1c, not decided:
+  1. **A collapsed note shows that it is cut off**: its last line fades out,
+     so it never reads as a complete note.
+  2. **Keyboard focus expands a collapsed note**, as hover does, so a reader
+     without a mouse can read it, and Escape collapses it again.
+  3. **The notebook's toggle for the two-line default sits at the foot of
+     the panel's list**, near "Kept in this browser", and is remembered like
+     the panel's other choices.
 - **The merge and overlap rules** (talk-through item 20), needed from BDR
   before phase 1c. The trash record's fields (question 4) are built
   provisionally in 1b, so BDR's answer may mean a migration.
