@@ -218,8 +218,8 @@ because both apps already ship it and tell the reader.
 
 ### Highlights that meet
 
-**Open** (A-M5; the apps' rules differ). Draft 1 proposes Android's rule,
-restated on anchor text:
+**Settled** (A-M5): Android's rule, which BDR ruled for iOS (2026-10-05)
+and the website matches (BVJ, 2026-10-07). Restated on anchor text:
 - **Same colour:** two highlights whose ranges overlap, or are separated
   only by whitespace, merge into one.
 - **Different colour:** a new highlight trims the old one where they
@@ -277,9 +277,12 @@ and accounts would live under `/sheets/`, `/notebook/`, `/account/`.
 ## Still open in this file
 
 - Bookmarks vs the `bookmark` marker (kind 4).
-- **The overlap rule. Needed before the website's phase 1c.**
+- **The overlap rule's three details** (`STUDY-DESK.md`, rule d): which
+  highlights never merge, stray spaces on a trimmed remainder, and leaving a
+  highlight with an unread change notice alone. The rule itself is settled.
+  Needed before the website's phase 1c, as soon as possible.
 - **How records merge, and the `trash` record's fields. Needed before the
-  website's phase 1c.** The format names `deletedId` and `deletedAt` but not
+  website's phase 1c, as soon as possible (mid-October at the latest).** The format names `deletedId` and `deletedAt` but not
   the field holding the deleted record, and says nothing yet about which
   write wins without a store revision, an edit made after a deletion, or a
   note changed on two devices. The website's proposals are in

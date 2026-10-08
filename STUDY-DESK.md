@@ -47,13 +47,18 @@ are recorded so they aren't re-argued.
   **The development phases were planned on 2026-10-05** ("Order of work"
   below). The format is frozen before anything syncs (BVJ, 2026-10-05).
   Until then phase 0 read "agree the record format before any code".
-- **BDR's input is needed soon, on the merge and overlap rules.** BVJ held
+- **BDR's input is needed as soon as possible (mid-October at the latest),
+  on the merge rules.** BVJ held
   phase 1a's merge engine and the highlight overlap rule for BDR to weigh in
   on (2026-10-05), since both are format decisions all three clients must
   share. **They are needed before phase 1c** (highlights in Study View) **and
   1d** (importing a notebook file). The five questions are under "Questions
   for the apps" (talk-through item 20), and BDR's proposal restates them as
-  rules a to e with their alternatives, for BDR to approve by mid-October.
+  rules a to e with their alternatives, for BDR to approve as soon as possible, mid-October at the latest.
+  BVJ asked (2026-10-07) for every answer that gates 1c to be marked that
+  way rather than as a mid-October deadline. **The overlap rule's main part
+  is settled**: BDR ruled Android's rule for iOS (2026-10-05), and the
+  website matches it (BVJ, 2026-10-07); see rule d.
 - **Both apps replied to the brief on 2026-10-04** (see "The apps' replies"
   below). BDR proposes that each reader's notebook stay in their own iCloud
   or Google account, with the website reaching it from the browser and **no
@@ -254,14 +259,15 @@ every week.
    It needs about **230px of free space** beside the column, decided by the
    space left, not the window width; otherwise it falls back to dots and the
    panel (audit C9). The apps already mark notes in the left margin.
-   - **The reader chooses what the margin shows** (BVJ, 2026-10-07): a
-     switch with three settings, **notes shown, notes as dots, notes
-     hidden** (the wording can change). The margin and the Notebook panel do
-     different jobs and can both show at once: the margin puts each note
-     beside its verse, and the panel lists them. **A note in the panel takes
-     the reader to its place on the page**, beside its verse in the margin.
-     This replaced the 2026-10-06 recommendation to empty the margin while
-     the panel is open. The details still open are under "Still open".
+   - **The reader chooses whether the margin shows notes** (BVJ,
+     2026-10-07): a switch, **shown or hidden**, shown by default. Dots are
+     not a setting: they are what "shown" becomes where there isn't room.
+     The margin and the Notebook panel do different jobs and can both show
+     at once: the margin puts each note beside its words, and the panel
+     lists them. **A note in the panel takes the reader to its place on the
+     page.** This replaced the 2026-10-06 recommendation to empty the margin
+     while the panel is open. How the margin looks and behaves is under
+     "Decisions", 2026-10-07 (the margin switch).
    - **About X11**: the feature audit's X11 (footnotes in the margin on wide
      screens) was declined on 2026-09-28. BVJ confirmed (2026-10-01) that the
      reason for declining it doesn't rule out the reader's own notes in the
@@ -300,13 +306,14 @@ plan as a whole was accepted; nothing was declined except where stated).
 
 ### Notes
 
-- **N1. Notes in your margin.** Placement 2 above. Falls back to a dot on the
-  verse number and the panel without ~230px of free space (C9). Notes sit
-  outside the scripture's reading order, linked from the verse (C24).
-  Borrowed (Edwards's Blank Bible, the LIT apps). Medium. **Decided: the
-  margin is in.** Open since 2026-10-06: whether it shows while the
-  Notebook panel is open (placement 2; recommended: no, the open panel's
-  chapter list follows the reading position instead).
+- **N1. Notes in your margin.** Placement 2 above. Each note sits level with
+  the first word it was made on, led by its marker glyph; without ~230px of
+  free space (C9) it falls back to the glyph alone in a small circle, which
+  opens the note like a footnote. Notes sit outside the scripture's reading
+  order, linked from the verse (C24). Borrowed (Edwards's Blank Bible, the
+  LIT apps). Medium. **Decided: the margin is in**, and it shows while the
+  Notebook panel is open (2026-10-07; see "Decisions", 2026-10-07 (the
+  margin switch)).
 - **N2. Notes that follow a word.** Write a note on a glossary term once and
   it appears in the term lens card wherever that term is marked, about 4,300
   places across published chapters. A note on *sarx* shows under
@@ -1424,8 +1431,8 @@ Questions for the apps, to send back:
   untouched (the format's principle 6), and to say whether either app might
   show them later, especially glossary notes, since the apps already have
   the glossary.
-- **For BDR, soon (item 20): the merge and overlap rules.** The website
-  needs these before phase 1c, so it doesn't build rules the apps would then
+- **For BDR, as soon as possible, mid-October at the latest (item 20): the merge and overlap rules.**
+  The website needs these before phase 1c, so it doesn't build rules the apps would then
   undo. Each is a proposal to answer yes, no or "do it this way":
   1. **Which write wins.** With no store revision to go by (importing a
      file, say), the newer `modified` wins, accepting that a device whose
@@ -1522,11 +1529,12 @@ needing a decision. None blocks the format.
 - **Whether shared sheet links need anything hosted** (T10, A-M8).
 - **Whether the apps show N2 and H2, or only carry them** (A-Q8).
 - **Who looks after a service**, if plan C (T8, A-R7; Zoom item 4).
-- **In the format:** bookmarks vs the `bookmark` marker, and the overlap
-  rule for highlights (`STUDY-DESK-FORMAT.md`, "Still open").
+- **In the format:** bookmarks vs the `bookmark` marker
+  (`STUDY-DESK-FORMAT.md`, "Still open"). The overlap rule is settled
+  (rule d).
 - **The merge rules, the trash record's fields and the overlap rule**
   (talk-through item 20). **More urgent than the rest of this list**: phase
-  1c waits on them.
+  1c waits on them, so as soon as possible, mid-October at the latest.
 
 ## One notebook, three homes (BDR's proposal, 2026-10-07)
 
@@ -1565,9 +1573,9 @@ website has to say goes here, on `main`, with its date.
   sizing.
 - **Colour meanings are dropped everywhere** (Zoom item 6; BVJ, 2026-10-07,
   agreeing with BDR's lean). The format loses the `legend` kind.
-- **The website's margin is the reader's choice** (notes shown, as dots, or
-  hidden), beside the Notebook panel's list. Website only; nothing changes
-  for the apps.
+- **The website's margin is the reader's choice** (notes shown or hidden;
+  dots where there isn't room), beside the Notebook panel's list. Website
+  only; nothing changes for the apps.
 - Everything else in the proposal (rules a to e, the Zoom items, the
   sequence) waits on BDR or on the Zoom.
 
@@ -1738,8 +1746,11 @@ mostly agree.
   without it. (Question 2.)
 - **c. The trash:** 30 days, then a marker of a few bytes kept forever, so a
   stale backup can't revive the note. (Question 4.)
-- **d. Overlapping highlights:** Android's rule, which BDR ruled for iOS,
-  with three details: highlights in different paragraphs never merge; a
+- **d. Overlapping highlights:** Android's rule, which BDR ruled for iOS.
+  **The rule itself is settled for all three**: the website matches BDR's
+  decision (BVJ, 2026-10-07, who would have preferred letting highlights
+  overlap but defers to the apps' reconciled rule). Still for BDR to
+  approve, with the rest of a to e: its three details: highlights in different paragraphs never merge; a
   trimmed remainder loses stray spaces at its edges; and a highlight carrying
   an unread change notice is never touched by a new one, since its old words
   are what the notice quotes. (Question 5.)
@@ -1872,8 +1883,8 @@ recommendations, none decided:**
 
 ### Proposed sequence to Ash Wednesday
 
-- **By mid-October:** BDR approves rules a to e (unblocks phase 1c) and
-  creates the spike credentials; the Zoom agrees the pass marks and, for C,
+- **By mid-October:** BDR approves rules a to e (they unblock phase 1c,
+  so as soon as possible, mid-October at the latest; BVJ, 2026-10-07) and creates the spike credentials; the Zoom agrees the pass marks and, for C,
   end-to-end, passkeys and ownership; Android runs the shared test cases.
 - **October:** the spikes (about three weeks, mostly the eight-day wait).
   Android 1.3 with the license link; iOS 2.0 (about October 15), with the
@@ -2168,6 +2179,8 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
        stores are homes, not formats (the format's principle 2). Its rules
        are format decisions (talk-through item 20).
      - **Held for BDR: the highlight overlap rule** (A-M5, item 20).
+       **Settled 2026-10-07**: Android's rule, as BDR ruled for iOS; its
+       three details (rule d) still wait on BDR's approval.
    - **1b. The shell, behind a preview switch.** The gate and dynamic import,
      so readers download nothing until the desk is switched on for them; a
      preview switch, so BVJ can try it on the live site first; IndexedDB with
@@ -2274,10 +2287,12 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      four colours, with no named meanings (H1's legend was dropped 2026-10-07;
      1c also takes `legend` out of `KINDS` in `src/lib/desk-records.mjs`), and a second cue
      besides colour (C4), modelled on the apps' marker glyph and dotted
-     underline; bookmarks; the margin, falling back to dots and the panel
-     (C9), with the reader's switch for notes shown, as dots or hidden, and
-     the panel's notes taking the reader to their place (BVJ, 2026-10-07;
-     placement 2); the change notice, driven by the format's found, moved, changed,
+     underline; bookmarks; the margin, each note level with its first word
+     and led by its marker glyph, falling back to the glyph in a circle (C9),
+     with the reader's switch for notes shown or hidden in both the Display
+     tray and the Notebook panel, and the panel's notes taking the reader to
+     their place (BVJ, 2026-10-07; "Decisions", 2026-10-07 (the margin
+     switch)); the change notice, driven by the format's found, moved, changed,
      verse and lost, in the apps' words (iOS: Re-read in Context, Keep,
      Delete; Android: "carried along" and "couldn't find your words"); the
      "This verse" tab (N10); Read View's smaller set, through events (C2);
@@ -2625,13 +2640,82 @@ The rest of the same day's review:
   left margin shows a note beside its verse; the Notebook panel on the right
   lists them; both can show at once. **Each note in the panel takes the
   reader to its place on the page.** Placement 2 and phase 1c follow this.
-  The switch's details are under "Still open", with recommendations.
+  The same day BVJ cut the switch to two settings and settled its details
+  (next section).
 - **Colour meanings (H1's legend) are dropped**, everywhere. BVJ agreed with
   BDR's lean (Zoom item 6), so this is settled for all three. Highlights
   keep their four colours, stored by the apps' names (C8), each with a
   second visual cue (C4). Screen readers announce the colour ("highlighted
   yellow"). Lists and exports group by colour. Read View's highlights stay
   off by default. The format drops the `legend` kind.
+
+### 2026-10-07 (the margin switch)
+
+BVJ went through the five recommendations for the switch and settled them,
+changing three, then settled the details that followed (1, 6, 8, 11 to
+15):
+1. **Two settings, not three: notes shown or hidden**, as a box labelled
+   **"My notes"** in the "Show" group. The label has to tell the reader's
+   notes apart from the translation's footnotes, which sit beside it as
+   "Footnote letters"; it matches M1's "Hide my notes". Dots stop being a
+   setting and become what "shown" turns into where there isn't room.
+2. **The switch is in two places, both full toggles**: the Display tray's
+   "Show" group (beside verse numbers, footnote letters and key terms), and
+   the Notebook panel itself, not a link from one to the other. They are
+   one setting, so changing either moves both. It shows wherever notes can
+   (Study View, articles, the glossary), and not in Read View (10).
+3. **Shown by default.** Where there isn't the ~230px a note needs (C9),
+   whatever the setting, each note becomes its marker glyph in a small
+   circle (below).
+4. **A note sits level with the first word it was made on**, not the start
+   of its verse. A note in the apps can hang off a single word chosen by
+   selection, so a verse can carry several, each in its own place.
+5. **The marker glyph leads every note.** The apps' seven markers (note,
+   emphasis, question, heart, bookmark, lightbulb, flame; W3), chosen by the
+   reader for each note as in the apps, stand like a bullet point in front
+   of a note shown in full, and alone in a circle where there isn't room.
+   Notes are many per verse and each keeps its own marker, as in the apps,
+   which syncing with them needs anyway.
+6. **A circle lifts slightly on hover**, the usual small raise, and **a
+   click opens the note the way a footnote opens** (the shared panel). A
+   reader whose system asks for reduced motion gets a colour change instead
+   of the movement.
+7. **Going to a note from the panel: as recommended.** The page scrolls the
+   note's place into view and briefly marks it in the margin; a circle
+   opens its note; with notes hidden the words are marked instead; focus
+   lands on the note. BVJ notes it matters less than it sounds, since a
+   reader who picked the note in the panel can already read it there.
+8. **M1 stays separate, and the most recent action wins.** M1 hides every
+   note, highlight and mark at once; turning notes on while M1 is on brings
+   the notes back, and only the notes (highlights and marks stay hidden);
+   turning M1 on after that hides them again.
+9. **Notes on articles and glossary entries (N11) use the same margin and
+   the same switch.**
+10. **Read View shows no notes.** It is for reading straight through, so
+    the switch doesn't appear there and nothing a reader has written shows
+    in its margin.
+11. **Notes that would collide sit in a row, or stack.** Circles for notes
+    on the same line or the lines just above and below it sit side by side
+    while the margin has room, and stack one above the other where it
+    doesn't.
+    A note shown in full may run longer than the text it is attached to,
+    and nothing changes for that alone. Only when it would run into the
+    note below is it collapsed, by default, cut off where the next note
+    begins; hovering or clicking expands it over the note below.
+12. **The Notebook panel's list leads each note with its glyph too**, so a
+    note looks the same in both places, and **each note is collapsed to two
+    lines by default**, expanding on hover or click as in the margin. A
+    toggle in the notebook lets the reader change that default to notes
+    shown in full.
+13. **Expanding or collapsing a note lasts for the visit to that page**,
+    note by note, so several can be open at once (or several closed, for a
+    reader whose default is notes in full). It applies in the margin and in
+    the panel, and isn't remembered once the reader leaves the page.
+14. **A cut-off note fades out** at its last line, so it never reads as a
+    complete note.
+15. **The keyboard matches the mouse.** Focus on a collapsed note expands
+    it while it has focus, as hover does; Enter or Space toggles it and it
+    stays that way, as a click does.
 
 ## Still open
 
@@ -2654,27 +2738,15 @@ The rest of the same day's review:
      toggling never moves what's under it. The cost: expanded, it covers more
      of the line ends than the old card did (that moved the column as far
      left as it could).
-- **The margin switch's details** (decided in outline 2026-10-07; see
-  "Decisions", 2026-10-07). Recommendations, not decided:
-  1. **Where it lives: the Display tray's "Show" group**, beside verse
-     numbers, footnote letters and key terms, shown only while the desk is
-     on and only in Study View. It is a setting about how the page looks, and
-     that is where the reader already finds those.
-  2. **The default: notes shown.** "Shown" means shown where there is room:
-     where the free space beside the column is under about 230px (C9), notes
-     fall back to dots whatever the setting. An open panel leaves less room
-     on the left, so this happens more often then (on an article at 1162px,
-     about 140px is left).
-  3. **Going to a note from the panel** scrolls its verse into view and
-     briefly marks the note in the margin. With dots it opens that dot's
-     note; with notes hidden it marks the verse instead. Keyboard focus lands
-     on the note, so a screen-reader user hears it.
-  4. **M1 stays separate.** M1 hides every note, highlight and mark for a
-     moment (sharing a screen, teaching); the margin switch is a standing
-     preference about the margin. M1's shortcut overrides it while on.
-  5. **Notes on articles (N11)** use the same margin and the same switch.
-- **The merge and overlap rules** (talk-through item 20), needed from BDR
-  before phase 1c. The trash record's fields (question 4) are built
+- **The margin's remaining details** (BVJ settled the switch and the five
+  details after it on 2026-10-07; see "Decisions", 2026-10-07 (the margin
+  switch)). One left, to try in 1c:
+  - **Where the notebook's two-line toggle sits.** First try: the foot of
+    the panel's list, near "Kept in this browser", remembered like the
+    panel's other choices. BVJ isn't sure yet.
+- **The merge rules and the overlap rule's details** (talk-through item
+  20; rules a to e), needed from BDR before phase 1c, as soon as possible, mid-October at the latest.
+  The overlap rule itself is settled (rule d). The trash record's fields (question 4) are built
   provisionally in 1b, so BDR's answer may mean a migration.
 - **"To be decided"** under "The apps' replies", starting with plan A or
   plan C ("One notebook, three homes", decision proposed by October 31). The record format is drafted (`STUDY-DESK-FORMAT.md`) and waits on
