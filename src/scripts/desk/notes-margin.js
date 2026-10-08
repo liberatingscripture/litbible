@@ -153,7 +153,7 @@ export function createNotesMargin({ store, onEdit }) {
     const items = placed();
 
     if (mode === "full") {
-      const width = noteWidth(box.left);
+      const width = noteWidth(box.left, box.width);
       const left = box.left + sx - NOTE_GAP - width;
       const els = items.map(({ record }) => {
         const el = noteElement(record);
@@ -452,7 +452,10 @@ export function createNotesMargin({ store, onEdit }) {
   });
   load();
 
-  return { reveal };
+  /** Whether `reveal` can take the reader to this record here: a note on this chapter. */
+  const canReveal = (r) => r?.kind === "note" && r.bookKey === here.bookKey && r.chapter === here.chapter;
+
+  return { reveal, canReveal };
 }
 
 function escapeHtml(s) {

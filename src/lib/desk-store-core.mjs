@@ -115,6 +115,17 @@ export function recordHref(r) {
   return r.endVerse && r.endVerse !== r.verse ? `${path}#v${r.verse}-${r.endVerse}` : `${path}#v${r.verse}`;
 }
 
+/**
+ * The Read View link for a record on the text: the verse in its book's Read
+ * View (`/read/romans/#romans-8-v3`, Read View's own verse ids), or the
+ * chapter (`#ch-8`) for one with no verse. Null for one not on the text.
+ */
+export function recordReadHref(r) {
+  if (!r?.bookKey || !r.chapter) return null;
+  const path = `/read/${r.bookKey}/`;
+  return r.verse ? `${path}#${r.bookKey}-${r.chapter}-v${r.verse}` : `${path}#ch-${r.chapter}`;
+}
+
 const KIND_NAMES = {
   highlight: "Highlight",
   note: "Note",

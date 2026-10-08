@@ -65,6 +65,40 @@ export function createReadMarks({ store }) {
     aside.hidden = !aside.childElementCount;
   }
 
+  /* ── Going to a verse from the Notebook panel ─────────────────────── */
+
+  const verseIn = (r) =>
+    r?.bookKey === book && r.verse
+      ? text.querySelector(`[data-chapter="${r.chapter}"] [data-verse="${r.verse}"]`)
+      : null;
+
+  /** Whether `reveal` can take the reader to this record here: a verse in this book. */
+  const canReveal = (r) => Boolean(verseIn(r));
+
+  // Scrolls Read View to the verse in place and marks it briefly, the way
+  // Study View's margin marks a note's words. The address takes the verse's
+  // anchor too, so a reload lands there.
+  function reveal(r) {
+    const verse = verseIn(r);
+    if (!verse) return;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const top = verse.getClientRects()[0]?.top ?? verse.getBoundingClientRect().top;
+    window.scrollTo({ top: window.scrollY + top - window.innerHeight / 3, behavior: reduced ? "auto" : "smooth" });
+    try {
+      history.replaceState(history.state, "", `#${r.bookKey}-${r.chapter}-v${r.verse}`);
+    } catch (_) {}
+    if (typeof CSS !== "undefined" && "highlights" in CSS && typeof Highlight !== "undefined") {
+      const spans = text.querySelectorAll(`[data-chapter="${r.chapter}"] [data-verse="${r.verse}"]`);
+      const ranges = [...spans].map((s) => {
+        const range = document.createRange();
+        range.selectNodeContents(s);
+        return range;
+      });
+      CSS.highlights.set("desk-note-words", new Highlight(...ranges));
+      setTimeout(() => CSS.highlights.delete("desk-note-words"), 1600);
+    }
+  }
+
   store.subscribe(load);
   window.addEventListener("resize", schedule);
   document.addEventListener("desk:column-moved", schedule);
@@ -76,5 +110,5 @@ export function createReadMarks({ store }) {
     attributeFilter: ["data-size", "data-leading", "data-font", "data-vn", "data-desk-panel"],
   });
   load();
-  return { refresh: schedule };
+  return { refresh: schedule, reveal, canReveal };
 }

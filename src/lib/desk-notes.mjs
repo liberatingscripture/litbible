@@ -23,11 +23,11 @@ export const FULL_ROOM = 230;
 export const NOTE_GAP = 24;
 /**
  * Notes in full take all the margin they can (BVJ, 2026-10-08), from the
- * window's edge to the gap beside the text. This cap only meets very wide
- * windows (about 1,700px and up): past it a line of a note runs beyond
- * roughly 60 characters, which gets hard to read.
+ * window's edge to the gap beside the text, up to three quarters of the
+ * text column's width (BVJ, the same day), so the cap follows the reading
+ * width and the reader's text size.
  */
-export const NOTE_MAX_WIDTH = 520;
+export const NOTE_MAX_SHARE = 0.75;
 /** Space kept between a note and the window's edge. */
 export const EDGE = 16;
 /** A circle's diameter, and the gap between circles. */
@@ -74,9 +74,9 @@ export function marginMode(free) {
   return "none";
 }
 
-/** The width a note in full takes, given the free space. */
-export function noteWidth(free) {
-  return Math.max(0, Math.min(NOTE_MAX_WIDTH, free - NOTE_GAP - EDGE));
+/** The width a note in full takes, given the free space and the text column's width. */
+export function noteWidth(free, column = Infinity) {
+  return Math.max(0, Math.min(column * NOTE_MAX_SHARE, free - NOTE_GAP - EDGE));
 }
 
 /**

@@ -26,7 +26,14 @@
 // the "My notes" and Handwriting / Plain switches, the same settings as the
 // Display tray's.
 
-import { forChapter, kindName, liveRecords, recordHref, recordReference } from "../../lib/desk-store-core.mjs";
+import {
+  forChapter,
+  kindName,
+  liveRecords,
+  recordHref,
+  recordReadHref,
+  recordReference,
+} from "../../lib/desk-store-core.mjs";
 import { createRail } from "./margin.js";
 import { glyph } from "./glyphs.js";
 import { SETTINGS_EVENT, getSetting, panelNoteControls, setSetting } from "./note-settings.js";
@@ -57,11 +64,14 @@ const ICON_CLOSE = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" 
  *
  * @param {{ store: object | null, storeError: unknown,
  *   onEdit?: (record: object, trigger: Element) => void,
- *   onReveal?: (id: string) => void }} options
+ *   goHere?: { can(record: object): boolean, go(record: object): void } }} options
  *   `store` is null when this browser can't keep a notebook. `onEdit` opens
- *   a note in the editor; `onReveal` takes the reader to a note on this page.
+ *   a note in the editor; `goHere` takes the reader to a record on this page
+ *   without leaving it, where it can (`can`). Elsewhere a record's links go to
+ *   its verse in the view the reader is in: Read View from Read View (BVJ,
+ *   2026-10-08), Study View from anywhere else.
  */
-export function createPanel({ store, storeError, onEdit = null, onReveal = null }) {
+export function createPanel({ store, storeError, onEdit = null, goHere = null }) {
   const root = document.documentElement;
   const here = pageChapter();
   const toggles = Array.from(document.querySelectorAll("[data-desk-toggle]"));
@@ -133,6 +143,7 @@ export function createPanel({ store, storeError, onEdit = null, onReveal = null 
   let activeTab = tabs[0].id;
   let lastToggle = null;
   const openNotes = new Set(); // notes clicked open in the list, for this visit
+  const inReadView = Boolean(document.querySelector("[data-rm-root]"));
 
   /* ── Opening and closing ─────────────────────────────────────────── */
 
@@ -275,20 +286,20 @@ export function createPanel({ store, storeError, onEdit = null, onReveal = null 
     li.className = "desk-item";
     li.dataset.id = r.id;
     const ref = recordReference(r);
-    const href = recordHref(r);
+    const href = inReadView ? recordReadHref(r) : recordHref(r);
     const head = document.createElement(href ? "a" : "span");
     head.className = "desk-item__ref";
     head.textContent = ref || kindName(r.kind);
     if (href) head.href = href;
-    // A note on this chapter is on the page: going to it scrolls to its words
-    // and marks it, rather than reloading. Elsewhere it is an ordinary link.
-    const onThisPage = here && r.bookKey === here.bookKey && r.chapter === here.chapter;
+    // A record on this page (a note on this Study View chapter, a verse of
+    // the book Read View shows) is gone to in place, scrolled to and marked,
+    // rather than reloading. Otherwise it is an ordinary link.
     const goTo = (e) => {
       if (e.ctrlKey || e.metaKey || e.shiftKey || e.button !== 0) return;
       e.preventDefault();
-      onReveal(r.id);
+      goHere.go(r);
     };
-    const revealHere = Boolean(href && onThisPage && onReveal && r.kind === "note");
+    const revealHere = Boolean(href && goHere?.can(r));
     if (revealHere) head.addEventListener("click", goTo);
     const kind = document.createElement("span");
     kind.className = "desk-item__kind";

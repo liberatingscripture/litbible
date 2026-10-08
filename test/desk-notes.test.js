@@ -134,8 +134,8 @@ test("a mark just past a cut note's shown lines isn't in its way", () => {
 });
 
 test("notes in full fill the margin, up to a readable line", () => {
-  assert.equal(noteWidth(300), 300 - 24 - 16);
-  assert.equal(noteWidth(2000), 520);
+  assert.equal(noteWidth(300, 590), 300 - 24 - 16);
+  assert.equal(noteWidth(2000, 590), 590 * 0.75, "no wider than three quarters of the text column");
 });
 
 test("short quotes stay whole; long ones keep ten words", () => {

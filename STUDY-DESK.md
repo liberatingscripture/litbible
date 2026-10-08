@@ -2328,7 +2328,9 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      - **The panel's list** leads notes with their glyphs at two lines, has
        Edit, and both a note's reference and the note itself take the reader
        to it (BVJ, 2026-10-07: clicking the note had opened it, with nothing
-       to say so). A caret beside a note whose words run past two lines
+       to say so). In Read View they go to the verse in Read View, scrolled
+       to in place within the book being read, never to Study View (BVJ,
+       2026-10-08). A caret beside a note whose words run past two lines
        opens it for the visit. The preview's "Add a sample note" is gone, and
        `legend` is out of `KINDS`.
      - **Trials for BVJ to judge on the preview** (2026-10-07, not decided):
@@ -2338,8 +2340,9 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
          take all the margin they can and never move; only a note a mark is in
          the way of contracts at its text-side edge to clear it (BVJ,
          2026-10-08: they shouldn't shift for bookmarks; before that,
-         narrowing every note had squished them). A cap of 520px, about 60 characters a
-         line, meets only windows from about 1,700px. Where notes are circles
+         narrowing every note had squished them). They grow no wider than
+         three quarters of the text column (BVJ, 2026-10-08), so the cap
+         follows the reading width and text size. Where notes are circles
          a mark takes a place in their rows. **Bookmarks have their own switch,
          "My bookmarks"** (BVJ, 2026-10-08), beside "My notes" in the Display
          tray and the panel. **Bookmarks are the one piece of marginalia Read

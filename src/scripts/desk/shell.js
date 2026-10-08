@@ -44,13 +44,18 @@ async function start() {
   const edit = (record, trigger, restoreFocus = trigger) =>
     openNoteEditor({ trigger, store, ctx, ref: recordReference(record), record, restoreFocus });
   const margin = store ? createNotesMargin({ store, onEdit: edit }) : null;
-  if (store && !margin) createReadMarks({ store });
+  const readMarks = store && !margin ? createReadMarks({ store }) : null;
+  // What the panel's links can do without leaving the page: Study View
+  // shows a note on its chapter; Read View scrolls to a verse in its book.
+  const here = margin ?? readMarks;
   initActions({ store, ctx });
   createPanel({
     store,
     storeError,
     onEdit: store ? edit : null,
-    onReveal: margin ? (id) => margin.reveal(id) : null,
+    goHere: here
+      ? { can: (r) => here.canReveal(r), go: (r) => (margin ? margin.reveal(r.id) : readMarks.reveal(r)) }
+      : null,
   });
 }
 
