@@ -44,6 +44,11 @@ const ICON_COLLAPSE = `<svg viewBox="0 0 24 24" width="18" height="18" fill="non
   stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
   <path d="M6 6l6 6-6 6M13 6l6 6-6 6" /></svg>`;
 
+// A note's caret in the list: down to show the rest, turned up while open.
+const ICON_CARET = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
+  stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+  <path d="M6 9l6 6 6-6" /></svg>`;
+
 const ICON_CLOSE = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
   stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6 6 18" /></svg>`;
 
@@ -255,6 +260,8 @@ export function createPanel({ store, storeError, onEdit = null, onReveal = null 
     empty.textContent =
       activeTab === "chapter" ? `Nothing kept for ${here.label} yet.` : "Nothing kept yet.";
 
+    markCut();
+
     if (focusIndex !== null) {
       const rows = list.querySelectorAll(".desk-item__delete");
       const target = rows[Math.min(focusIndex, rows.length - 1)];
@@ -274,40 +281,56 @@ export function createPanel({ store, storeError, onEdit = null, onReveal = null 
     head.textContent = ref || kindName(r.kind);
     if (href) head.href = href;
     // A note on this chapter is on the page: going to it scrolls to its words
-    // and marks it, rather than reloading.
+    // and marks it, rather than reloading. Elsewhere it is an ordinary link.
     const onThisPage = here && r.bookKey === here.bookKey && r.chapter === here.chapter;
-    if (href && onThisPage && onReveal && r.kind === "note") {
-      head.addEventListener("click", (e) => {
-        if (e.ctrlKey || e.metaKey || e.shiftKey || e.button !== 0) return;
-        e.preventDefault();
-        onReveal(r.id);
-      });
-    }
+    const goTo = (e) => {
+      if (e.ctrlKey || e.metaKey || e.shiftKey || e.button !== 0) return;
+      e.preventDefault();
+      onReveal(r.id);
+    };
+    const revealHere = Boolean(href && onThisPage && onReveal && r.kind === "note");
+    if (revealHere) head.addEventListener("click", goTo);
     const kind = document.createElement("span");
     kind.className = "desk-item__kind";
     kind.textContent = kindName(r.kind);
     li.append(head, kind);
     if (r.kind === "note") {
-      // Led by its marker, at two lines until hovered, focused or clicked
-      // open (kept open for this visit), unless the list shows notes in full.
-      const note = document.createElement("button");
-      note.type = "button";
+      // Led by its marker, at two lines unless hovered, focused, opened by
+      // its caret (kept open for this visit), or the list shows notes in
+      // full. The note itself goes to its place, as its reference does
+      // (BVJ, 2026-10-07).
+      const row = document.createElement("div");
+      row.className = "desk-item__note-row";
+      if (openNotes.has(r.id)) row.classList.add("desk-item__note-row--open");
+      const note = document.createElement(href ? "a" : "span");
       note.className = "desk-item__note";
-      note.setAttribute("aria-expanded", String(openNotes.has(r.id)));
-      if (openNotes.has(r.id)) note.classList.add("desk-item__note--open");
+      if (href) note.href = href;
+      if (revealHere) note.addEventListener("click", goTo);
       note.innerHTML = glyph(r.marker, "desk-glyph desk-item__glyph");
       const words = document.createElement("span");
       words.className = "desk-item__words";
       // A note's body is the reader's own words: always text, never HTML.
       words.textContent = r.body || "(the marker only)";
       note.append(words);
-      note.addEventListener("click", () => {
+      const more = document.createElement("button");
+      more.type = "button";
+      more.className = "desk-item__more";
+      more.hidden = true; // shown when the words are cut off (markCut)
+      more.innerHTML = ICON_CARET;
+      const syncMore = () => {
+        const open = openNotes.has(r.id);
+        more.setAttribute("aria-expanded", String(open));
+        more.setAttribute("aria-label", `${open ? "Show less of" : "Show all of"} the note${ref ? ` on ${ref}` : ""}`);
+      };
+      syncMore();
+      more.addEventListener("click", () => {
         if (openNotes.has(r.id)) openNotes.delete(r.id);
         else openNotes.add(r.id);
-        note.classList.toggle("desk-item__note--open", openNotes.has(r.id));
-        note.setAttribute("aria-expanded", String(openNotes.has(r.id)));
+        row.classList.toggle("desk-item__note-row--open", openNotes.has(r.id));
+        syncMore();
       });
-      li.append(note);
+      row.append(note, more);
+      li.append(row);
       if (onEdit) {
         const edit = document.createElement("button");
         edit.type = "button";
@@ -337,6 +360,21 @@ export function createPanel({ store, storeError, onEdit = null, onReveal = null 
     del.addEventListener("click", () => remove(r, li));
     li.append(del);
     return li;
+  }
+
+  // A caret only where there is more to show: on notes whose words run past
+  // two lines, or that the reader has opened. None while the list shows
+  // notes in full.
+  function markCut() {
+    requestAnimationFrame(() => {
+      const full = getSetting("listFull") === "full";
+      for (const row of list.querySelectorAll(".desk-item__note-row")) {
+        const more = row.querySelector(".desk-item__more");
+        const words = row.querySelector(".desk-item__words");
+        const open = row.classList.contains("desk-item__note-row--open");
+        more.hidden = full || !(open || words.scrollHeight > words.clientHeight + 1);
+      }
+    });
   }
 
   async function remove(r, li) {
@@ -376,7 +414,10 @@ export function createPanel({ store, storeError, onEdit = null, onReveal = null 
   };
   syncFull();
   fullBox.addEventListener("change", () => setSetting("listFull", fullBox.checked ? "full" : "lines"));
-  document.addEventListener(SETTINGS_EVENT, syncFull);
+  document.addEventListener(SETTINGS_EVENT, () => {
+    syncFull();
+    markCut();
+  });
 
   /* ── Keeping in step ────────────────────────────────────────────── */
 

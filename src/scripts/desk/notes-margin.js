@@ -22,6 +22,8 @@ import {
   CIRCLE_GAP,
   CIRCLE_INSET,
   NOTE_GAP,
+  RIBBON,
+  RIBBON_LANE,
   circlesPerRow,
   layoutCircles,
   layoutFull,
@@ -55,6 +57,7 @@ export function createNotesMargin({ store, onEdit }) {
   document.body.append(aside);
 
   let notes = []; // this chapter's note records
+  let bookmarks = []; // and its bookmarks
   let mode = "none";
   const open = new Set(); // kept open by a click, for this visit
   const hover = new Set(); // hovered or focused
@@ -65,15 +68,17 @@ export function createNotesMargin({ store, onEdit }) {
 
   async function load() {
     const records = await store.byChapter(here.bookKey, here.chapter);
-    notes = forChapter(records, here.bookKey, here.chapter).filter((r) => r.kind === "note");
+    const mine = forChapter(records, here.bookKey, here.chapter);
+    notes = mine.filter((r) => r.kind === "note");
+    bookmarks = mine.filter((r) => r.kind === "bookmark");
     schedule();
   }
 
-  /** Each note with its words as a live Range, in today's text; lost notes are left out. */
-  function placed() {
+  /** Each note (or bookmark) with its words as a live Range, in today's text; lost ones are left out. */
+  function placed(records = notes) {
     const text = chapterText();
     const out = [];
-    for (const r of notes) {
+    for (const r of records) {
       const at = placeRecord(text, r);
       if (at.status === "lost" || at.start == null) continue;
       const pts = offsetsToRange(text, at.start, at.end);
@@ -103,13 +108,6 @@ export function createNotesMargin({ store, onEdit }) {
     const shown = getSetting("notes") === "on" && notes.length > 0;
     const box = textBox.getBoundingClientRect();
     mode = shown ? marginMode(box.left) : "none";
-    aside.hidden = mode === "none";
-    if (mode === "none") {
-      if (popId) closePanel();
-      syncLit();
-      return;
-    }
-    const items = placed();
     const firstBlock = chapterBlocks()[0];
     const lineHeight = parseFloat(getComputedStyle(firstBlock?.querySelector("p") ?? firstBlock ?? textBox).lineHeight) || 30;
     const sx = window.scrollX;
@@ -119,13 +117,46 @@ export function createNotesMargin({ store, onEdit }) {
       return r.top + sy;
     };
 
+    // Bookmarks are not notes, so the "My notes" switch leaves them be.
+    // Outside the circles' rows, each is right-aligned in the notes' column
+    // (or, where there's no room for that, just clear of the text).
+    const marks = placed(bookmarks);
+    const ribbon = (record) => {
+      const mark = document.createElement("span");
+      mark.className = "desk-ribbon";
+      mark.setAttribute("role", "img");
+      mark.setAttribute("aria-label", `Bookmark, ${refOf(record)}`);
+      mark.title = `Bookmark, ${refOf(record)}`;
+      mark.innerHTML = glyph("bookmark", "desk-ribbon__glyph");
+      aside.append(mark);
+      return mark;
+    };
+    if (marks.length && mode !== "circles" && box.left >= RIBBON + 12) {
+      const right = box.left >= NOTE_GAP + RIBBON + 8 ? NOTE_GAP : 6;
+      for (const { record, range } of marks) {
+        const mark = ribbon(record);
+        mark.style.top = `${lineTop(range) + (lineHeight - RIBBON) / 2}px`;
+        mark.style.left = `${box.left + sx - right - RIBBON}px`;
+      }
+    }
+
+    aside.hidden = mode === "none" && !aside.childElementCount;
+    if (mode === "none") {
+      if (popId) closePanel();
+      syncLit();
+      return;
+    }
+    const items = placed();
+
     if (mode === "full") {
       const width = noteWidth(box.left);
       const left = box.left + sx - NOTE_GAP - width;
+      // The column's text-side edge is kept clear for bookmarks' marks.
+      const lane = marks.length ? RIBBON_LANE : 0;
       const els = items.map(({ record }) => {
         const el = noteElement(record);
         el.style.left = `${left}px`;
-        el.style.width = `${width}px`;
+        el.style.width = `${width - lane}px`;
         aside.append(el);
         return el;
       });
@@ -161,16 +192,27 @@ export function createNotesMargin({ store, onEdit }) {
         }
       }
     } else {
+      // Bookmarks take their places in the circles' rows, so the two never
+      // collide; each draws as its red mark, centred in its place.
       const perRow = circlesPerRow(box.left - 8);
+      const all = [...items, ...marks];
       const laid = layoutCircles(
-        items.map(({ record, range }) => ({ id: record.id, top: lineTop(range), lineHeight })),
+        all.map(({ record, range }) => ({ id: record.id, top: lineTop(range), lineHeight })),
         { perRow },
       );
-      const recById = new Map(items.map(({ record }) => [record.id, record]));
+      const recById = new Map(all.map(({ record }) => [record.id, record]));
       for (const l of laid) {
-        const el = circleElement(recById.get(l.id));
+        const record = recById.get(l.id);
+        const x = box.left + sx - CIRCLE_INSET - CIRCLE - l.slot * (CIRCLE + CIRCLE_GAP);
+        if (record.kind === "bookmark") {
+          const mark = ribbon(record);
+          mark.style.top = `${l.y + (CIRCLE - RIBBON) / 2}px`;
+          mark.style.left = `${x + (CIRCLE - RIBBON) / 2}px`;
+          continue;
+        }
+        const el = circleElement(record);
         el.style.top = `${l.y}px`;
-        el.style.left = `${box.left + sx - CIRCLE_INSET - CIRCLE - l.slot * (CIRCLE + CIRCLE_GAP)}px`;
+        el.style.left = `${x}px`;
         aside.append(el);
       }
     }

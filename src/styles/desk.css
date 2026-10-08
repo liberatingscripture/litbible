@@ -368,24 +368,29 @@ a.desk-item__ref:hover {
   margin-top: 6px;
 }
 
-.desk-item__note {
+.desk-item__note-row {
   grid-column: 1;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: start;
+  gap: 0 4px;
+  margin: 6px 0 0;
+}
+
+/* The note itself goes to its place, like its reference. */
+.desk-item__note {
   display: grid;
   grid-template-columns: 18px 1fr;
   gap: 0 8px;
-  margin: 6px 0 0;
-  padding: 2px 4px;
+  min-width: 0;
   margin-left: -4px;
-  border: 0;
+  padding: 2px 4px;
   border-radius: 6px;
-  background: transparent;
   color: inherit;
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
+  text-decoration: none;
 }
 
-.desk-item__note:hover {
+a.desk-item__note:hover {
   background: rgba(var(--ink-rgb), 0.05);
 }
 
@@ -405,12 +410,50 @@ a.desk-item__ref:hover {
   overflow: hidden;
 }
 
-.desk-item__note:hover .desk-item__words,
-.desk-item__note:focus-visible .desk-item__words,
-.desk-item__note--open .desk-item__words,
+.desk-item__note-row:hover .desk-item__words,
+.desk-item__note-row:focus-within .desk-item__words,
+.desk-item__note-row--open .desk-item__words,
 html[data-desk-list="full"] .desk-item__note .desk-item__words {
   display: block;
   overflow: visible;
+}
+
+/* The caret that keeps a note open for the visit, turned up while it is. */
+.desk-item__more {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: rgba(var(--ink-rgb), 0.7);
+  cursor: pointer;
+}
+
+.desk-item__more[hidden] {
+  display: none;
+}
+
+.desk-item__more:hover {
+  background: rgba(var(--ink-rgb), 0.08);
+  color: var(--text);
+}
+
+.desk-item__more svg {
+  transition: transform 0.15s ease;
+}
+
+.desk-item__more[aria-expanded="true"] svg {
+  transform: rotate(180deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .desk-item__more svg {
+    transition: none;
+  }
 }
 
 /* ── Settings at the foot: My notes, and their lettering ─────── */
@@ -519,11 +562,21 @@ html[data-desk-list="full"] .desk-item__note .desk-item__words {
   /* Above the page, below the shared floating panels (1100). */
   z-index: 800;
   --desk-note-font: "Playpen Sans", Inter, "Inter Fallback", system-ui, sans-serif;
+  /* Playpen at 500, a little firmer than its regular (BVJ, 2026-10-07, to
+     try on the preview). Inter on "Plain", and a reader's own font, keep
+     their normal weight. */
+  --desk-note-weight: 500;
+}
+
+html[data-font] .desk-notes,
+html[data-font] .desk-note-pop {
+  --desk-note-weight: 400;
 }
 
 html[data-desk-note-font="plain"] .desk-notes,
 html[data-desk-note-font="plain"] .desk-note-pop {
   --desk-note-font: Inter, "Inter Fallback", system-ui, sans-serif;
+  --desk-note-weight: 400;
 }
 
 .desk-notes[hidden] {
@@ -538,6 +591,7 @@ html[data-desk-note-font="plain"] .desk-note-pop {
   border-radius: 8px;
   color: var(--text);
   font-family: var(--desk-note-font);
+  font-weight: var(--desk-note-weight, 400);
   font-size: calc(0.9375rem * var(--reading-scale, 1));
   line-height: 1.45;
   transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
@@ -672,6 +726,26 @@ html[data-desk-note-font="plain"] .desk-note-pop {
   }
 }
 
+/* A bookmark's mark: its glyph in red, not in a circle, in the gutter beside
+   the verse (a trial, BVJ 2026-10-07). The note marker of the same shape is
+   green and always comes with words, so the two read apart. */
+.desk-ribbon {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  pointer-events: auto;
+}
+
+.desk-ribbon__glyph {
+  display: block;
+  width: 14px;
+  height: 14px;
+}
+
+.desk-ribbon__glyph path {
+  fill: #c62828;
+}
+
 /* A circle's note, opened like a footnote (the shared panel places it). */
 .desk-note-pop {
   display: grid;
@@ -679,6 +753,7 @@ html[data-desk-note-font="plain"] .desk-note-pop {
   gap: 4px 8px;
   width: min(300px, calc(100vw - 32px));
   font-family: var(--desk-note-font, "Playpen Sans", Inter, system-ui, sans-serif);
+  font-weight: var(--desk-note-weight, 500);
   line-height: 1.5;
 }
 

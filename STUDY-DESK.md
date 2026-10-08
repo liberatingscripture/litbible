@@ -2326,11 +2326,22 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
        controls in the Display tray's Show group and the panel's foot kept
        in step.
      - **The panel's list** leads notes with their glyphs at two lines, has
-       Edit, and a note's reference takes the reader to it on this page. The
-       preview's "Add a sample note" is gone, and `legend` is out of `KINDS`.
-     - **Defaults chosen where nothing was decided** (BVJ may change them):
-       the editor's form; a bookmark shows nothing on the page yet, only in
-       the panel's list and as "Remove bookmark" in the menus.
+       Edit, and both a note's reference and the note itself take the reader
+       to it (BVJ, 2026-10-07: clicking the note had opened it, with nothing
+       to say so). A caret beside a note whose words run past two lines
+       opens it for the visit. The preview's "Add a sample note" is gone, and
+       `legend` is out of `KINDS`.
+     - **Trials for BVJ to judge on the preview** (2026-10-07, not decided):
+       - **A bookmark shows on the page** as the bookmark glyph in red, not
+         in a circle, level with its verse and right-aligned in the notes'
+         column, the side nearest the text (BVJ's suggestion). Notes in full
+         keep that edge clear for it; where notes are circles it takes a
+         place in their rows. The "My notes" switch leaves it be, since a
+         bookmark isn't a note.
+       - **Playpen Sans at weight 500** rather than its regular 400 (BVJ
+         asked for thicker: 500 or 550). Inter on "Plain", and a reader's
+         own font, keep their normal weight.
+     - **A default chosen where nothing was decided**: the editor's form.
      **Still to come in 1c**: highlights and the change notice (after BDR's
      answer on rules a to e), the "This verse" tab (N10), the verse number
      naming its notes, M1, and notes on articles and glossary entries (N11,
@@ -2826,7 +2837,10 @@ tried out the behaviour above:
     the panel's list, near "Kept in this browser", remembered like the
     panel's other choices. BVJ isn't sure yet.
   - **Playpen Sans's weight and size**, tuned on the real page (the
-    comparison set every face at one nominal size).
+    comparison set every face at one nominal size). Weight 500 is on the
+    preview to try; 550 was the other figure BVJ named.
+  - **Whether a bookmark shows on the page**, as the red mark now on the
+    preview (see "Order of work", 1c).
   - **How a screen reader learns a verse has notes** (recommended). Decision
     9 tells a reader at a note what it is about, but notes sit outside the
     scripture's reading order (C24), so nothing tells someone reading the

@@ -2105,7 +2105,8 @@ collection); they're read directly by the intro pages and the API manifest.
      with its Latin, Latin-ext and Greek ranges, so it loads only with the
      desk and only when a note uses it), or Inter on "Plain"; a reader's
      Atkinson or OpenDyslexic choice wins through `html[data-font]` as
-     everywhere. The notes' settings (`data-desk-notes`,
+     everywhere. Bookmarks show in the same `<aside>` as a red mark, a trial
+     STUDY-DESK.md records. The notes' settings (`data-desk-notes`,
      `data-desk-note-font`, `data-desk-list` on `<html>`) have no pre-paint
      script, since nothing of the desk paints before it loads.
 - **Every link that leaves the site opens in a new tab** (owner, 2026-10-01).

@@ -34,6 +34,15 @@ export const CIRCLE_INSET = 14;
 export const CIRCLE_ROOM = CIRCLE + CIRCLE_INSET + 8;
 /** Space between stacked notes in full. */
 export const STACK_GAP = 6;
+/**
+ * A bookmark's mark (a trial, BVJ 2026-10-07): its glyph in red, not in a
+ * circle, level with the verse and right-aligned in the notes' column, the
+ * side nearest the text. Where notes show in full, they keep a lane of
+ * RIBBON_LANE clear at that edge for it; where they show as circles, it takes
+ * a place in their rows like a circle.
+ */
+export const RIBBON = 14;
+export const RIBBON_LANE = RIBBON + 6;
 
 /**
  * How the margin shows notes: "full", "circles", or "none" when even a circle
