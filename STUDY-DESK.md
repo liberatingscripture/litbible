@@ -2334,10 +2334,13 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      - **Trials for BVJ to judge on the preview** (2026-10-07, not decided):
        - **A bookmark shows on the page** as the bookmark glyph in red, not
          in a circle, level with its verse and right-aligned in the notes'
-         column, the side nearest the text (BVJ's suggestion). Notes in full
-         keep that edge clear for it; where notes are circles it takes a
-         place in their rows. The "My notes" switch leaves it be, since a
-         bookmark isn't a note.
+         column, the side nearest the text (BVJ's suggestion). Only a note in
+         full that a mark is in the way of makes room for it, moving left
+         where the margin allows and narrowing by the rest (BVJ, 2026-10-08:
+         narrowing every note squished them); where notes are circles a mark
+         takes a place in their rows. **Bookmarks have their own switch,
+         "My bookmarks"** (BVJ, 2026-10-08), beside "My notes" in the Display
+         tray and the panel.
        - **Playpen Sans at weight 500** rather than its regular 400 (BVJ
          asked for thicker: 500 or 550). Inter on "Plain", and a reader's
          own font, keep their normal weight.

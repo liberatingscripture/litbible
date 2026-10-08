@@ -37,12 +37,30 @@ export const STACK_GAP = 6;
 /**
  * A bookmark's mark (a trial, BVJ 2026-10-07): its glyph in red, not in a
  * circle, level with the verse and right-aligned in the notes' column, the
- * side nearest the text. Where notes show in full, they keep a lane of
- * RIBBON_LANE clear at that edge for it; where they show as circles, it takes
- * a place in their rows like a circle.
+ * side nearest the text. A note in full that a mark is in the way of makes
+ * RIBBON_LANE of room for it (roomForMarks); where notes show as circles, a
+ * mark takes a place in their rows like a circle.
  */
 export const RIBBON = 14;
 export const RIBBON_LANE = RIBBON + 6;
+
+/**
+ * Which notes in full a bookmark's mark is in the way of, and how each makes
+ * room (BVJ, 2026-10-08: only those notes, and further left rather than
+ * narrower where the margin allows). `notes` are as shown: `y` and `height`
+ * (the height after any cut). `marks` are the marks' tops. `spare` is the
+ * room left of the notes' column, before the window's edge. Returns a Map of
+ * id to { shift, narrow }: move left by `shift`, lose `narrow` of width.
+ */
+export function roomForMarks(notes, marks, { lane = RIBBON_LANE, size = RIBBON, spare = 0 } = {}) {
+  const out = new Map();
+  const shift = Math.max(0, Math.min(lane, spare));
+  for (const n of notes) {
+    const hit = marks.some((top) => top < n.y + n.height && top + size > n.y);
+    if (hit) out.set(n.id, { shift, narrow: lane - shift });
+  }
+  return out;
+}
 
 /**
  * How the margin shows notes: "full", "circles", or "none" when even a circle

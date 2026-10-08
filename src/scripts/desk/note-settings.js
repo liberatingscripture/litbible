@@ -1,16 +1,18 @@
 // src/scripts/desk/note-settings.js
 //
-// The reader's settings for their own notes (STUDY-DESK.md, "Decisions",
+// The reader's settings for their own notes and bookmarks (STUDY-DESK.md, "Decisions",
 // 2026-10-07: the margin switch, and the margin notes' look):
 //   - "My notes": whether the margin shows them (shown by default);
 //   - "Handwriting / Plain": Playpen Sans or Inter for margin notes
 //     (handwriting by default). The reader's own font choice, Atkinson
 //     Hyperlegible or OpenDyslexic, still wins: global.css sets every element
 //     to it under html[data-font];
+//   - "My bookmarks": whether the margin shows bookmarks' marks (shown by
+//     default; BVJ, 2026-10-08: their own switch, apart from notes);
 //   - whether the Notebook panel's list shows notes in full or at two lines
 //     (two lines by default).
 //
-// The first two have a control in the Display tray's Show group and another
+// The first three have a control in the Display tray's Show group and another
 // in the Notebook panel, both full switches for one setting, kept in step
 // (BVJ). Like the tray's own settings, each is an attribute on <html>, absent
 // for the default, with one localStorage key; unlike them there is no
@@ -19,6 +21,7 @@
 const SETTINGS = {
   notes: { attr: "data-desk-notes", key: "lit-desk-notes", fallback: "on" },
   noteFont: { attr: "data-desk-note-font", key: "lit-desk-note-font", fallback: "handwriting" },
+  bookmarks: { attr: "data-desk-bookmarks", key: "lit-desk-bookmarks", fallback: "on" },
   listFull: { attr: "data-desk-list", key: "lit-desk-list", fallback: "lines" },
 };
 
@@ -65,8 +68,8 @@ export function initNoteSettings() {
 let uid = 0;
 
 /**
- * The "My notes" box and the Handwriting / Plain choice, as a group of
- * controls that follow the setting wherever it changes. `classes` names the
+ * The "My notes" box, the Handwriting / Plain choice and the "My bookmarks"
+ * box, as controls that follow their settings wherever they change. `classes` names the
  * host's own styles, so the same controls sit naturally in the tray and in
  * the panel.
  */
@@ -78,6 +81,13 @@ function noteControls(classes) {
     <span class="${classes.checkLabel}">My notes</span>`;
   const box = check.querySelector("input");
   box.addEventListener("change", () => setSetting("notes", box.checked ? "on" : "off"));
+
+  const marks = document.createElement("label");
+  marks.className = classes.check;
+  marks.innerHTML = `<input type="checkbox" class="${classes.checkInput}" id="deskBookmarksCheck${n}" />
+    <span class="${classes.checkLabel}">My bookmarks</span>`;
+  const marksBox = marks.querySelector("input");
+  marksBox.addEventListener("change", () => setSetting("bookmarks", marksBox.checked ? "on" : "off"));
 
   const seg = document.createElement("div");
   seg.className = classes.seg;
@@ -96,12 +106,13 @@ function noteControls(classes) {
 
   const sync = () => {
     box.checked = getSetting("notes") === "on";
+    marksBox.checked = getSetting("bookmarks") === "on";
     const font = getSetting("noteFont");
     for (const r of radios) r.checked = r.value === font;
   };
   sync();
   document.addEventListener(SETTINGS_EVENT, sync);
-  return { check, seg, sync };
+  return { check, seg, marks, sync };
 }
 
 /** The controls in the Display tray's Show group, on a Study View chapter. */
@@ -110,7 +121,7 @@ function injectIntoTray() {
   const checks = terms?.closest(".font-tray__checks");
   const show = checks?.closest("fieldset");
   if (!checks || !show || !document.querySelector(".chapter-paragraphs")) return;
-  const { check, seg } = noteControls({
+  const { check, seg, marks } = noteControls({
     check: "font-tray__check",
     checkInput: "font-tray__check-input",
     checkLabel: "font-tray__check-label",
@@ -120,7 +131,8 @@ function injectIntoTray() {
     segText: "font-tray__seg-text",
   });
   check.dataset.desk = "";
-  checks.append(check);
+  marks.dataset.desk = "";
+  checks.append(check, marks);
   const row = document.createElement("fieldset");
   row.className = "font-tray__row";
   row.dataset.desk = "";
@@ -133,7 +145,7 @@ function injectIntoTray() {
 
 /** The same controls for the Notebook panel's foot. */
 export function panelNoteControls() {
-  const { check, seg } = noteControls({
+  const { check, seg, marks } = noteControls({
     check: "desk-setting",
     checkInput: "desk-setting__input",
     checkLabel: "desk-setting__label",
@@ -144,6 +156,6 @@ export function panelNoteControls() {
   });
   const wrap = document.createElement("div");
   wrap.className = "desk-panel__settings";
-  wrap.append(check, seg);
+  wrap.append(check, seg, marks);
   return wrap;
 }

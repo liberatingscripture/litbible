@@ -10,6 +10,7 @@ import {
   marginMode,
   noteOpening,
   popoverPlace,
+  roomForMarks,
   shortQuote,
 } from "../src/lib/desk-notes.mjs";
 
@@ -114,6 +115,24 @@ test("near the bottom of the window it opens above", () => {
   const p = popoverPlace({ circleTop: 700, words: { top: 700, bottom: 725 }, height: 120, viewBottom: 800 });
   assert.equal(p.side, "above");
   assert.ok(p.top + 120 <= 700);
+});
+
+test("only a note a bookmark's mark is in the way of makes room", () => {
+  const room = roomForMarks(
+    [
+      { id: "a", y: 0, height: 60 },
+      { id: "b", y: 100, height: 20 },
+    ],
+    [40],
+    { lane: 20, spare: 50 },
+  );
+  assert.deepEqual([...room.keys()], ["a"]);
+  assert.deepEqual(room.get("a"), { shift: 20, narrow: 0 }, "further left where there's room");
+});
+
+test("without room to the left, the note narrows by the rest", () => {
+  const room = roomForMarks([{ id: "a", y: 0, height: 60 }], [10], { lane: 20, spare: 8 });
+  assert.deepEqual(room.get("a"), { shift: 8, narrow: 12 });
 });
 
 test("short quotes stay whole; long ones keep ten words", () => {

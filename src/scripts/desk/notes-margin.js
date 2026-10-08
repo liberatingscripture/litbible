@@ -22,8 +22,9 @@ import {
   CIRCLE_GAP,
   CIRCLE_INSET,
   NOTE_GAP,
+  EDGE,
   RIBBON,
-  RIBBON_LANE,
+  roomForMarks,
   circlesPerRow,
   layoutCircles,
   layoutFull,
@@ -117,10 +118,10 @@ export function createNotesMargin({ store, onEdit }) {
       return r.top + sy;
     };
 
-    // Bookmarks are not notes, so the "My notes" switch leaves them be.
+    // Bookmarks have their own switch, "My bookmarks"; "My notes" leaves them be.
     // Outside the circles' rows, each is right-aligned in the notes' column
     // (or, where there's no room for that, just clear of the text).
-    const marks = placed(bookmarks);
+    const marks = getSetting("bookmarks") === "on" ? placed(bookmarks) : [];
     const ribbon = (record) => {
       const mark = document.createElement("span");
       mark.className = "desk-ribbon";
@@ -131,11 +132,14 @@ export function createNotesMargin({ store, onEdit }) {
       aside.append(mark);
       return mark;
     };
+    const markTops = [];
     if (marks.length && mode !== "circles" && box.left >= RIBBON + 12) {
       const right = box.left >= NOTE_GAP + RIBBON + 8 ? NOTE_GAP : 6;
       for (const { record, range } of marks) {
         const mark = ribbon(record);
-        mark.style.top = `${lineTop(range) + (lineHeight - RIBBON) / 2}px`;
+        const top = lineTop(range) + (lineHeight - RIBBON) / 2;
+        markTops.push(top);
+        mark.style.top = `${top}px`;
         mark.style.left = `${box.left + sx - right - RIBBON}px`;
       }
     }
@@ -151,26 +155,43 @@ export function createNotesMargin({ store, onEdit }) {
     if (mode === "full") {
       const width = noteWidth(box.left);
       const left = box.left + sx - NOTE_GAP - width;
-      // The column's text-side edge is kept clear for bookmarks' marks.
-      const lane = marks.length ? RIBBON_LANE : 0;
       const els = items.map(({ record }) => {
         const el = noteElement(record);
         el.style.left = `${left}px`;
-        el.style.width = `${width - lane}px`;
+        el.style.width = `${width}px`;
         aside.append(el);
         return el;
       });
-      const noteLine = parseFloat(getComputedStyle(els[0] ?? aside).lineHeight) || 22;
-      const laid = layoutFull(
-        items.map(({ record, range }, i) => ({
-          id: record.id,
-          top: lineTop(range),
-          lineHeight,
-          noteLine,
-          height: els[i].querySelector(".desk-note__toggle").scrollHeight,
-        })),
-      );
       const byId = new Map(els.map((el) => [el.dataset.id, el]));
+      const noteLine = parseFloat(getComputedStyle(els[0] ?? aside).lineHeight) || 22;
+      const lay = () =>
+        layoutFull(
+          items.map(({ record, range }, i) => ({
+            id: record.id,
+            top: lineTop(range),
+            lineHeight,
+            noteLine,
+            height: els[i].querySelector(".desk-note__toggle").scrollHeight,
+          })),
+        );
+      let laid = lay();
+      // A note a bookmark's mark is in the way of moves left to clear it,
+      // narrowing only by what the margin can't spare; the rest keep their
+      // width. Narrowing can lengthen a note, so it is laid out again.
+      if (markTops.length) {
+        const shown = laid.map((l) => ({
+          id: l.id,
+          y: l.y,
+          height: l.cut && !open.has(l.id) ? l.maxHeight : byId.get(l.id).querySelector(".desk-note__toggle").scrollHeight,
+        }));
+        const room = roomForMarks(shown, markTops, { spare: box.left - NOTE_GAP - width - EDGE });
+        for (const [id, { shift, narrow }] of room) {
+          const el = byId.get(id);
+          el.style.left = `${left - shift}px`;
+          el.style.width = `${width - narrow}px`;
+        }
+        if (room.size) laid = lay();
+      }
       for (const l of laid) {
         const el = byId.get(l.id);
         el.style.top = `${l.y - 3}px`;
