@@ -2298,6 +2298,64 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      Delete; Android: "carried along" and "couldn't find your words"); the
      "This verse" tab (N10); Read View's smaller set, through events (C2);
      hide my notes (M1); accessibility (C4, C10, C24).
+     **Built first (2026-10-07), the parts rules a to e don't touch**, behind
+     the preview switch:
+     - **"Yours" in the menus.** The verse menu and the selection panel gain
+       Add a note and Bookmark (Remove bookmark when the verse has one);
+       Read View's selection panel gains Bookmark only. chapter-tools.js
+       offers each panel through a `lit:panel-actions` event before placing
+       it, and `src/scripts/desk/actions.js` adds the row, so with the desk
+       off nothing changes.
+     - **The note editor** opens in the shared floating panel in place of
+       the menu: the words and reference, the seven markers, the reader's
+       words, Save and Cancel (Ctrl+Enter saves); editing adds Delete with
+       the undo bar. It ignores outside clicks (lit-panel's `stay`), so a
+       stray click can't lose what was typed. A note from the verse menu
+       covers its verses with no quote; one from a selection quotes it.
+     - **The margin** (`src/lib/desk-notes.mjs`, the rules, unit-tested;
+       `src/scripts/desk/notes-margin.js`, the drawing) does what
+       "Decisions", 2026-10-07 lists. It adds nothing to the scripture: the
+       notes live in one `<aside>` at the end of `<body>`, and the lit words
+       use the CSS Custom Highlight API. One detail of the fade was settled
+       while building: a cut note that shows a single line fades toward the
+       line's end rather than downward, since a downward fade over one line
+       left nothing legible.
+     - **The settings** ("My notes", Handwriting / Plain, and the list's
+       "Show notes in full") live in `src/scripts/desk/note-settings.js`:
+       one attribute on `<html>` and one localStorage key each, with the
+       controls in the Display tray's Show group and the panel's foot kept
+       in step.
+     - **The panel's list** leads notes with their glyphs at two lines, has
+       Edit, and both a note's reference and the note itself take the reader
+       to it (BVJ, 2026-10-07: clicking the note had opened it, with nothing
+       to say so). In Read View they go to the verse in Read View, scrolled
+       to in place within the book being read, never to Study View (BVJ,
+       2026-10-08). A caret beside a note whose words run past two lines
+       opens it for the visit. The preview's "Add a sample note" is gone, and
+       `legend` is out of `KINDS`.
+     - **Trials for BVJ to judge on the preview** (2026-10-07, not decided):
+       - **A bookmark shows on the page** as the bookmark glyph in red, not
+         in a circle, level with its verse and right-aligned in the notes'
+         column, the side nearest the text (BVJ's suggestion). Notes in full
+         take all the margin they can and never move; only a note a mark is in
+         the way of contracts at its text-side edge to clear it (BVJ,
+         2026-10-08: they shouldn't shift for bookmarks; before that,
+         narrowing every note had squished them). They grow no wider than
+         three quarters of the text column (BVJ, 2026-10-08), so the cap
+         follows the reading width and text size. Where notes are circles
+         a mark takes a place in their rows. **Bookmarks have their own switch,
+         "My bookmarks"** (BVJ, 2026-10-08), beside "My notes" in the Display
+         tray and the panel. **Bookmarks are the one piece of marginalia Read
+         View shows** (BVJ, 2026-10-08): the same mark beside its verse, with
+         "My bookmarks" in Read View's tray and panel; still no notes there.
+       - **Playpen Sans at weight 500** rather than its regular 400 (BVJ
+         asked for thicker: 500 or 550). Inter on "Plain", and a reader's
+         own font, keep their normal weight.
+     - **A default chosen where nothing was decided**: the editor's form.
+     **Still to come in 1c**: highlights and the change notice (after BDR's
+     answer on rules a to e), the "This verse" tab (N10), the verse number
+     naming its notes, M1, and notes on articles and glossary entries (N11,
+     with format draft 2).
    - **1d. The notebook around them.** The notebook page; your notebook in
      search, and commands in the search box (D2, D3); export and import in
      Markdown and the W3C shape, which every plan needs; the first-time
@@ -2789,7 +2847,10 @@ tried out the behaviour above:
     the panel's list, near "Kept in this browser", remembered like the
     panel's other choices. BVJ isn't sure yet.
   - **Playpen Sans's weight and size**, tuned on the real page (the
-    comparison set every face at one nominal size).
+    comparison set every face at one nominal size). Weight 500 is on the
+    preview to try; 550 was the other figure BVJ named.
+  - **Whether a bookmark shows on the page**, as the red mark now on the
+    preview (see "Order of work", 1c).
   - **How a screen reader learns a verse has notes** (recommended). Decision
     9 tells a reader at a note what it is about, but notes sit outside the
     scripture's reading order (C24), so nothing tells someone reading the

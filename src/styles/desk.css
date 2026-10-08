@@ -269,7 +269,7 @@ a.desk-item__ref:hover {
 }
 
 .desk-item__delete,
-.desk-panel__sample {
+.desk-item__edit {
   padding: 5px 10px;
   border: 1px solid rgba(var(--ink-rgb), 0.25);
   border-radius: 8px;
@@ -281,7 +281,7 @@ a.desk-item__ref:hover {
 }
 
 .desk-item__delete:hover,
-.desk-panel__sample:hover {
+.desk-item__edit:hover {
   background: rgba(var(--ink-rgb), 0.07);
 }
 
@@ -290,18 +290,7 @@ a.desk-item__ref:hover {
   color: rgba(var(--ink-rgb), 0.7);
 }
 
-/* ── Preview-only tools, and the foot ── */
-
-.desk-panel__preview {
-  padding: 10px 16px;
-  border-top: 1px dashed rgba(var(--ink-rgb), 0.25);
-  font-size: 0.8125rem;
-}
-
-.desk-panel__preview p {
-  margin: 0 0 6px;
-  color: rgba(var(--ink-rgb), 0.7);
-}
+/* ── The foot ── */
 
 .desk-panel__foot {
   padding: 10px 16px 14px;
@@ -359,4 +348,602 @@ a.desk-item__ref:hover {
 
 .desk-undo__undo:hover {
   background: rgba(var(--ink-rgb), 0.08);
+}
+
+/* ── Notes in the list ───────────────────────────────────────── */
+
+/* A note's row: its glyph and words (a button that opens it in full for the
+   visit), with Edit above Delete on the right. At two lines until hovered,
+   focused or opened, unless the reader shows notes in full
+   (html[data-desk-list="full"]). In the panel's own font, like everything
+   else in it (BVJ, 2026-10-07). */
+.desk-item__edit {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: start;
+}
+
+.desk-item:has(.desk-item__edit) .desk-item__delete {
+  grid-row: 2 / span 2;
+  margin-top: 6px;
+}
+
+.desk-item__note-row {
+  grid-column: 1;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: start;
+  gap: 0 4px;
+  margin: 6px 0 0;
+}
+
+/* The note itself goes to its place, like its reference. */
+.desk-item__note {
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  gap: 0 8px;
+  min-width: 0;
+  margin-left: -4px;
+  padding: 2px 4px;
+  border-radius: 6px;
+  color: inherit;
+  text-decoration: none;
+}
+
+a.desk-item__note:hover {
+  background: rgba(var(--ink-rgb), 0.05);
+}
+
+.desk-item__glyph {
+  width: 16px;
+  height: 16px;
+  margin-top: 0.2em;
+}
+
+.desk-item__note .desk-item__words {
+  grid-column: auto;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+
+.desk-item__note-row:hover .desk-item__words,
+.desk-item__note-row:focus-within .desk-item__words,
+.desk-item__note-row--open .desk-item__words,
+html[data-desk-list="full"] .desk-item__note .desk-item__words {
+  display: block;
+  overflow: visible;
+}
+
+/* The caret that keeps a note open for the visit, turned up while it is. */
+.desk-item__more {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: rgba(var(--ink-rgb), 0.7);
+  cursor: pointer;
+}
+
+.desk-item__more[hidden] {
+  display: none;
+}
+
+.desk-item__more:hover {
+  background: rgba(var(--ink-rgb), 0.08);
+  color: var(--text);
+}
+
+.desk-item__more svg {
+  transition: transform 0.15s ease;
+}
+
+.desk-item__more[aria-expanded="true"] svg {
+  transform: rotate(180deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .desk-item__more svg {
+    transition: none;
+  }
+}
+
+/* ── Settings at the foot: My notes, and their lettering ─────── */
+
+.desk-panel__settings {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+  margin-bottom: 8px;
+}
+
+.desk-setting {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.desk-panel__settings .desk-setting {
+  margin-bottom: 0;
+}
+
+.desk-setting__input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--green-text);
+}
+
+.desk-seg {
+  display: inline-flex;
+  border: 1px solid rgba(var(--ink-rgb), 0.25);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.desk-seg__option {
+  position: relative;
+  cursor: pointer;
+}
+
+.desk-seg__input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.desk-seg__text {
+  display: block;
+  padding: 3px 10px;
+  color: var(--text);
+}
+
+.desk-seg__input:checked + .desk-seg__text {
+  background: var(--green-text);
+  color: var(--surface-raised);
+}
+
+.desk-seg__input:focus-visible + .desk-seg__text {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: -2px;
+}
+
+/* ── Notes in the margin ─────────────────────────────────────── */
+
+/* src/scripts/desk/notes-margin.js places each note, in document
+   coordinates, beside its first word (STUDY-DESK.md, "Decisions",
+   2026-10-07). Playpen Sans by default, Inter on "Plain"; the reader's own
+   font choice wins anyway, through global.css's html[data-font] rule. */
+@font-face {
+  font-family: "Playpen Sans";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 800;
+  src: url("@fontsource-variable/playpen-sans/files/playpen-sans-latin-wght-normal.woff2") format("woff2-variations");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Playpen Sans";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 800;
+  src: url("@fontsource-variable/playpen-sans/files/playpen-sans-latin-ext-wght-normal.woff2") format("woff2-variations");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* Its own Greek, which word-study notes need. Polytonic Greek and Hebrew
+   fall through the stack to Inter's rules (greek-hebrew-fonts.css). */
+@font-face {
+  font-family: "Playpen Sans";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 800;
+  src: url("@fontsource-variable/playpen-sans/files/playpen-sans-greek-wght-normal.woff2") format("woff2-variations");
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+
+.desk-notes {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  /* Above the page, below the shared floating panels (1100). */
+  z-index: 800;
+  --desk-note-font: "Playpen Sans", Inter, "Inter Fallback", system-ui, sans-serif;
+  /* Playpen at 500, a little firmer than its regular (BVJ, 2026-10-07, to
+     try on the preview). Inter on "Plain", and a reader's own font, keep
+     their normal weight. */
+  --desk-note-weight: 500;
+}
+
+html[data-font] .desk-notes,
+html[data-font] .desk-note-pop {
+  --desk-note-weight: 400;
+}
+
+html[data-desk-note-font="plain"] .desk-notes,
+html[data-desk-note-font="plain"] .desk-note-pop {
+  --desk-note-font: Inter, "Inter Fallback", system-ui, sans-serif;
+  --desk-note-weight: 400;
+}
+
+.desk-notes[hidden] {
+  display: none;
+}
+
+.desk-note {
+  position: absolute;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 3px 6px;
+  border-radius: 8px;
+  color: var(--text);
+  font-family: var(--desk-note-font);
+  font-weight: var(--desk-note-weight, 400);
+  font-size: calc(0.9375rem * var(--reading-scale, 1));
+  line-height: 1.45;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+.desk-note__toggle {
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  gap: 0 6px;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.desk-note__glyph,
+.desk-glyph {
+  display: block;
+  color: rgba(var(--ink-rgb), 0.7);
+}
+
+.desk-note__glyph {
+  width: 16px;
+  height: 16px;
+  margin-top: 0.22em;
+}
+
+.desk-note__text {
+  min-width: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* Cut off where the next note begins, fading out so it never reads as
+   whole; hover, focus or a click shows the rest over the note below. */
+.desk-note--cut:not(.desk-note--open):not(:hover):not(:focus-within) {
+  max-height: var(--desk-note-max);
+  overflow: hidden;
+  -webkit-mask-image: var(--desk-note-mask, linear-gradient(to bottom, #000 calc(100% - 1.45em), transparent));
+  mask-image: var(--desk-note-mask, linear-gradient(to bottom, #000 calc(100% - 1.45em), transparent));
+}
+
+/* Every note lifts on hover, focus or click, cut off or not. */
+.desk-note:hover,
+.desk-note:focus-within,
+.desk-note--open,
+.desk-note--flash {
+  z-index: 2;
+  background: var(--surface-raised);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08), 0 6px 18px rgba(0, 0, 0, 0.12);
+  transform: translateY(-1px);
+}
+
+.desk-note--open {
+  z-index: 3;
+}
+
+.desk-note__edit {
+  display: none;
+  margin: 4px 0 2px 24px;
+  padding: 2px 8px;
+  border: 1px solid rgba(var(--ink-rgb), 0.25);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text);
+  font: 0.8125rem/1.4 Inter, "Inter Fallback", system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.desk-note:hover .desk-note__edit,
+.desk-note:focus-within .desk-note__edit,
+.desk-note--open .desk-note__edit {
+  display: inline-block;
+}
+
+.desk-note__edit:hover {
+  background: rgba(var(--ink-rgb), 0.07);
+}
+
+/* No room for notes in full: each as its glyph in a circle, level with its
+   first word, lifting slightly on hover. */
+.desk-circle {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid rgba(var(--ink-rgb), 0.18);
+  border-radius: 50%;
+  background: var(--surface-raised);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+.desk-circle .desk-glyph {
+  width: 16px;
+  height: 16px;
+}
+
+.desk-circle:hover,
+.desk-circle:focus-visible,
+.desk-circle[aria-expanded="true"] {
+  transform: translateY(-2px);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08), 0 6px 18px rgba(0, 0, 0, 0.12);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .desk-note,
+  .desk-circle {
+    transition: background-color 0.15s ease;
+  }
+  .desk-note:hover,
+  .desk-note:focus-within,
+  .desk-note--open,
+  .desk-note--flash,
+  .desk-circle:hover,
+  .desk-circle:focus-visible,
+  .desk-circle[aria-expanded="true"] {
+    transform: none;
+  }
+  .desk-circle:hover,
+  .desk-circle:focus-visible,
+  .desk-circle[aria-expanded="true"] {
+    box-shadow: none;
+    background: linear-gradient(rgba(var(--ink-rgb), 0.1), rgba(var(--ink-rgb), 0.1)) var(--surface-raised);
+  }
+}
+
+/* A bookmark's mark: its glyph in red, not in a circle, in the gutter beside
+   the verse (a trial, BVJ 2026-10-07). The note marker of the same shape is
+   green and always comes with words, so the two read apart. */
+.desk-ribbon {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  pointer-events: auto;
+}
+
+.desk-ribbon__glyph {
+  display: block;
+  width: 14px;
+  height: 14px;
+}
+
+.desk-ribbon__glyph path {
+  fill: #c62828;
+}
+
+/* A circle's note, opened like a footnote (the shared panel places it). */
+.desk-note-pop {
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  gap: 4px 8px;
+  width: min(300px, calc(100vw - 32px));
+  font-family: var(--desk-note-font, "Playpen Sans", Inter, system-ui, sans-serif);
+  font-weight: var(--desk-note-weight, 500);
+  line-height: 1.5;
+}
+
+.desk-note-pop .desk-note__glyph {
+  margin-top: 0.25em;
+}
+
+.desk-note-pop__text {
+  min-width: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.desk-note-pop__foot {
+  grid-column: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-family: Inter, "Inter Fallback", system-ui, sans-serif;
+}
+
+.desk-note-pop__ref {
+  color: rgba(var(--ink-rgb), 0.65);
+  font-size: 0.75rem;
+}
+
+.desk-note-pop .desk-note__edit {
+  display: inline-block;
+  margin: 0;
+}
+
+/* The words a note hangs on, lit while it is hovered, focused or open: a
+   neutral tint, never one of the four highlight colours. */
+::highlight(desk-note-words) {
+  background-color: rgba(var(--ink-rgb), 0.13);
+}
+
+@media print {
+  .desk-notes {
+    display: none !important;
+  }
+  ::highlight(desk-note-words) {
+    background-color: transparent;
+  }
+}
+
+/* ── The note editor ─────────────────────────────────────────── */
+
+.desk-editor {
+  width: min(380px, calc(100vw - 32px));
+}
+
+.desk-editor__quote {
+  margin: 4px 0 10px;
+  padding-left: 10px;
+  border-left: 3px solid var(--green-text);
+}
+
+.desk-editor__quote blockquote {
+  margin: 0;
+  font-style: italic;
+}
+
+.desk-editor__quote figcaption {
+  margin-top: 2px;
+  color: rgba(var(--ink-rgb), 0.65);
+  font-size: 0.8125rem;
+}
+
+.desk-editor__markers {
+  margin: 0 0 8px;
+  padding: 0;
+  border: 0;
+}
+
+.desk-editor__markers legend {
+  padding: 0;
+  margin-bottom: 4px;
+  font-size: 0.8125rem;
+  color: rgba(var(--ink-rgb), 0.75);
+}
+
+.desk-editor__marker-name {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.desk-editor__marker-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.desk-editor__marker {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.desk-editor__marker input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.desk-editor__marker .desk-glyph {
+  width: 20px;
+  height: 20px;
+}
+
+.desk-editor__marker:hover {
+  background: rgba(var(--ink-rgb), 0.06);
+}
+
+.desk-editor__marker:has(input:checked) {
+  border-color: var(--green-text);
+  background: rgba(var(--ink-rgb), 0.06);
+}
+
+.desk-editor__marker:has(input:focus-visible) {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+.desk-editor__body {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 88px;
+  padding: 8px 10px;
+  border: 1px solid rgba(var(--ink-rgb), 0.3);
+  border-radius: 8px;
+  background: var(--surface-input, var(--surface-raised));
+  color: var(--text);
+  font: inherit;
+  line-height: 1.45;
+  resize: vertical;
+}
+
+.desk-editor__body:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+.desk-editor__error {
+  margin: 6px 0 0;
+  color: var(--text);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.desk-editor__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.desk-editor__actions button {
+  padding: 6px 14px;
+  border: 1px solid rgba(var(--ink-rgb), 0.25);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.desk-editor__actions button:hover {
+  background: rgba(var(--ink-rgb), 0.07);
+}
+
+.desk-editor__actions .desk-editor__save {
+  border-color: var(--green-deep);
+  background: var(--green-deep);
+  color: #fff;
+  font-weight: 600;
+}
+
+.desk-editor__actions .desk-editor__save:hover {
+  background: var(--green-deep);
+  filter: brightness(1.1);
+}
+
+.desk-editor__actions .desk-editor__delete {
+  margin-right: auto;
 }

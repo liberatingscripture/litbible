@@ -118,6 +118,9 @@ export function createRail(panel, tab, onChange = () => {}) {
     if (next === shift) return;
     shift = next;
     for (const el of moveEls) el.style.translate = next ? `${-next}px 0` : "";
+    // The margin notes (notes-margin.js) measure from the column, and a
+    // translate fires no resize.
+    document.dispatchEvent(new CustomEvent("desk:column-moved"));
   }
 
   // Down to EDGE above the bottom of the window, wherever the panel's top is.

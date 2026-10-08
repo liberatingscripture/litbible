@@ -47,7 +47,8 @@ companion iOS/Android apps consume.
 - **Fonts**: `@fontsource` (Crimson Text, Fraunces, Inter) plus two
   reader-selectable accessibility fonts, OpenDyslexic and Atkinson
   Hyperlegible Next (the latter variable, via `@fontsource-variable`) — see
-  the Display tray note below. All of them load Latin only; Greek and Hebrew
+  the Display tray note below. Playpen Sans (variable) is the Study Desk's
+  margin-note face, loaded only by the desk (see "The Study Desk preview"). All of them load Latin only; Greek and Hebrew
   letters come from Inter's own Greek, Noto Sans Hebrew and Cardo, registered
   by character range (see "Greek and Hebrew letters" under Key Conventions)
 - **Icons**: simple-icons
@@ -2023,7 +2024,7 @@ collection); they're read directly by the intro pages and the API manifest.
   by an outside click or Escape. A click inside the Study Desk's Notebook
   panel doesn't count as outside, and a panel is placed clear of it (see
   below).
-- **The Study Desk preview** (STUDY-DESK.md, phase 1b) is in production but
+- **The Study Desk preview** (STUDY-DESK.md, phases 1b and the first of 1c) is in production but
   switched off for everyone: `?desk=on` turns it on in one browser on a
   computer, `?desk=off` turns it off. STUDY-DESK.md is the record; what a
   change elsewhere in the site has to respect:
@@ -2085,6 +2086,31 @@ collection); they're read directly by the intro pages and the API manifest.
      `<html data-content-version>`, which Layout.astro reads at build from
      `public/api/version.json` (`src/lib/content-version.mjs`; "unversioned"
      in dev before a build).
+  6. **Phase 1c's notes reach the reader code through one event.**
+     `chapter-tools.js` dispatches `lit:panel-actions` from the verse menu
+     and the selection panel before placing them, with the panel, its verses
+     and (for a selection) the selected `range`. Only
+     `src/scripts/desk/actions.js` listens, adding "Yours" (Add a note,
+     Bookmark; Bookmark only in Read View), so a reader's menus are
+     unchanged. Keep the event before `showPanel`, or the panel is measured
+     without the row. A panel opened with `extra: { stay: true }` (the note
+     editor) ignores outside clicks in `lit-panel.js`.
+  7. **Margin notes never add text to the scripture.** They sit in one
+     `<aside class="desk-notes">` at the end of `<body>`, placed beside
+     their first word (`src/lib/desk-notes.mjs` holds the rules,
+     `notes-margin.js` draws), and the words a note hangs on are lit with
+     the CSS Custom Highlight API. Copy text, the handout and the desk's
+     anchor reader all read the verses off the page. Their face is Playpen
+     Sans (`@fontsource-variable/playpen-sans`, registered in `desk.css`
+     with its Latin, Latin-ext and Greek ranges, so it loads only with the
+     desk and only when a note uses it), or Inter on "Plain"; a reader's
+     Atkinson or OpenDyslexic choice wins through `html[data-font]` as
+     everywhere. Bookmarks show in the same `<aside>` as a red mark, a trial
+     STUDY-DESK.md records, with their own switch (`data-desk-bookmarks`).
+     **Bookmarks are the one piece of marginalia Read View shows**
+     (`desk/read-marks.js`; BVJ, 2026-10-08): notes stay a Study View tool. The notes' settings (`data-desk-notes`,
+     `data-desk-note-font`, `data-desk-list` on `<html>`) have no pre-paint
+     script, since nothing of the desk paints before it loads.
 - **Every link that leaves the site opens in a new tab** (owner, 2026-10-01).
   For rendered bodies that is `openExternalLinks` in `src/lib/external-links.mjs`
   (pure, unit-tested), called from `linkRefs`, the one function footnotes,
@@ -2830,7 +2856,7 @@ argv, and the scan; nothing else.
 | `public/llms.txt`, `llms-full.txt` | LLM-readable site description + AI-usage policy |
 | `GLOSSARY-CANDIDATES.md` | Register of glossary candidates deliberately not included or deferred, and the payload criterion behind those calls. Read it before proposing a "next term." |
 | `TOPICS.md` | **The authority on chapter and book-intro `topics`** — the significance filter, the alternative-translation pair table, the prefix-search rule, casing, and the hand-run checks. Read it before adding or revising any topics array. |
-| `STUDY-DESK.md` | **The planning and decision record for the Study Desk** (notes, places, highlights and sheets on desktop, with optional account sync shared with the apps). Phases 1a and 1b are built: the pure modules, and the shell behind a preview switch (`?desk=on`); nothing reader-facing is released. Every idea, audit finding, owner decision, open question and BDR item is there with its ID, as are the two apps' replies (2026-10-04) and the talk-through list built from them. Read it before proposing or building any part of the desk, and update it when a decision changes. `STUDY-DESK-BRIEF-FOR-BDR.md` is the brief written for BDR's Claude about the apps' side; `STUDY-DESK-REPLY-TO-APPS.md` is the website's answer to both apps' replies (2026-10-05), and the last such document: since 2026-10-07 BDR's Claude reads this repo directly, so the website answers by updating `STUDY-DESK.md` on `main` (its section "One notebook, three homes" holds BDR's sync proposal and the website's answers). |
+| `STUDY-DESK.md` | **The planning and decision record for the Study Desk** (notes, places, highlights and sheets on desktop, with optional account sync shared with the apps). Phases 1a and 1b are built, with the first slice of 1c (notes, bookmarks and the margin): the pure modules, and the shell behind a preview switch (`?desk=on`); nothing reader-facing is released. Every idea, audit finding, owner decision, open question and BDR item is there with its ID, as are the two apps' replies (2026-10-04) and the talk-through list built from them. Read it before proposing or building any part of the desk, and update it when a decision changes. `STUDY-DESK-BRIEF-FOR-BDR.md` is the brief written for BDR's Claude about the apps' side; `STUDY-DESK-REPLY-TO-APPS.md` is the website's answer to both apps' replies (2026-10-05), and the last such document: since 2026-10-07 BDR's Claude reads this repo directly, so the website answers by updating `STUDY-DESK.md` on `main` (its section "One notebook, three homes" holds BDR's sync proposal and the website's answers). |
 | `STUDY-DESK-FORMAT.md` | **Draft record format for the Study Desk**, shared with both apps: the kinds of record, the anchor text, and how a mark is found again after the wording moves. Its executable form is `scripts/lib/anchor-text.mjs` (pure half in `src/lib/anchor-core.mjs`) with `test/fixtures/anchor-vectors.json`. Change them together. |
 | `DISASTER-RECOVERY.md` | Continuity doc: every dashboard/secret behind the deploy (names only, no values) + the DNS inventory + from-zero redeploy path. Update it when an integration, secret, or DNS record is added/removed. |
 
