@@ -115,12 +115,17 @@ function noteControls(classes) {
   return { check, seg, marks, sync };
 }
 
-/** The controls in the Display tray's Show group, on a Study View chapter. */
+/**
+ * The controls in the Display tray's Show group: all three on a Study View
+ * chapter, and only "My bookmarks" in Read View, which shows no notes.
+ */
 function injectIntoTray() {
-  const terms = document.querySelector("#fontTray [data-terms-check]");
-  const checks = terms?.closest(".font-tray__checks");
+  const vn = document.querySelector("#fontTray [data-vn-check]");
+  const checks = vn?.closest(".font-tray__checks");
   const show = checks?.closest("fieldset");
-  if (!checks || !show || !document.querySelector(".chapter-paragraphs")) return;
+  const study = Boolean(document.querySelector("#fontTray [data-terms-check]") && document.querySelector(".chapter-paragraphs"));
+  const read = vn?.getAttribute("data-vn-view") === "read";
+  if (!checks || !show || !(study || read)) return;
   const { check, seg, marks } = noteControls({
     check: "font-tray__check",
     checkInput: "font-tray__check-input",
@@ -130,8 +135,12 @@ function injectIntoTray() {
     segInput: "font-tray__seg-input",
     segText: "font-tray__seg-text",
   });
-  check.dataset.desk = "";
   marks.dataset.desk = "";
+  if (read) {
+    checks.append(marks);
+    return;
+  }
+  check.dataset.desk = "";
   checks.append(check, marks);
   const row = document.createElement("fieldset");
   row.className = "font-tray__row";
@@ -143,8 +152,11 @@ function injectIntoTray() {
   show.after(row);
 }
 
-/** The same controls for the Notebook panel's foot. */
-export function panelNoteControls() {
+/**
+ * The same controls for the Notebook panel's foot; with `notes: false`
+ * (Read View), only "My bookmarks".
+ */
+export function panelNoteControls({ notes = true } = {}) {
   const { check, seg, marks } = noteControls({
     check: "desk-setting",
     checkInput: "desk-setting__input",
@@ -156,6 +168,7 @@ export function panelNoteControls() {
   });
   const wrap = document.createElement("div");
   wrap.className = "desk-panel__settings";
-  wrap.append(check, seg, marks);
+  if (notes) wrap.append(check, seg, marks);
+  else wrap.append(marks);
   return wrap;
 }

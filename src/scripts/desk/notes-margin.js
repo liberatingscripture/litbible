@@ -22,9 +22,9 @@ import {
   CIRCLE_GAP,
   CIRCLE_INSET,
   NOTE_GAP,
-  EDGE,
   RIBBON,
-  roomForMarks,
+  RIBBON_LANE,
+  notesInTheWay,
   circlesPerRow,
   layoutCircles,
   layoutFull,
@@ -175,22 +175,18 @@ export function createNotesMargin({ store, onEdit }) {
           })),
         );
       let laid = lay();
-      // A note a bookmark's mark is in the way of moves left to clear it,
-      // narrowing only by what the margin can't spare; the rest keep their
-      // width. Narrowing can lengthen a note, so it is laid out again.
+      // A note a bookmark's mark is in the way of contracts at its text-side
+      // edge to clear it, never moving; the rest keep the margin's whole
+      // width. Contracting can lengthen a note, so it is laid out again.
       if (markTops.length) {
         const shown = laid.map((l) => ({
           id: l.id,
           y: l.y,
           height: l.cut && !open.has(l.id) ? l.maxHeight : byId.get(l.id).querySelector(".desk-note__toggle").scrollHeight,
         }));
-        const room = roomForMarks(shown, markTops, { spare: box.left - NOTE_GAP - width - EDGE });
-        for (const [id, { shift, narrow }] of room) {
-          const el = byId.get(id);
-          el.style.left = `${left - shift}px`;
-          el.style.width = `${width - narrow}px`;
-        }
-        if (room.size) laid = lay();
+        const hit = notesInTheWay(shown, markTops);
+        for (const id of hit) byId.get(id).style.width = `${width - RIBBON_LANE}px`;
+        if (hit.size) laid = lay();
       }
       for (const l of laid) {
         const el = byId.get(l.id);

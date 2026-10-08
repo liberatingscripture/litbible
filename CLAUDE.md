@@ -2106,7 +2106,9 @@ collection); they're read directly by the intro pages and the API manifest.
      desk and only when a note uses it), or Inter on "Plain"; a reader's
      Atkinson or OpenDyslexic choice wins through `html[data-font]` as
      everywhere. Bookmarks show in the same `<aside>` as a red mark, a trial
-     STUDY-DESK.md records, with their own switch (`data-desk-bookmarks`). The notes' settings (`data-desk-notes`,
+     STUDY-DESK.md records, with their own switch (`data-desk-bookmarks`).
+     **Bookmarks are the one piece of marginalia Read View shows**
+     (`desk/read-marks.js`; BVJ, 2026-10-08): notes stay a Study View tool. The notes' settings (`data-desk-notes`,
      `data-desk-note-font`, `data-desk-list` on `<html>`) have no pre-paint
      script, since nothing of the desk paints before it loads.
 - **Every link that leaves the site opens in a new tab** (owner, 2026-10-01).

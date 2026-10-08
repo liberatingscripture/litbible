@@ -15,6 +15,7 @@ import { initUndo } from "./undo-bar.js";
 import { initNoteSettings } from "./note-settings.js";
 import { initActions } from "./actions.js";
 import { createNotesMargin } from "./notes-margin.js";
+import { createReadMarks } from "./read-marks.js";
 import { openNoteEditor } from "./note-editor.js";
 
 // Stamped at build by Layout.astro (src/lib/content-version.mjs, which reads
@@ -43,6 +44,7 @@ async function start() {
   const edit = (record, trigger, restoreFocus = trigger) =>
     openNoteEditor({ trigger, store, ctx, ref: recordReference(record), record, restoreFocus });
   const margin = store ? createNotesMargin({ store, onEdit: edit }) : null;
+  if (store && !margin) createReadMarks({ store });
   initActions({ store, ctx });
   createPanel({
     store,

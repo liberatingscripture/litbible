@@ -21,8 +21,13 @@
 export const FULL_ROOM = 230;
 /** Gap between a note in full and the text. */
 export const NOTE_GAP = 24;
-/** The widest a note in full grows, however wide the margin. */
-export const NOTE_MAX_WIDTH = 260;
+/**
+ * Notes in full take all the margin they can (BVJ, 2026-10-08), from the
+ * window's edge to the gap beside the text. This cap only meets very wide
+ * windows (about 1,700px and up): past it a line of a note runs beyond
+ * roughly 60 characters, which gets hard to read.
+ */
+export const NOTE_MAX_WIDTH = 520;
 /** Space kept between a note and the window's edge. */
 export const EDGE = 16;
 /** A circle's diameter, and the gap between circles. */
@@ -37,27 +42,24 @@ export const STACK_GAP = 6;
 /**
  * A bookmark's mark (a trial, BVJ 2026-10-07): its glyph in red, not in a
  * circle, level with the verse and right-aligned in the notes' column, the
- * side nearest the text. A note in full that a mark is in the way of makes
- * RIBBON_LANE of room for it (roomForMarks); where notes show as circles, a
+ * side nearest the text. A note in full that a mark is in the way of contracts
+ * by RIBBON_LANE to clear it (notesInTheWay); where notes show as circles, a
  * mark takes a place in their rows like a circle.
  */
 export const RIBBON = 14;
 export const RIBBON_LANE = RIBBON + 6;
 
 /**
- * Which notes in full a bookmark's mark is in the way of, and how each makes
- * room (BVJ, 2026-10-08: only those notes, and further left rather than
- * narrower where the margin allows). `notes` are as shown: `y` and `height`
- * (the height after any cut). `marks` are the marks' tops. `spare` is the
- * room left of the notes' column, before the window's edge. Returns a Map of
- * id to { shift, narrow }: move left by `shift`, lose `narrow` of width.
+ * Which notes in full a bookmark's mark is in the way of (BVJ, 2026-10-08:
+ * only those make room, and only by contracting at the text-side edge,
+ * never by moving). `notes` are as shown: `y` and `height` (the height after
+ * any cut). `marks` are the marks' tops. Returns the set of ids that
+ * contract by RIBBON_LANE.
  */
-export function roomForMarks(notes, marks, { lane = RIBBON_LANE, size = RIBBON, spare = 0 } = {}) {
-  const out = new Map();
-  const shift = Math.max(0, Math.min(lane, spare));
+export function notesInTheWay(notes, marks, { size = RIBBON } = {}) {
+  const out = new Set();
   for (const n of notes) {
-    const hit = marks.some((top) => top < n.y + n.height && top + size > n.y);
-    if (hit) out.set(n.id, { shift, narrow: lane - shift });
+    if (marks.some((top) => top < n.y + n.height && top + size > n.y)) out.add(n.id);
   }
   return out;
 }

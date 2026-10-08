@@ -9,8 +9,9 @@ import {
   layoutFull,
   marginMode,
   noteOpening,
+  noteWidth,
   popoverPlace,
-  roomForMarks,
+  notesInTheWay,
   shortQuote,
 } from "../src/lib/desk-notes.mjs";
 
@@ -118,21 +119,23 @@ test("near the bottom of the window it opens above", () => {
 });
 
 test("only a note a bookmark's mark is in the way of makes room", () => {
-  const room = roomForMarks(
+  const hit = notesInTheWay(
     [
       { id: "a", y: 0, height: 60 },
       { id: "b", y: 100, height: 20 },
     ],
     [40],
-    { lane: 20, spare: 50 },
   );
-  assert.deepEqual([...room.keys()], ["a"]);
-  assert.deepEqual(room.get("a"), { shift: 20, narrow: 0 }, "further left where there's room");
+  assert.deepEqual([...hit], ["a"]);
 });
 
-test("without room to the left, the note narrows by the rest", () => {
-  const room = roomForMarks([{ id: "a", y: 0, height: 60 }], [10], { lane: 20, spare: 8 });
-  assert.deepEqual(room.get("a"), { shift: 8, narrow: 12 });
+test("a mark just past a cut note's shown lines isn't in its way", () => {
+  assert.equal(notesInTheWay([{ id: "a", y: 0, height: 22 }], [30]).size, 0);
+});
+
+test("notes in full fill the margin, up to a readable line", () => {
+  assert.equal(noteWidth(300), 300 - 24 - 16);
+  assert.equal(noteWidth(2000), 520);
 });
 
 test("short quotes stay whole; long ones keep ten words", () => {

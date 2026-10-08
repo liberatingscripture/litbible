@@ -403,10 +403,11 @@ export function createPanel({ store, storeError, onEdit = null, onReveal = null 
 
   /* ── Settings at the foot ───────────────────────────────────────── */
 
-  // The margin's switches only mean something where the margin is: a Study
-  // View chapter.
+  // The margin's switches only mean something where the margin is: all of
+  // them on a Study View chapter, and "My bookmarks" alone in Read View.
   const slot = panel.querySelector(".desk-panel__settings-slot");
   if (here) slot.replaceWith(panelNoteControls());
+  else if (document.querySelector("[data-rm-root]")) slot.replaceWith(panelNoteControls({ notes: false }));
   else slot.remove();
   const fullBox = panel.querySelector(".desk-panel__full");
   const syncFull = () => {
