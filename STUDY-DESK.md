@@ -47,13 +47,18 @@ are recorded so they aren't re-argued.
   **The development phases were planned on 2026-10-05** ("Order of work"
   below). The format is frozen before anything syncs (BVJ, 2026-10-05).
   Until then phase 0 read "agree the record format before any code".
-- **BDR's input is needed soon, on the merge and overlap rules.** BVJ held
+- **BDR's input is needed as soon as possible (mid-October at the latest),
+  on the merge rules.** BVJ held
   phase 1a's merge engine and the highlight overlap rule for BDR to weigh in
   on (2026-10-05), since both are format decisions all three clients must
   share. **They are needed before phase 1c** (highlights in Study View) **and
   1d** (importing a notebook file). The five questions are under "Questions
   for the apps" (talk-through item 20), and BDR's proposal restates them as
-  rules a to e with their alternatives, for BDR to approve by mid-October.
+  rules a to e with their alternatives, for BDR to approve as soon as possible, mid-October at the latest.
+  BVJ asked (2026-10-07) for every answer that gates 1c to be marked that
+  way rather than as a mid-October deadline. **The overlap rule's main part
+  is settled**: BDR ruled Android's rule for iOS (2026-10-05), and the
+  website matches it (BVJ, 2026-10-07); see rule d.
 - **Both apps replied to the brief on 2026-10-04** (see "The apps' replies"
   below). BDR proposes that each reader's notebook stay in their own iCloud
   or Google account, with the website reaching it from the browser and **no
@@ -1426,8 +1431,8 @@ Questions for the apps, to send back:
   untouched (the format's principle 6), and to say whether either app might
   show them later, especially glossary notes, since the apps already have
   the glossary.
-- **For BDR, soon (item 20): the merge and overlap rules.** The website
-  needs these before phase 1c, so it doesn't build rules the apps would then
+- **For BDR, as soon as possible, mid-October at the latest (item 20): the merge and overlap rules.**
+  The website needs these before phase 1c, so it doesn't build rules the apps would then
   undo. Each is a proposal to answer yes, no or "do it this way":
   1. **Which write wins.** With no store revision to go by (importing a
      file, say), the newer `modified` wins, accepting that a device whose
@@ -1524,11 +1529,12 @@ needing a decision. None blocks the format.
 - **Whether shared sheet links need anything hosted** (T10, A-M8).
 - **Whether the apps show N2 and H2, or only carry them** (A-Q8).
 - **Who looks after a service**, if plan C (T8, A-R7; Zoom item 4).
-- **In the format:** bookmarks vs the `bookmark` marker, and the overlap
-  rule for highlights (`STUDY-DESK-FORMAT.md`, "Still open").
+- **In the format:** bookmarks vs the `bookmark` marker
+  (`STUDY-DESK-FORMAT.md`, "Still open"). The overlap rule is settled
+  (rule d).
 - **The merge rules, the trash record's fields and the overlap rule**
   (talk-through item 20). **More urgent than the rest of this list**: phase
-  1c waits on them.
+  1c waits on them, so as soon as possible, mid-October at the latest.
 
 ## One notebook, three homes (BDR's proposal, 2026-10-07)
 
@@ -1740,8 +1746,11 @@ mostly agree.
   without it. (Question 2.)
 - **c. The trash:** 30 days, then a marker of a few bytes kept forever, so a
   stale backup can't revive the note. (Question 4.)
-- **d. Overlapping highlights:** Android's rule, which BDR ruled for iOS,
-  with three details: highlights in different paragraphs never merge; a
+- **d. Overlapping highlights:** Android's rule, which BDR ruled for iOS.
+  **The rule itself is settled for all three**: the website matches BDR's
+  decision (BVJ, 2026-10-07, who would have preferred letting highlights
+  overlap but defers to the apps' reconciled rule). Still for BDR to
+  approve, with the rest of a to e: its three details: highlights in different paragraphs never merge; a
   trimmed remainder loses stray spaces at its edges; and a highlight carrying
   an unread change notice is never touched by a new one, since its old words
   are what the notice quotes. (Question 5.)
@@ -1874,8 +1883,8 @@ recommendations, none decided:**
 
 ### Proposed sequence to Ash Wednesday
 
-- **By mid-October:** BDR approves rules a to e (unblocks phase 1c) and
-  creates the spike credentials; the Zoom agrees the pass marks and, for C,
+- **By mid-October:** BDR approves rules a to e (they unblock phase 1c,
+  so as soon as possible, mid-October at the latest; BVJ, 2026-10-07) and creates the spike credentials; the Zoom agrees the pass marks and, for C,
   end-to-end, passkeys and ownership; Android runs the shared test cases.
 - **October:** the spikes (about three weeks, mostly the eight-day wait).
   Android 1.3 with the license link; iOS 2.0 (about October 15), with the
@@ -2170,6 +2179,8 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
        stores are homes, not formats (the format's principle 2). Its rules
        are format decisions (talk-through item 20).
      - **Held for BDR: the highlight overlap rule** (A-M5, item 20).
+       **Settled 2026-10-07**: Android's rule, as BDR ruled for iOS; its
+       three details (rule d) still wait on BDR's approval.
    - **1b. The shell, behind a preview switch.** The gate and dynamic import,
      so readers download nothing until the desk is switched on for them; a
      preview switch, so BVJ can try it on the live site first; IndexedDB with
@@ -2733,8 +2744,9 @@ changing three, then settled the details that followed (1, 6, 8, 11 to
   - **Where the notebook's two-line toggle sits.** First try: the foot of
     the panel's list, near "Kept in this browser", remembered like the
     panel's other choices. BVJ isn't sure yet.
-- **The merge and overlap rules** (talk-through item 20), needed from BDR
-  before phase 1c. The trash record's fields (question 4) are built
+- **The merge rules and the overlap rule's details** (talk-through item
+  20; rules a to e), needed from BDR before phase 1c, as soon as possible, mid-October at the latest.
+  The overlap rule itself is settled (rule d). The trash record's fields (question 4) are built
   provisionally in 1b, so BDR's answer may mean a migration.
 - **"To be decided"** under "The apps' replies", starting with plan A or
   plan C ("One notebook, three homes", decision proposed by October 31). The record format is drafted (`STUDY-DESK-FORMAT.md`) and waits on
