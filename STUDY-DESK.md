@@ -2298,6 +2298,43 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      Delete; Android: "carried along" and "couldn't find your words"); the
      "This verse" tab (N10); Read View's smaller set, through events (C2);
      hide my notes (M1); accessibility (C4, C10, C24).
+     **Built first (2026-10-07), the parts rules a to e don't touch**, behind
+     the preview switch:
+     - **"Yours" in the menus.** The verse menu and the selection panel gain
+       Add a note and Bookmark (Remove bookmark when the verse has one);
+       Read View's selection panel gains Bookmark only. chapter-tools.js
+       offers each panel through a `lit:panel-actions` event before placing
+       it, and `src/scripts/desk/actions.js` adds the row, so with the desk
+       off nothing changes.
+     - **The note editor** opens in the shared floating panel in place of
+       the menu: the words and reference, the seven markers, the reader's
+       words, Save and Cancel (Ctrl+Enter saves); editing adds Delete with
+       the undo bar. It ignores outside clicks (lit-panel's `stay`), so a
+       stray click can't lose what was typed. A note from the verse menu
+       covers its verses with no quote; one from a selection quotes it.
+     - **The margin** (`src/lib/desk-notes.mjs`, the rules, unit-tested;
+       `src/scripts/desk/notes-margin.js`, the drawing) does what
+       "Decisions", 2026-10-07 lists. It adds nothing to the scripture: the
+       notes live in one `<aside>` at the end of `<body>`, and the lit words
+       use the CSS Custom Highlight API. One detail of the fade was settled
+       while building: a cut note that shows a single line fades toward the
+       line's end rather than downward, since a downward fade over one line
+       left nothing legible.
+     - **The settings** ("My notes", Handwriting / Plain, and the list's
+       "Show notes in full") live in `src/scripts/desk/note-settings.js`:
+       one attribute on `<html>` and one localStorage key each, with the
+       controls in the Display tray's Show group and the panel's foot kept
+       in step.
+     - **The panel's list** leads notes with their glyphs at two lines, has
+       Edit, and a note's reference takes the reader to it on this page. The
+       preview's "Add a sample note" is gone, and `legend` is out of `KINDS`.
+     - **Defaults chosen where nothing was decided** (BVJ may change them):
+       the editor's form; a bookmark shows nothing on the page yet, only in
+       the panel's list and as "Remove bookmark" in the menus.
+     **Still to come in 1c**: highlights and the change notice (after BDR's
+     answer on rules a to e), the "This verse" tab (N10), the verse number
+     naming its notes, M1, and notes on articles and glossary entries (N11,
+     with format draft 2).
    - **1d. The notebook around them.** The notebook page; your notebook in
      search, and commands in the search box (D2, D3); export and import in
      Markdown and the W3C shape, which every plan needs; the first-time

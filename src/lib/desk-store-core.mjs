@@ -76,7 +76,7 @@ const bookIndex = (key) => {
 
 /**
  * The records a reader sees, in Bible order then the order they were made.
- * Trash records are left out; records not on the text (a legend, a label, a
+ * Trash records are left out; records not on the text (a label, a mark rule, a
  * sheet) come last.
  */
 export function liveRecords(records) {
@@ -121,7 +121,6 @@ const KIND_NAMES = {
   hidden: "Hidden passage",
   bookmark: "Bookmark",
   place: "Place",
-  legend: "Colour legend",
   markRule: "Mark rule",
   label: "Label",
   sheet: "Sheet",

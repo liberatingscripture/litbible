@@ -37,8 +37,12 @@ export function closePanel() {
 // An outside click closes without restoring focus: the reader has just put
 // focus somewhere else (the search box, say), and handing it back to the
 // trigger would steal it and scroll the page back to where the panel was.
+// A panel opened with `extra: { stay: true }` (the Study Desk's note editor,
+// which may hold unsaved words) ignores outside clicks; its own buttons and
+// Escape close it.
 document.addEventListener("click", (e) => {
   if (inDock(e.target)) return;
+  if (openPanel?.stay) return;
   if (openPanel && !openPanel.el.contains(e.target) && e.target !== openPanel.trigger && !openPanel.trigger?.contains?.(e.target)) {
     openPanel.restoreFocus = null;
     closePanel();

@@ -65,6 +65,7 @@ document.addEventListener(
 
 function studyView(container) {
   return {
+    name: "study",
     container,
     chapterOf: () => 0, // one chapter per page
     spans: (_ch, verse) => verseSpans(container, verse),
@@ -81,6 +82,8 @@ function readingView(container) {
   const chapterUrl = (ch) => window.location.origin + "/" + book + "-" + ch;
   const scopes = new Map();
   return {
+    name: "read",
+    book,
     container,
     // A whole book shares the page, so each block says which chapter it is
     // (read/[book].astro).
@@ -592,6 +595,25 @@ function panelRow(...items) {
   return row;
 }
 
+/**
+ * Let the Study Desk add its own actions ("Yours": Add a note, Bookmark) to
+ * a panel before it is measured and placed (STUDY-DESK.md, placement 1). Only
+ * src/scripts/desk/actions.js listens, and only with the desk switched on, so
+ * a reader's panels are unchanged. `append` adds to the panel's end.
+ * Study View sends `kind: "verse"` from the verse menu and
+ * `kind: "selection"` from the selection panel; Read View sends the
+ * selection only, with its `book` and `chapter`. A selection carries its
+ * `range` (the scripture actually selected) and `acting`, which keeps the
+ * panel open once one of its buttons is pressed.
+ */
+function offerActions(panel, detail) {
+  document.dispatchEvent(
+    new CustomEvent("lit:panel-actions", {
+      detail: { panel, append: (node) => panel.appendChild(node), ...detail },
+    })
+  );
+}
+
 function setSelectionHighlight(container, start, end) {
   if (!supportsHighlight) return;
   const ranges = verseRanges(container, start, end);
@@ -761,6 +783,8 @@ function openVerseMenu(
     }
     panel.appendChild(list);
   }
+
+  offerActions(panel, { kind: "verse", view: "study", start, end, ref, touch });
 
   const hint = document.createElement("p");
   hint.className = "lit-panel__hint";
@@ -1088,6 +1112,7 @@ function selectionShare(view, selection) {
     startText: verseCountable(startSpans),
     endText: verseCountable(endSpans),
     rect: extent.getBoundingClientRect(),
+    range: extent,
     key: chapter + ":" + start + "-" + end + ":" + text,
   };
 }
@@ -1321,6 +1346,19 @@ function openSelectionPanel(view, share, { touch }) {
       })
     )
   );
+
+  offerActions(panel, {
+    kind: "selection",
+    view: view.name,
+    book: view.book,
+    chapter: share.chapter,
+    start: share.start,
+    end: share.end,
+    ref,
+    range: share.range,
+    touch,
+    acting,
+  });
 
   showPanel({ getBoundingClientRect: () => share.rect }, panel, {
     preferAbove: true,

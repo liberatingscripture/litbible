@@ -19,26 +19,21 @@
 // Notebook buttons then expand it, Escape collapses it rather than closing
 // it, and its × still closes it.
 //
-// Phase 1b holds the frame only: a list of what the notebook keeps, with
-// Delete, and (preview only) a way to add a sample note so delete, undo and
-// the tabs keeping in step can be tried before 1c brings the real ways in.
+// The list: what the notebook keeps, with Delete, and for a note its marker
+// glyph, its words at two lines (or in full, by the toggle at the list's
+// foot) and Edit. A note on this page's chapter takes the reader to its place
+// (BVJ, 2026-10-07: decision 7 under "the margin switch"). The foot also holds
+// the "My notes" and Handwriting / Plain switches, the same settings as the
+// Display tray's.
 
-import { createRecord, verseCopyFor } from "../../lib/desk-records.mjs";
 import { forChapter, kindName, liveRecords, recordHref, recordReference } from "../../lib/desk-store-core.mjs";
-import { pageAnchorText } from "../../lib/desk-anchor-dom.mjs";
-import { bookKeyToLabel } from "../../data/books.js";
 import { createRail } from "./margin.js";
+import { glyph } from "./glyphs.js";
+import { SETTINGS_EVENT, getSetting, panelNoteControls, setSetting } from "./note-settings.js";
+import { pageChapter } from "./page.js";
 import { showUndo } from "./undo-bar.js";
 
 const OPEN_KEY = "lit-desk-panel";
-
-/** The Study View chapter this page shows, or null (an intro, a draft, Read View, any other page). */
-function pageChapter() {
-  const article = document.querySelector("article.chapter[data-last-read-book]");
-  const bookKey = article?.dataset.lastReadBook;
-  const chapter = Number(article?.dataset.lastReadChapter);
-  return bookKey && chapter ? { bookKey, chapter, label: `${bookKeyToLabel(bookKey)} ${chapter}` } : null;
-}
 
 const ICON_NOTEBOOK = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
   stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
@@ -55,10 +50,13 @@ const ICON_CLOSE = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" 
 /**
  * Build the panel and wire every [data-desk-toggle] on the page to it.
  *
- * @param {{ store: object | null, storeError: unknown, ctx: () => object }} options
- *   `store` is null when this browser can't keep a notebook.
+ * @param {{ store: object | null, storeError: unknown,
+ *   onEdit?: (record: object, trigger: Element) => void,
+ *   onReveal?: (id: string) => void }} options
+ *   `store` is null when this browser can't keep a notebook. `onEdit` opens
+ *   a note in the editor; `onReveal` takes the reader to a note on this page.
  */
-export function createPanel({ store, storeError, ctx }) {
+export function createPanel({ store, storeError, onEdit = null, onReveal = null }) {
   const root = document.documentElement;
   const here = pageChapter();
   const toggles = Array.from(document.querySelectorAll("[data-desk-toggle]"));
@@ -96,12 +94,12 @@ export function createPanel({ store, storeError, ctx }) {
       <ul class="desk-list"></ul>
       <p class="desk-panel__empty" hidden></p>
     </div>
-    ${here && store ? `
-    <div class="desk-panel__preview">
-      <p>Preview only, until the verse menu can make notes:</p>
-      <button type="button" class="desk-panel__sample">Add a sample note to ${escapeHtml(here.label)}:1</button>
-    </div>` : ""}
     <div class="desk-panel__foot">
+      <div class="desk-panel__settings-slot"></div>
+      <label class="desk-setting">
+        <input type="checkbox" class="desk-setting__input desk-panel__full" />
+        <span class="desk-setting__label">Show notes in full in this list</span>
+      </label>
       <p class="desk-panel__kept">Kept in this browser.</p>
       <p class="desk-panel__persist" hidden></p>
     </div>`;
@@ -129,6 +127,7 @@ export function createPanel({ store, storeError, ctx }) {
   const tabButtons = Array.from(panel.querySelectorAll('[role="tab"]'));
   let activeTab = tabs[0].id;
   let lastToggle = null;
+  const openNotes = new Set(); // notes clicked open in the list, for this visit
 
   /* ── Opening and closing ─────────────────────────────────────────── */
 
@@ -274,17 +273,61 @@ export function createPanel({ store, storeError, ctx }) {
     head.className = "desk-item__ref";
     head.textContent = ref || kindName(r.kind);
     if (href) head.href = href;
+    // A note on this chapter is on the page: going to it scrolls to its words
+    // and marks it, rather than reloading.
+    const onThisPage = here && r.bookKey === here.bookKey && r.chapter === here.chapter;
+    if (href && onThisPage && onReveal && r.kind === "note") {
+      head.addEventListener("click", (e) => {
+        if (e.ctrlKey || e.metaKey || e.shiftKey || e.button !== 0) return;
+        e.preventDefault();
+        onReveal(r.id);
+      });
+    }
     const kind = document.createElement("span");
     kind.className = "desk-item__kind";
     kind.textContent = kindName(r.kind);
     li.append(head, kind);
-    // A note's body is the reader's own words: always text, never HTML.
-    const words = r.kind === "note" ? r.body : r.label ?? r.name ?? r.quote?.exact;
-    if (typeof words === "string" && words) {
-      const p = document.createElement("p");
-      p.className = "desk-item__words";
-      p.textContent = words;
-      li.append(p);
+    if (r.kind === "note") {
+      // Led by its marker, at two lines until hovered, focused or clicked
+      // open (kept open for this visit), unless the list shows notes in full.
+      const note = document.createElement("button");
+      note.type = "button";
+      note.className = "desk-item__note";
+      note.setAttribute("aria-expanded", String(openNotes.has(r.id)));
+      if (openNotes.has(r.id)) note.classList.add("desk-item__note--open");
+      note.innerHTML = glyph(r.marker, "desk-glyph desk-item__glyph");
+      const words = document.createElement("span");
+      words.className = "desk-item__words";
+      // A note's body is the reader's own words: always text, never HTML.
+      words.textContent = r.body || "(the marker only)";
+      note.append(words);
+      note.addEventListener("click", () => {
+        if (openNotes.has(r.id)) openNotes.delete(r.id);
+        else openNotes.add(r.id);
+        note.classList.toggle("desk-item__note--open", openNotes.has(r.id));
+        note.setAttribute("aria-expanded", String(openNotes.has(r.id)));
+      });
+      li.append(note);
+      if (onEdit) {
+        const edit = document.createElement("button");
+        edit.type = "button";
+        edit.className = "desk-item__edit";
+        edit.textContent = "Edit";
+        edit.setAttribute("aria-label", `Edit note${ref ? ` on ${ref}` : ""}`);
+        edit.addEventListener("click", (e) => {
+          e.stopPropagation();
+          onEdit(r, edit);
+        });
+        li.append(edit);
+      }
+    } else {
+      const words = r.label ?? r.name ?? r.quote?.exact;
+      if (typeof words === "string" && words) {
+        const p = document.createElement("p");
+        p.className = "desk-item__words";
+        p.textContent = words;
+        li.append(p);
+      }
     }
     const del = document.createElement("button");
     del.type = "button";
@@ -320,27 +363,20 @@ export function createPanel({ store, storeError, ctx }) {
     }
   }
 
-  /* ── Preview only: a sample note ─────────────────────────────────── */
+  /* ── Settings at the foot ───────────────────────────────────────── */
 
-  panel.querySelector(".desk-panel__sample")?.addEventListener("click", async () => {
-    const now = new Date().toISOString();
-    const blocks = document.querySelector(".chapter-paragraphs")?.children ?? [];
-    const verseCopy = verseCopyFor(pageAnchorText(blocks), 1);
-    const note = createRecord(
-      "note",
-      {
-        bookKey: here.bookKey,
-        chapter: here.chapter,
-        verse: 1,
-        endVerse: 1,
-        body: "A sample note from the Study Desk preview.",
-        marker: "note",
-        ...(verseCopy ? { verseCopy, verseCopyAsOf: now } : {}),
-      },
-      { now, ...ctx() },
-    );
-    await store.save(note);
-  });
+  // The margin's switches only mean something where the margin is: a Study
+  // View chapter.
+  const slot = panel.querySelector(".desk-panel__settings-slot");
+  if (here) slot.replaceWith(panelNoteControls());
+  else slot.remove();
+  const fullBox = panel.querySelector(".desk-panel__full");
+  const syncFull = () => {
+    fullBox.checked = getSetting("listFull") === "full";
+  };
+  syncFull();
+  fullBox.addEventListener("change", () => setSetting("listFull", fullBox.checked ? "full" : "lines"));
+  document.addEventListener(SETTINGS_EVENT, syncFull);
 
   /* ── Keeping in step ────────────────────────────────────────────── */
 

@@ -1,8 +1,9 @@
 // src/lib/desk-records.mjs
 //
 // The Study Desk's records, as STUDY-DESK-FORMAT.md (draft 1) defines them:
-// the ten kinds, the fields every record carries, and the few rules every
-// client keeps when it makes or changes one. Pure: no storage, no DOM, no
+// the nine kinds (draft 1 had ten; `legend` was dropped 2026-10-07), the
+// fields every record carries, and the few rules every client keeps when it
+// makes or changes one. Pure: no storage, no DOM, no
 // clock or randomness of its own unless the caller leaves them out.
 //
 // Three of the format's principles are enforced here rather than left to each
@@ -35,7 +36,6 @@ export const KINDS = Object.freeze([
   "hidden",
   "bookmark",
   "place",
-  "legend",
   "markRule",
   "label",
   "sheet",

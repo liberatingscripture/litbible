@@ -8,10 +8,14 @@
 // every page's stylesheet by Astro, dynamic import or not, which would have
 // every reader download the desk's styles.
 import deskCss from "../../styles/desk.css?inline";
-import { webClient } from "../../lib/desk-store-core.mjs";
+import { recordReference, webClient } from "../../lib/desk-store-core.mjs";
 import { openStore } from "./store.js";
 import { createPanel } from "./panel.js";
 import { initUndo } from "./undo-bar.js";
+import { initNoteSettings } from "./note-settings.js";
+import { initActions } from "./actions.js";
+import { createNotesMargin } from "./notes-margin.js";
+import { openNoteEditor } from "./note-editor.js";
 
 // Stamped at build by Layout.astro (src/lib/content-version.mjs, which reads
 // the file system and so can't be imported here).
@@ -33,8 +37,19 @@ async function start() {
   } catch (err) {
     storeError = err;
   }
+  initNoteSettings();
   initUndo();
-  createPanel({ store, storeError, ctx });
+  // A note opens in the editor from the margin or the panel's list.
+  const edit = (record, trigger, restoreFocus = trigger) =>
+    openNoteEditor({ trigger, store, ctx, ref: recordReference(record), record, restoreFocus });
+  const margin = store ? createNotesMargin({ store, onEdit: edit }) : null;
+  initActions({ store, ctx });
+  createPanel({
+    store,
+    storeError,
+    onEdit: store ? edit : null,
+    onReveal: margin ? (id) => margin.reveal(id) : null,
+  });
 }
 
 start();

@@ -61,7 +61,8 @@ function highlight(extra = {}) {
 
 test("the constants are the format's lists", () => {
   assert.equal(SCHEMA_VERSION, 1);
-  assert.equal(KINDS.length, 10);
+  assert.equal(KINDS.length, 9);
+  assert.ok(!KINDS.includes("legend"), "colour meanings were dropped 2026-10-07");
   assert.deepEqual(COLORS, ["yellow", "green", "blue", "pink"]);
   assert.equal(MARKERS.length, 7);
 });
