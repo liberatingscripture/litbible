@@ -2288,7 +2288,8 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      1c also takes `legend` out of `KINDS` in `src/lib/desk-records.mjs`), and a second cue
      besides colour (C4), modelled on the apps' marker glyph and dotted
      underline; bookmarks; the margin, each note level with its first word
-     and led by its marker glyph, falling back to the glyph in a circle (C9),
+     and led by its marker glyph, in Playpen Sans or Inter by the reader's
+     choice, falling back to the glyph in a circle (C9),
      with the reader's switch for notes shown or hidden in both the Display
      tray and the Notebook panel, and the panel's notes taking the reader to
      their place (BVJ, 2026-10-07; "Decisions", 2026-10-07 (the margin
@@ -2694,10 +2695,11 @@ changing three, then settled the details that followed (1, 6, 8, 11 to
 10. **Read View shows no notes.** It is for reading straight through, so
     the switch doesn't appear there and nothing a reader has written shows
     in its margin.
-11. **Notes that would collide sit in a row, or stack.** Circles for notes
-    on the same line or the lines just above and below it sit side by side
-    while the margin has room, and stack one above the other where it
-    doesn't.
+11. **Notes that would collide sit in a row, or stack.** Each circle sits
+    level with its note's first word. Only where two circles would overlap
+    does the later one go beside the earlier, while the margin has room,
+    and past that it stacks below (revised the same day; it first grouped
+    circles on neighbouring lines whether or not they overlapped).
     A note shown in full may run longer than the text it is attached to,
     and nothing changes for that alone. Only when it would run into the
     note below is it collapsed, by default, cut off where the next note
@@ -2716,6 +2718,49 @@ changing three, then settled the details that followed (1, 6, 8, 11 to
 15. **The keyboard matches the mouse.** Focus on a collapsed note expands
     it while it has focus, as hover does; Enter or Space toggles it and it
     stays that way, as a click does.
+
+### 2026-10-07 (the margin notes' look)
+
+Picked from a comparison page (Margin Note Fonts,
+https://claude.ai/artifact/67HABptGCssM8NcMDBuws9, private), which also
+tried out the behaviour above:
+1. **Margin notes are set in Playpen Sans by default**, a handwriting face
+   designed for legibility (TypeTogether, SIL OFL), and **the reader can
+   switch them to Inter.** Shantell Sans was the runner-up; Patrick Hand and
+   Kalam were set aside. Playpen Sans has Greek letters of its own, which
+   word-study notes need; Hebrew falls through to the site's existing rule
+   (Noto Sans Hebrew under Inter), so its stack ends in Inter.
+2. **It applies only in the margin and only under the Default font.** A
+   reader who chose Atkinson Hyperlegible or OpenDyslexic sees notes in
+   that font. **The Notebook panel keeps its own font**, the same as
+   everything else in it (BVJ: a note in the panel matches the panel, not
+   the margin).
+3. **Every note lifts on hover, focus or click**, onto the raised surface
+   with a shadow, whether or not it was cut off.
+4. **The words a note hangs on are lit while the note is hovered, focused,
+   kept open, or open from its circle**, in a neutral tint that can't be
+   mistaken for one of the four highlight colours. Several open notes light
+   several passages.
+5. **A note opened from its circle opens above or below** according to its
+   place on the screen, and never over the words it hangs on.
+6. **The font file loads only when it is used**: the desk on, the page
+   holding notes, and the reader on the handwriting setting.
+7. **The Playpen Sans / Inter choice sits beside the "My notes" switch**,
+   in both the Display tray and the Notebook panel, worded "Handwriting /
+   Plain" (BVJ, 2026-10-07, taking the recommendation).
+8. **No dotted underline under noted words on the website** (BVJ,
+   2026-10-07). The apps underline them because their glyphs are subtle and
+   notes open only on a tap; here the note sits beside its line and lights
+   its words, and a second dotted underline would collide with the term
+   lens's. The noted words still need a route a screen reader hears (C24),
+   which 9 provides.
+9. **A note begins with the words it hangs on, for screen readers only**
+   (BVJ, 2026-10-07): "My note on ‘nothing is now a verdict’, Romans 8:1",
+   then the note, with the quoted words hidden from view. A long selection
+   is shortened to its first ten words or so and "…". The words come from
+   the record's own quote, so nothing new is stored. Nothing hidden goes
+   inside the scripture itself: Copy text, the handout and the desk's
+   anchor reader all read the verse's text off the page.
 
 ## Still open
 
@@ -2738,12 +2783,20 @@ changing three, then settled the details that followed (1, 6, 8, 11 to
      toggling never moves what's under it. The cost: expanded, it covers more
      of the line ends than the old card did (that moved the column as far
      left as it could).
-- **The margin's remaining details** (BVJ settled the switch and the five
-  details after it on 2026-10-07; see "Decisions", 2026-10-07 (the margin
-  switch)). One left, to try in 1c:
+- **The margin's remaining details** (see "Decisions", 2026-10-07 (the
+  margin switch) and (the margin notes' look)). To settle in 1c:
   - **Where the notebook's two-line toggle sits.** First try: the foot of
     the panel's list, near "Kept in this browser", remembered like the
     panel's other choices. BVJ isn't sure yet.
+  - **Playpen Sans's weight and size**, tuned on the real page (the
+    comparison set every face at one nominal size).
+  - **How a screen reader learns a verse has notes** (recommended). Decision
+    9 tells a reader at a note what it is about, but notes sit outside the
+    scripture's reading order (C24), so nothing tells someone reading the
+    verse that one is there. Recommended: the verse number, already a
+    button and the keyboard's way into each verse, names the count
+    ("Verse 1, 1 note of mine"), and the verse menu lists that verse's notes
+    (the "This verse" tab, N10).
 - **The merge rules and the overlap rule's details** (talk-through item
   20; rules a to e), needed from BDR before phase 1c, as soon as possible, mid-October at the latest.
   The overlap rule itself is settled (rule d). The trash record's fields (question 4) are built
