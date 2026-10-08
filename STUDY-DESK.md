@@ -40,7 +40,8 @@ are recorded so they aren't re-argued.
     (`src/lib/desk-wording.mjs`). See "Order of work", 1a;
   - phase 1b's shell: the gate, the notebook in IndexedDB kept in step across
     tabs, deletion with an undo bar (on the trash record's **provisional**
-    fields), and the Notebook panel in the right margin. See "Order of
+    fields), and the Notebook panel in the right margin, floating where a
+    window is too narrow for it. See "Order of
     work", 1b.
 
   **The development phases were planned on 2026-10-05** ("Order of work"
@@ -2228,14 +2229,27 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
          header, the tool row and full-width bands such as the license band
          stay put at full width. (An earlier version padded the page instead,
          which cut the license band short and showed cream beside it.);
-       - in a window too narrow for even that (about 900px), the panel lies
-         over the ends of the lines. **To change (BVJ, 2026-10-07; recorded,
-         not built yet):** once the panel would start covering text, it
-         becomes a **floating window the reader can expand and collapse**
-         instead of a card in the margin. Details to settle when it's built:
-         what it looks like collapsed (a small tab or button at the window's
-         edge is the likely form), whether it can be moved, and that it never
-         covers the text while collapsed.
+       - in a window too narrow for even that (under about 960px at the
+         default text size), the notebook **floats** (BVJ, 2026-10-07; built
+         2026-10-07): a window the reader can expand and collapse. Expanded,
+         it is the same 280px card at the window's edge, with a firmer
+         shadow, lying over the ends of the lines. Collapsed, it is a 40px
+         tab at the window's edge, the notebook glyph with "Notebook" running
+         down it, level with the page's heading and pinned 16px from the top
+         as the reader scrolls. The tab never covers the text: the column
+         moves left only as far as the tab needs (nothing at the default
+         size; 7px at Extra large in a 900px window), and moves the same
+         whether the notebook is expanded or collapsed, so the text never
+         jumps when it is toggled. The panel's head gains a collapse button
+         (») beside its ×. It **collapses by itself** whenever it starts
+         floating without the reader asking: a page opening with the
+         notebook remembered open, or a window narrowed under it. Pressing
+         Notebook opens it expanded; pressing Notebook again or the tab
+         expands a collapsed one; Escape collapses it rather than closing
+         it; × still closes it. The choices behind those details are
+         recommendations for BVJ to confirm (see "Still open").
+         `placeFloating` and `nextCollapsed` in `src/lib/desk-margin.mjs`
+         hold the rules.
        Read View, article pages and the glossary work the same way. Pages
        with no reading column (the home page, the articles list, /search)
        get no panel and no Notebook button at all (`READING_SURFACES` in
@@ -2601,10 +2615,11 @@ The rest of the same day's review:
 
 ### 2026-10-07 (the margin, and colour meanings)
 
-- **A narrow window gets a floating notebook** (a change to 1b, recorded
-  now and built later). Where the panel would start covering the text, it
-  becomes a floating window the reader can expand and collapse, instead of
-  lying over the ends of the lines. See "Order of work", 1b.
+- **A narrow window gets a floating notebook** (a change to 1b, built the
+  same day). Where the panel would start covering the text, it becomes a
+  floating window the reader can expand and collapse, instead of lying over
+  the ends of the lines. See "Order of work", 1b, for how it was built, and
+  "Still open" for the details that are recommendations.
 - **The margin is the reader's choice.** A switch with three settings:
   notes shown, notes as dots, notes hidden (the wording can change). The
   left margin shows a note beside its verse; the Notebook panel on the right
@@ -2620,6 +2635,25 @@ The rest of the same day's review:
 
 ## Still open
 
+- **The floating notebook's details** (decided in outline 2026-10-07; built
+  the same day on these recommendations, not decided; see "Order of work",
+  1b):
+  1. **Collapsed, it is a tab at the window's right edge**: 40px wide, the
+     notebook glyph with the word "Notebook" running down it, level with the
+     page's heading and pinned near the top while reading. A dot or count of
+     this chapter's notes could join it in 1c.
+  2. **It can't be moved.** Collapsing is the way to get it off the text,
+     and dragging would mean remembering a place per window size. The verse
+     menu's drag (a grip in its head) could be reused if BVJ wants it.
+  3. **It collapses by itself when it starts floating** (a page opening with
+     it remembered open, or the window narrowed under it), so it never lands
+     on the text unasked. Opened by the reader, it opens expanded.
+  4. **Escape collapses it** while it floats, rather than closing it; × closes
+     it.
+  5. **The text moves only for the tab**, the same expanded or collapsed, so
+     toggling never moves what's under it. The cost: expanded, it covers more
+     of the line ends than the old card did (that moved the column as far
+     left as it could).
 - **The margin switch's details** (decided in outline 2026-10-07; see
   "Decisions", 2026-10-07). Recommendations, not decided:
   1. **Where it lives: the Display tray's "Show" group**, beside verse
