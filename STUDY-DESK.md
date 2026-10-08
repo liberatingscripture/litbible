@@ -254,14 +254,15 @@ every week.
    It needs about **230px of free space** beside the column, decided by the
    space left, not the window width; otherwise it falls back to dots and the
    panel (audit C9). The apps already mark notes in the left margin.
-   - **The reader chooses what the margin shows** (BVJ, 2026-10-07): a
-     switch with three settings, **notes shown, notes as dots, notes
-     hidden** (the wording can change). The margin and the Notebook panel do
-     different jobs and can both show at once: the margin puts each note
-     beside its verse, and the panel lists them. **A note in the panel takes
-     the reader to its place on the page**, beside its verse in the margin.
-     This replaced the 2026-10-06 recommendation to empty the margin while
-     the panel is open. The details still open are under "Still open".
+   - **The reader chooses whether the margin shows notes** (BVJ,
+     2026-10-07): a switch, **shown or hidden**, shown by default. Dots are
+     not a setting: they are what "shown" becomes where there isn't room.
+     The margin and the Notebook panel do different jobs and can both show
+     at once: the margin puts each note beside its words, and the panel
+     lists them. **A note in the panel takes the reader to its place on the
+     page.** This replaced the 2026-10-06 recommendation to empty the margin
+     while the panel is open. How the margin looks and behaves is under
+     "Decisions", 2026-10-07 (the margin switch).
    - **About X11**: the feature audit's X11 (footnotes in the margin on wide
      screens) was declined on 2026-09-28. BVJ confirmed (2026-10-01) that the
      reason for declining it doesn't rule out the reader's own notes in the
@@ -300,13 +301,14 @@ plan as a whole was accepted; nothing was declined except where stated).
 
 ### Notes
 
-- **N1. Notes in your margin.** Placement 2 above. Falls back to a dot on the
-  verse number and the panel without ~230px of free space (C9). Notes sit
-  outside the scripture's reading order, linked from the verse (C24).
-  Borrowed (Edwards's Blank Bible, the LIT apps). Medium. **Decided: the
-  margin is in.** Open since 2026-10-06: whether it shows while the
-  Notebook panel is open (placement 2; recommended: no, the open panel's
-  chapter list follows the reading position instead).
+- **N1. Notes in your margin.** Placement 2 above. Each note sits level with
+  the first word it was made on, led by its marker glyph; without ~230px of
+  free space (C9) it falls back to the glyph alone in a small circle, which
+  opens the note like a footnote. Notes sit outside the scripture's reading
+  order, linked from the verse (C24). Borrowed (Edwards's Blank Bible, the
+  LIT apps). Medium. **Decided: the margin is in**, and it shows while the
+  Notebook panel is open (2026-10-07; see "Decisions", 2026-10-07 (the
+  margin switch)).
 - **N2. Notes that follow a word.** Write a note on a glossary term once and
   it appears in the term lens card wherever that term is marked, about 4,300
   places across published chapters. A note on *sarx* shows under
@@ -1565,9 +1567,9 @@ website has to say goes here, on `main`, with its date.
   sizing.
 - **Colour meanings are dropped everywhere** (Zoom item 6; BVJ, 2026-10-07,
   agreeing with BDR's lean). The format loses the `legend` kind.
-- **The website's margin is the reader's choice** (notes shown, as dots, or
-  hidden), beside the Notebook panel's list. Website only; nothing changes
-  for the apps.
+- **The website's margin is the reader's choice** (notes shown or hidden;
+  dots where there isn't room), beside the Notebook panel's list. Website
+  only; nothing changes for the apps.
 - Everything else in the proposal (rules a to e, the Zoom items, the
   sequence) waits on BDR or on the Zoom.
 
@@ -2274,10 +2276,12 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      four colours, with no named meanings (H1's legend was dropped 2026-10-07;
      1c also takes `legend` out of `KINDS` in `src/lib/desk-records.mjs`), and a second cue
      besides colour (C4), modelled on the apps' marker glyph and dotted
-     underline; bookmarks; the margin, falling back to dots and the panel
-     (C9), with the reader's switch for notes shown, as dots or hidden, and
-     the panel's notes taking the reader to their place (BVJ, 2026-10-07;
-     placement 2); the change notice, driven by the format's found, moved, changed,
+     underline; bookmarks; the margin, each note level with its first word
+     and led by its marker glyph, falling back to the glyph in a circle (C9),
+     with the reader's switch for notes shown or hidden in both the Display
+     tray and the Notebook panel, and the panel's notes taking the reader to
+     their place (BVJ, 2026-10-07; "Decisions", 2026-10-07 (the margin
+     switch)); the change notice, driven by the format's found, moved, changed,
      verse and lost, in the apps' words (iOS: Re-read in Context, Keep,
      Delete; Android: "carried along" and "couldn't find your words"); the
      "This verse" tab (N10); Read View's smaller set, through events (C2);
@@ -2625,13 +2629,54 @@ The rest of the same day's review:
   left margin shows a note beside its verse; the Notebook panel on the right
   lists them; both can show at once. **Each note in the panel takes the
   reader to its place on the page.** Placement 2 and phase 1c follow this.
-  The switch's details are under "Still open", with recommendations.
+  The same day BVJ cut the switch to two settings and settled its details
+  (next section).
 - **Colour meanings (H1's legend) are dropped**, everywhere. BVJ agreed with
   BDR's lean (Zoom item 6), so this is settled for all three. Highlights
   keep their four colours, stored by the apps' names (C8), each with a
   second visual cue (C4). Screen readers announce the colour ("highlighted
   yellow"). Lists and exports group by colour. Read View's highlights stay
   off by default. The format drops the `legend` kind.
+
+### 2026-10-07 (the margin switch)
+
+BVJ went through the five recommendations for the switch and settled them,
+changing three:
+1. **Two settings, not three: notes shown or hidden** ("Shown / Hidden" or
+   "On / Off"; the exact wording is still open). Dots stop being a setting
+   and become what "shown" turns into where there isn't room.
+2. **The switch is in two places, both full toggles**: the Display tray's
+   "Show" group (beside verse numbers, footnote letters and key terms), and
+   the Notebook panel itself, not a link from one to the other. They are
+   one setting, so changing either moves both. It shows wherever notes can
+   (Study View, articles, the glossary), and not in Read View (10).
+3. **Shown by default.** Where there isn't the ~230px a note needs (C9),
+   whatever the setting, each note becomes its marker glyph in a small
+   circle (below).
+4. **A note sits level with the first word it was made on**, not the start
+   of its verse. A note in the apps can hang off a single word chosen by
+   selection, so a verse can carry several, each in its own place.
+5. **The marker glyph leads every note.** The apps' seven markers (note,
+   emphasis, question, heart, bookmark, lightbulb, flame; W3), chosen by the
+   reader for each note as in the apps, stand like a bullet point in front
+   of a note shown in full, and alone in a circle where there isn't room.
+   Notes are many per verse and each keeps its own marker, as in the apps,
+   which syncing with them needs anyway.
+6. **A circle reacts on hover** with a small animation, and **a click opens
+   the note the way a footnote opens** (the shared panel).
+7. **Going to a note from the panel: as recommended.** The page scrolls the
+   note's place into view and briefly marks it in the margin; a circle
+   opens its note; with notes hidden the words are marked instead; focus
+   lands on the note. BVJ notes it matters less than it sounds, since a
+   reader who picked the note in the panel can already read it there.
+8. **M1 stays separate, and the most recent action wins.** M1 hides every
+   note, highlight and mark at once; turning notes on while M1 is on brings
+   the notes back, and turning M1 on after that hides them again.
+9. **Notes on articles and glossary entries (N11) use the same margin and
+   the same switch.**
+10. **Read View shows no notes.** It is for reading straight through, so
+    the switch doesn't appear there and nothing a reader has written shows
+    in its margin.
 
 ## Still open
 
@@ -2654,25 +2699,20 @@ The rest of the same day's review:
      toggling never moves what's under it. The cost: expanded, it covers more
      of the line ends than the old card did (that moved the column as far
      left as it could).
-- **The margin switch's details** (decided in outline 2026-10-07; see
-  "Decisions", 2026-10-07). Recommendations, not decided:
-  1. **Where it lives: the Display tray's "Show" group**, beside verse
-     numbers, footnote letters and key terms, shown only while the desk is
-     on and only in Study View. It is a setting about how the page looks, and
-     that is where the reader already finds those.
-  2. **The default: notes shown.** "Shown" means shown where there is room:
-     where the free space beside the column is under about 230px (C9), notes
-     fall back to dots whatever the setting. An open panel leaves less room
-     on the left, so this happens more often then (on an article at 1162px,
-     about 140px is left).
-  3. **Going to a note from the panel** scrolls its verse into view and
-     briefly marks the note in the margin. With dots it opens that dot's
-     note; with notes hidden it marks the verse instead. Keyboard focus lands
-     on the note, so a screen-reader user hears it.
-  4. **M1 stays separate.** M1 hides every note, highlight and mark for a
-     moment (sharing a screen, teaching); the margin switch is a standing
-     preference about the margin. M1's shortcut overrides it while on.
-  5. **Notes on articles (N11)** use the same margin and the same switch.
+- **The margin's remaining details** (BVJ settled the switch 2026-10-07;
+  see "Decisions", 2026-10-07 (the margin switch)). To settle in 1c:
+  1. **The switch's wording**: "Notes: Shown / Hidden", or a "Notes" box in
+     the "Show" group, which reads as on and off like the boxes beside it.
+  2. **Two notes on the same line**: their glyphs side by side, or stacked
+     with the later one moved down until they clear. The same question for
+     notes shown in full, which can run longer than the text beside them.
+  3. **What the hover animation is**, and what it does for a reader who
+     asked their system for reduced motion (recommended: no movement, a
+     colour change only).
+  4. **When M1 is on and notes are turned on**, whether highlights and
+     marks stay hidden (recommended: yes; only notes come back).
+  5. **Whether the panel's list leads each note with its glyph too**
+     (recommended: yes, so a note looks the same in both places).
 - **The merge and overlap rules** (talk-through item 20), needed from BDR
   before phase 1c. The trash record's fields (question 4) are built
   provisionally in 1b, so BDR's answer may mean a migration.
