@@ -2745,6 +2745,14 @@ tried out the behaviour above:
    place on the screen, and never over the words it hangs on.
 6. **The font file loads only when it is used**: the desk on, the page
    holding notes, and the reader on the handwriting setting.
+7. **The Playpen Sans / Inter choice sits beside the "My notes" switch**,
+   in both the Display tray and the Notebook panel, worded "Handwriting /
+   Plain" (BVJ, 2026-10-07, taking the recommendation).
+8. **No dotted underline under noted words on the website** (BVJ,
+   2026-10-07). The apps underline them because their glyphs are subtle and
+   notes open only on a tap; here the note sits beside its line and lights
+   its words, and a second dotted underline would collide with the term
+   lens's. The noted words still need a route a screen reader hears (C24).
 
 ## Still open
 
@@ -2772,17 +2780,8 @@ tried out the behaviour above:
   - **Where the notebook's two-line toggle sits.** First try: the foot of
     the panel's list, near "Kept in this browser", remembered like the
     panel's other choices. BVJ isn't sure yet.
-  - **Where the Playpen Sans / Inter choice sits.** Recommended: beside the
-    "My notes" switch, in both the Display tray and the panel, worded
-    "Handwriting / Plain".
   - **Playpen Sans's weight and size**, tuned on the real page (the
     comparison set every face at one nominal size).
-  - **No dotted underline under noted words on the website** (lean). The
-    apps underline them because their glyphs are subtle and notes open only
-    on a tap; here the note sits beside its line and lights its words, and
-    a second dotted underline would collide with the term lens's. BVJ raised
-    it and Claude agreed; not yet confirmed. Either way the noted words
-    still need a route a screen reader hears (C24).
 - **The merge rules and the overlap rule's details** (talk-through item
   20; rules a to e), needed from BDR before phase 1c, as soon as possible, mid-October at the latest.
   The overlap rule itself is settled (rule d). The trash record's fields (question 4) are built
