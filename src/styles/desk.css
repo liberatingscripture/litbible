@@ -1188,3 +1188,144 @@ html[data-desk-note-font="plain"] .desk-note-pop {
 .desk-editor__actions .desk-editor__delete {
   margin-right: auto;
 }
+
+/* ── Widths the reader drags ─────────────────────────────────── */
+
+/* src/scripts/desk/widths.js (BVJ, 2026-10-08): on a Study View chapter with
+   the notebook open in the margin, a handle in each gap trades width between
+   its neighbours. Nothing shows between the columns at rest; the pointer in a
+   gap gets the resize cursor and a small grip beside it, and a hairline
+   shows only while dragging. */
+
+/* A zero-width box in document coordinates (the script sets its top and
+   height), so only the handles take room. Below the margin notes (800), so
+   a note's circle stays clickable, and above the page. */
+.desk-gutters {
+  position: absolute;
+  left: 0;
+  width: 0;
+  z-index: 790;
+  pointer-events: none;
+}
+
+.desk-gutters[hidden] {
+  display: none;
+}
+
+/* The script sets each handle's left and width. */
+.desk-gutter {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  pointer-events: auto;
+  cursor: col-resize;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  background: transparent;
+}
+
+/* The grip carries the keyboard focus ring (below), so the tall, empty box
+   itself draws none. The outline stays, transparent, so forced-colors mode
+   still shows where focus is. */
+.desk-gutter:focus-visible {
+  outline: 2px solid transparent;
+}
+
+/* The hairline, only while dragging. */
+.desk-gutter__line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  transform: translateX(-50%);
+  background: rgba(var(--ink-rgb), 0.28);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.desk-gutter--dragging .desk-gutter__line {
+  opacity: 1;
+}
+
+/* A small vertical pill beside the pointer (--grip-y is set from its
+   height), or mid-window while the handle has keyboard focus. */
+.desk-gutter__grip {
+  position: absolute;
+  left: 50%;
+  top: var(--grip-y, 50%);
+  width: 6px;
+  height: 32px;
+  border-radius: 3px;
+  transform: translate(-50%, -50%);
+  background: rgba(var(--ink-rgb), 0.35);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 120ms ease;
+}
+
+.desk-gutter:hover .desk-gutter__grip,
+.desk-gutter:focus-visible .desk-gutter__grip,
+.desk-gutter--dragging .desk-gutter__grip {
+  opacity: 1;
+}
+
+.desk-gutter:focus-visible .desk-gutter__grip {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.desk-gutter--dragging .desk-gutter__grip {
+  background: var(--green-text);
+}
+
+/* A drag keeps the resize cursor wherever the pointer strays, and selects
+   no text on the way. */
+html:has(.desk-gutter--dragging) {
+  cursor: col-resize;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .desk-gutter__grip {
+    transition: none;
+  }
+}
+
+@media print {
+  .desk-gutters {
+    display: none !important;
+  }
+}
+
+/* "Reset widths", shown only while the reader has set widths: in the
+   panel's settings row, and in the Display tray after its hint. The look is
+   the Edit button's. */
+.desk-panel__reset,
+.font-tray__reset {
+  padding: 5px 10px;
+  border: 1px solid rgba(var(--ink-rgb), 0.25);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+
+.desk-panel__reset:hover,
+.font-tray__reset:hover {
+  background: rgba(var(--ink-rgb), 0.07);
+}
+
+.desk-panel__reset[hidden],
+.font-tray__reset[hidden] {
+  display: none;
+}
+
+.font-tray__reset {
+  align-self: flex-start;
+  margin-top: 8px;
+}

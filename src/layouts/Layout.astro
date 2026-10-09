@@ -91,9 +91,12 @@ const criticalCSS = `html,body{margin:0;padding:0}html{scrollbar-gutter:stable}b
          the Notebook button and narrows the reading measure to 52. With the notebook
          left open (lit-desk-panel), data-desk-panel="open" goes on too, since
          Study View chapters narrow to 48 while it is open: stamped here, a page opening
-         with it open never reflows. panel.js keeps it in step from then on. The panel
+         with it open never reflows. panel.js keeps it in step from then on. The widths
+         a reader dragged this visit (sessionStorage lit-desk-measure and lit-desk-width;
+         src/scripts/desk/widths.js) go on with it as data-desk-widths, --desk-measure and
+         --desk-width, so a Study View chapter opens with them and doesn't jump. The panel
          itself sits in the margin, so nothing else needs reserving for it here. -->
-    <script is:inline define:vars={{ appUa: APP_PLATFORM_UA.source, appUaFlags: APP_PLATFORM_UA.flags }}>try{var d=document.documentElement,s=localStorage,u=new URL(location.href),q=u.searchParams.get('desk'),a=navigator.userAgent||'';if(q==='on'||q==='off'){if(q==='on')s.setItem('lit-desk-preview','on');else{s.removeItem('lit-desk-preview');s.removeItem('lit-desk-panel')}u.searchParams.delete('desk');history.replaceState(history.state,'',u.pathname+u.search+u.hash)}if(s.getItem('lit-desk-preview')==='on'&&!(new RegExp(appUa,appUaFlags).test(a)||(/Macintosh/.test(a)&&navigator.maxTouchPoints>1))){d.setAttribute('data-desk','on');if(s.getItem('lit-desk-panel')==='open')d.setAttribute('data-desk-panel','open')}}catch(_){}</script>
+    <script is:inline define:vars={{ appUa: APP_PLATFORM_UA.source, appUaFlags: APP_PLATFORM_UA.flags }}>try{var d=document.documentElement,s=localStorage,u=new URL(location.href),q=u.searchParams.get('desk'),a=navigator.userAgent||'';if(q==='on'||q==='off'){if(q==='on')s.setItem('lit-desk-preview','on');else{s.removeItem('lit-desk-preview');s.removeItem('lit-desk-panel')}u.searchParams.delete('desk');history.replaceState(history.state,'',u.pathname+u.search+u.hash)}if(s.getItem('lit-desk-preview')==='on'&&!(new RegExp(appUa,appUaFlags).test(a)||(/Macintosh/.test(a)&&navigator.maxTouchPoints>1))){d.setAttribute('data-desk','on');if(s.getItem('lit-desk-panel')==='open'){d.setAttribute('data-desk-panel','open');var w=sessionStorage,m=parseFloat(w.getItem('lit-desk-measure')),x=parseFloat(w.getItem('lit-desk-width'));if(m>=36&&m<=72&&x>=280){d.setAttribute('data-desk-widths','');d.style.setProperty('--desk-measure',String(m));d.style.setProperty('--desk-width',x+'px')}}}}catch(_){}</script>
     <title>{title}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />

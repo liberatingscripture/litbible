@@ -152,3 +152,124 @@ export function nextCollapsed({ floating, wasFloating, collapsed, opening }) {
   if (!wasFloating) return true;
   return collapsed;
 }
+
+/* ── Widths the reader drags (Study View, the notebook open) ─────────── */
+
+// BVJ, 2026-10-08 ("Decisions", the Greek tab, item 13): the reader can drag
+// the widths of their notes' margin, the LIT and the notebook, and they last
+// the visit. What is kept is the LIT's measure, in the site's character unit
+// (--ch), and the notebook's width in px; the notes' margin takes what's left.
+// The notebook then sits at the window's edge, EDGE from it, with the
+// column GAP before it. The recommended details: the LIT stays between 36
+// and 72, the notebook at least MIN_WIDTH.
+export const MIN_MEASURE = 36;
+export const MAX_MEASURE = 72;
+
+const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+
+/**
+ * Where everything goes with the reader's widths, in a window of this size.
+ * A window too narrow for them gives way in order (the recommended
+ * details): the notes' margin first (it is only what's left), then the
+ * notebook down to MIN_WIDTH, then the LIT down to MIN_MEASURE. Past that
+ * the widths don't fit at all (`over`), and the page goes back to the
+ * ordinary placement, floating notebook and all. Nothing here changes what
+ * is kept: a wider window brings the reader's widths back.
+ *
+ * @param {object} m
+ * @param {number} m.viewport the width the page lays out in (clientWidth)
+ * @param {number} m.parentLeft the left edge of the column's containing box,
+ *   the furthest left the column can go
+ * @param {number} m.ch px per measure unit (one --ch at the column's size)
+ * @param {number} m.pad the column's own horizontal padding, which its box
+ *   adds to measure × ch
+ * @param {number} m.measure the LIT's measure the reader kept
+ * @param {number} m.width the notebook's width the reader kept
+ * @returns {{ over: boolean, measure: number, width: number, panelLeft: number,
+ *   columnLeft: number, columnRight: number }}
+ */
+export function placeWithWidths({ viewport, parentLeft, ch, pad, measure, width }) {
+  let m = clamp(measure, MIN_MEASURE, MAX_MEASURE);
+  let w = Math.max(MIN_WIDTH, width);
+  const room = viewport - EDGE - GAP - parentLeft; // for the column and the notebook
+  let short = m * ch + pad + w - room;
+  if (short > 0) {
+    const give = Math.min(short, w - MIN_WIDTH);
+    w -= give;
+    short -= give;
+  }
+  if (short > 0) {
+    const give = Math.min(short, (m - MIN_MEASURE) * ch);
+    m -= give / ch;
+    short -= give;
+  }
+  // Placed from the rounded values the page will be given, so the notebook
+  // keeps its EDGE exactly and the column matches what global.css draws.
+  const kept = Math.round(w);
+  const measured = round(m);
+  const panelLeft = viewport - EDGE - kept;
+  const columnRight = panelLeft - GAP;
+  return {
+    over: short > 0.5,
+    measure: measured,
+    width: kept,
+    panelLeft,
+    columnLeft: columnRight - (measured * ch + pad),
+    columnRight,
+  };
+}
+
+/**
+ * The widths to start a drag from when the reader hasn't kept any: the page
+ * as it stands, with the notebook reaching to the window's edge. Where the
+ * margin is wide the ordinary placement stops the panel at MAX_WIDTH beside
+ * the text, so the first drag widens it to the edge rather than moving the
+ * text.
+ *
+ * @param {{ viewport: number, measure: number, panelLeft: number }} m
+ */
+export function widthsFromLayout({ viewport, measure, panelLeft }) {
+  return { measure: round(measure), width: Math.max(MIN_WIDTH, Math.round(viewport - EDGE - panelLeft)) };
+}
+
+/**
+ * The handle between the notes' margin and the LIT: it trades width between
+ * those two, so only the LIT's measure changes (the notebook, and so the
+ * column's right edge, stay put). Dragging right (dx > 0) narrows the LIT.
+ * `maxMeasure` is the widest the LIT can get before the notes' margin is
+ * gone.
+ *
+ * @param {{ measure: number, dx: number, ch: number, maxMeasure?: number }} m
+ */
+export function dragTextEdge({ measure, dx, ch, maxMeasure = MAX_MEASURE }) {
+  return round(clamp(measure - dx / ch, MIN_MEASURE, Math.max(MIN_MEASURE, Math.min(MAX_MEASURE, maxMeasure))));
+}
+
+/**
+ * The handle between the LIT and the notebook: it trades width between those
+ * two, so the column's left edge stays put. Dragging right (dx > 0) narrows
+ * the notebook and widens the LIT by the same amount.
+ *
+ * @param {{ measure: number, width: number, dx: number, ch: number }} m
+ */
+export function dragNotebookEdge({ measure, width, dx, ch }) {
+  const lo = -(measure - MIN_MEASURE) * ch; // the LIT can narrow this far
+  const hi = Math.min(width - MIN_WIDTH, (MAX_MEASURE - measure) * ch);
+  const d = clamp(dx, Math.min(0, lo), Math.max(0, hi));
+  return { measure: round(measure + d / ch), width: Math.round(width - d) };
+}
+
+/**
+ * The widest the LIT's measure can be, with this notebook, before the notes'
+ * margin is gone.
+ *
+ * @param {{ viewport: number, parentLeft: number, ch: number, pad: number, width: number }} m
+ */
+export function widestMeasure({ viewport, parentLeft, ch, pad, width }) {
+  return round(Math.min(MAX_MEASURE, (viewport - EDGE - GAP - parentLeft - width - pad) / ch));
+}
+
+// Measures are kept to a tenth: enough for a smooth drag, short in storage.
+function round(v) {
+  return Math.round(v * 10) / 10;
+}
