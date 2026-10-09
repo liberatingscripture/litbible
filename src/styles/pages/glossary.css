@@ -387,18 +387,20 @@
 .entry-link[data-copied]{ opacity: 1; }
 .entry-link[data-copied]{ color: var(--green-text); }
 
+/* 26px rather than the bare chain's 22, so the chain on the front sheet
+   stays legible (owner, 2026-10-09). */
 .entry-link__icon{
-  width: 22px;
-  height: 22px;
+  width: 26px;
+  height: 26px;
   fill: none;
   stroke: currentColor;
   stroke-width: 2;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
-/* The chain is drawn at half size, so its stroke is doubled to match: 3.2
-   there is 1.6 in the icon's own units, a touch lighter than the sheets' 2. */
-.entry-link__chain{ stroke-width: 3.2; }
+/* The chain is drawn at 45%, so its stroke is scaled up to match: 3.6 there
+   is 1.6 in the icon's own units, a touch lighter than the sheets' 2. */
+.entry-link__chain{ stroke-width: 3.6; }
 .entry-link__check,
 .entry-link[data-copied] .entry-link__chain{ display: none; }
 .entry-link[data-copied] .entry-link__check{ display: inline; }
