@@ -1,6 +1,6 @@
 // src/scripts/desk/actions.js
 //
-// "Yours": the reader's own actions in the verse menu and the selection
+// "My Notebook": the reader's own actions in the verse menu and the selection
 // panel (STUDY-DESK.md, placement 1). chapter-tools.js offers each panel
 // through the `lit:panel-actions` event before placing it; this adds a row.
 //   - Study View: Add a note, and Bookmark (Remove bookmark when the verse
@@ -40,7 +40,8 @@ export function initActions({ store, ctx, showVerse = null }) {
 
     const heading = document.createElement("p");
     heading.className = "lit-panel__subheading";
-    heading.textContent = "Yours";
+    // "My Notebook" (BVJ, 2026-10-09; it was "Yours").
+    heading.textContent = "My Notebook";
 
     const bookmark = button("Bookmark");
     const row = document.createElement("div");

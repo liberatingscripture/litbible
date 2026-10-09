@@ -257,7 +257,8 @@ seeing, the panel for finding, and commands in search for people who prepare
 every week.
 
 1. **The current menus.** "Add a note", four highlight colors, "Bookmark" and
-   "Add to a sheet…" join the verse menu under a "Yours" heading (shortcuts N
+   "Add to a sheet…" join the verse menu under a "Yours" heading (named "My
+   Notebook" when built: BVJ, 2026-10-09) (shortcuts N
    and B were mocked), and the selection panel gets the same four in Study
    View. A verse with a note gets a small dot on its number, and the menu
    shows the note at the top. **In Read View the selection panel offers only
@@ -782,7 +783,7 @@ plan as a whole was accepted; nothing was declined except where stated).
   "I hope to include a tutorial sequence for the Study Desk that runs on a
   user's first encounter and can be replayed later if the user wishes." A
   short guided sequence through the desk on the page in front of the reader:
-  the "Yours" actions in the verse menu, the margin, the Notebook panel,
+  the "My Notebook" actions in the verse menu, the margin, the Notebook panel,
   commands in search, and where the notebook is kept. It can be replayed from
   the help page (M12) and the Notebook panel. Borrowed (onboarding tours in
   desktop and phone apps). Small to medium. Phase 1d. **BVJ's hope; the
@@ -2367,7 +2368,7 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
        the report-only CSP already allows, and IndexedDB needs no CSP entry.
        **The privacy paragraph waits for 1d**, as planned: only someone
        holding the preview link stores anything.
-   - **1c. Marks in Study View.** The "Yours" actions in the verse menu and
+   - **1c. Marks in Study View.** The "My Notebook" actions in the verse menu and
      selection panel; notes with the apps' seven markers; highlights in the
      four colours, with no named meanings (H1's legend was dropped 2026-10-07;
      1c also takes `legend` out of `KINDS` in `src/lib/desk-records.mjs`), and a second cue
@@ -2385,7 +2386,8 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      hide my notes (M1); accessibility (C4, C10, C24).
      **Built first (2026-10-07), the parts rules a to e don't touch**, behind
      the preview switch:
-     - **"Yours" in the menus.** The verse menu and the selection panel gain
+     - **"My Notebook" in the menus** (headed "Yours" until BVJ renamed it,
+       2026-10-09). The verse menu and the selection panel gain
        Add a note and Bookmark (Remove bookmark when the verse has one);
        Read View's selection panel gains Bookmark only. chapter-tools.js
        offers each panel through a `lit:panel-actions` event before placing
@@ -2523,7 +2525,7 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
          beside on each page). Selecting words in an article's text offers
          "Add a note"; on the glossary, the selection panel every reader
          now gets (Copy entry text, Copy entry link; BVJ, 2026-10-09) gains
-         a "Yours" row with "Add a note" and "Note on this entry". An article
+         a "My Notebook" row with "Add a note" and "Note on this entry". An article
          has "Add a note on this article" in My Notes. A whole-entry or
          whole-article note sits level with its heading. My Notes starts on
          "The glossary" or "This article", and the tray gets a Show group of
