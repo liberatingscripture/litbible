@@ -657,9 +657,10 @@ link** (`src/scripts/glossary-selection.js`). It is Study View's selection
 panel in miniature, built from `panel-pieces.js` with the same settling,
 placement, word snapping and never-take-focus rules, clamped to one entry's
 definition. It sends `lit:panel-actions` (`view: "glossary"`), so the Study
-Desk adds its "My Notebook" row to it as it does in scripture. The entry's link
-icon carries hover text ("Copy link to this entry"), since a chain alone
-didn't say what it does.
+Desk adds its "My Notebook" row to it as it does in scripture. The entry's
+copy-link button says what it does twice over: hover text ("Copy link to this
+entry") and a copy icon with a chain on its front sheet (owner, 2026-10-09).
+It was a bare chain until then, which reads as a link that goes somewhere.
 
 **Opened by a finger, both use the chip layout** (`.lit-panel--chips`): tinted
 buttons side by side in rows (`panelRow`), the three copies in one and
