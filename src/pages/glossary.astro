@@ -454,10 +454,17 @@ const menuData = {
                         title="Link to this entry"
                         data-pagefind-ignore
                       >
+                        {/* A copy icon (two sheets) with a chain on the front
+                            sheet, which a check replaces once copied. A chain
+                            alone reads as a link that goes somewhere. */}
                         <svg class="entry-link__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                          <path class="entry-link__chain" d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
-                          <path class="entry-link__chain" d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
-                          <path class="entry-link__check" d="M5 12.5l4.5 4.5L19 7.5" />
+                          <path d="M4 16a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2" />
+                          <rect x="8" y="8" width="14" height="14" rx="2" />
+                          <g class="entry-link__chain" transform="translate(15 15) scale(0.45) translate(-12 -12)">
+                            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+                          </g>
+                          <path class="entry-link__check" d="M11.5 15.2l2.4 2.4 4.6-4.8" />
                         </svg>
                       </a>
                     </header>
