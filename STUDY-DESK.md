@@ -26,11 +26,13 @@ are recorded so they aren't re-argued.
   as today) and full A added later only if readers ask; the website's side
   of each plan is sized in that section. Nothing is decided.
 
-- **Status: phase 1b built, behind a preview switch; nothing reader-facing
-  yet.** Readers see and download none of it. `litbible.net/?desk=on` turns
-  the desk on in one browser on a computer, and `?desk=off` turns it off.
-  No desk page or service exists, and there is no way yet to make a mark.
-  What exists:
+- **Status: phase 1b and most of 1c built, behind a preview switch; nothing
+  reader-facing yet.** Readers see and download none of it.
+  `litbible.net/?desk=on` turns the desk on in one browser on a computer, and
+  `?desk=off` turns it off. No desk page or service exists. 1c's parts that
+  wait on nobody are built (notes, bookmarks, the margin, the panel's tabs and
+  "This verse", M1); highlights and the change notice wait on BDR's rules a
+  to e, and the versions on the API.bible questions. What exists:
   - draft 1 of the record format (`STUDY-DESK-FORMAT.md`), with its
     reference implementation (`scripts/lib/anchor-text.mjs`) and test vectors
     (PR #268);
@@ -42,7 +44,8 @@ are recorded so they aren't re-argued.
     tabs, deletion with an undo bar (on the trash record's **provisional**
     fields), and the Notebook panel in the right margin, floating where a
     window is too narrow for it. See "Order of
-    work", 1b.
+    work", 1b;
+  - phase 1c so far: see "Order of work", 1c.
 
   **The development phases were planned on 2026-10-05** ("Order of work"
   below). The format is frozen before anything syncs (BVJ, 2026-10-05).
@@ -391,6 +394,8 @@ plan as a whole was accepted; nothing was declined except where stated).
   **BVJ, 2026-10-08: kept, and it gains the verse's Greek.** Since it now
   draws on every other tab, it would sit beside them as a tab of its own
   (recommended, not decided). See "Decisions", 2026-10-08 (the Greek tab).
+  **Built on the preview 2026-10-08** as a tab of its own, with Previous and
+  Next (BVJ) and without the versions for now ("Order of work", 1c).
 - **N11. Notes on glossary entries and articles.** **BVJ, 2026-10-06:**
   readers should be able to attach notes to glossary entries and articles
   as well as to the scripture text. That covers both a note on an entry or
@@ -807,7 +812,8 @@ plan as a whole was accepted; nothing was declined except where stated).
 - **M1. Hide my notes, in one keystroke.** A switch with a shortcut that hides
   every note, highlight and mark at once, for sharing a screen or teaching
   from Study View. N8 makes it matter. Present mode already leaves notes out.
-  Small. Privacy. **Decided: yes.**
+  Small. Privacy. **Decided: yes.** **Built on the preview 2026-10-08**, key
+  H ("Order of work", 1c).
 - **M7. A trash with undo.** Deleted notes and sheets wait 30 days; matters
   more with sync, since a deletion reaches every device. Small. **Decided:
   yes.**
@@ -2429,10 +2435,49 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
          asked for thicker: 500 or 550). Inter on "Plain", and a reader's
          own font, keep their normal weight.
      - **A default chosen where nothing was decided**: the editor's form.
+     **Built second (2026-10-08), the rest that waits on nobody**, behind the
+     preview switch:
+     - **The panel's tabs**: **My Notes · This verse** on Study View chapters,
+       My Notes alone (with no tab row) everywhere else. Greek and Versions
+       join the same table later. My Notes keeps the list as it was, with a
+       small "Romans 8 / Everything" choice at its top, and the panel's foot
+       (the switches, "Kept in this browser") shows with My Notes only. Each
+       tab is its own module (`src/scripts/desk/tab-mine.js`,
+       `tab-verse.js`) and keeps its place while another shows.
+     - **"This verse" (N10)**, without the versions for now (below): the
+       verse's reference and text, its footnotes copied from the page's own
+       list (links included), the reader's notes and bookmark on it, with
+       Edit, and Add a note. **Previous and Next** (‹ ›, BVJ, 2026-10-08)
+       step to the neighbouring verse within the chapter, over the LIT's gaps
+       (Matthew 17 runs 20, 22), and leave the page where it is. Opening a
+       verse's menu while the notebook is open moves the tab to that verse,
+       and **"Show in notebook"** in the verse menu and the selection panel
+       opens the notebook on it; the selection panel keeps that route when
+       verse numbers are hidden (C10). The pure rules are in
+       `src/lib/desk-verse.mjs`.
+     - **The verse number names its notes**, as recommended under "Still
+       open": "Verse 18, 1 note of mine" (`src/scripts/desk/verse-labels.js`),
+       back to "Verse 18" while the reader's notes are hidden. Only the
+       attribute changes; nothing is added to the scripture.
+     - **M1, "Hide my notes"**, in the Display tray's Show group and the
+       panel's foot, and the key **H** (listed in the tray's keys). It
+       remembers "My notes" and "My bookmarks", turns both off, closes the
+       panel, and puts them back when turned off. It is no setting of its
+       own, so decision 8's "most recent action wins" falls out: turning "My
+       notes" back on brings the notes only, and H then hides them again. Its
+       box is checked exactly when everything is hidden.
+     - **C10**: a line under the tray's Show group on Study View chapters,
+       "With verse numbers off, select any words for the same actions."
+     - **Defaults chosen where nothing was decided**, for BVJ to judge on the
+       preview: the "Show in notebook" label and its own row in the menu;
+       This verse opening at the address's verse, else the verse being read;
+       Previous and Next staying inside the chapter; H as M1's key, and M1
+       closing the panel (unless done from the panel itself); the foot on My
+       Notes only; the tab last chosen remembered across pages
+       (`lit-desk-tab`); the C10 wording.
      **Still to come in 1c**: highlights and the change notice (after BDR's
-     answer on rules a to e), the "This verse" tab (N10), the verse number
-     naming its notes, M1, and notes on articles and glossary entries (N11,
-     with format draft 2).
+     answer on rules a to e), widths the reader can drag, notes on articles
+     and glossary entries (N11), and the versions, held (below).
      **Added to 1c on 2026-10-08**, from the Greek tab's planning ("Decisions",
      2026-10-08). None of it waits on BDR, so it can fill the time while
      highlights and the change notice do:
@@ -2440,18 +2485,24 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
        on Study View chapters while the notebook is open, 52 otherwise and
        always on Read View, intros, articles and the glossary; stamped
        before first paint, and opening or closing keeps the reader's line.
-     - **The panel's tabs.** **"My Notes"** (BVJ, 2026-10-08; it holds
-       bookmarks and highlights too) holds today's chapter and "Everything"
-       lists; beside it "This verse", "Greek" (arriving with 1f) and
-       "Versions" (BVJ, 2026-10-08). The panel starts with the margin it
-       gets. Small.
+     - **The panel's tabs. Built 2026-10-08** (above). **"My Notes"** (BVJ,
+       2026-10-08; it holds bookmarks and highlights too) holds today's
+       chapter and "Everything" lists; beside it "This verse", "Greek"
+       (arriving with 1f) and "Versions" (BVJ, 2026-10-08). The panel starts
+       with the margin it gets. Small.
      - **Widths the reader can drag** (BVJ, 2026-10-08): their notes, the
        LIT and the notebook, with nothing showing between the columns until
        the pointer is in the gap. Details under "Decisions", 2026-10-08 (the
        Greek tab), items 12 and 13. Small to medium.
      - **"This verse" (N10)** with the verse's footnotes, the reader's notes
        on it and the public-domain versions from the start; the licensed translations join in 1e
-       and the Greek in 1f. Small.
+       and the Greek in 1f. Small. **Built 2026-10-08 without the versions**
+       (above), which wait with the next two items.
+     - **Held (BVJ, 2026-10-08) until the API.bible questions are decided:
+       the next two items, and the versions in "This verse".** The
+       public-domain versions wait with the licensed ones, so the stored
+       files, the Versions tab and This verse's versions are designed once,
+       for whatever set of versions the first release ends up with.
      - **The KJV, the Open English Bible and the World English Bible, stored
        on the site** (public domain, from eBible.org; the OEB and WEB were
        picked by BVJ on 2026-10-08): a build step writing one file per
@@ -3209,7 +3260,11 @@ lemmas already exist for every SBLGNT word. Only the word-to-word link waits.
     verse that one is there. Recommended: the verse number, already a
     button and the keyboard's way into each verse, names the count
     ("Verse 1, 1 note of mine"), and the verse menu lists that verse's notes
-    (the "This verse" tab, N10).
+    (the "This verse" tab, N10). **Built that way on the preview
+    (2026-10-08)**, the verse menu reaching the notes through "Show in
+    notebook"; BVJ to confirm.
+  - **The second slice's defaults** (2026-10-08): listed under "Order of
+    work", 1c, for BVJ to judge on the preview.
 - **The merge rules and the overlap rule's details** (talk-through item
   20; rules a to e), needed from BDR before phase 1c, as soon as possible, mid-October at the latest.
   The overlap rule itself is settled (rule d). The trash record's fields (question 4) are built
@@ -3221,7 +3276,9 @@ lemmas already exist for every SBLGNT word. Only the word-to-word link waits.
   2026-10-08: "probably"; what it does is under D7); which other
   free-to-share translations join the KJV; whether the donation page fits
   API.bible's free plan. Since BVJ put the translations in the first release
-  (2026-10-08), these gate 1e. Also to ask API.bible: whether the NASB 2020
+  (2026-10-08), these gate 1e, and **BVJ held the public-domain versions with
+  them** (2026-10-08): the stored KJV, OEB and WEB, the Versions tab and the
+  versions in "This verse" wait until these are decided. Also to ask API.bible: whether the NASB 2020
   can be switched on in the dashboard, and whether openly licensed Bibles
   need the tracking script. The NRSVue and CEB are shelved for a possible
   second version (BVJ, 2026-10-08).

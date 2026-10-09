@@ -6,6 +6,10 @@
 //   - Study View: Add a note, and Bookmark (Remove bookmark when the verse
 //     has one). From the verse menu a note covers the whole verse or range;
 //     from a selection it quotes the selected words.
+//   - Study View also has "Show in notebook", which opens the Notebook panel
+//     on "This verse" at the verse (N10), the first verse of a selection.
+//     Offering it in the selection panel too keeps the way in when verse
+//     numbers are hidden (audit C10).
 //   - Read View: Bookmark only. Notes are a Study View tool, and Read View
 //     shows none (audit C2; BVJ, 2026-10-07).
 // Highlights join this row once BDR answers the overlap rule's details
@@ -20,7 +24,7 @@ import { openNoteEditor } from "./note-editor.js";
 import { chapterText, pageChapter } from "./page.js";
 import { showUndo } from "./undo-bar.js";
 
-export function initActions({ store, ctx }) {
+export function initActions({ store, ctx, showVerse = null }) {
   if (!store) return;
   const here = pageChapter();
 
@@ -50,6 +54,18 @@ export function initActions({ store, ctx }) {
     row.append(bookmark);
     d.append(heading);
     d.append(row);
+    if (d.view === "study" && showVerse) {
+      const show = button("Show in notebook");
+      show.addEventListener("click", () => {
+        d.acting?.();
+        closePanel();
+        showVerse(d.start);
+      });
+      const second = document.createElement("div");
+      second.className = "lit-panel__row";
+      second.append(show);
+      d.append(second);
+    }
 
     // A bookmark is one verse: the first the menu or selection covers.
     const verse = d.start;
