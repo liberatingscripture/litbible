@@ -25,6 +25,12 @@
 // text. Either way the column moves only as far as the tab needs, so
 // expanding and collapsing never moves the text.
 //
+// In the margin the reader can minimize it to the same tab (BVJ,
+// 2026-10-09). The text stays exactly where it was, column moved or not, so
+// minimizing and restoring never move it either. Minimized is remembered
+// (localStorage['lit-desk-min']) so the next page opens with the tab; pressing
+// Notebook or the tab restores the panel.
+//
 // On a Study View chapter, with the notebook in the margin, the reader can
 // drag the widths of their notes' margin, the LIT and the notebook
 // (widths.js). With widths kept, those place everything instead: the
@@ -35,9 +41,19 @@
 // Only loaded on a page with a reading column (desk-gate.js checks
 // readingSurface first).
 
-import { EDGE, nextCollapsed, panelHeight, placeFloating, placeInMargin } from "../../lib/desk-margin.mjs";
+import {
+  EDGE,
+  TAB_EDGE,
+  TAB_WIDTH,
+  nextCollapsed,
+  panelHeight,
+  placeFloating,
+  placeInMargin,
+} from "../../lib/desk-margin.mjs";
 import { READING_SURFACES, readingSurface } from "../desk-frame.js";
 import { WIDTHS_EVENT, createWidths } from "./widths.js";
+
+const MIN_KEY = "lit-desk-min";
 
 /**
  * @param {HTMLElement} panel the Notebook panel, which this moves into the rail
@@ -90,6 +106,16 @@ export function createRail(panel, tab, onChange = () => {}) {
   let floating = false;
   let collapsed = false;
   let opening = false;
+  // The reader's own minimize, as opposed to collapsing because it floats.
+  let minimized = false;
+  try { minimized = localStorage.getItem(MIN_KEY) === "1"; } catch (_) {}
+  const keepMinimized = (on) => {
+    minimized = on;
+    try {
+      if (on) localStorage.setItem(MIN_KEY, "1");
+      else localStorage.removeItem(MIN_KEY);
+    } catch (_) {}
+  };
 
   // The top of the capital letters on an element's first line, in the
   // window: the box of its first character, moved down by the space its font
@@ -158,23 +184,30 @@ export function createRail(panel, tab, onChange = () => {}) {
     // they set the column (global.css) that everything else measures.
     const lay = widths?.layout() ?? null;
     let box;
+    if (opening) keepMinimized(false);
     if (lay && !lay.over) {
       widths.apply(lay);
       floating = false;
-      collapsed = false;
+      collapsed = nextCollapsed({ floating, wasFloating, collapsed, opening, minimized });
       opening = false;
-      box = { left: lay.panelLeft, width: lay.width, shift: 0 };
+      box = collapsed
+        ? { left: viewport - TAB_EDGE - TAB_WIDTH, width: TAB_WIDTH, shift: 0 }
+        : { left: lay.panelLeft, width: lay.width, shift: 0 };
     } else {
       widths?.clear();
       const m = { viewport, column: columnBox(), main: main.getBoundingClientRect(), shift };
       const at = placeInMargin(m);
       floating = at.over;
-      collapsed = nextCollapsed({ floating, wasFloating, collapsed, opening });
+      collapsed = nextCollapsed({ floating, wasFloating, collapsed, opening, minimized });
       opening = false;
       box = at;
       if (floating) {
         const f = placeFloating(m);
         box = { ...(collapsed ? f.tab : f.panel), shift: f.shift };
+      } else if (collapsed) {
+        // Minimized in the margin: the tab at the window's edge, and the
+        // column left exactly where the panel had it.
+        box = { ...placeFloating(m).tab, shift: at.shift };
       }
     }
     setShift(box.shift);
@@ -198,7 +231,7 @@ export function createRail(panel, tab, onChange = () => {}) {
     rail.style.height = `${Math.max(0, bottom - top)}px`;
     if (!collapsed) fitHeight();
     // The handles run down the same stretch as the panel, in the margin only.
-    if (widths && !floating) {
+    if (widths && !floating && !collapsed) {
       widths.placeHandles({ top, height: bottom - top, column: columnBox(), panelLeft: box.left });
     } else widths?.hideHandles();
 
@@ -268,14 +301,16 @@ export function createRail(panel, tab, onChange = () => {}) {
       place();
     },
     collapse() {
-      if (!floating || collapsed) return;
+      if (collapsed) return;
       collapsed = true;
+      keepMinimized(true);
       place();
       onChange({ floating, collapsed });
     },
     expand() {
       if (!collapsed) return;
       collapsed = false;
+      keepMinimized(false);
       place();
       onChange({ floating, collapsed });
     },

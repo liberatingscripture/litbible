@@ -234,7 +234,9 @@ src/
                      #   header-search, the header's search strip;
                      #   keyboard-shortcuts; verse-image, which draws and
                      #   hands on "Make an image"; glossary-entry-links, the
-                     #   copy-link buttons on /glossary; keep-reading-place,
+                     #   copy-link buttons on /glossary; glossary-selection,
+                     #   its selection panel; panel-pieces, what every
+                     #   panel is built from; keep-reading-place,
                      #   which holds the reader's line through a reflow;
                      #   desk-gate + desk/, the Study Desk preview, and
                      #   desk-frame, what every page knows about its panel;
@@ -645,7 +647,19 @@ selection panel said "Copy with reference" and had no Copy link. The labels
 are kept short on purpose, so the three copies fit one row on a phone. Only
 the verse menu's extras are its own: "Or copy one part" and the range hint,
 both about whole verses. Both panels build from the same pieces
-(`menuButton`, `shareButton`, `imageStep`, `panelRow`), so keep them in step.
+(`menuButton`, `shareButton`, `imageStep`, `panelRow`; the shared ones are in
+`src/scripts/panel-pieces.js`), so keep them in step.
+
+**The glossary has a selection panel too** (owner, 2026-10-09), for every
+reader: selecting words in an entry's definition offers **Copy entry text**
+(the words, "— Glossary: Flesh (LIT)" and the entry's link) and **Copy entry
+link** (`src/scripts/glossary-selection.js`). It is Study View's selection
+panel in miniature, built from `panel-pieces.js` with the same settling,
+placement, word snapping and never-take-focus rules, clamped to one entry's
+definition. It sends `lit:panel-actions` (`view: "glossary"`), so the Study
+Desk adds its "Yours" row to it as it does in scripture. The entry's link
+icon carries hover text ("Copy link to this entry"), since a chain alone
+didn't say what it does.
 
 **Opened by a finger, both use the chip layout** (`.lit-panel--chips`): tinted
 buttons side by side in rows (`panelRow`), the three copies in one and
@@ -2066,6 +2080,9 @@ collection); they're read directly by the intro pages and the API manifest.
      (`placeFloating`, `nextCollapsed`). The column moves only as far as the
      tab needs, the same in both states, so toggling never moves the text,
      and it collapses by itself whenever it starts floating unasked.
+     **In the margin the reader can minimize it to the same tab** (»;
+     BVJ, 2026-10-09), leaving the text exactly where it was; minimized
+     is remembered (`lit-desk-min`), and Notebook or the tab restores it.
      **It appears only on the pages `READING_SURFACES`
      (`src/scripts/desk-frame.js`) lists**: Study View chapters and intros,
      Read View, articles and the glossary, each with its column, its heading
@@ -2100,6 +2117,10 @@ collection); they're read directly by the intro pages and the API manifest.
      `pages/glossary.css`): one column at the reading width, with the
      scripture pages' type sizes, all scaling with the Display tray's text
      size. Readers keep the wide glossary until the desk is released.
+     A heading with several options takes only the break it needs
+     (`desk/glossary-titles.js`, measured): its options on the heading's
+     line, or together on a line of their own, and each on its own line
+     only when that can't hold them.
   5. **Records name the text they were made on** through
      `<html data-content-version>`, which Layout.astro reads at build from
      `public/api/version.json` (`src/lib/content-version.mjs`; "unversioned"
@@ -2141,8 +2162,9 @@ collection); they're read directly by the intro pages and the API manifest.
      the same margin: `desk/note-sources.js` says what a page's notes sit
      beside and how each is found (a chapter's verses, or an entry's or
      article's own text through `src/lib/desk-prose-anchor.mjs`), and
-     `desk/prose-actions.js` offers "Add a note" on a selection there and
-     beside each glossary entry's link.
+     `desk/prose-actions.js` offers "Add a note" on a selection there (on
+     the glossary, as the "Yours" row of every reader's selection panel,
+     with "Note on this entry" for the whole entry).
   9. **The Notebook panel has tabs, one module each**: "My Notes"
      (`desk/tab-mine.js`) everywhere, and "This verse" (`desk/tab-verse.js`)
      on Study View chapters, from the `TABS` table in `desk/panel.js`, where

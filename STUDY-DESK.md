@@ -2520,16 +2520,29 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
          notes follow the map.
        - **On the page**: the same margin and switch as Study View
          (decision 9; `src/scripts/desk/note-sources.js` says what notes sit
-         beside on each page). Selecting words in an entry's or article's
-         text offers "Add a note"; each glossary entry has the note glyph
-         beside its link icon for a note on the whole entry; an article has
-         "Add a note on this article" in My Notes. A whole-entry or
+         beside on each page). Selecting words in an article's text offers
+         "Add a note"; on the glossary, the selection panel every reader
+         now gets (Copy entry text, Copy entry link; BVJ, 2026-10-09) gains
+         a "Yours" row with "Add a note" and "Note on this entry". An article
+         has "Add a note on this article" in My Notes. A whole-entry or
          whole-article note sits level with its heading. My Notes starts on
          "The glossary" or "This article", and the tray gets a Show group of
-         its own on those pages.
+         its own on those pages. (A note icon beside each entry's link was
+         tried first and taken out the same day: it took room from the
+         heading and split more headings across lines.)
        - **For BVJ to confirm**: the slug rule; the rule for quoting prose;
-         the field names; the three ways in (the glossary's icon was a text
-         button at first, which took room from the heading).
+         the field names; the ways in.
+     - **Minimize** (BVJ, 2026-10-09): » minimizes the notebook in the
+       margin too, to the same tab at the window's edge the floating
+       notebook uses. The text stays exactly where it was, so minimizing and
+       restoring never move it; minimized is remembered for the next page;
+       Notebook or the tab restores it.
+     - **The glossary's headings with several options** (BVJ, 2026-10-09:
+       they were splitting across lines). With the desk on, every such
+       heading had taken the phone layout, each option on a line of its own.
+       Now each takes only the break it needs, measured on the page: its
+       options on the heading's line, or together on a line of their own, or
+       (only the longest, mercy's, at the default size) each on its own line.
      **Still to come in 1c**: highlights and the change notice (after BDR's
      answer on rules a to e), and the versions, held (below).
      **Added to 1c on 2026-10-08**, from the Greek tab's planning ("Decisions",
@@ -3287,7 +3300,8 @@ lemmas already exist for every SBLGNT word. Only the word-to-word link waits.
   1. **Collapsed, it is a tab at the window's right edge**: 40px wide, the
      notebook glyph with the word "Notebook" running down it, level with the
      page's heading and pinned near the top while reading. A dot or count of
-     this chapter's notes could join it in 1c.
+     this chapter's notes could join it in 1c. Since 2026-10-09 the same
+     tab is what minimizing gives in the margin (BVJ; "Order of work", 1c).
   2. **It can't be moved.** Collapsing is the way to get it off the text,
      and dragging would mean remembering a place per window size. The verse
      menu's drag (a grip in its head) could be reused if BVJ wants it.

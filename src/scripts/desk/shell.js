@@ -20,6 +20,7 @@ import { openNoteEditor } from "./note-editor.js";
 import { createVerseLabels } from "./verse-labels.js";
 import { proseSource, studySource } from "./note-sources.js";
 import { initProseActions } from "./prose-actions.js";
+import { fitGlossaryTitles } from "./glossary-titles.js";
 
 // Stamped at build by Layout.astro (src/lib/content-version.mjs, which reads
 // the file system and so can't be imported here).
@@ -33,6 +34,9 @@ async function start() {
   style.dataset.desk = "";
   style.textContent = deskCss;
   document.head.append(style);
+  // First, before the notebook opens, so the glossary's headings settle as
+  // early as they can.
+  if (document.querySelector(".glossary-entries")) fitGlossaryTitles();
 
   let store = null;
   let storeError = null;

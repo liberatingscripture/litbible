@@ -155,22 +155,10 @@
   cursor: pointer;
 }
 
-/* Only a floating notebook folds away; in the margin it has only ×. */
+/* » minimizes the notebook to its tab at the window's edge, in the margin
+   and floating alike (BVJ, 2026-10-09); × closes it. */
 .desk-panel__collapse {
-  display: none;
   margin-left: auto;
-}
-
-.desk-rail--floating .desk-panel__collapse {
-  display: inline-flex;
-}
-
-.desk-panel__close {
-  margin-left: auto;
-}
-
-.desk-rail--floating .desk-panel__close {
-  margin-left: 0;
 }
 
 .desk-panel__collapse:hover,
@@ -1331,23 +1319,6 @@ html:has(.desk-gutter--dragging) {
 }
 
 /* ── Notes on a glossary entry or an article (N11) ─────────────── */
-
-/* A glossary entry's "Add a note": the note glyph beside the entry's link
-   icon, taking its size and dimming from .entry-link (pages/glossary.css),
-   so it adds nothing to the heading. A button, so it needs the resets an
-   <a> doesn't. Desk-only: prose-actions.js adds it. */
-.desk-entry-note {
-  padding: 0;
-  border: 0;
-  background: transparent;
-  font-family: inherit;
-  cursor: pointer;
-}
-
-.desk-entry-note:focus-visible {
-  outline: 2px solid var(--focus-ring);
-  outline-offset: 2px;
-}
 
 /* My Notes' "Add a note on this article", above the list. */
 .desk-mine__add {

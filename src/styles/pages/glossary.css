@@ -797,17 +797,23 @@ html[data-desk] .occ-more{
   font-size: calc(15em / 18);
 }
 
-/* The column is narrower than 780px at every window width now, so the
-   long glosses take the phone layout: each option on its own line, the
-   slash as the break (see the max-width: 780px block above). */
-html[data-desk] .entry-title .lit-sep{
+/* The column is narrower than 780px at every window width now, so a
+   heading with several options takes only the break it needs, measured by
+   src/scripts/desk/glossary-titles.js (BVJ, 2026-10-09: forcing the phone
+   layout on every such heading split short ones that fit): the options on
+   the heading's line; or together on a line of their own, after a break
+   (.desk-gloss-break, the same zero-height full-width item as the slash
+   below); or, only when that can't hold them, each on its own line
+   (.desk-split, the phone layout of the max-width: 780px block above). */
+html[data-desk] .entry-title > .desk-gloss-break,
+html[data-desk] .entry-title.desk-split .lit-sep{
   flex: 0 0 100%;
   height: 0;
   margin-block: calc(-0.35rem / 2);
   overflow: hidden;
 }
 
-html[data-desk] .entry-title .lit-part{
+html[data-desk] .entry-title.desk-split .lit-part{
   white-space: normal;
   line-height: 1.4;
 }
