@@ -17,6 +17,7 @@ import { initActions } from "./actions.js";
 import { createNotesMargin } from "./notes-margin.js";
 import { createReadMarks } from "./read-marks.js";
 import { openNoteEditor } from "./note-editor.js";
+import { createVerseLabels } from "./verse-labels.js";
 
 // Stamped at build by Layout.astro (src/lib/content-version.mjs, which reads
 // the file system and so can't be imported here).
@@ -43,20 +44,24 @@ async function start() {
   // A note opens in the editor from the margin or the panel's list.
   const edit = (record, trigger, restoreFocus = trigger) =>
     openNoteEditor({ trigger, store, ctx, ref: recordReference(record), record, restoreFocus });
+  const addNote = (draft, trigger) =>
+    openNoteEditor({ trigger, store, ctx, ref: recordReference(draft), draft, restoreFocus: trigger });
   const margin = store ? createNotesMargin({ store, onEdit: edit }) : null;
   const readMarks = store && !margin ? createReadMarks({ store }) : null;
   // What the panel's links can do without leaving the page: Study View
   // shows a note on its chapter; Read View scrolls to a verse in its book.
   const here = margin ?? readMarks;
-  initActions({ store, ctx });
-  createPanel({
+  const panel = createPanel({
     store,
     storeError,
     onEdit: store ? edit : null,
+    onAddNote: store ? addNote : null,
     goHere: here
       ? { can: (r) => here.canReveal(r), go: (r) => (margin ? margin.reveal(r.id) : readMarks.reveal(r)) }
       : null,
   });
+  initActions({ store, ctx, showVerse: panel.showVerse });
+  if (store) createVerseLabels({ store });
 }
 
 start();

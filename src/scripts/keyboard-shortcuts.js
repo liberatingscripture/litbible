@@ -5,6 +5,7 @@
 //   g          Go to passage, where the page has the picker
 //   ← → [ ]    previous and next chapter: Study View's Previous/Next links,
 //              or the neighbouring chapter in Read View
+//   h          hide or show my notes, where the Study Desk is on (M1)
 //
 // On by default, with a "Keyboard shortcuts" box in the Display tray to turn
 // them off (localStorage["lit-shortcuts"] = "off"; absent = on). The off
@@ -101,6 +102,14 @@ function goToChapter(step) {
   return true;
 }
 
+// The Study Desk's "Hide my notes" (M1), only where the desk is on: the desk
+// itself listens for the event, so with the preview off the key does nothing.
+function toggleDeskHide() {
+  if (!document.documentElement.hasAttribute("data-desk")) return false;
+  document.dispatchEvent(new CustomEvent("lit:desk-hide"));
+  return true;
+}
+
 const scrollsSideways = () =>
   document.documentElement.scrollWidth > document.documentElement.clientWidth + 1;
 
@@ -125,6 +134,11 @@ document.addEventListener("keydown", (event) => {
     case "[":
     case "]":
       handled = goToChapter(event.key === "[" ? -1 : 1);
+      break;
+    // Lowercase only: the switch matches event.key exactly, so Shift+H ("H")
+    // never reaches this case.
+    case "h":
+      handled = toggleDeskHide();
       break;
   }
   if (handled) event.preventDefault();

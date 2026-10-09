@@ -2098,8 +2098,10 @@ collection); they're read directly by the intro pages and the API manifest.
      and the selection panel before placing them, with the panel, its verses
      and (for a selection) the selected `range`. Only
      `src/scripts/desk/actions.js` listens, adding "Yours" (Add a note,
-     Bookmark; Bookmark only in Read View), so a reader's menus are
-     unchanged. Keep the event before `showPanel`, or the panel is measured
+     Bookmark and "Show in notebook"; Bookmark only in Read View), so a
+     reader's menus are unchanged. The Notebook's "This verse" tab
+     (`desk/tab-verse.js`) listens too: a verse menu opened while the
+     notebook is open moves the tab to that verse. Keep the event before `showPanel`, or the panel is measured
      without the row. A panel opened with `extra: { stay: true }` (the note
      editor) ignores outside clicks in `lit-panel.js`.
   7. **Margin notes never add text to the scripture.** They sit in one
@@ -2117,7 +2119,18 @@ collection); they're read directly by the intro pages and the API manifest.
      **Bookmarks are the one piece of marginalia Read View shows**
      (`desk/read-marks.js`; BVJ, 2026-10-08): notes stay a Study View tool. The notes' settings (`data-desk-notes`,
      `data-desk-note-font`, `data-desk-list` on `<html>`) have no pre-paint
-     script, since nothing of the desk paints before it loads.
+     script, since nothing of the desk paints before it loads. "Hide my
+     notes" (M1, key H) is no setting of its own: it saves and turns off
+     "My notes" and "My bookmarks" and puts them back (`note-settings.js`).
+     While the desk is on, each Study View verse number's accessible name
+     counts the reader's notes on it ("Verse 18, 1 note of mine";
+     `desk/verse-labels.js`), the one place a screen reader meets them in
+     reading order, since an attribute adds nothing to the scripture.
+  8. **The Notebook panel has tabs, one module each**: "My Notes"
+     (`desk/tab-mine.js`) everywhere, and "This verse" (`desk/tab-verse.js`)
+     on Study View chapters, from the `TABS` table in `desk/panel.js`, where
+     Versions and the Greek tab will join. A page with one tab shows no tab
+     row, and the panel's foot belongs to My Notes.
 - **Every link that leaves the site opens in a new tab** (owner, 2026-10-01).
   For rendered bodies that is `openExternalLinks` in `src/lib/external-links.mjs`
   (pure, unit-tested), called from `linkRefs`, the one function footnotes,
@@ -2219,6 +2232,9 @@ collection); they're read directly by the intro pages and the API manifest.
   2026-09-28): `/` search, `g` Go to passage, and ← → or `[` `]` for the
   previous and next chapter (Study View's top Previous/Next, found by their
   `rel="prev"` / `rel="next"`, or the neighbouring `#ch-N` in Read View).
+  `h` is the Study Desk's "Hide my notes" and does nothing unless
+  `html[data-desk]` is set; it only sends `lit:desk-hide`, so the desk's code
+  stays out of this file.
   They are on by default, with a Keyboard switch in the Display tray
   (`localStorage['lit-shortcuts'] = 'off'`; no attribute on `<html>`, since
   nothing renders differently). **The switch is required, not a nicety**:

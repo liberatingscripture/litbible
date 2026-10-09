@@ -10,7 +10,15 @@
 //   - "My bookmarks": whether the margin shows bookmarks' marks (shown by
 //     default; BVJ, 2026-10-08: their own switch, apart from notes);
 //   - whether the Notebook panel's list shows notes in full or at two lines
-//     (two lines by default).
+//     (two lines by default);
+//   - "Hide my notes" (M1; decision 8 under "the margin switch"), which hides
+//     everything of the reader's at once, for sharing a screen: it remembers
+//     "My notes" and "My bookmarks" (and highlights, once they exist), turns
+//     them off, and puts them back when it is turned off. It is no setting of
+//     its own, so the most recent action wins without more code: turning "My
+//     notes" back on while everything is hidden brings back the notes only,
+//     and M1's box shows checked exactly when everything is hidden. The key H
+//     does the same (keyboard-shortcuts.js sends lit:desk-hide).
 //
 // The first three have a control in the Display tray's Show group and another
 // in the Notebook panel, both full switches for one setting, kept in step
@@ -26,6 +34,12 @@ const SETTINGS = {
 };
 
 export const SETTINGS_EVENT = "desk:settings";
+
+/** Sent when "Hide my notes" hides or shows everything: { hidden, from }. */
+export const HIDE_EVENT = "desk:hide";
+const HIDE_KEY = "lit-desk-hide";
+// What M1 hides. Highlights join when they are built.
+const HIDDEN_BY_M1 = ["notes", "bookmarks"];
 
 export function getSetting(name) {
   const { attr, fallback } = SETTINGS[name];
@@ -48,6 +62,33 @@ export function setSetting(name, value) {
   document.dispatchEvent(new CustomEvent(SETTINGS_EVENT, { detail: { name, value } }));
 }
 
+/** Whether everything of the reader's is hidden, which is when M1's box is checked. */
+export function allHidden() {
+  return HIDDEN_BY_M1.every((name) => getSetting(name) === "off");
+}
+
+/**
+ * Hide everything of the reader's, remembering what showed, or put back what
+ * was hidden. A remembered state that would show nothing (both switches were
+ * already off) brings back the defaults, so showing always shows something.
+ * `from` says where the reader did it ("panel", "tray", "key").
+ */
+export function setHideAll(hide, { from = null } = {}) {
+  if (hide) {
+    const saved = Object.fromEntries(HIDDEN_BY_M1.map((name) => [name, getSetting(name)]));
+    try { localStorage.setItem(HIDE_KEY, JSON.stringify(saved)); } catch (_) {}
+    for (const name of HIDDEN_BY_M1) setSetting(name, "off");
+  } else {
+    let saved = null;
+    try { saved = JSON.parse(localStorage.getItem(HIDE_KEY) || "null"); } catch (_) {}
+    try { localStorage.removeItem(HIDE_KEY); } catch (_) {}
+    const back = (name) => (saved?.[name] === "on" || saved?.[name] === "off" ? saved[name] : SETTINGS[name].fallback);
+    const showsNothing = HIDDEN_BY_M1.every((name) => back(name) === "off");
+    for (const name of HIDDEN_BY_M1) setSetting(name, showsNothing ? SETTINGS[name].fallback : back(name));
+  }
+  document.dispatchEvent(new CustomEvent(HIDE_EVENT, { detail: { hidden: hide, from } }));
+}
+
 /** Read the stored settings onto <html>, and follow changes made in other tabs. */
 export function initNoteSettings() {
   for (const name of Object.keys(SETTINGS)) {
@@ -62,16 +103,18 @@ export function initNoteSettings() {
     applyAttr(name, value);
     document.dispatchEvent(new CustomEvent(SETTINGS_EVENT, { detail: { name, value } }));
   });
+  document.addEventListener("lit:desk-hide", () => setHideAll(!allHidden(), { from: "key" }));
   injectIntoTray();
 }
 
 let uid = 0;
 
 /**
- * The "My notes" box, the Handwriting / Plain choice and the "My bookmarks"
- * box, as controls that follow their settings wherever they change. `classes` names the
- * host's own styles, so the same controls sit naturally in the tray and in
- * the panel.
+ * The "My notes" box, the Handwriting / Plain choice, the "My bookmarks" box
+ * and the "Hide my notes" box, as controls that follow their settings
+ * wherever they change. `classes` names the host's own styles, so the same
+ * controls sit naturally in the tray and in the panel, and `from` names the
+ * host.
  */
 function noteControls(classes) {
   const n = ++uid;
@@ -88,6 +131,13 @@ function noteControls(classes) {
     <span class="${classes.checkLabel}">My bookmarks</span>`;
   const marksBox = marks.querySelector("input");
   marksBox.addEventListener("change", () => setSetting("bookmarks", marksBox.checked ? "on" : "off"));
+
+  const hide = document.createElement("label");
+  hide.className = classes.check;
+  hide.innerHTML = `<input type="checkbox" class="${classes.checkInput}" id="deskHideCheck${n}" aria-keyshortcuts="h" />
+    <span class="${classes.checkLabel}">Hide my notes</span>`;
+  const hideBox = hide.querySelector("input");
+  hideBox.addEventListener("change", () => setHideAll(hideBox.checked, { from: classes.from }));
 
   const seg = document.createElement("div");
   seg.className = classes.seg;
@@ -107,17 +157,21 @@ function noteControls(classes) {
   const sync = () => {
     box.checked = getSetting("notes") === "on";
     marksBox.checked = getSetting("bookmarks") === "on";
+    hideBox.checked = allHidden();
     const font = getSetting("noteFont");
     for (const r of radios) r.checked = r.value === font;
   };
   sync();
   document.addEventListener(SETTINGS_EVENT, sync);
-  return { check, seg, marks, sync };
+  return { check, seg, marks, hide, sync };
 }
 
 /**
- * The controls in the Display tray's Show group: all three on a Study View
- * chapter, and only "My bookmarks" in Read View, which shows no notes.
+ * The controls in the Display tray's Show group: all of them on a Study View
+ * chapter, and only "My bookmarks" and "Hide my notes" in Read View, which
+ * shows no notes. Also H in the tray's list of keys, and on a chapter a line
+ * under the Show group saying that a selection reaches the same actions as a
+ * verse number (audit C10: hiding the numbers mustn't hide the way in).
  */
 function injectIntoTray() {
   const vn = document.querySelector("#fontTray [data-vn-check]");
@@ -126,7 +180,7 @@ function injectIntoTray() {
   const study = Boolean(document.querySelector("#fontTray [data-terms-check]") && document.querySelector(".chapter-paragraphs"));
   const read = vn?.getAttribute("data-vn-view") === "read";
   if (!checks || !show || !(study || read)) return;
-  const { check, seg, marks } = noteControls({
+  const { check, seg, marks, hide } = noteControls({
     check: "font-tray__check",
     checkInput: "font-tray__check-input",
     checkLabel: "font-tray__check-label",
@@ -134,14 +188,30 @@ function injectIntoTray() {
     segOption: "font-tray__seg-option",
     segInput: "font-tray__seg-input",
     segText: "font-tray__seg-text",
+    from: "tray",
   });
   marks.dataset.desk = "";
+  hide.dataset.desk = "";
+  const keys = document.getElementById("fontTrayKeys");
+  if (keys) {
+    const li = document.createElement("li");
+    li.dataset.desk = "";
+    li.innerHTML = "<kbd>h</kbd> Hide or show my notes";
+    keys.append(li);
+  }
   if (read) {
-    checks.append(marks);
+    checks.append(marks, hide);
     return;
   }
   check.dataset.desk = "";
-  checks.append(check, marks);
+  checks.append(check, marks, hide);
+  const hint = document.createElement("p");
+  hint.className = "font-tray__hint";
+  hint.id = "deskVerseNumbersHint";
+  hint.dataset.desk = "";
+  hint.textContent = "With verse numbers off, select any words for the same actions.";
+  checks.after(hint);
+  vn.setAttribute("aria-describedby", hint.id);
   const row = document.createElement("fieldset");
   row.className = "font-tray__row";
   row.dataset.desk = "";
@@ -154,10 +224,10 @@ function injectIntoTray() {
 
 /**
  * The same controls for the Notebook panel's foot; with `notes: false`
- * (Read View), only "My bookmarks".
+ * (Read View), only "My bookmarks" and "Hide my notes".
  */
 export function panelNoteControls({ notes = true } = {}) {
-  const { check, seg, marks } = noteControls({
+  const { check, seg, marks, hide } = noteControls({
     check: "desk-setting",
     checkInput: "desk-setting__input",
     checkLabel: "desk-setting__label",
@@ -165,10 +235,11 @@ export function panelNoteControls({ notes = true } = {}) {
     segOption: "desk-seg__option",
     segInput: "desk-seg__input",
     segText: "desk-seg__text",
+    from: "panel",
   });
   const wrap = document.createElement("div");
   wrap.className = "desk-panel__settings";
-  if (notes) wrap.append(check, seg, marks);
-  else wrap.append(marks);
+  if (notes) wrap.append(check, seg, marks, hide);
+  else wrap.append(marks, hide);
   return wrap;
 }

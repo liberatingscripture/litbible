@@ -220,6 +220,11 @@
   padding: 4px 12px 12px;
 }
 
+/* Each tab has its own body; only the showing tab's is displayed. */
+.desk-panel__body[hidden] {
+  display: none;
+}
+
 .desk-list {
   margin: 0;
   padding: 0;
@@ -301,6 +306,11 @@ a.desk-item__ref:hover {
 
 .desk-panel__foot p {
   margin: 0;
+}
+
+/* The foot belongs to the My Notes tab alone. */
+.desk-panel__foot[hidden] {
+  display: none;
 }
 
 /* ── The undo bar ──────────────────────────────────────────────── */
@@ -518,6 +528,237 @@ html[data-desk-list="full"] .desk-item__note .desk-item__words {
 .desk-seg__input:focus-visible + .desk-seg__text {
   outline: 2px solid var(--focus-ring);
   outline-offset: -2px;
+}
+
+/* ── The My Notes tab's scope choice ─────────────────────────── */
+
+/* The small choice at the top of the list, between this chapter's records
+   ("Romans 8") and everything kept. It is a .desk-seg, so only its place and
+   size are set here. */
+.desk-mine__scope {
+  margin: 10px 4px 2px;
+  font-size: 0.8125rem;
+}
+
+/* ── The This verse tab ──────────────────────────────────────── */
+
+/* One verse: its words, the translation's footnotes on it, and the reader's
+   own notes and bookmark. Built by src/scripts/desk/tab-verse.js, which
+   copies the footnotes off the page's own list. */
+.desk-verse__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 0 6px;
+}
+
+/* Previous and next verse: round, quiet buttons either side of the heading.
+   aria-disabled, not disabled, so one pressed at the chapter's edge keeps
+   focus; it just looks spent. */
+.desk-verse__step {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid rgba(var(--ink-rgb), 0.2);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.desk-verse__step:hover {
+  background: rgba(var(--ink-rgb), 0.07);
+}
+
+.desk-verse__step[aria-disabled="true"] {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.desk-verse__step[aria-disabled="true"]:hover {
+  background: transparent;
+}
+
+.desk-verse__step:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+/* The heading takes focus from script (tabindex -1) when the tab opens, so a
+   screen reader hears the verse; only a keyboard user sees a ring. */
+.desk-verse__ref {
+  flex: 1;
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.desk-verse__ref:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* The verse, a little larger than the panel's own text. */
+.desk-verse__text {
+  margin: 4px 4px 12px;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.desk-verse__section {
+  padding: 10px 4px 4px;
+  border-top: 1px solid rgba(var(--ink-rgb), 0.12);
+}
+
+.desk-verse__subhead {
+  margin: 0 0 6px;
+  /* The panel's own face, not the site's display serif for headings. */
+  font-family: inherit;
+  color: rgba(var(--ink-rgb), 0.7);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+/* Footnotes: the letter beside its note, as on the page. */
+.desk-verse__fn-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.desk-verse__fn {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.desk-verse__fn-label {
+  color: var(--green-text);
+  font-style: italic;
+  font-weight: 600;
+}
+
+.desk-verse__fn-body {
+  min-width: 0;
+}
+
+.desk-verse__fn-body a {
+  color: var(--green-text);
+}
+
+/* A note can hold block elements, copied from the page's list. */
+.desk-verse__fn-body p,
+.desk-verse__fn-body div {
+  margin: 0 0 4px;
+}
+
+/* The reader's own notes and bookmark on the verse. */
+.desk-verse__mine {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.desk-verse__item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: start;
+  padding: 6px 0;
+}
+
+/* A bookmark has no button beside it: its glyph and word sit together. */
+.desk-verse__item:has(> .desk-verse__glyph) {
+  display: flex;
+  gap: 8px;
+}
+
+/* The note is a button when it can go to its place in the margin, a plain
+   span when it can't. */
+.desk-verse__note {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+}
+
+button.desk-verse__note {
+  cursor: pointer;
+}
+
+button.desk-verse__note:hover .desk-verse__words {
+  text-decoration: underline;
+}
+
+.desk-verse__glyph {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  margin-top: 0.2em;
+}
+
+/* The bookmark's red, as in the margin (.desk-ribbon). */
+.desk-verse__glyph--bookmark path {
+  fill: #c62828;
+}
+
+.desk-verse__words {
+  min-width: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.desk-verse__empty {
+  margin: 4px 0 8px;
+  color: rgba(var(--ink-rgb), 0.7);
+  font-size: 0.875rem;
+}
+
+.desk-verse__add {
+  margin-top: 6px;
+  padding: 5px 10px;
+  border: 1px solid rgba(var(--ink-rgb), 0.25);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+
+.desk-verse__add:hover {
+  background: rgba(var(--ink-rgb), 0.07);
+}
+
+.desk-verse__add[hidden] {
+  display: none;
+}
+
+/* ── The Display tray's additions ────────────────────────────── */
+
+/* The one line under the Show group's boxes, muted
+   like the tray's list of keys. Added by note-settings.js; the tray's own
+   styles are in global.css. */
+.font-tray__hint {
+  margin: 6px 0 0;
+  color: rgba(var(--ink-rgb), 0.7);
+  font-size: 0.8125rem;
+  line-height: 1.4;
 }
 
 /* ── Notes in the margin ─────────────────────────────────────── */

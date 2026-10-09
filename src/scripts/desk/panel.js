@@ -19,29 +19,27 @@
 // Notebook buttons then expand it, Escape collapses it rather than closing
 // it, and its × still closes it.
 //
-// The list: what the notebook keeps, with Delete, and for a note its marker
-// glyph, its words at two lines (or in full, by the toggle at the list's
-// foot) and Edit. A note on this page's chapter takes the reader to its place
-// (BVJ, 2026-10-07: decision 7 under "the margin switch"). The foot also holds
-// the "My notes" and Handwriting / Plain switches, the same settings as the
-// Display tray's.
+// Tabs (BVJ, 2026-10-08; "Decisions", the Greek tab, items 1 and 12): "My
+// Notes" (tab-mine.js) everywhere, and on Study View chapters "This verse"
+// (tab-verse.js). Greek (phase 1f) and Versions (held until the API.bible
+// questions are settled) join the TABS table below. A surface with one tab
+// shows no tab row. The tab last chosen is remembered in
+// localStorage['lit-desk-tab'] and used wherever the page has it.
+//
+// The foot belongs to My Notes and shows only with it: the "My notes",
+// Handwriting / Plain, "My bookmarks" and "Hide my notes" switches (the same
+// settings as the Display tray's), the list's "in full" toggle, and where
+// the notebook is kept.
 
-import {
-  forChapter,
-  kindName,
-  liveRecords,
-  recordHref,
-  recordReadHref,
-  recordReference,
-} from "../../lib/desk-store-core.mjs";
 import { keepReadingPlace } from "../keep-reading-place.js";
 import { createRail } from "./margin.js";
-import { glyph } from "./glyphs.js";
-import { SETTINGS_EVENT, getSetting, panelNoteControls, setSetting } from "./note-settings.js";
+import { HIDE_EVENT, SETTINGS_EVENT, getSetting, panelNoteControls, setSetting } from "./note-settings.js";
 import { pageChapter } from "./page.js";
-import { showUndo } from "./undo-bar.js";
+import { createMineTab } from "./tab-mine.js";
+import { createVerseTab } from "./tab-verse.js";
 
 const OPEN_KEY = "lit-desk-panel";
+const TAB_KEY = "lit-desk-tab";
 
 const ICON_NOTEBOOK = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
   stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
@@ -52,11 +50,6 @@ const ICON_COLLAPSE = `<svg viewBox="0 0 24 24" width="18" height="18" fill="non
   stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
   <path d="M6 6l6 6-6 6M13 6l6 6-6 6" /></svg>`;
 
-// A note's caret in the list: down to show the rest, turned up while open.
-const ICON_CARET = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
-  stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-  <path d="M6 9l6 6 6-6" /></svg>`;
-
 const ICON_CLOSE = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
   stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6 6 18" /></svg>`;
 
@@ -65,17 +58,23 @@ const ICON_CLOSE = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" 
  *
  * @param {{ store: object | null, storeError: unknown,
  *   onEdit?: (record: object, trigger: Element) => void,
+ *   onAddNote?: (draft: object, trigger: Element) => void,
  *   goHere?: { can(record: object): boolean, go(record: object): void } }} options
  *   `store` is null when this browser can't keep a notebook. `onEdit` opens
- *   a note in the editor; `goHere` takes the reader to a record on this page
+ *   a note in the editor, and `onAddNote` a new one; `goHere` takes the reader to a record on this page
  *   without leaving it, where it can (`can`). Elsewhere a record's links go to
  *   its verse in the view the reader is in: Read View from Read View (BVJ,
  *   2026-10-08), Study View from anywhere else.
+ * @returns {{ open: (from?: Element) => void, close: () => void,
+ *   showVerse: ((verse: number) => void) | null }}
+ *   `showVerse` opens the panel on "This verse" at a verse; null where the
+ *   page has no such tab.
  */
-export function createPanel({ store, storeError, onEdit = null, goHere = null }) {
+export function createPanel({ store, storeError, onEdit = null, onAddNote = null, goHere = null }) {
   const root = document.documentElement;
   const here = pageChapter();
   const toggles = Array.from(document.querySelectorAll("[data-desk-toggle]"));
+  const inReadView = Boolean(document.querySelector("[data-rm-root]"));
 
   const panel = document.createElement("aside");
   panel.id = "deskPanel";
@@ -87,10 +86,46 @@ export function createPanel({ store, storeError, onEdit = null, goHere = null })
   try { startOpen = localStorage.getItem(OPEN_KEY) === "open"; } catch (_) {}
   panel.hidden = !startOpen;
 
-  const tabs = [
-    ...(here ? [{ id: "chapter", label: here.label }] : []),
-    { id: "everything", label: "Everything" },
+  const visible = () => !panel.hidden;
+
+  // The tabs this page has, in order. Each tab module returns its element
+  // and a render(); a tab is drawn only while it is the one showing.
+  const TABS = [
+    {
+      id: "mine",
+      label: "My Notes",
+      make: () =>
+        createMineTab({
+          store,
+          storeError,
+          here,
+          inReadView,
+          visible: () => visible() && activeTab === "mine",
+          afterRender: renderPersistence,
+          onEdit,
+          goHere,
+        }),
+    },
+    ...(here
+      ? [
+          {
+            id: "verse",
+            label: "This verse",
+            make: () =>
+              createVerseTab({
+                store,
+                here,
+                visible: () => visible() && activeTab === "verse",
+                panelOpen: visible,
+                onEdit,
+                onAddNote,
+                goHere,
+              }),
+          },
+        ]
+      : []),
   ];
+  const withRow = TABS.length > 1;
 
   panel.innerHTML = `
     <div class="desk-panel__head">
@@ -99,17 +134,11 @@ export function createPanel({ store, storeError, onEdit = null, goHere = null })
       <button type="button" class="desk-panel__collapse" aria-label="Collapse the notebook">${ICON_COLLAPSE}</button>
       <button type="button" class="desk-panel__close" aria-label="Close the notebook">${ICON_CLOSE}</button>
     </div>
-    ${tabs.length > 1 ? `<div class="desk-panel__tabs" role="tablist" aria-label="Notebook">${tabs
-      .map(
-        (t, i) =>
-          `<button type="button" role="tab" id="deskTab-${t.id}" data-tab="${t.id}" aria-controls="deskTabpanel"
-             aria-selected="${i === 0}" tabindex="${i === 0 ? 0 : -1}">${escapeHtml(t.label)}</button>`,
-      )
-      .join("")}</div>` : ""}
-    <div class="desk-panel__body" id="deskTabpanel" ${tabs.length > 1 ? `role="tabpanel" aria-labelledby="deskTab-${tabs[0].id}"` : ""} tabindex="-1">
-      <ul class="desk-list"></ul>
-      <p class="desk-panel__empty" hidden></p>
-    </div>
+    ${withRow ? `<div class="desk-panel__tabs" role="tablist" aria-label="Notebook">${TABS.map(
+      (t) =>
+        `<button type="button" role="tab" id="deskTab-${t.id}" data-tab="${t.id}" aria-controls="deskTabpanel-${t.id}"
+           aria-selected="false" tabindex="-1">${escapeHtml(t.label)}</button>`,
+    ).join("")}</div>` : ""}
     <div class="desk-panel__foot">
       <div class="desk-panel__settings-slot"></div>
       <label class="desk-setting">
@@ -119,6 +148,35 @@ export function createPanel({ store, storeError, onEdit = null, goHere = null })
       <p class="desk-panel__kept">Kept in this browser.</p>
       <p class="desk-panel__persist" hidden></p>
     </div>`;
+
+  // One body per tab, each its own tabpanel, so a tab keeps its place (the
+  // verse This verse shows, how far the list is scrolled) while another is
+  // showing.
+  const foot = panel.querySelector(".desk-panel__foot");
+  const tabs = new Map();
+  for (const t of TABS) {
+    const body = document.createElement("div");
+    body.className = "desk-panel__body";
+    body.id = `deskTabpanel-${t.id}`;
+    body.tabIndex = -1;
+    if (withRow) {
+      body.setAttribute("role", "tabpanel");
+      body.setAttribute("aria-labelledby", `deskTab-${t.id}`);
+    }
+    foot.before(body);
+    tabs.set(t.id, { ...t, body, view: null });
+  }
+
+  let activeTab = TABS[0].id;
+  try {
+    const kept = localStorage.getItem(TAB_KEY);
+    if (kept && tabs.has(kept)) activeTab = kept;
+  } catch (_) {}
+  for (const t of tabs.values()) {
+    t.view = t.make();
+    t.body.append(t.view.el);
+  }
+
   // The collapsed notebook, at the window's edge. Its name is its visible
   // word; aria-expanded says the panel is folded away.
   const tab = document.createElement("button");
@@ -136,15 +194,9 @@ export function createPanel({ store, storeError, onEdit = null, goHere = null })
     if (state.collapsed && panel.contains(document.activeElement)) tab.focus({ preventScroll: true });
   });
 
-  const list = panel.querySelector(".desk-list");
-  const empty = panel.querySelector(".desk-panel__empty");
-  const body = panel.querySelector(".desk-panel__body");
   const persistLine = panel.querySelector(".desk-panel__persist");
   const tabButtons = Array.from(panel.querySelectorAll('[role="tab"]'));
-  let activeTab = tabs[0].id;
   let lastToggle = null;
-  const openNotes = new Set(); // notes clicked open in the list, for this visit
-  const inReadView = Boolean(document.querySelector("[data-rm-root]"));
 
   /* ── Opening and closing ─────────────────────────────────────────── */
 
@@ -158,7 +210,7 @@ export function createPanel({ store, storeError, onEdit = null, goHere = null })
   // is open (global.css; BVJ, 2026-10-08), which reflows the text, so both
   // directions keep the line being read where it was. Elsewhere nothing
   // reflows and keepReadingPlace does nothing.
-  function open(from) {
+  function open(from, { focus = true } = {}) {
     lastToggle = from ?? lastToggle;
     keepReadingPlace(() => root.setAttribute("data-desk-panel", "open"));
     panel.hidden = false;
@@ -166,7 +218,7 @@ export function createPanel({ store, storeError, onEdit = null, goHere = null })
     try { localStorage.setItem(OPEN_KEY, "open"); } catch (_) {}
     syncToggles();
     render();
-    panel.focus({ preventScroll: true });
+    if (focus) panel.focus({ preventScroll: true });
   }
 
   function close() {
@@ -175,7 +227,9 @@ export function createPanel({ store, storeError, onEdit = null, goHere = null })
     rail.hide();
     try { localStorage.removeItem(OPEN_KEY); } catch (_) {}
     syncToggles();
-    // Back to the button that opened it, or the first one showing.
+    // Back to the button that opened it, or the first one showing, unless
+    // focus has already gone elsewhere (M1's shortcut closes it from the page).
+    if (!panel.contains(document.activeElement) && document.activeElement !== document.body) return;
     const back = [lastToggle, ...toggles].find((t) => t && t.offsetParent !== null);
     back?.focus({ preventScroll: true });
   }
@@ -227,7 +281,8 @@ export function createPanel({ store, storeError, onEdit = null, goHere = null })
 
   /* ── Tabs ───────────────────────────────────────────────────────── */
 
-  function selectTab(id, focus = false) {
+  function selectTab(id, { focus = false, remember = true } = {}) {
+    if (!tabs.has(id)) return;
     activeTab = id;
     for (const b of tabButtons) {
       const on = b.dataset.tab === id;
@@ -235,7 +290,11 @@ export function createPanel({ store, storeError, onEdit = null, goHere = null })
       b.tabIndex = on ? 0 : -1;
       if (on && focus) b.focus();
     }
-    body.setAttribute("aria-labelledby", `deskTab-${id}`);
+    for (const [tid, t] of tabs) t.body.hidden = tid !== id;
+    foot.hidden = id !== "mine";
+    if (remember) {
+      try { localStorage.setItem(TAB_KEY, id); } catch (_) {}
+    }
     render();
   }
 
@@ -247,164 +306,14 @@ export function createPanel({ store, storeError, onEdit = null, goHere = null })
       if (to === undefined) return;
       e.preventDefault();
       const next = tabButtons[(to + tabButtons.length) % tabButtons.length];
-      selectTab(next.dataset.tab, true);
+      selectTab(next.dataset.tab, { focus: true });
     });
   }
 
-  /* ── The list ───────────────────────────────────────────────────── */
-
-  let renderSeq = 0;
-  async function render({ focusIndex = null } = {}) {
-    if (panel.hidden && focusIndex === null) return;
-    const seq = ++renderSeq;
-    if (!store) {
-      list.replaceChildren();
-      empty.hidden = false;
-      empty.textContent =
-        "This browser isn't letting the site keep a notebook. Private windows sometimes don't.";
-      if (storeError) console.error("Study Desk: the notebook didn't open", storeError);
-      return;
-    }
-    const records =
-      activeTab === "chapter" && here
-        ? forChapter(await store.byChapter(here.bookKey, here.chapter), here.bookKey, here.chapter)
-        : liveRecords(await store.all());
-    if (seq !== renderSeq) return; // a newer render has started
-
-    list.replaceChildren(...records.map(rowFor));
-    empty.hidden = records.length > 0;
-    empty.textContent =
-      activeTab === "chapter" ? `Nothing kept for ${here.label} yet.` : "Nothing kept yet.";
-
-    markCut();
-
-    if (focusIndex !== null) {
-      const rows = list.querySelectorAll(".desk-item__delete");
-      const target = rows[Math.min(focusIndex, rows.length - 1)];
-      (target ?? body).focus({ preventScroll: false });
-    }
-    renderPersistence();
-  }
-
-  function rowFor(r) {
-    const li = document.createElement("li");
-    li.className = "desk-item";
-    li.dataset.id = r.id;
-    const ref = recordReference(r);
-    const href = inReadView ? recordReadHref(r) : recordHref(r);
-    const head = document.createElement(href ? "a" : "span");
-    head.className = "desk-item__ref";
-    head.textContent = ref || kindName(r.kind);
-    if (href) head.href = href;
-    // A record on this page (a note on this Study View chapter, a verse of
-    // the book Read View shows) is gone to in place, scrolled to and marked,
-    // rather than reloading. Otherwise it is an ordinary link.
-    const goTo = (e) => {
-      if (e.ctrlKey || e.metaKey || e.shiftKey || e.button !== 0) return;
-      e.preventDefault();
-      goHere.go(r);
-    };
-    const revealHere = Boolean(href && goHere?.can(r));
-    if (revealHere) head.addEventListener("click", goTo);
-    const kind = document.createElement("span");
-    kind.className = "desk-item__kind";
-    kind.textContent = kindName(r.kind);
-    li.append(head, kind);
-    if (r.kind === "note") {
-      // Led by its marker, at two lines unless hovered, focused, opened by
-      // its caret (kept open for this visit), or the list shows notes in
-      // full. The note itself goes to its place, as its reference does
-      // (BVJ, 2026-10-07).
-      const row = document.createElement("div");
-      row.className = "desk-item__note-row";
-      if (openNotes.has(r.id)) row.classList.add("desk-item__note-row--open");
-      const note = document.createElement(href ? "a" : "span");
-      note.className = "desk-item__note";
-      if (href) note.href = href;
-      if (revealHere) note.addEventListener("click", goTo);
-      note.innerHTML = glyph(r.marker, "desk-glyph desk-item__glyph");
-      const words = document.createElement("span");
-      words.className = "desk-item__words";
-      // A note's body is the reader's own words: always text, never HTML.
-      words.textContent = r.body || "(the marker only)";
-      note.append(words);
-      const more = document.createElement("button");
-      more.type = "button";
-      more.className = "desk-item__more";
-      more.hidden = true; // shown when the words are cut off (markCut)
-      more.innerHTML = ICON_CARET;
-      const syncMore = () => {
-        const open = openNotes.has(r.id);
-        more.setAttribute("aria-expanded", String(open));
-        more.setAttribute("aria-label", `${open ? "Show less of" : "Show all of"} the note${ref ? ` on ${ref}` : ""}`);
-      };
-      syncMore();
-      more.addEventListener("click", () => {
-        if (openNotes.has(r.id)) openNotes.delete(r.id);
-        else openNotes.add(r.id);
-        row.classList.toggle("desk-item__note-row--open", openNotes.has(r.id));
-        syncMore();
-      });
-      row.append(note, more);
-      li.append(row);
-      if (onEdit) {
-        const edit = document.createElement("button");
-        edit.type = "button";
-        edit.className = "desk-item__edit";
-        edit.textContent = "Edit";
-        edit.setAttribute("aria-label", `Edit note${ref ? ` on ${ref}` : ""}`);
-        edit.addEventListener("click", (e) => {
-          e.stopPropagation();
-          onEdit(r, edit);
-        });
-        li.append(edit);
-      }
-    } else {
-      const words = r.label ?? r.name ?? r.quote?.exact;
-      if (typeof words === "string" && words) {
-        const p = document.createElement("p");
-        p.className = "desk-item__words";
-        p.textContent = words;
-        li.append(p);
-      }
-    }
-    const del = document.createElement("button");
-    del.type = "button";
-    del.className = "desk-item__delete";
-    del.textContent = "Delete";
-    del.setAttribute("aria-label", `Delete ${kindName(r.kind).toLowerCase()}${ref ? ` on ${ref}` : ""}`);
-    del.addEventListener("click", () => remove(r, li));
-    li.append(del);
-    return li;
-  }
-
-  // A caret only where there is more to show: on notes whose words run past
-  // two lines, or that the reader has opened. None while the list shows
-  // notes in full.
-  function markCut() {
-    requestAnimationFrame(() => {
-      const full = getSetting("listFull") === "full";
-      for (const row of list.querySelectorAll(".desk-item__note-row")) {
-        const more = row.querySelector(".desk-item__more");
-        const words = row.querySelector(".desk-item__words");
-        const open = row.classList.contains("desk-item__note-row--open");
-        more.hidden = full || !(open || words.scrollHeight > words.clientHeight + 1);
-      }
-    });
-  }
-
-  async function remove(r, li) {
-    const index = Array.from(list.children).indexOf(li);
-    const trash = await store.remove(r.id);
-    if (!trash) return;
-    await render({ focusIndex: index });
-    const ref = recordReference(r);
-    showUndo(`${kindName(r.kind)}${ref ? ` on ${ref}` : ""} deleted.`, async () => {
-      const back = await store.undo(trash.id);
-      if (!back) throw new Error("nothing to bring back");
-      await render();
-      list.querySelector(`[data-id="${CSS.escape(back.id)}"] .desk-item__delete`)?.focus();
-    });
+  /** Draw the tab that is showing. */
+  function render() {
+    if (panel.hidden) return;
+    tabs.get(activeTab).view.render();
   }
 
   async function renderPersistence() {
@@ -421,9 +330,10 @@ export function createPanel({ store, storeError, onEdit = null, goHere = null })
 
   // The margin's switches only mean something where the margin is: all of
   // them on a Study View chapter, and "My bookmarks" alone in Read View.
+  // "Hide my notes" (M1) goes with either.
   const slot = panel.querySelector(".desk-panel__settings-slot");
   if (here) slot.replaceWith(panelNoteControls());
-  else if (document.querySelector("[data-rm-root]")) slot.replaceWith(panelNoteControls({ notes: false }));
+  else if (inReadView) slot.replaceWith(panelNoteControls({ notes: false }));
   else slot.remove();
   const fullBox = panel.querySelector(".desk-panel__full");
   const syncFull = () => {
@@ -431,9 +341,13 @@ export function createPanel({ store, storeError, onEdit = null, goHere = null })
   };
   syncFull();
   fullBox.addEventListener("change", () => setSetting("listFull", fullBox.checked ? "full" : "lines"));
-  document.addEventListener(SETTINGS_EVENT, () => {
-    syncFull();
-    markCut();
+  document.addEventListener(SETTINGS_EVENT, syncFull);
+
+  // M1 hides everything of the reader's at once, for sharing a screen, and
+  // the panel lists it all, so it closes too, unless the reader hid them from
+  // inside the panel itself.
+  document.addEventListener(HIDE_EVENT, (e) => {
+    if (e.detail?.hidden && !panel.hidden && e.detail.from !== "panel") close();
   });
 
   /* ── Keeping in step ────────────────────────────────────────────── */
@@ -449,9 +363,21 @@ export function createPanel({ store, storeError, onEdit = null, goHere = null })
     root.setAttribute("data-desk-panel", "open");
     rail.show();
   }
+  selectTab(activeTab, { remember: false });
   syncToggles();
-  render();
-  return { open, close };
+
+  /** Open the panel on "This verse" at `verse`, and put focus on its heading. */
+  function showVerse(verse) {
+    const verseTab = tabs.get("verse");
+    if (!verseTab) return;
+    if (panel.hidden) open(null, { focus: false });
+    else if (rail.state().collapsed) rail.expand();
+    verseTab.view.setVerse(verse);
+    selectTab("verse");
+    verseTab.view.focusHeading();
+  }
+
+  return { open, close, showVerse: tabs.has("verse") ? showVerse : null };
 }
 
 function escapeHtml(s) {
