@@ -34,6 +34,7 @@ import {
   recordReadHref,
   recordReference,
 } from "../../lib/desk-store-core.mjs";
+import { keepReadingPlace } from "../keep-reading-place.js";
 import { createRail } from "./margin.js";
 import { glyph } from "./glyphs.js";
 import { SETTINGS_EVENT, getSetting, panelNoteControls, setSetting } from "./note-settings.js";
@@ -153,9 +154,13 @@ export function createPanel({ store, storeError, onEdit = null, goHere = null })
     for (const t of toggles) t.setAttribute("aria-expanded", String(shown()));
   }
 
+  // On Study View chapters the column narrows from 52 to 48 while the panel
+  // is open (global.css; BVJ, 2026-10-08), which reflows the text, so both
+  // directions keep the line being read where it was. Elsewhere nothing
+  // reflows and keepReadingPlace does nothing.
   function open(from) {
     lastToggle = from ?? lastToggle;
-    root.setAttribute("data-desk-panel", "open");
+    keepReadingPlace(() => root.setAttribute("data-desk-panel", "open"));
     panel.hidden = false;
     rail.show({ expand: true });
     try { localStorage.setItem(OPEN_KEY, "open"); } catch (_) {}
@@ -165,7 +170,7 @@ export function createPanel({ store, storeError, onEdit = null, goHere = null })
   }
 
   function close() {
-    root.removeAttribute("data-desk-panel");
+    keepReadingPlace(() => root.removeAttribute("data-desk-panel"));
     panel.hidden = true;
     rail.hide();
     try { localStorage.removeItem(OPEN_KEY); } catch (_) {}

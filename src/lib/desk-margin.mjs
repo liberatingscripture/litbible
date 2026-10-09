@@ -35,8 +35,11 @@ export const EDGE = 16; // between the panel and the window's edge
 // The narrowest the panel gets; where the margin is narrower, the text
 // column moves instead. 220px was tried, which kept the text still down to
 // about 1157px windows but left the panel noticeably narrow; BVJ chose the
-// 280px panel with the column moving (2026-10-06). The text moves from about
-// 1205px windows down at the default size (58px at 1162px).
+// 280px panel with the column moving (2026-10-06). At the 52 measure the
+// text moved from about 1205px windows down at the default size (58px at
+// 1162px). Study View chapters narrow to 48 while the panel is open
+// (2026-10-08): there nothing moves at 1280px, where the panel gets 304px;
+// it gets 347px at 1366 and 384px at 1440.
 export const MIN_WIDTH = 280;
 export const MAX_WIDTH = 440;
 export const MIN_HEIGHT = 240;

@@ -4,7 +4,9 @@
 // margin beside the reading column and moves nothing when the margin is wide
 // enough; otherwise the column moves left only as far as the panel needs.
 // The widths below are real ones: Study View's column is 622px at the
-// default text size with the desk's 52 measure, 787px at Extra large.
+// default text size with the desk's 52 measure, 787px at Extra large. (At
+// 48, which Study View chapters take while the panel is open since
+// 2026-10-08, it is 577px; the rule doesn't care.)
 
 import { test } from "node:test";
 import assert from "node:assert/strict";

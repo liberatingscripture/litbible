@@ -72,9 +72,11 @@ test("without the flag, nothing is set", () => {
   assert.deepEqual(run({ stored: { "lit-desk-panel": "open" } }).attrs, {});
 });
 
-test("only data-desk is set before paint: the panel sits in the margin and reserves nothing", () => {
-  const on = run({ stored: { "lit-desk-preview": "on", "lit-desk-panel": "open" } });
-  assert.deepEqual(on.attrs, { "data-desk": "on" });
+test("a notebook left open is stamped before paint, since Study View chapters narrow to 48 with it", () => {
+  const open = run({ stored: { "lit-desk-preview": "on", "lit-desk-panel": "open" } });
+  assert.deepEqual(open.attrs, { "data-desk": "on", "data-desk-panel": "open" });
+  const closed = run({ stored: { "lit-desk-preview": "on" } });
+  assert.deepEqual(closed.attrs, { "data-desk": "on" });
   const phone = run({ ua: UA.iphone, touch: 5, stored: { "lit-desk-preview": "on", "lit-desk-panel": "open" } });
   assert.deepEqual(phone.attrs, {});
 });
