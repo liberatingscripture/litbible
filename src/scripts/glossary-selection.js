@@ -18,7 +18,7 @@
 //   - a selection is clamped to one entry's definition and snapped out to
 //     whole words, and ordinary Copy is left alone (decision 4 under
 //     "Sharing a selection" in CLAUDE.md).
-// The Study Desk adds its "Yours" row (Add a note) through the same
+// The Study Desk adds its "My Notebook" row (Add a note) through the same
 // `lit:panel-actions` event Study View's panels send.
 
 import { closePanel, currentPanel, showPanel } from "./lit-panel.js";
@@ -108,7 +108,7 @@ function openPanel(share, { touch }) {
     ),
   );
 
-  // The Study Desk's "Yours" row, when the desk is on (desk/prose-actions.js).
+  // The Study Desk's "My Notebook" row, when the desk is on (desk/prose-actions.js).
   document.dispatchEvent(
     new CustomEvent("lit:panel-actions", {
       detail: {

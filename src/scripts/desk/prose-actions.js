@@ -1,12 +1,12 @@
 // src/scripts/desk/prose-actions.js
 //
-// "Yours" on a glossary entry or an article (STUDY-DESK.md N11, provisional,
+// "My Notebook" on a glossary entry or an article (STUDY-DESK.md N11, provisional,
 // 2026-10-08): the ways to start a note on their own text, which the
 // scripture's menus (actions.js) don't reach.
 //   - Selecting words inside an article's text opens a small panel beside
 //     the selection with "Add a note", which quotes them. (On the glossary
 //     the selection panel is every reader's, glossary-selection.js, and the
-//     desk adds the same "Yours" row to it.) It
+//     desk adds the same "My Notebook" row to it.) It
 //     follows the selection panel's ways (chapter-tools.js): it opens once
 //     the selection settles, so the click that ends a mouse selection can't
 //     close it; it never takes focus; pressing its button doesn't clear the
@@ -51,7 +51,7 @@ export function initProseActions({ store, addNote }) {
       const range = d.range.cloneRange();
       const heading = document.createElement("p");
       heading.className = "lit-panel__subheading";
-      heading.textContent = "Yours";
+      heading.textContent = "My Notebook";
       const add = document.createElement("button");
       add.type = "button";
       add.className = "lit-panel__btn";
@@ -120,7 +120,7 @@ export function initProseActions({ store, addNote }) {
     panel.classList.add("lit-panel--menu", "desk-prose-pick");
     const heading = document.createElement("p");
     heading.className = "lit-panel__subheading";
-    heading.textContent = "Yours";
+    heading.textContent = "My Notebook";
     const add = document.createElement("button");
     add.type = "button";
     add.className = "lit-panel__btn";

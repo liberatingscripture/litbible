@@ -657,7 +657,7 @@ link** (`src/scripts/glossary-selection.js`). It is Study View's selection
 panel in miniature, built from `panel-pieces.js` with the same settling,
 placement, word snapping and never-take-focus rules, clamped to one entry's
 definition. It sends `lit:panel-actions` (`view: "glossary"`), so the Study
-Desk adds its "Yours" row to it as it does in scripture. The entry's link
+Desk adds its "My Notebook" row to it as it does in scripture. The entry's link
 icon carries hover text ("Copy link to this entry"), since a chain alone
 didn't say what it does.
 
@@ -2129,7 +2129,7 @@ collection); they're read directly by the intro pages and the API manifest.
      `chapter-tools.js` dispatches `lit:panel-actions` from the verse menu
      and the selection panel before placing them, with the panel, its verses
      and (for a selection) the selected `range`. Only
-     `src/scripts/desk/actions.js` listens, adding "Yours" (Add a note,
+     `src/scripts/desk/actions.js` listens, adding "My Notebook" (Add a note,
      Bookmark and "Show in notebook"; Bookmark only in Read View), so a
      reader's menus are unchanged. The Notebook's "This verse" tab
      (`desk/tab-verse.js`) listens too: a verse menu opened while the
@@ -2163,7 +2163,7 @@ collection); they're read directly by the intro pages and the API manifest.
      beside and how each is found (a chapter's verses, or an entry's or
      article's own text through `src/lib/desk-prose-anchor.mjs`), and
      `desk/prose-actions.js` offers "Add a note" on a selection there (on
-     the glossary, as the "Yours" row of every reader's selection panel,
+     the glossary, as the "My Notebook" row of every reader's selection panel,
      with "Note on this entry" for the whole entry).
   9. **The Notebook panel has tabs, one module each**: "My Notes"
      (`desk/tab-mine.js`) everywhere, and "This verse" (`desk/tab-verse.js`)

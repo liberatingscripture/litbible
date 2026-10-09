@@ -538,7 +538,7 @@ function shareButton(ref, url, getText) {
 }
 
 /**
- * Let the Study Desk add its own actions ("Yours": Add a note, Bookmark) to
+ * Let the Study Desk add its own actions ("My Notebook": Add a note, Bookmark) to
  * a panel before it is measured and placed (STUDY-DESK.md, placement 1). Only
  * src/scripts/desk/actions.js listens, and only with the desk switched on, so
  * a reader's panels are unchanged. `append` adds to the panel's end.
