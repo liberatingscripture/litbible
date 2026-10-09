@@ -8,11 +8,11 @@
 // "the margin switch").
 //
 // On a Study View chapter the tab starts on that chapter's records, and a
-// small choice at its top switches to everything kept; elsewhere it lists
-// everything.
+// small choice at its top switches to everything kept; on an article or the
+// glossary it starts on the notes on this page (N11); elsewhere it lists
+// everything. An article also offers a note on the whole article here.
 
 import {
-  forChapter,
   kindName,
   liveRecords,
   recordHref,
@@ -29,7 +29,9 @@ const ICON_CARET = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" 
   <path d="M6 9l6 6 6-6" /></svg>`;
 
 /**
- * @param {{ store: object | null, storeError: unknown, here: object | null,
+ * @param {{ store: object | null, storeError: unknown,
+ *   scope: { label: string, empty: string, load: (store: object) => Promise<object[]> } | null,
+ *   addAction?: { label: string, run: (trigger: Element) => void } | null,
  *   inReadView: boolean, visible: () => boolean, afterRender?: () => void,
  *   onEdit?: (record: object, trigger: Element) => void,
  *   goHere?: { can(record: object): boolean, go(record: object): void } | null }} options
@@ -37,11 +39,11 @@ const ICON_CARET = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" 
  *   `afterRender` lets the panel bring its foot up to date.
  * @returns {{ el: HTMLElement, render: (opts?: { focusIndex?: number | null }) => Promise<void> }}
  */
-export function createMineTab({ store, storeError, here, inReadView, visible, afterRender = () => {}, onEdit = null, goHere = null }) {
+export function createMineTab({ store, storeError, scope: pageScope = null, addAction = null, inReadView, visible, afterRender = () => {}, onEdit = null, goHere = null }) {
   const el = document.createElement("div");
   el.className = "desk-mine";
   el.innerHTML = `
-    ${here ? `<div class="desk-seg desk-mine__scope" role="radiogroup" aria-label="Which of my notes">
+    ${pageScope ? `<div class="desk-seg desk-mine__scope" role="radiogroup" aria-label="Which of my notes">
       <label class="desk-seg__option">
         <input type="radio" class="desk-seg__input" name="desk-mine-scope" value="chapter" checked />
         <span class="desk-seg__text"></span>
@@ -51,14 +53,20 @@ export function createMineTab({ store, storeError, here, inReadView, visible, af
         <span class="desk-seg__text">Everything</span>
       </label>
     </div>` : ""}
+    ${addAction && store ? `<button type="button" class="desk-mine__add"></button>` : ""}
     <ul class="desk-list"></ul>
     <p class="desk-panel__empty" hidden></p>`;
-  if (here) el.querySelector(".desk-seg__text").textContent = here.label;
+  if (pageScope) el.querySelector(".desk-seg__text").textContent = pageScope.label;
+  const addButton = el.querySelector(".desk-mine__add");
+  if (addButton) {
+    addButton.textContent = addAction.label;
+    addButton.addEventListener("click", () => addAction.run(addButton));
+  }
 
   const list = el.querySelector(".desk-list");
   const empty = el.querySelector(".desk-panel__empty");
   const openNotes = new Set(); // notes clicked open in the list, for this visit
-  let scope = here ? "chapter" : "everything";
+  let scope = pageScope ? "chapter" : "everything";
   for (const radio of el.querySelectorAll(".desk-mine__scope input")) {
     radio.addEventListener("change", () => {
       if (!radio.checked) return;
@@ -80,14 +88,12 @@ export function createMineTab({ store, storeError, here, inReadView, visible, af
       return;
     }
     const records =
-      scope === "chapter" && here
-        ? forChapter(await store.byChapter(here.bookKey, here.chapter), here.bookKey, here.chapter)
-        : liveRecords(await store.all());
+      scope === "chapter" && pageScope ? await pageScope.load(store) : liveRecords(await store.all());
     if (seq !== renderSeq) return; // a newer render has started
 
     list.replaceChildren(...records.map(rowFor));
     empty.hidden = records.length > 0;
-    empty.textContent = scope === "chapter" ? `Nothing kept for ${here.label} yet.` : "Nothing kept yet.";
+    empty.textContent = scope === "chapter" ? pageScope.empty : "Nothing kept yet.";
 
     markCut();
 
@@ -104,7 +110,7 @@ export function createMineTab({ store, storeError, here, inReadView, visible, af
     li.className = "desk-item";
     li.dataset.id = r.id;
     const ref = recordReference(r);
-    const href = inReadView ? recordReadHref(r) : recordHref(r);
+    const href = inReadView ? recordReadHref(r) ?? recordHref(r) : recordHref(r);
     const head = document.createElement(href ? "a" : "span");
     head.className = "desk-item__ref";
     head.textContent = ref || kindName(r.kind);

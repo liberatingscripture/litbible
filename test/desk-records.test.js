@@ -13,6 +13,7 @@ import {
   COLORS,
   KINDS,
   MARKERS,
+  PROSE_TARGETS,
   SCHEMA_VERSION,
   TRASH_DAYS,
   canEdit,
@@ -23,6 +24,7 @@ import {
   mayRewriteAnchor,
   migrateRecord,
   placeRecord,
+  proseTarget,
   quoteFields,
   restoreFromTrash,
   trashRecord,
@@ -222,4 +224,83 @@ test("emptyTrashRecord keeps only the tombstone, and only after 30 days", () => 
   assert.equal(restoreFromTrash(empty, ctx), null, "nothing left to bring back");
   const h = highlight();
   assert.equal(emptyTrashRecord(h, "2030-01-01T00:00:00.000Z"), h, "only trash records are emptied");
+});
+
+/* ── Notes on a glossary entry or an article (N11, provisional) ────────── */
+
+function proseNote(target, extra = {}) {
+  return createRecord("note", { ...target, body: "Worth coming back to.", marker: "note", ...extra }, ctx);
+}
+
+test("PROSE_TARGETS are a glossary entry and an article", () => {
+  assert.deepEqual([...PROSE_TARGETS], ["glossaryEntry", "article"]);
+  assert.ok(Object.isFrozen(PROSE_TARGETS));
+});
+
+test("proseTarget names a note's entry or article, and is null for anything else", () => {
+  assert.deepEqual(proseTarget({ glossaryEntry: "flesh-body" }), { type: "glossaryEntry", id: "flesh-body" });
+  assert.deepEqual(proseTarget({ article: "many-and-all" }), { type: "article", id: "many-and-all" });
+  assert.equal(proseTarget({ bookKey: "romans", chapter: 8, verse: 3 }), null);
+  assert.equal(proseTarget({ glossaryEntry: "" }), null);
+  assert.equal(proseTarget({ article: 7 }), null);
+  assert.equal(proseTarget({ glossaryId: "flesh-body" }), null, "N2's term id is a different target");
+  assert.equal(proseTarget(null), null);
+  assert.equal(proseTarget(undefined), null);
+});
+
+test("a note on a glossary entry or an article needs no book, chapter or verse", () => {
+  const entry = proseNote({ glossaryEntry: "flesh-body", targetTitle: "Flesh" });
+  const article = proseNote({ article: "many-and-all", targetTitle: "Many and All" });
+  for (const n of [entry, article]) {
+    assert.deepEqual(validateRecord(n), []);
+    assert.equal(n.bookKey, undefined);
+    assert.equal(n.verse, undefined);
+  }
+});
+
+test("a note on prose may quote the words it hangs on", () => {
+  const quote = { exact: "turned inward", prefix: "name the self ", suffix: ", and not the body" };
+  assert.deepEqual(validateRecord(proseNote({ glossaryEntry: "flesh-body", quote })), []);
+  assert.deepEqual(validateRecord(proseNote({ article: "many-and-all", quote })), []);
+  const empty = validateRecord(proseNote({ article: "many-and-all", quote: { ...quote, exact: "" } }));
+  assert.ok(empty.some((p) => p.startsWith("quote.exact")), empty.join("; "));
+});
+
+test("a note with two targets is refused", () => {
+  const both = proseNote({ glossaryEntry: "flesh-body", article: "many-and-all" });
+  assert.deepEqual(validateRecord(both), ["a note has one target"]);
+});
+
+test("a note whose target is empty or not text is refused", () => {
+  assert.deepEqual(validateRecord(proseNote({ glossaryEntry: "" })), ["the note's target is empty"]);
+  assert.deepEqual(validateRecord(proseNote({ article: "" })), ["the note's target is empty"]);
+  assert.deepEqual(validateRecord(proseNote({ article: 42 })), ["the note's target is empty"]);
+});
+
+test("a note with no target and no verse is still refused for the verse it lacks", () => {
+  const problems = validateRecord(proseNote({}));
+  assert.ok(problems.some((p) => p.startsWith("bookKey")), problems.join("; "));
+  const nulled = validateRecord(proseNote({ article: null, glossaryEntry: null }));
+  assert.ok(nulled.some((p) => p.startsWith("bookKey")), nulled.join("; "));
+});
+
+test("only a note may sit on prose: any other kind still needs its verses", () => {
+  const problems = validateRecord(createRecord("bookmark", { glossaryEntry: "flesh-body" }, ctx));
+  assert.ok(problems.some((p) => p.startsWith("bookKey")), problems.join("; "));
+});
+
+test("a note on prose still keeps the note rules for its body and marker", () => {
+  const problems = validateRecord(proseNote({ article: "many-and-all" }, { marker: "star", body: 5 }));
+  assert.ok(problems.some((p) => p.startsWith('marker "star"')), problems.join("; "));
+  assert.ok(problems.some((p) => p.startsWith("body")), problems.join("; "));
+});
+
+test("editing a note on prose keeps its target, its title and its quote", () => {
+  const quote = { exact: "turned inward", prefix: "name the self ", suffix: ", and not the body" };
+  const n = proseNote({ glossaryEntry: "flesh-body", targetTitle: "Flesh", quote });
+  const e = editRecord(n, { body: "Changed my mind." }, { now: "2026-10-09T08:00:00.000Z" });
+  assert.equal(e.glossaryEntry, "flesh-body");
+  assert.equal(e.targetTitle, "Flesh");
+  assert.deepEqual(e.quote, quote);
+  assert.deepEqual(validateRecord(e), []);
 });

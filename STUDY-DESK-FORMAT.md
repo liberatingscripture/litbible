@@ -90,7 +90,15 @@ generated from `src/data/books.js` (A-F9). It's never stored.
    Instead of verses, a note's target may be:
    - a **footnote**, given by its verse and the footnote's quoted words, never
      its letter (M11);
-   - a **glossary term**, given by `glossaryId` with no verse (N2).
+   - a **glossary term**, given by `glossaryId` with no verse (N2);
+   - **provisionally** (N11; the website's proposal for draft 2, built on its
+     preview 2026-10-08): a **glossary entry's own text**, given by
+     `glossaryEntry` (the entry's id), or an **article's**, given by
+     `article` (its slug, which `src/data/article-slugs.json` keeps from
+     changing silently). Either may carry a `quote` of the entry's or
+     article's words (see "Anchor text for prose" below) and `targetTitle`,
+     a copy of its title for lists. Website only unless BDR changes the
+     apps, which carry such a note untouched (principle 6).
 3. **`hidden`** (N8): a verse range the reader has hidden until they choose
    to show it, with an optional note to self. While the record exists, every
    client keeps those verses hidden everywhere they appear, screen readers
@@ -191,6 +199,18 @@ on screen and in Copy text; only anchoring flattens them.
 
 Not covered: draft chapters (`indexed: false`). Their placeholder text
 isn't scripture, so a mark is never anchored there.
+
+### Anchor text for prose (provisional)
+
+A glossary entry or an article has no verses (N11). The website's proposal,
+for BVJ to confirm: **the body is read as one verse** by steps 3 to 7 above,
+from the rendered entry or article body, so a quote, its context and the
+search below work unchanged. Text that isn't the body's own is dropped the
+way verse numbers are: screen-reader-only text, footnote references, and
+controls a page adds. Finding it again: `found` anywhere in the body (there
+is no `moved`), then `changed` by the same context rule, and otherwise the
+note goes on the whole entry or article, flagged. The reference is
+`src/lib/desk-prose-anchor.mjs`.
 
 ### Finding a mark again
 
@@ -293,13 +313,13 @@ and accounts would live under `/sheets/`, `/notebook/`, `/account/`.
   in `src/lib/desk-records.mjs`. Only its preview writes them, and nothing
   leaves the browser, so a different answer means a migration there.
 - **Notes on glossary entries and articles** (STUDY-DESK.md, N11; BVJ,
-  2026-10-06). The website will let a reader attach a note to a glossary
-  entry or an article, as a whole or at quoted words, so `note` needs two
-  more targets: a glossary entry by its id (already a stable key), and an
-  article by its slug (which needs a rule against renaming). Quoting text
-  that has no verses needs an anchor-text rule of its own. **Website only**
-  unless BDR changes the apps. Until then the apps carry these records
-  untouched (principle 6), as they would any target they don't know.
+  2026-10-06). **Built provisionally on the website's preview
+  (2026-10-08)**: the two targets under kind 2, the rule against renaming
+  an article silently (`src/data/article-slugs.json`), and "Anchor text for
+  prose". All three are the website's proposals for draft 2, for BVJ to
+  confirm. **Website only** unless BDR changes the apps. Until then the apps
+  carry these records untouched (principle 6), as they would any target
+  they don't know.
 - Whether reading places sync (kind 5).
 - The sheet's inner shape.
 - Each store's exact mapping, once plan A or C is chosen.

@@ -96,8 +96,39 @@ export function forChapter(records, bookKey, chapter) {
   return liveRecords(records.filter((r) => r?.bookKey === bookKey && r.chapter === chapter));
 }
 
-/** "Romans 8:3", "Romans 8:3–5", or "" for a record not on the text. */
+/**
+ * An article's slug today: `slug` followed through `renamed` (old slug to
+ * new, src/data/article-slugs.json) to its end, since an article may be
+ * renamed more than once. A loop stops where it would repeat.
+ */
+export function currentSlug(slug, renamed = {}) {
+  const seen = new Set([slug]);
+  let at = slug;
+  while (Object.hasOwn(renamed, at) && !seen.has(renamed[at])) {
+    at = renamed[at];
+    seen.add(at);
+  }
+  return at;
+}
+
+/**
+ * The reader's notes on one glossary entry or article (N11, provisional): `type`
+ * is "glossaryEntry" or "article"; an `id` of null takes every entry or
+ * article of that type. `renamed` maps an article's old slug to its new one
+ * (src/data/article-slugs.json), so a note follows a renamed article.
+ */
+export function forProse(records, type, id = null, renamed = {}) {
+  const current = (v) => (type === "article" ? currentSlug(v, renamed) : v);
+  return liveRecords(records.filter((r) => r?.kind === "note" && typeof r[type] === "string" && (id == null || current(r[type]) === id)));
+}
+
+/**
+ * "Romans 8:3", "Romans 8:3–5", "Glossary: Flesh" or an article's title for a
+ * note on one (N11), or "" for a record on neither.
+ */
 export function recordReference(r) {
+  if (typeof r?.glossaryEntry === "string") return `Glossary: ${r.targetTitle || r.glossaryEntry}`;
+  if (typeof r?.article === "string") return r.targetTitle || r.article;
   if (!r?.bookKey || !r.chapter) return "";
   const base = `${bookKeyToLabel(r.bookKey)} ${r.chapter}`;
   if (!r.verse) return base;
@@ -109,6 +140,8 @@ export function recordReference(r) {
  * (`/romans-8/#v3`, `#v3-5` for a range), or null for one that isn't.
  */
 export function recordHref(r) {
+  if (typeof r?.glossaryEntry === "string") return `/glossary/#${r.glossaryEntry}`;
+  if (typeof r?.article === "string") return `/articles/${r.article}/`;
   if (!r?.bookKey || !r.chapter) return null;
   const path = `/${r.bookKey}-${r.chapter}/`;
   if (!r.verse) return path;

@@ -1485,7 +1485,12 @@ shell) and `src/scripts/term-lens.js`. Five rules:
 Five collections, all loaded via Astro's `glob` loader. Two are site-wide:
 
 - **`articles`** — `src/content/articles/*.md`. Schema: `title`, `date`,
-  optional `author`/`description`/`heroImage`/`featured`, `tags[]`.
+  optional `author`/`description`/`heroImage`/`featured`, `tags[]`. **An
+  article's file name is its slug, and a reader's note names the article by
+  it** (the Study Desk, N11), so `src/data/article-slugs.json` lists every
+  slug and `test/article-slugs.test.js` fails when one disappears. To rename
+  an article, add the old slug under `renamed` pointing at the new one, and
+  add the new slug to `slugs`; a new article goes in `slugs` too.
 - **`glossary`** — `src/content/glossary/*.md`. Schema pairs a `traditional`
   term with the LIT rendering (`greek`, `lit`, `litMenu`, `srOnly`, optional
   `note`/`menuTraditional`/`draft`). Files are named `<traditional>-<lit>.md`
@@ -2132,7 +2137,13 @@ collection); they're read directly by the intro pages and the API manifest.
      counts the reader's notes on it ("Verse 18, 1 note of mine";
      `desk/verse-labels.js`), the one place a screen reader meets them in
      reading order, since an attribute adds nothing to the scripture.
-  8. **The Notebook panel has tabs, one module each**: "My Notes"
+  8. **Notes on a glossary entry or an article** (N11, provisional) use
+     the same margin: `desk/note-sources.js` says what a page's notes sit
+     beside and how each is found (a chapter's verses, or an entry's or
+     article's own text through `src/lib/desk-prose-anchor.mjs`), and
+     `desk/prose-actions.js` offers "Add a note" on a selection there and
+     beside each glossary entry's link.
+  9. **The Notebook panel has tabs, one module each**: "My Notes"
      (`desk/tab-mine.js`) everywhere, and "This verse" (`desk/tab-verse.js`)
      on Study View chapters, from the `TABS` table in `desk/panel.js`, where
      Versions and the Greek tab will join. A page with one tab shows no tab

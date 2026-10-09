@@ -1329,3 +1329,44 @@ html:has(.desk-gutter--dragging) {
   align-self: flex-start;
   margin-top: 8px;
 }
+
+/* ── Notes on a glossary entry or an article (N11) ─────────────── */
+
+/* A glossary entry's "Add a note": the note glyph beside the entry's link
+   icon, taking its size and dimming from .entry-link (pages/glossary.css),
+   so it adds nothing to the heading. A button, so it needs the resets an
+   <a> doesn't. Desk-only: prose-actions.js adds it. */
+.desk-entry-note {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.desk-entry-note:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+/* My Notes' "Add a note on this article", above the list. */
+.desk-mine__add {
+  margin: 10px 4px 2px;
+  padding: 5px 10px;
+  border: 1px solid rgba(var(--ink-rgb), 0.25);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+
+.desk-mine__add:hover {
+  background: rgba(var(--ink-rgb), 0.07);
+}
+
+.desk-mine__add:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}

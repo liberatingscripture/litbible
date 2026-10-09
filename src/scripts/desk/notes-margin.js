@@ -13,10 +13,12 @@
 //
 // For a screen reader, each note opens with the words it hangs on, hidden
 // from view ("My note on ‘nothing is now a verdict’, Romans 8:1: ").
+//
+// The same margin serves a glossary entry's or an article's own text (N11,
+// provisional; decision 9 under "the margin switch"): the page's `source`
+// (note-sources.js) says what the notes sit beside and how each is found.
 
-import { offsetsToRange } from "../../lib/desk-anchor-dom.mjs";
-import { placeRecord } from "../../lib/desk-records.mjs";
-import { forChapter, recordReference } from "../../lib/desk-store-core.mjs";
+import { recordReference } from "../../lib/desk-store-core.mjs";
 import {
   CIRCLE,
   CIRCLE_GAP,
@@ -36,20 +38,21 @@ import {
 import { closePanel, currentPanel, showPanel } from "../lit-panel.js";
 import { glyph } from "./glyphs.js";
 import { SETTINGS_EVENT, getSetting } from "./note-settings.js";
-import { chapterBlocks, chapterText, pageChapter } from "./page.js";
 
 const LIT = "desk-note-words";
 const supportsHighlight = typeof CSS !== "undefined" && "highlights" in CSS && typeof Highlight !== "undefined";
 const reducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 /**
- * @param {{ store: object, onEdit: (record: object, trigger: Element, restoreFocus?: Element) => void }} options
- * @returns {{ reveal(id: string): void } | null}
+ * @param {{ store: object, source: object | null,
+ *   onEdit: (record: object, trigger: Element, restoreFocus?: Element) => void }} options
+ *   `source` is the page's, from note-sources.js; null where the page has no
+ *   margin notes.
+ * @returns {{ reveal(id: string): void, canReveal(record: object): boolean } | null}
  */
-export function createNotesMargin({ store, onEdit }) {
-  const here = pageChapter();
-  const textBox = document.querySelector(".chapter-paragraphs");
-  if (!store || !here || !textBox) return null;
+export function createNotesMargin({ store, source, onEdit }) {
+  if (!store || !source) return null;
+  const textBox = source.textBox;
 
   const aside = document.createElement("aside");
   aside.className = "desk-notes";
@@ -68,28 +71,13 @@ export function createNotesMargin({ store, onEdit }) {
   /* ── Reading the notebook ─────────────────────────────────────────── */
 
   async function load() {
-    const records = await store.byChapter(here.bookKey, here.chapter);
-    const mine = forChapter(records, here.bookKey, here.chapter);
-    notes = mine.filter((r) => r.kind === "note");
-    bookmarks = mine.filter((r) => r.kind === "bookmark");
+    ({ notes, bookmarks } = await source.load(store));
     schedule();
   }
 
   /** Each note (or bookmark) with its words as a live Range, in today's text; lost ones are left out. */
   function placed(records = notes) {
-    const text = chapterText();
-    const out = [];
-    for (const r of records) {
-      const at = placeRecord(text, r);
-      if (at.status === "lost" || at.start == null) continue;
-      const pts = offsetsToRange(text, at.start, at.end);
-      if (!pts) continue;
-      const range = document.createRange();
-      range.setStart(pts.startContainer, pts.startOffset);
-      range.setEnd(pts.endContainer, pts.endOffset);
-      out.push({ record: r, range });
-    }
-    return out;
+    return source.placed(records);
   }
 
   /* ── Drawing ─────────────────────────────────────────────────────── */
@@ -109,8 +97,7 @@ export function createNotesMargin({ store, onEdit }) {
     const shown = getSetting("notes") === "on" && notes.length > 0;
     const box = textBox.getBoundingClientRect();
     mode = shown ? marginMode(box.left) : "none";
-    const firstBlock = chapterBlocks()[0];
-    const lineHeight = parseFloat(getComputedStyle(firstBlock?.querySelector("p") ?? firstBlock ?? textBox).lineHeight) || 30;
+    const lineHeight = parseFloat(getComputedStyle(source.lineEl()).lineHeight) || 30;
     const sx = window.scrollX;
     const sy = window.scrollY;
     const lineTop = (range) => {
@@ -452,8 +439,8 @@ export function createNotesMargin({ store, onEdit }) {
   });
   load();
 
-  /** Whether `reveal` can take the reader to this record here: a note on this chapter. */
-  const canReveal = (r) => r?.kind === "note" && r.bookKey === here.bookKey && r.chapter === here.chapter;
+  /** Whether `reveal` can take the reader to this record here: a note on this page. */
+  const canReveal = (r) => source.owns(r);
 
   return { reveal, canReveal };
 }

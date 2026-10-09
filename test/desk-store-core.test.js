@@ -11,7 +11,9 @@ import { createRecord } from "../src/lib/desk-records.mjs";
 import {
   CHANNEL,
   changeMessage,
+  currentSlug,
   forChapter,
+  forProse,
   kindName,
   liveRecords,
   planDelete,
@@ -20,6 +22,7 @@ import {
   planUndo,
   readChangeMessage,
   recordHref,
+  recordReadHref,
   recordReference,
   touched,
   webClient,
@@ -135,4 +138,105 @@ test("webClient is the year and month of the page's text", () => {
   assert.equal(webClient("v20261005.5d2c847d"), "web/2026.10");
   assert.equal(webClient("unversioned"), "web/dev");
   assert.equal(webClient(undefined), "web/dev");
+});
+
+/* ── Notes on a glossary entry or an article (N11, provisional) ────────── */
+
+/** The record as if made on the given day of October 2026 (createRecord takes no `created`). */
+const on = (record, day) => ({ ...record, created: `2026-10-0${day}T12:00:00.000Z` });
+
+test("forProse keeps an article's notes, matched by its slug", () => {
+  const a = note({ article: "many-and-all" });
+  const b = note({ article: "where-theres-a-will" });
+  const verse = note({ bookKey: "romans", chapter: 8, verse: 3 });
+  const entry = note({ glossaryEntry: "flesh-body" });
+  assert.deepEqual(forProse([verse, b, a, entry], "article", "many-and-all"), [a]);
+  assert.deepEqual(forProse([verse, b, a, entry], "article", "no-such-article"), []);
+});
+
+test("forProse lists a glossary entry's notes by its id, oldest first", () => {
+  const newer = on(note({ glossaryEntry: "flesh-body" }), 3);
+  const older = on(note({ glossaryEntry: "flesh-body" }), 1);
+  const other = on(note({ glossaryEntry: "hell-hades" }), 2);
+  assert.deepEqual(forProse([newer, other, older], "glossaryEntry", "flesh-body"), [older, newer]);
+});
+
+test("forProse follows a renamed article: a note made under the old slug is found under the new one", () => {
+  const renamed = { "old-slug": "new-slug" };
+  const before = on(note({ article: "old-slug" }), 1);
+  const after = on(note({ article: "new-slug" }), 2);
+  const other = on(note({ article: "another-article" }), 3);
+  assert.deepEqual(forProse([after, other, before], "article", "new-slug", renamed), [before, after]);
+  assert.deepEqual(forProse([after, other, before], "article", "another-article", renamed), [other]);
+});
+
+test("forProse knows no renames for glossary entries", () => {
+  const entry = note({ glossaryEntry: "old-id" });
+  assert.deepEqual(forProse([entry], "glossaryEntry", "new-id", { "old-id": "new-id" }), []);
+  assert.deepEqual(forProse([entry], "glossaryEntry", "old-id", { "old-id": "new-id" }), [entry]);
+});
+
+test("forProse leaves out trashed records, and anything that isn't a note", () => {
+  const live = note({ article: "many-and-all" });
+  const gone = note({ article: "many-and-all" });
+  const { trash } = planDelete(gone, { ...base, now: "2026-10-06T00:00:00.000Z" });
+  const forced = { ...live, id: "forced", kind: "trash" };
+  const bookmark = { ...live, id: "bookmark", kind: "bookmark" };
+  assert.deepEqual(forProse([trash, forced, bookmark, live], "article", "many-and-all"), [live]);
+  assert.deepEqual(forProse([trash, forced, bookmark], "article"), []);
+});
+
+test("forProse ignores a target that isn't text", () => {
+  const odd = note({ article: 42 });
+  const nothing = note({ article: null });
+  assert.deepEqual(forProse([odd, nothing], "article"), []);
+  assert.deepEqual(forProse([odd, nothing], "article", "42"), []);
+});
+
+test("forProse with no id takes every note of that type, and no other", () => {
+  const e1 = on(note({ glossaryEntry: "flesh-body" }), 2);
+  const e2 = on(note({ glossaryEntry: "hell-hades" }), 1);
+  const a1 = note({ article: "many-and-all" });
+  const verse = note({ bookKey: "john", chapter: 3, verse: 16 });
+  const records = [e1, a1, verse, e2];
+  assert.deepEqual(forProse(records, "glossaryEntry"), [e2, e1]);
+  assert.deepEqual(forProse(records, "glossaryEntry", null), [e2, e1]);
+  assert.deepEqual(forProse(records, "article", null, { "old-slug": "many-and-all" }), [a1]);
+  assert.deepEqual(forProse([], "article"), []);
+});
+
+test("a note on a glossary entry reads as 'Glossary: <title>' and links to the entry", () => {
+  const titled = { kind: "note", glossaryEntry: "flesh-body", targetTitle: "Flesh" };
+  assert.equal(recordReference(titled), "Glossary: Flesh");
+  assert.equal(recordHref(titled), "/glossary/#flesh-body");
+  assert.equal(recordReference({ ...titled, targetTitle: undefined }), "Glossary: flesh-body", "the id stands in for a missing title");
+  assert.equal(recordReference({ ...titled, targetTitle: "" }), "Glossary: flesh-body");
+});
+
+test("a note on an article reads as its title, or its slug, and links to the article", () => {
+  const titled = { kind: "note", article: "many-and-all", targetTitle: "Many and All" };
+  assert.equal(recordReference(titled), "Many and All");
+  assert.equal(recordHref(titled), "/articles/many-and-all/");
+  assert.equal(recordReference({ ...titled, targetTitle: undefined }), "many-and-all");
+  assert.equal(recordReference({ ...titled, targetTitle: "" }), "many-and-all");
+});
+
+test("a prose target wins over verse fields, and a prose note has no Read View address", () => {
+  const stray = { glossaryEntry: "flesh-body", bookKey: "romans", chapter: 8, verse: 3 };
+  assert.equal(recordReference(stray), "Glossary: flesh-body");
+  assert.equal(recordHref(stray), "/glossary/#flesh-body");
+  assert.equal(recordReadHref({ glossaryEntry: "flesh-body" }), null);
+  assert.equal(recordReadHref({ article: "many-and-all" }), null);
+  assert.equal(recordReference({ article: 5 }), "", "a target that isn't text is no target");
+  assert.equal(recordHref({ article: 5 }), null);
+});
+
+test("forProse follows a chain of renames to the current slug", () => {
+  const n = note({ article: "a" });
+  assert.deepEqual(forProse([n], "article", "c", { a: "b", b: "c" }), [n]);
+});
+
+test("currentSlug stops at a loop instead of running forever", () => {
+  assert.equal(currentSlug("a", { a: "b", b: "a" }), "b");
+  assert.equal(currentSlug("x", {}), "x");
 });
