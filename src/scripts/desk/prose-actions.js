@@ -3,23 +3,24 @@
 // "Yours" on a glossary entry or an article (STUDY-DESK.md N11, provisional,
 // 2026-10-08): the ways to start a note on their own text, which the
 // scripture's menus (actions.js) don't reach.
-//   - Selecting words inside an entry's or an article's text opens a small
-//     panel beside the selection with "Add a note", which quotes them. It
+//   - Selecting words inside an article's text opens a small panel beside
+//     the selection with "Add a note", which quotes them. (On the glossary
+//     the selection panel is every reader's, glossary-selection.js, and the
+//     desk adds the same "Yours" row to it.) It
 //     follows the selection panel's ways (chapter-tools.js): it opens once
 //     the selection settles, so the click that ends a mouse selection can't
 //     close it; it never takes focus; pressing its button doesn't clear the
 //     selection; and the button acts on the words as they were when the panel
 //     opened. It closes when the selection goes.
-//   - On the glossary, each entry gets an "Add a note" button (the note
-//     glyph) beside its link, for a note on the whole entry. An article's is in the Notebook
-//     panel's My Notes ("Add a note on this article").
+//   - A note on a whole glossary entry is "Note on this entry", beside "Add
+//     a note" in the glossary's selection panel; an article's is in the
+//     Notebook panel's My Notes ("Add a note on this article").
 // Both open the ordinary note editor (note-editor.js) with the entry or
 // article as the note's target.
 
 import { rangeToOffsets } from "../../lib/desk-anchor-dom.mjs";
 import { proseAnchorText, proseQuote } from "../../lib/desk-prose-anchor.mjs";
 import { closePanel, currentPanel, showPanel } from "../lit-panel.js";
-import { glyph } from "./glyphs.js";
 import { prosePage } from "./note-sources.js";
 
 const KIND = "desk-prose-selection";
@@ -33,6 +34,52 @@ export function initProseActions({ store, addNote }) {
   if (!page || !page.targets.length) return;
 
   /* ── A selection inside an entry's or article's text ───────────────── */
+
+  // On the glossary the selection panel is every reader's
+  // (glossary-selection.js: Copy entry text, Copy entry link), and the desk
+  // adds its row to it through lit:panel-actions, as it does in scripture.
+  if (page.kind === "glossary") {
+    document.addEventListener("lit:panel-actions", (e) => {
+      const d = e.detail;
+      if (d?.view !== "glossary" || !d.range || !d.entry) return;
+      const t = page.targets.find((x) => x.id === d.entry.id);
+      if (!t) return;
+      const text = proseAnchorText(t.root);
+      const offsets = rangeToOffsets(text, d.range);
+      if (!offsets) return;
+      const quote = proseQuote(text, offsets[0], offsets[1]);
+      const range = d.range.cloneRange();
+      const heading = document.createElement("p");
+      heading.className = "lit-panel__subheading";
+      heading.textContent = "Yours";
+      const add = document.createElement("button");
+      add.type = "button";
+      add.className = "lit-panel__btn";
+      add.textContent = "Add a note";
+      add.addEventListener("click", () => {
+        d.acting?.();
+        closePanel();
+        addNote({ glossaryEntry: t.id, targetTitle: t.title, quote }, range);
+      });
+      // A note on the whole entry, which sits level with its heading. Here
+      // rather than as a button in the heading, which took room from the
+      // heading and split it across more lines (BVJ, 2026-10-09).
+      const whole = document.createElement("button");
+      whole.type = "button";
+      whole.className = "lit-panel__btn";
+      whole.textContent = "Note on this entry";
+      whole.addEventListener("click", () => {
+        d.acting?.();
+        closePanel();
+        addNote({ glossaryEntry: t.id, targetTitle: t.title }, range);
+      });
+      const row = document.createElement("div");
+      row.className = "lit-panel__row lit-panel__row--halves";
+      row.append(add, whole);
+      d.append(heading);
+      d.append(row);
+    });
+  }
 
   let shownFor = null; // "target id|start|end" of the open panel
 
@@ -96,37 +143,15 @@ export function initProseActions({ store, addNote }) {
     shownFor = key;
   }
 
-  let timer = 0;
-  const later = () => {
-    clearTimeout(timer);
-    timer = setTimeout(settle, SETTLE_MS);
-  };
-  document.addEventListener("selectionchange", later);
-  document.addEventListener("pointerup", later);
-  document.addEventListener("keyup", later);
-
-  /* ── A note on a whole glossary entry ──────────────────────────────── */
-
-  if (page.kind !== "glossary") return;
-  for (const t of page.targets) {
-    const head = t.root.closest("article.entry")?.querySelector(".entry-head");
-    if (!head) continue;
-    // An icon beside the entry's link icon, sized and dimmed the same way
-    // (pages/glossary.css .entry-link), so it adds nothing to the heading's
-    // width or height (quiet controls on reading pages).
-    const b = document.createElement("button");
-    b.type = "button";
-    b.className = "entry-link desk-entry-note";
-    b.setAttribute("data-desk-skip", "");
-    b.innerHTML = glyph("note", "entry-link__icon");
-    b.title = "Add a note";
-    b.setAttribute("aria-label", `Add a note on the ${t.title} entry`);
-    b.addEventListener("click", (e) => {
-      e.stopPropagation();
-      addNote({ glossaryEntry: t.id, targetTitle: t.title }, b);
-    });
-    const link = head.querySelector(".entry-link");
-    if (link) link.after(b);
-    else head.append(b);
+  // An article's selection has no panel of its own, so the desk shows one.
+  if (page.kind === "article") {
+    let timer = 0;
+    const later = () => {
+      clearTimeout(timer);
+      timer = setTimeout(settle, SETTLE_MS);
+    };
+    document.addEventListener("selectionchange", later);
+    document.addEventListener("pointerup", later);
+    document.addEventListener("keyup", later);
   }
 }

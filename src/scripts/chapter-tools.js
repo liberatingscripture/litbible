@@ -32,6 +32,16 @@ import { stripBracketMarkers } from "../lib/bracket-markers.mjs";
 import { LIT_CREDIT_LINE } from "../lib/lit-credit.mjs";
 import { showPanel, closePanel, currentPanel, setEscapeFallback, isSmallScreen } from "./lit-panel.js";
 import { imageStep } from "./verse-image.js";
+import {
+  PANEL_EDGE,
+  copyToClipboard,
+  menuButton,
+  panelRow,
+  placeBesideTouchSelection,
+  pointerType,
+  snapToWords,
+  withReference,
+} from "./panel-pieces.js";
 
 function init(container) {
   setEscapeFallback(clearHashHighlight);
@@ -40,20 +50,6 @@ function init(container) {
   initFootnotePopovers(container);
   initSelectionShare(studyView(container));
 }
-
-/* ── Shared: the input ────────────────────────────────────────────────── */
-
-// The kind of pointer that last pressed the page: "mouse", "touch" or "pen".
-// Both panels take their layout from it, not from the screen width: a finger
-// gets the chip layout, a mouse the rows of a computer's menu.
-let lastPointerType = "mouse";
-document.addEventListener(
-  "pointerdown",
-  (e) => {
-    lastPointerType = e.pointerType || "mouse";
-  },
-  true
-);
 
 /* ── Shared: the two views ────────────────────────────────────────────── */
 
@@ -494,15 +490,6 @@ function noteText(id, root = document) {
   return tidyLines(clone.textContent);
 }
 
-async function copyToClipboard(text) {
-  try {
-    await navigator.clipboard.writeText(text);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
 /**
  * Copy text that is still on its way: Read View's handout waits on the
  * chapter's Study View page for its notes. Safari lets a page write to the
@@ -527,36 +514,6 @@ async function copyLater(textPromise) {
   return text ? copyToClipboard(text) : false;
 }
 
-function menuButton(label, onClick) {
-  const btn = document.createElement("button");
-  btn.type = "button";
-  btn.className = "lit-panel__btn";
-  btn.textContent = label;
-  btn.addEventListener("click", async () => {
-    const done = await onClick();
-    if (done === false) {
-      // Clipboard can fail (permissions policy, embedded webviews) —
-      // never fail silently.
-      btn.textContent = "Couldn’t copy — try selecting the text";
-      btn.classList.add("lit-panel__btn--error");
-      return;
-    }
-    btn.textContent = "Copied ✓";
-    btn.classList.add("lit-panel__btn--done");
-    setTimeout(closePanel, 700);
-  });
-  return btn;
-}
-
-/**
- * Shared text with its attribution line. No added quotation marks — verses
- * containing dialogue would otherwise produce nested double quotes; the
- * attribution carries it.
- */
-function withReference(text, ref) {
-  return text + "\n— " + ref + " (LIT)";
-}
-
 /** A Share… button for the native share sheet, or null where there is none. */
 function shareButton(ref, url, getText) {
   if (!navigator.share) return null;
@@ -578,21 +535,6 @@ function shareButton(ref, url, getText) {
     }
   });
   return btn;
-}
-
-/**
- * Buttons that share one row. The row is invisible except in the chip layout
- * (either panel opened by a finger), where they sit side by side, a
- * pair in exact halves. A missing button (null: Share… where there is no
- * share sheet) leaves the rest the row.
- */
-function panelRow(...items) {
-  const row = document.createElement("div");
-  row.className = "lit-panel__row";
-  const kept = items.filter(Boolean);
-  if (kept.length === 2) row.classList.add("lit-panel__row--halves");
-  row.append(...kept);
-  return row;
 }
 
 /**
@@ -819,7 +761,7 @@ function handleVerseActivation(container, sup, { viaKeyboard = false } = {}) {
 
   const opts = {
     restoreFocus: viaKeyboard ? sup : null,
-    touch: !viaKeyboard && lastPointerType !== "mouse",
+    touch: !viaKeyboard && pointerType() !== "mouse",
   };
 
   // Menu already open: activating the selection's only verse closes it;
@@ -984,46 +926,6 @@ let shownKey = null;
 // The selection the panel was last opened for, kept across gestures (unlike
 // shownKey, which a new pointerdown clears).
 let openedKey = null;
-
-// Word characters for snapping. An apostrophe or hyphen counts only between
-// two of them ("don’t", "One-of-a-kind"), so a closing quote is never pulled
-// into the selection.
-const WORD_CHAR = /[\p{L}\p{M}\p{N}]/u;
-const WORD_JOINER = /['’-]/;
-
-function isWordCharAt(text, i) {
-  const ch = text[i];
-  if (!ch) return false;
-  if (WORD_CHAR.test(ch)) return true;
-  return (
-    WORD_JOINER.test(ch) &&
-    WORD_CHAR.test(text[i - 1] || "") &&
-    WORD_CHAR.test(text[i + 1] || "")
-  );
-}
-
-/**
- * Widen a range that starts or ends mid-word to take in the whole word. Phones
- * already select whole words; a mouse drag often doesn't. Within one text node
- * only — a word split across nodes is rare enough to leave as selected.
- */
-function snapToWords(range) {
-  const { startContainer: s, endContainer: e } = range;
-  if (s.nodeType === Node.TEXT_NODE) {
-    let i = range.startOffset;
-    if (isWordCharAt(s.data, i - 1) && isWordCharAt(s.data, i)) {
-      while (i > 0 && isWordCharAt(s.data, i - 1)) i--;
-      range.setStart(s, i);
-    }
-  }
-  if (e.nodeType === Node.TEXT_NODE) {
-    let j = range.endOffset;
-    if (isWordCharAt(e.data, j - 1) && isWordCharAt(e.data, j)) {
-      while (j < e.data.length && isWordCharAt(e.data, j)) j++;
-      range.setEnd(e, j);
-    }
-  }
-}
 
 /**
  * Move a boundary that sits inside a verse number or footnote letter out past
@@ -1245,41 +1147,6 @@ function selectionHandout(share, scope, ref, url) {
   return assembleHandout(joinPieces(pieces), cited, root, ref, url);
 }
 
-// Room the phone's own selection UI needs, which a page can't measure: the
-// drag handle hanging below the last line, and the Copy / Share bubble, which
-// the OS puts above the selection when there's room and below it otherwise.
-const HANDLE_CLEARANCE = 28;
-const OS_BUBBLE_CLEARANCE = 64;
-const PANEL_EDGE = 12;
-
-/**
- * Placement for a touch selection: beside it, where the reader is looking,
- * on whichever side the OS bubble isn't. Normally just below the selection;
- * below the bubble when a selection near the top pushes the bubble down; and
- * above the bubble when there's no room below. A selection filling the screen
- * leaves no clear side, so it falls back to the bottom edge.
- */
-function placeBesideTouchSelection(rect) {
-  return (el) => {
-    el.style.maxWidth = window.innerWidth - 2 * PANEL_EDGE + "px";
-    const width = el.offsetWidth;
-    const height = el.offsetHeight;
-    const viewH = window.innerHeight;
-    const bubbleAbove = rect.top >= OS_BUBBLE_CLEARANCE;
-
-    const below = rect.bottom + HANDLE_CLEARANCE + (bubbleAbove ? 0 : OS_BUBBLE_CLEARANCE);
-    const above = rect.top - height - PANEL_EDGE - (bubbleAbove ? OS_BUBBLE_CLEARANCE : 0);
-    let top;
-    if (below + height <= viewH - PANEL_EDGE) top = below;
-    else if (above >= PANEL_EDGE) top = above;
-    else top = viewH - height - PANEL_EDGE;
-
-    let left = rect.left + rect.width / 2 - width / 2;
-    left = Math.max(PANEL_EDGE, Math.min(left, window.innerWidth - width - PANEL_EDGE));
-    return { left: window.scrollX + left, top: window.scrollY + top };
-  };
-}
-
 function openSelectionPanel(view, share, { touch }) {
   const ref = view.ref(share.chapter, share.start, share.end);
   const url = view.url(share.chapter, share.start, share.end);
@@ -1395,7 +1262,7 @@ function initSelectionShare(view) {
   function update() {
     // Mid-drag with a mouse: wait for the button to come up rather than
     // chasing the selection as it grows.
-    if (pointerDown && lastPointerType === "mouse") return;
+    if (pointerDown && pointerType() === "mouse") return;
 
     const share = selectionShare(view, document.getSelection());
     const current = currentPanel()?.kind === "selection" ? currentPanel() : null;
@@ -1414,7 +1281,7 @@ function initSelectionShare(view) {
       return;
     }
     shownKey = openedKey = share.key;
-    openSelectionPanel(view, share, { touch: lastPointerType !== "mouse" });
+    openSelectionPanel(view, share, { touch: pointerType() !== "mouse" });
   }
 }
 

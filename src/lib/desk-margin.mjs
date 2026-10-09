@@ -136,19 +136,20 @@ export function placeFloating({ viewport, column, main, shift = 0 }) {
 }
 
 /**
- * Whether the open notebook is collapsed after a placement. It collapses
- * whenever it starts floating, so it never lands on the text unasked: a page
- * opening with the notebook remembered open, or a window narrowed under it.
- * The exception is the reader opening it just now, which asks to see it.
- * Otherwise it stays as the reader left it; in the margin it is never
- * collapsed.
+ * Whether the open notebook is collapsed to its tab after a placement. The
+ * reader opening it just now asks to see it, so it opens expanded. In the
+ * margin it is collapsed only when the reader minimized it (BVJ,
+ * 2026-10-09: the panel is minimizable anywhere, to the same tab).
+ * Floating, it collapses whenever it starts floating, so it never lands on
+ * the text unasked: a page opening with the notebook remembered open, or a
+ * window narrowed under it; otherwise it stays as the reader left it.
  *
  * @param {{ floating: boolean, wasFloating: boolean, collapsed: boolean,
- *   opening: boolean }} s
+ *   opening: boolean, minimized?: boolean }} s
  */
-export function nextCollapsed({ floating, wasFloating, collapsed, opening }) {
-  if (!floating) return false;
+export function nextCollapsed({ floating, wasFloating, collapsed, opening, minimized = false }) {
   if (opening) return false;
+  if (!floating) return minimized;
   if (!wasFloating) return true;
   return collapsed;
 }

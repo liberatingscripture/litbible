@@ -12,9 +12,10 @@
 // page opens with it. Where the margin is wide enough, which it is on most
 // computers, nothing moves when it appears.
 //
-// In a window too narrow for it (margin.js says when), it floats: the reader
-// can collapse it to a tab at the window's edge and expand it again (BVJ,
-// 2026-10-07). It collapses by itself whenever it starts floating without
+// The reader can minimize it to a tab at the window's edge and restore it
+// (BVJ, 2026-10-09), the same tab a window too narrow for it uses: there
+// (margin.js says when) it floats, and the reader can collapse and expand it
+// the same way (BVJ, 2026-10-07). It collapses by itself whenever it starts floating without
 // the reader asking to see it, so it never lands on the text unasked. The
 // Notebook buttons then expand it, Escape collapses it rather than closing
 // it, and its × still closes it.
@@ -158,7 +159,7 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
     <div class="desk-panel__head">
       <h2 class="desk-panel__title" id="deskPanelTitle">Notebook</h2>
       <span class="desk-panel__badge">Preview</span>
-      <button type="button" class="desk-panel__collapse" aria-label="Collapse the notebook">${ICON_COLLAPSE}</button>
+      <button type="button" class="desk-panel__collapse" aria-label="Minimize the notebook" title="Minimize">${ICON_COLLAPSE}</button>
       <button type="button" class="desk-panel__close" aria-label="Close the notebook">${ICON_CLOSE}</button>
     </div>
     ${withRow ? `<div class="desk-panel__tabs" role="tablist" aria-label="Notebook">${TABS.map(

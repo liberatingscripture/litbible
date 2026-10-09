@@ -143,8 +143,13 @@ test("the notebook collapses when it starts floating, unless the reader is openi
   // Already floating: as the reader left it.
   assert.equal(nextCollapsed({ floating: true, wasFloating: true, collapsed: false, opening: false }), false);
   assert.equal(nextCollapsed({ floating: true, wasFloating: true, collapsed: true, opening: false }), true);
-  // In the margin it is never collapsed.
+  // In the margin it is collapsed only when the reader minimized it.
   assert.equal(nextCollapsed({ floating: false, wasFloating: true, collapsed: true, opening: false }), false);
+  assert.equal(nextCollapsed({ floating: false, wasFloating: false, collapsed: false, opening: false, minimized: true }), true);
+  // Minimized, then the window narrows: still a tab.
+  assert.equal(nextCollapsed({ floating: true, wasFloating: false, collapsed: true, opening: false, minimized: true }), true);
+  // The reader pressing Notebook always opens it expanded.
+  assert.equal(nextCollapsed({ floating: false, wasFloating: false, collapsed: true, opening: true, minimized: true }), false);
 });
 
 /* ── Widths the reader drags (Study View, the notebook open) ─────────── */

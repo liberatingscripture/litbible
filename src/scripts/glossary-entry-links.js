@@ -1,6 +1,7 @@
 // src/scripts/glossary-entry-links.js
 //
-// The link icon beside each /glossary entry heading (audit Q4). Without JS it
+// The link icon beside each /glossary entry heading (audit Q4), with hover
+// text saying what it does. Without JS it
 // is an ordinary link to the entry's anchor. With JS a click copies the
 // entry's full address instead, shows a check for a moment, and says so to a
 // screen reader. Where the clipboard is unavailable the link is left to
@@ -18,6 +19,9 @@ if (links.length && navigator.clipboard?.writeText) {
 
   for (const link of links) {
     link.setAttribute("aria-label", `Copy link to the ${link.dataset.term} entry`);
+    // Hover text, since a chain icon alone doesn't say it copies (BVJ,
+    // 2026-10-09). Without JS the markup's "Link to this entry" stands.
+    link.title = "Copy link to this entry";
 
     link.addEventListener("click", async (event) => {
       if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;

@@ -451,6 +451,7 @@ const menuData = {
                         data-entry-link
                         data-term={data.traditional}
                         aria-label={`Link to the ${data.traditional} entry`}
+                        title="Link to this entry"
                         data-pagefind-ignore
                       >
                         <svg class="entry-link__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -904,10 +905,12 @@ const menuData = {
       </div>
     </section>
   </div>
-  {/* Scripture reference previews and the entries' copy-link buttons
-      (progressive enhancement) */}
+  {/* Scripture reference previews, the entries' copy-link buttons, and the
+      selection panel (Copy entry text, Copy entry link); all progressive
+      enhancement */}
   <script>
     import "../scripts/ref-preview.js";
     import "../scripts/glossary-entry-links.js";
+    import "../scripts/glossary-selection.js";
   </script>
 </Layout>
