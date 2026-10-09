@@ -31,7 +31,7 @@ are recorded so they aren't re-argued.
   `litbible.net/?desk=on` turns the desk on in one browser on a computer, and
   `?desk=off` turns it off. No desk page or service exists. 1c's parts that
   wait on nobody are built (notes, bookmarks, the margin, the panel's tabs and
-  "This verse", M1); highlights and the change notice wait on BDR's rules a
+  "This verse", M1, the draggable widths, and N11 provisionally); highlights and the change notice wait on BDR's rules a
   to e, and the versions on the API.bible questions. What exists:
   - draft 1 of the record format (`STUDY-DESK-FORMAT.md`), with its
     reference implementation (`scripts/lib/anchor-text.mjs`) and test vectors
@@ -419,7 +419,9 @@ plan as a whole was accepted; nothing was declined except where stated).
   - **The groundwork is in place.** Since 2026-10-06 the glossary has a
     reading column with the desk on, and both pages show the Notebook panel
     in the margin. Not yet placed in a phase: it needs 1c's marks first.
-    New. Medium. **Decided: yes.**
+    New. Medium. **Decided: yes.** **Built provisionally on the preview
+    2026-10-08** (BVJ: now rather than with format draft 2); see "Order of
+    work", 1c.
 - **M6. Print my annotated chapter or book.** A chapter, or a whole book from
   Read View, printed with your notes in the margin and highlights shown. N9
   is the blank version. New. Small. **Decided: yes.**
@@ -2495,9 +2497,41 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
        Notes only; the tab last chosen remembered across pages
        (`lit-desk-tab`); the C10 wording; the arrow keys' step on the width
        handles (a character, ten with Shift).
+     - **Notes on glossary entries and articles (N11), provisionally**
+       (BVJ chose to build it now, 2026-10-08, rather than wait for format
+       draft 2):
+       - **The record**: a `note` whose target is `glossaryEntry` (the
+         entry's id) or `article` (its slug) instead of verses, with an
+         optional `quote` and `targetTitle`, a copy of the title for lists.
+         Kept apart from N2's `glossaryId`, which follows a term through the
+         translation. Marked provisional in `STUDY-DESK-FORMAT.md` and
+         `src/lib/desk-records.mjs`, like the trash record's fields.
+       - **Quoting text with no verses** (`src/lib/desk-prose-anchor.mjs`):
+         the whole body is read as one verse, by the format's steps 3 to 7,
+         so the quote, its 32 characters of context and the search when the
+         wording moves are the scripture's own. A quote is `found` anywhere
+         in the body or `changed` by the context rule; with nothing usable
+         left, the note goes on the whole entry or article. Text that isn't
+         the body's own is skipped (screen-reader-only text, footnote
+         references, buttons).
+       - **The slug rule**: `src/data/article-slugs.json` lists every
+         article's slug, and `test/article-slugs.test.js` fails if one
+         disappears without a `renamed` entry pointing at its new slug;
+         notes follow the map.
+       - **On the page**: the same margin and switch as Study View
+         (decision 9; `src/scripts/desk/note-sources.js` says what notes sit
+         beside on each page). Selecting words in an entry's or article's
+         text offers "Add a note"; each glossary entry has the note glyph
+         beside its link icon for a note on the whole entry; an article has
+         "Add a note on this article" in My Notes. A whole-entry or
+         whole-article note sits level with its heading. My Notes starts on
+         "The glossary" or "This article", and the tray gets a Show group of
+         its own on those pages.
+       - **For BVJ to confirm**: the slug rule; the rule for quoting prose;
+         the field names; the three ways in (the glossary's icon was a text
+         button at first, which took room from the heading).
      **Still to come in 1c**: highlights and the change notice (after BDR's
-     answer on rules a to e), notes on articles and glossary entries (N11),
-     and the versions, held (below).
+     answer on rules a to e), and the versions, held (below).
      **Added to 1c on 2026-10-08**, from the Greek tab's planning ("Decisions",
      2026-10-08). None of it waits on BDR, so it can fill the time while
      highlights and the change notice do:
@@ -3286,7 +3320,8 @@ lemmas already exist for every SBLGNT word. Only the word-to-word link waits.
     (2026-10-08)**, the verse menu reaching the notes through "Show in
     notebook"; BVJ to confirm.
   - **The second slice's defaults** (2026-10-08): listed under "Order of
-    work", 1c, for BVJ to judge on the preview.
+    work", 1c, for BVJ to judge on the preview, with N11's provisional
+    choices (the slug rule, the rule for quoting prose, the field names).
 - **The merge rules and the overlap rule's details** (talk-through item
   20; rules a to e), needed from BDR before phase 1c, as soon as possible, mid-October at the latest.
   The overlap rule itself is settled (rule d). The trash record's fields (question 4) are built

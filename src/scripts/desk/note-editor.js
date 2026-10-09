@@ -9,7 +9,7 @@
 //
 // A note's body is the reader's own words: always text, never HTML.
 
-import { MARKERS, createRecord, editRecord, verseCopyFor } from "../../lib/desk-records.mjs";
+import { MARKERS, createRecord, editRecord, proseTarget, verseCopyFor } from "../../lib/desk-records.mjs";
 import { MARKER_NAMES, shortQuote } from "../../lib/desk-notes.mjs";
 import { closePanel, showPanel } from "../lit-panel.js";
 import { glyph } from "./glyphs.js";
@@ -25,7 +25,9 @@ let seq = 0;
  * @param {() => object} options.ctx
  * @param {string} options.ref "Romans 8:1"
  * @param {object} [options.record] an existing note, to edit
- * @param {object} [options.draft] a new note's place: bookKey, chapter, verse, endVerse, quote
+ * @param {object} [options.draft] a new note's place: bookKey, chapter, verse, endVerse, quote;
+ *   or, for a note on a glossary entry or an article (N11, provisional),
+ *   glossaryEntry or article, targetTitle, and quote
  * @param {Element} [options.restoreFocus]
  */
 export function openNoteEditor({ trigger, store, ctx, ref, record = null, draft = null, restoreFocus = null }) {
@@ -89,6 +91,19 @@ export function openNoteEditor({ trigger, store, ctx, ref, record = null, draft 
     if (editing) {
       if (record.body === body.value && record.marker === marker) return closePanel();
       next = editRecord(record, { body: body.value, marker }, { now, client: ctx().client });
+    } else if (proseTarget(draft)) {
+      const { type, id } = proseTarget(draft);
+      next = createRecord(
+        "note",
+        {
+          [type]: id,
+          ...(draft.targetTitle ? { targetTitle: draft.targetTitle } : {}),
+          ...(draft.quote ? { quote: draft.quote } : {}),
+          body: body.value,
+          marker,
+        },
+        { now, ...ctx() },
+      );
     } else {
       let verseCopy = null;
       try {

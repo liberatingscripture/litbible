@@ -57,6 +57,25 @@ export const MARKERS = Object.freeze([
 /** Kinds that sit on the text, and so carry `bookKey`, `chapter` and verses. */
 const ON_THE_TEXT = new Set(["highlight", "note", "hidden", "bookmark", "place"]);
 
+/**
+ * A note's targets other than verses (STUDY-DESK.md N11; BVJ, 2026-10-06),
+ * **provisional** (built 2026-10-08, ahead of format draft 2): a glossary
+ * entry by its id, which is already a stable key, or an article by its slug,
+ * which src/data/article-slugs.json keeps from changing. Such a note may
+ * quote the entry's or article's words (src/lib/desk-prose-anchor.mjs) and
+ * carries `targetTitle`, a copy of the entry's or article's title for lists.
+ * Not N2's `glossaryId`, which follows a term through the translation.
+ */
+export const PROSE_TARGETS = Object.freeze(["glossaryEntry", "article"]);
+
+/** A note's prose target as { type, id }, or null for a note on verses. */
+export function proseTarget(record) {
+  for (const type of PROSE_TARGETS) {
+    if (typeof record?.[type] === "string" && record[type]) return { type, id: record[type] };
+  }
+  return null;
+}
+
 /** Fields a reader's edit may never change. */
 const FIXED = new Set(["id", "kind", "schema", "created"]);
 
@@ -223,7 +242,12 @@ export function validateRecord(r) {
   if (problems.length || !canEdit(r)) return problems;
 
   const k = r.kind;
-  if (ON_THE_TEXT.has(k) && !(k === "note" && r.glossaryId)) {
+  const onProse = k === "note" && PROSE_TARGETS.some((t) => r[t] != null);
+  if (onProse) {
+    need(PROSE_TARGETS.filter((t) => r[t] != null).length === 1, "a note has one target");
+    need(Boolean(proseTarget(r)), "the note's target is empty");
+  }
+  if (ON_THE_TEXT.has(k) && !(k === "note" && (r.glossaryId || onProse))) {
     need(r.bookKey in BOOKS, `bookKey "${r.bookKey}" is not a book`);
     need(Number.isInteger(r.chapter) && r.chapter >= 1 && r.chapter <= (BOOKS[r.bookKey] ?? 0), "chapter is out of range");
     need(Number.isInteger(r.verse) && r.verse >= 1, "verse is not a positive integer");

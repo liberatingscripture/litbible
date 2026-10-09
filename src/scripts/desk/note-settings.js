@@ -26,6 +26,7 @@
 // for the default, with one localStorage key; unlike them there is no
 // pre-paint script, since nothing of the desk paints before this file runs.
 
+import { prosePage } from "./note-sources.js";
 import { resetWidthsButton } from "./widths.js";
 
 const SETTINGS = {
@@ -174,25 +175,33 @@ function noteControls(classes) {
  * shows no notes. Also H in the tray's list of keys, and on a chapter a line
  * under the Show group saying that a selection reaches the same actions as a
  * verse number (audit C10: hiding the numbers mustn't hide the way in), and
- * "Reset widths" while the reader has dragged the notebook's widths.
+ * "Reset widths" while the reader has dragged the notebook's widths. An
+ * article or the glossary gets a Show group of its own (injectProseShow).
  */
+const TRAY_CLASSES = {
+  check: "font-tray__check",
+  checkInput: "font-tray__check-input",
+  checkLabel: "font-tray__check-label",
+  seg: "font-tray__seg",
+  segOption: "font-tray__seg-option",
+  segInput: "font-tray__seg-input",
+  segText: "font-tray__seg-text",
+  from: "tray",
+};
+
 function injectIntoTray() {
   const vn = document.querySelector("#fontTray [data-vn-check]");
   const checks = vn?.closest(".font-tray__checks");
   const show = checks?.closest("fieldset");
   const study = Boolean(document.querySelector("#fontTray [data-terms-check]") && document.querySelector(".chapter-paragraphs"));
   const read = vn?.getAttribute("data-vn-view") === "read";
+  const prose = !study && !read && prosePage();
+  if (prose) {
+    injectProseShow();
+    return;
+  }
   if (!checks || !show || !(study || read)) return;
-  const { check, seg, marks, hide } = noteControls({
-    check: "font-tray__check",
-    checkInput: "font-tray__check-input",
-    checkLabel: "font-tray__check-label",
-    seg: "font-tray__seg",
-    segOption: "font-tray__seg-option",
-    segInput: "font-tray__seg-input",
-    segText: "font-tray__seg-text",
-    from: "tray",
-  });
+  const { check, seg, marks, hide } = noteControls(TRAY_CLASSES);
   marks.dataset.desk = "";
   hide.dataset.desk = "";
   const keys = document.getElementById("fontTrayKeys");
@@ -231,10 +240,44 @@ function injectIntoTray() {
 }
 
 /**
- * The same controls for the Notebook panel's foot; with `notes: false`
- * (Read View), only "My bookmarks" and "Hide my notes".
+ * An article or the glossary (N11) has no Show group in the tray, since it
+ * has no verse numbers, so the notes' switches get one of their own, before
+ * the Keyboard group: "My notes" and "Hide my notes", then the lettering.
  */
-export function panelNoteControls({ notes = true } = {}) {
+function injectProseShow() {
+  const tray = document.getElementById("fontTray");
+  const keysRow = tray?.querySelector(".font-tray__row--keys");
+  if (!tray || !keysRow) return;
+  const { check, seg, hide } = noteControls(TRAY_CLASSES);
+  const show = document.createElement("fieldset");
+  show.className = "font-tray__row";
+  show.dataset.desk = "";
+  show.innerHTML = `<legend class="font-tray__legend">Show</legend><div class="font-tray__checks"></div>`;
+  show.querySelector(".font-tray__checks").append(check, hide);
+  const row = document.createElement("fieldset");
+  row.className = "font-tray__row";
+  row.dataset.desk = "";
+  row.innerHTML = `<legend class="font-tray__legend">My notes’ lettering</legend>`;
+  seg.removeAttribute("role");
+  seg.removeAttribute("aria-label");
+  row.append(seg);
+  keysRow.before(show, row);
+  const keys = document.getElementById("fontTrayKeys");
+  if (keys) {
+    const li = document.createElement("li");
+    li.dataset.desk = "";
+    li.innerHTML = "<kbd>h</kbd> Hide or show my notes";
+    keys.append(li);
+  }
+}
+
+/**
+ * The same controls for the Notebook panel's foot; with `notes: false`
+ * (Read View), only "My bookmarks" and "Hide my notes"; with
+ * `bookmarks: false` (an article or the glossary, where nothing is
+ * bookmarked), all but "My bookmarks".
+ */
+export function panelNoteControls({ notes = true, bookmarks = true } = {}) {
   const { check, seg, marks, hide } = noteControls({
     check: "desk-setting",
     checkInput: "desk-setting__input",
@@ -247,7 +290,7 @@ export function panelNoteControls({ notes = true } = {}) {
   });
   const wrap = document.createElement("div");
   wrap.className = "desk-panel__settings";
-  if (notes) wrap.append(check, seg, marks, hide);
+  if (notes) wrap.append(check, seg, ...(bookmarks ? [marks] : []), hide);
   else wrap.append(marks, hide);
   return wrap;
 }

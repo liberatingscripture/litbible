@@ -35,6 +35,8 @@ import { keepReadingPlace } from "../keep-reading-place.js";
 import { createRail } from "./margin.js";
 import { HIDE_EVENT, SETTINGS_EVENT, getSetting, panelNoteControls, setSetting } from "./note-settings.js";
 import { pageChapter } from "./page.js";
+import { forChapter } from "../../lib/desk-store-core.mjs";
+import { proseRecords, prosePage } from "./note-sources.js";
 import { createMineTab } from "./tab-mine.js";
 import { createVerseTab } from "./tab-verse.js";
 import { resetWidthsButton } from "./widths.js";
@@ -89,6 +91,23 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
 
   const visible = () => !panel.hidden;
 
+  // What My Notes starts on: this chapter's records, or the notes on this
+  // article or the glossary (N11); everything elsewhere.
+  const prose = here ? null : prosePage();
+  const mineScope = here
+    ? {
+        label: here.label,
+        empty: `Nothing kept for ${here.label} yet.`,
+        load: async (st) => forChapter(await st.byChapter(here.bookKey, here.chapter), here.bookKey, here.chapter),
+      }
+    : prose
+      ? {
+          label: prose.label,
+          empty: prose.kind === "article" ? "No notes on this article yet." : "No notes on the glossary yet.",
+          load: async (st) => proseRecords(prose, await st.all()),
+        }
+      : null;
+
   // The tabs this page has, in order. Each tab module returns its element
   // and a render(); a tab is drawn only while it is the one showing.
   const TABS = [
@@ -99,7 +118,14 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
         createMineTab({
           store,
           storeError,
-          here,
+          scope: mineScope,
+          addAction: prose?.kind === "article" && onAddNote ? {
+            label: "Add a note on this article",
+            run: (trigger) => {
+              const t = prose.targets[0];
+              onAddNote({ [t.type]: t.id, targetTitle: t.title }, trigger);
+            },
+          } : null,
           inReadView,
           visible: () => visible() && activeTab === "mine",
           afterRender: renderPersistence,
@@ -330,8 +356,9 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
   /* ── Settings at the foot ───────────────────────────────────────── */
 
   // The margin's switches only mean something where the margin is: all of
-  // them on a Study View chapter, and "My bookmarks" alone in Read View.
-  // "Hide my notes" (M1) goes with either.
+  // them on a Study View chapter, "My bookmarks" alone in Read View, and the
+  // notes' two on an article or the glossary (N11). "Hide my notes" (M1)
+  // goes with any of them.
   const slot = panel.querySelector(".desk-panel__settings-slot");
   if (here) {
     const controls = panelNoteControls();
@@ -340,6 +367,7 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
     slot.replaceWith(controls);
   }
   else if (inReadView) slot.replaceWith(panelNoteControls({ notes: false }));
+  else if (prose) slot.replaceWith(panelNoteControls({ bookmarks: false }));
   else slot.remove();
   const fullBox = panel.querySelector(".desk-panel__full");
   const syncFull = () => {
