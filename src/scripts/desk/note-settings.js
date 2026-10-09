@@ -26,6 +26,8 @@
 // for the default, with one localStorage key; unlike them there is no
 // pre-paint script, since nothing of the desk paints before this file runs.
 
+import { resetWidthsButton } from "./widths.js";
+
 const SETTINGS = {
   notes: { attr: "data-desk-notes", key: "lit-desk-notes", fallback: "on" },
   noteFont: { attr: "data-desk-note-font", key: "lit-desk-note-font", fallback: "handwriting" },
@@ -171,7 +173,8 @@ function noteControls(classes) {
  * chapter, and only "My bookmarks" and "Hide my notes" in Read View, which
  * shows no notes. Also H in the tray's list of keys, and on a chapter a line
  * under the Show group saying that a selection reaches the same actions as a
- * verse number (audit C10: hiding the numbers mustn't hide the way in).
+ * verse number (audit C10: hiding the numbers mustn't hide the way in), and
+ * "Reset widths" while the reader has dragged the notebook's widths.
  */
 function injectIntoTray() {
   const vn = document.querySelector("#fontTray [data-vn-check]");
@@ -212,6 +215,11 @@ function injectIntoTray() {
   hint.textContent = "With verse numbers off, select any words for the same actions.";
   checks.after(hint);
   vn.setAttribute("aria-describedby", hint.id);
+  // The widths the reader dragged beside the notebook (widths.js), shown
+  // only while any are kept.
+  const reset = resetWidthsButton("font-tray__reset");
+  reset.dataset.desk = "";
+  hint.after(reset);
   const row = document.createElement("fieldset");
   row.className = "font-tray__row";
   row.dataset.desk = "";

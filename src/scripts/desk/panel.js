@@ -28,8 +28,8 @@
 //
 // The foot belongs to My Notes and shows only with it: the "My notes",
 // Handwriting / Plain, "My bookmarks" and "Hide my notes" switches (the same
-// settings as the Display tray's), the list's "in full" toggle, and where
-// the notebook is kept.
+// settings as the Display tray's), "Reset widths" while the reader has
+// dragged any, the list's "in full" toggle, and where the notebook is kept.
 
 import { keepReadingPlace } from "../keep-reading-place.js";
 import { createRail } from "./margin.js";
@@ -37,6 +37,7 @@ import { HIDE_EVENT, SETTINGS_EVENT, getSetting, panelNoteControls, setSetting }
 import { pageChapter } from "./page.js";
 import { createMineTab } from "./tab-mine.js";
 import { createVerseTab } from "./tab-verse.js";
+import { resetWidthsButton } from "./widths.js";
 
 const OPEN_KEY = "lit-desk-panel";
 const TAB_KEY = "lit-desk-tab";
@@ -332,7 +333,12 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
   // them on a Study View chapter, and "My bookmarks" alone in Read View.
   // "Hide my notes" (M1) goes with either.
   const slot = panel.querySelector(".desk-panel__settings-slot");
-  if (here) slot.replaceWith(panelNoteControls());
+  if (here) {
+    const controls = panelNoteControls();
+    // The widths the reader dragged, Study View's alone (widths.js).
+    controls.append(resetWidthsButton("desk-panel__reset"));
+    slot.replaceWith(controls);
+  }
   else if (inReadView) slot.replaceWith(panelNoteControls({ notes: false }));
   else slot.remove();
   const fullBox = panel.querySelector(".desk-panel__full");

@@ -2468,16 +2468,36 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
        box is checked exactly when everything is hidden.
      - **C10**: a line under the tray's Show group on Study View chapters,
        "With verse numbers off, select any words for the same actions."
+     - **Widths the reader can drag** (decision item 13), built on the
+       recommended details: on a Study View chapter with the notebook open in
+       the margin, a handle in each gap (notes' margin and LIT; LIT and
+       notebook), invisible at rest, with the resize cursor and a small grip
+       beside the pointer in the gap and a hairline while dragging; a
+       focusable separator the arrow keys move a character at a time (ten
+       with Shift). Kept as the LIT's measure (36 to 72) and the notebook's
+       width (at least 280px) in `sessionStorage` for the visit; the
+       notebook then sits at the window's edge and the notes' margin takes
+       what's left. The first drag in a very wide window, where the panel
+       stops at 440px beside the text, widens the panel to the window's edge
+       rather than moving the text. Stamped before first paint (Layout.astro;
+       global.css sets the column from it), so a page never jumps; a window
+       too narrow for the kept widths gives way as recommended (notes'
+       margin, then the notebook to 280, then the LIT to 36, then the
+       floating notebook) without forgetting them. "Reset widths" in the
+       panel's foot and the Display tray. The rules are in
+       `src/lib/desk-margin.mjs` (`placeWithWidths` and the two drags),
+       the handles in `src/scripts/desk/widths.js`.
      - **Defaults chosen where nothing was decided**, for BVJ to judge on the
        preview: the "Show in notebook" label and its own row in the menu;
        This verse opening at the address's verse, else the verse being read;
        Previous and Next staying inside the chapter; H as M1's key, and M1
        closing the panel (unless done from the panel itself); the foot on My
        Notes only; the tab last chosen remembered across pages
-       (`lit-desk-tab`); the C10 wording.
+       (`lit-desk-tab`); the C10 wording; the arrow keys' step on the width
+       handles (a character, ten with Shift).
      **Still to come in 1c**: highlights and the change notice (after BDR's
-     answer on rules a to e), widths the reader can drag, notes on articles
-     and glossary entries (N11), and the versions, held (below).
+     answer on rules a to e), notes on articles and glossary entries (N11),
+     and the versions, held (below).
      **Added to 1c on 2026-10-08**, from the Greek tab's planning ("Decisions",
      2026-10-08). None of it waits on BDR, so it can fill the time while
      highlights and the change notice do:
@@ -2493,7 +2513,8 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      - **Widths the reader can drag** (BVJ, 2026-10-08): their notes, the
        LIT and the notebook, with nothing showing between the columns until
        the pointer is in the gap. Details under "Decisions", 2026-10-08 (the
-       Greek tab), items 12 and 13. Small to medium.
+       Greek tab), items 12 and 13. Small to medium. **Built 2026-10-08**
+       (above).
      - **"This verse" (N10)** with the verse's footnotes, the reader's notes
        on it and the public-domain versions from the start; the licensed translations join in 1e
        and the Greek in 1f. Small. **Built 2026-10-08 without the versions**
@@ -3152,7 +3173,8 @@ lemmas already exist for every SBLGNT word. Only the word-to-word link waits.
 
 **Recommended, not decided:**
 - **The draggable widths' details** (item 13), as built on the comparison
-  page:
+  page, and **built that way on the preview 2026-10-08** ("Order of work",
+  1c) for BVJ to judge:
   - **Two handles**, each trading width between its two neighbours: one
     between the notes margin and the LIT, one between the LIT and the
     notebook. Each is a focusable separator the arrow keys move too (the

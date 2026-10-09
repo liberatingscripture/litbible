@@ -25,11 +25,19 @@
 // text. Either way the column moves only as far as the tab needs, so
 // expanding and collapsing never moves the text.
 //
+// On a Study View chapter, with the notebook in the margin, the reader can
+// drag the widths of their notes' margin, the LIT and the notebook
+// (widths.js). With widths kept, those place everything instead: the
+// notebook at the window's edge at the kept width, the column (set by
+// global.css from the same values) GAP before it, nothing moved by a
+// translate. Where they don't fit at all, the ordinary placement takes over.
+//
 // Only loaded on a page with a reading column (desk-gate.js checks
 // readingSurface first).
 
 import { EDGE, nextCollapsed, panelHeight, placeFloating, placeInMargin } from "../../lib/desk-margin.mjs";
-import { readingSurface } from "../desk-frame.js";
+import { READING_SURFACES, readingSurface } from "../desk-frame.js";
+import { WIDTHS_EVENT, createWidths } from "./widths.js";
 
 /**
  * @param {HTMLElement} panel the Notebook panel, which this moves into the rail
@@ -71,6 +79,9 @@ export function createRail(panel, tab, onChange = () => {}) {
   rail.append(panel, tab);
   document.body.append(rail);
   const panelTitle = panel.querySelector(".desk-panel__title") ?? panel;
+  // The draggable widths: Study View chapters only (the first surface).
+  const studyColumn = surface === READING_SURFACES[0] ? columnEls[0] : null;
+  const widths = studyColumn ? createWidths({ column: studyColumn, panel, onChange: () => place() }) : null;
 
   let open = false;
   let shift = 0;
@@ -132,6 +143,8 @@ export function createRail(panel, tab, onChange = () => {}) {
     const before = { floating, collapsed };
     if (!open) {
       setShift(0);
+      widths?.clear();
+      widths?.hideHandles();
       rail.hidden = true;
       floating = collapsed = false;
       root.style.removeProperty("--desk-dock-width");
@@ -140,16 +153,29 @@ export function createRail(panel, tab, onChange = () => {}) {
       return;
     }
     const viewport = root.clientWidth;
-    const m = { viewport, column: columnBox(), main: main.getBoundingClientRect(), shift };
-    const at = placeInMargin(m);
     const wasFloating = floating;
-    floating = at.over;
-    collapsed = nextCollapsed({ floating, wasFloating, collapsed, opening });
-    opening = false;
-    let box = at;
-    if (floating) {
-      const f = placeFloating(m);
-      box = { ...(collapsed ? f.tab : f.panel), shift: f.shift };
+    // The reader's widths, where kept and where they fit. Applied first, since
+    // they set the column (global.css) that everything else measures.
+    const lay = widths?.layout() ?? null;
+    let box;
+    if (lay && !lay.over) {
+      widths.apply(lay);
+      floating = false;
+      collapsed = false;
+      opening = false;
+      box = { left: lay.panelLeft, width: lay.width, shift: 0 };
+    } else {
+      widths?.clear();
+      const m = { viewport, column: columnBox(), main: main.getBoundingClientRect(), shift };
+      const at = placeInMargin(m);
+      floating = at.over;
+      collapsed = nextCollapsed({ floating, wasFloating, collapsed, opening });
+      opening = false;
+      box = at;
+      if (floating) {
+        const f = placeFloating(m);
+        box = { ...(collapsed ? f.tab : f.panel), shift: f.shift };
+      }
     }
     setShift(box.shift);
 
@@ -171,6 +197,10 @@ export function createRail(panel, tab, onChange = () => {}) {
     rail.style.top = `${top}px`;
     rail.style.height = `${Math.max(0, bottom - top)}px`;
     if (!collapsed) fitHeight();
+    // The handles run down the same stretch as the panel, in the margin only.
+    if (widths && !floating) {
+      widths.placeHandles({ top, height: bottom - top, column: columnBox(), panelLeft: box.left });
+    } else widths?.hideHandles();
 
     // For the floating panels (desk-frame.js) and the undo bar. From the
     // window's edge, scrollbar included, since that's what lit-panel.js
@@ -199,6 +229,12 @@ export function createRail(panel, tab, onChange = () => {}) {
   for (const el of [main, ...columnEls, document.querySelector(".site-header")]) if (el) observer.observe(el);
   window.addEventListener("resize", schedule);
   window.addEventListener("load", schedule);
+  // Forgetting the widths re-places at once, inside the reset's
+  // keepReadingPlace, so the reader's line holds through the reflow. A drag
+  // places as it goes (widths.js).
+  document.addEventListener(WIDTHS_EVENT, (e) => {
+    if (!e.detail?.kept && open) place();
+  });
   // The headings are measured by their fonts' capitals, so place again once
   // the web fonts are in.
   document.fonts?.ready.then(schedule);

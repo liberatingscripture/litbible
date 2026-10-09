@@ -3183,3 +3183,17 @@ html[data-desk] {
 html[data-desk][data-desk-panel]:has(.scripture-layout--scripture .scripture-main) {
   --reading-measure: 48;
 }
+
+/* Widths the reader dragged (BVJ, 2026-10-08; src/scripts/desk/widths.js),
+   on Study View chapters with the notebook open: the LIT's measure, and the
+   notebook's width, which sets where the column ends (the notebook sits 16px
+   from the window's edge and the column 24px before it: EDGE and GAP in
+   src/lib/desk-margin.mjs). Layout.astro stamps both before first paint
+   from sessionStorage, and widths.js writes what fits over them where the
+   window is narrow. Closed, the page goes back to the centred column. */
+html[data-desk][data-desk-panel][data-desk-widths]:has(.scripture-layout--scripture .scripture-main) {
+  --reading-measure: var(--desk-measure);
+}
+html[data-desk][data-desk-panel][data-desk-widths] .scripture-layout--scripture .scripture-main {
+  margin-right: calc(var(--desk-width) + 40px);
+}

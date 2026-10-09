@@ -4,7 +4,9 @@
 // so it repeats src/lib/app-platform.mjs's test; this runs the script itself,
 // as written in Layout.astro, against the same devices isAppPlatform is tested
 // on, so the two can't drift apart. It also checks the preview link: ?desk=on
-// and ?desk=off set the flag and leave the address.
+// and ?desk=off set the flag and leave the address. It also checks that a width
+// dragged in the notebook (sessionStorage) is stamped only while the notebook is
+// open, the desk is on, and the values are in range.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -23,17 +25,31 @@ const UA = {
   windows: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36",
 };
 
-/** Run the script with a fake page; returns what it left behind. */
-function run({ href = "https://litbible.net/romans-8/", ua = UA.windows, touch = 0, stored = {} } = {}) {
+/**
+ * Run the script with a fake page; returns what it left behind. `session` is the
+ * page's sessionStorage at load (the notebook's widths from this visit), and
+ * `props` is what the script set on the page's inline style.
+ */
+function run({ href = "https://litbible.net/romans-8/", ua = UA.windows, touch = 0, stored = {}, session = {} } = {}) {
   const attrs = {};
+  const props = {};
   const store = new Map(Object.entries(stored));
+  const sessionStore = new Map(Object.entries(session));
   const replaced = [];
   const page = {
-    document: { documentElement: { setAttribute: (k, v) => { attrs[k] = v; } } },
+    document: {
+      documentElement: {
+        setAttribute: (k, v) => { attrs[k] = v; },
+        style: { setProperty: (k, v) => { props[k] = v; } },
+      },
+    },
     localStorage: {
       getItem: (k) => (store.has(k) ? store.get(k) : null),
       setItem: (k, v) => store.set(k, String(v)),
       removeItem: (k) => store.delete(k),
+    },
+    sessionStorage: {
+      getItem: (k) => (sessionStore.has(k) ? sessionStore.get(k) : null),
     },
     location: { href },
     history: { state: null, replaceState: (_s, _t, url) => replaced.push(url) },
@@ -41,7 +57,7 @@ function run({ href = "https://litbible.net/romans-8/", ua = UA.windows, touch =
   };
   const fn = new Function("appUa", "appUaFlags", ...Object.keys(page), match[1]);
   fn(APP_PLATFORM_UA.source, APP_PLATFORM_UA.flags, ...Object.values(page));
-  return { attrs, stored: Object.fromEntries(store), replaced };
+  return { attrs, stored: Object.fromEntries(store), replaced, props };
 }
 
 test("the script is in Layout.astro where this test expects it", () => {
@@ -79,6 +95,50 @@ test("a notebook left open is stamped before paint, since Study View chapters na
   assert.deepEqual(closed.attrs, { "data-desk": "on" });
   const phone = run({ ua: UA.iphone, touch: 5, stored: { "lit-desk-preview": "on", "lit-desk-panel": "open" } });
   assert.deepEqual(phone.attrs, {});
+});
+
+test("a width dragged in the notebook is stamped before paint, with its measure", () => {
+  const r = run({
+    stored: { "lit-desk-preview": "on", "lit-desk-panel": "open" },
+    session: { "lit-desk-measure": "50", "lit-desk-width": "360" },
+  });
+  assert.deepEqual(r.attrs, { "data-desk": "on", "data-desk-panel": "open", "data-desk-widths": "" });
+  assert.equal(r.props["--desk-measure"], "50");
+  assert.equal(r.props["--desk-width"], "360px");
+});
+
+test("a dragged width is not applied while the notebook is closed", () => {
+  const r = run({
+    stored: { "lit-desk-preview": "on" },
+    session: { "lit-desk-measure": "50", "lit-desk-width": "360" },
+  });
+  assert.deepEqual(r.attrs, { "data-desk": "on" });
+  assert.deepEqual(r.props, {});
+});
+
+test("a dragged width outside its range, or not a number, sets nothing", () => {
+  const stored = { "lit-desk-preview": "on", "lit-desk-panel": "open" };
+  const cases = [
+    { "lit-desk-measure": "30", "lit-desk-width": "360" },
+    { "lit-desk-measure": "80", "lit-desk-width": "360" },
+    { "lit-desk-measure": "50", "lit-desk-width": "200" },
+    { "lit-desk-measure": "wide", "lit-desk-width": "360" },
+    { "lit-desk-measure": "50", "lit-desk-width": "tall" },
+  ];
+  for (const session of cases) {
+    const r = run({ stored, session });
+    assert.deepEqual(r.attrs, { "data-desk": "on", "data-desk-panel": "open" }, JSON.stringify(session));
+    assert.deepEqual(r.props, {}, JSON.stringify(session));
+  }
+});
+
+test("without the desk on, a dragged width is not applied even with the notebook open", () => {
+  const r = run({
+    stored: { "lit-desk-panel": "open" },
+    session: { "lit-desk-measure": "50", "lit-desk-width": "360" },
+  });
+  assert.deepEqual(r.attrs, {});
+  assert.deepEqual(r.props, {});
 });
 
 test("?desk=on sets the flag and leaves the address, keeping the rest of it", () => {

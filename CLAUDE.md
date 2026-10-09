@@ -2085,6 +2085,12 @@ collection); they're read directly by the intro pages and the API manifest.
      reflows, and which panel.js sets and clears inside `keepReadingPlace`.
      Read View's toolbar takes a fixed
      floor (725px; 895px in OpenDyslexic) because it outgrows the column.
+     **On Study View the reader can drag the widths** of their notes'
+     margin, the LIT and the notebook (`desk/widths.js`, rules in
+     `desk-margin.mjs`): kept in `sessionStorage` for the visit, stamped
+     before first paint as `data-desk-widths` with `--desk-measure` and
+     `--desk-width`, and global.css sets the column's measure and right
+     margin from them.
      **The glossary also becomes a reading page** then (the end of
      `pages/glossary.css`): one column at the reading width, with the
      scripture pages' type sizes, all scaling with the Display tray's text
