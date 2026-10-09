@@ -137,6 +137,9 @@ generated from `src/data/books.js` (A-F9). It's never stored.
     indefinitely, so a stale backup can't bring a deleted note back (A-F10).
     Deleting means removing the live record and writing this one, never
     flipping a flag on the live record (iOS found flag flips unreliable).
+    **For draft 2** (BDR, 2026-10-09, rule c): the 30-day trash and the
+    marker kept forever stand, and the record also carries the deleted
+    record's **kind**; restoring re-creates the record under the same id.
 
 **Reserved:** `encryptedBody`, an envelope for an end-to-end encrypted body,
 unused for now (A-F12). Under plan C, BDR's proposal (2026-10-07) makes the
@@ -236,6 +239,12 @@ or `lost` mark shows a notice. The two apps' wording for it is worth keeping:
 Draft 1 adopts the apps' approach over the plan's whole-verse fallback,
 because both apps already ship it and tell the reader.
 
+**For draft 2** (BDR, 2026-10-09, rule e): two guards on `changed`, each
+with a test case. A **size limit**: never take a region much longer than the
+original (Android's is about twice plus a little). A **context floor**: where
+the words repeat ("Amen."), trust a choice only when enough context matches.
+Past either, the mark falls to `verse`, with the notice.
+
 ### Highlights that meet
 
 **Settled** (A-M5): Android's rule, which BDR ruled for iOS (2026-10-05)
@@ -244,6 +253,10 @@ and the website matches (BVJ, 2026-10-07). Restated on anchor text:
   only by whitespace, merge into one.
 - **Different colour:** a new highlight trims the old one where they
   overlap.
+- **Three details** (approved by BDR, 2026-10-09): highlights in different
+  paragraphs never merge; a trimmed remainder loses stray spaces at its
+  edges; and a highlight carrying an unread change notice is never touched
+  by a new one, since its old words are what the notice quotes.
 
 Each client applies the rule when the reader makes a highlight. None applies
 it to records arriving from elsewhere, so two devices can't rewrite each
@@ -258,6 +271,16 @@ mapping.
 `modified` comes from the device clock. Where a store has its own revision
 (a CloudKit change tag, a Drive file's version, a service's row version),
 that decides which write is newer, and `modified` only breaks a tie (A-F7).
+
+**Draft 2 reverses this** (BDR, 2026-10-09, rule a): the newer `modified`
+wins on every store and for every kind, notes included, so a write never
+wins just because its device synced last. A store's revision is only the
+"what changed since last time" cursor and the tiebreaker for an exact tie,
+and a `modified` in the future is clamped to the service's clock on arrival.
+An edit later than a trash record's `deletedAt` brings the record back
+(rule b). The older of two versions of a note is discarded, like any other
+kind's (BVJ, going with BDR, 2026-10-09), so a conflicting note leaves no
+second copy.
 
 ## Addresses
 
@@ -297,21 +320,18 @@ and accounts would live under `/sheets/`, `/notebook/`, `/account/`.
 ## Still open in this file
 
 - Bookmarks vs the `bookmark` marker (kind 4).
-- **The overlap rule's three details** (`STUDY-DESK.md`, rule d): which
-  highlights never merge, stray spaces on a trimmed remainder, and leaving a
-  highlight with an unread change notice alone. The rule itself is settled.
-  Needed before the website's phase 1c, as soon as possible.
-- **How records merge, and the `trash` record's fields. Needed before the
-  website's phase 1c, as soon as possible (mid-October at the latest).** The format names `deletedId` and `deletedAt` but not
-  the field holding the deleted record, and says nothing yet about which
-  write wins without a store revision, an edit made after a deletion, or a
-  note changed on two devices. The website's proposals are in
-  `STUDY-DESK.md`, "Questions for the apps" (talk-through item 20). One of
-  them adds a field, `conflictOf`, on the second copy of a conflicting note.
-  The website's phase 1b builds the proposed trash fields (`deletedId`,
-  `deletedAt`, and `record` for the whole deleted record) **provisionally**,
-  in `src/lib/desk-records.mjs`. Only its preview writes them, and nothing
-  leaves the browser, so a different answer means a migration there.
+- ~~The overlap rule's three details~~: **approved by BDR, 2026-10-09**
+  (under "Highlights that meet").
+- **How records merge, and the `trash` record's fields: answered by BDR,
+  2026-10-09** (`STUDY-DESK.md`, rules a to e). The newer `modified` wins
+  (under "Clocks"); an edit after a deletion brings the record back; the
+  trash keeps 30 days and then a marker forever, and adds the deleted
+  record's kind. The website's phase 1b built `deletedId`, `deletedAt` and
+  `record` **provisionally** in `src/lib/desk-records.mjs`; adding the kind
+  is a one-field migration there. The older of two versions of a note is
+  discarded (BVJ, 2026-10-09), so the website's proposed `conflictOf` copy
+  is dropped. Still open: the rule for collapsing two trash records of one
+  deletion, which draft 4d of BDR's proposal doesn't mention.
 - **Notes on glossary entries and articles** (STUDY-DESK.md, N11; BVJ,
   2026-10-06). **Built provisionally on the website's preview
   (2026-10-08)**: the two targets under kind 2, the rule against renaming
@@ -326,7 +346,14 @@ and accounts would live under `/sheets/`, `/notebook/`, `/account/`.
 - **Draft 2's list** (BDR's proposal, 2026-10-07): rules a to e for
   collisions, a placement value meaning "place me from my verses and quoted
   words" for records the website writes, and the envelope above. See
-  `STUDY-DESK.md`, "To freeze before Christmas".
+  `STUDY-DESK.md`, "To freeze before Christmas". **Added 2026-10-09**:
+  rules a to e as BDR answered them, and **pinned footnotes**, a tenth kind
+  (BDR): the book, chapter and verse and the footnote's full text in the
+  normalized form, never its letter, plus its order among identical
+  footnotes in that verse; found again by verse, then by its words, with the
+  change notice when the footnote is rewritten. Both apps store pins today
+  as a third value of an existing record type and map them to this kind
+  under sync.
 
 **Vectors not yet included:**
 - **Adjacent footnote letters:** the corpus has none today.
