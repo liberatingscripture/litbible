@@ -11,16 +11,18 @@ produced it.
 Many ideas here were weighed and decided, some were declined, and the reasons
 are recorded so they aren't re-argued.
 
-## Where things stand (as of 2026-10-07)
+## Where things stand (as of 2026-10-09)
 
-- **Sync now has three plans, and BDR's proposal of 2026-10-07 is the newest
-  record of it** ("One notebook, three homes" below). Plan B splits into B
+- **Sync now has three plans, and BDR's proposal is the newest record of
+  it** ("One notebook, three homes" below; first read 2026-10-07 at draft 2,
+  read again 2026-10-09 at draft 4d). Plan B splits into B
   (full accounts with passwords) and **C (a thin LIT service, end-to-end
   encrypted, signed into with Apple, Google or a passkey)**. The proposal
   recommends C; BDR is torn between A and C and would lean A if it can be
-  shown to work. October's spikes test plan A against agreed pass marks,
-  with a decision proposed by October 31. A Zoom between BVJ and BDR takes
-  the open items. **BVJ clearly prefers launching C** (2026-10-07, firmer after
+  shown to work. **The spikes that would test plan A are paused** (BDR,
+  2026-10-09), so the Zoom between BVJ and BDR now decides whether A is
+  tested at all; the October 31 date holds only if they resume. The Zoom's
+  list has grown to seventeen items. **BVJ clearly prefers launching C** (2026-10-07, firmer after
   the sizing; a preference, not an insistence or a decision), with "don't
   sign in" as the keep-it-in-your-own-cloud option (iCloud on Apple devices,
   as today) and full A added later only if readers ask; the website's side
@@ -31,8 +33,9 @@ are recorded so they aren't re-argued.
   `litbible.net/?desk=on` turns the desk on in one browser on a computer, and
   `?desk=off` turns it off. No desk page or service exists. 1c's parts that
   wait on nobody are built (notes, bookmarks, the margin, the panel's tabs and
-  "This verse", M1, the draggable widths, and N11 provisionally); highlights and the change notice wait on BDR's rules a
-  to e, and the versions on the API.bible questions. What exists:
+  "This verse", M1, the draggable widths, and N11 provisionally). Highlights and the change notice
+  no longer wait: BDR answered rules a to e on 2026-10-09. The versions wait
+  on the API.bible questions. What exists:
   - draft 1 of the record format (`STUDY-DESK-FORMAT.md`), with its
     reference implementation (`scripts/lib/anchor-text.mjs`) and test vectors
     (PR #268);
@@ -50,18 +53,22 @@ are recorded so they aren't re-argued.
   **The development phases were planned on 2026-10-05** ("Order of work"
   below). The format is frozen before anything syncs (BVJ, 2026-10-05).
   Until then phase 0 read "agree the record format before any code".
-- **BDR's input is needed as soon as possible (mid-October at the latest),
-  on the merge rules.** BVJ held
-  phase 1a's merge engine and the highlight overlap rule for BDR to weigh in
-  on (2026-10-05), since both are format decisions all three clients must
-  share. **They are needed before phase 1c** (highlights in Study View) **and
-  1d** (importing a notebook file). The five questions are under "Questions
-  for the apps" (talk-through item 20), and BDR's proposal restates them as
-  rules a to e with their alternatives, for BDR to approve as soon as possible, mid-October at the latest.
-  BVJ asked (2026-10-07) for every answer that gates 1c to be marked that
-  way rather than as a mid-October deadline. **The overlap rule's main part
-  is settled**: BDR ruled Android's rule for iOS (2026-10-05), and the
-  website matches it (BVJ, 2026-10-07); see rule d.
+- **BDR answered the merge rules on 2026-10-09** (rules a to e, talk-through
+  item 20). BVJ had held phase 1a's merge engine and the highlight overlap
+  rule for BDR (2026-10-05), since both are format decisions all three
+  clients must share. Four answers are as the website proposed (b2, c3, d1
+  with its three details, e2 for both). **Rule a differs**: the newer writing
+  wins for notes too, judged by the reader's own edit time on every store,
+  where the website had kept both versions of a conflicting note. What
+  becomes of the older version is the Zoom's item 15, for BVJ and BDR. So
+  highlights and the change notice (1c) can be built now; merging two
+  versions of one note (1d's import, phase 4's sync) waits on item 15. See
+  "BDR's answers and requests (2026-10-09)" under "One notebook, three
+  homes".
+- **BDR asks the website for two new things** (2026-10-09): **pinned
+  footnotes**, a tenth kind of record, by November, since both apps ship them
+  first; and, under plan C, a **"Connect your phone"** code in the Notebook
+  panel after sign-in. Where they fall in the website's order is BVJ's call.
 - **Both apps replied to the brief on 2026-10-04** (see "The apps' replies"
   below). BDR proposes that each reader's notebook stay in their own iCloud
   or Google account, with the website reaching it from the browser and **no
@@ -1469,7 +1476,7 @@ recommendation, not a decision.
 
 | # | Question | IDs | Who decides | Where it stands |
 |---|---|---|---|---|
-| 1 | Plan A or plan B (now **A or C**; see "One notebook, three homes") | T1, A-Q1 | BVJ with BDR | **2026-10-07:** BDR is torn between A and C; **BVJ clearly prefers C** (firmer after the website's sizing; not an insistence, not decided); the proposal recommends C and tests A with spikes, deciding by October 31. Before that: BDR leaned hard to A, and this review's 2026-10-05 lean, now superseded, was **A, if P1–P3 pass by the end of October.** It keeps the privacy page's promise that the site collects personal information only when someone chooses to send it, needs nobody on call, and lets the apps launch without the website. It moves work to the website (finding 6) |
+| 1 | Plan A or plan B (now **A or C**; see "One notebook, three homes") | T1, A-Q1 | BVJ with BDR | **2026-10-09:** BDR paused the spikes; the Zoom decides whether plan A is tested at all, and October 31 holds only if they resume. **2026-10-07:** BDR is torn between A and C; **BVJ clearly prefers C** (firmer after the website's sizing; not an insistence, not decided); the proposal recommends C and tests A with spikes, deciding by October 31. Before that: BDR leaned hard to A, and this review's 2026-10-05 lean, now superseded, was **A, if P1–P3 pass by the end of October.** It keeps the privacy page's promise that the site collects personal information only when someone chooses to send it, needs nobody on call, and lets the apps launch without the website. It moves work to the website (finding 6) |
 | 2 | Does "LIT never holds the notes" answer the end-to-end lean (C19)? | T2, A-Q2 | BVJ | Under plan A, Apple or Google could read the notes, as they can anything else in the account. LIT never could, and there is no recovery key to lose |
 | 3 | Brackets in anchors | T7 | BVJ; the apps follow | **Lean: strip** (finding 5) |
 | 4 | Reading positions: shared, or separate with ribbons crossing over | T5 (A-R6 says shared) | BVJ | **Lean: share one place per book**, stored as a verse (A-F13), so stopping on the phone moves the desk's Continue reading |
@@ -1482,14 +1489,14 @@ recommendation, not a decision.
 | 11 | The stores' privacy answers ("No data collected" on Play) | A-Q5, P3 | BVJ, BDR | Unverified under plan A |
 | 12 | The apps' License screen wording | T9, A-Q10 | BVJ | **Needed by mid-October.** Draft: "The LIT Bible is licensed under CC BY-NC-ND 4.0, with added permissions: you may print, display and share any amount for noncommercial uses such as Bible studies, classes, sermons and bulletins, and you may quote it in commercial works within set limits. The full terms, including the credit line to use, are at litbible.net/read#license-terms." Android's existing "You may not distribute modified versions" stays accurate |
 | 13 | Do shared sheet links need something hosted? | T10, A-M8 | BVJ | S8's links carry the sheet after the #, so they need nothing hosted. Only M14's short links need a small store, holding sheets only |
-| 14 | The N8 record, and whether hiding reaches daily readings and widgets | A-Q9 | BVJ | Shape proposed in W6; both apps list every route a hidden passage must stay hidden on |
+| 14 | The N8 record, and whether hiding reaches daily readings and widgets | A-Q9 | BVJ | Shape proposed in W6; both apps list every route a hidden passage must stay hidden on. **2026-10-09:** BDR wants a longer conversation with BVJ before anything beyond the reach is settled (the Zoom's item 17) |
 | 15 | Colour meanings in the apps | T6 | BVJ, BDR | **Settled 2026-10-07: dropped everywhere** (BVJ agreed with BDR's lean) |
 | 16 | The alignment data in the apps: N2 and H2 shown, or only carried | A-Q8 | BVJ | **Lean: carried only, at launch** |
 | 17 | The QR address | A-Q11 | BVJ | Both apps agree on `https://litbible.net/romans-8/#v3-4` |
 | 18 | Bookmarks vs the `bookmark` marker; whether a quote may cross a verse or paragraph boundary | A-Q13 | the three Claudes propose | **Lean: bookmarks are their own kind**, and the marker stays a note's glyph |
-| 19 | Tombstones after the trash empties | A-Q14 | the Claudes | **Lean: yes** (disagreement 2) |
-| 20 | **The merge and overlap rules. Needed soon, before phase 1c** | A-M5, A-F7, A-F10, A-Q14 | BDR, then the Claudes | BVJ held the website's merge engine and overlap rule for BDR's input (2026-10-05). Five questions, under "Questions for the apps" below |
-| 21 | **API.bible's terms**: can the LIT accept them for the CSB, NASB and NIV? | D7, 1e | BVJ with BDR | Added 2026-10-08. §5.4 bars any "potentially controversial use" of the text, naming critical race theory and critical queer theory, and §3.5 lets API.bible revoke access at any time; §12 requires that licensed text not be freely copied, with a 100-verse print limit; §4.1 bars changes to the text's structure (no longer a concern, since the versions keep their own paragraphs); §26 sends disputes to Christian conciliation and binding arbitration. For BDR: whether either app uses API.bible or plans to, since the Collective would be agreeing to these terms for the apps too, and what BDR makes of §5.4. The three ways forward (accept after asking API.bible, license directly, or link out for the first release) are under D7, "API.bible's own terms" |
+| 19 | Tombstones after the trash empties | A-Q14 | the Claudes | **Yes**: BDR chose rule c's option 3 (2026-10-09), a 30-day trash and then a marker kept forever |
+| 20 | **The merge and overlap rules** | A-M5, A-F7, A-F10, A-Q14 | BDR, then the Claudes | **Answered by BDR, 2026-10-09**, except what becomes of a note's older version (the Zoom's item 15). See "Questions for the apps" below and rules a to e. BVJ had held the website's merge engine and overlap rule for BDR's input (2026-10-05) |
+| 21 | **API.bible's terms**: can the LIT accept them for the CSB, NASB and NIV? | D7, 1e | BVJ with BDR | Added 2026-10-08. §5.4 bars any "potentially controversial use" of the text, naming critical race theory and critical queer theory, and §3.5 lets API.bible revoke access at any time; §12 requires that licensed text not be freely copied, with a 100-verse print limit; §4.1 bars changes to the text's structure (no longer a concern, since the versions keep their own paragraphs); §26 sends disputes to Christian conciliation and binding arbitration. For BDR: whether either app uses API.bible or plans to, since the Collective would be agreeing to these terms for the apps too, and what BDR makes of §5.4. The three ways forward (accept after asking API.bible, license directly, or link out for the first release) are under D7, "API.bible's own terms". **Still unanswered**: BDR's proposal at draft 4d (2026-10-09) doesn't mention it |
 
 Questions for the apps, to send back:
 - **For the iOS instance:** finding 1 (re-anchoring and paragraph positions);
@@ -1506,34 +1513,56 @@ Questions for the apps, to send back:
   untouched (the format's principle 6), and to say whether either app might
   show them later, especially glossary notes, since the apps already have
   the glossary.
-- **For BDR, as soon as possible, mid-October at the latest (item 20): the merge and overlap rules.**
-  The website needs these before phase 1c, so it doesn't build rules the apps would then
-  undo. Each is a proposal to answer yes, no or "do it this way":
+- **For BDR (item 20): the merge and overlap rules. Answered by BDR,
+  2026-10-09** (rules a to e in BDR's proposal; see "When notes collide"
+  below). The website needed these before phase 1c, so it wouldn't build
+  rules the apps would then undo. Each question with BDR's answer:
   1. **Which write wins.** With no store revision to go by (importing a
      file, say), the newer `modified` wins, accepting that a device whose
      clock is wrong can make an older edit win. Where a store has a revision
      (a CloudKit change tag, a Drive file version), the revision decides, as
      the format already says (A-F7).
+     **BDR: the newer `modified` wins everywhere**, store revision or not
+     (rule a's option 1a, "never by which device synced last"). A service's
+     revision is only the "what changed since last time" cursor and the
+     tiebreaker for an exact tie, and an edit time in the future is clamped
+     to the service's clock on arrival. That replaces A-F7's "the revision
+     decides" in draft 2.
   2. **Edits and deletions.** A record whose `modified` is later than a
      trash record's `deletedAt` comes back, and the trash record is dropped.
      That makes undo work across devices and lets an edit made offline
      survive a deletion made elsewhere. It also relies on the clock, so a
      slow clock could bring back a note someone deleted. Is that the
      behaviour both apps want?
+     **BDR: yes** (rule b, option 2), "later" meaning the reader's own action
+     time; the service clamps claims of the future.
   3. **A note changed on two devices.** Both versions are kept: the newer
      keeps the ID, the other becomes a second note marked `conflictOf: <id>`.
      The second note's ID is worked out from the original's ID, `modified`
      and body, so importing the same file twice doesn't add it twice. That
      would be a UUID version 8. Would either app reject a version-8 UUID?
+     **BDR: no, the newer writing wins** for notes as for everything else.
+     What becomes of the older version is the Zoom's item 15: overwritten
+     (BDR's lean), kept in the trash for 30 days as "an earlier version of
+     this note" (the proposal's middle way, which BDR finds "a bit much"),
+     or kept visible beside it (this proposal). The version-8 question is
+     unanswered; it matters only if both stay visible.
   4. **The trash record's fields**: `deletedId`, `deletedAt`, and `record`
      for the whole deleted record (dropped after 30 days, leaving the
      tombstone). When two devices delete the same record, the two trash
      records collapse to one: the one still holding its content, then the
      earliest, then the lowest ID.
+     **BDR: a 30-day trash, then a marker kept forever** (rule c, option 3).
+     The proposal's contract adds a field, the deleted record's **kind**, and
+     says restoring re-creates the record under the same id. The collapse
+     rule for two trash records isn't mentioned yet.
   5. **Overlapping highlights** (A-M5). Is it Android's rule (same colour
      merges, a different colour trims the old one) or iOS's? And are marks
      that were re-found as `changed`, `verse` or `lost` left alone, so making
      a highlight never silently rewrites a mark the reader hasn't looked at?
+     **BDR: Android's rule with its three details** (rule d, option 1),
+     including that a highlight carrying an unread change notice is never
+     touched by a new one. Settled for all three.
 
 ### Dates (superseded 2026-10-05)
 
@@ -1607,9 +1636,14 @@ needing a decision. None blocks the format.
 - **In the format:** bookmarks vs the `bookmark` marker
   (`STUDY-DESK-FORMAT.md`, "Still open"). The overlap rule is settled
   (rule d).
-- **The merge rules, the trash record's fields and the overlap rule**
-  (talk-through item 20). **More urgent than the rest of this list**: phase
-  1c waits on them, so as soon as possible, mid-October at the latest.
+- ~~The merge rules, the trash record's fields and the overlap rule~~
+  (talk-through item 20): **answered by BDR, 2026-10-09**, except what
+  becomes of a note's older version, which is the Zoom's item 15.
+- **Four questions the proposal added on 2026-10-09** (the Zoom's items 14
+  to 17): whether BDR's Claude drafts the encryption spec here; a note's
+  older version under rule a; what readers call the synced marks, and
+  whether "Study Desk" stays; and the hidden passage, at length. See "BDR's
+  answers and requests (2026-10-09)" below.
 
 ## One notebook, three homes (BDR's proposal, 2026-10-07)
 
@@ -1622,6 +1656,10 @@ update log and checkboxes, is in BDR's LIT Handoff folder, outside every
 repo. **It calls BDR "Brandon"**; this file keeps BDR and BVJ. BVJ brought it
 in on 2026-10-07. It changes no code anywhere, and it replaces the
 three-instance back-and-forth: on BDR's side the proposal is now the record.
+**This file last read it on 2026-10-09, at draft 4d** (its header; the
+footer still says 4b). Drafts 3 to 4d are summarized under "BDR's answers
+and requests (2026-10-09)" below, and the sections after it are updated to
+match.
 
 **How the website answers (BVJ, 2026-10-07): through this file.** BDR's
 Claude reads this repo directly, so nothing is sent by hand and no new reply
@@ -1651,8 +1689,106 @@ website has to say goes here, on `main`, with its date.
 - **The website's margin is the reader's choice** (notes shown or hidden;
   dots where there isn't room), beside the Notebook panel's list. Website
   only; nothing changes for the apps.
-- Everything else in the proposal (rules a to e, the Zoom items, the
-  sequence) waits on BDR or on the Zoom.
+- **2026-10-09: drafts 3 to 4d read.** BDR's answers and requests are in
+  the next section. BVJ's answers to the questions they raise (the Zoom's
+  items 14 to 17, the launch sheet, and where pinned footnotes fall in the
+  website's order) will be added to this list with their dates.
+- Everything else in the proposal (the Zoom items, the sequence) waits on
+  the Zoom.
+
+### BDR's answers and requests (2026-10-09)
+
+The proposal's drafts 3 to 4d, newest last. Each item says whose it is to
+settle.
+
+- **Draft 3 (2026-10-08):** BDR's Claude read this file (PRs #282 to #288)
+  and now takes the website's answers from it. Its newest log entry (dated
+  2026-10-10) reads the 1c commits of October 8 and 9 as build progress,
+  not answers.
+- **Draft 4: rules a to e answered** (talk-through item 20): "a1 by writing
+  time (for notes too), b2, c3, d1 with the three details, e2 and e2." Four
+  are as the website proposed. Rule a is not: the newer writing wins for
+  notes too, by the reader's own edit time, where the website had kept both
+  versions. Details under "When notes collide" below.
+- **Draft 4: two definitions BDR asked for**, "the notebook" (all the kinds,
+  wherever stored) and **"Two roads, one notebook"**, how the apps sync under
+  plan C without syncing twice. iCloud keeps carrying records between a
+  reader's Apple devices as today; signing in adds the service as a second
+  road on that device; a record arriving by either road goes through the
+  same merge rule; a device sends only what is newer than the service last
+  confirmed, so nothing loops; the first sign-in uploads the whole notebook
+  once, encrypted; signing out removes the road and deletes nothing. The
+  alternative, moving the notebook off iCloud at sign-in, isn't recommended.
+  On Android, signing in adds the only road (Auto Backup is a safety net,
+  not a road). iOS's Claude picks the implementation. A recommendation for
+  the apps; nothing changes for the website.
+- **Draft 4b: the plan A spikes are paused** at BDR's word. The kit stays
+  ready; the credentials and the Android probe wait on BDR's word. The Zoom
+  decides whether A is tested at all, and October 31 holds only if the
+  spikes resume.
+- **Draft 4c: offering sync in the apps, both ways approved by BDR:**
+  1. **A What's New sheet** on the first launch after the release that
+     brings sync. BDR's lean, **to confirm with BVJ**: announce sync once
+     there, and keep it out of the onboarding tour every new reader sees.
+  2. **"Connect your phone" on the website**, under plan C, in the same
+     release if the schedule allows, otherwise the next. After a reader signs
+     in, the Notebook panel shows a link and a QR code; the service mints a
+     single-use code that lives about ten minutes; the app opens with it,
+     asks "Connect this iPhone to your notebook?", and on yes is signed in.
+     It needs a small endpoint on the service, the panel here, and each app
+     claiming one new address under `/account/`. BDR drafted the panel's
+     words: "Sync with the app. Scan this code with your phone's camera, or
+     open this link on it, to turn on sync in the LIT Bible app. The code
+     works for ten minutes." Say "sync" and "connect", never "pair". The
+     final wording waits on item 16.
+- **Draft 4c: four new Zoom items**, so the list is now seventeen (under "The
+  Zoom" below):
+  - **14. BDR's Claude drafting the encryption spec.** BDR: yes, the spec
+    and its test cases, as a pull request to this repo that BVJ reviews,
+    once BVJ agrees. **BVJ's to decide**: it widens BDR's scope here beyond
+    /apps and /privacy (`BDR-ONBOARDING.md`).
+  - **15. A note's older version under rule a**: overwritten (BDR's lean),
+    kept in the trash for 30 days as "an earlier version of this note" (the
+    proposal's middle way; BDR finds it "a bit much"), or kept visible
+    beside the newer one (this file's plan). **For BVJ and BDR.**
+  - **16. What readers call the synced marks, and whether "Study Desk"
+    stays.** BDR: the "Notebook" framing came from the Markdown-file idea,
+    now down to export and import; underneath, it is "feature parity and user
+    content sync between the site and the apps". Options: (A) plain words,
+    "My Notes" everywhere and "sync" for the feature; (B) "Notebook"
+    everywhere, the apps renaming My Notes; (C) a new metaphor (Margins,
+    Commonplace book, Journal). BDR leans A, possibly B, and wants a frank
+    conversation about dropping "Study Desk". The proposal notes the website
+    already says "My Notes" for the panel's tab and "My Notebook" for the
+    menus' row, and that readers meet Notebook, Places and Sheets, not
+    "Study Desk". **BVJ's call.**
+  - **17. The hidden passage, at length.** BDR wants a longer conversation
+    before anything beyond its reach is settled: whether a reader can hide a
+    passage from the apps themselves or only from the desk; the reach
+    (agreed in principle: everywhere scripture appears, including daily
+    readings, search, share cards and Siri); where the controls live in the
+    apps; what the veil looks like and says; what a screen reader hears;
+    whether the reader's private note shows on the veil or only on a tap;
+    and whether hiding should ever expire.
+- **Draft 4d: pinned footnotes, a tenth kind** (BDR). A translator's note
+  the reader wants to come back to, kept by a Pin button on the footnote.
+  Android ships them in 1.3 (October) and iOS in November. **The website is
+  asked to match by November**: a Pin button wherever a footnote is read (the
+  popover and the end list), a "Pinned footnotes" list in the panel, and the
+  change notice when a pinned footnote is rewritten. The record carries the
+  book, chapter and verse and the footnote's full text in the shared
+  normalized form, **never its letter** (letters shift whenever a footnote is
+  added earlier in the chapter), plus its order among that verse's footnotes
+  where several read the same. It is found again by verse, then by its
+  words. Readers see "Pin", "Unpin" and "Pinned footnotes" on all three.
+  **Where it falls in the website's order is BVJ's call** (the website
+  builds in its own order, 2026-10-05); the kind joins format draft 2
+  either way.
+- **Not answered in draft 4d**: API.bible's terms (talk-through item 21);
+  the rule for collapsing two trash records of one deletion (item 20,
+  question 4); Android running the shared test cases ("Approved as a unit
+  test; not yet run"); the license link, still planned for Android 1.3 and
+  iOS 2.0, 2.0.1 or 2.1.
 
 ### Three plans, not two
 
@@ -1769,6 +1905,11 @@ reading existing iPhone notes.
 
 ### Proving plan A: the spikes
 
+**Paused (BDR, 2026-10-09).** The kit stays ready and nothing below is
+withdrawn. If the Zoom wants plan A tested, the spikes resume on BDR's word
+and the decision date moves with them; otherwise the Zoom decides on the
+evidence already here.
+
 P1 and P2, turned into tests with pass marks agreed before anyone runs them,
 so the result settles the question. They are throwaway pages outside all
 three repos. The kit is written (BDR's LIT Handoff `spikes/` folder: both probe
@@ -1803,29 +1944,44 @@ accepts their cost to readers; Google's hourly behaviour is acceptable or a
 token server is accepted; BVJ accepts the sizing; and both accept the two
 uncovered readers at launch, with export and import as their way. **C wins**
 if the write test fails on the version readers have, or the web's costs to
-readers are judged too high. Proposed: **decide by October 31.** The format
+readers are judged too high. Proposed: **decide by October 31**, which now
+holds only if the spikes resume (paused 2026-10-09). The format
 work, and the app work marked "whatever the plan", don't change either way.
 
 ### When notes collide: rules a to e
 
 Item 20's five questions, restated with their alternatives for BDR to
-approve: "a2 for notes and a1 for the rest; b2; c3; d1 with the three
-details; e2 and e2". **Recommendations, not decided.** Both app Claudes
-mostly agree.
+approve. The recommendation was "a2 for notes and a1 for the rest; b2; c3;
+d1 with the three details; e2 and e2". **Answered by BDR, 2026-10-09: "a1
+by writing time (for notes too), b2, c3, d1 with the three details, e2 and
+e2."** So highlights and the change notice (phase 1c) can be built; merging
+two versions of one note waits on the Zoom's item 15.
 
-- **a. A note edited on two devices before they sync:** keep both, and the
-  reader picks. Highlights, bookmarks and places: the later write wins.
-  (Question 3.)
+- **a. A note edited on two devices before they sync:** recommended: keep
+  both, and the reader picks. Highlights, bookmarks and places: the later
+  write wins. (Question 3.)
+  **BDR's answer: the newer writing wins, for notes as for everything else**,
+  judged by the reader's own edit time, "never by which device synced last".
+  The service's revision is only the "what changed since last time" cursor
+  and the tiebreaker for an exact tie, and a device whose clock claims the
+  future is clamped. That corrects the format's draft 1, which let a store's
+  revision decide (A-F7). What becomes of the older version is the Zoom's
+  item 15 (see "BDR's answers and requests" above).
 - **b. Deleted on one device, edited on another:** the later action wins; the
   service's revision decides where there is one, so clocks matter only
   without it. (Question 2.)
+  **BDR's answer: yes**, with "later" meaning the reader's own action time,
+  as in rule a. The trade-off is a device with a badly wrong clock, which is
+  rare; the service clamps claims of the future.
 - **c. The trash:** 30 days, then a marker of a few bytes kept forever, so a
   stale backup can't revive the note. (Question 4.)
+  **BDR's answer: yes.** The trash would also hold rule a's earlier versions
+  if item 15 goes that way.
 - **d. Overlapping highlights:** Android's rule, which BDR ruled for iOS.
   **The rule itself is settled for all three**: the website matches BDR's
   decision (BVJ, 2026-10-07, who would have preferred letting highlights
-  overlap but defers to the apps' reconciled rule). Still for BDR to
-  approve, with the rest of a to e: its three details: highlights in different paragraphs never merge; a
+  overlap but defers to the apps' reconciled rule). Its three details,
+  **approved by BDR on 2026-10-09**: highlights in different paragraphs never merge; a
   trimmed remainder loses stray spaces at its edges; and a highlight carrying
   an unread change notice is never touched by a new one, since its old words
   are what the notice quotes. (Question 5.)
@@ -1835,10 +1991,23 @@ mostly agree.
   floor**: with repeated words ("Amen."), trust a choice only when enough
   context matches. Past either, the mark goes on the whole verse, with the
   notice.
+  **BDR's answer: both guards** (option 2 for each). In every uncertain case
+  the reader sees the notice the apps already show, with its actions (Keep,
+  Re-read in context, Delete).
 
 ### To freeze before Christmas (format draft 2)
 
-Rules a to e, each with a test case, and:
+Rules a to e as BDR answered them (2026-10-09), each with a test case, and:
+- **Which write wins**: the newer `modified` on every store and for every
+  kind (rule a); a store's revision is the change cursor and the tiebreaker
+  only, and a future `modified` is clamped on arrival.
+- **The trash record** carries the deleted id, the deletion time, the
+  deleted record (dropped after 30 days) **and its kind**; restoring
+  re-creates the record under the same id (the proposal's contract,
+  2026-10-09). The website's provisional record has no kind yet.
+- **Pinned footnotes, a tenth kind** (BDR, 2026-10-09; see "BDR's answers
+  and requests"): the verse, the footnote's full normalized text, never its
+  letter, and its order among identical footnotes in one verse.
 - **Records the website writes carry a value telling the apps "place me
   from my verses and quoted words".** This corrects W4: on shipped iOS a
   blank placement field means "legacy", so a note written with an empty
@@ -1859,6 +2028,8 @@ Rules a to e, each with a test case, and:
 
 Under plan C with end-to-end encryption:
 - **Website (BVJ):** phases 1c, 1d, 2 and 3 in the website's own order.
+  Asked of it on 2026-10-09: pinned footnotes by November, and under C,
+  "Connect your phone" (where both fall is BVJ's call).
   Phase 4: one connector to the service, connection status and "Reconnect",
   edits queued offline, the conflict screen, export and import. The
   encryption layer in the browser (the notebook key, the recovery-code
@@ -1905,14 +2076,17 @@ Settings?). The proposal recommends no Format-menu entry: the veil carries
 each passage's controls, My Notes lists hidden passages, and a quiet
 "Hidden passages" Settings page holds the "show all for now" override and
 the explanation. It also asks whether the apps should let a reader hide a
-passage from the selection menu. BDR's to decide.
+passage from the selection menu. BDR's to decide, and part of the longer
+conversation BDR asked for (the Zoom's item 17, 2026-10-09).
 
 ### The Zoom: BVJ with BDR
 
-Thirteen items, each with its options in the proposal. **The proposal's
+Seventeen items since draft 4c (2026-10-09; thirteen in draft 2), each with
+its options in the proposal. Not yet held. **The proposal's
 recommendations, none decided:**
-1. **Where notes live:** C on the evidence so far. The call's useful outcome
-   is agreeing the spikes' pass marks; the spikes decide by October 31.
+1. **Where notes live:** C on the evidence so far. With the spikes paused
+   (2026-10-09), the call decides whether plan A is tested at all; if it is,
+   the spikes take about three weeks and the decision date moves with them.
 2. **End-to-end encryption and recovery:** K1 at launch. The first device
    makes a key kept in its secure storage; a new device gets it by approval
    from one that has it (a short code) or by the recovery code shown once at
@@ -1955,15 +2129,29 @@ recommendations, none decided:**
     new.
 13. **A reader with an iPhone and an Android tablet:** C covers them; under A,
     agree whether it's an accepted gap.
+14. **BDR's Claude drafting the encryption spec and its test cases** as a
+    pull request here: BDR says yes, once BVJ agrees (2026-10-09).
+15. **A note's older version under rule a:** overwritten (BDR's lean), in
+    the trash as an earlier version (the middle way), or visible beside the
+    newer one (this file's plan).
+16. **What readers call the synced marks, and whether "Study Desk" stays:**
+    BDR leans to plain words, possibly "Notebook" everywhere; the call is
+    BVJ's.
+17. **The hidden passage**, at length (BDR, 2026-10-09).
+Items 14 to 17 are described under "BDR's answers and requests (2026-10-09)".
 
 ### Proposed sequence to Ash Wednesday
 
 - **By mid-October:** BDR approves rules a to e (they unblock phase 1c,
-  so as soon as possible, mid-October at the latest; BVJ, 2026-10-07) and creates the spike credentials; the Zoom agrees the pass marks and, for C,
+  so as soon as possible, mid-October at the latest; BVJ, 2026-10-07). **Done 2026-10-09**,
+  except item 15. The spike credentials wait, since the spikes are paused.
+  The Zoom decides whether plan A is tested and, for C, settles
   end-to-end, passkeys and ownership; Android runs the shared test cases.
-- **October:** the spikes (about three weeks, mostly the eight-day wait).
+- **October:** the spikes (about three weeks, mostly the eight-day wait),
+  only if the Zoom wants them.
   Android 1.3 with the license link; iOS 2.0 (about October 15), with the
-  link or in 2.0.1 or 2.1. **A or C by October 31.**
+  link or in 2.0.1 or 2.1. **A or C at the Zoom, or by October 31 if the
+  spikes resume.**
 - **November:** format draft 2 becomes the freeze candidate. Under C, the
   envelope, the service scaffolded in development, and the key flow agreed
   across all three; under A, the permanent iCloud schema designed whole and
@@ -2261,10 +2449,13 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
        tombstones, keeping both versions of a conflicting note. It would
        import a file in phase 1 and become the sync engine in phase 4, since
        stores are homes, not formats (the format's principle 2). Its rules
-       are format decisions (talk-through item 20).
+       are format decisions (talk-through item 20). **BDR answered them on
+       2026-10-09** (rules a to e): the newer `modified` wins on every store
+       and for every kind, so "keeping both versions" waits on the Zoom's
+       item 15.
      - **Held for BDR: the highlight overlap rule** (A-M5, item 20).
        **Settled 2026-10-07**: Android's rule, as BDR ruled for iOS; its
-       three details (rule d) still wait on BDR's approval.
+       three details (rule d) approved by BDR on 2026-10-09.
    - **1b. The shell, behind a preview switch.** The gate and dynamic import,
      so readers download nothing until the desk is switched on for them; a
      preview switch, so BVJ can try it on the live site first; IndexedDB with
@@ -2291,7 +2482,9 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
        `emptyTrashRecord` in `desk-records.mjs` use the website's proposed
        fields (`deletedId`, `deletedAt`, `record`; item 20, question 4).
        Undoing moves `modified`, which question 2 relies on. If BDR answers
-       differently, the change goes in `migrateRecord`.
+       differently, the change goes in `migrateRecord`. **BDR's answer
+       (2026-10-09)** keeps these and adds the deleted record's kind, so the
+       migration is one field.
      - **The undo bar** (`src/scripts/desk/undo-bar.js`) has no timeout:
        until the trash list (M7) exists it is the only way back, and a timed
        one would fail WCAG 2.2.1.
@@ -2545,8 +2738,11 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
        Now each takes only the break it needs, measured on the page: its
        options on the heading's line, or together on a line of their own, or
        (only the longest, mercy's, at the default size) each on its own line.
-     **Still to come in 1c**: highlights and the change notice (after BDR's
-     answer on rules a to e), and the versions, held (below).
+     **Still to come in 1c**: highlights and the change notice (BDR answered
+     rules a to e on 2026-10-09, so they no longer wait), and the versions,
+     held (below). **Pinned footnotes** (BDR asked 2026-10-09 for them by
+     November; see "BDR's answers and requests") aren't placed in the order
+     yet; that is BVJ's call.
      **Added to 1c on 2026-10-08**, from the Greek tab's planning ("Decisions",
      2026-10-08). None of it waits on BDR, so it can fill the time while
      highlights and the change notice do:
@@ -2691,8 +2887,9 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
    printed codes (S5), present mode with the presenter view and room code (S6,
    M2, M3), sheets from searches and templates (M5, M9), annotated printing
    (M6) and shared links (S8). Large.
-4. **Sync, with BDR.** Starts once plan A or C is chosen and the proofs (P1 to
-   P3, now the spikes) are in. Under both plans: a sync loop on 1a's merge engine, one source
+4. **Sync, with BDR.** Starts once plan A or C is chosen and, if the Zoom
+   wants plan A tested, the proofs (P1 to P3, now the spikes, paused
+   2026-10-09) are in. Under both plans: a sync loop on 1a's merge engine, one source
    of truth at a time (C5), connection status and "Reconnect", edits queued
    while disconnected, the conflict screen, and enforcing the full content
    security policy, since the page will hold a credential to readers' notes
@@ -3338,12 +3535,27 @@ lemmas already exist for every SBLGNT word. Only the word-to-word link waits.
   - **The second slice's defaults** (2026-10-08): listed under "Order of
     work", 1c, for BVJ to judge on the preview, with N11's provisional
     choices (the slug rule, the rule for quoting prose, the field names).
-- **The merge rules and the overlap rule's details** (talk-through item
-  20; rules a to e), needed from BDR before phase 1c, as soon as possible, mid-October at the latest.
-  The overlap rule itself is settled (rule d). The trash record's fields (question 4) are built
-  provisionally in 1b, so BDR's answer may mean a migration.
+- **The merge rules** (talk-through item 20; rules a to e): **answered by
+  BDR on 2026-10-09**. What remains:
+  - **A note's older version under rule a** (the Zoom's item 15), for BVJ
+    and BDR: overwritten (BDR's lean), in the trash as an earlier version,
+    or visible beside the newer one (this file's plan). Only merging two
+    versions of one note waits on it.
+  - **The trash record's kind**: BDR's contract adds the deleted record's
+    kind to the fields 1b built provisionally, a one-field migration.
+  - **For BDR still:** the rule for collapsing two trash records of one
+    deletion (question 4), and the version-8 UUID question if both versions
+    stay visible.
+- **BDR's other questions and requests of 2026-10-09** ("BDR's answers and
+  requests"): whether BDR's Claude drafts the encryption spec here (the
+  Zoom's item 14, BVJ's call); what readers call the synced marks, and
+  whether "Study Desk" stays (item 16, BVJ's call); the hidden passage at
+  length (item 17); the apps' launch sheet (BDR's lean, to confirm with
+  BVJ); and where pinned footnotes fall in the website's order, with BDR
+  asking for November.
 - **"To be decided"** under "The apps' replies", starting with plan A or
-  plan C ("One notebook, three homes", decision proposed by October 31). The record format is drafted (`STUDY-DESK-FORMAT.md`) and waits on
+  plan C ("One notebook, three homes"; at the Zoom, or by October 31 if the
+  paused spikes resume). The record format is drafted (`STUDY-DESK-FORMAT.md`) and waits on
   both apps' review.
 - **D7**: whether API.bible's tracking script is acceptable (BVJ,
   2026-10-08: "probably"; what it does is under D7); which other
