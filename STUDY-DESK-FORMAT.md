@@ -278,8 +278,9 @@ wins just because its device synced last. A store's revision is only the
 "what changed since last time" cursor and the tiebreaker for an exact tie,
 and a `modified` in the future is clamped to the service's clock on arrival.
 An edit later than a trash record's `deletedAt` brings the record back
-(rule b). What becomes of the older of two versions of a note is still open
-(`STUDY-DESK.md`, the Zoom's item 15).
+(rule b). The older of two versions of a note is discarded, like any other
+kind's (BVJ, going with BDR, 2026-10-09), so a conflicting note leaves no
+second copy.
 
 ## Addresses
 
@@ -327,12 +328,10 @@ and accounts would live under `/sheets/`, `/notebook/`, `/account/`.
   trash keeps 30 days and then a marker forever, and adds the deleted
   record's kind. The website's phase 1b built `deletedId`, `deletedAt` and
   `record` **provisionally** in `src/lib/desk-records.mjs`; adding the kind
-  is a one-field migration there. Still open:
-  - what becomes of the older of two versions of a note (the Zoom's item
-    15). The website's `conflictOf` copy is needed only if both stay
-    visible, and then so is the version-8 UUID question;
-  - the rule for collapsing two trash records of one deletion, which draft
-    4d of BDR's proposal doesn't mention.
+  is a one-field migration there. The older of two versions of a note is
+  discarded (BVJ, 2026-10-09), so the website's proposed `conflictOf` copy
+  is dropped. Still open: the rule for collapsing two trash records of one
+  deletion, which draft 4d of BDR's proposal doesn't mention.
 - **Notes on glossary entries and articles** (STUDY-DESK.md, N11; BVJ,
   2026-10-06). **Built provisionally on the website's preview
   (2026-10-08)**: the two targets under kind 2, the rule against renaming

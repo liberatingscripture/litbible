@@ -8,8 +8,8 @@ before. You don't need to memorize any of it.
 **How to use it:** Give this entire file to your Claude Code (paste it in, or save
 it in the project folder as `BDR-ONBOARDING.md` and tell Claude Code to read it).
 It's written for *both* of you — the plain-language parts orient you, and the
-technical parts tell Claude Code exactly how this project works and what it is and
-isn't allowed to change. When in doubt, you can literally say to Claude Code:
+technical parts tell Claude Code exactly how this project works, where you work,
+and when to check with you first. When in doubt, you can literally say to Claude Code:
 *"Walk me through this using the onboarding guide,"* and it will.
 
 > **A note to Claude Code:** Your user is a first-time open-source contributor. Be
@@ -25,9 +25,11 @@ isn't allowed to change. When in doubt, you can literally say to Claude Code:
 > project actually works; hold them in mind for every change.
 >
 > **This document adds three things those two files don't cover: (1) that your
-> user is new to git/GitHub, (2) a strict change scope limited to the `/apps`
-> and `/privacy` pages, and (3) the exact collaboration workflow (branch → pull request → owner
-> review → merge). Follow the scope rules in Sections 5 and 6 without exception.**
+> user is new to git/GitHub, (2) your user's areas of the repo (the `/apps` and
+> `/privacy` pages, encryption, and app syncing) and the "are you sure?" check
+> before changing anything outside them, and (3) the exact collaboration
+> workflow (branch → pull request → owner review → merge). Follow Sections 5
+> and 6 every time.**
 
 ---
 
@@ -171,11 +173,13 @@ page," and it should run this whole loop with you.**
 1. **Start fresh.** Claude Code makes sure your copy is up to date with `main`
    (`git switch main`, then `git pull`), then creates a **new branch** for this
    change. *(Never make changes while sitting on `main`.)*
-2. **Make the change.** You tell Claude Code what you want on the `/apps` page;
-   it edits the files. Keep each change small and focused — one idea per PR is
+2. **Make the change.** You tell Claude Code what you want (on the `/apps` page,
+   say); it edits the files. Keep each change small and focused — one idea per PR is
    ideal and much easier for BVJ to review.
 3. **Preview it.** Claude Code runs `npm run dev`; you open
    **http://localhost:4321/apps** in your browser and confirm it looks right.
+   For encryption or sync work, which has no page to look at, the unit tests
+   (`npm test`) are the check instead.
 4. **Pre-flight checks.** Before sending, Claude Code runs the same checks CI will
    run (see Section 7), so problems are caught on your machine first.
 5. **Save + send.** Claude Code commits the change, pushes the branch to GitHub,
@@ -194,25 +198,25 @@ That's it. Every task, big or small, is this same nine-step loop.
 
 ---
 
-## 5. Your scope — what you may and may not change
+## 5. Your areas, and what to do outside them
 
-**This is the most important section. Claude Code: treat these as hard rules.**
+**This is the most important section. Claude Code: follow it every time.**
 
-Your work is limited to **two pages: `/apps`** (the mobile-apps promotional page)
-**and `/privacy`** (the privacy policy). Everything those two pages are built from
-is fair game. Nothing else is.
+You work in **four areas** of the repository: the **`/apps`** page (the
+mobile-apps promotional page), the **`/privacy`** page (the privacy policy),
+**encryption**, and **app syncing**. In them, work freely. Outside them,
+nothing is forbidden, but Claude Code checks with you first (below).
 
-Why so strict? The rest of the website is live and other people (and two mobile
-apps) depend on it. Each of your two pages *shares* a few files with every other
-page — the overall page frame and the global stylesheet. So the guardrail is:
-**change your two pages freely, but never let a change ripple out to any other
-page.** Section 6 explains exactly how to stay safe when a shared file is
-involved.
+Why it's set up this way: until October 2026 your work was limited to the two
+pages. On 2026-10-09 BVJ widened it to include encryption and app syncing, the
+pieces the website and the apps share for the Study Desk's sync, starting with
+the encryption spec. In BVJ's words, there's no danger in anything you do in
+the repo, since nothing can merge without review and approval. So the check
+outside your areas is a pause to make sure the change is intended, not a wall.
 
-### ✅ In scope — edit these freely
+### ✅ Your areas: work freely
 
-These files exist *only* to serve your two pages. Changes here **cannot** affect
-any other page, so you can work in them with confidence.
+Everything is still a branch and a reviewed pull request, like every change.
 
 **The `/apps` page** is built from:
 
@@ -243,37 +247,70 @@ any other page, so you can work in them with confidence.
 - `src/styles/pages/privacy.css` — its stylesheet. It's only loaded on the privacy
   page, so (like `apps.css`) it can't restyle anything else.
 
-### ⚠️ The one exception — shared files, handled with extreme care
+**Encryption and app syncing** are the work the website and the apps share so
+that a reader's notes, highlights and bookmarks can sync between them (the
+Study Desk), plus what the apps download from the website. Read
+`STUDY-DESK.md` first; it is the record of every decision. This area covers:
 
-BVJ has said you *may* touch the two files that these pages share with the
-rest of the site, **but only when a page genuinely needs it, and only in a
-way that leaves every other page exactly as it was**:
+- `STUDY-DESK.md`, the planning record, and `STUDY-DESK-FORMAT.md`, the shared
+  record format. The website answers you through `STUDY-DESK.md`, and you can
+  add to either by pull request.
+- **The encryption spec and its test vectors**, which your Claude Code drafts
+  (BVJ, 2026-10-09). They're new files: put the spec beside
+  `STUDY-DESK-FORMAT.md` and its vectors under `test/fixtures/`, the way the
+  anchor text's are.
+- The anchor text, the format's executable half: `scripts/lib/anchor-text.mjs`,
+  `src/lib/anchor-core.mjs`, `scripts/build-anchor-vectors.mjs`,
+  `test/fixtures/anchor-vectors.json` and `test/anchor-text.test.js`.
+- The record kinds the website implements from the format,
+  `src/lib/desk-records.mjs`, and the website's side of sync once it's built
+  (the connector to the sync service and what it needs).
+- The scripts that build what the apps download from `public/api/`:
+  `scripts/build-api-manifest.mjs`, `scripts/build-api-json.mjs`,
+  `scripts/build-glossary-json.mjs` and `scripts/lib/glossary-feed-core.mjs`.
+  Their output is a contract with both apps, and CLAUDE.md explains its rules.
 
-- `src/layouts/Layout.astro` — the shared page frame (used by *every* page).
-- `src/styles/global.css` — the shared global stylesheet (loaded by *every* page).
+### ❓ Outside your areas: "are you sure?" first
 
-Touching these is a last resort, not a first move. **Always prefer to solve the
-problem inside the in-scope files above.** If a shared file truly must
-change, follow Section 6 to the letter and prove no other page moved.
+Everything else, for example: the scripture text and chapter JSON in
+`src/data/`, book intros, the glossary and articles, Study View and Read View,
+search, the rest of the Study Desk's reading tools (the Notebook panel, the
+margin notes, the menus), shared components like `SiteHeader.astro` and
+`SiteFooter.astro`, the other build scripts in `scripts/`, the `workers/`
+folder, the CI configuration in `.github/`, and the two files every page
+shares, `src/layouts/Layout.astro` and `src/styles/global.css`.
 
-### 🚫 Off-limits — do not touch
+**Before changing a file outside your areas, Claude Code stops and asks you,
+in plain words**, something like:
 
-Everything not listed above, including (but not limited to): the scripture chapter
-pages and JSON in `src/data/`, the reading view, search, the glossary/articles
-pages and their styles, other shared components like `SiteHeader.astro` and
-`SiteFooter.astro`, the build scripts in the top-level `scripts/` folder, the
-`workers/` folder, and the CI configuration in `.github/`. If a task seems to
-require changing any of these, **stop and ask BVJ first** — it's outside the
-agreed scope.
+> "This change touches `src/data/chapters/john-3.json`, which is outside your
+> usual areas (/apps, /privacy, encryption and app syncing). It's allowed, and
+> BVJ will review it before it goes anywhere. Are you sure you want to change
+> it?"
+
+If you say yes, it goes ahead, following CLAUDE.md for that part of the site,
+and the pull request says that it reaches outside your areas, so BVJ knows to
+look closely. If you're not sure, it leaves the file alone and you can ask BVJ.
+Claude Code asks once for each such part of a change, not before every edit.
+
+Two shared files need extra care even when you're sure: `Layout.astro` (the
+page frame used by *every* page) and `global.css` (the stylesheet loaded by
+*every* page). For page work, **prefer to solve the problem inside your pages'
+own files.** If a shared file truly must change, follow Section 6 and prove no
+other page moved.
 
 ---
 
 ## 6. How to keep every other page safe (the golden rules)
 
-When a change stays entirely inside the ✅ in-scope files, other pages are safe
-**by construction** — those files don't feed any other page. The only way to
+These rules are for page work. When a change to `/apps` or `/privacy` stays
+entirely inside those pages' own files (listed in Section 5), other pages are
+safe **by construction**: those files don't feed any other page. The only way to
 accidentally affect another page is by editing a **shared** file (`Layout.astro`
 or `global.css`). So:
+
+(Encryption and sync work is checked differently: by its unit tests and test
+vectors, and by the rules CLAUDE.md gives for the app contract.)
 
 **Golden rule #1 — Look at the file list.** Before opening a PR, Claude Code should
 check *which files the change touches* (`git status` / the PR's "Files changed").
@@ -323,7 +360,7 @@ pipeline, data formats, and conventions. Everything below is a quick recap plus
 the apps-specific specifics you won't find spelled out there.
 
 ### Stack
-- **Astro 6** static site generator, **TypeScript** (strict). Vanilla CSS, no
+- **Astro 7** static site generator, **TypeScript** (strict). Vanilla CSS, no
   utility framework. No client-side JS framework — interactivity is
   progressive-enhancement vanilla JS. The apps page is presentational; it needs no
   client JS beyond what already exists.
@@ -383,7 +420,8 @@ Notes:
   notified directly. *(BVJ: confirm that's the GitHub username you want review
   requests sent to.)*
 - Any branch name that isn't `main` is fine; a descriptive `apps/…` prefix keeps
-  things tidy. (Claude Code's own default `claude/…` branch names are fine too.)
+  things tidy, and `sync/…` for encryption and sync work. (Claude Code's own
+  default `claude/…` branch names are fine too.)
 - **Never** `git push` to `main`, and **never** merge the PR — leave merging to
   BVJ.
 
@@ -405,14 +443,15 @@ git merge origin/main       # Claude Code resolves any conflicts, then re-push
 - Keep each PR small and about one thing.
 - Preview in the browser and run the pre-flight checks before pushing.
 - Write a clear PR title and a short description of *what* and *why*.
-- Stay inside the `/apps` scope (Section 5).
+- Work in your areas: `/apps`, `/privacy`, encryption and app syncing
+  (Section 5).
 - Ask BVJ when unsure — a question is cheaper than an unwanted change.
 
 **Don't**
 - Don't commit directly to `main` or merge your own PR. (GitHub will block the
   first one outright — `main` is protected.)
-- Don't edit files outside your scope (the `/apps` and `/privacy` pages) without
-  checking with BVJ.
+- Don't change files outside your areas without the "are you sure?" check
+  (Section 5).
 - Don't change existing rules/tokens in `global.css` or existing behavior in
   `Layout.astro` — additive and scoped only (Section 6).
 - Don't hand-edit generated folders (`dist/`, `public/api/`, `public/og/`,
@@ -444,8 +483,9 @@ git merge origin/main       # Claude Code resolves any conflicts, then re-push
   the same lines. Ask Claude Code to resolve it — it's routine.
 - **I'm completely lost.** Tell Claude Code: *"Explain where I am in the workflow
   and what the safe next step is."* It can read the repo's state and orient you.
-- **A change seems to need a file outside `/apps`.** Stop and message BVJ before
-  doing it. That's the correct move, not a failure.
+- **A change needs a file outside your areas.** Claude Code asks whether you're
+  sure. Say yes if you are, and BVJ will look closely at that part in review;
+  if you aren't, leave it and ask BVJ. Either is the right move.
 
 ---
 
@@ -464,8 +504,9 @@ BVJ reviews & merges → back to `main`.
 **Golden rule:** stay in your pages' own files; if a change touches `Layout.astro` or
 `global.css`, make it additive/scoped and prove no other page changed.
 
-**Never:** commit to `main`, merge your own PR, or edit outside your scope
-without asking.
+**Never:** commit to `main`, merge your own PR, or change a file outside your
+areas (`/apps`, `/privacy`, encryption, app syncing) without the "are you sure?"
+check.
 
 You've got this. Every safeguard here exists so that the worst thing that can
 happen is a friendly "could you adjust this?" from BVJ — never a broken website.
