@@ -78,7 +78,17 @@ are recorded so they aren't re-argued.
   (`test/fixtures/anchor-vectors.json`).
 - **Phase 0's two picks are made** (BVJ, 2026-10-05): the reading column
   narrows to **52**, and **Cardo** is the serif for Greek and Hebrew. See
-  "Decisions", 2026-10-05 (phase 0 picks).
+  "Decisions", 2026-10-05 (phase 0 picks). **On Study View chapters it
+  narrows further, to 48, while the notebook is open** (BVJ, 2026-10-08),
+  to leave the panel room for the Greek and Versions tabs ("Decisions", 2026-10-08).
+- **The Notebook panel gets tabs** (2026-10-08): "My Notes", "This verse",
+  and the other versions beside the LIT: the SBLGNT (with parsing, two
+  lexicons and its apparatus, ahead of the word-by-word alignment), the KJV,
+  OEB, WEB, CSB, NASB 2020 and NIV, all in the first release. The tabs are
+  My Notes, This verse, Greek and Versions, and readers can drag the widths
+  of their notes, the LIT and the notebook. Folded into phase 1: the tabs,
+  "This verse" and the public-domain versions in 1c, the licensed versions
+  as 1e, the Greek as 1f. See "Decisions", 2026-10-08 (the Greek tab), and "Order of work".
 - **Three companion pages on claude.ai**, made while planning:
   - **The plan**, https://claude.ai/artifact/8Eyhmzd1xGTUPrjkwwSUqp (version 12,
     2026-10-02; shared with anyone who has the link). It has mockups this file
@@ -378,6 +388,9 @@ plan as a whole was accepted; nothing was declined except where stated).
   verse menu) with its footnotes and your notes on it, and stays put while you
   read on. It is also where other translations of that verse appear (D7). The
   footnote letters, popovers and end list stay as they are. Small. Phase 1.
+  **BVJ, 2026-10-08: kept, and it gains the verse's Greek.** Since it now
+  draws on every other tab, it would sit beside them as a tab of its own
+  (recommended, not decided). See "Decisions", 2026-10-08 (the Greek tab).
 - **N11. Notes on glossary entries and articles.** **BVJ, 2026-10-06:**
   readers should be able to attach notes to glossary entries and articles
   as well as to the scripture text. That covers both a note on an entry or
@@ -641,7 +654,11 @@ plan as a whole was accepted; nothing was declined except where stated).
   a copy". Small. **Decided.**
 - **D7. Compare a verse with other translations.** Borrowed from NET's
   "Parallel". Other translations appear side by side in N10's "This verse"
-  tab. Status, 2026-10-02:
+  tab. **BVJ, 2026-10-08: they also get a Versions tab of their own,
+  and both are in the desk's first release, with the KJV, OEB, WEB, CSB,
+  NASB 2020 and NIV**: a whole chapter, one version at a time, in its own
+  paragraphs and scrolling on its own (BVJ, later the same day: it needn't
+  line up with the LIT); "This verse" keeps them for one verse. Status, 2026-10-02:
   - **Decided: the KJV, stored on the site.** Public-domain text taken from
     eBible.org or library.bible and kept on litbible.net like the LIT's own,
     so it needs no key, no request and no tracking, and works even if API.bible
@@ -669,6 +686,53 @@ plan as a whole was accepted; nothing was declined except where stated).
       by its own account. The site deliberately doesn't measure who reads what
       (M12), so it would load only when a reader opens the comparison, and the
       privacy page would name it. Ask whether openly licensed Bibles need it.
+      **Read on 2026-10-08** (`pkg.api.bible/fumsV3.min.js`): it keeps the
+      device ID in localStorage (`fums.dId`, no expiry) and the session ID in
+      sessionStorage (`fums.sId`, gone when the tab closes), sets no cookies,
+      loads nothing else, and reports to `fums.api.bible/f3` with the
+      passages' tokens and those two IDs (the browser adds its usual headers,
+      address included). A user ID is sent only if the site supplies one,
+      and this one has no accounts. Each token says which version and
+      passage was shown, and may be reused for text served from a cache.
+      Defaulting the tab to the KJV means it loads only when a reader picks a
+      licensed version. BVJ, 2026-10-08: "probably" acceptable.
+    - **API.bible's own terms, read 2026-10-08** (the Terms and Conditions
+      and the Strictly Non-commercial Use Agreement, from BVJ's account).
+      The non-commercial agreement fits the site: the Collective is a
+      registered 501(c)(3), and donations are links in the nav and footer
+      plus the /support page, which its "minor, non-intrusive links"
+      exemption covers (revocable at API.bible's discretion). Kept that way,
+      the site must never show a donation popover, banner or interstitial,
+      and paid courses on litbible.net would end the free plan. The Terms
+      raise more:
+      - **§5.4**: no "potentially controversial use" of the content, naming
+        "critical race theory" and "critical queer theory" as examples. A
+        liberation and inclusion translation shown beside the licensed text
+        may be read as exactly that, and §3.5 lets API.bible revoke access
+        at any time for any reason. This is a values question for BVJ before
+        it is a technical one.
+      - **§12**: licensed text must not be "freely copied", with DRM that
+        limits printing to 100 verses. So no copy or print of licensed text,
+        unlike everything else on the site.
+      - **§4.1**: no changes to "the structure or content". No longer a
+        concern: BVJ dropped lining the versions up with the LIT the same
+        day, so each keeps its own paragraphs.
+      - **§9.5(e)**: no mirroring the API for others. Our Worker would have
+        to answer only litbible.net's pages.
+      - **§7**: a copyright page linked from every page that shows licensed
+        text, citing and linking API.bible and each publisher.
+      - **§26**: disputes go to Christian conciliation and binding
+        arbitration in Philadelphia, not to court.
+      - §9.2 bars AI training on the text, §11 requires refreshing stored
+        text within 30 days, and §10 requires removal within 72 hours on
+        request; the plan already meets these.
+      **On the talk-through list as item 21**, to discuss with BDR.
+      **Three ways forward** (2026-10-08, not decided): accept the terms
+      after asking API.bible about §5.4 and §4.1 in writing; ask the
+      publishers (Biblica, Holman, Lockman) for licenses directly; or ship the
+      first release with the SBLGNT, KJV, OEB and WEB in the panel and the
+      CSB, NASB and NIV as links out to each verse elsewhere (D7's fallback),
+      settling the licensed three for a later version.
     - Keep the API key out of the page: a small Worker fetches and caches the
       text; cached text must be refreshed at least every 30 days. That is the
       desk's first server code before accounts, so it may wait for phase 4 or
@@ -844,7 +908,8 @@ server. Most hard parts exist in the repo already.
   narrower when the desk launches** (C9), picked side by side like the
   2026-09-27 choice of 60. Change `--reading-measure`, never `--ch`. **Picked
   2026-10-05: 52** (590px at the default size, 755px at the largest, in
-  Inter).
+  Inter). **48 on Study View chapters while the notebook is open, from
+  2026-10-08** (545px and 696px).
 
 ## Accounts and sync
 
@@ -1415,6 +1480,7 @@ recommendation, not a decision.
 | 18 | Bookmarks vs the `bookmark` marker; whether a quote may cross a verse or paragraph boundary | A-Q13 | the three Claudes propose | **Lean: bookmarks are their own kind**, and the marker stays a note's glyph |
 | 19 | Tombstones after the trash empties | A-Q14 | the Claudes | **Lean: yes** (disagreement 2) |
 | 20 | **The merge and overlap rules. Needed soon, before phase 1c** | A-M5, A-F7, A-F10, A-Q14 | BDR, then the Claudes | BVJ held the website's merge engine and overlap rule for BDR's input (2026-10-05). Five questions, under "Questions for the apps" below |
+| 21 | **API.bible's terms**: can the LIT accept them for the CSB, NASB and NIV? | D7, 1e | BVJ with BDR | Added 2026-10-08. §5.4 bars any "potentially controversial use" of the text, naming critical race theory and critical queer theory, and §3.5 lets API.bible revoke access at any time; §12 requires that licensed text not be freely copied, with a 100-verse print limit; §4.1 bars changes to the text's structure (no longer a concern, since the versions keep their own paragraphs); §26 sends disputes to Christian conciliation and binding arbitration. For BDR: whether either app uses API.bible or plans to, since the Collective would be agreeing to these terms for the apps too, and what BDR makes of §5.4. The three ways forward (accept after asking API.bible, license directly, or link out for the first release) are under D7, "API.bible's own terms" |
 
 Questions for the apps, to send back:
 - **For the iOS instance:** finding 1 (re-anchoring and paragraph positions);
@@ -1424,7 +1490,7 @@ Questions for the apps, to send back:
 - **For the Android instance:** whether the app's text model can drop
   verse digits and footnote letters from its context strings without a
   migration.
-- **For BDR:** items 1, 4, 6, 7, 8, 10, 11 and 15.
+- **For BDR:** items 1, 4, 6, 7, 8, 10, 11, 15 and 21.
 - **For BDR, to know (added 2026-10-06):** BVJ wants readers able to attach
   notes to glossary entries and articles on the website (N11). Neither app
   shows those today. The ask is only that both apps carry such records
@@ -2006,6 +2072,12 @@ Greek beside the LIT; clicking a word in either lights its partner in the
 other and opens a bubble with morphology, Strong's number, root and perhaps
 lexical information. The desk shouldn't need rebuilding for it.
 
+**The Greek text itself comes sooner** (2026-10-08): a Greek tab in the
+Notebook panel, with parsing, lexicons and the apparatus, needs none of the
+alignment, since that data already exists for every SBLGNT word. Only the
+word-to-word link waits for phase 2. See "Decisions", 2026-10-08 (the Greek
+tab).
+
 - **Fonts now** (C27): self-hosted Greek and Hebrew fonts via `unicode-range`,
   serving Greek and Hebrew typed into notes from the start. Candidates (all
   SIL Open Font License), to compare beside Crimson Text: Gentium Plus or
@@ -2112,7 +2184,10 @@ So they don't come back as fresh suggestions:
 - **An email when your verses change (M15)**: declined 2026-10-01.
 - **Ctrl K for commands**: declined (C11); commands live in the search box.
 - **netbible.org's commentaries**: the LIT's footnotes already do that work,
-  in the translation's own voice.
+  in the translation's own voice. **Reopened and set aside again
+  2026-10-08**: BVJ looked for a scholarly, noncommercially licensed
+  commentary on the whole NT from a liberationist perspective, and none
+  exists under an open license. See "Decisions", 2026-10-08 (the Greek tab).
 - **Anchoring notes to footnote letters**: letters shift whenever a note is
   added or removed.
 
@@ -2274,7 +2349,9 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
        counting as footer (on an article, at the bottom of the card). Floating panels keep 12px clear
        of it and a click inside it closes none of them; the single-key
        shortcuts stand down inside it.
-     - **The 52 measure is on while the preview is on**, and Read View's
+     - **The 52 measure is on while the preview is on** (48 on Study
+       View chapters while the notebook is open, from 2026-10-08), and
+       Read View's
        toolbar takes a floor of 725px (895px in OpenDyslexic) so it doesn't
        change width as its labels change, as OpenDyslexic's already did.
      - **Plumbing (C21)**: nothing new in 1b. There's no new page (so no
@@ -2356,6 +2433,41 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      answer on rules a to e), the "This verse" tab (N10), the verse number
      naming its notes, M1, and notes on articles and glossary entries (N11,
      with format draft 2).
+     **Added to 1c on 2026-10-08**, from the Greek tab's planning ("Decisions",
+     2026-10-08). None of it waits on BDR, so it can fill the time while
+     highlights and the change notice do:
+     - **The narrower column with the notebook open. Built 2026-10-08**: 48
+       on Study View chapters while the notebook is open, 52 otherwise and
+       always on Read View, intros, articles and the glossary; stamped
+       before first paint, and opening or closing keeps the reader's line.
+     - **The panel's tabs.** **"My Notes"** (BVJ, 2026-10-08; it holds
+       bookmarks and highlights too) holds today's chapter and "Everything"
+       lists; beside it "This verse", "Greek" (arriving with 1f) and
+       "Versions" (BVJ, 2026-10-08). The panel starts with the margin it
+       gets. Small.
+     - **Widths the reader can drag** (BVJ, 2026-10-08): their notes, the
+       LIT and the notebook, with nothing showing between the columns until
+       the pointer is in the gap. Details under "Decisions", 2026-10-08 (the
+       Greek tab), items 12 and 13. Small to medium.
+     - **"This verse" (N10)** with the verse's footnotes, the reader's notes
+       on it and the public-domain versions from the start; the licensed translations join in 1e
+       and the Greek in 1f. Small.
+     - **The KJV, the Open English Bible and the World English Bible, stored
+       on the site** (public domain, from eBible.org; the OEB and WEB were
+       picked by BVJ on 2026-10-08): a build step writing one file per
+       chapter and version, a website asset like the search's chapter files
+       and never under `/api/`. Each version's verse-numbering map (the KJV's
+       2 Corinthians 13 and 3 John each have one more verse) is checked verse
+       by verse against its text, the way the Sefaria map was. In the LIT's
+       verse gaps (Matthew 17:21 and the rest) the KJV and WEB print the
+       traditional verse (the WEB follows the Majority Text), which shows
+       beside the LIT's note on why it isn't there. Small to medium.
+     - **The Versions tab with the public-domain versions**, each in its own
+       paragraphs and scrolling on its own; nothing lines it up with the LIT
+       (BVJ, 2026-10-08). Recommended: it opens at the verse being read when
+       the tab or the version changes, and a "Go to verse 18" button brings
+       it back to wherever the reader has got to. The Greek tab reuses the
+       same view. Study View only. Small to medium.
    - **1d. The notebook around them.** The notebook page; your notebook in
      search, and commands in the search box (D2, D3); export and import in
      Markdown and the W3C shape, which every plan needs; the first-time
@@ -2363,9 +2475,84 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      Safari warning (C18); places and ribbons, kept in this browser (B1,
      C25); labels (M8, name open); the interleaf (N7, C13); the hidden
      passage (N8); the tutorial (D8); the help page (M12); the privacy
-     paragraph; the link to the license terms. **Then decide whether to
-     release it to readers.** Saving live into a chosen file (D1) waits on
-     its decision (T3); export and import don't.
+     paragraph (which 1e adds to); the link to the license terms. Saving live
+     into a chosen file (D1) waits on its decision (T3); export and import
+     don't.
+   - **1e. The licensed translations** (D7; BVJ, 2026-10-08: the other
+     translations are in the first release, four or more). The CSB, NASB 2020
+     and NIV join the public-domain versions in the Versions tab and in
+     "This verse":
+     - **A small Worker of its own** (beside `workers/contact-form/`, deployed
+       the same way) holds the API.bible key as a secret, answers only
+       litbible.net, and caches each chapter for at most the 30 days API.bible
+       allows. Cached that way, refreshing all 260 chapters of three
+       translations is under 800 requests a month, inside the Starter plan's
+       5,000. Its address stays out of crawlers (robots.txt), since API.bible
+       bars any AI use of licensed text. DISASTER-RECOVERY.md gets the Worker
+       and its secret.
+     - **API.bible's tracking script (FUMS)** loads only when licensed text is
+       on screen, never on page load, and the privacy page names it (a
+       /privacy change notifies LSC for review, by the existing workflow).
+       Its origins join the report-only CSP list.
+     - **Each version's copyright notice** under the tab, the text unaltered,
+       and **Study View only**: API.bible allows at most 500 consecutive
+       verses on screen, and a whole book in Read View runs past that (Luke
+       has 1,151).
+     - **A verse-numbering map for each**, checked against its text like the
+       KJV's, since counts alone prove nothing.
+     - **"Or more"**: public-domain translations (the Open English Bible,
+       the World English Bible, the Berean Standard Bible, the American
+       Standard Version) are stored on the site like the KJV, need nothing
+       from API.bible, and could even join in 1c; which ones is open. A
+       fourth licensed one would need a paid API.bible plan (whether it allows
+       that for noncommercial use is unconfirmed). **The NRSVue and CEB are
+       shelved for a possible second version** (BVJ, 2026-10-08); they need
+       permission from their publishers, and D7 has the contacts.
+     - **Waits on BVJ**: first, whether to accept API.bible's terms at all
+       (D7, "API.bible's own terms": §5.4 on "controversial use", §12's
+       copy and print limits), or to license the three directly, or to link
+       out to them in the first release; then the tracking script and
+       API.bible's answers on the NASB 2020 and open Bibles (see "Still
+       open"). If they link out, 1e shrinks to the links and a copyright
+       line. Medium.
+   - **1f. The Greek tab** ("Decisions", 2026-10-08 (the Greek tab); in the
+     first release, BVJ, 2026-10-08). It reuses 1c's tabs and versions
+     view:
+     - **The data, built at build time** into one file per chapter, a
+       website asset never under `/api/`: SBL's own files
+       (`github.com/LogosBible/SBLGNT`, CC BY 4.0) as the text of record,
+       MorphGNT's lemmas and parsing checked word for word against it, and
+       the two borrowed passages (John 7:53–8:11's parsing from MACULA Greek;
+       Romans 16:25–27's Greek from the SBLGNT apparatus with parsing from
+       MACULA's Nestle 1904). Files built from share-alike sources go out
+       under CC BY-SA 4.0 and stay apart from everything else; nothing from
+       the LIT goes into them. The parsing codes are spelled out in words by
+       a small pure module.
+     - **The tab**: the Greek in the SBLGNT's own paragraphs (SBL's data
+       marks them), scrolling on its own like the Versions tab, each word a
+       control; the word's details docked at the tab's foot, with the
+       UBS / STEPBible switch (UBS opening on the sense it assigns at that
+       word; STEPBible's brief entry with "Full LSJ entry" always showing);
+       the verse's footnote letters beside them, since the LIT's notes give
+       the reasoning where a lexicon and the LIT differ. For the 31 glossary
+       terms, the term lens's card: "rendered here as…", at the level of the
+       verse, since the word-to-word link waits for phase 2.
+     - **The apparatus** at the end of the tab, below the text, and each
+       text-critical sign opening its note. Check that
+       Cardo has every sign the SBLGNT uses (⸀ ⸂ ⸃ and the rest) first.
+     - **"This verse"** gains the verse's Greek.
+     - **"Sources and licenses"** at the tab's foot: SBL, MorphGNT, MACULA,
+       UBS and STEPBible, each with its license, the way the SBLGNT notice
+       credits the text.
+     - **Before it ships**: BVJ's wording for the John 7:53–8:11 footnotes
+       (john-7 fn-ff, john-8 fn-k), which say the SBLGNT lacks the passage
+       that the tab will show as SBLGNT text; and CLAUDE.md's MorphGNT
+       paragraph loses the old SBLGNT EULA line. Large.
+   - **1e and 1f don't depend on 1d**, and can go before it, after it or
+     between its parts; they need only 1c's tabs and versions view. **Then decide
+     whether to release the desk to readers**, with 1e and 1f, since the
+     first release includes the other translations and the Greek (BVJ,
+     2026-10-08).
 2. **What only the LIT can do.** What's new for you and text checked before
    printing (B3, S2), on 1a's comparison; notes that follow a word and
    concept marks saved as rules (N2, H2, C23); your own chains (N4); the word
@@ -2820,6 +3007,171 @@ tried out the behaviour above:
    inside the scripture itself: Copy text, the handout and the desk's
    anchor reader all read the verse's text off the page.
 
+### 2026-10-08 (the Greek tab)
+
+BVJ asked whether the desk could show the SBLGNT beside the LIT, with
+parsing and lexical information from openly licensed sources. None of it
+needs the alignment's phase 2 (see "Ready for the Greek text"): parsing and
+lemmas already exist for every SBLGNT word. Only the word-to-word link waits.
+
+**Decided (BVJ):**
+1. **Tabs in the Notebook panel**: "My Notes" (BVJ, later the same day;
+   it holds bookmarks and highlights too), "This verse" (N10), then Greek
+   and Versions (item 12). No Commentary tab
+   (item 10). BVJ's idea, preferred over a Greek column of its own
+   beside the LIT, which would have put three columns side by side.
+2. **The Greek tab lines up with the LIT paragraph by paragraph and follows
+   the page as it scrolls, and the reader can also scroll it on its own.**
+   **Revised later the same day (BVJ):** the versions, the Greek included,
+   needn't line up with the LIT. Each is shown in its own paragraphs and
+   scrolls on its own, without following the LIT.
+3. **Computer only**, like the rest of the desk. Tablets and foldables were
+   considered and left out.
+4. **MorphGNT supplies the lemmas and parsing** (CC BY-SA 3.0) wherever it
+   has the text. What the LIT prints and MorphGNT lacks is borrowed and
+   credited separately. In published chapters that is two passages
+   (checked 2026-10-08; check again when Acts and Revelation publish):
+   - **John 7:53–8:11.** SBL added it to the SBLGNT text in its version 1.2
+     data (2023-07-10), in double brackets, so the Greek is the SBLGNT's own;
+     MorphGNT is older. The parsing comes from MACULA Greek (CC BY 4.0),
+     whose SBLGNT edition is built on that release.
+   - **Romans 16:25–27.** Still not in the SBLGNT text, but its apparatus
+     note at 16:24 prints the Greek, as the reading of Westcott–Hort,
+     Tregelles and NA28. The parsing comes from MACULA's Nestle 1904
+     edition, matched word by word; a word that doesn't match gets none.
+5. **Two lexicons, one shown at a time, the reader's choice**: the UBS
+   Dictionary of the Greek New Testament (a revised Louw–Nida; CC BY-SA 4.0)
+   and STEPBible's brief lexicon (TBESG, mostly a corrected Abbott-Smith;
+   CC BY 4.0). Under STEPBible, the full Liddell–Scott–Jones entry (TFLSJ,
+   CC BY 4.0) is a button that is always visible, so it is plain that LSJ is
+   there.
+6. **Differences between a lexicon and the LIT are expected**, and the
+   LIT's footnotes give the reasoning.
+7. **The SBLGNT's apparatus is shown, or its text-critical signs are
+   hidden.** Shown: at the end of the Greek tab, below the text, and each
+   sign in the text opens its note. (It was to arrive beside the LIT's
+   footnotes while the tab followed the page, which item 2's revision
+   dropped.) SBL publishes it with the text, under the
+   same CC BY 4.0, comparing Westcott–Hort, Tregelles, NA28 and
+   Robinson–Pierpont.
+8. **N10 "This verse" stays**, and gains the verse's Greek beside its
+   footnotes, the reader's notes and other translations of it.
+9. **The other versions are in the desk's first release** (BVJ, later the
+   same day), one at a time: the KJV, the Open English Bible and the World
+   English Bible stored on the site, and the CSB, NASB 2020 and NIV through
+   API.bible as D7 describes. The NRSVue and CEB are shelved for a possible
+   second version.
+10. **Commentaries**: the public-domain ones aren't worth including, and the
+    Tyndale Open Study Notes (CC BY-SA 4.0) were looked at and skipped: they
+    are keyed to the NLT's wording, and on Romans 1:26–27 and 1 Timothy 2
+    they argue against the LIT's own notes. The one kind wanted, a
+    scholarly, noncommercially licensed commentary on the whole New
+    Testament from a liberationist perspective, doesn't exist under an open
+    license (the search is below), so **there is no Commentary tab**.
+11. **The reading column is 48 on Study View chapters while the notebook is
+    open, and 52 when it is closed.** The glossary and articles stay at 52
+    always, and so do intros and Read View (BVJ confirmed both the same day:
+    neither gets the Greek or the versions). Measured on
+    Romans 8 at the default size, with nothing moving: the open panel gets
+    384px in a 1440px window, 347px at 1366 and 304px at 1280. Moving the
+    column left stays acceptable where it's needed, but is to be avoided
+    where reasonably possible. Opening or closing the notebook reflows the
+    text there, so both keep the line being read in place; a page that
+    opens with the notebook open is set at 48 before it first paints.
+
+12. **The tabs are My Notes · This verse · Greek · Versions** (BVJ, later
+    the same day), the second of three arrangements tried on the comparison
+    page "Notebook tab widths"
+    (https://claude.ai/artifact/Rf3qCLH6Rr25NAtgadxKs4, private). The
+    Versions picker lists the English versions; the Greek has its own tab.
+    **No Parallel tab or setting**: "This verse" already shows the verse in
+    every version.
+13. **The panel starts with the margin it gets, and the reader can drag the
+    widths of the three columns**: their notes, the LIT and the notebook
+    (BVJ, later the same day). The fixed 380px minimum (A), which moved the
+    column in windows under about 1440px, was set aside. **Nothing shows
+    between the columns at rest** (BVJ: a line there distracts): the pointer
+    in the gap gets the resize cursor and a small grip beside it, and a faint
+    hairline appears only while dragging. **The widths last for the visit**
+    (BVJ, the same day): kept in `sessionStorage`, so every page and reload
+    in that tab keeps them, and closing the tab returns the next visit to
+    the defaults. A link opened in a new tab starts with the defaults; a
+    browser restoring its tabs after a restart usually restores them too.
+    The site already counts a visit this way (`lit_pv`).
+
+**Recommended, not decided:**
+- **The draggable widths' details** (item 13), as built on the comparison
+  page:
+  - **Two handles**, each trading width between its two neighbours: one
+    between the notes margin and the LIT, one between the LIT and the
+    notebook. Each is a focusable separator the arrow keys move too (the
+    ARIA window-splitter pattern), so it isn't mouse-only.
+  - **Kept as the LIT's measure and the notebook's width**, for the visit
+    (item 13), with the notes margin taking what's left. The measure stays in
+    the site's character unit, so a text-size or font change keeps the
+    line's length. The LIT stays between 36 and 72 (about 46 to 92 letters a
+    line in Inter), and the notebook at least 280px.
+  - **A narrower window keeps them as far as it can**: the notes margin gives
+    way first (notes become circles under about 230px), then the notebook
+    down to 280px, then the LIT down to 36, then the floating notebook.
+  - **Stamped before first paint**, like the 48 today (the pre-paint script
+    reads `sessionStorage` as readily as `localStorage`), so a page never
+    jumps on load; dragging keeps the line being read in place.
+  - **"Reset widths"** in the panel's settings and the Display tray, and the
+    first-use tutorial (D8) shows where the handles are, since nothing shows
+    them at rest.
+  - **Study View only, with the notebook open.** Closed, the page goes back
+    to the centred 52. Read View, intros, articles and the glossary keep
+    their fixed widths.
+- **SBL's own files are the text of record.** MorphGNT and MACULA supply
+  only parsing, and the build checks that their words match SBL's.
+- **Pairing and following** (each LIT paragraph paired with the Greek
+  verses that start in it, the tab moving with the page): **superseded the
+  same day** by item 2's revision. Instead: each version in its own
+  paragraphs, opening at the verse being read, with a "Go to verse 18"
+  button to catch up.
+- **Word details dock at the foot of the tab**, with the lexicon switch,
+  instead of opening in the floating panel the term lens uses (which "Ready
+  for the Greek text" had assumed). UBS's references give word positions, so
+  its entry can open on the sense UBS assigns at that word; the build matches
+  them by lemma and occurrence, since UBS numbers words in its own text.
+- **The Greek tab wants about 380px.** One minimum for every tab means
+  switching tabs never moves the text, like the floating notebook's rule
+  (2026-10-07); a minimum per tab moves the text less often overall. Leaning
+  to one.
+- **"This verse" as a tab of its own**, since it draws on all the others.
+- **Licenses**: files built from MorphGNT or UBS go out under CC BY-SA 4.0
+  (MorphGNT's 3.0 allows a later version); STEPBible's stay CC BY. Nothing
+  from the LIT goes into a share-alike file: the glossary link and "rendered
+  here as…" stay in the page's own data, as the term lens's does.
+
+**Found along the way:**
+- **SBLGNT 1.2 prints John 7:53–8:11**, so the LIT's footnotes there
+  (john-7 fn-ff and john-8 fn-k: "does not include this section") and
+  CLAUDE.md's SBLGNT table describe the 2010 edition. SBL's apparatus at 7:52
+  still lists the passage as a Robinson–Pierpont addition. The Greek tab
+  would show it as SBLGNT text beside a note saying the SBLGNT lacks it, so
+  BVJ will look at the wording before the tab ships; a change starts in the
+  Word master, both notes together.
+- **MorphGNT's README still says the SBLGNT text is under its old EULA**, and
+  CLAUDE.md's MorphGNT paragraph repeats it. SBL's own release has been
+  CC BY 4.0 since version 1.1 (2022-12-19).
+- **MACULA's SBLGNT edition is carried over from its Nestle 1904 edition**,
+  with some glosses and semantic domains still missing, and its domain fields
+  are "used with permission" only. That is why it supplies only the two
+  borrowed passages.
+- **The commentary search** (2026-10-08) found no whole-NT liberationist
+  commentary under any open license. Nearest: single studies under
+  CC BY-NC-ND (Brill's open-access default; Globethics theses such as
+  Sintado's ecojustice readings of Mark, Romans and Revelation). RIBLA is
+  free to read in places but not licensed for reuse; SBL Press's
+  International Voices in Biblical Studies is open access with its license
+  unstated; freentcommentaries.org is Reformed evangelical and AI-drafted.
+  *HTS Teologiese Studies* publishes contextual readings under CC BY 4.0, one
+  article at a time. Other routes: links per chapter (no license needed),
+  asking a publisher or author for permission, or the Collective's own
+  writing.
+
 ## Still open
 
 - **The floating notebook's details** (decided in outline 2026-10-07; built
@@ -2865,10 +3217,31 @@ tried out the behaviour above:
 - **"To be decided"** under "The apps' replies", starting with plan A or
   plan C ("One notebook, three homes", decision proposed by October 31). The record format is drafted (`STUDY-DESK-FORMAT.md`) and waits on
   both apps' review.
-- **D7**: whether API.bible's tracking script is acceptable; which other
-  free-to-share translations join the KJV; whether to request NRSVue and CEB
-  licenses (and whether to have them drafted); whether the donation page
-  fits API.bible's free plan.
+- **D7**: whether API.bible's tracking script is acceptable (BVJ,
+  2026-10-08: "probably"; what it does is under D7); which other
+  free-to-share translations join the KJV; whether the donation page fits
+  API.bible's free plan. Since BVJ put the translations in the first release
+  (2026-10-08), these gate 1e. Also to ask API.bible: whether the NASB 2020
+  can be switched on in the dashboard, and whether openly licensed Bibles
+  need the tracking script. The NRSVue and CEB are shelved for a possible
+  second version (BVJ, 2026-10-08).
+- **The tabs and the Greek** (2026-10-08; "Decisions", 2026-10-08 (the Greek
+  tab)):
+  - **The John 7:53–8:11 footnotes' wording** (john-7 fn-ff, john-8 fn-k),
+    before 1f ships: SBLGNT 1.2 prints the passage.
+  - **The Notebook in Read View: none at all, or only the reader's own
+    things** (BVJ, 2026-10-08, one of the two; the version tabs are Study
+    View only either way). Recommended: the reader's own things, which is
+    what Read View's panel holds today, since Read View now shows bookmarks
+    and the panel's list takes the reader to them within the book.
+  - Decided the same day: the Greek is in the first release (1f); intros
+    and Read View stay at 52 with the notebook open; the OEB and WEB join
+    the KJV (the BSB and ASV were set aside as duplicating the CSB and NIV,
+    and the KJV and NASB); the NRSVue and CEB are shelved for a possible
+    second version; the reader's tab is "My Notes"; the tabs are My Notes,
+    This verse, Greek and Versions, with no Parallel; the panel starts with
+    the margin it gets and readers can drag the columns' widths, with
+    nothing showing between them at rest (decision items 12 and 13).
 - **Topics and tags.** BVJ is considering renaming today's topics to "tags"
   and curating a smaller set of thematic study topics. If so: the chapter
   JSON's `topics` field and `/api/data/topics.json` keep their names, because
@@ -2880,8 +3253,9 @@ tried out the behaviour above:
   functionally tags for search reach.
 - **D8, the tutorial**: what counts as the first encounter, and how it meets
   D6's first-time choice.
-- **Whether to release the notebook after phase 1d**, decided when 1d is
-  done.
+- **Whether to release the desk to readers**, decided once 1d, 1e and 1f
+  are done (the first release includes the other translations and the
+  Greek).
 - **The Digital Bible Library** (library.bible, the American Bible Society's
   library that API.bible draws from, and where YouVersion and Global.Bible get
   texts): I raised **submitting the LIT to it** as a way to reach the Bible
@@ -2952,7 +3326,8 @@ B3 and S2.
 
 Counts here were checked on 2026-09-30 to 2026-10-02 and drift:
 - Reading column 681px at the default size, ~870px at the largest;
-  `--reading-measure` 60. At the chosen 52: 590px and 755px.
+  `--reading-measure` 60. At the chosen 52: 590px and 755px. At 48 (Study
+  View chapters with the notebook open, from 2026-10-08): 545px and 696px.
 - About 4,300 term-lens marks; pistis in Galatians 26, sarx in Romans 28.
 - Release-note counts (491 / 211 / 342 as of 2026-09-30).
 - Browser support: Custom Highlight API (Chrome 105, Safari 17.2, Firefox

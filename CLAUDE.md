@@ -2076,7 +2076,14 @@ collection); they're read directly by the intro pages and the API manifest.
      from the window's width, and anything marked `[data-desk-dock]` counts
      as inside it (no outside-click close, shortcuts stand down).
   4. **While the preview is on, the reading measure is 52**, the width BVJ
-     picked for the desk's release, and Read View's toolbar takes a fixed
+     picked for the desk's release, **and 48 on Study View chapters while the
+     notebook is open** (BVJ, 2026-10-08), to leave the panel room for the
+     Greek and Versions tabs without moving the column. Read View, intros,
+     articles and the glossary stay at 52, since none gets those tabs. The switch is
+     `html[data-desk-panel]`, which Layout.astro's pre-paint script stamps
+     from `lit-desk-panel` so a page opening with the notebook open never
+     reflows, and which panel.js sets and clears inside `keepReadingPlace`.
+     Read View's toolbar takes a fixed
      floor (725px; 895px in OpenDyslexic) because it outgrows the column.
      **The glossary also becomes a reading page** then (the end of
      `pages/glossary.css`): one column at the reading width, with the

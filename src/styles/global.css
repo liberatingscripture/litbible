@@ -3169,8 +3169,17 @@ body:not(:has(.scripture-layout--scripture .scripture-main, .scripture-layout--i
   display: none !important;
 }
 
-/* The narrower reading measure BVJ picked for the desk (52, from 60), on
-   for the preview only until the desk is released. --ch is untouched. */
+/* The narrower reading measures for the desk, on for the preview only until
+   the desk is released. --ch is untouched. 52 (from 60; BVJ, 2026-10-05),
+   and on Study View chapters 48 while the notebook is open, to leave the
+   panel room for the Greek and Versions tabs without moving the column (BVJ,
+   2026-10-08; STUDY-DESK.md, "Decisions"). Read View, intros, articles and
+   the glossary stay at 52: none of them gets those tabs. data-desk-panel is stamped before
+   first paint (Layout.astro), so a page opening with the notebook open never
+   reflows; opening and closing it keep the reader's line (panel.js). */
 html[data-desk] {
   --reading-measure: 52;
+}
+html[data-desk][data-desk-panel]:has(.scripture-layout--scripture .scripture-main) {
+  --reading-measure: 48;
 }
