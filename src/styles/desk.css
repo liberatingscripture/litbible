@@ -1030,6 +1030,249 @@ html[data-desk-note-font="plain"] .desk-note-pop {
   }
 }
 
+/* ── Highlights ──────────────────────────────────────────────── */
+
+/* The reader’s four colours, stored by the apps’ names (audit C8) and kept
+   well away from the site’s selected-verse green: "green" is a lime, warmer
+   than LIT Green. A tint and nothing else (BVJ, 2026-10-09): a second cue
+   per colour, an underline or a bar in the margin, was tried and dropped as
+   too much, and an underline would meet the term lens’s. The colour is
+   named in words wherever a reader asks: the verse number, This verse, and
+   My Notes. The tint carries the reader’s text colour unchanged. */
+:root {
+  --desk-hl-yellow: rgba(255, 210, 0, 0.36);
+  --desk-hl-green: rgba(160, 210, 40, 0.36);
+  --desk-hl-blue: rgba(70, 150, 255, 0.26);
+  --desk-hl-pink: rgba(255, 95, 165, 0.24);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --desk-hl-yellow: rgba(255, 210, 0, 0.24);
+    --desk-hl-green: rgba(160, 210, 40, 0.22);
+    --desk-hl-blue: rgba(90, 160, 255, 0.26);
+    --desk-hl-pink: rgba(255, 95, 165, 0.24);
+  }
+}
+
+:root[data-theme="dark"] {
+  --desk-hl-yellow: rgba(255, 210, 0, 0.24);
+  --desk-hl-green: rgba(160, 210, 40, 0.22);
+  --desk-hl-blue: rgba(90, 160, 255, 0.26);
+  --desk-hl-pink: rgba(255, 95, 165, 0.24);
+}
+
+/* On the page, through the CSS Custom Highlight API (highlights.js), so the
+   scripture’s text and markup are never touched. One named highlight per
+   colour. The samples in the swatches (.desk-swatch__sample) wear the same
+   tint. */
+::highlight(desk-hl-yellow),
+.desk-swatch[data-color="yellow"] .desk-swatch__sample {
+  background-color: var(--desk-hl-yellow);
+}
+
+::highlight(desk-hl-green),
+.desk-swatch[data-color="green"] .desk-swatch__sample {
+  background-color: var(--desk-hl-green);
+}
+
+::highlight(desk-hl-blue),
+.desk-swatch[data-color="blue"] .desk-swatch__sample {
+  background-color: var(--desk-hl-blue);
+}
+
+::highlight(desk-hl-pink),
+.desk-swatch[data-color="pink"] .desk-swatch__sample {
+  background-color: var(--desk-hl-pink);
+}
+
+/* A colour as a control or a label: a short sample of text in the colour's
+   look ("ab"), in the menus' Highlight row and beside a highlight in the
+   Notebook's lists. Its name is in words (aria-label, or text beside it). */
+.desk-swatch {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  min-height: 32px;
+  padding: 0 6px;
+  border: 1px solid var(--border, rgba(var(--ink-rgb), 0.18));
+  border-radius: 6px;
+  background: var(--surface-raised, transparent);
+  color: var(--text, inherit);
+  font: inherit;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.desk-swatch__sample {
+  padding: 2px 3px 3px;
+  font-size: 0.95rem;
+}
+
+span.desk-swatch {
+  cursor: default;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+}
+
+.desk-swatch:hover:not(span) {
+  border-color: rgba(var(--ink-rgb), 0.45);
+}
+
+.desk-swatch:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+/* The Highlight row in the verse menu and the selection panel (actions.js):
+   the four colours, then Remove highlight once the words hold one. Remove
+   shares the swatches' line and every item is as high as the panel's other
+   buttons, so it appearing after the notebook is read moves nothing down. It
+   drops to a line of its own only where the panel is too narrow for both
+   (OpenDyslexic, a small window). */
+.desk-hl-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 4px;
+}
+
+.lit-panel--chips .desk-hl-row {
+  gap: 6px;
+}
+
+/* "Highlight", leading the samples, set like the row's button labels. */
+.desk-hl-row__label {
+  display: flex;
+  align-items: center;
+  padding-inline: 8px 6px;
+  color: var(--text, inherit);
+  font-size: 0.95rem;
+}
+
+.desk-hl-row .desk-swatch {
+  flex: 0 0 auto;
+  min-width: 44px;
+  min-height: 40px;
+}
+
+.desk-hl-row .lit-panel__btn {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  justify-content: flex-start;
+  width: auto;
+  min-height: 40px;
+  padding-block: 0;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.desk-hl-row .lit-panel__btn[hidden] {
+  display: none;
+}
+
+/* Highlights don't print: the printed page is the text and its notes only
+   (print.css), as the margin notes are left off. */
+@media print {
+  ::highlight(desk-hl-yellow),
+  ::highlight(desk-hl-green),
+  ::highlight(desk-hl-blue),
+  ::highlight(desk-hl-pink) {
+    background-color: transparent;
+  }
+}
+
+/* ── Highlights in the Notebook's lists ──────────────────────── */
+
+/* A highlight's words in My Notes and This verse (tab-mine.js, tab-verse.js),
+   wearing the colour's own tint and underline through the swatch classes
+   above. The swatch is made inline here, so a quotation that runs over
+   several lines is tinted line by line, as it is on the page, rather than as
+   one block. Like a note's words, those in My Notes go to the highlight's
+   place. */
+.desk-item__highlight {
+  grid-column: 1;
+  margin: 6px 0 0 -4px;
+  padding: 2px 4px;
+  border-radius: 6px;
+  color: inherit;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+a.desk-item__highlight:hover {
+  background: rgba(var(--ink-rgb), 0.05);
+}
+
+.desk-item__highlight .desk-swatch,
+.desk-verse__highlight .desk-swatch {
+  display: inline;
+  line-height: inherit;
+}
+
+.desk-item__highlight .desk-swatch__sample,
+.desk-verse__highlight .desk-swatch__sample {
+  padding: 0 2px;
+  font-size: inherit;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+/* The choice of colour above My Notes' list: "All" and a swatch for each
+   colour the list holds. The pressed one is told by a heavier border as well
+   as a tint, since a tint alone is a cue by colour. */
+.desk-mine__colors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 10px 4px 2px;
+  font-size: 0.8125rem;
+}
+
+.desk-mine__colors[hidden] {
+  display: none;
+}
+
+.desk-mine__colors .desk-swatch[aria-pressed="true"] {
+  border-color: var(--text);
+  background: rgba(var(--ink-rgb), 0.07);
+  box-shadow: inset 0 0 0 1px var(--text);
+}
+
+@media (forced-colors: active) {
+  .desk-mine__colors .desk-swatch[aria-pressed="true"] {
+    outline: 2px solid CanvasText;
+    outline-offset: -3px;
+  }
+}
+
+/* A highlight in This verse: its words and Remove, in the same grid as a
+   note and its Edit. */
+.desk-verse__highlight {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.desk-verse__remove {
+  padding: 5px 10px;
+  border: 1px solid rgba(var(--ink-rgb), 0.25);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+
+.desk-verse__remove:hover {
+  background: rgba(var(--ink-rgb), 0.07);
+}
+
 /* ── The note editor ─────────────────────────────────────────── */
 
 .desk-editor {

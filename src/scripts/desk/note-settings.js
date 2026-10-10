@@ -1,7 +1,8 @@
 // src/scripts/desk/note-settings.js
 //
-// The reader's settings for their own notes and bookmarks (STUDY-DESK.md, "Decisions",
-// 2026-10-07: the margin switch, and the margin notes' look):
+// The reader's settings for their own notes, bookmarks and highlights
+// (STUDY-DESK.md, "Decisions", 2026-10-07: the margin switch, and the margin
+// notes' look):
 //   - "My notes": whether the margin shows them (shown by default);
 //   - "Handwriting / Plain": Playpen Sans or Inter for margin notes
 //     (handwriting by default). The reader's own font choice, Atkinson
@@ -9,30 +10,38 @@
 //     to it under html[data-font];
 //   - "My bookmarks": whether the margin shows bookmarks' marks (shown by
 //     default; BVJ, 2026-10-08: their own switch, apart from notes);
+//   - "My highlights": whether the page draws the reader's highlights. Two
+//     settings stand behind the one box, because the two views are for
+//     different things (audit C2/H1): Study View's is shown by default, and
+//     Read View, which is for reading a book straight through, keeps its own,
+//     hidden by default. `highlightSetting()` names the one this page uses;
 //   - whether the Notebook panel's list shows notes in full or at two lines
 //     (two lines by default);
 //   - "Hide my notes" (M1; decision 8 under "the margin switch"), which hides
 //     everything of the reader's at once, for sharing a screen: it remembers
-//     "My notes" and "My bookmarks" (and highlights, once they exist), turns
-//     them off, and puts them back when it is turned off. It is no setting of
-//     its own, so the most recent action wins without more code: turning "My
-//     notes" back on while everything is hidden brings back the notes only,
-//     and M1's box shows checked exactly when everything is hidden. The key H
+//     "My notes", "My bookmarks" and both views' highlights, turns them off,
+//     and puts them back when it is turned off. It is no setting of its own,
+//     so the most recent action wins without more code: turning "My notes"
+//     back on while everything is hidden brings back the notes only, and
+//     M1's box shows checked exactly when everything is hidden. The key H
 //     does the same (keyboard-shortcuts.js sends lit:desk-hide).
 //
-// The first three have a control in the Display tray's Show group and another
+// The first four have a control in the Display tray's Show group and another
 // in the Notebook panel, both full switches for one setting, kept in step
 // (BVJ). Like the tray's own settings, each is an attribute on <html>, absent
 // for the default, with one localStorage key; unlike them there is no
 // pre-paint script, since nothing of the desk paints before this file runs.
 
 import { prosePage } from "./note-sources.js";
+import { readBook } from "./page.js";
 import { resetWidthsButton } from "./widths.js";
 
 const SETTINGS = {
   notes: { attr: "data-desk-notes", key: "lit-desk-notes", fallback: "on" },
   noteFont: { attr: "data-desk-note-font", key: "lit-desk-note-font", fallback: "handwriting" },
   bookmarks: { attr: "data-desk-bookmarks", key: "lit-desk-bookmarks", fallback: "on" },
+  highlights: { attr: "data-desk-highlights", key: "lit-desk-highlights", fallback: "on" },
+  readHighlights: { attr: "data-desk-read-highlights", key: "lit-desk-read-highlights", fallback: "off" },
   listFull: { attr: "data-desk-list", key: "lit-desk-list", fallback: "lines" },
 };
 
@@ -41,8 +50,21 @@ export const SETTINGS_EVENT = "desk:settings";
 /** Sent when "Hide my notes" hides or shows everything: { hidden, from }. */
 export const HIDE_EVENT = "desk:hide";
 const HIDE_KEY = "lit-desk-hide";
-// What M1 hides. Highlights join when they are built.
-const HIDDEN_BY_M1 = ["notes", "bookmarks"];
+// What M1 hides. Both views' highlights go, whichever view it is pressed in,
+// since "everything of the reader's" doesn't depend on the page. Read View's
+// is off by default, so it is usually off already: that counts as hidden, and
+// the state remembered for the way back includes it, so it stays off when the
+// rest returns.
+const HIDDEN_BY_M1 = ["notes", "bookmarks", "highlights", "readHighlights"];
+
+/**
+ * The setting that switches highlights on this page: Read View's own in Read
+ * View, and Study View's everywhere else. Callers needn't know which view
+ * they are in; read it when you need it, never keep it.
+ */
+export function highlightSetting() {
+  return readBook() ? "readHighlights" : "highlights";
+}
 
 export function getSetting(name) {
   const { attr, fallback } = SETTINGS[name];
@@ -113,11 +135,11 @@ export function initNoteSettings() {
 let uid = 0;
 
 /**
- * The "My notes" box, the Handwriting / Plain choice, the "My bookmarks" box
- * and the "Hide my notes" box, as controls that follow their settings
- * wherever they change. `classes` names the host's own styles, so the same
- * controls sit naturally in the tray and in the panel, and `from` names the
- * host.
+ * The "My notes" box, the Handwriting / Plain choice, the "My bookmarks" box,
+ * the "My highlights" box and the "Hide my notes" box, as controls that
+ * follow their settings wherever they change. `classes` names the host's own
+ * styles, so the same controls sit naturally in the tray and in the panel,
+ * and `from` names the host.
  */
 function noteControls(classes) {
   const n = ++uid;
@@ -134,6 +156,15 @@ function noteControls(classes) {
     <span class="${classes.checkLabel}">My bookmarks</span>`;
   const marksBox = marks.querySelector("input");
   marksBox.addEventListener("change", () => setSetting("bookmarks", marksBox.checked ? "on" : "off"));
+
+  // One box, whichever view's setting this page uses.
+  const lightsName = highlightSetting();
+  const lights = document.createElement("label");
+  lights.className = classes.check;
+  lights.innerHTML = `<input type="checkbox" class="${classes.checkInput}" id="deskHighlightsCheck${n}" />
+    <span class="${classes.checkLabel}">My highlights</span>`;
+  const lightsBox = lights.querySelector("input");
+  lightsBox.addEventListener("change", () => setSetting(lightsName, lightsBox.checked ? "on" : "off"));
 
   const hide = document.createElement("label");
   hide.className = classes.check;
@@ -160,23 +191,25 @@ function noteControls(classes) {
   const sync = () => {
     box.checked = getSetting("notes") === "on";
     marksBox.checked = getSetting("bookmarks") === "on";
+    lightsBox.checked = getSetting(lightsName) === "on";
     hideBox.checked = allHidden();
     const font = getSetting("noteFont");
     for (const r of radios) r.checked = r.value === font;
   };
   sync();
   document.addEventListener(SETTINGS_EVENT, sync);
-  return { check, seg, marks, hide, sync };
+  return { check, seg, marks, lights, hide, sync };
 }
 
 /**
  * The controls in the Display tray's Show group: all of them on a Study View
- * chapter, and only "My bookmarks" and "Hide my notes" in Read View, which
- * shows no notes. Also H in the tray's list of keys, and on a chapter a line
- * under the Show group saying that a selection reaches the same actions as a
- * verse number (audit C10: hiding the numbers mustn't hide the way in), and
- * "Reset widths" while the reader has dragged the notebook's widths. An
- * article or the glossary gets a Show group of its own (injectProseShow).
+ * chapter, and only "My bookmarks", "My highlights" and "Hide my notes" in
+ * Read View, which shows no notes. Also H in the tray's list of keys, and on
+ * a chapter a line under the Show group saying that a selection reaches the
+ * same actions as a verse number (audit C10: hiding the numbers mustn't hide
+ * the way in), and "Reset widths" while the reader has dragged the
+ * notebook's widths. An article or the glossary gets a Show group of its own
+ * (injectProseShow), without highlights, which it doesn't have yet.
  */
 const TRAY_CLASSES = {
   check: "font-tray__check",
@@ -201,8 +234,9 @@ function injectIntoTray() {
     return;
   }
   if (!checks || !show || !(study || read)) return;
-  const { check, seg, marks, hide } = noteControls(TRAY_CLASSES);
+  const { check, seg, marks, lights, hide } = noteControls(TRAY_CLASSES);
   marks.dataset.desk = "";
+  lights.dataset.desk = "";
   hide.dataset.desk = "";
   const keys = document.getElementById("fontTrayKeys");
   if (keys) {
@@ -212,11 +246,11 @@ function injectIntoTray() {
     keys.append(li);
   }
   if (read) {
-    checks.append(marks, hide);
+    checks.append(marks, lights, hide);
     return;
   }
   check.dataset.desk = "";
-  checks.append(check, marks, hide);
+  checks.append(check, marks, lights, hide);
   const hint = document.createElement("p");
   hint.className = "font-tray__hint";
   hint.id = "deskVerseNumbersHint";
@@ -273,12 +307,14 @@ function injectProseShow() {
 
 /**
  * The same controls for the Notebook panel's foot; with `notes: false`
- * (Read View), only "My bookmarks" and "Hide my notes"; with
+ * (Read View), only "My bookmarks", "My highlights" and "Hide my notes"; with
  * `bookmarks: false` (an article or the glossary, where nothing is
- * bookmarked), all but "My bookmarks".
+ * bookmarked or highlighted), all but "My bookmarks" and "My highlights".
+ * `highlights` says it outright where a caller needs to; left out, it
+ * follows `bookmarks`, since the two are drawn on the same pages.
  */
-export function panelNoteControls({ notes = true, bookmarks = true } = {}) {
-  const { check, seg, marks, hide } = noteControls({
+export function panelNoteControls({ notes = true, bookmarks = true, highlights = bookmarks } = {}) {
+  const { check, seg, marks, lights, hide } = noteControls({
     check: "desk-setting",
     checkInput: "desk-setting__input",
     checkLabel: "desk-setting__label",
@@ -290,7 +326,8 @@ export function panelNoteControls({ notes = true, bookmarks = true } = {}) {
   });
   const wrap = document.createElement("div");
   wrap.className = "desk-panel__settings";
-  if (notes) wrap.append(check, seg, ...(bookmarks ? [marks] : []), hide);
-  else wrap.append(marks, hide);
+  const lit = highlights ? [lights] : [];
+  if (notes) wrap.append(check, seg, ...(bookmarks ? [marks] : []), ...lit, hide);
+  else wrap.append(marks, ...lit, hide);
   return wrap;
 }

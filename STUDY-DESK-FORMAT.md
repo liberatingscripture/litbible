@@ -262,6 +262,19 @@ Each client applies the rule when the reader makes a highlight. None applies
 it to records arriving from elsewhere, so two devices can't rewrite each
 other's marks.
 
+**Which records carry the result** (the website's practice since
+2026-10-09, `src/lib/desk-highlights.mjs`; proposed for draft 2): a merge
+keeps the **oldest** of the merged records, by `created`, and deletes the
+others through the trash, so a highlight's id lasts as long as it does. A
+trim edits the old record; where a new colour lands in the middle of an old
+one, the old record keeps the first piece and the second becomes a new
+record of the old colour, carrying its labels. A record that is rewritten
+gets a new quote and `verseCopy` taken from today's text, and today's
+`contentVersion`. A record written by a newer schema, or on newer text than
+the client has (principle 7), counts as one carrying an unread notice: it is
+never touched. Removing a highlight from some words is the same trim with
+no new colour.
+
 A highlight across paragraphs is **one** logical record (A-F1). A store
 that needs slices (iCloud's existing app records) slices it in its own
 mapping.

@@ -3,8 +3,9 @@
 // The notebook in this browser: one IndexedDB database, kept in step across
 // the reader's open tabs with a BroadcastChannel (STUDY-DESK.md, "How it would
 // be built", Storage). The thin shell over src/lib/desk-store-core.mjs, which
-// decides what each change writes; this file only commits the plans and tells
-// the other tabs which records moved.
+// decides what each change writes; this file only commits the plans (its own,
+// and a multi-record one from a caller, through `commit`) and tells the other
+// tabs which records moved.
 //
 // Records are stored as the format's logical records, unchanged (principle 6:
 // a field or kind this code doesn't know is written back as it came).
@@ -23,6 +24,7 @@ import {
   planPurge,
   planSave,
   planUndo,
+  planWrite,
   readChangeMessage,
   touched,
 } from "../../lib/desk-store-core.mjs";
@@ -143,6 +145,20 @@ export async function openStore({ ctx }) {
       await apply(planSave(record));
       askToPersist();
       return record;
+    },
+
+    /**
+     * Commit a plan that writes several records at once (a highlight that
+     * merges with its neighbours, and its undo), in one transaction. Refuses a
+     * malformed record before anything is written. Resolves to the plan; an
+     * empty one does nothing.
+     */
+    async commit(plan) {
+      const checked = planWrite(plan);
+      if (!checked.put.length && !checked.remove.length) return plan;
+      await apply(checked);
+      askToPersist();
+      return plan;
     },
 
     /** Delete a record; resolves to the trash record that holds it. */

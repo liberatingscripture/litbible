@@ -18,6 +18,7 @@ import { createNotesMargin } from "./notes-margin.js";
 import { createReadMarks } from "./read-marks.js";
 import { openNoteEditor } from "./note-editor.js";
 import { createVerseLabels } from "./verse-labels.js";
+import { createHighlights } from "./highlights.js";
 import { proseSource, studySource } from "./note-sources.js";
 import { initProseActions } from "./prose-actions.js";
 import { fitGlossaryTitles } from "./glossary-titles.js";
@@ -71,6 +72,9 @@ async function start() {
   initActions({ store, ctx, showVerse: panel.showVerse });
   initProseActions({ store, addNote });
   if (store) createVerseLabels({ store });
+  // Painted on a Study View chapter or in Read View; after initNoteSettings,
+  // so the switches are already on <html>.
+  if (store) createHighlights({ store });
 }
 
 start();

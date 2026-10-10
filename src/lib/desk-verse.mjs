@@ -1,16 +1,18 @@
 // src/lib/desk-verse.mjs
 //
 // The pure rules for the Notebook's "This verse" tab (STUDY-DESK.md N10) and
-// for a verse number naming the reader's notes (STUDY-DESK.md, "Still open":
-// "How a screen reader learns a verse has notes"). Positions and records in,
-// answers out, so Node can test what the page does. The page side is
-// src/scripts/desk/verse-labels.js for the verse numbers, and the panel's
-// "This verse" tab for the rest.
+// for a verse number naming the reader's notes and highlights (STUDY-DESK.md,
+// "Still open": "How a screen reader learns a verse has notes"; the highlights
+// came in phase 1c). Positions and records in, answers out, so Node can test
+// what the page does. The page side is src/scripts/desk/verse-labels.js for the
+// verse numbers, and the panel's "This verse" tab for the rest.
 //
 // A record on the text carries `bookKey`, `chapter`, `verse` and, for a range,
 // `endVerse`. An absent `endVerse`, or one equal to `verse`, is a single verse.
 // Everything here works on one chapter's records, already narrowed by the
 // caller (desk-store-core's forChapter).
+
+import { COLORS } from "./desk-records.mjs";
 
 /** A record's verses as { from, to }, or null for one with no verse to speak of. */
 function span(record) {
@@ -69,12 +71,49 @@ export function noteCounts(records) {
 }
 
 /**
- * A Study View verse number's accessible name: "Verse 1", and when notes of the
- * reader's cover it, "Verse 1, 1 note of mine" or "Verse 1, 2 notes of mine".
- * A missing count is none.
+ * Which highlight colours cover each verse: a Map from verse number to the
+ * colours, each once, in COLORS order (yellow, green, blue, pink). Only
+ * highlights count, and only one with a colour in COLORS: a note or bookmark
+ * says nothing about colour, and an unknown colour is not one the page draws. A
+ * highlight on verses 3 to 5 covers each of 3, 4 and 5. A verse no highlight
+ * covers is not in the map.
  */
-export function verseLabel(verse, noteCount) {
+export function highlightColors(records) {
+  const seen = new Map(); // verse -> Set of colours
+  for (const r of records ?? []) {
+    if (r?.kind !== "highlight" || !COLORS.includes(r.color)) continue;
+    const s = span(r);
+    if (!s) continue;
+    for (let v = s.from; v <= s.to; v++) {
+      if (!seen.has(v)) seen.set(v, new Set());
+      seen.get(v).add(r.color);
+    }
+  }
+  const colors = new Map();
+  for (const [v, set] of seen) colors.set(v, COLORS.filter((c) => set.has(c)));
+  return colors;
+}
+
+/** "yellow", "yellow and pink", "yellow, green and pink": no comma before the last "and". */
+function joinWords(words) {
+  if (words.length < 2) return words.join("");
+  return `${words.slice(0, -1).join(", ")} and ${words[words.length - 1]}`;
+}
+
+/**
+ * A Study View verse number's accessible name. It names the reader's highlights
+ * and notes on the verse, colours first: "Verse 1", "Verse 1, highlighted
+ * yellow", "Verse 1, 1 note of mine", "Verse 1, highlighted yellow and pink, 2
+ * notes of mine". `colors` is a list of colour names as highlightColors gives
+ * them. A missing or empty list, and a missing count, are none. Colours are
+ * named in COLORS order whatever order they arrive in, and a name not in COLORS
+ * is left out, so the label always matches what the page draws.
+ */
+export function verseLabel(verse, noteCount, colors = []) {
   const n = Number(noteCount) || 0;
-  if (n <= 0) return `Verse ${verse}`;
-  return `Verse ${verse}, ${n} ${n === 1 ? "note" : "notes"} of mine`;
+  const shown = COLORS.filter((c) => (colors ?? []).includes(c));
+  const parts = [`Verse ${verse}`];
+  if (shown.length) parts.push(`highlighted ${joinWords(shown)}`);
+  if (n > 0) parts.push(`${n} ${n === 1 ? "note" : "notes"} of mine`);
+  return parts.join(", ");
 }
