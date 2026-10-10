@@ -668,6 +668,13 @@ function openVerseMenu(
   header.append(heading, closeBtn);
   panel.appendChild(header);
 
+  // First, under the heading (BVJ, 2026-10-09): read before the actions, it
+  // says the menu can cover more than one verse before a reader picks one.
+  const hint = document.createElement("p");
+  hint.className = "lit-panel__hint";
+  hint.textContent = (touch ? "Tap" : "Click") + " another verse number to select a range.";
+  panel.appendChild(hint);
+
   panel.appendChild(
     panelRow(
       menuButton("Copy text", async () => {
@@ -727,11 +734,6 @@ function openVerseMenu(
   }
 
   offerActions(panel, { kind: "verse", view: "study", start, end, ref, touch });
-
-  const hint = document.createElement("p");
-  hint.className = "lit-panel__hint";
-  hint.textContent = (touch ? "Tap" : "Click") + " another verse number to select a range.";
-  panel.appendChild(hint);
 
   showPanel(sup, panel, {
     preferAbove: true,

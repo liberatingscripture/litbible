@@ -3120,7 +3120,7 @@ html[data-font="dyslexic"] .lit-panel--chips .lit-panel__btn {
 
 /* Range-selection hint at the bottom of the verse menu */
 .lit-panel__hint {
-  margin: 6px 0 0;
+  margin: 0 0 6px;
   font-size: 0.78rem;
   color: rgba(var(--ink-rgb), 0.55);
 }
