@@ -33,9 +33,11 @@ are recorded so they aren't re-argued.
   `litbible.net/?desk=on` turns the desk on in one browser on a computer, and
   `?desk=off` turns it off. No desk page or service exists. 1c's parts that
   wait on nobody are built (notes, bookmarks, the margin, the panel's tabs and
-  "This verse", M1, the draggable widths, and N11 provisionally). Highlights and the change notice
-  no longer wait: BDR answered rules a to e on 2026-10-09. The versions wait
-  on the API.bible questions. What exists:
+  "This verse", M1, the draggable widths, and N11 provisionally), and so
+  are highlights (2026-10-09), as soon as BDR's answers to rules a to e
+  settled the overlap rule. Still to come in 1c: the change notice and
+  pinned footnotes. The versions wait on the API.bible questions. What
+  exists:
   - draft 1 of the record format (`STUDY-DESK-FORMAT.md`), with its
     reference implementation (`scripts/lib/anchor-text.mjs`) and test vectors
     (PR #268);
@@ -467,8 +469,9 @@ plan as a whole was accepted; nothing was declined except where stated).
 - **H1. Your own legend.** **The legend is dropped (BVJ, 2026-10-07, with
   BDR): highlights are four colours with no names.** What stays from H1: the
   colours, kept away from the site's green; Read View's switch; the words
-  for screen readers (the colour's name, "highlighted yellow"); the second
-  cue; and colours stored by the apps' names. As first planned: four
+  for screen readers (the colour's name, "highlighted yellow"); and colours
+  stored by the apps' names. (The second cue went too, 2026-10-09: a tint
+  only.) As first planned: four
   colors, the same number as the apps, each with
   a meaning the reader names (promise, question, harm, liberation, anything).
   Lists and exports group by meaning. Colors stay well away from the site's
@@ -2151,8 +2154,8 @@ recommendations, none decided:**
    with it, separate places if not (BVJ leaned slightly against,
    2026-10-05).
 6. **Colour meanings (H1): decided 2026-10-07, dropped everywhere.** BVJ
-   agreed with BDR's lean, so it comes off the Zoom's list. Each colour keeps
-   a second visual cue (C4).
+   agreed with BDR's lean, so it comes off the Zoom's list. Each colour kept
+   a second visual cue (C4) until BVJ dropped it on 2026-10-09 (a tint only).
 7. **The notebook file (D1):** export and import only.
 8. **The stores' declarations:** accept that "No data collected" ends (for
    certain under C, probably on Android under A). The privacy policy changes
@@ -2610,9 +2613,8 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
    - **1c. Marks in Study View.** The "My Notebook" actions in the verse menu and
      selection panel; notes with the apps' seven markers; highlights in the
      four colours, with no named meanings (H1's legend was dropped 2026-10-07;
-     1c also takes `legend` out of `KINDS` in `src/lib/desk-records.mjs`), and a second cue
-     besides colour (C4), modelled on the apps' marker glyph and dotted
-     underline; bookmarks; the margin, each note level with its first word
+     1c also takes `legend` out of `KINDS` in `src/lib/desk-records.mjs`), with no second cue
+     besides colour (C4's cue was dropped 2026-10-09; built as a tint only); bookmarks; the margin, each note level with its first word
      and led by its marker glyph, in Playpen Sans or Inter by the reader's
      choice, falling back to the glyph in a circle (C9),
      with the reader's switch for notes shown or hidden in both the Display
@@ -2784,8 +2786,59 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
        Now each takes only the break it needs, measured on the page: its
        options on the heading's line, or together on a line of their own, or
        (only the longest, mercy's, at the default size) each on its own line.
-     **Still to come in 1c**: highlights and the change notice (BDR answered
-     rules a to e on 2026-10-09, so they no longer wait), and the versions,
+     **Built third (2026-10-09), highlights**, behind the preview switch, as
+     soon as BDR's answer to rule d settled the overlap rule:
+     - **The record and the rule.** A highlight is one record however many
+       paragraphs it crosses, with its quote and `verseCopy`.
+       `src/lib/desk-highlights.mjs` (pure, unit-tested) applies "Highlights
+       that meet" (STUDY-DESK-FORMAT.md) whenever the reader makes one: the
+       same colour merges where it overlaps or is separated only by spaces,
+       never across a paragraph or a line of poetry; a new colour trims an
+       old one, splitting it in two where it lands in the middle; a trimmed
+       piece loses stray spaces at its edges; and a highlight whose words
+       have moved on (anything but `found` or `moved`) is never touched,
+       nor is one written by a newer schema or on newer text. A merge keeps
+       the oldest record and deletes the rest through the trash; a split's
+       second piece is a new record carrying the first's labels. Every
+       rewritten record gets a fresh quote, `verseCopy` and
+       `contentVersion`. The store commits each change in one transaction.
+     - **On the page**: a tint and nothing else, drawn with the CSS Custom
+       Highlight API (`src/scripts/desk/highlights.js`), one highlight per
+       colour, so nothing is added to the scripture. The four colours keep
+       away from the selected-verse green ("green" is a lime) and sit under
+       the selected verse and a note's lit words. **No second cue** (BVJ,
+       2026-10-09; "Decisions", 2026-10-09 (highlights)). Highlights don't
+       print.
+     - **In the menus**: a Highlight row in "My Notebook", four colour
+       buttons (each a small sample of text in its tint, named in words for
+       screen readers), and "Remove highlight" when the verses or selection
+       hold one, which takes the highlight off just those words. Study View
+       offers it in the verse menu and the selection panel; Read View in the
+       selection panel only while its highlights are shown (C2).
+     - **The switches**: "My highlights" in the Display tray and the panel's
+       foot, on by default in Study View and **off by default in Read View**,
+       stored separately (H1, decision 2). "Hide my notes" (M1, H) hides
+       them with everything else.
+     - **In words**: a verse number names its colours ("Verse 3,
+       highlighted yellow and pink, 1 note of mine") while highlights are
+       shown. My Notes names each ("Yellow highlight") with its words in the
+       tint, and groups by colour through a filter above the list (All, then
+       each colour present). This verse lists the verse's highlights with
+       Remove.
+     - **Defaults chosen where nothing was decided**, for BVJ to judge on the
+       preview: the row's place (after Add a note and Bookmark) and its
+       samples; Remove highlight erasing within the words rather than whole
+       records; highlighting while "My highlights" is off in Study View
+       turning it back on; the panel closing at once (the highlight is the
+       feedback); the undo bar only after a removal or when a new colour cut
+       into another ("Romans 8:3 highlighted green."), never after a plain new
+       highlight; the colour filter in My Notes; a highlight across verses
+       tinting the verse numbers and footnote letters inside it; and, in Study
+       View, a highlight in My Notes going to its verse by the ordinary `#v3`
+       link rather than the in-place visit a note gets.
+     **Still to come in 1c**: the change notice, which now has highlights
+     as well as notes to speak for (BDR answered rules a to e on 2026-10-09,
+     so it no longer waits), pinned footnotes (below), and the versions,
      held (below).
      **Added to 1c on 2026-10-09: pinned footnotes, by November** (BVJ,
      agreeing to BDR's request; see "BDR's answers and requests"). A Pin
@@ -3024,7 +3077,9 @@ BVJ answered every item on 2026-10-01.
   only date and reason. **Yes.**
 - **C4. Highlights are invisible to screen readers, meaning by color alone.**
   Fix: announce them, name the meaning on hover and in lists and exports, a
-  second cue per color. **Yes.**
+  second cue per color. **Yes.** (The second cue was dropped 2026-10-09:
+  highlights are a tint only, named in words; "Decisions", 2026-10-09
+  (highlights).)
 - **C5. Two ways to sync can fight.** Fix: one source of truth at a time.
   **Yes, plus a section explaining the login options including opting out,
   and a first-time prompt to choose** (became D6).
@@ -3260,7 +3315,7 @@ The rest of the same day's review:
 - **Colour meanings (H1's legend) are dropped**, everywhere. BVJ agreed with
   BDR's lean (Zoom item 6), so this is settled for all three. Highlights
   keep their four colours, stored by the apps' names (C8), each with a
-  second visual cue (C4). Screen readers announce the colour ("highlighted
+  second visual cue (C4; dropped 2026-10-09, a tint only). Screen readers announce the colour ("highlighted
   yellow"). Lists and exports group by colour. Read View's highlights stay
   off by default. The format drops the `legend` kind.
 
@@ -3568,6 +3623,20 @@ answers and requests (2026-10-09)") and answered six questions:
    things the apps don't do. **"Study Desk" is the project's name**, never
    shown to readers, and is larger than the Notebook: it also covers the
    margin notes, the menus' actions, sync and encryption.
+
+### 2026-10-09 (highlights)
+
+- **Highlights are a tint and nothing else** (BVJ, after seeing three
+  mocks on Romans 8: "I appreciate trying to be sensitive to color
+  blindness. I think it's just too much."). This drops C4's second visual
+  cue, which until then had been "yes". The first build gave each colour its
+  own underline (solid, double, dashed, wavy); BVJ pointed out that any
+  underline meets the term lens's dotted one under a key term. The two other
+  ways tried were an overline, which crowded the line above, and a patterned
+  bar in the margin beside the highlighted lines. What stays from C4: every
+  highlight is named in words wherever a reader can ask (the verse number,
+  This verse, My Notes), and the colour buttons are named for screen
+  readers. The apps' highlights are colour only too.
 
 ## Still open
 

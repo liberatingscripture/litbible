@@ -20,6 +20,7 @@ import {
   planPurge,
   planSave,
   planUndo,
+  planWrite,
   readChangeMessage,
   recordHref,
   recordReadHref,
@@ -45,6 +46,55 @@ test("planSave puts a valid record and refuses a malformed one", () => {
   assert.deepEqual(planSave(r), { put: [r], remove: [] });
   assert.throws(() => planSave({ ...r, marker: "star" }), /not saved/);
   assert.throws(() => planSave({ ...r, chapter: 17 }), /chapter is out of range/);
+});
+
+function highlight(where, extra = {}) {
+  return createRecord(
+    "highlight",
+    {
+      ...where,
+      color: "yellow",
+      quote: { exact: "patient", prefix: "Love is ", suffix: ", love is kind." },
+      ...extra,
+    },
+    { ...base, now: "2026-10-05T12:00:00.000Z", id: nextId() },
+  );
+}
+
+test("planWrite passes a plan whose records are all well formed, and keeps only put and remove", () => {
+  const a = highlight({ bookKey: "1corinthians", chapter: 13, verse: 1 });
+  const b = highlight({ bookKey: "1corinthians", chapter: 13, verse: 1, endVerse: 2 }, { color: "pink" });
+  const gone = highlight({ bookKey: "1corinthians", chapter: 13, verse: 3 });
+  const plan = { put: [a, b], remove: [gone.id], created: a, summary: { merged: 0 }, undo: { put: [], remove: [] } };
+  const checked = planWrite(plan);
+  assert.deepEqual(checked, { put: [a, b], remove: [gone.id] });
+  assert.deepEqual(touched(checked), [a.id, b.id, gone.id]);
+  assert.notEqual(checked.put, plan.put, "a copy, so the caller's plan can't change under the commit");
+});
+
+test("planWrite refuses the whole plan when one record is malformed", () => {
+  const good = highlight({ bookKey: "1corinthians", chapter: 13, verse: 1 });
+  const bad = highlight({ bookKey: "1corinthians", chapter: 13, verse: 1 }, { color: "teal" });
+  assert.throws(() => planWrite({ put: [good, bad], remove: [] }), /desk-store: not saved \(color "teal"/);
+  assert.throws(() => planWrite({ put: [good, { ...good, quote: undefined }], remove: [] }), /a highlight needs a quote/);
+  assert.throws(() => planWrite({ put: [{ ...good, chapter: 17 }], remove: ["x"] }), /chapter is out of range/);
+});
+
+test("planWrite does not judge a trash record, which holds a record of any kind", () => {
+  const r = highlight({ bookKey: "1corinthians", chapter: 13, verse: 1 }, { color: "teal" });
+  const trash = planDelete(r, { ...base, now: "2026-10-06T00:00:00.000Z" });
+  assert.deepEqual(planWrite(trash), { put: [trash.trash], remove: [r.id] });
+});
+
+test("planWrite takes the plans the other operations make, and an empty one", () => {
+  const r = note({ bookKey: "romans", chapter: 8, verse: 3 });
+  const deleted = planDelete(r, { ...base, now: "2026-10-06T00:00:00.000Z" });
+  assert.deepEqual(planWrite(deleted).remove, [r.id]);
+  const undone = planUndo(deleted.trash, { ...base, now: "2026-10-06T00:00:05.000Z" });
+  assert.deepEqual(planWrite(undone), { put: [undone.record], remove: [deleted.trash.id] });
+  assert.deepEqual(planWrite({ put: [], remove: [] }), { put: [], remove: [] });
+  assert.deepEqual(planWrite({}), { put: [], remove: [] });
+  assert.throws(() => planWrite({ put: [{ id: "x" }], remove: [] }), /not saved/);
 });
 
 test("planDelete puts the trash record and removes the live one", () => {

@@ -1,17 +1,26 @@
 // src/scripts/desk/tab-mine.js
 //
 // The Notebook panel's "My Notes" tab (BVJ, 2026-10-08: it holds bookmarks
-// too, and highlights once they exist): what the notebook keeps, with
-// Delete, and for a note its marker glyph, its words at two lines (or in
-// full, by the toggle at the panel's foot) and Edit. A note on this page's
-// chapter takes the reader to its place (BVJ, 2026-10-07: decision 7 under
-// "the margin switch").
+// and highlights too): what the notebook keeps, with Delete, and for a note
+// its marker glyph, its words at two lines (or in full, by the toggle at the
+// panel's foot) and Edit. A note on this page's chapter takes the reader to
+// its place (BVJ, 2026-10-07: decision 7 under "the margin switch").
+//
+// A highlight is named by its colour ("Yellow highlight") and shows its
+// words (the first 24) wearing the highlight's own tint and underline, the
+// look the page and the menus' swatches give it, and, like a note's words,
+// they go to its place. Lists group by colour (decided 2026-10-09): when the
+// list holds a highlight, a row of choices above it narrows the list to one
+// colour, and "All" brings everything back. That choice is kept for the
+// visit only, and goes back to All when its colour leaves the list.
 //
 // On a Study View chapter the tab starts on that chapter's records, and a
 // small choice at its top switches to everything kept; on an article or the
 // glossary it starts on the notes on this page (N11); elsewhere it lists
 // everything. An article also offers a note on the whole article here.
 
+import { shortQuote } from "../../lib/desk-notes.mjs";
+import { COLORS } from "../../lib/desk-records.mjs";
 import {
   kindName,
   liveRecords,
@@ -27,6 +36,40 @@ import { showUndo } from "./undo-bar.js";
 const ICON_CARET = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
   stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
   <path d="M6 9l6 6 6-6" /></svg>`;
+
+// The words of a highlight shown in the list: about this many.
+const HIGHLIGHT_WORDS = 24;
+
+// Which colour the list is narrowed to (null: everything). Kept for the visit.
+let colorFilter = null;
+
+/** A highlight's colour if the format knows it; null for anything else, which is shown plainly. */
+function colorOf(r) {
+  return r?.kind === "highlight" && COLORS.includes(r.color) ? r.color : null;
+}
+
+/** What a reader calls a record's kind: "Yellow highlight", or the plain kind name. */
+function nameOf(r) {
+  const color = colorOf(r);
+  return color ? `${color[0].toUpperCase()}${color.slice(1)} highlight` : kindName(r.kind);
+}
+
+/**
+ * A highlight's words as the page shows them: a swatch wrapped round a sample,
+ * which desk.css gives the colour's tint and underline. A colour the format
+ * doesn't know gets plain text.
+ */
+function highlightedWords(color, words) {
+  if (!color) return document.createTextNode(words);
+  const swatch = document.createElement("span");
+  swatch.className = "desk-swatch";
+  swatch.dataset.color = color;
+  const sample = document.createElement("span");
+  sample.className = "desk-swatch__sample";
+  sample.textContent = words;
+  swatch.append(sample);
+  return swatch;
+}
 
 /**
  * @param {{ store: object | null, storeError: unknown,
@@ -54,6 +97,7 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
       </label>
     </div>` : ""}
     ${addAction && store ? `<button type="button" class="desk-mine__add"></button>` : ""}
+    <div class="desk-mine__colors" role="group" aria-label="Show highlights of one colour" hidden></div>
     <ul class="desk-list"></ul>
     <p class="desk-panel__empty" hidden></p>`;
   if (pageScope) el.querySelector(".desk-seg__text").textContent = pageScope.label;
@@ -65,6 +109,7 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
 
   const list = el.querySelector(".desk-list");
   const empty = el.querySelector(".desk-panel__empty");
+  const colors = el.querySelector(".desk-mine__colors");
   const openNotes = new Set(); // notes clicked open in the list, for this visit
   let scope = pageScope ? "chapter" : "everything";
   for (const radio of el.querySelectorAll(".desk-mine__scope input")) {
@@ -81,19 +126,32 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     const seq = ++renderSeq;
     if (!store) {
       list.replaceChildren();
+      colors.hidden = true;
       empty.hidden = false;
       empty.textContent =
         "This browser isn't letting the site keep a notebook. Private windows sometimes don't.";
       if (storeError) console.error("Study Desk: the notebook didn't open", storeError);
       return;
     }
-    const records =
+    const kept =
       scope === "chapter" && pageScope ? await pageScope.load(store) : liveRecords(await store.all());
     if (seq !== renderSeq) return; // a newer render has started
 
+    // The colours this list holds. A choice of colour that has left it (the
+    // last of its highlights deleted, or the list changed to another scope)
+    // goes back to All rather than leaving an empty list under a choice.
+    const present = COLORS.filter((c) => kept.some((r) => colorOf(r) === c));
+    if (colorFilter && !present.includes(colorFilter)) colorFilter = null;
+    drawColors(present);
+    const records = colorFilter ? kept.filter((r) => colorOf(r) === colorFilter) : kept;
+
     list.replaceChildren(...records.map(rowFor));
     empty.hidden = records.length > 0;
-    empty.textContent = scope === "chapter" ? pageScope.empty : "Nothing kept yet.";
+    empty.textContent = colorFilter
+      ? `No ${colorFilter} highlights here.`
+      : scope === "chapter"
+        ? pageScope.empty
+        : "Nothing kept yet.";
 
     markCut();
 
@@ -103,6 +161,37 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
       (target ?? el.closest(".desk-panel__body") ?? el).focus({ preventScroll: false });
     }
     afterRender();
+  }
+
+  // The choices above the list: "All" and one toggle per colour present,
+  // shown only when the list holds a highlight. Redrawn with the list, so the
+  // button that was pressed gets focus back.
+  function drawColors(present) {
+    const focused = colors.contains(document.activeElement) ? document.activeElement.dataset.choice : null;
+    colors.hidden = present.length === 0;
+    colors.replaceChildren(
+      ...(present.length ? ["all", ...present] : []).map((choice) => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "desk-swatch";
+        b.dataset.choice = choice;
+        b.setAttribute("aria-pressed", String(choice === (colorFilter ?? "all")));
+        if (choice === "all") {
+          b.textContent = "All";
+        } else {
+          b.dataset.color = choice;
+          b.setAttribute("aria-label", `Only ${choice} highlights`);
+          b.innerHTML = `<span class="desk-swatch__sample" aria-hidden="true">ab</span>`;
+        }
+        // Pressing the colour that is already chosen lets go of it.
+        b.addEventListener("click", () => {
+          colorFilter = choice === "all" || choice === colorFilter ? null : choice;
+          render();
+        });
+        return b;
+      }),
+    );
+    if (focused) colors.querySelector(`[data-choice="${focused}"]`)?.focus({ preventScroll: true });
   }
 
   function rowFor(r) {
@@ -127,7 +216,7 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     if (revealHere) head.addEventListener("click", goTo);
     const kind = document.createElement("span");
     kind.className = "desk-item__kind";
-    kind.textContent = kindName(r.kind);
+    kind.textContent = nameOf(r);
     li.append(head, kind);
     if (r.kind === "note") {
       // Led by its marker, at two lines unless hovered, focused, opened by
@@ -178,6 +267,18 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
         });
         li.append(edit);
       }
+    } else if (r.kind === "highlight") {
+      // Its first words, wearing its own colour, go to its place as a note's
+      // do. A highlight of a colour we don't know shows them plain.
+      const quote = shortQuote(r.quote?.exact, HIGHLIGHT_WORDS);
+      if (quote) {
+        const words = document.createElement(href ? "a" : "p");
+        words.className = "desk-item__highlight";
+        if (href) words.href = href;
+        if (revealHere) words.addEventListener("click", goTo);
+        words.append(highlightedWords(colorOf(r), quote));
+        li.append(words);
+      }
     } else {
       const words = r.label ?? r.name ?? r.quote?.exact;
       if (typeof words === "string" && words) {
@@ -191,7 +292,7 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     del.type = "button";
     del.className = "desk-item__delete";
     del.textContent = "Delete";
-    del.setAttribute("aria-label", `Delete ${kindName(r.kind).toLowerCase()}${ref ? ` on ${ref}` : ""}`);
+    del.setAttribute("aria-label", `Delete ${nameOf(r).toLowerCase()}${ref ? ` on ${ref}` : ""}`);
     del.addEventListener("click", () => remove(r, li));
     li.append(del);
     return li;
@@ -218,7 +319,7 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     if (!trash) return;
     await render({ focusIndex: index });
     const ref = recordReference(r);
-    showUndo(`${kindName(r.kind)}${ref ? ` on ${ref}` : ""} deleted.`, async () => {
+    showUndo(`${nameOf(r)}${ref ? ` on ${ref}` : ""} deleted.`, async () => {
       const back = await store.undo(trash.id);
       if (!back) throw new Error("nothing to bring back");
       await render();

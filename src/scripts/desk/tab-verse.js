@@ -2,8 +2,10 @@
 //
 // The Notebook panel's "This verse" tab (STUDY-DESK.md, N10; BVJ 2026-10-02:
 // one verse at a time), on Study View chapters: the verse the reader picked,
-// with the translation's footnotes on it and the reader's own notes and
-// bookmark, and a way to add a note. Other translations and the verse's Greek
+// with the translation's footnotes on it and the reader's own notes,
+// bookmark and highlights, and a way to add a note. A highlight is listed as
+// its words in the colour's own look, with Remove (and an Undo bar, as a
+// deleted note has). Other translations and the verse's Greek
 // join it later (the versions wait on the API.bible questions, BVJ
 // 2026-10-08; the Greek is phase 1f).
 //
@@ -22,12 +24,17 @@
 // exactly as they do there, links included. Nothing here adds to or changes
 // the scripture on the page.
 
-import { verseCopyFor } from "../../lib/desk-records.mjs";
-import { forChapter } from "../../lib/desk-store-core.mjs";
+import { shortQuote } from "../../lib/desk-notes.mjs";
+import { COLORS, verseCopyFor } from "../../lib/desk-records.mjs";
+import { forChapter, recordReference } from "../../lib/desk-store-core.mjs";
 import { adjacentVerse, recordsOnVerse } from "../../lib/desk-verse.mjs";
 import { verseAtReadingLine } from "../last-read.js";
 import { glyph } from "./glyphs.js";
 import { chapterText } from "./page.js";
+import { showUndo } from "./undo-bar.js";
+
+// A highlight's words are shown in part, as in My Notes: about this many.
+const HIGHLIGHT_WORDS = 24;
 
 const ICON_PREV = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
   stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
@@ -121,7 +128,7 @@ export function createVerseTab({ store, here, visible, panelOpen, onEdit = null,
 
     const records = store ? forChapter(await store.byChapter(here.bookKey, here.chapter), here.bookKey, here.chapter) : [];
     if (n !== seq) return; // a newer render has started
-    const on = recordsOnVerse(records, v).filter((r) => r.kind === "note" || r.kind === "bookmark");
+    const on = recordsOnVerse(records, v).filter((r) => r.kind === "note" || r.kind === "bookmark" || r.kind === "highlight");
     mine.replaceChildren(...on.map(itemFor));
     empty.hidden = on.length > 0;
   }
@@ -160,6 +167,7 @@ export function createVerseTab({ store, here, visible, panelOpen, onEdit = null,
       li.innerHTML = `${glyph("bookmark", "desk-glyph desk-verse__glyph desk-verse__glyph--bookmark")}<span class="desk-verse__words">Bookmarked</span>`;
       return li;
     }
+    if (r.kind === "highlight") return highlightItem(li, r);
     // The note goes to its place in the margin, as it does in My Notes.
     const canGo = Boolean(goHere?.can(r));
     const note = document.createElement(canGo ? "button" : "span");
@@ -188,6 +196,62 @@ export function createVerseTab({ store, here, visible, panelOpen, onEdit = null,
       li.append(edit);
     }
     return li;
+  }
+
+  /**
+   * A highlight on the verse: its words in the colour's look, and Remove. The
+   * look is for the eye (tint and underline), so a screen reader is told the
+   * colour in words, ahead of the quotation.
+   */
+  function highlightItem(li, r) {
+    const color = COLORS.includes(r.color) ? r.color : null;
+    const name = color ? `${color} highlight` : "highlight";
+    const words = document.createElement("span");
+    words.className = "desk-verse__highlight";
+    const said = document.createElement("span");
+    said.className = "sr-only";
+    said.textContent = `${name[0].toUpperCase()}${name.slice(1)}: `;
+    const quote = shortQuote(r.quote?.exact, HIGHLIGHT_WORDS);
+    if (color) {
+      const swatch = document.createElement("span");
+      swatch.className = "desk-swatch";
+      swatch.dataset.color = color;
+      const sample = document.createElement("span");
+      sample.className = "desk-swatch__sample";
+      sample.textContent = quote;
+      swatch.append(sample);
+      words.append(said, swatch);
+    } else {
+      words.append(said, quote);
+    }
+    li.append(words);
+    if (store) {
+      const where = recordReference(r);
+      const remove = document.createElement("button");
+      remove.type = "button";
+      remove.className = "desk-verse__remove";
+      remove.textContent = "Remove";
+      remove.setAttribute("aria-label", `Remove ${name}${where ? ` on ${where}` : ""}`);
+      remove.addEventListener("click", () => removeHighlight(r, li));
+      li.append(remove);
+    }
+    return li;
+  }
+
+  async function removeHighlight(r, li) {
+    const index = Array.from(mine.children).indexOf(li);
+    const trash = await store.remove(r.id);
+    if (!trash) return;
+    // The store's notice redraws the tab too; drawing it here as well means
+    // focus can be placed once it is done.
+    await render();
+    const rows = mine.querySelectorAll(".desk-verse__item");
+    const next = rows[Math.min(index, rows.length - 1)]?.querySelector("button");
+    (next ?? (add.hidden ? heading : add)).focus({ preventScroll: true });
+    const where = recordReference(r);
+    showUndo(`Highlight${where ? ` on ${where}` : ""} removed.`, async () => {
+      if (!(await store.undo(trash.id))) throw new Error("nothing to bring back");
+    });
   }
 
   for (const b of steps) {

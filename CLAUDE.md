@@ -2044,7 +2044,7 @@ collection); they're read directly by the intro pages and the API manifest.
   by an outside click or Escape. A click inside the Study Desk's Notebook
   panel doesn't count as outside, and a panel is placed clear of it (see
   below).
-- **The Study Desk preview** (STUDY-DESK.md, phases 1b and the first of 1c) is in production but
+- **The Study Desk preview** (STUDY-DESK.md, phase 1b and most of 1c) is in production but
   switched off for everyone: `?desk=on` turns it on in one browser on a
   computer, `?desk=off` turns it off. STUDY-DESK.md is the record; what a
   change elsewhere in the site has to respect:
@@ -2154,11 +2154,21 @@ collection); they're read directly by the intro pages and the API manifest.
      `data-desk-note-font`, `data-desk-list` on `<html>`) have no pre-paint
      script, since nothing of the desk paints before it loads. "Hide my
      notes" (M1, key H) is no setting of its own: it saves and turns off
-     "My notes" and "My bookmarks" and puts them back (`note-settings.js`).
+     "My notes", "My bookmarks" and both views' "My highlights", and puts
+     them back (`note-settings.js`).
      While the desk is on, each Study View verse number's accessible name
-     counts the reader's notes on it ("Verse 18, 1 note of mine";
-     `desk/verse-labels.js`), the one place a screen reader meets them in
-     reading order, since an attribute adds nothing to the scripture.
+     names the reader's highlights and counts their notes on it ("Verse 18,
+     highlighted yellow, 1 note of mine"; `desk/verse-labels.js`), the one
+     place a screen reader meets them in reading order, since an attribute
+     adds nothing to the scripture.
+     **Highlights are a tint only** (BVJ, 2026-10-09: no underline or
+     other second cue, which met the term lens's underline), one CSS
+     Custom Highlight per colour (`desk/highlights.js`; colours in
+     `desk.css`). The overlap rule is `src/lib/desk-highlights.mjs`
+     (pure, unit-tested), applied only when this reader makes or removes a
+     highlight, never to records from elsewhere, and committed in one
+     transaction (`store.commit`). Read View shows them only when its own
+     "My highlights" is on (off by default), and only then offers Highlight.
   8. **Notes on a glossary entry or an article** (N11, provisional) use
      the same margin: `desk/note-sources.js` says what a page's notes sit
      beside and how each is found (a chapter's verses, or an entry's or
@@ -2919,7 +2929,7 @@ argv, and the scan; nothing else.
 | `public/llms.txt`, `llms-full.txt` | LLM-readable site description + AI-usage policy |
 | `GLOSSARY-CANDIDATES.md` | Register of glossary candidates deliberately not included or deferred, and the payload criterion behind those calls. Read it before proposing a "next term." |
 | `TOPICS.md` | **The authority on chapter and book-intro `topics`** — the significance filter, the alternative-translation pair table, the prefix-search rule, casing, and the hand-run checks. Read it before adding or revising any topics array. |
-| `STUDY-DESK.md` | **The planning and decision record for the Study Desk** (notes, places, highlights and sheets on desktop, with optional account sync shared with the apps). Phases 1a and 1b are built, with the first slice of 1c (notes, bookmarks and the margin): the pure modules, and the shell behind a preview switch (`?desk=on`); nothing reader-facing is released. Every idea, audit finding, owner decision, open question and BDR item is there with its ID, as are the two apps' replies (2026-10-04) and the talk-through list built from them. Read it before proposing or building any part of the desk, and update it when a decision changes. `STUDY-DESK-BRIEF-FOR-BDR.md` is the brief written for BDR's Claude about the apps' side; `STUDY-DESK-REPLY-TO-APPS.md` is the website's answer to both apps' replies (2026-10-05), and the last such document: since 2026-10-07 BDR's Claude reads this repo directly, so the website answers by updating `STUDY-DESK.md` on `main` (its section "One notebook, three homes" holds BDR's sync proposal and the website's answers). |
+| `STUDY-DESK.md` | **The planning and decision record for the Study Desk** (notes, places, highlights and sheets on desktop, with optional account sync shared with the apps). Phases 1a and 1b are built, with most of 1c (notes, bookmarks, highlights, the margin and the panel's tabs): the pure modules, and the shell behind a preview switch (`?desk=on`); nothing reader-facing is released. Every idea, audit finding, owner decision, open question and BDR item is there with its ID, as are the two apps' replies (2026-10-04) and the talk-through list built from them. Read it before proposing or building any part of the desk, and update it when a decision changes. `STUDY-DESK-BRIEF-FOR-BDR.md` is the brief written for BDR's Claude about the apps' side; `STUDY-DESK-REPLY-TO-APPS.md` is the website's answer to both apps' replies (2026-10-05), and the last such document: since 2026-10-07 BDR's Claude reads this repo directly, so the website answers by updating `STUDY-DESK.md` on `main` (its section "One notebook, three homes" holds BDR's sync proposal and the website's answers). |
 | `STUDY-DESK-FORMAT.md` | **Draft record format for the Study Desk**, shared with both apps: the kinds of record, the anchor text, and how a mark is found again after the wording moves. Its executable form is `scripts/lib/anchor-text.mjs` (pure half in `src/lib/anchor-core.mjs`) with `test/fixtures/anchor-vectors.json`. Change them together. |
 | `DISASTER-RECOVERY.md` | Continuity doc: every dashboard/secret behind the deploy (names only, no values) + the DNS inventory + from-zero redeploy path. Update it when an integration, secret, or DNS record is added/removed. |
 

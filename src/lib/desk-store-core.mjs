@@ -8,7 +8,9 @@
 //
 // Deleting follows desk-records' provisional trash record (talk-through item
 // 20): a deletion removes the live record and puts a trash record in its
-// place, and an undo does the reverse.
+// place, and an undo does the reverse. A change that touches several records
+// at once (a highlight that merges with its neighbours, desk-highlights.mjs)
+// builds its own plan; planWrite is what checks it before the shell commits it.
 
 import { BOOK_ORDER, bookKeyToLabel } from "../data/books.js";
 import { emptyTrashRecord, restoreFromTrash, trashRecord, validateRecord } from "./desk-records.mjs";
@@ -26,6 +28,23 @@ export function planSave(record) {
   const problems = validateRecord(record);
   if (problems.length) throw new Error(`desk-store: not saved (${problems.join("; ")})`);
   return { put: [record], remove: [] };
+}
+
+/**
+ * Check a plan someone else built before it is committed: the same refusal
+ * planSave makes, for every record the plan puts. A trash record is written
+ * whole and holds a record of any kind, so it is not judged here. Returns the
+ * plan's `put` and `remove` alone, without the extras its builder attached.
+ */
+export function planWrite(plan) {
+  const put = [...(plan?.put ?? [])];
+  const remove = [...(plan?.remove ?? [])];
+  for (const record of put) {
+    if (record?.kind === "trash") continue;
+    const problems = validateRecord(record);
+    if (problems.length) throw new Error(`desk-store: not saved (${problems.join("; ")})`);
+  }
+  return { put, remove };
 }
 
 /** Delete a record: its trash record goes in, the record comes out. */
