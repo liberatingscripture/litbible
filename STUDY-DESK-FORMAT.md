@@ -236,7 +236,8 @@ or `lost` mark shows a notice. The two apps' wording for it is worth keeping:
 `verseCopy`.
 
 **The website's notice, proposed for draft 2** (built on its preview
-2026-10-10; `src/lib/desk-change.mjs`). Three refinements of the rule above:
+2026-10-10 and approved by BVJ the same day; `src/lib/desk-change.mjs`).
+The apps still have to agree it. Three refinements of the rule above:
 - **A change of typography alone carries no notice.** Where the words a
   `changed` mark is carried to differ from its `exact` only in quotes,
   dashes and spacing (STUDY-DESK.md, N3 and C3; the August 2026 passes

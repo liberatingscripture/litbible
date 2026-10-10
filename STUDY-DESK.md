@@ -365,7 +365,8 @@ plan as a whole was accepted; nothing was declined except where stated).
     (439 straight quotes curled, 413 en dashes) changed no wording but would
     trip a plain fingerprint.
   - **Built on the preview 2026-10-10** as phase 1c's change notice, for
-    notes and highlights in Study View ("Order of work", 1c). "Mark the new
+    notes and highlights in Study View ("Order of work", 1c), and its
+    defaults approved by BVJ the same day. "Mark the new
     words" isn't built yet: a mark that fell back to its whole verse offers
     Keep there, or Delete.
 - **N4. Your own chains.** A reference typed in a note becomes a link with a
@@ -2934,9 +2935,9 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      - The rules are `src/lib/desk-change.mjs` (pure, unit-tested); the
        panel and the flags are `src/scripts/desk/change-notice.js` with the
        margin, the two tabs and the verse labels.
-     - **Defaults chosen where nothing was decided**, for BVJ to judge on the
-       preview: the wording above; showing typography-only changes quietly;
-       the `reworded` notice for whole-verse notes; the margin flag for
+     - **Defaults chosen where nothing was decided, approved by BVJ
+       (2026-10-10)**: the wording above; showing typography-only changes
+       quietly; the `reworded` notice for whole-verse notes; the margin flag for
        highlights, and its glyph (two curved arrows, which may read as
        "reload"); Keep leading the card on a line of its own, with Show in
        the text and Delete under it; Show in the text taking a highlight to
@@ -3745,6 +3746,23 @@ answers and requests (2026-10-09)") and answered six questions:
   highlight is named in words wherever a reader can ask (the verse number,
   This verse, My Notes), and the colour buttons are named for screen
   readers. The apps' highlights are colour only too.
+
+### 2026-10-10 (the change notice)
+
+- **The change notice's defaults are approved** (BVJ, the day it was built
+  on the preview; "Order of work", 1c, "Built fifth"): its wording in the
+  apps' two registers; a change of typography alone raising no notice, with
+  the marked words deciding rather than the rest of the verse; a note on
+  whole verses noticing when their wording changes; a flag in the margin for
+  a highlight, with its two-arrow glyph; the card's layout, Keep leading;
+  Show in the text taking a highlight to its `#v3` address; Keep from the
+  whole-verse fallback dropping a note's quote, with "Mark the new words"
+  left for later; Keep not merging a kept highlight with its neighbours;
+  and notices judged only for chapters on the page.
+- The format's side of it (no notice for typography alone, the notice on
+  whole-verse notes, what Keep writes) stays a **proposal for draft 2**:
+  the apps still have to agree it (`STUDY-DESK-FORMAT.md`, "Finding a mark
+  again").
 
 ## Still open
 
