@@ -224,9 +224,17 @@ export function createVerseTab({ store, here, visible, panelOpen, onEdit = null,
           onDone: async (what) => {
             if (what === "show") return;
             await render();
-            const rows = mine.querySelectorAll(".desk-verse__item");
-            const next = what === "delete" ? rows[Math.min(index, rows.length - 1)] : mine.querySelector(`.desk-verse__item:nth-child(${index + 1})`);
-            (next?.querySelector("button, a") ?? (add.hidden ? heading : add)).focus({ preventScroll: true });
+            const back = () => {
+              const rows = mine.querySelectorAll(".desk-verse__item");
+              const next = rows[Math.min(index, rows.length - 1)];
+              (next?.querySelector("button, a") ?? (add.hidden ? heading : add)).focus({ preventScroll: true });
+            };
+            back();
+            // As in My Notes: the first write of a visit draws the tab once
+            // more, which would take focus off the row.
+            setTimeout(() => {
+              if (!document.activeElement || document.activeElement === document.body) back();
+            }, 400);
           },
         });
       }),

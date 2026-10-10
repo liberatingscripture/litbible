@@ -2917,12 +2917,16 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
        Keep and Delete are undone from the bar or with Ctrl+Z. A `lost`
        mark offers Delete alone.
      - **Where it shows**: a note in the margin carries a "Wording changed"
-       flag, a note shown as a circle a badge, and a highlight a small flag
-       in the margin level with its first line (where bookmarks' marks
-       sit), each opening the notice in the shared floating panel; My Notes
-       and This verse flag each row, under a one-line count ("The wording
-       has changed under 2 of these"); and a verse number names it ("Verse
-       3, highlighted yellow, 1 changed since I marked it"). Notices are
+       flag under its words, beside Edit; a note shown as a circle carries
+       a dot, its name says so, and its note gains "Wording changed ·
+       Review"; and a highlight gets a small flag of its own in the margin
+       level with its first line (where bookmarks' marks sit, one lane
+       further out when one is there), while highlights are shown and the
+       margin has room. Each opens the notice in the shared floating panel.
+       My Notes and This verse flag each row ("Wording changed · Review", or
+       "Not in the text · Review"), My Notes under a one-line count ("The
+       wording has changed under 2 of these."); and a verse number names it
+       ("Verse 3, highlighted yellow, 1 changed since I marked it"). Notices are
        judged only where the chapter's text is on the page, so the
        Everything list flags none from other chapters; each is judged when
        its chapter is read. Read View flags its book's rows in My Notes and
@@ -2933,11 +2937,15 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      - **Defaults chosen where nothing was decided**, for BVJ to judge on the
        preview: the wording above; showing typography-only changes quietly;
        the `reworded` notice for whole-verse notes; the margin flag for
-       highlights; Keep from the whole-verse fallback dropping a note's
-       quote rather than asking for new words (N3's "Mark the new words" is
-       left for later: today the reader can delete and mark again); Keep not
-       merging a kept highlight with its neighbours (the overlap rule applies
-       when a highlight is made); notices only for chapters on the page.
+       highlights, and its glyph (two curved arrows, which may read as
+       "reload"); Keep leading the card on a line of its own, with Show in
+       the text and Delete under it; Show in the text taking a highlight to
+       its verse by the ordinary `#v3` address; Keep from the whole-verse
+       fallback dropping a note's quote rather than asking for new words
+       (N3's "Mark the new words" is left for later: today the reader can
+       delete and mark again); Keep not merging a kept highlight with its
+       neighbours (the overlap rule applies when a highlight is made);
+       notices only for chapters on the page.
      **Still to come in 1c**: pinned footnotes (below), and the versions,
      held (below).
      **Added to 1c on 2026-10-09: pinned footnotes, by November** (BVJ,

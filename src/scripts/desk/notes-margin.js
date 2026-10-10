@@ -35,6 +35,7 @@ import {
   NOTE_GAP,
   RIBBON,
   RIBBON_LANE,
+  STACK_GAP,
   notesInTheWay,
   circlesPerRow,
   layoutCircles,
@@ -199,15 +200,34 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
       // under the words, so it counts toward the note's height.
       const footOf = (el) => el.querySelector(".desk-note__foot")?.offsetHeight ?? 0;
       const wholeHeight = (el) => el.querySelector(".desk-note__toggle").scrollHeight + footOf(el);
+      // layoutFull knows nothing of a flag's foot, which a flagged note
+      // always shows under its first line. Where that foot would run into the
+      // note below, the note below starts lower, and what is cut is worked
+      // out again from the room that leaves.
+      const clearFeet = (laid) => {
+        const out = laid.map((l) => ({ ...l }));
+        const least = (l) => noteLine + footOf(byId.get(l.id));
+        for (let i = 0; i + 1 < out.length; i++) {
+          out[i + 1].y = Math.max(out[i + 1].y, out[i].y + least(out[i]) + STACK_GAP);
+        }
+        out.forEach((l, i) => {
+          const room = i + 1 < out.length ? out[i + 1].y - l.y - STACK_GAP : Infinity;
+          l.cut = wholeHeight(byId.get(l.id)) > room + 0.5;
+          l.maxHeight = l.cut ? Math.max(room, least(l)) : null;
+        });
+        return out;
+      };
       const lay = () =>
-        layoutFull(
-          items.map(({ record, range }, i) => ({
-            id: record.id,
-            top: lineTop(range),
-            lineHeight,
-            noteLine,
-            height: wholeHeight(els[i]),
-          })),
+        clearFeet(
+          layoutFull(
+            items.map(({ record, range }, i) => ({
+              id: record.id,
+              top: lineTop(range),
+              lineHeight,
+              noteLine,
+              height: wholeHeight(els[i]),
+            })),
+          ),
         );
       let laid = lay();
       // A note a bookmark's mark (or a highlight's flag) is in the way of

@@ -1584,3 +1584,350 @@ html:has(.desk-gutter--dragging) {
   outline: 2px solid var(--focus-ring);
   outline-offset: 2px;
 }
+
+/* ── The change notice ─────────────────────────────────────────── */
+
+/* src/scripts/desk/change-notice.js. When a later publish changes the words
+   under a note or highlight, the mark carries a flag and a card that says what
+   changed and offers Keep, Delete and Show in the text. The flag is quiet:
+   the changed glyph and a few words in the muted text colour, never a colour
+   of its own, so it reads in light, dark and forced colours alike. Every
+   focus ring is the site's (global :focus-visible, --focus-ring). */
+
+.desk-changed-glyph {
+  flex: none;
+  width: 14px;
+  height: 14px;
+}
+
+.desk-flag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin: 0;
+  padding: 2px 6px 2px 4px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: rgba(var(--ink-rgb), 0.74);
+  font: 0.75rem/1.3 Inter, "Inter Fallback", system-ui, sans-serif;
+  text-align: left;
+  cursor: pointer;
+}
+
+.desk-flag:hover {
+  background: rgba(var(--ink-rgb), 0.08);
+  color: var(--text);
+}
+
+/* In a note in full: under its words, level with where its text starts, with
+   Edit beside it (Edit still waits for hover or focus). */
+.desk-note__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px 8px;
+  padding: 3px 0 0 24px;
+}
+
+.desk-note__foot .desk-note__edit {
+  margin: 0;
+}
+
+/* A flagged note that is cut off cuts its words alone, so the flag under
+   them stays in view (notes-margin.js sets the two variables for the words
+   rather than for the whole box). */
+.desk-note--cut.desk-note--flagged:not(.desk-note--open):not(:hover):not(:focus-within) {
+  max-height: none;
+  overflow: visible;
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+
+.desk-note--cut.desk-note--flagged:not(.desk-note--open):not(:hover):not(:focus-within) .desk-note__toggle {
+  max-height: var(--desk-note-max);
+  overflow: hidden;
+  -webkit-mask-image: var(--desk-note-mask);
+  mask-image: var(--desk-note-mask);
+}
+
+/* A highlight's own flag in the margin, like a bookmark's red mark: the glyph
+   alone, in the notes' column on the side nearest the text. Its hit area is
+   wider than it looks. */
+.desk-flag--mark {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border-radius: 50%;
+  color: var(--text);
+}
+
+.desk-flag--mark::after {
+  content: "";
+  position: absolute;
+  inset: -3px;
+}
+
+.desk-flag--mark .desk-changed-glyph {
+  width: 14px;
+  height: 14px;
+}
+
+/* On a note shown as a circle: a dot at its top-right. Its name says the
+   wording changed (notes-margin.js), so the dot is never the only cue. */
+.desk-circle--changed::after {
+  content: "";
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  box-sizing: border-box;
+  width: 11px;
+  height: 11px;
+  border: 2px solid var(--surface-raised);
+  border-radius: 50%;
+  background: var(--text);
+  forced-color-adjust: none;
+}
+
+@media (forced-colors: active) {
+  .desk-circle--changed::after {
+    border-color: Canvas;
+    background: CanvasText;
+  }
+}
+
+/* The flag on a row of a list, or in a circle's popover: a quiet pill under
+   the words, "Wording changed · Review". */
+.desk-flag--row {
+  grid-column: 1 / -1;
+  justify-self: start;
+  margin-top: 6px;
+  padding: 3px 10px 3px 8px;
+  border: 1px solid rgba(var(--ink-rgb), 0.22);
+  border-radius: 999px;
+  font-size: 0.8125rem;
+}
+
+.desk-flag--row:hover {
+  border-color: rgba(var(--ink-rgb), 0.4);
+}
+
+.desk-note-pop__flag {
+  grid-column: 2;
+  margin-top: 2px;
+}
+
+/* The line above My Notes' list. */
+.desk-mine__changed {
+  margin: 10px 4px 2px;
+  color: var(--text);
+  font-size: 0.8125rem;
+}
+
+.desk-mine__changed[hidden] {
+  display: none;
+}
+
+/* The card, in the shared floating panel. */
+.desk-notice {
+  width: min(380px, calc(100vw - 32px));
+}
+
+.desk-notice p {
+  margin: 0;
+}
+
+.desk-notice__mark {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px 7px;
+  margin-top: 2px;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.desk-notice .lit-panel__heading {
+  color: var(--text);
+  font-size: 0.9375rem;
+}
+
+.desk-notice__glyph {
+  flex: none;
+  width: 16px;
+  height: 16px;
+}
+
+/* A sample of the highlight's colour, as the swatches give it. */
+.desk-notice__chip {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  border: 1px solid rgba(var(--ink-rgb), 0.35);
+  border-radius: 4px;
+}
+
+.desk-notice__chip[data-color="yellow"] { background: var(--desk-hl-yellow); }
+.desk-notice__chip[data-color="green"] { background: var(--desk-hl-green); }
+.desk-notice__chip[data-color="blue"] { background: var(--desk-hl-blue); }
+.desk-notice__chip[data-color="pink"] { background: var(--desk-hl-pink); }
+
+.desk-notice__ref {
+  color: rgba(var(--ink-rgb), 0.72);
+  font-weight: 400;
+}
+
+/* The first two lines of the note's own words. */
+.desk-notice p.desk-notice__body {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.desk-notice p.desk-notice__text {
+  margin-top: 4px;
+}
+
+.desk-notice__when {
+  color: rgba(var(--ink-rgb), 0.72);
+  font-size: 0.8125rem;
+}
+
+.desk-notice__when[hidden] {
+  display: none;
+}
+
+.desk-notice__when a {
+  color: var(--green-text);
+}
+
+.desk-notice p.desk-notice__label {
+  margin-top: 8px;
+  color: rgba(var(--ink-rgb), 0.72);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* What changed, word by word. Struck through and underlined, not told by
+   colour alone: a deletion is muted and struck, an insertion is underlined
+   and tinted green (a tint that reads on light and dark alike). */
+.desk-notice__diff,
+.desk-notice__quote {
+  max-height: 13em;
+  overflow-y: auto;
+  padding: 8px 10px;
+  border-left: 3px solid var(--green-text);
+  border-radius: 0 8px 8px 0;
+  background: rgba(var(--ink-rgb), 0.05);
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.desk-notice__diff del {
+  color: rgba(var(--ink-rgb), 0.68);
+  text-decoration: line-through;
+  text-decoration-thickness: 1.5px;
+}
+
+.desk-notice__diff ins {
+  padding: 0 2px;
+  border-radius: 3px;
+  background: rgba(32, 157, 80, 0.2);
+  text-decoration: underline;
+  text-decoration-color: var(--green-text);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+@media (forced-colors: active) {
+  .desk-notice__diff ins {
+    background: none;
+    text-decoration-color: LinkText;
+  }
+}
+
+.desk-notice p.desk-notice__marked {
+  margin-top: 8px;
+  color: rgba(var(--ink-rgb), 0.78);
+  font-size: 0.8125rem;
+  overflow-wrap: anywhere;
+}
+
+.desk-notice__error {
+  margin: 6px 0 0;
+  color: var(--text);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.desk-notice__error[hidden] {
+  display: none;
+}
+
+/* Keep leads, on a line of its own when its label is long ("Keep on the
+   whole passage"); Show in the text beside it; Delete at the far end. The
+   buttons are the editor's. */
+.desk-notice__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.desk-notice__actions .desk-notice__keep {
+  flex: 1 1 100%;
+}
+
+.desk-notice__actions button {
+  padding: 6px 14px;
+  border: 1px solid rgba(var(--ink-rgb), 0.25);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.desk-notice__actions button:hover:not(:disabled) {
+  background: rgba(var(--ink-rgb), 0.07);
+}
+
+.desk-notice__actions button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.desk-notice__actions .desk-notice__delete {
+  margin-left: auto;
+}
+
+.desk-notice__actions .desk-notice__keep {
+  border-color: var(--green-deep);
+  background: var(--green-deep);
+  color: #fff;
+  font-weight: 600;
+}
+
+.desk-notice__actions .desk-notice__keep:hover:not(:disabled) {
+  background: var(--green-deep);
+  filter: brightness(1.1);
+}
+
+/* The desk doesn't print: the flags in the margin and the card stay off the
+   page (the notes beside them are left off already). */
+@media print {
+  .desk-flag,
+  .desk-notice {
+    display: none !important;
+  }
+}

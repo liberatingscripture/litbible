@@ -240,9 +240,17 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
         if (what === "show") return;
         if (what === "delete") return render({ focusIndex: index });
         await render();
-        const row = list.querySelector(`[data-id="${CSS.escape(r.id)}"]`);
-        const back = row?.querySelector("a.desk-item__ref") ?? row?.querySelector(".desk-item__delete");
-        back?.focus({ preventScroll: true });
+        const back = () => {
+          const row = list.querySelector(`[data-id="${CSS.escape(r.id)}"]`);
+          (row?.querySelector("a.desk-item__ref") ?? row?.querySelector(".desk-item__delete"))?.focus({ preventScroll: true });
+        };
+        back();
+        // The notebook's first write of a visit draws the list once more
+        // (the store tells the panel it asked the browser to keep it), which
+        // would take focus off the row: look again.
+        setTimeout(() => {
+          if (!document.activeElement || document.activeElement === document.body) back();
+        }, 400);
       },
     });
   }

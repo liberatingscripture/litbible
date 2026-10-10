@@ -374,21 +374,22 @@ export function openNotice(trigger, record, { store, ctx, showInText = null, res
   error.hidden = true;
   panel.append(error);
 
-  // Delete, then (right-aligned) Show in the text and Keep.
+  // Keep first (the one that writes, so it leads), then Show in the text,
+  // then Delete at the far end. Tab order follows the picture.
   const actions = el("div", "desk-notice__actions");
-  const del = el("button", "desk-notice__delete", "Delete");
-  del.type = "button";
-  actions.append(del);
-  const show = showInText && notice.kind !== "lost" && showInText.can(record) ? el("button", "desk-notice__show", "Show in the text") : null;
-  if (show) {
-    show.type = "button";
-    actions.append(show);
-  }
   const keep = words.keep && canEdit(record) ? el("button", "desk-notice__keep", words.keep) : null;
   if (keep) {
     keep.type = "button";
     actions.append(keep);
   }
+  const show = showInText && notice.kind !== "lost" && showInText.can(record) ? el("button", "desk-notice__show", "Show in the text") : null;
+  if (show) {
+    show.type = "button";
+    actions.append(show);
+  }
+  const del = el("button", "desk-notice__delete", "Delete");
+  del.type = "button";
+  actions.append(del);
   panel.append(actions);
 
   const buttons = [...actions.querySelectorAll("button")];
@@ -429,7 +430,7 @@ export function openNotice(trigger, record, { store, ctx, showInText = null, res
       onDone?.("keep", fresh);
     } catch (err) {
       console.error("Study Desk: the mark wasn't kept", err);
-      fail(`The ${noun} couldn’t be kept in this browser.`);
+      fail(`The ${noun} couldn't be kept in this browser.`);
     }
   }
 
@@ -444,7 +445,7 @@ export function openNotice(trigger, record, { store, ctx, showInText = null, res
       onDone?.("delete", record);
     } catch (err) {
       console.error("Study Desk: the mark wasn't deleted", err);
-      fail(`The ${noun} couldn’t be deleted.`);
+      fail(`The ${noun} couldn't be deleted.`);
     }
   }
 
