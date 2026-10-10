@@ -15,11 +15,14 @@
 //     cutting it in two when the new mark sits in the middle of it, and
 //     deleting it when the new mark covers it. A remainder loses any stray
 //     space at its edges.
-//   - A highlight that carries an unread change notice (its placed status is
-//     anything but found or moved) is never touched, even when it lies under
-//     the new mark, since its old words are what the notice quotes. Nor is
-//     one this client can't rewrite (a newer schema, or made on text newer
-//     than this page's).
+//   - A highlight that carries an unread change notice (changeNotice in
+//     desk-change.mjs: its words changed, it fell back to whole verses, or its
+//     verses are gone) is never touched, even when it lies under the new
+//     mark, since its old words are what the notice quotes. Nor is one this
+//     client can't rewrite (a newer schema, or made on text newer than this
+//     page's). A highlight whose quote failed to match only because of
+//     typography (curled quotes, an en dash) carries no notice, and so is
+//     still editable.
 //
 // The rule applies only when THIS reader makes a highlight here, never to
 // records arriving from elsewhere, so two devices can't rewrite each other's
@@ -32,6 +35,7 @@
 // client may). A highlight that is merely read, or left alone, keeps `modified`
 // where it was (principle 4).
 
+import { changeNotice } from "./desk-change.mjs";
 import {
   COLORS,
   canEdit,
@@ -57,9 +61,10 @@ export const COLOR_WORDS = Object.freeze({
 /**
  * Where each of these records' highlights sits in today's text. Only
  * highlights are placed; one whose verses are gone ("lost") is left out.
- * `editable` says whether a new mark may change this one: it is where the
- * quoted words were found (a changed or fallback placement carries a notice
- * the reader hasn't read), and this client may rewrite it.
+ * `editable` says whether a new mark may change this one: it carries no change
+ * notice (a placement whose words really changed, or that fell back to whole
+ * verses, has one the reader hasn't read; one that differs from its quote only
+ * in typography has none), and this client may rewrite it.
  *
  * @returns {{record: object, start: number, end: number, status: string, editable: boolean}[]}
  */
@@ -70,7 +75,8 @@ export function placeHighlights(chapter, records, currentVersion) {
     const { status, start, end } = placeRecord(chapter, record);
     if (start == null) continue;
     const editable =
-      (status === "found" || status === "moved") &&
+      changeNotice(chapter, record, currentVersion) === null &&
+      status !== "lost" &&
       canEdit(record) &&
       mayRewriteAnchor(record, currentVersion);
     out.push({ record, start, end, status, editable });

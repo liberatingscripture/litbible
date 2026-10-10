@@ -218,7 +218,8 @@ src/
                      #   "Make an image"), anchor-core.mjs + desk-*.mjs (the
                      #   Study Desk's pure modules: records, incl. the
                      #   provisional trash record; the anchor text read off
-                     #   the page; the wording comparison; the notebook's
+                     #   the page; the wording comparison and the change
+                     #   notice built on it (desk-change); the notebook's
                      #   write plans in desk-store-core), app-platform.mjs
                      #   (the one "is this a phone or tablet" test, read by
                      #   the desk's gate and the app announcement),
@@ -2200,6 +2201,20 @@ collection); they're read directly by the intro pages and the API manifest.
      switch (it isn't a single-key shortcut, WCAG 2.1.4). The undo bar closes by itself after ten seconds (BVJ,
      2026-10-09), never while hovered or focused; that is safe only because
      the same undo stays on Ctrl+Z, so don't remove one without the other.
+  11. **A mark whose words moved says so** (the change notice, N3).
+     `src/lib/desk-change.mjs` (pure, unit-tested) decides which marks carry
+     a notice, from the format's statuses, comparing the marked words (or a
+     whole-verse note's `verseCopy`) with typography evened out
+     (`desk-wording.mjs`), so a change of quotes or dashes alone never
+     raises one; `desk/change-notice.js` shows it and is the only
+     place a notice writes (Keep), since a mark is never rewritten until
+     the reader acts. A notice is judged only where the chapter's text is
+     on the page. It reads two app-contract files: `/api/version.json`,
+     before keeping a record whose text can't be ordered against the
+     page's, and `/api/data/release-notes.json`, for the date
+     (`releaseNoteFor` reads a `text_updated` change's verses from its
+     `description`), fetched only when a notice opens. A highlight carrying
+     a notice is never merged or trimmed (`placeHighlights`).
 - **Every link that leaves the site opens in a new tab** (owner, 2026-10-01).
   For rendered bodies that is `openExternalLinks` in `src/lib/external-links.mjs`
   (pure, unit-tested), called from `linkRefs`, the one function footnotes,
@@ -2545,7 +2560,11 @@ collection); they're read directly by the intro pages and the API manifest.
      new-chapter rows carry no `location`. A description that stopped
      leading with the book label would drop out of the book filter.
   The feed carries the 20 most recent publishes. It is a website asset, never
-  under `/api/`.
+  under `/api/`. The Study Desk's change notice reads the same JSON
+  (`releaseNoteFor` in `src/lib/desk-change.mjs`) to date a change under a
+  reader's mark, taking a `text_updated` row's verses from its description
+  ("Luke 11:2, 20, 43–44, 47 — text updated"), so that wording is load-bearing
+  there too.
 - **The contact + app-support forms are self-hosted**: `/contact` posts to
   `/contact/submit` and `/app-support` posts to `/app-support/submit`, both
   served by a single standalone Cloudflare Worker in `workers/contact-form/`

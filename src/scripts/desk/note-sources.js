@@ -9,7 +9,9 @@
 // A source gives:
 //   textBox   the element notes sit beside, in the margin to its left
 //   lineEl()  an element whose line height the notes take their rhythm from
-//   load(store)     this page's notes and bookmarks
+//   load(store)     this page's notes, bookmarks and highlights (the margin
+//                   draws a flag for a highlight whose wording changed; a
+//                   prose page has none)
 //   placed(records) each record with its words as a live Range; a record not
 //                   on the page (lost, or in an entry the glossary's filter
 //                   hides) is left out
@@ -45,7 +47,11 @@ export function studySource() {
     },
     async load(store) {
       const mine = forChapter(await store.byChapter(here.bookKey, here.chapter), here.bookKey, here.chapter);
-      return { notes: mine.filter((r) => r.kind === "note"), bookmarks: mine.filter((r) => r.kind === "bookmark") };
+      return {
+        notes: mine.filter((r) => r.kind === "note"),
+        bookmarks: mine.filter((r) => r.kind === "bookmark"),
+        highlights: mine.filter((r) => r.kind === "highlight"),
+      };
     },
     placed(records) {
       const text = chapterText();
@@ -128,7 +134,7 @@ export function proseSource() {
     lineEl: () => page.targets[0].root.querySelector("p") ?? page.targets[0].root,
     async load(store) {
       const notes = proseRecords(page, await store.all()).filter((r) => targetOf(page, r));
-      return { notes, bookmarks: [] };
+      return { notes, bookmarks: [], highlights: [] };
     },
     placed(records) {
       const texts = new Map(); // read each body once per drawing

@@ -20,6 +20,10 @@
 // follow the verse numbers the page has. They leave the page where it is: the
 // reader is looking at the verse in the panel, not moving through the text.
 //
+// A note or highlight whose wording has changed (change-notice.js) carries
+// the same flag as in My Notes, "Wording changed · Review", under its words,
+// which opens the card beside it.
+//
 // The footnotes are copied from the page's own footnote list, so they read
 // exactly as they do there, links included. Nothing here adds to or changes
 // the scripture on the page.
@@ -29,6 +33,7 @@ import { COLORS, verseCopyFor } from "../../lib/desk-records.mjs";
 import { forChapter, recordReference } from "../../lib/desk-store-core.mjs";
 import { adjacentVerse, recordsOnVerse } from "../../lib/desk-verse.mjs";
 import { verseAtReadingLine } from "../last-read.js";
+import { flagButton, noticesFor, openNotice } from "./change-notice.js";
 import { glyph } from "./glyphs.js";
 import { undoEntry } from "./history.js";
 import { chapterText } from "./page.js";
@@ -49,11 +54,14 @@ const ICON_NEXT = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" s
  *   visible: () => boolean, panelOpen: () => boolean,
  *   onEdit?: (record: object, trigger: Element) => void,
  *   onAddNote?: (draft: object, trigger: Element) => void,
- *   goHere?: { can(record: object): boolean, go(record: object): void } | null }} options
+ *   goHere?: { can(record: object): boolean, go(record: object): void } | null,
+ *   ctx?: (() => object) | null,
+ *   showInText?: { can(record: object): boolean, go(record: object): void } | null }} options
+ *   `ctx` and `showInText` are what the change notice's card needs.
  * @returns {{ el: HTMLElement, render: () => Promise<void>, setVerse: (verse: number) => void,
  *   focusHeading: () => void }}
  */
-export function createVerseTab({ store, here, visible, panelOpen, onEdit = null, onAddNote = null, goHere = null }) {
+export function createVerseTab({ store, here, visible, panelOpen, onEdit = null, onAddNote = null, goHere = null, ctx = null, showInText = null }) {
   const textBox = document.querySelector(".chapter-paragraphs");
   const markers = Array.from(textBox?.querySelectorAll('sup.vn[id^="v"]') ?? []);
   const verses = markers.map((m) => Number(m.id.slice(1))).filter(Number.isFinite);
@@ -90,6 +98,7 @@ export function createVerseTab({ store, here, visible, panelOpen, onEdit = null,
   add.hidden = !onAddNote || !store;
 
   let verse = null;
+  let notices = new Map(); // id -> the change notice of a record shown, if it has one
 
   /** Where the tab opens before the reader picks: the address's verse, or the one being read. */
   function startingVerse() {
@@ -130,6 +139,7 @@ export function createVerseTab({ store, here, visible, panelOpen, onEdit = null,
     const records = store ? forChapter(await store.byChapter(here.bookKey, here.chapter), here.bookKey, here.chapter) : [];
     if (n !== seq) return; // a newer render has started
     const on = recordsOnVerse(records, v).filter((r) => r.kind === "note" || r.kind === "bookmark" || r.kind === "highlight");
+    notices = store && ctx ? noticesFor(on) : new Map();
     mine.replaceChildren(...on.map(itemFor));
     empty.hidden = on.length > 0;
   }
@@ -168,7 +178,7 @@ export function createVerseTab({ store, here, visible, panelOpen, onEdit = null,
       li.innerHTML = `${glyph("bookmark", "desk-glyph desk-verse__glyph desk-verse__glyph--bookmark")}<span class="desk-verse__words">Bookmarked</span>`;
       return li;
     }
-    if (r.kind === "highlight") return highlightItem(li, r);
+    if (r.kind === "highlight") return flagged(highlightItem(li, r), r);
     // The note goes to its place in the margin, as it does in My Notes.
     const canGo = Boolean(goHere?.can(r));
     const note = document.createElement(canGo ? "button" : "span");
@@ -196,6 +206,39 @@ export function createVerseTab({ store, here, visible, panelOpen, onEdit = null,
       });
       li.append(edit);
     }
+    return flagged(li, r);
+  }
+
+  /** The row with its change notice's flag, when the record has one. */
+  function flagged(li, r) {
+    const notice = notices.get(r.id);
+    if (!notice) return li;
+    li.append(
+      flagButton(r, notice, (trigger) => {
+        const index = Array.from(mine.children).indexOf(li);
+        openNotice(trigger, r, {
+          store,
+          ctx,
+          showInText,
+          restoreFocus: trigger,
+          onDone: async (what) => {
+            if (what === "show") return;
+            await render();
+            const back = () => {
+              const rows = mine.querySelectorAll(".desk-verse__item");
+              const next = rows[Math.min(index, rows.length - 1)];
+              (next?.querySelector("button, a") ?? (add.hidden ? heading : add)).focus({ preventScroll: true });
+            };
+            back();
+            // As in My Notes: the first write of a visit draws the tab once
+            // more, which would take focus off the row.
+            setTimeout(() => {
+              if (!document.activeElement || document.activeElement === document.body) back();
+            }, 400);
+          },
+        });
+      }),
+    );
     return li;
   }
 
