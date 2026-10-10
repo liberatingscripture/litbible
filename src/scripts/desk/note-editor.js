@@ -13,6 +13,7 @@ import { MARKERS, createRecord, editRecord, proseTarget, verseCopyFor } from "..
 import { MARKER_NAMES, shortQuote } from "../../lib/desk-notes.mjs";
 import { closePanel, showPanel } from "../lit-panel.js";
 import { glyph } from "./glyphs.js";
+import { undoEntry } from "./history.js";
 import { chapterText } from "./page.js";
 import { showUndo } from "./undo-bar.js";
 
@@ -139,12 +140,12 @@ export function openNoteEditor({ trigger, store, ctx, ref, record = null, draft 
   panel.querySelector(".lit-panel__close").addEventListener("click", closePanel);
   panel.querySelector(".desk-editor__delete")?.addEventListener("click", async () => {
     const trash = await store.remove(record.id);
+    // The change this made, read at once: the undo button, like Ctrl+Z,
+    // takes back exactly this one (history.js).
+    const entry = trash ? store.lastEntry() : null;
     closePanel();
-    if (!trash) return;
-    showUndo(`Note on ${ref} deleted.`, async () => {
-      const back = await store.undo(trash.id);
-      if (!back) throw new Error("nothing to bring back");
-    });
+    if (!entry) return;
+    showUndo(`Note on ${ref} deleted.`, () => undoEntry(entry));
   });
   panel.addEventListener("keydown", (e) => {
     if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {

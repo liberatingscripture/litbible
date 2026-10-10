@@ -29,6 +29,7 @@ import {
   recordReference,
 } from "../../lib/desk-store-core.mjs";
 import { glyph } from "./glyphs.js";
+import { undoEntry } from "./history.js";
 import { SETTINGS_EVENT, getSetting } from "./note-settings.js";
 import { showUndo } from "./undo-bar.js";
 
@@ -317,13 +318,15 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     const index = Array.from(list.children).indexOf(li);
     const trash = await store.remove(r.id);
     if (!trash) return;
+    // The change this made, read before anything else can write: the undo
+    // button, like Ctrl+Z, takes back exactly this one (history.js).
+    const entry = store.lastEntry();
     await render({ focusIndex: index });
     const ref = recordReference(r);
     showUndo(`${nameOf(r)}${ref ? ` on ${ref}` : ""} deleted.`, async () => {
-      const back = await store.undo(trash.id);
-      if (!back) throw new Error("nothing to bring back");
+      await undoEntry(entry);
       await render();
-      list.querySelector(`[data-id="${CSS.escape(back.id)}"] .desk-item__delete`)?.focus();
+      list.querySelector(`[data-id="${CSS.escape(r.id)}"] .desk-item__delete`)?.focus();
     });
   }
 

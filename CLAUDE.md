@@ -2181,6 +2181,25 @@ collection); they're read directly by the intro pages and the API manifest.
      on Study View chapters, from the `TABS` table in `desk/panel.js`, where
      Versions and the Greek tab will join. A page with one tab shows no tab
      row, and the panel's foot belongs to My Notes.
+  10. **Ctrl+Z (⌘Z) and redo undo this tab's changes to the notebook**, one
+     history per page visit, 50 deep. The store records an entry for every
+     write the reader makes (`apply` in `desk/store.js`, which reads the
+     touched records inside the same transaction before writing; `record:
+     false` is for the purge at open and for the history's own writes, and a
+     change from another tab is never an entry). `src/lib/desk-history.mjs`
+     (pure, unit-tested) builds the entries, writes the inverse and decides
+     whether a change was overtaken; `desk/history.js` holds the stacks and
+     the keys, and the undo bar's Undo button is the same thing (`undoEntry`),
+     so callers capture `store.lastEntry()` right after their write and pass
+     `() => undoEntry(entry)` to `showUndo`. Two rules that are easy to break:
+     an undo restamps `modified` and `client` (the undone state must outrank
+     the change under the newer-wins sync rule), so entries are compared
+     **without** those two fields, or nothing could be undone twice in a row;
+     and the keys stand down in text fields, selects and while a note editor
+     is open, leaving the browser's own undo alone. Not tied to the Keyboard
+     switch (it isn't a single-key shortcut, WCAG 2.1.4). The undo bar closes by itself after ten seconds (BVJ,
+     2026-10-09), never while hovered or focused; that is safe only because
+     the same undo stays on Ctrl+Z, so don't remove one without the other.
 - **Every link that leaves the site opens in a new tab** (owner, 2026-10-01).
   For rendered bodies that is `openExternalLinks` in `src/lib/external-links.mjs`
   (pure, unit-tested), called from `linkRefs`, the one function footnotes,
