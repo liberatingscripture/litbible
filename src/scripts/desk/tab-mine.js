@@ -14,6 +14,13 @@
 // colour, and "All" brings everything back. That choice is kept for the
 // visit only, and goes back to All when its colour leaves the list.
 //
+// A record whose wording has changed under it (change-notice.js) carries a
+// flag under its words, "Wording changed · Review" (or "Not in the text ·
+// Review" when its verses are gone), which opens the card beside it, and a
+// line above the list counts them. A notice is judged only where the
+// chapter's text is on the page, so on Study View's "Everything" list only
+// this chapter's records can carry one, and in Read View only this book's.
+//
 // On a Study View chapter the tab starts on that chapter's records, and a
 // small choice at its top switches to everything kept; on an article or the
 // glossary it starts on the notes on this page (N11); elsewhere it lists
@@ -28,6 +35,7 @@ import {
   recordReadHref,
   recordReference,
 } from "../../lib/desk-store-core.mjs";
+import { flagButton, noticesFor, openNotice } from "./change-notice.js";
 import { glyph } from "./glyphs.js";
 import { undoEntry } from "./history.js";
 import { SETTINGS_EVENT, getSetting } from "./note-settings.js";
@@ -78,12 +86,15 @@ function highlightedWords(color, words) {
  *   addAction?: { label: string, run: (trigger: Element) => void } | null,
  *   inReadView: boolean, visible: () => boolean, afterRender?: () => void,
  *   onEdit?: (record: object, trigger: Element) => void,
- *   goHere?: { can(record: object): boolean, go(record: object): void } | null }} options
+ *   goHere?: { can(record: object): boolean, go(record: object): void } | null,
+ *   ctx?: (() => object) | null,
+ *   showInText?: { can(record: object): boolean, go(record: object): void } | null }} options
  *   `visible` says whether the tab can be seen, so a hidden one isn't drawn;
- *   `afterRender` lets the panel bring its foot up to date.
+ *   `afterRender` lets the panel bring its foot up to date. `ctx` and
+ *   `showInText` are what the change notice's card needs.
  * @returns {{ el: HTMLElement, render: (opts?: { focusIndex?: number | null }) => Promise<void> }}
  */
-export function createMineTab({ store, storeError, scope: pageScope = null, addAction = null, inReadView, visible, afterRender = () => {}, onEdit = null, goHere = null }) {
+export function createMineTab({ store, storeError, scope: pageScope = null, addAction = null, inReadView, visible, afterRender = () => {}, onEdit = null, goHere = null, ctx = null, showInText = null }) {
   const el = document.createElement("div");
   el.className = "desk-mine";
   el.innerHTML = `
@@ -99,6 +110,7 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     </div>` : ""}
     ${addAction && store ? `<button type="button" class="desk-mine__add"></button>` : ""}
     <div class="desk-mine__colors" role="group" aria-label="Show highlights of one colour" hidden></div>
+    <p class="desk-mine__changed" hidden></p>
     <ul class="desk-list"></ul>
     <p class="desk-panel__empty" hidden></p>`;
   if (pageScope) el.querySelector(".desk-seg__text").textContent = pageScope.label;
@@ -111,6 +123,7 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
   const list = el.querySelector(".desk-list");
   const empty = el.querySelector(".desk-panel__empty");
   const colors = el.querySelector(".desk-mine__colors");
+  const changed = el.querySelector(".desk-mine__changed");
   const openNotes = new Set(); // notes clicked open in the list, for this visit
   let scope = pageScope ? "chapter" : "everything";
   for (const radio of el.querySelectorAll(".desk-mine__scope input")) {
@@ -128,6 +141,7 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     if (!store) {
       list.replaceChildren();
       colors.hidden = true;
+      changed.hidden = true;
       empty.hidden = false;
       empty.textContent =
         "This browser isn't letting the site keep a notebook. Private windows sometimes don't.";
@@ -146,7 +160,9 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     drawColors(present);
     const records = colorFilter ? kept.filter((r) => colorOf(r) === colorFilter) : kept;
 
-    list.replaceChildren(...records.map(rowFor));
+    const notices = store && ctx ? noticesFor(records) : new Map();
+    drawChanged(records, notices);
+    list.replaceChildren(...records.map((r) => rowFor(r, notices.get(r.id))));
     empty.hidden = records.length > 0;
     empty.textContent = colorFilter
       ? `No ${colorFilter} highlights here.`
@@ -195,7 +211,43 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     if (focused) colors.querySelector(`[data-choice="${focused}"]`)?.focus({ preventScroll: true });
   }
 
-  function rowFor(r) {
+  // One line above the list when the wording has changed under any of it.
+  function drawChanged(records, notices) {
+    let moved = 0;
+    let gone = 0;
+    for (const r of records) {
+      const n = notices.get(r.id);
+      if (!n) continue;
+      if (n.kind === "lost") gone++;
+      else moved++;
+    }
+    const parts = [];
+    if (moved) parts.push(`The wording has changed under ${moved} of these.`);
+    if (gone) parts.push(`${gone} of these ${gone === 1 ? "is" : "are"} not in the text any more.`);
+    changed.hidden = parts.length === 0;
+    changed.textContent = parts.join(" ");
+  }
+
+  /** The card for a row's notice, and where focus goes once the reader has chosen. */
+  function openCard(trigger, r, li) {
+    const index = Array.from(list.children).indexOf(li);
+    openNotice(trigger, r, {
+      store,
+      ctx,
+      showInText,
+      restoreFocus: trigger,
+      onDone: async (what) => {
+        if (what === "show") return;
+        if (what === "delete") return render({ focusIndex: index });
+        await render();
+        const row = list.querySelector(`[data-id="${CSS.escape(r.id)}"]`);
+        const back = row?.querySelector("a.desk-item__ref") ?? row?.querySelector(".desk-item__delete");
+        back?.focus({ preventScroll: true });
+      },
+    });
+  }
+
+  function rowFor(r, notice = null) {
     const li = document.createElement("li");
     li.className = "desk-item";
     li.dataset.id = r.id;
@@ -289,6 +341,7 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
         li.append(p);
       }
     }
+    if (notice) li.append(flagButton(r, notice, (trigger) => openCard(trigger, r, li)));
     const del = document.createElement("button");
     del.type = "button";
     del.className = "desk-item__delete";

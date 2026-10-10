@@ -63,8 +63,13 @@ const ICON_CLOSE = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" 
  * @param {{ store: object | null, storeError: unknown,
  *   onEdit?: (record: object, trigger: Element) => void,
  *   onAddNote?: (draft: object, trigger: Element) => void,
- *   goHere?: { can(record: object): boolean, go(record: object): void } }} options
- *   `store` is null when this browser can't keep a notebook. `onEdit` opens
+ *   goHere?: { can(record: object): boolean, go(record: object): void },
+ *   ctx?: () => { client: string, contentVersion: string },
+ *   showInText?: { can(record: object): boolean, go(record: object): void } }} options
+ *   `store` is null when this browser can't keep a notebook. `ctx` and
+ *   `showInText` are what a change notice's card needs (change-notice.js):
+ *   what a write is stamped with, and a way to take the reader to the mark on
+ *   the page. `onEdit` opens
  *   a note in the editor, and `onAddNote` a new one; `goHere` takes the reader to a record on this page
  *   without leaving it, where it can (`can`). Elsewhere a record's links go to
  *   its verse in the view the reader is in: Read View from Read View (BVJ,
@@ -74,7 +79,7 @@ const ICON_CLOSE = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" 
  *   `showVerse` opens the panel on "This verse" at a verse; null where the
  *   page has no such tab.
  */
-export function createPanel({ store, storeError, onEdit = null, onAddNote = null, goHere = null }) {
+export function createPanel({ store, storeError, onEdit = null, onAddNote = null, goHere = null, ctx = null, showInText = null }) {
   const root = document.documentElement;
   const here = pageChapter();
   const toggles = Array.from(document.querySelectorAll("[data-desk-toggle]"));
@@ -132,6 +137,8 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
           afterRender: renderPersistence,
           onEdit,
           goHere,
+          ctx,
+          showInText,
         }),
     },
     ...(here
@@ -148,6 +155,8 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
                 onEdit,
                 onAddNote,
                 goHere,
+                ctx,
+                showInText,
               }),
           },
         ]

@@ -17,6 +17,15 @@
 // The same margin serves a glossary entry's or an article's own text (N11,
 // provisional; decision 9 under "the margin switch"): the page's `source`
 // (note-sources.js) says what the notes sit beside and how each is found.
+//
+// The change notice (change-notice.js) is shown here too. A note in full
+// whose wording has changed carries a small flag beside Edit; a note in a
+// circle gets a badge and the same words in its name and its popover; and a
+// highlight whose wording has changed gets a flag of its own in the margin,
+// like a bookmark's red mark, level with the first line where it is drawn
+// today (only while highlights are shown, and only where the margin has room:
+// the Notebook's lists name it anyway). Each opens the card. Nothing is
+// written until the reader chooses Keep or Delete there.
 
 import { recordReference } from "../../lib/desk-store-core.mjs";
 import {
@@ -36,21 +45,30 @@ import {
   popoverPlace,
 } from "../../lib/desk-notes.mjs";
 import { closePanel, currentPanel, showPanel } from "../lit-panel.js";
+import { changedGlyph, drawnNotices, markName, noticeFor, noticesFor, openNotice } from "./change-notice.js";
 import { glyph } from "./glyphs.js";
-import { SETTINGS_EVENT, getSetting } from "./note-settings.js";
+import { SETTINGS_EVENT, getSetting, highlightSetting } from "./note-settings.js";
 
 const LIT = "desk-note-words";
 const supportsHighlight = typeof CSS !== "undefined" && "highlights" in CSS && typeof Highlight !== "undefined";
 const reducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+// A highlight's flag in the margin: wide enough to read as a mark beside a
+// bookmark's (RIBBON), with RIBBON_LANE between lanes. Its hit area is
+// widened in desk.css.
+const FLAG = 18;
+
 /**
  * @param {{ store: object, source: object | null,
- *   onEdit: (record: object, trigger: Element, restoreFocus?: Element) => void }} options
+ *   onEdit: (record: object, trigger: Element, restoreFocus?: Element) => void,
+ *   ctx?: () => { client: string, contentVersion: string },
+ *   showInText?: { can(record: object): boolean, go(record: object): void } | null }} options
  *   `source` is the page's, from note-sources.js; null where the page has no
- *   margin notes.
+ *   margin notes. `ctx` and `showInText` are what the change notice's card
+ *   needs (change-notice.js).
  * @returns {{ reveal(id: string): void, canReveal(record: object): boolean } | null}
  */
-export function createNotesMargin({ store, source, onEdit }) {
+export function createNotesMargin({ store, source, onEdit, ctx = null, showInText = null }) {
   if (!store || !source) return null;
   const textBox = source.textBox;
 
@@ -62,16 +80,18 @@ export function createNotesMargin({ store, source, onEdit }) {
 
   let notes = []; // this chapter's note records
   let bookmarks = []; // and its bookmarks
+  let highlights = []; // and its highlights, which get a flag when their wording has changed
   let mode = "none";
   const open = new Set(); // kept open by a click, for this visit
   const hover = new Set(); // hovered or focused
   const flash = new Set(); // briefly marked after "go to"
   let popId = null;
+  let afterDraw = null; // focus to place once the next drawing is done
 
   /* ── Reading the notebook ─────────────────────────────────────────── */
 
   async function load() {
-    ({ notes, bookmarks } = await source.load(store));
+    ({ notes, bookmarks, highlights = [] } = await source.load(store));
     schedule();
   }
 
@@ -89,14 +109,21 @@ export function createNotesMargin({ store, source, onEdit }) {
   }
 
   function draw() {
-    const focusedId = aside.contains(document.activeElement)
-      ? document.activeElement.closest("[data-id]")?.dataset.id
-      : null;
-    const wasCircle = document.activeElement?.classList?.contains("desk-circle");
+    const focused = aside.contains(document.activeElement) ? document.activeElement : null;
+    const focusedId = focused?.closest("[data-id]")?.dataset.id;
+    const focusSel = focused?.classList.contains("desk-circle")
+      ? ".desk-circle"
+      : focused?.classList.contains("desk-flag")
+        ? ".desk-flag"
+        : ".desk-note__toggle";
     aside.replaceChildren();
-    const shown = getSetting("notes") === "on" && notes.length > 0;
+    const notesOn = getSetting("notes") === "on" && notes.length > 0;
+    // A highlight whose wording has changed is flagged while highlights are
+    // shown, wherever it is drawn today (a lost one is not drawn).
+    const flagged =
+      highlights.length && getSetting(highlightSetting()) === "on" ? drawnNotices(highlights) : [];
     const box = textBox.getBoundingClientRect();
-    mode = shown ? marginMode(box.left) : "none";
+    mode = notesOn || flagged.length ? marginMode(box.left) : "none";
     const lineHeight = parseFloat(getComputedStyle(source.lineEl()).lineHeight) || 30;
     const sx = window.scrollX;
     const sy = window.scrollY;
@@ -119,15 +146,31 @@ export function createNotesMargin({ store, source, onEdit }) {
       aside.append(mark);
       return mark;
     };
-    const markTops = [];
-    if (marks.length && mode !== "circles" && box.left >= RIBBON + 12) {
+    // The marks standing in the notes' column, each with its top and the lane
+    // it is in: lane 0 is nearest the text, and a flag whose line a bookmark
+    // (or another flag) already holds takes the next lane out. A note in full
+    // that one is in the way of contracts to clear the outermost.
+    const spots = [];
+    if ((marks.length || flagged.length) && mode !== "circles" && box.left >= RIBBON + 12) {
       const right = box.left >= NOTE_GAP + RIBBON + 8 ? NOTE_GAP : 6;
       for (const { record, range } of marks) {
         const mark = ribbon(record);
         const top = lineTop(range) + (lineHeight - RIBBON) / 2;
-        markTops.push(top);
+        spots.push({ top, lane: 0 });
         mark.style.top = `${top}px`;
         mark.style.left = `${box.left + sx - right - RIBBON}px`;
+      }
+      // Where there is no margin at all ("none") there is no flag.
+      if (mode === "full") {
+        for (const { record, range } of flagged) {
+          const top = lineTop(range) + (lineHeight - FLAG) / 2;
+          let lane = 0;
+          while (spots.some((s) => s.lane === lane && Math.abs(s.top - top) < FLAG)) lane++;
+          spots.push({ top, lane });
+          const flag = flagElement(record);
+          flag.style.top = `${top}px`;
+          flag.style.left = `${box.left + sx - right - FLAG - lane * RIBBON_LANE}px`;
+        }
       }
     }
 
@@ -137,13 +180,14 @@ export function createNotesMargin({ store, source, onEdit }) {
       syncLit();
       return;
     }
-    const items = placed();
+    const items = notesOn ? placed() : [];
+    const noticed = noticesFor(items.map((p) => p.record));
 
     if (mode === "full") {
       const width = noteWidth(box.left, box.width);
       const left = box.left + sx - NOTE_GAP - width;
       const els = items.map(({ record }) => {
-        const el = noteElement(record);
+        const el = noteElement(record, noticed.get(record.id));
         el.style.left = `${left}px`;
         el.style.width = `${width}px`;
         aside.append(el);
@@ -151,6 +195,10 @@ export function createNotesMargin({ store, source, onEdit }) {
       });
       const byId = new Map(els.map((el) => [el.dataset.id, el]));
       const noteLine = parseFloat(getComputedStyle(els[0] ?? aside).lineHeight) || 22;
+      // A flagged note's foot (its flag, and Edit beside it) is always there,
+      // under the words, so it counts toward the note's height.
+      const footOf = (el) => el.querySelector(".desk-note__foot")?.offsetHeight ?? 0;
+      const wholeHeight = (el) => el.querySelector(".desk-note__toggle").scrollHeight + footOf(el);
       const lay = () =>
         layoutFull(
           items.map(({ record, range }, i) => ({
@@ -158,22 +206,28 @@ export function createNotesMargin({ store, source, onEdit }) {
             top: lineTop(range),
             lineHeight,
             noteLine,
-            height: els[i].querySelector(".desk-note__toggle").scrollHeight,
+            height: wholeHeight(els[i]),
           })),
         );
       let laid = lay();
-      // A note a bookmark's mark is in the way of contracts at its text-side
-      // edge to clear it, never moving; the rest keep the margin's whole
-      // width. Contracting can lengthen a note, so it is laid out again.
-      if (markTops.length) {
+      // A note a bookmark's mark (or a highlight's flag) is in the way of
+      // contracts at its text-side edge to clear it, never moving; the rest
+      // keep the margin's whole width. Contracting can lengthen a note, so it
+      // is laid out again.
+      if (spots.length) {
         const shown = laid.map((l) => ({
           id: l.id,
           y: l.y,
-          height: l.cut && !open.has(l.id) ? l.maxHeight : byId.get(l.id).querySelector(".desk-note__toggle").scrollHeight,
+          height: l.cut && !open.has(l.id) ? l.maxHeight : wholeHeight(byId.get(l.id)),
         }));
-        const hit = notesInTheWay(shown, markTops);
-        for (const id of hit) byId.get(id).style.width = `${width - RIBBON_LANE}px`;
-        if (hit.size) laid = lay();
+        const clear = new Map(); // id -> how far it contracts
+        const outermost = Math.max(...spots.map((s) => s.lane));
+        for (let lane = 0; lane <= outermost; lane++) {
+          const tops = spots.filter((s) => s.lane >= lane).map((s) => s.top);
+          for (const id of notesInTheWay(shown, tops)) clear.set(id, RIBBON_LANE * (lane + 1));
+        }
+        for (const [id, by] of clear) byId.get(id).style.width = `${width - by}px`;
+        if (clear.size) laid = lay();
       }
       for (const l of laid) {
         const el = byId.get(l.id);
@@ -183,23 +237,27 @@ export function createNotesMargin({ store, source, onEdit }) {
           // whole (BVJ, 2026-10-07): downward over that line when two or
           // more fit, and toward its end when only one does, since fading a
           // single line downward leaves nothing legible. The box holds its
-          // top padding too.
+          // top padding too. A flagged note cuts its words alone (the
+          // toggle), so the flag under them stays in view.
           const pad = 3;
-          const lines = Math.max(1, Math.floor(l.maxHeight / noteLine));
+          const foot = footOf(el);
+          const lines = Math.max(1, Math.floor((l.maxHeight - foot) / noteLine));
+          const above = foot ? 0 : pad;
           const mask =
             lines === 1
               ? "linear-gradient(to right, #000 55%, transparent 96%)"
-              : `linear-gradient(to bottom, #000 ${pad + (lines - 1) * noteLine}px, transparent ${pad + lines * noteLine}px)`;
+              : `linear-gradient(to bottom, #000 ${above + (lines - 1) * noteLine}px, transparent ${above + lines * noteLine}px)`;
           el.classList.add("desk-note--cut");
-          el.style.setProperty("--desk-note-max", `${pad + lines * noteLine}px`);
+          el.style.setProperty("--desk-note-max", `${above + lines * noteLine}px`);
           el.style.setProperty("--desk-note-mask", mask);
         }
       }
     } else {
       // Bookmarks take their places in the circles' rows, so the two never
-      // collide; each draws as its red mark, centred in its place.
+      // collide; each draws as its red mark, centred in its place. So does a
+      // highlight's flag.
       const perRow = circlesPerRow(box.left - 8);
-      const all = [...items, ...marks];
+      const all = [...items, ...marks, ...flagged];
       const laid = layoutCircles(
         all.map(({ record, range }) => ({ id: record.id, top: lineTop(range), lineHeight })),
         { perRow },
@@ -214,7 +272,13 @@ export function createNotesMargin({ store, source, onEdit }) {
           mark.style.left = `${x + (CIRCLE - RIBBON) / 2}px`;
           continue;
         }
-        const el = circleElement(record);
+        if (record.kind === "highlight") {
+          const flag = flagElement(record);
+          flag.style.top = `${l.y + (CIRCLE - FLAG) / 2}px`;
+          flag.style.left = `${x + (CIRCLE - FLAG) / 2}px`;
+          continue;
+        }
+        const el = circleElement(record, noticed.get(record.id));
         el.style.top = `${l.y}px`;
         el.style.left = `${x}px`;
         aside.append(el);
@@ -222,8 +286,13 @@ export function createNotesMargin({ store, source, onEdit }) {
     }
 
     if (focusedId) {
-      const sel = wasCircle ? ".desk-circle" : ".desk-note__toggle";
-      aside.querySelector(`[data-id="${CSS.escape(focusedId)}"]${wasCircle ? "" : " "}${sel}`)?.focus({ preventScroll: true });
+      const id = CSS.escape(focusedId);
+      aside.querySelector(`[data-id="${id}"]${focusSel}, [data-id="${id}"] ${focusSel}`)?.focus({ preventScroll: true });
+    }
+    if (afterDraw) {
+      const place = afterDraw;
+      afterDraw = null;
+      place();
     }
     syncLit();
   }
@@ -232,7 +301,7 @@ export function createNotesMargin({ store, source, onEdit }) {
     return recordReference(r);
   }
 
-  function noteElement(r) {
+  function noteElement(r, notice = null) {
     const el = document.createElement("div");
     el.className = "desk-note";
     el.dataset.id = r.id;
@@ -253,19 +322,80 @@ export function createNotesMargin({ store, source, onEdit }) {
     edit.type = "button";
     edit.className = "desk-note__edit";
     edit.innerHTML = `Edit<span class="sr-only"> my note on ${escapeHtml(refOf(r))}</span>`;
-    el.append(toggle, edit);
+    el.append(toggle);
+    if (notice) {
+      // Its wording has changed: a flag under the words, with Edit beside it
+      // (change-notice.js). The flag is always shown; Edit still waits for
+      // hover or focus.
+      el.classList.add("desk-note--flagged");
+      const flag = document.createElement("button");
+      flag.type = "button";
+      flag.className = "desk-flag desk-flag--inline";
+      flag.setAttribute("aria-haspopup", "dialog");
+      flag.setAttribute("aria-label", `The wording changed under my note on ${refOf(r)}. Review`);
+      flag.innerHTML = `${changedGlyph()}<span class="desk-flag__text" aria-hidden="true">Wording changed</span>`;
+      const foot = document.createElement("div");
+      foot.className = "desk-note__foot";
+      foot.append(flag, edit);
+      el.append(foot);
+    } else {
+      el.append(edit);
+    }
     return el;
   }
 
-  function circleElement(r) {
+  function circleElement(r, notice = null) {
     const b = document.createElement("button");
     b.type = "button";
     b.className = "desk-circle";
     b.dataset.id = r.id;
     b.setAttribute("aria-expanded", String(popId === r.id));
-    b.setAttribute("aria-label", noteOpening(r, refOf(r)).replace(/:\s*$/, ""));
+    // A dot on the circle says its wording has changed; the name says it in
+    // words, so it is not told by the dot alone.
+    const name = noteOpening(r, refOf(r)).replace(/:\s*$/, "");
+    b.setAttribute("aria-label", notice ? `${name}, the wording changed` : name);
+    if (notice) b.classList.add("desk-circle--changed");
     b.innerHTML = glyph(r.marker);
     return b;
+  }
+
+  /** A highlight whose wording has changed, as a mark in the margin: the changed glyph, alone. */
+  function flagElement(r) {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "desk-flag desk-flag--mark";
+    b.dataset.id = r.id;
+    b.setAttribute("aria-haspopup", "dialog");
+    const label = `${markName(r)} on ${refOf(r)}: the wording changed. Review`;
+    b.setAttribute("aria-label", label);
+    b.title = `The wording changed under this ${markName(r).toLowerCase()}. Review`;
+    b.innerHTML = changedGlyph();
+    aside.append(b);
+    return b;
+  }
+
+  /** Open a record's change notice beside the flag that asked, and look after focus after. */
+  function review(record, trigger) {
+    if (!ctx) return;
+    openNotice(trigger, record, {
+      store,
+      ctx,
+      showInText,
+      restoreFocus: trigger,
+      onDone: (what) => {
+        if (what === "show") return;
+        // The flag may be gone now (Keep), and the aside is drawn again: put
+        // focus back on the note's words, or on a highlight's verse number.
+        if (record.kind === "highlight") {
+          document.getElementById(`v${record.verse}`)?.focus({ preventScroll: true });
+        } else if (what === "keep") {
+          afterDraw = () =>
+            aside
+              .querySelector(`[data-id="${CSS.escape(record.id)}"] .desk-note__toggle, .desk-circle[data-id="${CSS.escape(record.id)}"]`)
+              ?.focus({ preventScroll: true });
+        }
+      },
+    });
   }
 
   /* ── The words a note hangs on ───────────────────────────────────── */
@@ -315,6 +445,13 @@ export function createNotesMargin({ store, source, onEdit }) {
     const t = e.target instanceof Element ? e.target : null;
     const id = idOf(t);
     if (!id) return;
+    const flag = t.closest(".desk-flag");
+    if (flag) {
+      e.stopPropagation();
+      const flagged = notes.find((r) => r.id === id) ?? highlights.find((r) => r.id === id);
+      if (flagged) review(flagged, flag);
+      return;
+    }
     const record = notes.find((r) => r.id === id);
     if (!record) return;
     if (t.closest(".desk-note__edit")) {
@@ -368,6 +505,22 @@ export function createNotesMargin({ store, source, onEdit }) {
     pop.querySelector(".desk-note-pop__edit").addEventListener("click", () => {
       onEdit(record, circle, circle);
     });
+    // Its wording has changed: "Wording changed · Review" opens the card in
+    // place of this popover. Stopped here, so the click isn't taken for one
+    // outside the card (this button leaves the page with the popover).
+    const notice = ctx ? noticeFor(record) : null;
+    if (notice) {
+      const flag = document.createElement("button");
+      flag.type = "button";
+      flag.className = "desk-flag desk-flag--row desk-note-pop__flag";
+      flag.setAttribute("aria-haspopup", "dialog");
+      flag.innerHTML = `${changedGlyph()}<span class="desk-flag__text">Wording changed<span class="sr-only">.</span><span aria-hidden="true"> · </span>Review<span class="sr-only"> my note on ${escapeHtml(ref)}</span></span>`;
+      flag.addEventListener("click", (e) => {
+        e.stopPropagation();
+        review(record, circle);
+      });
+      pop.querySelector(".desk-note-pop__foot").before(flag);
+    }
     const words = placed().find((p) => p.record.id === record.id)?.range;
     showPanel(circle, pop, {
       restoreFocus: circle,
