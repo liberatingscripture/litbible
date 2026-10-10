@@ -10,6 +10,15 @@
 // Records are stored as the format's logical records, unchanged (principle 6:
 // a field or kind this code doesn't know is written back as it came).
 //
+// Every write this tab makes for the reader also leaves a history entry
+// (src/lib/desk-history.mjs): the records it touched, as they stood just before
+// and just after. That is recorded here, in the one place every write passes
+// through, so a note, a bookmark, a highlight that merges with its neighbours
+// and a deletion are all undoable without each caller saying how. A change
+// that arrives from another tab is never an entry, and neither is the purge
+// of expired trash at open or the history's own undo and redo, which write
+// with `record: false`. `onEntry` and `lastEntry` are how the history hears.
+//
 // Persistent storage is asked for on the first write, not on load. Chrome
 // grants it by engagement without asking, but Firefox shows a prompt, and
 // asking a reader with an empty notebook would be asking for nothing.
@@ -28,6 +37,7 @@ import {
   readChangeMessage,
   touched,
 } from "../../lib/desk-store-core.mjs";
+import { isNoop, makeEntry } from "../../lib/desk-history.mjs";
 
 const DB_NAME = "lit-desk";
 const DB_VERSION = 1;
@@ -107,15 +117,44 @@ export async function openStore({ ctx }) {
     await committed(tx);
   }
 
-  async function apply(plan) {
+  let entrySeq = 0;
+  let latest = null;
+  const entryListeners = new Set();
+  const entryId = () => globalThis.crypto?.randomUUID?.() ?? `entry-${Date.now().toString(36)}-${++entrySeq}`;
+
+  /**
+   * Write a plan in one transaction and tell everyone. With `record` (the
+   * default) it also remembers the change for the history: the records it
+   * touches are read in the same transaction, ahead of the writes (requests
+   * in a transaction run in the order they were made, so those reads see the
+   * notebook as it was), and the entry is announced once the write is safe.
+   */
+  async function apply(plan, { record = true } = {}) {
     if (!plan.put.length && !plan.remove.length) return plan;
-    const tx = db.transaction(RECORDS, "readwrite");
-    const store = tx.objectStore(RECORDS);
-    for (const r of plan.put) store.put(r);
-    for (const id of plan.remove) store.delete(id);
-    await committed(tx);
     const ids = touched(plan);
+    const tx = db.transaction(RECORDS, "readwrite");
+    const objects = tx.objectStore(RECORDS);
+    const was = record ? ids.map((id) => objects.get(id)) : [];
+    for (const r of plan.put) objects.put(r);
+    for (const id of plan.remove) objects.delete(id);
+    await committed(tx);
     channel?.postMessage(changeMessage(ids));
+    if (record) {
+      const entry = makeEntry(plan, new Map(ids.map((id, i) => [id, was[i].result ?? null])), entryId());
+      // A change that left the notebook as it found it isn't worth undoing,
+      // and clears `latest` so a caller asking for its entry gets nothing
+      // rather than the one before.
+      latest = isNoop(entry) ? null : entry;
+      if (latest) {
+        for (const fn of entryListeners) {
+          try {
+            fn(entry);
+          } catch (err) {
+            console.error("Study Desk: a history listener failed", err);
+          }
+        }
+      }
+    }
     notify(ids, "this-tab");
     return plan;
   }
@@ -149,14 +188,16 @@ export async function openStore({ ctx }) {
 
     /**
      * Commit a plan that writes several records at once (a highlight that
-     * merges with its neighbours, and its undo), in one transaction. Refuses a
-     * malformed record before anything is written. Resolves to the plan; an
-     * empty one does nothing.
+     * merges with its neighbours, and the history's undo and redo), in one
+     * transaction. Refuses a malformed record before anything is written.
+     * Resolves to the plan; an empty one does nothing. The change is
+     * remembered for the history unless `record` is false, which is how the
+     * history writes its own undo and redo.
      */
-    async commit(plan) {
+    async commit(plan, { record = true } = {}) {
       const checked = planWrite(plan);
       if (!checked.put.length && !checked.remove.length) return plan;
-      await apply(checked);
+      await apply(checked, { record });
       askToPersist();
       return plan;
     },
@@ -196,10 +237,28 @@ export async function openStore({ ctx }) {
       listeners.add(fn);
       return () => listeners.delete(fn);
     },
+
+    /**
+     * Called with each history entry (src/lib/desk-history.mjs) as this tab
+     * writes it. Changes from other tabs, the purge below and the history's
+     * own undo and redo make none.
+     */
+    onEntry(fn) {
+      entryListeners.add(fn);
+      return () => entryListeners.delete(fn);
+    },
+
+    /**
+     * The entry the latest write made, or null when it made none (it changed
+     * nothing). A caller reads it straight after awaiting its own write, to
+     * offer that one change back.
+     */
+    lastEntry: () => latest,
   };
 
-  // Trash past its 30 days keeps only its tombstone (desk-records).
-  await apply(planPurge(await store.all(), new Date().toISOString()));
+  // Trash past its 30 days keeps only its tombstone (desk-records). Not
+  // something the reader did, so not something to undo.
+  await apply(planPurge(await store.all(), new Date().toISOString()), { record: false });
 
   return store;
 }

@@ -12,6 +12,7 @@ import { recordReference, webClient } from "../../lib/desk-store-core.mjs";
 import { openStore } from "./store.js";
 import { createPanel } from "./panel.js";
 import { initUndo } from "./undo-bar.js";
+import { createHistory } from "./history.js";
 import { initNoteSettings } from "./note-settings.js";
 import { initActions } from "./actions.js";
 import { createNotesMargin } from "./notes-margin.js";
@@ -48,6 +49,9 @@ async function start() {
   }
   initNoteSettings();
   initUndo();
+  // Ctrl+Z for the notebook: from here on, what this tab writes can be taken
+  // back, so it starts before anything can write.
+  if (store) createHistory({ store, ctx });
   // A note opens in the editor from the margin or the panel's list.
   const edit = (record, trigger, restoreFocus = trigger) =>
     openNoteEditor({ trigger, store, ctx, ref: recordReference(record), record, restoreFocus });

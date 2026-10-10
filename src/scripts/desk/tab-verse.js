@@ -30,6 +30,7 @@ import { forChapter, recordReference } from "../../lib/desk-store-core.mjs";
 import { adjacentVerse, recordsOnVerse } from "../../lib/desk-verse.mjs";
 import { verseAtReadingLine } from "../last-read.js";
 import { glyph } from "./glyphs.js";
+import { undoEntry } from "./history.js";
 import { chapterText } from "./page.js";
 import { showUndo } from "./undo-bar.js";
 
@@ -242,6 +243,9 @@ export function createVerseTab({ store, here, visible, panelOpen, onEdit = null,
     const index = Array.from(mine.children).indexOf(li);
     const trash = await store.remove(r.id);
     if (!trash) return;
+    // The change this made, read before anything else can write: the undo
+    // button, like Ctrl+Z, takes back exactly this one (history.js).
+    const entry = store.lastEntry();
     // The store's notice redraws the tab too; drawing it here as well means
     // focus can be placed once it is done.
     await render();
@@ -249,9 +253,7 @@ export function createVerseTab({ store, here, visible, panelOpen, onEdit = null,
     const next = rows[Math.min(index, rows.length - 1)]?.querySelector("button");
     (next ?? (add.hidden ? heading : add)).focus({ preventScroll: true });
     const where = recordReference(r);
-    showUndo(`Highlight${where ? ` on ${where}` : ""} removed.`, async () => {
-      if (!(await store.undo(trash.id))) throw new Error("nothing to bring back");
-    });
+    showUndo(`Highlight${where ? ` on ${where}` : ""} removed.`, () => undoEntry(entry));
   }
 
   for (const b of steps) {

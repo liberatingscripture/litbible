@@ -2534,9 +2534,11 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
        differently, the change goes in `migrateRecord`. **BDR's answer
        (2026-10-09)** keeps these and adds the deleted record's kind, so the
        migration is one field.
-     - **The undo bar** (`src/scripts/desk/undo-bar.js`) has no timeout:
-       until the trash list (M7) exists it is the only way back, and a timed
-       one would fail WCAG 2.2.1.
+     - **The undo bar** (`src/scripts/desk/undo-bar.js`) had no timeout:
+       until the trash list (M7) exists it was the only way back, and a timed
+       one would fail WCAG 2.2.1. **Since 2026-10-09 it closes by itself after
+       ten seconds** (BVJ), never while hovered or focused, because Ctrl+Z
+       now keeps the same undo for the rest of the visit (1c).
      - **The panel** (`src/scripts/desk/panel.js`): a Notebook button
        (glyph and word) beside "Aa" in the header, and the glyph alone in
        Read View's toolbar, both hidden by CSS unless the desk is on. It
@@ -2836,6 +2838,30 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
        tinting the verse numbers and footnote letters inside it; and, in Study
        View, a highlight in My Notes going to its verse by the ordinary `#v3`
        link rather than the in-place visit a note gets.
+     **Built fourth (2026-10-09), undo on the keyboard** (BVJ asked whether
+     Ctrl+Z undid adding, editing or removing notes, bookmarks and
+     highlights; it didn't):
+     - **Ctrl+Z (⌘Z) undoes this tab's last change to the notebook**, and
+       Ctrl+Shift+Z (⌘⇧Z) or Ctrl+Y redoes it: adding, editing or deleting a
+       note, a bookmark or a highlight, a merge or colour change included.
+       One history per page visit, 50 deep; a change made in another tab is
+       never in it. In a text field, or with the note editor open, the keys
+       are the browser's own undo.
+     - **The bar says what happened** ("Undone: note on Romans 8:3 added."
+       with Redo), and its Undo button is the same history, so the button
+       and the key never disagree. A change overtaken since (edited in
+       another tab, say) is not undone; the bar says so.
+     - **An undo is the reader acting**: it restamps `modified`, so under
+       the newer-writing-wins rule (rule a) it outranks what it undid on the
+       reader's other devices.
+     - **The bar closes by itself after ten seconds** (BVJ, 2026-10-09),
+       never while hovered or focused; the same undo stays on the key.
+     - The rules are `src/lib/desk-history.mjs` (pure, unit-tested); the
+       stacks and keys are `src/scripts/desk/history.js`, and the store
+       records each change it writes. The Display tray lists the key.
+     - **Defaults chosen where nothing was decided**: 50 steps; the history
+       starting fresh on each page; ten seconds; Ctrl+Y redoing on Windows
+       only, since ⌘Y is the browser's History on a Mac.
      **Still to come in 1c**: the change notice, which now has highlights
      as well as notes to speak for (BDR answered rules a to e on 2026-10-09,
      so it no longer waits), pinned footnotes (below), and the versions,

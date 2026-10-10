@@ -32,6 +32,7 @@
 // for the default, with one localStorage key; unlike them there is no
 // pre-paint script, since nothing of the desk paints before this file runs.
 
+import { undoModifier } from "./history.js";
 import { prosePage } from "./note-sources.js";
 import { readBook } from "./page.js";
 import { resetWidthsButton } from "./widths.js";
@@ -204,11 +205,11 @@ function noteControls(classes) {
 /**
  * The controls in the Display tray's Show group: all of them on a Study View
  * chapter, and only "My bookmarks", "My highlights" and "Hide my notes" in
- * Read View, which shows no notes. Also H in the tray's list of keys, and on
- * a chapter a line under the Show group saying that a selection reaches the
- * same actions as a verse number (audit C10: hiding the numbers mustn't hide
- * the way in), and "Reset widths" while the reader has dragged the
- * notebook's widths. An article or the glossary gets a Show group of its own
+ * Read View, which shows no notes. Also H and Ctrl+Z in the tray's list of
+ * keys, and on a chapter a line under the Show group saying that a selection
+ * reaches the same actions as a verse number (audit C10: hiding the numbers
+ * mustn't hide the way in), and "Reset widths" while the reader has dragged
+ * the notebook's widths. An article or the glossary gets a Show group of its own
  * (injectProseShow), without highlights, which it doesn't have yet.
  */
 const TRAY_CLASSES = {
@@ -238,13 +239,7 @@ function injectIntoTray() {
   marks.dataset.desk = "";
   lights.dataset.desk = "";
   hide.dataset.desk = "";
-  const keys = document.getElementById("fontTrayKeys");
-  if (keys) {
-    const li = document.createElement("li");
-    li.dataset.desk = "";
-    li.innerHTML = "<kbd>h</kbd> Hide or show my notes";
-    keys.append(li);
-  }
+  addKeyLines();
   if (read) {
     checks.append(marks, lights, hide);
     return;
@@ -296,11 +291,26 @@ function injectProseShow() {
   seg.removeAttribute("aria-label");
   row.append(seg);
   keysRow.before(show, row);
+  addKeyLines();
+}
+
+/**
+ * The desk's lines in the tray's list of keys: H hides or shows my notes, and
+ * Ctrl+Z (⌘Z on a Mac) undoes a change to the notebook. The list sits under
+ * the Keyboard switch, but Ctrl+Z isn't one of its single-key shortcuts and
+ * doesn't follow it (history.js). Like the other desk controls, they are
+ * marked data-desk.
+ */
+function addKeyLines() {
   const keys = document.getElementById("fontTrayKeys");
-  if (keys) {
+  if (!keys) return;
+  for (const html of [
+    "<kbd>h</kbd> Hide or show my notes",
+    `<kbd>${undoModifier()}</kbd> <kbd>Z</kbd> Undo a change to my notebook`,
+  ]) {
     const li = document.createElement("li");
     li.dataset.desk = "";
-    li.innerHTML = "<kbd>h</kbd> Hide or show my notes";
+    li.innerHTML = html;
     keys.append(li);
   }
 }

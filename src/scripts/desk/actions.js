@@ -36,6 +36,7 @@ import { closePanel, currentPanel } from "../lit-panel.js";
 import { openNoteEditor } from "./note-editor.js";
 import { getSetting, highlightSetting, setSetting } from "./note-settings.js";
 import { blockAt, chapterText, chapterTextFor, pageChapter } from "./page.js";
+import { undoEntry } from "./history.js";
 import { showUndo } from "./undo-bar.js";
 
 export function initActions({ store, ctx, showVerse = null }) {
@@ -105,13 +106,12 @@ export function initActions({ store, ctx, showVerse = null }) {
       const ref = `${bookKeyToLabel(where.bookKey)} ${where.chapter}:${verse}`;
       if (existing) {
         const trash = await store.remove(existing.id);
+        // The change this made, read at once: the undo button, like Ctrl+Z,
+        // takes back exactly this one (history.js).
+        const entry = trash ? store.lastEntry() : null;
         bookmark.textContent = "Removed ✓";
         setTimeout(closePanel, 700);
-        if (trash) {
-          showUndo(`Bookmark on ${ref} removed.`, async () => {
-            if (!(await store.undo(trash.id))) throw new Error("nothing to bring back");
-          });
-        }
+        if (entry) showUndo(`Bookmark on ${ref} removed.`, () => undoEntry(entry));
         return;
       }
       const now = new Date().toISOString();
@@ -254,6 +254,7 @@ export function initActions({ store, ctx, showVerse = null }) {
         });
         const changed = plan.put.length > 0 || plan.remove.length > 0;
         if (changed) await store.commit(plan);
+        const entry = changed ? store.lastEntry() : null;
 
         // A reader who just highlighted should see it, so hidden highlights
         // come back on; the most recent action wins. Only a colour does this:
@@ -262,10 +263,10 @@ export function initActions({ store, ctx, showVerse = null }) {
         if (color && getSetting(name) === "off") setSetting(name, "on");
 
         const ref = recordReference({ ...where, verse: d.start, endVerse: d.end });
-        if (changed && color === null) {
-          showUndo(`Highlight removed from ${ref}.`, () => undoPlan(plan));
-        } else if (changed && plan.summary.otherColors > 0) {
-          showUndo(`${ref} highlighted ${COLOR_WORDS[color]}.`, () => undoPlan(plan));
+        if (entry && color === null) {
+          showUndo(`Highlight removed from ${ref}.`, () => undoEntry(entry));
+        } else if (entry && plan.summary.otherColors > 0) {
+          showUndo(`${ref} highlighted ${COLOR_WORDS[color]}.`, () => undoEntry(entry));
         }
         // The selection has done its job, and would hide the new colour.
         if (d.kind === "selection") window.getSelection()?.removeAllRanges();
@@ -276,21 +277,6 @@ export function initActions({ store, ctx, showVerse = null }) {
       busy = false;
       closePanel();
     }
-  }
-
-  /**
-   * Put back what a highlight changed. Undoing is the reader acting, so the
-   * records it restores are stamped with the time of the undo: under the newer
-   * `modified` wins rule they must outrank the edit they undo, or another
-   * device would keep the edit.
-   */
-  function undoPlan(plan) {
-    const at = new Date().toISOString();
-    const { client } = ctx();
-    return store.commit({
-      put: plan.undo.put.map((r) => ({ ...r, modified: at, client })),
-      remove: plan.undo.remove,
-    });
   }
 }
 
