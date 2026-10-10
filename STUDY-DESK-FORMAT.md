@@ -235,6 +235,25 @@ or `lost` mark shows a notice. The two apps' wording for it is worth keeping:
 **Keep** writes the found position as the new quote, with a fresh
 `verseCopy`.
 
+**The website's notice, proposed for draft 2** (built on its preview
+2026-10-10; `src/lib/desk-change.mjs`). Three refinements of the rule above:
+- **A change of typography alone carries no notice.** Where a `changed`
+  mark's `verseCopy` and today's verses differ only in quotes, dashes and
+  spacing (STUDY-DESK.md, N3 and C3; the August 2026 passes curled 439
+  quotes and changed no wording), the mark is shown on the words found, with
+  no notice. A record with no `verseCopy` compares its quoted words with the
+  words found instead. `verse` and `lost` always carry one.
+- **A note on whole verses carries one when their wording changes.** It
+  has no quote, so it is always `found`; the website compares its
+  `verseCopy` with today's verses and shows the notice when the wording
+  differs. A quoted mark whose words are still found carries none.
+- **Keep from `verse`**: a note loses its quote and becomes a note on its
+  whole verses; a highlight takes the whole verses as its quote. Keep moves
+  `modified` and `contentVersion`, since the reader acted. A record whose
+  `contentVersion` can't be ordered against the client's (two publishes on
+  one day) is rewritten only once the client knows it has the newest text
+  (the website asks `/api/version.json`).
+
 `changed` is the one step BVJ left to the three Claudes (no preference).
 Draft 1 adopts the apps' approach over the plan's whole-verse fallback,
 because both apps already ship it and tell the reader.

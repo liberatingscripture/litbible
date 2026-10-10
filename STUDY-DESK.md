@@ -11,7 +11,7 @@ produced it.
 Many ideas here were weighed and decided, some were declined, and the reasons
 are recorded so they aren't re-argued.
 
-## Where things stand (as of 2026-10-09)
+## Where things stand (as of 2026-10-10)
 
 - **Sync now has three plans, and BDR's proposal is the newest record of
   it** ("One notebook, three homes" below; first read 2026-10-07 at draft 2,
@@ -35,9 +35,9 @@ are recorded so they aren't re-argued.
   wait on nobody are built (notes, bookmarks, the margin, the panel's tabs and
   "This verse", M1, the draggable widths, and N11 provisionally), and so
   are highlights (2026-10-09), as soon as BDR's answers to rules a to e
-  settled the overlap rule. Still to come in 1c: the change notice and
-  pinned footnotes. The versions wait on the API.bible questions. What
-  exists:
+  settled the overlap rule, and the change notice (2026-10-10). Still to
+  come in 1c: pinned footnotes. The versions wait on the API.bible
+  questions. What exists:
   - draft 1 of the record format (`STUDY-DESK-FORMAT.md`), with its
     reference implementation (`scripts/lib/anchor-text.mjs`) and test vectors
     (PR #268);
@@ -364,6 +364,10 @@ plan as a whole was accepted; nothing was declined except where stated).
     entry, entries truncate long passages with "…", and the August passes
     (439 straight quotes curled, 413 en dashes) changed no wording but would
     trip a plain fingerprint.
+  - **Built on the preview 2026-10-10** as phase 1c's change notice, for
+    notes and highlights in Study View ("Order of work", 1c). "Mark the new
+    words" isn't built yet: a mark that fell back to its whole verse offers
+    Keep there, or Delete.
 - **N4. Your own chains.** A reference typed in a note becomes a link with a
   preview through the same linker the footnotes use (`linkScriptureRefs` is
   pure and can run in the browser), and the cited verse shows "Mentioned in
@@ -2862,9 +2866,78 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      - **Defaults chosen where nothing was decided**: 50 steps; the history
        starting fresh on each page; ten seconds; Ctrl+Y redoing on Windows
        only, since ⌘Y is the browser's History on a Mac.
-     **Still to come in 1c**: the change notice, which now has highlights
-     as well as notes to speak for (BDR answered rules a to e on 2026-10-09,
-     so it no longer waits), pinned footnotes (below), and the versions,
+     **Built fifth (2026-10-10), the change notice** (N3, C3; rule e's
+     "the notice the apps already show, with its actions"), behind the
+     preview switch:
+     - **When a mark carries one.** A note or highlight is found again on
+       every load (`placeRecord`), and the format's statuses decide:
+       `changed` (the words are gone; the mark is carried along to the words
+       now between its context), `verse` (it couldn't be placed, and sits on
+       its whole verse or passage) and `lost` (its verses are gone) each
+       carry a notice; `found` and `moved` don't. Two refinements of the
+       format, both proposed for draft 2:
+       - **A change of typography alone is no change** (N3, C3: "punctuation
+         passes don't count"). When the record's `verseCopy` and today's
+         verses differ only in quotes, dashes and spacing (`wordingChanged`),
+         a `changed` placement is shown quietly, with no notice. Records
+         without a copy (the apps' have none) compare their quoted words
+         with the words found instead. Such a highlight can be merged and
+         trimmed again (rule d's exception is for a highlight carrying an
+         unread notice, and this one carries none).
+       - **A note on whole verses notices too** (N3's mock: a note on
+         Romans 4:7 flagged when "Gratified" became "How greatly
+         fortunate"). It has no quote, so it is always `found`; it carries a
+         notice (`reworded`) when its `verseCopy` and today's verses differ
+         in wording. A quoted note whose words are still found doesn't,
+         whatever changed around them, nor does a highlight.
+       A record made on newer text than the page has (principle 7) carries
+       none: the page is behind, not the record. Notes on glossary entries
+       and articles (N11) carry one when their quote is carried along to
+       different words or falls back to the whole entry or article.
+     - **What it says**, in the apps' two registers: "Your note has been
+       carried along to the words that now stand in place of the ones you
+       marked", or "We couldn't find the words you marked, so your note is
+       on the whole verse for now." Then the date, "Changed October 4,
+       2026 · Release note", from the newest release note that changed one
+       of the mark's verses since the record's text was taken (fetched only
+       when a notice opens); otherwise "Changed after you made this". Then
+       exactly what changed: the verses as they read when the mark was made
+       against today's, old words struck through and new ones underlined,
+       with long unchanged stretches shortened, and the words the reader
+       marked.
+     - **Keep, Delete, Show in the text** (iOS's Keep, Delete and Re-read in
+       Context). Keep is the only thing that writes (principle 5): the mark
+       takes the words it was carried to, or, from the whole-verse
+       fallback, a note becomes a note on its whole verses and a highlight
+       covers them; either way with a fresh `verseCopy` and today's
+       `contentVersion`, and `modified` moves. A record whose text can't be
+       ordered against the page's (two publishes on one day) is kept only
+       once `/api/version.json` confirms the page has the newest text.
+       Keep and Delete are undone from the bar or with Ctrl+Z. A `lost`
+       mark offers Delete alone.
+     - **Where it shows**: a note in the margin carries a "Wording changed"
+       flag, a note shown as a circle a badge, and a highlight a small flag
+       in the margin level with its first line (where bookmarks' marks
+       sit), each opening the notice in the shared floating panel; My Notes
+       and This verse flag each row, under a one-line count ("The wording
+       has changed under 2 of these"); and a verse number names it ("Verse
+       3, highlighted yellow, 1 changed since I marked it"). Notices are
+       judged only where the chapter's text is on the page, so the
+       Everything list flags none from other chapters; each is judged when
+       its chapter is read. Read View flags its book's rows in My Notes and
+       puts nothing in its margin.
+     - The rules are `src/lib/desk-change.mjs` (pure, unit-tested); the
+       panel and the flags are `src/scripts/desk/change-notice.js` with the
+       margin, the two tabs and the verse labels.
+     - **Defaults chosen where nothing was decided**, for BVJ to judge on the
+       preview: the wording above; showing typography-only changes quietly;
+       the `reworded` notice for whole-verse notes; the margin flag for
+       highlights; Keep from the whole-verse fallback dropping a note's
+       quote rather than asking for new words (N3's "Mark the new words" is
+       left for later: today the reader can delete and mark again); Keep not
+       merging a kept highlight with its neighbours (the overlap rule applies
+       when a highlight is made); notices only for chapters on the page.
+     **Still to come in 1c**: pinned footnotes (below), and the versions,
      held (below).
      **Added to 1c on 2026-10-09: pinned footnotes, by November** (BVJ,
      agreeing to BDR's request; see "BDR's answers and requests"). A Pin
