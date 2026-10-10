@@ -237,12 +237,13 @@ or `lost` mark shows a notice. The two apps' wording for it is worth keeping:
 
 **The website's notice, proposed for draft 2** (built on its preview
 2026-10-10; `src/lib/desk-change.mjs`). Three refinements of the rule above:
-- **A change of typography alone carries no notice.** Where a `changed`
-  mark's `verseCopy` and today's verses differ only in quotes, dashes and
-  spacing (STUDY-DESK.md, N3 and C3; the August 2026 passes curled 439
-  quotes and changed no wording), the mark is shown on the words found, with
-  no notice. A record with no `verseCopy` compares its quoted words with the
-  words found instead. `verse` and `lost` always carry one.
+- **A change of typography alone carries no notice.** Where the words a
+  `changed` mark is carried to differ from its `exact` only in quotes,
+  dashes and spacing (STUDY-DESK.md, N3 and C3; the August 2026 passes
+  curled 439 quotes and changed no wording), the mark is shown on the words
+  found, with no notice. The marked words decide, not the rest of the
+  verse, so records with no `verseCopy` are judged the same way. `verse` and
+  `lost` always carry one.
 - **A note on whole verses carries one when their wording changes.** It
   has no quote, so it is always `found`; the website compares its
   `verseCopy` with today's verses and shows the notice when the wording

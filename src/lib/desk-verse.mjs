@@ -108,12 +108,21 @@ function joinWords(words) {
  * them. A missing or empty list, and a missing count, are none. Colours are
  * named in COLORS order whatever order they arrive in, and a name not in COLORS
  * is left out, so the label always matches what the page draws.
+ *
+ * `changed` is how many of those marks carry a change notice (N3, the wording
+ * moved since the reader marked it), counted by the caller from the same marks
+ * that supply the colours and the note count. Last in the label, because it
+ * qualifies what came before: "Verse 3, highlighted yellow, 1 note of mine, 1
+ * changed since I marked it" or "… 2 changed since I marked them". None adds
+ * nothing.
  */
-export function verseLabel(verse, noteCount, colors = []) {
+export function verseLabel(verse, noteCount, colors = [], changed = 0) {
   const n = Number(noteCount) || 0;
-  const shown = COLORS.filter((c) => (colors ?? []).includes(c));
+  const c = Number(changed) || 0;
+  const shown = COLORS.filter((color) => (colors ?? []).includes(color));
   const parts = [`Verse ${verse}`];
   if (shown.length) parts.push(`highlighted ${joinWords(shown)}`);
   if (n > 0) parts.push(`${n} ${n === 1 ? "note" : "notes"} of mine`);
+  if (c > 0) parts.push(`${c} changed since I marked ${c === 1 ? "it" : "them"}`);
   return parts.join(", ");
 }

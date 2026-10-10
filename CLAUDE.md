@@ -2203,9 +2203,10 @@ collection); they're read directly by the intro pages and the API manifest.
      the same undo stays on Ctrl+Z, so don't remove one without the other.
   11. **A mark whose words moved says so** (the change notice, N3).
      `src/lib/desk-change.mjs` (pure, unit-tested) decides which marks carry
-     a notice, from the format's statuses and the record's `verseCopy`
-     compared through `wordingChanged`, so a change of typography alone
-     never raises one; `desk/change-notice.js` shows it and is the only
+     a notice, from the format's statuses, comparing the marked words (or a
+     whole-verse note's `verseCopy`) with typography evened out
+     (`desk-wording.mjs`), so a change of quotes or dashes alone never
+     raises one; `desk/change-notice.js` shows it and is the only
      place a notice writes (Keep), since a mark is never rewritten until
      the reader acts. A notice is judged only where the chapter's text is
      on the page. It reads two app-contract files: `/api/version.json`,

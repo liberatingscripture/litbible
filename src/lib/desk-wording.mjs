@@ -41,11 +41,15 @@ export function wordingChanged(before, now) {
 /** Past this many tokens a side, the diff shows the whole passage as replaced. */
 const MAX_TOKENS = 600;
 
-/** Words and dashes, each with the whitespace before it, so a run can be rebuilt as written. */
+/**
+ * Words and dashes, each with the whitespace before it, so a run can be rebuilt
+ * as written. The text's first token has no lead: whatever opens the text isn't
+ * a gap between two words.
+ */
 function tokenize(text) {
   const out = [];
   for (const m of String(text ?? "").matchAll(/(\s*)([‐-―−-]|[^\s‐-―−-]+)/g)) {
-    out.push({ lead: m[1], text: m[2], key: wordingKey(m[2]) });
+    out.push({ lead: out.length ? m[1] : "", text: m[2], key: wordingKey(m[2]) });
   }
   return out;
 }
@@ -55,18 +59,25 @@ function joinRun(tokens) {
 }
 
 /**
- * What changed, word by word: a list of runs, each `{ op, text }` where `op`
- * is "same", "del" (only in the old text) or "ins" (only in the new). Words
- * that differ only in typography count as the same, and show as they read now.
+ * What changed, word by word: a list of runs, each `{ op, text, lead }` where
+ * `op` is "same", "del" (only in the old text) or "ins" (only in the new).
+ * Words that differ only in typography count as the same, and show as they
+ * read now.
+ *
+ * `text` leaves out the whitespace before the run's first word, and `lead` is
+ * that whitespace, from the text the run came from (the old text for "del", the
+ * new for "same" and "ins"; "" for the first word of its text). Without it a
+ * renderer can't tell "well" "-" "known" (no spaces) from "love" "is" (spaces):
+ * `run.lead + run.text` reads as written, and so does a run after a run.
  */
 export function wordingDiff(before, now) {
   const a = tokenize(before);
   const b = tokenize(now);
   if (a.length > MAX_TOKENS || b.length > MAX_TOKENS) {
-    if (!wordingChanged(before, now)) return b.length ? [{ op: "same", text: joinRun(b) }] : [];
+    if (!wordingChanged(before, now)) return b.length ? [{ op: "same", text: joinRun(b), lead: "" }] : [];
     return [
-      ...(a.length ? [{ op: "del", text: joinRun(a) }] : []),
-      ...(b.length ? [{ op: "ins", text: joinRun(b) }] : []),
+      ...(a.length ? [{ op: "del", text: joinRun(a), lead: "" }] : []),
+      ...(b.length ? [{ op: "ins", text: joinRun(b), lead: "" }] : []),
     ];
   }
 
@@ -106,7 +117,8 @@ export function wordingDiff(before, now) {
     if (steps[k].op === "same") {
       const start = k;
       while (k < steps.length && steps[k].op === "same") k++;
-      runs.push({ op: "same", text: joinRun(steps.slice(start, k).map((s) => s.tok)) });
+      const tokens = steps.slice(start, k).map((s) => s.tok);
+      runs.push({ op: "same", text: joinRun(tokens), lead: tokens[0].lead });
       continue;
     }
     const start = k;
@@ -114,8 +126,8 @@ export function wordingDiff(before, now) {
     const changed = steps.slice(start, k);
     const del = changed.filter((s) => s.op === "del").map((s) => s.tok);
     const ins = changed.filter((s) => s.op === "ins").map((s) => s.tok);
-    if (del.length) runs.push({ op: "del", text: joinRun(del) });
-    if (ins.length) runs.push({ op: "ins", text: joinRun(ins) });
+    if (del.length) runs.push({ op: "del", text: joinRun(del), lead: del[0].lead });
+    if (ins.length) runs.push({ op: "ins", text: joinRun(ins), lead: ins[0].lead });
   }
   return runs;
 }

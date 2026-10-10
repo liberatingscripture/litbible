@@ -164,3 +164,20 @@ test("colours are named in COLORS order, each once, and a name the page does not
   assert.equal(verseLabel(3, 0, ["red"]), "Verse 3", "not a colour, so no highlight");
   assert.equal(verseLabel(3, 0, ["red", "green"]), "Verse 3, highlighted green");
 });
+
+test("a verse number says how many of its marks changed since the reader made them, last of all", () => {
+  assert.equal(verseLabel(3, 0, [], 1), "Verse 3, 1 changed since I marked it");
+  assert.equal(verseLabel(3, 0, [], 2), "Verse 3, 2 changed since I marked them");
+  assert.equal(verseLabel(3, 1, ["yellow"], 1), "Verse 3, highlighted yellow, 1 note of mine, 1 changed since I marked it");
+  assert.equal(
+    verseLabel(3, 2, ["yellow", "pink"], 3),
+    "Verse 3, highlighted yellow and pink, 2 notes of mine, 3 changed since I marked them",
+  );
+});
+
+test("no changed marks, or a missing count, add nothing to the label", () => {
+  assert.equal(verseLabel(3, 1, ["yellow"], 0), "Verse 3, highlighted yellow, 1 note of mine");
+  assert.equal(verseLabel(3, 1, ["yellow"], undefined), "Verse 3, highlighted yellow, 1 note of mine");
+  assert.equal(verseLabel(3, 0, [], null), "Verse 3");
+  assert.equal(verseLabel(3, 0, [], -1), "Verse 3", "a negative count is none");
+});

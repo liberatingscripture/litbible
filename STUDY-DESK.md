@@ -2877,13 +2877,14 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
        carry a notice; `found` and `moved` don't. Two refinements of the
        format, both proposed for draft 2:
        - **A change of typography alone is no change** (N3, C3: "punctuation
-         passes don't count"). When the record's `verseCopy` and today's
-         verses differ only in quotes, dashes and spacing (`wordingChanged`),
-         a `changed` placement is shown quietly, with no notice. Records
-         without a copy (the apps' have none) compare their quoted words
-         with the words found instead. Such a highlight can be merged and
-         trimmed again (rule d's exception is for a highlight carrying an
-         unread notice, and this one carries none).
+         passes don't count"). When the words a `changed` mark is carried to
+         differ from the words it quoted only in quotes, dashes and spacing
+         (`wordingKey`), it is shown there quietly, with no notice; the
+         marked words decide, so a change elsewhere in the verse doesn't
+         count either. That needs no `verseCopy`, so the apps' records are
+         judged the same way. Such a highlight can be merged and trimmed
+         again (rule d's exception is for a highlight carrying an unread
+         notice, and this one carries none).
        - **A note on whole verses notices too** (N3's mock: a note on
          Romans 4:7 flagged when "Gratified" became "How greatly
          fortunate"). It has no quote, so it is always `found`; it carries a

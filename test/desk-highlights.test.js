@@ -37,6 +37,8 @@ const chapter = assembleChapter(
   ]),
 );
 const TEXT = chapter.text;
+/** Verse 1 as it read when the "patience" highlights below were made: really different words. */
+const OLD_V1 = "Love is patience, love is kind.";
 
 /** The [start, end) of the first `needle` at or after `from`. */
 function at(needle, from = 0) {
@@ -112,6 +114,7 @@ test("placeHighlights leaves out a highlight whose verses are gone", () => {
 test("placeHighlights marks a highlight with a change notice, a newer schema, or newer text as not editable", () => {
   const changed = highlight(at("patient"), "yellow", {
     quote: { exact: "patience", prefix: "Love is ", suffix: ", love is kind. It is not enviou" },
+    verseCopy: OLD_V1,
   });
   const newerSchema = highlight(at("kind"), "green", { schema: 2 });
   const newerText = highlight(at("envious"), "blue", { contentVersion: LATER });
@@ -123,6 +126,34 @@ test("placeHighlights marks a highlight with a change notice, a newer schema, or
   assert.equal(by(newerSchema).editable, false);
   assert.equal(by(newerText).editable, false);
   assert.equal(by(found).editable, true);
+});
+
+test("a highlight that differs from its quote only in typography is editable; one whose words changed is not", () => {
+  // "Changed" by the format's steps (quotes are kept as written), but nobody's
+  // words moved: the August passes curled quotes. No notice, so a new mark may
+  // trim or merge it. The same shape with different words carries a notice.
+  const quoted = assembleChapter(new Map([[1, "He said, “Do not be afraid.” Then he left."]]));
+  const made = (exact, verseCopy) =>
+    createRecord(
+      "highlight",
+      { ...where, verse: 1, endVerse: 1, color: "yellow", quote: { exact, prefix: "He said, ", suffix: " Then he left." }, verseCopy, verseCopyAsOf: before },
+      { ...ctx, now: before },
+    );
+  const typography = made(`"Do not be afraid."`, `He said, "Do not be afraid." Then he left.`);
+  const reworded = made(`"Be not afraid."`, `He said, "Be not afraid." Then he left.`);
+  const [a, b] = placeHighlights(quoted, [typography, reworded], VERSION);
+  assert.equal(a.status, "changed");
+  assert.equal(a.editable, true, "typography only: no notice, so editable");
+  assert.equal(b.status, "changed");
+  assert.equal(b.editable, false, "the words changed: a notice, so untouched");
+
+  const [first, last] = [a.start, a.end];
+  const mark = planHighlight({
+    chapter: quoted, placed: [a, b], start: first + 3, end: last - 3, color: "green", where, now: NOW, ctx,
+  });
+  assert.equal(mark.summary.split, 1, "the editable one is cut around the new mark");
+  assert.equal(mark.put.some((r) => r.id === typography.id), true);
+  assert.equal(mark.put.some((r) => r.id === reworded.id), false, "the one with a notice is left alone");
 });
 
 test("placeHighlights calls a highlight whose words moved editable, and one that fell back to its verse not", () => {
@@ -520,6 +551,7 @@ test("a remainder that is only a stray space is dropped, so the highlight goes",
 test("a highlight with a change notice is never trimmed or erased", () => {
   const changed = highlight(at("patient"), "yellow", {
     quote: { exact: "patience", prefix: "Love is ", suffix: ", love is kind. It is not enviou" },
+    verseCopy: OLD_V1,
   });
   const [placedChanged] = place([changed]);
   assert.equal(placedChanged.status, "changed");
