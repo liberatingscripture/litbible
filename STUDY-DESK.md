@@ -3074,10 +3074,11 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      - **"Sources and licenses"** at the tab's foot: SBL, MorphGNT, MACULA,
        UBS and STEPBible, each with its license, the way the SBLGNT notice
        credits the text.
-     - **Before it ships**: BVJ's wording for the John 7:53–8:11 footnotes
-       (john-7 fn-ff, john-8 fn-k), which say the SBLGNT lacks the passage
-       that the tab will show as SBLGNT text; and CLAUDE.md's MorphGNT
-       paragraph loses the old SBLGNT EULA line. Large.
+     - **Before it ships**: ~~BVJ's wording for the John 7:53–8:11 footnotes
+       (john-7 fn-ff, john-8 fn-k), which said the SBLGNT lacks the passage
+       that the tab will show as SBLGNT text~~ (done 2026-10-11, see
+       "Decisions"); and CLAUDE.md's MorphGNT paragraph loses the old SBLGNT
+       EULA line. Large.
    - **1e and 1f don't depend on 1d**, and can go before it, after it or
      between its parts; they need only 1c's tabs and versions view. **Then decide
      whether to release the desk to readers**, with 1e and 1f, since the
@@ -3682,11 +3683,11 @@ lemmas already exist for every SBLGNT word. Only the word-to-word link waits.
 **Found along the way:**
 - **SBLGNT 1.2 prints John 7:53–8:11**, so the LIT's footnotes there
   (john-7 fn-ff and john-8 fn-k: "does not include this section") and
-  CLAUDE.md's SBLGNT table describe the 2010 edition. SBL's apparatus at 7:52
+  CLAUDE.md's SBLGNT table described the 2010 edition. SBL's apparatus at 7:52
   still lists the passage as a Robinson–Pierpont addition. The Greek tab
-  would show it as SBLGNT text beside a note saying the SBLGNT lacks it, so
-  BVJ will look at the wording before the tab ships; a change starts in the
-  Word master, both notes together.
+  would have shown it as SBLGNT text beside a note saying the SBLGNT lacks
+  it. **The footnotes were reworded 2026-10-11** (see "Decisions"); CLAUDE.md's
+  SBLGNT table still says "absent" and is left for BVJ to word.
 - **MorphGNT's README still says the SBLGNT text is under its old EULA**, and
   CLAUDE.md's MorphGNT paragraph repeats it. SBL's own release has been
   CC BY 4.0 since version 1.1 (2022-12-19).
@@ -3764,6 +3765,26 @@ answers and requests (2026-10-09)") and answered six questions:
   the apps still have to agree it (`STUDY-DESK-FORMAT.md`, "Finding a mark
   again").
 
+### 2026-10-11 (the John 7:53–8:11 footnotes)
+
+- **The footnotes now say the SBLGNT added the passage** (BVJ's wording;
+  john-7 fn-ff and john-8 fn-k, kept byte-identical). The sentence that said
+  the SBL Greek New Testament "does not include this section" now reads: "The
+  SBL Greek New Testament, the source text for this translation, originally
+  did not include this section, but it was later included in the 2023
+  edition." Nothing else in either note changed. This clears the "before it
+  ships" item for the Greek tab (1d, 1f): the tab can show the passage as
+  SBLGNT text beside a note that no longer says it lacks it.
+- **Still to do outside this change:** the same edit in the Word master,
+  where the wording is authored (the repo is not the origin of the
+  translation; `FOLLOW-UP-RECONCILIATION.md`'s back-port list), or the next
+  restore from the master will bring the old sentence back; and CLAUDE.md's
+  SBLGNT table, which still lists John 7:53–8:11 as absent from the SBLGNT.
+- The footnotes are in the text of published chapters, so this reaches the
+  apps' "Translation Updates" feed and moves the API content version like
+  any wording change. A reader's mark on those notes' words, if the desk
+  ever pins footnotes, would see it as a change.
+
 ## Still open
 
 - **The floating notebook's details** (decided in outline 2026-10-07; built
@@ -3834,8 +3855,9 @@ answers and requests (2026-10-09)") and answered six questions:
   second version (BVJ, 2026-10-08).
 - **The tabs and the Greek** (2026-10-08; "Decisions", 2026-10-08 (the Greek
   tab)):
-  - **The John 7:53–8:11 footnotes' wording** (john-7 fn-ff, john-8 fn-k),
-    before 1f ships: SBLGNT 1.2 prints the passage.
+  - ~~**The John 7:53–8:11 footnotes' wording** (john-7 fn-ff, john-8 fn-k),
+    before 1f ships: SBLGNT 1.2 prints the passage.~~ Done 2026-10-11, in the
+    repo; the Word master still has to be changed to match ("Decisions").
   - **The Notebook in Read View: none at all, or only the reader's own
     things** (BVJ, 2026-10-08, one of the two; the version tabs are Study
     View only either way). Recommended: the reader's own things, which is
