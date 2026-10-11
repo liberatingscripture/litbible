@@ -789,7 +789,16 @@ notice there or nowhere.
   "[a]", the reference, each cited note in order, then the notice and the
   verse link. The verses join per `joinPieces`, so they match Copy text
   exactly apart from the letters; `blockText` keeps the letters only when
-  handed a `notes` array. A note's own blocks each take a line, which is what
+  handed a `notes` array. **The clipboard gets two flavors** (plain text and
+  HTML), so italics and bold (the transliterated Greek in the notes, an
+  emphasized word in a verse) survive a paste into Word, Docs or Mail. Copy text, a part's
+  copy, the selection panel's Copy text and the glossary's Copy entry text do
+  the same. Each verse piece
+  carries `text` (plain) and `marked` (each `<em>`/`<i>` and `<strong>`/`<b>` run
+  bracketed with private-use markers by `markEmphasis` in `handout-rich.mjs`), and `joinPieces(…, { rich: true })`
+  joins the marked form. `src/lib/handout-rich.mjs` reads marked text as plain
+  (markers removed, byte-identical to the old text) or as HTML (`<em>`,
+  `<strong>`). Links and other markup stay plain on purpose; Copy link, Share… and a verse image stay plain. A note's own blocks each take a line, which is what
   keeps the 1 Corinthians 11 chiasm outline legible. Notes skip the
   bracket-marker strip (`tidyLines`, not `cleanForShare`), since a note is
   quoted as it stands. Both layouts go through `assembleHandout`.

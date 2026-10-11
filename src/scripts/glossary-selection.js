@@ -21,6 +21,7 @@
 // The Study Desk adds its "My Notebook" row (Add a note) through the same
 // `lit:panel-actions` event Study View's panels send.
 
+import { markEmphasis, handoutPlain, handoutHtml } from "../lib/handout-rich.mjs";
 import { closePanel, currentPanel, showPanel } from "./lit-panel.js";
 import { copyToClipboard, menuButton, panelRow, placeBesideTouchSelection, pointerType, snapToWords, withReference } from "./panel-pieces.js";
 
@@ -37,7 +38,8 @@ function bodyOf(node) {
 /**
  * What a selection would share, or null when it holds no definition text:
  * clamped to the first entry it touches, snapped to whole words, and read as
- * plain text with a blank line between paragraphs.
+ * plain text with a blank line between paragraphs (and, alongside, the same
+ * text with its italics and bold marked, for a rich paste).
  */
 function selectionShare(selection) {
   if (!selection || !selection.rangeCount || selection.isCollapsed) return null;
@@ -68,7 +70,7 @@ function selectionShare(selection) {
   const title = entry.querySelector(".entries-strike strong")?.textContent.trim() || id;
   const rects = range.getClientRects();
   const rect = rects.length ? rects[0] : range.getBoundingClientRect();
-  return { id, title, text, range, rect, key: `${id}|${text}` };
+  return { id, title, text, richText, range, rect, key: `${id}|${text}` };
 }
 
 function openPanel(share, { touch }) {

@@ -30,6 +30,7 @@
 
 import { stripBracketMarkers } from "../lib/bracket-markers.mjs";
 import { LIT_CREDIT_LINE } from "../lib/lit-credit.mjs";
+import { markEmphasis, handoutPlain, handoutHtml } from "../lib/handout-rich.mjs";
 import { showPanel, closePanel, currentPanel, setEscapeFallback, isSmallScreen } from "./lit-panel.js";
 import { imageStep } from "./verse-image.js";
 import {
@@ -292,7 +293,8 @@ function verseParts(container, verse) {
     const text = joinPieces(spans.map((span) => spanPiece(span)));
     if (!text) continue;
     // `plain` feeds one-line button labels, so every line break flattens.
-    parts.push({ id: block.id, text, plain: text.replace(/\n/g, " ") });
+    const rich = joinPieces(spans.map((span) => spanPiece(span)), { rich: true });
+    parts.push({ id: block.id, text, rich, plain: text.replace(/\n/g, " ") });
   }
   return parts;
 }
@@ -300,9 +302,16 @@ function verseParts(container, verse) {
 /**
  * One verse span as a piece of shareable text, carrying what joinPieces needs.
  * `text` defaults to the whole span; a selection passes in only its share.
+ * `marked` is the same text with its italic runs bracketed (handout-rich.mjs),
+ * for the copies that paste as rich text. It equals `text` where nothing is
+ * italic, and where `text` is passed in already marked (the handout).
  */
-function spanPiece(span, text = cleanForShare(blockText(span))) {
-  return { verse: Number(span.dataset.verse), lines: isSetAsLines(span), text };
+function spanPiece(span, text, marked) {
+  if (text === undefined) {
+    text = cleanForShare(blockText(span));
+    marked = cleanForShare(blockText(span, null, true));
+  }
+  return { verse: Number(span.dataset.verse), lines: isSetAsLines(span), text, marked: marked ?? text };
 }
 
 /**
@@ -324,17 +333,18 @@ function spanPiece(span, text = cleanForShare(blockText(span))) {
  * out (`numbers: false`), since its reference names the verses; every other
  * boundary is the same.
  */
-function joinPieces(pieces, { numbers = true } = {}) {
+function joinPieces(pieces, { numbers = true, rich = false } = {}) {
   let out = "";
   let prev = null;
   for (const piece of pieces) {
     if (!piece.text) continue;
+    const text = rich ? piece.marked : piece.text;
     if (!prev) {
-      out = piece.text;
+      out = text;
     } else if (piece.verse === prev.verse) {
-      out += (piece.lines || prev.lines ? "\n" : " ") + piece.text;
+      out += (piece.lines || prev.lines ? "\n" : " ") + text;
     } else {
-      out += (prev.lines ? "\n" : " ") + (numbers ? piece.verse + " " : "") + piece.text;
+      out += (prev.lines ? "\n" : " ") + (numbers ? piece.verse + " " : "") + text;
     }
     prev = piece;
   }
@@ -377,7 +387,7 @@ const LINE_BREAK = "\u2028";
  * a `notes` array (the handout copy), each footnote letter stays in the text
  * as "[a]" instead, and the note it points to is pushed onto `notes`.
  */
-function blockText(el, notes = null) {
+function blockText(el, notes = null, italics = !!notes) {
   const clone = el.cloneNode(true);
   clone.querySelectorAll("sup.vn").forEach((s) => s.remove());
   clone.querySelectorAll("sup.fn-ref").forEach((sup) => {
@@ -390,6 +400,7 @@ function blockText(el, notes = null) {
   // textContent drops a <br> with no separator, welding the lines either side
   // into one word ("a welcome time!Look! Now is…").
   clone.querySelectorAll("br").forEach((br) => br.replaceWith(LINE_BREAK));
+  if (italics) markEmphasis(clone);
   return clone.textContent;
 }
 
@@ -487,31 +498,49 @@ function noteText(id, root = document) {
   });
   clone.querySelectorAll("br").forEach((br) => br.replaceWith(LINE_BREAK));
   clone.querySelectorAll(".chiasm-key").forEach((el) => el.after(" "));
+  markEmphasis(clone);
   return tidyLines(clone.textContent);
 }
 
 /**
- * Copy text that is still on its way: Read View's handout waits on the
+ * Copy text as plain text and as HTML, so italics and bold (a Greek word in a verse,
+ * the transliterated Greek in a note) survive a paste into Word, Docs or Mail
+ * while a plain-text target gets exactly the text it always did. `marked` is
+ * text with its italic runs bracketed (handout-rich.mjs): a handout, or Copy
+ * text built with `rich: true`.
+ */
+function copyRich(marked) {
+  return copyToClipboard(handoutPlain(marked), handoutHtml(marked));
+}
+
+/**
+ * copyRich for text that is still on its way: Read View's waits on the
  * chapter's Study View page for its notes. Safari lets a page write to the
- * clipboard only while handling the tap, so the write starts at once with the
- * text as a promise. Where that form isn't taken, wait for the text and write
+ * clipboard only while handling the tap, so the write starts at once with each
+ * flavor as a promise. Where that form isn't taken, wait for the text and write
  * it then, which the other browsers allow for a few seconds after a tap.
  */
-async function copyLater(textPromise) {
+async function copyRichLater(markedPromise) {
   if (window.ClipboardItem && navigator.clipboard?.write) {
     try {
-      const blob = textPromise.then((text) => {
-        if (!text) throw new Error("nothing to copy");
-        return new Blob([text], { type: "text/plain" });
-      });
-      await navigator.clipboard.write([new ClipboardItem({ "text/plain": blob })]);
+      const flavor = (type, convert) =>
+        markedPromise.then((marked) => {
+          if (!marked) throw new Error("nothing to copy");
+          return new Blob([convert(marked)], { type });
+        });
+      await navigator.clipboard.write([
+        new ClipboardItem({
+          "text/plain": flavor("text/plain", handoutPlain),
+          "text/html": flavor("text/html", handoutHtml),
+        }),
+      ]);
       return true;
     } catch {
       /* fall through to a plain write */
     }
   }
-  const text = await textPromise.catch(() => "");
-  return text ? copyToClipboard(text) : false;
+  const marked = await markedPromise.catch(() => "");
+  return marked ? copyRich(marked) : false;
 }
 
 /** A Share… button for the native share sheet, or null where there is none. */
@@ -678,15 +707,15 @@ function openVerseMenu(
   panel.appendChild(
     panelRow(
       menuButton("Copy text", async () => {
-        const text = getVerseText(container, start, end);
+        const text = getVerseText(container, start, end, { rich: true });
         if (!text) return false;
-        return copyToClipboard(withReference(text, ref) + "\n" + url);
+        return copyRich(withReference(text, ref) + "\n" + url);
       }),
       menuButton("Copy link", () => copyToClipboard(url)),
       menuButton("Copy with notes", async () => {
         const text = getHandoutText(container, start, end, ref, url);
         if (!text) return false;
-        return copyToClipboard(text);
+        return copyRich(text);
       })
     )
   );
@@ -724,7 +753,7 @@ function openVerseMenu(
     for (const part of parts) {
       const partUrl = pageUrl() + "#" + part.id;
       const btn = menuButton(partLabel(part.plain), () =>
-        copyToClipboard(withReference(part.text, ref) + "\n" + partUrl)
+        copyRich(withReference(part.rich, ref) + "\n" + partUrl)
       );
       // The visible label is truncated; give assistive tech the full text.
       btn.setAttribute("aria-label", "Copy “" + part.plain + "”");
@@ -987,7 +1016,11 @@ function selectionShare(view, selection) {
     }
     const holder = document.createElement("div");
     holder.append(part.cloneContents());
-    const piece = spanPiece(span, cleanForShare(blockText(holder)));
+    const piece = spanPiece(
+      span,
+      cleanForShare(blockText(holder)),
+      cleanForShare(blockText(holder, null, true))
+    );
     if (!piece.text) continue; // e.g. only a verse number was caught
     chapter = ch;
     if (!extent) {
@@ -1000,6 +1033,7 @@ function selectionShare(view, selection) {
   if (!pieces.length) return null;
 
   const text = joinPieces(pieces);
+  const richText = joinPieces(pieces, { rich: true });
   const imageText = joinPieces(pieces, { numbers: false });
   const start = pieces[0].verse;
   const end = pieces[pieces.length - 1].verse;
@@ -1007,6 +1041,7 @@ function selectionShare(view, selection) {
   const endSpans = view.spans(chapter, end);
   return {
     text,
+    richText,
     imageText,
     chapter,
     start,
@@ -1180,7 +1215,7 @@ function openSelectionPanel(view, share, { touch }) {
     panelRow(
       menuButton("Copy text", () => {
         acting();
-        return copyToClipboard(withReference(share.text, ref) + "\n" + url);
+        return copyRich(withReference(share.richText, ref) + "\n" + url);
       }),
       menuButton("Copy link", () => {
         acting();
@@ -1189,10 +1224,10 @@ function openSelectionPanel(view, share, { touch }) {
       menuButton("Copy with notes", () => {
         acting();
         if (typeof scope?.then === "function") {
-          return copyLater(scope.then((s) => (s ? selectionHandout(share, s, ref, url) : "")));
+          return copyRichLater(scope.then((s) => (s ? selectionHandout(share, s, ref, url) : "")));
         }
         const text = scope ? selectionHandout(share, scope, ref, url) : "";
-        return text ? copyToClipboard(text) : false;
+        return text ? copyRich(text) : false;
       })
     )
   );
