@@ -29,7 +29,22 @@ export function pointerType() {
   return lastPointerType;
 }
 
-export async function copyToClipboard(text) {
+export async function copyToClipboard(text, html = null) {
+  // With `html`, the clipboard carries both flavors: a rich target (Word, Docs,
+  // Mail) pastes the HTML, a plain one still gets `text`.
+  if (html && window.ClipboardItem && navigator.clipboard?.write) {
+    try {
+      await navigator.clipboard.write([
+        new ClipboardItem({
+          "text/plain": new Blob([text], { type: "text/plain" }),
+          "text/html": new Blob([html], { type: "text/html" }),
+        }),
+      ]);
+      return true;
+    } catch {
+      /* fall through to a plain write */
+    }
+  }
   try {
     await navigator.clipboard.writeText(text);
     return true;
