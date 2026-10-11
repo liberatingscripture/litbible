@@ -1,5 +1,31 @@
 [
   {
+    "version": "2026-10-10",
+    "date": "2026-10-10",
+    "label": "October 10, 2026",
+    "changes": [
+      {
+        "type": "footnote_updated",
+        "description": "John 7:53 — footnote ff updated",
+        "detail": "\"does not include this section.\" → \"originally did not include this section, but it was later i…\"",
+        "location": {
+          "bookKey": "john",
+          "chapter": 7,
+          "verse": 53
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "John 8 — footnote k updated",
+        "detail": "\"does not include this section.\" → \"originally did not include this section, but it was later i…\"",
+        "location": {
+          "bookKey": "john",
+          "chapter": 8
+        }
+      }
+    ]
+  },
+  {
     "version": "2026-10-04",
     "date": "2026-10-04",
     "label": "October 4, 2026",
