@@ -951,12 +951,23 @@ SBLGNT omits, without either choice being ad hoc.
 |---------|--------|-----|
 | Romans 16:24 | present (with TR/Byz; NA28, WH, Tregelles, THGNT omit) | printed, **bracketed** |
 | Romans 16:25–27 (doxology) | absent | **retained, bracketed**, divergence footnoted |
-| John 7:53–8:11 | absent (John 7 ends at v52, John 8 opens at v12) | **retained, bracketed**, divergence footnoted |
+| John 7:53–8:11 | absent from the 2010 edition; added, in double brackets, in SBL's v1.2 data (2023) | **retained, bracketed**, footnoted (the notes say both, since #297) |
 | Mark 16:9–20 | present | printed, **bracketed** |
 
 Mark 16 is in that table specifically to head off a wrong inference: SBLGNT
 does *not* drop every famously disputed passage, so "SBL omits it" has to be
 checked per passage, never assumed from the passage's reputation.
+
+**Two SBLGNT texts are in play, and they differ in one passage.** The 2010
+edition is what MorphGNT is built on, so it is the Greek every tool here reads
+(the alignment dataset's lemma check, both review tools). SBL's own data
+release, v1.2 (2023-07-10, CC BY 4.0, `LogosBible/SBLGNT` on GitHub), adds
+John 7:53–8:11 in double brackets. Compared word by word across the NT on
+2026-10-12, the two agree everywhere else: same words, same order, so a
+MorphGNT word position names the same word in both. The only other
+differences are typographic: the elision mark (’ U+2019 in MorphGNT, ʼ U+02BC
+in v1.2, about 1,100 verses) and two capitals (Matthew 27:24, Titus 3:13).
+MorphGNT has not added the passage; its last change was 2024-01-21.
 
 **The rule for divergences:** where LIT departs from SBLGNT in either
 direction, a chapter footnote says so and names SBLGNT as the source text.
@@ -1248,7 +1259,9 @@ behind it (reviewed by Opus on 2026-10-12, which added 3, 4, 6 and 8):
    `{ref, greek: [{t, form}], english: [{text, n}]}`. `status`, `source`,
    `confidence`, `lemma` and `term` are not written (constant, or
    joined). `form` is the SBLGNT word without punctuation or apparatus
-   signs, stored NFC, and doubles as a checksum.
+   signs, stored NFC, and doubles as a checksum. The check ignores the
+   elision mark and capitals, which differ between MorphGNT and SBL's v1.2
+   data without being different words (see "Translation Source Text").
 3. **Each file keeps its verses' English as aligned (`basis`).** `n` alone
    cannot survive a revision: insert a second "the" early in a verse and every
    later "the" record resolves to the word before its own, with nothing

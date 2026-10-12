@@ -23,6 +23,7 @@ import {
   serializeWordsFile,
   describeParse,
   normalizeVerseText,
+  sameGreekWord,
 } from "../scripts/alignment-words/core.mjs";
 
 /** verse number -> { text, greek words } */
@@ -219,6 +220,23 @@ test("a record marked stale stays stale even if its words come back", () => {
   const d = describeChapter({ verses, basis: basisFor({ verses, records: [marked] }), records: [marked] });
   assert.equal(d.links.length, 0);
   assert.equal(d.stale[0].reason, "english");
+});
+
+test("the Greek checksum ignores the elision mark and capitals that differ between SBLGNT texts", () => {
+  assert.ok(sameGreekWord("κατ’", "κατʼ"), "MorphGNT's U+2019 against SBL v1.2's U+02BC");
+  assert.ok(sameGreekWord("ἰδὼν", "Ἰδὼν"), "Matthew 27:24's capital");
+  assert.ok(sameGreekWord("λόγον".normalize("NFD"), "λόγον"));
+  assert.ok(!sameGreekWord("λόγον", "λόγος"), "a different word is still a different word");
+
+  // A record made against MorphGNT survives the same verse read from SBL's v1.2 data.
+  const morph = chapter([[1, "according to a dream", ["κατ’", "ὄναρ"]]]);
+  const records = buildChapterRecords({
+    refPrefix: "Matt.2",
+    verses: morph,
+    links: [{ greek: [{ v: 1, t: 1 }], english: [{ v: 1, first: 0, last: 1 }] }],
+  });
+  const sbl = chapter([[1, "according to a dream", ["κατʼ", "ὄναρ"]]]);
+  assert.equal(describeChapter({ verses: sbl, basis: basisFor({ verses: morph, records }), records }).stale.length, 0);
 });
 
 // ------------------------------------------------------------ the file

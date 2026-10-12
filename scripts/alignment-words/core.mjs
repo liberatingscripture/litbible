@@ -29,7 +29,10 @@
 //   greek[].form the word as SBLGNT prints it, punctuation and apparatus signs
 //                (⸀) stripped, NFC. A checksum as much as a label: if the Greek
 //                under a record moves, the form stops matching and the record
-//                is reported stale instead of pointing at another word.
+//                is reported stale instead of pointing at another word. The
+//                check (sameGreekWord) ignores what differs between SBLGNT
+//                texts without being a different word: the elision mark (’ in
+//                MorphGNT, ʼ in SBL's v1.2 data) and capitalization.
 //   english[]    one piece per run of adjacent English words. A rendering split
 //                by words that render something else is ONE record with several
 //                pieces, as in phase 1 ("speaks about … contemptuously").
@@ -89,6 +92,20 @@ export const FORMAT = 1;
 export const normalizeVerseText = (text) => normalizeAnchorText(text);
 
 const nfc = (s) => String(s).normalize("NFC");
+
+/**
+ * Whether a stored form still names the word at its position. MorphGNT's 2010
+ * SBLGNT and SBL's v1.2 data agree word for word outside John 7:53–8:11, but
+ * print the elision mark differently (’ U+2019 against ʼ U+02BC, in about 1,100
+ * verses) and capitalize two words differently (Matthew 27:24, Titus 3:13).
+ * Neither is a different word, so neither may make a record stale, or a move
+ * from one text to the other would flag every elided word in the corpus.
+ */
+const APOSTROPHES = /[’ʼ'ʹ᾽᾿]/g;
+export function sameGreekWord(a, b) {
+  const fold = (s) => nfc(s).replace(APOSTROPHES, "’").toLowerCase();
+  return fold(a ?? "") === fold(b ?? "");
+}
 
 /** An error the server can turn into a 4xx without importing a class from a module that promises "no http". */
 function badRequest(message, statusCode = 400) {
@@ -224,7 +241,7 @@ export function describeChapter({ verses, basis = {}, records }) {
     const pieces = (rec.english || []).map((p) => ({ v: p.v ?? own, text: p.text, n: p.n }));
     const touched = [...new Set([own, ...greek.map((g) => g.v), ...pieces.map((p) => p.v)])];
     const relinkGreek = greek
-      .filter((g) => verses.has(g.v) && nfc(wordAt(g.v, g.t) ?? "") === nfc(g.form))
+      .filter((g) => verses.has(g.v) && wordAt(g.v, g.t) !== undefined && sameGreekWord(wordAt(g.v, g.t), g.form))
       .map(({ v, t }) => ({ v, t }));
     const fail = (reason) => stale.push({ record: rec, reason, verses: touched, relinkGreek });
 
