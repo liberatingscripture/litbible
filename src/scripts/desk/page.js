@@ -4,6 +4,7 @@
 
 import { bookKeyToLabel } from "../../data/books.js";
 import { pageAnchorText } from "../../lib/desk-anchor-dom.mjs";
+import { footnotesFromDom } from "../../lib/desk-footnotes.mjs";
 
 /** The Study View chapter this page shows, or null (an intro, a draft, Read View, any other page). */
 export function pageChapter() {
@@ -26,6 +27,23 @@ export function chapterBlocks() {
  */
 export function chapterText() {
   return pageAnchorText(chapterBlocks());
+}
+
+/**
+ * This Study View chapter's footnotes as the pinned-footnote rules read them
+ * ([{ id, verse, text }], desk-footnotes.mjs), or null when the page isn't a
+ * chapter. Read fresh, like chapterText. A note's text is its `.fn-body`
+ * without the back-link, so what the reader sees is what a pin keeps.
+ */
+export function footnoteList() {
+  if (!pageChapter()) return null;
+  return footnotesFromDom(chapterBlocks(), (id) => {
+    const body = document.getElementById(id)?.querySelector(".fn-body");
+    if (!body) return null;
+    const clone = body.cloneNode(true);
+    clone.querySelector(".footnote-backlink")?.remove();
+    return clone.innerHTML;
+  });
 }
 
 /** The book Read View shows on this page, or null anywhere else. */

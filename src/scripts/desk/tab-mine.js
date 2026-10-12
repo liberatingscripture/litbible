@@ -21,6 +21,14 @@
 // chapter's text is on the page, so on Study View's "Everything" list only
 // this chapter's records can carry one, and in Read View only this book's.
 //
+// Pinned footnotes (pins.js) are their own group under the list, "Pinned
+// footnotes": each with its reference, the footnote as it read when pinned,
+// cut at a few lines, Unpin, and a way to it: on its own chapter the
+// Footnotes list, scrolled to and focused; anywhere else its verse's page.
+// A pin whose footnote was rewritten carries the same flag the notes do.
+// The group follows the list's scope and hides while a highlight colour is
+// chosen, since that choice is about highlights.
+//
 // On a Study View chapter the tab starts on that chapter's records, and a
 // small choice at its top switches to everything kept; on an article or the
 // glossary it starts on the notes on this page (N11); elsewhere it lists
@@ -39,6 +47,7 @@ import { flagButton, noticesFor, openNotice } from "./change-notice.js";
 import { glyph } from "./glyphs.js";
 import { undoEntry } from "./history.js";
 import { SETTINGS_EVENT, getSetting } from "./note-settings.js";
+import { canRevealFootnote, revealFootnote, unpinRecord } from "./pins.js";
 import { showUndo } from "./undo-bar.js";
 
 // A note's caret in the list: down to show the rest, turned up while open.
@@ -112,7 +121,11 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     <div class="desk-mine__colors" role="group" aria-label="Show highlights of one colour" hidden></div>
     <p class="desk-mine__changed" hidden></p>
     <ul class="desk-list"></ul>
-    <p class="desk-panel__empty" hidden></p>`;
+    <p class="desk-panel__empty" hidden></p>
+    <section class="desk-mine__pins" aria-labelledby="deskMinePinsTitle" hidden>
+      <h3 class="desk-mine__pins-title" id="deskMinePinsTitle">Pinned footnotes</h3>
+      <ul class="desk-list desk-mine__pin-list"></ul>
+    </section>`;
   if (pageScope) el.querySelector(".desk-seg__text").textContent = pageScope.label;
   const addButton = el.querySelector(".desk-mine__add");
   if (addButton) {
@@ -122,6 +135,8 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
 
   const list = el.querySelector(".desk-list");
   const empty = el.querySelector(".desk-panel__empty");
+  const pinBox = el.querySelector(".desk-mine__pins");
+  const pinList = el.querySelector(".desk-mine__pin-list");
   const colors = el.querySelector(".desk-mine__colors");
   const changed = el.querySelector(".desk-mine__changed");
   const openNotes = new Set(); // notes clicked open in the list, for this visit
@@ -135,11 +150,12 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
   }
 
   let renderSeq = 0;
-  async function render({ focusIndex = null } = {}) {
-    if (!visible() && focusIndex === null) return;
+  async function render({ focusIndex = null, focusPin = null } = {}) {
+    if (!visible() && focusIndex === null && focusPin === null) return;
     const seq = ++renderSeq;
     if (!store) {
       list.replaceChildren();
+      pinBox.hidden = true;
       colors.hidden = true;
       changed.hidden = true;
       empty.hidden = false;
@@ -148,9 +164,11 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
       if (storeError) console.error("Study Desk: the notebook didn't open", storeError);
       return;
     }
-    const kept =
+    const everything =
       scope === "chapter" && pageScope ? await pageScope.load(store) : liveRecords(await store.all());
     if (seq !== renderSeq) return; // a newer render has started
+    // Pins have their own group below the list.
+    const kept = everything.filter((r) => r.kind !== "footnotePin");
 
     // The colours this list holds. A choice of colour that has left it (the
     // last of its highlights deleted, or the list changed to another scope)
@@ -160,10 +178,13 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     drawColors(present);
     const records = colorFilter ? kept.filter((r) => colorOf(r) === colorFilter) : kept;
 
-    const notices = store && ctx ? noticesFor(records) : new Map();
-    drawChanged(records, notices);
+    const pins = colorFilter ? [] : everything.filter((r) => r.kind === "footnotePin");
+    const notices = store && ctx ? noticesFor([...records, ...pins]) : new Map();
+    drawChanged([...records, ...pins], notices);
     list.replaceChildren(...records.map((r) => rowFor(r, notices.get(r.id))));
-    empty.hidden = records.length > 0;
+    pinBox.hidden = pins.length === 0;
+    pinList.replaceChildren(...pins.map((r) => pinRowFor(r, notices.get(r.id))));
+    empty.hidden = records.length > 0 || pins.length > 0;
     empty.textContent = colorFilter
       ? `No ${colorFilter} highlights here.`
       : scope === "chapter"
@@ -175,6 +196,11 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     if (focusIndex !== null) {
       const rows = list.querySelectorAll(".desk-item__delete");
       const target = rows[Math.min(focusIndex, rows.length - 1)];
+      (target ?? el.closest(".desk-panel__body") ?? el).focus({ preventScroll: false });
+    }
+    if (focusPin !== null) {
+      const rows = pinList.querySelectorAll(".desk-item__delete");
+      const target = rows[Math.min(focusPin, rows.length - 1)] ?? list.querySelector(".desk-item__delete");
       (target ?? el.closest(".desk-panel__body") ?? el).focus({ preventScroll: false });
     }
     afterRender();
@@ -358,6 +384,75 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     del.addEventListener("click", () => remove(r, li));
     li.append(del);
     return li;
+  }
+
+  /**
+   * A pinned footnote's row: where it is, the footnote as pinned, a flag if
+   * it was rewritten, and Unpin. The footnote is the reader's pin, not their
+   * words, but it is still put on the page as text, never as HTML.
+   */
+  function pinRowFor(r, notice = null) {
+    const li = document.createElement("li");
+    li.className = "desk-item desk-item--pin";
+    li.dataset.id = r.id;
+    const ref = recordReference(r);
+    const href = inReadView ? recordReadHref(r) ?? recordHref(r) : recordHref(r);
+    const head = document.createElement(href ? "a" : "span");
+    head.className = "desk-item__ref";
+    head.textContent = ref || kindName(r.kind);
+    if (href) head.href = href;
+    // On its own chapter the Footnotes list is gone to in place; anywhere
+    // else this is the ordinary link to the verse.
+    if (href && canRevealFootnote(r)) {
+      head.addEventListener("click", (e) => {
+        if (e.ctrlKey || e.metaKey || e.shiftKey || e.button !== 0) return;
+        if (revealFootnote(r)) e.preventDefault();
+      });
+    }
+    const kind = document.createElement("span");
+    kind.className = "desk-item__kind";
+    kind.textContent = kindName(r.kind);
+    const words = document.createElement("p");
+    words.className = "desk-item__words desk-item__pin-text";
+    words.textContent = r.footnote;
+    li.append(head, kind, words);
+    if (notice) li.append(flagButton(r, notice, (trigger) => openPinCard(trigger, r, li)));
+    const unpin = document.createElement("button");
+    unpin.type = "button";
+    unpin.className = "desk-item__delete";
+    unpin.textContent = "Unpin";
+    unpin.setAttribute("aria-label", `Unpin footnote${ref ? ` on ${ref}` : ""}`);
+    unpin.addEventListener("click", () => unpinRow(r, li));
+    li.append(unpin);
+    return li;
+  }
+
+  /** The card for a pin's notice; focus goes back to the row, or the next one if the pin went. */
+  function openPinCard(trigger, r, li) {
+    const index = Array.from(pinList.children).indexOf(li);
+    openNotice(trigger, r, {
+      store,
+      ctx,
+      showInText,
+      restoreFocus: trigger,
+      onDone: async (what) => {
+        if (what === "show") return;
+        if (what === "delete") return render({ focusPin: index });
+        await render();
+        pinList.querySelector(`[data-id="${CSS.escape(r.id)}"] .desk-item__delete`)?.focus({ preventScroll: true });
+      },
+    });
+  }
+
+  async function unpinRow(r, li) {
+    const index = Array.from(pinList.children).indexOf(li);
+    const done = await unpinRecord(store, r, {
+      afterUndo: async () => {
+        await render();
+        pinList.querySelector(`[data-id="${CSS.escape(r.id)}"] .desk-item__delete`)?.focus();
+      },
+    });
+    if (done) await render({ focusPin: index });
   }
 
   // A caret only where there is more to show: on notes whose words run past

@@ -63,7 +63,8 @@ function highlight(extra = {}) {
 
 test("the constants are the format's lists", () => {
   assert.equal(SCHEMA_VERSION, 1);
-  assert.equal(KINDS.length, 9);
+  assert.equal(KINDS.length, 10);
+  assert.ok(KINDS.includes("footnotePin"), "draft 2's tenth kind (BDR, 2026-10-09)");
   assert.ok(!KINDS.includes("legend"), "colour meanings were dropped 2026-10-07");
   assert.deepEqual(COLORS, ["yellow", "green", "blue", "pink"]);
   assert.equal(MARKERS.length, 7);
@@ -165,7 +166,7 @@ test("mayRewriteAnchor: never on older text than the record, nor when it can't t
   assert.equal(mayRewriteAnchor(h, "v20261005.00000000"), false);
 });
 
-/* ── Deleting (provisional: STUDY-DESK.md, talk-through item 20) ───────── */
+/* ── Deleting (STUDY-DESK.md, talk-through item 20, rule c) ──────────── */
 
 const later = "2026-10-06T09:30:00.000Z";
 const trashCtx = { now: later, client: "web/2026.10", contentVersion: ctx.contentVersion };
@@ -179,6 +180,7 @@ test("trashRecord holds the whole record, unknown fields included, under a new i
   assert.equal(t.created, later);
   assert.equal(t.modified, later);
   assert.equal(t.deletedId, h.id);
+  assert.equal(t.deletedKind, "highlight", "the deleted record's kind (BDR, 2026-10-09)");
   assert.equal(t.deletedAt, later);
   assert.deepEqual(t.record, h);
   assert.deepEqual(validateRecord(t), []);
@@ -303,4 +305,28 @@ test("editing a note on prose keeps its target, its title and its quote", () => 
   assert.equal(e.targetTitle, "Flesh");
   assert.deepEqual(e.quote, quote);
   assert.deepEqual(validateRecord(e), []);
+});
+
+test("migrateRecord gives a phase 1b trash record the kind of the record it holds", () => {
+  const h = highlight();
+  const { deletedKind: _k, ...old } = trashRecord(h, trashCtx);
+  assert.equal(migrateRecord(old).deletedKind, "highlight");
+  const emptied = { ...old };
+  delete emptied.record;
+  assert.equal(migrateRecord(emptied), emptied, "an emptied tombstone can't recover its kind");
+  const current = trashRecord(h, trashCtx);
+  assert.equal(migrateRecord(current), current);
+});
+
+test("a footnotePin needs its verse and the footnote's text, never its letter", () => {
+  const pin = createRecord(
+    "footnotePin",
+    { bookKey: "john", chapter: 3, verse: 16, footnote: "Greek monogenēs, one of a kind." },
+    ctx,
+  );
+  assert.deepEqual(validateRecord(pin), []);
+  assert.deepEqual(validateRecord({ ...pin, n: 2 }), []);
+  assert.ok(validateRecord({ ...pin, footnote: "" }).includes("footnote is empty"));
+  assert.ok(validateRecord({ ...pin, n: 0 }).includes("n is not a positive integer"));
+  assert.ok(validateRecord({ ...pin, verse: undefined }).length > 0);
 });

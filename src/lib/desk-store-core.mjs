@@ -187,6 +187,7 @@ const KIND_NAMES = {
   markRule: "Mark rule",
   label: "Label",
   sheet: "Sheet",
+  footnotePin: "Pinned footnote",
 };
 
 /** What a reader calls a record's kind. An unknown kind is just "Item". */

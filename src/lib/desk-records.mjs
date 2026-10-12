@@ -1,7 +1,8 @@
 // src/lib/desk-records.mjs
 //
-// The Study Desk's records, as STUDY-DESK-FORMAT.md (draft 1) defines them:
-// the nine kinds (draft 1 had ten; `legend` was dropped 2026-10-07), the
+// The Study Desk's records, as STUDY-DESK-FORMAT.md defines them: the ten
+// kinds (draft 1's ten less `legend`, dropped 2026-10-07, plus draft 2's
+// `footnotePin`, BDR's request of 2026-10-09), the
 // fields every record carries, and the few rules every client keeps when it
 // makes or changes one. Pure: no storage, no DOM, no
 // clock or randomness of its own unless the caller leaves them out.
@@ -17,12 +18,11 @@
 //   7. A client on older text never corrects a record made on newer text.
 //      mayRewriteAnchor answers that from `contentVersion`.
 //
-// Deleting is here PROVISIONALLY (phase 1b, BVJ 2026-10-05): the `trash`
-// record's fields are the website's proposal to BDR (STUDY-DESK.md,
-// "Questions for the apps", item 20, question 4), built ahead of the answer
-// because nothing leaves the browser yet and only the preview writes records.
-// If the apps answer differently, migrateRecord is where the change goes.
-// Merging is still NOT here, and waits on the same answer.
+// Deleting follows BDR's answer to item 20 (rule c, 2026-10-09): the `trash`
+// record holds the deleted id, the deletion time, the whole deleted record for
+// 30 days and the deleted record's kind (`deletedKind`, added to the website's
+// phase 1b fields then; migrateRecord fills it in on older trash records).
+// Merging two copies of the notebook is src/lib/desk-merge.mjs.
 
 import { BOOKS } from "../data/books.js";
 import { makeAnchor, rangeOf, resolveAnchor } from "./anchor-core.mjs";
@@ -40,6 +40,7 @@ export const KINDS = Object.freeze([
   "label",
   "sheet",
   "trash",
+  "footnotePin",
 ]);
 
 export const COLORS = Object.freeze(["yellow", "green", "blue", "pink"]);
@@ -55,7 +56,7 @@ export const MARKERS = Object.freeze([
 ]);
 
 /** Kinds that sit on the text, and so carry `bookKey`, `chapter` and verses. */
-const ON_THE_TEXT = new Set(["highlight", "note", "hidden", "bookmark", "place"]);
+const ON_THE_TEXT = new Set(["highlight", "note", "hidden", "bookmark", "place", "footnotePin"]);
 
 /**
  * A note's targets other than verses (STUDY-DESK.md N11; BVJ, 2026-10-06),
@@ -145,7 +146,7 @@ export function editRecord(record, changes, { now, client } = {}) {
   };
 }
 
-/* ── Deleting (provisional: talk-through item 20) ──────────────────────── */
+/* ── Deleting (item 20, rule c) ──────────────────────────────────────── */
 
 /** How long a trash record keeps the whole deleted record (M7). */
 export const TRASH_DAYS = 30;
@@ -171,6 +172,7 @@ export function trashRecord(record, { now, client, contentVersion, id } = {}) {
     contentVersion,
     labels: [],
     deletedId: record.id,
+    deletedKind: record.kind,
     deletedAt: at,
     record,
   };
@@ -211,11 +213,18 @@ export function emptyTrashRecord(trash, now = new Date().toISOString()) {
 }
 
 /**
- * Bring a record up to SCHEMA_VERSION. At schema 1 there is nothing to do; the
- * hook exists so a later format change has one place to go. A record from a
- * newer schema is returned unchanged, and canEdit keeps it read-only.
+ * Bring a record up to SCHEMA_VERSION. A record from a newer schema is
+ * returned unchanged, and canEdit keeps it read-only.
+ *
+ * One change so far, within schema 1: a trash record written before
+ * `deletedKind` existed (phase 1b's provisional fields) takes the kind from
+ * the record it holds. A tombstone already emptied can't recover it and stays
+ * as it is; nothing reads the kind of a deletion past its 30 days.
  */
 export function migrateRecord(record) {
+  if (record?.kind === "trash" && record.deletedKind == null && typeof record.record?.kind === "string") {
+    return { ...record, deletedKind: record.record.kind };
+  }
   return record;
 }
 
@@ -267,6 +276,10 @@ export function validateRecord(r) {
     need(MARKERS.includes(r.marker), `marker "${r.marker}" is not one of ${MARKERS.join(", ")}`);
   }
   if (k === "place") need(typeof r.name === "string", "name is not text");
+  if (k === "footnotePin") {
+    need(typeof r.footnote === "string" && r.footnote.length > 0, "footnote is empty");
+    need(r.n == null || (Number.isInteger(r.n) && r.n >= 1), "n is not a positive integer");
+  }
   if (k === "label") need(typeof r.name === "string" && r.name.length > 0, "name is empty");
   if (k === "markRule") need(COLORS.includes(r.color), `color "${r.color}" is not one of ${COLORS.join(", ")}`);
   return problems;

@@ -11,7 +11,7 @@ produced it.
 Many ideas here were weighed and decided, some were declined, and the reasons
 are recorded so they aren't re-argued.
 
-## Where things stand (as of 2026-10-10)
+## Where things stand (as of 2026-10-12)
 
 - **Sync now has three plans, and BDR's proposal is the newest record of
   it** ("One notebook, three homes" below; first read 2026-10-07 at draft 2,
@@ -28,26 +28,30 @@ are recorded so they aren't re-argued.
   as today) and full A added later only if readers ask; the website's side
   of each plan is sized in that section. Nothing is decided.
 
-- **Status: phase 1b and most of 1c built, behind a preview switch; nothing
+- **Status: phases 1a, 1b and 1c built, behind a preview switch; nothing
   reader-facing yet.** Readers see and download none of it.
   `litbible.net/?desk=on` turns the desk on in one browser on a computer, and
   `?desk=off` turns it off. No desk page or service exists. 1c's parts that
   wait on nobody are built (notes, bookmarks, the margin, the panel's tabs and
   "This verse", M1, the draggable widths, and N11 provisionally), and so
   are highlights (2026-10-09), as soon as BDR's answers to rules a to e
-  settled the overlap rule, and the change notice (2026-10-10). Still to
-  come in 1c: pinned footnotes. Other versions (API.bible and the Versions
+  settled the overlap rule, the change notice (2026-10-10), and pinned
+  footnotes and the merge engine (2026-10-12), which finished 1c and 1a.
+  Left in phase 1: 1d and 1f. Other versions (API.bible and the Versions
   tab) are out of version 1 (BVJ, 2026-10-11). What exists:
   - draft 1 of the record format (`STUDY-DESK-FORMAT.md`), with its
     reference implementation (`scripts/lib/anchor-text.mjs`) and test vectors
     (PR #268);
-  - three of phase 1a's foundations: the record kinds
+  - phase 1a's foundations: the record kinds
     (`src/lib/desk-records.mjs`), the browser half of the anchor text
-    (`src/lib/desk-anchor-dom.mjs`), and the wording comparison
-    (`src/lib/desk-wording.mjs`). See "Order of work", 1a;
+    (`src/lib/desk-anchor-dom.mjs`), the wording comparison
+    (`src/lib/desk-wording.mjs`), the highlight overlap rule
+    (`src/lib/desk-highlights.mjs`) and the merge engine
+    (`src/lib/desk-merge.mjs`, with shared cases for the apps in
+    `test/fixtures/merge-vectors.json`). See "Order of work", 1a;
   - phase 1b's shell: the gate, the notebook in IndexedDB kept in step across
-    tabs, deletion with an undo bar (on the trash record's **provisional**
-    fields), and the Notebook panel in the right margin, floating where a
+    tabs, deletion with an undo bar (the trash record as BDR answered it,
+    with `deletedKind` since 2026-10-12), and the Notebook panel in the right margin, floating where a
     window is too narrow for it. See "Order of
     work", 1b;
   - phase 1c so far: see "Order of work", 1c.
@@ -1574,6 +1578,14 @@ Questions for the apps, to send back:
      The proposal's contract adds a field, the deleted record's **kind**, and
      says restoring re-creates the record under the same id. The collapse
      rule for two trash records isn't mentioned yet.
+     **The website's revised proposal, built 2026-10-12 for BDR to confirm
+     or change: the later deletion, with the newer content.** The survivor
+     is the trash record with the later `deletedAt` (ties: the lower id), and
+     it keeps whichever held copy was modified most recently. The first
+     proposal above kept the earliest deletion, which rule b, answered
+     since, makes wrong: an edit between the two deletions would bring back
+     a record the reader deleted after editing it. Details in
+     `STUDY-DESK-FORMAT.md`, kind 10.
   5. **Overlapping highlights** (A-M5). Is it Android's rule (same colour
      merges, a different colour trims the old one) or iOS's? And are marks
      that were re-found as `changed`, `verse` or `lost` left alone, so making
@@ -1835,7 +1847,9 @@ settle.
   joins format draft 2.
 - **Not answered in draft 4d**: API.bible's terms (talk-through item 21);
   the rule for collapsing two trash records of one deletion (item 20,
-  question 4); Android running the shared test cases ("Approved as a unit
+  question 4; the website went ahead with its own proposal on 2026-10-12,
+  the later deletion with the newer content, for BDR to confirm or change);
+  Android running the shared test cases ("Approved as a unit
   test; not yet run"); the license link, still planned for Android 1.3 and
   iOS 2.0, 2.0.1 or 2.1.
 
@@ -2507,19 +2521,37 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
        `src/lib/desk-wording.mjs`). It evens out quotes, dashes and spacing
        (so August's passes don't count) but not case. A word-by-word diff
        gives N3's "exactly what changed".
-     - **Held for BDR: one merge engine**, by `id`, `modified` and
-       tombstones, keeping both versions of a conflicting note (as first
-       planned; see below). It would
-       import a file in phase 1 and become the sync engine in phase 4, since
-       stores are homes, not formats (the format's principle 2). Its rules
-       are format decisions (talk-through item 20). **BDR answered them on
-       2026-10-09** (rules a to e): the newer `modified` wins on every store
-       and for every kind, and **the older version of a note is discarded**
-       (BVJ, going with BDR, the same day). So the engine keeps one version,
-       not both, and can be built.
-     - **Held for BDR: the highlight overlap rule** (A-M5, item 20).
-       **Settled 2026-10-07**: Android's rule, as BDR ruled for iOS; its
-       three details (rule d) approved by BDR on 2026-10-09.
+     - **Built 2026-10-12: one merge engine** (`src/lib/desk-merge.mjs`), by
+       `id`, `modified` and tombstones. It will import a file in 1d and
+       become the sync engine in phase 4, since stores are homes, not
+       formats (the format's principle 2); nothing calls it yet. Its rules
+       are BDR's answers of 2026-10-09 (rules a to c): the newer `modified`
+       wins on every store and for every kind, **the older version of a
+       note is discarded** (BVJ, going with BDR), an edit later than a
+       deletion brings the record back, and a tombstone blocks a stale
+       backup forever. A future `modified` arriving from elsewhere is
+       clamped to the merging device's clock. Two trash records of one
+       deletion collapse by **the website's proposal, for BDR to confirm**:
+       the later deletion, with the newer content (`STUDY-DESK-FORMAT.md`,
+       kind 10; "Still open" below). It never re-runs the highlight overlap
+       rule, and it carries kinds and fields it doesn't know untouched.
+       - `test/fixtures/merge-vectors.json` holds 39 shared cases (rules a,
+         b and c, clamping, the collapse, unknown kinds, malformed records),
+         each a whole notebook before and after, for the apps to run as
+         they run the anchor vectors. The unit tests also check that the
+         result doesn't depend on input order, that merging twice writes
+         nothing the second time, and that A into B equals B into A.
+       - Three details it settled, also for BDR to confirm: an edit and a
+         deletion at the same instant leave the record deleted; an exact
+         tie between edits keeps the device's own copy; and a deletion that
+         wins over a newer edit keeps the edited words in the trash, so an
+         undo brings back what the reader last wrote.
+       - The trash record gained `deletedKind` the same day (BDR's
+         contract), and `migrateRecord` fills it in on older ones.
+     - **Built 2026-10-09: the highlight overlap rule** (A-M5, item 20;
+       `src/lib/desk-highlights.mjs`, under 1c). **Settled 2026-10-07**:
+       Android's rule, as BDR ruled for iOS; its three details (rule d)
+       approved by BDR on 2026-10-09.
    - **1b. The shell, behind a preview switch.** The gate and dynamic import,
      so readers download nothing until the desk is switched on for them; a
      preview switch, so BVJ can try it on the live site first; IndexedDB with
@@ -2957,8 +2989,8 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
        delete and mark again); Keep not merging a kept highlight with its
        neighbours (the overlap rule applies when a highlight is made);
        notices only for chapters on the page.
-     **Still to come in 1c**: pinned footnotes (below), and the versions,
-     held (below).
+     **1c is finished** with pinned footnotes (2026-10-12). The versions
+     that were planned for it are deferred (below).
      **Added to 1c on 2026-10-09: pinned footnotes, by November** (BVJ,
      agreeing to BDR's request; see "BDR's answers and requests"). A Pin
      button wherever a footnote is read (the popover and the end list), a
@@ -2966,6 +2998,41 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      pinned footnote is rewritten, which reuses the change notice above. The
      record is format draft 2's tenth kind: the verse and the footnote's full
      normalized text, never its letter.
+     **Built 2026-10-12**, behind the preview switch, Study View chapters
+     only (Read View prints no footnotes):
+     - **The record**: `footnotePin` in `desk-records.mjs`, with `bookKey`,
+       `chapter`, `verse` (the verse holding the footnote's letter),
+       `footnote` (the note's full text, read by the anchor text's steps 3
+       to 7) and `n`, its place among that verse's notes that read
+       identically, written only when there are two or more.
+       `src/lib/desk-footnotes.mjs` reads the text from the chapter JSON
+       and from the page, and its tests hold the two equal for every
+       footnote in the published corpus, through the reference linker the
+       page applies, so a pin made here matches one an app made.
+     - **Finding it again** (`findPin`): **found** where the pin's verse
+       holds a note reading the same (quotes, dashes and spacing ignored, as
+       for marks); **moved** where another verse does, which it follows
+       without a notice; **changed** where a note in its verse keeps at
+       least half the pinned words, which raises the change notice; and
+       otherwise **lost**. A note past 500 words is compared by the words
+       it keeps, since the word diff gives up on long texts.
+     - **The buttons**: "Pin" and "Unpin" (named "Pin footnote a" for screen
+       readers) in the popover, on the line it already has for "See in
+       footnotes", so the popover is no taller; on each note in the end
+       list; and on each note in "This verse". The popover tells the desk
+       through a `lit:footnote-actions` event, like `lit:panel-actions`, so
+       `chapter-tools.js` still doesn't know the desk exists
+       (`src/scripts/desk/pins.js` listens).
+     - **"Pinned footnotes"** in My Notes, following its "This chapter" and
+       "Everything" switch: the reference, the note's text cut to three
+       lines, Unpin, and on its own chapter a jump to the note. Unpinning
+       goes through the trash, with the undo bar and Ctrl+Z.
+     - **The change notice** for a rewritten note: the "Wording changed"
+       flag on the note in the end list and on its row, opening the
+       notice with the words that changed, **Keep on the new wording**
+       (which rewrites the pin's text, verse and `contentVersion`, under
+       principle 7 as for marks) and **Unpin**. Nothing is rewritten until
+       the reader acts.
      **Added to 1c on 2026-10-08**, from the Greek tab's planning ("Decisions",
      2026-10-08). None of it waits on BDR, so it can fill the time while
      highlights and the change notice do:
@@ -3820,6 +3887,20 @@ answers and requests (2026-10-09)") and answered six questions:
   any wording change. A reader's mark on those notes' words, if the desk
   ever pins footnotes, would see it as a change.
 
+### 2026-10-12 (phases 1a and 1c finished)
+
+BVJ asked for 1a and 1c to be finished, with a recommendation on the one
+question BDR's answers left open, gone ahead with and noted here in case BDR
+wants it changed.
+- **Two trash records of one deletion: the later deletion, with the newer
+  content.** The website's first proposal (2026-10-05) kept the earliest
+  deletion; rule b, answered since, made that wrong, since an edit between
+  the two deletions would bring back a record the reader deleted after
+  editing it. Built in `src/lib/desk-merge.mjs`; **for BDR to confirm or
+  change** ("Still open").
+- **The merge engine** (1a) and **pinned footnotes** (1c) are built; see
+  "Order of work". That leaves 1d and 1f in phase 1.
+
 ## Still open
 
 - **The floating notebook's details** (decided in outline 2026-10-07; built
@@ -3867,10 +3948,17 @@ answers and requests (2026-10-09)") and answered six questions:
 - **The merge rules** (talk-through item 20; rules a to e): **settled
   2026-10-09**, by BDR's answers and BVJ going with BDR on a note's older
   version (discarded). What remains:
-  - **The trash record's kind**: BDR's contract adds the deleted record's
-    kind to the fields 1b built provisionally, a one-field migration.
-  - **For BDR still:** the rule for collapsing two trash records of one
-    deletion (question 4).
+  - ~~**The trash record's kind**~~: built 2026-10-12 as `deletedKind`.
+  - **For BDR to confirm:** the rule for collapsing two trash records of one
+    deletion (question 4). The website built its own proposal on
+    2026-10-12: the later deletion, with the newer content
+    (`STUDY-DESK-FORMAT.md`, kind 10). If BDR prefers another rule, it
+    changes in `src/lib/desk-merge.mjs` and the shared merge vectors. Also
+    for BDR: three details of the merge (an edit and a deletion at the same
+    instant leave it deleted; an exact tie between edits keeps the device's
+    own copy; a deletion that wins over an edit keeps the edited words in
+    the trash), under "Clocks" in the format, and the shared cases in
+    `test/fixtures/merge-vectors.json`.
 - **The hidden passage, at length** (the Zoom's item 17; BDR, 2026-10-09).
   BDR's other questions of that day are answered (the website's answers
   under "One notebook, three homes").

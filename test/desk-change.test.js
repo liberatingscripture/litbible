@@ -20,6 +20,7 @@ import {
   excerptDiff,
   mayKeep,
   noticeWords,
+  pinNotice,
   planKeep,
   proseNotice,
   releaseNoteFor,
@@ -888,4 +889,90 @@ test("every text_updated change in the real release notes yields its verses, agr
   }
   assert.ok(checked > 200, `the real file has plenty of text_updated changes (read ${checked})`);
   assert.ok(withDetail > 200, "and plenty of verse labels to cross-check against");
+});
+
+/* ── Pinned footnotes ───────────────────────────────────────────────── */
+
+const fn = (id, verse, text) => ({ id, verse, text });
+const PIN_TEXT = "The Greek reads sarx, which can mean flesh or body.";
+const pin = (extra = {}) =>
+  createRecord(
+    "footnotePin",
+    { ...where, verse: 5, footnote: PIN_TEXT, ...extra },
+    { ...made, id: nextId() },
+  );
+
+test("pinNotice: a pin whose footnote is still there, or only moved, carries no notice", () => {
+  assert.equal(pinNotice([fn("fn-a", 5, PIN_TEXT)], pin(), VERSION), null);
+  assert.equal(pinNotice([fn("fn-a", 6, PIN_TEXT)], pin(), VERSION), null, "moved to another verse: just followed");
+  // A punctuation pass changes no wording.
+  assert.equal(pinNotice([fn("fn-a", 5, PIN_TEXT.replace("sarx,", "sarx—"))], pin({ footnote: PIN_TEXT.replace("sarx,", "sarx-") }), VERSION), null);
+});
+
+test("pinNotice: a rewritten footnote is 'changed', with the diff and what Keep would write", () => {
+  const now = "The Greek reads sarx, which can mean flesh, body, or human nature.";
+  const list = [fn("fn-a", 4, "Another note."), fn("fn-b", 5, now)];
+  const notice = pinNotice(list, pin(), VERSION);
+  assert.equal(notice.kind, "changed");
+  assert.equal(notice.id, "fn-b");
+  assert.equal(notice.before, PIN_TEXT);
+  assert.equal(notice.now, now);
+  assert.deepEqual(notice.fields, { verse: 5, footnote: now });
+  assert.ok(notice.diff.some((r) => r.op === "ins"));
+  assert.equal(notice.start, null);
+});
+
+test("pinNotice: a footnote that is gone is 'lost'", () => {
+  const notice = pinNotice([fn("fn-a", 5, "Something quite different entirely.")], pin(), VERSION);
+  assert.equal(notice.kind, "lost");
+  assert.equal(notice.now, null);
+  assert.equal(notice.fields, null);
+  assert.equal(pinNotice([], pin(), VERSION).kind, "lost");
+});
+
+test("pinNotice: nothing for a pin made on newer text, a record that isn't a pin, or a page with no footnotes read", () => {
+  const list = [fn("fn-a", 5, "Something quite different entirely.")];
+  assert.equal(pinNotice(list, pin({ contentVersion: LATER }), VERSION), null, "principle 7");
+  assert.notEqual(pinNotice(list, pin({ contentVersion: SAME_DAY }), VERSION), null, "unorderable is still judged");
+  assert.equal(pinNotice(list, { kind: "note", verse: 5 }, VERSION), null);
+  assert.equal(pinNotice(null, pin(), VERSION), null);
+});
+
+test("planKeep: Keep moves a changed pin to the note found, drops a stale n, and moves modified", () => {
+  const now = "The Greek reads sarx, which can mean flesh, body, or human nature.";
+  const list = [fn("fn-b", 5, now)];
+  const record = pin({ n: 2 });
+  const notice = pinNotice(list, record, VERSION);
+  const kept = planKeep({ text: null, record, notice, now: NOW, ctx });
+  assert.equal(kept.footnote, now);
+  assert.equal(kept.verse, 5);
+  assert.ok(!("n" in kept), "n belonged to the old twins");
+  assert.equal(kept.id, record.id);
+  assert.equal(kept.created, record.created);
+  assert.equal(kept.modified, NOW, "principle 4: the reader acted");
+  assert.equal(kept.contentVersion, VERSION);
+  assert.deepEqual(validateRecord(kept), []);
+  // The record handed in is untouched.
+  assert.equal(record.footnote, PIN_TEXT);
+});
+
+test("planKeep: Keep takes the new note's n when it has twins; a lost pin has nothing to keep", () => {
+  const now = "The Greek reads sarx, which can mean flesh, body, or human nature.";
+  const list = [fn("fn-b", 5, now), fn("fn-c", 5, now)];
+  const notice = pinNotice(list, pin(), VERSION);
+  assert.equal(planKeep({ text: null, record: pin(), notice, now: NOW, ctx }).n, 1);
+  const lost = pinNotice([], pin(), VERSION);
+  assert.equal(planKeep({ text: null, record: pin(), notice: lost, now: NOW, ctx }), null);
+});
+
+test("noticeWords: a pinned footnote is named as one, never as a note or highlight", () => {
+  const list = [fn("fn-b", 5, "The Greek reads sarx, which can mean flesh, body, or human nature.")];
+  const changed = noticeWords(pinNotice(list, pin(), VERSION), pin(), "Romans 8:5");
+  assert.equal(changed.title, "The wording changed");
+  assert.equal(changed.keep, "Keep on the new wording");
+  assert.match(changed.text, /footnote you pinned/);
+  const lost = noticeWords(pinNotice([], pin(), VERSION), pin(), "Romans 8:5");
+  assert.equal(lost.title, "Not in the text");
+  assert.equal(lost.keep, null);
+  assert.match(lost.text, /Romans 8:5/);
 });

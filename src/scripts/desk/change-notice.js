@@ -14,7 +14,11 @@
 //
 // A notice is judged only where the chapter's text is on the page: a Study
 // View chapter, or a chapter of the book Read View shows, or the glossary
-// entry or article a prose note is on. The "Everything" list therefore shows
+// entry or article a prose note is on. A pinned footnote (pins.js) is the
+// fourth case and the narrowest: its chapter's Study View page, the only one
+// that has the footnotes. Its card is the same card: what changed, word by
+// word, with Keep (move the pin to the footnote now standing there) and
+// Unpin in place of Delete. The "Everything" list therefore shows
 // none for other chapters, by design. The text is read fresh on every call:
 // the map it carries points at today's DOM nodes (CLAUDE.md).
 //
@@ -27,6 +31,7 @@ import {
   excerptDiff,
   mayKeep,
   noticeWords,
+  pinNotice,
   planKeep,
   proseNotice,
   releaseNoteFor,
@@ -39,7 +44,7 @@ import { closePanel, showPanel } from "../lit-panel.js";
 import { glyph } from "./glyphs.js";
 import { undoEntry } from "./history.js";
 import { prosePage, targetOf } from "./note-sources.js";
-import { chapterTextFor } from "./page.js";
+import { chapterTextFor, footnoteList, pageChapter } from "./page.js";
 import { announce, showUndo } from "./undo-bar.js";
 
 /** The content version of the text this page is showing. */
@@ -50,14 +55,22 @@ const pageVersion = () => document.documentElement.dataset.contentVersion || "un
 /**
  * A reader of the page's anchor texts that reads each body once, for the
  * records it is asked about. `textOf(record)` gives the chapter's text for a
- * note or highlight on verses, or the body's for a note on a glossary entry or
- * an article; null where this page doesn't show it.
+ * note or highlight on verses, the body's for a note on a glossary entry or
+ * an article, or the chapter's footnote list for a pinned footnote; null
+ * where this page doesn't show it.
  */
 function textReader() {
   const chapters = new Map();
   const bodies = new Map();
   let page;
+  let footnotes;
   return (record) => {
+    if (record?.kind === "footnotePin") {
+      const here = pageChapter();
+      if (!here || here.bookKey !== record.bookKey || here.chapter !== record.chapter) return null;
+      footnotes ??= footnoteList();
+      return footnotes;
+    }
     const target = proseTarget(record);
     if (target) {
       page ??= prosePage() ?? null;
@@ -82,9 +95,12 @@ function textReader() {
 function noticeIn(record, text) {
   if (!text) return null;
   try {
-    const notice = proseTarget(record)
-      ? proseNotice(text, record)
-      : changeNotice(text, record, pageVersion());
+    const notice =
+      record?.kind === "footnotePin"
+        ? pinNotice(text, record, pageVersion())
+        : proseTarget(record)
+          ? proseNotice(text, record)
+          : changeNotice(text, record, pageVersion());
     if (!notice) return null;
     const markedNow =
       notice.kind === "changed" && Number.isInteger(notice.start) && Number.isInteger(notice.end)
@@ -107,7 +123,7 @@ export function noticesFor(records) {
   const out = new Map();
   const textOf = textReader();
   for (const r of records ?? []) {
-    if (r?.kind !== "note" && r?.kind !== "highlight") continue;
+    if (r?.kind !== "note" && r?.kind !== "highlight" && r?.kind !== "footnotePin") continue;
     const notice = noticeIn(r, textOf(r));
     if (notice) out.set(r.id, notice);
   }
@@ -135,7 +151,7 @@ export function drawnNotices(records) {
   const out = [];
   const chapters = new Map();
   for (const r of records ?? []) {
-    if (!r?.bookKey || !r.chapter || proseTarget(r)) continue;
+    if (!r?.bookKey || !r.chapter || proseTarget(r) || r.kind === "footnotePin") continue;
     const key = `${r.bookKey}/${r.chapter}`;
     if (!chapters.has(key)) chapters.set(key, chapterTextFor(r.bookKey, r.chapter));
     const text = chapters.get(key);
@@ -151,6 +167,7 @@ export function drawnNotices(records) {
 
 /** "Yellow highlight" or "Note", as the lists name a record. */
 export function markName(record) {
+  if (record?.kind === "footnotePin") return "Pinned footnote";
   if (record?.kind === "highlight") {
     const c = typeof record.color === "string" ? record.color : "";
     return c ? `${c[0].toUpperCase()}${c.slice(1)} highlight` : "Highlight";
@@ -302,7 +319,8 @@ export function openNotice(trigger, record, { store, ctx, showInText = null, res
   const n = ++seq;
   const ref = recordReference(record);
   const words = noticeWords(notice, record, ref);
-  const noun = record.kind === "highlight" ? "highlight" : "note";
+  const isPin = record.kind === "footnotePin";
+  const noun = isPin ? "pinned footnote" : record.kind === "highlight" ? "highlight" : "note";
 
   const panel = el("div", "lit-panel--menu desk-notice");
   panel.setAttribute("role", "dialog");
@@ -323,7 +341,9 @@ export function openNotice(trigger, record, { store, ctx, showInText = null, res
   // The mark: "Yellow highlight · Romans 8:3", or its marker, "My note · Romans 8:3"
   // and the first two lines of its words.
   const mark = el("p", "desk-notice__mark");
-  if (record.kind === "highlight") {
+  if (isPin) {
+    mark.append(el("span", "desk-notice__kind", "Pinned footnote"));
+  } else if (record.kind === "highlight") {
     const chip = el("span", "desk-notice__chip");
     if (typeof record.color === "string") chip.dataset.color = record.color;
     chip.setAttribute("aria-hidden", "true");
@@ -344,7 +364,9 @@ export function openNotice(trigger, record, { store, ctx, showInText = null, res
   when.hidden = notice.kind === "lost";
   when.textContent = "Changed after you made this";
   panel.append(when);
-  loadReleaseNotes().then((entries) => {
+  // The release notes name verses whose text changed; a footnote's rewrite
+  // isn't one of those, so a pin doesn't go looking.
+  if (!isPin) loadReleaseNotes().then((entries) => {
     const found = entries ? releaseNoteFor(entries, record) : null;
     if (!found || !panel.isConnected) return;
     const link = el("a", null, "Release note");
@@ -362,8 +384,11 @@ export function openNotice(trigger, record, { store, ctx, showInText = null, res
   } else if (notice.markedNow) {
     panel.append(el("p", "desk-notice__label", "Now it reads"), el("p", "desk-notice__quote", `‘${shortQuote(notice.markedNow, 40)}’`));
   }
-  // The words the reader marked, which are no longer there.
-  if (notice.kind !== "reworded" && record.quote?.exact) {
+  // The words the reader marked, which are no longer there. For a pin, the
+  // footnote as it read when pinned, when the diff above isn't showing it.
+  if (isPin && !diff) {
+    panel.append(el("p", "desk-notice__marked", `You pinned: ‘${shortQuote(record.footnote, 40)}’`));
+  } else if (notice.kind !== "reworded" && record.quote?.exact) {
     const marked = el("p", "desk-notice__marked");
     marked.append(`You marked: ‘${shortQuote(record.quote.exact, 24)}’`);
     panel.append(marked);
@@ -382,12 +407,12 @@ export function openNotice(trigger, record, { store, ctx, showInText = null, res
     keep.type = "button";
     actions.append(keep);
   }
-  const show = showInText && notice.kind !== "lost" && showInText.can(record) ? el("button", "desk-notice__show", "Show in the text") : null;
+  const show = showInText && notice.kind !== "lost" && showInText.can(record) ? el("button", "desk-notice__show", isPin ? "Show in the footnotes" : "Show in the text") : null;
   if (show) {
     show.type = "button";
     actions.append(show);
   }
-  const del = el("button", "desk-notice__delete", "Delete");
+  const del = el("button", "desk-notice__delete", isPin ? "Unpin" : "Delete");
   del.type = "button";
   actions.append(del);
   panel.append(actions);
@@ -441,11 +466,13 @@ export function openNotice(trigger, record, { store, ctx, showInText = null, res
       const trash = await store.remove(record.id);
       const entry = trash ? store.lastEntry() : null;
       closePanel();
-      if (entry) showUndo(`${markName(record)} on ${ref} deleted.`, () => undoEntry(entry));
+      if (entry) {
+        showUndo(isPin ? `Footnote on ${ref} unpinned.` : `${markName(record)} on ${ref} deleted.`, () => undoEntry(entry));
+      }
       onDone?.("delete", record);
     } catch (err) {
       console.error("Study Desk: the mark wasn't deleted", err);
-      fail(`The ${noun} couldn't be deleted.`);
+      fail(isPin ? "The footnote couldn't be unpinned." : `The ${noun} couldn't be deleted.`);
     }
   }
 

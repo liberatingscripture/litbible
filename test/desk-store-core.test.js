@@ -181,6 +181,7 @@ test("references and links use the site's address form", () => {
 test("kindName names every kind but trash, and an unknown kind plainly", () => {
   assert.equal(kindName("note"), "Note");
   assert.equal(kindName("hidden"), "Hidden passage");
+  assert.equal(kindName("footnotePin"), "Pinned footnote");
   assert.equal(kindName("voiceMemo"), "Item");
 });
 
