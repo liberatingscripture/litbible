@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Word alignment</title>
+  <link rel="stylesheet" href="/app.css">
+</head>
+<body>
+  <header class="bar">
+    <h1>Word alignment</h1>
+    <label>Chapter <select id="chapter"></select></label>
+    <span id="progress" class="muted"></span>
+    <span id="where" class="muted"></span>
+  </header>
+
+  <nav id="verses" class="verses" aria-label="Verses"></nav>
+
+  <main id="main">
+    <p id="empty" class="muted" hidden></p>
+
+    <div id="stale" class="stale" hidden>
+      <p><strong id="stale-count"></strong> stored link(s) in this verse no longer fit its text, so the verse cannot be edited until they are dealt with. They are listed below.</p>
+      <button id="discard" type="button">Discard them and continue</button>
+      <ul id="stale-list"></ul>
+    </div>
+
+    <section id="verse" hidden>
+      <h2 id="verse-ref"></h2>
+      <p class="label">Greek (SBLGNT)</p>
+      <div id="greek" class="row greek" lang="grc"></div>
+      <p class="label">English (LIT)</p>
+      <div id="english" class="row english" lang="en"></div>
+
+      <div class="actions">
+        <button id="link" type="button" class="primary" disabled>Link</button>
+        <button id="clear" type="button" disabled>Clear selection</button>
+        <button id="unlink" type="button" hidden>Unlink</button>
+        <span id="hint" class="muted"></span>
+      </div>
+
+      <h3>Links in this verse</h3>
+      <ol id="links" class="links"></ol>
+      <p id="open" class="muted"></p>
+    </section>
+  </main>
+
+  <p id="error" class="error" role="alert" hidden></p>
+  <script type="module" src="/app.js"></script>
+</body>
+</html>
