@@ -23,6 +23,7 @@ import { createHighlights } from "./highlights.js";
 import { proseSource, studySource } from "./note-sources.js";
 import { pageChapter } from "./page.js";
 import { initProseActions } from "./prose-actions.js";
+import { initPins } from "./pins.js";
 import { fitGlossaryTitles } from "./glossary-titles.js";
 
 // Stamped at build by Layout.astro (src/lib/content-version.mjs, which reads
@@ -84,18 +85,27 @@ async function start() {
     openNoteEditor({ trigger, store, ctx, ref: recordReference(draft), draft, restoreFocus: trigger });
   let margin = null;
   let readMarks = null;
+  let pins = null;
   const onThisChapter = (r) => {
     const here = pageChapter();
     return Boolean(here && r.bookKey === here.bookKey && r.chapter === here.chapter);
   };
   // What the change notice's "Show in the text" does (change-notice.js): a
-  // note in the margin, a highlight to its verse, a glossary or article note
-  // in its margin, and in Read View the verse in the book. `can` says whether
+  // note in the margin, a highlight to its verse, a pinned footnote to its
+  // note in the Footnotes list, a glossary or article note in its margin, and
+  // in Read View the verse in the book. `can` says whether
   // this page can, so the card offers the button only then.
   const showInText = {
-    can: (r) => (margin ? (r.kind === "note" ? margin.canReveal(r) : onThisChapter(r)) : Boolean(readMarks?.canReveal(r))),
+    can: (r) =>
+      r.kind === "footnotePin"
+        ? Boolean(pins?.canReveal(r))
+        : margin
+          ? (r.kind === "note" ? margin.canReveal(r) : onThisChapter(r))
+          : Boolean(readMarks?.canReveal(r)),
     go: (r) => {
-      if (margin) {
+      if (r.kind === "footnotePin") {
+        pins?.reveal(r);
+      } else if (margin) {
         if (r.kind === "note") margin.reveal(r.id);
         else goToVerse(r);
       } else {
@@ -107,6 +117,8 @@ async function start() {
     ? createNotesMargin({ store, onEdit: edit, source: studySource() ?? proseSource(), ctx, showInText })
     : null;
   readMarks = store && !margin ? createReadMarks({ store }) : null;
+  // Before the panel: its tabs ask for Pin buttons as they draw.
+  pins = initPins({ store, ctx });
   // What the panel's links can do without leaving the page: Study View
   // shows a note on its chapter; Read View scrolls to a verse in its book.
   const here = margin ?? readMarks;

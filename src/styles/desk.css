@@ -1931,3 +1931,122 @@ html:has(.desk-gutter--dragging) {
     display: none !important;
   }
 }
+
+/* ── Pinned footnotes ───────────────────────────────────────────── */
+
+/* src/scripts/desk/pins.js. A Pin / Unpin button wherever a footnote is read:
+   under each note in the Footnotes list, beside "See in footnotes" in the
+   popover, and in the Notebook's "This verse" tab. Quiet by design (the
+   reading pages keep their calm): small, muted, a hairline pill, and in none
+   of its places does it add a line above the text. The words are the whole
+   control; every focus ring is the site's (global :focus-visible). */
+
+.desk-pin {
+  flex: none;
+  margin: 0;
+  padding: 1px 9px;
+  border: 1px solid rgba(var(--ink-rgb), 0.22);
+  border-radius: 999px;
+  background: transparent;
+  color: rgba(var(--ink-rgb), 0.74);
+  font: 0.75rem/1.5 Inter, "Inter Fallback", system-ui, sans-serif;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.desk-pin:hover {
+  border-color: rgba(var(--ink-rgb), 0.4);
+  background: rgba(var(--ink-rgb), 0.08);
+  color: var(--text);
+}
+
+.desk-pin:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* The Footnotes list: the note and its button on one line, so the list grows
+   no taller; a flag, when the note was rewritten, takes the line below. */
+.footnotes > li.desk-fn {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 10px;
+}
+
+.footnotes > li.desk-fn > .fn-body {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.desk-fn__flag {
+  flex: 1 1 100%;
+  margin-top: 4px;
+}
+
+.desk-fn__flag .desk-flag--row {
+  margin-top: 0;
+}
+
+/* The popover: "See in footnotes" at one end of its last line, Pin at the other. */
+.desk-pin-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px 12px;
+}
+
+/* This verse: under the note's words, in their column. */
+.desk-verse__fn .desk-pin {
+  grid-column: 2;
+  justify-self: start;
+}
+
+/* My Notes: the group under the list. */
+.desk-mine__pins {
+  margin-top: 14px;
+}
+
+.desk-mine__pins[hidden] {
+  display: none;
+}
+
+.desk-mine__pins-title {
+  margin: 0 4px 2px;
+  /* The panel's own face, not the site's display serif for headings. */
+  font-family: inherit;
+  color: rgba(var(--ink-rgb), 0.7);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+/* The footnote as pinned, cut at three lines unless the reader shows notes in full. */
+.desk-item__pin-text {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow: hidden;
+  white-space: normal;
+}
+
+html[data-desk-list="full"] .desk-item__pin-text {
+  display: block;
+  -webkit-line-clamp: unset;
+  line-clamp: unset;
+  overflow: visible;
+}
+
+/* The desk doesn't print: the buttons and their flags stay off the page, and
+   the Footnotes list goes back to a plain block. */
+@media print {
+  .desk-pin,
+  .desk-fn__flag {
+    display: none !important;
+  }
+
+  .footnotes > li.desk-fn {
+    display: block !important;
+  }
+}

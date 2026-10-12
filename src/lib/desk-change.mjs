@@ -36,6 +36,13 @@
 //   - A note on a glossary entry or an article (N11) has no
 //     verses, so no `verseCopy`: its notice (proseNotice) compares the quote
 //     alone, and falls to the whole entry or article instead of a verse.
+//   - A pinned footnote (footnotePin, format draft 2) is the one mark that
+//     is not a stretch of scripture: it is found by desk-footnotes' findPin
+//     among the chapter's footnotes, and carries a notice (pinNotice) only
+//     when its note was rewritten ("changed": the closest note in its verse
+//     keeps at least half the words) or is gone ("lost"). A note that moved to
+//     another verse is simply followed. Keep rewrites the pin's verse, text
+//     and order to the note found; the pin has no verse copy to retake.
 //   - The release notes supply the date and reason, never the comparison
 //     (releaseNoteFor): publishes logged in release-notes-skip.md have no
 //     entry, and entries truncate long passages.
@@ -52,6 +59,7 @@ import {
   quoteFields,
   verseCopyFor,
 } from "./desk-records.mjs";
+import { findPin, pinFields } from "./desk-footnotes.mjs";
 import { placeProse, proseQuote } from "./desk-prose-anchor.mjs";
 import { wordingChanged, wordingDiff, wordingKey } from "./desk-wording.mjs";
 import { changeBook, entryIds, parseDetail } from "./release-notes-view.mjs";
@@ -157,6 +165,41 @@ export function proseNotice(text, record) {
   return null;
 }
 
+/**
+ * The notice a pinned footnote carries in the chapter's footnotes as they are
+ * now, or null. `list` is desk-footnotes' list for the pin's own chapter, as
+ * the page reads it. Nothing for a pin that is found (a change of quotes,
+ * dashes or spacing included) or that moved to another verse, and nothing for
+ * one made on newer text than this page has (principle 7).
+ *
+ *   changed   the note was rewritten: the closest note in the pin's verse is
+ *             what Keep would move the pin to (`id`, and `fields`, the pin
+ *             fields it would write); `before` and `now` are the two wordings
+ *   lost      nothing in the pin's verse is close enough
+ *
+ * @returns {null | {
+ *   kind: "changed" | "lost", status: string, start: null, end: null,
+ *   before: string, now: string|null, diff: object[]|null,
+ *   id: string|null, fields: { verse: number, footnote: string, n?: number }|null,
+ * }}
+ */
+export function pinNotice(list, record, pageVersion) {
+  if (record?.kind !== "footnotePin" || !Array.isArray(list) || typeof record.footnote !== "string") return null;
+  if (compareContentVersions(record.contentVersion, pageVersion) === 1) return null;
+  const at = findPin(list, record);
+  if (at.status === "found" || at.status === "moved") return null;
+  const base = { status: at.status, start: null, end: null, before: record.footnote };
+  if (at.status === "lost") return { ...base, kind: "lost", now: null, diff: null, id: null, fields: null };
+  return {
+    ...base,
+    kind: "changed",
+    now: at.text,
+    diff: wordingDiff(record.footnote, at.text),
+    id: at.id,
+    fields: pinFields(list, at.id),
+  };
+}
+
 /* ── Keeping ─────────────────────────────────────────────────────────── */
 
 /**
@@ -172,6 +215,9 @@ export function proseNotice(text, record) {
  *             range, since a highlight always has one
  *   reworded  the verse copy is retaken, so the notice doesn't come back
  *   whole     (prose) the note becomes a note on the whole entry or article
+ *
+ * A pinned footnote's Keep (pinNotice's "changed") moves it to the note found:
+ * its verse, text and order. `text` is not read for it.
  *
  * Null for a "lost" notice (there is no text to keep it on, only Delete), for
  * a record this client can't edit (canEdit), and for a notice that doesn't fit
@@ -189,6 +235,13 @@ export function planKeep({ text, record, notice, now = new Date().toISOString(),
   if (!notice || notice.kind === "lost" || !canEdit(record)) return null;
   const stamp = { now, client: ctx.client };
   const { quote: _quote, ...withoutQuote } = record;
+
+  if (record.kind === "footnotePin") {
+    if (notice.kind !== "changed" || !notice.fields) return null;
+    // `n` is dropped, not left behind, when the note it now sits on has no twin.
+    const { n: _n, ...bare } = record;
+    return editRecord(bare, { ...notice.fields, contentVersion: ctx.contentVersion }, stamp);
+  }
 
   if (proseTarget(record)) {
     if (notice.kind === "changed" && Number.isInteger(notice.start) && Number.isInteger(notice.end)) {
@@ -288,6 +341,23 @@ export function excerptDiff(runs, { context = 6 } = {}) {
  * @returns {{ title: string, text: string, keep: string|null }}
  */
 export function noticeWords(notice, record, ref) {
+  if (record?.kind === "footnotePin") {
+    if (notice?.kind === "changed") {
+      return {
+        title: "The wording changed",
+        text: "The footnote you pinned has been rewritten. Your pin is on the footnote that now stands in its place.",
+        keep: "Keep on the new wording",
+      };
+    }
+    if (notice?.kind === "lost") {
+      return {
+        title: "Not in the text",
+        text: `The footnote you pinned on ${ref} isn't in the text any more, so it can't be shown on the page.`,
+        keep: null,
+      };
+    }
+    return { title: "The wording changed", text: "", keep: null };
+  }
   const noun = record?.kind === "highlight" ? "highlight" : "note";
   const target = proseTarget(record);
   const whole = target

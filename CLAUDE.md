@@ -225,11 +225,13 @@ src/
                      #   go-deeper-data.ts ("Go deeper" and its build shell),
                      #   verse-image.mjs (the design and typesetting behind
                      #   "Make an image"), anchor-core.mjs + desk-*.mjs (the
-                     #   Study Desk's pure modules: records, incl. the
-                     #   provisional trash record; the anchor text read off
+                     #   Study Desk's pure modules: records, incl. the trash
+                     #   record and footnote pins; the anchor text read off
                      #   the page; the wording comparison and the change
                      #   notice built on it (desk-change); the notebook's
-                     #   write plans in desk-store-core), app-platform.mjs
+                     #   write plans in desk-store-core; merging two copies
+                     #   of a notebook (desk-merge); finding a pinned
+                     #   footnote again (desk-footnotes)), app-platform.mjs
                      #   (the one "is this a phone or tablet" test, read by
                      #   the desk's gate and the app announcement),
                      #   content-version.mjs (the build's content version,
@@ -2165,7 +2167,7 @@ collection); they're read directly by the intro pages and the API manifest.
   by an outside click or Escape. A click inside the Study Desk's Notebook
   panel doesn't count as outside, and a panel is placed clear of it (see
   below).
-- **The Study Desk preview** (STUDY-DESK.md, phase 1b and most of 1c) is in production but
+- **The Study Desk preview** (STUDY-DESK.md, phases 1a to 1c) is in production but
   switched off for everyone: `?desk=on` turns it on in one browser on a
   computer, `?desk=off` turns it off. STUDY-DESK.md is the record; what a
   change elsewhere in the site has to respect:
@@ -2297,13 +2299,21 @@ collection); they're read directly by the intro pages and the API manifest.
      `desk/prose-actions.js` offers "Add a note" on a selection there (on
      the glossary, as the "My Notebook" row of every reader's selection panel,
      with "Note on this entry" for the whole entry).
-  9. **The Notebook panel has tabs, one module each**: "My Notes"
+  9. **Pinned footnotes** (`desk/pins.js`, rules in
+     `src/lib/desk-footnotes.mjs`) reach the footnote popover the same way
+     as rule 6: `chapter-tools.js` dispatches `lit:footnote-actions` with
+     the popover before placing it, and only the desk listens. A pin names
+     its footnote by verse and full text, never its letter, and
+     `test/desk-footnotes.test.js` holds the page's text of every published
+     footnote equal to the JSON's, so a new render-time transform of
+     footnote HTML that adds visible text will fail there.
+  10. **The Notebook panel has tabs, one module each**: "My Notes"
      (`desk/tab-mine.js`) everywhere, and "This verse" (`desk/tab-verse.js`)
      on Study View chapters, from the `TABS` table in `desk/panel.js`, where
      the Greek tab will join. (A Versions tab, and API.bible with it, is
      deferred indefinitely: not in version 1, BVJ 2026-10-11.) A page with one tab shows no tab
      row, and the panel's foot belongs to My Notes.
-  10. **Ctrl+Z (⌘Z) and redo undo this tab's changes to the notebook**, one
+  11. **Ctrl+Z (⌘Z) and redo undo this tab's changes to the notebook**, one
      history per page visit, 50 deep. The store records an entry for every
      write the reader makes (`apply` in `desk/store.js`, which reads the
      touched records inside the same transaction before writing; `record:
@@ -2322,7 +2332,7 @@ collection); they're read directly by the intro pages and the API manifest.
      switch (it isn't a single-key shortcut, WCAG 2.1.4). The undo bar closes by itself after ten seconds (BVJ,
      2026-10-09), never while hovered or focused; that is safe only because
      the same undo stays on Ctrl+Z, so don't remove one without the other.
-  11. **A mark whose words moved says so** (the change notice, N3).
+  12. **A mark whose words moved says so** (the change notice, N3).
      `src/lib/desk-change.mjs` (pure, unit-tested) decides which marks carry
      a notice, from the format's statuses, comparing the marked words (or a
      whole-verse note's `verseCopy`) with typography evened out
@@ -3088,8 +3098,8 @@ argv, and the scan; nothing else.
 | `public/llms.txt`, `llms-full.txt` | LLM-readable site description + AI-usage policy |
 | `GLOSSARY-CANDIDATES.md` | Register of glossary candidates deliberately not included or deferred, and the payload criterion behind those calls. Read it before proposing a "next term." |
 | `TOPICS.md` | **The authority on chapter and book-intro `topics`** — the significance filter, the alternative-translation pair table, the prefix-search rule, casing, and the hand-run checks. Read it before adding or revising any topics array. |
-| `STUDY-DESK.md` | **The planning and decision record for the Study Desk** (notes, places, highlights and sheets on desktop, with optional account sync shared with the apps). Phases 1a and 1b are built, with most of 1c (notes, bookmarks, highlights, the margin and the panel's tabs): the pure modules, and the shell behind a preview switch (`?desk=on`); nothing reader-facing is released. Every idea, audit finding, owner decision, open question and BDR item is there with its ID, as are the two apps' replies (2026-10-04) and the talk-through list built from them. Read it before proposing or building any part of the desk, and update it when a decision changes. `STUDY-DESK-BRIEF-FOR-BDR.md` is the brief written for BDR's Claude about the apps' side; `STUDY-DESK-REPLY-TO-APPS.md` is the website's answer to both apps' replies (2026-10-05), and the last such document: since 2026-10-07 BDR's Claude reads this repo directly, so the website answers by updating `STUDY-DESK.md` on `main` (its section "One notebook, three homes" holds BDR's sync proposal and the website's answers). |
-| `STUDY-DESK-FORMAT.md` | **Draft record format for the Study Desk**, shared with both apps: the kinds of record, the anchor text, and how a mark is found again after the wording moves. Its executable form is `scripts/lib/anchor-text.mjs` (pure half in `src/lib/anchor-core.mjs`) with `test/fixtures/anchor-vectors.json`. Change them together. |
+| `STUDY-DESK.md` | **The planning and decision record for the Study Desk** (notes, places, highlights and sheets on desktop, with optional account sync shared with the apps). Phases 1a, 1b and 1c are built (the merge engine; notes, bookmarks, highlights, pinned footnotes, the margin and the panel's tabs): the pure modules, and the shell behind a preview switch (`?desk=on`); nothing reader-facing is released. Every idea, audit finding, owner decision, open question and BDR item is there with its ID, as are the two apps' replies (2026-10-04) and the talk-through list built from them. Read it before proposing or building any part of the desk, and update it when a decision changes. `STUDY-DESK-BRIEF-FOR-BDR.md` is the brief written for BDR's Claude about the apps' side; `STUDY-DESK-REPLY-TO-APPS.md` is the website's answer to both apps' replies (2026-10-05), and the last such document: since 2026-10-07 BDR's Claude reads this repo directly, so the website answers by updating `STUDY-DESK.md` on `main` (its section "One notebook, three homes" holds BDR's sync proposal and the website's answers). |
+| `STUDY-DESK-FORMAT.md` | **Draft record format for the Study Desk**, shared with both apps: the kinds of record, the anchor text, and how a mark is found again after the wording moves. Its executable form is `scripts/lib/anchor-text.mjs` (pure half in `src/lib/anchor-core.mjs`) with `test/fixtures/anchor-vectors.json`; its merge rules are `src/lib/desk-merge.mjs` with `test/fixtures/merge-vectors.json`, hand-written cases the apps run too. Change each pair together. |
 | `DISASTER-RECOVERY.md` | Continuity doc: every dashboard/secret behind the deploy (names only, no values) + the DNS inventory + from-zero redeploy path. Update it when an integration, secret, or DNS record is added/removed. |
 
 > The top-level `README.md` is the lighter human-facing overview; this file is

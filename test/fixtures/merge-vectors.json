@@ -1,0 +1,558 @@
+{
+  "about": "Shared test vectors for the Study Desk's merge rules (src/lib/desk-merge.mjs; STUDY-DESK.md, 'When notes collide: rules a to e'). For each case, merging `incoming` into `local` as of `now` must give exactly `expect`, the whole notebook sorted by id, compared as JSON (key order does not matter). `local` is the side that is never clamped; `incoming` is the arriving side, which is clamped to `now` and checked. Exact ties go to the local copy (no tiebreak is given). A case with `skipped` also says how many incoming records must be reported and not written. `rule` names the rule the case is about: a (newer writing wins), b (deleted on one side, edited on the other), c (30-day trash, then a tombstone), collapse (two trash records for one deletion; the website's proposal of 2026-10-12, not yet confirmed by the apps), keep (principle 6), clamp, skip.",
+  "version": 1,
+  "cases": [
+  {
+    "name": "a-newer-local-wins",
+    "rule": "a",
+    "now": "2026-10-12T12:00:00.000Z",
+    "local": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-10T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Edited on Saturday, here.","marker":"note"}
+    ],
+    "incoming": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-09T18:30:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Edited on Friday evening, elsewhere.","marker":"note"}
+    ],
+    "expect": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-10T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Edited on Saturday, here.","marker":"note"}
+    ]
+  },
+  {
+    "name": "a-newer-incoming-wins",
+    "rule": "a",
+    "now": "2026-10-12T12:00:00.000Z",
+    "local": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-09T18:30:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Edited on Friday evening, elsewhere.","marker":"note"}
+    ],
+    "incoming": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-10T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Edited on Saturday, here.","marker":"note"}
+    ],
+    "expect": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-10T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Edited on Saturday, here.","marker":"note"}
+    ]
+  },
+  {
+    "name": "a-times-compare-as-instants",
+    "rule": "a",
+    "now": "2026-10-12T12:00:00.000Z",
+    "local": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-10T10:00:00Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Local","marker":"note"}
+    ],
+    "incoming": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-10T10:00:00.5Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Incoming, half a second later","marker":"note"}
+    ],
+    "expect": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-10T10:00:00.5Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Incoming, half a second later","marker":"note"}
+    ]
+  },
+  {
+    "name": "a-same-instant-written-two-ways-keeps-local",
+    "rule": "a",
+    "now": "2026-10-12T12:00:00.000Z",
+    "local": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-10T10:00:00.500Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Local, three digits","marker":"note"}
+    ],
+    "incoming": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-10T10:00:00.5Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Incoming, one digit, the same instant","marker":"note"}
+    ],
+    "expect": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-10T10:00:00.500Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Local, three digits","marker":"note"}
+    ]
+  },
+  {
+    "name": "a-exact-tie-keeps-local",
+    "rule": "a",
+    "now": "2026-10-12T12:00:00.000Z",
+    "local": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-10T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Local","marker":"note"}
+    ],
+    "incoming": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-10T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Incoming, the very same time","marker":"note"}
+    ],
+    "expect": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-10T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Local","marker":"note"}
+    ]
+  },
+  {
+    "name": "a-different-ids-all-kept",
+    "rule": "a",
+    "now": "2026-10-12T12:00:00.000Z",
+    "local": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-10T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"A note","marker":"note"},
+      {"id":"a1b2c3d4-0000-4000-8000-000000000004","kind":"bookmark","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-08T09:00:00.000Z","client":"android/2.4.1","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"luke","chapter":10,"verse":25}
+    ],
+    "incoming": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000003","kind":"highlight","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-09T09:00:00.000Z","client":"ios/3.2.0","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"romans","chapter":8,"verse":3,"endVerse":3,"color":"yellow","quote":{"exact":"self-preservation","prefix":"the weakness of ","suffix":" could not"}}
+    ],
+    "expect": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-10T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"A note","marker":"note"},
+      {"id":"a1b2c3d4-0000-4000-8000-000000000003","kind":"highlight","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-09T09:00:00.000Z","client":"ios/3.2.0","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"romans","chapter":8,"verse":3,"endVerse":3,"color":"yellow","quote":{"exact":"self-preservation","prefix":"the weakness of ","suffix":" could not"}},
+      {"id":"a1b2c3d4-0000-4000-8000-000000000004","kind":"bookmark","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-08T09:00:00.000Z","client":"android/2.4.1","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"luke","chapter":10,"verse":25}
+    ]
+  },
+  {
+    "name": "a-duplicate-ids-in-one-input-merge-first",
+    "rule": "a",
+    "now": "2026-10-12T12:00:00.000Z",
+    "local": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-10T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Local, Saturday","marker":"note"}
+    ],
+    "incoming": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-09T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Incoming copy, Friday","marker":"note"},
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-11T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Incoming copy, Sunday","marker":"note"}
+    ],
+    "expect": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-11T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Incoming copy, Sunday","marker":"note"}
+    ]
+  },
+  {
+    "name": "clamp-future-incoming-is-written-as-now",
+    "rule": "clamp",
+    "now": "2026-10-12T12:00:00.000Z",
+    "local": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-11T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Local, yesterday","marker":"note"}
+    ],
+    "incoming": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-20T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Incoming, from a clock eight days fast","marker":"note"}
+    ],
+    "expect": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-12T12:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Incoming, from a clock eight days fast","marker":"note"}
+    ]
+  },
+  {
+    "name": "clamp-incoming-ties-with-now-keeps-local",
+    "rule": "clamp",
+    "now": "2026-10-12T12:00:00.000Z",
+    "local": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-12T12:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Local, written right now","marker":"note"}
+    ],
+    "incoming": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2099-01-01T00:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Incoming, claiming the far future","marker":"note"}
+    ],
+    "expect": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-12T12:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Local, written right now","marker":"note"}
+    ]
+  },
+  {
+    "name": "clamp-local-is-never-clamped",
+    "rule": "clamp",
+    "now": "2026-10-12T12:00:00.000Z",
+    "local": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-20T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Local, its own clock is ahead","marker":"note"}
+    ],
+    "incoming": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-12T11:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Incoming, an hour ago","marker":"note"}
+    ],
+    "expect": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-20T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Local, its own clock is ahead","marker":"note"}
+    ]
+  },
+  {
+    "name": "clamp-future-deletion-time-is-written-as-now",
+    "rule": "clamp",
+    "now": "2026-10-12T12:00:00.000Z",
+    "local": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-12T11:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Edited an hour ago","marker":"note"}
+    ],
+    "incoming": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000101","kind":"trash","schema":1,"created":"2026-11-01T09:00:00.000Z","modified":"2026-11-01T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000001","deletedKind":"note","deletedAt":"2026-11-01T09:00:00.000Z","record":{"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-12T11:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Edited an hour ago","marker":"note"}}
+    ],
+    "expect": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000101","kind":"trash","schema":1,"created":"2026-11-01T09:00:00.000Z","modified":"2026-10-12T12:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000001","deletedKind":"note","deletedAt":"2026-10-12T12:00:00.000Z","record":{"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-12T11:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Edited an hour ago","marker":"note"}}
+    ]
+  },
+  {
+    "name": "b-edit-after-deletion-revives-incoming-record",
+    "rule": "b",
+    "now": "2026-10-12T12:00:00.000Z",
+    "local": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000101","kind":"trash","schema":1,"created":"2026-10-05T09:00:00.000Z","modified":"2026-10-05T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000001","deletedKind":"note","deletedAt":"2026-10-05T09:00:00.000Z","record":{"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-03T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"As it was when deleted","marker":"note"}}
+    ],
+    "incoming": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-08T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Edited on another device after the deletion","marker":"note"}
+    ],
+    "expect": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-08T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Edited on another device after the deletion","marker":"note"}
+    ]
+  },
+  {
+    "name": "b-edit-after-deletion-revives-local-record",
+    "rule": "b",
+    "now": "2026-10-12T12:00:00.000Z",
+    "local": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-08T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Edited on another device after the deletion","marker":"note"}
+    ],
+    "incoming": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000101","kind":"trash","schema":1,"created":"2026-10-05T09:00:00.000Z","modified":"2026-10-05T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000001","deletedKind":"note","deletedAt":"2026-10-05T09:00:00.000Z","record":{"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-03T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"As it was when deleted","marker":"note"}}
+    ],
+    "expect": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-08T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Edited on another device after the deletion","marker":"note"}
+    ]
+  },
+  {
+    "name": "b-edit-before-deletion-stays-deleted-incoming-trash",
+    "rule": "b",
+    "now": "2026-10-12T12:00:00.000Z",
+    "local": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-04T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Edited before the deletion","marker":"note"}
+    ],
+    "incoming": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000101","kind":"trash","schema":1,"created":"2026-10-05T09:00:00.000Z","modified":"2026-10-05T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000001","deletedKind":"note","deletedAt":"2026-10-05T09:00:00.000Z","record":{"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-03T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"As it was when deleted","marker":"note"}}
+    ],
+    "expect": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000101","kind":"trash","schema":1,"created":"2026-10-05T09:00:00.000Z","modified":"2026-10-05T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000001","deletedKind":"note","deletedAt":"2026-10-05T09:00:00.000Z","record":{"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-04T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Edited before the deletion","marker":"note"}}
+    ]
+  },
+  {
+    "name": "b-edit-before-deletion-stays-deleted-local-trash",
+    "rule": "b",
+    "now": "2026-10-12T12:00:00.000Z",
+    "local": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000101","kind":"trash","schema":1,"created":"2026-10-05T09:00:00.000Z","modified":"2026-10-05T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000001","deletedKind":"note","deletedAt":"2026-10-05T09:00:00.000Z","record":{"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-03T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"As it was when deleted","marker":"note"}}
+    ],
+    "incoming": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-04T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Edited before the deletion","marker":"note"}
+    ],
+    "expect": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000101","kind":"trash","schema":1,"created":"2026-10-05T09:00:00.000Z","modified":"2026-10-05T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000001","deletedKind":"note","deletedAt":"2026-10-05T09:00:00.000Z","record":{"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-04T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Edited before the deletion","marker":"note"}}
+    ]
+  },
+  {
+    "name": "b-equal-times-the-deletion-stands",
+    "rule": "b",
+    "now": "2026-10-12T12:00:00.000Z",
+    "local": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-05T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Edited the very moment it was deleted","marker":"note"}
+    ],
+    "incoming": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000101","kind":"trash","schema":1,"created":"2026-10-05T09:00:00.000Z","modified":"2026-10-05T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000001","deletedKind":"note","deletedAt":"2026-10-05T09:00:00.000Z","record":{"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-03T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"As it was when deleted","marker":"note"}}
+    ],
+    "expect": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000101","kind":"trash","schema":1,"created":"2026-10-05T09:00:00.000Z","modified":"2026-10-05T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000001","deletedKind":"note","deletedAt":"2026-10-05T09:00:00.000Z","record":{"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-05T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Edited the very moment it was deleted","marker":"note"}}
+    ]
+  },
+  {
+    "name": "b-undo-outlasts-its-deletion",
+    "rule": "b",
+    "now": "2026-10-12T12:00:00.000Z",
+    "local": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-06T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"As it was when deleted","marker":"note"}
+    ],
+    "incoming": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000101","kind":"trash","schema":1,"created":"2026-10-05T09:00:00.000Z","modified":"2026-10-05T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000001","deletedKind":"note","deletedAt":"2026-10-05T09:00:00.000Z","record":{"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-03T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"As it was when deleted","marker":"note"}}
+    ],
+    "expect": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-06T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"As it was when deleted","marker":"note"}
+    ]
+  },
+  {
+    "name": "b-undo-outlasts-its-deletion-other-way",
+    "rule": "b",
+    "now": "2026-10-12T12:00:00.000Z",
+    "local": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000101","kind":"trash","schema":1,"created":"2026-10-05T09:00:00.000Z","modified":"2026-10-05T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000001","deletedKind":"note","deletedAt":"2026-10-05T09:00:00.000Z","record":{"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-03T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"As it was when deleted","marker":"note"}}
+    ],
+    "incoming": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-06T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"As it was when deleted","marker":"note"}
+    ],
+    "expect": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-06T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"As it was when deleted","marker":"note"}
+    ]
+  },
+  {
+    "name": "c-tombstone-blocks-a-stale-backup",
+    "rule": "c",
+    "now": "2026-10-12T12:00:00.000Z",
+    "local": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000101","kind":"trash","schema":1,"created":"2026-08-01T09:00:00.000Z","modified":"2026-08-01T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000001","deletedKind":"note","deletedAt":"2026-08-01T09:00:00.000Z"}
+    ],
+    "incoming": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-07-20T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"From a backup made in July","marker":"note"}
+    ],
+    "expect": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000101","kind":"trash","schema":1,"created":"2026-08-01T09:00:00.000Z","modified":"2026-08-01T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000001","deletedKind":"note","deletedAt":"2026-08-01T09:00:00.000Z"}
+    ]
+  },
+  {
+    "name": "c-tombstone-blocks-a-stale-record-held-locally",
+    "rule": "c",
+    "now": "2026-10-12T12:00:00.000Z",
+    "local": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-07-20T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"From a backup made in July","marker":"note"}
+    ],
+    "incoming": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000101","kind":"trash","schema":1,"created":"2026-08-01T09:00:00.000Z","modified":"2026-08-01T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000001","deletedKind":"note","deletedAt":"2026-08-01T09:00:00.000Z"}
+    ],
+    "expect": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000101","kind":"trash","schema":1,"created":"2026-08-01T09:00:00.000Z","modified":"2026-08-01T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000001","deletedKind":"note","deletedAt":"2026-08-01T09:00:00.000Z"}
+    ]
+  },
+  {
+    "name": "c-an-edit-after-the-tombstone-brings-the-record-back",
+    "rule": "c",
+    "now": "2026-10-12T12:00:00.000Z",
+    "local": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000101","kind":"trash","schema":1,"created":"2026-08-01T09:00:00.000Z","modified":"2026-08-01T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000001","deletedKind":"note","deletedAt":"2026-08-01T09:00:00.000Z"}
+    ],
+    "incoming": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-09-02T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Written again after the tombstone","marker":"note"}
+    ],
+    "expect": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-09-02T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Written again after the tombstone","marker":"note"}
+    ]
+  },
+  {
+    "name": "c-trash-past-30-days-is-emptied-during-merge",
+    "rule": "c",
+    "now": "2026-10-12T12:00:00.000Z",
+    "local": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000101","kind":"trash","schema":1,"created":"2026-09-01T09:00:00.000Z","modified":"2026-09-01T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000001","deletedKind":"note","deletedAt":"2026-09-01T09:00:00.000Z","record":{"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-08-30T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Deleted some time ago","marker":"note"}}
+    ],
+    "incoming": [],
+    "expect": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000101","kind":"trash","schema":1,"created":"2026-09-01T09:00:00.000Z","modified":"2026-09-01T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000001","deletedKind":"note","deletedAt":"2026-09-01T09:00:00.000Z"}
+    ]
+  },
+  {
+    "name": "c-trash-past-30-days-is-emptied-on-arrival",
+    "rule": "c",
+    "now": "2026-10-12T12:00:00.000Z",
+    "local": [],
+    "incoming": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000101","kind":"trash","schema":1,"created":"2026-09-01T09:00:00.000Z","modified":"2026-09-01T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000001","deletedKind":"note","deletedAt":"2026-09-01T09:00:00.000Z","record":{"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-08-30T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Deleted some time ago","marker":"note"}}
+    ],
+    "expect": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000101","kind":"trash","schema":1,"created":"2026-09-01T09:00:00.000Z","modified":"2026-09-01T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000001","deletedKind":"note","deletedAt":"2026-09-01T09:00:00.000Z"}
+    ]
+  },
+  {
+    "name": "c-thirty-day-boundary",
+    "rule": "c",
+    "now": "2026-10-12T12:00:00.000Z",
+    "local": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000101","kind":"trash","schema":1,"created":"2026-09-13T12:00:01.000Z","modified":"2026-09-13T12:00:01.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000001","deletedKind":"note","deletedAt":"2026-09-13T12:00:01.000Z","record":{"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-08-30T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Waits one more second","marker":"note"}},
+      {"id":"a1b2c3d4-0000-4000-8000-000000000102","kind":"trash","schema":1,"created":"2026-09-12T12:00:00.000Z","modified":"2026-09-12T12:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000002","deletedKind":"note","deletedAt":"2026-09-12T12:00:00.000Z","record":{"id":"a1b2c3d4-0000-4000-8000-000000000002","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-08-30T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Waits no longer","marker":"note"}}
+    ],
+    "incoming": [],
+    "expect": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000101","kind":"trash","schema":1,"created":"2026-09-13T12:00:01.000Z","modified":"2026-09-13T12:00:01.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000001","deletedKind":"note","deletedAt":"2026-09-13T12:00:01.000Z","record":{"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-08-30T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Waits one more second","marker":"note"}},
+      {"id":"a1b2c3d4-0000-4000-8000-000000000102","kind":"trash","schema":1,"created":"2026-09-12T12:00:00.000Z","modified":"2026-09-12T12:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000002","deletedKind":"note","deletedAt":"2026-09-12T12:00:00.000Z"}
+    ]
+  },
+  {
+    "name": "collapse-later-deletion-survives-with-its-id",
+    "rule": "collapse",
+    "now": "2026-10-12T12:00:00.000Z",
+    "local": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000105","kind":"trash","schema":1,"created":"2026-10-05T09:00:00.000Z","modified":"2026-10-05T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000001","deletedKind":"note","deletedAt":"2026-10-05T09:00:00.000Z","record":{"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-03T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"As it was when deleted","marker":"note"}}
+    ],
+    "incoming": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000110","kind":"trash","schema":1,"created":"2026-10-07T09:00:00.000Z","modified":"2026-10-07T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000001","deletedKind":"note","deletedAt":"2026-10-07T09:00:00.000Z","record":{"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-03T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"As it was when deleted","marker":"note"}}
+    ],
+    "expect": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000110","kind":"trash","schema":1,"created":"2026-10-07T09:00:00.000Z","modified":"2026-10-07T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000001","deletedKind":"note","deletedAt":"2026-10-07T09:00:00.000Z","record":{"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-03T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"As it was when deleted","marker":"note"}}
+    ]
+  },
+  {
+    "name": "collapse-later-deletion-survives-other-way",
+    "rule": "collapse",
+    "now": "2026-10-12T12:00:00.000Z",
+    "local": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000110","kind":"trash","schema":1,"created":"2026-10-07T09:00:00.000Z","modified":"2026-10-07T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000001","deletedKind":"note","deletedAt":"2026-10-07T09:00:00.000Z","record":{"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-03T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"As it was when deleted","marker":"note"}}
+    ],
+    "incoming": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000105","kind":"trash","schema":1,"created":"2026-10-05T09:00:00.000Z","modified":"2026-10-05T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000001","deletedKind":"note","deletedAt":"2026-10-05T09:00:00.000Z","record":{"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-03T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"As it was when deleted","marker":"note"}}
+    ],
+    "expect": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000110","kind":"trash","schema":1,"created":"2026-10-07T09:00:00.000Z","modified":"2026-10-07T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000001","deletedKind":"note","deletedAt":"2026-10-07T09:00:00.000Z","record":{"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-03T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"As it was when deleted","marker":"note"}}
+    ]
+  },
+  {
+    "name": "collapse-edit-between-two-deletions-stays-deleted",
+    "rule": "collapse",
+    "now": "2026-10-12T12:00:00.000Z",
+    "local": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-06T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Edited between the two deletions","marker":"note"}
+    ],
+    "incoming": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000105","kind":"trash","schema":1,"created":"2026-10-05T09:00:00.000Z","modified":"2026-10-05T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000001","deletedKind":"note","deletedAt":"2026-10-05T09:00:00.000Z","record":{"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-03T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"As it was when deleted","marker":"note"}},
+      {"id":"a1b2c3d4-0000-4000-8000-000000000110","kind":"trash","schema":1,"created":"2026-10-07T09:00:00.000Z","modified":"2026-10-07T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000001","deletedKind":"note","deletedAt":"2026-10-07T09:00:00.000Z","record":{"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-03T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"As it was when deleted","marker":"note"}}
+    ],
+    "expect": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000110","kind":"trash","schema":1,"created":"2026-10-07T09:00:00.000Z","modified":"2026-10-07T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000001","deletedKind":"note","deletedAt":"2026-10-07T09:00:00.000Z","record":{"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-06T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Edited between the two deletions","marker":"note"}}
+    ]
+  },
+  {
+    "name": "collapse-newer-content-is-kept",
+    "rule": "collapse",
+    "now": "2026-10-12T12:00:00.000Z",
+    "local": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000105","kind":"trash","schema":1,"created":"2026-10-07T09:00:00.000Z","modified":"2026-10-07T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000001","deletedKind":"note","deletedAt":"2026-10-07T09:00:00.000Z","record":{"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-03T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"The older words","marker":"note"}}
+    ],
+    "incoming": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000110","kind":"trash","schema":1,"created":"2026-10-05T09:00:00.000Z","modified":"2026-10-05T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000001","deletedKind":"note","deletedAt":"2026-10-05T09:00:00.000Z","record":{"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-04T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"The newer words","marker":"note"}}
+    ],
+    "expect": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000105","kind":"trash","schema":1,"created":"2026-10-07T09:00:00.000Z","modified":"2026-10-07T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000001","deletedKind":"note","deletedAt":"2026-10-07T09:00:00.000Z","record":{"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-04T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"The newer words","marker":"note"}}
+    ]
+  },
+  {
+    "name": "collapse-the-one-that-still-holds-content-supplies-it",
+    "rule": "collapse",
+    "now": "2026-10-12T12:00:00.000Z",
+    "local": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000105","kind":"trash","schema":1,"created":"2026-10-07T09:00:00.000Z","modified":"2026-10-07T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000001","deletedKind":"note","deletedAt":"2026-10-07T09:00:00.000Z"}
+    ],
+    "incoming": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000110","kind":"trash","schema":1,"created":"2026-10-05T09:00:00.000Z","modified":"2026-10-05T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000001","deletedKind":"note","deletedAt":"2026-10-05T09:00:00.000Z","record":{"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-03T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"The only copy that still holds words","marker":"note"}}
+    ],
+    "expect": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000105","kind":"trash","schema":1,"created":"2026-10-07T09:00:00.000Z","modified":"2026-10-07T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000001","deletedKind":"note","deletedAt":"2026-10-07T09:00:00.000Z","record":{"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-03T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"The only copy that still holds words","marker":"note"}}
+    ]
+  },
+  {
+    "name": "collapse-equal-deletion-times-lower-id-survives-with-its-own-content",
+    "rule": "collapse",
+    "now": "2026-10-12T12:00:00.000Z",
+    "local": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000110","kind":"trash","schema":1,"created":"2026-10-06T10:00:00.000Z","modified":"2026-10-06T10:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000001","deletedKind":"note","deletedAt":"2026-10-06T10:00:00.000Z","record":{"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-04T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Words on one device","marker":"note"}}
+    ],
+    "incoming": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000105","kind":"trash","schema":1,"created":"2026-10-06T10:00:00.000Z","modified":"2026-10-06T10:05:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000001","deletedKind":"note","deletedAt":"2026-10-06T10:00:00.000Z","record":{"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-04T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Words on the other, the same moment","marker":"note"}}
+    ],
+    "expect": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000105","kind":"trash","schema":1,"created":"2026-10-06T10:00:00.000Z","modified":"2026-10-06T10:05:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000001","deletedKind":"note","deletedAt":"2026-10-06T10:00:00.000Z","record":{"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-04T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Words on the other, the same moment","marker":"note"}}
+    ]
+  },
+  {
+    "name": "collapse-two-tombstones",
+    "rule": "collapse",
+    "now": "2026-10-12T12:00:00.000Z",
+    "local": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000105","kind":"trash","schema":1,"created":"2026-10-05T09:00:00.000Z","modified":"2026-10-05T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000001","deletedKind":"note","deletedAt":"2026-10-05T09:00:00.000Z"}
+    ],
+    "incoming": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000110","kind":"trash","schema":1,"created":"2026-10-07T09:00:00.000Z","modified":"2026-10-07T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000001","deletedKind":"note","deletedAt":"2026-10-07T09:00:00.000Z"}
+    ],
+    "expect": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000110","kind":"trash","schema":1,"created":"2026-10-07T09:00:00.000Z","modified":"2026-10-07T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000001","deletedKind":"note","deletedAt":"2026-10-07T09:00:00.000Z"}
+    ]
+  },
+  {
+    "name": "collapse-then-emptied-when-past-30-days",
+    "rule": "collapse",
+    "now": "2026-10-12T12:00:00.000Z",
+    "local": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000105","kind":"trash","schema":1,"created":"2026-08-01T09:00:00.000Z","modified":"2026-08-01T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000001","deletedKind":"note","deletedAt":"2026-08-01T09:00:00.000Z","record":{"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-07-20T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Long gone","marker":"note"}}
+    ],
+    "incoming": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000110","kind":"trash","schema":1,"created":"2026-08-03T09:00:00.000Z","modified":"2026-08-03T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000001","deletedKind":"note","deletedAt":"2026-08-03T09:00:00.000Z","record":{"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-07-20T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Long gone","marker":"note"}}
+    ],
+    "expect": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000110","kind":"trash","schema":1,"created":"2026-08-03T09:00:00.000Z","modified":"2026-08-03T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000001","deletedKind":"note","deletedAt":"2026-08-03T09:00:00.000Z"}
+    ]
+  },
+  {
+    "name": "keep-unknown-kind-newer-schema-and-unknown-fields-arrive-as-they-are",
+    "rule": "keep",
+    "now": "2026-10-12T12:00:00.000Z",
+    "local": [],
+    "incoming": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000201","kind":"mapPin","schema":3,"created":"2026-10-02T09:00:00.000Z","modified":"2026-10-09T09:00:00.000Z","client":"ios/4.0.0","contentVersion":"v20261012.1a2b3c4d","labels":["a1b2c3d4-0000-4000-8000-000000000300"],"coordinates":{"lat":31.7683,"lng":35.2137,"accuracy":null},"futureThing":[1,2,{"a":null}]},
+      {"id":"a1b2c3d4-0000-4000-8000-000000000002","kind":"note","schema":2,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-09T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"From a newer app","marker":"note","bodyFormat":"rich","spans":[[0,4,"bold"]]},
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-09T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"With a field nobody here knows","marker":"note","colour":"teal"}
+    ],
+    "expect": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-09T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"With a field nobody here knows","marker":"note","colour":"teal"},
+      {"id":"a1b2c3d4-0000-4000-8000-000000000002","kind":"note","schema":2,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-09T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"From a newer app","marker":"note","bodyFormat":"rich","spans":[[0,4,"bold"]]},
+      {"id":"a1b2c3d4-0000-4000-8000-000000000201","kind":"mapPin","schema":3,"created":"2026-10-02T09:00:00.000Z","modified":"2026-10-09T09:00:00.000Z","client":"ios/4.0.0","contentVersion":"v20261012.1a2b3c4d","labels":["a1b2c3d4-0000-4000-8000-000000000300"],"coordinates":{"lat":31.7683,"lng":35.2137,"accuracy":null},"futureThing":[1,2,{"a":null}]}
+    ]
+  },
+  {
+    "name": "keep-unknown-kind-the-newer-copy-wins-whole",
+    "rule": "keep",
+    "now": "2026-10-12T12:00:00.000Z",
+    "local": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000201","kind":"mapPin","schema":3,"created":"2026-10-02T09:00:00.000Z","modified":"2026-10-08T09:00:00.000Z","client":"ios/4.0.0","contentVersion":"v20261012.1a2b3c4d","labels":["a1b2c3d4-0000-4000-8000-000000000300"],"coordinates":{"lat":31.7683,"lng":35.2137,"accuracy":null},"futureThing":[1,2,{"a":null}],"stale":true}
+    ],
+    "incoming": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000201","kind":"mapPin","schema":3,"created":"2026-10-02T09:00:00.000Z","modified":"2026-10-09T09:00:00.000Z","client":"ios/4.0.0","contentVersion":"v20261012.1a2b3c4d","labels":["a1b2c3d4-0000-4000-8000-000000000300"],"coordinates":{"lat":31.7683,"lng":35.2137,"accuracy":null},"futureThing":[1,2,{"a":null}]}
+    ],
+    "expect": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000201","kind":"mapPin","schema":3,"created":"2026-10-02T09:00:00.000Z","modified":"2026-10-09T09:00:00.000Z","client":"ios/4.0.0","contentVersion":"v20261012.1a2b3c4d","labels":["a1b2c3d4-0000-4000-8000-000000000300"],"coordinates":{"lat":31.7683,"lng":35.2137,"accuracy":null},"futureThing":[1,2,{"a":null}]}
+    ]
+  },
+  {
+    "name": "keep-unknown-kind-the-newer-local-copy-stays-whole",
+    "rule": "keep",
+    "now": "2026-10-12T12:00:00.000Z",
+    "local": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000201","kind":"mapPin","schema":3,"created":"2026-10-02T09:00:00.000Z","modified":"2026-10-09T09:00:00.000Z","client":"ios/4.0.0","contentVersion":"v20261012.1a2b3c4d","labels":["a1b2c3d4-0000-4000-8000-000000000300"],"coordinates":{"lat":31.7683,"lng":35.2137,"accuracy":null},"futureThing":[1,2,{"a":null}]}
+    ],
+    "incoming": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000201","kind":"mapPin","schema":3,"created":"2026-10-02T09:00:00.000Z","modified":"2026-10-08T09:00:00.000Z","client":"ios/4.0.0","contentVersion":"v20261012.1a2b3c4d","labels":["a1b2c3d4-0000-4000-8000-000000000300"],"coordinates":{"lat":31.7683,"lng":35.2137,"accuracy":null},"futureThing":[1,2,{"a":null}],"stale":true}
+    ],
+    "expect": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000201","kind":"mapPin","schema":3,"created":"2026-10-02T09:00:00.000Z","modified":"2026-10-09T09:00:00.000Z","client":"ios/4.0.0","contentVersion":"v20261012.1a2b3c4d","labels":["a1b2c3d4-0000-4000-8000-000000000300"],"coordinates":{"lat":31.7683,"lng":35.2137,"accuracy":null},"futureThing":[1,2,{"a":null}]}
+    ]
+  },
+  {
+    "name": "keep-trash-holding-an-unknown-kind-keeps-it-whole",
+    "rule": "keep",
+    "now": "2026-10-12T12:00:00.000Z",
+    "local": [],
+    "incoming": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000101","kind":"trash","schema":1,"created":"2026-10-05T09:00:00.000Z","modified":"2026-10-05T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000201","deletedKind":"mapPin","deletedAt":"2026-10-05T09:00:00.000Z","record":{"id":"a1b2c3d4-0000-4000-8000-000000000201","kind":"mapPin","schema":3,"created":"2026-10-02T09:00:00.000Z","modified":"2026-10-03T09:00:00.000Z","client":"ios/4.0.0","contentVersion":"v20261012.1a2b3c4d","labels":["a1b2c3d4-0000-4000-8000-000000000300"],"coordinates":{"lat":31.7683,"lng":35.2137,"accuracy":null},"futureThing":[1,2,{"a":null}]}}
+    ],
+    "expect": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000101","kind":"trash","schema":1,"created":"2026-10-05T09:00:00.000Z","modified":"2026-10-05T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000201","deletedKind":"mapPin","deletedAt":"2026-10-05T09:00:00.000Z","record":{"id":"a1b2c3d4-0000-4000-8000-000000000201","kind":"mapPin","schema":3,"created":"2026-10-02T09:00:00.000Z","modified":"2026-10-03T09:00:00.000Z","client":"ios/4.0.0","contentVersion":"v20261012.1a2b3c4d","labels":["a1b2c3d4-0000-4000-8000-000000000300"],"coordinates":{"lat":31.7683,"lng":35.2137,"accuracy":null},"futureThing":[1,2,{"a":null}]}}
+    ]
+  },
+  {
+    "name": "keep-older-trash-record-takes-its-deletedKind-from-what-it-holds",
+    "rule": "keep",
+    "now": "2026-10-12T12:00:00.000Z",
+    "local": [],
+    "incoming": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000101","kind":"trash","schema":1,"created":"2026-10-05T09:00:00.000Z","modified":"2026-10-05T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000001","deletedAt":"2026-10-05T09:00:00.000Z","record":{"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-03T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Deleted by a build that had no deletedKind","marker":"note"}}
+    ],
+    "expect": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000101","kind":"trash","schema":1,"created":"2026-10-05T09:00:00.000Z","modified":"2026-10-05T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000001","deletedAt":"2026-10-05T09:00:00.000Z","record":{"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-03T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Deleted by a build that had no deletedKind","marker":"note"},"deletedKind":"note"}
+    ]
+  },
+  {
+    "name": "skip-malformed-incoming-records-are-reported-and-not-written",
+    "rule": "skip",
+    "now": "2026-10-12T12:00:00.000Z",
+    "skipped": 7,
+    "local": [],
+    "incoming": [
+      {"kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-09T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"No id","marker":"note"},
+      {"id":"a1b2c3d4-0000-4000-8000-000000000002","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-09T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"No kind","marker":"note"},
+      {"id":"a1b2c3d4-0000-4000-8000-000000000002","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"yesterday","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"A time that is not a time","marker":"note"},
+      {"id":"a1b2c3d4-0000-4000-8000-000000000002","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"No time at all","marker":"note"},
+      {"id":"a1b2c3d4-0000-4000-8000-000000000101","kind":"trash","schema":1,"created":"2026-10-05T09:00:00.000Z","modified":"2026-10-05T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedKind":"note","deletedAt":"2026-10-05T09:00:00.000Z"},
+      {"id":"a1b2c3d4-0000-4000-8000-000000000102","kind":"trash","schema":1,"created":"soon","modified":"2026-10-05T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000002","deletedKind":"note","deletedAt":"soon"},
+      "hello",
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-09T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"The one record that is fine","marker":"note"}
+    ],
+    "expect": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-09T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"The one record that is fine","marker":"note"}
+    ]
+  },
+  {
+    "name": "skip-a-malformed-record-does-not-displace-the-local-one",
+    "rule": "skip",
+    "now": "2026-10-12T12:00:00.000Z",
+    "skipped": 1,
+    "local": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-09T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Local, intact","marker":"note"}
+    ],
+    "incoming": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"last Tuesday","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Incoming, with the same id and a broken time","marker":"note"}
+    ],
+    "expect": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-09T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Local, intact","marker":"note"}
+    ]
+  }
+  ]
+}

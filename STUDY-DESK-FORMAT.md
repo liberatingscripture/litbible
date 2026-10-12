@@ -1,4 +1,4 @@
-# The Study Desk record format (draft 1)
+# The Study Desk record format (draft 1, with draft 2's additions)
 
 **Status: a draft for the website and both apps to agree, written 2026-10-05.
 Nothing uses it yet.** It answers the iOS reply's W1 (the text rule and its
@@ -140,6 +140,51 @@ generated from `src/data/books.js` (A-F9). It's never stored.
     **For draft 2** (BDR, 2026-10-09, rule c): the 30-day trash and the
     marker kept forever stand, and the record also carries the deleted
     record's **kind**; restoring re-creates the record under the same id.
+    The website names the field `deletedKind`, beside `deletedId` and
+    `deletedAt` (built 2026-10-12; a trash record written before then takes
+    the kind of the record it holds).
+
+    **Two trash records for one deletion** (two devices each deleted the
+    record before they met) **collapse to one. The website's proposal,
+    2026-10-12, for BDR to confirm or change:**
+    - **The later deletion is kept**: the survivor is the trash record with
+      the later `deletedAt` (on a tie, the lower `id`), so every client
+      keeps the same id. That is rule b's "the later action wins": an edit
+      made between the two deletions doesn't bring the record back.
+    - **The newer content is kept**: the survivor's `record` and
+      `deletedKind` come from whichever trash record holds the more
+      recently modified copy (rule a), or the only one still holding
+      content. Each device saved the copy it had when it deleted, so the
+      later deletion can hold the older words.
+    - Its `modified` is the later of the two, and its 30 days run from the
+      kept `deletedAt`.
+
+    The website's first proposal (2026-10-05) kept the **earliest**
+    deletion instead. Rule b, answered since, makes that wrong: an edit made
+    after the first deletion and before the second would bring back a
+    record the reader deleted after editing it.
+11. **`footnotePin`** (draft 2; BDR, 2026-10-09; the tenth kind in use,
+    numbered 11 because `legend` keeps its number). A footnote the reader
+    pinned to come back to. Readers see "Pin", "Unpin" and "Pinned
+    footnotes" on all three.
+    - a verse: the verse whose text holds the footnote's letter (a letter
+      ahead of a chapter's first verse marker, as in Colossians 4, counts
+      as the first verse);
+    - `footnote`: the footnote's full text, read like anchor text (steps 3
+      to 7: block boundaries become a space, other tags vanish, entities
+      decode, then the normalization). **Never its letter**, since letters
+      shift whenever a footnote is added earlier in the chapter;
+    - `n`, optional: its place among that verse's footnotes whose text is
+      identical, written only when there are two or more.
+
+    Found again by verse, then by its words (the website's rule, built
+    2026-10-12 in `src/lib/desk-footnotes.mjs`; the apps' own rules may
+    differ until they agree one): `found` in its verse, comparing text with
+    quotes, dashes and spacing evened out; `moved` to the nearest verse
+    holding the same text, with no notice; `changed` when no note reads the
+    same but one in its verse keeps at least half of the pinned words, with
+    the change notice (Keep rewrites `footnote`, the verse and `n`); and
+    otherwise `lost`.
 
 **Reserved:** `encryptedBody`, an envelope for an end-to-end encrypted body,
 unused for now (A-F12). Under plan C, BDR's proposal (2026-10-07) makes the
@@ -316,6 +361,19 @@ An edit later than a trash record's `deletedAt` brings the record back
 kind's (BVJ, going with BDR, 2026-10-09), so a conflicting note leaves no
 second copy.
 
+**Three details the website settled while building the merge** (2026-10-12,
+`src/lib/desk-merge.mjs` and the shared cases in
+`test/fixtures/merge-vectors.json`; for BDR to confirm):
+- An edit and a deletion at exactly the same time leave the record
+  **deleted**, since a deletion is made of the copy the device had.
+- An exact tie between two edits, with no store revision to break it, keeps
+  the copy already on the device.
+- **A deletion that wins over an edit keeps the edited words in the trash.**
+  Edited on one device and deleted later on another that hadn't seen the
+  edit, the record stays deleted (rule b), but its trash record takes the
+  newer copy, so undoing or restoring brings back what the reader last
+  wrote. The same principle as the collapse rule under kind 10.
+
 ## Addresses
 
 A record's address form is `https://litbible.net/<bookKey>-<chapter>/#v<verse>`,
@@ -360,12 +418,13 @@ and accounts would live under `/sheets/`, `/notebook/`, `/account/`.
   2026-10-09** (`STUDY-DESK.md`, rules a to e). The newer `modified` wins
   (under "Clocks"); an edit after a deletion brings the record back; the
   trash keeps 30 days and then a marker forever, and adds the deleted
-  record's kind. The website's phase 1b built `deletedId`, `deletedAt` and
-  `record` **provisionally** in `src/lib/desk-records.mjs`; adding the kind
-  is a one-field migration there. The older of two versions of a note is
-  discarded (BVJ, 2026-10-09), so the website's proposed `conflictOf` copy
-  is dropped. Still open: the rule for collapsing two trash records of one
-  deletion, which draft 4d of BDR's proposal doesn't mention.
+  record's kind. The website writes the kind as `deletedKind` (2026-10-12).
+  The older of two versions of a note is discarded (BVJ, 2026-10-09), so
+  the website's proposed `conflictOf` copy is dropped. **The rule for
+  collapsing two trash records of one deletion**, which draft 4d of BDR's
+  proposal doesn't mention, is now the website's proposal under kind 10
+  (2026-10-12): the later deletion with the newer content. Built that way;
+  for BDR to confirm or change.
 - **Notes on glossary entries and articles** (STUDY-DESK.md, N11; BVJ,
   2026-10-06). **Built provisionally on the website's preview
   (2026-10-08)**: the two targets under kind 2, the rule against renaming
@@ -387,7 +446,8 @@ and accounts would live under `/sheets/`, `/notebook/`, `/account/`.
   footnotes in that verse; found again by verse, then by its words, with the
   change notice when the footnote is rewritten. Both apps store pins today
   as a third value of an existing record type and map them to this kind
-  under sync.
+  under sync. **Written up as kind 11, `footnotePin`** (2026-10-12), with
+  the field names the website proposes (`footnote`, `n`).
 
 **Vectors not yet included:**
 - **Adjacent footnote letters:** the corpus has none today.

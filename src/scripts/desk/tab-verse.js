@@ -24,7 +24,8 @@
 // which opens the card beside it.
 //
 // The footnotes are copied from the page's own footnote list, so they read
-// exactly as they do there, links included. Nothing here adds to or changes
+// exactly as they do there, links included, and each carries the Pin button
+// it has there (pins.js). Nothing here adds to or changes
 // the scripture on the page.
 
 import { shortQuote } from "../../lib/desk-notes.mjs";
@@ -36,6 +37,7 @@ import { flagButton, noticesFor, openNotice } from "./change-notice.js";
 import { glyph } from "./glyphs.js";
 import { undoEntry } from "./history.js";
 import { chapterText } from "./page.js";
+import { pinButton } from "./pins.js";
 import { showUndo } from "./undo-bar.js";
 
 // A highlight's words are shown in part, as in My Notes: about this many.
@@ -164,6 +166,9 @@ export function createVerseTab({ store, here, visible, panelOpen, onEdit = null,
       letter.className = "desk-verse__fn-label";
       letter.textContent = label;
       li.append(letter, clone);
+      // Pin / Unpin, as under the note in the Footnotes list.
+      const pin = store ? pinButton(id, label) : null;
+      if (pin) li.append(pin);
       items.push(li);
     }
     fnList.replaceChildren(...items);

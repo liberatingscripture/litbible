@@ -924,6 +924,14 @@ function initFootnotePopovers(container) {
     });
     panel.appendChild(jump);
 
+    // Let the Study Desk add its Pin button before the panel is placed
+    // (STUDY-DESK.md, pinned footnotes). Only src/scripts/desk/pins.js
+    // listens, and only with the desk switched on, so a reader's popover is
+    // unchanged. `note` is the footnote's list item and `ref` its letter's link.
+    document.dispatchEvent(
+      new CustomEvent("lit:footnote-actions", { detail: { panel, note, ref: a } })
+    );
+
     showPanel(a, panel, { restoreFocus: a });
     panel.focus({ preventScroll: true });
   });
