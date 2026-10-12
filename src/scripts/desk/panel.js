@@ -22,8 +22,8 @@
 //
 // Tabs (BVJ, 2026-10-08; "Decisions", the Greek tab, items 1 and 12): "My
 // Notes" (tab-mine.js) everywhere, and on Study View chapters "This verse"
-// (tab-verse.js). Greek (phase 1f) and Versions (held until the API.bible
-// questions are settled) join the TABS table below. A surface with one tab
+// (tab-verse.js). Greek (phase 1f) joins the TABS table below. A Versions tab is deferred
+// indefinitely (BVJ, 2026-10-11). A surface with one tab
 // shows no tab row. The tab last chosen is remembered in
 // localStorage['lit-desk-tab'] and used wherever the page has it.
 //

@@ -2111,8 +2111,8 @@ collection); they're read directly by the intro pages and the API manifest.
   4. **While the preview is on, the reading measure is 52**, the width BVJ
      picked for the desk's release, **and 48 on Study View chapters while the
      notebook is open** (BVJ, 2026-10-08), to leave the panel room for the
-     Greek and Versions tabs without moving the column. Read View, intros,
-     articles and the glossary stay at 52, since none gets those tabs. The switch is
+     Greek tab without moving the column. Read View, intros,
+     articles and the glossary stay at 52, since none gets that tab. The switch is
      `html[data-desk-panel]`, which Layout.astro's pre-paint script stamps
      from `lit-desk-panel` so a page opening with the notebook open never
      reflows, and which panel.js sets and clears inside `keepReadingPlace`.
@@ -2189,7 +2189,8 @@ collection); they're read directly by the intro pages and the API manifest.
   9. **The Notebook panel has tabs, one module each**: "My Notes"
      (`desk/tab-mine.js`) everywhere, and "This verse" (`desk/tab-verse.js`)
      on Study View chapters, from the `TABS` table in `desk/panel.js`, where
-     Versions and the Greek tab will join. A page with one tab shows no tab
+     the Greek tab will join. (A Versions tab, and API.bible with it, is
+     deferred indefinitely: not in version 1, BVJ 2026-10-11.) A page with one tab shows no tab
      row, and the panel's foot belongs to My Notes.
   10. **Ctrl+Z (⌘Z) and redo undo this tab's changes to the notebook**, one
      history per page visit, 50 deep. The store records an entry for every
