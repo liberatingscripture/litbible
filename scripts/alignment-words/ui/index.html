@@ -19,10 +19,9 @@
   <main id="main">
     <p id="empty" class="muted" hidden></p>
 
-    <div id="stale" class="stale" hidden>
-      <p><strong id="stale-count"></strong> stored link(s) in this verse no longer fit its text, so the verse cannot be edited until they are dealt with. They are listed below.</p>
-      <button id="discard" type="button">Discard them and continue</button>
-      <ul id="stale-list"></ul>
+    <div id="orphans" class="stale" hidden>
+      <p><strong id="orphan-count"></strong> stored link(s) belong to verses this chapter's English no longer has.</p>
+      <button id="discard-orphans" type="button">Discard them</button>
     </div>
 
     <section id="verse" hidden>
@@ -37,6 +36,12 @@
         <button id="clear" type="button" disabled>Clear selection</button>
         <button id="unlink" type="button" hidden>Unlink</button>
         <span id="hint" class="muted"></span>
+      </div>
+
+      <div id="stale" class="stale" hidden>
+        <p><strong id="stale-count"></strong> stored link(s) no longer fit this verse, usually because the English was revised. Their Greek is free to link again. Re-link puts the Greek back in your selection so you only choose the new English.</p>
+        <ul id="stale-list" class="stale-list"></ul>
+        <button id="discard-all" type="button">Discard all</button>
       </div>
 
       <h3>Links in this verse</h3>

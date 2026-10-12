@@ -48,3 +48,9 @@ button.primary { background: var(--accent); border-color: var(--accent); color: 
 .stale { border: 2px solid var(--err); border-radius: 8px; padding: .5rem 1rem; margin-bottom: 1rem; }
 .error { position: fixed; bottom: 1rem; left: 1rem; right: 1rem; padding: .6rem 1rem; background: var(--err); color: #fff; border-radius: 6px; }
 :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.stale-list { list-style: none; padding: 0; }
+.stale-list li { display: flex; flex-wrap: wrap; gap: .25rem .75rem; align-items: baseline; margin: .35rem 0; }
+.stale-list .why { color: var(--muted); font-size: .85rem; }
+.stale-list li.relinking { background: var(--sel); }
+.stale-list .g { font-family: Cardo, "Gentium Plus", Cambria, serif; font-size: 1.1rem; }
+.verses button.stale-mark::after { content: " ⚠"; color: var(--err); }

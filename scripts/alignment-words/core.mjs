@@ -194,10 +194,17 @@ const nfc = (s) => String(s).normalize("NFC");
  * in the English tokens, which words nothing covers yet, and which stored
  * records no longer fit (a verse reworded, a different Greek source).
  *
+ * Each stale entry is `{ record, reason, relinkGreek }`. `reason` is "greek"
+ * (a word's form or position no longer matches SBLGNT), "english" (a piece is
+ * no longer in the verse), "clash" (it overlaps a record read before it) or
+ * "empty". `relinkGreek` lists the record's Greek positions that are still
+ * good, so the tool can preselect them and the reviewer need only pick the new
+ * English.
+ *
  * @returns {{
  *   englishTokens: {text: string, start: number, end: number}[],
  *   links: {greek: number[], english: [number, number][]}[],
- *   stale: object[],
+ *   stale: {record: object, reason: string, relinkGreek: number[]}[],
  *   unlinkedGreek: number[],
  *   unlinkedEnglish: number[],
  *   complete: boolean,
@@ -223,7 +230,13 @@ export function describeVerse({ verseText, greekTokens, records }) {
       ranges.some((r) => r && range(r).some((k) => coveredEnglish.has(k)));
 
     if (!greekOk || !englishOk || clash || (!ts.length && !ranges.length)) {
-      stale.push(rec);
+      stale.push({
+        record: rec,
+        reason: !greekOk ? "greek" : !englishOk ? "english" : clash ? "clash" : "empty",
+        relinkGreek: (rec.greek || [])
+          .filter((g) => wordByT.has(g.t) && nfc(wordByT.get(g.t)) === nfc(g.form))
+          .map((g) => g.t),
+      });
       continue;
     }
     ts.forEach((t) => coveredGreek.add(t));
@@ -262,4 +275,20 @@ export function serializeWordsFile({ bookKey, chapter, records }) {
     lines.join(",\n") +
     `${lines.length ? "\n" : ""}  ]\n}\n`
   );
+}
+
+/**
+ * The chapter's records after one verse is saved: every other verse's records
+ * untouched, this verse's replaced by the fresh links plus whatever stale
+ * records the reviewer has not resolved. Verse order across the file; within a
+ * verse the fresh links keep buildRecords' order and the unresolved stale ones
+ * follow, so a rewrite of the same input produces the same bytes.
+ */
+export function mergeVerseRecords({ records, verse, fresh, keptStale }) {
+  const verseOf = (r) => Number(String(r.ref).split(".")[2]);
+  const others = (records || []).filter((r) => verseOf(r) !== verse);
+  return [...others, ...fresh, ...keptStale]
+    .map((r, i) => ({ r, i }))
+    .sort((a, b) => verseOf(a.r) - verseOf(b.r) || a.i - b.i)
+    .map((x) => x.r);
 }

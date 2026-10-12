@@ -23,7 +23,7 @@ import { fileURLToPath } from "node:url";
 import { BOOK_ORDER, bookKeyToLabel } from "../../src/data/books.js";
 import { loadMorphGnt } from "../lib/morphgnt.mjs";
 import { splitChapterVerses } from "../lib/verse-text.mjs";
-import { buildRecords, describeVerse, serializeWordsFile } from "./core.mjs";
+import { buildRecords, describeVerse, mergeVerseRecords, serializeWordsFile } from "./core.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const DEFAULT_CHAPTERS_DIR = path.join(ROOT, "src", "data", "chapters");
@@ -133,6 +133,12 @@ export async function createStore({ chaptersDir = DEFAULT_CHAPTERS_DIR, outDir =
     return { ref, greek, ...d };
   }
 
+  /** Stored records whose verse the English no longer has at all (a verse removed or renumbered). */
+  const orphansOf = (ch) =>
+    (words.get(chapterKey(ch.bookKey, ch.chapter)) || []).filter(
+      (r) => !ch.verses.has(Number(String(r.ref).split(".")[2])),
+    );
+
   async function writeChapterFile(ch, records) {
     const key = chapterKey(ch.bookKey, ch.chapter);
     const file = path.join(outDir, `${key}.json`);
@@ -154,7 +160,8 @@ export async function createStore({ chaptersDir = DEFAULT_CHAPTERS_DIR, outDir =
     getChapters() {
       return [...english.values()].map((ch) => {
         const verses = [...ch.verses.keys()].sort((a, b) => a - b);
-        const complete = verses.filter((v) => describe(ch, v).complete).length;
+        const described = verses.map((v) => describe(ch, v));
+        const complete = described.filter((d) => d.complete).length;
         return {
           key: chapterKey(ch.bookKey, ch.chapter),
           bookKey: ch.bookKey,
@@ -162,8 +169,33 @@ export async function createStore({ chaptersDir = DEFAULT_CHAPTERS_DIR, outDir =
           draft: ch.draft,
           verses: verses.length,
           complete,
+          stale: described.reduce((n, d) => n + d.stale.length, 0) + orphansOf(ch).length,
         };
       });
+    },
+
+    /**
+     * Everything the audit command reports: every stored record that no longer
+     * fits the text it was made against, across all chapters, plus the records
+     * of verses that are gone. Chapter files with no English at all are
+     * orphans too.
+     */
+    getReport() {
+      const stale = [];
+      const orphans = [];
+      for (const ch of english.values()) {
+        for (const verse of [...ch.verses.keys()].sort((a, b) => a - b)) {
+          const d = describe(ch, verse);
+          for (const s of d.stale) stale.push({ ref: d.ref, reason: s.reason, record: s.record });
+        }
+        for (const record of orphansOf(ch)) orphans.push({ ref: record.ref, record });
+      }
+      for (const [key, records] of words) {
+        if (english.has(key)) continue;
+        for (const record of records) orphans.push({ ref: record.ref, record });
+      }
+      const verses = [...english.values()].reduce((n, ch) => n + ch.verses.size, 0);
+      return { stale, orphans, verses, chapters: english.size };
     },
 
     getChapter(key) {
@@ -201,14 +233,27 @@ export async function createStore({ chaptersDir = DEFAULT_CHAPTERS_DIR, outDir =
         draft: ch.draft,
         verses,
         greekOnly,
+        orphans: orphansOf(ch),
       };
     },
 
+    /** Drop the records of verses the English no longer has. */
+    async discardOrphans(key) {
+      const ch = english.get(key);
+      if (!ch) throw httpError(404, `No chapter with English text: ${key}`);
+      const gone = new Set(orphansOf(ch));
+      await writeChapterFile(ch, (words.get(key) || []).filter((r) => !gone.has(r)));
+      return { discarded: gone.size };
+    },
+
     /**
-     * Replace one verse's records with the browser's links. A verse holding
-     * records that no longer fit its text is refused until the reviewer says
-     * to discard them, because the replacement would otherwise delete them
-     * without a word.
+     * Replace one verse's live links with the browser's. Records that no longer
+     * fit the text ("stale") are NEVER dropped as a side effect: they stay in
+     * the file until the reviewer resolves them, either by re-linking (the
+     * browser sends the new link and the stale record's index in `dropStale`)
+     * or by discarding them (`dropStale` alone, or "all"). The index is a
+     * position in the `stale` list the browser was last given, so a verse
+     * edited elsewhere in the meantime is refused rather than guessed at.
      */
     async saveVerse(ref, body) {
       const parts = parseRef(ref);
@@ -216,25 +261,31 @@ export async function createStore({ chaptersDir = DEFAULT_CHAPTERS_DIR, outDir =
       if (!ch || !ch.verses.has(parts.verse)) throw httpError(404, `No English text for ${ref}`);
 
       const before = describe(ch, parts.verse);
-      if (before.stale.length && !body?.discardStale) {
-        throw httpError(409, `${before.stale.length} stored link(s) in ${ref} no longer fit the text`);
+      const drop = body?.dropStale === "all"
+        ? new Set(before.stale.keys())
+        : new Set(Array.isArray(body?.dropStale) ? body.dropStale : []);
+      for (const i of drop) {
+        if (!Number.isInteger(i) || i < 0 || i >= before.stale.length) {
+          throw httpError(409, `${ref} changed since it was loaded; reload the page`);
+        }
       }
       const fresh = buildRecords({
         ref,
-        links: body?.links,
+        links: body?.links ?? before.links.map((l) => ({ greek: l.greek, english: l.english })),
         greekTokens: before.greek,
         verseText: ch.verses.get(parts.verse),
       });
 
       const key = chapterKey(ch.bookKey, ch.chapter);
-      const verseOf = (r) => Number(String(r.ref).split(".")[2]);
-      const kept = (words.get(key) || []).filter((r) => verseOf(r) !== parts.verse);
-      // Verse order across the file; within a verse buildRecords' order stands.
-      const merged = [...kept, ...fresh]
-        .map((r, i) => ({ r, i }))
-        .sort((a, b) => verseOf(a.r) - verseOf(b.r) || a.i - b.i)
-        .map((x) => x.r);
-      await writeChapterFile(ch, merged);
+      await writeChapterFile(
+        ch,
+        mergeVerseRecords({
+          records: words.get(key),
+          verse: parts.verse,
+          fresh,
+          keptStale: before.stale.filter((_, i) => !drop.has(i)).map((s) => s.record),
+        }),
+      );
 
       const d = describe(ch, parts.verse);
       return {

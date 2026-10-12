@@ -11,6 +11,7 @@ const state = {
   vi: 0, // index into chapter.verses
   sel: { greek: new Set(), english: new Set() },
   active: null, // index of the link the reviewer has picked, to unlink it
+  relink: null, // index into verse().stale being re-linked, if any
 };
 
 async function api(path, body) {
@@ -67,14 +68,22 @@ function renderNav() {
     const b = document.createElement("button");
     b.type = "button";
     b.textContent = v.verse;
-    b.className = v.complete ? "done" : "pending";
-    b.setAttribute("aria-label", `Verse ${v.verse}${v.complete ? ", complete" : ""}`);
+    b.className = (v.complete ? "done" : "pending") + (v.stale.length ? " stale-mark" : "");
+    b.setAttribute(
+      "aria-label",
+      `Verse ${v.verse}${v.complete ? ", complete" : ""}${v.stale.length ? ", has stale links" : ""}`,
+    );
     if (i === state.vi) b.setAttribute("aria-current", "true");
     b.addEventListener("click", () => goTo(i));
     nav.append(b);
   });
   const done = state.chapter.verses.filter((v) => v.complete).length;
-  $("progress").textContent = `${done} of ${state.chapter.verses.length} verses complete`;
+  const staleN = state.chapter.verses.reduce((n, v) => n + v.stale.length, 0);
+  $("progress").textContent =
+    `${done} of ${state.chapter.verses.length} verses complete` + (staleN ? `, ${staleN} stale link${staleN > 1 ? "s" : ""}` : "");
+  const orphans = $("orphans");
+  orphans.hidden = !state.chapter.orphans.length;
+  $("orphan-count").textContent = state.chapter.orphans.length;
   const only = state.chapter.greekOnly;
   $("where").textContent = only.length
     ? `SBLGNT also has verse${only.length > 1 ? "s" : ""} ${spans(only)}, not yet in the English`
@@ -110,10 +119,34 @@ function renderVerse() {
   stale.hidden = !v.stale.length;
   if (v.stale.length) {
     $("stale-count").textContent = v.stale.length;
+    const WHY = {
+      english: "its English is no longer in the verse",
+      greek: "its Greek no longer matches SBLGNT",
+      clash: "it overlaps another link",
+      empty: "it links nothing",
+    };
     $("stale-list").replaceChildren(
-      ...v.stale.map((r) => {
+      ...v.stale.map((st, i) => {
         const li = document.createElement("li");
-        li.textContent = `${r.greek.map((g) => g.form).join(" ") || "(no Greek)"} ↔ ${r.english.map((p) => p.text).join(" … ") || "(no English)"}`;
+        if (state.relink === i) li.classList.add("relinking");
+        const g = document.createElement("span");
+        g.className = "g";
+        g.lang = "grc";
+        g.textContent = st.record.greek.map((x) => x.form).join(" ") || "(no Greek)";
+        const e = document.createElement("span");
+        e.textContent = "↔ " + (st.record.english.map((p) => p.text).join(" … ") || "(no English)");
+        const why = document.createElement("span");
+        why.className = "why";
+        why.textContent = WHY[st.reason] ?? st.reason;
+        const relink = document.createElement("button");
+        relink.type = "button";
+        relink.textContent = "Re-link";
+        relink.addEventListener("click", () => startRelink(i));
+        const drop = document.createElement("button");
+        drop.type = "button";
+        drop.textContent = "Discard";
+        drop.addEventListener("click", () => discardStale([i]));
+        li.append(g, e, why, relink, drop);
         return li;
       }),
     );
@@ -224,11 +257,12 @@ function renderActions(v) {
   const g = state.sel.greek.size;
   const e = state.sel.english.size;
   const link = $("link");
-  link.disabled = !(g || e) || v.stale.length > 0;
+  link.disabled = !(g || e);
   if (g && e) link.textContent = `Link ${g} Greek ↔ ${e} English`;
   else if (g) link.textContent = `Greek with no English (${g})`;
   else if (e) link.textContent = `English with no Greek (${e})`;
   else link.textContent = "Link";
+  if (state.relink != null && (g || e)) link.textContent += " (replaces the stale link)";
   $("clear").disabled = !(g || e);
   $("unlink").hidden = state.active == null;
   $("hint").textContent = g || e || state.active != null
@@ -252,8 +286,8 @@ function clickToken(kind, key, linkIndex) {
   renderVerse();
 }
 
-async function save(v, links, discardStale = false) {
-  const res = await api(`/api/verses/${encodeURIComponent(v.ref)}`, { links, discardStale });
+async function save(v, links, dropStale = []) {
+  const res = await api(`/api/verses/${encodeURIComponent(v.ref)}`, { links, dropStale });
   Object.assign(v, { links: res.links, stale: res.stale, unlinkedGreek: res.unlinkedGreek, unlinkedEnglish: res.unlinkedEnglish, complete: res.complete });
 }
 
@@ -264,9 +298,10 @@ async function link() {
   if (!v || !(state.sel.greek.size || state.sel.english.size)) return;
   const next = [...wire(v), { greek: [...state.sel.greek], english: toRanges(state.sel.english) }];
   try {
-    await save(v, next);
+    await save(v, next, state.relink != null ? [state.relink] : []);
     state.sel = { greek: new Set(), english: new Set() };
     state.active = null;
+    state.relink = null;
   } catch (err) {
     showError(err.message);
   }
@@ -287,9 +322,32 @@ async function unlink(index = state.active) {
   renderNav();
 }
 
+/** Put a stale link's still-good Greek back in the selection; the reviewer picks the new English. */
+function startRelink(i) {
+  const v = verse();
+  const free = new Set(v.unlinkedGreek);
+  state.sel = { greek: new Set(v.stale[i].relinkGreek.filter((t) => free.has(t))), english: new Set() };
+  state.active = null;
+  state.relink = i;
+  renderVerse();
+}
+
+async function discardStale(indices) {
+  const v = verse();
+  try {
+    await save(v, wire(v), indices);
+    state.relink = null;
+  } catch (err) {
+    showError(err.message);
+  }
+  renderVerse();
+  renderNav();
+}
+
 function clear() {
   state.sel = { greek: new Set(), english: new Set() };
   state.active = null;
+  state.relink = null;
   renderVerse();
 }
 
@@ -299,6 +357,7 @@ function goTo(i) {
   state.vi = i;
   state.sel = { greek: new Set(), english: new Set() };
   state.active = null;
+  state.relink = null;
   remember();
   renderNav();
   renderVerse();
@@ -324,6 +383,7 @@ async function openChapter(key, verseNumber) {
   state.vi = at !== -1 ? at : Math.max(0, state.chapter.verses.findIndex((v) => !v.complete));
   state.sel = { greek: new Set(), english: new Set() };
   state.active = null;
+  state.relink = null;
   $("chapter").value = key;
   remember();
   renderNav();
@@ -343,7 +403,7 @@ async function init() {
     ...chapters.map((c) => {
       const o = document.createElement("option");
       o.value = c.key;
-      o.textContent = `${c.label} (${c.complete}/${c.verses})${c.draft ? " draft" : ""}`;
+      o.textContent = `${c.label} (${c.complete}/${c.verses})${c.draft ? " draft" : ""}${c.stale ? ` ⚠ ${c.stale}` : ""}`;
       return o;
     }),
   );
@@ -356,15 +416,14 @@ async function init() {
 $("link").addEventListener("click", link);
 $("clear").addEventListener("click", clear);
 $("unlink").addEventListener("click", () => unlink());
-$("discard").addEventListener("click", async () => {
-  const v = verse();
+$("discard-all").addEventListener("click", () => discardStale("all"));
+$("discard-orphans").addEventListener("click", async () => {
   try {
-    await save(v, wire(v), true);
+    await api(`/api/chapters/${encodeURIComponent(state.chapter.key)}/discard-orphans`, {});
+    await openChapter(state.chapter.key, verse()?.verse);
   } catch (err) {
     showError(err.message);
   }
-  renderVerse();
-  renderNav();
 });
 document.addEventListener("keydown", (e) => {
   if (e.ctrlKey || e.metaKey || e.altKey) return;

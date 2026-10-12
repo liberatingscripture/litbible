@@ -97,6 +97,9 @@ npm run review:words      # Localhost tool for alignment PHASE 2: link every SBL
                           #   Needs the MorphGNT clone; writes src/data/alignment-words/
                           #   (see "Phase 2 tooling" below). --chapters-dir=<dir> aligns
                           #   English not yet in the corpus
+npm run audit:words       # Re-check every stored phase 2 record against today's English and
+                          #   Greek (stale = no longer fits; orphaned = verse gone). Run after
+                          #   revising scripture; repair happens in review:words
 npm run build:anchor-vectors # Regenerate test/fixtures/anchor-vectors.json, the Study Desk
                           #   anchor-text vectors the apps run (on demand only — committed,
                           #   and its "before" texts come from git history)
@@ -1257,16 +1260,29 @@ save step) and none of its UI. The format is written out in the header of
    footnotes are: a correction is a one-line diff, and a book stays reviewable.
 6. **It aligns draft chapters too**, since the point is to work as a book is
    translated; the glossary tool skips `indexed: false`. A stub with no
-   verses offers nothing to align. A verse whose stored records no longer fit
-   its text is refused for editing (409) until the reviewer discards them, so
-   an edit can never silently delete work.
-7. **The lemma and parse code are shown, never stored.** MorphGNT is a tool
+   verses offers nothing to align.
+7. **Revision is expected, so a stale record is repaired, never silently
+   lost.** A record is stale when its English is no longer in the verse, its
+   Greek no longer matches (`form` is the checksum), or it overlaps another.
+   A stale record covers nothing, so its words show as unlinked, and it stays
+   in the file until the reviewer resolves it: **Re-link** puts its still-good
+   Greek back in the selection so only the new English needs choosing, or
+   **Discard** drops it. Saving other links in the verse never drops one
+   (`dropStale` carries indices into the list the browser was given, and a
+   mismatch is refused with 409). The verse list marks verses with stale
+   links, and `npm run audit:words` reports them across every chapter, plus
+   *orphans*, the records of verses the English no longer has (discarded per
+   chapter in the tool). The audit only reports: deliberately not in CI or
+   the build, same call as `audit:alignment`.
+8. **The lemma and parse code are shown, never stored.** MorphGNT is a tool
    here, as in phase 1 (see below): nothing from it is copied into committed
    data beyond `t` and the word itself.
 
-Not built yet: glossary hints in the verse view, an audit command for stale
-records (the tool already flags them per verse), and decoding MorphGNT's parse
-codes into plain words.
+**Glossary matches are deliberately not in this tool.** Terms carrying a
+translation commitment are aligned in the glossary review tool above; this
+layer covers every other word, and a term is joined in from the lemma at read
+time. Not decided yet: whether to decode MorphGNT's parse codes into plain
+words in the verse view (shown raw today).
 
 ### Greek verification (MorphGNT)
 

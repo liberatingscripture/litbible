@@ -15,6 +15,7 @@ import {
   pieceToTokenRange,
   buildRecords,
   describeVerse,
+  mergeVerseRecords,
   serializeWordsFile,
 } from "../scripts/alignment-words/core.mjs";
 
@@ -127,6 +128,9 @@ test("describeVerse reports a record stale when the English or the Greek moved u
   });
   const reworded = describeVerse({ verseText: "the story", greekTokens, records });
   assert.equal(reworded.stale.length, 1);
+  assert.equal(reworded.stale[0].reason, "english");
+  assert.deepEqual(reworded.stale[0].relinkGreek, [1, 2], "the Greek is still good, so it can be re-linked");
+  assert.deepEqual(reworded.unlinkedGreek, [1, 2], "a stale record covers nothing");
   assert.equal(reworded.complete, false);
 
   const otherGreek = describeVerse({
@@ -135,6 +139,8 @@ test("describeVerse reports a record stale when the English or the Greek moved u
     records,
   });
   assert.equal(otherGreek.stale.length, 1, "a changed Greek form is caught by the stored form");
+  assert.equal(otherGreek.stale[0].reason, "greek");
+  assert.deepEqual(otherGreek.stale[0].relinkGreek, [1], "only the word that still matches is offered back");
 
   // Normalization alone must not make a record stale.
   const decomposed = greekTokens.map((g) => ({ ...g, word: g.word.normalize("NFD") }));
@@ -151,4 +157,18 @@ test("serializeWordsFile puts each record on one line and ends with a newline", 
   assert.equal(text.split("\n").filter((l) => l.includes('"ref"')).length, 1);
   assert.deepEqual(JSON.parse(text).records.length, 1);
   assert.deepEqual(JSON.parse(serializeWordsFile({ bookKey: "acts", chapter: 1, records: [] })).records, []);
+});
+
+test("mergeVerseRecords replaces one verse and keeps unresolved stale records", () => {
+  const rec = (verse, text) => ({ ref: `Acts.1.${verse}`, greek: [], english: [{ text, n: 1 }] });
+  const merged = mergeVerseRecords({
+    records: [rec(1, "a"), rec(2, "old"), rec(3, "c")],
+    verse: 2,
+    fresh: [rec(2, "new")],
+    keptStale: [rec(2, "stale")],
+  });
+  assert.deepEqual(merged.map((r) => r.english[0].text), ["a", "new", "stale", "c"]);
+
+  const dropped = mergeVerseRecords({ records: merged, verse: 2, fresh: [], keptStale: [] });
+  assert.deepEqual(dropped.map((r) => r.english[0].text), ["a", "c"]);
 });
