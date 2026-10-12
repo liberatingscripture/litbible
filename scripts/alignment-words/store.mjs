@@ -15,15 +15,30 @@
 // `--chapters-dir` points the tool at another directory of chapter files, for
 // trying it on text that is not in the corpus yet.
 //
+// THE UNIT OF SAVING IS THE CHAPTER, because a record may reach across a verse
+// boundary. Each save carries the revision (a hash of the file) the browser
+// loaded, and a save against a file that has moved since is refused: a second
+// tab holding an older copy would otherwise write its links over the first's.
+//
 // WHAT IT NEVER TOUCHES: src/data/alignment/ (phase 1, glossary records).
 
 import { promises as fs } from "node:fs";
+import { createHash } from "node:crypto";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { BOOK_ORDER, bookKeyToLabel } from "../../src/data/books.js";
 import { loadMorphGnt } from "../lib/morphgnt.mjs";
 import { splitChapterVerses } from "../lib/verse-text.mjs";
-import { buildRecords, describeVerse, mergeVerseRecords, serializeWordsFile } from "./core.mjs";
+import {
+  FORMAT,
+  normalizeVerseText,
+  describeChapter,
+  buildChapterRecords,
+  markStale,
+  basisFor,
+  serializeWordsFile,
+  describeParse,
+} from "./core.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const DEFAULT_CHAPTERS_DIR = path.join(ROOT, "src", "data", "chapters");
@@ -41,23 +56,16 @@ const OSIS_BOOKS = {
   "1john": "1John", "2john": "2John", "3john": "3John", jude: "Jude",
   revelation: "Rev",
 };
-const BOOK_KEY_BY_OSIS = Object.fromEntries(Object.entries(OSIS_BOOKS).map(([k, v]) => [v, k]));
 const BOOK_RANK = new Map(BOOK_ORDER.map((k, i) => [k, i]));
 
 function httpError(statusCode, message) {
   return Object.assign(new Error(message), { statusCode });
 }
 
-/** "Acts.1.3" -> { bookKey: "acts", chapter: 1, verse: 3 }, or null for anything else. */
-function parseRef(ref) {
-  const m = String(ref).match(/^([0-9A-Za-z]+)\.(\d+)\.(\d+)$/);
-  const bookKey = m && BOOK_KEY_BY_OSIS[m[1]];
-  return bookKey ? { bookKey, chapter: Number(m[2]), verse: Number(m[3]) } : null;
-}
-
 const chapterKey = (bookKey, chapter) => `${bookKey}-${chapter}`;
+const revisionOf = (text) => createHash("sha256").update(text ?? "").digest("hex").slice(0, 16);
 
-/** Every chapter file that carries at least one verse, in canonical order. */
+/** Every chapter file that carries at least one verse, in canonical order. Verse text is normalized here, once. */
 async function loadEnglish(chaptersDir) {
   const chapters = new Map();
   for (const f of (await fs.readdir(chaptersDir)).filter((n) => n.endsWith(".json"))) {
@@ -69,13 +77,17 @@ async function loadEnglish(chaptersDir) {
     }
     const bookKey = String(data.bookKey || "");
     if (!BOOK_RANK.has(bookKey) || !Number.isFinite(data.chapter)) continue;
-    const verses = splitChapterVerses(data.paragraphs);
-    if (!verses.size) continue;
+    const text = new Map();
+    for (const [v, raw] of splitChapterVerses(data.paragraphs)) {
+      const normalized = normalizeVerseText(raw);
+      if (normalized) text.set(v, normalized);
+    }
+    if (!text.size) continue;
     chapters.set(chapterKey(bookKey, data.chapter), {
       bookKey,
       chapter: data.chapter,
       draft: data.indexed === false,
-      verses,
+      text,
     });
   }
   return new Map(
@@ -85,6 +97,7 @@ async function loadEnglish(chaptersDir) {
   );
 }
 
+/** Every chapter file of alignment-words/, with the exact text it was read from (its revision is a hash of that text). */
 async function loadWords(outDir) {
   const words = new Map();
   let files;
@@ -94,14 +107,22 @@ async function loadWords(outDir) {
     return words; // nothing aligned yet is the normal first run
   }
   for (const f of files) {
+    const raw = await fs.readFile(path.join(outDir, f), "utf8");
+    let data;
     try {
-      const data = JSON.parse(await fs.readFile(path.join(outDir, f), "utf8"));
-      if (data?.bookKey && Number.isFinite(data.chapter)) {
-        words.set(chapterKey(data.bookKey, data.chapter), Array.isArray(data.records) ? data.records : []);
-      }
+      data = JSON.parse(raw);
     } catch (err) {
-      console.error(`  cannot read ${f}: ${err.message}`);
+      throw new Error(`Cannot read ${f}: ${err.message}. Fix the file before aligning, or a save would overwrite it.`);
     }
+    if (!data?.bookKey || !Number.isFinite(data.chapter)) continue;
+    if (data.format !== undefined && data.format > FORMAT) {
+      throw new Error(`${f} is format ${data.format}; this tool reads format ${FORMAT}. Update the tool.`);
+    }
+    words.set(chapterKey(data.bookKey, data.chapter), {
+      raw,
+      basis: data.basis && typeof data.basis === "object" ? data.basis : {},
+      records: Array.isArray(data.records) ? data.records : [],
+    });
   }
   return words;
 }
@@ -118,39 +139,81 @@ export async function createStore({ chaptersDir = DEFAULT_CHAPTERS_DIR, outDir =
   const english = await loadEnglish(chaptersDir);
   const words = await loadWords(outDir);
 
-  const greekFor = (ref) => corpus.tokensByRef.get(ref) || [];
-  const recordsFor = (ref) => (words.get(ref.key) || []).filter((r) => r.ref === ref.ref);
-
-  function describe(ch, verse) {
+  /** The chapter as core.mjs reads it: verse -> { text, greek }. */
+  function versesOf(ch) {
     const osis = OSIS_BOOKS[ch.bookKey];
-    const ref = `${osis}.${ch.chapter}.${verse}`;
-    const greek = greekFor(ref);
-    const d = describeVerse({
-      verseText: ch.verses.get(verse),
-      greekTokens: greek,
-      records: recordsFor({ key: chapterKey(ch.bookKey, ch.chapter), ref }),
-    });
-    return { ref, greek, ...d };
+    return new Map(
+      [...ch.text].map(([v, text]) => [v, { text, greek: corpus.tokensByRef.get(`${osis}.${ch.chapter}.${v}`) || [] }]),
+    );
   }
 
-  /** Stored records whose verse the English no longer has at all (a verse removed or renumbered). */
-  const orphansOf = (ch) =>
-    (words.get(chapterKey(ch.bookKey, ch.chapter)) || []).filter(
-      (r) => !ch.verses.has(Number(String(r.ref).split(".")[2])),
-    );
+  function describe(ch) {
+    const stored = words.get(chapterKey(ch.bookKey, ch.chapter));
+    const verses = versesOf(ch);
+    return {
+      verses,
+      stored,
+      d: describeChapter({ verses, basis: stored?.basis, records: stored?.records }),
+    };
+  }
 
   async function writeChapterFile(ch, records) {
     const key = chapterKey(ch.bookKey, ch.chapter);
     const file = path.join(outDir, `${key}.json`);
-    words.set(key, records);
     if (!records.length) {
       await fs.rm(file, { force: true });
+      words.delete(key);
       return;
     }
+    const basis = basisFor({ verses: versesOf(ch), records });
+    const raw = serializeWordsFile({ bookKey: ch.bookKey, chapter: ch.chapter, basis, records });
     await fs.mkdir(outDir, { recursive: true });
     const tmp = `${file}.tmp`;
-    await fs.writeFile(tmp, serializeWordsFile({ bookKey: ch.bookKey, chapter: ch.chapter, records }), "utf8");
+    await fs.writeFile(tmp, raw, "utf8");
     await fs.rename(tmp, file);
+    words.set(key, { raw, basis, records });
+  }
+
+  function chapterView(key) {
+    const ch = english.get(key);
+    if (!ch) throw httpError(404, `No chapter with English text: ${key}`);
+    const { verses, stored, d } = describe(ch);
+    const osis = OSIS_BOOKS[ch.bookKey];
+    const verseList = [...verses.keys()].sort((a, b) => a - b).map((v) => {
+      const s = d.verses.get(v);
+      return {
+        verse: v,
+        ref: `${osis}.${ch.chapter}.${v}`,
+        text: verses.get(v).text,
+        englishTokens: s.tokens,
+        // Lemma and parsing are shown to the reviewer and never stored.
+        greek: verses.get(v).greek.map(({ t, text, word, lemma, pos, parse }) => ({
+          t, text, word, lemma, pos, parse, parsed: describeParse(pos, parse),
+        })),
+        unlinkedGreek: s.unlinkedGreek,
+        unlinkedEnglish: s.unlinkedEnglish,
+        changed: s.changed,
+        outsideSource: s.outsideSource,
+        complete: s.complete,
+      };
+    });
+    // Verses SBLGNT has that the English doesn't yet: named, so a verse nobody
+    // has translated is not mistaken for a verse with no Greek.
+    const greekOnly = [...corpus.verses]
+      .filter((r) => r.startsWith(`${osis}.${ch.chapter}.`) && !verses.has(Number(r.split(".")[2])))
+      .map((r) => Number(r.split(".")[2]))
+      .sort((a, b) => a - b);
+    return {
+      key,
+      bookKey: ch.bookKey,
+      label: `${bookKeyToLabel(ch.bookKey)} ${ch.chapter}`,
+      draft: ch.draft,
+      revision: revisionOf(stored?.raw),
+      verses: verseList,
+      links: d.links,
+      stale: d.stale,
+      greekOnly,
+    };
   }
 
   return {
@@ -159,143 +222,82 @@ export async function createStore({ chaptersDir = DEFAULT_CHAPTERS_DIR, outDir =
 
     getChapters() {
       return [...english.values()].map((ch) => {
-        const verses = [...ch.verses.keys()].sort((a, b) => a - b);
-        const described = verses.map((v) => describe(ch, v));
-        const complete = described.filter((d) => d.complete).length;
+        const { d } = describe(ch);
+        const summaries = [...d.verses.values()];
         return {
           key: chapterKey(ch.bookKey, ch.chapter),
           bookKey: ch.bookKey,
           label: `${bookKeyToLabel(ch.bookKey)} ${ch.chapter}`,
           draft: ch.draft,
-          verses: verses.length,
-          complete,
-          stale: described.reduce((n, d) => n + d.stale.length, 0) + orphansOf(ch).length,
+          verses: summaries.filter((s) => !s.outsideSource).length,
+          complete: summaries.filter((s) => s.complete).length,
+          stale: d.stale.length,
+          changed: summaries.filter((s) => s.changed).length,
         };
       });
     },
 
+    getChapter: chapterView,
+
     /**
-     * Everything the audit command reports: every stored record that no longer
-     * fits the text it was made against, across all chapters, plus the records
-     * of verses that are gone. Chapter files with no English at all are
-     * orphans too.
+     * Replace a chapter's live links with the browser's. Stale records are
+     * NEVER dropped as a side effect: they are written back, marked, until the
+     * reviewer resolves them, by re-linking (the new link arrives with the
+     * stale record's index in `dropStale`) or by discarding (`dropStale`
+     * alone). Links the tool carried across a revision are written at their
+     * new place, and the basis moves to today's English.
+     */
+    async saveChapter(key, body) {
+      const ch = english.get(key);
+      if (!ch) throw httpError(404, `No chapter with English text: ${key}`);
+      const { verses, stored, d } = describe(ch);
+      if (body?.revision !== revisionOf(stored?.raw)) {
+        throw httpError(409, `${key} changed since this page loaded it (another tab?). Reload to continue.`);
+      }
+      const drop = new Set(Array.isArray(body?.dropStale) ? body.dropStale : []);
+      for (const i of drop) {
+        if (!Number.isInteger(i) || i < 0 || i >= d.stale.length) throw httpError(400, `No stale link ${i}`);
+      }
+      const fresh = buildChapterRecords({
+        refPrefix: `${OSIS_BOOKS[ch.bookKey]}.${ch.chapter}`,
+        verses,
+        links: body?.links,
+      });
+      const kept = d.stale.filter((_, i) => !drop.has(i)).map(markStale);
+      await writeChapterFile(ch, mergeByVerse(fresh, kept));
+      return chapterView(key);
+    },
+
+    /**
+     * What the audit command reports: every stored record that no longer fits,
+     * every link carried across a revision but not yet saved at its new place,
+     * and the records of chapters with no English at all.
      */
     getReport() {
       const stale = [];
-      const orphans = [];
+      const carried = [];
+      let verseCount = 0;
       for (const ch of english.values()) {
-        for (const verse of [...ch.verses.keys()].sort((a, b) => a - b)) {
-          const d = describe(ch, verse);
-          for (const s of d.stale) stale.push({ ref: d.ref, reason: s.reason, record: s.record });
-        }
-        for (const record of orphansOf(ch)) orphans.push({ ref: record.ref, record });
+        const { d } = describe(ch);
+        verseCount += d.verses.size;
+        for (const s of d.stale) stale.push({ ref: s.record.ref, reason: s.reason, record: s.record });
+        const moved = d.links.filter((l) => l.moved).length;
+        if (moved) carried.push({ chapter: `${OSIS_BOOKS[ch.bookKey]}.${ch.chapter}`, links: moved });
       }
-      for (const [key, records] of words) {
+      for (const [key, stored] of words) {
         if (english.has(key)) continue;
-        for (const record of records) orphans.push({ ref: record.ref, record });
+        for (const record of stored.records) stale.push({ ref: record.ref, reason: "verse", record });
       }
-      const verses = [...english.values()].reduce((n, ch) => n + ch.verses.size, 0);
-      return { stale, orphans, verses, chapters: english.size };
-    },
-
-    getChapter(key) {
-      const ch = english.get(key);
-      if (!ch) throw httpError(404, `No chapter with English text: ${key}`);
-      const osis = OSIS_BOOKS[ch.bookKey];
-      const verses = [...ch.verses.keys()]
-        .sort((a, b) => a - b)
-        .map((verse) => {
-          const d = describe(ch, verse);
-          return {
-            verse,
-            ref: d.ref,
-            text: ch.verses.get(verse),
-            englishTokens: d.englishTokens,
-            // The lemma and parse are shown to the reviewer and never stored.
-            greek: d.greek.map(({ t, text, word, lemma, pos, parse }) => ({ t, text, word, lemma, pos, parse })),
-            links: d.links,
-            stale: d.stale,
-            unlinkedGreek: d.unlinkedGreek,
-            unlinkedEnglish: d.unlinkedEnglish,
-            complete: d.complete,
-          };
-        });
-      // Verses SBLGNT has that the English doesn't yet: worth naming, so a
-      // verse nobody has translated is not mistaken for a verse with no Greek.
-      const greekOnly = [...corpus.verses]
-        .filter((r) => r.startsWith(`${osis}.${ch.chapter}.`) && !ch.verses.has(Number(r.split(".")[2])))
-        .map((r) => Number(r.split(".")[2]))
-        .sort((a, b) => a - b);
-      return {
-        key,
-        bookKey: ch.bookKey,
-        label: `${bookKeyToLabel(ch.bookKey)} ${ch.chapter}`,
-        draft: ch.draft,
-        verses,
-        greekOnly,
-        orphans: orphansOf(ch),
-      };
-    },
-
-    /** Drop the records of verses the English no longer has. */
-    async discardOrphans(key) {
-      const ch = english.get(key);
-      if (!ch) throw httpError(404, `No chapter with English text: ${key}`);
-      const gone = new Set(orphansOf(ch));
-      await writeChapterFile(ch, (words.get(key) || []).filter((r) => !gone.has(r)));
-      return { discarded: gone.size };
-    },
-
-    /**
-     * Replace one verse's live links with the browser's. Records that no longer
-     * fit the text ("stale") are NEVER dropped as a side effect: they stay in
-     * the file until the reviewer resolves them, either by re-linking (the
-     * browser sends the new link and the stale record's index in `dropStale`)
-     * or by discarding them (`dropStale` alone, or "all"). The index is a
-     * position in the `stale` list the browser was last given, so a verse
-     * edited elsewhere in the meantime is refused rather than guessed at.
-     */
-    async saveVerse(ref, body) {
-      const parts = parseRef(ref);
-      const ch = parts && english.get(chapterKey(parts.bookKey, parts.chapter));
-      if (!ch || !ch.verses.has(parts.verse)) throw httpError(404, `No English text for ${ref}`);
-
-      const before = describe(ch, parts.verse);
-      const drop = body?.dropStale === "all"
-        ? new Set(before.stale.keys())
-        : new Set(Array.isArray(body?.dropStale) ? body.dropStale : []);
-      for (const i of drop) {
-        if (!Number.isInteger(i) || i < 0 || i >= before.stale.length) {
-          throw httpError(409, `${ref} changed since it was loaded; reload the page`);
-        }
-      }
-      const fresh = buildRecords({
-        ref,
-        links: body?.links ?? before.links.map((l) => ({ greek: l.greek, english: l.english })),
-        greekTokens: before.greek,
-        verseText: ch.verses.get(parts.verse),
-      });
-
-      const key = chapterKey(ch.bookKey, ch.chapter);
-      await writeChapterFile(
-        ch,
-        mergeVerseRecords({
-          records: words.get(key),
-          verse: parts.verse,
-          fresh,
-          keptStale: before.stale.filter((_, i) => !drop.has(i)).map((s) => s.record),
-        }),
-      );
-
-      const d = describe(ch, parts.verse);
-      return {
-        ref,
-        links: d.links,
-        stale: d.stale,
-        unlinkedGreek: d.unlinkedGreek,
-        unlinkedEnglish: d.unlinkedEnglish,
-        complete: d.complete,
-      };
+      return { stale, carried, verses: verseCount, chapters: english.size };
     },
   };
+}
+
+/** Fresh records then the unresolved stale ones, in verse order, each group's own order kept. */
+function mergeByVerse(fresh, stale) {
+  const verseOf = (r) => Number(String(r.ref).split(".")[2]);
+  return [...fresh, ...stale]
+    .map((r, i) => ({ r, i }))
+    .sort((a, b) => verseOf(a.r) - verseOf(b.r) || a.i - b.i)
+    .map((x) => x.r);
 }

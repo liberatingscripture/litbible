@@ -54,3 +54,15 @@ button.primary { background: var(--accent); border-color: var(--accent); color: 
 .stale-list li.relinking { background: var(--sel); }
 .stale-list .g { font-family: Cardo, "Gentium Plus", Cambria, serif; font-size: 1.1rem; }
 .verses button.stale-mark::after { content: " ⚠"; color: var(--err); }
+.notice { border: 2px solid var(--accent); border-radius: 8px; padding: .5rem 1rem; margin-bottom: 1rem; }
+.toggle { display: block; margin: .25rem 0 .75rem; color: var(--muted); font-size: .9rem; }
+.block { border-top: 1px solid var(--line); padding: .25rem 0 .75rem; }
+.block.context { opacity: .72; }
+.block.context:hover, .block.context:focus-within { opacity: 1; }
+.block h2 { display: flex; gap: .75rem; align-items: baseline; }
+.block h2 .note { font-size: .85rem; font-weight: normal; color: var(--muted); }
+.tok.carried { border-style: dotted; border-width: 2px; }
+.links li .v { color: var(--muted); font-size: .85rem; }
+.verses button.changed-mark::before { content: "↻ "; color: var(--accent); }
+.outside { color: var(--muted); font-style: italic; }
+.details { min-height: 1.2em; margin: .25rem 0 0; font-size: .85rem; }

@@ -6,15 +6,19 @@
 // Run it after any change to scripture, the same habit as audit:alignment for
 // the glossary records: a record is a decision about specific words, and
 // revising the translation (or moving to a newer SBLGNT) can leave it pointing
-// at words that are no longer there. Nothing else in the pipeline notices.
-// Deliberately NOT in CI, the pre-commit hook or `npm run build`: a finding is
-// an editorial prompt, not a gate. Exits 1 when anything is stale, purely so
-// it can be chained.
+// at words that are no longer there. Deliberately NOT in CI, the pre-commit
+// hook or `npm run build`: a finding is an editorial prompt, not a gate. Exits
+// 1 when anything is stale, purely so it can be chained.
 //
 // It only reports. Repair happens in the review tool (`npm run review:words`),
 // where each stale record offers Re-link (its still-good Greek comes back
 // selected, and you choose the new English) or Discard. A record is never
 // deleted for you, since the decision it holds is the translator's.
+//
+// "Carried" is not a problem: those links' words all survived a revision, and
+// the tool found them in the new wording (each file keeps the English its links
+// were made against; see scripts/alignment-words/core.mjs). They are written at
+// their new place the next time the chapter is saved.
 
 import path from "node:path";
 import { createStore } from "./alignment-words/store.mjs";
@@ -40,24 +44,25 @@ try {
 }
 
 const REASON = {
-  english: "its English is no longer in the verse",
+  english: "its English words changed",
   greek: "its Greek no longer matches SBLGNT",
   clash: "it overlaps another record",
   empty: "it links nothing",
+  verse: "its verse is no longer in the English",
 };
 
-const { stale, orphans, verses, chapters } = store.getReport();
+const { stale, carried, verses, chapters } = store.getReport();
 const show = (r) =>
   `${r.greek.map((g) => g.form).join(" ") || "(no Greek)"} ↔ ${r.english.map((p) => p.text).join(" … ") || "(no English)"}`;
 
 console.log(`Checked ${verses} verses in ${chapters} chapters.`);
 if (stale.length) {
-  console.log(`\nStale (${stale.length}): the record no longer fits its verse.`);
+  console.log(`\nStale (${stale.length}): the record no longer fits.`);
   for (const s of stale) console.log(`  ${s.ref}  ${show(s.record)}\n      ${REASON[s.reason] ?? s.reason}`);
 }
-if (orphans.length) {
-  console.log(`\nOrphaned (${orphans.length}): the verse is no longer in the English.`);
-  for (const o of orphans) console.log(`  ${o.ref}  ${show(o.record)}`);
+if (carried.length) {
+  console.log(`\nCarried across a revision, not yet saved (${carried.reduce((n, c) => n + c.links, 0)} links):`);
+  for (const c of carried) console.log(`  ${c.chapter}: ${c.links}. Open it in review:words and accept them.`);
 }
-if (!stale.length && !orphans.length) console.log("Every stored record still fits.");
-process.exit(stale.length || orphans.length ? 1 : 0);
+if (!stale.length) console.log(carried.length ? "\nNo stale records." : "Every stored record still fits.");
+process.exit(stale.length ? 1 : 0);

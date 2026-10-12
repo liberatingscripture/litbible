@@ -2343,6 +2343,12 @@ tab).
 - **Anchors that can point at a Greek word** (book, chapter, verse, SBLGNT
   word position) beside the English quotes. Nothing uses it until the
   alignment publishes.
+  **The word position is MorphGNT's** (`t`, 1-based within the verse),
+  because that is what alignment phase 2 stores
+  (`scripts/alignment-words/core.mjs`; CLAUDE.md, "Phase 2 tooling"). The
+  Greek tab must number words the same way or the word bubble can't follow a
+  link. The passages it takes from other sources (John 7:53–8:11, Romans
+  16:25–27) have no MorphGNT words and will need a source label.
 - **One bubble**: the shared floating panel the term lens uses, so the term
   lens grows into the word bubble and N2's notes carry over.
 - **The data is shaped for it**: the alignment dataset's phase 2 records Greek

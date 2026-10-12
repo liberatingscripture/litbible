@@ -19,17 +19,19 @@
   <main id="main">
     <p id="empty" class="muted" hidden></p>
 
-    <div id="orphans" class="stale" hidden>
-      <p><strong id="orphan-count"></strong> stored link(s) belong to verses this chapter's English no longer has.</p>
-      <button id="discard-orphans" type="button">Discard them</button>
+    <div id="changed" class="notice" hidden>
+      <p id="changed-text"></p>
+      <button id="accept" type="button">Accept carried-over links</button>
     </div>
 
-    <section id="verse" hidden>
-      <h2 id="verse-ref"></h2>
-      <p class="label">Greek (SBLGNT)</p>
-      <div id="greek" class="row greek" lang="grc"></div>
-      <p class="label">English (LIT)</p>
-      <div id="english" class="row english" lang="en"></div>
+    <div id="chapter-stale" class="stale" hidden>
+      <p>Stored links whose verse this chapter's English no longer has:</p>
+      <ul id="chapter-stale-list" class="stale-list"></ul>
+    </div>
+
+    <section id="work" hidden>
+      <label class="toggle"><input type="checkbox" id="context"> Show the verses before and after (to link across a verse boundary)</label>
+      <div id="blocks"></div>
 
       <div class="actions">
         <button id="link" type="button" class="primary" disabled>Link</button>
@@ -39,9 +41,8 @@
       </div>
 
       <div id="stale" class="stale" hidden>
-        <p><strong id="stale-count"></strong> stored link(s) no longer fit this verse, usually because the English was revised. Their Greek is free to link again. Re-link puts the Greek back in your selection so you only choose the new English.</p>
+        <p><strong id="stale-count"></strong> stored link(s) here no longer fit, usually because the English was revised. Their words are free to link again. Re-link puts the Greek back in your selection so you only choose the new English.</p>
         <ul id="stale-list" class="stale-list"></ul>
-        <button id="discard-all" type="button">Discard all</button>
       </div>
 
       <h3>Links in this verse</h3>

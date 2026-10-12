@@ -19,7 +19,9 @@ const REPO_ROOT = path.resolve(HERE, "..", "..");
 const UI_DIR = path.join(HERE, "ui");
 
 const DEFAULT_PORT = 4501;
-const MAX_BODY_BYTES = 64 * 1024;
+// A chapter is saved whole (a link may cross a verse), so the cap is a few
+// hundred links, not one verse's handful.
+const MAX_BODY_BYTES = 2 * 1024 * 1024;
 const JS_TYPE = "text/javascript; charset=utf-8";
 
 /**
@@ -106,13 +108,11 @@ async function handleApi(store, req, res, method, pathname) {
     return sendJson(res, 200, { chapters: store.getChapters(), outDir: path.relative(REPO_ROOT, store.outDir) });
   }
 
-  let m = pathname.match(/^\/api\/chapters\/([^/]+)$/);
-  if (method === "GET" && m) return sendJson(res, 200, store.getChapter(decodeURIComponent(m[1])));
-
-  m = pathname.match(/^\/api\/verses\/([^/]+)$/);
-  if (method === "POST" && m) {
+  const m = pathname.match(/^\/api\/chapters\/([^/]+)$/);
+  if (m && method === "GET") return sendJson(res, 200, store.getChapter(decodeURIComponent(m[1])));
+  if (m && method === "POST") {
     const body = await readJsonBody(req);
-    return sendJson(res, 200, await store.saveVerse(decodeURIComponent(m[1]), body));
+    return sendJson(res, 200, await store.saveChapter(decodeURIComponent(m[1]), body));
   }
 
   return sendJson(res, 404, { error: `Not found: ${method} ${pathname}` });
