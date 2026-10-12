@@ -166,7 +166,7 @@ src/
                      #   apps/ holds the /apps promo page sections
   content/
     articles/        # Blog/teaching articles (Markdown, ~13 files)
-    glossary/        # Glossary entries (Markdown w/ frontmatter, ~31 files)
+    glossary/        # Glossary entries (Markdown w/ frontmatter, ~47 files)
     callouts/, examples/, seasons/   # /apps promo section content (Markdown)
   content.config.ts  # Astro content-collection schemas (articles, glossary,
                      #   + apps: callouts/examples/seasons)
@@ -1128,15 +1128,30 @@ every footnote (over 5,000 of them) is invisible to both search engines (the ver
 missing aggregate.
 
 Built in **two phases against one schema** — the format never changes, only
-coverage grows:
+coverage grows. Phase 1 itself has two stages, which the owner and the git
+history call **1a** and **1b**:
 
 - **Phase 1 (shipped, and fully reviewed)** — glossary terms only, seeded by
   `build-alignment.mjs` scanning published chapters for each glossary entry's
   `lit` renderings, then reviewed verse by verse against the Greek. `term` is
-  populated, `greek` is empty. **Every one of the ~3,250 lemma-seeded queue
-  verses is decided across all 31 terms**, so all 31 clear the display gate
-  below. Regenerate the current numbers rather than trusting this sentence —
-  new chapters keep arriving, and each one reopens its terms.
+  populated, `greek` is empty.
+  - **1a** is the original 31 terms.
+  - **1b** widens the glossary past those 31, one reviewed batch at a time,
+    each term getting a glossary entry written from the owner's own published
+    footnotes. The batches so far took it to 39 terms (the
+    `claude/alignment-phase1b` / `1c` branches, Aug 2026) and then to 47 (#168,
+    "Alignment phase 1b: eight new glossary terms", Sept 2026). The owner is
+    continuing it with the other terms the footnotes explain and link.
+    `GLOSSARY-CANDIDATES.md` is the register of candidates set aside, and
+    which terms earn an entry is the owner's editorial call (see the
+    `glossary` collection below).
+  - **Every lemma-seeded queue verse is decided across all 47 terms**, so all
+    47 clear the display gate below. Regenerate the current numbers rather
+    than trusting this sentence — new chapters keep arriving, and each one
+    reopens its terms, and each 1b batch adds a term to review.
+  - Not to be confused with the **Study Desk's** phases 1a/1b/1c
+    (`STUDY-DESK.md`), a separate project that reuses the numbering. Say
+    "alignment phase 1b" or "desk phase 1b".
 - **Phase 2 (in progress, unpublished)** — every SBLGNT token, captured by hand
   as the remaining books are translated, filling `greek` with `{t, form}`
   token positions. Ordinary words (καί, δέ) get `"term": null`. **Not published
@@ -1446,9 +1461,10 @@ it renders as the ordinary word "family", which the scan can't tell from a
 vocative "Family," (cf. Rom 8:12, *adelphoi*) — and "family" is *also* a
 genuine *sarx* rendering in Mark 10:8 ("the two will become one family"). The
 same English word is right in one verse and wrong in five others, which is
-exactly the judgment no machine makes. All 31 terms now clear the gate; a term
+exactly the judgment no machine makes. All 47 terms now clear the gate; a term
 dropping back out means new `auto` + `common` records arrived with a new
-chapter.
+chapter, and a newly added 1b term stays off the page until its queue is
+reviewed.
 
 The rule is also why the review tool and this gate had to ship together — a
 bulk-rejected record keeps `confidence: "common"` forever, so under the old
