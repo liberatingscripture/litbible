@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Word alignment</title>
+  <link rel="stylesheet" href="/app.css">
+</head>
+<body>
+  <header class="bar">
+    <h1>Word alignment</h1>
+    <label>Chapter <select id="chapter"></select></label>
+    <span id="progress" class="muted"></span>
+    <span id="where" class="muted"></span>
+  </header>
+
+  <nav id="verses" class="verses" aria-label="Verses"></nav>
+
+  <main id="main">
+    <p id="empty" class="muted" hidden></p>
+
+    <div id="changed" class="notice" hidden>
+      <p id="changed-text"></p>
+      <button id="accept" type="button">Accept carried-over links</button>
+    </div>
+
+    <div id="chapter-stale" class="stale" hidden>
+      <p>Stored links whose verse this chapter's English no longer has:</p>
+      <ul id="chapter-stale-list" class="stale-list"></ul>
+    </div>
+
+    <section id="work" hidden>
+      <label class="toggle"><input type="checkbox" id="context"> Show the verses before and after (to link across a verse boundary)</label>
+      <div id="blocks"></div>
+
+      <div class="actions">
+        <button id="link" type="button" class="primary" disabled>Link</button>
+        <button id="clear" type="button" disabled>Clear selection</button>
+        <button id="unlink" type="button" hidden>Unlink</button>
+        <span id="hint" class="muted"></span>
+      </div>
+
+      <div id="stale" class="stale" hidden>
+        <p><strong id="stale-count"></strong> stored link(s) here no longer fit, usually because the English was revised. Their words are free to link again. Re-link puts the Greek back in your selection so you only choose the new English.</p>
+        <ul id="stale-list" class="stale-list"></ul>
+      </div>
+
+      <h3>Links in this verse</h3>
+      <ol id="links" class="links"></ol>
+      <p id="open" class="muted"></p>
+    </section>
+  </main>
+
+  <p id="error" class="error" role="alert" hidden></p>
+  <script type="module" src="/app.js"></script>
+</body>
+</html>

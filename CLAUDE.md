@@ -92,6 +92,15 @@ npm run build:alignment   # Rescan the text for glossary-term renderings (src/da
                           #   (on demand only — output is committed and carries review state)
 npm run review:alignment  # Localhost review tool for that dataset (see below). Needs the
                           #   MorphGNT clone; writes to src/data/alignment/ as you decide
+npm run review:words      # Localhost tool for alignment PHASE 2: link every SBLGNT word to
+                          #   the LIT words that render it, verse by verse (port 4501).
+                          #   Needs the MorphGNT clone; writes src/data/alignment-words/
+                          #   (see "Phase 2 tooling" below). --chapters-dir=<dir> aligns
+                          #   English not yet in the corpus
+npm run audit:words       # Re-check every stored phase 2 record against today's English and
+                          #   Greek (stale = no longer fits; carried = moved by a revision,
+                          #   not yet saved). Run after revising scripture; repair happens
+                          #   in review:words
 npm run build:anchor-vectors # Regenerate test/fixtures/anchor-vectors.json, the Study Desk
                           #   anchor-text vectors the apps run (on demand only — committed,
                           #   and its "before" texts come from git history)
@@ -255,6 +264,10 @@ scripts/             # BUILD/validation Node scripts (.mjs) — see below
                      #   deliberately NOT from public/ (Astro copies public/
                      #   into dist/ as a filesystem op — .gitignore there
                      #   prevents committing, not deploying)
+  alignment-words/   # Phase 2's tool (word-to-word alignment), kept apart from the
+                     #   glossary tool above: core.mjs (pure, unit-tested), store.mjs
+                     #   (fs + MorphGNT), server.mjs, ui/. Writes
+                     #   src/data/alignment-words/, never src/data/alignment/
 public/              # Static assets + generated output (api/, og/, search/,
                      #   topics-index.json, llms.txt, llms-full.txt, _headers,
                      #   images/, icons). Page-loaded raster images are WebP,
@@ -365,7 +378,9 @@ the sitemap filter live in `astro.config.mjs`.
 | `build-bracket-marker-font.mjs` | `public/fonts/bracket-markers.otf` — subsets the ⟦/⟧ disputed-passage glyphs out of Noto Sans Math, since the site's own webfonts are Latin-only. **Not** in the build — run by hand if the source glyphs ever change. See "Bracketed passages" below. |
 | `build-apps-qr.mjs` | `public/images/apps-qr.svg` — the QR code the app announcement shows on a computer, pointing at `https://litbible.net/apps/` with no tracking parameter. Uses `qrcode-generator` (MIT, no dependencies), a devDependency used only by this script. **Not** in the build — run by hand if the address ever changes. |
 | `build-alignment.mjs` | `src/data/alignment/` — scans published chapters for glossary-term renderings, then checks each against MorphGNT. **Not** in the build; its output is committed and merges with prior human review. See The Alignment Dataset below. |
+| `alignment-words/server.mjs` | `npm run review:words` — phase 2's localhost tool (`core.mjs` = pure format and rules, `store.mjs` = fs + corpus, `ui/` = vanilla HTML/CSS/JS, no shared code with the glossary tool's UI). See "Phase 2 tooling" under The Alignment Dataset. |
 | `alignment-review/server.mjs` | `npm run review:alignment` — the localhost review UI (`store.mjs` = fs + corpus, `review-core.mjs` = pure logic *also served to the browser*, `ui/` = vanilla HTML/CSS/JS). Node builtins only, no deps. |
+| `audit-alignment-words.mjs` | `npm run audit:words` — fs/CLI shell that reports every stale phase 2 record and every link carried across a revision but not yet saved (via `alignment-words/store.mjs`'s `getReport`). Report only; **not** in the build or CI. |
 | `audit-alignment.mjs` | fs/CLI shell: re-checks every *decided* alignment record against the current scripture text. **Not** in the build or CI — run by hand after editing chapters. Delegates the check to `lib/alignment-audit-core.mjs`. |
 | `lib/morphgnt.mjs` | Reads a gitignored local MorphGNT working copy (lemma-per-verse; `{withTokens}` also keeps every token in verse order, which only the review tool needs). Absent → verification skipped, prior verdicts kept. |
 | `lib/glossary-lemmas.mjs` | Editorial map: glossary id → the Greek lemmas that commitment covers. Validated against the corpus at load. |
@@ -936,12 +951,23 @@ SBLGNT omits, without either choice being ad hoc.
 |---------|--------|-----|
 | Romans 16:24 | present (with TR/Byz; NA28, WH, Tregelles, THGNT omit) | printed, **bracketed** |
 | Romans 16:25–27 (doxology) | absent | **retained, bracketed**, divergence footnoted |
-| John 7:53–8:11 | absent (John 7 ends at v52, John 8 opens at v12) | **retained, bracketed**, divergence footnoted |
+| John 7:53–8:11 | absent from the 2010 edition; added, in double brackets, in SBL's v1.2 data (2023) | **retained, bracketed**, footnoted (the notes say both, since #297) |
 | Mark 16:9–20 | present | printed, **bracketed** |
 
 Mark 16 is in that table specifically to head off a wrong inference: SBLGNT
 does *not* drop every famously disputed passage, so "SBL omits it" has to be
 checked per passage, never assumed from the passage's reputation.
+
+**Two SBLGNT texts are in play, and they differ in one passage.** The 2010
+edition is what MorphGNT is built on, so it is the Greek every tool here reads
+(the alignment dataset's lemma check, both review tools). SBL's own data
+release, v1.2 (2023-07-10, CC BY 4.0, `LogosBible/SBLGNT` on GitHub), adds
+John 7:53–8:11 in double brackets. Compared word by word across the NT on
+2026-10-12, the two agree everywhere else: same words, same order, so a
+MorphGNT word position names the same word in both. The only other
+differences are typographic: the elision mark (’ U+2019 in MorphGNT, ʼ U+02BC
+in v1.2, about 1,100 verses) and two capitals (Matthew 27:24, Titus 3:13).
+MorphGNT has not added the passage; its last change was 2024-01-21.
 
 **The rule for divergences:** where LIT departs from SBLGNT in either
 direction, a chapter footnote says so and names SBLGNT as the source text.
@@ -1156,7 +1182,8 @@ history call **1a** and **1b**:
   as the remaining books are translated, filling `greek` with `{t, form}`
   token positions. Ordinary words (καί, δέ) get `"term": null`. **Not published
   until it's complete across the NT** (owner decision) — partial word-by-word
-  coverage would read as a claim the data can't support.
+  coverage would read as a claim the data can't support. Its tool and
+  on-disk format are described under "Phase 2 tooling" below.
 
 ```json
 {
@@ -1209,6 +1236,74 @@ history call **1a** and **1b**:
   Greek is here and the translation has no distinct rendering for it. A
   first-class answer, not a skip — it's how a term reaches fully-reviewed
   without inventing renderings for verses that have none.
+
+### Phase 2 tooling (`npm run review:words`)
+
+Phase 2 is **verse-centric**, where the glossary review tool is term-centric:
+you walk a chapter verse by verse, click SBLGNT words and LIT words, and press
+Link (Enter); every change saves at once. It shares the glossary tool's
+discipline (localhost only, exact-path static allowlist, MorphGNT required, no
+save step) and none of its UI. **The format is written out in the header of
+`scripts/alignment-words/core.mjs`**, which is the authority; the decisions
+behind it (reviewed by Opus on 2026-10-12, which added 3, 4, 6 and 8):
+
+1. **A separate directory, `src/data/alignment-words/<book>-<chapter>.json`.**
+   Phase 1's files are read by every site page that touches the glossary
+   (`/glossary`, the term lens, the audit), and phase 2 is orders of
+   magnitude larger (~138,000 SBLGNT words against ~5,000 glossary records).
+   Nothing reads the new directory yet, and it is never published until the
+   whole NT is done. **Glossary matches are deliberately not in this tool**:
+   terms carrying a translation commitment are aligned in the glossary tool,
+   and a term is joined in from the lemma at read time.
+2. **The same link shape, fewer fields, and a `format` number.** A record is
+   `{ref, greek: [{t, form}], english: [{text, n}]}`. `status`, `source`,
+   `confidence`, `lemma` and `term` are not written (constant, or
+   joined). `form` is the SBLGNT word without punctuation or apparatus
+   signs, stored NFC, and doubles as a checksum. The check ignores the
+   elision mark and capitals, which differ between MorphGNT and SBL's v1.2
+   data without being different words (see "Translation Source Text").
+3. **Each file keeps its verses' English as aligned (`basis`).** `n` alone
+   cannot survive a revision: insert a second "the" early in a verse and every
+   later "the" record resolves to the word before its own, with nothing
+   reported (reproduced before the fix; now a regression test). With the
+   basis, a changed verse is compared with its old wording word by word: a
+   record whose words all survived is **carried** to their new place
+   (outlined dotted, written there on the next save, "Accept carried-over
+   links"), and only a record touching a changed word goes **stale**. Text is
+   normalized as the Study Desk's anchors are (`normalizeAnchorText`).
+4. **A link may cross a verse boundary** (owner, 2026-10-12): a Greek word or
+   English piece in another verse of the same chapter carries `v`. The
+   record belongs to the verse of its first Greek word. "Show the verses
+   before and after" puts the neighbours on screen, and the selection
+   survives moving between verses. Because of this **the chapter is the unit
+   of saving**, not the verse.
+5. **Complete is derived, never a flag**: every Greek and English word in the
+   verse belongs to a live record and no stale record touches it. A verse with
+   **no SBLGNT words** (John 7:53–8:11 in MorphGNT's 2010 text) is outside the
+   source and is never complete, since marking its English "no Greek" would
+   claim the LIT invented it. Each English word belongs to exactly one link.
+6. **Revision is expected, so a stale record is repaired, never silently
+   lost.** It is written back marked `"stale": "<reason>"` (english,
+   greek, clash, empty, verse) and covers nothing until the reviewer resolves
+   it: **Re-link** puts its still-good Greek back in the selection, or
+   **Discard**. `npm run audit:words` reports stale records and carried
+   links across every chapter; report only, not in CI or the build, same call
+   as `audit:alignment`.
+7. **It aligns draft chapters too**, since the point is to work as a book is
+   translated; the glossary tool skips `indexed: false`.
+8. **A save carries the revision it was made against** (a hash of the file),
+   and one against a file that moved since is refused with 409, so a second
+   tab holding an older copy can't overwrite the first.
+9. **The lemma and parsing are shown, never stored.** MorphGNT's codes are
+   put in words for display (`describeParse`: "verb, aorist middle
+   indicative, 3rd person singular"), the raw code kept beside it.
+
+**`t` is MorphGNT's word numbering, and the word bubble depends on it.**
+The Greek tab (STUDY-DESK.md, "Decisions", 2026-10-08) must number words
+exactly as MorphGNT does for a link to be followed. The passages it plans to
+take from other sources (John 7:53–8:11 from SBL's 2023 data, Romans 16:25–27
+from Nestle 1904) have no MorphGNT words, so this tool can't align them yet;
+they will need a source label when that work starts.
 
 ### Greek verification (MorphGNT)
 
