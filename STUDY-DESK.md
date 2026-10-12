@@ -36,8 +36,8 @@ are recorded so they aren't re-argued.
   "This verse", M1, the draggable widths, and N11 provisionally), and so
   are highlights (2026-10-09), as soon as BDR's answers to rules a to e
   settled the overlap rule, and the change notice (2026-10-10). Still to
-  come in 1c: pinned footnotes. The versions wait on the API.bible
-  questions. What exists:
+  come in 1c: pinned footnotes. Other versions (API.bible and the Versions
+  tab) are out of version 1 (BVJ, 2026-10-11). What exists:
   - draft 1 of the record format (`STUDY-DESK-FORMAT.md`), with its
     reference implementation (`scripts/lib/anchor-text.mjs`) and test vectors
     (PR #268);
@@ -95,15 +95,16 @@ are recorded so they aren't re-argued.
   narrows to **52**, and **Cardo** is the serif for Greek and Hebrew. See
   "Decisions", 2026-10-05 (phase 0 picks). **On Study View chapters it
   narrows further, to 48, while the notebook is open** (BVJ, 2026-10-08),
-  to leave the panel room for the Greek and Versions tabs ("Decisions", 2026-10-08).
+  to leave the panel room for the Greek tab ("Decisions", 2026-10-08).
 - **The Notebook panel gets tabs** (2026-10-08): "My Notes", "This verse",
-  and the other versions beside the LIT: the SBLGNT (with parsing, two
-  lexicons and its apparatus, ahead of the word-by-word alignment), the KJV,
-  OEB, WEB, CSB, NASB 2020 and NIV, all in the first release. The tabs are
-  My Notes, This verse, Greek and Versions, and readers can drag the widths
-  of their notes, the LIT and the notebook. Folded into phase 1: the tabs,
-  "This verse" and the public-domain versions in 1c, the licensed versions
-  as 1e, the Greek as 1f. See "Decisions", 2026-10-08 (the Greek tab), and "Order of work".
+  and the SBLGNT beside the LIT (with parsing, two lexicons and its
+  apparatus, ahead of the word-by-word alignment). The tabs are My Notes,
+  This verse and Greek, and readers can drag the widths of their notes, the
+  LIT and the notebook. Folded into phase 1: the tabs and "This verse" in
+  1c, the Greek as 1f. **Other versions (the KJV, OEB, WEB, CSB, NASB 2020
+  and NIV, with a Versions tab) were planned for the first release and are
+  deferred indefinitely** (BVJ, 2026-10-11). See "Decisions", 2026-10-08 (the
+  Greek tab) and 2026-10-11 (other versions deferred), and "Order of work".
 - **Three companion pages on claude.ai**, made while planning:
   - **The plan**, https://claude.ai/artifact/8Eyhmzd1xGTUPrjkwwSUqp (version 12,
     2026-10-02; shared with anyone who has the link). It has mockups this file
@@ -678,7 +679,10 @@ plan as a whole was accepted; nothing was declined except where stated).
   Safari readers hear that Safari can clear a notebook after a week without a
   visit (C18). In Firefox and Safari the file line becomes "Remind me to save
   a copy". Small. **Decided.**
-- **D7. Compare a verse with other translations.** Borrowed from NET's
+- **D7. Compare a verse with other translations.** **DEFERRED
+  INDEFINITELY (BVJ, 2026-10-11): API.bible and the whole idea of a tab
+  showing other versions are out of version 1, including "This verse".** The
+  notes below are kept as the record, not the plan. Borrowed from NET's
   "Parallel". Other translations appear side by side in N10's "This verse"
   tab. **BVJ, 2026-10-08: they also get a Versions tab of their own,
   and both are in the desk's first release, with the KJV, OEB, WEB, CSB,
@@ -1510,7 +1514,7 @@ recommendation, not a decision.
 | 18 | Bookmarks vs the `bookmark` marker; whether a quote may cross a verse or paragraph boundary | A-Q13 | the three Claudes propose | **Lean: bookmarks are their own kind**, and the marker stays a note's glyph |
 | 19 | Tombstones after the trash empties | A-Q14 | the Claudes | **Yes**: BDR chose rule c's option 3 (2026-10-09), a 30-day trash and then a marker kept forever |
 | 20 | **The merge and overlap rules** | A-M5, A-F7, A-F10, A-Q14 | BDR, then the Claudes | **Settled 2026-10-09**: answered by BDR, and BVJ went with BDR on a note's older version (discarded; the Zoom's item 15). See "Questions for the apps" below and rules a to e. BVJ had held the website's merge engine and overlap rule for BDR's input (2026-10-05) |
-| 21 | **API.bible's terms**: can the LIT accept them for the CSB, NASB and NIV? | D7, 1e | BVJ with BDR | Added 2026-10-08. §5.4 bars any "potentially controversial use" of the text, naming critical race theory and critical queer theory, and §3.5 lets API.bible revoke access at any time; §12 requires that licensed text not be freely copied, with a 100-verse print limit; §4.1 bars changes to the text's structure (no longer a concern, since the versions keep their own paragraphs); §26 sends disputes to Christian conciliation and binding arbitration. For BDR: whether either app uses API.bible or plans to, since the Collective would be agreeing to these terms for the apps too, and what BDR makes of §5.4. The three ways forward (accept after asking API.bible, license directly, or link out for the first release) are under D7, "API.bible's own terms". **Still unanswered**: BDR's proposal at draft 4d (2026-10-09) doesn't mention it |
+| 21 | **API.bible's terms**: can the LIT accept them for the CSB, NASB and NIV? | D7, 1e | BVJ with BDR | **Closed 2026-10-11: BVJ deferred API.bible and other versions indefinitely, so nothing to accept for version 1.** Added 2026-10-08. §5.4 bars any "potentially controversial use" of the text, naming critical race theory and critical queer theory, and §3.5 lets API.bible revoke access at any time; §12 requires that licensed text not be freely copied, with a 100-verse print limit; §4.1 bars changes to the text's structure (no longer a concern, since the versions keep their own paragraphs); §26 sends disputes to Christian conciliation and binding arbitration. For BDR: whether either app uses API.bible or plans to, since the Collective would be agreeing to these terms for the apps too, and what BDR makes of §5.4. The three ways forward (accept after asking API.bible, license directly, or link out for the first release) are under D7, "API.bible's own terms". **Still unanswered**: BDR's proposal at draft 4d (2026-10-09) doesn't mention it |
 
 Questions for the apps, to send back:
 - **For the iOS instance:** finding 1 (re-anchoring and paragraph positions);
@@ -1725,7 +1729,7 @@ website has to say goes here, on `main`, with its date.
   - **Naming (Zoom item 16): the names stay, and they differ on purpose.**
     The **Notebook** is the website's panel and holds more than the reader's
     notes. Its **My Notes** tab is the apps' My Notes; its other tabs (This
-    verse, Greek, Versions) are things the apps don't do. **"Study Desk"**
+    verse, Greek) are things the apps don't do. **"Study Desk"**
     is the project's name, never shown to readers, and covers more than the
     Notebook: the margin notes, the menus' actions, sync and encryption.
     One consequence, noted here rather than ruled: the proposal's draft
@@ -2415,8 +2419,8 @@ text, design or name. Sefaria's code is GPL-3.0, so don't copy it either.
   notebook lives in this browser, and the optional lock (D5).
 - The privacy page gets one paragraph (what's stored, where, how to delete
   it, and that it never reaches the LIT team unless the reader signs in);
-  accounts need a fuller rewrite, and API.bible's FUMS script would need
-  naming if adopted.
+  accounts need a fuller rewrite. (API.bible's FUMS script would have needed
+  naming; deferred 2026-10-11.)
 
 ## Considered and set aside
 
@@ -2690,8 +2694,8 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      **Built second (2026-10-08), the rest that waits on nobody**, behind the
      preview switch:
      - **The panel's tabs**: **My Notes · This verse** on Study View chapters,
-       My Notes alone (with no tab row) everywhere else. Greek and Versions
-       join the same table later. My Notes keeps the list as it was, with a
+       My Notes alone (with no tab row) everywhere else. Greek
+       joins the same table later (Versions is deferred). My Notes keeps the list as it was, with a
        small "Romans 8 / Everything" choice at its top, and the panel's foot
        (the switches, "Kept in this browser") shows with My Notes only. Each
        tab is its own module (`src/scripts/desk/tab-mine.js`,
@@ -2965,23 +2969,21 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
        before first paint, and opening or closing keeps the reader's line.
      - **The panel's tabs. Built 2026-10-08** (above). **"My Notes"** (BVJ,
        2026-10-08; it holds bookmarks and highlights too) holds today's
-       chapter and "Everything" lists; beside it "This verse", "Greek"
-       (arriving with 1f) and "Versions" (BVJ, 2026-10-08). The panel starts
+       chapter and "Everything" lists; beside it "This verse" and "Greek"
+       (arriving with 1f). A "Versions" tab was planned (BVJ, 2026-10-08) and
+       is deferred indefinitely (2026-10-11). The panel starts
        with the margin it gets. Small.
      - **Widths the reader can drag** (BVJ, 2026-10-08): their notes, the
        LIT and the notebook, with nothing showing between the columns until
        the pointer is in the gap. Details under "Decisions", 2026-10-08 (the
        Greek tab), items 12 and 13. Small to medium. **Built 2026-10-08**
        (above).
-     - **"This verse" (N10)** with the verse's footnotes, the reader's notes
-       on it and the public-domain versions from the start; the licensed translations join in 1e
-       and the Greek in 1f. Small. **Built 2026-10-08 without the versions**
-       (above), which wait with the next two items.
-     - **Held (BVJ, 2026-10-08) until the API.bible questions are decided:
-       the next two items, and the versions in "This verse".** The
-       public-domain versions wait with the licensed ones, so the stored
-       files, the Versions tab and This verse's versions are designed once,
-       for whatever set of versions the first release ends up with.
+     - **"This verse" (N10)** with the verse's footnotes and the reader's notes
+       on it; the Greek joins in 1f. Small. **Built 2026-10-08.** It shows
+       **no other versions**, and won't in version 1 (BVJ, 2026-10-11).
+     - **Deferred indefinitely (BVJ, 2026-10-11; held since 2026-10-08):
+       the next two items, and the versions in "This verse".** Kept as the
+       record; nothing is built.
      - **The KJV, the Open English Bible and the World English Bible, stored
        on the site** (public domain, from eBible.org; the OEB and WEB were
        picked by BVJ on 2026-10-08): a build step writing one file per
@@ -2996,8 +2998,9 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
        paragraphs and scrolling on its own; nothing lines it up with the LIT
        (BVJ, 2026-10-08). Recommended: it opens at the verse being read when
        the tab or the version changes, and a "Go to verse 18" button brings
-       it back to wherever the reader has got to. The Greek tab reuses the
-       same view. Study View only. Small to medium.
+       it back to wherever the reader has got to. The Greek tab was to reuse
+       the same view; with the Versions tab deferred, 1f builds that view
+       itself. Study View only. Small to medium.
    - **1d. The notebook around them.** The notebook page; your notebook in
      search, and commands in the search box (D2, D3); export and import in
      Markdown and the W3C shape, which every plan needs; the first-time
@@ -3008,7 +3011,9 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      paragraph (which 1e adds to); the link to the license terms. Saving live
      into a chosen file (D1) waits on its decision (T3); export and import
      don't.
-   - **1e. The licensed translations** (D7; BVJ, 2026-10-08: the other
+   - **1e. The licensed translations. DEFERRED INDEFINITELY (BVJ,
+     2026-10-11); not in version 1, and not built.** What follows is the
+     record of the plan. (D7; BVJ, 2026-10-08: the other
      translations are in the first release, four or more). The CSB, NASB 2020
      and NIV join the public-domain versions in the Versions tab and in
      "This verse":
@@ -3046,8 +3051,9 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
        open"). If they link out, 1e shrinks to the links and a copyright
        line. Medium.
    - **1f. The Greek tab** ("Decisions", 2026-10-08 (the Greek tab); in the
-     first release, BVJ, 2026-10-08). It reuses 1c's tabs and versions
-     view:
+     first release, BVJ, 2026-10-08). It reuses 1c's tabs, and builds the
+     own-scroll chapter view itself, since the Versions tab that was to
+     provide it is deferred (2026-10-11):
      - **The data, built at build time** into one file per chapter, a
        website asset never under `/api/`: SBL's own files
        (`github.com/LogosBible/SBLGNT`, CC BY 4.0) as the text of record,
@@ -3059,7 +3065,7 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
        the LIT goes into them. The parsing codes are spelled out in words by
        a small pure module.
      - **The tab**: the Greek in the SBLGNT's own paragraphs (SBL's data
-       marks them), scrolling on its own like the Versions tab, each word a
+       marks them), scrolling on its own, each word a
        control; the word's details docked at the tab's foot, with the
        UBS / STEPBible switch (UBS opening on the sense it assigns at that
        word; STEPBible's brief entry with "Full LSJ entry" always showing);
@@ -3079,11 +3085,11 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
        that the tab will show as SBLGNT text~~ (done 2026-10-11, see
        "Decisions"); and CLAUDE.md's MorphGNT paragraph loses the old SBLGNT
        EULA line. Large.
-   - **1e and 1f don't depend on 1d**, and can go before it, after it or
-     between its parts; they need only 1c's tabs and versions view. **Then decide
-     whether to release the desk to readers**, with 1e and 1f, since the
-     first release includes the other translations and the Greek (BVJ,
-     2026-10-08).
+   - **1f doesn't depend on 1d**, and can go before it, after it or
+     between its parts; it needs only 1c's tabs. **Then decide
+     whether to release the desk to readers**, with 1f, since the
+     first release includes the Greek (BVJ, 2026-10-08) but no other
+     versions (BVJ, 2026-10-11).
 2. **What only the LIT can do.** What's new for you and text checked before
    printing (B3, S2), on 1a's comparison; notes that follow a word and
    concept marks saved as rules (N2, H2, C23); your own chains (N4); the word
@@ -3590,7 +3596,7 @@ lemmas already exist for every SBLGNT word. Only the word-to-word link waits.
    Robinson–Pierpont.
 8. **N10 "This verse" stays**, and gains the verse's Greek beside its
    footnotes, the reader's notes and other translations of it.
-9. **The other versions are in the desk's first release** (BVJ, later the
+9. **The other versions are in the desk's first release** (**reversed 2026-10-11: deferred indefinitely**; BVJ, later the
    same day), one at a time: the KJV, the Open English Bible and the World
    English Bible stored on the site, and the CSB, NASB 2020 and NIV through
    API.bible as D7 describes. The NRSVue and CEB are shelved for a possible
@@ -3613,7 +3619,7 @@ lemmas already exist for every SBLGNT word. Only the word-to-word link waits.
     text there, so both keep the line being read in place; a page that
     opens with the notebook open is set at 48 before it first paints.
 
-12. **The tabs are My Notes · This verse · Greek · Versions** (BVJ, later
+12. **The tabs are My Notes · This verse · Greek · Versions** (**Versions deferred indefinitely, BVJ, 2026-10-11**; BVJ, later
     the same day), the second of three arrangements tried on the comparison
     page "Notebook tab widths"
     (https://claude.ai/artifact/Rf3qCLH6Rr25NAtgadxKs4, private). The
@@ -3729,7 +3735,7 @@ answers and requests (2026-10-09)") and answered six questions:
    and kept out of the onboarding tour.
 6. **Naming: the names differ on purpose and stay** (the Zoom's item 16).
    The Notebook holds more than the reader's notes: its **My Notes** tab is
-   the apps' My Notes, and its other tabs (This verse, Greek, Versions) are
+   the apps' My Notes, and its other tabs (This verse, Greek) are
    things the apps don't do. **"Study Desk" is the project's name**, never
    shown to readers, and is larger than the Notebook: it also covers the
    margin notes, the menus' actions, sync and encryption.
@@ -3764,6 +3770,29 @@ answers and requests (2026-10-09)") and answered six questions:
   whole-verse notes, what Keep writes) stays a **proposal for draft 2**:
   the apps still have to agree it (`STUDY-DESK-FORMAT.md`, "Finding a mark
   again").
+
+### 2026-10-11 (other versions deferred)
+
+- **API.bible, and the whole idea of a tab showing other versions, are put
+  off indefinitely** (BVJ). **None of it is in version 1 of the Study Desk.**
+  This replaces 2026-10-08's decisions that the other translations are in the
+  first release (items 9 and 12 of "the Greek tab", and D7).
+- **What goes out of version 1:** the Versions tab; the versions in "This
+  verse"; 1e (the Worker, the key, the tracking script, the copyright
+  notices); and the stored KJV, OEB and WEB with their numbering maps, which
+  only fed that tab (recorded as out with it, since the decision was about
+  the tab and the idea behind it; BVJ to say if the stored public-domain
+  versions should come back on their own).
+- **The tabs are My Notes · This verse · Greek.** Greek (1f) stays in the
+  first release. The 48-wide column with the notebook open stays as decided,
+  since the Greek tab still needs the room.
+- **What stays on file, unbuilt:** D7's survey and API.bible's terms as read
+  on 2026-10-02 and 2026-10-08, so the work isn't repeated if the idea
+  returns. Nothing was built for it, so no code is removed.
+- **Closed by this:** talk-through item 21 (API.bible's terms) and the
+  "Still open" D7 items. The privacy page needs no FUMS paragraph, and
+  DISASTER-RECOVERY.md gets no new Worker. The question of linking out to a
+  verse elsewhere (D7's fallback) is also left aside for version 1.
 
 ### 2026-10-11 (the John 7:53–8:11 footnotes)
 
@@ -3843,7 +3872,7 @@ answers and requests (2026-10-09)") and answered six questions:
   plan C ("One notebook, three homes"; at the Zoom, or by October 31 if the
   paused spikes resume). The record format is drafted (`STUDY-DESK-FORMAT.md`) and waits on
   both apps' review.
-- **D7**: whether API.bible's tracking script is acceptable (BVJ,
+- **D7, deferred indefinitely (BVJ, 2026-10-11)**; the questions below are kept in case the idea returns: whether API.bible's tracking script is acceptable (BVJ,
   2026-10-08: "probably"; what it does is under D7); which other
   free-to-share translations join the KJV; whether the donation page fits
   API.bible's free plan. Since BVJ put the translations in the first release
@@ -3868,7 +3897,7 @@ answers and requests (2026-10-09)") and answered six questions:
     the KJV (the BSB and ASV were set aside as duplicating the CSB and NIV,
     and the KJV and NASB); the NRSVue and CEB are shelved for a possible
     second version; the reader's tab is "My Notes"; the tabs are My Notes,
-    This verse, Greek and Versions, with no Parallel; the panel starts with
+    This verse, Greek and Versions (Versions deferred 2026-10-11), with no Parallel; the panel starts with
     the margin it gets and readers can drag the columns' widths, with
     nothing showing between them at rest (decision items 12 and 13).
 - **Topics and tags.** BVJ is considering renaming today's topics to "tags"
@@ -3882,9 +3911,9 @@ answers and requests (2026-10-09)") and answered six questions:
   functionally tags for search reach.
 - **D8, the tutorial**: what counts as the first encounter, and how it meets
   D6's first-time choice.
-- **Whether to release the desk to readers**, decided once 1d, 1e and 1f
-  are done (the first release includes the other translations and the
-  Greek).
+- **Whether to release the desk to readers**, decided once 1d and 1f
+  are done (the first release includes the Greek and no other
+  translations; 1e is deferred).
 - **The Digital Bible Library** (library.bible, the American Bible Society's
   library that API.bible draws from, and where YouVersion and Global.Bible get
   texts): I raised **submitting the LIT to it** as a way to reach the Bible

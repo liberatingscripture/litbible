@@ -5,9 +5,8 @@
 // with the translation's footnotes on it and the reader's own notes,
 // bookmark and highlights, and a way to add a note. A highlight is listed as
 // its words in the colour's own look, with Remove (and an Undo bar, as a
-// deleted note has). Other translations and the verse's Greek
-// join it later (the versions wait on the API.bible questions, BVJ
-// 2026-10-08; the Greek is phase 1f).
+// deleted note has). The verse's Greek joins it later (phase 1f).
+// Other translations are deferred indefinitely (BVJ, 2026-10-11).
 //
 // Picking a verse: opening a verse's menu while the notebook is open moves
 // the tab to that verse, and "Show in notebook" in the verse menu or the
