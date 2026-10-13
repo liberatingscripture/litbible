@@ -86,6 +86,11 @@ npm run build:favicons    # Regenerate the favicon/touch/manifest icons from the
                           #   (on demand only — outputs are committed, not built)
 npm run build:bracket-font # Regenerate public/fonts/bracket-markers.otf (the ⟦/⟧ glyph patch)
                           #   (on demand only — output is committed, not built)
+npm run build:text-critical-font # Regenerate public/fonts/text-critical-signs.otf (the
+                          #   SBLGNT's ⸀–⸅ signs, from full Cardo; on demand only, committed)
+npm run build:greek       # Regenerate public/greek/, the Study Desk's Greek tab data, from
+                          #   SBLGNT, MorphGNT, MACULA, UBS and STEPBible clones outside the
+                          #   repo (GREEK_SOURCES_DIR, MORPHGNT_DIR). On demand only, committed
 npm run build:apps-qr     # Regenerate public/images/apps-qr.svg, the app announcement's QR code
                           #   (on demand only — output is committed, not built)
 npm run build:alignment   # Rescan the text for glossary-term renderings (src/data/alignment/)
@@ -236,7 +241,10 @@ src/
                      #   desk-labels), places and ribbons (desk-places), the
                      #   notebook search and commands
                      #   (desk-search, desk-commands) and first use
-                     #   (desk-first-use)), osis.mjs (the OSIS book codes,
+                     #   (desk-first-use); the Greek tab's helpers
+                     #   (desk-greek)), greek-parse.mjs (MorphGNT's parsing
+                     #   codes in words, shared with the phase 2 tool),
+                     #   osis.mjs (the OSIS book codes,
                      #   shared by chapter-html.ts and the export),
                      #   app-platform.mjs
                      #   (the one "is this a phone or tablet" test, read by
@@ -386,6 +394,8 @@ the sitemap filter live in `astro.config.mjs`.
 | `build-og-images.mjs` | `public/og/` — per-chapter/intro share cards (fonts in `scripts/og/fonts/`). |
 | `build-favicons.mjs` | Favicon/touch/manifest icons from the emblem SVGs. **Not** in the build — run by hand when the emblem changes. |
 | `build-bracket-marker-font.mjs` | `public/fonts/bracket-markers.otf` — subsets the ⟦/⟧ disputed-passage glyphs out of Noto Sans Math, since the site's own webfonts are Latin-only. **Not** in the build — run by hand if the source glyphs ever change. See "Bracketed passages" below. |
+| `build-text-critical-font.mjs` | `public/fonts/text-critical-signs.otf` — the six SBLGNT text-critical signs (⸀ ⸁ ⸂ ⸃ ⸄ ⸅, U+2E00–2E05) subset from full Cardo (Google Fonts' TTF, OFL; Fontsource's Cardo subsets lack them), registered under Crimson Text and Inter in `greek-hebrew-fonts.css`. **Not** in the build. |
+| `build-greek.mjs` | `public/greek/` — the Study Desk's Greek tab data: one file per chapter (SBL's SBLGNT 1.2 text and paragraphs, MorphGNT's lemmas, parsing and word numbers, the apparatus, two borrowed passages) plus lexicon shards (UBS, STEPBible brief, full LSJ). Pure rules in `lib/greek-core.mjs` (unit-tested). **Not** in the build: CI has no copy of the sources, which live outside the repo (`GREEK_SOURCES_DIR`, `MORPHGNT_DIR`). See "The Study Desk preview", rule 14. |
 | `build-apps-qr.mjs` | `public/images/apps-qr.svg` — the QR code the app announcement shows on a computer, pointing at `https://litbible.net/apps/` with no tracking parameter. Uses `qrcode-generator` (MIT, no dependencies), a devDependency used only by this script. **Not** in the build — run by hand if the address ever changes. |
 | `build-alignment.mjs` | `src/data/alignment/` — scans published chapters for glossary-term renderings, then checks each against MorphGNT. **Not** in the build; its output is committed and merges with prior human review. See The Alignment Dataset below. |
 | `alignment-words/server.mjs` | `npm run review:words` — phase 2's localhost tool (`core.mjs` = pure format and rules, `store.mjs` = fs + corpus, `ui/` = vanilla HTML/CSS/JS, no shared code with the glossary tool's UI). See "Phase 2 tooling" under The Alignment Dataset. |
@@ -1319,10 +1329,14 @@ they will need a source label when that work starts.
 
 `build-alignment.mjs` checks each record against a local MorphGNT/SBLGNT
 working copy: does the lemma this record claims actually occur in this verse?
-**MorphGNT is a tool here, not a dependency and not redistributed** — its
-lemmatization is CC BY-SA 3.0 and the SBLGNT text carries its own EULA, so the
-corpus is gitignored and nothing from it is copied into `src/` or `public/`.
-Clone it by hand when you need to re-verify:
+**MorphGNT is a tool here, not a dependency**: its lemmatization is CC BY-SA
+3.0, so the corpus is gitignored and nothing from it is copied into `src/`.
+(The SBLGNT text itself is CC BY 4.0 in SBL's own release since v1.1,
+2022-12-19; MorphGNT's README still names the old EULA.) The one place its
+data is published is `public/greek/text/`, the Study Desk's Greek tab, which
+`npm run build:greek` writes under CC BY-SA 4.0 and keeps apart from
+everything else (see "The Study Desk preview", rule 14). Clone it by hand
+when you need to re-verify:
 
 ```bash
 git clone --depth 1 https://github.com/morphgnt/sblgnt.git .morphgnt
@@ -1697,13 +1711,15 @@ collection); they're read directly by the intro pages and the API manifest.
   `public/api/`, `public/og/`, `public/search/topics.json`,
   `public/search/verses.json`, `public/search/chapters/`, `public/topics-index.json`,
   `public/glossary.json`, `dist/`, `.astro/`.
-  Don't hand-edit them. Five generators are deliberately **outside** this rule
+  Don't hand-edit them. Seven generators are deliberately **outside** this rule
   because their output is committed and hand-maintained — `build:favicons`
   (icons), `build:alignment` (review state), `build:bracket-font`
-  (`public/fonts/bracket-markers.otf`), `build:apps-qr`
-  (`public/images/apps-qr.svg`), and `build:anchor-vectors`
-  (`test/fixtures/anchor-vectors.json`, which the apps fetch); none of the
-  five runs in `npm run build`.
+  (`public/fonts/bracket-markers.otf`), `build:text-critical-font`
+  (`public/fonts/text-critical-signs.otf`), `build:apps-qr`
+  (`public/images/apps-qr.svg`), `build:anchor-vectors`
+  (`test/fixtures/anchor-vectors.json`, which the apps fetch), and
+  `build:greek` (`public/greek/`, built from sources CI doesn't have); none
+  of the seven runs in `npm run build`.
 - **No client JS framework**, but `src/scripts/` *does* hold vanilla JS for
   progressive enhancement (verse highlighting/menus, footnote popovers, reading
   mode, search). Everything must degrade gracefully without JS.
@@ -2175,7 +2191,7 @@ collection); they're read directly by the intro pages and the API manifest.
   by an outside click or Escape. A click inside the Study Desk's Notebook
   panel doesn't count as outside, and a panel is placed clear of it (see
   below).
-- **The Study Desk preview** (STUDY-DESK.md, phases 1a to 1d) is in production but
+- **The Study Desk preview** (STUDY-DESK.md, phases 1a to 1d and 1f) is in production but
   switched off for everyone: `?desk=on` turns it on in one browser on a
   computer, `?desk=off` turns it off. STUDY-DESK.md is the record; what a
   change elsewhere in the site has to respect:
@@ -2317,8 +2333,8 @@ collection); they're read directly by the intro pages and the API manifest.
      footnote HTML that adds visible text will fail there.
   10. **The Notebook panel has tabs, one module each**: "My Notes"
      (`desk/tab-mine.js`) everywhere, and "This verse" (`desk/tab-verse.js`)
-     on Study View chapters, from the `TABS` table in `desk/panel.js`, where
-     the Greek tab will join. (A Versions tab, and API.bible with it, is
+     and "Greek" (`desk/tab-greek.js`, rule 14) on Study View chapters, from
+     the `TABS` table in `desk/panel.js`. (A Versions tab, and API.bible with it, is
      deferred indefinitely: not in version 1, BVJ 2026-10-11.) A page with one tab shows no tab
      row, and the panel's foot belongs to My Notes.
   11. **Ctrl+Z (⌘Z) and redo undo this tab's changes to the notebook**, one
@@ -2405,6 +2421,33 @@ collection); they're read directly by the intro pages and the API manifest.
        `claude/desk-1d-search`; it is not in this tree, so nothing here
        should assume a `hidden` record is honoured (an imported one shows as
        "Other items").
+  14. **Phase 1f is the Greek tab** (built 2026-10-13; STUDY-DESK.md,
+     "Order of work", 1f). Three things to know before touching it:
+     - **Its data is committed, not built.** `npm run build:greek` reads
+       clones kept outside the repo (`GREEK_SOURCES_DIR`: SBL's SBLGNT 1.2
+       with its apparatus, MACULA Greek, the UBS dictionary, STEPBible's
+       lexicons; `MORPHGNT_DIR`) and writes `public/greek/`: `text/` one
+       file per chapter, `ubs/`, `step/` and `lsj/` lexicon shards the tab
+       fetches when a word is opened, and `LICENSE.txt`. SBL's text is the
+       text of record; MorphGNT's lemmas and parsing are checked against it
+       word by word, and its word numbers (`t`) are alignment phase 2's.
+       John 7:53–8:11 takes its parsing from MACULA's SBLGNT, Romans
+       16:25–27 its Greek from the SBLGNT apparatus and its parsing from
+       MACULA's Nestle 1904. Re-run it when a source changes, never by hand.
+     - **Licenses keep the files apart.** `text/` and `ubs/` are CC BY-SA
+       4.0 (MorphGNT, UBS); `step/` and `lsj/` stay CC BY 4.0. **Nothing
+       from the LIT goes into `public/greek/`**: the tab's "rendered here
+       as…" line reads the page's own `#term-lens-data`, whose terms carry
+       their Greek `lemmas` (`term-lens-data.mjs`, from
+       `scripts/lib/glossary-lemmas.mjs`). A website asset, never under
+       `public/api/`.
+     - **The tab never moves the page.** Its text scrolls on its own and
+       opens at the verse being read, with "Go to verse N" to catch up; its
+       words are one roving tab stop, moved with the arrow keys. The
+       reader's lexicon choice is `localStorage['lit-desk-lexicon']`, named
+       in the privacy paragraph. The parsing is put in words by
+       `src/lib/greek-parse.mjs` (shared with the phase 2 tool), and the
+       SBLGNT's ⸀–⸅ signs draw from `public/fonts/text-critical-signs.otf`.
 - **Every link that leaves the site opens in a new tab** (owner, 2026-10-01).
   For rendered bodies that is `openExternalLinks` in `src/lib/external-links.mjs`
   (pure, unit-tested), called from `linkRefs`, the one function footnotes,
@@ -3158,7 +3201,7 @@ argv, and the scan; nothing else.
 | `public/llms.txt`, `llms-full.txt` | LLM-readable site description + AI-usage policy |
 | `GLOSSARY-CANDIDATES.md` | Register of glossary candidates deliberately not included or deferred, and the payload criterion behind those calls. Read it before proposing a "next term." |
 | `TOPICS.md` | **The authority on chapter and book-intro `topics`** — the significance filter, the alternative-translation pair table, the prefix-search rule, casing, and the hand-run checks. Read it before adding or revising any topics array. |
-| `STUDY-DESK.md` | **The planning and decision record for the Study Desk** (notes, places, highlights and sheets on desktop, with optional account sync shared with the apps). Phases 1a to 1d are built (the merge engine; notes, bookmarks, highlights, pinned footnotes, the margin and the panel's tabs; the notebook page, export and import, labels, ribbons, search and commands, first use and the tour), the shell behind a preview switch (`?desk=on`); nothing reader-facing is released. N8 (the hidden passage) is held on branches until after the Zoom; the Greek tab (1f) is next. Every idea, audit finding, owner decision, open question and BDR item is there with its ID, as are the two apps' replies (2026-10-04) and the talk-through list built from them. Read it before proposing or building any part of the desk, and update it when a decision changes. `STUDY-DESK-BRIEF-FOR-BDR.md` is the brief written for BDR's Claude about the apps' side; `STUDY-DESK-REPLY-TO-APPS.md` is the website's answer to both apps' replies (2026-10-05), and the last such document: since 2026-10-07 BDR's Claude reads this repo directly, so the website answers by updating `STUDY-DESK.md` on `main` (its section "One notebook, three homes" holds BDR's sync proposal and the website's answers). |
+| `STUDY-DESK.md` | **The planning and decision record for the Study Desk** (notes, places, highlights and sheets on desktop, with optional account sync shared with the apps). Phases 1a to 1d and 1f are built (the merge engine; notes, bookmarks, highlights, pinned footnotes, the margin and the panel's tabs; the notebook page, export and import, labels, ribbons, search and commands, first use and the tour; the Greek tab), the shell behind a preview switch (`?desk=on`); nothing reader-facing is released. N8 (the hidden passage) is held on branches until after the Zoom; whether to release the desk is the next decision, and 1g (an interleaf for the Greek) and 1h (searching the Greek) are ideas to explore. Every idea, audit finding, owner decision, open question and BDR item is there with its ID, as are the two apps' replies (2026-10-04) and the talk-through list built from them. Read it before proposing or building any part of the desk, and update it when a decision changes. `STUDY-DESK-BRIEF-FOR-BDR.md` is the brief written for BDR's Claude about the apps' side; `STUDY-DESK-REPLY-TO-APPS.md` is the website's answer to both apps' replies (2026-10-05), and the last such document: since 2026-10-07 BDR's Claude reads this repo directly, so the website answers by updating `STUDY-DESK.md` on `main` (its section "One notebook, three homes" holds BDR's sync proposal and the website's answers). |
 | `STUDY-DESK-FORMAT.md` | **Draft record format for the Study Desk**, shared with both apps: the kinds of record, the anchor text, and how a mark is found again after the wording moves. Its executable form is `scripts/lib/anchor-text.mjs` (pure half in `src/lib/anchor-core.mjs`) with `test/fixtures/anchor-vectors.json`; its merge rules are `src/lib/desk-merge.mjs` with `test/fixtures/merge-vectors.json`, hand-written cases the apps run too. Change each pair together. |
 | `DISASTER-RECOVERY.md` | Continuity doc: every dashboard/secret behind the deploy (names only, no values) + the DNS inventory + from-zero redeploy path. Update it when an integration, secret, or DNS record is added/removed. |
 

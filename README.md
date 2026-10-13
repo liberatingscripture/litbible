@@ -48,6 +48,7 @@ npm run dev        # start the dev server at http://localhost:4321
 | `npm run check:links` | Verify every internal link in a production build resolves |
 | `npm run build:favicons` | Regenerate the favicon and app-icon set from the emblem SVGs (only needed when the logo changes) |
 | `npm run build:apps-qr` | Regenerate the QR code the app announcement shows on a computer (only needed if its address changes) |
+| `npm run build:greek` | Regenerate the Study Desk's Greek tab data in `public/greek/` from Greek source clones kept outside the repo (see CLAUDE.md) |
 | `npm run build:alignment` | Rescan the text for glossary-term renderings (only needed when the text or the glossary changes) |
 | `npm run review:alignment` | Open the local review tool for that dataset (see below) |
 | `npm run audit:alignment` | Check that reviewed alignment records still match the text (run after editing chapters) |
