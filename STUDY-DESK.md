@@ -47,8 +47,10 @@ are recorded so they aren't re-argued.
   and **N7, the interleaf, which BVJ set aside** (2026-10-13; "Decisions").
   **1f, the Greek tab, was built on 2026-10-13** ("Order of work", 1f).
   Phase 1's built steps are done apart from N8's hold. **1g and 1h
-  belong to phase 1** (BVJ, 2026-10-13): they are to be explored before
-  phases 2 and 3 begin. **The desk is not released until phase 1 is
+  belong to phase 1** (BVJ, 2026-10-13), and both were explored the same
+  day: **1g (an interleaf for the Greek) is shelved for the future**, and
+  **1h (searching the Greek) is planned and waits to be built** ("Order of
+  work", 1h). **The desk is not released until phase 1 is
   completely done, and perhaps not until phases 1 to 3 are** (BVJ,
   2026-10-13). Other versions (API.bible and the Versions tab) are out of
   version 1 (BVJ, 2026-10-11). What exists:
@@ -2543,7 +2545,8 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
    - The apps' review of draft 1, then the freeze.
 1. **The notebook**, in steps 1a to 1h (1e deferred). Medium to large.
    **1g and 1h are part of this phase** (BVJ, 2026-10-13): phases 2 and 3
-   don't begin until both have been explored.
+   don't begin until both have been explored. Both were, on 2026-10-13: 1g
+   is shelved and 1h is planned.
    - **1a. Foundations.** Pure, unit-tested modules, with no page yet.
      Three are built and two are held for BDR (BVJ, 2026-10-05):
      - **Built: draft 1's record kinds** (`src/lib/desk-records.mjs`), with
@@ -3429,38 +3432,174 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      whether to release the desk to readers**, with 1f, since the
      first release includes the Greek (BVJ, 2026-10-08) but no other
      versions (BVJ, 2026-10-11).
-   - **1g. An interleaf for the Greek: to explore before phase 2** (BVJ,
-     2026-10-13; part of phase 1 by BVJ's word the same day). The interleaf as built (N7) was set aside as redundant
-     ("Decisions", 2026-10-13). BVJ's idea for later: use the interleaf for
-     something like an **interlinear Greek** under the LIT, and let readers
-     **write their own notes on the Greek**. BVJ asked that it be recorded,
-     not brainstormed yet. It would build on 1f's data and the interleaf's
-     code (`claude/desk-1d-hidden`, commit 1f27b2e; revert aacdc92 to bring
-     the code back), and notes on a Greek word would need the "anchors that
-     can point at a Greek word" in "Ready for the Greek text". Nothing is
-     decided.
-   - **1h. Searching the Greek: to explore before phase 2** (BVJ,
-     2026-10-13; part of phase 1 by BVJ's word the same day). Search the Greek in Greek script, finding near matches
-     (any form of a word); by Strong's number or an equivalent from the
-     data 1f uses, for readers with little Greek; and perhaps by
-     transliteration. Kept apart from 1f rather than added to it. What
-     1f already provides, so the matching itself is cheap: every word's
-     lemma (so "any form of this word" is a lemma lookup), a Strong's
-     number per lemma, and Greek typed without accents folds the way verse
-     search folds diacritics. What makes it a phase of its own:
-     - a corpus-wide index, loaded only when used, like `verses.json`
-       (1f's files are per chapter), built from MorphGNT and so CC BY-SA,
-       kept with `public/greek/`;
-     - where results appear: the site's search box (`search-core.js`) or
-       a search in the Greek tab;
-     - transliteration, which has to accept several spellings for one
-       letter (η as e or ē, χ as ch or kh, breathings as h or nothing) and
-       rank near misses;
-     - "any form of a root" across related words (πιστεύω, πίστις,
-       πιστός) rather than one word's forms: no source 1f uses groups
-       lemmas into families, so that part needs editorial work or another
-       source.
-     Nothing is decided.
+   - **1g. An interleaf for the Greek: explored, then shelved for the
+     future** (BVJ, 2026-10-13). BVJ's idea: use the interleaf (N7, set
+     aside as redundant the same day) for something like an **interlinear
+     Greek** under the LIT, and let readers **write their own notes on the
+     Greek**. Nothing is decided. What the exploring found, kept for
+     whenever it is picked up:
+     - **Two kinds of interlinear, and only one is possible before alignment
+       phase 2.** In *Greek order*, the Greek runs as written, with a gloss
+       and parsing stacked under each word, in a band under the LIT; all of
+       it is 1f's data (half the glosses are 4 characters or fewer). In
+       *English order* (a "reverse interlinear"), the Greek sits under each
+       LIT word; that needs phase 2, which is unpublished until it covers the
+       whole NT.
+     - **The gloss is the real design question.** Lexicon glosses are
+       traditional (σάρξ "flesh", μετάνοια "repentance"), and right under the
+       LIT they read as a correction of it. Options: (a) the lexicon's gloss,
+       labelled as the lexicon's; (b) the same, plus the LIT's own rendering
+       in that verse for the 47 glossary terms, from the term-lens data
+       (reviewed and gated, and carrying each term's lemmas), with the lexicon
+       gloss where a lemma occurs twice in a verse, since phase 1 records a
+       rendering per verse, not per word; (c) no gloss, parsing only. The
+       recommendation was (b).
+     - **Where it sits**: (i) a band after each paragraph (N7's code), (ii) a
+       band after each verse, or (iii) an "interlinear" layout inside the
+       Greek tab, which leaves the page alone. The recommendation was to mock
+       (i) beside (iii): Study View only, off by default behind one switch,
+       `keepReadingPlace` holding the line as the bands open, and the Greek
+       tab's keyboard model (one roving tab stop; a screen reader hears each
+       word with its gloss).
+     - **Notes on the Greek** would anchor to {book, chapter, verse, word
+       number, form}, phase 2's own shape, and allow a span (πίστις
+       Χριστοῦ). The SBLGNT doesn't change, so these anchors never drift and
+       never need a change notice. It is a change to STUDY-DESK-FORMAT.md, so
+       BDR reviews it first; the apps keep kinds they don't know (principle
+       6). John 7:53–8:11 and Romans 16:25–27 need the source label "Ready
+       for the Greek text" mentions. A note on every use of a lemma belongs
+       to N2 (phase 2).
+     - The interleaf's code is on `claude/desk-1d-hidden` (commit 1f27b2e;
+       revert aacdc92 to bring it back).
+   - **1h. Searching the Greek: explored and planned, to build** (BVJ,
+     2026-10-13). Kept apart from 1f rather than added to it.
+     **Decided** (BVJ, 2026-10-13):
+     - **What a reader can type**: Greek script, with or without accents,
+       finding any form of the word; a Strong's number (G4102); a
+       transliteration, where **agreuō and agreuo return the same
+       results**; and an English lexicon gloss, as a bridge from the
+       traditional word to the Greek ("faith" → πίστις), the way topics
+       bridge traditional vocabulary.
+     - **The main search bar searches the Greek, for every reader**: the
+       header's tray and /search. **Clicking a result opens the notebook to
+       the Greek tab, at that word.**
+     - **A second search field in the Greek tab** is fine if there is room
+       for it visually.
+     - Results show the Greek with the LIT verse under it. Word families and
+       construction search come later (below).
+
+     **The plan.** What 1f already gives makes the matching cheap: every
+     word's lemma (so "any form" is a lemma lookup), MorphGNT's word number
+     (`t`), and per lemma a Strong's number (5,462 of 5,465 lemmas have one)
+     and a short gloss; STEPBible's brief lexicon adds a transliteration per
+     lemma (`agreuō`).
+     1. **The index**, written by `npm run build:greek` beside 1f's files and
+        committed with them, under `public/greek/search/` (CC BY-SA, since it
+        is MorphGNT's lemmas; a line in `public/greek/LICENSE.txt`; never
+        under `public/api/`). Two parts, because one file holding every
+        occurrence measured 600 KB gzipped (137,793 words), more than twice
+        `verses.json`:
+        - **`lemmas.json`, loaded on the first query that could be Greek**:
+          each lemma with its Strong's number, gloss, transliteration key and
+          count, and every accent-folded form pointing at its lemma (18,620
+          forms). Measured at about 230 KB gzipped as a first cut, before
+          folding forms together; aim lower.
+        - **Occurrences, sharded by lemma** (as `step/` and `lsj/` are by
+          Strong's number) and fetched only once a lemma is chosen: for each
+          occurrence the verse, `t` and the form, so "exact form only" is a
+          filter, not another fetch.
+        The pure rules go in `scripts/lib/greek-core.mjs` with its tests.
+     2. **One pure matching module**, `src/lib/greek-search.mjs`,
+        unit-tested, shared by the search bar, /search and the Greek tab, the
+        way `search-core.js` keeps the two search UIs agreeing. It sorts a
+        query into its kind: anything with a Greek letter is Greek; `G` plus
+        digits (also `g4102`, `strong:4102`, `G04102`) is a Strong's number;
+        other Latin text is tried as a transliteration *and* as a gloss.
+        - **Greek** folds as verse search folds (accents, breathings, iota
+          subscript, final sigma, case), finds the form's lemma, and returns
+          every form of it. A lemma typed directly works the same way.
+        - **Transliteration** compares one key built from the Greek at build
+          and from the query as typed: lowercase, every mark stripped (so ō =
+          o, ē = e, and agreuō = agreuo), then the spellings that mean one
+          letter collapsed: kh/ch (χ), ph/f (φ), y/u (υ), x/ks (ξ), ng/gg
+          (γγ), and a breathing's h dropped from the front of both.
+          Test cases to write first: agreuō = agreuo, pistis, Christos =
+          Khristos = xristos, hamartia = amartia, ēgapēsen = egapesen,
+          psychē = psuche. Near misses rank after exact keys, using the
+          `levenshtein` already in `search-core.js`, and only at 5+ letters,
+          as verse search's typo correction does.
+        - **Gloss** matches whole words in the lemma's gloss ("faith" finds
+          πίστις, not "faithful" unless asked), ranked by how often the lemma
+          occurs.
+     3. **The main search bar** (`search-core.js`, then `searchbar.js` and
+        `search.js`; ordinary site search, since every reader sees it, so
+        none of it waits for the Notebook's code to load):
+        - **The tray** gets a "Greek" group. For a query that names one lemma
+          (Greek script, a Strong's number, an exact transliteration), up to
+          six verse rows ("John 3:16 · πιστεύων") and "All 243 on the search
+          page". For a query that reaches several lemmas, one row per lemma
+          ("πίστις · pistis · G4102 · faith · 243 times"), which narrows the
+          search to it. **A recommendation to judge when building**: so that
+          every English search doesn't grow a Greek group ("love" reaches
+          ἀγάπη, ἀγαπάω, φιλέω…), a Latin query shows the group in the tray
+          only on an exact transliteration key or a gloss that *is* the query
+          word, at most three lemmas, below the scripture groups; /search
+          shows it always.
+        - **/search** gets a Greek group with its own jump link, a choice of
+          lemma when several match, "exact form only", and verse rows
+          showing the reference, the verse's Greek with the matched word
+          marked, the parsing in words (`src/lib/greek-parse.mjs`), and the
+          LIT verse beneath (from `verses.json`, which the page loads
+          anyway). The Greek for each row comes from 1f's chapter file
+          (about 10 KB gzipped each), fetched for the rows on screen only:
+          ten at a time, with "Show more" fetching the next ten.
+        - A book filter narrows the Greek like everything else. Without JS,
+          nothing changes: /search already needs it.
+     4. **Clicking a result opens the notebook to the Greek tab.** The link
+        is the ordinary verse link with one parameter, `/john-3/?greek=16.7#v16`
+        (verse, then `t`). On load, the Notebook's code reads it, opens the
+        Notebook panel (restoring it if minimized; whether it opens one the reader closed
+        is open, below), shows the Greek tab, and calls
+        `selectWord(16, 7)`, the call This verse's Greek words already use
+        (`openGreekWord` in `desk/panel.js`); then it removes the parameter
+        with `history.replaceState`, so the address the reader keeps or
+        shares is the plain verse link. Where the website has no Notebook (a
+        phone or a tablet, whose readers have the apps; or anyone at all
+        until the Notebook is released), the parameter is ignored and the reader lands on the verse, as any verse
+        link does. A parameter rather than a sessionStorage flag (C25's
+        way), because it survives a result opened in a new tab. A result
+        for the chapter already on screen skips the reload and calls the
+        panel directly.
+     5. **The Greek tab's own field**, only if it fits: a search button in
+        the tab's header row, which opens the field in place, so the tab
+        loses no height until it's used. Results replace the text in the
+        tab's scroller, with "Back to the text" (as the apparatus note has),
+        and a result moves the tab to that word, loading the chapter first
+        when it's another one. Mock it at the 280px minimum before building.
+     6. **Keeping the docs true**: CLAUDE.md's `build:greek` row and its
+        Search bullet (a third engine), the README's command list if it
+        changes, and this file. Nothing is stored about a search, so the
+        privacy paragraph is unchanged unless a remembered "exact form"
+        choice is added.
+
+     **Not in 1h**:
+     - **Word families** (πιστεύω, πίστις, πιστός). No source 1f uses groups
+       lemmas into families. The Abbott-Smith entries in STEPBible's data
+       carry etymologies in parentheses ("ἀγρεύω (ἄγρα)"), and Strong's has
+       "from G…", either of which could seed families mechanically, with
+       editorial review after.
+     - **Construction search** (πίστις with Ἰησοῦ Χριστοῦ in the genitive),
+       which matters for the LIT's *pistis* renderings, and **filters by
+       parsing** (every aorist imperative of a verb). Both need a query
+       language of their own.
+
+     **Open, for when it's built** (also under "Still open"): whether Greek
+     results reach readers before the Notebook is released (the
+     recommendation: no, they ship with it, so a click on a computer always
+     has a Notebook to open); whether a result opens a notebook the reader
+     *closed* (the recommendation: yes, since they asked for the Greek, and
+     the panel's state is remembered as usual afterwards); and the tray rule
+     for Latin queries above.
 2. **What only the LIT can do.** What's new for you and text checked before
    printing (B3, S2), on 1a's comparison; notes that follow a word and
    concept marks saved as rules (N2, H2, C23); your own chains (N4); the word
@@ -4252,6 +4391,23 @@ margin and breaks up the scripture text."
   yet. 1h was kept apart from 1f rather than added to it, because it needs
   a corpus-wide index and a place in search of its own.
 
+### 2026-10-13 (1g shelved; 1h planned)
+
+After exploring both (the findings are under "Order of work", 1g and 1h):
+
+- **1g, the interleaf for the Greek, is shelved for the future.** What the
+  exploring found is kept with it.
+- **1h follows the recommendations**: search by Greek script with or
+  without accents (any form of the word), by Strong's number, by
+  transliteration, and by an English lexicon gloss. **agreuō and agreuo
+  return the same results**: macrons and other marks are ignored.
+- **The main search bar searches the Greek, and the Greek results show for
+  every reader.** **Clicking one opens the Notebook to the Greek tab** at
+  that word.
+- **A second search field in the Greek tab is fine** if there is room for
+  it visually.
+- Nothing was built: the plan is written for when it's time.
+
 ### 2026-10-13 (BVJ's answers on the preview)
 
 The first five confirm what the preview already does.
@@ -4416,9 +4572,17 @@ The first five confirm what the preview already does.
   perhaps not until phases 1 to 3 are (BVJ, 2026-10-13). Which of the two
   is still open. The first release includes the Greek and no other
   translations; 1e is deferred.
-- **1g and 1h, to explore before phases 2 and 3** (BVJ, 2026-10-13): the
-  interleaf for the Greek (BVJ asked that it not be brainstormed until
-  they say so) and searching the Greek. See "Order of work", 1g and 1h.
+- ~~**1g and 1h, to explore before phases 2 and 3**~~: **explored**
+  (BVJ, 2026-10-13). 1g is shelved for the future; 1h is planned, to
+  build. See "Order of work", 1g and 1h.
+- **1h's open details**, for when it's built ("Order of work", 1h, has the
+  recommendations): whether Greek results reach readers before the
+  Notebook is released; whether a result opens a Notebook the reader
+  closed; and when a Latin query (a transliteration or an English word)
+  shows a Greek group in the search tray.
+- **Whether 1h is built before phases 2 and 3 begin.** BVJ's rule was that
+  both be *explored* first, which is done; whether 1h must also be
+  *built* first is not recorded.
 - ~~**Phase 1f's defaults**~~: **accepted** (BVJ, 2026-10-13), including
   hosting the full LSJ on the site. (Built 2026-10-13 on recommendations;
   listed under "Order of work", 1f, "Built"): the
