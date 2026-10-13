@@ -189,6 +189,7 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
         <input type="checkbox" class="desk-setting__input desk-panel__full" />
         <span class="desk-setting__label">Show notes in full in this list</span>
       </label>
+      <p class="desk-panel__page"><a href="/notebook/">Open the notebook page</a></p>
       <p class="desk-panel__kept"></p>
       <p class="desk-panel__persist" hidden></p>
     </div>`;
