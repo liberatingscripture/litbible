@@ -25,6 +25,7 @@ import { pageChapter } from "./page.js";
 import { initProseActions } from "./prose-actions.js";
 import { initPins } from "./pins.js";
 import { fitGlossaryTitles } from "./glossary-titles.js";
+import { createTour } from "./tour.js";
 
 // Stamped at build by Layout.astro (src/lib/content-version.mjs, which reads
 // the file system and so can't be imported here).
@@ -135,6 +136,8 @@ async function start() {
   });
   initActions({ store, ctx, showVerse: panel.showVerse });
   initProseActions({ store, addNote });
+  // The tour (D8): started by the reader, never by itself (tour.js).
+  createTour({ panel });
   if (store) createVerseLabels({ store });
   // Painted on a Study View chapter or in Read View; after initNoteSettings,
   // so the switches are already on <html>.

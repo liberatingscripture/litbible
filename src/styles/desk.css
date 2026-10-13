@@ -2050,3 +2050,234 @@ html[data-desk-list="full"] .desk-item__pin-text {
     display: block !important;
   }
 }
+
+/* ── 1d: first use (the first-time choice, the foot, the tour) ── */
+
+/* src/scripts/desk/first-use.js and tour.js. Tokens only, so every colour
+   follows the theme; focus rings are the site's global :focus-visible. */
+
+.desk-home-card {
+  margin: 10px 0 6px;
+  padding: 12px 14px;
+  border: 1px solid rgba(var(--ink-rgb), 0.18);
+  border-radius: 12px;
+  background: rgba(var(--ink-rgb), 0.04);
+  color: var(--text);
+}
+
+.desk-home-card[hidden] {
+  display: none;
+}
+
+.desk-home-card__title {
+  margin: 0 0 6px;
+  font-family: inherit;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.desk-home-card__title:focus {
+  outline: none;
+}
+
+.desk-home-card__lead,
+.desk-home-card__note,
+.desk-home-card__more,
+.desk-home-card__safari {
+  margin: 0 0 8px;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+}
+
+.desk-home-card__note {
+  margin: 4px 0 0;
+  color: rgba(var(--ink-rgb), 0.75);
+}
+
+.desk-home-card__safari {
+  padding: 8px 10px;
+  border-left: 3px solid var(--green-text);
+  background: rgba(var(--ink-rgb), 0.05);
+}
+
+.desk-home-card__more {
+  margin-bottom: 0;
+}
+
+.desk-home-card__options {
+  margin: 0 0 8px;
+  padding: 0;
+  list-style: none;
+}
+
+.desk-home-card__option + .desk-home-card__option {
+  margin-top: 10px;
+}
+
+.desk-home-card__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.desk-home-card__choose,
+.desk-tour__next,
+.desk-tour__back {
+  padding: 6px 12px;
+  border: 1px solid rgba(var(--ink-rgb), 0.3);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.desk-home-card__choose:hover,
+.desk-tour__next:hover,
+.desk-tour__back:hover {
+  background: rgba(var(--ink-rgb), 0.07);
+}
+
+.desk-home-card__skip,
+.desk-tour__skip,
+.desk-home__tour {
+  padding: 4px 6px;
+  border: 0;
+  background: transparent;
+  color: var(--green-text);
+  font: inherit;
+  font-size: 0.8125rem;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.desk-home__link,
+.desk-home-card a,
+.desk-tour a {
+  color: var(--green-text);
+  text-underline-offset: 2px;
+}
+
+/* The panel's foot: where the notebook is kept. */
+.desk-home__reminder,
+.desk-home__safari {
+  margin-top: 6px !important;
+}
+
+.desk-home__reminder {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.desk-home__links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px 14px;
+  margin-top: 8px !important;
+}
+
+.desk-home__links .desk-home__tour {
+  padding-left: 0;
+}
+
+/* The tour: a small card beside its target. */
+.desk-tour {
+  position: fixed;
+  z-index: 960;
+  box-sizing: border-box;
+  width: min(320px, calc(100vw - 24px));
+  padding: 14px 16px 12px;
+  border: 1px solid rgba(var(--ink-rgb), 0.2);
+  border-radius: 12px;
+  background: var(--surface-raised);
+  color: var(--text);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.22);
+  font-size: 0.9375rem;
+  line-height: 1.45;
+  opacity: 0;
+}
+
+.desk-tour--on {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .desk-tour {
+    transition: opacity 0.15s ease;
+  }
+}
+
+.desk-tour:focus {
+  outline: none;
+}
+
+.desk-tour__count {
+  margin: 0 0 2px;
+  color: rgba(var(--ink-rgb), 0.7);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.desk-tour__title {
+  margin: 0 0 6px;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.desk-tour__body,
+.desk-tour__more {
+  margin: 0 0 10px;
+}
+
+.desk-tour__more[hidden],
+.desk-tour__back[hidden] {
+  display: none;
+}
+
+.desk-tour__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.desk-tour__skip {
+  padding-left: 0;
+}
+
+.desk-tour__nav {
+  display: inline-flex;
+  gap: 6px;
+}
+
+.desk-tour__next {
+  border-color: var(--green-deep);
+  background: var(--green-deep);
+  color: #fff;
+}
+
+.desk-tour__next:hover {
+  background: var(--green-deep);
+  filter: brightness(1.1);
+}
+
+/* What a step points at. A dashed outline, so it isn't mistaken for focus. */
+.desk-tour-target {
+  outline: 2px dashed var(--green-text);
+  outline-offset: 3px;
+}
+
+@media print {
+  .desk-tour {
+    display: none !important;
+  }
+}
