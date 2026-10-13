@@ -140,7 +140,7 @@ export const TOUR_STEPS = [
     title: "The Notebook",
     body: {
       study:
-        "This panel lists what you’ve kept. My Notes shows your notes, bookmarks and highlights. This verse gathers what you have on one verse.",
+        "This panel lists what you’ve kept. My Notes shows your notes, bookmarks and highlights. This verse gathers what you have on one verse. Greek shows the chapter in the SBL Greek New Testament.",
       default: "This panel lists what you’ve kept: your notes, bookmarks and highlights.",
     },
   },
