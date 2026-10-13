@@ -4449,7 +4449,19 @@ The first five confirm what the preview already does.
   available" (to STEPBibleATGmail.com, which is STEPBible@gmail.com), and
   asks that proposed corrections go to the same address; the README says
   telling them is welcome but not required. "When you make it available"
-  points to writing at the desk's release.
+  points to writing at the desk's release. BVJ asked first what STEPBible's
+  theology is (2026-10-13): STEP is a project of Tyndale House, Cambridge,
+  whose doctrinal basis (UCCF's) holds Scripture "inspired and infallible"
+  and whose ethos statement names "a male and a female" as the context for
+  all sexual activity; staff must support that ethos. Its directors are
+  Peter J. Williams (Tyndale's warden, on the ESV's translation committee),
+  David Instone-Brewer (who began STEP; known for Jewish-background
+  scholarship and readings of divorce and Jesus' treatment of women that
+  drew conservative criticism) and Dale Brueggemann. Their CC BY 4.0
+  grant can't be withdrawn; the license forbids implying their
+  endorsement, and lets them ask that their name be removed from the
+  credit. The Greek tab credits them as the README asks ("STEP Bible",
+  linked to www.STEPBible.org, since 2026-10-13).
 - **The Digital Bible Library** (library.bible, the American Bible Society's
   library that API.bible draws from, and where YouVersion and Global.Bible get
   texts): I raised **submitting the LIT to it** as a way to reach the Bible
