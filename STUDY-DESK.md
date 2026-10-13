@@ -46,10 +46,11 @@ are recorded so they aren't re-argued.
   passage, which BVJ held until after the Zoom** (2026-10-12; "Decisions"),
   and **N7, the interleaf, which BVJ set aside** (2026-10-13; "Decisions").
   **1f, the Greek tab, was built on 2026-10-13** ("Order of work", 1f).
-  Phase 1's built steps are done apart from N8's hold, so **whether to
-  release the desk to readers is now open** ("Still open"). **1g and 1h
+  Phase 1's built steps are done apart from N8's hold. **1g and 1h
   belong to phase 1** (BVJ, 2026-10-13): they are to be explored before
-  phases 2 and 3 begin. Other versions (API.bible and the Versions tab) are out of
+  phases 2 and 3 begin. **The desk is not released until phase 1 is
+  completely done, and perhaps not until phases 1 to 3 are** (BVJ,
+  2026-10-13). Other versions (API.bible and the Versions tab) are out of
   version 1 (BVJ, 2026-10-11). What exists:
   - draft 1 of the record format (`STUDY-DESK-FORMAT.md`), with its
     reference implementation (`scripts/lib/anchor-text.mjs`) and test vectors
@@ -4282,6 +4283,8 @@ The first five confirm what the preview already does.
   full LSJ on the site.
 - **1g and 1h are part of phase 1**: phases 2 and 3 wait until both have
   been explored.
+- **No release before phase 1 is completely done**, and perhaps not until
+  phases 1 to 3 are.
 - **STEPBible's data is pointed to its source**: `public/greek/LICENSE.txt`
   no longer calls the `step/` and `lsj/` directories licensed for reuse, and
   sends anyone wanting the lexicons to github.com/STEPBible.
@@ -4407,11 +4410,11 @@ The first five confirm what the preview already does.
   **Confirmed** (BVJ, 2026-10-13): offered once, and replayable on demand,
   which the preview already does from the panel's foot, the `tour`
   command and the help page.
-- **Whether to release the desk to readers.** Ready to decide: 1d and 1f
-  are built, N8 aside (BVJ, 2026-10-13); the first release includes the
-  Greek and no other translations; 1e is deferred. 1g and 1h are still to
-  be explored within phase 1 (below), which holds back phases 2 and 3 but
-  not, by itself, this decision.
+- **When to release the desk to readers.** Not before phase 1 is
+  completely done (N8 and the exploring of 1g and 1h included), and
+  perhaps not until phases 1 to 3 are (BVJ, 2026-10-13). Which of the two
+  is still open. The first release includes the Greek and no other
+  translations; 1e is deferred.
 - **1g and 1h, to explore before phases 2 and 3** (BVJ, 2026-10-13): the
   interleaf for the Greek (BVJ asked that it not be brainstormed until
   they say so) and searching the Greek. See "Order of work", 1g and 1h.
@@ -4441,8 +4444,12 @@ The first five confirm what the preview already does.
   tab and that anyone wanting the data should get it from
   github.com/STEPBible, keeping the note of changes. **Done** (BVJ,
   2026-10-13). Hosting the full LSJ was settled with 1f's defaults (kept on
-  the site). Still open beside it: writing to STEPBible about the project,
-  as the header invites.
+  the site). Still open beside it: writing to STEPBible about the project.
+  The header says "We'd love to hear about your project when you make it
+  available" (to STEPBibleATGmail.com, which is STEPBible@gmail.com), and
+  asks that proposed corrections go to the same address; the README says
+  telling them is welcome but not required. "When you make it available"
+  points to writing at the desk's release.
 - **The Digital Bible Library** (library.bible, the American Bible Society's
   library that API.bible draws from, and where YouVersion and Global.Bible get
   texts): I raised **submitting the LIT to it** as a way to reach the Bible
