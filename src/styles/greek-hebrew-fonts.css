@@ -20,6 +20,9 @@
      Hebrew.
    - Serif text (Crimson Text, the print face, and Fraunces): Cardo's Greek
      and Hebrew, one scholarly face for both.
+   - The SBLGNT's text-critical signs (U+2E00-2E05) are in none of these, so
+     the last block adds a six-glyph patch from Cardo under Crimson Text and
+     Inter (public/fonts/text-critical-signs.otf).
 
    Four things to keep when editing:
    1. The ranges are written out on purpose. Fontsource's per-subset files
@@ -435,4 +438,78 @@
   font-weight: 500;
   src: url("@fontsource/cardo/files/cardo-hebrew-400-normal.woff2") format("woff2");
   unicode-range: U+0590-05FF, U+FB1D-FB4F;
+}
+
+/* Text-critical signs (SBLGNT's ⸀ ⸁ ⸂ ⸃ ⸄ ⸅, U+2E00-2E05). No Fontsource
+   Cardo or Inter subset carries them, so public/fonts/text-critical-signs.otf
+   (six glyphs from Cardo's Regular, built by npm run build:text-critical-font)
+   is registered under the same family names, restricted to these six
+   characters, the same arrangement as the ⟦ ⟧ patch in global.css. It is
+   declared at each weight and style the two families already have, per rule
+   4 above: Crimson Text's 400 upright and italic, 600 and 700, and Inter's
+   400, 500, 600 and 700. Its outlines are Regular weight at every one of
+   them, so the signs in bold text are a weight lighter than the letters. */
+@font-face {
+  font-family: "Crimson Text";
+  font-style: normal;
+  font-display: block;
+  font-weight: 400;
+  src: url("/fonts/text-critical-signs.otf") format("opentype");
+  unicode-range: U+2E00-2E05;
+}
+@font-face {
+  font-family: "Crimson Text";
+  font-style: italic;
+  font-display: block;
+  font-weight: 400;
+  src: url("/fonts/text-critical-signs.otf") format("opentype");
+  unicode-range: U+2E00-2E05;
+}
+@font-face {
+  font-family: "Crimson Text";
+  font-style: normal;
+  font-display: block;
+  font-weight: 600;
+  src: url("/fonts/text-critical-signs.otf") format("opentype");
+  unicode-range: U+2E00-2E05;
+}
+@font-face {
+  font-family: "Crimson Text";
+  font-style: normal;
+  font-display: block;
+  font-weight: 700;
+  src: url("/fonts/text-critical-signs.otf") format("opentype");
+  unicode-range: U+2E00-2E05;
+}
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-display: block;
+  font-weight: 400;
+  src: url("/fonts/text-critical-signs.otf") format("opentype");
+  unicode-range: U+2E00-2E05;
+}
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-display: block;
+  font-weight: 500;
+  src: url("/fonts/text-critical-signs.otf") format("opentype");
+  unicode-range: U+2E00-2E05;
+}
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-display: block;
+  font-weight: 600;
+  src: url("/fonts/text-critical-signs.otf") format("opentype");
+  unicode-range: U+2E00-2E05;
+}
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-display: block;
+  font-weight: 700;
+  src: url("/fonts/text-critical-signs.otf") format("opentype");
+  unicode-range: U+2E00-2E05;
 }
