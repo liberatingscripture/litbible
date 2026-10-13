@@ -3,7 +3,7 @@
 // What the notebook page (/notebook/, src/scripts/desk/notebook-page.js) shows
 // and does, apart from the page: how the records are grouped (Bible order,
 // under a book and chapter; then notes on glossary entries and on articles;
-// pinned footnotes and places as their own lists), how a
+// pinned footnotes as their own list; places have a section of their own), how a
 // filter narrows them, how the counts read in words, and the two bulk
 // deletions at the page's foot. Pure: no storage, no DOM.
 //
@@ -118,7 +118,6 @@ export function filterRecords(records, { query = "", kind = null, color = null, 
  *   glossary   notes on glossary entries, by entry
  *   articles   notes on articles, by article
  *   pins       pinned footnotes, in Bible order
- *   places     places and ribbons
  *   other      records of a kind this code doesn't list in the groups above
  *              (a mark rule, a sheet, a kind from a newer version, and a
  *              hidden passage, which the owner is holding back from this
@@ -129,11 +128,9 @@ export function groupRecords(records) {
   const glossary = [];
   const articles = [];
   const pins = [];
-  const places = [];
   const other = [];
   for (const r of listable(records)) {
     if (r.kind === "footnotePin") pins.push(r);
-    else if (r.kind === "place") places.push(r);
     else if (r.kind === "note" && typeof r.glossaryEntry === "string") glossary.push(r);
     else if (r.kind === "note" && typeof r.article === "string") articles.push(r);
     else if (["note", "highlight", "bookmark"].includes(r.kind) && r.bookKey && r.chapter) {
@@ -156,7 +153,6 @@ export function groupRecords(records) {
     glossary: glossary.sort((a, b) => a.glossaryEntry.localeCompare(b.glossaryEntry) || byCreated(a, b)),
     articles: articles.sort((a, b) => a.article.localeCompare(b.article) || byCreated(a, b)),
     pins: pins.sort(byPlace),
-    places: places.sort(byPlace),
     other: other.sort(byCreated),
   };
 }

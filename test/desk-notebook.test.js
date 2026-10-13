@@ -78,7 +78,7 @@ test("groupRecords puts text records in Bible order under book and chapter", () 
   assert.deepEqual(g.books[1].chapters[0].records.map((r) => r.verse), [3, 28]);
 });
 
-test("groupRecords sets apart prose notes, pins and places, and shows a hidden passage as a plain row", () => {
+test("groupRecords sets apart prose notes and pins, leaves places to their own section, and shows a hidden passage as a plain row", () => {
   const gl = note({ glossaryEntry: "flesh-body", targetTitle: "Flesh" });
   const ar = note({ article: "some-article" });
   const pin = make("footnotePin", { bookKey: "romans", chapter: 8, verse: 3, footnote: "A note" });
@@ -90,7 +90,7 @@ test("groupRecords sets apart prose notes, pins and places, and shows a hidden p
   assert.equal(g.glossary.length, 1);
   assert.equal(g.articles.length, 1);
   assert.equal(g.pins.length, 1);
-  assert.equal(g.places.length, 1);
+  assert.equal("places" in g, false);
   assert.equal(g.books.length, 0);
   assert.equal("hidden" in g, false);
   assert.deepEqual(g.other.map((r) => r.kind).sort(), ["hidden", "sheet"]);
