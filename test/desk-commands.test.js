@@ -22,6 +22,9 @@ test("commands appear only where they can work", () => {
   assert.ok(ids("this verse", chapter).includes("show-this-verse"));
   const notStudy = { ...chapter, study: false };
   assert.ok(!ids("this verse", notStudy).includes("show-this-verse"), "This verse is a Study View tab");
+  assert.deepEqual(ids("greek", chapter), ["show-greek"], "the Greek tab is found by its name");
+  assert.deepEqual(ids("sblgnt", chapter), ["show-greek"], "and by its keyword");
+  assert.deepEqual(ids("greek", notStudy), [], "the Greek tab is a Study View tab");
 });
 
 test("open and close are one command, by whether the panel is open", () => {
