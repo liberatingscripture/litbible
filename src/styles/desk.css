@@ -3013,3 +3013,456 @@ html[data-desk-list="full"] .desk-item__pin-text {
     display: none !important;
   }
 }
+
+/* ── 1f: the Greek tab ── */
+
+/* The Greek tab's body doesn't scroll: the Greek has a scroller of its own,
+   and the word's details are docked below it, so they stay in view while the
+   text moves (src/scripts/desk/tab-greek.js). :not([hidden]) keeps the
+   body's own hidden rule working. */
+#deskTabpanel-greek:not([hidden]) {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding-bottom: 0;
+}
+
+.desk-greek {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.desk-greek__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  padding: 8px 0 6px;
+}
+
+.desk-greek__title {
+  flex: 1;
+  margin: 0;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.desk-greek__title:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.desk-greek__goto,
+.desk-greek__retry,
+.desk-greek__lsj-btn,
+.desk-greek__back {
+  padding: 4px 10px;
+  border: 1px solid rgba(var(--ink-rgb), 0.25);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+
+.desk-greek__goto:hover,
+.desk-greek__retry:hover,
+.desk-greek__lsj-btn:hover,
+.desk-greek__back:hover {
+  background: rgba(var(--ink-rgb), 0.07);
+}
+
+.desk-greek__goto[hidden] {
+  display: none;
+}
+
+.desk-greek__goto:focus-visible,
+.desk-greek__retry:focus-visible,
+.desk-greek__lsj-btn:focus-visible,
+.desk-greek__back:focus-visible,
+.desk-greek__fn:focus-visible,
+.desk-greek__sign:focus-visible,
+.desk-greek__w:focus-visible,
+.desk-verse__gw:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+/* The text: its own scroller, set in the serif the site reads in (Cardo
+   supplies the Greek by character range, greek-hebrew-fonts.css) and sized
+   with the Display tray. */
+.desk-greek__scroller {
+  flex: 1 1 0;
+  min-height: 120px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 8px 4px 12px;
+  border-top: 1px solid rgba(var(--ink-rgb), 0.12);
+}
+
+.desk-greek__status {
+  margin: 12px 0;
+  color: rgba(var(--ink-rgb), 0.75);
+}
+
+.desk-greek__status p {
+  margin: 0 0 8px;
+}
+
+.desk-greek__book {
+  margin: 0 0 10px;
+  font-family: var(--serif);
+  font-size: calc(1rem * var(--reading-scale, 1));
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-align: center;
+}
+
+.desk-greek__borrowed {
+  margin: 0 0 10px;
+  padding: 8px 10px;
+  border-left: 3px solid var(--green-text);
+  background: rgba(var(--ink-rgb), 0.05);
+  font-size: 0.8125rem;
+  line-height: 1.45;
+}
+
+.desk-greek__p {
+  margin: 0 0 0.8em;
+  font-family: var(--serif);
+  font-size: calc(1.1875rem * var(--reading-scale, 1));
+  line-height: 1.75;
+}
+
+/* Verse numbers, small like Study View's. */
+.desk-greek__vn {
+  margin: 0 0.25em 0 0.2em;
+  color: var(--green-text);
+  font-family: Inter, "Inter Fallback", system-ui, sans-serif;
+  font-size: 0.6em;
+  font-weight: 600;
+}
+
+/* A word is a button that looks like text. */
+.desk-greek__w {
+  margin: 0;
+  padding: 0 1px;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.desk-greek__w:hover {
+  background: rgba(var(--ink-rgb), 0.08);
+}
+
+/* The selected word: a tint of the text's own colour (so its contrast holds
+   in both themes) and a rule under it, so it doesn't rest on colour alone. */
+.desk-greek__w.is-selected {
+  background: rgba(var(--ink-rgb), 0.14);
+  box-shadow: inset 0 -2px 0 var(--green-text);
+}
+
+.desk-greek__sign {
+  margin: 0;
+  padding: 0 1px;
+  border: 0;
+  background: transparent;
+  color: var(--green-text);
+  font: inherit;
+  font-size: 0.85em;
+  cursor: pointer;
+}
+
+.desk-greek__subhead {
+  margin: 0 0 6px;
+  font-family: inherit;
+  color: rgba(var(--ink-rgb), 0.7);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.desk-greek__app,
+.desk-greek__sources {
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(var(--ink-rgb), 0.12);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+.desk-greek__app-intro,
+.desk-greek__sources-note {
+  margin: 0 0 6px;
+}
+
+.desk-greek__key {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2px 10px;
+  margin: 0 0 10px;
+}
+
+.desk-greek__key dt {
+  font-weight: 600;
+}
+
+.desk-greek__key dd {
+  margin: 0;
+}
+
+.desk-greek__app-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.desk-greek__app-item {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2px 10px;
+  margin-bottom: 4px;
+  padding: 6px;
+  border-radius: 6px;
+}
+
+.desk-greek__app-item:focus {
+  outline: none;
+}
+
+.desk-greek__app-item:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+.desk-greek__app-item.is-lit {
+  background: rgba(var(--ink-rgb), 0.14);
+  box-shadow: inset 3px 0 0 var(--green-text);
+}
+
+.desk-greek__app-ref {
+  font-weight: 600;
+  color: var(--green-text);
+}
+
+.desk-greek__app-notes {
+  min-width: 0;
+}
+
+.desk-greek__app-note {
+  display: block;
+  font-family: var(--serif);
+  font-size: calc(1rem * var(--reading-scale, 1));
+  line-height: 1.5;
+}
+
+.desk-greek__back {
+  grid-column: 2;
+  justify-self: start;
+  margin-top: 2px;
+  padding: 2px 8px;
+  font-size: 0.75rem;
+}
+
+.desk-greek__sources-list {
+  margin: 0 0 6px;
+  padding-left: 1.1em;
+}
+
+.desk-greek__sources-list li {
+  margin-bottom: 3px;
+}
+
+.desk-greek__sources a,
+.desk-greek__lit a,
+.desk-greek__entry-body a {
+  color: var(--green-text);
+}
+
+/* The word's details, docked at the foot: they take what they need up to
+   under half the tab and scroll inside it past that. */
+.desk-greek__details {
+  flex: 0 1 auto;
+  max-height: 45%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 8px 4px 12px;
+  border-top: 1px solid rgba(var(--ink-rgb), 0.2);
+  background: var(--surface-raised);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.desk-greek__details p {
+  margin: 0 0 6px;
+}
+
+.desk-greek__word {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 1.375rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.desk-greek__word:empty {
+  display: none;
+}
+
+.desk-greek__parse {
+  color: rgba(var(--ink-rgb), 0.85);
+}
+
+.desk-greek__code {
+  margin-left: 4px;
+  color: rgba(var(--ink-rgb), 0.65);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.desk-greek__lemma-form {
+  font-family: var(--serif);
+  font-size: 1.0625rem;
+  font-weight: 600;
+}
+
+.desk-greek__strong {
+  color: rgba(var(--ink-rgb), 0.7);
+  font-size: 0.8125rem;
+}
+
+.desk-greek__from,
+.desk-greek__muted,
+.desk-greek__caveat {
+  color: rgba(var(--ink-rgb), 0.7);
+  font-size: 0.8125rem;
+}
+
+.desk-greek__switch {
+  margin: 4px 0 8px;
+  font-size: 0.8125rem;
+}
+
+.desk-greek__lex {
+  margin-bottom: 8px;
+}
+
+.desk-greek__senses-head {
+  margin: 8px 0 4px;
+  font-family: inherit;
+  color: var(--green-text);
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
+.desk-greek__senses {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.desk-greek__sense {
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(var(--ink-rgb), 0.1);
+}
+
+.desk-greek__sense-head {
+  color: rgba(var(--ink-rgb), 0.7);
+  font-size: 0.8125rem;
+}
+
+.desk-greek__glosses {
+  color: rgba(var(--ink-rgb), 0.8);
+  font-style: italic;
+}
+
+.desk-greek__comment summary {
+  cursor: pointer;
+  color: var(--green-text);
+  font-size: 0.8125rem;
+}
+
+.desk-greek__comment p {
+  margin: 4px 0 0;
+}
+
+.desk-greek__entry {
+  margin-bottom: 10px;
+}
+
+.desk-greek__entry-head {
+  margin-bottom: 2px;
+}
+
+.desk-greek__entry-body {
+  font-size: 0.875rem;
+}
+
+.desk-greek__entry-body abbr[title] {
+  text-decoration: underline dotted;
+  cursor: help;
+}
+
+.desk-greek__entry-body .lex-ref {
+  color: rgba(var(--ink-rgb), 0.7);
+  font-size: 0.8125rem;
+}
+
+.desk-greek__lsj {
+  margin-top: 6px;
+}
+
+.desk-greek__lsj-body {
+  margin-top: 8px;
+}
+
+/* A footnote letter in the details is a quiet button. */
+.desk-greek__fn {
+  padding: 0 4px;
+  border: 0;
+  background: transparent;
+  color: var(--green-text);
+  font: inherit;
+  font-style: italic;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.desk-greek__lit-line {
+  margin: 0 0 4px;
+}
+
+/* ── 1f: the verse's Greek in This verse ── */
+
+.desk-verse__greek-text {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: calc(1.125rem * var(--reading-scale, 1));
+  line-height: 1.7;
+}
+
+.desk-verse__gw {
+  margin: 0;
+  padding: 0 1px;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.desk-verse__gw:hover {
+  background: rgba(var(--ink-rgb), 0.08);
+}

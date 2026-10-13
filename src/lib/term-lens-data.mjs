@@ -11,6 +11,7 @@ import { fileURLToPath } from "node:url";
 import { gatedOccurrences } from "./alignment-gate.mjs";
 import { chapterMarks, occurrencesByChapter, renderingCounts } from "./term-lens.mjs";
 import { splitChapterVerses } from "../../scripts/lib/verse-text.mjs";
+import { GLOSSARY_LEMMAS } from "../../scripts/lib/glossary-lemmas.mjs";
 
 function resolveAlignmentDir() {
   const fromCwd = path.resolve(process.cwd(), "src/data/alignment");
@@ -66,6 +67,10 @@ export function termLensFor(bookKey, chapter, paragraphs, entries) {
       greek: e.greek,
       title: e.litMenu,
       renderings: (renderings.get(id) ?? []).slice(0, 6),
+      // The Greek words the entry governs, so the Study Desk's Greek tab can
+      // say how this verse renders one. They stay in the page's own data,
+      // never in the share-alike Greek files (STUDY-DESK.md, 1f).
+      lemmas: GLOSSARY_LEMMAS[id] ?? [],
     };
   }
   return { marks, terms, unresolved };

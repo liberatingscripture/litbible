@@ -32,9 +32,11 @@ import { shortQuote } from "../../lib/desk-notes.mjs";
 import { COLORS, verseCopyFor } from "../../lib/desk-records.mjs";
 import { forChapter, recordReference } from "../../lib/desk-store-core.mjs";
 import { adjacentVerse, recordsOnVerse } from "../../lib/desk-verse.mjs";
+import { W, flattenWords } from "../../lib/desk-greek.mjs";
 import { verseAtReadingLine } from "../last-read.js";
 import { flagButton, noticesFor, openNotice } from "./change-notice.js";
 import { glyph } from "./glyphs.js";
+import { loadChapterGreek } from "./greek-data.js";
 import { undoEntry } from "./history.js";
 import { chapterText } from "./page.js";
 import { pinButton } from "./pins.js";
@@ -57,12 +59,14 @@ const ICON_NEXT = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" s
  *   onAddNote?: (draft: object, trigger: Element) => void,
  *   goHere?: { can(record: object): boolean, go(record: object): void } | null,
  *   ctx?: (() => object) | null,
- *   showInText?: { can(record: object): boolean, go(record: object): void } | null }} options
- *   `ctx` and `showInText` are what the change notice's card needs.
+ *   showInText?: { can(record: object): boolean, go(record: object): void } | null,
+ *   greek?: { open(verse: number, t: number): void } | null }} options
+ *   `ctx` and `showInText` are what the change notice's card needs; `greek`
+ *   opens the Greek tab at a word.
  * @returns {{ el: HTMLElement, render: () => Promise<void>, setVerse: (verse: number) => void,
  *   focusHeading: () => void }}
  */
-export function createVerseTab({ store, here, visible, panelOpen, onEdit = null, onAddNote = null, goHere = null, ctx = null, showInText = null }) {
+export function createVerseTab({ store, here, visible, panelOpen, onEdit = null, onAddNote = null, goHere = null, ctx = null, showInText = null, greek = null }) {
   const textBox = document.querySelector(".chapter-paragraphs");
   const markers = Array.from(textBox?.querySelectorAll('sup.vn[id^="v"]') ?? []);
   const verses = markers.map((m) => Number(m.id.slice(1))).filter(Number.isFinite);
@@ -77,6 +81,10 @@ export function createVerseTab({ store, here, visible, panelOpen, onEdit = null,
       <button type="button" class="desk-verse__step" data-step="1">${ICON_NEXT}</button>
     </div>
     <p class="desk-verse__text"></p>
+    <section class="desk-verse__section desk-verse__greek" aria-labelledby="deskVerseGreekTitle" hidden>
+      <h4 class="desk-verse__subhead" id="deskVerseGreekTitle">Greek</h4>
+      <p class="desk-verse__greek-text" lang="grc"></p>
+    </section>
     <section class="desk-verse__section desk-verse__fns" aria-labelledby="deskVerseFnsTitle" hidden>
       <h4 class="desk-verse__subhead" id="deskVerseFnsTitle">Footnotes</h4>
       <ol class="desk-verse__fn-list"></ol>
@@ -90,6 +98,8 @@ export function createVerseTab({ store, here, visible, panelOpen, onEdit = null,
 
   const heading = el.querySelector(".desk-verse__ref");
   const text = el.querySelector(".desk-verse__text");
+  const greekSection = el.querySelector(".desk-verse__greek");
+  const greekText = el.querySelector(".desk-verse__greek-text");
   const fnSection = el.querySelector(".desk-verse__fns");
   const fnList = el.querySelector(".desk-verse__fn-list");
   const mine = el.querySelector(".desk-verse__mine");
@@ -135,6 +145,7 @@ export function createVerseTab({ store, here, visible, panelOpen, onEdit = null,
     }
 
     text.textContent = verseCopyFor(chapterText(), v) ?? "";
+    renderGreek(v, n);
     renderFootnotes(v);
 
     const records = store ? forChapter(await store.byChapter(here.bookKey, here.chapter), here.bookKey, here.chapter) : [];
@@ -144,6 +155,56 @@ export function createVerseTab({ store, here, visible, panelOpen, onEdit = null,
     mine.replaceChildren(...on.map(itemFor));
     empty.hidden = on.length > 0;
   }
+
+  /**
+   * The verse's Greek after its text: SBL's words, signs as printed, each word
+   * a button that opens the Greek tab there. One word is a tab stop and the
+   * arrow keys step through, as in the Greek tab. Left out when the files
+   * can't be had or the verse has no Greek.
+   */
+  async function renderGreek(v, n) {
+    if (!greek) return;
+    // The store redraws this tab on every change; the same verse's Greek is
+    // left alone, so a word being tabbed through keeps focus.
+    if (greekText.dataset.verse === String(v) && greekText.firstChild) return;
+    let words = null;
+    try {
+      const data = await loadChapterGreek(here.bookKey, here.chapter);
+      words = flattenWords(data.paragraphs).filter((x) => x.verse === v);
+    } catch (_) {}
+    if (n !== seq) return; // a newer render has started
+    greekSection.hidden = !words?.length;
+    if (!words?.length) {
+      greekText.replaceChildren();
+      delete greekText.dataset.verse;
+      return;
+    }
+    greekText.dataset.verse = String(v);
+    const nodes = [];
+    words.forEach(({ w }, k) => {
+      if (w[W.pre]) nodes.push(document.createTextNode(w[W.pre]));
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "desk-verse__gw";
+      b.tabIndex = k === 0 ? 0 : -1;
+      b.textContent = w[W.text];
+      b.addEventListener("click", () => greek.open(v, w[W.t]));
+      nodes.push(b);
+      if (w[W.post]) nodes.push(document.createTextNode(w[W.post]));
+    });
+    greekText.replaceChildren(...nodes);
+  }
+
+  greekText.addEventListener("keydown", (e) => {
+    const all = Array.from(greekText.querySelectorAll(".desk-verse__gw"));
+    const at = all.indexOf(document.activeElement);
+    const to = { ArrowRight: at + 1, ArrowLeft: at - 1, Home: 0, End: all.length - 1 }[e.key];
+    if (at < 0 || to === undefined || !all[to]) return;
+    e.preventDefault();
+    all[at].tabIndex = -1;
+    all[to].tabIndex = 0;
+    all[to].focus({ preventScroll: true });
+  });
 
   function renderFootnotes(v) {
     const ids = [];
