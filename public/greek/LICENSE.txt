@@ -1,0 +1,33 @@
+The Greek tab's data. Nothing from the LIT is in these files.
+
+text/
+  The Greek New Testament word by word, one file per chapter.
+  The text is the SBL Greek New Testament (SBLGNT), edited by Michael W.
+  Holmes, copyright 2010 Society of Biblical Literature and Logos Bible
+  Software, CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/;
+  https://sblgnt.com). Lemmas and parsing are from MorphGNT's SBLGNT
+  (https://github.com/morphgnt/sblgnt), CC BY-SA 3.0, with Strong's numbers
+  and the parsing of John 7:53-8:11 and Romans 16:25-27 from MACULA Greek
+  (Clear Bible, https://github.com/Clear-Bible/macula-greek), CC BY 4.0. The
+  Greek of Romans 16:25-27 is from the SBLGNT apparatus.
+  Sense numbers point into the UBS dictionary below.
+  This directory is licensed CC BY-SA 4.0.
+
+ubs/
+  Entries of the UBS Greek New Testament Dictionary (United Bible Societies,
+  CC BY-SA 4.0), built from the semantic-domain dictionary based on Louw and
+  Nida. Inline markup is reduced to plain text. This directory is licensed
+  CC BY-SA 4.0.
+
+step/
+  The Translators Brief lexicon of Extended Strongs for Greek (TBESG), from
+  STEPBible.org, Tyndale House Cambridge, CC BY 4.0, based on Abbott-Smith.
+  Reformatted: markup reduced to bold, italic and line breaks, and
+  references made plain text. This directory is licensed CC BY 4.0.
+
+lsj/
+  The Translators Formatted full LSJ lexicon, from STEPBible.org, Tyndale
+  House Cambridge, CC BY 4.0, edited from Liddell, Scott and Jones.
+  Reformatted: markup reduced to bold, italic and line breaks, references
+  made plain text, and each source reference kept as hover text. This
+  directory is licensed CC BY 4.0.
