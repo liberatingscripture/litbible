@@ -96,6 +96,13 @@ test("an open notebook is stamped before paint, since Study View chapters narrow
   assert.deepEqual(fresh.attrs, { "data-desk": "on", "data-desk-panel": "open" });
   const closed = run({ stored: { "lit-desk-preview": "on", "lit-desk-panel": "closed" } });
   assert.deepEqual(closed.attrs, { "data-desk": "on" });
+  // A start the reader chose on the notebook page wins (src/lib/desk-start.mjs).
+  const chosenClosed = run({ stored: { "lit-desk-preview": "on", "lit-desk-panel": "open", "lit-desk-start": "closed" } });
+  assert.deepEqual(chosenClosed.attrs, { "data-desk": "on" });
+  for (const start of ["min", "open"]) {
+    const r = run({ stored: { "lit-desk-preview": "on", "lit-desk-panel": "closed", "lit-desk-start": start } });
+    assert.deepEqual(r.attrs, { "data-desk": "on", "data-desk-panel": "open" }, start);
+  }
   const phone = run({ ua: UA.iphone, touch: 5, stored: { "lit-desk-preview": "on", "lit-desk-panel": "open" } });
   assert.deepEqual(phone.attrs, {});
 });

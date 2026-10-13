@@ -2233,7 +2233,10 @@ collection); they're read directly by the intro pages and the API manifest.
      is remembered (`lit-desk-min`), and Notebook or the tab restores it.
      **It starts open and minimized** (BVJ, 2026-10-13): `lit-desk-panel`
      is "closed" only once the reader closes it, and `lit-desk-min` is "0"
-     only once they restore it, so an absent key means the default.
+     only once they restore it, so an absent key means the default. The
+     notebook page lets the reader fix the start instead ("As I left it",
+     Minimized, Open, Closed; `lit-desk-start`), and `src/lib/desk-start.mjs`
+     is the one rule, which Layout.astro's pre-paint script repeats.
      **It appears only on the pages `READING_SURFACES`
      (`src/scripts/desk-frame.js`) lists**: Study View chapters and intros,
      Read View, articles and the glossary, each with its column, its heading

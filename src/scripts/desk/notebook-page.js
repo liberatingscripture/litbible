@@ -48,6 +48,7 @@ import { openNoteEditor } from "./note-editor.js";
 import { nameOf, recordRow } from "./record-rows.js";
 import { placesSection } from "./places.js";
 import { openStore } from "./store.js";
+import { START_CHOICES, START_KEY, startChoice } from "../../lib/desk-start.mjs";
 import { initUndo, showUndo } from "./undo-bar.js";
 
 const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
@@ -57,6 +58,30 @@ function el(tag, className, text) {
   if (className) e.className = className;
   if (text != null) e.textContent = text;
   return e;
+}
+
+// How the Notebook panel starts on each page (src/lib/desk-start.mjs; BVJ,
+// 2026-10-13): kept as the reader chooses, and "As I left it" stores nothing.
+function mountStartChoice(box) {
+  let current = "left";
+  try { current = startChoice((k) => localStorage.getItem(k)); } catch (_) {}
+  for (const { value, label } of START_CHOICES) {
+    const option = el("label", "desk-np__start-option");
+    const input = document.createElement("input");
+    input.type = "radio";
+    input.name = "desk-np-start";
+    input.value = value;
+    input.checked = value === current;
+    input.addEventListener("change", () => {
+      if (!input.checked) return;
+      try {
+        if (value === "left") localStorage.removeItem(START_KEY);
+        else localStorage.setItem(START_KEY, value);
+      } catch (_) {}
+    });
+    option.append(input, document.createTextNode(` ${label}`));
+    box.append(option);
+  }
 }
 
 async function start() {
@@ -85,6 +110,7 @@ async function start() {
       <a href="#kept">What I’ve kept</a>
       <a href="#places">Places</a>
       <a href="#labels">Labels</a>
+      <a href="#panel">The Notebook panel</a>
       <a href="#backup">Save a copy</a>
       <a href="#delete-everything">Delete everything</a>
     </nav>
@@ -121,6 +147,13 @@ async function start() {
       <ul class="desk-np__labels" data-np-labels></ul>
       <p class="desk-panel__empty" data-np-no-labels hidden>No labels yet.</p>
     </section>
+    <section class="desk-np__section" id="panel" aria-labelledby="deskNpPanelTitle">
+      <h2 class="desk-np__h2" id="deskNpPanelTitle">The Notebook panel</h2>
+      <fieldset class="desk-np__start" data-np-start>
+        <legend>When a page opens, the Notebook panel is</legend>
+      </fieldset>
+      <p class="desk-np__note">“As I left it” starts minimized, then follows what you last did: a panel you close stays closed, and one you open out stays open.</p>
+    </section>
     <section class="desk-np__section desk-backup" id="backup" data-np-backup></section>
     <section class="desk-np__section" id="delete-everything" aria-labelledby="deskNpDeleteTitle">
       <h2 class="desk-np__h2" id="deskNpDeleteTitle">Delete everything</h2>
@@ -152,6 +185,7 @@ async function start() {
   const statusEl = q("[data-np-status]");
 
   mountBackup(q("[data-np-backup]"), { store, ctx });
+  mountStartChoice(q("[data-np-start]"));
   // Continue reading, Read View's places and the reader's ribbons (B1), drawn
   // and kept up to date by places.js.
   q("[data-np-places]").append(

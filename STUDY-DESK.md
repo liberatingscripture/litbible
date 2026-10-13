@@ -4262,12 +4262,19 @@ The first five confirm what the preview already does.
 - **The floating notebook's five behaviours are confirmed**, with one
   change: **the notebook starts open and minimized** on every page, rather
   than closed. Closing it and restoring it are remembered, so the next page
-  opens as the reader left it, and **the reader can change the default**
-  (where is still to be placed). Built the same day; a Study View chapter
-  therefore opens at 48 by default, since the column doesn't move when the
-  notebook is minimized.
-- **"Show notes in full in this list" is awkward** as a checkbox at the
-  panel's foot. To be redesigned.
+  opens as the reader left it, and **the reader can change the default**,
+  on the notebook page: "When a page opens, the Notebook panel is" As I
+  left it (the default), Minimized, Open or Closed (`lit-desk-start`; the
+  rule is `src/lib/desk-start.mjs`). A chosen start wins over what the
+  reader did last, and a floating notebook still collapses by itself. Built
+  the same day; a Study View chapter therefore opens at 48 by default,
+  since the column doesn't move when the notebook is minimized.
+- **"Show notes in full in this list" was awkward** as a checkbox at the
+  panel's foot. It became **"Open all" / "Close all"** at the right above
+  My Notes' list, with each note's caret kept (BVJ chose both). It is the
+  same remembered setting (`lit-desk-list`), so it opens pinned footnotes
+  too; "Close all" also closes notes opened by their carets. It shows only
+  when a note is cut off or a footnote is pinned.
 - **STEPBible's data is pointed to its source**: `public/greek/LICENSE.txt`
   no longer calls the `step/` and `lsj/` directories licensed for reuse, and
   sends anyone wanting the lexicons to github.com/STEPBible.
@@ -4310,13 +4317,11 @@ The first five confirm what the preview already does.
      left as it could).
 - **The margin's remaining details** (see "Decisions", 2026-10-07 (the
   margin switch) and (the margin notes' look)). To settle in 1c:
-  - **The notebook's two-line toggle** ("Show notes in full in this
-    list"). First try: a checkbox at the panel's foot, near "Kept in this
-    browser", remembered like the panel's other choices. **BVJ, 2026-10-13:
-    awkward as it is**; a better form is to be proposed.
-  - **Where the reader sets the notebook's default** (BVJ, 2026-10-13: the
-    reader can change it). The default itself is built: open and minimized,
-    with closing and restoring remembered.
+  - ~~**The notebook's two-line toggle**~~: **"Open all" / "Close all"
+    above the list, beside each note's own caret** (BVJ, 2026-10-13),
+    replacing the checkbox at the panel's foot. Built.
+  - ~~**Where the reader sets the notebook's default**~~: **on the notebook
+    page** (BVJ, 2026-10-13). Built.
   - ~~**Playpen Sans's weight**~~: **500** (BVJ, 2026-10-13), as built.
     Its size is still tuned on the real page.
   - ~~**Whether a bookmark shows on the page**~~: **yes**, as the red mark

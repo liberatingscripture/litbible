@@ -30,7 +30,9 @@
 // minimizing and restoring never move it either. It starts minimized (BVJ,
 // 2026-10-13), and the reader's choice is remembered
 // (localStorage['lit-desk-min']: "1" minimized, "0" restored) so the next
-// page opens the same way; pressing Notebook or the tab restores the panel.
+// page opens the same way, unless the reader chose a start of their own on
+// the notebook page (src/lib/desk-start.mjs); pressing Notebook or the tab
+// restores the panel.
 //
 // On a Study View chapter, with the notebook in the margin, the reader can
 // drag the widths of their notes' margin, the LIT and the notebook
@@ -53,8 +55,7 @@ import {
 } from "../../lib/desk-margin.mjs";
 import { READING_SURFACES, readingSurface } from "../desk-frame.js";
 import { WIDTHS_EVENT, createWidths } from "./widths.js";
-
-const MIN_KEY = "lit-desk-min";
+import { MIN_KEY, startState } from "../../lib/desk-start.mjs";
 
 /**
  * @param {HTMLElement} panel the Notebook panel, which this moves into the rail
@@ -109,7 +110,7 @@ export function createRail(panel, tab, onChange = () => {}) {
   let opening = false;
   // The reader's own minimize, as opposed to collapsing because it floats.
   let minimized = true;
-  try { minimized = localStorage.getItem(MIN_KEY) !== "0"; } catch (_) {}
+  try { minimized = startState((k) => localStorage.getItem(k)).minimized; } catch (_) {}
   const keepMinimized = (on) => {
     minimized = on;
     try { localStorage.setItem(MIN_KEY, on ? "1" : "0"); } catch (_) {}
