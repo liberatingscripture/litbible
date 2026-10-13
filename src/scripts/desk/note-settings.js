@@ -33,9 +33,8 @@
 // pre-paint script, since nothing of the desk paints before this file runs.
 
 import { undoModifier } from "./history.js";
-import { INTERLEAF_EVENT, isInterleafOpen, setInterleafOpen } from "./interleaf-state.js";
 import { prosePage } from "./note-sources.js";
-import { pageChapter, readBook } from "./page.js";
+import { readBook } from "./page.js";
 import { resetWidthsButton } from "./widths.js";
 
 const SETTINGS = {
@@ -317,25 +316,6 @@ function addKeyLines() {
 }
 
 /**
- * "Open the interleaf" (N7): a box for this page view alone, not a setting,
- * so it keeps nothing in storage and starts unchecked on every page.
- */
-function interleafControl(classes) {
-  const label = document.createElement("label");
-  label.className = classes.check;
-  label.title = "Shows my notes in bands between the paragraphs, for this visit only";
-  label.innerHTML = `<input type="checkbox" class="${classes.checkInput}" />
-    <span class="${classes.checkLabel}">Open the interleaf</span>`;
-  const box = label.querySelector("input");
-  box.addEventListener("change", () => setInterleafOpen(box.checked));
-  const sync = () => {
-    box.checked = isInterleafOpen();
-  };
-  document.addEventListener(INTERLEAF_EVENT, sync);
-  return label;
-}
-
-/**
  * The same controls for the Notebook panel's foot; with `notes: false`
  * (Read View), only "My bookmarks", "My highlights" and "Hide my notes"; with
  * `bookmarks: false` (an article or the glossary, where nothing is
@@ -359,9 +339,5 @@ export function panelNoteControls({ notes = true, bookmarks = true, highlights =
   const lit = highlights ? [lights] : [];
   if (notes) wrap.append(check, seg, ...(bookmarks ? [marks] : []), ...lit, hide);
   else wrap.append(marks, ...lit, hide);
-  // The interleaf is a Study View chapter's alone.
-  if (notes && pageChapter()) {
-    hide.before(interleafControl({ check: "desk-setting", checkInput: "desk-setting__input", checkLabel: "desk-setting__label" }));
-  }
   return wrap;
 }

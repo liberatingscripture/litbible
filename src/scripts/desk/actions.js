@@ -40,7 +40,6 @@ import { openRibbonForm } from "./ribbon-form.js";
 import { getSetting, highlightSetting, setSetting } from "./note-settings.js";
 import { blockAt, chapterText, chapterTextFor, pageChapter } from "./page.js";
 import { undoEntry } from "./history.js";
-import { isInterleafOpen, setInterleafOpen } from "./interleaf-state.js";
 import { showUndo } from "./undo-bar.js";
 
 export function initActions({ store, ctx, showVerse = null }) {
@@ -98,22 +97,6 @@ export function initActions({ store, ctx, showVerse = null }) {
     second.append(ribbon);
     if (second.childElementCount > 1) second.classList.add("lit-panel__row--halves");
     d.append(second);
-    if (d.view === "study" && showVerse) {
-      // The interleaf (N7): the notes in bands between the paragraphs, for
-      // this visit. Study View's verse menu and selection panel only, on a
-      // row of its own, since Show in notebook and Ribbon here share the
-      // row above.
-      const leaf = button(isInterleafOpen() ? "Close the interleaf" : "Open the interleaf here");
-      leaf.addEventListener("click", () => {
-        d.acting?.();
-        closePanel();
-        setInterleafOpen(!isInterleafOpen());
-      });
-      const third = document.createElement("div");
-      third.className = "lit-panel__row";
-      third.append(leaf);
-      d.append(third);
-    }
 
     // A bookmark is one verse: the first the menu or selection covers.
     const verse = d.start;

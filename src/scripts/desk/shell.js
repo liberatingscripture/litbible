@@ -17,7 +17,6 @@ import { createReadMarks } from "./read-marks.js";
 import { openNoteEditor } from "./note-editor.js";
 import { createVerseLabels } from "./verse-labels.js";
 import { createHighlights } from "./highlights.js";
-import { createInterleaf } from "./interleaf.js";
 import { proseSource, studySource } from "./note-sources.js";
 import { pageChapter } from "./page.js";
 import { initProseActions } from "./prose-actions.js";
@@ -134,8 +133,6 @@ async function start() {
   // Painted on a Study View chapter or in Read View; after initNoteSettings,
   // so the switches are already on <html>.
   if (store) createHighlights({ store });
-  // Bands between the paragraphs, drawn only when the reader opens them.
-  if (store) createInterleaf({ store, onEdit: edit, onAddNote: addNote });
 }
 
 start();

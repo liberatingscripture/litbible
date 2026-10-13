@@ -15,14 +15,9 @@ export function pageChapter() {
   return { bookKey, chapter, label: `${bookKeyToLabel(bookKey)} ${chapter}` };
 }
 
-/**
- * Study View's scripture blocks. The interleaf's bands (`data-desk-band`,
- * interleaf.js) sit among them but are not scripture, so they are left out:
- * nothing that reads the chapter ever meets one.
- */
+/** Study View's scripture blocks. */
 export function chapterBlocks() {
-  const box = document.querySelector(".chapter-paragraphs");
-  return box ? Array.from(box.children).filter((el) => !el.hasAttribute("data-desk-band")) : [];
+  return document.querySelector(".chapter-paragraphs")?.children ?? [];
 }
 
 /**
