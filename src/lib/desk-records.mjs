@@ -275,6 +275,7 @@ export function validateRecord(r) {
     need(typeof r.body === "string", "body is not text");
     need(MARKERS.includes(r.marker), `marker "${r.marker}" is not one of ${MARKERS.join(", ")}`);
   }
+  if (k === "hidden") need(r.body == null || typeof r.body === "string", "body is not text");
   if (k === "place") need(typeof r.name === "string", "name is not text");
   if (k === "footnotePin") {
     need(typeof r.footnote === "string" && r.footnote.length > 0, "footnote is empty");

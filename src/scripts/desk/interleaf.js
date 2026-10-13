@@ -14,7 +14,8 @@
 // anchor reader, Copy text, the handout and the term lens never meet one.
 // Their notes are the reader's own words, set as text, in the margin notes'
 // face (the `data-desk-note-font` setting reaches them through desk.css).
-// "Hide my notes" (M1) and the "My notes" switch empty the interleaf too.
+// "Hide my notes" (M1) and the "My notes" switch empty the interleaf too, and
+// a note on a passage the reader hid (N8) stays out of it while that passage is.
 
 import { bandLabel, groupIntoBands } from "../../lib/desk-interleaf.mjs";
 import { noteOpening } from "../../lib/desk-notes.mjs";
@@ -22,6 +23,7 @@ import { placeRecord } from "../../lib/desk-records.mjs";
 import { forChapter, recordReference } from "../../lib/desk-store-core.mjs";
 import { keepReadingPlace } from "../keep-reading-place.js";
 import { glyph } from "./glyphs.js";
+import { HIDDEN_EVENT, hiddenApi } from "./hidden.js";
 import { INTERLEAF_EVENT, isInterleafOpen } from "./interleaf-state.js";
 import { SETTINGS_EVENT, getSetting } from "./note-settings.js";
 import { chapterBlocks, chapterText, pageChapter } from "./page.js";
@@ -66,7 +68,10 @@ export function createInterleaf({ store, onEdit = null, onAddNote = null }) {
     const blocks = Array.from(chapterBlocks());
     const text = chapterText();
     const entries = [];
+    const hid = hiddenApi();
     for (const record of notes) {
+      // A note on a passage the reader hid stays out of sight with it (N8).
+      if (hid?.coversRecord(record)) continue;
       const at = placeRecord(text, record);
       if (at.status === "lost" || at.start == null) continue;
       const point = text.toDom(at.start, "start");
@@ -137,6 +142,7 @@ export function createInterleaf({ store, onEdit = null, onAddNote = null }) {
 
   store.subscribe(load);
   document.addEventListener(SETTINGS_EVENT, redraw);
+  document.addEventListener(HIDDEN_EVENT, redraw);
   // Opening and closing are the reader's own asks: draw (or clear) at once,
   // holding the line.
   document.addEventListener(INTERLEAF_EVENT, () => keepReadingPlace(draw));

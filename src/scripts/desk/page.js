@@ -17,12 +17,15 @@ export function pageChapter() {
 
 /**
  * Study View's scripture blocks. The interleaf's bands (`data-desk-band`,
- * interleaf.js) sit among them but are not scripture, so they are left out:
- * nothing that reads the chapter ever meets one.
+ * interleaf.js) and a hidden passage's screen-reader control
+ * (`data-desk-passage`, hidden.js) sit among them but are not scripture, so
+ * they are left out: nothing that reads the chapter ever meets one.
  */
 export function chapterBlocks() {
   const box = document.querySelector(".chapter-paragraphs");
-  return box ? Array.from(box.children).filter((el) => !el.hasAttribute("data-desk-band")) : [];
+  return box
+    ? Array.from(box.children).filter((el) => !el.hasAttribute("data-desk-band") && !el.hasAttribute("data-desk-passage"))
+    : [];
 }
 
 /**

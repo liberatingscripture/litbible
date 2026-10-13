@@ -19,6 +19,14 @@
 //
 // Text comes from public/search/chapters/<book>-<chapter>.json (written by
 // build-verse-index.mjs; drafts have none), fetched once per chapter.
+//
+// The Study Desk can hide a passage from its reader (STUDY-DESK.md, N8). It
+// can't be imported here, so with the desk on it leaves `window.litPreviewGate`:
+// called with { key, chapter, verse, end }, it returns null when nothing in the
+// chapter is hidden, else { hidden(verse), show(verse) }. A hidden verse is
+// drawn as "Hidden by your note." with a Show button in place of its words,
+// and a run of hidden verses shares one. Without the desk there is no gate and
+// nothing here changes.
 
 import { BOOKS, bookKeyToLabel } from "../data/books.js";
 import { showPanel, closePanel, currentPanel } from "./lit-panel.js";
@@ -65,6 +73,37 @@ function loadChapter(key, chapter) {
     );
   }
   return chapterCache.get(id);
+}
+
+/** The Study Desk's gate for a reference, or null (no desk, or nothing hidden there). */
+function hiddenGate(ref) {
+  try {
+    return typeof window.litPreviewGate === "function"
+      ? window.litPreviewGate({ key: ref.key, chapter: ref.chapter, verse: ref.verse, end: ref.end })
+      : null;
+  } catch {
+    return null;
+  }
+}
+
+/** "Hidden by your note. Show" in place of a hidden verse's words. */
+function hiddenNotice(onShow) {
+  const wrap = document.createElement("span");
+  wrap.className = "ref-preview__hidden";
+  const say = document.createElement("span");
+  say.textContent = "Hidden by your note. ";
+  const show = document.createElement("button");
+  show.type = "button";
+  show.className = "ref-preview__show";
+  show.textContent = "Show";
+  // The button leaves the page as the text is redrawn; stopped here, so the
+  // outside-click check (lit-panel.js) doesn't take it for a click elsewhere.
+  show.addEventListener("click", (e) => {
+    e.stopPropagation();
+    onShow();
+  });
+  wrap.append(say, show);
+  return wrap;
 }
 
 function buildPanel(ref, draft) {
@@ -120,21 +159,40 @@ function buildPanel(ref, draft) {
         first + MAX_VERSES - 1,
         verses.length
       );
-      text.textContent = "";
-      let shown = 0;
-      for (let v = first; v <= last; v++) {
-        const t = verses[v - 1];
-        if (!t) continue;
-        if (shown) text.append(" ");
-        const n = document.createElement("sup");
-        n.className = "ref-preview__vn";
-        n.textContent = String(v);
-        text.append(n, " " + t);
-        shown++;
-      }
-      const wanted = ref.verse ? ref.end ?? ref.verse : verses.length;
-      if (last < wanted) text.append(" …");
-      if (!shown) setUnavailable();
+      const draw = () => {
+        const gate = hiddenGate(ref);
+        text.textContent = "";
+        let shown = 0;
+        let veiled = false; // the last thing drawn was a hidden run's notice
+        for (let v = first; v <= last; v++) {
+          const t = verses[v - 1];
+          if (!t) continue;
+          if (gate?.hidden(v)) {
+            if (!veiled) {
+              if (shown) text.append(" ");
+              text.append(hiddenNotice(() => {
+                gate.show(v);
+                draw();
+                panel.focus({ preventScroll: true });
+              }));
+              shown++;
+              veiled = true;
+            }
+            continue;
+          }
+          veiled = false;
+          if (shown) text.append(" ");
+          const n = document.createElement("sup");
+          n.className = "ref-preview__vn";
+          n.textContent = String(v);
+          text.append(n, " " + t);
+          shown++;
+        }
+        const wanted = ref.verse ? ref.end ?? ref.verse : verses.length;
+        if (last < wanted) text.append(" …");
+        if (!shown) setUnavailable();
+      };
+      draw();
     });
   }
   return panel;

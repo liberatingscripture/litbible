@@ -367,7 +367,8 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
         li.append(words);
       }
     } else {
-      const words = r.label ?? r.name ?? r.quote?.exact;
+      // A hidden passage lists its note to self (N8), the reader's own words.
+      const words = r.label ?? r.name ?? r.quote?.exact ?? (r.kind === "hidden" ? r.body : null);
       if (typeof words === "string" && words) {
         const p = document.createElement("p");
         p.className = "desk-item__words";
@@ -379,8 +380,12 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     const del = document.createElement("button");
     del.type = "button";
     del.className = "desk-item__delete";
-    del.textContent = "Delete";
-    del.setAttribute("aria-label", `Delete ${nameOf(r).toLowerCase()}${ref ? ` on ${ref}` : ""}`);
+    const stopHiding = r.kind === "hidden";
+    del.textContent = stopHiding ? "Stop hiding" : "Delete";
+    del.setAttribute(
+      "aria-label",
+      stopHiding ? `Stop hiding${ref ? ` ${ref}` : ""}` : `Delete ${nameOf(r).toLowerCase()}${ref ? ` on ${ref}` : ""}`,
+    );
     del.addEventListener("click", () => remove(r, li));
     li.append(del);
     return li;
@@ -479,7 +484,8 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     const entry = store.lastEntry();
     await render({ focusIndex: index });
     const ref = recordReference(r);
-    showUndo(`${nameOf(r)}${ref ? ` on ${ref}` : ""} deleted.`, async () => {
+    const said = r.kind === "hidden" ? `Stopped hiding${ref ? ` ${ref}` : ""}.` : `${nameOf(r)}${ref ? ` on ${ref}` : ""} deleted.`;
+    showUndo(said, async () => {
       await undoEntry(entry);
       await render();
       list.querySelector(`[data-id="${CSS.escape(r.id)}"] .desk-item__delete`)?.focus();

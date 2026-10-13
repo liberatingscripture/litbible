@@ -36,6 +36,7 @@ import { closePanel, currentPanel } from "../lit-panel.js";
 import { openNoteEditor } from "./note-editor.js";
 import { getSetting, highlightSetting, setSetting } from "./note-settings.js";
 import { blockAt, chapterText, chapterTextFor, pageChapter } from "./page.js";
+import { guardPanel, hideRow } from "./hidden-actions.js";
 import { undoEntry } from "./history.js";
 import { isInterleafOpen, setInterleafOpen } from "./interleaf-state.js";
 import { showUndo } from "./undo-bar.js";
@@ -53,6 +54,8 @@ export function initActions({ store, ctx, showVerse = null }) {
           ? { bookKey: d.book, chapter: d.chapter }
           : null;
     if (!where) return;
+    // A passage the reader hid hands out no words (N8): the panel says so.
+    if (guardPanel(d, where)) return;
 
     const heading = document.createElement("p");
     heading.className = "lit-panel__subheading";
@@ -100,6 +103,9 @@ export function initActions({ store, ctx, showVerse = null }) {
       second.append(leaf);
       d.append(second);
     }
+
+    // Hide this passage (N8), in both views.
+    hideRow(d, where, { store, ctx });
 
     // A bookmark is one verse: the first the menu or selection covers.
     const verse = d.start;

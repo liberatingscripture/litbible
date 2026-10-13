@@ -23,6 +23,10 @@
 // the same flag as in My Notes, "Wording changed · Review", under its words,
 // which opens the card beside it.
 //
+// A verse the reader has hidden (N8) shows none of its words, footnotes or
+// notes here: the tab says "Passage hidden by your note", with the note to
+// self (unless "Hide my notes" is on) and Show, until the reader shows it.
+//
 // The footnotes are copied from the page's own footnote list, so they read
 // exactly as they do there, links included, and each carries the Pin button
 // it has there (pins.js). Nothing here adds to or changes
@@ -35,6 +39,8 @@ import { adjacentVerse, recordsOnVerse } from "../../lib/desk-verse.mjs";
 import { verseAtReadingLine } from "../last-read.js";
 import { flagButton, noticesFor, openNotice } from "./change-notice.js";
 import { glyph } from "./glyphs.js";
+import { HIDDEN_EVENT, hiddenApi } from "./hidden.js";
+import { SETTINGS_EVENT } from "./note-settings.js";
 import { undoEntry } from "./history.js";
 import { chapterText } from "./page.js";
 import { pinButton } from "./pins.js";
@@ -77,6 +83,11 @@ export function createVerseTab({ store, here, visible, panelOpen, onEdit = null,
       <button type="button" class="desk-verse__step" data-step="1">${ICON_NEXT}</button>
     </div>
     <p class="desk-verse__text"></p>
+    <div class="desk-verse__hidden" hidden>
+      <p class="desk-verse__hidden-title"></p>
+      <p class="desk-verse__hidden-note" hidden></p>
+      <button type="button" class="desk-verse__show">Show</button>
+    </div>
     <section class="desk-verse__section desk-verse__fns" aria-labelledby="deskVerseFnsTitle" hidden>
       <h4 class="desk-verse__subhead" id="deskVerseFnsTitle">Footnotes</h4>
       <ol class="desk-verse__fn-list"></ol>
@@ -90,6 +101,9 @@ export function createVerseTab({ store, here, visible, panelOpen, onEdit = null,
 
   const heading = el.querySelector(".desk-verse__ref");
   const text = el.querySelector(".desk-verse__text");
+  const hiddenBox = el.querySelector(".desk-verse__hidden");
+  const hiddenNote = el.querySelector(".desk-verse__hidden-note");
+  const mineSection = el.querySelector('[aria-labelledby="deskVerseMineTitle"]');
   const fnSection = el.querySelector(".desk-verse__fns");
   const fnList = el.querySelector(".desk-verse__fn-list");
   const mine = el.querySelector(".desk-verse__mine");
@@ -132,6 +146,25 @@ export function createVerseTab({ store, here, visible, panelOpen, onEdit = null,
       b.setAttribute("aria-disabled", String(to == null));
       b.setAttribute("aria-label", to == null ? name : `${name}, ${ref(to)}`);
       b.title = to == null ? "" : ref(to);
+    }
+
+    // A passage the reader hid: no words, notes or footnotes, only the veil's
+    // message and Show (N8).
+    const hid = hiddenApi();
+    const group = hid?.coversRange(here.bookKey, here.chapter, v) ? hid.passageAt(here.bookKey, here.chapter, v) : null;
+    hiddenBox.hidden = !group;
+    text.hidden = Boolean(group);
+    mineSection.hidden = Boolean(group);
+    if (group) {
+      const say = hid.sayFor(here.bookKey, here.chapter, group);
+      text.textContent = "";
+      el.querySelector(".desk-verse__hidden-title").textContent = `${say.title}.`;
+      hiddenNote.hidden = !say.note;
+      // The reader's own words: text, never HTML.
+      hiddenNote.textContent = say.note;
+      fnList.replaceChildren();
+      fnSection.hidden = true;
+      return;
     }
 
     text.textContent = verseCopyFor(chapterText(), v) ?? "";
@@ -310,6 +343,13 @@ export function createVerseTab({ store, here, visible, panelOpen, onEdit = null,
       if (to != null) setVerse(to);
     });
   }
+
+  el.querySelector(".desk-verse__show").addEventListener("click", () => {
+    if (verse != null) hiddenApi()?.showRange(here.bookKey, here.chapter, verse, verse);
+  });
+  // What is hidden, or what "Hide my notes" lets the note to self say, changed.
+  document.addEventListener(HIDDEN_EVENT, () => render());
+  document.addEventListener(SETTINGS_EVENT, () => render());
 
   add.addEventListener("click", () => {
     if (verse == null) return;

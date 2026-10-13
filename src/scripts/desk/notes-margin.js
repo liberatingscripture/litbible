@@ -48,6 +48,7 @@ import {
 import { closePanel, currentPanel, showPanel } from "../lit-panel.js";
 import { changedGlyph, drawnNotices, markName, noticeFor, noticesFor, openNotice } from "./change-notice.js";
 import { glyph } from "./glyphs.js";
+import { HIDDEN_EVENT, hiddenApi } from "./hidden.js";
 import { SETTINGS_EVENT, getSetting, highlightSetting } from "./note-settings.js";
 
 const LIT = "desk-note-words";
@@ -96,9 +97,15 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
     schedule();
   }
 
-  /** Each note (or bookmark) with its words as a live Range, in today's text; lost ones are left out. */
+  /**
+   * Each note (or bookmark) with its words as a live Range, in today's text;
+   * lost ones are left out, and so are those on a verse the reader has hidden
+   * (N8), which may quote or answer the passage.
+   */
   function placed(records = notes) {
-    return source.placed(records);
+    const hid = hiddenApi();
+    const out = source.placed(records);
+    return hid ? out.filter((p) => !hid.coversRecord(p.record)) : out;
   }
 
   /* ── Drawing ─────────────────────────────────────────────────────── */
@@ -604,6 +611,7 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
   window.addEventListener("resize", schedule);
   document.addEventListener("desk:column-moved", schedule);
   document.addEventListener(SETTINGS_EVENT, schedule);
+  document.addEventListener(HIDDEN_EVENT, schedule);
   document.fonts?.addEventListener?.("loadingdone", schedule);
   if (window.ResizeObserver) new ResizeObserver(schedule).observe(textBox);
   new MutationObserver(schedule).observe(document.documentElement, {

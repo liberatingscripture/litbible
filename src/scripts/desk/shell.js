@@ -20,6 +20,7 @@ import { createReadMarks } from "./read-marks.js";
 import { openNoteEditor } from "./note-editor.js";
 import { createVerseLabels } from "./verse-labels.js";
 import { createHighlights } from "./highlights.js";
+import { createHidden } from "./hidden.js";
 import { createInterleaf } from "./interleaf.js";
 import { proseSource, studySource } from "./note-sources.js";
 import { pageChapter } from "./page.js";
@@ -84,6 +85,9 @@ async function start() {
     openNoteEditor({ trigger, store, ctx, ref: recordReference(record), record, restoreFocus });
   const addNote = (draft, trigger) =>
     openNoteEditor({ trigger, store, ctx, ref: recordReference(draft), draft, restoreFocus: trigger });
+  // First, so everything below can ask what is hidden (hiddenApi), and a
+  // hidden passage is hidden as early as the notebook can say.
+  if (store) createHidden({ store, ctx });
   let margin = null;
   let readMarks = null;
   let pins = null;
