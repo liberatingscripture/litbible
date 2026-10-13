@@ -8,6 +8,9 @@
  *   ubs/<NN>.json               the UBS Greek NT Dictionary, in 64 shards
  *   step/<NN>.json              STEPBible's brief lexicon, in 64 shards
  *   lsj/<NNN>.json              STEPBible's formatted LSJ, in 128 shards
+ *   search/lemmas.json          the Greek search index: every lemma, its forms, Strong's
+ *                               numbers and gloss (format in src/lib/greek-search.mjs)
+ *   search/occ/<NN>.json        where each lemma's words are, in 64 shards
  *   LICENSE.txt                 what each directory is built from, and its licence
  *
  * A website asset: it never moves under public/api/ (the apps don't read it).
@@ -46,6 +49,7 @@ import {
   buildBook,
   dropDuplicateEntries,
   countSenses,
+  greekSearchIndex,
   headword,
   lsjEntries,
   lsjShard,
@@ -63,6 +67,7 @@ import {
   stepEntries,
   stepShard,
   strongByLemma,
+  strongsByLemma,
   ubsEntryShard,
   ubsLemmaIndex,
   ubsSenseRefs,
@@ -188,6 +193,7 @@ async function main() {
     else verseDisagree++;
   }
   const lemmaStrong = strongByLemma(pairs);
+  const lemmaStrongs = strongsByLemma(pairs);
   const hints = posHints(pairs.map(([m, t]) => [m, t.pos]));
   let posAgree = 0;
   let parseAgree = 0;
@@ -219,7 +225,7 @@ async function main() {
   // ---- text/
   console.log("Building the 260 chapters…");
   // Only what this script writes, so nothing else placed in public/greek/ is lost.
-  for (const dir of ["text", "ubs", "step", "lsj"]) await fs.rm(path.join(OUT, dir), { recursive: true, force: true });
+  for (const dir of ["text", "ubs", "step", "lsj", "search"]) await fs.rm(path.join(OUT, dir), { recursive: true, force: true });
   const report = newReport();
   const usedStrongs = new Set();
   const docs = [];
@@ -284,11 +290,30 @@ async function main() {
   for (const [name, shard] of lsjShards) await writeJson(path.join(OUT, "lsj", `${name}.json`), shard);
   const lacking = (map) => [...usedStrongs].filter((k) => !map.has(k)).sort((a, b) => Number(a.slice(1)) - Number(b.slice(1)));
 
+  // ---- search/
+  // English to find a lemma by, beyond its gloss: the brief lexicon's gloss
+  // (πίστις is "faith" there, "to believe in" in UBS's commonest sense) and
+  // every UBS sense's glosses.
+  const ubsWritten = new Map();
+  for (const shard of ubsByShard.values()) for (const [id, e] of Object.entries(shard)) ubsWritten.set(id, e);
+  const glossesFor = (lemma, strong, ubsId) => {
+    const brief = (stepAll.get(strong) ?? []);
+    const own = brief.find((e) => headword(e.lemma) === lemma) ?? brief[0];
+    const senses = (ubsWritten.get(ubsId)?.senses ?? []).flatMap((x) => x.glosses ?? []);
+    return { brief: own?.gloss || null, senses };
+  };
+  const search = greekSearchIndex(docs, lemmaStrongs, BOOK_ORDER, glossesFor);
+  await writeJson(path.join(OUT, "search", "lemmas.json"), search.lemmas);
+  for (const [name, shard] of search.shards) await writeJson(path.join(OUT, "search", "occ", `${name}.json`), shard);
+
   await fs.writeFile(path.join(OUT, "LICENSE.txt"), LICENSE_TEXT, "utf8");
 
   // ---- report
   const sizes = {};
   for (const dir of ["text", "ubs", "step", "lsj"]) sizes[dir] = await dirStats(path.join(OUT, dir));
+  sizes["search/occ"] = await dirStats(path.join(OUT, "search", "occ"));
+  const lemmasBytes = (await fs.stat(path.join(OUT, "search", "lemmas.json"))).size;
+  const searchLemmas = search.lemmas.lemmas;
   const noStrong = [...lemmaStats.noStrong].sort();
   const noUbs = [...lemmaStats.noUbs].sort();
   const senseTotal = Object.values(report.senses).reduce((a, b) => a + b, 0);
@@ -326,7 +351,13 @@ async function main() {
     `Strong's numbers used: ${usedStrongs.size}; missing from the brief lexicon: ${lacking(stepAll).length} ${sample(lacking(stepAll), 20).join(" ")}; ` +
       `missing from LSJ: ${lacking(lsjAll).length} ${sample(lacking(lsjAll), 20).join(" ")}`,
     "",
-    ...["text", "ubs", "step", "lsj"].map((d) => `public/greek/${d}: ${sizes[d].files} files, ${kb(sizes[d].bytes)}`),
+    `search index: ${searchLemmas.length} lemmas, ${search.report.words} words (${search.report.noLemma} with no lemma skipped); ` +
+      `${searchLemmas.filter((e) => e[5]?.length).length} lemmas with other Strong's numbers; ` +
+      `Strong's differing between chapters: ${search.report.strongDiffers.length} ${sample(search.report.strongDiffers, 5).join("; ")}; ` +
+      `gloss differing between chapters: ${search.report.glossDiffers.length} ${sample(search.report.glossDiffers, 5).join("; ")}`,
+    "",
+    ...["text", "ubs", "step", "lsj", "search/occ"].map((d) => `public/greek/${d}: ${sizes[d].files} files, ${kb(sizes[d].bytes)}`),
+    `public/greek/search/lemmas.json: ${kb(lemmasBytes)}`,
     "",
   ];
   console.log(lines.join("\n"));
@@ -371,6 +402,14 @@ lsj/
   directories are formatted for the Greek tab and are not a copy of the
   data: to use the lexicons yourself, get them from
   https://github.com/STEPBible/STEPBible-Data (CC BY 4.0).
+
+search/
+  The index behind searching the Greek: for each lemma, its forms (letters
+  only, accents and breathings removed), Strong's numbers and gloss, and the
+  place of each of its words. Built from MorphGNT's lemmas (CC BY-SA 3.0),
+  with Strong's numbers from MACULA Greek (Clear Bible, CC BY 4.0) and glosses
+  from the UBS dictionary above (or the brief lexicon where UBS has none).
+  This directory is licensed CC BY-SA 4.0.
 `;
 
 main().catch((err) => {

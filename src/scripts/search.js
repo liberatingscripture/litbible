@@ -32,8 +32,14 @@ import {
   highlightVerseHit,
   loadTopicsIndex,
   loadDeskSearch,
+  greekSearchEnabled,
+  searchGreek,
+  loadGreekChapter,
   MODE_LABELS,
 } from "./search-core.js";
+import { lemmaLine } from "../lib/greek-search.mjs";
+import { describeParse } from "../lib/greek-parse.mjs";
+import { SIGNS, W } from "../lib/desk-greek.mjs";
 
 const base = String(import.meta.env.BASE_URL || "/").replace(/\/?$/, "/");
 
@@ -49,6 +55,7 @@ const groupSubject = $("#group-subject");
 const groupIntros = $("#group-intros");
 const groupArticles = $("#group-articles");
 const groupKeyword = $("#group-keyword");
+const groupGreek = $("#group-greek");
 
 const notebookEl = $("#results-notebook");
 const glossaryEl = $("#results-glossary");
@@ -56,6 +63,11 @@ const subjectEl = $("#results-subject");
 const introsEl = $("#results-intros");
 const articlesEl = $("#results-articles");
 const keywordEl = $("#results-keyword");
+const greekEl = $("#results-greek");
+const greekLemmasEl = $("#greek-lemmas");
+const greekExactEl = $("#greek-exact");
+const greekExactInput = $("#greek-exact-input");
+const greekMoreBtn = $("#greek-more");
 
 const pagerEl = $("#pager");
 const activeFiltersFullEl = document.getElementById("search-active-filters");
@@ -757,6 +769,242 @@ function renderJumps(groups) {
   jumpsEl.appendChild(list);
 }
 
+// -----------------------
+// The Greek (Study Desk preview, STUDY-DESK.md 1h)
+// -----------------------
+// A group of verses where the query's Greek word occurs: each with its Greek
+// (the matched word marked), that word's parsing in words, and the LIT verse
+// beneath. It exists only with the preview on (greekSearchEnabled), under
+// "All results", on page 1; otherwise nothing here runs or is fetched.
+//
+// One lemma's verses show at a time. When the query reaches several, the
+// first is shown and the rest are offered as choices; the choice and "exact
+// form only" are kept while the query stays the same.
+
+const GREEK_PAGE = 10;
+const SIGN_RE = new RegExp(`[${SIGNS}]`, "g");
+
+let greekChoice = { q: "", lemmaId: null, exact: false };
+let greekShown = GREEK_PAGE;
+let greekSeq = 0;
+
+/** The Greek search for this page: one lemma's verses, the first lemma's if none was chosen. */
+async function fetchGreek(q, book, lemmaId, exact) {
+  const opts = { bookKey: book, exactForm: exact };
+  let result = await searchGreek(base, q, { ...opts, lemmaId });
+  if (!result.selected && result.lemmas.length) {
+    result = await searchGreek(base, q, { ...opts, lemmaId: result.lemmas[0].id });
+  }
+  return result;
+}
+
+/** Whether the Greek group has anything to say for the cached results. */
+function greekGroupVisible(cache, mode, page) {
+  const g = cache?.greek;
+  return Boolean(
+    g &&
+      mode === "all" &&
+      page === 1 &&
+      g.lemmas.length > 0 &&
+      (g.total > 0 || g.lemmas.length > 1),
+  );
+}
+
+/** The verse's Greek as escaped HTML with the hit's word marked, and that word's parsing in words. */
+function greekVerseParts(data, hit) {
+  let html = "";
+  let parse = "";
+  const esc = (s) => escapeHtml(String(s ?? "").replace(SIGN_RE, ""));
+  for (const words of data?.paragraphs ?? []) {
+    for (const w of words) {
+      if (w[W.verse] !== hit.verse) continue;
+      const mine = w[W.t] === hit.t;
+      html += esc(w[W.pre]) + (mine ? `<mark>${esc(w[W.text])}</mark>` : esc(w[W.text])) + esc(w[W.post]);
+      if (mine) parse = describeParse(w[W.pos], w[W.parse]) || "";
+    }
+  }
+  return { html: html.replace(/\s+/g, " ").trim(), parse };
+}
+
+/** Rows [from, to) of the current Greek hits, their Greek filling in as the chapters arrive. */
+function appendGreekRows(from, to, token) {
+  const cache = lastSearchCache;
+  const hits = cache.greek.hits.slice(from, to);
+  const verses = cache.verseIndex?.verses;
+  const pending = new Map(); // "john-3" -> [{ hit, greekLine, parseLine }]
+
+  for (const hit of hits) {
+    const li = document.createElement("li");
+    li.className = "result greek-row";
+
+    const card = document.createElement("div");
+    card.className = "greek-card";
+
+    const ref = document.createElement("a");
+    ref.className = "greek-ref";
+    ref.href = hit.href;
+    ref.textContent = hit.label;
+
+    const greekLine = document.createElement("div");
+    greekLine.className = "result-excerpt greek-text";
+    greekLine.lang = "grc";
+
+    const parseLine = document.createElement("div");
+    parseLine.className = "greek-parse";
+    parseLine.hidden = true;
+
+    card.append(ref, greekLine, parseLine);
+
+    const litText = verses?.[hit.book]?.[hit.chapter]?.[hit.verse - 1];
+    if (litText) {
+      const lit = document.createElement("div");
+      lit.className = "result-excerpt greek-lit";
+      lit.innerHTML = `<sup>${hit.verse}</sup>&nbsp;${escapeHtml(litText)}`;
+      card.append(lit);
+    }
+
+    li.append(card);
+    greekEl.append(li);
+
+    const key = `${hit.book}-${hit.chapter}`;
+    if (!pending.has(key)) pending.set(key, []);
+    pending.get(key).push({ hit, greekLine, parseLine });
+  }
+
+  for (const rows of pending.values()) {
+    const { book, chapter } = rows[0].hit;
+    loadGreekChapter(base, book, chapter).then((data) => {
+      if (token !== greekSeq) return;
+      for (const { hit, greekLine, parseLine } of rows) {
+        const { html, parse } = data ? greekVerseParts(data, hit) : { html: "", parse: "" };
+        if (!html) {
+          greekLine.remove();
+          continue;
+        }
+        greekLine.innerHTML = html;
+        if (parse) {
+          parseLine.textContent = parse;
+          parseLine.hidden = false;
+        }
+      }
+    });
+  }
+}
+
+function renderGreekGroup() {
+  const token = ++greekSeq;
+  const { mode, page } = readState();
+  if (!greekGroupVisible(lastSearchCache, mode, page)) {
+    groupGreek.hidden = true;
+    greekEl.replaceChildren();
+    return;
+  }
+
+  const greek = lastSearchCache.greek;
+  groupGreek.hidden = false;
+
+  // Which lemma: named when the query reaches one, a choice when it reaches several.
+  const lemmaHtml = (item) =>
+    `<span lang="grc">${escapeHtml(item.lemma)}</span>${escapeHtml(lemmaLine(item).slice(item.lemma.length))}`;
+  greekLemmasEl.replaceChildren();
+  greekLemmasEl.removeAttribute("role");
+  greekLemmasEl.removeAttribute("aria-label");
+  greekLemmasEl.hidden = !greek.lemmas.length;
+  if (greek.lemmas.length === 1) {
+    const one = document.createElement("p");
+    one.className = "greek-lemma-one";
+    one.innerHTML = lemmaHtml(greek.lemmas[0]);
+    greekLemmasEl.append(one);
+  } else if (greek.lemmas.length > 1) {
+    greekLemmasEl.setAttribute("role", "group");
+    greekLemmasEl.setAttribute("aria-label", "Greek words matching your search");
+    for (const item of greek.lemmas) {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "greek-lemma-btn";
+      btn.setAttribute("aria-pressed", item.id === greek.selected?.id ? "true" : "false");
+      btn.innerHTML = lemmaHtml(item);
+      btn.addEventListener("click", () => chooseGreek({ lemmaId: item.id }));
+      greekLemmasEl.append(btn);
+    }
+  }
+
+  // "Exact form only" means something for a Greek query whose lemma has other forms.
+  greekExactEl.hidden = !(greek.kind === "greek" && greek.otherForms);
+  greekExactInput.checked = greekChoice.exact;
+
+  greekEl.replaceChildren();
+  if (!greek.total) {
+    const li = document.createElement("li");
+    li.className = "greek-empty";
+    li.textContent = "No occurrences of this word in the selected book.";
+    greekEl.append(li);
+    greekMoreBtn.hidden = true;
+    return;
+  }
+
+  const shown = Math.min(greekShown, greek.total);
+  appendGreekRows(0, shown, token);
+  greekMoreBtn.hidden = shown >= greek.total;
+}
+
+/** The reader chose a lemma or flipped "exact form only": search the Greek again, nothing else. */
+async function chooseGreek({ lemmaId = null, exact = greekChoice.exact } = {}) {
+  const cache = lastSearchCache;
+  if (!cache?.greek) return;
+  const { q, book } = readState();
+  const id = lemmaId ?? cache.greek.selected?.id ?? null;
+  greekChoice = { q, lemmaId: id, exact };
+  const chose = lemmaId != null;
+  let next;
+  try {
+    next = await fetchGreek(q, book, id, exact);
+  } catch (err) {
+    console.warn("[search] Greek search failed:", err);
+    return;
+  }
+  // Another choice, or a new search, got there first.
+  if (lastSearchCache !== cache || greekChoice.exact !== exact || greekChoice.lemmaId !== id) return;
+  cache.greek = next;
+  greekShown = GREEK_PAGE;
+  writeCountStatus();
+  renderGreekGroup();
+  if (chose) greekLemmasEl.querySelector('[aria-pressed="true"]')?.focus();
+}
+
+greekExactInput?.addEventListener("change", () => {
+  chooseGreek({ exact: greekExactInput.checked });
+});
+
+greekMoreBtn?.addEventListener("click", () => {
+  const greek = lastSearchCache?.greek;
+  if (!greek) return;
+  const from = Math.min(greekShown, greek.total);
+  greekShown += GREEK_PAGE;
+  const to = Math.min(greekShown, greek.total);
+  appendGreekRows(from, to, greekSeq);
+  greekMoreBtn.hidden = to >= greek.total;
+});
+
+/**
+ * "194 results for “liberation”". The per-group counts live in the jump
+ * links below it. A typo-corrected verse search says which word it used.
+ * Written apart from the rest of the page so choosing a Greek word can update
+ * it without redrawing the other groups.
+ */
+function writeCountStatus() {
+  const c = lastSearchCache;
+  if (!c) return;
+  const { mode } = readState();
+  const total = c.baseTotal + (mode === "all" ? (c.greek?.total ?? 0) : 0);
+  const count = `${total} result${total === 1 ? "" : "s"} for “${c.displayQ}”`;
+  setStatus(
+    c.keywordCorrection && c.keywordTotal
+      ? `${count} (showing verses for “${c.keywordCorrection}”)`
+      : count,
+  );
+}
+
 function renderFromCache() {
   const { page, sort, mode, q } = readState();
   if (!lastSearchCache) return;
@@ -769,7 +1017,6 @@ function renderFromCache() {
     articleMatchesRaw,
     introMatchesRaw,
     keywordMatchesRaw,
-    keywordCorrection,
     notebook,
     deskApi,
     qPhrase,
@@ -790,13 +1037,18 @@ function renderFromCache() {
   // The reader's own notebook (D2), searched in the browser; only with the
   // Study Desk on, and only under "All results".
   const notebookCount = mode === "all" ? (notebook?.total ?? 0) : 0;
-  const matchTotal =
+  const baseTotal =
     notebookCount +
     glossaryCount +
     subjectCount +
     articleCount +
     introCount +
     keywordTotal;
+  lastSearchCache.baseTotal = baseTotal;
+  lastSearchCache.keywordTotal = keywordTotal;
+  // The Greek (Study Desk preview): the chosen lemma's occurrences.
+  const greekCount = mode === "all" ? (lastSearchCache.greek?.total ?? 0) : 0;
+  const matchTotal = baseTotal + greekCount;
 
   const parsedJump = parseReferenceJump(q);
   setRefBanner(
@@ -860,14 +1112,7 @@ function renderFromCache() {
     return;
   }
 
-  // "194 results for “liberation”". The per-group counts live in the jump
-  // links below it. A typo-corrected verse search says which word it used.
-  const count = `${matchTotal} result${matchTotal === 1 ? "" : "s"} for “${displayQ}”`;
-  setStatus(
-    keywordCorrection && keywordTotal
-      ? `${count} (showing verses for “${keywordCorrection}”)`
-      : count,
-  );
+  writeCountStatus();
 
   // Only show glossary/subject on page 1
   const showMetaBuckets = page === 1;
@@ -880,9 +1125,11 @@ function renderFromCache() {
     (mode === "all" || mode === "article") && showMetaBuckets;
   const showKeyword = mode === "all" || mode === "keyword";
   const showNotebook = showMetaBuckets && notebookCount > 0;
+  const showGreek = greekGroupVisible(lastSearchCache, mode, page);
 
   renderJumps([
     { count: showKeyword ? keywordTotal : 0, one: "verse", many: "verses", target: groupKeyword },
+    { count: showGreek ? greekCount : 0, one: "Greek occurrence", many: "Greek occurrences", target: groupGreek },
     { count: showNotebook ? notebookCount : 0, one: "match in your notebook", many: "matches in your notebook", target: groupNotebook },
     { count: showSubject ? subjectCount : 0, one: "chapter by topic", many: "chapters by topic", target: groupSubject },
     { count: showIntros ? introCount : 0, one: "introduction", many: "introductions", target: groupIntros },
@@ -947,6 +1194,7 @@ function renderFromCache() {
   }
 
   setPager(showKeyword ? keywordTotal : 0, page);
+  renderGreekGroup();
   renderActiveFiltersFull();
 }
 
@@ -965,6 +1213,9 @@ function hideResultGroups() {
   groupIntros.hidden = true;
   groupArticles.hidden = true;
   groupKeyword.hidden = true;
+  groupGreek.hidden = true;
+  greekSeq++;
+  greekEl.replaceChildren();
   renderJumps([]);
 
   glossaryEl.innerHTML = "";
@@ -1015,6 +1266,23 @@ async function runFullSearch() {
   // glossary/articles. Start the verse-index fetch first so the two loads
   // overlap on first use.
   const versePromise = wantKeyword ? loadVerseIndex(base) : null;
+
+  // The Greek, only with the Study Desk preview on, under "All results", and
+  // not for a scripture reference (a book name alone still may be a word).
+  // The chosen lemma and "exact form only" last while the query stays the same.
+  const wantGreek =
+    mode === "all" &&
+    greekSearchEnabled() &&
+    !(parsedJump && parsedJump.kind !== "book");
+  if (greekChoice.q !== q) greekChoice = { q, lemmaId: null, exact: false };
+  const greekPromise = wantGreek
+    ? fetchGreek(q, book, greekChoice.lemmaId, greekChoice.exact).catch(
+        (err) => {
+          console.warn("[search] Greek search failed:", err);
+          return null;
+        },
+      )
+    : null;
 
   const qUnquoted = displayQ;
   const qPhrase = normalizePhrase(qUnquoted);
@@ -1141,6 +1409,8 @@ async function runFullSearch() {
     ? await deskApi.search(q, { bookKey: book }).catch(() => null)
     : null;
 
+  const greek = greekPromise ? await greekPromise : null;
+
   const { hits: verseHits, correction: keywordCorrection } = verseIndex
     ? searchVerses(verseIndex, q, { bookKey: book })
     : { hits: [], correction: "" };
@@ -1175,7 +1445,10 @@ async function runFullSearch() {
     keywordCorrection,
     notebook,
     deskApi,
+    greek,
+    verseIndex,
   };
+  greekShown = GREEK_PAGE;
 
   renderFromCache();
 }

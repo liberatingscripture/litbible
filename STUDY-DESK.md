@@ -49,8 +49,8 @@ are recorded so they aren't re-argued.
   Phase 1's built steps are done apart from N8's hold. **1g and 1h
   belong to phase 1** (BVJ, 2026-10-13), and both were explored the same
   day: **1g (an interleaf for the Greek) is shelved for the future**, and
-  **1h (searching the Greek) is planned, and is built before phases 2
-  and 3 begin** (BVJ; "Order of work", 1h). **The desk is not released until phase 1 is
+  **1h (searching the Greek) was built on 2026-10-13**, behind the preview
+  ("Order of work", 1h, "Built"). **The desk is not released until phase 1 is
   completely done, and perhaps not until phases 1 to 3 are** (BVJ,
   2026-10-13). Other versions (API.bible and the Versions tab) are out of
   version 1 (BVJ, 2026-10-11). What exists:
@@ -3606,6 +3606,59 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      **Its open details were settled** (BVJ, 2026-10-13): a result opens
      the Notebook even when the reader closed it; the tray rule for Latin
      queries above stands; and 1h is built before phases 2 and 3 begin.
+
+     - **Built 2026-10-13**, behind the preview, steps 1 to 6:
+       - **The index** is `public/greek/search/`: `lemmas.json` (5,465
+         lemmas, 222 KB gzipped) and `occ/00.json` to `63.json` (137,793
+         words, 671 KB gzipped in all; ὁ makes the largest, 74 KB). Written by
+         `build:greek` from the chapter files it builds, so its words, lemmas
+         and Strong's numbers are 1f's exactly. CC BY-SA, a section in
+         `LICENSE.txt`.
+       - **Two departures from the plan, found while building.** The
+         transliteration shown is worked out from the Greek in the SBL
+         Handbook's style (psychē, huios, houtos), not taken from STEPBible,
+         whose data writes a breathing inside a diphthong ("ohutos",
+         "uhios"); both spellings still match, since the key ignores the h.
+         And the gloss a lemma is found by is not only its 1f gloss: that is
+         UBS's most-used sense, which for πίστις is "to believe in", so
+         "faith" found nothing. The index also carries STEPBible's brief gloss
+         ("faith", which the lemma's line now shows) and every other UBS
+         sense gloss, matched only as a whole gloss, so "faith" doesn't reach
+         πατήρ through "father of the faith".
+       - **A lemma's other Strong's numbers count too.** MACULA numbers
+         words of one lemma differently (extended Strong's), and 1f keeps
+         the commonest, so εἰμί is G2076 there; G1510 and 15 others now find
+         it as well. 71 lemmas have more than one.
+       - **Matching** (`src/lib/greek-search.mjs`, tested, with the plan's
+         test cases and more): one Greek word at a time (a phrase is
+         construction search, below); a typed lemma finds that lemma alone,
+         any other form finds every lemma it can be (ἦν is εἰμί or ὅς);
+         order is exact keys, a gloss that is the query, near misses (5+
+         letters, /search only), other glosses, then sense glosses, more
+         frequent first within each. A nasal γ is "n" (angelos, enchriō) and
+         κσ is "x", so egchriō and ekstasis match too.
+       - **The tray** puts a "Greek" group last: six verses ("1 Corinthians
+         8:7 · γνῶσις") and "All 29 on the search page", or a row per lemma
+         that narrows to it. **/search** has a Greek group and jump link,
+         names the lemma it found ("γνῶσις · gnōsis · G1108 · knowledge · 29
+         times"), offers a choice when several match and "Exact form only"
+         for a form, and shows ten verses at a time: the Greek with the word
+         marked, its parsing in words, and the LIT verse. A reference query
+         ("John 3:16") skips the Greek.
+       - **The landing** (`desk/greek-link.js`) and **the tab's own search**
+         (`desk/greek-find.js`) are as planned. **In a word's details, the
+         form, the lemma and the Strong's number each start a search** in
+         the tab (BVJ, 2026-10-13, after trying the tab): the form with
+         "Exact form only", the lemma for all its forms, the number by
+         number. Plain clicks, no right-click menu, which keyboard and
+         screen-reader users can't reach.
+       - **Checked in the browser**: Greek, transliterated, Strong's and
+         English queries in the tray and on /search; a result opening the
+         closed Notebook at the word and leaving a plain verse link; the
+         tab's search and its starters, at about 254px; with the preview
+         off, no Greek group and no request under `/greek/`.
+       - **Defaults for BVJ to judge** are under "Still open" ("Phase 1h's
+         defaults").
 2. **What only the LIT can do.** What's new for you and text checked before
    printing (B3, S2), on 1a's comparison; notes that follow a word and
    concept marks saved as rules (N2, H2, C23); your own chains (N4); the word
@@ -4397,6 +4450,14 @@ margin and breaks up the scripture text."
   yet. 1h was kept apart from 1f rather than added to it, because it needs
   a corpus-wide index and a place in search of its own.
 
+### 2026-10-13 (1h built)
+
+- **1h was built** ("Order of work", 1h, "Built").
+- **A word's form, lemma and Strong's number start a search** (BVJ, while
+  1h was being built: "on right-click or by clicking"). Built as plain
+  clicks, since a right-click menu is out of reach for keyboard and
+  screen-reader users.
+
 ### 2026-10-13 (1g shelved; 1h planned)
 
 After exploring both (the findings are under "Order of work", 1g and 1h):
@@ -4589,6 +4650,14 @@ The first five confirm what the preview already does.
 - ~~**1g and 1h, to explore before phases 2 and 3**~~: **explored**
   (BVJ, 2026-10-13). 1g is shelved for the future; 1h is planned, to
   build. See "Order of work", 1g and 1h.
+- **Phase 1h's defaults** (built 2026-10-13 on recommendations; "Order of
+  work", 1h, "Built"): the lemma line's gloss taken from STEPBible's brief
+  lexicon; English matching whole glosses of other UBS senses; the
+  transliteration shown in the SBL Handbook's style; one Greek word per
+  search; ten verses at a time on /search and in the tab; the tray's six
+  verses and its group last; a reference query skipping the Greek; the tab's
+  search replacing its text, and its height in a short window (the results
+  and the details share it).
 - ~~**1h's open details**~~: **settled** (BVJ, 2026-10-13): a Greek
   result opens the Notebook even when the reader closed it; a Latin query
   shows a Greek group in the search tray only on an exact transliteration

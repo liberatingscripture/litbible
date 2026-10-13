@@ -33,8 +33,12 @@ import {
   verseHitHref,
   loadTopicsIndex,
   loadDeskSearch,
+  greekSearchEnabled,
+  searchGreek,
+  showGreekHere,
   MODE_LABELS,
 } from "./search-core.js";
+import { lemmaLine } from "../lib/greek-search.mjs";
 
 const base = String(import.meta.env.BASE_URL || "/").replace(/\/?$/, "/");
 
@@ -192,6 +196,11 @@ const _initSearchbars = async () => {
     const isCmd = (text) => Boolean(desk && desk.isCommandQuery(text));
 
     let pagefind = null;
+
+    // The lemma the reader chose from the Greek group's list, kept only while
+    // the box still holds the Greek it was narrowed to (so an accent-only
+    // homograph can't come back ambiguous). { id, text } or null.
+    let pinnedGreek = null;
 
     const initialMode = root.dataset.defaultMode || "all";
     let activeBook = "";
@@ -533,6 +542,103 @@ const _initSearchbars = async () => {
       `;
     }
 
+    // The /search address for a query, keeping the book filter in force.
+    function fullSearchHref(q, bookKey) {
+      const url = new URL(
+        fullLink?.getAttribute("href") || "/search",
+        window.location.origin,
+      );
+      url.searchParams.set("q", q);
+      if (bookKey) url.searchParams.set("book", bookKey);
+      return url.pathname + url.search;
+    }
+
+    // The Greek group (Study Desk preview, STUDY-DESK.md 1h), appended below
+    // the scripture groups. A search that named one lemma lists up to six of
+    // its verses; one that reached several lists the lemmas, each narrowing
+    // the search. Nothing is drawn when the Greek wasn't searched or found
+    // nothing, so a reader without the preview never meets it.
+    const GREEK_TRAY_LIMIT = 6;
+
+    function renderGreekGroup(greek, q, bookKey) {
+      if (!greek) return;
+      const group = document.createElement("div");
+      group.className = "searchbar__group";
+      group.dataset.greekGroup = "";
+
+      let rows = "";
+      let hits = [];
+      let lemmas = [];
+
+      if (greek.selected) {
+        hits = greek.hits.slice(0, GREEK_TRAY_LIMIT);
+        if (!hits.length) return;
+        rows = hits
+          .map(
+            (h, i) => `
+              <li class="searchbar__result">
+                <a class="searchbar__link" href="${escapeHtml(h.href)}" data-greek-hit="${i}">
+                  <div class="searchbar__title">${escapeHtml(h.label)} · <span lang="grc">${escapeHtml(h.form)}</span></div>
+                </a>
+              </li>`,
+          )
+          .join("");
+        const total = greek.hits.length;
+        rows += `
+              <li class="searchbar__result">
+                <a class="searchbar__link searchbar__link--more" href="${escapeHtml(fullSearchHref(q, bookKey))}">
+                  <div class="searchbar__title">${total > GREEK_TRAY_LIMIT ? `All ${total} on the search page` : "On the search page"}</div>
+                </a>
+              </li>`;
+      } else {
+        lemmas = greek.lemmas;
+        if (!lemmas.length) return;
+        rows = lemmas
+          .map((item, i) => {
+            const line = lemmaLine(item);
+            return `
+              <li class="searchbar__result">
+                <button type="button" class="searchbar__link searchbar__link--button" data-greek-lemma="${i}">
+                  <div class="searchbar__title"><span lang="grc">${escapeHtml(item.lemma)}</span>${escapeHtml(line.slice(item.lemma.length))}</div>
+                </button>
+              </li>`;
+          })
+          .join("");
+      }
+
+      group.innerHTML = `
+        <div class="searchbar__group-title">Greek</div>
+        <ol class="searchbar__results">${rows}</ol>
+      `;
+
+      group.addEventListener("click", (e) => {
+        const link = e.target.closest?.("[data-greek-hit]");
+        if (link) {
+          // A result for the chapter on screen opens the Notebook's Greek tab
+          // in place; anywhere else the link loads the chapter as usual.
+          if (showGreekHere(hits[Number(link.dataset.greekHit)])) {
+            e.preventDefault();
+            closePanel();
+          }
+          return;
+        }
+        const btn = e.target.closest?.("[data-greek-lemma]");
+        if (!btn) return;
+        e.preventDefault();
+        const item = lemmas[Number(btn.dataset.greekLemma)];
+        if (!item) return;
+        pinnedGreek = { id: item.id, text: item.lemma };
+        input.value = item.lemma;
+        clearGhost();
+        // Re-render after this click has finished bubbling: the search clears
+        // the list, and the outside-click handler would take the detached
+        // button for a click outside the tray and close it.
+        setTimeout(() => runSearch(item.lemma), 0);
+      });
+
+      groupsEl.append(group);
+    }
+
     function titleFromUrl(u) {
       // Non-scripture URLs (e.g. article paths from the topic index) fall
       // back to the raw URL, matching the tray's original behavior.
@@ -709,6 +815,19 @@ const _initSearchbars = async () => {
           ? desk.search(q, { bookKey: keywordBook }).catch(() => null)
           : null;
 
+        // The Greek (Study Desk preview only, under "All results", and not for
+        // a scripture reference), started now so its index loads while
+        // Pagefind does.
+        const wantGreek = greekSearchEnabled() && activeMode === "all" && !ref;
+        if (pinnedGreek && pinnedGreek.text !== q) pinnedGreek = null;
+        const greekPromise = wantGreek
+          ? searchGreek(base, q, {
+              tray: true,
+              bookKey: keywordBook,
+              lemmaId: pinnedGreek ? pinnedGreek.id : null,
+            }).catch(() => null)
+          : null;
+
         // A book filter routes to scripture-only results, so skip Pagefind
         // then (glossary/article pages carry no book value; intro pages do,
         // but book-filtered searches stay scripture-only by design). A
@@ -740,6 +859,15 @@ const _initSearchbars = async () => {
         if (mySeq !== searchSeq) return;
         const nCount = notebook?.total ?? 0;
         const commands = wantDesk ? desk.commandsFor(q) : [];
+
+        const greek = greekPromise ? await greekPromise : null;
+        if (mySeq !== searchSeq) return;
+        // One lemma's verses, or the lemmas to choose from; either may be empty.
+        const greekCount = !greek
+          ? 0
+          : greek.selected
+            ? greek.hits.length
+            : greek.lemmas.length;
 
         const { hits: verseHits, correction: verseCorrection } = verseIndex
           ? searchVerses(verseIndex, q, { bookKey: keywordBook })
@@ -816,23 +944,29 @@ const _initSearchbars = async () => {
         const showI = activeMode === "all" || activeMode === "intro";
         const showK = activeMode === "all" || activeMode === "keyword";
 
-        // With a jump row or a command showing, a zero count reads as a
+        // With a jump row, a command or Greek showing, a zero count reads as a
         // failed search, so only the kinds that matched are listed.
         const parts = [];
         if (nCount)
           parts.push(`${nCount} notebook match${nCount === 1 ? "" : "es"}`);
         if (showG && gCount)
           parts.push(`${gCount} glossary match${gCount === 1 ? "" : "es"}`);
-        if (showS && (sCount || !(hasJump || commands.length)))
+        if (showS && (sCount || !(hasJump || commands.length || greekCount)))
           parts.push(`${sCount} topic match${sCount === 1 ? "" : "es"}`);
         if (showI && iCount)
           parts.push(`${iCount} book intro match${iCount === 1 ? "" : "es"}`);
         if (showA && aCount)
           parts.push(`${aCount} article match${aCount === 1 ? "" : "es"}`);
-        if (showK && (kCount || !(hasJump || commands.length)))
+        if (showK && (kCount || !(hasJump || commands.length || greekCount)))
           parts.push(
             `${kCount} keyword match${kCount === 1 ? "" : "es"}` +
               (verseCorrection ? ` for “${verseCorrection}”` : ""),
+          );
+        if (greekCount)
+          parts.push(
+            greek.selected
+              ? `${greekCount} Greek match${greekCount === 1 ? "" : "es"}`
+              : `${greekCount} Greek word${greekCount === 1 ? "" : "s"}`,
           );
         status.textContent = parts.join(sep);
 
@@ -852,11 +986,14 @@ const _initSearchbars = async () => {
             onRun: runDeskCommand,
           });
         }
+        // The Greek, below the scripture groups.
+        if (greekCount) renderGreekGroup(greek, q, keywordBook);
         renderActiveFilters();
 
         const totalCount =
           nCount +
           commands.length +
+          greekCount +
           (showG ? gCount : 0) +
           (showS ? sCount : 0) +
           (showA ? aCount : 0) +

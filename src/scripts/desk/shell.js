@@ -8,6 +8,7 @@ import { recordHref, recordReference } from "../../lib/desk-store-core.mjs";
 import { addDeskStyle, deskCtx as ctx } from "./boot.js";
 import { openStore } from "./store.js";
 import { createPanel } from "./panel.js";
+import { initGreekLink } from "./greek-link.js";
 import { initUndo } from "./undo-bar.js";
 import { createHistory } from "./history.js";
 import { initNoteSettings } from "./note-settings.js";
@@ -126,6 +127,7 @@ async function start() {
   initActions({ store, ctx, showVerse: panel.showVerse });
   initRibbonFollow({ store, ctx });
   initCommands({ panel });
+  initGreekLink({ panel });
   initProseActions({ store, addNote });
   // The tour (D8): started by the reader, never by itself (tour.js).
   createTour({ panel });
