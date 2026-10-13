@@ -2050,3 +2050,530 @@ html[data-desk-list="full"] .desk-item__pin-text {
     display: block !important;
   }
 }
+
+/* ── 1d: the notebook page, labels, save and open a copy ── */
+
+/* The panel's foot: the way to the notebook page. */
+.desk-panel__page {
+  margin-bottom: 6px;
+}
+
+.desk-panel__page a {
+  color: var(--green-text);
+}
+
+/* My Notes: the label choices, in the colour row's pattern. */
+.desk-mine__labels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 10px 4px 2px;
+  font-size: 0.8125rem;
+}
+
+.desk-mine__labels[hidden] {
+  display: none;
+}
+
+.desk-mine__label {
+  min-height: 32px;
+  padding: 0 10px;
+  border: 1px solid rgba(var(--ink-rgb), 0.25);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.desk-mine__label:hover {
+  border-color: rgba(var(--ink-rgb), 0.45);
+}
+
+/* Pressed: a heavier border as well as a tint, since a tint alone is a cue by colour. */
+.desk-mine__label[aria-pressed="true"] {
+  border-color: var(--text);
+  background: rgba(var(--ink-rgb), 0.07);
+  box-shadow: inset 0 0 0 1px var(--text);
+}
+
+.desk-mine__label:focus-visible,
+.desk-np button:focus-visible,
+.desk-np select:focus-visible,
+.desk-np input:focus-visible,
+.desk-np a:focus-visible,
+.desk-backup__file:focus-within .desk-backup__file-button,
+.desk-labels button:focus-visible,
+.desk-labels input:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+@media (forced-colors: active) {
+  .desk-mine__label[aria-pressed="true"] {
+    outline: 2px solid CanvasText;
+    outline-offset: -3px;
+  }
+}
+
+/* Label chips: on a notebook page row. */
+.desk-chips {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.desk-chip {
+  padding: 1px 9px;
+  border: 1px solid rgba(var(--ink-rgb), 0.25);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  color: rgba(var(--ink-rgb), 0.8);
+}
+
+/* The Labels… popover. */
+.desk-labels {
+  min-width: 240px;
+  max-width: 320px;
+}
+
+.desk-labels__for {
+  margin: 0 0 8px;
+  color: rgba(var(--ink-rgb), 0.7);
+  font-size: 0.8125rem;
+}
+
+.desk-labels__list {
+  max-height: 14rem;
+  overflow-y: auto;
+  margin: 0 0 10px;
+  padding: 0;
+  list-style: none;
+}
+
+.desk-labels__list[hidden],
+.desk-labels__none[hidden] {
+  display: none;
+}
+
+.desk-labels__row {
+  display: flex;
+  width: 100%;
+  margin: 0;
+  padding: 5px 2px;
+}
+
+.desk-labels__none {
+  margin: 0 0 10px;
+  color: rgba(var(--ink-rgb), 0.7);
+}
+
+.desk-labels__new {
+  display: flex;
+  gap: 6px;
+}
+
+.desk-labels__input {
+  flex: 1;
+  min-width: 0;
+  padding: 6px 8px;
+  border: 1px solid rgba(var(--ink-rgb), 0.3);
+  border-radius: 8px;
+  background: var(--surface-raised, transparent);
+  color: var(--text);
+  font: inherit;
+}
+
+.desk-labels__add {
+  padding: 5px 12px;
+  border: 1px solid rgba(var(--ink-rgb), 0.25);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.desk-labels__add:hover {
+  background: rgba(var(--ink-rgb), 0.07);
+}
+
+.desk-labels__error {
+  margin: 8px 0 0;
+  color: var(--text);
+  font-size: 0.8125rem;
+}
+
+.desk-labels__error[hidden] {
+  display: none;
+}
+
+/* The notebook page. */
+.desk-np {
+  font-size: 1rem;
+  line-height: 1.55;
+}
+
+.desk-np__intro {
+  margin: 0 0 1rem;
+  max-width: calc(60 * var(--ch));
+}
+
+.desk-np__jump {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  margin: 0 0 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(var(--ink-rgb), 0.12);
+}
+
+.desk-np__jump a {
+  color: var(--green-text);
+}
+
+.desk-np__section {
+  margin: 0 0 2.5rem;
+}
+
+.desk-np__h2 {
+  margin: 0 0 0.75rem;
+  font-size: 1.5rem;
+}
+
+.desk-np__h3 {
+  margin: 1.75rem 0 0.25rem;
+  font-size: 1.2rem;
+}
+
+.desk-np__h4 {
+  margin: 1.1rem 0 0.1rem;
+  font-size: 1rem;
+  color: rgba(var(--ink-rgb), 0.75);
+}
+
+.desk-np__filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px 16px;
+  margin-bottom: 0.5rem;
+}
+
+.desk-np__field {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 0.875rem;
+}
+
+.desk-np__field[hidden] {
+  display: none;
+}
+
+.desk-np__field--grow {
+  flex: 1 1 16rem;
+}
+
+.desk-np__filters .desk-mine__colors {
+  flex-direction: row;
+  align-items: center;
+  margin: 0;
+}
+
+.desk-np input[type="search"],
+.desk-np input[type="text"],
+.desk-np select {
+  padding: 7px 9px;
+  border: 1px solid rgba(var(--ink-rgb), 0.3);
+  border-radius: 8px;
+  background: var(--surface-raised, transparent);
+  color: var(--text);
+  font: inherit;
+}
+
+.desk-np__count {
+  margin: 0.5rem 0 0;
+  color: rgba(var(--ink-rgb), 0.75);
+  font-size: 0.9375rem;
+}
+
+.desk-np__group .desk-list {
+  margin-top: 0.25rem;
+}
+
+/* A row on the page: reference and kind beside the buttons, words in full below. */
+.desk-np-row__note {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.desk-np-row__note .desk-item__glyph {
+  flex: none;
+  margin-top: 4px;
+}
+
+.desk-np-row__text {
+  min-width: 0;
+}
+
+.desk-np-row__highlight {
+  grid-column: 1 / -1;
+  margin: 6px 0 0;
+  overflow-wrap: anywhere;
+}
+
+.desk-np-row__quote {
+  grid-column: 1 / -1;
+  margin: 6px 0 0;
+  padding-left: 10px;
+  border-left: 2px solid rgba(var(--ink-rgb), 0.2);
+  color: rgba(var(--ink-rgb), 0.75);
+  font-size: 0.9375rem;
+  overflow-wrap: anywhere;
+}
+
+.desk-np-row__pin {
+  display: block;
+  -webkit-line-clamp: unset;
+  line-clamp: unset;
+  overflow: visible;
+}
+
+.desk-np-row__buttons {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+/* The panel's grid places Delete and Edit by column; here the buttons share one box. */
+.desk-np-row__buttons .desk-item__delete,
+.desk-np-row__buttons .desk-item__edit {
+  grid-column: auto;
+  grid-row: auto;
+  margin: 0;
+}
+
+.desk-np-row:has(.desk-item__edit) .desk-np-row__buttons .desk-item__delete {
+  grid-column: auto;
+  margin: 0;
+}
+
+/* Labels. */
+.desk-np__new-label {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0.75rem 0;
+}
+
+.desk-np__new-label button,
+.desk-np__rename button,
+.desk-np__ask button:not(.desk-np__danger-button),
+.desk-backup__save,
+.desk-backup__file-button,
+.desk-backup__actions button {
+  padding: 6px 12px;
+  border: 1px solid rgba(var(--ink-rgb), 0.3);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.desk-np__new-label button:hover,
+.desk-np__rename button:hover,
+.desk-np__ask button:not(.desk-np__danger-button):hover,
+.desk-backup__save:hover,
+.desk-backup__file-button:hover,
+.desk-backup__actions button:hover {
+  background: rgba(var(--ink-rgb), 0.07);
+}
+
+.desk-np__error {
+  margin: 0.25rem 0 0.5rem;
+}
+
+.desk-np__error[hidden] {
+  display: none;
+}
+
+.desk-np__labels {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.desk-np__label {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+  padding: 10px 4px;
+  border-bottom: 1px solid rgba(var(--ink-rgb), 0.1);
+}
+
+.desk-np__label-name {
+  flex: 1 1 10rem;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.desk-np__label-used {
+  color: rgba(var(--ink-rgb), 0.7);
+  font-size: 0.875rem;
+}
+
+.desk-np__rename {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.desk-np__rename input {
+  flex: 1 1 12rem;
+}
+
+/* Save and open a copy. */
+.desk-backup__formats {
+  display: grid;
+  gap: 12px;
+  margin: 0.75rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.desk-backup__formats li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 14px;
+}
+
+.desk-backup__about {
+  flex: 1 1 16rem;
+  color: rgba(var(--ink-rgb), 0.75);
+  font-size: 0.9375rem;
+}
+
+.desk-backup__last {
+  margin: 0;
+  font-weight: 600;
+}
+
+.desk-backup__file {
+  display: inline-block;
+  position: relative;
+  cursor: pointer;
+}
+
+.desk-backup__result {
+  margin-top: 1rem;
+  padding: 14px 16px;
+  border: 1px solid rgba(var(--ink-rgb), 0.2);
+  border-radius: 10px;
+  background: var(--surface-raised, transparent);
+}
+
+.desk-backup__result:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.desk-backup__result[hidden] {
+  display: none;
+}
+
+.desk-backup__result p {
+  margin: 0 0 0.5rem;
+}
+
+.desk-backup__left {
+  margin: 0 0 0.75rem;
+  padding-left: 1.25rem;
+}
+
+.desk-backup__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.desk-backup__actions .desk-backup__import {
+  border-color: var(--green-deep);
+  background: var(--green-deep);
+  color: #fff;
+}
+
+.desk-backup__actions .desk-backup__import:hover {
+  background: var(--green-deep);
+  filter: brightness(1.15);
+}
+
+/* Delete everything, and the trash. Fixed fills with white text, so they read the same in both themes. */
+.desk-np__danger {
+  margin: 0 0 1.5rem;
+  max-width: calc(60 * var(--ch));
+}
+
+.desk-np__danger p {
+  margin: 0 0 0.75rem;
+}
+
+.desk-np__danger-button {
+  padding: 7px 14px;
+  border: 1px solid #9c2a1f;
+  border-radius: 8px;
+  background: #9c2a1f;
+  color: #fff;
+  font: inherit;
+  cursor: pointer;
+}
+
+.desk-np__danger-button:hover {
+  background: #7f2018;
+}
+
+.desk-np__danger-button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.desk-np__ask {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  border: 1px solid #9c2a1f;
+  border-radius: 10px;
+}
+
+.desk-np__ask .desk-np__ask-text {
+  flex: 1 1 100%;
+  margin: 0;
+  font-weight: 600;
+}
+
+.desk-np__none {
+  color: rgba(var(--ink-rgb), 0.7);
+}
+
+@media print {
+  .desk-np__ask,
+  .desk-np-row__buttons {
+    display: none !important;
+  }
+}

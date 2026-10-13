@@ -13,4 +13,10 @@ if (document.documentElement.dataset.desk === "on" && readingSurface()) {
   import("./desk/shell.js").catch((err) => {
     console.error("Study Desk: the shell didn't load", err);
   });
+} else if (document.documentElement.dataset.desk === "on" && document.querySelector("[data-notebook-page]")) {
+  // The notebook page (/notebook/) is not a reading surface: it has no panel
+  // and its own module opens the notebook.
+  import("./desk/notebook-page.js").catch((err) => {
+    console.error("Study Desk: the notebook page didn't load", err);
+  });
 }

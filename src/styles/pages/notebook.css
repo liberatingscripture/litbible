@@ -1,0 +1,23 @@
+/* =========================================================
+   Notebook page (/notebook/)
+   =========================================================
+   Only the frame lives here. Everything inside [data-notebook-page] is
+   drawn by src/scripts/desk/notebook-page.js and styled by src/styles/desk.css,
+   which the desk adds itself, so a reader without the preview downloads none
+   of it. */
+
+.notebook-page {
+  max-width: calc(80 * var(--ch));
+  margin: 0 auto;
+  padding: clamp(2rem, 4vw, 3.5rem) clamp(1rem, 4vw, 2rem) 5rem;
+}
+
+.notebook-page__title {
+  margin: 0 0 1rem;
+}
+
+.notebook-page__off {
+  margin: 0;
+  max-width: calc(60 * var(--ch));
+  line-height: 1.6;
+}

@@ -1,0 +1,31 @@
+---
+import Layout from "../layouts/Layout.astro";
+import "../styles/pages/notebook.css";
+
+/**
+ * The notebook page (STUDY-DESK.md, phase 1d; STUDY-DESK-FORMAT.md reserves
+ * /notebook/). Everything on it is drawn in the browser by
+ * src/scripts/desk/notebook-page.js, which desk-gate.js loads only when the
+ * Study Desk preview is switched on (?desk=on), on a computer. For everyone
+ * else, and with JS off, this is the whole page: a short note saying the
+ * notebook is part of a preview. noindex, out of the sitemap (astro.config.mjs)
+ * and out of Pagefind (Layout's default).
+ */
+---
+
+<Layout
+  title="Notebook | LIT Bible"
+  description="Your notebook on the LIT Bible: your notes, highlights and bookmarks in one place."
+  robotsNoindex={true}
+  hideFooterNewsletter={true}
+>
+  <div class="notebook-page">
+    <h1 class="notebook-page__title">Notebook</h1>
+    <div data-notebook-page>
+      <p class="notebook-page__off">
+        The notebook is part of a preview of new study tools. The preview isn’t
+        switched on in this browser, so there is nothing to show here yet.
+      </p>
+    </div>
+  </div>
+</Layout>

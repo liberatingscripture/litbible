@@ -179,6 +179,13 @@ export async function openStore({ ctx }) {
     all: () => read((s) => s.getAll()),
     byChapter: (bookKey, chapter) => read((s) => s.index("chapter").getAll([bookKey, chapter])),
 
+    /**
+     * Small facts about this notebook that aren't records (when a copy was last
+     * saved, whether the browser was asked to keep it). Never synced or exported.
+     */
+    getMeta,
+    setMeta,
+
     /** Save a new or edited record. */
     async save(record) {
       await apply(planSave(record));
