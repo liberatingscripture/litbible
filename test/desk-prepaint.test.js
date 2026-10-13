@@ -88,11 +88,21 @@ test("without the flag, nothing is set", () => {
   assert.deepEqual(run({ stored: { "lit-desk-panel": "open" } }).attrs, {});
 });
 
-test("a notebook left open is stamped before paint, since Study View chapters narrow to 48 with it", () => {
+test("an open notebook is stamped before paint, since Study View chapters narrow to 48 with it", () => {
   const open = run({ stored: { "lit-desk-preview": "on", "lit-desk-panel": "open" } });
   assert.deepEqual(open.attrs, { "data-desk": "on", "data-desk-panel": "open" });
-  const closed = run({ stored: { "lit-desk-preview": "on" } });
+  // It starts open (and minimized) until the reader closes it (BVJ, 2026-10-13).
+  const fresh = run({ stored: { "lit-desk-preview": "on" } });
+  assert.deepEqual(fresh.attrs, { "data-desk": "on", "data-desk-panel": "open" });
+  const closed = run({ stored: { "lit-desk-preview": "on", "lit-desk-panel": "closed" } });
   assert.deepEqual(closed.attrs, { "data-desk": "on" });
+  // A start the reader chose on the notebook page wins (src/lib/desk-start.mjs).
+  const chosenClosed = run({ stored: { "lit-desk-preview": "on", "lit-desk-panel": "open", "lit-desk-start": "closed" } });
+  assert.deepEqual(chosenClosed.attrs, { "data-desk": "on" });
+  for (const start of ["min", "open"]) {
+    const r = run({ stored: { "lit-desk-preview": "on", "lit-desk-panel": "closed", "lit-desk-start": start } });
+    assert.deepEqual(r.attrs, { "data-desk": "on", "data-desk-panel": "open" }, start);
+  }
   const phone = run({ ua: UA.iphone, touch: 5, stored: { "lit-desk-preview": "on", "lit-desk-panel": "open" } });
   assert.deepEqual(phone.attrs, {});
 });
@@ -109,7 +119,7 @@ test("a width dragged in the notebook is stamped before paint, with its measure"
 
 test("a dragged width is not applied while the notebook is closed", () => {
   const r = run({
-    stored: { "lit-desk-preview": "on" },
+    stored: { "lit-desk-preview": "on", "lit-desk-panel": "closed" },
     session: { "lit-desk-measure": "50", "lit-desk-width": "360" },
   });
   assert.deepEqual(r.attrs, { "data-desk": "on" });

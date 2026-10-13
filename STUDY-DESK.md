@@ -46,9 +46,11 @@ are recorded so they aren't re-argued.
   passage, which BVJ held until after the Zoom** (2026-10-12; "Decisions"),
   and **N7, the interleaf, which BVJ set aside** (2026-10-13; "Decisions").
   **1f, the Greek tab, was built on 2026-10-13** ("Order of work", 1f).
-  Phase 1 is done apart from N8's hold, so **whether to release the desk to
-  readers is now open** ("Still open"). 1g and 1h are ideas to explore, not
-  planned. Other versions (API.bible and the Versions tab) are out of
+  Phase 1's built steps are done apart from N8's hold. **1g and 1h
+  belong to phase 1** (BVJ, 2026-10-13): they are to be explored before
+  phases 2 and 3 begin. **The desk is not released until phase 1 is
+  completely done, and perhaps not until phases 1 to 3 are** (BVJ,
+  2026-10-13). Other versions (API.bible and the Versions tab) are out of
   version 1 (BVJ, 2026-10-11). What exists:
   - draft 1 of the record format (`STUDY-DESK-FORMAT.md`), with its
     reference implementation (`scripts/lib/anchor-text.mjs`) and test vectors
@@ -2539,7 +2541,9 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      fallback fonts today. **Picked: Cardo** (2026-10-05), and shipped ahead
      of the desk in PR #270.
    - The apps' review of draft 1, then the freeze.
-1. **The notebook**, in four steps. Medium to large.
+1. **The notebook**, in steps 1a to 1h (1e deferred). Medium to large.
+   **1g and 1h are part of this phase** (BVJ, 2026-10-13): phases 2 and 3
+   don't begin until both have been explored.
    - **1a. Foundations.** Pure, unit-tested modules, with no page yet.
      Three are built and two are held for BDR (BVJ, 2026-10-05):
      - **Built: draft 1's record kinds** (`src/lib/desk-records.mjs`), with
@@ -3425,8 +3429,8 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      whether to release the desk to readers**, with 1f, since the
      first release includes the Greek (BVJ, 2026-10-08) but no other
      versions (BVJ, 2026-10-11).
-   - **1g. An interleaf for the Greek: to explore, not planned** (BVJ,
-     2026-10-13). The interleaf as built (N7) was set aside as redundant
+   - **1g. An interleaf for the Greek: to explore before phase 2** (BVJ,
+     2026-10-13; part of phase 1 by BVJ's word the same day). The interleaf as built (N7) was set aside as redundant
      ("Decisions", 2026-10-13). BVJ's idea for later: use the interleaf for
      something like an **interlinear Greek** under the LIT, and let readers
      **write their own notes on the Greek**. BVJ asked that it be recorded,
@@ -3435,8 +3439,8 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      the code back), and notes on a Greek word would need the "anchors that
      can point at a Greek word" in "Ready for the Greek text". Nothing is
      decided.
-   - **1h. Searching the Greek: to explore, not planned** (BVJ,
-     2026-10-13). Search the Greek in Greek script, finding near matches
+   - **1h. Searching the Greek: to explore before phase 2** (BVJ,
+     2026-10-13; part of phase 1 by BVJ's word the same day). Search the Greek in Greek script, finding near matches
      (any form of a word); by Strong's number or an equivalent from the
      data 1f uses, for readers with little Greek; and perhaps by
      transliteration. Kept apart from 1f rather than added to it. What
@@ -4248,10 +4252,48 @@ margin and breaks up the scripture text."
   yet. 1h was kept apart from 1f rather than added to it, because it needs
   a corpus-wide index and a place in search of its own.
 
+### 2026-10-13 (BVJ's answers on the preview)
+
+The first five confirm what the preview already does.
+
+- **Playpen Sans at weight 500** for margin notes. Its size is still to
+  tune.
+- **Bookmarks show on the page**, as the red mark.
+- **The verse number names a verse's notes** for screen readers ("Verse 1,
+  1 note of mine").
+- **The tour is offered once and replays on demand** (D8).
+- **Read View's notebook holds the reader's own things.**
+- **The floating notebook's five behaviours are confirmed**, with one
+  change: **the notebook starts open and minimized** on every page, rather
+  than closed. Closing it and restoring it are remembered, so the next page
+  opens as the reader left it, and **the reader can change the default**,
+  on the notebook page: "When a page opens, the Notebook panel is" As I
+  left it (the default), Minimized, Open or Closed (`lit-desk-start`; the
+  rule is `src/lib/desk-start.mjs`). A chosen start wins over what the
+  reader did last, and a floating notebook still collapses by itself. Built
+  the same day; a Study View chapter therefore opens at 48 by default,
+  since the column doesn't move when the notebook is minimized.
+- **"Show notes in full in this list" was awkward** as a checkbox at the
+  panel's foot. It became **"Open all" / "Close all"** at the right above
+  My Notes' list, with each note's caret kept (BVJ chose both). It is the
+  same remembered setting (`lit-desk-list`), so it opens pinned footnotes
+  too; "Close all" also closes notes opened by their carets. It shows only
+  when a note is cut off or a footnote is pinned.
+- **No message to STEPBible** about the project.
+- **1d's and 1f's other defaults are accepted**, including hosting the
+  full LSJ on the site.
+- **1g and 1h are part of phase 1**: phases 2 and 3 wait until both have
+  been explored.
+- **No release before phase 1 is completely done**, and perhaps not until
+  phases 1 to 3 are.
+- **STEPBible's data is pointed to its source**: `public/greek/LICENSE.txt`
+  no longer calls the `step/` and `lsj/` directories licensed for reuse, and
+  sends anyone wanting the lexicons to github.com/STEPBible.
+
 ## Still open
 
-- **Phase 1d's defaults** (built 2026-10-12 on recommendations, for BVJ to
-  judge on the preview; listed per piece under "Order of work", 1d): the
+- ~~**Phase 1d's defaults**~~: **accepted** (BVJ, 2026-10-13). (Built
+  2026-10-12 on recommendations; listed per piece under "Order of work", 1d): the
   name "Labels" and applying labels from the notebook page only; the export
   file's motivations, what Markdown can and can't read back, and trash
   only in the full backup; the ribbons' limits (6, 40 characters, a move at
@@ -4263,9 +4305,10 @@ margin and breaks up the scripture text."
   possible flash on load (a pre-paint addition to Layout.astro) and a hidden
   verse's own menu being unreachable.
 
-- **The floating notebook's details** (decided in outline 2026-10-07; built
-  the same day on these recommendations, not decided; see "Order of work",
-  1b):
+- ~~**The floating notebook's details**~~: **all five confirmed** (BVJ,
+  2026-10-13), the third with a change to the default: the notebook now
+  starts open and minimized ("Decisions", 2026-10-13, BVJ's answers). The
+  five as built (decided in outline 2026-10-07; see "Order of work", 1b):
   1. **Collapsed, it is a tab at the window's right edge**: 40px wide, the
      notebook glyph with the word "Notebook" running down it, level with the
      page's heading and pinned near the top while reading. A dot or count of
@@ -4285,23 +4328,20 @@ margin and breaks up the scripture text."
      left as it could).
 - **The margin's remaining details** (see "Decisions", 2026-10-07 (the
   margin switch) and (the margin notes' look)). To settle in 1c:
-  - **Where the notebook's two-line toggle sits.** First try: the foot of
-    the panel's list, near "Kept in this browser", remembered like the
-    panel's other choices. BVJ isn't sure yet.
-  - **Playpen Sans's weight and size**, tuned on the real page (the
-    comparison set every face at one nominal size). Weight 500 is on the
-    preview to try; 550 was the other figure BVJ named.
-  - **Whether a bookmark shows on the page**, as the red mark now on the
-    preview (see "Order of work", 1c).
-  - **How a screen reader learns a verse has notes** (recommended). Decision
-    9 tells a reader at a note what it is about, but notes sit outside the
-    scripture's reading order (C24), so nothing tells someone reading the
-    verse that one is there. Recommended: the verse number, already a
-    button and the keyboard's way into each verse, names the count
-    ("Verse 1, 1 note of mine"), and the verse menu lists that verse's notes
-    (the "This verse" tab, N10). **Built that way on the preview
-    (2026-10-08)**, the verse menu reaching the notes through "Show in
-    notebook"; BVJ to confirm.
+  - ~~**The notebook's two-line toggle**~~: **"Open all" / "Close all"
+    above the list, beside each note's own caret** (BVJ, 2026-10-13),
+    replacing the checkbox at the panel's foot. Built.
+  - ~~**Where the reader sets the notebook's default**~~: **on the notebook
+    page** (BVJ, 2026-10-13). Built.
+  - ~~**Playpen Sans's weight**~~: **500** (BVJ, 2026-10-13), as built.
+    Its size is still tuned on the real page.
+  - ~~**Whether a bookmark shows on the page**~~: **yes**, as the red mark
+    now on the preview (BVJ, 2026-10-13).
+  - ~~**How a screen reader learns a verse has notes**~~: **as built**
+    (BVJ, 2026-10-13). The verse number, already a button and the
+    keyboard's way into each verse, names the count ("Verse 1, 1 note of
+    mine"), and the verse menu reaches the notes through "Show in
+    notebook".
   - **The second slice's defaults** (2026-10-08): listed under "Order of
     work", 1c, for BVJ to judge on the preview, with N11's provisional
     choices (the slug rule, the rule for quoting prose, the field names).
@@ -4341,8 +4381,10 @@ margin and breaks up the scripture text."
   - ~~**The John 7:53–8:11 footnotes' wording** (john-7 fn-ff, john-8 fn-k),
     before 1f ships: SBLGNT 1.2 prints the passage.~~ Done 2026-10-11, in the
     repo; the Word master still has to be changed to match ("Decisions").
-  - **The Notebook in Read View: none at all, or only the reader's own
-    things** (BVJ, 2026-10-08, one of the two; the version tabs are Study
+  - ~~**The Notebook in Read View: none at all, or only the reader's own
+    things**~~: **the reader's own things** (BVJ, 2026-10-13), as built.
+    The rest of this item is the reasoning it was recommended on.
+    (BVJ, 2026-10-08, one of the two; the version tabs are Study
     View only either way). Recommended: the reader's own things, which is
     what Read View's panel holds today, since Read View now shows bookmarks
     and the panel's list takes the reader to them within the book.
@@ -4366,25 +4408,62 @@ margin and breaks up the scripture text."
 - **D8, the tutorial**: ~~what counts as the first encounter, and how it meets
   D6's first-time choice.~~ Answered by the built recommendation (2026-10-12):
   offered once, right after the D6 choice, never by itself over scripture.
-  Still for BVJ to confirm on the preview.
-- **Whether to release the desk to readers.** Ready to decide: 1d and 1f
-  are built, N8 aside (BVJ, 2026-10-13); the first release includes the
-  Greek and no other translations; 1e is deferred.
-- **Phase 1f's defaults** (built 2026-10-13 on recommendations, for BVJ to
-  judge on the preview; listed under "Order of work", 1f, "Built"): the
+  **Confirmed** (BVJ, 2026-10-13): offered once, and replayable on demand,
+  which the preview already does from the panel's foot, the `tour`
+  command and the help page.
+- **When to release the desk to readers.** Not before phase 1 is
+  completely done (N8 and the exploring of 1g and 1h included), and
+  perhaps not until phases 1 to 3 are (BVJ, 2026-10-13). Which of the two
+  is still open. The first release includes the Greek and no other
+  translations; 1e is deferred.
+- **1g and 1h, to explore before phases 2 and 3** (BVJ, 2026-10-13): the
+  interleaf for the Greek (BVJ asked that it not be brainstormed until
+  they say so) and searching the Greek. See "Order of work", 1g and 1h.
+- ~~**Phase 1f's defaults**~~: **accepted** (BVJ, 2026-10-13), including
+  hosting the full LSJ on the site. (Built 2026-10-13 on recommendations;
+  listed under "Order of work", 1f, "Built"): the
   details docked at the tab's foot, up to 45% of its height; UBS as the
   lexicon until the reader picks; each lemma's short gloss taken from UBS's
   most-used sense for it; the full LSJ hosted on the site rather than linked
   out, given STEPBible's request (below); the apparatus key's wording; the
   tab having no minimum width of its own (the 380px question, 2026-10-08).
-- **STEPBible asks people not to redistribute its data** ("Please do not
-  redistribute it yourself", in the files' header), though the license is
-  CC BY 4.0, which permits it and allows no added restrictions. 1f serves a
-  reformatted subset (the NT words' brief entries and LSJ entries) as the
-  tab's own files, which is what any app showing the entries does. For BVJ:
-  keep it, or link the full LSJ out to STEPBible's site instead (which also
-  saves 17 MB), and whether to write to STEPBible about the project, as
-  their notes invite.
+- **STEPBible's request not to redistribute** (checked against the files'
+  header, 2026-10-13). The license is CC BY 4.0, and the header lists what
+  it allows, the first two being "Include any part of this data in software
+  or publications without requesting permission" and "Download the data and
+  reformat it for your application". The request comes later, under
+  pointing others to the data: "Refer others to github.com/STEPBible as the
+  source of the data. Please do not redistribute it yourself", because
+  corrections are easier from one source. Changes must be noted for those
+  who use the result. So the request is about passing the dataset on as a
+  dataset, not about an application showing its entries; it isn't a
+  license term (CC BY 4.0 allows none), and 1f is within both the license
+  and the request. One thing goes against the request's spirit:
+  `public/greek/LICENSE.txt` says the `step/` and `lsj/` directories are
+  "licensed CC BY 4.0", which reads as an invitation to take the data from
+  here. Proposed, for BVJ: say instead that the files are formatted for the
+  tab and that anyone wanting the data should get it from
+  github.com/STEPBible, keeping the note of changes. **Done** (BVJ,
+  2026-10-13). Hosting the full LSJ was settled with 1f's defaults (kept on
+  the site). ~~Writing to STEPBible about the project~~: **BVJ won't reach
+  out** (2026-10-13), having read the background below.
+  The header says "We'd love to hear about your project when you make it
+  available" (to STEPBibleATGmail.com, which is STEPBible@gmail.com), and
+  asks that proposed corrections go to the same address; the README says
+  telling them is welcome but not required. "When you make it available"
+  points to writing at the desk's release. BVJ asked first what STEPBible's
+  theology is (2026-10-13): STEP is a project of Tyndale House, Cambridge,
+  whose doctrinal basis (UCCF's) holds Scripture "inspired and infallible"
+  and whose ethos statement names "a male and a female" as the context for
+  all sexual activity; staff must support that ethos. Its directors are
+  Peter J. Williams (Tyndale's warden, on the ESV's translation committee),
+  David Instone-Brewer (who began STEP; known for Jewish-background
+  scholarship and readings of divorce and Jesus' treatment of women that
+  drew conservative criticism) and Dale Brueggemann. Their CC BY 4.0
+  grant can't be withdrawn; the license forbids implying their
+  endorsement, and lets them ask that their name be removed from the
+  credit. The Greek tab credits them as the README asks ("STEP Bible",
+  linked to www.STEPBible.org, since 2026-10-13).
 - **The Digital Bible Library** (library.bible, the American Bible Society's
   library that API.bible draws from, and where YouVersion and Global.Bible get
   texts): I raised **submitting the LIT to it** as a way to reach the Bible

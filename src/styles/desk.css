@@ -416,6 +416,35 @@ html[data-desk-list="full"] .desk-item__note .desk-item__words {
   overflow: visible;
 }
 
+/* "Open all" / "Close all", above the list, at its right (tab-mine.js). */
+.desk-mine__all {
+  display: block;
+  margin: 6px 4px 0 auto;
+  padding: 2px 6px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--green-text);
+  font: inherit;
+  font-size: 0.8125rem;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.desk-mine__all[hidden] {
+  display: none;
+}
+
+.desk-mine__all:hover {
+  text-decoration-thickness: 2px;
+}
+
+.desk-mine__all:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
 /* The caret that keeps a note open for the visit, turned up while it is. */
 .desk-item__more {
   display: inline-flex;
@@ -2670,6 +2699,34 @@ html[data-desk-list="full"] .desk-item__pin-text {
 
 .desk-np__jump a {
   color: var(--green-text);
+}
+
+/* How the Notebook panel starts (notebook-page.js, mountStartChoice). */
+.desk-np__start {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 20px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.desk-np__start legend {
+  width: 100%;
+  margin-bottom: 6px;
+  padding: 0;
+}
+
+.desk-np__start-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.desk-np__note {
+  margin-top: 8px;
+  font-size: 0.875rem;
 }
 
 .desk-np__section {

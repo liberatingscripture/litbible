@@ -55,7 +55,8 @@ const SOURCES = [
   ["Lemmas and parsing: MorphGNT, CC BY-SA 3.0", "https://github.com/morphgnt/sblgnt"],
   ["Parsing for John 7:53–8:11 and Romans 16:25–27: MACULA Greek, Clear Bible, CC BY 4.0", "https://github.com/Clear-Bible/macula-greek"],
   ["UBS Dictionary of the Greek New Testament, United Bible Societies, CC BY-SA 4.0", "https://github.com/ubsicap/ubs-open-license"],
-  ["STEPBible brief lexicon (TBESG) and full LSJ (TFLSJ), Tyndale House Cambridge and STEPBible.org, CC BY 4.0, reformatted", "https://github.com/STEPBible/STEPBible-Data"],
+  // Credited as STEPBible's README asks: "STEP Bible" linked to www.STEPBible.org.
+  ["STEP Bible: brief lexicon (TBESG) and full LSJ (TFLSJ), Tyndale House Cambridge, CC BY 4.0, reformatted", "https://www.stepbible.org/"],
 ];
 
 // How long an apparatus entry stays lit after a sign takes the reader to it.

@@ -356,15 +356,21 @@ ubs/
 step/
   The Translators Brief lexicon of Extended Strongs for Greek (TBESG), from
   STEPBible.org, Tyndale House Cambridge, CC BY 4.0, based on Abbott-Smith.
-  Reformatted: markup reduced to bold, italic and line breaks, and
-  references made plain text. This directory is licensed CC BY 4.0.
+  Reformatted for the Greek tab: markup reduced to bold, italic and line
+  breaks, and references made plain text.
 
 lsj/
   The Translators Formatted full LSJ lexicon, from STEPBible.org, Tyndale
   House Cambridge, CC BY 4.0, edited from Liddell, Scott and Jones.
-  Reformatted: markup reduced to bold, italic and line breaks, references
-  made plain text, and each source reference kept as hover text. This
-  directory is licensed CC BY 4.0.
+  Reformatted for the Greek tab: markup reduced to bold, italic and line
+  breaks, references made plain text, and each source reference kept as
+  hover text.
+
+  STEPBible asks that its data be taken from its own source, where
+  corrections arrive, rather than passed on by others. These two
+  directories are formatted for the Greek tab and are not a copy of the
+  data: to use the lexicons yourself, get them from
+  https://github.com/STEPBible/STEPBible-Data (CC BY 4.0).
 `;
 
 main().catch((err) => {

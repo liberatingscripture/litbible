@@ -8,8 +8,11 @@
 //
 // Not modal: the reader goes on reading with it open, so focus moves in when
 // it opens and back to its button when it closes, and nothing is trapped.
-// Whether it's open is kept in localStorage['lit-desk-panel'], so the next
-// page opens with it. Where the margin is wide enough, which it is on most
+// It starts open and minimized (BVJ, 2026-10-13), and a reader who closes
+// it is remembered in localStorage['lit-desk-panel'] ("closed", or "open"
+// once they open it again), so the next page opens the same way, unless the
+// reader chose a start of their own on the notebook page
+// (src/lib/desk-start.mjs). Where the margin is wide enough, which it is on most
 // computers, nothing moves when it appears.
 //
 // The reader can minimize it to a tab at the window's edge and restore it
@@ -31,11 +34,12 @@
 // The foot belongs to My Notes and shows only with it: the "My notes",
 // Handwriting / Plain, "My bookmarks" and "Hide my notes" switches (the same
 // settings as the Display tray's), "Reset widths" while the reader has
-// dragged any, the list's "in full" toggle, and where the notebook is kept.
+// dragged any, and where the notebook is kept. (The list's "Open all" is
+// My Notes' own, above its list.)
 
 import { keepReadingPlace } from "../keep-reading-place.js";
 import { createRail } from "./margin.js";
-import { HIDE_EVENT, SETTINGS_EVENT, getSetting, panelNoteControls, setSetting } from "./note-settings.js";
+import { HIDE_EVENT, panelNoteControls } from "./note-settings.js";
 import { pageChapter } from "./page.js";
 import { forChapter } from "../../lib/desk-store-core.mjs";
 import { proseRecords, prosePage } from "./note-sources.js";
@@ -44,8 +48,8 @@ import { createMineTab } from "./tab-mine.js";
 import { createGreekTab } from "./tab-greek.js";
 import { createVerseTab } from "./tab-verse.js";
 import { resetWidthsButton } from "./widths.js";
+import { OPEN_KEY, startState } from "../../lib/desk-start.mjs";
 
-const OPEN_KEY = "lit-desk-panel";
 const TAB_KEY = "lit-desk-tab";
 
 const ICON_NOTEBOOK = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
@@ -95,8 +99,8 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
   panel.setAttribute("data-desk-dock", "");
   panel.setAttribute("aria-labelledby", "deskPanelTitle");
   panel.tabIndex = -1;
-  let startOpen = false;
-  try { startOpen = localStorage.getItem(OPEN_KEY) === "open"; } catch (_) {}
+  let startOpen = true;
+  try { startOpen = startState((k) => localStorage.getItem(k)).open; } catch (_) {}
   panel.hidden = !startOpen;
 
   const visible = () => !panel.hidden;
@@ -198,10 +202,6 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
     ).join("")}</div>` : ""}
     <div class="desk-panel__foot">
       <div class="desk-panel__settings-slot"></div>
-      <label class="desk-setting">
-        <input type="checkbox" class="desk-setting__input desk-panel__full" />
-        <span class="desk-setting__label">Show notes in full in this list</span>
-      </label>
       <p class="desk-panel__page"><a href="/notebook/">Open the notebook page</a></p>
       <p class="desk-panel__kept"></p>
       <p class="desk-panel__persist" hidden></p>
@@ -286,7 +286,7 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
     keepReadingPlace(() => root.removeAttribute("data-desk-panel"));
     panel.hidden = true;
     rail.hide();
-    try { localStorage.removeItem(OPEN_KEY); } catch (_) {}
+    try { localStorage.setItem(OPEN_KEY, "closed"); } catch (_) {}
     syncToggles();
     // Back to the button that opened it, or the first one showing, unless
     // focus has already gone elsewhere (M1's shortcut closes it from the page).
@@ -410,13 +410,6 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
   else if (inReadView) slot.replaceWith(panelNoteControls({ notes: false }));
   else if (prose) slot.replaceWith(panelNoteControls({ bookmarks: false }));
   else slot.remove();
-  const fullBox = panel.querySelector(".desk-panel__full");
-  const syncFull = () => {
-    fullBox.checked = getSetting("listFull") === "full";
-  };
-  syncFull();
-  fullBox.addEventListener("change", () => setSetting("listFull", fullBox.checked ? "full" : "lines"));
-  document.addEventListener(SETTINGS_EVENT, syncFull);
 
   // M1 hides everything of the reader's at once, for sharing a screen, and
   // the panel lists it all, so it closes too, unless the reader hid them from

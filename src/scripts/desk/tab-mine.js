@@ -2,8 +2,10 @@
 //
 // The Notebook panel's "My Notes" tab (BVJ, 2026-10-08: it holds bookmarks
 // and highlights too): what the notebook keeps, with Delete, and for a note
-// its marker glyph, its words at two lines (or in full, by the toggle at the
-// panel's foot) and Edit. A note on this page's chapter takes the reader to
+// its marker glyph, its words at two lines and Edit. A caret opens one note
+// for the visit; "Open all" above the list shows every note (and pinned
+// footnote) in full, remembered until "Close all" (BVJ, 2026-10-13: the
+// two together, replacing a checkbox at the panel's foot). A note on this page's chapter takes the reader to
 // its place (BVJ, 2026-10-07: decision 7 under "the margin switch").
 //
 // A highlight is named by its colour ("Yellow highlight") and shows its
@@ -54,7 +56,7 @@ import {
 import { flagButton, noticesFor, openNotice } from "./change-notice.js";
 import { glyph } from "./glyphs.js";
 import { undoEntry } from "./history.js";
-import { SETTINGS_EVENT, getSetting } from "./note-settings.js";
+import { SETTINGS_EVENT, getSetting, setSetting } from "./note-settings.js";
 import { canRevealFootnote, revealFootnote, unpinRecord } from "./pins.js";
 import { placesSection } from "./places.js";
 import { showUndo } from "./undo-bar.js";
@@ -132,6 +134,7 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     <div class="desk-mine__colors" role="group" aria-label="Show highlights of one colour" hidden></div>
     <div class="desk-mine__labels" role="group" aria-label="Show items with one label" hidden></div>
     <p class="desk-mine__changed" hidden></p>
+    <button type="button" class="desk-mine__all" hidden></button>
     <ul class="desk-list"></ul>
     <p class="desk-panel__empty" hidden></p>
     <section class="desk-mine__pins" aria-labelledby="deskMinePinsTitle" hidden>
@@ -155,6 +158,17 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
   const colors = el.querySelector(".desk-mine__colors");
   const labelRow = el.querySelector(".desk-mine__labels");
   const changed = el.querySelector(".desk-mine__changed");
+  const allButton = el.querySelector(".desk-mine__all");
+  allButton.addEventListener("click", () => {
+    if (getSetting("listFull") === "full") {
+      openNotes.clear();
+      for (const row of list.querySelectorAll(".desk-item__note-row--open")) {
+        row.classList.remove("desk-item__note-row--open");
+        row.querySelector(".desk-item__more")?.setAttribute("aria-expanded", "false");
+      }
+      setSetting("listFull", "lines");
+    } else setSetting("listFull", "full");
+  });
   const openNotes = new Set(); // notes clicked open in the list, for this visit
   let scope = pageScope ? "chapter" : "everything";
   for (const radio of el.querySelectorAll(".desk-mine__scope input")) {
@@ -512,16 +526,24 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
 
   // A caret only where there is more to show: on notes whose words run past
   // two lines, or that the reader has opened. None while the list shows
-  // notes in full.
+  // notes in full. "Open all" shows only when a note is cut off or a pinned
+  // footnote is listed (they cut at three lines), and "Close all" whenever
+  // the list is in full and has a note or pin.
   function markCut() {
     requestAnimationFrame(() => {
       const full = getSetting("listFull") === "full";
+      let more = 0;
       for (const row of list.querySelectorAll(".desk-item__note-row")) {
-        const more = row.querySelector(".desk-item__more");
+        const caret = row.querySelector(".desk-item__more");
         const words = row.querySelector(".desk-item__words");
         const open = row.classList.contains("desk-item__note-row--open");
-        more.hidden = full || !(open || words.scrollHeight > words.clientHeight + 1);
+        const cut = words.scrollHeight > words.clientHeight + 1;
+        caret.hidden = full || !(open || cut);
+        if (full || cut) more++;
       }
+      const pins = !pinBox.hidden && pinList.children.length > 0;
+      allButton.hidden = !(more || pins);
+      allButton.textContent = full ? "Close all" : "Open all";
     });
   }
 
