@@ -37,3 +37,11 @@ lsj/
   directories are formatted for the Greek tab and are not a copy of the
   data: to use the lexicons yourself, get them from
   https://github.com/STEPBible/STEPBible-Data (CC BY 4.0).
+
+search/
+  The index behind searching the Greek: for each lemma, its forms (letters
+  only, accents and breathings removed), Strong's numbers and gloss, and the
+  place of each of its words. Built from MorphGNT's lemmas (CC BY-SA 3.0),
+  with Strong's numbers from MACULA Greek (Clear Bible, CC BY 4.0) and glosses
+  from the UBS dictionary above (or the brief lexicon where UBS has none).
+  This directory is licensed CC BY-SA 4.0.

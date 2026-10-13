@@ -26,6 +26,7 @@ import {
   renderingsIn, splitSigns, termsForLemma, versesOf,
 } from "../../lib/desk-greek.mjs";
 import { verseAtReadingLine } from "../last-read.js";
+import { createGreekFind } from "./greek-find.js";
 import {
   getLexicon, loadChapterGreek, loadLsjEntries, loadStepEntries, loadUbsEntry, setLexicon,
 } from "./greek-data.js";
@@ -138,10 +139,19 @@ export function createGreekTab({ here, visible, openVerse }) {
     <div class="desk-greek__head">
       <h3 class="desk-greek__title" id="deskGreekTitle" tabindex="-1"></h3>
       <button type="button" class="desk-greek__goto" hidden></button>
+      <button type="button" class="desk-greek__find-btn" aria-label="Search the Greek" title="Search the Greek">
+        <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true" focusable="false"><circle cx="8.5" cy="8.5" r="5.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12.8 12.8 17 17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </button>
+      <form class="desk-greek__find" role="search" hidden>
+        <input type="text" class="desk-greek__find-input" aria-label="Search the Greek" placeholder="Greek, G4102, pistis, faith" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" />
+        <button type="button" class="desk-greek__find-close" aria-label="Close the Greek search" title="Close the Greek search">&times;</button>
+      </form>
     </div>
     <div class="desk-greek__scroller"></div>
+    <div class="desk-greek__scroller desk-greek__results" aria-label="Greek search results" role="region" hidden></div>
     <section class="desk-greek__details" aria-label="Word details">
-      <div class="desk-greek__live" aria-live="polite" aria-atomic="true">
+      <div class="sr-only desk-greek__announce" aria-live="polite" aria-atomic="true"></div>
+      <div class="desk-greek__live">
         <h4 class="desk-greek__word" lang="grc"></h4>
         <p class="desk-greek__parse"></p>
       </div>
@@ -180,6 +190,7 @@ export function createGreekTab({ here, visible, openVerse }) {
   const fnsLine = el.querySelector(".desk-greek__fns");
   const appLine = el.querySelector(".desk-greek__appline");
   const litBox = el.querySelector(".desk-greek__lit");
+  const announce = el.querySelector(".desk-greek__announce");
   const radios = Array.from(el.querySelectorAll('input[name="desk-greek-lex"]'));
   title.textContent = `${here.label} in Greek`;
 
@@ -193,6 +204,19 @@ export function createGreekTab({ here, visible, openVerse }) {
   let pending = null; // a verse to scroll to once the tab has a size
   let loading = null;
   let lexSeq = 0;
+
+  const find = createGreekFind({
+    root: el,
+    here,
+    selectWord: selectWordHere,
+    // Focus goes back to the selected word, else the roving one.
+    focusText: () => {
+      const b = buttons[selected ?? rover];
+      if (!b) return false;
+      b.focus({ preventScroll: true });
+      return true;
+    },
+  });
 
   /* ── Loading ───────────────────────────────────────────────────── */
 
@@ -532,12 +556,18 @@ export function createGreekTab({ here, visible, openVerse }) {
   });
 
   /** Select the word at a verse and place, and (with focus) move focus to it. */
-  async function selectWord(verse, t, { focus = false } = {}) {
+  async function selectWordHere(verse, t, { focus = false } = {}) {
     if (!(await ensure())) return false;
     const i = indexOfWord(flat, verse, t);
     if (i < 0) return false;
     select(i, { focus });
     return true;
+  }
+
+  /** The same, for a caller from outside: an open search gives the text back first. */
+  function selectWord(verse, t, opts) {
+    find.close({ focus: false });
+    return selectWordHere(verse, t, opts);
   }
 
   /* ── The apparatus ─────────────────────────────────────────────── */
@@ -564,6 +594,15 @@ export function createGreekTab({ here, visible, openVerse }) {
 
   /* ── The word's details ────────────────────────────────────────── */
 
+  /** A button that searches the Greek: the text looks as it did, and says what it does. */
+  function starter(text, query, run) {
+    const b = make("button", "desk-greek__starter", text);
+    b.type = "button";
+    b.title = `Search the Greek for ${query}`;
+    b.addEventListener("click", run);
+    return b;
+  }
+
   const lemmaOf = (w) => data.lemmas?.[w[W.lemma]] ?? null;
 
   function showDetails(i) {
@@ -573,7 +612,14 @@ export function createGreekTab({ here, visible, openVerse }) {
     const parse = w[W.parse];
     details.scrollTop = 0;
     more.hidden = false;
-    wordHead.textContent = w[W.text];
+    const lemmaForm = lemma?.[0];
+    // The form, the lemma and the Strong's number each start a search of the
+    // Greek (BVJ, 2026-10-13); plain clicks only, so the browser's own menu
+    // stays.
+    const formQuery = w[W.text].replace(/^[^\p{L}]+|[^\p{L}]+$/gu, "");
+    wordHead.replaceChildren(
+      starter(w[W.text], formQuery, () => find.open({ query: formQuery, exact: true, prefer: lemmaForm })),
+    );
 
     // The live line: the word and its parsing, in words with the code beside.
     parseLine.replaceChildren();
@@ -584,16 +630,26 @@ export function createGreekTab({ here, visible, openVerse }) {
       parseLine.append("No parsing for this word.");
     }
 
+    announce.replaceChildren();
+    const said = make("span", null, w[W.text]);
+    said.lang = "grc";
+    announce.append(said, ". ", parseLine.textContent);
+
     // Dictionary form, short gloss and Strong's number.
     lemmaLine.replaceChildren();
     lemmaLine.hidden = !lemma;
     if (lemma) {
       const [form, strong, , gloss] = lemma;
-      const f = make("span", "desk-greek__lemma-form", form);
+      const f = make("span", "desk-greek__lemma-form");
       f.lang = "grc";
+      f.append(starter(form, form, () => find.open({ query: form, prefer: form })));
       lemmaLine.append(f);
       if (gloss) lemmaLine.append(` · ${gloss}`);
-      if (strong) lemmaLine.append(" · ", make("span", "desk-greek__strong", `Strong’s ${strong}`));
+      if (strong) {
+        const s = make("span", "desk-greek__strong");
+        s.append(starter(`Strong’s ${strong}`, strong, () => find.open({ query: strong, prefer: form })));
+        lemmaLine.append(" · ", s);
+      }
     }
 
     const range = borrowedFor(data.borrowed, verse);

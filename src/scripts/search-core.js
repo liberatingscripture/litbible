@@ -442,23 +442,7 @@ export function parseMetaList(metaValue) {
 
 /* ── Fuzzy topic suggestions ─────────────────────────────────────────── */
 
-export function levenshtein(a, b) {
-  const m = a.length,
-    n = b.length;
-  if (m === 0) return n;
-  if (n === 0) return m;
-  const d = Array.from({ length: m + 1 }, (_, i) => i);
-  for (let j = 1; j <= n; j++) {
-    let prev = d[0];
-    d[0] = j;
-    for (let i = 1; i <= m; i++) {
-      const temp = d[i];
-      d[i] = a[i - 1] === b[j - 1] ? prev : 1 + Math.min(prev, d[i], d[i - 1]);
-      prev = temp;
-    }
-  }
-  return d[m];
-}
+export { levenshtein };
 
 export function fuzzyTopicSuggestions(query, topics, limit) {
   limit = limit || 3;
@@ -672,6 +656,18 @@ export function pickAnchorHref(d, locs) {
 //   "jerusalem"), reported via the hit list's `correction`.
 
 import { stemWord, foldDiacritics } from "../lib/word-stem.mjs";
+import { levenshtein } from "../lib/levenshtein.mjs";
+import {
+  decodeOccurrences,
+  greekHref,
+  hasGreek,
+  hasOtherForms,
+  matchForTray,
+  matchGreek,
+  occShard,
+  parseStrong,
+  prepareIndex,
+} from "../lib/greek-search.mjs";
 
 const WORD_RE = /[\p{L}\p{N}]+/gu;
 
@@ -1280,4 +1276,151 @@ export function loadDeskSearch() {
     return null;
   });
   return deskSearchPromise;
+}
+
+/* ── The Greek (STUDY-DESK.md, 1h) ───────────────────────────────────── */
+
+// The rules are in src/lib/greek-search.mjs, shared with the Notebook's Greek
+// tab; this is the loading and the shape both search surfaces draw from. The
+// files are public/greek/search/ (lemmas.json, then occ/<NN>.json for the
+// lemma chosen) and public/greek/text/ for a result's verse.
+
+/**
+ * Whether search looks in the Greek at all. Until the Notebook is released
+ * (BVJ, 2026-10-13) only a reader with the preview on gets it, so everyone
+ * else downloads none of the index and sees exactly today's search. At
+ * launch this becomes `return true`.
+ */
+export function greekSearchEnabled() {
+  return document.documentElement.dataset.desk === "on";
+}
+
+/** True when a query could name Greek: Greek letters, a Strong's number, or one to three Latin words. */
+export function couldBeGreek(raw) {
+  const q = String(raw ?? "").trim();
+  if (q.length < 2) return false;
+  if (hasGreek(q) || parseStrong(q)) return true;
+  const words = q.match(/[\p{L}]+/gu) ?? [];
+  return words.length > 0 && words.length <= 3 && q.length >= 3;
+}
+
+let greekIndexPromise = null;
+
+/** public/greek/search/lemmas.json, made ready to search; null on failure (retried next time). */
+export function loadGreekIndex(base) {
+  greekIndexPromise ||= fetch(`${base}greek/search/lemmas.json`)
+    .then((res) => {
+      if (!res.ok) throw new Error(`lemmas.json missing (${res.status})`);
+      return res.json();
+    })
+    .then((json) => {
+      const index = prepareIndex(json);
+      if (!index) throw new Error("lemmas.json is not format 1");
+      return index;
+    })
+    .catch((err) => {
+      console.warn("[search] Failed to load the Greek index:", err);
+      greekIndexPromise = null;
+      return null;
+    });
+  return greekIndexPromise;
+}
+
+const greekShards = new Map();
+
+/** A lemma's occurrence entry from its shard ([forms, flat]), or null. */
+export async function loadGreekOccurrences(base, index, id) {
+  const name = occShard(index, id);
+  let p = greekShards.get(name);
+  if (!p) {
+    p = fetch(`${base}greek/search/occ/${name}.json`)
+      .then((res) => (res.ok ? res.json() : Promise.reject(new Error(String(res.status)))))
+      .catch((err) => {
+        console.warn("[search] Failed to load Greek occurrences:", err);
+        greekShards.delete(name);
+        return null;
+      });
+    greekShards.set(name, p);
+  }
+  const shard = await p;
+  return shard?.[id] ?? null;
+}
+
+const greekChapters = new Map();
+
+/** A chapter's Greek (public/greek/text/<book>-<chapter>.json), or null. */
+export function loadGreekChapter(base, book, chapter) {
+  const key = `${book}-${chapter}`;
+  let p = greekChapters.get(key);
+  if (!p) {
+    p = fetch(`${base}greek/text/${key}.json`)
+      .then((res) => (res.ok ? res.json() : Promise.reject(new Error(String(res.status)))))
+      .catch(() => {
+        greekChapters.delete(key);
+        return null;
+      });
+    greekChapters.set(key, p);
+  }
+  return p;
+}
+
+/**
+ * Search the Greek. Resolves to
+ *   { kind, lemmas, selected, hits, total, form, otherForms }
+ * `lemmas` are the index's lemma items, best first; `selected` is the one
+ * whose verses are in `hits` (the only lemma, or `lemmaId`), else null, in
+ * which case a surface offers the lemmas to choose from. Each hit is
+ * { book, chapter, verse, t, form, href, label }, in Bible order.
+ *
+ * Options: `tray` applies the tray's rule for Latin queries and leaves out
+ * near misses; `bookKey` narrows the verses; `lemmaId` picks a lemma;
+ * `exactForm` keeps only the form typed (Greek queries only).
+ */
+export async function searchGreek(base, raw, { tray = false, bookKey = "", lemmaId = null, exactForm = false } = {}) {
+  const empty = { kind: null, lemmas: [], selected: null, hits: [], total: 0, form: null, otherForms: false };
+  if (!couldBeGreek(raw)) return empty;
+  const index = await loadGreekIndex(base);
+  if (!index) return empty;
+  let match;
+  let found;
+  if (tray) {
+    ({ match, lemmas: found } = matchForTray(index, raw));
+  } else {
+    match = matchGreek(index, raw);
+    found = match.lemmas;
+  }
+  const lemmas = found.map((m) => ({ ...index.lemmas[m.id], how: m.how }));
+  const selected =
+    (lemmaId != null && lemmas.find((l) => l.id === Number(lemmaId))) ||
+    (lemmas.length === 1 ? lemmas[0] : null);
+  const out = { ...empty, kind: match.kind, lemmas, selected, form: match.form };
+  if (!selected) return out;
+  const entry = await loadGreekOccurrences(base, index, selected.id);
+  const form = exactForm && match.form ? match.form : null;
+  out.otherForms = hasOtherForms(entry, match.form);
+  out.hits = decodeOccurrences(entry, BOOK_ORDER, { bookKey, form }).map((h) => ({
+    ...h,
+    href: greekHref(h),
+    label: `${bookKeyToLabel(h.book)} ${h.chapter}:${h.verse}`,
+  }));
+  out.total = out.hits.length;
+  return out;
+}
+
+/** A Greek result's link, plus whether it is for the chapter already on screen. */
+export function greekHitIsHere(hit) {
+  const here = parseScripturePath(window.location.pathname);
+  return Boolean(here && here.bookKey === hit.book && Number(here.chapter) === hit.chapter);
+}
+
+/**
+ * Follow a Greek result for the chapter on screen without reloading: asks
+ * the Notebook (desk/greek-link.js) to show the word, and returns true when
+ * it did, so the caller can keep its link from loading.
+ */
+export function showGreekHere(hit) {
+  if (!greekHitIsHere(hit)) return false;
+  const ev = new CustomEvent("lit:greek-word", { cancelable: true, detail: { verse: hit.verse, t: hit.t } });
+  document.dispatchEvent(ev);
+  return ev.defaultPrevented;
 }

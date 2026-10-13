@@ -16,10 +16,14 @@
 //   ubs/     The UBS Greek New Testament Dictionary, markup flattened to prose.
 //   step/    STEPBible's brief lexicon (TBESG), HTML sanitized.
 //   lsj/     STEPBible's formatted LSJ, HTML sanitized.
+//   search/  The Greek search index (1h): every lemma with its forms, Strong's
+//            numbers and gloss, and where each word is (greekSearchIndex).
 //
 // The rule behind every join in here: never silently misalign. Where two
 // sources disagree about a verse, nothing is carried across it and the
 // disagreement goes into the report the shell prints.
+
+import { foldGreek as searchFold, glossHead } from "../../src/lib/greek-search.mjs";
 
 export const GREEK_FORMAT = 1;
 
@@ -784,11 +788,11 @@ export function pairMaculaWithMorph(maculaRows, tokens) {
 }
 
 /**
- * Tallies the Strong's number MACULA gives each MorphGNT lemma and returns
- * Map<lemma, "G4561">: the most common one, the lower number on a tie, so the
- * result doesn't depend on the order words were read in.
+ * Tallies every Strong's number MACULA gives each MorphGNT lemma and returns
+ * Map<lemma, ["G4561", …]>, most common first, the lower number first on a tie,
+ * so the result doesn't depend on the order words were read in.
  */
-export function strongByLemma(pairs) {
+export function strongsByLemma(pairs) {
   const tally = new Map();
   for (const [row, token] of pairs) {
     const key = strongKey(row.strong);
@@ -800,13 +804,106 @@ export function strongByLemma(pairs) {
   }
   const out = new Map();
   for (const [lemma, counts] of tally) {
-    let best = null;
-    for (const [key, n] of counts) {
-      if (!best || n > best[1] || (n === best[1] && strongDigits(key) < strongDigits(best[0]))) best = [key, n];
-    }
-    out.set(lemma, best[0]);
+    out.set(
+      lemma,
+      [...counts].sort((a, b) => b[1] - a[1] || strongDigits(a[0]) - strongDigits(b[0])).map(([key]) => key),
+    );
   }
   return out;
+}
+
+/**
+ * The Strong's number MACULA gives each MorphGNT lemma most often, the lower
+ * number on a tie: Map<lemma, "G4561">.
+ */
+export function strongByLemma(pairs) {
+  const out = new Map();
+  for (const [lemma, keys] of strongsByLemma(pairs)) out.set(lemma, keys[0]);
+  return out;
+}
+
+// ------------------------------------------------------------- search index
+
+const byCodePoint = (a, b) => (a < b ? -1 : a > b ? 1 : 0);
+
+/** Occurrences are split over this many files, by lemma id (occShard in greek-search.mjs). */
+export const SEARCH_SHARDS = 64;
+export const searchShardName = (id) => String(id % SEARCH_SHARDS).padStart(2, "0");
+
+const isEmptyField = (v) => v == null || v === "" || (Array.isArray(v) && !v.length);
+
+/**
+ * The Greek search index (STUDY-DESK.md, 1h; format in src/lib/greek-search.mjs):
+ * one entry per lemma that has a word in the corpus, in NFC code-point order of
+ * the lemma, with the folded forms its words take and, in 64 shards, where each
+ * word is. Words with no lemma are skipped.
+ *
+ * @param {object[]} docs  the built chapter documents, in Bible order
+ * @param {Map<string,string[]>} strongs  strongsByLemma(pairs)
+ * @param {string[]} bookOrder  BOOK_ORDER
+ * @returns {{lemmas: object, shards: Map<string, object>, report: object}}
+ */
+export function greekSearchIndex(docs, strongs, bookOrder, glossesFor = () => ({})) {
+  const report = { strongDiffers: [], glossDiffers: [], noLemma: 0, words: 0 };
+  const byLemma = new Map(); // lemma -> { strong, gloss, count, folded, exact, occ }
+  for (const doc of docs) {
+    const book = bookOrder.indexOf(doc.book);
+    const checked = new Set(); // lemma indexes of this doc already compared
+    for (const para of doc.paragraphs) {
+      for (const word of para) {
+        const li = word[5];
+        if (li === null || li === undefined || li < 0) {
+          report.noLemma++;
+          continue;
+        }
+        const [lemmaRaw, strong, , gloss] = doc.lemmas[li];
+        const lemma = nfc(lemmaRaw);
+        let e = byLemma.get(lemma);
+        if (!e) {
+          e = { strong: strong ?? null, gloss: gloss ?? null, ubsId: doc.lemmas[li][2] ?? null, count: 0, folded: new Set(), exact: [], occ: [] };
+          byLemma.set(lemma, e);
+        }
+        if (!checked.has(li)) {
+          checked.add(li);
+          if ((strong ?? null) !== e.strong) report.strongDiffers.push(`${lemma} ${e.strong} / ${strong} (${doc.book} ${doc.chapter})`);
+          if ((gloss ?? null) !== e.gloss) report.glossDiffers.push(`${lemma} (${doc.book} ${doc.chapter})`);
+        }
+        const text = nfc(word[2]);
+        let fi = e.exact.indexOf(text);
+        if (fi < 0) fi = e.exact.push(text) - 1;
+        e.folded.add(searchFold(text));
+        e.count++;
+        e.occ.push(book, doc.chapter, word[0], word[1], fi);
+        report.words++;
+      }
+    }
+  }
+  const names = [...byLemma.keys()].sort(byCodePoint);
+  const lemmas = [];
+  const shards = new Map();
+  for (let i = 0; i < SEARCH_SHARDS; i++) shards.set(searchShardName(i), {});
+  names.forEach((lemma, id) => {
+    const e = byLemma.get(lemma);
+    const also = (strongs.get(lemma) ?? []).filter((k) => k !== e.strong);
+    const { brief = null, senses = [] } = glossesFor(lemma, e.strong, e.ubsId) ?? {};
+    // Each other gloss by its head ("to trust (in)" is "trust"), so a search
+    // matches a whole gloss, never a word inside one ("faith" in "father of
+    // the faith").
+    const shown = new Set([glossHead(e.gloss), glossHead(brief)]);
+    const senseHeads = [...new Set(senses.map(glossHead))]
+      .filter((h) => h && !shown.has(h) && !h.includes("|") && h.split(" ").length <= 3) // a query is at most three words
+      .sort(byCodePoint)
+      .join("|");
+    const entry = [
+      lemma, e.strong, e.gloss, e.count, [...e.folded].filter(Boolean).sort(byCodePoint).join(" "),
+      also, brief && brief !== e.gloss ? brief : null, senseHeads,
+    ];
+    // Trailing empty fields are left off; the reader treats a missing one as empty.
+    while (entry.length > 5 && isEmptyField(entry[entry.length - 1])) entry.pop();
+    lemmas.push(entry);
+    shards.get(searchShardName(id))[id] = [e.exact, e.occ];
+  });
+  return { lemmas: { format: 1, shards: SEARCH_SHARDS, lemmas }, shards, report };
 }
 
 /** TBESG's Greek field can list forms ("α, Ἀλφα"); the headword is the first. */

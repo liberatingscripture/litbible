@@ -601,6 +601,39 @@ const glossaryTerms = Object.fromEntries(
     color: rgba(var(--ink-rgb), 0.95);
   }
 
+  /* The Greek group (Study Desk preview, STUDY-DESK.md 1h): lemma rows are
+     buttons that read like the link rows around them, the Greek is set in the
+     serif (Cardo supplies its letters through greek-hebrew-fonts.css), and the
+     closing "on the search page" row reads as a link. */
+  .searchbar__link--button {
+    display: block;
+    width: 100%;
+    margin: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .searchbar__link--button:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+
+  .searchbar__link--more .searchbar__title {
+    font-weight: 600;
+    color: var(--green-text);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .searchbar__group [lang="grc"] {
+    font-family: var(--serif);
+    font-size: 1.1em;
+  }
+
   .searchbar__footer {
     display: flex;
     align-items: center;

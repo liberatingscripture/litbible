@@ -471,6 +471,8 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
     close,
     showTab,
     showVerse: tabs.has("verse") ? showVerse : null,
+    // A Greek search result (greek-link.js): the Greek tab, at that word.
+    showGreekWord: tabs.has("greek") ? openGreekWord : null,
     // What the tour (tour.js) needs.
     el: panel,
     isOpen: shown,
