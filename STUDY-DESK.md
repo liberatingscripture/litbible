@@ -46,9 +46,10 @@ are recorded so they aren't re-argued.
   passage, which BVJ held until after the Zoom** (2026-10-12; "Decisions"),
   and **N7, the interleaf, which BVJ set aside** (2026-10-13; "Decisions").
   **1f, the Greek tab, was built on 2026-10-13** ("Order of work", 1f).
-  Phase 1 is done apart from N8's hold, so **whether to release the desk to
-  readers is now open** ("Still open"). 1g and 1h are ideas to explore, not
-  planned. Other versions (API.bible and the Versions tab) are out of
+  Phase 1's built steps are done apart from N8's hold, so **whether to
+  release the desk to readers is now open** ("Still open"). **1g and 1h
+  belong to phase 1** (BVJ, 2026-10-13): they are to be explored before
+  phases 2 and 3 begin. Other versions (API.bible and the Versions tab) are out of
   version 1 (BVJ, 2026-10-11). What exists:
   - draft 1 of the record format (`STUDY-DESK-FORMAT.md`), with its
     reference implementation (`scripts/lib/anchor-text.mjs`) and test vectors
@@ -2539,7 +2540,9 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      fallback fonts today. **Picked: Cardo** (2026-10-05), and shipped ahead
      of the desk in PR #270.
    - The apps' review of draft 1, then the freeze.
-1. **The notebook**, in four steps. Medium to large.
+1. **The notebook**, in steps 1a to 1h (1e deferred). Medium to large.
+   **1g and 1h are part of this phase** (BVJ, 2026-10-13): phases 2 and 3
+   don't begin until both have been explored.
    - **1a. Foundations.** Pure, unit-tested modules, with no page yet.
      Three are built and two are held for BDR (BVJ, 2026-10-05):
      - **Built: draft 1's record kinds** (`src/lib/desk-records.mjs`), with
@@ -3425,8 +3428,8 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      whether to release the desk to readers**, with 1f, since the
      first release includes the Greek (BVJ, 2026-10-08) but no other
      versions (BVJ, 2026-10-11).
-   - **1g. An interleaf for the Greek: to explore, not planned** (BVJ,
-     2026-10-13). The interleaf as built (N7) was set aside as redundant
+   - **1g. An interleaf for the Greek: to explore before phase 2** (BVJ,
+     2026-10-13; part of phase 1 by BVJ's word the same day). The interleaf as built (N7) was set aside as redundant
      ("Decisions", 2026-10-13). BVJ's idea for later: use the interleaf for
      something like an **interlinear Greek** under the LIT, and let readers
      **write their own notes on the Greek**. BVJ asked that it be recorded,
@@ -3435,8 +3438,8 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      the code back), and notes on a Greek word would need the "anchors that
      can point at a Greek word" in "Ready for the Greek text". Nothing is
      decided.
-   - **1h. Searching the Greek: to explore, not planned** (BVJ,
-     2026-10-13). Search the Greek in Greek script, finding near matches
+   - **1h. Searching the Greek: to explore before phase 2** (BVJ,
+     2026-10-13; part of phase 1 by BVJ's word the same day). Search the Greek in Greek script, finding near matches
      (any form of a word); by Strong's number or an equivalent from the
      data 1f uses, for readers with little Greek; and perhaps by
      transliteration. Kept apart from 1f rather than added to it. What
@@ -4275,14 +4278,18 @@ The first five confirm what the preview already does.
   same remembered setting (`lit-desk-list`), so it opens pinned footnotes
   too; "Close all" also closes notes opened by their carets. It shows only
   when a note is cut off or a footnote is pinned.
+- **1d's and 1f's other defaults are accepted**, including hosting the
+  full LSJ on the site.
+- **1g and 1h are part of phase 1**: phases 2 and 3 wait until both have
+  been explored.
 - **STEPBible's data is pointed to its source**: `public/greek/LICENSE.txt`
   no longer calls the `step/` and `lsj/` directories licensed for reuse, and
   sends anyone wanting the lexicons to github.com/STEPBible.
 
 ## Still open
 
-- **Phase 1d's defaults** (built 2026-10-12 on recommendations, for BVJ to
-  judge on the preview; listed per piece under "Order of work", 1d): the
+- ~~**Phase 1d's defaults**~~: **accepted** (BVJ, 2026-10-13). (Built
+  2026-10-12 on recommendations; listed per piece under "Order of work", 1d): the
   name "Labels" and applying labels from the notebook page only; the export
   file's motivations, what Markdown can and can't read back, and trash
   only in the full backup; the ribbons' limits (6, 40 characters, a move at
@@ -4402,9 +4409,15 @@ The first five confirm what the preview already does.
   command and the help page.
 - **Whether to release the desk to readers.** Ready to decide: 1d and 1f
   are built, N8 aside (BVJ, 2026-10-13); the first release includes the
-  Greek and no other translations; 1e is deferred.
-- **Phase 1f's defaults** (built 2026-10-13 on recommendations, for BVJ to
-  judge on the preview; listed under "Order of work", 1f, "Built"): the
+  Greek and no other translations; 1e is deferred. 1g and 1h are still to
+  be explored within phase 1 (below), which holds back phases 2 and 3 but
+  not, by itself, this decision.
+- **1g and 1h, to explore before phases 2 and 3** (BVJ, 2026-10-13): the
+  interleaf for the Greek (BVJ asked that it not be brainstormed until
+  they say so) and searching the Greek. See "Order of work", 1g and 1h.
+- ~~**Phase 1f's defaults**~~: **accepted** (BVJ, 2026-10-13), including
+  hosting the full LSJ on the site. (Built 2026-10-13 on recommendations;
+  listed under "Order of work", 1f, "Built"): the
   details docked at the tab's foot, up to 45% of its height; UBS as the
   lexicon until the reader picks; each lemma's short gloss taken from UBS's
   most-used sense for it; the full LSJ hosted on the site rather than linked
@@ -4427,9 +4440,9 @@ The first five confirm what the preview already does.
   here. Proposed, for BVJ: say instead that the files are formatted for the
   tab and that anyone wanting the data should get it from
   github.com/STEPBible, keeping the note of changes. **Done** (BVJ,
-  2026-10-13). Still open beside it:
-  hosting the full LSJ (17 MB) or linking out to STEPBible, and writing to
-  STEPBible about the project, as the header invites.
+  2026-10-13). Hosting the full LSJ was settled with 1f's defaults (kept on
+  the site). Still open beside it: writing to STEPBible about the project,
+  as the header invites.
 - **The Digital Bible Library** (library.bible, the American Bible Society's
   library that API.bible draws from, and where YouVersion and Global.Bible get
   texts): I raised **submitting the LIT to it** as a way to reach the Bible
