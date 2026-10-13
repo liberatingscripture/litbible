@@ -37,6 +37,7 @@ import { openNoteEditor } from "./note-editor.js";
 import { getSetting, highlightSetting, setSetting } from "./note-settings.js";
 import { blockAt, chapterText, chapterTextFor, pageChapter } from "./page.js";
 import { undoEntry } from "./history.js";
+import { isInterleafOpen, setInterleafOpen } from "./interleaf-state.js";
 import { showUndo } from "./undo-bar.js";
 
 export function initActions({ store, ctx, showVerse = null }) {
@@ -87,6 +88,16 @@ export function initActions({ store, ctx, showVerse = null }) {
       const second = document.createElement("div");
       second.className = "lit-panel__row";
       second.append(show);
+      // The interleaf (N7): the notes in bands between the paragraphs, for
+      // this visit. Study View's verse menu and selection panel only.
+      const leaf = button(isInterleafOpen() ? "Close the interleaf" : "Open the interleaf here");
+      leaf.addEventListener("click", () => {
+        d.acting?.();
+        closePanel();
+        setInterleafOpen(!isInterleafOpen());
+      });
+      second.classList.add("lit-panel__row--halves");
+      second.append(leaf);
       d.append(second);
     }
 
