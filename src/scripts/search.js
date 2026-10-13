@@ -31,6 +31,7 @@ import {
   verseHitHref,
   highlightVerseHit,
   loadTopicsIndex,
+  loadDeskSearch,
   MODE_LABELS,
 } from "./search-core.js";
 
@@ -42,12 +43,14 @@ const statusEl = $("#search-status");
 const jumpsEl = $("#search-jumps");
 const refEl = $("[data-search-ref]");
 
+const groupNotebook = $("#group-notebook");
 const groupGlossary = $("#group-glossary");
 const groupSubject = $("#group-subject");
 const groupIntros = $("#group-intros");
 const groupArticles = $("#group-articles");
 const groupKeyword = $("#group-keyword");
 
+const notebookEl = $("#results-notebook");
 const glossaryEl = $("#results-glossary");
 const subjectEl = $("#results-subject");
 const introsEl = $("#results-intros");
@@ -767,6 +770,8 @@ function renderFromCache() {
     introMatchesRaw,
     keywordMatchesRaw,
     keywordCorrection,
+    notebook,
+    deskApi,
     qPhrase,
   } = lastSearchCache;
 
@@ -782,8 +787,16 @@ function renderFromCache() {
   const articleCount = articleMatches.length;
   const introCount = introMatches.length;
   const keywordTotal = keywordMatchesAll.length;
+  // The reader's own notebook (D2), searched in the browser; only with the
+  // Study Desk on, and only under "All results".
+  const notebookCount = mode === "all" ? (notebook?.total ?? 0) : 0;
   const matchTotal =
-    glossaryCount + subjectCount + articleCount + introCount + keywordTotal;
+    notebookCount +
+    glossaryCount +
+    subjectCount +
+    articleCount +
+    introCount +
+    keywordTotal;
 
   const parsedJump = parseReferenceJump(q);
   setRefBanner(
@@ -866,14 +879,25 @@ function renderFromCache() {
   const showArticles =
     (mode === "all" || mode === "article") && showMetaBuckets;
   const showKeyword = mode === "all" || mode === "keyword";
+  const showNotebook = showMetaBuckets && notebookCount > 0;
 
   renderJumps([
     { count: showKeyword ? keywordTotal : 0, one: "verse", many: "verses", target: groupKeyword },
+    { count: showNotebook ? notebookCount : 0, one: "match in your notebook", many: "matches in your notebook", target: groupNotebook },
     { count: showSubject ? subjectCount : 0, one: "chapter by topic", many: "chapters by topic", target: groupSubject },
     { count: showIntros ? introCount : 0, one: "introduction", many: "introductions", target: groupIntros },
     { count: showArticles ? articleCount : 0, one: "article", many: "articles", target: groupArticles },
     { count: showGlossary ? glossaryCount : 0, one: "glossary entry", many: "glossary entries", target: groupGlossary },
   ]);
+
+  if (showNotebook && deskApi) {
+    groupNotebook.hidden = false;
+    deskApi.renderPageGroup(notebookEl, notebook);
+  } else {
+    groupNotebook.hidden = true;
+    notebookEl.innerHTML = "";
+    groupNotebook.querySelector(".desk-see-more")?.remove();
+  }
 
   if (showGlossary && glossaryCount) {
     groupGlossary.hidden = false;
@@ -933,6 +957,9 @@ function clearResults() {
 
 /** Hides every result group and the pager, keeping the search cache. */
 function hideResultGroups() {
+  groupNotebook.hidden = true;
+  notebookEl.innerHTML = "";
+  groupNotebook.querySelector(".desk-see-more")?.remove();
   groupGlossary.hidden = true;
   groupSubject.hidden = true;
   groupIntros.hidden = true;
@@ -1106,6 +1133,14 @@ async function runFullSearch() {
   // back in Bible order; __relevanceRank carries the rankVerseHits order so
   // the Relevance/Book-order sort toggle keeps both meanings.
   const verseIndex = versePromise ? await versePromise : null;
+
+  // The reader's notebook, when the Study Desk is on (D2): searched here in
+  // the browser, and nothing about the query leaves the computer.
+  const deskApi = mode === "all" ? await loadDeskSearch() : null;
+  const notebook = deskApi
+    ? await deskApi.search(q, { bookKey: book }).catch(() => null)
+    : null;
+
   const { hits: verseHits, correction: keywordCorrection } = verseIndex
     ? searchVerses(verseIndex, q, { bookKey: book })
     : { hits: [], correction: "" };
@@ -1138,6 +1173,8 @@ async function runFullSearch() {
     introMatchesRaw,
     keywordMatchesRaw: keywordCards,
     keywordCorrection,
+    notebook,
+    deskApi,
   };
 
   renderFromCache();

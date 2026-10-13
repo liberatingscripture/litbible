@@ -25,6 +25,7 @@ import { pageChapter } from "./page.js";
 import { initProseActions } from "./prose-actions.js";
 import { initPins } from "./pins.js";
 import { fitGlossaryTitles } from "./glossary-titles.js";
+import { initCommands } from "./commands.js";
 
 // Stamped at build by Layout.astro (src/lib/content-version.mjs, which reads
 // the file system and so can't be imported here).
@@ -134,6 +135,7 @@ async function start() {
     showInText: store ? showInText : null,
   });
   initActions({ store, ctx, showVerse: panel.showVerse });
+  initCommands({ panel });
   initProseActions({ store, addNote });
   if (store) createVerseLabels({ store });
   // Painted on a Study View chapter or in Read View; after initNoteSettings,

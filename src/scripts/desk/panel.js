@@ -75,6 +75,7 @@ const ICON_CLOSE = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" 
  *   its verse in the view the reader is in: Read View from Read View (BVJ,
  *   2026-10-08), Study View from anywhere else.
  * @returns {{ open: (from?: Element) => void, close: () => void,
+ *   showTab: (id: string) => boolean,
  *   showVerse: ((verse: number) => void) | null }}
  *   `showVerse` opens the panel on "This verse" at a verse; null where the
  *   page has no such tab.
@@ -421,7 +422,19 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
     verseTab.view.focusHeading();
   }
 
-  return { open, close, showVerse: tabs.has("verse") ? showVerse : null };
+  /**
+   * Open the panel on a tab and put focus on it (the search box's commands).
+   * False where this page has no such tab.
+   */
+  function showTab(id) {
+    if (!tabs.has(id)) return false;
+    if (panel.hidden) open(null, { focus: false });
+    else if (rail.state().collapsed) rail.expand();
+    selectTab(id, { focus: true });
+    return true;
+  }
+
+  return { open, close, showTab, showVerse: tabs.has("verse") ? showVerse : null };
 }
 
 function escapeHtml(s) {

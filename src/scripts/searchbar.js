@@ -32,6 +32,7 @@ import {
   verseHitLabel,
   verseHitHref,
   loadTopicsIndex,
+  loadDeskSearch,
   MODE_LABELS,
 } from "./search-core.js";
 
@@ -177,6 +178,18 @@ const _initSearchbars = async () => {
     });
 
     const MIN_QUERY_LEN = 3; // 3-4 char queries are exact-only
+
+    // The Study Desk's part (the reader's notebook, and commands), present
+    // only with the preview on. It is loaded only through loadDeskSearch(), so
+    // `desk` stays null, and the tray behaves as it always did, for everyone
+    // else. /search draws its own results, and this tray is hidden there.
+    let desk = null;
+    if (!root.closest(".scripture-layout--search")) {
+      loadDeskSearch()?.then((m) => {
+        desk = m;
+      });
+    }
+    const isCmd = (text) => Boolean(desk && desk.isCommandQuery(text));
 
     let pagefind = null;
 
@@ -406,6 +419,30 @@ const _initSearchbars = async () => {
       return true;
     }
 
+    // A query that starts with ">" asks for commands alone (D3): they are
+    // listed and nothing else is searched.
+    function showCommandMode(q) {
+      renderJump(null);
+      groupsEl.innerHTML = "";
+      const commands = desk.commandsFor(q);
+      desk.renderTray(groupsEl, { commands, onRun: runDeskCommand });
+      status.textContent = commands.length
+        ? `${commands.length} command${commands.length === 1 ? "" : "s"}`
+        : "No command begins that way.";
+    }
+
+    // Run a command that isn't a link, then get out of the way: the box is
+    // emptied and the tray closes, and the command puts focus where it needs
+    // it (opening the notebook focuses the panel).
+    function runDeskCommand(command) {
+      desk.runCommand(command.id);
+      input.value = "";
+      groupsEl.innerHTML = "";
+      status.textContent = "";
+      renderJump(null);
+      closePanel();
+    }
+
     function renderGroups({ glossary, subject, articles, keyword, intros = [] }) {
       const glossaryCount = glossary.length;
       const subjectCount = subject.length;
@@ -592,6 +629,11 @@ const _initSearchbars = async () => {
       const mySeq = ++searchSeq;
 
       try {
+        if (isCmd(q)) {
+          showCommandMode(q);
+          return;
+        }
+
         const ref = parseReference(q);
         const bookOnly = !ref ? parseBookOnly(q) : null;
         const jump = ref
@@ -661,6 +703,12 @@ const _initSearchbars = async () => {
         const wantKeyword = activeMode === "all" || activeMode === "keyword";
         const versePromise = wantKeyword ? loadVerseIndex(base) : null;
 
+        // The reader's notebook, searched here in the browser (D2), alongside.
+        const wantDesk = Boolean(desk) && activeMode === "all";
+        const notebookPromise = wantDesk
+          ? desk.search(q, { bookKey: keywordBook }).catch(() => null)
+          : null;
+
         // A book filter routes to scripture-only results, so skip Pagefind
         // then (glossary/article pages carry no book value; intro pages do,
         // but book-filtered searches stay scripture-only by design). A
@@ -687,6 +735,11 @@ const _initSearchbars = async () => {
 
         const verseIndex = versePromise ? await versePromise : null;
         if (mySeq !== searchSeq) return;
+
+        const notebook = notebookPromise ? await notebookPromise : null;
+        if (mySeq !== searchSeq) return;
+        const nCount = notebook?.total ?? 0;
+        const commands = wantDesk ? desk.commandsFor(q) : [];
 
         const { hits: verseHits, correction: verseCorrection } = verseIndex
           ? searchVerses(verseIndex, q, { bookKey: keywordBook })
@@ -763,18 +816,20 @@ const _initSearchbars = async () => {
         const showI = activeMode === "all" || activeMode === "intro";
         const showK = activeMode === "all" || activeMode === "keyword";
 
-        // With a jump row showing, a zero count reads as a failed search, so
-        // only the kinds that matched are listed.
+        // With a jump row or a command showing, a zero count reads as a
+        // failed search, so only the kinds that matched are listed.
         const parts = [];
+        if (nCount)
+          parts.push(`${nCount} notebook match${nCount === 1 ? "" : "es"}`);
         if (showG && gCount)
           parts.push(`${gCount} glossary match${gCount === 1 ? "" : "es"}`);
-        if (showS && (sCount || !hasJump))
+        if (showS && (sCount || !(hasJump || commands.length)))
           parts.push(`${sCount} topic match${sCount === 1 ? "" : "es"}`);
         if (showI && iCount)
           parts.push(`${iCount} book intro match${iCount === 1 ? "" : "es"}`);
         if (showA && aCount)
           parts.push(`${aCount} article match${aCount === 1 ? "" : "es"}`);
-        if (showK && (kCount || !hasJump))
+        if (showK && (kCount || !(hasJump || commands.length)))
           parts.push(
             `${kCount} keyword match${kCount === 1 ? "" : "es"}` +
               (verseCorrection ? ` for “${verseCorrection}”` : ""),
@@ -788,9 +843,20 @@ const _initSearchbars = async () => {
           keyword: keywordItems,
           intros: introItems,
         });
+        // Commands, then the notebook's matches, ahead of everything else.
+        if (desk) {
+          desk.renderTray(groupsEl, {
+            commands,
+            notebook,
+            query: q,
+            onRun: runDeskCommand,
+          });
+        }
         renderActiveFilters();
 
         const totalCount =
+          nCount +
+          commands.length +
           (showG ? gCount : 0) +
           (showS ? sCount : 0) +
           (showA ? aCount : 0) +
@@ -853,6 +919,12 @@ const _initSearchbars = async () => {
       if (!q) return;
 
       clearGhost();
+
+      // Enter on a ">" query runs the first command listed.
+      if (isCmd(q)) {
+        groupsEl.querySelector("[data-desk-command]")?.click();
+        return;
+      }
 
       if (!forceSearch) {
         const ref = parseReference(q);
@@ -953,6 +1025,10 @@ const _initSearchbars = async () => {
       // Keep 3-letter minimum for keyword search,
       // but allow 2-letter book-only detection to show jumps.
       const qt = q.trim();
+      if (isCmd(qt)) {
+        showCommandMode(qt);
+        return;
+      }
       if (
         qt.length < MIN_QUERY_LEN &&
         !parseReference(qt) &&
@@ -984,6 +1060,10 @@ const _initSearchbars = async () => {
       renderGhost(q);
 
       const qt = q.trim();
+      if (isCmd(qt)) {
+        showCommandMode(qt);
+        return;
+      }
       if (
         qt.length < MIN_QUERY_LEN &&
         !parseReference(qt) &&
