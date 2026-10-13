@@ -22,7 +22,8 @@
 //
 // Tabs (BVJ, 2026-10-08; "Decisions", the Greek tab, items 1 and 12): "My
 // Notes" (tab-mine.js) everywhere, and on Study View chapters "This verse"
-// (tab-verse.js). Greek (phase 1f) joins the TABS table below. A Versions tab is deferred
+// (tab-verse.js) and "Greek" (tab-greek.js, phase 1f), which reads the
+// SBLGNT with the dictionary beside it. A Versions tab is deferred
 // indefinitely (BVJ, 2026-10-11). A surface with one tab
 // shows no tab row. The tab last chosen is remembered in
 // localStorage['lit-desk-tab'] and used wherever the page has it.
@@ -40,6 +41,7 @@ import { forChapter } from "../../lib/desk-store-core.mjs";
 import { proseRecords, prosePage } from "./note-sources.js";
 import { createFirstUse } from "./first-use.js";
 import { createMineTab } from "./tab-mine.js";
+import { createGreekTab } from "./tab-greek.js";
 import { createVerseTab } from "./tab-verse.js";
 import { resetWidthsButton } from "./widths.js";
 
@@ -164,6 +166,17 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
                 goHere,
                 ctx,
                 showInText,
+                greek: { open: openGreekWord },
+              }),
+          },
+          {
+            id: "greek",
+            label: "Greek",
+            make: () =>
+              createGreekTab({
+                here,
+                visible: () => visible() && activeTab === "greek",
+                openVerse: (verse) => showVerse(verse),
               }),
           },
         ]
@@ -437,6 +450,13 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
     verseTab.view.setVerse(verse);
     selectTab("verse");
     verseTab.view.focusHeading();
+  }
+
+  /** Open the Greek tab with a word selected and focused (a word in This verse's Greek). */
+  async function openGreekWord(verse, t) {
+    const greekTab = tabs.get("greek");
+    if (!greekTab || !showTab("greek")) return;
+    await greekTab.view.selectWord(verse, t, { focus: true });
   }
 
   /**
