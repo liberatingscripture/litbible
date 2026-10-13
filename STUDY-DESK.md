@@ -906,7 +906,7 @@ plan as a whole was accepted; nothing was declined except where stated).
   deliberately doesn't measure who uses what. Small. **Decided: yes.**
   **Built on the preview 2026-10-12** as `/notebook/help/`, with the license
   terms link, a "Tell us what's missing" link to /contact/ in the panel's
-  foot, and one paragraph in /privacy (its effective date wasn't bumped).
+  foot, and one paragraph in /privacy (effective date moved to 2026-10-13, BVJ).
 
 ## How it would be built
 
@@ -3263,9 +3263,9 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
        replay goes to John 3. The privacy paragraph names the notebook's
        IndexedDB storage, that nothing reaches the LIT team, that copies
        are the reader's own files, how to delete, and the storage keys.
-       **/privacy's effective date and `dateModified` were not bumped**
-       (BVJ may want to), and a /privacy change notifies the LSC repo for
-       review by the existing workflow.
+       Its effective date and `dateModified` moved to 2026-10-13 (BVJ), and
+       a /privacy change notifies the LSC repo for review by the existing
+       workflow.
      - **N8, the hidden passage: built, then held** (BVJ, 2026-10-12;
        "Decisions"). It is on two branches and not in this change:
        `claude/desk-1d-hidden` (commit 0c95d7d, on top of the interleaf
@@ -4157,9 +4157,6 @@ margin and breaks up the scripture text."
   Zoom. The built branches wait on that, and on two known issues: a
   possible flash on load (a pre-paint addition to Layout.astro) and a hidden
   verse's own menu being unreachable.
-- **/privacy's effective date** and `dateModified` were not bumped when the
-  notebook paragraph was added. BVJ may want to; a /privacy change notifies
-  the LSC repo for review.
 
 - **The floating notebook's details** (decided in outline 2026-10-07; built
   the same day on these recommendations, not decided; see "Order of work",
