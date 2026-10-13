@@ -41,9 +41,10 @@ are recorded so they aren't re-argued.
   settled the overlap rule, the change notice (2026-10-10), and pinned
   footnotes and the merge engine (2026-10-12), which finished 1c and 1a.
   **1d was built on 2026-10-12** (the notebook page, labels, save and open a
-  copy, places and ribbons, the interleaf, search and commands, the
+  copy, places and ribbons, search and commands, the
   first-time choice, the tour and the help page), except **N8, the hidden
-  passage, which BVJ held until after the Zoom** (2026-10-12; "Decisions").
+  passage, which BVJ held until after the Zoom** (2026-10-12; "Decisions"),
+  and **N7, the interleaf, which BVJ set aside** (2026-10-13; "Decisions").
   Left in phase 1: 1f, and N8's hold. Other versions (API.bible and the
   Versions tab) are out of version 1 (BVJ, 2026-10-11). What exists:
   - draft 1 of the record format (`STUDY-DESK-FORMAT.md`), with its
@@ -63,7 +64,7 @@ are recorded so they aren't re-argued.
     work", 1b;
   - phase 1c: see "Order of work", 1c;
   - phase 1d: the notebook page and its help page, export and import,
-    labels, places and ribbons, the interleaf, notebook search and commands,
+    labels, places and ribbons, notebook search and commands,
     the first-time choice and the tour (all under "Order of work", 1d). The
     defaults chosen there are recommendations for BVJ to judge on the
     preview ("Still open").
@@ -402,9 +403,13 @@ plan as a whole was accepted; nothing was declined except where stated).
   Works in windows too narrow for the margin. **Bands open only when the
   reader asks**, so the page never jumps on load (audit C13; layout shift
   was the site's worst Core Web Vital until the `--ch` fix). New. Small.
-  Proposed. **Built on the preview 2026-10-12**: bands only after paragraphs
-  that have notes, always closed on load, opened from the panel's foot or
-  the menus ("Order of work", 1d).
+  Proposed. **Built 2026-10-12, then set aside by BVJ (2026-10-13)**: "I
+  think I'm not sold on the interleaf feature. It seems redundant to the
+  notes in the notebook and in the left margin and breaks up the scripture
+  text." Not in this release; see "Order of work", 1d, for where the code
+  is and how to revive it. One observation, not a recommendation: the one
+  argument for it that the margin doesn't cover was windows too narrow for
+  the margin, where the notebook floats.
 - **N8. A note to yourself before a hard passage.** A private note before a
   passage, with the passage **blurred** under it and one click (or Enter) to
   show it. **Decided 2026-10-01: blur, one click to show** (BVJ's idea,
@@ -419,7 +424,10 @@ plan as a whole was accepted; nothing was declined except where stated).
   no passage. **Built, then held by BVJ (2026-10-12) until after the Zoom
   (item 17); kept off this release on two branches**,
   `claude/desk-1d-hidden` and `claude/desk-1d-search`, with what's known
-  for later under "Order of work", 1d.
+  for later under "Order of work", 1d. **Reviving it means rebasing
+  `claude/desk-1d-hidden` (0c95d7d) onto main without the interleaf commit
+  1f27b2e**, because 0c95d7d sits on top of that commit and edits
+  `interleaf.js`; or reviving N7 too.
 - **N9. Print with room to write.** A print option setting the text in a
   narrower column beside a wide ruled margin, like a journaling Bible. Stores
   nothing; a variant of `print.css`. Borrowed (journaling Bibles). Extra
@@ -3117,8 +3125,8 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      Markdown and the W3C shape, which every plan needs; the first-time
      choice (D6), worded without accounts until plan A or C is chosen; the
      Safari warning (C18); places and ribbons, kept in this browser (B1,
-     C25); labels (M8, name open); the interleaf (N7, C13); the hidden
-     passage (N8); the tutorial (D8); the help page (M12); the privacy
+     C25); labels (M8, name open); ~~the interleaf (N7, C13)~~ (built, then set
+     aside, BVJ 2026-10-13); the hidden passage (N8); the tutorial (D8); the help page (M12); the privacy
      paragraph (which 1e adds to); the link to the license terms. Saving live
      into a chosen file (D1) waits on its decision (T3); export and import
      don't.
@@ -3196,17 +3204,16 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
          moving one by hand and renaming are undoable, automatic following
          isn't. Not done: a margin mark for ribbons (B4's scrollbar ticks
          aren't in 1d).
-     - **The interleaf** (N7, C13). `desk-interleaf.mjs` (pure),
-       `desk/interleaf-state.js` and `desk/interleaf.js`: a band
-       (`data-desk-band`) after each paragraph that has notes, with Edit and
-       "Add a note" (for the paragraph's first verse). **Open or closed is
-       never stored, so a page always loads closed** (C13). A switch "Open
-       the interleaf" in the panel's foot (Study View chapters only), and
-       "Open the interleaf here" / "Close the interleaf" on a row of its own
-       in the verse menu and the selection panel. The page's block reader
-       skips the bands, and they don't print. **Defaults**: bands only where
-       there are notes (no empty bands); the notes obey "My notes" and M1;
-       the bands can't be selected.
+     - **The interleaf (N7, C13): built 2026-10-12, then set aside by BVJ
+       (2026-10-13).** BVJ: "I think I'm not sold on the interleaf
+       feature. It seems redundant to the notes in the notebook and in the
+       left margin and breaks up the scripture text." It was a band
+       (`data-desk-band`) after each paragraph that has notes, closed on
+       every load, opened from the panel's foot or the menus. The code is
+       on `claude/desk-1d-hidden`, commit 1f27b2e; commit aacdc92 takes it
+       out of this branch. **To revive it, revert aacdc92 rather than
+       merging that branch again**, since git counts 1f27b2e as merged
+       already. The help page's section on it went with it.
      - **Search and commands** (D2, D3). `desk-search.mjs` and
        `desk-commands.mjs` (pure), `desk/notebook-search.js` (reads
        IndexedDB read-only and never creates it) and `desk/commands.js`
@@ -3245,7 +3252,7 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
        is offered once, right after the choice, and replays from the foot,
        the `tour` command and the help page; it writes no records. The help
        page covers ways to keep the notebook, saving and opening a copy,
-       deleting everything, places and ribbons, labels, the interleaf,
+       deleting everything, places and ribbons, labels,
        search and commands, the tour, sharing what you write (with the
        license-terms link) and the contact link. **Defaults**: the reminder
        is due at 7 days or more, or when no copy exists and the notebook has
@@ -3261,8 +3268,10 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
        review by the existing workflow.
      - **N8, the hidden passage: built, then held** (BVJ, 2026-10-12;
        "Decisions"). It is on two branches and not in this change:
-       `claude/desk-1d-hidden` (commit 0c95d7d, on top of the interleaf:
-       blur 0.4em, the passage inert and `aria-hidden`, a veil layer
+       `claude/desk-1d-hidden` (commit 0c95d7d, on top of the interleaf
+       commit 1f27b2e, so **reviving it means rebasing it onto main without
+       1f27b2e**, or reviving the interleaf too, since it edits
+       `interleaf.js`: blur 0.4em, the passage inert and `aria-hidden`, a veil layer
        outside the scripture's DOM, a screen-reader control, previews
        honouring it through `window.litPreviewGate`, the verse menu
        replaced by "This passage is hidden by your note…", margin notes
@@ -3493,8 +3502,9 @@ BVJ answered every item on 2026-10-01.
   dock is part of the frame. **Yes.**
 - **C13. The interleaf can make the page jump.** Fix: open bands on request
   (or reserve space pre-paint); check Cloudflare's numbers after release.
-  **Yes.** Built 2026-10-12: bands open only on request and every page loads
-  them closed; the Cloudflare check waits for a release.
+  **Yes.** Built 2026-10-12 (bands open only on request, every page loads
+  them closed), then the interleaf was set aside (BVJ, 2026-10-13), so the
+  question is moot unless it returns.
 - **C14. Read View's scrollbar marks point at notes it doesn't show.**
   **Decided: ticks for places, and highlights when switched on; none for
   notes.**
@@ -4116,6 +4126,23 @@ Phase 1d was built the same day ("Order of work", 1d). One decision from BVJ:
 - Everything else 1d chose where nothing was decided is a recommendation,
   listed under "Order of work", 1d, and "Still open".
 
+### 2026-10-13 (the interleaf set aside)
+
+BVJ, after trying the preview: "I think I'm not sold on the interleaf
+feature. It seems redundant to the notes in the notebook and in the left
+margin and breaks up the scripture text."
+- **N7, the interleaf, is out of this release.** It was built the day
+  before (C13's "open on request" rule included). Commit aacdc92 reverts the
+  merge of its code and drops the help page's section on it; the code stays
+  on `claude/desk-1d-hidden` (commit 1f27b2e). To bring it back, revert
+  aacdc92; merging the branch again would do nothing.
+- Its one argument the margin doesn't cover was windows too narrow for the
+  margin, where the notebook floats. That is an observation, not a
+  recommendation.
+- **N8's branch is affected.** `claude/desk-1d-hidden` (0c95d7d) sits on top
+  of the interleaf commit and edits `interleaf.js`, so reviving N8 means
+  rebasing it onto main without 1f27b2e, or reviving N7 too.
+
 ## Still open
 
 - **Phase 1d's defaults** (built 2026-10-12 on recommendations, for BVJ to
@@ -4123,8 +4150,7 @@ Phase 1d was built the same day ("Order of work", 1d). One decision from BVJ:
   name "Labels" and applying labels from the notebook page only; the export
   file's motivations, what Markdown can and can't read back, and trash
   only in the full backup; the ribbons' limits (6, 40 characters, a move at
-  most every 4 seconds) and the C25 rule's details; the interleaf's bands
-  only where there are notes; the search tray's counts (4 and 10), the nine
+  most every 4 seconds) and the C25 rule's details; the search tray's counts (4 and 10), the nine
   commands and Enter's behaviour; the D6 card's wording and the reminder
   at 7 days; the tour's five steps and its being offered once.
 - **N8, the hidden passage, is held** (BVJ, 2026-10-12) until after the
