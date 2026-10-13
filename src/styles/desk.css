@@ -3133,7 +3133,7 @@ html[data-desk-list="full"] .desk-item__pin-text {
   margin: 0 0 0.8em;
   font-family: var(--serif);
   font-size: calc(1.125rem * var(--reading-scale, 1));
-  line-height: 1.75;
+  line-height: 1.6;
 }
 
 /* Verse numbers, small like Study View's. */
@@ -3442,7 +3442,7 @@ html[data-desk-list="full"] .desk-item__pin-text {
   margin: 0;
   font-family: var(--serif);
   font-size: calc(1.0625rem * var(--reading-scale, 1));
-  line-height: 1.7;
+  line-height: 1.55;
 }
 
 .desk-verse__gw {
