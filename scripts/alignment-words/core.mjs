@@ -82,6 +82,7 @@
 
 import { tokenizeWords } from "../alignment-review/review-core.mjs";
 import { normalizeAnchorText } from "../../src/lib/anchor-core.mjs";
+import { describeParse } from "../../src/lib/greek-parse.mjs";
 
 export { tokenizeWords };
 
@@ -445,31 +446,6 @@ export function serializeWordsFile({ bookKey, chapter, basis = {}, records }) {
 
 // ------------------------------------------------------------ MorphGNT codes
 
-const POS = {
-  "A-": "adjective", "C-": "conjunction", "D-": "adverb", "I-": "interjection",
-  "N-": "noun", "P-": "preposition", RA: "article", RD: "demonstrative pronoun",
-  RI: "interrogative/indefinite pronoun", RP: "personal pronoun",
-  RR: "relative pronoun", "V-": "verb", "X-": "particle",
-};
-const PERSON = { 1: "1st", 2: "2nd", 3: "3rd" };
-const TENSE = { P: "present", I: "imperfect", F: "future", A: "aorist", X: "perfect", Y: "pluperfect" };
-const VOICE = { A: "active", M: "middle", P: "passive" };
-const MOOD = { I: "indicative", D: "imperative", S: "subjunctive", O: "optative", N: "infinitive", P: "participle" };
-const CASE = { N: "nominative", G: "genitive", D: "dative", A: "accusative", V: "vocative" };
-const NUMBER = { S: "singular", P: "plural" };
-const GENDER = { M: "masculine", F: "feminine", N: "neuter" };
-const DEGREE = { C: "comparative", S: "superlative" };
-
-/**
- * MorphGNT's part-of-speech and parsing codes in words, for display only:
- * "V- 3AAI-S--" -> "verb, aorist active indicative, 3rd person singular".
- * The code positions are MorphGNT's README: person, tense, voice, mood, case,
- * number, gender, degree. An unknown letter is left out rather than guessed.
- */
-export function describeParse(pos, parse) {
-  const c = String(parse || "").padEnd(8, "-");
-  const verbal = [TENSE[c[1]], VOICE[c[2]], MOOD[c[3]]].filter(Boolean).join(" ");
-  const nominal = [CASE[c[4]], GENDER[c[6]], NUMBER[c[5]]].filter(Boolean).join(" ");
-  const personal = PERSON[c[0]] ? `${PERSON[c[0]]} person ${NUMBER[c[5]] ?? ""}`.trim() : "";
-  return [POS[pos] ?? pos, verbal, personal || nominal, DEGREE[c[7]]].filter(Boolean).join(", ");
-}
+// describeParse lives in src/lib/greek-parse.mjs, where the browser's Greek tab
+// can use it too. It is re-exported here so every existing caller keeps working.
+export { describeParse };
