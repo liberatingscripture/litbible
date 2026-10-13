@@ -24,6 +24,7 @@ import { proseSource, studySource } from "./note-sources.js";
 import { pageChapter } from "./page.js";
 import { initProseActions } from "./prose-actions.js";
 import { initPins } from "./pins.js";
+import { initRibbonFollow } from "./ribbon-follow.js";
 import { fitGlossaryTitles } from "./glossary-titles.js";
 
 // Stamped at build by Layout.astro (src/lib/content-version.mjs, which reads
@@ -134,6 +135,7 @@ async function start() {
     showInText: store ? showInText : null,
   });
   initActions({ store, ctx, showVerse: panel.showVerse });
+  initRibbonFollow({ store, ctx });
   initProseActions({ store, addNote });
   if (store) createVerseLabels({ store });
   // Painted on a Study View chapter or in Read View; after initNoteSettings,

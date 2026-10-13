@@ -14,6 +14,9 @@
 // colour, and "All" brings everything back. That choice is kept for the
 // visit only, and goes back to All when its colour leaves the list.
 //
+// Places (places.js) head the tab: Continue reading, Read View's place in each
+// book and the reader's ribbons, this book's first.
+//
 // A record whose wording has changed under it (change-notice.js) carries a
 // flag under its words, "Wording changed · Review" (or "Not in the text ·
 // Review" when its verses are gone), which opens the card beside it, and a
@@ -48,6 +51,7 @@ import { glyph } from "./glyphs.js";
 import { undoEntry } from "./history.js";
 import { SETTINGS_EVENT, getSetting } from "./note-settings.js";
 import { canRevealFootnote, revealFootnote, unpinRecord } from "./pins.js";
+import { placesSection } from "./places.js";
 import { showUndo } from "./undo-bar.js";
 
 // A note's caret in the list: down to show the rest, turned up while open.
@@ -127,6 +131,9 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
       <ul class="desk-list desk-mine__pin-list"></ul>
     </section>`;
   if (pageScope) el.querySelector(".desk-seg__text").textContent = pageScope.label;
+  // Places (B1, places.js) sit above everything else, whatever the scope.
+  const places = store ? placesSection({ store, ctx }) : null;
+  if (places) el.prepend(places);
   const addButton = el.querySelector(".desk-mine__add");
   if (addButton) {
     addButton.textContent = addAction.label;
@@ -167,8 +174,9 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     const everything =
       scope === "chapter" && pageScope ? await pageScope.load(store) : liveRecords(await store.all());
     if (seq !== renderSeq) return; // a newer render has started
-    // Pins have their own group below the list.
-    const kept = everything.filter((r) => r.kind !== "footnotePin");
+    // Pins and places have their own groups.
+    const kept = everything.filter((r) => r.kind !== "footnotePin" && r.kind !== "place");
+    places?.refresh();
 
     // The colours this list holds. A choice of colour that has left it (the
     // last of its highlights deleted, or the list changed to another scope)
