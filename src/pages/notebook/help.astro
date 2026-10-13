@@ -1,0 +1,156 @@
+---
+// Help for the notebook preview (STUDY-DESK.md M12, D6). A static page that
+// reads without the desk: it is noindex, out of the sitemap, and (as every
+// generic page) out of Pagefind. The panel's foot, the first-time choice and
+// the tour link here.
+import Layout from "../../layouts/Layout.astro";
+import "../../styles/pages/notebook-help.css";
+---
+
+<Layout
+  title="Your notebook | LIT Bible"
+  description="Help for the notebook preview: where it is kept, saving and opening a copy, and what each part does."
+  canonical="https://litbible.net/notebook/help/"
+  robotsNoindex={true}
+>
+  <article class="nbhelp" aria-labelledby="nbhelp-title">
+    <header class="nbhelp__header">
+      <div class="nbhelp__inner">
+        <h1 id="nbhelp-title" class="nbhelp__title">Your notebook</h1>
+        <p class="nbhelp__lede">
+          The notebook is a preview of study tools for reading on a computer: notes,
+          bookmarks and highlights that stay with you as you read. It is switched on
+          for a few readers while it is tried out. This page explains it, and you
+          can read it whether or not it is on for you.
+        </p>
+      </div>
+    </header>
+
+    <div class="nbhelp__body">
+
+      <section aria-labelledby="ways-to-keep">
+        <h2 id="ways-to-keep">Ways to keep your notebook</h2>
+        <p>
+          <strong>In this browser.</strong> Your notebook is kept in this browser, on
+          this computer. Nothing is sent to the LIT Bible team or anywhere else.
+        </p>
+        <p>
+          <strong>What can clear it.</strong> Clearing your browser’s data for this
+          site removes the notebook. So can a private window that is closed, a
+          browser set to clear data when it quits, and a different browser or
+          computer, which each start with an empty notebook. Your browser may also
+          clear stored data on its own when it is short of room.
+        </p>
+        <p>
+          <strong>Safari.</strong> Safari can clear a site’s stored data after seven
+          days of using Safari without visiting the site. If you use Safari, save a
+          copy now and then.
+        </p>
+        <p>
+          <strong>Saving a copy.</strong> A copy is a file on your own computer, and
+          it is the safe way to keep your notebook. When you first use the notebook
+          you can ask to be reminded: the panel then tells you when it has been a
+          week since you saved one. You can change that at the foot of the panel.
+        </p>
+        <p>
+          <strong>Other ways.</strong> Other ways to keep it, across your computers
+          and the apps, are being planned. Nothing here depends on them.
+        </p>
+      </section>
+
+      <section aria-labelledby="copies">
+        <h2 id="copies">Saving and opening a copy</h2>
+        <p>
+          The <a href="/notebook/#backup">notebook page</a> can save a copy in three
+          kinds of file:
+        </p>
+        <ul>
+          <li><strong>A Markdown file</strong>, to read, print or move into other writing.</li>
+          <li><strong>A Web Annotation file</strong> (JSON), a standard format other annotation tools can read.</li>
+          <li><strong>A full backup</strong> (JSON), which holds everything and is the one to open again here.</li>
+        </ul>
+        <p>
+          “Open a copy” on the same page puts a saved full backup back into the
+          notebook.
+        </p>
+      </section>
+
+      <section aria-labelledby="delete-everything">
+        <h2 id="delete-everything">Deleting everything</h2>
+        <p>
+          Deleting a note, bookmark or highlight moves it to the trash for 30 days,
+          and Undo (or Ctrl+Z, ⌘Z on a Mac) brings it back. To remove the whole
+          notebook from this browser, use “Delete everything” on the
+          <a href="/notebook/">notebook page</a>; “Empty the trash now” is there
+          too. Clearing this site’s data in your browser also removes it. Save a
+          copy first if you may want it back.
+        </p>
+      </section>
+
+      <section aria-labelledby="places">
+        <h2 id="places">Places and ribbons</h2>
+        <p>
+          A place is a spot you want to return to, and a ribbon marks it in the text, so
+          you can find your way back to it.
+        </p>
+      </section>
+
+      <section aria-labelledby="labels">
+        <h2 id="labels">Labels</h2>
+        <p>
+          Labels are your own words for sorting what you keep. Give a note,
+          highlight or bookmark a label, and filter by it in the panel and on the
+          notebook page. They belong to you; they are not the topics the site uses
+          for its own chapters.
+        </p>
+      </section>
+
+      <section aria-labelledby="interleaf">
+        <h2 id="interleaf">The interleaf</h2>
+        <p>
+          The interleaf is a page of your own set between the pages of the text,
+          like a blank leaf bound into a printed Bible. It opens only when you ask
+          for it, and it is not part of the scripture.
+        </p>
+      </section>
+
+      <section aria-labelledby="search">
+        <h2 id="search">Search and commands</h2>
+        <p>
+          The search box also looks in your notebook and understands a few
+          commands. Type “tour”, for example, to take the tour again.
+        </p>
+      </section>
+
+      <section aria-labelledby="tour">
+        <h2 id="tour">The tour</h2>
+        <p>
+          The tour is a short walk through the notebook on a page of scripture. It
+          never starts by itself, and it keeps nothing in your notebook.
+          <a href="/john-3/?desk-tour">Take the tour</a> on John 3. It needs the
+          notebook preview to be on for you.
+        </p>
+      </section>
+
+      <section aria-labelledby="sharing">
+        <h2 id="sharing">Sharing what you write</h2>
+        <p>
+          What you write is yours. If you share it with the LIT’s words quoted
+          inside, such as in a study guide or a bulletin, the
+          <a href="/read/#license-terms">license terms</a> say how the translation
+          may be quoted.
+        </p>
+      </section>
+
+      <section aria-labelledby="missing">
+        <h2 id="missing">Tell us what’s missing</h2>
+        <p>
+          The site deliberately doesn’t measure who uses what, so we only hear what
+          you tell us. If the notebook is missing something, or something is
+          confusing, <a href="/contact/">write to us</a>.
+        </p>
+      </section>
+
+    </div>
+  </article>
+</Layout>

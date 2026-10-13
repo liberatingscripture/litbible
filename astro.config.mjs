@@ -55,6 +55,7 @@ export default defineConfig({
         if (slug === 'unsubscribe') return false; // noindex utility page
         if (slug === 'contact/thanks') return false; // noindex form-success page
         if (slug === 'app-support/thanks') return false; // noindex form-success page
+        if (slug === 'notebook' || slug.startsWith('notebook/')) return false; // noindex notebook pages
         // /read/<book> aggregate pages for books that are entirely drafts
         if (slug.startsWith('read/') && fullyDraftBooks.has(slug.slice('read/'.length))) {
           return false;
