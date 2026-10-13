@@ -4,7 +4,7 @@ The complete record of the Study Desk as planned so far: what it is, every idea
 with its status, every decision BVJ has made and why, the audit and how each
 finding was settled, the account and sync work planned with BDR, and the
 related projects that came out of it. **Nothing is released to readers**;
-phases 1a to 1d are built behind a preview switch ("Where things stand").
+phases 1a to 1d and 1f are built behind a preview switch ("Where things stand").
 This file exists so a future session can pick the work up without the
 conversations that produced it.
 
@@ -12,7 +12,7 @@ conversations that produced it.
 Many ideas here were weighed and decided, some were declined, and the reasons
 are recorded so they aren't re-argued.
 
-## Where things stand (as of 2026-10-12)
+## Where things stand (as of 2026-10-13)
 
 - **Sync now has three plans, and BDR's proposal is the newest record of
   it** ("One notebook, three homes" below; first read 2026-10-07 at draft 2,
@@ -29,7 +29,7 @@ are recorded so they aren't re-argued.
   as today) and full A added later only if readers ask; the website's side
   of each plan is sized in that section. Nothing is decided.
 
-- **Status: phases 1a to 1d built, behind a preview switch; nothing
+- **Status: phases 1a to 1d and 1f built, behind a preview switch; nothing
   reader-facing yet.** Readers see and download none of it.
   `litbible.net/?desk=on` turns the desk on in one browser on a computer, and
   `?desk=off` turns it off. The only desk pages are `/notebook/` and
@@ -45,8 +45,11 @@ are recorded so they aren't re-argued.
   first-time choice, the tour and the help page), except **N8, the hidden
   passage, which BVJ held until after the Zoom** (2026-10-12; "Decisions"),
   and **N7, the interleaf, which BVJ set aside** (2026-10-13; "Decisions").
-  Left in phase 1: 1f, and N8's hold. Other versions (API.bible and the
-  Versions tab) are out of version 1 (BVJ, 2026-10-11). What exists:
+  **1f, the Greek tab, was built on 2026-10-13** ("Order of work", 1f).
+  Phase 1 is done apart from N8's hold, so **whether to release the desk to
+  readers is now open** ("Still open"). 1g and 1h are ideas to explore, not
+  planned. Other versions (API.bible and the Versions tab) are out of
+  version 1 (BVJ, 2026-10-11). What exists:
   - draft 1 of the record format (`STUDY-DESK-FORMAT.md`), with its
     reference implementation (`scripts/lib/anchor-text.mjs`) and test vectors
     (PR #268);
@@ -2399,7 +2402,8 @@ tab).
   Inter's own Greek and Noto Sans Hebrew inside the site's sans-serif text
   (see "Decisions", 2026-10-05, phase 0 picks). A Greek text panel will
   also need the SBLGNT's text-critical signs (Romans 8:2 carries ⸀), so check
-  Cardo's coverage of them when that project starts.
+  Cardo's coverage of them when that project starts. (Checked with 1f: full
+  Cardo has them and is patched in for them.)
 - **Anchors that can point at a Greek word** (book, chapter, verse, SBLGNT
   word position) beside the English quotes. Nothing uses it until the
   alignment publishes.
@@ -3353,7 +3357,9 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
        verse, since the word-to-word link waits for phase 2.
      - **The apparatus** at the end of the tab, below the text, and each
        text-critical sign opening its note. Check that
-       Cardo has every sign the SBLGNT uses (⸀ ⸂ ⸃ and the rest) first.
+       Cardo has every sign the SBLGNT uses (⸀ ⸂ ⸃ and the rest) first
+       (checked 2026-10-13: full Cardo has all six, Fontsource's subsets
+       none; see "Built").
      - **"This verse"** gains the verse's Greek.
      - **"Sources and licenses"** at the tab's foot: SBL, MorphGNT, MACULA,
        UBS and STEPBible, each with its license, the way the SBLGNT notice
@@ -3361,13 +3367,94 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      - **Before it ships**: ~~BVJ's wording for the John 7:53–8:11 footnotes
        (john-7 fn-ff, john-8 fn-k), which said the SBLGNT lacks the passage
        that the tab will show as SBLGNT text~~ (done 2026-10-11, see
-       "Decisions"); and CLAUDE.md's MorphGNT paragraph loses the old SBLGNT
-       EULA line. Large.
+       "Decisions"); ~~and CLAUDE.md's MorphGNT paragraph loses the old
+       SBLGNT EULA line~~ (done 2026-10-13). Large.
+     - **Built 2026-10-13**, behind the preview, all of the above:
+       - **The data is committed, not built with the site**, unlike the
+         plan's wording: CI has no copy of the sources, so `npm run
+         build:greek` reads clones kept outside the repo
+         (`GREEK_SOURCES_DIR`, `MORPHGNT_DIR`) and writes `public/greek/`,
+         like `build:alignment`. `text/` holds 260 files (9.5 MB), with the
+         lexicons sharded so a word fetches one small file: `ubs/` (64,
+         3.3 MB), `step/` (64, 3.3 MB) and `lsj/` (128, 17.3 MB), plus
+         `LICENSE.txt`. Pure rules in `scripts/lib/greek-core.mjs`, tested.
+       - **Checks it made**: SBL's text and MorphGNT agree word for word in
+         every verse they share (elision mark and capitals aside), which
+         confirms the 2026-10-12 comparison. John 7:53–8:11 has 186 words
+         parsed from MACULA; one, Μωσῆς (8:5, MACULA spells it Μωϋσῆς), has
+         none. Romans 16:25–27 has 53 words parsed from MACULA's Nestle
+         1904. Strong's numbers come from MACULA per lemma, then UBS; three
+         lemmas have none. 76 lemmas, mostly names MorphGNT capitalizes
+         (Διάβολος, Πόλις), have no UBS entry: matching ignoring case would
+         link "Καλοὶ Λιμένες" to καλός, so it isn't done. UBS gives the
+         sense at 90% of words (matched by lemma and occurrence, since UBS
+         numbers words in its own text); where its citations in a verse
+         don't fit the words, none is claimed. Romans 16:24 has none: UBS
+         cites nothing there.
+       - **The tab** (`desk/tab-greek.js`, `greek-data.js`,
+         `src/lib/desk-greek.mjs`): the Greek in Cardo at the Display
+         tray's size; one tab stop for the words, the arrow keys moving
+         through them (Up and Down by verse), the page never scrolled;
+         "Go to verse N" names the verse at the reading line; a sign in the
+         text takes the reader to its apparatus note, which has "Back to
+         the text". The details show the word, its parsing in words
+         (`src/lib/greek-parse.mjs`, moved out of the phase 2 tool), lemma,
+         gloss and Strong's number, the lexicon (UBS's sense at this word
+         first; STEPBible with "Full LSJ entry"), "LIT notes on verse N"
+         (opening This verse), and "In the LIT: rendered here as…" with the
+         glossary link for the 47 glossary terms, read from the page's
+         term-lens data, whose terms now carry their Greek lemmas.
+         **This verse** shows the verse's Greek; a word opens the Greek tab
+         on it.
+       - **The signs**: Fontsource's Cardo has none of ⸀ ⸁ ⸂ ⸃ ⸄ ⸅, so
+         `npm run build:text-critical-font` takes them from full Cardo into
+         `public/fonts/text-critical-signs.otf` (2 KB, with its OFL text),
+         patched in under Crimson Text and Inter as the ⟦ ⟧ brackets are.
+       - **What 1d needed**: a "Show the Greek" command; the tour's panel
+         step names the Greek tab; a section on the help page;
+         `lit-desk-lexicon` in the privacy paragraph's keys. Nothing else
+         in 1d changes: the tab writes no records, so export, import, search
+         and undo are untouched.
+       - **Defaults for BVJ to judge** are under "Still open" ("Phase 1f's
+         defaults"). Not done: a minimum width for the tab (it works at
+         280px, cramped), and checking a failed fetch on a real network.
    - **1f doesn't depend on 1d**, and can go before it, after it or
      between its parts; it needs only 1c's tabs. **Then decide
      whether to release the desk to readers**, with 1f, since the
      first release includes the Greek (BVJ, 2026-10-08) but no other
      versions (BVJ, 2026-10-11).
+   - **1g. An interleaf for the Greek: to explore, not planned** (BVJ,
+     2026-10-13). The interleaf as built (N7) was set aside as redundant
+     ("Decisions", 2026-10-13). BVJ's idea for later: use the interleaf for
+     something like an **interlinear Greek** under the LIT, and let readers
+     **write their own notes on the Greek**. BVJ asked that it be recorded,
+     not brainstormed yet. It would build on 1f's data and the interleaf's
+     code (`claude/desk-1d-hidden`, commit 1f27b2e; revert aacdc92 to bring
+     the code back), and notes on a Greek word would need the "anchors that
+     can point at a Greek word" in "Ready for the Greek text". Nothing is
+     decided.
+   - **1h. Searching the Greek: to explore, not planned** (BVJ,
+     2026-10-13). Search the Greek in Greek script, finding near matches
+     (any form of a word); by Strong's number or an equivalent from the
+     data 1f uses, for readers with little Greek; and perhaps by
+     transliteration. Kept apart from 1f rather than added to it. What
+     1f already provides, so the matching itself is cheap: every word's
+     lemma (so "any form of this word" is a lemma lookup), a Strong's
+     number per lemma, and Greek typed without accents folds the way verse
+     search folds diacritics. What makes it a phase of its own:
+     - a corpus-wide index, loaded only when used, like `verses.json`
+       (1f's files are per chapter), built from MorphGNT and so CC BY-SA,
+       kept with `public/greek/`;
+     - where results appear: the site's search box (`search-core.js`) or
+       a search in the Greek tab;
+     - transliteration, which has to accept several spellings for one
+       letter (η as e or ē, χ as ch or kh, breathings as h or nothing) and
+       rank near misses;
+     - "any form of a root" across related words (πιστεύω, πίστις,
+       πιστός) rather than one word's forms: no source 1f uses groups
+       lemmas into families, so that part needs editorial work or another
+       source.
+     Nothing is decided.
 2. **What only the LIT can do.** What's new for you and text checked before
    printing (B3, S2), on 1a's comparison; notes that follow a word and
    concept marks saved as rules (N2, H2, C23); your own chains (N4); the word
@@ -3976,10 +4063,11 @@ lemmas already exist for every SBLGNT word. Only the word-to-word link waits.
   CLAUDE.md's SBLGNT table described the 2010 edition. SBL's apparatus at 7:52
   still lists the passage as a Robinson–Pierpont addition. The Greek tab
   would have shown it as SBLGNT text beside a note saying the SBLGNT lacks
-  it. **The footnotes were reworded 2026-10-11** (see "Decisions"); CLAUDE.md's
-  SBLGNT table still says "absent" and is left for BVJ to word.
+  it. **The footnotes were reworded 2026-10-11** (see "Decisions"). CLAUDE.md's
+  SBLGNT table had already been updated to name both editions (checked
+  2026-10-13).
 - **MorphGNT's README still says the SBLGNT text is under its old EULA**, and
-  CLAUDE.md's MorphGNT paragraph repeats it. SBL's own release has been
+  CLAUDE.md's MorphGNT paragraph repeated it (corrected 2026-10-13, with 1f). SBL's own release has been
   CC BY 4.0 since version 1.1 (2022-12-19).
 - **MACULA's SBLGNT edition is carried over from its Nestle 1904 edition**,
   with some glosses and semantic domains still missing, and its domain fields
@@ -4091,8 +4179,9 @@ answers and requests (2026-10-09)") and answered six questions:
 - **Still to do outside this change:** the same edit in the Word master,
   where the wording is authored (the repo is not the origin of the
   translation; `FOLLOW-UP-RECONCILIATION.md`'s back-port list), or the next
-  restore from the master will bring the old sentence back; and CLAUDE.md's
-  SBLGNT table, which still lists John 7:53–8:11 as absent from the SBLGNT.
+  restore from the master will bring the old sentence back. (CLAUDE.md's
+  SBLGNT table, listed here too, already named both editions; checked
+  2026-10-13.)
 - The footnotes are in the text of published chapters, so this reaches the
   apps' "Translation Updates" feed and moves the API content version like
   any wording change. A reader's mark on those notes' words, if the desk
@@ -4142,6 +4231,15 @@ margin and breaks up the scripture text."
 - **N8's branch is affected.** `claude/desk-1d-hidden` (0c95d7d) sits on top
   of the interleaf commit and edits `interleaf.js`, so reviving N8 means
   rebasing it onto main without 1f27b2e, or reviving N7 too.
+
+### 2026-10-13 (the Greek tab built; 1g and 1h)
+
+- **1f was built** ("Order of work", 1f, "Built"), so phase 1 is done
+  apart from N8's hold, and the release question is open.
+- **1g, an interleaf for the Greek**, and **1h, searching the Greek**, were
+  added as ideas to explore (BVJ). BVJ asked that 1g not be brainstormed
+  yet. 1h was kept apart from 1f rather than added to it, because it needs
+  a corpus-wide index and a place in search of its own.
 
 ## Still open
 
@@ -4262,9 +4360,24 @@ margin and breaks up the scripture text."
   D6's first-time choice.~~ Answered by the built recommendation (2026-10-12):
   offered once, right after the D6 choice, never by itself over scripture.
   Still for BVJ to confirm on the preview.
-- **Whether to release the desk to readers**, decided once 1f is done
-  (1d is built, N8 aside; the first release includes the Greek and no other
-  translations; 1e is deferred).
+- **Whether to release the desk to readers.** Ready to decide: 1d and 1f
+  are built, N8 aside (BVJ, 2026-10-13); the first release includes the
+  Greek and no other translations; 1e is deferred.
+- **Phase 1f's defaults** (built 2026-10-13 on recommendations, for BVJ to
+  judge on the preview; listed under "Order of work", 1f, "Built"): the
+  details docked at the tab's foot, up to 45% of its height; UBS as the
+  lexicon until the reader picks; each lemma's short gloss taken from UBS's
+  most-used sense for it; the full LSJ hosted on the site rather than linked
+  out, given STEPBible's request (below); the apparatus key's wording; the
+  tab having no minimum width of its own (the 380px question, 2026-10-08).
+- **STEPBible asks people not to redistribute its data** ("Please do not
+  redistribute it yourself", in the files' header), though the license is
+  CC BY 4.0, which permits it and allows no added restrictions. 1f serves a
+  reformatted subset (the NT words' brief entries and LSJ entries) as the
+  tab's own files, which is what any app showing the entries does. For BVJ:
+  keep it, or link the full LSJ out to STEPBible's site instead (which also
+  saves 17 MB), and whether to write to STEPBible about the project, as
+  their notes invite.
 - **The Digital Bible Library** (library.bible, the American Bible Society's
   library that API.bible draws from, and where YouVersion and Global.Bible get
   texts): I raised **submitting the LIT to it** as a way to reach the Bible
