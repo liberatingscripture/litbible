@@ -8,8 +8,9 @@
 //
 // Not modal: the reader goes on reading with it open, so focus moves in when
 // it opens and back to its button when it closes, and nothing is trapped.
-// Whether it's open is kept in localStorage['lit-desk-panel'], so the next
-// page opens with it. Where the margin is wide enough, which it is on most
+// It starts open and minimized (BVJ, 2026-10-13), and a reader who closes
+// it is remembered in localStorage['lit-desk-panel'] ("closed", or "open"
+// once they open it again), so the next page opens the same way. Where the margin is wide enough, which it is on most
 // computers, nothing moves when it appears.
 //
 // The reader can minimize it to a tab at the window's edge and restore it
@@ -95,8 +96,8 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
   panel.setAttribute("data-desk-dock", "");
   panel.setAttribute("aria-labelledby", "deskPanelTitle");
   panel.tabIndex = -1;
-  let startOpen = false;
-  try { startOpen = localStorage.getItem(OPEN_KEY) === "open"; } catch (_) {}
+  let startOpen = true;
+  try { startOpen = localStorage.getItem(OPEN_KEY) !== "closed"; } catch (_) {}
   panel.hidden = !startOpen;
 
   const visible = () => !panel.hidden;
@@ -286,7 +287,7 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
     keepReadingPlace(() => root.removeAttribute("data-desk-panel"));
     panel.hidden = true;
     rail.hide();
-    try { localStorage.removeItem(OPEN_KEY); } catch (_) {}
+    try { localStorage.setItem(OPEN_KEY, "closed"); } catch (_) {}
     syncToggles();
     // Back to the button that opened it, or the first one showing, unless
     // focus has already gone elsewhere (M1's shortcut closes it from the page).

@@ -4250,7 +4250,7 @@ margin and breaks up the scripture text."
 
 ### 2026-10-13 (BVJ's answers on the preview)
 
-Each confirms what the preview already does, so nothing in the code changed.
+The first five confirm what the preview already does.
 
 - **Playpen Sans at weight 500** for margin notes. Its size is still to
   tune.
@@ -4259,6 +4259,18 @@ Each confirms what the preview already does, so nothing in the code changed.
   1 note of mine").
 - **The tour is offered once and replays on demand** (D8).
 - **Read View's notebook holds the reader's own things.**
+- **The floating notebook's five behaviours are confirmed**, with one
+  change: **the notebook starts open and minimized** on every page, rather
+  than closed. Closing it and restoring it are remembered, so the next page
+  opens as the reader left it, and **the reader can change the default**
+  (where is still to be placed). Built the same day; a Study View chapter
+  therefore opens at 48 by default, since the column doesn't move when the
+  notebook is minimized.
+- **"Show notes in full in this list" is awkward** as a checkbox at the
+  panel's foot. To be redesigned.
+- **STEPBible's data is pointed to its source**: `public/greek/LICENSE.txt`
+  no longer calls the `step/` and `lsj/` directories licensed for reuse, and
+  sends anyone wanting the lexicons to github.com/STEPBible.
 
 ## Still open
 
@@ -4275,9 +4287,10 @@ Each confirms what the preview already does, so nothing in the code changed.
   possible flash on load (a pre-paint addition to Layout.astro) and a hidden
   verse's own menu being unreachable.
 
-- **The floating notebook's details** (decided in outline 2026-10-07; built
-  the same day on these recommendations, not decided; see "Order of work",
-  1b):
+- ~~**The floating notebook's details**~~: **all five confirmed** (BVJ,
+  2026-10-13), the third with a change to the default: the notebook now
+  starts open and minimized ("Decisions", 2026-10-13, BVJ's answers). The
+  five as built (decided in outline 2026-10-07; see "Order of work", 1b):
   1. **Collapsed, it is a tab at the window's right edge**: 40px wide, the
      notebook glyph with the word "Notebook" running down it, level with the
      page's heading and pinned near the top while reading. A dot or count of
@@ -4297,9 +4310,13 @@ Each confirms what the preview already does, so nothing in the code changed.
      left as it could).
 - **The margin's remaining details** (see "Decisions", 2026-10-07 (the
   margin switch) and (the margin notes' look)). To settle in 1c:
-  - **Where the notebook's two-line toggle sits.** First try: the foot of
-    the panel's list, near "Kept in this browser", remembered like the
-    panel's other choices. BVJ isn't sure yet.
+  - **The notebook's two-line toggle** ("Show notes in full in this
+    list"). First try: a checkbox at the panel's foot, near "Kept in this
+    browser", remembered like the panel's other choices. **BVJ, 2026-10-13:
+    awkward as it is**; a better form is to be proposed.
+  - **Where the reader sets the notebook's default** (BVJ, 2026-10-13: the
+    reader can change it). The default itself is built: open and minimized,
+    with closing and restoring remembered.
   - ~~**Playpen Sans's weight**~~: **500** (BVJ, 2026-10-13), as built.
     Its size is still tuned on the real page.
   - ~~**Whether a bookmark shows on the page**~~: **yes**, as the red mark
@@ -4404,7 +4421,8 @@ Each confirms what the preview already does, so nothing in the code changed.
   "licensed CC BY 4.0", which reads as an invitation to take the data from
   here. Proposed, for BVJ: say instead that the files are formatted for the
   tab and that anyone wanting the data should get it from
-  github.com/STEPBible, keeping the note of changes. Still open beside it:
+  github.com/STEPBible, keeping the note of changes. **Done** (BVJ,
+  2026-10-13). Still open beside it:
   hosting the full LSJ (17 MB) or linking out to STEPBible, and writing to
   STEPBible about the project, as the header invites.
 - **The Digital Bible Library** (library.bible, the American Bible Society's

@@ -2231,6 +2231,9 @@ collection); they're read directly by the intro pages and the API manifest.
      **In the margin the reader can minimize it to the same tab** (»;
      BVJ, 2026-10-09), leaving the text exactly where it was; minimized
      is remembered (`lit-desk-min`), and Notebook or the tab restores it.
+     **It starts open and minimized** (BVJ, 2026-10-13): `lit-desk-panel`
+     is "closed" only once the reader closes it, and `lit-desk-min` is "0"
+     only once they restore it, so an absent key means the default.
      **It appears only on the pages `READING_SURFACES`
      (`src/scripts/desk-frame.js`) lists**: Study View chapters and intros,
      Read View, articles and the glossary, each with its column, its heading
