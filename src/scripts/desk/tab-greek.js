@@ -191,7 +191,6 @@ export function createGreekTab({ here, visible, openVerse }) {
   let rover = 0;
   let pending = null; // a verse to scroll to once the tab has a size
   let loading = null;
-  let lsjOpen = false;
   let lexSeq = 0;
 
   /* ── Loading ───────────────────────────────────────────────────── */
@@ -604,7 +603,6 @@ export function createGreekTab({ here, visible, openVerse }) {
     // The lexicons need a lemma to look up.
     lexSwitch.hidden = !lemma;
     lexBox.hidden = !lemma;
-    lsjOpen = false;
     if (lemma) {
       const which = getLexicon();
       for (const r of radios) r.checked = r.value === which;
@@ -634,7 +632,6 @@ export function createGreekTab({ here, visible, openVerse }) {
     r.addEventListener("change", () => {
       if (!r.checked) return;
       setLexicon(r.value);
-      lsjOpen = false;
       renderLexicon();
     });
   }
@@ -767,21 +764,19 @@ export function createGreekTab({ here, visible, openVerse }) {
       box.append(body);
       wrap.append(box);
     }
-    if (strong) wrap.append(lsjControl(strong));
+    if (strong) wrap.append(lsjSection(strong));
     return wrap;
   }
 
-  /** The full LSJ entry, always offered under the brief one; it opens in place. */
-  function lsjControl(strong) {
-    const box = make("div", "desk-greek__lsj");
-    const btn = make("button", "desk-greek__lsj-btn");
-    btn.type = "button";
+  /**
+   * The full LSJ entry, always shown under the brief one with a heading of
+   * its own (BVJ, 2026-10-13: a heading, not a button to reveal it), so it
+   * is plain that LSJ is there.
+   */
+  function lsjSection(strong) {
+    const box = make("section", "desk-greek__lsj");
     const out = make("div", "desk-greek__lsj-body");
-    const sync = () => {
-      btn.textContent = lsjOpen ? "Hide the LSJ entry" : "Full LSJ entry";
-      btn.setAttribute("aria-expanded", String(lsjOpen));
-      out.hidden = !lsjOpen;
-    };
+    box.append(make("h5", "desk-greek__senses-head", "Full LSJ entry"), out);
     const fill = async () => {
       out.replaceChildren(make("p", "desk-greek__muted", "Loading…"));
       try {
@@ -805,14 +800,7 @@ export function createGreekTab({ here, visible, openVerse }) {
         out.replaceChildren(lexError(fill));
       }
     };
-    btn.addEventListener("click", () => {
-      lsjOpen = !lsjOpen;
-      sync();
-      if (lsjOpen) fill();
-    });
-    box.append(btn, out);
-    sync();
-    if (lsjOpen) fill();
+    fill();
     return box;
   }
 
