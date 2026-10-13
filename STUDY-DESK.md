@@ -4248,6 +4248,18 @@ margin and breaks up the scripture text."
   yet. 1h was kept apart from 1f rather than added to it, because it needs
   a corpus-wide index and a place in search of its own.
 
+### 2026-10-13 (BVJ's answers on the preview)
+
+Each confirms what the preview already does, so nothing in the code changed.
+
+- **Playpen Sans at weight 500** for margin notes. Its size is still to
+  tune.
+- **Bookmarks show on the page**, as the red mark.
+- **The verse number names a verse's notes** for screen readers ("Verse 1,
+  1 note of mine").
+- **The tour is offered once and replays on demand** (D8).
+- **Read View's notebook holds the reader's own things.**
+
 ## Still open
 
 - **Phase 1d's defaults** (built 2026-10-12 on recommendations, for BVJ to
@@ -4288,20 +4300,15 @@ margin and breaks up the scripture text."
   - **Where the notebook's two-line toggle sits.** First try: the foot of
     the panel's list, near "Kept in this browser", remembered like the
     panel's other choices. BVJ isn't sure yet.
-  - **Playpen Sans's weight and size**, tuned on the real page (the
-    comparison set every face at one nominal size). Weight 500 is on the
-    preview to try; 550 was the other figure BVJ named.
-  - **Whether a bookmark shows on the page**, as the red mark now on the
-    preview (see "Order of work", 1c).
-  - **How a screen reader learns a verse has notes** (recommended). Decision
-    9 tells a reader at a note what it is about, but notes sit outside the
-    scripture's reading order (C24), so nothing tells someone reading the
-    verse that one is there. Recommended: the verse number, already a
-    button and the keyboard's way into each verse, names the count
-    ("Verse 1, 1 note of mine"), and the verse menu lists that verse's notes
-    (the "This verse" tab, N10). **Built that way on the preview
-    (2026-10-08)**, the verse menu reaching the notes through "Show in
-    notebook"; BVJ to confirm.
+  - ~~**Playpen Sans's weight**~~: **500** (BVJ, 2026-10-13), as built.
+    Its size is still tuned on the real page.
+  - ~~**Whether a bookmark shows on the page**~~: **yes**, as the red mark
+    now on the preview (BVJ, 2026-10-13).
+  - ~~**How a screen reader learns a verse has notes**~~: **as built**
+    (BVJ, 2026-10-13). The verse number, already a button and the
+    keyboard's way into each verse, names the count ("Verse 1, 1 note of
+    mine"), and the verse menu reaches the notes through "Show in
+    notebook".
   - **The second slice's defaults** (2026-10-08): listed under "Order of
     work", 1c, for BVJ to judge on the preview, with N11's provisional
     choices (the slug rule, the rule for quoting prose, the field names).
@@ -4341,8 +4348,10 @@ margin and breaks up the scripture text."
   - ~~**The John 7:53–8:11 footnotes' wording** (john-7 fn-ff, john-8 fn-k),
     before 1f ships: SBLGNT 1.2 prints the passage.~~ Done 2026-10-11, in the
     repo; the Word master still has to be changed to match ("Decisions").
-  - **The Notebook in Read View: none at all, or only the reader's own
-    things** (BVJ, 2026-10-08, one of the two; the version tabs are Study
+  - ~~**The Notebook in Read View: none at all, or only the reader's own
+    things**~~: **the reader's own things** (BVJ, 2026-10-13), as built.
+    The rest of this item is the reasoning it was recommended on.
+    (BVJ, 2026-10-08, one of the two; the version tabs are Study
     View only either way). Recommended: the reader's own things, which is
     what Read View's panel holds today, since Read View now shows bookmarks
     and the panel's list takes the reader to them within the book.
@@ -4366,7 +4375,9 @@ margin and breaks up the scripture text."
 - **D8, the tutorial**: ~~what counts as the first encounter, and how it meets
   D6's first-time choice.~~ Answered by the built recommendation (2026-10-12):
   offered once, right after the D6 choice, never by itself over scripture.
-  Still for BVJ to confirm on the preview.
+  **Confirmed** (BVJ, 2026-10-13): offered once, and replayable on demand,
+  which the preview already does from the panel's foot, the `tour`
+  command and the help page.
 - **Whether to release the desk to readers.** Ready to decide: 1d and 1f
   are built, N8 aside (BVJ, 2026-10-13); the first release includes the
   Greek and no other translations; 1e is deferred.
@@ -4377,14 +4388,25 @@ margin and breaks up the scripture text."
   most-used sense for it; the full LSJ hosted on the site rather than linked
   out, given STEPBible's request (below); the apparatus key's wording; the
   tab having no minimum width of its own (the 380px question, 2026-10-08).
-- **STEPBible asks people not to redistribute its data** ("Please do not
-  redistribute it yourself", in the files' header), though the license is
-  CC BY 4.0, which permits it and allows no added restrictions. 1f serves a
-  reformatted subset (the NT words' brief entries and LSJ entries) as the
-  tab's own files, which is what any app showing the entries does. For BVJ:
-  keep it, or link the full LSJ out to STEPBible's site instead (which also
-  saves 17 MB), and whether to write to STEPBible about the project, as
-  their notes invite.
+- **STEPBible's request not to redistribute** (checked against the files'
+  header, 2026-10-13). The license is CC BY 4.0, and the header lists what
+  it allows, the first two being "Include any part of this data in software
+  or publications without requesting permission" and "Download the data and
+  reformat it for your application". The request comes later, under
+  pointing others to the data: "Refer others to github.com/STEPBible as the
+  source of the data. Please do not redistribute it yourself", because
+  corrections are easier from one source. Changes must be noted for those
+  who use the result. So the request is about passing the dataset on as a
+  dataset, not about an application showing its entries; it isn't a
+  license term (CC BY 4.0 allows none), and 1f is within both the license
+  and the request. One thing goes against the request's spirit:
+  `public/greek/LICENSE.txt` says the `step/` and `lsj/` directories are
+  "licensed CC BY 4.0", which reads as an invitation to take the data from
+  here. Proposed, for BVJ: say instead that the files are formatted for the
+  tab and that anyone wanting the data should get it from
+  github.com/STEPBible, keeping the note of changes. Still open beside it:
+  hosting the full LSJ (17 MB) or linking out to STEPBible, and writing to
+  STEPBible about the project, as the header invites.
 - **The Digital Bible Library** (library.bible, the American Bible Society's
   library that API.bible draws from, and where YouVersion and Global.Bible get
   texts): I raised **submitting the LIT to it** as a way to reach the Bible
