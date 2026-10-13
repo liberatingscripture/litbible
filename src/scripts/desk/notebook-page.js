@@ -557,8 +557,20 @@ async function start() {
     trashBox.querySelector("p")?.focus();
   }
 
+  // Search's "more in your notebook" link arrives with the words (?q=…).
+  const asked = new URLSearchParams(window.location.search).get("q");
+  if (asked) {
+    queryBox.value = asked;
+    filters.query = asked;
+  }
+
   store.subscribe(() => render());
   await render();
+
+  // The page is drawn after the browser has looked for the address's #part
+  // (#backup, #labels), so go to it now.
+  const target = window.location.hash && document.getElementById(decodeURIComponent(window.location.hash.slice(1)));
+  if (target) target.scrollIntoView({ block: "start" });
 }
 
 start();

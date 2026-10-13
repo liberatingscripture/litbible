@@ -22,7 +22,10 @@ import "../styles/pages/notebook.css";
   <div class="notebook-page">
     <h1 class="notebook-page__title">Notebook</h1>
     <div data-notebook-page>
-      <p class="notebook-page__off">
+      <!-- id="backup" here too, so /notebook/#backup (the help page, the
+           search box's "Save a copy") lands on this note while the preview
+           is off; notebook-page.js replaces it with the real section. -->
+      <p class="notebook-page__off" id="backup">
         The notebook is part of a preview of new study tools. The preview isn’t
         switched on in this browser, so there is nothing to show here yet.
       </p>
