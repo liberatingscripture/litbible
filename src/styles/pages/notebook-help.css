@@ -1,0 +1,83 @@
+/* =========================================================
+   Notebook help page: a centred document column, the same
+   pattern as the privacy page.
+   ========================================================= */
+
+.nbhelp {
+  background-color: var(--page-bg);
+  min-height: 100vh;
+  padding-block: clamp(2.5rem, 5vw, 4rem);
+  padding-inline: clamp(1.25rem, 4vw, 2.5rem);
+}
+
+.nbhelp__header {
+  margin-bottom: clamp(1.75rem, 3.5vw, 2.5rem);
+}
+
+.nbhelp__inner,
+.nbhelp__body {
+  max-width: calc(65 * var(--ch));
+  margin: 0 auto;
+}
+
+.nbhelp__title {
+  font-family: var(--serif, serif);
+  font-size: clamp(2.25rem, 4vw, 3rem);
+  line-height: 1.1;
+  margin: 0 0 0.75rem;
+}
+
+.nbhelp__lede {
+  font-size: clamp(1.1rem, 0.5vw + 1rem, 1.25rem);
+  line-height: 1.72;
+  margin: 0;
+}
+
+.nbhelp__body {
+  font-size: clamp(1rem, 0.4vw + 0.9rem, 1.15rem);
+  line-height: 1.75;
+}
+
+.nbhelp__body section {
+  margin-bottom: clamp(1.5rem, 3vw, 2rem);
+  scroll-margin-top: 5rem;
+}
+
+.nbhelp__body section + section {
+  border-top: 1px solid rgba(var(--ink-rgb), 0.1);
+  padding-top: clamp(1.25rem, 2.5vw, 1.75rem);
+}
+
+.nbhelp__body h2 {
+  font-family: var(--serif, serif);
+  font-size: clamp(1.3rem, 1.2vw + 1.05rem, 1.6rem);
+  line-height: 1.25;
+  margin: 0 0 0.85rem;
+  color: var(--text-strong);
+}
+
+.nbhelp__body p {
+  margin: 0 0 0.6rem;
+}
+
+.nbhelp__body p:last-child {
+  margin-bottom: 0;
+}
+
+.nbhelp__body ul {
+  margin: 0.5rem 0 1rem 1.25rem;
+  padding: 0;
+}
+
+.nbhelp__body li {
+  margin-bottom: 0.4rem;
+}
+
+.nbhelp__body a {
+  color: var(--link);
+  text-underline-offset: 3px;
+}
+
+.nbhelp__body a:hover {
+  text-decoration-thickness: 2px;
+}

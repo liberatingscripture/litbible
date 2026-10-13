@@ -14,6 +14,8 @@
 // Use `prepareStudyParagraph` / `prepareReadParagraph`; the individual passes
 // are private so the two views can't drift apart again.
 
+import { OSIS_BOOKS } from "./osis.mjs";
+
 /* ── Shared passes ───────────────────────────────────────────────────── */
 
 /**
@@ -217,21 +219,6 @@ function addHbqAria(html: string): string {
 }
 
 /**
- * OSIS book abbreviation map (standard SBL/OSIS identifiers for the NT).
- * Used to generate data-osis="Book.Chapter.Verse" on verse number elements.
- */
-const OSIS_BOOKS: Record<string, string> = {
-  matthew: "Matt", mark: "Mark", luke: "Luke", john: "John", acts: "Acts",
-  romans: "Rom", "1corinthians": "1Cor", "2corinthians": "2Cor",
-  galatians: "Gal", ephesians: "Eph", philippians: "Phil", colossians: "Col",
-  "1thessalonians": "1Thess", "2thessalonians": "2Thess",
-  "1timothy": "1Tim", "2timothy": "2Tim", titus: "Titus", philemon: "Phlm",
-  hebrews: "Heb", james: "Jas", "1peter": "1Pet", "2peter": "2Pet",
-  "1john": "1John", "2john": "2John", "3john": "3John", jude: "Jude",
-  revelation: "Rev",
-};
-
-/**
  * Inject data-osis="Book.Chapter.Verse" onto verse number <sup> elements.
  * Only targets <sup id="vN" class="vn"> — footnote refs use a different structure.
  */
@@ -313,7 +300,7 @@ export function prepareStudyParagraph(
   seenVerseIds: Set<string>,
   verseState: StudyVerseState,
 ): string {
-  const osisBook = OSIS_BOOKS[bookKey] ?? "";
+  const osisBook = (OSIS_BOOKS as Record<string, string>)[bookKey] ?? "";
   return wrapVerseSegments(
     addOsisIds(
       addHbqAria(

@@ -14,6 +14,9 @@
 // colour, and "All" brings everything back. That choice is kept for the
 // visit only, and goes back to All when its colour leaves the list.
 //
+// Places (places.js) head the tab: Continue reading, Read View's place in each
+// book and the reader's ribbons, this book's first.
+//
 // A record whose wording has changed under it (change-notice.js) carries a
 // flag under its words, "Wording changed · Review" (or "Not in the text ·
 // Review" when its verses are gone), which opens the card beside it, and a
@@ -33,9 +36,14 @@
 // small choice at its top switches to everything kept; on an article or the
 // glossary it starts on the notes on this page (N11); elsewhere it lists
 // everything. An article also offers a note on the whole article here.
+//
+// Labels (M8) narrow the list the way colours do: when any label is on a
+// record in the list, a row of choices above it narrows it to one label. They
+// are made and put on records on the notebook page (/notebook/).
 
 import { shortQuote } from "../../lib/desk-notes.mjs";
 import { COLORS } from "../../lib/desk-records.mjs";
+import { liveLabels } from "../../lib/desk-labels.mjs";
 import {
   kindName,
   liveRecords,
@@ -48,6 +56,7 @@ import { glyph } from "./glyphs.js";
 import { undoEntry } from "./history.js";
 import { SETTINGS_EVENT, getSetting } from "./note-settings.js";
 import { canRevealFootnote, revealFootnote, unpinRecord } from "./pins.js";
+import { placesSection } from "./places.js";
 import { showUndo } from "./undo-bar.js";
 
 // A note's caret in the list: down to show the rest, turned up while open.
@@ -60,6 +69,8 @@ const HIGHLIGHT_WORDS = 24;
 
 // Which colour the list is narrowed to (null: everything). Kept for the visit.
 let colorFilter = null;
+// The same for the label the list is narrowed to (an id; null: everything).
+let labelFilter = null;
 
 /** A highlight's colour if the format knows it; null for anything else, which is shown plainly. */
 function colorOf(r) {
@@ -119,6 +130,7 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     </div>` : ""}
     ${addAction && store ? `<button type="button" class="desk-mine__add"></button>` : ""}
     <div class="desk-mine__colors" role="group" aria-label="Show highlights of one colour" hidden></div>
+    <div class="desk-mine__labels" role="group" aria-label="Show items with one label" hidden></div>
     <p class="desk-mine__changed" hidden></p>
     <ul class="desk-list"></ul>
     <p class="desk-panel__empty" hidden></p>
@@ -127,6 +139,9 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
       <ul class="desk-list desk-mine__pin-list"></ul>
     </section>`;
   if (pageScope) el.querySelector(".desk-seg__text").textContent = pageScope.label;
+  // Places (B1, places.js) sit above everything else, whatever the scope.
+  const places = store ? placesSection({ store, ctx }) : null;
+  if (places) el.prepend(places);
   const addButton = el.querySelector(".desk-mine__add");
   if (addButton) {
     addButton.textContent = addAction.label;
@@ -138,6 +153,7 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
   const pinBox = el.querySelector(".desk-mine__pins");
   const pinList = el.querySelector(".desk-mine__pin-list");
   const colors = el.querySelector(".desk-mine__colors");
+  const labelRow = el.querySelector(".desk-mine__labels");
   const changed = el.querySelector(".desk-mine__changed");
   const openNotes = new Set(); // notes clicked open in the list, for this visit
   let scope = pageScope ? "chapter" : "everything";
@@ -157,6 +173,7 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
       list.replaceChildren();
       pinBox.hidden = true;
       colors.hidden = true;
+      labelRow.hidden = true;
       changed.hidden = true;
       empty.hidden = false;
       empty.textContent =
@@ -167,8 +184,9 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     const everything =
       scope === "chapter" && pageScope ? await pageScope.load(store) : liveRecords(await store.all());
     if (seq !== renderSeq) return; // a newer render has started
-    // Pins have their own group below the list.
-    const kept = everything.filter((r) => r.kind !== "footnotePin");
+    // Pins and places have their own groups.
+    const kept = everything.filter((r) => r.kind !== "footnotePin" && r.kind !== "place");
+    places?.refresh();
 
     // The colours this list holds. A choice of colour that has left it (the
     // last of its highlights deleted, or the list changed to another scope)
@@ -176,16 +194,28 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     const present = COLORS.filter((c) => kept.some((r) => colorOf(r) === c));
     if (colorFilter && !present.includes(colorFilter)) colorFilter = null;
     drawColors(present);
-    const records = colorFilter ? kept.filter((r) => colorOf(r) === colorFilter) : kept;
+    // The labels on something in this list; a choice that has left it goes
+    // back to All, as the colour does.
+    const labels = liveLabels(await store.all());
+    if (seq !== renderSeq) return;
+    const inUse = labels.filter((l) => everything.some((r) => (r.labels ?? []).includes(l.id)));
+    if (labelFilter && !inUse.some((l) => l.id === labelFilter)) labelFilter = null;
+    drawLabels(inUse);
+    const hasLabel = (r) => (r.labels ?? []).includes(labelFilter);
+    const byColor = colorFilter ? kept.filter((r) => colorOf(r) === colorFilter) : kept;
+    const records = labelFilter ? byColor.filter(hasLabel) : byColor;
 
-    const pins = colorFilter ? [] : everything.filter((r) => r.kind === "footnotePin");
+    const allPins = everything.filter((r) => r.kind === "footnotePin");
+    const pins = colorFilter ? [] : labelFilter ? allPins.filter(hasLabel) : allPins;
     const notices = store && ctx ? noticesFor([...records, ...pins]) : new Map();
     drawChanged([...records, ...pins], notices);
     list.replaceChildren(...records.map((r) => rowFor(r, notices.get(r.id))));
     pinBox.hidden = pins.length === 0;
     pinList.replaceChildren(...pins.map((r) => pinRowFor(r, notices.get(r.id))));
     empty.hidden = records.length > 0 || pins.length > 0;
-    empty.textContent = colorFilter
+    empty.textContent = labelFilter
+      ? "Nothing here has that label."
+      : colorFilter
       ? `No ${colorFilter} highlights here.`
       : scope === "chapter"
         ? pageScope.empty
@@ -235,6 +265,31 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
       }),
     );
     if (focused) colors.querySelector(`[data-choice="${focused}"]`)?.focus({ preventScroll: true });
+  }
+
+  // The same for labels: "All labels" and one button per label on something
+  // in the list, shown only when there is one. Redrawn with the list, so the
+  // button that was pressed gets focus back.
+  function drawLabels(inUse) {
+    const focused = labelRow.contains(document.activeElement) ? document.activeElement.dataset.choice : null;
+    labelRow.hidden = inUse.length === 0;
+    labelRow.replaceChildren(
+      ...(inUse.length ? [{ id: "all", name: "All labels" }, ...inUse] : []).map((l) => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "desk-mine__label";
+        b.dataset.choice = l.id;
+        b.setAttribute("aria-pressed", String(l.id === (labelFilter ?? "all")));
+        b.textContent = l.name;
+        // Pressing the label that is already chosen lets go of it.
+        b.addEventListener("click", () => {
+          labelFilter = l.id === "all" || l.id === labelFilter ? null : l.id;
+          render();
+        });
+        return b;
+      }),
+    );
+    if (focused) labelRow.querySelector(`[data-choice="${CSS.escape(focused)}"]`)?.focus({ preventScroll: true });
   }
 
   // One line above the list when the wording has changed under any of it.

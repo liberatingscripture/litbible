@@ -10,6 +10,8 @@
 //     on "This verse" at the verse (N10), the first verse of a selection.
 //     Offering it in the selection panel too keeps the way in when verse
 //     numbers are hidden (audit C10).
+//   - Ribbon here…: a named place (B1, ribbon-form.js), from either panel in
+//     either view.
 //   - Highlight: four colours, and Remove highlight once the words hold one.
 //     From the verse menu it marks the whole verse or range; from a selection,
 //     the selected words. Study View always offers it; Read View's selection
@@ -34,6 +36,7 @@ import {
 import { bookKeyToLabel } from "../../data/books.js";
 import { closePanel, currentPanel } from "../lit-panel.js";
 import { openNoteEditor } from "./note-editor.js";
+import { openRibbonForm } from "./ribbon-form.js";
 import { getSetting, highlightSetting, setSetting } from "./note-settings.js";
 import { blockAt, chapterText, chapterTextFor, pageChapter } from "./page.js";
 import { undoEntry } from "./history.js";
@@ -77,6 +80,9 @@ export function initActions({ store, ctx, showVerse = null }) {
     if ((d.view === "study" || getSetting(highlightSetting()) === "on") && markOf(d, where)) {
       d.append(highlightRow(d, where));
     }
+    // Show in notebook (Study View) and Ribbon here… (both views, B1).
+    const second = document.createElement("div");
+    second.className = "lit-panel__row";
     if (d.view === "study" && showVerse) {
       const show = button("Show in notebook");
       show.addEventListener("click", () => {
@@ -84,11 +90,13 @@ export function initActions({ store, ctx, showVerse = null }) {
         closePanel();
         showVerse(d.start);
       });
-      const second = document.createElement("div");
-      second.className = "lit-panel__row";
       second.append(show);
-      d.append(second);
     }
+    const ribbon = button("Ribbon here…");
+    ribbon.addEventListener("click", () => ribbonHere(d, where, ribbon));
+    second.append(ribbon);
+    if (second.childElementCount > 1) second.classList.add("lit-panel__row--halves");
+    d.append(second);
 
     // A bookmark is one verse: the first the menu or selection covers.
     const verse = d.start;
@@ -122,6 +130,14 @@ export function initActions({ store, ctx, showVerse = null }) {
       setTimeout(closePanel, 700);
     });
   });
+
+  // A ribbon is one verse: the first the menu or selection covers.
+  function ribbonHere(d, where, btn) {
+    d.acting?.();
+    const trigger = (d.kind === "selection" && d.range) || currentPanel()?.trigger || btn;
+    const restoreFocus = currentPanel()?.restoreFocus ?? null;
+    openRibbonForm({ trigger, store, ctx, where: { ...where, verse: d.start }, restoreFocus });
+  }
 
   function addNote(d, where, btn) {
     d.acting?.();

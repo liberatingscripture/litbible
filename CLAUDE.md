@@ -231,7 +231,14 @@ src/
                      #   notice built on it (desk-change); the notebook's
                      #   write plans in desk-store-core; merging two copies
                      #   of a notebook (desk-merge); finding a pinned
-                     #   footnote again (desk-footnotes)), app-platform.mjs
+                     #   footnote again (desk-footnotes); the notebook page
+                     #   and its files (desk-notebook, desk-export,
+                     #   desk-labels), places and ribbons (desk-places), the
+                     #   notebook search and commands
+                     #   (desk-search, desk-commands) and first use
+                     #   (desk-first-use)), osis.mjs (the OSIS book codes,
+                     #   shared by chapter-html.ts and the export),
+                     #   app-platform.mjs
                      #   (the one "is this a phone or tablet" test, read by
                      #   the desk's gate and the app announcement),
                      #   content-version.mjs (the build's content version,
@@ -349,6 +356,7 @@ workers/             # Cloudflare Workers, deployed separately via wrangler (NOT
 | `/articles`, `/articles/<slug>` | `articles.astro`, `articles/[...slug].astro` | Articles |
 | `/glossary` | `glossary.astro` | Glossary |
 | `/search` | `search.astro` | Full search UI (verse index + Pagefind) |
+| `/notebook`, `/notebook/help` | `notebook.astro`, `notebook/help.astro` | The Study Desk preview's notebook page and help page. noindex, out of the sitemap and Pagefind; empty for anyone without the preview (`?desk=on`). See "The Study Desk preview" |
 | `/release-notes` | `release-notes.astro` | "What's new": the release notes by month, filterable by book and kind of change. `/translation-updates.xml` (`translation-updates.xml.js`) is the same record as RSS. See "Release notes are automated" below |
 | `/apps` | `apps.astro` | Mobile-apps promo page (footer-linked). Body design ported from `BDRhodes/LIT-app-Promo`; section content lives in the `callouts`/`examples`/`seasons` collections; scoped styles in `src/styles/pages/apps.css`; components under `src/components/apps/`. Uses `bg="white"` (near-white surface). |
 | `/app-support` | `app-support.astro` | App support contact form (linked from inside the apps, not the site nav; `/app-support/thanks` is the native-POST fallback success page) |
@@ -2167,7 +2175,7 @@ collection); they're read directly by the intro pages and the API manifest.
   by an outside click or Escape. A click inside the Study Desk's Notebook
   panel doesn't count as outside, and a panel is placed clear of it (see
   below).
-- **The Study Desk preview** (STUDY-DESK.md, phases 1a to 1c) is in production but
+- **The Study Desk preview** (STUDY-DESK.md, phases 1a to 1d) is in production but
   switched off for everyone: `?desk=on` turns it on in one browser on a
   computer, `?desk=off` turns it off. STUDY-DESK.md is the record; what a
   change elsewhere in the site has to respect:
@@ -2346,6 +2354,57 @@ collection); they're read directly by the intro pages and the API manifest.
      (`releaseNoteFor` reads a `text_updated` change's verses from its
      `description`), fetched only when a notice opens. A highlight carrying
      a notice is never merged or trimmed (`placeHighlights`).
+  13. **Phase 1d is the notebook around the marks** (built 2026-10-12).
+     - **The notebook page**, `/notebook/` (`pages/notebook.astro`), and its
+       help, `/notebook/help/`: noindex, out of the sitemap (one `notebook/`
+       prefix rule in `astro.config.mjs`) and out of Pagefind (Layout's
+       default). `desk-gate.js` loads `desk/notebook-page.js` when
+       `[data-notebook-page]` is present; the page isn't a reading surface,
+       so it has no panel, and without the preview it shows only a short
+       note. Shared pieces: `desk/boot.js` (the stylesheet and context the
+       shell and the page both need), `record-rows.js`, `labels-ui.js`.
+     - **Save and open a copy** (`src/lib/desk-export.mjs`, pure; format in
+       STUDY-DESK-FORMAT.md, "The export file"): Markdown, Web Annotation
+       and a full backup, the last the only one carrying trash. Opening
+       merges through `desk-merge.mjs` in one commit and never deletes for
+       absence (C17). `META.lastExport` (`store.getMeta/setMeta`) is what the
+       "last saved a copy" line and the reminder read.
+     - **Labels** (`desk-labels.mjs`): the reader-facing name for M8's tags,
+       applied from the notebook page, names unique ignoring case and
+       accents.
+     - **Places and ribbons** (`desk-places.mjs`, `desk/places.js`,
+       `ribbon-follow.js`, `ribbon-form.js`). "Continue reading" and Read
+       View's per-book places are **not records**: they stay in their own
+       storage and are only listed beside the ribbons. A ribbon is a `place`
+       record with `ribbon: true`. `last-read.js` dispatches `lit:last-read`
+       on every save (nothing hears it unless the desk is on). **The C25
+       rule**: following a ribbon's link sets `sessionStorage['lit-desk-ribbon']`,
+       and while the reader stays in that book in that tab the ribbon
+       follows them (written without an undo entry); a page outside the
+       book clears it.
+     - **The interleaf (N7) was built and set aside** (BVJ, 2026-10-13: it
+       repeats the margin and the panel, and breaks up the scripture). Its
+       code is on `claude/desk-1d-hidden` (commit 1f27b2e); revert aacdc92
+       to bring it back. `chapterBlocks()` in `page.js` is now just
+       `.chapter-paragraphs`' children, with no bands to skip.
+     - **Search and commands**: the notebook reaches the search surfaces only
+       through `loadDeskSearch()` in `search-core.js`, which imports
+       `desk/notebook-search.js` (read-only IndexedDB) only with
+       `data-desk="on"`; commands (`desk-commands.mjs`, `desk/commands.js`)
+       travel as one `lit:desk-command` event with a single listener. Keep
+       desk code out of the two search UIs themselves.
+     - **First use** (`desk-first-use.mjs`, `desk/first-use.js`,
+       `desk/tour.js`): the "Where should your notebook live?" card
+       (`localStorage['lit-desk-home']`), the foot's reminder and Safari
+       line, and the tour (`lit-desk-tour`, which also holds offer markers).
+       The privacy page has a paragraph naming these keys and the notebook's
+       storage: keep it in step if a key or what is stored changes.
+       `/privacy`'s effective date was not bumped for it.
+     - **N8, the hidden passage, is built but held** (BVJ, 2026-10-12, until
+       after the Zoom) on branches `claude/desk-1d-hidden` and
+       `claude/desk-1d-search`; it is not in this tree, so nothing here
+       should assume a `hidden` record is honoured (an imported one shows as
+       "Other items").
 - **Every link that leaves the site opens in a new tab** (owner, 2026-10-01).
   For rendered bodies that is `openExternalLinks` in `src/lib/external-links.mjs`
   (pure, unit-tested), called from `linkRefs`, the one function footnotes,
@@ -2395,7 +2454,8 @@ collection); they're read directly by the intro pages and the API manifest.
   it. Draft chapters are never recorded. `ContinueReading.astro` (home title
   block, top of /read) and a button in the phone menu offer it back, hidden
   until a record exists, so no JS or no storage means nothing renders; the ×
-  forgets it everywhere. The privacy page's storage paragraph names it: keep
+  forgets it everywhere. Each save also dispatches a `lit:last-read` window
+  event, which only the Study Desk (places, when the preview is on) hears. The privacy page's storage paragraph names it: keep
   it there if the record ever changes shape or purpose.
 - **Study View and Read View differ in what a page holds, and that decides
   where a new tool goes** (owner, 2026-09-30). Study View is one chapter
@@ -3098,7 +3158,7 @@ argv, and the scan; nothing else.
 | `public/llms.txt`, `llms-full.txt` | LLM-readable site description + AI-usage policy |
 | `GLOSSARY-CANDIDATES.md` | Register of glossary candidates deliberately not included or deferred, and the payload criterion behind those calls. Read it before proposing a "next term." |
 | `TOPICS.md` | **The authority on chapter and book-intro `topics`** — the significance filter, the alternative-translation pair table, the prefix-search rule, casing, and the hand-run checks. Read it before adding or revising any topics array. |
-| `STUDY-DESK.md` | **The planning and decision record for the Study Desk** (notes, places, highlights and sheets on desktop, with optional account sync shared with the apps). Phases 1a, 1b and 1c are built (the merge engine; notes, bookmarks, highlights, pinned footnotes, the margin and the panel's tabs): the pure modules, and the shell behind a preview switch (`?desk=on`); nothing reader-facing is released. Every idea, audit finding, owner decision, open question and BDR item is there with its ID, as are the two apps' replies (2026-10-04) and the talk-through list built from them. Read it before proposing or building any part of the desk, and update it when a decision changes. `STUDY-DESK-BRIEF-FOR-BDR.md` is the brief written for BDR's Claude about the apps' side; `STUDY-DESK-REPLY-TO-APPS.md` is the website's answer to both apps' replies (2026-10-05), and the last such document: since 2026-10-07 BDR's Claude reads this repo directly, so the website answers by updating `STUDY-DESK.md` on `main` (its section "One notebook, three homes" holds BDR's sync proposal and the website's answers). |
+| `STUDY-DESK.md` | **The planning and decision record for the Study Desk** (notes, places, highlights and sheets on desktop, with optional account sync shared with the apps). Phases 1a to 1d are built (the merge engine; notes, bookmarks, highlights, pinned footnotes, the margin and the panel's tabs; the notebook page, export and import, labels, ribbons, search and commands, first use and the tour), the shell behind a preview switch (`?desk=on`); nothing reader-facing is released. N8 (the hidden passage) is held on branches until after the Zoom; the Greek tab (1f) is next. Every idea, audit finding, owner decision, open question and BDR item is there with its ID, as are the two apps' replies (2026-10-04) and the talk-through list built from them. Read it before proposing or building any part of the desk, and update it when a decision changes. `STUDY-DESK-BRIEF-FOR-BDR.md` is the brief written for BDR's Claude about the apps' side; `STUDY-DESK-REPLY-TO-APPS.md` is the website's answer to both apps' replies (2026-10-05), and the last such document: since 2026-10-07 BDR's Claude reads this repo directly, so the website answers by updating `STUDY-DESK.md` on `main` (its section "One notebook, three homes" holds BDR's sync proposal and the website's answers). |
 | `STUDY-DESK-FORMAT.md` | **Draft record format for the Study Desk**, shared with both apps: the kinds of record, the anchor text, and how a mark is found again after the wording moves. Its executable form is `scripts/lib/anchor-text.mjs` (pure half in `src/lib/anchor-core.mjs`) with `test/fixtures/anchor-vectors.json`; its merge rules are `src/lib/desk-merge.mjs` with `test/fixtures/merge-vectors.json`, hand-written cases the apps run too. Change each pair together. |
 | `DISASTER-RECOVERY.md` | Continuity doc: every dashboard/secret behind the deploy (names only, no values) + the DNS inventory + from-zero redeploy path. Update it when an integration, secret, or DNS record is added/removed. |
 

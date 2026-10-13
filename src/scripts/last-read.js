@@ -43,6 +43,16 @@ export function saveLastRead({ book, chapter, verse = null, view }) {
   } catch {
     /* storage unavailable: Continue reading just doesn't appear */
   }
+  // Tells the Study Desk where the reader is (a ribbon they opened a book
+  // through follows them, src/lib/desk-places.mjs). Sent even when storage
+  // failed, and heard by nothing unless the desk is on.
+  try {
+    window.dispatchEvent(
+      new CustomEvent("lit:last-read", { detail: { book, chapter, verse: verse ?? null, view } }),
+    );
+  } catch {
+    /* an old browser without CustomEvent: nothing to tell */
+  }
 }
 
 export function clearLastRead() {

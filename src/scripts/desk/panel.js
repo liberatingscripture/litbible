@@ -38,6 +38,7 @@ import { HIDE_EVENT, SETTINGS_EVENT, getSetting, panelNoteControls, setSetting }
 import { pageChapter } from "./page.js";
 import { forChapter } from "../../lib/desk-store-core.mjs";
 import { proseRecords, prosePage } from "./note-sources.js";
+import { createFirstUse } from "./first-use.js";
 import { createMineTab } from "./tab-mine.js";
 import { createVerseTab } from "./tab-verse.js";
 import { resetWidthsButton } from "./widths.js";
@@ -75,9 +76,10 @@ const ICON_CLOSE = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" 
  *   its verse in the view the reader is in: Read View from Read View (BVJ,
  *   2026-10-08), Study View from anywhere else.
  * @returns {{ open: (from?: Element) => void, close: () => void,
+ *   showTab: (id: string, opts?: { focus?: boolean, remember?: boolean }) => boolean,
  *   showVerse: ((verse: number) => void) | null }}
  *   `showVerse` opens the panel on "This verse" at a verse; null where the
- *   page has no such tab.
+ *   page has no such tab. `el`, `isOpen` and `showTab` are for the tour.
  */
 export function createPanel({ store, storeError, onEdit = null, onAddNote = null, goHere = null, ctx = null, showInText = null }) {
   const root = document.documentElement;
@@ -114,6 +116,11 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
         }
       : null;
 
+  // The first-time choice (a card above My Notes), the foot's account of where
+  // the notebook is kept, and the tour's offer (first-use.js). `reveal` shows
+  // the panel the first time the reader writes something with no answer yet.
+  const firstUse = createFirstUse({ store, reveal: () => revealPanel() });
+
   // The tabs this page has, in order. Each tab module returns its element
   // and a render(); a tab is drawn only while it is the one showing.
   const TABS = [
@@ -134,7 +141,7 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
           } : null,
           inReadView,
           visible: () => visible() && activeTab === "mine",
-          afterRender: renderPersistence,
+          afterRender: () => { renderPersistence(); firstUse.refresh({ shown: true }); },
           onEdit,
           goHere,
           ctx,
@@ -182,7 +189,8 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
         <input type="checkbox" class="desk-setting__input desk-panel__full" />
         <span class="desk-setting__label">Show notes in full in this list</span>
       </label>
-      <p class="desk-panel__kept">Kept in this browser.</p>
+      <p class="desk-panel__page"><a href="/notebook/">Open the notebook page</a></p>
+      <p class="desk-panel__kept"></p>
       <p class="desk-panel__persist" hidden></p>
     </div>`;
 
@@ -203,6 +211,9 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
     foot.before(body);
     tabs.set(t.id, { ...t, body, view: null });
   }
+
+  tabs.get("mine").body.prepend(firstUse.card);
+  panel.querySelector(".desk-panel__kept").replaceWith(firstUse.foot);
 
   let activeTab = TABS[0].id;
   try {
@@ -269,6 +280,13 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
     if (!panel.contains(document.activeElement) && document.activeElement !== document.body) return;
     const back = [lastToggle, ...toggles].find((t) => t && t.offsetParent !== null);
     back?.focus({ preventScroll: true });
+  }
+
+  /** Show the panel without taking focus, and folded to its tab where it would float over the text. */
+  function revealPanel() {
+    if (shown()) return;
+    open(null, { focus: false });
+    if (rail.state().floating) collapse();
   }
 
   function expand() {
@@ -421,7 +439,29 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
     verseTab.view.focusHeading();
   }
 
-  return { open, close, showVerse: tabs.has("verse") ? showVerse : null };
+  /**
+   * Open the panel on a tab (the search box's commands, and the tour). With
+   * `focus`, focus goes to the tab; the tour keeps it on its own card and
+   * passes `remember: false`, so the reader's last tab is kept. False where
+   * this page has no such tab.
+   */
+  function showTab(id, { focus = true, remember = true } = {}) {
+    if (!tabs.has(id)) return false;
+    if (panel.hidden) open(null, { focus: false });
+    else if (rail.state().collapsed) rail.expand();
+    selectTab(id, { focus, remember });
+    return true;
+  }
+
+  return {
+    open,
+    close,
+    showTab,
+    showVerse: tabs.has("verse") ? showVerse : null,
+    // What the tour (tour.js) needs.
+    el: panel,
+    isOpen: shown,
+  };
 }
 
 function escapeHtml(s) {
