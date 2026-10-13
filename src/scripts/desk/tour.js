@@ -52,7 +52,7 @@ function viewOfPage() {
 
 /**
  * @param {{ panel: { el: HTMLElement, open: Function, close: Function,
- *   isOpen: () => boolean, showTab: (id: string) => void } }} options
+ *   isOpen: () => boolean, showTab: (id: string, opts?: object) => boolean } }} options
  */
 export function createTour({ panel }) {
   let run = null;
@@ -185,7 +185,7 @@ export function createTour({ panel }) {
     // The panel's own steps need it open, on My Notes.
     if (step.id === "panel" || step.id === "kept") {
       if (!panel.isOpen()) panel.open(null, { focus: false });
-      panel.showTab("mine");
+      panel.showTab("mine", { focus: false, remember: false });
     }
     const card = run.card;
     card.querySelector(".desk-tour__count").textContent = `Step ${step.number} of ${step.of}`;

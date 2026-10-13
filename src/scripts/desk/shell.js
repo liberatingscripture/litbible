@@ -27,6 +27,7 @@ import { initPins } from "./pins.js";
 import { initRibbonFollow } from "./ribbon-follow.js";
 import { fitGlossaryTitles } from "./glossary-titles.js";
 import { createTour } from "./tour.js";
+import { initCommands } from "./commands.js";
 
 // Stamped at build by Layout.astro (src/lib/content-version.mjs, which reads
 // the file system and so can't be imported here).
@@ -137,6 +138,7 @@ async function start() {
   });
   initActions({ store, ctx, showVerse: panel.showVerse });
   initRibbonFollow({ store, ctx });
+  initCommands({ panel });
   initProseActions({ store, addNote });
   // The tour (D8): started by the reader, never by itself (tour.js).
   createTour({ panel });

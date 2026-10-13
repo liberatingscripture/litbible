@@ -1260,3 +1260,24 @@ export async function loadTopicsIndex(base, { cache } = {}) {
     return null;
   }
 }
+
+/* ── The Study Desk's part of search ─────────────────────────────────── */
+
+let deskSearchPromise = null;
+
+/**
+ * The Study Desk's search module (src/scripts/desk/notebook-search.js: the
+ * reader's notebook and the commands), or null when the desk is off. Both
+ * search surfaces reach the desk only through here, and the module is
+ * imported only with <html data-desk="on">, so a reader without the preview
+ * downloads none of it (STUDY-DESK.md, D2 and D3). Resolves to null too if the
+ * module fails to load; search then goes on without it.
+ */
+export function loadDeskSearch() {
+  if (document.documentElement.dataset.desk !== "on") return null;
+  deskSearchPromise ||= import("./desk/notebook-search.js").catch((err) => {
+    console.error("Study Desk: search couldn't load its part", err);
+    return null;
+  });
+  return deskSearchPromise;
+}

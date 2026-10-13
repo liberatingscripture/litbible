@@ -76,6 +76,7 @@ const ICON_CLOSE = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" 
  *   its verse in the view the reader is in: Read View from Read View (BVJ,
  *   2026-10-08), Study View from anywhere else.
  * @returns {{ open: (from?: Element) => void, close: () => void,
+ *   showTab: (id: string, opts?: { focus?: boolean, remember?: boolean }) => boolean,
  *   showVerse: ((verse: number) => void) | null }}
  *   `showVerse` opens the panel on "This verse" at a verse; null where the
  *   page has no such tab. `el`, `isOpen` and `showTab` are for the tour.
@@ -437,14 +438,28 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
     verseTab.view.focusHeading();
   }
 
+  /**
+   * Open the panel on a tab (the search box's commands, and the tour). With
+   * `focus`, focus goes to the tab; the tour keeps it on its own card and
+   * passes `remember: false`, so the reader's last tab is kept. False where
+   * this page has no such tab.
+   */
+  function showTab(id, { focus = true, remember = true } = {}) {
+    if (!tabs.has(id)) return false;
+    if (panel.hidden) open(null, { focus: false });
+    else if (rail.state().collapsed) rail.expand();
+    selectTab(id, { focus, remember });
+    return true;
+  }
+
   return {
     open,
     close,
+    showTab,
     showVerse: tabs.has("verse") ? showVerse : null,
     // What the tour (tour.js) needs.
     el: panel,
     isOpen: shown,
-    showTab: (id) => selectTab(id, { remember: false }),
   };
 }
 
