@@ -49,8 +49,8 @@ are recorded so they aren't re-argued.
   Phase 1's built steps are done apart from N8's hold. **1g and 1h
   belong to phase 1** (BVJ, 2026-10-13), and both were explored the same
   day: **1g (an interleaf for the Greek) is shelved for the future**, and
-  **1h (searching the Greek) is planned and waits to be built** ("Order of
-  work", 1h). **The desk is not released until phase 1 is
+  **1h (searching the Greek) is planned, and is built before phases 2
+  and 3 begin** (BVJ; "Order of work", 1h). **The desk is not released until phase 1 is
   completely done, and perhaps not until phases 1 to 3 are** (BVJ,
   2026-10-13). Other versions (API.bible and the Versions tab) are out of
   version 1 (BVJ, 2026-10-11). What exists:
@@ -2546,7 +2546,8 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
 1. **The notebook**, in steps 1a to 1h (1e deferred). Medium to large.
    **1g and 1h are part of this phase** (BVJ, 2026-10-13): phases 2 and 3
    don't begin until both have been explored. Both were, on 2026-10-13: 1g
-   is shelved and 1h is planned.
+   is shelved and 1h is planned, **and 1h is built before phases 2 and 3
+   begin** (BVJ, 2026-10-13).
    - **1a. Foundations.** Pure, unit-tested modules, with no page yet.
      Three are built and two are held for BDR (BVJ, 2026-10-05):
      - **Built: draft 1's record kinds** (`src/lib/desk-records.mjs`), with
@@ -3547,7 +3548,7 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
           six verse rows ("John 3:16 · πιστεύων") and "All 243 on the search
           page". For a query that reaches several lemmas, one row per lemma
           ("πίστις · pistis · G4102 · faith · 243 times"), which narrows the
-          search to it. **A recommendation to judge when building**: so that
+          search to it. **Decided** (BVJ, 2026-10-13): so that
           every English search doesn't grow a Greek group ("love" reaches
           ἀγάπη, ἀγαπάω, φιλέω…), a Latin query shows the group in the tray
           only on an exact transliteration key or a gloss that *is* the query
@@ -3566,8 +3567,9 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      4. **Clicking a result opens the notebook to the Greek tab.** The link
         is the ordinary verse link with one parameter, `/john-3/?greek=16.7#v16`
         (verse, then `t`). On load, the Notebook's code reads it, opens the
-        Notebook panel (restoring it if minimized; whether it opens one the reader closed
-        is open, below), shows the Greek tab, and calls
+        Notebook panel (restoring it if minimized, and **opening it even if
+        the reader closed it**, BVJ 2026-10-13, since they asked for the
+        Greek; the panel's state is remembered as usual afterwards), shows the Greek tab, and calls
         `selectWord(16, 7)`, the call This verse's Greek words already use
         (`openGreekWord` in `desk/panel.js`); then it removes the parameter
         with `history.replaceState`, so the address the reader keeps or
@@ -3601,10 +3603,9 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
        parsing** (every aorist imperative of a verb). Both need a query
        language of their own.
 
-     **Open, for when it's built** (also under "Still open"): whether a result opens a notebook the reader
-     *closed* (the recommendation: yes, since they asked for the Greek, and
-     the panel's state is remembered as usual afterwards); and the tray rule
-     for Latin queries above.
+     **Its open details were settled** (BVJ, 2026-10-13): a result opens
+     the Notebook even when the reader closed it; the tray rule for Latin
+     queries above stands; and 1h is built before phases 2 and 3 begin.
 2. **What only the LIT can do.** What's new for you and text checked before
    printing (B3, S2), on 1a's comparison; notes that follow a word and
    concept marks saved as rules (N2, H2, C23); your own chains (N4); the word
@@ -4414,6 +4415,12 @@ After exploring both (the findings are under "Order of work", 1g and 1h):
 - **A second search field in the Greek tab is fine** if there is room for
   it visually.
 - Nothing was built: the plan is written for when it's time.
+- **Its three open details, settled the same day** (BVJ): a Greek result
+  opens the Notebook even when the reader closed it; a Latin query (a
+  transliteration or an English word) shows a Greek group in the search
+  tray only on an exact transliteration key or a gloss that is the query
+  word, at most three words, below the scripture groups, while /search
+  always shows it; and **1h is built before phases 2 and 3 begin**.
 
 ### 2026-10-13 (BVJ's answers on the preview)
 
@@ -4582,13 +4589,11 @@ The first five confirm what the preview already does.
 - ~~**1g and 1h, to explore before phases 2 and 3**~~: **explored**
   (BVJ, 2026-10-13). 1g is shelved for the future; 1h is planned, to
   build. See "Order of work", 1g and 1h.
-- **1h's open details**, for when it's built ("Order of work", 1h, has the
-  recommendations): whether a result opens a Notebook the reader
-  closed; and when a Latin query (a transliteration or an English word)
-  shows a Greek group in the search tray.
-- **Whether 1h is built before phases 2 and 3 begin.** BVJ's rule was that
-  both be *explored* first, which is done; whether 1h must also be
-  *built* first is not recorded.
+- ~~**1h's open details**~~: **settled** (BVJ, 2026-10-13): a Greek
+  result opens the Notebook even when the reader closed it; a Latin query
+  shows a Greek group in the search tray only on an exact transliteration
+  or gloss match, at most three words; and **1h is built before phases 2
+  and 3 begin**. See "Order of work", 1h.
 - ~~**Phase 1f's defaults**~~: **accepted** (BVJ, 2026-10-13), including
   hosting the full LSJ on the site. (Built 2026-10-13 on recommendations;
   listed under "Order of work", 1f, "Built"): the
