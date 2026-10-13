@@ -3483,6 +3483,10 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      - **The main search bar searches the Greek, for every reader**: the
        header's tray and /search. **Clicking a result opens the notebook to
        the Greek tab, at that word.**
+     - **None of it shows before the public launch** (BVJ, 2026-10-13):
+       until the Notebook is released, a reader without the preview sees no
+       Greek group, no Greek count and no Greek jump link, and downloads none
+       of the index. "Every reader" starts at launch.
      - **A second search field in the Greek tab** is fine if there is room
        for it visually.
      - Results show the Greek with the LIT verse under it. Word families and
@@ -3532,8 +3536,12 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
           πίστις, not "faithful" unless asked), ranked by how often the lemma
           occurs.
      3. **The main search bar** (`search-core.js`, then `searchbar.js` and
-        `search.js`; ordinary site search, since every reader sees it, so
-        none of it waits for the Notebook's code to load):
+        `search.js`; ordinary site search, since every reader will see it, so
+        none of it waits for the Notebook's code to load). **Until launch it
+        runs only with the preview on**: one test in `search-core.js`, the
+        same `data-desk="on"` check `loadDeskSearch()` makes, decides whether
+        the Greek is searched at all, so launch is a one-line change and a
+        reader without the preview gets exactly today's search:
         - **The tray** gets a "Greek" group. For a query that names one lemma
           (Greek script, a Strong's number, an exact transliteration), up to
           six verse rows ("John 3:16 · πιστεύων") and "All 243 on the search
@@ -3564,8 +3572,8 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
         (`openGreekWord` in `desk/panel.js`); then it removes the parameter
         with `history.replaceState`, so the address the reader keeps or
         shares is the plain verse link. Where the website has no Notebook (a
-        phone or a tablet, whose readers have the apps; or anyone at all
-        until the Notebook is released), the parameter is ignored and the reader lands on the verse, as any verse
+        phone or a tablet, whose readers have the apps), the parameter is
+        ignored and the reader lands on the verse, as any verse
         link does. A parameter rather than a sessionStorage flag (C25's
         way), because it survives a result opened in a new tab. A result
         for the chapter already on screen skips the reload and calls the
@@ -3593,10 +3601,7 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
        parsing** (every aorist imperative of a verb). Both need a query
        language of their own.
 
-     **Open, for when it's built** (also under "Still open"): whether Greek
-     results reach readers before the Notebook is released (the
-     recommendation: no, they ship with it, so a click on a computer always
-     has a Notebook to open); whether a result opens a notebook the reader
+     **Open, for when it's built** (also under "Still open"): whether a result opens a notebook the reader
      *closed* (the recommendation: yes, since they asked for the Greek, and
      the panel's state is remembered as usual afterwards); and the tray rule
      for Latin queries above.
@@ -4404,6 +4409,8 @@ After exploring both (the findings are under "Order of work", 1g and 1h):
 - **The main search bar searches the Greek, and the Greek results show for
   every reader.** **Clicking one opens the Notebook to the Greek tab** at
   that word.
+- **None of it is visible before the public launch**: until the Notebook is
+  released, readers without the preview see no sign of the Greek search.
 - **A second search field in the Greek tab is fine** if there is room for
   it visually.
 - Nothing was built: the plan is written for when it's time.
@@ -4576,8 +4583,7 @@ The first five confirm what the preview already does.
   (BVJ, 2026-10-13). 1g is shelved for the future; 1h is planned, to
   build. See "Order of work", 1g and 1h.
 - **1h's open details**, for when it's built ("Order of work", 1h, has the
-  recommendations): whether Greek results reach readers before the
-  Notebook is released; whether a result opens a Notebook the reader
+  recommendations): whether a result opens a Notebook the reader
   closed; and when a Latin query (a transliteration or an English word)
   shows a Greek group in the search tray.
 - **Whether 1h is built before phases 2 and 3 begin.** BVJ's rule was that
