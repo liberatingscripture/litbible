@@ -1,8 +1,9 @@
 // src/scripts/desk/notebook-search.js
 //
 // The Study Desk's part of the site's search (STUDY-DESK.md, D2 and D3): the
-// "Your notebook" group of matches from the reader's own notebook, and the
-// "Commands" group. The search tray (searchbar.js) and
+// "Your notebook" group of matches from the reader's own notebook, the
+// "Commands" group, and the "Hidden by your note" cover for a verse in a
+// passage the reader has hidden (N8). The search tray (searchbar.js) and
 // /search (search.js) reach this file only through loadDeskSearch() in
 // search-core.js, which imports it only when <html data-desk="on">, so a
 // reader without the preview downloads none of it, and it is the only place
@@ -21,7 +22,7 @@
 
 import deskCss from "../../styles/desk.css?inline";
 import { isCommandQuery, matchCommands } from "../../lib/desk-commands.mjs";
-import { notebookSearchHref, searchNotebook } from "../../lib/desk-search.mjs";
+import { hiddenRanges, isHiddenVerse, notebookSearchHref, searchNotebook } from "../../lib/desk-search.mjs";
 import { readingSurface } from "../desk-frame.js";
 import { pageChapter } from "./page.js";
 
@@ -126,14 +127,20 @@ function notesHidden() {
 }
 
 /**
- * Search the notebook for a query. Resolves to { hits, total }: the matches
- * (none while "Hide my notes" is on) and their count. `bookKey` is the search
- * box's book filter.
+ * Search the notebook for a query. Resolves to { hits, total, hidden }: the
+ * matches (none while "Hide my notes" is on), their count, and the passages
+ * the reader has hidden, which a search of the scripture needs whether or not
+ * notes are showing. `bookKey` is the search box's book filter.
  */
 export async function search(query, { bookKey = "" } = {}) {
   const records = await readRecords();
   const hits = notesHidden() ? [] : searchNotebook(records, query, { bookKey });
-  return { hits, total: hits.length };
+  return { hits, total: hits.length, hidden: hiddenRanges(records) };
+}
+
+/** Whether a verse hit from the verse index sits in a passage the reader hid. */
+export function verseIsHidden(hidden, hit) {
+  return isHiddenVerse(hidden, hit.bookKey, hit.chapter, hit.verse);
 }
 
 /* ── Commands ────────────────────────────────────────────────────────── */
@@ -312,4 +319,38 @@ export function renderPageGroup(list, notebook) {
     });
     list.after(button);
   }
+}
+
+/**
+ * Cover a /search card for a verse in a passage the reader hid (N8): the card
+ * (`li`) shows "Hidden by your note" and a Show button instead of the verse,
+ * and the verse itself is held out of the page until Show is pressed. The
+ * words aren't in the page while hidden, so a screen reader meets the same
+ * cover the screen shows.
+ */
+export function hideVerseCard(li, verse) {
+  ensureStyles();
+  const held = document.createDocumentFragment();
+  held.append(...li.childNodes);
+
+  const cover = document.createElement("div");
+  cover.className = "desk-hidden-verse";
+  const num = document.createElement("span");
+  num.className = "desk-hidden-verse__num";
+  num.textContent = String(verse);
+  const text = document.createElement("span");
+  text.className = "desk-hidden-verse__text";
+  text.textContent = "Hidden by your note";
+  const show = document.createElement("button");
+  show.type = "button";
+  show.className = "desk-hidden-verse__show";
+  show.textContent = "Show";
+  show.setAttribute("aria-label", `Show verse ${verse}, hidden by your note`);
+  show.addEventListener("click", () => {
+    const link = held.querySelector("a");
+    li.replaceChildren(held);
+    link?.focus();
+  });
+  cover.append(num, text, show);
+  li.replaceChildren(cover);
 }

@@ -798,7 +798,13 @@ const _initSearchbars = async () => {
         const keywordItems = rankVerseHits(verseHits)
           .slice(0, 6)
           .map((h) => ({
-            title: verseHitLabel(h),
+            // The tray shows no verse text, so a hidden passage leaks none
+            // here; the label says why the verse is covered on /search.
+            title:
+              verseHitLabel(h) +
+              (notebook && desk.verseIsHidden(notebook.hidden, h)
+                ? " (hidden by your note)"
+                : ""),
             href: verseHitHref(h),
           }));
 

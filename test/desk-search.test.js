@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { notebookSearchHref, searchNotebook, searchTokens, snippetParts } from "../src/lib/desk-search.mjs";
+import { hiddenRanges, isHiddenVerse, notebookSearchHref, searchNotebook, searchTokens, snippetParts } from "../src/lib/desk-search.mjs";
 
 const base = { schema: 1, created: "2026-10-01T00:00:00Z", modified: "2026-10-01T00:00:00Z", client: "web/test", contentVersion: "v1", labels: [] };
 const note = (id, bookKey, chapter, verse, body, extra = {}) => ({ ...base, id, kind: "note", bookKey, chapter, verse, body, marker: "note", ...extra });
@@ -88,4 +88,27 @@ test("a snippet is parts to draw: the match marked, the cut shown, no HTML made"
 test("the notebook page's address carries the query", () => {
   assert.equal(notebookSearchHref("grace & peace"), "/notebook/?q=grace%20%26%20peace");
   assert.equal(notebookSearchHref("  "), "/notebook/");
+});
+
+const hidden = (id, bookKey, chapter, verse, endVerse) => ({ ...base, id, kind: "hidden", bookKey, chapter, verse, ...(endVerse ? { endVerse } : {}) });
+
+test("a verse is hidden when it sits in a hidden range, ends included", () => {
+  const ranges = hiddenRanges([hidden("a", "romans", 8, 3, 5), hidden("b", "john", 3, 16), note("n", "john", 3, 1, "x")]);
+  assert.equal(ranges.length, 2, "only hidden records count");
+  assert.equal(isHiddenVerse(ranges, "romans", 8, 3), true);
+  assert.equal(isHiddenVerse(ranges, "romans", 8, 4), true);
+  assert.equal(isHiddenVerse(ranges, "romans", 8, 5), true);
+  assert.equal(isHiddenVerse(ranges, "romans", 8, 2), false);
+  assert.equal(isHiddenVerse(ranges, "romans", 8, 6), false);
+  assert.equal(isHiddenVerse(ranges, "john", 3, 16), true, "no endVerse is one verse");
+  assert.equal(isHiddenVerse(ranges, "john", 3, 17), false);
+  assert.equal(isHiddenVerse(ranges, "romans", 9, 4), false, "another chapter");
+  assert.equal(isHiddenVerse(ranges, "luke", 8, 4), false, "another book");
+  assert.equal(isHiddenVerse([], "john", 3, 16), false);
+  assert.equal(isHiddenVerse(undefined, "john", 3, 16), false);
+});
+
+test("a hidden record without a place, or a trashed one, hides nothing", () => {
+  const ranges = hiddenRanges([{ ...base, id: "x", kind: "hidden", body: "no place" }, { ...base, id: "t", kind: "trash", deletedId: "h", deletedAt: base.created }]);
+  assert.deepEqual(ranges, []);
 });

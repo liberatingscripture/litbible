@@ -1,7 +1,7 @@
 // src/lib/desk-search.mjs
 //
 // Searching the reader's own notebook from the site's search (STUDY-DESK.md,
-// D2). Pure: the records
+// D2), and the test for a passage they have hidden (N8). Pure: the records
 // come in as an array, hits go out as plain objects, and the DOM and the
 // database are src/scripts/desk/notebook-search.js's.
 //
@@ -201,4 +201,23 @@ export function searchNotebook(records, query, { bookKey = "" } = {}) {
 export function notebookSearchHref(query) {
   const q = String(query || "").trim();
   return q ? `/notebook/?q=${encodeURIComponent(q)}` : "/notebook/";
+}
+
+/* ── Hidden passages (N8) ────────────────────────────────────────────── */
+
+/**
+ * The passages the reader has hidden: the live `hidden` records on a verse
+ * range (`bookKey`, `chapter`, `verse`, optional `endVerse`).
+ */
+export function hiddenRanges(records) {
+  return (records ?? []).filter(
+    (r) => r?.kind === "hidden" && typeof r.bookKey === "string" && Number.isInteger(r.chapter) && Number.isInteger(r.verse),
+  );
+}
+
+/** Whether a verse sits inside any of the hidden ranges (`hiddenRanges`' output). */
+export function isHiddenVerse(ranges, bookKey, chapter, verse) {
+  return (ranges ?? []).some(
+    (r) => r.bookKey === bookKey && r.chapter === chapter && verse >= r.verse && verse <= (Number.isInteger(r.endVerse) ? r.endVerse : r.verse),
+  );
 }

@@ -505,6 +505,7 @@ function renderKeyword(items) {
         </a>
       `;
 
+      if (r.__hiddenNote) lastSearchCache?.deskApi?.hideVerseCard(subLi, r.__occurrenceIndex);
       subList.appendChild(subLi);
       groupLi.appendChild(subList);
       keywordEl.appendChild(groupLi);
@@ -539,6 +540,7 @@ function renderKeyword(items) {
         </a>
       `;
 
+      if (r.__hiddenNote) lastSearchCache?.deskApi?.hideVerseCard(subLi, r.__occurrenceIndex);
       subList.appendChild(subLi);
     });
 
@@ -1160,6 +1162,8 @@ async function runFullSearch() {
       __occurrenceIndex: h.verse,
       __baseUrl: `/${h.bookKey}-${h.chapter}`,
       __matchCount: h.runs.length,
+      // A verse in a passage the reader hid (N8) is drawn covered.
+      __hiddenNote: Boolean(deskApi && notebook && deskApi.verseIsHidden(notebook.hidden, h)),
     };
   });
 
