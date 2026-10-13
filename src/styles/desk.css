@@ -3058,7 +3058,6 @@ html[data-desk-list="full"] .desk-item__pin-text {
 
 .desk-greek__goto,
 .desk-greek__retry,
-.desk-greek__lsj-btn,
 .desk-greek__back {
   padding: 4px 10px;
   border: 1px solid rgba(var(--ink-rgb), 0.25);
@@ -3072,7 +3071,6 @@ html[data-desk-list="full"] .desk-item__pin-text {
 
 .desk-greek__goto:hover,
 .desk-greek__retry:hover,
-.desk-greek__lsj-btn:hover,
 .desk-greek__back:hover {
   background: rgba(var(--ink-rgb), 0.07);
 }
@@ -3083,7 +3081,6 @@ html[data-desk-list="full"] .desk-item__pin-text {
 
 .desk-greek__goto:focus-visible,
 .desk-greek__retry:focus-visible,
-.desk-greek__lsj-btn:focus-visible,
 .desk-greek__back:focus-visible,
 .desk-greek__fn:focus-visible,
 .desk-greek__sign:focus-visible,
@@ -3419,11 +3416,7 @@ html[data-desk-list="full"] .desk-item__pin-text {
 }
 
 .desk-greek__lsj {
-  margin-top: 6px;
-}
-
-.desk-greek__lsj-body {
-  margin-top: 8px;
+  margin-top: 10px;
 }
 
 /* A footnote letter in the details is a quiet button. */

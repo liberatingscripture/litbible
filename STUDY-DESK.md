@@ -3350,7 +3350,8 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
        marks them), scrolling on its own, each word a
        control; the word's details docked at the tab's foot, with the
        UBS / STEPBible switch (UBS opening on the sense it assigns at that
-       word; STEPBible's brief entry with "Full LSJ entry" always showing);
+       word; STEPBible's brief entry with "Full LSJ entry" always showing;
+       since 2026-10-13 a heading with the entry under it, BVJ);
        the verse's footnote letters beside them, since the LIT's notes give
        the reasoning where a lexicon and the LIT differ. For the 31 glossary
        terms, the term lens's card: "rendered here as…", at the level of the
@@ -3400,7 +3401,8 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
          the text". The details show the word, its parsing in words
          (`src/lib/greek-parse.mjs`, moved out of the phase 2 tool), lemma,
          gloss and Strong's number, the lexicon (UBS's sense at this word
-         first; STEPBible with "Full LSJ entry"), "LIT notes on verse N"
+         first; STEPBible's brief entry, then the full LSJ entry under its
+         own heading, always shown, BVJ 2026-10-13), "LIT notes on verse N"
          (opening This verse), and "In the LIT: rendered here as…" with the
          glossary link for the 47 glossary terms, read from the page's
          term-lens data, whose terms now carry their Greek lemmas.
@@ -3955,7 +3957,8 @@ lemmas already exist for every SBLGNT word. Only the word-to-word link waits.
    and STEPBible's brief lexicon (TBESG, mostly a corrected Abbott-Smith;
    CC BY 4.0). Under STEPBible, the full Liddell–Scott–Jones entry (TFLSJ,
    CC BY 4.0) is a button that is always visible, so it is plain that LSJ is
-   there.
+   there. (**Since 2026-10-13 a heading with the entry always shown**, BVJ;
+   see that date.)
 6. **Differences between a lexicon and the LIT are expected**, and the
    LIT's footnotes give the reasoning.
 7. **The SBLGNT's apparatus is shown, or its text-critical signs are
@@ -4236,6 +4239,10 @@ margin and breaks up the scripture text."
 
 - **1f was built** ("Order of work", 1f, "Built"), so phase 1 is done
   apart from N8's hold, and the release question is open.
+- **The full LSJ entry is a heading that always shows, not a button**
+  (BVJ, after trying the preview): under STEPBible, the brief entry, then
+  "Full LSJ entry" as a heading with the entry under it. This refines item
+  5 of 2026-10-08, which had it as an always-visible button.
 - **1g, an interleaf for the Greek**, and **1h, searching the Greek**, were
   added as ideas to explore (BVJ). BVJ asked that 1g not be brainstormed
   yet. 1h was kept apart from 1f rather than added to it, because it needs
