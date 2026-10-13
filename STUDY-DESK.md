@@ -3,9 +3,10 @@
 The complete record of the Study Desk as planned so far: what it is, every idea
 with its status, every decision BVJ has made and why, the audit and how each
 finding was settled, the account and sync work planned with BDR, and the
-related projects that came out of it. **Nothing is built.** This file exists
-so a future session can pick the work up without the conversations that
-produced it.
+related projects that came out of it. **Nothing is released to readers**;
+phases 1a to 1d are built behind a preview switch ("Where things stand").
+This file exists so a future session can pick the work up without the
+conversations that produced it.
 
 **Read this before proposing, designing or building any part of the desk.**
 Many ideas here were weighed and decided, some were declined, and the reasons
@@ -28,17 +29,23 @@ are recorded so they aren't re-argued.
   as today) and full A added later only if readers ask; the website's side
   of each plan is sized in that section. Nothing is decided.
 
-- **Status: phases 1a, 1b and 1c built, behind a preview switch; nothing
+- **Status: phases 1a to 1d built, behind a preview switch; nothing
   reader-facing yet.** Readers see and download none of it.
   `litbible.net/?desk=on` turns the desk on in one browser on a computer, and
-  `?desk=off` turns it off. No desk page or service exists. 1c's parts that
+  `?desk=off` turns it off. The only desk pages are `/notebook/` and
+  `/notebook/help/` (noindex, and empty for anyone without the preview);
+  no service exists. 1c's parts that
   wait on nobody are built (notes, bookmarks, the margin, the panel's tabs and
   "This verse", M1, the draggable widths, and N11 provisionally), and so
   are highlights (2026-10-09), as soon as BDR's answers to rules a to e
   settled the overlap rule, the change notice (2026-10-10), and pinned
   footnotes and the merge engine (2026-10-12), which finished 1c and 1a.
-  Left in phase 1: 1d and 1f. Other versions (API.bible and the Versions
-  tab) are out of version 1 (BVJ, 2026-10-11). What exists:
+  **1d was built on 2026-10-12** (the notebook page, labels, save and open a
+  copy, places and ribbons, the interleaf, search and commands, the
+  first-time choice, the tour and the help page), except **N8, the hidden
+  passage, which BVJ held until after the Zoom** (2026-10-12; "Decisions").
+  Left in phase 1: 1f, and N8's hold. Other versions (API.bible and the
+  Versions tab) are out of version 1 (BVJ, 2026-10-11). What exists:
   - draft 1 of the record format (`STUDY-DESK-FORMAT.md`), with its
     reference implementation (`scripts/lib/anchor-text.mjs`) and test vectors
     (PR #268);
@@ -54,7 +61,12 @@ are recorded so they aren't re-argued.
     with `deletedKind` since 2026-10-12), and the Notebook panel in the right margin, floating where a
     window is too narrow for it. See "Order of
     work", 1b;
-  - phase 1c so far: see "Order of work", 1c.
+  - phase 1c: see "Order of work", 1c;
+  - phase 1d: the notebook page and its help page, export and import,
+    labels, places and ribbons, the interleaf, notebook search and commands,
+    the first-time choice and the tour (all under "Order of work", 1d). The
+    defaults chosen there are recommendations for BVJ to judge on the
+    preview ("Still open").
 
   **The development phases were planned on 2026-10-05** ("Order of work"
   below). The format is frozen before anything syncs (BVJ, 2026-10-05).
@@ -390,7 +402,9 @@ plan as a whole was accepted; nothing was declined except where stated).
   Works in windows too narrow for the margin. **Bands open only when the
   reader asks**, so the page never jumps on load (audit C13; layout shift
   was the site's worst Core Web Vital until the `--ch` fix). New. Small.
-  Proposed.
+  Proposed. **Built on the preview 2026-10-12**: bands only after paragraphs
+  that have notes, always closed on load, opened from the panel's foot or
+  the menus ("Order of work", 1d).
 - **N8. A note to yourself before a hard passage.** A private note before a
   passage, with the passage **blurred** under it and one click (or Enter) to
   show it. **Decided 2026-10-01: blur, one click to show** (BVJ's idea,
@@ -402,7 +416,10 @@ plan as a whole was accepted; nothing was declined except where stated).
   without warning. Different from the feature audit's X10 (declined), which
   would have been the translation speaking to everyone; here only the reader
   speaks, to themselves. New. Medium. Sensitive. The mock deliberately names
-  no passage.
+  no passage. **Built, then held by BVJ (2026-10-12) until after the Zoom
+  (item 17); kept off this release on two branches**,
+  `claude/desk-1d-hidden` and `claude/desk-1d-search`, with what's known
+  for later under "Order of work", 1d.
 - **N9. Print with room to write.** A print option setting the text in a
   narrower column beside a wide ruled margin, like a journaling Bible. Stores
   nothing; a variant of `print.css`. Borrowed (journaling Bibles). Extra
@@ -459,7 +476,10 @@ plan as a whole was accepted; nothing was declined except where stated).
   reading"). **A ribbon moves while you read from it**: open a book through
   "Thursday group" and that ribbon follows you until you leave the book;
   otherwise only "Continue reading" moves (audit C25). Partly new. Small.
-  Proposed.
+  Proposed. **Built on the preview 2026-10-12**: ribbons are `place`
+  records with `ribbon: true`; "Continue reading" and Read View's places are
+  shown beside them but stay in their own storage, not notebook records;
+  the C25 rule is built ("Order of work", 1d).
 - **B2. Bookmarks that remember why.** An optional label and how you got there
   (the search for "debt", the podcast episode, the Romans intro), so the list
   reads like a trail. New. Small. Proposed.
@@ -626,7 +646,9 @@ plan as a whole was accepted; nothing was declined except where stated).
   one source of truth at a time (C5, below); **a note missing from the file is
   unreadable, never deleted**, deleting happens in the notebook or through an
   explicit marker, and anything unparseable goes to a review list (C17). New.
-  Medium. Proposed. The mocked file format:
+  Medium. Proposed. **Built 2026-10-12: "Save a copy" and "Open a copy"
+  only** (Markdown, Web Annotation and a full backup; "Order of work", 1d);
+  saving live into a chosen file still waits on T3. The mocked file format:
 
   ```markdown
   # My LIT notebook
@@ -657,8 +679,11 @@ plan as a whole was accepted; nothing was declined except where stated).
 - **D2. Search your notebook from the site's search.** The search tray and
   /search add a "Your notebook" group, searched in the browser; nothing about
   the query leaves the computer. Borrowed (ESV.org, Logos). Small. Proposed.
+  **Built on the preview 2026-10-12**, in the tray and on /search, reaching
+  the desk only through `loadDeskSearch()`.
 - **D3. Commands in the search box.** Placement 4. Borrowed (desktop
-  software). Medium. **Decided: in the search box, no Ctrl K.**
+  software). Medium. **Decided: in the search box, no Ctrl K.** **Built on
+  the preview 2026-10-12**: nine commands, `>` lists them.
 - **D4. Pop the notebook out.** Document Picture-in-Picture (Chrome, Edge, and
   Firefox since 151) opens a small always-on-top window holding the notebook,
   beside the text or a video call. Safari can't, so it's an extra, never the
@@ -682,7 +707,10 @@ plan as a whole was accepted; nothing was declined except where stated).
   choice offers the computer and the file and says accounts are coming.
   Safari readers hear that Safari can clear a notebook after a week without a
   visit (C18). In Firefox and Safari the file line becomes "Remind me to save
-  a copy". Small. **Decided.**
+  a copy". Small. **Decided.** **Built on the preview 2026-10-12**, worded
+  without accounts (the choice is "Keep it in this browser", with or
+  without a reminder to save a copy), with the "Ways to keep your notebook"
+  page at `/notebook/help/#ways-to-keep`.
 - **D7. Compare a verse with other translations.** **DEFERRED
   INDEFINITELY (BVJ, 2026-10-11): API.bible and the whole idea of a tab
   showing other versions are out of version 1, including "This verse".** The
@@ -838,6 +866,11 @@ plan as a whole was accepted; nothing was declined except where stated).
     showing adds a step. A reader who has already seen the tour gets a short
     offer of just the new steps, not the whole tour again.
   - Desktop only, like the rest of the notebook (ground rule 1).
+  - **Built on the preview 2026-10-12**, on these recommendations: offered
+    once, right after the D6 choice (the tour follows the choice); five
+    steps, only those whose target is on the page; marked seen when it
+    starts; replayed from the panel's foot, the `tour` command and the help
+    page; no records written. "Order of work", 1d.
 - **M1. Hide my notes, in one keystroke.** A switch with a shortcut that hides
   every note, highlight and mark at once, for sharing a screen or teaching
   from Study View. N8 makes it matter. Present mode already leaves notes out.
@@ -851,6 +884,8 @@ plan as a whole was accepted; nothing was declined except where stated).
   notebook page; covers named notebooks (Blue Letter Bible's takeaway).
   **Decided: yes, name open**: if the site's topics are renamed tags (see
   "Topics and tags"), the reader's own could be called labels. Small.
+  **Built on the preview 2026-10-12 under the name "Labels"
+  (recommended, for BVJ to confirm)**, applied from the notebook page.
 - **M10. Your notebook where you already look.** A "Verses in my notebook"
   filter on /release-notes; your note on a term on its /glossary entry; a
   "Your notes here" row in Go deeper. New. Extra small. **Decided: yes.**
@@ -861,6 +896,9 @@ plan as a whole was accepted; nothing was declined except where stated).
   (the announcement slot never appears over scripture). A "Tell us what's
   missing" link in the panel opening the contact form, because the site
   deliberately doesn't measure who uses what. Small. **Decided: yes.**
+  **Built on the preview 2026-10-12** as `/notebook/help/`, with the license
+  terms link, a "Tell us what's missing" link to /contact/ in the panel's
+  foot, and one paragraph in /privacy (its effective date wasn't bumped).
 
 ## How it would be built
 
@@ -3084,6 +3122,164 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      paragraph (which 1e adds to); the link to the license terms. Saving live
      into a chosen file (D1) waits on its decision (T3); export and import
      don't.
+     **Built 2026-10-12**, behind the preview switch, except N8 (**held by
+     BVJ until after the Zoom**, below). Nothing waited on BDR. Every
+     default below was chosen where nothing was decided, and is a
+     recommendation for BVJ to judge on the preview, not a decision:
+     - **The notebook page, labels, and save and open a copy** (M8, the
+       D1 export). `/notebook/` (`src/pages/notebook.astro`) is noindex,
+       out of the sitemap and out of Pagefind, and says the preview isn't
+       on when the desk is off; `desk-gate.js` loads
+       `desk/notebook-page.js` when the page is there, so it has no panel
+       (it isn't a reading surface), and the panel's foot links to it. It
+       has filters (words, kind, colour, label) with counts in words,
+       records by book and chapter, then glossary notes, article notes,
+       pinned footnotes and "Other items"; a Places section; Labels; "Save
+       a copy"; "Delete everything" (one undo step, with an inline
+       confirm); and "Empty the trash now" (not undoable; it drops the
+       trash's contents and keeps the tombstones). The pure parts are
+       `desk-labels.mjs`, `desk-notebook.mjs` and `desk-export.mjs`; the
+       store gained `getMeta`/`setMeta`, and the META key `lastExport` is
+       written after each download.
+       - **Three files**: Markdown for people (each entry carries
+         `<!-- lit:id=… -->`; it ends with the license notice and the link
+         to the terms), the W3C Web Annotation shape for other tools, and a
+         full backup (`{ format: "lit-notebook", version: 1, … }`) that
+         restores everything. "Open a copy…" shows a summary and the
+         problems first, then commits once (one undo step) through the
+         merge engine. Details in `STUDY-DESK-FORMAT.md`, "The export
+         file".
+       - **Defaults**: the reader-facing name **"Labels"** (M8's open name),
+         unique ignoring case and accents, a new label matching an old one
+         reusing it, and deleting a label stripping it from every record in
+         one undoable step; labels applied from the notebook page only (the
+         panel has a label filter but no chips); the W3C motivations
+         (highlight is highlighting, a note is commenting or, for the
+         `question` marker, questioning, a bookmark or pinned footnote is
+         bookmarking); trash only in the full backup, so a deleted note's
+         words never reach other tools; Markdown reads back as edits to a
+         note's body or a bookmark's label, and a new entry with a verse
+         reference (or a glossary or article link) becomes a new note, while
+         highlights, bookmarks and pins can't be made from Markdown (the
+         import says so) and places and labels aren't read back; nothing is
+         deleted for being absent from a file (C17); a line starting `#`,
+         `>` or `<!--` in a note is escaped with a backslash on save and
+         unescaped on import; Web Annotation files LIT didn't make are
+         reported and skipped, and malformed records skipped and listed.
+       - **Rough**: Ctrl+Z after "Empty the trash now" is guarded only by
+         the history's overtaken check; the real file picker and real
+         downloads weren't exercised (a synthetic file and an intercepted
+         download stood in).
+     - **Places and ribbons** (B1, C25). `desk-places.mjs` (pure),
+       `desk/places.js` (a Places section in My Notes and on the notebook
+       page), `ribbon-follow.js` and `ribbon-form.js` ("Ribbon here…" in the
+       My Notebook row of the verse menu and the selection panel, both
+       views). `last-read.js` now also dispatches a `lit:last-read` event
+       on each save, which nothing hears unless the desk is on. **"Continue
+       reading" and Read View's per-book places are not notebook records**;
+       they are read from their own storage (whether places sync is open,
+       and BVJ leans against). Ribbons are `place` records with
+       `ribbon: true`.
+       - **The C25 rule**: following a ribbon's link sets
+         `sessionStorage['lit-desk-ribbon']`; while the reader stays in that
+         book in that tab the ribbon moves (written without an undo entry),
+         and any page outside the book clears the flag.
+       - **Defaults**: at most 6 ribbons; names up to 40 characters, unique
+         ignoring case; a move at most every 4 seconds and only when the
+         verse changed; a chapter opened at its top moves the ribbon to
+         verse 1; the book's intro keeps the flag without moving it; a
+         ribbon links to the view the reader is in; Read View's place is a
+         chapter only ("Romans 5 · Read View"); the list runs this book's
+         places, Continue reading, ribbons by name, other clients' places,
+         then Read View's; creating a ribbon doesn't start it following
+         (only following its link does, not with Ctrl, Cmd or Shift);
+         moving one by hand and renaming are undoable, automatic following
+         isn't. Not done: a margin mark for ribbons (B4's scrollbar ticks
+         aren't in 1d).
+     - **The interleaf** (N7, C13). `desk-interleaf.mjs` (pure),
+       `desk/interleaf-state.js` and `desk/interleaf.js`: a band
+       (`data-desk-band`) after each paragraph that has notes, with Edit and
+       "Add a note" (for the paragraph's first verse). **Open or closed is
+       never stored, so a page always loads closed** (C13). A switch "Open
+       the interleaf" in the panel's foot (Study View chapters only), and
+       "Open the interleaf here" / "Close the interleaf" on a row of its own
+       in the verse menu and the selection panel. The page's block reader
+       skips the bands, and they don't print. **Defaults**: bands only where
+       there are notes (no empty bands); the notes obey "My notes" and M1;
+       the bands can't be selected.
+     - **Search and commands** (D2, D3). `desk-search.mjs` and
+       `desk-commands.mjs` (pure), `desk/notebook-search.js` (reads
+       IndexedDB read-only and never creates it) and `desk/commands.js`
+       (the one `lit:desk-command` listener). `loadDeskSearch()` in
+       `search-core.js` is the only way either search surface reaches the
+       desk. It matches note bodies, highlight quotes, bookmark labels,
+       place and ribbon names, pinned-footnote text, label names and
+       glossary and article note titles, by word beginnings, case and
+       accents ignored. Nine commands: Open or Close the notebook, Show My
+       Notes, Show This verse, Hide or Show my notes, Open the notebook
+       page, Save a copy, Ways to keep your notebook, Take the tour; `>`
+       lists them. **Defaults**: the tray shows 4 notebook matches then "N
+       more in your notebook" (`/notebook/?q=…`), /search shows 10 then
+       "Show N more"; in the tray the commands come first, then the
+       notebook, then the rest; on /search the notebook group is at the top
+       with its jump link after "verses"; both show only under "All
+       results"; M1 empties the group; event commands only on reading
+       surfaces and This verse only on Study View chapters; Enter on a `>`
+       query runs the first command while a plain query keeps Enter as
+       search; no new shortcut. Not done: /search's own tray has no
+       commands or notebook group (hidden there by CSS), and the header's
+       search strip wasn't tested separately.
+     - **First use, the tour and the help page** (D6, C18, D8, M12, the
+       privacy paragraph). `desk-first-use.mjs` (pure), `desk/first-use.js`,
+       `desk/tour.js`, `src/pages/notebook/help.astro`, and one paragraph in
+       `src/pages/privacy.astro`. The card in My Notes asks "Where should
+       your notebook live?" and offers "Keep it in this browser" or the same
+       "and remind me to save a copy", each saying what is lost if the
+       site's data is cleared, with no account mentioned
+       (`lit-desk-home`). The panel's foot has the reminder checkbox, a line
+       like "Kept in this browser. Last saved a copy 3 days ago.", the
+       reminder with "Save a copy", **desktop Safari's line** (Safari clears
+       a site's data after seven days of use without a visit), and Take the
+       tour, Help and "Tell us what's missing" (/contact/). **The tour**
+       (`lit-desk-tour`, five steps: actions, margin, panel, search, kept)
+       is offered once, right after the choice, and replays from the foot,
+       the `tour` command and the help page; it writes no records. The help
+       page covers ways to keep the notebook, saving and opening a copy,
+       deleting everything, places and ribbons, labels, the interleaf,
+       search and commands, the tour, sharing what you write (with the
+       license-terms link) and the contact link. **Defaults**: the reminder
+       is due at 7 days or more, or when no copy exists and the notebook has
+       records; ticking the foot's checkbox counts as answering the card;
+       the reader's first write with no answer yet opens the panel once per
+       visit; the tour is marked seen when it starts; the margin step needs
+       the notes' margin and the search step a visible search box; the
+       replay goes to John 3. The privacy paragraph names the notebook's
+       IndexedDB storage, that nothing reaches the LIT team, that copies
+       are the reader's own files, how to delete, and the storage keys.
+       **/privacy's effective date and `dateModified` were not bumped**
+       (BVJ may want to), and a /privacy change notifies the LSC repo for
+       review by the existing workflow.
+     - **N8, the hidden passage: built, then held** (BVJ, 2026-10-12;
+       "Decisions"). It is on two branches and not in this change:
+       `claude/desk-1d-hidden` (commit 0c95d7d, on top of the interleaf:
+       blur 0.4em, the passage inert and `aria-hidden`, a veil layer
+       outside the scripture's DOM, a screen-reader control, previews
+       honouring it through `window.litPreviewGate`, the verse menu
+       replaced by "This passage is hidden by your note…", margin notes
+       hidden) and `claude/desk-1d-search` (commit a933c55: search results
+       cover a hidden verse). Known for later: a hidden passage can flash
+       for a moment on load (it needs a pre-paint addition to Layout.astro),
+       and a hidden verse's own menu is unreachable while hidden. The help
+       page and the privacy paragraph don't mention it, and a `hidden`
+       record arriving from an import shows as a plain "Other items" row on
+       the notebook page.
+     - **Plumbing**: new localStorage keys `lit-desk-home` and
+       `lit-desk-tour`, sessionStorage `lit-desk-ribbon`, META `lastExport`;
+       new events `lit:last-read` and `lit:desk-command`; `OSIS_BOOKS`
+       moved to `src/lib/osis.mjs` (`chapter-html.ts` imports it);
+       `panel.js`'s `showTab(id, { focus, remember })` serves both the
+       commands and the tour. Saving live into a chosen file (D1) still
+       waits on T3.
    - **1e. The licensed translations. DEFERRED INDEFINITELY (BVJ,
      2026-10-11); not in version 1, and not built.** What follows is the
      record of the plan. (D7; BVJ, 2026-10-08: the other
@@ -3297,7 +3493,8 @@ BVJ answered every item on 2026-10-01.
   dock is part of the frame. **Yes.**
 - **C13. The interleaf can make the page jump.** Fix: open bands on request
   (or reserve space pre-paint); check Cloudflare's numbers after release.
-  **Yes.**
+  **Yes.** Built 2026-10-12: bands open only on request and every page loads
+  them closed; the Cloudflare check waits for a release.
 - **C14. Read View's scrollbar marks point at notes it doesn't show.**
   **Decided: ticks for places, and highlights when switched on; none for
   notes.**
@@ -3308,7 +3505,9 @@ BVJ answered every item on 2026-10-01.
 - **C17. Editing the file elsewhere must never erase notes.** **Yes.**
 - **C18. Safari readers without an account are the most exposed.** Fix: say
   so plainly, remind them to save a copy, offer an account once it exists.
-  **Yes; BDR is also considering a Mac app.**
+  **Yes; BDR is also considering a Mac app.** Built on the preview
+  2026-10-12 as a plain line in the panel's foot for desktop Safari, with
+  the reminder to save a copy; the offer of an account waits for accounts.
 - **C19. End-to-end encryption rules out some server features** (M15's
   personal emails, M14 without a key). Both can still work: the key after
   the # for share links. **TBD with BDR, leaning end-to-end.**
@@ -3321,7 +3520,9 @@ BVJ answered every item on 2026-10-01.
 - **C24. Notes must stay out of the scripture's reading order.** **Yes.**
 
 **Small**
-- **C25. Ribbons need a rule for when they move.** **Yes** (see B1).
+- **C25. Ribbons need a rule for when they move.** **Yes** (see B1). Built
+  2026-10-12 (a flag set by following the ribbon's link; "Order of work",
+  1d).
 - **C26. Rename the footnote copy in both panels.** **Yes**; update CLAUDE.md
   when it ships.
 - **C27. Greek, Hebrew and A4 paper.** **Yes, plus download Greek and Hebrew
@@ -3901,7 +4102,38 @@ wants it changed.
 - **The merge engine** (1a) and **pinned footnotes** (1c) are built; see
   "Order of work". That leaves 1d and 1f in phase 1.
 
+### 2026-10-12 (phase 1d)
+
+Phase 1d was built the same day ("Order of work", 1d). One decision from BVJ:
+- **N8, the hidden passage, is held until after the Zoom** (item 17 on the
+  Zoom's list). BVJ: "I'm not 100% sure about the hidden passage feature",
+  then "Hold it, revisit after the Zoom." It was built and kept out of the
+  1d change, on `claude/desk-1d-hidden` (commit 0c95d7d) and
+  `claude/desk-1d-search` (commit a933c55). Nothing about it ships, and the
+  help page and privacy paragraph don't mention it. The 2026-10-01 decision
+  (blur, one click to show) stands as the design if it goes ahead.
+- Saving live into a chosen file (D1) still waits on T3, as planned.
+- Everything else 1d chose where nothing was decided is a recommendation,
+  listed under "Order of work", 1d, and "Still open".
+
 ## Still open
+
+- **Phase 1d's defaults** (built 2026-10-12 on recommendations, for BVJ to
+  judge on the preview; listed per piece under "Order of work", 1d): the
+  name "Labels" and applying labels from the notebook page only; the export
+  file's motivations, what Markdown can and can't read back, and trash
+  only in the full backup; the ribbons' limits (6, 40 characters, a move at
+  most every 4 seconds) and the C25 rule's details; the interleaf's bands
+  only where there are notes; the search tray's counts (4 and 10), the nine
+  commands and Enter's behaviour; the D6 card's wording and the reminder
+  at 7 days; the tour's five steps and its being offered once.
+- **N8, the hidden passage, is held** (BVJ, 2026-10-12) until after the
+  Zoom. The built branches wait on that, and on two known issues: a
+  possible flash on load (a pre-paint addition to Layout.astro) and a hidden
+  verse's own menu being unreachable.
+- **/privacy's effective date** and `dateModified` were not bumped when the
+  notebook paragraph was added. BVJ may want to; a /privacy change notifies
+  the LSC repo for review.
 
 - **The floating notebook's details** (decided in outline 2026-10-07; built
   the same day on these recommendations, not decided; see "Order of work",
@@ -4003,10 +4235,12 @@ wants it changed.
   reviving the feature audit's X6 (browsable topic pages, deferred
   2026-09-28) on the sheet machinery. Today's topics follow TOPICS.md and are
   functionally tags for search reach.
-- **D8, the tutorial**: what counts as the first encounter, and how it meets
-  D6's first-time choice.
-- **Whether to release the desk to readers**, decided once 1d and 1f
-  are done (the first release includes the Greek and no other
+- **D8, the tutorial**: ~~what counts as the first encounter, and how it meets
+  D6's first-time choice.~~ Answered by the built recommendation (2026-10-12):
+  offered once, right after the D6 choice, never by itself over scripture.
+  Still for BVJ to confirm on the preview.
+- **Whether to release the desk to readers**, decided once 1f is done
+  (1d is built, N8 aside; the first release includes the Greek and no other
   translations; 1e is deferred).
 - **The Digital Bible Library** (library.bible, the American Bible Society's
   library that API.bible draws from, and where YouVersion and Global.Bible get

@@ -115,14 +115,22 @@ generated from `src/data/books.js` (A-F9). It's never stored.
 5. **`place`** (B1): `name` (empty for a book's own "Continue reading"
    place), a verse, and `ribbon: true` for a named ribbon. Places are stored
    as verses, never scroll positions (A-F13). **Open:** whether each device's
-   reading place syncs at all (BVJ leans slightly against).
+   reading place syncs at all (BVJ leans slightly against). **On the
+   website, "Continue reading" and Read View's per-book places are not
+   `place` records**: they stay in their own browser storage, and the
+   notebook lists them beside the ribbons. Only a ribbon is a `place`
+   record there (`ribbon: true`; at most 6, names up to 40 characters,
+   unique ignoring case).
 6. ~~**`legend`**~~ (H1): **dropped 2026-10-07** (BVJ with BDR; colours carry
    no named meanings). The number is kept so the kinds after it don't move.
    Draft 1 had: the reader's meaning for each of the four colours, one per
    reader.
 7. **`markRule`** (H2): a glossary term, a book and a colour, worked out
    from the published alignment on each load.
-8. **`label`** (M8): a name. Records list the labels on them.
+8. **`label`** (M8): a name. Records list the labels on them. The website
+   calls them **"Labels"** (recommended, for BVJ to confirm), and keeps names
+   unique ignoring case and accents: a new label matching an old one reuses
+   it.
 9. **`sheet`** (S1–S10): one structured document:
    - title and template;
    - ordered items (passage, the reader's text, question);
@@ -407,7 +415,34 @@ and accounts would live under `/sheets/`, `/notebook/`, `/account/`.
   shape, where `TextQuoteSelector` is `quote`, `FragmentSelector` is
   `#v3-4`, `motivation` comes from `kind`, and the LIT fields go under
   `lit`. Sheets and places use this format's own JSON. Markdown is kept for
-  people (the mocked D1 file).
+  people (the mocked D1 file). **Built on the website 2026-10-12**
+  (`src/lib/desk-export.mjs`; the defaults are the website's, for BVJ to
+  confirm) as three files, each for a different reader:
+  - **Full backup** (`.json`): `{ "format": "lit-notebook", "version": 1,
+    "exported", "contentVersion", "records": [...] }`, every record
+    unchanged, kinds this code doesn't know included. The only file that
+    carries **trash**, and so the only one that carries a deletion; a
+    deleted note's words never reach the other two. It restores a notebook
+    completely.
+  - **Web Annotation** (`.annotations.json`): an `AnnotationCollection`. Each
+    mark on the text is an annotation whose `motivation` is highlighting for
+    a highlight, commenting for a note (questioning for the `question`
+    marker), bookmarking for a bookmark or pinned footnote (a pin's target
+    is a `TextQuoteSelector` of its text), and commenting for `hidden`
+    (the vocabulary has nothing for hiding). **Every annotation carries the
+    whole record as `lit.record`**, so the file re-imports losslessly. The
+    collection's `lit.records` holds what isn't a mark on the text: places,
+    labels, sheets, mark rules and kinds the website doesn't know. Files
+    other tools made are reported and skipped on import.
+  - **Markdown** (`.md`): for people, each entry headed by its reference and
+    carrying `<!-- lit:id=… -->`, ending with the license notice and the
+    link to the terms. A note edited in the file comes back as an edit (a
+    bookmark's label too), and a new entry with a verse reference becomes a
+    new note; highlights, bookmarks and pins can't be made from Markdown, and
+    places and labels aren't read back. A body line starting `#`, `>` or
+    `<!--` is escaped with a backslash on save.
+  Opening a copy merges through `desk-merge.mjs`, in one commit, and never
+  deletes a record for being absent from the file (audit C17).
 
 ## Still open in this file
 
