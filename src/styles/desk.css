@@ -2486,3 +2486,113 @@ html[data-desk-list="full"] .desk-item__pin-text {
   text-underline-offset: 3px;
   color: var(--green-text);
 }
+
+/* ── 1d: the interleaf ───────────────────────────────────────── */
+
+/* A ruled band after a paragraph that has the reader's notes (N7), opened
+   only on request (src/scripts/desk/interleaf.js). It sits in the flow among
+   the scripture's blocks, so it takes the column's width and the reader's
+   text size, and a note inside it is set as in the margin: the same face,
+   the same Handwriting / Plain choice, and a reader's own font still wins.
+   The rules are a gradient one line apart, so they follow the text size. */
+.desk-band {
+  --desk-note-font: "Playpen Sans", Inter, "Inter Fallback", system-ui, sans-serif;
+  --desk-note-weight: 500;
+  box-sizing: border-box;
+  margin: -4px 0 16px;
+  padding: 2px 12px 8px;
+  border-top: 1px solid rgba(var(--ink-rgb), 0.22);
+  border-bottom: 1px solid rgba(var(--ink-rgb), 0.22);
+  border-radius: 2px;
+  background: rgba(var(--ink-rgb), 0.03);
+  color: var(--text);
+  font-family: var(--desk-note-font);
+  font-weight: var(--desk-note-weight);
+  font-size: calc(0.9375rem * var(--reading-scale, 1));
+  line-height: 1.6;
+  /* The reader's notes aren't scripture: a selection never starts in one. */
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+html[data-font] .desk-band {
+  --desk-note-weight: 400;
+}
+
+html[data-desk-note-font="plain"] .desk-band {
+  --desk-note-font: Inter, "Inter Fallback", system-ui, sans-serif;
+  --desk-note-weight: 400;
+}
+
+.desk-band__notes {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  /* One rule under each line of writing, like the blank leaves. */
+  background-image: linear-gradient(
+    to bottom,
+    transparent calc(1.6em - 1px),
+    rgba(var(--ink-rgb), 0.18) calc(1.6em - 1px)
+  );
+  background-size: 100% 1.6em;
+}
+
+.desk-band__note {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr) auto;
+  gap: 0 8px;
+  margin: 0;
+  padding: 0;
+  line-height: 1.6;
+}
+
+.desk-band__marker {
+  display: block;
+}
+
+.desk-band__glyph {
+  display: block;
+  width: 16px;
+  height: 16px;
+  /* Centred on the first line of writing. */
+  margin-top: calc((1.6em - 16px) / 2);
+}
+
+.desk-band__words {
+  min-width: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.desk-band__button {
+  margin: 0 0 0 4px;
+  padding: 0 8px;
+  align-self: start;
+  border: 1px solid rgba(var(--ink-rgb), 0.25);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text);
+  font: 0.8125rem/1.5 Inter, "Inter Fallback", system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.desk-band__button:hover {
+  background: rgba(var(--ink-rgb), 0.07);
+}
+
+.desk-band__button:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.desk-band__add {
+  display: block;
+  margin: 6px 0 0;
+}
+
+/* The desk doesn't print. */
+@media print {
+  .desk-band {
+    display: none !important;
+  }
+}
