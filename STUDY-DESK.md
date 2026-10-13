@@ -4279,6 +4279,7 @@ The first five confirm what the preview already does.
   same remembered setting (`lit-desk-list`), so it opens pinned footnotes
   too; "Close all" also closes notes opened by their carets. It shows only
   when a note is cut off or a footnote is pinned.
+- **No message to STEPBible** about the project.
 - **1d's and 1f's other defaults are accepted**, including hosting the
   full LSJ on the site.
 - **1g and 1h are part of phase 1**: phases 2 and 3 wait until both have
@@ -4444,7 +4445,8 @@ The first five confirm what the preview already does.
   tab and that anyone wanting the data should get it from
   github.com/STEPBible, keeping the note of changes. **Done** (BVJ,
   2026-10-13). Hosting the full LSJ was settled with 1f's defaults (kept on
-  the site). Still open beside it: writing to STEPBible about the project.
+  the site). ~~Writing to STEPBible about the project~~: **BVJ won't reach
+  out** (2026-10-13), having read the background below.
   The header says "We'd love to hear about your project when you make it
   available" (to STEPBibleATGmail.com, which is STEPBible@gmail.com), and
   asks that proposed corrections go to the same address; the README says
