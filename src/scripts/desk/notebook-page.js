@@ -464,7 +464,7 @@ async function start() {
         const done = planRenameLabel(await store.all(), label.id, input.value, ctx());
         if (!done.ok) return sayLabel(labelMessages[done.reason]);
         await store.commit(done.plan);
-        announce(`Label renamed to “${done.label.name}”.`);
+        announce(`Label renamed to “${done.label.name}.”`);
         back();
       });
     });

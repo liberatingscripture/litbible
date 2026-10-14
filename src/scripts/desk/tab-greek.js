@@ -723,7 +723,7 @@ export function createGreekTab({ here, visible, openVerse }) {
     for (const term of terms) {
       const rendered = renderingsIn(termData, term.id, verse);
       const p = make("p", "desk-greek__lit-line");
-      p.append(rendered.length ? `In the LIT: rendered here as “${joinAnd(rendered)}”. ` : "In the LIT: see the glossary entry. ");
+      p.append(rendered.length ? `In the LIT: rendered here as “${joinAnd(rendered)}.” ` : "In the LIT: see the glossary entry. ");
       const a = make("a", null, `Glossary: ${term.title}`);
       a.href = `/glossary/#${term.id}`;
       p.append(a);

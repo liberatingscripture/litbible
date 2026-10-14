@@ -1720,6 +1720,25 @@ collection); they're read directly by the intro pages and the API manifest.
 
 ## Key Conventions
 
+- **Reader-facing copy follows American conventions** (BVJ, 2026-10-13):
+  page text, button labels, aria-labels, panel and tour copy, error
+  messages, anything a reader sees or hears.
+  - **Spelling**: color, favorite, behavior, center, gray, canceled.
+  - **Punctuation with quotation marks**: periods and commas go inside the
+    closing quote (write `choose “Save.”`, never `choose “Save”.`),
+    semicolons and colons go outside, and a question mark or exclamation
+    point goes inside only when it belongs to what is quoted.
+  - Quotes are curly (“ ” and ‘ ’), as the chapter JSON rule below requires
+    for scripture.
+  This governs text Claude writes. **The translation, footnotes, intros and
+  articles are the owner's** and come from the Word masters, so a British
+  form found there is reported to BVJ, never silently changed. A 2026-10-13
+  audit found four: `1corinthians-14` (“all things are lawful…”, before a
+  citation), `hebrews-8` (“After those days:”), `james-intro`
+  (“…big things”,) and the `many-and-all` article (“…many!”,), plus the
+  shared *hupotasso* note's nested ‘…burden’.” and similar single-quote
+  closes. Code comments and internal docs aren't held to it, though new
+  ones should follow it.
 - **Book keys**: lowercase, no spaces, no hyphens — `john`, `1corinthians`,
   `revelation`. Source of truth is `src/data/books.js` (`BOOKS`, `BOOK_ORDER`).
 - **Chapter file naming**: `{bookKey}-{chapter}.json` (e.g. `1corinthians-1.json`).

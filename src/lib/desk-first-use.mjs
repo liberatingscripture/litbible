@@ -132,9 +132,9 @@ export const TOUR_STEPS = [
     title: "Open the menu",
     body: {
       study:
-        "Select a verse number to open its menu. The “My Notebook” row is yours: “Add a note”, “Bookmark” and “Highlight”. Select any words instead, and the same row works on just those words.",
-      read: "Select any words. The panel that opens has a “My Notebook” row: “Bookmark”, and “Highlight” while “My highlights” is on in the Display tray.",
-      prose: "Select any words. The panel that opens has a “My Notebook” row with “Add a note”.",
+        "Select a verse number to open its menu. The “My Notebook” row is yours: “Add a note,” “Bookmark” and “Highlight.” Select any words instead, and the same row works on just those words.",
+      read: "Select any words. The panel that opens has a “My Notebook” row: “Bookmark,” and “Highlight” while “My highlights” is on in the Display tray.",
+      prose: "Select any words. The panel that opens has a “My Notebook” row with “Add a note.”",
     },
   },
   {
@@ -145,7 +145,7 @@ export const TOUR_STEPS = [
     title: "Write a note",
     body: {
       default:
-        "“Add a note” opens this. Choose a marker, write in your own words, and choose “Save”. During the tour saving is off, so nothing here is kept.",
+        "“Add a note” opens this. Choose a marker, write in your own words, and choose “Save.” During the tour saving is off, so nothing here is kept.",
     },
   },
   {
@@ -169,7 +169,7 @@ export const TOUR_STEPS = [
     title: "Highlight",
     body: {
       default:
-        "Choose a color to tint the words. To take part of a highlight away, select those words and choose “Remove highlight”. The tint shown now is only a preview.",
+        "Choose a color to tint the words. To take part of a highlight away, select those words and choose “Remove highlight.” The tint shown now is only a preview.",
     },
   },
   {
@@ -203,7 +203,7 @@ export const TOUR_STEPS = [
     title: "Pin a footnote",
     body: {
       default:
-        "Select a footnote letter, then “Pin” to keep that footnote in “My Notes”, under “Pinned footnotes”, where it stays in reach as you read.",
+        "Select a footnote letter, then “Pin” to keep that footnote in “My Notes,” under “Pinned footnotes,” where it stays in reach as you read.",
     },
   },
   {
@@ -260,7 +260,7 @@ export const TOUR_STEPS = [
     title: "Undo, and a clean page",
     body: {
       default:
-        "Ctrl+Z undoes your last change to the notebook, and Ctrl+Shift+Z redoes it (⌘Z and ⇧⌘Z on a Mac). “Hide my notes”, or the H key, clears your marks from the page and brings them back.",
+        "Ctrl+Z undoes your last change to the notebook, and Ctrl+Shift+Z redoes it (⌘Z and ⇧⌘Z on a Mac). “Hide my notes,” or the H key, clears your marks from the page and brings them back.",
     },
   },
   {
@@ -271,7 +271,7 @@ export const TOUR_STEPS = [
     title: "Search and commands",
     body: {
       default:
-        "The search box looks in your notebook too, and understands commands such as “hide”, “Greek” and “tour”. Here it shows what “notebook” finds.",
+        "The search box looks in your notebook too, and understands commands such as “hide,” “Greek” and “tour.” Here it shows what “notebook” finds.",
     },
   },
   {
