@@ -2880,8 +2880,10 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
          its own on those pages. (A note icon beside each entry's link was
          tried first and taken out the same day: it took room from the
          heading and split more headings across lines.)
-       - **For BVJ to confirm**: the slug rule; the rule for quoting prose;
-         the field names; the ways in.
+       - ~~**For BVJ to confirm**~~: **all four confirmed as built** (BVJ,
+         2026-10-13): the slug rule, the rule for quoting prose, the field
+         names and the ways in. CLAUDE.md tells every session to add the
+         `renamed` entry whenever an article file is renamed.
      - **Minimize** (BVJ, 2026-10-09): » minimizes the notebook in the
        margin too, to the same tab at the window's edge the floating
        notebook uses. The text stays exactly where it was, so minimizing and
@@ -4068,6 +4070,10 @@ changing three, then settled the details that followed (1, 6, 8, 11 to
     and nothing changes for that alone. Only when it would run into the
     note below is it collapsed, by default, cut off where the next note
     begins; hovering or clicking expands it over the note below.
+    **Revised 2026-10-13 (BVJ): a note in full shows three lines at most**
+    until it is hovered, focused or clicked, even with nothing below it,
+    and is cut sooner where the next note begins (`NOTE_LINES` in
+    `src/lib/desk-notes.mjs`).
 12. **The Notebook panel's list leads each note with its glyph too**, so a
     note looks the same in both places, and **each note is collapsed to two
     lines by default**, expanding on hover or click as in the margin. A
@@ -4512,7 +4518,7 @@ After exploring both (the findings are under "Order of work", 1g and 1h):
 The first five confirm what the preview already does.
 
 - **Playpen Sans at weight 500** for margin notes. Its size is still to
-  tune.
+  tune (tuned later the same day: 16px; see below).
 - **Bookmarks show on the page**, as the red mark.
 - **The verse number names a verse's notes** for screen readers ("Verse 1,
   1 note of mine").
@@ -4544,6 +4550,29 @@ The first five confirm what the preview already does.
 - **STEPBible's data is pointed to its source**: `public/greek/LICENSE.txt`
   no longer calls the `step/` and `lsj/` directories licensed for reuse, and
   sends anyone wanting the lexicons to github.com/STEPBible.
+
+### 2026-10-13 (BVJ's answers on the defaults)
+
+- **N11's four provisional choices are confirmed as built**: the slug
+  rule, the rule for quoting prose, the field names, and the ways in.
+- **1h's defaults are accepted**, all of them.
+- **1c's other defaults are confirmed**: the second slice's ("This
+  verse", M1 on H, the remembered tab, the width handles' steps), the
+  highlights' (Remove highlight erasing only within the words, among
+  them) and undo's.
+- **Margin notes are slightly larger**: 16px at the default text size,
+  up from 15. Built the same day.
+- **A note in the margin shows three lines at most** until it is
+  hovered, focused or clicked, even when nothing is below it; one that
+  would run into the next note is cut sooner, as before. Built the same
+  day.
+- **The tour puts the names of things in quotation marks** ("My Notes",
+  "This verse", "Greek", the "My Notebook" row and its buttons), as the
+  help page does. Built the same day. BVJ also finds the tour too thin:
+  it should walk through how to use the features (proposed under "Still
+  open").
+- **Leaning toward releasing after phase 3**, not decided (under "Still
+  open").
 
 ## Still open
 
@@ -4589,7 +4618,8 @@ The first five confirm what the preview already does.
   - ~~**Where the reader sets the notebook's default**~~: **on the notebook
     page** (BVJ, 2026-10-13). Built.
   - ~~**Playpen Sans's weight**~~: **500** (BVJ, 2026-10-13), as built.
-    Its size is still tuned on the real page.
+    **Its size: 16px** at the default text size, up from 15 (BVJ,
+    2026-10-13: "slightly larger").
   - ~~**Whether a bookmark shows on the page**~~: **yes**, as the red mark
     now on the preview (BVJ, 2026-10-13).
   - ~~**How a screen reader learns a verse has notes**~~: **as built**
@@ -4597,9 +4627,9 @@ The first five confirm what the preview already does.
     keyboard's way into each verse, names the count ("Verse 1, 1 note of
     mine"), and the verse menu reaches the notes through "Show in
     notebook".
-  - **The second slice's defaults** (2026-10-08): listed under "Order of
-    work", 1c, for BVJ to judge on the preview, with N11's provisional
-    choices (the slug rule, the rule for quoting prose, the field names).
+  - ~~**The second slice's defaults** (2026-10-08)~~: **confirmed**
+    (BVJ, 2026-10-13), with N11's provisional choices, the highlights'
+    defaults and undo's (all listed under "Order of work", 1c).
 - **The merge rules** (talk-through item 20; rules a to e): **settled
   2026-10-09**, by BDR's answers and BVJ going with BDR on a note's older
   version (discarded). What remains:
@@ -4669,12 +4699,41 @@ The first five confirm what the preview already does.
 - **When to release the desk to readers.** Not before phase 1 is
   completely done (N8 and the exploring of 1g and 1h included), and
   perhaps not until phases 1 to 3 are (BVJ, 2026-10-13). Which of the two
-  is still open. The first release includes the Greek and no other
+  is still open; **BVJ is leaning toward after phase 3** (2026-10-13,
+  not decided), since phase 1 took about two weeks to build. A small
+  group of trusted readers given `?desk=on` would not be a release, and
+  is a separate question.
+- **A fuller tour** (BVJ, 2026-10-13: it should walk through how to use
+  the features). Today it has five steps that name things. Proposed, not
+  decided: about a dozen steps that each say how, in order of use (add a
+  note; highlight and remove a highlight; bookmark; reading and editing a
+  note in the margin; pin a footnote; the panel's tabs, minimizing and the
+  widths; "This verse"; the Greek tab, its words and its search; undo and
+  "Hide my notes"; search and commands; the notebook page's labels,
+  ribbons and saved copies; where it's kept), grouped so a reader can skip
+  a group. Open: whether a step may act for the reader (open the verse
+  menu to show the row) or only point.
+- **Construction search** (raised again 2026-10-13; "Order of work", 1h,
+  under what it leaves out). Not placed in a phase. Recommended, not
+  decided: phase 2, beside the word study (M4), since both ask how a word
+  is used and *pistis Christou* is the case that motivates it. It needs a
+  small query language over 1f's parsing (no new data) and a page for the
+  results.
+- **One transliteration style across the corpus** (raised 2026-10-13).
+  Search shows the SBL Handbook's academic style (psychē, kyrios); the
+  corpus mostly doesn't. A survey that day of italic Latin words that
+  spell an SBLGNT form found about 3,600, 1,950 already in that style and
+  about 1,600 not (in some 240 files, mostly footnotes): about 1,250 a
+  missing macron (eulogeo, poneros), about 480 *u* for upsilon (kurios
+  199 times, psuche, hupotasso). Open: whether to do it at all, macrons
+  only or the *y* too (the Handbook also has a general-purpose style
+  without macrons), and the Word masters, which a repo-only pass would
+  part from as the en dash did. The first release includes the Greek and no other
   translations; 1e is deferred.
 - ~~**1g and 1h, to explore before phases 2 and 3**~~: **explored**
   (BVJ, 2026-10-13). 1g is shelved for the future; 1h is planned, to
   build. See "Order of work", 1g and 1h.
-- **Phase 1h's defaults** (built 2026-10-13 on recommendations; "Order of
+- ~~**Phase 1h's defaults**~~: **accepted** (BVJ, 2026-10-13). (Built 2026-10-13 on recommendations; "Order of
   work", 1h, "Built"): the lemma line's gloss taken from STEPBible's brief
   lexicon; English matching whole glosses of other UBS senses; the
   transliteration shown in the SBL Handbook's style; one Greek word per

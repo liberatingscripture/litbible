@@ -1662,9 +1662,11 @@ Five collections, all loaded via Astro's `glob` loader. Two are site-wide:
   optional `author`/`description`/`heroImage`/`featured`, `tags[]`. **An
   article's file name is its slug, and a reader's note names the article by
   it** (the Study Desk, N11), so `src/data/article-slugs.json` lists every
-  slug and `test/article-slugs.test.js` fails when one disappears. To rename
-  an article, add the old slug under `renamed` pointing at the new one, and
-  add the new slug to `slugs`; a new article goes in `slugs` too.
+  slug and `test/article-slugs.test.js` fails when one disappears. **Whenever
+  an article file is renamed, add the old slug under `renamed` pointing at
+  the new one, and add the new slug to `slugs`** (BVJ, 2026-10-13), in the
+  same change; without it, every reader's note on that article is cut
+  loose. A new article goes in `slugs` too.
 - **`glossary`** — `src/content/glossary/*.md`. Schema pairs a `traditional`
   term with the LIT rendering (`greek`, `lit`, `litMenu`, `srOnly`, optional
   `note`/`menuTraditional`/`draft`). Files are named `<traditional>-<lit>.md`

@@ -101,7 +101,7 @@ test("the tour's steps have unique ids and wording for every view they may meet"
     // Reader-facing prose: no em dashes, no straight quotes.
     for (const text of [s.title, ...Object.values(s.body)]) assert.doesNotMatch(text, /[—"']/);
   }
-  assert.match(stepBody(TOUR_STEPS[0], "read"), /Bookmark and Highlight/);
+  assert.match(stepBody(TOUR_STEPS[0], "read"), /“Bookmark” and “Highlight”/);
   assert.doesNotMatch(stepBody(TOUR_STEPS[0], "read"), /Add a note/);
 });
 
