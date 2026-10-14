@@ -39,6 +39,7 @@ import {
   menuButton,
   panelRow,
   placeBesideTouchSelection,
+  placeClearOfSelection,
   pointerType,
   snapToWords,
   withReference,
@@ -616,11 +617,12 @@ function pinToScreen(panel, at = null) {
  * it covers. A panel that scrolls with the text is pinned where it is first,
  * so it stays where the reader drops it.
  */
-function makeDraggable(panel, handle) {
+function makeDraggable(panel, handle, { onStart = null } = {}) {
   handle.classList.add("lit-panel__header--drag");
   handle.addEventListener("pointerdown", (e) => {
     if (e.button !== 0 || e.target.closest("button")) return;
     e.preventDefault(); // no text selection, no focus change
+    if (onStart) onStart();
     if (!panel.classList.contains("lit-panel--pinned")) pinToScreen(panel);
     const x0 = e.clientX;
     const y0 = e.clientY;
@@ -1208,13 +1210,23 @@ function openSelectionPanel(view, share, { touch }) {
   // before the click lands.
   panel.addEventListener("mousedown", (e) => e.preventDefault());
 
+  // The header is the handle: the panel can be dragged aside by it, as the
+  // verse menu is. It has no ×, since the panel closes with the selection, on
+  // a tap or click elsewhere, or on Escape.
+  const header = document.createElement("div");
+  header.className = "lit-panel__header";
+  const grip = document.createElement("span");
+  grip.className = "lit-panel__grip";
+  grip.setAttribute("aria-hidden", "true");
   const heading = document.createElement("p");
   heading.className = "lit-panel__heading";
   heading.textContent = ref + " (LIT)";
-  panel.appendChild(heading);
+  header.append(grip, heading);
+  panel.appendChild(header);
 
   // Once a button is pressed the panel finishes on its own ("Copied ✓", or
   // the share sheet), even though a tap on a phone clears the selection.
+  // Dragging the panel counts as well: a finger on it clears the selection too.
   const acting = () => {
     if (currentPanel()?.el === panel) currentPanel().acting = true;
   };
@@ -1274,10 +1286,11 @@ function openSelectionPanel(view, share, { touch }) {
 
   showPanel({ getBoundingClientRect: () => share.rect }, panel, {
     preferAbove: true,
-    place: touch ? placeBesideTouchSelection(share.rect) : null,
+    place: touch ? placeBesideTouchSelection(share.rect) : placeClearOfSelection(share.rect),
     sheet: false,
     extra: { kind: "selection" },
   });
+  makeDraggable(panel, header, { onStart: acting });
 }
 
 function initSelectionShare(view) {
