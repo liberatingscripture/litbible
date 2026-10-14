@@ -15,8 +15,8 @@ are recorded so they aren't re-argued.
 ## Where things stand (as of 2026-10-14)
 
 - **Phase 2 is split into 2a, 2b and 2c, and phase 3 follows 2a**
-  (BVJ, 2026-10-14): 2a is B3, N4 and M10, the cheap read-only pieces; 2b
-  is S2, which needs sheets; 2c is the rest, whose place is open ("Order
+  (BVJ, 2026-10-14): 2a is B3, N4, M10, construction search and
+  searching by parsing, the read-only pieces; 2b is S2, which needs sheets; 2c is the rest, whose place is open ("Order
   of work", 2; "Decisions").
 
 - **Sync now has three plans, and BDR's proposal is the newest record of
@@ -3708,22 +3708,24 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
    phase 1, since every mark is re-found on every load. **Word families are
    deferred indefinitely** (BVJ, 2026-10-13: probably not a version 1
    feature).
-   - **2a, the cheap read-only pieces**: what's new for you (B3), on 1a's
+   - **2a, the read-only pieces**: what's new for you (B3), on 1a's
      comparison; your own chains (N4), through the linker the footnotes
-     already use; and your notebook where you already look (M10). Each only
-     reads what the notebook and the site already hold and writes no new
-     kind of record, so it can be taken out again cleanly. Small.
+     already use; your notebook where you already look (M10); and
+     **construction search** (BVJ, 2026-10-13: *pistis* with *Iēsou
+     Christou* in the genitive, the case that motivates it; a small query
+     language over 1f's parsing, no new data, and a page for its results;
+     "Order of work", 1h, under what it leaves out), with **searching by
+     parsing** (BVJ, 2026-10-13: every aorist imperative, every genitive of
+     *pistis*; the query language's simplest use), both moved here from 2c
+     (BVJ, 2026-10-14). Each only reads what the notebook and the site
+     already hold and writes no new kind of record, so it can be taken out
+     again cleanly. B3, N4 and M10 are small; the query language and its
+     page are the larger part.
    - **2b, text checked before printing** (S2), on the same comparison.
      Small.
    - **2c, the rest**: notes that follow a word and concept marks saved as
      rules (N2, H2, C23); the word study (M4, once sheets exist); notes on a
-     footnote (M11); **construction search** (BVJ, 2026-10-13: *pistis* with
-     *Iēsou Christou* in the genitive, the case that motivates it; a small
-     query language over 1f's parsing, no new data, and a page for its
-     results; "Order of work", 1h, under what it leaves out), and
-     **searching by parsing** with it (BVJ, 2026-10-13: every aorist
-     imperative, every genitive of *pistis*; the query language's simplest
-     use). N2, H2 and M11 add kinds of record to readers' notebooks, which
+     footnote (M11). N2, H2 and M11 add kinds of record to readers' notebooks, which
      can't be taken back once readers hold them. Their worth depends on
      how readers use the desk, so they are worth weighing against what a
      trial with readers shows. Medium.
@@ -4657,10 +4659,12 @@ The first five confirm what the preview already does.
 ### 2026-10-14 (phase 2 split into 2a, 2b and 2c)
 
 - **Phase 2 is split three ways** ("Order of work", 2). **2a** is the
-  cheap read-only pieces: B3 (what's new for you), N4 (your own chains) and
-  M10 (your notebook where you already look). **2b** is S2 (text checked
-  before printing). **2c** is the rest: N2, H2 with C23, M4, M11,
-  construction search and searching by parsing.
+  read-only pieces: B3 (what's new for you), N4 (your own chains), M10
+  (your notebook where you already look), construction search and
+  searching by parsing. **2b** is S2 (text checked before printing).
+  **2c** is the rest: N2, H2 with C23, M4 and M11. Construction search
+  and searching by parsing were first put in 2c, then moved to 2a the same
+  day (BVJ).
 - **Phase 3 (sheets) comes right after 2a.** S2 needs a sheet, so 2b
   follows phase 3. Where 2c goes is not decided.
 - **Why the split:** 2a reads only what the notebook and site already hold
@@ -4805,8 +4809,8 @@ The first five confirm what the preview already does.
   nothing they do persists). Fifteen steps in three parts; see "Order of
   work", 1d, "First use, the tour and the help page".
 - ~~**Construction search**~~: **in phase 2** (BVJ, 2026-10-13), now
-  2c (BVJ, 2026-10-14).
-- ~~**Searching by parsing**~~: **in phase 2** (2c since 2026-10-14), with construction search
+  2a (BVJ, 2026-10-14).
+- ~~**Searching by parsing**~~: **in phase 2** (2a since 2026-10-14), with construction search
   (BVJ, 2026-10-13).
 - **Word families: deferred indefinitely** (BVJ, 2026-10-13; probably not
   a version 1 feature). Kept for if it returns: none of 1f's sources groups
