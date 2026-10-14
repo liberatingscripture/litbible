@@ -13,7 +13,7 @@
 //    unsupported; the scroll still works). A floating chip (or Esc)
 //    clears the highlight.
 // 2. Verse menu — tapping a verse number opens Copy text / Copy link /
-//    Copy with notes / Share / Make an image. Tapping more verse numbers
+//    Copy with footnotes / Share / Make an image. Tapping more verse numbers
 //    while the menu is open extends the selection to a range (e.g. John
 //    3:16–18). Its layout follows the input: a finger gets chips, a mouse
 //    the rows of a computer's menu.
@@ -21,7 +21,7 @@
 //    (bottom sheet on small screens), with a link through to the full
 //    footnotes section.
 // 4. Selection sharing — selecting any run of scripture text offers the
-//    verse menu's actions (Copy text / Copy link / Copy with notes / Share
+//    verse menu's actions (Copy text / Copy link / Copy with footnotes / Share
 //    / Make an image), for a half-sentence or a phrase crossing two verses,
 //    which the verse menu can't reach.
 //
@@ -440,7 +440,7 @@ function getVerseText(container, start, end, options) {
 }
 
 /**
- * "Copy with notes": the verses with their footnote letters kept as "[a]",
+ * "Copy with footnotes": the verses with their footnote letters kept as "[a]",
  * the reference, each note those letters cite, then the attribution notice the
  * license asks a handout to carry and the verse link. /read's license terms
  * let a study guide or bulletin quote the notes too, provided they stay "in
@@ -714,7 +714,7 @@ function openVerseMenu(
         return copyRich(withReference(text, ref) + "\n" + url);
       }),
       menuButton("Copy link", () => copyToClipboard(url)),
-      menuButton("Copy with notes", async () => {
+      menuButton("Copy with footnotes", async () => {
         const text = getHandoutText(container, start, end, ref, url);
         if (!text) return false;
         return copyRich(text);
@@ -1148,7 +1148,7 @@ function extendOverNotes(point) {
 }
 
 /**
- * "Copy with notes" from a selection: the selected words with their
+ * "Copy with footnotes" from a selection: the selected words with their
  * footnote letters kept as "[a]", laid out as the verse menu's handout is.
  * `scope` is the page to read letters and notes from. A verse whose text
  * there doesn't match the selection's (it shouldn't: both views render the
@@ -1198,7 +1198,7 @@ function openSelectionPanel(view, share, { touch }) {
   const ref = view.ref(share.chapter, share.start, share.end);
   const url = view.url(share.chapter, share.start, share.end);
   // Asked for now, so in Read View the chapter's notes are usually on
-  // hand by the time "Copy with notes" is pressed.
+  // hand by the time "Copy with footnotes" is pressed.
   const scope = view.scope(share.chapter);
 
   const panel = document.createElement("div");
@@ -1241,7 +1241,7 @@ function openSelectionPanel(view, share, { touch }) {
         acting();
         return copyToClipboard(url);
       }),
-      menuButton("Copy with notes", () => {
+      menuButton("Copy with footnotes", () => {
         acting();
         if (typeof scope?.then === "function") {
           return copyRichLater(scope.then((s) => (s ? selectionHandout(share, s, ref, url) : "")));

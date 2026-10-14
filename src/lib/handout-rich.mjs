@@ -1,6 +1,6 @@
 // src/lib/handout-rich.mjs
 //
-// "Copy with notes" and "Copy text" are built as plain text (see
+// "Copy with footnotes" and "Copy text" are built as plain text (see
 // assembleHandout and joinPieces in src/scripts/chapter-tools.js), and plain
 // text has no italics, so a copy pasted into Word, Docs or Mail lost the
 // emphasis on every transliterated Greek word in its notes. The fix is a

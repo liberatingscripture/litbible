@@ -701,7 +701,7 @@ screen-reader route to the same copy (in Study View; Read View has none).
 
 The verse menu and the selection panel offer **the same actions under the
 same names** (owner, 2026-09-29): **Copy text** (the words, the reference and
-the verse link), **Copy link**, **Copy with notes** (the handout; see
+the verse link), **Copy link**, **Copy with footnotes** (the handout; see
 "Printing and handouts"), **Share…** and **Make an image**. Until then the
 verse menu said "Copy verse", which can't name half a verse, and the
 selection panel said "Copy with reference" and had no Copy link. The labels
@@ -844,7 +844,7 @@ notice there or nowhere.
      `font-variant-ligatures: none` (`global.css`, screen and print alike):
      Crimson Text and OpenDyslexic both join f+f, so "fff" read as a
      different label.
-- **"Copy with notes"** in the verse menu (`getHandoutText` in
+- **"Copy with footnotes"** in the verse menu (`getHandoutText` in
   `chapter-tools.js`) copies the verses with each footnote letter kept as
   "[a]", the reference, each cited note in order, then the notice and the
   verse link. The verses join per `joinPieces`, so they match Copy text
