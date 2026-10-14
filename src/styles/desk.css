@@ -850,7 +850,8 @@ html[data-desk-note-font="plain"] .desk-note-pop {
   color: var(--text);
   font-family: var(--desk-note-font);
   font-weight: var(--desk-note-weight, 400);
-  font-size: calc(0.9375rem * var(--reading-scale, 1));
+  /* 16px at the default text size, up from 15 (BVJ, 2026-10-13). */
+  font-size: calc(1rem * var(--reading-scale, 1));
   line-height: 1.45;
   transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
 }
@@ -888,8 +889,9 @@ html[data-desk-note-font="plain"] .desk-note-pop {
   overflow-wrap: anywhere;
 }
 
-/* Cut off where the next note begins, fading out so it never reads as
-   whole; hover, focus or a click shows the rest over the note below. */
+/* Cut off at three lines, or sooner where the next note begins, fading out
+   so it never reads as whole; hover, focus or a click shows the rest over
+   whatever is below. */
 .desk-note--cut:not(.desk-note--open):not(:hover):not(:focus-within) {
   max-height: var(--desk-note-max);
   overflow: hidden;

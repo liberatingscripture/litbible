@@ -33,6 +33,7 @@ import {
   CIRCLE_GAP,
   CIRCLE_INSET,
   NOTE_GAP,
+  NOTE_LINES,
   RIBBON,
   RIBBON_LANE,
   STACK_GAP,
@@ -211,7 +212,8 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
           out[i + 1].y = Math.max(out[i + 1].y, out[i].y + least(out[i]) + STACK_GAP);
         }
         out.forEach((l, i) => {
-          const room = i + 1 < out.length ? out[i + 1].y - l.y - STACK_GAP : Infinity;
+          const below = i + 1 < out.length ? out[i + 1].y - l.y - STACK_GAP : Infinity;
+          const room = Math.min(below, NOTE_LINES * noteLine + footOf(byId.get(l.id)));
           l.cut = wholeHeight(byId.get(l.id)) > room + 0.5;
           l.maxHeight = l.cut ? Math.max(room, least(l)) : null;
         });

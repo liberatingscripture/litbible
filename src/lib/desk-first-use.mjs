@@ -119,9 +119,9 @@ export const TOUR_STEPS = [
     title: "Add to the text",
     body: {
       study:
-        "Select a verse number, or select any words. The menu that opens has a My Notebook row: Add a note, Bookmark and Highlight.",
-      read: "Select any words. The panel that opens has a My Notebook row: Bookmark and Highlight.",
-      prose: "Select any words. The panel that opens has a My Notebook row where you can add a note.",
+        "Select a verse number, or select any words. The menu that opens has a “My Notebook” row: “Add a note”, “Bookmark” and “Highlight”.",
+      read: "Select any words. The panel that opens has a “My Notebook” row: “Bookmark” and “Highlight”.",
+      prose: "Select any words. The panel that opens has a “My Notebook” row with “Add a note”.",
     },
   },
   {
@@ -140,7 +140,7 @@ export const TOUR_STEPS = [
     title: "The Notebook",
     body: {
       study:
-        "This panel lists what you’ve kept. My Notes shows your notes, bookmarks and highlights. This verse gathers what you have on one verse. Greek shows the chapter in the SBL Greek New Testament.",
+        "This panel lists what you’ve kept. “My Notes” shows your notes, bookmarks and highlights. “This verse” gathers what you have on one verse. “Greek” shows the chapter in the SBL Greek New Testament.",
       default: "This panel lists what you’ve kept: your notes, bookmarks and highlights.",
     },
   },

@@ -9,9 +9,9 @@
 //   - each note sits level with the first word it was made on;
 //   - shown in full where there is about 230px of room (C9), and as its glyph
 //     in a circle where there isn't, whatever the reader's setting;
-//   - a note in full may run past the text it hangs on, and nothing changes
-//     for that alone; only one that would run into the note below is cut off
-//     where that note begins;
+//   - a note in full shows at most three lines until it is hovered, focused
+//     or opened (BVJ, 2026-10-13), and one that would run into the note below
+//     is cut off sooner, where that note begins;
 //   - circles sit level with their first word too, and go side by side only
 //     where two would overlap, while the row has room; past that, they stack;
 //   - a note opened from its circle opens above or below, whichever keeps its
@@ -39,6 +39,12 @@ export const CIRCLE_INSET = 14;
 export const CIRCLE_ROOM = CIRCLE + CIRCLE_INSET + 8;
 /** Space between stacked notes in full. */
 export const STACK_GAP = 6;
+/**
+ * The most lines a note in full shows before it is hovered, focused or
+ * opened, even with nothing below it (BVJ, 2026-10-13). Until then a long
+ * note ran on down the margin unless another note stopped it.
+ */
+export const NOTE_LINES = 3;
 /**
  * A bookmark's mark (a trial, BVJ 2026-10-07): its glyph in red, not in a
  * circle, level with the verse and right-aligned in the notes' column, the
@@ -83,13 +89,14 @@ export function noteWidth(free, column = Infinity) {
  * Notes in full, top to bottom. Each item gives the top of its first word's
  * line (`top`), that line's height (`lineHeight`), the note's own line height
  * (`noteLine`) and its height when shown whole (`height`). Returns, in the
- * same order, each note's `y`, and `cut` with the `maxHeight` it is cut to
- * when it would run into the note below.
+ * same order, each note's `y`, and `cut` with the `maxHeight` it is cut to:
+ * `maxLines` lines at most, and sooner where it would run into the note
+ * below.
  *
  * A note whose word shares a line with the note above starts below that
  * note's first line, so two notes on one line never overlap.
  */
-export function layoutFull(items, { gap = STACK_GAP } = {}) {
+export function layoutFull(items, { gap = STACK_GAP, maxLines = NOTE_LINES } = {}) {
   const sorted = [...items].sort((a, b) => a.top - b.top);
   const placed = [];
   let floor = -Infinity;
@@ -101,7 +108,7 @@ export function layoutFull(items, { gap = STACK_GAP } = {}) {
   }
   return placed.map((p, i) => {
     const next = placed[i + 1];
-    const room = next ? next.y - p.y - gap : Infinity;
+    const room = Math.min(next ? next.y - p.y - gap : Infinity, maxLines * p.noteLine);
     const cut = p.height > room + 0.5;
     return { id: p.id, y: p.y, cut, maxHeight: cut ? Math.max(room, p.noteLine) : null };
   });

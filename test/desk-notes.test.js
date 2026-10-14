@@ -4,6 +4,7 @@ import {
   CIRCLE,
   CIRCLE_ROOM,
   FULL_ROOM,
+  NOTE_LINES,
   circlesPerRow,
   layoutCircles,
   layoutFull,
@@ -31,12 +32,23 @@ test("a note sits level with its word's line", () => {
   assert.equal(n.cut, false);
 });
 
-test("a long note is left alone unless it runs into the next one", () => {
+test("a note of three lines or fewer is left alone when nothing is below it", () => {
   const notes = layoutFull([
-    { id: "a", top: 0, lineHeight: LINE, noteLine: NOTE_LINE, height: 200 },
+    { id: "a", top: 0, lineHeight: LINE, noteLine: NOTE_LINE, height: NOTE_LINES * NOTE_LINE },
     { id: "b", top: 400, lineHeight: LINE, noteLine: NOTE_LINE, height: 40 },
   ]);
-  assert.equal(notes[0].cut, false, "200px of note, 400px to the next: nothing changes");
+  assert.equal(notes[0].cut, false);
+});
+
+test("a longer note is cut at three lines even with room below it", () => {
+  const notes = layoutFull([
+    { id: "a", top: 0, lineHeight: LINE, noteLine: NOTE_LINE, height: 200 },
+    { id: "b", top: 400, lineHeight: LINE, noteLine: NOTE_LINE, height: 200 },
+  ]);
+  assert.equal(notes[0].cut, true, "200px of note, 400px to the next: still three lines");
+  assert.equal(notes[0].maxHeight, NOTE_LINES * NOTE_LINE);
+  assert.equal(notes[1].cut, true, "the last note too");
+  assert.equal(notes[1].maxHeight, NOTE_LINES * NOTE_LINE);
 });
 
 test("a note that would run into the one below is cut where that one begins", () => {
@@ -46,7 +58,7 @@ test("a note that would run into the one below is cut where that one begins", ()
   ]);
   assert.equal(notes[0].cut, true);
   assert.equal(notes[0].maxHeight, notes[1].y - notes[0].y - 6);
-  assert.equal(notes[1].cut, false, "the last note is never cut");
+  assert.equal(notes[1].cut, false, "the last note isn't cut when it fits three lines");
 });
 
 test("two notes on one line stack: the second starts below the first's first line", () => {
