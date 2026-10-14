@@ -397,7 +397,7 @@ export function createTour({ panel }) {
     if (!document.querySelector('#deskPanel [role="tab"][data-tab="verse"]')) ids.delete("verse");
     if (!document.querySelector(".desk-gutter")) ids.delete("widths");
     if (view !== "study" ? !textParagraphs().length : !pickVerse()) {
-      for (const id of ["actions", "note", "highlight", "bookmark"]) ids.delete(id);
+      for (const id of ["actions", "note", "highlight", "bookmark", "margin"]) ids.delete(id);
     }
     return ids;
   };

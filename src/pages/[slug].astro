@@ -226,11 +226,15 @@ const termLensJson = termLens?.marks.length
       })} />
     )}
   </Fragment>
-  {/* The last-read attributes arm Continue reading; drafts never set them. */}
+  {/* The last-read attributes arm Continue reading; drafts never set them.
+      A draft names its chapter apart, for the Study Desk's Greek tab
+      (greekChapter in src/scripts/desk/page.js). */}
   <article
     class="chapter"
     data-last-read-book={isDraftPage ? undefined : normalizedBookKey}
     data-last-read-chapter={isDraftPage ? undefined : props.chapter}
+    data-draft-book={isDraftPage ? normalizedBookKey : undefined}
+    data-draft-chapter={isDraftPage ? props.chapter : undefined}
   >
         {/* Hidden description for Hebrew poetry blockquotes referenced by aria-describedby */}
         <div id="hbq-description" hidden>Formatted as Hebrew and Semitic poetry with indented parallel lines</div>

@@ -24,9 +24,10 @@
 // it, and its × still closes it.
 //
 // Tabs (BVJ, 2026-10-08; "Decisions", the Greek tab, items 1 and 12): "My
-// Notes" (tab-mine.js) everywhere, and on Study View chapters "This verse"
-// (tab-verse.js) and "Greek" (tab-greek.js, phase 1f), which reads the
-// SBLGNT with the dictionary beside it. A Versions tab is deferred
+// Notes" (tab-mine.js) everywhere, on Study View chapters "This verse"
+// (tab-verse.js), and "Greek" (tab-greek.js, phase 1f), which reads the
+// SBLGNT with the dictionary beside it, on Study View chapters and on draft
+// chapters too (BVJ, 2026-10-13), where there is no LIT text to go with it. A Versions tab is deferred
 // indefinitely (BVJ, 2026-10-11). A surface with one tab
 // shows no tab row. The tab last chosen is remembered in
 // localStorage['lit-desk-tab'] and used wherever the page has it.
@@ -40,7 +41,7 @@
 import { keepReadingPlace } from "../keep-reading-place.js";
 import { createRail } from "./margin.js";
 import { HIDE_EVENT, panelNoteControls } from "./note-settings.js";
-import { pageChapter } from "./page.js";
+import { greekChapter, pageChapter } from "./page.js";
 import { forChapter } from "../../lib/desk-store-core.mjs";
 import { proseRecords, prosePage } from "./note-sources.js";
 import { createFirstUse } from "./first-use.js";
@@ -90,6 +91,7 @@ const ICON_CLOSE = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" 
 export function createPanel({ store, storeError, onEdit = null, onAddNote = null, goHere = null, ctx = null, showInText = null }) {
   const root = document.documentElement;
   const here = pageChapter();
+  const greekHere = here ?? greekChapter();
   const toggles = Array.from(document.querySelectorAll("[data-desk-toggle]"));
   const inReadView = Boolean(document.querySelector("[data-rm-root]"));
 
@@ -173,12 +175,16 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
                 greek: { open: openGreekWord },
               }),
           },
+        ]
+      : []),
+    ...(greekHere
+      ? [
           {
             id: "greek",
             label: "Greek",
             make: () =>
               createGreekTab({
-                here,
+                here: greekHere,
                 visible: () => visible() && activeTab === "greek",
                 openVerse: (verse) => showVerse(verse),
               }),

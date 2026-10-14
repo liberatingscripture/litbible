@@ -15,6 +15,20 @@ export function pageChapter() {
   return { bookKey, chapter, label: `${bookKeyToLabel(bookKey)} ${chapter}` };
 }
 
+/**
+ * The chapter whose Greek the Notebook can show: a Study View chapter's, or a
+ * draft chapter's (which has no LIT text yet), or null.
+ */
+export function greekChapter() {
+  const here = pageChapter();
+  if (here) return here;
+  const article = document.querySelector("article.chapter[data-draft-book]");
+  const bookKey = article?.dataset.draftBook;
+  const chapter = Number(article?.dataset.draftChapter);
+  if (!bookKey || !chapter) return null;
+  return { bookKey, chapter, label: `${bookKeyToLabel(bookKey)} ${chapter}` };
+}
+
 /** Study View's scripture blocks. */
 export function chapterBlocks() {
   return document.querySelector(".chapter-paragraphs")?.children ?? [];

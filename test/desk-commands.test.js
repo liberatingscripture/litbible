@@ -27,6 +27,12 @@ test("commands appear only where they can work", () => {
   assert.deepEqual(ids("greek", notStudy), [], "the Greek tab is a Study View tab");
 });
 
+test("a draft chapter offers the Greek tab but not This verse", () => {
+  const draft = { ...chapter, study: false, greek: true };
+  assert.deepEqual(ids("greek", draft), ["show-greek"]);
+  assert.ok(!ids("this verse", draft).includes("show-this-verse"), "a draft has no LIT verse to show");
+});
+
 test("open and close are one command, by whether the panel is open", () => {
   const panel = (c) => ids("notebook", c).filter((i) => i.endsWith("-notebook"));
   assert.deepEqual(panel({ ...chapter, panelOpen: false }), ["open-notebook"]);
