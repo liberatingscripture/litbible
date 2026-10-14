@@ -1447,6 +1447,13 @@ a.desk-item__highlight:hover {
   filter: brightness(1.1);
 }
 
+/* The tour's example editor, which can't be saved (note-editor.js). */
+.desk-editor__actions .desk-editor__save:disabled {
+  opacity: 0.45;
+  filter: none;
+  cursor: not-allowed;
+}
+
 .desk-editor__actions .desk-editor__delete {
   margin-right: auto;
 }
@@ -2373,7 +2380,7 @@ html[data-desk-list="full"] .desk-item__pin-text {
   position: fixed;
   z-index: 960;
   box-sizing: border-box;
-  width: min(320px, calc(100vw - 24px));
+  width: min(340px, calc(100vw - 24px));
   padding: 14px 16px 12px;
   border: 1px solid rgba(var(--ink-rgb), 0.2);
   border-radius: 12px;
@@ -2429,6 +2436,7 @@ html[data-desk-list="full"] .desk-item__pin-text {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: 8px;
 }
 
@@ -2450,6 +2458,29 @@ html[data-desk-list="full"] .desk-item__pin-text {
 .desk-tour__next:hover {
   background: var(--green-deep);
   filter: brightness(1.1);
+}
+
+/* The two ways out: the whole tour, and the rest of this part. */
+.desk-tour__skips {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0 4px;
+}
+
+.desk-tour__skip[hidden] {
+  display: none;
+}
+
+/* The tour's previews, which are never the reader's: a highlight of its own
+   (the reader's are desk-hl-*), and an example note drawn outside the
+   notebook's margin (tour.js). */
+::highlight(desk-tour-hl) {
+  background-color: var(--desk-hl-yellow);
+}
+
+.desk-tour-demo .desk-note {
+  background: var(--surface-raised);
+  box-shadow: 0 0 0 1px rgba(var(--ink-rgb), 0.12);
 }
 
 /* What a step points at. A dashed outline, so it isn't mistaken for focus. */

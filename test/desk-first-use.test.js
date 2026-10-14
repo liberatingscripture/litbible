@@ -8,7 +8,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 
 import {
-  HOMES, REMIND_AFTER_DAYS, SAFARI_LINE, TOUR_STEPS,
+  HOMES, REMIND_AFTER_DAYS, SAFARI_LINE, TOUR_PARTS, TOUR_STEPS,
   agoPhrase, daysSince, isDesktopSafari, parseTourState, planTour, readHome, readLastExport,
   reminderDue, reminderText, savedLine, stepBody, tourOffer, wantsReminder, withOffered, withSeen,
 } from "../src/lib/desk-first-use.mjs";
@@ -97,11 +97,13 @@ test("the tour's steps have unique ids and wording for every view they may meet"
   const ids = TOUR_STEPS.map((s) => s.id);
   assert.equal(new Set(ids).size, ids.length);
   for (const s of TOUR_STEPS) {
-    for (const view of ["study", "read", "prose"]) assert.ok(stepBody(s, view).length > 20, `${s.id}/${view}`);
+    assert.ok(s.views.length && s.views.every((v) => ["study", "read", "prose"].includes(v)), s.id);
+    assert.ok(TOUR_PARTS[s.part], s.id);
+    for (const view of s.views) assert.ok(stepBody(s, view).length > 20, `${s.id}/${view}`);
     // Reader-facing prose: no em dashes, no straight quotes.
     for (const text of [s.title, ...Object.values(s.body)]) assert.doesNotMatch(text, /[—"']/);
   }
-  assert.match(stepBody(TOUR_STEPS[0], "read"), /“Bookmark” and “Highlight”/);
+  assert.match(stepBody(TOUR_STEPS[0], "read"), /“Bookmark”, and “Highlight” while “My highlights” is on/);
   assert.doesNotMatch(stepBody(TOUR_STEPS[0], "read"), /Add a note/);
 });
 
@@ -157,4 +159,25 @@ test("a tour takes the steps whose target is on the page, numbered", () => {
   assert.equal(fresh[0].of, 1);
 
   assert.deepEqual(planTour({ available: new Set() }), []);
+});
+
+test("a tour leaves out the steps that don't belong to the page's view", () => {
+  const all = new Set(TOUR_STEPS.map((s) => s.id));
+  const read = planTour({ available: all, view: "read" }).map((s) => s.id);
+  assert.ok(read.includes("bookmark"));
+  for (const id of ["note", "margin", "highlight", "pin", "verse", "greek", "widths"]) assert.ok(!read.includes(id), id);
+  const prose = planTour({ available: all, view: "prose" }).map((s) => s.id);
+  assert.ok(prose.includes("note") && prose.includes("margin"));
+  assert.ok(!prose.includes("bookmark"));
+});
+
+test("each step knows its part and where the next part starts", () => {
+  const steps = planTour({ available: new Set(TOUR_STEPS.map((s) => s.id)), view: "study" });
+  const firstOfPart = (p) => steps.findIndex((s) => s.part === p);
+  assert.equal(steps[0].partName, TOUR_PARTS[0]);
+  assert.equal(steps[0].nextPart, firstOfPart(1));
+  assert.equal(steps[firstOfPart(1)].nextPart, firstOfPart(2));
+  assert.equal(steps.at(-1).nextPart, null, "the last part has nowhere to skip to");
+  // Parts run in order, never interleaved.
+  assert.deepEqual(steps.map((s) => s.part), [...steps.map((s) => s.part)].sort());
 });

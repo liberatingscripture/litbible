@@ -3262,9 +3262,39 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
        reminder with "Save a copy", **desktop Safari's line** (Safari clears
        a site's data after seven days of use without a visit), and Take the
        tour, Help and "Tell us what's missing" (/contact/). **The tour**
-       (`lit-desk-tour`, five steps: actions, margin, panel, search, kept)
-       is offered once, right after the choice, and replays from the foot,
-       the `tour` command and the help page; it writes no records. The help
+       (`lit-desk-tour`) is offered once, right after the choice, and
+       replays from the foot, the `tour` command and the help page; it
+       writes no records. **Rebuilt 2026-10-13 as a walk-through whose steps
+       act** (BVJ: "more thorough in walking through how to use the
+       features"; steps that act, and "the changes it makes should not
+       persist after the tour is done"). Fourteen steps in three parts, each
+       with "Skip this part": *marking the text* (open the menu, write a
+       note, the margin, highlight, bookmark, pin a footnote), *the
+       Notebook* (the panel, "This verse", "Greek", the widths) and *finding
+       and keeping* (undo and "Hide my notes", search and commands, the
+       notebook page, where it's kept). Read View gets seven of them and an
+       article or the glossary seven or eight (`views` on each step in
+       `desk-first-use.mjs`). What each does: opens the verse menu (or, in
+       Read View and on prose, selects a few words to open the selection
+       panel); opens the real note editor in an example mode that can't
+       save (`setEditorPreview` in `note-editor.js`); draws an example note
+       in the margin when the reader has none in view; previews a highlight
+       with a Custom Highlight of the tour's own (`desk-tour-hl`); opens a
+       footnote's popover at its Pin; opens the panel's tabs (the Greek at
+       the verse's first word); types "notebook" into the search box. When
+       it ends, by Done, Skip or Escape, all of it is undone: menus closed,
+       the selection cleared, the example and preview removed, the search
+       box's words restored and its tray closed, the Notebook put back as
+       it was with `lit-desk-panel`, `lit-desk-min` and `lit-desk-tab`
+       rewritten as they were (`snapshot` and `restore` in `panel.js`), and
+       the page scrolled back. While it runs, `data-desk-tour` on `<html>`
+       stops `saveLastRead` (`last-read.js`), so neither "Continue reading"
+       nor a following ribbon records the places it scrolls through.
+       Checked in the browser on Romans 8 (panel open, minimized and
+       closed), Read View, an article and the glossary: every `lit*` key,
+       the record count and the scroll position came back unchanged. What
+       the reader does during the tour (a highlight they choose) is theirs
+       and stays. The help
        page covers ways to keep the notebook, saving and opening a copy,
        deleting everything, places and ribbons, labels,
        search and commands, the tour, sharing what you write (with the
@@ -3669,7 +3699,10 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
    printing (B3, S2), on 1a's comparison; notes that follow a word and
    concept marks saved as rules (N2, H2, C23); your own chains (N4); the word
    study (M4, once sheets exist); your notebook where you already look (M10);
-   notes on a footnote (M11). The core of N3, finding a mark again and saying
+   notes on a footnote (M11); **construction search** (BVJ, 2026-10-13:
+   *pistis* with *Iēsou Christou* in the genitive, the case that motivates
+   it; a small query language over 1f's parsing, no new data, and a page
+   for its results; "Order of work", 1h, under what it leaves out). The core of N3, finding a mark again and saying
    when its words changed, moved into phase 1, since every mark is re-found on
    every load. Medium.
 3. **Sheets.** None of it waits on the apps: a sheet's inner shape is the
@@ -4568,9 +4601,11 @@ The first five confirm what the preview already does.
   day.
 - **The tour puts the names of things in quotation marks** ("My Notes",
   "This verse", "Greek", the "My Notebook" row and its buttons), as the
-  help page does. Built the same day. BVJ also finds the tour too thin:
-  it should walk through how to use the features (proposed under "Still
-  open").
+  help page does. Built the same day. BVJ also found the tour too thin:
+  it now walks through how to use the features, with **steps that act and
+  leave nothing behind** (built the same day; "Order of work", 1d).
+- **Construction search goes in phase 2**, and **the transliteration
+  pass goes on FIXLIST.md** (both 2026-10-13).
 - **Leaning toward releasing after phase 3**, not decided (under "Still
   open").
 
@@ -4703,23 +4738,25 @@ The first five confirm what the preview already does.
   not decided), since phase 1 took about two weeks to build. A small
   group of trusted readers given `?desk=on` would not be a release, and
   is a separate question.
-- **A fuller tour** (BVJ, 2026-10-13: it should walk through how to use
-  the features). Today it has five steps that name things. Proposed, not
-  decided: about a dozen steps that each say how, in order of use (add a
-  note; highlight and remove a highlight; bookmark; reading and editing a
-  note in the margin; pin a footnote; the panel's tabs, minimizing and the
-  widths; "This verse"; the Greek tab, its words and its search; undo and
-  "Hide my notes"; search and commands; the notebook page's labels,
-  ribbons and saved copies; where it's kept), grouped so a reader can skip
-  a group. Open: whether a step may act for the reader (open the verse
-  menu to show the row) or only point.
-- **Construction search** (raised again 2026-10-13; "Order of work", 1h,
-  under what it leaves out). Not placed in a phase. Recommended, not
-  decided: phase 2, beside the word study (M4), since both ask how a word
-  is used and *pistis Christou* is the case that motivates it. It needs a
-  small query language over 1f's parsing (no new data) and a page for the
-  results.
-- **One transliteration style across the corpus** (raised 2026-10-13).
+- ~~**A fuller tour**~~: **built** (BVJ, 2026-10-13: steps that act, and
+  nothing they do persists). Fourteen steps in three parts; see "Order of
+  work", 1d, "First use, the tour and the help page".
+- ~~**Construction search**~~: **in phase 2** (BVJ, 2026-10-13).
+- **Word families and searching by parsing** ("Order of work", 1h, under
+  what it leaves out; BVJ asked about both, 2026-10-13). Not placed.
+  Recommended, not decided: **searching by parsing** (every aorist
+  imperative; every genitive of *pistis*) in phase 2 with construction
+  search, since it is that query language's simplest use and needs no new
+  data; **word families** (πιστεύω, πίστις, πιστός) in phase 2 beside the
+  word study (M4), but only once a family list exists. None of 1f's
+  sources groups lemmas into families; STEPBible's Abbott-Smith entries
+  carry etymologies ("ἀγρεύω (ἄγρα)") and Strong's says "from G…", which
+  could seed a list mechanically, then an editorial review, which is the
+  real cost (5,465 lemmas, though most families are small and many lemmas
+  stand alone).
+- **One transliteration style across the corpus** (raised 2026-10-13;
+  **on FIXLIST.md since 2026-10-13**, BVJ, under the Fable list, "Added
+  2026-10-13", where the decisions below wait).
   Search shows the SBL Handbook's academic style (psychē, kyrios); the
   corpus mostly doesn't. A survey that day of italic Latin words that
   spell an SBLGNT form found about 3,600, 1,950 already in that style and

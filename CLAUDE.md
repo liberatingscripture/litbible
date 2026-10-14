@@ -2441,6 +2441,14 @@ collection); they're read directly by the intro pages and the API manifest.
        The privacy page has a paragraph naming these keys and the notebook's
        storage: keep it in step if a key or what is stored changes.
        `/privacy`'s effective date was not bumped for it.
+       **The tour's steps act, and leave nothing behind** (BVJ,
+       2026-10-13): they open real menus, the note editor (in an example
+       mode that can't save), the panel's tabs and the search tray, and end
+       by undoing all of it, putting the Notebook back with `panel.js`'s
+       `snapshot`/`restore` and the scroll where it was. While it runs,
+       `data-desk-tour` on `<html>` makes `saveLastRead` record nothing. A
+       new step that changes anything must undo it the same way (`later` in
+       `tour.js`), and must never write a record.
      - **N8, the hidden passage, is built but held** (BVJ, 2026-10-12, until
        after the Zoom) on branches `claude/desk-1d-hidden` and
        `claude/desk-1d-search`; it is not in this tree, so nothing here

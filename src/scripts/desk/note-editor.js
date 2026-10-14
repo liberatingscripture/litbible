@@ -19,6 +19,14 @@ import { showUndo } from "./undo-bar.js";
 
 let seq = 0;
 
+// The tour's example (tour.js): while set, a new note's editor opens with
+// these words, read-only, and can't be saved, so the tour shows the real
+// editor and writes nothing.
+let preview = null;
+export function setEditorPreview(text) {
+  preview = text ?? null;
+}
+
 /**
  * @param {object} options
  * @param {Element | { getBoundingClientRect(): DOMRect }} options.trigger what the panel opens beside
@@ -76,6 +84,12 @@ export function openNoteEditor({ trigger, store, ctx, ref, record = null, draft 
 
   const body = panel.querySelector("textarea");
   body.value = record?.body ?? "";
+  const example = !editing && preview !== null;
+  if (example) {
+    body.value = preview;
+    body.readOnly = true;
+    panel.querySelector(".desk-editor__save").disabled = true;
+  }
   const nameEl = panel.querySelector(".desk-editor__marker-name");
   const error = panel.querySelector(".desk-editor__error");
   for (const r of panel.querySelectorAll('input[type="radio"]')) {
@@ -87,6 +101,7 @@ export function openNoteEditor({ trigger, store, ctx, ref, record = null, draft 
   }
 
   async function save() {
+    if (example) return;
     const now = new Date().toISOString();
     let next;
     if (editing) {

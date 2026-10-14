@@ -48,7 +48,7 @@ import { createMineTab } from "./tab-mine.js";
 import { createGreekTab } from "./tab-greek.js";
 import { createVerseTab } from "./tab-verse.js";
 import { resetWidthsButton } from "./widths.js";
-import { OPEN_KEY, startState } from "../../lib/desk-start.mjs";
+import { MIN_KEY, OPEN_KEY, startState } from "../../lib/desk-start.mjs";
 
 const TAB_KEY = "lit-desk-tab";
 
@@ -445,11 +445,46 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
     verseTab.view.focusHeading();
   }
 
-  /** Open the Greek tab with a word selected and focused (a word in This verse's Greek). */
-  async function openGreekWord(verse, t) {
+  /**
+   * Open the Greek tab with a word selected and focused (a word in This
+   * verse's Greek). The tour passes `focus: false, remember: false`.
+   */
+  async function openGreekWord(verse, t, { focus = true, remember = true } = {}) {
     const greekTab = tabs.get("greek");
-    if (!greekTab || !showTab("greek")) return;
-    await greekTab.view.selectWord(verse, t, { focus: true });
+    if (!greekTab || !showTab("greek", { focus, remember })) return;
+    await greekTab.view.selectWord(verse, t, { focus });
+  }
+
+  /* ── The tour's snapshot ─────────────────────────────────────────── */
+
+  // The tour opens the panel and its tabs to show them, then puts everything
+  // back as it was: the panel shown, minimized or closed, the tab, and the
+  // three keys that remember them, so nothing the tour did is remembered.
+  const TOUR_KEYS = [OPEN_KEY, MIN_KEY, TAB_KEY];
+  function snapshot() {
+    const keys = {};
+    for (const k of TOUR_KEYS) {
+      try { keys[k] = localStorage.getItem(k); } catch (_) { keys[k] = null; }
+    }
+    return { hidden: panel.hidden, collapsed: rail.state().collapsed, tab: activeTab, keys };
+  }
+
+  function restore(s) {
+    if (s.hidden) {
+      if (!panel.hidden) close();
+    } else {
+      if (panel.hidden) open(null, { focus: false });
+      if (s.collapsed && !rail.state().collapsed) rail.collapse();
+      else if (!s.collapsed && rail.state().collapsed) rail.expand();
+    }
+    selectTab(s.tab, { remember: false });
+    for (const k of TOUR_KEYS) {
+      try {
+        if (s.keys[k] === null) localStorage.removeItem(k);
+        else localStorage.setItem(k, s.keys[k]);
+      } catch (_) {}
+    }
+    syncToggles();
   }
 
   /**
@@ -476,6 +511,8 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
     // What the tour (tour.js) needs.
     el: panel,
     isOpen: shown,
+    snapshot,
+    restore,
   };
 }
 
