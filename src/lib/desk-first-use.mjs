@@ -105,56 +105,179 @@ export function isDesktopSafari(ua) {
 /* ── The tour (D8) ────────────────────────────────────────────────── */
 
 /**
+ * The parts of the tour, in order. A reader can skip the rest of a part.
+ */
+export const TOUR_PARTS = ["Marking the text", "The Notebook", "Finding and keeping"];
+
+/**
  * The steps, in order. A step names no element: the tour (tour.js) finds each
- * one's target on the page in front of the reader and leaves the step out
- * when it isn't there. `since` is the phase that added it, so a later phase
- * adds a step with a newer one and a reader who has seen the tour is offered
- * just that. `body` is what it says, with a different wording for a view
- * where the thing works differently.
+ * one's target on the page in front of the reader, shows it working there
+ * (opening the verse menu, a demo note, a tab), and leaves the step out when
+ * it can't. `views` are where it can appear: "study" (a chapter), "read"
+ * (Read View) and "prose" (an article or the glossary). `since` is the phase
+ * that added it, so a later phase adds a step with a newer one and a reader
+ * who has seen the tour is offered just that. `body` is what it says, with a
+ * different wording for a view where the thing works differently.
+ *
+ * The walk-through (BVJ, 2026-10-13: "more thorough in walking through how to
+ * use the features", with steps that act and leave nothing behind) replaced
+ * five steps that only named things.
  */
 export const TOUR_STEPS = [
   {
     id: "actions",
+    part: 0,
+    views: ["study", "read", "prose"],
     since: "1d",
-    title: "Add to the text",
+    title: "Open the menu",
     body: {
       study:
-        "Select a verse number, or select any words. The menu that opens has a “My Notebook” row: “Add a note”, “Bookmark” and “Highlight”.",
-      read: "Select any words. The panel that opens has a “My Notebook” row: “Bookmark” and “Highlight”.",
+        "Select a verse number to open its menu. The “My Notebook” row is yours: “Add a note”, “Bookmark” and “Highlight”. Select any words instead, and the same row works on just those words.",
+      read: "Select any words. The panel that opens has a “My Notebook” row: “Bookmark”, and “Highlight” while “My highlights” is on in the Display tray.",
       prose: "Select any words. The panel that opens has a “My Notebook” row with “Add a note”.",
     },
   },
   {
+    id: "note",
+    part: 0,
+    views: ["study", "prose"],
+    since: "1h",
+    title: "Write a note",
+    body: {
+      default:
+        "“Add a note” opens this. Choose a marker, write in your own words, and choose “Save”. During the tour saving is off, so nothing here is kept.",
+    },
+  },
+  {
     id: "margin",
+    part: 0,
+    views: ["study", "prose"],
     since: "1d",
-    title: "Notes in the margin",
+    title: "Your notes in the margin",
     body: {
       study:
-        "A note you write sits in the margin beside its words. Highlights tint the text itself. Nothing is added to the scripture.",
-      prose: "A note you write sits in the margin beside its words. Nothing is added to the page’s own text.",
+        "A note sits in the margin beside the words it’s on, and shows three lines. Hover over it or select it to read the rest, then “Edit” to change or delete it. Nothing is added to the scripture.",
+      prose:
+        "A note sits in the margin beside the words it’s on, and shows three lines. Hover over it or select it to read the rest, then “Edit” to change or delete it. Nothing is added to the page’s own text.",
+    },
+  },
+  {
+    id: "highlight",
+    part: 0,
+    views: ["study"],
+    since: "1h",
+    title: "Highlight",
+    body: {
+      default:
+        "Choose a colour to tint the words. To take part of a highlight away, select those words and choose “Remove highlight”. The tint shown now is only a preview.",
+    },
+  },
+  {
+    id: "bookmark",
+    part: 0,
+    views: ["study", "read"],
+    since: "1h",
+    title: "Bookmark a verse",
+    body: {
+      study:
+        "“Bookmark” puts a red mark beside the verse, and “My Notes” lists every bookmark. “Ribbon here…” keeps a named place, like a ribbon in a book.",
+      read: "“Bookmark” puts a red mark beside the verse, here and in Study View, and the Notebook lists your bookmarks so you can go back to them.",
+    },
+  },
+  {
+    id: "pin",
+    part: 0,
+    views: ["study"],
+    since: "1h",
+    title: "Pin a footnote",
+    body: {
+      default:
+        "Select a footnote letter, then “Pin” to keep that footnote in “My Notes”, under “Pinned footnotes”, where it stays in reach as you read.",
     },
   },
   {
     id: "panel",
+    part: 1,
+    views: ["study", "read", "prose"],
     since: "1d",
     title: "The Notebook",
     body: {
       study:
-        "This panel lists what you’ve kept. “My Notes” shows your notes, bookmarks and highlights. “This verse” gathers what you have on one verse. “Greek” shows the chapter in the SBL Greek New Testament.",
-      default: "This panel lists what you’ve kept: your notes, bookmarks and highlights.",
+        "“My Notes” lists what you’ve kept in this chapter, or everything. Select one to go to it. » minimizes the Notebook to a tab at the window’s edge, × closes it, and the Notebook button brings it back.",
+      default:
+        "This lists what you’ve kept. Select one to go to it. » minimizes the Notebook to a tab at the window’s edge, × closes it, and the Notebook button brings it back.",
+    },
+  },
+  {
+    id: "verse",
+    part: 1,
+    views: ["study"],
+    since: "1h",
+    title: "“This verse”",
+    body: {
+      default:
+        "Everything on one verse: its footnotes, your notes and its Greek. While the Notebook is open, opening a verse’s menu moves this tab to that verse.",
+    },
+  },
+  {
+    id: "greek",
+    part: 1,
+    views: ["study"],
+    since: "1h",
+    title: "“Greek”",
+    body: {
+      default:
+        "The chapter in the SBL Greek New Testament, at the verse you’re reading. Select a word for its parsing and its dictionary entry. The search button finds a word, its forms or a Strong’s number.",
+    },
+  },
+  {
+    id: "widths",
+    part: 1,
+    views: ["study"],
+    since: "1h",
+    title: "Set the widths",
+    body: {
+      default:
+        "Drag the edges between your notes, the text and the Notebook to make each wider or narrower. “Reset widths” at the foot of “My Notes” puts them back.",
+    },
+  },
+  {
+    id: "undo",
+    part: 2,
+    views: ["study", "read", "prose"],
+    since: "1h",
+    title: "Undo, and a clean page",
+    body: {
+      default:
+        "Ctrl+Z undoes your last change to the notebook, and Ctrl+Shift+Z redoes it (⌘Z and ⇧⌘Z on a Mac). “Hide my notes”, or the H key, clears your marks from the page and brings them back.",
     },
   },
   {
     id: "search",
+    part: 2,
+    views: ["study", "read", "prose"],
     since: "1d",
     title: "Search and commands",
     body: {
       default:
-        "The search box also looks in your notebook and understands a few commands. Type “tour” to see this tour again.",
+        "The search box looks in your notebook too, and understands commands such as “hide”, “Greek” and “tour”. Here it shows what “notebook” finds.",
+    },
+  },
+  {
+    id: "notebook-page",
+    part: 2,
+    views: ["study", "read", "prose"],
+    since: "1h",
+    title: "The notebook page",
+    body: {
+      default:
+        "“Open the notebook page” shows everything you’ve kept in one place. There you can sort it with labels, keep your ribbons, and save a copy of your notebook or open one.",
     },
   },
   {
     id: "kept",
+    part: 2,
+    views: ["study", "read", "prose"],
     since: "1d",
     title: "Where it’s kept",
     body: {
@@ -221,11 +344,18 @@ export function tourOffer(raw) {
 }
 
 /**
- * The steps to take, in order: those whose target is on this page (`available`,
- * a Set of ids), narrowed to `only` for a tour of what's new. Each carries its
- * number, so a card can say "Step 2 of 5".
+ * The steps to take, in order: those for this `view` whose target is on this
+ * page (`available`, a Set of ids), narrowed to `only` for a tour of what's
+ * new. Each carries its number, so a card can say "Step 2 of 14", and its
+ * part's name and where the next part starts (`nextPart`, an index, or null
+ * in the last part), for "Skip this part".
  */
-export function planTour({ available, only = null }) {
-  const steps = TOUR_STEPS.filter((s) => available.has(s.id) && (!only || only.includes(s.id)));
-  return steps.map((s, i) => ({ ...s, number: i + 1, of: steps.length }));
+export function planTour({ available, only = null, view = null }) {
+  const steps = TOUR_STEPS.filter(
+    (s) => available.has(s.id) && (!only || only.includes(s.id)) && (!view || s.views.includes(view)),
+  );
+  return steps.map((s, i) => {
+    const next = steps.findIndex((t, j) => j > i && t.part !== s.part);
+    return { ...s, number: i + 1, of: steps.length, partName: TOUR_PARTS[s.part], nextPart: next < 0 ? null : next };
+  });
 }

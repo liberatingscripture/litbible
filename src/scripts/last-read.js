@@ -35,6 +35,10 @@ export function loadLastRead() {
 }
 
 export function saveLastRead({ book, chapter, verse = null, view }) {
+  // The Study Desk's tour moves the page to show things (src/scripts/desk/
+  // tour.js), and that is not the reader's reading: nothing is recorded, and
+  // no ribbon follows, while it runs.
+  if (document.documentElement.hasAttribute("data-desk-tour")) return;
   try {
     window.localStorage.setItem(
       KEY,

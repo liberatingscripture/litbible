@@ -1529,6 +1529,45 @@ code.
     field like `topics`: the importer writes none, and a reimport or a
     restore must keep it.
 
+### Added 2026-10-13 from the Study Desk's Greek search
+
+- [ ] **One transliteration style across the corpus.**
+  Owner, 2026-10-13: put it on this list. Searching the Greek (Study Desk
+  phase 1h) shows each word transliterated in the SBL Handbook's academic
+  style (`transliterate` in `src/lib/greek-search.mjs`: psychē, kyrios,
+  hypotassō, houtos), but the corpus's own transliterations mostly aren't in
+  it. A survey that day took every italic Latin word in chapter paragraphs
+  and footnotes, intros, glossary bodies and `greek:` fields, and articles,
+  and kept those whose `latinKeys` match the `greekKey` of a word in
+  `public/greek/text/` or a lemma in `public/greek/search/lemmas.json`. It
+  found about 3,600: about 1,950 already in that style and about 1,600 not,
+  in some 240 files, mostly footnotes. About 1,250 lack a macron (eulogeo,
+  poneros, soter, ekklesia), and about 480 write *u* for upsilon (kurios 199
+  times, psuche, hupotasso, dikaiosune). The count includes false matches
+  ("the" and "tes" read as Greek articles, proper names), so a pass needs a
+  reviewed list, never a blind replace. Decide first:
+  - **Whether to do it at all, and which style.** Macrons only, or the *y*
+    too ("kurios" is what most readers know)? The SBL Handbook also has a
+    general-purpose style without macrons, which is closer to the corpus
+    today; switching search's display to it would be the other way to make
+    the two agree, with no corpus edit.
+  - **The Word masters.** A repo-only pass parts the repo from the masters,
+    as the en dash did (CLAUDE.md, Chapter JSON Format), so every restore or
+    import would pull the old spellings back unless Word changes too. The
+    2026-02 import stripped macrons the masters had, so the masters may
+    already be nearer SBL style than the repo; check them before deciding.
+  How, once decided: a script that proposes each change in the manner of the
+  en-dash pass, with the ambiguous cases (one Latin spelling that fits
+  several Greek forms, such as aionion for αἰώνιον or αἰωνίων) listed for the
+  owner to rule on in context. Byte-level edits to chapter files, never a
+  reserialize (CLAUDE.md, Chapter JSON Format). A footnote stored
+  byte-identically in several chapters must change in all of them. Touch
+  `src/data/release-notes-skip.md` in the same commit, since this is a
+  mechanical pass. Glossary `greek:` fields and bodies feed the apps
+  (`/api/data/glossary.json`), so that part is a publish to both platforms.
+  Search is unaffected either way: `latinKeys` ignores macrons and reads *y*
+  as *u*.
+
 ## Owner — decisions & dashboard tasks (no model)
 
 - [x] **Decide `/courses`.**
