@@ -166,9 +166,10 @@ are recorded so they aren't re-argued.
   people).
 - On computers, where readers now have notes of their own, the verse menu's
   and selection panel's **"Copy with notes" becomes "Copy with footnotes"**,
-  in both panels (decision 3, audit C26). Phones keep "Copy with notes",
-  since they have one kind of note. Update CLAUDE.md's "One set of actions,
-  two ways in" and "Printing and handouts" when this ships.
+  in both panels (decision 3, audit C26). **Shipped 2026-10-14 for every
+  reader, phones included** (BVJ): the label is the same everywhere, and
+  CLAUDE.md's "One set of actions, two ways in" and "Printing and handouts"
+  say so.
 - **Idea IDs**: N notes, B places and bookmarks, H highlights, S sheets, D the
   desk as a whole. Ideas the audit added keep their **M** numbers. Audit
   findings are **C1 to C27**. BVJ cites these IDs, so keep them stable; never

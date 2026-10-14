@@ -11,6 +11,7 @@
 // chapter-tools.js when the glossary got a selection panel (2026-10-09).
 
 import { closePanel } from "./lit-panel.js";
+import { dockWidth } from "./desk-frame.js";
 
 // The kind of pointer that last pressed the page: "mouse", "touch" or "pen".
 // Both panels take their layout from it, not from the screen width: a finger
@@ -144,6 +145,9 @@ export function snapToWords(range) {
 const HANDLE_CLEARANCE = 28;
 const OS_BUBBLE_CLEARANCE = 64;
 export const PANEL_EDGE = 12;
+// The least a panel is squeezed to, to keep clear of a selection, before it
+// would rather cover some of it.
+const MIN_SCROLLING_HEIGHT = 220;
 
 /**
  * Placement for a touch selection: beside it, where the reader is looking,
@@ -170,5 +174,64 @@ export function placeBesideTouchSelection(rect) {
     let left = rect.left + rect.width / 2 - width / 2;
     left = Math.max(PANEL_EDGE, Math.min(left, window.innerWidth - width - PANEL_EDGE));
     return { left: window.scrollX + left, top: window.scrollY + top };
+  };
+}
+
+/**
+ * Placement for a mouse selection: beside the selected words, never over
+ * them. It tries above, then below, then to the right and the left, taking
+ * the first spot that fits on the screen without touching the selection. Where
+ * none does, a tall panel is squeezed into the roomier strip above or below
+ * (and scrolls there); a selection filling the window gets the spot that
+ * covers the least of it. The panel can be dragged from any of these.
+ */
+export function placeClearOfSelection(rect) {
+  return (el) => {
+    const room = window.innerWidth - dockWidth();
+    el.style.maxWidth = Math.min(380, room - 2 * PANEL_EDGE) + "px";
+    const width = el.offsetWidth;
+    const height = el.offsetHeight;
+    const gap = 8;
+    const maxLeft = room - width - PANEL_EDGE;
+    const maxTop = window.innerHeight - height - PANEL_EDGE;
+    const midLeft = rect.left + rect.width / 2 - width / 2;
+    const midTop = rect.top + rect.height / 2 - height / 2;
+    const candidates = [
+      { left: midLeft, top: rect.top - height - gap },
+      { left: midLeft, top: rect.bottom + gap },
+      { left: rect.right + gap, top: midTop },
+      { left: rect.left - width - gap, top: midTop },
+    ];
+    const clamp = (c) => ({
+      left: Math.max(PANEL_EDGE, Math.min(c.left, maxLeft)),
+      top: Math.max(PANEL_EDGE, Math.min(c.top, maxTop)),
+    });
+    const overlap = (c) =>
+      Math.max(0, Math.min(c.left + width, rect.right) - Math.max(c.left, rect.left)) *
+      Math.max(0, Math.min(c.top + height, rect.bottom) - Math.max(c.top, rect.top));
+
+    let best = null;
+    for (const c of candidates) {
+      const at = clamp(c);
+      const cost = overlap(at);
+      const fits = at.left === c.left && at.top === c.top;
+      if (fits && cost === 0) return { left: window.scrollX + at.left, top: window.scrollY + at.top };
+      if (!best || cost < best.cost) best = { at, cost };
+    }
+
+    // Nowhere fits whole (the Study Desk's rows make the panel tall): take the
+    // roomier strip above or below the selection and let the panel scroll in it.
+    const above = rect.top - gap - PANEL_EDGE;
+    const below = window.innerHeight - rect.bottom - gap - PANEL_EDGE;
+    const strip = Math.max(above, below);
+    if (strip >= MIN_SCROLLING_HEIGHT) {
+      el.style.maxHeight = strip + "px";
+      el.style.overflowY = "auto";
+      return {
+        left: window.scrollX + Math.max(PANEL_EDGE, Math.min(midLeft, maxLeft)),
+        top: window.scrollY + (above >= below ? rect.top - gap - strip : rect.bottom + gap),
+      };
+    }
+    return { left: window.scrollX + best.at.left, top: window.scrollY + best.at.top };
   };
 }

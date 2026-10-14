@@ -13,7 +13,7 @@
 //    unsupported; the scroll still works). A floating chip (or Esc)
 //    clears the highlight.
 // 2. Verse menu — tapping a verse number opens Copy text / Copy link /
-//    Copy with notes / Share / Make an image. Tapping more verse numbers
+//    Copy with footnotes / Share / Make an image. Tapping more verse numbers
 //    while the menu is open extends the selection to a range (e.g. John
 //    3:16–18). Its layout follows the input: a finger gets chips, a mouse
 //    the rows of a computer's menu.
@@ -21,7 +21,7 @@
 //    (bottom sheet on small screens), with a link through to the full
 //    footnotes section.
 // 4. Selection sharing — selecting any run of scripture text offers the
-//    verse menu's actions (Copy text / Copy link / Copy with notes / Share
+//    verse menu's actions (Copy text / Copy link / Copy with footnotes / Share
 //    / Make an image), for a half-sentence or a phrase crossing two verses,
 //    which the verse menu can't reach.
 //
@@ -39,6 +39,7 @@ import {
   menuButton,
   panelRow,
   placeBesideTouchSelection,
+  placeClearOfSelection,
   pointerType,
   snapToWords,
   withReference,
@@ -439,7 +440,7 @@ function getVerseText(container, start, end, options) {
 }
 
 /**
- * "Copy with notes": the verses with their footnote letters kept as "[a]",
+ * "Copy with footnotes": the verses with their footnote letters kept as "[a]",
  * the reference, each note those letters cite, then the attribution notice the
  * license asks a handout to carry and the verse link. /read's license terms
  * let a study guide or bulletin quote the notes too, provided they stay "in
@@ -616,11 +617,12 @@ function pinToScreen(panel, at = null) {
  * it covers. A panel that scrolls with the text is pinned where it is first,
  * so it stays where the reader drops it.
  */
-function makeDraggable(panel, handle) {
+function makeDraggable(panel, handle, { onStart = null } = {}) {
   handle.classList.add("lit-panel__header--drag");
   handle.addEventListener("pointerdown", (e) => {
     if (e.button !== 0 || e.target.closest("button")) return;
     e.preventDefault(); // no text selection, no focus change
+    if (onStart) onStart();
     if (!panel.classList.contains("lit-panel--pinned")) pinToScreen(panel);
     const x0 = e.clientX;
     const y0 = e.clientY;
@@ -712,7 +714,7 @@ function openVerseMenu(
         return copyRich(withReference(text, ref) + "\n" + url);
       }),
       menuButton("Copy link", () => copyToClipboard(url)),
-      menuButton("Copy with notes", async () => {
+      menuButton("Copy with footnotes", async () => {
         const text = getHandoutText(container, start, end, ref, url);
         if (!text) return false;
         return copyRich(text);
@@ -1146,7 +1148,7 @@ function extendOverNotes(point) {
 }
 
 /**
- * "Copy with notes" from a selection: the selected words with their
+ * "Copy with footnotes" from a selection: the selected words with their
  * footnote letters kept as "[a]", laid out as the verse menu's handout is.
  * `scope` is the page to read letters and notes from. A verse whose text
  * there doesn't match the selection's (it shouldn't: both views render the
@@ -1196,7 +1198,7 @@ function openSelectionPanel(view, share, { touch }) {
   const ref = view.ref(share.chapter, share.start, share.end);
   const url = view.url(share.chapter, share.start, share.end);
   // Asked for now, so in Read View the chapter's notes are usually on
-  // hand by the time "Copy with notes" is pressed.
+  // hand by the time "Copy with footnotes" is pressed.
   const scope = view.scope(share.chapter);
 
   const panel = document.createElement("div");
@@ -1208,13 +1210,23 @@ function openSelectionPanel(view, share, { touch }) {
   // before the click lands.
   panel.addEventListener("mousedown", (e) => e.preventDefault());
 
+  // The header is the handle: the panel can be dragged aside by it, as the
+  // verse menu is. It has no ×, since the panel closes with the selection, on
+  // a tap or click elsewhere, or on Escape.
+  const header = document.createElement("div");
+  header.className = "lit-panel__header";
+  const grip = document.createElement("span");
+  grip.className = "lit-panel__grip";
+  grip.setAttribute("aria-hidden", "true");
   const heading = document.createElement("p");
   heading.className = "lit-panel__heading";
   heading.textContent = ref + " (LIT)";
-  panel.appendChild(heading);
+  header.append(grip, heading);
+  panel.appendChild(header);
 
   // Once a button is pressed the panel finishes on its own ("Copied ✓", or
   // the share sheet), even though a tap on a phone clears the selection.
+  // Dragging the panel counts as well: a finger on it clears the selection too.
   const acting = () => {
     if (currentPanel()?.el === panel) currentPanel().acting = true;
   };
@@ -1229,7 +1241,7 @@ function openSelectionPanel(view, share, { touch }) {
         acting();
         return copyToClipboard(url);
       }),
-      menuButton("Copy with notes", () => {
+      menuButton("Copy with footnotes", () => {
         acting();
         if (typeof scope?.then === "function") {
           return copyRichLater(scope.then((s) => (s ? selectionHandout(share, s, ref, url) : "")));
@@ -1274,10 +1286,11 @@ function openSelectionPanel(view, share, { touch }) {
 
   showPanel({ getBoundingClientRect: () => share.rect }, panel, {
     preferAbove: true,
-    place: touch ? placeBesideTouchSelection(share.rect) : null,
+    place: touch ? placeBesideTouchSelection(share.rect) : placeClearOfSelection(share.rect),
     sheet: false,
     extra: { kind: "selection" },
   });
+  makeDraggable(panel, header, { onStart: acting });
 }
 
 function initSelectionShare(view) {

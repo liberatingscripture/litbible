@@ -683,6 +683,17 @@ opens its own panel, and the selection survives the click, so the next
 (the selection the panel last opened for, which a pointerdown doesn't clear)
 lets that panel keep the screen while the selection is unchanged.
 
+**It is placed clear of the selection and can be dragged aside** (owner,
+2026-10-14), by its header, as the verse menu is. A mouse selection tries
+above, below, then to the right and left of the selected words
+(`placeClearOfSelection`, `panel-pieces.js`); where none fits whole, which the
+Study Desk's extra rows make likely on a short window, the panel is squeezed
+into the roomier strip above or below and scrolls there; only a selection
+filling the window leaves it covering some of it. A finger keeps
+`placeBesideTouchSelection`. It has no ×, since it closes with the selection, on
+a tap elsewhere or on Escape. Dragging marks it `acting`, as a button press
+does, because a finger on it clears a phone's selection.
+
 The panel never takes focus, so the verse-number menu stays the keyboard and
 screen-reader route to the same copy (in Study View; Read View has none).
 
@@ -690,7 +701,7 @@ screen-reader route to the same copy (in Study View; Read View has none).
 
 The verse menu and the selection panel offer **the same actions under the
 same names** (owner, 2026-09-29): **Copy text** (the words, the reference and
-the verse link), **Copy link**, **Copy with notes** (the handout; see
+the verse link), **Copy link**, **Copy with footnotes** (the handout; see
 "Printing and handouts"), **Share…** and **Make an image**. Until then the
 verse menu said "Copy verse", which can't name half a verse, and the
 selection panel said "Copy with reference" and had no Copy link. The labels
@@ -833,7 +844,7 @@ notice there or nowhere.
      `font-variant-ligatures: none` (`global.css`, screen and print alike):
      Crimson Text and OpenDyslexic both join f+f, so "fff" read as a
      different label.
-- **"Copy with notes"** in the verse menu (`getHandoutText` in
+- **"Copy with footnotes"** in the verse menu (`getHandoutText` in
   `chapter-tools.js`) copies the verses with each footnote letter kept as
   "[a]", the reference, each cited note in order, then the notice and the
   verse link. The verses join per `joinPieces`, so they match Copy text
