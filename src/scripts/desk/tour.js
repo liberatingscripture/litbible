@@ -292,7 +292,13 @@ export function createTour({ panel }) {
 
     async bookmark() {
       const el = view === "study" ? await openVerseMenu() : await selectWords();
-      const marks = [byText(el, "Bookmark", "Remove bookmark"), byText(el, "Ribbon here")].filter(Boolean);
+      const marks = [byText(el, "Bookmark", "Remove bookmark")].filter(Boolean);
+      return el ? { el, side: "right", marks } : null;
+    },
+
+    async ribbon() {
+      const el = view === "study" ? await openVerseMenu() : await selectWords();
+      const marks = [byText(el, "Ribbon here")].filter(Boolean);
       return el ? { el, side: "right", marks } : null;
     },
 
@@ -397,7 +403,7 @@ export function createTour({ panel }) {
     if (!document.querySelector('#deskPanel [role="tab"][data-tab="verse"]')) ids.delete("verse");
     if (!document.querySelector(".desk-gutter")) ids.delete("widths");
     if (view !== "study" ? !textParagraphs().length : !pickVerse()) {
-      for (const id of ["actions", "note", "highlight", "bookmark", "margin"]) ids.delete(id);
+      for (const id of ["actions", "note", "highlight", "bookmark", "ribbon", "margin"]) ids.delete(id);
     }
     return ids;
   };

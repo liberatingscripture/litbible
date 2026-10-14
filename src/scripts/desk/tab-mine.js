@@ -131,7 +131,7 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
       </label>
     </div>` : ""}
     ${addAction && store ? `<button type="button" class="desk-mine__add"></button>` : ""}
-    <div class="desk-mine__colors" role="group" aria-label="Show highlights of one colour" hidden></div>
+    <div class="desk-mine__colors" role="group" aria-label="Show highlights of one color" hidden></div>
     <div class="desk-mine__labels" role="group" aria-label="Show items with one label" hidden></div>
     <p class="desk-mine__changed" hidden></p>
     <button type="button" class="desk-mine__all" hidden></button>

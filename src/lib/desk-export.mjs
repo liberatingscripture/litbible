@@ -402,11 +402,11 @@ function parseMarkdown(text, { local = [], ctx = {}, now = isoNow() } = {}) {
     const marker = MARKERS.includes(qualifier) ? qualifier : "note";
     const place = placeOf(e);
     if (!place) {
-      problems.push(fail(e.line, `“${e.heading}” isn’t a reference this notebook can read, like “Romans 8:3–4”.`));
+      problems.push(fail(e.line, `“${e.heading}” isn’t a reference this notebook can read, like “Romans 8:3–4.”`));
       continue;
     }
     if (place.verse == null && !place.type) {
-      problems.push(fail(e.line, `“${e.heading}” needs a verse, like “Romans 8:3”.`));
+      problems.push(fail(e.line, `“${e.heading}” needs a verse, like “Romans 8:3.”`));
       continue;
     }
     const fields = {

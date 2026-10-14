@@ -132,9 +132,9 @@ export const TOUR_STEPS = [
     title: "Open the menu",
     body: {
       study:
-        "Select a verse number to open its menu. The “My Notebook” row is yours: “Add a note”, “Bookmark” and “Highlight”. Select any words instead, and the same row works on just those words.",
-      read: "Select any words. The panel that opens has a “My Notebook” row: “Bookmark”, and “Highlight” while “My highlights” is on in the Display tray.",
-      prose: "Select any words. The panel that opens has a “My Notebook” row with “Add a note”.",
+        "Select a verse number to open its menu. The “My Notebook” row is yours: “Add a note,” “Bookmark” and “Highlight.” Select any words instead, and the same row works on just those words.",
+      read: "Select any words. The panel that opens has a “My Notebook” row: “Bookmark,” and “Highlight” while “My highlights” is on in the Display tray.",
+      prose: "Select any words. The panel that opens has a “My Notebook” row with “Add a note.”",
     },
   },
   {
@@ -145,7 +145,7 @@ export const TOUR_STEPS = [
     title: "Write a note",
     body: {
       default:
-        "“Add a note” opens this. Choose a marker, write in your own words, and choose “Save”. During the tour saving is off, so nothing here is kept.",
+        "“Add a note” opens this. Choose a marker, write in your own words, and choose “Save.” During the tour saving is off, so nothing here is kept.",
     },
   },
   {
@@ -169,7 +169,7 @@ export const TOUR_STEPS = [
     title: "Highlight",
     body: {
       default:
-        "Choose a colour to tint the words. To take part of a highlight away, select those words and choose “Remove highlight”. The tint shown now is only a preview.",
+        "Choose a color to tint the words. To take part of a highlight away, select those words and choose “Remove highlight.” The tint shown now is only a preview.",
     },
   },
   {
@@ -180,8 +180,19 @@ export const TOUR_STEPS = [
     title: "Bookmark a verse",
     body: {
       study:
-        "“Bookmark” puts a red mark beside the verse, and “My Notes” lists every bookmark. “Ribbon here…” keeps a named place, like a ribbon in a book.",
-      read: "“Bookmark” puts a red mark beside the verse, here and in Study View, and the Notebook lists your bookmarks so you can go back to them.",
+        "“Bookmark” puts a red mark beside this verse. A bookmark stays on its verse until you remove it, and “My Notes” lists every one.",
+      read: "“Bookmark” puts a red mark beside this verse, here and in Study View. A bookmark stays on its verse until you remove it, and the Notebook lists every one.",
+    },
+  },
+  {
+    id: "ribbon",
+    part: 0,
+    views: ["study", "read"],
+    since: "1h",
+    title: "A ribbon for a reading",
+    body: {
+      default:
+        "A bookmark stays put; a ribbon moves with you. “Ribbon here…” names a place for a reading you’re following, such as a study group’s. Open it later from “Places” in “My Notes” and read on, and while you stay in that book the ribbon follows. Keep up to six, one for each reading.",
     },
   },
   {
@@ -192,7 +203,7 @@ export const TOUR_STEPS = [
     title: "Pin a footnote",
     body: {
       default:
-        "Select a footnote letter, then “Pin” to keep that footnote in “My Notes”, under “Pinned footnotes”, where it stays in reach as you read.",
+        "Select a footnote letter, then “Pin” to keep that footnote in “My Notes,” under “Pinned footnotes,” where it stays in reach as you read.",
     },
   },
   {
@@ -249,7 +260,7 @@ export const TOUR_STEPS = [
     title: "Undo, and a clean page",
     body: {
       default:
-        "Ctrl+Z undoes your last change to the notebook, and Ctrl+Shift+Z redoes it (⌘Z and ⇧⌘Z on a Mac). “Hide my notes”, or the H key, clears your marks from the page and brings them back.",
+        "Ctrl+Z undoes your last change to the notebook, and Ctrl+Shift+Z redoes it (⌘Z and ⇧⌘Z on a Mac). “Hide my notes,” or the H key, clears your marks from the page and brings them back.",
     },
   },
   {
@@ -260,7 +271,7 @@ export const TOUR_STEPS = [
     title: "Search and commands",
     body: {
       default:
-        "The search box looks in your notebook too, and understands commands such as “hide”, “Greek” and “tour”. Here it shows what “notebook” finds.",
+        "The search box looks in your notebook too, and understands commands such as “hide,” “Greek” and “tour.” Here it shows what “notebook” finds.",
     },
   },
   {
