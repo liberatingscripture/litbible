@@ -33,11 +33,17 @@ import {
   loadTopicsIndex,
   loadDeskSearch,
   greekSearchEnabled,
+  isGreekQuery,
+  addGreekMode,
+  pickedMode,
+  setPickedMode,
+  notePickedMode,
+  showModeFor,
   searchGreek,
   loadGreekChapter,
   MODE_LABELS,
 } from "./search-core.js";
-import { lemmaLine } from "../lib/greek-search.mjs";
+import { hasGreek, lemmaLine } from "../lib/greek-search.mjs";
 import { describeParse } from "../lib/greek-parse.mjs";
 import { SIGNS, W } from "../lib/desk-greek.mjs";
 
@@ -67,7 +73,7 @@ const greekEl = $("#results-greek");
 const greekLemmasEl = $("#greek-lemmas");
 const greekExactEl = $("#greek-exact");
 const greekExactInput = $("#greek-exact-input");
-const greekMoreBtn = $("#greek-more");
+const sortWrapEl = $(".sort-wrap");
 
 const pagerEl = $("#pager");
 const activeFiltersFullEl = document.getElementById("search-active-filters");
@@ -165,11 +171,11 @@ function renderActiveFiltersFull() {
       const k = btn.dataset.clearKey;
       if (k === "all") {
         if (bookSelect) bookSelect.value = "";
-        if (modeSelect) modeSelect.value = "all";
+        if (modeSelect) setPickedMode(modeSelect, "all");
       } else if (k === "book") {
         if (bookSelect) bookSelect.value = "";
       } else if (k === "mode") {
-        if (modeSelect) modeSelect.value = "all";
+        if (modeSelect) setPickedMode(modeSelect, "all");
       }
       updateFromControls({ resetPage: true, push: true });
     });
@@ -220,7 +226,8 @@ function readState() {
     modeRaw === "keyword" ||
     modeRaw === "glossary" ||
     modeRaw === "article" ||
-    modeRaw === "intro"
+    modeRaw === "intro" ||
+    (modeRaw === "greek" && greekSearchEnabled())
       ? modeRaw
       : "all";
 
@@ -289,7 +296,12 @@ function syncControlsFromUrl() {
 
   if (bookSelect) bookSelect.value = book;
 
-  if (params.has("mode") && modeSelect) modeSelect.value = mode;
+  if (modeSelect) {
+    addGreekMode(modeSelect);
+    if (params.has("mode")) setPickedMode(modeSelect, mode);
+    // A Greek-letter or Strong's query reads "Greek" in the menu.
+    showModeFor(modeSelect, q);
+  }
 
   setActiveSort(sort);
   renderActiveFiltersFull();
@@ -772,20 +784,22 @@ function renderJumps(groups) {
 // -----------------------
 // The Greek (Study Desk preview, STUDY-DESK.md 1h)
 // -----------------------
-// A group of verses where the query's Greek word occurs: each with its Greek
-// (the matched word marked), that word's parsing in words, and the LIT verse
-// beneath. It exists only with the preview on (greekSearchEnabled), under
-// "All results", on page 1; otherwise nothing here runs or is fetched.
+// The verses where the query's Greek word occurs: each with its Greek (the
+// matched word marked), that word's parsing in words, and the LIT verse
+// beneath. It exists only with the preview on (greekSearchEnabled), and it is
+// the ONLY thing a Greek search shows (BVJ, 2026-10-13): a query with Greek
+// letters or a Strong's number is searched in the Greek alone, and any other
+// query only when the reader picks the "Greek" type. Otherwise nothing here
+// runs or is fetched.
 //
-// One lemma's verses show at a time. When the query reaches several, the
-// first is shown and the rest are offered as choices; the choice and "exact
-// form only" are kept while the query stays the same.
+// One lemma's verses show at a time, ten to a page in the same pager as the
+// English verses. When the query reaches several lemmas, the first is shown
+// and the rest are offered as choices; the choice and "exact form only" are
+// kept while the query stays the same.
 
-const GREEK_PAGE = 10;
 const SIGN_RE = new RegExp(`[${SIGNS}]`, "g");
 
 let greekChoice = { q: "", lemmaId: null, exact: false };
-let greekShown = GREEK_PAGE;
 let greekSeq = 0;
 
 /** The Greek search for this page: one lemma's verses, the first lemma's if none was chosen. */
@@ -798,16 +812,9 @@ async function fetchGreek(q, book, lemmaId, exact) {
   return result;
 }
 
-/** Whether the Greek group has anything to say for the cached results. */
-function greekGroupVisible(cache, mode, page) {
-  const g = cache?.greek;
-  return Boolean(
-    g &&
-      mode === "all" &&
-      page === 1 &&
-      g.lemmas.length > 0 &&
-      (g.total > 0 || g.lemmas.length > 1),
-  );
+/** Whether this query is searched in the Greek alone: Greek letters or a Strong's number, or the Greek type. */
+function wantsGreekOnly(q, mode) {
+  return greekSearchEnabled() && (mode === "greek" || isGreekQuery(q));
 }
 
 /** The verse's Greek as escaped HTML with the hit's word marked, and that word's parsing in words. */
@@ -891,16 +898,34 @@ function appendGreekRows(from, to, token) {
   }
 }
 
-function renderGreekGroup() {
-  const token = ++greekSeq;
-  const { mode, page } = readState();
-  if (!greekGroupVisible(lastSearchCache, mode, page)) {
-    groupGreek.hidden = true;
-    greekEl.replaceChildren();
-    return;
+/** The status line of a Greek search: the count alone. */
+function writeGreekStatus() {
+  const c = lastSearchCache;
+  const greek = c?.greek;
+  if (!greek) return;
+  const word = greek.selected
+    ? `<span lang="grc">${escapeHtml(greek.selected.lemma)}</span>`
+    : "";
+  if (!greek.lemmas.length) {
+    statusEl.textContent = `No Greek words match “${c.displayQ}.”`;
+  } else if (!greek.total) {
+    statusEl.innerHTML = `No occurrences of ${word} in the selected book.`;
+  } else {
+    statusEl.innerHTML = `${greek.total} Greek occurrence${greek.total === 1 ? "" : "s"} of ${word}`;
   }
+}
 
+/** A Greek search's whole page: its group alone, its pager, no sort control, no jump links. */
+function renderGreekOnly() {
   const greek = lastSearchCache.greek;
+  hideResultGroups();
+  const token = ++greekSeq;
+  setRefBanner("", false);
+  if (sortWrapEl) sortWrapEl.hidden = true;
+  writeGreekStatus();
+  renderActiveFiltersFull();
+  if (!greek || !greek.lemmas.length) return;
+
   groupGreek.hidden = false;
 
   // Which lemma: named when the query reaches one, a choice when it reaches several.
@@ -934,18 +959,12 @@ function renderGreekGroup() {
   greekExactInput.checked = greekChoice.exact;
 
   greekEl.replaceChildren();
-  if (!greek.total) {
-    const li = document.createElement("li");
-    li.className = "greek-empty";
-    li.textContent = "No occurrences of this word in the selected book.";
-    greekEl.append(li);
-    greekMoreBtn.hidden = true;
-    return;
-  }
+  if (!greek.total) return;
 
-  const shown = Math.min(greekShown, greek.total);
-  appendGreekRows(0, shown, token);
-  greekMoreBtn.hidden = shown >= greek.total;
+  const pages = Math.ceil(greek.total / pageSize);
+  const page = Math.min(readState().page, pages);
+  appendGreekRows((page - 1) * pageSize, page * pageSize, token);
+  setPager(greek.total, page);
 }
 
 /** The reader chose a lemma or flipped "exact form only": search the Greek again, nothing else. */
@@ -966,9 +985,9 @@ async function chooseGreek({ lemmaId = null, exact = greekChoice.exact } = {}) {
   // Another choice, or a new search, got there first.
   if (lastSearchCache !== cache || greekChoice.exact !== exact || greekChoice.lemmaId !== id) return;
   cache.greek = next;
-  greekShown = GREEK_PAGE;
-  writeCountStatus();
-  renderGreekGroup();
+  // A different word or form is a different list: back to its first page.
+  writeState({ ...readState(), page: 1 });
+  renderGreekOnly();
   if (chose) greekLemmasEl.querySelector('[aria-pressed="true"]')?.focus();
 }
 
@@ -976,27 +995,14 @@ greekExactInput?.addEventListener("change", () => {
   chooseGreek({ exact: greekExactInput.checked });
 });
 
-greekMoreBtn?.addEventListener("click", () => {
-  const greek = lastSearchCache?.greek;
-  if (!greek) return;
-  const from = Math.min(greekShown, greek.total);
-  greekShown += GREEK_PAGE;
-  const to = Math.min(greekShown, greek.total);
-  appendGreekRows(from, to, greekSeq);
-  greekMoreBtn.hidden = to >= greek.total;
-});
-
 /**
  * "194 results for “liberation”". The per-group counts live in the jump
  * links below it. A typo-corrected verse search says which word it used.
- * Written apart from the rest of the page so choosing a Greek word can update
- * it without redrawing the other groups.
  */
 function writeCountStatus() {
   const c = lastSearchCache;
   if (!c) return;
-  const { mode } = readState();
-  const total = c.baseTotal + (mode === "all" ? (c.greek?.total ?? 0) : 0);
+  const total = c.baseTotal;
   const count = `${total} result${total === 1 ? "" : "s"} for “${c.displayQ}”`;
   setStatus(
     c.keywordCorrection && c.keywordTotal
@@ -1008,6 +1014,17 @@ function writeCountStatus() {
 function renderFromCache() {
   const { page, sort, mode, q } = readState();
   if (!lastSearchCache) return;
+
+  // A Greek search shows the Greek and nothing else.
+  if (lastSearchCache.greekOnly) {
+    renderGreekOnly();
+    return;
+  }
+  if (sortWrapEl) sortWrapEl.hidden = false;
+  // Nothing of an earlier Greek search stays on an English one.
+  groupGreek.hidden = true;
+  greekSeq++;
+  greekEl.replaceChildren();
 
   const {
     displayQ,
@@ -1046,9 +1063,7 @@ function renderFromCache() {
     keywordTotal;
   lastSearchCache.baseTotal = baseTotal;
   lastSearchCache.keywordTotal = keywordTotal;
-  // The Greek (Study Desk preview): the chosen lemma's occurrences.
-  const greekCount = mode === "all" ? (lastSearchCache.greek?.total ?? 0) : 0;
-  const matchTotal = baseTotal + greekCount;
+  const matchTotal = baseTotal;
 
   const parsedJump = parseReferenceJump(q);
   setRefBanner(
@@ -1125,11 +1140,9 @@ function renderFromCache() {
     (mode === "all" || mode === "article") && showMetaBuckets;
   const showKeyword = mode === "all" || mode === "keyword";
   const showNotebook = showMetaBuckets && notebookCount > 0;
-  const showGreek = greekGroupVisible(lastSearchCache, mode, page);
 
   renderJumps([
     { count: showKeyword ? keywordTotal : 0, one: "verse", many: "verses", target: groupKeyword },
-    { count: showGreek ? greekCount : 0, one: "Greek occurrence", many: "Greek occurrences", target: groupGreek },
     { count: showNotebook ? notebookCount : 0, one: "match in your notebook", many: "matches in your notebook", target: groupNotebook },
     { count: showSubject ? subjectCount : 0, one: "chapter by topic", many: "chapters by topic", target: groupSubject },
     { count: showIntros ? introCount : 0, one: "introduction", many: "introductions", target: groupIntros },
@@ -1194,11 +1207,11 @@ function renderFromCache() {
   }
 
   setPager(showKeyword ? keywordTotal : 0, page);
-  renderGreekGroup();
   renderActiveFiltersFull();
 }
 
 function clearResults() {
+  if (sortWrapEl) sortWrapEl.hidden = false;
   hideResultGroups();
   lastSearchCache = null;
 }
@@ -1245,13 +1258,15 @@ async function runFullSearch() {
     Boolean(parsedJump),
   );
 
-  if (q.length < MIN_QUERY_LEN && !parsedJump) {
+  // Greek words can be one or two letters (ὁ, ἐν), so a Greek query needs no minimum.
+  const shortQuery = q.length < MIN_QUERY_LEN && !(greekSearchEnabled() && hasGreek(q));
+  if (shortQuery && !parsedJump) {
     setStatus(`Type ${MIN_QUERY_LEN} or more letters to search.`);
     clearResults();
     return;
   }
 
-  if (q.length < MIN_QUERY_LEN && parsedJump) {
+  if (shortQuery && parsedJump) {
     setStatus("Press Enter to jump, or keep typing to search.");
     clearResults();
     return;
@@ -1260,29 +1275,30 @@ async function runFullSearch() {
   setStatus(`Searching for "${displayQ}"...`);
 
   const { mode } = readState();
+
+  // A query with Greek letters or a Strong's number, or any query under the
+  // Greek type, is searched in the Greek alone: no Pagefind, verse search,
+  // topics, glossary, articles or notebook, and no counts for them.
+  if (wantsGreekOnly(q, mode)) {
+    if (greekChoice.q !== q) greekChoice = { q, lemmaId: null, exact: false };
+    const [greek, verseIndex] = await Promise.all([
+      fetchGreek(q, book, greekChoice.lemmaId, greekChoice.exact).catch((err) => {
+        console.warn("[search] Greek search failed:", err);
+        return null;
+      }),
+      loadVerseIndex(base),
+    ]);
+    lastSearchCache = { greekOnly: true, displayQ, greek, verseIndex };
+    renderFromCache();
+    return;
+  }
+
   const wantKeyword = mode === "all" || mode === "keyword";
 
   // Scripture keyword search scans the verse index; Pagefind covers
   // glossary/articles. Start the verse-index fetch first so the two loads
   // overlap on first use.
   const versePromise = wantKeyword ? loadVerseIndex(base) : null;
-
-  // The Greek, only with the Study Desk preview on, under "All results", and
-  // not for a scripture reference (a book name alone still may be a word).
-  // The chosen lemma and "exact form only" last while the query stays the same.
-  const wantGreek =
-    mode === "all" &&
-    greekSearchEnabled() &&
-    !(parsedJump && parsedJump.kind !== "book");
-  if (greekChoice.q !== q) greekChoice = { q, lemmaId: null, exact: false };
-  const greekPromise = wantGreek
-    ? fetchGreek(q, book, greekChoice.lemmaId, greekChoice.exact).catch(
-        (err) => {
-          console.warn("[search] Greek search failed:", err);
-          return null;
-        },
-      )
-    : null;
 
   const qUnquoted = displayQ;
   const qPhrase = normalizePhrase(qUnquoted);
@@ -1409,8 +1425,6 @@ async function runFullSearch() {
     ? await deskApi.search(q, { bookKey: book }).catch(() => null)
     : null;
 
-  const greek = greekPromise ? await greekPromise : null;
-
   const { hits: verseHits, correction: keywordCorrection } = verseIndex
     ? searchVerses(verseIndex, q, { bookKey: book })
     : { hits: [], correction: "" };
@@ -1445,10 +1459,7 @@ async function runFullSearch() {
     keywordCorrection,
     notebook,
     deskApi,
-    greek,
-    verseIndex,
   };
-  greekShown = GREEK_PAGE;
 
   renderFromCache();
 }
@@ -1471,7 +1482,7 @@ function updateFromControls({ resetPage = true, push = false } = {}) {
   const q = input ? input.value.trim() : "";
   const book = bookSelect ? String(bookSelect.value || "") : "";
   const sort = getActiveSort();
-  const mode = modeSelect ? String(modeSelect.value || "all") : "all";
+  const mode = modeSelect ? String(pickedMode(modeSelect) || "all") : "all";
 
   const current = readState();
 
@@ -1479,6 +1490,7 @@ function updateFromControls({ resetPage = true, push = false } = {}) {
     { q, book, sort, mode, page: resetPage ? 1 : current.page },
     { push },
   );
+  if (modeSelect) showModeFor(modeSelect, q);
 
   scheduleSearch();
   // Yield to the browser so the input visual update paints before
@@ -1508,9 +1520,10 @@ if (bookSelect) {
 }
 
 if (modeSelect) {
-  modeSelect.addEventListener("change", () =>
-    updateFromControls({ resetPage: true, push: true }),
-  );
+  modeSelect.addEventListener("change", (e) => {
+    notePickedMode(modeSelect, e);
+    updateFromControls({ resetPage: true, push: true });
+  });
 }
 
 // Sort toggle: re-render already-computed results (no re-search, no reset)
@@ -1535,7 +1548,7 @@ function setPage(n) {
   else scheduleSearch();
 
   // Only scroll if the keyword results area is above the viewport
-  const target = groupKeyword || pagerEl;
+  const target = lastSearchCache?.greekOnly ? groupGreek : groupKeyword || pagerEl;
   if (target) {
     const rect = target.getBoundingClientRect();
     if (rect.top < 0) {

@@ -93,13 +93,10 @@ const description = "Search the Liberation & Inclusion Translation (LIT).";
     <div class="group" id="group-keyword" tabindex="-1" hidden>
       <div class="group-title">Keyword matches</div>
       <ol class="results" id="results-keyword"></ol>
-
-      <nav class="pager" id="pager" aria-label="Search result pages" hidden>
-      </nav>
     </div>
 
-    <!-- Filled only with the Study Desk preview on: the Greek words behind
-         the query, each verse with its Greek and the LIT beneath. -->
+    <!-- Filled only with the Study Desk preview on, and then alone: the verses
+         of a Greek word, each with its Greek and the LIT beneath. -->
     <div class="group" id="group-greek" tabindex="-1" hidden>
       <div class="group-title">Greek</div>
       <div class="greek-lemmas" id="greek-lemmas" hidden></div>
@@ -108,8 +105,12 @@ const description = "Search the Liberation & Inclusion Translation (LIT).";
         Exact form only
       </label>
       <ol class="results" id="results-greek"></ol>
-      <button type="button" class="see-more-btn" id="greek-more" hidden>Show more</button>
     </div>
+
+    <!-- The one pager, for whichever group is paging: English verses, or the
+         Greek's when a Greek search is showing. -->
+    <nav class="pager" id="pager" aria-label="Search result pages" hidden>
+    </nav>
   </section>
 
   <script>
@@ -609,10 +610,6 @@ const description = "Search the Liberation & Inclusion Translation (LIT).";
   .greek-empty {
     list-style: none;
     color: rgba(var(--ink-rgb), 0.75);
-  }
-
-  #greek-more {
-    margin-top: 12px;
   }
 
   /* ── Suggest-word buttons (dynamically created, needs global scope) ── */

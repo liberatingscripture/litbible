@@ -3637,14 +3637,18 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
          letters, /search only), other glosses, then sense glosses, more
          frequent first within each. A nasal γ is "n" (angelos, enchriō) and
          κσ is "x", so egchriō and ekstasis match too.
-       - **The tray** puts a "Greek" group last: six verses ("1 Corinthians
-         8:7 · γνῶσις") and "All 29 on the search page", or a row per lemma
-         that narrows to it. **/search** has a Greek group and jump link,
-         names the lemma it found ("γνῶσις · gnōsis · G1108 · knowledge · 29
-         times"), offers a choice when several match and "Exact form only"
-         for a form, and shows ten verses at a time: the Greek with the word
-         marked, its parsing in words, and the LIT verse. A reference query
-         ("John 3:16") skips the Greek.
+       - **Revised the same day** (decision log, "English and Greek
+         apart"): a query gets English or Greek results, never both, and
+         "Greek" is a type in the menu. As revised, **the tray** shows only
+         a Greek group for a Greek query: six verses ("1 Corinthians 8:7 ·
+         γνῶσις") and "All 29 on the search page", or a row per lemma that
+         narrows to it. **/search** shows only the Greek: it names the lemma
+         found ("γνῶσις · gnōsis · G1108 · knowledge · 29 times"), offers a
+         choice when several match and "Exact form only" for a form, and
+         pages the verses ten at a time with the English pager: the Greek
+         with the word marked, its parsing in words, and the LIT verse. A
+         reference query ("John 3:16") skips the Greek. The glossary bridge
+         was added then too.
        - **The landing** (`desk/greek-link.js`) and **the tab's own search**
          (`desk/greek-find.js`) are as planned. **In a word's details, the
          form, the lemma and the Strong's number each start a search** in
@@ -4450,6 +4454,26 @@ margin and breaks up the scripture text."
   yet. 1h was kept apart from 1f rather than added to it, because it needs
   a corpus-wide index and a place in search of its own.
 
+### 2026-10-13 (1h: English and Greek apart; the glossary bridge)
+
+- **One query never gets both English and Greek results** (BVJ, after
+  trying /search, where the Greek sat under the English pager and vanished
+  on page 2). Greek letters or a Strong's number give the Greek alone; any
+  other query gives exactly the search as it was before 1h; and the type
+  menu gains "Greek" (option b of three), so a transliteration or an
+  English gloss is searched in the Greek when the reader asks. The Greek
+  takes the same numbered pager as the English verses. This replaces the
+  tray rule for Latin queries (2026-10-13, "1h's open details"): the tray
+  no longer shows Greek for an English query unless "Greek" is picked.
+  Greek queries also lost the three-letter minimum, for ὁ and ἐν.
+- **The glossary bridge** (BVJ: build it, and widen it once alignment
+  phase 2 covers the NT): under "Greek", the LIT's own renderings of the 47
+  glossary terms reach their Greek first ("justness" → δικαιοσύνη,
+  "self-preservation" → σάρξ), showing only the verses the LIT renders that
+  way. Gated as /glossary is, kept out of `public/greek/` (it is LIT
+  content), built with the site (`build:greek-bridge`). Verse-level for
+  now: a verse counts if the LIT renders the term there.
+
 ### 2026-10-13 (1h built)
 
 - **1h was built** ("Order of work", 1h, "Built").
@@ -4655,7 +4679,8 @@ The first five confirm what the preview already does.
   lexicon; English matching whole glosses of other UBS senses; the
   transliteration shown in the SBL Handbook's style; one Greek word per
   search; ten verses at a time on /search and in the tab; the tray's six
-  verses and its group last; a reference query skipping the Greek; the tab's
+  verses; a reference query skipping the Greek; the bridge's LIT renderings
+  ranked before the lexicons' English; the tab's
   search replacing its text, and its height in a short window (the results
   and the details share it).
 - ~~**1h's open details**~~: **settled** (BVJ, 2026-10-13): a Greek

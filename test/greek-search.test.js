@@ -16,11 +16,14 @@ import {
   greekKey,
   hasOtherForms,
   latinKeys,
+  lemmaLine,
+  litVerseKeys,
   matchForTray,
   matchGreek,
   occShard,
   parseGreekParam,
   parseStrong,
+  prepareBridge,
   prepareIndex,
   transliterate,
   trayLemmas,
@@ -238,4 +241,36 @@ test("the committed index finds the words readers will type", () => {
   const occ = decodeOccurrences(shard[pistis.id], BOOK_ORDER);
   assert.equal(occ.length, pistis.count);
   assert.ok(occ.every((o) => o.book && o.chapter > 0 && o.verse > 0 && o.t > 0));
+});
+
+test("the glossary bridge reaches the Greek from the LIT's own words, first", () => {
+  const bridge = prepareBridge({
+    format: 1,
+    terms: [
+      {
+        id: "faith-trust",
+        title: "Trust",
+        traditional: "Faith",
+        lemmas: ["πίστις", "πιστός"],
+        renderings: [
+          { form: "trust", count: 3, verses: [42, 3, 16, 44, 3, 22] },
+          { form: "Trust", count: 1, verses: [44, 4, 5] },
+        ],
+      },
+    ],
+  });
+  const m = matchGreek(fake, "TRUST", { bridge });
+  const first = m.lemmas[0];
+  assert.equal(fake.lemmas[first.id].lemma, "πίστις");
+  assert.equal(first.how, "lit");
+  // "trust" and "Trust" are one rendering to a reader: their verses join.
+  assert.equal(first.lit.count, 4);
+  assert.deepEqual([...litVerseKeys(first.lit)], ["42.3.16", "44.3.22", "44.4.5"]);
+  assert.ok(m.lemmas.some((x) => fake.lemmas[x.id].lemma === "πιστός" && x.how === "lit"));
+  // The LIT's line names the rendering, with the count searchGreek makes.
+  const line = lemmaLine({ ...fake.lemmas[first.id], lit: { ...first.lit, counted: 2 } });
+  assert.match(line, /in the LIT “trust”, 2 times$/);
+  // Without the bridge, the same query is the lexicons' English alone.
+  assert.ok(matchGreek(fake, "trust").lemmas.every((x) => x.how !== "lit"));
+  assert.equal(prepareBridge({ format: 2, terms: [] }), null);
 });
