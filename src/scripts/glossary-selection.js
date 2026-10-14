@@ -58,12 +58,18 @@ function selectionShare(selection) {
     el.before("\n\n");
     el.after("\n\n");
   });
-  const text = holder.textContent
-    .replace(/[^\S\n]+/g, " ")
-    .replace(/ *\n */g, "\n")
-    .replace(/\n{3,}/g, "\n\n")
-    .trim();
+  const flatten = (s) =>
+    s
+      .replace(/[^\S\n]+/g, " ")
+      .replace(/ *\n */g, "\n")
+      .replace(/\n{3,}/g, "\n\n")
+      .trim();
+  const text = flatten(holder.textContent);
   if (!text) return null;
+  // The same words with their italics and bold marked, for the rich paste.
+  const marked = holder.cloneNode(true);
+  markEmphasis(marked);
+  const richText = flatten(marked.textContent);
 
   const entry = body.closest("article.entry");
   const id = entry.dataset.entry;
@@ -101,7 +107,8 @@ function openPanel(share, { touch }) {
     panelRow(
       menuButton("Copy entry text", () => {
         acting();
-        return copyToClipboard(withReference(share.text, ref) + "\n" + url);
+        const copy = withReference(share.richText, ref) + "\n" + url;
+        return copyToClipboard(handoutPlain(copy), handoutHtml(copy));
       }),
       menuButton("Copy entry link", () => {
         acting();
