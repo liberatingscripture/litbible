@@ -169,7 +169,7 @@ export const TOUR_STEPS = [
     title: "Highlight",
     body: {
       default:
-        "Choose a colour to tint the words. To take part of a highlight away, select those words and choose “Remove highlight”. The tint shown now is only a preview.",
+        "Choose a color to tint the words. To take part of a highlight away, select those words and choose “Remove highlight”. The tint shown now is only a preview.",
     },
   },
   {

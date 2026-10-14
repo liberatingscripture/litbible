@@ -129,7 +129,7 @@ async function start() {
           <label for="deskNpLabel">Label</label>
           <select id="deskNpLabel"></select>
         </div>
-        <div class="desk-np__field desk-mine__colors" role="group" aria-label="Show highlights of one colour" data-np-colors hidden></div>
+        <div class="desk-np__field desk-mine__colors" role="group" aria-label="Show highlights of one color" data-np-colors hidden></div>
       </div>
       <p class="desk-np__count" aria-live="polite" data-np-count></p>
       <div class="desk-np__lists" data-np-lists></div>
@@ -260,7 +260,7 @@ async function start() {
         b.dataset.choice = choice;
         b.setAttribute("aria-pressed", String(choice === (filters.color ?? "all")));
         if (choice === "all") {
-          b.textContent = "All colours";
+          b.textContent = "All colors";
         } else {
           b.dataset.color = choice;
           b.setAttribute("aria-label", `Only ${choice} highlights`);
