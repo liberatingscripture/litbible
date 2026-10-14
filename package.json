@@ -48,12 +48,12 @@
     "@fontsource/fraunces": "^5.3.0",
     "@fontsource/inter": "^5.3.0",
     "@fontsource/opendyslexic": "^5.3.0",
-    "astro": "^7.3.5",
-    "simple-icons": "^16.33.0"
+    "astro": "^7.3.8",
+    "simple-icons": "^16.34.0"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
-    "@astrojs/markdown-remark": "7.3.1",
+    "@astrojs/markdown-remark": "7.3.2",
     "@astrojs/sitemap": "^3.7.4",
     "@fontsource/noto-sans-math": "^5.3.0",
     "jsonc-parser": "^3.3.1",
