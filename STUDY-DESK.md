@@ -12,7 +12,12 @@ conversations that produced it.
 Many ideas here were weighed and decided, some were declined, and the reasons
 are recorded so they aren't re-argued.
 
-## Where things stand (as of 2026-10-13)
+## Where things stand (as of 2026-10-14)
+
+- **Phase 2 is split into 2a, 2b and 2c, and phase 3 follows 2a**
+  (BVJ, 2026-10-14): 2a is B3, N4, M10, construction search and
+  searching by parsing, the read-only pieces; 2b is S2, which needs sheets; 2c is the rest, whose place is open ("Order
+  of work", 2; "Decisions").
 
 - **Sync now has three plans, and BDR's proposal is the newest record of
   it** ("One notebook, three homes" below; first read 2026-10-07 at draft 2,
@@ -3696,24 +3701,39 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
          off, no Greek group and no request under `/greek/`.
        - **Defaults for BVJ to judge** are under "Still open" ("Phase 1h's
          defaults").
-2. **What only the LIT can do.** What's new for you and text checked before
-   printing (B3, S2), on 1a's comparison; notes that follow a word and
-   concept marks saved as rules (N2, H2, C23); your own chains (N4); the word
-   study (M4, once sheets exist); your notebook where you already look (M10);
-   notes on a footnote (M11); **construction search** (BVJ, 2026-10-13:
-   *pistis* with *Iēsou Christou* in the genitive, the case that motivates
-   it; a small query language over 1f's parsing, no new data, and a page
-   for its results; "Order of work", 1h, under what it leaves out), and
-   **searching by parsing** with it (BVJ, 2026-10-13: every aorist
-   imperative, every genitive of *pistis*; the query language's simplest
-   use). **Word families are deferred indefinitely** (BVJ, 2026-10-13:
-   probably not a version 1 feature). The core of N3, finding a mark again and saying
-   when its words changed, moved into phase 1, since every mark is re-found on
-   every load. Medium.
+2. **What only the LIT can do**, split three ways (BVJ, 2026-10-14;
+   "Decisions"). **The order is 2a, then phase 3**; S2 needs a sheet, so 2b
+   can't come before phase 3 either. Where 2c goes is still open. The core of
+   N3, finding a mark again and saying when its words changed, moved into
+   phase 1, since every mark is re-found on every load. **Word families are
+   deferred indefinitely** (BVJ, 2026-10-13: probably not a version 1
+   feature).
+   - **2a, the read-only pieces**: what's new for you (B3), on 1a's
+     comparison; your own chains (N4), through the linker the footnotes
+     already use; your notebook where you already look (M10); and
+     **construction search** (BVJ, 2026-10-13: *pistis* with *Iēsou
+     Christou* in the genitive, the case that motivates it; a small query
+     language over 1f's parsing, no new data, and a page for its results;
+     "Order of work", 1h, under what it leaves out), with **searching by
+     parsing** (BVJ, 2026-10-13: every aorist imperative, every genitive of
+     *pistis*; the query language's simplest use), both moved here from 2c
+     (BVJ, 2026-10-14). Each only reads what the notebook and the site
+     already hold and writes no new kind of record, so it can be taken out
+     again cleanly. B3, N4 and M10 are small; the query language and its
+     page are the larger part.
+   - **2b, text checked before printing** (S2), on the same comparison.
+     Small.
+   - **2c, the rest**: notes that follow a word and concept marks saved as
+     rules (N2, H2, C23); the word study (M4, once sheets exist); notes on a
+     footnote (M11). N2, H2 and M11 add kinds of record to readers' notebooks, which
+     can't be taken back once readers hold them. Their worth depends on
+     how readers use the desk, so they are worth weighing against what a
+     trial with readers shows. Medium.
 3. **Sheets.** None of it waits on the apps: a sheet's inner shape is the
    website's own, and under plan A sheets go in the iCloud zone the app never
-   opens. Phase 3 could move ahead of phase 2 if sheets for Lent matter (review
-   finding 12; Ash Wednesday is February 10, 2027). The sheet page (S1) with
+   opens. **Phase 3 comes after 2a** (BVJ, 2026-10-14), ahead of 2b;
+   sheets for Lent were the case for moving it up (review finding 12; Ash
+   Wednesday is February 10, 2027). The sheet page (S1) with
    key terms (S3), leader and participant copies (S4), blanks with the
    footnote picker (S10, C15), both paper sizes (C27), the license card with
    its link and the commercial check (S7), and the Word copy (S9); then
@@ -4636,6 +4656,26 @@ The first five confirm what the preview already does.
   on the draft page with nothing to show; it now opens the Greek at the word
   (`greek-link.js` already works wherever the panel offers Greek).
 
+### 2026-10-14 (phase 2 split into 2a, 2b and 2c)
+
+- **Phase 2 is split three ways** ("Order of work", 2). **2a** is the
+  read-only pieces: B3 (what's new for you), N4 (your own chains), M10
+  (your notebook where you already look), construction search and
+  searching by parsing. **2b** is S2 (text checked before printing).
+  **2c** is the rest: N2, H2 with C23, M4 and M11. Construction search
+  and searching by parsing were first put in 2c, then moved to 2a the same
+  day (BVJ).
+- **Phase 3 (sheets) comes right after 2a.** S2 needs a sheet, so 2b
+  follows phase 3. Where 2c goes is not decided.
+- **Why the split:** 2a reads only what the notebook and site already hold
+  and writes no new kind of record, so a piece readers ignore costs little
+  to keep or remove. 2c's N2, H2 and M11 add kinds of record to readers'
+  notebooks (H2's `markRule` is already in the format), and a kind readers
+  hold can't be withdrawn without migrating their data. 2c also has the
+  pieces whose worth depends most on how readers use the desk, which a small
+  group of trusted readers given `?desk=on` could show ("Still open",
+  "When to release the desk to readers").
+
 ## Still open
 
 - ~~**Phase 1d's defaults**~~: **accepted** (BVJ, 2026-10-13). (Built
@@ -4768,8 +4808,9 @@ The first five confirm what the preview already does.
 - ~~**A fuller tour**~~: **built** (BVJ, 2026-10-13: steps that act, and
   nothing they do persists). Fifteen steps in three parts; see "Order of
   work", 1d, "First use, the tour and the help page".
-- ~~**Construction search**~~: **in phase 2** (BVJ, 2026-10-13).
-- ~~**Searching by parsing**~~: **in phase 2**, with construction search
+- ~~**Construction search**~~: **in phase 2** (BVJ, 2026-10-13), now
+  2a (BVJ, 2026-10-14).
+- ~~**Searching by parsing**~~: **in phase 2** (2a since 2026-10-14), with construction search
   (BVJ, 2026-10-13).
 - **Word families: deferred indefinitely** (BVJ, 2026-10-13; probably not
   a version 1 feature). Kept for if it returns: none of 1f's sources groups
