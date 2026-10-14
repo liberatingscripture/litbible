@@ -180,8 +180,19 @@ export const TOUR_STEPS = [
     title: "Bookmark a verse",
     body: {
       study:
-        "“Bookmark” puts a red mark beside the verse, and “My Notes” lists every bookmark. “Ribbon here…” keeps a named place, like a ribbon in a book.",
-      read: "“Bookmark” puts a red mark beside the verse, here and in Study View, and the Notebook lists your bookmarks so you can go back to them.",
+        "“Bookmark” puts a red mark beside this verse. A bookmark stays on its verse until you remove it, and “My Notes” lists every one.",
+      read: "“Bookmark” puts a red mark beside this verse, here and in Study View. A bookmark stays on its verse until you remove it, and the Notebook lists every one.",
+    },
+  },
+  {
+    id: "ribbon",
+    part: 0,
+    views: ["study", "read"],
+    since: "1h",
+    title: "A ribbon for a reading",
+    body: {
+      default:
+        "A bookmark stays put; a ribbon moves with you. “Ribbon here…” names a place for a reading you’re following, such as a study group’s. Open it later from “Places” in “My Notes” and read on, and while you stay in that book the ribbon follows. Keep up to six, one for each reading.",
     },
   },
   {

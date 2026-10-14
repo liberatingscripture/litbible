@@ -164,11 +164,11 @@ test("a tour takes the steps whose target is on the page, numbered", () => {
 test("a tour leaves out the steps that don't belong to the page's view", () => {
   const all = new Set(TOUR_STEPS.map((s) => s.id));
   const read = planTour({ available: all, view: "read" }).map((s) => s.id);
-  assert.ok(read.includes("bookmark"));
+  assert.ok(read.includes("bookmark") && read.includes("ribbon"));
   for (const id of ["note", "margin", "highlight", "pin", "verse", "greek", "widths"]) assert.ok(!read.includes(id), id);
   const prose = planTour({ available: all, view: "prose" }).map((s) => s.id);
   assert.ok(prose.includes("note") && prose.includes("margin"));
-  assert.ok(!prose.includes("bookmark"));
+  assert.ok(!prose.includes("bookmark") && !prose.includes("ribbon"));
 });
 
 test("each step knows its part and where the next part starts", () => {

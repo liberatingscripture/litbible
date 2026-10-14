@@ -3267,12 +3267,12 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
        writes no records. **Rebuilt 2026-10-13 as a walk-through whose steps
        act** (BVJ: "more thorough in walking through how to use the
        features"; steps that act, and "the changes it makes should not
-       persist after the tour is done"). Fourteen steps in three parts, each
+       persist after the tour is done"). Fifteen steps in three parts, each
        with "Skip this part": *marking the text* (open the menu, write a
-       note, the margin, highlight, bookmark, pin a footnote), *the
+       note, the margin, highlight, bookmark, a ribbon, pin a footnote), *the
        Notebook* (the panel, "This verse", "Greek", the widths) and *finding
        and keeping* (undo and "Hide my notes", search and commands, the
-       notebook page, where it's kept). Read View gets seven of them and an
+       notebook page, where it's kept). Read View gets eight of them and an
        article or the glossary seven or eight (`views` on each step in
        `desk-first-use.mjs`). What each does: opens the verse menu (or, in
        Read View and on prose, selects a few words to open the selection
@@ -4614,6 +4614,10 @@ The first five confirm what the preview already does.
   2026-10-13).
 - **Leaning toward releasing after phase 3**, not decided (under "Still
   open").
+- **The tour tells a bookmark from a ribbon** (BVJ asked, 2026-10-13):
+  the bookmark step says a bookmark stays on its verse, and a step of its
+  own, "A ribbon for a reading", says a ribbon is a named place that moves
+  with the reader once opened from "Places". Built the same day.
 
 ### 2026-10-13 (the Greek on draft chapters)
 
@@ -4761,7 +4765,7 @@ The first five confirm what the preview already does.
   group of trusted readers given `?desk=on` would not be a release, and
   is a separate question.
 - ~~**A fuller tour**~~: **built** (BVJ, 2026-10-13: steps that act, and
-  nothing they do persists). Fourteen steps in three parts; see "Order of
+  nothing they do persists). Fifteen steps in three parts; see "Order of
   work", 1d, "First use, the tour and the help page".
 - ~~**Construction search**~~: **in phase 2** (BVJ, 2026-10-13).
 - ~~**Searching by parsing**~~: **in phase 2**, with construction search
