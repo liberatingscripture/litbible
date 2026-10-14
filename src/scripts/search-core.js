@@ -23,6 +23,7 @@ export const MODE_LABELS = {
   glossary: "Glossary matches",
   article: "Article matches",
   intro: "Book introductions",
+  greek: "Greek",
 };
 
 /* ── Book aliases and reference parsing ─────────────────────────────── */
@@ -662,10 +663,12 @@ import {
   greekHref,
   hasGreek,
   hasOtherForms,
+  litVerseKeys,
   matchForTray,
   matchGreek,
   occShard,
   parseStrong,
+  prepareBridge,
   prepareIndex,
 } from "../lib/greek-search.mjs";
 
@@ -1295,13 +1298,99 @@ export function greekSearchEnabled() {
   return document.documentElement.dataset.desk === "on";
 }
 
+/**
+ * A query that can only be Greek: it has Greek letters or is a Strong's number.
+ * Such a query is searched in the Greek alone (BVJ, 2026-10-13), and any other
+ * query is never searched in the Greek unless the reader picks the "Greek" type.
+ */
+export function isGreekQuery(raw) {
+  const q = String(raw ?? "").trim();
+  return hasGreek(q) || Boolean(parseStrong(q));
+}
+
+/* The results-type menu's "Greek" (BVJ, 2026-10-13). The option is added by
+   script and only while the Greek is searched at all, so a reader without the
+   preview sees today's menu. A query that can only be Greek makes the menu
+   read "Greek" without that being the reader's own pick: their pick is kept
+   aside (dataset.ownMode) and comes back when the query is Latin again. */
+
+/** Adds the "Greek" option to a results-type <select> (once, and only with the Greek on). */
+export function addGreekMode(select) {
+  if (!select || !greekSearchEnabled()) return;
+  if (select.querySelector('option[value="greek"]')) return;
+  const opt = document.createElement("option");
+  opt.value = "greek";
+  opt.textContent = MODE_LABELS.greek;
+  select.append(opt);
+}
+
+/** The type the reader picked, whatever the menu shows for a Greek query. */
+export function pickedMode(select) {
+  return select.dataset.shownGreek === "true" ? select.dataset.ownMode || "all" : select.value;
+}
+
+/** Sets the reader's own pick (from the URL, or a cleared filter). */
+export function setPickedMode(select, mode) {
+  addGreekMode(select);
+  delete select.dataset.shownGreek;
+  delete select.dataset.ownMode;
+  select.value = mode === "greek" && !greekSearchEnabled() ? "all" : mode;
+}
+
+/**
+ * Call from a menu's change handler (any number of handlers may, per event):
+ * while the menu is showing "Greek" for a Greek query, what the reader just
+ * chose is kept as their own pick.
+ */
+export function notePickedMode(select, event) {
+  if (event && select._notedEvent === event) return;
+  select._notedEvent = event || null;
+  if (select.dataset.shownGreek === "true") select.dataset.ownMode = select.value;
+}
+
+/** Makes the menu read "Greek" for a Greek-letter or Strong's query, and the reader's own pick otherwise. */
+export function showModeFor(select, q) {
+  if (!select || !greekSearchEnabled()) return;
+  addGreekMode(select);
+  if (isGreekQuery(q)) {
+    if (select.dataset.shownGreek !== "true") {
+      select.dataset.ownMode = select.value;
+      select.dataset.shownGreek = "true";
+    }
+    select.value = "greek";
+  } else if (select.dataset.shownGreek === "true") {
+    select.value = select.dataset.ownMode || "all";
+    delete select.dataset.shownGreek;
+    delete select.dataset.ownMode;
+  }
+}
+
 /** True when a query could name Greek: Greek letters, a Strong's number, or one to three Latin words. */
 export function couldBeGreek(raw) {
   const q = String(raw ?? "").trim();
-  if (q.length < 2) return false;
   if (hasGreek(q) || parseStrong(q)) return true;
+  if (q.length < 2) return false;
   const words = q.match(/[\p{L}]+/gu) ?? [];
   return words.length > 0 && words.length <= 3 && q.length >= 3;
+}
+
+let greekBridgePromise = null;
+
+/**
+ * The glossary bridge (public/search/greek-bridge.json): the LIT's renderings
+ * of the glossary terms, so the LIT's own words reach the Greek. Null on
+ * failure; the Greek search goes on with the lexicons' English alone.
+ */
+export function loadGreekBridge(base) {
+  greekBridgePromise ||= fetch(`${base}search/greek-bridge.json`)
+    .then((res) => (res.ok ? res.json() : Promise.reject(new Error(String(res.status)))))
+    .then((json) => prepareBridge(json))
+    .catch((err) => {
+      console.warn("[search] Failed to load the Greek bridge:", err);
+      greekBridgePromise = null;
+      return null;
+    });
+  return greekBridgePromise;
 }
 
 let greekIndexPromise = null;
@@ -1372,24 +1461,44 @@ export function loadGreekChapter(base, book, chapter) {
  * which case a surface offers the lemmas to choose from. Each hit is
  * { book, chapter, verse, t, form, href, label }, in Bible order.
  *
- * Options: `tray` applies the tray's rule for Latin queries and leaves out
- * near misses; `bookKey` narrows the verses; `lemmaId` picks a lemma;
+ * Options: `near: false` leaves out near misses (the tray's choice); `tray`
+ * is the older tray rule for Latin queries, no longer used by the tray;
+ * `bookKey` narrows the verses; `lemmaId` picks a lemma;
  * `exactForm` keeps only the form typed (Greek queries only).
  */
-export async function searchGreek(base, raw, { tray = false, bookKey = "", lemmaId = null, exactForm = false } = {}) {
+export async function searchGreek(base, raw, { tray = false, near = true, bookKey = "", lemmaId = null, exactForm = false } = {}) {
   const empty = { kind: null, lemmas: [], selected: null, hits: [], total: 0, form: null, otherForms: false };
   if (!couldBeGreek(raw)) return empty;
   const index = await loadGreekIndex(base);
   if (!index) return empty;
+  // The LIT's own renderings only matter to Latin text.
+  const bridge = isGreekQuery(raw) ? null : await loadGreekBridge(base);
   let match;
   let found;
   if (tray) {
     ({ match, lemmas: found } = matchForTray(index, raw));
   } else {
-    match = matchGreek(index, raw);
+    match = matchGreek(index, raw, { near, bridge });
     found = match.lemmas;
   }
-  const lemmas = found.map((m) => ({ ...index.lemmas[m.id], how: m.how }));
+  let lemmas = found.map((m) => ({ ...index.lemmas[m.id], how: m.how, lit: m.lit ?? null }));
+  // A LIT rendering names a term's verses, not its words (until alignment
+  // phase 2), and a term can govern several lemmas: count each lemma in those
+  // verses, and drop one that never occurs there.
+  const litKey = (h) => `${BOOK_ORDER.indexOf(h.book)}.${h.chapter}.${h.verse}`;
+  await Promise.all(
+    lemmas
+      .filter((l) => l.lit)
+      .map(async (l) => {
+        const keys = litVerseKeys(l.lit);
+        const entry = await loadGreekOccurrences(base, index, l.id);
+        l.lit = { ...l.lit, counted: decodeOccurrences(entry, BOOK_ORDER).filter((h) => keys.has(litKey(h))).length };
+      }),
+  );
+  lemmas = [
+    ...lemmas.filter((l) => l.lit?.counted > 0).sort((a, b) => b.lit.counted - a.lit.counted),
+    ...lemmas.filter((l) => !l.lit),
+  ];
   const selected =
     (lemmaId != null && lemmas.find((l) => l.id === Number(lemmaId))) ||
     (lemmas.length === 1 ? lemmas[0] : null);
@@ -1398,7 +1507,12 @@ export async function searchGreek(base, raw, { tray = false, bookKey = "", lemma
   const entry = await loadGreekOccurrences(base, index, selected.id);
   const form = exactForm && match.form ? match.form : null;
   out.otherForms = hasOtherForms(entry, match.form);
-  out.hits = decodeOccurrences(entry, BOOK_ORDER, { bookKey, form }).map((h) => ({
+  // Found by a LIT rendering: only the verses where the LIT renders it so.
+  const litKeys = selected.lit ? litVerseKeys(selected.lit) : null;
+  const decoded = decodeOccurrences(entry, BOOK_ORDER, { bookKey, form }).filter(
+    (h) => !litKeys || litKeys.has(litKey(h)),
+  );
+  out.hits = decoded.map((h) => ({
     ...h,
     href: greekHref(h),
     label: `${bookKeyToLabel(h.book)} ${h.chapter}:${h.verse}`,

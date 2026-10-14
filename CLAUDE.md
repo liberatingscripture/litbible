@@ -82,6 +82,7 @@ npm run build:topics      # Regenerate topics indexes only
 npm run build:verses      # Regenerate the verse search index only
 npm run build:api         # Regenerate public/api/content.json only
 npm run build:glossary    # Regenerate the apps' glossary feed (public/glossary.json)
+npm run build:greek-bridge # Regenerate the Greek search's glossary bridge (public/search/greek-bridge.json)
 npm run build:manifest    # Regenerate API manifest + /api/data for the mobile apps
 npm run build:og          # Regenerate the chapter/intro share cards (public/og/)
 npm run build:favicons    # Regenerate the favicon/touch/manifest icons from the emblem SVGs
@@ -139,7 +140,13 @@ npm run draft:release-notes -- --since <ref>  # Draft a release-notes entry from
    `build:manifest`, which resolves it as the generated source behind its
    `glossary.json` declaration. See The Glossary Feed below — its shape is an
    app contract with several silent failure modes.
-5. `build:manifest` — generates `public/api/manifest.json` + `public/api/version.json`
+5. `build:greek-bridge` — generates `public/search/greek-bridge.json`, the
+   glossary bridge for searching the Greek by the LIT's own words: each
+   gated rendering of a published glossary term, with the term's lemmas and
+   the verses so rendered (`scripts/lib/greek-bridge-core.mjs`). LIT content,
+   so never in `public/greek/`; a website asset, never under `public/api/`.
+   See "The Study Desk preview", rule 15.
+6. `build:manifest` — generates `public/api/manifest.json` + `public/api/version.json`
    and copies content files into `public/api/data/` (chapters, intros, intro
    `images/`, plus `glossary.json`, `topics.json` and
    `translation-commitments.json`) so the native apps can diff hashes and
@@ -148,10 +155,10 @@ npm run draft:release-notes -- --since <ref>  # Draft a release-notes entry from
    content publish (including multiple on the same day) and stays stable when
    nothing changed. The apps gate all syncing on this string — see the app-sync
    note below.
-6. `build:api` — generates `public/api/content.json` (full NT in canonical
+7. `build:api` — generates `public/api/content.json` (full NT in canonical
    order). Runs *after* `build:manifest` and reads the shared `version` from
    `version.json` so all three API artifacts report the same version.
-7. `build:og` — generates `public/og/<slug>.png`, a 1200×630 social share card
+8. `build:og` — generates `public/og/<slug>.png`, a 1200×630 social share card
    for every chapter and book-intro page (owner-approved design: ink field,
    the ringed emblem, Fraunces display-cut reference), plus `apps.png`
    for `/apps` — a sibling composition on the same ink field whose hero visual
@@ -168,8 +175,8 @@ npm run draft:release-notes -- --since <ref>  # Draft a release-notes entry from
    `twitter:card=summary_large_image`. A website asset, NOT part of the app
    contract — it must never move under
    `public/api/`.
-8. `astro build` — compiles the site to `dist/`.
-9. `pagefind --site dist` — indexes glossary + article + book-intro pages
+9. `astro build` — compiles the site to `dist/`.
+10. `pagefind --site dist` — indexes glossary + article + book-intro pages
    into `dist/pagefind/` (scripture chapter pages are deliberately not
    Pagefind-indexed — see Search below).
 
@@ -396,6 +403,7 @@ the sitemap filter live in `astro.config.mjs`.
 | `build-api-json.mjs` | `public/api/content.json`. |
 | `build-api-manifest.mjs` | `public/api/manifest.json` + `public/api/data/` for the native apps. |
 | `build-glossary-json.mjs` | fs shell: reads `src/content/glossary/*.md` and writes `public/glossary.json`, the apps' glossary feed. Delegates every rule to `lib/glossary-feed-core.mjs`. |
+| `build-greek-bridge.mjs` | fs shell: writes `public/search/greek-bridge.json`, the gated LIT renderings of the published glossary terms with their lemmas and verses, for searching the Greek by the LIT's words. Rules in `lib/greek-bridge-core.mjs` (unit-tested). In the build. |
 | `lib/glossary-feed-core.mjs` | Pure `buildGlossaryFeed()` core of that generator — frontmatter parse, Markdown→plain-prose flattening, the `index` maps, and the cross-reference check. Unit-tested directly (`test/build-glossary-feed.test.js`) since its output shape is an app contract. Its header documents the four silent failure modes. |
 | `build-og-images.mjs` | `public/og/` — per-chapter/intro share cards (fonts in `scripts/og/fonts/`). |
 | `build-favicons.mjs` | Favicon/touch/manifest icons from the emblem SVGs. **Not** in the build — run by hand when the emblem changes. |
@@ -1715,7 +1723,8 @@ collection); they're read directly by the intro pages and the API manifest.
 - **Chapter file naming**: `{bookKey}-{chapter}.json` (e.g. `1corinthians-1.json`).
 - **Generated files are git-ignored** and regenerated at build time:
   `public/api/`, `public/og/`, `public/search/topics.json`,
-  `public/search/verses.json`, `public/search/chapters/`, `public/topics-index.json`,
+  `public/search/verses.json`, `public/search/chapters/`,
+  `public/search/greek-bridge.json`, `public/topics-index.json`,
   `public/glossary.json`, `dist/`, `.astro/`.
   Don't hand-edit them. Seven generators are deliberately **outside** this rule
   because their output is committed and hand-maintained — `build:favicons`
@@ -2463,13 +2472,20 @@ collection); they're read directly by the intro pages and the API manifest.
        `src/lib/greek-parse.mjs` (shared with the phase 2 tool), and the
        SBLGNT's ⸀–⸅ signs draw from `public/fonts/text-critical-signs.otf`.
   15. **Phase 1h is searching the Greek** (built 2026-10-13; STUDY-DESK.md,
-     "Order of work", 1h). Four things to know:
-     - **It is ordinary site search, gated until launch.** The header tray
-       and /search show a "Greek" group, but only while
+     "Order of work", 1h). Five things to know:
+     - **It is ordinary site search, gated until launch.** Only while
        `greekSearchEnabled()` in `search-core.js` is true, which today is
        the preview's `data-desk="on"`; without it nothing under `greek/`
        is fetched and search is exactly as before. **Launch is that one
        function returning true.**
+     - **One query never gets both English and Greek results** (BVJ,
+       2026-10-13). A query with Greek letters or a Strong's number
+       (`isGreekQuery`) gets the Greek alone, at any length (ὁ, ἐν); every
+       other query gets exactly the pre-1h search, unless the reader picks
+       the type menu's "Greek" (injected by script, only with the gate on),
+       which searches Latin text as a transliteration or a gloss. /search
+       pages the Greek with the English verses' pager, in Bible order with
+       no sort control; the tray shows its own Greek group alone.
      - **One rule set**, `src/lib/greek-search.mjs` (pure, tested): Greek in
        any form and accent (folded by `foldGreek`, which `build:greek` also
        uses for the index), a Strong's number (a lemma's other MACULA numbers
@@ -2477,9 +2493,12 @@ collection); they're read directly by the intro pages and the API manifest.
        (`greekKey`/`latinKeys`: agreuō = agreuo, Christos = xristos), or an
        English gloss. Glosses are the lemma's own, STEPBible's brief one
        (πίστις is "to believe in" in UBS's commonest sense, "faith" there)
-       and, as whole glosses only, every other UBS sense. The tray shows a
-       Latin query's Greek only for an exact transliteration or a gloss
-       that *is* the query, at most three (BVJ).
+       and, as whole glosses only, every other UBS sense. First of all
+       come **the LIT's own renderings**, through the glossary bridge
+       (`build:greek-bridge`): "self-preservation" reaches σάρξ, but only in
+       the verses the LIT renders it so, and a lemma that never occurs in
+       those verses is dropped. Verse-level until alignment phase 2 covers
+       every word, when the bridge widens.
      - **A result is the verse link plus `?greek=<verse>.<t>`**
        (`greekHref`). `desk/greek-link.js` opens the Notebook at that word,
        even if the reader had closed it, and strips the parameter; a result
@@ -2618,7 +2637,7 @@ collection); they're read directly by the intro pages and the API manifest.
   task + on-demand pull-to-refresh). Only on a change do they fetch
   `manifest.json` and download the files whose SHA-256 hashes moved. **So the
   whole system only works if `version` bumps on every content publish** — which
-  is why it's content-derived (see build step 5), not date-only. The sync-
+  is why it's content-derived (see build step 6), not date-only. The sync-
   critical files (`version.json`, `manifest.json`, `data/*`) are served
   `no-store` in `public/_headers` so a version bump is never served alongside a
   stale manifest or data file.

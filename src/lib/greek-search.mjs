@@ -219,6 +219,68 @@ export function prepareIndex(json) {
   return { lemmas, byForm, byFold, byStrong, byKey, shards: json.shards ?? 64 };
 }
 
+/* ── The glossary bridge ─────────────────────────────────────────── */
+
+/**
+ * The glossary bridge (public/search/greek-bridge.json, written by
+ * build:greek-bridge from the gated alignment records): the LIT's renderings
+ * of the glossary terms, each with the term's lemmas and the verses where the
+ * LIT renders them that way. Made ready to look a phrase up. Null for
+ * anything that isn't format 1.
+ */
+export function prepareBridge(json) {
+  if (json?.format !== 1 || !Array.isArray(json.terms)) return null;
+  const byPhrase = new Map();
+  for (const term of json.terms) {
+    for (const r of term.renderings ?? []) {
+      const key = words(r.form).join(" ");
+      if (!key) continue;
+      const list = byPhrase.get(key) ?? [];
+      list.push({ term, rendering: r });
+      byPhrase.set(key, list);
+    }
+  }
+  return { byPhrase };
+}
+
+/**
+ * The lemmas a phrase reaches as a LIT rendering, each with `lit`:
+ * { id, title, form, count, verses } (verses flat [book, chapter, verse, …]).
+ * Renderings differing only in case ("Torah", "torah") are joined.
+ */
+function bridgeMatches(index, bridge, phrase) {
+  const found = bridge?.byPhrase.get(phrase);
+  if (!found) return [];
+  const byLemma = new Map();
+  for (const { term, rendering } of found) {
+    for (const lemma of term.lemmas) {
+      for (const id of index.byFold.get(foldGreek(lemma)) ?? []) {
+        if (index.lemmas[id].lemma !== lemma.normalize("NFC")) continue;
+        const had = byLemma.get(id);
+        if (had) {
+          had.lit.count += rendering.count;
+          had.lit.verses = had.lit.verses.concat(rendering.verses);
+        } else {
+          byLemma.set(id, {
+            id,
+            how: "lit",
+            lit: { id: term.id, title: term.title, form: rendering.form, count: rendering.count, verses: rendering.verses },
+          });
+        }
+      }
+    }
+  }
+  return [...byLemma.values()];
+}
+
+/** The verses a LIT rendering names, as a Set of "book.chapter.verse" (book an index). */
+export function litVerseKeys(lit) {
+  const out = new Set();
+  const v = lit?.verses ?? [];
+  for (let i = 0; i + 2 < v.length; i += 3) out.add(`${v[i]}.${v[i + 1]}.${v[i + 2]}`);
+  return out;
+}
+
 /** The occurrence file a lemma's verses are in ("07"). */
 export const occShard = (index, id) => String(id % (index?.shards ?? 64)).padStart(2, "0");
 
@@ -235,13 +297,16 @@ const byCount = (index) => (a, b) =>
  * "strong", "translit", "near" (a transliteration one or two letters off),
  * "gloss" (its gloss or brief gloss) or "sense" (another UBS sense's gloss).
  * `form` is the folded Greek form typed, for "exact form only". Lemmas come
- * best first: exact keys, a gloss that *is* the query, near misses, other
- * glosses, then a sense gloss that is the query; the more frequent first
- * within each.
+ * best first: the LIT's own rendering ("lit", from the glossary bridge, with
+ * `lit` saying which), exact keys, a gloss that *is* the query, near misses,
+ * other glosses, then a sense gloss that is the query; the more frequent
+ * first within each.
+ *
+ * `bridge` is prepareBridge()'s result, or null to leave the LIT out.
  *
  * Options: `near` (default true) allows near misses, which the tray doesn't.
  */
-export function matchGreek(index, raw, { near = true } = {}) {
+export function matchGreek(index, raw, { near = true, bridge = null } = {}) {
   const none = { kind: null, lemmas: [], form: null };
   const q = String(raw ?? "").trim().replace(/^["“”']+|["“”']+$/g, "");
   if (!index || !q) return none;
@@ -280,6 +345,8 @@ export function matchGreek(index, raw, { near = true } = {}) {
 
   const phrase = qWords.join(" ");
   const inGloss = index.lemmas.filter((item) => qWords.every((w) => item.glossWords.has(w)));
+  // The LIT's own rendering comes first: a reader typing it means it.
+  add(bridgeMatches(index, bridge, phrase));
   // A transliteration is one word (a lemma); a gloss can be up to three.
   const keys = qWords.length === 1 ? latinKeys(q) : [];
   add(keys.flatMap((k) => (index.byKey.get(k) ?? []).map((id) => ({ id, how: "translit" }))));
@@ -369,12 +436,17 @@ export function parseGreekParam(value) {
 
 /** One line for a lemma: "πίστις · pistis · G4102 · faith · 243 times". */
 export function lemmaLine(item) {
+  const times = (n) => `${n} time${n === 1 ? "" : "s"}`;
   return [
     item.lemma,
     item.translit,
     item.strong,
     item.shortGloss,
-    `${item.count} time${item.count === 1 ? "" : "s"}`,
+    // Found by a LIT rendering: how often it occurs in the verses so rendered
+    // (counted by searchGreek, which knows the occurrences).
+    item.lit
+      ? `in the LIT “${item.lit.form}”${Number.isInteger(item.lit.counted) ? `, ${times(item.lit.counted)}` : ""}`
+      : times(item.count),
   ]
     .filter(Boolean)
     .join(" · ");

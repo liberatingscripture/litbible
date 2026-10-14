@@ -34,11 +34,17 @@ import {
   loadTopicsIndex,
   loadDeskSearch,
   greekSearchEnabled,
+  isGreekQuery,
+  addGreekMode,
+  pickedMode,
+  setPickedMode,
+  notePickedMode,
+  showModeFor,
   searchGreek,
   showGreekHere,
   MODE_LABELS,
 } from "./search-core.js";
-import { lemmaLine } from "../lib/greek-search.mjs";
+import { hasGreek, lemmaLine } from "../lib/greek-search.mjs";
 
 const base = String(import.meta.env.BASE_URL || "/").replace(/\/?$/, "/");
 
@@ -182,6 +188,10 @@ const _initSearchbars = async () => {
     });
 
     const MIN_QUERY_LEN = 3; // 3-4 char queries are exact-only
+    // Greek words can be one or two letters (ὁ, ἐν), so a Greek query needs
+    // no minimum, wherever the Greek is searched at all.
+    const longEnough = (text) =>
+      text.length >= MIN_QUERY_LEN || (greekSearchEnabled() && hasGreek(text));
 
     // The Study Desk's part (the reader's notebook, and commands), present
     // only with the preview on. It is loaded only through loadDeskSearch(), so
@@ -543,18 +553,19 @@ const _initSearchbars = async () => {
     }
 
     // The /search address for a query, keeping the book filter in force.
-    function fullSearchHref(q, bookKey) {
+    function fullSearchHref(q, bookKey, mode) {
       const url = new URL(
         fullLink?.getAttribute("href") || "/search",
         window.location.origin,
       );
       url.searchParams.set("q", q);
+      if (mode) url.searchParams.set("mode", mode);
       if (bookKey) url.searchParams.set("book", bookKey);
       return url.pathname + url.search;
     }
 
-    // The Greek group (Study Desk preview, STUDY-DESK.md 1h), appended below
-    // the scripture groups. A search that named one lemma lists up to six of
+    // The Greek group (Study Desk preview, STUDY-DESK.md 1h), the only group a
+    // Greek search shows. A search that named one lemma lists up to six of
     // its verses; one that reached several lists the lemmas, each narrowing
     // the search. Nothing is drawn when the Greek wasn't searched or found
     // nothing, so a reader without the preview never meets it.
@@ -586,7 +597,7 @@ const _initSearchbars = async () => {
         const total = greek.hits.length;
         rows += `
               <li class="searchbar__result">
-                <a class="searchbar__link searchbar__link--more" href="${escapeHtml(fullSearchHref(q, bookKey))}">
+                <a class="searchbar__link searchbar__link--more" href="${escapeHtml(fullSearchHref(q, bookKey, isGreekQuery(q) ? "" : "greek"))}">
                   <div class="searchbar__title">${total > GREEK_TRAY_LIMIT ? `All ${total} on the search page` : "On the search page"}</div>
                 </a>
               </li>`;
@@ -667,7 +678,7 @@ const _initSearchbars = async () => {
           label: MODE_LABELS[activeMode] || activeMode,
           clear() {
             activeMode = "all";
-            modeSelect.value = "all";
+            setPickedMode(modeSelect, "all");
           },
         });
       }
@@ -693,7 +704,7 @@ const _initSearchbars = async () => {
       function rerun() {
         renderActiveFilters();
         const q = input.value.trim();
-        if (q.length >= MIN_QUERY_LEN || parseReference(q) || parseBookOnly(q))
+        if (longEnough(q) || parseReference(q) || parseBookOnly(q))
           runSearch(q);
         else clearForShortQuery();
       }
@@ -710,7 +721,7 @@ const _initSearchbars = async () => {
           activeBook = "";
           bookSelect.value = "";
           activeMode = "all";
-          modeSelect.value = "all";
+          setPickedMode(modeSelect, "all");
           rerun();
         });
     }
@@ -733,6 +744,7 @@ const _initSearchbars = async () => {
 
     async function runSearch(q) {
       const mySeq = ++searchSeq;
+      showModeFor(modeSelect, q);
 
       try {
         if (isCmd(q)) {
@@ -759,6 +771,39 @@ const _initSearchbars = async () => {
 
         status.textContent = "Searching…";
         groupsEl.innerHTML = "";
+
+        // A query with Greek letters or a Strong's number, or any query under
+        // the Greek type, is searched in the Greek alone (BVJ, 2026-10-13):
+        // no other group, no count for one, and no other index fetched.
+        if (
+          greekSearchEnabled() &&
+          !ref &&
+          (isGreekQuery(q) || activeMode === "greek")
+        ) {
+          if (pinnedGreek && pinnedGreek.text !== q) pinnedGreek = null;
+          const greek = await searchGreek(base, q, {
+            near: false,
+            bookKey: keywordBook,
+            lemmaId: pinnedGreek ? pinnedGreek.id : null,
+          }).catch(() => null);
+          if (mySeq !== searchSeq) return;
+          // One lemma's verses, or the lemmas to choose from.
+          const greekCount = !greek
+            ? 0
+            : greek.selected
+              ? greek.hits.length
+              : greek.lemmas.length;
+          status.textContent = !greekCount
+            ? hasJump
+              ? ""
+              : "No Greek words match."
+            : greek.selected
+              ? `${greekCount} Greek match${greekCount === 1 ? "" : "es"}`
+              : `${greekCount} Greek word${greekCount === 1 ? "" : "s"}`;
+          if (greekCount) renderGreekGroup(greek, q, keywordBook);
+          renderActiveFilters();
+          return;
+        }
 
         const qTrim = q.trim();
         const qUnquoted = qTrim.replace(/^"+|"+$/g, "").trim();
@@ -815,19 +860,6 @@ const _initSearchbars = async () => {
           ? desk.search(q, { bookKey: keywordBook }).catch(() => null)
           : null;
 
-        // The Greek (Study Desk preview only, under "All results", and not for
-        // a scripture reference), started now so its index loads while
-        // Pagefind does.
-        const wantGreek = greekSearchEnabled() && activeMode === "all" && !ref;
-        if (pinnedGreek && pinnedGreek.text !== q) pinnedGreek = null;
-        const greekPromise = wantGreek
-          ? searchGreek(base, q, {
-              tray: true,
-              bookKey: keywordBook,
-              lemmaId: pinnedGreek ? pinnedGreek.id : null,
-            }).catch(() => null)
-          : null;
-
         // A book filter routes to scripture-only results, so skip Pagefind
         // then (glossary/article pages carry no book value; intro pages do,
         // but book-filtered searches stay scripture-only by design). A
@@ -859,15 +891,6 @@ const _initSearchbars = async () => {
         if (mySeq !== searchSeq) return;
         const nCount = notebook?.total ?? 0;
         const commands = wantDesk ? desk.commandsFor(q) : [];
-
-        const greek = greekPromise ? await greekPromise : null;
-        if (mySeq !== searchSeq) return;
-        // One lemma's verses, or the lemmas to choose from; either may be empty.
-        const greekCount = !greek
-          ? 0
-          : greek.selected
-            ? greek.hits.length
-            : greek.lemmas.length;
 
         const { hits: verseHits, correction: verseCorrection } = verseIndex
           ? searchVerses(verseIndex, q, { bookKey: keywordBook })
@@ -944,29 +967,23 @@ const _initSearchbars = async () => {
         const showI = activeMode === "all" || activeMode === "intro";
         const showK = activeMode === "all" || activeMode === "keyword";
 
-        // With a jump row, a command or Greek showing, a zero count reads as a
+        // With a jump row or a command showing, a zero count reads as a
         // failed search, so only the kinds that matched are listed.
         const parts = [];
         if (nCount)
           parts.push(`${nCount} notebook match${nCount === 1 ? "" : "es"}`);
         if (showG && gCount)
           parts.push(`${gCount} glossary match${gCount === 1 ? "" : "es"}`);
-        if (showS && (sCount || !(hasJump || commands.length || greekCount)))
+        if (showS && (sCount || !(hasJump || commands.length)))
           parts.push(`${sCount} topic match${sCount === 1 ? "" : "es"}`);
         if (showI && iCount)
           parts.push(`${iCount} book intro match${iCount === 1 ? "" : "es"}`);
         if (showA && aCount)
           parts.push(`${aCount} article match${aCount === 1 ? "" : "es"}`);
-        if (showK && (kCount || !(hasJump || commands.length || greekCount)))
+        if (showK && (kCount || !(hasJump || commands.length)))
           parts.push(
             `${kCount} keyword match${kCount === 1 ? "" : "es"}` +
               (verseCorrection ? ` for “${verseCorrection}”` : ""),
-          );
-        if (greekCount)
-          parts.push(
-            greek.selected
-              ? `${greekCount} Greek match${greekCount === 1 ? "" : "es"}`
-              : `${greekCount} Greek word${greekCount === 1 ? "" : "s"}`,
           );
         status.textContent = parts.join(sep);
 
@@ -986,14 +1003,11 @@ const _initSearchbars = async () => {
             onRun: runDeskCommand,
           });
         }
-        // The Greek, below the scripture groups.
-        if (greekCount) renderGreekGroup(greek, q, keywordBook);
         renderActiveFilters();
 
         const totalCount =
           nCount +
           commands.length +
-          greekCount +
           (showG ? gCount : 0) +
           (showS ? sCount : 0) +
           (showA ? aCount : 0) +
@@ -1111,14 +1125,16 @@ const _initSearchbars = async () => {
         renderActiveFilters();
         return;
       }
-      if (q.length >= MIN_QUERY_LEN || parseReference(q) || parseBookOnly(q))
+      if (longEnough(q) || parseReference(q) || parseBookOnly(q))
         runSearch(q);
       else clearForShortQuery();
       renderActiveFilters();
     });
 
-    modeSelect.addEventListener("change", () => {
-      activeMode = modeSelect.value || "all";
+    modeSelect.addEventListener("change", (e) => {
+      notePickedMode(modeSelect, e);
+      activeMode = pickedMode(modeSelect) || "all";
+      showModeFor(modeSelect, input.value);
       const q = input.value.trim();
       openPanel();
 
@@ -1146,6 +1162,8 @@ const _initSearchbars = async () => {
     let t = null;
     input.addEventListener("input", () => {
       const q = input.value;
+      // A Greek-letter or Strong's query reads "Greek" in the type menu.
+      showModeFor(modeSelect, q);
 
       if (!q.trim()) {
         groupsEl.innerHTML = "";
@@ -1167,7 +1185,7 @@ const _initSearchbars = async () => {
         return;
       }
       if (
-        qt.length < MIN_QUERY_LEN &&
+        !longEnough(qt) &&
         !parseReference(qt) &&
         !parseBookOnly(qt)
       ) {
@@ -1202,7 +1220,7 @@ const _initSearchbars = async () => {
         return;
       }
       if (
-        qt.length < MIN_QUERY_LEN &&
+        !longEnough(qt) &&
         !parseReference(qt) &&
         !parseBookOnly(qt)
       ) {
@@ -1231,7 +1249,7 @@ const _initSearchbars = async () => {
             e.preventDefault();
             const q = input.value.trim();
             if (
-              q.length >= MIN_QUERY_LEN ||
+              longEnough(q) ||
               parseReference(q) ||
               parseBookOnly(q)
             )
@@ -1264,7 +1282,7 @@ const _initSearchbars = async () => {
         if (accepted) {
           const q = input.value.trim();
           if (
-            q.length >= MIN_QUERY_LEN ||
+            longEnough(q) ||
             parseReference(q) ||
             parseBookOnly(q)
           )
@@ -1304,7 +1322,7 @@ const _initSearchbars = async () => {
             if (accepted) {
               const q = input.value.trim();
               if (
-                q.length >= MIN_QUERY_LEN ||
+                longEnough(q) ||
                 parseReference(q) ||
                 parseBookOnly(q)
               )
@@ -1322,7 +1340,16 @@ const _initSearchbars = async () => {
     });
 
     activeMode = initialMode;
-    if (modeSelect) modeSelect.value = initialMode;
+    if (modeSelect) {
+      addGreekMode(modeSelect);
+      if (greekSearchEnabled() && !root.dataset.defaultMode) {
+        // On /search the page has already set the menu from the address (it
+        // may be "Greek"); keep that rather than resetting it to "All".
+        activeMode = pickedMode(modeSelect) || "all";
+      } else {
+        modeSelect.value = initialMode;
+      }
+    }
     renderActiveFilters();
     closePanel();
   }
