@@ -19,8 +19,8 @@ export function initCommands({ panel }) {
     "close-notebook": () => panel.close(),
     "show-my-notes": () => panel.showTab("mine"),
     "show-this-verse": () => panel.showTab("verse"),
-    // The Greek tab exists only on Study View chapters; showTab returns false
-    // where it is absent, so the command does nothing there.
+    // The Greek tab exists on Study View chapters and draft chapters; showTab
+    // returns false where it is absent, so the command does nothing there.
     "show-greek": () => panel.showTab("greek"),
     // The same event the H key sends; note-settings.js toggles M1.
     "hide-notes": () => document.dispatchEvent(new CustomEvent("lit:desk-hide")),

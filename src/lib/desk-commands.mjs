@@ -27,7 +27,7 @@ import { searchTokens } from "./desk-search.mjs";
  *   is on }.
  */
 
-/** @type {readonly { id: string, name: (ctx: object) => string, keywords: string[], needs: "surface" | "study" | null, href?: string, show?: (ctx: object) => boolean, hint?: string }[]} */
+/** @type {readonly { id: string, name: (ctx: object) => string, keywords: string[], needs: "surface" | "study" | "greek" | null, href?: string, show?: (ctx: object) => boolean, hint?: string }[]} */
 export const COMMANDS = Object.freeze([
   {
     id: "open-notebook",
@@ -63,7 +63,7 @@ export const COMMANDS = Object.freeze([
     id: "show-greek",
     name: () => "Show the Greek",
     keywords: ["greek", "sblgnt", "tab"],
-    needs: "study",
+    needs: "greek",
     hint: "In the notebook",
   },
   {
@@ -107,6 +107,7 @@ export const COMMANDS = Object.freeze([
 function offered(command, ctx) {
   if (command.needs === "surface" && !ctx.surface) return false;
   if (command.needs === "study" && !ctx.study) return false;
+  if (command.needs === "greek" && !(ctx.greek ?? ctx.study)) return false;
   return command.show ? command.show(ctx) : true;
 }
 

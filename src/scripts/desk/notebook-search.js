@@ -23,7 +23,7 @@ import deskCss from "../../styles/desk.css?inline";
 import { isCommandQuery, matchCommands } from "../../lib/desk-commands.mjs";
 import { notebookSearchHref, searchNotebook } from "../../lib/desk-search.mjs";
 import { readingSurface } from "../desk-frame.js";
-import { pageChapter } from "./page.js";
+import { greekChapter, pageChapter } from "./page.js";
 
 export { isCommandQuery };
 
@@ -142,6 +142,7 @@ function commandContext() {
   return {
     surface: Boolean(readingSurface()),
     study: Boolean(pageChapter()),
+    greek: Boolean(greekChapter()),
     panelOpen: document.documentElement.hasAttribute("data-desk-panel"),
     hidden: notesHidden(),
   };

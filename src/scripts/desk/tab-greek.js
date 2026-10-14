@@ -1,9 +1,10 @@
 // src/scripts/desk/tab-greek.js
 //
 // The Notebook panel's "Greek" tab (STUDY-DESK.md, "Decisions", 2026-10-08;
-// phase 1f), on Study View chapters: the SBL Greek New Testament for this
-// chapter, with a word's dictionary form, parsing and lexicon entries docked
-// at the tab's foot.
+// phase 1f), on Study View chapters and on draft chapters: the SBL Greek New
+// Testament for this chapter, with a word's dictionary form, parsing and
+// lexicon entries docked at the tab's foot. A draft has no LIT text beside it,
+// so there is no "Go to verse" and no footnote letters there.
 //
 // The Greek scrolls on its own and never follows the page (BVJ: each text
 // scrolls on its own). A "Go to verse N" button names the verse at the page's

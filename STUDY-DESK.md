@@ -4615,6 +4615,22 @@ The first five confirm what the preview already does.
 - **Leaning toward releasing after phase 3**, not decided (under "Still
   open").
 
+### 2026-10-13 (the Greek on draft chapters)
+
+- **BVJ decided the Greek tab is offered on draft chapters too.** The Greek
+  data already covers all 260 chapters, so a draft (Acts, Revelation) can show
+  the SBLGNT beside the dictionary even with no LIT text yet.
+- **How:** a draft page names its chapter in `data-draft-book` and
+  `data-draft-chapter`, which `greekChapter()` (`desk/page.js`) reads; the
+  panel's Greek tab and the “Show the Greek” command use it.
+- **A draft has no “This verse” tab, no “Go to verse” button and no footnote
+  letters**, since it has no LIT verses, notes or text to go with the Greek.
+- **Drafts still never set the last-read attributes**, so they do not count
+  for “Continue reading”.
+- **It closes a gap:** a Greek search result in a draft chapter used to land
+  on the draft page with nothing to show; it now opens the Greek at the word
+  (`greek-link.js` already works wherever the panel offers Greek).
+
 ## Still open
 
 - ~~**Phase 1d's defaults**~~: **accepted** (BVJ, 2026-10-13). (Built

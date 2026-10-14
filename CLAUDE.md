@@ -2358,8 +2358,10 @@ collection); they're read directly by the intro pages and the API manifest.
      footnote HTML that adds visible text will fail there.
   10. **The Notebook panel has tabs, one module each**: "My Notes"
      (`desk/tab-mine.js`) everywhere, and "This verse" (`desk/tab-verse.js`)
-     and "Greek" (`desk/tab-greek.js`, rule 14) on Study View chapters, from
-     the `TABS` table in `desk/panel.js`. (A Versions tab, and API.bible with it, is
+     and "Greek" (`desk/tab-greek.js`, rule 14) on Study View chapters, and
+     Greek on draft chapters too (BVJ, 2026-10-13; `greekChapter()` in
+     `desk/page.js`, which reads `data-draft-book`/`data-draft-chapter`, never
+     the last-read attributes), from the `TABS` table in `desk/panel.js`. (A Versions tab, and API.bible with it, is
      deferred indefinitely: not in version 1, BVJ 2026-10-11.) A page with one tab shows no tab
      row, and the panel's foot belongs to My Notes.
   11. **Ctrl+Z (⌘Z) and redo undo this tab's changes to the notebook**, one
