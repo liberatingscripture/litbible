@@ -3702,7 +3702,11 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
    notes on a footnote (M11); **construction search** (BVJ, 2026-10-13:
    *pistis* with *Iēsou Christou* in the genitive, the case that motivates
    it; a small query language over 1f's parsing, no new data, and a page
-   for its results; "Order of work", 1h, under what it leaves out). The core of N3, finding a mark again and saying
+   for its results; "Order of work", 1h, under what it leaves out), and
+   **searching by parsing** with it (BVJ, 2026-10-13: every aorist
+   imperative, every genitive of *pistis*; the query language's simplest
+   use). **Word families are deferred indefinitely** (BVJ, 2026-10-13:
+   probably not a version 1 feature). The core of N3, finding a mark again and saying
    when its words changed, moved into phase 1, since every mark is re-found on
    every load. Medium.
 3. **Sheets.** None of it waits on the apps: a sheet's inner shape is the
@@ -4604,8 +4608,10 @@ The first five confirm what the preview already does.
   help page does. Built the same day. BVJ also found the tour too thin:
   it now walks through how to use the features, with **steps that act and
   leave nothing behind** (built the same day; "Order of work", 1d).
-- **Construction search goes in phase 2**, and **the transliteration
-  pass goes on FIXLIST.md** (both 2026-10-13).
+- **Construction search and searching by parsing go in phase 2**, **word
+  families are deferred indefinitely** (probably not a version 1
+  feature), and **the transliteration pass goes on FIXLIST.md** (all
+  2026-10-13).
 - **Leaning toward releasing after phase 3**, not decided (under "Still
   open").
 
@@ -4742,18 +4748,13 @@ The first five confirm what the preview already does.
   nothing they do persists). Fourteen steps in three parts; see "Order of
   work", 1d, "First use, the tour and the help page".
 - ~~**Construction search**~~: **in phase 2** (BVJ, 2026-10-13).
-- **Word families and searching by parsing** ("Order of work", 1h, under
-  what it leaves out; BVJ asked about both, 2026-10-13). Not placed.
-  Recommended, not decided: **searching by parsing** (every aorist
-  imperative; every genitive of *pistis*) in phase 2 with construction
-  search, since it is that query language's simplest use and needs no new
-  data; **word families** (πιστεύω, πίστις, πιστός) in phase 2 beside the
-  word study (M4), but only once a family list exists. None of 1f's
-  sources groups lemmas into families; STEPBible's Abbott-Smith entries
-  carry etymologies ("ἀγρεύω (ἄγρα)") and Strong's says "from G…", which
-  could seed a list mechanically, then an editorial review, which is the
-  real cost (5,465 lemmas, though most families are small and many lemmas
-  stand alone).
+- ~~**Searching by parsing**~~: **in phase 2**, with construction search
+  (BVJ, 2026-10-13).
+- **Word families: deferred indefinitely** (BVJ, 2026-10-13; probably not
+  a version 1 feature). Kept for if it returns: none of 1f's sources groups
+  lemmas into families; STEPBible's Abbott-Smith etymologies ("ἀγρεύω
+  (ἄγρα)") and Strong's "from G…" could seed a list, and the editorial
+  review across 5,465 lemmas is the real cost.
 - **One transliteration style across the corpus** (raised 2026-10-13;
   **on FIXLIST.md since 2026-10-13**, BVJ, under the Fable list, "Added
   2026-10-13", where the decisions below wait).
