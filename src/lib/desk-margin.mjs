@@ -110,11 +110,10 @@ export const TAB_GAP = 8;
 /**
  * Where the floating notebook goes, once placeInMargin has said the margin
  * can't hold it (`over`). The column moves left only as far as the collapsed
- * tab needs, and moves the same whether the notebook is expanded or
- * collapsed, so expanding and collapsing it never moves the text under it.
- * Expanded, the panel lies over the ends of the lines, as a floating window
- * does; collapsed, the tab keeps clear of them (`tabOver` says it couldn't,
- * which takes very large text in a window well under 900px).
+ * tab needs (`shift`), and the tab never lies over the text (BVJ,
+ * 2026-10-14), but that is the only reason the column moves while the
+ * notebook is folded. Expanded, the panel lies over the ends of the lines,
+ * as a floating window does.
  *
  * @param {object} m the same measurements placeInMargin takes
  * @returns {{ panel: { left: number, width: number },

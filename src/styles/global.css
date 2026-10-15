@@ -3459,26 +3459,28 @@ body:not(:has(.scripture-layout--scripture .scripture-main, .scripture-layout--i
    and on Study View chapters 48 while the notebook is open, to leave the
    panel room for the Greek and Versions tabs without moving the column (BVJ,
    2026-10-08; STUDY-DESK.md, "Decisions"). Read View, intros, articles and
-   the glossary stay at 52: none of them gets those tabs. data-desk-panel is stamped before
-   first paint (Layout.astro), so a page opening with the notebook open never
-   reflows; opening and closing it keep the reader's line (panel.js). */
+   the glossary stay at 52: none of them gets those tabs. Only the expanded notebook does
+   this (BVJ, 2026-10-14): minimized, floating or closed, the column keeps 52.
+   data-desk-expanded is stamped before first paint (Layout.astro), so a page
+   opening with the notebook expanded never reflows; expanding and folding it keep
+   the reader's line (margin.js). */
 html[data-desk] {
   --reading-measure: 52;
 }
-html[data-desk][data-desk-panel]:has(.scripture-layout--scripture .scripture-main) {
+html[data-desk][data-desk-expanded]:has(.scripture-layout--scripture .scripture-main) {
   --reading-measure: 48;
 }
 
 /* Widths the reader dragged (BVJ, 2026-10-08; src/scripts/desk/widths.js),
-   on Study View chapters with the notebook open: the LIT's measure, and the
+   on Study View chapters with the notebook expanded: the LIT's measure, and the
    notebook's width, which sets where the column ends (the notebook sits 16px
    from the window's edge and the column 24px before it: EDGE and GAP in
    src/lib/desk-margin.mjs). Layout.astro stamps both before first paint
    from sessionStorage, and widths.js writes what fits over them where the
    window is narrow. Closed, the page goes back to the centred column. */
-html[data-desk][data-desk-panel][data-desk-widths]:has(.scripture-layout--scripture .scripture-main) {
+html[data-desk][data-desk-expanded][data-desk-widths]:has(.scripture-layout--scripture .scripture-main) {
   --reading-measure: var(--desk-measure);
 }
-html[data-desk][data-desk-panel][data-desk-widths] .scripture-layout--scripture .scripture-main {
+html[data-desk][data-desk-expanded][data-desk-widths] .scripture-layout--scripture .scripture-main {
   margin-right: calc(var(--desk-width) + 40px);
 }
