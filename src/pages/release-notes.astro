@@ -46,7 +46,7 @@ const TYPE_LABEL: Record<string, string> = {
   description="A record of content updates to the Liberation and Inclusion Translation — new chapters, text revisions, footnote additions, and glossary changes."
   canonical="https://litbible.net/release-notes/"
 >
-  <div class="rn-page">
+  <div class="rn-page" data-release-notes>
     <header class="rn-hero">
       <h1 class="rn-title">Release Notes</h1>
       <p class="rn-lede">
@@ -106,9 +106,10 @@ const TYPE_LABEL: Record<string, string> = {
                         </a>
                       </div>
                       <ul class="rn-changes">
-                        {entry.changes.map((change) => (
+                        {entry.changes.map((change, index) => (
                           <li
                             class="rn-change"
+                            data-index={index}
                             data-type={change.type}
                             data-kind={changeKind(change.type) ?? undefined}
                             data-book={changeBook(change) ?? undefined}

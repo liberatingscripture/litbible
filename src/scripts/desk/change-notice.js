@@ -45,6 +45,7 @@ import { glyph } from "./glyphs.js";
 import { undoEntry } from "./history.js";
 import { prosePage, targetOf } from "./note-sources.js";
 import { chapterTextFor, footnoteList, pageChapter } from "./page.js";
+import { loadReleaseNotes } from "./release-feed.js";
 import { announce, showUndo } from "./undo-bar.js";
 
 /** The content version of the text this page is showing. */
@@ -228,16 +229,6 @@ export function flagButton(record, notice, open) {
 }
 
 /* ── What the notice says about itself ───────────────────────────── */
-
-let releaseNotes = null;
-
-/** The release notes, fetched once per page and only when a card asks; null if they can't be had. */
-function loadReleaseNotes() {
-  releaseNotes ??= fetch("/api/data/release-notes.json")
-    .then((res) => (res.ok ? res.json() : null))
-    .catch(() => null);
-  return releaseNotes;
-}
 
 /** The newest published version, for two publishes on one day; null when it can't be had. */
 async function liveVersion() {

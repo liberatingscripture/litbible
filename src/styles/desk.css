@@ -3800,3 +3800,87 @@ html[data-desk-list="full"] .desk-item__pin-text {
 .desk-verse__gw:hover {
   background: rgba(var(--ink-rgb), 0.08);
 }
+
+/* What's new for you (whats-new.js): the notebook page's section, the
+   panel's one line, and /release-notes' "Verses in my notebook" checkbox. */
+.desk-mine__whatsnew {
+  margin: 10px 4px 2px;
+  font-size: 0.8125rem;
+}
+
+.desk-mine__whatsnew a {
+  color: var(--green-text);
+}
+
+.desk-mine__whatsnew[hidden] {
+  display: none;
+}
+
+.desk-wn__status {
+  margin: 0 0 0.5rem;
+  max-width: calc(60 * var(--ch));
+}
+
+.desk-wn__publish {
+  margin: 0 0 1.25rem;
+}
+
+.desk-wn__date {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  margin-top: 1.1rem;
+}
+
+.desk-wn__date a {
+  color: inherit;
+}
+
+.desk-wn__new {
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--green-deep);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.desk-wn__changes {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.desk-wn__change {
+  margin: 0 0 0.75rem;
+  max-width: calc(60 * var(--ch));
+}
+
+.desk-wn__what {
+  color: var(--text);
+}
+
+.desk-wn__marks {
+  margin: 2px 0 0;
+  font-size: 0.875rem;
+  color: rgba(var(--ink-rgb), 0.75);
+}
+
+.desk-wn__marks a {
+  color: var(--green-text);
+}
+
+.desk-wn__more {
+  margin-top: 0.25rem;
+}
+
+.rn-filter--check {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 9px;
+  font-size: 0.95rem;
+  cursor: pointer;
+}

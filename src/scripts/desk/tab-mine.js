@@ -26,6 +26,9 @@
 // chapter's text is on the page, so on Study View's "Everything" list only
 // this chapter's records can carry one, and in Read View only this book's.
 //
+// When a publish since the reader last looked touched their verses, one line
+// says so, linking to the notebook page's "What's new for you" (whats-new.js).
+//
 // Pinned footnotes (pins.js) are their own group under the list, "Pinned
 // footnotes": each with its reference, the footnote as it read when pinned,
 // cut at a few lines, Unpin, and a way to it: on its own chapter the
@@ -60,6 +63,7 @@ import { SETTINGS_EVENT, getSetting, setSetting } from "./note-settings.js";
 import { canRevealFootnote, revealFootnote, unpinRecord } from "./pins.js";
 import { placesSection } from "./places.js";
 import { showUndo } from "./undo-bar.js";
+import { panelLine } from "./whats-new.js";
 
 // A note's caret in the list: down to show the rest, turned up while open.
 const ICON_CARET = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
@@ -133,6 +137,7 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     ${addAction && store ? `<button type="button" class="desk-mine__add"></button>` : ""}
     <div class="desk-mine__colors" role="group" aria-label="Show highlights of one color" hidden></div>
     <div class="desk-mine__labels" role="group" aria-label="Show items with one label" hidden></div>
+    <p class="desk-mine__whatsnew" hidden><a href="/notebook/#whats-new"></a></p>
     <p class="desk-mine__changed" hidden></p>
     <button type="button" class="desk-mine__all" hidden></button>
     <ul class="desk-list"></ul>
@@ -158,6 +163,7 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
   const colors = el.querySelector(".desk-mine__colors");
   const labelRow = el.querySelector(".desk-mine__labels");
   const changed = el.querySelector(".desk-mine__changed");
+  const whatsNew = el.querySelector(".desk-mine__whatsnew");
   const allButton = el.querySelector(".desk-mine__all");
   allButton.addEventListener("click", () => {
     if (getSetting("listFull") === "full") {
@@ -210,7 +216,8 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     drawColors(present);
     // The labels on something in this list; a choice that has left it goes
     // back to All, as the colour does.
-    const labels = liveLabels(await store.all());
+    const everyRecord = await store.all();
+    const labels = liveLabels(everyRecord);
     if (seq !== renderSeq) return;
     const inUse = labels.filter((l) => everything.some((r) => (r.labels ?? []).includes(l.id)));
     if (labelFilter && !inUse.some((l) => l.id === labelFilter)) labelFilter = null;
@@ -236,6 +243,7 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
         : "Nothing kept yet.";
 
     markCut();
+    drawWhatsNew(everyRecord, seq);
 
     if (focusIndex !== null) {
       const rows = list.querySelectorAll(".desk-item__delete");
@@ -304,6 +312,27 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
       }),
     );
     if (focused) labelRow.querySelector(`[data-choice="${CSS.escape(focused)}"]`)?.focus({ preventScroll: true });
+  }
+
+  // One line above the list when a publish since the reader last looked
+  // touched their verses (B3), linking to the notebook page's section. Not
+  // waited for: the feed is fetched (once per tab) after the list is drawn,
+  // and only when something kept sits on a verse.
+  async function drawWhatsNew(records, seq) {
+    let line = null;
+    try {
+      line = await panelLine(store, records);
+    } catch (err) {
+      console.error("Study Desk: what's new couldn't be worked out", err);
+    }
+    if (seq !== renderSeq) return;
+    whatsNew.hidden = !line;
+    if (line) {
+      const link = whatsNew.querySelector("a");
+      link.textContent = line.text;
+      link.href = line.href;
+    }
+    afterRender();
   }
 
   // One line above the list when the wording has changed under any of it.

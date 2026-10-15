@@ -19,4 +19,10 @@ if (document.documentElement.dataset.desk === "on" && readingSurface()) {
   import("./desk/notebook-page.js").catch((err) => {
     console.error("Study Desk: the notebook page didn't load", err);
   });
+} else if (document.documentElement.dataset.desk === "on" && document.querySelector("[data-release-notes]")) {
+  // /release-notes is not a reading surface either; it gets one control, the
+  // "Verses in my notebook" filter (STUDY-DESK.md M10).
+  import("./desk/release-notes-filter.js").catch((err) => {
+    console.error("Study Desk: the release notes filter didn't load", err);
+  });
 }

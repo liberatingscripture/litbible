@@ -10,7 +10,8 @@
 // The page, top to bottom: filters (words, kind, highlight colour, label) and
 // a count in words; the records in Bible order under a heading for each book
 // and chapter, then notes on glossary entries and on articles, pinned
-// footnotes, places and anything else; Labels (make, rename, delete); Save a
+// footnotes, places and anything else; What's new for you (whats-new.js: the
+// release notes that touched their verses); Labels (make, rename, delete); Save a
 // copy and Open a copy (export-import.js); and Delete everything, with the
 // shared-computer button "Empty the trash now".
 //
@@ -50,6 +51,7 @@ import { placesSection } from "./places.js";
 import { openStore } from "./store.js";
 import { START_CHOICES, START_KEY, startChoice } from "../../lib/desk-start.mjs";
 import { initUndo, showUndo } from "./undo-bar.js";
+import { mountWhatsNew } from "./whats-new.js";
 
 const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
 
@@ -108,6 +110,7 @@ async function start() {
     <p class="desk-np__intro">Everything the notebook keeps in this browser, in Bible order. It never leaves this computer unless you save a copy.</p>
     <nav class="desk-np__jump" aria-label="On this page">
       <a href="#kept">What I’ve kept</a>
+      <a href="#whats-new">What’s new for you</a>
       <a href="#places">Places</a>
       <a href="#labels">Labels</a>
       <a href="#panel">The Notebook panel</a>
@@ -134,6 +137,7 @@ async function start() {
       <p class="desk-np__count" aria-live="polite" data-np-count></p>
       <div class="desk-np__lists" data-np-lists></div>
     </section>
+    <section class="desk-np__section" id="whats-new" data-np-whats-new></section>
     <section class="desk-np__section" id="places" data-np-places></section>
     <section class="desk-np__section" id="labels" aria-labelledby="deskNpLabelsTitle">
       <h2 class="desk-np__h2" id="deskNpLabelsTitle">Labels</h2>
@@ -185,6 +189,9 @@ async function start() {
   const statusEl = q("[data-np-status]");
 
   mountBackup(q("[data-np-backup]"), { store, ctx });
+  // The release notes that touched the reader's verses (B3), drawn and kept
+  // up to date by whats-new.js.
+  mountWhatsNew(q("[data-np-whats-new]"), { store });
   mountStartChoice(q("[data-np-start]"));
   // Continue reading, Read View's places and the reader's ribbons (B1), drawn
   // and kept up to date by places.js.
