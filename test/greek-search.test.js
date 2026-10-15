@@ -9,7 +9,10 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
 import {
+  GREEK_PARSE_FORMAT,
+  GREEK_SEARCH_FORMAT,
   decodeOccurrences,
+  decodeParseGroup,
   foldGreek,
   glossHead,
   greekHref,
@@ -22,7 +25,9 @@ import {
   matchGreek,
   occShard,
   parseGreekParam,
+  parseGroup,
   parseStrong,
+  splitCode,
   prepareBridge,
   prepareIndex,
   transliterate,
@@ -31,7 +36,7 @@ import {
 import { BOOK_ORDER } from "../src/data/books.js";
 
 const fake = prepareIndex({
-  format: 1,
+  format: 2,
   shards: 64,
   lemmas: [
     ["λόγος", "G3056", "word, speech", 330, "λογοσ λογον λογου"],
@@ -159,17 +164,19 @@ test("the tray shows only an exact transliteration or a gloss that is the query,
   assert.equal(matchForTray(fake, "G4102").lemmas.length, 1);
 
   const four = prepareIndex({
-    format: 1,
+    format: 2,
     lemmas: ["λέγε", "λήγε", "λέγη", "λήγη"].map((l, i) => [l, null, null, 10 - i, foldGreek(l)]),
   });
   assert.equal(matchGreek(four, "lege").lemmas.length, 4);
   assert.equal(matchForTray(four, "lege").lemmas.length, 3);
 });
 
-test("prepareIndex refuses anything that is not format 1", () => {
+test("prepareIndex refuses anything that is not the current format", () => {
+  assert.equal(GREEK_SEARCH_FORMAT, 2);
   assert.equal(prepareIndex(null), null);
-  assert.equal(prepareIndex({ format: 2, lemmas: [] }), null);
-  assert.equal(prepareIndex({ format: 1 }), null);
+  assert.equal(prepareIndex({ format: 1, lemmas: [] }), null);
+  assert.equal(prepareIndex({ format: 2 }), null);
+  assert.ok(prepareIndex({ format: 2, lemmas: [] }));
 });
 
 // ── occurrences and links ────────────────────────────────────────────────────
@@ -177,16 +184,84 @@ test("prepareIndex refuses anything that is not format 1", () => {
 test("decodeOccurrences reads the flat list and filters by book and form", () => {
   const entry = [
     ["Λόγος", "λόγον"],
-    [0, 1, 1, 1, 0, 3, 3, 16, 2, 1, 3, 3, 17, 4, 0],
+    [0, 1, 1, 1, 0, 0, 3, 3, 16, 2, 1, 1, 3, 3, 17, 4, 0, 0],
+    ["N-----NSM-", "N-----ASM-"],
   ];
   const all = decodeOccurrences(entry, BOOK_ORDER);
   assert.equal(all.length, 3);
-  assert.deepEqual(all[1], { book: BOOK_ORDER[3], chapter: 3, verse: 16, t: 2, form: "λόγον" });
+  assert.deepEqual(all[1], {
+    book: BOOK_ORDER[3], chapter: 3, verse: 16, t: 2, form: "λόγον", pos: "N-", parse: "----ASM-",
+  });
+  assert.equal(all[0].parse, "----NSM-");
   assert.deepEqual(decodeOccurrences(entry, BOOK_ORDER, { bookKey: BOOK_ORDER[3] }).map((o) => o.verse), [16, 17]);
   assert.deepEqual(decodeOccurrences(entry, BOOK_ORDER, { form: "λογον" }).map((o) => o.verse), [16]);
   assert.deepEqual(decodeOccurrences(undefined, BOOK_ORDER), []);
   assert.equal(hasOtherForms(entry, "λογον"), true);
   assert.equal(hasOtherForms([["λόγον"], []], "λογον"), false);
+});
+
+test("parseGroup names a word's file: verbs by tense and mood, the rest by case", () => {
+  // verbs: "v-" + tense + mood
+  assert.equal(parseGroup("V-", "2AAD-S--"), "v-ad"); // aorist imperative
+  assert.equal(parseGroup("V-", "-PAPNSM-"), "v-pp"); // present participle
+  assert.equal(parseGroup("V-", "-AAN----"), "v-an"); // aorist infinitive
+  assert.equal(parseGroup("V-", "3IMI-S--"), "v-ii");
+  // everything else with a case: the part of speech and the case
+  assert.equal(parseGroup("N-", "----GSF-"), "n-g");
+  assert.equal(parseGroup("RA", "----GSF-"), "ra-g");
+  assert.equal(parseGroup("RP", "----DSM-"), "rp-d");
+  assert.equal(parseGroup("A-", "----NPN-"), "a-n");
+  // no case: the part of speech alone
+  assert.equal(parseGroup("C-", "--------"), "c");
+  assert.equal(parseGroup("D-", "--------"), "d");
+  assert.equal(parseGroup("P-", "--------"), "p");
+  assert.equal(parseGroup("X-", "--------"), "x");
+  assert.equal(parseGroup("I-", "--------"), "i");
+  assert.equal(parseGroup("N-", "--------"), "n"); // a caseless noun
+  assert.equal(parseGroup("N-", ""), "n");
+  // no part of speech: no group
+  assert.equal(parseGroup(null, null), null);
+  assert.equal(parseGroup("", ""), null);
+});
+
+test("every group a word can have is lowercase, filesystem-safe and unique, ignoring case", () => {
+  const poss = ["N-", "V-", "RA", "C-", "RP", "P-", "A-", "D-", "RD", "RR", "RI", "X-", "I-"];
+  const tenses = "PIFAXY".split("");
+  const moods = "INDSOP".split("");
+  const cases = "NGDAV-".split("");
+  const names = new Set();
+  const add = (n) => {
+    assert.match(n, /^[a-z]+(-[a-z]+)?$/);
+    names.add(n);
+  };
+  for (const pos of poss) {
+    if (pos === "V-") for (const t of tenses) for (const m of moods) add(parseGroup(pos, `-${t}A${m}----`));
+    else for (const c of cases) add(parseGroup(pos, `----${c}---`));
+  }
+  // Distinct as written means distinct on a case-insensitive disk, since all are lowercase.
+  assert.equal(names.size, tenses.length * moods.length + (poss.length - 1) * cases.length);
+});
+
+test("a code splits into its part of speech and parsing", () => {
+  assert.deepEqual(splitCode("N-----GSF-"), { pos: "N-", parse: "----GSF-" });
+  assert.deepEqual(splitCode(undefined), { pos: "", parse: "" });
+});
+
+test("decodeParseGroup reads a group file into words, and refuses another format", () => {
+  const json = {
+    format: GREEK_PARSE_FORMAT,
+    codes: ["V-2AAD-S--", "V-2AAD-P--"],
+    occ: [0, 1, 1, 1, 7, 0, 3, 3, 16, 2, 9, 1],
+  };
+  const words = decodeParseGroup(json, BOOK_ORDER);
+  assert.deepEqual(words, [
+    { book: BOOK_ORDER[0], chapter: 1, verse: 1, t: 1, lemmaId: 7, pos: "V-", parse: "2AAD-S--" },
+    { book: BOOK_ORDER[3], chapter: 3, verse: 16, t: 2, lemmaId: 9, pos: "V-", parse: "2AAD-P--" },
+  ]);
+  assert.deepEqual(decodeParseGroup({ ...json, occ: [] }, BOOK_ORDER), []);
+  assert.equal(decodeParseGroup({ ...json, format: 2 }, BOOK_ORDER), null);
+  assert.equal(decodeParseGroup(null, BOOK_ORDER), null);
+  assert.equal(decodeParseGroup({ format: 1, codes: [] }, BOOK_ORDER), null);
 });
 
 test("a result links to the verse, naming the word", () => {
@@ -211,7 +286,7 @@ const read = (rel) =>
 test("the committed index finds the words readers will type", () => {
   const json = read("lemmas.json");
   const index = prepareIndex(json);
-  assert.ok(index, "lemmas.json is format 1");
+  assert.ok(index, "lemmas.json is the current format");
   assert.ok(index.lemmas.length > 5000);
   const pistis = index.lemmas.find((l) => l.lemma === "πίστις");
   for (const q of ["πιστις", "πίστει", "pistis", "G4102"]) {
@@ -241,6 +316,18 @@ test("the committed index finds the words readers will type", () => {
   const occ = decodeOccurrences(shard[pistis.id], BOOK_ORDER);
   assert.equal(occ.length, pistis.count);
   assert.ok(occ.every((o) => o.book && o.chapter > 0 && o.verse > 0 && o.t > 0));
+  assert.ok(occ.every((o) => o.pos === "N-" && o.parse.length === 8));
+  const genitives = occ.filter((o) => o.parse[4] === "G");
+  assert.ok(genitives.length > 50);
+
+  // The parse groups hold the same words, found by lemma id.
+  const groups = read("parse.json");
+  assert.equal(groups.format, GREEK_PARSE_FORMAT);
+  assert.ok(groups.groups["v-ad"] > 700 && groups.groups["n-g"] > 1000);
+  const ng = decodeParseGroup(read("parse/n-g.json"), BOOK_ORDER);
+  assert.equal(ng.length, groups.groups["n-g"]);
+  assert.equal(ng.filter((w) => w.lemmaId === pistis.id).length, genitives.length);
+  assert.ok(ng.every((w) => w.pos === "N-" && w.parse[4] === "G"));
 });
 
 test("the glossary bridge reaches the Greek from the LIT's own words, first", () => {

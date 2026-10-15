@@ -10,7 +10,10 @@
  *   lsj/<NNN>.json              STEPBible's formatted LSJ, in 128 shards
  *   search/lemmas.json          the Greek search index: every lemma, its forms, Strong's
  *                               numbers and gloss (format in src/lib/greek-search.mjs)
- *   search/occ/<NN>.json        where each lemma's words are, in 64 shards
+ *   search/occ/<NN>.json        where each lemma's words are, and how they parse, in 64 shards
+ *   search/parse.json           the parse groups and the number of words in each
+ *   search/parse/<group>.json   every word of one kind (v-ad: aorist imperatives; n-g: nouns
+ *                               in the genitive) in Bible order, for searches with no word
  *   LICENSE.txt                 what each directory is built from, and its licence
  *
  * A website asset: it never moves under public/api/ (the apps don't read it).
@@ -305,6 +308,9 @@ async function main() {
   const search = greekSearchIndex(docs, lemmaStrongs, BOOK_ORDER, glossesFor);
   await writeJson(path.join(OUT, "search", "lemmas.json"), search.lemmas);
   for (const [name, shard] of search.shards) await writeJson(path.join(OUT, "search", "occ", `${name}.json`), shard);
+  // search/ was removed whole above, so no group file from an earlier run is left behind.
+  await writeJson(path.join(OUT, "search", "parse.json"), search.parseIndex);
+  for (const [name, group] of search.parseGroups) await writeJson(path.join(OUT, "search", "parse", `${name}.json`), group);
 
   await fs.writeFile(path.join(OUT, "LICENSE.txt"), LICENSE_TEXT, "utf8");
 
@@ -312,6 +318,8 @@ async function main() {
   const sizes = {};
   for (const dir of ["text", "ubs", "step", "lsj"]) sizes[dir] = await dirStats(path.join(OUT, dir));
   sizes["search/occ"] = await dirStats(path.join(OUT, "search", "occ"));
+  sizes["search/parse"] = await dirStats(path.join(OUT, "search", "parse"));
+  const parseBytes = (await fs.stat(path.join(OUT, "search", "parse.json"))).size;
   const lemmasBytes = (await fs.stat(path.join(OUT, "search", "lemmas.json"))).size;
   const searchLemmas = search.lemmas.lemmas;
   const noStrong = [...lemmaStats.noStrong].sort();
@@ -356,8 +364,9 @@ async function main() {
       `Strong's differing between chapters: ${search.report.strongDiffers.length} ${sample(search.report.strongDiffers, 5).join("; ")}; ` +
       `gloss differing between chapters: ${search.report.glossDiffers.length} ${sample(search.report.glossDiffers, 5).join("; ")}`,
     "",
-    ...["text", "ubs", "step", "lsj", "search/occ"].map((d) => `public/greek/${d}: ${sizes[d].files} files, ${kb(sizes[d].bytes)}`),
+    ...["text", "ubs", "step", "lsj", "search/occ", "search/parse"].map((d) => `public/greek/${d}: ${sizes[d].files} files, ${kb(sizes[d].bytes)}`),
     `public/greek/search/lemmas.json: ${kb(lemmasBytes)}`,
+    `public/greek/search/parse.json: ${kb(parseBytes)} (${search.parseGroups.size} groups)`,
     "",
   ];
   console.log(lines.join("\n"));
@@ -406,7 +415,9 @@ lsj/
 search/
   The index behind searching the Greek: for each lemma, its forms (letters
   only, accents and breathings removed), Strong's numbers and gloss, and the
-  place of each of its words. Built from MorphGNT's lemmas (CC BY-SA 3.0),
+  place and parsing of each of its words (lemmas.json, occ/), and the same
+  words grouped by parsing (parse.json, parse/). Built from MorphGNT's lemmas
+  and parsing (CC BY-SA 3.0),
   with Strong's numbers from MACULA Greek (Clear Bible, CC BY 4.0) and glosses
   from the UBS dictionary above (or the brief lexicon where UBS has none).
   This directory is licensed CC BY-SA 4.0.
