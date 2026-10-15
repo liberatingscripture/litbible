@@ -246,6 +246,28 @@ test("a tour leaves out the steps that don't belong to the page's view", () => {
   assert.ok(!prose.includes("bookmark") && !prose.includes("ribbon"));
 });
 
+test("the Greek search commands step follows the Greek step, in Study View only, and is offered as new", () => {
+  const all = new Set(TOUR_STEPS.map((s) => s.id));
+  const study = planTour({ available: all, view: "study" }).map((s) => s.id);
+  assert.equal(study[study.indexOf("greek") + 1], "greek-commands");
+  for (const view of ["read", "prose"]) {
+    assert.ok(!planTour({ available: all, view }).some((s) => s.id === "greek-commands"), view);
+  }
+  // It is planned only where its target is (a page without the Greek tab leaves it out).
+  const noGreek = new Set([...all].filter((id) => id !== "greek-commands"));
+  assert.ok(!planTour({ available: noGreek, view: "study" }).some((s) => s.id === "greek-commands"));
+
+  // A reader who took the tour before it existed is offered it, once, and only it.
+  const before = TOUR_STEPS.map((s) => s.id).filter((id) => id !== "greek-commands");
+  const offer = tourOffer(JSON.stringify(before));
+  assert.equal(offer.kind, "new");
+  assert.deepEqual(offer.ids, ["greek-commands"]);
+  assert.equal(tourOffer(JSON.stringify(withOffered(before, offer.ids))).kind, null);
+  // And a tour of just what is new is that one step.
+  const only = planTour({ available: all, only: offer.ids, view: "study" });
+  assert.deepEqual(only.map((s) => s.id), ["greek-commands"]);
+});
+
 test("each step knows its part and where the next part starts", () => {
   const steps = planTour({ available: new Set(TOUR_STEPS.map((s) => s.id)), view: "study" });
   const firstOfPart = (p) => steps.findIndex((s) => s.part === p);

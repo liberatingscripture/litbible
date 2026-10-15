@@ -295,16 +295,18 @@ const onPageHide = () => closeGreekCommands("page");
 /**
  * Open the window for a search field.
  * @param {{ field: HTMLInputElement, source?: "page" | "notebook",
- *   focus?: boolean, filter?: string | null, typeSelect?: HTMLSelectElement | null }} options
+ *   focus?: boolean, filter?: string | null, typeSelect?: HTMLSelectElement | null,
+ *   remember?: boolean }} options
  *   `source: "notebook"` is the Greek tab's field: it sits left of the
  *   Notebook and closes with it. `focus: false` leaves focus where it is (the
  *   window opened by itself). `filter` is a parsing word (or name) to scroll
  *   to and mark, which an error points to. `typeSelect` is the page's search
- *   type menu, which an example sets to "Greek".
+ *   type menu, which an example sets to "Greek". `remember: false` opens it
+ *   without marking it seen (the tour's showing of it leaves no trace).
  */
-export function openGreekCommands({ field, source = "page", focus = true, filter = null, typeSelect = null }) {
+export function openGreekCommands({ field, source = "page", focus = true, filter = null, typeSelect = null, remember = true }) {
   if (!field) return;
-  markSeen();
+  if (remember) markSeen();
   if (current) {
     // Already up: it follows the field that asked, and points at the filter.
     const moved = current.field !== field || current.source !== source;

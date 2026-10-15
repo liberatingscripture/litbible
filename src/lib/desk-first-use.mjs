@@ -242,6 +242,17 @@ export const TOUR_STEPS = [
     },
   },
   {
+    id: "greek-commands",
+    part: 1,
+    views: ["study"],
+    since: "2a",
+    title: "Greek search commands",
+    body: {
+      default:
+        "A Greek search can name a word’s parsing and several words together. This one finds πίστις in the genitive, followed by Jesus or Christ in the genitive. “Search commands” lists every command, each with a word you can type instead.",
+    },
+  },
+  {
     id: "widths",
     part: 1,
     views: ["study"],
