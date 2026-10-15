@@ -14,12 +14,13 @@ are recorded so they aren't re-argued.
 
 ## Where things stand (as of 2026-10-15)
 
-- **A new idea, D9: the desk as a page of its own** (BVJ, 2026-10-15),
-  after phase 3, with the LIT text as one pane among up to four. Recorded
-  under "Across the desk" with BVJ's first answers (panes, layouts, what
-  it remembers); nothing decided, and mockups wait until the work starts.
-  It asks one thing of phase 3: S1's editor built to sit inside another
-  page.
+- **Phase 3 is now sheets and the desk together** (BVJ, 2026-10-15): D9,
+  the desk as a page of its own (`/desk/`), with the LIT text as one pane
+  among up to four. Sheets are edited only there; a sheet's own address
+  serves shared links, present mode and printing. **Phases 2b and 2c
+  follow phase 3**, and phase 3's scope isn't cut to make a date. BVJ's
+  answers are under D9 ("Across the desk"); the details are for when the
+  work starts, with mockups then.
 
 - **The tour is offered in a window beside the Notebook** (BVJ,
   2026-10-14), the first time it is expanded, with "Take the tour now,"
@@ -38,6 +39,7 @@ are recorded so they aren't re-argued.
   ("Phase 2a's defaults"); "Order of work", 2a, has what was built.
 
 - **Phase 2 is split into 2a, 2b and 2c, and phase 3 follows 2a**
+  (2b and 2c now follow phase 3: see the entry above)
   (BVJ, 2026-10-14): 2a is B3, N4, M10, construction search and
   searching by parsing, the read-only pieces; 2b is S2, which needs sheets; 2c is the rest, whose place is open ("Order
   of work", 2; "Decisions").
@@ -930,8 +932,9 @@ plan as a whole was accepted; nothing was declined except where stated).
   as they are; this is a second way in, not a replacement. Borrowed (Logos
   and Accordance workspaces; Sefaria's sheet editor with the library in a
   side panel, the survey's "sheets as a workspace of their own"). Large.
-  **BVJ's idea, after phase 3; nothing decided.** Proposed, for when it's
-  designed:
+  **BVJ's idea; decided 2026-10-15 to be part of phase 3, with sheets**
+  ("Decisions", 2026-10-15). The details below are BVJ's answers and
+  proposals for when it's designed:
   - **A page, not a subdomain** (`litbible.net/desk/`, clear of book slugs
     per W7). Browser storage belongs to one origin, so `desk.litbible.net`
     would open with an empty notebook: the reader's notes, highlights,
@@ -983,20 +986,18 @@ plan as a whole was accepted; nothing was declined except where stated).
     8. **Phase 2's later pieces might live better here** (BVJ wondered,
        2026-10-15), such as tracing notes across a word wherever it
        occurs. Weighed below ("Phase 2c and D9").
-    9. **Maybe phase 3 is sheets and the desk together** (BVJ, 2026-10-15,
-       not decided), which first needs the `/sheets/` question answered.
-       Phases 2b and 2c would then follow phase 3: 2b needs sheets
-       already, and 2c's making would be done in /desk's word pane.
-       **Proposed answer to the `/sheets/` question**: one editor, the
-       sheet pane in /desk; and a sheet's own address only for what isn't
-       editing (opening a shared link, present mode, printing), which S8
-       and S6 need anyway, since a shared sheet opens for people who
-       never built it. **The risk is Lent**: sheets were moved up so
-       leaders have them by Ash Wednesday (February 10, 2027), and the
-       desk's layouts make phase 3 much larger. One way to keep both:
-       /desk first opens with the text pane and the sheet pane side by
-       side, and the free layouts (one to four panes, rows and columns)
-       follow in the same phase after Lent's part is out.
+    9. **Phase 3 is sheets and the desk together** (BVJ, 2026-10-15),
+       and **phases 2b and 2c follow it**: 2b needs sheets, and 2c's
+       making is done in /desk's word pane.
+    10. **Sheets are edited in /desk only**, as the sheet pane: one
+       editor. A sheet's own address exists only for what isn't editing
+       (opening a shared link, present mode, printing), which S8 and S6
+       need anyway, since a shared sheet opens for people who never built
+       it (BVJ accepted the proposal, 2026-10-15).
+    11. **Phase 3 is not cut down to make a date** (BVJ, 2026-10-15: "no
+       need to compress the scope to make it go faster. We'll be fine").
+       The proposal to open /desk with two panes for Lent and add the
+       free layouts later was declined; the whole of it is phase 3.
   - **What the answers mean for the build** (notes for then, not
     decisions):
     - **Most panes exist already as modules**: the Greek tab, This verse,
@@ -4066,9 +4067,11 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
    M2, M3), sheets from searches and templates (M5, M9), annotated printing
    (M6) and shared links (S8). Large. **Build S1's editor so it can sit
    inside another page** (proposed 2026-10-15), so D9, the desk as a page
-   of its own, doesn't mean building sheets twice. **BVJ is considering
-   making phase 3 sheets and the desk together** (D9, answer 9), which
-   would put 2b and 2c after it.
+   of its own, doesn't mean building sheets twice. **Phase 3 is now sheets
+   and the desk together** (BVJ, 2026-10-15; D9, answers 9 to 11): sheets
+   are edited only in /desk's sheet pane, a sheet's own address serves
+   shared links, present mode and printing, and 2b and 2c follow phase 3.
+   Its scope isn't cut to make a date.
 4. **Sync, with BDR.** Starts once plan A or C is chosen and, if the Zoom
    wants plan A tested, the proofs (P1 to P3, now the spikes, paused
    2026-10-09) are in. Under both plans: a sync loop on 1a's merge engine, one source
@@ -5058,6 +5061,25 @@ tab, while planning the rest of 2a ("Order of work", 2a):
 - **The window is a reusable layer**, `src/scripts/float-window.js`: a
   click outside doesn't close it, and it doesn't take the shared panels'
   one slot. 2a's search commands window is planned on it.
+
+### 2026-10-15 (D9: the desk as a page of its own)
+
+- **D9 joins phase 3: phase 3 is sheets and the desk** (BVJ). The desk
+  gets a page of its own, `/desk/`, with one to four panes (the LIT text,
+  My Notes, This verse, Greek, footnotes, sheets, and Go deeper's place
+  open), in columns, rows, 1×2, 2×1 or 2×2, resizable, and a layout the
+  page remembers.
+- **Sheets are edited only in /desk.** A sheet's own address is for
+  shared links, present mode and printing.
+- **Phases 2b and 2c come after phase 3.**
+- **The scope isn't cut to make a date**: "no need to compress the scope
+  to make it go faster. We'll be fine."
+- **Not for now**: other versions (D7). **No**: the interleaf (N7), which
+  My Notes covers. **Yes**: the Greek interleaf (1g) and footnotes in the
+  margin (X11), as the Greek and footnotes panes.
+- Still open, under D9: chapter, book or whole-corpus scrolling in the
+  text pane; where Go deeper goes; whether a rich-text document is part of
+  sheets or its own pane (and its record format); the word pane for 2c.
 
 ### 2026-10-14 (phase 2 split into 2a, 2b and 2c)
 
