@@ -156,9 +156,27 @@ test("errors: a misspelled filter, two of one kind, any word with no filter", ()
   assert.equal(parseGreekQuery("πίστις.gen.gen").error, undefined, "the same filter twice is fine");
 });
 
+test("a slash or \"or\" between filters of one kind means either", () => {
+  const filters = (q) => shape(parseGreekQuery(q)).terms.map((t) => t.filters);
+  assert.deepEqual(filters("πίστις.gen/dat"), [["genitive", "dative"]]);
+  assert.deepEqual(filters("pistis genitive or dative"), [["genitive", "dative"]]);
+  assert.deepEqual(filters("*.aor/pres.impv"), [["aorist", "present", "imperative"]]);
+  assert.deepEqual(filters("genitive or dative noun"), [["genitive", "dative", "noun"]], "no word: any word, either case");
+  assert.deepEqual(parseGreekQuery("πίστις.gen/pl").error, { kind: "mixedAxes", word: "gen/pl", names: ["genitive", "plural"] });
+  assert.equal(parseGreekQuery("πίστις.gen/dat.acc").error.kind, "conflict");
+  assert.equal(parseGreekQuery("πίστις.gen/dativ").error.near, "dative");
+  const gen = filterFor("gen");
+  const dat = filterFor("dat");
+  assert.equal(codeFits([gen, dat], "N-----DSF-"), true);
+  assert.equal(codeFits([gen, dat], "N-----ASF-"), false);
+  assert.equal(codeFits([gen, dat, filterFor("pl")], "N-----GSF-"), false, "kinds still all have to fit");
+  assert.deepEqual(groupsForFilters([gen, dat, filterFor("noun")], ["n-a", "n-d", "n-g", "a-g"]), ["n-d", "n-g"]);
+  assert.deepEqual(groupsForFilters([filterFor("aor"), filterFor("pres"), filterFor("impv")], ["v-ad", "v-pd", "v-ai", "v-fd"]), ["v-ad", "v-pd"]);
+});
+
 test("every error has a sentence for the reader", () => {
-  for (const kind of ["near", "notCommand", "conflict", "bareAny", "exactGreek", "unknown", "other"]) {
-    const m = errorMessage({ kind, word: "x", near: "genitive", other: "genitive", name: "dative" });
+  for (const kind of ["near", "notCommand", "conflict", "mixedAxes", "bareAny", "exactGreek", "unknown", "other"]) {
+    const m = errorMessage({ kind, word: "x", near: "genitive", other: "genitive", name: "dative", names: ["genitive", "plural"] });
     assert.ok(m.text.length > 10, kind);
     assert.doesNotMatch(m.text, /—/, "no em dashes in reader-facing text");
   }
@@ -220,6 +238,13 @@ test("the readback names the search in plain English", () => {
     "Any form of πίστις, with νόμος (“law”) anywhere in the verse, in either order");
   assert.equal(say([term([], [{ word: "πίστεως", lemmas: ["πίστις"], gloss: null }], { exact: true })]), "The form πίστεως");
   assert.equal(say([term(["aor", "impv"]), term(["acc"])]), "Aorist imperatives, followed within 3 words by an accusative");
+  assert.equal(say([term(["gen", "dat"], πίστις)]), "Genitives or datives of πίστις");
+  assert.equal(say([term(["aor", "pres", "impv"])]), "Aorist or present imperatives");
+  assert.equal(say([term(["gen", "dat", "noun"])]), "Genitive or dative nouns");
+  assert.equal(say([term(["impv", "subj"])]), "Imperatives or subjunctives");
+  assert.equal(say([term([], πίστις), term(["gen", "dat"], IX)]),
+    "Any form of πίστις, followed within 3 words by a genitive or dative of Ἰησοῦς or Χριστός");
+  assert.equal(say([term(["impv", "sg", "pl"])]), "Imperatives (singular or plural)");
   const html = describeGreekQuery(
     { terms: [term(["gen"], πίστις)], gap: 3, anyOrder: false },
     { greek: (s) => `<span lang="grc">${s}</span>` },
@@ -284,6 +309,11 @@ test("the committed index: parsing alone, and a word narrowed by parsing", () =>
   assert.equal(countLine(searchCommitted("any aorist imperative").hits), "762 matches in 615 verses");
   assert.equal(searchCommitted("πίστις.gen").hits.reduce((n, h) => n + h.matches.length, 0), 94);
   assert.equal(countLine(searchCommitted("πίστις.gen ~0 Χριστός.gen").hits), "2 matches in 2 verses");
+  // Either case is the sum of the two, each word once.
+  const count = (q) => searchCommitted(q).hits.reduce((n, h) => n + h.matches.length, 0);
+  assert.equal(count("πίστις.gen/dat"), count("πίστις.gen") + count("πίστις.dat"));
+  assert.equal(count("pistis genitive or dative"), count("πίστις.gen/dat"));
+  assert.equal(count("*.aor/pres.impv"), count("*.aor.impv") + count("*.pres.impv"));
 });
 
 test("the committed index: every example the window offers finds something", () => {

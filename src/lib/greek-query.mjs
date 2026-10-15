@@ -16,7 +16,10 @@
 //   =πίστεως                that form only ("exact" too)
 //   *                       any word ("any" too); it needs a filter
 // followed by filters, joined to it with dots (πίστις.gen, *.aor.impv) or
-// typed after it as words (pistis genitive, any aorist imperative). How
+// typed after it as words (pistis genitive, any aorist imperative). Two
+// filters of one kind joined by "/" or "or" are either one (πίστις.gen/dat,
+// "pistis genitive or dative"); joined by a dot they would ask for a word
+// that is both, which is an error. How
 // close the words must be is one setting for the whole query: within 3
 // words (~3, the default), next to each other (~0), anywhere in the verse
 // (~v), and in any order (&); each has its words too.
@@ -113,13 +116,18 @@ export function nearestFilter(word) {
   return best?.word ?? null;
 }
 
-/** True when a ten-character code has every filter in `filters` (a list of FILTERS entries). */
+const fitsOne = (f, c) =>
+  f.axis === "pos" ? (f.code === "R*" ? c[0] === "R" && c[1] !== "A" : c.slice(0, 2) === f.code) : c[AT[f.axis]] === f.code;
+
+/**
+ * True when a ten-character code fits `filters` (a list of FILTERS entries):
+ * one of each kind given, so two of one kind ("gen/dat") mean either.
+ */
 export function codeFits(filters, code) {
   const c = String(code ?? "");
-  for (const f of filters) {
-    if (f.axis === "pos") {
-      if (f.code === "R*" ? !(c[0] === "R" && c[1] !== "A") : c.slice(0, 2) !== f.code) return false;
-    } else if (c[AT[f.axis]] !== f.code) return false;
+  const axes = new Set(filters.map((f) => f.axis));
+  for (const axis of axes) {
+    if (!filters.some((f) => f.axis === axis && fitsOne(f, c))) return false;
   }
   return true;
 }
@@ -141,7 +149,7 @@ export const COMMANDS = [
       { code: ",", word: "and", means: "Then another word", note: "πίστις.gen, Χριστός.gen: found together, in that order", insert: ", " },
       { code: ".gen", means: "Narrow the word before it", note: "Join several: *.aor.impv", insert: ".gen" },
       { code: "*", word: "any", means: "Any word", note: "Needs a filter: *.gen.noun is any genitive noun", insert: "*" },
-      { code: "/", word: "or", means: "Either word", note: "Ἰησοῦς/Χριστός", insert: "/" },
+      { code: "/", word: "or", means: "Either one", note: "Two words, Ἰησοῦς/Χριστός, or two filters of one kind, πίστις.gen/dat", insert: "/" },
       { code: "=", word: "exact", means: "This form only", note: "=πίστεως leaves out the word’s other forms", insert: "=" },
       { code: "\"any\"", means: "The word itself", note: "Quotes search for any, exact, and or or as a word", insert: "\"" },
     ],
@@ -248,19 +256,31 @@ export function parseGreekQuery(raw) {
   let anyOrder = false;
   const last = () => terms[terms.length - 1];
   const close = () => { if (terms.length) last().closed = true; };
+  // Each name is a filter, or several of one kind joined by "/" ("gen/dat"),
+  // which a word may match any of (BVJ, 2026-10-15). Two of one kind joined
+  // by a dot ("gen.dat") ask for a word that is both, and are an error.
   const addFilters = (term, names) => {
     for (const name of names) {
-      const f = filterFor(name);
-      if (!f) {
-        const near = nearestFilter(name);
-        return near ? { kind: "near", word: name, near } : { kind: "notCommand", word: name };
+      const parts = name.split("/").filter(Boolean);
+      const found = [];
+      for (const part of parts) {
+        const f = filterFor(part);
+        if (!f) {
+          const near = nearestFilter(part);
+          return near ? { kind: "near", word: part, near } : { kind: "notCommand", word: part };
+        }
+        if (!found.includes(f)) found.push(f);
       }
-      const clash = term.filters.find((g) => g.axis === f.axis && g !== f);
-      if (clash) return { kind: "conflict", word: name, other: clash.name, name: f.name };
-      if (!term.filters.includes(f)) term.filters.push(f);
+      if (new Set(found.map((f) => f.axis)).size > 1) {
+        return { kind: "mixedAxes", word: name, names: found.map((f) => f.name) };
+      }
+      const clash = term.filters.find((g) => g.axis === found[0].axis && !found.includes(g));
+      if (clash) return { kind: "conflict", word: parts[0], other: clash.name, name: found[0].name };
+      for (const f of found) if (!term.filters.includes(f)) term.filters.push(f);
     }
     return null;
   };
+  const isFilterSpec = (s) => Boolean(s) && s.split("/").every((p) => p && filterFor(p));
 
   for (const tok of q.split(/\s+/).filter(Boolean)) {
     if (tok === ",") { close(); continue; }
@@ -276,7 +296,7 @@ export function parseGreekQuery(raw) {
       continue;
     }
     // A filter typed as a word narrows the word before it, or starts "any word".
-    if (head && filterFor(head) && rest.every((r) => filterFor(r))) {
+    if (isFilterSpec(head) && rest.every(isFilterSpec)) {
       let term = last();
       if (!term || term.closed) terms.push((term = { words: null, exact: false, literal: false, filters: [], closed: false }));
       const err = addFilters(term, [head, ...rest]);
@@ -361,19 +381,19 @@ export function resolveGreekQuery(index, parsed, { bridge = null } = {}) {
  * codeFits decides each word.
  */
 export function groupsForFilters(filters, groupNames) {
-  const want = Object.fromEntries(filters.map((f) => [f.axis, f.code]));
+  // Each kind of filter given, with the codes a word may have for it.
+  const want = {};
+  for (const f of filters) (want[f.axis] ??= []).push(f.code);
+  const posFits = (pos, code) => (code === "R*" ? pos.startsWith("r") && pos !== "ra" : pos === code.replace("-", "").toLowerCase());
   return groupNames.filter((name) => {
     const [pos, rest = ""] = name.split("-");
     const isVerb = pos === "v";
     const cased = !isVerb && rest.length === 1;
-    if (want.pos) {
-      const p = want.pos === "R*" ? "r" : want.pos.replace("-", "").toLowerCase();
-      if (want.pos === "R*" ? !(pos.startsWith("r") && pos !== "ra") : pos !== p) return false;
-    }
+    if (want.pos && !want.pos.some((code) => posFits(pos, code))) return false;
     if (isVerb) {
       const [tense, mood] = rest.toUpperCase();
-      if (want.tense && want.tense !== tense) return false;
-      if (want.mood && want.mood !== mood) return false;
+      if (want.tense && !want.tense.includes(tense)) return false;
+      if (want.mood && !want.mood.includes(mood)) return false;
       if ((want.case || want.gender) && mood !== "P") return false;
       if (want.person && !"IDSO".includes(mood)) return false;
       if (want.degree) return false;
@@ -381,8 +401,8 @@ export function groupsForFilters(filters, groupNames) {
     }
     // MorphGNT marks person on verbs alone (ἡμεῖς is RP----NP--).
     if (want.tense || want.voice || want.mood || want.person) return false;
-    if (cased) return !want.case || want.case === rest.toUpperCase();
-    return !want.case && !want.number && !want.gender && !want.person && !want.degree;
+    if (cased) return !want.case || want.case.includes(rest.toUpperCase());
+    return !want.case && !want.number && !want.gender && !want.degree;
   });
 }
 
@@ -473,23 +493,26 @@ export function describeGreekQuery(resolved, { greek = (s) => s, text = (s) => s
 }
 
 function describeTerm(term, lead, greek, text) {
-  const get = (axis) => term.filters.find((f) => f.axis === axis);
+  // Every filter of a kind; two or more of one kind are "either".
+  const get = (axis) => term.filters.filter((f) => f.axis === axis);
+  const either = (fs) => fs.map((f) => f.name).join(" or ");
   const mood = get("mood");
   const cas = get("case");
   const pos = get("pos");
   // "Genitive participles", "aorist active imperatives", then person,
   // gender, number and degree in parentheses: "(2nd person plural)".
-  const adj = ["tense", "voice"].map(get).filter(Boolean).map((f) => f.name);
-  let plural = null;
-  if (mood) {
-    plural = MOOD_PLURAL[mood.code];
-    if (cas) adj.push(cas.name);
-  } else if (cas && pos) {
-    adj.push(cas.name);
-    plural = POS_PLURAL[pos.code];
-  } else if (cas) plural = CASE_PLURAL[cas.code];
-  else if (pos) plural = POS_PLURAL[pos.code];
-  const more = ["person", "gender", "number", "degree"].map(get).filter(Boolean).map((f) => f.name);
+  const adj = ["tense", "voice"].map(get).filter((fs) => fs.length).map(either);
+  let nouns = null;
+  if (mood.length) {
+    nouns = mood.map((f) => MOOD_PLURAL[f.code]);
+    if (cas.length) adj.push(either(cas));
+  } else if (cas.length && pos.length) {
+    adj.push(either(cas));
+    nouns = pos.map((f) => POS_PLURAL[f.code]);
+  } else if (cas.length) nouns = cas.map((f) => CASE_PLURAL[f.code]);
+  else if (pos.length) nouns = pos.map((f) => POS_PLURAL[f.code]);
+  const plural = nouns ? nouns.join(" or ") : null;
+  const more = ["person", "gender", "number", "degree"].map(get).filter((fs) => fs.length).map(either);
   if (!plural && !adj.length && more.length) adj.push(...more.splice(0));
   const tail = more.length ? text(` (${more.join(" ")})`) : "";
 
@@ -506,7 +529,7 @@ function describeTerm(term, lead, greek, text) {
   }
 
   if (!plural && !adj.length) return word ? (term.exact || !lead ? word : `${text("any form of ")}${word}`) : text("any word");
-  const noun = lead ? plural ?? "forms" : singular(plural ?? "forms");
+  const noun = lead ? plural ?? "forms" : nouns ? nouns.map(singular).join(" or ") : "form";
   const head = text([...adj, noun].join(" "));
   const phrase = (word ? `${head}${text(" of ")}${word}` : head) + tail;
   if (lead) return phrase;
@@ -532,7 +555,9 @@ export function errorMessage(error) {
     case "notCommand":
       return { text: `“${error.word}” isn’t a command.`, filter: null };
     case "conflict":
-      return { text: `A word can’t be both ${error.other} and ${error.name}. To find either, search for each word separately.`, filter: error.name };
+      return { text: `A word can’t be both ${error.other} and ${error.name}. For either one, join them with a slash, like gen/dat.`, filter: error.name };
+    case "mixedAxes":
+      return { text: `A slash joins two of one kind, like gen/dat or aor/pres, not ${error.names.join(" and ")}.`, filter: null };
     case "bareAny":
       return { text: "“Any word” needs a filter after it, like any genitive noun.", filter: null };
     case "exactGreek":
