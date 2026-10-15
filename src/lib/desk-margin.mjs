@@ -22,7 +22,8 @@
 //      2026-10-07), placed by placeFloating below: expanded, it takes
 //      MIN_WIDTH at the window's edge and lies over the ends of the lines;
 //      collapsed, it is a tab at the window's edge that keeps clear of the
-//      text.
+//      text. The reader can drag the expanded panel's left edge to widen or
+//      narrow it (floatWidth below).
 // Only pages with a reading column have the panel at all
 // (src/scripts/desk-frame.js, READING_SURFACES); BVJ, 2026-10-06.
 //
@@ -115,23 +116,55 @@ export const TAB_GAP = 8;
  * notebook is folded. Expanded, the panel lies over the ends of the lines,
  * as a floating window does.
  *
- * @param {object} m the same measurements placeInMargin takes
+ * @param {object} m the same measurements placeInMargin takes, and
+ *   optionally `width`, the width the reader dragged the expanded panel to
+ *   (floatWidth keeps it within what the window allows)
  * @returns {{ panel: { left: number, width: number },
  *   tab: { left: number, width: number }, shift: number, tabOver: boolean }}
  */
-export function placeFloating({ viewport, column, main, shift = 0 }) {
+export function placeFloating({ viewport, column, main, shift = 0, width: kept = null }) {
   const left = column.left + shift;
   const right = column.right + shift;
   const tabLeft = viewport - TAB_EDGE - TAB_WIDTH;
   const need = Math.max(0, right + TAB_GAP - tabLeft);
   const move = Math.min(need, Math.max(0, left - main.left));
-  const width = Math.min(MIN_WIDTH, Math.max(0, viewport - 2 * EDGE));
+  const width = floatWidth(viewport, kept);
   return {
     panel: { left: viewport - EDGE - width, width },
     tab: { left: tabLeft, width: TAB_WIDTH },
     shift: Math.round(move),
     tabOver: move < need,
   };
+}
+
+/* ── The floating panel's width, which the reader drags ──────────────── */
+
+// BVJ, 2026-10-14: where the expanded notebook lies over the text, its left
+// edge can be dragged to change its width (src/scripts/desk/float-resize.js).
+// It keeps its right edge EDGE from the window's, so only the left edge moves.
+// It is MIN_WIDTH until the reader drags it, no wider than the window less an
+// EDGE each side, and a window narrower than MIN_WIDTH + 2 * EDGE leaves it
+// only that one width.
+
+/** The narrowest and widest the floating panel can be in this window. */
+export function floatBounds(viewport) {
+  const max = Math.max(0, viewport - 2 * EDGE);
+  return { min: Math.min(MIN_WIDTH, max), max };
+}
+
+/** The floating panel's width: what the reader kept (or MIN_WIDTH), within the window. */
+export function floatWidth(viewport, kept = null) {
+  const { min, max } = floatBounds(viewport);
+  return Math.round(clamp(Number.isFinite(kept) ? kept : MIN_WIDTH, min, max));
+}
+
+/**
+ * The width after dragging the panel's left edge by `dx` from where the drag
+ * started at `width`. The right edge stays put, so dragging left (dx < 0)
+ * widens it.
+ */
+export function dragFloatEdge({ width, dx, viewport }) {
+  return floatWidth(viewport, width - dx);
 }
 
 /**

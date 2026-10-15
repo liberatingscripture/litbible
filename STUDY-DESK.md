@@ -2867,6 +2867,15 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
        panel's foot and the Display tray. The rules are in
        `src/lib/desk-margin.mjs` (`placeWithWidths` and the two drags),
        the handles in `src/scripts/desk/widths.js`.
+     - **The floating notebook's width** (BVJ, 2026-10-14): where the
+       window is too narrow for the margin and the expanded panel lies over
+       the text, on any reading surface, the reader drags its left edge to
+       change its width (the right edge stays 16px from the window's). It
+       is 280px until dragged, up to the window less 16px a side, kept for
+       the visit (`lit-desk-float-width`) and forgotten by "Reset widths".
+       Nothing shows at rest; arrow keys move the handle too. Rules:
+       `floatWidth` and `dragFloatEdge` in `src/lib/desk-margin.mjs`;
+       handle: `src/scripts/desk/float-resize.js`.
      - **Defaults chosen where nothing was decided**, for BVJ to judge on the
        preview: the "Show in notebook" label and its own row in the menu;
        This verse opening at the address's verse, else the verse being read;

@@ -37,6 +37,9 @@ import { keepReadingPlace } from "../keep-reading-place.js";
 
 const MEASURE_KEY = "lit-desk-measure";
 const WIDTH_KEY = "lit-desk-width";
+// The floating notebook's width, dragged by its left edge (float-resize.js).
+// Kept the same way, for the visit, and forgotten by "Reset widths" too.
+const FLOAT_KEY = "lit-desk-float-width";
 /** Sent when the kept widths change or are forgotten. */
 export const WIDTHS_EVENT = "desk:widths";
 
@@ -48,6 +51,21 @@ export function keptWidths() {
     if (Number.isFinite(measure) && Number.isFinite(width)) return { measure, width };
   } catch (_) {}
   return null;
+}
+
+/** The width the reader dragged the floating notebook to, or null. */
+export function keptFloatWidth() {
+  try {
+    const width = parseFloat(sessionStorage.getItem(FLOAT_KEY));
+    if (Number.isFinite(width)) return width;
+  } catch (_) {}
+  return null;
+}
+
+export function keepFloatWidth(width) {
+  try {
+    sessionStorage.setItem(FLOAT_KEY, String(width));
+  } catch (_) {}
 }
 
 function keep({ measure, width }) {
@@ -62,6 +80,7 @@ export function resetWidths() {
   try {
     sessionStorage.removeItem(MEASURE_KEY);
     sessionStorage.removeItem(WIDTH_KEY);
+    sessionStorage.removeItem(FLOAT_KEY);
   } catch (_) {}
   document.dispatchEvent(new CustomEvent(WIDTHS_EVENT, { detail: { kept: false } }));
 }
@@ -76,7 +95,7 @@ export function resetWidthsButton(className) {
   b.className = className;
   b.textContent = "Reset widths";
   const sync = () => {
-    b.hidden = !keptWidths();
+    b.hidden = !keptWidths() && keptFloatWidth() === null;
   };
   sync();
   document.addEventListener(WIDTHS_EVENT, sync);

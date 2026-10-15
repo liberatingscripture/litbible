@@ -2284,6 +2284,11 @@ collection); they're read directly by the intro pages and the API manifest.
      (BVJ, 2026-10-07): expanded, it lies over the line ends; collapsed, it
      is a tab at the window's edge (`placeFloating`, `nextCollapsed`), and
      it collapses by itself whenever it starts floating unasked.
+     **While it floats expanded the reader can drag its left edge to change
+     its width** (BVJ, 2026-10-14; `desk/float-resize.js`, rules in
+     `desk-margin.mjs`'s `floatWidth`): the right edge stays put, the width
+     is kept for the visit (`lit-desk-float-width`, named in /privacy) and
+     "Reset widths" forgets it. It moves nothing else.
      **In the margin the reader can minimize it to the same tab** (»;
      BVJ, 2026-10-09); minimized
      is remembered (`lit-desk-min`), and Notebook or the tab restores it.

@@ -63,7 +63,8 @@ import {
   placeInMargin,
 } from "../../lib/desk-margin.mjs";
 import { READING_SURFACES, readingSurface } from "../desk-frame.js";
-import { WIDTHS_EVENT, createWidths } from "./widths.js";
+import { WIDTHS_EVENT, createWidths, keptFloatWidth } from "./widths.js";
+import { createFloatResize } from "./float-resize.js";
 import { MIN_KEY, startState } from "../../lib/desk-start.mjs";
 import { keepReadingPlace } from "../keep-reading-place.js";
 
@@ -110,6 +111,8 @@ export function createRail(panel, tab, onChange = () => {}) {
   // The draggable widths: Study View chapters only (the first surface).
   const studyColumn = surface === READING_SURFACES[0] ? columnEls[0] : null;
   const widths = studyColumn ? createWidths({ column: studyColumn, panel, onChange: () => place() }) : null;
+  // The floating panel's left edge, which the reader drags to change its width.
+  const floatEdge = createFloatResize(panel, () => place());
 
   let open = false;
   let shift = 0;
@@ -188,6 +191,7 @@ export function createRail(panel, tab, onChange = () => {}) {
       setShift(0);
       widths?.clear();
       widths?.hideHandles();
+      floatEdge.update({ visible: false });
       rail.hidden = true;
       floating = collapsed = false;
       root.style.removeProperty("--desk-dock-width");
@@ -225,7 +229,7 @@ export function createRail(panel, tab, onChange = () => {}) {
         const f = placeFloating(m);
         box = { ...f.tab, shift: f.shift };
       } else if (floating) {
-        const f = placeFloating(m);
+        const f = placeFloating({ ...m, width: keptFloatWidth() });
         box = { ...f.panel, shift: f.shift };
       }
     }
@@ -257,6 +261,11 @@ export function createRail(panel, tab, onChange = () => {}) {
     if (widths && !floating && !collapsed) {
       widths.placeHandles({ top, height: bottom - top, column: columnBox(), panelLeft: box.left });
     } else widths?.hideHandles();
+    floatEdge.update({
+      visible: floating && !collapsed,
+      width: Math.round(box.width),
+      viewport,
+    });
 
     // For the floating panels (desk-frame.js) and the undo bar. From the
     // window's edge, scrollbar included, since that's what lit-panel.js
