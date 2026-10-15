@@ -6,7 +6,8 @@
 // footnote). The same facts the panel's My Notes tab shows (tab-mine.js), set
 // out for a page rather than a narrow column, so the words are in full.
 //
-// Everything a reader wrote goes on the page as text, never as HTML. The
+// Everything a reader wrote goes on the page as text, never as HTML (a note's
+// body is escaped and its scripture references linked, note-words.js). The
 // build-up is deliberately plain: the page decides what happens when a button
 // is pressed (`actions`), this only draws.
 
@@ -14,6 +15,7 @@ import { COLORS, canEdit } from "../../lib/desk-records.mjs";
 import { labelsOf } from "../../lib/desk-labels.mjs";
 import { kindName, recordHref, recordReference } from "../../lib/desk-store-core.mjs";
 import { glyph } from "./glyphs.js";
+import { fillNoteWords } from "./note-words.js";
 
 /** A highlight's colour if the format knows it; null for anything else, which is shown plainly. */
 const colorOf = (r) => (r?.kind === "highlight" && COLORS.includes(r.color) ? r.color : null);
@@ -80,7 +82,7 @@ export function recordRow(record, { labels, onEdit = null, onLabels, onDelete })
     words.innerHTML = glyph(r.marker, "desk-glyph desk-item__glyph");
     const text = document.createElement("span");
     text.className = "desk-np-row__text";
-    text.textContent = r.body || "(the marker only)";
+    fillNoteWords(text, r.body, "(the marker only)");
     words.append(text);
     li.append(words);
     if (r.quote?.exact) li.append(quoteLine(r.quote.exact));

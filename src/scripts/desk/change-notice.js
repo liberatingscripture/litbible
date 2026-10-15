@@ -42,6 +42,7 @@ import { canEdit, compareContentVersions, proseTarget } from "../../lib/desk-rec
 import { recordReference } from "../../lib/desk-store-core.mjs";
 import { closePanel, showPanel } from "../lit-panel.js";
 import { glyph } from "./glyphs.js";
+import { fillNoteWords } from "./note-words.js";
 import { undoEntry } from "./history.js";
 import { prosePage, targetOf } from "./note-sources.js";
 import { chapterTextFor, footnoteList, pageChapter } from "./page.js";
@@ -346,7 +347,7 @@ export function openNotice(trigger, record, { store, ctx, showInText = null, res
   }
   if (ref) mark.append(" · ", el("span", "desk-notice__ref", ref));
   panel.append(mark);
-  if (record.kind === "note" && record.body) panel.append(el("p", "desk-notice__body", record.body));
+  if (record.kind === "note" && record.body) panel.append(fillNoteWords(el("p", "desk-notice__body"), record.body));
 
   panel.append(el("p", "desk-notice__text", words.text));
 

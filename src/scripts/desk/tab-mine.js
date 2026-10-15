@@ -58,6 +58,7 @@ import {
 } from "../../lib/desk-store-core.mjs";
 import { flagButton, noticesFor, openNotice } from "./change-notice.js";
 import { glyph } from "./glyphs.js";
+import { fillNoteWords } from "./note-words.js";
 import { undoEntry } from "./history.js";
 import { SETTINGS_EVENT, getSetting, setSetting } from "./note-settings.js";
 import { canRevealFootnote, revealFootnote, unpinRecord } from "./pins.js";
@@ -411,15 +412,29 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
       const row = document.createElement("div");
       row.className = "desk-item__note-row";
       if (openNotes.has(r.id)) row.classList.add("desk-item__note-row--open");
-      const note = document.createElement(href ? "a" : "span");
+      // A link in the words can't sit inside a link, so the note's own link
+      // is its marker, stretched over the row (desk-stretch); the words'
+      // links are lifted above it. The reference above is the same link by
+      // name, so the marker's is left to the mouse.
+      const note = document.createElement("div");
       note.className = "desk-item__note";
-      if (href) note.href = href;
-      if (revealHere) note.addEventListener("click", goTo);
-      note.innerHTML = glyph(r.marker, "desk-glyph desk-item__glyph");
+      const mark = glyph(r.marker, "desk-glyph desk-item__glyph");
+      if (href) {
+        note.classList.add("desk-stretch", "desk-item__note--go");
+        const go = document.createElement("a");
+        go.className = "desk-item__go";
+        go.href = href;
+        go.tabIndex = -1;
+        go.setAttribute("aria-hidden", "true");
+        go.innerHTML = mark;
+        if (revealHere) go.addEventListener("click", goTo);
+        note.append(go);
+      } else {
+        note.innerHTML = mark;
+      }
       const words = document.createElement("span");
       words.className = "desk-item__words";
-      // A note's body is the reader's own words: always text, never HTML.
-      words.textContent = r.body || "(the marker only)";
+      fillNoteWords(words, r.body, "(the marker only)");
       note.append(words);
       const more = document.createElement("button");
       more.type = "button";

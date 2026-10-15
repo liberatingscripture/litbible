@@ -49,6 +49,7 @@ import {
 import { closePanel, currentPanel, showPanel } from "../lit-panel.js";
 import { changedGlyph, drawnNotices, markName, noticeFor, noticesFor, openNotice } from "./change-notice.js";
 import { glyph } from "./glyphs.js";
+import { fillNoteWords, onLink } from "./note-words.js";
 import { SETTINGS_EVENT, getSetting, highlightSetting } from "./note-settings.js";
 
 const LIT = "desk-note-words";
@@ -117,7 +118,7 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
       ? ".desk-circle"
       : focused?.classList.contains("desk-flag")
         ? ".desk-flag"
-        : ".desk-note__toggle";
+        : ".desk-note__hit";
     aside.replaceChildren();
     const notesOn = getSetting("notes") === "on" && notes.length > 0;
     // A highlight whose wording has changed is flagged while highlights are
@@ -328,18 +329,29 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
     el.className = "desk-note";
     el.dataset.id = r.id;
     if (open.has(r.id)) el.classList.add("desk-note--open");
-    const toggle = document.createElement("button");
-    toggle.type = "button";
-    toggle.className = "desk-note__toggle";
-    toggle.setAttribute("aria-expanded", String(open.has(r.id)));
-    toggle.innerHTML = glyph(r.marker, "desk-glyph desk-note__glyph");
+    // The note's words may hold links (N4: a reference typed in a note is a
+    // link), and a link can't sit inside a button. So the toggle is the
+    // glyph's button, stretched over the whole note by desk.css, and the
+    // words sit beside it with their links lifted above that.
+    const toggle = document.createElement("div");
+    toggle.className = "desk-note__toggle desk-stretch";
+    const hit = document.createElement("button");
+    hit.type = "button";
+    hit.className = "desk-note__hit";
+    hit.setAttribute("aria-expanded", String(open.has(r.id)));
     const text = document.createElement("span");
     text.className = "desk-note__text";
+    text.id = `deskNoteText-${r.id}`;
+    fillNoteWords(text, r.body);
+    // The button is named for the words it hangs on; the note itself is its
+    // description, so tabbing to it still reads the note.
+    hit.setAttribute("aria-describedby", text.id);
     const opening = document.createElement("span");
     opening.className = "sr-only";
-    opening.textContent = noteOpening(r, refOf(r));
-    text.append(opening, document.createTextNode(r.body));
-    toggle.append(text);
+    opening.textContent = noteOpening(r, refOf(r)).replace(/:\s*$/, "");
+    hit.innerHTML = glyph(r.marker, "desk-glyph desk-note__glyph");
+    hit.append(opening);
+    toggle.append(hit, text);
     const edit = document.createElement("button");
     edit.type = "button";
     edit.className = "desk-note__edit";
@@ -413,7 +425,7 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
         } else if (what === "keep") {
           afterDraw = () =>
             aside
-              .querySelector(`[data-id="${CSS.escape(record.id)}"] .desk-note__toggle, .desk-circle[data-id="${CSS.escape(record.id)}"]`)
+              .querySelector(`[data-id="${CSS.escape(record.id)}"] .desk-note__hit, .desk-circle[data-id="${CSS.escape(record.id)}"]`)
               ?.focus({ preventScroll: true });
         }
       },
@@ -476,6 +488,9 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
     }
     const record = notes.find((r) => r.id === id);
     if (!record) return;
+    // A link in the note's words is the link's: it neither opens the note
+    // nor counts as the note's own click.
+    if (onLink(e)) return;
     if (t.closest(".desk-note__edit")) {
       e.stopPropagation();
       onEdit(record, t.closest(".desk-note"), t.closest(".desk-note__edit"));
@@ -486,7 +501,7 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
       if (open.has(id)) open.delete(id);
       else open.add(id);
       el.classList.toggle("desk-note--open", open.has(id));
-      t.closest(".desk-note__toggle").setAttribute("aria-expanded", String(open.has(id)));
+      el.querySelector(".desk-note__hit").setAttribute("aria-expanded", String(open.has(id)));
       syncLit();
       return;
     }
@@ -523,7 +538,7 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
         <span class="desk-note-pop__ref">My note · ${escapeHtml(ref)}</span>
         <button type="button" class="desk-note__edit desk-note-pop__edit">Edit<span class="sr-only"> my note on ${escapeHtml(ref)}</span></button>
       </div>`;
-    pop.querySelector(".desk-note-pop__text").textContent = record.body;
+    fillNoteWords(pop.querySelector(".desk-note-pop__text"), record.body);
     pop.querySelector(".desk-note-pop__edit").addEventListener("click", () => {
       onEdit(record, circle, circle);
     });
@@ -596,7 +611,7 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
       }
       holder.classList.add("desk-note--flash");
       setTimeout(() => holder.classList.remove("desk-note--flash"), 1600);
-      holder.querySelector(".desk-note__toggle")?.focus({ preventScroll: true });
+      holder.querySelector(".desk-note__hit")?.focus({ preventScroll: true });
     }, reducedMotion() ? 50 : 450);
   }
 
