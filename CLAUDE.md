@@ -2595,7 +2595,10 @@ collection); they're read directly by the intro pages and the API manifest.
        example to the committed data, so a new command goes in `FILTERS` or
        `COMMANDS` there and nowhere else. **One bare word is always a
        word** ("any", "perfect" and "genitive" alone search as glosses) and
-       **quotes always mean the word itself** (BVJ, 2026-10-14).
+       **quotes always mean the word itself** (BVJ, 2026-10-14). Two filters
+       of one kind joined by "/" mean either (`.gen/dat`, BVJ 2026-10-15), so
+       a term's `filters` can hold several of one axis; `codeFits` and
+       `groupsForFilters` read that as "any of them".
      - **`searchGreekAuto` in `search-core.js` is the one Greek search**
        the tray, /search and the Greek tab call: a command query goes to
        `searchGreekCommands`, anything else to 1h's `searchGreek`, with

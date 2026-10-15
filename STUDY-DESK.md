@@ -3834,7 +3834,10 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
          tested): words joined by "," or "and"; "/" or "or" for either
          word; "*" or "any" for any word; "=" or "exact" for one form;
          filters joined to a word with dots (πίστις.gen, *.aor.impv) or
-         typed after it as words (pistis genitive); and how close, once for
+         typed after it as words (pistis genitive); two filters of one kind
+         joined by "/" or "or" for either (πίστις.gen/dat, "pistis genitive
+         or dative": genitives or datives, 152 matches; BVJ, 2026-10-15),
+         while "gen.dat" is an error that says to use the slash; and how close, once for
          the whole query: ~3 or "within 3" (the default), ~0 or "next to",
          ~v or "anywhere", & or "any order". One bare word is always a
          word ("any", "perfect" and "genitive" alone search as glosses),
@@ -4837,6 +4840,9 @@ tab, while planning the rest of 2a ("Order of work", 2a):
 - **The window opens by itself once** (the first time "Greek" is picked),
   **and has a builder** (a word and pickers that write the command); both
   were tried as switches on the mockup and kept.
+- **Either of two filters** (BVJ, 2026-10-15, asking for genitive or
+  dative): built with the slash and "or" that already joined two words,
+  so πίστις.gen/dat and "pistis genitive or dative" find either case.
 - Not settled, built as recommended: two words with only a space between
   them (a phrase pasted from a verse) are read as a construction too, while
   the window and the examples teach the comma.
@@ -5082,8 +5088,9 @@ tab, while planning the rest of 2a ("Order of work", 2a):
      kept for the visit.
   8. **The parsing starter** in the Greek tab searches the word's whole
      parsing (`*.aor.act.ind.3rd.pl`), which the reader can trim.
-  9. **Two words of one kind are an error** ("A word can’t be both
-     genitive and dative"), not "either".
+  9. **Either of two filters takes the slash**, the same "or" as between
+     words (`.gen/dat`, `.aor/pres`), and only within one kind: `.gen/pl`
+     is an error, and so is `.gen.dat`, whose message points to the slash.
   (M10's own defaults went with it to `claude/desk-2a-m10`.)
 - ~~**Phase 1h's defaults**~~: **accepted** (BVJ, 2026-10-13). (Built 2026-10-13 on recommendations; "Order of
   work", 1h, "Built"): the lemma line's gloss taken from STEPBible's brief
