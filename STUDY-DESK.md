@@ -19,13 +19,16 @@ are recorded so they aren't re-argued.
   "Remind me later," and "Don't show this again" (decision log, 2026-10-14,
   "The tour offer"). Built on the preview the same day.
 
-- **Phase 2a: B3 and N4 are built on the preview, and M10 is shelved**
-  (2026-10-15). What's new for you (B3) and your own chains (N4) are in the
-  tree; your notebook where you already look (M10) was built the same day
-  and then shelved by BVJ, its code kept on `claude/desk-2a-m10`.
-  Construction search and searching by parsing, 2a's larger part, are not
-  started. Defaults for BVJ to judge are under "Still
-  open" ("Phase 2a's defaults"); "Order of work", 2a, has what was built.
+- **Phase 2a is built on the preview, and M10 is shelved** (2026-10-15).
+  What's new for you (B3) and your own chains (N4) are in the tree; your
+  notebook where you already look (M10) was built the same day and then
+  shelved by BVJ, its code kept on `claude/desk-2a-m10`. **Construction
+  search and searching by parsing**, 2a's larger part, are built on
+  `claude/desk-2a-construction`: Greek search commands on /search, the
+  tray and the Greek tab, with a "Search commands" window that lists them
+  (syntax settled by BVJ on a mockup, 2026-10-14; decision log, "Greek
+  search commands"). Defaults for BVJ to judge are under "Still open"
+  ("Phase 2a's defaults"); "Order of work", 2a, has what was built.
 
 - **Phase 2 is split into 2a, 2b and 2c, and phase 3 follows 2a**
   (BVJ, 2026-10-14): 2a is B3, N4, M10, construction search and
@@ -3751,8 +3754,8 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      page are the larger part.
      - **Built on the preview 2026-10-15: B3 and N4. M10 was built and
        shelved** (BVJ, 2026-10-15; its code is on `claude/desk-2a-m10`).
-       Construction search and searching by parsing are not started. Neither
-       piece writes a record; the only thing stored is a notebook meta value,
+       Construction search and searching by parsing came after (below).
+       Neither piece writes a record; the only thing stored is a notebook meta value,
        `whatsNewSeen`, and a session cache of the feed.
        - **B3, what's new for you.** `src/lib/desk-whats-new.mjs` (pure)
          narrows release-notes.json to the reader's marked verses, using
@@ -3812,6 +3815,61 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
            hunks of 75795bd (`release-notes-filter.js`, `desk-gate.js`,
            `release-notes.js`, `release-notes.astro`, and
            `notebookChangeKeys` in `desk-whats-new-view.mjs`).
+     - **Construction search and searching by parsing: built on the
+       preview** (2026-10-15, branch `claude/desk-2a-construction`), as
+       Greek search commands. The syntax and the window were settled by BVJ
+       on a switchable mockup (decision log, 2026-10-14, "Greek search
+       commands"). Read only, like the rest of 2a: nothing is stored but
+       two small browser keys about the window.
+       - **The data** (`npm run build:greek`, format 2 of
+         `public/greek/search/`): each word in a lemma's shard carries its
+         parsing (MorphGNT's part of speech and code, from a per-lemma
+         table), so "genitives of πίστις" reads the shard it already
+         fetches; and `search/parse/<group>.json`, every word by its
+         parsing (verbs by tense and mood, words with case by part of
+         speech and case, the rest by part of speech; 57 groups, 601 KB
+         gzipped, named by `parseGroup`), answers a search with no word in
+         it. `occ/` grew 16.7%.
+       - **The query language** is `src/lib/greek-query.mjs` (pure,
+         tested): words joined by "," or "and"; "/" or "or" for either
+         word; "*" or "any" for any word; "=" or "exact" for one form;
+         filters joined to a word with dots (πίστις.gen, *.aor.impv) or
+         typed after it as words (pistis genitive); and how close, once for
+         the whole query: ~3 or "within 3" (the default), ~0 or "next to",
+         ~v or "anywhere", & or "any order". One bare word is always a
+         word ("any", "perfect" and "genitive" alone search as glosses),
+         quotes always mean the word itself, and a command at the end waits
+         for what follows. A match is one occurrence of the first word
+         with a word of each later term within reach.
+       - **What the reader sees.** On /search, a "Search commands" button
+         beside the box while the Greek is searched, the placeholder "Try
+         πίστις.gen or *.aor.impv", the search said back above the verses
+         ("Genitives of πίστις, followed within 3 words by a genitive of
+         Ἰησοῦς or Χριστός · 6 matches in 5 verses"), every matched word
+         marked and its parsing named, examples where the results would be
+         when there are none, and errors that suggest the word meant
+         ("“genetive” isn’t a command. Did you mean genitive?"). The tray
+         and the Greek tab draw the same; in a word's details in the Greek
+         tab, its parsing line starts a search for that parsing.
+       - **The commands window** (`src/scripts/greek-commands.js`, on
+         `float-window.js`) is the one place for instructions and examples
+         (BVJ, 2026-10-14: in place of buttons, hints and examples on the
+         pages): a builder, the examples, and every command with its word,
+         from `COMMANDS` and `EXAMPLES`. A click puts a command at the
+         cursor without taking focus from the field. It stays open through
+         clicks elsewhere and can be dragged; it closes on its × or Escape,
+         on leaving the page and, opened from the Greek tab, when the
+         Notebook is closed or minimized or the tab changes. It opens by
+         itself once, the first time "Greek" is picked on /search.
+       - **Checked in the browser**: the examples and typed queries on
+         /search, in the tray (where `*` and `.gen` count as Greek, there
+         being no type menu) and in the Greek tab; inserting at the cursor;
+         the window's closing rules; the parsing starter; and, with the
+         preview off, no button, no Greek type and nothing under `/greek/`
+         fetched. Counts against the data: πίστις in the genitive followed
+         by Ἰησοῦς or Χριστός in the genitive, 6 matches in 5 verses (Romans
+         3:22, 3:26; Galatians 2:16 twice, 3:22; Philippians 3:9); 762
+         aorist imperatives; 94 genitives of πίστις.
    - **2b, text checked before printing** (S2), on the same comparison.
      Small.
    - **2c, the rest**: notes that follow a word and concept marks saved as
@@ -4747,6 +4805,42 @@ The first five confirm what the preview already does.
   on the draft page with nothing to show; it now opens the Greek at the word
   (`greek-link.js` already works wherever the panel offers Greek).
 
+### 2026-10-14 (Greek search commands)
+
+Settled by BVJ on a switchable mockup of /search, the tray and the Greek
+tab, while planning the rest of 2a ("Order of work", 2a):
+
+- **One "Search commands" window holds the instructions** (BVJ: a list of
+  commands, opened from a link, dragged like the verse menu, and staying
+  open through clicks elsewhere so it can sit beside the box while the
+  reader types). It takes the place of most of the buttons, instructions
+  and examples the features would otherwise add to the pages; BVJ judged
+  the first trim too bare, so these stay on the page because they use space
+  that is empty anyway or say back what was typed: the search said back
+  above the results, examples where an empty search's results would be,
+  the placeholder, words for every symbol, and a fuller link label
+  ("Search commands"). A step in the tour introduces it.
+- **It closes** on its × or Escape, on going to another page, and, opened
+  from the Greek tab, when the Notebook is closed or minimized. BVJ agreed
+  to three further recommendations: opened from /search or the tray, the
+  Notebook doesn't affect it; switching away from the Greek tab closes it;
+  and the Notebook collapsing by itself closes it.
+- **The syntax**: dots join filters to a word (πίστις.gen; BVJ chose
+  dots over brackets); **a comma joins the words of a construction** (BVJ:
+  separating with spaces isn't obviously additive); **a slash means
+  "or"**; and **every command has a full word too** ("and", "or", "any",
+  "exact", "within 3", "next to", "anywhere", "any order").
+- **A command word can be meant as a word** (BVJ: "any" could be an
+  intended search, and "exact"). So quotes always mean the word itself, and
+  a command word alone is searched as a word. Built as: one bare word is
+  always a word, parsing words included ("perfect", "genitive").
+- **The window opens by itself once** (the first time "Greek" is picked),
+  **and has a builder** (a word and pickers that write the command); both
+  were tried as switches on the mockup and kept.
+- Not settled, built as recommended: two words with only a space between
+  them (a phrase pasted from a verse) are read as a construction too, while
+  the window and the examples teach the comma.
+
 ### 2026-10-15 (M10 shelved)
 
 - **M10, "your notebook where you already look", is shelved** (BVJ,
@@ -4972,6 +5066,24 @@ The first five confirm what the preview already does.
      (the shelved M10 had added `--desk-mine`).
   3. **N4's section title** is "Notes that cite this verse", and the change
      notice's card links references too.
+  4. **Construction search's reach** is one setting for the whole query
+     (~3 by default), not one per pair of words, and a match is counted
+     once per occurrence of the first word (Galatians 2:16 counts twice).
+  5. **Two words with a space and no comma** are a construction too
+     (`πίστεως Ἰησοῦ`, "pistis Christos"), while plain English words stay
+     a gloss search ("son of man") unless they find nothing.
+  6. **The tray treats `*` and a dot followed by a parsing word as Greek**
+     (it has no type menu); a wildcard inside a word ("lov*") is not one.
+     Plain parsing words ("aorist imperative") still need the "Greek"
+     type, as decided on 2026-10-13.
+  7. **The window's place**: beside the box if it fits, else below it
+     against the right edge, shorter (scrolling inside) rather than over
+     the box; left of the Notebook from the Greek tab. A dragged place is
+     kept for the visit.
+  8. **The parsing starter** in the Greek tab searches the word's whole
+     parsing (`*.aor.act.ind.3rd.pl`), which the reader can trim.
+  9. **Two words of one kind are an error** ("A word can’t be both
+     genitive and dative"), not "either".
   (M10's own defaults went with it to `claude/desk-2a-m10`.)
 - ~~**Phase 1h's defaults**~~: **accepted** (BVJ, 2026-10-13). (Built 2026-10-13 on recommendations; "Order of
   work", 1h, "Built"): the lemma line's gloss taken from STEPBible's brief

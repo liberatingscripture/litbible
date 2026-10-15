@@ -256,6 +256,9 @@ src/
                      #   greek-search.mjs (searching the Greek: folding,
                      #   transliteration keys, matching; shared by both
                      #   search UIs, the Greek tab and build:greek),
+                     #   greek-query.mjs (Greek search commands: parsing
+                     #   and constructions, the readback, the commands
+                     #   list) + greek-commands-ui.mjs (its pure UI helpers),
                      #   levenshtein.mjs,
                      #   osis.mjs (the OSIS book codes,
                      #   shared by chapter-html.ts and the export),
@@ -279,7 +282,8 @@ src/
                      #   panel is built from; keep-reading-place,
                      #   which holds the reader's line through a reflow;
                      #   float-window, a window that stays open until
-                     #   answered (the desk's tour offer, for now);
+                     #   answered or closed (the desk's tour offer, and
+                     #   greek-commands, the Greek search commands window);
                      #   desk-gate + desk/, the Study Desk preview, and
                      #   desk-frame, what every page knows about its panel;
                      #   see "The Study Desk preview" below)
@@ -411,7 +415,7 @@ the sitemap filter live in `astro.config.mjs`.
 | `build-favicons.mjs` | Favicon/touch/manifest icons from the emblem SVGs. **Not** in the build — run by hand when the emblem changes. |
 | `build-bracket-marker-font.mjs` | `public/fonts/bracket-markers.otf` — subsets the ⟦/⟧ disputed-passage glyphs out of Noto Sans Math, since the site's own webfonts are Latin-only. **Not** in the build — run by hand if the source glyphs ever change. See "Bracketed passages" below. |
 | `build-text-critical-font.mjs` | `public/fonts/text-critical-signs.otf` — the six SBLGNT text-critical signs (⸀ ⸁ ⸂ ⸃ ⸄ ⸅, U+2E00–2E05) subset from full Cardo (Google Fonts' TTF, OFL; Fontsource's Cardo subsets lack them), registered under Crimson Text and Inter in `greek-hebrew-fonts.css`. **Not** in the build. |
-| `build-greek.mjs` | `public/greek/` — the Study Desk's Greek tab data: one file per chapter (SBL's SBLGNT 1.2 text and paragraphs, MorphGNT's lemmas, parsing and word numbers, the apparatus, two borrowed passages) plus lexicon shards (UBS, STEPBible brief, full LSJ), and `search/`, the Greek search index (a lemma list, then occurrences sharded by lemma). Pure rules in `lib/greek-core.mjs` (unit-tested); the search index's folding comes from `src/lib/greek-search.mjs`, so build and query fold alike. **Not** in the build: CI has no copy of the sources, which live outside the repo (`GREEK_SOURCES_DIR`, `MORPHGNT_DIR`). See "The Study Desk preview", rule 14. |
+| `build-greek.mjs` | `public/greek/` — the Study Desk's Greek tab data: one file per chapter (SBL's SBLGNT 1.2 text and paragraphs, MorphGNT's lemmas, parsing and word numbers, the apparatus, two borrowed passages) plus lexicon shards (UBS, STEPBible brief, full LSJ), and `search/`, the Greek search index (a lemma list, then occurrences sharded by lemma, each word with its parsing, and `parse/`, every word by its parsing, for searches with no word in them). Pure rules in `lib/greek-core.mjs` (unit-tested); the search index's folding comes from `src/lib/greek-search.mjs`, so build and query fold alike. **Not** in the build: CI has no copy of the sources, which live outside the repo (`GREEK_SOURCES_DIR`, `MORPHGNT_DIR`). See "The Study Desk preview", rule 14. |
 | `build-apps-qr.mjs` | `public/images/apps-qr.svg` — the QR code the app announcement shows on a computer, pointing at `https://litbible.net/apps/` with no tracking parameter. Uses `qrcode-generator` (MIT, no dependencies), a devDependency used only by this script. **Not** in the build — run by hand if the address ever changes. |
 | `build-alignment.mjs` | `src/data/alignment/` — scans published chapters for glossary-term renderings, then checks each against MorphGNT. **Not** in the build; its output is committed and merges with prior human review. See The Alignment Dataset below. |
 | `alignment-words/server.mjs` | `npm run review:words` — phase 2's localhost tool (`core.mjs` = pure format and rules, `store.mjs` = fs + corpus, `ui/` = vanilla HTML/CSS/JS, no shared code with the glossary tool's UI). See "Phase 2 tooling" under The Alignment Dataset. |
@@ -2579,6 +2583,43 @@ collection); they're read directly by the intro pages and the API manifest.
        The feed is fetched once per tab (`desk/release-feed.js`,
        `sessionStorage['lit-desk-release-feed']`), "last looked" is the
        notebook meta value `whatsNewSeen`; both are in /privacy's paragraph.
+  17. **Phase 2a's Greek search commands** (built 2026-10-15; STUDY-DESK.md,
+     "Order of work", 2a): searching by parsing (`*.aor.impv`, "genitives
+     of πίστις") and by construction (`πίστις.gen, Ἰησοῦς/Χριστός.gen`),
+     behind rule 15's gate. Four things to know:
+     - **`src/lib/greek-query.mjs` is the language**, pure and tested:
+       reading a query, looking its words up (through `matchGreek`),
+       `matchConstruction`, the readback (`describeGreekQuery`), the error
+       sentences, and `COMMANDS` and `EXAMPLES`, which the commands window
+       lists. A test holds every listed command to the parser and every
+       example to the committed data, so a new command goes in `FILTERS` or
+       `COMMANDS` there and nowhere else. **One bare word is always a
+       word** ("any", "perfect" and "genitive" alone search as glosses) and
+       **quotes always mean the word itself** (BVJ, 2026-10-14).
+     - **`searchGreekAuto` in `search-core.js` is the one Greek search**
+       the tray, /search and the Greek tab call: a command query goes to
+       `searchGreekCommands`, anything else to 1h's `searchGreek`, with
+       two or three plain Latin words that find nothing tried as a
+       construction. `isGreekQuery` also counts `*` standing for a word and
+       a dot followed by a parsing word, so the tray, which has no type
+       menu, reads them as Greek.
+     - **The commands window is the one place for instructions and
+       examples** (BVJ, 2026-10-14): a page gains only a "Search commands"
+       button, a placeholder under the "Greek" type, the readback, and
+       examples where an empty search's results would be. Before adding a
+       hint or a control to a search page, put it in the window
+       (`src/scripts/greek-commands.js`). It is a `float-window.js` window,
+       outside `lit-panel.js`'s one slot, so a footnote or preview opening
+       never closes it; from the Greek tab it closes with the Notebook,
+       which announces itself with `lit:notebook-state` (`desk/panel.js`).
+       Its two keys, `localStorage['lit-greek-commands']` (opened once) and
+       `sessionStorage['lit-greek-commands-pos']` (a dragged place), are in
+       /privacy's paragraph.
+     - **The data is format 2 of `public/greek/search/`**: each lemma's
+       shard entry is `[forms, flat, parses]` with six numbers a word, and
+       `parse.json` with `parse/<group>.json` holds every word by its
+       parsing, named by `parseGroup` (`greek-search.mjs`, shared by build
+       and client). Rebuild with `npm run build:greek`, never by hand.
 - **Every link that leaves the site opens in a new tab** (owner, 2026-10-01).
   For rendered bodies that is `openExternalLinks` in `src/lib/external-links.mjs`
   (pure, unit-tested), called from `linkRefs`, the one function footnotes,
@@ -3333,7 +3374,7 @@ argv, and the scan; nothing else.
 | `public/llms.txt`, `llms-full.txt` | LLM-readable site description + AI-usage policy |
 | `GLOSSARY-CANDIDATES.md` | Register of glossary candidates deliberately not included or deferred, and the payload criterion behind those calls. Read it before proposing a "next term." |
 | `TOPICS.md` | **The authority on chapter and book-intro `topics`** — the significance filter, the alternative-translation pair table, the prefix-search rule, casing, and the hand-run checks. Read it before adding or revising any topics array. |
-| `STUDY-DESK.md` | **The planning and decision record for the Study Desk** (notes, places, highlights and sheets on desktop, with optional account sync shared with the apps). Phases 1a to 1d, 1f and 1h are built (the merge engine; notes, bookmarks, highlights, pinned footnotes, the margin and the panel's tabs; the notebook page, export and import, labels, ribbons, search and commands, first use and the tour; the Greek tab; searching the Greek), and so are phase 2a's B3 and N4 (2026-10-15; M10 was built and shelved), the shell behind a preview switch (`?desk=on`); nothing reader-facing is released. N8 (the hidden passage) is held on branches until after the Zoom; it is not released before phase 1 is completely done, and perhaps not until phases 1 to 3 are (BVJ, 2026-10-13). 1g (an interleaf for the Greek) and 1h (searching the Greek) belong to phase 1: 1g is shelved for the future, and 1h was built on 2026-10-13. Every idea, audit finding, owner decision, open question and BDR item is there with its ID, as are the two apps' replies (2026-10-04) and the talk-through list built from them. Read it before proposing or building any part of the desk, and update it when a decision changes. `STUDY-DESK-BRIEF-FOR-BDR.md` is the brief written for BDR's Claude about the apps' side; `STUDY-DESK-REPLY-TO-APPS.md` is the website's answer to both apps' replies (2026-10-05), and the last such document: since 2026-10-07 BDR's Claude reads this repo directly, so the website answers by updating `STUDY-DESK.md` on `main` (its section "One notebook, three homes" holds BDR's sync proposal and the website's answers). |
+| `STUDY-DESK.md` | **The planning and decision record for the Study Desk** (notes, places, highlights and sheets on desktop, with optional account sync shared with the apps). Phases 1a to 1d, 1f and 1h are built (the merge engine; notes, bookmarks, highlights, pinned footnotes, the margin and the panel's tabs; the notebook page, export and import, labels, ribbons, search and commands, first use and the tour; the Greek tab; searching the Greek), and so is phase 2a (2026-10-15: B3, N4, and construction search and searching by parsing as Greek search commands; M10 was built and shelved), the shell behind a preview switch (`?desk=on`); nothing reader-facing is released. N8 (the hidden passage) is held on branches until after the Zoom; it is not released before phase 1 is completely done, and perhaps not until phases 1 to 3 are (BVJ, 2026-10-13). 1g (an interleaf for the Greek) and 1h (searching the Greek) belong to phase 1: 1g is shelved for the future, and 1h was built on 2026-10-13. Every idea, audit finding, owner decision, open question and BDR item is there with its ID, as are the two apps' replies (2026-10-04) and the talk-through list built from them. Read it before proposing or building any part of the desk, and update it when a decision changes. `STUDY-DESK-BRIEF-FOR-BDR.md` is the brief written for BDR's Claude about the apps' side; `STUDY-DESK-REPLY-TO-APPS.md` is the website's answer to both apps' replies (2026-10-05), and the last such document: since 2026-10-07 BDR's Claude reads this repo directly, so the website answers by updating `STUDY-DESK.md` on `main` (its section "One notebook, three homes" holds BDR's sync proposal and the website's answers). |
 | `STUDY-DESK-FORMAT.md` | **Draft record format for the Study Desk**, shared with both apps: the kinds of record, the anchor text, and how a mark is found again after the wording moves. Its executable form is `scripts/lib/anchor-text.mjs` (pure half in `src/lib/anchor-core.mjs`) with `test/fixtures/anchor-vectors.json`; its merge rules are `src/lib/desk-merge.mjs` with `test/fixtures/merge-vectors.json`, hand-written cases the apps run too. Change each pair together. |
 | `DISASTER-RECOVERY.md` | Continuity doc: every dashboard/secret behind the deploy (names only, no values) + the DNS inventory + from-zero redeploy path. Update it when an integration, secret, or DNS record is added/removed. |
 
