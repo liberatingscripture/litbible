@@ -2914,9 +2914,14 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
          `renamed` entry whenever an article file is renamed.
      - **Minimize** (BVJ, 2026-10-09): » minimizes the notebook in the
        margin too, to the same tab at the window's edge the floating
-       notebook uses. The text stays exactly where it was, so minimizing and
-       restoring never move it; minimized is remembered for the next page;
-       Notebook or the tab restores it.
+       notebook uses; minimized is remembered for the next page; Notebook or
+       the tab restores it. **Only the expanded notebook makes room** (BVJ,
+       2026-10-14, reversing the first version's "the text stays exactly
+       where it was"): minimized, floating-and-folded or closed, the column
+       keeps its 52 measure, the kept widths wait and the column moves only as
+       far as the tab needs to stay clear of the text (never over it);
+       expanding or minimizing reflows the text, and the reader's line is
+       held. `<html data-desk-expanded>` is the switch (margin.js owns it).
      - **The glossary's headings with several options** (BVJ, 2026-10-09:
        they were splitting across lines). With the desk on, every such
        heading had taken the phone layout, each option on a line of its own.
@@ -4742,8 +4747,8 @@ The first five confirm what the preview already does.
   left it (the default), Minimized, Open or Closed (`lit-desk-start`; the
   rule is `src/lib/desk-start.mjs`). A chosen start wins over what the
   reader did last, and a floating notebook still collapses by itself. Built
-  the same day; a Study View chapter therefore opens at 48 by default,
-  since the column doesn't move when the notebook is minimized.
+  the same day; (Superseded 2026-10-14: only an expanded notebook narrows
+  the column to 48, so a Study View chapter opens at 52 by default, minimized.)
 - **"Show notes in full in this list" was awkward** as a checkbox at the
   panel's foot. It became **"Open all" / "Close all"** at the right above
   My Notes' list, with each note's caret kept (BVJ chose both). It is the

@@ -290,9 +290,9 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
   }
 
   // On Study View chapters the column narrows from 52 to 48 while the panel
-  // is open (global.css; BVJ, 2026-10-08), which reflows the text, so both
-  // directions keep the line being read where it was. Elsewhere nothing
-  // reflows and keepReadingPlace does nothing.
+  // is expanded (global.css; BVJ, 2026-10-08), which reflows the text. The
+  // rail owns that switch (data-desk-expanded, margin.js) and keeps the line
+  // being read where it was, in both directions.
   function open(from, { focus = true } = {}) {
     lastToggle = from ?? lastToggle;
     keepReadingPlace(() => root.setAttribute("data-desk-panel", "open"));

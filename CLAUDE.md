@@ -2282,12 +2282,10 @@ collection); they're read directly by the intro pages and the API manifest.
      inner one moves twice.
      **Where even moving the column leaves no room, the notebook floats**
      (BVJ, 2026-10-07): expanded, it lies over the line ends; collapsed, it
-     is a tab at the window's edge that keeps clear of the text
-     (`placeFloating`, `nextCollapsed`). The column moves only as far as the
-     tab needs, the same in both states, so toggling never moves the text,
-     and it collapses by itself whenever it starts floating unasked.
+     is a tab at the window's edge (`placeFloating`, `nextCollapsed`), and
+     it collapses by itself whenever it starts floating unasked.
      **In the margin the reader can minimize it to the same tab** (»;
-     BVJ, 2026-10-09), leaving the text exactly where it was; minimized
+     BVJ, 2026-10-09); minimized
      is remembered (`lit-desk-min`), and Notebook or the tab restores it.
      **It starts open and minimized** (BVJ, 2026-10-13): `lit-desk-panel`
      is "closed" only once the reader closes it, and `lit-desk-min` is "0"
@@ -2295,6 +2293,15 @@ collection); they're read directly by the intro pages and the API manifest.
      notebook page lets the reader fix the start instead ("As I left it",
      Minimized, Open, Closed; `lit-desk-start`), and `src/lib/desk-start.mjs`
      is the one rule, which Layout.astro's pre-paint script repeats.
+     **Only the expanded notebook makes room** (BVJ, 2026-10-14): narrowing
+     the column (rule 4), the dragged widths and the column's move left all
+     happen only while it is expanded, so minimized, folded-because-floating
+     or closed, the column keeps 52 and moves only as far as the tab needs
+     to stay clear of the text (`placeFloating`), usually not at all. `<html data-desk-expanded>` is
+     the switch, owned by `desk/margin.js` (`setExpanded`, inside
+     `keepReadingPlace`) and stamped before paint when it starts expanded;
+     `data-desk-panel` still means open-or-minimized, for the dock and the
+     commands.
      **It appears only on the pages `READING_SURFACES`
      (`src/scripts/desk-frame.js`) lists**: Study View chapters and intros,
      Read View, articles and the glossary, each with its column, its heading
@@ -2311,12 +2318,12 @@ collection); they're read directly by the intro pages and the API manifest.
      as inside it (no outside-click close, shortcuts stand down).
   4. **While the preview is on, the reading measure is 52**, the width BVJ
      picked for the desk's release, **and 48 on Study View chapters while the
-     notebook is open** (BVJ, 2026-10-08), to leave the panel room for the
+     notebook is expanded** (BVJ, 2026-10-08; 2026-10-14), to leave the panel room for the
      Greek tab without moving the column. Read View, intros,
      articles and the glossary stay at 52, since none gets that tab. The switch is
-     `html[data-desk-panel]`, which Layout.astro's pre-paint script stamps
-     from `lit-desk-panel` so a page opening with the notebook open never
-     reflows, and which panel.js sets and clears inside `keepReadingPlace`.
+     `html[data-desk-expanded]`, which Layout.astro's pre-paint script stamps
+     so a page opening with the notebook expanded never reflows, and which
+     margin.js sets and clears inside `keepReadingPlace`.
      Read View's toolbar takes a fixed
      floor (725px; 895px in OpenDyslexic) because it outgrows the column.
      **On Study View the reader can drag the widths** of their notes'

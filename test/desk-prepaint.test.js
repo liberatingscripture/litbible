@@ -88,7 +88,7 @@ test("without the flag, nothing is set", () => {
   assert.deepEqual(run({ stored: { "lit-desk-panel": "open" } }).attrs, {});
 });
 
-test("an open notebook is stamped before paint, since Study View chapters narrow to 48 with it", () => {
+test("an open notebook is stamped before paint; only an expanded one is marked as making room", () => {
   const open = run({ stored: { "lit-desk-preview": "on", "lit-desk-panel": "open" } });
   assert.deepEqual(open.attrs, { "data-desk": "on", "data-desk-panel": "open" });
   // It starts open (and minimized) until the reader closes it (BVJ, 2026-10-13).
@@ -101,20 +101,37 @@ test("an open notebook is stamped before paint, since Study View chapters narrow
   assert.deepEqual(chosenClosed.attrs, { "data-desk": "on" });
   for (const start of ["min", "open"]) {
     const r = run({ stored: { "lit-desk-preview": "on", "lit-desk-panel": "closed", "lit-desk-start": start } });
-    assert.deepEqual(r.attrs, { "data-desk": "on", "data-desk-panel": "open" }, start);
+    assert.deepEqual(r.attrs["data-desk-panel"], "open", start);
   }
+  // Minimized, it is open but narrows nothing: data-desk-expanded (what global.css
+  // keys the 48 measure on) is stamped only when it starts expanded (BVJ, 2026-10-14).
+  const expanded = run({ stored: { "lit-desk-preview": "on", "lit-desk-min": "0" } });
+  assert.deepEqual(expanded.attrs, { "data-desk": "on", "data-desk-panel": "open", "data-desk-expanded": "" });
+  const chosenOpen = run({ stored: { "lit-desk-preview": "on", "lit-desk-start": "open" } });
+  assert.deepEqual(chosenOpen.attrs, { "data-desk": "on", "data-desk-panel": "open", "data-desk-expanded": "" });
+  const chosenMin = run({ stored: { "lit-desk-preview": "on", "lit-desk-start": "min", "lit-desk-min": "0" } });
+  assert.deepEqual(chosenMin.attrs, { "data-desk": "on", "data-desk-panel": "open" });
   const phone = run({ ua: UA.iphone, touch: 5, stored: { "lit-desk-preview": "on", "lit-desk-panel": "open" } });
   assert.deepEqual(phone.attrs, {});
 });
 
 test("a width dragged in the notebook is stamped before paint, with its measure", () => {
   const r = run({
+    stored: { "lit-desk-preview": "on", "lit-desk-panel": "open", "lit-desk-min": "0" },
+    session: { "lit-desk-measure": "50", "lit-desk-width": "360" },
+  });
+  assert.deepEqual(r.attrs, { "data-desk": "on", "data-desk-panel": "open", "data-desk-expanded": "", "data-desk-widths": "" });
+  assert.equal(r.props["--desk-measure"], "50");
+  assert.equal(r.props["--desk-width"], "360px");
+});
+
+test("a dragged width is not applied while the notebook is minimized", () => {
+  const r = run({
     stored: { "lit-desk-preview": "on", "lit-desk-panel": "open" },
     session: { "lit-desk-measure": "50", "lit-desk-width": "360" },
   });
-  assert.deepEqual(r.attrs, { "data-desk": "on", "data-desk-panel": "open", "data-desk-widths": "" });
-  assert.equal(r.props["--desk-measure"], "50");
-  assert.equal(r.props["--desk-width"], "360px");
+  assert.deepEqual(r.attrs, { "data-desk": "on", "data-desk-panel": "open" });
+  assert.deepEqual(r.props, {});
 });
 
 test("a dragged width is not applied while the notebook is closed", () => {
@@ -127,7 +144,7 @@ test("a dragged width is not applied while the notebook is closed", () => {
 });
 
 test("a dragged width outside its range, or not a number, sets nothing", () => {
-  const stored = { "lit-desk-preview": "on", "lit-desk-panel": "open" };
+  const stored = { "lit-desk-preview": "on", "lit-desk-panel": "open", "lit-desk-min": "0" };
   const cases = [
     { "lit-desk-measure": "30", "lit-desk-width": "360" },
     { "lit-desk-measure": "80", "lit-desk-width": "360" },
@@ -137,7 +154,7 @@ test("a dragged width outside its range, or not a number, sets nothing", () => {
   ];
   for (const session of cases) {
     const r = run({ stored, session });
-    assert.deepEqual(r.attrs, { "data-desk": "on", "data-desk-panel": "open" }, JSON.stringify(session));
+    assert.deepEqual(r.attrs, { "data-desk": "on", "data-desk-panel": "open", "data-desk-expanded": "" }, JSON.stringify(session));
     assert.deepEqual(r.props, {}, JSON.stringify(session));
   }
 });

@@ -107,7 +107,7 @@ export function createReadMarks({ store }) {
   if (window.ResizeObserver) new ResizeObserver(schedule).observe(text);
   new MutationObserver(schedule).observe(document.documentElement, {
     attributes: true,
-    attributeFilter: ["data-size", "data-leading", "data-font", "data-vn", "data-desk-panel"],
+    attributeFilter: ["data-size", "data-leading", "data-font", "data-vn", "data-desk-panel", "data-desk-expanded"],
   });
   load();
   return { refresh: schedule, reveal, canReveal };
