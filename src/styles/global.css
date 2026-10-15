@@ -3134,6 +3134,291 @@ html[data-font="dyslexic"] .lit-panel--chips .lit-panel__btn {
   color: var(--green-text);
 }
 
+/* A window that stays open until it is answered or closed
+   (src/scripts/float-window.js): the Study Desk's tour offer and the Greek
+   search's commands window. Above the Notebook's rail (900) and undo bar
+   (950), below the tour card (960) and the shared floating panels (1100).
+   Here, beside the .lit-panel rules it builds on, because the search pages
+   use it as well as the desk. */
+.lit-window {
+  position: fixed;
+  z-index: 955;
+  width: 300px;
+  max-width: calc(100vw - 16px);
+}
+
+.lit-window__title {
+  margin: 2px 0 4px;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: 0;
+  color: var(--text);
+}
+
+.lit-window__title:focus {
+  outline: none;
+}
+
+.lit-window__title:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.lit-window button:focus-visible,
+.lit-window input:focus-visible,
+.lit-window select:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+/* ── The Greek search commands (src/scripts/greek-commands.js) ───────────
+   One window lists every command, builds a word, and offers examples; the
+   search page, the tray and the Notebook's Greek tab share the example
+   buttons and the "Search commands" link-button below. Only tokens are used,
+   so both themes follow without a rule of their own. */
+
+/* Above the search tray (999) and its tooltips (1000), which it opens beside. */
+.greek-cmds {
+  z-index: 1050;
+  width: 340px;
+  display: flex;
+  flex-direction: column;
+  max-height: min(70vh, 620px);
+  padding-bottom: 0;
+}
+
+.greek-cmds .lit-panel__header {
+  margin-bottom: 0;
+}
+
+.greek-cmds .lit-window__title {
+  margin: 4px 0 2px;
+}
+
+.greek-cmds__lead {
+  margin: 0 0 8px;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: rgba(var(--ink-rgb), 0.7);
+}
+
+.greek-cmds .lit-window__body {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  margin: 0 -14px;
+  padding: 0 14px 14px;
+}
+
+.greek-cmds__heading {
+  margin: 14px 0 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(var(--ink-rgb), 0.6);
+}
+
+.greek-cmds__heading:first-child {
+  margin-top: 4px;
+}
+
+.greek-cmds__list {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.greek-cmd {
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1fr);
+  gap: 10px;
+  align-items: baseline;
+  width: 100%;
+  margin: 0;
+  padding: 5px 6px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+}
+
+button.greek-cmd {
+  cursor: pointer;
+}
+
+button.greek-cmd:hover {
+  background: rgba(var(--ink-rgb), 0.06);
+}
+
+/* The command an error pointed to. A bar as well as a tint, so it shows
+   without color alone. */
+.greek-cmd.is-target {
+  background: rgba(var(--ink-rgb), 0.12);
+  box-shadow: inset 3px 0 0 var(--green-text);
+}
+
+.greek-cmd__code {
+  font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--green-text);
+  overflow-wrap: anywhere;
+}
+
+.greek-cmd__code[lang="grc"] {
+  font-family: var(--serif);
+  font-size: 1rem;
+}
+
+.greek-cmd__word {
+  display: block;
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: rgba(var(--ink-rgb), 0.62);
+}
+
+.greek-cmd__means {
+  font-size: 0.85rem;
+}
+
+.greek-cmd__note {
+  display: block;
+  font-size: 0.75rem;
+  color: rgba(var(--ink-rgb), 0.6);
+}
+
+.greek-build {
+  display: grid;
+  gap: 6px;
+  margin-top: 6px;
+  padding: 10px;
+  border: 1px solid rgba(var(--ink-rgb), 0.14);
+  border-radius: 10px;
+}
+
+.greek-build__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.greek-build input,
+.greek-build select {
+  width: 100%;
+  min-width: 0;
+  padding: 5px 8px;
+  border: 1px solid rgba(var(--ink-rgb), 0.18);
+  border-radius: 8px;
+  background: var(--surface-raised);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.85rem;
+}
+
+.greek-build__add {
+  justify-self: start;
+  padding: 6px 14px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--green-deep);
+  color: #fff;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.greek-build__add[aria-disabled="true"] {
+  opacity: 0.55;
+}
+
+/* Example searches, in the window, on the search page and in the tab. */
+.greek-examples {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 10px;
+  padding: 0;
+  list-style: none;
+}
+
+.greek-ex {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  align-items: baseline;
+  width: 100%;
+  padding: 7px 12px;
+  border: 1px solid rgba(var(--ink-rgb), 0.14);
+  border-radius: 10px;
+  background: var(--surface-raised);
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.greek-ex:hover {
+  border-color: var(--green-text);
+}
+
+.greek-ex:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.greek-ex__query {
+  font-family: var(--serif);
+  font-size: 1.02rem;
+}
+
+.greek-ex__says {
+  font-size: 0.85rem;
+  color: rgba(var(--ink-rgb), 0.7);
+}
+
+/* "Search commands" and its kin: a button that reads as a link. */
+.greek-cmd-link {
+  display: inline;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--green-text);
+  font: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.greek-cmd-link[hidden] {
+  display: none;
+}
+
+/* Beside the search box on /search: its own small, quiet link in the box's
+   row, so the page gains no height. */
+.greek-cmd-link--field {
+  flex: none;
+  padding: 6px 4px;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.greek-cmd-link:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
 /* Scripture reference previews (ref-preview.js): the verses themselves, set a
    step larger than a footnote because they are the thing being read. */
 .lit-panel--preview .ref-preview__text {

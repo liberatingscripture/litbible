@@ -2473,38 +2473,8 @@ html[data-desk-list="full"] .desk-item__pin-text {
   padding-left: 0;
 }
 
-/* A window that stays open until it is answered or closed
-   (src/scripts/float-window.js): the tour offer, beside the Notebook. Above
-   the rail (900) and the undo bar (950), below the tour card (960) and the
-   shared floating panels (1100). Here rather than in global.css because only
-   the desk loads it so far. */
-.lit-window {
-  position: fixed;
-  z-index: 955;
-  width: 300px;
-  max-width: calc(100vw - 16px);
-}
-
-.lit-window__title {
-  margin: 2px 0 4px;
-  font-family: inherit;
-  font-size: 1rem;
-  font-weight: 700;
-  line-height: 1.3;
-  letter-spacing: 0;
-  color: var(--text);
-}
-
-.lit-window__title:focus {
-  outline: none;
-}
-
-.lit-window__title:focus-visible {
-  outline: 2px solid var(--focus-ring);
-  outline-offset: 2px;
-  border-radius: 4px;
-}
-
+/* The tour offer, a float-window.js window beside the Notebook. The generic
+   .lit-window rules are in global.css, with the shared panels'. */
 .desk-offer__lead {
   margin: 0 0 12px;
   font-size: 0.875rem;
@@ -2561,11 +2531,6 @@ html[data-desk-list="full"] .desk-item__pin-text {
   text-decoration: underline;
   text-underline-offset: 2px;
   cursor: pointer;
-}
-
-.lit-window button:focus-visible {
-  outline: 2px solid var(--focus-ring);
-  outline-offset: 2px;
 }
 
 /* The tour: a small card beside its target. */
@@ -3968,6 +3933,47 @@ html[data-desk-list="full"] .desk-item__pin-text {
   text-decoration: underline dotted;
   text-decoration-thickness: 1.5px;
   text-underline-offset: 3px;
+}
+
+/* Searching with commands from the tab (greek-find.js): the "Search commands"
+   link-button inside the open field, the query said back in the status line,
+   and the examples that fill the room a failed search leaves, sized for the
+   tab. */
+.desk-greek__cmds {
+  flex: none;
+  padding: 2px;
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.desk-greek__find-status [lang="grc"] {
+  font-family: var(--serif);
+  font-size: 1.05em;
+}
+
+.desk-greek__help {
+  margin: 0 0 8px;
+}
+
+.desk-greek__help .greek-examples {
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.desk-greek__help .greek-ex {
+  padding: 5px 9px;
+}
+
+.desk-greek__help .greek-ex__query {
+  font-size: 0.92rem;
+}
+
+.desk-greek__help .greek-ex__says {
+  font-size: 0.78rem;
+}
+
+.desk-greek__help .greek-cmd-link {
+  font-size: 0.8125rem;
 }
 
 /* ── 1f: the verse's Greek in This verse ── */

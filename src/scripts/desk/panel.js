@@ -274,11 +274,19 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
 
   // Expanded means the reader can see it: open, and not folded to its tab.
   const shown = () => !panel.hidden && !rail.state().collapsed;
+
+  // What a window that belongs to the panel needs to know: whether it is
+  // showing and which tab (the Greek search's commands window, opened from
+  // the Greek tab, closes with either; greek-commands.js).
+  const announceState = () =>
+    document.dispatchEvent(new CustomEvent("lit:notebook-state", { detail: { shown: shown(), tab: activeTab } }));
+
   function syncToggles() {
     for (const t of toggles) t.setAttribute("aria-expanded", String(shown()));
     // The tour offer opens beside it the first time it is shown, and closes
     // with it.
     firstUse.panelChanged();
+    announceState();
   }
 
   // On Study View chapters the column narrows from 52 to 48 while the panel
@@ -378,6 +386,7 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
       try { localStorage.setItem(TAB_KEY, id); } catch (_) {}
     }
     render();
+    announceState();
   }
 
   for (const b of tabButtons) {

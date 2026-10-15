@@ -105,6 +105,9 @@ const description = "Search the Liberation & Inclusion Translation (LIT).";
         Exact form only
       </label>
       <ol class="results" id="results-greek"></ol>
+      <!-- Examples, or an error with its way out, where a Greek search has
+           nothing to list (search.js). -->
+      <div class="greek-help" id="greek-help" hidden></div>
     </div>
 
     <!-- The one pager, for whichever group is paging: English verses, or the
@@ -610,6 +613,46 @@ const description = "Search the Liberation & Inclusion Translation (LIT).";
   .greek-empty {
     list-style: none;
     color: rgba(var(--ink-rgb), 0.75);
+  }
+
+  /* A command search says the query back above its verses, and its marked
+     words are the same marks the single-word search draws. */
+  .greek-readback {
+    margin: 0 0 12px;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: var(--text-strong);
+  }
+
+  .greek-readback [lang="grc"],
+  .greek-help [lang="grc"] {
+    font-family: var(--serif);
+    font-size: 1.08em;
+  }
+
+  .greek-parse [lang="grc"] {
+    font-family: var(--serif);
+    font-size: 1.05em;
+  }
+
+  .greek-help {
+    padding: 16px 18px;
+    border: 1px dashed rgba(var(--ink-rgb), 0.25);
+    border-radius: 16px;
+  }
+
+  .greek-help[hidden] {
+    display: none;
+  }
+
+  .greek-help__lead,
+  .greek-help__error {
+    margin: 0 0 12px;
+    color: var(--text-strong);
+  }
+
+  .greek-help__error {
+    font-size: 0.95rem;
   }
 
   /* ── Suggest-word buttons (dynamically created, needs global scope) ── */

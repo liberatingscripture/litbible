@@ -660,6 +660,7 @@ import { stemWord, foldDiacritics } from "../lib/word-stem.mjs";
 import { levenshtein } from "../lib/levenshtein.mjs";
 import {
   decodeOccurrences,
+  decodeParseGroup,
   greekHref,
   hasGreek,
   hasOtherForms,
@@ -671,6 +672,16 @@ import {
   prepareBridge,
   prepareIndex,
 } from "../lib/greek-search.mjs";
+import {
+  codeFits,
+  filterFor,
+  groupsForFilters,
+  isCommandQuery,
+  isSimpleQuery,
+  matchConstruction,
+  parseGreekQuery,
+  resolveGreekQuery,
+} from "../lib/greek-query.mjs";
 
 const WORD_RE = /[\p{L}\p{N}]+/gu;
 
@@ -1299,13 +1310,28 @@ export function greekSearchEnabled() {
 }
 
 /**
- * A query that can only be Greek: it has Greek letters or is a Strong's number.
- * Such a query is searched in the Greek alone (BVJ, 2026-10-13), and any other
- * query is never searched in the Greek unless the reader picks the "Greek" type.
+ * Whether a query uses a command symbol that only the Greek search reads: "*"
+ * (any word), or a dot followed by a parsing word (πίστις.gen, pistis.gen,
+ * *.aor.impv). A dot in a reference ("Rom. 8.3") is not followed by one.
+ */
+function usesGreekCommand(q) {
+  // "*" standing for a word, never a wildcard inside one ("lov*").
+  if (/(?:^|[\s,/])\*(?=$|[\s.,/])/.test(q)) return true;
+  for (const m of q.matchAll(/\.([\p{L}\p{N}]+)/gu)) {
+    if (filterFor(m[1])) return true;
+  }
+  return false;
+}
+
+/**
+ * A query that can only be Greek: it has Greek letters, is a Strong's number,
+ * or uses a Greek search command ("*", ".gen"). Such a query is searched in
+ * the Greek alone (BVJ, 2026-10-13), and any other query is never searched in
+ * the Greek unless the reader picks the "Greek" type.
  */
 export function isGreekQuery(raw) {
   const q = String(raw ?? "").trim();
-  return hasGreek(q) || Boolean(parseStrong(q));
+  return hasGreek(q) || Boolean(parseStrong(q)) || usesGreekCommand(q);
 }
 
 /* The results-type menu's "Greek" (BVJ, 2026-10-13). The option is added by
@@ -1519,6 +1545,168 @@ export async function searchGreek(base, raw, { tray = false, near = true, bookKe
   }));
   out.total = out.hits.length;
   return out;
+}
+
+/* ── Searching the Greek with commands (STUDY-DESK.md, 2a) ───────────── */
+
+// What a command query means is src/lib/greek-query.mjs's; this loads the
+// files it needs and puts the answer in the shape the three search surfaces
+// draw from. The index by parsing is public/greek/search/parse.json (the
+// groups and their sizes) and parse/<group>.json (every word of a group).
+
+let greekParseNamesPromise = null;
+
+/** The parse groups' names (public/greek/search/parse.json), or null on failure (retried next time). */
+export function loadGreekParseNames(base) {
+  greekParseNamesPromise ||= fetch(`${base}greek/search/parse.json`)
+    .then((res) => (res.ok ? res.json() : Promise.reject(new Error(String(res.status)))))
+    .then((json) => {
+      if (!json?.groups) throw new Error("parse.json is not the format this script reads");
+      return Object.keys(json.groups);
+    })
+    .catch((err) => {
+      console.warn("[search] Failed to load the Greek parse groups:", err);
+      greekParseNamesPromise = null;
+      return null;
+    });
+  return greekParseNamesPromise;
+}
+
+const greekParseGroups = new Map();
+
+/** One parse group's words, decoded (greek-search.mjs decodeParseGroup), or null. */
+export function loadGreekParseGroup(base, name) {
+  let p = greekParseGroups.get(name);
+  if (!p) {
+    p = fetch(`${base}greek/search/parse/${name}.json`)
+      .then((res) => (res.ok ? res.json() : Promise.reject(new Error(String(res.status)))))
+      .then((json) => {
+        const words = decodeParseGroup(json, BOOK_ORDER);
+        if (!words) throw new Error("not the format this script reads");
+        return words;
+      })
+      .catch((err) => {
+        console.warn("[search] Failed to load a Greek parse group:", err);
+        greekParseGroups.delete(name);
+        return null;
+      });
+    greekParseGroups.set(name, p);
+  }
+  return p;
+}
+
+/**
+ * Search the Greek by a command query ("πίστις.gen, Ἰησοῦς/Χριστός.gen",
+ * "*.aor.impv"). Resolves to
+ *   { kind: "commands", resolved, hits, matchCount, verseCount, error, failed }
+ * `resolved` is the query read and looked up (greek-query.mjs), for
+ * describeGreekQuery; each hit is
+ *   { book, chapter, verse, matches, marked, t, href, label }
+ * in Bible order, `matches` the words of each match, `marked` every word of
+ * them (sorted, once each) and `t` the first match's first word, which the
+ * link opens. `error` is the parse or lookup error (errorMessage turns it into
+ * a sentence), and `failed` is true when a file the search needs wouldn't
+ * load. `bookKey` narrows the verses.
+ */
+export async function searchGreekCommands(base, raw, { bookKey = "" } = {}) {
+  const out = {
+    kind: "commands", resolved: null, hits: [], matchCount: 0, verseCount: 0, error: null, failed: false,
+    lemmas: [], selected: null, total: 0, form: null, otherForms: false,
+  };
+  const parsed = parseGreekQuery(raw);
+  if (parsed.error) return { ...out, error: parsed.error };
+  if (!parsed.terms.length) return out;
+
+  const index = await loadGreekIndex(base);
+  if (!index) return { ...out, failed: true };
+  // The LIT's own renderings only matter to words typed in Latin letters.
+  const latin = parsed.terms.some((t) => t.words?.some((w) => !hasGreek(w) && !parseStrong(w)));
+  const bridge = latin ? await loadGreekBridge(base) : null;
+  const resolved = resolveGreekQuery(index, parsed, { bridge });
+  if (resolved.error) return { ...out, error: resolved.error };
+
+  const needsGroups = resolved.terms.some((t) => !t.lemmaIds);
+  const groupNames = needsGroups ? await loadGreekParseNames(base) : [];
+  if (!groupNames) return { ...out, resolved, failed: true };
+
+  let failed = false;
+  const lists = await Promise.all(
+    resolved.terms.map(async (term) => {
+      const fits = (w) => (!bookKey || w.book === bookKey) && codeFits(term.filters, w.pos + w.parse);
+      if (term.lemmaIds) {
+        const parts = await Promise.all(
+          term.lemmaIds.map(async (id) => {
+            const entry = await loadGreekOccurrences(base, index, id);
+            if (!entry) failed = true;
+            return decodeOccurrences(entry, BOOK_ORDER, { form: term.form, bookKey }).filter(fits);
+          }),
+        );
+        return parts.flat();
+      }
+      const names = groupsForFilters(term.filters, groupNames);
+      const groups = await Promise.all(names.map((n) => loadGreekParseGroup(base, n)));
+      return groups.flatMap((g) => {
+        if (!g) failed = true;
+        return (g ?? []).filter(fits);
+      });
+    }),
+  );
+  if (failed) return { ...out, resolved, failed: true };
+
+  const found = matchConstruction(lists, { gap: resolved.gap, anyOrder: resolved.anyOrder, bookOrder: BOOK_ORDER });
+  const hits = found.map((h) => {
+    const marked = [...new Set(h.matches.flat())].sort((a, b) => a - b);
+    const t = h.matches[0][0];
+    return {
+      ...h,
+      marked,
+      t,
+      href: greekHref({ book: h.book, chapter: h.chapter, verse: h.verse, t }),
+      label: `${bookKeyToLabel(h.book)} ${h.chapter}:${h.verse}`,
+    };
+  });
+  return {
+    ...out,
+    resolved,
+    hits,
+    matchCount: hits.reduce((n, h) => n + h.matches.length, 0),
+    verseCount: hits.length,
+    total: hits.length,
+  };
+}
+
+/** One to three plain Latin words, the shape of "pistis Christos": no digits or symbols. */
+function plainLatinWords(q) {
+  if (hasGreek(q) || !/^[\p{L}][\p{L}'’\- ]*$/u.test(q)) return false;
+  const n = q.split(/\s+/).filter(Boolean).length;
+  return n >= 2 && n <= 3;
+}
+
+/**
+ * The one Greek search the three surfaces call (the search bar's tray,
+ * /search and the Notebook's Greek tab). A command query goes to
+ * searchGreekCommands, unless it reads as one plain word ("πίστις.", "πίστις
+ * and"), which is searchGreek's as before. Any other query is searchGreek's
+ * as before; when that finds no word and the query is two or three plain Latin
+ * words, they are tried as a construction (pistis Christos). Resolves to
+ * searchGreek's result, or to searchGreekCommands's (kind "commands"). The
+ * options are searchGreek's, and `bookKey` is searchGreekCommands's too.
+ */
+export async function searchGreekAuto(base, raw, options = {}) {
+  const q = String(raw ?? "").trim();
+  if (isCommandQuery(q)) {
+    const parsed = parseGreekQuery(q);
+    if (!parsed.error && isSimpleQuery(parsed)) return searchGreek(base, parsed.terms[0].words[0], options);
+    return searchGreekCommands(base, q, { bookKey: options.bookKey });
+  }
+  const res = await searchGreek(base, q, options);
+  if (!res.lemmas.length && plainLatinWords(q)) {
+    const cmd = await searchGreekCommands(base, q, { bookKey: options.bookKey });
+    // A word that matched nothing is the single search's "no match", not a
+    // command that went wrong.
+    if (cmd.error?.kind !== "unknown") return cmd;
+  }
+  return res;
 }
 
 /** A Greek result's link, plus whether it is for the chapter already on screen. */
