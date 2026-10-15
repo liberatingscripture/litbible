@@ -964,15 +964,22 @@ plan as a whole was accepted; nothing was declined except where stated).
        document pane with rich text, for handouts, manuscripts and the like
        (open whether that is part of the sheet pane or a pane of its own).
     4. **The LIT pane may hold a chapter or a whole book**, perhaps the
-       reader's choice (open). In a whole book, footnotes are reached only
-       through their popovers and the This verse pane, with no list at the
-       end of each chapter.
+       reader's choice (open). "A whole book" means **the reader keeps
+       scrolling from chapter to chapter without navigating**, not that
+       the book is loaded at once: chapters can load as the reader nears
+       them. In a whole book, footnotes are reached through their popovers,
+       the This verse pane and the footnotes pane, with no list at the end
+       of each chapter.
     5. **Whether /desk replaces `/sheets/` or comes in addition to it is
        open.** Mockups when the work starts.
     6. **The Notebook on the reading pages stays as full as it is now.**
        /desk is a second way in.
     7. **/desk may be the place for some deferred or shelved ideas**,
-       though some were set aside for reasons it doesn't change (below).
+       though some were set aside for reasons it doesn't change (below,
+       with BVJ's answers).
+    8. **Phase 2's later pieces might live better here** (BVJ wondered,
+       2026-10-15), such as tracing notes across a word wherever it
+       occurs. Weighed below ("Phase 2c and D9").
   - **What the answers mean for the build** (notes for then, not
     decisions):
     - **Most panes exist already as modules**: the Greek tab, This verse,
@@ -985,9 +992,12 @@ plan as a whole was accepted; nothing was declined except where stated).
       fetched page as the text.
     - **A whole book with footnote popovers is not Read View's text**:
       Read View prints no footnote letters. It would be each chapter's
-      Study View text in turn, and since footnote labels restart every
-      chapter, a popover has to know its chapter (as Read View's verse ids
-      already do, `data-chapter`).
+      Study View text in turn, fetched as the reader scrolls toward it,
+      and since footnote labels restart every chapter, a popover has to
+      know its chapter (as Read View's verse ids already do,
+      `data-chapter`). A chapter added above the reader must not move the
+      text they are reading (`keepReadingPlace` holds a line through a
+      reflow today).
     - **The layout is a per-browser setting** like the Display tray's (a
       `localStorage` key, named in /privacy's paragraph), unless BVJ wants
       it to sync once sync exists. The draggable widths on Study View are
@@ -1003,29 +1013,46 @@ plan as a whole was accepted; nothing was declined except where stated).
       sheet's passages do. Formatted text is stored HTML, so it is
       sanitized on the way in and out; a note's body today is plain text,
       escaped (`noteBodyHtml`).
-  - **Deferred and shelved ideas, against D9** (for BVJ to weigh then):
-    - **Other versions (D7, deferred indefinitely 2026-10-11)**: a
-      versions pane is the obvious fit, but the deferral was about the
-      idea itself, and no reason was recorded that /desk changes. BVJ's
-      call.
-    - **The Greek interleaf (1g, shelved 2026-10-13)**: a Greek pane beside
-      the LIT pane, kept in step as either scrolls, gives the same
-      side-by-side reading without breaking up the scripture.
-    - **The interleaf (N7, set aside 2026-10-13)**: set aside because it
-      repeats the margin and the panel and breaks up the scripture. A
-      layout of panes doesn't change the first reason, so probably not.
-    - **Footnotes in the margin (X11, declined 2026-09-28; reason not
-      recorded)**: a footnotes pane following the LIT pane would be the
-      /desk form of it.
-    - **M10 (shelved 2026-10-15; no reason recorded)**: its three parts
-      live on other pages (/release-notes, /glossary, Go deeper), so /desk
-      changes little, except that a Go deeper pane could carry "Your notes
-      here".
+  - **Deferred and shelved ideas, against D9** (BVJ's answers,
+    2026-10-15):
+    - **The Greek interleaf (1g)**: **yes, as the Greek pane**, which is
+      already planned: the Greek beside the LIT pane, kept in step as
+      either scrolls.
+    - **Footnotes in the margin (X11)**: **yes, as a footnotes pane**
+      following the LIT pane.
+    - **Other versions (D7)**: **not for now.**
+    - **The interleaf (N7)**: **no**; the My Notes pane already does its
+      job.
+    - **M10**: stays shelved; its parts live on other pages, so /desk
+      changes little.
     - **Pop the notebook out (D4, unplaced)**: panes cover most of it.
     - **Unchanged by D9**: everything under "Considered and set aside"
       (right-click, a public gallery, AI summaries, live co-editing, Ctrl
       K, commentaries, the email when verses change, anchoring to footnote
       letters). Their reasons don't depend on where the desk lives.
+  - **Phase 2c and D9** (proposed 2026-10-15, for BVJ to weigh). 2c holds
+    N2 (a note on a term that follows it everywhere), H2 with C23 (marking
+    a concept through a book, saved as a rule), M4 (a word study) and M11
+    (notes on a footnote). Each has two halves: **where it is made and
+    studied**, and **where the reader meets it**.
+    - **The making and studying fit /desk well, as a word pane**: choose a
+      glossary term or a Greek lemma and see every gated place it occurs,
+      grouped by rendering with counts, the Greek, the reader's own notes
+      on those verses, and their note on the term itself. From there,
+      write the term note (N2), set the concept mark (H2), or turn the
+      list into a sheet (M4). M11 belongs in the footnotes pane the same
+      way.
+    - **The meeting stays wherever the text is**: N2's note in the term
+      lens card and H2's marks on the words, on Study View and in the LIT
+      pane alike. That is the point of both: the reader comes across them
+      while reading.
+    - **A read-only word pane needs no new kind of record**, like the
+      Greek search: tracing a term and showing the notes already on those
+      verses. It could come with /desk itself, and would also show how
+      readers use such tracing before N2 and H2 add kinds of record to
+      their notebooks, the very trial 2c was waiting for ("Order of
+      work", 2c). N2, H2 and M11 still add kinds of record wherever they
+      are made, so that caution doesn't change.
 - **M1. Hide my notes, in one keystroke.** A switch with a shortcut that hides
   every note, highlight and mark at once, for sharing a screen or teaching
   from Study View. N8 makes it matter. Present mode already leaves notes out.
