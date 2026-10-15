@@ -969,7 +969,10 @@ plan as a whole was accepted; nothing was declined except where stated).
        the book is loaded at once: chapters can load as the reader nears
        them. In a whole book, footnotes are reached through their popovers,
        the This verse pane and the footnotes pane, with no list at the end
-       of each chapter.
+       of each chapter. **Since a chapter loads at a time anyway, the pane
+       might scroll through the whole corpus**, Matthew to Revelation
+       (BVJ, 2026-10-15, a thought). Drafts would need Read View's answer:
+       a run of drafts shown as one stub, keeping each chapter's anchor.
     5. **Whether /desk replaces `/sheets/` or comes in addition to it is
        open.** Mockups when the work starts.
     6. **The Notebook on the reading pages stays as full as it is now.**
@@ -980,6 +983,20 @@ plan as a whole was accepted; nothing was declined except where stated).
     8. **Phase 2's later pieces might live better here** (BVJ wondered,
        2026-10-15), such as tracing notes across a word wherever it
        occurs. Weighed below ("Phase 2c and D9").
+    9. **Maybe phase 3 is sheets and the desk together** (BVJ, 2026-10-15,
+       not decided), which first needs the `/sheets/` question answered.
+       Phases 2b and 2c would then follow phase 3: 2b needs sheets
+       already, and 2c's making would be done in /desk's word pane.
+       **Proposed answer to the `/sheets/` question**: one editor, the
+       sheet pane in /desk; and a sheet's own address only for what isn't
+       editing (opening a shared link, present mode, printing), which S8
+       and S6 need anyway, since a shared sheet opens for people who
+       never built it. **The risk is Lent**: sheets were moved up so
+       leaders have them by Ash Wednesday (February 10, 2027), and the
+       desk's layouts make phase 3 much larger. One way to keep both:
+       /desk first opens with the text pane and the sheet pane side by
+       side, and the free layouts (one to four panes, rows and columns)
+       follow in the same phase after Lent's part is out.
   - **What the answers mean for the build** (notes for then, not
     decisions):
     - **Most panes exist already as modules**: the Greek tab, This verse,
@@ -4049,7 +4066,9 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
    M2, M3), sheets from searches and templates (M5, M9), annotated printing
    (M6) and shared links (S8). Large. **Build S1's editor so it can sit
    inside another page** (proposed 2026-10-15), so D9, the desk as a page
-   of its own, doesn't mean building sheets twice.
+   of its own, doesn't mean building sheets twice. **BVJ is considering
+   making phase 3 sheets and the desk together** (D9, answer 9), which
+   would put 2b and 2c after it.
 4. **Sync, with BDR.** Starts once plan A or C is chosen and, if the Zoom
    wants plan A tested, the proofs (P1 to P3, now the spikes, paused
    2026-10-09) are in. Under both plans: a sync loop on 1a's merge engine, one source
