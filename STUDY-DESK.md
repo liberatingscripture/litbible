@@ -953,7 +953,8 @@ plan as a whole was accepted; nothing was declined except where stated).
     is fed into the plan now, and mockups wait until the work starts.
     1. **Panes: one to four at a time, rearranged freely.** All columns
        with adjustable widths, all rows with adjustable heights, or a
-       combination (one beside two, or two by two) with adjustable sizes.
+       combination, 1×2, 2×1 or 2×2, with adjustable sizes (BVJ's terms;
+       how each is drawn is for the mockups).
     2. **The page remembers the layout.** The reader chooses between
        "remember the last layout" and "start with my default", can set
        their own default, and can go back to the original one.
