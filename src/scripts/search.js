@@ -39,13 +39,18 @@ import {
   setPickedMode,
   notePickedMode,
   showModeFor,
-  searchGreek,
+  searchGreekAuto,
   loadGreekChapter,
   MODE_LABELS,
 } from "./search-core.js";
 import { hasGreek, lemmaLine } from "../lib/greek-search.mjs";
-import { describeParse } from "../lib/greek-parse.mjs";
-import { SIGNS, W } from "../lib/desk-greek.mjs";
+import { EXAMPLES, countLine, describeGreekQuery, errorMessage } from "../lib/greek-query.mjs";
+import { replaceWord, verseGreek } from "../lib/greek-commands-ui.mjs";
+
+// The commands window is loaded only when the Greek is searched at all, so a
+// reader without the preview downloads none of it.
+let commandsModule = null;
+const withCommands = () => (commandsModule ||= import("./greek-commands.js"));
 
 const base = String(import.meta.env.BASE_URL || "/").replace(/\/?$/, "/");
 
@@ -73,6 +78,7 @@ const greekEl = $("#results-greek");
 const greekLemmasEl = $("#greek-lemmas");
 const greekExactEl = $("#greek-exact");
 const greekExactInput = $("#greek-exact-input");
+const greekHelpEl = $("#greek-help");
 const sortWrapEl = $(".sort-wrap");
 
 const pagerEl = $("#pager");
@@ -288,6 +294,30 @@ function getActiveSort() {
   return v === "order" ? "order" : "relevance";
 }
 
+// The "Search commands" button beside the box (Study Desk preview): shown only
+// while the Greek is what is being searched, and the box suggests commands
+// while the type is "Greek". It adds no height: it sits in the box's own row.
+const GREEK_PLACEHOLDER = "Try πίστις.gen or *.aor.impv";
+const defaultPlaceholder = input ? input.placeholder : "";
+let commandsBtn = null;
+if (input && greekSearchEnabled()) {
+  commandsBtn = document.createElement("button");
+  commandsBtn.type = "button";
+  commandsBtn.className = "greek-cmd-link greek-cmd-link--field";
+  commandsBtn.textContent = "Search commands";
+  commandsBtn.hidden = true;
+  commandsBtn.setAttribute("aria-haspopup", "dialog");
+  commandsBtn.addEventListener("click", () => openCommands());
+  (input.closest(".searchbar__input-wrap") ?? input).after(commandsBtn);
+}
+
+function syncGreekChrome() {
+  if (!commandsBtn) return;
+  const greekType = modeSelect?.value === "greek";
+  commandsBtn.hidden = !(greekType || isGreekQuery(input.value));
+  input.placeholder = greekType ? GREEK_PLACEHOLDER : defaultPlaceholder;
+}
+
 function syncControlsFromUrl() {
   const params = new URLSearchParams(window.location.search);
   const { q, book, sort, mode } = readState();
@@ -305,6 +335,7 @@ function syncControlsFromUrl() {
 
   setActiveSort(sort);
   renderActiveFiltersFull();
+  syncGreekChrome();
 }
 
 // Sometimes excerpts get polluted by meta text; keep this conservative.
@@ -797,17 +828,19 @@ function renderJumps(groups) {
 // and the rest are offered as choices; the choice and "exact form only" are
 // kept while the query stays the same.
 
-const SIGN_RE = new RegExp(`[${SIGNS}]`, "g");
-
 let greekChoice = { q: "", lemmaId: null, exact: false };
 let greekSeq = 0;
 
-/** The Greek search for this page: one lemma's verses, the first lemma's if none was chosen. */
+/**
+ * The Greek search for this page: one lemma's verses, the first lemma's if
+ * none was chosen; or, for a command query ("πίστις.gen", "*.aor.impv"), the
+ * verses where it matches (kind "commands").
+ */
 async function fetchGreek(q, book, lemmaId, exact) {
   const opts = { bookKey: book, exactForm: exact };
-  let result = await searchGreek(base, q, { ...opts, lemmaId });
-  if (!result.selected && result.lemmas.length) {
-    result = await searchGreek(base, q, { ...opts, lemmaId: result.lemmas[0].id });
+  let result = await searchGreekAuto(base, q, { ...opts, lemmaId });
+  if (result.kind !== "commands" && !result.selected && result.lemmas.length) {
+    result = await searchGreekAuto(base, q, { ...opts, lemmaId: result.lemmas[0].id });
   }
   return result;
 }
@@ -817,20 +850,12 @@ function wantsGreekOnly(q, mode) {
   return greekSearchEnabled() && (mode === "greek" || isGreekQuery(q));
 }
 
-/** The verse's Greek as escaped HTML with the hit's word marked, and that word's parsing in words. */
+/**
+ * The verse's Greek as escaped HTML with the hit's words marked (every word of
+ * a command match, else the one word), and those words with their parsing.
+ */
 function greekVerseParts(data, hit) {
-  let html = "";
-  let parse = "";
-  const esc = (s) => escapeHtml(String(s ?? "").replace(SIGN_RE, ""));
-  for (const words of data?.paragraphs ?? []) {
-    for (const w of words) {
-      if (w[W.verse] !== hit.verse) continue;
-      const mine = w[W.t] === hit.t;
-      html += esc(w[W.pre]) + (mine ? `<mark>${esc(w[W.text])}</mark>` : esc(w[W.text])) + esc(w[W.post]);
-      if (mine) parse = describeParse(w[W.pos], w[W.parse]) || "";
-    }
-  }
-  return { html: html.replace(/\s+/g, " ").trim(), parse };
+  return verseGreek(data, hit.verse, hit.marked ?? [hit.t], escapeHtml);
 }
 
 /** Rows [from, to) of the current Greek hits, their Greek filling in as the chapters arrive. */
@@ -883,14 +908,24 @@ function appendGreekRows(from, to, token) {
     loadGreekChapter(base, book, chapter).then((data) => {
       if (token !== greekSeq) return;
       for (const { hit, greekLine, parseLine } of rows) {
-        const { html, parse } = data ? greekVerseParts(data, hit) : { html: "", parse: "" };
+        const { html, words } = data ? greekVerseParts(data, hit) : { html: "", words: [] };
         if (!html) {
           greekLine.remove();
           continue;
         }
         greekLine.innerHTML = html;
-        if (parse) {
-          parseLine.textContent = parse;
+        if (hit.marked) {
+          // A command match: each marked word, named, with its parsing.
+          words.forEach((w, i) => {
+            if (i) parseLine.append(" · ");
+            const form = document.createElement("span");
+            form.lang = "grc";
+            form.textContent = w.form;
+            parseLine.append(form, `: ${w.said}`);
+          });
+          parseLine.hidden = !words.length;
+        } else if (words[0]?.said) {
+          parseLine.textContent = words[0].said;
           parseLine.hidden = false;
         }
       }
@@ -915,8 +950,150 @@ function writeGreekStatus() {
   }
 }
 
+/* ── Searching the Greek with commands (STUDY-DESK.md, 2a) ──
+   "πίστις.gen, Ἰησοῦς/Χριστός.gen" and "*.aor.impv" show the query said back,
+   then the verses where it matches with every matched word marked. The window
+   that lists the commands (greek-commands.js) is opened from here, and its
+   examples and the "See search commands" buttons fill the room an empty or
+   failed search leaves. */
+
+function openCommands({ filter = null, focus = true } = {}) {
+  withCommands().then((m) => m.openGreekCommands({ field: input, filter, focus, typeSelect: modeSelect }));
+}
+
+/** Put a query in the box in the Greek type and run it, as typing it would. */
+function runGreekQuery(query) {
+  if (modeSelect && modeSelect.value !== "greek") setPickedMode(modeSelect, "greek");
+  if (input) {
+    input.value = query;
+    input.focus({ preventScroll: true });
+  }
+  updateFromControls({ resetPage: true, push: true });
+}
+
+/**
+ * What fills the Greek group when there is nothing to list: a line to say
+ * why, an error with its suggestion, three examples, and the way to the
+ * window. `stale()` says a newer search has drawn since.
+ */
+async function drawGreekHelp({ lead = "", error = null, examples = true }, stale = () => false) {
+  const mod = await withCommands();
+  if (stale()) return;
+  const frag = document.createDocumentFragment();
+  if (error) {
+    const msg = errorMessage(error);
+    const p = document.createElement("p");
+    p.className = "greek-help__error";
+    const at = msg.suggest ? msg.text.lastIndexOf(`${msg.suggest}?`) : -1;
+    if (at >= 0) {
+      const fix = document.createElement("button");
+      fix.type = "button";
+      fix.className = "greek-cmd-link";
+      fix.textContent = msg.suggest;
+      fix.addEventListener("click", () => {
+        input.value = replaceWord(input.value, msg.replace, msg.suggest);
+        updateFromControls({ resetPage: true, push: true });
+        input.focus({ preventScroll: true });
+      });
+      p.append(msg.text.slice(0, at), fix, msg.text.slice(at + msg.suggest.length));
+    } else {
+      p.textContent = msg.text;
+    }
+    frag.append(p);
+    frag.append(
+      mod.commandsLinkButton("See search commands", () => openCommands({ filter: msg.filter ?? null })),
+    );
+  } else {
+    if (lead) {
+      const p = document.createElement("p");
+      p.className = "greek-help__lead";
+      p.textContent = lead;
+      frag.append(p);
+    }
+    if (examples) frag.append(mod.exampleList(EXAMPLES.slice(0, 3), runGreekQuery));
+    frag.append(mod.commandsLinkButton("See all search commands", () => openCommands()));
+  }
+  greekHelpEl.replaceChildren(frag);
+  greekHelpEl.hidden = false;
+}
+
+function clearGreekHelp() {
+  greekHelpEl.hidden = true;
+  greekHelpEl.replaceChildren();
+}
+
+/** The Greek type with nothing typed: the examples, where the results would be. */
+function showGreekStart() {
+  const token = ++greekSeq;
+  groupGreek.hidden = false;
+  greekLemmasEl.hidden = true;
+  greekExactEl.hidden = true;
+  drawGreekHelp(
+    { lead: "Search the Greek by word, form, parsing, or several words together." },
+    () => token !== greekSeq,
+  );
+}
+
+/** A command search's page: the query said back, then its verses, or why there are none. */
+function renderGreekCommands() {
+  const greek = lastSearchCache.greek;
+  hideResultGroups();
+  const token = ++greekSeq;
+  const stale = () => token !== greekSeq;
+  setRefBanner("", false);
+  if (sortWrapEl) sortWrapEl.hidden = true;
+  renderActiveFiltersFull();
+  groupGreek.hidden = false;
+  greekExactEl.hidden = true;
+  greekLemmasEl.removeAttribute("role");
+  greekLemmasEl.removeAttribute("aria-label");
+  greekLemmasEl.replaceChildren();
+  greekLemmasEl.hidden = true;
+  clearGreekHelp();
+
+  if (greek.error) {
+    setStatus(errorMessage(greek.error).text);
+    drawGreekHelp({ error: greek.error }, stale);
+    return;
+  }
+  if (greek.failed) {
+    setStatus("The Greek search couldn’t be loaded.");
+    return;
+  }
+  if (!greek.resolved) {
+    setStatus("Type a search.");
+    drawGreekHelp({ lead: "Search the Greek by word, form, parsing, or several words together." }, stale);
+    return;
+  }
+
+  const green = (s) => `<span lang="grc">${escapeHtml(s)}</span>`;
+  const readback = document.createElement("p");
+  readback.className = "greek-readback";
+  readback.innerHTML = `${describeGreekQuery(greek.resolved, { greek: green, text: escapeHtml })} · ${escapeHtml(countLine(greek.hits))}`;
+  greekLemmasEl.append(readback);
+  greekLemmasEl.hidden = false;
+
+  if (!greek.hits.length) {
+    setStatus("No verses match that search.");
+    drawGreekHelp({ lead: "No verses match that search. Try one of these." }, stale);
+    return;
+  }
+  setStatus(countLine(greek.hits));
+
+  const total = greek.hits.length;
+  const pages = Math.ceil(total / pageSize);
+  const page = Math.min(readState().page, pages);
+  appendGreekRows((page - 1) * pageSize, page * pageSize, token);
+  setPager(total, page);
+}
+
 /** A Greek search's whole page: its group alone, its pager, no sort control, no jump links. */
 function renderGreekOnly() {
+  if (lastSearchCache.greek?.kind === "commands") {
+    renderGreekCommands();
+    return;
+  }
+  clearGreekHelp();
   const greek = lastSearchCache.greek;
   hideResultGroups();
   const token = ++greekSeq;
@@ -1229,6 +1406,7 @@ function hideResultGroups() {
   groupGreek.hidden = true;
   greekSeq++;
   greekEl.replaceChildren();
+  clearGreekHelp();
   renderJumps([]);
 
   glossaryEl.innerHTML = "";
@@ -1248,6 +1426,7 @@ async function runFullSearch() {
     setStatus("Type to search.");
     setRefBanner("", false);
     clearResults();
+    if (greekSearchEnabled() && readState().mode === "greek") showGreekStart();
     return;
   }
 
@@ -1491,6 +1670,7 @@ function updateFromControls({ resetPage = true, push = false } = {}) {
     { push },
   );
   if (modeSelect) showModeFor(modeSelect, q);
+  syncGreekChrome();
 
   scheduleSearch();
   // Yield to the browser so the input visual update paints before
@@ -1523,6 +1703,11 @@ if (modeSelect) {
   modeSelect.addEventListener("change", (e) => {
     notePickedMode(modeSelect, e);
     updateFromControls({ resetPage: true, push: true });
+    // The first time the reader picks "Greek", the commands window opens
+    // itself beside the box, once, without taking focus (BVJ, 2026-10-14).
+    if (greekSearchEnabled() && modeSelect.value === "greek") {
+      withCommands().then((m) => m.openGreekCommandsOnce({ field: input, typeSelect: modeSelect }));
+    }
   });
 }
 

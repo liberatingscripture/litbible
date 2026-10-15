@@ -40,11 +40,20 @@ import {
   setPickedMode,
   notePickedMode,
   showModeFor,
-  searchGreek,
+  searchGreekAuto,
+  loadGreekChapter,
   showGreekHere,
   MODE_LABELS,
 } from "./search-core.js";
 import { hasGreek, lemmaLine } from "../lib/greek-search.mjs";
+import { countLine, describeGreekQuery, errorMessage } from "../lib/greek-query.mjs";
+import { formsLine, replaceWord, verseGreek } from "../lib/greek-commands-ui.mjs";
+
+// The Greek commands window is loaded only when the Greek is searched at all
+// (and then only when a button asks for it), so a reader without the Study
+// Desk preview downloads none of it.
+let commandsModule = null;
+const withCommands = () => (commandsModule ||= import("./greek-commands.js"));
 
 const base = String(import.meta.env.BASE_URL || "/").replace(/\/?$/, "/");
 
@@ -571,6 +580,102 @@ const _initSearchbars = async () => {
     // nothing, so a reader without the preview never meets it.
     const GREEK_TRAY_LIMIT = 6;
 
+    function openCommands(filter = null) {
+      withCommands().then((m) =>
+        m.openGreekCommands({ field: input, filter, typeSelect: modeSelect }),
+      );
+    }
+
+    // A command search (STUDY-DESK.md, 2a): the query said back in a line,
+    // up to six verses with the words that matched, "All N on the search
+    // page", and the way to the commands window in the group's foot. An error
+    // or an empty result keeps the foot, so the window is always one click
+    // away.
+    function renderGreekCommandsGroup(greek, q, bookKey) {
+      const group = document.createElement("div");
+      group.className = "searchbar__group";
+      group.dataset.greekGroup = "";
+      const { error, failed, resolved, hits } = greek;
+      let pointTo = null;
+
+      let body = "";
+      if (error) {
+        const msg = errorMessage(error);
+        status.textContent = msg.text;
+        pointTo = msg.filter ?? null;
+        const at = msg.suggest ? msg.text.lastIndexOf(`${msg.suggest}?`) : -1;
+        body =
+          at >= 0
+            ? `<p class="searchbar__readback">${escapeHtml(msg.text.slice(0, at))}<button type="button" class="greek-cmd-link" data-greek-fix>${escapeHtml(msg.suggest)}</button>${escapeHtml(msg.text.slice(at + msg.suggest.length))}</p>`
+            : `<p class="searchbar__readback">${escapeHtml(msg.text)}</p>`;
+      } else if (failed) {
+        status.textContent = "The Greek search couldn’t be loaded.";
+        return;
+      } else if (!resolved) {
+        status.textContent = "";
+        return;
+      } else {
+        const greekSpan = (g) => `<span lang="grc">${escapeHtml(g)}</span>`;
+        body = `<p class="searchbar__readback">${describeGreekQuery(resolved, { greek: greekSpan, text: escapeHtml })} · ${escapeHtml(countLine(hits))}</p>`;
+        status.textContent = hits.length ? countLine(hits) : "No verses match that search.";
+      }
+
+      const shown = hits.slice(0, GREEK_TRAY_LIMIT);
+      const rows = shown
+        .map(
+          (h, i) => `
+            <li class="searchbar__result">
+              <a class="searchbar__link" href="${escapeHtml(h.href)}" data-greek-hit="${i}">
+                <div class="searchbar__title">${escapeHtml(h.label)}<span data-greek-forms></span></div>
+              </a>
+            </li>`,
+        )
+        .join("");
+      const all = hits.length
+        ? `<a class="searchbar__link searchbar__link--more" href="${escapeHtml(fullSearchHref(q, bookKey, isGreekQuery(q) ? "" : "greek"))}">${hits.length > GREEK_TRAY_LIMIT ? `All ${hits.length.toLocaleString("en-US")} on the search page` : "On the search page"}</a>`
+        : "<span></span>";
+
+      group.innerHTML = `
+        <div class="searchbar__group-title">Greek</div>
+        ${body}
+        ${rows ? `<ol class="searchbar__results">${rows}</ol>` : ""}
+        <div class="searchbar__group-foot">${all}<button type="button" class="greek-cmd-link" data-greek-cmds>Search commands</button></div>`;
+
+      group.addEventListener("click", (e) => {
+        const link = e.target.closest?.("[data-greek-hit]");
+        if (link) {
+          // A result for the chapter on screen opens the Notebook's Greek tab
+          // in place; anywhere else the link loads the chapter as usual.
+          if (showGreekHere(shown[Number(link.dataset.greekHit)])) {
+            e.preventDefault();
+            closePanel();
+          }
+          return;
+        }
+        if (e.target.closest?.("[data-greek-cmds]")) {
+          openCommands(pointTo);
+          return;
+        }
+        if (e.target.closest?.("[data-greek-fix]") && error) {
+          const msg = errorMessage(error);
+          input.value = replaceWord(input.value, msg.replace, msg.suggest);
+          clearGhost();
+          runSearch(input.value.trim());
+        }
+      });
+      groupsEl.append(group);
+
+      // The words each verse matched, once its chapter's Greek has arrived.
+      shown.forEach((h, i) => {
+        const slot = group.querySelectorAll("[data-greek-forms]")[i];
+        loadGreekChapter(base, h.book, h.chapter).then((data) => {
+          if (!data || !slot?.isConnected) return;
+          const line = formsLine(verseGreek(data, h.verse, h.marked, escapeHtml).words);
+          if (line) slot.innerHTML = ` · <span lang="grc">${escapeHtml(line)}</span>`;
+        });
+      });
+    }
+
     function renderGreekGroup(greek, q, bookKey) {
       if (!greek) return;
       const group = document.createElement("div");
@@ -781,12 +886,18 @@ const _initSearchbars = async () => {
           (isGreekQuery(q) || activeMode === "greek")
         ) {
           if (pinnedGreek && pinnedGreek.text !== q) pinnedGreek = null;
-          const greek = await searchGreek(base, q, {
+          const greek = await searchGreekAuto(base, q, {
             near: false,
             bookKey: keywordBook,
             lemmaId: pinnedGreek ? pinnedGreek.id : null,
           }).catch(() => null);
           if (mySeq !== searchSeq) return;
+          // A command search (πίστις.gen, *.aor.impv) has its own group.
+          if (greek?.kind === "commands") {
+            renderGreekCommandsGroup(greek, q, keywordBook);
+            renderActiveFilters();
+            return;
+          }
           // One lemma's verses, or the lemmas to choose from.
           const greekCount = !greek
             ? 0
@@ -1097,7 +1208,12 @@ const _initSearchbars = async () => {
       );
 
       const { pfQuery, exactSingleToken } = buildPfQuery(q);
-      url.searchParams.set("q", exactSingleToken ? pfQuery : q);
+      // A Greek search ("*.pf", "ὁ") is never wrapped in the quotes a short
+      // English word gets.
+      url.searchParams.set(
+        "q",
+        exactSingleToken && !(greekSearchEnabled() && isGreekQuery(q)) ? pfQuery : q,
+      );
 
       if (activeBook) url.searchParams.set("book", activeBook);
       if (activeMode && activeMode !== "all")
@@ -1152,6 +1268,8 @@ const _initSearchbars = async () => {
     closeBtn.addEventListener("click", closePanel);
 
     document.addEventListener("click", (e) => {
+      // The Greek commands window belongs to the search it was opened from.
+      if (e.target instanceof Element && e.target.closest("[data-greek-commands]")) return;
       if (!root.contains(e.target)) closePanel();
     });
 

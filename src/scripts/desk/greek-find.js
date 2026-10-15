@@ -7,16 +7,36 @@
 // hidden, not rebuilt, so its place and selected word are exactly as they
 // were) with "Back to the text" at the top.
 //
-// What a query means, and what comes back, is search-core.js's searchGreek,
-// the same call the search bar and /search make. A result in the chapter on
+// What a query means, and what comes back, is search-core.js's
+// searchGreekAuto, the same call the search bar and /search make: one word at
+// a time as before, or a command query (πίστις.gen, *.aor.impv) whose verses
+// show with the words that matched, under the query said back. A "Search
+// commands" button in the field opens the commands window beside the Notebook
+// (greek-commands.js), which closes with the field. A result in the chapter on
 // the page selects that word here; one in another chapter is the ordinary
 // verse link with ?greek=, which loads the chapter and opens the Notebook at
 // the word (desk/greek-link.js).
 //
 // Nothing here scrolls the PAGE, and nothing is stored about a search.
 
-import { couldBeGreek, loadGreekIndex, searchGreek } from "../search-core.js";
-import { hasGreek, lemmaLine } from "../../lib/greek-search.mjs";
+import {
+  couldBeGreek,
+  escapeHtml,
+  isGreekQuery,
+  loadGreekChapter,
+  loadGreekIndex,
+  searchGreekAuto,
+} from "../search-core.js";
+import { lemmaLine } from "../../lib/greek-search.mjs";
+import { EXAMPLES, countLine, describeGreekQuery, errorMessage, isCommandQuery } from "../../lib/greek-query.mjs";
+import { formsLine, replaceWord, verseGreek } from "../../lib/greek-commands-ui.mjs";
+import {
+  closeGreekCommands,
+  commandsLinkButton,
+  exampleList,
+  greekCommandsOpenFor,
+  openGreekCommands,
+} from "../greek-commands.js";
 
 const BASE = String(import.meta.env.BASE_URL || "/").replace(/\/?$/, "/");
 const PAGE = 10; // verses at a time
@@ -84,6 +104,21 @@ export function createGreekFind({ root, here, selectWord, focusText }) {
   const pageLine = pane.querySelector(".desk-greek__find-page");
   const pageLink = pageLine.querySelector("a");
 
+  // Beside the box once it is open: the way to the commands window. It adds
+  // nothing to the tab's header.
+  const cmdBtn = make("button", "greek-cmd-link desk-greek__cmds", "Search commands");
+  cmdBtn.type = "button";
+  cmdBtn.setAttribute("aria-haspopup", "dialog");
+  input.after(cmdBtn);
+  const helpBox = make("div", "desk-greek__help");
+  helpBox.hidden = true;
+  status.after(helpBox);
+
+  function openCommands(filter = null) {
+    openGreekCommands({ field: input, source: "notebook", filter });
+  }
+  cmdBtn.addEventListener("click", () => openCommands());
+
   let seq = 0; // a newer search cancels an older one
   let timer = 0;
   let textScroll = 0; // where the text was when the results took its place
@@ -129,6 +164,7 @@ export function createGreekFind({ root, here, selectWord, focusText }) {
 
   function close({ focus = "button" } = {}) {
     if (!isOpen()) return;
+    if (greekCommandsOpenFor(input)) closeGreekCommands("field");
     seq++;
     window.clearTimeout(timer);
     showText();
@@ -212,6 +248,8 @@ export function createGreekFind({ root, here, selectWord, focusText }) {
     hitsMore.hidden = true;
     pageLine.hidden = true;
     retry.hidden = true;
+    helpBox.hidden = true;
+    helpBox.replaceChildren();
     lemmas = [];
     hits = [];
     hitsShown = 0;
@@ -236,13 +274,18 @@ export function createGreekFind({ root, here, selectWord, focusText }) {
     pane.setAttribute("aria-busy", "true");
     if (!status.textContent) status.textContent = "Searching…";
     try {
-      if (!couldBeGreek(raw)) {
-        say(hasGreek(raw) ? "Search one Greek word at a time." : "No Greek matches. Try one word at a time.");
+      if (!couldBeGreek(raw) && !isCommandQuery(raw)) {
+        say("No Greek matches. Try one word at a time, or see the search commands.");
+        drawHelp({ examples: 2 });
         return;
       }
-      const ask = () => searchGreek(BASE, raw, { lemmaId: state.lemmaId, exactForm: state.exact });
+      const ask = () => searchGreekAuto(BASE, raw, { lemmaId: state.lemmaId, exactForm: state.exact });
       let res = await ask();
       if (my !== seq) return;
+      if (res.kind === "commands") {
+        paintCommands(res, raw);
+        return;
+      }
       if (!res.kind) {
         // Nothing matched, or the index never loaded; the two read differently.
         if (!(await loadGreekIndex(BASE))) {
@@ -271,6 +314,81 @@ export function createGreekFind({ root, here, selectWord, focusText }) {
   }
 
   /* ── Showing what came back ────────────────────────────────────── */
+
+  /* ── A command search ──────────────────────────────────────────── */
+
+  /** Run an example or a suggestion in the box. */
+  function runQuery(query) {
+    state = { lemmaId: null, exact: false, prefer: null };
+    exactBox.checked = false;
+    input.value = query;
+    input.focus({ preventScroll: true });
+    run();
+  }
+
+  /**
+   * What fills the room an empty or failed search leaves, sized for the tab:
+   * up to two examples and the way to the window (at `filter`, when an error
+   * points to a command).
+   */
+  function drawHelp({ filter = null, examples = 2 } = {}) {
+    helpBox.replaceChildren();
+    if (examples) helpBox.append(exampleList(EXAMPLES.slice(0, examples), runQuery));
+    helpBox.append(commandsLinkButton("See all search commands", () => openCommands(filter)));
+    helpBox.hidden = false;
+  }
+
+  /** An error as a sentence in the status line, the suggested word a button that fixes the box. */
+  function sayError(error) {
+    const msg = errorMessage(error);
+    const at = msg.suggest ? msg.text.lastIndexOf(`${msg.suggest}?`) : -1;
+    if (at < 0) {
+      status.textContent = msg.text;
+      return msg;
+    }
+    const fix = make("button", "greek-cmd-link", msg.suggest);
+    fix.type = "button";
+    fix.addEventListener("click", () => runQuery(replaceWord(input.value, msg.replace, msg.suggest)));
+    status.replaceChildren(msg.text.slice(0, at), fix, msg.text.slice(at + msg.suggest.length));
+    return msg;
+  }
+
+  function paintCommands(res, raw) {
+    reset();
+    if (res.error) {
+      const msg = sayError(res.error);
+      drawHelp({ filter: msg.filter ?? null });
+      return;
+    }
+    if (res.failed) {
+      say("The Greek search couldn’t be loaded.", { canRetry: true });
+      return;
+    }
+    if (!res.resolved) {
+      say("Type a search, like πίστις.gen or *.aor.impv.");
+      drawHelp({ examples: 2 });
+      return;
+    }
+    // The query said back, with its count: the status line, so it is read out.
+    const greek = (g) => `<span lang="grc">${escapeHtml(g)}</span>`;
+    status.innerHTML = `${describeGreekQuery(res.resolved, { greek, text: escapeHtml })} · ${escapeHtml(countLine(res.hits))}`;
+    if (!res.hits.length) {
+      drawHelp({ examples: 2 });
+      return;
+    }
+    hits = res.hits;
+    hitsShown = 0;
+    list.hidden = false;
+    drawHits();
+    pageLink.href = searchPageHref(raw);
+    pageLine.hidden = false;
+  }
+
+  /** The /search address for a query, in the Greek type when its letters don't say so. */
+  function searchPageHref(raw) {
+    const mode = isGreekQuery(raw) ? "" : "&mode=greek";
+    return `/search/?q=${encodeURIComponent(raw)}${mode}`;
+  }
 
   function paint(res, raw) {
     reset();
@@ -305,7 +423,7 @@ export function createGreekFind({ root, here, selectWord, focusText }) {
     hitsShown = 0;
     list.hidden = false;
     drawHits();
-    pageLink.href = `/search/?q=${encodeURIComponent(raw)}`;
+    pageLink.href = searchPageHref(raw);
     pageLine.hidden = false;
   }
 
@@ -339,9 +457,15 @@ export function createGreekFind({ root, here, selectWord, focusText }) {
         row = make("a", "desk-greek__hit");
         row.href = hit.href;
       }
-      const g = make("span", "desk-greek__hit-form", hit.form);
+      const g = make("span", "desk-greek__hit-form", hit.form ?? "");
       g.lang = "grc";
       row.append(make("span", "desk-greek__hit-ref", hit.label), " ", g);
+      // A command match names the words it matched, from the chapter's Greek.
+      if (hit.marked) {
+        loadGreekChapter(BASE, hit.book, hit.chapter).then((data) => {
+          if (data && g.isConnected) g.textContent = formsLine(verseGreek(data, hit.verse, hit.marked, (x) => x).words);
+        });
+      }
       li.append(row);
       list.append(li);
     }

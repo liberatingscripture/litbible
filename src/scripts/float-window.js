@@ -14,11 +14,13 @@
 // The caller places it (`place`, called again on scroll and resize until the
 // reader drags it), fills `body`, and hears how it closed through
 // `onClose(reason)`: "close" (the × or Escape) or whatever reason the
-// caller passes to `close`.
+// caller passes to `close`. `onMoved({ left, top })` hears where a drag left
+// it, for a caller that remembers the place.
 //
 // First used by the Study Desk's tour offer (STUDY-DESK.md, D8); the Greek
-// search's commands window is meant to be the second. Its styles are in
-// desk.css for now, since only the desk loads this module.
+// search's commands window (greek-commands.js) is the second. Its styles are
+// in global.css (.lit-window), beside the shared panels', since the search
+// pages use it too.
 
 const EDGE = 8;
 
@@ -28,11 +30,12 @@ let seq = 0;
  * @param {{ heading: string, title: string, className?: string,
  *   attrs?: Record<string, string>,
  *   place: (el: HTMLElement) => void,
- *   onClose?: (reason: string) => void }} options
+ *   onClose?: (reason: string) => void,
+ *   onMoved?: (at: { left: number, top: number }) => void }} options
  *   `heading` is the small label in the header ("Notebook tour"); `title` is
  *   the window's name, its first line, which takes focus.
  */
-export function createFloatWindow({ heading, title, className = "", attrs = {}, place, onClose = () => {} }) {
+export function createFloatWindow({ heading, title, className = "", attrs = {}, place, onClose = () => {}, onMoved = () => {} }) {
   const id = `floatWindow${++seq}`;
   const el = document.createElement("section");
   el.className = `lit-panel lit-window ${className}`.trim();
@@ -103,6 +106,10 @@ export function createFloatWindow({ heading, title, className = "", attrs = {}, 
       removeEventListener("pointermove", move);
       removeEventListener("pointerup", up);
       removeEventListener("pointercancel", up);
+      if (dragged) {
+        const at = el.getBoundingClientRect();
+        onMoved({ left: at.left, top: at.top });
+      }
     };
     addEventListener("pointermove", move);
     addEventListener("pointerup", up);

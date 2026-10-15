@@ -22,6 +22,7 @@
 // changes the scripture on the page.
 
 import { describeParse } from "../../lib/greek-parse.mjs";
+import { parsingQuery } from "../../lib/greek-commands-ui.mjs";
 import {
   W, borrowedFor, firstWordOf, flattenWords, indexOfWord, joinAnd, moveFrom, orderSenses,
   renderingsIn, splitSigns, termsForLemma, versesOf,
@@ -614,9 +615,9 @@ export function createGreekTab({ here, visible, openVerse }) {
     details.scrollTop = 0;
     more.hidden = false;
     const lemmaForm = lemma?.[0];
-    // The form, the lemma and the Strong's number each start a search of the
-    // Greek (BVJ, 2026-10-13); plain clicks only, so the browser's own menu
-    // stays.
+    // The form, the lemma, the Strong's number and the parsing each start a
+    // search of the Greek (BVJ, 2026-10-13; the parsing, 2026-10-14); plain
+    // clicks only, so the browser's own menu stays.
     const formQuery = w[W.text].replace(/^[^\p{L}]+|[^\p{L}]+$/gu, "");
     wordHead.replaceChildren(
       starter(w[W.text], formQuery, () => find.open({ query: formQuery, exact: true, prefer: lemmaForm })),
@@ -625,7 +626,10 @@ export function createGreekTab({ here, visible, openVerse }) {
     // The live line: the word and its parsing, in words with the code beside.
     parseLine.replaceChildren();
     if (pos || parse) {
-      parseLine.append(describeParse(pos, parse));
+      // The parsing in words searches every word parsed so ("*.aor.act.impv.2nd.pl").
+      const parsed = parsingQuery(pos, parse);
+      const inWords = describeParse(pos, parse);
+      parseLine.append(parsed ? starter(inWords, parsed, () => find.open({ query: parsed })) : inWords);
       parseLine.append(" ", make("span", "desk-greek__code", [pos, parse].filter(Boolean).join(" ")));
     } else {
       parseLine.append("No parsing for this word.");

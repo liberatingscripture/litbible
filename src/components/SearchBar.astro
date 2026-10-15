@@ -634,6 +634,38 @@ const glossaryTerms = Object.fromEntries(
     font-size: 1.1em;
   }
 
+  /* A Greek command search (searchbar.js): the query said back in a line a
+     size down from the page's, then rows naming the words that matched, and
+     a foot with the way to the commands window. */
+  .searchbar__readback {
+    margin: 0 0 4px;
+    font-size: 0.9rem;
+    line-height: 1.45;
+    color: rgba(var(--ink-rgb), 0.85);
+  }
+
+  .searchbar__title [data-greek-forms] {
+    font-weight: 500;
+  }
+
+  .searchbar__group-foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px 12px;
+    margin-top: 2px;
+  }
+
+  .searchbar__group-foot .searchbar__link {
+    width: auto;
+    padding: 8px 0;
+  }
+
+  .searchbar__group-foot .greek-cmd-link {
+    font-size: 0.9rem;
+  }
+
   .searchbar__footer {
     display: flex;
     align-items: center;
