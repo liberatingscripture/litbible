@@ -1,14 +1,15 @@
 // src/scripts/desk/first-use.js
 //
-// The notebook's first use (STUDY-DESK.md D6, C18 and D8; phase 1d). Two
-// pieces for the panel, both built from the rules in src/lib/desk-first-use.mjs:
+// The notebook's first use (STUDY-DESK.md D6, C18 and D8; phase 1d). Three
+// pieces, all built from the rules in src/lib/desk-first-use.mjs:
 //   - `card`, at the top of the My Notes tab: until the reader answers "Where
-//     should your notebook live?" it shows that question; right after they
-//     answer it may show a quiet offer of the tour, once;
+//     should your notebook live?" it shows that question;
+//   - the tour offer, a window beside the panel (float-window.js) the first
+//     time the reader expands the Notebook with that question answered;
 //   - `foot`, in the panel's foot: where the notebook is kept and when a copy
 //     was last saved, a reminder to save one when the reader asked for it, the
-//     plain line for Safari, and the Help, Tell us what's missing and Take the
-//     tour links.
+//     plain line for Safari, and the Help, Tell us what's missing, and Take
+//     the tour links.
 //
 // The choice is a per-browser setting (localStorage['lit-desk-home'], absent
 // until answered), like the display settings: it never syncs. Both choices
@@ -28,8 +29,9 @@ import { liveRecords } from "../../lib/desk-store-core.mjs";
 import {
   BACKUP_HREF, CONTACT_HREF, HELP_HREF, SAFARI_LINE, WAYS_HREF,
   isDesktopSafari, readHome, readLastExport, reminderDue, reminderText,
-  savedLine, tourOffer, wantsReminder, withOffered,
+  localDay, parseTourState, savedLine, tourOffer, wantsReminder, withLater, withNever, withOffered,
 } from "../../lib/desk-first-use.mjs";
+import { createFloatWindow } from "../float-window.js";
 
 const HOME_KEY = "lit-desk-home";
 export const TOUR_KEY = "lit-desk-tour";
@@ -75,14 +77,18 @@ function link(href, text) {
 }
 
 /**
- * @param {{ store: object | null, reveal?: () => void }} options
+ * @param {{ store: object | null, reveal?: () => void,
+ *   panelEl?: () => HTMLElement | null, panelShown?: () => boolean }} options
  *   `reveal` asks the panel to show itself (once the reader first writes
- *   something and has not yet answered).
+ *   something and has not yet answered); `panelEl` and `panelShown` say
+ *   where the panel is and whether it is expanded, for the tour offer.
  * @returns {{ card: HTMLElement, foot: HTMLElement,
- *   refresh: (opts?: { shown?: boolean }) => Promise<void> }}
- *   `refresh({ shown: true })` is the panel saying My Notes was just drawn.
+ *   refresh: (opts?: { shown?: boolean }) => Promise<void>,
+ *   panelChanged: () => void }}
+ *   `refresh({ shown: true })` is the panel saying My Notes was just drawn;
+ *   `panelChanged()` is the panel saying it was shown, minimized or closed.
  */
-export function createFirstUse({ store, reveal = () => {} }) {
+export function createFirstUse({ store, reveal = () => {}, panelEl = () => null, panelShown = () => false }) {
   const safari = isDesktopSafari(navigator.userAgent);
 
   /* ── The card ─────────────────────────────────────────────────── */
@@ -129,68 +135,127 @@ export function createFirstUse({ store, reveal = () => {} }) {
   );
   choice.append(more);
 
-  const offerBox = el("section", "desk-home-card desk-home-card--offer");
-  offerBox.hidden = true;
-  const offerTitle = el("h3", "desk-home-card__title");
-  offerTitle.id = "deskOfferTitle";
-  offerTitle.tabIndex = -1;
-  offerBox.setAttribute("aria-labelledby", offerTitle.id);
-  const offerText = el("p", "desk-home-card__lead");
-  const offerRow = el("div", "desk-home-card__row");
-  const yes = el("button", "desk-home-card__choose", "Take the tour");
+  card.append(choice);
+
+  /* ── The tour offer ───────────────────────────────────────────── */
+
+  // A window beside the Notebook, opened the first time the reader expands
+  // it once "Where should your notebook live?" is answered (BVJ,
+  // 2026-10-14). Over the Notebook instead where there is no room beside
+  // it. Three answers: take the tour now; remind me later, which is also
+  // what the ×, Escape, closing or minimizing the Notebook, and simply
+  // leaving the page mean, and brings it back on a later day; or don't show
+  // this again, which also ends the offers of new tour steps. The tour
+  // itself stays in the foot, the help page, and the "tour" command.
+  const offerWin = createFloatWindow({
+    heading: "Notebook tour",
+    title: "Take a short tour of the notebook?",
+    className: "desk-offer",
+    // Inside the dock: a click in it never folds a floating notebook away,
+    // and the page's shortcuts stand down while focus is in it.
+    attrs: { "data-desk-dock": "" },
+    place: placeOffer,
+    onClose: offerClosed,
+  });
+  const offerText = el("p", "desk-offer__lead");
+  const offerRow = el("div", "desk-offer__row");
+  const yes = el("button", "desk-offer__go", "Take the tour now");
   yes.type = "button";
-  const notNow = el("button", "desk-home-card__skip", "Not now");
-  notNow.type = "button";
-  offerRow.append(yes, notNow);
-  offerBox.append(offerTitle, offerText, offerRow);
+  const later = el("button", "desk-offer__later", "Remind me later");
+  later.type = "button";
+  const never = el("button", "desk-offer__never", "Don’t show this again");
+  never.type = "button";
+  offerRow.append(yes, later);
+  offerWin.body.append(offerText, offerRow, never);
 
-  card.append(choice, offerBox);
+  let offer = null; // { kind, ids } while the offer is up
 
-  let offer = null; // { kind, ids } while the offer card is up
-  let offerChecked = false;
+  const touring = () => document.documentElement.hasAttribute("data-desk-tour");
+  const today = () => localDay(new Date());
 
-  /** Show the tour offer if there is one to make, marking it made so it is never repeated unasked. */
+  /** Offer the tour if there is one to make and the Notebook is showing. */
   function maybeOffer() {
-    if (offerChecked || !getHome()) return;
-    offerChecked = true;
-    const o = tourOffer(getTourRaw());
+    if (offer || !getHome() || !panelShown() || touring()) return;
+    const o = tourOffer(getTourRaw(), { today: today() });
     if (!o.kind) return;
-    saveTourList(o.kind === "first" ? withOffered(o.list) : withOffered(o.list, o.ids));
+    // Until it's answered, an offer shown counts as "remind me later," so
+    // leaving it, or going on to the next page, never brings it straight back.
+    saveTourList(withLater(o.list, today()));
     offer = o;
-    offerTitle.textContent = o.kind === "first" ? "Take a short tour of the notebook?" : "There’s something new in the tour.";
+    offerWin.title.textContent = o.kind === "first" ? "Take a short tour of the notebook?" : "There’s something new in the tour.";
     offerText.textContent =
       o.kind === "first"
-        ? "It takes a minute, and nothing it shows is saved in your notebook."
+        ? "It takes a minute and shows you notes, highlights, bookmarks, and the Greek. Nothing it shows is saved in your notebook."
         : "Want a look at what’s new?";
-    yes.textContent = o.kind === "first" ? "Take the tour" : "Show me what’s new";
-    notNow.textContent = "Not now";
+    yes.textContent = o.kind === "first" ? "Take the tour now" : "Show me what’s new";
+    offerWin.show();
+  }
+
+  /** Beside the Notebook, its top level with the Notebook's; over it where there is no room. */
+  function placeOffer(w) {
+    const p = panelEl()?.getBoundingClientRect();
+    if (!p) return;
+    const GAP = 12;
+    const EDGE = 8;
+    const width = Math.min(300, innerWidth - 2 * EDGE);
+    if (p.left - GAP - width >= EDGE) {
+      w.style.width = `${width}px`;
+      w.style.left = `${p.left - GAP - width}px`;
+      w.style.top = `${Math.max(EDGE, p.top)}px`;
+    } else {
+      const inner = Math.max(200, Math.min(width, p.width - 24));
+      w.style.width = `${inner}px`;
+      w.style.left = `${p.left + (p.width - inner) / 2}px`;
+      w.style.top = `${Math.max(EDGE, p.top + 56)}px`;
+    }
   }
 
   yes.addEventListener("click", () => {
     const o = offer;
-    closeOffer();
+    offerWin.close("take");
+    const { list } = parseTourState(getTourRaw());
+    saveTourList(o?.kind === "new" ? withOffered(list, o.ids) : withOffered(list));
     requestTour(o?.kind === "new" ? o.ids : null);
   });
-  notNow.addEventListener("click", () => closeOffer({ focus: true }));
+  later.addEventListener("click", () => offerWin.close("later"));
+  never.addEventListener("click", () => {
+    saveTourList(withNever(parseTourState(getTourRaw()).list));
+    offerWin.close("never");
+  });
 
-  function closeOffer({ focus = false } = {}) {
+  function offerClosed(reason) {
     offer = null;
-    drawCard();
-    if (focus) card.closest(".desk-panel__body")?.focus({ preventScroll: true });
+    // Back into the Notebook, unless the tour or the Notebook itself moved on.
+    if (reason !== "take" && reason !== "panel" && panelShown()) panelEl()?.focus({ preventScroll: true });
   }
+
+  /**
+   * The panel saying it was shown, minimized, or closed. The offer waits two
+   * frames after a showing, so the panel is in the page and placed first.
+   */
+  let pending = 0;
+  function panelChanged() {
+    cancelAnimationFrame(pending);
+    if (!panelShown()) offerWin.close("panel");
+    else pending = requestAnimationFrame(() => { pending = requestAnimationFrame(maybeOffer); });
+  }
+
+  // A tour started some other way (the foot, the search box) takes over.
+  document.addEventListener(COMMAND_EVENT, (e) => {
+    if (e.detail?.id === "tour") offerWin.close("take");
+  });
 
   function drawCard() {
     choice.hidden = Boolean(getHome());
-    offerBox.hidden = !offer;
   }
 
   /** The reader's answer: kept, the card goes, and the tour is offered if it hasn't been. */
   function choose(value) {
     setHome(value);
-    maybeOffer();
     drawCard();
+    maybeOffer();
     // The button the reader pressed is gone: focus goes to what comes next.
-    (offer ? offerTitle : card.closest(".desk-panel__body") ?? card).focus({ preventScroll: true });
+    if (!offerWin.isOpen()) (card.closest(".desk-panel__body") ?? card).focus({ preventScroll: true });
     refresh();
   }
 
@@ -271,5 +336,5 @@ export function createFirstUse({ store, reveal = () => {} }) {
 
   drawCard();
   refresh();
-  return { card, foot, refresh };
+  return { card, foot, refresh, panelChanged };
 }

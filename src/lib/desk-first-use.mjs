@@ -305,12 +305,20 @@ export function stepBody(step, view) {
 }
 
 const OFFERED = "offered";
+const NEVER = "never";
+const LATER = "later:";
+const LATER_RE = /^later:\d{4}-\d{2}-\d{2}$/;
 
 /**
  * What `lit-desk-tour` holds, a list of strings: the id of every step the
- * reader has been taken through, plus offer markers ("offered" for the whole
- * tour, "offered:<id>" for a step) so a declined offer is not made again.
- * Anything that isn't a list of strings reads as nothing seen.
+ * reader has been taken through, plus markers about the offer:
+ *   - "offered" for the whole tour and "offered:<id>" for a step: the offer
+ *     was made (the reader chose "Take the tour now");
+ *   - "later:YYYY-MM-DD": "Remind me later." The offer is not made again until
+ *     a later local calendar day than that date. Only one is ever kept;
+ *   - "never": "Don't show this again." No offer of either kind, ever.
+ * Anything that isn't a list of strings reads as nothing seen. `laterDay` is
+ * the greatest well-formed later date, or null.
  */
 export function parseTourState(raw) {
   let list = [];
@@ -319,15 +327,19 @@ export function parseTourState(raw) {
     if (Array.isArray(v)) list = v.filter((x) => typeof x === "string");
   } catch (_) {}
   const known = new Set(TOUR_STEPS.map((s) => s.id));
+  const laters = list.filter((x) => LATER_RE.test(x)).map((x) => x.slice(LATER.length)).sort();
   return {
     list,
     seen: list.filter((x) => known.has(x)),
     offeredWhole: list.includes(OFFERED),
     offeredSteps: list.filter((x) => x.startsWith(`${OFFERED}:`)).map((x) => x.slice(OFFERED.length + 1)),
+    never: list.includes(NEVER),
+    laterDay: laters.length ? laters[laters.length - 1] : null,
   };
 }
 
 const union = (list, more) => [...list, ...more.filter((x) => !list.includes(x))];
+const withoutLater = (list) => list.filter((x) => !x.startsWith(LATER));
 
 /** The list with these step ids marked seen. */
 export function withSeen(list, ids) {
@@ -339,16 +351,40 @@ export function withOffered(list, ids = null) {
   return union(list, ids ? ids.map((id) => `${OFFERED}:${id}`) : [OFFERED]);
 }
 
+/** A date's LOCAL calendar day as "YYYY-MM-DD" (zero-padded). */
+export function localDay(date) {
+  const p = (n, w = 2) => String(n).padStart(w, "0");
+  return `${p(date.getFullYear(), 4)}-${p(date.getMonth() + 1)}-${p(date.getDate())}`;
+}
+
+/** The list with its later marker replaced by "later:<day>" ("Remind me later"). */
+export function withLater(list, day) {
+  return [...withoutLater(list), `${LATER}${day}`];
+}
+
+/** The list with "Don't show this again" recorded (and any later marker dropped). */
+export function withNever(list) {
+  return union(withoutLater(list), [NEVER]);
+}
+
 /**
  * Whether to offer the tour now, and what:
  *   - { kind: "first" }: the reader has never been through it and was never asked;
  *   - { kind: "new", ids }: they have, and later phases have added steps they
  *     haven't seen and haven't been asked about;
- *   - { kind: null }: nothing to offer.
- * Asking never repeats: the caller marks the offer made when it shows it.
+ *   - { kind: null }: nothing to offer ({ snoozed: true } when it is only
+ *     waiting for a later day).
+ * The window has three answers. "Take the tour now" marks the offer made
+ * (`withOffered`), then the tour marks every step seen. "Remind me later," the
+ * window's ×, Escape, and simply leaving it all write a later marker
+ * (`withLater`, also written when the window is shown), so the offer comes
+ * back on a later day. "Don't show this again" writes "never" (`withNever`).
+ * Pass `today` (a `localDay` string) for the later marker to be honored.
  */
-export function tourOffer(raw) {
-  const { list, seen, offeredWhole, offeredSteps } = parseTourState(raw);
+export function tourOffer(raw, { today = null } = {}) {
+  const { list, seen, offeredWhole, offeredSteps, never, laterDay } = parseTourState(raw);
+  if (never) return { kind: null, list };
+  if (today && laterDay && today <= laterDay) return { kind: null, list, snoozed: true };
   if (!seen.length) return offeredWhole ? { kind: null, list } : { kind: "first", list };
   const ids = TOUR_STEPS.map((s) => s.id).filter((id) => !seen.includes(id) && !offeredSteps.includes(id));
   return ids.length ? { kind: "new", ids, list } : { kind: null, list };

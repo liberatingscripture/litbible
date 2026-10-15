@@ -278,6 +278,8 @@ src/
                      #   its selection panel; panel-pieces, what every
                      #   panel is built from; keep-reading-place,
                      #   which holds the reader's line through a reflow;
+                     #   float-window, a window that stays open until
+                     #   answered (the desk's tour offer, for now);
                      #   desk-gate + desk/, the Study Desk preview, and
                      #   desk-frame, what every page knows about its panel;
                      #   see "The Study Desk preview" below)
@@ -1739,6 +1741,8 @@ collection); they're read directly by the intro pages and the API manifest.
     closing quote (write `choose “Save.”`, never `choose “Save”.`),
     semicolons and colons go outside, and a question mark or exclamation
     point goes inside only when it belongs to what is quoted.
+  - **The Oxford comma, always** (BVJ, 2026-10-14): “notes, highlights,
+    bookmarks, and the Greek.”
   - Quotes are curly (“ ” and ‘ ’), as the chapter JSON rule below requires
     for scripture.
   This governs text Claude writes. **The translation, footnotes, intros and
@@ -2470,7 +2474,14 @@ collection); they're read directly by the intro pages and the API manifest.
      - **First use** (`desk-first-use.mjs`, `desk/first-use.js`,
        `desk/tour.js`): the "Where should your notebook live?" card
        (`localStorage['lit-desk-home']`), the foot's reminder and Safari
-       line, and the tour (`lit-desk-tour`, which also holds offer markers).
+       line, and the tour (`lit-desk-tour`, which also holds the offer's
+       markers: `later:<date>` and `never`). **The tour is offered in a
+       window beside the Notebook** (BVJ, 2026-10-14), the first time it is
+       expanded with the home question answered: Take the tour now, Remind
+       me later (also the ×, Escape, closing or minimizing the Notebook,
+       and leaving the page; back on a later day), or Don't show this again.
+       The window is `src/scripts/float-window.js`, which stays open through
+       clicks elsewhere and never takes `lit-panel.js`'s one slot.
        The privacy page has a paragraph naming these keys and the notebook's
        storage: keep it in step if a key or what is stored changes.
        `/privacy`'s effective date was not bumped for it.
