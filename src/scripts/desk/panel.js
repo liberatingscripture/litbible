@@ -127,7 +127,12 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
   // The first-time choice (a card above My Notes), the foot's account of where
   // the notebook is kept, and the tour's offer (first-use.js). `reveal` shows
   // the panel the first time the reader writes something with no answer yet.
-  const firstUse = createFirstUse({ store, reveal: () => revealPanel() });
+  const firstUse = createFirstUse({
+    store,
+    reveal: () => revealPanel(),
+    panelEl: () => panel,
+    panelShown: () => shown(),
+  });
 
   // The tabs this page has, in order. Each tab module returns its element
   // and a render(); a tab is drawn only while it is the one showing.
@@ -271,6 +276,9 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
   const shown = () => !panel.hidden && !rail.state().collapsed;
   function syncToggles() {
     for (const t of toggles) t.setAttribute("aria-expanded", String(shown()));
+    // The tour offer opens beside it the first time it is shown, and closes
+    // with it.
+    firstUse.panelChanged();
   }
 
   // On Study View chapters the column narrows from 52 to 48 while the panel

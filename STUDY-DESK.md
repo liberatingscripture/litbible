@@ -14,6 +14,11 @@ are recorded so they aren't re-argued.
 
 ## Where things stand (as of 2026-10-15)
 
+- **The tour is offered in a window beside the Notebook** (BVJ,
+  2026-10-14), the first time it is expanded, with "Take the tour now,"
+  "Remind me later," and "Don't show this again" (decision log, 2026-10-14,
+  "The tour offer"). Built on the preview the same day.
+
 - **Phase 2a: B3 and N4 are built on the preview, and M10 is shelved**
   (2026-10-15). What's new for you (B3) and your own chains (N4) are in the
   tree; your notebook where you already look (M10) was built the same day
@@ -3282,9 +3287,18 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
        reminder with "Save a copy", **desktop Safari's line** (Safari clears
        a site's data after seven days of use without a visit), and Take the
        tour, Help and "Tell us what's missing" (/contact/). **The tour**
-       (`lit-desk-tour`) is offered once, right after the choice, and
+       (`lit-desk-tour`) is offered in a window beside the Notebook the
+       first time the reader expands it with the choice made, and
        replays from the foot, the `tour` command and the help page; it
-       writes no records. **Rebuilt 2026-10-13 as a walk-through whose steps
+       writes no records. **The offer became that window on 2026-10-14**
+       (BVJ; it was a card in My Notes, offered once): "Take the tour
+       now," "Remind me later" (also the ×, Escape, closing or minimizing
+       the Notebook, and leaving the page; it comes back on a later day),
+       and "Don't show this again" (which also ends the offers of new
+       steps). `src/scripts/float-window.js` is the window: it stays open
+       through clicks elsewhere and doesn't take the shared panels' slot,
+       the layer 2a's search commands window is meant to reuse.
+       **Rebuilt 2026-10-13 as a walk-through whose steps
        act** (BVJ: "more thorough in walking through how to use the
        features"; steps that act, and "the changes it makes should not
        persist after the tour is done"). Fifteen steps in three parts, each
@@ -4743,6 +4757,31 @@ The first five confirm what the preview already does.
   so /glossary no longer carries the `data-words` attributes it needed.
   B3 and N4 stay. No reason was recorded.
 
+### 2026-10-14 (the tour offer)
+
+- **The tour is offered in a window, not a card** (BVJ, after a mock on
+  Romans 8). It opens the first time the reader expands the Notebook, once
+  "Where should your notebook live?" is answered, **beside the Notebook**
+  (over it only where there is no room), with its top level with the
+  Notebook's. It drags by its header. Three answers:
+  - **Take the tour now**;
+  - **Remind me later**: offered again on a later visit, never again on
+    this one. The ×, Escape, closing or minimizing the Notebook, and leaving
+    the page all count as this, since an offer shown is written as "later"
+    until it's answered;
+  - **Don't show this again**: no offers of the tour at all, including
+    "There's something new in the tour." The tour stays in the panel's
+    foot, the help page, and the `tour` command.
+  After the home question rather than before it (BVJ). **A later visit is
+  built as a later day** (a recommendation, for BVJ to judge on the
+  preview): a day is the same in every tab, where a visit can't be told
+  apart from a second tab opened a minute later. Stored as markers in `lit-desk-tour`
+  (`later:<date>`, `never`); /privacy's paragraph now says that key keeps
+  the reader's answer too.
+- **The window is a reusable layer**, `src/scripts/float-window.js`: a
+  click outside doesn't close it, and it doesn't take the shared panels'
+  one slot. 2a's search commands window is planned on it.
+
 ### 2026-10-14 (phase 2 split into 2a, 2b and 2c)
 
 - **Phase 2 is split three ways** ("Order of work", 2). **2a** is the
@@ -4884,7 +4923,10 @@ The first five confirm what the preview already does.
   offered once, right after the D6 choice, never by itself over scripture.
   **Confirmed** (BVJ, 2026-10-13): offered once, and replayable on demand,
   which the preview already does from the panel's foot, the `tour`
-  command and the help page.
+  command and the help page. **Revised** (BVJ, 2026-10-14): the offer is a
+  window beside the Notebook on its first expansion, with "Take the tour
+  now," "Remind me later," and "Don't show this again" (decision log,
+  2026-10-14, "The tour offer").
 - **When to release the desk to readers.** Not before phase 1 is
   completely done (N8 and the exploring of 1g and 1h included), and
   perhaps not until phases 1 to 3 are (BVJ, 2026-10-13). Which of the two

@@ -9,8 +9,8 @@ import assert from "node:assert/strict";
 
 import {
   HOMES, REMIND_AFTER_DAYS, SAFARI_LINE, TOUR_PARTS, TOUR_STEPS,
-  agoPhrase, daysSince, isDesktopSafari, parseTourState, planTour, readHome, readLastExport,
-  reminderDue, reminderText, savedLine, stepBody, tourOffer, wantsReminder, withOffered, withSeen,
+  agoPhrase, daysSince, isDesktopSafari, localDay, parseTourState, planTour, readHome, readLastExport,
+  reminderDue, reminderText, savedLine, stepBody, tourOffer, wantsReminder, withLater, withNever, withOffered, withSeen,
 } from "../src/lib/desk-first-use.mjs";
 
 const NOW = new Date("2026-10-12T12:00:00Z");
@@ -147,6 +147,81 @@ test("a reader who has seen the tour is offered only what is new, once", () => {
   // Once those were offered, they are not offered again.
   const after = JSON.stringify(withOffered(some, offer.ids));
   assert.equal(tourOffer(after).kind, null);
+});
+
+test("localDay is the local calendar day, zero-padded", () => {
+  assert.equal(localDay(new Date(2026, 0, 5, 23, 59)), "2026-01-05");
+  assert.equal(localDay(new Date(2026, 9, 14, 0, 1)), "2026-10-14");
+  assert.equal(localDay(new Date(2026, 11, 31, 12)), "2026-12-31");
+});
+
+test("no tour step id collides with a marker", () => {
+  for (const s of TOUR_STEPS) {
+    assert.ok(s.id !== "never" && !s.id.startsWith("later:") && !s.id.startsWith("offered"), s.id);
+  }
+});
+
+test("the tour state reads never and the later day", () => {
+  assert.equal(parseTourState(null).never, false);
+  assert.equal(parseTourState(null).laterDay, null);
+  assert.equal(parseTourState('["never"]').never, true);
+  assert.equal(parseTourState('["later:2026-10-14"]').laterDay, "2026-10-14");
+  // Malformed markers are ignored but kept in the list.
+  const bad = parseTourState('["later:","later:2026-1-4","later:2026-10-14x","later: 2026-10-14","Later:2026-10-14"]');
+  assert.equal(bad.laterDay, null);
+  assert.equal(bad.list.length, 5);
+  // Several somehow: the greatest wins.
+  assert.equal(parseTourState('["later:2026-10-14","later:2026-11-02","later:2026-09-30"]').laterDay, "2026-11-02");
+  // Offer markers are unaffected.
+  const p = parseTourState('["offered","offered:margin","later:2026-10-14","never"]');
+  assert.equal(p.offeredWhole, true);
+  assert.deepEqual(p.offeredSteps, ["margin"]);
+  assert.deepEqual(p.seen, []);
+});
+
+test("a later day and a never are recorded without repeating or mutating", () => {
+  const start = ["actions", "later:2026-10-10"];
+  assert.deepEqual(withLater(start, "2026-10-14"), ["actions", "later:2026-10-14"]);
+  assert.deepEqual(start, ["actions", "later:2026-10-10"]);
+  assert.deepEqual(withLater([], "2026-10-14"), ["later:2026-10-14"]);
+
+  assert.deepEqual(withNever(["actions", "later:2026-10-14"]), ["actions", "never"]);
+  assert.deepEqual(withNever(["never"]), ["never"]);
+  assert.deepEqual(withNever([]), ["never"]);
+  const l = ["later:2026-10-14"];
+  withNever(l);
+  assert.deepEqual(l, ["later:2026-10-14"]);
+});
+
+test("never ends every offer, first or new", () => {
+  assert.equal(tourOffer(JSON.stringify(["never"])).kind, null);
+  assert.equal(tourOffer(JSON.stringify(["never"]), { today: "2030-01-01" }).kind, null);
+  const some = TOUR_STEPS.map((s) => s.id).slice(0, -2);
+  assert.equal(tourOffer(JSON.stringify(some)).kind, "new");
+  assert.equal(tourOffer(JSON.stringify(withNever(some))).kind, null);
+  assert.equal(tourOffer(JSON.stringify(withNever(some)), { today: "2030-01-01" }).kind, null);
+});
+
+test("Remind me later holds the offer until a later day", () => {
+  const first = JSON.stringify(withLater([], "2026-10-14"));
+  assert.deepEqual(tourOffer(first, { today: "2026-10-14" }), { kind: null, list: ["later:2026-10-14"], snoozed: true });
+  assert.equal(tourOffer(first, { today: "2026-10-13" }).snoozed, true);
+  assert.equal(tourOffer(first, { today: "2026-10-15" }).kind, "first");
+  assert.equal(tourOffer(first, { today: "2026-10-15" }).snoozed, undefined);
+  // Without `today`, the later marker isn't consulted.
+  assert.equal(tourOffer(first).kind, "first");
+
+  const some = TOUR_STEPS.map((s) => s.id).slice(0, -2);
+  const waiting = JSON.stringify(withLater(some, "2026-10-14"));
+  assert.equal(tourOffer(waiting, { today: "2026-10-14" }).snoozed, true);
+  const back = tourOffer(waiting, { today: "2026-10-15" });
+  assert.equal(back.kind, "new");
+  assert.equal(back.ids.length, 2);
+});
+
+test("old data holding only the offered marker still makes no first offer", () => {
+  assert.equal(tourOffer('["offered"]', { today: "2026-10-14" }).kind, null);
+  assert.equal(tourOffer('["offered"]').kind, null);
 });
 
 test("a tour takes the steps whose target is on the page, numbered", () => {
