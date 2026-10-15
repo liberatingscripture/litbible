@@ -14,6 +14,14 @@ are recorded so they aren't re-argued.
 
 ## Where things stand (as of 2026-10-15)
 
+- **Phase 3 is now sheets and the desk together** (BVJ, 2026-10-15): D9,
+  the desk as a page of its own (`/desk/`), with the LIT text as one pane
+  among up to four. Sheets are edited only there; a sheet's own address
+  serves shared links, present mode and printing. **Phases 2b and 2c
+  follow phase 3**, and phase 3's scope isn't cut to make a date. BVJ's
+  answers are under D9 ("Across the desk"); the details are for when the
+  work starts, with mockups then.
+
 - **The tour is offered in a window beside the Notebook** (BVJ,
   2026-10-14), the first time it is expanded, with "Take the tour now,"
   "Remind me later," and "Don't show this again" (decision log, 2026-10-14,
@@ -31,6 +39,7 @@ are recorded so they aren't re-argued.
   ("Phase 2a's defaults"); "Order of work", 2a, has what was built.
 
 - **Phase 2 is split into 2a, 2b and 2c, and phase 3 follows 2a**
+  (2b and 2c now follow phase 3: see the entry above)
   (BVJ, 2026-10-14): 2a is B3, N4, M10, construction search and
   searching by parsing, the read-only pieces; 2b is S2, which needs sheets; 2c is the rest, whose place is open ("Order
   of work", 2; "Decisions").
@@ -370,7 +379,7 @@ every week.
   open in Word, Obsidian or any text editor.
 - **Paper** (N9): print any chapter with a ruled margin.
 
-## The ideas (48)
+## The ideas (49)
 
 "New" means no Bible site or tool was found doing it; "Borrowed" names the
 source. Sizes run extra small to large. Status is BVJ's decision where one was
@@ -911,6 +920,157 @@ plan as a whole was accepted; nothing was declined except where stated).
     steps, only those whose target is on the page; marked seen when it
     starts; replayed from the panel's foot, the `tour` command and the help
     page; no records written. "Order of work", 1d.
+- **D9. The desk as a page of its own.** BVJ, 2026-10-15: "After phases 1
+  to 3 are built, creating a whole page (or subdomain?) dedicated to study
+  desk, with the LIT text still available but as one thing that CAN be
+  displayed rather than the primary thing." Everything built so far sits
+  *around* the text: the chapter is the page, and the desk lives in its
+  margin. D9 turns that over for the reader who comes to prepare rather than
+  to read: a workspace whose panes are the reader's notebook, a sheet being
+  written, the Greek, search, and the LIT text as one pane among them,
+  shown, hidden or moved like the rest. Study View and the margin desk stay
+  as they are; this is a second way in, not a replacement. Borrowed (Logos
+  and Accordance workspaces; Sefaria's sheet editor with the library in a
+  side panel, the survey's "sheets as a workspace of their own"). Large.
+  **BVJ's idea; decided 2026-10-15 to be part of phase 3, with sheets**
+  ("Decisions", 2026-10-15). The details below are BVJ's answers and
+  proposals for when it's designed:
+  - **A page, not a subdomain** (`litbible.net/desk/`, clear of book slugs
+    per W7). Browser storage belongs to one origin, so `desk.litbible.net`
+    would open with an empty notebook: the reader's notes, highlights,
+    places and Display settings all live in litbible.net's IndexedDB and
+    `localStorage`, and a chosen file (D1) is granted to one origin too.
+    Until sync exists (phase 4), a subdomain would need its own way to move
+    a notebook across, and every fetch of `/greek/`, `/search/` and the
+    chapter data would cross origins. The sync service's own subdomain is a
+    different thing: it holds no browser state. A page gets the separate
+    feel from its name and layout.
+  - **The LIT pane is the Study View text, not a third rendering.** The
+    page's text has to match Study View's character for character, or
+    marks can't be placed (`test/desk-anchor-dom.test.js` holds the two
+    views to that). The handout already fetches a chapter's Study View page
+    to read its notes from Read View, so the pane can do the same: fetch
+    the built page and take its paragraphs, footnotes and term-lens data.
+    If a third render path is ever added, it joins that test's sweep.
+  - **BVJ's answers (2026-10-15).** Not decisions to build from yet: D9
+    is fed into the plan now, and mockups wait until the work starts.
+    1. **Panes: one to four at a time, rearranged freely.** All columns
+       with adjustable widths, all rows with adjustable heights, or a
+       combination, 1×2, 2×1 or 2×2, with adjustable sizes (BVJ's terms;
+       how each is drawn is for the mockups).
+    2. **The page remembers the layout.** The reader chooses between
+       "remember the last layout" and "start with my default", can set
+       their own default, and can go back to the original one.
+    3. **The panes**: the LIT text; the equivalents of the Notebook's three
+       tabs (My Notes, This verse, Greek); Go deeper, either in My Notes or
+       This verse or as a pane of its own (open); sheets; and possibly a
+       document pane with rich text, for handouts, manuscripts and the like
+       (open whether that is part of the sheet pane or a pane of its own).
+    4. **The LIT pane may hold a chapter or a whole book**, perhaps the
+       reader's choice (open). "A whole book" means **the reader keeps
+       scrolling from chapter to chapter without navigating**, not that
+       the book is loaded at once: chapters can load as the reader nears
+       them. In a whole book, footnotes are reached through their popovers,
+       the This verse pane and the footnotes pane, with no list at the end
+       of each chapter. **Since a chapter loads at a time anyway, the pane
+       might scroll through the whole corpus**, Matthew to Revelation
+       (BVJ, 2026-10-15, a thought). Drafts would need Read View's answer:
+       a run of drafts shown as one stub, keeping each chapter's anchor.
+    5. **Whether /desk replaces `/sheets/` or comes in addition to it is
+       open.** Mockups when the work starts.
+    6. **The Notebook on the reading pages stays as full as it is now.**
+       /desk is a second way in.
+    7. **/desk may be the place for some deferred or shelved ideas**,
+       though some were set aside for reasons it doesn't change (below,
+       with BVJ's answers).
+    8. **Phase 2's later pieces might live better here** (BVJ wondered,
+       2026-10-15), such as tracing notes across a word wherever it
+       occurs. Weighed below ("Phase 2c and D9").
+    9. **Phase 3 is sheets and the desk together** (BVJ, 2026-10-15),
+       and **phases 2b and 2c follow it**: 2b needs sheets, and 2c's
+       making is done in /desk's word pane.
+    10. **Sheets are edited in /desk only**, as the sheet pane: one
+       editor. A sheet's own address exists only for what isn't editing
+       (opening a shared link, present mode, printing), which S8 and S6
+       need anyway, since a shared sheet opens for people who never built
+       it (BVJ accepted the proposal, 2026-10-15).
+    11. **Phase 3 is not cut down to make a date** (BVJ, 2026-10-15: "no
+       need to compress the scope to make it go faster. We'll be fine").
+       The proposal to open /desk with two panes for Lent and add the
+       free layouts later was declined; the whole of it is phase 3.
+  - **What the answers mean for the build** (notes for then, not
+    decisions):
+    - **Most panes exist already as modules**: the Greek tab, This verse,
+      My Notes and the notebook page's lists. The sheet editor doesn't yet,
+      so **phase 3 should build S1's editor to work inside another page**,
+      whichever way the `/sheets/` question goes, or D9 means building
+      sheets twice. That is the one thing D9 asks of the phases before it.
+    - **Go deeper is worked out at build** (`go-deeper-data.ts`) and lives
+      in the chapter's Study View page, so its pane can come from the same
+      fetched page as the text.
+    - **A whole book with footnote popovers is not Read View's text**:
+      Read View prints no footnote letters. It would be each chapter's
+      Study View text in turn, fetched as the reader scrolls toward it,
+      and since footnote labels restart every chapter, a popover has to
+      know its chapter (as Read View's verse ids already do,
+      `data-chapter`). A chapter added above the reader must not move the
+      text they are reading (`keepReadingPlace` holds a line through a
+      reflow today).
+    - **The layout is a per-browser setting** like the Display tray's (a
+      `localStorage` key, named in /privacy's paragraph), unless BVJ wants
+      it to sync once sync exists. The draggable widths on Study View are
+      kept only for the visit (`sessionStorage`); /desk keeps its layout
+      for good.
+    - **A document pane with rich text raises the format question**: is a
+      document a kind of sheet (a sheet whose text blocks take formatting)
+      or a new kind of record? A new kind is one the apps must carry
+      without showing (C8) and can't be taken back once readers hold it,
+      so it is settled in STUDY-DESK-FORMAT.md before anything is stored.
+      Ground rule 3 holds inside it: the LIT's words quoted in a document
+      stay set apart from the reader's, and come from the live text as a
+      sheet's passages do. Formatted text is stored HTML, so it is
+      sanitized on the way in and out; a note's body today is plain text,
+      escaped (`noteBodyHtml`).
+  - **Deferred and shelved ideas, against D9** (BVJ's answers,
+    2026-10-15):
+    - **The Greek interleaf (1g)**: **yes, as the Greek pane**, which is
+      already planned: the Greek beside the LIT pane, kept in step as
+      either scrolls.
+    - **Footnotes in the margin (X11)**: **yes, as a footnotes pane**
+      following the LIT pane.
+    - **Other versions (D7)**: **not for now.**
+    - **The interleaf (N7)**: **no**; the My Notes pane already does its
+      job.
+    - **M10**: stays shelved; its parts live on other pages, so /desk
+      changes little.
+    - **Pop the notebook out (D4, unplaced)**: panes cover most of it.
+    - **Unchanged by D9**: everything under "Considered and set aside"
+      (right-click, a public gallery, AI summaries, live co-editing, Ctrl
+      K, commentaries, the email when verses change, anchoring to footnote
+      letters). Their reasons don't depend on where the desk lives.
+  - **Phase 2c and D9** (proposed 2026-10-15, for BVJ to weigh). 2c holds
+    N2 (a note on a term that follows it everywhere), H2 with C23 (marking
+    a concept through a book, saved as a rule), M4 (a word study) and M11
+    (notes on a footnote). Each has two halves: **where it is made and
+    studied**, and **where the reader meets it**.
+    - **The making and studying fit /desk well, as a word pane**: choose a
+      glossary term or a Greek lemma and see every gated place it occurs,
+      grouped by rendering with counts, the Greek, the reader's own notes
+      on those verses, and their note on the term itself. From there,
+      write the term note (N2), set the concept mark (H2), or turn the
+      list into a sheet (M4). M11 belongs in the footnotes pane the same
+      way.
+    - **The meeting stays wherever the text is**: N2's note in the term
+      lens card and H2's marks on the words, on Study View and in the LIT
+      pane alike. That is the point of both: the reader comes across them
+      while reading.
+    - **A read-only word pane needs no new kind of record**, like the
+      Greek search: tracing a term and showing the notes already on those
+      verses. It could come with /desk itself, and would also show how
+      readers use such tracing before N2 and H2 add kinds of record to
+      their notebooks, the very trial 2c was waiting for ("Order of
+      work", 2c). N2, H2 and M11 still add kinds of record wherever they
+      are made, so that caution doesn't change.
 - **M1. Hide my notes, in one keystroke.** A switch with a shortcut that hides
   every note, highlight and mark at once, for sharing a screen or teaching
   from Study View. N8 makes it matter. Present mode already leaves notes out.
@@ -3905,7 +4065,13 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
    its link and the commercial check (S7), and the Word copy (S9); then
    printed codes (S5), present mode with the presenter view and room code (S6,
    M2, M3), sheets from searches and templates (M5, M9), annotated printing
-   (M6) and shared links (S8). Large.
+   (M6) and shared links (S8). Large. **Build S1's editor so it can sit
+   inside another page** (proposed 2026-10-15), so D9, the desk as a page
+   of its own, doesn't mean building sheets twice. **Phase 3 is now sheets
+   and the desk together** (BVJ, 2026-10-15; D9, answers 9 to 11): sheets
+   are edited only in /desk's sheet pane, a sheet's own address serves
+   shared links, present mode and printing, and 2b and 2c follow phase 3.
+   Its scope isn't cut to make a date.
 4. **Sync, with BDR.** Starts once plan A or C is chosen and, if the Zoom
    wants plan A tested, the proofs (P1 to P3, now the spikes, paused
    2026-10-09) are in. Under both plans: a sync loop on 1a's merge engine, one source
@@ -4895,6 +5061,25 @@ tab, while planning the rest of 2a ("Order of work", 2a):
 - **The window is a reusable layer**, `src/scripts/float-window.js`: a
   click outside doesn't close it, and it doesn't take the shared panels'
   one slot. 2a's search commands window is planned on it.
+
+### 2026-10-15 (D9: the desk as a page of its own)
+
+- **D9 joins phase 3: phase 3 is sheets and the desk** (BVJ). The desk
+  gets a page of its own, `/desk/`, with one to four panes (the LIT text,
+  My Notes, This verse, Greek, footnotes, sheets, and Go deeper's place
+  open), in columns, rows, 1×2, 2×1 or 2×2, resizable, and a layout the
+  page remembers.
+- **Sheets are edited only in /desk.** A sheet's own address is for
+  shared links, present mode and printing.
+- **Phases 2b and 2c come after phase 3.**
+- **The scope isn't cut to make a date**: "no need to compress the scope
+  to make it go faster. We'll be fine."
+- **Not for now**: other versions (D7). **No**: the interleaf (N7), which
+  My Notes covers. **Yes**: the Greek interleaf (1g) and footnotes in the
+  margin (X11), as the Greek and footnotes panes.
+- Still open, under D9: chapter, book or whole-corpus scrolling in the
+  text pane; where Go deeper goes; whether a rich-text document is part of
+  sheets or its own pane (and its record format); the word pane for 2c.
 
 ### 2026-10-14 (phase 2 split into 2a, 2b and 2c)
 
