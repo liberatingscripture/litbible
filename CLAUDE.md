@@ -2240,7 +2240,8 @@ collection); they're read directly by the intro pages and the API manifest.
   by an outside click or Escape. A click inside the Study Desk's Notebook
   panel doesn't count as outside, and a panel is placed clear of it (see
   below).
-- **The Study Desk preview** (STUDY-DESK.md, phases 1a to 1d, 1f and 1h) is in production but
+- **The Study Desk preview** (STUDY-DESK.md, phases 1a to 1d, 1f and 1h, and
+  2a's B3, N4 and M10) is in production but
   switched off for everyone: `?desk=on` turns it on in one browser on a
   computer, `?desk=off` turns it off. STUDY-DESK.md is the record; what a
   change elsewhere in the site has to respect:
@@ -2549,6 +2550,35 @@ collection); they're read directly by the intro pages and the API manifest.
        its header opens a field in place, results replace the text until
        "Back to the text", and in a word's details the form, the lemma and
        the Strong's number each start a search (BVJ, 2026-10-13).
+  16. **Phase 2a's small pieces read, never write** (built 2026-10-15;
+     STUDY-DESK.md, "Order of work", 2a): B3, N4 and M10 add no kind of
+     record, so each can be taken out cleanly. Four things to know:
+     - **A note's body is drawn through `noteBodyHtml`**
+       (`src/lib/desk-chains.mjs`, via `desk/note-words.js`), which escapes
+       the reader's text and only then runs `linkScriptureRefs`, so a typed
+       reference links and previews as a footnote's does and nothing typed
+       becomes markup. A new place that shows a note's body uses it too
+       (search snippets, fields and accessible names stay plain text). A
+       link can't sit inside a button, so a note row's own control is
+       stretched over the row behind its words.
+     - **What's new for you** (`src/lib/desk-whats-new.mjs`) reads the
+       release notes through the change notice's `changeVerses`, so the
+       description wording rule 12 relies on is load-bearing here as well.
+       The feed is fetched once per tab (`desk/release-feed.js`,
+       `sessionStorage['lit-desk-release-feed']`), "last looked" is the
+       notebook meta value `whatsNewSeen`; both are in /privacy's paragraph.
+     - **/release-notes is the desk's third non-reading page**:
+       `desk-gate.js` loads `desk/release-notes-filter.js` on
+       `[data-release-notes]`, which reads the notebook read-only
+       (`desk/readonly-notebook.js`, never creating the database) and adds
+       a checkbox. `release-notes.js` stays desk-free: any
+       `input[data-rn-flag="x"]` in its form filters rows on `data-rn-x`.
+     - **/glossary's "Where it appears" items carry `data-words`** where the
+       words printed in that verse differ from the rendering's label, which
+       is how "My notes on this term" (`src/lib/desk-term-notes.mjs`)
+       matches a note's quote. Go deeper's "Your notes here" row
+       (`desk/go-deeper-notes.js`) restates GoDeeper.astro's scoped styles
+       in desk.css; keep the two in step.
 - **Every link that leaves the site opens in a new tab** (owner, 2026-10-01).
   For rendered bodies that is `openExternalLinks` in `src/lib/external-links.mjs`
   (pure, unit-tested), called from `linkRefs`, the one function footnotes,
@@ -3302,7 +3332,7 @@ argv, and the scan; nothing else.
 | `public/llms.txt`, `llms-full.txt` | LLM-readable site description + AI-usage policy |
 | `GLOSSARY-CANDIDATES.md` | Register of glossary candidates deliberately not included or deferred, and the payload criterion behind those calls. Read it before proposing a "next term." |
 | `TOPICS.md` | **The authority on chapter and book-intro `topics`** — the significance filter, the alternative-translation pair table, the prefix-search rule, casing, and the hand-run checks. Read it before adding or revising any topics array. |
-| `STUDY-DESK.md` | **The planning and decision record for the Study Desk** (notes, places, highlights and sheets on desktop, with optional account sync shared with the apps). Phases 1a to 1d, 1f and 1h are built (the merge engine; notes, bookmarks, highlights, pinned footnotes, the margin and the panel's tabs; the notebook page, export and import, labels, ribbons, search and commands, first use and the tour; the Greek tab; searching the Greek), the shell behind a preview switch (`?desk=on`); nothing reader-facing is released. N8 (the hidden passage) is held on branches until after the Zoom; it is not released before phase 1 is completely done, and perhaps not until phases 1 to 3 are (BVJ, 2026-10-13). 1g (an interleaf for the Greek) and 1h (searching the Greek) belong to phase 1: 1g is shelved for the future, and 1h was built on 2026-10-13. Every idea, audit finding, owner decision, open question and BDR item is there with its ID, as are the two apps' replies (2026-10-04) and the talk-through list built from them. Read it before proposing or building any part of the desk, and update it when a decision changes. `STUDY-DESK-BRIEF-FOR-BDR.md` is the brief written for BDR's Claude about the apps' side; `STUDY-DESK-REPLY-TO-APPS.md` is the website's answer to both apps' replies (2026-10-05), and the last such document: since 2026-10-07 BDR's Claude reads this repo directly, so the website answers by updating `STUDY-DESK.md` on `main` (its section "One notebook, three homes" holds BDR's sync proposal and the website's answers). |
+| `STUDY-DESK.md` | **The planning and decision record for the Study Desk** (notes, places, highlights and sheets on desktop, with optional account sync shared with the apps). Phases 1a to 1d, 1f and 1h are built (the merge engine; notes, bookmarks, highlights, pinned footnotes, the margin and the panel's tabs; the notebook page, export and import, labels, ribbons, search and commands, first use and the tour; the Greek tab; searching the Greek), and so are phase 2a's B3, N4 and M10 (2026-10-15), the shell behind a preview switch (`?desk=on`); nothing reader-facing is released. N8 (the hidden passage) is held on branches until after the Zoom; it is not released before phase 1 is completely done, and perhaps not until phases 1 to 3 are (BVJ, 2026-10-13). 1g (an interleaf for the Greek) and 1h (searching the Greek) belong to phase 1: 1g is shelved for the future, and 1h was built on 2026-10-13. Every idea, audit finding, owner decision, open question and BDR item is there with its ID, as are the two apps' replies (2026-10-04) and the talk-through list built from them. Read it before proposing or building any part of the desk, and update it when a decision changes. `STUDY-DESK-BRIEF-FOR-BDR.md` is the brief written for BDR's Claude about the apps' side; `STUDY-DESK-REPLY-TO-APPS.md` is the website's answer to both apps' replies (2026-10-05), and the last such document: since 2026-10-07 BDR's Claude reads this repo directly, so the website answers by updating `STUDY-DESK.md` on `main` (its section "One notebook, three homes" holds BDR's sync proposal and the website's answers). |
 | `STUDY-DESK-FORMAT.md` | **Draft record format for the Study Desk**, shared with both apps: the kinds of record, the anchor text, and how a mark is found again after the wording moves. Its executable form is `scripts/lib/anchor-text.mjs` (pure half in `src/lib/anchor-core.mjs`) with `test/fixtures/anchor-vectors.json`; its merge rules are `src/lib/desk-merge.mjs` with `test/fixtures/merge-vectors.json`, hand-written cases the apps run too. Change each pair together. |
 | `DISASTER-RECOVERY.md` | Continuity doc: every dashboard/secret behind the deploy (names only, no values) + the DNS inventory + from-zero redeploy path. Update it when an integration, secret, or DNS record is added/removed. |
 
