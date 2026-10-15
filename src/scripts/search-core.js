@@ -1404,7 +1404,7 @@ export function loadGreekIndex(base) {
     })
     .then((json) => {
       const index = prepareIndex(json);
-      if (!index) throw new Error("lemmas.json is not format 1");
+      if (!index) throw new Error("lemmas.json is not the format this script reads");
       return index;
     })
     .catch((err) => {
@@ -1417,7 +1417,7 @@ export function loadGreekIndex(base) {
 
 const greekShards = new Map();
 
-/** A lemma's occurrence entry from its shard ([forms, flat]), or null. */
+/** A lemma's occurrence entry from its shard ([forms, flat, parses]), or null. */
 export async function loadGreekOccurrences(base, index, id) {
   const name = occShard(index, id);
   let p = greekShards.get(name);

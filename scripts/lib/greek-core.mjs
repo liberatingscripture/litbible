@@ -17,13 +17,14 @@
 //   step/    STEPBible's brief lexicon (TBESG), HTML sanitized.
 //   lsj/     STEPBible's formatted LSJ, HTML sanitized.
 //   search/  The Greek search index (1h): every lemma with its forms, Strong's
-//            numbers and gloss, and where each word is (greekSearchIndex).
+//            numbers and gloss, where each word is and how it parses, and the
+//            parse groups, every word of one kind together (greekSearchIndex).
 //
 // The rule behind every join in here: never silently misalign. Where two
 // sources disagree about a verse, nothing is carried across it and the
 // disagreement goes into the report the shell prints.
 
-import { foldGreek as searchFold, glossHead } from "../../src/lib/greek-search.mjs";
+import { GREEK_PARSE_FORMAT, GREEK_SEARCH_FORMAT, foldGreek as searchFold, glossHead, parseGroup } from "../../src/lib/greek-search.mjs";
 
 export const GREEK_FORMAT = 1;
 
@@ -836,16 +837,23 @@ const isEmptyField = (v) => v == null || v === "" || (Array.isArray(v) && !v.len
  * The Greek search index (STUDY-DESK.md, 1h; format in src/lib/greek-search.mjs):
  * one entry per lemma that has a word in the corpus, in NFC code-point order of
  * the lemma, with the folded forms its words take and, in 64 shards, where each
- * word is. Words with no lemma are skipped.
+ * word is and how it parses. Words with no lemma are skipped.
+ *
+ * Also the parse groups (parseGroup): for a search with no word in it, every
+ * word of one kind in Bible order, naming its lemma by id. A word's code is
+ * its part of speech and parsing joined ("N-----GSF-"); a word with no part
+ * of speech is in no group.
  *
  * @param {object[]} docs  the built chapter documents, in Bible order
  * @param {Map<string,string[]>} strongs  strongsByLemma(pairs)
  * @param {string[]} bookOrder  BOOK_ORDER
- * @returns {{lemmas: object, shards: Map<string, object>, report: object}}
+ * @returns {{lemmas: object, shards: Map<string, object>, parseIndex: object,
+ *            parseGroups: Map<string, object>, report: object}}
  */
 export function greekSearchIndex(docs, strongs, bookOrder, glossesFor = () => ({})) {
   const report = { strongDiffers: [], glossDiffers: [], noLemma: 0, words: 0 };
-  const byLemma = new Map(); // lemma -> { strong, gloss, count, folded, exact, occ }
+  const byLemma = new Map(); // lemma -> { strong, gloss, count, folded, exact, occ, codes }
+  const groups = new Map(); // group -> { codes, words: [book, chapter, verse, t, lemma, codeIndex, …] }
   for (const doc of docs) {
     const book = bookOrder.indexOf(doc.book);
     const checked = new Set(); // lemma indexes of this doc already compared
@@ -860,7 +868,7 @@ export function greekSearchIndex(docs, strongs, bookOrder, glossesFor = () => ({
         const lemma = nfc(lemmaRaw);
         let e = byLemma.get(lemma);
         if (!e) {
-          e = { strong: strong ?? null, gloss: gloss ?? null, ubsId: doc.lemmas[li][2] ?? null, count: 0, folded: new Set(), exact: [], occ: [] };
+          e = { strong: strong ?? null, gloss: gloss ?? null, ubsId: doc.lemmas[li][2] ?? null, count: 0, folded: new Set(), exact: [], codes: [], occ: [] };
           byLemma.set(lemma, e);
         }
         if (!checked.has(li)) {
@@ -873,7 +881,18 @@ export function greekSearchIndex(docs, strongs, bookOrder, glossesFor = () => ({
         if (fi < 0) fi = e.exact.push(text) - 1;
         e.folded.add(searchFold(text));
         e.count++;
-        e.occ.push(book, doc.chapter, word[0], word[1], fi);
+        const code = `${word[6] ?? ""}${word[7] ?? ""}`;
+        let ci = e.codes.indexOf(code);
+        if (ci < 0) ci = e.codes.push(code) - 1;
+        e.occ.push(book, doc.chapter, word[0], word[1], fi, ci);
+        const group = parseGroup(word[6], word[7]);
+        if (group) {
+          let g = groups.get(group);
+          if (!g) groups.set(group, (g = { codes: [], words: [] }));
+          let gi = g.codes.indexOf(code);
+          if (gi < 0) gi = g.codes.push(code) - 1;
+          g.words.push(book, doc.chapter, word[0], word[1], lemma, gi);
+        }
         report.words++;
       }
     }
@@ -882,6 +901,7 @@ export function greekSearchIndex(docs, strongs, bookOrder, glossesFor = () => ({
   const lemmas = [];
   const shards = new Map();
   for (let i = 0; i < SEARCH_SHARDS; i++) shards.set(searchShardName(i), {});
+  const ids = new Map(names.map((lemma, id) => [lemma, id]));
   names.forEach((lemma, id) => {
     const e = byLemma.get(lemma);
     const also = (strongs.get(lemma) ?? []).filter((k) => k !== e.strong);
@@ -901,9 +921,23 @@ export function greekSearchIndex(docs, strongs, bookOrder, glossesFor = () => ({
     // Trailing empty fields are left off; the reader treats a missing one as empty.
     while (entry.length > 5 && isEmptyField(entry[entry.length - 1])) entry.pop();
     lemmas.push(entry);
-    shards.get(searchShardName(id))[id] = [e.exact, e.occ];
+    shards.get(searchShardName(id))[id] = [e.exact, e.occ, e.codes];
   });
-  return { lemmas: { format: 1, shards: SEARCH_SHARDS, lemmas }, shards, report };
+  const parseGroups = new Map();
+  const counts = {};
+  for (const name of [...groups.keys()].sort(byCodePoint)) {
+    const { codes, words } = groups.get(name);
+    for (let i = 4; i < words.length; i += 6) words[i] = ids.get(words[i]);
+    parseGroups.set(name, { format: GREEK_PARSE_FORMAT, codes, occ: words });
+    counts[name] = words.length / 6;
+  }
+  return {
+    lemmas: { format: GREEK_SEARCH_FORMAT, shards: SEARCH_SHARDS, lemmas },
+    shards,
+    parseIndex: { format: GREEK_PARSE_FORMAT, groups: counts },
+    parseGroups,
+    report,
+  };
 }
 
 /** TBESG's Greek field can list forms ("α, Ἀλφα"); the headword is the first. */

@@ -16,8 +16,8 @@
 //            (agreuō = agreuo, Christos = Khristos = xristos) and as an
 //            English lexicon gloss ("faith" finds πίστις).
 //
-// The index (public/greek/search/lemmas.json, format 1) is
-//   { format: 1, shards: 64, lemmas: [entry, …] }
+// The index (public/greek/search/lemmas.json, format 2) is
+//   { format: 2, shards: 64, lemmas: [entry, …] }
 // where an entry is
 //   [lemma, strong | null, gloss | null, count, forms, also?, brief?, senses?]
 // `forms` is the lemma's folded forms joined by spaces, `also` the other
@@ -25,13 +25,27 @@
 // where it differs from `gloss` (πίστις: "to believe in", brief "faith"), and
 // `senses` the heads (glossHead) of every other UBS sense gloss, joined by "|". Trailing empty fields are left off. An entry's place in
 // the list is its id. Occurrences are in public/greek/search/occ/<id % shards>.json:
-//   { "<id>": [[form, …], [book, chapter, verse, t, formIndex, …]] }
-// with `book` an index into BOOK_ORDER and `formIndex` into that list of
-// exact forms, in Bible order.
+//   { "<id>": [[form, …], [book, chapter, verse, t, formIndex, parseIndex, …], [code, …]] }
+// with `book` an index into BOOK_ORDER, `formIndex` into that list of exact
+// forms and `parseIndex` into the list of codes, in Bible order. A code is
+// MorphGNT's part of speech and parsing joined, ten characters ("N-----GSF-"):
+// two for the part of speech, then person, tense, voice, mood, case, number,
+// gender and degree, a dash for what a word lacks. Each lemma lists only the
+// codes its own words take, in order of first appearance.
+//
+// A search with no word in it ("every aorist imperative") has the parse groups:
+// every word of one kind in one file, in Bible order, found by parseGroup.
+//   search/parse.json         { format: 1, groups: { "<group>": wordCount, … } }
+//   search/parse/<group>.json { format: 1, codes: [code, …],
+//                               occ: [book, chapter, verse, t, lemmaId, codeIndex, …] }
+// with `lemmaId` the lemma's place in lemmas.json and `codeIndex` into that
+// group's `codes`.
 
 import { levenshtein } from "./levenshtein.mjs";
 
-export const GREEK_SEARCH_FORMAT = 1;
+export const GREEK_SEARCH_FORMAT = 2;
+/** The format of search/parse.json and of each search/parse/<group>.json. */
+export const GREEK_PARSE_FORMAT = 1;
 
 /* ── Folding ─────────────────────────────────────────────────────── */
 
@@ -185,7 +199,7 @@ const push = (map, key, id) => {
 /**
  * The lemma list made ready to search: each lemma with its fold, key and
  * gloss words, and maps from a folded form, a fold, a Strong's number and a
- * key to the lemmas they name. Null for anything that isn't format 1.
+ * key to the lemmas they name. Null for anything that isn't the current format.
  */
 export function prepareIndex(json) {
   if (json?.format !== GREEK_SEARCH_FORMAT || !Array.isArray(json.lemmas)) return null;
@@ -391,22 +405,71 @@ export function matchForTray(index, raw) {
 
 /* ── Occurrences ─────────────────────────────────────────────────── */
 
+/** Numbers per word in a shard entry's flat list: book, chapter, verse, t, form, parse. */
+const OCC_STRIDE = 6;
+
+/** A code ("N-----GSF-") as the part of speech and the parsing it joins. */
+export const splitCode = (code) => ({ pos: String(code ?? "").slice(0, 2), parse: String(code ?? "").slice(2) });
+
+/**
+ * The parse group a word belongs to, the name of its file in search/parse/.
+ * Lowercase, letters and one dash only, so it is safe on any filesystem and no
+ * two differ by case alone.
+ *   a verb (V-)   "v-" + tense + mood: "v-ad" aorist imperative, "v-pp"
+ *                 present participle, "v-an" aorist infinitive
+ *   other, cased  the part of speech + "-" + case: "n-g" a noun in the
+ *                 genitive, "ra-g" the article, "rp-d", "a-n"
+ *   other         the part of speech alone: "c", "d", "p", "x", "i", or "n"
+ *                 for a noun with no case
+ * Null for a word with no part of speech.
+ */
+export function parseGroup(pos, parse) {
+  const p = String(pos ?? "");
+  if (!p) return null;
+  const q = String(parse ?? "");
+  if (p === "V-") return `v-${q[1] ?? "-"}${q[3] ?? "-"}`.toLowerCase();
+  const name = p.replace(/-/g, "").toLowerCase();
+  const kase = q[4];
+  return kase && kase !== "-" ? `${name}-${kase.toLowerCase()}` : name;
+}
+
+/**
+ * A parse group's file made into its words, as
+ * [{ book, chapter, verse, t, lemmaId, pos, parse }] in Bible order. `bookKeys`
+ * is BOOK_ORDER. Null for anything that isn't the current format.
+ */
+export function decodeParseGroup(json, bookKeys) {
+  if (json?.format !== GREEK_PARSE_FORMAT || !Array.isArray(json.codes) || !Array.isArray(json.occ)) return null;
+  const { codes, occ } = json;
+  const out = [];
+  for (let i = 0; i + OCC_STRIDE - 1 < occ.length; i += OCC_STRIDE) {
+    out.push({
+      book: bookKeys[occ[i]], chapter: occ[i + 1], verse: occ[i + 2], t: occ[i + 3], lemmaId: occ[i + 4],
+      ...splitCode(codes[occ[i + 5]]),
+    });
+  }
+  return out;
+}
+
 /**
  * A lemma's occurrences from its shard entry, as
- * [{ book, chapter, verse, t, form }] in Bible order. `bookKeys` is
+ * [{ book, chapter, verse, t, form, pos, parse }] in Bible order. `bookKeys` is
  * BOOK_ORDER. `bookKey` keeps one book; `form` (a folded form) keeps only the
  * words of that form.
  */
 export function decodeOccurrences(entry, bookKeys, { bookKey = "", form = null } = {}) {
   if (!Array.isArray(entry)) return [];
-  const [forms, flat] = entry;
+  const [forms, flat, codes = []] = entry;
   const keep = form ? new Set(forms.map((f, i) => (foldGreek(f) === form ? i : -1)).filter((i) => i >= 0)) : null;
   const out = [];
-  for (let i = 0; i + 4 < flat.length; i += 5) {
+  for (let i = 0; i + OCC_STRIDE - 1 < flat.length; i += OCC_STRIDE) {
     const book = bookKeys[flat[i]];
     if (bookKey && book !== bookKey) continue;
     if (keep && !keep.has(flat[i + 4])) continue;
-    out.push({ book, chapter: flat[i + 1], verse: flat[i + 2], t: flat[i + 3], form: forms[flat[i + 4]] });
+    out.push({
+      book, chapter: flat[i + 1], verse: flat[i + 2], t: flat[i + 3], form: forms[flat[i + 4]],
+      ...splitCode(codes[flat[i + 5]]),
+    });
   }
   return out;
 }
