@@ -14,6 +14,11 @@ are recorded so they aren't re-argued.
 
 ## Where things stand (as of 2026-10-15)
 
+- **A new idea, D9: the desk as a page of its own** (BVJ, 2026-10-15),
+  after phase 3, with the LIT text as one pane rather than the page.
+  Recorded under "Across the desk"; nothing decided. It asks one thing of
+  phase 3: S1's editor built to sit inside another page.
+
 - **The tour is offered in a window beside the Notebook** (BVJ,
   2026-10-14), the first time it is expanded, with "Take the tour now,"
   "Remind me later," and "Don't show this again" (decision log, 2026-10-14,
@@ -370,7 +375,7 @@ every week.
   open in Word, Obsidian or any text editor.
 - **Paper** (N9): print any chapter with a ruled margin.
 
-## The ideas (48)
+## The ideas (49)
 
 "New" means no Bible site or tool was found doing it; "Borrowed" names the
 source. Sizes run extra small to large. Status is BVJ's decision where one was
@@ -911,6 +916,52 @@ plan as a whole was accepted; nothing was declined except where stated).
     steps, only those whose target is on the page; marked seen when it
     starts; replayed from the panel's foot, the `tour` command and the help
     page; no records written. "Order of work", 1d.
+- **D9. The desk as a page of its own.** BVJ, 2026-10-15: "After phases 1
+  to 3 are built, creating a whole page (or subdomain?) dedicated to study
+  desk, with the LIT text still available but as one thing that CAN be
+  displayed rather than the primary thing." Everything built so far sits
+  *around* the text: the chapter is the page, and the desk lives in its
+  margin. D9 turns that over for the reader who comes to prepare rather than
+  to read: a workspace whose panes are the reader's notebook, a sheet being
+  written, the Greek, search, and the LIT text as one pane among them,
+  shown, hidden or moved like the rest. Study View and the margin desk stay
+  as they are; this is a second way in, not a replacement. Borrowed (Logos
+  and Accordance workspaces; Sefaria's sheet editor with the library in a
+  side panel, the survey's "sheets as a workspace of their own"). Large.
+  **BVJ's idea, after phase 3; nothing decided.** Proposed, for when it's
+  designed:
+  - **A page, not a subdomain** (`litbible.net/desk/`, clear of book slugs
+    per W7). Browser storage belongs to one origin, so `desk.litbible.net`
+    would open with an empty notebook: the reader's notes, highlights,
+    places and Display settings all live in litbible.net's IndexedDB and
+    `localStorage`, and a chosen file (D1) is granted to one origin too.
+    Until sync exists (phase 4), a subdomain would need its own way to move
+    a notebook across, and every fetch of `/greek/`, `/search/` and the
+    chapter data would cross origins. The sync service's own subdomain is a
+    different thing: it holds no browser state. A page gets the separate
+    feel from its name and layout.
+  - **The LIT pane is the Study View text, not a third rendering.** The
+    page's text has to match Study View's character for character, or
+    marks can't be placed (`test/desk-anchor-dom.test.js` holds the two
+    views to that). The handout already fetches a chapter's Study View page
+    to read its notes from Read View, so the pane can do the same: fetch
+    the built page and take its paragraphs, footnotes and term-lens data.
+    If a third render path is ever added, it joins that test's sweep.
+  - **Most panes exist already** as modules: the Greek tab, "This verse",
+    the notebook search, the notebook page's lists. The one that doesn't is
+    the sheet editor, so **phase 3 should build S1's editor to work inside
+    another page**, not only at `/sheets/`, or D9 means building sheets
+    twice. That is the one thing D9 asks of the phases before it.
+  - **Rules it inherits**: desktop only (ground rule 1); noindex (C21);
+    the reader's words never look like the translation (ground rule 3),
+    which matters more when the text is one pane among the reader's own;
+    the SBLGNT notice on any page that prints the translation, and the
+    Greek pane's licenses; and a line in CLAUDE.md's Study View/Read View
+    rule, since it is a third view with its own answer to "what goes here".
+  - **Open for BVJ**: which panes, and whether the layout is remembered;
+    whether the LIT pane holds a chapter or a whole book; whether sheets
+    live only here or at `/sheets/` too; whether the margin desk on Study
+    View stays as full as it is once this exists.
 - **M1. Hide my notes, in one keystroke.** A switch with a shortcut that hides
   every note, highlight and mark at once, for sharing a screen or teaching
   from Study View. N8 makes it matter. Present mode already leaves notes out.
@@ -3905,7 +3956,9 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
    its link and the commercial check (S7), and the Word copy (S9); then
    printed codes (S5), present mode with the presenter view and room code (S6,
    M2, M3), sheets from searches and templates (M5, M9), annotated printing
-   (M6) and shared links (S8). Large.
+   (M6) and shared links (S8). Large. **Build S1's editor so it can sit
+   inside another page** (proposed 2026-10-15), so D9, the desk as a page
+   of its own, doesn't mean building sheets twice.
 4. **Sync, with BDR.** Starts once plan A or C is chosen and, if the Zoom
    wants plan A tested, the proofs (P1 to P3, now the spikes, paused
    2026-10-09) are in. Under both plans: a sync loop on 1a's merge engine, one source
