@@ -453,7 +453,7 @@ export function changeVerses(change) {
 }
 
 /** The day (YYYY-MM-DD) the record's text was taken, or null. */
-function textDay(record) {
+export function textDay(record) {
   const v = /^v(\d{4})(\d{2})(\d{2})\.[0-9a-f]+$/.exec(record?.contentVersion ?? "");
   if (v) return `${v[1]}-${v[2]}-${v[3]}`;
   for (const t of [record?.verseCopyAsOf, record?.created]) {

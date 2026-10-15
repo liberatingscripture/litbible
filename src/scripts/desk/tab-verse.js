@@ -19,6 +19,10 @@
 // follow the verse numbers the page has. They leave the page where it is: the
 // reader is looking at the verse in the panel, not moving through the text.
 //
+// Your own chains (N4): a reference typed in a note is a link, and this tab
+// lists the notes of the reader's that cite the verse shown, "Mentioned in
+// your note on Romans 8:3–4", with the note's words and a way to its place.
+//
 // A note or highlight whose wording has changed (change-notice.js) carries
 // the same flag as in My Notes, "Wording changed · Review", under its words,
 // which opens the card beside it.
@@ -28,14 +32,16 @@
 // it has there (pins.js). Nothing here adds to or changes
 // the scripture on the page.
 
+import { notesCiting } from "../../lib/desk-chains.mjs";
 import { shortQuote } from "../../lib/desk-notes.mjs";
 import { COLORS, verseCopyFor } from "../../lib/desk-records.mjs";
-import { forChapter, recordReference } from "../../lib/desk-store-core.mjs";
+import { forChapter, recordHref, recordReference } from "../../lib/desk-store-core.mjs";
 import { adjacentVerse, recordsOnVerse } from "../../lib/desk-verse.mjs";
 import { W, flattenWords } from "../../lib/desk-greek.mjs";
 import { verseAtReadingLine } from "../last-read.js";
 import { flagButton, noticesFor, openNotice } from "./change-notice.js";
 import { glyph } from "./glyphs.js";
+import { fillNoteWords } from "./note-words.js";
 import { loadChapterGreek } from "./greek-data.js";
 import { undoEntry } from "./history.js";
 import { chapterText } from "./page.js";
@@ -94,6 +100,10 @@ export function createVerseTab({ store, here, visible, panelOpen, onEdit = null,
       <ul class="desk-verse__mine"></ul>
       <p class="desk-verse__empty" hidden>No notes of yours on this verse.</p>
       <button type="button" class="desk-verse__add">Add a note</button>
+    </section>
+    <section class="desk-verse__section desk-verse__chains" aria-labelledby="deskVerseChainsTitle" hidden>
+      <h4 class="desk-verse__subhead" id="deskVerseChainsTitle">Notes that cite this verse</h4>
+      <ul class="desk-verse__mentions"></ul>
     </section>`;
 
   const heading = el.querySelector(".desk-verse__ref");
@@ -105,6 +115,8 @@ export function createVerseTab({ store, here, visible, panelOpen, onEdit = null,
   const mine = el.querySelector(".desk-verse__mine");
   const empty = el.querySelector(".desk-verse__empty");
   const add = el.querySelector(".desk-verse__add");
+  const chainsSection = el.querySelector(".desk-verse__chains");
+  const mentions = el.querySelector(".desk-verse__mentions");
   const steps = Array.from(el.querySelectorAll(".desk-verse__step"));
   add.hidden = !onAddNote || !store;
 
@@ -154,6 +166,46 @@ export function createVerseTab({ store, here, visible, panelOpen, onEdit = null,
     notices = store && ctx ? noticesFor(on) : new Map();
     mine.replaceChildren(...on.map(itemFor));
     empty.hidden = on.length > 0;
+
+    // Notes anywhere in the notebook that cite this verse in their words.
+    const cited = store ? notesCiting(await store.all(), { bookKey: here.bookKey, chapter: here.chapter, verse: v }) : [];
+    if (n !== seq) return;
+    mentions.replaceChildren(...cited.map(({ record }) => mentionItem(record)));
+    chainsSection.hidden = cited.length === 0;
+  }
+
+  /**
+   * One note that cites the verse: where it is, linked (to its place in the
+   * margin when that is on this page, else to the page), then its words,
+   * whose own references link and preview like the note's anywhere else.
+   */
+  function mentionItem(r) {
+    const li = document.createElement("li");
+    li.className = "desk-verse__mention";
+    const where = recordReference(r);
+    const lead = document.createElement("p");
+    lead.className = "desk-verse__mention-lead";
+    lead.append("Mentioned in your note on ");
+    const href = recordHref(r);
+    const place = document.createElement(href ? "a" : "span");
+    place.className = "desk-verse__mention-ref";
+    place.textContent = where || "this notebook";
+    if (href) {
+      place.href = href;
+      if (goHere?.can(r)) {
+        place.addEventListener("click", (e) => {
+          if (e.ctrlKey || e.metaKey || e.shiftKey || e.button !== 0) return;
+          e.preventDefault();
+          goHere.go(r);
+        });
+      }
+    }
+    lead.append(place, ".");
+    const words = document.createElement("p");
+    words.className = "desk-verse__mention-words";
+    fillNoteWords(words, r.body);
+    li.append(lead, words);
+    return li;
   }
 
   /**
@@ -245,18 +297,30 @@ export function createVerseTab({ store, here, visible, panelOpen, onEdit = null,
     }
     if (r.kind === "highlight") return flagged(highlightItem(li, r), r);
     // The note goes to its place in the margin, as it does in My Notes.
+    // Its words may hold links, which can't sit inside a button: the note's
+    // own button is its marker, stretched over the row (desk-stretch), with
+    // the words' links lifted above it.
     const canGo = Boolean(goHere?.can(r));
-    const note = document.createElement(canGo ? "button" : "span");
-    if (canGo) {
-      note.type = "button";
-      note.addEventListener("click", () => goHere.go(r));
-    }
+    const note = document.createElement("div");
     note.className = "desk-verse__note";
-    note.innerHTML = glyph(r.marker, "desk-glyph desk-verse__glyph");
+    const mark = glyph(r.marker, "desk-glyph desk-verse__glyph");
     const words = document.createElement("span");
     words.className = "desk-verse__words";
-    // A note's body is the reader's own words: always text, never HTML.
-    words.textContent = r.body || "(the marker only)";
+    fillNoteWords(words, r.body, "(the marker only)");
+    if (canGo) {
+      note.classList.add("desk-stretch", "desk-verse__note--go");
+      const go = document.createElement("button");
+      go.type = "button";
+      go.className = "desk-verse__go";
+      words.id = `deskVerseWords-${r.id}`;
+      go.setAttribute("aria-label", `Show my note on ${recordReference(r) || ref(verse)} in the margin`);
+      go.setAttribute("aria-describedby", words.id);
+      go.innerHTML = mark;
+      go.addEventListener("click", () => goHere.go(r));
+      note.append(go);
+    } else {
+      note.innerHTML = mark;
+    }
     note.append(words);
     li.append(note);
     if (onEdit) {

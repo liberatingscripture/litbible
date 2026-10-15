@@ -9,12 +9,8 @@
 // either of them meets the notebook.
 //
 // Everything happens in this browser. The notebook is read straight out of
-// IndexedDB and searched here (src/lib/desk-search.mjs); the query is never
-// sent anywhere. The database is opened read-only and is never created from
-// here: a reader who has not written anything yet has no `lit-desk` database,
-// and a search must not make one (store.js owns its creation and upgrades). A
-// page that also runs the desk's shell has the database open already, and the
-// two simply share it.
+// IndexedDB (readonly-notebook.js, which never creates the database) and
+// searched here (src/lib/desk-search.mjs); the query is never sent anywhere.
 //
 // What the reader wrote is only ever drawn as text (nodes built with
 // textContent), never as HTML.
@@ -24,6 +20,7 @@ import { isCommandQuery, matchCommands } from "../../lib/desk-commands.mjs";
 import { notebookSearchHref, searchNotebook } from "../../lib/desk-search.mjs";
 import { readingSurface } from "../desk-frame.js";
 import { greekChapter, pageChapter } from "./page.js";
+import { readRecords } from "./readonly-notebook.js";
 
 export { isCommandQuery };
 
@@ -31,9 +28,6 @@ export { isCommandQuery };
 export const TRAY_LIMIT = 4;
 /** How many /search shows before "Show N more". */
 const PAGE_LIMIT = 10;
-
-const DB_NAME = "lit-desk";
-const RECORDS = "records";
 
 /* ── Styles ──────────────────────────────────────────────────────────── */
 
@@ -46,62 +40,6 @@ function ensureStyles() {
   style.setAttribute("data-desk-search", "");
   style.textContent = deskCss;
   document.head.append(style);
-}
-
-/* ── Reading the notebook ────────────────────────────────────────────── */
-
-let connection = null;
-
-/**
- * The notebook's database if it exists, or null. Opening without a version
- * and aborting the upgrade that fires when there is nothing to open is how
- * "open it if it's there" is asked of IndexedDB without creating it.
- */
-function openExisting() {
-  if (!globalThis.indexedDB) return Promise.resolve(null);
-  return new Promise((resolve) => {
-    let request;
-    try {
-      request = indexedDB.open(DB_NAME);
-    } catch (_) {
-      resolve(null);
-      return;
-    }
-    request.onupgradeneeded = () => request.transaction.abort();
-    request.onsuccess = () => {
-      const db = request.result;
-      if (!db.objectStoreNames.contains(RECORDS)) {
-        db.close();
-        resolve(null);
-        return;
-      }
-      // A newer site opening the database in another tab waits for this one.
-      db.onversionchange = () => {
-        db.close();
-        connection = null;
-      };
-      resolve(db);
-    };
-    request.onerror = () => resolve(null);
-    request.onblocked = () => resolve(null);
-  });
-}
-
-async function readRecords() {
-  connection ||= await openExisting();
-  if (!connection) return [];
-  try {
-    const tx = connection.transaction(RECORDS, "readonly");
-    return await new Promise((resolve, reject) => {
-      const all = tx.objectStore(RECORDS).getAll();
-      all.onsuccess = () => resolve(all.result ?? []);
-      all.onerror = () => reject(all.error);
-    });
-  } catch (_) {
-    // A connection closed by a version change, or a browser that refuses.
-    connection = null;
-    return [];
-  }
 }
 
 // "Hide my notes" (M1) as it stands in the saved settings. note-settings.js

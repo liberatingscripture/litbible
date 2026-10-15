@@ -10,6 +10,10 @@
 // every reader download the desk's styles.
 import deskCss from "../../styles/desk.css?inline";
 import { webClient } from "../../lib/desk-store-core.mjs";
+// Previews for the references in a reader's notes (N4). Study View, intros,
+// articles and the glossary load it already; Read View and the notebook page
+// don't, and a module loads once wherever it is asked for.
+import "../ref-preview.js";
 
 // Stamped at build by Layout.astro (src/lib/content-version.mjs, which reads
 // the file system and so can't be imported here).

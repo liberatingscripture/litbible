@@ -12,7 +12,15 @@ conversations that produced it.
 Many ideas here were weighed and decided, some were declined, and the reasons
 are recorded so they aren't re-argued.
 
-## Where things stand (as of 2026-10-14)
+## Where things stand (as of 2026-10-15)
+
+- **Phase 2a: B3 and N4 are built on the preview, and M10 is shelved**
+  (2026-10-15). What's new for you (B3) and your own chains (N4) are in the
+  tree; your notebook where you already look (M10) was built the same day
+  and then shelved by BVJ, its code kept on `claude/desk-2a-m10`.
+  Construction search and searching by parsing, 2a's larger part, are not
+  started. Defaults for BVJ to judge are under "Still
+  open" ("Phase 2a's defaults"); "Order of work", 2a, has what was built.
 
 - **Phase 2 is split into 2a, 2b and 2c, and phase 3 follows 2a**
   (BVJ, 2026-10-14): 2a is B3, N4, M10, construction search and
@@ -404,7 +412,8 @@ plan as a whole was accepted; nothing was declined except where stated).
   preview through the same linker the footnotes use (`linkScriptureRefs` is
   pure and can run in the browser), and the cited verse shows "Mentioned in
   your note on Romans 8:3–4." Borrowed (Thompson Chain-Reference, Obsidian).
-  Medium. Proposed.
+  Medium. Proposed. **Built on the preview 2026-10-15** (phase 2a; "Order of
+  work", 2a).
 - **N5. A history with a passage.** Dated notes shown in order on a passage
   you keep returning to: "You first wrote here in March 2025." Suits spiritual
   direction. New. Small. Proposed.
@@ -509,7 +518,9 @@ plan as a whole was accepted; nothing was declined except where stated).
   N3's comparison. New. Small. Proposed. The mock used three real changes:
   Romans 4:6–9 (Sep 3, "Gratified" → "How greatly fortunate"), Galatians 3:27
   (Aug 21, "submersed" → "immersed"), Romans 8:28 (Aug 3, "intention." →
-  "intention, for what's beneficial.").
+  "intention, for what's beneficial."). **Built on the preview 2026-10-15**
+  (phase 2a; "Order of work", 2a); run against the real feed, it finds those
+  same three changes.
 - **B4. Your marks beside the scrollbar.** In Read View, small ticks beside
   the scrollbar show your places, and your highlights when Read View's
   highlights are on. **No ticks for notes**, since Read View doesn't show them
@@ -910,6 +921,9 @@ plan as a whole was accepted; nothing was declined except where stated).
 - **M10. Your notebook where you already look.** A "Verses in my notebook"
   filter on /release-notes; your note on a term on its /glossary entry; a
   "Your notes here" row in Go deeper. New. Extra small. **Decided: yes.**
+  **Built 2026-10-15, then shelved by BVJ the same day** ("Decisions",
+  2026-10-15). All three parts are on branch `claude/desk-2a-m10` (commit
+  324f936), not in the tree; "Order of work", 2a, says how they worked.
 - **M12. A help page, a quiet launch, and a way to say what's missing.** The
   help page is D6's "Ways to keep your notebook", plus how to back up, how to
   delete everything, and **a link to the license terms** for anything a
@@ -3721,6 +3735,69 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      already hold and writes no new kind of record, so it can be taken out
      again cleanly. B3, N4 and M10 are small; the query language and its
      page are the larger part.
+     - **Built on the preview 2026-10-15: B3 and N4. M10 was built and
+       shelved** (BVJ, 2026-10-15; its code is on `claude/desk-2a-m10`).
+       Construction search and searching by parsing are not started. Neither
+       piece writes a record; the only thing stored is a notebook meta value,
+       `whatsNewSeen`, and a session cache of the feed.
+       - **B3, what's new for you.** `src/lib/desk-whats-new.mjs` (pure)
+         narrows release-notes.json to the reader's marked verses, using
+         the change notice's own verse parsing (`changeVerses`), so the two
+         can't disagree. Marks counted: notes on verses, highlights,
+         bookmarks, pinned footnotes and ribbons. Changes counted: wording
+         (`text_updated`) and footnotes (`footnote_added`,
+         `footnote_updated`). A change counts for a mark only when it was
+         published on or after the day the mark's text was taken. Shown as
+         a "What's new for you" section on `/notebook/#whats-new`
+         (`desk/whats-new.js`; ten publishes, then "Show more"; "New" on
+         publishes after the day last looked) and as one line in My Notes
+         ("Two changes since your last visit touch your verses") linking
+         there. "Last looked" is the newest feed date seen
+         (`whatsNewSeen` in the notebook's meta), not the clock. The feed is
+         fetched once per tab (`desk/release-feed.js`,
+         `sessionStorage['lit-desk-release-feed']`, keyed by content
+         version), and the change notice now shares it.
+       - **N4, your own chains.** `src/lib/desk-chains.mjs` (pure): a note's
+         body is escaped, then passed through `linkScriptureRefs`, so a
+         typed reference links and previews exactly as a footnote's does
+         (Hebrew Bible to Sefaria, apocrypha to eBible.org, neither counted
+         as a chain). Every place the desk draws a note's body uses it
+         (`desk/note-words.js`). Since a link can't sit inside a button, a
+         note's own control is now its marker's button or link, stretched
+         over the row, with the words' links lifted above it. The This verse
+         tab gains "Notes that cite this verse": "Mentioned in your note on
+         Romans 8:3–4." `boot.js` imports `ref-preview.js`, so previews work
+         on /notebook/ and Read View too.
+       - **M10, where you already look: shelved, not in the tree.** As
+         built on `claude/desk-2a-m10`:
+         - `/release-notes`: a "Verses in my notebook" checkbox, only with
+           the preview on and only for a reader with a mark on a verse
+           (`desk/release-notes-filter.js`, loaded by `desk-gate.js` on
+           `[data-release-notes]`). `release-notes.js` knows nothing of the
+           notebook: any `input[data-rn-flag="x"]` in its form filters on a
+           row's `data-rn-x`. The notebook is read read-only
+           (`desk/readonly-notebook.js`, shared with the notebook search),
+           so the page never creates the database.
+         - `/glossary`: "My notes on this term" under an entry, for notes on
+           verses whose quoted words contain the rendering printed in a
+           verse the entry lists (`src/lib/desk-term-notes.mjs`,
+           `desk/term-notes.js`). Whole-verse notes don't count. The words
+           come from the page's own "Where it appears" links, which carry
+           `data-words` where the printed words differ from the rendering's
+           label (about 1,450 attributes, for every reader).
+         - Go deeper: a "Your notes here" row (`src/lib/desk-go-deeper.mjs`,
+           `desk/go-deeper-notes.js`) with the reader's notes on the
+           glossary entries and articles the section lists, and notes
+           elsewhere citing this chapter (N4). Its look restates
+           GoDeeper.astro's scoped styles in desk.css.
+         - Both follow "My notes" and "Hide my notes". The reader's words
+           there use a new indigo token, `--desk-mine` (desk.css), the
+           first use of principle 3's colour.
+         - To bring it back: cherry-pick b1c461a from the branch and
+           restore the filter's
+           hunks of 75795bd (`release-notes-filter.js`, `desk-gate.js`,
+           `release-notes.js`, `release-notes.astro`, and
+           `notebookChangeKeys` in `desk-whats-new-view.mjs`).
    - **2b, text checked before printing** (S2), on the same comparison.
      Small.
    - **2c, the rest**: notes that follow a word and concept marks saved as
@@ -4656,6 +4733,16 @@ The first five confirm what the preview already does.
   on the draft page with nothing to show; it now opens the Greek at the word
   (`greek-link.js` already works wherever the panel offers Greek).
 
+### 2026-10-15 (M10 shelved)
+
+- **M10, "your notebook where you already look", is shelved** (BVJ,
+  2026-10-15), after it was built on the preview the same day: the
+  "Verses in my notebook" filter on /release-notes, "My notes on this
+  term" under a /glossary entry, and "Your notes here" in Go deeper. The
+  code is kept on branch `claude/desk-2a-m10` and taken out of the tree,
+  so /glossary no longer carries the `data-words` attributes it needed.
+  B3 and N4 stay. No reason was recorded.
+
 ### 2026-10-14 (phase 2 split into 2a, 2b and 2c)
 
 - **Phase 2 is split three ways** ("Order of work", 2). **2a** is the
@@ -4833,6 +4920,17 @@ The first five confirm what the preview already does.
 - ~~**1g and 1h, to explore before phases 2 and 3**~~: **explored**
   (BVJ, 2026-10-13). 1g is shelved for the future; 1h is planned, to
   build. See "Order of work", 1g and 1h.
+- **Phase 2a's defaults** (built 2026-10-15 on recommendations; "Order of
+  work", 2a). For BVJ to judge on the preview:
+  1. **B3**: before the reader first opens `/notebook/`, nothing is marked
+     New and the panel's line leaves out "since your last visit". "Last
+     looked" is the newest release note's date seen, not the clock.
+  2. **N4's links are in the text green, underlined**; the margin's note
+     text stays `--text`. Principle 3's indigo has no token in the tree
+     (the shelved M10 had added `--desk-mine`).
+  3. **N4's section title** is "Notes that cite this verse", and the change
+     notice's card links references too.
+  (M10's own defaults went with it to `claude/desk-2a-m10`.)
 - ~~**Phase 1h's defaults**~~: **accepted** (BVJ, 2026-10-13). (Built 2026-10-13 on recommendations; "Order of
   work", 1h, "Built"): the lemma line's gloss taken from STEPBible's brief
   lexicon; English matching whole glosses of other UBS senses; the

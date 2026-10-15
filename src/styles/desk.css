@@ -388,7 +388,7 @@ a.desk-item__ref:hover {
   text-decoration: none;
 }
 
-a.desk-item__note:hover {
+.desk-item__note--go:hover {
   background: rgba(var(--ink-rgb), 0.05);
 }
 
@@ -699,8 +699,8 @@ html[data-desk-list="full"] .desk-item__note .desk-item__words {
   gap: 8px;
 }
 
-/* The note is a button when it can go to its place in the margin, a plain
-   span when it can't. */
+/* The note has a button (its marker, stretched over the row) when it can go
+   to its place in the margin, and is plain when it can't. */
 .desk-verse__note {
   display: flex;
   gap: 8px;
@@ -714,11 +714,7 @@ html[data-desk-list="full"] .desk-item__note .desk-item__words {
   text-align: left;
 }
 
-button.desk-verse__note {
-  cursor: pointer;
-}
-
-button.desk-verse__note:hover .desk-verse__words {
+.desk-verse__note--go:hover .desk-verse__words {
   text-decoration: underline;
 }
 
@@ -1004,6 +1000,108 @@ html[data-desk-note-font="plain"] .desk-note-pop {
 
 .desk-ribbon__glyph path {
   fill: #c62828;
+}
+
+/* Your own chains (N4). A scripture reference typed in a note is a link
+   (note-words.js), and a link can't sit inside a button or another link, so a
+   row's own control is its marker's button or link, stretched over the row by
+   a pseudo-element, and the words' links sit above it (z-index). A click on
+   the text is the row's, a click on a reference is the reference's. */
+.desk-stretch {
+  position: relative;
+  cursor: pointer;
+}
+
+.desk-note__hit,
+.desk-verse__go,
+.desk-item__go {
+  display: block;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.desk-stretch > :is(.desk-note__hit, .desk-verse__go, .desk-item__go)::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+/* The ring goes round the whole row, where the click lands. */
+:is(.desk-note__hit, .desk-verse__go, .desk-item__go):focus-visible {
+  outline: none;
+}
+
+:is(.desk-note__hit, .desk-verse__go, .desk-item__go):focus-visible::after {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+  border-radius: 6px;
+}
+
+/* In the green the desk's other links wear, underlined so they read as links
+   in text that is otherwise plain. */
+.desk-chain-text a {
+  position: relative;
+  z-index: 1;
+  color: var(--green-text);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+  cursor: pointer;
+}
+
+.desk-chain-text a:hover {
+  text-decoration-thickness: 2px;
+}
+
+.desk-chain-text a:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+  border-radius: 2px;
+}
+
+/* "Mentioned in your note on Romans 8:3–4", in This verse. */
+.desk-verse__mentions {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.desk-verse__mention {
+  padding-left: 10px;
+  border-left: 2px solid rgba(var(--ink-rgb), 0.15);
+}
+
+.desk-verse__mention-lead {
+  margin: 0;
+  color: rgba(var(--ink-rgb), 0.7);
+  font-size: 0.8125rem;
+}
+
+.desk-verse__mention-ref {
+  color: var(--green-text);
+  font-weight: 600;
+}
+
+a.desk-verse__mention-ref {
+  text-decoration: none;
+}
+
+a.desk-verse__mention-ref:hover {
+  text-decoration: underline;
+}
+
+.desk-verse__mention-words {
+  margin: 2px 0 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
 /* A circle's note, opened like a footnote (the shared panel places it). */
@@ -3800,3 +3898,79 @@ html[data-desk-list="full"] .desk-item__pin-text {
 .desk-verse__gw:hover {
   background: rgba(var(--ink-rgb), 0.08);
 }
+
+/* What's new for you (whats-new.js): the notebook page's section, the
+   panel's one line. */
+.desk-mine__whatsnew {
+  margin: 10px 4px 2px;
+  font-size: 0.8125rem;
+}
+
+.desk-mine__whatsnew a {
+  color: var(--green-text);
+}
+
+.desk-mine__whatsnew[hidden] {
+  display: none;
+}
+
+.desk-wn__status {
+  margin: 0 0 0.5rem;
+  max-width: calc(60 * var(--ch));
+}
+
+.desk-wn__publish {
+  margin: 0 0 1.25rem;
+}
+
+.desk-wn__date {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  margin-top: 1.1rem;
+}
+
+.desk-wn__date a {
+  color: inherit;
+}
+
+.desk-wn__new {
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--green-deep);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.desk-wn__changes {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.desk-wn__change {
+  margin: 0 0 0.75rem;
+  max-width: calc(60 * var(--ch));
+}
+
+.desk-wn__what {
+  color: var(--text);
+}
+
+.desk-wn__marks {
+  margin: 2px 0 0;
+  font-size: 0.875rem;
+  color: rgba(var(--ink-rgb), 0.75);
+}
+
+.desk-wn__marks a {
+  color: var(--green-text);
+}
+
+.desk-wn__more {
+  margin-top: 0.25rem;
+}
+

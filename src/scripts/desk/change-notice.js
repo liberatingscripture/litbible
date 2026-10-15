@@ -42,9 +42,11 @@ import { canEdit, compareContentVersions, proseTarget } from "../../lib/desk-rec
 import { recordReference } from "../../lib/desk-store-core.mjs";
 import { closePanel, showPanel } from "../lit-panel.js";
 import { glyph } from "./glyphs.js";
+import { fillNoteWords } from "./note-words.js";
 import { undoEntry } from "./history.js";
 import { prosePage, targetOf } from "./note-sources.js";
 import { chapterTextFor, footnoteList, pageChapter } from "./page.js";
+import { loadReleaseNotes } from "./release-feed.js";
 import { announce, showUndo } from "./undo-bar.js";
 
 /** The content version of the text this page is showing. */
@@ -229,16 +231,6 @@ export function flagButton(record, notice, open) {
 
 /* ── What the notice says about itself ───────────────────────────── */
 
-let releaseNotes = null;
-
-/** The release notes, fetched once per page and only when a card asks; null if they can't be had. */
-function loadReleaseNotes() {
-  releaseNotes ??= fetch("/api/data/release-notes.json")
-    .then((res) => (res.ok ? res.json() : null))
-    .catch(() => null);
-  return releaseNotes;
-}
-
 /** The newest published version, for two publishes on one day; null when it can't be had. */
 async function liveVersion() {
   try {
@@ -355,7 +347,7 @@ export function openNotice(trigger, record, { store, ctx, showInText = null, res
   }
   if (ref) mark.append(" · ", el("span", "desk-notice__ref", ref));
   panel.append(mark);
-  if (record.kind === "note" && record.body) panel.append(el("p", "desk-notice__body", record.body));
+  if (record.kind === "note" && record.body) panel.append(fillNoteWords(el("p", "desk-notice__body"), record.body));
 
   panel.append(el("p", "desk-notice__text", words.text));
 
