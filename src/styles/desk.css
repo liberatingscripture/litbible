@@ -3982,3 +3982,161 @@ html[data-desk-list="full"] .desk-item__pin-text {
   font-size: 0.95rem;
   cursor: pointer;
 }
+
+/* ── M10: your notebook where you already look ── */
+
+/* The reader's words wear indigo, never the site's green (STUDY-DESK.md,
+   "Principles", 3). Declared in the site's usual three places. */
+:root {
+  --desk-mine: #3f419e;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --desk-mine: #a9acf5;
+  }
+}
+
+:root[data-theme="dark"] {
+  --desk-mine: #a9acf5;
+}
+
+/* "My notes on this term", under a /glossary entry's definition
+   (src/scripts/desk/term-notes.js). Sizes are em, so they grow with the
+   glossary's reading text size. */
+.desk-term-notes {
+  max-width: 44em;
+  margin-top: 1.15rem;
+  padding: 0.1rem 0 0.1rem 0.9rem;
+  border-left: 3px solid var(--desk-mine);
+}
+
+html[data-desk] .desk-term-notes {
+  max-width: none;
+}
+
+.desk-term-notes__title {
+  margin: 0 0 0.5rem;
+  color: var(--desk-mine);
+  font: inherit;
+  font-size: 0.8em;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.desk-term-notes__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.desk-term-notes__item + .desk-term-notes__item {
+  margin-top: 0.8rem;
+}
+
+.desk-term-notes__ref {
+  color: var(--desk-mine);
+  font-weight: 600;
+}
+
+.desk-term-notes__quote {
+  margin-left: 0.6em;
+  color: rgba(var(--ink-rgb), 0.7);
+  font-size: 0.875em;
+  overflow-wrap: anywhere;
+}
+
+/* Plain text, line breaks kept, as everywhere the reader's words are shown. */
+.desk-term-notes__body {
+  margin: 0.2rem 0 0;
+  font-size: 0.95em;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.desk-term-notes__body a {
+  color: var(--desk-mine);
+}
+
+/* Go deeper's "Your notes here" row (src/scripts/desk/go-deeper-notes.js).
+   Go deeper's own styles are scoped to the markup Astro renders, so this
+   restates the look of its rows and lists for the elements made here; keep it
+   in step with src/components/GoDeeper.astro. Go deeper is hidden in print
+   already. */
+.go-deeper__row--notes {
+  display: grid;
+  grid-template-columns: 7.5rem 1fr;
+  gap: 4px 16px;
+  padding: 10px 0 12px;
+  border-top: 1px solid rgba(var(--ink-rgb), 0.1);
+}
+
+.go-deeper__row--notes dt {
+  padding-top: 0.2em;
+  color: var(--desk-mine);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.go-deeper__row--notes dd {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.go-deeper__row--notes .go-deeper__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.go-deeper__row--notes .go-deeper__list li + li {
+  margin-top: 8px;
+}
+
+.go-deeper__row--notes a {
+  color: var(--desk-mine);
+}
+
+.go-deeper__row--notes .go-deeper__excerpt {
+  display: block;
+  font-size: 0.9rem;
+  color: rgba(var(--ink-rgb), 0.75);
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 560px) {
+  .go-deeper__row--notes {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* A Go deeper made here for a chapter that has none of its own: the same
+   card as GoDeeper.astro's. */
+.go-deeper--made {
+  margin: 28px 0 8px;
+  padding: 18px 20px 6px;
+  border-radius: 14px;
+  background: var(--surface-raised);
+  border: 1px solid rgba(var(--ink-rgb), 0.1);
+}
+
+.go-deeper--made h2 {
+  margin: 0 0 12px;
+  font-size: 1.25rem;
+  line-height: 1.2;
+  font-weight: 700;
+}
+
+.go-deeper--made .go-deeper__rows {
+  margin: 0;
+}
+
+@media print {
+  .go-deeper--made {
+    display: none !important;
+  }
+}
