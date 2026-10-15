@@ -2658,8 +2658,9 @@ collection); they're read directly by the intro pages and the API manifest.
   2026-09-28). At 640px and below the passage picker, a search button and an
   icon-only Read View link share one 44px row; search opens in place of the
   row, and its × or Escape closes it and returns focus to the button. The top
-  Previous/Next become ‹ › beside the title and keep their names ("Previous:
-  Romans 7"); the big buttons at the foot stay. Tablets (641–900px) get one
+  Previous/Next are round ‹ › buttons beside the title **at every width**
+  (owner, 2026-10-14), on the text column's own edges, and keep their names
+  ("Previous: Romans 7"); the big buttons at the foot stay. Tablets (641–900px) get one
   row with a short "Read View" label. The one-row layout hangs off
   `data-compact`, which an inline script in `ScriptureLayout.astro` sets
   while the page is still parsing, right after the toolbar, so it is in place

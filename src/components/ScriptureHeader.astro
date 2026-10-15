@@ -91,13 +91,11 @@ const headingText = !bookKey
     {
       prevHref ? (
         <a class="nav-button" href={prevHref} rel="prev" aria-label={`Previous: ${prevLabel}`}>
-          <span class="nav-button__full">◀ Previous</span>
-          <span class="nav-button__short" aria-hidden="true">‹</span>
+          <span class="nav-button__arrow" aria-hidden="true">‹</span>
         </a>
       ) : (
         <span class="nav-button nav-button--disabled" aria-disabled="true">
-          <span class="nav-button__full">◀ Previous</span>
-          <span class="nav-button__short" aria-hidden="true">‹</span>
+          <span class="nav-button__arrow" aria-hidden="true">‹</span>
         </span>
       )
     }
@@ -105,13 +103,11 @@ const headingText = !bookKey
     {
       nextHref ? (
         <a class="nav-button" href={nextHref} rel="next" aria-label={`Next: ${nextLabel}`}>
-          <span class="nav-button__full">Next ▶</span>
-          <span class="nav-button__short" aria-hidden="true">›</span>
+          <span class="nav-button__arrow" aria-hidden="true">›</span>
         </a>
       ) : (
         <span class="nav-button nav-button--disabled" aria-disabled="true">
-          <span class="nav-button__full">Next ▶</span>
-          <span class="nav-button__short" aria-hidden="true">›</span>
+          <span class="nav-button__arrow" aria-hidden="true">›</span>
         </span>
       )
     }
@@ -119,35 +115,48 @@ const headingText = !bookKey
 </header>
 
 <style>
+  /* Previous/Next are 44px round ‹ › buttons either side of the title at every
+     width (owner, 2026-10-14; first the phone layout, audit F3). The nav
+     covers the header, so the buttons sit on the edges of the text column.
+     Each keeps its accessible name ("Previous: Romans 7"); the bottom buttons
+     stay big. */
   .scripture-header {
+    position: relative;
     text-align: center;
-    margin: 20px 0 18px;
+    margin: 6px 0 10px;
   }
 
   .chapter-title {
-    font-size: 32px;
-    line-height: 1.8;
-    margin: 0 0 14px;
+    font-size: 28px;
+    line-height: 1.25;
+    margin: 0;
+    padding: 8px 52px;
     text-align: center;
   }
 
   .chapter-nav {
+    position: absolute;
+    inset: 0;
     display: flex;
-    justify-content: center;
-    gap: 10px;
-    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    pointer-events: none;
   }
 
   .nav-button {
-    padding: 10px 20px;
-    font-size: 16px;
-    border-radius: 10px;
+    pointer-events: auto;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    margin: 0;
     border: 0;
+    border-radius: 999px;
     background-color: var(--green-deep, #0f6b33);
     color: #fff;
     cursor: pointer;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-    margin: 5px;
+    font-size: 26px;
+    line-height: 1;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.18);
     transition:
       background-color 0.2s ease,
       transform 0.2s ease;
@@ -163,63 +172,22 @@ const headingText = !bookKey
   }
 
   .nav-button--disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+    visibility: hidden;
     pointer-events: none;
   }
 
-  .nav-button__short {
-    display: none;
+  .nav-button__arrow {
+    margin-top: -3px;
   }
 
-  /* Phones (audit F3): the top Previous/Next become 44px ‹ › either side of
-     the title, so the chapter starts sooner. The bottom buttons stay big.
-     Each keeps its accessible name ("Previous: Romans 7"). */
-  @media (max-width: 640px) {
+  @media (min-width: 641px) {
     .scripture-header {
-      position: relative;
-      margin: 6px 0 10px;
+      margin: 6px 0 18px;
     }
 
     .chapter-title {
-      font-size: 28px;
-      line-height: 1.25;
-      margin: 0;
-      padding: 8px 52px;
-    }
-
-    .chapter-nav {
-      position: absolute;
-      inset: 0;
-      justify-content: space-between;
-      align-items: center;
-      gap: 0;
-      pointer-events: none;
-    }
-
-    .nav-button {
-      pointer-events: auto;
-      width: 44px;
-      height: 44px;
-      padding: 0;
-      margin: 0;
-      border-radius: 999px;
-      font-size: 26px;
-      line-height: 1;
-      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.18);
-    }
-
-    .nav-button--disabled {
-      visibility: hidden;
-    }
-
-    .nav-button__full {
-      display: none;
-    }
-
-    .nav-button__short {
-      display: inline;
-      margin-top: -3px;
+      font-size: 32px;
+      line-height: 1.8;
     }
   }
 </style>
