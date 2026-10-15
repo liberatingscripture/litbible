@@ -13,7 +13,7 @@ import assert from "node:assert/strict";
 
 import {
   EDGE, GAP, MAX_MEASURE, MAX_WIDTH, MIN_HEIGHT, MIN_MEASURE, MIN_WIDTH, TAB_EDGE, TAB_GAP, TAB_WIDTH,
-  dragNotebookEdge, dragTextEdge, nextCollapsed, panelHeight, placeFloating, placeInMargin,
+  dragFloatEdge, dragNotebookEdge, dragTextEdge, floatBounds, floatWidth, nextCollapsed, panelHeight, placeFloating, placeInMargin,
   placeWithWidths, widestMeasure, widthsFromLayout,
 } from "../src/lib/desk-margin.mjs";
 
@@ -121,6 +121,35 @@ test("floating: the expanded panel takes its narrowest width at the window's edg
   const at = placeFloating(centred(885, 622));
   assert.equal(at.panel.width, MIN_WIDTH);
   assert.equal(at.panel.left + at.panel.width, 885 - EDGE);
+});
+
+test("floating: a width the reader dragged is kept, within the window", () => {
+  const m = centred(885, 622);
+  assert.equal(placeFloating({ ...m, width: 500 }).panel.width, 500);
+  assert.equal(placeFloating({ ...m, width: 500 }).panel.left, 885 - EDGE - 500);
+  assert.equal(placeFloating({ ...m, width: 100 }).panel.width, MIN_WIDTH, "never narrower than MIN_WIDTH");
+  assert.equal(placeFloating({ ...m, width: 5000 }).panel.width, 885 - 2 * EDGE, "never wider than the window less an EDGE a side");
+  assert.equal(placeFloating({ ...m, width: null }).panel.width, MIN_WIDTH);
+});
+
+test("floating: the width never moves the column or the tab", () => {
+  const m = centred(885, 787);
+  const a = placeFloating(m);
+  const b = placeFloating({ ...m, width: 600 });
+  assert.equal(b.shift, a.shift);
+  assert.deepEqual(b.tab, a.tab);
+});
+
+test("floating: dragging the left edge left widens, right narrows, within bounds", () => {
+  assert.equal(dragFloatEdge({ width: 300, dx: -100, viewport: 885 }), 400);
+  assert.equal(dragFloatEdge({ width: 300, dx: 100, viewport: 885 }), MIN_WIDTH);
+  assert.equal(dragFloatEdge({ width: 300, dx: -2000, viewport: 885 }), 885 - 2 * EDGE);
+});
+
+test("floating: a window too narrow for MIN_WIDTH leaves the panel one width", () => {
+  const { min, max } = floatBounds(250);
+  assert.equal(min, max);
+  assert.equal(floatWidth(250, 600), 250 - 2 * EDGE);
 });
 
 test("floating: the answer holds once applied", () => {

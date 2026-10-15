@@ -1649,7 +1649,7 @@ a.desk-item__highlight:hover {
 
 /* A drag keeps the resize cursor wherever the pointer strays, and selects
    no text on the way. */
-html:has(.desk-gutter--dragging) {
+html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
   cursor: col-resize;
   -webkit-user-select: none;
   user-select: none;
@@ -1664,6 +1664,85 @@ html:has(.desk-gutter--dragging) {
 @media print {
   .desk-gutters {
     display: none !important;
+  }
+}
+
+/* The floating notebook's left edge (src/scripts/desk/float-resize.js, BVJ,
+   2026-10-14): where the panel lies over the text, dragging its left edge
+   changes its width. Shown by script only while it floats expanded. Like the
+   handles above, nothing shows at rest: the resize cursor and a small grip
+   beside the pointer, and a hairline while dragging. Inside the panel, so it
+   sticks and scrolls with it; the panel's own padding keeps its contents
+   clear of the strip. */
+.desk-panel__edge {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 10px;
+  cursor: col-resize;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.desk-panel__edge[hidden] {
+  display: none;
+}
+
+/* The grip carries the keyboard focus ring, as the gutters' does. */
+.desk-panel__edge:focus-visible {
+  outline: 2px solid transparent;
+}
+
+.desk-panel__edge::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 2px;
+  background: rgba(var(--ink-rgb), 0.28);
+  opacity: 0;
+}
+
+.desk-panel__edge--dragging::before {
+  opacity: 1;
+}
+
+.desk-panel__edge-grip {
+  position: absolute;
+  left: 3px;
+  top: var(--grip-y, 50%);
+  width: 5px;
+  height: 32px;
+  border-radius: 3px;
+  transform: translateY(-50%);
+  background: rgba(var(--ink-rgb), 0.35);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 120ms ease;
+}
+
+.desk-panel__edge:hover .desk-panel__edge-grip,
+.desk-panel__edge:focus-visible .desk-panel__edge-grip,
+.desk-panel__edge--dragging .desk-panel__edge-grip {
+  opacity: 1;
+}
+
+.desk-panel__edge:focus-visible .desk-panel__edge-grip {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.desk-panel__edge--dragging .desk-panel__edge-grip {
+  background: var(--green-text);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .desk-panel__edge-grip {
+    transition: none;
   }
 }
 
