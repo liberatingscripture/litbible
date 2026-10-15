@@ -25,8 +25,6 @@ import { initPins } from "./pins.js";
 import { initRibbonFollow } from "./ribbon-follow.js";
 import { fitGlossaryTitles } from "./glossary-titles.js";
 import { createTour } from "./tour.js";
-import { createTermNotes } from "./term-notes.js";
-import { createGoDeeperNotes } from "./go-deeper-notes.js";
 import { initCommands } from "./commands.js";
 
 /**
@@ -137,12 +135,6 @@ async function start() {
   // Painted on a Study View chapter or in Read View; after initNoteSettings,
   // so the switches are already on <html>.
   if (store) createHighlights({ store });
-  // Your notebook where you already look (M10): a term's /glossary entry and
-  // a chapter's Go deeper. Each does nothing on any other page.
-  if (store) {
-    createTermNotes({ store });
-    createGoDeeperNotes({ store });
-  }
 }
 
 start();

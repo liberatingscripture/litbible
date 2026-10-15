@@ -1,8 +1,7 @@
 // src/lib/desk-whats-new.mjs
 //
-// What's new for you (STUDY-DESK.md B3) and the "Verses in my notebook"
-// filter on /release-notes (M10), phase 2a: the release notes narrowed to the
-// verses the reader has marked. Pure: release-notes.json and the notebook in,
+// What's new for you (STUDY-DESK.md B3), phase 2a: the release notes narrowed
+// to the verses the reader has marked. Pure: release-notes.json and the notebook in,
 // a list out. It reads the same feed and the same verse parsing as the change
 // notice (changeVerses in desk-change.mjs), so the two can't disagree about
 // which verses a publish touched, and it writes nothing.

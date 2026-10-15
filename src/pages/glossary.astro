@@ -42,14 +42,7 @@ type AlignmentFile = {
   records: AlignmentRecord[];
 };
 
-type OccurrenceRef = {
-  bookKey: string;
-  chapter: number;
-  verse: number;
-  /** The words as written in this verse, one entry per occurrence, but only
-   *  when some differ from the rendering's label ("left" under "leave"). */
-  written?: string[];
-};
+type OccurrenceRef = { bookKey: string; chapter: number; verse: number };
 
 type FormOccurrences = {
   label: string;
@@ -101,13 +94,7 @@ const occurrencesByTerm: Record<string, FormOccurrences[]> = (() => {
     out[id] = [...forms.entries()]
       .map(([label, occurrences]) => {
         const sorted = occurrences
-          .map(({ bookKey, chapter, verse, record }) => ({
-            bookKey,
-            chapter,
-            verse,
-            // A split rendering is one record with a piece per run of words.
-            written: (record as AlignmentRecord).english.map((piece) => piece.text).join(" … "),
-          }))
+          .map(({ bookKey, chapter, verse }) => ({ bookKey, chapter, verse }))
           .sort(
             (a, b) =>
               bookRank(a.bookKey) - bookRank(b.bookKey) ||
@@ -119,22 +106,13 @@ const occurrencesByTerm: Record<string, FormOccurrences[]> = (() => {
         // reader meeting "Romans 2:12" four times in a row reads it as a bug,
         // not as the frequency claim it actually is. The count above still
         // carries that frequency.
-        const seen = new Map<string, OccurrenceRef>();
-        const writtenIn = new Map<string, string[]>();
-        for (const r of sorted) {
+        const seen = new Set<string>();
+        const unique = sorted.filter((r) => {
           const key = `${r.bookKey}|${r.chapter}|${r.verse}`;
-          if (!seen.has(key)) seen.set(key, { bookKey: r.bookKey, chapter: r.chapter, verse: r.verse });
-          writtenIn.set(key, [...(writtenIn.get(key) ?? []), r.written]);
-        }
-        // The Study Desk matches a reader's note to the words it quotes, and
-        // the label is the grouping, not always the words printed ("leave"
-        // groups "left"). A verse is marked only when its words differ from
-        // the label, ignoring case, so most links carry nothing extra.
-        for (const [key, ref] of seen) {
-          const words = writtenIn.get(key)!;
-          if (words.some((w) => w.toLowerCase() !== label.toLowerCase())) ref.written = [...new Set(words)];
-        }
-        const unique = [...seen.values()];
+          if (seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        });
         return {
           label,
           count: sorted.length,
@@ -548,7 +526,7 @@ const menuData = {
                               data-occ-breakpoint={form.refs.length > OCC_STEP_NARROW ? String(OCC_BREAKPOINT) : undefined}
                             >
                               {form.refs.map((ref) => (
-                                <li data-words={ref.written?.join("|")}>
+                                <li>
                                   <a class="sref" href={`/${ref.bookKey}-${ref.chapter}/#v${ref.verse}`}>
                                     {bookKeyToLabel(ref.bookKey)} {ref.chapter}:{ref.verse}
                                   </a>

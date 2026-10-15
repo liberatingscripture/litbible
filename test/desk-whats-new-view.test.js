@@ -14,15 +14,12 @@ import assert from "node:assert/strict";
 import { whatsNewForYou } from "../src/lib/desk-whats-new.mjs";
 import {
   PUBLISH_LIMIT,
-  changeKey,
   hasVerseMarks,
   markLinks,
   newestDate,
-  notebookChangeKeys,
   presentWhatsNew,
   seenDay,
 } from "../src/lib/desk-whats-new-view.mjs";
-import { entryIds } from "../src/lib/release-notes-view.mjs";
 
 const change = (description, type = "text_updated") => ({ type, description });
 const entry = (date, changes) => ({ version: `v${date.replaceAll("-", "")}.00000000`, date, label: date, changes });
@@ -103,36 +100,4 @@ test("presentWhatsNew caps the publishes shown and counts the rest", () => {
   assert.equal(all.shown.length, many.length);
   assert.equal(all.hidden, 0);
   assert.deepEqual(presentWhatsNew([], null), { shown: [], hidden: 0, fresh: [] });
-});
-
-test("notebookChangeKeys keeps the changes on a marked verse, ungated by when the mark was made", () => {
-  const ids = entryIds(FEED);
-  const keys = notebookChangeKeys(FEED, [note({ created: "2026-10-10T00:00:00Z" })], ids);
-  assert.deepEqual(
-    [...keys].sort(),
-    [
-      changeKey("2026-07-01", 0, "text_updated"),
-      changeKey("2026-09-03-2", 1, "text_updated"),
-      changeKey("2026-09-03-2", 2, "footnote_updated"),
-      changeKey("2026-09-03", 0, "text_updated"),
-    ].sort(),
-  );
-});
-
-test("notebookChangeKeys: no marks, no keys; a mark elsewhere touches nothing", () => {
-  const ids = entryIds(FEED);
-  assert.equal(notebookChangeKeys(FEED, [], ids).size, 0);
-  assert.equal(notebookChangeKeys(FEED, [note({ bookKey: "mark", chapter: 1, verse: 1 })], ids).size, 0);
-  assert.equal(notebookChangeKeys(FEED, [{ kind: "trash", id: "x" }], ids).size, 0);
-});
-
-test("the filter's keys match the release notes page's own ids on the real feed", async () => {
-  const { default: real } = await import("../src/data/release-notes.json", { with: { type: "json" } });
-  const ids = entryIds(real);
-  const keys = notebookChangeKeys(real, [note()], ids);
-  // The Sept 3 Romans 4:6–9 change that the owner's spec names.
-  assert.ok(
-    [...keys].some((k) => k.startsWith("2026-09-03") && k.endsWith(":text_updated")),
-    "a note on Romans 4:7 is touched by the 2026-09-03 wording change",
-  );
 });

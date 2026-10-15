@@ -1,12 +1,10 @@
 // src/lib/desk-whats-new-view.mjs
 //
-// How "What's new for you" (STUDY-DESK.md B3) and the /release-notes filter
-// "Verses in my notebook" (M10) are put in front of the reader. The rules for
-// which publishes touch which marks are desk-whats-new.mjs's; this is the
-// layer between those and the page, kept pure so it can be tested: the day
-// the reader last looked, which publishes are new to them, how many show
-// before "Show more", how a mark is named in a sentence, and which rows of
-// the release notes page the filter keeps.
+// How "What's new for you" (STUDY-DESK.md B3) is put in front of the reader.
+// The rules for which publishes touch which marks are desk-whats-new.mjs's;
+// this is the layer between those and the page, kept pure so it can be
+// tested: the day the reader last looked, which publishes are new to them,
+// how many show before "Show more" and how a mark is named in a sentence.
 //
 // "Last looked" is a day (YYYY-MM-DD) kept in the notebook's meta, and it is
 // the date of the newest publish in the feed at the time, never the device's
@@ -14,7 +12,7 @@
 // same day as a look still counts as new. (One landing on the same day as
 // the newest publish already seen is the one case it can't tell apart.)
 
-import { marksTouched, markVerses } from "./desk-whats-new.mjs";
+import { markVerses } from "./desk-whats-new.mjs";
 import { recordHref, recordReference } from "./desk-store-core.mjs";
 
 /** The notebook meta key holding the day the reader last looked. */
@@ -78,30 +76,4 @@ export function markLinks(records) {
 export function presentWhatsNew(found, seen, { limit = PUBLISH_LIMIT } = {}) {
   const marked = (found ?? []).map((entry) => ({ ...entry, isNew: seen !== null && entry.date > seen }));
   return { shown: marked.slice(0, limit), hidden: Math.max(0, marked.length - limit), fresh: marked.filter((e) => e.isNew) };
-}
-
-/* ── The filter on /release-notes ────────────────────────────────────── */
-
-/** The key a row of the release notes page and the feed share: entry id, place in the entry, type. */
-export const changeKey = (id, index, type) => `${id}:${index}:${type}`;
-
-/**
- * The changes of the feed that touch a verse the reader has marked, as a Set
- * of changeKey()s. Unlike "What's new for you" this is every publish, not
- * only those after the mark was made: the filter answers "which of these are
- * about my verses", and a reader who bookmarked a verse today still wants the
- * history of it.
- *
- * @param {object[]} entries release-notes.json, newest first
- * @param {object[]} records the notebook
- * @param {string[]} ids entryIds(entries)
- */
-export function notebookChangeKeys(entries, records, ids) {
-  const keys = new Set();
-  (entries ?? []).forEach((entry, i) => {
-    (entry.changes ?? []).forEach((change, index) => {
-      if (marksTouched(change, records).length) keys.add(changeKey(ids[i], index, change.type));
-    });
-  });
-  return keys;
 }

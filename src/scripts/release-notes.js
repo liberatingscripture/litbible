@@ -2,11 +2,6 @@
 // holds a linked entry. Progressive enhancement. Without JS the filters stay
 // hidden, every change is on the page, and the months fold natively.
 //
-// A checkbox another script adds to the form, `input[data-rn-flag="x"]`, is a
-// further filter: checked, it keeps the changes whose row carries `data-rn-x`.
-// The Study Desk's "Verses in my notebook" is one; this file knows nothing of
-// it, and the box stays out of the query string, since it is the reader's own.
-//
 // The filters live in the query string (?book=romans&kind=wording) so a
 // filtered view can be shared, and never touch the hash, which names an entry.
 
@@ -20,13 +15,11 @@ if (form) {
   const total = Number(countEl.dataset.total);
   const plural = (n) => `${n} change${n === 1 ? "" : "s"}`;
   let wasFiltered = false;
-  const flagBoxes = () => [...form.querySelectorAll("input[data-rn-flag]")];
 
   function apply() {
     const book = bookSelect.value;
     const kind = kindSelect.value;
-    const flags = flagBoxes().filter((box) => box.checked).map((box) => `data-rn-${box.dataset.rnFlag}`);
-    const filtered = Boolean(book || kind || flags.length);
+    const filtered = Boolean(book || kind);
     let shown = 0;
 
     for (const month of months) {
@@ -35,9 +28,7 @@ if (form) {
         let inEntry = 0;
         for (const change of entry.querySelectorAll(".rn-change")) {
           const match =
-            (!book || change.dataset.book === book) &&
-            (!kind || change.dataset.kind === kind) &&
-            flags.every((flag) => change.hasAttribute(flag));
+            (!book || change.dataset.book === book) && (!kind || change.dataset.kind === kind);
           change.hidden = !match;
           if (match) inEntry++;
         }
@@ -83,7 +74,6 @@ if (form) {
     if (target.closest("[hidden]")) {
       bookSelect.value = "";
       kindSelect.value = "";
-      for (const box of flagBoxes()) box.checked = false;
       apply();
       syncUrl();
     }
