@@ -31,6 +31,9 @@
 //     same tab, with the keys that remember those unchanged (panel.js's
 //     snapshot and restore).
 //   - The search box gets its words back and its tray closes.
+//   - The Greek tab's search field gets its words and its open or closed
+//     state back, and the search commands window closes. The tour opens that
+//     window with `remember: false`, so `lit-greek-commands` is never set by it.
 //   - The page scrolls back to where the reader was, and while the tour runs
 //     `data-desk-tour` on <html> keeps "Continue reading" (and a ribbon that
 //     follows the reader) from recording the places it scrolls through.
@@ -55,6 +58,7 @@ import { WAYS_HREF, parseTourState, planTour, stepBody, withSeen, TOUR_STEPS } f
 import { NOTE_GAP, NOTE_LINES, marginMode, noteWidth } from "../../lib/desk-notes.mjs";
 import { COMMAND_EVENT, getTourRaw, saveTourList } from "./first-use.js";
 import { glyph } from "./glyphs.js";
+import { closeGreekCommands, greekCommandsOpenFor, openGreekCommands } from "../greek-commands.js";
 import { setEditorPreview } from "./note-editor.js";
 import { pageChapter } from "./page.js";
 import { prosePage } from "./note-sources.js";
@@ -63,6 +67,7 @@ const GAP = 12;
 const EDGE = 12;
 const DEMO_HIGHLIGHT = "desk-tour-hl";
 const SETTLE_MS = 450; // a selection panel opens 200ms after the selection settles
+const GREEK_EXAMPLE = "πίστις.gen, Ἰησοῦς/Χριστός.gen";
 const EXAMPLE_NOTE =
   "An example. Your own words go here: a question, a connection, something to come back to.";
 const EXAMPLE_MARGIN =
@@ -337,6 +342,48 @@ export function createTour({ panel }) {
       return { el: panel.el, side: "left", marks: tabButton("greek") };
     },
 
+    // The Greek tab's search field with a command search in it and the
+    // commands window beside it. The field's words and open state are put
+    // back, and the window is opened without marking it seen
+    // (`lit-greek-commands` stays as the reader had it).
+    async "greek-commands"() {
+      closePanel();
+      if (!panel.showTab("greek", { focus: false, remember: false })) return null;
+      const input = panel.el.querySelector(".desk-greek__find-input");
+      const form = panel.el.querySelector(".desk-greek__find");
+      const openBtn = panel.el.querySelector(".desk-greek__find-btn");
+      const closeBtn = panel.el.querySelector(".desk-greek__find-close");
+      const cmdBtn = panel.el.querySelector(".desk-greek__cmds");
+      if (!input || !form || !openBtn || !closeBtn) return null;
+      const wasOpen = !form.hidden;
+      const before = input.value;
+      const hadWindow = greekCommandsOpenFor(input);
+      later(() => {
+        if (!hadWindow) closeGreekCommands("tour");
+        if (wasOpen) {
+          input.value = before;
+          input.dispatchEvent(new Event("input", { bubbles: true }));
+        } else if (!form.hidden) {
+          closeBtn.click();
+        }
+      });
+      if (!wasOpen) openBtn.click();
+      input.value = GREEK_EXAMPLE;
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+      // The results take a moment: the Greek index and the verses load.
+      const token = run.token;
+      for (let waited = 0; waited < 4000; waited += 100) {
+        const hits = panel.el.querySelector(".desk-greek__hits");
+        if (hits && !hits.hidden) break;
+        await wait(100);
+        if (!run || run.token !== token) return null;
+      }
+      openGreekCommands({ field: input, source: "notebook", focus: false, remember: false });
+      await frame();
+      const win = document.querySelector("[data-greek-commands]");
+      return { el: win ?? panel.el, side: "left", marks: visible(cmdBtn) ? [cmdBtn] : [] };
+    },
+
     async widths() {
       closePanel();
       panel.showTab("mine", { focus: false, remember: false });
@@ -399,7 +446,10 @@ export function createTour({ panel }) {
     const ids = new Set(TOUR_STEPS.filter((s) => s.views.includes(view)).map((s) => s.id));
     if (!visible(document.getElementById("site-search-input"))) ids.delete("search");
     if (!document.querySelector(".chapter-paragraphs .fn-ref a")) ids.delete("pin");
-    if (!document.querySelector('#deskPanel [role="tab"][data-tab="greek"]')) ids.delete("greek");
+    if (!document.querySelector('#deskPanel [role="tab"][data-tab="greek"]')) {
+      ids.delete("greek");
+      ids.delete("greek-commands");
+    }
     if (!document.querySelector('#deskPanel [role="tab"][data-tab="verse"]')) ids.delete("verse");
     if (!document.querySelector(".desk-gutter")) ids.delete("widths");
     if (view !== "study" ? !textParagraphs().length : !pickVerse()) {
