@@ -3929,6 +3929,24 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      already hold and writes no new kind of record, so it can be taken out
      again cleanly. B3 and N4 are small; the query language and its
      page are the larger part.
+     - **Footnotes that cite this verse** (proposed 2026-10-16, decided by
+       BVJ in the same conversation). The This verse tab lists every footnote
+       that cites the verse, the way N4 lists notes that cite it. It is read
+       only: a build step writes a reverse index from cited verse to citing
+       footnote, using the site's own render-time linker, and the desk reads
+       it when the tab opens. Decided: each citing footnote is its own entry,
+       with its chapter, label, text and a link to where it sits, so three
+       footnotes that point at one verse are three entries, even with the same
+       wording, and a footnote stored in two chapters is listed under each;
+       same-chapter citations are included, with no special label; a relative
+       reference such as "vv. 9–11" is written out in full in the text rather
+       than resolved in code (the 1 Corinthians 12 and 14 note, §34 of
+       `FOLLOW-UP-RECONCILIATION.md`); Sefaria and eBible links, and
+       translation-tagged references, are left out. Not yet counted: bare
+       parenthetical forms such as "(1:20–25)". Counted 2026-10-16 with the
+       site's linker: 485 of 5,738 footnotes cite a verse, in 702 links to 439
+       distinct verses. Read-only, so it adds no record kind and no format
+       question.
      - **Built on the preview 2026-10-15: B3 and N4. M10 was built and
        shelved** (BVJ, 2026-10-15); it is version 2 now, see below.
        Construction search and searching by parsing came after (below).
@@ -5069,6 +5087,16 @@ tab, while planning the rest of 2a ("Order of work", 2a):
 - Not settled, built as recommended: two words with only a space between
   them (a phrase pasted from a verse) are read as a construction too, while
   the window and the examples teach the comma.
+
+### 2026-10-16 (footnotes that cite this verse, in 2a)
+
+- **The This verse tab lists footnotes that cite the verse**, as a read-only
+  2a piece beside N4's "Notes that cite this verse" (BVJ, 2026-10-16). Each
+  citing footnote is its own entry, shared footnotes are not deduped, and
+  same-chapter citations are included with no special label. Relative
+  references are written out in the text, not resolved in code. Sefaria,
+  eBible and translation-tagged references are left out. Recorded in 2a
+  above; built on this branch only after BVJ's go-ahead.
 
 ### 2026-10-15 (placing N9, N6, N5, B2 and D4)
 
