@@ -12,7 +12,11 @@ conversations that produced it.
 Many ideas here were weighed and decided, some were declined, and the reasons
 are recorded so they aren't re-argued.
 
-## Where things stand (as of 2026-10-15)
+## Where things stand (as of 2026-10-16)
+
+- **Phase 5 is fixes and experience** (BVJ, 2026-10-16): a running log of
+  bugs and of what using the desk is like, BVJ's own use first, under
+  "Fixes and experience" (IDs E1 onward). It never waits for phases 3 and 4.
 
 - **Phase 3 is now sheets and the desk together** (BVJ, 2026-10-15): D9,
   the desk as a page of its own (`/desk/`), with the LIT text as one pane
@@ -202,7 +206,8 @@ are recorded so they aren't re-argued.
   say so.
 - **Idea IDs**: N notes, B places and bookmarks, H highlights, S sheets, D the
   desk as a whole. Ideas the audit added keep their **M** numbers. Audit
-  findings are **C1 to C27**. BVJ cites these IDs, so keep them stable; never
+  findings are **C1 to C27**. Entries in the fixes-and-experience log are
+  **E1** onward. BVJ cites these IDs, so keep them stable; never
   renumber.
 - **People**: BVJ is the owner (Brandon). BDR is the developer of the iOS and
   Android apps and collaborates on accounts and sync. BDR's own documents
@@ -4086,6 +4091,16 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
    encryption choice (C19), and short share links (M14). Sized on 2026-10-07
    ("Sizing the website's side"): 12–15 sessions under C if BDR's side
    builds the service, 16–18 under A. Large.
+5. **Fixes and experience** (BVJ, 2026-10-16). The desk's bugs, and what
+   using it teaches: BVJ's own experience on the preview first, later the
+   trusted readers given `?desk=on` and then released readers. Its home is
+   "Fixes and experience" below (IDs **E1** onward). It is numbered last
+   because it is the phase that never finishes, not because it waits: a bug
+   is fixed when it is found, in whichever phase's code it lives, and
+   feedback that is really a feature goes to the phase it belongs to (or to
+   version 2) and leaves the log with a pointer. What the phase itself
+   holds is the pass over what has piled up: group the entries, find the
+   patterns, and decide what a release needs fixed first. Size varies.
 
 **Any time, independent of all of it**: both apps link to the license terms
 (BDR's item 11: Android in 1.3, iOS in 2.0, 2.0.1 or 2.1). (/read opening
@@ -5184,6 +5199,17 @@ tab, while planning the rest of 2a ("Order of work", 2a):
   text pane; where Go deeper goes; whether a rich-text document is part of
   sheets or its own pane (and its record format); the word pane for 2c.
 
+### 2026-10-16 (Phase 5: fixes and experience)
+
+BVJ asked for a section for bug fixes and user-experience input, including
+their own use of the desk, then suggested making it Phase 5. **Done:** it is
+phase 5 in "Order of work", with its log under "Fixes and experience" (IDs
+E1 onward). Phase 4 is sync, so 5 is the next free number. The number is
+about the log's place in the plan, not its timing: fixes are made when
+found, so nothing waits for phases 3 and 4. Recommended reading, for BVJ to
+confirm: if the intent was that fixes should wait until after sync, say so
+and this changes.
+
 ### 2026-10-14 (phase 2 split into 2a, 2b and 2c)
 
 - **Phase 2 is split three ways** ("Order of work", 2). **2a** is the
@@ -5203,6 +5229,67 @@ tab, while planning the rest of 2a ("Order of work", 2a):
   pieces whose worth depends most on how readers use the desk, which a small
   group of trusted readers given `?desk=on` could show ("Still open",
   "When to release the desk to readers").
+
+## Fixes and experience
+
+Phase 5's log ("Order of work", 5; BVJ, 2026-10-16): bugs in what is built,
+and what using it feels like, starting with BVJ's own use of the preview.
+Ideas and decisions stay in their sections; this is for things that are
+wrong or awkward in what already exists.
+
+**How to add an entry.** Give it the next **E** number (never renumbered or
+reused; keep IDs stable like every other ID here). One line says what
+happened, then only what helps: where (page, view, tab), what BVJ was doing,
+what was expected, the browser if it matters. Note who reported it.
+**Status** is one of: *open*; *fixed* (with the commit or PR); *moved* (it
+was really a feature, with where it went); *won't fix* (with why, so it
+isn't reported again). Don't delete an entry when it's settled. Where a
+bug sits in code that a decision here describes, link that decision.
+
+**Kinds.** *Bug* (does the wrong thing), *rough* (works but is awkward,
+confusing or slow), *wording* (copy, labels, help), *wish* (the first
+sign of a feature: log it, and move it when it's clear where it belongs).
+
+**Open**
+
+- **E1, bug: a possible flash on load from N8's pre-paint addition to
+  Layout.astro.** Known when N8 was built and held (2026-10-12; "Still
+  open"). Lives on `claude/desk-1d-hidden`, not in this tree. Open, and
+  waits on N8's hold.
+- **E2, bug: a hidden verse's own menu is unreachable.** Same source and
+  hold as E1. Open.
+
+**BVJ's use of the preview** (add as they come)
+
+- **E4, rough: revisit Places.** BVJ (2026-10-16), from using the preview:
+  "underwhelmed. It needs work." Open, and the first item the phase takes up.
+  The specifics aren't recorded yet; add them here as BVJ names them. What
+  exists to rework (B1, built in 1d; "Order of work", 1d, Places and
+  ribbons): a Places section in My Notes and on the notebook page, listing
+  this book's places, "Continue reading", ribbons (at most 6, following
+  while you read from one, C25), other clients' places, then Read View's.
+  "Continue reading" and Read View's places are not notebook records.
+  B4's scrollbar ticks and a margin mark for ribbons were not built.
+  BVJ is not taking it up yet (2026-10-16); it is here so it stays in the
+  plan. **Questions to ask when it is picked up**, as prompts and not
+  findings:
+  - Is the trouble **finding and seeing** places: where the list sits, how
+    it is ordered, or that nothing marks a place on the page itself (the
+    unbuilt ribbon mark and B4's ticks)?
+  - Is it **what a ribbon does by itself**: following while you read from
+    it, the 4-second move, or that creating one doesn't start it following?
+  - Is it **how little it does** beyond "Continue reading"?
+  - Is it **two kinds of place** (ribbons as notebook records, "Continue
+    reading" and Read View's in their own storage) showing as one list?
+  - Is it **making one**: "Ribbon here…" being in the verse menu and
+    selection panel, the 6-ribbon limit, the naming?
+  - The answer may send part of it to B4, or to sync's open question on
+    whether places sync (BVJ leans against).
+
+**Fixed**
+
+- **E3, bug: My Notes and Places overwrote each other's list** in the
+  Notebook. Fixed in 2dbab04 (2026-10-15).
 
 ## Still open
 
