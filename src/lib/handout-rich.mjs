@@ -9,8 +9,8 @@
 // marked text two ways.
 //
 //   handoutPlain — the markers removed: exactly the text the copy always was
-//   handoutHtml  — the markers as <em> and <strong>, for a paste target that
-//                  takes HTML
+//   handoutHtml  — the markers as <em>, <strong> and <sup>, for a paste target
+//                  that takes HTML
 //
 // The markers are private-use code points because they can't occur in the
 // scripture or its notes, and they pass through the pipeline's whitespace
@@ -18,7 +18,12 @@
 // not "\n"-style sentinels: only the copies that paste as rich text ever insert
 // them, so Share…, a verse image and a link never see one.
 //
-// Italics and bold only (bold is rare, but a few verses and notes carry it).
+// Italics and bold (bold is rare, but a few verses and notes carry it), plus the
+// two superscripts the page itself shows: the verse numbers a range carries
+// inline and the footnote letters a handout keeps. Plain text has no
+// superscript, so each is already written out in it ("17 God did…", "[a]"):
+// a verse number marked VN_ON…VN_OFF reads the same plain, and a footnote letter
+// marked FN_ON…FN_OFF is bracketed there ("[a]") and a <sup> in HTML.
 // Links and the rest of the markup stay plain on purpose: this is quoted text
 // for a bulletin or study guide, and emphasis is what carries meaning there.
 
@@ -26,6 +31,10 @@ export const ITALIC_ON = "\uE000";
 export const ITALIC_OFF = "\uE001";
 export const BOLD_ON = "\uE002";
 export const BOLD_OFF = "\uE003";
+export const VN_ON = "\uE004"; // a verse number: plain "17", HTML <sup>17</sup>
+export const VN_OFF = "\uE005";
+export const FN_ON = "\uE006"; // a footnote letter: plain "[a]", HTML <sup>a</sup>
+export const FN_OFF = "\uE007";
 
 /**
  * Bracket each italic and bold run in an element's clone with the markers, so
@@ -43,11 +52,11 @@ export function markEmphasis(clone) {
   });
 }
 
-const MARKERS = /[\uE000-\uE003]/g;
+const MARKERS = /[\uE000-\uE007]/g;
 
-/** The text as plain text: every marker removed. */
+/** The text as plain text: markers removed, a footnote letter bracketed. */
 export function handoutPlain(marked) {
-  return marked.replace(MARKERS, "");
+  return marked.replaceAll(FN_ON, "[").replaceAll(FN_OFF, "]").replace(MARKERS, "");
 }
 
 const ESCAPES = { "&": "&amp;", "<": "&lt;", ">": "&gt;" };
@@ -67,7 +76,11 @@ export function handoutHtml(marked) {
     .replaceAll(ITALIC_OFF, "</em>")
     .replaceAll(BOLD_ON, "<strong>")
     .replaceAll(BOLD_OFF, "</strong>")
-    .replace(/<(em|strong)>(\s*)<\/\1>/g, "$2");
+    .replaceAll(VN_ON, "<sup>")
+    .replaceAll(FN_ON, "<sup>")
+    .replaceAll(VN_OFF, "</sup>")
+    .replaceAll(FN_OFF, "</sup>")
+    .replace(/<(em|strong|sup)>(\s*)<\/\1>/g, "$2");
   return body
     .split("\n\n")
     .map((paragraph) => "<p>" + paragraph.replace(/\n/g, "<br>") + "</p>")

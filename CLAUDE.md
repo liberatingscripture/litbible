@@ -864,7 +864,14 @@ notice there or nowhere.
   bracketed with private-use markers by `markEmphasis` in `handout-rich.mjs`), and `joinPieces(…, { rich: true })`
   joins the marked form. `src/lib/handout-rich.mjs` reads marked text as plain
   (markers removed, byte-identical to the old text) or as HTML (`<em>`,
-  `<strong>`). Links and other markup stay plain on purpose; Copy link, Share… and a verse image stay plain. A note's own blocks each take a line, which is what
+  `<strong>`, `<sup>`). **Verse numbers and footnote letters are superscript in the
+  HTML flavor** (BVJ, 2026-10-15): `joinPieces(…, { rich: true })` wraps each
+  inline verse number in `VN_ON`/`VN_OFF`, and `blockText` and `assembleHandout`
+  wrap a handout's footnote letters (in the text and before each note) in
+  `FN_ON`/`FN_OFF`. Plain text reads as it always did ("17 God…", "[a]"), so the
+  handout's letters are now marked, not literal brackets. Copy text carries no
+  footnote letters, and a range's first verse number is left out of it, as in
+  plain. Links and other markup stay plain on purpose; Copy link, Share… and a verse image stay plain. A note's own blocks each take a line, which is what
   keeps the 1 Corinthians 11 chiasm outline legible. Notes skip the
   bracket-marker strip (`tidyLines`, not `cleanForShare`), since a note is
   quoted as it stands. Both layouts go through `assembleHandout`.

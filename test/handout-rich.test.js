@@ -6,7 +6,18 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { ITALIC_ON, ITALIC_OFF, BOLD_ON, BOLD_OFF, handoutPlain, handoutHtml } from "../src/lib/handout-rich.mjs";
+import {
+  ITALIC_ON,
+  ITALIC_OFF,
+  BOLD_ON,
+  BOLD_OFF,
+  VN_ON,
+  VN_OFF,
+  FN_ON,
+  FN_OFF,
+  handoutPlain,
+  handoutHtml,
+} from "../src/lib/handout-rich.mjs";
 
 const em = (s) => ITALIC_ON + s + ITALIC_OFF;
 
@@ -53,4 +64,15 @@ test("bold carries over too, alone and nested with italics", () => {
   assert.equal(handoutHtml("a " + bold("b") + " " + bold(em("c"))), "<p>a <strong>b</strong> <strong><em>c</em></strong></p>");
   assert.equal(handoutPlain("a " + bold("b") + " " + bold(em("c"))), "a b c");
   assert.equal(handoutHtml("x" + bold(" ") + "y"), "<p>x y</p>");
+});
+
+test("verse numbers and footnote letters are superscript in HTML, and unchanged in plain", () => {
+  const vn = (n) => VN_ON + n + VN_OFF;
+  const fn = (l) => FN_ON + l + FN_OFF;
+  const marked = "In the beginning was the Word." + fn("a") + " " + vn(2) + " He was there.\n— John 1:1–2 (LIT)\n\n" + fn("a") + " A note.";
+  assert.equal(handoutPlain(marked), "In the beginning was the Word.[a] 2 He was there.\n— John 1:1–2 (LIT)\n\n[a] A note.");
+  assert.equal(
+    handoutHtml(marked),
+    "<p>In the beginning was the Word.<sup>a</sup> <sup>2</sup> He was there.<br>— John 1:1–2 (LIT)</p><p><sup>a</sup> A note.</p>",
+  );
 });
