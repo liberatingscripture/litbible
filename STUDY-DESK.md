@@ -38,11 +38,11 @@ are recorded so they aren't re-argued.
   search commands"). Defaults for BVJ to judge are under "Still open"
   ("Phase 2a's defaults"); "Order of work", 2a, has what was built.
 
-- **Phase 2 is split into 2a, 2b and 2c, and phase 3 follows 2a**
-  (2b and 2c now follow phase 3: see the entry above)
-  (BVJ, 2026-10-14): 2a is B3, N4, M10, construction search and
-  searching by parsing, the read-only pieces; 2b is S2, which needs sheets; 2c is the rest, whose place is open ("Order
-  of work", 2; "Decisions").
+- **Phase 2 is 2a, 2b and 2c** (split BVJ, 2026-10-14;
+  N2, H2 with C23, M4 and M10 shelved for version 2, BVJ, 2026-10-15).
+  2a is B3, N4, construction search and searching by parsing, the
+  read-only pieces; 2b is S2, which needs sheets, and N9; 2c is M11, notes on a
+  footnote, and N6 ("Order of work", 2; "Decisions").
 
 - **Sync now has three plans, and BDR's proposal is the newest record of
   it** ("One notebook, three homes" below; first read 2026-10-07 at draft 2,
@@ -76,10 +76,10 @@ are recorded so they aren't re-argued.
   passage, which BVJ held until after the Zoom** (2026-10-12; "Decisions"),
   and **N7, the interleaf, which BVJ set aside** (2026-10-13; "Decisions").
   **1f, the Greek tab, was built on 2026-10-13** ("Order of work", 1f).
-  Phase 1's built steps are done apart from N8's hold. **1g and 1h
-  belong to phase 1** (BVJ, 2026-10-13), and both were explored the same
-  day: **1g (an interleaf for the Greek) is shelved for the future**, and
-  **1h (searching the Greek) was built on 2026-10-13**, behind the preview
+  Phase 1's built steps are done apart from N8's hold. **1h belongs
+  to phase 1** (BVJ, 2026-10-13). 1g (an interleaf for the Greek) was
+  explored the same day and is **shelved for the future**, so it is
+  version 2; and **1h (searching the Greek) was built on 2026-10-13**, behind the preview
   ("Order of work", 1h, "Built"). **The desk is not released until phase 1 is
   completely done, and perhaps not until phases 1 to 3 are** (BVJ,
   2026-10-13). Other versions (API.bible and the Versions tab) are out of
@@ -287,7 +287,8 @@ detailed version (2026-10-05).
    vanish.
 3. Notes that notice the translation moved, and "What's new for you": N3 and
    B3. The LIT changes weekly, and the data is already in the release notes.
-4. What only the LIT can offer: N2 and H2, from the reviewed alignment.
+4. What only the LIT can offer: N2 and H2, from the reviewed alignment
+   (both shelved for version 2, BVJ, 2026-10-15).
 5. Sheets built on the translation's own data: S1, S3, S4 and S10.
 6. One quick win needing no storage: N9.
 
@@ -402,7 +403,7 @@ plan as a whole was accepted; nothing was declined except where stated).
   "self-preservation" in Romans 8 and under "family" in Mark 10:8. No Bible
   site attaches a reader's note to a translation's concept across all its
   renderings, because none has the reviewed alignment. New. Small to medium.
-  Proposed. Mock: the term lens card for "self-preservation" ("Traditionally
+  **Shelved (BVJ, 2026-10-15): version 2.** Mock: the term lens card for "self-preservation" ("Traditionally
   flesh · Greek sarx", also rendered body 65, family 10, self-serving impulses
   8, flesh 7) with "Your note on sarx" and a "Mark sarx through Romans · 28"
   button.
@@ -569,7 +570,8 @@ plan as a whole was accepted; nothing was declined except where stated).
   the records /glossary publishes (the alignment gate). **Saved as a rule**
   ("mark pistis in Galatians"), worked out from the gated data on each load,
   so marks follow newly reviewed records and new chapters (audit C23). New.
-  Medium. Proposed. Becomes exact once phase 2 of the alignment publishes.
+  Medium. **Shelved (BVJ, 2026-10-15): version 2.** Becomes exact once
+  phase 2 of the alignment publishes.
 
 ### Sheets
 
@@ -670,7 +672,7 @@ plan as a whole was accepted; nothing was declined except where stated).
   "Make a word study of sarx in Romans" builds a sheet of every gated place,
   grouped by rendering, with the key terms box and starter questions. Could
   take a Strong's number too once the Greek alignment publishes. New. Small to
-  medium. **Decided: yes.**
+  medium. **Decided yes, then shelved (BVJ, 2026-10-15): version 2.**
 - **M5. A sheet from a search or a topic.** On /search, "Add these verses to a
   sheet" gathers the results (or ticked ones); a topic does the same with its
   chapters. Small. **Decided: yes.**
@@ -985,10 +987,11 @@ plan as a whole was accepted; nothing was declined except where stated).
        with BVJ's answers).
     8. **Phase 2's later pieces might live better here** (BVJ wondered,
        2026-10-15), such as tracing notes across a word wherever it
-       occurs. Weighed below ("Phase 2c and D9").
+       occurs. Weighed below ("Phase 2c and D9"); the word pane is now version 2
+       material, shelved with N2, H2 and M4.
     9. **Phase 3 is sheets and the desk together** (BVJ, 2026-10-15),
-       and **phases 2b and 2c follow it**: 2b needs sheets, and 2c's
-       making is done in /desk's word pane.
+       and **phases 2b and 2c follow it**: 2b needs sheets, and 2c's one
+       piece left, M11, is the only part of it still in play.
     10. **Sheets are edited in /desk only**, as the sheet pane: one
        editor. A sheet's own address exists only for what isn't editing
        (opening a shared link, present mode, printing), which S8 and S6
@@ -1043,12 +1046,14 @@ plan as a whole was accepted; nothing was declined except where stated).
       job.
     - **M10**: stays shelved; its parts live on other pages, so /desk
       changes little.
-    - **Pop the notebook out (D4, unplaced)**: panes cover most of it.
+    - **Pop the notebook out (D4)**: placed in phase 3, last; panes cover most of it.
     - **Unchanged by D9**: everything under "Considered and set aside"
       (right-click, a public gallery, AI summaries, live co-editing, Ctrl
       K, commentaries, the email when verses change, anchoring to footnote
       letters). Their reasons don't depend on where the desk lives.
-  - **Phase 2c and D9** (proposed 2026-10-15, for BVJ to weigh). 2c holds
+  - **Phase 2c and D9** (proposed 2026-10-15, for BVJ to weigh; **shelved
+    with N2, H2 and M4 on 2026-10-15**, so the word pane below is version 2
+    material, and only the footnotes pane for M11 is still in play). 2c holds
     N2 (a note on a term that follows it everywhere), H2 with C23 (marking
     a concept through a book, saved as a rule), M4 (a word study) and M11
     (notes on a footnote). Each has two halves: **where it is made and
@@ -2731,11 +2736,11 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      fallback fonts today. **Picked: Cardo** (2026-10-05), and shipped ahead
      of the desk in PR #270.
    - The apps' review of draft 1, then the freeze.
-1. **The notebook**, in steps 1a to 1h (1e deferred). Medium to large.
-   **1g and 1h are part of this phase** (BVJ, 2026-10-13): phases 2 and 3
-   don't begin until both have been explored. Both were, on 2026-10-13: 1g
-   is shelved and 1h is planned, **and 1h is built before phases 2 and 3
-   begin** (BVJ, 2026-10-13).
+1. **The notebook**, in steps 1a to 1d, 1f and 1h. Medium to large.
+   **1h is part of this phase** (BVJ, 2026-10-13): phases 2 and 3 don't
+   begin until it is built, and it was built on 2026-10-13. 1e and 1g are
+   not version 1: 1e is deferred indefinitely and 1g is shelved (see
+   "Version 2" under "Order of work").
    - **1a. Foundations.** Pure, unit-tested modules, with no page yet.
      Three are built and two are held for BDR (BVJ, 2026-10-05):
      - **Built: draft 1's record kinds** (`src/lib/desk-records.mjs`), with
@@ -3677,7 +3682,7 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      first release includes the Greek (BVJ, 2026-10-08) but no other
      versions (BVJ, 2026-10-11).
    - **1g. An interleaf for the Greek: explored, then shelved for the
-     future** (BVJ, 2026-10-13). BVJ's idea: use the interleaf (N7, set
+     future** (BVJ, 2026-10-13; version 2 now). BVJ's idea: use the interleaf (N7, set
      aside as redundant the same day) for something like an **interlinear
      Greek** under the LIT, and let readers **write their own notes on the
      Greek**. Nothing is decided. What the exploring found, kept for
@@ -3908,14 +3913,12 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
          defaults").
 2. **What only the LIT can do**, split three ways (BVJ, 2026-10-14;
    "Decisions"). **The order is 2a, then phase 3**; S2 needs a sheet, so 2b
-   can't come before phase 3 either. Where 2c goes is still open. The core of
+   can't come before phase 3 either. The core of
    N3, finding a mark again and saying when its words changed, moved into
-   phase 1, since every mark is re-found on every load. **Word families are
-   deferred indefinitely** (BVJ, 2026-10-13: probably not a version 1
-   feature).
+   phase 1, since every mark is re-found on every load.
    - **2a, the read-only pieces**: what's new for you (B3), on 1a's
      comparison; your own chains (N4), through the linker the footnotes
-     already use; your notebook where you already look (M10); and
+     already use; and
      **construction search** (BVJ, 2026-10-13: *pistis* with *Iēsou
      Christou* in the genitive, the case that motivates it; a small query
      language over 1f's parsing, no new data, and a page for its results;
@@ -3924,10 +3927,10 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      *pistis*; the query language's simplest use), both moved here from 2c
      (BVJ, 2026-10-14). Each only reads what the notebook and the site
      already hold and writes no new kind of record, so it can be taken out
-     again cleanly. B3, N4 and M10 are small; the query language and its
+     again cleanly. B3 and N4 are small; the query language and its
      page are the larger part.
      - **Built on the preview 2026-10-15: B3 and N4. M10 was built and
-       shelved** (BVJ, 2026-10-15; its code is on `claude/desk-2a-m10`).
+       shelved** (BVJ, 2026-10-15); it is version 2 now, see below.
        Construction search and searching by parsing came after (below).
        Neither piece writes a record; the only thing stored is a notebook meta value,
        `whatsNewSeen`, and a session cache of the feed.
@@ -3959,36 +3962,6 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
          tab gains "Notes that cite this verse": "Mentioned in your note on
          Romans 8:3–4." `boot.js` imports `ref-preview.js`, so previews work
          on /notebook/ and Read View too.
-       - **M10, where you already look: shelved, not in the tree.** As
-         built on `claude/desk-2a-m10`:
-         - `/release-notes`: a "Verses in my notebook" checkbox, only with
-           the preview on and only for a reader with a mark on a verse
-           (`desk/release-notes-filter.js`, loaded by `desk-gate.js` on
-           `[data-release-notes]`). `release-notes.js` knows nothing of the
-           notebook: any `input[data-rn-flag="x"]` in its form filters on a
-           row's `data-rn-x`. The notebook is read read-only
-           (`desk/readonly-notebook.js`, shared with the notebook search),
-           so the page never creates the database.
-         - `/glossary`: "My notes on this term" under an entry, for notes on
-           verses whose quoted words contain the rendering printed in a
-           verse the entry lists (`src/lib/desk-term-notes.mjs`,
-           `desk/term-notes.js`). Whole-verse notes don't count. The words
-           come from the page's own "Where it appears" links, which carry
-           `data-words` where the printed words differ from the rendering's
-           label (about 1,450 attributes, for every reader).
-         - Go deeper: a "Your notes here" row (`src/lib/desk-go-deeper.mjs`,
-           `desk/go-deeper-notes.js`) with the reader's notes on the
-           glossary entries and articles the section lists, and notes
-           elsewhere citing this chapter (N4). Its look restates
-           GoDeeper.astro's scoped styles in desk.css.
-         - Both follow "My notes" and "Hide my notes". The reader's words
-           there use a new indigo token, `--desk-mine` (desk.css), the
-           first use of principle 3's colour.
-         - To bring it back: cherry-pick b1c461a from the branch and
-           restore the filter's
-           hunks of 75795bd (`release-notes-filter.js`, `desk-gate.js`,
-           `release-notes.js`, `release-notes.astro`, and
-           `notebookChangeKeys` in `desk-whats-new-view.mjs`).
      - **Construction search and searching by parsing: built on the
        preview** (2026-10-15, branch `claude/desk-2a-construction`), as
        Greek search commands. The syntax and the window were settled by BVJ
@@ -4048,13 +4021,19 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
          3:22, 3:26; Galatians 2:16 twice, 3:22; Philippians 3:9); 762
          aorist imperatives; 94 genitives of πίστις.
    - **2b, text checked before printing** (S2), on the same comparison.
-     Small.
-   - **2c, the rest**: notes that follow a word and concept marks saved as
-     rules (N2, H2, C23); the word study (M4, once sheets exist); notes on a
-     footnote (M11). N2, H2 and M11 add kinds of record to readers' notebooks, which
-     can't be taken back once readers hold them. Their worth depends on
-     how readers use the desk, so they are worth weighing against what a
-     trial with readers shows. Medium.
+     Small. N9, print with room to write, is in 2b too: a print option that
+     sets the text in a narrower column beside a wide ruled margin. It stores
+     nothing and is a variant of `print.css`. Extra small.
+   - **2c, notes on a footnote** (M11, decided yes): a note attaches to a
+     footnote by quoting its words, so it survives relabeling. It adds a
+     kind of record to readers' notebooks, which can't be taken back once
+     readers hold it, so it is weighed against what a trial with readers
+     shows. Medium. N2, H2 with C23 and M4, which were 2c's other pieces,
+     are **shelved for version 2** (BVJ, 2026-10-15).
+   - **N6, questions as their own kind** (BVJ, 2026-10-15): mark a note as a
+     question, which the apps' `question` marker already carries. Its
+     "For discussion" section, gathered by a sheet in passage order, needs
+     sheets, so that part follows phase 3. Extra small.
 3. **Sheets.** None of it waits on the apps: a sheet's inner shape is the
    website's own, and under plan A sheets go in the iCloud zone the app never
    opens. **Phase 3 comes after 2a** (BVJ, 2026-10-14), ahead of 2b;
@@ -4065,7 +4044,10 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
    its link and the commercial check (S7), and the Word copy (S9); then
    printed codes (S5), present mode with the presenter view and room code (S6,
    M2, M3), sheets from searches and templates (M5, M9), annotated printing
-   (M6) and shared links (S8). Large. **Build S1's editor so it can sit
+   (M6) and shared links (S8). Large.
+   **D4, pop the notebook out**, is the last and smallest piece (BVJ,
+   2026-10-15). D9 says the panes cover most of it, so it is decided once
+   /desk exists. **Build S1's editor so it can sit
    inside another page** (proposed 2026-10-15), so D9, the desk as a page
    of its own, doesn't mean building sheets twice. **Phase 3 is now sheets
    and the desk together** (BVJ, 2026-10-15; D9, answers 9 to 11): sheets
@@ -4088,11 +4070,72 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
    builds the service, 16–18 under A. Large.
 
 **Any time, independent of all of it**: both apps link to the license terms
-(BDR's item 11: Android in 1.3, iOS in 2.0, 2.0.1 or 2.1); N9, print with
-room to write. (/read opening the terms when a link names them was on this
-list and shipped in PR #250.) N5, N6, B2 and D4 aren't placed in a phase;
-they're small and fit wherever convenient. D7 waits on its open questions;
-the KJV part could join N10 in phase 1c.
+(BDR's item 11: Android in 1.3, iOS in 2.0, 2.0.1 or 2.1). (/read opening
+the terms when a link names them was on this list and shipped in PR #250.)
+D7 is deferred indefinitely
+(2026-10-11), so its public-domain part is no longer placed in phase 1c.
+
+**Version 2: deferred and shelved** (BVJ, 2026-10-15). Nothing here is in
+a phase of version 1's development. Each keeps its entry above, so it can
+be revisited for version 2.
+
+- **N2, notes that follow a word**: shelved 2026-10-15. The word pane
+  proposed for 2c under D9 goes with it. Its record kind, `glossaryId`,
+  is still in the format draft (see the open questions below).
+- **H2 with C23, concept marks saved as a rule**: shelved 2026-10-15. Its
+  record kind, `markRule`, is in the format draft too.
+- **M4, a word study in one click**: shelved 2026-10-15.
+- **N5, a history with a passage**: placed in version 2 (BVJ, 2026-10-15).
+- **B2, bookmarks that remember why**: shelved 2026-10-15 (BVJ: "sounds like
+  a note"; "maybe shelve it"). Plain bookmarks, with their optional label,
+  stay as built in 1c. The `bookmark` kind's `from` field is in the format
+  draft, to be decided with the other reserved kinds.
+- **M10, where you already look.** Shelved 2026-10-15 (BVJ) and not in the tree. As
+  built on `claude/desk-2a-m10`:
+    - `/release-notes`: a "Verses in my notebook" checkbox, only with
+      the preview on and only for a reader with a mark on a verse
+      (`desk/release-notes-filter.js`, loaded by `desk-gate.js` on
+      `[data-release-notes]`). `release-notes.js` knows nothing of the
+      notebook: any `input[data-rn-flag="x"]` in its form filters on a
+      row's `data-rn-x`. The notebook is read read-only
+      (`desk/readonly-notebook.js`, shared with the notebook search),
+      so the page never creates the database.
+    - `/glossary`: "My notes on this term" under an entry, for notes on
+      verses whose quoted words contain the rendering printed in a
+      verse the entry lists (`src/lib/desk-term-notes.mjs`,
+      `desk/term-notes.js`). Whole-verse notes don't count. The words
+      come from the page's own "Where it appears" links, which carry
+      `data-words` where the printed words differ from the rendering's
+      label (about 1,450 attributes, for every reader).
+    - Go deeper: a "Your notes here" row (`src/lib/desk-go-deeper.mjs`,
+      `desk/go-deeper-notes.js`) with the reader's notes on the
+      glossary entries and articles the section lists, and notes
+      elsewhere citing this chapter (N4). Its look restates
+      GoDeeper.astro's scoped styles in desk.css.
+    - Both follow "My notes" and "Hide my notes". The reader's words
+      there use a new indigo token, `--desk-mine` (desk.css), the
+      first use of principle 3's colour.
+    - To bring it back: cherry-pick b1c461a from the branch and
+      restore the filter's
+      hunks of 75795bd (`release-notes-filter.js`, `desk-gate.js`,
+      `release-notes.js`, `release-notes.astro`, and
+      `notebookChangeKeys` in `desk-whats-new-view.mjs`).
+- **1g, an interleaf for the Greek**: shelved 2026-10-13. Its Greek pane is
+  version 1 instead, in /desk's phase 3 (D9, BVJ 2026-10-15). An
+  interlinear-style interleaf, with the Greek under the LIT and readers'
+  own notes on it, is version 2.
+- **1e, the licensed translations, D7, and the Versions tab**: deferred
+  indefinitely 2026-10-11.
+- **Word families**: deferred indefinitely 2026-10-13.
+- **N7, the interleaf**: set aside 2026-10-13.
+
+**Still open, for BVJ:**
+- **N8, the hidden passage**: undecided until the Zoom (BVJ, 2026-10-15). It
+  stays in 1d until then.
+- **Whether `glossaryId` (N2) and `markRule` (H2) stay in the format as
+  reserved kinds**: can be decided later, when version 2 is planned. The
+  format keeps kinds it doesn't know either way, so the freeze doesn't
+  depend on it.
 
 **What changed from the first order of work** (2026-10-01, PR #262):
 - Phase 0's "before any code" became "freeze the format before anything
@@ -5026,6 +5069,38 @@ tab, while planning the rest of 2a ("Order of work", 2a):
 - Not settled, built as recommended: two words with only a space between
   them (a phrase pasted from a verse) are read as a construction too, while
   the window and the examples teach the comma.
+
+### 2026-10-15 (placing N9, N6, N5, B2 and D4)
+
+- **N9 is in 2b, N6 is in 2c** (BVJ, 2026-10-15). N6's "For discussion"
+  section needs sheets, so that part follows phase 3.
+- **N5 is version 2** (BVJ, 2026-10-15).
+- **B2 is shelved** (BVJ: "sounds like a note"; "maybe shelve it"). Its
+  label already exists on plain bookmarks, so only the "how you got there"
+  trail is shelved. Read "maybe" as shelved; it is easy to reverse.
+- **D4 is in phase 3, last** (BVJ, 2026-10-15). The panes on /desk cover
+  most of its job, so it is decided once /desk exists.
+- **The "Any time" items** are now just the apps' license-terms link.
+
+### 2026-10-15 (N2, H2 and M4 shelved: version 2)
+
+- **N2, H2 with C23 and M4 are shelved** (BVJ, 2026-10-15), and so is the
+  word pane proposed for 2c under D9. They are version 2 material and
+  leave phase 2c.
+- **The rule (BVJ, 2026-10-15): anything deferred or shelved is not in a
+  phase of version 1's development.** It keeps its entry, for version 2,
+  under "Version 2" in "Order of work". What is in a phase is version 1.
+- **Applied the same day**: M10 is out of phase 2a; 1g is out of phase 1
+  and 1e is out of phase 1's list; word families are out of phase 2's
+  text; D7's public-domain part is out of phase 1c; N7 is listed under
+  version 2.
+- **Stays in version 1** (BVJ, 2026-10-15): M11, the one piece left in
+  2c; and the Greek pane in /desk (D9). An interlinear-style interleaf is
+  version 2. **N8, the hidden passage**, is held until after the Zoom and
+  stays in 1d until then.
+- **Knock-on**: the record kinds `glossaryId` (N2) and `markRule` (H2) stay
+  in `STUDY-DESK-FORMAT.md` for now. Whether they stay as reserved kinds
+  can be decided later (under "Version 2").
 
 ### 2026-10-15 (M10 shelved)
 
