@@ -30,7 +30,7 @@
 
 import { stripBracketMarkers } from "../lib/bracket-markers.mjs";
 import { LIT_CREDIT_LINE } from "../lib/lit-credit.mjs";
-import { markEmphasis, handoutPlain, handoutHtml } from "../lib/handout-rich.mjs";
+import { markEmphasis, handoutPlain, handoutHtml, VN_ON, VN_OFF, FN_ON, FN_OFF } from "../lib/handout-rich.mjs";
 import { showPanel, closePanel, currentPanel, setEscapeFallback, isSmallScreen } from "./lit-panel.js";
 import { imageStep } from "./verse-image.js";
 import {
@@ -345,7 +345,9 @@ function joinPieces(pieces, { numbers = true, rich = false } = {}) {
     } else if (piece.verse === prev.verse) {
       out += (piece.lines || prev.lines ? "\n" : " ") + text;
     } else {
-      out += (prev.lines ? "\n" : " ") + (numbers ? piece.verse + " " : "") + text;
+      // A rich copy superscripts the number as the page does; plain reads the same.
+      const number = rich ? VN_ON + piece.verse + VN_OFF : piece.verse;
+      out += (prev.lines ? "\n" : " ") + (numbers ? number + " " : "") + text;
     }
     prev = piece;
   }
@@ -396,7 +398,7 @@ function blockText(el, notes = null, italics = !!notes) {
     const label = sup.textContent.trim();
     const id = (sup.querySelector("a")?.getAttribute("href") || "").replace(/^#/, "");
     if (label && id) notes.push({ label, id });
-    sup.replaceWith(label ? "[" + label + "]" : "");
+    sup.replaceWith(label ? FN_ON + label + FN_OFF : "");
   });
   // textContent drops a <br> with no separator, welding the lines either side
   // into one word ("a welcome time!Look! Now is…").
@@ -455,7 +457,7 @@ function getHandoutText(container, start, end, ref, url) {
       pieces.push(spanPiece(span, cleanForShare(blockText(span, cited))));
     }
   }
-  return assembleHandout(joinPieces(pieces), cited, document, ref, url);
+  return assembleHandout(joinPieces(pieces, { rich: true }), cited, document, ref, url);
 }
 
 /**
@@ -473,7 +475,7 @@ function assembleHandout(text, cited, root, ref, url) {
     if (seen.has(id)) continue;
     seen.add(id);
     const note = noteText(id, root);
-    if (note) notes.push("[" + label + "] " + note);
+    if (note) notes.push(FN_ON + label + FN_OFF + " " + note);
   }
 
   return [withReference(text, ref), notes.join("\n"), LIT_CREDIT_LINE + "\n" + url]
@@ -1191,7 +1193,7 @@ function selectionHandout(share, scope, ref, url) {
       pieces.push(spanPiece(span, cleanForShare(blockText(holder, cited))));
     }
   }
-  return assembleHandout(joinPieces(pieces), cited, root, ref, url);
+  return assembleHandout(joinPieces(pieces, { rich: true }), cited, root, ref, url);
 }
 
 function openSelectionPanel(view, share, { touch }) {
