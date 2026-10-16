@@ -2485,3 +2485,21 @@ checking alignment records for renderings split by another word.
 doubled "them", so a restore from it would bring it back. The two alignment
 records for that verse were repaired in place ("wish well" n=1, "wish them
 well" n=1).
+
+## §34 — 1 Corinthians 12 and 14, a relative reference written out (2026-10-16)
+
+The shared footnote on the Corinthian languages read "(vv. 9–11, 19, 27–28)"
+after "In 1 Corinthians 14". It is stored byte-identically in 1 Corinthians 12
+(`fn-hh`) and 14 (`fn-c`), and means chapter 14 in both, so a relative
+reference was ambiguous in one of its two homes. The repo now writes the full
+reference, "(1 Corinthians 14:9–11, 19, 27–28)", in both copies. The renderer
+links each part of it. The change is formatting, so it is kept out of the
+release notes (`src/data/release-notes-skip.md`).
+
+| repo | master | was → now |
+|---|---|---|
+| `1corinthians-12` fn-hh, `1corinthians-14` fn-c | 1 Corinthians (`scripts/reconcile/out/books/1corinthians.md`, hyphens as the master keeps them) | `(vv. 9–11, 19, 27–28)` → `(1 Corinthians 14:9–11, 19, 27–28)` |
+
+**Back-port to Word**: the 1 Corinthians master still reads "(vv. 9-11, 19,
+27-28)", so a restore from it would bring the relative form back, and the
+link with it. Type the full reference into the master's note in both places.

@@ -18,6 +18,15 @@ To skip a round: add an entry below, in the same commit as the content change.
 
 ---
 
+## 2026-10-16 — a relative reference written out in 1 Corinthians 12 and 14
+
+Skipped the footnote rows for the shared note on the Corinthian languages
+(1 Corinthians 12 `fn-hh`, 14 `fn-c`). The text "(vv. 9–11, 19, 27–28)" becomes
+"(1 Corinthians 14:9–11, 19, 27–28)", so the reference links as the rest of the
+notes do. The visible words change only by the book and chapter, which the
+owner counts as a formatting change, not a change to the translation. Owner
+ruling: skip. The Word back-port is in `FOLLOW-UP-RECONCILIATION.md` §34.
+
 ## 2026-10-06 — a doubled object in Romans 12:14
 
 Skipped the verse row for Romans 12:14, which loses one word: "wish them well
