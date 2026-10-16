@@ -157,7 +157,9 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     addButton.addEventListener("click", () => addAction.run(addButton));
   }
 
-  const list = el.querySelector(".desk-list");
+  // The tab's own list, not the Places group's (also a .desk-list, and first
+  // in the tree now that it is prepended): each drew into the other's list.
+  const list = el.querySelector(":scope > .desk-list");
   const empty = el.querySelector(".desk-panel__empty");
   const pinBox = el.querySelector(".desk-mine__pins");
   const pinList = el.querySelector(".desk-mine__pin-list");
