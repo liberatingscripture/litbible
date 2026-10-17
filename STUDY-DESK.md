@@ -18,7 +18,8 @@ are recorded so they aren't re-argued.
   bugs and of what using the desk is like, BVJ's own use first, under
   "Fixes and experience" (IDs E1 onward). It never waits for phases 3 and 4.
   Open from BVJ's use so far: Places (E4), and the Greek search commands,
-  which aren't intuitive (E5) and can't search a word family (E6).
+  where putting a search together isn't intuitive (E5; BVJ wants to try a
+  menu-based builder) and a word family can't be searched (E6).
 
 - **Phase 3 is now sheets and the desk together** (BVJ, 2026-10-15): D9,
   the desk as a page of its own (`/desk/`), with the LIT text as one pane
@@ -5288,25 +5289,34 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   - The answer may send part of it to B4, or to sync's open question on
     whether places sync (BVJ leans against).
 - **E5, rough: the Greek search commands window isn't intuitive.** BVJ
-  (2026-10-16): it "mostly works but it doesn't feel intuitive." Open. The
-  specifics aren't recorded yet; add them as BVJ names them. What exists
-  (2a, Greek search commands; CLAUDE.md, the desk's rule 17): the commands
-  window (`src/scripts/greek-commands.js`) is the one place for
-  instructions and examples, opened by "Search commands", and lists
-  `COMMANDS` and `EXAMPLES` from `src/lib/greek-query.mjs`; the page itself
-  shows only the readback and, for an empty search, examples. **Questions
-  to ask when it is picked up**, as prompts and not findings:
-  - Is it **the notation** (`.gen`, `/` for either, `*` for any word,
-    quotes for the word itself), or **how a command is put together** in
-    the window (clicking a command inserts it; does the result read as
-    expected)?
-  - Is it **finding the window** at all, or knowing which words it
-    accepts (the word list, abbreviations)?
-  - Is it **the readback**, or what an empty or failed search says?
-  - Does it need a **builder with choices** (pick a word, then case,
-    tense, part of speech from menus) rather than a list to insert from?
-    That would add controls to search pages, which "quiet controls" and
-    the one-window rule weigh against, so it needs a mock first.
+  (2026-10-16): it "mostly works but it doesn't feel intuitive." Open.
+  **What's wrong** (BVJ, the same day): not the commands themselves, but
+  **putting a search together**, and **understanding how the window
+  interacts with the search bar**. **What to try** (BVJ): a menu-based
+  builder, to see whether it is better, when the work is taken up. A
+  direction to try with a mock, not a decision. What exists (2a, Greek
+  search commands; CLAUDE.md, the desk's rule 17): the commands window
+  (`src/scripts/greek-commands.js`) is the one place for instructions and
+  examples, opened by "Search commands"; it lists `COMMANDS` and
+  `EXAMPLES` from `src/lib/greek-query.mjs`, and clicking one inserts it
+  into the search field. The page itself shows only the readback and, for
+  an empty search, examples. **Questions for the mock**, as prompts and
+  not findings:
+  - **Where the builder lives.** Inside the commands window keeps the
+    one-window rule and adds nothing to the search pages ("quiet
+    controls"); on the search page beside the field would be easier to
+    find but is the kind of control those rules weigh against.
+  - **How it relates to the field.** Does the builder write the typed
+    command as you choose (so you learn the notation by watching it), or
+    keep its own state with the field showing only the result? Either
+    way, the field and the builder should never disagree about what is
+    being searched, which is the interaction that is unclear today.
+  - **What the menus offer.** A word (with its lemma shown), then part
+    of speech, case, tense and so on, each listing only what that word
+    actually has (which also answers E6's "a noun has no verb forms"),
+    and a way to add a second word for a construction.
+  - **The same builder in all three places**: the tray, /search and the
+    Greek tab, since `searchGreekAuto` is already one search behind them.
 - **E6, wish: search a word family, not just one lemma.** BVJ
   (2026-10-16): `hamartia.noun/verb` finds no verbs, `hamartano.noun/verb`
   no nouns, and `hamartia.adj` no ἁμαρτωλός. Checked against the committed
