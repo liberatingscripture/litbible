@@ -17,6 +17,10 @@ are recorded so they aren't re-argued.
 - **Phase 5 is fixes and experience** (BVJ, 2026-10-16): a running log of
   bugs and of what using the desk is like, BVJ's own use first, under
   "Fixes and experience" (IDs E1 onward). It never waits for phases 3 and 4.
+  Open from BVJ's use so far: Places (E4), and the Greek search commands,
+  where putting a search together isn't intuitive (E5; BVJ wants to try a
+  menu-based builder) and a word family can't be searched (E6), and
+  whether the Notebook's Greek tab should search at all (E7).
 
 - **Phase 3 is now sheets and the desk together** (BVJ, 2026-10-15): D9,
   the desk as a page of its own (`/desk/`), with the LIT text as one pane
@@ -5285,6 +5289,82 @@ sign of a feature: log it, and move it when it's clear where it belongs).
     selection panel, the 6-ribbon limit, the naming?
   - The answer may send part of it to B4, or to sync's open question on
     whether places sync (BVJ leans against).
+- **E5, rough: the Greek search commands window isn't intuitive.** BVJ
+  (2026-10-16): it "mostly works but it doesn't feel intuitive." Open.
+  **What's wrong** (BVJ, the same day): not the commands themselves, but
+  **putting a search together**, and **understanding how the window
+  interacts with the search bar**. **What to try** (BVJ): a menu-based
+  builder, to see whether it is better, when the work is taken up. A
+  direction to try with a mock, not a decision. What exists (2a, Greek
+  search commands; CLAUDE.md, the desk's rule 17): the commands window
+  (`src/scripts/greek-commands.js`) is the one place for instructions and
+  examples, opened by "Search commands"; it lists `COMMANDS` and
+  `EXAMPLES` from `src/lib/greek-query.mjs`, and clicking one inserts it
+  into the search field. The page itself shows only the readback and, for
+  an empty search, examples. **Questions for the mock**, as prompts and
+  not findings:
+  - **Where the builder lives.** Inside the commands window keeps the
+    one-window rule and adds nothing to the search pages ("quiet
+    controls"); on the search page beside the field would be easier to
+    find but is the kind of control those rules weigh against.
+  - **How it relates to the field.** Does the builder write the typed
+    command as you choose (so you learn the notation by watching it), or
+    keep its own state with the field showing only the result? Either
+    way, the field and the builder should never disagree about what is
+    being searched, which is the interaction that is unclear today.
+  - **What the menus offer.** A word (with its lemma shown), then part
+    of speech, case, tense and so on, each listing only what that word
+    actually has (which also answers E6's "a noun has no verb forms"),
+    and a way to add a second word for a construction.
+  - **The same builder in all three places**: the tray, /search and the
+    Greek tab, since `searchGreekAuto` is already one search behind them.
+- **E6, wish: search a word family, not just one lemma.** BVJ
+  (2026-10-16): `hamartia.noun/verb` finds no verbs, `hamartano.noun/verb`
+  no nouns, and `hamartia.adj` no ἁμαρτωλός. Checked against the committed
+  index the same day: **working as built, but not as a reader expects.**
+  Each word in a query resolves to one lemma (hamartia → ἁμαρτία, hamartano
+  → ἁμαρτάνω; `resolveGreekQuery`), and a part-of-speech filter only
+  narrows that lemma's own forms, so `.verb` on a noun lemma can never
+  match. Nothing in the search knows that ἁμαρτία, ἁμαρτάνω, ἁμάρτημα and
+  ἁμαρτωλός are one family, and a Greek stem (ἁμαρτ) comes back "unknown."
+  Open. Two things to settle when it is taken up:
+  - **Where the families come from.** Stems or prefix matching would be
+    wrong often (ἁμαρτ- is clean; many roots aren't, and compounds hide
+    them). A source that groups lemmas by root is better, if one of the
+    sources `build:greek` already reads carries it, or another with a
+    license that fits `public/greek/` (rule 14). Not yet checked.
+  - **How a reader asks for it.** A family command (something like
+    `hamartia.family` or a "related words" choice), versus making a
+    part-of-speech filter widen to the family by itself, which would
+    change what `hamartia.noun` means today. Meanwhile, a filter that
+    rules out every form of the lemma could say so ("ἁμαρτία is a noun;
+    it has no verb forms") instead of returning nothing; whether it does
+    today wasn't checked.
+- **E7, rough: is searching too much for the Notebook's Greek tab?** BVJ
+  (2026-10-16), thinking aloud and not a decision: the site's search bar
+  could keep doing what it does with the Greek, and focused Greek
+  searching could be designed for /desk's Greek pane (D9), which happens
+  either way. **The Phase 5 question is only whether to take searching out
+  of the Notebook's Greek tab.** Open. What is there today (1h, "The Greek
+  tab searches too"; `desk/greek-find.js`): a search button in the tab's
+  header opens a field in place, results replace the text until "Back to
+  the text," and in a word's details the form, the lemma and the Strong's
+  number each start a search. The field also opens the commands window.
+  The choices, as prompts:
+  - **Keep it as it is.**
+  - **Take out the typed search, keep the word links**: a word's form,
+    lemma or Strong's number still shows where else it occurs, which
+    starts from what the reader is looking at and needs no typing or
+    builder. Where those results show (in the tab, or on /search) is part
+    of the choice.
+  - **Take out both**, leaving the tab for reading the Greek, and send
+    every Greek search to the search bar.
+  - Either removal also touches the tour's `greek-commands` step (it
+    demonstrates the commands in the tab's field), the help page's
+    paragraph on searching the Greek, the tab's half of the commands
+    window's open-and-close rule, and the desk's rule 15 in CLAUDE.md.
+    E5's builder would then live in the search bar's commands window
+    until /desk.
 
 **Fixed**
 
