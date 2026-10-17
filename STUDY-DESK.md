@@ -17,6 +17,8 @@ are recorded so they aren't re-argued.
 - **Phase 5 is fixes and experience** (BVJ, 2026-10-16): a running log of
   bugs and of what using the desk is like, BVJ's own use first, under
   "Fixes and experience" (IDs E1 onward). It never waits for phases 3 and 4.
+  Open from BVJ's use so far: Places (E4), and the Greek search commands,
+  which aren't intuitive (E5) and can't search a word family (E6).
 
 - **Phase 3 is now sheets and the desk together** (BVJ, 2026-10-15): D9,
   the desk as a page of its own (`/desk/`), with the LIT text as one pane
@@ -5285,6 +5287,48 @@ sign of a feature: log it, and move it when it's clear where it belongs).
     selection panel, the 6-ribbon limit, the naming?
   - The answer may send part of it to B4, or to sync's open question on
     whether places sync (BVJ leans against).
+- **E5, rough: the Greek search commands window isn't intuitive.** BVJ
+  (2026-10-16): it "mostly works but it doesn't feel intuitive." Open. The
+  specifics aren't recorded yet; add them as BVJ names them. What exists
+  (2a, Greek search commands; CLAUDE.md, the desk's rule 17): the commands
+  window (`src/scripts/greek-commands.js`) is the one place for
+  instructions and examples, opened by "Search commands", and lists
+  `COMMANDS` and `EXAMPLES` from `src/lib/greek-query.mjs`; the page itself
+  shows only the readback and, for an empty search, examples. **Questions
+  to ask when it is picked up**, as prompts and not findings:
+  - Is it **the notation** (`.gen`, `/` for either, `*` for any word,
+    quotes for the word itself), or **how a command is put together** in
+    the window (clicking a command inserts it; does the result read as
+    expected)?
+  - Is it **finding the window** at all, or knowing which words it
+    accepts (the word list, abbreviations)?
+  - Is it **the readback**, or what an empty or failed search says?
+  - Does it need a **builder with choices** (pick a word, then case,
+    tense, part of speech from menus) rather than a list to insert from?
+    That would add controls to search pages, which "quiet controls" and
+    the one-window rule weigh against, so it needs a mock first.
+- **E6, wish: search a word family, not just one lemma.** BVJ
+  (2026-10-16): `hamartia.noun/verb` finds no verbs, `hamartano.noun/verb`
+  no nouns, and `hamartia.adj` no ἁμαρτωλός. Checked against the committed
+  index the same day: **working as built, but not as a reader expects.**
+  Each word in a query resolves to one lemma (hamartia → ἁμαρτία, hamartano
+  → ἁμαρτάνω; `resolveGreekQuery`), and a part-of-speech filter only
+  narrows that lemma's own forms, so `.verb` on a noun lemma can never
+  match. Nothing in the search knows that ἁμαρτία, ἁμαρτάνω, ἁμάρτημα and
+  ἁμαρτωλός are one family, and a Greek stem (ἁμαρτ) comes back "unknown."
+  Open. Two things to settle when it is taken up:
+  - **Where the families come from.** Stems or prefix matching would be
+    wrong often (ἁμαρτ- is clean; many roots aren't, and compounds hide
+    them). A source that groups lemmas by root is better, if one of the
+    sources `build:greek` already reads carries it, or another with a
+    license that fits `public/greek/` (rule 14). Not yet checked.
+  - **How a reader asks for it.** A family command (something like
+    `hamartia.family` or a "related words" choice), versus making a
+    part-of-speech filter widen to the family by itself, which would
+    change what `hamartia.noun` means today. Meanwhile, a filter that
+    rules out every form of the lemma could say so ("ἁμαρτία is a noun;
+    it has no verb forms") instead of returning nothing; whether it does
+    today wasn't checked.
 
 **Fixed**
 
