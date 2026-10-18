@@ -33,6 +33,7 @@ import {
   widestMeasure,
   widthsFromLayout,
 } from "../../lib/desk-margin.mjs";
+import { clampSplit } from "../../lib/desk-greek-split.mjs";
 import { keepReadingPlace } from "../keep-reading-place.js";
 
 const MEASURE_KEY = "lit-desk-measure";
@@ -40,6 +41,9 @@ const WIDTH_KEY = "lit-desk-width";
 // The floating notebook's width, dragged by its left edge (float-resize.js).
 // Kept the same way, for the visit, and forgotten by "Reset widths" too.
 const FLOAT_KEY = "lit-desk-float-width";
+// Where the Greek tab's line between the text and the entry sits, the
+// entry's share of their room (tab-greek.js), kept the same way.
+const GREEK_SPLIT_KEY = "lit-desk-greek-split";
 /** Sent when the kept widths change or are forgotten. */
 export const WIDTHS_EVENT = "desk:widths";
 
@@ -68,6 +72,20 @@ export function keepFloatWidth(width) {
   } catch (_) {}
 }
 
+/** The entry's share of the Greek tab the reader dragged to, or null. */
+export function keptGreekSplit() {
+  try {
+    return clampSplit(parseFloat(sessionStorage.getItem(GREEK_SPLIT_KEY)));
+  } catch (_) {}
+  return null;
+}
+
+export function keepGreekSplit(share) {
+  try {
+    sessionStorage.setItem(GREEK_SPLIT_KEY, String(share));
+  } catch (_) {}
+}
+
 function keep({ measure, width }) {
   try {
     sessionStorage.setItem(MEASURE_KEY, String(measure));
@@ -81,6 +99,7 @@ export function resetWidths() {
     sessionStorage.removeItem(MEASURE_KEY);
     sessionStorage.removeItem(WIDTH_KEY);
     sessionStorage.removeItem(FLOAT_KEY);
+    sessionStorage.removeItem(GREEK_SPLIT_KEY);
   } catch (_) {}
   document.dispatchEvent(new CustomEvent(WIDTHS_EVENT, { detail: { kept: false } }));
 }
@@ -95,7 +114,7 @@ export function resetWidthsButton(className) {
   b.className = className;
   b.textContent = "Reset widths";
   const sync = () => {
-    b.hidden = !keptWidths() && keptFloatWidth() === null;
+    b.hidden = !keptWidths() && keptFloatWidth() === null && keptGreekSplit() === null;
   };
   sync();
   document.addEventListener(WIDTHS_EVENT, sync);

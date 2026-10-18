@@ -2545,7 +2545,13 @@ collection); they're read directly by the intro pages and the API manifest.
        opens at the verse being read, with "Go to verse N" to catch up; its
        words are one roving tab stop, moved with the arrow keys. The
        reader's lexicon choice is `localStorage['lit-desk-lexicon']`, named
-       in the privacy paragraph. The parsing is put in words by
+       in the privacy paragraph. **The line between the Greek and a word's
+       entry is draggable** (BVJ, 2026-10-17), the entry taking a quarter to
+       three quarters of their room (`src/lib/desk-greek-split.mjs`, pure and
+       tested; the handle is in `tab-greek.js`, sized by CSS flex ratios on
+       `--desk-greek-split`). Shown only while a word is open; kept in
+       `sessionStorage['lit-desk-greek-split']` for the visit, forgotten by
+       "Reset widths", and named in /privacy's paragraph. The parsing is put in words by
        `src/lib/greek-parse.mjs` (shared with the phase 2 tool), and the
        SBLGNT's ⸀–⸅ signs draw from `public/fonts/text-critical-signs.otf`.
   15. **Phase 1h is searching the Greek** (built 2026-10-13; STUDY-DESK.md,

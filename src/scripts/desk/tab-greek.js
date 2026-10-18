@@ -28,6 +28,14 @@ import {
   renderingsIn, splitSigns, termsForLemma, versesOf,
 } from "../../lib/desk-greek.mjs";
 import { verseAtReadingLine } from "../last-read.js";
+import {
+  MAX_SPLIT,
+  MIN_SPLIT,
+  SPLIT_STEP,
+  clampSplit,
+  splitFromPointer,
+} from "../../lib/desk-greek-split.mjs";
+import { WIDTHS_EVENT, keepGreekSplit, keptGreekSplit } from "./widths.js";
 import { createGreekFind } from "./greek-find.js";
 import {
   getLexicon, loadChapterGreek, loadLsjEntries, loadStepEntries, loadUbsEntry, setLexicon,
@@ -151,6 +159,7 @@ export function createGreekTab({ here, visible, openVerse }) {
     </div>
     <div class="desk-greek__scroller"></div>
     <div class="desk-greek__scroller desk-greek__results" aria-label="Greek search results" role="region" hidden></div>
+    <div class="desk-greek__split" role="separator" aria-orientation="horizontal" aria-label="Resize the Greek and the entry" tabindex="0"><span class="desk-greek__split-grip" aria-hidden="true"></span></div>
     <section class="desk-greek__details" aria-label="Word details">
       <div class="sr-only desk-greek__announce" aria-live="polite" aria-atomic="true"></div>
       <div class="desk-greek__live">
@@ -182,6 +191,7 @@ export function createGreekTab({ here, visible, openVerse }) {
   const goto = el.querySelector(".desk-greek__goto");
   const scroller = el.querySelector(".desk-greek__scroller");
   const details = el.querySelector(".desk-greek__details");
+  const splitter = el.querySelector(".desk-greek__split");
   const wordHead = el.querySelector(".desk-greek__word");
   const parseLine = el.querySelector(".desk-greek__parse");
   const more = el.querySelector(".desk-greek__more");
@@ -593,6 +603,106 @@ export function createGreekTab({ here, visible, openVerse }) {
     setRover(i);
     buttons[i].focus({ preventScroll: true });
   }
+
+  /* ── The line between the Greek and the entry ──────────────────── */
+
+  // Draggable between a quarter and three quarters either way (BVJ,
+  // 2026-10-17); rules in src/lib/desk-greek-split.mjs. Untouched, the entry
+  // takes what it needs, as before. The line shows only while a word is
+  // open (desk.css), and the reader's share is kept for the visit.
+  const visibleScroller = () =>
+    Array.from(el.querySelectorAll(".desk-greek__scroller")).find((s) => !s.hidden) ?? scroller;
+  let share = keptGreekSplit();
+  let splitFrame = 0;
+
+  function setShare(next, { keep = true } = {}) {
+    share = next;
+    if (share == null) {
+      el.removeAttribute("data-split");
+      el.style.removeProperty("--desk-greek-split");
+      splitter.removeAttribute("aria-valuenow");
+    } else {
+      el.dataset.split = "";
+      el.style.setProperty("--desk-greek-split", String(share));
+      const pct = Math.round(share * 100);
+      splitter.setAttribute("aria-valuenow", String(pct));
+      splitter.setAttribute("aria-valuetext", `Entry ${pct} percent, Greek ${100 - pct} percent`);
+    }
+    if (keep) {
+      try {
+        if (share == null) sessionStorage.removeItem("lit-desk-greek-split");
+        else keepGreekSplit(share);
+      } catch (_) {}
+      document.dispatchEvent(new CustomEvent(WIDTHS_EVENT, { detail: { kept: share != null } }));
+    }
+    // The text changed height under the word: bring it back into view.
+    cancelAnimationFrame(splitFrame);
+    splitFrame = requestAnimationFrame(() => {
+      if (selected != null && buttons[selected]) bringIntoView(buttons[selected]);
+    });
+  }
+
+  splitter.setAttribute("aria-valuemin", String(MIN_SPLIT * 100));
+  splitter.setAttribute("aria-valuemax", String(MAX_SPLIT * 100));
+  if (share != null) setShare(share, { keep: false });
+  // "Reset widths" forgets it.
+  document.addEventListener(WIDTHS_EVENT, () => {
+    if (keptGreekSplit() == null && share != null) setShare(null, { keep: false });
+  });
+
+  splitter.addEventListener("pointerdown", (e) => {
+    if (e.button !== 0) return;
+    e.preventDefault();
+    try {
+      splitter.setPointerCapture(e.pointerId);
+    } catch (_) {
+      /* a synthetic event has no live pointer */
+    }
+    splitter.classList.add("desk-greek__split--dragging");
+    const move = (ev) => {
+      const next = splitFromPointer({
+        y: ev.clientY,
+        top: visibleScroller().getBoundingClientRect().top,
+        bottom: details.getBoundingClientRect().bottom,
+      });
+      if (next != null) setShare(next);
+    };
+    const end = () => {
+      splitter.removeEventListener("pointermove", move);
+      splitter.removeEventListener("pointerup", end);
+      splitter.removeEventListener("pointercancel", end);
+      splitter.classList.remove("desk-greek__split--dragging");
+    };
+    splitter.addEventListener("pointermove", move);
+    splitter.addEventListener("pointerup", end);
+    splitter.addEventListener("pointercancel", end);
+  });
+
+  // The grip sits beside the pointer, at its place along the line.
+  splitter.addEventListener("pointermove", (e) => {
+    splitter.style.setProperty("--grip-x", `${e.clientX - splitter.getBoundingClientRect().left}px`);
+  });
+
+  // The line moves with the arrow: Up raises it (the entry grows), Down
+  // lowers it. Shift takes bigger steps, Home and End go to the bounds, and
+  // Enter or a double click lets the entry size itself again.
+  splitter.addEventListener("keydown", (e) => {
+    const now = share ?? clampSplit(details.offsetHeight / (details.offsetHeight + visibleScroller().offsetHeight)) ?? 0.5;
+    const step = (e.shiftKey ? 5 : 1) * SPLIT_STEP;
+    let next = null;
+    if (e.key === "ArrowUp") next = now + step;
+    else if (e.key === "ArrowDown") next = now - step;
+    else if (e.key === "Home") next = MAX_SPLIT;
+    else if (e.key === "End") next = MIN_SPLIT;
+    else if (e.key === "Enter") {
+      e.preventDefault();
+      setShare(null);
+      return;
+    } else return;
+    e.preventDefault();
+    setShare(clampSplit(next));
+  });
+  splitter.addEventListener("dblclick", () => setShare(null));
 
   /* ── The word's details ────────────────────────────────────────── */
 
