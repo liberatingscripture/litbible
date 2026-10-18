@@ -3611,6 +3611,101 @@ html[data-desk-list="full"] .desk-item__pin-text {
   color: var(--green-text);
 }
 
+/* The line between the Greek and the word's entry (tab-greek.js, BVJ,
+   2026-10-17): draggable, from a quarter to three quarters either way. Shown
+   only while a word is open. Like the notebook's other handles nothing shows
+   at rest: the resize cursor, a small grip beside the pointer, and a hairline
+   while dragging. Its negative margins cancel its height, so it takes no
+   room. */
+.desk-greek__split {
+  position: relative;
+  z-index: 2;
+  flex: 0 0 10px;
+  margin: -5px 0;
+  cursor: row-resize;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.desk-greek:not(:has(.desk-greek__more:not([hidden]))) .desk-greek__split {
+  display: none;
+}
+
+.desk-greek__split:focus-visible {
+  outline: 2px solid transparent;
+}
+
+.desk-greek__split::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 4px;
+  height: 2px;
+  background: rgba(var(--ink-rgb), 0.28);
+  opacity: 0;
+}
+
+.desk-greek__split--dragging::before {
+  opacity: 1;
+}
+
+.desk-greek__split-grip {
+  position: absolute;
+  top: 2px;
+  left: var(--grip-x, 50%);
+  width: 32px;
+  height: 5px;
+  border-radius: 3px;
+  transform: translateX(-50%);
+  background: rgba(var(--ink-rgb), 0.35);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 120ms ease;
+}
+
+.desk-greek__split:hover .desk-greek__split-grip,
+.desk-greek__split:focus-visible .desk-greek__split-grip,
+.desk-greek__split--dragging .desk-greek__split-grip {
+  opacity: 1;
+}
+
+.desk-greek__split:focus-visible .desk-greek__split-grip {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.desk-greek__split--dragging .desk-greek__split-grip {
+  background: var(--green-text);
+}
+
+html:has(.desk-greek__split--dragging) {
+  cursor: row-resize;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Once the reader has set it, the two share the room by the ratio, and the
+   entry no longer sizes itself. Without a word open, the entry is the
+   short bar it always was. */
+.desk-greek[data-split]:has(.desk-greek__more:not([hidden])) .desk-greek__scroller {
+  flex: calc(1 - var(--desk-greek-split)) 1 0;
+  min-height: 0;
+}
+
+.desk-greek[data-split]:has(.desk-greek__more:not([hidden])) .desk-greek__details {
+  flex: var(--desk-greek-split) 1 0;
+  max-height: none;
+  min-height: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .desk-greek__split-grip {
+    transition: none;
+  }
+}
+
 /* The word's details, docked at the foot: they take what they need up to
    under half the tab and scroll inside it past that. */
 .desk-greek__details {
