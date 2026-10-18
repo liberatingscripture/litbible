@@ -453,6 +453,7 @@ export function createGreekFind({ root, here, selectWord, focusText }) {
         row = make("button", "desk-greek__hit");
         row.type = "button";
         row.dataset.i = String(i);
+        row.dataset.previewHref = hit.href; // hover shows the verse (ref-preview.js)
       } else {
         row = make("a", "desk-greek__hit");
         row.href = hit.href;
