@@ -23,16 +23,19 @@
 import { BOOKS, bookKeyToLabel } from "../data/books.js";
 import { showPanel, closePanel, currentPanel } from "./lit-panel.js";
 
-const SELECTOR = "a.sref, .article__body a[href]";
-const HREF_RE = /^\/([0-9a-z]+)-(\d+)\/?(?:#v(\d+)(?:-(\d+))?)?$/;
+// The Greek tab's search results are previewed too (they link a verse, with a
+// ?greek= word parameter the preview ignores; one for the chapter on screen is
+// a button, so it names its verse in data-preview-href instead).
+const SELECTOR = "a.sref, .article__body a[href], .desk-greek__hit";
+const HREF_RE = /^\/([0-9a-z]+)-(\d+)\/?(?:\?[^#]*)?(?:#v(\d+)(?:-(\d+))?)?$/;
 const MAX_VERSES = 6;
 const OPEN_DELAY = 350;
 const CLOSE_DELAY = 250;
 
 /** { key, chapter, verse, end } for a scripture link, or null. */
 function parseRef(a) {
-  const href = a.getAttribute("href") || "";
-  const m = href.match(HREF_RE);
+  const raw = a.dataset.previewHref || a.getAttribute("href") || "";
+  const m = raw.match(HREF_RE);
   if (!m || !(m[1] in BOOKS)) return null;
   const chapter = Number(m[2]);
   if (chapter < 1 || chapter > BOOKS[m[1]]) return null;
@@ -41,7 +44,7 @@ function parseRef(a) {
     chapter,
     verse: m[3] ? Number(m[3]) : null,
     end: m[4] ? Number(m[4]) : null,
-    href,
+    href: raw.replace(/\?[^#]*/, ""),
   };
 }
 
@@ -213,7 +216,8 @@ document.addEventListener("click", (e) => {
   if (lastPointerType === "mouse" || e.detail === 0) return; // mouse or keyboard
   if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
   const a = previewLink(e.target);
-  if (!a) return;
+  // A button (a Greek result on this chapter) does its own job on a tap.
+  if (!a || a.tagName !== "A") return;
   const p = currentPanel();
   if (p?.kind === "preview" && p.trigger === a) {
     closePanel();

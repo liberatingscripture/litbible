@@ -2589,7 +2589,12 @@ collection); they're read directly by the intro pages and the API manifest.
      - **The Greek tab searches too** (`desk/greek-find.js`): a button in
        its header opens a field in place, results replace the text until
        "Back to the text", and in a word's details the form, the lemma and
-       the Strong's number each start a search (BVJ, 2026-10-13).
+       the Strong's number each start a search (BVJ, 2026-10-13). Its result
+       rows preview their verse on hover like any reference
+       (`ref-preview.js`: a row for another chapter is a link with a
+       `?greek=` parameter, which the preview ignores; one for the chapter
+       on screen is a button naming its verse in `data-preview-href`, and
+       a tap on it jumps rather than previews).
   16. **Phase 2a's small pieces read, never write** (built 2026-10-15;
      STUDY-DESK.md, "Order of work", 2a): B3 and N4 add no kind of record,
      so each can be taken out cleanly (M10 was, the same day: BVJ shelved
