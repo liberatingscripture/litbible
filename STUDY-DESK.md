@@ -28,7 +28,8 @@ are recorded so they aren't re-argued.
   serves shared links, present mode and printing. **Phases 2b and 2c
   follow phase 3**, and phase 3's scope isn't cut to make a date. BVJ's
   answers are under D9 ("Across the desk"); the details are for when the
-  work starts, with mockups then.
+  work starts, with mockups then. **Split into parts 3a to 3k**
+  (proposed 2026-10-18, "Order of work", 3), to be worked one at a time.
 
 - **The tour is offered in a window beside the Notebook** (BVJ,
   2026-10-14), the first time it is expanded, with "Take the tour now,"
@@ -4081,6 +4082,62 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
    are edited only in /desk's sheet pane, a sheet's own address serves
    shared links, present mode and printing, and 2b and 2c follow phase 3.
    Its scope isn't cut to make a date.
+   **Phase 3's parts** (proposed 2026-10-18, for BVJ to confirm; one at a
+   time, each a PR or two, and the lettering is a working label like 1a to
+   1h):
+   - **3a. Mockups and open decisions.** D9 says mockups wait until the
+     work starts. They settle how the pane layouts are drawn, whether
+     /desk replaces or sits beside `/sheets/`, where Go deeper goes, and
+     whether the rich-text document pane is part of sheets or its own
+     pane (and its record format). Output is decisions here; no code.
+   - **3b. The sheet format and store.** Specify the sheet's inner shape
+     in STUDY-DESK-FORMAT.md (kind 9: items, per-passage blanks and
+     printed footnotes, leader-only notes, the commercial flag), then the
+     record kind, store writes, trash, merge and undo, with tests and
+     vectors. No UI. First among the code, because a stored kind can't be
+     taken back.
+   - **3c. The /desk shell and layout.** The route and gate, a pane
+     registry, one to four panes in free layouts (1×2, 2×1, 2×2) with
+     adjustable sizes, the remembered layout with "my default" and a
+     reset (a `localStorage` key, named in /privacy). Proves itself by
+     mounting one existing pane.
+   - **3d. The existing panes on /desk.** My Notes, This verse, Greek and
+     the notebook's lists, ported from their modules; the Greek pane kept
+     in step with the LIT pane as either scrolls (the 1g answer).
+   - **3e. The LIT pane and the footnotes pane (X11).** Study View's text
+     fetched a chapter at a time, so anchors stay character-identical
+     (`test/desk-anchor-dom.test.js` sweeps it); scrolling from chapter to
+     chapter, perhaps the whole corpus; popovers that know their chapter;
+     `keepReadingPlace` when a chapter loads above; drafts as a stub.
+     The riskiest part.
+   - **3f. The sheet editor (S1).** Add passages from the verse menu, a
+     selection or the notebook; drag into order; your own text between;
+     autosave; passages from live text. Built to run inside another page,
+     and shown as /desk's sheet pane.
+   - **3g. What a sheet knows about the LIT.** The key terms box (S3),
+     blanks (S10) with the footnote picker and spoiler flags (C15), and
+     the license card with the commercial check (S7).
+   - **3h. Paper and copies.** The sheet's own address; leader and
+     participant copies (S4); Letter and A4 with Greek and Hebrew fonts
+     (C27); printed codes (S5), which moves `qrcode-generator` from a
+     build-only dependency to something the page loads (C21) and checks
+     the app link files; the Word copy (S9); annotated printing (M6),
+     which needs no sheet and can move earlier or later.
+   - **3i. Present mode.** S6 with the reveal, M3's code on its first
+     screen, then M2's presenter view on two screens.
+   - **3j. Getting started and sharing.** Sheets from a search or topic
+     (M5), templates including the contemplative one (M9), and sharing by
+     file and by `#` link (S8: the address cleared before the analytics
+     beacon runs, confirmed in the network log; a phone or tablet is told
+     to open it on a computer).
+   - **3k. Pop the notebook out (D4).** Last, decided once /desk exists.
+
+   Suggested order: 3a, 3b, 3c, then 3f and 3d (both need only 3b and
+   3c), then 3e, 3g, 3h, 3i, 3j, and 3k. The path to printable leader and
+   participant sheets for Lent is 3b to 3h; present mode and sharing can
+   follow. **Not in phase 3**: S2 and N9 (2b), M11 and N6's "For
+   discussion" section (after phase 3), S11, and short share links (M14,
+   phase 4).
 4. **Sync, with BDR.** Starts once plan A or C is chosen and, if the Zoom
    wants plan A tested, the proofs (P1 to P3, now the spikes, paused
    2026-10-09) are in. Under both plans: a sync loop on 1a's merge engine, one source
@@ -5202,6 +5259,18 @@ tab, while planning the rest of 2a ("Order of work", 2a):
 - Still open, under D9: chapter, book or whole-corpus scrolling in the
   text pane; where Go deeper goes; whether a rich-text document is part of
   sheets or its own pane (and its record format); the word pane for 2c.
+
+### 2026-10-18 (Phase 3 split into parts)
+
+- **Phase 3 is split into 3a to 3k** ("Order of work", 3), to be worked one
+  at a time: mockups and open decisions, the sheet format, the /desk shell,
+  the existing panes, the LIT and footnotes panes, the sheet editor, what a
+  sheet knows about the LIT, paper and copies, present mode, getting
+  started and sharing, and D4. **A proposal, not a decision**: the split
+  and the order are for BVJ to confirm. It changes no scope; every item in
+  phase 3 is still in phase 3.
+- **Recommended first part: 3a**, since its four open questions decide 3c
+  to 3e.
 
 ### 2026-10-16 (Phase 5: fixes and experience)
 
