@@ -12,7 +12,17 @@ conversations that produced it.
 Many ideas here were weighed and decided, some were declined, and the reasons
 are recorded so they aren't re-argued.
 
-## Where things stand (as of 2026-10-16)
+## Where things stand (as of 2026-10-18)
+
+- **Phase 3a is decided** (BVJ, 2026-10-18, from the mockups): /desk's
+  layouts come from a Layout menu, with dragging a pane to split another
+  included too; every arrangement mocked except four rows. Shared links,
+  present mode and printing keep `/sheets/`. Go deeper is a "This chapter"
+  section at the foot of This verse. A formatted document is part of
+  sheets: templates built from modules, plus a blank-canvas template with
+  full rich-text formatting. The LIT pane scrolls the whole corpus, with no
+  setting. Four smaller calls wait under "Still open" ("Phase 3a's smaller
+  calls"); 3b, the sheet format, is next.
 
 - **Phase 5 is fixes and experience** (BVJ, 2026-10-16): a running log of
   bugs and of what using the desk is like, BVJ's own use first, under
@@ -1011,6 +1021,38 @@ plan as a whole was accepted; nothing was declined except where stated).
        need to compress the scope to make it go faster. We'll be fine").
        The proposal to open /desk with two panes for Lent and add the
        free layouts later was declined; the whole of it is phase 3.
+  - **Phase 3a's answers** (BVJ, 2026-10-18, from the mockups; decision
+    log, "Phase 3a"). These settle answers 1 and 3 to 5 above:
+    1. **Layouts: a menu, and dragging to split.** A Layout menu offers
+       every arrangement, and dragging a pane to an edge of another to
+       split it is included as well. The arrangements are one pane; two
+       columns or two rows; three columns, three rows, one beside two
+       stacked (either side), and one above or below two side by side; and
+       four columns or 2×2. **Four rows is left out** (BVJ: the others
+       "work well", four rows "doesn't need to be included").
+    2. **`/sheets/` stays, beside `/desk/`.** It is the sheet's own address:
+       a plain page for opening a shared link, presenting and printing,
+       with Present, Print and "Copy into my desk". Editing is in /desk
+       only, as answer 10 says.
+    3. **Go deeper is a "This chapter" section at the foot of This verse**
+       in /desk. That pane already follows the reader's place, the section
+       changes only with the chapter, and it doesn't take one of four panes.
+       Whether the margin Notebook's This verse tab gets it too wasn't asked.
+    4. **A formatted document is part of sheets.** A sheet is built from
+       modules the reader can add, remove, rearrange and customize, and
+       comes from **several templates** (M9's among them), **plus one
+       template that is a blank canvas with the full rich-text formatting
+       options**, for a wholly original document. No Document pane and no
+       new kind of record. Ground rule 3 holds on the canvas too: a passage
+       placed there comes from the live text and stays set apart from the
+       reader's words, and formatted text is sanitized on the way in and
+       out.
+    5. **The LIT pane scrolls the whole corpus**, Matthew to Revelation,
+       loading each chapter as the reader nears it, **with no setting** for
+       a chapter or a book. A run of drafts shows as one stub (Acts and
+       Revelation today). Measured for the mockups: a chapter's built page
+       is about 31 KB compressed (median, 45 KB at most), about 7 KB of it
+       the text, footnotes and key-term data the pane uses.
   - **What the answers mean for the build** (notes for then, not
     decisions):
     - **Most panes exist already as modules**: the Greek tab, This verse,
@@ -4085,39 +4127,44 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
    **Phase 3's parts** (proposed 2026-10-18, for BVJ to confirm; one at a
    time, each a PR or two, and the lettering is a working label like 1a to
    1h):
-   - **3a. Mockups and open decisions.** D9 says mockups wait until the
-     work starts. They settle how the pane layouts are drawn, whether
-     /desk replaces or sits beside `/sheets/`, where Go deeper goes, and
-     whether the rich-text document pane is part of sheets or its own
-     pane (and its record format). Output is decisions here; no code.
+   - **3a. Mockups and open decisions.** **Done 2026-10-18**: mocked as a
+     private claude.ai page ("Study Desk Mockups", five questions, built
+     by Sonnet from a spec, checked by Haiku) and answered by BVJ the same
+     day (D9, "Phase 3a's answers"). No code.
    - **3b. The sheet format and store.** Specify the sheet's inner shape
-     in STUDY-DESK-FORMAT.md (kind 9: items, per-passage blanks and
+     in STUDY-DESK-FORMAT.md (kind 9: modules, per-passage blanks and
      printed footnotes, leader-only notes, the commercial flag), then the
      record kind, store writes, trash, merge and undo, with tests and
      vectors. No UI. First among the code, because a stored kind can't be
-     taken back.
+     taken back. **Since 3a**, the reader's own text is formatted
+     (sanitized HTML with the full rich-text set, so the blank-canvas
+     template can hold a whole document), and the module list is the
+     format's to define, since templates are arrangements of modules.
    - **3c. The /desk shell and layout.** The route and gate, a pane
-     registry, one to four panes in free layouts (1×2, 2×1, 2×2) with
-     adjustable sizes, the remembered layout with "my default" and a
-     reset (a `localStorage` key, named in /privacy). Proves itself by
-     mounting one existing pane.
+     registry, one to four panes in the arrangements 3a settled (every one
+     mocked but four rows), chosen from a Layout menu or by dragging a
+     pane to an edge of another, with adjustable sizes, the remembered
+     layout with "my default" and a reset (a `localStorage` key, named in
+     /privacy). Proves itself by mounting one existing pane.
    - **3d. The existing panes on /desk.** My Notes, This verse, Greek and
      the notebook's lists, ported from their modules; the Greek pane kept
-     in step with the LIT pane as either scrolls (the 1g answer).
+     in step with the LIT pane as either scrolls (the 1g answer); This
+     verse gains a "This chapter" section at its foot holding Go deeper,
+     taken from the same fetched page as the text.
    - **3e. The LIT pane and the footnotes pane (X11).** Study View's text
      fetched a chapter at a time, so anchors stay character-identical
-     (`test/desk-anchor-dom.test.js` sweeps it); scrolling from chapter to
-     chapter, perhaps the whole corpus; popovers that know their chapter;
+     (`test/desk-anchor-dom.test.js` sweeps it); scrolling through the
+     whole corpus with no setting (3a); popovers that know their chapter;
      `keepReadingPlace` when a chapter loads above; drafts as a stub.
      The riskiest part.
    - **3f. The sheet editor (S1).** Add passages from the verse menu, a
-     selection or the notebook; drag into order; your own text between;
-     autosave; passages from live text. Built to run inside another page,
-     and shown as /desk's sheet pane.
+     selection or the notebook; drag into order; your own text between,
+     with formatting; autosave; passages from live text. Built to run
+     inside another page, and shown as /desk's sheet pane.
    - **3g. What a sheet knows about the LIT.** The key terms box (S3),
      blanks (S10) with the footnote picker and spoiler flags (C15), and
      the license card with the commercial check (S7).
-   - **3h. Paper and copies.** The sheet's own address; leader and
+   - **3h. Paper and copies.** The sheet's own address, `/sheets/` (3a); leader and
      participant copies (S4); Letter and A4 with Greek and Hebrew fonts
      (C27); printed codes (S5), which moves `qrcode-generator` from a
      build-only dependency to something the page loads (C21) and checks
@@ -4126,7 +4173,8 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
    - **3i. Present mode.** S6 with the reveal, M3's code on its first
      screen, then M2's presenter view on two screens.
    - **3j. Getting started and sharing.** Sheets from a search or topic
-     (M5), templates including the contemplative one (M9), and sharing by
+     (M5), templates including the contemplative one (M9) and the blank
+     canvas with full rich-text formatting (3a), and sharing by
      file and by `#` link (S8: the address cleared before the analytics
      beacon runs, confirmed in the network log; a phone or tablet is told
      to open it on a computer).
@@ -5260,6 +5308,30 @@ tab, while planning the rest of 2a ("Order of work", 2a):
   text pane; where Go deeper goes; whether a rich-text document is part of
   sheets or its own pane (and its record format); the word pane for 2c.
 
+### 2026-10-18 (Phase 3a: the /desk mockups)
+
+Five questions mocked as one private claude.ai page, "Study Desk Mockups"
+(John 3, John 4 and Romans 8, with made-up notes and a made-up sheet).
+BVJ's answers, the same day (details under D9, "Phase 3a's answers"):
+
+- **Layouts**: the Layout menu, **with dragging a pane to split another
+  included too** ("A but B is included"). Every arrangement mocked works
+  except **four rows, which is left out**.
+- **The sheet's own address is `/sheets/`**, beside `/desk/`, as
+  recommended.
+- **Go deeper is a "This chapter" section at the foot of This verse**, as
+  recommended.
+- **A formatted document is part of sheets**, as recommended, and more:
+  **several templates and customizable modules, plus a "template" that is
+  a blank canvas with the full rich-text formatting options**, for a fully
+  original document.
+- **The LIT pane scrolls the whole corpus, with no additional options**, as
+  recommended.
+
+Not yet answered: the mockup's four smaller calls ("Still open", "Phase
+3a's smaller calls"). The 3a to 3k split itself is still a proposal BVJ
+worked within but hasn't confirmed.
+
 ### 2026-10-18 (Phase 3 split into parts)
 
 - **Phase 3 is split into 3a to 3k** ("Order of work", 3), to be worked one
@@ -5441,6 +5513,24 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   Notebook. Fixed in 2dbab04 (2026-10-15).
 
 ## Still open
+
+- **Phase 3a's smaller calls** (recommended in the mockups, 2026-10-18, for
+  BVJ to confirm; they shape 3c):
+  1. **One of each pane at a time.** Two LIT panes would give This verse,
+     Greek and Footnotes two places to follow.
+  2. **A pane needs at least 280px across and 160px high**, so an
+     arrangement that can't fit the window is grayed out in the Layout
+     menu ("Needs a wider window", "taller" or "larger").
+  3. **The original layout is the LIT text beside My Notes**, 60/40, which
+     "Reset to the original layout" returns to.
+  4. **The layout is kept in this browser** (a `localStorage` key, named in
+     /privacy), as the Display settings are, rather than synced.
+- **What "the full rich-text formatting options" include** (3b and 3f): the
+  mockup's sheet offered bold, italic, headings, lists, quotations and
+  links. A blank canvas for a wholly original document probably wants
+  more (underline, numbered lists, indentation, perhaps tables); the set
+  is settled with the format in 3b, since the sanitizer allows exactly
+  what is stored.
 
 - ~~**Phase 1d's defaults**~~: **accepted** (BVJ, 2026-10-13). (Built
   2026-10-12 on recommendations; listed per piece under "Order of work", 1d): the
