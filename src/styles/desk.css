@@ -4249,3 +4249,457 @@ html:has(.desk-greek__split--dragging) {
   margin-top: 0.25rem;
 }
 
+
+/* ── The desk page (/desk/) ───────────────────────────────────── */
+
+/* src/scripts/desk/desk-page.js (STUDY-DESK.md, D9; phase 3c): one to four
+   panes filling the window below a bar holding the page's title and the
+   Layout menu. The page doesn't scroll, so the footer goes while the desk is
+   drawn; without the preview the page is its ordinary short note. */
+
+html[data-desk-workspace] .site-footer,
+html[data-desk-workspace] .footer-license-band {
+  display: none;
+}
+
+html[data-desk-workspace] .desk-page {
+  max-width: none;
+  padding: 10px 16px 0;
+}
+
+.desk-ws {
+  position: relative;
+}
+
+.desk-ws__bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 10px;
+}
+
+.desk-ws__bar .desk-page__title {
+  margin: 0;
+  font-size: 1.375rem;
+}
+
+.desk-ws__layout {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid rgba(var(--ink-rgb), 0.22);
+  border-radius: 8px;
+  background: var(--surface-raised);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.desk-ws__layout:hover,
+.desk-ws__layout[aria-expanded="true"] {
+  background: rgba(var(--ink-rgb), 0.06);
+}
+
+.desk-ws__menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 1000;
+  box-sizing: border-box;
+  width: min(560px, calc(100vw - 32px));
+  padding: 14px;
+  background: var(--surface-raised);
+  color: var(--text);
+  border: 1px solid rgba(var(--ink-rgb), 0.14);
+  border-radius: 12px;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.18);
+  font-size: 0.9375rem;
+}
+
+.desk-ws__menu[hidden] {
+  display: none;
+}
+
+.desk-ws__shapes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 6px;
+}
+
+.desk-ws__shape {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 6px;
+  border: 1px solid rgba(var(--ink-rgb), 0.16);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.8125rem;
+  line-height: 1.25;
+  text-align: center;
+  cursor: pointer;
+}
+
+.desk-ws__shape:hover {
+  background: rgba(var(--ink-rgb), 0.06);
+}
+
+.desk-ws__shape[aria-pressed="true"] {
+  border-color: var(--green-text);
+  box-shadow: inset 0 0 0 1px var(--green-text);
+}
+
+.desk-ws__shape[aria-disabled="true"] {
+  color: rgba(var(--ink-rgb), 0.5);
+  cursor: not-allowed;
+}
+
+.desk-ws__shape[aria-disabled="true"]:hover {
+  background: transparent;
+}
+
+.desk-ws__shape-svg rect {
+  fill: rgba(var(--ink-rgb), 0.12);
+  stroke: currentColor;
+  stroke-width: 1;
+}
+
+.desk-ws__shape[aria-pressed="true"] .desk-ws__shape-svg rect {
+  fill: rgba(var(--ink-rgb), 0.24);
+}
+
+.desk-ws__shape-needs {
+  font-size: 0.75rem;
+}
+
+.desk-ws__shape-needs:empty {
+  display: none;
+}
+
+.desk-ws__menu-note {
+  margin: 10px 2px;
+  color: rgba(var(--ink-rgb), 0.75);
+  font-size: 0.875rem;
+}
+
+.desk-ws__start {
+  margin: 0 0 10px;
+  padding: 8px 12px;
+  border: 1px solid rgba(var(--ink-rgb), 0.14);
+  border-radius: 8px;
+}
+
+.desk-ws__start legend {
+  padding: 0 4px;
+  font-weight: 600;
+}
+
+.desk-ws__start label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: 16px;
+}
+
+.desk-ws__start label:has(input:disabled) {
+  color: rgba(var(--ink-rgb), 0.5);
+}
+
+.desk-ws__menu-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.desk-ws__menu-actions button {
+  padding: 6px 12px;
+  border: 1px solid rgba(var(--ink-rgb), 0.22);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.desk-ws__menu-actions button:hover {
+  background: rgba(var(--ink-rgb), 0.06);
+}
+
+.desk-ws__panes {
+  position: relative;
+  display: flex;
+  min-height: 160px;
+  overflow: auto;
+}
+
+.desk-split {
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+}
+
+.desk-split--columns {
+  flex-direction: row;
+}
+
+.desk-split--rows {
+  flex-direction: column;
+}
+
+.desk-split__handle {
+  flex: 0 0 6px;
+  border-radius: 3px;
+  background: transparent;
+  touch-action: none;
+}
+
+.desk-split--columns > .desk-split__handle {
+  cursor: col-resize;
+}
+
+.desk-split--rows > .desk-split__handle {
+  cursor: row-resize;
+}
+
+.desk-split__handle:hover,
+.desk-split__handle:focus-visible {
+  background: rgba(var(--ink-rgb), 0.16);
+}
+
+.desk-split__handle:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 0;
+}
+
+html.desk-ws--resizing-x,
+html.desk-ws--resizing-x * {
+  cursor: col-resize !important;
+  user-select: none;
+}
+
+html.desk-ws--resizing-y,
+html.desk-ws--resizing-y * {
+  cursor: row-resize !important;
+  user-select: none;
+}
+
+html.desk-ws--moving,
+html.desk-ws--moving * {
+  cursor: grabbing !important;
+  user-select: none;
+}
+
+/* A pane: at least 280 by 160 (src/lib/desk-layout.mjs), its body scrolling
+   on its own. */
+.desk-pane {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 280px;
+  min-height: 160px;
+  background: var(--surface-raised);
+  color: var(--text);
+  border: 1px solid rgba(var(--ink-rgb), 0.14);
+  border-radius: 12px;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+.desk-pane--leading {
+  border-color: rgba(var(--ink-rgb), 0.34);
+}
+
+.desk-pane--moving {
+  opacity: 0.55;
+}
+
+.desk-pane__head {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 6px 6px 8px;
+  border-bottom: 1px solid rgba(var(--ink-rgb), 0.1);
+  cursor: grab;
+  touch-action: none;
+}
+
+.desk-pane__grip {
+  display: inline-flex;
+  color: rgba(var(--ink-rgb), 0.45);
+}
+
+.desk-pane__title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.desk-pane__kind {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 6px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.desk-pane__kind:hover,
+.desk-pane__kind[aria-expanded="true"] {
+  background: rgba(var(--ink-rgb), 0.08);
+}
+
+.desk-pane__lead {
+  padding: 1px 8px;
+  border: 1px solid rgba(var(--ink-rgb), 0.3);
+  border-radius: 999px;
+  color: rgba(var(--ink-rgb), 0.8);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.desk-pane__lead[hidden],
+.desk-pane__pin[hidden],
+.desk-pane__close[hidden] {
+  display: none;
+}
+
+.desk-pane__pin {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  padding: 4px 8px;
+  border: 1px solid rgba(var(--ink-rgb), 0.2);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+
+.desk-pane__pin[aria-pressed="true"] {
+  border-color: var(--green-text);
+  background: rgba(var(--ink-rgb), 0.06);
+  font-weight: 600;
+}
+
+.desk-pane__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  margin-left: auto;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.desk-pane__pin:not([hidden]) + .desk-pane__close {
+  margin-left: 0;
+}
+
+.desk-pane__close:hover {
+  background: rgba(var(--ink-rgb), 0.08);
+}
+
+.desk-pane__menu {
+  position: absolute;
+  top: calc(100% - 2px);
+  left: 28px;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  min-width: 160px;
+  padding: 4px;
+  background: var(--surface-raised);
+  border: 1px solid rgba(var(--ink-rgb), 0.16);
+  border-radius: 8px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16);
+  cursor: default;
+}
+
+.desk-pane__menu-item {
+  padding: 6px 10px 6px 26px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.desk-pane__menu-item:hover,
+.desk-pane__menu-item:focus-visible {
+  background-color: rgba(var(--ink-rgb), 0.08);
+}
+
+/* The kind shown now: bold, with a dot before it. */
+.desk-pane__menu-item[aria-checked="true"] {
+  font-weight: 700;
+  background-image: radial-gradient(circle, var(--green-text) 3px, transparent 3.5px);
+  background-size: 8px 8px;
+  background-position: 10px 50%;
+  background-repeat: no-repeat;
+}
+
+.desk-ws button:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.desk-pane__body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  padding: 12px 14px;
+  border-radius: 0 0 12px 12px;
+}
+
+.desk-pane__later {
+  margin: 0;
+  max-width: calc(48 * var(--ch));
+  color: rgba(var(--ink-rgb), 0.75);
+}
+
+/* Where a dragged pane would land: half of the pane under the pointer. */
+.desk-ws__drop {
+  position: absolute;
+  z-index: 10;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed var(--green-text);
+  border-radius: 10px;
+  background: rgba(var(--ink-rgb), 0.06);
+  color: var(--text);
+  font-weight: 600;
+  pointer-events: none;
+}
+
+.desk-ws__drop[hidden] {
+  display: none;
+}
+
+.desk-ws__drop--refused {
+  border-color: rgba(var(--ink-rgb), 0.4);
+}

@@ -1,0 +1,31 @@
+---
+import Layout from "../layouts/Layout.astro";
+import "../styles/pages/desk-page.css";
+
+/**
+ * The Study Desk as a page of its own (STUDY-DESK.md, D9; phase 3c): one to
+ * four panes side by side or stacked, the LIT text among them. Everything on
+ * it is drawn in the browser by src/scripts/desk/desk-page.js, which
+ * desk-gate.js loads only when the Study Desk preview is switched on
+ * (?desk=on), on a computer. For everyone else, and with JS off, this is the
+ * whole page: a short note saying the desk is part of a preview. noindex, out
+ * of the sitemap (astro.config.mjs) and out of Pagefind (Layout's default).
+ */
+---
+
+<Layout
+  title="Study Desk | LIT Bible"
+  description="The Study Desk on the LIT Bible: the text, your notes, and the Greek side by side."
+  robotsNoindex={true}
+  hideFooterNewsletter={true}
+>
+  <div class="desk-page">
+    <h1 class="desk-page__title">Study Desk</h1>
+    <div data-desk-page>
+      <p class="desk-page__off">
+        The Study Desk is part of a preview of new study tools. The preview isn’t
+        switched on in this browser, so there is nothing to show here yet.
+      </p>
+    </div>
+  </div>
+</Layout>

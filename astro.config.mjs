@@ -57,6 +57,8 @@ export default defineConfig({
         if (slug === 'app-support/thanks') return false; // noindex form-success page
         // The Study Desk's notebook page and everything under it (noindex utility pages)
         if (slug === 'notebook' || slug.startsWith('notebook/')) return false;
+        // The Study Desk as a page of its own (noindex, a preview)
+        if (slug === 'desk') return false;
         // /read/<book> aggregate pages for books that are entirely drafts
         if (slug.startsWith('read/') && fullyDraftBooks.has(slug.slice('read/'.length))) {
           return false;

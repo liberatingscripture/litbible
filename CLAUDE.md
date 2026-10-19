@@ -254,7 +254,8 @@ src/
                      #   notebook search and commands
                      #   (desk-search, desk-commands) and first use
                      #   (desk-first-use); the Greek tab's helpers
-                     #   (desk-greek)), greek-parse.mjs (MorphGNT's parsing
+                     #   (desk-greek); /desk's panes and their
+                     #   layouts (desk-layout)), greek-parse.mjs (MorphGNT's parsing
                      #   codes in words, shared with the phase 2 tool),
                      #   greek-search.mjs (searching the Greek: folding,
                      #   transliteration keys, matching; shared by both
@@ -387,6 +388,7 @@ workers/             # Cloudflare Workers, deployed separately via wrangler (NOT
 | `/glossary` | `glossary.astro` | Glossary |
 | `/search` | `search.astro` | Full search UI (verse index + Pagefind) |
 | `/notebook`, `/notebook/help` | `notebook.astro`, `notebook/help.astro` | The Study Desk preview's notebook page and help page. noindex, out of the sitemap and Pagefind; empty for anyone without the preview (`?desk=on`). See "The Study Desk preview" |
+| `/desk` | `desk.astro` | The Study Desk as a page of its own (D9): one to four panes. Same treatment as `/notebook`: noindex, out of the sitemap and Pagefind, and a short note without the preview. See "The Study Desk preview", rule 18 |
 | `/release-notes` | `release-notes.astro` | "What's new": the release notes by month, filterable by book and kind of change. `/translation-updates.xml` (`translation-updates.xml.js`) is the same record as RSS. See "Release notes are automated" below |
 | `/apps` | `apps.astro` | Mobile-apps promo page (footer-linked). Body design ported from `BDRhodes/LIT-app-Promo`; section content lives in the `callouts`/`examples`/`seasons` collections; scoped styles in `src/styles/pages/apps.css`; components under `src/components/apps/`. Uses `bg="white"` (near-white surface). |
 | `/app-support` | `app-support.astro` | App support contact form (linked from inside the apps, not the site nav; `/app-support/thanks` is the native-POST fallback success page) |
@@ -2258,8 +2260,8 @@ collection); they're read directly by the intro pages and the API manifest.
   by an outside click or Escape. A click inside the Study Desk's Notebook
   panel doesn't count as outside, and a panel is placed clear of it (see
   below).
-- **The Study Desk preview** (STUDY-DESK.md, phases 1a to 1d, 1f and 1h, and
-  2a's B3 and N4) is in production but
+- **The Study Desk preview** (STUDY-DESK.md, phases 1a to 1d, 1f and 1h,
+  2a's B3 and N4, and phase 3's 3b and 3c) is in production but
   switched off for everyone: `?desk=on` turns it on in one browser on a
   computer, `?desk=off` turns it off. STUDY-DESK.md is the record; what a
   change elsewhere in the site has to respect:
@@ -2656,6 +2658,31 @@ collection); they're read directly by the intro pages and the API manifest.
        `parse.json` with `parse/<group>.json` holds every word by its
        parsing, named by `parseGroup` (`greek-search.mjs`, shared by build
        and client). Rebuild with `npm run build:greek`, never by hand.
+  18. **Phase 3c is /desk's frame** (built 2026-10-19; STUDY-DESK.md, D9
+     and "Order of work", 3c): `src/pages/desk.astro`, which `desk-gate.js`
+     fills with `src/scripts/desk/desk-page.js` when `[data-desk-page]` is
+     present. It isn't a reading surface (no Notebook panel; not in
+     `READING_SURFACES`), and the announcement gate treats it as scripture.
+     Four things to know:
+     - **`src/lib/desk-layout.mjs` is the one set of rules** (pure, tested):
+       a layout is a tree of panes and normalized splits; the Layout menu's
+       arrangements (`ARRANGEMENTS`; four rows left out, BVJ 2026-10-18);
+       dragging a pane to an edge of another (`splitPane`); the 280 by 160
+       minimum (`needs`, `fitSizes`, `resize`); and which panes follow the
+       active LIT pane unless pinned (`KINDS`, `leaderFor`). A new
+       arrangement or kind goes there, never in the page.
+     - **A pane's body comes from `desk/desk-panes.js`**, which mounts the
+       Notebook's own modules rather than copies (My Notes is
+       `tab-mine.js`), so a pane and its tab can't drift apart. 3c mounts
+       only My Notes; the other kinds say they're still to come.
+     - **The layout is `localStorage['lit-desk-layout']`**: the last
+       layout, the reader's default and which opens the page, written on
+       every change and checked on the way back in (`checkLayout`); a
+       layout that fails the check falls back to the original, the LIT
+       beside My Notes, 60/40. Named in /privacy's paragraph.
+     - **The page fills the window and its footer is hidden**
+       (`html[data-desk-workspace]` in `desk.css`), so each pane scrolls on
+       its own.
 - **Every link that leaves the site opens in a new tab** (owner, 2026-10-01).
   For rendered bodies that is `openExternalLinks` in `src/lib/external-links.mjs`
   (pure, unit-tested), called from `linkRefs`, the one function footnotes,

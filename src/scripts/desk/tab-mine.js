@@ -78,6 +78,8 @@ const HIGHLIGHT_WORDS = 24;
 let colorFilter = null;
 // The same for the label the list is narrowed to (an id; null: everything).
 let labelFilter = null;
+// Numbers each tab's ids, since /desk can show several My Notes panes.
+let seq = 0;
 
 /** A highlight's colour if the format knows it; null for anything else, which is shown plainly. */
 function colorOf(r) {
@@ -122,6 +124,7 @@ function highlightedWords(color, words) {
  * @returns {{ el: HTMLElement, render: (opts?: { focusIndex?: number | null }) => Promise<void> }}
  */
 export function createMineTab({ store, storeError, scope: pageScope = null, addAction = null, inReadView, visible, afterRender = () => {}, onEdit = null, goHere = null, ctx = null, showInText = null }) {
+  const n = ++seq;
   const el = document.createElement("div");
   el.className = "desk-mine";
   el.innerHTML = `
@@ -143,8 +146,8 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     <button type="button" class="desk-mine__all" hidden></button>
     <ul class="desk-list"></ul>
     <p class="desk-panel__empty" hidden></p>
-    <section class="desk-mine__pins" aria-labelledby="deskMinePinsTitle" hidden>
-      <h3 class="desk-mine__pins-title" id="deskMinePinsTitle">Pinned footnotes</h3>
+    <section class="desk-mine__pins" aria-labelledby="deskMinePinsTitle${n}" hidden>
+      <h3 class="desk-mine__pins-title" id="deskMinePinsTitle${n}">Pinned footnotes</h3>
       <ul class="desk-list desk-mine__pin-list"></ul>
     </section>`;
   if (pageScope) el.querySelector(".desk-seg__text").textContent = pageScope.label;
