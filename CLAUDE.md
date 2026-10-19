@@ -243,7 +243,10 @@ src/
                      #   record and footnote pins; the anchor text read off
                      #   the page; the wording comparison and the change
                      #   notice built on it (desk-change); the notebook's
-                     #   write plans in desk-store-core; merging two copies
+                     #   write plans in desk-store-core; the sheet record,
+                     #   its checks and its formatted-text sanitizer
+                     #   (desk-sheet-format) and the changes a sheet takes
+                     #   (desk-sheets); merging two copies
                      #   of a notebook (desk-merge); finding a pinned
                      #   footnote again (desk-footnotes); the notebook page
                      #   and its files (desk-notebook, desk-export,

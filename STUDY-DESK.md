@@ -4156,7 +4156,12 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      template can hold a whole document), and the module list is the
      format's to define, since templates are arrangements of modules.
      **Format approved 2026-10-18** (STUDY-DESK-FORMAT.md, "Sheets (kind
-     9)"); the store follows.
+     9)"). **The store built the same day**: `src/lib/desk-sheet-format.mjs`
+     (the checks and the sanitizer, built from the allowlist and
+     idempotent) and `src/lib/desk-sheets.mjs` (making a sheet and its
+     modules, adding, moving, removing and changing them); saving,
+     trash, merge and undo are the notebook's own, unchanged, with three
+     sheet cases in `test/fixtures/merge-vectors.json`.
    - **3c. The /desk shell and layout.** The route and gate, a pane
      registry, one to four panes in the arrangements 3a settled (every one
      mocked but four rows), chosen from a Layout menu or by dragging a
