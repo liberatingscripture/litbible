@@ -38,8 +38,11 @@ export function setEditorPreview(text) {
  *   or, for a note on a glossary entry or an article (N11, provisional),
  *   glossaryEntry or article, targetTitle, and quote
  * @param {Element} [options.restoreFocus]
+ * @param {() => object} [options.text] the draft's chapter as anchor text, for
+ *   a whole-verse note's copy of its wording; the page's own by default. On
+ *   /desk the chapter comes from its fetched page (chapter-page.js).
  */
-export function openNoteEditor({ trigger, store, ctx, ref, record = null, draft = null, restoreFocus = null }) {
+export function openNoteEditor({ trigger, store, ctx, ref, record = null, draft = null, restoreFocus = null, text = chapterText }) {
   const n = ++seq;
   const editing = Boolean(record);
   const place = record ?? draft;
@@ -123,7 +126,7 @@ export function openNoteEditor({ trigger, store, ctx, ref, record = null, draft 
     } else {
       let verseCopy = null;
       try {
-        verseCopy = verseCopyFor(chapterText(), draft.verse, draft.endVerse ?? draft.verse);
+        verseCopy = verseCopyFor(text(), draft.verse, draft.endVerse ?? draft.verse);
       } catch (_) {}
       next = createRecord(
         "note",

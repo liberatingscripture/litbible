@@ -72,7 +72,7 @@ function lemmaNodes(into, item, { count = true } = {}) {
  * @returns {{ open: (opts?: { query?: string, exact?: boolean, prefer?: string }) => void,
  *   close: (opts?: { focus?: "button" | "word" | false }) => void, isOpen: () => boolean }}
  */
-export function createGreekFind({ root, here, selectWord, focusText }) {
+export function createGreekFind({ root, here, selectWord, focusText, openHit = null }) {
   const openBtn = root.querySelector(".desk-greek__find-btn");
   const form = root.querySelector(".desk-greek__find");
   const input = root.querySelector(".desk-greek__find-input");
@@ -449,7 +449,8 @@ export function createGreekFind({ root, here, selectWord, focusText }) {
       const li = make("li", "desk-greek__hit-item");
       const same = hit.book === here.bookKey && hit.chapter === here.chapter;
       let row;
-      if (same) {
+      // On /desk a result in another chapter moves the pane there (openHit).
+      if (same || openHit) {
         row = make("button", "desk-greek__hit");
         row.type = "button";
         row.dataset.i = String(i);
@@ -485,6 +486,11 @@ export function createGreekFind({ root, here, selectWord, focusText }) {
     if (!row) return;
     const hit = hits[Number(row.dataset.i)];
     if (!hit) return;
+    if (openHit && !(hit.book === here.bookKey && hit.chapter === here.chapter)) {
+      close({ focus: false });
+      openHit(hit);
+      return;
+    }
     // Back to the text first, so the word is placed against the Greek's size.
     close({ focus: false });
     await selectWord(hit.verse, hit.t, { focus: true });
