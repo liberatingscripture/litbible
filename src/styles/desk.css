@@ -4680,6 +4680,208 @@ html.desk-ws--moving * {
   color: rgba(var(--ink-rgb), 0.75);
 }
 
+/* A following pane (This verse, Greek; desk-panes.js): the passage picker
+   stays at its top while the part below scrolls. */
+.desk-pane__body--fill {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 0;
+}
+
+.desk-passage {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 10px;
+  border-bottom: 1px solid rgba(var(--ink-rgb), 0.1);
+}
+
+.desk-passage__field {
+  flex: 1 1 8rem;
+  min-width: 0;
+  padding: 5px 9px;
+  border: 1px solid rgba(var(--ink-rgb), 0.3);
+  border-radius: 8px;
+  background: var(--surface-raised, transparent);
+  color: var(--text);
+  font: inherit;
+  font-weight: 600;
+}
+
+.desk-passage__field:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+.desk-passage__field[aria-invalid="true"] {
+  border-color: var(--text);
+}
+
+.desk-passage__step {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.desk-passage__step:hover {
+  background: rgba(var(--ink-rgb), 0.08);
+}
+
+.desk-passage__step[aria-disabled="true"] {
+  color: rgba(var(--ink-rgb), 0.3);
+  cursor: default;
+}
+
+.desk-passage__step[aria-disabled="true"]:hover {
+  background: transparent;
+}
+
+.desk-passage__error {
+  flex-basis: 100%;
+  margin: 2px 0 0;
+  font-size: 0.875rem;
+}
+
+.desk-passage__error[hidden] {
+  display: none;
+}
+
+.desk-dp__content {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 8px 14px 12px;
+}
+
+/* The Greek scrolls its own text, so its part only holds it. */
+.desk-dp__content--fill {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding-bottom: 0;
+}
+
+.desk-dp__status {
+  color: rgba(var(--ink-rgb), 0.75);
+}
+
+.desk-dp__status p {
+  margin: 0 0 8px;
+  max-width: calc(48 * var(--ch));
+}
+
+.desk-dp__retry {
+  padding: 4px 10px;
+  border: 1px solid rgba(var(--ink-rgb), 0.25);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+
+.desk-dp__retry:hover {
+  background: rgba(var(--ink-rgb), 0.07);
+}
+
+/* "This chapter" at the foot of This verse: the chapter's Go deeper rows
+   (GoDeeper.astro's own styles stay on Study View, so they are set here). */
+.desk-chapter__rows {
+  margin: 0;
+}
+
+.desk-chapter__rows > div {
+  padding: 8px 0 10px;
+  border-top: 1px solid rgba(var(--ink-rgb), 0.1);
+}
+
+.desk-chapter__rows dt {
+  margin-bottom: 2px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.desk-chapter__rows dd {
+  margin: 0;
+}
+
+.desk-chapter__rows ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.desk-chapter__rows li + li {
+  margin-top: 6px;
+}
+
+.desk-chapter__rows p {
+  margin: 0;
+}
+
+.desk-chapter__rows .go-deeper__episode {
+  display: block;
+}
+
+.desk-chapter__rows .go-deeper__platforms {
+  font-size: 0.875rem;
+}
+
+.desk-chapter__rows .go-deeper__more {
+  margin-top: 6px;
+}
+
+.desk-chapter__rows summary {
+  width: fit-content;
+  font-size: 0.875rem;
+  color: var(--link);
+  cursor: pointer;
+}
+
+.desk-chapter a {
+  color: var(--link);
+}
+
+.desk-chapter a:focus-visible,
+.desk-chapter summary:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.desk-chapter__open {
+  margin: 10px 0 0;
+  padding-top: 8px;
+  border-top: 1px solid rgba(var(--ink-rgb), 0.1);
+}
+
+/* What I've kept as a pane: the notebook page's list at the pane's size. */
+.desk-np--pane {
+  font-size: inherit;
+}
+
+.desk-np--pane .desk-np__h3 {
+  margin-top: 1.25rem;
+  font-size: 1.05rem;
+}
+
+.desk-np--pane .desk-np__h4 {
+  margin-top: 0.85rem;
+  font-size: 0.9375rem;
+}
+
 /* Where a dragged pane would land: half of the pane under the pointer. */
 .desk-ws__drop {
   position: absolute;

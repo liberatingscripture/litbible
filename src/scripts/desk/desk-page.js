@@ -21,9 +21,13 @@
 //   also the keyboard's way to put any pane anywhere. × closes a pane.
 // - **The LIT pane last scrolled, clicked or typed in is the active one**,
 //   marked "Leading" when more than one is open, and This verse, Greek, and
-//   Footnotes follow it unless their "Stay here" is pressed. In 3c only My
-//   Notes draws anything (desk-panes.js), so following has nothing to carry
-//   yet; the marks and pins are kept in the layout for 3d and 3e.
+//   Footnotes follow it unless their "Stay here" is pressed.
+// - **Until the LIT pane comes (3e), the following panes share one passage**
+//   (BVJ, 2026-10-19, option A): `layout.place`, set from any of them (the
+//   passage picker at a pane's top, This verse's Previous and Next, scrolling
+//   the Greek), so they move together. "Stay here" gives a pane its own
+//   passage, `pin.at`, which only it moves. The place starts at the reader's
+//   Continue reading place, or Matthew 1.
 //
 // The layout is kept in localStorage['lit-desk-layout'] (named in /privacy's
 // paragraph), written on every change: the last layout, the reader's own
@@ -54,9 +58,13 @@ import {
   setActive,
   setKind,
   setPin,
+  setPlace,
+  placeFor,
   splitPane,
   writeSaved,
 } from "../../lib/desk-layout.mjs";
+import { formatPassage, parsePassage, sameChapter, startingPassage } from "../../lib/desk-passage.mjs";
+import { loadLastRead } from "../last-read.js";
 import { addDeskStyle, deskCtx as ctx } from "./boot.js";
 import { mountPane } from "./desk-panes.js";
 import { createHistory } from "./history.js";
@@ -148,7 +156,13 @@ async function start() {
   const onEdit = store
     ? (record, trigger) => openNoteEditor({ trigger, store, ctx, ref: recordReference(record), record, restoreFocus: trigger })
     : null;
-  const env = { store, storeError, onEdit, ctx };
+  // A word in This verse's Greek opens in a Greek pane showing its chapter.
+  const openGreekWord = (passage, t) => {
+    const greek = Array.from(paneEls.values()).find((r) => r.kind === "greek" && sameChapter(r.inst?.chapter?.(), passage));
+    if (greek) greek.inst.selectWord(passage.verse, t, { focus: true });
+    else announce("Open a Greek pane on this chapter to see the word.");
+  };
+  const env = { store, storeError, onEdit, ctx, openGreekWord };
 
   document.documentElement.dataset.deskWorkspace = "";
   root.replaceChildren();
@@ -156,6 +170,12 @@ async function start() {
 
   let saved = readSaved(readKey());
   let layout = openingLayout(saved);
+  // The following panes' shared passage starts where the reader last read.
+  if (!parsePassage(layout.place)) {
+    let last = null;
+    try { last = loadLastRead(); } catch (_) {}
+    layout = setPlace(layout, formatPassage(startingPassage(last)));
+  }
 
   // ---- the bar and the Layout menu ----
 
@@ -292,6 +312,31 @@ async function start() {
     save();
     if (redraw) draw();
     else mark();
+    follow();
+  }
+
+  /** The passage a following pane shows now. */
+  const passageOf = (id) => parsePassage(placeFor(layout, id)) ?? parsePassage(layout.place) ?? startingPassage(null);
+
+  /** Move a following pane: its own passage when it stays put, else the one the following panes share. */
+  function setPassageOf(id, passage) {
+    const at = formatPassage(passage);
+    const pane = findPane(layout.root, id);
+    if (!at || !pane) return;
+    commit(pane.pin ? setPin(layout, id, true, at) : setPlace(layout, at), { draw: false });
+  }
+
+  /** Give each following pane its passage, when it has moved. */
+  function follow() {
+    for (const pane of panes(layout.root)) {
+      const rec = paneEls.get(pane.id);
+      if (!rec?.inst?.setPassage) continue;
+      const p = passageOf(pane.id);
+      const at = formatPassage(p);
+      if (rec.at === at) continue;
+      rec.at = at;
+      rec.inst.setPassage(p);
+    }
   }
 
   function paneRecord(pane) {
@@ -322,13 +367,15 @@ async function start() {
       const body = el("div", "desk-pane__body");
       section.setAttribute("aria-labelledby", kindButton.id);
       section.append(head, body);
-      rec = { el: section, head, body, kindButton, lead, pin, close, kind: null, inst: null };
+      rec = { el: section, head, body, kindButton, lead, pin, close, kind: null, inst: null, at: null };
       paneEls.set(pane.id, rec);
 
       kindButton.addEventListener("click", () => openKindMenu(pane.id, kindButton));
       pin.addEventListener("click", () => {
         const now = findPane(layout.root, pane.id);
-        commit(setPin(layout, pane.id, !now?.pin), { draw: false });
+        // A pane that stays put keeps the passage it shows; let go, it
+        // rejoins the passage the following panes share.
+        commit(setPin(layout, pane.id, !now?.pin, now?.pin ? null : formatPassage(passageOf(pane.id))), { draw: false });
         announce(now?.pin ? `${kindLabel(now.kind)} follows the LIT pane again.` : `${kindLabel(now.kind)} stays here.`);
       });
       close.addEventListener("click", () => {
@@ -353,7 +400,13 @@ async function start() {
       rec.inst?.destroy();
       rec.body.replaceChildren();
       rec.kind = pane.kind;
-      rec.inst = mountPane(pane.kind, rec.body, env);
+      // A following pane starts at its passage; follow() moves it after.
+      rec.at = isFollower(pane.kind) ? formatPassage(passageOf(pane.id)) : null;
+      rec.inst = mountPane(pane.kind, rec.body, env, {
+        id: pane.id,
+        get: () => passageOf(pane.id),
+        set: (passage) => setPassageOf(pane.id, passage),
+      });
     }
     return rec;
   }
@@ -384,6 +437,7 @@ async function start() {
     panesBox.replaceChildren(tree, drop);
     if (focused?.isConnected) focused.focus({ preventScroll: true });
     mark();
+    follow();
   }
 
   /** The parts of each pane's header that change without redrawing. */

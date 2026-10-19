@@ -22,6 +22,9 @@
 // - several panes of a kind may be open. The LIT pane leads; This verse,
 //   Greek, and Footnotes follow the LIT pane last worked in (the active one),
 //   unless pinned with "Stay here", which the saved layout remembers;
+// - (3d) until the LIT pane comes (3e), the following panes share one place,
+//   `layout.place`, chosen with a passage picker; a pinned pane keeps its own
+//   (`pin.at`). Both are passage strings, "john 3:16" (desk-passage.mjs);
 // - the original layout is the LIT text beside My Notes, 60/40, and the
 //   layout is kept in this browser.
 
@@ -43,6 +46,7 @@ export const KINDS = [
   { kind: "greek", label: "Greek", follows: true },
   { kind: "footnotes", label: "Footnotes", follows: true },
   { kind: "sheet", label: "Sheet", follows: false },
+  { kind: "kept", label: "What I’ve kept", follows: false },
 ];
 
 const KIND_INFO = new Map(KINDS.map((k) => [k.kind, k]));
@@ -211,7 +215,7 @@ export function applyArrangement(layout, id) {
     shape.slot
       ? { pane: fill() }
       : { split: shape.split, sizes: even(shape.children.length), children: shape.children.map(build) };
-  return settleActive({ root: normalize(build(arrangement.shape)), active: layout.active });
+  return settleActive({ ...layout, root: normalize(build(arrangement.shape)) });
 }
 
 /** Close a pane. Its neighbors take its room. The last pane can't be closed. */
@@ -228,7 +232,7 @@ export function closePane(layout, id) {
     if (!kids.length) return null;
     return { split: node.split, sizes, children: kids };
   };
-  return settleActive({ root: normalize(remove(clone(layout.root))), active: layout.active });
+  return settleActive({ ...layout, root: normalize(remove(clone(layout.root))) });
 }
 
 const EDGES = {
@@ -274,7 +278,7 @@ export function splitPane(layout, targetId, edge, moving) {
     return { ...node, children: node.children.map(replace) };
   };
   if (!findPane(root, targetId)) return layout;
-  return settleActive({ root: normalize(replace(root)), active: base.active });
+  return settleActive({ ...base, root: normalize(replace(root)) });
 }
 
 /** Show another kind in a pane. A pin is dropped when the new kind doesn't follow. */
@@ -304,6 +308,26 @@ export function setPin(layout, id, pinned, at = null) {
 export function setActive(layout, id) {
   if (layout.active === id || findPane(layout.root, id)?.kind !== "lit") return layout;
   return { ...layout, active: id };
+}
+
+/**
+ * Set the place the following panes share (3d): a passage string, "john
+ * 3:16". Unchanged when it is already there or isn't a string.
+ */
+export function setPlace(layout, at) {
+  if (typeof at !== "string" || !at || layout.place === at) return layout;
+  return { ...layout, place: at };
+}
+
+/**
+ * The passage a following pane shows: its pin's own when it stays put, else
+ * the place the following panes share; null for a pane that doesn't follow,
+ * or when neither is set yet (the page then starts it somewhere).
+ */
+export function placeFor(layout, id) {
+  const pane = findPane(layout.root, id);
+  if (!pane || !isFollower(pane.kind)) return null;
+  return pane.pin?.at ?? layout.place ?? null;
 }
 
 /** The pane a following pane follows: the active LIT pane, or null when none is open or it is pinned. */
@@ -447,7 +471,9 @@ export function checkLayout(value) {
   };
   const root = check(value.root, 0);
   if (!root || ids.size > MAX_PANES) return null;
-  return settleActive({ root: normalize(root), active: typeof value.active === "string" ? value.active : null });
+  const layout = settleActive({ root: normalize(root), active: typeof value.active === "string" ? value.active : null });
+  if (typeof value.place === "string" && value.place) layout.place = value.place;
+  return layout;
 }
 
 /**
