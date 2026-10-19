@@ -21,9 +21,10 @@ are recorded so they aren't re-argued.
   section at the foot of This verse. A formatted document is part of
   sheets: templates built from modules, plus a blank-canvas template with
   full rich-text formatting. The LIT pane scrolls the whole corpus, with no
-  setting. Of the four smaller calls, three are agreed and one (one of
-  each pane?) waits under "Still open" ("Phase 3a's smaller calls"); 3b,
-  the sheet format, is next.
+  setting. Several panes of one kind may be open, and This verse, Greek
+  and Footnotes follow the LIT pane last worked in, unless pinned. Only
+  the exact rich-text set is left, for 3b, the sheet format, which is
+  next.
 
 - **Phase 5 is fixes and experience** (BVJ, 2026-10-16): a running log of
   bugs and of what using the desk is like, BVJ's own use first, under
@@ -1054,6 +1055,18 @@ plan as a whole was accepted; nothing was declined except where stated).
        Revelation today). Measured for the mockups: a chapter's built page
        is about 31 KB compressed (median, 45 KB at most), about 7 KB of it
        the text, footnotes and key-term data the pane uses.
+    6. **Several panes of a kind may be open, and the panes that follow
+       follow the LIT pane you last worked in** (option B of three; "Still
+       open", "Phase 3a's smaller calls", has the other two). The LIT text
+       leads; This verse, Greek and Footnotes follow; the Greek also leads
+       back (the 1g answer); My Notes, sheets and the notebook's lists
+       follow nothing. The **active** LIT pane is the one last scrolled,
+       clicked or typed in, and its header marks it. Each following pane
+       has a **Stay here** pin that stops it following and gives it its
+       own passage picker. The saved layout remembers pins. Also settled:
+       panes need at least 280px by 160px, the original layout is the LIT
+       text beside My Notes (60/40), and the layout is kept in this
+       browser.
   - **What the answers mean for the build** (notes for then, not
     decisions):
     - **Most panes exist already as modules**: the Greek tab, This verse,
@@ -4144,7 +4157,9 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
    - **3c. The /desk shell and layout.** The route and gate, a pane
      registry, one to four panes in the arrangements 3a settled (every one
      mocked but four rows), chosen from a Layout menu or by dragging a
-     pane to an edge of another, with adjustable sizes, the remembered
+     pane to an edge of another, with adjustable sizes; several panes of a
+     kind, the active LIT pane and the Stay here pin (D9, "Phase 3a's
+     answers", 6); the remembered
      layout with "my default" and a reset (a `localStorage` key, named in
      /privacy). Proves itself by mounting one existing pane.
    - **3d. The existing panes on /desk.** My Notes, This verse, Greek and
@@ -5331,10 +5346,12 @@ BVJ's answers, the same day (details under D9, "Phase 3a's answers"):
 
 The mockup's four smaller calls, the same day: **agreed** that a pane needs
 at least 280px by 160px, that the original layout is the LIT text beside
-My Notes, and that the layout is kept in this browser. **Not settled**:
-whether only one pane of each kind can be open, since BVJ can see reasons
-for two LIT, Greek or sheet panes but not yet how following would work
-("Still open", "Phase 3a's smaller calls", with options). The 3a to 3k
+My Notes, and that the layout is kept in this browser. **One of each
+pane, recommended, was not taken**: BVJ could see reasons for two LIT,
+Greek or sheet panes, asked for more detail on how following would work,
+and chose **option B**: several of a kind, the following panes following
+the LIT pane last worked in, with a Stay here pin (D9, "Phase 3a's
+answers", 6; the three options under "Still open"). The 3a to 3k
 split itself is still a proposal BVJ worked within but hasn't confirmed.
 
 ### 2026-10-18 (Phase 3 split into parts)
@@ -5519,19 +5536,21 @@ sign of a feature: log it, and move it when it's clear where it belongs).
 
 ## Still open
 
-- **Phase 3a's smaller calls** (recommended in the mockups, 2026-10-18;
-  they shape 3c). **Three are agreed** (BVJ, 2026-10-18): a pane needs at
+- ~~**Phase 3a's smaller calls**~~: **all four decided** (BVJ, 2026-10-18;
+  recommended in the mockups the same day; they shape 3c). **Three are
+  agreed as recommended**: a pane needs at
   least 280px across and 160px high, so an arrangement that can't fit the
   window is grayed out in the Layout menu ("Needs a wider window",
   "taller" or "larger"); the original layout is the LIT text beside My
   Notes, 60/40, which "Reset to the original layout" returns to; and the
   layout is kept in this browser (a `localStorage` key, named in
   /privacy), as the Display settings are, rather than synced.
-  **Still open: one of each pane at a time?** The mockup's recommendation
-  was one of each. BVJ isn't sure (2026-10-18): there's reason to want
+  **The fourth is decided too: B** (BVJ, 2026-10-18, after asking for
+  more detail; D9, "Phase 3a's answers", 6). The mockup's recommendation
+  was one of each. BVJ wasn't sure: there's reason to want
   more than one LIT text, Greek or sheet pane, but it gets tricky when
   panes respond to each other (This verse following the LIT text, the
-  Greek and the LIT tracking each other). Options:
+  Greek and the LIT tracking each other). The options weighed:
   - **A. One of each.** Simplest; nothing is ever ambiguous about what
     follows what.
   - **B. Several of a kind, and the following panes follow the LIT pane
@@ -5542,9 +5561,9 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   - **C. Link groups**, as Logos and Accordance do: each pane carries a
     link color, panes of one color follow each other, and an unlinked pane
     stays put. The most flexible, and the most to learn.
-  Recommended: **B**. It allows comparing two passages or keeping two
-  sheets open, with one rule a reader can see, and C could still be added
-  later if B proves too blunt.
+  **Chosen: B.** It allows comparing two passages or keeping two sheets
+  open, with one rule a reader can see, and C could still be added later
+  if B proves too blunt (B is C with the group picked for the reader).
 - **What "the full rich-text formatting options" include** (3b and 3f): the
   mockup's sheet offered bold, italic, headings, lists, quotations and
   links. A blank canvas for a wholly original document probably wants
