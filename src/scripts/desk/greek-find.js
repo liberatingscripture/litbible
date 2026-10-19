@@ -15,7 +15,9 @@
 // (greek-commands.js), which closes with the field. A result in the chapter on
 // the page selects that word here; one in another chapter is the ordinary
 // verse link with ?greek=, which loads the chapter and opens the Notebook at
-// the word (desk/greek-link.js).
+// the word (desk/greek-link.js). On /desk (`openHit`, desk-panes.js) one in
+// another chapter moves the Greek pane there instead, so the reader stays on
+// the desk.
 //
 // Nothing here scrolls the PAGE, and nothing is stored about a search.
 

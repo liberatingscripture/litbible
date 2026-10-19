@@ -27,11 +27,13 @@ import {
   originalLayout,
   panes,
   pathTo,
+  placeFor,
   readSaved,
   resize,
   setActive,
   setKind,
   setPin,
+  setPlace,
   slotCount,
   splitPane,
   writeSaved,
@@ -894,4 +896,113 @@ test("a changer's result doesn't share structure that later changes would corrup
   next.root.sizes[0] = 0.99;
   findPane(next.root, "p1").kind = "mine";
   assert.deepEqual(l, originalLayout());
+});
+
+// ---- the shared place (3d) ------------------------------------------------
+
+test("the kept kind is labeled with a curly apostrophe and does not follow", () => {
+  const entry = KINDS.find((k) => k.kind === "kept");
+  assert.ok(entry);
+  assert.equal(entry.label, "What I\u2019ve kept");
+  assert.equal(entry.follows, false);
+  assert.equal(kindLabel("kept"), "What I\u2019ve kept");
+  assert.equal(isFollower("kept"), false);
+});
+
+test("setPlace sets the place the following panes share", () => {
+  const l = originalLayout();
+  const next = setPlace(l, "john 3:16");
+  assert.equal(next.place, "john 3:16");
+  assert.equal(next.active, l.active);
+  assert.deepEqual(next.root, l.root);
+  assert.equal(setPlace(next, "mark 1").place, "mark 1");
+});
+
+test("setPlace returns the same object when nothing changes", () => {
+  const l = setPlace(originalLayout(), "john 3:16");
+  assert.equal(setPlace(l, "john 3:16"), l);
+});
+
+test("setPlace ignores a value that is not a non-empty string", () => {
+  const l = originalLayout();
+  for (const bad of [undefined, null, "", 5, {}, ["john 3"], true]) {
+    assert.equal(setPlace(l, bad), l, String(bad));
+  }
+  const placed = setPlace(l, "john 3");
+  assert.equal(setPlace(placed, ""), placed);
+  assert.equal(setPlace(placed, null), placed);
+});
+
+test("setPlace does not mutate its input", () => {
+  const l = originalLayout();
+  const before = structuredClone(l);
+  const next = setPlace(l, "john 3:16");
+  assert.deepEqual(l, before);
+  assert.notEqual(next, l);
+  assert.equal("place" in l, false);
+});
+
+test("placeFor is null for a pane that does not follow, or does not exist", () => {
+  const l = setPlace(mk(cols([0.25, 0.25, 0.25, 0.25], leaf("a", "lit"), leaf("b", "mine"), leaf("c", "sheet"), leaf("d", "kept"))), "john 3:16");
+  for (const id of ["a", "b", "c", "d", "nope"]) assert.equal(placeFor(l, id), null, id);
+});
+
+test("placeFor gives an unpinned following pane the shared place", () => {
+  const l = setPlace(mk(cols([0.25, 0.25, 0.25, 0.25], leaf("a", "lit"), leaf("b", "verse"), leaf("c", "greek"), leaf("d", "footnotes"))), "john 3:16");
+  for (const id of ["b", "c", "d"]) assert.equal(placeFor(l, id), "john 3:16", id);
+});
+
+test("placeFor gives a pinned pane its own passage", () => {
+  const l = setPlace(mk(cols([0.5, 0.25, 0.25], leaf("a", "lit"), leaf("b", "verse", { at: "romans 8:1" }), leaf("c", "greek"))), "john 3:16");
+  assert.equal(placeFor(l, "b"), "romans 8:1");
+  assert.equal(placeFor(l, "c"), "john 3:16");
+});
+
+test("placeFor falls back to the shared place for a pin with no passage yet", () => {
+  const l = setPlace(mk(cols([0.5, 0.5], leaf("a", "lit"), leaf("b", "verse", { at: null }))), "john 3:16");
+  assert.equal(placeFor(l, "b"), "john 3:16");
+});
+
+test("placeFor is null when no place is set anywhere", () => {
+  const l = mk(cols([0.5, 0.5], leaf("a", "lit"), leaf("b", "verse")));
+  assert.equal(placeFor(l, "b"), null);
+  const pinnedNone = mk(cols([0.5, 0.5], leaf("a", "lit"), leaf("b", "verse", { at: null })));
+  assert.equal(placeFor(pinnedNone, "b"), null);
+  const pinned = mk(cols([0.5, 0.5], leaf("a", "lit"), leaf("b", "verse", { at: "mark 1" })));
+  assert.equal(placeFor(pinned, "b"), "mark 1");
+});
+
+test("the shared place survives applyArrangement, closePane and splitPane", () => {
+  const base = setPlace(applyArrangement(originalLayout(), "cols-3"), "john 3:16");
+  assert.equal(base.place, "john 3:16");
+  for (const a of ARRANGEMENTS) assert.equal(applyArrangement(base, a.id).place, "john 3:16", a.id);
+  assert.equal(closePane(base, ids(base)[1]).place, "john 3:16");
+  const [a, b, c] = ids(base);
+  assert.equal(splitPane(base, a, "top", c).place, "john 3:16", "moving an open pane");
+  assert.equal(splitPane(base, b, "bottom", { id: "p9", kind: "verse", pin: null }).place, "john 3:16", "adding a new pane");
+  assert.equal(setKind(base, b, "verse").place, "john 3:16");
+  assert.equal(setPin(setKind(base, b, "verse"), b, true, "mark 1").place, "john 3:16");
+  assert.equal(setActive(base, a).place, "john 3:16");
+});
+
+test("checkLayout keeps a string place and drops anything else", () => {
+  const root = () => cols([0.5, 0.5], leaf("a", "lit"), leaf("b", "verse"));
+  assert.equal(checkLayout({ root: root(), active: "a", place: "john 3:16" }).place, "john 3:16");
+  for (const bad of [undefined, null, "", 5, {}, ["john 3"], true]) {
+    const l = checkLayout({ root: root(), active: "a", place: bad });
+    assert.equal("place" in l, false, String(bad));
+  }
+  assert.equal("place" in checkLayout({ root: root(), active: "a" }), false);
+});
+
+test("a place round-trips through writeSaved and readSaved", () => {
+  const last = setPlace(applyArrangement(originalLayout(), "grid"), "john 3:16");
+  const mine = setPlace(originalLayout(), "romans 8");
+  const saved = readSaved(writeSaved({ last, mine, start: "last" }));
+  assert.equal(saved.last.place, "john 3:16");
+  assert.equal(saved.mine.place, "romans 8");
+  assert.deepEqual(saved.last, last);
+  assert.deepEqual(saved.mine, mine);
+  const plain = readSaved(writeSaved({ last: originalLayout(), mine: null, start: "last" }));
+  assert.equal("place" in plain.last, false);
 });

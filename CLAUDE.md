@@ -2261,7 +2261,7 @@ collection); they're read directly by the intro pages and the API manifest.
   panel doesn't count as outside, and a panel is placed clear of it (see
   below).
 - **The Study Desk preview** (STUDY-DESK.md, phases 1a to 1d, 1f and 1h,
-  2a's B3 and N4, and phase 3's 3b and 3c) is in production but
+  2a's B3 and N4, and phase 3's 3b to 3d) is in production but
   switched off for everyone: `?desk=on` turns it on in one browser on a
   computer, `?desk=off` turns it off. STUDY-DESK.md is the record; what a
   change elsewhere in the site has to respect:
@@ -2658,12 +2658,12 @@ collection); they're read directly by the intro pages and the API manifest.
        `parse.json` with `parse/<group>.json` holds every word by its
        parsing, named by `parseGroup` (`greek-search.mjs`, shared by build
        and client). Rebuild with `npm run build:greek`, never by hand.
-  18. **Phase 3c is /desk's frame** (built 2026-10-19; STUDY-DESK.md, D9
-     and "Order of work", 3c): `src/pages/desk.astro`, which `desk-gate.js`
+  18. **Phases 3c and 3d are /desk** (built 2026-10-19; STUDY-DESK.md, D9
+     and "Order of work", 3c and 3d): `src/pages/desk.astro`, which `desk-gate.js`
      fills with `src/scripts/desk/desk-page.js` when `[data-desk-page]` is
      present. It isn't a reading surface (no Notebook panel; not in
      `READING_SURFACES`), and the announcement gate treats it as scripture.
-     Four things to know:
+     Five things to know:
      - **`src/lib/desk-layout.mjs` is the one set of rules** (pure, tested):
        a layout is a tree of panes and normalized splits; the Layout menu's
        arrangements (`ARRANGEMENTS`; four rows left out, BVJ 2026-10-18);
@@ -2672,12 +2672,25 @@ collection); they're read directly by the intro pages and the API manifest.
        active LIT pane unless pinned (`KINDS`, `leaderFor`). A new
        arrangement or kind goes there, never in the page.
      - **A pane's body comes from `desk/desk-panes.js`**, which mounts the
-       Notebook's own modules rather than copies (My Notes is
-       `tab-mine.js`), so a pane and its tab can't drift apart. 3c mounts
-       only My Notes; the other kinds say they're still to come.
+       Notebook's own modules rather than copies, so a pane and its tab
+       can't drift apart: My Notes is `tab-mine.js`, This verse
+       `tab-verse.js` (with "This chapter", the chapter's Go deeper, at its
+       foot), Greek `tab-greek.js`, and What I've kept `kept-list.js`, which
+       the notebook page draws too. Those tabs take a `source` and an
+       `idSuffix` for this; a change to one must keep both callers working.
+       The LIT, Footnotes and Sheet panes say they're still to come (3e, 3f).
+     - **This verse and Greek read their chapter from its built Study View
+       page**, fetched and parsed once a visit (`desk/chapter-page.js`), so
+       what they show is character-identical to Study View. Until 3e,
+       panes that aren't pinned share one passage, `layout.place` ("john
+       3:16", `src/lib/desk-passage.mjs`), chosen with the picker at their
+       top (`desk/passage-bar.js`) or by moving any of them (This verse's
+       Previous and Next, scrolling the Greek); a pinned pane keeps its own
+       in `pin.at` (BVJ, 2026-10-19, option A).
      - **The layout is `localStorage['lit-desk-layout']`**: the last
        layout, the reader's default and which opens the page, written on
-       every change and checked on the way back in (`checkLayout`); a
+       every change (the shared passage included) and checked on the way
+       back in (`checkLayout`); a
        layout that fails the check falls back to the original, the LIT
        beside My Notes, 60/40. Named in /privacy's paragraph.
      - **The page fills the window and its footer is hidden**

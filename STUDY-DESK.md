@@ -14,6 +14,13 @@ are recorded so they aren't re-argued.
 
 ## Where things stand (as of 2026-10-19)
 
+- **Phase 3d is built on the preview** (2026-10-19): This verse (with
+  "This chapter", the chapter's Go deeper, at its foot), Greek, and What
+  I've kept are panes on `/desk/`, mounted from the Notebook's own modules.
+  Until the LIT pane comes (3e), the panes that aren't pinned share one
+  passage, chosen with a picker at their top (BVJ, option A). Smaller calls
+  for BVJ to judge are in the decision log, "Phase 3d". Next: 3e, then 3f.
+
 - **Phase 3c is built on the preview** (2026-10-19): `/desk/` with the
   Layout menu, dragging to split, movable lines, several panes of a kind,
   Stay here, and a remembered layout with a default and a reset. My Notes
@@ -4188,6 +4195,15 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      in step with the LIT pane as either scrolls (the 1g answer); This
      verse gains a "This chapter" section at its foot holding Go deeper,
      taken from the same fetched page as the text.
+     **Built on the preview 2026-10-19** (decision log, "Phase 3d"): the
+     panes mount `tab-verse.js`, `tab-greek.js` and the notebook page's
+     list (now `desk/kept-list.js`, a new kind, "What I've kept"); both
+     tabs read the chapter's fetched Study View page
+     (`desk/chapter-page.js`). The passage rules are
+     `src/lib/desk-passage.mjs`, the picker `desk/passage-bar.js`. The
+     Greek reports the verse at its top as the reader scrolls it and can be
+     moved to a verse, which is all 3e needs to keep it in step with the
+     LIT pane.
    - **3e. The LIT pane and the footnotes pane (X11).** Study View's text
      fetched a chapter at a time, so anchors stay character-identical
      (`test/desk-anchor-dom.test.js` sweeps it); scrolling through the
@@ -5397,6 +5413,45 @@ split itself is still a proposal BVJ worked within but hasn't confirmed.
   values, so themes, print and contrast decide how they look, and a
   reader's accessibility font still wins on screen. Left out: images and
   tables. The set can grow later but never shrink.
+
+### 2026-10-19 (Phase 3d: the existing panes on /desk)
+
+- **How a following pane picks its passage until 3e** (BVJ chose option
+  A): the panes that aren't pinned share one passage, kept in the layout as
+  `place` (in `lit-desk-layout`, so no new key; /privacy's paragraph now
+  says the key holds it). It is changed from any of them: the picker at
+  their top (a typed reference, read as the search box reads one, or the
+  previous or next chapter across the books), This verse's Previous and
+  Next, or scrolling the Greek. "Stay here" keeps the passage the pane
+  shows as its own (`pin.at`), which only it then moves; letting go
+  rejoins the shared one. It starts at the reader's Continue reading
+  place, or Matthew 1. Option B was every pane on its own until 3e. BVJ
+  plans 3e very soon.
+- **Built**: This verse, Greek, and What I've kept as panes, mounted from the
+  Notebook's own modules; "This chapter" at the foot of This verse.
+- **Smaller calls made in building it, for BVJ to judge on the preview**
+  (recommendations, not decisions):
+  - **"The notebook's lists" is one pane, "What I've kept"**: the notebook
+    page's filtered list of everything kept, moved into a module both
+    share. Places, labels, What's new, and the rest stay on `/notebook/`.
+    It is a new kind at the end of the Show menu's list.
+  - **"This chapter" holds the Go deeper rows and a link to the chapter in
+    Study View.** Its links are Study View's, so a link to another page of
+    the site leaves /desk in the same tab (the layout is kept, so coming
+    back restores it). A chapter with no Go deeper shows only the link.
+  - **No Pin buttons on This verse's footnotes on /desk yet.** Pinning
+    reads the page's own footnote list; the footnotes pane (3e) is the
+    natural home.
+  - **Only the reader's own scrolling of the Greek moves the passage.**
+    Opening at a verse, being moved to one, or a verse near the chapter's
+    end that can't reach the top don't, so the panes never chase each
+    other and picking John 3:36 stays John 3:36.
+  - **A draft chapter's This verse says it is still being translated**,
+    and points to the Greek, which works on drafts as in the Notebook.
+  - **A word in This verse's Greek opens in a Greek pane on that chapter**;
+    with none open, it says so rather than opening one.
+  - **A Greek search result in another chapter moves the Greek pane
+    there**, selecting the word, instead of leaving /desk for Study View.
 
 ### 2026-10-19 (Phase 3c: /desk's frame)
 

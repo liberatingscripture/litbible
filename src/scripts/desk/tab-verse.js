@@ -69,18 +69,19 @@ const ICON_NEXT = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" s
  *   greek?: { open(verse: number, t: number): void } | null,
  *   source?: { textBox: Element | null, footnoteBody: (id: string) => Element | null,
  *     anchorText: () => object } | null,
- *   startVerse?: number | null, idSuffix?: string }} options
+ *   startVerse?: number | null, idSuffix?: string, onVerse?: ((verse: number) => void) | null }} options
  *   `ctx` and `showInText` are what the change notice's card needs; `greek`
  *   opens the Greek tab at a word. On /desk the chapter isn't the page's:
  *   `source` reads it from the chapter's fetched Study View page
  *   (chapter-page.js), `startVerse` is where it opens, and `idSuffix` keeps
- *   two panes' ids apart.
+ *   two panes' ids apart. `onVerse` hears the verse Previous or Next steps to,
+ *   so the panes that share a passage move together.
  * @returns {{ el: HTMLElement, render: () => Promise<void>, setVerse: (verse: number) => void,
  *   focusHeading: () => void }}
  */
 export function createVerseTab({
   store, here, visible, panelOpen, onEdit = null, onAddNote = null, goHere = null, ctx = null, showInText = null,
-  greek = null, source = null, startVerse = null, idSuffix = "",
+  greek = null, source = null, startVerse = null, idSuffix = "", onVerse = null,
 }) {
   const textBox = source ? source.textBox : document.querySelector(".chapter-paragraphs");
   const footnoteBody = source
@@ -447,7 +448,9 @@ export function createVerseTab({
     b.addEventListener("click", () => {
       if (b.getAttribute("aria-disabled") === "true" || verse == null) return;
       const to = adjacentVerse(verses, verse, Number(b.dataset.step));
-      if (to != null) setVerse(to);
+      if (to == null) return;
+      setVerse(to);
+      onVerse?.(to);
     });
   }
 

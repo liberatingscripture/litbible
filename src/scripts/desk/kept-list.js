@@ -152,7 +152,7 @@ export function createKeptList({ store, ctx, idPrefix = "deskNp" }) {
         : `${describeCounts(all)}.`;
 
     if (!all.length) {
-      lists.replaceChildren(el("p", "desk-panel__empty", "Notes, highlights and bookmarks you make while reading appear here."));
+      lists.replaceChildren(el("p", "desk-panel__empty", "Notes, highlights, and bookmarks you make while reading appear here."));
       return;
     }
     if (!shown.length) {

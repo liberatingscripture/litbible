@@ -229,6 +229,7 @@ export function createGreekTab({
   let pending = null; // a verse to scroll to once the tab has a size
   let loading = null;
   let lexSeq = 0;
+  let toldTop = null; // the verse last told to onTopVerse (or moved to)
 
   const find = createGreekFind({
     root: el,
@@ -485,6 +486,8 @@ export function createGreekTab({
       : fromHash && verses.includes(fromHash) ? fromHash : pageVerse();
     const at = v != null && verses.includes(v) ? v : verses[0];
     if (at == null) return;
+    // Opening at a verse isn't the reader scrolling there.
+    toldTop = at;
     setRover(firstWordOf(flat, at));
     scrollToVerse(at);
   }
@@ -539,11 +542,20 @@ export function createGreekTab({
   });
 
   // The verse at the Greek's top, told to `onTopVerse` when the reader's
-  // scrolling changes it. A move made by goToVerse is not told back, so two
-  // panes kept in step never chase each other.
-  let toldTop = null;
+  // scrolling changes it. A move made here (opening at a verse, goToVerse,
+  // a selected word brought into view) is not told back: only scrolling the
+  // reader started counts, so two panes kept in step never chase each other,
+  // and a verse near the chapter's end, which can't reach the top, isn't
+  // pulled back to the one that does.
+  let readerScrolled = false;
+  if (onTopVerse) {
+    const byReader = () => { readerScrolled = true; };
+    for (const type of ["wheel", "pointerdown", "touchstart", "keydown"]) {
+      scroller.addEventListener(type, byReader, { passive: true });
+    }
+  }
   function reportTop() {
-    if (!onTopVerse || !verses.length) return;
+    if (!onTopVerse || !verses.length || !readerScrolled) return;
     const v = topVerse();
     if (v == null || v === toldTop) return;
     toldTop = v;
@@ -554,6 +566,7 @@ export function createGreekTab({
   async function goToVerse(verse) {
     if (!(await ensure()) || !verses.includes(verse)) return;
     toldTop = verse;
+    readerScrolled = false;
     if (selected == null) setRover(firstWordOf(flat, verse));
     scrollToVerse(verse);
   }
