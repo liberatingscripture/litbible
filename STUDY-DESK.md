@@ -12,7 +12,14 @@ conversations that produced it.
 Many ideas here were weighed and decided, some were declined, and the reasons
 are recorded so they aren't re-argued.
 
-## Where things stand (as of 2026-10-18)
+## Where things stand (as of 2026-10-19)
+
+- **Phase 3c is built on the preview** (2026-10-19): `/desk/` with the
+  Layout menu, dragging to split, movable lines, several panes of a kind,
+  Stay here, and a remembered layout with a default and a reset. My Notes
+  is the one pane that draws; the rest come with 3d to 3f. Smaller calls
+  for BVJ to judge are in the decision log, "Phase 3c". Next, as
+  suggested: 3f and 3d.
 
 - **Phase 3a is decided** (BVJ, 2026-10-18, from the mockups): /desk's
   layouts come from a Layout menu, with dragging a pane to split another
@@ -4170,6 +4177,12 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      answers", 6); the remembered
      layout with "my default" and a reset (a `localStorage` key, named in
      /privacy). Proves itself by mounting one existing pane.
+     **Built on the preview 2026-10-19** (decision log, "Phase 3c"):
+     `/desk/`, with the rules in `src/lib/desk-layout.mjs` (pure, 87
+     tests), the page in `src/scripts/desk/desk-page.js` and the panes in
+     `desk/desk-panes.js`. My Notes is the pane it mounts, from the
+     Notebook's own `tab-mine.js`; the other kinds say they're still to
+     come. The key is `lit-desk-layout`.
    - **3d. The existing panes on /desk.** My Notes, This verse, Greek and
      the notebook's lists, ported from their modules; the Greek pane kept
      in step with the LIT pane as either scrolls (the 1g answer); This
@@ -5384,6 +5397,37 @@ split itself is still a proposal BVJ worked within but hasn't confirmed.
   values, so themes, print and contrast decide how they look, and a
   reader's accessibility font still wins on screen. Left out: images and
   tables. The set can grow later but never shrink.
+
+### 2026-10-19 (Phase 3c: /desk's frame)
+
+- **Built on the preview** as 3a settled it: the Layout menu with every
+  arrangement but four rows, each grayed out with its reason ("Needs a
+  wider window") when a pane couldn't have 280 by 160; dragging a pane by
+  its header to an edge of another; lines between panes that move by
+  pointer or arrow keys (double-click shares the room evenly); several
+  panes of a kind; the active LIT pane; Stay here; "My last layout" or "My
+  default", "Make this my default" and "Reset to the original layout",
+  kept in `localStorage['lit-desk-layout']`. My Notes is the one pane
+  that draws.
+- **Smaller calls made in building it, for BVJ to judge on the preview**
+  (recommendations, not decisions):
+  - **Dragging can make a shape the menu doesn't list**, four rows among
+    them, as long as every pane keeps its minimum. The menu leaves four
+    rows out; refusing it on a drop as well seemed stricter than BVJ meant.
+  - **Two by two fills down each column**: the LIT and My Notes on the
+    left, This verse and Greek on the right.
+  - **A new slot gets the first kind not yet open**, in the order the LIT,
+    My Notes, This verse, Greek, Footnotes, and Sheet; each pane's name is a
+    menu for showing another kind, which is also the keyboard's way to
+    put anything anywhere.
+  - **"Leading" shows on the active LIT pane only while two or more are
+    open**, since with one there is nothing to tell apart.
+  - **Stay here has no passage picker yet.** Following has nothing to
+    carry until This verse, Greek, and the LIT pane are real (3d, 3e); the
+    pin is kept in the layout already.
+  - **The page fills the window and hides the footer**, so each pane
+    scrolls on its own, and **the app announcement never opens on it**,
+    since its panes hold the text.
 
 ### 2026-10-18 (Phase 3 split into parts)
 
