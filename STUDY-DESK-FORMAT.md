@@ -199,7 +199,9 @@ notebook, three homes").
 ## Sheets (kind 9)
 
 **Status: approved by BVJ, 2026-10-18** (phase 3b; the website's
-proposal, with the rich-text set BVJ chose). A sheet is **one
+proposal, with the rich-text set BVJ chose). The reference is
+`src/lib/desk-sheet-format.mjs` (the checks and `sanitizeSheetHtml`), with
+`src/lib/desk-sheets.mjs` for the changes a sheet takes. A sheet is **one
 record**, so it is deleted, trashed, restored, merged and undone as a whole,
 by the rules every kind follows. Edited on the website only (in /desk's
 sheet pane; `/sheets/` only shows, presents and prints one). The apps keep

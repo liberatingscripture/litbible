@@ -23,9 +23,15 @@
 // 30 days and the deleted record's kind (`deletedKind`, added to the website's
 // phase 1b fields then; migrateRecord fills it in on older trash records).
 // Merging two copies of the notebook is src/lib/desk-merge.mjs.
+//
+// A sheet (kind 9) is one record. Its own fields are checked by
+// desk-sheet-format.mjs (validateSheet), and a sheet written in a newer sheet
+// format than this code's is shown but not edited (canEdit), as a newer schema
+// is. Making and changing sheets is desk-sheets.mjs.
 
 import { BOOKS } from "../data/books.js";
 import { makeAnchor, rangeOf, resolveAnchor } from "./anchor-core.mjs";
+import { SHEET_FORMAT, validateSheet } from "./desk-sheet-format.mjs";
 
 /** The format version this code writes. */
 export const SCHEMA_VERSION = 1;
@@ -115,14 +121,16 @@ export function createRecord(kind, fields, { now, client, contentVersion, id } =
 /**
  * Whether this client may change a record. A record of an unknown kind or a
  * newer schema is carried untouched (principle 6), and a trash record is
- * written whole, never edited.
+ * written whole, never edited. So is a sheet written in a newer sheet format:
+ * an older tab shows it but can't strip what it doesn't understand.
  */
 export function canEdit(record) {
   return (
     KINDS.includes(record?.kind) &&
     record.kind !== "trash" &&
     Number.isInteger(record.schema) &&
-    record.schema <= SCHEMA_VERSION
+    record.schema <= SCHEMA_VERSION &&
+    !(record.kind === "sheet" && Number.isInteger(record.sheetFormat) && record.sheetFormat > SHEET_FORMAT)
   );
 }
 
@@ -282,6 +290,7 @@ export function validateRecord(r) {
   }
   if (k === "label") need(typeof r.name === "string" && r.name.length > 0, "name is empty");
   if (k === "markRule") need(COLORS.includes(r.color), `color "${r.color}" is not one of ${COLORS.join(", ")}`);
+  if (k === "sheet") problems.push(...validateSheet(r));
   return problems;
 }
 

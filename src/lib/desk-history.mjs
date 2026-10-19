@@ -206,6 +206,7 @@ export function describeEntry(entry) {
   const after = livePart(entry.after);
   const beforeIds = new Set(before.map((r) => r.id));
   const named = (r, verb) => {
+    if (r.kind === "sheet") return `Sheet “${r.title || "Untitled"}” ${verb}.`;
     const where = recordReference(r);
     return `${kindName(r.kind)}${where ? ` on ${where}` : ""} ${verb}.`;
   };
