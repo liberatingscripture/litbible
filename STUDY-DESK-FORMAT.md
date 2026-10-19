@@ -133,7 +133,7 @@ generated from `src/data/books.js` (A-F9). It's never stored.
    it.
 9. **`sheet`** (S1–S10, M9, D9): one document the reader builds, for a
    study group, a sermon, a class or anything else. **The website's
-   proposal, 2026-10-18 (phase 3b), for BVJ to approve.** The apps carry it
+   proposal of 2026-10-18 (phase 3b), approved by BVJ the same day.** The apps carry it
    untouched (principle 6, C8); only the website reads or writes it. Its
    shape is under "Sheets (kind 9)" below.
 10. **`trash`** (M7): the whole deleted record for 30 days. After that the
@@ -198,7 +198,8 @@ notebook, three homes").
 
 ## Sheets (kind 9)
 
-**Status: proposed 2026-10-18, for BVJ to approve.** A sheet is **one
+**Status: approved by BVJ, 2026-10-18** (phase 3b; the website's
+proposal, with the rich-text set BVJ chose). A sheet is **one
 record**, so it is deleted, trashed, restored, merged and undone as a whole,
 by the rules every kind follows. Edited on the website only (in /desk's
 sheet pane; `/sheets/` only shows, presents and prints one). The apps keep
@@ -327,9 +328,17 @@ client sanitizes it **when it is saved and again when it is shown**,
 keeping exactly the set below and nothing else; anything else is dropped,
 its text kept, and `<script>`, `<style>` and the like are dropped with
 their contents. The form:
-- Only the tags of the chosen set, in lowercase, with no attributes but a
-  link's `href` (http, https, mailto, or a path on litbible.net starting
-  `/`). No `style`, no `class`, no event handlers, no ids.
+- Only the tags of the set, in lowercase, with two attributes and no
+  others: a link's `href` (http, https, mailto, or a path on litbible.net
+  starting `/`), and `data-align` on a `p`, `h2` or `h3` (`center`,
+  `right` or `justify`; left, the default, is no attribute). No `style`,
+  no `class`, no event handlers, no ids.
+- Nesting: the top level holds `p`, `h2`, `h3`, `blockquote`, `ul`, `ol`
+  and `hr`; a `blockquote` holds `p`, `ul` and `ol`; a list holds `li`;
+  an `li` holds inline content and then at most one nested `ul` or `ol`,
+  three lists deep at most (a deeper list joins the third). Inline
+  content is text, `br` and the inline tags, which nest in any order, and
+  `a` never holds another `a`.
 - Top level holds blocks only; loose text is wrapped in `<p>`. `<div>` is
   read as `<p>`, `<b>` as `<strong>`, `<i>` as `<em>`, `<h1>` as `<h2>`
   (the sheet's title is the page's one `<h1>`), `<h4>` to `<h6>` as
@@ -342,21 +351,22 @@ their contents. The form:
   note's do (`noteBodyHtml`), and a link leaving the site opens in a new
   tab when shown; neither is stored.
 
-**The set (Open: for BVJ to choose).** The mock's sheet showed bold,
-italic, headings, bulleted lists, quotations and links; the blank canvas
-wants more. Whatever is chosen, the same set holds in every text module
-(the record can't tell a canvas from a template), and it can grow later
-(`sheetFormat` 2) but never shrink. Proposed:
+**The set** (BVJ, 2026-10-18: the proposed set plus text alignment). The
+mock's sheet showed bold, italic, headings, bulleted lists, quotations and
+links; the blank canvas wanted more. The same set holds in every text
+module (the record can't tell a canvas from a template), and it can grow
+later (`sheetFormat` 2) but never shrink.
 
 | Group | Tags |
 |---|---|
 | Blocks | paragraph `p`, headings `h2` and `h3`, quotation `blockquote`, line `hr` |
 | Lists | bulleted `ul`, numbered `ol`, items `li`, nested up to three deep |
 | Inline | bold `strong`, italic `em`, underline `u`, strikethrough `s`, superscript `sup`, subscript `sub`, link `a`, line break `br` |
+| Alignment | left (the default), center, right and justified, on paragraphs and headings (`data-align`) |
 
 Left out: fonts and sizes (the Display tray and print set them), colors
 and highlighting (themes, print, and contrast), images (no record can hold a
-file), tables, and alignment.
+file), and tables.
 
 ## The quote (an anchor)
 
@@ -627,8 +637,8 @@ and accounts would live under `/sheets/`, `/notebook/`, `/account/`.
   carry these records untouched (principle 6), as they would any target
   they don't know.
 - Whether reading places sync (kind 5).
-- **The sheet's inner shape**: proposed 2026-10-18 under "Sheets (kind 9)",
-  for BVJ to approve; the rich-text set is BVJ's to choose.
+- ~~The sheet's inner shape~~: **approved by BVJ, 2026-10-18**, under
+  "Sheets (kind 9)".
 - Each store's exact mapping, once plan A or C is chosen.
 - **Draft 2's list** (BDR's proposal, 2026-10-07): rules a to e for
   collisions, a placement value meaning "place me from my verses and quoted

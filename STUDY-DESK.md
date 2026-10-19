@@ -23,8 +23,9 @@ are recorded so they aren't re-argued.
   full rich-text formatting. The LIT pane scrolls the whole corpus, with no
   setting. Several panes of one kind may be open, and This verse, Greek
   and Footnotes follow the LIT pane last worked in, unless pinned. Only
-  the exact rich-text set is left, for 3b, the sheet format, which is
-  next.
+  the exact rich-text set was left for 3b, the sheet format, **approved
+  2026-10-18** with the rich-text set plus text alignment (decision log,
+  "Phase 3b").
 
 - **Phase 5 is fixes and experience** (BVJ, 2026-10-16): a running log of
   bugs and of what using the desk is like, BVJ's own use first, under
@@ -4154,6 +4155,8 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      (sanitized HTML with the full rich-text set, so the blank-canvas
      template can hold a whole document), and the module list is the
      format's to define, since templates are arrangements of modules.
+     **Format approved 2026-10-18** (STUDY-DESK-FORMAT.md, "Sheets (kind
+     9)"); the store follows.
    - **3c. The /desk shell and layout.** The route and gate, a pane
      registry, one to four panes in the arrangements 3a settled (every one
      mocked but four rows), chosen from a Layout menu or by dragging a
@@ -5354,6 +5357,24 @@ the LIT pane last worked in, with a Stay here pin (D9, "Phase 3a's
 answers", 6; the three options under "Still open"). The 3a to 3k
 split itself is still a proposal BVJ worked within but hasn't confirmed.
 
+### 2026-10-18 (Phase 3b: the sheet format)
+
+- **The sheet's inner shape is approved** (BVJ), as the website proposed
+  it in STUDY-DESK-FORMAT.md, "Sheets (kind 9)": one record per sheet, so
+  two computers editing one sheet before they meet keep the later save
+  (every module has its own id, so module-by-module merging can come
+  later); six modules (passage, text, question, space, key terms box, page
+  break), any of them leader-only; passages as references read from the
+  live text, with a copy of their wording kept for S2's comparison only;
+  blanks with no hint, the traditional word or the leader's own; footnote
+  choices named by their text, with the spoiler default worked out live.
+- **The rich-text set** (BVJ): paragraphs, two heading levels, quotations,
+  a horizontal line, bulleted and numbered lists nested three deep, bold,
+  italic, underline, strikethrough, superscript, subscript, links and line
+  breaks, **plus text alignment** (center, right, justified). Left out:
+  fonts and sizes, colors, images and tables. The set can grow later but
+  never shrink.
+
 ### 2026-10-18 (Phase 3 split into parts)
 
 - **Phase 3 is split into 3a to 3k** ("Order of work", 3), to be worked one
@@ -5564,7 +5585,9 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   **Chosen: B.** It allows comparing two passages or keeping two sheets
   open, with one rule a reader can see, and C could still be added later
   if B proves too blunt (B is C with the group picked for the reader).
-- **What "the full rich-text formatting options" include** (3b and 3f): the
+- ~~**What "the full rich-text formatting options" include**~~: **decided**
+  (BVJ, 2026-10-18; decision log, "Phase 3b"): the proposed set plus text
+  alignment. Was (3b and 3f): the
   mockup's sheet offered bold, italic, headings, lists, quotations and
   links. A blank canvas for a wholly original document probably wants
   more (underline, numbered lists, indentation, perhaps tables); the set
