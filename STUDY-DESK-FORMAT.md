@@ -131,15 +131,11 @@ generated from `src/data/books.js` (A-F9). It's never stored.
    calls them **"Labels"** (recommended, for BVJ to confirm), and keeps names
    unique ignoring case and accents: a new label matching an old one reuses
    it.
-9. **`sheet`** (S1–S10): one structured document:
-   - title and template;
-   - ordered items (passage, the reader's text, question);
-   - per passage, its blanks and which footnotes print;
-   - leader-only notes;
-   - the commercial flag.
-
-   Its inner shape will be specified with the sheets work (phase 3). The apps
-   carry it untouched.
+9. **`sheet`** (S1–S10, M9, D9): one document the reader builds, for a
+   study group, a sermon, a class or anything else. **The website's
+   proposal of 2026-10-18 (phase 3b), approved by BVJ the same day.** The apps carry it
+   untouched (principle 6, C8); only the website reads or writes it. Its
+   shape is under "Sheets (kind 9)" below.
 10. **`trash`** (M7): the whole deleted record for 30 days. After that the
     content is dropped and only `deletedId` and `deletedAt` stay, kept
     indefinitely, so a stale backup can't bring a deleted note back (A-F10).
@@ -199,6 +195,191 @@ unused for now (A-F12). Under plan C, BDR's proposal (2026-10-07) makes the
 envelope the standard wrapper for draft 2: id, revision, edit time and
 deletion time in the clear, everything else encrypted (`STUDY-DESK.md`, "One
 notebook, three homes").
+
+## Sheets (kind 9)
+
+**Status: approved by BVJ, 2026-10-18** (phase 3b; the website's
+proposal, with the rich-text set BVJ chose). A sheet is **one
+record**, so it is deleted, trashed, restored, merged and undone as a whole,
+by the rules every kind follows. Edited on the website only (in /desk's
+sheet pane; `/sheets/` only shows, presents and prints one). The apps keep
+it as they keep any record they don't show. Being one record means that
+when two computers edit the same sheet before they meet, the later save
+wins the whole sheet (rule a, under "Clocks"); every module carries its own
+`id`, so merging module by module can be added later without changing the
+format.
+
+Two rules shape everything here:
+
+1. **Passages come from the live text, and the record never holds
+   scripture to show.** A passage is a reference, plus at most a quote
+   saying which words of a verse it starts and ends on. Its words are read
+   from today's chapter whenever the sheet is shown, printed or presented.
+   The one copy it keeps (`verseCopy`) is for comparison only (S2: "this
+   passage changed since you added it"), never shown or printed.
+2. **The reader's words and the LIT's never mix.** A passage is its own
+   module, drawn set apart, and the reader's text is in modules of its own.
+   A quotation typed into the reader's text is the reader's words, styled as
+   theirs.
+
+### The sheet's own fields
+
+Besides the fields every record carries (it has no `bookKey`, `chapter` or
+verses of its own):
+
+| Field | Meaning |
+|---|---|
+| `sheetFormat` | The version of this section the sheet was written in (1). A client that knows a lower number shows the sheet but won't edit it, so an older tab can't strip what it doesn't understand |
+| `title` | Plain text, up to 200 characters ("Freedom and the Life-breath") |
+| `subtitle` | Plain text, up to 200 characters, may be empty ("Thursday group · October 2, 2026") |
+| `template` | The template it was started from (`bible-study`, `sermon`, `class`, `lectio-divina`, `blank`, …). A record of where it came from, read by nothing that changes how it works: once made, every sheet is the same thing |
+| `commercial` | `true` when the reader has ticked "This is for a commercial project" (S7), which turns on the commercial-quotation check. Absent or `false` otherwise |
+| `modules` | The sheet's contents, in order |
+
+A sheet is at most **512 KB** as JSON (CloudKit's records stop at 1 MB, and
+a sheet should fit any home with room to spare) and **300 modules**. Nothing
+else in it has a limit of its own.
+
+### Modules
+
+Every module is an object with:
+- `id`: unique within the sheet (a UUID), so a module can be moved, undone
+  and, one day, merged on its own;
+- `type`: one of the types below;
+- `leaderOnly`, optional: `true` prints and presents it on the leader's copy
+  only (S4). Any module may carry it, a passage included (background
+  reading for the leader).
+
+A module of a type the client doesn't know is **kept where it is and
+written back untouched**, and shown as "Made by a newer version of the
+LIT" in the editor. Fields a client doesn't know are kept the same way.
+
+**`passage`**: verses of one chapter.
+
+| Field | Meaning |
+|---|---|
+| `bookKey`, `chapter`, `verse`, `endVerse` | The verses. One chapter per passage; a reading that crosses a chapter is two passages |
+| `quote`, optional | When the passage starts or ends inside a verse (added from a selection): the anchor of the words it covers, as for a highlight. Absent for whole verses |
+| `verseCopy`, `verseCopyAsOf` | The verses' anchor text when added (comparison only, rule 1) |
+| `blanks` | Words left blank on the participant's copy (S10). May be empty |
+| `footnotes` | The leader's choices of which footnotes print (C15). May be empty |
+
+The reference printed is always plain verse numbers ("Romans 5:6–10",
+never "6a"), as when sharing a selection.
+
+A **blank** is `{ id, verse, exact, prefix, suffix, hint, hintText }`: the
+words blanked, found like any quote (`verse` is the verse they start in), and
+the hint printed beneath:
+- `hint: "none"`: just the blank;
+- `hint: "traditional"`: the traditional word for the glossary term the
+  blanked words render ("traditionally sin"), looked up from today's term
+  lens data when printed, so it never goes stale. Offered only where a term
+  is marked;
+- `hint: "custom"`: the leader's own `hintText`, plain text up to 100
+  characters.
+
+The answer is the blanked words themselves, so it is never stored twice.
+Blanks are omissions, never substitutions. A blank whose words can no longer
+be found (`verse` or `lost`, under "Finding a mark again") isn't printed,
+and the editor tells the leader.
+
+The **footnote choices** are `{ verse, footnote, n, print }` per footnote
+the leader has decided on: the footnote named as `footnotePin` names it (its
+verse, its full text, `n` among identical ones), never its letter, and
+`print` true or false. A footnote with no choice follows the default, which
+is worked out live: it prints, **unless it gives a blank away**, in which
+case it is flagged and left out until the leader decides. Select all and
+Unselect all write a choice for every footnote in the passage. So a
+footnote added to the chapter later prints by default, and is still flagged
+if it gives a blank away. A choice whose footnote has gone is ignored.
+
+**`text`**: the reader's own words, formatted.
+
+| Field | Meaning |
+|---|---|
+| `html` | Formatted text, in the sanitized form below |
+
+A blank-canvas sheet is a sheet whose template is `blank` and starts with
+one empty `text` module; everything else about it is the same as any sheet.
+
+**`question`**: a question for discussion.
+
+| Field | Meaning |
+|---|---|
+| `html` | The question, formatted |
+| `answer` | Formatted, may be empty. Always the leader's only, whatever `leaderOnly` says |
+| `lines` | Ruled lines to write on beneath it, 0 to 20 |
+
+**`space`**: ruled space to write, `lines` 1 to 40, for a reflection or
+lectio divina's rest.
+
+**`keyTerms`**: the key terms box (S3). Its terms are worked out live from
+the sheet's passages. `omit` lists the glossary ids the leader took out, may
+be empty. At most one per sheet.
+
+**`pageBreak`**: a new page when printed. Nothing else.
+
+### Formatted text
+
+`html` in `text` and `question` modules (and a question's `answer`) is HTML
+in **one canonical form**, so every client writes the same text for the
+same formatting and a merge never sees a change that isn't one. Every
+client sanitizes it **when it is saved and again when it is shown**,
+keeping exactly the set below and nothing else; anything else is dropped,
+its text kept, and `<script>`, `<style>` and the like are dropped with
+their contents. The form:
+- Only the tags of the set, in lowercase, with these attributes and no
+  others: a link's `href` (http, https, mailto, or a path on litbible.net
+  starting `/`); `data-align` on a `p`, `h2` or `h3` (`center`, `right`
+  or `justify`; left, the default, is no attribute); and on a `span`,
+  `data-font`, `data-size`, `data-color` and `data-mark`, written in that
+  order, each with one of the named values below. No `style`, no `class`,
+  no event handlers, no ids.
+- **Styles are names, never values.** A sheet stores `data-color="red"`,
+  never a color, so each theme, print and the Word copy decide what red
+  looks like (each named color has a light and a dark value checked for
+  contrast), and a reader's own Atkinson or OpenDyslexic choice still
+  wins on screen, as it does everywhere. A `span` with no valid style is
+  unwrapped; a style with a value not in the list is dropped; spans nested
+  with nothing between them become one, the inner one's styles winning.
+- Nesting: the top level holds `p`, `h2`, `h3`, `blockquote`, `ul`, `ol`
+  and `hr`; a `blockquote` holds `p`, `ul` and `ol`; a list holds `li`;
+  an `li` holds inline content and then at most one nested `ul` or `ol`,
+  three lists deep at most (a deeper list joins the third). Inline
+  content is text, `br` and the inline tags, which nest in any order, and
+  `a` never holds another `a`.
+- Top level holds blocks only; loose text is wrapped in `<p>`. `<div>` is
+  read as `<p>`, `<b>` as `<strong>`, `<i>` as `<em>`, `<h1>` as `<h2>`
+  (the sheet's title is the page's one `<h1>`), `<h4>` to `<h6>` as
+  `<h3>`.
+- Characters are written as themselves; only `&amp;`, `&lt;`, `&gt;` and,
+  inside `href`, `&quot;` are escaped.
+- Empty inline elements are dropped, and two adjacent same-tag inline runs
+  are joined (the chapter files' "no seam" rule).
+- Scripture references typed in it link and preview **when shown**, as a
+  note's do (`noteBodyHtml`), and a link leaving the site opens in a new
+  tab when shown; neither is stored.
+
+**The set** (BVJ, 2026-10-18: the proposed set plus text alignment, then
+the named styles the same day). The
+mock's sheet showed bold, italic, headings, bulleted lists, quotations and
+links; the blank canvas wanted more. The same set holds in every text
+module (the record can't tell a canvas from a template), and it can grow
+later (`sheetFormat` 2) but never shrink.
+
+| Group | Tags |
+|---|---|
+| Blocks | paragraph `p`, headings `h2` and `h3`, quotation `blockquote`, line `hr` |
+| Lists | bulleted `ul`, numbered `ol`, items `li`, nested up to three deep |
+| Inline | bold `strong`, italic `em`, underline `u`, strikethrough `s`, superscript `sup`, subscript `sub`, link `a`, line break `br` |
+| Alignment | left (the default), center, right and justified, on paragraphs and headings (`data-align`) |
+| Font (`data-font`) | the default, `sans` (Inter), `serif` (Crimson Text), `display` (Fraunces), `handwriting` (Playpen Sans) and `atkinson` (Atkinson Hyperlegible) |
+| Size (`data-size`) | `small`, normal (the default), `large` and `larger`, scaled from the reader's own text size |
+| Text color (`data-color`) | the default, `red`, `blue`, `green`, `purple` and `gray` |
+| Background (`data-mark`) | none (the default), `yellow`, `green`, `blue` and `pink`, the notebook's highlight colors |
+
+Left out: any font, size or color by value (themes, print and contrast),
+images (no record can hold a file), and tables.
 
 ## The quote (an anchor)
 
@@ -469,7 +650,8 @@ and accounts would live under `/sheets/`, `/notebook/`, `/account/`.
   carry these records untouched (principle 6), as they would any target
   they don't know.
 - Whether reading places sync (kind 5).
-- The sheet's inner shape.
+- ~~The sheet's inner shape~~: **approved by BVJ, 2026-10-18**, under
+  "Sheets (kind 9)".
 - Each store's exact mapping, once plan A or C is chosen.
 - **Draft 2's list** (BDR's proposal, 2026-10-07): rules a to e for
   collisions, a placement value meaning "place me from my verses and quoted
