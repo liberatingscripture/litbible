@@ -330,11 +330,20 @@ client sanitizes it **when it is saved and again when it is shown**,
 keeping exactly the set below and nothing else; anything else is dropped,
 its text kept, and `<script>`, `<style>` and the like are dropped with
 their contents. The form:
-- Only the tags of the set, in lowercase, with two attributes and no
+- Only the tags of the set, in lowercase, with these attributes and no
   others: a link's `href` (http, https, mailto, or a path on litbible.net
-  starting `/`), and `data-align` on a `p`, `h2` or `h3` (`center`,
-  `right` or `justify`; left, the default, is no attribute). No `style`,
-  no `class`, no event handlers, no ids.
+  starting `/`); `data-align` on a `p`, `h2` or `h3` (`center`, `right`
+  or `justify`; left, the default, is no attribute); and on a `span`,
+  `data-font`, `data-size`, `data-color` and `data-mark`, written in that
+  order, each with one of the named values below. No `style`, no `class`,
+  no event handlers, no ids.
+- **Styles are names, never values.** A sheet stores `data-color="red"`,
+  never a color, so each theme, print and the Word copy decide what red
+  looks like (each named color has a light and a dark value checked for
+  contrast), and a reader's own Atkinson or OpenDyslexic choice still
+  wins on screen, as it does everywhere. A `span` with no valid style is
+  unwrapped; a style with a value not in the list is dropped; spans nested
+  with nothing between them become one, the inner one's styles winning.
 - Nesting: the top level holds `p`, `h2`, `h3`, `blockquote`, `ul`, `ol`
   and `hr`; a `blockquote` holds `p`, `ul` and `ol`; a list holds `li`;
   an `li` holds inline content and then at most one nested `ul` or `ol`,
@@ -353,7 +362,8 @@ their contents. The form:
   note's do (`noteBodyHtml`), and a link leaving the site opens in a new
   tab when shown; neither is stored.
 
-**The set** (BVJ, 2026-10-18: the proposed set plus text alignment). The
+**The set** (BVJ, 2026-10-18: the proposed set plus text alignment, then
+the named styles the same day). The
 mock's sheet showed bold, italic, headings, bulleted lists, quotations and
 links; the blank canvas wanted more. The same set holds in every text
 module (the record can't tell a canvas from a template), and it can grow
@@ -365,10 +375,13 @@ later (`sheetFormat` 2) but never shrink.
 | Lists | bulleted `ul`, numbered `ol`, items `li`, nested up to three deep |
 | Inline | bold `strong`, italic `em`, underline `u`, strikethrough `s`, superscript `sup`, subscript `sub`, link `a`, line break `br` |
 | Alignment | left (the default), center, right and justified, on paragraphs and headings (`data-align`) |
+| Font (`data-font`) | the default, `sans` (Inter), `serif` (Crimson Text), `display` (Fraunces), `handwriting` (Playpen Sans) and `atkinson` (Atkinson Hyperlegible) |
+| Size (`data-size`) | `small`, normal (the default), `large` and `larger`, scaled from the reader's own text size |
+| Text color (`data-color`) | the default, `red`, `blue`, `green`, `purple` and `gray` |
+| Background (`data-mark`) | none (the default), `yellow`, `green`, `blue` and `pink`, the notebook's highlight colors |
 
-Left out: fonts and sizes (the Display tray and print set them), colors
-and highlighting (themes, print, and contrast), images (no record can hold a
-file), and tables.
+Left out: any font, size or color by value (themes, print and contrast),
+images (no record can hold a file), and tables.
 
 ## The quote (an anchor)
 

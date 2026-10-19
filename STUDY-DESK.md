@@ -24,7 +24,7 @@ are recorded so they aren't re-argued.
   setting. Several panes of one kind may be open, and This verse, Greek
   and Footnotes follow the LIT pane last worked in, unless pinned. Only
   the exact rich-text set was left for 3b, the sheet format, **approved
-  2026-10-18** with the rich-text set plus text alignment (decision log,
+  2026-10-18** with the rich-text set plus text alignment and named styles (decision log,
   "Phase 3b").
 
 - **Phase 5 is fixes and experience** (BVJ, 2026-10-16): a running log of
@@ -5376,9 +5376,14 @@ split itself is still a proposal BVJ worked within but hasn't confirmed.
 - **The rich-text set** (BVJ): paragraphs, two heading levels, quotations,
   a horizontal line, bulleted and numbered lists nested three deep, bold,
   italic, underline, strikethrough, superscript, subscript, links and line
-  breaks, **plus text alignment** (center, right, justified). Left out:
-  fonts and sizes, colors, images and tables. The set can grow later but
-  never shrink.
+  breaks, **plus text alignment** (center, right, justified). **Then, the
+  same day, named styles** (BVJ): fonts (Sans, Serif, Display,
+  Handwriting and Atkinson Hyperlegible), sizes (Small, Large, Larger),
+  five text colors (red, blue, green, purple, gray) and the four highlight
+  colors as backgrounds, each beside the default. Stored as names, never
+  values, so themes, print and contrast decide how they look, and a
+  reader's accessibility font still wins on screen. Left out: images and
+  tables. The set can grow later but never shrink.
 
 ### 2026-10-18 (Phase 3 split into parts)
 
@@ -5592,7 +5597,7 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   if B proves too blunt (B is C with the group picked for the reader).
 - ~~**What "the full rich-text formatting options" include**~~: **decided**
   (BVJ, 2026-10-18; decision log, "Phase 3b"): the proposed set plus text
-  alignment. Was (3b and 3f): the
+  alignment and named fonts, sizes and colors. Was (3b and 3f): the
   mockup's sheet offered bold, italic, headings, lists, quotations and
   links. A blank canvas for a wholly original document probably wants
   more (underline, numbered lists, indentation, perhaps tables); the set
