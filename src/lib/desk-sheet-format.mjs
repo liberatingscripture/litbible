@@ -10,7 +10,10 @@
 // text, but it also arrives from an imported file, a merge or another device,
 // and it is drawn into the page, so everything it returns is BUILT from an
 // allowlist rather than filtered from the input: a tree of known elements and
-// text, serialized with its own escaping. Anything unrecognized becomes
+// text, serialized with its own escaping. What is kept: the tags of the
+// format's set; a link's `href` (http, https, mailto or a path on this site);
+// `data-align` on p, h2 and h3; and on a `span` the four named styles
+// (SPAN_STYLES), as names only, never CSS values. Anything unrecognized becomes
 // escaped text or disappears. It is also idempotent, sanitize(sanitize(x)) ===
 // sanitize(x) for every input, which is what lets validateSheet ask "is this
 // html already in the canonical form" and lets a merge compare two copies
@@ -21,8 +24,9 @@
 //      names (script, style and the like are cut out here with their contents);
 //   2. parse: a lenient tree (close tags find their opener, nothing throws),
 //      dropping the elements that go with their contents;
-//   3. normalize: map and unwrap tags, keep only `href` and `data-align`, fit
-//      the nesting rules, collapse whitespace, drop empties, join seams;
+//   3. normalize: map and unwrap tags, keep only `href`, `data-align` and a
+//      span's named styles, fit the nesting rules, collapse whitespace, drop
+//      empties, join seams;
 //   4. serialize: lowercase tags, `&`, `<` and `>` escaped in text, plus `"`
 //      in an attribute.
 //
@@ -53,8 +57,21 @@ export const SHEET_LIMITS = Object.freeze({
 
 /* ── The sanitizer ───────────────────────────────────────────────────── */
 
-const ALLOWED = new Set(["p", "h2", "h3", "blockquote", "hr", "ul", "ol", "li", "strong", "em", "u", "s", "sup", "sub", "a", "br"]);
-const INLINE = new Set(["strong", "em", "u", "s", "sup", "sub", "a"]);
+/**
+ * The named styles a `span` may carry, by attribute (`data-font`, `data-size`,
+ * `data-color`, `data-mark`, written in this order). A sheet stores names, never
+ * values, so each theme, print and the Word copy decide what "red" looks like.
+ */
+export const SPAN_STYLES = Object.freeze({
+  font: Object.freeze(["sans", "serif", "display", "handwriting", "atkinson"]),
+  size: Object.freeze(["small", "large", "larger"]),
+  color: Object.freeze(["red", "blue", "green", "purple", "gray"]),
+  mark: Object.freeze(["yellow", "green", "blue", "pink"]),
+});
+const STYLE_KEYS = Object.keys(SPAN_STYLES);
+
+const ALLOWED = new Set(["p", "h2", "h3", "blockquote", "hr", "ul", "ol", "li", "strong", "em", "u", "s", "sup", "sub", "a", "span", "br"]);
+const INLINE = new Set(["strong", "em", "u", "s", "sup", "sub", "a", "span"]);
 const RENAMED = { div: "p", tr: "p", b: "strong", i: "em", h1: "h2", h4: "h3", h5: "h3", h6: "h3", strike: "s", del: "s", ins: "u" };
 /** Elements read as raw text: found by their closing tag in the source and dropped whole. */
 const RAW_TEXT = new Set(["script", "style", "textarea", "title", "iframe", "noscript"]);
@@ -282,6 +299,18 @@ function alignOf(attrs) {
   return null;
 }
 
+/** A span's valid named styles as { font, size, color, mark } (null for none), or null when it has none. */
+function spanStyles(attrs) {
+  const styles = {};
+  let any = false;
+  for (const key of STYLE_KEYS) {
+    const v = attrs.has(`data-${key}`) ? attrs.get(`data-${key}`).trim().toLowerCase() : null;
+    styles[key] = v !== null && SPAN_STYLES[key].includes(v) ? v : null;
+    if (styles[key] !== null) any = true;
+  }
+  return any ? styles : null;
+}
+
 /** The parse tree with canonical names, only the two attributes, and unknown elements replaced by their contents. */
 function convert(nodes, out = []) {
   for (const n of nodes) {
@@ -298,6 +327,10 @@ function convert(nodes, out = []) {
       const href = cleanHref(n.attrs.get("href"));
       if (href === null) convert(n.kids, out);
       else out.push(elNode("a", convert(n.kids), { href }));
+    } else if (name === "span") {
+      const styles = spanStyles(n.attrs);
+      if (styles === null) convert(n.kids, out);
+      else out.push(elNode("span", convert(n.kids), { styles }));
     } else if (name === "p" || name === "h2" || name === "h3") {
       out.push(elNode(name, convert(n.kids), { align: alignOf(n.attrs) }));
     } else {
@@ -389,7 +422,22 @@ function stripTrailingBr(list) {
   }
 }
 
-const sameAttrs = (a, b) => (a.href ?? null) === (b.href ?? null);
+const styleKey = (n) => (n.styles ? STYLE_KEYS.map((k) => n.styles[k] ?? "").join("|") : "");
+const sameAttrs = (a, b) => (a.href ?? null) === (b.href ?? null) && styleKey(a) === styleKey(b);
+
+/** An element whose only child is an element of its own name: one element, a span's styles merged, the inner winning. */
+function collapsed(el) {
+  while (el.kids.length === 1 && el.kids[0].t === "el" && el.kids[0].name === el.name) {
+    const inner = el.kids[0];
+    if (el.name === "span") {
+      const styles = {};
+      for (const k of STYLE_KEYS) styles[k] = inner.styles[k] ?? el.styles[k];
+      el = { ...inner, styles };
+    } else if (sameAttrs(el, inner)) el = inner;
+    else break;
+  }
+  return el;
+}
 
 /** Add a node to a list, joining it to the one before when they are the same text or the same element. */
 function addNode(out, n) {
@@ -425,9 +473,7 @@ function simplify(list) {
       for (const k of n.kids) addNode(out, k); // only whitespace text is left
       continue;
     }
-    let el = n;
-    while (el.kids.length === 1 && el.kids[0].t === "el" && el.kids[0].name === el.name && sameAttrs(el, el.kids[0])) el = el.kids[0];
-    addNode(out, el);
+    addNode(out, collapsed(n));
   }
   return out;
 }
@@ -584,12 +630,14 @@ function toBlocks(nodes, ctx, out = []) {
 const escText = (s) => s.normalize("NFC").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 const escAttr = (s) => escText(s).replace(/"/g, "&quot;");
 
+const spanAttrs = (styles) => STYLE_KEYS.filter((k) => styles[k]).map((k) => ` data-${k}="${styles[k]}"`).join("");
+
 function serInline(nodes) {
   let html = "";
   for (const n of nodes) {
     if (n.t === "text") html += escText(n.s);
     else if (n.name === "br") html += "<br>";
-    else html += `<${n.name}${n.name === "a" ? ` href="${escAttr(n.href)}"` : ""}>${serInline(n.kids)}</${n.name}>`;
+    else html += `<${n.name}${n.name === "a" ? ` href="${escAttr(n.href)}"` : ""}${n.name === "span" ? spanAttrs(n.styles) : ""}>${serInline(n.kids)}</${n.name}>`;
   }
   return html;
 }

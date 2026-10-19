@@ -18,6 +18,7 @@ import {
   MODULE_TYPES,
   SHEET_FORMAT,
   SHEET_LIMITS,
+  SPAN_STYLES,
   sanitizeSheetHtml as clean,
   validateSheet,
 } from "../src/lib/desk-sheet-format.mjs";
@@ -56,6 +57,8 @@ const CANONICAL = [
   "<p>line one<br>line two</p>",
   "<p><br></p>",
   "<p>a &amp; b &lt;c&gt; “quoted” — dash…</p>",
+  '<p><span data-font="handwriting" data-size="large" data-color="red" data-mark="yellow">All four</span> and <span data-color="blue">one</span></p>',
+  '<p><span data-size="small">a <em>b</em></span> <a href="/x"><span data-mark="pink">c</span></a></p>',
   "<p>é is not canonical, é is</p>".replace("é", "é"),
 ];
 
@@ -187,6 +190,157 @@ test("a link's address is checked after entities are decoded, and what is kept i
 test("an a inside an a is unwrapped", () => {
   assert.equal(clean('<p><a href="/x">a<a href="/y">b</a>c</a></p>'), '<p><a href="/x">abc</a></p>');
   assert.equal(clean('<p><a href="/x"><em><a href="/y">b</a></em></a></p>'), '<p><a href="/x"><em>b</em></a></p>');
+});
+
+/* ── Named styles on a span ──────────────────────────────────────────── */
+
+test("the named styles are the format's lists, frozen", () => {
+  assert.deepEqual(
+    { font: [...SPAN_STYLES.font], size: [...SPAN_STYLES.size], color: [...SPAN_STYLES.color], mark: [...SPAN_STYLES.mark] },
+    {
+      font: ["sans", "serif", "display", "handwriting", "atkinson"],
+      size: ["small", "large", "larger"],
+      color: ["red", "blue", "green", "purple", "gray"],
+      mark: ["yellow", "green", "blue", "pink"],
+    },
+  );
+  for (const o of [SPAN_STYLES, ...Object.values(SPAN_STYLES)]) assert.ok(Object.isFrozen(o));
+});
+
+test("a span keeps its valid names, written in the order font, size, color, mark", () => {
+  for (const [k, list] of Object.entries(SPAN_STYLES)) {
+    for (const v of list) assert.equal(clean(`<p>a<span data-${k}="${v}">b</span></p>`), `<p>a<span data-${k}="${v}">b</span></p>`, `${k}=${v}`);
+  }
+  assert.equal(
+    clean('<p><span data-mark="pink" data-color="blue" data-size="small" data-font="atkinson">x</span></p>'),
+    '<p><span data-font="atkinson" data-size="small" data-color="blue" data-mark="pink">x</span></p>',
+  );
+  assert.equal(clean('<p><span data-color=" RED ">x</span></p>'), '<p><span data-color="red">x</span></p>');
+  assert.equal(clean('<span data-color="red">loose</span>'), '<p><span data-color="red">loose</span></p>');
+});
+
+test("a span's other attributes are dropped, and CSS values are never turned into names", () => {
+  assert.equal(
+    clean('<p><span data-color="red" style="color:blue" class="x" id="i" onclick="x()" color="green">a</span></p>'),
+    '<p><span data-color="red">a</span></p>',
+  );
+  assert.equal(clean('<p><span style="color:red; font-size:2em; background:yellow; font-family:serif">a</span></p>'), "<p>a</p>");
+  assert.equal(clean('<p><span class="red" color="red" data-other="red">a</span></p>'), "<p>a</p>");
+  assert.equal(clean('<p><font color="red" size="5" face="serif">a</font></p>'), "<p>a</p>");
+  assert.equal(clean('<p><mark data-mark="yellow">a</mark></p>'), "<p>a</p>");
+  assert.equal(clean('<p><strong data-color="red">a</strong></p>'), "<p><strong>a</strong></p>");
+});
+
+test("a style outside its list is dropped, and a span left with none is unwrapped", () => {
+  assert.equal(clean('<p><span data-color="orange">a</span></p>'), "<p>a</p>");
+  assert.equal(clean('<p><span data-color="#f00">a</span></p>'), "<p>a</p>");
+  assert.equal(clean('<p><span data-mark="red" data-font="comic">a</span></p>'), "<p>a</p>");
+  assert.equal(clean('<p><span data-font="comic" data-size="large">a</span></p>'), '<p><span data-size="large">a</span></p>');
+  assert.equal(clean('<p><span data-size="small" data-color="">a</span></p>'), '<p><span data-size="small">a</span></p>');
+  assert.equal(clean("<p><span>a <em>b</em></span></p>"), "<p>a <em>b</em></p>");
+  assert.equal(clean('<p><span data-color="red" data-color="blue">a</span></p>'), '<p><span data-color="red">a</span></p>', "the first of a repeated attribute counts");
+  assert.equal(clean('<p><span data-color="bogus" data-color="red">a</span></p>'), "<p>a</p>");
+});
+
+test("nested spans with nothing between them become one, however deep, the inner winning", () => {
+  assert.equal(clean('<p><span data-color="red"><span data-mark="pink">x</span></span></p>'), '<p><span data-color="red" data-mark="pink">x</span></p>');
+  assert.equal(
+    clean('<p><span data-color="red" data-size="large"><span data-color="blue">x</span></span></p>'),
+    '<p><span data-size="large" data-color="blue">x</span></p>',
+  );
+  assert.equal(
+    clean('<p><span data-font="serif"><span data-color="red"><span data-color="green" data-mark="yellow"><span data-size="small">x</span></span></span></span></p>'),
+    '<p><span data-font="serif" data-size="small" data-color="green" data-mark="yellow">x</span></p>',
+  );
+  assert.equal(clean('<p><span data-color="red"><span style="x"><span data-mark="pink">x</span></span></span></p>'), '<p><span data-color="red" data-mark="pink">x</span></p>');
+  assert.equal(
+    clean('<p><span data-color="red"> <span data-mark="pink">x</span> </span></p>'),
+    '<p><span data-color="red" data-mark="pink">x</span></p>',
+    "whitespace at the edges of a block is trimmed first, leaving the inner span the only child",
+  );
+  // Something else beside the inner span keeps the nesting.
+  const kept = '<p><span data-color="red"><span data-mark="pink">x</span> y</span></p>';
+  assert.equal(clean(kept), kept);
+  const viaEm = '<p><span data-color="red"><em><span data-mark="pink">x</span></em></span></p>';
+  assert.equal(clean(viaEm), viaEm);
+  const deep = '<span data-size="large">'.repeat(60) + "x" + "</span>".repeat(60);
+  assert.equal(clean(deep), '<p><span data-size="large">x</span></p>');
+});
+
+test("adjacent spans with identical styles are joined; different styles are not", () => {
+  assert.equal(clean('<p><span data-color="red">a</span><span data-color="red">b</span></p>'), '<p><span data-color="red">ab</span></p>');
+  assert.equal(
+    clean('<p><span data-color="red" data-size="large">a</span><span data-size="large" data-color="red">b</span></p>'),
+    '<p><span data-size="large" data-color="red">ab</span></p>',
+  );
+  const apart = '<p><span data-color="red">a</span><span data-color="blue">b</span></p>';
+  assert.equal(clean(apart), apart);
+  const subset = '<p><span data-color="red">a</span><span data-size="large" data-color="red">b</span></p>';
+  assert.equal(clean(subset), subset);
+  const spaced = '<p><span data-color="red">a</span> <span data-color="red">b</span></p>';
+  assert.equal(clean(spaced), spaced);
+  assert.equal(
+    clean('<p><span data-color="red">a</span><span style="x">m</span><span data-color="red">b</span></p>'),
+    '<p><span data-color="red">a</span>m<span data-color="red">b</span></p>',
+    "an unwrapped span leaves its text between",
+  );
+  assert.equal(clean('<p><span data-color="red"><em>a</em></span><span data-color="red"><em>b</em></span></p>'), '<p><span data-color="red"><em>ab</em></span></p>');
+});
+
+test("a span with no text and no break is dropped, like any empty inline element", () => {
+  assert.equal(clean('<p>a<span data-color="red"></span>b</p>'), "<p>ab</p>");
+  assert.equal(clean('<p><span data-color="red"><em></em></span></p>'), "");
+  assert.equal(clean('<p>a<span data-color="red"> </span>b</p>'), "<p>a b</p>");
+  const withBreak = '<p>a<span data-color="red"><br></span>b</p>';
+  assert.equal(clean(withBreak), withBreak);
+  assert.equal(clean('<p>a<span data-color="red"><br></span></p>'), "<p>a</p>");
+  assert.equal(clean('<p><span data-color="red">a</span><span data-color="blue"></span><span data-color="red">b</span></p>'), '<p><span data-color="red">ab</span></p>');
+});
+
+test("spans nest in any order with the other inline tags, inside or outside a link", () => {
+  for (const html of [
+    '<p><span data-color="red"><strong>a</strong></span><strong><span data-color="red">b</span></strong></p>',
+    '<p><em><span data-mark="yellow">a <sub>b</sub></span></em></p>',
+    '<p><a href="/x"><span data-color="red">a</span></a></p>',
+    '<p><span data-color="red"><a href="/x">a</a></span></p>',
+    '<ul><li><span data-size="small">a</span><ul><li><span data-size="large">b</span></li></ul></li></ul>',
+    '<h2><span data-font="display">Title</span></h2>',
+  ]) assert.equal(clean(html), html);
+  assert.equal(clean('<p><span data-color="red"><a href="/x">a<a href="/y">b</a></a></span></p>'), '<p><span data-color="red"><a href="/x">ab</a></span></p>');
+});
+
+test("a span is inline only: a block inside it is unwrapped, and it takes no alignment", () => {
+  assert.equal(clean('<span data-color="red"><p>a</p><p>b</p></span>'), '<p><span data-color="red">a<br>b</span></p>');
+  assert.equal(clean('<p><span data-color="red" data-align="center">a</span></p>'), '<p><span data-color="red">a</span></p>');
+  assert.equal(clean('<span data-color="red" data-align="center" style="text-align:right">a</span>'), '<p><span data-color="red">a</span></p>');
+  assert.equal(clean('<blockquote><span data-color="red">a</span></blockquote>'), '<blockquote><p><span data-color="red">a</span></p></blockquote>');
+});
+
+test("the inline depth cap still applies to spans", () => {
+  const colors = ["red", "blue"];
+  let html = "x";
+  for (let i = 0; i < 100; i++) html = `<span data-color="${colors[i % 2]}"><em>${html}</em></span>`;
+  const out = clean(html);
+  assert.ok(out.includes("x"));
+  assert.equal(clean(out), out);
+});
+
+test("validateSheet accepts canonical span html in text, question and answer, and refuses the rest", () => {
+  const canonical = '<p><span data-font="serif" data-color="red">Read</span> slowly.</p>';
+  assert.deepEqual(validateRecord(withModule({ id: "t", type: "text", html: canonical })), []);
+  assert.deepEqual(validateRecord(withModule({ id: "q", type: "question", html: canonical, answer: canonical, lines: 2 })), []);
+  for (const html of [
+    '<p><span style="color:red">x</span></p>',
+    '<p><span data-color="orange">x</span></p>',
+    '<p><span data-color="red" data-font="serif">x</span></p>',
+    '<p><span data-color="red"><span data-mark="pink">x</span></span></p>',
+    "<p><span>x</span></p>",
+  ]) {
+    assert.ok(hasProblem(withModule({ id: "t", type: "text", html }), /formatted-text form/), html);
+    assert.ok(hasProblem(withModule({ id: "q", type: "question", html: canonical, answer: html, lines: 0 }), /answer is not in the sheet's/), html);
+  }
+  const made = makeModule("text", { html: '<p><span data-mark="pink" data-font="serif">x</span></p>' }, { id: "t" });
+  assert.equal(made.html, '<p><span data-font="serif" data-mark="pink">x</span></p>');
 });
 
 /* ── Alignment ───────────────────────────────────────────────────────── */
@@ -422,7 +576,7 @@ function prng(seed) {
 }
 
 const TAGS = [
-  "p", "div", "span", "b", "i", "u", "s", "strong", "em", "sup", "sub", "a", "br", "hr", "h1", "h2", "h3", "h4", "h6", "blockquote",
+  "p", "div", "span", "span", "span", "mark", "b", "i", "u", "s", "strong", "em", "sup", "sub", "a", "br", "hr", "h1", "h2", "h3", "h4", "h6", "blockquote",
   "ul", "ol", "li", "table", "tr", "td", "font", "center", "strike", "del", "ins", "section", "pre", "code", "img", "svg", "script",
   "style", "iframe", "button", "input", "textarea", "template", "noscript", "title", "math", "object", "embed", "select",
 ];
@@ -430,7 +584,9 @@ const ATTRS = [
   "", "", "", ' onclick="alert(1)"', ' style="text-align:center;color:red"', ' style="text-align: right"', ' class="x"', ' id="y"',
   ' href="https://example.org/a?b=1&c=2"', ' href="/romans-8/#v3"', ' href="javascript:alert(1)"', ' href="jav&#x61;script:alert(1)"',
   ' href="//evil.example"', ' href="mailto:a@b.org"', ' href=/x', ' align="right"', ' align=center', ' data-align="justify"',
-  ' data-align="left"', ' onerror=alert(1)', ' src="x"', ' style="background:url(javascript:alert(1))"', " href='/q'", ' href',
+  ' data-align="left"', ' data-font="serif"', ' data-font="comic"', ' data-size="large"', ' data-size="huge"', ' data-color="red"',
+  ' data-color="#ff0000"', ' data-color="RED "', ' data-mark="yellow"', ' data-mark="red"', ' data-font="sans" data-font="serif"',
+  ' data-mark="pink" data-color="blue" data-size="small" data-font="atkinson"', ' color="red"', ' onerror=alert(1)', ' src="x"', ' style="background:url(javascript:alert(1))"', " href='/q'", ' href',
 ];
 const WORDS = [
   "alpha", "beta", " ", "  ", "\n", "\t", "one two", "Liberation", "ἀγάπη", "é", " ", "“quoted”", "x < y", "a > b", "5 & 6",
@@ -451,8 +607,8 @@ function randomSoup(rand, size) {
   return out;
 }
 
-const NAMES = new Set(["p", "h2", "h3", "blockquote", "hr", "ul", "ol", "li", "strong", "em", "u", "s", "sup", "sub", "a", "br"]);
-const INLINE_NAMES = new Set(["strong", "em", "u", "s", "sup", "sub", "a"]);
+const NAMES = new Set(["p", "h2", "h3", "blockquote", "hr", "ul", "ol", "li", "strong", "em", "u", "s", "sup", "sub", "a", "span", "br"]);
+const INLINE_NAMES = new Set(["strong", "em", "u", "s", "sup", "sub", "a", "span"]);
 const TOP = new Set(["p", "h2", "h3", "blockquote", "ul", "ol", "hr"]);
 const IN_QUOTE = new Set(["p", "ul", "ol"]);
 
@@ -468,6 +624,7 @@ function assertCanonicalGrammar(html, label) {
   assert.ok(!/(^|[^&])&(?!(amp|lt|gt|quot);)/.test(html), `${label}: unescaped ampersand`);
 
   const stack = [];
+  let closedSpan = null;
   let last = 0;
   let m;
   const parent = () => stack[stack.length - 1]?.name ?? "#top";
@@ -488,7 +645,9 @@ function assertCanonicalGrammar(html, label) {
     assert.ok(NAMES.has(name), `${label}: tag ${name} is not allowed`);
     if (close) {
       assert.equal(attrText, "", `${label}: attributes on a close tag`);
-      assert.equal(stack.pop()?.name, name, `${label}: mismatched </${name}>`);
+      const closed = stack.pop();
+      assert.equal(closed?.name, name, `${label}: mismatched </${name}>`);
+      if (name === "span") closedSpan = { end: TAG.lastIndex, attrText: closed.attrText };
       continue;
     }
     const attrs = [...attrText.matchAll(/ ([a-z-]+)="([^"]*)"/g)].map((a) => [a[1], a[2]]);
@@ -499,10 +658,18 @@ function assertCanonicalGrammar(html, label) {
         assert.ok(!/[\x00-\x1f\x7f]/.test(decoded), `${label}: control character in href`);
       } else if (k === "data-align" && (name === "p" || name === "h2" || name === "h3")) {
         assert.ok(ALIGNMENTS.includes(v), `${label}: bad align ${v}`);
+      } else if (name === "span" && /^data-(font|size|color|mark)$/.test(k)) {
+        assert.ok(SPAN_STYLES[k.slice(5)].includes(v), `${label}: bad span style ${k}=${v}`);
       } else assert.fail(`${label}: attribute ${k} on <${name}>`);
     }
     assert.equal(attrs.length, new Set(attrs.map((a) => a[0])).size, `${label}: repeated attribute`);
     if (name === "a") assert.equal(attrs.length, 1, `${label}: a without href`);
+    if (name === "span") {
+      assert.ok(attrs.length >= 1, `${label}: span with no style`);
+      const order = attrs.map((a) => ["data-font", "data-size", "data-color", "data-mark"].indexOf(a[0]));
+      assert.deepEqual(order, [...order].sort((x, y) => x - y), `${label}: span styles out of order`);
+      assert.ok(!(closedSpan && closedSpan.end === m.index && closedSpan.attrText === attrText), `${label}: adjacent spans with the same styles`);
+    }
 
     const p = parent();
     if (p === "#top") assert.ok(TOP.has(name), `${label}: ${name} at the top level`);
@@ -514,7 +681,7 @@ function assertCanonicalGrammar(html, label) {
     if (name === "ul" || name === "ol") assert.ok(listDepth() < 3, `${label}: lists nested deeper than three`);
     if (name === "a") assert.ok(!hasA(), `${label}: a in an a`);
     if (name === "blockquote") assert.ok(!stack.some((e) => e.name === "blockquote"), `${label}: blockquote in blockquote`);
-    if (name !== "br" && name !== "hr") stack.push({ name });
+    if (name !== "br" && name !== "hr") stack.push({ name, attrText });
   }
   text(html.slice(last));
   assert.equal(stack.length, 0, `${label}: unclosed element`);
@@ -542,6 +709,7 @@ test("a fuzz of well-formed pieces too: nested blocks, lists and links", () => {
     if (r < 0.2) return `<${pick(["p", "div", "h1", "h2", "h4"])}${pick(ATTRS)}>${inner()}</${pick(["p", "div", "h1"])}>`;
     if (r < 0.35) return `<${pick(["ul", "ol"])}>${Array.from({ length: 1 + Math.floor(rand() * 3) }, () => `<li>${inner()}</li>`).join("")}</${pick(["ul", "ol"])}>`;
     if (r < 0.45) return `<blockquote>${inner()}</blockquote>`;
+    if (r < 0.52) return `<span${pick(ATTRS)}>${inner()}</span>`;
     if (r < 0.6) return `<${pick(["b", "i", "em", "u", "s", "span", "sup"])}>${inner()}</${pick(["b", "i", "em", "u", "s", "span", "sup"])}>`;
     if (r < 0.7) return `<a${pick(ATTRS)}>${inner()}</a>`;
     return pick(["word", " spaced ", "a&amp;b", "<br>", "<hr>", "ἀγάπη", ""]);
