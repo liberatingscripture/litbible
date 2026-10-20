@@ -14,6 +14,17 @@ are recorded so they aren't re-argued.
 
 ## Where things stand (as of 2026-10-19)
 
+- **Phase 3h is built on the preview** (2026-10-19): a sheet now knows
+  about the LIT. Each passage on a sheet has its blanks (select words and
+  "Blank the selected words", or one click on a key term, with "traditionally
+  sin" as the hint) and a footnote picker ("Footnotes: 3 of 4 print", Select
+  all and Unselect all) that flags any footnote giving a blank away and
+  leaves it out until the leader decides. The key terms box fills itself in
+  from the sheet's passages, and every sheet ends with its license card, whose
+  "This is for a commercial project" box turns on the commercial check.
+  Smaller calls for BVJ to judge are in the decision log, "Phase 3h". Next:
+  3i, paper and copies.
+
 - **Phase 3g is built on the preview** (2026-10-19): in the LIT pane on
   `/desk/` the reader can highlight from the verse menu and a selection, and
   their highlights are drawn there (in every pane showing the chapter), with
@@ -4274,6 +4285,11 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
    - **3h. What a sheet knows about the LIT.** The key terms box (S3),
      blanks (S10) with the footnote picker and spoiler flags (C15), and
      the license card with the commercial check (S7).
+     **Built on the preview 2026-10-19** (decision log, "Phase 3h"): the
+     rules are `src/lib/desk-sheet-lit.mjs` (pure, tested), and the cards
+     `desk/sheet-lit.js`, which the Sheet pane mounts for each passage, the
+     key terms box and the license card. Nothing new is stored beyond what
+     the format already had (`blanks`, `footnotes`, `omit`, `commercial`).
    - **3i. Paper and copies.** The sheet's own address, `/sheets/` (3a); leader and
      participant copies (S4); Letter and A4 with Greek and Hebrew fonts
      (C27); printed codes (S5), which moves `qrcode-generator` from a
@@ -5472,6 +5488,57 @@ split itself is still a proposal BVJ worked within but hasn't confirmed.
   values, so themes, print and contrast decide how they look, and a
   reader's accessibility font still wins on screen. Left out: images and
   tables. The set can grow later but never shrink.
+
+### 2026-10-19 (Phase 3h: what a sheet knows about the LIT)
+
+- **Built** as 3h set out, with nothing added to the format: blanks (S10),
+  the footnote picker with its spoiler flags (C15), the key terms box (S3)
+  and the license card with the commercial check (S7), all worked out live
+  from each chapter's Study View page. The mock's own case behaves as mocked:
+  Romans 5:6–10 with "deviating" blanked flags note c ("Or ‘people
+  characterized by deviation’…") as giving the blank away.
+- **Smaller calls made in building it, for BVJ to judge on the preview**
+  (recommendations, not decisions):
+  - **Making a blank**: select words in the passage on the sheet and choose
+    "Blank the selected words" (a part-word selection grows to the whole
+    word), or press a key term's button under the passage, which blanks every
+    use of that term in the passage with "traditionally sin" beneath; pressed
+    again, it fills them in. A blank over a key term starts with the
+    traditional hint, any other with none. Two blanks can't overlap.
+  - **Each blank is listed under its passage**, in reading order, with its
+    verse, a hint menu (No hint, "traditionally sin" where a term is marked,
+    My own hint…) and ×. Blanked words are tinted and underlined in the
+    sheet's copy of the passage, the leader's view, so the answer stays
+    visible while editing.
+  - **A footnote gives a blank away** when it shares a word with the blank,
+    compared by stem (so "deviation" gives away "deviating"), ignoring words
+    under four letters and common ones. It errs toward flagging, since a flag
+    only asks the leader to decide, and it checks every blank on the sheet,
+    not only its own passage's.
+  - **Which footnotes belong to a passage**: those whose letter falls inside
+    the passage's words, so a passage starting mid-verse leaves out a note
+    on the words before it. The picker is a collapsed line under each
+    passage, "Footnotes: 3 of 4 print · 1 would give a blank away", with
+    each note's letter, verse and full text.
+  - **The key terms box lists every passage's terms**, in the order the sheet
+    first uses them, each as "deviating, traditionally sin, *hamartia*" with
+    a Glossary link; unticking leaves a term out (`omit`). The glossary's own
+    disambiguator is dropped ("Good [2]" prints as "good"). A blanked term
+    stays listed; how the participant's copy shows it is 3i's.
+  - **The license card sits at the foot of every sheet**, not beside it (a
+    pane has no room for side cards): the credit line, "Read the license
+    terms", and the commercial box. Its links open in a new tab, so the desk
+    stays put.
+  - **The commercial check counts the copy everyone gets**: the LIT's words
+    (passages less their blanks, the footnotes that print, the key terms box)
+    against the reader's own (title, subtitle, text and questions), leaving
+    out Leader only parts and answers, with a thin bar marking 50%. It also
+    says when the passages quote a whole book, when footnotes are set not to
+    print, and when the sheet has blanks, quoting the terms' own wording for
+    each ("quoted as written, with footnotes kept with the verses they
+    reference"). It warns; it never stops the leader.
+  - **A passage on a sheet now keeps its first verse number** when it starts
+    on a verse; 3f's copy of the text dropped it.
 
 ### 2026-10-19 (Phase 3g: the reader's marks on /desk)
 

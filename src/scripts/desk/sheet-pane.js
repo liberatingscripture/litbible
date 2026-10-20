@@ -18,8 +18,11 @@
 //   notebook's notes, highlights and bookmarks.
 // - **Your own text between**, formatted, in text and question modules
 //   (sheet-text.js); a question has its answer (always the leader's) and
-//   lines to write on; space to write and page breaks too. The key terms box
-//   is 3h's.
+//   lines to write on; space to write and page breaks too.
+// - **What the sheet knows about the LIT** (3h; sheet-lit.js): a passage's
+//   blanks and which of its footnotes print, the key terms box, and the
+//   license card with the commercial check. Those cards are told whenever the
+//   sheet changes (`sheetChanged`), since each reads the rest of the sheet.
 // - **Drag into order** by a module's grip, or Move up and Move down.
 // - **Saves as you go**: every change is saved at once, typing a moment after
 //   it pauses. A change made elsewhere (another pane on the same sheet,
@@ -30,7 +33,6 @@ import { canEdit } from "../../lib/desk-records.mjs";
 import { MODULE_TYPES, SHEET_LIMITS } from "../../lib/desk-sheet-format.mjs";
 import { addModule, createSheet, makeModule, moveModule, removeModule, setSheetFields, updateModule } from "../../lib/desk-sheets.mjs";
 import {
-  locatePassage,
   passageFromOffsets,
   passageFromRecord,
   passageFromVerses,
@@ -39,12 +41,13 @@ import {
   sheetName,
   sortSheets,
 } from "../../lib/desk-sheet-passages.mjs";
-import { offsetsToRange, rangeToOffsets } from "../../lib/desk-anchor-dom.mjs";
+import { rangeToOffsets } from "../../lib/desk-anchor-dom.mjs";
 import { recordReference } from "../../lib/desk-store-core.mjs";
 import { parseReference } from "../search-core.js";
 import { closePanel } from "../lit-panel.js";
 import { loadChapterPage } from "./chapter-page.js";
 import { undoEntry } from "./history.js";
+import { createKeyTermsBody, createLicenseCard, createPassageBody } from "./sheet-lit.js";
 import { createSheetText } from "./sheet-text.js";
 import { showUndo } from "./undo-bar.js";
 
@@ -129,54 +132,6 @@ function listenForPanels() {
     d.append(heading);
     d.append(row);
   });
-}
-
-/* ── Drawing a passage from the live text ─────────────────────────────── */
-
-/**
- * The passage's words from today's chapter, as Study View shows them (verse
- * numbers kept, footnote letters and ids left out), or a status line.
- */
-async function passageBody(m) {
-  const box = make("div", "desk-sheet__passage-text");
-  let source;
-  try {
-    source = await loadChapterPage(m.bookKey, m.chapter);
-  } catch (_) {
-    box.append(make("p", "desk-sheet__status", "This passage couldn’t be loaded. It will be read again when the sheet next opens."));
-    return box;
-  }
-  if (source.draft || !source.textBox) {
-    box.append(make("p", "desk-sheet__status", "This chapter is still being translated, so its text isn’t ready to show."));
-    return box;
-  }
-  const chapter = source.anchorText();
-  const at = locatePassage(chapter, m);
-  if (at.start == null) {
-    box.append(make("p", "desk-sheet__status", "These verses can no longer be found in the LIT."));
-    return box;
-  }
-  const r = offsetsToRange(chapter, at.start, at.end);
-  if (!r) {
-    box.append(make("p", "desk-sheet__status", "This passage couldn’t be read from the chapter."));
-    return box;
-  }
-  const range = source.doc.createRange();
-  range.setStart(r.startContainer, r.startOffset);
-  range.setEnd(r.endContainer, r.endOffset);
-  const words = make("div", "desk-sheet__words chapter-paragraphs");
-  words.append(document.importNode(range.cloneContents(), true));
-  words.querySelectorAll("sup.fn-ref").forEach((s) => s.remove());
-  words.querySelectorAll("[id]").forEach((el) => el.removeAttribute("id"));
-  words.querySelectorAll("[aria-describedby], [aria-labelledby]").forEach((el) => {
-    el.removeAttribute("aria-describedby");
-    el.removeAttribute("aria-labelledby");
-  });
-  box.append(words);
-  if (at.status === "changed" || at.status === "verse" || at.status === "moved") {
-    box.append(make("p", "desk-sheet__status", "The words this passage started or ended on have changed since it was added, so it shows the closest match."));
-  }
-  return box;
 }
 
 /* ── The pane ─────────────────────────────────────────────────────────── */
@@ -283,7 +238,10 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
   async function showList() {
     const n = ++seq;
     sheet = null;
+    for (const card of cards.values()) card.inst?.destroy?.();
     cards.clear();
+    license = null;
+    keyTermsButton = null;
     content.replaceChildren(make("p", "desk-sheet__status", "Loading your sheets…"));
     let all = [];
     try {
@@ -347,6 +305,11 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
   let titleInput = null;
   let subtitleInput = null;
   let readOnly = false;
+  let license = null;
+  let keyTermsButton = null;
+
+  /** What a card's head shows, which an in-place update can't redraw. */
+  const headKey = (m) => json([m.type, m.leaderOnly === true, m.type === "passage" ? passageReference(m) : null]);
 
   async function openSheet(id, { focusTitle = false } = {}) {
     const n = ++seq;
@@ -363,6 +326,7 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
     setSheet(id);
     sheet = record;
     readOnly = !canEdit(record);
+    for (const card of cards.values()) card.inst?.destroy?.();
     cards.clear();
     buildSheet();
     draw();
@@ -422,6 +386,16 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
     wireDrag(moduleList);
     wrap.append(moduleList);
     if (!readOnly) wrap.append(addBar());
+    license = createLicenseCard({
+      getSheet: () => sheet,
+      readOnly,
+      idPrefix: `deskSheet-${paneId}`,
+      setCommercial: (on) =>
+        change((s) => setSheetFields(s, { commercial: on }, opCtx()), {
+          announce: on ? "Marked as a commercial project; the commercial check is on." : "No longer marked as a commercial project.",
+        }),
+    });
+    wrap.append(license.el);
     content.replaceChildren(wrap);
   }
 
@@ -436,7 +410,13 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
       let card = cards.get(m.id);
       const now = json(m);
       if (card && card.json !== now) {
-        if (card.inst?.hasFocus?.()) {
+        if (card.inst?.update && card.head === headKey(m)) {
+          // Passages and the key terms box redraw their own body in place, so
+          // a blank or a footnote choice keeps the card, its open lists and
+          // the reader's focus.
+          card.inst.update(m);
+          card.json = now;
+        } else if (card.inst?.hasFocus?.()) {
           card.json = now; // the reader is typing here; their next save wins
         } else {
           card.inst?.destroy?.();
@@ -457,6 +437,13 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
       card.inst?.destroy?.();
       card.el.remove();
       cards.delete(id);
+    }
+    for (const card of cards.values()) card.inst?.sheetChanged?.();
+    license?.sheetChanged();
+    if (keyTermsButton) {
+      const has = sheet.modules.some((x) => x?.type === "keyTerms");
+      keyTermsButton.disabled = has;
+      keyTermsButton.title = has ? "A sheet has one key terms box" : "A box listing the key terms in the sheet’s passages, filled in for you";
     }
     if (!sheet.modules.length) {
       if (!moduleList.querySelector(".desk-sheet__none")) {
@@ -494,7 +481,7 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
     let up = null;
     let down = null;
     if (!readOnly) {
-      if (known && m.type !== "keyTerms") {
+      if (known) {
         const leader = make("label", "desk-sheet__leader");
         const box = make("input");
         box.type = "checkbox";
@@ -529,7 +516,7 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
     else if (m.type === "question") inst = questionCard(card, m);
     else if (m.type === "space") inst = spaceCard(card, m);
     else if (m.type === "pageBreak") card.append(make("div", "desk-sheet__break", "A new page starts here when printed."));
-    else if (m.type === "keyTerms") card.append(make("p", "desk-sheet__status", "The key terms box is filled in for you in a later step of the preview."));
+    else if (m.type === "keyTerms") inst = keyTermsCard(card, m);
     else card.append(make("p", "desk-sheet__status", "This part was made by a newer version of the LIT. It is kept as it is; reload the page to see it."));
 
     if (!readOnly) {
@@ -540,6 +527,7 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
       el: card,
       inst,
       json: "",
+      head: headKey(m),
       setPosition(i, count) {
         if (up) up.disabled = i === 0;
         if (down) down.disabled = i === count - 1;
@@ -571,17 +559,33 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
   }
 
   function passageCard(card, m) {
-    const body = make("div", "desk-sheet__passage");
-    body.append(make("p", "desk-sheet__status", "Reading the passage…"));
+    const body = make("div");
     card.append(body);
     if (showPassage) {
       const go = button("Show in the LIT", "desk-sheet__btn desk-sheet__btn--quiet desk-sheet__show");
       go.addEventListener("click", () => showPassage({ bookKey: m.bookKey, chapter: m.chapter, verse: m.verse }));
       card.querySelector(".desk-sheet__module-tools").prepend(go);
     }
-    let gone = false;
-    passageBody(m).then((box) => { if (!gone) body.replaceChildren(box); });
-    return { destroy: () => { gone = true; } };
+    const inst = createPassageBody({
+      m,
+      readOnly,
+      getSheet: () => sheet,
+      update: (fields, announce) => change((s) => updateModule(s, m.id, fields, opCtx()), { announce }),
+      say,
+    });
+    body.replaceWith(inst.el);
+    return inst;
+  }
+
+  function keyTermsCard(card, m) {
+    const inst = createKeyTermsBody({
+      m,
+      readOnly,
+      getSheet: () => sheet,
+      update: (fields, announce) => change((s) => updateModule(s, m.id, fields, opCtx()), { announce }),
+    });
+    card.append(inst.el);
+    return inst;
   }
 
   function textField(m, field, label, placeholder) {
@@ -697,6 +701,8 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
     add("question", "Question");
     add("space", "Space");
     add("pageBreak", "Page break");
+    add("keyTerms", "Key terms box");
+    keyTermsButton = row.lastChild;
     form.id = `deskSheetPassage-${paneId}`;
     bar.append(row, form);
     return bar;
