@@ -64,11 +64,13 @@ import {
   placeFor,
   litPlace,
   setLitAt,
+  setPaneSheet,
   splitPane,
   writeSaved,
 } from "../../lib/desk-layout.mjs";
 import { formatPassage, parsePassage, sameChapter, startingPassage } from "../../lib/desk-passage.mjs";
 import { loadLastRead } from "../last-read.js";
+import { initActions } from "./actions.js";
 import { addDeskStyle, deskCtx as ctx } from "./boot.js";
 import { mountPane } from "./desk-panes.js";
 import { createHistory } from "./history.js";
@@ -157,6 +159,9 @@ async function start() {
     console.error("Study Desk: the notebook didn’t open", err);
   }
   if (store) createHistory({ store, ctx });
+  // The LIT pane's verse menu and selection panel get the "My Notebook" row
+  // (3f): Add a note, Bookmark and Ribbon here….
+  if (store) initActions({ store, ctx });
   const onEdit = store
     ? (record, trigger) => openNoteEditor({ trigger, store, ctx, ref: recordReference(record), record, restoreFocus: trigger })
     : null;
@@ -170,7 +175,15 @@ async function start() {
   // LIT pane shows a run of them as one stub without fetching each.
   let drafts = {};
   try { drafts = JSON.parse(document.getElementById("desk-drafts")?.textContent || "{}") ?? {}; } catch (_) {}
-  const env = { store, storeError, onEdit, ctx, openGreekWord, drafts };
+  // A sheet's passage shown in the LIT pane being read (or, with none, in the
+  // panes that follow), as a picker would move it.
+  const showPassage = (passage) => {
+    const at = formatPassage(passage);
+    if (!at) return;
+    if (findPane(layout.root, layout.active)?.kind === "lit") commit(setLitAt(layout, layout.active, at), { draw: false });
+    else commit(setPlace(layout, at), { draw: false });
+  };
+  const env = { store, storeError, onEdit, ctx, openGreekWord, drafts, showPassage };
 
   document.documentElement.dataset.deskWorkspace = "";
   root.replaceChildren();
@@ -431,6 +444,8 @@ async function start() {
         id: pane.id,
         get: () => passageOf(pane.id),
         set: (passage) => setPassageOf(pane.id, passage),
+        getSheet: () => findPane(layout.root, pane.id)?.sheet ?? null,
+        setSheet: (sheetId) => commit(setPaneSheet(layout, pane.id, sheetId), { draw: false }),
       });
     }
     return rec;

@@ -34,6 +34,7 @@ import {
   setActive,
   setKind,
   setLitAt,
+  setPaneSheet,
   setPin,
   setPlace,
   slotCount,
@@ -1117,4 +1118,44 @@ test("checkLayout keeps a LIT pane's passage and the shared place, and drops a p
   assert.equal("at" in findPane(l.root, "b"), false, "a passage on My Notes is dropped");
   assert.equal("at" in findPane(l.root, "c"), false, "a passage that is not a string is dropped");
   assert.equal(l.place, "john 3:16");
+});
+
+// ---- the sheet a Sheet pane shows (3f) ----
+
+const withSheetPane = () => {
+  const layout = originalLayout();
+  return setKind(layout, "p2", "sheet");
+};
+
+test("setPaneSheet sets and clears the sheet a Sheet pane shows, without mutating", () => {
+  const l = withSheetPane();
+  const before = structuredClone(l);
+  const next = setPaneSheet(l, "p2", "sheet-1");
+  assert.equal(findPane(next.root, "p2").sheet, "sheet-1");
+  assert.deepEqual(l, before);
+  const cleared = setPaneSheet(next, "p2", null);
+  assert.equal("sheet" in findPane(cleared.root, "p2"), false);
+});
+
+test("setPaneSheet leaves other kinds, and an unchanged sheet, alone", () => {
+  const l = withSheetPane();
+  assert.equal(setPaneSheet(l, "p1", "sheet-1"), l, "a LIT pane has no sheet");
+  assert.equal(setPaneSheet(l, "nope", "sheet-1"), l);
+  const one = setPaneSheet(l, "p2", "sheet-1");
+  assert.equal(setPaneSheet(one, "p2", "sheet-1"), one);
+  assert.equal(setPaneSheet(l, "p2", ""), l, "an empty id is no sheet, which it already shows");
+});
+
+test("setKind drops a Sheet pane's sheet", () => {
+  const l = setPaneSheet(withSheetPane(), "p2", "sheet-1");
+  const next = setKind(l, "p2", "mine");
+  assert.equal("sheet" in findPane(next.root, "p2"), false);
+});
+
+test("checkLayout keeps a Sheet pane's sheet and drops one anywhere else", () => {
+  const l = checkLayout(mk(cols([0.5, 0.5], { pane: { id: "a", kind: "sheet", sheet: "s-1" } }, { pane: { id: "b", kind: "mine", sheet: "s-2" } })));
+  assert.equal(findPane(l.root, "a").sheet, "s-1");
+  assert.equal("sheet" in findPane(l.root, "b"), false);
+  const bad = checkLayout(mk(cols([0.5, 0.5], { pane: { id: "a", kind: "sheet", sheet: 7 } }, leaf("b", "mine"))));
+  assert.equal("sheet" in findPane(bad.root, "a"), false);
 });

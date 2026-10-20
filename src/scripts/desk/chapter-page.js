@@ -58,6 +58,8 @@ function read(doc, bookKey, chapter) {
     termData,
     footnotes,
     goDeeper: doc.querySelector(".go-deeper"),
+    // The page itself, where a handout copied in the LIT pane reads its notes.
+    doc,
     footnoteBody: (id) => doc.getElementById(id)?.querySelector(".fn-body") ?? null,
     // Read fresh each time, like page.js's chapterText.
     anchorText: () => pageAnchorText(textBox?.children ?? []),
@@ -66,7 +68,7 @@ function read(doc, bookKey, chapter) {
 
 /**
  * The chapter's page, read: { bookKey, chapter, draft, textBox, verses,
- * termData, footnotes, goDeeper, footnoteBody(id), anchorText() }, where
+ * termData, footnotes, goDeeper, doc, footnoteBody(id), anchorText() }, where
  * footnotes is the page's list in order, [{ id, label, verse | null }] (empty
  * for a draft). Rejects when the page
  * can't be had; a failed fetch is forgotten, so the next ask tries again.

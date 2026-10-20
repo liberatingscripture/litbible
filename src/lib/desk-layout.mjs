@@ -28,6 +28,8 @@
 //   the following panes follow it; with no LIT pane open the place is chosen
 //   with their passage picker (3d). All are passage strings, "john 3:16"
 //   (desk-passage.mjs);
+// - a Sheet pane keeps which sheet it shows (`sheet`, a record id, 3f), or
+//   none for its list of sheets;
 // - the original layout is the LIT text beside My Notes, 60/40, and the
 //   layout is kept in this browser.
 
@@ -301,6 +303,8 @@ export function setKind(layout, id, kind) {
   if (!isFollower(kind)) pane.pin = null;
   // A LIT pane's place is its own; a new one starts at the shared place.
   delete pane.at;
+  // So is the sheet a Sheet pane shows (3f); another kind has none.
+  delete pane.sheet;
   return settleActive(next);
 }
 
@@ -340,6 +344,22 @@ export function setLitAt(layout, id, at) {
   const next = clone(layout);
   findPane(next.root, id).at = at;
   if (place) next.place = place;
+  return next;
+}
+
+/**
+ * The sheet a Sheet pane shows (3f): a sheet record's id, or null for the
+ * pane's list of sheets. Unchanged for anything but a Sheet pane, or the
+ * sheet it already shows.
+ */
+export function setPaneSheet(layout, id, sheetId) {
+  const pane = findPane(layout.root, id);
+  const want = typeof sheetId === "string" && sheetId ? sheetId : null;
+  if (pane?.kind !== "sheet" || (pane.sheet ?? null) === want) return layout;
+  const next = clone(layout);
+  const p = findPane(next.root, id);
+  if (want) p.sheet = want;
+  else delete p.sheet;
   return next;
 }
 
@@ -500,6 +520,7 @@ export function checkLayout(value) {
         : null;
       const kept = { id, kind, pin: keepPin };
       if (kind === "lit" && typeof node.pane.at === "string" && node.pane.at) kept.at = node.pane.at;
+      if (kind === "sheet" && typeof node.pane.sheet === "string" && node.pane.sheet) kept.sheet = node.pane.sheet;
       return { pane: kept };
     }
     if ((node.split !== "columns" && node.split !== "rows") || !Array.isArray(node.children) || node.children.length < 2) return null;

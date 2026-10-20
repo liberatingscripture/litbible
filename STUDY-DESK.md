@@ -14,6 +14,15 @@ are recorded so they aren't re-argued.
 
 ## Where things stand (as of 2026-10-19)
 
+- **Phase 3f is built on the preview** (2026-10-19): the LIT pane on
+  `/desk/` has Study View's verse menu and selection panel, with their copy
+  actions and the "My Notebook" row, and the Sheet pane is the sheet
+  editor: a list of sheets, a title and subtitle, passages added from the
+  verse menu, a selection, a typed reference or the notebook, your own
+  formatted text, questions, space to write and page breaks between them,
+  dragged into order, saved as you go. Smaller calls for BVJ to judge are
+  in the decision log, "Phase 3f". Next: 3g, the reader's marks on /desk.
+
 - **Phase 3e is built on the preview** (2026-10-19): the LIT pane scrolls
   the whole New Testament on `/desk/`, a chapter at a time, with drafts as
   one stub per run, footnote letters that open their own chapter's note,
@@ -4235,6 +4244,12 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      selection or the notebook; drag into order; your own text between,
      with formatting; autosave; passages from live text. Built to run
      inside another page, and shown as /desk's sheet pane.
+     **Built on the preview 2026-10-19** (decision log, "Phase 3f"): the
+     verse tools take the pane as one more view (`attachVerseTools` in
+     `chapter-tools.js`); the editor is `desk/sheet-pane.js`, its formatted
+     text `desk/sheet-text.js`, and the passage rules
+     `src/lib/desk-sheet-passages.mjs`. Which sheet a Sheet pane shows is
+     kept in the layout (`sheet`, in `lit-desk-layout`).
    - **3g. The reader's marks on /desk** (BVJ, 2026-10-19). Highlights,
      notes and bookmarks in the LIT pane, as on Study View, with the
      change notice when the words under a mark have moved; and **pinning
@@ -5442,6 +5457,64 @@ split itself is still a proposal BVJ worked within but hasn't confirmed.
   values, so themes, print and contrast decide how they look, and a
   reader's accessibility font still wins on screen. Left out: images and
   tables. The set can grow later but never shrink.
+
+### 2026-10-19 (Phase 3f: the verse menu in the LIT pane, and the sheet editor)
+
+- **Built** as 3f set out: Study View's verse menu and selection panel in
+  the LIT pane, then the sheet editor as the Sheet pane, with passages from
+  the live text (format rule 1), the reader's own text between, dragging
+  into order, and saving as the reader goes.
+- **Smaller calls made in building it, for BVJ to judge on the preview**
+  (recommendations, not decisions):
+  - **The LIT pane's verse numbers look and work as Study View's do**, and
+    each menu names its own chapter ("Matthew 1:1–3"); a verse number in
+    another chapter starts a new menu rather than extending the range. Copy
+    link and the copies' links go to the verse in Study View, as Read View's
+    do, and "Copy with footnotes" reads the notes from the chapter's page.
+  - **The "My Notebook" row in the pane offers Add a note, Bookmark and
+    Ribbon here…, but not Highlight or Show in notebook**: a highlight made
+    there couldn't be seen until 3g draws the marks, and This verse is the
+    pane that shows a verse. A note or bookmark made there shows in My
+    Notes and This verse.
+  - **"Add to sheet" is its own row, "Sheet", in the LIT pane's menus**,
+    shown only while a Sheet pane has a sheet open, and naming that sheet
+    ("Add to “Freedom and the Life-breath”"). With two Sheet panes open it
+    adds to the one last worked in. A selection that covers whole verses is
+    added as those verses, with no quote; one that starts or ends inside a
+    verse keeps the quote, as the format says.
+  - **A Sheet pane opens on a list, "My sheets"**, with New sheet, each
+    sheet's subtitle, its number of passages and when it last changed, and
+    Delete (undoable). The pane remembers which sheet it shows. A new sheet
+    is the blank template, one empty text block, and its title field takes
+    the cursor; templates are 3k's.
+  - **Each part of a sheet is a card** headed with what it is (a passage's
+    reference), a grip to drag it, Leader only, Move up, Move down and
+    Remove (undoable). New parts go at the end: "+ Passage", "+ Your text",
+    "+ Question", "+ Space" and "+ Page break". The key terms box is not
+    offered yet (3h), and a sheet holding one shows a line saying so.
+  - **"+ Passage" opens a small form**: a reference typed as the search box
+    reads one (a whole chapter when no verse is given), and "From my
+    notebook", the latest 40 notes, highlights and bookmarks, each added as
+    its passage. Adding a passage already on the sheet adds it again and
+    says so, rather than refusing.
+  - **A passage shows its words from today's text**, set apart by a green
+    rule with plain verse numbers and no footnote letters (which footnotes
+    print is 3h's), and "Show in the LIT" moves the LIT pane being read
+    there. When the words a quote started or ended on have changed, it shows
+    the closest match and says so; when the verses are gone, it says that.
+  - **The formatting toolbar** has a block menu (Paragraph, Heading,
+    Subheading, Quotation), bold, italic, underline, strikethrough,
+    superscript, subscript, link, bulleted and numbered lists with indent and
+    outdent, alignment, a Style menu for the named fonts, sizes, colors and
+    backgrounds (each previewed in its own style), a line, and Clear
+    formatting. A style needs words selected. Pasted text is sanitized to the
+    sheet's set.
+  - **Saving**: every change is saved at once, typing and the title a
+    moment after they pause, with "Saving…" and "Saved" at the top. Ctrl+Z
+    inside a text is the browser's own; outside, it undoes the sheet's last
+    saved change, as for every record. The colors, alignment and line are
+    made outside the browser's editing commands, so its Ctrl+Z steps over
+    them.
 
 ### 2026-10-19 (Phase 3e: the LIT and Footnotes panes on /desk)
 

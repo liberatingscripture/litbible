@@ -13,11 +13,13 @@
 // - What I've kept is kept-list.js, the notebook page's list (3d).
 // - the LIT text is lit-pane.js, the whole corpus in one scroll (3e);
 // - Footnotes is footnotes-view.js, the chapter's notes with the reader's
-//   verse marked (X11; 3e).
+//   verse marked (X11; 3e);
+// - Sheet is sheet-pane.js, the sheet editor (S1; 3f), showing the sheet the
+//   layout names for it, or the list of sheets.
 // The following panes (This verse, Greek, Footnotes) read their chapter from
 // its fetched Study View page (chapter-page.js), and show the passage
 // desk-page.js gives them, with a passage picker at their top
-// (passage-bar.js). The sheet comes in 3f. Each mount returns { destroy },
+// (passage-bar.js). Each mount returns { destroy },
 // plus setPassage for a pane that is moved: a following pane, or a LIT pane
 // that the panes following it lead back (the Greek's scrolling, a picker).
 
@@ -28,13 +30,10 @@ import { createKeptList } from "./kept-list.js";
 import { createLitPane } from "./lit-pane.js";
 import { openNoteEditor } from "./note-editor.js";
 import { createPassageBar } from "./passage-bar.js";
+import { createSheetPane } from "./sheet-pane.js";
 import { createGreekTab } from "./tab-greek.js";
 import { createMineTab } from "./tab-mine.js";
 import { createVerseTab } from "./tab-verse.js";
-
-const LATER = {
-  sheet: "Sheets come to this pane in a later step of the preview.",
-};
 
 function make(tag, cls, text) {
   const e = document.createElement(tag);
@@ -285,6 +284,20 @@ function mountLit(body, env, pane) {
   return { setPassage: (p) => lit.goTo(p), destroy: () => lit.destroy() };
 }
 
+function mountSheet(body, env, pane) {
+  body.classList.add("desk-pane__body--fill");
+  const sheet = createSheetPane({
+    store: env.store,
+    ctx: env.ctx,
+    paneId: pane.id,
+    getSheet: pane.getSheet,
+    setSheet: pane.setSheet,
+    showPassage: env.showPassage,
+  });
+  body.append(sheet.el);
+  return { destroy: () => sheet.destroy() };
+}
+
 function mountKept(body, env, pane) {
   if (!env.store) {
     return message(body, "This browser isn’t letting the site keep a notebook. Private windows sometimes don’t.");
@@ -308,9 +321,11 @@ function mountKept(body, env, pane) {
  *   ctx: () => { client: string, contentVersion: string },
  *   openGreekWord: (passage: object, t: number) => void,
  *   drafts: Record<string, number[]> }} env
- * @param {{ id: string, get: () => object, set: (passage: object) => void }} pane
+ * @param {{ id: string, get: () => object, set: (passage: object) => void,
+ *   getSheet: () => string | null, setSheet: (id: string | null) => void }} pane
  *   `get` and `set` are the passage the pane shows (desk-page.js): for a LIT
- *   pane, `set` is where its reader now is.
+ *   pane, `set` is where its reader now is. `getSheet` and `setSheet` are the
+ *   sheet a Sheet pane shows.
  * @returns {{ destroy: () => void, setPassage?: (passage: object) => void }}
  */
 export function mountPane(kind, body, env, pane) {
@@ -337,7 +352,7 @@ export function mountPane(kind, body, env, pane) {
   if (kind === "kept") return mountKept(body, env, pane);
   if (kind === "lit") return mountLit(body, env, pane);
   if (kind === "footnotes") return mountFootnotes(body, env, pane);
-  if (LATER[kind]) return message(body, LATER[kind]);
+  if (kind === "sheet") return mountSheet(body, env, pane);
   // A pane saved by a later version of the page, which this copy doesn't know.
   return message(body, "This pane needs a newer copy of the page. Reload to get it.");
 }
