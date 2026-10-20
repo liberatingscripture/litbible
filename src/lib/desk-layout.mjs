@@ -363,6 +363,27 @@ export function setPaneSheet(layout, id, sheetId) {
   return next;
 }
 
+/**
+ * Show a sheet in the layout (M5, "Open it on the Study Desk"): in the first
+ * Sheet pane there is, else in a new Sheet pane split beside the active pane
+ * (or the first), else, with four panes already open, in the last pane that
+ * isn't a LIT pane (the last of all when every one is). Unchanged for an
+ * empty id.
+ */
+export function showSheet(layout, sheetId) {
+  if (typeof sheetId !== "string" || !sheetId) return layout;
+  const all = panes(layout.root);
+  if (!all.length) return layout;
+  const existing = all.find((p) => p.kind === "sheet");
+  if (existing) return setPaneSheet(layout, existing.id, sheetId);
+  if (all.length < MAX_PANES) {
+    const target = findPane(layout.root, layout.active) ?? all[0];
+    return splitPane(layout, target.id, "right", { ...newPane(layout, "sheet"), sheet: sheetId });
+  }
+  const give = [...all].reverse().find((p) => p.kind !== "lit") ?? all[all.length - 1];
+  return setPaneSheet(setKind(layout, give.id, "sheet"), give.id, sheetId);
+}
+
 /** The passage a LIT pane shows: its own place, else the shared one (a new pane starts there). */
 export function litPlace(layout, id) {
   const pane = findPane(layout.root, id);

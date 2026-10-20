@@ -14,6 +14,25 @@ are recorded so they aren't re-argued.
 
 ## Where things stand (as of 2026-10-20)
 
+- **Phase 3k is built on the preview** (2026-10-20): getting started and
+  sharing. **New sheet offers templates** (M9): Bible study, Sermon
+  preparation, Class session, Lectio divina (read, reflect, pray, rest) and
+  the Blank canvas, which has had the full formatting set since 3f; a new
+  part now goes after the part last worked in, so a passage lands where the
+  reader is. **A sheet from a search or a topic** (M5): on /search, "Make a
+  sheet of these verses" (every result, or the ones ticked) and "Make a
+  sheet of these chapters" for a topic, as a new sheet or added to one, in
+  Bible order with neighboring verses joined; "Open it on the Study Desk"
+  goes to `/desk/?sheet=<id>`. **Sharing** (S8): **Share…** on a sheet's
+  page makes a link, `/sheets/#share1.<data>`, holding the whole sheet (or
+  only what the participant copy prints), with a code to scan when the link
+  is short, or saves a `.lit-sheet.md` file; "Open a shared file" on
+  /sheets/ opens one. The page moves the `#` part out of the address before
+  Cloudflare's analytics beacon runs, which the network log confirms. A
+  shared sheet shows read only with **Copy into my desk**; a phone or tablet
+  is told to open the link on a computer. Smaller calls for BVJ to judge are
+  in the decision log, "Phase 3k". Next: 3l, popping the notebook out.
+
 - **Phase 3j is built on the preview** (2026-10-20): present mode. A sheet's
   page has **Present**, and the Sheet pane has "Present…". The room sees the
   sheet full screen, dark in either theme, one part at a time: a first
@@ -741,7 +760,7 @@ plan as a whole was accepted; nothing was declined except where stated).
   references-only sheet fits a QR code. A shared link opened on a phone or
   tablet says to open it on a computer, and the address is chosen so the apps
   could claim it later. Signed-in readers get short links (M14). Borrowed
-  technique. Medium. **Decided: computers only for now** (decision 4).
+  technique. Medium. **Decided: computers only for now** (decision 4). **Built on the preview 2026-10-20** ("Order of work", 3k).
 - **S9. Copy for Word and Google Docs.** A rich copy keeping headings,
   italics and the credit line, since most bulletins are built in Word.
   Sefaria's export needs a Google account; this needs nothing. Borrowed
@@ -781,11 +800,11 @@ plan as a whole was accepted; nothing was declined except where stated).
   medium. **Decided yes, then shelved (BVJ, 2026-10-15): version 2.**
 - **M5. A sheet from a search or a topic.** On /search, "Add these verses to a
   sheet" gathers the results (or ticked ones); a topic does the same with its
-  chapters. Small. **Decided: yes.**
+  chapters. Small. **Decided: yes.** **Built on the preview 2026-10-20** ("Order of work", 3k).
 - **M9. Templates, including a contemplative one.** Bible study, sermon
   preparation, a class session, or lectio divina's four movements (read,
   reflect, pray, rest). Speaks to the spiritual directors named in the origin.
-  Small. **Decided: yes.**
+  Small. **Decided: yes.** **Built on the preview 2026-10-20** ("Order of work", 3k).
 - **M14. Share links for signed-in readers.** A short read-only link that can
   be switched off and needs no account to open; replaces S8's long links for
   signed-in readers. Under end-to-end encryption the key travels after the #
@@ -4345,6 +4364,15 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      file and by `#` link (S8: the address cleared before the analytics
      beacon runs, confirmed in the network log; a phone or tablet is told
      to open it on a computer).
+     **Built on the preview 2026-10-20** (decision log, "Phase 3k"): the
+     templates are `src/lib/desk-sheet-templates.mjs`; a search's or
+     topic's passages `src/lib/desk-sheet-gather.mjs` with
+     `desk/search-sheet.js`, reached from /search only through the
+     `lit:search-results` event and `loadDeskSheets()`; sharing
+     `src/lib/desk-sheet-share.mjs` (format in STUDY-DESK-FORMAT.md,
+     "Sharing a sheet"), with the shared view and the Share dialog in
+     `desk/sheet-page.js` and the phone's message in
+     `src/scripts/sheet-share-gate.js`. No key is added.
    - **3l. Pop the notebook out (D4).** Last, decided once /desk exists.
 
    Suggested order: 3a, 3b, 3c, then 3f and 3d (both need only 3b and
@@ -5529,6 +5557,69 @@ split itself is still a proposal BVJ worked within but hasn't confirmed.
   values, so themes, print and contrast decide how they look, and a
   reader's accessibility font still wins on screen. Left out: images and
   tables. The set can grow later but never shrink.
+
+### 2026-10-20 (Phase 3k: getting started and sharing)
+
+- **Built** as 3k set out: templates including the contemplative one (M9)
+  beside the blank canvas, a sheet from a search or a topic (M5), and
+  sharing by `#` link and by file (S8). Sharing stores nothing (the link or
+  the file is the sheet), so /privacy is unchanged.
+- **The analytics check** (S8): tested against Cloudflare's real beacon
+  script added to a built copy of the page, as Cloudflare adds it. The
+  beacon's report named the page without the `#` part. The browser's own
+  record of the page load still holds the full address, and the beacon
+  didn't send it; that is worth checking again if the beacon changes.
+- **Smaller calls made in building it, for BVJ to judge on the preview**
+  (recommendations, not decisions):
+  - **Templates** (M9): New sheet lists **Bible study** (an opening, the
+    reading, three questions, the key terms box, a closing), **Sermon
+    preparation** (the text, first reading, the key terms, context, the good
+    news here, an outline, a word for the congregation), **Class session**
+    (goals, the reading, background marked Leader only, two questions with
+    answers, the key terms, next time), **Lectio divina** (read, reflect,
+    pray and rest, each with its short instruction and space to write) and
+    the **Blank canvas**. The wording of each is a first draft, and every
+    one is the reader's to change. A template's sheet keeps its template's
+    name in `template`, as the format says, and nothing reads it.
+  - **New parts go after the part last worked in**, not at the end, for
+    every way of adding one (the "+" buttons, "+ Passage", and "Add to
+    sheet" from the LIT pane); with none, at the end, as before.
+  - **A sheet from a search** (M5): on /search only (not the header's
+    tray), "Make a sheet of these verses" above the verse results, with a
+    box to tick on each verse; with none ticked, every result goes, not just
+    the page showing. A topic's chapters have their own button and no ticks.
+    The passages are in **Bible order**, not the search's order, with
+    neighboring verses joined into one passage. They go into a **new sheet**
+    titled with the search ("Search: “liberation”", or the topic's name) or
+    into one of the reader's sheets, and the message offers Undo and "Open it
+    on the Study Desk".
+  - **The link** is `/sheets/#share1.<data>`, holding the sheet itself, not
+    a copy on any server (format in STUDY-DESK-FORMAT.md, "Sharing a
+    sheet"). A sheet of a few passages and questions makes a link of about
+    400 characters, and a link of up to 1,000 gets a code to scan beside it.
+  - **Share… asks what to share**: "Everything, for another leader" or "The
+    participant copy, without answers or Leader only parts". A participant
+    share leaves the Leader only parts and the answers out of the link
+    itself, not only out of the view. Blanks stay, since the participant
+    copy prints them (their answer is the LIT's own wording either way).
+  - **The file** is Markdown a person can read (the title, each part, the
+    passages named but not quoted) with the sheet's data on its last line,
+    named `<title>.lit-sheet.md`. It is opened with "Open a shared file" on
+    /sheets/, not with the notebook page's "Open a copy".
+  - **Share… is on the sheet's page**, and the Sheet pane's "Print or
+    copy…" is renamed **"Print or share…"** to lead there.
+  - **A shared sheet is shown read only**, with "Shared with you" above it
+    and **Copy into my desk**, which saves it as a new sheet of the reader's
+    and turns the page into that sheet. Present waits for the copy, since
+    the presenter view's window finds the sheet in the notebook. A
+    participant share offers only the participant copy.
+  - **Without the desk**: on a phone or tablet the page says to open the
+    link on a computer, with **Copy the link** (the address bar no longer
+    shows it). On a computer without the preview it offers a link that
+    switches the preview on and opens the sheet.
+  - **Known limits**: tested in Chrome only. A link longer than about 4,000
+    characters gets a line suggesting a file, since some email programs cut
+    long links; where that happens, the page says the link is damaged.
 
 ### 2026-10-20 (Phase 3j: present mode)
 

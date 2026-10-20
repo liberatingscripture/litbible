@@ -383,6 +383,53 @@ later (`sheetFormat` 2) but never shrink.
 Left out: any font, size or color by value (themes, print and contrast),
 images (no record can hold a file), and tables.
 
+### Sharing a sheet
+
+**Status: built on the website's preview, 2026-10-20** (S8, phase 3k; the
+reference is `src/lib/desk-sheet-share.mjs`, with
+`test/desk-sheet-share.test.js`). A sheet is shared with no server: the
+whole sheet travels in a link's fragment, which a browser never sends, or in
+a file. Nothing is stored anywhere else.
+
+**The link** is `https://litbible.net/sheets/#share1.<data>`. `share1.` names
+this section's version. `<data>` is the **shared sheet** as UTF-8 JSON,
+compressed with raw DEFLATE (RFC 1951, no zlib or gzip wrapper) and written
+in base64url without padding. The path is the sheets page's, so an app can
+claim `/sheets/` with a fragment beginning `share1.` later without claiming
+anything else.
+
+**The shared sheet** is an object:
+
+| Field | Meaning |
+|---|---|
+| `lit` | `"sheet"` |
+| `sheetFormat`, `title`, `subtitle`, `template`, `commercial` | As on the sheet (`commercial` only when true) |
+| `scope` | `"leader"` (everything) or `"participant"` (no module marked `leaderOnly`, and every question's `answer` empty) |
+| `contentVersion` | The sheet's own, so the receiver knows which text it was made on |
+| `modules` | The sheet's modules, each **without its `id`**, and passages without `verseCopy` and `verseCopyAsOf` |
+
+Nothing else of the record travels (its id, client, times, labels). A
+receiver gives every module a fresh id and makes the sheet a record of its
+own, and refuses the share unless that record passes the sheet's check
+(`validateSheet`): formatted text must already be in the canonical form.
+Decompressed data over twice the sheet's 512 KB limit is refused before it
+is read whole.
+
+**The file** is Markdown for people: the title, the subtitle, a line saying
+how to open it, each part in words (a passage by its reference, never its
+text), and on its last line the data, as an HTML comment so a Markdown
+viewer shows nothing of it: `<!-- lit-sheet share1.<data> -->`, the same
+fragment a link carries. Its name ends `.lit-sheet.md`.
+
+**Opening one** on the website keeps the fragment out of every server's
+sight: an inline script at the top of the sheets page's body moves it into
+the tab's history entry (`history.state.litSharedSheet`) while the page is
+still being parsed, before Cloudflare's analytics beacon (a deferred script)
+runs, and the page shows the sheet from there. A reload finds it again. It is shown read only until the
+reader chooses "Copy into my desk", which saves it as a new sheet of theirs
+(new id, new times, their client). A shared link opened on a phone or
+tablet says to open it on a computer (decision 4).
+
 ## The quote (an anchor)
 
 ```json

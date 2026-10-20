@@ -36,6 +36,7 @@ import {
   setLitAt,
   setPaneSheet,
   setPin,
+  showSheet,
   setPlace,
   slotCount,
   splitPane,
@@ -1160,4 +1161,42 @@ test("checkLayout keeps a Sheet pane's sheet and drops one anywhere else", () =>
   assert.equal("sheet" in findPane(l.root, "b"), false);
   const bad = checkLayout(mk(cols([0.5, 0.5], { pane: { id: "a", kind: "sheet", sheet: 7 } }, leaf("b", "mine"))));
   assert.equal("sheet" in findPane(bad.root, "a"), false);
+});
+
+// ---- showSheet (M5) ----------------------------------------------------------
+
+test("showSheet uses the first Sheet pane there is", () => {
+  const l = setPaneSheet(withSheetPane(), "p2", "old");
+  const next = showSheet(l, "new");
+  assert.equal(findPane(next.root, "p2").sheet, "new");
+  assert.equal(panes(next.root).length, panes(l.root).length);
+});
+
+test("showSheet splits a new Sheet pane beside the active pane", () => {
+  const l = mk(cols([0.6, 0.4], leaf("p1", "lit"), leaf("p2", "mine")));
+  const next = showSheet(l, "s-1");
+  const all = panes(next.root);
+  assert.equal(all.length, 3);
+  const made = all.find((p) => p.kind === "sheet");
+  assert.equal(made.sheet, "s-1");
+  assert.deepEqual(panes(l.root).map((p) => p.id), ["p1", "p2"], "the original is untouched");
+  assert.deepEqual(all.map((p) => p.id).slice(0, 2), ["p1", made.id], "it sits right after the active pane");
+  assert.equal(next.active, "p1");
+});
+
+test("showSheet with four panes open gives a pane that isn't the LIT its place", () => {
+  const l = mk(cols([0.25, 0.25, 0.25, 0.25], leaf("p1", "lit"), leaf("p2", "mine"), leaf("p3", "verse"), leaf("p4", "lit")));
+  const next = showSheet(l, "s-1");
+  const all = panes(next.root);
+  assert.equal(all.length, 4);
+  assert.equal(findPane(next.root, "p3").kind, "sheet");
+  assert.equal(findPane(next.root, "p3").sheet, "s-1");
+  assert.equal(findPane(next.root, "p1").kind, "lit");
+  assert.equal(findPane(next.root, "p4").kind, "lit");
+});
+
+test("showSheet leaves the layout alone for an empty id", () => {
+  const l = originalLayout();
+  assert.equal(showSheet(l, ""), l);
+  assert.equal(showSheet(l, null), l);
 });

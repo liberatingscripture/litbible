@@ -1292,6 +1292,24 @@ export function loadDeskSearch() {
   return deskSearchPromise;
 }
 
+let deskSheetsPromise = null;
+
+/**
+ * The Study Desk's "make a sheet of these results" (M5; src/scripts/desk/
+ * search-sheet.js), or null when the desk is off. Reached like loadDeskSearch
+ * and for the same reason: only /search calls it, and the module is imported
+ * only with <html data-desk="on">, so a reader without the preview downloads
+ * none of it. Resolves to null if the module fails to load.
+ */
+export function loadDeskSheets() {
+  if (document.documentElement.dataset.desk !== "on") return null;
+  deskSheetsPromise ||= import("./desk/search-sheet.js").catch((err) => {
+    console.error("Study Desk: search couldn't load its sheets", err);
+    return null;
+  });
+  return deskSheetsPromise;
+}
+
 /* ── The Greek (STUDY-DESK.md, 1h) ───────────────────────────────────── */
 
 // The rules are in src/lib/greek-search.mjs, shared with the Notebook's Greek

@@ -23,6 +23,11 @@
 //   blanks and which of its footnotes print, the key terms box, and the
 //   license card with the commercial check. Those cards are told whenever the
 //   sheet changes (`sheetChanged`), since each reads the rest of the sheet.
+// - **New sheets start from a template** (M9; desk-sheet-templates.mjs): New
+//   sheet opens a short list in place, and a choice makes the sheet.
+// - **A new part goes right after the part last worked in** (last focused or
+//   clicked on this sheet), or at the end when there is none, so a passage
+//   added to a template lands where the reader was, not after "Closing".
 // - **Drag into order** by a module's grip, or Move up and Move down.
 // - **Saves as you go**: every change is saved at once, typing a moment after
 //   it pauses. A change made elsewhere (another pane on the same sheet,
@@ -32,6 +37,7 @@
 import { canEdit } from "../../lib/desk-records.mjs";
 import { MODULE_TYPES, SHEET_LIMITS } from "../../lib/desk-sheet-format.mjs";
 import { addModule, createSheet, makeModule, moveModule, removeModule, setSheetFields, updateModule } from "../../lib/desk-sheets.mjs";
+import { TEMPLATES, templateModules } from "../../lib/desk-sheet-templates.mjs";
 import {
   passageFromOffsets,
   passageFromRecord,
@@ -164,10 +170,17 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
   }
 
   let sheet = null; // the sheet shown, as last read or saved
+  let lastModule = null; // the part last focused or clicked on this sheet
   let destroyed = false;
   let seq = 0; // bumped when the pane switches between the list and a sheet
   const now = () => new Date().toISOString();
   const opCtx = () => ({ now: now(), ...ctx() });
+
+  /** Where a new part goes: after the part last worked in, else at the end. */
+  const insertIndex = (s) => {
+    const at = lastModule ? s.modules.findIndex((x) => x.id === lastModule) : -1;
+    return at < 0 ? s.modules.length : at + 1;
+  };
 
   const me = {
     sheet: () => sheet,
@@ -177,7 +190,11 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
       if (sheet.modules.some((m) => m.type === "passage" && samePassage(m, fields))) {
         say(`${passageReference(fields)} is already on the sheet.`);
       }
-      return change((s) => addModule(s, makeModule("passage", fields)), { focusNew: false, announce: `${passageReference(fields)} added.` });
+      const mod = makeModule("passage", fields);
+      return change((s) => addModule(s, mod, insertIndex(s), opCtx()), {
+        announce: `${passageReference(fields)} added.`,
+        after: () => cards.get(mod.id)?.el.scrollIntoView({ block: "nearest" }),
+      });
     },
   };
   openPanes.add(me);
@@ -240,6 +257,7 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
   async function showList() {
     const n = ++seq;
     sheet = null;
+    lastModule = null;
     for (const card of cards.values()) card.inst?.destroy?.();
     cards.clear();
     license = null;
@@ -256,9 +274,12 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
     const head = make("div", "desk-sheet__list-head");
     const h = make("h3", "desk-sheet__list-title", "My sheets");
     const fresh = button("New sheet", "desk-sheet__btn desk-sheet__btn--primary");
-    fresh.addEventListener("click", newSheet);
+    fresh.setAttribute("aria-expanded", "false");
+    const chooser = templateChooser(fresh);
+    fresh.setAttribute("aria-controls", chooser.id);
+    fresh.addEventListener("click", () => chooser.toggle());
     head.append(h, fresh);
-    list.append(head);
+    list.append(head, chooser);
     if (!all.length) {
       list.append(make("p", "desk-sheet__empty", "A sheet gathers passages and your own words into a handout for a study, a class, or a sermon. Start one with New sheet, then add passages from the LIT pane’s verse numbers or by selecting words."));
     } else {
@@ -287,8 +308,54 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
     content.replaceChildren(list);
   }
 
-  async function newSheet() {
-    const s = createSheet({ template: "blank" }, opCtx());
+  /**
+   * The list of templates New sheet opens in place (M9). Hidden until asked
+   * for; the first choice takes focus when it opens, and Cancel or Escape
+   * closes it and puts focus back on New sheet.
+   */
+  function templateChooser(opener) {
+    const box = make("div", "desk-sheet__passage-form desk-sheet__templates");
+    box.id = `deskSheetTemplates-${paneId}`;
+    box.hidden = true;
+    box.setAttribute("role", "group");
+    box.setAttribute("aria-label", "Start a sheet from");
+    const ul = make("ul", "desk-sheet__from-list");
+    for (const t of TEMPLATES) {
+      const li = make("li");
+      const b = button("", "desk-sheet__from-item desk-sheet__choice");
+      b.append(make("span", "desk-sheet__choice-name", t.name), make("span", "desk-sheet__from-words", t.description));
+      b.addEventListener("click", () => newSheet(t.id));
+      li.append(b);
+      ul.append(li);
+    }
+    const cancel = button("Cancel", "desk-sheet__btn desk-sheet__btn--quiet");
+    const close = () => {
+      box.hidden = true;
+      opener.setAttribute("aria-expanded", "false");
+      opener.focus();
+    };
+    cancel.addEventListener("click", close);
+    box.addEventListener("keydown", (e) => {
+      if (e.key !== "Escape") return;
+      e.preventDefault();
+      e.stopPropagation();
+      close();
+    });
+    box.append(ul, cancel);
+    box.toggle = () => {
+      if (box.hidden) {
+        box.hidden = false;
+        opener.setAttribute("aria-expanded", "true");
+        box.querySelector("button")?.focus();
+      } else {
+        close();
+      }
+    };
+    return box;
+  }
+
+  async function newSheet(template = "blank") {
+    const s = createSheet({ template, modules: templateModules(template) }, opCtx());
     try {
       await store.save(s);
     } catch (err) {
@@ -327,6 +394,7 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
     }
     setSheet(id);
     sheet = record;
+    lastModule = null;
     readOnly = !canEdit(record);
     for (const card of cards.values()) card.inst?.destroy?.();
     cards.clear();
@@ -346,13 +414,13 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
       showList();
     });
     status.textContent = "";
-    // The sheet's own address prints and copies it (3i), in a tab of its own
-    // so the desk stays as it is.
-    const print = make("a", "desk-sheet__btn desk-sheet__btn--quiet desk-sheet__print", "Print or copy…");
+    // The sheet's own address prints, copies and shares it (3i, 3k), in a tab
+    // of its own so the desk stays as it is.
+    const print = make("a", "desk-sheet__btn desk-sheet__btn--quiet desk-sheet__print", "Print or share…");
     print.href = `${BASE}sheets/?id=${encodeURIComponent(sheet.id)}`;
     print.target = "_blank";
     print.rel = "noopener";
-    print.title = "Open the leader and participant copies, to print or to copy into Word (opens in a new tab)";
+    print.title = "Open the leader and participant copies, to print, copy into Word, or share (opens in a new tab)";
     const present = make("a", "desk-sheet__btn desk-sheet__btn--quiet desk-sheet__print", "Present…");
     present.href = `${BASE}sheets/?id=${encodeURIComponent(sheet.id)}&view=present`;
     present.target = "_blank";
@@ -481,6 +549,8 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
     const card = make("div", `desk-sheet__module desk-sheet__module--${known ? m.type : "unknown"}`);
     card.setAttribute("role", "listitem");
     card.dataset.moduleId = m.id;
+    card.addEventListener("focusin", () => { lastModule = m.id; });
+    card.addEventListener("pointerdown", () => { lastModule = m.id; });
     const head = make("div", "desk-sheet__module-head");
     const grip = make("span", "desk-sheet__grip");
     grip.setAttribute("aria-hidden", "true");
@@ -695,8 +765,9 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
           return;
         }
         const mod = makeModule(type);
-        change((s) => addModule(s, mod, s.modules.length, opCtx()), {
-          announce: `${TYPE_NAMES[type]} added at the end.`,
+        const atEnd = !sheet || insertIndex(sheet) >= sheet.modules.length;
+        change((s) => addModule(s, mod, insertIndex(s), opCtx()), {
+          announce: `${TYPE_NAMES[type]} added${atEnd ? " at the end" : " after the part you were working in"}.`,
           after: () => {
             const c = cards.get(mod.id);
             c?.el.scrollIntoView({ block: "nearest" });

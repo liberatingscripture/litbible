@@ -14,6 +14,13 @@ import "../styles/pages/sheets-page.css";
  * Pagefind (Layout's default).
  *
  * `/sheets/` lists the reader's sheets; `/sheets/?id=<sheet id>` shows one.
+ * `/sheets/#share1.<data>` is a sheet someone shared (3k, S8), carried whole
+ * in the fragment. The inline script below takes the fragment out of the
+ * address the moment the page is parsed, before Cloudflare's analytics beacon
+ * (a deferred script added at the end of <body>) can read the address, and
+ * keeps it in this tab's history entry, where a reload still finds it.
+ * sheet-share-gate.js tells a phone or tablet, or a computer without the
+ * preview, what to do with it; sheet-page.js shows it.
  * The page carries the description a poetry block's aria-describedby names,
  * as a chapter page does, since a passage on a sheet keeps its poetry.
  */
@@ -25,6 +32,29 @@ import "../styles/pages/sheets-page.css";
   robotsNoindex={true}
   hideFooterNewsletter={true}
 >
+  <script is:inline>
+    // Keep in step with SHARE_PREFIX in src/lib/desk-sheet-share.mjs.
+    // A shared link opened in a tab already on this page changes only the
+    // fragment, with no new page, so the same is done on hashchange (this
+    // listener is added before the beacon's could be), then the page reloads
+    // to show the sheet from the history entry.
+    (function () {
+      function take() {
+        var h = location.hash;
+        if (h.indexOf("#share1.") !== 0) return false;
+        try {
+          history.replaceState({ litSharedSheet: h.slice(1) }, "", location.pathname + location.search);
+        } catch (e) {
+          location.replace(location.pathname + location.search);
+        }
+        return true;
+      }
+      take();
+      addEventListener("hashchange", function () {
+        if (take()) location.reload();
+      });
+    })();
+  </script>
   <div class="sheets-page">
     <div id="hbq-description" hidden>Formatted as Hebrew and Semitic poetry with indented parallel lines</div>
     <div data-sheet-page>
@@ -36,3 +66,7 @@ import "../styles/pages/sheets-page.css";
     </div>
   </div>
 </Layout>
+
+<script>
+  import "../scripts/sheet-share-gate.js";
+</script>
