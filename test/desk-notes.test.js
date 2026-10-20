@@ -162,3 +162,8 @@ test("a note opens, for screen readers, with the words it hangs on", () => {
   );
   assert.equal(noteOpening({}, "Romans 8:1–2"), "My note on Romans 8:1–2: ");
 });
+
+test("a note on a footnote opens by naming the footnote, not words of the verse", () => {
+  const onFn = { kind: "note", footnote: "The Greek sarx means flesh here.", body: "mine", marker: "note" };
+  assert.equal(noteOpening(onFn, "Romans 8:3"), "My note on a footnote, Romans 8:3: ");
+});

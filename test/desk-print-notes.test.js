@@ -99,3 +99,9 @@ test("a note with no block goes to the end, in the notebook's order", () => {
 test("nothing in, nothing out", () => {
   assert.deepEqual(planNotes([]), { rows: [], strays: [] });
 });
+
+test("a note on a footnote quotes the footnote's opening words in print", () => {
+  const onFn = { kind: "note", footnote: "The Greek sarx means flesh, body, and the self in Paul.", body: "mine", marker: "note" };
+  assert.equal(printHeading(onFn, "Romans 8:3").quote, "The Greek sarx means flesh, body, and the…");
+  assert.equal(printHeading({ kind: "note", footnote: "The Greek sarx means flesh." }, "Romans 8:3").quote, "The Greek sarx means flesh.", "a short footnote is whole");
+});

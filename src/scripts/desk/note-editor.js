@@ -35,6 +35,8 @@ export function setEditorPreview(text) {
  * @param {string} options.ref "Romans 8:1"
  * @param {object} [options.record] an existing note, to edit
  * @param {object} [options.draft] a new note's place: bookKey, chapter, verse, endVerse, quote;
+ *   or, for a note on a footnote (M11), bookKey, chapter, verse, footnote and
+ *   perhaps n (desk-footnotes' pinFields), with no quote;
  *   or, for a note on a glossary entry or an article (N11, provisional),
  *   glossaryEntry or article, targetTitle, and quote
  * @param {Element} [options.restoreFocus]
@@ -55,15 +57,19 @@ export function openNoteEditor({ trigger, store, ctx, ref, record = null, draft 
   panel.classList.add("lit-panel--menu", "desk-editor");
   panel.setAttribute("data-desk-editor", "");
 
-  const words = place.quote?.exact;
+  // A note on a footnote (M11) shows the footnote, not words of the verse, and
+  // says so in its caption. The text is cut to a few lines by CSS.
+  const onFn = typeof place.footnote === "string";
+  const words = onFn ? place.footnote : place.quote?.exact;
+  const where = onFn ? `a footnote in ${ref}` : ref;
   panel.innerHTML = `
     <div class="lit-panel__header">
       <p class="lit-panel__heading" id="deskEditorTitle${n}">${editing ? "Edit note" : "New note"}</p>
       <button type="button" class="lit-panel__close" aria-label="Close">×</button>
     </div>
     <figure class="desk-editor__quote">
-      ${words ? `<blockquote>${escapeHtml(shortQuote(words, 24))}</blockquote>` : ""}
-      <figcaption>${escapeHtml(ref)}</figcaption>
+      ${words ? `<blockquote${onFn ? ` class="desk-editor__footnote"` : ""}>${escapeHtml(onFn ? words : shortQuote(words, 24))}</blockquote>` : ""}
+      <figcaption>${escapeHtml(onFn ? `Footnote in ${ref}` : ref)}</figcaption>
     </figure>
     <fieldset class="desk-editor__markers">
       <legend>Marker: <span class="desk-editor__marker-name">${MARKER_NAMES[marker]}</span></legend>
@@ -110,6 +116,21 @@ export function openNoteEditor({ trigger, store, ctx, ref, record = null, draft 
     if (editing) {
       if (record.body === body.value && record.marker === marker) return closePanel();
       next = editRecord(record, { body: body.value, marker }, { now, client: ctx().client });
+    } else if (onFn) {
+      // No quote and no verse copy: the footnote's own words are what it hangs on.
+      next = createRecord(
+        "note",
+        {
+          bookKey: draft.bookKey,
+          chapter: draft.chapter,
+          verse: draft.verse,
+          footnote: draft.footnote,
+          ...(draft.n ? { n: draft.n } : {}),
+          body: body.value,
+          marker,
+        },
+        { now, ...ctx() },
+      );
     } else if (proseTarget(draft)) {
       const { type, id } = proseTarget(draft);
       next = createRecord(
@@ -163,7 +184,7 @@ export function openNoteEditor({ trigger, store, ctx, ref, record = null, draft 
     const entry = trash ? store.lastEntry() : null;
     closePanel();
     if (!entry) return;
-    showUndo(`Note on ${ref} deleted.`, () => undoEntry(entry));
+    showUndo(`Note on ${where} deleted.`, () => undoEntry(entry));
   });
   panel.addEventListener("keydown", (e) => {
     if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {

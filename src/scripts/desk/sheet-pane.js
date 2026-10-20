@@ -38,6 +38,7 @@ import { canEdit } from "../../lib/desk-records.mjs";
 import { MODULE_TYPES, SHEET_LIMITS } from "../../lib/desk-sheet-format.mjs";
 import { addModule, createSheet, makeModule, moveModule, removeModule, setSheetFields, updateModule } from "../../lib/desk-sheets.mjs";
 import { TEMPLATES, templateModules } from "../../lib/desk-sheet-templates.mjs";
+import { discussionModules } from "../../lib/desk-sheet-discussion.mjs";
 import {
   passageFromOffsets,
   passageFromRecord,
@@ -789,12 +790,51 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
     add("passage", "Passage");
     add("text", "Your text");
     add("question", "Question");
+    // N6: the notebook's notes marked as questions, on this sheet's passages,
+    // in one go (one change, so one Ctrl+Z takes them all back).
+    const discuss = button("+ For discussion");
+    discuss.title = "Gather your notes marked as questions, on this sheet’s passages, into a section";
+    const discussNote = make("p", "desk-sheet__empty");
+    discussNote.hidden = true;
+    discuss.addEventListener("click", async () => {
+      discussNote.hidden = true;
+      if (!sheet || !canEdit(sheet)) return;
+      let records = [];
+      try {
+        records = await store.all();
+      } catch (_) {}
+      const got = discussionModules(sheet, records);
+      let text;
+      if (!got.modules.length && got.dropped) {
+        text = `A sheet holds at most ${SHEET_LIMITS.modules} parts, so the questions didn’t fit.`;
+      } else if (!got.modules.length && got.already) {
+        text = "Your questions on these passages are already on the sheet.";
+      } else if (!got.modules.length) {
+        text = "None of your notes marked as questions are on this sheet’s passages. Mark a note as a question with the question marker.";
+      }
+      if (text) {
+        discussNote.textContent = text;
+        discussNote.hidden = false;
+        say(text);
+        return;
+      }
+      const count = got.modules.filter((m) => m.type === "question").length;
+      const missed = got.dropped ? ` ${got.dropped} more didn’t fit.` : "";
+      change((s) => {
+        let at = insertIndex(s);
+        return got.modules.reduce((acc, m) => addModule(acc, m, at++, opCtx()), s);
+      }, {
+        announce: `${count} ${count === 1 ? "question" : "questions"} added for discussion.${missed}`,
+        after: () => cards.get(got.modules[0].id)?.el.scrollIntoView({ block: "nearest" }),
+      });
+    });
+    row.append(discuss);
     add("space", "Space");
     add("pageBreak", "Page break");
     add("keyTerms", "Key terms box");
     keyTermsButton = row.lastChild;
     form.id = `deskSheetPassage-${paneId}`;
-    bar.append(row, form);
+    bar.append(row, discussNote, form);
     return bar;
   }
 
@@ -857,8 +897,9 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
     for (const r of records) {
       const li = make("li");
       const b = button("", "desk-sheet__from-item");
-      b.append(make("span", "desk-sheet__from-ref", recordReference(r)), make("span", "desk-sheet__from-kind", KIND[r.kind]));
-      const words = r.kind === "note" ? r.text : r.quote?.exact;
+      const kind = r.kind === "note" && r.marker === "question" ? "Question" : KIND[r.kind];
+      b.append(make("span", "desk-sheet__from-ref", recordReference(r)), make("span", "desk-sheet__from-kind", kind));
+      const words = r.kind === "note" ? r.body : r.quote?.exact;
       if (words) b.append(make("span", "desk-sheet__from-words", words.length > 90 ? words.slice(0, 89) + "…" : words));
       b.addEventListener("click", async () => {
         let chapter = null;

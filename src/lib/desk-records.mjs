@@ -83,6 +83,17 @@ export function proseTarget(record) {
   return null;
 }
 
+/**
+ * Whether a note is on a footnote (M11): it names the footnote as a
+ * footnotePin does, by the verse whose text holds its letter, its full text
+ * (`footnote`) and, among identical footnotes in that verse, its place (`n`).
+ * Never by its letter, which shifts whenever a footnote is added earlier in
+ * the chapter. Such a note has no `quote`: its words are the footnote's.
+ */
+export function onFootnote(record) {
+  return record?.kind === "note" && typeof record.footnote === "string";
+}
+
 /** Fields a reader's edit may never change. */
 const FIXED = new Set(["id", "kind", "schema", "created"]);
 
@@ -282,6 +293,12 @@ export function validateRecord(r) {
   if (k === "note") {
     need(typeof r.body === "string", "body is not text");
     need(MARKERS.includes(r.marker), `marker "${r.marker}" is not one of ${MARKERS.join(", ")}`);
+    if (r.footnote != null) {
+      need(typeof r.footnote === "string" && r.footnote.length > 0, "footnote is empty");
+      need(r.n == null || (Number.isInteger(r.n) && r.n >= 1), "n is not a positive integer");
+      need(r.quote == null, "a note on a footnote has no quote");
+      need(!onProse && !r.glossaryId, "a note has one target");
+    }
   }
   if (k === "place") need(typeof r.name === "string", "name is not text");
   if (k === "footnotePin") {

@@ -89,3 +89,9 @@ test("the notebook page's address carries the query", () => {
   assert.equal(notebookSearchHref("grace & peace"), "/notebook/?q=grace%20%26%20peace");
   assert.equal(notebookSearchHref("  "), "/notebook/");
 });
+
+test("a note on a footnote is found by the words of its footnote", () => {
+  const onFn = note("fn", "romans", 8, 3, "My own reading of it", { footnote: "The Greek sarx means flesh here." });
+  assert.deepEqual(searchNotebook([onFn], "sarx").map((h) => h.id), ["fn"]);
+  assert.deepEqual(searchNotebook([onFn], "reading").map((h) => h.id), ["fn"], "its own words still count");
+});

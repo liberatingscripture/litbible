@@ -89,7 +89,17 @@ generated from `src/data/books.js` (A-F9). It's never stored.
 
    Instead of verses, a note's target may be:
    - a **footnote**, given by its verse and the footnote's quoted words, never
-     its letter (M11);
+     its letter (M11). **The website's proposal, built on its preview
+     2026-10-20, for BDR to confirm or change**: the footnote is named
+     exactly as a `footnotePin` names it (kind 11), by the verse whose text
+     holds its letter, `footnote` (its full text in the same normalized
+     form) and `n` when that verse has two or more identical footnotes. Such
+     a note has no `quote` and no `verseCopy`: its words are the footnote's,
+     so it is found again, and carries the change notice, by kind 11's rule
+     (found, moved, changed or lost), never by its verse's wording. Keep
+     rewrites `footnote`, the verse and `n`, as for a pin. The apps carry it
+     untouched until they show it (principle 6); one that reads it as a note
+     on the verse loses nothing, since the fields stay;
    - a **glossary term**, given by `glossaryId` with no verse (N2);
    - **provisionally** (N11; the website's proposal for draft 2, built on its
      preview 2026-10-08): a **glossary entry's own text**, given by
@@ -698,6 +708,9 @@ and accounts would live under `/sheets/`, `/notebook/`, `/account/`.
   confirm. **Website only** unless BDR changes the apps. Until then the apps
   carry these records untouched (principle 6), as they would any target
   they don't know.
+- **Notes on a footnote** (M11; kind 2): the fields are the website's
+  proposal, built on its preview 2026-10-20 (`footnote` and `n`, as kind 11
+  has them), for BDR to confirm or change.
 - Whether reading places sync (kind 5).
 - ~~The sheet's inner shape~~: **approved by BVJ, 2026-10-18**, under
   "Sheets (kind 9)".

@@ -12,7 +12,7 @@
 // A reader's words are put on the page as text, never as HTML.
 
 import { COLORS } from "../../lib/desk-records.mjs";
-import { recordReference } from "../../lib/desk-store-core.mjs";
+import { recordReference, recordWhere } from "../../lib/desk-store-core.mjs";
 import { labelCounts, labelMap, liveLabels } from "../../lib/desk-labels.mjs";
 import {
   colorsPresent,
@@ -229,7 +229,7 @@ export function createKeptList({ store, ctx, idPrefix = "deskNp" }) {
     const entry = store.lastEntry();
     await render();
     focusDelete(index);
-    const ref = recordReference(r);
+    const ref = recordWhere(r);
     showUndo(`${nameOf(r)}${ref ? ` on ${ref}` : ""} ${r.kind === "footnotePin" ? "unpinned" : "deleted"}.`, async () => {
       await undoEntry(entry);
       await render();

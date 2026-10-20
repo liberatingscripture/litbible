@@ -54,7 +54,7 @@
 // are made and put on records on the notebook page (/notebook/).
 
 import { shortQuote } from "../../lib/desk-notes.mjs";
-import { COLORS } from "../../lib/desk-records.mjs";
+import { COLORS, onFootnote } from "../../lib/desk-records.mjs";
 import { liveLabels } from "../../lib/desk-labels.mjs";
 import {
   kindName,
@@ -62,6 +62,7 @@ import {
   recordHref,
   recordReadHref,
   recordReference,
+  recordWhere,
 } from "../../lib/desk-store-core.mjs";
 import { flagButton, noticesFor, openNotice } from "./change-notice.js";
 import { glyph } from "./glyphs.js";
@@ -80,6 +81,8 @@ const ICON_CARET = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" 
 
 // The words of a highlight shown in the list: about this many.
 const HIGHLIGHT_WORDS = 24;
+// A note on a footnote quotes this many words of the footnote.
+const FOOTNOTE_WORDS = 12;
 
 // Which colour the list is narrowed to (null: everything). Kept for the visit.
 let colorFilter = null;
@@ -453,6 +456,16 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     kind.className = "desk-item__kind";
     kind.textContent = nameOf(r);
     li.append(head, kind);
+    // A note on a footnote (M11) says so, and quotes the footnote's opening
+    // words; it is still a note, and the reference above still names the
+    // verse that holds the footnote's letter.
+    const on = onFootnote(r) ? recordWhere(r) : ref;
+    if (onFootnote(r)) {
+      const line = document.createElement("p");
+      line.className = "desk-item__on-fn";
+      line.textContent = `On a footnote: “${shortQuote(r.footnote, FOOTNOTE_WORDS)}”`;
+      li.append(line);
+    }
     if (r.kind === "note") {
       // Led by its marker, at two lines unless hovered, focused, opened by
       // its caret (kept open for this visit), or the list shows notes in
@@ -493,7 +506,7 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
       const syncMore = () => {
         const open = openNotes.has(r.id);
         more.setAttribute("aria-expanded", String(open));
-        more.setAttribute("aria-label", `${open ? "Show less of" : "Show all of"} the note${ref ? ` on ${ref}` : ""}`);
+        more.setAttribute("aria-label", `${open ? "Show less of" : "Show all of"} the note${on ? ` on ${on}` : ""}`);
       };
       syncMore();
       more.addEventListener("click", () => {
@@ -509,7 +522,7 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
         edit.type = "button";
         edit.className = "desk-item__edit";
         edit.textContent = "Edit";
-        edit.setAttribute("aria-label", `Edit note${ref ? ` on ${ref}` : ""}`);
+        edit.setAttribute("aria-label", `Edit note${on ? ` on ${on}` : ""}`);
         edit.addEventListener("click", (e) => {
           e.stopPropagation();
           onEdit(r, edit);
@@ -542,7 +555,7 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     del.type = "button";
     del.className = "desk-item__delete";
     del.textContent = "Delete";
-    del.setAttribute("aria-label", `Delete ${nameOf(r).toLowerCase()}${ref ? ` on ${ref}` : ""}`);
+    del.setAttribute("aria-label", `Delete ${nameOf(r).toLowerCase()}${on ? ` on ${on}` : ""}`);
     del.addEventListener("click", () => remove(r, li));
     li.append(del);
     return li;
@@ -648,7 +661,7 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     // button, like Ctrl+Z, takes back exactly this one (history.js).
     const entry = store.lastEntry();
     await render({ focusIndex: index });
-    const ref = recordReference(r);
+    const ref = recordWhere(r);
     showUndo(`${nameOf(r)}${ref ? ` on ${ref}` : ""} deleted.`, async () => {
       await undoEntry(entry);
       await render();

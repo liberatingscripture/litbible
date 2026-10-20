@@ -175,9 +175,12 @@ export function shortQuote(text, words = 10) {
 /**
  * What a screen reader hears before a note's own words (BVJ, 2026-10-07):
  * "My note on ‘nothing is now a verdict’, Romans 8:1: ". A note on whole
- * verses, with no quote, names only the reference.
+ * verses, with no quote, names only the reference, and one on a footnote
+ * says so: "My note on a footnote, Romans 8:3: ".
  */
 export function noteOpening(record, ref) {
+  // A note on a footnote (M11) names the footnote, not words of the verse.
+  if (record?.kind === "note" && typeof record.footnote === "string") return `My note on a footnote, ${ref}: `;
   const q = record?.quote?.exact ? shortQuote(record.quote.exact) : "";
   return q ? `My note on ‘${q}’, ${ref}: ` : `My note on ${ref}: `;
 }

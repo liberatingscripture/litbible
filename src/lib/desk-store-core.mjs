@@ -155,6 +155,16 @@ export function recordReference(r) {
 }
 
 /**
+ * Where a record is, as a sentence names it: recordReference's answer, except
+ * for a note on a footnote (M11), which is "a footnote in Romans 8:3", since
+ * the verse alone would call it a note on the verse.
+ */
+export function recordWhere(r) {
+  const ref = recordReference(r);
+  return ref && r?.kind === "note" && typeof r.footnote === "string" ? `a footnote in ${ref}` : ref;
+}
+
+/**
  * The Study View link for a record on the text, in the format's address form
  * (`/romans-8/#v3`, `#v3-5` for a range), or null for one that isn't.
  */

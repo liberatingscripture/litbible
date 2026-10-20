@@ -2263,12 +2263,150 @@ html[data-desk-list="full"] .desk-item__pin-text {
   overflow: visible;
 }
 
+/* ── Notes on a footnote (M11) ──────────────────────────────────── */
+
+/* src/scripts/desk/footnote-notes.js. "Add a note" looks as Pin does (they
+   share .desk-pin). Where a surface has the two side by side they sit in one
+   .desk-fn-actions row, so a grid or a popover sees one item. */
+.desk-fn-actions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 6px;
+}
+
+.desk-verse__fn .desk-fn-actions,
+.desk-fns__item .desk-fn-actions {
+  justify-self: start;
+}
+
+.desk-verse__fn .desk-fn-actions {
+  grid-column: 2;
+}
+
+.desk-fns__item .desk-fn-actions {
+  grid-column: 1 / -1;
+}
+
+/* The reader's notes on one footnote: the marker, the words, Edit. */
+.desk-fnn {
+  min-width: 0;
+  margin-top: 4px;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+}
+
+.desk-fnn[hidden] {
+  display: none;
+}
+
+.desk-verse__fn .desk-fnn {
+  grid-column: 2;
+}
+
+.desk-fns__item .desk-fnn {
+  grid-column: 1 / -1;
+}
+
+/* In the popover: under the Pin line, in its own width. */
+.desk-pin-row + .desk-fnn {
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(var(--ink-rgb), 0.12);
+}
+
+.desk-fnn__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.desk-fnn__item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 6px;
+  margin: 0 0 4px;
+}
+
+.desk-fnn__glyph {
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+}
+
+.desk-fnn__words {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  white-space: pre-line;
+}
+
+.desk-fnn__edit {
+  padding: 1px 9px;
+  border: 1px solid rgba(var(--ink-rgb), 0.22);
+  border-radius: 999px;
+  background: transparent;
+  color: rgba(var(--ink-rgb), 0.74);
+  font: inherit;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.desk-fnn__edit:hover {
+  border-color: rgba(var(--ink-rgb), 0.4);
+  background: rgba(var(--ink-rgb), 0.08);
+  color: var(--text);
+}
+
+.desk-fnn__more {
+  margin: 2px 0 0;
+  color: rgba(var(--ink-rgb), 0.7);
+  font-size: 0.75rem;
+}
+
+/* The editor's quote of the footnote: cut at four lines, and the footnote's
+   own paragraphs run together. */
+.desk-editor__footnote {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
+  overflow: hidden;
+  font-size: 0.875rem;
+}
+
+/* A footnote in the Footnotes list while its margin note is hovered, focused
+   or being shown: the same neutral tint the words of a verse note get (the
+   ink token is themed, so one rule serves light and dark). */
+.footnotes > li.desk-fn--noted {
+  border-radius: 4px;
+  background: rgba(var(--ink-rgb), 0.13);
+  box-shadow: 0 0 0 4px rgba(var(--ink-rgb), 0.13);
+}
+
+/* My Notes and the notebook page: a note on a footnote says so. */
+.desk-item__on-fn {
+  grid-column: 1 / -1;
+  margin: 0 0 2px;
+  color: rgba(var(--ink-rgb), 0.7);
+  font-size: 0.8125rem;
+  font-style: italic;
+  overflow-wrap: anywhere;
+}
+
 /* The desk doesn't print: the buttons and their flags stay off the page, and
    the Footnotes list goes back to a plain block. */
 @media print {
   .desk-pin,
+  .desk-fn-actions,
+  .desk-fnn,
   .desk-fn__flag {
     display: none !important;
+  }
+
+  .footnotes > li.desk-fn--noted {
+    background: none;
+    box-shadow: none;
   }
 
   .footnotes > li.desk-fn {
@@ -6467,6 +6605,19 @@ p.desk-sheet__flag {
     grid-column: 2;
     display: block;
     align-self: start;
+    padding: 0 0 0 9pt;
+    border-left: 0.5pt solid #888;
+    font-size: calc(9.5pt * var(--reading-scale, 1));
+    line-height: 1.35;
+    --desk-note-font: "Playpen Sans", Inter, "Inter Fallback", system-ui, sans-serif;
+    --desk-note-weight: 500;
+  }
+
+  /* A note on a footnote (M11) prints at the end of its footnote's list item,
+     under the note, in the notes' own look. */
+  html[data-desk-print="notes"] .footnotes > li > .desk-print-notes--footnote {
+    display: block;
+    margin: 3pt 0 0 12pt;
     padding: 0 0 0 9pt;
     border-left: 0.5pt solid #888;
     font-size: calc(9.5pt * var(--reading-scale, 1));

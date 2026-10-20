@@ -31,10 +31,16 @@
 import { createRecord } from "../../lib/desk-records.mjs";
 import { pinFields, placePins } from "../../lib/desk-footnotes.mjs";
 import { recordReference } from "../../lib/desk-store-core.mjs";
-import { loadChapterPage } from "./chapter-page.js";
 import { flagButton, noticesFor, openNotice } from "./change-notice.js";
+import {
+  addNoteButton,
+  footnoteElementFor,
+  footnoteListFor,
+  footnoteNotes,
+  initFootnoteNotes,
+} from "./footnote-notes.js";
 import { undoEntry } from "./history.js";
-import { footnoteList, pageChapter } from "./page.js";
+import { pageChapter } from "./page.js";
 import { announce, showUndo } from "./undo-bar.js";
 
 /** What the buttons need: the notebook, what a write is stamped with, the card's "Show" button. */
@@ -52,15 +58,7 @@ const whereOf = (button) => ({ bookKey: button.dataset.deskPinBook, chapter: Num
 /* ── Reading the notebook ────────────────────────────────────────── */
 
 /** A chapter's footnotes as the pin rules read them: the page's own, else its fetched page's. Null if unavailable. */
-async function listFor(where) {
-  const here = pageChapter();
-  if (here && here.bookKey === where.bookKey && here.chapter === where.chapter) return footnoteList();
-  try {
-    return (await loadChapterPage(where.bookKey, where.chapter)).footnoteList();
-  } catch (_) {
-    return null;
-  }
-}
+const listFor = footnoteListFor;
 
 /** This chapter's pins and where each is in the footnotes as the page has them. */
 async function placedPins(where) {
@@ -174,14 +172,13 @@ export function pinButton(id, label, where = pageChapter()) {
 
 /* ── Showing a pin on the page ───────────────────────────────────── */
 
-/** The footnote a pin sits on in this chapter now, as findPin says, or null. Study View only. */
+/**
+ * The footnote a pin sits on in this chapter now, as findPin says, or null.
+ * Study View only. It answers for a note on a footnote (M11) too, which names
+ * its footnote the same way.
+ */
 function footnoteOf(record) {
-  const here = pageChapter();
-  if (!env || !here || here.bookKey !== record.bookKey || here.chapter !== record.chapter) return null;
-  const list = footnoteList();
-  if (!list) return null;
-  const [one] = placePins(list, [record]);
-  return one && one.found.id ? document.getElementById(one.found.id) : null;
+  return env ? footnoteElementFor(record) : null;
 }
 
 /**
@@ -236,7 +233,7 @@ function drawFlag(li, entry, notice) {
         restoreFocus: trigger,
         onDone: async () => {
           await refreshPins();
-          li.querySelector(":scope > .desk-pin")?.focus({ preventScroll: true });
+          li.querySelector(".desk-pin:not(.desk-fn-add)")?.focus({ preventScroll: true });
         },
       }),
     ),
@@ -308,6 +305,7 @@ export async function refreshPins() {
 export function initPins({ store, ctx, desk = false }) {
   if (!store || !(desk || pageChapter())) return null;
   env = { store, ctx };
+  initFootnoteNotes({ store, ctx });
 
   for (const li of document.querySelectorAll(".footnotes-wrap ol.footnotes > li[id]")) {
     const label = li.querySelector(".footnote-backlink")?.textContent.trim() ?? "";
@@ -315,12 +313,17 @@ export function initPins({ store, ctx, desk = false }) {
     if (!button) continue;
     li.classList.add("desk-fn");
     li.append(button);
+    // Add a note (M11), beside Pin. The reader's notes on this footnote sit in
+    // the margin beside it (notes-margin.js), not under it.
+    const add = addNoteButton(li.id, label);
+    if (add) li.append(add);
   }
 
   // chapter-tools.js offers the popover before placing it, and so does /desk's
   // LIT pane, which names its chapter in the detail (`book`, `chapter`). The
   // Pin button shares the line "See in footnotes" has, so the popover grows no
-  // taller.
+  // taller; Add a note (M11) goes beside Pin, and the reader's notes on this
+  // footnote, at most two, under that line.
   document.addEventListener("lit:footnote-actions", (e) => {
     const { panel, note, ref, book, chapter } = e.detail ?? {};
     if (!panel || !note?.id) return;
@@ -329,14 +332,21 @@ export function initPins({ store, ctx, desk = false }) {
     if (!button) return;
     const row = document.createElement("div");
     row.className = "desk-pin-row";
+    const actions = document.createElement("span");
+    actions.className = "desk-fn-actions";
+    actions.append(button);
+    const add = addNoteButton(note.id, ref?.textContent.trim() ?? "", where);
+    if (add) actions.append(add);
     const jump = panel.querySelector(".lit-panel__jump");
     if (jump) {
       jump.replaceWith(row);
-      row.append(jump, button);
+      row.append(jump, actions);
     } else {
-      row.append(button);
+      row.append(actions);
       panel.append(row);
     }
+    const mine = footnoteNotes(note.id, where, { compact: true });
+    if (mine) row.after(mine);
   });
 
   // This tab's own changes and other tabs' alike.
