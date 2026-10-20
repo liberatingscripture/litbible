@@ -2683,7 +2683,10 @@ collection); they're read directly by the intro pages and the API manifest.
        `idSuffix` for this; a change to one must keep both callers working.
        The LIT pane is `desk/lit-pane.js`, Footnotes
        `desk/footnotes-view.js` (3e), and Sheet `desk/sheet-pane.js` (3f),
-       the sheet editor, with its formatted text in `desk/sheet-text.js`.
+       the sheet editor, with its formatted text in `desk/sheet-text.js`
+       and what it knows about the LIT (3h: blanks, the footnote picker,
+       the key terms box and the license card) in `desk/sheet-lit.js`,
+       whose rules are `src/lib/desk-sheet-lit.mjs`.
      - **Every pane reads a chapter from its built Study View page**,
        fetched and parsed once a visit (`desk/chapter-page.js`), so what it
        shows is character-identical to Study View. Each LIT pane keeps
@@ -2730,7 +2733,11 @@ collection); they're read directly by the intro pages and the API manifest.
      - **A sheet's passages come from the live text** (format rule 1):
        `src/lib/desk-sheet-passages.mjs` makes one from a verse menu, a
        selection or a notebook record, and finds its words in today's
-       chapter; the pane draws them from the chapter's fetched page. "Add to
+       chapter; the pane draws them from the chapter's fetched page. A
+       passage's blanks, footnote choices and key terms are worked out the
+       same way, in that chapter's anchor text, with the term lens's marks
+       turned into offsets (`termMarkOffsets`), so nothing about the text
+       is stored but the words a blank covers. "Add to
        sheet" reaches the LIT pane's menus through `lit:panel-actions`, as
        the "My Notebook" row does, which reads `book`, `chapter` and
        `textFor` from the detail. Which sheet a Sheet pane shows is `sheet`
