@@ -64,6 +64,7 @@ import {
   placeFor,
   litPlace,
   setLitAt,
+  setPaneSheet,
   splitPane,
   writeSaved,
 } from "../../lib/desk-layout.mjs";
@@ -174,7 +175,15 @@ async function start() {
   // LIT pane shows a run of them as one stub without fetching each.
   let drafts = {};
   try { drafts = JSON.parse(document.getElementById("desk-drafts")?.textContent || "{}") ?? {}; } catch (_) {}
-  const env = { store, storeError, onEdit, ctx, openGreekWord, drafts };
+  // A sheet's passage shown in the LIT pane being read (or, with none, in the
+  // panes that follow), as a picker would move it.
+  const showPassage = (passage) => {
+    const at = formatPassage(passage);
+    if (!at) return;
+    if (findPane(layout.root, layout.active)?.kind === "lit") commit(setLitAt(layout, layout.active, at), { draw: false });
+    else commit(setPlace(layout, at), { draw: false });
+  };
+  const env = { store, storeError, onEdit, ctx, openGreekWord, drafts, showPassage };
 
   document.documentElement.dataset.deskWorkspace = "";
   root.replaceChildren();
@@ -435,6 +444,8 @@ async function start() {
         id: pane.id,
         get: () => passageOf(pane.id),
         set: (passage) => setPassageOf(pane.id, passage),
+        getSheet: () => findPane(layout.root, pane.id)?.sheet ?? null,
+        setSheet: (sheetId) => commit(setPaneSheet(layout, pane.id, sheetId), { draw: false }),
       });
     }
     return rec;

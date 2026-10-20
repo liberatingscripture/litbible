@@ -27,6 +27,9 @@
 //
 // A verse that spans blocks (a quotation set as a block quote, a mid-verse
 // speaker change) can also be shared one PART at a time — see "parts" below.
+//
+// The Study Desk's LIT pane on /desk gets the second and fourth, through
+// attachVerseTools at the end, with the pane as one more view.
 
 import { stripBracketMarkers } from "../lib/bracket-markers.mjs";
 import { LIT_CREDIT_LINE } from "../lib/lit-credit.mjs";

@@ -245,8 +245,9 @@ src/
                      #   notice built on it (desk-change); the notebook's
                      #   write plans in desk-store-core; the sheet record,
                      #   its checks and its formatted-text sanitizer
-                     #   (desk-sheet-format) and the changes a sheet takes
-                     #   (desk-sheets); merging two copies
+                     #   (desk-sheet-format), the changes a sheet takes
+                     #   (desk-sheets) and its passages (desk-sheet-passages);
+                     #   merging two copies
                      #   of a notebook (desk-merge); finding a pinned
                      #   footnote again (desk-footnotes); the notebook page
                      #   and its files (desk-notebook, desk-export,
@@ -2660,8 +2661,8 @@ collection); they're read directly by the intro pages and the API manifest.
        `parse.json` with `parse/<group>.json` holds every word by its
        parsing, named by `parseGroup` (`greek-search.mjs`, shared by build
        and client). Rebuild with `npm run build:greek`, never by hand.
-  18. **Phases 3c to 3e are /desk** (built 2026-10-19; STUDY-DESK.md, D9
-     and "Order of work", 3c to 3e): `src/pages/desk.astro`, which `desk-gate.js`
+  18. **Phases 3c to 3f are /desk** (built 2026-10-19; STUDY-DESK.md, D9
+     and "Order of work", 3c to 3f): `src/pages/desk.astro`, which `desk-gate.js`
      fills with `src/scripts/desk/desk-page.js` when `[data-desk-page]` is
      present. It isn't a reading surface (no Notebook panel; not in
      `READING_SURFACES`), and the announcement gate treats it as scripture.
@@ -2680,9 +2681,9 @@ collection); they're read directly by the intro pages and the API manifest.
        foot), Greek `tab-greek.js`, and What I've kept `kept-list.js`, which
        the notebook page draws too. Those tabs take a `source` and an
        `idSuffix` for this; a change to one must keep both callers working.
-       The LIT pane is `desk/lit-pane.js` and Footnotes
-       `desk/footnotes-view.js` (3e); the Sheet pane says it's still to
-       come (3f).
+       The LIT pane is `desk/lit-pane.js`, Footnotes
+       `desk/footnotes-view.js` (3e), and Sheet `desk/sheet-pane.js` (3f),
+       the sheet editor, with its formatted text in `desk/sheet-text.js`.
      - **Every pane reads a chapter from its built Study View page**,
        fetched and parsed once a visit (`desk/chapter-page.js`), so what it
        shows is character-identical to Study View. Each LIT pane keeps
@@ -2707,12 +2708,25 @@ collection); they're read directly by the intro pages and the API manifest.
        never chase each other. Footnote letters open their own chapter's
        note (`footnotePanel`, shared with Study View in `panel-pieces.js`);
        key terms are attached per chapter (`attachTermLens` in
-       `term-lens.js`). No verse menu, selection panel or reader's marks
-       there yet.
+       `term-lens.js`). **The verse menu and the selection panel are Study
+       View's own** (3f): `attachVerseTools` in `chapter-tools.js` takes the
+       pane as a view whose text holds many chapters (each names its own
+       reference, link and notes), and one set of selection listeners serves
+       every view, so two panes never answer one selection. A change to
+       either panel must keep Study View, Read View and the pane working. No
+       reader's marks there yet (3g).
+     - **A sheet's passages come from the live text** (format rule 1):
+       `src/lib/desk-sheet-passages.mjs` makes one from a verse menu, a
+       selection or a notebook record, and finds its words in today's
+       chapter; the pane draws them from the chapter's fetched page. "Add to
+       sheet" reaches the LIT pane's menus through `lit:panel-actions`, as
+       the "My Notebook" row does, which reads `book`, `chapter` and
+       `textFor` from the detail. Which sheet a Sheet pane shows is `sheet`
+       on its pane in the layout (`setPaneSheet`).
      - **The layout is `localStorage['lit-desk-layout']`**: the last
        layout, the reader's default and which opens the page, written on
-       every change (the shared passage and each LIT pane's place
-       included) and checked on the way
+       every change (the shared passage, each LIT pane's place and each
+       Sheet pane's sheet included) and checked on the way
        back in (`checkLayout`); a
        layout that fails the check falls back to the original, the LIT
        beside My Notes, 60/40. Named in /privacy's paragraph.
