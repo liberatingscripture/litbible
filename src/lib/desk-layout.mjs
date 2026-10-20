@@ -46,7 +46,7 @@ export const HANDLE = 6;
  */
 export const KINDS = [
   { kind: "lit", label: "The LIT", follows: false },
-  { kind: "mine", label: "My Notes", follows: false },
+  { kind: "mine", label: "My Notes", follows: true },
   { kind: "verse", label: "This verse", follows: true },
   { kind: "greek", label: "Greek", follows: true },
   { kind: "footnotes", label: "Footnotes", follows: true },

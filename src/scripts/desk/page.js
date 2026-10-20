@@ -72,14 +72,64 @@ export function readChapterBlocks(chapter) {
   return document.querySelectorAll(`[data-rm-text] .rm-block[data-chapter="${Number(chapter)}"]`);
 }
 
+/* ── /desk's LIT panes ───────────────────────────────────────────── */
+
+// Each LIT pane on /desk (lit-pane.js) puts its text here, so the reader's
+// marks can be drawn on it and read from it as they are on Study View
+// (3g). A pane's text holds many chapters, and two panes may show the same
+// one, so a chapter on /desk is a box, not the page.
+const deskTexts = new Set();
+
+/** Fired on document when a LIT pane's text comes or goes. */
+export const DESK_TEXTS_EVENT = "lit:desk-texts";
+
+/**
+ * Put a LIT pane's text (the element holding its chapters' sections) on the
+ * desk's list. Returns what takes it off again.
+ */
+export function addDeskText(container) {
+  deskTexts.add(container);
+  document.dispatchEvent(new CustomEvent(DESK_TEXTS_EVENT));
+  return () => {
+    if (deskTexts.delete(container)) document.dispatchEvent(new CustomEvent(DESK_TEXTS_EVENT));
+  };
+}
+
+/** The LIT panes' texts on the page now. */
+export function deskTextsNow() {
+  return Array.from(deskTexts).filter((c) => c.isConnected);
+}
+
+/**
+ * Every chapter the LIT panes show now, as { box, bookKey, chapter }, where
+ * box is that chapter's `.chapter-paragraphs`. A chapter two panes show is
+ * there twice. Read fresh: a pane adds and drops chapters as it scrolls.
+ */
+export function deskChapterBoxes() {
+  const out = [];
+  for (const container of deskTextsNow()) {
+    for (const section of container.querySelectorAll(".desk-lit__chapter[data-key]")) {
+      const box = section.querySelector(".chapter-paragraphs");
+      const chapter = Number(section.dataset.chapter);
+      if (box && section.dataset.book && chapter) out.push({ box, bookKey: section.dataset.book, chapter });
+    }
+  }
+  return out;
+}
+
 /**
  * A chapter's anchor text from whichever view this page is: Study View's
- * chapter, or one chapter of the book Read View shows. Null when the page
- * doesn't show that chapter. Read fresh, like chapterText.
+ * chapter, one chapter of the book Read View shows, or, on /desk, the first
+ * LIT pane showing it. Null when the page doesn't show that chapter. Read
+ * fresh, like chapterText.
  */
 export function chapterTextFor(bookKey, chapter) {
   const here = pageChapter();
   if (here) return here.bookKey === bookKey && here.chapter === chapter ? chapterText() : null;
+  if (deskTexts.size) {
+    const at = deskChapterBoxes().find((c) => c.bookKey === bookKey && c.chapter === chapter);
+    return at ? pageAnchorText(at.box.children) : null;
+  }
   if (readBook() !== bookKey) return null;
   const blocks = readChapterBlocks(chapter);
   return blocks.length ? pageAnchorText(blocks) : null;

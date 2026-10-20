@@ -71,11 +71,14 @@ import {
 import { formatPassage, parsePassage, sameChapter, startingPassage } from "../../lib/desk-passage.mjs";
 import { loadLastRead } from "../last-read.js";
 import { initActions } from "./actions.js";
+import { createHighlights } from "./highlights.js";
+import { createVerseLabels } from "./verse-labels.js";
 import { addDeskStyle, deskCtx as ctx } from "./boot.js";
 import { mountPane } from "./desk-panes.js";
 import { createHistory } from "./history.js";
 import { initNoteSettings } from "./note-settings.js";
 import { openNoteEditor } from "./note-editor.js";
+import { initPins } from "./pins.js";
 import { openStore } from "./store.js";
 import { initUndo } from "./undo-bar.js";
 
@@ -160,8 +163,17 @@ async function start() {
   }
   if (store) createHistory({ store, ctx });
   // The LIT pane's verse menu and selection panel get the "My Notebook" row
-  // (3f): Add a note, Bookmark and Ribbon here….
+  // (3f, 3g): Add a note, Bookmark, Highlight and Ribbon here….
   if (store) initActions({ store, ctx });
+  // Pin / Unpin on the LIT pane's footnotes, This verse and the Footnotes
+  // pane (3g).
+  initPins({ store, ctx, desk: true });
+  // The reader's highlights on the LIT panes, and the verse numbers' names
+  // for them (3g).
+  if (store) {
+    createHighlights({ store });
+    createVerseLabels({ store });
+  }
   const onEdit = store
     ? (record, trigger) => openNoteEditor({ trigger, store, ctx, ref: recordReference(record), record, restoreFocus: trigger })
     : null;
@@ -497,7 +509,7 @@ async function start() {
       rec.pin.setAttribute("aria-pressed", String(Boolean(pane.pin)));
       rec.pin.title = pane.pin ? "Follow the LIT pane again" : "Stop following the LIT pane";
       rec.close.hidden = all.length <= 1;
-      rec.close.setAttribute("aria-label", `Close the ${name} pane`);
+      rec.close.setAttribute("aria-label", `Close the ${name.replace(/^The /, "")} pane`);
     }
   }
 

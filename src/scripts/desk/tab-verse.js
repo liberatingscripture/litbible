@@ -296,7 +296,7 @@ export function createVerseTab({
       letter.textContent = label;
       li.append(letter, clone);
       // Pin / Unpin, as under the note in the Footnotes list.
-      const pin = store ? pinButton(id, label) : null;
+      const pin = store ? pinButton(id, label, { bookKey: here.bookKey, chapter: here.chapter }) : null;
       if (pin) li.append(pin);
       items.push(li);
     }
