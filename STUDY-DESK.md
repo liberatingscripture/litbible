@@ -4,7 +4,7 @@ The complete record of the Study Desk as planned so far: what it is, every idea
 with its status, every decision BVJ has made and why, the audit and how each
 finding was settled, the account and sync work planned with BDR, and the
 related projects that came out of it. **Nothing is released to readers**;
-phases 1a to 1d and 1f are built behind a preview switch ("Where things stand").
+phases 1a to 1d, 1f, 1h, 2a, 2b and 3b to 3k are built behind a preview switch ("Where things stand").
 This file exists so a future session can pick the work up without the
 conversations that produced it.
 
@@ -13,6 +13,20 @@ Many ideas here were weighed and decided, some were declined, and the reasons
 are recorded so they aren't re-argued.
 
 ## Where things stand (as of 2026-10-20)
+
+- **Phase 2b is built on the preview** (2026-10-20): a sheet's text checked
+  before printing, and printing with room to write. **A passage whose
+  wording changed since it was added says so** (S2): in the Sheet pane, with
+  the words that moved struck through and underlined, the release note when
+  one names the verses, and **Keep the new wording**; and above the paper on
+  the sheet's own page, before it is printed (screen only, since the copy
+  prints today's wording either way). **Each copy's foot names the day its
+  text is from** ("Text as of October 20, 2026"). **Print with room to
+  write** (N9) is a second button under "Print with my notes", and a
+  command: the chapter or the book in a narrower column beside a ruled
+  margin, like a journaling Bible, needing no notebook. Smaller calls for
+  BVJ to judge are in the decision log, "Phase 2b". Next: 3l, popping the
+  notebook out, then 2c.
 
 - **Phase 3k is built on the preview** (2026-10-20): getting started and
   sharing. **New sheet offers templates** (M9): Bible study, Sermon
@@ -717,6 +731,7 @@ plan as a whole was accepted; nothing was declined except where stated).
 - **S2. Text as of a date, checked before printing.** A sheet shows the
   current text and the day it was checked, and flags a passage that changed
   after you added it, using N3's comparison. New. Small. Proposed.
+  **Built on the preview 2026-10-20** ("Order of work", 2b).
 - **S3. A key terms box, filled in for you.** Every glossary term in the
   sheet's passages with its traditional word and the Greek ("self-
   preservation, traditionally flesh, sarx"), printed as a box at the end.
@@ -4216,6 +4231,17 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      Small. N9, print with room to write, is in 2b too: a print option that
      sets the text in a narrower column beside a wide ruled margin. It stores
      nothing and is a variant of `print.css`. Extra small.
+     **Built on the preview 2026-10-20**, after phase 3k (decision log,
+     "Phase 2b"). S2's rules are `src/lib/desk-sheet-check.mjs` (pure,
+     tested): the comparison is N3's `wordingChanged`, a quoted passage is
+     judged on its own words only, and `freshCopy` is what Keep writes. The
+     Sheet pane's notice is `wordingNotice` in `desk/sheet-lit.js`; the
+     sheet page's is `drawCheck` in `desk/sheet-page.js`, with the checks
+     from `copyChecks` in `desk/sheet-copy.js`, which also prints the "Text
+     as of" line. The word diff both notices draw moved out of
+     `change-notice.js` into `desk/diff-view.js`. N9 is
+     `desk/print-room.js`, with its look beside M6's in `desk.css`. No key
+     is added.
    - **2c, notes on a footnote** (M11, decided yes): a note attaches to a
      footnote by quoting its words, so it survives relabeling. It adds a
      kind of record to readers' notebooks, which can't be taken back once
@@ -5562,6 +5588,52 @@ split itself is still a proposal BVJ worked within but hasn't confirmed.
   values, so themes, print and contrast decide how they look, and a
   reader's accessibility font still wins on screen. Left out: images and
   tables. The set can grow later but never shrink.
+
+### 2026-10-20 (Phase 2b: text checked before printing, and room to write)
+
+- **Built** as 2b set out: S2 (a sheet's passages checked against today's
+  text, and the day the text is from) and N9 (print with room to write),
+  after phase 3k, since S2 needed sheets. Neither stores anything new, so
+  /privacy is unchanged.
+- **Smaller calls made in building it, for BVJ to judge on the preview**
+  (recommendations, not decisions):
+  - **Where a change shows.** In the Sheet pane, under the passage's words:
+    "The wording of these verses has changed since you added this passage",
+    the diff, the release note's date and link when one names the verses,
+    "The sheet prints today’s wording. Check your blanks, questions, and
+    notes against it," and **Keep the new wording**. On the sheet's page,
+    above the paper: one line naming the passages ("The wording of Romans
+    8:1–2 has changed since you added it."), each diff, and a link to the
+    sheet on the Study Desk. **Print stays one press**; the notice is the
+    check, not a dialog in the way. The page never writes, so Keep is on
+    /desk only.
+  - **Keep is one undoable change**, like any edit to the sheet. It takes a
+    fresh copy of the verses (and, for a passage that starts or ends inside
+    a verse, its words taken again from where they stand now).
+  - **A passage that starts or ends inside a verse** is judged on its own
+    words, not the whole verse's, the way a quoted note is: a change
+    elsewhere in the verse doesn't print, so it raises nothing.
+  - **Typography alone raises nothing**, as for notes (quotes, dashes,
+    spacing).
+  - **A passage with no comparison copy** (one gathered from a search, M5,
+    whose chapters aren't fetched there) takes one quietly the first time
+    the Sheet pane reads it, with no undo step, so a change from then on is
+    caught. "Open it on the Study Desk" is the usual next step, so in
+    practice that is the day it was made. Taking copies on /search instead
+    would mean fetching every chapter's page there.
+  - **"Text as of"** is the date in the content version the passages were
+    read from (the newest, if the chapters' pages differ), at the foot of
+    both copies, after the chapters' addresses, and so in Copy for Word too.
+    A dev build has no date and prints none. Present mode doesn't show it.
+  - **A shared sheet is never flagged**: sharing leaves the comparison
+    copies out (3k), so the reader who opens one has nothing to compare.
+  - **N9's margin** is the right 35% of the page, ruled every 20pt (more
+    when the Display tray's text size is larger), with the text in the left
+    62%; footnotes and the notices print full width after the text, as in
+    plain printing. Offered wherever "Print with my notes" is (Study View
+    chapters and Read View), and also where the browser keeps no notebook,
+    since it reads none.
+  - **Known limits**: checked in Chrome only (N9 by printing PDFs).
 
 ### 2026-10-20 (Phase 3k: getting started and sharing)
 

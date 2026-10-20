@@ -2271,7 +2271,7 @@ collection); they're read directly by the intro pages and the API manifest.
   panel doesn't count as outside, and a panel is placed clear of it (see
   below).
 - **The Study Desk preview** (STUDY-DESK.md, phases 1a to 1d, 1f and 1h,
-  2a's B3 and N4, and phase 3's 3b to 3k) is in production but
+  2a, 2b, and phase 3's 3b to 3k) is in production but
   switched off for everyone: `?desk=on` turns it on in one browser on a
   computer, `?desk=off` turns it off. STUDY-DESK.md is the record; what a
   change elsewhere in the site has to respect:
@@ -2893,6 +2893,26 @@ collection); they're read directly by the intro pages and the API manifest.
        A shared sheet shows read only until "Copy into my desk", which saves
        it as a new sheet (`copyOfShared`) and turns the page into that
        sheet's own address. No storage key is added.
+  22. **Phase 2b is a sheet checked before printing** (built 2026-10-20;
+     STUDY-DESK.md, S2, N9 and "Order of work", 2b). N9 is the bullet under
+     rule 19. S2, in three things:
+     - **`src/lib/desk-sheet-check.mjs` is the rules** (pure, tested):
+       `passageCheck` compares a passage's `verseCopy` with today's verses
+       through N3's `wordingChanged` (typography folded), judging a quoted
+       passage on its own words only; `freshCopy` is what "Keep the new
+       wording" writes; `textAsOfLine` is the copy's "Text as of" line from a
+       content version. `readPassage` (`desk/sheet-lit.js`) carries the
+       check as `check`, and the source's `contentVersion` (read off the
+       fetched page's `<html>` by `chapter-page.js`).
+     - **The Sheet pane writes one thing the reader didn't ask for**: a
+       passage with no `verseCopy` (gathered on /search) takes one the first
+       time the pane reads it, through `change(…, { quiet: true })`, which
+       commits with `record: false` so Ctrl+Z never undoes it into a loop.
+       Keep is an ordinary, undoable change.
+     - **The sheet page only reports**: `drawCheck` above the paper
+       (`.sheets-page__check`, hidden in print), and Keep is on /desk. Both
+       notices draw the diff with `desk/diff-view.js`, shared with the
+       change notice; change one and both move.
 - **Every link that leaves the site opens in a new tab** (owner, 2026-10-01).
   For rendered bodies that is `openExternalLinks` in `src/lib/external-links.mjs`
   (pure, unit-tested), called from `linkRefs`, the one function footnotes,
@@ -3647,7 +3667,7 @@ argv, and the scan; nothing else.
 | `public/llms.txt`, `llms-full.txt` | LLM-readable site description + AI-usage policy |
 | `GLOSSARY-CANDIDATES.md` | Register of glossary candidates deliberately not included or deferred, and the payload criterion behind those calls. Read it before proposing a "next term." |
 | `TOPICS.md` | **The authority on chapter and book-intro `topics`** — the significance filter, the alternative-translation pair table, the prefix-search rule, casing, and the hand-run checks. Read it before adding or revising any topics array. |
-| `STUDY-DESK.md` | **The planning and decision record for the Study Desk** (notes, places, highlights and sheets on desktop, with optional account sync shared with the apps). Phases 1a to 1d, 1f and 1h are built (the merge engine; notes, bookmarks, highlights, pinned footnotes, the margin and the panel's tabs; the notebook page, export and import, labels, ribbons, search and commands, first use and the tour; the Greek tab; searching the Greek), and so is phase 2a (2026-10-15: B3, N4, and construction search and searching by parsing as Greek search commands; M10 was built and shelved; N2, H2 and M4 are shelved for version 2, 2026-10-15), the shell behind a preview switch (`?desk=on`); nothing reader-facing is released. N8 (the hidden passage) is held on branches until after the Zoom; it is not released before phase 1 is completely done, and perhaps not until phases 1 to 3 are (BVJ, 2026-10-13). 1g (an interleaf for the Greek) and 1h (searching the Greek) belong to phase 1: 1g is shelved for the future, and 1h was built on 2026-10-13. Every idea, audit finding, owner decision, open question and BDR item is there with its ID, as are the two apps' replies (2026-10-04) and the talk-through list built from them. Read it before proposing or building any part of the desk, and update it when a decision changes. `STUDY-DESK-BRIEF-FOR-BDR.md` is the brief written for BDR's Claude about the apps' side; `STUDY-DESK-REPLY-TO-APPS.md` is the website's answer to both apps' replies (2026-10-05), and the last such document: since 2026-10-07 BDR's Claude reads this repo directly, so the website answers by updating `STUDY-DESK.md` on `main` (its section "One notebook, three homes" holds BDR's sync proposal and the website's answers). |
+| `STUDY-DESK.md` | **The planning and decision record for the Study Desk** (notes, places, highlights and sheets on desktop, with optional account sync shared with the apps). Phases 1a to 1d, 1f and 1h are built (the merge engine; notes, bookmarks, highlights, pinned footnotes, the margin and the panel's tabs; the notebook page, export and import, labels, ribbons, search and commands, first use and the tour; the Greek tab; searching the Greek), and so is phase 2a (2026-10-15: B3, N4, and construction search and searching by parsing as Greek search commands; M10 was built and shelved; N2, H2 and M4 are shelved for version 2, 2026-10-15), phase 3's sheets and /desk (3b to 3k, 2026-10-18 to 10-20), and phase 2b (2026-10-20: S2, a sheet checked before printing, and N9, print with room to write), the shell behind a preview switch (`?desk=on`); nothing reader-facing is released. N8 (the hidden passage) is held on branches until after the Zoom; it is not released before phase 1 is completely done, and perhaps not until phases 1 to 3 are (BVJ, 2026-10-13). 1g (an interleaf for the Greek) and 1h (searching the Greek) belong to phase 1: 1g is shelved for the future, and 1h was built on 2026-10-13. Every idea, audit finding, owner decision, open question and BDR item is there with its ID, as are the two apps' replies (2026-10-04) and the talk-through list built from them. Read it before proposing or building any part of the desk, and update it when a decision changes. `STUDY-DESK-BRIEF-FOR-BDR.md` is the brief written for BDR's Claude about the apps' side; `STUDY-DESK-REPLY-TO-APPS.md` is the website's answer to both apps' replies (2026-10-05), and the last such document: since 2026-10-07 BDR's Claude reads this repo directly, so the website answers by updating `STUDY-DESK.md` on `main` (its section "One notebook, three homes" holds BDR's sync proposal and the website's answers). |
 | `STUDY-DESK-FORMAT.md` | **Draft record format for the Study Desk**, shared with both apps: the kinds of record, the anchor text, and how a mark is found again after the wording moves. Its executable form is `scripts/lib/anchor-text.mjs` (pure half in `src/lib/anchor-core.mjs`) with `test/fixtures/anchor-vectors.json`; its merge rules are `src/lib/desk-merge.mjs` with `test/fixtures/merge-vectors.json`, hand-written cases the apps run too. Change each pair together. |
 | `DISASTER-RECOVERY.md` | Continuity doc: every dashboard/secret behind the deploy (names only, no values) + the DNS inventory + from-zero redeploy path. Update it when an integration, secret, or DNS record is added/removed. |
 
