@@ -50,7 +50,7 @@ const hlName = (color) => `desk-print-hl-${color}`;
 const supportsHighlight = typeof CSS !== "undefined" && "highlights" in CSS && typeof Highlight !== "undefined";
 
 /** Where this page's chapters are, or null: Study View's chapter, or the book in Read View. */
-function surface() {
+export function surface() {
   const here = pageChapter();
   if (here) {
     return {
@@ -109,9 +109,10 @@ function noteElement(record, how) {
  * Fonts the printed page needs that the screen may not have loaded: the
  * serif print.css sets (used only in print, so a page laid out for the screen
  * hasn't fetched it), and the notes' own face. Bounded, so a slow network
- * never holds the print dialog back for long.
+ * never holds the print dialog back for long. Shared with print-room.js (N9),
+ * which has no notes and passes none.
  */
-async function printFonts(noteText) {
+export async function printFonts(noteText = "") {
   if (!document.fonts?.load) return;
   const page = (document.querySelector("main")?.textContent ?? "").slice(0, 30000);
   const loads = [

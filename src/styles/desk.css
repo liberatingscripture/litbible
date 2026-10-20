@@ -6585,6 +6585,52 @@ p.desk-sheet__flag {
   }
 }
 
+/* ── N9: Print with room to write ───────────────────────────────── */
+
+/* The second button under "Print with my notes" takes a little more air. */
+.desk-panel__print--room {
+  margin-top: 10px;
+}
+
+/* A variant of print.css, on paper only and only for the print that
+   src/scripts/desk/print-room.js stamps with `data-desk-print="room"`. The
+   scripture's own container keeps the page's full width but holds its text in
+   the left 62% by padding, and paints a ruled margin on the right 35%: a
+   background on the container, so the rules run the full height of the text
+   and carry on across every page break without any element to keep in step
+   with the text. (A grid with an empty second column was the other way; M6
+   uses one because its notes have to sit beside their own blocks, which a
+   plain ruling never does.) The footnotes, the SBLGNT notice and the credit
+   are outside the container, so they print full width after the text, as in
+   plain printing. Plain printing never has the attribute, so it never meets
+   any of this.
+
+   The rules are an SVG tile, not a repeating gradient: Chrome's PDF output
+   drew the gradient's hairlines at uneven spacing (measured on a printed
+   Romans 8), and the tile prints as vector at an even step. The step grows
+   with the Display tray's text size (--reading-scale), since a reader who
+   prints larger is likely to write larger. The page's own text isn't ruled
+   to match: a journaling Bible's lines don't follow its text either.
+   print.css sets `background-color: transparent !important` on everything;
+   these are background images, which it leaves alone, and Chrome prints them
+   without the dialog's "Background graphics" box only with
+   `print-color-adjust: exact`. */
+@media print {
+  html[data-desk-print="room"] .chapter-paragraphs,
+  html[data-desk-print="room"] [data-rm-text] {
+    box-sizing: border-box;
+    padding-right: 38%;
+    background-image:
+      linear-gradient(to right, #a6a6a6 0.5pt, transparent 0.5pt),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='20' viewBox='0 0 100 20' preserveAspectRatio='none'%3E%3Crect y='19.4' width='100' height='0.6' fill='%23a6a6a6'/%3E%3C/svg%3E");
+    background-size: 35% 100%, 35% calc(20pt * var(--reading-scale, 1));
+    background-position: right top, right top;
+    background-repeat: no-repeat, repeat-y;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
+
 /* ── A sheet from a search or a topic (M5; desk/search-sheet.js) ──────── */
 
 /* Quiet: a line of small text under a group's title, nothing above the

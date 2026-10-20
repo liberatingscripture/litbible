@@ -597,6 +597,11 @@ plan as a whole was accepted; nothing was declined except where stated).
   narrower column beside a wide ruled margin, like a journaling Bible. Stores
   nothing; a variant of `print.css`. Borrowed (journaling Bibles). Extra
   small. Can ship any time, independent of everything else.
+  **Built on the preview 2026-10-20**: "Print with room to write," a button
+  after "Print with my notes" in the My Notes foot and a command of the same
+  name, on Study View chapters and in Read View; `desk/print-room.js`, the
+  look at the end of `desk.css`. It needs no notebook, so it shows even where
+  the browser keeps none.
 - **N10. One verse, everything about it.** Borrowed from netbible.org, whose
   side panel follows the passage with the translation's notes and the
   reader's. **Decided 2026-10-02: one verse at a time.** A "This verse" tab in
