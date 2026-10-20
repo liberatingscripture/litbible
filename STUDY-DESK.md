@@ -14,6 +14,21 @@ are recorded so they aren't re-argued.
 
 ## Where things stand (as of 2026-10-20)
 
+- **Phase 3j is built on the preview** (2026-10-20): present mode. A sheet's
+  page has **Present**, and the Sheet pane has "Present…". The room sees the
+  sheet full screen, dark in either theme, one part at a time: a first
+  screen with the sheet's name and **a code per chapter to follow along**
+  (M3), then each passage, question, text and the key terms box, the type
+  as large as the screen allows. **The reveal** (S6) uses the sheet's
+  blanks: a key term blanked with its traditional word shows that word
+  until R reveals the LIT's rendering, and F puts the passage's footnotes
+  up, a footnote that gives a blank away waiting until it is revealed.
+  **The presenter view** (M2) is a second window with what the room sees,
+  what comes next, the answers and the parts marked Leader only, and a
+  clock; in Chrome and Edge with a second screen attached, the presentation
+  moves to that screen by itself. Smaller calls for BVJ to judge are in the
+  decision log, "Phase 3j". Next: 3k, getting started and sharing.
+
 - **Phase 3i is built on the preview** (2026-10-20): a sheet on paper. A
   sheet's own address, `/sheets/?id=…` (opened from the Sheet pane's "Print
   or copy…", with `/sheets/` listing them all), shows it as a **leader copy**
@@ -707,7 +722,7 @@ plan as a whole was accepted; nothing was declined except where stated).
   stays dark in either theme. An optional reveal (R) shows a key term's
   traditional word first, then the LIT's rendering and its footnote (F).
   The license lets a class, study group or sermon display any amount. New.
-  Medium. **Decided: the reveal is in** (decision 6).
+  Medium. **Decided: the reveal is in** (decision 6). **Built on the preview 2026-10-20** ("Order of work", 3j).
 - **S7. A license check for commercial work.** An ordinary sheet shows no
   limits at all: it adds the credit line, keeps footnotes beside their verses
   and **links to the license terms**, and that's all. A checkbox, "This is for
@@ -756,9 +771,9 @@ plan as a whole was accepted; nothing was declined except where stated).
   comes next. Chrome and Edge can place a window on a second screen (Window
   Management API); elsewhere the leader drags it. The two windows stay in
   step like two tabs (BroadcastChannel). Borrowed (presentation software).
-  Medium. **Decided: yes.**
+  Medium. **Decided: yes.** **Built on the preview 2026-10-20** ("Order of work", 3j).
 - **M3. A code on the screen so the room can follow along.** Present mode's
-  first screen shows S5's QR code. New. Extra small. **Decided: yes.**
+  first screen shows S5's QR code. New. Extra small. **Decided: yes.** **Built on the preview 2026-10-20** ("Order of work", 3j).
 - **M4. A word study in one click.** From the term lens or a /glossary entry,
   "Make a word study of sarx in Romans" builds a sheet of every gated place,
   grouped by rendering, with the key terms box and starter questions. Could
@@ -4319,6 +4334,11 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      `src/lib/desk-print-notes.mjs`.
    - **3j. Present mode.** S6 with the reveal, M3's code on its first
      screen, then M2's presenter view on two screens.
+     **Built on the preview 2026-10-20** (decision log, "Phase 3j"): the
+     rules are `src/lib/desk-present.mjs` (pure, tested), the screens and
+     the presenter view `desk/sheet-present.js`, drawn from the copies' own
+     reading of each chapter (`presentPassage` in `desk/sheet-copy.js`).
+     Nothing is stored and no key is added.
    - **3k. Getting started and sharing.** Sheets from a search or topic
      (M5), templates including the contemplative one (M9) and the blank
      canvas with full rich-text formatting (3a), and sharing by
@@ -5509,6 +5529,89 @@ split itself is still a proposal BVJ worked within but hasn't confirmed.
   values, so themes, print and contrast decide how they look, and a
   reader's accessibility font still wins on screen. Left out: images and
   tables. The set can grow later but never shrink.
+
+### 2026-10-20 (Phase 3j: present mode)
+
+- **Built** as 3j set out: present mode with the reveal (S6), a code on its
+  first screen (M3), and the presenter view on two screens (M2). Nothing is
+  stored, so /privacy is unchanged; the browser's own permission to place
+  windows on screens is asked for only when the leader opens the presenter
+  view with a second screen attached.
+- **Smaller calls made in building it, for BVJ to judge on the preview**
+  (recommendations, not decisions):
+  - **Where it starts**: "Present" in the toolbar of a sheet's page, which
+    goes full screen at once, and "Present…" in the Sheet pane on /desk,
+    beside "Print or copy…", which opens the presentation in a new tab
+    (`/sheets/?id=<id>&view=present`). A browser allows full screen only
+    from a click in that tab, so there the leader chooses Full screen (or
+    double-clicks the screen).
+  - **The screens**: a first screen, then one screen per part the room sees,
+    in the sheet's order: each passage, text, question (without its lines or
+    answer), and the key terms box. Spaces to write and page breaks are
+    paper's, so they have none. **A part marked Leader only never reaches
+    the room**: it goes to the presenter view, with the screen before it.
+  - **The look**: a near-black ground with cream words in either theme, the
+    passage in the site's sans-serif (a reader's Atkinson or OpenDyslexic
+    choice still wins), the reference in green above it, and verse numbers
+    kept small. Each screen is set at the largest type that fits, about 3.4%
+    to 6.8% of the screen's height; a passage too long even at the smallest
+    scrolls, with the Up and Down keys.
+  - **The reveal uses the sheet's blanks**, with no separate setting: the
+    leader marks what to reveal the way they mark a blank for paper (one
+    click on a key term). A blank whose hint is the traditional word shows
+    that word, dashed beneath, until R reveals the LIT's rendering in its
+    place; any other blank is a line with the leader's hint. R reveals the
+    next in reading order and Shift+R covers it again; going back to a
+    screen finds it as it was left. A sheet with no blanks presents its text
+    whole.
+  - **Nothing moves when a word is revealed**: the word and what covered it
+    share one space. The cost is that the space is as wide as the longer of
+    the two, which leaves a gap around a short answer ("a just person" with
+    room around "just") and could hint at a long one's length.
+  - **Footnotes come up with F**, on passage screens: the ones the leader
+    prints, and any held back only because it gives a blank away, once that
+    blank is revealed (S6's "then the LIT's rendering and its footnote").
+    They lie in a box over the lower part of the screen at a size of their
+    own, so the verses don't shrink, and go down again with F. Footnote
+    letters show in the verses only while the footnotes are up.
+  - **The key terms screen** keeps a rendering blank until its blank has
+    been revealed on any screen, and says so: "One term is left blank until
+    it is revealed." (Paper's line sends the room to the leader copy.)
+  - **The room's code** (M3): the first screen shows the sheet's name and
+    subtitle, "Scan to follow along," and S5's code for each chapter (at
+    most four, any more named in words), large enough to scan across a
+    room, with the chapters' addresses beneath. It isn't repeated on later
+    screens.
+  - **The controls on the room's screen** are a strip along the bottom that
+    shows when the pointer moves or a control has focus, and hides with the
+    pointer after two and a half seconds: Previous, Next, Reveal (with "1 of
+    2"), Footnotes, the screen's number, Presenter view, Full screen, and
+    Close. Escape leaves present mode (in full screen the first Escape is
+    the browser's, leaving full screen).
+  - **The keys**, in either window: →, Page Down or Space for the next
+    screen; ←, Page Up or Shift+Space for the one before (what a
+    presentation clicker sends); Home and End; R, Shift+R, and F. They
+    aren't tied to the Display tray's Keyboard switch, since they work only
+    inside present mode.
+  - **The presenter view** (M2) is the sheet's page in its own window
+    (`&view=presenter`), in the reader's own theme: what the room sees now,
+    what comes next with its name, "For the leader" (the blanks with their
+    answers and what covers them, whether the footnotes are up and how many
+    wait on the reveal, a question's answer, and the parts marked Leader
+    only), a clock with Restart, and the keys. It holds the sheet's own
+    leader parts only, not the reader's notebook notes.
+  - **Two screens**: where the browser can place windows (Chrome and Edge)
+    and a second screen is attached, "Presenter view" asks the browser's
+    permission once, sends the presentation full screen to the other screen,
+    and opens the presenter view filling this one. Elsewhere, or when the
+    permission is refused, the presenter view opens as a window and the
+    leader drags the presentation to the projector. Either window moves
+    both, and a presenter view opened after the presentation picks up its
+    place.
+  - **Known limits**: tested in Chrome at one window size, with the two
+    windows as two tabs. Moving the presentation to a second screen, and
+    real full screen, need a second display and a person's click, so they
+    are still to try; so are Firefox and Safari.
 
 ### 2026-10-20 (Phase 3i: paper and copies)
 

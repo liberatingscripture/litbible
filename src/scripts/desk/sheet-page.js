@@ -16,13 +16,17 @@
 // - **Codes to scan** (S5), one per chapter, on by default; not kept.
 // - **Print**, which prints the copy on screen, and **Copy for Word** (S9),
 //   which puts the same copy on the clipboard as formatted text and as plain.
-// Present (3j) and opening a shared sheet with "Copy into my desk" (3k) come
-// later.
+// - **Present** (3j): the sheet shown to a room, full screen, with the reveal
+//   and a presenter view (sheet-present.js). `&view=present` opens it
+//   straight away (the Sheet pane's "Present…"), and `&view=presenter` is the
+//   presenter view's own window.
+// Opening a shared sheet with "Copy into my desk" (3k) comes later.
 
 import { COPIES, COPY_NAMES, defaultPaper, PAPERS, pageRule, paperName } from "../../lib/desk-sheet-copy.mjs";
 import { sheetName, sortSheets } from "../../lib/desk-sheet-passages.mjs";
 import { addDeskStyle, deskCtx as ctx } from "./boot.js";
 import { renderCopy } from "./sheet-copy.js";
+import { openPresentation, showPresenterView } from "./sheet-present.js";
 import { copyForWord } from "./sheet-word.js";
 import { openStore } from "./store.js";
 
@@ -143,7 +147,7 @@ async function showList(root, store) {
   root.append(ul);
 }
 
-async function showSheet(root, store, id) {
+async function showSheet(root, store, id, view = null) {
   let sheet = null;
   try {
     sheet = await store.get(id);
@@ -155,6 +159,11 @@ async function showSheet(root, store, id) {
     all.href = `${BASE}sheets/`;
     p.append(document.createTextNode("This sheet isn’t in this browser’s notebook. It may have been deleted, or made on another computer. See "), all, document.createTextNode("."));
     root.append(p);
+    return;
+  }
+
+  if (view === "presenter") {
+    await showPresenterView({ root, sheet, store });
     return;
   }
 
@@ -194,12 +203,14 @@ async function showSheet(root, store, id) {
   codeBox.title = "A code beside each chapter’s first passage, which opens it in the LIT app or on litbible.net";
 
   const actions = make("div", "sheets-page__actions");
+  const present = button("Present");
+  present.title = "Show this sheet to a room, full screen, one part at a time";
   const print = button("Print", "desk-sheet__btn desk-sheet__btn--primary");
   const word = button("Copy for Word");
   word.title = "Copy this copy with its headings, italics, and notice, to paste into Word, Google Docs, or Pages";
   const status = make("span", "sheets-page__status");
   status.setAttribute("role", "status");
-  actions.append(print, word, status);
+  actions.append(present, print, word, status);
   bar.append(links, copyChoice, paperChoice, codeBox, actions);
 
   const paperBox = make("div", "sheets-page__paper");
@@ -228,6 +239,25 @@ async function showSheet(root, store, id) {
     return ready;
   }
 
+  let presenting = null;
+  const startPresenting = async ({ fullscreen }) => {
+    if (presenting) return;
+    presenting = openPresentation({
+      sheet,
+      store,
+      fullscreen,
+      onClose: () => {
+        presenting = null;
+        if (!root.contains(document.activeElement)) present.focus();
+        if (new URLSearchParams(location.search).get("view")) {
+          history.replaceState(history.state, "", `${BASE}sheets/?id=${encodeURIComponent(sheet.id)}`);
+        }
+      },
+    });
+    await presenting;
+  };
+  present.addEventListener("click", () => startPresenting({ fullscreen: true }));
+
   print.addEventListener("click", async () => {
     await ready;
     window.print();
@@ -250,7 +280,7 @@ async function showSheet(root, store, id) {
       return;
     }
     if (next?.kind !== "sheet") {
-      showSheet(root, store, id);
+      showSheet(root, store, id, view);
       return;
     }
     if (JSON.stringify(next) === JSON.stringify(sheet)) return;
@@ -259,6 +289,9 @@ async function showSheet(root, store, id) {
   });
 
   await draw();
+  // Opened to present (the Sheet pane's "Present…"): full screen waits for
+  // the leader's first click, which a browser requires.
+  if (view === "present") startPresenting({ fullscreen: false });
 }
 
 async function start() {
@@ -277,7 +310,8 @@ async function start() {
     return;
   }
   const id = new URLSearchParams(location.search).get("id");
-  if (id) await showSheet(root, store, id);
+  const view = new URLSearchParams(location.search).get("view");
+  if (id) await showSheet(root, store, id, view);
   else await showList(root, store);
 }
 

@@ -353,7 +353,12 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
     print.target = "_blank";
     print.rel = "noopener";
     print.title = "Open the leader and participant copies, to print or to copy into Word (opens in a new tab)";
-    header.append(back, print, status);
+    const present = make("a", "desk-sheet__btn desk-sheet__btn--quiet desk-sheet__print", "Present…");
+    present.href = `${BASE}sheets/?id=${encodeURIComponent(sheet.id)}&view=present`;
+    present.target = "_blank";
+    present.rel = "noopener";
+    present.title = "Show this sheet to a room, one part at a time, with a presenter view (opens in a new tab)";
+    header.append(back, present, print, status);
     wrap.append(header);
 
     if (readOnly) {

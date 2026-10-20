@@ -248,7 +248,8 @@ src/
                      #   (desk-sheet-format), the changes a sheet takes
                      #   (desk-sheets) and its passages (desk-sheet-passages),
                      #   and its copies on paper (desk-sheet-copy, with
-                     #   qr-svg.mjs, the one QR drawing);
+                     #   qr-svg.mjs, the one QR drawing), and on a
+                     #   screen for a room (desk-present);
                      #   merging two copies
                      #   of a notebook (desk-merge); finding a pinned
                      #   footnote again (desk-footnotes); the notebook page
@@ -394,7 +395,7 @@ workers/             # Cloudflare Workers, deployed separately via wrangler (NOT
 | `/search` | `search.astro` | Full search UI (verse index + Pagefind) |
 | `/notebook`, `/notebook/help` | `notebook.astro`, `notebook/help.astro` | The Study Desk preview's notebook page and help page. noindex, out of the sitemap and Pagefind; empty for anyone without the preview (`?desk=on`). See "The Study Desk preview" |
 | `/desk` | `desk.astro` | The Study Desk as a page of its own (D9): one to four panes. Same treatment as `/notebook`: noindex, out of the sitemap and Pagefind, and a short note without the preview. See "The Study Desk preview", rule 18 |
-| `/sheets` | `sheets.astro` | A sheet's own address (3i): `/sheets/` lists the reader's sheets, `/sheets/?id=<id>` shows one as a leader or participant copy, to print or copy for Word. Never edits. Same treatment as `/desk`. See "The Study Desk preview", rule 19 |
+| `/sheets` | `sheets.astro` | A sheet's own address (3i): `/sheets/` lists the reader's sheets, `/sheets/?id=<id>` shows one as a leader or participant copy, to print or copy for Word, or presents it to a room (3j; `&view=present`, and `&view=presenter` for the presenter view's window). Never edits. Same treatment as `/desk`. See "The Study Desk preview", rule 19 |
 | `/release-notes` | `release-notes.astro` | "What's new": the release notes by month, filterable by book and kind of change. `/translation-updates.xml` (`translation-updates.xml.js`) is the same record as RSS. See "Release notes are automated" below |
 | `/apps` | `apps.astro` | Mobile-apps promo page (footer-linked). Body design ported from `BDRhodes/LIT-app-Promo`; section content lives in the `callouts`/`examples`/`seasons` collections; scoped styles in `src/styles/pages/apps.css`; components under `src/components/apps/`. Uses `bg="white"` (near-white surface). |
 | `/app-support` | `app-support.astro` | App support contact form (linked from inside the apps, not the site nav; `/app-support/thanks` is the native-POST fallback success page) |
@@ -2267,7 +2268,7 @@ collection); they're read directly by the intro pages and the API manifest.
   panel doesn't count as outside, and a panel is placed clear of it (see
   below).
 - **The Study Desk preview** (STUDY-DESK.md, phases 1a to 1d, 1f and 1h,
-  2a's B3 and N4, and phase 3's 3b to 3i) is in production but
+  2a's B3 and N4, and phase 3's 3b to 3j) is in production but
   switched off for everyone: `?desk=on` turns it on in one browser on a
   computer, `?desk=off` turns it off. STUDY-DESK.md is the record; what a
   change elsewhere in the site has to respect:
@@ -2799,6 +2800,44 @@ collection); they're read directly by the intro pages and the API manifest.
        all of it on `afterprint`. The grid that sets the notes beside the
        text is in `desk.css`'s last section. Plain Ctrl+P never has the
        attribute and prints as before.
+  20. **Phase 3j is present mode** (built 2026-10-20; STUDY-DESK.md, S6, M2,
+     M3 and "Order of work", 3j), on the sheet's own page:
+     `src/scripts/desk/sheet-present.js`, opened by sheet-page.js's
+     "Present", or at once for `&view=present` (the Sheet pane's
+     "Present…") and `&view=presenter` (the presenter view's window). Like
+     the rest of the page it **never writes a record, and stores nothing**:
+     where the room is lives in the open windows. Five things to know:
+     - **`src/lib/desk-present.mjs` is the rules** (pure, tested): the
+       screens (`presentScreens`: a start screen, then each passage, text,
+       question and key terms box the room sees; a Leader only part goes to
+       the presenter view with the screen before it), the room's codes on the
+       start screen (`roomCodes`, S5's codes, at most four), a blank's cover
+       (`blankCover`), the state and its steps (`checkState`, `stepState`),
+       the footnotes the reveal lets out (`screenFootnotes`), the keys
+       (`presentKey`), `fitSize`, and the messages between windows.
+     - **The reveal is the sheet's own blanks**, never a field of its own:
+       a passage screen is drawn once by `presentPassage` in
+       `desk/sheet-copy.js`, from the same reading as the paper copies, with
+       each blank holding its words and their cover in one inline grid cell
+       (`.sheet-blank--present`), so a reveal flips `data-revealed` and
+       moves nothing. A change to how a copy reads a passage must keep both
+       working.
+     - **The room's screen is dark in either theme**: its colors and its
+       focus ring are pinned on `.present-stage` in `sheets-page.css`, which
+       the presenter view's previews share (`.present-preview__surface`). Each
+       screen is set at the largest type that fits (`fitScreen`); footnotes
+       come up in a box of their own over the screen and are fitted
+       separately, so they never shrink the verses.
+     - **The two windows stay in step through a BroadcastChannel**
+       (`channelName`, one per sheet), with a `hello` from a window that
+       opens and a `bye` from one that closes; every message is checked
+       (`presentMessage`, `checkState`) before it is used. The presenter view
+       places the presentation on a second screen through the Window
+       Management API where it can (`openPresenterWindow`); without it, the
+       leader drags the window.
+     - **While it is open, everything behind it is `inert`**, and the stage
+       is a `role="dialog"`, which is what keeps the site's single-key
+       shortcuts (keyboard-shortcuts.js) out of its way.
 - **Every link that leaves the site opens in a new tab** (owner, 2026-10-01).
   For rendered bodies that is `openExternalLinks` in `src/lib/external-links.mjs`
   (pure, unit-tested), called from `linkRefs`, the one function footnotes,
