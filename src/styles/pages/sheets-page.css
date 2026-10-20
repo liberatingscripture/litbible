@@ -1,0 +1,544 @@
+/* =========================================================
+   A sheet's own page (/sheets/; STUDY-DESK.md, phase 3i)
+   =========================================================
+   The page's frame, its toolbar, and the copy (src/scripts/desk/sheet-copy.js)
+   on screen and on paper. Only this page loads this file. The reader's own
+   formatted words use `.desk-rich` from desk.css, which the page adds itself.
+
+   On screen the copy is drawn on a sheet of the chosen paper's width
+   (--sheet-paper-width, set by sheet-page.js), black on white in either theme,
+   since it is a picture of the page that will print. On paper, print.css
+   already takes away the site's header and footer; the rules at the end take
+   away the toolbar and keep the copy's parts together. */
+
+.sheets-page {
+  padding: clamp(1.5rem, 3vw, 2.5rem) clamp(1rem, 4vw, 2rem) 5rem;
+  max-width: calc(90 * var(--ch));
+  margin: 0 auto;
+}
+
+.sheets-page__title {
+  margin: 0 0 1rem;
+}
+
+.sheets-page__off,
+.sheets-page__intro,
+.sheets-page__empty {
+  max-width: calc(60 * var(--ch));
+  line-height: 1.6;
+}
+
+.sheets-page__list {
+  list-style: none;
+  margin: 1.5rem 0 0;
+  padding: 0;
+  max-width: calc(60 * var(--ch));
+}
+
+.sheets-page__list li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.75rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid rgba(var(--ink-rgb), 0.15);
+}
+
+.sheets-page__sheet {
+  font-weight: 600;
+  color: var(--green-text);
+}
+
+.sheets-page__meta {
+  font-size: 0.9rem;
+  opacity: 0.75;
+}
+
+/* ── The toolbar ───────────────────────────────────────────────────────── */
+
+.sheets-page__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.5rem;
+  margin: 0 0 1.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  background: var(--surface-raised);
+  font-size: 0.95rem;
+}
+
+.sheets-page__links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.sheets-page__back {
+  color: var(--green-text);
+}
+
+.sheets-page__choice {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.9rem;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.sheets-page__choice legend {
+  float: left;
+  margin-right: 0.6rem;
+  font-weight: 600;
+}
+
+.sheets-page__choice label,
+.sheets-page__codes {
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.sheets-page__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
+.sheets-page__status {
+  font-size: 0.9rem;
+}
+
+/* ── The copy on screen: a sheet of paper ──────────────────────────────── */
+
+.sheets-page__paper {
+  overflow-x: auto;
+}
+
+.sheets-page__paper[aria-busy="true"] {
+  opacity: 0.6;
+}
+
+.sheet-copy {
+  box-sizing: border-box;
+  width: min(100%, var(--sheet-paper-width, 8.5in));
+  margin: 0 auto;
+  padding: var(--sheet-paper-margin, 0.75in);
+  background: #fff;
+  color: #1d231c;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
+  font-family: "Crimson Text", "Crimson Fallback", Georgia, "Times New Roman", serif;
+  font-size: 12pt;
+  line-height: 1.45;
+  color-scheme: light;
+  /* The copy is a picture of paper, so it keeps the light theme's colors on
+     screen in either theme: the site's own tokens, and the reader's named
+     colors. */
+  --text: #1d231c;
+  --text-strong: #000;
+  --ink-rgb: 29, 35, 28;
+  --green-text: #0f6b33;
+  --surface: #fff;
+  --surface-raised: #fff;
+  --desk-rich-red: #b3261e;
+  --desk-rich-blue: #1d4fb8;
+  --desk-rich-green: #0f6b33;
+  --desk-rich-purple: #6b3fa0;
+  --desk-rich-gray: #595e57;
+  --desk-rich-mark-yellow: rgba(255, 210, 0, 0.36);
+  --desk-rich-mark-green: rgba(160, 210, 40, 0.36);
+  --desk-rich-mark-blue: rgba(70, 150, 255, 0.26);
+  --desk-rich-mark-pink: rgba(255, 95, 165, 0.24);
+}
+
+.sheet-copy a,
+.sheet-copy .desk-rich a {
+  color: #0f6b33;
+}
+
+.sheet-copy__head {
+  margin-bottom: 18pt;
+  padding-bottom: 8pt;
+  border-bottom: 0.75pt solid #1d231c;
+}
+
+.sheet-copy__title {
+  margin: 0;
+  font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
+  font-size: 22pt;
+  line-height: 1.15;
+}
+
+.sheet-copy__subtitle {
+  margin: 4pt 0 0;
+  font-style: italic;
+}
+
+.sheet-copy > section,
+.sheet-copy > .sheet-copy__missing {
+  margin: 0 0 14pt;
+}
+
+.sheet-copy__tag {
+  display: inline-block;
+  margin: 0 0 4pt;
+  padding: 0 5pt;
+  border: 0.75pt solid #595e57;
+  border-radius: 3pt;
+  font-family: "Inter", "Inter Fallback", system-ui, sans-serif;
+  font-size: 8pt;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: #595e57;
+}
+
+.sheet-copy__passage-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8pt;
+}
+
+.sheet-copy__ref {
+  margin: 0 0 4pt;
+  font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
+  font-size: 14pt;
+}
+
+.sheet-copy__passage-head .sheet-copy__tag {
+  margin: 0;
+}
+
+.sheet-copy__words p {
+  margin: 0 0 6pt;
+}
+
+.sheet-copy__words blockquote.hbq {
+  margin: 0 0 6pt 1.5em;
+}
+
+.sheet-copy__words .hbq-line {
+  margin: 0;
+  padding-left: 1.5em;
+  text-indent: -1.5em;
+}
+
+.sheet-copy__words sup,
+.sheet-copy__notes sup {
+  line-height: 0;
+}
+
+.sheet-copy__words sup.vn {
+  font-family: "Inter", "Inter Fallback", system-ui, sans-serif;
+  font-size: 0.6em;
+  font-weight: 600;
+  color: #595e57;
+}
+
+.sheet-copy__words sup.vn a,
+.sheet-copy__words sup.vn button {
+  all: unset;
+}
+
+.sheet-copy__fnref {
+  font-size: 0.65em;
+  font-style: italic;
+  font-variant-ligatures: none;
+}
+
+/* The key-term underline belongs to the screen's lens, not to paper. */
+.sheet-copy .term {
+  text-decoration: none;
+}
+
+.sheet-copy__notes {
+  list-style: none;
+  margin: 6pt 0 0;
+  padding: 4pt 0 0;
+  border-top: 0.5pt solid #b5b8b3;
+  font-size: 9.5pt;
+  line-height: 1.35;
+}
+
+.sheet-copy__note {
+  display: flex;
+  gap: 5pt;
+  margin: 0 0 3pt;
+}
+
+.sheet-copy__note-label {
+  flex: none;
+  font-style: italic;
+  font-variant-ligatures: none;
+}
+
+.sheet-copy__note-text p {
+  display: inline;
+  margin: 0;
+}
+
+/* A code to scan (S5), beside the first passage from its chapter. */
+.sheet-copy__code {
+  float: right;
+  width: 2.3cm;
+  margin: 0 0 6pt 12pt;
+  text-align: center;
+  font-family: "Inter", "Inter Fallback", system-ui, sans-serif;
+  font-size: 7pt;
+  line-height: 1.2;
+}
+
+.sheet-copy__code-art svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.sheet-copy__code figcaption {
+  margin-top: 2pt;
+}
+
+.sheet-copy__passage::after {
+  content: "";
+  display: block;
+  clear: both;
+}
+
+/* A blank (S10): the line, with its hint beneath. On the leader's copy the
+   answer stands on the line. The width doesn't follow the answer's length,
+   which would give it away. */
+.sheet-blank {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  vertical-align: top;
+  margin: 0 0.15em;
+  line-height: 1.2;
+}
+
+.sheet-blank__line {
+  display: inline-block;
+  min-width: 6em;
+  border-bottom: 0.75pt solid #1d231c;
+  text-align: center;
+}
+
+/* A line holding a blank opens up, so the hint beneath has room. */
+.sheet-copy__words :is(p, .hbq-line):has(.sheet-blank__hint) {
+  line-height: 2;
+}
+
+.sheet-blank--participant .sheet-blank__line {
+  height: 1.1em;
+}
+
+.sheet-blank--leader .sheet-blank__line {
+  font-weight: 700;
+}
+
+.sheet-blank__hint {
+  font-family: "Inter", "Inter Fallback", system-ui, sans-serif;
+  font-size: 7.5pt;
+  font-style: italic;
+  color: #595e57;
+}
+
+.sheet-copy__rich {
+  font-size: inherit;
+}
+
+.sheet-copy__answer {
+  margin: 6pt 0 0 12pt;
+  padding: 4pt 8pt;
+  border-left: 2pt solid #0f6b33;
+}
+
+.sheet-copy__answer-label {
+  margin: 0 0 2pt;
+  font-family: "Inter", "Inter Fallback", system-ui, sans-serif;
+  font-size: 8pt;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.sheet-copy__lines {
+  margin-top: 4pt;
+}
+
+.sheet-copy__line {
+  height: 24pt;
+  border-bottom: 0.5pt solid #8a8e88;
+}
+
+.sheet-copy__terms {
+  padding: 8pt 10pt;
+  border: 0.75pt solid #1d231c;
+}
+
+.sheet-copy__terms-title {
+  margin: 0 0 4pt;
+  font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
+  font-size: 13pt;
+}
+
+.sheet-copy__term-list {
+  margin: 0;
+  padding-left: 1.1em;
+}
+
+.sheet-copy__term-list li {
+  margin: 0 0 3pt;
+}
+
+.sheet-copy__term-list .sheet-blank {
+  vertical-align: baseline;
+}
+
+.sheet-copy__terms-note {
+  margin: 6pt 0 0;
+  font-size: 9pt;
+  font-style: italic;
+}
+
+.sheet-copy__break {
+  margin: 18pt 0;
+  border-top: 1px dashed #8a8e88;
+}
+
+.sheet-copy__break::before {
+  content: "Page break";
+  display: block;
+  margin-top: -0.7em;
+  width: max-content;
+  margin-inline: auto;
+  padding: 0 6px;
+  background: #fff;
+  font-family: "Inter", "Inter Fallback", system-ui, sans-serif;
+  font-size: 0.75rem;
+  color: #595e57;
+}
+
+.sheet-copy__missing {
+  font-style: italic;
+  color: #595e57;
+}
+
+.sheet-copy__foot {
+  margin-top: 20pt;
+  padding-top: 6pt;
+  border-top: 0.5pt solid #1d231c;
+  font-size: 8.5pt;
+  line-height: 1.35;
+}
+
+.sheet-copy__foot p {
+  margin: 0 0 2pt;
+}
+
+/* ── On paper ──────────────────────────────────────────────────────────── */
+
+@media print {
+  .sheets-page {
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .sheets-page__bar,
+  .sheets-page__title,
+  .sheets-page__intro {
+    display: none !important;
+  }
+
+  .sheets-page__paper {
+    overflow: visible;
+  }
+
+  /* The page's own margins come from the paper's @page rule. */
+  .sheet-copy {
+    width: auto;
+    padding: 0;
+    box-shadow: none;
+  }
+
+  /* print.css sets every font to the serif and every color to black; a
+     sheet's named styles are the leader's choice, so they print (more
+     specific, so these win), with backgrounds kept. */
+  .sheet-copy .desk-rich span[data-font="sans"] {
+    font-family: "Inter", "Inter Fallback", system-ui, sans-serif !important;
+  }
+
+  .sheet-copy .desk-rich span[data-font="display"],
+  .sheet-copy .sheet-copy__title,
+  .sheet-copy .sheet-copy__ref,
+  .sheet-copy .sheet-copy__terms-title {
+    font-family: "Fraunces", "Fraunces Fallback", Georgia, serif !important;
+  }
+
+  .sheet-copy .desk-rich span[data-font="handwriting"] {
+    font-family: "Playpen Sans", Inter, system-ui, sans-serif !important;
+  }
+
+  .sheet-copy .desk-rich span[data-font="atkinson"] {
+    font-family: "Atkinson Hyperlegible Next Variable", Inter, system-ui, sans-serif !important;
+  }
+
+  .sheet-copy .sheet-blank__hint,
+  .sheet-copy .sheet-copy__tag,
+  .sheet-copy .sheet-copy__code,
+  .sheet-copy .sheet-copy__answer-label,
+  .sheet-copy .sheet-copy__words sup.vn {
+    font-family: "Inter", "Inter Fallback", system-ui, sans-serif !important;
+  }
+
+  .sheet-copy .desk-rich span[data-color="red"] { color: #b3261e !important; }
+  .sheet-copy .desk-rich span[data-color="blue"] { color: #1d4fb8 !important; }
+  .sheet-copy .desk-rich span[data-color="green"] { color: #0f6b33 !important; }
+  .sheet-copy .desk-rich span[data-color="purple"] { color: #6b3fa0 !important; }
+  .sheet-copy .desk-rich span[data-color="gray"],
+  .sheet-copy .sheet-blank__hint,
+  .sheet-copy .sheet-copy__words sup.vn {
+    color: #595e57 !important;
+  }
+
+  .sheet-copy .desk-rich span[data-mark] {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+  .sheet-copy .desk-rich span[data-mark="yellow"] { background-color: #ffeea3 !important; }
+  .sheet-copy .desk-rich span[data-mark="green"] { background-color: #ddefb2 !important; }
+  .sheet-copy .desk-rich span[data-mark="blue"] { background-color: #cfe4ff !important; }
+  .sheet-copy .desk-rich span[data-mark="pink"] { background-color: #ffd9e9 !important; }
+
+  .sheet-copy__break {
+    break-after: page;
+    margin: 0;
+    border: 0;
+  }
+
+  .sheet-copy__break::before {
+    display: none;
+  }
+
+  .sheet-copy__passage-head,
+  .sheet-copy__ref,
+  .sheet-copy__terms-title {
+    break-after: avoid;
+  }
+
+  /* A passage's footnotes may run onto the next page, but never start one:
+     the first stays with the verses it explains. */
+  .sheet-copy__notes {
+    break-before: avoid;
+  }
+
+  .sheet-copy__question,
+  .sheet-copy__terms,
+  .sheet-copy__code,
+  .sheet-copy__note,
+  .sheet-copy__foot {
+    break-inside: avoid;
+  }
+}

@@ -73,7 +73,10 @@ const ICON_CLOSE = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" 
  *   onAddNote?: (draft: object, trigger: Element) => void,
  *   goHere?: { can(record: object): boolean, go(record: object): void },
  *   ctx?: () => { client: string, contentVersion: string },
- *   showInText?: { can(record: object): boolean, go(record: object): void } }} options
+ *   showInText?: { can(record: object): boolean, go(record: object): void },
+ *   printNotes?: { can(): boolean, print(): Promise<void> } | null }} options
+ *   `printNotes` is "Print with my notes" (print-notes.js, M6), a button at
+ *   the foot on a Study View chapter and in Read View.
  *   `store` is null when this browser can't keep a notebook. `ctx` and
  *   `showInText` are what a change notice's card needs (change-notice.js):
  *   what a write is stamped with, and a way to take the reader to the mark on
@@ -88,7 +91,7 @@ const ICON_CLOSE = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" 
  *   `showVerse` opens the panel on "This verse" at a verse; null where the
  *   page has no such tab. `el`, `isOpen` and `showTab` are for the tour.
  */
-export function createPanel({ store, storeError, onEdit = null, onAddNote = null, goHere = null, ctx = null, showInText = null }) {
+export function createPanel({ store, storeError, onEdit = null, onAddNote = null, goHere = null, ctx = null, showInText = null, printNotes = null }) {
   const root = document.documentElement;
   const here = pageChapter();
   const greekHere = here ?? greekChapter();
@@ -428,11 +431,41 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
     const controls = panelNoteControls();
     // The widths the reader dragged, Study View's alone (widths.js).
     controls.append(resetWidthsButton("desk-panel__reset"));
+    controls.append(...printBox());
     slot.replaceWith(controls);
   }
-  else if (inReadView) slot.replaceWith(panelNoteControls({ notes: false }));
+  else if (inReadView) {
+    const controls = panelNoteControls({ notes: false });
+    controls.append(...printBox());
+    slot.replaceWith(controls);
+  }
   else if (prose) slot.replaceWith(panelNoteControls({ bookmarks: false }));
   else slot.remove();
+
+  /**
+   * "Print with my notes" (M6), a button and the line that says what it does
+   * (the line is the button's description, so it is spoken with it). None
+   * where this page can't print them or the browser keeps no notebook.
+   */
+  function printBox() {
+    if (!printNotes?.can()) return [];
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "desk-panel__print-button";
+    button.textContent = "Print with my notes";
+    button.setAttribute("aria-describedby", "deskPrintHint");
+    button.addEventListener("click", () => printNotes.print());
+    const hint = document.createElement("p");
+    hint.className = "desk-panel__print-hint";
+    hint.id = "deskPrintHint";
+    hint.textContent = inReadView
+      ? "This book on paper, with my notes beside the text and my highlights tinted."
+      : "This chapter on paper, with my notes beside the text and my highlights tinted.";
+    const box = document.createElement("div");
+    box.className = "desk-panel__print";
+    box.append(button, hint);
+    return [box];
+  }
 
   // M1 hides everything of the reader's at once, for sharing a screen, and
   // the panel lists it all, so it closes too, unless the reader hid them from

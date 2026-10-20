@@ -59,6 +59,8 @@ export default defineConfig({
         if (slug === 'notebook' || slug.startsWith('notebook/')) return false;
         // The Study Desk as a page of its own (noindex, a preview)
         if (slug === 'desk') return false;
+        // A sheet's own address (noindex, a preview, and only the reader's own sheets)
+        if (slug === 'sheets' || slug.startsWith('sheets/')) return false;
         // /read/<book> aggregate pages for books that are entirely drafts
         if (slug.startsWith('read/') && fullyDraftBooks.has(slug.slice('read/'.length))) {
           return false;

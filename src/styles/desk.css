@@ -6345,3 +6345,195 @@ p.desk-sheet__flag {
   pointer-events: none;
   background-image: linear-gradient(to right, transparent calc(50% - 1px), rgba(var(--ink-rgb), 0.5) calc(50% - 1px), rgba(var(--ink-rgb), 0.5) calc(50% + 1px), transparent calc(50% + 1px));
 }
+
+/* ── M6: Print with my notes ─────────────────────────────────── */
+
+/* The button and its line, at the foot of My Notes beside the switches. The
+   look is the Edit and Reset widths buttons'. */
+.desk-panel__print {
+  flex: 1 1 100%;
+  margin-top: 2px;
+}
+
+.desk-panel__print-button {
+  padding: 5px 10px;
+  border: 1px solid rgba(var(--ink-rgb), 0.25);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+
+.desk-panel__print-button:hover {
+  background: rgba(var(--ink-rgb), 0.07);
+}
+
+.desk-panel__print .desk-panel__print-hint {
+  margin: 6px 0 0;
+  color: rgba(var(--ink-rgb), 0.72);
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+/* What src/scripts/desk/print-notes.js adds for one print: an <aside> after
+   each block that has notes, and a closing list for notes with no block. They
+   exist only on paper, so the screen never shows them or moves for them, and
+   they are taken away again after printing. They hold no verse text, so the
+   anchor reader never meets them. */
+.desk-print-notes,
+.desk-print-strays {
+  display: none;
+}
+
+@media print {
+  /* The page's text becomes two columns, the reader's notes on the right. The
+     block and its notes are one grid row, so a note stays beside its words
+     wherever the page breaks, which absolute positioning can't promise.
+     Plain printing never has the attribute, so it never meets any of this. */
+  html[data-desk-print="notes"] .chapter-paragraphs,
+  html[data-desk-print="notes"] [data-rm-text] {
+    display: grid;
+    grid-template-columns: minmax(0, 2.15fr) minmax(0, 1fr);
+    column-gap: 16pt;
+    align-items: start;
+  }
+
+  html[data-desk-print="notes"] .chapter-paragraphs > *,
+  html[data-desk-print="notes"] [data-rm-text] > * {
+    grid-column: 1;
+    min-width: 0;
+  }
+
+  /* Read View's chapter headings and anchors, and the stubs for chapters
+     still being translated, span the page. */
+  html[data-desk-print="notes"] [data-rm-text] > .rm-chapter,
+  html[data-desk-print="notes"] [data-rm-text] > .rm-ch-anchor,
+  html[data-desk-print="notes"] [data-rm-text] > .rm-draft-stub,
+  html[data-desk-print="notes"] .desk-print-strays {
+    grid-column: 1 / -1;
+  }
+
+  html[data-desk-print="notes"] .chapter-paragraphs > .desk-print-notes,
+  html[data-desk-print="notes"] [data-rm-text] > .desk-print-notes {
+    grid-column: 2;
+    display: block;
+    align-self: start;
+    padding: 0 0 0 9pt;
+    border-left: 0.5pt solid #888;
+    font-size: calc(9.5pt * var(--reading-scale, 1));
+    line-height: 1.35;
+    --desk-note-font: "Playpen Sans", Inter, "Inter Fallback", system-ui, sans-serif;
+    --desk-note-weight: 500;
+  }
+
+  html[data-desk-print="notes"] .desk-print-strays {
+    display: block;
+    margin-top: 18pt;
+    padding-top: 8pt;
+    border-top: 0.5pt solid #888;
+    font-size: calc(9.5pt * var(--reading-scale, 1));
+    line-height: 1.35;
+    --desk-note-font: "Playpen Sans", Inter, "Inter Fallback", system-ui, sans-serif;
+    --desk-note-weight: 500;
+  }
+
+  html[data-desk-print="notes"][data-desk-note-font="plain"] .desk-print-notes,
+  html[data-desk-print="notes"][data-desk-note-font="plain"] .desk-print-strays {
+    --desk-note-font: Inter, "Inter Fallback", system-ui, sans-serif;
+    --desk-note-weight: 400;
+  }
+
+  html[data-desk-print="notes"][data-font] .desk-print-notes,
+  html[data-desk-print="notes"][data-font] .desk-print-strays {
+    --desk-note-weight: 400;
+  }
+
+  /* The notes' own face, unless the reader chose an accessibility font,
+     which prints as chosen (print.css sets the page's serif by the same
+     test, with !important, so this needs it and more specificity). */
+  html[data-desk-print="notes"]:not([data-font]) .desk-print-notes,
+  html[data-desk-print="notes"]:not([data-font]) .desk-print-notes *,
+  html[data-desk-print="notes"]:not([data-font]) .desk-print-strays,
+  html[data-desk-print="notes"]:not([data-font]) .desk-print-strays * {
+    font-family: var(--desk-note-font) !important;
+  }
+
+  html[data-desk-print="notes"] .desk-print-notes,
+  html[data-desk-print="notes"] .desk-print-strays {
+    font-weight: var(--desk-note-weight, 400);
+  }
+
+  html[data-desk-print="notes"] .desk-print-note {
+    margin: 0 0 7pt;
+    break-inside: avoid;
+  }
+
+  html[data-desk-print="notes"] .desk-print-note:last-child {
+    margin-bottom: 0;
+  }
+
+  html[data-desk-print="notes"] .desk-print-note p {
+    margin: 0;
+  }
+
+  html[data-desk-print="notes"] .desk-print-note__head {
+    margin-bottom: 1pt;
+    font-size: 0.88em;
+    break-after: avoid;
+  }
+
+  html[data-desk-print="notes"] .desk-print-note__glyph {
+    width: 1em;
+    height: 1em;
+    margin-right: 0.3em;
+    vertical-align: -0.15em;
+  }
+
+  html[data-desk-print="notes"] .desk-print-note__ref {
+    font-weight: 700;
+  }
+
+  html[data-desk-print="notes"] .desk-print-note__quote {
+    font-style: italic;
+  }
+
+  html[data-desk-print="notes"] .desk-print-note__warn {
+    margin-bottom: 1pt;
+    font-size: 0.88em;
+    font-style: italic;
+  }
+
+  html[data-desk-print="notes"] .desk-print-note__body {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  html[data-desk-print="notes"] .desk-print-strays__title {
+    margin: 0 0 6pt;
+    font-size: 1.1em;
+    font-weight: 700;
+    break-after: avoid;
+  }
+
+  /* The highlights, in the four colours' own tints (the light theme's, since
+     paper is white whatever the theme). They are Custom Highlights the
+     script paints under names of their own, which Chrome prints without the
+     "Background graphics" setting. */
+  html[data-desk-print="notes"] ::highlight(desk-print-hl-yellow) {
+    background-color: rgba(255, 210, 0, 0.42);
+  }
+
+  html[data-desk-print="notes"] ::highlight(desk-print-hl-green) {
+    background-color: rgba(160, 210, 40, 0.42);
+  }
+
+  html[data-desk-print="notes"] ::highlight(desk-print-hl-blue) {
+    background-color: rgba(70, 150, 255, 0.3);
+  }
+
+  html[data-desk-print="notes"] ::highlight(desk-print-hl-pink) {
+    background-color: rgba(255, 95, 165, 0.28);
+  }
+}

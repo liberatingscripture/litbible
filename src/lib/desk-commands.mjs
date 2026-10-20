@@ -10,8 +10,8 @@
 // A command is offered only where it can work. The ones that act on the
 // Notebook panel or the page's settings need the desk's code running, which it
 // is only on a reading surface (desk-frame.js); "This verse" and the Greek tab
-// need a Study View chapter; the ones that open the notebook's own pages work
-// anywhere.
+// need a Study View chapter, "Print with my notes" a chapter or Read View; the
+// ones that open the notebook's own pages work anywhere.
 //
 // A query reaches a command when each of its words begins one of the
 // command's words ("hide" finds "Hide my notes"; "back" finds "Save a copy of
@@ -27,7 +27,7 @@ import { searchTokens } from "./desk-search.mjs";
  *   is on }.
  */
 
-/** @type {readonly { id: string, name: (ctx: object) => string, keywords: string[], needs: "surface" | "study" | "greek" | null, href?: string, show?: (ctx: object) => boolean, hint?: string }[]} */
+/** @type {readonly { id: string, name: (ctx: object) => string, keywords: string[], needs: "surface" | "study" | "greek" | "print" | null, href?: string, show?: (ctx: object) => boolean, hint?: string }[]} */
 export const COMMANDS = Object.freeze([
   {
     id: "open-notebook",
@@ -74,6 +74,13 @@ export const COMMANDS = Object.freeze([
     hint: "On this page",
   },
   {
+    id: "print-with-notes",
+    name: () => "Print with my notes",
+    keywords: ["annotated", "paper", "pdf", "margin", "highlights"],
+    needs: "print",
+    hint: "On this page",
+  },
+  {
     id: "notebook-page",
     name: () => "Open the notebook page",
     keywords: ["everything", "all"],
@@ -108,6 +115,8 @@ function offered(command, ctx) {
   if (command.needs === "surface" && !ctx.surface) return false;
   if (command.needs === "study" && !ctx.study) return false;
   if (command.needs === "greek" && !(ctx.greek ?? ctx.study)) return false;
+  // Printing with notes works on a Study View chapter and in Read View.
+  if (command.needs === "print" && !(ctx.print ?? ctx.study)) return false;
   return command.show ? command.show(ctx) : true;
 }
 

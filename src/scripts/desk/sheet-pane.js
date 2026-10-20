@@ -51,6 +51,8 @@ import { createKeyTermsBody, createLicenseCard, createPassageBody } from "./shee
 import { createSheetText } from "./sheet-text.js";
 import { showUndo } from "./undo-bar.js";
 
+const BASE = String(import.meta.env.BASE_URL || "/").replace(/\/?$/, "/");
+
 const TYPE_NAMES = {
   passage: "Passage",
   text: "Your text",
@@ -344,7 +346,14 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
       showList();
     });
     status.textContent = "";
-    header.append(back, status);
+    // The sheet's own address prints and copies it (3i), in a tab of its own
+    // so the desk stays as it is.
+    const print = make("a", "desk-sheet__btn desk-sheet__btn--quiet desk-sheet__print", "Print or copy…");
+    print.href = `${BASE}sheets/?id=${encodeURIComponent(sheet.id)}`;
+    print.target = "_blank";
+    print.rel = "noopener";
+    print.title = "Open the leader and participant copies, to print or to copy into Word (opens in a new tab)";
+    header.append(back, print, status);
     wrap.append(header);
 
     if (readOnly) {

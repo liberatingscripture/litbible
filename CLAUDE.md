@@ -246,7 +246,9 @@ src/
                      #   write plans in desk-store-core; the sheet record,
                      #   its checks and its formatted-text sanitizer
                      #   (desk-sheet-format), the changes a sheet takes
-                     #   (desk-sheets) and its passages (desk-sheet-passages);
+                     #   (desk-sheets) and its passages (desk-sheet-passages),
+                     #   and its copies on paper (desk-sheet-copy, with
+                     #   qr-svg.mjs, the one QR drawing);
                      #   merging two copies
                      #   of a notebook (desk-merge); finding a pinned
                      #   footnote again (desk-footnotes); the notebook page
@@ -392,6 +394,7 @@ workers/             # Cloudflare Workers, deployed separately via wrangler (NOT
 | `/search` | `search.astro` | Full search UI (verse index + Pagefind) |
 | `/notebook`, `/notebook/help` | `notebook.astro`, `notebook/help.astro` | The Study Desk preview's notebook page and help page. noindex, out of the sitemap and Pagefind; empty for anyone without the preview (`?desk=on`). See "The Study Desk preview" |
 | `/desk` | `desk.astro` | The Study Desk as a page of its own (D9): one to four panes. Same treatment as `/notebook`: noindex, out of the sitemap and Pagefind, and a short note without the preview. See "The Study Desk preview", rule 18 |
+| `/sheets` | `sheets.astro` | A sheet's own address (3i): `/sheets/` lists the reader's sheets, `/sheets/?id=<id>` shows one as a leader or participant copy, to print or copy for Word. Never edits. Same treatment as `/desk`. See "The Study Desk preview", rule 19 |
 | `/release-notes` | `release-notes.astro` | "What's new": the release notes by month, filterable by book and kind of change. `/translation-updates.xml` (`translation-updates.xml.js`) is the same record as RSS. See "Release notes are automated" below |
 | `/apps` | `apps.astro` | Mobile-apps promo page (footer-linked). Body design ported from `BDRhodes/LIT-app-Promo`; section content lives in the `callouts`/`examples`/`seasons` collections; scoped styles in `src/styles/pages/apps.css`; components under `src/components/apps/`. Uses `bg="white"` (near-white surface). |
 | `/app-support` | `app-support.astro` | App support contact form (linked from inside the apps, not the site nav; `/app-support/thanks` is the native-POST fallback success page) |
@@ -424,7 +427,7 @@ the sitemap filter live in `astro.config.mjs`.
 | `build-bracket-marker-font.mjs` | `public/fonts/bracket-markers.otf` — subsets the ⟦/⟧ disputed-passage glyphs out of Noto Sans Math, since the site's own webfonts are Latin-only. **Not** in the build — run by hand if the source glyphs ever change. See "Bracketed passages" below. |
 | `build-text-critical-font.mjs` | `public/fonts/text-critical-signs.otf` — the six SBLGNT text-critical signs (⸀ ⸁ ⸂ ⸃ ⸄ ⸅, U+2E00–2E05) subset from full Cardo (Google Fonts' TTF, OFL; Fontsource's Cardo subsets lack them), registered under Crimson Text and Inter in `greek-hebrew-fonts.css`. **Not** in the build. |
 | `build-greek.mjs` | `public/greek/` — the Study Desk's Greek tab data: one file per chapter (SBL's SBLGNT 1.2 text and paragraphs, MorphGNT's lemmas, parsing and word numbers, the apparatus, two borrowed passages) plus lexicon shards (UBS, STEPBible brief, full LSJ), and `search/`, the Greek search index (a lemma list, then occurrences sharded by lemma, each word with its parsing, and `parse/`, every word by its parsing, for searches with no word in them). Pure rules in `lib/greek-core.mjs` (unit-tested); the search index's folding comes from `src/lib/greek-search.mjs`, so build and query fold alike. **Not** in the build: CI has no copy of the sources, which live outside the repo (`GREEK_SOURCES_DIR`, `MORPHGNT_DIR`). See "The Study Desk preview", rule 14. |
-| `build-apps-qr.mjs` | `public/images/apps-qr.svg` — the QR code the app announcement shows on a computer, pointing at `https://litbible.net/apps/` with no tracking parameter. Uses `qrcode-generator` (MIT, no dependencies), a devDependency used only by this script. **Not** in the build — run by hand if the address ever changes. |
+| `build-apps-qr.mjs` | `public/images/apps-qr.svg` — the QR code the app announcement shows on a computer, pointing at `https://litbible.net/apps/` with no tracking parameter. Draws through `src/lib/qr-svg.mjs`, the one QR drawing, which `/sheets/` also loads for its printed codes, so `qrcode-generator` (MIT, no dependencies) is a runtime dependency. **Not** in the build — run by hand if the address ever changes. |
 | `build-alignment.mjs` | `src/data/alignment/` — scans published chapters for glossary-term renderings, then checks each against MorphGNT. **Not** in the build; its output is committed and merges with prior human review. See The Alignment Dataset below. |
 | `alignment-words/server.mjs` | `npm run review:words` — phase 2's localhost tool (`core.mjs` = pure format and rules, `store.mjs` = fs + corpus, `ui/` = vanilla HTML/CSS/JS, no shared code with the glossary tool's UI). See "Phase 2 tooling" under The Alignment Dataset. |
 | `alignment-review/server.mjs` | `npm run review:alignment` — the localhost review UI (`store.mjs` = fs + corpus, `review-core.mjs` = pure logic *also served to the browser*, `ui/` = vanilla HTML/CSS/JS). Node builtins only, no deps. |
@@ -2264,7 +2267,7 @@ collection); they're read directly by the intro pages and the API manifest.
   panel doesn't count as outside, and a panel is placed clear of it (see
   below).
 - **The Study Desk preview** (STUDY-DESK.md, phases 1a to 1d, 1f and 1h,
-  2a's B3 and N4, and phase 3's 3b to 3g) is in production but
+  2a's B3 and N4, and phase 3's 3b to 3i) is in production but
   switched off for everyone: `?desk=on` turns it on in one browser on a
   computer, `?desk=off` turns it off. STUDY-DESK.md is the record; what a
   change elsewhere in the site has to respect:
@@ -2752,6 +2755,50 @@ collection); they're read directly by the intro pages and the API manifest.
      - **The page fills the window and its footer is hidden**
        (`html[data-desk-workspace]` in `desk.css`), so each pane scrolls on
        its own.
+  19. **Phase 3i is a sheet on paper** (built 2026-10-20; STUDY-DESK.md, S4,
+     S5, S9, C27 and "Order of work", 3i): `src/pages/sheets.astro`, which
+     `desk-gate.js` fills with `src/scripts/desk/sheet-page.js` when
+     `[data-sheet-page]` is present. It shows, prints and copies a sheet and
+     **never writes a record** (sheets are edited on /desk only; the Sheet
+     pane's "Print or copy…" opens it in a new tab). Six things to know:
+     - **`src/lib/desk-sheet-copy.mjs` is the rules** (pure, tested): which
+       modules each copy prints (`modulesForCopy`: the participant's leaves
+       out Leader only), one code per chapter (`chapterCodes`, the address
+       form of STUDY-DESK-FORMAT.md, "Addresses"), the key terms box where
+       its words are blanked, the paper (`defaultPaper`, `pageRule`), and
+       `sheetHtmlForShow`, which sanitizes a sheet's formatted words again
+       and links their references. **A new place that shows a sheet's
+       formatted words uses it**, never `innerHTML` of the stored html.
+     - **`desk/sheet-copy.js` draws a copy from the Sheet pane's own reading**:
+       `readPassage`, `passageWords` and `locateBlanks` are exported from
+       `sheet-lit.js` for it, so the editor and the paper can't disagree
+       about which words a passage, a blank or a footnote covers.
+       `passageWords`' `keepNotes` keeps the printing footnotes' letters as
+       plain superscripts.
+     - **The printed codes are `src/lib/qr-svg.mjs`**, shared with
+       `build-apps-qr.mjs`; `qrcode-generator` is a runtime dependency for
+       that reason, loaded only by the sheet page's chunk.
+     - **Copy for Word** (`desk/sheet-word.js`) reads the copy on screen and
+       writes HTML with inline styles plus plain text, so what is pasted is
+       what would print, codes aside.
+     - **The paper is `localStorage['lit-sheet-paper']`** (Letter or A4,
+       guessed from the reader's languages until chosen), named in /privacy's
+       paragraph. Its `@page` rule is added as the page's last style, after
+       print.css. On screen the copy is a white sheet of that width in either
+       theme, and `sheets-page.css` lets the reader's named fonts, colors and
+       backgrounds print, which print.css otherwise turns to black serif.
+     - **Printing with my notes (M6) needs no sheet**: "Print with my notes"
+       in the My Notes foot and the command list, on Study View chapters and
+       Read View (`desk/print-notes.js`, rules in
+       `src/lib/desk-print-notes.mjs`). For that one print it sets
+       `html[data-desk-print="notes"]`, inserts a print-only
+       `aside.desk-print-notes` after each block holding a note's first word
+       (`display: none` on screen, `aria-hidden`, no `[data-verse]` text, so
+       no reader of the page sees it), paints the highlights as their own
+       Custom Highlights (`desk-print-hl-*`, which Chrome prints), and undoes
+       all of it on `afterprint`. The grid that sets the notes beside the
+       text is in `desk.css`'s last section. Plain Ctrl+P never has the
+       attribute and prints as before.
 - **Every link that leaves the site opens in a new tab** (owner, 2026-10-01).
   For rendered bodies that is `openExternalLinks` in `src/lib/external-links.mjs`
   (pure, unit-tested), called from `linkRefs`, the one function footnotes,

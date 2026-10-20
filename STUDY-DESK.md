@@ -12,7 +12,20 @@ conversations that produced it.
 Many ideas here were weighed and decided, some were declined, and the reasons
 are recorded so they aren't re-argued.
 
-## Where things stand (as of 2026-10-19)
+## Where things stand (as of 2026-10-20)
+
+- **Phase 3i is built on the preview** (2026-10-20): a sheet on paper. A
+  sheet's own address, `/sheets/?id=…` (opened from the Sheet pane's "Print
+  or copy…", with `/sheets/` listing them all), shows it as a **leader copy**
+  (every part, the blanks' answers and the questions' answers) or a
+  **participant copy** (no Leader only parts, a line with its hint for each
+  blank, lines to write on), on **US Letter or A4**, with **a code per
+  chapter** that opens the passage in the app or on the site, and the LIT's
+  notice and the chapters' addresses at the foot. **Print** prints it, and
+  **Copy for Word** copies it with its formatting. **Printing a chapter or a
+  whole book with your notes and highlights** (M6) is a button in the
+  Notebook panel. Smaller calls for BVJ to judge are in the decision log,
+  "Phase 3i". Next: 3j, present mode.
 
 - **Phase 3h is built on the preview** (2026-10-19): a sheet now knows
   about the LIT. Each passage on a sheet has its blanks (select words and
@@ -590,7 +603,7 @@ plan as a whole was accepted; nothing was declined except where stated).
     work", 1c.
 - **M6. Print my annotated chapter or book.** A chapter, or a whole book from
   Read View, printed with your notes in the margin and highlights shown. N9
-  is the blank version. New. Small. **Decided: yes.**
+  is the blank version. New. Small. **Decided: yes.** **Built on the preview 2026-10-20** ("Order of work", 3i).
 - **M11. Notes on a footnote.** A note attaches to a footnote by quoting its
   words, not its letter, so it survives relabeling; N3's notice applies when
   the footnote is rewritten. New. Medium. **Decided: yes.**
@@ -681,14 +694,14 @@ plan as a whole was accepted; nothing was declined except where stated).
   blank and its answer is on the leader's copy, a "For discussion" list, and
   at the foot `LIT_CREDIT_LINE` word for word plus each chapter's address
   ("litbible.net/romans-8 · litbible.net/galatians-5"). Borrowed (classroom
-  handouts, Logos Sermon Builder). Medium. **Decided: blanks are in.**
+  handouts, Logos Sermon Builder). Medium. **Decided: blanks are in.** **Built on the preview 2026-10-20** ("Order of work", 3i).
 - **S5. Printed codes that open the app.** Each chapter on a printed sheet
   carries a QR code: the app if installed, the website otherwise. The site's
   `apple-app-site-association` already claims every book's chapter addresses
   (`/<book>-*`) and `/glossary`; `assetlinks.json` uses `handle_all_urls`, and
   the Android app keeps its own path list, which is worth checking. The
   `qrcode-generator` library would move from a build-only devDependency to
-  something the page loads (C21). New. Small. Proposed.
+  something the page loads (C21). New. Small. Proposed. **Built on the preview 2026-10-20** ("Order of work", 3i).
 - **S6. Present mode, with a reveal.** Full screen, one passage at a time,
   large type, arrow keys, for a projector or a video call; a projector screen
   stays dark in either theme. An optional reveal (R) shows a key term's
@@ -717,7 +730,7 @@ plan as a whole was accepted; nothing was declined except where stated).
 - **S9. Copy for Word and Google Docs.** A rich copy keeping headings,
   italics and the credit line, since most bulletins are built in Word.
   Sefaria's export needs a Google account; this needs nothing. Borrowed
-  (Sefaria). Small. Proposed.
+  (Sefaria). Small. Proposed. **Built on the preview 2026-10-20** ("Order of work", 3i).
 - **S10. Blanks where the key terms go.** A participant copy can leave any
   words blank, with answers on the leader's copy. The LIT-only kind: blank the
   translation's key terms and print the traditional word beneath as the hint
@@ -4296,6 +4309,14 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      build-only dependency to something the page loads (C21) and checks
      the app link files; the Word copy (S9); annotated printing (M6),
      which needs no sheet and can move earlier or later.
+     **Built on the preview 2026-10-20** (decision log, "Phase 3i"):
+     `/sheets/` is `src/pages/sheets.astro` and `desk/sheet-page.js`; the
+     copies are drawn by `desk/sheet-copy.js` from the rules in
+     `src/lib/desk-sheet-copy.mjs`, the codes by `src/lib/qr-svg.mjs`
+     (shared with the app announcement's code), and the Word copy by
+     `desk/sheet-word.js`. The paper is kept in `lit-sheet-paper`, named in
+     /privacy. M6 is `desk/print-notes.js` with its rules in
+     `src/lib/desk-print-notes.mjs`.
    - **3j. Present mode.** S6 with the reveal, M3's code on its first
      screen, then M2's presenter view on two screens.
    - **3k. Getting started and sharing.** Sheets from a search or topic
@@ -5488,6 +5509,80 @@ split itself is still a proposal BVJ worked within but hasn't confirmed.
   values, so themes, print and contrast decide how they look, and a
   reader's accessibility font still wins on screen. Left out: images and
   tables. The set can grow later but never shrink.
+
+### 2026-10-20 (Phase 3i: paper and copies)
+
+- **Built** as 3i set out: the sheet's own address with leader and
+  participant copies (S4), US Letter or A4 with the Greek and Hebrew faces
+  already registered by range (C27), a printed code per chapter (S5), Copy
+  for Word (S9), and printing a chapter or book with the reader's notes
+  (M6). Present (3j) and "Copy into my desk" for a shared sheet (3k) are
+  still to come, so the page has neither yet.
+- **The app link files, checked** (S5): the iOS file claims `/<book>-*` for
+  all 27 books, so a code's address (`litbible.net/romans-8/#v1-4`) opens
+  the iOS app where it is installed; Android's `assetlinks.json` delegates
+  every address (`handle_all_urls`), and which paths the Android app itself
+  accepts is in its own manifest, for BDR to confirm.
+- **Smaller calls made in building it, for BVJ to judge on the preview**
+  (recommendations, not decisions):
+  - **The address**: `/sheets/?id=<id>` for one sheet, `/sheets/` for the
+    list. The id is random and means nothing outside the reader's own
+    notebook. Shared sheets (3k) will use the part after the `#`, so the two
+    never clash. The Sheet pane opens it with "Print or copy…" in a new tab.
+  - **The copies are called "Leader copy" and "Participant copy"**, as the
+    mock's header had it, and the copy's name ends the subtitle line
+    ("Thursday group · October 2, 2026 · Participant copy").
+  - **A blank on the participant copy is a line of one width**, whatever
+    the answer's length (a longer line for a longer word would give it
+    away), with its hint in small italics beneath. The leader copy shows
+    the answer in bold on the line, with the same hint. A verse number or
+    footnote letter inside blanked words is kept, after the line. A paragraph holding a blank with a hint opens to double spacing, so the hint has room, which makes it read looser than the passages around it.
+  - **The key terms box on the participant copy** prints a rendering as a
+    blank when it shares a word stem with a blank on that copy (the
+    footnote picker's rule), and says beneath: "One term is left blank here.
+    Its answer is on the leader copy."
+  - **Footnotes print after their passage**, with the chapter's own letters
+    kept in the words, so each stays with the verse it explains.
+  - **A code per chapter, beside the first passage from it**, opening that
+    passage's verses ("Scan to read Romans 8"). On both copies, on by
+    default, with a "Codes to scan" box that isn't remembered. The foot
+    lists every chapter's address in words.
+  - **Parts marked Leader only carry a small "Leader only" tag** on the
+    leader copy. Questions aren't numbered; an answer prints in a box under
+    its question on the leader copy only.
+  - **The paper is guessed from the reader's languages** (Letter in the
+    United States, Canada, Mexico, the Philippines and the Latin American
+    countries that use it; A4 elsewhere) and remembered once chosen. The
+    page draws the copy as a white sheet at that paper's width, in either
+    theme.
+  - **The reader's own named styles print**: their fonts, colors and
+    backgrounds, which the site's print stylesheet otherwise turns to black
+    serif. The passages print as Study View's do.
+  - **Copy for Word copies the copy on screen**: headings, italics, the
+    reader's colors, blanks as an underlined space with the hint after it
+    in brackets (a word processor can't stack it beneath), footnotes after
+    each passage, and the notice with the addresses. The codes are left out.
+  - **A sheet's own page counts as scripture for the announcement slot**,
+    as /desk does, so the app announcement never opens over a sheet.
+  - **Printing with my notes (M6) is a button**, "Print with my notes," in
+    the Notebook panel's My Notes foot, with a command of the same name, on
+    Study View chapters and in Read View (the whole book). Ordinary printing
+    (Ctrl+P) is unchanged: text and footnotes only.
+  - **It prints what was asked for, whatever the screen shows**: notes and
+    highlights print even when "My notes" is off or hidden (M1), and in Read
+    View even though its own highlights are off by default. Bookmarks are
+    left out.
+  - **On paper, a note sits beside the paragraph or poetry block holding its
+    first word**, in a column to the right of the text, headed by its
+    reference and the first eight words it hangs on, in the reader's note
+    font. A note whose words changed prints beside its verse, saying "The
+    wording has changed since I wrote this." A note with no verse on the
+    page (a draft in Read View, say) goes in a closing list, "Notes that are
+    not on these pages." Highlights print as their tints.
+  - **Known limits**: a block with notes much taller than itself leaves a
+    gap below it; only Chrome was tested, so whether Firefox and Safari
+    print the highlight tints, and whether Safari allows printing after the
+    notes are gathered, is still to check.
 
 ### 2026-10-19 (Phase 3h: what a sheet knows about the LIT)
 

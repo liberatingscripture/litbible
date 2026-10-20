@@ -145,7 +145,7 @@ export async function readPassage(m) {
 }
 
 /** The passage's blanks, each with where it is today. */
-function locateBlanks(view, m) {
+export function locateBlanks(view, m) {
   return (m.blanks ?? []).map((b) => ({ blank: b, ...locateBlank(view.chapter, b, view.at, m.endVerse ?? m.verse) }));
 }
 
@@ -158,8 +158,15 @@ function locateBlanks(view, m) {
  * the copy reads as anchor text exactly as the chapter does: `base` is the
  * chapter offset where the copy's own anchor text begins (null when the two
  * can't be lined up, and then nothing can be blanked).
+ *
+ * `keepNotes`, for a copy on paper (/sheets/), is the footnotes that print:
+ * their letters stay in the words as plain superscripts, so each note can be
+ * found beside its verse. Anchor text never counts a footnote letter, so the
+ * offsets are the same either way.
+ *
+ * @param {{ keepNotes?: Set<string> | null }} [opts]
  */
-function passageWords(view, m) {
+export function passageWords(view, m, { keepNotes = null } = {}) {
   const { source, chapter, at } = view;
   const r = offsetsToRange(chapter, at.start, at.end);
   if (!r) return null;
@@ -193,7 +200,16 @@ function passageWords(view, m) {
       before.deleteContents();
     }
   }
-  words.querySelectorAll("sup.fn-ref").forEach((s) => s.remove());
+  words.querySelectorAll("sup.fn-ref").forEach((s) => {
+    const id = (s.querySelector('a[href^="#"]')?.getAttribute("href") ?? "").slice(1);
+    if (!keepNotes?.has(id)) {
+      s.remove();
+      return;
+    }
+    const letter = make("sup", "fn-ref sheet-copy__fnref", view.labels.get(id) ?? s.textContent.trim());
+    letter.dataset.note = id;
+    s.replaceWith(letter);
+  });
   words.querySelectorAll("[id]").forEach((el) => el.removeAttribute("id"));
   words.querySelectorAll("[aria-describedby], [aria-labelledby]").forEach((el) => {
     el.removeAttribute("aria-describedby");
