@@ -2803,6 +2803,17 @@ collection); they're read directly by the intro pages and the API manifest.
        all of it on `afterprint`. The grid that sets the notes beside the
        text is in `desk.css`'s last section. Plain Ctrl+P never has the
        attribute and prints as before.
+     - **Printing with room to write (N9) is M6's blank sibling**: the
+       button right after it in the My Notes foot, and the command
+       `print-with-room`. `desk/print-room.js` only stamps
+       `html[data-desk-print="room"]`, waits for the print fonts (reusing
+       `print-notes.js`'s bounded `printFonts`), prints, and removes the
+       attribute on `afterprint`. It reads no notebook, so unlike M6 it is
+       offered even where the browser keeps none. The look is a background on
+       the scripture container (ruled lines and a left rule on the right 35%,
+       text held in by padding), in `desk.css` beside M6's section, so the
+       rules run unbroken across page breaks; footnotes and the notice stay
+       full width after it.
   20. **Phase 3j is present mode** (built 2026-10-20; STUDY-DESK.md, S6, M2,
      M3 and "Order of work", 3j), on the sheet's own page:
      `src/scripts/desk/sheet-present.js`, opened by sheet-page.js's

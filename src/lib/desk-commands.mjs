@@ -10,7 +10,8 @@
 // A command is offered only where it can work. The ones that act on the
 // Notebook panel or the page's settings need the desk's code running, which it
 // is only on a reading surface (desk-frame.js); "This verse" and the Greek tab
-// need a Study View chapter, "Print with my notes" a chapter or Read View; the
+// need a Study View chapter, "Print with my notes" and "Print with room to
+// write" a chapter or Read View; the
 // ones that open the notebook's own pages work anywhere.
 //
 // A query reaches a command when each of its words begins one of the
@@ -81,6 +82,13 @@ export const COMMANDS = Object.freeze([
     hint: "On this page",
   },
   {
+    id: "print-with-room",
+    name: () => "Print with room to write",
+    keywords: ["journal", "journaling", "paper", "pdf", "margin", "ruled", "lines", "blank"],
+    needs: "print",
+    hint: "On this page",
+  },
+  {
     id: "notebook-page",
     name: () => "Open the notebook page",
     keywords: ["everything", "all"],
@@ -115,7 +123,8 @@ function offered(command, ctx) {
   if (command.needs === "surface" && !ctx.surface) return false;
   if (command.needs === "study" && !ctx.study) return false;
   if (command.needs === "greek" && !(ctx.greek ?? ctx.study)) return false;
-  // Printing with notes works on a Study View chapter and in Read View.
+  // Printing (with notes, or with room to write) works on a Study View
+  // chapter and in Read View. Neither needs the notebook to be there.
   if (command.needs === "print" && !(ctx.print ?? ctx.study)) return false;
   return command.show ? command.show(ctx) : true;
 }

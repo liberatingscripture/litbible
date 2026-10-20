@@ -27,6 +27,7 @@ import { fitGlossaryTitles } from "./glossary-titles.js";
 import { createTour } from "./tour.js";
 import { initCommands } from "./commands.js";
 import { createPrintNotes } from "./print-notes.js";
+import { createPrintRoom } from "./print-room.js";
 
 /**
  * Go to a highlight's verse on this page by its ordinary address (`#v3`,
@@ -116,9 +117,12 @@ async function start() {
   const here = margin ?? readMarks;
   // "Print with my notes" (M6): the panel's button and the command both start it.
   const printNotes = createPrintNotes({ store });
+  // "Print with room to write" (N9): the blank version, which reads no notebook.
+  const printRoom = createPrintRoom();
   const panel = createPanel({
     store,
     printNotes,
+    printRoom,
     storeError,
     onEdit: store ? edit : null,
     onAddNote: store ? addNote : null,
@@ -130,7 +134,7 @@ async function start() {
   });
   initActions({ store, ctx, showVerse: panel.showVerse });
   initRibbonFollow({ store, ctx });
-  initCommands({ panel, printNotes });
+  initCommands({ panel, printNotes, printRoom });
   initGreekLink({ panel });
   initProseActions({ store, addNote });
   // The tour (D8): started by the reader, never by itself (tour.js).
