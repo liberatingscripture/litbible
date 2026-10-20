@@ -22,12 +22,14 @@
 // - **The LIT pane last scrolled, clicked or typed in is the active one**,
 //   marked "Leading" when more than one is open, and This verse, Greek, and
 //   Footnotes follow it unless their "Stay here" is pressed.
-// - **Until the LIT pane comes (3e), the following panes share one passage**
-//   (BVJ, 2026-10-19, option A): `layout.place`, set from any of them (the
-//   passage picker at a pane's top, This verse's Previous and Next, scrolling
-//   the Greek), so they move together. "Stay here" gives a pane its own
-//   passage, `pin.at`, which only it moves. The place starts at the reader's
-//   Continue reading place, or Matthew 1.
+// - **Each LIT pane keeps where its reader is** (`at`, 3e), and the active
+//   one's is the passage the following panes share, `layout.place`, so they
+//   follow it. They lead back too: a following pane's picker, This verse's
+//   Previous and Next, a footnote's verse, or scrolling the Greek move the
+//   active LIT pane, which moves the rest. With no LIT pane open they share
+//   the place among themselves (3d, BVJ's option A). "Stay here" gives a pane
+//   its own passage, `pin.at`, which only it moves. The place starts at the
+//   reader's Continue reading place, or Matthew 1.
 //
 // The layout is kept in localStorage['lit-desk-layout'] (named in /privacy's
 // paragraph), written on every change: the last layout, the reader's own
@@ -60,6 +62,8 @@ import {
   setPin,
   setPlace,
   placeFor,
+  litPlace,
+  setLitAt,
   splitPane,
   writeSaved,
 } from "../../lib/desk-layout.mjs";
@@ -162,7 +166,11 @@ async function start() {
     if (greek) greek.inst.selectWord(passage.verse, t, { focus: true });
     else announce("Open a Greek pane on this chapter to see the word.");
   };
-  const env = { store, storeError, onEdit, ctx, openGreekWord };
+  // The draft chapters of each book, written at build (desk.astro), so the
+  // LIT pane shows a run of them as one stub without fetching each.
+  let drafts = {};
+  try { drafts = JSON.parse(document.getElementById("desk-drafts")?.textContent || "{}") ?? {}; } catch (_) {}
+  const env = { store, storeError, onEdit, ctx, openGreekWord, drafts };
 
   document.documentElement.dataset.deskWorkspace = "";
   root.replaceChildren();
@@ -315,18 +323,34 @@ async function start() {
     follow();
   }
 
-  /** The passage a following pane shows now. */
-  const passageOf = (id) => parsePassage(placeFor(layout, id)) ?? parsePassage(layout.place) ?? startingPassage(null);
+  /** The passage a pane shows now: a LIT pane's own, a following pane's own or the shared one. */
+  const passageOf = (id) => parsePassage(litPlace(layout, id) ?? placeFor(layout, id))
+    ?? parsePassage(layout.place) ?? startingPassage(null);
 
-  /** Move a following pane: its own passage when it stays put, else the one the following panes share. */
+  /**
+   * A pane's passage changed. A LIT pane is telling where its reader is; a
+   * following pane that stays put moves only itself; one that follows moves
+   * the active LIT pane (or, with none open, the shared place), and with it
+   * every pane that follows.
+   */
   function setPassageOf(id, passage) {
     const at = formatPassage(passage);
     const pane = findPane(layout.root, id);
     if (!at || !pane) return;
-    commit(pane.pin ? setPin(layout, id, true, at) : setPlace(layout, at), { draw: false });
+    if (pane.kind === "lit") {
+      const rec = paneEls.get(id);
+      if (rec) rec.at = at; // it is already there
+      commit(setLitAt(layout, id, at), { draw: false });
+    } else if (pane.pin) {
+      commit(setPin(layout, id, true, at), { draw: false });
+    } else if (findPane(layout.root, layout.active)?.kind === "lit") {
+      commit(setLitAt(layout, layout.active, at), { draw: false });
+    } else {
+      commit(setPlace(layout, at), { draw: false });
+    }
   }
 
-  /** Give each following pane its passage, when it has moved. */
+  /** Give each pane that is moved (LIT and following) its passage, when it has changed. */
   function follow() {
     for (const pane of panes(layout.root)) {
       const rec = paneEls.get(pane.id);
@@ -393,15 +417,16 @@ async function start() {
       body.addEventListener("pointerdown", touch);
       body.addEventListener("focusin", touch);
       body.addEventListener("keydown", touch);
+      // Not "scroll": a LIT pane scrolls itself when it loads a chapter
+      // above or is sent somewhere, and that isn't the reader working in it.
       body.addEventListener("wheel", touch, { passive: true });
-      body.addEventListener("scroll", touch, { capture: true, passive: true });
     }
     if (rec.kind !== pane.kind) {
       rec.inst?.destroy();
       rec.body.replaceChildren();
       rec.kind = pane.kind;
-      // A following pane starts at its passage; follow() moves it after.
-      rec.at = isFollower(pane.kind) ? formatPassage(passageOf(pane.id)) : null;
+      // A LIT or following pane starts at its passage; follow() moves it after.
+      rec.at = isFollower(pane.kind) || pane.kind === "lit" ? formatPassage(passageOf(pane.id)) : null;
       rec.inst = mountPane(pane.kind, rec.body, env, {
         id: pane.id,
         get: () => passageOf(pane.id),

@@ -23,14 +23,19 @@
 // information for keyboard and screen-reader readers.
 //
 // The Display tray's "Key terms" box turns it off (html[data-terms="off"]).
+//
+// Everything per chapter lives behind attachTermLens(container, data), so a
+// page can hold several chapters at once, each with its own data: this module
+// attaches the one Study View page it finds on load, and /desk's LIT pane
+// attaches each chapter it fetches through the same export.
 import { showPanel, closePanel, currentPanel } from "./lit-panel.js";
 
 const OPEN_DELAY = 350;
 const CLOSE_DELAY = 250;
 
 const dataEl = document.getElementById("term-lens-data");
-const data = dataEl ? JSON.parse(dataEl.textContent || "null") : null;
-const container = document.querySelector(".chapter-paragraphs");
+const pageData = dataEl ? JSON.parse(dataEl.textContent || "null") : null;
+const pageContainer = document.querySelector(".chapter-paragraphs");
 
 const lensOff = () => document.documentElement.getAttribute("data-terms") === "off";
 
@@ -92,7 +97,7 @@ function piecesFor(index, s, e) {
   return pieces;
 }
 
-function placeMarks() {
+function placeMarks(container, data) {
   if (!data?.marks?.length || !container) return;
   const byVerse = new Map();
   const spansOf = (v) => {
@@ -145,7 +150,7 @@ function placeMarks() {
 
 /* ── The card ───────────────────────────────────────────────────────── */
 
-function markOf(el) {
+function markOf(data, el) {
   const span = el?.closest?.(".term");
   if (!span || lensOff()) return null;
   const mark = data.marks[Number(span.dataset.mark)];
@@ -153,7 +158,7 @@ function markOf(el) {
 }
 
 /** Every piece of one mark (a term can cross an <em>), in order. */
-function markText(i) {
+function markText(container, i) {
   return [...container.querySelectorAll(`.term[data-mark="${i}"]`)]
     .map((s) => s.textContent)
     .join("")
@@ -161,7 +166,7 @@ function markText(i) {
 }
 
 /** The marks of one rendering: just this one, or every piece of a split one. */
-function groupOf(span, mark) {
+function groupOf(data, span, mark) {
   if (mark.g === undefined) return [Number(span.dataset.mark)];
   return data.marks.flatMap((m, i) => (m.g === mark.g ? [i] : []));
 }
@@ -173,23 +178,26 @@ function groupOf(span, mark) {
  * review tool gives it. A piece another term claimed was never placed, so it
  * has no text here and drops out.
  */
-function renderingText(span, mark) {
-  return groupOf(span, mark).map(markText).filter(Boolean).join(" … ");
+function renderingText(container, data, span, mark) {
+  return groupOf(data, span, mark)
+    .map((i) => markText(container, i))
+    .filter(Boolean)
+    .join(" … ");
 }
 
 /** Underline a split rendering's other pieces with the one under the pointer. */
-function lightSiblings(span, mark, on) {
+function lightSiblings(container, data, span, mark, on) {
   if (mark.g === undefined) return;
-  for (const i of groupOf(span, mark)) {
+  for (const i of groupOf(data, span, mark)) {
     for (const el of container.querySelectorAll(`.term[data-mark="${i}"]`)) {
       el.classList.toggle("is-sibling-hover", on);
     }
   }
 }
 
-function buildCard(span, mark) {
+function buildCard(container, data, span, mark) {
   const term = data.terms[mark.id];
-  const word = renderingText(span, mark);
+  const word = renderingText(container, data, span, mark);
 
   const panel = document.createElement("div");
   panel.setAttribute("role", "dialog");
@@ -251,8 +259,8 @@ function buildCard(span, mark) {
 let hoverTimer = 0;
 let closeTimer = 0;
 
-function openCard(span, mark, { hover }) {
-  const panel = buildCard(span, mark);
+function openCard(container, data, span, mark, { hover }) {
+  const panel = buildCard(container, data, span, mark);
   showPanel(span, panel, {
     restoreFocus: null,
     extra: { kind: "term", hover },
@@ -273,34 +281,34 @@ function scheduleClose() {
   }, CLOSE_DELAY);
 }
 
-function wire() {
+function wire(container, data, signal) {
   // Mouse hover. As with reference previews, a panel someone opened on
   // purpose (the verse menu, a footnote, the selection bar) is never
   // replaced by one that merely passed under the pointer.
   container.addEventListener("pointerover", (e) => {
     if (e.pointerType !== "mouse") return;
-    const hit = markOf(e.target);
+    const hit = markOf(data, e.target);
     if (!hit) return;
-    lightSiblings(hit.span, hit.mark, true);
+    lightSiblings(container, data, hit.span, hit.mark, true);
     clearTimeout(closeTimer);
     const p = currentPanel();
     if (p?.trigger && p.kind === "term" && p.trigger.dataset.mark === hit.span.dataset.mark) return;
     if (p && !(p.kind === "term" && p.hover)) return;
     clearTimeout(hoverTimer);
-    hoverTimer = setTimeout(() => openCard(hit.span, hit.mark, { hover: true }), OPEN_DELAY);
-  });
+    hoverTimer = setTimeout(() => openCard(container, data, hit.span, hit.mark, { hover: true }), OPEN_DELAY);
+  }, { signal });
   container.addEventListener("pointerout", (e) => {
     if (e.pointerType !== "mouse") return;
-    const hit = markOf(e.target);
+    const hit = markOf(data, e.target);
     if (!hit || hit.span.contains(e.relatedTarget)) return;
-    lightSiblings(hit.span, hit.mark, false);
+    lightSiblings(container, data, hit.span, hit.mark, false);
     clearTimeout(hoverTimer);
     if (currentPanel()?.kind === "term") scheduleClose();
-  });
+  }, { signal });
 
   // A tap (or a click that selects nothing) opens it as a dialog.
   container.addEventListener("click", (e) => {
-    const hit = markOf(e.target);
+    const hit = markOf(data, e.target);
     if (!hit) return;
     const sel = window.getSelection();
     if (sel && !sel.isCollapsed) return;
@@ -309,9 +317,9 @@ function wire() {
       closePanel();
       return;
     }
-    openCard(hit.span, hit.mark, { hover: false });
+    openCard(container, data, hit.span, hit.mark, { hover: false });
     e.stopPropagation();
-  });
+  }, { signal });
 
   // Ctrl+C copies the text, not the lens. Chrome and Safari serialize the
   // selection with each element's computed style inlined, after the copy
@@ -321,10 +329,22 @@ function wire() {
   document.addEventListener("copy", () => {
     container.classList.add("is-copying");
     setTimeout(() => container.classList.remove("is-copying"));
-  });
+  }, { signal });
 }
 
-if (data && container) {
-  placeMarks();
-  wire();
+/**
+ * Attach the lens to one chapter: place its marks, then wire its hover, tap
+ * and copy handling. Each call keeps its own container and data, so two
+ * chapters on one page never mix. The hover timers and the panel are shared,
+ * since lit-panel.js shows one panel at a time. Returns { destroy }, which
+ * takes the handlers off again (the marks stay, and a container taken out of
+ * the page needs no cleanup).
+ */
+export function attachTermLens(container, data) {
+  placeMarks(container, data);
+  const controller = new AbortController();
+  wire(container, data, controller.signal);
+  return { destroy: () => controller.abort() };
 }
+
+if (pageData && pageContainer) attachTermLens(pageContainer, pageData);

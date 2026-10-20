@@ -36,6 +36,7 @@ import { imageStep } from "./verse-image.js";
 import {
   PANEL_EDGE,
   copyToClipboard,
+  footnotePanel,
   menuButton,
   panelRow,
   placeBesideTouchSelection,
@@ -874,41 +875,10 @@ function initFootnotePopovers(container) {
 
     const label = a.textContent.trim();
 
-    const panel = document.createElement("div");
-    panel.setAttribute("role", "dialog");
-    panel.setAttribute("aria-label", "Footnote " + label);
-    panel.tabIndex = -1;
-    panel.classList.add("lit-panel--footnote");
-
-    const header = document.createElement("div");
-    header.className = "lit-panel__header";
-
-    const heading = document.createElement("p");
-    heading.className = "lit-panel__heading";
-    heading.textContent = "Footnote " + label;
-    header.appendChild(heading);
-
-    const closeBtn = document.createElement("button");
-    closeBtn.type = "button";
-    closeBtn.className = "lit-panel__close";
-    closeBtn.setAttribute("aria-label", "Close footnote");
-    closeBtn.textContent = "×";
-    closeBtn.addEventListener("click", closePanel);
-    header.appendChild(closeBtn);
-
-    panel.appendChild(header);
-
-    const body = document.createElement("div");
-    body.className = "lit-panel__body";
     // The note's content wrapper is <div class="fn-body"> ([slug].astro —
     // a div because footnote HTML can contain block elements); "p" is the
     // pre-2026-07 markup, kept as a fallback.
-    const content = note.querySelector(".fn-body, p")?.cloneNode(true);
-    if (content) {
-      content.querySelector(".footnote-backlink")?.remove();
-      body.appendChild(content);
-    }
-    panel.appendChild(body);
+    const panel = footnotePanel({ title: "Footnote " + label, body: note.querySelector(".fn-body, p") });
 
     // Link through to the full footnotes section.
     const jump = document.createElement("a");

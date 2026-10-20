@@ -18,6 +18,7 @@ import {
   isFollower,
   kindLabel,
   leaderFor,
+  litPlace,
   minSize,
   needs,
   newPane,
@@ -32,6 +33,7 @@ import {
   resize,
   setActive,
   setKind,
+  setLitAt,
   setPin,
   setPlace,
   slotCount,
@@ -1005,4 +1007,114 @@ test("a place round-trips through writeSaved and readSaved", () => {
   assert.deepEqual(saved.mine, mine);
   const plain = readSaved(writeSaved({ last: originalLayout(), mine: null, start: "last" }));
   assert.equal("place" in plain.last, false);
+});
+
+// Phase 3e: each LIT pane keeps its reader's place, and the active one leads.
+
+// Two LIT panes: p1 (active) and p3, the new one beside My Notes (p2).
+const twoLit = () => {
+  const layout = originalLayout();
+  return splitPane(layout, "p2", "right", newPane(layout, "lit"));
+};
+
+test("setLitAt on the active LIT pane sets its place and the shared place to the same passage", () => {
+  const l = originalLayout();
+  const before = structuredClone(l);
+  const next = setLitAt(l, "p1", "john 3:16");
+  assert.equal(findPane(next.root, "p1").at, "john 3:16");
+  assert.equal(next.place, "john 3:16");
+  assert.equal(next.active, "p1");
+  assert.deepEqual(l, before, "the original layout is not mutated");
+  assert.equal("place" in l, false);
+  assert.equal("at" in findPane(l.root, "p1"), false);
+});
+
+test("setLitAt on a LIT pane that is not active sets its place and leaves the shared place alone", () => {
+  const withPlace = setPlace(twoLit(), "mark 1");
+  const next = setLitAt(withPlace, "p3", "romans 8:1");
+  assert.equal(findPane(next.root, "p3").at, "romans 8:1");
+  assert.equal(next.place, "mark 1");
+  assert.equal(next.active, "p1");
+  assert.equal(findPane(next.root, "p1").at, undefined);
+  assert.equal("place" in setLitAt(twoLit(), "p3", "romans 8:1"), false, "no shared place is added");
+});
+
+test("setLitAt returns the same layout for a non-LIT pane, a bad passage, or no change", () => {
+  const l = twoLit();
+  assert.equal(setLitAt(l, "p2", "john 3:16"), l, "My Notes has no place");
+  assert.equal(setLitAt(l, "nope", "john 3:16"), l, "no such pane");
+  for (const bad of [undefined, null, "", 5, {}, ["john 3:16"]]) {
+    assert.equal(setLitAt(l, "p1", bad), l, String(bad));
+  }
+  const set = setLitAt(l, "p1", "john 3:16");
+  assert.equal(setLitAt(set, "p1", "john 3:16"), set, "the active pane's same passage again");
+  const other = setLitAt(set, "p3", "romans 8:1");
+  assert.equal(setLitAt(other, "p3", "romans 8:1"), other, "a non-active LIT pane's same passage again");
+});
+
+test("setActive to the other LIT pane copies its passage into the shared place", () => {
+  const l = setLitAt(twoLit(), "p3", "romans 8:1");
+  const next = setActive(l, "p3");
+  assert.equal(next.active, "p3");
+  assert.equal(next.place, "romans 8:1");
+});
+
+test("setActive to a LIT pane with no passage leaves the shared place unchanged", () => {
+  const l = setPlace(twoLit(), "mark 1");
+  const next = setActive(l, "p3");
+  assert.equal(next.active, "p3");
+  assert.equal(next.place, "mark 1");
+});
+
+test("litPlace is the pane's own passage, else the shared place, and null for a non-LIT pane", () => {
+  const l = setPlace(setLitAt(twoLit(), "p3", "romans 8:1"), "mark 1");
+  assert.equal(litPlace(l, "p3"), "romans 8:1");
+  assert.equal(litPlace(l, "p1"), "mark 1", "no passage of its own: the shared place");
+  assert.equal(litPlace(l, "p2"), null, "My Notes is not a LIT pane");
+  assert.equal(litPlace(l, "nope"), null);
+  assert.equal(litPlace(twoLit(), "p1"), null, "no passage anywhere");
+});
+
+test("a following pane gets the active LIT pane's passage once it is set", () => {
+  const withGreek = splitPane(originalLayout(), "p2", "bottom", { id: "p3", kind: "greek", pin: null });
+  assert.equal(placeFor(withGreek, "p3"), null);
+  const next = setLitAt(withGreek, "p1", "john 3:16");
+  assert.equal(placeFor(next, "p3"), "john 3:16");
+});
+
+test("closing the active LIT pane makes the other LIT pane active, and its passage the shared place", () => {
+  const l = setLitAt(twoLit(), "p3", "romans 8:1");
+  const next = closePane(l, "p1");
+  assert.deepEqual(ids(next), ["p2", "p3"]);
+  assert.equal(next.active, "p3");
+  assert.equal(next.place, "romans 8:1");
+});
+
+test("setKind drops a LIT pane's passage, and changing it back starts with none", () => {
+  const l = setLitAt(twoLit(), "p3", "romans 8:1");
+  assert.equal(findPane(l.root, "p3").at, "romans 8:1");
+  const notes = setKind(l, "p3", "mine");
+  assert.equal(findPane(notes.root, "p3").kind, "mine");
+  assert.equal("at" in findPane(notes.root, "p3"), false);
+  const back = setKind(notes, "p3", "lit");
+  assert.equal(findPane(back.root, "p3").kind, "lit");
+  assert.equal("at" in findPane(back.root, "p3"), false);
+  assert.equal(litPlace(back, "p3"), null);
+});
+
+test("checkLayout keeps a LIT pane's passage and the shared place, and drops a passage that is not one", () => {
+  const root = {
+    split: "columns",
+    sizes: [0.34, 0.33, 0.33],
+    children: [
+      { pane: { id: "a", kind: "lit", pin: null, at: "john 3:16" } },
+      { pane: { id: "b", kind: "mine", pin: null, at: "romans 8:1" } },
+      { pane: { id: "c", kind: "lit", pin: null, at: 5 } },
+    ],
+  };
+  const l = checkLayout({ root, active: "a", place: "john 3:16" });
+  assert.equal(findPane(l.root, "a").at, "john 3:16");
+  assert.equal("at" in findPane(l.root, "b"), false, "a passage on My Notes is dropped");
+  assert.equal("at" in findPane(l.root, "c"), false, "a passage that is not a string is dropped");
+  assert.equal(l.place, "john 3:16");
 });

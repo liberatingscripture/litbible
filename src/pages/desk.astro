@@ -1,5 +1,6 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import { scanDraftChapters } from "../lib/draft-chapters.mjs";
 import "../styles/pages/desk-page.css";
 
 /**
@@ -10,7 +11,13 @@ import "../styles/pages/desk-page.css";
  * (?desk=on), on a computer. For everyone else, and with JS off, this is the
  * whole page: a short note saying the desk is part of a preview. noindex, out
  * of the sitemap (astro.config.mjs) and out of Pagefind (Layout's default).
+ *
+ * The page carries two things the LIT pane needs (phase 3e): the draft
+ * chapters of each book, so a run of them shows as one stub without
+ * fetching each, and the description a poetry block's aria-describedby
+ * names, as a chapter page does.
  */
+const draftsJson = JSON.stringify(scanDraftChapters().draftChaptersByBook);
 ---
 
 <Layout
@@ -21,6 +28,8 @@ import "../styles/pages/desk-page.css";
 >
   <div class="desk-page">
     <h1 class="desk-page__title">Study Desk</h1>
+    <div id="hbq-description" hidden>Formatted as Hebrew and Semitic poetry with indented parallel lines</div>
+    <script type="application/json" id="desk-drafts" set:html={draftsJson} />
     <div data-desk-page>
       <p class="desk-page__off">
         The Study Desk is part of a preview of new study tools. The preview isn’t

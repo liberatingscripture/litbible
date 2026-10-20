@@ -22,9 +22,12 @@
 // - several panes of a kind may be open. The LIT pane leads; This verse,
 //   Greek, and Footnotes follow the LIT pane last worked in (the active one),
 //   unless pinned with "Stay here", which the saved layout remembers;
-// - (3d) until the LIT pane comes (3e), the following panes share one place,
-//   `layout.place`, chosen with a passage picker; a pinned pane keeps its own
-//   (`pin.at`). Both are passage strings, "john 3:16" (desk-passage.mjs);
+// - the following panes that aren't pinned share one place, `layout.place`;
+//   a pinned pane keeps its own (`pin.at`). Each LIT pane keeps where its
+//   reader is too (`at`, 3e), and the active one's is the shared place, so
+//   the following panes follow it; with no LIT pane open the place is chosen
+//   with their passage picker (3d). All are passage strings, "john 3:16"
+//   (desk-passage.mjs);
 // - the original layout is the LIT text beside My Notes, 60/40, and the
 //   layout is kept in this browser.
 
@@ -184,10 +187,18 @@ export function originalLayout() {
   };
 }
 
-/** The active LIT pane, settled: kept if it is still a LIT pane, else the first one. */
+/**
+ * The active LIT pane, settled: kept if it is still a LIT pane, else the
+ * first one. A newly active pane brings its place with it, so the following
+ * panes move to where its reader is.
+ */
 function settleActive(layout) {
   const lits = panes(layout.root).filter((p) => p.kind === "lit");
-  if (!lits.some((p) => p.id === layout.active)) layout.active = lits[0]?.id ?? null;
+  if (!lits.some((p) => p.id === layout.active)) {
+    const next = lits[0] ?? null;
+    layout.active = next?.id ?? null;
+    if (next?.at) layout.place = next.at;
+  }
   return layout;
 }
 
@@ -288,6 +299,8 @@ export function setKind(layout, id, kind) {
   if (!pane || pane.kind === kind) return layout;
   pane.kind = kind;
   if (!isFollower(kind)) pane.pin = null;
+  // A LIT pane's place is its own; a new one starts at the shared place.
+  delete pane.at;
   return settleActive(next);
 }
 
@@ -304,10 +317,37 @@ export function setPin(layout, id, pinned, at = null) {
   return next;
 }
 
-/** Make a LIT pane the active one, the one the following panes follow. */
+/**
+ * Make a LIT pane the active one, the one the following panes follow. Its
+ * place becomes the shared one, so they move to where its reader is.
+ */
 export function setActive(layout, id) {
-  if (layout.active === id || findPane(layout.root, id)?.kind !== "lit") return layout;
-  return { ...layout, active: id };
+  const pane = findPane(layout.root, id);
+  if (layout.active === id || pane?.kind !== "lit") return layout;
+  return pane.at ? { ...layout, active: id, place: pane.at } : { ...layout, active: id };
+}
+
+/**
+ * Where a LIT pane's reader is (3e): a passage string, "john 3:16". The
+ * active pane's is also the shared place, so the following panes follow it.
+ * Unchanged for anything but a LIT pane, or a place it already has.
+ */
+export function setLitAt(layout, id, at) {
+  const pane = findPane(layout.root, id);
+  if (typeof at !== "string" || !at || pane?.kind !== "lit") return layout;
+  const place = layout.active === id ? at : layout.place;
+  if (pane.at === at && layout.place === place) return layout;
+  const next = clone(layout);
+  findPane(next.root, id).at = at;
+  if (place) next.place = place;
+  return next;
+}
+
+/** The passage a LIT pane shows: its own place, else the shared one (a new pane starts there). */
+export function litPlace(layout, id) {
+  const pane = findPane(layout.root, id);
+  if (pane?.kind !== "lit") return null;
+  return pane.at ?? layout.place ?? null;
 }
 
 /**
@@ -458,7 +498,9 @@ export function checkLayout(value) {
       const keepPin = pin && typeof pin === "object" && isFollower(kind)
         ? { at: typeof pin.at === "string" ? pin.at : null }
         : null;
-      return { pane: { id, kind, pin: keepPin } };
+      const kept = { id, kind, pin: keepPin };
+      if (kind === "lit" && typeof node.pane.at === "string" && node.pane.at) kept.at = node.pane.at;
+      return { pane: kept };
     }
     if ((node.split !== "columns" && node.split !== "rows") || !Array.isArray(node.children) || node.children.length < 2) return null;
     const children = node.children.map((c) => check(c, depth + 1));

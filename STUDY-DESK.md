@@ -14,6 +14,16 @@ are recorded so they aren't re-argued.
 
 ## Where things stand (as of 2026-10-19)
 
+- **Phase 3e is built on the preview** (2026-10-19): the LIT pane scrolls
+  the whole New Testament on `/desk/`, a chapter at a time, with drafts as
+  one stub per run, footnote letters that open their own chapter's note,
+  and key terms underlined; a Footnotes pane lists the chapter's notes with
+  the reader's verse marked. This verse, Greek and Footnotes now follow the
+  LIT pane last worked in. Smaller calls for BVJ to judge are in the
+  decision log, "Phase 3e". Next: 3f, the sheet editor, which starts with
+  the verse menu and selection panel in the LIT pane; the reader's marks
+  and pinned footnotes on /desk are a new part, 3g (BVJ, 2026-10-19).
+
 - **Phase 3d is built on the preview** (2026-10-19): This verse (with
   "This chapter", the chapter's Go deeper, at its foot), Greek, and What
   I've kept are panes on `/desk/`, mounted from the Notebook's own modules.
@@ -55,7 +65,7 @@ are recorded so they aren't re-argued.
   serves shared links, present mode and printing. **Phases 2b and 2c
   follow phase 3**, and phase 3's scope isn't cut to make a date. BVJ's
   answers are under D9 ("Across the desk"); the details are for when the
-  work starts, with mockups then. **Split into parts 3a to 3k**
+  work starts, with mockups then. **Split into parts 3a to 3l**
   (proposed 2026-10-18, "Order of work", 3), to be worked one at a time.
 
 - **The tour is offered in a window beside the Notebook** (BVJ,
@@ -4210,32 +4220,51 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      whole corpus with no setting (3a); popovers that know their chapter;
      `keepReadingPlace` when a chapter loads above; drafts as a stub.
      The riskiest part.
-   - **3f. The sheet editor (S1).** Add passages from the verse menu, a
+     **Built on the preview 2026-10-19** (decision log, "Phase 3e"): the
+     pane is `desk/lit-pane.js`, with the corpus in
+     `src/lib/desk-corpus.mjs` and the chapter text's ids made its own in
+     `src/lib/desk-lit-text.mjs` (swept with Study View and Read View);
+     Footnotes is `desk/footnotes-view.js`. Each LIT pane keeps its reader's
+     place in the layout, and the active one's is the passage the
+     following panes show.
+   - **3f. The sheet editor (S1).** First, **the verse menu and the
+     selection panel in the LIT pane** (BVJ, 2026-10-19), Study View's own
+     from `chapter-tools.js`, with their copy actions and the Notebook's "My
+     Notebook" row, since 3e left the pane's verse numbers plain text. Then
+     the editor: add passages from the verse menu, a
      selection or the notebook; drag into order; your own text between,
      with formatting; autosave; passages from live text. Built to run
      inside another page, and shown as /desk's sheet pane.
-   - **3g. What a sheet knows about the LIT.** The key terms box (S3),
+   - **3g. The reader's marks on /desk** (BVJ, 2026-10-19). Highlights,
+     notes and bookmarks in the LIT pane, as on Study View, with the
+     change notice when the words under a mark have moved; and **pinning
+     footnotes** there, from the popover, This verse and the Footnotes
+     pane. Where a note sits beside a pane's text (the margin is the
+     page's, not a pane's) is mocked first.
+   - **3h. What a sheet knows about the LIT.** The key terms box (S3),
      blanks (S10) with the footnote picker and spoiler flags (C15), and
      the license card with the commercial check (S7).
-   - **3h. Paper and copies.** The sheet's own address, `/sheets/` (3a); leader and
+   - **3i. Paper and copies.** The sheet's own address, `/sheets/` (3a); leader and
      participant copies (S4); Letter and A4 with Greek and Hebrew fonts
      (C27); printed codes (S5), which moves `qrcode-generator` from a
      build-only dependency to something the page loads (C21) and checks
      the app link files; the Word copy (S9); annotated printing (M6),
      which needs no sheet and can move earlier or later.
-   - **3i. Present mode.** S6 with the reveal, M3's code on its first
+   - **3j. Present mode.** S6 with the reveal, M3's code on its first
      screen, then M2's presenter view on two screens.
-   - **3j. Getting started and sharing.** Sheets from a search or topic
+   - **3k. Getting started and sharing.** Sheets from a search or topic
      (M5), templates including the contemplative one (M9) and the blank
      canvas with full rich-text formatting (3a), and sharing by
      file and by `#` link (S8: the address cleared before the analytics
      beacon runs, confirmed in the network log; a phone or tablet is told
      to open it on a computer).
-   - **3k. Pop the notebook out (D4).** Last, decided once /desk exists.
+   - **3l. Pop the notebook out (D4).** Last, decided once /desk exists.
 
    Suggested order: 3a, 3b, 3c, then 3f and 3d (both need only 3b and
-   3c), then 3e, 3g, 3h, 3i, 3j, and 3k. The path to printable leader and
-   participant sheets for Lent is 3b to 3h; present mode and sharing can
+   3c), then 3e, 3g, 3h, 3i, 3j, 3k, and 3l. (3g was added on 2026-10-19,
+   after 3e was built, so earlier entries' 3g to 3k are now 3h to 3l.) The
+   path to printable leader and participant sheets for Lent is 3b to 3i,
+   with 3g; present mode and sharing can
    follow. **Not in phase 3**: S2 and N9 (2b), M11 and N6's "For
    discussion" section (after phase 3), S11, and short share links (M14,
    phase 4).
@@ -5413,6 +5442,53 @@ split itself is still a proposal BVJ worked within but hasn't confirmed.
   values, so themes, print and contrast decide how they look, and a
   reader's accessibility font still wins on screen. Left out: images and
   tables. The set can grow later but never shrink.
+
+### 2026-10-19 (Phase 3e: the LIT and Footnotes panes on /desk)
+
+- **Built** as 3a settled it: the LIT pane scrolls Matthew 1 to
+  Revelation 22 with no setting, each chapter Study View's own text,
+  fetched as the reader nears it; a run of drafts in one book is one stub
+  (Acts and Revelation today); a chapter loading above doesn't move the
+  line being read. Footnote letters open their own chapter's note, key
+  terms are underlined as in Study View, and a reference in a note
+  previews. The Footnotes pane follows the LIT pane. With a LIT pane open,
+  This verse, Greek and Footnotes follow the one last worked in (D9,
+  "Phase 3a's answers", 6), and each LIT pane keeps its own place in the
+  layout, so two show two passages.
+- **Smaller calls made in building it, for BVJ to judge on the preview**
+  (recommendations, not decisions):
+  - **The LIT pane has the passage picker at its top**, the same as the
+    following panes', which also shows where the reader is as they scroll.
+    Each chapter's heading links to it in Study View.
+  - **Where the reader is** is the last verse number above a line a
+    quarter of the way down the pane. A passage the reader asks for is put
+    just above that line, and a chapter at the top.
+  - **The following panes keep their picker while they follow, and it
+    leads back**: changing it, This verse's Previous and Next, a footnote's
+    "Verse 16" button, or scrolling the Greek move the leading LIT pane,
+    which moves every pane following it. Pinned, the picker moves only its
+    pane, as in 3d. D9 says Stay here "gives it its own passage picker",
+    which could mean following panes have none; keeping it seemed the
+    smaller change, and the Greek already leads back.
+  - **The footnote popover is headed "John 3:16, footnote a"**, since
+    letters start again every chapter and several chapters share the pane.
+    It has no "See in footnotes" link; the Footnotes pane is that list.
+  - **The Footnotes pane lists the whole chapter's notes**, each with its
+    letter and a "Verse 16" button, and marks the notes on the reader's
+    verse and brings them to the top of the pane (or the next notes after
+    it, when that verse has none).
+  - **A draft stub says the Greek is ready in a Greek pane**, as This
+    verse does for a draft.
+  - **Not in the LIT pane yet**: the verse menu, the selection panel, and
+    the reader's highlights, notes and bookmarks, so its verse numbers are
+    plain text rather than buttons. 3f's "add passages from the verse menu
+    or a selection" needs the first two there. **No Pin on footnotes on
+    /desk yet** either, in This verse or Footnotes. **Placed by BVJ the
+    same day**: the verse menu and selection panel open 3f, and the marks
+    and pinned footnotes are a new part, 3g, before what a sheet knows
+    about the LIT (so 3g to 3k became 3h to 3l).
+  - **Chapters stay loaded for the visit** once scrolled to; going to a
+    passage outside the loaded run starts the pane again there.
 
 ### 2026-10-19 (Phase 3d: the existing panes on /desk)
 
