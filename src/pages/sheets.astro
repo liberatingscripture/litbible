@@ -1,0 +1,38 @@
+---
+import Layout from "../layouts/Layout.astro";
+import "../styles/pages/sheets-page.css";
+
+/**
+ * A sheet's own address (STUDY-DESK.md, D9, "Phase 3a's answers", 2; phase
+ * 3i): a plain page that shows one of the reader's sheets as a leader or
+ * participant copy, prints it on Letter or A4, and copies it for Word.
+ * Sheets are edited only on /desk; this page never changes one. Everything
+ * on it is drawn in the browser by src/scripts/desk/sheet-page.js, which
+ * desk-gate.js loads only when the Study Desk preview is switched on
+ * (?desk=on), on a computer. For everyone else, and with JS off, this is the
+ * whole page. noindex, out of the sitemap (astro.config.mjs) and out of
+ * Pagefind (Layout's default).
+ *
+ * `/sheets/` lists the reader's sheets; `/sheets/?id=<sheet id>` shows one.
+ * The page carries the description a poetry block's aria-describedby names,
+ * as a chapter page does, since a passage on a sheet keeps its poetry.
+ */
+---
+
+<Layout
+  title="Sheets | LIT Bible"
+  description="A sheet from your Study Desk, ready to print or copy."
+  robotsNoindex={true}
+  hideFooterNewsletter={true}
+>
+  <div class="sheets-page">
+    <div id="hbq-description" hidden>Formatted as Hebrew and Semitic poetry with indented parallel lines</div>
+    <div data-sheet-page>
+      <h1 class="sheets-page__title">Sheets</h1>
+      <p class="sheets-page__off">
+        Sheets are part of a preview of new study tools. The preview isn’t
+        switched on in this browser, so there is nothing to show here yet.
+      </p>
+    </div>
+  </div>
+</Layout>
