@@ -27,13 +27,22 @@
 //   the way down, told to `onPlace` only when the reader's own scrolling
 //   moved it (the Greek pane's rule), so a pane sent somewhere never chases
 //   the panes that follow it.
+// - **The verse menu and the selection panel are Study View's own** (3f;
+//   chapter-tools.js's attachVerseTools), with the pane as one more view:
+//   each chapter names its own reference and link, and "Copy with
+//   footnotes" reads the notes from the chapter's fetched page. Their "My
+//   Notebook" row comes from actions.js, and "Add to sheet" from
+//   sheet-pane.js, which read `book`, `chapter` and `textFor` from the
+//   panel's detail.
 //
-// Not here yet: the verse menu, the selection panel and the reader's marks.
-// The verse numbers are plain text in this pane until they are.
+// Not here yet: the reader's marks (3g).
 
 import { corpusUnits, draftStubText, unitHeading, unitIndex } from "../../lib/desk-corpus.mjs";
 import { litPrefix, prepareLitBlocks } from "../../lib/desk-lit-text.mjs";
 import { checkPassage, passageLabel, sameChapter } from "../../lib/desk-passage.mjs";
+import { pageAnchorText } from "../../lib/desk-anchor-dom.mjs";
+import { bookKeyToLabel } from "../../data/books.js";
+import { attachVerseTools } from "../chapter-tools.js";
 import { closePanel, currentPanel, showPanel } from "../lit-panel.js";
 import { footnotePanel } from "../panel-pieces.js";
 import "../ref-preview.js";
@@ -91,6 +100,58 @@ export function createLitPane({ paneId, start, drafts, onPlace }) {
   let destroyed = false;
   const lenses = [];
 
+  // ---- the verse menu and the selection panel (3f) ----
+
+  // A chapter's name in this pane, as the verse tools pass it around.
+  const keyOf = (bookKey, chapter) => `${bookKey} ${chapter}`;
+  const parseKey = (key) => {
+    const [bookKey, n] = String(key).split(" ");
+    return { bookKey, chapter: Number(n) };
+  };
+  const sectionFor = (key) => text.querySelector(`.desk-lit__chapter[data-key="${key}"]`);
+  const studyLink = (key) => {
+    const { bookKey, chapter } = parseKey(key);
+    return `${window.location.origin}/${bookKey}-${chapter}`;
+  };
+  const tools = attachVerseTools({
+    name: "desk",
+    container: text,
+    chapterOf: (node) => node.closest?.(".desk-lit__chapter")?.dataset.key ?? null,
+    spans: (key, verse) => Array.from(sectionFor(key)?.querySelectorAll(`[data-verse="${verse}"]`) ?? []),
+    ref: (key, start, end) => {
+      const { bookKey, chapter } = parseKey(key);
+      return `${bookKeyToLabel(bookKey)} ${chapter}:${start}${end > start ? "–" + end : ""}`;
+    },
+    // Links go to the verse in Study View, as Read View's do.
+    url: (key, start, end) => `${studyLink(key)}#v${start}${end > start ? "-" + end : ""}`,
+    // A block's id here carries the pane's prefix; its link is the page's own.
+    partUrl: (key, id) => {
+      const { bookKey, chapter } = parseKey(key);
+      const prefix = litPrefix(paneId, bookKey, chapter);
+      return `${studyLink(key)}#${id.startsWith(prefix) ? id.slice(prefix.length) : id}`;
+    },
+    scope: (key) => {
+      const { bookKey, chapter } = parseKey(key);
+      return loadChapterPage(bookKey, chapter)
+        .then((s) => (s.textBox ? { container: s.textBox, root: s.doc } : null))
+        .catch(() => null);
+    },
+    detail: (key) => {
+      const { bookKey, chapter } = parseKey(key);
+      return {
+        book: bookKey,
+        chapter,
+        paneId,
+        // The chapter's anchor text, read fresh off the pane (it is Study
+        // View's, character for character).
+        textFor: () => {
+          const box = sectionFor(key)?.querySelector(".chapter-paragraphs");
+          return box ? pageAnchorText(box.children) : null;
+        },
+      };
+    },
+  });
+
   function tell(p) {
     told = p;
     bar.update(p);
@@ -140,6 +201,7 @@ export function createLitPane({ paneId, start, drafts, onPlace }) {
     section.dataset.unit = String(i);
     section.dataset.book = u.bookKey;
     section.dataset.chapter = String(chapter);
+    section.dataset.key = keyOf(u.bookKey, chapter);
     const h = make("h3", "desk-lit__heading");
     h.id = `deskLit-${paneId}-${i}`;
     const a = make("a", null, unitHeading(u));
@@ -151,6 +213,7 @@ export function createLitPane({ paneId, start, drafts, onPlace }) {
     const blocks = Array.from(source.textBox.children, (b) => document.importNode(b, true));
     prepareLitBlocks(blocks, litPrefix(paneId, u.bookKey, chapter));
     box.append(...blocks);
+    tools.enableNumbers(box);
     section.append(h, box);
     if (source.termData) lenses.push(attachTermLens(box, source.termData));
     return section;
@@ -374,7 +437,8 @@ export function createLitPane({ paneId, start, drafts, onPlace }) {
       ro.disconnect();
       if (frame) cancelAnimationFrame(frame);
       for (const l of lenses.splice(0)) l?.destroy?.();
-      if (currentPanel()?.trigger && el.contains(currentPanel().trigger)) closePanel();
+      tools.destroy();
+      if (currentPanel()?.trigger instanceof Node && el.contains(currentPanel().trigger)) closePanel();
     },
   };
 }

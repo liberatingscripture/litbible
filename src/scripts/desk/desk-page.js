@@ -69,6 +69,7 @@ import {
 } from "../../lib/desk-layout.mjs";
 import { formatPassage, parsePassage, sameChapter, startingPassage } from "../../lib/desk-passage.mjs";
 import { loadLastRead } from "../last-read.js";
+import { initActions } from "./actions.js";
 import { addDeskStyle, deskCtx as ctx } from "./boot.js";
 import { mountPane } from "./desk-panes.js";
 import { createHistory } from "./history.js";
@@ -157,6 +158,9 @@ async function start() {
     console.error("Study Desk: the notebook didn’t open", err);
   }
   if (store) createHistory({ store, ctx });
+  // The LIT pane's verse menu and selection panel get the "My Notebook" row
+  // (3f): Add a note, Bookmark and Ribbon here….
+  if (store) initActions({ store, ctx });
   const onEdit = store
     ? (record, trigger) => openNoteEditor({ trigger, store, ctx, ref: recordReference(record), record, restoreFocus: trigger })
     : null;
