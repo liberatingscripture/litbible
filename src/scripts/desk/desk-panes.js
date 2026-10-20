@@ -11,15 +11,21 @@
 //   holding the chapter's Go deeper (D9, "Phase 3a's answers", 3) (3d);
 // - Greek is tab-greek.js (3d);
 // - What I've kept is kept-list.js, the notebook page's list (3d).
-// This verse and Greek read their chapter from its fetched Study View page
-// (chapter-page.js), and show the passage desk-page.js gives them, with a
-// passage picker at their top (passage-bar.js). The LIT text and Footnotes
-// come in 3e and the sheet in 3f. Each mount returns { destroy }, plus
-// setPassage for a pane that follows.
+// - the LIT text is lit-pane.js, the whole corpus in one scroll (3e);
+// - Footnotes is footnotes-view.js, the chapter's notes with the reader's
+//   verse marked (X11; 3e).
+// The following panes (This verse, Greek, Footnotes) read their chapter from
+// its fetched Study View page (chapter-page.js), and show the passage
+// desk-page.js gives them, with a passage picker at their top
+// (passage-bar.js). The sheet comes in 3f. Each mount returns { destroy },
+// plus setPassage for a pane that is moved: a following pane, or a LIT pane
+// that the panes following it lead back (the Greek's scrolling, a picker).
 
 import { sameChapter, passageLabel } from "../../lib/desk-passage.mjs";
 import { chapterHref, loadChapterPage } from "./chapter-page.js";
+import { createFootnotesView } from "./footnotes-view.js";
 import { createKeptList } from "./kept-list.js";
+import { createLitPane } from "./lit-pane.js";
 import { openNoteEditor } from "./note-editor.js";
 import { createPassageBar } from "./passage-bar.js";
 import { createGreekTab } from "./tab-greek.js";
@@ -27,8 +33,6 @@ import { createMineTab } from "./tab-mine.js";
 import { createVerseTab } from "./tab-verse.js";
 
 const LATER = {
-  lit: "The LIT text comes to this pane in a later step of the preview.",
-  footnotes: "The footnotes come to this pane in a later step of the preview. They will follow the LIT pane you last worked in.",
   sheet: "Sheets come to this pane in a later step of the preview.",
 };
 
@@ -232,6 +236,55 @@ function mountGreek(body, env, pane) {
   };
 }
 
+function mountFootnotes(body, env, pane) {
+  const { bar, content } = followFrame(body, pane, false);
+  let chapter = null; // the passage whose chapter the view shows
+  let view = null;
+  let source = null;
+  let seq = 0;
+
+  async function show(p) {
+    bar.update(p);
+    if (view && sameChapter(chapter, p)) {
+      view.show(source, p.verse);
+      return;
+    }
+    const n = ++seq;
+    view = null;
+    chapter = p;
+    content.replaceChildren(status("Loading the footnotes…"));
+    let page;
+    try {
+      page = await loadChapterPage(p.bookKey, p.chapter);
+    } catch (_) {
+      if (n === seq) content.replaceChildren(status("The chapter couldn’t be loaded.", () => { chapter = null; show(p); }));
+      return;
+    }
+    if (n !== seq) return;
+    source = page;
+    view = createFootnotesView({
+      idSuffix: `-${pane.id}`,
+      // A note's verse leads back: the LIT pane this pane follows goes there.
+      onVerse: (verse) => pane.set({ ...p, verse }),
+    });
+    content.replaceChildren(view.el);
+    view.show(source, p.verse);
+  }
+
+  queueMicrotask(() => show(pane.get()));
+  return {
+    setPassage: show,
+    destroy: () => { seq++; },
+  };
+}
+
+function mountLit(body, env, pane) {
+  body.classList.add("desk-pane__body--fill");
+  const lit = createLitPane({ paneId: pane.id, start: pane.get(), drafts: env.drafts, onPlace: pane.set });
+  body.append(lit.el);
+  return { setPassage: (p) => lit.goTo(p), destroy: () => lit.destroy() };
+}
+
 function mountKept(body, env, pane) {
   if (!env.store) {
     return message(body, "This browser isn’t letting the site keep a notebook. Private windows sometimes don’t.");
@@ -253,9 +306,11 @@ function mountKept(body, env, pane) {
  * @param {{ store: object | null, storeError: unknown,
  *   onEdit: ((record: object, trigger: Element) => void) | null,
  *   ctx: () => { client: string, contentVersion: string },
- *   openGreekWord: (passage: object, t: number) => void }} env
+ *   openGreekWord: (passage: object, t: number) => void,
+ *   drafts: Record<string, number[]> }} env
  * @param {{ id: string, get: () => object, set: (passage: object) => void }} pane
- *   `get` and `set` are the passage a following pane shows (desk-page.js).
+ *   `get` and `set` are the passage the pane shows (desk-page.js): for a LIT
+ *   pane, `set` is where its reader now is.
  * @returns {{ destroy: () => void, setPassage?: (passage: object) => void }}
  */
 export function mountPane(kind, body, env, pane) {
@@ -280,6 +335,8 @@ export function mountPane(kind, body, env, pane) {
   if (kind === "verse") return mountVerse(body, env, pane);
   if (kind === "greek") return mountGreek(body, env, pane);
   if (kind === "kept") return mountKept(body, env, pane);
+  if (kind === "lit") return mountLit(body, env, pane);
+  if (kind === "footnotes") return mountFootnotes(body, env, pane);
   if (LATER[kind]) return message(body, LATER[kind]);
   // A pane saved by a later version of the page, which this copy doesn't know.
   return message(body, "This pane needs a newer copy of the page. Reload to get it.");

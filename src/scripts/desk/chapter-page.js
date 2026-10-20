@@ -35,6 +35,20 @@ function read(doc, bookKey, chapter) {
   const verses = Array.from(textBox?.querySelectorAll('sup.vn[id^="v"]') ?? [])
     .map((m) => Number(m.id.slice(1)))
     .filter(Number.isFinite);
+  // The page's footnotes in its order, each with the verse its anchor sits in
+  // (the Footnotes pane lists them by verse).
+  const footnotes = draft
+    ? []
+    : Array.from(doc.querySelectorAll("ol.footnotes > li")).map((li) => {
+        const id = li.id;
+        const anchor = textBox.querySelector(`a[href="#${id}"]`);
+        const verse = Number(anchor?.closest("[data-verse]")?.getAttribute("data-verse"));
+        return {
+          id,
+          label: li.querySelector(".footnote-backlink")?.textContent.trim() ?? "",
+          verse: Number.isFinite(verse) && verse > 0 ? verse : null,
+        };
+      });
   return {
     bookKey,
     chapter,
@@ -42,6 +56,7 @@ function read(doc, bookKey, chapter) {
     textBox: draft ? null : textBox,
     verses,
     termData,
+    footnotes,
     goDeeper: doc.querySelector(".go-deeper"),
     footnoteBody: (id) => doc.getElementById(id)?.querySelector(".fn-body") ?? null,
     // Read fresh each time, like page.js's chapterText.
@@ -51,7 +66,9 @@ function read(doc, bookKey, chapter) {
 
 /**
  * The chapter's page, read: { bookKey, chapter, draft, textBox, verses,
- * termData, goDeeper, footnoteBody(id), anchorText() }. Rejects when the page
+ * termData, footnotes, goDeeper, footnoteBody(id), anchorText() }, where
+ * footnotes is the page's list in order, [{ id, label, verse | null }] (empty
+ * for a draft). Rejects when the page
  * can't be had; a failed fetch is forgotten, so the next ask tries again.
  */
 export function loadChapterPage(bookKey, chapter) {

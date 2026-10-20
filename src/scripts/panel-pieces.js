@@ -9,6 +9,8 @@
 // (chapter-tools.js) and the glossary's selection panel
 // (glossary-selection.js) use them. Moved here unchanged from
 // chapter-tools.js when the glossary got a selection panel (2026-10-09).
+// The footnote popover's frame is here too, since /desk's LIT pane opens the
+// same popover (desk/lit-pane.js, phase 3e).
 
 import { closePanel } from "./lit-panel.js";
 import { dockWidth } from "./desk-frame.js";
@@ -234,4 +236,49 @@ export function placeClearOfSelection(rect) {
     }
     return { left: window.scrollX + best.at.left, top: window.scrollY + best.at.top };
   };
+}
+
+/**
+ * A footnote popover's frame: a dialog headed `title`, with a × that closes
+ * it, holding a copy of the note's body (its backlink removed). Study View's
+ * popover (chapter-tools.js) adds its "See in footnotes" link after; /desk's
+ * LIT pane uses it as it is. The caller shows it with showPanel.
+ *
+ * @param {{ title: string, label: string, body: Element | null }} options
+ *   `label` names the dialog for a screen reader when `title` isn't enough.
+ */
+export function footnotePanel({ title, label = title, body }) {
+  const panel = document.createElement("div");
+  panel.setAttribute("role", "dialog");
+  panel.setAttribute("aria-label", label);
+  panel.tabIndex = -1;
+  panel.classList.add("lit-panel--footnote");
+
+  const header = document.createElement("div");
+  header.className = "lit-panel__header";
+
+  const heading = document.createElement("p");
+  heading.className = "lit-panel__heading";
+  heading.textContent = title;
+  header.appendChild(heading);
+
+  const closeBtn = document.createElement("button");
+  closeBtn.type = "button";
+  closeBtn.className = "lit-panel__close";
+  closeBtn.setAttribute("aria-label", "Close footnote");
+  closeBtn.textContent = "×";
+  closeBtn.addEventListener("click", closePanel);
+  header.appendChild(closeBtn);
+
+  panel.appendChild(header);
+
+  const content = document.createElement("div");
+  content.className = "lit-panel__body";
+  const copy = body?.cloneNode(true);
+  if (copy) {
+    copy.querySelector(".footnote-backlink")?.remove();
+    content.appendChild(copy);
+  }
+  panel.appendChild(content);
+  return panel;
 }

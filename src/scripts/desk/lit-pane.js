@@ -1,0 +1,380 @@
+// src/scripts/desk/lit-pane.js
+//
+// The LIT pane on /desk (STUDY-DESK.md, D9; "Order of work", 3e): Study
+// View's text, scrolling through the whole New Testament, Matthew 1 to
+// Revelation 22, with no setting for a chapter or a book (BVJ, 2026-10-18,
+// "Phase 3a's answers", 5).
+//
+// - **Study View's own text, a chapter at a time.** Each chapter's built page
+//   is fetched (chapter-page.js, shared with the other panes) as the reader
+//   nears it, and its paragraphs are taken as they are, ids aside
+//   (src/lib/desk-lit-text.mjs), so the text is Study View's character for
+//   character and a mark's anchor is measured against the same words
+//   (test/desk-anchor-dom.test.js sweeps it).
+// - **A chapter loading above doesn't move the text being read**: the line
+//   at the reading line is measured before and put back after, as
+//   keepReadingPlace does for the window (keep-reading-place.js). The
+//   browser's own scroll anchoring is off here (desk.css), or the two would
+//   both correct.
+// - **Drafts are a stub**: a run of drafts in one book is one, as in Read
+//   View (src/lib/desk-corpus.mjs), and a passage in it lands on the stub.
+// - **Popovers know their chapter**: a footnote letter opens its own
+//   chapter's note, named "John 3:16, footnote a", since letters start again
+//   every chapter; key terms are underlined per chapter (term-lens.js's
+//   attachTermLens); scripture references in a note preview as they do
+//   anywhere (ref-preview.js).
+// - **Where the reader is** is the verse at the reading line, a quarter of
+//   the way down, told to `onPlace` only when the reader's own scrolling
+//   moved it (the Greek pane's rule), so a pane sent somewhere never chases
+//   the panes that follow it.
+//
+// Not here yet: the verse menu, the selection panel and the reader's marks.
+// The verse numbers are plain text in this pane until they are.
+
+import { corpusUnits, draftStubText, unitHeading, unitIndex } from "../../lib/desk-corpus.mjs";
+import { litPrefix, prepareLitBlocks } from "../../lib/desk-lit-text.mjs";
+import { checkPassage, passageLabel, sameChapter } from "../../lib/desk-passage.mjs";
+import { closePanel, currentPanel, showPanel } from "../lit-panel.js";
+import { footnotePanel } from "../panel-pieces.js";
+import "../ref-preview.js";
+import { attachTermLens } from "../term-lens.js";
+import { chapterHref, loadChapterPage } from "./chapter-page.js";
+import { createPassageBar } from "./passage-bar.js";
+
+/** How far down the pane the reading line sits. */
+const LINE = 0.25;
+/** How much text to keep ready beyond each edge, in pane heights. */
+const AHEAD = 1.5;
+
+function make(tag, cls, text) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (text != null) e.textContent = text;
+  return e;
+}
+
+/**
+ * @param {{ paneId: string, start: object, drafts: Record<string, number[]>,
+ *   onPlace: (passage: object) => void }} options
+ *   `start` is the passage it opens at; `drafts` the draft chapters of each
+ *   book (desk.astro writes them at build); `onPlace` hears where the
+ *   reader is, and every passage the picker or the reader asks for.
+ * @returns {{ el: HTMLElement, goTo: (passage: object) => void, destroy: () => void }}
+ */
+export function createLitPane({ paneId, start, drafts, onPlace }) {
+  const units = corpusUnits(drafts);
+  const el = make("div", "desk-lit");
+  const bar = createPassageBar({
+    id: paneId,
+    set: (p) => {
+      goTo(p, { force: true });
+      tell(p);
+    },
+  });
+  const scroller = make("div", "desk-lit__scroll");
+  scroller.tabIndex = 0;
+  scroller.setAttribute("role", "region");
+  scroller.setAttribute("aria-label", "The LIT text");
+  const text = make("div", "desk-lit__text");
+  scroller.append(text);
+  el.append(bar.el, scroller);
+
+  const sections = new Map(); // unit index → its section
+  let lo = 0; // the first unit on the page
+  let hi = -1; // the last
+  let seq = 0; // bumped whenever the page is cleared, so late loads are dropped
+  let loadingUp = false;
+  let loadingDown = false;
+  let stalled = false; // a chapter below failed to load; Try again clears it
+  let told = null; // the passage last told to onPlace (or gone to)
+  let readerMoved = false;
+  let destroyed = false;
+  const lenses = [];
+
+  function tell(p) {
+    told = p;
+    bar.update(p);
+    onPlace(p);
+  }
+
+  // ---- drawing a unit ----
+
+  function stub(u, i) {
+    const section = make("section", "desk-lit__chapter desk-lit__chapter--draft");
+    section.dataset.unit = String(i);
+    const h = make("h3", "desk-lit__heading", unitHeading(u));
+    h.id = `deskLit-${paneId}-${i}`;
+    section.setAttribute("aria-labelledby", h.id);
+    section.append(h, make("p", "desk-lit__stub", `${draftStubText(u)} Its Greek is ready in a Greek pane.`));
+    return section;
+  }
+
+  function failed(u, i, retry) {
+    const section = make("section", "desk-lit__chapter desk-lit__chapter--failed");
+    section.dataset.unit = String(i);
+    section.append(make("h3", "desk-lit__heading", unitHeading(u)));
+    const box = make("div", "desk-dp__status");
+    box.setAttribute("role", "status");
+    box.append(make("p", null, "This chapter couldn’t be loaded."));
+    const b = make("button", "desk-dp__retry", "Try again");
+    b.type = "button";
+    b.addEventListener("click", retry);
+    box.append(b);
+    section.append(box);
+    return section;
+  }
+
+  /** A unit as a section, fetched when it is a chapter. Never rejects. */
+  async function render(i) {
+    const u = units[i];
+    if (u.draft) return stub(u, i);
+    const chapter = u.chapters[0];
+    let source;
+    try {
+      source = await loadChapterPage(u.bookKey, chapter);
+    } catch (_) {
+      return null;
+    }
+    if (source.draft || !source.textBox) return stub({ ...u, draft: true }, i);
+    const section = make("section", "desk-lit__chapter");
+    section.dataset.unit = String(i);
+    section.dataset.book = u.bookKey;
+    section.dataset.chapter = String(chapter);
+    const h = make("h3", "desk-lit__heading");
+    h.id = `deskLit-${paneId}-${i}`;
+    const a = make("a", null, unitHeading(u));
+    a.href = chapterHref(u.bookKey, chapter);
+    a.title = "Open in Study View";
+    h.append(a);
+    section.setAttribute("aria-labelledby", h.id);
+    const box = make("div", "chapter-paragraphs");
+    const blocks = Array.from(source.textBox.children, (b) => document.importNode(b, true));
+    prepareLitBlocks(blocks, litPrefix(paneId, u.bookKey, chapter));
+    box.append(...blocks);
+    section.append(h, box);
+    if (source.termData) lenses.push(attachTermLens(box, source.termData));
+    return section;
+  }
+
+  // ---- the reading line, and holding it ----
+
+  const line = () => {
+    const r = scroller.getBoundingClientRect();
+    return r.top + r.height * LINE;
+  };
+
+  /** The section the reading line is in, or the nearest one. */
+  function sectionAtLine() {
+    const y = line();
+    let best = null;
+    for (const s of text.children) {
+      const r = s.getBoundingClientRect();
+      if (r.top <= y) best = s;
+      else break;
+    }
+    return best ?? text.firstElementChild;
+  }
+
+  /** Run `change` (which adds above), then put the text back where it was. */
+  function hold(change) {
+    const ref = sectionAtLine();
+    const before = ref?.getBoundingClientRect().top;
+    change();
+    if (!ref?.isConnected || before === undefined) return;
+    const delta = ref.getBoundingClientRect().top - before;
+    if (Math.abs(delta) >= 1) scroller.scrollTop += delta;
+  }
+
+  /** Where the reader is: the passage at the reading line. */
+  function placeNow() {
+    const s = sectionAtLine();
+    if (!s) return null;
+    const u = units[Number(s.dataset.unit)];
+    if (!u) return null;
+    if (u.draft) {
+      // The chapter of the run the line has reached, by how far through it is.
+      const r = s.getBoundingClientRect();
+      const share = Math.min(0.999, Math.max(0, (line() - r.top) / Math.max(1, r.height)));
+      return { bookKey: u.bookKey, chapter: u.chapters[Math.floor(share * u.chapters.length)], verse: null };
+    }
+    const y = line();
+    let verse = null;
+    for (const m of s.querySelectorAll("sup.vn")) {
+      if (m.getBoundingClientRect().top > y) break;
+      const n = /v(\d+)$/.exec(m.id)?.[1];
+      if (n) verse = Number(n);
+    }
+    if (verse == null) verse = Number(/v(\d+)$/.exec(s.querySelector("sup.vn")?.id ?? "")?.[1]) || null;
+    return { bookKey: u.bookKey, chapter: u.chapters[0], verse };
+  }
+
+  // ---- loading as the reader nears an edge ----
+
+  async function fill() {
+    if (destroyed || hi < lo) return;
+    const n = seq;
+    const h = scroller.clientHeight || 400;
+    const below = scroller.scrollHeight - scroller.scrollTop - h;
+    if (!loadingDown && !stalled && below < h * AHEAD && hi < units.length - 1) {
+      loadingDown = true;
+      const i = hi + 1;
+      const section = await render(i);
+      loadingDown = false;
+      if (n !== seq) return;
+      if (!section) {
+        // Shown at the foot, where the reader is headed; Try again redraws it.
+        stalled = true;
+        const f = failed(units[i], i, () => { f.remove(); stalled = false; fill(); });
+        text.append(f);
+        return;
+      }
+      text.append(section);
+      sections.set(i, section);
+      hi = i;
+      fill();
+      return;
+    }
+    if (!loadingUp && scroller.scrollTop < h * AHEAD && lo > 0) {
+      loadingUp = true;
+      const i = lo - 1;
+      const section = await render(i);
+      loadingUp = false;
+      if (n !== seq || !section) return;
+      hold(() => text.prepend(section));
+      sections.set(i, section);
+      lo = i;
+      fill();
+    }
+  }
+
+  // ---- going to a passage ----
+
+  /** The element a passage points at in its section. */
+  function targetIn(section, p) {
+    if (!p.verse || section.classList.contains("desk-lit__chapter--draft")) return section;
+    const prefix = litPrefix(paneId, p.bookKey, p.chapter);
+    return section.querySelector(`[id="${prefix}v${p.verse}"]`)?.closest(".vglue, sup") ?? section;
+  }
+
+  function scrollTo(section, p) {
+    const target = targetIn(section, p);
+    const top = target.getBoundingClientRect().top;
+    const box = scroller.getBoundingClientRect();
+    // A verse sits just above the reading line; a chapter starts at the top.
+    const want = target === section ? box.top + 4 : line() - 8;
+    scroller.scrollTop += top - want;
+  }
+
+  /**
+   * Show a passage. Within the chapters on the page it scrolls; elsewhere the
+   * page starts again at that chapter and fills in around it.
+   */
+  async function goTo(passage, { force = false } = {}) {
+    const p = checkPassage(passage);
+    if (!p || destroyed) return;
+    if (!force && told && sameChapter(told, p) && told.verse === p.verse) return;
+    told = p;
+    readerMoved = false;
+    bar.update(p);
+    const i = unitIndex(units, p.bookKey, p.chapter);
+    if (i < 0) return;
+    const there = sections.get(i);
+    if (there?.isConnected) {
+      scrollTo(there, p);
+      fill();
+      return;
+    }
+    const n = ++seq;
+    loadingUp = loadingDown = stalled = false;
+    // Nothing is on the page until the chapter comes, so nothing fills in
+    // around the old place meanwhile.
+    lo = 0;
+    hi = -1;
+    sections.clear();
+    for (const l of lenses.splice(0)) l?.destroy?.();
+    text.replaceChildren(make("p", "desk-dp__status", `Loading ${passageLabel({ ...p, verse: null })}…`));
+    const section = await render(i);
+    if (n !== seq) return;
+    if (!section) {
+      text.replaceChildren(failed(units[i], i, () => goTo(p, { force: true })));
+      return;
+    }
+    text.replaceChildren(section);
+    sections.set(i, section);
+    lo = hi = i;
+    scrollTo(section, p);
+    fill();
+  }
+
+  // ---- the reader's scrolling ----
+
+  // Only the reader's own scrolling moves the place (the Greek pane's rule).
+  const byReader = () => { readerMoved = true; };
+  for (const type of ["wheel", "pointerdown", "touchstart", "keydown"]) {
+    scroller.addEventListener(type, byReader, { passive: true });
+  }
+
+  let frame = 0;
+  scroller.addEventListener("scroll", () => {
+    if (frame) return;
+    frame = requestAnimationFrame(() => {
+      frame = 0;
+      fill();
+      if (!readerMoved) return;
+      const p = placeNow();
+      if (!p || (told && sameChapter(told, p) && told.verse === p.verse)) return;
+      tell(p);
+    });
+  }, { passive: true });
+
+  // ---- footnote letters ----
+
+  scroller.addEventListener("click", async (e) => {
+    const a = e.target.closest?.(".fn-ref a[data-fn]");
+    if (!a || !scroller.contains(a)) return;
+    e.preventDefault();
+    e.stopPropagation();
+    if (currentPanel()?.trigger === a) {
+      closePanel();
+      return;
+    }
+    const section = a.closest(".desk-lit__chapter");
+    const bookKey = section?.dataset.book;
+    const chapter = Number(section?.dataset.chapter);
+    if (!bookKey || !chapter) return;
+    let source;
+    try {
+      source = await loadChapterPage(bookKey, chapter);
+    } catch (_) {
+      return;
+    }
+    const verse = Number(a.closest("[data-verse]")?.dataset.verse) || null;
+    const letter = a.textContent.trim();
+    const where = passageLabel({ bookKey, chapter, verse });
+    const panel = footnotePanel({
+      title: `${where}, footnote ${letter}`,
+      label: `Footnote ${letter}, ${where}`,
+      body: source.footnoteBody(a.dataset.fn),
+    });
+    showPanel(a, panel, { restoreFocus: a });
+    panel.focus({ preventScroll: true });
+  });
+
+  const ro = new ResizeObserver(() => fill());
+  ro.observe(scroller);
+
+  queueMicrotask(() => goTo(start, { force: true }));
+
+  return {
+    el,
+    goTo,
+    destroy() {
+      destroyed = true;
+      seq++;
+      ro.disconnect();
+      if (frame) cancelAnimationFrame(frame);
+      for (const l of lenses.splice(0)) l?.destroy?.();
+      if (currentPanel()?.trigger && el.contains(currentPanel().trigger)) closePanel();
+    },
+  };
+}
