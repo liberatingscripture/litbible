@@ -542,3 +542,562 @@
     break-inside: avoid;
   }
 }
+
+/* ── Present mode (3j; STUDY-DESK.md, S6, M2, M3) ─────────────────────────
+   The presentation (src/scripts/desk/sheet-present.js) covers the page and is
+   dark in either theme, since a projector's light floods a room: a near-black
+   ground, cream words. Its colors are pinned here, never the theme's, and so
+   is its focus ring (LIT Green, above the 4.58:1 it has on ink). The
+   presenter view's previews draw the same screens at projector proportions,
+   so they share these rules. Type is sized per screen by the script
+   (--present-size, the largest that fits), and every part of a screen is
+   measured in em from it. */
+
+html[data-presenting],
+html[data-presenting] body {
+  overflow: hidden;
+}
+
+.present-stage,
+.present-preview__surface {
+  color-scheme: dark;
+  --present-ground: #111511;
+  --present-words: #f2eee4;
+  --present-quiet: #a7ada3;
+  --present-accent: #5fcf86;
+  --text: var(--present-words);
+  --text-strong: #fff;
+  --ink-rgb: 242, 238, 228;
+  --green-text: var(--present-accent);
+  --focus-ring: var(--green);
+  --desk-rich-red: #ff8a80;
+  --desk-rich-blue: #8ab4ff;
+  --desk-rich-green: #7ed69c;
+  --desk-rich-purple: #c9a4f2;
+  --desk-rich-gray: #b3b8af;
+  --desk-rich-mark-yellow: rgba(255, 210, 0, 0.32);
+  --desk-rich-mark-green: rgba(160, 210, 40, 0.3);
+  --desk-rich-mark-blue: rgba(70, 150, 255, 0.32);
+  --desk-rich-mark-pink: rgba(255, 95, 165, 0.3);
+  background: var(--present-ground);
+  color: var(--present-words);
+}
+
+.present-stage {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  outline: none;
+}
+
+.present-stage:not(.is-awake) {
+  cursor: none;
+}
+
+.present-stage__frame {
+  position: absolute;
+  inset: 0;
+}
+
+.present-preview__surface {
+  position: relative;
+  transform: scale(var(--present-scale, 0.5));
+  transform-origin: 0 0;
+}
+
+.present-screen {
+  box-sizing: border-box;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  padding: 6vh 7vw;
+  font-family: "Inter", "Inter Fallback", system-ui, sans-serif;
+  font-size: var(--present-size, 48px);
+  line-height: 1.38;
+  scrollbar-width: thin;
+}
+
+.present-preview__surface .present-screen {
+  padding: 54px 112px;
+}
+
+.present-screen__body {
+  width: 100%;
+  max-width: 32em;
+  margin: auto;
+}
+
+.present-screen a {
+  color: var(--present-accent);
+}
+
+.present-screen__title {
+  margin: 0;
+  font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
+  font-size: 1.5em;
+  line-height: 1.1;
+  color: var(--present-words);
+}
+
+.present-screen__subtitle {
+  margin: 0.3em 0 0;
+  font-size: 0.75em;
+  font-style: italic;
+  color: var(--present-quiet);
+}
+
+.present-screen__codes {
+  margin-top: 1.2em;
+}
+
+.present-screen__follow {
+  margin: 0 0 0.4em;
+  font-size: 0.6em;
+  color: var(--present-quiet);
+}
+
+.present-screen__code-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8em;
+}
+
+/* Big enough to scan from the back of a room. */
+.present-screen .sheet-copy__code {
+  float: none;
+  width: 5.2em;
+  margin: 0;
+  font-size: 1em;
+  text-align: center;
+  color: var(--present-words);
+}
+
+.present-screen .sheet-copy__code-art svg {
+  border-radius: 0.12em;
+}
+
+.present-screen .sheet-copy__code figcaption {
+  margin-top: 0.3em;
+  font-size: 0.5em;
+}
+
+.present-screen__addresses {
+  margin: 0.8em 0 0;
+  font-size: 0.5em;
+  color: var(--present-quiet);
+}
+
+.present-screen__ref {
+  margin: 0 0 0.45em;
+  font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
+  font-size: 0.7em;
+  font-weight: 600;
+  color: var(--present-accent);
+}
+
+.present-screen__words p {
+  margin: 0 0 0.5em;
+}
+
+.present-screen__words blockquote.hbq {
+  margin: 0 0 0.5em 1.2em;
+}
+
+.present-screen__words .hbq-line {
+  margin: 0;
+  padding-left: 1.2em;
+  text-indent: -1.2em;
+}
+
+.present-screen__words sup {
+  line-height: 0;
+}
+
+.present-screen__words sup.vn {
+  font-size: 0.5em;
+  font-weight: 600;
+  color: var(--present-quiet);
+}
+
+.present-screen__words sup.vn :is(a, button) {
+  all: unset;
+}
+
+.present-screen__words .sheet-copy__fnref,
+.present-screen__note .sheet-copy__note-label {
+  font-style: italic;
+  font-variant-ligatures: none;
+  color: var(--present-accent);
+}
+
+.present-screen__words .sheet-copy__fnref {
+  font-size: 0.5em;
+}
+
+/* Footnotes come up over the lower part of the screen, at a size of their
+   own, so a long note neither shrinks the verses nor goes unreadable; the
+   verses keep their place and come back when the notes go down. */
+.present-screen {
+  position: relative;
+}
+
+.present-screen__notes {
+  position: absolute;
+  left: 4%;
+  right: 4%;
+  bottom: 4%;
+  box-sizing: border-box;
+  max-height: 56%;
+  margin: 0;
+  padding: 0.8em 1.1em;
+  overflow: auto;
+  border: 1px solid rgba(242, 238, 228, 0.28);
+  border-radius: 0.5em;
+  background: #1b211b;
+  box-shadow: 0 -0.6em 2em rgba(0, 0, 0, 0.55);
+  list-style: none;
+  font-size: var(--present-notes-size, 0.55em);
+  line-height: 1.4;
+}
+
+.present-screen__note {
+  display: flex;
+  gap: 0.5em;
+  margin: 0 0 0.35em;
+}
+
+.present-screen__note .sheet-copy__note-label {
+  flex: none;
+  min-width: 1em;
+  font-weight: 600;
+}
+
+.present-screen__rich :is(h2, h3) {
+  font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
+  line-height: 1.15;
+}
+
+.present-screen__question {
+  font-size: 1.1em;
+  font-weight: 500;
+}
+
+.present-screen__terms .sheet-copy__terms-title {
+  margin: 0 0 0.5em;
+  font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
+  font-size: 0.9em;
+  color: var(--present-accent);
+}
+
+.present-screen__terms .sheet-copy__term-list {
+  margin: 0;
+  padding-left: 1em;
+  font-size: 0.8em;
+}
+
+.present-screen__terms .sheet-copy__term-list li {
+  margin: 0 0 0.3em;
+}
+
+.present-screen__terms .sheet-blank__line {
+  min-width: 4em;
+  border-bottom: 0.07em solid var(--present-words);
+}
+
+.present-screen__terms .sheet-copy__terms-note,
+.present-screen__missing {
+  font-size: 0.55em;
+  color: var(--present-quiet);
+}
+
+/* A blank on the screen (S6): the words and their cover share one cell, so
+   the reveal moves nothing beside them; whichever isn't showing keeps its
+   room. A cover is the traditional word, dashed beneath, or a line with the
+   leader's hint below it. */
+.sheet-blank--present {
+  display: inline-grid;
+  margin: 0 0.1em;
+  line-height: inherit;
+  vertical-align: baseline;
+}
+
+.sheet-blank--present > * {
+  grid-area: 1 / 1;
+  justify-self: center;
+  transition: opacity 0.25s ease, visibility 0.25s;
+}
+
+.sheet-blank--present[data-revealed="false"] > .sheet-blank__answer,
+.sheet-blank--present[data-revealed="true"] > .sheet-blank__cover {
+  visibility: hidden;
+  opacity: 0;
+}
+
+.sheet-blank--present[data-revealed="true"] > .sheet-blank__answer {
+  color: #fff;
+  background: rgba(95, 207, 134, 0.22);
+  border-radius: 0.12em;
+  box-shadow: 0 0 0 0.08em rgba(95, 207, 134, 0.22);
+}
+
+.sheet-blank--present .sheet-blank__cover {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.sheet-blank--present .sheet-blank__word {
+  font-style: italic;
+  color: var(--present-quiet);
+  border-bottom: 0.06em dashed var(--present-accent);
+}
+
+.sheet-blank--present .sheet-blank__line {
+  min-width: 4em;
+  height: 1.1em;
+  border-bottom: 0.07em solid var(--present-words);
+}
+
+.sheet-blank--present .sheet-blank__hint {
+  margin-top: 0.15em;
+  font-size: 0.45em;
+  font-style: italic;
+  line-height: 1;
+  color: var(--present-quiet);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sheet-blank--present > * {
+    transition: none;
+  }
+}
+
+/* The strip of controls: out of sight until the pointer moves or a control
+   has focus, so a still screen shows only the text. */
+.present-stage__strip {
+  position: absolute;
+  left: 50%;
+  bottom: 1.2rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  max-width: calc(100% - 2rem);
+  padding: 0.45rem 0.6rem;
+  transform: translateX(-50%);
+  border-radius: 0.6rem;
+  background: rgba(0, 0, 0, 0.78);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  font-family: "Inter", "Inter Fallback", system-ui, sans-serif;
+  font-size: 0.9rem;
+}
+
+.present-stage.is-awake .present-stage__strip,
+.present-stage__strip:focus-within,
+.present-stage__strip:hover {
+  opacity: 1;
+}
+
+.present-stage__where {
+  padding: 0 0.4rem;
+  color: var(--present-quiet);
+  font-variant-numeric: tabular-nums;
+}
+
+.present-btn {
+  padding: 0.4rem 0.75rem;
+  border: 1px solid rgba(242, 238, 228, 0.35);
+  border-radius: 0.4rem;
+  background: rgba(242, 238, 228, 0.08);
+  color: var(--present-words);
+  font: inherit;
+  cursor: pointer;
+}
+
+.present-btn:hover {
+  background: rgba(242, 238, 228, 0.18);
+}
+
+.present-btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.present-btn[aria-pressed="true"] {
+  border-color: var(--present-accent);
+  background: rgba(95, 207, 134, 0.22);
+}
+
+.present-btn:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+/* ── The presenter view (M2) ─────────────────────────────────────────────
+   An ordinary page in the reader's own theme, on the leader's screen, with
+   the room's screens previewed dark. */
+
+html[data-presenter] .sheets-page {
+  max-width: none;
+  padding-bottom: 2rem;
+}
+
+.present-presenter__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem 1.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.present-presenter__title {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.present-presenter__where {
+  flex: 1;
+  margin: 0;
+}
+
+.present-presenter__clock {
+  margin: 0;
+  font-size: 1.6rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.present-presenter__status:empty {
+  display: none;
+}
+
+.present-presenter__status {
+  margin: 0 0 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border-left: 3px solid var(--green-text);
+  background: rgba(var(--ink-rgb), 0.05);
+}
+
+.present-presenter__main {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: 1.5rem;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .present-presenter__main {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.present-preview {
+  margin: 0;
+}
+
+.present-preview__caption {
+  margin: 0 0 0.35rem;
+  font-weight: 600;
+}
+
+.present-preview__viewport {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: 0.5rem;
+  background: #111511;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+}
+
+.present-preview__none {
+  margin: 0;
+  padding: 112px;
+  font-size: 64px;
+  color: #a7ada3;
+}
+
+.present-presenter__controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.present-presenter .present-btn,
+.present-btn--quiet {
+  border-color: rgba(var(--ink-rgb), 0.3);
+  background: var(--surface-raised);
+  color: var(--text);
+}
+
+.present-presenter .present-btn:hover {
+  background: rgba(var(--ink-rgb), 0.08);
+}
+
+.present-presenter .present-btn[aria-pressed="true"] {
+  border-color: var(--green-text);
+  background: rgba(var(--ink-rgb), 0.08);
+}
+
+.present-notes {
+  margin-bottom: 1.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  background: var(--surface-raised);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.present-notes__title {
+  margin: 0 0 0.5rem;
+  font-size: 1.1rem;
+}
+
+.present-notes__head {
+  margin: 0.75rem 0 0.25rem;
+  font-size: 1rem;
+}
+
+.present-notes__blanks {
+  margin: 0;
+  padding-left: 1.4rem;
+}
+
+.present-notes__blanks li.is-revealed {
+  color: rgba(var(--ink-rgb), 0.6);
+}
+
+.present-notes__line,
+.present-notes__none {
+  margin: 0.5rem 0 0;
+  color: rgba(var(--ink-rgb), 0.75);
+}
+
+.present-notes__part {
+  margin-top: 0.75rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(var(--ink-rgb), 0.15);
+}
+
+.present-notes__part .sheet-copy__tag {
+  display: inline-block;
+  padding: 0 0.35rem;
+  border: 1px solid rgba(var(--ink-rgb), 0.4);
+  border-radius: 3px;
+  font-size: 0.7rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.present-presenter__keys {
+  margin: 1.25rem 0 0;
+  font-size: 0.9rem;
+  color: rgba(var(--ink-rgb), 0.75);
+}
+
+@media print {
+  .present-stage {
+    display: none !important;
+  }
+}
