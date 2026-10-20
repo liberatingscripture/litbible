@@ -15,15 +15,18 @@
 // runs or loads.
 
 import { pageAnchorText } from "../../lib/desk-anchor-dom.mjs";
+import { footnotesFromDom } from "../../lib/desk-footnotes.mjs";
 
 const BASE = String(import.meta.env.BASE_URL || "/").replace(/\/?$/, "/");
 
 const cache = new Map(); // "john 3" → Promise<source>
+const loaded = new Map(); // "john 3" → source, once its page has been read
 
 /** The chapter's Study View address. */
 export const chapterHref = (bookKey, chapter) => `${BASE}${bookKey}-${chapter}/`;
 
 function read(doc, bookKey, chapter) {
+  let pinnable; // the footnotes as pins read them, worked out once
   const article = doc.querySelector("article.chapter");
   const textBox = doc.querySelector(".chapter-paragraphs");
   // A draft chapter has no LIT text yet (indexed: false), only its Greek.
@@ -63,12 +66,28 @@ function read(doc, bookKey, chapter) {
     footnoteBody: (id) => doc.getElementById(id)?.querySelector(".fn-body") ?? null,
     // Read fresh each time, like page.js's chapterText.
     anchorText: () => pageAnchorText(textBox?.children ?? []),
+    // The footnotes as the pinned-footnote rules read them, [{ id, verse,
+    // text }] (desk-footnotes.mjs), the same list page.js's footnoteList()
+    // gives Study View; null for a draft. The fetched page never changes, so
+    // it is read once.
+    footnoteList: () => {
+      if (draft) return null;
+      pinnable ??= footnotesFromDom(textBox.children, (id) => {
+        const body = doc.getElementById(id)?.querySelector(".fn-body");
+        if (!body) return null;
+        const clone = body.cloneNode(true);
+        clone.querySelector(".footnote-backlink")?.remove();
+        return clone.innerHTML;
+      });
+      return pinnable;
+    },
   };
 }
 
 /**
  * The chapter's page, read: { bookKey, chapter, draft, textBox, verses,
- * termData, footnotes, goDeeper, doc, footnoteBody(id), anchorText() }, where
+ * termData, footnotes, goDeeper, doc, footnoteBody(id), anchorText(),
+ * footnoteList() }, where
  * footnotes is the page's list in order, [{ id, label, verse | null }] (empty
  * for a draft). Rejects when the page
  * can't be had; a failed fetch is forgotten, so the next ask tries again.
@@ -82,9 +101,22 @@ export function loadChapterPage(bookKey, chapter) {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return res.text();
       })
-      .then((html) => read(new DOMParser().parseFromString(html, "text/html"), bookKey, chapter));
+      .then((html) => {
+        const source = read(new DOMParser().parseFromString(html, "text/html"), bookKey, chapter);
+        loaded.set(key, source);
+        return source;
+      });
     p.catch(() => cache.delete(key));
     cache.set(key, p);
   }
   return p;
+}
+
+/**
+ * The chapter's page if it has already been read, else null: for the code that
+ * must answer at once (a change notice is judged on what is on screen now) and
+ * can't wait for a fetch. Whoever shows the chapter has loaded it.
+ */
+export function loadedChapterPage(bookKey, chapter) {
+  return loaded.get(`${bookKey} ${chapter}`) ?? null;
 }

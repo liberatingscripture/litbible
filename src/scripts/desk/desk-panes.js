@@ -6,7 +6,8 @@
 //
 // Every pane mounts the Notebook's own module, never a copy, so a pane and
 // the tab or list it comes from can't drift apart:
-// - My Notes is tab-mine.js (3c);
+// - My Notes is tab-mine.js (3c), following the LIT pane by scrolling its
+//   list (3g);
 // - This verse is tab-verse.js, with a "This chapter" section at its foot
 //   holding the chapter's Go deeper (D9, "Phase 3a's answers", 3) (3d);
 // - Greek is tab-greek.js (3d);
@@ -263,6 +264,7 @@ function mountFootnotes(body, env, pane) {
     source = page;
     view = createFootnotesView({
       idSuffix: `-${pane.id}`,
+      store: env.store,
       // A note's verse leads back: the LIT pane this pane follows goes there.
       onVerse: (verse) => pane.set({ ...p, verse }),
     });
@@ -339,13 +341,22 @@ export function mountPane(kind, body, env, pane) {
       visible: () => body.isConnected,
       onEdit: env.onEdit,
       ctx: env.ctx,
+      // A record on a verse moves the LIT pane being read there (3g), which
+      // this pane then follows.
+      goHere: {
+        can: (r) => Boolean(r?.bookKey && r.chapter),
+        go: (r) => env.showPassage({ bookKey: r.bookKey, chapter: r.chapter, verse: r.verse ?? null }),
+      },
     });
     body.append(tab.el);
+    // It follows the LIT pane (3g; BVJ, 2026-10-19): the records on the
+    // passage being read are kept in view, the list otherwise unchanged.
+    tab.follow(pane.get());
     // The pane goes on the page right after this returns, and a tab draws
     // only once it is there.
     queueMicrotask(() => tab.render());
     const unsubscribe = env.store?.subscribe(() => tab.render());
-    return { destroy: () => unsubscribe?.() };
+    return { setPassage: (p) => tab.follow(p), destroy: () => unsubscribe?.() };
   }
   if (kind === "verse") return mountVerse(body, env, pane);
   if (kind === "greek") return mountGreek(body, env, pane);

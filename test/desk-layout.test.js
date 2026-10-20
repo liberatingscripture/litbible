@@ -95,8 +95,8 @@ test("panes, findPane, nodeAt and pathTo read the tree in reading order", () => 
 });
 
 test("isFollower and kindLabel", () => {
-  for (const k of ["verse", "greek", "footnotes"]) assert.equal(isFollower(k), true, k);
-  for (const k of ["lit", "mine", "sheet", "future", undefined]) assert.equal(isFollower(k), false, String(k));
+  for (const k of ["verse", "greek", "footnotes", "mine"]) assert.equal(isFollower(k), true, k);
+  for (const k of ["lit", "sheet", "future", undefined]) assert.equal(isFollower(k), false, String(k));
   assert.equal(kindLabel("lit"), "The LIT");
   assert.equal(kindLabel("mine"), "My Notes");
   assert.equal(kindLabel("future"), "future");
@@ -422,9 +422,11 @@ test("setKind changes the kind and drops a pin the new kind doesn't follow", () 
   const greek = setKind(l, "b", "greek");
   assert.equal(findPane(greek.root, "b").kind, "greek");
   assert.deepEqual(findPane(greek.root, "b").pin, { at: "John 1:1" });
-  const notes = setKind(l, "b", "mine");
-  assert.equal(findPane(notes.root, "b").kind, "mine");
-  assert.equal(findPane(notes.root, "b").pin, null);
+  const sheet = setKind(l, "b", "sheet");
+  assert.equal(findPane(sheet.root, "b").kind, "sheet");
+  assert.equal(findPane(sheet.root, "b").pin, null);
+  // My Notes follows too (3g), so it keeps the pin.
+  assert.deepEqual(findPane(setKind(l, "b", "mine").root, "b").pin, { at: "John 1:1" });
 });
 
 test("setKind with the same kind or an unknown pane returns the layout", () => {
@@ -440,21 +442,21 @@ test("setKind away from the active LIT pane settles active", () => {
 });
 
 test("setPin only works on following kinds and stores { at }", () => {
-  const l = mk(cols([0.34, 0.33, 0.33], leaf("a", "lit"), leaf("b", "verse"), leaf("c", "mine")));
+  const l = mk(cols([0.34, 0.33, 0.33], leaf("a", "lit"), leaf("b", "verse"), leaf("c", "sheet")));
   const pinned = setPin(l, "b", true, "Romans 8:1");
   assert.deepEqual(findPane(pinned.root, "b").pin, { at: "Romans 8:1" });
   assert.deepEqual(findPane(setPin(l, "b", true).root, "b").pin, { at: null });
   assert.deepEqual(findPane(setPin(l, "b", true, 42).root, "b").pin, { at: null });
   assert.equal(findPane(setPin(pinned, "b", false).root, "b").pin, null);
-  for (const kind of ["verse", "greek", "footnotes"]) {
+  for (const kind of ["verse", "greek", "footnotes", "mine"]) {
     const x = mk(cols([0.5, 0.5], leaf("a", "lit"), leaf("b", kind)));
     assert.deepEqual(findPane(setPin(x, "b", true, "x").root, "b").pin, { at: "x" }, kind);
   }
   assert.equal(setPin(l, "a", true, "x"), l);
   assert.equal(setPin(l, "c", true, "x"), l);
   assert.equal(setPin(l, "nope", true, "x"), l);
-  const sheet = mk(cols([0.5, 0.5], leaf("a", "lit"), leaf("b", "sheet")));
-  assert.equal(setPin(sheet, "b", true, "x"), sheet);
+  const kept = mk(cols([0.5, 0.5], leaf("a", "lit"), leaf("b", "kept")));
+  assert.equal(setPin(kept, "b", true, "x"), kept);
 });
 
 test("setActive only accepts a LIT pane", () => {
@@ -467,7 +469,7 @@ test("setActive only accepts a LIT pane", () => {
 
 test("leaderFor is the active LIT pane for an unpinned follower, else null", () => {
   const l = mk(
-    cols([0.2, 0.2, 0.2, 0.2, 0.2], leaf("a", "lit"), leaf("b", "verse"), leaf("c", "greek", { at: "John 1:1" }), leaf("d", "mine"), leaf("e", "footnotes")),
+    cols([0.2, 0.2, 0.2, 0.2, 0.2], leaf("a", "lit"), leaf("b", "verse"), leaf("c", "greek", { at: "John 1:1" }), leaf("d", "sheet"), leaf("e", "footnotes")),
     "a",
   );
   assert.equal(leaderFor(l, "b"), "a");
@@ -946,13 +948,13 @@ test("setPlace does not mutate its input", () => {
 });
 
 test("placeFor is null for a pane that does not follow, or does not exist", () => {
-  const l = setPlace(mk(cols([0.25, 0.25, 0.25, 0.25], leaf("a", "lit"), leaf("b", "mine"), leaf("c", "sheet"), leaf("d", "kept"))), "john 3:16");
-  for (const id of ["a", "b", "c", "d", "nope"]) assert.equal(placeFor(l, id), null, id);
+  const l = setPlace(mk(cols([0.34, 0.33, 0.33], leaf("a", "lit"), leaf("b", "sheet"), leaf("c", "kept"))), "john 3:16");
+  for (const id of ["a", "b", "c", "nope"]) assert.equal(placeFor(l, id), null, id);
 });
 
 test("placeFor gives an unpinned following pane the shared place", () => {
-  const l = setPlace(mk(cols([0.25, 0.25, 0.25, 0.25], leaf("a", "lit"), leaf("b", "verse"), leaf("c", "greek"), leaf("d", "footnotes"))), "john 3:16");
-  for (const id of ["b", "c", "d"]) assert.equal(placeFor(l, id), "john 3:16", id);
+  const l = setPlace(mk(cols([0.2, 0.2, 0.2, 0.2, 0.2], leaf("a", "lit"), leaf("b", "verse"), leaf("c", "greek"), leaf("d", "footnotes"), leaf("e", "mine"))), "john 3:16");
+  for (const id of ["b", "c", "d", "e"]) assert.equal(placeFor(l, id), "john 3:16", id);
 });
 
 test("placeFor gives a pinned pane its own passage", () => {

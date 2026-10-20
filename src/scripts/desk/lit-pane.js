@@ -35,7 +35,13 @@
 //   sheet-pane.js, which read `book`, `chapter` and `textFor` from the
 //   panel's detail.
 //
-// Not here yet: the reader's marks (3g).
+// - **The reader's marks** (3g): the pane puts its text on the desk's list
+//   (page.js, addDeskText), and the reader's highlights are drawn on it and
+//   its verse numbers named for them (highlights.js, verse-labels.js), from
+//   every pane showing a chapter. A footnote's popover offers Pin through
+//   the same `lit:footnote-actions` event Study View's does (pins.js).
+//   Nothing of the reader's sits beside the text (BVJ, 2026-10-19): notes
+//   and bookmarks are in My Notes, which follows this pane.
 
 import { corpusUnits, draftStubText, unitHeading, unitIndex } from "../../lib/desk-corpus.mjs";
 import { litPrefix, prepareLitBlocks } from "../../lib/desk-lit-text.mjs";
@@ -48,6 +54,7 @@ import { footnotePanel } from "../panel-pieces.js";
 import "../ref-preview.js";
 import { attachTermLens } from "../term-lens.js";
 import { chapterHref, loadChapterPage } from "./chapter-page.js";
+import { addDeskText } from "./page.js";
 import { createPassageBar } from "./passage-bar.js";
 
 /** How far down the pane the reading line sits. */
@@ -99,6 +106,7 @@ export function createLitPane({ paneId, start, drafts, onPlace }) {
   let readerMoved = false;
   let destroyed = false;
   const lenses = [];
+  const offDesk = addDeskText(text);
 
   // ---- the verse menu and the selection panel (3f) ----
 
@@ -419,6 +427,11 @@ export function createLitPane({ paneId, start, drafts, onPlace }) {
       label: `Footnote ${letter}, ${where}`,
       body: source.footnoteBody(a.dataset.fn),
     });
+    // The same offer Study View's popover makes, naming the chapter since a
+    // pane holds many; only pins.js listens (3g), and only with a notebook.
+    document.dispatchEvent(
+      new CustomEvent("lit:footnote-actions", { detail: { panel, note: { id: a.dataset.fn }, ref: a, book: bookKey, chapter } }),
+    );
     showPanel(a, panel, { restoreFocus: a });
     panel.focus({ preventScroll: true });
   });
@@ -438,6 +451,7 @@ export function createLitPane({ paneId, start, drafts, onPlace }) {
       if (frame) cancelAnimationFrame(frame);
       for (const l of lenses.splice(0)) l?.destroy?.();
       tools.destroy();
+      offDesk();
       if (currentPanel()?.trigger instanceof Node && el.contains(currentPanel().trigger)) closePanel();
     },
   };

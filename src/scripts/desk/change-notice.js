@@ -45,6 +45,7 @@ import { glyph } from "./glyphs.js";
 import { fillNoteWords } from "./note-words.js";
 import { undoEntry } from "./history.js";
 import { prosePage, targetOf } from "./note-sources.js";
+import { loadedChapterPage } from "./chapter-page.js";
 import { chapterTextFor, footnoteList, pageChapter } from "./page.js";
 import { loadReleaseNotes } from "./release-feed.js";
 import { announce, showUndo } from "./undo-bar.js";
@@ -69,9 +70,14 @@ function textReader() {
   return (record) => {
     if (record?.kind === "footnotePin") {
       const here = pageChapter();
-      if (!here || here.bookKey !== record.bookKey || here.chapter !== record.chapter) return null;
-      footnotes ??= footnoteList();
-      return footnotes;
+      if (here) {
+        if (here.bookKey !== record.bookKey || here.chapter !== record.chapter) return null;
+        footnotes ??= footnoteList();
+        return footnotes;
+      }
+      // On /desk a chapter is judged once a pane has loaded its page
+      // (chapter-page.js), and not before: this can't wait for a fetch.
+      return loadedChapterPage(record.bookKey, record.chapter)?.footnoteList() ?? null;
     }
     const target = proseTarget(record);
     if (target) {

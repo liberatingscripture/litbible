@@ -2264,7 +2264,7 @@ collection); they're read directly by the intro pages and the API manifest.
   panel doesn't count as outside, and a panel is placed clear of it (see
   below).
 - **The Study Desk preview** (STUDY-DESK.md, phases 1a to 1d, 1f and 1h,
-  2a's B3 and N4, and phase 3's 3b to 3e) is in production but
+  2a's B3 and N4, and phase 3's 3b to 3g) is in production but
   switched off for everyone: `?desk=on` turns it on in one browser on a
   computer, `?desk=off` turns it off. STUDY-DESK.md is the record; what a
   change elsewhere in the site has to respect:
@@ -2661,8 +2661,8 @@ collection); they're read directly by the intro pages and the API manifest.
        `parse.json` with `parse/<group>.json` holds every word by its
        parsing, named by `parseGroup` (`greek-search.mjs`, shared by build
        and client). Rebuild with `npm run build:greek`, never by hand.
-  18. **Phases 3c to 3f are /desk** (built 2026-10-19; STUDY-DESK.md, D9
-     and "Order of work", 3c to 3f): `src/pages/desk.astro`, which `desk-gate.js`
+  18. **Phases 3c to 3g are /desk** (built 2026-10-19; STUDY-DESK.md, D9
+     and "Order of work", 3c to 3g): `src/pages/desk.astro`, which `desk-gate.js`
      fills with `src/scripts/desk/desk-page.js` when `[data-desk-page]` is
      present. It isn't a reading surface (no Notebook panel; not in
      `READING_SURFACES`), and the announcement gate treats it as scripture.
@@ -2714,7 +2714,19 @@ collection); they're read directly by the intro pages and the API manifest.
        reference, link and notes), and one set of selection listeners serves
        every view, so two panes never answer one selection. A change to
        either panel must keep Study View, Read View and the pane working. No
-       reader's marks there yet (3g).
+       reader's notes or bookmarks beside the pane's text, by BVJ's choice
+       (3g): My Notes is a following pane that scrolls its list so the
+       records on the passage being read are in view (`follow` in
+       `tab-mine.js`), and a record's reference moves the LIT pane there.
+     - **The reader's marks reach the LIT pane through `page.js`** (3g): each
+       pane registers its text (`addDeskText`), `deskChapterBoxes()` lists
+       every chapter the panes show (twice when two panes show it), and
+       `chapterTextFor` reads the first; `desk/lit-records.js` keeps each
+       chapter's records for whatever draws on them (`highlights.js` and
+       `verse-labels.js` have a /desk mode on it). Pins work per chapter
+       (`pinButton(id, label, where)` in `pins.js`), reading a fetched
+       chapter's footnotes through `loadedChapterPage` (`chapter-page.js`),
+       which is also how a pin's change notice is judged on /desk.
      - **A sheet's passages come from the live text** (format rule 1):
        `src/lib/desk-sheet-passages.mjs` makes one from a verse menu, a
        selection or a notebook record, and finds its words in today's

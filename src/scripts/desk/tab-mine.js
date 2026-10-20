@@ -42,6 +42,13 @@
 // glossary it starts on the notes on this page (N11); elsewhere it lists
 // everything. An article also offers a note on the whole article here.
 //
+// On /desk (3g; BVJ, 2026-10-19) the tab is a pane that follows the LIT
+// pane, as This verse does, but by keeping its list as it is and scrolling
+// it: as the reader moves through the text, the pane makes sure the records
+// on the passage being read are in view (`follow`), without lining them up
+// with their verses. Notes never sit beside a pane's text there. A
+// record's reference and words move the LIT pane to it (`goHere`).
+//
 // Labels (M8) narrow the list the way colours do: when any label is on a
 // record in the list, a row of choices above it narrows it to one label. They
 // are made and put on records on the notebook page (/notebook/).
@@ -191,6 +198,37 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     });
   }
 
+  let shown = []; // the records the list shows now, in its order
+  let following = null; // the passage /desk's LIT pane is at (follow)
+  let followedOnce = false;
+
+  /**
+   * /desk: make sure the records on this passage are in view. The first one
+   * in its chapter at or after its verse is the one looked for (or, with none
+   * after, the chapter's last); when it is already in view the list stays
+   * put, so a reader moving through the text sees it move only as needed.
+   * A chapter with nothing kept leaves the list where it is.
+   */
+  function follow(p) {
+    following = p ?? null;
+    if (!p?.bookKey || !list.isConnected) return;
+    let at = -1;
+    for (let i = 0; i < shown.length; i++) {
+      const r = shown[i];
+      if (r.bookKey !== p.bookKey || r.chapter !== p.chapter) continue;
+      at = i;
+      const last = Number.isInteger(r.endVerse) ? Math.max(r.verse ?? 0, r.endVerse) : r.verse ?? 0;
+      if (p.verse == null || last >= p.verse) break;
+    }
+    const row = at >= 0 ? list.children[at] : null;
+    const box = row ? scroller(el) : null;
+    if (!box) return;
+    const r = row.getBoundingClientRect();
+    const b = box.getBoundingClientRect();
+    if (r.top >= b.top && r.bottom <= b.bottom) return;
+    box.scrollTop = Math.max(0, box.scrollTop + (r.top - b.top) - 8);
+  }
+
   let renderSeq = 0;
   async function render({ focusIndex = null, focusPin = null } = {}) {
     if (!visible() && focusIndex === null && focusPin === null) return;
@@ -237,6 +275,7 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     const notices = store && ctx ? noticesFor([...records, ...pins]) : new Map();
     drawChanged([...records, ...pins], notices);
     list.replaceChildren(...records.map((r) => rowFor(r, notices.get(r.id))));
+    shown = records;
     pinBox.hidden = pins.length === 0;
     pinList.replaceChildren(...pins.map((r) => pinRowFor(r, notices.get(r.id))));
     empty.hidden = records.length > 0 || pins.length > 0;
@@ -260,6 +299,11 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
       const rows = pinList.querySelectorAll(".desk-item__delete");
       const target = rows[Math.min(focusPin, rows.length - 1)] ?? list.querySelector(".desk-item__delete");
       (target ?? el.closest(".desk-panel__body") ?? el).focus({ preventScroll: false });
+    }
+    // /desk's first drawing: show the passage being read.
+    if (following && !followedOnce) {
+      followedOnce = true;
+      follow(following);
     }
     afterRender();
   }
@@ -614,5 +658,14 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
 
   document.addEventListener(SETTINGS_EVENT, markCut);
 
-  return { el, render };
+  return { el, render, follow };
+}
+
+/** The nearest ancestor that scrolls vertically, or null. */
+function scroller(node) {
+  for (let p = node.parentElement; p; p = p.parentElement) {
+    const y = getComputedStyle(p).overflowY;
+    if (y === "auto" || y === "scroll") return p;
+  }
+  return null;
 }

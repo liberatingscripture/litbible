@@ -2218,6 +2218,16 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
   justify-self: start;
 }
 
+/* The Footnotes pane (3g): under the note, with the flag a rewritten pin gets below it. */
+.desk-fns__item .desk-pin {
+  grid-column: 1 / -1;
+  justify-self: start;
+}
+
+.desk-fns__item > .desk-fn__flag {
+  grid-column: 1 / -1;
+}
+
 /* My Notes: the group under the list. */
 .desk-mine__pins {
   margin-top: 14px;

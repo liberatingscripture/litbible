@@ -8,14 +8,18 @@
 // still preview). The reader's verse marks its notes and brings them to the
 // top of the pane's own scroll.
 //
-// Read-only: nothing here adds to the scripture or writes a record. The list
-// scrolls inside the pane (its nearest scrolling ancestor), never the page.
-// Pinning is This verse's job (tab-verse.js), so a note carries no Pin here.
+// Nothing here adds to the scripture. With a notebook (3g) each note carries
+// the Pin / Unpin button it has in This verse and in Study View's Footnotes
+// list (pins.js), under the note, with the flag a rewritten pinned note gets
+// under that; pins.js draws the flags, since it already follows the notebook.
+// The list scrolls inside the pane (its nearest scrolling ancestor), never the
+// page.
 //
-// createFootnotesView({ idSuffix, onVerse }) → { el, show(source, verse) },
+// createFootnotesView({ idSuffix, onVerse, store }) → { el, show(source, verse) },
 // where source is what loadChapterPage resolves to (chapter-page.js).
 
 import { passageLabel } from "../../lib/desk-passage.mjs";
+import { pinButton, refreshPins } from "./pins.js";
 
 const TOP_GAP = 8; // px between the pane's top edge and the first note shown
 
@@ -28,7 +32,7 @@ function scroller(el) {
   return null;
 }
 
-export function createFootnotesView({ idSuffix = "", onVerse = null } = {}) {
+export function createFootnotesView({ idSuffix = "", onVerse = null, store = null } = {}) {
   const el = document.createElement("section");
   el.className = "desk-fns";
   const headId = `desk-fns-title${idSuffix}`;
@@ -85,12 +89,17 @@ export function createFootnotesView({ idSuffix = "", onVerse = null } = {}) {
           clone.className = "desk-fns__body";
           li.append(clone);
         }
+        // Pin / Unpin, as under the note in the Footnotes list.
+        const pin = store ? pinButton(id, letter, { bookKey: source.bookKey, chapter: source.chapter }) : null;
+        if (pin) li.append(pin);
         list.append(li);
         items.push({ li, verse });
       }
       children.push(list);
     }
     el.replaceChildren(...children);
+    // The flags of notes whose pins were rewritten go under their notes.
+    if (store) refreshPins();
   }
 
   function mark(verse) {

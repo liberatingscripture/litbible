@@ -14,6 +14,17 @@ are recorded so they aren't re-argued.
 
 ## Where things stand (as of 2026-10-19)
 
+- **Phase 3g is built on the preview** (2026-10-19): in the LIT pane on
+  `/desk/` the reader can highlight from the verse menu and a selection, and
+  their highlights are drawn there (in every pane showing the chapter), with
+  each verse number named for them as on Study View; footnotes can be pinned
+  from the LIT pane's popover, This verse and the Footnotes pane. **Notes
+  don't sit beside the pane's text** (BVJ, from the "LIT Pane Notes" mock):
+  the My Notes pane keeps its list and follows the LIT pane, scrolling so the
+  records on the passage being read are in view. Smaller calls for BVJ to
+  judge are in the decision log, "Phase 3g". Next: 3h, what a sheet knows
+  about the LIT.
+
 - **Phase 3f is built on the preview** (2026-10-19): the LIT pane on
   `/desk/` has Study View's verse menu and selection panel, with their copy
   actions and the "My Notebook" row, and the Sheet pane is the sheet
@@ -4256,6 +4267,10 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      footnotes** there, from the popover, This verse and the Footnotes
      pane. Where a note sits beside a pane's text (the margin is the
      page's, not a pane's) is mocked first.
+     **Built on the preview 2026-10-19** (decision log, "Phase 3g"):
+     highlights and the verse numbers' names in the LIT pane, and pins in all
+     three places. Notes stay out of the pane's text (BVJ): My Notes follows
+     the LIT pane by scrolling its list (`tab-mine.js`'s `follow`).
    - **3h. What a sheet knows about the LIT.** The key terms box (S3),
      blanks (S10) with the footnote picker and spoiler flags (C15), and
      the license card with the commercial check (S7).
@@ -5457,6 +5472,58 @@ split itself is still a proposal BVJ worked within but hasn't confirmed.
   values, so themes, print and contrast decide how they look, and a
   reader's accessibility font still wins on screen. Left out: images and
   tables. The set can grow later but never shrink.
+
+### 2026-10-19 (Phase 3g: the reader's marks on /desk)
+
+- **Built**: the parts of 3g that don't depend on where a note sits. The
+  LIT pane's "My Notebook" row now offers Highlight, as Study View's does;
+  the reader's highlights are drawn on the pane (in every LIT pane showing
+  the chapter, so two panes on John 3 both show them) and each verse number's
+  name says what it carries ("Verse 16, highlighted yellow, 1 note of
+  mine"). Pin and Unpin are on the LIT pane's footnote popover, in This
+  verse, and under each note in the Footnotes pane, where a pinned note that
+  was rewritten gets the same flag as in Study View's Footnotes list.
+- **Mocked for BVJ**: where a note sits beside a pane's text, as "LIT Pane
+  Notes" (https://claude.ai/artifact/R4RKSvzQi2vaHPMKPjvGEs, private), John
+  3 with made-up notes, a bookmark, two highlights and a changed-wording
+  flag, and a slider for the pane's width:
+  - **A. A margin inside the pane**: Study View's margin and its rules,
+    applied to the pane's width (notes in full, then circles, then none);
+  - **B. Circles in a slim gutter**: the text keeps nearly the whole width,
+    and each note opens in a popover;
+  - **C. The notes pane is the margin**: no notes in the LIT pane; a My
+    Notes pane beside it lines its cards up with their words as the text
+    scrolls.
+  The website recommended A. **BVJ chose none of the three as mocked**: "Desk
+  doesn't need to replicate the margin notes. C is the closest, but there's
+  no reason to have them spaced to be perfectly beside the text. It should
+  just be how the My Notes pane already worked, just making sure that it
+  follows in the sense that my notes that are on the section I'm looking at
+  in the text are visible, but it doesn't have to align perfectly with the
+  verse."
+- **Built from that**: My Notes is now a pane that follows the LIT pane (with
+  Stay here, like the other following panes). Its list is unchanged; as the
+  reader moves through the text it scrolls, only when needed, so the first
+  record on the passage being read (or the chapter's last, when none come
+  after) is in view. A record's reference or words move the LIT pane being
+  read to it, rather than leaving /desk for Study View.
+- **Smaller calls made in building it, for BVJ to judge on the preview**
+  (recommendations, not decisions):
+  - **Highlights on /desk follow Study View's "My highlights" setting**,
+    since the pane is Study View's text; Read View keeps its own.
+  - **A highlight made in one LIT pane is drawn in every pane showing that
+    chapter**, and a selection is read from the pane it was made in.
+  - **"Show in notebook" stays off the LIT pane's menus**: This verse is the
+    pane that shows a verse.
+  - **Nothing of the reader's sits beside the LIT pane's text**, bookmarks'
+    red marks and a changed highlight's flag included, since BVJ's answer
+    puts notes in My Notes and those marks are margin marks on Study View.
+    A bookmark is in My Notes' list; a changed highlight carries its flag
+    there, and the verse number's name counts it ("1 changed since I marked
+    it").
+  - **My Notes follows by the verse at the LIT pane's reading line**, the
+    passage the other following panes use, and leaves the list alone while
+    the reader is in a chapter with nothing kept.
 
 ### 2026-10-19 (Phase 3f: the verse menu in the LIT pane, and the sheet editor)
 
