@@ -61,6 +61,9 @@ function read(doc, bookKey, chapter) {
     termData,
     footnotes,
     goDeeper: doc.querySelector(".go-deeper"),
+    // The content version the page was built from (<html data-content-version>),
+    // which a sheet's "Text as of" line and its comparison copies name.
+    contentVersion: doc.documentElement?.dataset.contentVersion || null,
     // The page itself, where a handout copied in the LIT pane reads its notes.
     doc,
     footnoteBody: (id) => doc.getElementById(id)?.querySelector(".fn-body") ?? null,
@@ -86,7 +89,7 @@ function read(doc, bookKey, chapter) {
 
 /**
  * The chapter's page, read: { bookKey, chapter, draft, textBox, verses,
- * termData, footnotes, goDeeper, doc, footnoteBody(id), anchorText(),
+ * termData, footnotes, goDeeper, contentVersion, doc, footnoteBody(id), anchorText(),
  * footnoteList() }, where
  * footnotes is the page's list in order, [{ id, label, verse | null }] (empty
  * for a draft). Rejects when the page

@@ -6168,6 +6168,39 @@ html.desk-ws--moving * {
   margin: 0;
 }
 
+/* A passage whose wording changed since it was added (S2; sheet-lit.js's
+   wordingNotice). The diff inside is the change notice's own
+   (.desk-notice__diff, diff-view.js). */
+.desk-sheet__changed {
+  margin-top: 10px;
+  padding: 8px 10px;
+  border-left: 3px solid var(--green-text);
+  border-radius: 0 8px 8px 0;
+  background: rgba(var(--ink-rgb), 0.04);
+  font-size: 0.8125rem;
+  line-height: 1.45;
+}
+
+.desk-sheet__changed > p {
+  margin: 0 0 6px;
+}
+
+.desk-sheet__changed-head {
+  font-weight: 600;
+}
+
+.desk-sheet__changed .desk-notice__diff {
+  max-height: 9em;
+  border-left: 0;
+  border-radius: 6px;
+  background: rgba(var(--ink-rgb), 0.05);
+}
+
+.desk-sheet__changed-when,
+.desk-sheet__changed-hint {
+  color: rgba(var(--ink-rgb), 0.78);
+}
+
 /* Which footnotes print */
 .desk-sheet__notes {
   margin-top: 10px;

@@ -14,6 +14,11 @@
 //   until they choose, then kept in `localStorage['lit-sheet-paper']` (named in
 //   /privacy's paragraph). The page's own preview is drawn at that paper's width.
 // - **Codes to scan** (S5), one per chapter, on by default; not kept.
+// - **Checked before printing** (S2): a passage whose wording changed since it
+//   was added is named above the paper, with what moved, and the copy's foot
+//   says the day its text is from. The notice is for the screen only; the
+//   copy prints today's wording either way, and the new wording is kept on
+//   /desk, since this page never writes.
 // - **Print**, which prints the copy on screen, and **Copy for Word** (S9),
 //   which puts the same copy on the clipboard as formatted text and as plain.
 // - **Present** (3j): the sheet shown to a room, full screen, with the reveal
@@ -44,7 +49,10 @@ import {
 import { qrSvg } from "../../lib/qr-svg.mjs";
 import { sheetName, sortSheets } from "../../lib/desk-sheet-passages.mjs";
 import { addDeskStyle, deskCtx as ctx } from "./boot.js";
-import { renderCopy } from "./sheet-copy.js";
+import { checkSummary } from "../../lib/desk-sheet-check.mjs";
+import { passageReference } from "../../lib/desk-sheet-passages.mjs";
+import { copyChecks, renderCopy } from "./sheet-copy.js";
+import { diffParagraph } from "./diff-view.js";
 import { openPresentation, showPresenterView } from "./sheet-present.js";
 import { copyForWord } from "./sheet-word.js";
 import { openStore } from "./store.js";
@@ -300,7 +308,11 @@ async function drawSheet(root, { sheet, store, view = null, shared = null }) {
   bar.append(links, copyChoice, paperChoice, codeBox, actions);
 
   const paperBox = make("div", "sheets-page__paper");
-  root.replaceChildren(...(shared ? [sharedBanner(root, sheet, store, shared)] : []), bar, paperBox);
+  // S2's notice. A shared sheet carries no comparison copies (desk-sheet-share),
+  // so it never has one.
+  const checkBox = make("section", "sheets-page__check");
+  checkBox.hidden = true;
+  root.replaceChildren(...(shared ? [sharedBanner(root, sheet, store, shared)] : []), bar, checkBox, paperBox);
   share.addEventListener("click", () => openShareDialog(sheet, share));
 
   let current = null;
@@ -310,11 +322,14 @@ async function drawSheet(root, { sheet, store, view = null, shared = null }) {
     const n = ++seq;
     paperBox.setAttribute("aria-busy", "true");
     ready = renderCopy(sheet, { copy, codes })
-      .then((el) => {
+      .then(async (el) => {
         if (n !== seq) return;
         current = el;
         paperBox.replaceChildren(el);
         document.title = `${sheetName(sheet)}, ${COPY_NAMES[copy].toLowerCase()} | LIT Bible`;
+        if (shared) return;
+        const checks = await copyChecks(sheet, copy);
+        if (n === seq) drawCheck(checkBox, checks, edit.href);
       })
       .catch((err) => {
         console.error("Study Desk: the sheet couldn't be drawn", err);
@@ -379,6 +394,36 @@ async function drawSheet(root, { sheet, store, view = null, shared = null }) {
   // Opened to present (the Sheet pane's "Present…"): full screen waits for
   // the leader's first click, which a browser requires.
   if (view === "present") startPresenting({ fullscreen: false });
+}
+
+/**
+ * S2: the passages whose wording changed since they were added, above the
+ * paper, each with what moved. Hidden when there are none.
+ */
+function drawCheck(box, checks, deskHref) {
+  const summary = checkSummary(checks);
+  box.hidden = !summary;
+  if (!summary) {
+    box.replaceChildren();
+    return;
+  }
+  box.setAttribute("aria-labelledby", "sheetCheckHead");
+  const head = make("h2", "sheets-page__check-head", summary.headline);
+  head.id = "sheetCheckHead";
+  const list = make("ul", "sheets-page__check-list");
+  for (const { m, check } of checks) {
+    if (check?.state !== "changed") continue;
+    const li = make("li");
+    li.append(make("p", "sheets-page__check-ref", passageReference(m)));
+    const diff = diffParagraph(check.diff);
+    if (diff) li.append(diff);
+    list.append(li);
+  }
+  const advice = make("p", "sheets-page__check-advice", `${summary.advice} `);
+  const link = make("a", null, "Open it on the Study Desk");
+  link.href = deskHref;
+  advice.append(link);
+  box.replaceChildren(head, list, advice);
 }
 
 /** "Shared with you", with "Copy into my desk". */
