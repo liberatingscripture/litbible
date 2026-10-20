@@ -6015,6 +6015,20 @@ html.desk-ws--moving * {
   color: rgba(var(--ink-rgb), 0.75);
 }
 
+/* New sheet's list of templates (M9): the notebook list's rows, uncapped */
+.desk-sheet__templates {
+  margin: 0 0 12px;
+}
+
+.desk-sheet__templates .desk-sheet__from-list {
+  max-height: none;
+  margin-bottom: 8px;
+}
+
+.desk-sheet__choice-name {
+  font-weight: 600;
+}
+
 /* ── What a sheet knows about the LIT (3h; sheet-lit.js) ─────────────── */
 
 /* A quiet warning: amber-brown on the light surface, a light amber on the dark
@@ -6536,4 +6550,158 @@ p.desk-sheet__flag {
   html[data-desk-print="notes"] ::highlight(desk-print-hl-pink) {
     background-color: rgba(255, 95, 165, 0.28);
   }
+}
+
+/* ── A sheet from a search or a topic (M5; desk/search-sheet.js) ──────── */
+
+/* Quiet: a line of small text under a group's title, nothing above the
+   results when the desk is off (the markup isn't there at all). */
+.desk-gather {
+  margin: 0 0 10px;
+  font-size: 0.8125rem;
+  color: var(--text);
+}
+
+.desk-gather__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+}
+
+.desk-gather__btn {
+  padding: 4px 10px;
+  border: 1px solid rgba(var(--ink-rgb), 0.25);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+
+.desk-gather__btn:hover {
+  background: rgba(var(--ink-rgb), 0.07);
+}
+
+.desk-gather__btn--primary {
+  background: var(--green-deep);
+  border-color: var(--green-deep);
+  color: #fff;
+}
+
+.desk-gather__btn--primary:hover {
+  background: var(--green-deep);
+  filter: brightness(1.1);
+}
+
+.desk-gather__btn--quiet {
+  border-color: transparent;
+}
+
+.desk-gather__btn:disabled,
+.desk-gather__sheet:disabled {
+  opacity: 0.5;
+  cursor: default;
+  background: transparent;
+}
+
+.desk-gather__hint,
+.desk-gather__note,
+.desk-gather__sheet-meta {
+  color: rgba(var(--ink-rgb), 0.7);
+}
+
+.desk-gather :is(button, a, input):focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.desk-gather__panel {
+  margin-top: 8px;
+  padding: 10px 12px;
+  border: 1px solid rgba(var(--ink-rgb), 0.18);
+  border-radius: 12px;
+  background: rgba(var(--surface-rgb), 0.78);
+}
+
+.desk-gather__title {
+  margin: 0 0 8px;
+  font-weight: 600;
+}
+
+.desk-gather__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.desk-gather__note {
+  margin: 10px 0 4px;
+}
+
+.desk-gather__sheets {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 14em;
+  overflow-y: auto;
+}
+
+.desk-gather__sheet {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 10px;
+  width: 100%;
+  padding: 6px 4px;
+  border: 0;
+  border-bottom: 1px solid rgba(var(--ink-rgb), 0.1);
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.desk-gather__sheet:hover:not(:disabled) {
+  background: rgba(var(--ink-rgb), 0.06);
+}
+
+.desk-gather__sheet-name {
+  font-weight: 600;
+}
+
+.desk-gather__done {
+  margin: 8px 0 0;
+}
+
+.desk-gather__link {
+  color: var(--green-text);
+  text-decoration: underline;
+}
+
+/* A verse result with its tick box: the box beside the card, the card
+   taking the rest of the row. Only rows the desk marks are laid out so. */
+.desk-gather__row-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.desk-gather__row-item > .result-link {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.desk-gather__tick {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--green-deep);
+}
+
+.desk-gather__tick:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
 }

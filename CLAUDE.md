@@ -247,6 +247,9 @@ src/
                      #   its checks and its formatted-text sanitizer
                      #   (desk-sheet-format), the changes a sheet takes
                      #   (desk-sheets) and its passages (desk-sheet-passages),
+                     #   the templates it starts from (desk-sheet-templates),
+                     #   a search's or topic's passages (desk-sheet-gather),
+                     #   sharing it by link or file (desk-sheet-share),
                      #   and its copies on paper (desk-sheet-copy, with
                      #   qr-svg.mjs, the one QR drawing), and on a
                      #   screen for a room (desk-present);
@@ -395,7 +398,7 @@ workers/             # Cloudflare Workers, deployed separately via wrangler (NOT
 | `/search` | `search.astro` | Full search UI (verse index + Pagefind) |
 | `/notebook`, `/notebook/help` | `notebook.astro`, `notebook/help.astro` | The Study Desk preview's notebook page and help page. noindex, out of the sitemap and Pagefind; empty for anyone without the preview (`?desk=on`). See "The Study Desk preview" |
 | `/desk` | `desk.astro` | The Study Desk as a page of its own (D9): one to four panes. Same treatment as `/notebook`: noindex, out of the sitemap and Pagefind, and a short note without the preview. See "The Study Desk preview", rule 18 |
-| `/sheets` | `sheets.astro` | A sheet's own address (3i): `/sheets/` lists the reader's sheets, `/sheets/?id=<id>` shows one as a leader or participant copy, to print or copy for Word, or presents it to a room (3j; `&view=present`, and `&view=presenter` for the presenter view's window). Never edits. Same treatment as `/desk`. See "The Study Desk preview", rule 19 |
+| `/sheets` | `sheets.astro` | A sheet's own address (3i): `/sheets/` lists the reader's sheets, `/sheets/?id=<id>` shows one as a leader or participant copy, to print or copy for Word, or presents it to a room (3j; `&view=present`, and `&view=presenter` for the presenter view's window). `/sheets/#share1.<data>` is a sheet someone shared (3k). Never edits. Same treatment as `/desk`. See "The Study Desk preview", rules 19 and 21 |
 | `/release-notes` | `release-notes.astro` | "What's new": the release notes by month, filterable by book and kind of change. `/translation-updates.xml` (`translation-updates.xml.js`) is the same record as RSS. See "Release notes are automated" below |
 | `/apps` | `apps.astro` | Mobile-apps promo page (footer-linked). Body design ported from `BDRhodes/LIT-app-Promo`; section content lives in the `callouts`/`examples`/`seasons` collections; scoped styles in `src/styles/pages/apps.css`; components under `src/components/apps/`. Uses `bg="white"` (near-white surface). |
 | `/app-support` | `app-support.astro` | App support contact form (linked from inside the apps, not the site nav; `/app-support/thanks` is the native-POST fallback success page) |
@@ -2268,7 +2271,7 @@ collection); they're read directly by the intro pages and the API manifest.
   panel doesn't count as outside, and a panel is placed clear of it (see
   below).
 - **The Study Desk preview** (STUDY-DESK.md, phases 1a to 1d, 1f and 1h,
-  2a's B3 and N4, and phase 3's 3b to 3j) is in production but
+  2a's B3 and N4, and phase 3's 3b to 3k) is in production but
   switched off for everyone: `?desk=on` turns it on in one browser on a
   computer, `?desk=off` turns it off. STUDY-DESK.md is the record; what a
   change elsewhere in the site has to respect:
@@ -2761,7 +2764,7 @@ collection); they're read directly by the intro pages and the API manifest.
      `desk-gate.js` fills with `src/scripts/desk/sheet-page.js` when
      `[data-sheet-page]` is present. It shows, prints and copies a sheet and
      **never writes a record** (sheets are edited on /desk only; the Sheet
-     pane's "Print or copy…" opens it in a new tab). Six things to know:
+     pane's "Print or share…" opens it in a new tab). Six things to know:
      - **`src/lib/desk-sheet-copy.mjs` is the rules** (pure, tested): which
        modules each copy prints (`modulesForCopy`: the participant's leaves
        out Leader only), one code per chapter (`chapterCodes`, the address
@@ -2838,6 +2841,47 @@ collection); they're read directly by the intro pages and the API manifest.
      - **While it is open, everything behind it is `inert`**, and the stage
        is a `role="dialog"`, which is what keeps the site's single-key
        shortcuts (keyboard-shortcuts.js) out of its way.
+  21. **Phase 3k is getting started and sharing** (built 2026-10-20;
+     STUDY-DESK.md, M5, M9, S8 and "Order of work", 3k). Four things to know:
+     - **Templates** (M9) are `src/lib/desk-sheet-templates.mjs` (pure,
+       tested; every template's formatted text must already be in the
+       sanitizer's canonical form). New sheet in the Sheet pane lists them,
+       and a new part goes after the part last worked in (`insertIndex` in
+       `sheet-pane.js`), so a passage lands inside a template, not after it.
+     - **A sheet from a search or a topic** (M5) keeps desk code out of
+       search.js: /search announces every hit (not just the page on screen)
+       with a `lit:search-results` event on `document` and calls
+       `loadDeskSheets()` in `search-core.js`, which imports
+       `desk/search-sheet.js` only with `data-desk="on"`. The passages
+       (Bible order, neighbors joined, capped at the sheet's limit) are
+       `src/lib/desk-sheet-gather.mjs`. "Open it on the Study Desk" is
+       `/desk/?sheet=<id>`, which desk-page.js shows in a Sheet pane
+       (`showSheet` in `desk-layout.mjs`) and strips from the address.
+     - **Sharing** (S8) is `src/lib/desk-sheet-share.mjs` (pure, tested;
+       format in STUDY-DESK-FORMAT.md, "Sharing a sheet"): the sheet, less
+       its ids and comparison copies (and, for a participant share, its
+       Leader only parts and answers), as deflate-raw JSON in base64url
+       after `#share1.`, or the same data on the last line of a
+       `.lit-sheet.md` file. Opening one decompresses with a ceiling,
+       rebuilds the record with fresh ids and refuses it unless
+       `validateRecord` passes. **The fragment must never reach a server or
+       the analytics beacon**: an inline script in `sheets.astro`'s body
+       moves it into `history.state.litSharedSheet` while the page parses,
+       and again on `hashchange` (then reloads), since a link opened in a tab
+       already on /sheets/ changes only the fragment. Checked against the
+       real beacon on 2026-10-20: its `location` came without the fragment.
+       The navigation timing entry's `name` still holds the original
+       address, and the beacon didn't send it then; recheck if the beacon
+       starts sending timing names. Keep `SHARE_PREFIX` and the inline
+       script in step.
+     - **Where the desk doesn't run**, `src/scripts/sheet-share-gate.js`
+       (loaded by /sheets/ for everyone, small) says what to do with a
+       shared link: on a phone or tablet, copy the link to send to a
+       computer; on a computer without the preview, a link that switches it
+       on (`?desk=on#share1.…`, a new page, so the fragment is taken again).
+       A shared sheet shows read only until "Copy into my desk", which saves
+       it as a new sheet (`copyOfShared`) and turns the page into that
+       sheet's own address. No storage key is added.
 - **Every link that leaves the site opens in a new tab** (owner, 2026-10-01).
   For rendered bodies that is `openExternalLinks` in `src/lib/external-links.mjs`
   (pure, unit-tested), called from `linkRefs`, the one function footnotes,

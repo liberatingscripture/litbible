@@ -20,9 +20,28 @@
 //   and a presenter view (sheet-present.js). `&view=present` opens it
 //   straight away (the Sheet pane's "Present…"), and `&view=presenter` is the
 //   presenter view's own window.
-// Opening a shared sheet with "Copy into my desk" (3k) comes later.
+// - **Share…** (3k, S8): the sheet in a link's fragment or in a file
+//   (desk-sheet-share.mjs), the whole sheet or the participant copy's parts.
+// - **A shared sheet**: `/sheets/#share1.<data>`, whose fragment the page's
+//   inline script has already moved into history.state.litSharedSheet before
+//   the analytics beacon could read the address, or a file opened with "Open a
+//   shared file". Shown like the reader's own, read only, with "Copy into my
+//   desk", which saves it as a new sheet of theirs. A participant share offers
+//   the participant copy only.
 
 import { COPIES, COPY_NAMES, defaultPaper, PAPERS, pageRule, paperName } from "../../lib/desk-sheet-copy.mjs";
+import {
+  QR_LINK_LIMIT,
+  ShareError,
+  SHARE_ERRORS,
+  copyOfShared,
+  fragmentInFile,
+  openShare,
+  shareFile,
+  shareFileName,
+  shareLink,
+} from "../../lib/desk-sheet-share.mjs";
+import { qrSvg } from "../../lib/qr-svg.mjs";
 import { sheetName, sortSheets } from "../../lib/desk-sheet-passages.mjs";
 import { addDeskStyle, deskCtx as ctx } from "./boot.js";
 import { renderCopy } from "./sheet-copy.js";
@@ -129,7 +148,7 @@ async function showList(root, store) {
     desk,
     document.createTextNode(", in a Sheet pane."),
   );
-  root.append(intro);
+  root.append(intro, openFileRow(root, store));
   if (!sheets.length) {
     root.append(make("p", "sheets-page__empty", "You haven’t made a sheet yet."));
     return;
@@ -145,6 +164,55 @@ async function showList(root, store) {
     ul.append(li);
   }
   root.append(ul);
+}
+
+/** "Open a shared file": a sheet someone saved with "Save as a file". */
+function openFileRow(root, store) {
+  const row = make("p", "sheets-page__open-file");
+  const pick = button("Open a shared file");
+  pick.title = "Open a sheet someone sent you as a file";
+  const input = make("input");
+  input.type = "file";
+  input.accept = ".md,.markdown,.txt,text/markdown,text/plain";
+  input.hidden = true;
+  const status = make("span", "sheets-page__status");
+  status.setAttribute("role", "status");
+  pick.addEventListener("click", () => input.click());
+  input.addEventListener("change", async () => {
+    const file = input.files?.[0];
+    input.value = "";
+    if (!file) return;
+    status.textContent = "";
+    let fragment = null;
+    try {
+      fragment = fragmentInFile(await file.text());
+    } catch (_) {}
+    if (!fragment) {
+      status.textContent = SHARE_ERRORS["no-data"];
+      return;
+    }
+    // Kept in this tab's history entry, as a shared link's is, so a reload keeps it.
+    history.replaceState({ litSharedSheet: fragment }, "", `${BASE}sheets/`);
+    await showShared(root, store, fragment);
+  });
+  row.append(pick, input, status);
+  return row;
+}
+
+async function showShared(root, store, fragment) {
+  let opened;
+  try {
+    opened = await openShare(fragment, ctx());
+  } catch (err) {
+    if (!(err instanceof ShareError)) console.error("Study Desk: the shared sheet couldn't be read", err);
+    else if (err.detail) console.warn("Study Desk: the shared sheet was refused:", err.detail);
+    root.replaceChildren(make("h1", "sheets-page__title", "A shared sheet"));
+    const p = make("p", "sheets-page__intro", err instanceof ShareError ? err.message : SHARE_ERRORS.invalid);
+    root.append(p);
+    if (store) root.append(openFileRow(root, store));
+    return;
+  }
+  await drawSheet(root, { sheet: opened.sheet, store, shared: opened.scope });
 }
 
 async function showSheet(root, store, id, view = null) {
@@ -166,8 +234,18 @@ async function showSheet(root, store, id, view = null) {
     await showPresenterView({ root, sheet, store });
     return;
   }
+  await drawSheet(root, { sheet, store, view });
+}
 
-  let copy = "leader";
+/**
+ * The sheet's page: its toolbar and the copy on screen. `shared` is the scope
+ * of a sheet someone shared ("leader" or "participant"), which is shown read
+ * only with "Copy into my desk"; absent for the reader's own.
+ */
+async function drawSheet(root, { sheet, store, view = null, shared = null }) {
+  const id = sheet.id;
+  const copies = shared === "participant" ? ["participant"] : COPIES;
+  let copy = copies[0];
   let paper = storedPaper() ?? defaultPaper(navigator.languages ?? [navigator.language]);
   let codes = true;
   setPaper(paper);
@@ -178,11 +256,12 @@ async function showSheet(root, store, id, view = null) {
   const back = make("a", "sheets-page__back", "‹ My sheets");
   back.href = `${BASE}sheets/`;
   const edit = make("a", "sheets-page__back", "Edit on the Study Desk");
-  edit.href = `${BASE}desk/`;
+  edit.href = `${BASE}desk/?sheet=${encodeURIComponent(id)}`;
   const links = make("div", "sheets-page__links");
-  links.append(back, edit);
+  links.append(back);
+  if (!shared) links.append(edit);
 
-  const copyChoice = choices("sheet-copy", "Copy", COPIES.map((c) => [c, COPY_NAMES[c]]), copy, (v) => {
+  const copyChoice = choices("sheet-copy", "Copy", copies.map((c) => [c, COPY_NAMES[c]]), copy, (v) => {
     copy = v;
     draw();
   });
@@ -210,11 +289,19 @@ async function showSheet(root, store, id, view = null) {
   word.title = "Copy this copy with its headings, italics, and notice, to paste into Word, Google Docs, or Pages";
   const status = make("span", "sheets-page__status");
   status.setAttribute("role", "status");
-  actions.append(present, print, word, status);
+  const share = button("Share…");
+  share.title = "Send this sheet to someone as a link or a file";
+  // Presenting needs the presenter view's window to find the sheet, so a
+  // shared one is copied into the desk first.
+  if (shared) present.hidden = true;
+  actions.append(present, print, word);
+  if (!shared) actions.append(share);
+  actions.append(status);
   bar.append(links, copyChoice, paperChoice, codeBox, actions);
 
   const paperBox = make("div", "sheets-page__paper");
-  root.replaceChildren(bar, paperBox);
+  root.replaceChildren(...(shared ? [sharedBanner(root, sheet, store, shared)] : []), bar, paperBox);
+  share.addEventListener("click", () => openShareDialog(sheet, share));
 
   let current = null;
   let seq = 0;
@@ -271,7 +358,7 @@ async function showSheet(root, store, id, view = null) {
   });
 
   // A change made on /desk in another tab shows here too.
-  store.subscribe(async (ids) => {
+  if (!shared) store.subscribe(async (ids) => {
     if (!ids?.includes?.(sheet.id)) return;
     let next = null;
     try {
@@ -294,6 +381,144 @@ async function showSheet(root, store, id, view = null) {
   if (view === "present") startPresenting({ fullscreen: false });
 }
 
+/** "Shared with you", with "Copy into my desk". */
+function sharedBanner(root, sheet, store, scope) {
+  const box = make("div", "sheets-page__shared");
+  box.setAttribute("role", "region");
+  box.setAttribute("aria-label", "A shared sheet");
+  const p = make("p");
+  const strong = make("strong", null, "Shared with you. ");
+  p.append(
+    strong,
+    document.createTextNode(
+      scope === "participant"
+        ? "This is the participant copy of a sheet. It isn’t in your notebook until you copy it there."
+        : "This sheet isn’t in your notebook until you copy it there.",
+    ),
+  );
+  const take = button("Copy into my desk", "desk-sheet__btn desk-sheet__btn--primary");
+  const status = make("span", "sheets-page__status");
+  status.setAttribute("role", "status");
+  if (!store) {
+    take.disabled = true;
+    status.textContent = "This browser isn’t letting the site keep a notebook, so the sheet can be printed but not copied.";
+  }
+  take.addEventListener("click", async () => {
+    take.disabled = true;
+    const mine = copyOfShared(sheet, ctx());
+    try {
+      await store.save(mine);
+    } catch (err) {
+      console.error("Study Desk: couldn't copy the shared sheet", err);
+      status.textContent = "The sheet couldn’t be copied.";
+      take.disabled = false;
+      return;
+    }
+    // From here the page is the reader's own copy, at its own address.
+    history.replaceState(null, "", `${BASE}sheets/?id=${encodeURIComponent(mine.id)}`);
+    await drawSheet(root, { sheet: mine, store });
+    const done = make("p", "sheets-page__shared");
+    done.setAttribute("role", "status");
+    const open = make("a", null, "Open it on the Study Desk");
+    open.href = `${BASE}desk/?sheet=${encodeURIComponent(mine.id)}`;
+    done.append(document.createTextNode("Copied into your notebook. "), open, document.createTextNode(" to change it."));
+    root.prepend(done);
+  });
+  box.append(p, take, status);
+  return box;
+}
+
+/** The Share dialog: a link (and its code, when it is short enough) or a file. */
+function openShareDialog(sheet, opener) {
+  const dialog = make("dialog", "sheets-page__dialog");
+  dialog.setAttribute("aria-labelledby", "sheet-share-title");
+  const h = make("h2", null, "Share this sheet");
+  h.id = "sheet-share-title";
+  let scope = "leader";
+  const scopeChoice = choices("sheet-share-scope", "What to share", [
+    ["leader", "Everything, for another leader"],
+    ["participant", "The participant copy, without answers or Leader only parts"],
+  ], scope, (v) => {
+    scope = v;
+    refresh();
+  });
+  const note = make(
+    "p",
+    "sheets-page__dialog-note",
+    "The link holds the sheet itself, so it never passes through a server and nothing is stored. Anyone who has the link can open it on a computer. The passages are read from the LIT when it is opened.",
+  );
+  const copyLink = button("Copy link", "desk-sheet__btn desk-sheet__btn--primary");
+  const saveFile = button("Save as a file");
+  saveFile.title = "A Markdown file of the sheet, which opens with “Open a shared file” on the Sheets page";
+  const status = make("p", "sheets-page__status");
+  status.setAttribute("role", "status");
+  const code = make("figure", "sheets-page__share-code");
+  const close = button("Close");
+  const row = make("div", "sheets-page__dialog-actions");
+  row.append(copyLink, saveFile, close);
+  dialog.append(h, scopeChoice, note, row, status, code);
+  document.body.append(dialog);
+
+  let link = "";
+  let seq = 0;
+  async function refresh() {
+    const n = ++seq;
+    copyLink.disabled = true;
+    try {
+      const made = await shareLink(sheet, { origin: location.origin, base: BASE, scope });
+      if (n !== seq) return;
+      link = made;
+    } catch (err) {
+      console.error("Study Desk: couldn't make the link", err);
+      status.textContent = "The link couldn’t be made in this browser. Save as a file instead.";
+      return;
+    }
+    copyLink.disabled = false;
+    code.replaceChildren();
+    if (link.length <= QR_LINK_LIMIT) {
+      const img = make("img");
+      img.alt = "A code for this link";
+      img.width = 160;
+      img.height = 160;
+      img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(qrSvg(link, { level: "L", title: "A code for this link" }))}`;
+      code.append(img, make("figcaption", null, "Or scan this code to get the link."));
+    } else if (link.length > 4000) {
+      code.append(make("p", "sheets-page__dialog-note", "This sheet makes a long link, which some email programs cut short. A file is safer for a sheet this size."));
+    }
+  }
+  copyLink.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(link);
+      status.textContent = "Link copied. Paste it into an email or a message.";
+    } catch (_) {
+      status.textContent = "Your browser didn’t allow the copy.";
+    }
+  });
+  saveFile.addEventListener("click", async () => {
+    try {
+      const text = await shareFile(sheet, { scope });
+      const a = make("a");
+      a.href = URL.createObjectURL(new Blob([text], { type: "text/markdown;charset=utf-8" }));
+      a.download = shareFileName(sheet);
+      document.body.append(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+      status.textContent = `Saved ${a.download}. Send it as an attachment.`;
+    } catch (err) {
+      console.error("Study Desk: couldn't save the file", err);
+      status.textContent = "The file couldn’t be made.";
+    }
+  });
+  close.addEventListener("click", () => dialog.close());
+  dialog.addEventListener("close", () => {
+    dialog.remove();
+    opener?.focus();
+  });
+  dialog.showModal();
+  refresh();
+}
+
 async function start() {
   const root = document.querySelector("[data-sheet-page]");
   if (!root) return;
@@ -304,6 +529,11 @@ async function start() {
     store = await openStore({ ctx });
   } catch (err) {
     console.error("Study Desk: the notebook didn’t open", err);
+  }
+  const shared = history.state?.litSharedSheet;
+  if (typeof shared === "string" && shared) {
+    await showShared(root, store, shared);
+    return;
   }
   if (!store) {
     root.replaceChildren(make("h1", "sheets-page__title", "Sheets"), make("p", "sheets-page__empty", "This browser isn’t letting the site keep a notebook, so there are no sheets to show. Private windows sometimes don’t."));

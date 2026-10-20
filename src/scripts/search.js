@@ -32,6 +32,7 @@ import {
   highlightVerseHit,
   loadTopicsIndex,
   loadDeskSearch,
+  loadDeskSheets,
   greekSearchEnabled,
   isGreekQuery,
   addGreekMode,
@@ -1188,6 +1189,17 @@ function writeCountStatus() {
   );
 }
 
+// The results on screen, for anything that works on all of them rather than
+// the page showing (the Study Desk's "make a sheet", desk/search-sheet.js).
+// `verses` are every verse hit and `chapters` every chapter by topic, not just
+// the page on screen. Nothing here knows who listens.
+let lastResultsDetail = null;
+
+function announceResults(detail) {
+  lastResultsDetail = detail;
+  document.dispatchEvent(new CustomEvent("lit:search-results", { detail }));
+}
+
 function renderFromCache() {
   const { page, sort, mode, q } = readState();
   if (!lastSearchCache) return;
@@ -1249,6 +1261,7 @@ function renderFromCache() {
   );
 
   if (matchTotal === 0) {
+    announceResults({ query: displayQ, verses: [], chapters: [] });
     // Always replace the "Searching for…" line, which otherwise stayed on
     // screen after a search that found nothing. A recognized reference needs
     // no line at all: the banner above already offers its jump.
@@ -1385,6 +1398,20 @@ function renderFromCache() {
 
   setPager(showKeyword ? keywordTotal : 0, page);
   renderActiveFiltersFull();
+
+  announceResults({
+    query: displayQ,
+    verses: showKeyword ? keywordMatchesAll.map((r) => r.__ref).filter(Boolean) : [],
+    chapters:
+      showSubject && subjectCount
+        ? subjectMatches
+            .map((r) => {
+              const at = parseBookChapterFromUrl(r.url || "");
+              return at?.chapter ? { ...at, labels: subjectTopicLabels?.get(r.url) || [] } : null;
+            })
+            .filter(Boolean)
+        : [],
+  });
 }
 
 function clearResults() {
@@ -1623,6 +1650,7 @@ async function runFullSearch() {
       __occurrenceIndex: h.verse,
       __baseUrl: `/${h.bookKey}-${h.chapter}`,
       __matchCount: h.runs.length,
+      __ref: { bookKey: h.bookKey, chapter: h.chapter, verse: h.verse },
     };
   });
 
@@ -1677,6 +1705,9 @@ function updateFromControls({ resetPage = true, push = false } = {}) {
   // the filter-pill DOM work runs (improves INP).
   requestAnimationFrame(() => renderActiveFiltersFull());
 }
+
+// The Study Desk's "make a sheet" (M5), only with the preview on.
+loadDeskSheets()?.then((m) => m?.attachSearchSheets(() => lastResultsDetail));
 
 // Initial sync
 syncControlsFromUrl();

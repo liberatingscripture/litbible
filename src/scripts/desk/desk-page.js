@@ -65,6 +65,7 @@ import {
   litPlace,
   setLitAt,
   setPaneSheet,
+  showSheet,
   splitPane,
   writeSaved,
 } from "../../lib/desk-layout.mjs";
@@ -765,6 +766,27 @@ async function start() {
     sizeAll();
     if (!menu.hidden) refreshMenu();
   });
+
+  // ---- a sheet named in the address (M5: "Open it on the Study Desk") ----
+
+  // /desk/?sheet=<id> shows that sheet in a Sheet pane: the first one open,
+  // else a new one beside the active pane. A sheet that isn't in this
+  // notebook is ignored without a word. The parameter is stripped either way,
+  // so a reload doesn't pull the pane back.
+  const wanted = new URLSearchParams(location.search).get("sheet");
+  if (wanted !== null) {
+    try {
+      const url = new URL(location.href);
+      url.searchParams.delete("sheet");
+      history.replaceState(history.state, "", url);
+    } catch (_) {}
+    let record = null;
+    try { record = wanted && store ? await store.get(wanted) : null; } catch (_) {}
+    if (record?.kind === "sheet") {
+      layout = showSheet(layout, record.id);
+      save();
+    }
+  }
 
   fitHeight();
   draw();
