@@ -262,7 +262,7 @@ LIT" in the editor. Fields a client doesn't know are kept the same way.
 |---|---|
 | `bookKey`, `chapter`, `verse`, `endVerse` | The verses. One chapter per passage; a reading that crosses a chapter is two passages |
 | `quote`, optional | When the passage starts or ends inside a verse (added from a selection): the anchor of the words it covers, as for a highlight. Absent for whole verses |
-| `verseCopy`, `verseCopyAsOf` | The verses' anchor text when added (comparison only, rule 1) |
+| `verseCopy`, `verseCopyAsOf` | The verses' anchor text when added (comparison only, rule 1), and the content version it was read from (the website writes the version, where a note's `verseCopyAsOf` is a time; a reader takes the day from either). Absent when the passage was added without its chapter to hand (gathered from a search); the website's editor then takes a copy the first time it reads the passage |
 | `blanks` | Words left blank on the participant's copy (S10). May be empty |
 | `footnotes` | The leader's choices of which footnotes print (C15). May be empty |
 

@@ -74,9 +74,12 @@ const ICON_CLOSE = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" 
  *   goHere?: { can(record: object): boolean, go(record: object): void },
  *   ctx?: () => { client: string, contentVersion: string },
  *   showInText?: { can(record: object): boolean, go(record: object): void },
- *   printNotes?: { can(): boolean, print(): Promise<void> } | null }} options
+ *   printNotes?: { can(): boolean, print(): Promise<void> } | null,
+ *   printRoom?: { can(): boolean, print(): Promise<void> } | null }} options
  *   `printNotes` is "Print with my notes" (print-notes.js, M6), a button at
- *   the foot on a Study View chapter and in Read View.
+ *   the foot on a Study View chapter and in Read View; `printRoom` is "Print
+ *   with room to write" (print-room.js, N9), right after it, and needs no
+ *   notebook.
  *   `store` is null when this browser can't keep a notebook. `ctx` and
  *   `showInText` are what a change notice's card needs (change-notice.js):
  *   what a write is stamped with, and a way to take the reader to the mark on
@@ -91,7 +94,7 @@ const ICON_CLOSE = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" 
  *   `showVerse` opens the panel on "This verse" at a verse; null where the
  *   page has no such tab. `el`, `isOpen` and `showTab` are for the tour.
  */
-export function createPanel({ store, storeError, onEdit = null, onAddNote = null, goHere = null, ctx = null, showInText = null, printNotes = null }) {
+export function createPanel({ store, storeError, onEdit = null, onAddNote = null, goHere = null, ctx = null, showInText = null, printNotes = null, printRoom = null }) {
   const root = document.documentElement;
   const here = pageChapter();
   const greekHere = here ?? greekChapter();
@@ -443,28 +446,55 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
   else slot.remove();
 
   /**
-   * "Print with my notes" (M6), a button and the line that says what it does
-   * (the line is the button's description, so it is spoken with it). None
-   * where this page can't print them or the browser keeps no notebook.
+   * "Print with my notes" (M6) and "Print with room to write" (N9): each a
+   * button and the line that says what it does (the line is the button's
+   * description, so it is spoken with it). M6's is left out where this page
+   * can't print notes or the browser keeps no notebook; N9's only where this
+   * page can't print.
    */
   function printBox() {
-    if (!printNotes?.can()) return [];
+    const boxes = [];
+    if (printNotes?.can()) {
+      boxes.push(printButton({
+        label: "Print with my notes",
+        hintId: "deskPrintHint",
+        hint: inReadView
+          ? "This book on paper, with my notes beside the text and my highlights tinted."
+          : "This chapter on paper, with my notes beside the text and my highlights tinted.",
+        print: () => printNotes.print(),
+      }));
+    }
+    // N9 reads nothing from the notebook, so it is here even when `store` is
+    // null and `printNotes` with it.
+    if (printRoom?.can()) {
+      boxes.push(printButton({
+        label: "Print with room to write",
+        hintId: "deskPrintRoomHint",
+        hint: inReadView
+          ? "This book on paper, with a ruled margin beside the text to write in."
+          : "This chapter on paper, with a ruled margin beside the text to write in.",
+        print: () => printRoom.print(),
+        room: true,
+      }));
+    }
+    return boxes;
+  }
+
+  function printButton({ label, hintId, hint: hintText, print, room = false }) {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "desk-panel__print-button";
-    button.textContent = "Print with my notes";
-    button.setAttribute("aria-describedby", "deskPrintHint");
-    button.addEventListener("click", () => printNotes.print());
+    button.textContent = label;
+    button.setAttribute("aria-describedby", hintId);
+    button.addEventListener("click", print);
     const hint = document.createElement("p");
     hint.className = "desk-panel__print-hint";
-    hint.id = "deskPrintHint";
-    hint.textContent = inReadView
-      ? "This book on paper, with my notes beside the text and my highlights tinted."
-      : "This chapter on paper, with my notes beside the text and my highlights tinted.";
+    hint.id = hintId;
+    hint.textContent = hintText;
     const box = document.createElement("div");
-    box.className = "desk-panel__print";
+    box.className = room ? "desk-panel__print desk-panel__print--room" : "desk-panel__print";
     box.append(button, hint);
-    return [box];
+    return box;
   }
 
   // M1 hides everything of the reader's at once, for sharing a screen, and

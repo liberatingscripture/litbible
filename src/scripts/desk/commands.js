@@ -12,9 +12,10 @@
 /**
  * @param {{ panel: { open: (from?: Element) => void, close: () => void,
  *   showTab: (id: string) => boolean },
- *   printNotes?: { can: () => boolean, print: () => Promise<void> } | null }} options
+ *   printNotes?: { can: () => boolean, print: () => Promise<void> } | null,
+ *   printRoom?: { can: () => boolean, print: () => Promise<void> } | null }} options
  */
-export function initCommands({ panel, printNotes = null }) {
+export function initCommands({ panel, printNotes = null, printRoom = null }) {
   const run = {
     "open-notebook": () => panel.open(null),
     "close-notebook": () => panel.close(),
@@ -29,6 +30,10 @@ export function initCommands({ panel, printNotes = null }) {
     // offered (desk-commands.mjs); anywhere else it does nothing.
     "print-with-notes": () => {
       if (printNotes?.can()) printNotes.print();
+    },
+    // N9: the same pages, and no notebook needed.
+    "print-with-room": () => {
+      if (printRoom?.can()) printRoom.print();
     },
     // The tour is built apart (phase 1d) and listens for this id itself.
   };

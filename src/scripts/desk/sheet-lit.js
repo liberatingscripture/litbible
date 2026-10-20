@@ -38,7 +38,11 @@ import {
   traditionalWord,
 } from "../../lib/desk-sheet-lit.mjs";
 import { locatePassage, passageReference } from "../../lib/desk-sheet-passages.mjs";
+import { freshCopy, passageAsRecord, passageCheck } from "../../lib/desk-sheet-check.mjs";
+import { releaseNoteFor } from "../../lib/desk-change.mjs";
 import { loadChapterPage } from "./chapter-page.js";
+import { diffParagraph } from "./diff-view.js";
+import { loadReleaseNotes } from "./release-feed.js";
 
 const BASE = String(import.meta.env.BASE_URL || "/").replace(/\/?$/, "/");
 
@@ -108,8 +112,9 @@ function footnotePositions(source, chapter) {
 
 /**
  * A passage module read against today's chapter: { ok: true, source, chapter,
- * at, marks (the term marks in it), terms, list, footnoteIds, labels } or
- * { ok: false, message }.
+ * at, check (S2: whether its wording changed since it was added, from
+ * desk-sheet-check.mjs), contentVersion (the text's), marks (the term marks
+ * in it), terms, list, footnoteIds, labels } or { ok: false, message }.
  */
 export async function readPassage(m) {
   let source;
@@ -135,6 +140,8 @@ export async function readPassage(m) {
     source,
     chapter: facts.chapter,
     at,
+    check: passageCheck(facts.chapter, m),
+    contentVersion: source.contentVersion ?? document.documentElement.dataset.contentVersion ?? null,
     marks: marksInRange(facts.marks, at.start, at.end),
     allMarks: facts.marks,
     terms: facts.terms,
@@ -250,14 +257,57 @@ function wholeWords(text, start, end) {
 /* ── A passage's card: words, blanks, footnotes ──────────────────────── */
 
 /**
+ * S2: a passage whose wording changed since it was added. The sheet prints
+ * today's wording either way (format rule 1); this tells the leader, shows
+ * what moved, links the release note that says why when there is one, and
+ * offers "Keep the new wording", which takes a fresh comparison copy so the
+ * notice goes. Until then the sheet's own page says so above the paper too.
+ */
+function wordingNotice(view, mod, { readOnly, update }) {
+  const box = make("div", "desk-sheet__changed");
+  box.setAttribute("role", "group");
+  box.setAttribute("aria-label", "Wording changed");
+  box.append(make("p", "desk-sheet__changed-head", mod.quote
+    ? "The words of this passage have changed since you added it."
+    : "The wording of these verses has changed since you added this passage."));
+  const diff = diffParagraph(view.check.diff);
+  if (diff) box.append(diff);
+  const when = make("p", "desk-sheet__changed-when");
+  when.hidden = true;
+  box.append(when);
+  loadReleaseNotes().then((entries) => {
+    const found = entries ? releaseNoteFor(entries, passageAsRecord(mod)) : null;
+    if (!found || !box.isConnected) return;
+    const link = make("a", null, "Release note");
+    link.href = found.href;
+    when.replaceChildren(`Changed ${found.label} · `, link);
+    when.hidden = false;
+  });
+  box.append(make("p", "desk-sheet__changed-hint", "The sheet prints today’s wording. Check your blanks, questions, and notes against it."));
+  if (!readOnly) {
+    const keep = button("Keep the new wording");
+    keep.dataset.focusKey = "keep-wording";
+    keep.addEventListener("click", () => {
+      const fields = freshCopy(view.chapter, mod, view.contentVersion);
+      if (fields) update(fields, `${passageReference(mod)} is checked against its new wording from now on.`);
+    });
+    box.append(keep);
+  }
+  return box;
+}
+
+/**
  * The body of a passage module's card.
  *
  * @param {{ m: object, readOnly: boolean, getSheet: () => object,
- *   update: (fields: object, announce?: string) => Promise<boolean>, say: (text: string) => void }} opts
+ *   update: (fields: object, announce?: string) => Promise<boolean>, say: (text: string) => void,
+ *   fill?: (fields: object) => void }} opts
+ *   `fill` takes a passage's first comparison copy without an undo step
+ *   (one gathered from a search has none until it is first read here).
  * @returns {{ el: HTMLElement, update: (m: object) => void, sheetChanged: () => void,
  *   hasFocus: () => boolean, destroy: () => void }}
  */
-export function createPassageBody({ m, readOnly, getSheet, update, say }) {
+export function createPassageBody({ m, readOnly, getSheet, update, say, fill = null }) {
   const el = make("div", "desk-sheet__passage");
   el.append(make("p", "desk-sheet__status", "Reading the passage…"));
   let gone = false;
@@ -292,8 +342,14 @@ export function createPassageBody({ m, readOnly, getSheet, update, say }) {
       return;
     }
     box.append(words.el);
-    if (v.at.status === "changed" || v.at.status === "verse" || v.at.status === "moved") {
-      box.append(make("p", "desk-sheet__status", "The words this passage started or ended on have changed since it was added, so it shows the closest match."));
+    if (v.check.state === "changed") {
+      box.append(wordingNotice(v, mod, { readOnly, update }));
+    } else if (v.at.status === "moved") {
+      box.append(make("p", "desk-sheet__status", "The words this passage started or ended on have moved since it was added, so it shows them where they stand now."));
+    }
+    if (v.check.state === "unchecked" && !readOnly && fill) {
+      const fields = freshCopy(v.chapter, mod, v.contentVersion);
+      if (fields) fill(fields);
     }
     blanksBox = make("div", "desk-sheet__blanks");
     notesBox = make("details", "desk-sheet__notes");

@@ -5,8 +5,9 @@
 // every part, the answers to blanks and to questions; the participant's has
 // the passages with their blanks (a line, and the hint beneath), the questions
 // with lines to write on, the key terms box, and no part marked Leader only.
-// Both end with the LIT's notice and each chapter's address, and can carry a
-// code per chapter (S5).
+// Both end with the LIT's notice, each chapter's address and the day the text
+// is from ("Text as of October 18, 2026", S2), and can carry a code per
+// chapter (S5).
 //
 // The rules are src/lib/desk-sheet-copy.mjs. A passage's words are read from
 // the chapter's Study View page exactly as the Sheet pane reads them
@@ -25,6 +26,7 @@ import {
 import { blankHint, collectKeyTerms, footnoteRows, termForWords } from "../../lib/desk-sheet-lit.mjs";
 import { blankCover, footnotesInPlay } from "../../lib/desk-present.mjs";
 import { passageReference, sheetName } from "../../lib/desk-sheet-passages.mjs";
+import { newestVersion, textAsOfLine } from "../../lib/desk-sheet-check.mjs";
 import { LIT_CREDIT_LINE } from "../../lib/lit-credit.mjs";
 import { qrSvg } from "../../lib/qr-svg.mjs";
 import { locateBlanks, passageWords, readPassage } from "./sheet-lit.js";
@@ -362,6 +364,20 @@ export async function renderCopy(sheet, { copy, codes = true }) {
   const foot = make("footer", "sheet-copy__foot");
   foot.append(make("p", "sheet-copy__credit", LIT_CREDIT_LINE));
   if (chapters.length) foot.append(make("p", "sheet-copy__addresses", chapters.map((c) => c.printable).join(" · ")));
+  const asOf = textAsOfLine(newestVersion([...views.values()].filter((v) => v.ok).map((v) => v.contentVersion)));
+  if (asOf) foot.append(make("p", "sheet-copy__as-of", asOf));
   article.append(foot);
   return article;
+}
+
+/**
+ * S2: each passage on the copy with its check against today's text
+ * ([{ m, check }], in sheet order), for the notice the sheet's page shows
+ * above the paper. A passage that can't be read has no check; its copy says
+ * so where it would print.
+ */
+export async function copyChecks(sheet, copy) {
+  const modules = modulesForCopy(sheet, copy).filter((m) => m.type === "passage");
+  const views = await readAll(modules);
+  return modules.map((m) => ({ m, check: views.get(m.id)?.ok ? views.get(m.id).check : null }));
 }

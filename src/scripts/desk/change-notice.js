@@ -28,7 +28,6 @@
 import { offsetsToRange } from "../../lib/desk-anchor-dom.mjs";
 import {
   changeNotice,
-  excerptDiff,
   mayKeep,
   noticeWords,
   pinNotice,
@@ -47,6 +46,7 @@ import { undoEntry } from "./history.js";
 import { prosePage, targetOf } from "./note-sources.js";
 import { loadedChapterPage } from "./chapter-page.js";
 import { chapterTextFor, footnoteList, pageChapter } from "./page.js";
+import { diffParagraph } from "./diff-view.js";
 import { loadReleaseNotes } from "./release-feed.js";
 import { announce, showUndo } from "./undo-bar.js";
 
@@ -273,29 +273,6 @@ function el(tag, className, text) {
 }
 
 /**
- * The diff as a paragraph: unchanged words as they read, deleted words struck
- * through, added words underlined, each with a hidden "Removed:" or "Added:"
- * for a screen reader (the pattern of the release notes page). Null when
- * there is nothing to show.
- */
-function diffParagraph(notice) {
-  const runs = excerptDiff(notice.diff ?? []);
-  if (!runs.length) return null;
-  const p = el("p", "desk-notice__diff");
-  for (const run of runs) {
-    if (run.lead) p.append(run.lead);
-    if (run.op === "same") {
-      p.append(run.text);
-      continue;
-    }
-    const mark = el(run.op === "del" ? "del" : "ins");
-    mark.append(el("span", "sr-only", run.op === "del" ? "Removed: " : "Added: "), run.text);
-    p.append(mark);
-  }
-  return p;
-}
-
-/**
  * Open the card for a record's notice, in the shared floating panel beside
  * `trigger`. Does nothing if the record carries no notice on this page.
  *
@@ -376,7 +353,7 @@ export function openNotice(trigger, record, { store, ctx, showInText = null, res
   // What changed, word by word. Without a verse copy to compare (a record
   // from an app, a note on an entry) the words now standing in place of the
   // marked ones are shown instead.
-  const diff = diffParagraph(notice);
+  const diff = diffParagraph(notice.diff);
   if (diff) {
     panel.append(el("p", "desk-notice__label", "What changed"), diff);
   } else if (notice.markedNow) {

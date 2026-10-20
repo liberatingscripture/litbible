@@ -48,7 +48,7 @@ import {
   sortSheets,
 } from "../../lib/desk-sheet-passages.mjs";
 import { rangeToOffsets } from "../../lib/desk-anchor-dom.mjs";
-import { recordReference } from "../../lib/desk-store-core.mjs";
+import { planSave, recordReference } from "../../lib/desk-store-core.mjs";
 import { parseReference } from "../search-core.js";
 import { closePanel } from "../lit-panel.js";
 import { loadChapterPage } from "./chapter-page.js";
@@ -215,7 +215,10 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
    * own card made the change, which then isn't redrawn: it already shows it,
    * and redrawing would drop a click on its buttons that is under way.
    */
-  function change(op, { announce = null, after = null, source = null } = {}) {
+  // `quiet` is for a write the reader didn't make (a passage's first
+  // comparison copy, S2): saved without an undo step, so Ctrl+Z never takes
+  // it away only to have it written straight back.
+  function change(op, { announce = null, after = null, source = null, quiet = false } = {}) {
     const run = saving.then(async () => {
       if (destroyed || !sheet) return false;
       let next;
@@ -228,10 +231,11 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
       }
       if (next === sheet) return true;
       sheet = next;
-      status.textContent = "Saving…";
+      if (!quiet) status.textContent = "Saving…";
       try {
-        await store.save(next);
-        status.textContent = "Saved";
+        if (quiet) await store.commit(planSave(next), { record: false });
+        else await store.save(next);
+        if (!quiet) status.textContent = "Saved";
       } catch (err) {
         console.error("Study Desk: the sheet couldn’t be saved", err);
         status.textContent = "Not saved";
@@ -655,6 +659,7 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
       readOnly,
       getSheet: () => sheet,
       update: (fields, announce) => change((s) => updateModule(s, m.id, fields, opCtx()), { announce }),
+      fill: (fields) => change((s) => updateModule(s, m.id, fields, opCtx()), { quiet: true }),
       say,
     });
     body.replaceWith(inst.el);
