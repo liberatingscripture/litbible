@@ -28,6 +28,7 @@
 // my notes"). A verse goes back to the plain "Verse N" for whatever is hidden,
 // so nothing on the page mentions what the reader chose not to see.
 
+import { onFootnote } from "../../lib/desk-records.mjs";
 import { forChapter } from "../../lib/desk-store-core.mjs";
 import { highlightColors, noteCounts, verseLabel } from "../../lib/desk-verse.mjs";
 import { noticesFor } from "./change-notice.js";
@@ -82,12 +83,14 @@ export function createVerseLabels({ store }) {
 /**
  * How many of the marks being shown carry a change notice, on each verse
  * they cover: notes while "My notes" is on, highlights while "My
- * highlights" is. A lost mark isn't counted.
+ * highlights" is. A lost mark isn't counted. A note on a footnote (M11) is
+ * about the footnote, not the verse (noteCounts leaves it out too), so its
+ * notice is not counted here either.
  */
 function noticeCounts(records) {
   const shown = records.filter(
     (r) =>
-      (r.kind === "note" && getSetting("notes") === "on") ||
+      (r.kind === "note" && !onFootnote(r) && getSetting("notes") === "on") ||
       (r.kind === "highlight" && getSetting("highlights") === "on"),
   );
   const counts = new Map();

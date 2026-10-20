@@ -51,13 +51,15 @@ export function standing(status) {
 
 /**
  * What heads a printed note: its reference, the words it hangs on in short
- * (none for a note on whole verses), and a line saying so when the wording
+ * (none for a note on whole verses; a footnote's for a note on one), and a line saying so when the wording
  * has moved. `how` is `standing`'s answer.
  *
  * @returns {{ ref: string, quote: string, warning: string }}
  */
 export function printHeading(record, ref, how = "here") {
-  const exact = typeof record?.quote?.exact === "string" ? record.quote.exact : "";
+  // A note on a footnote (M11) quotes the footnote's opening words.
+  const exact = typeof record?.quote?.exact === "string" ? record.quote.exact
+    : record?.kind === "note" && typeof record.footnote === "string" ? record.footnote : "";
   return {
     ref: ref || "",
     quote: exact ? shortQuote(exact, PRINT_QUOTE_WORDS) : "",

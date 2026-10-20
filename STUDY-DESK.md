@@ -14,6 +14,21 @@ are recorded so they aren't re-argued.
 
 ## Where things stand (as of 2026-10-20)
 
+- **Phase 2c is built on the preview** (2026-10-20): notes on a footnote
+  and questions for discussion. **A note can be on a footnote** (M11):
+  "Add a note" beside Pin in a footnote's popover, in Study View's
+  Footnotes list, in the Notebook's "This verse" tab and in /desk's
+  Footnotes pane. The note names its footnote as a pin does (its verse and
+  its words, never its letter), sits in the margin beside the footnote at
+  the foot of the page, is listed under the footnote wherever the footnote
+  is shown, and carries the change notice when the footnote is rewritten.
+  **A sheet gathers your questions** (N6): "+ For discussion" in the Sheet
+  pane adds a "For discussion" heading and one question per note marked
+  with the question marker on the sheet's passages, in passage order, as
+  ordinary parts to edit, move or delete. Smaller calls for BVJ to judge
+  are in the decision log, "Phase 2c". Phase 2 is done. Next: 3l, popping
+  the notebook out.
+
 - **Phase 2b is built on the preview** (2026-10-20): a sheet's text checked
   before printing, and printing with room to write. **A passage whose
   wording changed since it was added says so** (S2): in the Sheet pane, with
@@ -576,7 +591,8 @@ plan as a whole was accepted; nothing was declined except where stated).
   direction. New. Small. Proposed.
 - **N6. Questions as their own kind.** Mark a note as a question; a sheet
   gathers them into a "For discussion" section in passage order. Borrowed
-  (Logos Sermon Builder). Extra small. Proposed.
+  (Logos Sermon Builder). Extra small. Proposed. **Built on the preview
+  2026-10-20** ("Order of work", 2c).
 - **N7. The interleaf.** A Display tray switch that opens a ruled band after
   each paragraph holding your notes for it, like Edwards's blank leaves.
   Works in windows too narrow for the margin. **Bands open only when the
@@ -659,7 +675,8 @@ plan as a whole was accepted; nothing was declined except where stated).
   is the blank version. New. Small. **Decided: yes.** **Built on the preview 2026-10-20** ("Order of work", 3i).
 - **M11. Notes on a footnote.** A note attaches to a footnote by quoting its
   words, not its letter, so it survives relabeling; N3's notice applies when
-  the footnote is rewritten. New. Medium. **Decided: yes.**
+  the footnote is rewritten. New. Medium. **Decided: yes.** **Built on the
+  preview 2026-10-20** ("Order of work", 2c).
 
 ### Places and bookmarks
 
@@ -4248,10 +4265,25 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      readers hold it, so it is weighed against what a trial with readers
      shows. Medium. N2, H2 with C23 and M4, which were 2c's other pieces,
      are **shelved for version 2** (BVJ, 2026-10-15).
+     **Built on the preview 2026-10-20** (decision log, "Phase 2c"). It is
+     a new target for a note rather than a new kind, named by kind 11's
+     fields (`footnote`, `n`; STUDY-DESK-FORMAT.md, kind 2), so the rules
+     are the pin's: `onFootnote` in `src/lib/desk-records.mjs`, `findPin`
+     and `pinFields` in `desk-footnotes.mjs`, and `pinNotice` and
+     `planKeep` in `desk-change.mjs`, which now take either. The page's
+     pieces are `desk/footnote-notes.js` (the buttons and the lists under a
+     footnote), with the margin placing such a note beside its footnote
+     (`note-sources.js`). Still only on the preview, so the caution above
+     stands until a trial with readers.
    - **N6, questions as their own kind** (BVJ, 2026-10-15): mark a note as a
      question, which the apps' `question` marker already carries. Its
      "For discussion" section, gathered by a sheet in passage order, needs
      sheets, so that part follows phase 3. Extra small.
+     **Built on the preview 2026-10-20** (decision log, "Phase 2c"): the
+     marker was already there; the gather is
+     `src/lib/desk-sheet-discussion.mjs` (pure, tested) and the Sheet
+     pane's "+ For discussion". It adds ordinary `text` and `question`
+     parts, so the sheet format is unchanged.
 3. **Sheets.** None of it waits on the apps: a sheet's inner shape is the
    website's own, and under plan A sheets go in the iCloud zone the app never
    opens. **Phase 3 comes after 2a** (BVJ, 2026-10-14), ahead of 2b;
@@ -5588,6 +5620,67 @@ split itself is still a proposal BVJ worked within but hasn't confirmed.
   values, so themes, print and contrast decide how they look, and a
   reader's accessibility font still wins on screen. Left out: images and
   tables. The set can grow later but never shrink.
+
+### 2026-10-20 (Phase 2c: notes on a footnote, and questions for discussion)
+
+- **Built** as 2c set out: M11 (a note on a footnote) and the rest of N6
+  (a sheet gathering the reader's questions), after 2b and ahead of 3l at
+  BVJ's request. No storage key is added, so /privacy is unchanged.
+- **Smaller calls made in building it, for BVJ to judge on the preview**
+  (recommendations, not decisions):
+  - **A note on a footnote is a note, not a new kind.** It names its
+    footnote with a pin's fields (the verse holding the letter, the
+    footnote's full text, and `n` among identical footnotes in that verse),
+    so it is found again by the pin's rule, and an app that doesn't know
+    the target still reads it as a note on the verse, losing nothing. It
+    quotes the whole footnote, never part of it. The format change is the
+    website's proposal, for BDR to confirm (STUDY-DESK-FORMAT.md, kind 2).
+  - **Where it is made**: "Add a note" beside Pin, in the four places Pin
+    already is: the footnote's popover, Study View's Footnotes list, This
+    verse and /desk's Footnotes pane.
+  - **Where it shows.** On Study View, in the margin **beside the footnote
+    at the foot of the page**, not beside the verse; hovering or opening
+    it marks the footnote. Under the footnote wherever the footnote is
+    shown: in full in This verse and the Footnotes pane, and the first two,
+    shortened, in the popover ("and 2 more in My Notes"). In My Notes and on
+    the notebook page, as a note with "On a footnote:" and the footnote's
+    opening words. /desk's LIT pane shows no notes beside its text, as
+    for other notes (3g).
+  - **It is about the footnote, not the verse**, so it isn't counted in the
+    verse number's name ("Verse 3, 1 note of mine") or listed under This
+    verse's "My notes" for the verse.
+  - **The change notice is the pin's**: "The footnote your note is on has
+    been rewritten," with **Keep on the new wording**, or "not in the text
+    any more" when no footnote in its verse is close enough. A change to
+    the verse's own wording raises nothing.
+  - **Print with my notes** prints it beside its footnote in the endnotes.
+  - **Markdown** names it "Note on a footnote" and quotes the footnote. A
+    new one can't be made from a Markdown file, as a pin can't: a heading
+    names the verse, not which of its footnotes. The full backup carries it
+    whole.
+  - **"+ For discussion"** sits after "+ Question" in the Sheet pane. It
+    adds a "For discussion" heading and one question for each note marked
+    with the question marker whose verses fall in one of the sheet's
+    passages (a note on a footnote counts by its verse), in the sheet's
+    passage order, then verse order. Each question reads "**Romans 8:3**"
+    and then the note's words, with three lines to write on and no answer.
+    They go after the part last worked in, as a new part does (3k), and one
+    Ctrl+Z takes them all back.
+  - **It is a one-time gather**, not a live section: the parts are
+    ordinary ones, and nothing ties them to the notes, so editing either
+    never changes the other. Pressing it again adds only questions that
+    aren't on the sheet yet, under the heading already there; a question
+    reworded on the sheet no longer matches its note, so it comes back.
+  - **When nothing is found** it says so, and how: "None of your notes
+    marked as questions are on this sheet’s passages. Mark a note as a
+    question with the question marker."
+- **Fixed along the way**: the Sheet pane's "From my notebook" list showed
+  no words for a note (it read the wrong field), and now names a question
+  as a question.
+- **Known limits**: checked in Chrome on Romans 8 (making one, the margin,
+  the popover and This verse, My Notes, the notice, the gather and its
+  undo). Not yet checked on paper, or in /desk's Footnotes pane in a
+  browser.
 
 ### 2026-10-20 (Phase 2b: text checked before printing, and room to write)
 

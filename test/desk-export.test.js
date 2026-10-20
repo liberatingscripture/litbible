@@ -412,3 +412,51 @@ test("describeLastExport says how long ago, or that it hasn't happened", () => {
   assert.equal(describeLastExport("2026-10-12T11:00:00.000Z", now), "Last saved a copy: 1 hour ago.");
   assert.equal(describeLastExport("2026-10-09T12:00:00.000Z", now), "Last saved a copy: 3 days ago.");
 });
+
+/* ── Notes on a footnote (M11) ───────────────────────────────────────── */
+
+const FOOTNOTE = "Greek sarx, flesh; here the whole self turned inward.";
+const footnoteNote = make("note", {
+  bookKey: "romans",
+  chapter: 8,
+  verse: 3,
+  footnote: FOOTNOTE,
+  body: "Paul's own word for it.",
+  marker: "question",
+});
+const plainFootnoteNote = make("note", { bookKey: "romans", chapter: 8, verse: 3, footnote: FOOTNOTE, body: "Just a note.", marker: "note" });
+
+test("the Markdown file names a note on a footnote, and quotes the footnote", () => {
+  const md = toMarkdown([footnoteNote, plainFootnoteNote], opts);
+  assert.match(md, /^## Romans 8:3$/m);
+  assert.match(md, /^Note on a footnote \(question\) · 2026-09-12$/m);
+  assert.match(md, /^Note on a footnote · 2026-09-12$/m);
+  assert.ok(md.includes(`> ${FOOTNOTE}`), "the footnote's text is the quoted line");
+});
+
+test("a note on a footnote read from a file with no matching id is refused, not made into a verse note", () => {
+  const back = parseImport(toMarkdown([footnoteNote], opts), { local: [], ctx });
+  assert.equal(back.records.length, 0, "no verse note comes of it");
+  assert.equal(back.problems.length, 1);
+  assert.match(back.problems[0].message, /note on a footnote/);
+});
+
+test("a note on a footnote whose id is in the notebook still takes an edit to its body", () => {
+  const md = toMarkdown([footnoteNote], opts).replace("Paul's own word for it.", "Paul's own word for the self.");
+  const now = "2026-10-13T09:00:00.000Z";
+  const back = parseImport(md, { local: [footnoteNote], ctx, now });
+  assert.deepEqual(back.problems, []);
+  assert.equal(back.records.length, 1);
+  const edited = back.records[0];
+  assert.equal(edited.id, footnoteNote.id);
+  assert.equal(edited.body, "Paul's own word for the self.");
+  assert.equal(edited.footnote, FOOTNOTE, "the footnote it is on doesn't change");
+  assert.equal(edited.modified, now);
+});
+
+test("the Web Annotation of a note on a footnote targets the footnote's text", () => {
+  const c = webAnnotationCollection([footnoteNote], opts);
+  const a = c.first.items.find((x) => x.lit.record.id === footnoteNote.id);
+  assert.equal(a.motivation, "questioning");
+  assert.deepEqual(a.target.selector.at(-1), { type: "TextQuoteSelector", exact: FOOTNOTE });
+});

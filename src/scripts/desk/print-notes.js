@@ -13,7 +13,11 @@
 //      (placeRecord against the page's own anchor text), so a note lands
 //      beside the block that holds those words;
 //   2. adds one print-only <aside> after each block that has notes, and a
-//      closing list for any note with no block at all. They are `display: none`
+//      closing list for any note with no block at all. A note on a footnote
+//      (M11) prints in the Footnotes list instead, in an <aside> at the end
+//      of its footnote's list item (found as a pin is); one whose footnote is
+//      gone, or any in Read View, which has no footnotes, goes in that
+//      closing list; They are `display: none`
 //      everywhere but the printed page, so the screen never changes, and they
 //      hold no verse text (`[data-verse]`), so the anchor reader never meets
 //      them;
@@ -32,7 +36,8 @@
 
 import { offsetsToRange } from "../../lib/desk-anchor-dom.mjs";
 import { MARKER_NAMES } from "../../lib/desk-notes.mjs";
-import { COLORS, placeRecord } from "../../lib/desk-records.mjs";
+import { COLORS, onFootnote, placeRecord } from "../../lib/desk-records.mjs";
+import { findPin } from "../../lib/desk-footnotes.mjs";
 import { forChapter, liveRecords, recordReference } from "../../lib/desk-store-core.mjs";
 import {
   STRAYS_TITLE,
@@ -43,7 +48,7 @@ import {
 } from "../../lib/desk-print-notes.mjs";
 import { glyph } from "./glyphs.js";
 import { fillNoteWords } from "./note-words.js";
-import { chapterBlocks, chapterTextFor, pageChapter, readBook, readChapterBlocks } from "./page.js";
+import { chapterBlocks, chapterTextFor, footnoteList, pageChapter, readBook, readChapterBlocks } from "./page.js";
 
 const ATTR = "data-desk-print";
 const hlName = (color) => `desk-print-hl-${color}`;
@@ -142,7 +147,9 @@ export function createPrintNotes({ store }) {
     const mine = s.only
       ? forChapter(await store.byChapter(s.bookKey, s.only), s.bookKey, s.only)
       : liveRecords(await store.all()).filter((r) => r.bookKey === s.bookKey);
-    const notes = mine.filter((r) => r.kind === "note");
+    const allNotes = mine.filter((r) => r.kind === "note");
+    // A note on a footnote prints beside its footnote, not after a block.
+    const notes = allNotes.filter((r) => !onFootnote(r));
     const marks = mine.filter((r) => r.kind === "highlight");
 
     // Each chapter the records touch, read once: its text, and its blocks
@@ -194,6 +201,22 @@ export function createPrintNotes({ store }) {
     });
     const plan = planNotes(items);
 
+    // 1b. Each note on a footnote, with its footnote's list item on a Study
+    // View page; one that has none (lost, or Read View) is a stray.
+    const onFootnotes = new Map(); // list item -> [{ record, how }]
+    const footnoteStrays = [];
+    const list = s.only ? footnoteList() : null;
+    for (const r of allNotes.filter(onFootnote)) {
+      const at = list && r.chapter === s.only ? findPin(list, r) : null;
+      const li = at?.id ? document.getElementById(at.id) : null;
+      if (!li) {
+        footnoteStrays.push(r);
+        continue;
+      }
+      if (!onFootnotes.has(li)) onFootnotes.set(li, []);
+      onFootnotes.get(li).push({ record: r, how: standing(at.status) });
+    }
+
     // 2. The asides, each after its block.
     const added = [];
     for (const row of plan.rows) {
@@ -205,7 +228,16 @@ export function createPrintNotes({ store }) {
       allBlocks[row.block].after(aside);
       added.push(aside);
     }
-    if (plan.strays.length && s.container) {
+    for (const [li, group] of onFootnotes) {
+      const aside = document.createElement("aside");
+      aside.className = "desk-print-notes desk-print-notes--footnote";
+      aside.setAttribute("aria-hidden", "true");
+      aside.setAttribute("data-desk-print-extra", "");
+      for (const { record, how } of group) aside.append(noteElement(record, how));
+      li.append(aside);
+      added.push(aside);
+    }
+    if ((plan.strays.length || footnoteStrays.length) && s.container) {
       const strays = document.createElement("section");
       strays.className = "desk-print-strays";
       strays.setAttribute("aria-hidden", "true");
@@ -215,6 +247,8 @@ export function createPrintNotes({ store }) {
       title.textContent = STRAYS_TITLE;
       strays.append(title);
       for (const id of plan.strays) strays.append(noteElement(info.get(id).record, "lost"));
+      // Read View has no footnotes to print beside, which is not a loss.
+      for (const r of footnoteStrays) strays.append(noteElement(r, s.only ? "lost" : "here"));
       s.container.append(strays);
       added.push(strays);
     }
@@ -248,7 +282,7 @@ export function createPrintNotes({ store }) {
       }
     }
 
-    const noteText = notes.map((r) => `${r.body ?? ""} ${recordReference(r)}`).join(" ");
+    const noteText = allNotes.map((r) => `${r.body ?? ""} ${recordReference(r)}`).join(" ");
     return {
       noteText,
       undo() {
