@@ -1,0 +1,23 @@
+/* =========================================================
+   Study Desk page (/desk/)
+   =========================================================
+   Only the frame lives here: the note a reader without the preview sees.
+   The panes are drawn by src/scripts/desk/desk-page.js and styled by
+   src/styles/desk.css ("The desk page"), which the desk adds itself, so a
+   reader without the preview downloads none of it. */
+
+.desk-page {
+  padding: clamp(2rem, 4vw, 3.5rem) clamp(1rem, 4vw, 2rem) 5rem;
+  max-width: calc(80 * var(--ch));
+  margin: 0 auto;
+}
+
+.desk-page__title {
+  margin: 0 0 1rem;
+}
+
+.desk-page__off {
+  margin: 0;
+  max-width: calc(60 * var(--ch));
+  line-height: 1.6;
+}

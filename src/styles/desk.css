@@ -2218,6 +2218,16 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
   justify-self: start;
 }
 
+/* The Footnotes pane (3g): under the note, with the flag a rewritten pin gets below it. */
+.desk-fns__item .desk-pin {
+  grid-column: 1 / -1;
+  justify-self: start;
+}
+
+.desk-fns__item > .desk-fn__flag {
+  grid-column: 1 / -1;
+}
+
 /* My Notes: the group under the list. */
 .desk-mine__pins {
   margin-top: 14px;
@@ -2253,12 +2263,150 @@ html[data-desk-list="full"] .desk-item__pin-text {
   overflow: visible;
 }
 
+/* ── Notes on a footnote (M11) ──────────────────────────────────── */
+
+/* src/scripts/desk/footnote-notes.js. "Add a note" looks as Pin does (they
+   share .desk-pin). Where a surface has the two side by side they sit in one
+   .desk-fn-actions row, so a grid or a popover sees one item. */
+.desk-fn-actions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 6px;
+}
+
+.desk-verse__fn .desk-fn-actions,
+.desk-fns__item .desk-fn-actions {
+  justify-self: start;
+}
+
+.desk-verse__fn .desk-fn-actions {
+  grid-column: 2;
+}
+
+.desk-fns__item .desk-fn-actions {
+  grid-column: 1 / -1;
+}
+
+/* The reader's notes on one footnote: the marker, the words, Edit. */
+.desk-fnn {
+  min-width: 0;
+  margin-top: 4px;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+}
+
+.desk-fnn[hidden] {
+  display: none;
+}
+
+.desk-verse__fn .desk-fnn {
+  grid-column: 2;
+}
+
+.desk-fns__item .desk-fnn {
+  grid-column: 1 / -1;
+}
+
+/* In the popover: under the Pin line, in its own width. */
+.desk-pin-row + .desk-fnn {
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(var(--ink-rgb), 0.12);
+}
+
+.desk-fnn__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.desk-fnn__item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 6px;
+  margin: 0 0 4px;
+}
+
+.desk-fnn__glyph {
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+}
+
+.desk-fnn__words {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  white-space: pre-line;
+}
+
+.desk-fnn__edit {
+  padding: 1px 9px;
+  border: 1px solid rgba(var(--ink-rgb), 0.22);
+  border-radius: 999px;
+  background: transparent;
+  color: rgba(var(--ink-rgb), 0.74);
+  font: inherit;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.desk-fnn__edit:hover {
+  border-color: rgba(var(--ink-rgb), 0.4);
+  background: rgba(var(--ink-rgb), 0.08);
+  color: var(--text);
+}
+
+.desk-fnn__more {
+  margin: 2px 0 0;
+  color: rgba(var(--ink-rgb), 0.7);
+  font-size: 0.75rem;
+}
+
+/* The editor's quote of the footnote: cut at four lines, and the footnote's
+   own paragraphs run together. */
+.desk-editor__footnote {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
+  overflow: hidden;
+  font-size: 0.875rem;
+}
+
+/* A footnote in the Footnotes list while its margin note is hovered, focused
+   or being shown: the same neutral tint the words of a verse note get (the
+   ink token is themed, so one rule serves light and dark). */
+.footnotes > li.desk-fn--noted {
+  border-radius: 4px;
+  background: rgba(var(--ink-rgb), 0.13);
+  box-shadow: 0 0 0 4px rgba(var(--ink-rgb), 0.13);
+}
+
+/* My Notes and the notebook page: a note on a footnote says so. */
+.desk-item__on-fn {
+  grid-column: 1 / -1;
+  margin: 0 0 2px;
+  color: rgba(var(--ink-rgb), 0.7);
+  font-size: 0.8125rem;
+  font-style: italic;
+  overflow-wrap: anywhere;
+}
+
 /* The desk doesn't print: the buttons and their flags stay off the page, and
    the Footnotes list goes back to a plain block. */
 @media print {
   .desk-pin,
+  .desk-fn-actions,
+  .desk-fnn,
   .desk-fn__flag {
     display: none !important;
+  }
+
+  .footnotes > li.desk-fn--noted {
+    background: none;
+    box-shadow: none;
   }
 
   .footnotes > li.desk-fn {
@@ -4249,3 +4397,2541 @@ html:has(.desk-greek__split--dragging) {
   margin-top: 0.25rem;
 }
 
+
+/* ── The desk page (/desk/) ───────────────────────────────────── */
+
+/* src/scripts/desk/desk-page.js (STUDY-DESK.md, D9; phase 3c): one to four
+   panes filling the window below a bar holding the page's title and the
+   Layout menu. The page doesn't scroll, so the footer goes while the desk is
+   drawn; without the preview the page is its ordinary short note. */
+
+html[data-desk-workspace] .site-footer,
+html[data-desk-workspace] .footer-license-band {
+  display: none;
+}
+
+html[data-desk-workspace] .desk-page {
+  max-width: none;
+  padding: 10px 16px 0;
+}
+
+.desk-ws {
+  position: relative;
+}
+
+.desk-ws__bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 10px;
+}
+
+.desk-ws__bar .desk-page__title {
+  margin: 0;
+  font-size: 1.375rem;
+}
+
+.desk-ws__layout {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid rgba(var(--ink-rgb), 0.22);
+  border-radius: 8px;
+  background: var(--surface-raised);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.desk-ws__layout:hover,
+.desk-ws__layout[aria-expanded="true"] {
+  background: rgba(var(--ink-rgb), 0.06);
+}
+
+.desk-ws__menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 1000;
+  box-sizing: border-box;
+  width: min(560px, calc(100vw - 32px));
+  padding: 14px;
+  background: var(--surface-raised);
+  color: var(--text);
+  border: 1px solid rgba(var(--ink-rgb), 0.14);
+  border-radius: 12px;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.18);
+  font-size: 0.9375rem;
+}
+
+.desk-ws__menu[hidden] {
+  display: none;
+}
+
+.desk-ws__shapes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 6px;
+}
+
+.desk-ws__shape {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 6px;
+  border: 1px solid rgba(var(--ink-rgb), 0.16);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.8125rem;
+  line-height: 1.25;
+  text-align: center;
+  cursor: pointer;
+}
+
+.desk-ws__shape:hover {
+  background: rgba(var(--ink-rgb), 0.06);
+}
+
+.desk-ws__shape[aria-pressed="true"] {
+  border-color: var(--green-text);
+  box-shadow: inset 0 0 0 1px var(--green-text);
+}
+
+.desk-ws__shape[aria-disabled="true"] {
+  color: rgba(var(--ink-rgb), 0.5);
+  cursor: not-allowed;
+}
+
+.desk-ws__shape[aria-disabled="true"]:hover {
+  background: transparent;
+}
+
+.desk-ws__shape-svg rect {
+  fill: rgba(var(--ink-rgb), 0.12);
+  stroke: currentColor;
+  stroke-width: 1;
+}
+
+.desk-ws__shape[aria-pressed="true"] .desk-ws__shape-svg rect {
+  fill: rgba(var(--ink-rgb), 0.24);
+}
+
+.desk-ws__shape-needs {
+  font-size: 0.75rem;
+}
+
+.desk-ws__shape-needs:empty {
+  display: none;
+}
+
+.desk-ws__menu-note {
+  margin: 10px 2px;
+  color: rgba(var(--ink-rgb), 0.75);
+  font-size: 0.875rem;
+}
+
+.desk-ws__start {
+  margin: 0 0 10px;
+  padding: 8px 12px;
+  border: 1px solid rgba(var(--ink-rgb), 0.14);
+  border-radius: 8px;
+}
+
+.desk-ws__start legend {
+  padding: 0 4px;
+  font-weight: 600;
+}
+
+.desk-ws__start label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: 16px;
+}
+
+.desk-ws__start label:has(input:disabled) {
+  color: rgba(var(--ink-rgb), 0.5);
+}
+
+.desk-ws__menu-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.desk-ws__menu-actions button {
+  padding: 6px 12px;
+  border: 1px solid rgba(var(--ink-rgb), 0.22);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.desk-ws__menu-actions button:hover {
+  background: rgba(var(--ink-rgb), 0.06);
+}
+
+.desk-ws__panes {
+  position: relative;
+  display: flex;
+  min-height: 160px;
+  overflow: auto;
+}
+
+.desk-split {
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+}
+
+.desk-split--columns {
+  flex-direction: row;
+}
+
+.desk-split--rows {
+  flex-direction: column;
+}
+
+.desk-split__handle {
+  flex: 0 0 6px;
+  border-radius: 3px;
+  background: transparent;
+  touch-action: none;
+}
+
+.desk-split--columns > .desk-split__handle {
+  cursor: col-resize;
+}
+
+.desk-split--rows > .desk-split__handle {
+  cursor: row-resize;
+}
+
+.desk-split__handle:hover,
+.desk-split__handle:focus-visible {
+  background: rgba(var(--ink-rgb), 0.16);
+}
+
+.desk-split__handle:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 0;
+}
+
+html.desk-ws--resizing-x,
+html.desk-ws--resizing-x * {
+  cursor: col-resize !important;
+  user-select: none;
+}
+
+html.desk-ws--resizing-y,
+html.desk-ws--resizing-y * {
+  cursor: row-resize !important;
+  user-select: none;
+}
+
+html.desk-ws--moving,
+html.desk-ws--moving * {
+  cursor: grabbing !important;
+  user-select: none;
+}
+
+/* A pane: at least 280 by 160 (src/lib/desk-layout.mjs), its body scrolling
+   on its own. */
+.desk-pane {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 280px;
+  min-height: 160px;
+  background: var(--surface-raised);
+  color: var(--text);
+  border: 1px solid rgba(var(--ink-rgb), 0.14);
+  border-radius: 12px;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+.desk-pane--leading {
+  border-color: rgba(var(--ink-rgb), 0.34);
+}
+
+.desk-pane--moving {
+  opacity: 0.55;
+}
+
+.desk-pane__head {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 6px 6px 8px;
+  border-bottom: 1px solid rgba(var(--ink-rgb), 0.1);
+  cursor: grab;
+  touch-action: none;
+}
+
+.desk-pane__grip {
+  display: inline-flex;
+  color: rgba(var(--ink-rgb), 0.45);
+}
+
+.desk-pane__title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.desk-pane__kind {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 6px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.desk-pane__kind:hover,
+.desk-pane__kind[aria-expanded="true"] {
+  background: rgba(var(--ink-rgb), 0.08);
+}
+
+.desk-pane__lead {
+  padding: 1px 8px;
+  border: 1px solid rgba(var(--ink-rgb), 0.3);
+  border-radius: 999px;
+  color: rgba(var(--ink-rgb), 0.8);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.desk-pane__lead[hidden],
+.desk-pane__pin[hidden],
+.desk-pane__close[hidden] {
+  display: none;
+}
+
+.desk-pane__pin {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  padding: 4px 8px;
+  border: 1px solid rgba(var(--ink-rgb), 0.2);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+
+.desk-pane__pin[aria-pressed="true"] {
+  border-color: var(--green-text);
+  background: rgba(var(--ink-rgb), 0.06);
+  font-weight: 600;
+}
+
+.desk-pane__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  margin-left: auto;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.desk-pane__pin:not([hidden]) + .desk-pane__close {
+  margin-left: 0;
+}
+
+.desk-pane__close:hover {
+  background: rgba(var(--ink-rgb), 0.08);
+}
+
+.desk-pane__menu {
+  position: absolute;
+  top: calc(100% - 2px);
+  left: 28px;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  min-width: 160px;
+  padding: 4px;
+  background: var(--surface-raised);
+  border: 1px solid rgba(var(--ink-rgb), 0.16);
+  border-radius: 8px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16);
+  cursor: default;
+}
+
+.desk-pane__menu-item {
+  padding: 6px 10px 6px 26px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.desk-pane__menu-item:hover,
+.desk-pane__menu-item:focus-visible {
+  background-color: rgba(var(--ink-rgb), 0.08);
+}
+
+/* The kind shown now: bold, with a dot before it. */
+.desk-pane__menu-item[aria-checked="true"] {
+  font-weight: 700;
+  background-image: radial-gradient(circle, var(--green-text) 3px, transparent 3.5px);
+  background-size: 8px 8px;
+  background-position: 10px 50%;
+  background-repeat: no-repeat;
+}
+
+.desk-ws button:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.desk-pane__body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  padding: 12px 14px;
+  border-radius: 0 0 12px 12px;
+}
+
+.desk-pane__later {
+  margin: 0;
+  max-width: calc(48 * var(--ch));
+  color: rgba(var(--ink-rgb), 0.75);
+}
+
+/* A following pane (This verse, Greek; desk-panes.js): the passage picker
+   stays at its top while the part below scrolls. */
+.desk-pane__body--fill {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 0;
+}
+
+.desk-passage {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 10px;
+  border-bottom: 1px solid rgba(var(--ink-rgb), 0.1);
+}
+
+.desk-passage__field {
+  flex: 1 1 8rem;
+  min-width: 0;
+  padding: 5px 9px;
+  border: 1px solid rgba(var(--ink-rgb), 0.3);
+  border-radius: 8px;
+  background: var(--surface-raised, transparent);
+  color: var(--text);
+  font: inherit;
+  font-weight: 600;
+}
+
+.desk-passage__field:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+.desk-passage__field[aria-invalid="true"] {
+  border-color: var(--text);
+}
+
+.desk-passage__step {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.desk-passage__step:hover {
+  background: rgba(var(--ink-rgb), 0.08);
+}
+
+.desk-passage__step[aria-disabled="true"] {
+  color: rgba(var(--ink-rgb), 0.3);
+  cursor: default;
+}
+
+.desk-passage__step[aria-disabled="true"]:hover {
+  background: transparent;
+}
+
+.desk-passage__error {
+  flex-basis: 100%;
+  margin: 2px 0 0;
+  font-size: 0.875rem;
+}
+
+.desk-passage__error[hidden] {
+  display: none;
+}
+
+.desk-dp__content {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 8px 14px 12px;
+}
+
+/* The Greek scrolls its own text, so its part only holds it. */
+.desk-dp__content--fill {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding-bottom: 0;
+}
+
+.desk-dp__status {
+  color: rgba(var(--ink-rgb), 0.75);
+}
+
+.desk-dp__status p {
+  margin: 0 0 8px;
+  max-width: calc(48 * var(--ch));
+}
+
+.desk-dp__retry {
+  padding: 4px 10px;
+  border: 1px solid rgba(var(--ink-rgb), 0.25);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+
+.desk-dp__retry:hover {
+  background: rgba(var(--ink-rgb), 0.07);
+}
+
+/* "This chapter" at the foot of This verse: the chapter's Go deeper rows
+   (GoDeeper.astro's own styles stay on Study View, so they are set here). */
+.desk-chapter__rows {
+  margin: 0;
+}
+
+.desk-chapter__rows > div {
+  padding: 8px 0 10px;
+  border-top: 1px solid rgba(var(--ink-rgb), 0.1);
+}
+
+.desk-chapter__rows dt {
+  margin-bottom: 2px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.desk-chapter__rows dd {
+  margin: 0;
+}
+
+.desk-chapter__rows ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.desk-chapter__rows li + li {
+  margin-top: 6px;
+}
+
+.desk-chapter__rows p {
+  margin: 0;
+}
+
+.desk-chapter__rows .go-deeper__episode {
+  display: block;
+}
+
+.desk-chapter__rows .go-deeper__platforms {
+  font-size: 0.875rem;
+}
+
+.desk-chapter__rows .go-deeper__more {
+  margin-top: 6px;
+}
+
+.desk-chapter__rows summary {
+  width: fit-content;
+  font-size: 0.875rem;
+  color: var(--link);
+  cursor: pointer;
+}
+
+.desk-chapter a {
+  color: var(--link);
+}
+
+.desk-chapter a:focus-visible,
+.desk-chapter summary:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.desk-chapter__open {
+  margin: 10px 0 0;
+  padding-top: 8px;
+  border-top: 1px solid rgba(var(--ink-rgb), 0.1);
+}
+
+/* What I've kept as a pane: the notebook page's list at the pane's size. */
+.desk-np--pane {
+  font-size: inherit;
+}
+
+.desk-np--pane .desk-np__h3 {
+  margin-top: 1.25rem;
+  font-size: 1.05rem;
+}
+
+.desk-np--pane .desk-np__h4 {
+  margin-top: 0.85rem;
+  font-size: 0.9375rem;
+}
+
+/* Where a dragged pane would land: half of the pane under the pointer. */
+.desk-ws__drop {
+  position: absolute;
+  z-index: 10;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed var(--green-text);
+  border-radius: 10px;
+  background: rgba(var(--ink-rgb), 0.06);
+  color: var(--text);
+  font-weight: 600;
+  pointer-events: none;
+}
+
+.desk-ws__drop[hidden] {
+  display: none;
+}
+
+.desk-ws__drop--refused {
+  border-color: rgba(var(--ink-rgb), 0.4);
+}
+
+/* The LIT pane on /desk (phase 3e; src/scripts/desk/lit-pane.js): Study
+   View's text, a chapter after another, scrolling in the pane. Its text size
+   and spacing follow the Display tray as Study View's do, and the column
+   keeps Study View's reading width when the pane is wider. */
+.desk-lit {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.desk-lit__scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  /* lit-pane.js holds the reader's line itself when a chapter loads above;
+     the browser's scroll anchoring would correct a second time. */
+  overflow-anchor: none;
+  overscroll-behavior: contain;
+  padding: 4px 18px 0;
+}
+
+.desk-lit__scroll:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: -2px;
+}
+
+.desk-lit__text {
+  max-width: var(--reading-width);
+  margin: 0 auto;
+  /* Room below Revelation 22, so its last verses can reach the reading line. */
+  padding-bottom: 40vh;
+  font-size: calc(1em * var(--reading-scale, 1));
+}
+
+.desk-lit__heading {
+  margin: 1.4em 0 0.6em;
+  font-size: 1.15em;
+}
+
+.desk-lit__chapter:first-child .desk-lit__heading {
+  margin-top: 0.6em;
+}
+
+.desk-lit__heading a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.desk-lit__heading a:hover {
+  text-decoration: underline;
+}
+
+.desk-lit .chapter-paragraphs p {
+  margin: 0 0 12px;
+  line-height: calc(1.75 + var(--reading-leading-extra, 0));
+}
+
+.desk-lit .chapter-paragraphs .fn-ref a {
+  text-decoration: none;
+  color: var(--green-text, #0f6b33);
+  font-weight: 700;
+}
+
+.desk-lit .chapter-paragraphs .fn-ref a:hover {
+  text-decoration: underline;
+}
+
+.desk-lit__stub {
+  margin: 0 0 1em;
+  color: rgba(var(--ink-rgb), 0.75);
+  font-style: italic;
+}
+
+/* The Footnotes pane on /desk (phase 3e). */
+.desk-fns {
+  padding: 4px 4px 12px;
+}
+
+.desk-fns__title {
+  margin: 0 0 8px;
+  /* The panel's own face, not the site's display serif for headings. */
+  font-family: inherit;
+  color: rgba(var(--ink-rgb), 0.7);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.desk-fns__none {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: rgba(var(--ink-rgb), 0.7);
+}
+
+.desk-fns__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* The letter, then the verse button, then the note under both. */
+.desk-fns__item {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: baseline;
+  column-gap: 8px;
+  row-gap: 2px;
+  margin-bottom: 8px;
+  padding: 4px 6px 4px 8px;
+  border-left: 3px solid transparent;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.desk-fns__item--current {
+  border-left-color: var(--green-text);
+  background: rgba(var(--ink-rgb), 0.04);
+}
+
+.desk-fns__label {
+  color: var(--green-text);
+  font-style: italic;
+  font-weight: 600;
+}
+
+.desk-fns__verse {
+  justify-self: start;
+  padding: 0 2px;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+  color: rgba(var(--ink-rgb), 0.7);
+  font: inherit;
+  font-size: 0.8125rem;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.desk-fns__verse:hover {
+  color: var(--text);
+}
+
+.desk-fns__verse:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.desk-fns__body {
+  grid-column: 1 / -1;
+  min-width: 0;
+}
+
+.desk-fns__body a {
+  color: var(--green-text);
+}
+
+/* A note can hold block elements, copied from the page's list. */
+.desk-fns__body p,
+.desk-fns__body div {
+  margin: 0 0 4px;
+}
+
+/* ── The sheet editor's formatted text (3f; sheet-text.js) ───────────── */
+
+/* ── Sheet text: the formatted-text editor and how sheet html looks ───── */
+
+/* src/scripts/desk/sheet-text.js (the toolbar and the editable) and, scoped to
+   `.desk-rich`, the look of a sheet's sanitized html wherever it is shown,
+   editor or read-only (src/lib/desk-sheet-format.mjs). A sheet stores NAMES
+   (data-color="red", never a color), so what each name looks like is decided
+   here, once, for light and dark.
+
+   Fonts never use !important: global.css forces the reader's own Atkinson or
+   OpenDyslexic choice with !important under html[data-font], so it beats these
+   and a named font only shows for a reader on the default fonts. Sizes are in
+   em, so they follow the reader's own text size. */
+
+/* The five text colors and the four backgrounds. Each text color is at least
+   4.5:1 on the notebook's surface in its theme (light #FAFAF8 and cream
+   #E1DFD9; dark #1d1d1f and #161617). The backgrounds are the notebook's own
+   highlight tints (--desk-hl-*, "Highlights" in this file), so a sheet's yellow
+   is the reader's yellow. Redefined in BOTH dark blocks (the OS preference and
+   the explicit override), like every theme token. */
+:root {
+  --desk-rich-red: #b3261e;
+  --desk-rich-blue: #1d4fb8;
+  --desk-rich-green: #0f6b33;
+  --desk-rich-purple: #6b3fa0;
+  --desk-rich-gray: #595e57;
+  --desk-rich-mark-yellow: var(--desk-hl-yellow);
+  --desk-rich-mark-green: var(--desk-hl-green);
+  --desk-rich-mark-blue: var(--desk-hl-blue);
+  --desk-rich-mark-pink: var(--desk-hl-pink);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --desk-rich-red: #ff8a80;
+    --desk-rich-blue: #8cb4ff;
+    --desk-rich-green: #5fd58a;
+    --desk-rich-purple: #c9a7ff;
+    --desk-rich-gray: #a9aea7;
+  }
+}
+
+:root[data-theme="dark"] {
+  --desk-rich-red: #ff8a80;
+  --desk-rich-blue: #8cb4ff;
+  --desk-rich-green: #5fd58a;
+  --desk-rich-purple: #c9a7ff;
+  --desk-rich-gray: #a9aea7;
+}
+
+/* The text itself. `.desk-rich` is the editable and also what a read-only
+   display wears. */
+.desk-rich {
+  position: relative;
+  box-sizing: border-box;
+  min-width: 0;
+  color: var(--text);
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+.desk-rich > :first-child {
+  margin-top: 0;
+}
+
+.desk-rich > :last-child {
+  margin-bottom: 0;
+}
+
+.desk-rich p {
+  margin: 0 0 0.7em;
+}
+
+.desk-rich h2,
+.desk-rich h3 {
+  margin: 1em 0 0.4em;
+  color: var(--text-strong);
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.desk-rich h2 {
+  font-size: 1.35em;
+}
+
+.desk-rich h3 {
+  font-size: 1.12em;
+}
+
+.desk-rich blockquote {
+  margin: 0.9em 0;
+  padding: 0.1em 0 0.1em 0.9em;
+  border-left: 3px solid rgba(var(--ink-rgb), 0.28);
+  color: rgba(var(--ink-rgb), 0.86);
+  font-style: italic;
+}
+
+.desk-rich blockquote > :last-child {
+  margin-bottom: 0;
+}
+
+.desk-rich ul,
+.desk-rich ol {
+  margin: 0 0 0.7em;
+  padding-left: 1.5em;
+}
+
+.desk-rich li {
+  margin: 0.15em 0;
+}
+
+.desk-rich li > ul,
+.desk-rich li > ol {
+  margin: 0.15em 0 0.15em;
+}
+
+.desk-rich hr {
+  height: 0;
+  margin: 1.1em 0;
+  border: 0;
+  border-top: 1px solid rgba(var(--ink-rgb), 0.35);
+}
+
+.desk-rich a {
+  color: var(--link);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.desk-rich sup,
+.desk-rich sub {
+  line-height: 0;
+}
+
+/* Alignment: left, the default, is no attribute. */
+.desk-rich [data-align="center"] {
+  text-align: center;
+}
+
+.desk-rich [data-align="right"] {
+  text-align: right;
+}
+
+.desk-rich [data-align="justify"] {
+  text-align: justify;
+  hyphens: auto;
+}
+
+/* The named styles. The samples in the editor's Style menu
+   (.desk-rich-sample, and the font names set in their own face) share the
+   font, color and background rules; they have no sizes. */
+:is(.desk-rich span, .desk-rich-sample, .desk-rich-menu__text)[data-font="sans"] {
+  font-family: "Inter", "Inter Fallback", system-ui, sans-serif;
+}
+
+:is(.desk-rich span, .desk-rich-sample, .desk-rich-menu__text)[data-font="serif"] {
+  font-family: "Crimson Text", "Crimson Fallback", Georgia, "Times New Roman", serif;
+}
+
+:is(.desk-rich span, .desk-rich-sample, .desk-rich-menu__text)[data-font="display"] {
+  font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
+}
+
+:is(.desk-rich span, .desk-rich-sample, .desk-rich-menu__text)[data-font="handwriting"] {
+  font-family: "Playpen Sans", Inter, "Inter Fallback", system-ui, sans-serif;
+}
+
+:is(.desk-rich span, .desk-rich-sample, .desk-rich-menu__text)[data-font="atkinson"] {
+  font-family: "Atkinson Hyperlegible Next Variable", Inter, system-ui, sans-serif;
+}
+
+.desk-rich span[data-size="small"] {
+  font-size: 0.85em;
+}
+
+.desk-rich span[data-size="large"] {
+  font-size: 1.25em;
+}
+
+.desk-rich span[data-size="larger"] {
+  font-size: 1.5em;
+}
+
+:is(.desk-rich span, .desk-rich-sample)[data-color="red"] {
+  color: var(--desk-rich-red);
+}
+
+:is(.desk-rich span, .desk-rich-sample)[data-color="blue"] {
+  color: var(--desk-rich-blue);
+}
+
+:is(.desk-rich span, .desk-rich-sample)[data-color="green"] {
+  color: var(--desk-rich-green);
+}
+
+:is(.desk-rich span, .desk-rich-sample)[data-color="purple"] {
+  color: var(--desk-rich-purple);
+}
+
+:is(.desk-rich span, .desk-rich-sample)[data-color="gray"] {
+  color: var(--desk-rich-gray);
+}
+
+:is(.desk-rich span, .desk-rich-sample)[data-mark="yellow"] {
+  background-color: var(--desk-rich-mark-yellow);
+}
+
+:is(.desk-rich span, .desk-rich-sample)[data-mark="green"] {
+  background-color: var(--desk-rich-mark-green);
+}
+
+:is(.desk-rich span, .desk-rich-sample)[data-mark="blue"] {
+  background-color: var(--desk-rich-mark-blue);
+}
+
+:is(.desk-rich span, .desk-rich-sample)[data-mark="pink"] {
+  background-color: var(--desk-rich-mark-pink);
+}
+
+.desk-rich span[data-mark] {
+  border-radius: 2px;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+/* ── The editor ──────────────────────────────────────────────── */
+
+.desk-rich-editor {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  border: 1px solid rgba(var(--ink-rgb), 0.22);
+  border-radius: 8px;
+  background: var(--surface-input, var(--surface-raised));
+  color: var(--text);
+}
+
+.desk-rich-editor:focus-within {
+  border-color: var(--focus-ring);
+}
+
+/* The toolbar wraps onto more rows in a narrow pane (down to 280px). */
+.desk-rich-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  border-bottom: 1px solid rgba(var(--ink-rgb), 0.14);
+  font-size: 0.8125rem;
+  line-height: 1.2;
+}
+
+.desk-rich-sep {
+  flex: none;
+  align-self: stretch;
+  width: 1px;
+  margin: 3px 3px;
+  background: rgba(var(--ink-rgb), 0.18);
+}
+
+.desk-rich-tool {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 6px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.desk-rich-tool:hover {
+  background: rgba(var(--ink-rgb), 0.08);
+}
+
+.desk-rich-tool:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+.desk-rich-tool[aria-pressed="true"],
+.desk-rich-tool[aria-expanded="true"] {
+  background: rgba(var(--ink-rgb), 0.14);
+}
+
+.desk-rich-tool[aria-disabled="true"] {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.desk-rich-tool--bold {
+  font-weight: 800;
+}
+
+.desk-rich-tool--italic {
+  font-style: italic;
+  font-weight: 600;
+}
+
+.desk-rich-tool--underline {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.desk-rich-tool--strike {
+  text-decoration: line-through;
+}
+
+.desk-rich-icon,
+.desk-rich-tool__icon {
+  display: inline-flex;
+  align-items: center;
+}
+
+/* The menu buttons say they open something. */
+.desk-rich-tool--menu::after {
+  content: "";
+  flex: none;
+  width: 0;
+  height: 0;
+  margin-left: 1px;
+  border-left: 3.5px solid transparent;
+  border-right: 3.5px solid transparent;
+  border-top: 4px solid currentColor;
+  opacity: 0.7;
+}
+
+.desk-rich-tool__text {
+  white-space: nowrap;
+}
+
+/* Messages ("Lists nest three levels deep at most."), shown for a few
+   seconds and read aloud. */
+.desk-rich-status {
+  padding: 4px 8px;
+  border-bottom: 1px solid rgba(var(--ink-rgb), 0.14);
+  color: rgba(var(--ink-rgb), 0.8);
+  font-size: 0.8125rem;
+}
+
+.desk-rich-status:empty {
+  display: none;
+}
+
+/* The link form takes a row of its own at the end of the toolbar. */
+.desk-rich-link {
+  flex: 1 0 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  margin-top: 2px;
+  padding: 4px 2px 2px;
+  border-top: 1px solid rgba(var(--ink-rgb), 0.14);
+}
+
+.desk-rich-link[hidden],
+.desk-rich-link__button[hidden],
+.desk-rich-link__error[hidden] {
+  display: none;
+}
+
+.desk-rich-link__field {
+  flex: 1 1 140px;
+  min-width: 0;
+  box-sizing: border-box;
+  height: 28px;
+  padding: 0 8px;
+  border: 1px solid rgba(var(--ink-rgb), 0.3);
+  border-radius: 6px;
+  background: var(--surface-input, var(--surface-raised));
+  color: var(--text);
+  font: inherit;
+}
+
+.desk-rich-link__field:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+.desk-rich-link__field[aria-invalid="true"] {
+  border-color: var(--desk-rich-red);
+}
+
+.desk-rich-link__button {
+  height: 28px;
+  padding: 0 10px;
+  border: 1px solid rgba(var(--ink-rgb), 0.3);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.desk-rich-link__button:hover {
+  background: rgba(var(--ink-rgb), 0.08);
+}
+
+.desk-rich-link__button--primary {
+  border-color: var(--green-deep);
+  background: var(--green-deep);
+  color: #fff;
+}
+
+.desk-rich-link__button--primary:hover {
+  background: var(--green-deep);
+  filter: brightness(1.12);
+}
+
+.desk-rich-link__button:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.desk-rich-link__error {
+  flex: 1 0 100%;
+  margin: 0;
+  color: var(--desk-rich-red);
+  font-size: 0.8125rem;
+}
+
+/* The menus open under their button, over the text. */
+.desk-rich-menu {
+  position: absolute;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  min-width: 150px;
+  max-width: calc(100% - 8px);
+  max-height: min(60vh, 22rem);
+  overflow-y: auto;
+  padding: 4px;
+  border: 1px solid rgba(var(--ink-rgb), 0.18);
+  border-radius: 8px;
+  background: var(--surface-raised);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+  font-size: 0.875rem;
+}
+
+.desk-rich-menu__group {
+  display: flex;
+  flex-direction: column;
+}
+
+.desk-rich-menu__group + .desk-rich-menu__group {
+  margin-top: 4px;
+  padding-top: 4px;
+  border-top: 1px solid rgba(var(--ink-rgb), 0.14);
+}
+
+.desk-rich-menu__label {
+  padding: 2px 8px 2px 26px;
+  color: rgba(var(--ink-rgb), 0.75);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.desk-rich-menu__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 10px 5px 26px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.desk-rich-menu__item:hover {
+  background-color: rgba(var(--ink-rgb), 0.08);
+}
+
+.desk-rich-menu__item:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: -2px;
+  background-color: rgba(var(--ink-rgb), 0.08);
+}
+
+/* The one in force: bold, with a dot before it, as the pane menus show it. */
+.desk-rich-menu__item[aria-checked="true"] {
+  font-weight: 700;
+  background-image: radial-gradient(circle, var(--green-text) 3px, transparent 3.5px);
+  background-size: 8px 8px;
+  background-position: 10px 50%;
+  background-repeat: no-repeat;
+}
+
+.desk-rich-sample {
+  display: inline-block;
+  min-width: 1.9em;
+  padding: 0 4px;
+  border-radius: 4px;
+  font-weight: 700;
+  text-align: center;
+}
+
+/* The editable. Its own ring is the editor's border (focus-within above), so
+   the area draws none of its own; the toolbar's controls keep theirs. */
+.desk-rich-editor > .desk-rich {
+  min-height: 7em;
+  padding: 10px 12px;
+  border-radius: 0 0 8px 8px;
+  font-size: 1rem;
+  outline: 0;
+}
+
+.desk-rich-editor > .desk-rich:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: -2px;
+}
+
+/* The placeholder, while the text is empty (sheet-text.js sets data-empty). */
+.desk-rich[data-empty]::before {
+  content: attr(data-placeholder);
+  position: absolute;
+  top: 10px;
+  left: 12px;
+  right: 12px;
+  color: rgba(var(--ink-rgb), 0.62);
+  pointer-events: none;
+}
+
+@media (forced-colors: active) {
+  .desk-rich-tool[aria-pressed="true"],
+  .desk-rich-tool[aria-expanded="true"] {
+    outline: 2px solid ButtonText;
+  }
+}
+
+/* ── The Sheet pane on /desk (3f; sheet-pane.js) ─────────────────────── */
+
+.desk-sheet {
+  height: 100%;
+  overflow-y: auto;
+  padding: 12px 16px 32px;
+  box-sizing: border-box;
+}
+
+.desk-sheet__status,
+.desk-sheet__empty,
+.desk-sheet__none {
+  color: rgba(var(--ink-rgb), 0.75);
+  font-size: 0.875rem;
+  margin: 6px 0;
+}
+
+.desk-sheet__btn {
+  padding: 4px 10px;
+  border: 1px solid rgba(var(--ink-rgb), 0.25);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+
+.desk-sheet__btn:hover {
+  background: rgba(var(--ink-rgb), 0.07);
+}
+
+.desk-sheet__btn--primary {
+  background: var(--green-deep);
+  border-color: var(--green-deep);
+  color: #fff;
+}
+
+.desk-sheet__btn--primary:hover {
+  background: var(--green-deep);
+  filter: brightness(1.1);
+}
+
+.desk-sheet__btn--quiet {
+  border-color: transparent;
+}
+
+.desk-sheet__btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+  background: transparent;
+}
+
+.desk-sheet :is(button, input, select, summary, a):focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+/* The list of sheets */
+.desk-sheet__list-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.desk-sheet__list-title {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.desk-sheet__sheets {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.desk-sheet__sheet {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-bottom: 1px solid rgba(var(--ink-rgb), 0.12);
+}
+
+.desk-sheet__open {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 4px;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.desk-sheet__open:hover .desk-sheet__open-name {
+  text-decoration: underline;
+}
+
+.desk-sheet__open-name {
+  font-weight: 600;
+}
+
+.desk-sheet__open-meta {
+  font-size: 0.8125rem;
+  color: rgba(var(--ink-rgb), 0.7);
+}
+
+/* One sheet */
+.desk-sheet__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: -4px -6px 8px;
+}
+
+.desk-sheet__saved {
+  font-size: 0.75rem;
+  color: rgba(var(--ink-rgb), 0.65);
+}
+
+.desk-sheet__title,
+.desk-sheet__subtitle {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text);
+  padding: 2px 6px;
+}
+
+.desk-sheet__title {
+  font-family: "Fraunces", Georgia, serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.desk-sheet__subtitle {
+  font: inherit;
+  font-size: 0.9375rem;
+  margin-bottom: 12px;
+  color: rgba(var(--ink-rgb), 0.8);
+}
+
+.desk-sheet__title:hover,
+.desk-sheet__subtitle:hover,
+.desk-sheet__title:focus,
+.desk-sheet__subtitle:focus {
+  border-color: rgba(var(--ink-rgb), 0.2);
+  background: var(--surface-input);
+}
+
+.desk-sheet__modules {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.desk-sheet__module {
+  border: 1px solid rgba(var(--ink-rgb), 0.14);
+  border-radius: 10px;
+  padding: 6px 10px 10px;
+  background: var(--surface-raised);
+}
+
+.desk-sheet__module.is-dragging {
+  opacity: 0.5;
+}
+
+.desk-sheet__drop {
+  height: 3px;
+  border-radius: 2px;
+  background: var(--focus-ring);
+}
+
+.desk-sheet__module-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+  font-size: 0.8125rem;
+}
+
+.desk-sheet__grip {
+  cursor: grab;
+  color: rgba(var(--ink-rgb), 0.5);
+  user-select: none;
+}
+
+.desk-sheet__module-name {
+  font-weight: 600;
+  color: rgba(var(--ink-rgb), 0.85);
+}
+
+.desk-sheet__module-tools {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.desk-sheet__leader {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-right: 4px;
+  color: rgba(var(--ink-rgb), 0.75);
+  cursor: pointer;
+}
+
+.desk-sheet__icon {
+  min-width: 26px;
+  height: 26px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.desk-sheet__icon:hover:not(:disabled) {
+  background: rgba(var(--ink-rgb), 0.08);
+}
+
+.desk-sheet__icon:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+/* A passage: the LIT's words, set apart from the reader's (format rule 2). */
+.desk-sheet__words {
+  border-left: 3px solid var(--green);
+  padding-left: 12px;
+  font-size: calc(1em * var(--reading-scale, 1));
+}
+
+.desk-sheet__words p,
+.desk-sheet__words blockquote {
+  margin: 0 0 8px;
+  line-height: calc(1.65 + var(--reading-leading-extra, 0));
+}
+
+/* Plain numbers here: a passage on a sheet has no verse menu. */
+.desk-sheet__words sup.vn {
+  cursor: auto;
+  font-weight: 400;
+  font-size: 0.8em;
+  line-height: 1;
+  color: inherit;
+  opacity: 0.85;
+  text-decoration: none;
+}
+
+.desk-sheet__words sup.vn::after {
+  content: none;
+}
+
+.desk-sheet__lines {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  font-size: 0.8125rem;
+}
+
+.desk-sheet__lines input {
+  width: 4em;
+  font: inherit;
+  padding: 2px 4px;
+  border: 1px solid rgba(var(--ink-rgb), 0.25);
+  border-radius: 6px;
+  background: var(--surface-input);
+  color: var(--text);
+}
+
+.desk-sheet__ruled {
+  height: calc(var(--lines, 4) * 1.6em);
+  margin-top: 6px;
+  background-image: repeating-linear-gradient(to bottom, transparent 0 calc(1.6em - 1px), rgba(var(--ink-rgb), 0.25) calc(1.6em - 1px) 1.6em);
+}
+
+.desk-sheet__break {
+  border-top: 2px dashed rgba(var(--ink-rgb), 0.3);
+  padding-top: 4px;
+  font-size: 0.8125rem;
+  color: rgba(var(--ink-rgb), 0.7);
+}
+
+.desk-sheet__module--question .desk-rich-editor + .desk-rich-editor {
+  margin-top: 8px;
+}
+
+/* Adding */
+.desk-sheet__add {
+  margin-top: 14px;
+}
+
+.desk-sheet__add-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.desk-sheet__passage-form {
+  margin-top: 10px;
+  padding: 10px;
+  border: 1px solid rgba(var(--ink-rgb), 0.14);
+  border-radius: 10px;
+}
+
+.desk-sheet__ref {
+  display: flex;
+  gap: 6px;
+}
+
+.desk-sheet__ref input {
+  flex: 1 1 auto;
+  min-width: 0;
+  font: inherit;
+  padding: 4px 8px;
+  border: 1px solid rgba(var(--ink-rgb), 0.25);
+  border-radius: 8px;
+  background: var(--surface-input);
+  color: var(--text);
+}
+
+.desk-sheet__problem {
+  margin: 6px 0 0;
+  font-size: 0.8125rem;
+  color: var(--desk-rich-red, #b3261e);
+}
+
+.desk-sheet__problem:empty {
+  display: none;
+}
+
+.desk-sheet__from-title {
+  margin: 12px 0 4px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.desk-sheet__from-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 16em;
+  overflow-y: auto;
+}
+
+.desk-sheet__from-item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0 8px;
+  width: 100%;
+  padding: 6px 4px;
+  border: 0;
+  border-bottom: 1px solid rgba(var(--ink-rgb), 0.1);
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.875rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.desk-sheet__from-item:hover {
+  background: rgba(var(--ink-rgb), 0.06);
+}
+
+.desk-sheet__from-kind {
+  font-size: 0.75rem;
+  color: rgba(var(--ink-rgb), 0.65);
+}
+
+.desk-sheet__from-words {
+  grid-column: 1 / -1;
+  font-size: 0.8125rem;
+  color: rgba(var(--ink-rgb), 0.75);
+}
+
+/* New sheet's list of templates (M9): the notebook list's rows, uncapped */
+.desk-sheet__templates {
+  margin: 0 0 12px;
+}
+
+.desk-sheet__templates .desk-sheet__from-list {
+  max-height: none;
+  margin-bottom: 8px;
+}
+
+.desk-sheet__choice-name {
+  font-weight: 600;
+}
+
+/* ── What a sheet knows about the LIT (3h; sheet-lit.js) ─────────────── */
+
+/* A quiet warning: amber-brown on the light surface, a light amber on the dark
+   one. Redefined in BOTH dark blocks, like every theme token here. */
+:root {
+  --desk-sheet-warn: #8a5300;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --desk-sheet-warn: #f0b85a;
+  }
+}
+
+:root[data-theme="dark"] {
+  --desk-sheet-warn: #f0b85a;
+}
+
+/* The words a sheet blanks, in a passage's copy of the text. Only the
+   properties a highlight allows: a soft tint and an underline, so it still
+   shows with the tint taken away (forced colors). */
+::highlight(desk-sheet-blank) {
+  background-color: rgba(var(--ink-rgb), 0.16);
+  text-decoration-line: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+/* A passage's blanks */
+.desk-sheet__blanks {
+  margin-top: 10px;
+}
+
+.desk-sheet__lit-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.desk-sheet__lit-title {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: rgba(var(--ink-rgb), 0.85);
+}
+
+.desk-sheet__term-blanks {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.desk-sheet__hint-label {
+  font-size: 0.75rem;
+  color: rgba(var(--ink-rgb), 0.7);
+}
+
+.desk-sheet__chip {
+  padding: 2px 10px;
+  border: 1px solid rgba(var(--ink-rgb), 0.25);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+
+.desk-sheet__chip:hover {
+  background: rgba(var(--ink-rgb), 0.07);
+}
+
+.desk-sheet__chip[aria-pressed="true"] {
+  border-color: var(--desk-rich-green);
+  background: rgba(32, 157, 80, 0.16);
+  color: var(--desk-rich-green);
+  font-weight: 600;
+}
+
+.desk-sheet__chip[aria-pressed="true"]:hover {
+  background: rgba(32, 157, 80, 0.24);
+}
+
+.desk-sheet__blank-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.desk-sheet__blank {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(var(--ink-rgb), 0.1);
+  font-size: 0.8125rem;
+}
+
+.desk-sheet__blank-words {
+  font-weight: 600;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.desk-sheet__blank-verse {
+  color: rgba(var(--ink-rgb), 0.7);
+  font-size: 0.75rem;
+}
+
+.desk-sheet__hint,
+.desk-sheet__hint-text {
+  min-width: 0;
+  max-width: 100%;
+  padding: 2px 6px;
+  border: 1px solid rgba(var(--ink-rgb), 0.25);
+  border-radius: 6px;
+  background: var(--surface-input);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.8125rem;
+}
+
+.desk-sheet__hint-text {
+  flex: 1 1 10em;
+}
+
+.desk-sheet__blank .desk-sheet__icon {
+  margin-left: auto;
+}
+
+.desk-sheet__blank .desk-sheet__problem {
+  flex: 1 0 100%;
+  margin: 0;
+}
+
+/* A passage whose wording changed since it was added (S2; sheet-lit.js's
+   wordingNotice). The diff inside is the change notice's own
+   (.desk-notice__diff, diff-view.js). */
+.desk-sheet__changed {
+  margin-top: 10px;
+  padding: 8px 10px;
+  border-left: 3px solid var(--green-text);
+  border-radius: 0 8px 8px 0;
+  background: rgba(var(--ink-rgb), 0.04);
+  font-size: 0.8125rem;
+  line-height: 1.45;
+}
+
+.desk-sheet__changed > p {
+  margin: 0 0 6px;
+}
+
+.desk-sheet__changed-head {
+  font-weight: 600;
+}
+
+.desk-sheet__changed .desk-notice__diff {
+  max-height: 9em;
+  border-left: 0;
+  border-radius: 6px;
+  background: rgba(var(--ink-rgb), 0.05);
+}
+
+.desk-sheet__changed-when,
+.desk-sheet__changed-hint {
+  color: rgba(var(--ink-rgb), 0.78);
+}
+
+/* Which footnotes print */
+.desk-sheet__notes {
+  margin-top: 10px;
+  font-size: 0.8125rem;
+}
+
+.desk-sheet__notes-summary {
+  display: list-item;
+  cursor: pointer;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: rgba(var(--ink-rgb), 0.85);
+}
+
+.desk-sheet__notes-summary .desk-sheet__flag {
+  margin-left: 8px;
+  font-weight: 400;
+}
+
+.desk-sheet__flag {
+  font-size: 0.75rem;
+  color: var(--desk-sheet-warn);
+}
+
+p.desk-sheet__flag {
+  margin: 2px 0 0 24px;
+}
+
+.desk-sheet__notes-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 8px 0 4px;
+}
+
+.desk-sheet__note-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.desk-sheet__note {
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(var(--ink-rgb), 0.1);
+}
+
+.desk-sheet__note-choice {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.desk-sheet__note-choice input {
+  flex: none;
+  margin-top: 3px;
+}
+
+.desk-sheet__note-text {
+  min-width: 0;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: rgba(var(--ink-rgb), 0.85);
+}
+
+.desk-sheet__note-label {
+  font-weight: 600;
+  color: rgba(var(--ink-rgb), 0.7);
+}
+
+/* The key terms box */
+.desk-sheet__lit-note {
+  margin: 4px 0 8px;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: rgba(var(--ink-rgb), 0.75);
+}
+
+.desk-sheet__term-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.desk-sheet__term {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(var(--ink-rgb), 0.1);
+  font-size: 0.8125rem;
+}
+
+.desk-sheet__term.is-omitted {
+  opacity: 0.55;
+}
+
+.desk-sheet__term-choice {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.desk-sheet__term-choice input {
+  flex: none;
+}
+
+.desk-sheet__term-line {
+  min-width: 0;
+  line-height: 1.45;
+}
+
+.desk-sheet__term-link {
+  flex: none;
+  font-size: 0.75rem;
+  color: var(--green-text);
+}
+
+/* The license card */
+.desk-sheet__license {
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(var(--ink-rgb), 0.2);
+}
+
+.desk-sheet__license-title {
+  margin: 0 0 4px;
+  font-size: 0.9375rem;
+}
+
+.desk-sheet__credit {
+  font-style: italic;
+}
+
+.desk-sheet__commercial {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 6px 0;
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+
+.desk-sheet__check-list {
+  list-style: none;
+  margin: 6px 0;
+  padding: 0;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+}
+
+.desk-sheet__check-list li {
+  margin: 0 0 6px;
+  color: rgba(var(--ink-rgb), 0.85);
+}
+
+.desk-sheet__check-list li.is-over {
+  color: var(--desk-sheet-warn);
+}
+
+.desk-sheet__meter {
+  position: relative;
+  height: 6px;
+  margin-top: 4px;
+  border-radius: 3px;
+  background: rgba(var(--ink-rgb), 0.12);
+  overflow: hidden;
+}
+
+.desk-sheet__meter > span {
+  display: block;
+  height: 100%;
+  background: var(--green-deep);
+}
+
+.desk-sheet__meter > span.is-over {
+  background: var(--desk-sheet-warn);
+}
+
+/* The 50% line, drawn over the fill so it shows either side of it. */
+.desk-sheet__meter::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: linear-gradient(to right, transparent calc(50% - 1px), rgba(var(--ink-rgb), 0.5) calc(50% - 1px), rgba(var(--ink-rgb), 0.5) calc(50% + 1px), transparent calc(50% + 1px));
+}
+
+/* ── M6: Print with my notes ─────────────────────────────────── */
+
+/* The button and its line, at the foot of My Notes beside the switches. The
+   look is the Edit and Reset widths buttons'. */
+.desk-panel__print {
+  flex: 1 1 100%;
+  margin-top: 2px;
+}
+
+.desk-panel__print-button {
+  padding: 5px 10px;
+  border: 1px solid rgba(var(--ink-rgb), 0.25);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+
+.desk-panel__print-button:hover {
+  background: rgba(var(--ink-rgb), 0.07);
+}
+
+.desk-panel__print .desk-panel__print-hint {
+  margin: 6px 0 0;
+  color: rgba(var(--ink-rgb), 0.72);
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+/* What src/scripts/desk/print-notes.js adds for one print: an <aside> after
+   each block that has notes, and a closing list for notes with no block. They
+   exist only on paper, so the screen never shows them or moves for them, and
+   they are taken away again after printing. They hold no verse text, so the
+   anchor reader never meets them. */
+.desk-print-notes,
+.desk-print-strays {
+  display: none;
+}
+
+@media print {
+  /* The page's text becomes two columns, the reader's notes on the right. The
+     block and its notes are one grid row, so a note stays beside its words
+     wherever the page breaks, which absolute positioning can't promise.
+     Plain printing never has the attribute, so it never meets any of this. */
+  html[data-desk-print="notes"] .chapter-paragraphs,
+  html[data-desk-print="notes"] [data-rm-text] {
+    display: grid;
+    grid-template-columns: minmax(0, 2.15fr) minmax(0, 1fr);
+    column-gap: 16pt;
+    align-items: start;
+  }
+
+  html[data-desk-print="notes"] .chapter-paragraphs > *,
+  html[data-desk-print="notes"] [data-rm-text] > * {
+    grid-column: 1;
+    min-width: 0;
+  }
+
+  /* Read View's chapter headings and anchors, and the stubs for chapters
+     still being translated, span the page. */
+  html[data-desk-print="notes"] [data-rm-text] > .rm-chapter,
+  html[data-desk-print="notes"] [data-rm-text] > .rm-ch-anchor,
+  html[data-desk-print="notes"] [data-rm-text] > .rm-draft-stub,
+  html[data-desk-print="notes"] .desk-print-strays {
+    grid-column: 1 / -1;
+  }
+
+  html[data-desk-print="notes"] .chapter-paragraphs > .desk-print-notes,
+  html[data-desk-print="notes"] [data-rm-text] > .desk-print-notes {
+    grid-column: 2;
+    display: block;
+    align-self: start;
+    padding: 0 0 0 9pt;
+    border-left: 0.5pt solid #888;
+    font-size: calc(9.5pt * var(--reading-scale, 1));
+    line-height: 1.35;
+    --desk-note-font: "Playpen Sans", Inter, "Inter Fallback", system-ui, sans-serif;
+    --desk-note-weight: 500;
+  }
+
+  /* A note on a footnote (M11) prints at the end of its footnote's list item,
+     under the note, in the notes' own look. */
+  html[data-desk-print="notes"] .footnotes > li > .desk-print-notes--footnote {
+    display: block;
+    margin: 3pt 0 0 12pt;
+    padding: 0 0 0 9pt;
+    border-left: 0.5pt solid #888;
+    font-size: calc(9.5pt * var(--reading-scale, 1));
+    line-height: 1.35;
+    --desk-note-font: "Playpen Sans", Inter, "Inter Fallback", system-ui, sans-serif;
+    --desk-note-weight: 500;
+  }
+
+  html[data-desk-print="notes"] .desk-print-strays {
+    display: block;
+    margin-top: 18pt;
+    padding-top: 8pt;
+    border-top: 0.5pt solid #888;
+    font-size: calc(9.5pt * var(--reading-scale, 1));
+    line-height: 1.35;
+    --desk-note-font: "Playpen Sans", Inter, "Inter Fallback", system-ui, sans-serif;
+    --desk-note-weight: 500;
+  }
+
+  html[data-desk-print="notes"][data-desk-note-font="plain"] .desk-print-notes,
+  html[data-desk-print="notes"][data-desk-note-font="plain"] .desk-print-strays {
+    --desk-note-font: Inter, "Inter Fallback", system-ui, sans-serif;
+    --desk-note-weight: 400;
+  }
+
+  html[data-desk-print="notes"][data-font] .desk-print-notes,
+  html[data-desk-print="notes"][data-font] .desk-print-strays {
+    --desk-note-weight: 400;
+  }
+
+  /* The notes' own face, unless the reader chose an accessibility font,
+     which prints as chosen (print.css sets the page's serif by the same
+     test, with !important, so this needs it and more specificity). */
+  html[data-desk-print="notes"]:not([data-font]) .desk-print-notes,
+  html[data-desk-print="notes"]:not([data-font]) .desk-print-notes *,
+  html[data-desk-print="notes"]:not([data-font]) .desk-print-strays,
+  html[data-desk-print="notes"]:not([data-font]) .desk-print-strays * {
+    font-family: var(--desk-note-font) !important;
+  }
+
+  html[data-desk-print="notes"] .desk-print-notes,
+  html[data-desk-print="notes"] .desk-print-strays {
+    font-weight: var(--desk-note-weight, 400);
+  }
+
+  html[data-desk-print="notes"] .desk-print-note {
+    margin: 0 0 7pt;
+    break-inside: avoid;
+  }
+
+  html[data-desk-print="notes"] .desk-print-note:last-child {
+    margin-bottom: 0;
+  }
+
+  html[data-desk-print="notes"] .desk-print-note p {
+    margin: 0;
+  }
+
+  html[data-desk-print="notes"] .desk-print-note__head {
+    margin-bottom: 1pt;
+    font-size: 0.88em;
+    break-after: avoid;
+  }
+
+  html[data-desk-print="notes"] .desk-print-note__glyph {
+    width: 1em;
+    height: 1em;
+    margin-right: 0.3em;
+    vertical-align: -0.15em;
+  }
+
+  html[data-desk-print="notes"] .desk-print-note__ref {
+    font-weight: 700;
+  }
+
+  html[data-desk-print="notes"] .desk-print-note__quote {
+    font-style: italic;
+  }
+
+  html[data-desk-print="notes"] .desk-print-note__warn {
+    margin-bottom: 1pt;
+    font-size: 0.88em;
+    font-style: italic;
+  }
+
+  html[data-desk-print="notes"] .desk-print-note__body {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  html[data-desk-print="notes"] .desk-print-strays__title {
+    margin: 0 0 6pt;
+    font-size: 1.1em;
+    font-weight: 700;
+    break-after: avoid;
+  }
+
+  /* The highlights, in the four colours' own tints (the light theme's, since
+     paper is white whatever the theme). They are Custom Highlights the
+     script paints under names of their own, which Chrome prints without the
+     "Background graphics" setting. */
+  html[data-desk-print="notes"] ::highlight(desk-print-hl-yellow) {
+    background-color: rgba(255, 210, 0, 0.42);
+  }
+
+  html[data-desk-print="notes"] ::highlight(desk-print-hl-green) {
+    background-color: rgba(160, 210, 40, 0.42);
+  }
+
+  html[data-desk-print="notes"] ::highlight(desk-print-hl-blue) {
+    background-color: rgba(70, 150, 255, 0.3);
+  }
+
+  html[data-desk-print="notes"] ::highlight(desk-print-hl-pink) {
+    background-color: rgba(255, 95, 165, 0.28);
+  }
+}
+
+/* ── N9: Print with room to write ───────────────────────────────── */
+
+/* The second button under "Print with my notes" takes a little more air. */
+.desk-panel__print--room {
+  margin-top: 10px;
+}
+
+/* A variant of print.css, on paper only and only for the print that
+   src/scripts/desk/print-room.js stamps with `data-desk-print="room"`. The
+   scripture's own container keeps the page's full width but holds its text in
+   the left 62% by padding, and paints a ruled margin on the right 35%: a
+   background on the container, so the rules run the full height of the text
+   and carry on across every page break without any element to keep in step
+   with the text. (A grid with an empty second column was the other way; M6
+   uses one because its notes have to sit beside their own blocks, which a
+   plain ruling never does.) The footnotes, the SBLGNT notice and the credit
+   are outside the container, so they print full width after the text, as in
+   plain printing. Plain printing never has the attribute, so it never meets
+   any of this.
+
+   The rules are an SVG tile, not a repeating gradient: Chrome's PDF output
+   drew the gradient's hairlines at uneven spacing (measured on a printed
+   Romans 8), and the tile prints as vector at an even step. The step grows
+   with the Display tray's text size (--reading-scale), since a reader who
+   prints larger is likely to write larger. The page's own text isn't ruled
+   to match: a journaling Bible's lines don't follow its text either.
+   print.css sets `background-color: transparent !important` on everything;
+   these are background images, which it leaves alone, and Chrome prints them
+   without the dialog's "Background graphics" box only with
+   `print-color-adjust: exact`. */
+@media print {
+  html[data-desk-print="room"] .chapter-paragraphs,
+  html[data-desk-print="room"] [data-rm-text] {
+    box-sizing: border-box;
+    padding-right: 38%;
+    background-image:
+      linear-gradient(to right, #a6a6a6 0.5pt, transparent 0.5pt),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='20' viewBox='0 0 100 20' preserveAspectRatio='none'%3E%3Crect y='19.4' width='100' height='0.6' fill='%23a6a6a6'/%3E%3C/svg%3E");
+    background-size: 35% 100%, 35% calc(20pt * var(--reading-scale, 1));
+    background-position: right top, right top;
+    background-repeat: no-repeat, repeat-y;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
+
+/* ── A sheet from a search or a topic (M5; desk/search-sheet.js) ──────── */
+
+/* Quiet: a line of small text under a group's title, nothing above the
+   results when the desk is off (the markup isn't there at all). */
+.desk-gather {
+  margin: 0 0 10px;
+  font-size: 0.8125rem;
+  color: var(--text);
+}
+
+.desk-gather__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+}
+
+.desk-gather__btn {
+  padding: 4px 10px;
+  border: 1px solid rgba(var(--ink-rgb), 0.25);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+
+.desk-gather__btn:hover {
+  background: rgba(var(--ink-rgb), 0.07);
+}
+
+.desk-gather__btn--primary {
+  background: var(--green-deep);
+  border-color: var(--green-deep);
+  color: #fff;
+}
+
+.desk-gather__btn--primary:hover {
+  background: var(--green-deep);
+  filter: brightness(1.1);
+}
+
+.desk-gather__btn--quiet {
+  border-color: transparent;
+}
+
+.desk-gather__btn:disabled,
+.desk-gather__sheet:disabled {
+  opacity: 0.5;
+  cursor: default;
+  background: transparent;
+}
+
+.desk-gather__hint,
+.desk-gather__note,
+.desk-gather__sheet-meta {
+  color: rgba(var(--ink-rgb), 0.7);
+}
+
+.desk-gather :is(button, a, input):focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.desk-gather__panel {
+  margin-top: 8px;
+  padding: 10px 12px;
+  border: 1px solid rgba(var(--ink-rgb), 0.18);
+  border-radius: 12px;
+  background: rgba(var(--surface-rgb), 0.78);
+}
+
+.desk-gather__title {
+  margin: 0 0 8px;
+  font-weight: 600;
+}
+
+.desk-gather__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.desk-gather__note {
+  margin: 10px 0 4px;
+}
+
+.desk-gather__sheets {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 14em;
+  overflow-y: auto;
+}
+
+.desk-gather__sheet {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 10px;
+  width: 100%;
+  padding: 6px 4px;
+  border: 0;
+  border-bottom: 1px solid rgba(var(--ink-rgb), 0.1);
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.desk-gather__sheet:hover:not(:disabled) {
+  background: rgba(var(--ink-rgb), 0.06);
+}
+
+.desk-gather__sheet-name {
+  font-weight: 600;
+}
+
+.desk-gather__done {
+  margin: 8px 0 0;
+}
+
+.desk-gather__link {
+  color: var(--green-text);
+  text-decoration: underline;
+}
+
+/* A verse result with its tick box: the box beside the card, the card
+   taking the rest of the row. Only rows the desk marks are laid out so. */
+.desk-gather__row-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.desk-gather__row-item > .result-link {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.desk-gather__tick {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--green-deep);
+}
+
+.desk-gather__tick:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}

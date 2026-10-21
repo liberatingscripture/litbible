@@ -54,6 +54,7 @@ import {
   canEdit,
   compareContentVersions,
   editRecord,
+  onFootnote,
   placeRecord,
   proseTarget,
   quoteFields,
@@ -72,7 +73,7 @@ export const NOTICE_KINDS = Object.freeze(["changed", "verse", "lost", "reworded
 /** A note or highlight on scripture verses: the marks that keep a `verseCopy`. */
 function isVerseMark(record) {
   if (record?.kind !== "note" && record?.kind !== "highlight") return false;
-  if (record.kind === "note" && (proseTarget(record) || record.glossaryId)) return false;
+  if (record.kind === "note" && (proseTarget(record) || record.glossaryId || onFootnote(record))) return false;
   return (
     typeof record.bookKey === "string" &&
     Number.isInteger(record.chapter) &&
@@ -167,7 +168,8 @@ export function proseNotice(text, record) {
 
 /**
  * The notice a pinned footnote carries in the chapter's footnotes as they are
- * now, or null. `list` is desk-footnotes' list for the pin's own chapter, as
+ * now, or null. A note on a footnote (M11) names its footnote the same way,
+ * so it is judged here too, and never against its verse's wording. `list` is desk-footnotes' list for the pin's own chapter, as
  * the page reads it. Nothing for a pin that is found (a change of quotes,
  * dashes or spacing included) or that moved to another verse, and nothing for
  * one made on newer text than this page has (principle 7).
@@ -184,7 +186,7 @@ export function proseNotice(text, record) {
  * }}
  */
 export function pinNotice(list, record, pageVersion) {
-  if (record?.kind !== "footnotePin" || !Array.isArray(list) || typeof record.footnote !== "string") return null;
+  if ((record?.kind !== "footnotePin" && !onFootnote(record)) || !Array.isArray(list) || typeof record.footnote !== "string") return null;
   if (compareContentVersions(record.contentVersion, pageVersion) === 1) return null;
   const at = findPin(list, record);
   if (at.status === "found" || at.status === "moved") return null;
@@ -236,7 +238,7 @@ export function planKeep({ text, record, notice, now = new Date().toISOString(),
   const stamp = { now, client: ctx.client };
   const { quote: _quote, ...withoutQuote } = record;
 
-  if (record.kind === "footnotePin") {
+  if (record.kind === "footnotePin" || onFootnote(record)) {
     if (notice.kind !== "changed" || !notice.fields) return null;
     // `n` is dropped, not left behind, when the note it now sits on has no twin.
     const { n: _n, ...bare } = record;
@@ -353,6 +355,23 @@ export function noticeWords(notice, record, ref) {
       return {
         title: "Not in the text",
         text: `The footnote you pinned on ${ref} isn't in the text any more, so it can't be shown on the page.`,
+        keep: null,
+      };
+    }
+    return { title: "The wording changed", text: "", keep: null };
+  }
+  if (onFootnote(record)) {
+    if (notice?.kind === "changed") {
+      return {
+        title: "The wording changed",
+        text: "The footnote your note is on has been rewritten. Your note is on the footnote that now stands in its place.",
+        keep: "Keep on the new wording",
+      };
+    }
+    if (notice?.kind === "lost") {
+      return {
+        title: "Not in the text",
+        text: `The footnote your note is on in ${ref} isn't in the text any more, so your note can't be shown beside it.`,
         keep: null,
       };
     }

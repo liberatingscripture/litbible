@@ -19,4 +19,14 @@ if (document.documentElement.dataset.desk === "on" && readingSurface()) {
   import("./desk/notebook-page.js").catch((err) => {
     console.error("Study Desk: the notebook page didn't load", err);
   });
+} else if (document.documentElement.dataset.desk === "on" && document.querySelector("[data-desk-page]")) {
+  // The desk as a page of its own (/desk/, D9): panes rather than a panel.
+  import("./desk/desk-page.js").catch((err) => {
+    console.error("Study Desk: the desk page didn't load", err);
+  });
+} else if (document.documentElement.dataset.desk === "on" && document.querySelector("[data-sheet-page]")) {
+  // A sheet's own address (/sheets/, 3i): shown, printed and copied, never edited.
+  import("./desk/sheet-page.js").catch((err) => {
+    console.error("Study Desk: the sheet page didn't load", err);
+  });
 }

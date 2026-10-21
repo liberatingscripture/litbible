@@ -14,7 +14,9 @@
 //   - never on /apps or /privacy, which people open to act on or to read
 //     terms, not to be pitched to
 //   - never over scripture: a Study View chapter or intro, or Read View.
-//     A reader who chose a passage came to read it (audit F5). An
+//     A reader who chose a passage came to read it (audit F5). /desk
+//     counts too, since its panes hold the text (STUDY-DESK.md, D9), and
+//     so does a sheet's own page, /sheets/, which prints passages. An
 //     announcement can opt out with { overScripture: true }
 //
 // What is particular to one announcement (the app popover's shared dismissal
@@ -23,7 +25,7 @@
 
 const SUPPRESSED_PATHS = /^\/(apps|privacy)\/?$/;
 const VERSE_LINK = /^#(?:v\d+(?:-\d+)?|[0-9a-z]+-\d+-[pv]\d+)$/;
-const SCRIPTURE_SURFACES = ".scripture-layout--scripture, .scripture-layout--intro, .rm-page";
+const SCRIPTURE_SURFACES = ".scripture-layout--scripture, .scripture-layout--intro, .rm-page, [data-desk-page], [data-sheet-page]";
 
 /** Counts this pageview and returns the session's total so far. */
 export function countPageview() {

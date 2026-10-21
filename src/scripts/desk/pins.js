@@ -16,39 +16,57 @@
 // what the popover, the handout and the desk's own reading of a note copy.
 //
 // A pin never stores the footnote's letter, so a button works from the note's
-// id on this page and finds its pin by the note's words (findPin), exactly as
-// a pin made in an app is found. Buttons are found in the DOM by their
+// id in its chapter and finds its pin by the note's words (findPin), exactly
+// as a pin made in an app is found. Buttons are found in the DOM by their
 // `data-desk-pin` attribute whenever the notebook changes, so a popover that
 // has closed or a tab that has redrawn leaves nothing to clean up.
 //
-// Study View chapters only: Read View has no footnotes, and intros, drafts,
+// Study View chapters, and /desk (3g), where a note belongs to whichever
+// chapter its pane shows: every button names its chapter (`where`, kept in
+// `data-desk-pin-book` and `-chapter`) and the notebook is read per chapter.
+// The footnotes of a chapter that isn't the page's come from its fetched Study
+// View page (chapter-page.js). Read View has no footnotes, and intros, drafts,
 // the glossary and articles have none to pin.
 
 import { createRecord } from "../../lib/desk-records.mjs";
 import { pinFields, placePins } from "../../lib/desk-footnotes.mjs";
 import { recordReference } from "../../lib/desk-store-core.mjs";
 import { flagButton, noticesFor, openNotice } from "./change-notice.js";
+import {
+  addNoteButton,
+  footnoteElementFor,
+  footnoteListFor,
+  footnoteNotes,
+  initFootnoteNotes,
+} from "./footnote-notes.js";
 import { undoEntry } from "./history.js";
-import { footnoteList, pageChapter } from "./page.js";
+import { pageChapter } from "./page.js";
 import { announce, showUndo } from "./undo-bar.js";
 
 /** What the buttons need: the notebook, what a write is stamped with, the card's "Show" button. */
 let env = null;
 
-/** Footnote id -> { record, found } for the pins that sit on a footnote of this chapter now. */
+/** "john 3" -> footnote id -> { record, found }, for the pins that sit on a footnote of that chapter now. */
 let current = new Map();
 
-let seq = 0;
+/** "john 3" -> how many reads of that chapter have begun, so an older one can tell it has been overtaken. */
+const reads = new Map();
+
+const keyOf = (where) => `${where.bookKey} ${where.chapter}`;
+const whereOf = (button) => ({ bookKey: button.dataset.deskPinBook, chapter: Number(button.dataset.deskPinChapter) });
 
 /* ── Reading the notebook ────────────────────────────────────────── */
 
+/** A chapter's footnotes as the pin rules read them: the page's own, else its fetched page's. Null if unavailable. */
+const listFor = footnoteListFor;
+
 /** This chapter's pins and where each is in the footnotes as the page has them. */
-async function placedPins() {
-  const here = pageChapter();
-  const list = footnoteList();
-  if (!env || !here || !list) return null;
-  const records = (await env.store.byChapter(here.bookKey, here.chapter)).filter((r) => r.kind === "footnotePin");
-  return { here, list, records, placed: placePins(list, records) };
+async function placedPins(where) {
+  if (!env || !where) return null;
+  const list = await listFor(where);
+  if (!list) return null;
+  const records = (await env.store.byChapter(where.bookKey, where.chapter)).filter((r) => r.kind === "footnotePin");
+  return { where, list, records, placed: placePins(list, records) };
 }
 
 /* ── Pinning and unpinning ───────────────────────────────────────── */
@@ -81,9 +99,9 @@ export async function unpinRecord(store, record, { afterUndo = null } = {}) {
   return true;
 }
 
-/** Pin the footnote with this id on the page, or unpin it if it is pinned. */
-async function toggle(id, label) {
-  const found = await placedPins();
+/** Pin the footnote with this id in this chapter, or unpin it if it is pinned. */
+async function toggle(id, label, where) {
+  const found = await placedPins(where);
   if (!found || !found.list.some((f) => f.id === id)) return;
   const existing = found.placed.find((p) => p.found.id === id);
   if (existing) {
@@ -92,7 +110,7 @@ async function toggle(id, label) {
   }
   const record = createRecord(
     "footnotePin",
-    { bookKey: found.here.bookKey, chapter: found.here.chapter, ...pinFields(found.list, id) },
+    { bookKey: where.bookKey, chapter: where.chapter, ...pinFields(found.list, id) },
     { now: new Date().toISOString(), ...env.ctx() },
   );
   await env.store.save(record);
@@ -103,7 +121,7 @@ async function toggle(id, label) {
 
 /** Set a button's words and name from whether its footnote is pinned. */
 function paint(button) {
-  const pinned = current.has(button.dataset.deskPin);
+  const pinned = Boolean(current.get(keyOf(whereOf(button)))?.has(button.dataset.deskPin));
   const word = pinned ? "Unpin" : "Pin";
   button.textContent = word;
   // The visible word leads the name (label in name); the letter says which.
@@ -111,29 +129,37 @@ function paint(button) {
 }
 
 /**
- * A Pin / Unpin button for a footnote on this page, kept in step with the
- * notebook for as long as it is in the document. `id` is the note's id on the
- * page (`fn-a`) and `label` its letter, which names it for a screen reader and
- * is never stored. Null where pins aren't on (no notebook, not a chapter).
+ * A Pin / Unpin button for a footnote, kept in step with the notebook for as
+ * long as it is in the document. `id` is the note's id in its chapter's page
+ * (`fn-a`) and `label` its letter, which names it for a screen reader and is
+ * never stored. `where` is the chapter, `{ bookKey, chapter }`: the page's own
+ * by default, a pane's on /desk. Null where pins aren't on (no notebook, no
+ * chapter).
  *
  * @param {string} id
  * @param {string} label
+ * @param {{ bookKey: string, chapter: number } | null} [where]
  * @returns {HTMLButtonElement | null}
  */
-export function pinButton(id, label) {
-  if (!env) return null;
+export function pinButton(id, label, where = pageChapter()) {
+  if (!env || !where?.bookKey || !where.chapter) return null;
+  const at = { bookKey: where.bookKey, chapter: where.chapter };
   const button = document.createElement("button");
   button.type = "button";
   button.className = "desk-pin";
   button.dataset.deskPin = id;
   button.dataset.deskPinLabel = label;
+  button.dataset.deskPinBook = at.bookKey;
+  button.dataset.deskPinChapter = String(at.chapter);
   paint(button);
+  // A chapter nothing has read yet (a pane's, on /desk) doesn't know its pins.
+  if (!current.has(keyOf(at))) load(at).then(() => paint(button));
   button.addEventListener("click", async (e) => {
     e.stopPropagation();
     if (button.disabled) return;
     button.disabled = true;
     try {
-      await toggle(id, label);
+      await toggle(id, label, at);
     } catch (err) {
       console.error("Study Desk: the footnote couldn't be pinned or unpinned", err);
     } finally {
@@ -146,14 +172,13 @@ export function pinButton(id, label) {
 
 /* ── Showing a pin on the page ───────────────────────────────────── */
 
-/** The footnote a pin sits on in this chapter now, as findPin says, or null. */
+/**
+ * The footnote a pin sits on in this chapter now, as findPin says, or null.
+ * Study View only. It answers for a note on a footnote (M11) too, which names
+ * its footnote the same way.
+ */
 function footnoteOf(record) {
-  const here = pageChapter();
-  if (!env || !here || here.bookKey !== record.bookKey || here.chapter !== record.chapter) return null;
-  const list = footnoteList();
-  if (!list) return null;
-  const [one] = placePins(list, [record]);
-  return one && one.found.id ? document.getElementById(one.found.id) : null;
+  return env ? footnoteElementFor(record) : null;
 }
 
 /**
@@ -183,7 +208,10 @@ export function revealFootnote(record) {
 
 /* ── Keeping the page in step ────────────────────────────────────── */
 
-/** The end list's flag for a pin whose footnote was rewritten: a row under the note, rebuilt only when it changes. */
+/** The lists that carry a flag under a note: Study View's Footnotes list and the Footnotes pane's. */
+const FLAG_HOSTS = ".footnotes > li.desk-fn, li.desk-fns__item";
+
+/** The flag for a pin whose footnote was rewritten: a row under the note, rebuilt only when it changes. */
 function drawFlag(li, entry, notice) {
   const slot = li.querySelector(":scope > .desk-fn__flag");
   const sig = notice ? `${entry.record.id}|${notice.kind}|${notice.id ?? ""}` : "";
@@ -204,8 +232,8 @@ function drawFlag(li, entry, notice) {
         showInText: null,
         restoreFocus: trigger,
         onDone: async () => {
-          await refresh();
-          li.querySelector(":scope > .desk-pin")?.focus({ preventScroll: true });
+          await refreshPins();
+          li.querySelector(".desk-pin:not(.desk-fn-add)")?.focus({ preventScroll: true });
         },
       }),
     ),
@@ -213,38 +241,71 @@ function drawFlag(li, entry, notice) {
   if (!slot) li.append(box);
 }
 
-/** Read the notebook and bring every button and flag on the page up to date. */
-async function refresh() {
-  const n = ++seq;
-  const found = await placedPins();
-  if (!found || n !== seq) return;
+/** The buttons in the document for this chapter. */
+function buttonsFor(where) {
+  const selector = `button[data-desk-pin][data-desk-pin-book="${where.bookKey}"][data-desk-pin-chapter="${where.chapter}"]`;
+  return document.querySelectorAll(selector);
+}
+
+/** Read the notebook for one chapter and bring its buttons and flags up to date. */
+async function load(where) {
+  const k = keyOf(where);
+  const n = (reads.get(k) ?? 0) + 1;
+  reads.set(k, n);
+  const found = await placedPins(where);
+  if (reads.get(k) !== n) return;
 
   const map = new Map();
-  for (const p of found.placed) {
+  for (const p of found?.placed ?? []) {
     if (p.found.id && !map.has(p.found.id)) map.set(p.found.id, p);
   }
-  current = map;
-  for (const button of document.querySelectorAll("button[data-desk-pin]")) paint(button);
+  current.set(k, map);
+  const buttons = buttonsFor(where);
+  for (const button of buttons) paint(button);
+  if (!found) return;
 
   const notices = noticesFor(found.records);
-  for (const li of document.querySelectorAll(".footnotes > li.desk-fn")) {
-    const entry = map.get(li.id);
+  for (const button of buttons) {
+    const li = button.closest("li");
+    if (!li?.matches(FLAG_HOSTS)) continue;
+    const entry = map.get(button.dataset.deskPin);
     drawFlag(li, entry, entry ? notices.get(entry.record.id) ?? null : null);
   }
 }
 
 /**
+ * Read the notebook and bring every button and flag on the page up to date:
+ * the page's own chapter on Study View, and every chapter a button is drawn
+ * for on /desk. A list that has redrawn its notes calls it too.
+ */
+export async function refreshPins() {
+  if (!env) return;
+  const chapters = new Map();
+  const here = pageChapter();
+  if (here) chapters.set(keyOf(here), { bookKey: here.bookKey, chapter: here.chapter });
+  for (const button of document.querySelectorAll("button[data-desk-pin]")) {
+    const where = whereOf(button);
+    chapters.set(keyOf(where), where);
+  }
+  // A chapter with no button left is forgotten, so the next one reads afresh.
+  for (const k of Array.from(current.keys())) if (!chapters.has(k)) current.delete(k);
+  await Promise.all(Array.from(chapters.values(), load));
+}
+
+/**
  * Start pinned footnotes on this page: a button on each note in the Footnotes
  * list, one in the popover every footnote letter opens, and the flags. Does
- * nothing off a Study View chapter or without a notebook.
+ * nothing off a Study View chapter (or /desk, `desk: true`, where the panes
+ * ask for their own buttons) or without a notebook.
  *
  * @param {{ store: object | null, ctx: () => { client: string, contentVersion: string },
- *   }} options
+ *   desk?: boolean }} options
  * @returns {{ reveal: (record: object) => boolean, canReveal: (record: object) => boolean } | null}
  */
-export function initPins({ store, ctx }) {
-  if (!store || !pageChapter()) return null;
+export function initPins({ store, ctx, desk = false }) {
+  if (!store || !(desk || pageChapter())) return null;
   env = { store, ctx };
+  initFootnoteNotes({ store, ctx });
 
   for (const li of document.querySelectorAll(".footnotes-wrap ol.footnotes > li[id]")) {
     const label = li.querySelector(".footnote-backlink")?.textContent.trim() ?? "";
@@ -252,30 +313,45 @@ export function initPins({ store, ctx }) {
     if (!button) continue;
     li.classList.add("desk-fn");
     li.append(button);
+    // Add a note (M11), beside Pin. The reader's notes on this footnote sit in
+    // the margin beside it (notes-margin.js), not under it.
+    const add = addNoteButton(li.id, label);
+    if (add) li.append(add);
   }
 
-  // chapter-tools.js offers the popover before placing it. The Pin button
-  // shares the line "See in footnotes" has, so the popover grows no taller.
+  // chapter-tools.js offers the popover before placing it, and so does /desk's
+  // LIT pane, which names its chapter in the detail (`book`, `chapter`). The
+  // Pin button shares the line "See in footnotes" has, so the popover grows no
+  // taller; Add a note (M11) goes beside Pin, and the reader's notes on this
+  // footnote, at most two, under that line.
   document.addEventListener("lit:footnote-actions", (e) => {
-    const { panel, note, ref } = e.detail ?? {};
+    const { panel, note, ref, book, chapter } = e.detail ?? {};
     if (!panel || !note?.id) return;
-    const button = pinButton(note.id, ref?.textContent.trim() ?? "");
+    const where = book && chapter ? { bookKey: book, chapter } : undefined;
+    const button = pinButton(note.id, ref?.textContent.trim() ?? "", where);
     if (!button) return;
     const row = document.createElement("div");
     row.className = "desk-pin-row";
+    const actions = document.createElement("span");
+    actions.className = "desk-fn-actions";
+    actions.append(button);
+    const add = addNoteButton(note.id, ref?.textContent.trim() ?? "", where);
+    if (add) actions.append(add);
     const jump = panel.querySelector(".lit-panel__jump");
     if (jump) {
       jump.replaceWith(row);
-      row.append(jump, button);
+      row.append(jump, actions);
     } else {
-      row.append(button);
+      row.append(actions);
       panel.append(row);
     }
+    const mine = footnoteNotes(note.id, where, { compact: true });
+    if (mine) row.after(mine);
   });
 
   // This tab's own changes and other tabs' alike.
-  store.subscribe(() => refresh());
-  refresh();
+  store.subscribe(() => refreshPins());
+  refreshPins();
 
   return { reveal: revealFootnote, canReveal: canRevealFootnote };
 }

@@ -4,6 +4,7 @@
 // switched on (STUDY-DESK.md, phase 1b). Everything the desk needs comes in
 // through here, so none of it reaches a reader who hasn't switched it on.
 
+import { onFootnote } from "../../lib/desk-records.mjs";
 import { recordHref, recordReference } from "../../lib/desk-store-core.mjs";
 import { addDeskStyle, deskCtx as ctx } from "./boot.js";
 import { openStore } from "./store.js";
@@ -26,6 +27,8 @@ import { initRibbonFollow } from "./ribbon-follow.js";
 import { fitGlossaryTitles } from "./glossary-titles.js";
 import { createTour } from "./tour.js";
 import { initCommands } from "./commands.js";
+import { createPrintNotes } from "./print-notes.js";
+import { createPrintRoom } from "./print-room.js";
 
 /**
  * Go to a highlight's verse on this page by its ordinary address (`#v3`,
@@ -84,17 +87,21 @@ async function start() {
   // What the change notice's "Show in the text" does (change-notice.js): a
   // note in the margin, a highlight to its verse, a pinned footnote to its
   // note in the Footnotes list, a glossary or article note in its margin, and
-  // in Read View the verse in the book. `can` says whether
+  // in Read View the verse in the book. A note on a footnote (M11) goes to
+  // its margin note, which sits beside the footnote in the Footnotes list;
+  // where there is no margin it is shown as a pin is. `can` says whether
   // this page can, so the card offers the button only then.
   const showInText = {
     can: (r) =>
       r.kind === "footnotePin"
         ? Boolean(pins?.canReveal(r))
-        : margin
-          ? (r.kind === "note" ? margin.canReveal(r) : onThisChapter(r))
-          : Boolean(readMarks?.canReveal(r)),
+        : onFootnote(r)
+          ? Boolean(pins?.canReveal(r)) && (margin ? margin.canReveal(r) : true)
+          : margin
+            ? (r.kind === "note" ? margin.canReveal(r) : onThisChapter(r))
+            : Boolean(readMarks?.canReveal(r)),
     go: (r) => {
-      if (r.kind === "footnotePin") {
+      if (r.kind === "footnotePin" || (onFootnote(r) && !margin)) {
         pins?.reveal(r);
       } else if (margin) {
         if (r.kind === "note") margin.reveal(r.id);
@@ -113,20 +120,31 @@ async function start() {
   // What the panel's links can do without leaving the page: Study View
   // shows a note on its chapter; Read View scrolls to a verse in its book.
   const here = margin ?? readMarks;
+  // "Print with my notes" (M6): the panel's button and the command both start it.
+  const printNotes = createPrintNotes({ store });
+  // "Print with room to write" (N9): the blank version, which reads no notebook.
+  const printRoom = createPrintRoom();
   const panel = createPanel({
     store,
+    printNotes,
+    printRoom,
     storeError,
     onEdit: store ? edit : null,
     onAddNote: store ? addNote : null,
     goHere: here
-      ? { can: (r) => here.canReveal(r), go: (r) => (margin ? margin.reveal(r.id) : readMarks.reveal(r)) }
+      ? {
+          // On Study View a note on a footnote can be shown only while its
+          // footnote is there; Read View has no footnotes and goes to the verse.
+          can: (r) => here.canReveal(r) && (!margin || !onFootnote(r) || Boolean(pins?.canReveal(r))),
+          go: (r) => (margin ? margin.reveal(r.id) : readMarks.reveal(r)),
+        }
       : null,
     ctx,
     showInText: store ? showInText : null,
   });
   initActions({ store, ctx, showVerse: panel.showVerse });
   initRibbonFollow({ store, ctx });
-  initCommands({ panel });
+  initCommands({ panel, printNotes, printRoom });
   initGreekLink({ panel });
   initProseActions({ store, addNote });
   // The tour (D8): started by the reader, never by itself (tour.js).

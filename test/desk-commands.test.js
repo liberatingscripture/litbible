@@ -65,3 +65,21 @@ test("links carry their address and the rest carry none", () => {
 test("the registry has unique ids", () => {
   assert.equal(new Set(COMMANDS.map((c) => c.id)).size, COMMANDS.length);
 });
+
+test("printing with notes, and with room to write, are offered on a chapter and in Read View, and nowhere else", () => {
+  const both = ["print-with-notes", "print-with-room"];
+  assert.deepEqual(ids("print", chapter), both);
+  assert.deepEqual(ids("paper", chapter), both, "through their keyword");
+  assert.deepEqual(ids("print with", chapter), both);
+  assert.deepEqual(ids("print with my", chapter), ["print-with-notes"]);
+  assert.deepEqual(ids("print with room", chapter), ["print-with-room"]);
+  assert.deepEqual(ids("journaling", chapter), ["print-with-room"], "through its own keywords");
+  assert.deepEqual(ids("ruled", chapter), ["print-with-room"]);
+  assert.deepEqual(ids("annotated", chapter), ["print-with-notes"]);
+  const readView = { ...chapter, study: false, print: true };
+  assert.deepEqual(ids("print with", readView), both, "Read View has no Study View tabs but can print");
+  assert.deepEqual(ids("print", { ...chapter, study: false, greek: true }), [], "a draft chapter has no notes to print");
+  assert.deepEqual(ids("print", page), []);
+  assert.equal(matchCommands("print", chapter)[0].href, null, "a command, not a link");
+  assert.equal(matchCommands("print with room", chapter)[0].href, null);
+});

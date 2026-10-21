@@ -11,9 +11,11 @@
 
 /**
  * @param {{ panel: { open: (from?: Element) => void, close: () => void,
- *   showTab: (id: string) => boolean } }} options
+ *   showTab: (id: string) => boolean },
+ *   printNotes?: { can: () => boolean, print: () => Promise<void> } | null,
+ *   printRoom?: { can: () => boolean, print: () => Promise<void> } | null }} options
  */
-export function initCommands({ panel }) {
+export function initCommands({ panel, printNotes = null, printRoom = null }) {
   const run = {
     "open-notebook": () => panel.open(null),
     "close-notebook": () => panel.close(),
@@ -24,6 +26,15 @@ export function initCommands({ panel }) {
     "show-greek": () => panel.showTab("greek"),
     // The same event the H key sends; note-settings.js toggles M1.
     "hide-notes": () => document.dispatchEvent(new CustomEvent("lit:desk-hide")),
+    // M6: a Study View chapter or Read View, which is where the command is
+    // offered (desk-commands.mjs); anywhere else it does nothing.
+    "print-with-notes": () => {
+      if (printNotes?.can()) printNotes.print();
+    },
+    // N9: the same pages, and no notebook needed.
+    "print-with-room": () => {
+      if (printRoom?.can()) printRoom.print();
+    },
     // The tour is built apart (phase 1d) and listens for this id itself.
   };
   document.addEventListener("lit:desk-command", (e) => {

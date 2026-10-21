@@ -91,7 +91,7 @@ function fieldsOf(record) {
   const quote = typeof record.quote?.exact === "string" ? record.quote.exact : "";
   switch (record.kind) {
     case "note":
-      return [record.body, record.targetTitle];
+      return [record.body, record.targetTitle, record.footnote];
     case "highlight":
       return [quote];
     case "bookmark":

@@ -136,18 +136,31 @@ function readTermData() {
  *   visible: () => boolean, openVerse: (verse: number) => void }} options
  *   `openVerse` opens This verse at a verse (the footnote letters under a
  *   word).
+ *
+ *   On /desk (desk-panes.js) the chapter isn't the page's: `source` gives the
+ *   chapter's text and key terms from its fetched Study View page
+ *   (chapter-page.js), with `textBox` null for a draft; `startVerse` is
+ *   where it opens; `idSuffix` keeps two panes' ids apart; `openHit` takes a
+ *   search result in another chapter (the pane moves there, rather than the
+ *   page leaving /desk); and `onTopVerse` hears the verse at the Greek's top
+ *   whenever the reader's scrolling changes it, which is how the Greek leads
+ *   back (D9, the 1g answer). There is no "Go to verse" button then: the
+ *   pane is moved with `goToVerse`.
  * @returns {{ el: HTMLElement, render: () => Promise<void>,
- *   selectWord: (verse: number, t: number, opts?: { focus?: boolean }) => Promise<boolean> }}
+ *   selectWord: (verse: number, t: number, opts?: { focus?: boolean }) => Promise<boolean>,
+ *   goToVerse: (verse: number) => Promise<void> }}
  */
-export function createGreekTab({ here, visible, openVerse }) {
-  const textBox = document.querySelector(".chapter-paragraphs");
-  const markers = Array.from(textBox?.querySelectorAll('sup.vn[id^="v"]') ?? []);
-  const termData = readTermData();
+export function createGreekTab({
+  here, visible, openVerse, source = null, startVerse = null, idSuffix = "", openHit = null, onTopVerse = null,
+}) {
+  const textBox = source ? source.textBox : document.querySelector(".chapter-paragraphs");
+  const markers = source ? [] : Array.from(textBox?.querySelectorAll('sup.vn[id^="v"]') ?? []);
+  const termData = source ? source.termData : readTermData();
 
   const el = make("div", "desk-greek");
   el.innerHTML = `
     <div class="desk-greek__head">
-      <h3 class="desk-greek__title" id="deskGreekTitle" tabindex="-1"></h3>
+      <h3 class="desk-greek__title" id="deskGreekTitle${idSuffix}" tabindex="-1"></h3>
       <button type="button" class="desk-greek__goto" hidden></button>
       <button type="button" class="desk-greek__find-btn" aria-label="Search the Greek" title="Search the Greek">
         <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true" focusable="false"><circle cx="8.5" cy="8.5" r="5.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12.8 12.8 17 17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
@@ -171,11 +184,11 @@ export function createGreekTab({ here, visible, openVerse }) {
         <p class="desk-greek__from" hidden></p>
         <div class="desk-seg desk-greek__switch" role="radiogroup" aria-label="Lexicon">
           <label class="desk-seg__option">
-            <input type="radio" class="desk-seg__input" name="desk-greek-lex" value="ubs" />
+            <input type="radio" class="desk-seg__input" name="desk-greek-lex${idSuffix}" value="ubs" />
             <span class="desk-seg__text">UBS dictionary</span>
           </label>
           <label class="desk-seg__option">
-            <input type="radio" class="desk-seg__input" name="desk-greek-lex" value="step" />
+            <input type="radio" class="desk-seg__input" name="desk-greek-lex${idSuffix}" value="step" />
             <span class="desk-seg__text">STEPBible</span>
           </label>
         </div>
@@ -203,7 +216,7 @@ export function createGreekTab({ here, visible, openVerse }) {
   const appLine = el.querySelector(".desk-greek__appline");
   const litBox = el.querySelector(".desk-greek__lit");
   const announce = el.querySelector(".desk-greek__announce");
-  const radios = Array.from(el.querySelectorAll('input[name="desk-greek-lex"]'));
+  const radios = Array.from(el.querySelectorAll(".desk-greek__switch input"));
   title.textContent = `${here.label} in Greek`;
 
   let data = null;
@@ -216,11 +229,13 @@ export function createGreekTab({ here, visible, openVerse }) {
   let pending = null; // a verse to scroll to once the tab has a size
   let loading = null;
   let lexSeq = 0;
+  let toldTop = null; // the verse last told to onTopVerse (or moved to)
 
   const find = createGreekFind({
     root: el,
     here,
     selectWord: selectWordHere,
+    openHit,
     // Focus goes back to the selected word, else the roving one.
     focusText: () => {
       const b = buttons[selected ?? rover];
@@ -365,9 +380,9 @@ export function createGreekTab({ here, visible, openVerse }) {
 
   function apparatusSection() {
     const sec = make("section", "desk-greek__app");
-    sec.setAttribute("aria-labelledby", "deskGreekAppTitle");
+    sec.setAttribute("aria-labelledby", `deskGreekAppTitle${idSuffix}`);
     const h = make("h4", "desk-greek__subhead", "Apparatus");
-    h.id = "deskGreekAppTitle";
+    h.id = `deskGreekAppTitle${idSuffix}`;
     sec.append(h);
     const key = make("dl", "desk-greek__key");
     for (const [abbr, name] of EDITIONS) key.append(make("dt", null, abbr), make("dd", null, name));
@@ -405,9 +420,9 @@ export function createGreekTab({ here, visible, openVerse }) {
 
   function sourcesSection() {
     const sec = make("section", "desk-greek__sources");
-    sec.setAttribute("aria-labelledby", "deskGreekSourcesTitle");
+    sec.setAttribute("aria-labelledby", `deskGreekSourcesTitle${idSuffix}`);
     const h = make("h4", "desk-greek__subhead", "Sources and licenses");
-    h.id = "deskGreekSourcesTitle";
+    h.id = `deskGreekSourcesTitle${idSuffix}`;
     const ul = make("ul", "desk-greek__sources-list");
     for (const [label, href] of SOURCES) {
       const li = make("li");
@@ -459,15 +474,20 @@ export function createGreekTab({ here, visible, openVerse }) {
     queueGoto();
   }
 
-  const pageVerse = () => verseAtReadingLine(markers, (id) => Number(id.slice(1)) || null);
+  // On /desk there is no page to read along with: the pane is moved instead.
+  const pageVerse = () => (source ? null : verseAtReadingLine(markers, (id) => Number(id.slice(1)) || null));
 
   /** Where the tab first opens: the address's verse, or the one being read. */
   function openAtReading() {
-    const m = /^#v(\d+)/.exec(window.location.hash);
+    const m = source ? null : /^#v(\d+)/.exec(window.location.hash);
     const fromHash = m ? Number(m[1]) : null;
-    const v = fromHash && verses.includes(fromHash) ? fromHash : pageVerse();
+    const v = startVerse != null && verses.includes(startVerse)
+      ? startVerse
+      : fromHash && verses.includes(fromHash) ? fromHash : pageVerse();
     const at = v != null && verses.includes(v) ? v : verses[0];
     if (at == null) return;
+    // Opening at a verse isn't the reader scrolling there.
+    toldTop = at;
     setRover(firstWordOf(flat, at));
     scrollToVerse(at);
   }
@@ -496,6 +516,7 @@ export function createGreekTab({ here, visible, openVerse }) {
   /** "Go to verse N": the page's verse, unless the Greek already shows it near its top. */
   function updateGoto() {
     if (!data || !visible() || !scroller.clientHeight) return;
+    reportTop();
     const v = pageVerse();
     const mark = v == null ? null : verseMarks.get(v);
     if (!mark) {
@@ -519,6 +540,36 @@ export function createGreekTab({ here, visible, openVerse }) {
     buttons[i]?.focus({ preventScroll: true });
     goto.hidden = true;
   });
+
+  // The verse at the Greek's top, told to `onTopVerse` when the reader's
+  // scrolling changes it. A move made here (opening at a verse, goToVerse,
+  // a selected word brought into view) is not told back: only scrolling the
+  // reader started counts, so two panes kept in step never chase each other,
+  // and a verse near the chapter's end, which can't reach the top, isn't
+  // pulled back to the one that does.
+  let readerScrolled = false;
+  if (onTopVerse) {
+    const byReader = () => { readerScrolled = true; };
+    for (const type of ["wheel", "pointerdown", "touchstart", "keydown"]) {
+      scroller.addEventListener(type, byReader, { passive: true });
+    }
+  }
+  function reportTop() {
+    if (!onTopVerse || !verses.length || !readerScrolled) return;
+    const v = topVerse();
+    if (v == null || v === toldTop) return;
+    toldTop = v;
+    onTopVerse(v);
+  }
+
+  /** Bring a verse to the Greek's top, as the passage it follows moves (not told back). */
+  async function goToVerse(verse) {
+    if (!(await ensure()) || !verses.includes(verse)) return;
+    toldTop = verse;
+    readerScrolled = false;
+    if (selected == null) setRover(firstWordOf(flat, verse));
+    scrollToVerse(verse);
+  }
 
   /* ── Words ─────────────────────────────────────────────────────── */
 
@@ -983,5 +1034,5 @@ export function createGreekTab({ here, visible, openVerse }) {
     if (await ensure()) queueGoto();
   }
 
-  return { el, render, selectWord };
+  return { el, render, selectWord, goToVerse };
 }

@@ -35,7 +35,7 @@
 //     isn't a change anyone made.
 
 import { canEdit } from "./desk-records.mjs";
-import { kindName, liveRecords, recordReference, touched } from "./desk-store-core.mjs";
+import { kindName, liveRecords, recordWhere, touched } from "./desk-store-core.mjs";
 
 /** How many changes one page visit remembers. */
 export const HISTORY_LIMIT = 50;
@@ -207,7 +207,7 @@ export function describeEntry(entry) {
   const beforeIds = new Set(before.map((r) => r.id));
   const named = (r, verb) => {
     if (r.kind === "sheet") return `Sheet “${r.title || "Untitled"}” ${verb}.`;
-    const where = recordReference(r);
+    const where = recordWhere(r);
     return `${kindName(r.kind)}${where ? ` on ${where}` : ""} ${verb}.`;
   };
   const first = (records) => liveRecords(records)[0];

@@ -4,7 +4,7 @@ The complete record of the Study Desk as planned so far: what it is, every idea
 with its status, every decision BVJ has made and why, the audit and how each
 finding was settled, the account and sync work planned with BDR, and the
 related projects that came out of it. **Nothing is released to readers**;
-phases 1a to 1d and 1f are built behind a preview switch ("Where things stand").
+phases 1a to 1d, 1f, 1h, 2a, 2b and 3b to 3k are built behind a preview switch ("Where things stand").
 This file exists so a future session can pick the work up without the
 conversations that produced it.
 
@@ -12,7 +12,148 @@ conversations that produced it.
 Many ideas here were weighed and decided, some were declined, and the reasons
 are recorded so they aren't re-argued.
 
-## Where things stand (as of 2026-10-18)
+## Where things stand (as of 2026-10-20)
+
+- **Full Audit 1 (10/20/2026)** audited everything built, at commit
+  `82af6a6`, and found 87 problems (BA1 to BA87): 4 high, 24 medium and 59
+  low. BA32 is declined by BVJ, and the other 86 are planned in 20 phases,
+  FA1-a to FA1-t, each sized for one session on a Pro account. Two more
+  phases are the next audit: FA1-u (the code this one didn't reach) and
+  FA1-v (real devices). The plan,
+  and every finding with its fix, is `STUDY-DESK-AUDIT-1.md`. In short, see
+  "Full Audit 1 (10/20/2026)" below. Next: FA1-a, a sheet in a newer
+  format that runs its own script.
+
+- **Phase 2c is built on the preview** (2026-10-20): notes on a footnote
+  and questions for discussion. **A note can be on a footnote** (M11):
+  "Add a note" beside Pin in a footnote's popover, in Study View's
+  Footnotes list, in the Notebook's "This verse" tab and in /desk's
+  Footnotes pane. The note names its footnote as a pin does (its verse and
+  its words, never its letter), sits in the margin beside the footnote at
+  the foot of the page, is listed under the footnote wherever the footnote
+  is shown, and carries the change notice when the footnote is rewritten.
+  **A sheet gathers your questions** (N6): "+ For discussion" in the Sheet
+  pane adds a "For discussion" heading and one question per note marked
+  with the question marker on the sheet's passages, in passage order, as
+  ordinary parts to edit, move or delete. Smaller calls for BVJ to judge
+  are in the decision log, "Phase 2c". Phase 2 is done. Next: 3l, popping
+  the notebook out.
+
+- **Phase 2b is built on the preview** (2026-10-20): a sheet's text checked
+  before printing, and printing with room to write. **A passage whose
+  wording changed since it was added says so** (S2): in the Sheet pane, with
+  the words that moved struck through and underlined, the release note when
+  one names the verses, and **Keep the new wording**; and above the paper on
+  the sheet's own page, before it is printed (screen only, since the copy
+  prints today's wording either way). **Each copy's foot names the day its
+  text is from** ("Text as of October 20, 2026"). **Print with room to
+  write** (N9) is a second button under "Print with my notes", and a
+  command: the chapter or the book in a narrower column beside a ruled
+  margin, like a journaling Bible, needing no notebook. Smaller calls for
+  BVJ to judge are in the decision log, "Phase 2b". Next: 3l, popping the
+  notebook out, then 2c.
+
+- **Phase 3k is built on the preview** (2026-10-20): getting started and
+  sharing. **New sheet offers templates** (M9): Bible study, Sermon
+  preparation, Class session, Lectio divina (read, reflect, pray, rest) and
+  the Blank canvas, which has had the full formatting set since 3f; a new
+  part now goes after the part last worked in, so a passage lands where the
+  reader is. **A sheet from a search or a topic** (M5): on /search, "Make a
+  sheet of these verses" (every result, or the ones ticked) and "Make a
+  sheet of these chapters" for a topic, as a new sheet or added to one, in
+  Bible order with neighboring verses joined; "Open it on the Study Desk"
+  goes to `/desk/?sheet=<id>`. **Sharing** (S8): **Share…** on a sheet's
+  page makes a link, `/sheets/#share1.<data>`, holding the whole sheet (or
+  only what the participant copy prints), with a code to scan when the link
+  is short, or saves a `.lit-sheet.md` file; "Open a shared file" on
+  /sheets/ opens one. The page moves the `#` part out of the address before
+  Cloudflare's analytics beacon runs, which the network log confirms. A
+  shared sheet shows read only with **Copy into my desk**; a phone or tablet
+  is told to open the link on a computer. Smaller calls for BVJ to judge are
+  in the decision log, "Phase 3k". Next: 3l, popping the notebook out.
+
+- **Phase 3j is built on the preview** (2026-10-20): present mode. A sheet's
+  page has **Present**, and the Sheet pane has "Present…". The room sees the
+  sheet full screen, dark in either theme, one part at a time: a first
+  screen with the sheet's name and **a code per chapter to follow along**
+  (M3), then each passage, question, text and the key terms box, the type
+  as large as the screen allows. **The reveal** (S6) uses the sheet's
+  blanks: a key term blanked with its traditional word shows that word
+  until R reveals the LIT's rendering, and F puts the passage's footnotes
+  up, a footnote that gives a blank away waiting until it is revealed.
+  **The presenter view** (M2) is a second window with what the room sees,
+  what comes next, the answers and the parts marked Leader only, and a
+  clock; in Chrome and Edge with a second screen attached, the presentation
+  moves to that screen by itself. Smaller calls for BVJ to judge are in the
+  decision log, "Phase 3j". Next: 3k, getting started and sharing.
+
+- **Phase 3i is built on the preview** (2026-10-20): a sheet on paper. A
+  sheet's own address, `/sheets/?id=…` (opened from the Sheet pane's "Print
+  or copy…", with `/sheets/` listing them all), shows it as a **leader copy**
+  (every part, the blanks' answers and the questions' answers) or a
+  **participant copy** (no Leader only parts, a line with its hint for each
+  blank, lines to write on), on **US Letter or A4**, with **a code per
+  chapter** that opens the passage in the app or on the site, and the LIT's
+  notice and the chapters' addresses at the foot. **Print** prints it, and
+  **Copy for Word** copies it with its formatting. **Printing a chapter or a
+  whole book with your notes and highlights** (M6) is a button in the
+  Notebook panel. Smaller calls for BVJ to judge are in the decision log,
+  "Phase 3i". Next: 3j, present mode.
+
+- **Phase 3h is built on the preview** (2026-10-19): a sheet now knows
+  about the LIT. Each passage on a sheet has its blanks (select words and
+  "Blank the selected words", or one click on a key term, with "traditionally
+  sin" as the hint) and a footnote picker ("Footnotes: 3 of 4 print", Select
+  all and Unselect all) that flags any footnote giving a blank away and
+  leaves it out until the leader decides. The key terms box fills itself in
+  from the sheet's passages, and every sheet ends with its license card, whose
+  "This is for a commercial project" box turns on the commercial check.
+  Smaller calls for BVJ to judge are in the decision log, "Phase 3h". Next:
+  3i, paper and copies.
+
+- **Phase 3g is built on the preview** (2026-10-19): in the LIT pane on
+  `/desk/` the reader can highlight from the verse menu and a selection, and
+  their highlights are drawn there (in every pane showing the chapter), with
+  each verse number named for them as on Study View; footnotes can be pinned
+  from the LIT pane's popover, This verse and the Footnotes pane. **Notes
+  don't sit beside the pane's text** (BVJ, from the "LIT Pane Notes" mock):
+  the My Notes pane keeps its list and follows the LIT pane, scrolling so the
+  records on the passage being read are in view. Smaller calls for BVJ to
+  judge are in the decision log, "Phase 3g". Next: 3h, what a sheet knows
+  about the LIT.
+
+- **Phase 3f is built on the preview** (2026-10-19): the LIT pane on
+  `/desk/` has Study View's verse menu and selection panel, with their copy
+  actions and the "My Notebook" row, and the Sheet pane is the sheet
+  editor: a list of sheets, a title and subtitle, passages added from the
+  verse menu, a selection, a typed reference or the notebook, your own
+  formatted text, questions, space to write and page breaks between them,
+  dragged into order, saved as you go. Smaller calls for BVJ to judge are
+  in the decision log, "Phase 3f". Next: 3g, the reader's marks on /desk.
+
+- **Phase 3e is built on the preview** (2026-10-19): the LIT pane scrolls
+  the whole New Testament on `/desk/`, a chapter at a time, with drafts as
+  one stub per run, footnote letters that open their own chapter's note,
+  and key terms underlined; a Footnotes pane lists the chapter's notes with
+  the reader's verse marked. This verse, Greek and Footnotes now follow the
+  LIT pane last worked in. Smaller calls for BVJ to judge are in the
+  decision log, "Phase 3e". Next: 3f, the sheet editor, which starts with
+  the verse menu and selection panel in the LIT pane; the reader's marks
+  and pinned footnotes on /desk are a new part, 3g (BVJ, 2026-10-19).
+
+- **Phase 3d is built on the preview** (2026-10-19): This verse (with
+  "This chapter", the chapter's Go deeper, at its foot), Greek, and What
+  I've kept are panes on `/desk/`, mounted from the Notebook's own modules.
+  Until the LIT pane comes (3e), the panes that aren't pinned share one
+  passage, chosen with a picker at their top (BVJ, option A). Smaller calls
+  for BVJ to judge are in the decision log, "Phase 3d". Next: 3e, then 3f.
+
+- **Phase 3c is built on the preview** (2026-10-19): `/desk/` with the
+  Layout menu, dragging to split, movable lines, several panes of a kind,
+  Stay here, and a remembered layout with a default and a reset. My Notes
+  is the one pane that draws; the rest come with 3d to 3f. Smaller calls
+  for BVJ to judge are in the decision log, "Phase 3c". Next, as
+  suggested: 3f and 3d.
 
 - **Phase 3a is decided** (BVJ, 2026-10-18, from the mockups): /desk's
   layouts come from a Layout menu, with dragging a pane to split another
@@ -41,7 +182,7 @@ are recorded so they aren't re-argued.
   serves shared links, present mode and printing. **Phases 2b and 2c
   follow phase 3**, and phase 3's scope isn't cut to make a date. BVJ's
   answers are under D9 ("Across the desk"); the details are for when the
-  work starts, with mockups then. **Split into parts 3a to 3k**
+  work starts, with mockups then. **Split into parts 3a to 3l**
   (proposed 2026-10-18, "Order of work", 3), to be worked one at a time.
 
 - **The tour is offered in a window beside the Notebook** (BVJ,
@@ -225,8 +366,10 @@ are recorded so they aren't re-argued.
 - **Idea IDs**: N notes, B places and bookmarks, H highlights, S sheets, D the
   desk as a whole. Ideas the audit added keep their **M** numbers. Audit
   findings are **C1 to C27**. Entries in the fixes-and-experience log are
-  **E1** onward. BVJ cites these IDs, so keep them stable; never
-  renumber.
+  **E1** onward. Full Audit 1's findings are **BA1 to BA87**, worked in
+  phases **FA1-a to FA1-v** (`STUDY-DESK-AUDIT-1.md`); its follow-up audit
+  (FA1-u, FA1-v) numbers what it finds BA88 onward. BVJ cites these IDs,
+  so keep them stable; never renumber.
 - **People**: BVJ is the owner (Brandon). BDR is the developer of the iOS and
   Android apps and collaborates on accounts and sync. BDR's own documents
   call BDR "Brandon"; this file always says BDR or BVJ.
@@ -460,7 +603,8 @@ plan as a whole was accepted; nothing was declined except where stated).
   direction. New. Small. Proposed.
 - **N6. Questions as their own kind.** Mark a note as a question; a sheet
   gathers them into a "For discussion" section in passage order. Borrowed
-  (Logos Sermon Builder). Extra small. Proposed.
+  (Logos Sermon Builder). Extra small. Proposed. **Built on the preview
+  2026-10-20** ("Order of work", 2c).
 - **N7. The interleaf.** A Display tray switch that opens a ruled band after
   each paragraph holding your notes for it, like Edwards's blank leaves.
   Works in windows too narrow for the margin. **Bands open only when the
@@ -495,6 +639,11 @@ plan as a whole was accepted; nothing was declined except where stated).
   narrower column beside a wide ruled margin, like a journaling Bible. Stores
   nothing; a variant of `print.css`. Borrowed (journaling Bibles). Extra
   small. Can ship any time, independent of everything else.
+  **Built on the preview 2026-10-20**: "Print with room to write," a button
+  after "Print with my notes" in the My Notes foot and a command of the same
+  name, on Study View chapters and in Read View; `desk/print-room.js`, the
+  look at the end of `desk.css`. It needs no notebook, so it shows even where
+  the browser keeps none.
 - **N10. One verse, everything about it.** Borrowed from netbible.org, whose
   side panel follows the passage with the translation's notes and the
   reader's. **Decided 2026-10-02: one verse at a time.** A "This verse" tab in
@@ -535,10 +684,11 @@ plan as a whole was accepted; nothing was declined except where stated).
     work", 1c.
 - **M6. Print my annotated chapter or book.** A chapter, or a whole book from
   Read View, printed with your notes in the margin and highlights shown. N9
-  is the blank version. New. Small. **Decided: yes.**
+  is the blank version. New. Small. **Decided: yes.** **Built on the preview 2026-10-20** ("Order of work", 3i).
 - **M11. Notes on a footnote.** A note attaches to a footnote by quoting its
   words, not its letter, so it survives relabeling; N3's notice applies when
-  the footnote is rewritten. New. Medium. **Decided: yes.**
+  the footnote is rewritten. New. Medium. **Decided: yes.** **Built on the
+  preview 2026-10-20** ("Order of work", 2c).
 
 ### Places and bookmarks
 
@@ -610,6 +760,7 @@ plan as a whole was accepted; nothing was declined except where stated).
 - **S2. Text as of a date, checked before printing.** A sheet shows the
   current text and the day it was checked, and flags a passage that changed
   after you added it, using N3's comparison. New. Small. Proposed.
+  **Built on the preview 2026-10-20** ("Order of work", 2b).
 - **S3. A key terms box, filled in for you.** Every glossary term in the
   sheet's passages with its traditional word and the Greek ("self-
   preservation, traditionally flesh, sarx"), printed as a box at the end.
@@ -626,20 +777,20 @@ plan as a whole was accepted; nothing was declined except where stated).
   blank and its answer is on the leader's copy, a "For discussion" list, and
   at the foot `LIT_CREDIT_LINE` word for word plus each chapter's address
   ("litbible.net/romans-8 · litbible.net/galatians-5"). Borrowed (classroom
-  handouts, Logos Sermon Builder). Medium. **Decided: blanks are in.**
+  handouts, Logos Sermon Builder). Medium. **Decided: blanks are in.** **Built on the preview 2026-10-20** ("Order of work", 3i).
 - **S5. Printed codes that open the app.** Each chapter on a printed sheet
   carries a QR code: the app if installed, the website otherwise. The site's
   `apple-app-site-association` already claims every book's chapter addresses
   (`/<book>-*`) and `/glossary`; `assetlinks.json` uses `handle_all_urls`, and
   the Android app keeps its own path list, which is worth checking. The
   `qrcode-generator` library would move from a build-only devDependency to
-  something the page loads (C21). New. Small. Proposed.
+  something the page loads (C21). New. Small. Proposed. **Built on the preview 2026-10-20** ("Order of work", 3i).
 - **S6. Present mode, with a reveal.** Full screen, one passage at a time,
   large type, arrow keys, for a projector or a video call; a projector screen
   stays dark in either theme. An optional reveal (R) shows a key term's
   traditional word first, then the LIT's rendering and its footnote (F).
   The license lets a class, study group or sermon display any amount. New.
-  Medium. **Decided: the reveal is in** (decision 6).
+  Medium. **Decided: the reveal is in** (decision 6). **Built on the preview 2026-10-20** ("Order of work", 3j).
 - **S7. A license check for commercial work.** An ordinary sheet shows no
   limits at all: it adds the credit line, keeps footnotes beside their verses
   and **links to the license terms**, and that's all. A checkbox, "This is for
@@ -658,11 +809,11 @@ plan as a whole was accepted; nothing was declined except where stated).
   references-only sheet fits a QR code. A shared link opened on a phone or
   tablet says to open it on a computer, and the address is chosen so the apps
   could claim it later. Signed-in readers get short links (M14). Borrowed
-  technique. Medium. **Decided: computers only for now** (decision 4).
+  technique. Medium. **Decided: computers only for now** (decision 4). **Built on the preview 2026-10-20** ("Order of work", 3k).
 - **S9. Copy for Word and Google Docs.** A rich copy keeping headings,
   italics and the credit line, since most bulletins are built in Word.
   Sefaria's export needs a Google account; this needs nothing. Borrowed
-  (Sefaria). Small. Proposed.
+  (Sefaria). Small. Proposed. **Built on the preview 2026-10-20** ("Order of work", 3i).
 - **S10. Blanks where the key terms go.** A participant copy can leave any
   words blank, with answers on the leader's copy. The LIT-only kind: blank the
   translation's key terms and print the traditional word beneath as the hint
@@ -688,9 +839,9 @@ plan as a whole was accepted; nothing was declined except where stated).
   comes next. Chrome and Edge can place a window on a second screen (Window
   Management API); elsewhere the leader drags it. The two windows stay in
   step like two tabs (BroadcastChannel). Borrowed (presentation software).
-  Medium. **Decided: yes.**
+  Medium. **Decided: yes.** **Built on the preview 2026-10-20** ("Order of work", 3j).
 - **M3. A code on the screen so the room can follow along.** Present mode's
-  first screen shows S5's QR code. New. Extra small. **Decided: yes.**
+  first screen shows S5's QR code. New. Extra small. **Decided: yes.** **Built on the preview 2026-10-20** ("Order of work", 3j).
 - **M4. A word study in one click.** From the term lens or a /glossary entry,
   "Make a word study of sarx in Romans" builds a sheet of every gated place,
   grouped by rendering, with the key terms box and starter questions. Could
@@ -698,11 +849,11 @@ plan as a whole was accepted; nothing was declined except where stated).
   medium. **Decided yes, then shelved (BVJ, 2026-10-15): version 2.**
 - **M5. A sheet from a search or a topic.** On /search, "Add these verses to a
   sheet" gathers the results (or ticked ones); a topic does the same with its
-  chapters. Small. **Decided: yes.**
+  chapters. Small. **Decided: yes.** **Built on the preview 2026-10-20** ("Order of work", 3k).
 - **M9. Templates, including a contemplative one.** Bible study, sermon
   preparation, a class session, or lectio divina's four movements (read,
   reflect, pray, rest). Speaks to the spiritual directors named in the origin.
-  Small. **Decided: yes.**
+  Small. **Decided: yes.** **Built on the preview 2026-10-20** ("Order of work", 3k).
 - **M14. Share links for signed-in readers.** A short read-only link that can
   be switched off and needs no account to open; replaces S8's long links for
   signed-in readers. Under end-to-end encryption the key travels after the #
@@ -4109,16 +4260,42 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      Small. N9, print with room to write, is in 2b too: a print option that
      sets the text in a narrower column beside a wide ruled margin. It stores
      nothing and is a variant of `print.css`. Extra small.
+     **Built on the preview 2026-10-20**, after phase 3k (decision log,
+     "Phase 2b"). S2's rules are `src/lib/desk-sheet-check.mjs` (pure,
+     tested): the comparison is N3's `wordingChanged`, a quoted passage is
+     judged on its own words only, and `freshCopy` is what Keep writes. The
+     Sheet pane's notice is `wordingNotice` in `desk/sheet-lit.js`; the
+     sheet page's is `drawCheck` in `desk/sheet-page.js`, with the checks
+     from `copyChecks` in `desk/sheet-copy.js`, which also prints the "Text
+     as of" line. The word diff both notices draw moved out of
+     `change-notice.js` into `desk/diff-view.js`. N9 is
+     `desk/print-room.js`, with its look beside M6's in `desk.css`. No key
+     is added.
    - **2c, notes on a footnote** (M11, decided yes): a note attaches to a
      footnote by quoting its words, so it survives relabeling. It adds a
      kind of record to readers' notebooks, which can't be taken back once
      readers hold it, so it is weighed against what a trial with readers
      shows. Medium. N2, H2 with C23 and M4, which were 2c's other pieces,
      are **shelved for version 2** (BVJ, 2026-10-15).
+     **Built on the preview 2026-10-20** (decision log, "Phase 2c"). It is
+     a new target for a note rather than a new kind, named by kind 11's
+     fields (`footnote`, `n`; STUDY-DESK-FORMAT.md, kind 2), so the rules
+     are the pin's: `onFootnote` in `src/lib/desk-records.mjs`, `findPin`
+     and `pinFields` in `desk-footnotes.mjs`, and `pinNotice` and
+     `planKeep` in `desk-change.mjs`, which now take either. The page's
+     pieces are `desk/footnote-notes.js` (the buttons and the lists under a
+     footnote), with the margin placing such a note beside its footnote
+     (`note-sources.js`). Still only on the preview, so the caution above
+     stands until a trial with readers.
    - **N6, questions as their own kind** (BVJ, 2026-10-15): mark a note as a
      question, which the apps' `question` marker already carries. Its
      "For discussion" section, gathered by a sheet in passage order, needs
      sheets, so that part follows phase 3. Extra small.
+     **Built on the preview 2026-10-20** (decision log, "Phase 2c"): the
+     marker was already there; the gather is
+     `src/lib/desk-sheet-discussion.mjs` (pure, tested) and the Sheet
+     pane's "+ For discussion". It adds ordinary `text` and `question`
+     parts, so the sheet format is unchanged.
 3. **Sheets.** None of it waits on the apps: a sheet's inner shape is the
    website's own, and under plan A sheets go in the iCloud zone the app never
    opens. **Phase 3 comes after 2a** (BVJ, 2026-10-14), ahead of 2b;
@@ -4170,43 +4347,114 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      answers", 6); the remembered
      layout with "my default" and a reset (a `localStorage` key, named in
      /privacy). Proves itself by mounting one existing pane.
+     **Built on the preview 2026-10-19** (decision log, "Phase 3c"):
+     `/desk/`, with the rules in `src/lib/desk-layout.mjs` (pure, 87
+     tests), the page in `src/scripts/desk/desk-page.js` and the panes in
+     `desk/desk-panes.js`. My Notes is the pane it mounts, from the
+     Notebook's own `tab-mine.js`; the other kinds say they're still to
+     come. The key is `lit-desk-layout`.
    - **3d. The existing panes on /desk.** My Notes, This verse, Greek and
      the notebook's lists, ported from their modules; the Greek pane kept
      in step with the LIT pane as either scrolls (the 1g answer); This
      verse gains a "This chapter" section at its foot holding Go deeper,
      taken from the same fetched page as the text.
+     **Built on the preview 2026-10-19** (decision log, "Phase 3d"): the
+     panes mount `tab-verse.js`, `tab-greek.js` and the notebook page's
+     list (now `desk/kept-list.js`, a new kind, "What I've kept"); both
+     tabs read the chapter's fetched Study View page
+     (`desk/chapter-page.js`). The passage rules are
+     `src/lib/desk-passage.mjs`, the picker `desk/passage-bar.js`. The
+     Greek reports the verse at its top as the reader scrolls it and can be
+     moved to a verse, which is all 3e needs to keep it in step with the
+     LIT pane.
    - **3e. The LIT pane and the footnotes pane (X11).** Study View's text
      fetched a chapter at a time, so anchors stay character-identical
      (`test/desk-anchor-dom.test.js` sweeps it); scrolling through the
      whole corpus with no setting (3a); popovers that know their chapter;
      `keepReadingPlace` when a chapter loads above; drafts as a stub.
      The riskiest part.
-   - **3f. The sheet editor (S1).** Add passages from the verse menu, a
+     **Built on the preview 2026-10-19** (decision log, "Phase 3e"): the
+     pane is `desk/lit-pane.js`, with the corpus in
+     `src/lib/desk-corpus.mjs` and the chapter text's ids made its own in
+     `src/lib/desk-lit-text.mjs` (swept with Study View and Read View);
+     Footnotes is `desk/footnotes-view.js`. Each LIT pane keeps its reader's
+     place in the layout, and the active one's is the passage the
+     following panes show.
+   - **3f. The sheet editor (S1).** First, **the verse menu and the
+     selection panel in the LIT pane** (BVJ, 2026-10-19), Study View's own
+     from `chapter-tools.js`, with their copy actions and the Notebook's "My
+     Notebook" row, since 3e left the pane's verse numbers plain text. Then
+     the editor: add passages from the verse menu, a
      selection or the notebook; drag into order; your own text between,
      with formatting; autosave; passages from live text. Built to run
      inside another page, and shown as /desk's sheet pane.
-   - **3g. What a sheet knows about the LIT.** The key terms box (S3),
+     **Built on the preview 2026-10-19** (decision log, "Phase 3f"): the
+     verse tools take the pane as one more view (`attachVerseTools` in
+     `chapter-tools.js`); the editor is `desk/sheet-pane.js`, its formatted
+     text `desk/sheet-text.js`, and the passage rules
+     `src/lib/desk-sheet-passages.mjs`. Which sheet a Sheet pane shows is
+     kept in the layout (`sheet`, in `lit-desk-layout`).
+   - **3g. The reader's marks on /desk** (BVJ, 2026-10-19). Highlights,
+     notes and bookmarks in the LIT pane, as on Study View, with the
+     change notice when the words under a mark have moved; and **pinning
+     footnotes** there, from the popover, This verse and the Footnotes
+     pane. Where a note sits beside a pane's text (the margin is the
+     page's, not a pane's) is mocked first.
+     **Built on the preview 2026-10-19** (decision log, "Phase 3g"):
+     highlights and the verse numbers' names in the LIT pane, and pins in all
+     three places. Notes stay out of the pane's text (BVJ): My Notes follows
+     the LIT pane by scrolling its list (`tab-mine.js`'s `follow`).
+   - **3h. What a sheet knows about the LIT.** The key terms box (S3),
      blanks (S10) with the footnote picker and spoiler flags (C15), and
      the license card with the commercial check (S7).
-   - **3h. Paper and copies.** The sheet's own address, `/sheets/` (3a); leader and
+     **Built on the preview 2026-10-19** (decision log, "Phase 3h"): the
+     rules are `src/lib/desk-sheet-lit.mjs` (pure, tested), and the cards
+     `desk/sheet-lit.js`, which the Sheet pane mounts for each passage, the
+     key terms box and the license card. Nothing new is stored beyond what
+     the format already had (`blanks`, `footnotes`, `omit`, `commercial`).
+   - **3i. Paper and copies.** The sheet's own address, `/sheets/` (3a); leader and
      participant copies (S4); Letter and A4 with Greek and Hebrew fonts
      (C27); printed codes (S5), which moves `qrcode-generator` from a
      build-only dependency to something the page loads (C21) and checks
      the app link files; the Word copy (S9); annotated printing (M6),
      which needs no sheet and can move earlier or later.
-   - **3i. Present mode.** S6 with the reveal, M3's code on its first
+     **Built on the preview 2026-10-20** (decision log, "Phase 3i"):
+     `/sheets/` is `src/pages/sheets.astro` and `desk/sheet-page.js`; the
+     copies are drawn by `desk/sheet-copy.js` from the rules in
+     `src/lib/desk-sheet-copy.mjs`, the codes by `src/lib/qr-svg.mjs`
+     (shared with the app announcement's code), and the Word copy by
+     `desk/sheet-word.js`. The paper is kept in `lit-sheet-paper`, named in
+     /privacy. M6 is `desk/print-notes.js` with its rules in
+     `src/lib/desk-print-notes.mjs`.
+   - **3j. Present mode.** S6 with the reveal, M3's code on its first
      screen, then M2's presenter view on two screens.
-   - **3j. Getting started and sharing.** Sheets from a search or topic
+     **Built on the preview 2026-10-20** (decision log, "Phase 3j"): the
+     rules are `src/lib/desk-present.mjs` (pure, tested), the screens and
+     the presenter view `desk/sheet-present.js`, drawn from the copies' own
+     reading of each chapter (`presentPassage` in `desk/sheet-copy.js`).
+     Nothing is stored and no key is added.
+   - **3k. Getting started and sharing.** Sheets from a search or topic
      (M5), templates including the contemplative one (M9) and the blank
      canvas with full rich-text formatting (3a), and sharing by
      file and by `#` link (S8: the address cleared before the analytics
      beacon runs, confirmed in the network log; a phone or tablet is told
      to open it on a computer).
-   - **3k. Pop the notebook out (D4).** Last, decided once /desk exists.
+     **Built on the preview 2026-10-20** (decision log, "Phase 3k"): the
+     templates are `src/lib/desk-sheet-templates.mjs`; a search's or
+     topic's passages `src/lib/desk-sheet-gather.mjs` with
+     `desk/search-sheet.js`, reached from /search only through the
+     `lit:search-results` event and `loadDeskSheets()`; sharing
+     `src/lib/desk-sheet-share.mjs` (format in STUDY-DESK-FORMAT.md,
+     "Sharing a sheet"), with the shared view and the Share dialog in
+     `desk/sheet-page.js` and the phone's message in
+     `src/scripts/sheet-share-gate.js`. No key is added.
+   - **3l. Pop the notebook out (D4).** Last, decided once /desk exists.
 
    Suggested order: 3a, 3b, 3c, then 3f and 3d (both need only 3b and
-   3c), then 3e, 3g, 3h, 3i, 3j, and 3k. The path to printable leader and
-   participant sheets for Lent is 3b to 3h; present mode and sharing can
+   3c), then 3e, 3g, 3h, 3i, 3j, 3k, and 3l. (3g was added on 2026-10-19,
+   after 3e was built, so earlier entries' 3g to 3k are now 3h to 3l.) The
+   path to printable leader and participant sheets for Lent is 3b to 3i,
+   with 3g; present mode and sharing can
    follow. **Not in phase 3**: S2 and N9 (2b), M11 and N6's "For
    discussion" section (after phase 3), S11, and short share links (M14,
    phase 4).
@@ -5385,6 +5633,634 @@ split itself is still a proposal BVJ worked within but hasn't confirmed.
   reader's accessibility font still wins on screen. Left out: images and
   tables. The set can grow later but never shrink.
 
+### 2026-10-20 (Full Audit 1)
+
+- **An audit of everything built** (commit `82af6a6`): 87 findings, BA1 to
+  BA87. Four are high: a sheet in a newer format runs its own script when
+  viewed (BA66); an older Markdown copy undoes note edits made since (BA1)
+  and brings back notes deleted since (BA2); and closing a pane on /desk
+  loses the reader's place (BA51). The audit page is
+  https://claude.ai/artifact/VtA4S94L9MCjV7GqMrFMgL (private to BVJ).
+- **BA32 declined** (BVJ): the tour offer opening over the scripture's line
+  ends is fine. Won't fix.
+- **The plan is its own file** (BVJ): `STUDY-DESK-AUDIT-1.md`, with the 86
+  remaining findings in 20 phases, FA1-a to FA1-t, ordered security and
+  data loss first, each sized for one session on a Pro account. Findings
+  marked "BVJ's call" there have recommendations, and are asked at the
+  start of their phase.
+- **Subagents in these sessions only on Sonnet or Haiku** (BVJ), never
+  Opus: eight Opus agents used up two usage windows during the audit.
+- **The next audit is part of the plan** (BVJ): FA1-u reviews the code
+  this audit didn't reach, after FA1-f, so what it finds can join the
+  phases for those areas; FA1-v checks the desk on real devices (Safari,
+  Firefox, a screen reader, two screens, a touchscreen, paper) as the last
+  phase. Their findings continue as BA88 onward.
+
+### 2026-10-20 (Phase 2c: notes on a footnote, and questions for discussion)
+
+- **Built** as 2c set out: M11 (a note on a footnote) and the rest of N6
+  (a sheet gathering the reader's questions), after 2b and ahead of 3l at
+  BVJ's request. No storage key is added, so /privacy is unchanged.
+- **Smaller calls made in building it, for BVJ to judge on the preview**
+  (recommendations, not decisions):
+  - **A note on a footnote is a note, not a new kind.** It names its
+    footnote with a pin's fields (the verse holding the letter, the
+    footnote's full text, and `n` among identical footnotes in that verse),
+    so it is found again by the pin's rule, and an app that doesn't know
+    the target still reads it as a note on the verse, losing nothing. It
+    quotes the whole footnote, never part of it. The format change is the
+    website's proposal, for BDR to confirm (STUDY-DESK-FORMAT.md, kind 2).
+  - **Where it is made**: "Add a note" beside Pin, in the four places Pin
+    already is: the footnote's popover, Study View's Footnotes list, This
+    verse and /desk's Footnotes pane.
+  - **Where it shows.** On Study View, in the margin **beside the footnote
+    at the foot of the page**, not beside the verse; hovering or opening
+    it marks the footnote. Under the footnote wherever the footnote is
+    shown: in full in This verse and the Footnotes pane, and the first two,
+    shortened, in the popover ("and 2 more in My Notes"). In My Notes and on
+    the notebook page, as a note with "On a footnote:" and the footnote's
+    opening words. /desk's LIT pane shows no notes beside its text, as
+    for other notes (3g).
+  - **It is about the footnote, not the verse**, so it isn't counted in the
+    verse number's name ("Verse 3, 1 note of mine") or listed under This
+    verse's "My notes" for the verse.
+  - **The change notice is the pin's**: "The footnote your note is on has
+    been rewritten," with **Keep on the new wording**, or "not in the text
+    any more" when no footnote in its verse is close enough. A change to
+    the verse's own wording raises nothing.
+  - **Print with my notes** prints it beside its footnote in the endnotes.
+  - **Markdown** names it "Note on a footnote" and quotes the footnote. A
+    new one can't be made from a Markdown file, as a pin can't: a heading
+    names the verse, not which of its footnotes. The full backup carries it
+    whole.
+  - **"+ For discussion"** sits after "+ Question" in the Sheet pane. It
+    adds a "For discussion" heading and one question for each note marked
+    with the question marker whose verses fall in one of the sheet's
+    passages (a note on a footnote counts by its verse), in the sheet's
+    passage order, then verse order. Each question reads "**Romans 8:3**"
+    and then the note's words, with three lines to write on and no answer.
+    They go after the part last worked in, as a new part does (3k), and one
+    Ctrl+Z takes them all back.
+  - **It is a one-time gather**, not a live section: the parts are
+    ordinary ones, and nothing ties them to the notes, so editing either
+    never changes the other. Pressing it again adds only questions that
+    aren't on the sheet yet, under the heading already there; a question
+    reworded on the sheet no longer matches its note, so it comes back.
+  - **When nothing is found** it says so, and how: "None of your notes
+    marked as questions are on this sheet’s passages. Mark a note as a
+    question with the question marker."
+- **Fixed along the way**: the Sheet pane's "From my notebook" list showed
+  no words for a note (it read the wrong field), and now names a question
+  as a question.
+- **Known limits**: checked in Chrome on Romans 8 (making one, the margin,
+  the popover and This verse, My Notes, the notice, the gather and its
+  undo). Not yet checked on paper, or in /desk's Footnotes pane in a
+  browser.
+
+### 2026-10-20 (Phase 2b: text checked before printing, and room to write)
+
+- **Built** as 2b set out: S2 (a sheet's passages checked against today's
+  text, and the day the text is from) and N9 (print with room to write),
+  after phase 3k, since S2 needed sheets. Neither stores anything new, so
+  /privacy is unchanged.
+- **Smaller calls made in building it, for BVJ to judge on the preview**
+  (recommendations, not decisions):
+  - **Where a change shows.** In the Sheet pane, under the passage's words:
+    "The wording of these verses has changed since you added this passage",
+    the diff, the release note's date and link when one names the verses,
+    "The sheet prints today’s wording. Check your blanks, questions, and
+    notes against it," and **Keep the new wording**. On the sheet's page,
+    above the paper: one line naming the passages ("The wording of Romans
+    8:1–2 has changed since you added it."), each diff, and a link to the
+    sheet on the Study Desk. **Print stays one press**; the notice is the
+    check, not a dialog in the way. The page never writes, so Keep is on
+    /desk only.
+  - **Keep is one undoable change**, like any edit to the sheet. It takes a
+    fresh copy of the verses (and, for a passage that starts or ends inside
+    a verse, its words taken again from where they stand now).
+  - **A passage that starts or ends inside a verse** is judged on its own
+    words, not the whole verse's, the way a quoted note is: a change
+    elsewhere in the verse doesn't print, so it raises nothing.
+  - **Typography alone raises nothing**, as for notes (quotes, dashes,
+    spacing).
+  - **A passage with no comparison copy** (one gathered from a search, M5,
+    whose chapters aren't fetched there) takes one quietly the first time
+    the Sheet pane reads it, with no undo step, so a change from then on is
+    caught. "Open it on the Study Desk" is the usual next step, so in
+    practice that is the day it was made. Taking copies on /search instead
+    would mean fetching every chapter's page there.
+  - **"Text as of"** is the date in the content version the passages were
+    read from (the newest, if the chapters' pages differ), at the foot of
+    both copies, after the chapters' addresses, and so in Copy for Word too.
+    A dev build has no date and prints none. Present mode doesn't show it.
+  - **A shared sheet is never flagged**: sharing leaves the comparison
+    copies out (3k), so the reader who opens one has nothing to compare.
+  - **N9's margin** is the right 35% of the page, ruled every 20pt (more
+    when the Display tray's text size is larger), with the text in the left
+    62%; footnotes and the notices print full width after the text, as in
+    plain printing. Offered wherever "Print with my notes" is (Study View
+    chapters and Read View), and also where the browser keeps no notebook,
+    since it reads none.
+  - **Known limits**: checked in Chrome only (N9 by printing PDFs).
+
+### 2026-10-20 (Phase 3k: getting started and sharing)
+
+- **Built** as 3k set out: templates including the contemplative one (M9)
+  beside the blank canvas, a sheet from a search or a topic (M5), and
+  sharing by `#` link and by file (S8). Sharing stores nothing (the link or
+  the file is the sheet), so /privacy is unchanged.
+- **The analytics check** (S8): tested against Cloudflare's real beacon
+  script added to a built copy of the page, as Cloudflare adds it. The
+  beacon's report named the page without the `#` part. The browser's own
+  record of the page load still holds the full address, and the beacon
+  didn't send it; that is worth checking again if the beacon changes.
+- **Smaller calls made in building it, for BVJ to judge on the preview**
+  (recommendations, not decisions):
+  - **Templates** (M9): New sheet lists **Bible study** (an opening, the
+    reading, three questions, the key terms box, a closing), **Sermon
+    preparation** (the text, first reading, the key terms, context, the good
+    news here, an outline, a word for the congregation), **Class session**
+    (goals, the reading, background marked Leader only, two questions with
+    answers, the key terms, next time), **Lectio divina** (read, reflect,
+    pray and rest, each with its short instruction and space to write) and
+    the **Blank canvas**. The wording of each is a first draft, and every
+    one is the reader's to change. A template's sheet keeps its template's
+    name in `template`, as the format says, and nothing reads it.
+  - **New parts go after the part last worked in**, not at the end, for
+    every way of adding one (the "+" buttons, "+ Passage", and "Add to
+    sheet" from the LIT pane); with none, at the end, as before.
+  - **A sheet from a search** (M5): on /search only (not the header's
+    tray), "Make a sheet of these verses" above the verse results, with a
+    box to tick on each verse; with none ticked, every result goes, not just
+    the page showing. A topic's chapters have their own button and no ticks.
+    The passages are in **Bible order**, not the search's order, with
+    neighboring verses joined into one passage. They go into a **new sheet**
+    titled with the search ("Search: “liberation”", or the topic's name) or
+    into one of the reader's sheets, and the message offers Undo and "Open it
+    on the Study Desk".
+  - **The link** is `/sheets/#share1.<data>`, holding the sheet itself, not
+    a copy on any server (format in STUDY-DESK-FORMAT.md, "Sharing a
+    sheet"). A sheet of a few passages and questions makes a link of about
+    400 characters, and a link of up to 1,000 gets a code to scan beside it.
+  - **Share… asks what to share**: "Everything, for another leader" or "The
+    participant copy, without answers or Leader only parts". A participant
+    share leaves the Leader only parts and the answers out of the link
+    itself, not only out of the view. Blanks stay, since the participant
+    copy prints them (their answer is the LIT's own wording either way).
+  - **The file** is Markdown a person can read (the title, each part, the
+    passages named but not quoted) with the sheet's data on its last line,
+    named `<title>.lit-sheet.md`. It is opened with "Open a shared file" on
+    /sheets/, not with the notebook page's "Open a copy".
+  - **Share… is on the sheet's page**, and the Sheet pane's "Print or
+    copy…" is renamed **"Print or share…"** to lead there.
+  - **A shared sheet is shown read only**, with "Shared with you" above it
+    and **Copy into my desk**, which saves it as a new sheet of the reader's
+    and turns the page into that sheet. Present waits for the copy, since
+    the presenter view's window finds the sheet in the notebook. A
+    participant share offers only the participant copy.
+  - **Without the desk**: on a phone or tablet the page says to open the
+    link on a computer, with **Copy the link** (the address bar no longer
+    shows it). On a computer without the preview it offers a link that
+    switches the preview on and opens the sheet.
+  - **Known limits**: tested in Chrome only. A link longer than about 4,000
+    characters gets a line suggesting a file, since some email programs cut
+    long links; where that happens, the page says the link is damaged.
+
+### 2026-10-20 (Phase 3j: present mode)
+
+- **Built** as 3j set out: present mode with the reveal (S6), a code on its
+  first screen (M3), and the presenter view on two screens (M2). Nothing is
+  stored, so /privacy is unchanged; the browser's own permission to place
+  windows on screens is asked for only when the leader opens the presenter
+  view with a second screen attached.
+- **Smaller calls made in building it, for BVJ to judge on the preview**
+  (recommendations, not decisions):
+  - **Where it starts**: "Present" in the toolbar of a sheet's page, which
+    goes full screen at once, and "Present…" in the Sheet pane on /desk,
+    beside "Print or copy…", which opens the presentation in a new tab
+    (`/sheets/?id=<id>&view=present`). A browser allows full screen only
+    from a click in that tab, so there the leader chooses Full screen (or
+    double-clicks the screen).
+  - **The screens**: a first screen, then one screen per part the room sees,
+    in the sheet's order: each passage, text, question (without its lines or
+    answer), and the key terms box. Spaces to write and page breaks are
+    paper's, so they have none. **A part marked Leader only never reaches
+    the room**: it goes to the presenter view, with the screen before it.
+  - **The look**: a near-black ground with cream words in either theme, the
+    passage in the site's sans-serif (a reader's Atkinson or OpenDyslexic
+    choice still wins), the reference in green above it, and verse numbers
+    kept small. Each screen is set at the largest type that fits, about 3.4%
+    to 6.8% of the screen's height; a passage too long even at the smallest
+    scrolls, with the Up and Down keys.
+  - **The reveal uses the sheet's blanks**, with no separate setting: the
+    leader marks what to reveal the way they mark a blank for paper (one
+    click on a key term). A blank whose hint is the traditional word shows
+    that word, dashed beneath, until R reveals the LIT's rendering in its
+    place; any other blank is a line with the leader's hint. R reveals the
+    next in reading order and Shift+R covers it again; going back to a
+    screen finds it as it was left. A sheet with no blanks presents its text
+    whole.
+  - **Nothing moves when a word is revealed**: the word and what covered it
+    share one space. The cost is that the space is as wide as the longer of
+    the two, which leaves a gap around a short answer ("a just person" with
+    room around "just") and could hint at a long one's length.
+  - **Footnotes come up with F**, on passage screens: the ones the leader
+    prints, and any held back only because it gives a blank away, once that
+    blank is revealed (S6's "then the LIT's rendering and its footnote").
+    They lie in a box over the lower part of the screen at a size of their
+    own, so the verses don't shrink, and go down again with F. Footnote
+    letters show in the verses only while the footnotes are up.
+  - **The key terms screen** keeps a rendering blank until its blank has
+    been revealed on any screen, and says so: "One term is left blank until
+    it is revealed." (Paper's line sends the room to the leader copy.)
+  - **The room's code** (M3): the first screen shows the sheet's name and
+    subtitle, "Scan to follow along," and S5's code for each chapter (at
+    most four, any more named in words), large enough to scan across a
+    room, with the chapters' addresses beneath. It isn't repeated on later
+    screens.
+  - **The controls on the room's screen** are a strip along the bottom that
+    shows when the pointer moves or a control has focus, and hides with the
+    pointer after two and a half seconds: Previous, Next, Reveal (with "1 of
+    2"), Footnotes, the screen's number, Presenter view, Full screen, and
+    Close. Escape leaves present mode (in full screen the first Escape is
+    the browser's, leaving full screen).
+  - **The keys**, in either window: →, Page Down or Space for the next
+    screen; ←, Page Up or Shift+Space for the one before (what a
+    presentation clicker sends); Home and End; R, Shift+R, and F. They
+    aren't tied to the Display tray's Keyboard switch, since they work only
+    inside present mode.
+  - **The presenter view** (M2) is the sheet's page in its own window
+    (`&view=presenter`), in the reader's own theme: what the room sees now,
+    what comes next with its name, "For the leader" (the blanks with their
+    answers and what covers them, whether the footnotes are up and how many
+    wait on the reveal, a question's answer, and the parts marked Leader
+    only), a clock with Restart, and the keys. It holds the sheet's own
+    leader parts only, not the reader's notebook notes.
+  - **Two screens**: where the browser can place windows (Chrome and Edge)
+    and a second screen is attached, "Presenter view" asks the browser's
+    permission once, sends the presentation full screen to the other screen,
+    and opens the presenter view filling this one. Elsewhere, or when the
+    permission is refused, the presenter view opens as a window and the
+    leader drags the presentation to the projector. Either window moves
+    both, and a presenter view opened after the presentation picks up its
+    place.
+  - **Known limits**: tested in Chrome at one window size, with the two
+    windows as two tabs. Moving the presentation to a second screen, and
+    real full screen, need a second display and a person's click, so they
+    are still to try; so are Firefox and Safari.
+
+### 2026-10-20 (Phase 3i: paper and copies)
+
+- **Built** as 3i set out: the sheet's own address with leader and
+  participant copies (S4), US Letter or A4 with the Greek and Hebrew faces
+  already registered by range (C27), a printed code per chapter (S5), Copy
+  for Word (S9), and printing a chapter or book with the reader's notes
+  (M6). Present (3j) and "Copy into my desk" for a shared sheet (3k) are
+  still to come, so the page has neither yet.
+- **The app link files, checked** (S5): the iOS file claims `/<book>-*` for
+  all 27 books, so a code's address (`litbible.net/romans-8/#v1-4`) opens
+  the iOS app where it is installed; Android's `assetlinks.json` delegates
+  every address (`handle_all_urls`), and which paths the Android app itself
+  accepts is in its own manifest, for BDR to confirm.
+- **Smaller calls made in building it, for BVJ to judge on the preview**
+  (recommendations, not decisions):
+  - **The address**: `/sheets/?id=<id>` for one sheet, `/sheets/` for the
+    list. The id is random and means nothing outside the reader's own
+    notebook. Shared sheets (3k) will use the part after the `#`, so the two
+    never clash. The Sheet pane opens it with "Print or copy…" in a new tab.
+  - **The copies are called "Leader copy" and "Participant copy"**, as the
+    mock's header had it, and the copy's name ends the subtitle line
+    ("Thursday group · October 2, 2026 · Participant copy").
+  - **A blank on the participant copy is a line of one width**, whatever
+    the answer's length (a longer line for a longer word would give it
+    away), with its hint in small italics beneath. The leader copy shows
+    the answer in bold on the line, with the same hint. A verse number or
+    footnote letter inside blanked words is kept, after the line. A paragraph holding a blank with a hint opens to double spacing, so the hint has room, which makes it read looser than the passages around it.
+  - **The key terms box on the participant copy** prints a rendering as a
+    blank when it shares a word stem with a blank on that copy (the
+    footnote picker's rule), and says beneath: "One term is left blank here.
+    Its answer is on the leader copy."
+  - **Footnotes print after their passage**, with the chapter's own letters
+    kept in the words, so each stays with the verse it explains.
+  - **A code per chapter, beside the first passage from it**, opening that
+    passage's verses ("Scan to read Romans 8"). On both copies, on by
+    default, with a "Codes to scan" box that isn't remembered. The foot
+    lists every chapter's address in words.
+  - **Parts marked Leader only carry a small "Leader only" tag** on the
+    leader copy. Questions aren't numbered; an answer prints in a box under
+    its question on the leader copy only.
+  - **The paper is guessed from the reader's languages** (Letter in the
+    United States, Canada, Mexico, the Philippines and the Latin American
+    countries that use it; A4 elsewhere) and remembered once chosen. The
+    page draws the copy as a white sheet at that paper's width, in either
+    theme.
+  - **The reader's own named styles print**: their fonts, colors and
+    backgrounds, which the site's print stylesheet otherwise turns to black
+    serif. The passages print as Study View's do.
+  - **Copy for Word copies the copy on screen**: headings, italics, the
+    reader's colors, blanks as an underlined space with the hint after it
+    in brackets (a word processor can't stack it beneath), footnotes after
+    each passage, and the notice with the addresses. The codes are left out.
+  - **A sheet's own page counts as scripture for the announcement slot**,
+    as /desk does, so the app announcement never opens over a sheet.
+  - **Printing with my notes (M6) is a button**, "Print with my notes," in
+    the Notebook panel's My Notes foot, with a command of the same name, on
+    Study View chapters and in Read View (the whole book). Ordinary printing
+    (Ctrl+P) is unchanged: text and footnotes only.
+  - **It prints what was asked for, whatever the screen shows**: notes and
+    highlights print even when "My notes" is off or hidden (M1), and in Read
+    View even though its own highlights are off by default. Bookmarks are
+    left out.
+  - **On paper, a note sits beside the paragraph or poetry block holding its
+    first word**, in a column to the right of the text, headed by its
+    reference and the first eight words it hangs on, in the reader's note
+    font. A note whose words changed prints beside its verse, saying "The
+    wording has changed since I wrote this." A note with no verse on the
+    page (a draft in Read View, say) goes in a closing list, "Notes that are
+    not on these pages." Highlights print as their tints.
+  - **Known limits**: a block with notes much taller than itself leaves a
+    gap below it; only Chrome was tested, so whether Firefox and Safari
+    print the highlight tints, and whether Safari allows printing after the
+    notes are gathered, is still to check.
+
+### 2026-10-19 (Phase 3h: what a sheet knows about the LIT)
+
+- **Built** as 3h set out, with nothing added to the format: blanks (S10),
+  the footnote picker with its spoiler flags (C15), the key terms box (S3)
+  and the license card with the commercial check (S7), all worked out live
+  from each chapter's Study View page. The mock's own case behaves as mocked:
+  Romans 5:6–10 with "deviating" blanked flags note c ("Or ‘people
+  characterized by deviation’…") as giving the blank away.
+- **Smaller calls made in building it, for BVJ to judge on the preview**
+  (recommendations, not decisions):
+  - **Making a blank**: select words in the passage on the sheet and choose
+    "Blank the selected words" (a part-word selection grows to the whole
+    word), or press a key term's button under the passage, which blanks every
+    use of that term in the passage with "traditionally sin" beneath; pressed
+    again, it fills them in. A blank over a key term starts with the
+    traditional hint, any other with none. Two blanks can't overlap.
+  - **Each blank is listed under its passage**, in reading order, with its
+    verse, a hint menu (No hint, "traditionally sin" where a term is marked,
+    My own hint…) and ×. Blanked words are tinted and underlined in the
+    sheet's copy of the passage, the leader's view, so the answer stays
+    visible while editing.
+  - **A footnote gives a blank away** when it shares a word with the blank,
+    compared by stem (so "deviation" gives away "deviating"), ignoring words
+    under four letters and common ones. It errs toward flagging, since a flag
+    only asks the leader to decide, and it checks every blank on the sheet,
+    not only its own passage's.
+  - **Which footnotes belong to a passage**: those whose letter falls inside
+    the passage's words, so a passage starting mid-verse leaves out a note
+    on the words before it. The picker is a collapsed line under each
+    passage, "Footnotes: 3 of 4 print · 1 would give a blank away", with
+    each note's letter, verse and full text.
+  - **The key terms box lists every passage's terms**, in the order the sheet
+    first uses them, each as "deviating, traditionally sin, *hamartia*" with
+    a Glossary link; unticking leaves a term out (`omit`). The glossary's own
+    disambiguator is dropped ("Good [2]" prints as "good"). A blanked term
+    stays listed; how the participant's copy shows it is 3i's.
+  - **The license card sits at the foot of every sheet**, not beside it (a
+    pane has no room for side cards): the credit line, "Read the license
+    terms", and the commercial box. Its links open in a new tab, so the desk
+    stays put.
+  - **The commercial check counts the copy everyone gets**: the LIT's words
+    (passages less their blanks, the footnotes that print, the key terms box)
+    against the reader's own (title, subtitle, text and questions), leaving
+    out Leader only parts and answers, with a thin bar marking 50%. It also
+    says when the passages quote a whole book, when footnotes are set not to
+    print, and when the sheet has blanks, quoting the terms' own wording for
+    each ("quoted as written, with footnotes kept with the verses they
+    reference"). It warns; it never stops the leader.
+  - **A passage on a sheet now keeps its first verse number** when it starts
+    on a verse; 3f's copy of the text dropped it.
+
+### 2026-10-19 (Phase 3g: the reader's marks on /desk)
+
+- **Built**: the parts of 3g that don't depend on where a note sits. The
+  LIT pane's "My Notebook" row now offers Highlight, as Study View's does;
+  the reader's highlights are drawn on the pane (in every LIT pane showing
+  the chapter, so two panes on John 3 both show them) and each verse number's
+  name says what it carries ("Verse 16, highlighted yellow, 1 note of
+  mine"). Pin and Unpin are on the LIT pane's footnote popover, in This
+  verse, and under each note in the Footnotes pane, where a pinned note that
+  was rewritten gets the same flag as in Study View's Footnotes list.
+- **Mocked for BVJ**: where a note sits beside a pane's text, as "LIT Pane
+  Notes" (https://claude.ai/artifact/R4RKSvzQi2vaHPMKPjvGEs, private), John
+  3 with made-up notes, a bookmark, two highlights and a changed-wording
+  flag, and a slider for the pane's width:
+  - **A. A margin inside the pane**: Study View's margin and its rules,
+    applied to the pane's width (notes in full, then circles, then none);
+  - **B. Circles in a slim gutter**: the text keeps nearly the whole width,
+    and each note opens in a popover;
+  - **C. The notes pane is the margin**: no notes in the LIT pane; a My
+    Notes pane beside it lines its cards up with their words as the text
+    scrolls.
+  The website recommended A. **BVJ chose none of the three as mocked**: "Desk
+  doesn't need to replicate the margin notes. C is the closest, but there's
+  no reason to have them spaced to be perfectly beside the text. It should
+  just be how the My Notes pane already worked, just making sure that it
+  follows in the sense that my notes that are on the section I'm looking at
+  in the text are visible, but it doesn't have to align perfectly with the
+  verse."
+- **Built from that**: My Notes is now a pane that follows the LIT pane (with
+  Stay here, like the other following panes). Its list is unchanged; as the
+  reader moves through the text it scrolls, only when needed, so the first
+  record on the passage being read (or the chapter's last, when none come
+  after) is in view. A record's reference or words move the LIT pane being
+  read to it, rather than leaving /desk for Study View.
+- **Smaller calls made in building it, for BVJ to judge on the preview**
+  (recommendations, not decisions):
+  - **Highlights on /desk follow Study View's "My highlights" setting**,
+    since the pane is Study View's text; Read View keeps its own.
+  - **A highlight made in one LIT pane is drawn in every pane showing that
+    chapter**, and a selection is read from the pane it was made in.
+  - **"Show in notebook" stays off the LIT pane's menus**: This verse is the
+    pane that shows a verse.
+  - **Nothing of the reader's sits beside the LIT pane's text**, bookmarks'
+    red marks and a changed highlight's flag included, since BVJ's answer
+    puts notes in My Notes and those marks are margin marks on Study View.
+    A bookmark is in My Notes' list; a changed highlight carries its flag
+    there, and the verse number's name counts it ("1 changed since I marked
+    it").
+  - **My Notes follows by the verse at the LIT pane's reading line**, the
+    passage the other following panes use, and leaves the list alone while
+    the reader is in a chapter with nothing kept.
+
+### 2026-10-19 (Phase 3f: the verse menu in the LIT pane, and the sheet editor)
+
+- **Built** as 3f set out: Study View's verse menu and selection panel in
+  the LIT pane, then the sheet editor as the Sheet pane, with passages from
+  the live text (format rule 1), the reader's own text between, dragging
+  into order, and saving as the reader goes.
+- **Smaller calls made in building it, for BVJ to judge on the preview**
+  (recommendations, not decisions):
+  - **The LIT pane's verse numbers look and work as Study View's do**, and
+    each menu names its own chapter ("Matthew 1:1–3"); a verse number in
+    another chapter starts a new menu rather than extending the range. Copy
+    link and the copies' links go to the verse in Study View, as Read View's
+    do, and "Copy with footnotes" reads the notes from the chapter's page.
+  - **The "My Notebook" row in the pane offers Add a note, Bookmark and
+    Ribbon here…, but not Highlight or Show in notebook**: a highlight made
+    there couldn't be seen until 3g draws the marks, and This verse is the
+    pane that shows a verse. A note or bookmark made there shows in My
+    Notes and This verse.
+  - **"Add to sheet" is its own row, "Sheet", in the LIT pane's menus**,
+    shown only while a Sheet pane has a sheet open, and naming that sheet
+    ("Add to “Freedom and the Life-breath”"). With two Sheet panes open it
+    adds to the one last worked in. A selection that covers whole verses is
+    added as those verses, with no quote; one that starts or ends inside a
+    verse keeps the quote, as the format says.
+  - **A Sheet pane opens on a list, "My sheets"**, with New sheet, each
+    sheet's subtitle, its number of passages and when it last changed, and
+    Delete (undoable). The pane remembers which sheet it shows. A new sheet
+    is the blank template, one empty text block, and its title field takes
+    the cursor; templates are 3k's.
+  - **Each part of a sheet is a card** headed with what it is (a passage's
+    reference), a grip to drag it, Leader only, Move up, Move down and
+    Remove (undoable). New parts go at the end: "+ Passage", "+ Your text",
+    "+ Question", "+ Space" and "+ Page break". The key terms box is not
+    offered yet (3h), and a sheet holding one shows a line saying so.
+  - **"+ Passage" opens a small form**: a reference typed as the search box
+    reads one (a whole chapter when no verse is given), and "From my
+    notebook", the latest 40 notes, highlights and bookmarks, each added as
+    its passage. Adding a passage already on the sheet adds it again and
+    says so, rather than refusing.
+  - **A passage shows its words from today's text**, set apart by a green
+    rule with plain verse numbers and no footnote letters (which footnotes
+    print is 3h's), and "Show in the LIT" moves the LIT pane being read
+    there. When the words a quote started or ended on have changed, it shows
+    the closest match and says so; when the verses are gone, it says that.
+  - **The formatting toolbar** has a block menu (Paragraph, Heading,
+    Subheading, Quotation), bold, italic, underline, strikethrough,
+    superscript, subscript, link, bulleted and numbered lists with indent and
+    outdent, alignment, a Style menu for the named fonts, sizes, colors and
+    backgrounds (each previewed in its own style), a line, and Clear
+    formatting. A style needs words selected. Pasted text is sanitized to the
+    sheet's set.
+  - **Saving**: every change is saved at once, typing and the title a
+    moment after they pause, with "Saving…" and "Saved" at the top. Ctrl+Z
+    inside a text is the browser's own; outside, it undoes the sheet's last
+    saved change, as for every record. The colors, alignment and line are
+    made outside the browser's editing commands, so its Ctrl+Z steps over
+    them.
+
+### 2026-10-19 (Phase 3e: the LIT and Footnotes panes on /desk)
+
+- **Built** as 3a settled it: the LIT pane scrolls Matthew 1 to
+  Revelation 22 with no setting, each chapter Study View's own text,
+  fetched as the reader nears it; a run of drafts in one book is one stub
+  (Acts and Revelation today); a chapter loading above doesn't move the
+  line being read. Footnote letters open their own chapter's note, key
+  terms are underlined as in Study View, and a reference in a note
+  previews. The Footnotes pane follows the LIT pane. With a LIT pane open,
+  This verse, Greek and Footnotes follow the one last worked in (D9,
+  "Phase 3a's answers", 6), and each LIT pane keeps its own place in the
+  layout, so two show two passages.
+- **Smaller calls made in building it, for BVJ to judge on the preview**
+  (recommendations, not decisions):
+  - **The LIT pane has the passage picker at its top**, the same as the
+    following panes', which also shows where the reader is as they scroll.
+    Each chapter's heading links to it in Study View.
+  - **Where the reader is** is the last verse number above a line a
+    quarter of the way down the pane. A passage the reader asks for is put
+    just above that line, and a chapter at the top.
+  - **The following panes keep their picker while they follow, and it
+    leads back**: changing it, This verse's Previous and Next, a footnote's
+    "Verse 16" button, or scrolling the Greek move the leading LIT pane,
+    which moves every pane following it. Pinned, the picker moves only its
+    pane, as in 3d. D9 says Stay here "gives it its own passage picker",
+    which could mean following panes have none; keeping it seemed the
+    smaller change, and the Greek already leads back.
+  - **The footnote popover is headed "John 3:16, footnote a"**, since
+    letters start again every chapter and several chapters share the pane.
+    It has no "See in footnotes" link; the Footnotes pane is that list.
+  - **The Footnotes pane lists the whole chapter's notes**, each with its
+    letter and a "Verse 16" button, and marks the notes on the reader's
+    verse and brings them to the top of the pane (or the next notes after
+    it, when that verse has none).
+  - **A draft stub says the Greek is ready in a Greek pane**, as This
+    verse does for a draft.
+  - **Not in the LIT pane yet**: the verse menu, the selection panel, and
+    the reader's highlights, notes and bookmarks, so its verse numbers are
+    plain text rather than buttons. 3f's "add passages from the verse menu
+    or a selection" needs the first two there. **No Pin on footnotes on
+    /desk yet** either, in This verse or Footnotes. **Placed by BVJ the
+    same day**: the verse menu and selection panel open 3f, and the marks
+    and pinned footnotes are a new part, 3g, before what a sheet knows
+    about the LIT (so 3g to 3k became 3h to 3l).
+  - **Chapters stay loaded for the visit** once scrolled to; going to a
+    passage outside the loaded run starts the pane again there.
+
+### 2026-10-19 (Phase 3d: the existing panes on /desk)
+
+- **How a following pane picks its passage until 3e** (BVJ chose option
+  A): the panes that aren't pinned share one passage, kept in the layout as
+  `place` (in `lit-desk-layout`, so no new key; /privacy's paragraph now
+  says the key holds it). It is changed from any of them: the picker at
+  their top (a typed reference, read as the search box reads one, or the
+  previous or next chapter across the books), This verse's Previous and
+  Next, or scrolling the Greek. "Stay here" keeps the passage the pane
+  shows as its own (`pin.at`), which only it then moves; letting go
+  rejoins the shared one. It starts at the reader's Continue reading
+  place, or Matthew 1. Option B was every pane on its own until 3e. BVJ
+  plans 3e very soon.
+- **Built**: This verse, Greek, and What I've kept as panes, mounted from the
+  Notebook's own modules; "This chapter" at the foot of This verse.
+- **Smaller calls made in building it, for BVJ to judge on the preview**
+  (recommendations, not decisions):
+  - **"The notebook's lists" is one pane, "What I've kept"**: the notebook
+    page's filtered list of everything kept, moved into a module both
+    share. Places, labels, What's new, and the rest stay on `/notebook/`.
+    It is a new kind at the end of the Show menu's list.
+  - **"This chapter" holds the Go deeper rows and a link to the chapter in
+    Study View.** Its links are Study View's, so a link to another page of
+    the site leaves /desk in the same tab (the layout is kept, so coming
+    back restores it). A chapter with no Go deeper shows only the link.
+  - **No Pin buttons on This verse's footnotes on /desk yet.** Pinning
+    reads the page's own footnote list; the footnotes pane (3e) is the
+    natural home.
+  - **Only the reader's own scrolling of the Greek moves the passage.**
+    Opening at a verse, being moved to one, or a verse near the chapter's
+    end that can't reach the top don't, so the panes never chase each
+    other and picking John 3:36 stays John 3:36.
+  - **A draft chapter's This verse says it is still being translated**,
+    and points to the Greek, which works on drafts as in the Notebook.
+  - **A word in This verse's Greek opens in a Greek pane on that chapter**;
+    with none open, it says so rather than opening one.
+  - **A Greek search result in another chapter moves the Greek pane
+    there**, selecting the word, instead of leaving /desk for Study View.
+
+### 2026-10-19 (Phase 3c: /desk's frame)
+
+- **Built on the preview** as 3a settled it: the Layout menu with every
+  arrangement but four rows, each grayed out with its reason ("Needs a
+  wider window") when a pane couldn't have 280 by 160; dragging a pane by
+  its header to an edge of another; lines between panes that move by
+  pointer or arrow keys (double-click shares the room evenly); several
+  panes of a kind; the active LIT pane; Stay here; "My last layout" or "My
+  default", "Make this my default" and "Reset to the original layout",
+  kept in `localStorage['lit-desk-layout']`. My Notes is the one pane
+  that draws.
+- **Smaller calls made in building it, for BVJ to judge on the preview**
+  (recommendations, not decisions):
+  - **Dragging can make a shape the menu doesn't list**, four rows among
+    them, as long as every pane keeps its minimum. The menu leaves four
+    rows out; refusing it on a drop as well seemed stricter than BVJ meant.
+  - **Two by two fills down each column**: the LIT and My Notes on the
+    left, This verse and Greek on the right.
+  - **A new slot gets the first kind not yet open**, in the order the LIT,
+    My Notes, This verse, Greek, Footnotes, and Sheet; each pane's name is a
+    menu for showing another kind, which is also the keyboard's way to
+    put anything anywhere.
+  - **"Leading" shows on the active LIT pane only while two or more are
+    open**, since with one there is nothing to tell apart.
+  - **Stay here has no passage picker yet.** Following has nothing to
+    carry until This verse, Greek, and the LIT pane are real (3d, 3e); the
+    pin is kept in the layout already.
+  - **The page fills the window and hides the footer**, so each pane
+    scrolls on its own, and **the app announcement never opens on it**,
+    since its panes hold the text.
+
 ### 2026-10-18 (Phase 3 split into parts)
 
 - **Phase 3 is split into 3a to 3k** ("Order of work", 3), to be worked one
@@ -5427,6 +6303,46 @@ and this changes.
   pieces whose worth depends most on how readers use the desk, which a small
   group of trusted readers given `?desk=on` could show ("Still open",
   "When to release the desk to readers").
+
+## Full Audit 1 (10/20/2026)
+
+The first full audit of the built preview, and its plan, are in
+**`STUDY-DESK-AUDIT-1.md`**: every finding (BA1 to BA87) with its fix, how
+to work a phase on a Pro account, what held up and what wasn't covered.
+That file keeps each finding's status; this one keeps the decisions
+("Decisions", 2026-10-20, "Full Audit 1"). **BA32 is declined** (BVJ:
+the tour offer may open over scripture). FA1-u and FA1-v are the next
+audit, finding rather than fixing; what they find continues as BA88 onward.
+The phases, in working order:
+
+| Phase | Area | Findings |
+|---|---|---|
+| FA1-a | Security: the stored script and the sanitizer | BA66, BA67, BA59 |
+| FA1-b | Markdown copies | BA1, BA2, BA41, BA9, BA10 |
+| FA1-c | Merging and opening a copy | BA3, BA4, BA11, BA12 |
+| FA1-d | The store, the note editor, and undo | BA5, BA13, BA6, BA7 |
+| FA1-e | /desk keeps the reader's place | BA51, BA52, BA53, BA55 |
+| FA1-f | The record format, for BDR | BA8, BA14 |
+| FA1-u | The follow-up audit: code this audit didn't reach | new, BA88 onward |
+| FA1-g | Sharing a sheet | BA78, BA80, BA81, BA82, BA87 |
+| FA1-h | Marks on the page | BA16, BA17, BA19, BA20, BA23 |
+| FA1-i | Sheet templates and passages | BA69, BA70, BA75, BA76, BA77 |
+| FA1-j | The sheet editor: pasting and saving | BA68, BA71, BA72, BA73, BA74 |
+| FA1-k | Greek search commands | BA44, BA45, BA48, BA49, BA50 |
+| FA1-l | /desk's LIT pane and layout | BA54, BA56, BA57, BA58, BA60, BA61 |
+| FA1-m | The tour, first use, and printing | BA33, BA34, BA35, BA36, BA37 |
+| FA1-n | Present mode and the sheet page | BA79, BA83, BA84, BA85, BA86 |
+| FA1-o | Announcements and focus for marks | BA18, BA21, BA22 |
+| FA1-p | Panels beside the Notebook | BA24, BA27, BA28 |
+| FA1-q | The gate and first paint | BA25, BA26, BA29, BA30 |
+| FA1-r | /desk's smaller fixes | BA31, BA62, BA63, BA64, BA65 |
+| FA1-s | Greek credits and the notebook search | BA40, BA46, BA47 |
+| FA1-t | Copy and docs | BA15, BA38, BA39, BA42, BA43 |
+| FA1-v | The follow-up audit: real devices | new |
+
+FA1-f should land before the record format is frozen for the apps, and
+FA1-s before Greek search launches. FA1-v needs BVJ's own computers (or a
+session working on one), since a cloud session has only Chromium.
 
 ## Fixes and experience
 

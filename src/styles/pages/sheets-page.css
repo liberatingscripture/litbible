@@ -1,0 +1,1260 @@
+/* =========================================================
+   A sheet's own page (/sheets/; STUDY-DESK.md, phase 3i)
+   =========================================================
+   The page's frame, its toolbar, and the copy (src/scripts/desk/sheet-copy.js)
+   on screen and on paper. Only this page loads this file. The reader's own
+   formatted words use `.desk-rich` from desk.css, which the page adds itself.
+
+   On screen the copy is drawn on a sheet of the chosen paper's width
+   (--sheet-paper-width, set by sheet-page.js), black on white in either theme,
+   since it is a picture of the page that will print. On paper, print.css
+   already takes away the site's header and footer; the rules at the end take
+   away the toolbar and keep the copy's parts together. */
+
+.sheets-page {
+  padding: clamp(1.5rem, 3vw, 2.5rem) clamp(1rem, 4vw, 2rem) 5rem;
+  max-width: calc(90 * var(--ch));
+  margin: 0 auto;
+}
+
+.sheets-page__title {
+  margin: 0 0 1rem;
+}
+
+.sheets-page__off,
+.sheets-page__intro,
+.sheets-page__empty {
+  max-width: calc(60 * var(--ch));
+  line-height: 1.6;
+}
+
+.sheets-page__list {
+  list-style: none;
+  margin: 1.5rem 0 0;
+  padding: 0;
+  max-width: calc(60 * var(--ch));
+}
+
+.sheets-page__list li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.75rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid rgba(var(--ink-rgb), 0.15);
+}
+
+.sheets-page__sheet {
+  font-weight: 600;
+  color: var(--green-text);
+}
+
+.sheets-page__meta {
+  font-size: 0.9rem;
+  opacity: 0.75;
+}
+
+/* ── The toolbar ───────────────────────────────────────────────────────── */
+
+.sheets-page__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.5rem;
+  margin: 0 0 1.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  background: var(--surface-raised);
+  font-size: 0.95rem;
+}
+
+.sheets-page__links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.sheets-page__back {
+  color: var(--green-text);
+}
+
+.sheets-page__choice {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.9rem;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.sheets-page__choice legend {
+  float: left;
+  margin-right: 0.6rem;
+  font-weight: 600;
+}
+
+.sheets-page__choice label,
+.sheets-page__codes {
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.sheets-page__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
+.sheets-page__status {
+  font-size: 0.9rem;
+}
+
+/* ── The copy on screen: a sheet of paper ──────────────────────────────── */
+
+.sheets-page__paper {
+  overflow-x: auto;
+}
+
+.sheets-page__paper[aria-busy="true"] {
+  opacity: 0.6;
+}
+
+.sheet-copy {
+  box-sizing: border-box;
+  width: min(100%, var(--sheet-paper-width, 8.5in));
+  margin: 0 auto;
+  padding: var(--sheet-paper-margin, 0.75in);
+  background: #fff;
+  color: #1d231c;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
+  font-family: "Crimson Text", "Crimson Fallback", Georgia, "Times New Roman", serif;
+  font-size: 12pt;
+  line-height: 1.45;
+  color-scheme: light;
+  /* The copy is a picture of paper, so it keeps the light theme's colors on
+     screen in either theme: the site's own tokens, and the reader's named
+     colors. */
+  --text: #1d231c;
+  --text-strong: #000;
+  --ink-rgb: 29, 35, 28;
+  --green-text: #0f6b33;
+  --surface: #fff;
+  --surface-raised: #fff;
+  --desk-rich-red: #b3261e;
+  --desk-rich-blue: #1d4fb8;
+  --desk-rich-green: #0f6b33;
+  --desk-rich-purple: #6b3fa0;
+  --desk-rich-gray: #595e57;
+  --desk-rich-mark-yellow: rgba(255, 210, 0, 0.36);
+  --desk-rich-mark-green: rgba(160, 210, 40, 0.36);
+  --desk-rich-mark-blue: rgba(70, 150, 255, 0.26);
+  --desk-rich-mark-pink: rgba(255, 95, 165, 0.24);
+}
+
+.sheet-copy a,
+.sheet-copy .desk-rich a {
+  color: #0f6b33;
+}
+
+.sheet-copy__head {
+  margin-bottom: 18pt;
+  padding-bottom: 8pt;
+  border-bottom: 0.75pt solid #1d231c;
+}
+
+.sheet-copy__title {
+  margin: 0;
+  font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
+  font-size: 22pt;
+  line-height: 1.15;
+}
+
+.sheet-copy__subtitle {
+  margin: 4pt 0 0;
+  font-style: italic;
+}
+
+.sheet-copy > section,
+.sheet-copy > .sheet-copy__missing {
+  margin: 0 0 14pt;
+}
+
+.sheet-copy__tag {
+  display: inline-block;
+  margin: 0 0 4pt;
+  padding: 0 5pt;
+  border: 0.75pt solid #595e57;
+  border-radius: 3pt;
+  font-family: "Inter", "Inter Fallback", system-ui, sans-serif;
+  font-size: 8pt;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: #595e57;
+}
+
+.sheet-copy__passage-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8pt;
+}
+
+.sheet-copy__ref {
+  margin: 0 0 4pt;
+  font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
+  font-size: 14pt;
+}
+
+.sheet-copy__passage-head .sheet-copy__tag {
+  margin: 0;
+}
+
+.sheet-copy__words p {
+  margin: 0 0 6pt;
+}
+
+.sheet-copy__words blockquote.hbq {
+  margin: 0 0 6pt 1.5em;
+}
+
+.sheet-copy__words .hbq-line {
+  margin: 0;
+  padding-left: 1.5em;
+  text-indent: -1.5em;
+}
+
+.sheet-copy__words sup,
+.sheet-copy__notes sup {
+  line-height: 0;
+}
+
+.sheet-copy__words sup.vn {
+  font-family: "Inter", "Inter Fallback", system-ui, sans-serif;
+  font-size: 0.6em;
+  font-weight: 600;
+  color: #595e57;
+}
+
+.sheet-copy__words sup.vn a,
+.sheet-copy__words sup.vn button {
+  all: unset;
+}
+
+.sheet-copy__fnref {
+  font-size: 0.65em;
+  font-style: italic;
+  font-variant-ligatures: none;
+}
+
+/* The key-term underline belongs to the screen's lens, not to paper. */
+.sheet-copy .term {
+  text-decoration: none;
+}
+
+.sheet-copy__notes {
+  list-style: none;
+  margin: 6pt 0 0;
+  padding: 4pt 0 0;
+  border-top: 0.5pt solid #b5b8b3;
+  font-size: 9.5pt;
+  line-height: 1.35;
+}
+
+.sheet-copy__note {
+  display: flex;
+  gap: 5pt;
+  margin: 0 0 3pt;
+}
+
+.sheet-copy__note-label {
+  flex: none;
+  font-style: italic;
+  font-variant-ligatures: none;
+}
+
+.sheet-copy__note-text p {
+  display: inline;
+  margin: 0;
+}
+
+/* A code to scan (S5), beside the first passage from its chapter. */
+.sheet-copy__code {
+  float: right;
+  width: 2.3cm;
+  margin: 0 0 6pt 12pt;
+  text-align: center;
+  font-family: "Inter", "Inter Fallback", system-ui, sans-serif;
+  font-size: 7pt;
+  line-height: 1.2;
+}
+
+.sheet-copy__code-art svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.sheet-copy__code figcaption {
+  margin-top: 2pt;
+}
+
+.sheet-copy__passage::after {
+  content: "";
+  display: block;
+  clear: both;
+}
+
+/* A blank (S10): the line, with its hint beneath. On the leader's copy the
+   answer stands on the line. The width doesn't follow the answer's length,
+   which would give it away. */
+.sheet-blank {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  vertical-align: top;
+  margin: 0 0.15em;
+  line-height: 1.2;
+}
+
+.sheet-blank__line {
+  display: inline-block;
+  min-width: 6em;
+  border-bottom: 0.75pt solid #1d231c;
+  text-align: center;
+}
+
+/* A line holding a blank opens up, so the hint beneath has room. */
+.sheet-copy__words :is(p, .hbq-line):has(.sheet-blank__hint) {
+  line-height: 2;
+}
+
+.sheet-blank--participant .sheet-blank__line {
+  height: 1.1em;
+}
+
+.sheet-blank--leader .sheet-blank__line {
+  font-weight: 700;
+}
+
+.sheet-blank__hint {
+  font-family: "Inter", "Inter Fallback", system-ui, sans-serif;
+  font-size: 7.5pt;
+  font-style: italic;
+  color: #595e57;
+}
+
+.sheet-copy__rich {
+  font-size: inherit;
+}
+
+.sheet-copy__answer {
+  margin: 6pt 0 0 12pt;
+  padding: 4pt 8pt;
+  border-left: 2pt solid #0f6b33;
+}
+
+.sheet-copy__answer-label {
+  margin: 0 0 2pt;
+  font-family: "Inter", "Inter Fallback", system-ui, sans-serif;
+  font-size: 8pt;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.sheet-copy__lines {
+  margin-top: 4pt;
+}
+
+.sheet-copy__line {
+  height: 24pt;
+  border-bottom: 0.5pt solid #8a8e88;
+}
+
+.sheet-copy__terms {
+  padding: 8pt 10pt;
+  border: 0.75pt solid #1d231c;
+}
+
+.sheet-copy__terms-title {
+  margin: 0 0 4pt;
+  font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
+  font-size: 13pt;
+}
+
+.sheet-copy__term-list {
+  margin: 0;
+  padding-left: 1.1em;
+}
+
+.sheet-copy__term-list li {
+  margin: 0 0 3pt;
+}
+
+.sheet-copy__term-list .sheet-blank {
+  vertical-align: baseline;
+}
+
+.sheet-copy__terms-note {
+  margin: 6pt 0 0;
+  font-size: 9pt;
+  font-style: italic;
+}
+
+.sheet-copy__break {
+  margin: 18pt 0;
+  border-top: 1px dashed #8a8e88;
+}
+
+.sheet-copy__break::before {
+  content: "Page break";
+  display: block;
+  margin-top: -0.7em;
+  width: max-content;
+  margin-inline: auto;
+  padding: 0 6px;
+  background: #fff;
+  font-family: "Inter", "Inter Fallback", system-ui, sans-serif;
+  font-size: 0.75rem;
+  color: #595e57;
+}
+
+.sheet-copy__missing {
+  font-style: italic;
+  color: #595e57;
+}
+
+.sheet-copy__foot {
+  margin-top: 20pt;
+  padding-top: 6pt;
+  border-top: 0.5pt solid #1d231c;
+  font-size: 8.5pt;
+  line-height: 1.35;
+}
+
+.sheet-copy__foot p {
+  margin: 0 0 2pt;
+}
+
+/* ── Checked before printing (S2) ─────────────────────────────────────
+   The passages whose wording changed since they were added, above the paper
+   (sheet-page.js's drawCheck). Screen only: the copy prints today's wording
+   either way. The diffs are the change notice's (.desk-notice__diff). */
+
+.sheets-page__check {
+  max-width: calc(60 * var(--ch));
+  margin: 0 0 1rem;
+  padding: 0.75rem 1rem;
+  border-left: 3px solid var(--green-text);
+  border-radius: 0 8px 8px 0;
+  background: rgba(var(--ink-rgb), 0.05);
+  line-height: 1.5;
+}
+
+.sheets-page__check-head {
+  margin: 0 0 0.5rem;
+  font-family: inherit;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: normal;
+  line-height: 1.4;
+}
+
+.sheets-page__check-list {
+  margin: 0 0 0.5rem;
+  padding: 0;
+  list-style: none;
+}
+
+.sheets-page__check-list li + li {
+  margin-top: 0.5rem;
+}
+
+.sheets-page__check-ref {
+  margin: 0 0 0.25rem;
+  font-weight: 600;
+}
+
+.sheets-page__check-advice {
+  margin: 0;
+}
+
+/* ── Sharing (3k; STUDY-DESK.md, S8) ───────────────────────────────────
+   "Shared with you" above a shared sheet, the Share dialog, "Open a shared
+   file" under the list, and the phone's "Copy the link" (sheet-share-gate.js,
+   which runs without desk.css, so its button is styled here). */
+
+.sheets-page__shared {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  max-width: calc(60 * var(--ch));
+  margin: 0 0 1rem;
+  padding: 0.75rem 1rem;
+  border-left: 3px solid var(--green-text);
+  background: rgba(var(--ink-rgb), 0.05);
+  border-radius: 0 8px 8px 0;
+  line-height: 1.5;
+}
+
+.sheets-page__shared p {
+  margin: 0;
+  flex: 1 1 20rem;
+}
+
+.sheets-page__open-file {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+}
+
+.sheets-page__dialog {
+  width: min(32rem, calc(100vw - 2rem));
+  padding: 1.25rem 1.5rem;
+  border: 1px solid rgba(var(--ink-rgb), 0.2);
+  border-radius: 12px;
+  background: var(--surface-raised);
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.sheets-page__dialog::backdrop {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.sheets-page__dialog h2 {
+  margin: 0 0 0.75rem;
+  font-size: 1.25rem;
+}
+
+.sheets-page__dialog .sheets-page__choice {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0 0 0.75rem;
+}
+
+.sheets-page__dialog .sheets-page__choice legend {
+  float: none;
+  margin: 0 0 0.25rem;
+}
+
+.sheets-page__dialog .sheets-page__choice label {
+  white-space: normal;
+}
+
+.sheets-page__dialog-note {
+  margin: 0 0 0.75rem;
+  font-size: 0.875rem;
+  opacity: 0.85;
+}
+
+.sheets-page__dialog-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.sheets-page__dialog .sheets-page__status {
+  min-height: 1.5em;
+  margin: 0.5rem 0 0;
+}
+
+.sheets-page__share-code {
+  margin: 0.5rem 0 0;
+}
+
+.sheets-page__share-code img {
+  display: block;
+  background: #fff;
+  border-radius: 4px;
+}
+
+.sheets-page__share-code figcaption {
+  margin-top: 0.35rem;
+  font-size: 0.875rem;
+}
+
+.sheets-page__copy-link {
+  padding: 0.5rem 1rem;
+  border: 0;
+  border-radius: 8px;
+  background: var(--green-deep);
+  color: #fff;
+  font: inherit;
+  cursor: pointer;
+}
+
+.sheets-page__copy-link:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+/* ── On paper ──────────────────────────────────────────────────────────── */
+
+@media print {
+  .sheets-page {
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .sheets-page__bar,
+  .sheets-page__check,
+  .sheets-page__shared,
+  .sheets-page__title,
+  .sheets-page__intro {
+    display: none !important;
+  }
+
+  .sheets-page__paper {
+    overflow: visible;
+  }
+
+  /* The page's own margins come from the paper's @page rule. */
+  .sheet-copy {
+    width: auto;
+    padding: 0;
+    box-shadow: none;
+  }
+
+  /* print.css sets every font to the serif and every color to black; a
+     sheet's named styles are the leader's choice, so they print (more
+     specific, so these win), with backgrounds kept. */
+  .sheet-copy .desk-rich span[data-font="sans"] {
+    font-family: "Inter", "Inter Fallback", system-ui, sans-serif !important;
+  }
+
+  .sheet-copy .desk-rich span[data-font="display"],
+  .sheet-copy .sheet-copy__title,
+  .sheet-copy .sheet-copy__ref,
+  .sheet-copy .sheet-copy__terms-title {
+    font-family: "Fraunces", "Fraunces Fallback", Georgia, serif !important;
+  }
+
+  .sheet-copy .desk-rich span[data-font="handwriting"] {
+    font-family: "Playpen Sans", Inter, system-ui, sans-serif !important;
+  }
+
+  .sheet-copy .desk-rich span[data-font="atkinson"] {
+    font-family: "Atkinson Hyperlegible Next Variable", Inter, system-ui, sans-serif !important;
+  }
+
+  .sheet-copy .sheet-blank__hint,
+  .sheet-copy .sheet-copy__tag,
+  .sheet-copy .sheet-copy__code,
+  .sheet-copy .sheet-copy__answer-label,
+  .sheet-copy .sheet-copy__words sup.vn {
+    font-family: "Inter", "Inter Fallback", system-ui, sans-serif !important;
+  }
+
+  .sheet-copy .desk-rich span[data-color="red"] { color: #b3261e !important; }
+  .sheet-copy .desk-rich span[data-color="blue"] { color: #1d4fb8 !important; }
+  .sheet-copy .desk-rich span[data-color="green"] { color: #0f6b33 !important; }
+  .sheet-copy .desk-rich span[data-color="purple"] { color: #6b3fa0 !important; }
+  .sheet-copy .desk-rich span[data-color="gray"],
+  .sheet-copy .sheet-blank__hint,
+  .sheet-copy .sheet-copy__words sup.vn {
+    color: #595e57 !important;
+  }
+
+  .sheet-copy .desk-rich span[data-mark] {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+  .sheet-copy .desk-rich span[data-mark="yellow"] { background-color: #ffeea3 !important; }
+  .sheet-copy .desk-rich span[data-mark="green"] { background-color: #ddefb2 !important; }
+  .sheet-copy .desk-rich span[data-mark="blue"] { background-color: #cfe4ff !important; }
+  .sheet-copy .desk-rich span[data-mark="pink"] { background-color: #ffd9e9 !important; }
+
+  .sheet-copy__break {
+    break-after: page;
+    margin: 0;
+    border: 0;
+  }
+
+  .sheet-copy__break::before {
+    display: none;
+  }
+
+  .sheet-copy__passage-head,
+  .sheet-copy__ref,
+  .sheet-copy__terms-title {
+    break-after: avoid;
+  }
+
+  /* A passage's footnotes may run onto the next page, but never start one:
+     the first stays with the verses it explains. */
+  .sheet-copy__notes {
+    break-before: avoid;
+  }
+
+  .sheet-copy__question,
+  .sheet-copy__terms,
+  .sheet-copy__code,
+  .sheet-copy__note,
+  .sheet-copy__foot {
+    break-inside: avoid;
+  }
+}
+
+/* ── Present mode (3j; STUDY-DESK.md, S6, M2, M3) ─────────────────────────
+   The presentation (src/scripts/desk/sheet-present.js) covers the page and is
+   dark in either theme, since a projector's light floods a room: a near-black
+   ground, cream words. Its colors are pinned here, never the theme's, and so
+   is its focus ring (LIT Green, above the 4.58:1 it has on ink). The
+   presenter view's previews draw the same screens at projector proportions,
+   so they share these rules. Type is sized per screen by the script
+   (--present-size, the largest that fits), and every part of a screen is
+   measured in em from it. */
+
+html[data-presenting],
+html[data-presenting] body {
+  overflow: hidden;
+}
+
+.present-stage,
+.present-preview__surface {
+  color-scheme: dark;
+  --present-ground: #111511;
+  --present-words: #f2eee4;
+  --present-quiet: #a7ada3;
+  --present-accent: #5fcf86;
+  --text: var(--present-words);
+  --text-strong: #fff;
+  --ink-rgb: 242, 238, 228;
+  --green-text: var(--present-accent);
+  --focus-ring: var(--green);
+  --desk-rich-red: #ff8a80;
+  --desk-rich-blue: #8ab4ff;
+  --desk-rich-green: #7ed69c;
+  --desk-rich-purple: #c9a4f2;
+  --desk-rich-gray: #b3b8af;
+  --desk-rich-mark-yellow: rgba(255, 210, 0, 0.32);
+  --desk-rich-mark-green: rgba(160, 210, 40, 0.3);
+  --desk-rich-mark-blue: rgba(70, 150, 255, 0.32);
+  --desk-rich-mark-pink: rgba(255, 95, 165, 0.3);
+  background: var(--present-ground);
+  color: var(--present-words);
+}
+
+.present-stage {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  outline: none;
+}
+
+.present-stage:not(.is-awake) {
+  cursor: none;
+}
+
+.present-stage__frame {
+  position: absolute;
+  inset: 0;
+}
+
+.present-preview__surface {
+  position: relative;
+  transform: scale(var(--present-scale, 0.5));
+  transform-origin: 0 0;
+}
+
+.present-screen {
+  box-sizing: border-box;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  padding: 6vh 7vw;
+  font-family: "Inter", "Inter Fallback", system-ui, sans-serif;
+  font-size: var(--present-size, 48px);
+  line-height: 1.38;
+  scrollbar-width: thin;
+}
+
+.present-preview__surface .present-screen {
+  padding: 54px 112px;
+}
+
+.present-screen__body {
+  width: 100%;
+  max-width: 32em;
+  margin: auto;
+}
+
+.present-screen a {
+  color: var(--present-accent);
+}
+
+.present-screen__title {
+  margin: 0;
+  font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
+  font-size: 1.5em;
+  line-height: 1.1;
+  color: var(--present-words);
+}
+
+.present-screen__subtitle {
+  margin: 0.3em 0 0;
+  font-size: 0.75em;
+  font-style: italic;
+  color: var(--present-quiet);
+}
+
+.present-screen__codes {
+  margin-top: 1.2em;
+}
+
+.present-screen__follow {
+  margin: 0 0 0.4em;
+  font-size: 0.6em;
+  color: var(--present-quiet);
+}
+
+.present-screen__code-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8em;
+}
+
+/* Big enough to scan from the back of a room. */
+.present-screen .sheet-copy__code {
+  float: none;
+  width: 5.2em;
+  margin: 0;
+  font-size: 1em;
+  text-align: center;
+  color: var(--present-words);
+}
+
+.present-screen .sheet-copy__code-art svg {
+  border-radius: 0.12em;
+}
+
+.present-screen .sheet-copy__code figcaption {
+  margin-top: 0.3em;
+  font-size: 0.5em;
+}
+
+.present-screen__addresses {
+  margin: 0.8em 0 0;
+  font-size: 0.5em;
+  color: var(--present-quiet);
+}
+
+.present-screen__ref {
+  margin: 0 0 0.45em;
+  font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
+  font-size: 0.7em;
+  font-weight: 600;
+  color: var(--present-accent);
+}
+
+.present-screen__words p {
+  margin: 0 0 0.5em;
+}
+
+.present-screen__words blockquote.hbq {
+  margin: 0 0 0.5em 1.2em;
+}
+
+.present-screen__words .hbq-line {
+  margin: 0;
+  padding-left: 1.2em;
+  text-indent: -1.2em;
+}
+
+.present-screen__words sup {
+  line-height: 0;
+}
+
+.present-screen__words sup.vn {
+  font-size: 0.5em;
+  font-weight: 600;
+  color: var(--present-quiet);
+}
+
+.present-screen__words sup.vn :is(a, button) {
+  all: unset;
+}
+
+.present-screen__words .sheet-copy__fnref,
+.present-screen__note .sheet-copy__note-label {
+  font-style: italic;
+  font-variant-ligatures: none;
+  color: var(--present-accent);
+}
+
+.present-screen__words .sheet-copy__fnref {
+  font-size: 0.5em;
+}
+
+/* Footnotes come up over the lower part of the screen, at a size of their
+   own, so a long note neither shrinks the verses nor goes unreadable; the
+   verses keep their place and come back when the notes go down. */
+.present-screen {
+  position: relative;
+}
+
+.present-screen__notes {
+  position: absolute;
+  left: 4%;
+  right: 4%;
+  bottom: 4%;
+  box-sizing: border-box;
+  max-height: 56%;
+  margin: 0;
+  padding: 0.8em 1.1em;
+  overflow: auto;
+  border: 1px solid rgba(242, 238, 228, 0.28);
+  border-radius: 0.5em;
+  background: #1b211b;
+  box-shadow: 0 -0.6em 2em rgba(0, 0, 0, 0.55);
+  list-style: none;
+  font-size: var(--present-notes-size, 0.55em);
+  line-height: 1.4;
+}
+
+.present-screen__note {
+  display: flex;
+  gap: 0.5em;
+  margin: 0 0 0.35em;
+}
+
+.present-screen__note .sheet-copy__note-label {
+  flex: none;
+  min-width: 1em;
+  font-weight: 600;
+}
+
+.present-screen__rich :is(h2, h3) {
+  font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
+  line-height: 1.15;
+}
+
+.present-screen__question {
+  font-size: 1.1em;
+  font-weight: 500;
+}
+
+.present-screen__terms .sheet-copy__terms-title {
+  margin: 0 0 0.5em;
+  font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
+  font-size: 0.9em;
+  color: var(--present-accent);
+}
+
+.present-screen__terms .sheet-copy__term-list {
+  margin: 0;
+  padding-left: 1em;
+  font-size: 0.8em;
+}
+
+.present-screen__terms .sheet-copy__term-list li {
+  margin: 0 0 0.3em;
+}
+
+.present-screen__terms .sheet-blank__line {
+  min-width: 4em;
+  border-bottom: 0.07em solid var(--present-words);
+}
+
+.present-screen__terms .sheet-copy__terms-note,
+.present-screen__missing {
+  font-size: 0.55em;
+  color: var(--present-quiet);
+}
+
+/* A blank on the screen (S6): the words and their cover share one cell, so
+   the reveal moves nothing beside them; whichever isn't showing keeps its
+   room. A cover is the traditional word, dashed beneath, or a line with the
+   leader's hint below it. */
+.sheet-blank--present {
+  display: inline-grid;
+  margin: 0 0.1em;
+  line-height: inherit;
+  vertical-align: baseline;
+}
+
+.sheet-blank--present > * {
+  grid-area: 1 / 1;
+  justify-self: center;
+  transition: opacity 0.25s ease, visibility 0.25s;
+}
+
+.sheet-blank--present[data-revealed="false"] > .sheet-blank__answer,
+.sheet-blank--present[data-revealed="true"] > .sheet-blank__cover {
+  visibility: hidden;
+  opacity: 0;
+}
+
+.sheet-blank--present[data-revealed="true"] > .sheet-blank__answer {
+  color: #fff;
+  background: rgba(95, 207, 134, 0.22);
+  border-radius: 0.12em;
+  box-shadow: 0 0 0 0.08em rgba(95, 207, 134, 0.22);
+}
+
+.sheet-blank--present .sheet-blank__cover {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.sheet-blank--present .sheet-blank__word {
+  font-style: italic;
+  color: var(--present-quiet);
+  border-bottom: 0.06em dashed var(--present-accent);
+}
+
+.sheet-blank--present .sheet-blank__line {
+  min-width: 4em;
+  height: 1.1em;
+  border-bottom: 0.07em solid var(--present-words);
+}
+
+.sheet-blank--present .sheet-blank__hint {
+  margin-top: 0.15em;
+  font-size: 0.45em;
+  font-style: italic;
+  line-height: 1;
+  color: var(--present-quiet);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sheet-blank--present > * {
+    transition: none;
+  }
+}
+
+/* The strip of controls: out of sight until the pointer moves or a control
+   has focus, so a still screen shows only the text. */
+.present-stage__strip {
+  position: absolute;
+  left: 50%;
+  bottom: 1.2rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  max-width: calc(100% - 2rem);
+  padding: 0.45rem 0.6rem;
+  transform: translateX(-50%);
+  border-radius: 0.6rem;
+  background: rgba(0, 0, 0, 0.78);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  font-family: "Inter", "Inter Fallback", system-ui, sans-serif;
+  font-size: 0.9rem;
+}
+
+.present-stage.is-awake .present-stage__strip,
+.present-stage__strip:focus-within,
+.present-stage__strip:hover {
+  opacity: 1;
+}
+
+.present-stage__where {
+  padding: 0 0.4rem;
+  color: var(--present-quiet);
+  font-variant-numeric: tabular-nums;
+}
+
+.present-btn {
+  padding: 0.4rem 0.75rem;
+  border: 1px solid rgba(242, 238, 228, 0.35);
+  border-radius: 0.4rem;
+  background: rgba(242, 238, 228, 0.08);
+  color: var(--present-words);
+  font: inherit;
+  cursor: pointer;
+}
+
+.present-btn:hover {
+  background: rgba(242, 238, 228, 0.18);
+}
+
+.present-btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.present-btn[aria-pressed="true"] {
+  border-color: var(--present-accent);
+  background: rgba(95, 207, 134, 0.22);
+}
+
+.present-btn:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+/* ── The presenter view (M2) ─────────────────────────────────────────────
+   An ordinary page in the reader's own theme, on the leader's screen, with
+   the room's screens previewed dark. */
+
+html[data-presenter] .sheets-page {
+  max-width: none;
+  padding-bottom: 2rem;
+}
+
+.present-presenter__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem 1.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.present-presenter__title {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.present-presenter__where {
+  flex: 1;
+  margin: 0;
+}
+
+.present-presenter__clock {
+  margin: 0;
+  font-size: 1.6rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.present-presenter__status:empty {
+  display: none;
+}
+
+.present-presenter__status {
+  margin: 0 0 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border-left: 3px solid var(--green-text);
+  background: rgba(var(--ink-rgb), 0.05);
+}
+
+.present-presenter__main {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: 1.5rem;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .present-presenter__main {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.present-preview {
+  margin: 0;
+}
+
+.present-preview__caption {
+  margin: 0 0 0.35rem;
+  font-weight: 600;
+}
+
+.present-preview__viewport {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: 0.5rem;
+  background: #111511;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+}
+
+.present-preview__none {
+  margin: 0;
+  padding: 112px;
+  font-size: 64px;
+  color: #a7ada3;
+}
+
+.present-presenter__controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.present-presenter .present-btn,
+.present-btn--quiet {
+  border-color: rgba(var(--ink-rgb), 0.3);
+  background: var(--surface-raised);
+  color: var(--text);
+}
+
+.present-presenter .present-btn:hover {
+  background: rgba(var(--ink-rgb), 0.08);
+}
+
+.present-presenter .present-btn[aria-pressed="true"] {
+  border-color: var(--green-text);
+  background: rgba(var(--ink-rgb), 0.08);
+}
+
+.present-notes {
+  margin-bottom: 1.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  background: var(--surface-raised);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.present-notes__title {
+  margin: 0 0 0.5rem;
+  font-size: 1.1rem;
+}
+
+.present-notes__head {
+  margin: 0.75rem 0 0.25rem;
+  font-size: 1rem;
+}
+
+.present-notes__blanks {
+  margin: 0;
+  padding-left: 1.4rem;
+}
+
+.present-notes__blanks li.is-revealed {
+  color: rgba(var(--ink-rgb), 0.6);
+}
+
+.present-notes__line,
+.present-notes__none {
+  margin: 0.5rem 0 0;
+  color: rgba(var(--ink-rgb), 0.75);
+}
+
+.present-notes__part {
+  margin-top: 0.75rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(var(--ink-rgb), 0.15);
+}
+
+.present-notes__part .sheet-copy__tag {
+  display: inline-block;
+  padding: 0 0.35rem;
+  border: 1px solid rgba(var(--ink-rgb), 0.4);
+  border-radius: 3px;
+  font-size: 0.7rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.present-presenter__keys {
+  margin: 1.25rem 0 0;
+  font-size: 0.9rem;
+  color: rgba(var(--ink-rgb), 0.75);
+}
+
+@media print {
+  .present-stage {
+    display: none !important;
+  }
+}

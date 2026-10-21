@@ -29,18 +29,21 @@
 //
 // The footnotes are copied from the page's own footnote list, so they read
 // exactly as they do there, links included, and each carries the Pin button
-// it has there (pins.js). Nothing here adds to or changes
-// the scripture on the page.
+// it has there (pins.js), an Add a note button beside it (M11), and under it
+// the reader's notes on that footnote, in full (footnote-notes.js); those are
+// left out of "My notes" below, which is about the verse's own words. Nothing
+// here adds to or changes the scripture on the page.
 
 import { notesCiting } from "../../lib/desk-chains.mjs";
 import { shortQuote } from "../../lib/desk-notes.mjs";
-import { COLORS, verseCopyFor } from "../../lib/desk-records.mjs";
+import { COLORS, onFootnote, verseCopyFor } from "../../lib/desk-records.mjs";
 import { forChapter, recordHref, recordReference } from "../../lib/desk-store-core.mjs";
 import { adjacentVerse, recordsOnVerse } from "../../lib/desk-verse.mjs";
 import { W, flattenWords } from "../../lib/desk-greek.mjs";
 import { verseAtReadingLine } from "../last-read.js";
 import { flagButton, noticesFor, openNotice } from "./change-notice.js";
 import { glyph } from "./glyphs.js";
+import { addNoteButton, footnoteNotes } from "./footnote-notes.js";
 import { fillNoteWords } from "./note-words.js";
 import { loadChapterGreek } from "./greek-data.js";
 import { undoEntry } from "./history.js";
@@ -66,14 +69,28 @@ const ICON_NEXT = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" s
  *   goHere?: { can(record: object): boolean, go(record: object): void } | null,
  *   ctx?: (() => object) | null,
  *   showInText?: { can(record: object): boolean, go(record: object): void } | null,
- *   greek?: { open(verse: number, t: number): void } | null }} options
+ *   greek?: { open(verse: number, t: number): void } | null,
+ *   source?: { textBox: Element | null, footnoteBody: (id: string) => Element | null,
+ *     anchorText: () => object } | null,
+ *   startVerse?: number | null, idSuffix?: string, onVerse?: ((verse: number) => void) | null }} options
  *   `ctx` and `showInText` are what the change notice's card needs; `greek`
- *   opens the Greek tab at a word.
+ *   opens the Greek tab at a word. On /desk the chapter isn't the page's:
+ *   `source` reads it from the chapter's fetched Study View page
+ *   (chapter-page.js), `startVerse` is where it opens, and `idSuffix` keeps
+ *   two panes' ids apart. `onVerse` hears the verse Previous or Next steps to,
+ *   so the panes that share a passage move together.
  * @returns {{ el: HTMLElement, render: () => Promise<void>, setVerse: (verse: number) => void,
  *   focusHeading: () => void }}
  */
-export function createVerseTab({ store, here, visible, panelOpen, onEdit = null, onAddNote = null, goHere = null, ctx = null, showInText = null, greek = null }) {
-  const textBox = document.querySelector(".chapter-paragraphs");
+export function createVerseTab({
+  store, here, visible, panelOpen, onEdit = null, onAddNote = null, goHere = null, ctx = null, showInText = null,
+  greek = null, source = null, startVerse = null, idSuffix = "", onVerse = null,
+}) {
+  const textBox = source ? source.textBox : document.querySelector(".chapter-paragraphs");
+  const footnoteBody = source
+    ? source.footnoteBody
+    : (id) => document.getElementById(id)?.querySelector(".fn-body") ?? null;
+  const readText = source ? source.anchorText : chapterText;
   const markers = Array.from(textBox?.querySelectorAll('sup.vn[id^="v"]') ?? []);
   const verses = markers.map((m) => Number(m.id.slice(1))).filter(Number.isFinite);
   const ref = (v) => `${here.label}:${v}`;
@@ -83,26 +100,26 @@ export function createVerseTab({ store, here, visible, panelOpen, onEdit = null,
   el.innerHTML = `
     <div class="desk-verse__head">
       <button type="button" class="desk-verse__step" data-step="-1">${ICON_PREV}</button>
-      <h3 class="desk-verse__ref" id="deskVerseRef" tabindex="-1"></h3>
+      <h3 class="desk-verse__ref" id="deskVerseRef${idSuffix}" tabindex="-1"></h3>
       <button type="button" class="desk-verse__step" data-step="1">${ICON_NEXT}</button>
     </div>
     <p class="desk-verse__text"></p>
-    <section class="desk-verse__section desk-verse__greek" aria-labelledby="deskVerseGreekTitle" hidden>
-      <h4 class="desk-verse__subhead" id="deskVerseGreekTitle">Greek</h4>
+    <section class="desk-verse__section desk-verse__greek" aria-labelledby="deskVerseGreekTitle${idSuffix}" hidden>
+      <h4 class="desk-verse__subhead" id="deskVerseGreekTitle${idSuffix}">Greek</h4>
       <p class="desk-verse__greek-text" lang="grc"></p>
     </section>
-    <section class="desk-verse__section desk-verse__fns" aria-labelledby="deskVerseFnsTitle" hidden>
-      <h4 class="desk-verse__subhead" id="deskVerseFnsTitle">Footnotes</h4>
+    <section class="desk-verse__section desk-verse__fns" aria-labelledby="deskVerseFnsTitle${idSuffix}" hidden>
+      <h4 class="desk-verse__subhead" id="deskVerseFnsTitle${idSuffix}">Footnotes</h4>
       <ol class="desk-verse__fn-list"></ol>
     </section>
-    <section class="desk-verse__section" aria-labelledby="deskVerseMineTitle">
-      <h4 class="desk-verse__subhead" id="deskVerseMineTitle">My notes</h4>
+    <section class="desk-verse__section" aria-labelledby="deskVerseMineTitle${idSuffix}">
+      <h4 class="desk-verse__subhead" id="deskVerseMineTitle${idSuffix}">My notes</h4>
       <ul class="desk-verse__mine"></ul>
       <p class="desk-verse__empty" hidden>No notes of yours on this verse.</p>
       <button type="button" class="desk-verse__add">Add a note</button>
     </section>
-    <section class="desk-verse__section desk-verse__chains" aria-labelledby="deskVerseChainsTitle" hidden>
-      <h4 class="desk-verse__subhead" id="deskVerseChainsTitle">Notes that cite this verse</h4>
+    <section class="desk-verse__section desk-verse__chains" aria-labelledby="deskVerseChainsTitle${idSuffix}" hidden>
+      <h4 class="desk-verse__subhead" id="deskVerseChainsTitle${idSuffix}">Notes that cite this verse</h4>
       <ul class="desk-verse__mentions"></ul>
     </section>`;
 
@@ -125,6 +142,8 @@ export function createVerseTab({ store, here, visible, panelOpen, onEdit = null,
 
   /** Where the tab opens before the reader picks: the address's verse, or the one being read. */
   function startingVerse() {
+    if (startVerse != null && verses.includes(startVerse)) return startVerse;
+    if (source) return verses[0] ?? null;
     const m = /^#v(\d+)/.exec(window.location.hash);
     const fromHash = m ? Number(m[1]) : null;
     if (fromHash && verses.includes(fromHash)) return fromHash;
@@ -156,13 +175,16 @@ export function createVerseTab({ store, here, visible, panelOpen, onEdit = null,
       b.title = to == null ? "" : ref(to);
     }
 
-    text.textContent = verseCopyFor(chapterText(), v) ?? "";
+    text.textContent = verseCopyFor(readText(), v) ?? "";
     renderGreek(v, n);
     renderFootnotes(v);
 
     const records = store ? forChapter(await store.byChapter(here.bookKey, here.chapter), here.bookKey, here.chapter) : [];
     if (n !== seq) return; // a newer render has started
-    const on = recordsOnVerse(records, v).filter((r) => r.kind === "note" || r.kind === "bookmark" || r.kind === "highlight");
+    // A note on a footnote shows under its footnote above, not on the verse.
+    const on = recordsOnVerse(records, v).filter(
+      (r) => (r.kind === "note" && !onFootnote(r)) || r.kind === "bookmark" || r.kind === "highlight",
+    );
     notices = store && ctx ? noticesFor(on) : new Map();
     mine.replaceChildren(...on.map(itemFor));
     empty.hidden = on.length > 0;
@@ -260,13 +282,13 @@ export function createVerseTab({ store, here, visible, panelOpen, onEdit = null,
 
   function renderFootnotes(v) {
     const ids = [];
-    for (const a of textBox.querySelectorAll(`[data-verse="${v}"] sup.fn-ref a[href^="#fn-"]`)) {
+    for (const a of textBox?.querySelectorAll(`[data-verse="${v}"] sup.fn-ref a[href^="#fn-"]`) ?? []) {
       const id = a.getAttribute("href").slice(1);
       if (!ids.some((x) => x.id === id)) ids.push({ id, label: a.textContent.trim() });
     }
     const items = [];
     for (const { id, label } of ids) {
-      const body = document.getElementById(id)?.querySelector(".fn-body");
+      const body = footnoteBody(id);
       if (!body) continue;
       const clone = body.cloneNode(true);
       clone.querySelector(".footnote-backlink")?.remove();
@@ -279,9 +301,19 @@ export function createVerseTab({ store, here, visible, panelOpen, onEdit = null,
       letter.className = "desk-verse__fn-label";
       letter.textContent = label;
       li.append(letter, clone);
-      // Pin / Unpin, as under the note in the Footnotes list.
-      const pin = store ? pinButton(id, label) : null;
-      if (pin) li.append(pin);
+      // Pin / Unpin, as under the note in the Footnotes list, with Add a note
+      // beside it, then the reader's notes on this footnote.
+      const where = { bookKey: here.bookKey, chapter: here.chapter };
+      const pin = store ? pinButton(id, label, where) : null;
+      const add = store ? addNoteButton(id, label, where) : null;
+      if (pin || add) {
+        const actions = document.createElement("div");
+        actions.className = "desk-fn-actions";
+        actions.append(...[pin, add].filter(Boolean));
+        li.append(actions);
+      }
+      const mine = store ? footnoteNotes(id, where) : null;
+      if (mine) li.append(mine);
       items.push(li);
     }
     fnList.replaceChildren(...items);
@@ -312,7 +344,7 @@ export function createVerseTab({ store, here, visible, panelOpen, onEdit = null,
       const go = document.createElement("button");
       go.type = "button";
       go.className = "desk-verse__go";
-      words.id = `deskVerseWords-${r.id}`;
+      words.id = `deskVerseWords${idSuffix}-${r.id}`;
       go.setAttribute("aria-label", `Show my note on ${recordReference(r) || ref(verse)} in the margin`);
       go.setAttribute("aria-describedby", words.id);
       go.innerHTML = mark;
@@ -432,7 +464,9 @@ export function createVerseTab({ store, here, visible, panelOpen, onEdit = null,
     b.addEventListener("click", () => {
       if (b.getAttribute("aria-disabled") === "true" || verse == null) return;
       const to = adjacentVerse(verses, verse, Number(b.dataset.step));
-      if (to != null) setVerse(to);
+      if (to == null) return;
+      setVerse(to);
+      onVerse?.(to);
     });
   }
 

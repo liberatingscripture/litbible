@@ -42,12 +42,19 @@
 // glossary it starts on the notes on this page (N11); elsewhere it lists
 // everything. An article also offers a note on the whole article here.
 //
+// On /desk (3g; BVJ, 2026-10-19) the tab is a pane that follows the LIT
+// pane, as This verse does, but by keeping its list as it is and scrolling
+// it: as the reader moves through the text, the pane makes sure the records
+// on the passage being read are in view (`follow`), without lining them up
+// with their verses. Notes never sit beside a pane's text there. A
+// record's reference and words move the LIT pane to it (`goHere`).
+//
 // Labels (M8) narrow the list the way colours do: when any label is on a
 // record in the list, a row of choices above it narrows it to one label. They
 // are made and put on records on the notebook page (/notebook/).
 
 import { shortQuote } from "../../lib/desk-notes.mjs";
-import { COLORS } from "../../lib/desk-records.mjs";
+import { COLORS, onFootnote } from "../../lib/desk-records.mjs";
 import { liveLabels } from "../../lib/desk-labels.mjs";
 import {
   kindName,
@@ -55,6 +62,7 @@ import {
   recordHref,
   recordReadHref,
   recordReference,
+  recordWhere,
 } from "../../lib/desk-store-core.mjs";
 import { flagButton, noticesFor, openNotice } from "./change-notice.js";
 import { glyph } from "./glyphs.js";
@@ -73,11 +81,15 @@ const ICON_CARET = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" 
 
 // The words of a highlight shown in the list: about this many.
 const HIGHLIGHT_WORDS = 24;
+// A note on a footnote quotes this many words of the footnote.
+const FOOTNOTE_WORDS = 12;
 
 // Which colour the list is narrowed to (null: everything). Kept for the visit.
 let colorFilter = null;
 // The same for the label the list is narrowed to (an id; null: everything).
 let labelFilter = null;
+// Numbers each tab's ids, since /desk can show several My Notes panes.
+let seq = 0;
 
 /** A highlight's colour if the format knows it; null for anything else, which is shown plainly. */
 function colorOf(r) {
@@ -122,6 +134,7 @@ function highlightedWords(color, words) {
  * @returns {{ el: HTMLElement, render: (opts?: { focusIndex?: number | null }) => Promise<void> }}
  */
 export function createMineTab({ store, storeError, scope: pageScope = null, addAction = null, inReadView, visible, afterRender = () => {}, onEdit = null, goHere = null, ctx = null, showInText = null }) {
+  const n = ++seq;
   const el = document.createElement("div");
   el.className = "desk-mine";
   el.innerHTML = `
@@ -143,8 +156,8 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     <button type="button" class="desk-mine__all" hidden></button>
     <ul class="desk-list"></ul>
     <p class="desk-panel__empty" hidden></p>
-    <section class="desk-mine__pins" aria-labelledby="deskMinePinsTitle" hidden>
-      <h3 class="desk-mine__pins-title" id="deskMinePinsTitle">Pinned footnotes</h3>
+    <section class="desk-mine__pins" aria-labelledby="deskMinePinsTitle${n}" hidden>
+      <h3 class="desk-mine__pins-title" id="deskMinePinsTitle${n}">Pinned footnotes</h3>
       <ul class="desk-list desk-mine__pin-list"></ul>
     </section>`;
   if (pageScope) el.querySelector(".desk-seg__text").textContent = pageScope.label;
@@ -186,6 +199,37 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
       scope = radio.value;
       render();
     });
+  }
+
+  let shown = []; // the records the list shows now, in its order
+  let following = null; // the passage /desk's LIT pane is at (follow)
+  let followedOnce = false;
+
+  /**
+   * /desk: make sure the records on this passage are in view. The first one
+   * in its chapter at or after its verse is the one looked for (or, with none
+   * after, the chapter's last); when it is already in view the list stays
+   * put, so a reader moving through the text sees it move only as needed.
+   * A chapter with nothing kept leaves the list where it is.
+   */
+  function follow(p) {
+    following = p ?? null;
+    if (!p?.bookKey || !list.isConnected) return;
+    let at = -1;
+    for (let i = 0; i < shown.length; i++) {
+      const r = shown[i];
+      if (r.bookKey !== p.bookKey || r.chapter !== p.chapter) continue;
+      at = i;
+      const last = Number.isInteger(r.endVerse) ? Math.max(r.verse ?? 0, r.endVerse) : r.verse ?? 0;
+      if (p.verse == null || last >= p.verse) break;
+    }
+    const row = at >= 0 ? list.children[at] : null;
+    const box = row ? scroller(el) : null;
+    if (!box) return;
+    const r = row.getBoundingClientRect();
+    const b = box.getBoundingClientRect();
+    if (r.top >= b.top && r.bottom <= b.bottom) return;
+    box.scrollTop = Math.max(0, box.scrollTop + (r.top - b.top) - 8);
   }
 
   let renderSeq = 0;
@@ -234,6 +278,7 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     const notices = store && ctx ? noticesFor([...records, ...pins]) : new Map();
     drawChanged([...records, ...pins], notices);
     list.replaceChildren(...records.map((r) => rowFor(r, notices.get(r.id))));
+    shown = records;
     pinBox.hidden = pins.length === 0;
     pinList.replaceChildren(...pins.map((r) => pinRowFor(r, notices.get(r.id))));
     empty.hidden = records.length > 0 || pins.length > 0;
@@ -257,6 +302,11 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
       const rows = pinList.querySelectorAll(".desk-item__delete");
       const target = rows[Math.min(focusPin, rows.length - 1)] ?? list.querySelector(".desk-item__delete");
       (target ?? el.closest(".desk-panel__body") ?? el).focus({ preventScroll: false });
+    }
+    // /desk's first drawing: show the passage being read.
+    if (following && !followedOnce) {
+      followedOnce = true;
+      follow(following);
     }
     afterRender();
   }
@@ -406,6 +456,16 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     kind.className = "desk-item__kind";
     kind.textContent = nameOf(r);
     li.append(head, kind);
+    // A note on a footnote (M11) says so, and quotes the footnote's opening
+    // words; it is still a note, and the reference above still names the
+    // verse that holds the footnote's letter.
+    const on = onFootnote(r) ? recordWhere(r) : ref;
+    if (onFootnote(r)) {
+      const line = document.createElement("p");
+      line.className = "desk-item__on-fn";
+      line.textContent = `On a footnote: “${shortQuote(r.footnote, FOOTNOTE_WORDS)}”`;
+      li.append(line);
+    }
     if (r.kind === "note") {
       // Led by its marker, at two lines unless hovered, focused, opened by
       // its caret (kept open for this visit), or the list shows notes in
@@ -446,7 +506,7 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
       const syncMore = () => {
         const open = openNotes.has(r.id);
         more.setAttribute("aria-expanded", String(open));
-        more.setAttribute("aria-label", `${open ? "Show less of" : "Show all of"} the note${ref ? ` on ${ref}` : ""}`);
+        more.setAttribute("aria-label", `${open ? "Show less of" : "Show all of"} the note${on ? ` on ${on}` : ""}`);
       };
       syncMore();
       more.addEventListener("click", () => {
@@ -462,7 +522,7 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
         edit.type = "button";
         edit.className = "desk-item__edit";
         edit.textContent = "Edit";
-        edit.setAttribute("aria-label", `Edit note${ref ? ` on ${ref}` : ""}`);
+        edit.setAttribute("aria-label", `Edit note${on ? ` on ${on}` : ""}`);
         edit.addEventListener("click", (e) => {
           e.stopPropagation();
           onEdit(r, edit);
@@ -495,7 +555,7 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     del.type = "button";
     del.className = "desk-item__delete";
     del.textContent = "Delete";
-    del.setAttribute("aria-label", `Delete ${nameOf(r).toLowerCase()}${ref ? ` on ${ref}` : ""}`);
+    del.setAttribute("aria-label", `Delete ${nameOf(r).toLowerCase()}${on ? ` on ${on}` : ""}`);
     del.addEventListener("click", () => remove(r, li));
     li.append(del);
     return li;
@@ -601,7 +661,7 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     // button, like Ctrl+Z, takes back exactly this one (history.js).
     const entry = store.lastEntry();
     await render({ focusIndex: index });
-    const ref = recordReference(r);
+    const ref = recordWhere(r);
     showUndo(`${nameOf(r)}${ref ? ` on ${ref}` : ""} deleted.`, async () => {
       await undoEntry(entry);
       await render();
@@ -611,5 +671,14 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
 
   document.addEventListener(SETTINGS_EVENT, markCut);
 
-  return { el, render };
+  return { el, render, follow };
+}
+
+/** The nearest ancestor that scrolls vertically, or null. */
+function scroller(node) {
+  for (let p = node.parentElement; p; p = p.parentElement) {
+    const y = getComputedStyle(p).overflowY;
+    if (y === "auto" || y === "scroll") return p;
+  }
+  return null;
 }

@@ -62,7 +62,8 @@ export function adjacentVerse(verses, verse, step) {
 export function noteCounts(records) {
   const counts = new Map();
   for (const r of records ?? []) {
-    if (r?.kind !== "note") continue;
+    // A note on a footnote (M11) is about the footnote, not the verse.
+    if (r?.kind !== "note" || typeof r.footnote === "string") continue;
     const s = span(r);
     if (!s) continue;
     for (let v = s.from; v <= s.to; v++) counts.set(v, (counts.get(v) ?? 0) + 1);

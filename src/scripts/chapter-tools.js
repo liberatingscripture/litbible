@@ -27,6 +27,9 @@
 //
 // A verse that spans blocks (a quotation set as a block quote, a mid-verse
 // speaker change) can also be shared one PART at a time — see "parts" below.
+//
+// The Study Desk's LIT pane on /desk gets the second and fourth, through
+// attachVerseTools at the end, with the pane as one more view.
 
 import { stripBracketMarkers } from "../lib/bracket-markers.mjs";
 import { LIT_CREDIT_LINE } from "../lib/lit-credit.mjs";
@@ -36,6 +39,7 @@ import { imageStep } from "./verse-image.js";
 import {
   PANEL_EDGE,
   copyToClipboard,
+  footnotePanel,
   menuButton,
   panelRow,
   placeBesideTouchSelection,
@@ -48,18 +52,23 @@ import {
 function init(container) {
   setEscapeFallback(clearHashHighlight);
   initVerseHighlight(container);
-  initVerseMenu(container);
+  const view = studyView(container);
+  initVerseMenu(view);
   initFootnotePopovers(container);
-  initSelectionShare(studyView(container));
+  initSelectionShare(view);
 }
 
 /* ── Shared: the two views ────────────────────────────────────────────── */
 
-// What selection sharing needs to know about the page it runs on. `scope`
-// is where a handout reads each verse's footnote letters and notes from:
-// the page itself in Study View, and in Read View (which prints neither)
-// the chapter's Study View page, fetched once per chapter. It returns the
-// scope directly or a Promise of it, and null when it can't be had.
+// What the verse menu and selection sharing need to know about the page they
+// run on. A view's text may hold more than one chapter (a Read View book, the
+// Study Desk's LIT pane), so `chapterOf` names the chapter an element is in,
+// and the rest take that name back. `scope` is where a handout reads each
+// verse's footnote letters and notes from: the page itself in Study View, and
+// elsewhere the chapter's Study View page, fetched once per chapter. It
+// returns the scope directly or a Promise of it, and null when it can't be
+// had. `partUrl` is a block's own link (see "parts" below), and `detail`
+// adds to what lit:panel-actions tells the Study Desk.
 
 function studyView(container) {
   return {
@@ -69,6 +78,7 @@ function studyView(container) {
     spans: (_ch, verse) => verseSpans(container, verse),
     ref: (_ch, start, end) => formatRef(start, end),
     url: (_ch, start, end) => getVerseUrl(start, end),
+    partUrl: (_ch, id) => pageUrl() + "#" + id,
     scope: () => ({ container, root: document }),
   };
 }
@@ -128,10 +138,10 @@ function verseSpans(container, verse) {
  * paragraph-crossing verses need no boundary math. Empty array when the
  * verses do not exist.
  */
-function verseRanges(container, start, end) {
+function verseRanges(view, ch, start, end) {
   const ranges = [];
   for (let v = start; v <= end; v++) {
-    for (const span of verseSpans(container, v)) {
+    for (const span of view.spans(ch, v)) {
       const range = document.createRange();
       range.selectNodeContents(span);
       ranges.push(range);
@@ -224,7 +234,7 @@ function initVerseHighlight(container) {
     if (m) {
       const start = Number(m[1]);
       const end = m[2] ? Math.max(start, Number(m[2])) : start;
-      ranges = verseRanges(container, start, end);
+      ranges = verseRanges(studyView(container), 0, start, end);
       label = formatRef(start, end);
     } else {
       const part = partHighlight(container, hash);
@@ -280,9 +290,9 @@ function getVerseUrl(start, end) {
  * and blockquote has one, already book-namespaced (`john-8-p9`,
  * `1peter-2-p2`) so the same anchor resolves in Read View too.
  */
-function verseParts(container, verse) {
+function verseParts(view, ch, verse) {
   const byBlock = new Map(); // insertion order = document order
-  for (const span of verseSpans(container, verse)) {
+  for (const span of view.spans(ch, verse)) {
     const block = span.closest("blockquote[id]") || span.closest("p[id]");
     if (!block) continue;
     if (!byBlock.has(block)) byBlock.set(block, []);
@@ -433,10 +443,10 @@ function tidyLines(text) {
  * verse-number markers and footnote refs. Known SBLGNT omissions have no
  * spans, so a gap simply contributes nothing. Joined per joinPieces.
  */
-function getVerseText(container, start, end, options) {
+function getVerseText(view, ch, start, end, options) {
   const pieces = [];
   for (let v = start; v <= end; v++) {
-    for (const span of verseSpans(container, v)) pieces.push(spanPiece(span));
+    for (const span of view.spans(ch, v)) pieces.push(spanPiece(span));
   }
   return joinPieces(pieces, options);
 }
@@ -449,7 +459,8 @@ function getVerseText(container, start, end, options) {
  * context with the scripture verses they reference", which is what keeping the
  * letters does. The verses join per joinPieces, as Copy text does.
  */
-function getHandoutText(container, start, end, ref, url) {
+function getHandoutText(scope, start, end, ref, url) {
+  const { container, root } = scope;
   const cited = [];
   const pieces = [];
   for (let v = start; v <= end; v++) {
@@ -457,7 +468,7 @@ function getHandoutText(container, start, end, ref, url) {
       pieces.push(spanPiece(span, cleanForShare(blockText(span, cited))));
     }
   }
-  return assembleHandout(joinPieces(pieces, { rich: true }), cited, document, ref, url);
+  return assembleHandout(joinPieces(pieces, { rich: true }), cited, root, ref, url);
 }
 
 /**
@@ -588,9 +599,9 @@ function offerActions(panel, detail) {
   );
 }
 
-function setSelectionHighlight(container, start, end) {
+function setSelectionHighlight(view, ch, start, end) {
   if (!supportsHighlight) return;
-  const ranges = verseRanges(container, start, end);
+  const ranges = verseRanges(view, ch, start, end);
   if (ranges.length)
     CSS.highlights.set("lit-verse-select", new Highlight(...ranges));
 }
@@ -650,15 +661,16 @@ function makeDraggable(panel, handle, { onStart = null } = {}) {
 }
 
 function openVerseMenu(
-  container,
+  view,
+  ch,
   sup,
   anchorVerse,
   start,
   end,
   { restoreFocus = null, touch = false } = {}
 ) {
-  const ref = formatRef(start, end);
-  const url = getVerseUrl(start, end);
+  const ref = view.ref(ch, start, end);
+  const url = view.url(ch, start, end);
   // The text the menu covers must stay within reach. Opened by a finger, the
   // menu takes the selection panel's chip layout: on a phone a short bottom
   // sheet, wider a card beside the verse number, pinned to the screen so the
@@ -711,29 +723,35 @@ function openVerseMenu(
   panel.appendChild(
     panelRow(
       menuButton("Copy text", async () => {
-        const text = getVerseText(container, start, end, { rich: true });
+        const text = getVerseText(view, ch, start, end, { rich: true });
         if (!text) return false;
         return copyRich(withReference(text, ref) + "\n" + url);
       }),
       menuButton("Copy link", () => copyToClipboard(url)),
       menuButton("Copy with footnotes", async () => {
-        const text = getHandoutText(container, start, end, ref, url);
+        // The Study Desk reads the notes from the chapter's Study View page,
+        // which may still be on its way (see copyRichLater).
+        const scope = view.scope(ch);
+        if (typeof scope?.then === "function") {
+          return copyRichLater(scope.then((s) => (s ? getHandoutText(s, start, end, ref, url) : "")));
+        }
+        const text = scope ? getHandoutText(scope, start, end, ref, url) : "";
         if (!text) return false;
         return copyRich(text);
       })
     )
   );
 
-  const shareBtn = shareButton(ref, url, () => getVerseText(container, start, end));
+  const shareBtn = shareButton(ref, url, () => getVerseText(view, ch, start, end));
   panel.appendChild(
     panelRow(
       shareBtn,
       imageStep({
         content: () => ({
-          text: getVerseText(container, start, end, { numbers: false }),
+          text: getVerseText(view, ch, start, end, { numbers: false }),
           ref,
           url,
-          shareText: withReference(getVerseText(container, start, end), ref) + "\n" + url,
+          shareText: withReference(getVerseText(view, ch, start, end), ref) + "\n" + url,
         }),
         onDone: closePanel,
       })
@@ -742,7 +760,7 @@ function openVerseMenu(
 
   // Parts: only for a single verse. A range already spans blocks by nature, so
   // offering a part per block would bury the whole-range actions.
-  const parts = start === end ? verseParts(container, start) : [];
+  const parts = start === end ? verseParts(view, ch, start) : [];
   if (parts.length > 1) {
     const partsHeading = document.createElement("p");
     partsHeading.className = "lit-panel__subheading";
@@ -755,7 +773,7 @@ function openVerseMenu(
     list.setAttribute("aria-labelledby", partsHeading.id);
 
     for (const part of parts) {
-      const partUrl = pageUrl() + "#" + part.id;
+      const partUrl = view.partUrl(ch, part.id);
       const btn = menuButton(partLabel(part.plain), () =>
         copyRich(withReference(part.rich, ref) + "\n" + partUrl)
       );
@@ -766,7 +784,7 @@ function openVerseMenu(
     panel.appendChild(list);
   }
 
-  offerActions(panel, { kind: "verse", view: "study", start, end, ref, touch });
+  offerActions(panel, { kind: "verse", view: view.name, start, end, ref, touch, ...view.detail?.(ch) });
 
   showPanel(sup, panel, {
     preferAbove: true,
@@ -777,7 +795,7 @@ function openVerseMenu(
     onClose: () => {
       if (supportsHighlight) CSS.highlights.delete("lit-verse-select");
     },
-    extra: { kind: "verse", anchorVerse, start, end },
+    extra: { kind: "verse", anchorVerse, start, end, view, ch },
   });
   if (!sheet) {
     // Extending a range reopens the menu, which stays where it was put.
@@ -786,29 +804,33 @@ function openVerseMenu(
   }
   // After showPanel: its closePanel() of a previous menu would otherwise
   // delete the selection highlight we just set.
-  setSelectionHighlight(container, start, end);
+  setSelectionHighlight(view, ch, start, end);
   panel.focus({ preventScroll: true });
 }
 
-function handleVerseActivation(container, sup, { viaKeyboard = false } = {}) {
+function handleVerseActivation(view, sup, { viaKeyboard = false } = {}) {
   const verse = parseInt(sup.textContent, 10);
   if (!Number.isFinite(verse)) return;
+  const ch = view.chapterOf(sup);
 
   const opts = {
     restoreFocus: viaKeyboard ? sup : null,
     touch: !viaKeyboard && pointerType() !== "mouse",
   };
 
-  // Menu already open: activating the selection's only verse closes it;
-  // activating any other verse number extends the selection to a range.
-  if (currentPanel()?.kind === "verse") {
+  // Menu already open on this chapter: activating the selection's only verse
+  // closes it; activating any other verse number extends the selection to a
+  // range. A verse number in another chapter starts a new menu.
+  const open = currentPanel();
+  if (open?.kind === "verse" && open.view === view && open.ch === ch) {
     const { anchorVerse, start, end } = currentPanel();
     if (start === end && verse === start) {
       closePanel();
       return;
     }
     openVerseMenu(
-      container,
+      view,
+      ch,
       sup,
       anchorVerse,
       Math.min(anchorVerse, verse),
@@ -818,25 +840,32 @@ function handleVerseActivation(container, sup, { viaKeyboard = false } = {}) {
     return;
   }
 
-  openVerseMenu(container, sup, verse, verse, verse, opts);
+  openVerseMenu(view, ch, sup, verse, verse, verse, opts);
 }
 
-function initVerseMenu(container) {
-  // Verse numbers act as buttons (open the copy/share menu), so expose them
-  // to the keyboard and accessibility tree. Enhancement-only, like the menu
-  // itself: without JS they stay plain superscripts.
-  container.querySelectorAll("sup.vn").forEach((sup) => {
+/**
+ * Verse numbers act as buttons (open the copy/share menu), so expose them to
+ * the keyboard and accessibility tree. Enhancement-only, like the menu itself:
+ * without JS they stay plain superscripts.
+ */
+function enableVerseNumbers(el) {
+  el.querySelectorAll("sup.vn").forEach((sup) => {
     sup.setAttribute("role", "button");
     sup.setAttribute("tabindex", "0");
     sup.setAttribute("aria-label", "Verse " + (sup.textContent || "").trim());
     sup.setAttribute("aria-haspopup", "dialog");
   });
+}
+
+function initVerseMenu(view) {
+  const { container } = view;
+  enableVerseNumbers(container);
 
   container.addEventListener("click", (e) => {
     const sup = e.target.closest("sup.vn");
     if (!sup || !container.contains(sup)) return;
     e.stopPropagation();
-    handleVerseActivation(container, sup);
+    handleVerseActivation(view, sup);
   });
 
   container.addEventListener("keydown", (e) => {
@@ -845,7 +874,7 @@ function initVerseMenu(container) {
     if (!sup || !container.contains(sup)) return;
     e.preventDefault();
     e.stopPropagation();
-    handleVerseActivation(container, sup, { viaKeyboard: true });
+    handleVerseActivation(view, sup, { viaKeyboard: true });
   });
 }
 
@@ -874,41 +903,10 @@ function initFootnotePopovers(container) {
 
     const label = a.textContent.trim();
 
-    const panel = document.createElement("div");
-    panel.setAttribute("role", "dialog");
-    panel.setAttribute("aria-label", "Footnote " + label);
-    panel.tabIndex = -1;
-    panel.classList.add("lit-panel--footnote");
-
-    const header = document.createElement("div");
-    header.className = "lit-panel__header";
-
-    const heading = document.createElement("p");
-    heading.className = "lit-panel__heading";
-    heading.textContent = "Footnote " + label;
-    header.appendChild(heading);
-
-    const closeBtn = document.createElement("button");
-    closeBtn.type = "button";
-    closeBtn.className = "lit-panel__close";
-    closeBtn.setAttribute("aria-label", "Close footnote");
-    closeBtn.textContent = "×";
-    closeBtn.addEventListener("click", closePanel);
-    header.appendChild(closeBtn);
-
-    panel.appendChild(header);
-
-    const body = document.createElement("div");
-    body.className = "lit-panel__body";
     // The note's content wrapper is <div class="fn-body"> ([slug].astro —
     // a div because footnote HTML can contain block elements); "p" is the
     // pre-2026-07 markup, kept as a fallback.
-    const content = note.querySelector(".fn-body, p")?.cloneNode(true);
-    if (content) {
-      content.querySelector(".footnote-backlink")?.remove();
-      body.appendChild(content);
-    }
-    panel.appendChild(body);
+    const panel = footnotePanel({ title: "Footnote " + label, body: note.querySelector(".fn-body, p") });
 
     // Link through to the full footnotes section.
     const jump = document.createElement("a");
@@ -1284,6 +1282,7 @@ function openSelectionPanel(view, share, { touch }) {
     range: share.range,
     touch,
     acting,
+    ...view.detail?.(share.chapter),
   });
 
   showPanel({ getBoundingClientRect: () => share.rect }, panel, {
@@ -1295,7 +1294,31 @@ function openSelectionPanel(view, share, { touch }) {
   makeDraggable(panel, header, { onStart: acting });
 }
 
+// Every view whose text a selection may be in. One set of listeners serves
+// them all, so two panes of the Study Desk never answer the same selection
+// (one opening the panel, the other closing it again).
+const selectionViews = new Set();
+let selectionListening = false;
+
+/** Offer the selection panel for a view's text; returns a function that stops. */
 function initSelectionShare(view) {
+  selectionViews.add(view);
+  if (!selectionListening) listenForSelections();
+  return () => selectionViews.delete(view);
+}
+
+/** The selection's share in whichever view holds it, or null. */
+function shareInViews(selection) {
+  for (const view of selectionViews) {
+    if (!view.container.isConnected) continue;
+    const share = selectionShare(view, selection);
+    if (share) return { view, share };
+  }
+  return null;
+}
+
+function listenForSelections() {
+  selectionListening = true;
   let timer = null;
   const settle = () => {
     clearTimeout(timer);
@@ -1324,7 +1347,8 @@ function initSelectionShare(view) {
     // chasing the selection as it grows.
     if (pointerDown && pointerType() === "mouse") return;
 
-    const share = selectionShare(view, document.getSelection());
+    const found = shareInViews(document.getSelection());
+    const share = found?.share ?? null;
     const current = currentPanel()?.kind === "selection" ? currentPanel() : null;
     if (!share) {
       if (current && !current.acting) closePanel();
@@ -1341,16 +1365,40 @@ function initSelectionShare(view) {
       return;
     }
     shownKey = openedKey = share.key;
-    openSelectionPanel(view, share, { touch: pointerType() !== "mouse" });
+    openSelectionPanel(found.view, share, { touch: pointerType() !== "mouse" });
   }
+}
+
+/* ── The Study Desk's LIT pane ────────────────────────────────────────── */
+
+/**
+ * The verse menu and the selection panel for text that isn't a page's own
+ * (STUDY-DESK.md, "Order of work", 3f): /desk's LIT pane, which holds many
+ * chapters in one scroll. `view` is shaped as studyView's is, its `container`
+ * the pane's text; the pane calls `enableNumbers` on each chapter it adds, and
+ * `destroy` when it goes. Footnote popovers stay the pane's own (lit-pane.js).
+ */
+export function attachVerseTools(view) {
+  initVerseMenu(view);
+  const stop = initSelectionShare(view);
+  return {
+    enableNumbers: enableVerseNumbers,
+    destroy() {
+      stop();
+      const open = currentPanel();
+      if (open?.view === view || (open?.trigger instanceof Node && view.container.contains(open.trigger))) closePanel();
+    },
+  };
 }
 
 /* ── Kickoff (after all module-level declarations) ────────────────────── */
 
-const container = document.querySelector(".chapter-paragraphs");
+// /desk imports this module for its LIT pane, which starts the tools itself.
+const onDesk = !!document.querySelector("[data-desk-page]");
+const container = onDesk ? null : document.querySelector(".chapter-paragraphs");
 if (container) {
   init(container);
-} else {
+} else if (!onDesk) {
   // Read View: the selection bar only (see the header).
   const reading = document.querySelector("[data-rm-root] .rm-text");
   if (reading) initSelectionShare(readingView(reading));

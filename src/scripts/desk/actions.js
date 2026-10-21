@@ -22,6 +22,11 @@
 //     page, asks it for a plan, and commits that.
 //   - Read View: Bookmark and Highlight only. Notes are a Study View tool, and
 //     Read View shows none (audit C2; BVJ, 2026-10-07).
+//   - /desk's LIT pane (3f, 3g): Add a note, Bookmark, Highlight and Ribbon
+//     here…, with the chapter and its text from the panel's detail (`book`,
+//     `chapter`, `textFor`), so a pane's own words are read even when another
+//     pane shows the same chapter. Highlights are drawn on the pane as on
+//     Study View (highlights.js), under Study View's setting.
 
 import { COLORS, createRecord, quoteFields } from "../../lib/desk-records.mjs";
 import { recordReference } from "../../lib/desk-store-core.mjs";
@@ -51,10 +56,11 @@ export function initActions({ store, ctx, showVerse = null }) {
     const where =
       d.view === "study" && here
         ? { bookKey: here.bookKey, chapter: here.chapter }
-        : d.view === "read" && d.book && d.chapter
+        : (d.view === "read" || d.view === "desk") && d.book && d.chapter
           ? { bookKey: d.book, chapter: d.chapter }
           : null;
     if (!where) return;
+    const notes = d.view === "study" || d.view === "desk";
 
     const heading = document.createElement("p");
     heading.className = "lit-panel__subheading";
@@ -64,7 +70,7 @@ export function initActions({ store, ctx, showVerse = null }) {
     const bookmark = button("Bookmark");
     const row = document.createElement("div");
     row.className = "lit-panel__row";
-    if (d.view === "study") {
+    if (notes) {
       const note = button("Add a note");
       note.addEventListener("click", () => addNote(d, where, note));
       row.append(note);
@@ -73,11 +79,11 @@ export function initActions({ store, ctx, showVerse = null }) {
     row.append(bookmark);
     d.append(heading);
     d.append(row);
-    // Study View always offers Highlight (pressing a colour turns the page's
-    // highlights on if they were hidden); Read View's panel only while that
+    // Study View and /desk always offer Highlight (pressing a colour turns the
+    // page's highlights on if they were hidden); Read View's panel only while that
     // view shows them. No row when this page can't read the words (the chapter
     // isn't on it), since a mark can't be placed without them.
-    if ((d.view === "study" || getSetting(highlightSetting()) === "on") && markOf(d, where)) {
+    if ((d.view !== "read" || getSetting(highlightSetting()) === "on") && markOf(d, where)) {
       d.append(highlightRow(d, where));
     }
     // Show in notebook (Study View) and Ribbon here… (both views, B1).
@@ -142,9 +148,11 @@ export function initActions({ store, ctx, showVerse = null }) {
   function addNote(d, where, btn) {
     d.acting?.();
     let draft = { ...where, verse: d.start, endVerse: d.end };
+    // The LIT pane on /desk reads its own chapter; Study View, the page's.
+    const textOf = d.textFor ?? chapterText;
     if (d.kind === "selection" && d.range) {
       try {
-        const text = chapterText();
+        const text = textOf();
         const offsets = rangeToOffsets(text, d.range);
         if (offsets) draft = { ...where, ...quoteFields(text, offsets[0], offsets[1]) };
       } catch (err) {
@@ -155,7 +163,7 @@ export function initActions({ store, ctx, showVerse = null }) {
     // selection.
     const trigger = (d.kind === "selection" && d.range) || currentPanel()?.trigger || btn;
     const restoreFocus = currentPanel()?.restoreFocus ?? null;
-    openNoteEditor({ trigger, store, ctx, ref: recordReference(draft), draft, restoreFocus });
+    openNoteEditor({ trigger, store, ctx, ref: recordReference(draft), draft, restoreFocus, text: textOf });
   }
 
   /**
@@ -168,7 +176,9 @@ export function initActions({ store, ctx, showVerse = null }) {
    */
   function markOf(d, where) {
     try {
-      const text = chapterTextFor(where.bookKey, where.chapter);
+      // The LIT pane on /desk reads its own chapter; Study View and Read
+      // View, the page's.
+      const text = d.textFor ? d.textFor() : chapterTextFor(where.bookKey, where.chapter);
       if (!text) return null;
       let offsets = null;
       if (d.kind === "selection" && d.range) {

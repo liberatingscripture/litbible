@@ -25,6 +25,7 @@ import {
   pageAnchorText,
   rangeToOffsets,
 } from "../src/lib/desk-anchor-dom.mjs";
+import { litPrefix, prepareLitBlocks } from "../src/lib/desk-lit-text.mjs";
 import { parseHtml } from "./helpers/mini-dom.js";
 
 const CHAPTER_DIR = new URL("../src/data/chapters/", import.meta.url);
@@ -93,6 +94,58 @@ test("sweep: Read View's page text is the anchor text, verse by verse, in every 
     }
   }
   assert.deepEqual(failures, [], `Read View disagrees with the anchor text in ${failures.length} chapters`);
+});
+
+// /desk's LIT pane shows Study View's text with its ids prefixed
+// (src/lib/desk-lit-text.mjs), so it is a third way the page is read.
+test("sweep: the LIT pane's text on /desk is the anchor text, and its ids are its own, in every published chapter", () => {
+  const failures = [];
+  const seen = new Set();
+  for (const c of published) {
+    const blocks = studyBlocks(c);
+    const prefix = litPrefix("p1", c.bookKey, c.chapter);
+    prepareLitBlocks(blocks, prefix);
+    const want = chapterAnchorText(c.paragraphs);
+    const got = pageAnchorText(blocks);
+    try {
+      assert.deepEqual(versesObject(got), versesObject(want));
+      assert.equal(got.text, want.text);
+    } catch {
+      failures.push(`${c.bookKey}-${c.chapter}`);
+    }
+    for (const b of blocks) {
+      for (const el of b.findAll(() => true)) {
+        const id = el.getAttribute("id");
+        if (id) {
+          assert.ok(id.startsWith(prefix), `${c.bookKey}-${c.chapter}: id ${id} kept no prefix`);
+          assert.ok(!seen.has(id), `${id} appears twice in the corpus`);
+          seen.add(id);
+        }
+        const cls = ` ${el.getAttribute("class") ?? ""} `;
+        if (cls.includes(" fn-ref ")) {
+          const a = el.findAll((n) => n.tagName === "A")[0];
+          assert.match(a?.getAttribute("data-fn") ?? "", /^fn-/, `${c.bookKey}-${c.chapter}: a footnote letter lost its note`);
+        }
+      }
+    }
+  }
+  assert.deepEqual(failures, [], `The LIT pane disagrees with the anchor text in ${failures.length} chapters`);
+});
+
+test("the LIT pane's prefix follows a reference to a renamed id, and leaves the rest", () => {
+  const [p] = parseHtml(
+    '<div class="p"><blockquote id="john-3-p4" aria-describedby="hbq-description x"><a href="#v2" id="v1">1</a>'
+      + '<sup class="fn-ref"><a href="#fn-a" id="fnref-a">a</a></sup><span id="x"></span></blockquote></div>',
+  ).childNodes;
+  prepareLitBlocks([p], "p2-john-3-");
+  const [bq] = p.childNodes;
+  assert.equal(bq.getAttribute("id"), "p2-john-3-john-3-p4");
+  assert.equal(bq.getAttribute("aria-describedby"), "hbq-description p2-john-3-x");
+  const [a1, sup] = bq.childNodes;
+  assert.equal(a1.getAttribute("href"), "#v2", "a link to an id not in the blocks is left alone");
+  assert.equal(a1.getAttribute("id"), "p2-john-3-v1");
+  assert.equal(sup.childNodes[0].getAttribute("data-fn"), "fn-a");
+  assert.equal(sup.childNodes[0].getAttribute("href"), "#fn-a");
 });
 
 test("sweep: every offset maps to the page and back, in both views", () => {

@@ -73,6 +73,12 @@ class MiniElement extends MiniNode {
   getAttribute(name) {
     return name in this.attrs ? this.attrs[name] : null;
   }
+  setAttribute(name, value) {
+    this.attrs[name.toLowerCase()] = String(value);
+  }
+  removeAttribute(name) {
+    delete this.attrs[name.toLowerCase()];
+  }
   get textContent() {
     return this.childNodes.map((c) => (c.nodeType === 3 ? c.nodeValue : c.textContent)).join("");
   }

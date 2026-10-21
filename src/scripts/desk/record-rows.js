@@ -11,9 +11,10 @@
 // build-up is deliberately plain: the page decides what happens when a button
 // is pressed (`actions`), this only draws.
 
-import { COLORS, canEdit } from "../../lib/desk-records.mjs";
+import { COLORS, canEdit, onFootnote } from "../../lib/desk-records.mjs";
 import { labelsOf } from "../../lib/desk-labels.mjs";
-import { kindName, recordHref, recordReference } from "../../lib/desk-store-core.mjs";
+import { shortQuote } from "../../lib/desk-notes.mjs";
+import { kindName, recordHref, recordReference, recordWhere } from "../../lib/desk-store-core.mjs";
 import { glyph } from "./glyphs.js";
 import { fillNoteWords } from "./note-words.js";
 
@@ -64,7 +65,9 @@ export function recordRow(record, { labels, onEdit = null, onLabels, onDelete })
   li.dataset.id = r.id;
   const ref = recordReference(r);
   const href = recordHref(r);
-  const subject = `${nameOf(r).toLowerCase()}${ref ? ` on ${ref}` : ""}`;
+  // A note on a footnote (M11) is "on a footnote in Romans 8:3", not on the verse.
+  const where = recordWhere(r);
+  const subject = `${nameOf(r).toLowerCase()}${where ? ` on ${where}` : ""}`;
 
   const head = document.createElement(href ? "a" : "span");
   head.className = "desk-item__ref";
@@ -74,6 +77,13 @@ export function recordRow(record, { labels, onEdit = null, onLabels, onDelete })
   kind.className = "desk-item__kind";
   kind.textContent = nameOf(r);
   li.append(head, kind);
+  // It says what it is on, and quotes the footnote's opening words.
+  if (onFootnote(r)) {
+    const line = document.createElement("p");
+    line.className = "desk-item__on-fn";
+    line.textContent = `On a footnote: “${shortQuote(r.footnote, 12)}”`;
+    li.append(line);
+  }
 
   // The reader's words. Always text.
   if (r.kind === "note") {

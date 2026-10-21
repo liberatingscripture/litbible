@@ -1,8 +1,9 @@
 // src/scripts/desk/verse-labels.js
 //
-// A Study View verse number names the reader's notes and highlights on its
-// verse (STUDY-DESK.md, "Still open": "How a screen reader learns a verse has
-// notes"; the highlights came in phase 1c). The rules are in
+// A Study View verse number (and, on /desk, a LIT pane's; 3g) names the
+// reader's notes and highlights on its verse (STUDY-DESK.md, "Still open":
+// "How a screen reader learns a verse has notes"; the highlights came in
+// phase 1c). The rules are in
 // src/lib/desk-verse.mjs; this file reads the notebook and sets the label.
 //
 // chapter-tools.js makes each verse number a button and gives it the plain
@@ -27,60 +28,44 @@
 // my notes"). A verse goes back to the plain "Verse N" for whatever is hidden,
 // so nothing on the page mentions what the reader chose not to see.
 
+import { onFootnote } from "../../lib/desk-records.mjs";
 import { forChapter } from "../../lib/desk-store-core.mjs";
 import { highlightColors, noteCounts, verseLabel } from "../../lib/desk-verse.mjs";
 import { noticesFor } from "./change-notice.js";
 import { SETTINGS_EVENT, getSetting } from "./note-settings.js";
+import { watchLitRecords } from "./lit-records.js";
 import { pageChapter } from "./page.js";
 
 /**
  * @param {{ store: object }} options
- * @returns {{ refresh(): Promise<void> } | null} Null off a Study View chapter.
+ * @returns {{ refresh(): void } | null} Null off a Study View chapter and
+ *   /desk.
  */
 export function createVerseLabels({ store }) {
+  if (!store) return null;
+  // /desk's LIT panes (3g): each chapter they show, from its own records.
+  if (document.querySelector("[data-desk-page]")) {
+    let entries = [];
+    const applyAll = () => {
+      for (const { box, records } of entries) label(box, records);
+    };
+    const watch = watchLitRecords({
+      store,
+      onChange: (now) => {
+        entries = now;
+        applyAll();
+      },
+    });
+    document.addEventListener(SETTINGS_EVENT, applyAll);
+    return { refresh: watch.refresh };
+  }
+
   const here = pageChapter();
   const textBox = document.querySelector(".chapter-paragraphs");
-  if (!store || !here || !textBox) return null;
+  if (!here || !textBox) return null;
 
   let records = []; // this chapter's live records
-
-  /**
-   * How many of the marks being shown carry a change notice, on each verse
-   * they cover: notes while "My notes" is on, highlights while "My
-   * highlights" is. A lost mark isn't counted.
-   */
-  function noticeCounts() {
-    const shown = records.filter(
-      (r) =>
-        (r.kind === "note" && getSetting("notes") === "on") ||
-        (r.kind === "highlight" && getSetting("highlights") === "on"),
-    );
-    const counts = new Map();
-    for (const [id, notice] of noticesFor(shown)) {
-      if (notice.kind === "lost") continue;
-      const r = shown.find((x) => x.id === id);
-      if (!Number.isInteger(r?.verse)) continue;
-      const last = Number.isInteger(r.endVerse) ? Math.max(r.verse, r.endVerse) : r.verse;
-      for (let v = r.verse; v <= last; v++) counts.set(v, (counts.get(v) ?? 0) + 1);
-    }
-    return counts;
-  }
-
-  /** Set every verse number's name from the records and the "My notes" and "My highlights" switches. */
-  function apply() {
-    const counts = getSetting("notes") === "on" ? noteCounts(records) : new Map();
-    const colors = getSetting("highlights") === "on" ? highlightColors(records) : new Map();
-    const changed = noticeCounts();
-    for (const sup of textBox.querySelectorAll("sup.vn")) {
-      // chapter-tools.js makes it a button at init; one it hasn't reached yet
-      // is left for it, and picked up on the next refresh.
-      if (sup.getAttribute("role") !== "button") continue;
-      const verse = parseInt(sup.textContent, 10);
-      if (!Number.isFinite(verse)) continue;
-      const label = verseLabel(verse, counts.get(verse) ?? 0, colors.get(verse) ?? [], changed.get(verse) ?? 0);
-      if (sup.getAttribute("aria-label") !== label) sup.setAttribute("aria-label", label);
-    }
-  }
+  const apply = () => label(textBox, records);
 
   /** Read the notebook again, then relabel. */
   async function refresh() {
@@ -93,4 +78,44 @@ export function createVerseLabels({ store }) {
   refresh();
 
   return { refresh };
+}
+
+/**
+ * How many of the marks being shown carry a change notice, on each verse
+ * they cover: notes while "My notes" is on, highlights while "My
+ * highlights" is. A lost mark isn't counted. A note on a footnote (M11) is
+ * about the footnote, not the verse (noteCounts leaves it out too), so its
+ * notice is not counted here either.
+ */
+function noticeCounts(records) {
+  const shown = records.filter(
+    (r) =>
+      (r.kind === "note" && !onFootnote(r) && getSetting("notes") === "on") ||
+      (r.kind === "highlight" && getSetting("highlights") === "on"),
+  );
+  const counts = new Map();
+  for (const [id, notice] of noticesFor(shown)) {
+    if (notice.kind === "lost") continue;
+    const r = shown.find((x) => x.id === id);
+    if (!Number.isInteger(r?.verse)) continue;
+    const last = Number.isInteger(r.endVerse) ? Math.max(r.verse, r.endVerse) : r.verse;
+    for (let v = r.verse; v <= last; v++) counts.set(v, (counts.get(v) ?? 0) + 1);
+  }
+  return counts;
+}
+
+/** Set every verse number's name in `textBox` from its chapter's records and the "My notes" and "My highlights" switches. */
+function label(textBox, records) {
+  const counts = getSetting("notes") === "on" ? noteCounts(records) : new Map();
+  const colors = getSetting("highlights") === "on" ? highlightColors(records) : new Map();
+  const changed = noticeCounts(records);
+  for (const sup of textBox.querySelectorAll("sup.vn")) {
+    // chapter-tools.js makes it a button at init; one it hasn't reached yet
+    // is left for it, and picked up on the next refresh.
+    if (sup.getAttribute("role") !== "button") continue;
+    const verse = parseInt(sup.textContent, 10);
+    if (!Number.isFinite(verse)) continue;
+    const label = verseLabel(verse, counts.get(verse) ?? 0, colors.get(verse) ?? [], changed.get(verse) ?? 0);
+    if (sup.getAttribute("aria-label") !== label) sup.setAttribute("aria-label", label);
+  }
 }

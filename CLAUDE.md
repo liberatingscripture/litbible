@@ -245,8 +245,16 @@ src/
                      #   notice built on it (desk-change); the notebook's
                      #   write plans in desk-store-core; the sheet record,
                      #   its checks and its formatted-text sanitizer
-                     #   (desk-sheet-format) and the changes a sheet takes
-                     #   (desk-sheets); merging two copies
+                     #   (desk-sheet-format), the changes a sheet takes
+                     #   (desk-sheets) and its passages (desk-sheet-passages),
+                     #   the templates it starts from (desk-sheet-templates),
+                     #   a search's or topic's passages (desk-sheet-gather),
+                     #   the reader's questions on it (desk-sheet-discussion),
+                     #   sharing it by link or file (desk-sheet-share),
+                     #   and its copies on paper (desk-sheet-copy, with
+                     #   qr-svg.mjs, the one QR drawing), and on a
+                     #   screen for a room (desk-present);
+                     #   merging two copies
                      #   of a notebook (desk-merge); finding a pinned
                      #   footnote again (desk-footnotes); the notebook page
                      #   and its files (desk-notebook, desk-export,
@@ -254,7 +262,10 @@ src/
                      #   notebook search and commands
                      #   (desk-search, desk-commands) and first use
                      #   (desk-first-use); the Greek tab's helpers
-                     #   (desk-greek)), greek-parse.mjs (MorphGNT's parsing
+                     #   (desk-greek); /desk's panes and their
+                     #   layouts (desk-layout), the passages they show
+                     #   (desk-passage), and the LIT pane's corpus and
+                     #   text (desk-corpus, desk-lit-text)), greek-parse.mjs (MorphGNT's parsing
                      #   codes in words, shared with the phase 2 tool),
                      #   greek-search.mjs (searching the Greek: folding,
                      #   transliteration keys, matching; shared by both
@@ -387,6 +398,8 @@ workers/             # Cloudflare Workers, deployed separately via wrangler (NOT
 | `/glossary` | `glossary.astro` | Glossary |
 | `/search` | `search.astro` | Full search UI (verse index + Pagefind) |
 | `/notebook`, `/notebook/help` | `notebook.astro`, `notebook/help.astro` | The Study Desk preview's notebook page and help page. noindex, out of the sitemap and Pagefind; empty for anyone without the preview (`?desk=on`). See "The Study Desk preview" |
+| `/desk` | `desk.astro` | The Study Desk as a page of its own (D9): one to four panes. Same treatment as `/notebook`: noindex, out of the sitemap and Pagefind, and a short note without the preview. See "The Study Desk preview", rule 18 |
+| `/sheets` | `sheets.astro` | A sheet's own address (3i): `/sheets/` lists the reader's sheets, `/sheets/?id=<id>` shows one as a leader or participant copy, to print or copy for Word, or presents it to a room (3j; `&view=present`, and `&view=presenter` for the presenter view's window). `/sheets/#share1.<data>` is a sheet someone shared (3k). Never edits. Same treatment as `/desk`. See "The Study Desk preview", rules 19 and 21 |
 | `/release-notes` | `release-notes.astro` | "What's new": the release notes by month, filterable by book and kind of change. `/translation-updates.xml` (`translation-updates.xml.js`) is the same record as RSS. See "Release notes are automated" below |
 | `/apps` | `apps.astro` | Mobile-apps promo page (footer-linked). Body design ported from `BDRhodes/LIT-app-Promo`; section content lives in the `callouts`/`examples`/`seasons` collections; scoped styles in `src/styles/pages/apps.css`; components under `src/components/apps/`. Uses `bg="white"` (near-white surface). |
 | `/app-support` | `app-support.astro` | App support contact form (linked from inside the apps, not the site nav; `/app-support/thanks` is the native-POST fallback success page) |
@@ -419,7 +432,7 @@ the sitemap filter live in `astro.config.mjs`.
 | `build-bracket-marker-font.mjs` | `public/fonts/bracket-markers.otf` — subsets the ⟦/⟧ disputed-passage glyphs out of Noto Sans Math, since the site's own webfonts are Latin-only. **Not** in the build — run by hand if the source glyphs ever change. See "Bracketed passages" below. |
 | `build-text-critical-font.mjs` | `public/fonts/text-critical-signs.otf` — the six SBLGNT text-critical signs (⸀ ⸁ ⸂ ⸃ ⸄ ⸅, U+2E00–2E05) subset from full Cardo (Google Fonts' TTF, OFL; Fontsource's Cardo subsets lack them), registered under Crimson Text and Inter in `greek-hebrew-fonts.css`. **Not** in the build. |
 | `build-greek.mjs` | `public/greek/` — the Study Desk's Greek tab data: one file per chapter (SBL's SBLGNT 1.2 text and paragraphs, MorphGNT's lemmas, parsing and word numbers, the apparatus, two borrowed passages) plus lexicon shards (UBS, STEPBible brief, full LSJ), and `search/`, the Greek search index (a lemma list, then occurrences sharded by lemma, each word with its parsing, and `parse/`, every word by its parsing, for searches with no word in them). Pure rules in `lib/greek-core.mjs` (unit-tested); the search index's folding comes from `src/lib/greek-search.mjs`, so build and query fold alike. **Not** in the build: CI has no copy of the sources, which live outside the repo (`GREEK_SOURCES_DIR`, `MORPHGNT_DIR`). See "The Study Desk preview", rule 14. |
-| `build-apps-qr.mjs` | `public/images/apps-qr.svg` — the QR code the app announcement shows on a computer, pointing at `https://litbible.net/apps/` with no tracking parameter. Uses `qrcode-generator` (MIT, no dependencies), a devDependency used only by this script. **Not** in the build — run by hand if the address ever changes. |
+| `build-apps-qr.mjs` | `public/images/apps-qr.svg` — the QR code the app announcement shows on a computer, pointing at `https://litbible.net/apps/` with no tracking parameter. Draws through `src/lib/qr-svg.mjs`, the one QR drawing, which `/sheets/` also loads for its printed codes, so `qrcode-generator` (MIT, no dependencies) is a runtime dependency. **Not** in the build — run by hand if the address ever changes. |
 | `build-alignment.mjs` | `src/data/alignment/` — scans published chapters for glossary-term renderings, then checks each against MorphGNT. **Not** in the build; its output is committed and merges with prior human review. See The Alignment Dataset below. |
 | `alignment-words/server.mjs` | `npm run review:words` — phase 2's localhost tool (`core.mjs` = pure format and rules, `store.mjs` = fs + corpus, `ui/` = vanilla HTML/CSS/JS, no shared code with the glossary tool's UI). See "Phase 2 tooling" under The Alignment Dataset. |
 | `alignment-review/server.mjs` | `npm run review:alignment` — the localhost review UI (`store.mjs` = fs + corpus, `review-core.mjs` = pure logic *also served to the browser*, `ui/` = vanilla HTML/CSS/JS). Node builtins only, no deps. |
@@ -2258,8 +2271,8 @@ collection); they're read directly by the intro pages and the API manifest.
   by an outside click or Escape. A click inside the Study Desk's Notebook
   panel doesn't count as outside, and a panel is placed clear of it (see
   below).
-- **The Study Desk preview** (STUDY-DESK.md, phases 1a to 1d, 1f and 1h, and
-  2a's B3 and N4) is in production but
+- **The Study Desk preview** (STUDY-DESK.md, phases 1a to 1d, 1f and 1h,
+  2a to 2c, and phase 3's 3b to 3k) is in production but
   switched off for everyone: `?desk=on` turns it on in one browser on a
   computer, `?desk=off` turns it off. STUDY-DESK.md is the record; what a
   change elsewhere in the site has to respect:
@@ -2656,6 +2669,275 @@ collection); they're read directly by the intro pages and the API manifest.
        `parse.json` with `parse/<group>.json` holds every word by its
        parsing, named by `parseGroup` (`greek-search.mjs`, shared by build
        and client). Rebuild with `npm run build:greek`, never by hand.
+  18. **Phases 3c to 3g are /desk** (built 2026-10-19; STUDY-DESK.md, D9
+     and "Order of work", 3c to 3g): `src/pages/desk.astro`, which `desk-gate.js`
+     fills with `src/scripts/desk/desk-page.js` when `[data-desk-page]` is
+     present. It isn't a reading surface (no Notebook panel; not in
+     `READING_SURFACES`), and the announcement gate treats it as scripture.
+     Six things to know:
+     - **`src/lib/desk-layout.mjs` is the one set of rules** (pure, tested):
+       a layout is a tree of panes and normalized splits; the Layout menu's
+       arrangements (`ARRANGEMENTS`; four rows left out, BVJ 2026-10-18);
+       dragging a pane to an edge of another (`splitPane`); the 280 by 160
+       minimum (`needs`, `fitSizes`, `resize`); and which panes follow the
+       active LIT pane unless pinned (`KINDS`, `leaderFor`). A new
+       arrangement or kind goes there, never in the page.
+     - **A pane's body comes from `desk/desk-panes.js`**, which mounts the
+       Notebook's own modules rather than copies, so a pane and its tab
+       can't drift apart: My Notes is `tab-mine.js`, This verse
+       `tab-verse.js` (with "This chapter", the chapter's Go deeper, at its
+       foot), Greek `tab-greek.js`, and What I've kept `kept-list.js`, which
+       the notebook page draws too. Those tabs take a `source` and an
+       `idSuffix` for this; a change to one must keep both callers working.
+       The LIT pane is `desk/lit-pane.js`, Footnotes
+       `desk/footnotes-view.js` (3e), and Sheet `desk/sheet-pane.js` (3f),
+       the sheet editor, with its formatted text in `desk/sheet-text.js`
+       and what it knows about the LIT (3h: blanks, the footnote picker,
+       the key terms box and the license card) in `desk/sheet-lit.js`,
+       whose rules are `src/lib/desk-sheet-lit.mjs`.
+     - **Every pane reads a chapter from its built Study View page**,
+       fetched and parsed once a visit (`desk/chapter-page.js`), so what it
+       shows is character-identical to Study View. Each LIT pane keeps
+       where its reader is (`at` on the pane), and the active one's is the
+       shared passage, `layout.place` ("john 3:16",
+       `src/lib/desk-passage.mjs`), which the panes that aren't pinned
+       follow. They lead back: their picker (`desk/passage-bar.js`), This
+       verse's Previous and Next, a footnote's verse, or scrolling the Greek
+       move the active LIT pane. With no LIT pane open they share the place
+       among themselves (BVJ, 2026-10-19, option A); a pinned pane keeps
+       its own in `pin.at`.
+     - **The LIT pane scrolls the whole New Testament**, a chapter fetched
+       as the reader nears it (`src/lib/desk-corpus.mjs`: a run of drafts in
+       one book is one stub, from the draft list `desk.astro` writes at
+       build). Its text is the page's own with every id prefixed by pane and
+       chapter (`src/lib/desk-lit-text.mjs`), which
+       `test/desk-anchor-dom.test.js` sweeps as a third view; **a new
+       render-time change to the chapter text must pass that sweep too.** A
+       chapter loading above is held in place by measuring the reading line
+       (the browser's scroll anchoring is off there, or both would correct),
+       and only the reader's own scrolling reports a new place, so panes
+       never chase each other. Footnote letters open their own chapter's
+       note (`footnotePanel`, shared with Study View in `panel-pieces.js`);
+       key terms are attached per chapter (`attachTermLens` in
+       `term-lens.js`). **The verse menu and the selection panel are Study
+       View's own** (3f): `attachVerseTools` in `chapter-tools.js` takes the
+       pane as a view whose text holds many chapters (each names its own
+       reference, link and notes), and one set of selection listeners serves
+       every view, so two panes never answer one selection. A change to
+       either panel must keep Study View, Read View and the pane working. No
+       reader's notes or bookmarks beside the pane's text, by BVJ's choice
+       (3g): My Notes is a following pane that scrolls its list so the
+       records on the passage being read are in view (`follow` in
+       `tab-mine.js`), and a record's reference moves the LIT pane there.
+     - **The reader's marks reach the LIT pane through `page.js`** (3g): each
+       pane registers its text (`addDeskText`), `deskChapterBoxes()` lists
+       every chapter the panes show (twice when two panes show it), and
+       `chapterTextFor` reads the first; `desk/lit-records.js` keeps each
+       chapter's records for whatever draws on them (`highlights.js` and
+       `verse-labels.js` have a /desk mode on it). Pins work per chapter
+       (`pinButton(id, label, where)` in `pins.js`), reading a fetched
+       chapter's footnotes through `loadedChapterPage` (`chapter-page.js`),
+       which is also how a pin's change notice is judged on /desk.
+     - **A sheet's passages come from the live text** (format rule 1):
+       `src/lib/desk-sheet-passages.mjs` makes one from a verse menu, a
+       selection or a notebook record, and finds its words in today's
+       chapter; the pane draws them from the chapter's fetched page. A
+       passage's blanks, footnote choices and key terms are worked out the
+       same way, in that chapter's anchor text, with the term lens's marks
+       turned into offsets (`termMarkOffsets`), so nothing about the text
+       is stored but the words a blank covers. "Add to
+       sheet" reaches the LIT pane's menus through `lit:panel-actions`, as
+       the "My Notebook" row does, which reads `book`, `chapter` and
+       `textFor` from the detail. Which sheet a Sheet pane shows is `sheet`
+       on its pane in the layout (`setPaneSheet`).
+     - **The layout is `localStorage['lit-desk-layout']`**: the last
+       layout, the reader's default and which opens the page, written on
+       every change (the shared passage, each LIT pane's place and each
+       Sheet pane's sheet included) and checked on the way
+       back in (`checkLayout`); a
+       layout that fails the check falls back to the original, the LIT
+       beside My Notes, 60/40. Named in /privacy's paragraph.
+     - **The page fills the window and its footer is hidden**
+       (`html[data-desk-workspace]` in `desk.css`), so each pane scrolls on
+       its own.
+  19. **Phase 3i is a sheet on paper** (built 2026-10-20; STUDY-DESK.md, S4,
+     S5, S9, C27 and "Order of work", 3i): `src/pages/sheets.astro`, which
+     `desk-gate.js` fills with `src/scripts/desk/sheet-page.js` when
+     `[data-sheet-page]` is present. It shows, prints and copies a sheet and
+     **never writes a record** (sheets are edited on /desk only; the Sheet
+     pane's "Print or share…" opens it in a new tab). Six things to know:
+     - **`src/lib/desk-sheet-copy.mjs` is the rules** (pure, tested): which
+       modules each copy prints (`modulesForCopy`: the participant's leaves
+       out Leader only), one code per chapter (`chapterCodes`, the address
+       form of STUDY-DESK-FORMAT.md, "Addresses"), the key terms box where
+       its words are blanked, the paper (`defaultPaper`, `pageRule`), and
+       `sheetHtmlForShow`, which sanitizes a sheet's formatted words again
+       and links their references. **A new place that shows a sheet's
+       formatted words uses it**, never `innerHTML` of the stored html.
+     - **`desk/sheet-copy.js` draws a copy from the Sheet pane's own reading**:
+       `readPassage`, `passageWords` and `locateBlanks` are exported from
+       `sheet-lit.js` for it, so the editor and the paper can't disagree
+       about which words a passage, a blank or a footnote covers.
+       `passageWords`' `keepNotes` keeps the printing footnotes' letters as
+       plain superscripts.
+     - **The printed codes are `src/lib/qr-svg.mjs`**, shared with
+       `build-apps-qr.mjs`; `qrcode-generator` is a runtime dependency for
+       that reason, loaded only by the sheet page's chunk.
+     - **Copy for Word** (`desk/sheet-word.js`) reads the copy on screen and
+       writes HTML with inline styles plus plain text, so what is pasted is
+       what would print, codes aside.
+     - **The paper is `localStorage['lit-sheet-paper']`** (Letter or A4,
+       guessed from the reader's languages until chosen), named in /privacy's
+       paragraph. Its `@page` rule is added as the page's last style, after
+       print.css. On screen the copy is a white sheet of that width in either
+       theme, and `sheets-page.css` lets the reader's named fonts, colors and
+       backgrounds print, which print.css otherwise turns to black serif.
+     - **Printing with my notes (M6) needs no sheet**: "Print with my notes"
+       in the My Notes foot and the command list, on Study View chapters and
+       Read View (`desk/print-notes.js`, rules in
+       `src/lib/desk-print-notes.mjs`). For that one print it sets
+       `html[data-desk-print="notes"]`, inserts a print-only
+       `aside.desk-print-notes` after each block holding a note's first word
+       (`display: none` on screen, `aria-hidden`, no `[data-verse]` text, so
+       no reader of the page sees it), paints the highlights as their own
+       Custom Highlights (`desk-print-hl-*`, which Chrome prints), and undoes
+       all of it on `afterprint`. The grid that sets the notes beside the
+       text is in `desk.css`'s last section. Plain Ctrl+P never has the
+       attribute and prints as before.
+     - **Printing with room to write (N9) is M6's blank sibling**: the
+       button right after it in the My Notes foot, and the command
+       `print-with-room`. `desk/print-room.js` only stamps
+       `html[data-desk-print="room"]`, waits for the print fonts (reusing
+       `print-notes.js`'s bounded `printFonts`), prints, and removes the
+       attribute on `afterprint`. It reads no notebook, so unlike M6 it is
+       offered even where the browser keeps none. The look is a background on
+       the scripture container (ruled lines and a left rule on the right 35%,
+       text held in by padding), in `desk.css` beside M6's section, so the
+       rules run unbroken across page breaks; footnotes and the notice stay
+       full width after it.
+  20. **Phase 3j is present mode** (built 2026-10-20; STUDY-DESK.md, S6, M2,
+     M3 and "Order of work", 3j), on the sheet's own page:
+     `src/scripts/desk/sheet-present.js`, opened by sheet-page.js's
+     "Present", or at once for `&view=present` (the Sheet pane's
+     "Present…") and `&view=presenter` (the presenter view's window). Like
+     the rest of the page it **never writes a record, and stores nothing**:
+     where the room is lives in the open windows. Five things to know:
+     - **`src/lib/desk-present.mjs` is the rules** (pure, tested): the
+       screens (`presentScreens`: a start screen, then each passage, text,
+       question and key terms box the room sees; a Leader only part goes to
+       the presenter view with the screen before it), the room's codes on the
+       start screen (`roomCodes`, S5's codes, at most four), a blank's cover
+       (`blankCover`), the state and its steps (`checkState`, `stepState`),
+       the footnotes the reveal lets out (`screenFootnotes`), the keys
+       (`presentKey`), `fitSize`, and the messages between windows.
+     - **The reveal is the sheet's own blanks**, never a field of its own:
+       a passage screen is drawn once by `presentPassage` in
+       `desk/sheet-copy.js`, from the same reading as the paper copies, with
+       each blank holding its words and their cover in one inline grid cell
+       (`.sheet-blank--present`), so a reveal flips `data-revealed` and
+       moves nothing. A change to how a copy reads a passage must keep both
+       working.
+     - **The room's screen is dark in either theme**: its colors and its
+       focus ring are pinned on `.present-stage` in `sheets-page.css`, which
+       the presenter view's previews share (`.present-preview__surface`). Each
+       screen is set at the largest type that fits (`fitScreen`); footnotes
+       come up in a box of their own over the screen and are fitted
+       separately, so they never shrink the verses.
+     - **The two windows stay in step through a BroadcastChannel**
+       (`channelName`, one per sheet), with a `hello` from a window that
+       opens and a `bye` from one that closes; every message is checked
+       (`presentMessage`, `checkState`) before it is used. The presenter view
+       places the presentation on a second screen through the Window
+       Management API where it can (`openPresenterWindow`); without it, the
+       leader drags the window.
+     - **While it is open, everything behind it is `inert`**, and the stage
+       is a `role="dialog"`, which is what keeps the site's single-key
+       shortcuts (keyboard-shortcuts.js) out of its way.
+  21. **Phase 3k is getting started and sharing** (built 2026-10-20;
+     STUDY-DESK.md, M5, M9, S8 and "Order of work", 3k). Four things to know:
+     - **Templates** (M9) are `src/lib/desk-sheet-templates.mjs` (pure,
+       tested; every template's formatted text must already be in the
+       sanitizer's canonical form). New sheet in the Sheet pane lists them,
+       and a new part goes after the part last worked in (`insertIndex` in
+       `sheet-pane.js`), so a passage lands inside a template, not after it.
+     - **A sheet from a search or a topic** (M5) keeps desk code out of
+       search.js: /search announces every hit (not just the page on screen)
+       with a `lit:search-results` event on `document` and calls
+       `loadDeskSheets()` in `search-core.js`, which imports
+       `desk/search-sheet.js` only with `data-desk="on"`. The passages
+       (Bible order, neighbors joined, capped at the sheet's limit) are
+       `src/lib/desk-sheet-gather.mjs`. "Open it on the Study Desk" is
+       `/desk/?sheet=<id>`, which desk-page.js shows in a Sheet pane
+       (`showSheet` in `desk-layout.mjs`) and strips from the address.
+     - **Sharing** (S8) is `src/lib/desk-sheet-share.mjs` (pure, tested;
+       format in STUDY-DESK-FORMAT.md, "Sharing a sheet"): the sheet, less
+       its ids and comparison copies (and, for a participant share, its
+       Leader only parts and answers), as deflate-raw JSON in base64url
+       after `#share1.`, or the same data on the last line of a
+       `.lit-sheet.md` file. Opening one decompresses with a ceiling,
+       rebuilds the record with fresh ids and refuses it unless
+       `validateRecord` passes. **The fragment must never reach a server or
+       the analytics beacon**: an inline script in `sheets.astro`'s body
+       moves it into `history.state.litSharedSheet` while the page parses,
+       and again on `hashchange` (then reloads), since a link opened in a tab
+       already on /sheets/ changes only the fragment. Checked against the
+       real beacon on 2026-10-20: its `location` came without the fragment.
+       The navigation timing entry's `name` still holds the original
+       address, and the beacon didn't send it then; recheck if the beacon
+       starts sending timing names. Keep `SHARE_PREFIX` and the inline
+       script in step.
+     - **Where the desk doesn't run**, `src/scripts/sheet-share-gate.js`
+       (loaded by /sheets/ for everyone, small) says what to do with a
+       shared link: on a phone or tablet, copy the link to send to a
+       computer; on a computer without the preview, a link that switches it
+       on (`?desk=on#share1.…`, a new page, so the fragment is taken again).
+       A shared sheet shows read only until "Copy into my desk", which saves
+       it as a new sheet (`copyOfShared`) and turns the page into that
+       sheet's own address. No storage key is added.
+  22. **Phase 2b is a sheet checked before printing** (built 2026-10-20;
+     STUDY-DESK.md, S2, N9 and "Order of work", 2b). N9 is the bullet under
+     rule 19. S2, in three things:
+     - **`src/lib/desk-sheet-check.mjs` is the rules** (pure, tested):
+       `passageCheck` compares a passage's `verseCopy` with today's verses
+       through N3's `wordingChanged` (typography folded), judging a quoted
+       passage on its own words only; `freshCopy` is what "Keep the new
+       wording" writes; `textAsOfLine` is the copy's "Text as of" line from a
+       content version. `readPassage` (`desk/sheet-lit.js`) carries the
+       check as `check`, and the source's `contentVersion` (read off the
+       fetched page's `<html>` by `chapter-page.js`).
+     - **The Sheet pane writes one thing the reader didn't ask for**: a
+       passage with no `verseCopy` (gathered on /search) takes one the first
+       time the pane reads it, through `change(…, { quiet: true })`, which
+       commits with `record: false` so Ctrl+Z never undoes it into a loop.
+       Keep is an ordinary, undoable change.
+     - **The sheet page only reports**: `drawCheck` above the paper
+       (`.sheets-page__check`, hidden in print), and Keep is on /desk. Both
+       notices draw the diff with `desk/diff-view.js`, shared with the
+       change notice; change one and both move.
+  23. **Phase 2c is notes on a footnote and questions for discussion**
+     (built 2026-10-20; STUDY-DESK.md, M11, N6 and "Order of work", 2c).
+     Three things to know:
+     - **A note on a footnote is a `note` with a pin's fields**
+       (`footnote`, `n` and the letter's verse; no `quote`, no
+       `verseCopy`), told apart by `onFootnote` in `desk-records.mjs`. It is
+       found and noticed by the pin's rules (`findPin`, `pinNotice`,
+       `planKeep`), never by its verse's wording, so **any code that reads
+       a note's verse must ask `onFootnote` first**: `isVerseMark`,
+       `noteCounts`, This verse's verse list and the verse labels all leave
+       such notes out, and `recordWhere` (`desk-store-core.mjs`) names it
+       ("a footnote in Romans 8:3") where `recordReference` names the verse.
+     - **`desk/footnote-notes.js` is its page side**: "Add a note" beside
+       every Pin (`addNoteButton`, which `pins.js` and the tabs and pane
+       call) and the reader's notes under a footnote (`footnoteNotes`). Both
+       sit beside `.fn-body`, never in it, so a footnote's text, the
+       handout and `footnoteList()` read only the footnote. The margin
+       places such a note beside its footnote's `li` (`note-sources.js`)
+       and marks the `li` instead of lighting verse words.
+     - **N6 writes ordinary sheet parts**: `src/lib/desk-sheet-discussion.mjs`
+       (pure, tested) turns the notes marked `question` on a sheet's
+       passages into a heading and `question` modules, once; nothing links
+       them back to the notes. The Sheet pane's "+ For discussion" adds them
+       in one change.
 - **Every link that leaves the site opens in a new tab** (owner, 2026-10-01).
   For rendered bodies that is `openExternalLinks` in `src/lib/external-links.mjs`
   (pure, unit-tested), called from `linkRefs`, the one function footnotes,
@@ -3410,8 +3692,9 @@ argv, and the scan; nothing else.
 | `public/llms.txt`, `llms-full.txt` | LLM-readable site description + AI-usage policy |
 | `GLOSSARY-CANDIDATES.md` | Register of glossary candidates deliberately not included or deferred, and the payload criterion behind those calls. Read it before proposing a "next term." |
 | `TOPICS.md` | **The authority on chapter and book-intro `topics`** — the significance filter, the alternative-translation pair table, the prefix-search rule, casing, and the hand-run checks. Read it before adding or revising any topics array. |
-| `STUDY-DESK.md` | **The planning and decision record for the Study Desk** (notes, places, highlights and sheets on desktop, with optional account sync shared with the apps). Phases 1a to 1d, 1f and 1h are built (the merge engine; notes, bookmarks, highlights, pinned footnotes, the margin and the panel's tabs; the notebook page, export and import, labels, ribbons, search and commands, first use and the tour; the Greek tab; searching the Greek), and so is phase 2a (2026-10-15: B3, N4, and construction search and searching by parsing as Greek search commands; M10 was built and shelved; N2, H2 and M4 are shelved for version 2, 2026-10-15), the shell behind a preview switch (`?desk=on`); nothing reader-facing is released. N8 (the hidden passage) is held on branches until after the Zoom; it is not released before phase 1 is completely done, and perhaps not until phases 1 to 3 are (BVJ, 2026-10-13). 1g (an interleaf for the Greek) and 1h (searching the Greek) belong to phase 1: 1g is shelved for the future, and 1h was built on 2026-10-13. Every idea, audit finding, owner decision, open question and BDR item is there with its ID, as are the two apps' replies (2026-10-04) and the talk-through list built from them. Read it before proposing or building any part of the desk, and update it when a decision changes. `STUDY-DESK-BRIEF-FOR-BDR.md` is the brief written for BDR's Claude about the apps' side; `STUDY-DESK-REPLY-TO-APPS.md` is the website's answer to both apps' replies (2026-10-05), and the last such document: since 2026-10-07 BDR's Claude reads this repo directly, so the website answers by updating `STUDY-DESK.md` on `main` (its section "One notebook, three homes" holds BDR's sync proposal and the website's answers). |
+| `STUDY-DESK.md` | **The planning and decision record for the Study Desk** (notes, places, highlights and sheets on desktop, with optional account sync shared with the apps). Phases 1a to 1d, 1f and 1h are built (the merge engine; notes, bookmarks, highlights, pinned footnotes, the margin and the panel's tabs; the notebook page, export and import, labels, ribbons, search and commands, first use and the tour; the Greek tab; searching the Greek), and so is phase 2a (2026-10-15: B3, N4, and construction search and searching by parsing as Greek search commands; M10 was built and shelved; N2, H2 and M4 are shelved for version 2, 2026-10-15), phase 3's sheets and /desk (3b to 3k, 2026-10-18 to 10-20), phase 2b (2026-10-20: S2, a sheet checked before printing, and N9, print with room to write), and phase 2c (2026-10-20: M11, notes on a footnote, and N6's questions gathered onto a sheet), the shell behind a preview switch (`?desk=on`); nothing reader-facing is released. N8 (the hidden passage) is held on branches until after the Zoom; it is not released before phase 1 is completely done, and perhaps not until phases 1 to 3 are (BVJ, 2026-10-13). 1g (an interleaf for the Greek) and 1h (searching the Greek) belong to phase 1: 1g is shelved for the future, and 1h was built on 2026-10-13. Every idea, audit finding, owner decision, open question and BDR item is there with its ID, as are the two apps' replies (2026-10-04) and the talk-through list built from them. Read it before proposing or building any part of the desk, and update it when a decision changes. `STUDY-DESK-BRIEF-FOR-BDR.md` is the brief written for BDR's Claude about the apps' side; `STUDY-DESK-REPLY-TO-APPS.md` is the website's answer to both apps' replies (2026-10-05), and the last such document: since 2026-10-07 BDR's Claude reads this repo directly, so the website answers by updating `STUDY-DESK.md` on `main` (its section "One notebook, three homes" holds BDR's sync proposal and the website's answers). |
 | `STUDY-DESK-FORMAT.md` | **Draft record format for the Study Desk**, shared with both apps: the kinds of record, the anchor text, and how a mark is found again after the wording moves. Its executable form is `scripts/lib/anchor-text.mjs` (pure half in `src/lib/anchor-core.mjs`) with `test/fixtures/anchor-vectors.json`; its merge rules are `src/lib/desk-merge.mjs` with `test/fixtures/merge-vectors.json`, hand-written cases the apps run too. Change each pair together. |
+| `STUDY-DESK-AUDIT-1.md` | **Full Audit 1 of the built Study Desk** (2026-10-20, commit `82af6a6`): findings BA1 to BA87, each with what happens, where and the fix, and the plan to fix them in phases FA1-a to FA1-t, each one session's work, plus the follow-up audit (FA1-u for the code it didn't reach, FA1-v on real devices), whose findings continue as BA88 onward. Read its "How to work a phase on a Pro account" before starting one, and mark each finding's status there as it ships. STUDY-DESK.md keeps the decisions. |
 | `DISASTER-RECOVERY.md` | Continuity doc: every dashboard/secret behind the deploy (names only, no values) + the DNS inventory + from-zero redeploy path. Update it when an integration, secret, or DNS record is added/removed. |
 
 > The top-level `README.md` is the lighter human-facing overview; this file is

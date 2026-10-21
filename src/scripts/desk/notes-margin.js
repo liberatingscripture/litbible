@@ -11,6 +11,10 @@
 // audit C24), positioned beside the text, and the words a note hangs on are
 // lit with the CSS Custom Highlight API, which marks text without touching it.
 //
+// A note on a footnote (M11) sits beside its footnote in the Footnotes list at
+// the foot of the page instead, and what it lights is that list item (a class,
+// not the Custom Highlight, which would mark verse words).
+//
 // For a screen reader, each note opens with the words it hangs on, hidden
 // from view ("My note on ‘nothing is now a verdict’, Romans 8:1: ").
 //
@@ -27,7 +31,7 @@
 // the Notebook's lists name it anyway). Each opens the card. Nothing is
 // written until the reader chooses Keep or Delete there.
 
-import { recordReference } from "../../lib/desk-store-core.mjs";
+import { recordReference, recordWhere } from "../../lib/desk-store-core.mjs";
 import {
   CIRCLE,
   CIRCLE_GAP,
@@ -53,6 +57,8 @@ import { fillNoteWords, onLink } from "./note-words.js";
 import { SETTINGS_EVENT, getSetting, highlightSetting } from "./note-settings.js";
 
 const LIT = "desk-note-words";
+// What a hovered, focused or opened note on a footnote puts on its footnote.
+const FN_LIT = "desk-fn--noted";
 const supportsHighlight = typeof CSS !== "undefined" && "highlights" in CSS && typeof Highlight !== "undefined";
 const reducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -324,6 +330,11 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
     return recordReference(r);
   }
 
+  /** Where a note is, as a sentence says it: "Romans 8:3", or "a footnote in Romans 8:3". */
+  function whereOf(r) {
+    return recordWhere(r);
+  }
+
   function noteElement(r, notice = null) {
     const el = document.createElement("div");
     el.className = "desk-note";
@@ -355,7 +366,7 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
     const edit = document.createElement("button");
     edit.type = "button";
     edit.className = "desk-note__edit";
-    edit.innerHTML = `Edit<span class="sr-only"> my note on ${escapeHtml(refOf(r))}</span>`;
+    edit.innerHTML = `Edit<span class="sr-only"> my note on ${escapeHtml(whereOf(r))}</span>`;
     el.append(toggle);
     if (notice) {
       // Its wording has changed: a flag under the words, with Edit beside it
@@ -366,7 +377,7 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
       flag.type = "button";
       flag.className = "desk-flag desk-flag--inline";
       flag.setAttribute("aria-haspopup", "dialog");
-      flag.setAttribute("aria-label", `The wording changed under my note on ${refOf(r)}. Review`);
+      flag.setAttribute("aria-label", `The wording changed under my note on ${whereOf(r)}. Review`);
       flag.innerHTML = `${changedGlyph()}<span class="desk-flag__text" aria-hidden="true">Wording changed</span>`;
       const foot = document.createElement("div");
       foot.className = "desk-note__foot";
@@ -435,13 +446,15 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
   /* ── The words a note hangs on ───────────────────────────────────── */
 
   function syncLit() {
-    if (!supportsHighlight) return;
     const ids = new Set([...hover, ...open, ...flash, ...(popId ? [popId] : [])]);
-    if (!ids.size || getSetting("notes") !== "on") {
-      CSS.highlights.delete(LIT);
-      return;
-    }
-    const ranges = placed().filter((p) => ids.has(p.record.id)).map((p) => p.range);
+    const lit = ids.size && getSetting("notes") === "on" ? placed().filter((p) => ids.has(p.record.id)) : [];
+    // A note on a footnote lights its footnote (a class on the list item),
+    // never verse words.
+    const marked = new Set(lit.map((p) => p.footnote).filter(Boolean));
+    for (const li of document.querySelectorAll(`.${FN_LIT}`)) if (!marked.has(li)) li.classList.remove(FN_LIT);
+    for (const li of marked) li.classList.add(FN_LIT);
+    if (!supportsHighlight) return;
+    const ranges = lit.filter((p) => !p.footnote).map((p) => p.range);
     if (ranges.length) CSS.highlights.set(LIT, new Highlight(...ranges));
     else CSS.highlights.delete(LIT);
   }
@@ -526,7 +539,7 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
   /* ── A circle's note, opened like a footnote ─────────────────────── */
 
   function openPopover(record, circle) {
-    const ref = refOf(record);
+    const ref = whereOf(record);
     const pop = document.createElement("div");
     pop.setAttribute("role", "dialog");
     pop.setAttribute("aria-label", `My note on ${ref}`);
@@ -623,6 +636,10 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
   document.addEventListener(SETTINGS_EVENT, schedule);
   document.fonts?.addEventListener?.("loadingdone", schedule);
   if (window.ResizeObserver) new ResizeObserver(schedule).observe(textBox);
+  // A note on a footnote sits beside the Footnotes list, far below the text,
+  // which moves whenever anything above it changes height (Go deeper opening,
+  // a late font): so the whole page's height is watched too.
+  if (window.ResizeObserver && document.querySelector(".footnotes-wrap")) new ResizeObserver(schedule).observe(document.body);
   new MutationObserver(schedule).observe(document.documentElement, {
     attributes: true,
     attributeFilter: ["data-size", "data-leading", "data-font", "data-vn", "data-fn", "data-desk-panel", "data-desk-expanded"],
