@@ -20,14 +20,18 @@ points here. Its decision log holds the BVJ calls made along the way.
   the newer record: BA32 has been declined since, and the page isn't updated.
 - **Totals**: 87 findings, BA1 to BA87. 4 high, 24 medium, 59 low. BA32 is
   declined (below), so **86 are planned**, in 20 phases, FA1-a to FA1-t.
+  Two more phases are **the next audit**: FA1-u reviews the code this audit
+  didn't reach, and FA1-v checks the desk on real devices. Their findings
+  continue the numbering, BA88 onward.
 
 ## IDs
 
 - **BA1 to BA87** are the findings ("build audit"). B, C and E were already
   taken in STUDY-DESK.md (places, the 2026-10-01 audit, the fixes log), so
   they weren't reused. Keep these IDs stable; never renumber.
-- **FA1-a to FA1-t** are the phases. A future audit would be FA2, with its
-  own file.
+- **FA1-a to FA1-v** are the phases. FA1-u and FA1-v are the follow-up
+  audit, whose findings continue as BA88 onward in this file. A later full
+  audit would be FA2, with its own file.
 - The audit page also gives each finding its reviewer's ID (A-1, F-1, and so
   on). Those are only for tracing back to that page; cite BA numbers.
 
@@ -71,10 +75,15 @@ the named function if a line has moved.
 ## The phases
 
 The order puts security and data loss first, then the high finding on /desk,
-then the format the apps will build from, then what readers notice. Polish
-comes last. Phases in one area of code follow each other where one depends on
+then the format the apps will build from. Then comes the follow-up audit of
+the code this one didn't reach (FA1-u), so what it finds can join the phases
+for those areas before they are worked. Then what readers notice, with polish
+last, and finally the checks on real devices (FA1-v), which test the fixed
+desk. Phases in one area of code follow each other where one depends on
 another: FA1-b before FA1-c, FA1-e before FA1-l and FA1-r, and FA1-b to FA1-d
-before FA1-f.
+before FA1-f. The table is in working order. FA1-u's letter is out of
+sequence only because it was added after the others were lettered; IDs stay
+stable.
 
 | Phase | Area | Findings | Status |
 |---|---|---|---|
@@ -84,6 +93,7 @@ before FA1-f.
 | FA1-d | The store, the note editor, and undo | BA5, BA13, BA6, BA7 | open |
 | FA1-e | /desk keeps the reader's place | BA51, BA52, BA53, BA55 | open |
 | FA1-f | The record format, for BDR | BA8, BA14 | open |
+| FA1-u | The follow-up audit: code this audit didn't reach | new findings, BA88 onward | open |
 | FA1-g | Sharing a sheet | BA78, BA80, BA81, BA82, BA87 | open |
 | FA1-h | Marks on the page | BA16, BA17, BA19, BA20, BA23 | open |
 | FA1-i | Sheet templates and passages | BA69, BA70, BA75, BA76, BA77 | open |
@@ -98,6 +108,7 @@ before FA1-f.
 | FA1-r | /desk's smaller fixes | BA31, BA62, BA63, BA64, BA65 | open |
 | FA1-s | Greek credits and the notebook search | BA40, BA46, BA47 | open |
 | FA1-t | Copy and docs | BA15, BA38, BA39, BA42, BA43 | open |
+| FA1-v | The follow-up audit: real devices | new findings | open |
 
 **Declined**
 
@@ -1170,6 +1181,143 @@ read-through of the desk's other reader-facing strings.
     page.
   - Status: open.
 
+## FA1-u. The follow-up audit: code this audit didn't reach
+
+**This phase finds problems rather than fixing them.** It is the next audit,
+aimed at what "Not covered" lists below. Run it after FA1-f and before FA1-g,
+so that what it finds in an area can join the open phase for that area.
+
+**How to run it**:
+- **About two sessions**: areas 1 to 3, then 4 to 6. Stop between areas,
+  and mark the ones done here.
+- **Subagents** are fine on Sonnet, one per area, with at most two running
+  at once. Haiku is fine for finding code. Never Opus.
+- **The method** is the first audit's:
+  - read every file named in full;
+  - check it against CLAUDE.md's desk rules and STUDY-DESK.md's decisions,
+    treating recorded decisions as intended;
+  - prove each finding with a Node reproduction or an exact trace, or in
+    Chromium after `npm run build`;
+  - drop what can't be shown.
+- **Writing up**: add each finding below its area here as **BA88 onward**,
+  in this file's entry format: severity, what happens, where, the fix, how
+  to check it, and status. Then name it in the open phase for its area,
+  adding it to that phase's table row. Where no open phase fits, start a new
+  one, FA1-w onward, and add it to both tables. Add what checked out to
+  "What held up", and what is still unreached to "Not covered".
+- **Ending**: write a decision-log line in STUDY-DESK.md with the counts.
+
+**The six areas**:
+
+1. **What's new for you (B3) and your own chains (N4).**
+   - *Files*: `src/lib/desk-whats-new.mjs`, `desk-whats-new-view.mjs`,
+     `desk-chains.mjs`, and the release-note reading in `desk-change.mjs`
+     (`changeVerses`, `releaseNoteFor`); `src/scripts/desk/whats-new.js`,
+     `release-feed.js`, `note-words.js`. CLAUDE.md desk rules 12 and 16.
+   - *Questions*: does every row of the real `release-notes.json` yield the
+     right verses? Try them all, including ranges, lists, intros, footnote
+     rows and new chapters. Is “last looked” (`whatsNewSeen`) right before a
+     first visit and across tabs? Does a chain link land where it says?
+2. **Places and ribbons.**
+   - *Files*: `src/lib/desk-places.mjs`; `src/scripts/desk/places.js`,
+     `ribbon-follow.js`, `ribbon-form.js`, `kept-list.js`;
+     `src/scripts/last-read.js`. CLAUDE.md desk rule 13; STUDY-DESK.md B1,
+     C25 and E4.
+   - *Questions*: ribbons in two tabs at once, a ribbon on a draft chapter,
+     the C25 follow rule across books and tabs, and Continue reading next to
+     Read View's places. This is correctness only. E4's redesign stays BVJ's.
+3. **The Greek tab's reading view and the commands window.**
+   - *Files*: `src/scripts/desk/tab-greek.js` (all of it),
+     `greek-find.js`, `greek-data.js`, `greek-link.js`;
+     `src/scripts/greek-commands.js`, `float-window.js`;
+     `src/lib/desk-greek.mjs`, `desk-greek-split.mjs`,
+     `greek-commands-ui.mjs`, `greek-parse.mjs`. CLAUDE.md desk rules 14,
+     15 and 17.
+   - *Questions*:
+     - Does “Go to verse N” work, and does the lexicon choice persist?
+     - Do draft chapters, John 7:53–8:11 and Romans 16:25–27 show, and what
+       happens on a chapter with no Greek data?
+     - The commands window: its focus handling and dialog semantics, where it
+       inserts text in the field, its dragged position, and when it closes.
+     - The split handle by keyboard.
+4. **/desk's use of the shared modules.**
+   - *Files*: the /desk modes of `highlights.js` and `verse-labels.js`;
+     per-chapter pins in `pins.js`; `page.js` (`addDeskText`,
+     `deskChapterBoxes`, `chapterTextFor`); `attachVerseTools` in
+     `chapter-tools.js` with a pane as the view; `attachTermLens`;
+     `footnotePanel` in `panel-pieces.js`; `footnotes-view.js`,
+     `lit-records.js`; `follow` in `tab-mine.js`; `kept-list.js` and
+     `sheet-pane.js` mounted as panes. CLAUDE.md desk rule 18.
+   - *Questions*: two LIT panes showing one chapter, highlights and pins
+     there, a verse menu in one pane while the other scrolls, and whether
+     the bottom-row pane's kind menu is clipped by the panes box's
+     `overflow: auto`.
+5. **Sheets beyond one tab.**
+   - *Files*: `src/lib/desk-sheets.mjs`, `desk-sheet-passages.mjs`,
+     `desk-sheet-check.mjs` (`freshCopy`), `desk-sheet-discussion.mjs`,
+     `desk-sheet-gather.mjs`; `src/scripts/desk/search-sheet.js`;
+     `lit:search-results` in `search.js` and `loadDeskSheets` in
+     `search-core.js`. CLAUDE.md desk rules 21 to 23.
+   - *Questions*:
+     - Two tabs editing one sheet: can a queued change save an older copy
+       over the other tab's?
+     - Do a passage's blanks survive “Keep the new wording”?
+     - Are the verses right when a passage comes from a selection, the verse
+       menu, the notebook or a search?
+     - How long does a sheet with thousands of blanks take to draw?
+6. **A copy pass and the stylesheet.**
+   - *Copy*: every reader-facing string in `src/scripts/desk/`, the four
+     desk pages, the templates, the tour, the commands and the error
+     messages. Check them against CLAUDE.md's “Key Conventions”: American
+     spelling, the Oxford comma, curly quotes and punctuation with quotes.
+     Check that features are named consistently (Notebook, My Notes,
+     Sheets, the buttons). FA1-t's five items are already known; don't
+     report them again.
+   - *Stylesheet*: `src/styles/desk.css` beyond dark-mode pairing. Focus
+     rings through `--focus-ring`, contrast of the desk's own colors in both
+     themes, `prefers-reduced-motion`, forced colors, and print rules.
+
+## FA1-v. The follow-up audit: real devices
+
+**Also finding rather than fixing**, and the very last phase, so it checks
+the desk after the fixes. A cloud session has only Chromium, so this phase
+is for BVJ's own computers, or for a session working on one through the
+desktop app.
+
+- *Write up* what goes wrong the same way, as the next BA numbers, in a
+  closing phase of fixes (FA1-w or later).
+- *On each*, run the same short pass: turn on `?desk=on`, make a note, a
+  highlight, a bookmark and a pin on Romans 8, reload, then open
+  /notebook/, /desk/ and a sheet.
+
+Then, in particular:
+
+1. **Safari on a Mac**:
+   - the Safari line about storage that is cleared after seven days (C18);
+   - highlights, which need the CSS Custom Highlight API;
+   - Copy text, Copy for Word, and saving a copy as a file;
+   - two tabs kept in step (BroadcastChannel).
+2. **Firefox**: the same pass. Note whether highlights and the margin's lit
+   words draw.
+3. **A screen reader** (VoiceOver on a Mac):
+   - the verse numbers' names;
+   - the note editor as a dialog;
+   - the Notebook's tabs;
+   - the announcements FA1-o added;
+   - the Layout menu and pane menus on /desk;
+   - presenting by keyboard (after FA1-n).
+4. **Two screens**: the presenter view placing the room's window on the
+   second screen, and the pop-up and permission path (BA85).
+5. **A touchscreen computer**: a finger selection beside the expanded
+   Notebook (BA28), and the verse menu by touch.
+6. **Printing to paper or PDF**, in Chrome and Safari:
+   - a chapter with my notes (M6) and with room to write (N9);
+   - a sheet's leader and participant copies on Letter and on A4.
+
+   Check that page breaks, the codes and the credit line print.
+7. **The deployed site**: the shared-link beacon check (BA78), if FA1-g
+   didn't already do it.
+
 ---
 
 ## What held up
@@ -1216,7 +1364,7 @@ elsewhere:
 
 ## Not covered
 
-Left for a future audit:
+FA1-u and FA1-v take these up:
 
 - **Other browsers.** All browser use was Chromium. Nothing ran in Safari or
   Firefox, with a real screen reader, on two screens, or on a touchscreen
