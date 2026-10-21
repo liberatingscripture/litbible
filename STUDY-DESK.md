@@ -5645,6 +5645,8 @@ split itself is still a proposal BVJ worked within but hasn't confirmed.
   data loss first, each sized for one session on a Pro account. Findings
   marked "BVJ's call" there have recommendations, and are asked at the
   start of their phase.
+- **Subagents in these sessions only on Sonnet or Haiku** (BVJ), never
+  Opus: eight Opus agents used up two usage windows during the audit.
 
 ### 2026-10-20 (Phase 2c: notes on a footnote, and questions for discussion)
 

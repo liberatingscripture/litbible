@@ -35,8 +35,8 @@ points here. Its decision log holds the BVJ calls made along the way.
 
 Each phase is sized for **one session**: one area of the code, three to six
 findings, and the tests that prove them. Two windows of usage were used up in
-about ten minutes each during the audit, by eight agents reading at once, so
-these rules keep a session inside one window:
+about ten minutes each during the audit, by eight Opus agents reading at
+once, so these rules keep a session inside one window:
 
 1. **One phase per session**, in a fresh session. Start on a branch named
    `claude/fa1-<letter>` from the latest `main`, and end with one pull
@@ -45,7 +45,10 @@ these rules keep a session inside one window:
    CLAUDE.md desk rules it cites ("The Study Desk preview", rules 1 to 23).
    Don't read STUDY-DESK.md in full: `grep -n` for the IDs and decisions the
    phase names.
-3. **No subagents and no fan-out.** Work the findings one after another.
+3. **Subagents only on Sonnet or Haiku** (BVJ, 2026-10-20). Name the model
+   when starting one, and never start an Opus subagent. Good uses are
+   finding code (Haiku), and writing a finding's tests or checking a fix
+   (Sonnet). The session itself works the findings one after another.
 4. **Test as you go.** Run the phase's test files (`node --test
    test/<file>.test.js`). Run `npm test` once before committing, and
    `npm run check` if a `.astro` or `.ts` file changed. Run `npm run build`
