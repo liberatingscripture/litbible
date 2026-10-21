@@ -14,6 +14,16 @@ are recorded so they aren't re-argued.
 
 ## Where things stand (as of 2026-10-20)
 
+- **Full Audit 1 (10/20/2026)** audited everything built, at commit
+  `82af6a6`, and found 87 problems (BA1 to BA87): 4 high, 24 medium and 59
+  low. BA32 is declined by BVJ, and the other 86 are planned in 20 phases,
+  FA1-a to FA1-t, each sized for one session on a Pro account. Two more
+  phases are the next audit: FA1-u (the code this one didn't reach) and
+  FA1-v (real devices). The plan,
+  and every finding with its fix, is `STUDY-DESK-AUDIT-1.md`. In short, see
+  "Full Audit 1 (10/20/2026)" below. Next: FA1-a, a sheet in a newer
+  format that runs its own script.
+
 - **Phase 2c is built on the preview** (2026-10-20): notes on a footnote
   and questions for discussion. **A note can be on a footnote** (M11):
   "Add a note" beside Pin in a footnote's popover, in Study View's
@@ -356,8 +366,10 @@ are recorded so they aren't re-argued.
 - **Idea IDs**: N notes, B places and bookmarks, H highlights, S sheets, D the
   desk as a whole. Ideas the audit added keep their **M** numbers. Audit
   findings are **C1 to C27**. Entries in the fixes-and-experience log are
-  **E1** onward. BVJ cites these IDs, so keep them stable; never
-  renumber.
+  **E1** onward. Full Audit 1's findings are **BA1 to BA87**, worked in
+  phases **FA1-a to FA1-v** (`STUDY-DESK-AUDIT-1.md`); its follow-up audit
+  (FA1-u, FA1-v) numbers what it finds BA88 onward. BVJ cites these IDs,
+  so keep them stable; never renumber.
 - **People**: BVJ is the owner (Brandon). BDR is the developer of the iOS and
   Android apps and collaborates on accounts and sync. BDR's own documents
   call BDR "Brandon"; this file always says BDR or BVJ.
@@ -5621,6 +5633,29 @@ split itself is still a proposal BVJ worked within but hasn't confirmed.
   reader's accessibility font still wins on screen. Left out: images and
   tables. The set can grow later but never shrink.
 
+### 2026-10-20 (Full Audit 1)
+
+- **An audit of everything built** (commit `82af6a6`): 87 findings, BA1 to
+  BA87. Four are high: a sheet in a newer format runs its own script when
+  viewed (BA66); an older Markdown copy undoes note edits made since (BA1)
+  and brings back notes deleted since (BA2); and closing a pane on /desk
+  loses the reader's place (BA51). The audit page is
+  https://claude.ai/artifact/VtA4S94L9MCjV7GqMrFMgL (private to BVJ).
+- **BA32 declined** (BVJ): the tour offer opening over the scripture's line
+  ends is fine. Won't fix.
+- **The plan is its own file** (BVJ): `STUDY-DESK-AUDIT-1.md`, with the 86
+  remaining findings in 20 phases, FA1-a to FA1-t, ordered security and
+  data loss first, each sized for one session on a Pro account. Findings
+  marked "BVJ's call" there have recommendations, and are asked at the
+  start of their phase.
+- **Subagents in these sessions only on Sonnet or Haiku** (BVJ), never
+  Opus: eight Opus agents used up two usage windows during the audit.
+- **The next audit is part of the plan** (BVJ): FA1-u reviews the code
+  this audit didn't reach, after FA1-f, so what it finds can join the
+  phases for those areas; FA1-v checks the desk on real devices (Safari,
+  Firefox, a screen reader, two screens, a touchscreen, paper) as the last
+  phase. Their findings continue as BA88 onward.
+
 ### 2026-10-20 (Phase 2c: notes on a footnote, and questions for discussion)
 
 - **Built** as 2c set out: M11 (a note on a footnote) and the rest of N6
@@ -6268,6 +6303,46 @@ and this changes.
   pieces whose worth depends most on how readers use the desk, which a small
   group of trusted readers given `?desk=on` could show ("Still open",
   "When to release the desk to readers").
+
+## Full Audit 1 (10/20/2026)
+
+The first full audit of the built preview, and its plan, are in
+**`STUDY-DESK-AUDIT-1.md`**: every finding (BA1 to BA87) with its fix, how
+to work a phase on a Pro account, what held up and what wasn't covered.
+That file keeps each finding's status; this one keeps the decisions
+("Decisions", 2026-10-20, "Full Audit 1"). **BA32 is declined** (BVJ:
+the tour offer may open over scripture). FA1-u and FA1-v are the next
+audit, finding rather than fixing; what they find continues as BA88 onward.
+The phases, in working order:
+
+| Phase | Area | Findings |
+|---|---|---|
+| FA1-a | Security: the stored script and the sanitizer | BA66, BA67, BA59 |
+| FA1-b | Markdown copies | BA1, BA2, BA41, BA9, BA10 |
+| FA1-c | Merging and opening a copy | BA3, BA4, BA11, BA12 |
+| FA1-d | The store, the note editor, and undo | BA5, BA13, BA6, BA7 |
+| FA1-e | /desk keeps the reader's place | BA51, BA52, BA53, BA55 |
+| FA1-f | The record format, for BDR | BA8, BA14 |
+| FA1-u | The follow-up audit: code this audit didn't reach | new, BA88 onward |
+| FA1-g | Sharing a sheet | BA78, BA80, BA81, BA82, BA87 |
+| FA1-h | Marks on the page | BA16, BA17, BA19, BA20, BA23 |
+| FA1-i | Sheet templates and passages | BA69, BA70, BA75, BA76, BA77 |
+| FA1-j | The sheet editor: pasting and saving | BA68, BA71, BA72, BA73, BA74 |
+| FA1-k | Greek search commands | BA44, BA45, BA48, BA49, BA50 |
+| FA1-l | /desk's LIT pane and layout | BA54, BA56, BA57, BA58, BA60, BA61 |
+| FA1-m | The tour, first use, and printing | BA33, BA34, BA35, BA36, BA37 |
+| FA1-n | Present mode and the sheet page | BA79, BA83, BA84, BA85, BA86 |
+| FA1-o | Announcements and focus for marks | BA18, BA21, BA22 |
+| FA1-p | Panels beside the Notebook | BA24, BA27, BA28 |
+| FA1-q | The gate and first paint | BA25, BA26, BA29, BA30 |
+| FA1-r | /desk's smaller fixes | BA31, BA62, BA63, BA64, BA65 |
+| FA1-s | Greek credits and the notebook search | BA40, BA46, BA47 |
+| FA1-t | Copy and docs | BA15, BA38, BA39, BA42, BA43 |
+| FA1-v | The follow-up audit: real devices | new |
+
+FA1-f should land before the record format is frozen for the apps, and
+FA1-s before Greek search launches. FA1-v needs BVJ's own computers (or a
+session working on one), since a cloud session has only Chromium.
 
 ## Fixes and experience
 
