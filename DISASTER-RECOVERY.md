@@ -87,11 +87,14 @@ Losing this account is the worst case — it holds five distinct things:
    Cloudflare Email Routing.
 2. **Pages project** — serves the site from `dist/`, **git-connected**:
    pushing to `main` on GitHub triggers Cloudflare to build and deploy
-   automatically; there is no manual deploy step. The build command,
-   output directory, and Node version are configured in the Pages
-   dashboard (not in the repo) — if the project is ever recreated,
-   reconnect it to the GitHub repo and set build command `npm run build`,
-   output directory `dist`.
+   automatically; there is no manual deploy step. The build command and
+   output directory are configured in the Pages dashboard (not in the
+   repo) — if the project is ever recreated, reconnect it to the GitHub
+   repo and set build command `npm run build`, output directory `dist`.
+   The Node version comes from the repo's `.node-version` file. Leave the
+   dashboard's `NODE_VERSION` variable unset, since it would override the
+   file. Without either, Pages falls back to its build image's default
+   (22.16.0 in 2026-10), which astro 7.4 refuses to run on.
 3. **Worker `litbible-contact-form`** — routes
    `litbible.net/contact/submit` and `litbible.net/app-support/submit`.
    Code, routes, and the rate-limit binding all live in

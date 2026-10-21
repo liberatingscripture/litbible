@@ -37,6 +37,13 @@ companion iOS/Android apps consume.
   changes published copy). Don't drop either without re-running a
   rendered-output diff; adopting Sätteri is a **content** decision for the
   owner, not an upgrade side effect.
+- **Node**: `.node-version` (24, the major CI uses) is what Cloudflare Pages
+  builds with; with no pin, Pages falls back to its image's default, and a
+  2026-10 Astro minor that raised its floor to 22.22 failed every Pages
+  build while GitHub CI stayed green. Keep `engines` in `package.json` (and
+  the root `engines` copy in `package-lock.json`) at the higher of Astro's
+  minimum and the test suite's, and leave the dashboard's `NODE_VERSION`
+  unset so it doesn't override the file.
 - **Language**: TypeScript (strict mode, `astro/tsconfigs/strict`)
 - **Styling**: Vanilla CSS (no utility framework). Global stylesheet + a
   per-page stylesheet under `src/styles/pages/`
