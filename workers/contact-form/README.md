@@ -177,9 +177,16 @@ Two layers, both in the Worker (no dashboard rules):
   marked the old name deprecated, so Dependabot proposed nothing for six weeks
   while the new name carried the fix for every open advisory here. When an
   upstream package goes quiet while its siblings keep releasing, check its
-  repo for a rename. Vitest 5 is still blocked on the plugin's peer range
-  (`npm view @cloudflare/vitest-plugin peerDependencies`), so a vitest 5 PR
-  fails `npm ci` with ERESOLVE until that range admits it.
+  repo for a rename.
+- **Vitest 5 needs `@cloudflare/vitest-plugin` 1.4.4 or later.** The plugin
+  has accepted `vitest@^4.1.0 || ^5.0.0` since at least 1.4.0, so `npm ci`
+  installs the pair without complaint, but under 1.4.0 the suite fails before
+  a test runs ("File path must be a file: URL" locally, a missing
+  `.vitest-cache` file in CI). From 1.4.4 on all tests pass (checked
+  2026-10-21 against 1.4.4 and 1.4.6). So a vitest major lands after the
+  `worker-runtime` bump that carries the plugin past 1.4.4, then a rebase.
+  Until 2026-10 the peer range really did block it (vitest 5 PRs #180, #207
+  and #226 were closed for that reason).
 - `npm run check` bundles the Worker without deploying (no auth needed) —
   CI-friendly sanity check.
 - `npm run dev` runs it locally, but `send_email` is simulated: wrangler
