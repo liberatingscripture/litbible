@@ -554,6 +554,18 @@ on screen and in Copy text; only anchoring flattens them.
 Not covered: draft chapters (`indexed: false`). Their placeholder text
 isn't scripture, so a mark is never anchored there.
 
+### Anchor text, served
+
+The content API, version 2 (`API-2-FORMAT.md`, under `/api/data/v2/`)
+serves each chapter's anchor text ready-made, as `text`, with the verse
+spans above and the positions of its blocks, lines, emphasis, footnote
+letters and ⟦ ⟧ spans laid over it. Its build checks every chapter's `text`
+and verse spans against `chapterAnchorText` and fails on any difference, so
+an app that reads version 2 places marks against exactly the characters this
+section defines, without parsing the HTML itself. A new anchor rule
+(`ANCHOR_SPEC_VERSION` 2) means a new API version and folder, never a change
+under `/api/data/v2/`.
+
 ### Anchor text for prose (provisional)
 
 A glossary entry or an article has no verses (N11). The website's proposal,
