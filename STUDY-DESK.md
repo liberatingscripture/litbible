@@ -36,8 +36,9 @@ are recorded so they aren't re-argued.
   pane adds a "For discussion" heading and one question per note marked
   with the question marker on the sheet's passages, in passage order, as
   ordinary parts to edit, move or delete. Smaller calls for BVJ to judge
-  are in the decision log, "Phase 2c". Phase 2 is done. Next: 3l, popping
-  the notebook out.
+  are in the decision log, "Phase 2c". Phase 2 is done. 3l, popping the
+  notebook out, has since moved to version 2 (BVJ, 2026-10-21), so phase 3
+  is done too.
 
 - **Phase 2b is built on the preview** (2026-10-20): a sheet's text checked
   before printing, and printing with room to write. **A passage whose
@@ -174,7 +175,10 @@ are recorded so they aren't re-argued.
   Open from BVJ's use so far: Places (E4), and the Greek search commands,
   where putting a search together isn't intuitive (E5; BVJ wants to try a
   menu-based builder) and a word family can't be searched (E6), and
-  whether the Notebook's Greek tab should search at all (E7).
+  whether the Notebook's Greek tab should search at all (E7). **Decided
+  2026-10-21** (E8): there is no way into /desk, and **Read View is
+  removed at the desk's launch**, its button on a computer becoming the
+  way into the desk.
 
 - **Phase 3 is now sheets and the desk together** (BVJ, 2026-10-15): D9,
   the desk as a page of its own (`/desk/`), with the LIT text as one pane
@@ -184,6 +188,7 @@ are recorded so they aren't re-argued.
   answers are under D9 ("Across the desk"); the details are for when the
   work starts, with mockups then. **Split into parts 3a to 3l**
   (proposed 2026-10-18, "Order of work", 3), to be worked one at a time.
+  3l (D4) moved to version 2 on 2026-10-21.
 
 - **The tour is offered in a window beside the Notebook** (BVJ,
   2026-10-14), the first time it is expanded, with "Take the tour now,"
@@ -912,7 +917,8 @@ plan as a whole was accepted; nothing was declined except where stated).
 - **D4. Pop the notebook out.** Document Picture-in-Picture (Chrome, Edge, and
   Firefox since 151) opens a small always-on-top window holding the notebook,
   beside the text or a video call. Safari can't, so it's an extra, never the
-  only way. New, experimental. Small. Proposed.
+  only way. New, experimental. Small. Proposed. **Deferred to version 2**
+  (BVJ, 2026-10-21; it was phase 3l), to be revisited then.
 - **D5. Lock the notebook on a shared computer.** An optional passphrase
   encrypts the notebook in the browser, for church offices and family
   computers; a forgotten passphrase loses the notes for good, so it's opt-in
@@ -1264,7 +1270,7 @@ plan as a whole was accepted; nothing was declined except where stated).
       job.
     - **M10**: stays shelved; its parts live on other pages, so /desk
       changes little.
-    - **Pop the notebook out (D4)**: placed in phase 3, last; panes cover most of it.
+    - **Pop the notebook out (D4)**: placed in phase 3, last; panes cover most of it. Moved to version 2 on 2026-10-21.
     - **Unchanged by D9**: everything under "Considered and set aside"
       (right-click, a public gallery, AI summaries, live co-editing, Ctrl
       K, commentaries, the email when verses change, anchoring to footnote
@@ -4309,7 +4315,7 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
    (M6) and shared links (S8). Large.
    **D4, pop the notebook out**, is the last and smallest piece (BVJ,
    2026-10-15). D9 says the panes cover most of it, so it is decided once
-   /desk exists. **Build S1's editor so it can sit
+   /desk exists. **Deferred to version 2** (BVJ, 2026-10-21). **Build S1's editor so it can sit
    inside another page** (proposed 2026-10-15), so D9, the desk as a page
    of its own, doesn't mean building sheets twice. **Phase 3 is now sheets
    and the desk together** (BVJ, 2026-10-15; D9, answers 9 to 11): sheets
@@ -4449,6 +4455,8 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      `desk/sheet-page.js` and the phone's message in
      `src/scripts/sheet-share-gate.js`. No key is added.
    - **3l. Pop the notebook out (D4).** Last, decided once /desk exists.
+     **Deferred to version 2** (BVJ, 2026-10-21; the version 2 list below).
+     Phase 3 is done without it.
 
    Suggested order: 3a, 3b, 3c, then 3f and 3d (both need only 3b and
    3c), then 3e, 3g, 3h, 3i, 3j, 3k, and 3l. (3g was added on 2026-10-19,
@@ -4542,6 +4550,9 @@ be revisited for version 2.
   indefinitely 2026-10-11.
 - **Word families**: deferred indefinitely 2026-10-13.
 - **N7, the interleaf**: set aside 2026-10-13.
+- **D4, pop the notebook out** (was phase 3l): deferred 2026-10-21 (BVJ),
+  to be revisited for version 2. /desk's panes already cover most of its
+  job.
 
 **Still open, for BVJ:**
 - **N8, the hidden passage**: undecided until the Zoom (BVJ, 2026-10-15). It
@@ -5633,6 +5644,19 @@ split itself is still a proposal BVJ worked within but hasn't confirmed.
   reader's accessibility font still wins on screen. Left out: images and
   tables. The set can grow later but never shrink.
 
+### 2026-10-21 (Read View retires at launch; D4 to version 2)
+
+- **Read View is removed when the desk launches** (BVJ, 2026-10-21), and
+  on a computer Study View's "Read View" button becomes the way into
+  /desk. Logged as E8 ("Fixes and experience"), with what to build before
+  launch and what changes at it. Claude first recommended keeping Read
+  View as the page for phones, readers without JS and old links; BVJ's
+  answers: phone readers use the apps, old links redirect to Study View,
+  and there is no need for a trial period after launch. Two questions stay
+  open in E8: the whole-book browser tools, and the button's label.
+- **D4, pop the notebook out (phase 3l), is deferred to version 2** (BVJ,
+  2026-10-21), so phase 3 is done.
+
 ### 2026-10-20 (Full Audit 1)
 
 - **An audit of everything built** (commit `82af6a6`): 87 findings, BA1 to
@@ -6475,6 +6499,58 @@ sign of a feature: log it, and move it when it's clear where it belongs).
     window's open-and-close rule, and the desk's rule 15 in CLAUDE.md.
     E5's builder would then live in the search bar's commands window
     until /desk.
+- **E8, rough: there is no way into /desk, and Read View retires at
+  launch.** BVJ (2026-10-21): no button or link reaches /desk, and
+  switching between Study View and Read View was always clunky. **Decided**
+  (BVJ, 2026-10-21; decision log, "Read View retires at launch"): **Read
+  View is removed when the desk launches**, with no trial period after, and
+  on a computer Study View's "Read View" button becomes the way into the
+  desk, whose LIT pane already scrolls the whole New Testament. Phones
+  aren't a reason to keep it: BVJ expects people who read on a phone to
+  install the apps, which already scroll. Open: decided, to build.
+  **Before launch:**
+  - **A Reading arrangement** in /desk's Layout menu: one LIT pane at the
+    reading width, honoring the Display tray's verse numbers, footnote
+    letters, key terms and highlights switches (`data-vn`, `data-fn`,
+    `data-terms`). /desk isn't a reading surface today, so check which of
+    them it honors.
+  - **A way in that carries the passage** (for example
+    `/desk/?place=romans-8`), which moves the active LIT pane there and
+    never overwrites the reader's saved layout (`lit-desk-layout`); a first
+    visit opens the Reading arrangement. A reader who wants to read must
+    not land in a four-pane workspace, the first-use card and the tour
+    offer.
+  - **Other ways in**, to mock: the Notebook panel's foot, the notebook
+    page, a header item on a computer.
+  **At launch:**
+  - **Redirects**: `/read/<book>` to `/<book>-1/`, with a small script
+    sending `#ch-N` to `/<book>-N/` and `#<book>-N-vV` to `/<book>-N/#vV`;
+    the pages leave the sitemap. Search results that link Read View
+    anchors link Study View instead.
+  - **Saved places**: "Continue reading" records with `view: "read"` are
+    read as Study View places, not dropped; Read View's per-book places
+    are carried into Places or let go (to decide).
+  - **Copy**: the `/read` landing page (which offers Study View, Read View
+    and the apps), the /about FAQ, `/apps` if it names Read View,
+    /privacy's storage paragraph (`lit_rm_*`, `lit-read-numbers`), the
+    notebook help page and the tour.
+  - **Code that goes**: `read/[book].astro`, `read-mode.js` and
+    `landOnHash`, `read-mode.css`, Read View's half of `chapter-tools.js`,
+    ReadMenu's `mode="read"`, the Display tray's Read View verse-numbers
+    setting and its fallbacks, the desk's Read View pieces (bookmarks via
+    `read-marks.js`, its "My highlights", printing with notes or room to
+    write there), and the whole-book print layout.
+  - **Docs**: CLAUDE.md (routing, Key Conventions, print, the Study View
+    and Read View rule, the desk's rules) and README.
+  - **Tag the last commit with Read View** before removing it, as the way
+    back.
+  **Open, for BVJ:**
+  - **The whole-book browser tools.** Ctrl+F across a book, Edge's Read
+    Aloud, page translation and printing a whole book need the book on one
+    page, and the LIT pane loads chapters as the reader nears them. Offer a
+    "load the whole book" choice in the Reading arrangement, or let them go.
+  - **The button's label.** "Study Desk" says study; the button now also
+    serves the reader who wants to read straight through.
 
 **Fixed**
 
