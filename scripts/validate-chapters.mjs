@@ -482,6 +482,21 @@ for (const filePath of files) {
     forEachProse(data, scanRetired);
   }
 
+  // ── No <figure> in a published chapter ────────────────────────────────────
+  // A draft's placeholder art (the photo and its limerick) is a <figure>, and
+  // only drafts have one. The content API, version 2 (API-2-FORMAT.md) serves
+  // a chapter as its words alone, and a figure's caption is not scripture, so
+  // a figure in a published chapter would either leak its caption into the
+  // text the apps anchor notes to or need a rule nobody has written.
+  // build-api-v2.mjs refuses such a chapter too; this says so at commit time.
+  if (data.indexed !== false && Array.isArray(data.paragraphs)) {
+    if (data.paragraphs.some((p) => /<figure\b/i.test(String(p)))) {
+      errors.push(
+        `a <figure> in a published chapter — figures are draft placeholders only (set "indexed": false, or remove the figure)`
+      );
+    }
+  }
+
   // ── Report ────────────────────────────────────────────────────────────────
   for (const msg of errors) {
     console.error(`✗ ${rel}: ${msg}`);
