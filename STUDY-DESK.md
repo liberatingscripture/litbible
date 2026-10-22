@@ -2235,8 +2235,8 @@ website has to say goes here, on `main`, with its date.
   whether reading places sync (kind 5) is still open. Nothing is built or
   changed in the format yet; the website will say so here when it is, with
   new merge vectors. **Also**: BVJ strongly recommends that the
-  `bookmark` note marker be renamed `ribbon` or retired (E10); either
-  touches both apps' seven markers. Not decided, to raise with BDR.
+  `bookmark` note marker be renamed `ribbon` (E10; retiring it is the other
+  option); either touches both apps' seven markers. Not decided, to raise with BDR.
 - Everything else in the proposal (the remaining Zoom items, the sequence)
   waits on the Zoom.
 
@@ -2571,8 +2571,8 @@ Rules a to e as BDR answered them (2026-10-09), each with a test case, and:
 - Bookmarks are their own kind; the `bookmark` marker stays a note's glyph
   (agreed). **Two changes proposed 2026-10-22 (BVJ), to settle before this
   freezes**: named ribbons fold into bookmarks (E9), and the marker is
-  renamed `ribbon` or retired (E10, a strong recommendation; Claude leans
-  to retiring). The first retires kind 5's `ribbon: true`; the second
+  renamed `ribbon` (E10, a strong recommendation; retiring it is the
+  other option). The first retires kind 5's `ribbon: true`; the second
   touches both apps' seven markers.
 - A reading place is a verse, one per book, whether or not places sync.
   (With E9, "Continue reading" is the only place the reader doesn't make.)
@@ -5710,7 +5710,7 @@ split itself is still a proposal BVJ worked within but hasn't confirmed.
   record changes until the website says so here.
 - **A strong recommendation, not a change** (BVJ): rename the `bookmark`
   note marker to `ribbon`, or retire it, so it no longer clashes with the
-  feature. Left as it is for now (E10); Claude leans to retiring.
+  feature. Left as it is for now (E10); the picture stays the same.
 
 ### 2026-10-21 (/desk's own header; a search pane, 3m)
 
@@ -6722,24 +6722,26 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   change for BDR's Claude to agree. Precedent for both: iOS already reads
   an old `star` as `emphasis`, so the apps can read an old value and write
   a new one.
-  - **Rename it `ribbon`** (BVJ's first suggestion). Keeps seven markers
-    and every existing note's marker. Cost: the marker's picture is still
-    a ribbon or bookmark shape, so it must be redrawn to differ from the
-    red bookmark glyph or the two look alike in the margin. The glyph is
-    never called a "ribbon" (BVJ, 2026-10-22), so the word would then
-    belong to the marker alone.
+  - **Rename it `ribbon`** (BVJ's first suggestion, and BVJ's answer on
+    2026-10-22 once the picture was raised). Keeps seven markers and every
+    existing note's marker, and **the picture stays the same**: the
+    marker's color already differs from the red bookmark glyph, and
+    "ribbon" describes what the marker looks like. The red glyph is never
+    called a "ribbon" (BVJ, 2026-10-22), so the word belongs to the marker
+    alone. Cost: both apps read an old `bookmark` marker as `ribbon` and
+    write the new name.
   - **Retire it** (BVJ's other option, 2026-10-22). Six markers remain,
-    and nothing shaped like a bookmark is left on a note, so the feature
-    owns the word and the picture outright. Cost: notes already marked
-    `bookmark` need somewhere to go, most simply the plain `note` marker
-    (the way `star` becomes `emphasis`), which loses a reader's choice of
-    picture on those notes, and both apps must stop offering it.
-  **Claude's lean, for BVJ and BDR to decide: retire it.** It removes the
-  clash instead of moving it (a renamed marker still needs a new picture,
-  and a "ribbon" marker beside Bookmarks would raise the same question
-  again), and a reader who wants to flag a verse has Bookmarks now. Open,
-  and to raise with BDR before the format freezes (the pre-Christmas list,
-  "To freeze before Christmas").
+    and nothing shaped like a bookmark is left on a note. Cost: notes
+    already marked `bookmark` need somewhere to go, most simply the plain
+    `note` marker (the way `star` becomes `emphasis`), which loses a
+    reader's choice of picture on those notes, and both apps must stop
+    offering it.
+  **Claude's recommendation, for BVJ and BDR to decide: rename it.** It
+  was to retire it, on the worry that a ribbon-shaped marker would look
+  like the bookmark glyph; BVJ's point that the color differs, and that
+  the name fits the picture, settles that, and renaming keeps every
+  existing note's choice. Open, and to raise with BDR before the format
+  freezes (the pre-Christmas list, "To freeze before Christmas").
 
 **Fixed**
 

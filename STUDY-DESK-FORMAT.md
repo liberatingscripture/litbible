@@ -131,9 +131,10 @@ generated from `src/data/books.js` (A-F9). It's never stored.
    ribbons as a separate kind. Nothing changes here until the website says so
    in STUDY-DESK.md, with new merge vectors.
    **Strongly recommended (E10), not changed:** the note marker `bookmark`
-   (kind 1) shares the feature's name and picture, so either rename it
-   `ribbon` or retire it (six markers left; notes carrying it would read as
-   `note`). Claude leans to retiring. The apps could read an old value as
+   (kind 1) shares the feature's name, so rename it `ribbon` (its picture
+   and color stay the same; the red bookmark glyph is never called a
+   ribbon). The other option is to retire it (six markers left; notes
+   carrying it would read as `note`). The apps could read an old value as
    the new one, as iOS reads an old `star` as `emphasis`.
 5. **`place`** (B1): `name` (empty for a book's own "Continue reading"
    place), a verse, and `ribbon: true` for a named ribbon. Places are stored
