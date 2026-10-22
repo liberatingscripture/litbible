@@ -2226,7 +2226,7 @@ website has to say goes here, on `main`, with its date.
   becoming one feature, "Bookmarks"** (BVJ; E9 under "Fixes and
   experience"). Bookmarks (B2) and named ribbons (B1) were two ideas to
   readers, and the website is merging them, with the ribbon's behavior and
-  a single red ribbon glyph as the mark; the notebook's Places section goes,
+  the existing red bookmark glyph as the one mark; the notebook's Places section goes,
   leaving "Continue reading" and the reader's own bookmarks. **It matters
   for syncing:** the format's `bookmark` and `place` kinds change (a
   bookmark gains a name and an optional following flag; a `place` with
@@ -5692,7 +5692,7 @@ split itself is still a proposal BVJ worked within but hasn't confirmed.
 
 - **Bookmarks and ribbons are one feature, Bookmarks** (BVJ, 2026-10-22):
   "the difference between Bookmarks and Ribbons is confusing and
-  redundant." The red ribbon glyph is the cue, the name is Bookmarks, and
+  redundant." The red bookmark glyph is the cue, the name is Bookmarks, and
   the functionality is the ribbons' (named, can follow the reader). Logged
   as E9 in phase 5, which takes up E4; **the details are in E9**.
 - **The Places section goes, and nothing is listed by default** (BVJ): the
@@ -6659,13 +6659,13 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   entries nobody made.
   **The decision, in BVJ's words, tidied:**
   - **One feature, called Bookmarks**, with **the functionality of
-    Ribbons**. The red ribbon bookmark glyph, already the mark on the page,
-    is the one visual cue. The word "ribbon" is retired from everything a
+    Ribbons**. The red bookmark glyph, already the mark on the page, is the
+    one visual cue, and it is never called a "ribbon". The word "ribbon" is retired from everything a
     reader sees (the verse menu's "Ribbon here…", the Places list, the
     tour's "A ribbon for a reading" step, the help page, the commands).
   - **No Places section, and no default locations.** The notebook's list
     (My Notes, the notebook page) holds **"Continue reading"** first, the
-    one place that is always there, and **it gets no bookmark ribbon icon**
+    one place that is always there, and **it gets no red bookmark glyph**
     (it is where the reader stopped, not something they marked), and then
     **only the bookmarks the reader has added**, appearing as they are
     added. Nothing else is listed to begin with: not the book's other
@@ -6689,8 +6689,8 @@ sign of a feature: log it, and move it when it's clear where it belongs).
     did. Read as "the functionality of Ribbons" with no switch, every
     bookmark would move once opened, and a plain mark-this-verse bookmark
     would no longer exist.
-  - **The mark on the page.** The margin glyph B1 never got is the same
-    red ribbon; B4's scrollbar ticks (Read View, retiring) are moot.
+  - **The mark on the page.** The margin mark B1 never got is the same
+    red bookmark glyph; B4's scrollbar ticks (Read View, retiring) are moot.
   - **The record.** One kind where there are two: `bookmark` gains the
     ribbon's name and following flag, and `place` with `ribbon: true`
     retires (`STUDY-DESK-FORMAT.md`, kinds 4 and 5). Preview notebooks that
@@ -6721,9 +6721,9 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   `star` as `emphasis`, so the apps can read an old `bookmark` marker as
   `ribbon` and write the new name. Two things to settle then: a marker is
   a note's glyph in a circle, so its picture should differ from the red
-  ribbon that marks a bookmark (or the two would look alike in the
-  margin), and "ribbon" is what the bookmark glyph is called in this
-  file's history. Open, and to raise with BDR before the format freezes
+  bookmark glyph (or the two would look alike in the margin), and since
+  the glyph is never called a "ribbon" (BVJ, 2026-10-22), the word then
+  belongs to the marker alone. Open, and to raise with BDR before the format freezes
   (the pre-Christmas list, "To freeze before Christmas").
 
 **Fixed**
