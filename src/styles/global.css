@@ -883,6 +883,47 @@ body:has(.site-header--green) .skip-link {
   background: rgba(var(--ink-rgb), 0.08);
 }
 
+/* The Study Desk's own header (/desk; SiteHeader's deskTitle, BVJ
+   2026-10-21), at every width: brand | the page's title, centered | the
+   desk's tools, Aa and the menu button. The two outer columns share what's
+   left equally, so the title sits on the window's center line. It spans the
+   window, as the panes below it do, so its edges line up with theirs. */
+.site-header--desk .site-header__inner {
+  max-width: none;
+  padding-left: 16px;
+  padding-right: 16px;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+}
+
+.site-header--desk .site-header__title .title-alt {
+  display: inline;
+}
+
+.site-header__page-title {
+  margin: 0;
+  font-size: 1.375rem;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.site-header--desk .site-header__actions {
+  justify-self: end;
+}
+
+.site-header--desk .site-header__menu-toggle,
+.site-header--desk .site-header__actions .site-header__font-toggle--actions {
+  display: inline-flex;
+}
+
+.site-header__desk-tools {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
 /* Under 360px the short title and three header buttons don't fit (the title
    ran 20–36px into them at 320px), so the icon gives way to a Search item in
    the phone menu. The title keeps its size, per the "buy back space" rule. */

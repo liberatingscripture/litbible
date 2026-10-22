@@ -1882,7 +1882,10 @@ collection); they're read directly by the intro pages and the API manifest.
   `lit-leading`; `data-vn` off in `lit-verse-numbers`, or `lit-read-numbers`
   in Read View (rule 6); `data-fn` off in
   `lit-fn-letters`; `data-terms` off in `lit-terms`, the term lens's
-  switch, which Study View alone shows). There is **one
+  switch, which Study View alone shows; with the desk preview on, the tray's
+  Show group also gains the desk's own switches, "My highlights" among them,
+  injected by `desk/note-settings.js` and sharing the Notebook panel's stored
+  setting). There is **one
   panel**: Read View's toolbar "Aa" opens this same tray (it's a
   `data-font-toggle`, like the header's two), which opens upward when there
   is no room below. Six rules:
@@ -2422,6 +2425,11 @@ collection); they're read directly by the intro pages and the API manifest.
      highlight, never to records from elsewhere, and committed in one
      transaction (`store.commit`). Read View shows them only when its own
      "My highlights" is on (off by default), and only then offers Highlight.
+     The switch is one setting with two controls, the Notebook panel's and a
+     "My highlights" box in the Display tray's Show group (injected by
+     `note-settings.js` only with the desk on; BVJ, 2026-10-21), on Study
+     View chapters, in Read View (its own setting) and on /desk, where it is
+     the only desk switch the tray gets and is Study View's setting.
   8. **Notes on a glossary entry or an article** (N11, provisional) use
      the same margin: `desk/note-sources.js` says what a page's notes sit
      beside and how each is found (a chapter's verses, or an entry's or
@@ -2764,9 +2772,22 @@ collection); they're read directly by the intro pages and the API manifest.
        back in (`checkLayout`); a
        layout that fails the check falls back to the original, the LIT
        beside My Notes, 60/40. Named in /privacy's paragraph.
-     - **The page fills the window and its footer is hidden**
-       (`html[data-desk-workspace]` in `desk.css`), so each pane scrolls on
-       its own.
+     - **The desk has its own header** (BVJ, 2026-10-21; `deskTitle` on
+       Layout and SiteHeader), at every width: the emblem and "LIT Bible"
+       as the home link, "Study Desk" centered as the page's h1, then the
+       Layout menu (desk-page.js fills `[data-desk-header-tools]`), Aa and
+       the menu button. No nav row and no search; the Display tray carries
+       Study View's "Show" switches (`scriptureControls="study"`), which
+       reach the LIT pane's text. A search pane is phase 3m.
+     - **The panes, then the source-text notice** (`SblgntNotice`, with the
+       LIT's license line; the rest of the footer is hidden by
+       `html[data-desk-workspace]` in `desk.css`). Each pane scrolls on its
+       own, so the page scrolls from the header, the gutters, the keyboard
+       or the scrollbar: `fitHeight` grows the panes as the header scrolls
+       away, their foot on the window's bottom edge, until they fill the
+       window, and then they move up to show the notice. Scroll anchoring is
+       off there, or the browser answers the growth with a scroll of its
+       own.
   19. **Phase 3i is a sheet on paper** (built 2026-10-20; STUDY-DESK.md, S4,
      S5, S9, C27 and "Order of work", 3i): `src/pages/sheets.astro`, which
      `desk-gate.js` fills with `src/scripts/desk/sheet-page.js` when

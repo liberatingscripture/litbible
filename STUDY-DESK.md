@@ -188,7 +188,8 @@ are recorded so they aren't re-argued.
   answers are under D9 ("Across the desk"); the details are for when the
   work starts, with mockups then. **Split into parts 3a to 3l**
   (proposed 2026-10-18, "Order of work", 3), to be worked one at a time.
-  3l (D4) moved to version 2 on 2026-10-21.
+  3l (D4) moved to version 2 on 2026-10-21. **3m, a search pane, was
+  added the same day** (BVJ), since /desk's own header has no search box.
 
 - **The tour is offered in a window beside the Notebook** (BVJ,
   2026-10-14), the first time it is expanded, with "Take the tour now,"
@@ -4457,6 +4458,20 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
    - **3l. Pop the notebook out (D4).** Last, decided once /desk exists.
      **Deferred to version 2** (BVJ, 2026-10-21; the version 2 list below).
      Phase 3 is done without it.
+   - **3m. A search pane** (BVJ, 2026-10-21). /desk's own header has no
+     search box (decision log, "/desk's own header"), so search becomes a
+     pane kind like the rest: the site's search (verses, topics, the
+     glossary, articles and intros, the Greek behind its gate, and the
+     notebook through `loadDeskSearch()`) in a pane, with results that
+     move the active LIT pane instead of leaving the page, a Greek result
+     opening its word in a Greek pane, and the usual hover previews. Its UI
+     is a third module beside `searchbar.js` and `search.js`, reading
+     `search-core.js` and never copying its parsing or bucketing. To
+     design, with a mockup: whether it follows the passage (a "this book"
+     filter, say) or stands alone; where a glossary, article or intro
+     result opens; whether `/` focuses it; and whether its results can go
+     onto an open Sheet pane, as /search's "make a sheet" does (M5).
+     Medium. To build; not started.
 
    Suggested order: 3a, 3b, 3c, then 3f and 3d (both need only 3b and
    3c), then 3e, 3g, 3h, 3i, 3j, 3k, and 3l. (3g was added on 2026-10-19,
@@ -5643,6 +5658,30 @@ split itself is still a proposal BVJ worked within but hasn't confirmed.
   values, so themes, print and contrast decide how they look, and a
   reader's accessibility font still wins on screen. Left out: images and
   tables. The set can grow later but never shrink.
+
+### 2026-10-21 (/desk's own header; a search pane, 3m)
+
+- **/desk gets a header of its own, at every width** (BVJ, 2026-10-21), so
+  the panes cover more of the window: the emblem and "LIT Bible" as the
+  home link, as on a phone; "Study Desk" centered as the page's title; then
+  Layout, the Display tray and the menu button, never the full nav. No
+  search box. The SBLGNT notice goes below the panes, so the page scrolls:
+  the panes grow as the header scrolls away until they fill the window,
+  then move up to show the notice. The LIT's display switches stay in the
+  Display tray, which /desk now shows with Study View's "Show" group
+  (Claude's recommendation; the tray already reached the LIT pane's text,
+  and per-pane switches wait until two differently set LIT panes are
+  wanted). The page scrolls from the header, the gutters, the keyboard and
+  the scrollbar, since every pane keeps its own scrolling
+  (`overscroll-behavior: contain`); a control to scroll the header away was
+  considered and dropped. **Built on the preview 2026-10-21.**
+- **A search pane is phase 3m** ("Order of work", 3), to build later.
+  Claude recommended phase 3 over 5: phase 5 is the log of fixes to what
+  exists, and a new pane kind is /desk's own work, beside the other panes.
+- **"My highlights" is in the Display tray on Study View too** (BVJ,
+  2026-10-21), one setting with the Notebook panel's box. Study View's tray
+  already had it; /desk's tray gets it as well (Study View's setting, the
+  only desk switch there, since /desk draws no margin notes or bookmarks).
 
 ### 2026-10-21 (Read View retires at launch; D4 to version 2)
 

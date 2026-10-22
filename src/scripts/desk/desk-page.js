@@ -211,11 +211,11 @@ async function start() {
     layout = setPlace(layout, formatPassage(startingPassage(last)));
   }
 
-  // ---- the bar and the Layout menu ----
+  // ---- the Layout menu ----
 
-  const bar = el("div", "desk-ws__bar");
-  const title = document.querySelector(".desk-page__title");
-  if (title) bar.append(title);
+  // In the desk's own header (SiteHeader's deskTitle), beside Aa; the page
+  // title is the header's too.
+  const bar = document.querySelector("[data-desk-header-tools]") ?? el("div", "desk-ws__bar");
   const layoutButton = el("button", "desk-ws__layout");
   layoutButton.type = "button";
   layoutButton.setAttribute("aria-haspopup", "dialog");
@@ -329,7 +329,8 @@ async function start() {
   const status = el("p", "sr-only");
   status.setAttribute("role", "status");
   const announce = (text) => { status.textContent = ""; requestAnimationFrame(() => { status.textContent = text; }); };
-  root.append(bar, panesBox, status);
+  if (bar.isConnected) root.append(panesBox, status);
+  else root.append(bar, panesBox, status);
 
   const paneEls = new Map(); // id → { el, body, kind, inst, ... }
   let kindMenu = null; // the open "show in this pane" menu, if any
@@ -754,12 +755,28 @@ async function start() {
 
   // ---- the page's height ----
 
-  // The panes fill the window below the bar; the footer is hidden (desk.css)
-  // so the page itself doesn't scroll.
+  // The panes run from where they start to the bottom of the window. The
+  // source-text notice follows them, so the page scrolls: as the header
+  // scrolls away the panes grow, their foot staying on the window's bottom
+  // edge, until they fill the window; scrolling on, they move up with the
+  // page to show the notice (BVJ, 2026-10-21). Each pane keeps its own
+  // scrolling, so the page scrolls from the header, the gutters, the keyboard
+  // or the scrollbar. desk.css turns scroll anchoring off, or the browser
+  // would answer the growth with scrolling of its own.
   function fitHeight() {
-    const top = panesBox.getBoundingClientRect().top + window.scrollY;
-    panesBox.style.height = `${Math.max(MIN_HEIGHT, window.innerHeight - top - 12)}px`;
+    const top = Math.max(0, panesBox.getBoundingClientRect().top);
+    const height = `${Math.max(MIN_HEIGHT, window.innerHeight - top)}px`;
+    if (panesBox.style.height !== height) panesBox.style.height = height;
   }
+  let fitting = false;
+  window.addEventListener("scroll", () => {
+    if (fitting) return;
+    fitting = true;
+    requestAnimationFrame(() => {
+      fitting = false;
+      fitHeight();
+    });
+  }, { passive: true });
   window.addEventListener("resize", () => {
     fitHeight();
     fit();

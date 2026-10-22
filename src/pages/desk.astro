@@ -1,5 +1,6 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import SblgntNotice from "../components/SblgntNotice.astro";
 import { scanDraftChapters } from "../lib/draft-chapters.mjs";
 import "../styles/pages/desk-page.css";
 
@@ -16,6 +17,13 @@ import "../styles/pages/desk-page.css";
  * chapters of each book, so a run of them shows as one stub without
  * fetching each, and the description a poetry block's aria-describedby
  * names, as a chapter page does.
+ *
+ * Its header is the desk's own (BVJ, 2026-10-21; SiteHeader's deskTitle): the
+ * page's title sits there, centered, with the Layout menu, and the Display
+ * tray carries Study View's "Show" switches, which reach the LIT pane's text.
+ * The source-text notice follows the panes, as it follows every page that
+ * prints the translation, so the page scrolls: desk-page.js grows the panes
+ * as the header scrolls away, and the notice comes up after them.
  */
 const draftsJson = JSON.stringify(scanDraftChapters().draftChaptersByBook);
 ---
@@ -25,9 +33,10 @@ const draftsJson = JSON.stringify(scanDraftChapters().draftChaptersByBook);
   description="The Study Desk on the LIT Bible: the text, your notes, and the Greek side by side."
   robotsNoindex={true}
   hideFooterNewsletter={true}
+  deskTitle="Study Desk"
+  scriptureControls="study"
 >
   <div class="desk-page">
-    <h1 class="desk-page__title">Study Desk</h1>
     <div id="hbq-description" hidden>Formatted as Hebrew and Semitic poetry with indented parallel lines</div>
     <script type="application/json" id="desk-drafts" set:html={draftsJson} />
     <div data-desk-page>
@@ -36,5 +45,8 @@ const draftsJson = JSON.stringify(scanDraftChapters().draftChaptersByBook);
         switched on in this browser, so there is nothing to show here yet.
       </p>
     </div>
+  </div>
+  <div class="desk-page__notice">
+    <SblgntNotice />
   </div>
 </Layout>
