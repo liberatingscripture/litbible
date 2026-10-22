@@ -5667,13 +5667,21 @@ split itself is still a proposal BVJ worked within but hasn't confirmed.
   Layout, the Display tray and the menu button, never the full nav. No
   search box. The SBLGNT notice goes below the panes, so the page scrolls:
   the panes grow as the header scrolls away until they fill the window,
-  then move up to show the notice. Two details were still being settled
-  when this was written: where the LIT's display switches live (the
-  Display tray or the LIT pane), and how a reader scrolls the page when
-  every pane keeps its own scrolling (`overscroll-behavior: contain`).
+  then move up to show the notice. The LIT's display switches stay in the
+  Display tray, which /desk now shows with Study View's "Show" group
+  (Claude's recommendation; the tray already reached the LIT pane's text,
+  and per-pane switches wait until two differently set LIT panes are
+  wanted). The page scrolls from the header, the gutters, the keyboard and
+  the scrollbar, since every pane keeps its own scrolling
+  (`overscroll-behavior: contain`); a control to scroll the header away was
+  considered and dropped. **Built on the preview 2026-10-21.**
 - **A search pane is phase 3m** ("Order of work", 3), to build later.
   Claude recommended phase 3 over 5: phase 5 is the log of fixes to what
   exists, and a new pane kind is /desk's own work, beside the other panes.
+- **"My highlights" is in the Display tray on Study View too** (BVJ,
+  2026-10-21), one setting with the Notebook panel's box. Study View's tray
+  already had it; /desk's tray gets it as well (Study View's setting, the
+  only desk switch there, since /desk draws no margin notes or bookmarks).
 
 ### 2026-10-21 (Read View retires at launch; D4 to version 2)
 

@@ -30,6 +30,9 @@ const {
   // Read View, /search, articles). Every other page gets the header's
   // search icon instead, so each page has exactly one way in (audit U6).
   pageSearch = false,
+  // The Study Desk's own header (/desk): the page's title, centered, in
+  // place of the nav, and no search (SiteHeader's deskTitle).
+  deskTitle,
 } = Astro.props;
 
 // Auto-generate canonical URL from site config when not explicitly provided.
@@ -185,7 +188,7 @@ const criticalCSS = `html,body{margin:0;padding:0}html{scrollbar-gutter:stable}b
   <body class={`bg-${bg}`} data-pagefind-ignore={pagefindIndex ? undefined : true}>
     <a href="#main-content" class="skip-link">Skip to content</a>
     <AppInstallBanner />
-    <SiteHeader class={headerClass} scriptureControls={scriptureControls} headerSearch={!pageSearch} />
+    <SiteHeader class={headerClass} scriptureControls={scriptureControls} headerSearch={!pageSearch && !deskTitle} deskTitle={deskTitle} />
 
     <main id="main-content" data-pagefind-body={pagefindIndex ? true : undefined}>
       <slot />

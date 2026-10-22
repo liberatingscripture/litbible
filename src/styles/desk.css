@@ -4401,18 +4401,30 @@ html:has(.desk-greek__split--dragging) {
 /* ── The desk page (/desk/) ───────────────────────────────────── */
 
 /* src/scripts/desk/desk-page.js (STUDY-DESK.md, D9; phase 3c): one to four
-   panes filling the window below a bar holding the page's title and the
-   Layout menu. The page doesn't scroll, so the footer goes while the desk is
-   drawn; without the preview the page is its ordinary short note. */
+   panes below the desk's own header, which holds the page's title and the
+   Layout menu (SiteHeader's deskTitle). The source-text notice and the LIT's
+   license line follow the panes; the rest of the footer goes while the desk
+   is drawn. The panes grow as the header scrolls away (fitHeight), and
+   scroll anchoring is off so the browser doesn't answer that growth with a
+   scroll of its own. Without the preview the page is its ordinary short
+   note. */
 
-html[data-desk-workspace] .site-footer,
-html[data-desk-workspace] .footer-license-band {
+html[data-desk-workspace] {
+  overflow-anchor: none;
+}
+
+html[data-desk-workspace] .site-footer {
   display: none;
 }
 
 html[data-desk-workspace] .desk-page {
   max-width: none;
-  padding: 10px 16px 0;
+  padding: 0 16px;
+}
+
+html[data-desk-workspace] .desk-page__notice {
+  display: block;
+  margin-top: 16px;
 }
 
 .desk-ws {
@@ -4425,11 +4437,6 @@ html[data-desk-workspace] .desk-page {
   align-items: center;
   gap: 16px;
   margin-bottom: 10px;
-}
-
-.desk-ws__bar .desk-page__title {
-  margin: 0;
-  font-size: 1.375rem;
 }
 
 .desk-ws__layout {
@@ -4456,6 +4463,12 @@ html[data-desk-workspace] .desk-page {
   position: absolute;
   top: calc(100% + 6px);
   left: 0;
+}
+
+/* In the header the button sits at the right, so the menu opens leftward. */
+.site-header__desk-tools .desk-ws__menu {
+  left: auto;
+  right: 0;
   z-index: 1000;
   box-sizing: border-box;
   width: min(560px, calc(100vw - 32px));

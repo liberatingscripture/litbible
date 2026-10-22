@@ -12,8 +12,10 @@
   margin: 0 auto;
 }
 
-.desk-page__title {
-  margin: 0 0 1rem;
+/* The source-text notice belongs to the panes, so it waits for them:
+   desk.css shows it once the desk is drawn. */
+.desk-page__notice {
+  display: none;
 }
 
 .desk-page__off {
