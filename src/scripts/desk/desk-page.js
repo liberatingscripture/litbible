@@ -755,17 +755,20 @@ async function start() {
 
   // ---- the page's height ----
 
-  // The panes run from where they start to the bottom of the window. The
-  // source-text notice follows them, so the page scrolls: as the header
-  // scrolls away the panes grow, their foot staying on the window's bottom
-  // edge, until they fill the window; scrolling on, they move up with the
-  // page to show the notice (BVJ, 2026-10-21). Each pane keeps its own
-  // scrolling, so the page scrolls from the header, the gutters, the keyboard
-  // or the scrollbar. desk.css turns scroll anchoring off, or the browser
-  // would answer the growth with scrolling of its own.
+  // The panes run from where they start to a gutter above the bottom of the
+  // window. The source-text notice follows them, so the page scrolls: as the
+  // header scrolls away the panes grow, their foot staying put, until they
+  // fill the window less a gutter above and below, the same as the page's
+  // side gutter (BVJ, 2026-10-22); scrolling on, they move up with the page
+  // to show the notice (BVJ, 2026-10-21). Each pane keeps its own scrolling,
+  // so the page scrolls from the header, the gutters, the keyboard or the
+  // scrollbar. desk.css turns scroll anchoring off, or the browser would
+  // answer the growth with scrolling of its own.
+  const gutter = () => parseFloat(getComputedStyle(root.closest(".desk-page") ?? root).paddingLeft) || 16;
   function fitHeight() {
-    const top = Math.max(0, panesBox.getBoundingClientRect().top);
-    const height = `${Math.max(MIN_HEIGHT, window.innerHeight - top)}px`;
+    const gap = gutter();
+    const top = Math.max(gap, panesBox.getBoundingClientRect().top);
+    const height = `${Math.max(MIN_HEIGHT, window.innerHeight - top - gap)}px`;
     if (panesBox.style.height !== height) panesBox.style.height = height;
   }
   let fitting = false;
