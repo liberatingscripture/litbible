@@ -130,10 +130,11 @@ generated from `src/data/books.js` (A-F9). It's never stored.
    `ribbon: true` would retire. **For BDR's Claude:** the apps need not build
    ribbons as a separate kind. Nothing changes here until the website says so
    in STUDY-DESK.md, with new merge vectors.
-   **Strongly recommended (E10), not changed:** rename the note marker
-   `bookmark` (kind 1) to `ribbon`, so it no longer shares the feature's
-   name. The apps could read an old `bookmark` marker as `ribbon`, as iOS
-   reads an old `star` as `emphasis`.
+   **Strongly recommended (E10), not changed:** the note marker `bookmark`
+   (kind 1) shares the feature's name and picture, so either rename it
+   `ribbon` or retire it (six markers left; notes carrying it would read as
+   `note`). Claude leans to retiring. The apps could read an old value as
+   the new one, as iOS reads an old `star` as `emphasis`.
 5. **`place`** (B1): `name` (empty for a book's own "Continue reading"
    place), a verse, and `ribbon: true` for a named ribbon. Places are stored
    as verses, never scroll positions (A-F13). **Open:** whether each device's

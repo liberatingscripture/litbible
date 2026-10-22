@@ -2234,9 +2234,9 @@ website has to say goes here, on `main`, with its date.
   separate kind** (R4 asked for "bookmarks and named ribbons"), and
   whether reading places sync (kind 5) is still open. Nothing is built or
   changed in the format yet; the website will say so here when it is, with
-  new merge vectors. **Also**: BVJ strongly recommends renaming the
-  `bookmark` note marker to `ribbon` (E10), which would touch both apps'
-  seven markers; not decided, to raise with BDR.
+  new merge vectors. **Also**: BVJ strongly recommends that the
+  `bookmark` note marker be renamed `ribbon` or retired (E10); either
+  touches both apps' seven markers. Not decided, to raise with BDR.
 - Everything else in the proposal (the remaining Zoom items, the sequence)
   waits on the Zoom.
 
@@ -2571,8 +2571,9 @@ Rules a to e as BDR answered them (2026-10-09), each with a test case, and:
 - Bookmarks are their own kind; the `bookmark` marker stays a note's glyph
   (agreed). **Two changes proposed 2026-10-22 (BVJ), to settle before this
   freezes**: named ribbons fold into bookmarks (E9), and the marker is
-  renamed `ribbon` (E10, a strong recommendation). The first retires kind 5's
-  `ribbon: true`; the second touches both apps' seven markers.
+  renamed `ribbon` or retired (E10, a strong recommendation; Claude leans
+  to retiring). The first retires kind 5's `ribbon: true`; the second
+  touches both apps' seven markers.
 - A reading place is a verse, one per book, whether or not places sync.
   (With E9, "Continue reading" is the only place the reader doesn't make.)
 - Notes on glossary entries and articles (N11) name the entry by its id and
@@ -5708,8 +5709,8 @@ split itself is still a proposal BVJ worked within but hasn't confirmed.
   kinds 4 and 5 in `STUDY-DESK-FORMAT.md`. Nothing is built yet, so no
   record changes until the website says so here.
 - **A strong recommendation, not a change** (BVJ): rename the `bookmark`
-  note marker to `ribbon` so it no longer clashes with the feature. Left
-  as it is for now (E10).
+  note marker to `ribbon`, or retire it, so it no longer clashes with the
+  feature. Left as it is for now (E10); Claude leans to retiring.
 
 ### 2026-10-21 (/desk's own header; a search pane, 3m)
 
@@ -6709,22 +6710,36 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   only place, one per book, and no named place exists. The website will
   update the format draft and the merge vectors when it builds this and
   will say so here. Raise any objection here before the apps build ribbons.
-- **E10, rough, strong recommendation: rename the `bookmark` note marker
-  to `ribbon`.** BVJ (2026-10-22): leave it for now, and **strongly
-  recommend** the change. One of the seven note markers (`note`,
-  `emphasis`, `question`, `heart`, `bookmark`, `lightbulb`, `flame`) is
-  named `bookmark`, and with E9 that word now names the feature, so a
+- **E10, rough, strong recommendation: the `bookmark` note marker clashes
+  with Bookmarks, so rename it or retire it.** BVJ (2026-10-22): leave it
+  for now, and **strongly recommend** one of the two. One of the seven
+  note markers (`note`, `emphasis`, `question`, `heart`, `bookmark`,
+  `lightbulb`, `flame`) is named `bookmark` and drawn with a bookmark
+  glyph, and with E9 that word and picture now belong to the feature, so a
   reader choosing a marker for a note could think it creates a bookmark.
   Not changed: the marker is in both apps and in the shared format
-  (`STUDY-DESK-FORMAT.md`, kind 1's `marker`), so renaming it is a format
-  change for BDR's Claude to agree. Precedent: iOS already reads an old
-  `star` as `emphasis`, so the apps can read an old `bookmark` marker as
-  `ribbon` and write the new name. Two things to settle then: a marker is
-  a note's glyph in a circle, so its picture should differ from the red
-  bookmark glyph (or the two would look alike in the margin), and since
-  the glyph is never called a "ribbon" (BVJ, 2026-10-22), the word then
-  belongs to the marker alone. Open, and to raise with BDR before the format freezes
-  (the pre-Christmas list, "To freeze before Christmas").
+  (`STUDY-DESK-FORMAT.md`, kind 1's `marker`), so either way is a format
+  change for BDR's Claude to agree. Precedent for both: iOS already reads
+  an old `star` as `emphasis`, so the apps can read an old value and write
+  a new one.
+  - **Rename it `ribbon`** (BVJ's first suggestion). Keeps seven markers
+    and every existing note's marker. Cost: the marker's picture is still
+    a ribbon or bookmark shape, so it must be redrawn to differ from the
+    red bookmark glyph or the two look alike in the margin. The glyph is
+    never called a "ribbon" (BVJ, 2026-10-22), so the word would then
+    belong to the marker alone.
+  - **Retire it** (BVJ's other option, 2026-10-22). Six markers remain,
+    and nothing shaped like a bookmark is left on a note, so the feature
+    owns the word and the picture outright. Cost: notes already marked
+    `bookmark` need somewhere to go, most simply the plain `note` marker
+    (the way `star` becomes `emphasis`), which loses a reader's choice of
+    picture on those notes, and both apps must stop offering it.
+  **Claude's lean, for BVJ and BDR to decide: retire it.** It removes the
+  clash instead of moving it (a renamed marker still needs a new picture,
+  and a "ribbon" marker beside Bookmarks would raise the same question
+  again), and a reader who wants to flag a verse has Bookmarks now. Open,
+  and to raise with BDR before the format freezes (the pre-Christmas list,
+  "To freeze before Christmas").
 
 **Fixed**
 
