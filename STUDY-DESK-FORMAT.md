@@ -122,6 +122,20 @@ generated from `src/data/books.js` (A-F9). It's never stored.
    **Open:** whether the apps' `bookmark` marker on a note becomes this.
    Draft 1 keeps them apart: a bookmark is its own kind, and the marker stays
    a note's glyph.
+
+   **Coming (BVJ, 2026-10-22; STUDY-DESK.md E9), not yet in the format:**
+   bookmarks and named ribbons become one feature, Bookmarks. This kind would
+   gain the ribbon's `name` (or reuse `label`) and an optional following flag
+   (the ribbon's C25 behavior, "move as I read"), and kind 5's
+   `ribbon: true` would retire. **For BDR's Claude:** the apps need not build
+   ribbons as a separate kind. Nothing changes here until the website says so
+   in STUDY-DESK.md, with new merge vectors.
+   **Strongly recommended (E10), not changed:** the note marker `bookmark`
+   (kind 1) shares the feature's name, so rename it `ribbon` (its picture
+   and color stay the same; the red bookmark glyph is never called a
+   ribbon). The other option is to retire it (six markers left; notes
+   carrying it would read as `note`). The apps could read an old value as
+   the new one, as iOS reads an old `star` as `emphasis`.
 5. **`place`** (B1): `name` (empty for a book's own "Continue reading"
    place), a verse, and `ribbon: true` for a named ribbon. Places are stored
    as verses, never scroll positions (A-F13). **Open:** whether each device's
@@ -131,6 +145,12 @@ generated from `src/data/books.js` (A-F9). It's never stored.
    notebook lists them beside the ribbons. Only a ribbon is a `place`
    record there (`ribbon: true`; at most 6, names up to 40 characters,
    unique ignoring case).
+
+   **Coming (E9, 2026-10-22):** named ribbons merge into kind 4, and the
+   notebook's Places list goes: "Continue reading" stays, with no bookmark
+   icon, and no other place is listed unless the reader made a bookmark. If
+   reading places sync at all, "Continue reading" would be the only `place`.
+   See kind 4.
 6. ~~**`legend`**~~ (H1): **dropped 2026-10-07** (BVJ with BDR; colours carry
    no named meanings). The number is kept so the kinds after it don't move.
    Draft 1 had: the reader's meaning for each of the four colours, one per

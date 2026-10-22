@@ -178,7 +178,11 @@ are recorded so they aren't re-argued.
   whether the Notebook's Greek tab should search at all (E7). **Decided
   2026-10-21** (E8): there is no way into /desk, and **Read View is
   removed at the desk's launch**, its button on a computer becoming the
-  way into the desk.
+  way into the desk. **Decided 2026-10-22** (E9, which takes up E4):
+  **bookmarks and ribbons become one feature, Bookmarks**, and the Places
+  section goes. It changes the record format, so **BDR's Claude should
+  read E9 and "2026-10-22 (Bookmarks and ribbons become one)" before
+  syncing places or bookmarks**.
 
 - **Phase 3 is now sheets and the desk together** (BVJ, 2026-10-15): D9,
   the desk as a page of its own (`/desk/`), with the LIT text as one pane
@@ -2218,6 +2222,21 @@ website has to say goes here, on `main`, with its date.
     One consequence, noted here rather than ruled: the proposal's draft
     What's New sheet says "the LIT Study Desk on your computer", a name
     readers never see, so that line needs other words.
+- **2026-10-22: for BDR's Claude to notice. Bookmarks and ribbons are
+  becoming one feature, "Bookmarks"** (BVJ; E9 under "Fixes and
+  experience"). Bookmarks (B2) and named ribbons (B1) were two ideas to
+  readers, and the website is merging them, with the ribbon's behavior and
+  the existing red bookmark glyph as the one mark; the notebook's Places section goes,
+  leaving "Continue reading" and the reader's own bookmarks. **It matters
+  for syncing:** the format's `bookmark` and `place` kinds change (a
+  bookmark gains a name and an optional following flag; a `place` with
+  `ribbon: true` retires), so **the apps need not build ribbons as a
+  separate kind** (R4 asked for "bookmarks and named ribbons"), and
+  whether reading places sync (kind 5) is still open. Nothing is built or
+  changed in the format yet; the website will say so here when it is, with
+  new merge vectors. **Also**: BVJ strongly recommends that the
+  `bookmark` note marker be renamed `ribbon` (E10; retiring it is the other
+  option); either touches both apps' seven markers. Not decided, to raise with BDR.
 - Everything else in the proposal (the remaining Zoom items, the sequence)
   waits on the Zoom.
 
@@ -2550,8 +2569,13 @@ Rules a to e as BDR answered them (2026-10-09), each with a test case, and:
 - Context is 32 characters each side of a quote, in the normalized text
   (both apps agree).
 - Bookmarks are their own kind; the `bookmark` marker stays a note's glyph
-  (agreed).
+  (agreed). **Two changes proposed 2026-10-22 (BVJ), to settle before this
+  freezes**: named ribbons fold into bookmarks (E9), and the marker is
+  renamed `ribbon` (E10, a strong recommendation; retiring it is the
+  other option). The first retires kind 5's `ribbon: true`; the second
+  touches both apps' seven markers.
 - A reading place is a verse, one per book, whether or not places sync.
+  (With E9, "Continue reading" is the only place the reader doesn't make.)
 - Notes on glossary entries and articles (N11) name the entry by its id and
   the article by its slug, with a rule against renaming article files.
 - **Under plan C the encrypted envelope is the standard wrapper**, not a
@@ -4505,6 +4529,12 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
    version 2) and leaves the log with a pointer. What the phase itself
    holds is the pass over what has piled up: group the entries, find the
    patterns, and decide what a release needs fixed first. Size varies.
+   **Taken into it on 2026-10-22: E9, bookmarks and ribbons become one
+   feature** (BVJ). Built, it replaces B1's ribbons and B2's plain
+   bookmarks with one thing, Bookmarks, and removes the Places section; it
+   changes the `bookmark` and `place` record kinds, so it **touches the
+   apps' sync** and BDR's Claude is told (see E9 and the 2026-10-22
+   decision). Medium.
 
 **Any time, independent of all of it**: both apps link to the license terms
 (BDR's item 11: Android in 1.3, iOS in 2.0, 2.0.1 or 2.1). (/read opening
@@ -5659,6 +5689,29 @@ split itself is still a proposal BVJ worked within but hasn't confirmed.
   reader's accessibility font still wins on screen. Left out: images and
   tables. The set can grow later but never shrink.
 
+### 2026-10-22 (Bookmarks and ribbons become one)
+
+- **Bookmarks and ribbons are one feature, Bookmarks** (BVJ, 2026-10-22):
+  "the difference between Bookmarks and Ribbons is confusing and
+  redundant." The red bookmark glyph is the cue, the name is Bookmarks, and
+  the functionality is the ribbons' (named, can follow the reader). Logged
+  as E9 in phase 5, which takes up E4; **the details are in E9**.
+- **The Places section goes, and nothing is listed by default** (BVJ): the
+  list holds "Continue reading", with no bookmark icon, then only the
+  bookmarks the reader adds. Read View's per-book places aren't carried
+  over (E8's open question, answered).
+- **Claude's recommendation, not decided: a bookmark stays put unless the
+  reader turns on "Move as I read."** See E9.
+- **BDR's Claude is to be told** (BVJ): the consolidation changes the
+  record kinds the apps sync. It is recorded where BDR's Claude reads: E9's
+  "For BDR's Claude" paragraph, a 2026-10-22 bullet in "The website's
+  answers to the proposal" in "One notebook, three homes," and the open notes under
+  kinds 4 and 5 in `STUDY-DESK-FORMAT.md`. Nothing is built yet, so no
+  record changes until the website says so here.
+- **A strong recommendation, not a change** (BVJ): rename the `bookmark`
+  note marker to `ribbon`, or retire it, so it no longer clashes with the
+  feature. Left as it is for now (E10); the picture stays the same.
+
 ### 2026-10-21 (/desk's own header; a search pane, 3m)
 
 - **/desk gets a header of its own, at every width** (BVJ, 2026-10-21), so
@@ -6448,8 +6501,11 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   "Continue reading" and Read View's places are not notebook records.
   B4's scrollbar ticks and a margin mark for ribbons were not built.
   BVJ is not taking it up yet (2026-10-16); it is here so it stays in the
-  plan. **Questions to ask when it is picked up**, as prompts and not
-  findings:
+  plan. **Taken up on 2026-10-22 as E9** (BVJ named the trouble: two
+  features for one idea, and a Places section that lists places the reader
+  never made). E9 holds the answer; the questions below stay as the
+  record of what was weighed. **Questions to ask when it is picked up**,
+  as prompts and not findings:
   - Is the trouble **finding and seeing** places: where the list sits, how
     it is ordered, or that nothing marks a place on the page itself (the
     unbuilt ribbon mark and B4's ticks)?
@@ -6590,6 +6646,102 @@ sign of a feature: log it, and move it when it's clear where it belongs).
     "load the whole book" choice in the Reading arrangement, or let them go.
   - **The button's label.** "Study Desk" says study; the button now also
     serves the reader who wants to read straight through.
+- **E9, rough: Bookmarks and Ribbons are confusing and redundant, and
+  Places adds a third layer.** BVJ (2026-10-22), from using the preview.
+  **Decided** (BVJ, 2026-10-22; decision log, "Bookmarks and ribbons become
+  one"); open to build. It takes up E4. **What exists**: a *bookmark* (B2,
+  built in 1c; a `bookmark` record, a verse and an optional label, drawn as
+  a red bookmark glyph in the notes' margin) and a *ribbon* (B1, built in
+  1d; a `place` record with `ribbon: true`: named, at most 6, moves while
+  the reader reads from it, C25), plus a **Places** section in My Notes and
+  on the notebook page that lists this book's places, "Continue reading",
+  the ribbons, other clients' places and Read View's per-book places. The
+  reader meets three words for one idea, and a list that opens with
+  entries nobody made.
+  **The decision, in BVJ's words, tidied:**
+  - **One feature, called Bookmarks**, with **the functionality of
+    Ribbons**. The red bookmark glyph, already the mark on the page, is the
+    one visual cue, and it is never called a "ribbon". The word "ribbon" is retired from everything a
+    reader sees (the verse menu's "Ribbon here…", the Places list, the
+    tour's "A ribbon for a reading" step, the help page, the commands).
+  - **No Places section, and no default locations.** The notebook's list
+    (My Notes, the notebook page) holds **"Continue reading"** first, the
+    one place that is always there, and **it gets no red bookmark glyph**
+    (it is where the reader stopped, not something they marked), and then
+    **only the bookmarks the reader has added**, appearing as they are
+    added. Nothing else is listed to begin with: not the book's other
+    places, not other clients' places, and not Read View's per-book places
+    (which answers E8's open "carried into Places or let go": let go,
+    since Read View goes at launch and the reader never made them).
+  **What building it involves**, as prompts for the mock and not yet
+  findings:
+  - **Making one.** The verse menu and selection panel keep one action,
+    "Bookmark", where today there are "Bookmark" and "Ribbon here…". It
+    can be named at once or later. The 6-ribbon limit and the 40-character
+    names stay unless BVJ says otherwise; bookmark labels are optional and
+    not unique today while ribbon names are unique ignoring case, so one
+    rule has to be chosen.
+  - **Following.** The ribbon's behavior (C25: following its link makes it
+    follow the reader through the book, moved at most every 4 seconds)
+    becomes a bookmark's. **Claude's recommendation, for BVJ to confirm**:
+    a bookmark stays on its verse unless the reader turns on "Move as I
+    read" for it, so that someone who marks John 3:16 to find it again
+    isn't surprised, while a "Thursday group" bookmark does what a ribbon
+    did. Read as "the functionality of Ribbons" with no switch, every
+    bookmark would move once opened, and a plain mark-this-verse bookmark
+    would no longer exist.
+  - **The mark on the page.** The margin mark B1 never got is the same
+    red bookmark glyph; B4's scrollbar ticks (Read View, retiring) are moot.
+  - **The record.** One kind where there are two: `bookmark` gains the
+    ribbon's name and following flag, and `place` with `ribbon: true`
+    retires (`STUDY-DESK-FORMAT.md`, kinds 4 and 5). Preview notebooks that
+    hold ribbons are converted on open, and the export file's places
+    section, the merge rules and `merge-vectors.json` change with it.
+  - **Copy and code.** `desk-places.mjs`, `desk/places.js`,
+    `ribbon-follow.js` and `ribbon-form.js` become bookmark code; the
+    `lit-desk-ribbon` session key is renamed; the tour, the help page, the
+    commands, /privacy's paragraph and CLAUDE.md (the desk's rules 7 and
+    13) change.
+  **For BDR's Claude: please notice.** This changes what syncs. The apps
+  are building "full bookmarks and named ribbons" (R4, in the first synced
+  release); that would now be one feature, bookmarks, and ribbons need not
+  be built as a separate kind. Whether a reading place syncs at all stays
+  open (kind 5's open question); if it does, "Continue reading" is the
+  only place, one per book, and no named place exists. The website will
+  update the format draft and the merge vectors when it builds this and
+  will say so here. Raise any objection here before the apps build ribbons.
+- **E10, rough, strong recommendation: the `bookmark` note marker clashes
+  with Bookmarks, so rename it or retire it.** BVJ (2026-10-22): leave it
+  for now, and **strongly recommend** one of the two. One of the seven
+  note markers (`note`, `emphasis`, `question`, `heart`, `bookmark`,
+  `lightbulb`, `flame`) is named `bookmark` and drawn with a bookmark
+  glyph, and with E9 that word and picture now belong to the feature, so a
+  reader choosing a marker for a note could think it creates a bookmark.
+  Not changed: the marker is in both apps and in the shared format
+  (`STUDY-DESK-FORMAT.md`, kind 1's `marker`), so either way is a format
+  change for BDR's Claude to agree. Precedent for both: iOS already reads
+  an old `star` as `emphasis`, so the apps can read an old value and write
+  a new one.
+  - **Rename it `ribbon`** (BVJ's first suggestion, and BVJ's answer on
+    2026-10-22 once the picture was raised). Keeps seven markers and every
+    existing note's marker, and **the picture stays the same**: the
+    marker's color already differs from the red bookmark glyph, and
+    "ribbon" describes what the marker looks like. The red glyph is never
+    called a "ribbon" (BVJ, 2026-10-22), so the word belongs to the marker
+    alone. Cost: both apps read an old `bookmark` marker as `ribbon` and
+    write the new name.
+  - **Retire it** (BVJ's other option, 2026-10-22). Six markers remain,
+    and nothing shaped like a bookmark is left on a note. Cost: notes
+    already marked `bookmark` need somewhere to go, most simply the plain
+    `note` marker (the way `star` becomes `emphasis`), which loses a
+    reader's choice of picture on those notes, and both apps must stop
+    offering it.
+  **Claude's recommendation, for BVJ and BDR to decide: rename it.** It
+  was to retire it, on the worry that a ribbon-shaped marker would look
+  like the bookmark glyph; BVJ's point that the color differs, and that
+  the name fits the picture, settles that, and renaming keeps every
+  existing note's choice. Open, and to raise with BDR before the format
+  freezes (the pre-Christmas list, "To freeze before Christmas").
 
 **Fixed**
 
