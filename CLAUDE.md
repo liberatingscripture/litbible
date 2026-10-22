@@ -2784,8 +2784,10 @@ collection); they're read directly by the intro pages and the API manifest.
        `html[data-desk-workspace]` in `desk.css`). Each pane scrolls on its
        own, so the page scrolls from the header, the gutters, the keyboard
        or the scrollbar: `fitHeight` grows the panes as the header scrolls
-       away, their foot on the window's bottom edge, until they fill the
-       window, and then they move up to show the notice. Scroll anchoring is
+       away, their foot a gutter above the window's bottom edge, until they
+       fill the window less that gutter above and below (the page's side
+       gutter, 16px; BVJ, 2026-10-22), and then they move up to show the
+       notice. Scroll anchoring is
        off there, or the browser answers the growth with a scroll of its
        own.
   19. **Phase 3i is a sheet on paper** (built 2026-10-20; STUDY-DESK.md, S4,
