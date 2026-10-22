@@ -3568,7 +3568,13 @@ html[data-desk-list="full"] .desk-item__pin-text {
 /* The text: its own scroller, set in the serif the site reads in (Cardo
    supplies the Greek by character range, greek-hebrew-fonts.css) and sized
    with the Display tray. */
+/* Positioned, so the verse numbers' screen-reader labels (.sr-only, which is
+   absolute) are placed and clipped inside it. Otherwise their containing
+   block was the pane, past this scroller's clipping, and every label below
+   the fold stretched /desk's panes box, which grew a scrollbar of its own
+   and showed empty space under the panes. */
 .desk-greek__scroller {
+  position: relative;
   flex: 1 1 0;
   min-height: 120px;
   overflow-y: auto;
