@@ -369,7 +369,9 @@ export function buildChapterV2(data) {
   const text = textOf(chars);
 
   // The fidelity assertion. Draft chapters are held to it too: their text is
-  // whatever the reference makes of them, which today is "".
+  // whatever the reference makes of them, "" for a placeholder page and the
+  // translation so far for a draft that holds one (Acts 1 since 2026-10-23).
+  // `indexed` tells an app which is which; the text is never blanked here.
   const ref = chapterAnchorText(paragraphs);
   if (text !== ref.text) {
     let i = 0;
@@ -382,7 +384,9 @@ export function buildChapterV2(data) {
   const refSpans = [...ref.spans].map(([v, [s, e]]) => `${v}:${s}-${e}`).join(",");
   const ourSpans = verses.map(({ v, start, end }) => `${v}:${start}-${end}`).join(",");
   if (refSpans !== ourSpans) throw new Error(`${slug}: version 2 verse spans differ from the anchor text`);
-  if (!indexed && text) throw new Error(`${slug}: a draft chapter with verse text`);
+  // A placeholder figure beside verse text would put its caption's words into
+  // the last verse (the anchor rule has no clause for a caption).
+  if (figures.length && text) throw new Error(`${slug}: a <figure> in a chapter with verse text`);
 
   // Blocks and their lines.
   const blockRanges = rangesBy(chars, (ctx) => ctx.block);

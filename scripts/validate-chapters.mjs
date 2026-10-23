@@ -489,10 +489,16 @@ for (const filePath of files) {
   // a figure in a published chapter would either leak its caption into the
   // text the apps anchor notes to or need a rule nobody has written.
   // build-api-v2.mjs refuses such a chapter too; this says so at commit time.
-  if (data.indexed !== false && Array.isArray(data.paragraphs)) {
-    if (data.paragraphs.some((p) => /<figure\b/i.test(String(p)))) {
+  // A draft can hold the translation so far (Acts 1, 2026-10-23), and then its
+  // placeholder figure has to go, for the same reason.
+  if (Array.isArray(data.paragraphs) && data.paragraphs.some((p) => /<figure\b/i.test(String(p)))) {
+    if (data.indexed !== false) {
       errors.push(
         `a <figure> in a published chapter — figures are draft placeholders only (set "indexed": false, or remove the figure)`
+      );
+    } else if (data.paragraphs.some((p) => /<sup\b[^>]*\bid="v\d+"/.test(String(p)))) {
+      errors.push(
+        `a <figure> in a draft that has verse text — remove the placeholder figure once the chapter holds the translation`
       );
     }
   }

@@ -637,8 +637,8 @@ Each file in `src/data/chapters/` follows this structure:
      `/ekdemeo/.test(html)` silently fails open.
   5. **Numeric ranges take an en dash**, outside tags and outside URLs printed
      as visible link text.
-- **No `<figure>` in a published chapter** (2026-10-22). All 50 are the
-  drafts' placeholder art. The content API, version 2 serves a chapter's words
+- **No `<figure>` in a published chapter, or in a draft with verse text**
+  (2026-10-22). Every one is a placeholder draft's art. The content API, version 2 serves a chapter's words
   alone, and the anchor-text rule has no clause for a caption, so a figure in
   an `indexed: true` chapter would leak its words into the text the apps
   anchor notes to. The validator rejects it and `build-api-v2.mjs` refuses it.
@@ -3145,8 +3145,13 @@ collection); they're read directly by the intro pages and the API manifest.
   `files` path the shipping apps don't already know. A version 2 chapter file
   carries no content version, so a publish re-downloads only the chapters that
   changed; and a new anchor spec is a new `api` number and folder, never a
-  change under `/api/data/v2/`. The change list (`v2.changes`) is not built
-  yet: see that spec's "The change list".
+  change under `/api/data/v2/`. **It grows by adding**: a new kind of data
+  gets its own folder under `/api/data/v2/` and its own entries in
+  `v2.files`, never fields inside a chapter file, and the apps ignore what
+  they don't recognize (that spec's "Adding more later"). There is no change
+  list for now (BDR, 2026-10-23): an app re-places marks only in chapters
+  whose `hash` moved. A draft that holds the translation so far (Acts 1) is
+  served with its text like any chapter, still `indexed: false`.
 - **Content files are hashed by RAW BYTES, so line endings are content.**
   `.gitattributes` (`* text=auto eol=lf`) normalizes on commit, so a committed
   blob can never carry CRLF and the *published* `version` is stable. What it

@@ -63,7 +63,8 @@ const SAMPLE = [
   ["luke-1", "hbq blocks with lines, and verse numbers mid-line (1:70–75)"],
   ["romans-8", "an <em> run"],
   ["matthew-17", "a verse-number gap (17:21 is not in the source text)"],
-  ["acts-1", "a draft chapter (`indexed` false): empty text, its placeholder <figure> kept"],
+  ["acts-2", "a placeholder draft (`indexed` false): empty text, its placeholder <figure> kept"],
+  ["acts-1", "a draft holding the translation so far (`indexed` false): its text and ranges, served like any chapter's"],
 ];
 const chapters = SAMPLE.map(([slug, why]) => {
   const input = inputOf(JSON.parse(readFileSync(join(CHAPTERS, `${slug}.json`), "utf8")));
