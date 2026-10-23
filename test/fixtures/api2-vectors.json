@@ -252,8 +252,8 @@
    "hash": "4acd9f86840fcdb5658b517fae4f602b8d741d391a0a8ee06405cf5f4d2e01db"
   },
   "acts-1": {
-   "source": "005365eb31e02072ae9b0f1bb594332689e25947a5aa8e2342da8c7af4da5ba6",
-   "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+   "source": "3313d00b48ff77349962af60dc1b57f1d8619a8e3642dbf0b833920b5923ae4e",
+   "hash": "3467fe27121b3276d12c433a16aefd46adb7eec5417342fda6b7c59792c60fb5"
   },
   "acts-10": {
    "source": "72a10d37bd67c0eb0cd703ef7e0ef7635ccf33eb78c6d1296f30d321304620fa",
@@ -652,8 +652,8 @@
    "hash": "f5232718ed0e10b31aba8c6f0352aa329872bb2ce640aab69701235c98a0fd3e"
   },
   "luke-24": {
-   "source": "23aca224b657db6bf91fb512c8b865f270db98cca38c1e0bf2887a2f57c4625b",
-   "hash": "5dbed930f93dba755b34cbe8da7d6cb87ec0449318e098212c67319791e11310"
+   "source": "8f228caa3213994f231f70733dd94f33164589e3772c9b42ce32498cc581ab68",
+   "hash": "c09e30ec3e382a5414b596a8d111bb22977f7fd9179ead6e46ff600c35431b59"
   },
   "luke-3": {
    "source": "298eac6ea6043c21e2bad513c8fbe3235f6e772a61195ee73132f4f5a136a66e",
@@ -680,8 +680,8 @@
    "hash": "a5c0faf8b6452cf747643aeeaebad0f41283ef61eaca8b1db405a5d689e0dcc8"
   },
   "luke-9": {
-   "source": "eb566774a80b0187052153df78c98f00912efb69b80eea02bc6fae9697417ec7",
-   "hash": "c00eae1d39d4f9b9938705e1cb86a08677a3e539c16f9fa2769e6db649e3a64e"
+   "source": "4a26d4b3cd89b9ccbef8b39073ff1a494f6f1a40be342be9fe41603999dad149",
+   "hash": "6c78770ef0fc757456dbeffef7895110007d863c89135a45894e1aa32512a35f"
   },
   "mark-1": {
    "source": "7755a2731b6a70e2caf812b97f8fa1787d1662dd2c6b7406ea337300144acbe8",
@@ -13405,14 +13405,14 @@
    }
   },
   {
-   "slug": "acts-1",
-   "why": "a draft chapter (`indexed` false): empty text, its placeholder <figure> kept",
+   "slug": "acts-2",
+   "why": "a placeholder draft (`indexed` false): empty text, its placeholder <figure> kept",
    "input": {
     "bookKey": "acts",
-    "chapter": 1,
+    "chapter": 2,
     "indexed": false,
-    "title": "Acts 1",
-    "description": "Acts 1 in the Liberation and Inclusion Translation (LIT).",
+    "title": "Acts 2",
+    "description": "Acts 2 in the Liberation and Inclusion Translation (LIT).",
     "topics": [],
     "paragraphs": [
      "<figure style=\"margin: 0; text-align: center;\">\n  <img src=\"/images/writing-in-progress.webp\" alt=\"Page in progress; check back soon\" style=\"display: block; margin: 0 auto; max-width: 400px; width: 100%; height: auto;\" />\n  <figcaption style=\"margin-top: 0.5rem; font-size: 0.95em;\">\n    There once was a page still unwritten, beware,<br>\n    Still brewing up thoughts in midair.<br>\n    This page is on hold,<br>\n    But soon will unfold,<br>\n    So check back, real words will be there.\n  </figcaption>\n</figure>",
@@ -13424,10 +13424,10 @@
     "api": 2,
     "anchorSpec": 1,
     "bookKey": "acts",
-    "chapter": 1,
+    "chapter": 2,
     "indexed": false,
-    "title": "Acts 1",
-    "description": "Acts 1 in the Liberation and Inclusion Translation (LIT).",
+    "title": "Acts 2",
+    "description": "Acts 2 in the Liberation and Inclusion Translation (LIT).",
     "topics": [],
     "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "text": "",
@@ -13442,6 +13442,639 @@
       "html": "<figure style=\"margin: 0; text-align: center;\">\n  <img src=\"/images/writing-in-progress.webp\" alt=\"Page in progress; check back soon\" style=\"display: block; margin: 0 auto; max-width: 400px; width: 100%; height: auto;\" />\n  <figcaption style=\"margin-top: 0.5rem; font-size: 0.95em;\">\n    There once was a page still unwritten, beware,<br>\n    Still brewing up thoughts in midair.<br>\n    This page is on hold,<br>\n    But soon will unfold,<br>\n    So check back, real words will be there.\n  </figcaption>\n</figure>"
      }
     ]
+   }
+  },
+  {
+   "slug": "acts-1",
+   "why": "a draft holding the translation so far (`indexed` false): its text and ranges, served like any chapter's",
+   "input": {
+    "bookKey": "acts",
+    "chapter": 1,
+    "indexed": false,
+    "title": "Acts 1",
+    "description": "Acts 1 in the Liberation and Inclusion Translation (LIT).",
+    "topics": [],
+    "paragraphs": [
+     "<p id=\"acts-1-p1\"><span class=\"vglue\"><sup id=\"v1\" class=\"vn\">1</sup>&nbsp;I</span> made the first account, Theophilus,<sup class=\"fn-ref\"><a id=\"fnref-a\" href=\"#fn-a\" role=\"doc-noteref\">a</a></sup> about everything Jesus began doing and teaching <span class=\"vglue\"><sup id=\"v2\" class=\"vn\">2</sup>&nbsp;until</span> the day he was taken up, after giving directions by the Sacred<sup class=\"fn-ref\"><a id=\"fnref-b\" href=\"#fn-b\" role=\"doc-noteref\">b</a></sup> Life-breath<sup class=\"fn-ref\"><a id=\"fnref-c\" href=\"#fn-c\" role=\"doc-noteref\">c</a></sup> to the chosen commissioned ones.<sup class=\"fn-ref\"><a id=\"fnref-d\" href=\"#fn-d\" role=\"doc-noteref\">d</a></sup> <span class=\"vglue\"><sup id=\"v3\" class=\"vn\">3</sup>&nbsp;And</span> after he suffered, he presented himself alive with many definitive proofs, being seen by them<sup class=\"fn-ref\"><a id=\"fnref-e\" href=\"#fn-e\" role=\"doc-noteref\">e</a></sup> over the course of forty days and discussing things about God’s Reign. <span class=\"vglue\"><sup id=\"v4\" class=\"vn\">4</sup>&nbsp;While</span> he was staying<sup class=\"fn-ref\"><a id=\"fnref-f\" href=\"#fn-f\" role=\"doc-noteref\">f</a></sup> with them, he directed them not to leave Jerusalem but to “wait for the Father’s promise, which you heard about from me, <span class=\"vglue\"><sup id=\"v5\" class=\"vn\">5</sup>&nbsp;since</span> while John<sup class=\"fn-ref\"><a id=\"fnref-g\" href=\"#fn-g\" role=\"doc-noteref\">g</a></sup> immersed<sup class=\"fn-ref\"><a id=\"fnref-h\" href=\"#fn-h\" role=\"doc-noteref\">h</a></sup> in water, you will be immersed in the Sacred Life-breath not many days from now.”<sup class=\"fn-ref\"><a id=\"fnref-i\" href=\"#fn-i\" role=\"doc-noteref\">i</a></sup></p>",
+     "<p id=\"acts-1-p2\"><span class=\"vglue\"><sup id=\"v6\" class=\"vn\">6</sup>&nbsp;Then,</span> when they had gathered, they started asking him, “Lord, are you reinstating the reign to Israel at this time?”</p>",
+     "<p id=\"acts-1-p3\"><span class=\"vglue\"><sup id=\"v7\" class=\"vn\">7</sup>&nbsp;But</span> he said to them, “It’s not for you to know the periods or times which the Father has set by his own authority, <span class=\"vglue\"><sup id=\"v8\" class=\"vn\">8</sup>&nbsp;but</span> you will receive power when the Sacred Life-breath comes over you, and you will be my witnesses in Jerusalem and in all Judea, Samaria, and to the farthest land.” <span class=\"vglue\"><sup id=\"v9\" class=\"vn\">9</sup>&nbsp;After</span> saying these things, while they were watching, he was lifted up, and a cloud took him from their sight.<sup class=\"fn-ref\"><a id=\"fnref-j\" href=\"#fn-j\" role=\"doc-noteref\">j</a></sup></p>",
+     "<p id=\"acts-1-p4\"><span class=\"vglue\"><sup id=\"v10\" class=\"vn\">10</sup>&nbsp;As</span> they were gazing into the heavens while he went, suddenly, two individuals<sup class=\"fn-ref\"><a id=\"fnref-k\" href=\"#fn-k\" role=\"doc-noteref\">k</a></sup> stood beside them in white clothing.<sup class=\"fn-ref\"><a id=\"fnref-l\" href=\"#fn-l\" role=\"doc-noteref\">l</a></sup> <span class=\"vglue\"><sup id=\"v11\" class=\"vn\">11</sup>&nbsp;The</span> individuals said, “Galileans, why are you standing looking up at the heavens? This same Jesus who was taken up from among you into the heavens will come back exactly the same way you watched him going into the heavens.”</p>",
+     "<p id=\"acts-1-p5\"><span class=\"vglue\"><sup id=\"v12\" class=\"vn\">12</sup>&nbsp;Then</span> they returned to Jerusalem from the Mount of Olives, which is near Jerusalem, a <em>Shabbat’s</em><sup class=\"fn-ref\"><a id=\"fnref-m\" href=\"#fn-m\" role=\"doc-noteref\">m</a></sup> journey<sup class=\"fn-ref\"><a id=\"fnref-n\" href=\"#fn-n\" role=\"doc-noteref\">n</a></sup> away. <span class=\"vglue\"><sup id=\"v13\" class=\"vn\">13</sup>&nbsp;When</span> they went into the city, they went up to the upper room, where they were staying: Peter, John, Jacob,<sup class=\"fn-ref\"><a id=\"fnref-o\" href=\"#fn-o\" role=\"doc-noteref\">o</a></sup> and Andrew; Philip and Thomas; Bar-Talmai<sup class=\"fn-ref\"><a id=\"fnref-p\" href=\"#fn-p\" role=\"doc-noteref\">p</a></sup> and Matthew; Jacob, son of Alphaeus and Simeon who was called Zealous;<sup class=\"fn-ref\"><a id=\"fnref-q\" href=\"#fn-q\" role=\"doc-noteref\">q</a></sup> and Judah<sup class=\"fn-ref\"><a id=\"fnref-r\" href=\"#fn-r\" role=\"doc-noteref\">r</a></sup> son of Jacob. <span class=\"vglue\"><sup id=\"v14\" class=\"vn\">14</sup>&nbsp;By</span> unanimous agreement, they<sup class=\"fn-ref\"><a id=\"fnref-s\" href=\"#fn-s\" role=\"doc-noteref\">s</a></sup> all attended constantly to prayer, together with some women, including Miriam the mother of Jesus, as well as his brothers.</p>",
+     "<p id=\"acts-1-p6\"><span class=\"vglue\"><sup id=\"v15\" class=\"vn\">15</sup>&nbsp;During</span> that time, standing up among Family<sup class=\"fn-ref\"><a id=\"fnref-t\" href=\"#fn-t\" role=\"doc-noteref\">t</a></sup> (in the middle of a crowd of about 120 people), Peter said, <span class=\"vglue\"><sup id=\"v16\" class=\"vn\">16</sup>&nbsp;“Men,</span><sup class=\"fn-ref\"><a id=\"fnref-u\" href=\"#fn-u\" role=\"doc-noteref\">u</a></sup> Family, it was necessary for the scripture to be fulfilled, in which, through the mouth of David, the Sacred Life-breath foretold about Judah, the one who guided those who seized Jesus, <span class=\"vglue\"><sup id=\"v17\" class=\"vn\">17</sup>&nbsp;because</span> he had been counted among us and received a share of this role of service. <span class=\"vglue\"><sup id=\"v18\" class=\"vn\">18</sup>&nbsp;He</span> later acquired a field using the reward for his unjust act, and ending up face down, he burst open in the middle, and all his guts poured out. <span class=\"vglue\"><sup id=\"v19\" class=\"vn\">19</sup>&nbsp;It</span> became known to all who resided in Jerusalem, so the field came to be called <em>Hakeldama”</em><sup class=\"fn-ref\"><a id=\"fnref-v\" href=\"#fn-v\" role=\"doc-noteref\">v</a></sup> (which in their own language means ‘Field of Blood’). <span class=\"vglue\"><sup id=\"v20\" class=\"vn\">20</sup>&nbsp;“You</span> see, it was written in the book of Psalms, ‘His farmhouse should become desolate, and no one should reside in it,’<sup class=\"fn-ref\"><a id=\"fnref-w\" href=\"#fn-w\" role=\"doc-noteref\">w</a></sup> and ‘Another should receive his role of supervision.’<sup class=\"fn-ref\"><a id=\"fnref-x\" href=\"#fn-x\" role=\"doc-noteref\">x</a></sup> <span class=\"vglue\"><sup id=\"v21\" class=\"vn\">21</sup>&nbsp;Therefore,</span> it is necessary for one of the men<sup class=\"fn-ref\"><a id=\"fnref-y\" href=\"#fn-y\" role=\"doc-noteref\">y</a></sup> who have accompanied us the whole time of the Lord Jesus’ comings and goings among us, <span class=\"vglue\"><sup id=\"v22\" class=\"vn\">22</sup>&nbsp;beginning</span> from John’s immersion until the day he was taken up from us, for one of them to become a witness to his Rising Up<sup class=\"fn-ref\"><a id=\"fnref-z\" href=\"#fn-z\" role=\"doc-noteref\">z</a></sup> along with us.”</p>",
+     "<p id=\"acts-1-p7\"><span class=\"vglue\"><sup id=\"v23\" class=\"vn\">23</sup>&nbsp;They</span> nominated two people, Joseph called Barsabbas<sup class=\"fn-ref\"><a id=\"fnref-aa\" href=\"#fn-aa\" role=\"doc-noteref\">aa</a></sup> (also known as Justus<sup class=\"fn-ref\"><a id=\"fnref-bb\" href=\"#fn-bb\" role=\"doc-noteref\">bb</a></sup>) and Matthias.<sup class=\"fn-ref\"><a id=\"fnref-cc\" href=\"#fn-cc\" role=\"doc-noteref\">cc</a></sup> <span class=\"vglue\"><sup id=\"v24\" class=\"vn\">24</sup>&nbsp;Praying,</span> they said, “You, Lord, who know everyone’s hearts, make it clear which one of these two you have chosen <span class=\"vglue\"><sup id=\"v25\" class=\"vn\">25</sup>&nbsp;to</span> receive the role of this service and commission which Judah sidestepped to move on to his own role.” <span class=\"vglue\"><sup id=\"v26\" class=\"vn\">26</sup>&nbsp;They</span> assigned them lots, and the lot fell to Matthias, so he was counted together with the Eleven commissioned ones.</p>"
+    ],
+    "footnotes": [
+     {
+      "id": "fn-a",
+      "refId": "fnref-a",
+      "label": "a",
+      "html": "While “Theophilus” is treated as a personal name in Luke and Acts, even receiving the formal honorific “most excellent,” it is not known whether it was intended for a specific person by that name. The name literally means “Friend of God” or “Loved by God” and many scholars think it could have been symbolic, addressed to any reader who loves God or as a pseudonym to protect the identity of the original recipient."
+     },
+     {
+      "id": "fn-b",
+      "refId": "fnref-b",
+      "label": "b",
+      "html": "Traditionally, ‘Holy’"
+     },
+     {
+      "id": "fn-c",
+      "refId": "fnref-c",
+      "label": "c",
+      "html": "Traditionally, ‘Spirit.’ The Greek word <em>pneuma</em> could be used to refer to ‘wind,’ ‘breath,’ or an animating energy within people, thought to be perceptible in the breath. Hebrew and Latin also use the same word for all these concepts. In scripture, it typically calls back the image to Genesis 1 and 2: “the Spirit of God was hovering over the surface of the waters” (Genesis 1:2 NASB) and “the Lord God formed the human from the topsoil of the fertile land and blew life’s breath into [its] nostrils. The human came to life.” (Genesis 2:7 CEB)."
+     },
+     {
+      "id": "fn-d",
+      "refId": "fnref-d",
+      "label": "d",
+      "html": "Traditionally, ‘apostles.’ The word means ‘someone who is sent to carry out a purpose’ and while it became used in a particular way in the church, it was not an inherently religious word in the Greek language."
+     },
+     {
+      "id": "fn-e",
+      "refId": "fnref-e",
+      "label": "e",
+      "html": "This is referring to the commissioned ones in the previous verse."
+     },
+     {
+      "id": "fn-f",
+      "refId": "fnref-f",
+      "label": "f",
+      "html": "Or ‘eating together’"
+     },
+     {
+      "id": "fn-g",
+      "refId": "fnref-g",
+      "label": "g",
+      "html": "The name ‘John’ is the English version of the Latin version of the Greek transliteration (<em>Ioannes</em>) of the Hebrew name Yohanan or in English translations of the Hebrew Bible, <em>Johanan</em>, which means “God has been gracious” or “My God is gracious.”"
+     },
+     {
+      "id": "fn-h",
+      "refId": "fnref-h",
+      "label": "h",
+      "html": "In English, translations have traditionally simply taken the Greek word and put it in English letters: ‘baptize.’ The historical reason for this was that the first translators of the Bible into English practiced infant baptism, and the Greek word literally means ‘dip’ or ‘immerse something in a liquid,’ it didn’t fit with their doctrine and practice. Other languages translate it fully, so in Dutch, for example, John is known as ‘John the Dipper.’ In addition to the literal action of dipping or immersing in the water, this is clearly a reference to ceremonial cleansing, preparing people for a sacred calling."
+     },
+     {
+      "id": "fn-i",
+      "refId": "fnref-i",
+      "label": "i",
+      "html": "Reference to Luke 24:49"
+     },
+     {
+      "id": "fn-j",
+      "refId": "fnref-j",
+      "label": "j",
+      "html": "Literally, ‘eyes’"
+     },
+     {
+      "id": "fn-k",
+      "refId": "fnref-k",
+      "label": "k",
+      "html": "Compare with Luke 24:4"
+     },
+     {
+      "id": "fn-l",
+      "refId": "fnref-l",
+      "label": "l",
+      "html": "Compare with Luke 9:29"
+     },
+     {
+      "id": "fn-m",
+      "refId": "fnref-m",
+      "label": "m",
+      "html": "This is traditionally ‘Sabbath.’ It’s from the Hebrew word <em>Shabbat</em>, which means ‘rest’ and was used to refer to the seventh day of the week as a designated day for resting (See Exodus 20:8–11). Spelling and pronouncing it ‘Sabbath’ instead of <em>Shabbat</em> just needlessly distances it from the Jewish origin. It’s not an accident that this story directly follows Jesus promising rest for those who carry his yoke. See the book <em>Sabbath as Resistance</em> by Walter Brueggemann for more insight into the significance of <em>Shabbat</em> in the Bible."
+     },
+     {
+      "id": "fn-n",
+      "refId": "fnref-n",
+      "label": "n",
+      "html": "“A <em>Shabbat’s</em> journey” was the distance rabbinic tradition settled on permitting on the seventh day of the week. Exodus 16:29 says, “Each of you stay where you are; do not leave your place on the seventh day” (NRSVue), but there was discussion about how to define “where you are.” The tradition at this time was that traveling about 2000 cubits (very roughly about one kilometer or 0.6 miles) or less was considered staying “where you are.”"
+     },
+     {
+      "id": "fn-o",
+      "refId": "fnref-o",
+      "label": "o",
+      "html": "Traditionally: ‘James.’ The Greek is <em>Iakobos</em>, from the Hebrew <em>Ya’aqov</em>, which is the same as it uses for Jacob son of Isaac and Jacob grandfather of Jesus. Jacob is the English name as it came through German, and James is the English name as it came through French. That way, it turned into two names in English, but it started as the same name in Hebrew and Greek."
+     },
+     {
+      "id": "fn-p",
+      "refId": "fnref-p",
+      "label": "p",
+      "html": "Traditionally, ‘Bartholomew’ from the Greek <em>Bartholomaios</em>, which is a transliteration of the Aramaic <em>Bar Talmai</em>, which means Son of Talmai. Most scholars believe this person to be the Nathaniel identified in John 1:45."
+     },
+     {
+      "id": "fn-q",
+      "refId": "fnref-q",
+      "label": "q",
+      "html": "The term “Zealots” as a formal political faction with organized resistance did not fully emerge until after Jesus’ lifetime, particularly around the time of the Jewish-Roman War (66–70 CE). However, certain elements associated with the later Zealots, such as intense resistance to Roman occupation and a radical commitment to Jewish religious freedom, were already present during Jesus’ time. During the early first century CE, anti-Roman sentiment was high, and several figures led revolts and advocated for Jewish independence. These movements shared many of the ideas that would later be associated with the Zealots, including a willingness to use violence to oppose foreign rule and a commitment to what they saw as the purity and autonomy of Israel under God’s rule."
+     },
+     {
+      "id": "fn-r",
+      "refId": "fnref-r",
+      "label": "r",
+      "html": "Traditionally, ‘Judas.’ Judas is the English version of the Greek version (<em>Ioudas</em>) of the Hebrew name <em>Yehudah</em>, or ‘Judah’ as it is typically rendered in English translations of the Hebrew Bible."
+     },
+     {
+      "id": "fn-s",
+      "refId": "fnref-s",
+      "label": "s",
+      "html": "This is referring specifically to the Eleven listed in the previous verse."
+     },
+     {
+      "id": "fn-t",
+      "refId": "fnref-t",
+      "label": "t",
+      "html": "The word <em>adelphos</em> literally means ‘brother’ or ‘sibling.’ It was also frequently used to refer to ‘cousin’ or ‘relative,’ and even for members of the same ideological or ethnic group. With Jesus’ insistence on a radically inclusive understanding of God’s instruction, it is always pushing further than what already seems to be the most wide-sweeping view people hold. In the New Testament, it comes to be used of anyone who has joined the movement Jesus leads, regardless of gender."
+     },
+     {
+      "id": "fn-u",
+      "refId": "fnref-u",
+      "label": "u",
+      "html": "The word <em>aner</em> most often means ‘man’ or ‘husband’ and can sometimes be translated ‘individuals’ in a way that is not gender specific. Here, the context seems to indicate that the crowd was composed of males, which would not have been a surprising circumstance in the culture."
+     },
+     {
+      "id": "fn-v",
+      "refId": "fnref-v",
+      "label": "v",
+      "html": "This is from the Aramaic <em>ḥăqēl dəmā</em>, meaning “Field of Blood.”"
+     },
+     {
+      "id": "fn-w",
+      "refId": "fnref-w",
+      "label": "w",
+      "html": "Quotation of Psalm 69:25"
+     },
+     {
+      "id": "fn-x",
+      "refId": "fnref-x",
+      "label": "x",
+      "html": "Quotation of Psalm 109:8"
+     },
+     {
+      "id": "fn-y",
+      "refId": "fnref-y",
+      "label": "y",
+      "html": "This is another instance of <em>aner</em>, the word usually referring specifically to men, rather than people in general."
+     },
+     {
+      "id": "fn-z",
+      "refId": "fnref-z",
+      "label": "z",
+      "html": "This word, <em>anastasis</em>, is the same word traditionally translated as ‘resurrection.’ It can mean something as simple as standing up from lying or sitting. It can also mean to stand up as a public figure entering their role in public view, like a prophet. Here, it points to the Judaic anticipation held by some schools of thought, including the Pharisees, that everyone would be raised to new, physical life at the end of the Age, and the event of Jesus having experienced it in advance of everyone else after the crucifixion."
+     },
+     {
+      "id": "fn-aa",
+      "refId": "fnref-aa",
+      "label": "aa",
+      "html": "This is from an Aramaic name, though there is debate as to the meaning. The most prominent view is that is from <em>Bar Shabbat</em>, Son of <em>Shabbat</em> (or Sabbath)."
+     },
+     {
+      "id": "fn-bb",
+      "refId": "fnref-bb",
+      "label": "bb",
+      "html": "This is a Latin name, meaning ‘Just’ or ‘upright.’"
+     },
+     {
+      "id": "fn-cc",
+      "refId": "fnref-cc",
+      "label": "cc",
+      "html": "Traditionally, ‘Matthias,’ from the Greek <em>Maththias</em>, which is a shortened form of the Hebrew <em>Mattityahu</em> (typically transliterated into English as Matthew), which means ‘Gift of Yahweh.’"
+     }
+    ]
+   },
+   "expected": {
+    "api": 2,
+    "anchorSpec": 1,
+    "bookKey": "acts",
+    "chapter": 1,
+    "indexed": false,
+    "title": "Acts 1",
+    "description": "Acts 1 in the Liberation and Inclusion Translation (LIT).",
+    "topics": [],
+    "hash": "3467fe27121b3276d12c433a16aefd46adb7eec5417342fda6b7c59792c60fb5",
+    "text": "I made the first account, Theophilus, about everything Jesus began doing and teaching until the day he was taken up, after giving directions by the Sacred Life-breath to the chosen commissioned ones. And after he suffered, he presented himself alive with many definitive proofs, being seen by them over the course of forty days and discussing things about God’s Reign. While he was staying with them, he directed them not to leave Jerusalem but to “wait for the Father’s promise, which you heard about from me, since while John immersed in water, you will be immersed in the Sacred Life-breath not many days from now.” Then, when they had gathered, they started asking him, “Lord, are you reinstating the reign to Israel at this time?” But he said to them, “It’s not for you to know the periods or times which the Father has set by his own authority, but you will receive power when the Sacred Life-breath comes over you, and you will be my witnesses in Jerusalem and in all Judea, Samaria, and to the farthest land.” After saying these things, while they were watching, he was lifted up, and a cloud took him from their sight. As they were gazing into the heavens while he went, suddenly, two individuals stood beside them in white clothing. The individuals said, “Galileans, why are you standing looking up at the heavens? This same Jesus who was taken up from among you into the heavens will come back exactly the same way you watched him going into the heavens.” Then they returned to Jerusalem from the Mount of Olives, which is near Jerusalem, a Shabbat’s journey away. When they went into the city, they went up to the upper room, where they were staying: Peter, John, Jacob, and Andrew; Philip and Thomas; Bar-Talmai and Matthew; Jacob, son of Alphaeus and Simeon who was called Zealous; and Judah son of Jacob. By unanimous agreement, they all attended constantly to prayer, together with some women, including Miriam the mother of Jesus, as well as his brothers. During that time, standing up among Family (in the middle of a crowd of about 120 people), Peter said, “Men, Family, it was necessary for the scripture to be fulfilled, in which, through the mouth of David, the Sacred Life-breath foretold about Judah, the one who guided those who seized Jesus, because he had been counted among us and received a share of this role of service. He later acquired a field using the reward for his unjust act, and ending up face down, he burst open in the middle, and all his guts poured out. It became known to all who resided in Jerusalem, so the field came to be called Hakeldama” (which in their own language means ‘Field of Blood’). “You see, it was written in the book of Psalms, ‘His farmhouse should become desolate, and no one should reside in it,’ and ‘Another should receive his role of supervision.’ Therefore, it is necessary for one of the men who have accompanied us the whole time of the Lord Jesus’ comings and goings among us, beginning from John’s immersion until the day he was taken up from us, for one of them to become a witness to his Rising Up along with us.” They nominated two people, Joseph called Barsabbas (also known as Justus) and Matthias. Praying, they said, “You, Lord, who know everyone’s hearts, make it clear which one of these two you have chosen to receive the role of this service and commission which Judah sidestepped to move on to his own role.” They assigned them lots, and the lot fell to Matthias, so he was counted together with the Eleven commissioned ones.",
+    "verses": [
+     {
+      "v": 1,
+      "start": 0,
+      "end": 85
+     },
+     {
+      "v": 2,
+      "start": 86,
+      "end": 199
+     },
+     {
+      "v": 3,
+      "start": 200,
+      "end": 368
+     },
+     {
+      "v": 4,
+      "start": 369,
+      "end": 510
+     },
+     {
+      "v": 5,
+      "start": 511,
+      "end": 618
+     },
+     {
+      "v": 6,
+      "start": 619,
+      "end": 735
+     },
+     {
+      "v": 7,
+      "start": 736,
+      "end": 850
+     },
+     {
+      "v": 8,
+      "start": 851,
+      "end": 1017
+     },
+     {
+      "v": 9,
+      "start": 1018,
+      "end": 1127
+     },
+     {
+      "v": 10,
+      "start": 1128,
+      "end": 1242
+     },
+     {
+      "v": 11,
+      "start": 1243,
+      "end": 1466
+     },
+     {
+      "v": 12,
+      "start": 1467,
+      "end": 1575
+     },
+     {
+      "v": 13,
+      "start": 1576,
+      "end": 1819
+     },
+     {
+      "v": 14,
+      "start": 1820,
+      "end": 1972
+     },
+     {
+      "v": 15,
+      "start": 1973,
+      "end": 2075
+     },
+     {
+      "v": 16,
+      "start": 2076,
+      "end": 2267
+     },
+     {
+      "v": 17,
+      "start": 2268,
+      "end": 2350
+     },
+     {
+      "v": 18,
+      "start": 2351,
+      "end": 2496
+     },
+     {
+      "v": 19,
+      "start": 2497,
+      "end": 2641
+     },
+     {
+      "v": 20,
+      "start": 2642,
+      "end": 2815
+     },
+     {
+      "v": 21,
+      "start": 2816,
+      "end": 2948
+     },
+     {
+      "v": 22,
+      "start": 2949,
+      "end": 3088
+     },
+     {
+      "v": 23,
+      "start": 3089,
+      "end": 3176
+     },
+     {
+      "v": 24,
+      "start": 3177,
+      "end": 3289
+     },
+     {
+      "v": 25,
+      "start": 3290,
+      "end": 3393
+     },
+     {
+      "v": 26,
+      "start": 3394,
+      "end": 3510
+     }
+    ],
+    "blocks": [
+     {
+      "id": "acts-1-p1",
+      "kind": "p",
+      "start": 0,
+      "end": 618
+     },
+     {
+      "id": "acts-1-p2",
+      "kind": "p",
+      "start": 619,
+      "end": 735
+     },
+     {
+      "id": "acts-1-p3",
+      "kind": "p",
+      "start": 736,
+      "end": 1127
+     },
+     {
+      "id": "acts-1-p4",
+      "kind": "p",
+      "start": 1128,
+      "end": 1466
+     },
+     {
+      "id": "acts-1-p5",
+      "kind": "p",
+      "start": 1467,
+      "end": 1972
+     },
+     {
+      "id": "acts-1-p6",
+      "kind": "p",
+      "start": 1973,
+      "end": 3088
+     },
+     {
+      "id": "acts-1-p7",
+      "kind": "p",
+      "start": 3089,
+      "end": 3510
+     }
+    ],
+    "runs": [
+     {
+      "kind": "em",
+      "start": 1552,
+      "end": 1561
+     },
+     {
+      "kind": "em",
+      "start": 2577,
+      "end": 2587
+     }
+    ],
+    "footnotes": [
+     {
+      "id": "fn-a",
+      "refId": "fnref-a",
+      "label": "a",
+      "at": 37,
+      "html": "While “Theophilus” is treated as a personal name in Luke and Acts, even receiving the formal honorific “most excellent,” it is not known whether it was intended for a specific person by that name. The name literally means “Friend of God” or “Loved by God” and many scholars think it could have been symbolic, addressed to any reader who loves God or as a pseudonym to protect the identity of the original recipient.",
+      "text": "While “Theophilus” is treated as a personal name in Luke and Acts, even receiving the formal honorific “most excellent,” it is not known whether it was intended for a specific person by that name. The name literally means “Friend of God” or “Loved by God” and many scholars think it could have been symbolic, addressed to any reader who loves God or as a pseudonym to protect the identity of the original recipient."
+     },
+     {
+      "id": "fn-b",
+      "refId": "fnref-b",
+      "label": "b",
+      "at": 154,
+      "html": "Traditionally, ‘Holy’",
+      "text": "Traditionally, ‘Holy’"
+     },
+     {
+      "id": "fn-c",
+      "refId": "fnref-c",
+      "label": "c",
+      "at": 166,
+      "html": "Traditionally, ‘Spirit.’ The Greek word <em>pneuma</em> could be used to refer to ‘wind,’ ‘breath,’ or an animating energy within people, thought to be perceptible in the breath. Hebrew and Latin also use the same word for all these concepts. In scripture, it typically calls back the image to Genesis 1 and 2: “the Spirit of God was hovering over the surface of the waters” (Genesis 1:2 NASB) and “the Lord God formed the human from the topsoil of the fertile land and blew life’s breath into [its] nostrils. The human came to life.” (Genesis 2:7 CEB).",
+      "text": "Traditionally, ‘Spirit.’ The Greek word pneuma could be used to refer to ‘wind,’ ‘breath,’ or an animating energy within people, thought to be perceptible in the breath. Hebrew and Latin also use the same word for all these concepts. In scripture, it typically calls back the image to Genesis 1 and 2: “the Spirit of God was hovering over the surface of the waters” (Genesis 1:2 NASB) and “the Lord God formed the human from the topsoil of the fertile land and blew life’s breath into [its] nostrils. The human came to life.” (Genesis 2:7 CEB)."
+     },
+     {
+      "id": "fn-d",
+      "refId": "fnref-d",
+      "label": "d",
+      "at": 199,
+      "html": "Traditionally, ‘apostles.’ The word means ‘someone who is sent to carry out a purpose’ and while it became used in a particular way in the church, it was not an inherently religious word in the Greek language.",
+      "text": "Traditionally, ‘apostles.’ The word means ‘someone who is sent to carry out a purpose’ and while it became used in a particular way in the church, it was not an inherently religious word in the Greek language."
+     },
+     {
+      "id": "fn-e",
+      "refId": "fnref-e",
+      "label": "e",
+      "at": 297,
+      "html": "This is referring to the commissioned ones in the previous verse.",
+      "text": "This is referring to the commissioned ones in the previous verse."
+     },
+     {
+      "id": "fn-f",
+      "refId": "fnref-f",
+      "label": "f",
+      "at": 389,
+      "html": "Or ‘eating together’",
+      "text": "Or ‘eating together’"
+     },
+     {
+      "id": "fn-g",
+      "refId": "fnref-g",
+      "label": "g",
+      "at": 527,
+      "html": "The name ‘John’ is the English version of the Latin version of the Greek transliteration (<em>Ioannes</em>) of the Hebrew name Yohanan or in English translations of the Hebrew Bible, <em>Johanan</em>, which means “God has been gracious” or “My God is gracious.”",
+      "text": "The name ‘John’ is the English version of the Latin version of the Greek transliteration (Ioannes) of the Hebrew name Yohanan or in English translations of the Hebrew Bible, Johanan, which means “God has been gracious” or “My God is gracious.”"
+     },
+     {
+      "id": "fn-h",
+      "refId": "fnref-h",
+      "label": "h",
+      "at": 536,
+      "html": "In English, translations have traditionally simply taken the Greek word and put it in English letters: ‘baptize.’ The historical reason for this was that the first translators of the Bible into English practiced infant baptism, and the Greek word literally means ‘dip’ or ‘immerse something in a liquid,’ it didn’t fit with their doctrine and practice. Other languages translate it fully, so in Dutch, for example, John is known as ‘John the Dipper.’ In addition to the literal action of dipping or immersing in the water, this is clearly a reference to ceremonial cleansing, preparing people for a sacred calling.",
+      "text": "In English, translations have traditionally simply taken the Greek word and put it in English letters: ‘baptize.’ The historical reason for this was that the first translators of the Bible into English practiced infant baptism, and the Greek word literally means ‘dip’ or ‘immerse something in a liquid,’ it didn’t fit with their doctrine and practice. Other languages translate it fully, so in Dutch, for example, John is known as ‘John the Dipper.’ In addition to the literal action of dipping or immersing in the water, this is clearly a reference to ceremonial cleansing, preparing people for a sacred calling."
+     },
+     {
+      "id": "fn-i",
+      "refId": "fnref-i",
+      "label": "i",
+      "at": 618,
+      "html": "Reference to Luke 24:49",
+      "text": "Reference to Luke 24:49"
+     },
+     {
+      "id": "fn-j",
+      "refId": "fnref-j",
+      "label": "j",
+      "at": 1127,
+      "html": "Literally, ‘eyes’",
+      "text": "Literally, ‘eyes’"
+     },
+     {
+      "id": "fn-k",
+      "refId": "fnref-k",
+      "label": "k",
+      "at": 1205,
+      "html": "Compare with Luke 24:4",
+      "text": "Compare with Luke 24:4"
+     },
+     {
+      "id": "fn-l",
+      "refId": "fnref-l",
+      "label": "l",
+      "at": 1242,
+      "html": "Compare with Luke 9:29",
+      "text": "Compare with Luke 9:29"
+     },
+     {
+      "id": "fn-m",
+      "refId": "fnref-m",
+      "label": "m",
+      "at": 1561,
+      "html": "This is traditionally ‘Sabbath.’ It’s from the Hebrew word <em>Shabbat</em>, which means ‘rest’ and was used to refer to the seventh day of the week as a designated day for resting (See Exodus 20:8–11). Spelling and pronouncing it ‘Sabbath’ instead of <em>Shabbat</em> just needlessly distances it from the Jewish origin. It’s not an accident that this story directly follows Jesus promising rest for those who carry his yoke. See the book <em>Sabbath as Resistance</em> by Walter Brueggemann for more insight into the significance of <em>Shabbat</em> in the Bible.",
+      "text": "This is traditionally ‘Sabbath.’ It’s from the Hebrew word Shabbat, which means ‘rest’ and was used to refer to the seventh day of the week as a designated day for resting (See Exodus 20:8–11). Spelling and pronouncing it ‘Sabbath’ instead of Shabbat just needlessly distances it from the Jewish origin. It’s not an accident that this story directly follows Jesus promising rest for those who carry his yoke. See the book Sabbath as Resistance by Walter Brueggemann for more insight into the significance of Shabbat in the Bible."
+     },
+     {
+      "id": "fn-n",
+      "refId": "fnref-n",
+      "label": "n",
+      "at": 1569,
+      "html": "“A <em>Shabbat’s</em> journey” was the distance rabbinic tradition settled on permitting on the seventh day of the week. Exodus 16:29 says, “Each of you stay where you are; do not leave your place on the seventh day” (NRSVue), but there was discussion about how to define “where you are.” The tradition at this time was that traveling about 2000 cubits (very roughly about one kilometer or 0.6 miles) or less was considered staying “where you are.”",
+      "text": "“A Shabbat’s journey” was the distance rabbinic tradition settled on permitting on the seventh day of the week. Exodus 16:29 says, “Each of you stay where you are; do not leave your place on the seventh day” (NRSVue), but there was discussion about how to define “where you are.” The tradition at this time was that traveling about 2000 cubits (very roughly about one kilometer or 0.6 miles) or less was considered staying “where you are.”"
+     },
+     {
+      "id": "fn-o",
+      "refId": "fnref-o",
+      "label": "o",
+      "at": 1682,
+      "html": "Traditionally: ‘James.’ The Greek is <em>Iakobos</em>, from the Hebrew <em>Ya’aqov</em>, which is the same as it uses for Jacob son of Isaac and Jacob grandfather of Jesus. Jacob is the English name as it came through German, and James is the English name as it came through French. That way, it turned into two names in English, but it started as the same name in Hebrew and Greek.",
+      "text": "Traditionally: ‘James.’ The Greek is Iakobos, from the Hebrew Ya’aqov, which is the same as it uses for Jacob son of Isaac and Jacob grandfather of Jesus. Jacob is the English name as it came through German, and James is the English name as it came through French. That way, it turned into two names in English, but it started as the same name in Hebrew and Greek."
+     },
+     {
+      "id": "fn-p",
+      "refId": "fnref-p",
+      "label": "p",
+      "at": 1724,
+      "html": "Traditionally, ‘Bartholomew’ from the Greek <em>Bartholomaios</em>, which is a transliteration of the Aramaic <em>Bar Talmai</em>, which means Son of Talmai. Most scholars believe this person to be the Nathaniel identified in John 1:45.",
+      "text": "Traditionally, ‘Bartholomew’ from the Greek Bartholomaios, which is a transliteration of the Aramaic Bar Talmai, which means Son of Talmai. Most scholars believe this person to be the Nathaniel identified in John 1:45."
+     },
+     {
+      "id": "fn-q",
+      "refId": "fnref-q",
+      "label": "q",
+      "at": 1795,
+      "html": "The term “Zealots” as a formal political faction with organized resistance did not fully emerge until after Jesus’ lifetime, particularly around the time of the Jewish-Roman War (66–70 CE). However, certain elements associated with the later Zealots, such as intense resistance to Roman occupation and a radical commitment to Jewish religious freedom, were already present during Jesus’ time. During the early first century CE, anti-Roman sentiment was high, and several figures led revolts and advocated for Jewish independence. These movements shared many of the ideas that would later be associated with the Zealots, including a willingness to use violence to oppose foreign rule and a commitment to what they saw as the purity and autonomy of Israel under God’s rule.",
+      "text": "The term “Zealots” as a formal political faction with organized resistance did not fully emerge until after Jesus’ lifetime, particularly around the time of the Jewish-Roman War (66–70 CE). However, certain elements associated with the later Zealots, such as intense resistance to Roman occupation and a radical commitment to Jewish religious freedom, were already present during Jesus’ time. During the early first century CE, anti-Roman sentiment was high, and several figures led revolts and advocated for Jewish independence. These movements shared many of the ideas that would later be associated with the Zealots, including a willingness to use violence to oppose foreign rule and a commitment to what they saw as the purity and autonomy of Israel under God’s rule."
+     },
+     {
+      "id": "fn-r",
+      "refId": "fnref-r",
+      "label": "r",
+      "at": 1805,
+      "html": "Traditionally, ‘Judas.’ Judas is the English version of the Greek version (<em>Ioudas</em>) of the Hebrew name <em>Yehudah</em>, or ‘Judah’ as it is typically rendered in English translations of the Hebrew Bible.",
+      "text": "Traditionally, ‘Judas.’ Judas is the English version of the Greek version (Ioudas) of the Hebrew name Yehudah, or ‘Judah’ as it is typically rendered in English translations of the Hebrew Bible."
+     },
+     {
+      "id": "fn-s",
+      "refId": "fnref-s",
+      "label": "s",
+      "at": 1848,
+      "html": "This is referring specifically to the Eleven listed in the previous verse.",
+      "text": "This is referring specifically to the Eleven listed in the previous verse."
+     },
+     {
+      "id": "fn-t",
+      "refId": "fnref-t",
+      "label": "t",
+      "at": 2015,
+      "html": "The word <em>adelphos</em> literally means ‘brother’ or ‘sibling.’ It was also frequently used to refer to ‘cousin’ or ‘relative,’ and even for members of the same ideological or ethnic group. With Jesus’ insistence on a radically inclusive understanding of God’s instruction, it is always pushing further than what already seems to be the most wide-sweeping view people hold. In the New Testament, it comes to be used of anyone who has joined the movement Jesus leads, regardless of gender.",
+      "text": "The word adelphos literally means ‘brother’ or ‘sibling.’ It was also frequently used to refer to ‘cousin’ or ‘relative,’ and even for members of the same ideological or ethnic group. With Jesus’ insistence on a radically inclusive understanding of God’s instruction, it is always pushing further than what already seems to be the most wide-sweeping view people hold. In the New Testament, it comes to be used of anyone who has joined the movement Jesus leads, regardless of gender."
+     },
+     {
+      "id": "fn-u",
+      "refId": "fnref-u",
+      "label": "u",
+      "at": 2081,
+      "html": "The word <em>aner</em> most often means ‘man’ or ‘husband’ and can sometimes be translated ‘individuals’ in a way that is not gender specific. Here, the context seems to indicate that the crowd was composed of males, which would not have been a surprising circumstance in the culture.",
+      "text": "The word aner most often means ‘man’ or ‘husband’ and can sometimes be translated ‘individuals’ in a way that is not gender specific. Here, the context seems to indicate that the crowd was composed of males, which would not have been a surprising circumstance in the culture."
+     },
+     {
+      "id": "fn-v",
+      "refId": "fnref-v",
+      "label": "v",
+      "at": 2587,
+      "html": "This is from the Aramaic <em>ḥăqēl dəmā</em>, meaning “Field of Blood.”",
+      "text": "This is from the Aramaic ḥăqēl dəmā, meaning “Field of Blood.”"
+     },
+     {
+      "id": "fn-w",
+      "refId": "fnref-w",
+      "label": "w",
+      "at": 2761,
+      "html": "Quotation of Psalm 69:25",
+      "text": "Quotation of Psalm 69:25"
+     },
+     {
+      "id": "fn-x",
+      "refId": "fnref-x",
+      "label": "x",
+      "at": 2815,
+      "html": "Quotation of Psalm 109:8",
+      "text": "Quotation of Psalm 109:8"
+     },
+     {
+      "id": "fn-y",
+      "refId": "fnref-y",
+      "label": "y",
+      "at": 2861,
+      "html": "This is another instance of <em>aner</em>, the word usually referring specifically to men, rather than people in general.",
+      "text": "This is another instance of aner, the word usually referring specifically to men, rather than people in general."
+     },
+     {
+      "id": "fn-z",
+      "refId": "fnref-z",
+      "label": "z",
+      "at": 3072,
+      "html": "This word, <em>anastasis</em>, is the same word traditionally translated as ‘resurrection.’ It can mean something as simple as standing up from lying or sitting. It can also mean to stand up as a public figure entering their role in public view, like a prophet. Here, it points to the Judaic anticipation held by some schools of thought, including the Pharisees, that everyone would be raised to new, physical life at the end of the Age, and the event of Jesus having experienced it in advance of everyone else after the crucifixion.",
+      "text": "This word, anastasis, is the same word traditionally translated as ‘resurrection.’ It can mean something as simple as standing up from lying or sitting. It can also mean to stand up as a public figure entering their role in public view, like a prophet. Here, it points to the Judaic anticipation held by some schools of thought, including the Pharisees, that everyone would be raised to new, physical life at the end of the Age, and the event of Jesus having experienced it in advance of everyone else after the crucifixion."
+     },
+     {
+      "id": "fn-aa",
+      "refId": "fnref-aa",
+      "label": "aa",
+      "at": 3139,
+      "html": "This is from an Aramaic name, though there is debate as to the meaning. The most prominent view is that is from <em>Bar Shabbat</em>, Son of <em>Shabbat</em> (or Sabbath).",
+      "text": "This is from an Aramaic name, though there is debate as to the meaning. The most prominent view is that is from Bar Shabbat, Son of Shabbat (or Sabbath)."
+     },
+     {
+      "id": "fn-bb",
+      "refId": "fnref-bb",
+      "label": "bb",
+      "at": 3161,
+      "html": "This is a Latin name, meaning ‘Just’ or ‘upright.’",
+      "text": "This is a Latin name, meaning ‘Just’ or ‘upright.’"
+     },
+     {
+      "id": "fn-cc",
+      "refId": "fnref-cc",
+      "label": "cc",
+      "at": 3176,
+      "html": "Traditionally, ‘Matthias,’ from the Greek <em>Maththias</em>, which is a shortened form of the Hebrew <em>Mattityahu</em> (typically transliterated into English as Matthew), which means ‘Gift of Yahweh.’",
+      "text": "Traditionally, ‘Matthias,’ from the Greek Maththias, which is a shortened form of the Hebrew Mattityahu (typically transliterated into English as Matthew), which means ‘Gift of Yahweh.’"
+     }
+    ],
+    "marks": [],
+    "figures": []
    }
   }
  ],

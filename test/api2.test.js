@@ -88,8 +88,24 @@ test("every chapter builds, and its text and verse spans are the anchor text", (
     assert.equal(v2.hash, sha256(Buffer.from(v2.text, "utf8")), slug);
     assert.equal(v2.api, API_VERSION);
     assert.equal(v2.anchorSpec, ANCHOR_SPEC_VERSION);
-    if (!v2.indexed) assert.equal(v2.text, "", `${slug} is a draft`);
+    // A draft is either a placeholder page (no text, its figure kept) or the
+    // translation so far (text, no figure); never both.
+    if (!v2.indexed) assert.ok(v2.text === "" || v2.figures.length === 0, `${slug} is a draft`);
   }
+});
+
+test("a chapter with verse text and a figure is refused", () => {
+  const draft = {
+    bookKey: "test",
+    chapter: 1,
+    indexed: false,
+    paragraphs: [
+      '<p id="test-1-p1"><span class="vglue"><sup id="v1" class="vn">1</sup>&nbsp;Words.</span></p>',
+      '<figure><img src="x.webp" alt=""><figcaption>A caption</figcaption></figure>',
+    ],
+    footnotes: [],
+  };
+  assert.throws(() => buildChapterV2(draft), /figure/);
 });
 
 test("every range is in bounds, in order, and where the format says", () => {
