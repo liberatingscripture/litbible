@@ -49,6 +49,11 @@
       "id": "en_dash_numeric_ranges",
       "rule": "A numeric range takes an en dash — \"Matthew 5:3–12\", \"verses 9–11\" — never a hyphen. Settled corpus-wide 2026-08-20 (413 conversions across 111 files). THIS IS A REPO-ONLY CONVENTION and deliberately so: the Word masters keep hyphens, because Word autocorrects a dash between WORDS and does not autocorrect one between digits, so there is nothing on the master side to preserve and every restore from a master pulls individual ranges back toward the hyphen. Re-run the pass rather than fixing them one at a time. TWO EXCLUSIONS, both load-bearing: anything inside a tag (id=\"john-3-p1\" is a hyphen and must stay one — the check splits on tags and scans only the text between them), and a URL printed as visible link text, where an en dash breaks the link a reader would type. The URL test is deliberately loose (a scheme, a leading www., or a token carrying a common TLD), since a false negative here costs a hyphen and a false positive costs a broken link.",
       "severity": "fatal"
+    },
+    {
+      "id": "no_figure_in_published_chapter",
+      "rule": "A <figure> appears only in a draft chapter (`indexed: false`) that has no verse text yet. Every figure in the corpus is a placeholder draft’s art (the photo and its limerick). A draft can also hold the translation so far (Acts 1 since 2026-10-23, still `indexed: false`); once it does, its placeholder figure goes. The rule exists for the content API, version 2 (API-2-FORMAT.md), which serves a chapter as its anchor text: the words alone, with positions laid over them. A figure caption is not scripture, and the anchor-text rule has no clause for one (its tags vanish and its words would read as the verse in progress), so a figure in a published chapter would leak caption words into the text every app anchors notes to. Version 2 serves a draft’s figures as HTML beside its empty text, which is where they belong. Enforced twice: the chapter validator rejects such a chapter at commit time, and build-api-v2.mjs refuses to build it, so a chapter that slipped past the hook still cannot publish.",
+      "severity": "fatal"
     }
   ]
 }

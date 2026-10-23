@@ -91,6 +91,8 @@ npm run build:api         # Regenerate public/api/content.json only
 npm run build:glossary    # Regenerate the apps' glossary feed (public/glossary.json)
 npm run build:greek-bridge # Regenerate the Greek search's glossary bridge (public/search/greek-bridge.json)
 npm run build:manifest    # Regenerate API manifest + /api/data for the mobile apps
+npm run build:api2        # Regenerate /api/data/v2, the content API version 2 (needs
+                          #   build:manifest first; adds the manifest's `v2` key)
 npm run build:og          # Regenerate the chapter/intro share cards (public/og/)
 npm run build:favicons    # Regenerate the favicon/touch/manifest icons from the emblem SVGs
                           #   (on demand only — outputs are committed, not built)
@@ -119,6 +121,8 @@ npm run audit:words       # Re-check every stored phase 2 record against today's
 npm run build:anchor-vectors # Regenerate test/fixtures/anchor-vectors.json, the Study Desk
                           #   anchor-text vectors the apps run (on demand only — committed,
                           #   and its "before" texts come from git history)
+npm run build:api2-vectors # Regenerate test/fixtures/api2-vectors.json, the content API
+                          #   version 2 vectors the apps run (on demand only — committed)
 npm run audit:alignment   # Re-check decided alignment records against the current text
                           #   (--all to list every finding). Run after editing scripture
 npm run draft:release-notes -- --since <ref>  # Draft a release-notes entry from git diff
@@ -165,7 +169,15 @@ npm run draft:release-notes -- --since <ref>  # Draft a release-notes entry from
 7. `build:api` — generates `public/api/content.json` (full NT in canonical
    order). Runs *after* `build:manifest` and reads the shared `version` from
    `version.json` so all three API artifacts report the same version.
-8. `build:og` — generates `public/og/<slug>.png`, a 1200×630 social share card
+8. `build:api2` — generates `public/api/data/v2/`, the content API version 2
+   (`API-2-FORMAT.md`): each chapter as its Study Desk anchor text with its
+   verses, blocks, lines, emphasis, footnote letters and ⟦ ⟧ spans as offsets,
+   plus `books.json`, `content.json` and its own `version.json`. It then adds
+   the `v2` key to `manifest.json`, and **never touches the manifest's `files`
+   map** (see the app-sync note below). It fails the build if any chapter's
+   text or verse spans differ from `chapterAnchorText`. Runs after
+   `build:manifest` and `build:api` because it reads their `version`.
+9. `build:og` — generates `public/og/<slug>.png`, a 1200×630 social share card
    for every chapter and book-intro page (owner-approved design: ink field,
    the ringed emblem, Fraunces display-cut reference), plus `apps.png`
    for `/apps` — a sibling composition on the same ink field whose hero visual
@@ -182,8 +194,8 @@ npm run draft:release-notes -- --since <ref>  # Draft a release-notes entry from
    `twitter:card=summary_large_image`. A website asset, NOT part of the app
    contract — it must never move under
    `public/api/`.
-9. `astro build` — compiles the site to `dist/`.
-10. `pagefind --site dist` — indexes glossary + article + book-intro pages
+10. `astro build` — compiles the site to `dist/`.
+11. `pagefind --site dist` — indexes glossary + article + book-intro pages
    into `dist/pagefind/` (scripture chapter pages are deliberately not
    Pagefind-indexed — see Search below).
 
@@ -431,6 +443,9 @@ the sitemap filter live in `astro.config.mjs`.
 | `build-verse-index.mjs` | fs/CLI shell: walks the chapter files, skips drafts, derives the corpus `vocab`, and writes `public/search/verses.json` — per-verse plain text for client-side scripture keyword search. Delegates the HTML→verse-text extraction to `lib/verse-index-core.mjs`. |
 | `build-api-json.mjs` | `public/api/content.json`. |
 | `build-api-manifest.mjs` | `public/api/manifest.json` + `public/api/data/` for the native apps. |
+| `build-api-v2.mjs` | fs shell for the content API, version 2: writes `public/api/data/v2/` and adds the manifest's `v2` key. Every rule is in `lib/api2-core.mjs`. |
+| `lib/api2-core.mjs` | The version 2 chapter: applies the anchor-text rewrites themselves, in order, to characters that remember their block, line and emphasis, so every offset is in the final text by construction; then checks the text and verse spans against `lib/anchor-text.mjs` and throws on a difference. Also `assertV1FilesMap`, the rule that keeps version 2 out of the version 1 `files` map. Unit-tested (`test/api2.test.js`). |
+| `build-api2-vectors.mjs` | Writes `test/fixtures/api2-vectors.json`: every chapter's version 2 `hash` beside the hash of the version 1 file it came from, whole files for the edge cases, and hand-written cases. **Not** in the build; regenerate after a deliberate change to `api2-core` and tell the apps. |
 | `build-glossary-json.mjs` | fs shell: reads `src/content/glossary/*.md` and writes `public/glossary.json`, the apps' glossary feed. Delegates every rule to `lib/glossary-feed-core.mjs`. |
 | `build-greek-bridge.mjs` | fs shell: writes `public/search/greek-bridge.json`, the gated LIT renderings of the published glossary terms with their lemmas and verses, for searching the Greek by the LIT's words. Rules in `lib/greek-bridge-core.mjs` (unit-tested). In the build. |
 | `lib/glossary-feed-core.mjs` | Pure `buildGlossaryFeed()` core of that generator — frontmatter parse, Markdown→plain-prose flattening, the `index` maps, and the cross-reference check. Unit-tested directly (`test/build-glossary-feed.test.js`) since its output shape is an app contract. Its header documents the four silent failure modes. |
@@ -622,6 +637,11 @@ Each file in `src/data/chapters/` follows this structure:
      `/ekdemeo/.test(html)` silently fails open.
   5. **Numeric ranges take an en dash**, outside tags and outside URLs printed
      as visible link text.
+- **No `<figure>` in a published chapter, or in a draft with verse text**
+  (2026-10-22). Every one is a placeholder draft's art. The content API, version 2 serves a chapter's words
+  alone, and the anchor-text rule has no clause for a caption, so a figure in
+  an `indexed: true` chapter would leak its words into the text the apps
+  anchor notes to. The validator rejects it and `build-api-v2.mjs` refuses it.
 - Always run `npm run validate:chapters` after editing chapter JSON. The
   pre-commit hook validates staged chapter files automatically.
 
@@ -1796,15 +1816,16 @@ collection); they're read directly by the intro pages and the API manifest.
   `public/search/verses.json`, `public/search/chapters/`,
   `public/search/greek-bridge.json`, `public/topics-index.json`,
   `public/glossary.json`, `dist/`, `.astro/`.
-  Don't hand-edit them. Seven generators are deliberately **outside** this rule
+  Don't hand-edit them. Eight generators are deliberately **outside** this rule
   because their output is committed and hand-maintained — `build:favicons`
   (icons), `build:alignment` (review state), `build:bracket-font`
   (`public/fonts/bracket-markers.otf`), `build:text-critical-font`
   (`public/fonts/text-critical-signs.otf`), `build:apps-qr`
   (`public/images/apps-qr.svg`), `build:anchor-vectors`
-  (`test/fixtures/anchor-vectors.json`, which the apps fetch), and
+  (`test/fixtures/anchor-vectors.json`, which the apps fetch),
+  `build:api2-vectors` (`test/fixtures/api2-vectors.json`, likewise), and
   `build:greek` (`public/greek/`, built from sources CI doesn't have); none
-  of the seven runs in `npm run build`.
+  of the eight runs in `npm run build`.
 - **No client JS framework**, but `src/scripts/` *does* hold vanilla JS for
   progressive enhancement (verse highlighting/menus, footnote popovers, reading
   mode, search). Everything must degrade gracefully without JS.
@@ -3112,6 +3133,25 @@ collection); they're read directly by the intro pages and the API manifest.
   both apps read a copy bundled into the binary and drifted apart from each
   other. It is `required: true` now, and generated: see The Glossary Feed below.
   **Treat any new optional entry with suspicion** — silence is its failure mode.
+  **Version 2 (`/api/data/v2/`, `API-2-FORMAT.md`) is served beside all of
+  this, and version 1 is kept indefinitely** (BDR, 2026-10-22). Its one hard
+  rule: **nothing of version 2 ever goes into the manifest's `files` map, and
+  nothing under `chapters/` there is ever anything but a version 1 chapter.**
+  An installed Android build matches `chapters/<book>-<n>.json` *anywhere* in
+  a path and decodes it with every field defaulted, so a version 2 file listed
+  there would replace a reader's chapter with an empty one. Version 2's hashes
+  go under the manifest's own `v2` key, which both apps' decoders skip;
+  `assertV1FilesMap` (`scripts/lib/api2-core.mjs`) fails the build on any
+  `files` path the shipping apps don't already know. A version 2 chapter file
+  carries no content version, so a publish re-downloads only the chapters that
+  changed; and a new anchor spec is a new `api` number and folder, never a
+  change under `/api/data/v2/`. **It grows by adding**: a new kind of data
+  gets its own folder under `/api/data/v2/` and its own entries in
+  `v2.files`, never fields inside a chapter file, and the apps ignore what
+  they don't recognize (that spec's "Adding more later"). There is no change
+  list for now (BDR, 2026-10-23): an app re-places marks only in chapters
+  whose `hash` moved. A draft that holds the translation so far (Acts 1) is
+  served with its text like any chapter, still `indexed: false`.
 - **Content files are hashed by RAW BYTES, so line endings are content.**
   `.gitattributes` (`* text=auto eol=lf`) normalizes on commit, so a committed
   blob can never carry CRLF and the *published* `version` is stable. What it
@@ -3723,6 +3763,7 @@ argv, and the scan; nothing else.
 | `GLOSSARY-CANDIDATES.md` | Register of glossary candidates deliberately not included or deferred, and the payload criterion behind those calls. Read it before proposing a "next term." |
 | `TOPICS.md` | **The authority on chapter and book-intro `topics`** — the significance filter, the alternative-translation pair table, the prefix-search rule, casing, and the hand-run checks. Read it before adding or revising any topics array. |
 | `STUDY-DESK.md` | **The planning and decision record for the Study Desk** (notes, places, highlights and sheets on desktop, with optional account sync shared with the apps). Phases 1a to 1d, 1f and 1h are built (the merge engine; notes, bookmarks, highlights, pinned footnotes, the margin and the panel's tabs; the notebook page, export and import, labels, ribbons, search and commands, first use and the tour; the Greek tab; searching the Greek), and so is phase 2a (2026-10-15: B3, N4, and construction search and searching by parsing as Greek search commands; M10 was built and shelved; N2, H2 and M4 are shelved for version 2, 2026-10-15), phase 3's sheets and /desk (3b to 3k, 2026-10-18 to 10-20), phase 2b (2026-10-20: S2, a sheet checked before printing, and N9, print with room to write), and phase 2c (2026-10-20: M11, notes on a footnote, and N6's questions gathered onto a sheet), the shell behind a preview switch (`?desk=on`); nothing reader-facing is released. N8 (the hidden passage) is held on branches until after the Zoom; it is not released before phase 1 is completely done, and perhaps not until phases 1 to 3 are (BVJ, 2026-10-13). 1g (an interleaf for the Greek) and 1h (searching the Greek) belong to phase 1: 1g is shelved for the future, and 1h was built on 2026-10-13. Every idea, audit finding, owner decision, open question and BDR item is there with its ID, as are the two apps' replies (2026-10-04) and the talk-through list built from them. Read it before proposing or building any part of the desk, and update it when a decision changes. `STUDY-DESK-BRIEF-FOR-BDR.md` is the brief written for BDR's Claude about the apps' side; `STUDY-DESK-REPLY-TO-APPS.md` is the website's answer to both apps' replies (2026-10-05), and the last such document: since 2026-10-07 BDR's Claude reads this repo directly, so the website answers by updating `STUDY-DESK.md` on `main` (its section "One notebook, three homes" holds BDR's sync proposal and the website's answers). |
+| `API-2-FORMAT.md` | **The content API, version 2** (`/api/data/v2/`): each chapter served as its anchor text with positions laid over it, beside version 1. Starts with the manifest rule that protects installed Android builds. Its reference is `scripts/lib/api2-core.mjs`, its vectors `test/fixtures/api2-vectors.json`. |
 | `STUDY-DESK-FORMAT.md` | **Draft record format for the Study Desk**, shared with both apps: the kinds of record, the anchor text, and how a mark is found again after the wording moves. Its executable form is `scripts/lib/anchor-text.mjs` (pure half in `src/lib/anchor-core.mjs`) with `test/fixtures/anchor-vectors.json`; its merge rules are `src/lib/desk-merge.mjs` with `test/fixtures/merge-vectors.json`, hand-written cases the apps run too. Change each pair together. |
 | `STUDY-DESK-AUDIT-1.md` | **Full Audit 1 of the built Study Desk** (2026-10-20, commit `82af6a6`): findings BA1 to BA87, each with what happens, where and the fix, and the plan to fix them in phases FA1-a to FA1-t, each one session's work, plus the follow-up audit (FA1-u for the code it didn't reach, FA1-v on real devices), whose findings continue as BA88 onward. Read its "How to work a phase on a Pro account" before starting one, and mark each finding's status there as it ships. STUDY-DESK.md keeps the decisions. |
 | `DISASTER-RECOVERY.md` | Continuity doc: every dashboard/secret behind the deploy (names only, no values) + the DNS inventory + from-zero redeploy path. Update it when an integration, secret, or DNS record is added/removed. |
