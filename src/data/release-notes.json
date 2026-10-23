@@ -1,5 +1,32 @@
 [
   {
+    "version": "2026-10-22",
+    "date": "2026-10-22",
+    "label": "October 22, 2026",
+    "changes": [
+      {
+        "type": "text_updated",
+        "description": "Luke 24:4 — text updated",
+        "detail": "\"dazzling attire.\" → \"clothing flashing like lightning.\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 24,
+          "verse": 4
+        }
+      },
+      {
+        "type": "text_updated",
+        "description": "Luke 9:29 — text updated",
+        "detail": "\"gleamed bright\" → \"were white, flashing\"",
+        "location": {
+          "bookKey": "luke",
+          "chapter": 9,
+          "verse": 29
+        }
+      }
+    ]
+  },
+  {
     "version": "2026-10-10",
     "date": "2026-10-10",
     "label": "October 10, 2026",
