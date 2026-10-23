@@ -179,6 +179,16 @@ describe("auditWrongDirectionPairs", () => {
     assert.equal(findings.length, 0);
   });
 
+  test("accepts a plural possessive inside an open double quote", () => {
+    const findings = auditWrongDirectionPairs("“Therefore, the Lord Jesus’ comings and goings among us.”");
+    assert.equal(findings.length, 0);
+  });
+
+  test("still flags a ’ closing a “ when it does not follow an s", () => {
+    const findings = auditWrongDirectionPairs("He said “hello’ to her.");
+    assert.equal(findings.length, 1);
+  });
+
   test("does not require any straight quotes - operates on already-curly text", () => {
     // The real defect this exists to catch (CLAUDE.md, colossians-1 note):
     // an opening ‘ paired with a wrong-direction ” closer, already present

@@ -400,6 +400,11 @@ export function auditWrongDirectionPairs(text) {
       const next = nextProseChar(text, spans, i);
       if (isWordChar(prev) && isWordChar(next)) continue; // unambiguously mid-word apostrophe, skip
       const top = stack[stack.length - 1];
+      // A plural possessive ("the Lord Jesus’ comings") puts its apostrophe
+      // after a final s, with a space after it, so it looks like a close.
+      // Inside an open “ it is the possessive, not a wrong-direction pair.
+      // Inside an open ‘ it is still read as a close, as above.
+      if (top.char === OPEN_DOUBLE && /[sS]/.test(prev) && /\s/.test(next)) continue;
       if (top.char === OPEN_DOUBLE) {
         stack.pop();
         findings.push({ opener: top.char, openPos: top.pos, closer: c, closePos: i, kind: "wrong-direction" });
