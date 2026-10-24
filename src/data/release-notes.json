@@ -1,5 +1,20 @@
 [
   {
+    "version": "2026-10-23",
+    "date": "2026-10-23",
+    "label": "October 23, 2026",
+    "changes": [
+      {
+        "type": "chapter_added",
+        "description": "Acts 1 added",
+        "location": {
+          "bookKey": "acts",
+          "chapter": 1
+        }
+      }
+    ]
+  },
+  {
     "version": "2026-10-22",
     "date": "2026-10-22",
     "label": "October 22, 2026",
