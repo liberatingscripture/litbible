@@ -40,6 +40,7 @@ import { osisRef } from "./osis.mjs";
 import { labelMap, labelsOf } from "./desk-labels.mjs";
 import { mergeRecords } from "./desk-merge.mjs";
 import { MARKERS, SCHEMA_VERSION, createRecord, editRecord, proseTarget, validateRecord } from "./desk-records.mjs";
+import { cleanSheetText } from "./desk-sheet-format.mjs";
 import { kindName, liveRecords, recordHref, recordReference } from "./desk-store-core.mjs";
 
 export const ORIGIN = "https://litbible.net";
@@ -537,12 +538,20 @@ function canonical(value) {
 
 const same = (a, b) => canonical(a) === canonical(b);
 
+/** A record from a file with any sheet's formatted text sanitized, in the trash too (BA66). */
+function cleanIncoming(r) {
+  if (r?.kind !== "trash") return cleanSheetText(r);
+  const inner = cleanSheetText(r.record);
+  return inner === r.record ? r : { ...r, record: inner };
+}
+
 /**
  * What opening a copy would do, before anything is written. Merged with the
  * merge engine (desk-merge.mjs), so the newer writing wins for every kind,
  * a deletion and an edit settle by the later action, and a copy that is
  * older than what is here changes nothing. A record that is malformed is
- * reported and left out, never written.
+ * reported and left out, never written, and a sheet's formatted text is
+ * sanitized on the way in whatever its format (cleanSheetText).
  *
  * @param {object[]} local what the notebook holds now, trash included
  * @param {object[]} incoming the records read from the file
@@ -559,7 +568,7 @@ export function planImport(local, incoming, ctx = {}) {
   for (const r of incoming ?? []) {
     const bad = r && typeof r === "object" && r.kind !== "trash" ? validateRecord(r) : [];
     if (bad.length) skipped.push({ record: r, reason: `${bad.join("; ")}.`.replace(/^./, (c) => c.toUpperCase()) });
-    else usable.push(r);
+    else usable.push(cleanIncoming(r));
   }
   const merged = mergeRecords(local, usable, { now: ctx.now, tiebreak: ctx.tiebreak });
   skipped.push(...merged.skipped);

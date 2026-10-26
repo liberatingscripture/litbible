@@ -117,9 +117,13 @@ const WS_CHAR = /[ \t\r\n\f]/;
 const NAME_CHAR = /[a-zA-Z0-9-]/;
 const LETTER = /[a-zA-Z]/;
 
+/** What readTag returns for a tag the input ends inside of. */
+const UNFINISHED = Symbol("unfinished");
+
 /**
- * A tag starting at `lt` (a "<"): { end, closing, name, attrs } or null when
- * it is not a complete tag, in which case the "<" is text.
+ * A tag starting at `lt` (a "<"): { end, closing, name, attrs }, null when it
+ * is not a tag, in which case the "<" is text, or UNFINISHED when the input
+ * ends inside it (no closing ">", or a quote that never closes).
  */
 function readTag(src, lt) {
   const n = src.length;
@@ -136,7 +140,7 @@ function readTag(src, lt) {
   const attrs = new Map();
   for (;;) {
     while (j < n && (WS_CHAR.test(src[j]) || src[j] === "/")) j++;
-    if (j >= n) return null;
+    if (j >= n) return UNFINISHED;
     if (src[j] === ">") return { end: j + 1, closing, name, attrs };
     const s = j;
     while (j < n && !WS_CHAR.test(src[j]) && src[j] !== "=" && src[j] !== ">" && src[j] !== "/") j++;
@@ -150,7 +154,7 @@ function readTag(src, lt) {
       const q = src[j];
       if (q === '"' || q === "'") {
         const close = src.indexOf(q, j + 1);
-        if (close < 0) return null;
+        if (close < 0) return UNFINISHED;
         value = src.slice(j + 1, close);
         j = close + 1;
       } else {
@@ -190,6 +194,13 @@ function tokenize(src) {
       continue;
     }
     const tag = readTag(src, lt);
+    if (tag === UNFINISHED) {
+      // The rest is text. Trying again from the next character made this
+      // quadratic, since every later "<" scans to the end as well: 48 KB of
+      // "<a " took 21 seconds (BA67).
+      text(src.slice(lt));
+      break;
+    }
     if (!tag) {
       text("<");
       i = lt + 1;
@@ -675,6 +686,36 @@ export function sanitizeSheetHtml(html) {
   return blocks.map(serBlock).join("");
 }
 
+/** The formatted fields of each module type that has them. */
+const FORMATTED = Object.freeze({ text: ["html"], question: ["html", "answer"] });
+
+/**
+ * A sheet record with its modules' formatted fields sanitized, whatever its
+ * sheetFormat (BA66). validateSheet holds a sheet in this code's format to
+ * the canonical form already, but a sheet in a newer format isn't checked
+ * (canEdit says no), and it is still drawn. The sanitizer's output is safe
+ * for any version, so an import puts every sheet through this. Returns the
+ * record itself when nothing changes, so a copy already here still compares
+ * equal; anything else, a trash record included, is returned as it is.
+ */
+export function cleanSheetText(r) {
+  if (r?.kind !== "sheet" || !Array.isArray(r.modules)) return r;
+  let changed = false;
+  const modules = r.modules.map((m) => {
+    const fields = FORMATTED[m?.type];
+    if (!fields) return m;
+    let out = m;
+    for (const f of fields) {
+      if (typeof m[f] !== "string") continue;
+      const clean = sanitizeSheetHtml(m[f]);
+      if (clean !== m[f]) out = { ...out, [f]: clean };
+    }
+    if (out !== m) changed = true;
+    return out;
+  });
+  return changed ? { ...r, modules } : r;
+}
+
 /* ── Checking a sheet ────────────────────────────────────────────────── */
 
 /** The length of a string in characters (code points), as a reader counts them. */
@@ -772,7 +813,12 @@ export function validateSheet(r) {
     return problems;
   }
   if (r.modules.length > SHEET_LIMITS.modules) problems.push(`a sheet holds at most ${SHEET_LIMITS.modules} modules`);
-  if (jsonBytes(r) > SHEET_LIMITS.bytes) problems.push(`a sheet is at most ${SHEET_LIMITS.bytes / 1024} KB`);
+  // Too big is reason enough to refuse it, so its modules aren't sanitized
+  // one by one to find more (BA67).
+  if (jsonBytes(r) > SHEET_LIMITS.bytes) {
+    problems.push(`a sheet is at most ${SHEET_LIMITS.bytes / 1024} KB`);
+    return problems;
+  }
 
   const ids = new Set();
   let keyTerms = 0;

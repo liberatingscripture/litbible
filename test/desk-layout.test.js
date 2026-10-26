@@ -724,7 +724,7 @@ test("a layout round-trips through writeSaved and readSaved", () => {
 });
 
 test("a pin and an unknown kind survive a round trip", () => {
-  const l = mk(cols([0.5, 0.5], leaf("a", "lit"), leaf("b", "greek", { at: "John 1:1" })), "a");
+  const l = mk(cols([0.5, 0.5], leaf("p1", "lit"), leaf("p2", "greek", { at: "John 1:1" })), "p1");
   assert.deepEqual(checkLayout(structuredClone(l)), l);
 });
 
@@ -735,58 +735,68 @@ test("checkLayout rejects what isn't a layout", () => {
 });
 
 test("checkLayout rejects duplicate ids", () => {
-  const dup = { root: cols([0.5, 0.5], leaf("a", "lit"), leaf("a", "mine")), active: "a" };
+  const dup = { root: cols([0.5, 0.5], leaf("p1", "lit"), leaf("p1", "mine")), active: "p1" };
   assert.equal(checkLayout(dup), null);
 });
 
+test("checkLayout accepts only the ids nextId makes (BA59)", () => {
+  // A stored id goes into markup (id="deskPassage-…") and selectors, so a
+  // hostile one is refused before it gets there.
+  for (const id of ['p1"><img src=x onerror=alert(1)>', 'p1"]', "p1 p2", "a", "P1", "p", "p1234", "p-1", " p1", ""]) {
+    const l = { root: cols([0.5, 0.5], leaf(id, "lit"), leaf("p2", "mine")), active: id };
+    assert.equal(checkLayout(l), null, JSON.stringify(id));
+  }
+  assert.ok(checkLayout({ root: cols([0.5, 0.5], leaf("p1", "lit"), leaf("p999", "mine")), active: "p1" }));
+});
+
 test("checkLayout rejects more than four panes", () => {
-  const five = { root: cols([0.2, 0.2, 0.2, 0.2, 0.2], ...["a", "b", "c", "d", "e"].map((i) => leaf(i, "mine"))), active: null };
+  const five = { root: cols([0.2, 0.2, 0.2, 0.2, 0.2], ...["p1", "p2", "p3", "p4", "p5"].map((i) => leaf(i, "mine"))), active: null };
   assert.equal(checkLayout(five), null);
-  const four = { root: cols([0.25, 0.25, 0.25, 0.25], ...["a", "b", "c", "d"].map((i) => leaf(i, "mine"))), active: null };
+  const four = { root: cols([0.25, 0.25, 0.25, 0.25], ...["p1", "p2", "p3", "p4"].map((i) => leaf(i, "mine"))), active: null };
   assert.ok(checkLayout(four));
 });
 
 test("checkLayout rejects a split with fewer than two children", () => {
-  assert.equal(checkLayout({ root: { split: "columns", sizes: [1], children: [leaf("a", "lit")] }, active: "a" }), null);
+  assert.equal(checkLayout({ root: { split: "columns", sizes: [1], children: [leaf("p1", "lit")] }, active: "p1" }), null);
   assert.equal(checkLayout({ root: { split: "columns", sizes: [], children: [] }, active: null }), null);
   assert.equal(checkLayout({ root: { split: "columns", sizes: [1, 1] }, active: null }), null);
-  const inner = cols([0.5, 0.5], leaf("a", "lit"), { split: "rows", sizes: [1], children: [leaf("b", "mine")] });
-  assert.equal(checkLayout({ root: inner, active: "a" }), null);
+  const inner = cols([0.5, 0.5], leaf("p1", "lit"), { split: "rows", sizes: [1], children: [leaf("p2", "mine")] });
+  assert.equal(checkLayout({ root: inner, active: "p1" }), null);
 });
 
 test("checkLayout rejects a bad split name", () => {
-  const bad = { root: { split: "diagonal", sizes: [0.5, 0.5], children: [leaf("a", "lit"), leaf("b", "mine")] }, active: "a" };
+  const bad = { root: { split: "diagonal", sizes: [0.5, 0.5], children: [leaf("p1", "lit"), leaf("p2", "mine")] }, active: "p1" };
   assert.equal(checkLayout(bad), null);
 });
 
 test("checkLayout rejects non-string or empty ids and kinds", () => {
-  assert.equal(checkLayout({ root: leaf("a", 5), active: null }), null);
-  assert.equal(checkLayout({ root: leaf("a", ""), active: null }), null);
-  assert.equal(checkLayout({ root: leaf("a", null), active: null }), null);
+  assert.equal(checkLayout({ root: leaf("p1", 5), active: null }), null);
+  assert.equal(checkLayout({ root: leaf("p1", ""), active: null }), null);
+  assert.equal(checkLayout({ root: leaf("p1", null), active: null }), null);
   assert.equal(checkLayout({ root: leaf(1, "lit"), active: null }), null);
   assert.equal(checkLayout({ root: leaf("", "lit"), active: null }), null);
-  assert.equal(checkLayout({ root: cols([0.5, 0.5], leaf("a", "lit"), leaf("b", ["mine"])), active: "a" }), null);
+  assert.equal(checkLayout({ root: cols([0.5, 0.5], leaf("p1", "lit"), leaf("p2", ["mine"])), active: "p1" }), null);
 });
 
 test("checkLayout keeps a kind it doesn't know", () => {
-  const l = checkLayout({ root: cols([0.5, 0.5], leaf("a", "lit"), leaf("b", "timeline")), active: "a" });
-  assert.equal(findPane(l.root, "b").kind, "timeline");
+  const l = checkLayout({ root: cols([0.5, 0.5], leaf("p1", "lit"), leaf("p2", "timeline")), active: "p1" });
+  assert.equal(findPane(l.root, "p2").kind, "timeline");
 });
 
 test("checkLayout drops a pin on a kind that doesn't follow, and cleans one that does", () => {
   const l = checkLayout({
-    root: cols([0.25, 0.25, 0.25, 0.25], leaf("a", "lit", { at: "x" }), leaf("b", "verse", { at: "John 3:16", extra: 1 }), leaf("c", "greek", { at: 5 }), leaf("d", "footnotes", "nope")),
-    active: "a",
+    root: cols([0.25, 0.25, 0.25, 0.25], leaf("p1", "lit", { at: "x" }), leaf("p2", "verse", { at: "John 3:16", extra: 1 }), leaf("p3", "greek", { at: 5 }), leaf("p4", "footnotes", "nope")),
+    active: "p1",
   });
-  assert.equal(findPane(l.root, "a").pin, null);
-  assert.deepEqual(findPane(l.root, "b").pin, { at: "John 3:16" });
-  assert.deepEqual(findPane(l.root, "c").pin, { at: null });
-  assert.equal(findPane(l.root, "d").pin, null);
+  assert.equal(findPane(l.root, "p1").pin, null);
+  assert.deepEqual(findPane(l.root, "p2").pin, { at: "John 3:16" });
+  assert.deepEqual(findPane(l.root, "p3").pin, { at: null });
+  assert.equal(findPane(l.root, "p4").pin, null);
 });
 
 test("checkLayout replaces bad sizes with even ones", () => {
-  const make = (sizes) => checkLayout({ root: { split: "columns", sizes, children: [leaf("a", "lit"), leaf("b", "mine")] }, active: "a" });
-  for (const sizes of [undefined, [1], [0.5, 0.5, 0], [0, 1], [-1, 2], ["a", "b"], [NaN, 1], [Infinity, 1], "x"]) {
+  const make = (sizes) => checkLayout({ root: { split: "columns", sizes, children: [leaf("p1", "lit"), leaf("p2", "mine")] }, active: "p1" });
+  for (const sizes of [undefined, [1], [0.5, 0.5, 0], [0, 1], [-1, 2], ["p1", "p2"], [NaN, 1], [Infinity, 1], "x"]) {
     close(make(sizes).root.sizes, [0.5, 0.5], JSON.stringify(sizes));
   }
   close(make([0.7, 0.3]).root.sizes, [0.7, 0.3]);
@@ -794,23 +804,23 @@ test("checkLayout replaces bad sizes with even ones", () => {
 });
 
 test("checkLayout normalizes the tree it reads", () => {
-  const l = checkLayout({ root: cols([0.5, 0.5], cols([0.5, 0.5], leaf("a", "lit"), leaf("b", "mine")), leaf("c", "verse")), active: "a" });
-  assert.deepEqual(l.root.children.map((c) => c.pane.id), ["a", "b", "c"]);
+  const l = checkLayout({ root: cols([0.5, 0.5], cols([0.5, 0.5], leaf("p1", "lit"), leaf("p2", "mine")), leaf("p3", "verse")), active: "p1" });
+  assert.deepEqual(l.root.children.map((c) => c.pane.id), ["p1", "p2", "p3"]);
   close(l.root.sizes, [0.25, 0.25, 0.5]);
 });
 
 test("checkLayout settles the active pane", () => {
-  const root = () => cols([0.5, 0.5], leaf("a", "mine"), leaf("b", "lit"));
-  assert.equal(checkLayout({ root: root(), active: "b" }).active, "b");
-  assert.equal(checkLayout({ root: root(), active: "a" }).active, "b", "a pane that isn't LIT");
-  assert.equal(checkLayout({ root: root(), active: "zzz" }).active, "b");
-  assert.equal(checkLayout({ root: root(), active: 7 }).active, "b");
-  assert.equal(checkLayout({ root: root() }).active, "b");
-  assert.equal(checkLayout({ root: cols([0.5, 0.5], leaf("a", "mine"), leaf("b", "verse")), active: "a" }).active, null);
+  const root = () => cols([0.5, 0.5], leaf("p1", "mine"), leaf("p2", "lit"));
+  assert.equal(checkLayout({ root: root(), active: "p2" }).active, "p2");
+  assert.equal(checkLayout({ root: root(), active: "p1" }).active, "p2", "a pane that isn't LIT");
+  assert.equal(checkLayout({ root: root(), active: "zzz" }).active, "p2");
+  assert.equal(checkLayout({ root: root(), active: 7 }).active, "p2");
+  assert.equal(checkLayout({ root: root() }).active, "p2");
+  assert.equal(checkLayout({ root: cols([0.5, 0.5], leaf("p1", "mine"), leaf("p2", "verse")), active: "p1" }).active, null);
 });
 
 test("checkLayout accepts a single pane", () => {
-  assert.deepEqual(checkLayout({ root: leaf("a", "lit"), active: "a" }), { root: leaf("a", "lit"), active: "a" });
+  assert.deepEqual(checkLayout({ root: leaf("p1", "lit"), active: "p1" }), { root: leaf("p1", "lit"), active: "p1" });
 });
 
 test("readSaved of garbage gives nothing saved and the 'last' start", () => {
@@ -992,13 +1002,13 @@ test("the shared place survives applyArrangement, closePane and splitPane", () =
 });
 
 test("checkLayout keeps a string place and drops anything else", () => {
-  const root = () => cols([0.5, 0.5], leaf("a", "lit"), leaf("b", "verse"));
-  assert.equal(checkLayout({ root: root(), active: "a", place: "john 3:16" }).place, "john 3:16");
+  const root = () => cols([0.5, 0.5], leaf("p1", "lit"), leaf("p2", "verse"));
+  assert.equal(checkLayout({ root: root(), active: "p1", place: "john 3:16" }).place, "john 3:16");
   for (const bad of [undefined, null, "", 5, {}, ["john 3"], true]) {
-    const l = checkLayout({ root: root(), active: "a", place: bad });
+    const l = checkLayout({ root: root(), active: "p1", place: bad });
     assert.equal("place" in l, false, String(bad));
   }
-  assert.equal("place" in checkLayout({ root: root(), active: "a" }), false);
+  assert.equal("place" in checkLayout({ root: root(), active: "p1" }), false);
 });
 
 test("a place round-trips through writeSaved and readSaved", () => {
@@ -1111,15 +1121,15 @@ test("checkLayout keeps a LIT pane's passage and the shared place, and drops a p
     split: "columns",
     sizes: [0.34, 0.33, 0.33],
     children: [
-      { pane: { id: "a", kind: "lit", pin: null, at: "john 3:16" } },
-      { pane: { id: "b", kind: "mine", pin: null, at: "romans 8:1" } },
-      { pane: { id: "c", kind: "lit", pin: null, at: 5 } },
+      { pane: { id: "p1", kind: "lit", pin: null, at: "john 3:16" } },
+      { pane: { id: "p2", kind: "mine", pin: null, at: "romans 8:1" } },
+      { pane: { id: "p3", kind: "lit", pin: null, at: 5 } },
     ],
   };
-  const l = checkLayout({ root, active: "a", place: "john 3:16" });
-  assert.equal(findPane(l.root, "a").at, "john 3:16");
-  assert.equal("at" in findPane(l.root, "b"), false, "a passage on My Notes is dropped");
-  assert.equal("at" in findPane(l.root, "c"), false, "a passage that is not a string is dropped");
+  const l = checkLayout({ root, active: "p1", place: "john 3:16" });
+  assert.equal(findPane(l.root, "p1").at, "john 3:16");
+  assert.equal("at" in findPane(l.root, "p2"), false, "a passage on My Notes is dropped");
+  assert.equal("at" in findPane(l.root, "p3"), false, "a passage that is not a string is dropped");
   assert.equal(l.place, "john 3:16");
 });
 
@@ -1156,11 +1166,11 @@ test("setKind drops a Sheet pane's sheet", () => {
 });
 
 test("checkLayout keeps a Sheet pane's sheet and drops one anywhere else", () => {
-  const l = checkLayout(mk(cols([0.5, 0.5], { pane: { id: "a", kind: "sheet", sheet: "s-1" } }, { pane: { id: "b", kind: "mine", sheet: "s-2" } })));
-  assert.equal(findPane(l.root, "a").sheet, "s-1");
-  assert.equal("sheet" in findPane(l.root, "b"), false);
-  const bad = checkLayout(mk(cols([0.5, 0.5], { pane: { id: "a", kind: "sheet", sheet: 7 } }, leaf("b", "mine"))));
-  assert.equal("sheet" in findPane(bad.root, "a"), false);
+  const l = checkLayout(mk(cols([0.5, 0.5], { pane: { id: "p1", kind: "sheet", sheet: "s-1" } }, { pane: { id: "p2", kind: "mine", sheet: "s-2" } })));
+  assert.equal(findPane(l.root, "p1").sheet, "s-1");
+  assert.equal("sheet" in findPane(l.root, "p2"), false);
+  const bad = checkLayout(mk(cols([0.5, 0.5], { pane: { id: "p1", kind: "sheet", sheet: 7 } }, leaf("p2", "mine"))));
+  assert.equal("sheet" in findPane(bad.root, "p1"), false);
 });
 
 // ---- showSheet (M5) ----------------------------------------------------------

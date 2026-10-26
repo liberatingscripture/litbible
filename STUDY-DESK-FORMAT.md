@@ -357,7 +357,10 @@ be empty. At most one per sheet.
 in **one canonical form**, so every client writes the same text for the
 same formatting and a merge never sees a change that isn't one. Every
 client sanitizes it **when it is saved and again when it is shown**,
-keeping exactly the set below and nothing else; anything else is dropped,
+**whatever the sheet's `sheetFormat`**: a sheet in a newer format is shown
+read only, but its text is still drawn through the sanitizer, and the
+website sanitizes these fields on every sheet it imports (FA1, BA66). The
+sanitizer keeps exactly the set below and nothing else; anything else is dropped,
 its text kept, and `<script>`, `<style>` and the like are dropped with
 their contents. The form:
 - Only the tags of the set, in lowercase, with these attributes and no

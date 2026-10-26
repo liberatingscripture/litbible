@@ -379,6 +379,33 @@ test("planImport carries unknown kinds and fields as they arrived", () => {
   assert.deepEqual(out.plan.put.sort((a, b) => (a.id < b.id ? -1 : 1)), [alien, future].sort((a, b) => (a.id < b.id ? -1 : 1)));
 });
 
+test("planImport sanitizes a sheet's text whatever its format, in the trash too (BA66)", () => {
+  // The audit's reproduction: a backup holding a sheet in a newer format,
+  // whose text would run a script when the read-only Sheet pane drew it.
+  const evil = '<p>Read<img src=x onerror="alert(document.domain)"></p>';
+  const fields = {
+    sheetFormat: 2,
+    title: "From a newer version",
+    subtitle: "",
+    template: "blank",
+    modules: [
+      { id: "t", type: "text", html: evil },
+      { id: "q", type: "question", html: evil, answer: evil, lines: 2 },
+    ],
+  };
+  const newer = make("sheet", fields);
+  const gone = planDelete(make("sheet", fields), { ...ctx, now: "2026-10-01T00:00:00.000Z" }).trash;
+  const file = parseImport(toBackupJson([newer, gone], opts));
+  const out = planImport([], file.records, { now: "2026-10-13T00:00:00.000Z" });
+  assert.equal(out.plan.put.length, 2);
+  for (const r of out.plan.put) assert.doesNotMatch(JSON.stringify(r), /onerror|<img/, r.kind);
+  const sheetHere = out.plan.put.find((r) => r.id === newer.id);
+  assert.equal(sheetHere.modules[0].html, "<p>Read</p>");
+  assert.equal(sheetHere.sheetFormat, 2, "the rest of the record is carried as it arrived");
+  // A sheet already clean is the same object, so a second import changes nothing.
+  assert.equal(planChanges(planImport(out.plan.put, file.records, { now: "2026-10-13T00:00:00.000Z" }).plan), false);
+});
+
 test("importing the same file twice writes nothing the second time", () => {
   const first = planImport([], everything, { now: "2026-10-13T00:00:00.000Z" });
   const held = first.plan.put;

@@ -522,8 +522,14 @@ export function evenOut(layout, path) {
 export const LAYOUT_KEY = "lit-desk-layout";
 
 /**
+ * The ids nextId makes. A stored id goes into markup and selectors, so one of
+ * any other form is refused, never escaped (BA59).
+ */
+const PANE_ID = /^p\d{1,3}$/;
+
+/**
  * A layout read back from storage, checked: a tree of one to four panes
- * with string ids (each once), string kinds, and well-formed splits. Kinds
+ * with ids of nextId's form (each once), string kinds, and well-formed splits. Kinds
  * this code doesn't know are kept, for a pane from a later version. Anything
  * else is null, and the caller falls back.
  */
@@ -534,7 +540,7 @@ export function checkLayout(value) {
     if (!node || typeof node !== "object" || depth > 6) return null;
     if (node.pane) {
       const { id, kind, pin } = node.pane;
-      if (typeof id !== "string" || !id || ids.has(id) || typeof kind !== "string" || !kind) return null;
+      if (typeof id !== "string" || !PANE_ID.test(id) || ids.has(id) || typeof kind !== "string" || !kind) return null;
       ids.add(id);
       const keepPin = pin && typeof pin === "object" && isFollower(kind)
         ? { at: typeof pin.at === "string" ? pin.at : null }
