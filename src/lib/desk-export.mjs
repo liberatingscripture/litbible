@@ -21,8 +21,10 @@
 // Opening a copy never deletes anything because it is missing from the file
 // (audit C17): a record absent from the file is simply not read. A deletion
 // reaches the notebook only as a trash record, which only the full backup
-// carries. Pure: no storage, no DOM, no clock unless the caller leaves `now`
-// or `exported` out.
+// carries. The two JSON files' own `exported` time caps their records' times
+// in the merge, and a record dated by a clock running ahead never replaces,
+// deletes or brings back anything here (BA4). Pure: no storage, no DOM, no
+// clock unless the caller leaves `now` or `exported` out.
 //
 // Motivations in the Web Annotation file (decided here, for BVJ to confirm):
 //   highlight    highlighting
@@ -415,6 +417,7 @@ function parseMarkdown(text, { local = [], ctx = {}, now = isoNow() } = {}) {
     if (typeof r.id === "string") trashFor.set(r.id, r);
   }
   const fileSaved = savedAt(text);
+  const nowMs = instantOf(now);
   const records = [];
   const problems = [];
   const entries = readEntries(text);
@@ -440,8 +443,11 @@ function parseMarkdown(text, { local = [], ctx = {}, now = isoNow() } = {}) {
         // they were changed here after the copy was saved, and they stay: the
         // file's words go to the merge under the file's own time, lose to the
         // newer record, and are counted as kept here. A file with no time at
-        // all is taken to be the older.
-        const fileTime = instantOf(e.modified) ?? fileSaved;
+        // all is taken to be the older, and so is a time later than now: a
+        // clock running ahead can't be ordered against anything here, and
+        // trusting it would beat every later edit each time the file is
+        // opened (BA4).
+        const fileTime = [instantOf(e.modified), fileSaved].find((t) => t != null && (nowMs == null || t <= nowMs)) ?? null;
         const here = instantOf(have.modified);
         const editedInFile = fileTime != null && here != null && here <= fileTime;
         const stamp = editedInFile ? now : fileTime != null ? new Date(fileTime).toISOString() : have.modified;
@@ -528,9 +534,12 @@ function placeOf(e) {
  *   `local` (the notebook's records) lets a Markdown entry with a known id
  *   become an edit of that record; `ctx` stamps notes made from new entries.
  * @returns {{ kind: "backup" | "webAnnotation" | "markdown" | "unknown",
- *   records: object[], problems: { line: number | null, message: string }[], notes: string[] }}
+ *   records: object[], problems: { line: number | null, message: string }[], notes: string[],
+ *   exported?: string }}
  *   `problems` are things left out, for the reader to look over; `notes` are
- *   things worth saying that left nothing out.
+ *   things worth saying that left nothing out; `exported` is when a JSON file
+ *   says it was saved (a Markdown file's time is read entry by entry instead,
+ *   and its edits are stamped now, so it gives none).
  */
 export function parseImport(text, opts = {}) {
   const source = String(text ?? "").replace(/^﻿/, "");
@@ -561,7 +570,7 @@ function parseBackup(data) {
   if (Number.isFinite(data.version) && data.version > BACKUP_VERSION) {
     notes.push("This copy was saved by a newer version of the notebook. Anything this version doesn’t know is kept as it is.");
   }
-  return { kind: "backup", records: data.records, problems, notes };
+  return { kind: "backup", records: data.records, problems, notes, ...savedTime(data.exported) };
 }
 
 function isAnnotation(data) {
@@ -587,7 +596,12 @@ function parseAnnotations(data) {
   if (data.lit?.version > BACKUP_VERSION) {
     notes.push("This copy was saved by a newer version of the notebook. Anything this version doesn’t know is kept as it is.");
   }
-  return { kind: "webAnnotation", records, problems, notes };
+  return { kind: "webAnnotation", records, problems, notes, ...savedTime(data.lit?.exported ?? data.created) };
+}
+
+/** `{ exported }` when a JSON file says when it was saved, for the merge's cap; else nothing. */
+function savedTime(value) {
+  return typeof value === "string" && instantOf(value) != null ? { exported: value } : {};
 }
 
 /* ── Planning an import ──────────────────────────────────────────────── */
@@ -624,12 +638,20 @@ function cleanIncoming(r) {
  *
  * @param {object[]} local what the notebook holds now, trash included
  * @param {object[]} incoming the records read from the file
- * @param {{ now?: string, tiebreak?: Function }} [ctx]
+ * @param {{ now?: string, exported?: string, tiebreak?: Function }} [ctx]
+ *   `exported` is the file's own time (parseImport's), the merge's cap.
  * @returns {{ plan: { put: object[], remove: string[] },
- *   summary: { added: number, updated: number, unchanged: number, keptHere: number, deleted: number, skipped: number },
- *   skipped: { record: unknown, reason: string }[] }}
- *   `keptHere` counts records whose copy here is newer, or whose deletion
- *   here stands; `deleted` those the file deletes.
+ *   summary: { added: number, updated: number, unchanged: number, keptHere: number, deleted: number, trash: number, skipped: number },
+ *   skipped: { record: unknown, reason: string }[], ahead: { record: unknown, written: boolean }[] }}
+ *   Every write the plan makes is counted, so a plan that changes anything
+ *   never reads as "Nothing to open" (BA11). `added`, `updated` and `deleted`
+ *   count records written; `trash` the deletions whose trash record changed
+ *   with no record of their own changing (one written for a record never
+ *   here, two collapsed into one, one emptied after its 30 days); `keptHere`
+ *   the file's records that changed nothing because the copy here is newer,
+ *   or a deletion here stands, or the record here is still newer than the
+ *   file's deletion of it; `ahead` the merge's records dated by a clock
+ *   running ahead.
  */
 export function planImport(local, incoming, ctx = {}) {
   const skipped = [];
@@ -639,7 +661,7 @@ export function planImport(local, incoming, ctx = {}) {
     if (bad.length) skipped.push({ record: r, reason: `${bad.join("; ")}.`.replace(/^./, (c) => c.toUpperCase()) });
     else usable.push(cleanIncoming(r));
   }
-  const merged = mergeRecords(local, usable, { now: ctx.now, tiebreak: ctx.tiebreak });
+  const merged = mergeRecords(local, usable, { now: ctx.now, exported: ctx.exported, tiebreak: ctx.tiebreak });
   skipped.push(...merged.skipped);
 
   const was = new Map(local.filter((r) => typeof r?.id === "string").map((r) => [r.id, r]));
@@ -647,33 +669,91 @@ export function planImport(local, incoming, ctx = {}) {
   for (const id of merged.remove) now.delete(id);
   for (const r of merged.put) now.set(r.id, r);
 
+  const summary = { added: 0, updated: 0, unchanged: 0, keptHere: 0, deleted: 0, trash: 0, skipped: skipped.length };
+  const isTrash = (r) => r?.kind === "trash";
+
+  // What was written, counted from the writes themselves (BA11).
+  const written = new Set([...merged.put.map((r) => r.id), ...merged.remove]);
+  const changedHere = new Set();
+  for (const id of written) {
+    const before = was.get(id);
+    const after = now.get(id);
+    if (isTrash(before) || isTrash(after)) continue;
+    changedHere.add(id);
+    if (!before) summary.added++;
+    else if (!after) summary.deleted++;
+    else summary.updated++;
+  }
+  // A trash record's change counts once per deletion, and not at all when it
+  // goes with its record's own (deleted by the file, or brought back by it).
+  const trashFor = new Set();
+  for (const id of written) {
+    const t = now.get(id) ?? was.get(id);
+    if (isTrash(t) && !changedHere.has(t.deletedId)) trashFor.add(t.deletedId);
+  }
+  summary.trash = trashFor.size;
+
+  // What the file held that changed nothing.
   const rejected = new Set(merged.skipped.map((s) => s.record));
-  const counted = new Set();
-  const summary = { added: 0, updated: 0, unchanged: 0, keptHere: 0, deleted: 0, skipped: skipped.length };
+  const seen = new Set();
   for (const r of usable) {
-    if (rejected.has(r) || typeof r.id !== "string" || counted.has(r.id)) continue;
-    if (r.kind === "trash") {
+    if (rejected.has(r) || typeof r?.id !== "string" || seen.has(r.id) || written.has(r.id)) continue;
+    seen.add(r.id);
+    if (isTrash(r)) {
+      // A deletion in the file that didn't take: the record here is newer.
       const live = was.get(r.deletedId);
-      if (live && live.kind !== "trash" && !now.has(r.deletedId)) summary.deleted++;
+      if (live && !isTrash(live) && !written.has(r.deletedId)) summary.keptHere++;
       continue;
     }
-    counted.add(r.id);
     const before = was.get(r.id);
-    const after = now.get(r.id);
-    if (!before) {
-      if (after) summary.added++;
-      else summary.keptHere++;
-    } else if (!after) {
-      summary.keptHere++;
-    } else if (!same(before, after)) {
-      summary.updated++;
-    } else if (same(before, r)) {
-      summary.unchanged++;
-    } else {
-      summary.keptHere++;
-    }
+    if (before && same(before, r)) summary.unchanged++;
+    else summary.keptHere++;
   }
-  return { plan: { put: merged.put, remove: merged.remove }, summary, skipped };
+  return { plan: { put: merged.put, remove: merged.remove }, summary, skipped, ahead: merged.ahead };
+}
+
+/**
+ * Read a chosen file and plan opening it against what the notebook holds
+ * now: everything the "Open a copy" result shows. Run it again when the
+ * reader presses Open, since the notebook may have changed since the file was
+ * chosen, here, in another tab, or by Keep (BA3), and write that plan.
+ *
+ * @param {string} text the file's contents
+ * @param {{ local: object[], ctx?: { client: string, contentVersion: string }, now?: string }} opts
+ * @returns {{ message: string } | { read: object, planned: object, sentence: string, ahead: string | null }}
+ *   `message` alone when the file isn't one this page opens; otherwise
+ *   parseImport's reading, planImport's plan, the summary sentence (with what
+ *   the reading left out counted in) and a sentence about records from a
+ *   clock running ahead, if any.
+ */
+export function planOpen(text, { local, ctx, now = isoNow() }) {
+  const read = parseImport(text, { local, ctx, now });
+  if (read.kind === "unknown") return { message: read.problems[0]?.message ?? "This isn’t a notebook file." };
+  const planned = planImport(local, read.records, { now, exported: read.exported });
+  const sentence = describeSummary({ ...planned.summary, skipped: planned.summary.skipped + read.problems.length });
+  return { read, planned, sentence, ahead: describeAhead(planned.ahead) };
+}
+
+/** Whether two readings of one file would do the same thing, as the reader was told. */
+export const sameOpen = (a, b) => !a.message && !b.message && a.sentence === b.sentence && a.ahead === b.ahead;
+
+/**
+ * A plain sentence about records dated by a clock running ahead, or null.
+ * "2 records in this file were dated by a clock running ahead. Such a record
+ * never replaces, deletes or brings back anything here: 1 added with an
+ * earlier date, and yours kept for the other."
+ */
+export function describeAhead(ahead = []) {
+  const n = ahead.length;
+  if (!n) return null;
+  const added = ahead.filter((a) => a.written).length;
+  const kept = n - added;
+  const head = `${n === 1 ? "One record in this file was" : `${n} records in this file were`} dated by a clock running ahead.`;
+  let rest;
+  if (!kept) rest = `${n === 1 ? "It was" : "They were"} added with an earlier date.`;
+  else if (!added) rest = `Yours ${n === 1 ? "is" : "are"} kept as ${n === 1 ? "it is" : "they are"}.`;
+  else rest = `${added} added with an earlier date, and yours kept for the other${kept === 1 ? "" : ` ${kept}`}.`;
+  return `${head} Such a record never replaces, deletes or brings back anything here: ${rest.charAt(0).toLowerCase()}${rest.slice(1)}`;
 }
 
 /** A plain sentence for a summary: "3 new, 1 updated, 12 already here." */
@@ -682,6 +762,7 @@ export function describeSummary(s) {
   if (s.added) parts.push(`${s.added} new`);
   if (s.updated) parts.push(`${s.updated} updated`);
   if (s.deleted) parts.push(`${s.deleted} deleted`);
+  if (s.trash) parts.push(`${s.trash} ${s.trash === 1 ? "change" : "changes"} in the trash`);
   if (s.unchanged) parts.push(`${s.unchanged} already here`);
   if (s.keptHere) parts.push(`${s.keptHere} kept as they are here (yours ${s.keptHere === 1 ? "is" : "are"} newer)`);
   if (s.skipped) parts.push(`${s.skipped} left out`);

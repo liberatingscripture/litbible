@@ -1,6 +1,6 @@
 {
-  "about": "Shared test vectors for the Study Desk's merge rules (src/lib/desk-merge.mjs; STUDY-DESK.md, 'When notes collide: rules a to e'). For each case, merging `incoming` into `local` as of `now` must give exactly `expect`, the whole notebook sorted by id, compared as JSON (key order does not matter). `local` is the side that is never clamped; `incoming` is the arriving side, which is clamped to `now` and checked. Exact ties go to the local copy (no tiebreak is given). A case with `skipped` also says how many incoming records must be reported and not written. `rule` names the rule the case is about: a (newer writing wins), b (deleted on one side, edited on the other), c (30-day trash, then a tombstone), collapse (two trash records for one deletion; the website's proposal of 2026-10-12, not yet confirmed by the apps), keep (principle 6), clamp, skip.",
-  "version": 1,
+  "about": "Shared test vectors for the Study Desk's merge rules (src/lib/desk-merge.mjs; STUDY-DESK.md, 'When notes collide: rules a to e'). For each case, merging `incoming` into `local` as of `now` must give exactly `expect`, the whole notebook sorted by id, compared as JSON (key order does not matter). `local` is the side that is never clamped; `incoming` is the arriving side, which is clamped and checked. The clamp's cap is `now`, or the case's `exported` (when the arriving copy was saved, as an export file says) if that is earlier; an arriving record with any time past the cap (its `modified`, a trash record's `deletedAt`, or the `modified` of the copy a trash record holds) is written at the cap, and only when `local` has nothing for it: no record with its id, no trash record deleting it, and, for a trash record, neither the record it deletes nor another trash record deleting that. Version 2 (2026-10-26, audit FA1-c) added that never-beats rule, `exported`, the held copy's clamp, and skipping a record whose kind differs from another copy of its id, here or in the same input, or a trash record that names itself; two version 1 clamp cases lost their `local` records, which became cases of their own. Exact ties go to the local copy (no tiebreak is given). A case with `skipped` also says how many incoming records must be reported and not written. `rule` names the rule the case is about: a (newer writing wins), b (deleted on one side, edited on the other), c (30-day trash, then a tombstone), collapse (two trash records for one deletion; the website's proposal of 2026-10-12, not yet confirmed by the apps), keep (principle 6), clamp, skip.",
+  "version": 2,
   "cases": [
   {
     "name": "a-newer-local-wins",
@@ -108,9 +108,7 @@
     "name": "clamp-future-incoming-is-written-as-now",
     "rule": "clamp",
     "now": "2026-10-12T12:00:00.000Z",
-    "local": [
-      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-11T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Local, yesterday","marker":"note"}
-    ],
+    "local": [],
     "incoming": [
       {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-20T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Incoming, from a clock eight days fast","marker":"note"}
     ],
@@ -150,6 +148,32 @@
     "name": "clamp-future-deletion-time-is-written-as-now",
     "rule": "clamp",
     "now": "2026-10-12T12:00:00.000Z",
+    "local": [],
+    "incoming": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000101","kind":"trash","schema":1,"created":"2026-11-01T09:00:00.000Z","modified":"2026-11-01T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000001","deletedKind":"note","deletedAt":"2026-11-01T09:00:00.000Z","record":{"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-12T11:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Edited an hour ago","marker":"note"}}
+    ],
+    "expect": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000101","kind":"trash","schema":1,"created":"2026-11-01T09:00:00.000Z","modified":"2026-10-12T12:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000001","deletedKind":"note","deletedAt":"2026-10-12T12:00:00.000Z","record":{"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-12T11:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Edited an hour ago","marker":"note"}}
+    ]
+  },
+  {
+    "name": "clamp-ahead-never-replaces-a-local-copy",
+    "rule": "clamp",
+    "now": "2026-10-12T12:00:00.000Z",
+    "local": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-11T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Local, yesterday","marker":"note"}
+    ],
+    "incoming": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-20T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Incoming, from a clock eight days fast","marker":"note"}
+    ],
+    "expect": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-11T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Local, yesterday","marker":"note"}
+    ]
+  },
+  {
+    "name": "clamp-ahead-deletion-never-deletes-a-local-record",
+    "rule": "clamp",
+    "now": "2026-10-12T12:00:00.000Z",
     "local": [
       {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-12T11:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Edited an hour ago","marker":"note"}
     ],
@@ -157,7 +181,102 @@
       {"id":"a1b2c3d4-0000-4000-8000-000000000101","kind":"trash","schema":1,"created":"2026-11-01T09:00:00.000Z","modified":"2026-11-01T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000001","deletedKind":"note","deletedAt":"2026-11-01T09:00:00.000Z","record":{"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-12T11:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Edited an hour ago","marker":"note"}}
     ],
     "expect": [
-      {"id":"a1b2c3d4-0000-4000-8000-000000000101","kind":"trash","schema":1,"created":"2026-11-01T09:00:00.000Z","modified":"2026-10-12T12:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000001","deletedKind":"note","deletedAt":"2026-10-12T12:00:00.000Z","record":{"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-12T11:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Edited an hour ago","marker":"note"}}
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-12T11:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Edited an hour ago","marker":"note"}
+    ]
+  },
+  {
+    "name": "clamp-ahead-record-never-revives-a-local-deletion",
+    "rule": "clamp",
+    "now": "2026-10-12T12:00:00.000Z",
+    "local": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000101","kind":"trash","schema":1,"created":"2026-10-11T10:00:00.000Z","modified":"2026-10-11T10:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000001","deletedKind":"note","deletedAt":"2026-10-11T10:00:00.000Z","record":{"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-11T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Deleted here yesterday","marker":"note"}}
+    ],
+    "incoming": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2099-01-01T00:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"From a clock far ahead","marker":"note"}
+    ],
+    "expect": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000101","kind":"trash","schema":1,"created":"2026-10-11T10:00:00.000Z","modified":"2026-10-11T10:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000001","deletedKind":"note","deletedAt":"2026-10-11T10:00:00.000Z","record":{"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-11T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Deleted here yesterday","marker":"note"}}
+    ]
+  },
+  {
+    "name": "clamp-ahead-deletion-never-replaces-a-local-deletion",
+    "rule": "clamp",
+    "now": "2026-10-12T12:00:00.000Z",
+    "local": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000101","kind":"trash","schema":1,"created":"2026-10-11T10:00:00.000Z","modified":"2026-10-11T10:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000001","deletedKind":"note","deletedAt":"2026-10-11T10:00:00.000Z","record":{"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-11T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Deleted here, these words","marker":"note"}}
+    ],
+    "incoming": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000102","kind":"trash","schema":1,"created":"2026-10-11T10:00:00.000Z","modified":"2099-01-01T00:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000001","deletedKind":"note","deletedAt":"2099-01-01T00:00:00.000Z","record":{"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-11T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Other words","marker":"note"}}
+    ],
+    "expect": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000101","kind":"trash","schema":1,"created":"2026-10-11T10:00:00.000Z","modified":"2026-10-11T10:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000001","deletedKind":"note","deletedAt":"2026-10-11T10:00:00.000Z","record":{"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-11T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Deleted here, these words","marker":"note"}}
+    ]
+  },
+  {
+    "name": "clamp-the-copy-held-in-trash",
+    "rule": "clamp",
+    "now": "2026-10-12T12:00:00.000Z",
+    "local": [],
+    "incoming": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000101","kind":"trash","schema":1,"created":"2026-10-11T10:00:00.000Z","modified":"2026-10-11T10:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000001","deletedKind":"note","deletedAt":"2026-10-11T10:00:00.000Z","record":{"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2099-01-01T00:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Held, from a clock far ahead","marker":"note"}}
+    ],
+    "expect": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000101","kind":"trash","schema":1,"created":"2026-10-11T10:00:00.000Z","modified":"2026-10-11T10:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000001","deletedKind":"note","deletedAt":"2026-10-11T10:00:00.000Z","record":{"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-12T12:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Held, from a clock far ahead","marker":"note"}}
+    ]
+  },
+  {
+    "name": "clamp-ahead-held-copy-never-replaces-local-trash-content",
+    "rule": "clamp",
+    "now": "2026-10-12T12:00:00.000Z",
+    "local": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000101","kind":"trash","schema":1,"created":"2026-10-11T10:00:00.000Z","modified":"2026-10-11T10:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000001","deletedKind":"note","deletedAt":"2026-10-11T10:00:00.000Z","record":{"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-11T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"The last words written here","marker":"note"}}
+    ],
+    "incoming": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000102","kind":"trash","schema":1,"created":"2026-10-11T10:00:00.000Z","modified":"2026-10-10T10:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000001","deletedKind":"note","deletedAt":"2026-10-10T10:00:00.000Z","record":{"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2099-01-01T00:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Held, from a clock far ahead","marker":"note"}}
+    ],
+    "expect": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000101","kind":"trash","schema":1,"created":"2026-10-11T10:00:00.000Z","modified":"2026-10-11T10:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000001","deletedKind":"note","deletedAt":"2026-10-11T10:00:00.000Z","record":{"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-11T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"The last words written here","marker":"note"}}
+    ]
+  },
+  {
+    "name": "clamp-to-the-exported-time",
+    "rule": "clamp",
+    "now": "2026-10-12T12:00:00.000Z",
+    "exported": "2026-10-10T08:00:00.000Z",
+    "local": [],
+    "incoming": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-11T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Later than the file it came in","marker":"note"}
+    ],
+    "expect": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-10T08:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Later than the file it came in","marker":"note"}
+    ]
+  },
+  {
+    "name": "clamp-exported-time-is-no-cap-when-in-the-future",
+    "rule": "clamp",
+    "now": "2026-10-12T12:00:00.000Z",
+    "exported": "2099-01-01T00:00:00.000Z",
+    "local": [],
+    "incoming": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2098-01-01T00:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"From a clock far ahead, in a file from one too","marker":"note"}
+    ],
+    "expect": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-12T12:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"From a clock far ahead, in a file from one too","marker":"note"}
+    ]
+  },
+  {
+    "name": "clamp-exported-time-leaves-earlier-records-alone",
+    "rule": "clamp",
+    "now": "2026-10-12T12:00:00.000Z",
+    "exported": "2026-10-11T12:00:00.000Z",
+    "local": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-09T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Older, here","marker":"note"}
+    ],
+    "incoming": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-11T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Before the file was saved","marker":"note"}
+    ],
+    "expect": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-11T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Before the file was saved","marker":"note"}
     ]
   },
   {
@@ -553,6 +672,44 @@
     "expect": [
       {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-09T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Local, intact","marker":"note"}
     ]
+  },
+  {
+    "name": "skip-a-record-of-another-kind-with-a-local-id",
+    "rule": "skip",
+    "now": "2026-10-12T12:00:00.000Z",
+    "skipped": 1,
+    "local": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-11T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"A live note","marker":"note"}
+    ],
+    "incoming": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"trash","schema":1,"created":"2026-10-11T10:00:00.000Z","modified":"2026-10-12T11:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000002","deletedKind":"note","deletedAt":"2026-10-12T11:00:00.000Z","record":{"id":"a1b2c3d4-0000-4000-8000-000000000002","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-11T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"Another note","marker":"note"}}
+    ],
+    "expect": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-11T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"A live note","marker":"note"}
+    ]
+  },
+  {
+    "name": "skip-two-kinds-under-one-id-in-one-input",
+    "rule": "skip",
+    "now": "2026-10-12T12:00:00.000Z",
+    "skipped": 2,
+    "local": [],
+    "incoming": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-11T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"A note","marker":"note"},
+      {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"bookmark","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-11T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"label":"A bookmark with the same id"}
+    ],
+    "expect": []
+  },
+  {
+    "name": "skip-a-trash-record-that-names-itself",
+    "rule": "skip",
+    "now": "2026-10-12T12:00:00.000Z",
+    "skipped": 1,
+    "local": [],
+    "incoming": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000101","kind":"trash","schema":1,"created":"2026-10-11T10:00:00.000Z","modified":"2026-10-11T10:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"deletedId":"a1b2c3d4-0000-4000-8000-000000000101","deletedKind":"note","deletedAt":"2026-10-11T10:00:00.000Z","record":{"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-11T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"x","marker":"note"}}
+    ],
+    "expect": []
   },
   {
     "name": "a-sheet-newer-wins-whole",

@@ -244,6 +244,15 @@ that section.
        words that differ are an edit only when the note here is no newer
        (BA1); an entry whose id is held as trash or a tombstone is left out
        (BA2). Keep both when changing how a Markdown entry is read.
+       **Open plans again when pressed** (BA3): `planOpen` reads and plans
+       the file against `store.all()` at that moment, and if the outcome
+       (`sameOpen`) differs from the summary on screen, the new one is shown
+       and nothing is written. **A record dated by a clock running ahead
+       never beats what the notebook holds** (BA4, BA12; `desk-merge.mjs`'s
+       clamp, capped at a JSON file's `exported`), so opening one file twice
+       writes nothing the second time, on any day. The summary counts every
+       write the plan makes (BA11), so "Nothing to open" never sits beside
+       an active Open.
        `META.lastExport` (`store.getMeta/setMeta`) is what the
        "last saved a copy" line and the reminder read.
      - **Labels** (`desk-labels.mjs`): the reader-facing name for M8's tags,

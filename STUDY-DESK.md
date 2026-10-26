@@ -21,8 +21,10 @@ are recorded so they aren't re-argued.
   phases are the next audit: FA1-u (the code this one didn't reach) and
   FA1-v (real devices). The plan,
   and every finding with its fix, is `STUDY-DESK-AUDIT-1.md`. In short, see
-  "Full Audit 1 (10/20/2026)" below. Next: FA1-a, a sheet in a newer
-  format that runs its own script.
+  "Full Audit 1 (10/20/2026)" below. FA1-a to FA1-c are done (#370,
+  #371, #PRNUM); FA1-c changed the merge's clamp rule and the merge vectors
+  (version 2), which FA1-f takes to BDR. Next: FA1-d, the store, the note
+  editor, and undo.
 
 - **Phase 2c is built on the preview** (2026-10-20): notes on a footnote
   and questions for discussion. **A note can be on a footnote** (M11):
