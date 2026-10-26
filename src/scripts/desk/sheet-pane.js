@@ -35,6 +35,7 @@
 //   one being typed in.
 
 import { canEdit } from "../../lib/desk-records.mjs";
+import { sheetHtmlForShow } from "../../lib/desk-sheet-copy.mjs";
 import { MODULE_TYPES, SHEET_LIMITS } from "../../lib/desk-sheet-format.mjs";
 import { addModule, createSheet, makeModule, moveModule, removeModule, setSheetFields, updateModule } from "../../lib/desk-sheets.mjs";
 import { TEMPLATES, templateModules } from "../../lib/desk-sheet-templates.mjs";
@@ -707,7 +708,9 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
 
   function readOnlyRich(card, html) {
     const box = make("div", "desk-rich");
-    box.innerHTML = html ?? "";
+    // A read-only sheet is one in a newer format, which validateSheet never
+    // checked, so its html is drawn only through the sanitizer (BA66).
+    box.innerHTML = sheetHtmlForShow(html);
     card.append(box);
     return null;
   }

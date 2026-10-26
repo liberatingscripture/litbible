@@ -19,6 +19,7 @@ import {
   SHEET_FORMAT,
   SHEET_LIMITS,
   SPAN_STYLES,
+  cleanSheetText,
   sanitizeSheetHtml as clean,
   validateSheet,
 } from "../src/lib/desk-sheet-format.mjs";
@@ -542,7 +543,19 @@ test("text that looks like a tag but isn't one stays text", () => {
   assert.equal(clean("<p>1 < 2 and 3 > 2</p>"), "<p>1 &lt; 2 and 3 &gt; 2</p>");
   assert.equal(clean("<p>a <3 b</p>"), "<p>a &lt;3 b</p>");
   assert.equal(clean("a <b"), "<p>a &lt;b</p>");
-  assert.equal(clean('<p>x <a href="unterminated</p>'), '<p>x &lt;a href="unterminated</p>');
+  // A tag the input ends inside of makes the rest text, close tags and all (BA67).
+  assert.equal(clean('<p>x <a href="unterminated</p>'), '<p>x &lt;a href="unterminated&lt;/p&gt;</p>');
+  assert.equal(clean("<p>x <a title='y <b>bold</b></p>"), "<p>x &lt;a title='y &lt;b&gt;bold&lt;/b&gt;&lt;/p&gt;</p>");
+});
+
+test("an unfinished tag costs one scan, not one per character after it (BA67)", () => {
+  for (const hostile of ["<a ".repeat(16384), `<a x="${"<a ".repeat(16384)}`, `<p>${"<b c='".repeat(8192)}`]) {
+    const start = performance.now();
+    const out = clean(hostile);
+    const ms = performance.now() - start;
+    assert.ok(ms < 500, `${hostile.slice(0, 12)}… took ${Math.round(ms)} ms`);
+    assert.equal(clean(out), out);
+  }
 });
 
 test("text is NFC, and every other character is literal", () => {
@@ -827,6 +840,14 @@ test("a sheet is at most 512 KB as JSON", () => {
   assert.ok(hasProblem(goodSheet({ modules: [{ id: "u", type: "mapPin", blob: "x".repeat(600000) }] }), /512 KB/));
 });
 
+test("a sheet over the size limit is refused without sanitizing its modules (BA67)", () => {
+  const heavy = { id: "h", type: "text", html: "<a ".repeat(200000) };
+  const start = performance.now();
+  const problems = validateSheet(goodSheet({ modules: [heavy, { id: "h", type: "text", html: 5 }] }));
+  assert.ok(performance.now() - start < 500);
+  assert.deepEqual(problems, [`a sheet is at most ${SHEET_LIMITS.bytes / 1024} KB`], "its modules aren't looked at");
+});
+
 test("leaderOnly is absent or true or false, on every known type", () => {
   for (const m of [passage(), { id: "t", type: "text", html: "" }, { id: "q", type: "question", html: "", answer: "", lines: 0 }, { id: "s", type: "space", lines: 1 }, { id: "k", type: "keyTerms", omit: [] }, { id: "p", type: "pageBreak" }]) {
     assert.deepEqual(validateRecord(withModule({ ...m, leaderOnly: true })), [], m.type);
@@ -971,6 +992,35 @@ test("a sheet in a newer sheet format is checked for the common fields only, and
   assert.equal(canEdit({ ...goodSheet(), schema: 2 }), false);
   // Another kind is untouched by the sheet rule.
   assert.equal(canEdit({ ...createRecord("label", { name: "x" }, { ...ctx, now: T0 }), sheetFormat: 9 }), true);
+});
+
+test("cleanSheetText sanitizes a sheet's formatted fields whatever its format (BA66)", () => {
+  const hostile = '<p>Hi<img src=x onerror="alert(1)"></p><script>alert(2)</script>';
+  const newer = {
+    ...goodSheet(),
+    sheetFormat: 2,
+    modules: [
+      { id: "t", type: "text", html: hostile },
+      { id: "q", type: "question", html: hostile, answer: `<p onclick="x()">A</p>`, lines: 2 },
+      { id: "u", type: "mapPin", html: hostile },
+    ],
+    futureField: { kept: true },
+  };
+  assert.deepEqual(validateRecord(newer), [], "a newer format isn't checked, so validateRecord can't catch it");
+  const out = cleanSheetText(newer);
+  assert.equal(out.modules[0].html, "<p>Hi</p>");
+  assert.equal(out.modules[1].html, "<p>Hi</p>");
+  assert.equal(out.modules[1].answer, "<p>A</p>");
+  assert.equal(out.modules[2], newer.modules[2], "a module type this code doesn't know is carried untouched");
+  assert.deepEqual(out.futureField, { kept: true });
+  assert.equal(out.sheetFormat, 2);
+  assert.equal(newer.modules[0].html, hostile, "the record passed in isn't changed");
+
+  const good = goodSheet();
+  assert.equal(cleanSheetText(good), good, "a sheet already clean is returned as itself");
+  const label = createRecord("label", { name: "x" }, { ...ctx, now: T0 });
+  assert.equal(cleanSheetText(label), label);
+  assert.equal(cleanSheetText({ ...good, modules: "something new" }).modules, "something new");
 });
 
 /* ── Making and changing sheets ──────────────────────────────────────── */

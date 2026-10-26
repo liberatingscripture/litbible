@@ -7,6 +7,7 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { readdirSync, readFileSync } from "node:fs";
 
 import {
   COPIES,
@@ -236,6 +237,25 @@ test("sheetHtmlForShow: strips a script and an onclick", () => {
   assert.equal(out.includes("onclick"), false);
   assert.equal(out.includes("steal"), false);
   assert.ok(out.includes("Hello"));
+});
+
+test("no desk script draws a sheet's stored html without sheetHtmlForShow (BA66)", () => {
+  // The read-only Sheet pane once did `box.innerHTML = html`, and a sheet in
+  // a newer format, never checked by validateSheet, ran its own script.
+  const dir = new URL("../src/scripts/desk/", import.meta.url);
+  const raw = /\.innerHTML\s*=(?!\s*sheetHtmlForShow\()[^;`"'\n]*\b(?:html|answer)\b/;
+  assert.match("box.innerHTML = html ?? \"\";", raw, "the old line is caught");
+  assert.match("box.innerHTML = m.answer;", raw);
+  for (const name of readdirSync(dir).filter((f) => /sheet.*\.js$/.test(f))) {
+    const src = readFileSync(new URL(name, dir), "utf8");
+    assert.doesNotMatch(src, raw, name);
+  }
+  assert.match(readFileSync(new URL("sheet-pane.js", dir), "utf8"), /innerHTML = sheetHtmlForShow\(html\)/);
+});
+
+test("sheetHtmlForShow: strips the attack from a sheet in a newer format (BA66)", () => {
+  const out = sheetHtmlForShow('<p>Read<img src=x onerror="alert(document.domain)"></p><svg onload="x()"></svg>');
+  assert.equal(out, "<p>Read</p>");
 });
 
 test("sheetHtmlForShow: links a typed scripture reference", () => {
