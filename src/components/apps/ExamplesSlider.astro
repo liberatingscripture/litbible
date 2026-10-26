@@ -5,6 +5,12 @@
  * seminar — the translation's depth lives at litbible.net.
  */
 import { getCollection } from 'astro:content';
+import { band, inline, type Section } from './render';
+
+interface Props {
+  section: Section<'examples'>;
+}
+const { section } = Astro.props;
 
 const entry = (await getCollection('examples')).find(
   (e) => e.data.placement === 'hero'
@@ -20,18 +26,18 @@ function lite(md: string): string {
 ---
 
 {entry && (
-  <section class="examples">
+  <section class:list={['examples', band(section.background)]}>
     <div class="container">
       <header class="examples__head">
-        <span class="examples__eyebrow">A first taste</span>
-        <h2 class="examples__title">What does it actually read like?</h2>
+        <span class="examples__eyebrow" set:html={inline(section.eyebrow)}></span>
+        <h2 class="examples__title" set:html={inline(section.title)}></h2>
       </header>
 
       <article class="example">
         <h3 class="example__reference">{entry.data.reference}</h3>
         <div class="example__columns">
           <div class="example__col example__col--lit">
-            <span class="example__label">LIT</span>
+            <span class="example__label">{section.litLabel}</span>
             <div class="example__text" set:html={lite(entry.data.litText.trim())}></div>
           </div>
           <div class="example__col example__col--trad">

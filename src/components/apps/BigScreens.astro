@@ -9,30 +9,31 @@
  * the Fold image height is simply pinned to 155.2/178.5 = 0.8695 of the
  * iPad's. The Fold overlaps slightly and sits in front (z-index).
  */
+import { band, inline, type Section } from './render';
 
-const foldImage = '/assets/screenshots/android-foldable-philippians-2.webp';
-const ipadImage = '/assets/screenshots/ipad-philippians-2.webp';
+interface Props {
+  section: Section<'bigscreens'>;
+}
+const { section } = Astro.props;
+const { tablet, foldable } = section.devices;
 ---
 
-<section class="bigscreens">
+<section class:list={['bigscreens', band(section.background)]}>
   <div class="container bigscreens__inner">
     <header class="bigscreens__head">
-      <span class="bigscreens__eyebrow">Supercharged on tablets and foldables</span>
-      <h2 class="bigscreens__title">Expand your views,<br />and your view.</h2>
-      <p class="bigscreens__body">
-        A second panel fans open on iPad and foldable phones, bringing your
-        notes, glossary, and more on one side, the passage on the other.
-      </p>
+      <span class="bigscreens__eyebrow" set:html={inline(section.eyebrow)}></span>
+      <h2 class="bigscreens__title" set:html={inline(section.title)}></h2>
+      <p class="bigscreens__body" set:html={inline(section.text)}></p>
     </header>
 
     <div class="bigscreens__stage">
       <figure class="bigscreens__device bigscreens__device--pad">
         <img
-          src={ipadImage}
-          alt="LIT Bible on an iPad Air in landscape — the My Notes panel beside Philippians 2 in the side-by-side study view"
+          src={tablet.src}
+          alt={tablet.alt}
           class="bigscreens__shot bigscreens__shot--pad"
-          width="2640"
-          height="1920"
+          width={tablet.width}
+          height={tablet.height}
           loading="lazy"
           decoding="async"
         />
@@ -40,11 +41,11 @@ const ipadImage = '/assets/screenshots/ipad-philippians-2.webp';
 
       <figure class="bigscreens__device bigscreens__device--fold">
         <img
-          src={foldImage}
-          alt="LIT Bible on an unfolded Pixel 9 Fold — a notes and highlights panel beside Philippians 2, in Lent purple"
+          src={foldable.src}
+          alt={foldable.alt}
           class="bigscreens__shot bigscreens__shot--fold"
-          width="2204"
-          height="2274"
+          width={foldable.width}
+          height={foldable.height}
           loading="lazy"
           decoding="async"
         />

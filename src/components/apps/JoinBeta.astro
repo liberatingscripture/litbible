@@ -7,27 +7,23 @@
  */
 import PlatformIcon from './PlatformIcon.astro';
 import AppIcons from './AppIcons.astro';
+import { band, inline, type Section } from './render';
 
-const iosUrl = 'https://apps.apple.com/app/id6772577879';
-const androidUrl =
-  'https://play.google.com/store/apps/details?id=com.litbible.app&pcampaignid=web_share';
+interface Props {
+  section: Section<'get-app'>;
+}
+const { section } = Astro.props;
 ---
 
-<section id="join" class="get-app">
+<section id="join" class:list={['get-app', band(section.background)]}>
   <div class="container get-app__inner">
-    <h2 class="get-app__title">Take it with you.</h2>
+    <h2 class="get-app__title" set:html={inline(section.title)}></h2>
     <AppIcons size={68} class="get-app__icons" />
-    <p class="get-app__lede">
-      The complete Liberation &amp; Inclusion Translation, free on iPhone and
-      Android.
-    </p>
+    <p class="get-app__lede" set:html={inline(section.text)}></p>
     <div class="get-app__ctas">
-      <a href={iosUrl} class="btn btn-primary" target="_blank" rel="external noopener noreferrer">
-        <PlatformIcon platform="ios" />Download on the App Store
-      </a>
-      <a href={androidUrl} class="btn btn-secondary" target="_blank" rel="external noopener noreferrer">
-        <PlatformIcon platform="android" />Get it on Google Play
-      </a>
+      {section.buttons.map((b, i) => (
+        <a href={b.href} class={i === 0 ? 'btn btn-primary' : 'btn btn-secondary'} target="_blank" rel="external noopener noreferrer"><PlatformIcon platform={b.platform} />{b.label}</a>
+      ))}
     </div>
   </div>
 </section>

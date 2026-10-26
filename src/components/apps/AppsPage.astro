@@ -1,0 +1,34 @@
+---
+/**
+ * The whole /apps page body: each section in src/content/apps-sections, in
+ * `order`, skipping any marked `hidden`.
+ *
+ * Both sites render this one component inside their own Layout (litbible's
+ * src/pages/apps.astro and LSC's), so the section list is mirrored with
+ * everything else and neither site keeps its own copy of it.
+ */
+import { getCollection } from 'astro:content';
+import Hero from './Hero.astro';
+import AboutTranslation from './AboutTranslation.astro';
+import ExamplesSlider from './ExamplesSlider.astro';
+import ReaderCallouts from './ReaderCallouts.astro';
+import BigScreens from './BigScreens.astro';
+import HumaneByDesign from './HumaneByDesign.astro';
+import JoinBeta from './JoinBeta.astro';
+
+const sections = (await getCollection('appsSections'))
+  .filter((s) => !s.data.hidden)
+  .sort((a, b) => a.data.order - b.data.order);
+---
+
+<div class="apps">
+  {sections.map(({ data }) =>
+    data.kind === 'hero' ? <Hero section={data} /> :
+    data.kind === 'about' ? <AboutTranslation section={data} /> :
+    data.kind === 'examples' ? <ExamplesSlider section={data} /> :
+    data.kind === 'reader' ? <ReaderCallouts section={data} /> :
+    data.kind === 'bigscreens' ? <BigScreens section={data} /> :
+    data.kind === 'humane' ? <HumaneByDesign section={data} /> :
+    <JoinBeta section={data} />
+  )}
+</div>

@@ -1,0 +1,11 @@
+{
+  "kind": "about",
+  "order": 2,
+  "background": "soft",
+  "title": "About the Translation",
+  "text": "The Liberation & Inclusion Translation is an independent, scholar-driven rendering of the New Testament, faithful to the Greek, and unwilling to launder the harm the text has been used to justify. It reads from the vantage of the people it was first written to: the poor, the grieving, the pushed-aside.",
+  "link": {
+    "label": "Read the Translation Commitments →",
+    "href": "https://litbible.net/translation-commitments/"
+  }
+}

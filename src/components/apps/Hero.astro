@@ -1,37 +1,41 @@
 ---
 import PlatformIcon from './PlatformIcon.astro';
+import { band, inline, type Section } from './render';
+
+interface Props {
+  section: Section<'hero'>;
+}
+const { section } = Astro.props;
+const { back, front } = section.phones;
 ---
 
-<section class="hero">
+<section class:list={['hero', band(section.background)]}>
   <div class="hero__inner container">
     <div class="hero__copy">
-      <h1 class="hero__title">A New Testament that’s <em>for</em> everyone.</h1>
-      <p class="hero__sub">
-        The Liberation &amp; Inclusion Translation, a fresh and opinionated
-        rendering from the Greek, crafted with the marginalized as our
-        cornerstone.
-      </p>
+      <h1 class="hero__title" set:html={inline(section.title)}></h1>
+      <p class="hero__sub" set:html={inline(section.subtitle)}></p>
       <div class="hero__ctas">
-        <a href="https://apps.apple.com/app/id6772577879" class="btn btn-primary" target="_blank" rel="external noopener noreferrer"><PlatformIcon platform="ios" />Download on the App Store</a>
-        <a href="https://play.google.com/store/apps/details?id=com.litbible.app&pcampaignid=web_share" class="btn btn-secondary" target="_blank" rel="external noopener noreferrer"><PlatformIcon platform="android" />Get it on Google Play</a>
+        {section.buttons.map((b, i) => (
+          <a href={b.href} class={i === 0 ? 'btn btn-primary' : 'btn btn-secondary'} target="_blank" rel="external noopener noreferrer"><PlatformIcon platform={b.platform} />{b.label}</a>
+        ))}
       </div>
     </div>
     <div class="hero__image">
       <div class="hero__phones">
         <img
-          src="/assets/screenshots/android-john-1.webp"
-          alt="LIT Bible on Android, showing John 1 — ‘In the beginning was the Conversation’"
-          class="hero__phone hero__phone--android"
-          width="1187"
-          height="2513"
+          src={back.src}
+          alt={back.alt}
+          class="hero__phone hero__phone--back"
+          width={back.width}
+          height={back.height}
           decoding="async"
         />
         <img
-          src="/assets/screenshots/iphone-john-1.webp"
-          alt="LIT Bible on iPhone, showing John 1 — ‘In the beginning was the Conversation’"
-          class="hero__phone hero__phone--ios"
-          width="1350"
-          height="2760"
+          src={front.src}
+          alt={front.alt}
+          class="hero__phone hero__phone--front"
+          width={front.width}
+          height={front.height}
           fetchpriority="high"
           decoding="async"
         />
@@ -97,8 +101,8 @@ import PlatformIcon from './PlatformIcon.astro';
       justify-content: flex-end;
     }
   }
-  /* Two phones, slightly overlapped — iPhone in front, Android behind.
-     Front-facing platform parity at the very top of the page. */
+  /* Two phones, slightly overlapped: the back one behind, the front one in
+     front. Front-facing platform parity at the very top of the page. */
   .hero__phones {
     display: flex;
     align-items: flex-end;
@@ -111,10 +115,10 @@ import PlatformIcon from './PlatformIcon.astro';
     height: auto;
     display: block;
   }
-  .hero__phone--android {
+  .hero__phone--back {
     z-index: 1;
   }
-  .hero__phone--ios {
+  .hero__phone--front {
     margin-left: -13%;
     z-index: 2;
   }

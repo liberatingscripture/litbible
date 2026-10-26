@@ -264,6 +264,37 @@
   cursor: default;
 }
 
+/* ---- Section bands ----
+   A section's `background` (src/content/apps-sections; render.ts's band())
+   puts one of these on it. Plain sections take none and show the page.
+   Tints mix the season's color into the surface exactly as the callout cards
+   do: 8% over the near-white surface in light, 15% over the elevated surface
+   in dark, where the --season-* tokens are already the brighter accents. */
+.apps .band--soft {
+  background: var(--bg-soft);
+}
+.apps .band--tint {
+  --band-tint: 8%;
+  --band-base: var(--surface-raised);
+  background: color-mix(in srgb, var(--band-accent) var(--band-tint), var(--band-base));
+}
+.apps .band--advent { --band-accent: var(--season-advent); }
+.apps .band--christmas { --band-accent: var(--season-christmas); }
+.apps .band--lent { --band-accent: var(--season-lent); }
+.apps .band--easter { --band-accent: var(--season-easter); }
+.apps .band--ot { --band-accent: var(--season-ot); }
+.apps .band--green { --band-accent: var(--green); }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .apps .band--tint {
+    --band-tint: 15%;
+    --band-base: var(--bg-soft);
+  }
+}
+:root[data-theme="dark"] .apps .band--tint {
+  --band-tint: 15%;
+  --band-base: var(--bg-soft);
+}
+
 /* ---- Container ---- */
 .apps .container {
   width: 100%;

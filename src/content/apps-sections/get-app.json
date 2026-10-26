@@ -1,0 +1,19 @@
+{
+  "kind": "get-app",
+  "order": 7,
+  "background": "plain",
+  "title": "Take it with you.",
+  "text": "The complete Liberation & Inclusion Translation, free on iPhone and Android.",
+  "buttons": [
+    {
+      "platform": "ios",
+      "label": "Download on the App Store",
+      "href": "https://apps.apple.com/app/id6772577879"
+    },
+    {
+      "platform": "android",
+      "label": "Get it on Google Play",
+      "href": "https://play.google.com/store/apps/details?id=com.litbible.app&pcampaignid=web_share"
+    }
+  ]
+}

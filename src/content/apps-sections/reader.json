@@ -1,0 +1,15 @@
+{
+  "kind": "reader",
+  "order": 4,
+  "background": "plain",
+  "carousel": {
+    "title": "Mark sacred time.",
+    "text": "LIT Bible quietly honors the church year by adorning your reading with the liturgical season’s colors: royal blue through Advent, red for the twelve days of Christmas, purple in Lent, gold for Easter, and forest green through Ordinary Time. Or choose from one of our hand-picked alternatives.",
+    "passage": "Hebrews 1",
+    "stageLabel": "Hebrews chapter 1, cycling through five liturgical seasons",
+    "frame": {
+      "width": 603,
+      "height": 1311
+    }
+  }
+}

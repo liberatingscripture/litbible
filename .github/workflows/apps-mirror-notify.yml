@@ -3,10 +3,12 @@ name: Notify LSC of mirrored changes
 # litbible is upstream for two things the Liberating Scripture Collective site
 # also publishes:
 #
-#   1. /apps  — the components, apps.css, and section content under
-#               src/content/{callouts,examples,seasons} are mirrored
-#               byte-for-byte. LSC's CI enforces that; this job is what tells
-#               LSC there is something to copy.
+#   1. /apps  — the components, apps.css, the section content under
+#               src/content/{callouts,examples,seasons,apps-sections}, and the
+#               images under public/assets/ are mirrored byte-for-byte. LSC's
+#               CI enforces that for the text files; this job is what tells
+#               LSC there is something to copy, or something to remove (a
+#               screenshot swapped out in the Apps Page Studio).
 #   2. /privacy — NOT a mirror. The two policies cover two different entities
 #               and are written separately (owner decision). They are meant to
 #               stay in substantive agreement, so a change here is a prompt to
@@ -25,6 +27,8 @@ on:
       - 'src/content/callouts/**'
       - 'src/content/examples/**'
       - 'src/content/seasons/**'
+      - 'src/content/apps-sections/**'
+      - 'public/assets/**'
       - 'src/pages/privacy.astro'
       - 'src/styles/pages/privacy.css'
   workflow_dispatch:
@@ -78,20 +82,25 @@ jobs:
           fi
 
           echo "Diffing $BASE_SHA..$GITHUB_SHA ($(git rev-list --count "$BASE_SHA..$GITHUB_SHA") commits)"
-          ALL=$(git diff --name-only "$BASE_SHA" "$GITHUB_SHA")
+          # Files still present are copied across; files deleted here are
+          # removed there, so they're listed apart (curl can't fetch them).
+          CHANGED=$(git diff --name-only --diff-filter=d "$BASE_SHA" "$GITHUB_SHA")
+          REMOVED=$(git diff --name-only --diff-filter=D "$BASE_SHA" "$GITHUB_SHA")
           echo "base=$BASE_SHA" >> "$GITHUB_OUTPUT"
 
-          MIRROR=$(echo "$ALL" | grep -E \
-            '^(src/components/apps/|src/styles/pages/apps\.css|src/content/(callouts|examples|seasons)/)' \
-            || true)
-          PRIVACY=$(echo "$ALL" | grep -E '^src/(pages/privacy\.astro|styles/pages/privacy\.css)$' || true)
+          MIRROR_RE='^(src/components/apps/|src/styles/pages/apps\.css|src/content/(callouts|examples|seasons|apps-sections)/|public/assets/)'
+          MIRROR=$(echo "$CHANGED" | grep -E "$MIRROR_RE" || true)
+          MIRROR_GONE=$(echo "$REMOVED" | grep -E "$MIRROR_RE" || true)
+          PRIVACY=$(printf '%s\n%s\n' "$CHANGED" "$REMOVED" \
+            | grep -E '^src/(pages/privacy\.astro|styles/pages/privacy\.css)$' || true)
 
           {
             echo "mirror<<EOF"; echo "$MIRROR"; echo "EOF"
+            echo "mirror_gone<<EOF"; echo "$MIRROR_GONE"; echo "EOF"
             echo "privacy<<EOF"; echo "$PRIVACY"; echo "EOF"
           } >> "$GITHUB_OUTPUT"
 
-          if [ -z "$MIRROR" ] && [ -z "$PRIVACY" ]; then
+          if [ -z "$MIRROR" ] && [ -z "$MIRROR_GONE" ] && [ -z "$PRIVACY" ]; then
             echo "nothing=true" >> "$GITHUB_OUTPUT"
           fi
 
@@ -101,6 +110,7 @@ jobs:
           GH_TOKEN: ${{ secrets.LSC_SYNC_TOKEN }}
           LSC_REPO: liberatingscripture/liberatingscripture.github.io
           MIRROR: ${{ steps.changed.outputs.mirror }}
+          MIRROR_GONE: ${{ steps.changed.outputs.mirror_gone }}
           PRIVACY: ${{ steps.changed.outputs.privacy }}
           COMMIT_URL: ${{ github.event.head_commit.url }}
           BASE_SHA: ${{ steps.changed.outputs.base }}
@@ -120,7 +130,7 @@ jobs:
             echo "Everything in this range: ${{ github.server_url }}/${{ github.repository }}/compare/${BASE_SHA}...${{ github.sha }}"
             echo
 
-            if [ -n "$MIRROR" ]; then
+            if [ -n "$MIRROR" ] || [ -n "$MIRROR_GONE" ]; then
               echo "## /apps — mirrored, copy these across"
               echo
               echo "These files are meant to be byte-for-byte identical. Copy them"
@@ -129,11 +139,16 @@ jobs:
               echo '```bash'
               echo "$MIRROR" | while read -r f; do
                 [ -n "$f" ] || continue
-                echo "curl -fsSL https://raw.githubusercontent.com/${{ github.repository }}/main/$f -o $f"
+                echo "curl -fsSL --create-dirs https://raw.githubusercontent.com/${{ github.repository }}/main/$f -o $f"
+              done
+              echo "$MIRROR_GONE" | while read -r f; do
+                [ -n "$f" ] || continue
+                echo "git rm --ignore-unmatch $f"
               done
               echo '```'
               echo
-              echo "Then: \`node scripts/check-apps-mirror.mjs\`"
+              echo "Then: \`node scripts/check-apps-mirror.mjs\`. A text file new to the"
+              echo "mirror (or gone from it) also goes into (or out of) \`MIRRORED\` there."
               echo
             fi
 
