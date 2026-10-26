@@ -13,8 +13,10 @@
 //                         file re-imports losslessly here too.
 //   Markdown              for people, after the mocked file in D1: headings,
 //                         the quoted words, the note. A note edited in the
-//                         file comes back as an edit; a new well-formed entry
-//                         comes back as a new note.
+//                         file comes back as an edit, unless the note here
+//                         changed after the file was saved (BA1); a new
+//                         well-formed entry comes back as a new note, unless
+//                         its id was deleted here (BA2).
 //
 // Opening a copy never deletes anything because it is missing from the file
 // (audit C17): a record absent from the file is simply not read. A deletion
@@ -39,7 +41,7 @@ import { LIT_CREDIT_LINE } from "./lit-credit.mjs";
 import { osisRef } from "./osis.mjs";
 import { labelMap, labelsOf } from "./desk-labels.mjs";
 import { mergeRecords } from "./desk-merge.mjs";
-import { MARKERS, SCHEMA_VERSION, createRecord, editRecord, proseTarget, validateRecord } from "./desk-records.mjs";
+import { MARKERS, SCHEMA_VERSION, canEdit, createRecord, editRecord, proseTarget, validateRecord } from "./desk-records.mjs";
 import { cleanSheetText } from "./desk-sheet-format.mjs";
 import { kindName, liveRecords, recordHref, recordReference } from "./desk-store-core.mjs";
 
@@ -186,22 +188,31 @@ export function toWebAnnotation(records, opts) {
 
 const MD_TITLE = "# My LIT notebook";
 const MD_END = "<!-- lit-notebook end -->";
-const idComment = (id) => `<!-- lit:id=${id} -->`;
-const ID_COMMENT = /^<!--\s*lit:id=(\S+?)\s*-->$/;
+// An entry's comment carries its record's `modified` (BA1), so opening an
+// older copy can tell an edit made in the file from words changed here since.
+// A file saved before that has only the id, and the header's time stands in.
+const idComment = (id, modified) => `<!-- lit:id=${id}${typeof modified === "string" ? ` modified=${modified}` : ""} -->`;
+const ID_COMMENT = /^<!--\s*lit:id=(\S+?)(?:\s+modified=(\S+?))?\s*-->$/;
 
-/** Body lines that could be read as structure get a backslash, which parsing takes off again. */
+/**
+ * The reader's words made safe for a Markdown file. A line that could be read
+ * as structure (`#`, `>`, `\`) gets a backslash, and every `<` becomes `\<`,
+ * so a Markdown viewer shows typed HTML as text instead of rendering it
+ * (BA41); that covers a line starting `<!--` too. unescapeBody undoes both
+ * exactly: every `\<` in the escaped text is one this added.
+ */
 export function escapeBody(text) {
   return String(text ?? "")
     .replace(/\r\n?/g, "\n")
     .split("\n")
-    .map((line) => (/^(#|>|\\|<!--)/.test(line) ? `\\${line}` : line))
+    .map((line) => (/^(#|>|\\)/.test(line) ? `\\${line}` : line).replace(/</g, "\\<"))
     .join("\n");
 }
 
 export function unescapeBody(text) {
   return text
     .split("\n")
-    .map((line) => line.replace(/^\\(?=[#>\\]|<!--)/, ""))
+    .map((line) => line.replace(/\\</g, "<").replace(/^\\(?=[#>\\])/, ""))
     .join("\n");
 }
 
@@ -224,7 +235,7 @@ function kindLine(r) {
 }
 
 function entryMarkdown(r, labels) {
-  const lines = [`## ${headingOf(r)}`, idComment(r.id)];
+  const lines = [`## ${headingOf(r)}`, idComment(r.id, r.modified)];
   const address = addressOf(r);
   if (address) lines.push(address);
   const names = labelsOf(r, labels).map((l) => l.name);
@@ -250,7 +261,7 @@ export function toMarkdown(records, { exported = isoNow() } = {}) {
   const entries = live.filter((r) => isAnnotated(r) && r.kind !== "place");
   const places = live.filter((r) => r.kind === "place");
   const labelRecords = [...labels.values()];
-  const out = [MD_TITLE, `<!-- ${BACKUP_FORMAT} ${BACKUP_VERSION} · saved ${clock(exported)} -->`];
+  const out = [MD_TITLE, `<!-- ${BACKUP_FORMAT} ${BACKUP_VERSION} · saved ${clock(exported)} · ${exported} -->`];
   for (const r of entries) out.push("", entryMarkdown(r, labels));
   if (places.length) {
     out.push("", "## Places");
@@ -309,6 +320,13 @@ const KIND_WORD = /^(Highlight|Note on a footnote|Note|Bookmark|Pinned footnote|
 /** One `##` entry of a Markdown file, as written. */
 function readEntries(text) {
   const lines = String(text).replace(/\r\n?/g, "\n").split("\n");
+  // The first non-blank line after each line, worked out once from the end,
+  // so a file of many headings reads in one pass (BA10).
+  const nextFilled = new Array(lines.length);
+  for (let i = lines.length - 1, next = ""; i >= 0; i--) {
+    nextFilled[i] = next;
+    if (lines[i].trim() !== "") next = lines[i];
+  }
   const entries = [];
   let section = null; // "Places" | "Labels" | null
   let at = null;
@@ -322,13 +340,13 @@ function readEntries(text) {
     const heading = /^##\s+(.*\S)\s*$/.exec(line);
     if (heading) {
       finish();
-      const next = lines.slice(i + 1).find((l) => l.trim() !== "") ?? "";
+      const next = nextFilled[i];
       if ((heading[1] === "Places" || heading[1] === "Labels") && !ID_COMMENT.test(next.trim())) {
         section = heading[1];
         continue;
       }
       section = null;
-      at = { line: i + 1, heading: heading[1], id: null, link: null, meta: null, quote: [], body: [], seenQuote: false, seenBody: false };
+      at = { line: i + 1, heading: heading[1], id: null, modified: null, link: null, meta: null, quote: [], body: [], seenQuote: false, seenBody: false };
       continue;
     }
     if (section || !at) continue;
@@ -338,6 +356,7 @@ function readEntries(text) {
       const id = ID_COMMENT.exec(t);
       if (id && !at.id) {
         at.id = id[1];
+        at.modified = id[2] ?? null;
         continue;
       }
       if (/^https?:\/\//.test(t) && !at.link) {
@@ -365,8 +384,37 @@ function readEntries(text) {
 
 const fail = (line, message) => ({ line, message });
 
+/** A time in milliseconds, or null when it is missing or won't parse. */
+function instantOf(iso) {
+  const n = typeof iso === "string" ? Date.parse(iso) : NaN;
+  return Number.isNaN(n) ? null : n;
+}
+
+/**
+ * When the file was saved, from its header: the full time, or, in a file saved
+ * before the header carried one, "saved YYYY-MM-DD HH:MM" (UTC, cut from the
+ * same time) with the minute rounded down, so the guess never makes the file
+ * newer than it is. Null when there is no header.
+ */
+function savedAt(text) {
+  const head = /<!--\s*lit-notebook\b([^\n]*?)-->/.exec(text)?.[1] ?? "";
+  const full = instantOf(/·\s*(\d{4}-\d\d-\d\dT\S+)/.exec(head)?.[1]);
+  if (full != null) return full;
+  const minute = /saved\s+(\d{4}-\d\d-\d\d)\s+(\d\d:\d\d)/.exec(head);
+  return minute ? instantOf(`${minute[1]}T${minute[2]}:00.000Z`) : null;
+}
+
 function parseMarkdown(text, { local = [], ctx = {}, now = isoNow() } = {}) {
-  const localById = new Map(local.filter((r) => typeof r?.id === "string").map((r) => [r.id, r]));
+  const localById = new Map(local.filter((r) => typeof r?.id === "string" && r.kind !== "trash").map((r) => [r.id, r]));
+  // The ids the notebook holds as deleted (BA2): the id each trash record
+  // deleted, which a tombstone keeps past 30 days, and the trash record's own.
+  const trashFor = new Map();
+  for (const r of local) {
+    if (r?.kind !== "trash") continue;
+    if (typeof r.deletedId === "string") trashFor.set(r.deletedId, r);
+    if (typeof r.id === "string") trashFor.set(r.id, r);
+  }
+  const fileSaved = savedAt(text);
   const records = [];
   const problems = [];
   const entries = readEntries(text);
@@ -382,15 +430,33 @@ function parseMarkdown(text, { local = [], ctx = {}, now = isoNow() } = {}) {
       // A known id: the words may have been edited. Nothing else is read back,
       // so a heading or a date edited in the file changes nothing.
       const field = have.kind === "note" ? "body" : have.kind === "bookmark" ? "label" : null;
-      if (field && body !== String(have[field] ?? "").trim()) {
+      if (field && canEdit(have) && body !== String(have[field] ?? "").trim()) {
         if (have.kind === "note" && !body && !have.quote && !have.marker) {
           records.push(have);
-        } else {
-          records.push(editRecord(have, { [field]: body }, { now, client: ctx.client }));
+          continue;
         }
+        // The words differ. They were edited in the file only if the record
+        // here is no newer than the file's copy of it (BA1). If it is newer,
+        // they were changed here after the copy was saved, and they stay: the
+        // file's words go to the merge under the file's own time, lose to the
+        // newer record, and are counted as kept here. A file with no time at
+        // all is taken to be the older.
+        const fileTime = instantOf(e.modified) ?? fileSaved;
+        const here = instantOf(have.modified);
+        const editedInFile = fileTime != null && here != null && here <= fileTime;
+        const stamp = editedInFile ? now : fileTime != null ? new Date(fileTime).toISOString() : have.modified;
+        records.push(editRecord(have, { [field]: body }, { now: stamp, client: ctx.client }));
       } else {
         records.push(have);
       }
+      continue;
+    }
+
+    if (e.id && trashFor.has(e.id)) {
+      // Deleted here since this copy was saved. A stale copy never brings a
+      // deleted note back (A-F10), so an id held as trash is never reused.
+      const where = "record" in trashFor.get(e.id) ? " It is in the trash, if you want it back." : "";
+      problems.push(fail(e.line, `“${e.heading}” has been deleted here since this copy was saved, so it was left out.${where}`));
       continue;
     }
 
@@ -505,10 +571,13 @@ function isAnnotation(data) {
 }
 
 function parseAnnotations(data) {
-  const items = Array.isArray(data) ? data : data.type === "Annotation" ? [data] : (data.first?.items ?? data.items ?? []);
+  const listed = Array.isArray(data) ? data : data.type === "Annotation" ? [data] : (data.first?.items ?? data.items ?? []);
   const records = [];
   const problems = [];
   const notes = [];
+  // A list that isn't one is reported, not read (BA9).
+  const items = Array.isArray(listed) ? listed : [];
+  if (!Array.isArray(listed)) problems.push(fail(null, "This file’s list of annotations couldn’t be read."));
   items.forEach((a, i) => {
     const record = a?.lit?.record;
     if (record && typeof record === "object") records.push(record);

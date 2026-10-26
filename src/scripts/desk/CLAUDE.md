@@ -239,7 +239,12 @@ that section.
        STUDY-DESK-FORMAT.md, "The export file"): Markdown, Web Annotation
        and a full backup, the last the only one carrying trash. Opening
        merges through `desk-merge.mjs` in one commit and never deletes for
-       absence (C17). `META.lastExport` (`store.getMeta/setMeta`) is what the
+       absence (C17). **A Markdown copy carries times, so an older one can't
+       undo or revive**: each entry's id comment holds its `modified`, and
+       words that differ are an edit only when the note here is no newer
+       (BA1); an entry whose id is held as trash or a tombstone is left out
+       (BA2). Keep both when changing how a Markdown entry is read.
+       `META.lastExport` (`store.getMeta/setMeta`) is what the
        "last saved a copy" line and the reminder read.
      - **Labels** (`desk-labels.mjs`): the reader-facing name for M8's tags,
        applied from the notebook page, names unique ignoring case and
