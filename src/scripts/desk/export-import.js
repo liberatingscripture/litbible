@@ -157,9 +157,17 @@ export function mountBackup(el, { store, ctx }) {
     }
     const local = await store.all();
     const now = new Date().toISOString();
-    const read = parseImport(text, { local, ctx: ctx(), now });
-    if (read.kind === "unknown") return showResult({ message: read.problems[0]?.message ?? "This isn’t a notebook file.", problems: [] });
-    const planned = planImport(local, read.records, { now });
+    // A file malformed in a way the readers don't foresee throws; say so
+    // rather than leave the reader with nothing happening (BA9).
+    let read, planned;
+    try {
+      read = parseImport(text, { local, ctx: ctx(), now });
+      if (read.kind === "unknown") return showResult({ message: read.problems[0]?.message ?? "This isn’t a notebook file.", problems: [] });
+      planned = planImport(local, read.records, { now });
+    } catch (err) {
+      console.error("Study Desk: the file couldn’t be opened", err);
+      return showResult({ message: "That file couldn’t be read." });
+    }
     showResult({ name: chosen.name, read, planned, now });
   });
 

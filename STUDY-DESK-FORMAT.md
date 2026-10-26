@@ -698,12 +698,23 @@ and accounts would live under `/sheets/`, `/notebook/`, `/account/`.
     labels, sheets, mark rules and kinds the website doesn't know. Files
     other tools made are reported and skipped on import.
   - **Markdown** (`.md`): for people, each entry headed by its reference and
-    carrying `<!-- lit:id=… -->`, ending with the license notice and the
-    link to the terms. A note edited in the file comes back as an edit (a
-    bookmark's label too), and a new entry with a verse reference becomes a
-    new note; highlights, bookmarks and pins can't be made from Markdown, and
-    places and labels aren't read back. A body line starting `#`, `>` or
-    `<!--` is escaped with a backslash on save.
+    carrying `<!-- lit:id=… modified=… -->` (its record's `modified`), the
+    header `<!-- lit-notebook 1 · saved YYYY-MM-DD HH:MM · <ISO time> -->`,
+    ending with the license notice and the link to the terms. A note edited
+    in the file comes back as an edit (a bookmark's label too), and a new
+    entry with a verse reference becomes a new note; highlights, bookmarks
+    and pins can't be made from Markdown, and places and labels aren't read
+    back. **Words that differ count as an edit only when the record here is
+    no newer than the file's copy of it** (the entry's `modified`, else the
+    header's time; a file saved before 2026-10-26 has only the header's
+    minute, read as UTC and rounded down, and a file with no time at all is
+    taken as the older). Otherwise the words changed here after the copy was
+    saved, and they stay, counted as kept here (audit BA1). **An entry whose
+    id the notebook holds as trash, or as a tombstone, is left out** and
+    reported, never made into a new note, so a stale copy can't bring back a
+    note deleted since (BA2, A-F10). On save, a body line starting `#`, `>`
+    or `\` takes a backslash, and every `<` becomes `\<` so a Markdown viewer
+    shows typed HTML as text (BA41); reading back undoes both.
   Opening a copy merges through `desk-merge.mjs`, in one commit, and never
   deletes a record for being absent from the file (audit C17).
 

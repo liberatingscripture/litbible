@@ -170,15 +170,15 @@ test("the Markdown file reads as the mocked file does", () => {
   const md = toMarkdown(everything, opts);
   const lines = md.split("\n");
   assert.equal(lines[0], "# My LIT notebook");
-  assert.equal(lines[1], "<!-- lit-notebook 1 · saved 2026-10-12 12:04 -->");
-  assert.match(md, /^## Romans 8:3–4\n<!-- lit:id=00000000-0000-4000-8000-\d{12} -->\nhttps:\/\/litbible\.net\/romans-8\/#v3-4\nNote · 2026-09-12 · Labels: Prayer\n\n> rendered a verdict\n\nSelf-preservation as the drive\nto protect my standing\./m);
+  assert.equal(lines[1], "<!-- lit-notebook 1 · saved 2026-10-12 12:04 · 2026-10-12T12:04:00.000Z -->");
+  assert.match(md, /^## Romans 8:3–4\n<!-- lit:id=00000000-0000-4000-8000-\d{12} modified=2026-09-12T08:00:00\.000Z -->\nhttps:\/\/litbible\.net\/romans-8\/#v3-4\nNote · 2026-09-12 · Labels: Prayer\n\n> rendered a verdict\n\nSelf-preservation as the drive\nto protect my standing\./m);
   assert.match(md, /^## John 3:16$/m);
   assert.match(md, /^Note \(question\) · 2026-09-12$/m);
   assert.match(md, /^Highlight \(yellow\) · 2026-09-12$/m);
   assert.match(md, /^## Glossary: Flesh$/m);
   assert.match(md, /^https:\/\/litbible\.net\/glossary\/#flesh-body$/m);
-  assert.match(md, /^## Places\n- Thursday group: Luke 15:11 <!-- lit:id=/m);
-  assert.match(md, /^## Labels\n- Prayer <!-- lit:id=/m);
+  assert.match(md, /^## Places\n- Thursday group: Luke 15:11 <!-- lit:id=\S+ -->$/m, "a list item carries no modified");
+  assert.match(md, /^## Labels\n- Prayer <!-- lit:id=\S+ -->$/m);
   assert.ok(md.includes(LIT_CREDIT_LINE));
   assert.ok(md.includes("https://litbible.net/read/#license-terms"));
   assert.ok(!md.includes("gone"), "trash stays out");
@@ -188,9 +188,10 @@ test("the Markdown file reads as the mocked file does", () => {
 });
 
 test("escaping keeps a note's lines from being read as structure, and undoes cleanly", () => {
-  const tricky = "## not a heading\n> not a quote\n<!-- not a comment -->\n\\already\n\\#both\nplain";
+  const tricky = "## not a heading\n> not a quote\n<!-- not a comment -->\n\\already\n\\#both\nplain\n\\<kept\nmid \\< and < and <b>x</b>\n<!-- last -->";
   assert.equal(unescapeBody(escapeBody(tricky)), tricky);
   assert.ok(escapeBody(tricky).split("\n").slice(0, 5).every((l) => l.startsWith("\\")));
+  assert.ok(!/(?<!\\)</.test(escapeBody(tricky)), "every < is escaped");
   const r = make("note", { bookKey: "romans", chapter: 8, verse: 1, body: tricky, marker: "note" });
   const back = parseImport(toMarkdown([r], opts), { local: [r], ctx });
   assert.deepEqual(back.records, [r], "unchanged");
@@ -417,6 +418,139 @@ test("every plan planImport makes passes the store's own check", async () => {
   const { planWrite } = await import("../src/lib/desk-store-core.mjs");
   const out = planImport([], everything, { now: "2026-10-13T00:00:00.000Z" });
   assert.doesNotThrow(() => planWrite(out.plan));
+});
+
+/* ── Opening an older copy (BA1, BA2, BA41, BA9, BA10) ─────────────────── */
+
+const SAVED = opts.exported; // 2026-10-12T12:04:00.000Z
+const DAY = 86400000;
+const at = (iso, days) => new Date(Date.parse(iso) + days * DAY).toISOString();
+
+test("an older copy opened after a local edit keeps the newer local words (BA1)", () => {
+  const md = toMarkdown([romans, label], opts);
+  const mine = later(romans, { body: "words I wrote after saving" }, at(SAVED, 1));
+  const now = at(SAVED, 2);
+  const back = parseImport(md, { local: [mine, label], ctx, now });
+  assert.equal(back.records.length, 1);
+  assert.equal(back.records[0].modified, romans.modified, "stamped with the file's own time, not now");
+  const out = planImport([mine, label], back.records, { now });
+  assert.equal(planChanges(out.plan), false);
+  assert.deepEqual(out.summary, { added: 0, updated: 0, unchanged: 0, keptHere: 1, deleted: 0, skipped: 0 });
+});
+
+test("a note edited in the file and not here since still comes back as an edit stamped now (BA1)", () => {
+  const md = toMarkdown([romans, label], opts).replace("to protect my standing.", "to guard my standing.");
+  const now = at(SAVED, 2);
+  const back = parseImport(md, { local: [romans, label], ctx, now });
+  assert.equal(back.records[0].modified, now);
+  assert.equal(back.records[0].body, "Self-preservation as the drive\nto guard my standing.");
+  const out = planImport([romans, label], back.records, { now });
+  assert.equal(out.summary.updated, 1);
+  assert.equal(out.summary.keptHere, 0);
+});
+
+test("a copy saved before entries carried a time protects a newer local edit by the header's minute (BA1)", () => {
+  const md = toMarkdown([romans, label], opts)
+    .replace(/ modified=\S+/g, "")
+    .replace(` · ${SAVED} -->`, " -->");
+  assert.ok(!md.includes("modified="));
+  assert.ok(md.includes("<!-- lit-notebook 1 · saved 2026-10-12 12:04 -->"));
+  const now = at(SAVED, 2);
+  // Edited here after the file was saved: kept.
+  const mine = later(romans, { body: "words I wrote after saving" }, at(SAVED, 1));
+  const kept = parseImport(md, { local: [mine, label], ctx, now });
+  const keptOut = planImport([mine, label], kept.records, { now });
+  assert.equal(planChanges(keptOut.plan), false);
+  assert.equal(keptOut.summary.keptHere, 1);
+  // Last touched here before the minute it was saved: the difference is an edit in the file.
+  const edited = md.replace("to protect my standing.", "to guard my standing.");
+  const taken = parseImport(edited, { local: [romans, label], ctx, now });
+  assert.equal(taken.records[0].modified, now);
+  // The minute is rounded down, so a local edit inside that minute still counts as newer.
+  const inside = later(romans, { body: "mid-minute" }, "2026-10-12T12:04:30.000Z");
+  const tie = parseImport(md, { local: [inside, label], ctx, now });
+  assert.equal(planImport([inside, label], tie.records, { now }).summary.keptHere, 1);
+});
+
+test("a file with no time at all never overwrites a differing note (BA1)", () => {
+  const md = toMarkdown([romans, label], opts)
+    .replace(/ modified=\S+/g, "")
+    .replace(/<!-- lit-notebook[^\n]*-->/, "<!-- lit-notebook 1 -->")
+    .replace("to protect my standing.", "to guard my standing.");
+  const now = at(SAVED, 2);
+  const back = parseImport(md, { local: [romans, label], ctx, now });
+  assert.equal(back.records.length, 1);
+  assert.equal(back.records[0].modified, romans.modified, "a tie, stamped with the local time");
+  const out = planImport([romans, label], back.records, { now });
+  assert.equal(planChanges(out.plan), false);
+  assert.equal(out.summary.keptHere, 1);
+  assert.equal(out.summary.updated, 0);
+});
+
+test("an older copy never brings back a note deleted here since it was saved (BA2)", () => {
+  const fresh = make("note", { bookKey: "romans", chapter: 5, verse: 8, body: "While we were still sinners.", marker: "note" });
+  const md = toMarkdown([fresh, label], opts);
+  const gone = planDelete(fresh, { ...ctx, now: at(SAVED, 1) }).trash;
+  const local = [label, gone];
+  const now = at(SAVED, 2);
+  const back = parseImport(md, { local, ctx, now });
+  assert.deepEqual(back.records, [], "no note is made with that id");
+  assert.equal(back.problems.length, 1);
+  assert.equal(
+    back.problems[0].message,
+    "“Romans 5:8” has been deleted here since this copy was saved, so it was left out. It is in the trash, if you want it back.",
+  );
+  assert.equal(typeof back.problems[0].line, "number");
+  const out = planImport(local, back.records, { now });
+  assert.equal(planChanges(out.plan), false);
+  assert.ok(!out.plan.put.some((r) => r.id === fresh.id || r.kind === "note"));
+  assert.deepEqual(out.plan.remove, []);
+});
+
+test("a tombstone holds the id too, and the message leaves out the way back (BA2)", () => {
+  const fresh = make("note", { bookKey: "romans", chapter: 5, verse: 8, body: "While we were still sinners.", marker: "note" });
+  const md = toMarkdown([fresh], opts);
+  const { record, ...tombstone } = planDelete(fresh, { ...ctx, now: at(SAVED, 1) }).trash;
+  assert.ok(record && !("record" in tombstone));
+  const back = parseImport(md, { local: [tombstone], ctx, now: at(SAVED, 2) });
+  assert.deepEqual(back.records, []);
+  assert.equal(back.problems.length, 1);
+  assert.equal(back.problems[0].message, "“Romans 5:8” has been deleted here since this copy was saved, so it was left out.");
+  assert.equal(planChanges(planImport([tombstone], back.records, { now: at(SAVED, 2) }).plan), false);
+});
+
+test("a note's typed HTML is escaped in the Markdown file and comes back identical (BA41)", () => {
+  const html = "<b>bold</b> and <img src=x onerror=alert(1)>\n<!-- sneaky -->\n\\<kept\n<script>x</script>";
+  const r = make("note", { bookKey: "romans", chapter: 8, verse: 1, body: html, marker: "note" });
+  const md = toMarkdown([r], opts);
+  const bodyLines = md.split("\n").filter((l) => /bold|sneaky|kept|script/.test(l));
+  assert.equal(bodyLines.length, 4);
+  for (const l of bodyLines) assert.doesNotMatch(l, /(?<!\\)</, l);
+  assert.equal(unescapeBody(escapeBody(html)), html);
+  const back = parseImport(md, { local: [r], ctx });
+  assert.deepEqual(back.problems, []);
+  assert.deepEqual(back.records, [r]);
+});
+
+test("an annotation list that isn't a list is a problem, not a throw (BA9)", () => {
+  const text = JSON.stringify({ type: "AnnotationCollection", first: { items: "abc" } });
+  let back;
+  assert.doesNotThrow(() => {
+    back = parseImport(text);
+  });
+  assert.equal(back.kind, "webAnnotation");
+  assert.deepEqual(back.records, []);
+  assert.deepEqual(back.problems, [{ line: null, message: "This file’s list of annotations couldn’t be read." }]);
+});
+
+test("a Markdown file of 80,000 headings is read in linear time (BA10)", () => {
+  const text = ["# My LIT notebook", ...Array.from({ length: 80000 }, () => "## Romans 8:3")].join("\n");
+  const start = performance.now();
+  const back = parseImport(text, { local: [], ctx });
+  const ms = performance.now() - start;
+  assert.equal(back.kind, "markdown");
+  assert.equal(back.problems.length, 80000);
+  assert.ok(ms < 2000, `took ${Math.round(ms)} ms`);
 });
 
 /* ── words ─────────────────────────────────────────────────────────── */
