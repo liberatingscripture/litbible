@@ -1,0 +1,33 @@
+{
+  "kind": "hero",
+  "order": 1,
+  "background": "plain",
+  "title": "A New Testament that’s *for* everyone.",
+  "subtitle": "The Liberation & Inclusion Translation, a fresh and opinionated rendering from the Greek, crafted with the marginalized as our cornerstone.",
+  "buttons": [
+    {
+      "platform": "ios",
+      "label": "Download on the App Store",
+      "href": "https://apps.apple.com/app/id6772577879"
+    },
+    {
+      "platform": "android",
+      "label": "Get it on Google Play",
+      "href": "https://play.google.com/store/apps/details?id=com.litbible.app&pcampaignid=web_share"
+    }
+  ],
+  "phones": {
+    "back": {
+      "src": "/assets/screenshots/android-john-1.webp",
+      "alt": "LIT Bible on Android, showing John 1 — ‘In the beginning was the Conversation’",
+      "width": 1187,
+      "height": 2513
+    },
+    "front": {
+      "src": "/assets/screenshots/iphone-john-1.webp",
+      "alt": "LIT Bible on iPhone, showing John 1 — ‘In the beginning was the Conversation’",
+      "width": 1350,
+      "height": 2760
+    }
+  }
+}

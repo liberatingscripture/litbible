@@ -1,6 +1,12 @@
 ---
 import { getCollection, render } from 'astro:content';
 import ChurchYearCarousel from './ChurchYearCarousel.astro';
+import { band, type Section } from './render';
+
+interface Props {
+  section: Section<'reader'>;
+}
+const { section } = Astro.props;
 
 const callouts = (await getCollection('callouts')).sort(
   (a, b) => a.data.order - b.data.order
@@ -8,7 +14,7 @@ const callouts = (await getCollection('callouts')).sort(
 
 ---
 
-<section class="reader">
+<section class:list={['reader', band(section.background)]}>
   <div class="container">
     <div class="reader__callouts">
       {callouts.map(async (c, i) => {
@@ -41,7 +47,7 @@ const callouts = (await getCollection('callouts')).sort(
       })}
     </div>
 
-    <ChurchYearCarousel />
+    <ChurchYearCarousel carousel={section.carousel} />
   </div>
 </section>
 

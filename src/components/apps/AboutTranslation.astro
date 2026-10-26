@@ -3,30 +3,30 @@
  * A short pitch for the translation itself — credential, not seminar.
  * The full case lives at litbible.net/translation-commitments.
  */
+import { band, inline, leavesSite, type Section } from './render';
+
+interface Props {
+  section: Section<'about'>;
+}
+const { section } = Astro.props;
+const away = section.link ? leavesSite(section.link.href) : false;
 ---
 
-<section class="about">
+<section class:list={['about', band(section.background)]}>
   <div class="container about__inner">
-    <h2 class="about__title">About the Translation</h2>
-    <p class="about__lede">
-      The Liberation &amp; Inclusion Translation is an independent, scholar-driven
-      rendering of the New Testament, faithful to the Greek, and unwilling to
-      launder the harm the text has been used to justify. It reads from the
-      vantage of the people it was first written to: the poor, the grieving,
-      the pushed-aside.
-    </p>
-    <p class="about__more">
-      <a href="https://litbible.net/translation-commitments/">
-        Read the Translation Commitments →
-      </a>
-    </p>
+    <h2 class="about__title" set:html={inline(section.title)}></h2>
+    <p class="about__lede" set:html={inline(section.text)}></p>
+    {section.link && (
+      <p class="about__more">
+        <a href={section.link.href} target={away ? '_blank' : undefined} rel={away ? 'noopener noreferrer' : undefined}>{section.link.label}</a>
+      </p>
+    )}
   </div>
 </section>
 
 <style>
   .about {
     padding-block: var(--space-6);
-    background: var(--bg-soft);
   }
   @media (max-width: 640px) {
     .about {

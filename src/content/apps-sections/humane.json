@@ -1,0 +1,20 @@
+{
+  "kind": "humane",
+  "order": 6,
+  "background": "soft",
+  "eyebrow": "Humane by design",
+  "title": "Your reading life is your own.",
+  "negations": [
+    "No ads.",
+    "No account.",
+    "No one watching."
+  ],
+  "paragraphs": [
+    "Open the app to start reading: no sign-up, no email, nothing to create. Your highlights and notes live in a private database on your own device, synced to your other devices using your Apple or Google account. We can’t see them.",
+    "The entire LIT Bible is already on your phone, so you never have to worry about waiting for a chapter or footnote to load while you’re on the subway, a plane, or a backpacking trip. And you can set the type, spacing, and accessibility features to whatever your eyes or ears want. It respects your system text size and works with your screen reader, because a Bible that’s *for* everyone should be enjoyable *by* everyone."
+  ],
+  "link": {
+    "label": "Read our privacy commitments →",
+    "href": "/privacy"
+  }
+}

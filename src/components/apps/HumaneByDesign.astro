@@ -4,41 +4,34 @@
  * Privacy, no account, offline, accessibility. Framed as conviction, not
  * spec sheet. Every claim here is true; receipts live at /privacy.
  */
+import { band, inline, leavesSite, type Section } from './render';
+
+interface Props {
+  section: Section<'humane'>;
+}
+const { section } = Astro.props;
+const away = section.link ? leavesSite(section.link.href) : false;
 ---
 
-<section class="humane">
+<section class:list={['humane', band(section.background)]}>
   <div class="container humane__inner">
     <header class="humane__head">
-      <span class="humane__eyebrow">Humane by design</span>
-      <h2 class="humane__title">Your reading life is your own.</h2>
-      <p class="humane__negations" aria-hidden="true">
-        <span>No ads.</span>
-        <span>No account.</span>
-        <span>No one watching.</span>
-      </p>
+      <span class="humane__eyebrow" set:html={inline(section.eyebrow)}></span>
+      <h2 class="humane__title" set:html={inline(section.title)}></h2>
+      {section.negations.length > 0 && (
+        <p class="humane__negations" aria-hidden="true">
+          {section.negations.map((n) => <span set:html={inline(n)}></span>)}
+        </p>
+      )}
     </header>
 
     <div class="humane__body">
-      <p>
-        Open the app to start reading: no sign-up, no email, nothing to
-        create. Your highlights and notes live in a private database on your
-        own device, synced to your other devices using your Apple or Google
-        account. We can’t see them.
-      </p>
-      <p>
-        The entire LIT Bible is already on your phone, so you never have to
-        worry about waiting for a chapter or footnote to load while you’re on
-        the subway, a plane, or a backpacking trip. And you can set the type,
-        spacing, and accessibility features to whatever your eyes or ears
-        want. It respects your system text size and works with your screen
-        reader, because a Bible that’s <em>for</em> everyone should be enjoyable
-        <em>by</em> everyone.
-      </p>
-      <p class="humane__more">
-        <a href="/privacy">
-          Read our privacy commitments →
-        </a>
-      </p>
+      {section.paragraphs.map((p) => <p set:html={inline(p)}></p>)}
+      {section.link && (
+        <p class="humane__more">
+          <a href={section.link.href} target={away ? '_blank' : undefined} rel={away ? 'noopener noreferrer' : undefined}>{section.link.label}</a>
+        </p>
+      )}
     </div>
   </div>
 </section>
@@ -46,7 +39,6 @@
 <style>
   .humane {
     padding-block: var(--space-6);
-    background: var(--bg-soft);
   }
   @media (max-width: 640px) {
     .humane {
@@ -99,9 +91,6 @@
   }
   .humane__body p + p {
     margin-top: var(--space-5);
-  }
-  .humane__body em {
-    font-style: italic;
   }
   .humane__more {
     font-size: var(--text-base);
