@@ -88,7 +88,7 @@ stable.
 | Phase | Area | Findings | Status |
 |---|---|---|---|
 | FA1-a | Security: the stored script and the sanitizer | BA66, BA67, BA59 | done, #370 |
-| FA1-b | Markdown copies | BA1, BA2, BA41, BA9, BA10 | open |
+| FA1-b | Markdown copies | BA1, BA2, BA41, BA9, BA10 | done, #371 |
 | FA1-c | Merging and opening a copy | BA3, BA4, BA11, BA12 | open |
 | FA1-d | The store, the note editor, and undo | BA5, BA13, BA6, BA7 | open |
 | FA1-e | /desk keeps the reader's place | BA51, BA52, BA53, BA55 | open |
@@ -204,7 +204,7 @@ delete for absence).
     file."
   - *Check*: a test that saves, edits, then opens the older copy; the newer
     words stay.
-  - Status: open.
+  - Status: fixed in #371.
 - **BA2 (high, data loss; reproduced). An older Markdown copy brings back
   notes deleted since.**
   - *What happens*: the entry's id now belongs to a trash record, so
@@ -219,7 +219,7 @@ delete for absence).
     summary ("deleted here since this copy was saved"), and never reuse an
     id the notebook holds as trash.
   - *Check*: a test with a trash record and the older file.
-  - Status: open.
+  - Status: fixed in #371.
 - **BA41 (low; seen in the browser). The Markdown copy writes the reader's
   words unescaped.**
   - *What happens*: lines starting `#`, `>`, `\` or `<!--` are already
@@ -228,7 +228,7 @@ delete for absence).
     renders it as HTML (bold, or a fetched image).
   - *Fix*: escape `<` in note text on export, and undo it when reading back.
   - *Check*: keep the round-trip test passing, with a note holding `<b>`.
-  - Status: open.
+  - Status: fixed in #371.
 - **BA9 (low; reproduced). Some malformed files fail silently.**
   - *What happens*: two cases throw where the change handler has no catch
     (`export-import.js:147–164`), so the reader sees nothing happen:
@@ -238,7 +238,7 @@ delete for absence).
       `planImport` throw a `RangeError` from `canonical`.
   - *Fix*: guard with `Array.isArray`, and catch around reading and planning
     with “That file couldn’t be read.”
-  - Status: open.
+  - Status: fixed in #371.
 - **BA10 (low, perf; reproduced). Reading a large Markdown file slows down
   with the square of its size.**
   - *What happens*: `lines.slice(i + 1).find(...)` runs for every heading
@@ -246,7 +246,8 @@ delete for absence).
     and 80,000 bare headings took 11.9 s, with the tab frozen.
   - *Fix*: scan forward with an index. Consider a size limit on the chosen
     file.
-  - Status: open.
+  - Status: fixed in #371. No size limit was added: reading is linear
+    now, and 80,000 headings read in about 60 ms.
 
 ## FA1-c. Merging and opening a copy
 
