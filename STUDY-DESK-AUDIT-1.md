@@ -87,7 +87,7 @@ stable.
 
 | Phase | Area | Findings | Status |
 |---|---|---|---|
-| FA1-a | Security: the stored script and the sanitizer | BA66, BA67, BA59 | open |
+| FA1-a | Security: the stored script and the sanitizer | BA66, BA67, BA59 | done, #370 |
 | FA1-b | Markdown copies | BA1, BA2, BA41, BA9, BA10 | open |
 | FA1-c | Merging and opening a copy | BA3, BA4, BA11, BA12 | open |
 | FA1-d | The store, the note editor, and undo | BA5, BA13, BA6, BA7 | open |
@@ -155,7 +155,7 @@ Files: `src/scripts/desk/sheet-pane.js`, `src/lib/desk-records.mjs`,
     format, since the sanitizer's output is safe for any version.
   - *Check*: a test that a newer-format sheet's text comes out of both the
     import and the read-only drawing with no event attribute.
-  - Status: open.
+  - Status: fixed in #370.
 - **BA67 (medium, security; reproduced). The sanitizer slows down with the
   square of the input on unclosed tags.**
   - *What happens*: when a tag has no closing `>`, or an attribute quote
@@ -170,7 +170,7 @@ Files: `src/scripts/desk/sheet-pane.js`, `src/lib/desk-records.mjs`,
     text and stop scanning. Return before the module loop when the sheet is
     over the limit.
   - *Check*: a test that 48 KB of `<a ` sanitizes in well under a second.
-  - Status: open.
+  - Status: fixed in #370.
 - **BA59 (low, hardening). Stored pane ids aren't checked.** `checkLayout`
   (`desk-layout.mjs:537`) accepts any string as an id. Ids go into
   `innerHTML` (`passage-bar.js:35–41`, `id="deskPassage-${id}"`) and into
@@ -178,7 +178,7 @@ Files: `src/scripts/desk/sheet-pane.js`, `src/lib/desk-records.mjs`,
   makes `goTo` throw. Only the reader's own localStorage can set one.
   - *Fix*: accept only ids of the form `nextId` makes (`/^p\d{1,3}$/`).
   - *Check*: add a hostile stored layout to the `checkLayout` tests.
-  - Status: open.
+  - Status: fixed in #370.
 
 ## FA1-b. Markdown copies
 
