@@ -22,7 +22,7 @@ are recorded so they aren't re-argued.
   FA1-v (real devices). The plan,
   and every finding with its fix, is `STUDY-DESK-AUDIT-1.md`. In short, see
   "Full Audit 1 (10/20/2026)" below. FA1-a to FA1-c are done (#370,
-  #371, #PRNUM); FA1-c changed the merge's clamp rule and the merge vectors
+  #371, #372); FA1-c changed the merge's clamp rule and the merge vectors
   (version 2), which FA1-f takes to BDR. Next: FA1-d, the store, the note
   editor, and undo.
 

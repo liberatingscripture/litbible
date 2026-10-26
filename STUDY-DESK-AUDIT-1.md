@@ -89,7 +89,7 @@ stable.
 |---|---|---|---|
 | FA1-a | Security: the stored script and the sanitizer | BA66, BA67, BA59 | done, #370 |
 | FA1-b | Markdown copies | BA1, BA2, BA41, BA9, BA10 | done, #371 |
-| FA1-c | Merging and opening a copy | BA3, BA4, BA11, BA12 | done, #PRNUM |
+| FA1-c | Merging and opening a copy | BA3, BA4, BA11, BA12 | done, #372 |
 | FA1-d | The store, the note editor, and undo | BA5, BA13, BA6, BA7 | open |
 | FA1-e | /desk keeps the reader's place | BA51, BA52, BA53, BA55 | open |
 | FA1-f | The record format, for BDR | BA8, BA14 | open |
@@ -267,7 +267,7 @@ in FA1-f.
     another tab or by Keep, is overwritten or brought back.
   - *Fix*: when the button is pressed, re-read the notebook and plan again.
     If the summary changed, show it again before writing.
-  - Status: fixed in #PRNUM. `planOpen` reads and plans the file; Open runs
+  - Status: fixed in #372. `planOpen` reads and plans the file; Open runs
     it again and writes only if `sameOpen` (the summary sentence and the
     clock note) matches what is on screen, else it shows the new outcome
     with a line saying the notebook changed.
@@ -281,7 +281,7 @@ in FA1-f.
   - *Fix*: clamp to no later than the file's own `exported` time (itself
     clamped), and don't let a clamped record beat a local copy. Report
     records that came from a clock running ahead.
-  - Status: fixed in #PRNUM. A clamped record is dropped when the notebook
+  - Status: fixed in #372. A clamped record is dropped when the notebook
     has its id, a deletion of it, or (for a trash record) what it deletes or
     another deletion of it, so it also never deletes a record here. The
     Markdown path had the same fault through the file's time, now read as no
@@ -297,7 +297,7 @@ in FA1-f.
     this copy" (`desk-export.mjs:576–581, 610`).
   - *Fix*: treat a change of kind under one id as malformed, skipped and
     reported. Make the summary count every write the plan makes.
-  - Status: fixed in #PRNUM. Kinds clashing within one file are skipped too,
+  - Status: fixed in #372. Kinds clashing within one file are skipped too,
     and a trash record naming itself. The summary counts from the writes,
     with a new "changes in the trash" for trash-only writes.
 - **BA12 (low; reproduced). The copy held inside a trash record isn't
@@ -306,7 +306,7 @@ in FA1-f.
     later deletion's copy (`desk-merge.mjs:124–130, 171–178, 239`), so Undo
     would restore the wrong words.
   - *Fix*: clamp `record.modified` inside trash records too.
-  - Status: fixed in #PRNUM, and by BA4's rule a clamped held copy never
+  - Status: fixed in #372, and by BA4's rule a clamped held copy never
     replaces the words a trash record here holds.
 
 ## FA1-d. The store, the note editor, and undo
