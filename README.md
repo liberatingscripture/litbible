@@ -194,6 +194,9 @@ an integration or secret changes.
 
 ## A note for contributors using Claude Code
 
-This repo includes a `CLAUDE.md` file with detailed operational guidance for the
+This repo includes `CLAUDE.md` files with detailed operational guidance for the
 [Claude Code](https://claude.com/claude-code) AI assistant — data formats, build
-internals, and conventions. It's a useful deep reference for humans too.
+internals, and conventions. The root `CLAUDE.md` holds what applies everywhere
+and indexes the rest, which sit beside the code they describe
+(`src/data/chapters/CLAUDE.md`, `src/scripts/desk/CLAUDE.md`, and so on). They're
+a useful deep reference for humans too.
