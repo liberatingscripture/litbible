@@ -14,6 +14,7 @@ import { OSIS_BOOKS, osisRef } from "../src/lib/osis.mjs";
 import { LIT_CREDIT_LINE } from "../src/lib/lit-credit.mjs";
 import { planDelete } from "../src/lib/desk-store-core.mjs";
 import {
+  describeAhead,
   describeLastExport,
   describeSummary,
   escapeBody,
@@ -22,6 +23,8 @@ import {
   parseReference,
   planChanges,
   planImport,
+  planOpen,
+  sameOpen,
   toBackupJson,
   toMarkdown,
   toWebAnnotation,
@@ -220,7 +223,7 @@ test("a note whose words were edited in the file comes back as an edit of the bo
   assert.equal(edited.modified, now);
   assert.deepEqual({ ...edited, body: romans.body, modified: romans.modified }, romans);
   const plan = planImport([romans, label], back.records, { now });
-  assert.deepEqual(plan.summary, { added: 0, updated: 1, unchanged: 0, keptHere: 0, deleted: 0, skipped: 0 });
+  assert.deepEqual(plan.summary, { added: 0, updated: 1, unchanged: 0, keptHere: 0, deleted: 0, trash: 0, skipped: 0 });
 });
 
 test("a note missing from the file is never deleted", () => {
@@ -336,7 +339,7 @@ test("planImport adds new records and leaves identical ones alone", () => {
   const out = planImport([romans], [romans, asked], { now: "2026-10-13T00:00:00.000Z" });
   assert.deepEqual(out.plan.put, [asked]);
   assert.deepEqual(out.plan.remove, []);
-  assert.deepEqual(out.summary, { added: 1, updated: 0, unchanged: 1, keptHere: 0, deleted: 0, skipped: 0 });
+  assert.deepEqual(out.summary, { added: 1, updated: 0, unchanged: 1, keptHere: 0, deleted: 0, trash: 0, skipped: 0 });
 });
 
 test("planImport lets the newer writing win either way and says which copy stayed", () => {
@@ -346,7 +349,7 @@ test("planImport lets the newer writing win either way and says which copy staye
   assert.equal(a.summary.updated, 1);
   const b = planImport([theirs], [romans], { now: "2026-10-13T00:00:00.000Z" });
   assert.deepEqual(b.plan.put, []);
-  assert.deepEqual(b.summary, { added: 0, updated: 0, unchanged: 0, keptHere: 1, deleted: 0, skipped: 0 });
+  assert.deepEqual(b.summary, { added: 0, updated: 0, unchanged: 0, keptHere: 1, deleted: 0, trash: 0, skipped: 0 });
 });
 
 test("planImport: a deletion here stands over an older copy in the file, and one in the file removes the record", () => {
@@ -435,7 +438,7 @@ test("an older copy opened after a local edit keeps the newer local words (BA1)"
   assert.equal(back.records[0].modified, romans.modified, "stamped with the file's own time, not now");
   const out = planImport([mine, label], back.records, { now });
   assert.equal(planChanges(out.plan), false);
-  assert.deepEqual(out.summary, { added: 0, updated: 0, unchanged: 0, keptHere: 1, deleted: 0, skipped: 0 });
+  assert.deepEqual(out.summary, { added: 0, updated: 0, unchanged: 0, keptHere: 1, deleted: 0, trash: 0, skipped: 0 });
 });
 
 test("a note edited in the file and not here since still comes back as an edit stamped now (BA1)", () => {
@@ -556,8 +559,8 @@ test("a Markdown file of 80,000 headings is read in linear time (BA10)", () => {
 /* ── words ─────────────────────────────────────────────────────────── */
 
 test("describeSummary and the file names read in plain words", () => {
-  assert.equal(describeSummary({ added: 3, updated: 1, unchanged: 12, keptHere: 0, deleted: 0, skipped: 0 }), "3 new, 1 updated, 12 already here.");
-  assert.equal(describeSummary({ added: 0, updated: 0, unchanged: 0, keptHere: 0, deleted: 0, skipped: 0 }), "Nothing to open in this file.");
+  assert.equal(describeSummary({ added: 3, updated: 1, unchanged: 12, keptHere: 0, deleted: 0, trash: 0, skipped: 0 }), "3 new, 1 updated, 12 already here.");
+  assert.equal(describeSummary({ added: 0, updated: 0, unchanged: 0, keptHere: 0, deleted: 0, trash: 0, skipped: 0 }), "Nothing to open in this file.");
   assert.match(describeSummary({ added: 0, updated: 0, unchanged: 0, keptHere: 2, deleted: 0, skipped: 1 }), /2 kept as they are here \(yours are newer\), 1 left out/);
   assert.equal(exportFilename("markdown", "2026-10-12T12:00:00.000Z"), "lit-notebook-2026-10-12.md");
   assert.equal(exportFilename("backup", "2026-10-12T12:00:00.000Z"), "lit-notebook-2026-10-12.json");
@@ -620,4 +623,316 @@ test("the Web Annotation of a note on a footnote targets the footnote's text", (
   const a = c.first.items.find((x) => x.lit.record.id === footnoteNote.id);
   assert.equal(a.motivation, "questioning");
   assert.deepEqual(a.target.selector.at(-1), { type: "TextQuoteSelector", exact: FOOTNOTE });
+});
+
+/* ── Merging and opening a copy (BA3, BA4, BA11) ───────────────────────── */
+
+const applyPlan = (local, plan) => {
+  const held = new Map(local.map((r) => [r.id, r]));
+  for (const id of plan.remove) held.delete(id);
+  for (const r of plan.put) held.set(r.id, r);
+  return [...held.values()];
+};
+const NOTHING = "Nothing to open in this file.";
+
+test("planOpen reads and plans a file; an unknown file gives a message, and sameOpen is false for it (BA3)", () => {
+  const now = at(SAVED, 2);
+  const file = toBackupJson([romans, asked, label], opts);
+  const first = planOpen(file, { local: [romans, label], ctx, now });
+  assert.equal(first.message, undefined);
+  assert.equal(first.read.kind, "backup");
+  assert.deepEqual(first.planned.plan.put, [asked]);
+  assert.equal(first.sentence, "1 new, 2 already here.");
+  assert.equal(first.ahead, null);
+
+  const bad = planOpen("not a notebook at all", { local: [], ctx, now });
+  assert.equal(typeof bad.message, "string");
+  assert.ok(bad.message.length > 0);
+  assert.equal(sameOpen(bad, first), false);
+  assert.equal(sameOpen(first, bad), false);
+  assert.equal(sameOpen(bad, bad), false);
+});
+
+test("opening the same file with nothing changed between reads the same, so Open goes ahead (BA3)", () => {
+  const now = at(SAVED, 2);
+  const file = toBackupJson([romans, asked, label], opts);
+  const a = planOpen(file, { local: [romans, label], ctx, now });
+  const b = planOpen(file, { local: [romans, label], ctx, now });
+  assert.equal(sameOpen(a, b), true);
+});
+
+test("a note edited in another tab after the file was read isn’t overwritten when Open is pressed (BA3)", () => {
+  const now = at(SAVED, 2);
+  const theirs = later(romans, { body: "words from the file" }, "2026-10-10T00:00:00.000Z");
+  const file = toBackupJson([theirs, label], opts);
+  const local = [romans, label];
+  const first = planOpen(file, { local, ctx, now });
+  assert.equal(first.planned.summary.updated, 1);
+  assert.deepEqual(first.planned.plan.put, [theirs]);
+
+  const other = later(romans, { body: "words from the other tab, newer" }, at(SAVED, 1));
+  const second = planOpen(file, { local: [other, label], ctx, now });
+  assert.equal(sameOpen(first, second), false, "the reader is shown the new plan, not the old one");
+  assert.equal(second.planned.summary.updated, 0);
+  assert.equal(second.planned.summary.keptHere, 1);
+  assert.equal(planChanges(second.planned.plan), false);
+  assert.ok(!second.planned.plan.put.some((r) => r.id === romans.id), "the newer edit isn’t overwritten");
+});
+
+test("a note deleted in another tab after the file was read isn’t brought back when Open is pressed (BA3)", () => {
+  const now = at(SAVED, 2);
+  const theirs = later(romans, { body: "words from the file" }, "2026-10-10T00:00:00.000Z");
+  const file = toBackupJson([theirs, label], opts);
+  const first = planOpen(file, { local: [romans, label], ctx, now });
+  assert.equal(first.planned.summary.updated, 1);
+
+  const gone = planDelete(romans, { ...ctx, now: at(SAVED, 1) }).trash;
+  const local = [gone, label];
+  const second = planOpen(file, { local, ctx, now });
+  assert.equal(sameOpen(first, second), false);
+  assert.equal(second.planned.summary.keptHere, 1);
+  // The deletion stands; the only change is the trash record, which now holds the file's newer words for an undo.
+  assert.ok(second.planned.plan.put.every((r) => r.kind === "trash" && r.deletedId === romans.id));
+  assert.deepEqual(second.planned.plan.remove, []);
+  assert.equal(second.planned.summary.trash, 1);
+  const after = applyPlan(local, second.planned.plan);
+  assert.ok(!after.some((r) => r.id === romans.id), "the deleted note stays deleted");
+  assert.ok(after.some((r) => r.kind === "trash" && r.deletedId === romans.id));
+});
+
+test("a Markdown copy replanned after an edit here keeps the edit (BA3)", () => {
+  const now = at(SAVED, 2);
+  const md = toMarkdown([romans, label], opts).replace("to protect my standing.", "to guard my standing.");
+  const first = planOpen(md, { local: [romans, label], ctx, now });
+  assert.equal(first.planned.summary.updated, 1);
+  assert.equal(first.planned.plan.put[0].body, "Self-preservation as the drive\nto guard my standing.");
+
+  const mine = later(romans, { body: "words I wrote in the meantime" }, at(SAVED, 1));
+  const second = planOpen(md, { local: [mine, label], ctx, now });
+  assert.equal(sameOpen(first, second), false);
+  assert.equal(planChanges(second.planned.plan), false);
+  assert.equal(second.planned.summary.keptHere, 1);
+});
+
+/* BA11: the summary counts every write */
+
+test("a trash record in the file with a live note’s own id never replaces the note, and is reported (BA11)", () => {
+  const now = at(SAVED, 2);
+  const impostor = { ...planDelete(asked, { ...ctx, now: at(SAVED, 1) }).trash, id: romans.id };
+  assert.notEqual(impostor.deletedId, impostor.id);
+  const file = toBackupJson([impostor], opts);
+  const local = [romans, label];
+  const open = planOpen(file, { local, ctx, now });
+  assert.equal(planChanges(open.planned.plan), false);
+  assert.deepEqual(open.planned.plan.remove, []);
+  assert.ok(!open.planned.plan.put.some((r) => r.id === romans.id));
+  assert.equal(open.planned.skipped.length, 1);
+  assert.equal(open.planned.summary.skipped, 1);
+  assert.equal(open.planned.summary.added, 0);
+  assert.notEqual(open.sentence, NOTHING);
+  assert.match(open.sentence, /1 left out/);
+  assert.deepEqual(applyPlan(local, open.planned.plan).find((r) => r.id === romans.id), romans);
+});
+
+test("whenever a plan changes anything, its sentence never says there is nothing to open (BA11)", () => {
+  const now = at(SAVED, 2);
+  const cases = [];
+
+  // A file of trash records for notes that were never in this notebook.
+  const strangers = [
+    planDelete(make("note", { bookKey: "acts", chapter: 7, verse: 1, body: "one", marker: "note" }), { ...ctx, now: at(SAVED, -1) }).trash,
+    planDelete(make("note", { bookKey: "acts", chapter: 7, verse: 2, body: "two", marker: "note" }), { ...ctx, now: at(SAVED, -1) }).trash,
+  ];
+  cases.push({ name: "only trash records for notes never here", local: [romans], incoming: strangers, expect: /2 changes in the trash/ });
+  cases.push({ name: "one such trash record", local: [romans], incoming: [strangers[0]], expect: /1 change in the trash/ });
+
+  // A local trash record past its 30 days, which the merge empties.
+  const old = planDelete(make("note", { bookKey: "acts", chapter: 8, verse: 1, body: "old", marker: "note" }), { ...ctx, now: at(now, -45) }).trash;
+  assert.ok("record" in old);
+  cases.push({ name: "a local trash record past 30 days", local: [old], incoming: [yellow], expect: /1 change in the trash/ });
+
+  // A new record, an update, a deletion by the file.
+  cases.push({ name: "a new record", local: [], incoming: [asked], expect: /1 new/ });
+  const newer = later(romans, { body: "newer" }, at(SAVED, -1));
+  cases.push({ name: "an update", local: [romans], incoming: [newer], expect: /1 updated/ });
+  const theirTrash = planDelete(romans, { ...ctx, now: at(SAVED, 1) }).trash;
+  cases.push({ name: "a deletion in the file", local: [romans], incoming: [theirTrash], expect: /1 deleted/ });
+
+  // The audit’s scenario.
+  const impostor = { ...planDelete(asked, { ...ctx, now: at(SAVED, 1) }).trash, id: romans.id };
+  cases.push({ name: "a trash record with a live note’s id", local: [romans], incoming: [impostor], expect: /1 left out/, noChange: true });
+
+  for (const c of cases) {
+    const out = planImport(c.local, c.incoming, { now });
+    const sentence = describeSummary(out.summary);
+    if (c.noChange) assert.equal(planChanges(out.plan), false, c.name);
+    else assert.equal(planChanges(out.plan), true, c.name);
+    if (planChanges(out.plan)) assert.notEqual(sentence, NOTHING, c.name);
+    assert.notEqual(sentence, NOTHING, c.name);
+    assert.match(sentence, c.expect, c.name);
+  }
+});
+
+test("a file of trash records for notes never here counts them in summary.trash, not as new notes (BA11)", () => {
+  const now = at(SAVED, 2);
+  const strangers = [
+    planDelete(make("note", { bookKey: "acts", chapter: 7, verse: 3, body: "three", marker: "note" }), { ...ctx, now: at(SAVED, -1) }).trash,
+    planDelete(make("note", { bookKey: "acts", chapter: 7, verse: 4, body: "four", marker: "note" }), { ...ctx, now: at(SAVED, -1) }).trash,
+  ];
+  const out = planImport([romans], strangers, { now });
+  assert.equal(out.plan.put.length, 2);
+  assert.equal(out.summary.trash, 2);
+  assert.equal(out.summary.added, 0);
+  assert.equal(describeSummary(out.summary), "2 changes in the trash.");
+});
+
+test("a local trash record past its 30 days is emptied by the merge and counted as a change in the trash (BA11)", () => {
+  const now = at(SAVED, 2);
+  const old = planDelete(make("note", { bookKey: "acts", chapter: 8, verse: 2, body: "old", marker: "note" }), { ...ctx, now: at(now, -45) }).trash;
+  const out = planImport([old], [], { now });
+  assert.equal(out.plan.put.length, 1);
+  assert.equal(out.plan.put[0].id, old.id);
+  assert.ok(!("record" in out.plan.put[0]), "only the tombstone is kept");
+  assert.equal(out.summary.trash, 1);
+  assert.equal(describeSummary(out.summary), "1 change in the trash.");
+  // And a second pass has nothing left to empty.
+  assert.equal(planChanges(planImport(applyPlan([old], out.plan), [], { now }).plan), false);
+});
+
+test("describeSummary counts changes in the trash and still says nothing only when nothing happens (BA11)", () => {
+  const zero = { added: 0, updated: 0, unchanged: 0, keptHere: 0, deleted: 0, trash: 0, skipped: 0 };
+  assert.equal(describeSummary({ ...zero, trash: 1 }), "1 change in the trash.");
+  assert.equal(describeSummary({ ...zero, trash: 3, added: 1 }), "1 new, 3 changes in the trash.");
+  assert.equal(describeSummary(zero), NOTHING);
+});
+
+/* BA4: a clock running ahead */
+
+test("a Markdown file saved by a fast clock never beats an edit made here, and opening it twice changes nothing (BA4)", () => {
+  const now = at(SAVED, 2);
+  const fast = at(now, 30); // the file claims to be from a month from now
+  const filed = later(romans, { body: "words from a fast clock" }, fast);
+  const md = toMarkdown([filed, label], { ...opts, exported: fast });
+  assert.ok(md.includes(fast.slice(0, 10)), "the file really is dated ahead");
+
+  const mine = later(romans, { body: "my edit made here" }, at(SAVED, 1));
+  const local = [mine, label];
+  const back = parseImport(md, { local, ctx, now });
+  assert.equal(back.records.length, 1);
+  assert.equal(back.records[0].modified, mine.modified, "a time later than now counts as no time: a tie, stamped with the local time");
+  const first = planImport(local, back.records, { now });
+  assert.equal(planChanges(first.plan), false);
+  assert.equal(first.summary.keptHere, 1);
+  assert.equal(first.summary.updated, 0);
+
+  // Opened again, even a day on (the file is still ahead), nothing changes.
+  const nextDay = at(now, 1);
+  const held = applyPlan(local, first.plan);
+  const again = parseImport(md, { local: held, ctx, now: nextDay });
+  const second = planImport(held, again.records, { now: nextDay });
+  assert.equal(planChanges(second.plan), false);
+  assert.deepEqual(held.find((r) => r.id === romans.id), mine);
+});
+
+test("a Markdown entry dated ahead on its own, in a file whose header isn’t, is also read as no time (BA4)", () => {
+  const now = at(SAVED, 2);
+  const filed = later(romans, { body: "words from a fast clock" }, at(now, 10));
+  const md = toMarkdown([filed, label], opts); // header: SAVED, in the past
+  const mine = later(romans, { body: "my edit made here" }, at(SAVED, 1));
+  const back = parseImport(md, { local: [mine, label], ctx, now });
+  const out = planImport([mine, label], back.records, { now });
+  assert.equal(planChanges(out.plan), false);
+  assert.equal(out.summary.keptHere, 1);
+});
+
+test("a backup says when it was saved, and a Markdown file doesn’t (BA4)", () => {
+  const back = parseImport(toBackupJson([romans], opts));
+  assert.equal(back.exported, opts.exported);
+  const annotations = parseImport(JSON.stringify(webAnnotationCollection([romans], opts)));
+  assert.equal(annotations.kind, "webAnnotation");
+  assert.equal(annotations.exported, opts.exported);
+  assert.equal(parseImport(toMarkdown([romans], opts), { local: [], ctx }).exported, undefined);
+  assert.equal(parseImport(JSON.stringify({ format: "lit-notebook", version: 1, exported: "not a time", records: [] })).exported, undefined);
+});
+
+test("a record in a backup dated after the backup is capped at the backup’s time, and never replaces yours (BA4)", () => {
+  const now = at(SAVED, 2);
+  const filed = later(romans, { body: "from a clock running ahead" }, at(SAVED, 1)); // after the file’s own time
+  const file = toBackupJson([filed, label], opts);
+  const read = parseImport(file);
+  assert.equal(read.exported, SAVED);
+
+  // Yours is older than the file’s time and the record’s claim, but the claim can’t be ordered: yours stays.
+  const a = planImport([romans, label], read.records, { now, exported: read.exported });
+  assert.equal(planChanges(a.plan), false);
+  assert.ok(!a.plan.put.some((r) => r.id === romans.id));
+  assert.equal(a.ahead.length, 1);
+  assert.equal(a.ahead[0].written, false);
+  assert.deepEqual(a.ahead[0].record, filed, "the record as it arrived");
+
+  // Without the file’s time the cap would be now, and the same record would win.
+  const b = planImport([romans, label], read.records, { now });
+  assert.equal(b.ahead.length, 0);
+  assert.equal(b.plan.put.find((r) => r.id === romans.id).body, "from a clock running ahead");
+
+  // A record dated ahead that nothing here holds is added, at the cap.
+  const fresh = make("note", { bookKey: "romans", chapter: 5, verse: 1, body: "new, from the fast clock", marker: "note" }, at(SAVED, 1));
+  const c = planImport([label], [fresh], { now, exported: SAVED });
+  assert.equal(c.plan.put.length, 1);
+  assert.equal(c.plan.put[0].id, fresh.id);
+  assert.equal(c.plan.put[0].modified, SAVED, "written with the capped time");
+  assert.deepEqual(c.ahead, [{ record: fresh, written: true }]);
+  assert.equal(c.summary.added, 1);
+});
+
+test("a deletion dated ahead in a backup doesn’t delete a note here, and opening twice agrees (BA4)", () => {
+  const now = at(SAVED, 2);
+  const gone = planDelete(romans, { ...ctx, now: at(SAVED, 1) }).trash; // dated after the file’s time
+  const file = toBackupJson([gone], opts);
+  const local = [romans, label];
+  const first = planOpen(file, { local, ctx, now });
+  assert.equal(planChanges(first.planned.plan), false);
+  assert.deepEqual(first.planned.plan.remove, []);
+  assert.equal(first.planned.ahead.length, 1);
+  assert.match(first.ahead, /dated by a clock running ahead/);
+  const second = planOpen(file, { local: applyPlan(local, first.planned.plan), ctx, now: at(now, 5) });
+  assert.equal(planChanges(second.planned.plan), false);
+});
+
+test("describeAhead says what happened to one record kept here, one added, and a mix (BA4)", () => {
+  const rec = { id: "a" };
+  assert.equal(describeAhead([]), null);
+  assert.equal(describeAhead(undefined), null);
+  assert.equal(
+    describeAhead([{ record: rec, written: false }]),
+    "One record in this file was dated by a clock running ahead. Such a record never replaces, deletes or brings back anything here: yours is kept as it is.",
+  );
+  assert.equal(
+    describeAhead([{ record: rec, written: true }]),
+    "One record in this file was dated by a clock running ahead. Such a record never replaces, deletes or brings back anything here: it was added with an earlier date.",
+  );
+  assert.equal(
+    describeAhead([{ record: rec, written: false }, { record: rec, written: false }]),
+    "2 records in this file were dated by a clock running ahead. Such a record never replaces, deletes or brings back anything here: yours are kept as they are.",
+  );
+  assert.equal(
+    describeAhead([{ record: rec, written: true }, { record: rec, written: true }]),
+    "2 records in this file were dated by a clock running ahead. Such a record never replaces, deletes or brings back anything here: they were added with an earlier date.",
+  );
+  assert.equal(
+    describeAhead([{ record: rec, written: true }, { record: rec, written: false }]),
+    "2 records in this file were dated by a clock running ahead. Such a record never replaces, deletes or brings back anything here: 1 added with an earlier date, and yours kept for the other.",
+  );
+});
+
+test("planOpen carries the ahead sentence, and a different one makes sameOpen false (BA4, BA3)", () => {
+  const now = at(SAVED, 2);
+  const filed = later(romans, { body: "from a clock running ahead" }, at(SAVED, 1));
+  const file = toBackupJson([filed, label], opts);
+  const open = planOpen(file, { local: [romans, label], ctx, now });
+  assert.equal(open.ahead, describeAhead(open.planned.ahead));
+  assert.match(open.ahead, /yours is kept as it is/);
+  assert.equal(sameOpen(open, { ...open, ahead: null }), false);
+  assert.equal(sameOpen(open, { ...open, sentence: "something else." }), false);
+  assert.equal(sameOpen(open, { ...open }), true);
 });

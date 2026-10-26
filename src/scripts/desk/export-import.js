@@ -6,7 +6,10 @@
 // plain summary before anything is written: what is new, what would change,
 // what stays as it is here, and anything left out with its line number. Only
 // Open writes, in one store.commit, so it is one step in the undo history and
-// the undo bar offers it back.
+// the undo bar offers it back. Open plans again against the notebook as it is
+// then, since the summary may have stood open while notes changed here, in
+// another tab or by Keep: if the outcome differs, it shows the new one and
+// writes nothing until pressed again (audit BA3).
 //
 // Nothing is uploaded: the file is made and read in the browser. The time of
 // the last copy is kept in the notebook's meta ("lastExport", an ISO string)
@@ -14,11 +17,10 @@
 
 import {
   describeLastExport,
-  describeSummary,
   exportFilename,
-  parseImport,
   planChanges,
-  planImport,
+  planOpen,
+  sameOpen,
   toBackupJson,
   toMarkdown,
   toWebAnnotation,
@@ -155,36 +157,40 @@ export function mountBackup(el, { store, ctx }) {
       console.error("Study Desk: the file couldn’t be read", err);
       return showResult({ message: "That file couldn’t be read." });
     }
-    const local = await store.all();
-    const now = new Date().toISOString();
-    // A file malformed in a way the readers don't foresee throws; say so
-    // rather than leave the reader with nothing happening (BA9).
-    let read, planned;
-    try {
-      read = parseImport(text, { local, ctx: ctx(), now });
-      if (read.kind === "unknown") return showResult({ message: read.problems[0]?.message ?? "This isn’t a notebook file.", problems: [] });
-      planned = planImport(local, read.records, { now });
-    } catch (err) {
-      console.error("Study Desk: the file couldn’t be opened", err);
-      return showResult({ message: "That file couldn’t be read." });
-    }
-    showResult({ name: chosen.name, read, planned, now });
+    showResult({ name: chosen.name, text, opened: await plan(text) });
   });
 
-  function showResult({ message = null, name = "", read = null, planned = null }) {
+  /** The file read and planned against the notebook as it is now. */
+  async function plan(text) {
+    // A file malformed in a way the readers don't foresee throws; say so
+    // rather than leave the reader with nothing happening (BA9).
+    try {
+      const local = await store.all();
+      return planOpen(text, { local, ctx: ctx(), now: new Date().toISOString() });
+    } catch (err) {
+      console.error("Study Desk: the file couldn’t be opened", err);
+      return { message: "That file couldn’t be read." };
+    }
+  }
+
+  function showResult({ message = null, name = "", text = "", opened = null, changed = false }) {
     result.replaceChildren();
     result.hidden = false;
+    message ??= opened?.message ?? null;
     if (message) {
       result.append(paragraph(message, "desk-backup__message"));
       announce(message);
       return;
     }
-    // What the file's own reading left out counts with what the merge left out.
-    const sentence = describeSummary({ ...planned.summary, skipped: planned.summary.skipped + read.problems.length });
+    const { read, planned, sentence, ahead } = opened;
     const head = document.createElement("h4");
     head.className = "desk-np__h4";
     head.textContent = `Opening ${name}`;
-    result.append(head, paragraph(sentence, "desk-backup__summary"));
+    result.append(head);
+    const since = "Your notebook has changed since you chose this file, so here is what opening it would do now.";
+    if (changed) result.append(paragraph(since, "desk-backup__changed"));
+    result.append(paragraph(sentence, "desk-backup__summary"));
+    if (ahead) result.append(paragraph(ahead));
     for (const note of read.notes) result.append(paragraph(note));
 
     // What was left out, with its line when the file has lines.
@@ -222,19 +228,26 @@ export function mountBackup(el, { store, ctx }) {
       go.type = "button";
       go.className = "desk-backup__import";
       go.textContent = "Open this copy";
-      go.addEventListener("click", () => doImport(go, planned, sentence));
+      go.addEventListener("click", () => doImport(go, { name, text, opened }));
       actions.append(go);
     }
     actions.append(close);
     result.append(actions);
-    announce(`${sentence}${can ? " Choose Open this copy to go ahead." : ""}`);
+    announce(`${changed ? `${since} ` : ""}${sentence}${can ? " Choose Open this copy to go ahead." : ""}`);
     result.focus({ preventScroll: false });
   }
 
-  async function doImport(go, planned, sentence) {
+  async function doImport(go, shown) {
     go.disabled = true;
+    // Plan again against the notebook as it is now (BA3), and write that
+    // plan; if it would do anything other than what the reader was shown, show that.
+    const opened = await plan(shown.text);
+    if (opened.message || !sameOpen(shown.opened, opened)) {
+      return showResult({ name: shown.name, text: shown.text, opened, changed: !opened.message });
+    }
+    const { sentence } = opened;
     try {
-      await store.commit(planned.plan);
+      await store.commit(opened.planned.plan);
     } catch (err) {
       console.error("Study Desk: the copy wasn’t opened", err);
       go.disabled = false;

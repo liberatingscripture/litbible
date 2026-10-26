@@ -645,6 +645,28 @@ second copy.
   newer copy, so undoing or restoring brings back what the reader last
   wrote. The same principle as the collapse rule under kind 10.
 
+**A clock running ahead never beats what a device holds** (audit FA1-c,
+2026-10-26; version 2 of the merge vectors; for BDR to confirm). Clamping a
+future time to "now" on arrival isn't enough on its own, because "now" moves:
+the same export file opened again a day later would beat the edit or the
+deletion made in between, every time (BA4). So:
+- **The cap** is the receiving side's "now", or, for an export file, the
+  file's own `exported` time when that is earlier, since nothing in a file can
+  be newer than the file. A sync service's cap is its own clock.
+- **What is clamped**: `modified`, a trash record's `deletedAt`, and the
+  `modified` of the copy a trash record holds (BA12; a held copy from the
+  future would outrank every later one, and an undo would bring back its
+  words).
+- **A record that had to be clamped never beats anything the receiving side
+  holds**: it is dropped when that side has a record with its id or a
+  deletion of it, or, for a trash record, the record it deletes or another
+  deletion of it. Only when the receiving side has nothing for it is it
+  written, at the cap. Opening the same file again then writes nothing.
+- **One id is one record** (BA11): an arriving record whose `kind` differs
+  from another copy of its id, on the receiving side or in the same input,
+  is skipped and reported, so a trash record can never replace the note it
+  shares an id with. So is a trash record whose `deletedId` is its own `id`.
+
 ## Addresses
 
 A record's address form is `https://litbible.net/<bookKey>-<chapter>/#v<verse>`,
@@ -716,7 +738,12 @@ and accounts would live under `/sheets/`, `/notebook/`, `/account/`.
     or `\` takes a backslash, and every `<` becomes `\<` so a Markdown viewer
     shows typed HTML as text (BA41); reading back undoes both.
   Opening a copy merges through `desk-merge.mjs`, in one commit, and never
-  deletes a record for being absent from the file (audit C17).
+  deletes a record for being absent from the file (audit C17). The two JSON
+  files' `exported` time is the merge's cap (under "Clocks"); a Markdown
+  entry whose time is later than now counts as having no time, so the file
+  is taken as the older. The website plans the merge again when the reader
+  confirms, against the notebook as it is then, and shows the new outcome
+  instead of writing if it differs (BA3).
 
 ## Still open in this file
 
