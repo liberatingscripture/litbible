@@ -147,3 +147,15 @@ test("notesCiting returns hits in the order the records are given, not sorted", 
 test("notesCiting tolerates a missing notebook", () => {
   assert.deepEqual(notesCiting(undefined, { bookKey: "romans", chapter: 8, verse: 28 }), []);
 });
+
+test("notesCiting lists a note on a footnote that cites its own verse, but not a verse note that does (BA20)", () => {
+  const onFootnote = note("fn", "romans", 8, 3, "See Romans 8:3", {
+    footnote: "Greek sarx, flesh; the whole self.",
+    n: 2,
+    marker: "note",
+  });
+  const verseNote = note("vn", "romans", 8, 3, "See Romans 8:3", { marker: "note" });
+  const hits = notesCiting([onFootnote, verseNote], { bookKey: "romans", chapter: 8, verse: 3 });
+  assert.deepEqual(hits.map((h) => h.record.id), ["fn"]);
+  assert.deepEqual(hits[0].ref, { bookKey: "romans", chapter: 8, from: 3, to: 3 });
+});

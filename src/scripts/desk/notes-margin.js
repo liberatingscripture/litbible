@@ -447,7 +447,10 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
 
   function syncLit() {
     const ids = new Set([...hover, ...open, ...flash, ...(popId ? [popId] : [])]);
-    const lit = ids.size && getSetting("notes") === "on" ? placed().filter((p) => ids.has(p.record.id)) : [];
+    // A note gone to from the panel (`flash`) is marked even while the notes
+    // are hidden, since its words are then all that shows where it is (BA19).
+    const notesOn = getSetting("notes") === "on";
+    const lit = ids.size ? placed().filter((p) => ids.has(p.record.id) && (notesOn || flash.has(p.record.id))) : [];
     // A note on a footnote lights its footnote (a class on the list item),
     // never verse words.
     const marked = new Set(lit.map((p) => p.footnote).filter(Boolean));
@@ -617,7 +620,16 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
     // After the scroll settles, so the note is placed where it now is.
     setTimeout(() => {
       const holder = aside.querySelector(`[data-id="${CSS.escape(id)}"]`);
-      if (!holder) return;
+      if (!holder) {
+        // The notes are hidden, so the margin holds none: focus goes to
+        // where the marked words are, the verse number they start in, or
+        // the footnote's first link (BA19).
+        const to = at.footnote
+          ? at.footnote.querySelector("a[href], button")
+          : document.getElementById(`v${at.record.verse}`);
+        to?.focus({ preventScroll: true });
+        return;
+      }
       if (holder.classList.contains("desk-circle")) {
         openPopover(at.record, holder);
         return;

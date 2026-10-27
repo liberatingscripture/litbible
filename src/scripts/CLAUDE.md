@@ -116,6 +116,18 @@ break:
   act on the share computed when the panel opened, never on the live
   selection, and `acting` keeps a pressed panel open until it finishes.
 
+**A mouse drag that ends off the text ends where the pointer last was over
+it** (BA23; `endOffText` in `chapter-tools.js`, rule in
+`src/lib/selection-end.mjs`). A browser puts a selection's end at the
+element under the pointer in document order, so a drag ending over
+something drawn over the page but written at the end of `<body>` (a Study
+Desk window, a margin note) or over another /desk pane put the end after
+the rest of the chapter, and a note saved on it covered every verse to the
+end. The pointer's last caret over a view's text is kept during the drag,
+and the page's own selection is moved there, so what is highlighted is
+what the panel offers. A drag that goes past the text's end (below it going
+down, above it going up) still runs to the end, as before.
+
 A footnote letter, verse number or key term clicked inside a live selection
 opens its own panel, and the selection survives the click, so the next
 `selectionchange` settle would reopen the selection panel over it. `openedKey`
