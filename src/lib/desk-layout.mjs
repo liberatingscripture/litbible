@@ -625,8 +625,37 @@ export function writeSaved({ last, mine, start }) {
   return JSON.stringify({ v: 1, start: start === "default" ? "default" : "last", last: last ?? null, mine: mine ?? null });
 }
 
-/** The layout the page opens with. */
-export function openingLayout(saved) {
-  if (saved.start === "default" && saved.mine) return saved.mine;
-  return saved.last ?? saved.mine ?? originalLayout();
+/**
+ * A layout's arrangement at a place (BA53): its panes, kinds, sizes, pins and
+ * sheets kept, and every place in it (the shared one, each LIT pane's and
+ * each "Stay here" pane's) set to `place`, a passage string. Without one,
+ * the places are cleared, for the page to start them.
+ */
+export function atPlace(layout, place) {
+  const next = clone(layout);
+  const ok = parsePassage(place) ? place : null;
+  for (const p of panes(next.root)) {
+    if (p.kind === "lit") {
+      if (ok) p.at = ok;
+      else delete p.at;
+    }
+    if (p.pin) p.pin.at = ok;
+  }
+  if (ok) next.place = ok;
+  else delete next.place;
+  return next;
+}
+
+/**
+ * The layout the page opens with. "My last layout" is the desk as it was
+ * left, places and all. "My default" is an arrangement, not a passage (BVJ,
+ * 2026-10-26; BA53): its panes open at the place the reader was last on the
+ * desk, or else at `reading` (the page's Continue reading place), never at
+ * the one it was made at.
+ */
+export function openingLayout(saved, reading = null) {
+  const from = parsePassage(saved.last?.place) ? saved.last.place : reading;
+  if (saved.start === "default" && saved.mine) return atPlace(saved.mine, from);
+  if (saved.last) return saved.last;
+  return saved.mine ? atPlace(saved.mine, from) : originalLayout(from);
 }

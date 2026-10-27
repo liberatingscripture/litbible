@@ -542,7 +542,10 @@ that section.
        layout, the reader's default and which opens the page, written on
        every change (the shared passage, each LIT pane's place and each
        Sheet pane's sheet included) and checked on the way
-       back in (`checkLayout`); a
+       back in (`checkLayout`). **"My default" is an arrangement, not a
+       passage** (BVJ, 2026-10-26; BA53): it opens at the last place on the
+       desk, or Continue reading's (`openingLayout`, `atPlace`), keeping its
+       pins and sheets; a
        layout that fails the check falls back to the original, the LIT
        beside My Notes, 60/40. Named in /privacy's paragraph.
      - **The desk has its own header** (BVJ, 2026-10-21; `deskTitle` on

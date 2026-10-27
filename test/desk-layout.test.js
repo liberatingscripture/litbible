@@ -863,12 +863,40 @@ test("writeSaved writes the saved state as text", () => {
 test("openingLayout picks the default, the last, or the original", () => {
   const last = applyArrangement(originalLayout(), "rows-2");
   const mine = applyArrangement(originalLayout(), "cols-3");
-  assert.equal(openingLayout({ last, mine, start: "default" }), mine);
+  assert.deepEqual(openingLayout({ last, mine, start: "default" }), mine);
   assert.equal(openingLayout({ last, mine, start: "last" }), last);
-  assert.equal(openingLayout({ last: null, mine, start: "last" }), mine);
+  assert.deepEqual(openingLayout({ last: null, mine, start: "last" }), mine);
   assert.equal(openingLayout({ last, mine: null, start: "default" }), last);
   assert.deepEqual(openingLayout({ last: null, mine: null, start: "last" }), originalLayout());
   assert.deepEqual(openingLayout(readSaved("garbage")), originalLayout());
+  assert.deepEqual(openingLayout(readSaved("garbage"), "acts 2"), originalLayout("acts 2"));
+});
+
+test("BA53: My default opens its arrangement at the last place on the desk, not the one it was made at", () => {
+  // Made at Romans 8 with a second LIT pane, a pinned Greek and a sheet.
+  let mine = setPlace(applyArrangement(originalLayout(), "grid"), "romans 8:1");
+  mine = setKind(mine, "p2", "lit");
+  mine = setLitAt(mine, "p2", "romans 9:1");
+  mine = setPin(mine, "p4", true, "romans 8:3");
+  mine = setPaneSheet(setKind(mine, "p3", "sheet"), "p3", "s1");
+  const last = setLitAt(originalLayout(), "p1", "john 3:16");
+  const open = openingLayout({ last, mine, start: "default" }, "acts 2");
+  assert.equal(open.place, "john 3:16");
+  assert.equal(findPane(open.root, "p1").at, "john 3:16");
+  assert.equal(findPane(open.root, "p2").at, "john 3:16");
+  assert.deepEqual(findPane(open.root, "p4").pin, { at: "john 3:16" }, "Stay here is kept, at the reader's place");
+  assert.equal(findPane(open.root, "p3").sheet, "s1", "the Sheet pane keeps its sheet");
+  assert.equal(arrangementOf(open), "grid");
+  assert.deepEqual(open.root.sizes, mine.root.sizes);
+  assert.equal(findPane(mine.root, "p1").at, "romans 8:1", "the saved default is not mutated");
+
+  const first = openingLayout({ last: null, mine, start: "default" }, "acts 2");
+  assert.equal(first.place, "acts 2", "no last place on the desk: Continue reading's");
+  assert.equal(findPane(first.root, "p2").at, "acts 2");
+  const none = openingLayout({ last: null, mine, start: "default" });
+  assert.equal("place" in none, false, "no place at all: the page starts one");
+  assert.equal("at" in findPane(none.root, "p1"), false);
+  assert.equal(findPane(none.root, "p4").pin.at, null);
 });
 
 // ---- purity ---------------------------------------------------------------

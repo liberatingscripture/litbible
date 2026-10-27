@@ -33,7 +33,8 @@
 //
 // The layout is kept in localStorage['lit-desk-layout'] (named in /privacy's
 // paragraph), written on every change: the last layout, the reader's own
-// default, and which of the two opens the page.
+// default, and which of the two opens the page. The default is an
+// arrangement, not a passage (BA53): it opens where the reader last was.
 
 import { recordReference } from "../../lib/desk-store-core.mjs";
 import {
@@ -203,13 +204,14 @@ async function start() {
   root.classList.add("desk-ws");
 
   let saved = readSaved(readKey());
-  let layout = openingLayout(saved);
-  // The following panes' shared passage starts where the reader last read.
-  if (!parsePassage(layout.place)) {
-    let last = null;
-    try { last = loadLastRead(); } catch (_) {}
-    layout = setPlace(layout, formatPassage(startingPassage(last)));
-  }
+  // Where the reader last read (Continue reading), or Matthew 1: where a
+  // layout with no place of its own starts, and where "My default" opens
+  // when the desk has no last place (BA53).
+  let lastRead = null;
+  try { lastRead = loadLastRead(); } catch (_) {}
+  const reading = formatPassage(startingPassage(lastRead));
+  let layout = openingLayout(saved, reading);
+  if (!parsePassage(layout.place)) layout = setPlace(layout, reading);
 
   // ---- the Layout menu ----
 
