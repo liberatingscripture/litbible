@@ -81,7 +81,7 @@ src/
   data/chapters/   # 260 chapter JSON files — the scripture text
   data/alignment/  # Where each Greek term's LIT rendering appears (see below)
   data/intros/     # Book introductions (Markdown)
-  content/         # Glossary + articles (Markdown content collections)
+  content/         # Glossary, articles, and the /apps page's sections (content collections)
   pages/           # Routes (scripture, Read View, glossary, articles, …)
   components/       # Reusable Astro UI components
   layouts/         # Page templates
@@ -103,6 +103,15 @@ npm run validate:chapters
 
 A git pre-commit hook also validates staged chapter files automatically, so a
 malformed chapter can't be committed.
+
+## Changing the /apps page
+
+Every word, picture, button and background on [litbible.net/apps](https://litbible.net/apps)
+lives in content files, and the page is edited in the **Apps Page Studio**, a
+board on claude.ai that shows the real page: click anything to change it, then
+send the batch. In a Claude Code session, type `/apps-studio` and Claude
+applies it, opens a review with a preview link, and reports back on the board.
+How it works is in `src/components/apps/CLAUDE.md`.
 
 ## Importing a chapter from Word
 

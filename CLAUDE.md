@@ -39,7 +39,7 @@ below unless it is already loaded.** Two rules keep this from decaying:
 | `src/content/CLAUDE.md` | Articles, glossary entries, the /apps collections; the apps' glossary feed |
 | `src/data/alignment/CLAUDE.md` | The alignment dataset, both review tools, MorphGNT, /glossary's "Where it appears", the term lens |
 | `src/components/CLAUDE.md` | The announcement popover |
-| `src/components/apps/CLAUDE.md` | The /apps mirror shared with the LSC site |
+| `src/components/apps/CLAUDE.md`, `scripts/apps-studio/CLAUDE.md` | The /apps mirror shared with the LSC site; the page's section data; the Apps Page Studio (Brandon's editing board, its scripts, the `/apps-studio` skill) |
 | `src/pages/CLAUDE.md` | The podcast page's embeds |
 | `scripts/CLAUDE.md` | The build pipeline step by step, the table of `scripts/`, release-notes automation, raw-byte hashing and line endings, the importer |
 | `scripts/reconcile/CLAUDE.md` | The Word masters and the reconcile toolchain |
@@ -186,6 +186,8 @@ npm run build:api2-vectors # Regenerate test/fixtures/api2-vectors.json (on dema
 npm run audit:alignment   # Re-check decided alignment records against the current text
                           #   (--all to list every finding). Run after editing scripture
 npm run draft:release-notes -- --since <ref>  # Draft a release-notes entry from git diff
+npm run studio:apps -- <seed|apply|check|board-css|board-files>  # The Apps Page Studio's
+                          #   scripts; the /apps-studio skill runs them (src/components/apps/CLAUDE.md)
 ```
 
 ### Build Pipeline, in brief
@@ -208,9 +210,10 @@ src/
   content/
     articles/        # Blog/teaching articles (Markdown, ~13 files)
     glossary/        # Glossary entries (Markdown w/ frontmatter, ~47 files)
+    apps-sections/   # /apps: each section's copy, pictures, background, order (JSON)
     callouts/, examples/, seasons/   # /apps promo section content (Markdown)
   content.config.ts  # Astro content-collection schemas (articles, glossary,
-                     #   + apps: callouts/examples/seasons)
+                     #   + the four /apps ones from components/apps/collections.ts)
   data/
     chapters/        # 260 JSON files — one per NT chapter (e.g. john-3.json)
     alignment/       # Greek↔English alignment records, one file per chapter
@@ -311,7 +314,7 @@ workers/             # Cloudflare Workers, deployed separately via wrangler (NOT
 | `/desk` | `desk.astro` | The Study Desk as a page of its own (D9): one to four panes. Same treatment as `/notebook`: noindex, out of the sitemap and Pagefind, and a short note without the preview. See "The Study Desk preview", rule 18 |
 | `/sheets` | `sheets.astro` | A sheet's own address (3i): `/sheets/` lists the reader's sheets, `/sheets/?id=<id>` shows one as a leader or participant copy, to print or copy for Word, or presents it to a room (3j; `&view=present`, and `&view=presenter` for the presenter view's window). `/sheets/#share1.<data>` is a sheet someone shared (3k). Never edits. Same treatment as `/desk`. See "The Study Desk preview", rules 19 and 21 |
 | `/release-notes` | `release-notes.astro` | "What's new": the release notes by month, filterable by book and kind of change. `/translation-updates.xml` (`translation-updates.xml.js`) is the same record as RSS. See "Release notes are automated" below |
-| `/apps` | `apps.astro` | Mobile-apps promo page (footer-linked). Body design ported from `BDRhodes/LIT-app-Promo`; section content lives in the `callouts`/`examples`/`seasons` collections; scoped styles in `src/styles/pages/apps.css`; components under `src/components/apps/`. Uses `bg="white"` (near-white surface). |
+| `/apps` | `apps.astro` | Mobile-apps promo page (footer-linked). Body design ported from `BDRhodes/LIT-app-Promo`; every section's content is data (`apps-sections`, `callouts`, `examples`, `seasons`), laid out in order by `components/apps/AppsPage.astro` and edited through the Apps Page Studio; scoped styles in `src/styles/pages/apps.css`. Uses `bg="white"` (near-white surface). |
 | `/app-support` | `app-support.astro` | App support contact form (linked from inside the apps, not the site nav; `/app-support/thanks` is the native-POST fallback success page) |
 | `/found-in-translation-podcast` | `found-in-translation-podcast.astro` | Podcast page (`/podcast` redirects here). Its embeds are three deliberately different shapes, and only the Apple one is derived at build: read `src/pages/CLAUDE.md` before touching them |
 | `/404` | `404.astro` | Not found. Its script reads the address with `resolveMistypedPath` (in `search-core.js`, the same parser as the search box), so a guessable scripture address lands on its page: `/John-3`, `/jn-3`, `/john-3-16`, `/john/3`, `/1-corinthians-13`, `/read/1-corinthians`. A known book with a chapter it doesn't have (`/john-30`) gets "Did you mean John?" instead of a redirect; anything else, and no JS, leaves the page as it was. |

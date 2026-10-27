@@ -1,0 +1,68 @@
+---
+name: apps-studio
+description: Apply Brandon's edits to the litbible.net/apps page from the Apps Page Studio board, open the review with a preview link, and report back on the board; also marks merged requests live and reloads the board. Use for "/apps-studio", "apply my apps page changes", "check the Studio", or after an /apps Studio PR merges.
+---
+
+# The Apps Page Studio
+
+Board: **https://claude.ai/artifact/1gEt13FJft9nksTPvixtyH** (Brandon's; private to him).
+Rules and background: `src/components/apps/CLAUDE.md` ("The page is data", "The Apps Page Studio"). Read it first.
+
+Brandon is a creative director, not an engineer. In chat, keep it short and plain: what got applied, the preview link, anything waiting on his answer. Don't narrate tooling; the board shows progress. Never change his words beyond curly quotes without asking him.
+
+## The board's data (ArtifactData, `url` = the board)
+
+- `studio/page`: the seed, which is the page as it stands on main. Only you write it.
+- `studio/draft`: his unsent edits. **Never write it.**
+- `requests/rNNNN`: one per batch he sends. Fields: `number`, `createdAt`, `status`, `statusAt`, `message`, `changes[]`, `log[]` (`{at, text}`), and the ones you write: `results` (`{ <change key>: {status, reason?} }`), `calls[]`, `pr` (`{number, url}`), `preview`.
+- `status` runs `sent` → `working` → `review` → `live`, with `needs-you` whenever a call waits on him. He can set `withdrawn`.
+- A change is `{key, op, label, note?, …}`; `op` is `set` (`path`, `before`, `after`), `image` (`path`, `before`, `upload: {asset, name, width, height}`, `fileName`, `frame`, `alt?`), `add` (`collection`, `id`, `after`, `data`), `remove`, `order` (`collection`, `after`), or `note` (`text`, for you to do by hand). `core.mjs`'s header documents paths.
+- A call is `{id, question, why?, options: [{id, label, detail?, recommended?}], answer: null}`; he answers on the board (`answer`, `answerNote`).
+
+Every write to an existing document needs `if_version` from your last read. Append to `log`; don't rewrite earlier entries.
+
+## Each run
+
+1. Load the tool: `ToolSearch` with `select:ArtifactData`.
+2. `ArtifactData list` the `requests` collection, then decide, in this order:
+   - **`review` with its PR merged** (`gh pr view <n> --json state`): set `status: "live"` plus a log line, then reload the board (the "Reload the board" steps below).
+   - **`needs-you` with every call answered**: carry on applying it, with the answers.
+   - **`sent`**: apply it, oldest first. Several sent at once go on one branch and one PR, in number order.
+   - **Nothing to do**: say so. If main has /apps changes the seed doesn't (compare `studio/page`'s `commit` with `git log origin/main -- src/content/apps-sections src/content/callouts src/content/examples src/content/seasons public/assets src/pages/apps.astro`), offer to reload the board.
+3. Set `status: "working"` and add a log line, so the board shows it's in hand.
+
+## Applying a request
+
+4. **Work in a worktree, never in Brandon's checkout.** If an earlier Studio request is still in `review` with an open PR, add to that branch (his `before` values already include its changes). Otherwise, from the repo root:
+   `git fetch origin && git worktree add .claude/worktrees/apps-studio-<number> -b claude/apps-studio-<number> origin/main`.
+   Run `npm ci` there in the background if it has no `node_modules`; the scripts need `sharp`. Only Astro's own build fails under this folder's apostrophe, and the apply step doesn't use it.
+5. Save the request: `ArtifactData get` with `out_dir` set to your scratchpad. Download each upload with `Artifact read` on the board, `path` = the change's `upload.asset`, and `out_dir` = `<scratchpad>/uploads-<number>`. The file lands as `<asset id>.<ext>`.
+6. Run, in the worktree:
+   `npm run studio:apps -- apply --request=<saved json> --uploads=<uploads dir> --report=<scratchpad>/report-<number>.json`
+7. Read the report and the diff (`git status`, `git diff`), then deal with each kind of result:
+   - `applied` or `already`: done.
+   - `conflict`: never force it. If the page changed under his edit, or a picture failed, write a call: "Use my version" or "Keep what's live", with the reason in `why`.
+   - `manual`: notes for you. Do them in code by the rules in `src/components/apps/CLAUDE.md` and `src/styles/CLAUDE.md` (both dark-mode selectors, `--focus-ring`, curly quotes, American spelling). If a note is unclear, write a call; don't guess.
+   - Also read every change's `note`; he may ask for something beyond the change itself.
+   - `warnings` (house style): mention them in the PR. If the words are his new copy, write a call; don't fix them silently.
+   - `problems`: nothing was written. Fix the cause, or ask him.
+   - A picture: open each written WebP with Read and check it looks right (cropped, framed, not soft). The report notes a picture that's smaller than its spot.
+   - A comparison's LIT text must match the chapter's own wording (`src/data/chapters/<book>-<n>.json`); if it doesn't, write a call.
+8. Check: `node --test test/apps-studio.test.js`, `npm run studio:apps -- check`, and `npm test` if code changed. If you changed a component's styles, run `npm run studio:apps -- board-css` and commit `scripts/apps-studio/board/page.css`. If you changed its markup, change `scripts/apps-studio/board/page.js` to match.
+9. Commit with the subject `apps: Studio request #<n>, <short summary>`. Push, and open the PR, or update the open one. PR body: each change in plain words with before → after; his notes and your answers to them; files added or removed under `public/assets/` (LSC copies them, and the mirror notification lists them); `Preview: <url>`. Squash is the merge method; BVJ merges. Never merge it yourself.
+10. Preview link: Cloudflare's branch alias, the branch with `/` turned to `-`, plus `.litbible.pages.dev/apps/`. For example, `claude/apps-studio-12` becomes https://claude-apps-studio-12.litbible.pages.dev/apps/. It's live once the Cloudflare check passes on the PR. Don't poll for it.
+11. Write back with one `ArtifactData update` (pin `if_version`): `status` (`review`, or `needs-you` if you wrote calls), `statusAt`, `results` (each change key → `{status, reason}`), `pr`, `preview`, `calls`, and the log with one line added (for example "Opened the review; preview ready.").
+12. In chat: one or two sentences, with the preview link and the PR link. If calls are waiting, tell him to answer them on the board and type /apps-studio again.
+
+## Reload the board (after a merge)
+
+- Update a checkout of main: a fresh worktree on `origin/main`, with `npm ci` there if needed. Run `npm run studio:apps -- seed --out=<scratchpad>/seed.json`.
+- `ArtifactData get studio/page` for its version, then `set` it from `file_path`, pinned with `if_version`.
+- If pictures changed, or anything in `scripts/apps-studio/board/`, `core.mjs` or `frontmatter.mjs` changed, republish the board. `npm run studio:apps -- board-files` prints the `file_path` and `files` map, with paths relative to the checkout. Publish to `url` = the board, with `root` = that checkout (so the files come from up-to-date main, not whatever branch Brandon's folder is on), leaving out `capabilities` and `icon`, so it keeps both.
+
+## Never
+
+- Write `studio/draft`, or delete a request.
+- Apply a change whose `before` doesn't match. That's a conflict for him to decide.
+- Merge a PR, or push to main.
+- Edit the page's words beyond curly quotes without his answer.
