@@ -23,6 +23,9 @@ points here. Its decision log holds the BVJ calls made along the way.
   Two more phases are **the next audit**: FA1-u reviews the code this audit
   didn't reach, and FA1-v checks the desk on real devices. Their findings
   continue the numbering, BA88 onward.
+- **FA1-u, areas 1 to 3** (2026-10-26) found 33 more, BA88 to BA120: 7
+  medium and 26 low. They are in four new phases, FA1-w to FA1-z, and in
+  FA1-k, FA1-r and FA1-t. Areas 4 to 6 are still to come.
 
 ## IDs
 
@@ -83,7 +86,8 @@ desk. Phases in one area of code follow each other where one depends on
 another: FA1-b before FA1-c, FA1-e before FA1-l and FA1-r, and FA1-b to FA1-d
 before FA1-f. The table is in working order. FA1-u's letter is out of
 sequence only because it was added after the others were lettered; IDs stay
-stable.
+stable. FA1-w to FA1-z came from FA1-u and were placed last among the
+fixes; their place in the order is BVJ's to change.
 
 | Phase | Area | Findings | Status |
 |---|---|---|---|
@@ -93,21 +97,25 @@ stable.
 | FA1-d | The store, the note editor, and undo | BA5, BA13, BA6, BA7 | done, #373 |
 | FA1-e | /desk keeps the reader's place | BA51, BA52, BA53, BA55 | done, #374 |
 | FA1-f | The record format, for BDR | BA8, BA14 | done, #375 |
-| FA1-u | The follow-up audit: code this audit didn't reach | new findings, BA88 onward | open |
+| FA1-u | The follow-up audit: code this audit didn't reach | new findings, BA88 onward | areas 1 to 3 done (BA88 to BA120); 4 to 6 open |
 | FA1-g | Sharing a sheet | BA78, BA80, BA81, BA82, BA87 | open |
 | FA1-h | Marks on the page | BA16, BA17, BA19, BA20, BA23 | open |
 | FA1-i | Sheet templates and passages | BA69, BA70, BA75, BA76, BA77 | open |
 | FA1-j | The sheet editor: pasting and saving | BA68, BA71, BA72, BA73, BA74 | open |
-| FA1-k | Greek search commands | BA44, BA45, BA48, BA49, BA50 | open |
+| FA1-k | Greek search commands | BA44, BA45, BA48, BA49, BA50, BA116 | open |
 | FA1-l | /desk's LIT pane and layout | BA54, BA56, BA57, BA58, BA60, BA61 | open |
 | FA1-m | The tour, first use, and printing | BA33, BA34, BA35, BA36, BA37 | open |
 | FA1-n | Present mode and the sheet page | BA79, BA83, BA84, BA85, BA86 | open |
 | FA1-o | Announcements and focus for marks | BA18, BA21, BA22 | open |
 | FA1-p | Panels beside the Notebook | BA24, BA27, BA28 | open |
 | FA1-q | The gate and first paint | BA25, BA26, BA29, BA30 | open |
-| FA1-r | /desk's smaller fixes | BA31, BA62, BA63, BA64, BA65 | open |
+| FA1-r | /desk's smaller fixes | BA31, BA62, BA63, BA64, BA65, BA114, BA115 | open |
 | FA1-s | Greek credits and the notebook search | BA40, BA46, BA47 | open |
-| FA1-t | Copy and docs | BA15, BA38, BA39, BA42, BA43 | open |
+| FA1-t | Copy and docs | BA15, BA38, BA39, BA42, BA43, BA91, BA109, BA118 | open |
+| FA1-w | What's new for you | BA88, BA90, BA92, BA96, BA97, BA98 | open |
+| FA1-x | A note's references | BA89, BA93, BA94, BA95 | open |
+| FA1-y | Ribbons and Continue reading | BA99 to BA108 | open |
+| FA1-z | The Greek tab | BA110, BA111, BA112, BA113, BA117, BA119, BA120 | open |
 | FA1-v | The follow-up audit: real devices | new findings | open |
 
 **Declined**
@@ -735,6 +743,7 @@ Files: `src/lib/greek-query.mjs`, `src/scripts/search-core.js` (the Greek
 functions). Tests: `greek-query`, `greek-search`. CLAUDE.md desk rules 15 and
 17; STUDY-DESK.md, “Greek search commands” and E5. Run queries against the
 committed `public/greek/search/`, which a small harness can read from disk.
+**From FA1-u**: BA116 (`float-window.js`), written up under FA1-u, area 3.
 
 - **BA44 (medium, perf; reproduced). A broad construction search can freeze
   the tab.**
@@ -1109,7 +1118,8 @@ a half-screen window (about 960px).
 
 Files: `src/scripts/desk/tab-mine.js`, `tab-verse.js`, `desk-panes.js`,
 `desk-page.js`, `lit-pane.js`, `chapter-page.js`. Tests: `desk-layout`.
-After FA1-e and FA1-l.
+After FA1-e and FA1-l. **From FA1-u**: BA114 and BA115 (the Greek pane and
+the commands window on /desk), written up under FA1-u, area 3.
 
 - **BA31 (low). Two My Notes panes share their filters, and closed panes
   leave listeners behind.**
@@ -1197,7 +1207,8 @@ Files: `src/lib/desk-change.mjs`, `src/scripts/desk/change-notice.js`,
 `src/pages/notebook/help.astro`, `src/scripts/desk/notebook-page.js`,
 `src/pages/privacy.astro`, the four desk pages' titles. CLAUDE.md, “Key
 Conventions” (American copy, curly quotes). Small enough to finish with a
-read-through of the desk's other reader-facing strings.
+read-through of the desk's other reader-facing strings. **From FA1-u**:
+BA91 (area 1), BA109 (area 2) and BA118 (area 3), written up there.
 
 - **BA15 (low, copy). The change notice uses straight apostrophes and mixed
   quote marks.**
@@ -1239,6 +1250,9 @@ read-through of the desk's other reader-facing strings.
   - Status: open.
 
 ## FA1-u. The follow-up audit: code this audit didn't reach
+
+**Progress**: areas 1 to 3 done 2026-10-26 (BA88 to BA120, below the six
+areas); areas 4 to 6 open, for the next session.
 
 **This phase finds problems rather than fixing them.** It is the next audit,
 aimed at what "Not covered" lists below. Run it after FA1-f and before FA1-g,
@@ -1334,6 +1348,496 @@ so that what it finds in an area can join the open phase for that area.
      rings through `--focus-ring`, contrast of the desk's own colors in both
      themes, `prefers-reduced-motion`, forced colors, and print rules.
 
+## The follow-up audit's findings
+
+From FA1-u. BA88 onward, by area.
+
+### Area 1: What's new for you and your own chains (done 2026-10-26)
+
+BA89, BA93, BA94 and BA95 are in phase FA1-x, BA91 is in FA1-t, and
+the rest are in FA1-w. **Every row of the real feed was run**:
+`src/data/release-notes.json` held 70 publishes and 556 rows, 477 of them
+the three kinds B3 reads. 466 of those yield verses, and all 466 agree with
+an independent parser: ranges, lists (“Luke 11:2, 20, 43–44, 47”), “Romans
+16:24 and 25–27,” long footnote lists and relabel suffixes. The other 11
+are early `footnote_updated` rows that name no verse (“John 8 — footnote k
+updated”), so nothing can be read from them. The 79 other rows (new
+chapters, intros, glossary, articles) rightly yield none.
+
+- **BA88 (medium; reproduced). A feed that fails to load once stays failed
+  until the page is reloaded.**
+  - *What happens*: `loadReleaseNotes` keeps its promise in `pending`,
+    a `null` result included. After one network error, every later call on
+    the page returns that `null` without fetching. The notebook page says
+    “The release notes couldn’t be loaded just now. Try again in a moment.”,
+    but nothing it can do tries again. The change notice's date line
+    (`change-notice.js:350`) and `sheet-lit.js:278` read the same promise.
+  - *Where*: `release-feed.js:33–49`; the message is `whats-new.js:150`.
+  - *Fix*: forget `pending` when the result is `null`, and give the message
+    a Try again button.
+  - *Check*: a test with a `fetch` that fails once and then succeeds: the
+    second `loadReleaseNotes()` fetches again.
+  - Status: open.
+- **BA89 (medium; reproduced; BVJ chose the stricter mode, 2026-10-26). A bare
+  number after a reference in a note links as a verse.**
+  - *What happens*: notes use the shared linker as footnotes do, and its
+    list rule (`src/lib/CLAUDE.md`, rule 1: “10:23, 33,” “11 and 14”) reads
+    a number after a comma or “and” as another verse. Readers write that
+    way in prose: “See Romans 8:28, 3 reasons why” links “3” to Romans 8:3,
+    “John 3:16 and 2 others” links John 3:2, and “Luke 2:1, 100 years”
+    links Luke 2:100. Each is a chain too, so This verse lists the note
+    under a verse it never meant (“Mentioned in your note…”). The browser
+    has no verse counts, so `hasVerse` is always true (`desk-chains.mjs`'s
+    header records this for gaps like Matthew 17:21, but not for verses past
+    a chapter's end).
+  - *Where*: `desk-chains.mjs:43–45, 54–66`; `scripture-refs.mjs:117–121,
+    150–190`.
+  - *Fix* (BVJ, 2026-10-26: “go with the stricter mode for notes”): give
+    notes a stricter mode of the linker. In it, a bare number continues a
+    list only when it is itself a reference with a colon (“8:28, 30” no
+    longer links “30”; “8:28; 9:1” and “8:28, 9:1” still do), so
+    “8:28, 3 reasons” stays plain. Footnotes, intros and articles keep
+    today's rule. Also pass a `hasVerse` from a small committed table of
+    verse counts per chapter, checked by a test against the chapter files,
+    so a verse past a chapter's end never links.
+  - *Check*: `noteBodyHtml("John 3:16 and 2 others")` leaves “2” plain;
+    `citedRefs("Luke 2:1, 100 years")` cites only 2:1.
+  - Status: open.
+- **BA90 (low; reproduced). What's new for you treats a note on a footnote as
+  a note on its verse.**
+  - *What happens*: `markVerses` takes any note or pin with a verse and
+    never asks `onFootnote`, which rule 23 requires of code that reads a
+    note's verse. So a change to a verse's wording “touches” a note on one
+    of its footnotes, and the line says “Touches your note on Luke 24:4.”
+    (`markLinks` names it by `recordReference`, so it also merges with a
+    real note on that verse.) A footnote pin is matched by wording changes
+    the same way.
+  - *Where*: `desk-whats-new.mjs:26–46`; `desk-whats-new-view.mjs:50–60`.
+  - *Fix*: let footnote notes and pins match only `footnote_added` and
+    `footnote_updated`, and name them with `recordWhere` (“your note on a
+    footnote in Luke 24:4”), kept apart from the verse's own note.
+  - *Check*: `marksTouched(textChange, [noteOnFootnote])` is empty.
+  - Status: open.
+- **BA91 (low, copy; reproduced). “Touches …” has no Oxford comma and names
+  the verse each time.**
+  - *What happens*: “Touches your note on Luke 24:4, your highlight on Luke
+    24:4 and your bookmark on Luke 24:4.”
+  - *Where*: `whats-new.js:75`; `desk-whats-new-view.mjs:55`.
+  - *Fix*: group by place: “Touches your note, highlight, and bookmark on
+    Luke 24:4.”, with the comma before “and” from three on.
+  - Status: open.
+- **BA92 (low; reproduced). “Last looked” misses a second publish on the same
+  day, and a publish on the evening a mark was made.**
+  - *What happens*:
+    1. The drafter folds a second publish on one day into that day's entry
+       (`draft-release-notes.mjs:160–175`). After a look, `seen` is that
+       date, so the added changes are never New. The view's header records
+       this as the one case it can't tell apart; the folding makes it the
+       ordinary case on any day with two publishes (2026-04-20 had one).
+    2. `textDay` takes a mark's day from its build's content version or
+       `created`, both UTC, while entries are dated in Pacific time. A mark
+       made on a page built on a Pacific evening carries the next day, so a
+       publish that evening is left out.
+  - *Where*: `desk-whats-new-view.mjs:76–79`; `desk-whats-new.mjs:66–69`;
+    `desk-change.mjs:475–482`.
+  - *Fix*: keep the newest entry's change count beside the date and treat
+    more changes on that date as New; compare the mark's Pacific day.
+  - *Check*: tests with a folded same-day entry and a `v20261026.*` mark
+    against an entry dated 2026-10-25.
+  - Status: open.
+- **BA93 (low; traced). “Mentioned in your note on…” lists notes in no
+  order.**
+  - *What happens*: `notesCiting` keeps `store.all()`'s order, which is
+    IndexedDB's by id, and ids are random UUIDs.
+  - *Where*: `desk-chains.mjs:92–106`; `tab-verse.js:193`.
+  - *Fix*: sort by book, chapter, verse and `created`, as `liveRecords`
+    does.
+  - Status: open.
+- **BA94 (low; reproduced; partly BVJ's call). A note's reference is read only
+  as the shared linker reads it.**
+  - *What happens*: a range into another chapter (“John 3:16–4:2”) links
+    and chains only its first verse; a chapter range (“Hebrews 6–9”) only
+    its first chapter. Lowercase and informal forms (“john 3:16,” “rom
+    8:28,” “Jn 3:16,” “Mt 5:3,” “1Cor 13:4”) don't link or chain at all.
+    “Gal 3.28” chains the whole chapter. Footnotes are typed carefully;
+    readers' notes aren't.
+  - *Where*: `scripture-refs.mjs:66–80, 150–190`; `desk-chains.mjs:47`.
+  - *Fix*: the reader mode of BA89, accepting any case and common short
+    names, and a cross-chapter span in `citedRefs`.
+  - Status: open.
+- **BA95 (low, performance; reproduced). A long run of spaces in a note stalls
+  the page.**
+  - *What happens*: the linker's lookbehind rescans a whole whitespace run
+    at every position, so a note with 40,000 spaces takes 3.5 s to draw and
+    200,000 over a minute. Notes have no length cap and redraw often.
+    Ordinary notes are fast.
+  - *Where*: `scripture-refs.mjs:58, 108`.
+  - *Fix*: bound the lookbehind's whitespace (`{1,4}`), or collapse long
+    runs before linking.
+  - *Check*: `noteBodyHtml("John" + " ".repeat(40000))` under 50 ms.
+  - Status: open.
+- **BA96 (low; traced). The My Notes line about news stays after the notebook
+  page has been looked at.**
+  - *What happens*: `setMeta` tells no one, so a chapter's My Notes tab in
+    another tab keeps “Two changes since your last visit…” until the next
+    record change or reload, linking to a page where nothing is New.
+  - *Where*: `store.js:122–126`; `tab-mine.js:370–385`.
+  - *Fix*: post a channel message when `whatsNewSeen` is set.
+  - Status: open.
+- **BA97 (low; traced). The What's new section redraws whole on every change
+  and has no error path.**
+  - *What happens*: any notebook change, in any tab, rebuilds the list, so
+    focus in it is lost. A failed `store.all()` leaves the section empty
+    and an unhandled rejection (`notebook-page.js:156`).
+  - *Where*: `whats-new.js:134–181`.
+  - *Fix*: skip a redraw when what it finds is unchanged; catch and say so.
+  - Status: open.
+- **BA98 (low, tests; traced). A `text_updated` row without verses says
+  nothing, and no test reads the whole feed.**
+  - *What happens*: the drafter can write “John 7 — updated” and “John 7 —
+    text updated” with no verse (`release-notes-core.mjs:310, 336`). None
+    exist yet; `changeVerses` returns `null` for them, so a mark in that
+    chapter hears nothing. The real-feed test checks three descriptions, so
+    a change that broke the description reading would pass while all 466
+    rows went quiet.
+  - *Where*: `desk-change.mjs:425–472`; `test/desk-whats-new.test.js:213–227`.
+  - *Fix*: read such a row as the whole chapter; add a test that every
+    `text_updated` row in the real feed yields verses.
+  - Status: open.
+
+### Area 2: places and ribbons (done 2026-10-26)
+
+All but BA109 are in phase FA1-y; BA109 is in FA1-t. E9 (2026-10-22) will turn ribbons into
+Bookmarks, but nothing is built yet, so these describe today's code. Each
+one says whether E9 would make it moot. The reproductions are Node scripts
+that drive the real `ribbon-follow.js`, `last-read.js` and
+`desk-places.mjs` with stubbed storage and events.
+
+- **BA99 (medium; reproduced). Following a ribbon's link on the page it
+  points into writes the reader's old place to the ribbon.**
+  - *What happens*: `followRibbon` sets the flag and calls `env.restart()`,
+    which is `hear(loadLastRead())`: where the reader *was*, not where the
+    link goes. No move has been written yet, so `throttleDelay` gives 0 ms,
+    and the ribbon is saved at the old place before the link's jump is
+    recorded. In Study View a ribbon at Romans 8:30, clicked from 8:2,
+    becomes 8:2. In Read View every ribbon in the book is on the same page,
+    so a ribbon at 12:1, clicked from 3:1, becomes 3:1. The next scroll save
+    moves it on about four seconds later, but a reader who opens a ribbon to
+    check it and leaves at once loses the place. No undo entry is made
+    (`record: false`). A link into another chapter heals on arrival, since
+    that page starts fresh.
+  - *Where*: `ribbon-follow.js:64–67, 106–122`; the click is
+    `places.js:157–159`.
+  - *Fix*: on `followRibbon`, set the flag only and wait for the next
+    `lit:last-read` after the jump. Or ignore a position whose `t` is older
+    than the click.
+  - *Check*: a `test/ribbon-follow.test.js` with stubbed storage: after
+    `followRibbon` and 50 ms, the ribbon is still at its own verse.
+  - *E9*: not moot while a bookmark can follow the reader this way.
+  - Status: open.
+- **BA100 (medium; reproduced). Arriving in Read View moves a following ribbon
+  to another tab's place in that book.**
+  - *What happens*: `positionOnPage` accepts any Read View record for the
+    book, whatever its chapter (Study View also requires the chapter).
+    `lit_last_read` is shared by every tab, and Read View saves its own
+    place only after the landing settles. So when tab A opens
+    `/read/romans/#romans-8-v3` through a ribbon while tab B reads Romans 12
+    in Read View, the ribbon moves 8:3 → 12:1 before tab A has scrolled. An
+    older Read View visit in the same tab does the same. It heals on the
+    next save, as in BA99.
+  - *Where*: `desk-places.mjs:135–141` (`:138`), from
+    `ribbon-follow.js:120–122`.
+  - *Fix*: at arrival, wait for this page's own first `lit:last-read`
+    rather than reading the stored record; or accept a Read View record
+    only for the chapter the page landed on.
+  - *Check*: a `positionOnPage` test with a Read View record for another
+    chapter, plus the follower test above.
+  - *E9*: as BA99.
+  - Status: open.
+- **BA101 (medium; reproduced). A ribbon keeps following after the reader has
+  left its book for a page without the Notebook.**
+  - *What happens*: only `initRibbonFollow` clears the flag, and it runs in
+    the shell, which loads only on reading surfaces (`desk-gate.js:11–14`).
+    The home page, /search, /read, /notebook, /desk, /about and the rest
+    never clear it. Follow a ribbon in Romans, go home, search, and open
+    Romans 11 from the results later in that tab: the ribbon moves to 11:1,
+    with no undo. Rule 13 and the comments (`desk-places.mjs:20–23`,
+    `ribbon-follow.js:9`) say "a page outside the book clears it."
+  - *Fix*: clear the flag from code every page runs with the preview on,
+    such as `desk-gate.js` (a page outside the flagged book drops it), or
+    stamp the flag with the page it was set on and honor it only on the
+    next page of an unbroken run in the book.
+  - *Check*: a test that loads the flag, a page without the shell, then a
+    page in the book, and expects no write.
+  - *E9*: moot only if the per-tab flag goes.
+  - Status: open.
+- **BA102 (low; reproduced). Renaming, moving and following read a ribbon in
+  one step and write it in another.**
+  - *What happens*:
+    1. Rename (`places.js:252–254`) and Move here (`ribbon-form.js:129–133`)
+       save `(await store.get(id)) ?? ribbon`. If another tab, or a /desk
+       pane, deleted the ribbon meanwhile, the stale copy is saved and the
+       deleted ribbon comes back beside its own trash record.
+    2. The follower's `store.get` then `store.commit`
+       (`ribbon-follow.js:89–100`) can save over a rename made in another
+       tab in between. The window is a few milliseconds.
+    3. The ribbon form reads the ribbons once when it opens (`:34–39`), so
+       its name check and six-ribbon limit can be stale, and Save isn't
+       disabled while saving, so a double press can make two ribbons of one
+       name (trace only).
+  - *Fix*: make all three one `store.change` that reads the record inside
+    the transaction, writes nothing when it is gone or no longer a ribbon,
+    and re-checks the name and the limit against `all()`. Disable Save
+    while saving. Rule 11 and BA13 already ask for `store.change` here.
+  - *Check*: tests with a fake store whose `get` waits, as in the
+    reproduction.
+  - *E9*: not moot; the same code becomes the bookmarks'.
+  - Status: open.
+- **BA103 (low; reproduced). Stored book names like `constructor` pass as
+  books.**
+  - *What happens*: `loadLastRead` checks `BOOKS[r.book]`
+    (`last-read.js:27–29`) and `desk-places.mjs` uses `in BOOKS`
+    (`:88, :90, :92, :103, :174`), so `constructor`, `toString` and
+    `__proto__` pass. Continue reading then offers “Constructor 1” at
+    `/constructor-1/`, a 404, and a verse of −5 gives `#v-5`. Only a
+    hand-edited or damaged store reaches it.
+  - *Fix*: `Object.hasOwn(BOOKS, key)` in all of them, and require
+    `verse >= 1`.
+  - *Check*: `loadLastRead` and `parseRibbonFlag` tests with those names.
+  - *E9*: not moot.
+  - Status: open.
+- **BA104 (low; traced). A verse in the address that isn't on the page is
+  recorded as the reader's.**
+  - *What happens*: `trackStudyView` saves `hashVerse()` without checking
+    the page has that verse (`last-read.js:106–112`). `/matthew-17#v21`
+    (a verse the LIT doesn't have) or `#v999` becomes Continue reading's
+    verse, whose link then lands at the top, and a following ribbon moves
+    there.
+  - *Fix*: use the hash's verse only when a `v<N>` marker exists;
+    otherwise `verseAtReadingLine`.
+  - *Check*: a test with a marker list lacking the verse.
+  - *E9*: not moot.
+  - Status: open.
+- **BA105 (low, accessibility; traced). Two rename forms can be open at once,
+  with one id.**
+  - *What happens*: `startRename` doesn't check `editing`, and every form in
+    a group uses `deskPlacesName${n}`, so a second Rename gives a second
+    input with the same id, and its label names the first one. Saving or
+    cancelling either redraws the group and throws away the other's typing.
+  - *Where*: `places.js:187–219`.
+  - *Fix*: while a rename is open, Rename on another row closes it first
+    (or does nothing).
+  - *Check*: a DOM test pressing Rename on two rows.
+  - *E9*: moot if the list drops inline rename.
+  - Status: open.
+- **BA106 (low; reproduced). A ribbon's name can be cut through an emoji.**
+  - *What happens*: `cleanRibbonName` cuts at 40 UTF-16 units
+    (`desk-places.mjs:44–50`), so an emoji at the end leaves half of it. The
+    name isn't well-formed: `encodeURIComponent` throws on it, and the
+    record syncs to the apps that way.
+  - *Fix*: cut by code point (`Array.from(s).slice(0, 40).join("")`).
+  - *Check*: `cleanRibbonName("x".repeat(39) + "😀").isWellFormed()`.
+  - *E9*: not moot while names are capped.
+  - Status: open.
+- **BA107 (low, performance; traced). A following ribbon redraws the notebook
+  everywhere, and the Places group never unsubscribes.**
+  - *What happens*: each move is a commit, which every view and every other
+    tab hears, and the notebook page, /desk's panes and the My Notes tab
+    redraw whole (`notebook-page.js:393`, `desk-panes.js:317, 365`,
+    `kept-list.js:80`), even though `kept-list` doesn't show places. So
+    about every four seconds while a ribbon follows the reader, a /notebook
+    or /desk tab elsewhere can lose focus or an open menu. Separately,
+    `placesSection` adds a store subscription, a `storage` listener and a
+    `lit:last-read` listener (`places.js:293–306`) that a closed /desk pane
+    never removes (`desk-panes.js:366`); `visible()` stops the redraws, so
+    it costs only memory.
+  - *Fix*: let a view skip a notice whose records it doesn't draw (pass the
+    kinds through `subscribe`); give `placesSection` a `destroy`.
+  - *Check*: trace, or count redraws in a stubbed store.
+  - *E9*: the redraws are not moot; the leak is if the Places group goes.
+  - Status: open.
+- **BA108 (low; traced). A failed delete says nothing.**
+  - *What happens*: `places.js:271` and `kept-list.js:225` await
+    `store.remove` with no catch, so a storage error leaves the button
+    doing nothing and an unhandled rejection. Rename reports its error
+    (`places.js:256–260`).
+  - *Fix*: catch it and show a sentence, as rename does.
+  - Status: open.
+- **BA109 (low, copy). The Places group's empty line reads as an instruction.**
+  - *What happens*: “No places yet. Continue reading and your ribbons
+    appear here.” (`notebook-page.js:161`) reads as “keep reading.” And the
+    ribbon form says “You have 6 ribbons.” (`ribbon-form.js:80`) even when a
+    synced notebook holds more.
+  - *Fix*: “No places yet. “Continue reading” and your ribbons appear
+    here.”; use the real count.
+  - *E9*: moot (the Places group goes, and “ribbon” is retired).
+  - Status: open.
+
+### Area 3: the Greek tab's reading view and the commands window (done 2026-10-26)
+
+Most of these are in phase FA1-z; BA114 and BA115 are in FA1-r, BA116 in FA1-k
+and BA118 in FA1-t. No jsdom is installed, so the window's behavior was run
+in Node against the real `float-window.js` and `greek-commands.js` with a
+small stub DOM, and the rest traced or run over the committed
+`public/greek/` data.
+
+- **BA110 (medium; traced and counted; BVJ chose to lift the floor,
+  2026-10-26). A one-letter Greek word offered as a search does nothing and
+  says nothing.**
+  - *What happens*: the tab's search runs only from two characters, so
+    clicking the lemma “ὁ” or a form like “ἡ” or “ἢ” in a word's details
+    fills the field and does nothing: no results and no hint. Typing one
+    and Enter is the same. The tray and /search accept them (rule 15: a
+    Greek query “at any length”). What is lost is small but real: ὦ, the
+    vocative “O” (17 times: Galatians 3:1, Romans 11:33), is reachable
+    only by its Strong's number, and ἤ (“or,” “than,” 346) not by its
+    form. The floor doesn't keep results small anyway: καί (8,985) and
+    αὐτός (5,557) pass it. A bare search for the article itself is no
+    use: ὁ is in 6,966 of the NT's 7,942 verses. The article is studied
+    beside a word (“ὁ, θεός”), which the floor never blocked.
+  - *Where*: `greek-find.js:164, 213, 271`; the starters are
+    `tab-greek.js:793, 820`.
+  - *Fix* (BVJ, 2026-10-26: “lift the floor for Greek”): one pure test,
+    Greek or a Strong's number at any length and anything else from two
+    characters, used at all three places, with the hint shown for a lone
+    Latin letter. Recommended with it: a search for the article alone
+    answers with a line rather than the list, such as “ὁ is in 6,966 of
+    7,942 verses. To study it, search it beside a word: ὁ, θεός.”
+  - *Check*: a unit test of that helper; in the browser, click ὦ's lemma
+    in Galatians 3:1 and expect its 17.
+  - Status: open.
+- **BA111 (low; run over the data). A closing apparatus sign leads nowhere in
+  eight verses.**
+  - *What happens*: SBL keeps a note on a span of verses once, under its
+    first verse (“22–23 …”). A sign closing that span in a later verse finds
+    no note for its own verse, so the sign's button and “Show the note” do
+    nothing. Jude 1:23, Luke 22:20 and 22:44, Mark 7:22, Matthew 1:8, 16:3
+    and 26:61, and Philippians 1:17.
+  - *Where*: `tab-greek.js:648–657` (`if (!item) return;`).
+  - *Fix*: take the nearest note at or before the verse (a pure helper in
+    `desk-greek.mjs`).
+  - *Check*: a test over all 260 files that every verse with a sign
+    reaches a note; it fails today for those eight.
+  - Status: open.
+- **BA112 (low, accessibility; traced). The split handle has no value until
+  moved, and an old one after a reset.**
+  - *What happens*: the handle is a focusable separator, which needs
+    `aria-valuenow`, but it gets one only after a move. A reset (Enter or a
+    double click) removes `aria-valuenow` and leaves the last
+    `aria-valuetext`, so a screen reader keeps hearing “Entry 45 percent.”
+  - *Where*: `tab-greek.js:678–707`.
+  - *Fix*: remove `aria-valuetext` with the value, and set both from the
+    measured share on focus and after a reset.
+  - Status: open.
+- **BA113 (low; run). With storage blocked, the split snaps back as soon as
+  it moves.**
+  - *What happens*: `setShare` keeps the share (the error swallowed) and
+    sends the widths event; the tab's own listener then finds nothing kept
+    and resets the share. A reader whose browser blocks site storage can't
+    move the line at all.
+  - *Where*: `tab-greek.js:691–696, 709–711`.
+  - *Fix*: reset only when the event says `kept: false`.
+  - *Check*: a test with a storage stub that throws.
+  - Status: open.
+- **BA114 (low; run in a stub DOM). On /desk, the commands window outlives
+  its search field.**
+  - *What happens*: from a Greek pane's search, nothing closes the window
+    when the pane closes or follows to a new chapter (the pane's `destroy`
+    only counts). The window still says “Click a command to add it where
+    your cursor is”, a click does nothing, and its × leaves focus on the
+    page's body. On /desk it also sits at the window's right edge, since
+    `place()` measures `#deskPanel`, which /desk doesn't have. Rule 17's
+    “closes with the Notebook” has no counterpart there.
+  - *Where*: `greek-commands.js:124, 267, 271, 288–291, 335`;
+    `desk-panes.js:240, 244`.
+  - *Fix*: the Greek tab's `destroy` (BA115) closes its search, which closes
+    the window; `insert()` closes the window when its field is gone; place
+    it beside the pane on /desk. Add /desk to rule 17.
+  - *Check*: a test that removes the field and expects the window closed.
+  - Status: open.
+- **BA115 (low, performance; traced). Each Greek tab built on /desk leaves
+  its listeners behind.**
+  - *What happens*: `build()` adds a window scroll listener, a
+    ResizeObserver and a document listener that nothing removes, and the
+    tab has no `destroy`. A Greek pane following the LIT pane builds a new
+    tab every chapter, so each chapter read keeps the old one alive.
+  - *Where*: `tab-greek.js:365–376, 709, 1046`; `desk-panes.js:208–240`.
+  - *Fix*: return a `destroy` that removes them, disconnects the observer,
+    closes the search and clears the timers; call it from the pane.
+  - Status: open.
+- **BA116 (low; run in a stub DOM). Closing the commands window mid-drag
+  saves its place as the top left corner.**
+  - *What happens*: Escape, the Notebook closing or leaving the page while
+    the pointer is down closes the window; the drag's end then reads the
+    removed window's position, (0, 0), and saves it, so it reopens in the
+    corner for the rest of the visit.
+  - *Where*: `float-window.js:104–113, 138–145`.
+  - *Fix*: report a move only while the window is open, and end the drag
+    in `close()`.
+  - *Check*: the stub-DOM case as a test.
+  - Status: open.
+- **BA117 (low, accessibility; traced). What the tab and the window announce
+  isn't meant to be heard.**
+  - *What happens*: choosing a word announces the parsing and then
+    MorphGNT's raw code (“… V- 3API-S--”). Adding a command announces
+    “Added , to the search.” or “Added ~3 to the search.”, though
+    `COMMANDS` holds their meanings (“Then another word,” “Within 3
+    words”).
+  - *Where*: `tab-greek.js:803–811`; `greek-commands.js:132, 219`.
+  - *Fix*: announce the parsing in words only; “Added: Within 3 words.”;
+    for the builder, the query it made.
+  - Status: open.
+- **BA118 (low, copy). “Rendered here as …” has no Oxford comma.**
+  - *What happens*: `joinAnd` writes “a, b and c”, and a test holds it so.
+    No verse has three renderings of one term yet.
+  - *Where*: `desk-greek.mjs:189–192`; `test/desk-greek.test.js:117`.
+  - *Fix*: “a, b, and c” from three on; update the test.
+  - Status: open.
+- **BA119 (low, polish). The search's empty choices box keeps its margin
+  when hidden.**
+  - *What happens*: `.desk-greek__choices` sets `display: flex`, which
+    beats `hidden`, so the empty box still takes 8px.
+  - *Where*: `desk.css:4130–4135`.
+  - *Fix*: `.desk-greek__choices[hidden] { display: none; }`, as its
+    neighbors have.
+  - Status: open.
+- **BA120 (low; traced). A passage naming a verse the Greek lacks opens at
+  verse 1, or doesn't move.**
+  - *What happens*: on /desk a passage like Matthew 17:21 (a verse neither
+    text has) opens the Greek at verse 1, and `goToVerse` returns without
+    moving, while the passage bar says 17:21.
+  - *Where*: `tab-greek.js:484–487, 576`; `desk-passage.mjs:18–28`.
+  - *Fix*: go to the nearest verse before it, else after it (a pure
+    helper).
+  - Status: open.
+
+### The phases FA1-u started
+
+Each lists its findings, which are written up above, by area. Read that
+area's entry for the files.
+
+- **FA1-w. What's new for you.** BA88, BA90, BA92, BA96, BA97, BA98.
+  Files: `release-feed.js`, `whats-new.js`, `desk-whats-new.mjs`,
+  `desk-whats-new-view.mjs`, `desk-change.mjs`, `store.js` (`setMeta`).
+  Tests: `desk-whats-new`, `desk-change`. CLAUDE.md desk rules 12, 16 and
+  23.
+- **FA1-x. A note's references.** BA89 (BVJ chose the stricter mode), BA93,
+  BA94, BA95. Files: `desk-chains.mjs`, `scripture-refs.mjs` (a mode for
+  notes; footnotes, intros and articles keep theirs), `tab-verse.js`.
+  Tests: `desk-chains`, `scripture-refs`. `src/lib/CLAUDE.md`'s linking
+  rules; desk rule 16.
+- **FA1-y. Ribbons and Continue reading.** BA99 to BA108. Ten, but BA103 to
+  BA108 are small. Files: `ribbon-follow.js`, `places.js`,
+  `ribbon-form.js`, `kept-list.js`, `desk-places.mjs`, `last-read.js`,
+  `desk-gate.js` (BA101). Tests: `desk-places`, and a new
+  `ribbon-follow` test with stubbed storage. Desk rule 13. **E9** (bookmarks
+  and ribbons become one, 2026-10-22) will rebuild this code: if E9 is built
+  first, fold this phase into it. Each finding says what E9 would make moot.
+- **FA1-z. The Greek tab.** BA110, BA111, BA112, BA113, BA117, BA119, BA120.
+  Files: `tab-greek.js`, `greek-find.js`, `greek-commands.js` (BA117),
+  `desk-greek.mjs`, `desk.css`. Tests: `desk-greek`. Desk rules 14, 15
+  and 17.
+
 ## FA1-v. The follow-up audit: real devices
 
 **Also finding rather than fixing**, and the very last phase, so it checks
@@ -1419,10 +1923,45 @@ elsewhere:
   BA59.
 - **Dark mode** pairs both selectors in all three desk stylesheets.
 
+From FA1-u (2026-10-26):
+
+- **The release notes as B3 reads them.** All 556 rows of the real feed
+  were run: the 466 that name verses agree with an independent parser, and
+  no other row yields any. A first visit marks nothing New and writes
+  “last looked” once; an empty notebook writes nothing.
+- **A note's links are safe.** `noteBodyHtml` escaped every hostile body
+  tried, and every `a.sref` it makes lands on a rendered `id="vN"`. A note
+  citing its own verse isn't a chain, and trash isn't read.
+- **Places land.** In all 211 published chapters, Study View's `id="vN"`
+  and Read View's `id="<book>-<ch>-vN"` are the same set, so every place
+  and Continue reading link resolves (built with the real
+  `prepareStudyParagraph` and `prepareReadParagraph`). Ribbon names reach
+  the page only as text.
+- **Drafts** record no Continue reading, offer no ribbon form, and leave
+  the follow flag alone.
+- **The Greek tab never moves the page.** Every `focus()` in it passes
+  `preventScroll`, and Go to verse scrolls only the tab. The LIT's verse
+  numbers equal the Greek's verses in all 211 published chapters, so Go to
+  verse never names a verse the Greek lacks.
+- **The Greek data.** All 260 chapters have a file, drafts included; the
+  borrowed passages (John 7:53–8:11, Romans 16:25–27) carry their notes and
+  sources; word numbers are unique within each verse. All 10,699 STEP and
+  LSJ entries pass the lexicon sanitizer with nothing legitimate dropped.
+- **The commands window**: a labelled, non-modal dialog, Escape kept to
+  itself, insertion at the cursor replacing a selection and firing
+  `input`, and a saved place clamped back on screen. Its two modules import
+  nothing under `desk/`.
+
 ## Not covered
 
 FA1-u and FA1-v take these up:
 
+- **FA1-u's areas 4 to 6**: /desk's use of the shared modules, sheets
+  beyond one tab, and the copy pass and stylesheet.
+- **From FA1-u's areas 1 to 3, needing a real browser**: two tabs with a
+  ribbon following, whether Duplicate tab copies the follow flag, whether
+  setting a field's `value` clears its undo (the commands window), and a
+  screen reader on the Greek tab.
 - **Other browsers.** All browser use was Chromium. Nothing ran in Safari or
   Firefox, with a real screen reader, on two screens, or on a touchscreen
   computer.
