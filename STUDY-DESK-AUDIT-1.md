@@ -25,7 +25,11 @@ points here. Its decision log holds the BVJ calls made along the way.
   continue the numbering, BA88 onward.
 - **FA1-u, areas 1 to 3** (2026-10-26) found 33 more, BA88 to BA120: 7
   medium and 26 low. They are in four new phases, FA1-w to FA1-z, and in
-  FA1-k, FA1-r and FA1-t. Areas 4 to 6 are still to come.
+  FA1-k, FA1-r and FA1-t.
+- **FA1-u, areas 4 to 6** (2026-10-26) found 25 more, BA121 to BA145: 7
+  medium and 18 low. They are in four more new phases, FA1-aa to FA1-ad,
+  and BA127 is in FA1-i. That ends FA1-u: **145 findings in all, 144
+  planned.**
 
 ## IDs
 
@@ -86,8 +90,12 @@ desk. Phases in one area of code follow each other where one depends on
 another: FA1-b before FA1-c, FA1-e before FA1-l and FA1-r, and FA1-b to FA1-d
 before FA1-f. The table is in working order. FA1-u's letter is out of
 sequence only because it was added after the others were lettered; IDs stay
-stable. FA1-w to FA1-z came from FA1-u and were placed last among the
-fixes; their place in the order is BVJ's to change.
+stable. FA1-w to FA1-z, and FA1-aa to FA1-ad, came from FA1-u and were
+placed last among the fixes; their place in the order is BVJ's to change.
+FA1-ab holds two data-loss findings (BA128, BA129), so the order's own rule,
+data loss first, argues for moving it up to follow FA1-u (a recommendation,
+not yet BVJ's call). FA1-aa works the same files as FA1-l and FA1-r, so it
+goes after both, and FA1-ac after FA1-t.
 
 | Phase | Area | Findings | Status |
 |---|---|---|---|
@@ -97,10 +105,10 @@ fixes; their place in the order is BVJ's to change.
 | FA1-d | The store, the note editor, and undo | BA5, BA13, BA6, BA7 | done, #373 |
 | FA1-e | /desk keeps the reader's place | BA51, BA52, BA53, BA55 | done, #374 |
 | FA1-f | The record format, for BDR | BA8, BA14 | done, #375 |
-| FA1-u | The follow-up audit: code this audit didn't reach | new findings, BA88 onward | areas 1 to 3 done (BA88 to BA120); 4 to 6 open |
+| FA1-u | The follow-up audit: code this audit didn't reach | new findings, BA88 onward | done: areas 1 to 3 (BA88 to BA120), #376; areas 4 to 6 (BA121 to BA145) |
 | FA1-g | Sharing a sheet | BA78, BA80, BA81, BA82, BA87 | open |
 | FA1-h | Marks on the page | BA16, BA17, BA19, BA20, BA23 | open |
-| FA1-i | Sheet templates and passages | BA69, BA70, BA75, BA76, BA77 | open |
+| FA1-i | Sheet templates and passages | BA69, BA70, BA75, BA76, BA77, BA127 | open |
 | FA1-j | The sheet editor: pasting and saving | BA68, BA71, BA72, BA73, BA74 | open |
 | FA1-k | Greek search commands | BA44, BA45, BA48, BA49, BA50, BA116 | open |
 | FA1-l | /desk's LIT pane and layout | BA54, BA56, BA57, BA58, BA60, BA61 | open |
@@ -116,6 +124,10 @@ fixes; their place in the order is BVJ's to change.
 | FA1-x | A note's references | BA89, BA93, BA94, BA95 | open |
 | FA1-y | Ribbons and Continue reading | BA99 to BA108 | open |
 | FA1-z | The Greek tab | BA110, BA111, BA112, BA113, BA117, BA119, BA120 | open |
+| FA1-aa | /desk's panes and the shared modules | BA121 to BA126 | open |
+| FA1-ab | Sheets in two tabs, and large sheets | BA128 to BA133 | open |
+| FA1-ac | The copy pass | BA134 to BA139 | open |
+| FA1-ad | The stylesheet: focus, forced colors, contrast, and print | BA140 to BA145 | open |
 | FA1-v | The follow-up audit: real devices | new findings | open |
 
 **Declined**
@@ -641,6 +653,11 @@ Files: `src/scripts/desk/sheet-pane.js`, `src/lib/desk-sheet-templates.mjs`,
 `desk-sheet-lit`, `desk-sheets`. CLAUDE.md desk rule 21. Browser check: a
 new Bible study sheet, then a passage from the LIT pane's verse menu, then
 the participant copy and present mode.
+
+**From FA1-u**: BA127 (“+ Passage” checks no verses), written up under
+FA1-u, area 5. It is in `sheet-pane.js`'s passage form; add a test that
+needs no browser by moving the form's verse rule into
+`desk-sheet-passages.mjs`.
 
 - **BA69 (medium; seen in the browser; BVJ's call). The first passage added
   to a new template lands after “Closing.”**
@@ -1251,8 +1268,9 @@ BA91 (area 1), BA109 (area 2) and BA118 (area 3), written up there.
 
 ## FA1-u. The follow-up audit: code this audit didn't reach
 
-**Progress**: areas 1 to 3 done 2026-10-26 (BA88 to BA120, below the six
-areas); areas 4 to 6 open, for the next session.
+**Progress**: done. Areas 1 to 3 on 2026-10-26 (BA88 to BA120, #376) and
+areas 4 to 6 the same day (BA121 to BA145), all written up below the six
+areas.
 
 **This phase finds problems rather than fixing them.** It is the next audit,
 aimed at what "Not covered" lists below. Run it after FA1-f and before FA1-g,
@@ -1811,6 +1829,350 @@ small stub DOM, and the rest traced or run over the committed
     helper).
   - Status: open.
 
+### Area 4: /desk's use of the shared modules (done 2026-10-26)
+
+All six are in phase FA1-aa. The modules were traced with a pane as the
+view, and the memory finding was run in Node. **Two LIT panes on one
+chapter hold up**: about 30 id sites checked, and every id in a pane's
+blocks is prefixed or suffixed with the pane's, so no lookup reaches the
+other pane (see "What held up").
+
+- **BA121 (medium; traced). On /desk, My Notes and This verse don't flag a
+  changed wording until the notebook next changes.**
+  - *What happens*: a note or highlight is judged (“Wording changed,” “Not
+    in the text”) only while a LIT pane shows its chapter, since
+    `chapterTextFor` returns null otherwise. A My Notes pane draws when it
+    mounts and when the store changes, never when a LIT pane loads a
+    chapter or scrolls into one. So a row whose wording changed shows no
+    flag, while the verse number beside the same text says “1 changed since
+    I marked it” (it redraws through `lit-records.js`). The list and the
+    verse numbers disagree until the reader edits something. Pins and notes
+    on footnotes have the same gap.
+  - *Where*: `change-notice.js:80–96` (`textReader`); `tab-mine.js:236–280`;
+    `desk-panes.js:302–308` (the only redraw is `store.subscribe`);
+    `tab-verse.js:188`. Only `lit-records.js:85` listens for
+    `DESK_TEXTS_EVENT` (`page.js:84–94`).
+  - *Fix*: redraw My Notes and This verse panes on `DESK_TEXTS_EVENT`, at
+    most once a frame.
+  - *Check*: a note whose quote no longer matches Romans 8; open /desk at
+    John 3 and scroll the LIT pane into Romans 8: the row's flag appears
+    without touching the notebook.
+  - Status: open.
+- **BA122 (medium; likely). A bottom-row pane's “Show in this pane” menu is
+  cut off in a short window.**
+  - *What happens*: the menu of seven kinds (about 250px) hangs from the
+    pane's header (`top: calc(100% - 2px)`), inside `.desk-ws__panes`,
+    which has `overflow: auto`. In a bottom-row pane shorter than about
+    295px, the last kinds (“Sheet,” “What I’ve kept”) are clipped, or reached
+    only by scrolling the whole panes box; arrowing onto one scrolls every
+    pane up. Three rows clip in a window under about 1,000px tall, two rows
+    under about 700px. Panes above are fine: their menu overlaps the panes
+    below.
+  - *Where*: `desk.css:4603–4608` (`.desk-ws__panes`), `4790–4803`
+    (`.desk-pane__menu`); `desk-page.js:566–569`.
+  - *Fix*: open it upward when it doesn't fit below, or place it on
+    `document.body` as the Layout menu is.
+  - *Check*: in the browser, “Three rows” at about 900px tall: the bottom
+    pane's menu shows all seven kinds with no scrollbar on the panes box.
+  - Status: open.
+- **BA123 (low, memory; reproduced). A closed or switched LIT pane's text
+  stays in memory for the visit.**
+  - *What happens*: `watchLitRecords` adds each LIT pane's container to its
+    `watched` set and never removes it. Highlights and verse labels each
+    keep a watcher, so every closed pane is held twice, with every chapter
+    it loaded. In Node with five panes opened and closed, all five texts
+    were still alive after garbage collection.
+  - *Where*: `lit-records.js:68–79`.
+  - *Fix*: on `DESK_TEXTS_EVENT`, drop any container no longer in
+    `deskTextsNow()`.
+  - Status: open.
+- **BA124 (low; traced). A row's reference in a “What I’ve kept” pane leaves
+  /desk.**
+  - *What happens*: `recordRow` makes each reference a plain link to Study
+    View, and the pane passes no way to move the LIT pane, so a click
+    navigates the tab away. My Notes moves the LIT pane instead (3g), as a
+    Greek result moves the Greek pane.
+  - *Where*: `record-rows.js:62–75`; `kept-list.js:44`;
+    `desk-panes.js:308–312` (`mountKept`), against `desk-panes.js:352–355`.
+  - *Fix*: give `createKeptList` the optional `goHere` that `tab-mine.js`
+    takes, and pass `env.showPassage` from `mountKept`. The /notebook page
+    keeps its plain links.
+  - Status: open.
+- **BA125 (low; traced; BVJ's call). A verse menu opened with the mouse in a
+  pane stays put while the pane scrolls.**
+  - *What happens*: in Study View a mouse-opened menu scrolls with the text
+    until dragged, because the document scrolls. A LIT pane scrolls inside
+    itself, while the menu and the selection panel are placed on `<body>`
+    in document coordinates, so they stay on screen while their verse
+    moves away. Nothing closes them on scroll, by rule.
+  - *Where*: `lit-panel.js:55–92`; `global.css:2837`; `desk.css:5087`.
+  - *Recommended*: pin a panel opened from a pane to the screen
+    (`pinToScreen`), as a dragged one is. Closing it on the pane's scroll
+    is the other way.
+  - Status: open.
+- **BA126 (low, accessibility; traced). A pane's footnote letters aren't
+  announced as opening a dialog, and a middle-click opens another /desk.**
+  - *What happens*: Study View marks each `.fn-ref a` with
+    `aria-haspopup="dialog"`; the LIT pane doesn't, so a screen reader hears
+    a plain link. The pane handles `click` only, so a middle-click follows
+    the letter's fragment into a new tab of /desk.
+  - *Where*: `lit-pane.js:162–168` (`render`), `428–440`; against
+    `chapter-tools.js:884–885`.
+  - *Fix*: set the attribute in `render`, and cancel `auxclick` on a letter.
+  - Status: open.
+
+**BA31 is wider than written** (found here, left in FA1-r): a This verse
+pane builds a new `createVerseTab` on every chapter it follows
+(`desk-panes.js:140`), and each adds a `lit:panel-actions` listener on
+`document` (`tab-verse.js:479`) that is never removed. So the listeners
+pile up per chapter followed, not only per closed pane. FA1-r's fix (return
+the removals for `destroy()`) should cover the rebuild too.
+
+### Area 5: sheets beyond one tab (done 2026-10-26)
+
+BA127 is in FA1-i, and the rest are in phase FA1-ab. The two-tab race was
+run in Node over a store shaped like the real one; the BroadcastChannel
+timing itself needs a real browser.
+
+- **BA127 (medium; reproduced). “+ Passage” with “Romans 8” adds only verse
+  1, and accepts verses the chapter doesn't have.**
+  - *What happens*: the form means `last` to be the chapter's last verse,
+    but `anchorText()` returns `verses` as a `Map`, which has no `length`,
+    so `last` is always null and no check runs:
+    - “Romans 8” adds Romans 8:1, not the chapter (the code's own
+      `last ?? 1` shows the whole chapter was meant);
+    - “Romans 8:99” is accepted instead of “that chapter ends at verse 39”;
+    - “Romans 8:28-99” is stored as 28–99 and prints that reference;
+    - “Matthew 17:21,” a verse the LIT doesn't have, becomes a passage
+      saying its verses can no longer be found.
+  - *Where*: `sheet-pane.js:871`; `anchor-core.mjs:53–65`
+    (`assembleChapter`).
+  - *Fix*: `chapter.verses.size` and `Math.max(...chapter.verses.keys())`,
+    and refuse a verse that `chapter.verses.has()` doesn't, which catches
+    gaps a “past the end” test misses.
+  - *Check*: tests for “Romans 8” (1–39), “Romans 8:99,” “Romans 8:28-99”
+    (to 39) and “Matthew 17:21” (refused).
+  - Status: open.
+- **BA128 (medium, data loss; reproduced). After one failed save, every
+  later edit to the sheet fails too, and the reason is never shown.**
+  - *What happens*: `change()` sets `sheet = next` before saving, and on a
+    failure only says “Not saved” and “The sheet couldn’t be saved.” It
+    doesn't put the saved copy back. Paste about 550 KB into a part, past
+    the 512 KB limit, and that save fails; a small edit to another part
+    then fails as well, because the oversized text is still in `sheet`.
+    The screen shows every edit, the store has none of them, and a reload
+    loses them all. About 2,900 blanks reach the same limit.
+  - *Where*: `sheet-pane.js:223–259` (`sheet = next` at 234; the catch at
+    242–247); the limit is `desk-sheet-format.mjs:49, 818–819`.
+  - *Fix*: on a failed save, put back the last saved copy, redraw, and say
+    why: for the size limit, “This sheet is too big to save (512 KB).
+    Remove some text or blanks.”
+  - *Check*: paste 600 KB into a part: the status says why, the part goes
+    back to its saved text, and the next small edit saves.
+  - Status: open.
+- **BA129 (medium, data loss; reproduced in Node). With one sheet open in two
+  tabs, a tab that hasn't heard the other's save writes its older copy
+  over the whole sheet.**
+  - *What happens*: `change()` builds the next sheet from the tab's own
+    copy and saves the whole record, with no fresh read. The other tab
+    learns of a save through `subscribe`, which re-reads it. An edit made
+    before that read lands is built on the old copy and undoes the other
+    tab's edits to every other part. If the message never arrives (a frozen
+    background tab, or no `BroadcastChannel`, `store.js:100`), the tab
+    stays stale, and nothing re-reads a sheet on focus or
+    `visibilitychange`. Rule 22's “the next save wins” is about one part;
+    this loses the other parts.
+  - *Where*: `sheet-pane.js:223–259, 978–1000`; `store.js:100–106, 227–231`.
+  - *Fix*: save a sheet's change through `store.change`, applying the edit
+    to the record as read inside it, as BA13 did for deletes; and re-read
+    the sheet when the tab becomes visible.
+  - *Check*: two tabs on one sheet; tab B edits part X, then tab A, before
+    hearing of it, edits part Y: both edits are kept.
+  - Status: open.
+- **BA130 (low, data loss; traced). “Make a sheet” from search, into an
+  existing sheet, saves a copy read before a network wait.**
+  - *What happens*: `gather()` reads the target sheet, then for a topic
+    fetches each chapter's last verse, then saves the copy it read plus the
+    new passages. An edit made to that sheet meanwhile, in /desk, is lost
+    as in BA129. After the wait it also reads the current results for the
+    title, so a query changed during the fetch can title the sheet with the
+    wrong one, and the “Made…” message lands in the new query's bar.
+  - *Where*: `search-sheet.js:301–344`.
+  - *Fix*: fetch first, then read and add inside one `store.change`, with
+    the query captured before the wait.
+  - Status: open.
+- **BA131 (low, copy; reproduced). A topic sheet that couldn't read some
+  chapters blames the 300-part limit.**
+  - *What happens*: chapters whose last verse couldn't be fetched are added
+    to the “left out” count, and the message says “1 more passage didn’t
+    fit, since a sheet holds at most 300 parts” with nowhere near 300.
+  - *Where*: `search-sheet.js:376, 404`; `desk-sheet-gather.mjs:113–122`.
+  - *Fix*: count them apart: “2 chapters couldn’t be read just now.”
+  - Status: open.
+- **BA132 (low; traced). Ticked verses stay counted after the book filter
+  hides them, and the button then does nothing.**
+  - *What happens*: ticks are cleared only when the query changes, and the
+    book filter changes the results, not the query. Tick three verses in
+    John, switch the filter to Matthew, and the bar still says “3 verses
+    ticked” and offers “Clear ticks,” while making a sheet finds none.
+  - *Where*: `search-sheet.js:228–245, 170–174, 289–291`.
+  - *Fix*: drop ticks that aren't in the shown results when they change.
+  - Status: open.
+- **BA133 (low, performance; reproduced). Every redraw of a sheet works out
+  every footnote against every blank, once per passage.**
+  - *What happens*: each passage card redraws its footnotes on every save,
+    and each footnote recomputes the stems of every blank on the sheet. On
+    Romans 8 (23 footnotes) with three passages and about 2,900 blanks, the
+    logic alone took 470 ms per save; with 300 blanks, 20 ms. Nothing
+    froze, but typing in a big sheet stutters.
+  - *Where*: `sheet-lit.js` (`drawNotes`, about line 573);
+    `desk-sheet-lit.mjs` (`blanksGivenAway`, about line 282).
+  - *Fix*: work out each blank's stems once per redraw, and redraw the
+    notes only when the blanks or footnote choices changed.
+  - Status: open.
+
+### Area 6: a copy pass and the stylesheet (done 2026-10-26)
+
+BA134 to BA139 are in phase FA1-ac and BA140 to BA145 in FA1-ad. The copy
+pass extracted 8,839 string literals from the desk's scripts, `desk-*.mjs`,
+the four desk pages and the templates, then read every hit in context. The
+stylesheet pass computed contrast for every resolvable color in `desk.css`
+and `sheets-page.css` in both themes.
+
+- **BA134 (low, copy). Fourteen lists have no Oxford comma.**
+  - *Where*: `notebook/help.astro:68` (“to read, print or move”), `:118–119`
+    (“…its Strong’s number and an entry”), `:128–129` (“…Tregelles, NA28
+    and Robinson–Pierpont”), `:139` (“…its dictionary form and its
+    Strong’s number”); `notebook-page.js:111` (“a note, highlight or
+    bookmark”), `:132` (“…label and place,” the same line as BA39);
+    `notebook.astro:18`, the meta description; `sheet-page.js:263`, an
+    aria-label (“Copy, paper and printing”); `desk-export.mjs:781`
+    (“replaces, deletes or brings back”); `desk-first-use.mjs:135`
+    (“…“Bookmark” and “Highlight.””), `:230`, `:241`, `:263`, `:285`.
+  - *Fix*: the comma before “and” or “or” in each.
+  - Status: open.
+- **BA135 (low, copy). Two strings still have straight apostrophes.**
+  - *Where*: `tab-mine.js:247` (“This browser isn't letting the site keep a
+    notebook. Private windows sometimes don't.”), which is curly in the
+    five other places it appears; `desk-merge.mjs:135` (“…doesn't say
+    which record it deleted”), shown when a copy is opened
+    (`export-import.js:199`). Not BA15's strings.
+  - Status: open.
+- **BA136 (low, copy). A note's opening puts a comma outside the closing
+  quote.** “My note on ‘…’, Romans 8:3:” should be “‘…,’ Romans 8:3:”
+  (`desk-notes.mjs:185`, `noteOpening`). Check `noteOpening`'s tests, which
+  will need the new form.
+  - Status: open.
+- **BA137 (low, copy). The commands window's line about quotes can't be
+  read.** It says “Quotes search for any, exact, and or or as a word”: the
+  four commands aren't marked, so it reads as a garbled list
+  (`greek-query.mjs:154`). *Fix*: “Quotes search for “any,” “exact,”
+  “and,” or “or” as a word.”
+  - Status: open.
+- **BA138 (low, copy; BVJ's call). The panel is “Notebook” in its heading and
+  “the notebook” in its controls.**
+  - *What happens*: the heading, the tab and the tour say “Notebook,” but
+    its own buttons say “Minimize the notebook” and “Close the notebook”
+    (`panel.js:208`), as do the commands (`desk-commands.mjs:35, 43`), the
+    resize handles (`float-resize.js:35`, `widths.js:179`) and one sentence
+    of the help page's tour section, which uses both. Related: the menu
+    group is “My Notebook” (`actions.js:68`, `tour.js:134`), while “Search
+    my notebook” (`kept-list.js:46, 49`), “Undo a change to my notebook”
+    (`note-settings.js:321`), “Save a copy of my notebook”
+    (`desk-commands.mjs:100`) and “From my notebook” (`sheet-pane.js:885`)
+    are lowercase.
+  - *Recommended*: capitalize where the panel is named (“Close the
+    Notebook”), and keep lowercase where the words mean what the reader
+    has kept (“Save a copy of my notebook”), so the “my notebook” strings
+    stay.
+  - Status: open.
+- **BA139 (low, copy; BVJ's call). “My Notes” and “My notes” name the same
+  thing.**
+  - *What happens*: the tab and the pane kind say “My Notes”
+    (`panel.js:148`, `desk-layout.mjs:51`), while the margin's switch, its
+    region name and This verse's subhead say “My notes”
+    (`note-settings.js:150`, `notes-margin.js:86`, `tab-verse.js:116`). The
+    commands list has “Show My Notes” beside “Show my notes”
+    (`desk-commands.mjs:51, 72, 79`), which are different things. The tour's
+    two versions of one sentence say “My Notes” and “the Notebook” lists
+    every bookmark (`desk-first-use.mjs:183–184`).
+  - *Recommended*: “My Notes” for the tab and pane only, and a different
+    name for the margin (“Notes in the margin”), so the two commands can't
+    be confused.
+  - Status: open.
+- **BA140 (medium, accessibility; computed). A segmented control's focus ring
+  can't be seen on the chosen option.**
+  - *What happens*: the chosen option of a `.desk-seg` (the Greek lexicon
+    choice, My Notes' scope, the notes settings) is filled with
+    `--green-text`, and its focus ring is drawn inside it in `--focus-ring`,
+    the same color: 1.00:1 in both themes. Tab lands on the chosen option
+    and the arrows choose as they move, so the keyboard reader nearly
+    always sees no focus at all.
+  - *Where*: `desk.css:528–548`; `tab-greek.js:185`; `note-settings.js:343`.
+  - *Fix*: draw the ring outside the option (a positive offset), or add an
+    inner ring in `--surface-raised` inside the outline.
+  - *Check*: Tab into each, in both themes; a ring shows.
+  - Status: open.
+- **BA141 (medium, accessibility; traced). With forced colors (Windows
+  contrast themes), the chosen state disappears from seven kinds of
+  control.**
+  - *What happens*: these mark “chosen” only by background, color or
+    `box-shadow`, which forced colors replaces or drops. Unchosen panel
+    tabs carry a transparent 2px border that forced colors draws, so all
+    the tabs look the same. The Greek word's comment says it “doesn't rest
+    on colour alone,” but its second cue is a `box-shadow`.
+  - *Where*: `desk.css:196` (panel tabs), `:540` (segmented option),
+    `:1478` (the editor's marker), `:3647` (a chosen Greek word), `:4154`
+    (the Greek search's choices), `:4521, 4541` (Layout's arrangements),
+    `:5191` (the current footnote row), `:4684` (the leading pane);
+    `sheets-page.css:1086, 1196` (present mode's buttons). The swatches,
+    label buttons, rich-text tools and the changed-dot already have a
+    `forced-colors` rule.
+  - *Fix*: one `@media (forced-colors: active)` block giving each a cue that
+    survives: an outline in `Highlight`, a thicker border, or weight.
+  - *Check*: emulate forced colors in DevTools; each state is visible.
+  - Status: open.
+- **BA142 (low, accessibility; traced). With forced colors, the four
+  highlight swatches look alike.** Each is an “ab” sample tinted by
+  background, and its color is named only in its aria-label, so a sighted
+  reader in a contrast theme can't tell yellow from pink. *Where*:
+  `desk.css:1199–1240`; `actions.js:226`, `tab-mine.js:116, 332`,
+  `kept-list.js:134`, `record-rows.js:37`. *Fix*: `forced-color-adjust:
+  none` on the sample, or show the color's name.
+  - Status: open.
+- **BA143 (low, accessibility; computed). Two dimmed texts fall below
+  4.5:1 in the light theme.** An omitted term on a sheet is 3.64:1
+  (`desk.css:6455`, opacity 0.55), and a revealed blank in the presenter's
+  notes 4.23:1 (`sheets-page.css:1224`). Dark passes. The Layout menu's
+  “needs a wider window” line is 3.15:1 but sits in a disabled control,
+  which WCAG exempts; it is the only reason given, so lift it too. *Fix*:
+  `rgba(var(--ink-rgb), 0.7)` or more.
+  - Status: open.
+- **BA144 (low, accessibility; computed; BVJ's call). Text fields' borders
+  are 1.6 to 1.9:1 against the panel.** In light mode a field's fill
+  matches the panel, so its 1px border is its only edge, below the 3:1
+  WCAG asks of a control's boundary (dark: 1.95 to 2.53:1). Eight fields:
+  `desk.css:3063, 3199, 4077, 4868, 5468, 5611, 6059, 6109`. The rest of the
+  site's fields are as soft, so this is a site-wide choice more than a desk
+  bug. *Recommended*: about `rgba(var(--ink-rgb), 0.55)` for field borders,
+  site-wide, in its own change.
+  - Status: open.
+- **BA145 (low; possible). Nothing hides the Notebook rail or the undo bar
+  in print.**
+  - *What happens*: the desk's print rules hide `.desk-notes`, the gutters,
+    flags, pins and the tour, and `print.css` hides `.lit-panel`, but no
+    rule names `.desk-rail` (the Notebook and its collapsed tab, appended
+    to `<body>`, `margin.js:105–109`) or `.desk-undo__bar`, which is
+    `position: fixed` and stays up for ten seconds after a delete. The
+    first audit's clean print was at 1440 wide, where the rail may fall
+    beyond the page; a narrower window, with the panel floating over the
+    text, may print it.
+  - *Where*: `desk.css:20–30, 308–330, 1153`; `print.css:42–63`.
+  - *Fix*: hide both under `@media print`.
+  - *Check*: print a chapter in a 900px window with the Notebook floating
+    open, and again just after deleting a note.
+  - Status: open.
+
 ### The phases FA1-u started
 
 Each lists its findings, which are written up above, by area. Read that
@@ -1837,6 +2199,27 @@ area's entry for the files.
   Files: `tab-greek.js`, `greek-find.js`, `greek-commands.js` (BA117),
   `desk-greek.mjs`, `desk.css`. Tests: `desk-greek`. Desk rules 14, 15
   and 17.
+- **FA1-aa. /desk's panes and the shared modules.** BA121 to BA126 (BA125
+  is BVJ's call). Files: `desk-panes.js`, `desk-page.js`,
+  `lit-records.js`, `lit-pane.js`, `lit-panel.js`, `kept-list.js`,
+  `record-rows.js`, `tab-mine.js`, `change-notice.js`, `desk.css`.
+  After FA1-l and FA1-r, which work the same files. Browser check: “Three
+  rows” in a short window. Desk rule 18.
+- **FA1-ab. Sheets in two tabs, and large sheets.** BA128 to BA133, BA128
+  and BA129 data loss. Files: `sheet-pane.js`, `store.js` (`change`),
+  `search-sheet.js`, `desk-sheet-gather.mjs`, `sheet-lit.js`,
+  `desk-sheet-lit.mjs`. Tests: `desk-sheets`, `desk-sheet-gather`,
+  `desk-sheet-lit`, and a two-tab test over a stubbed store. Desk rules 21
+  to 23.
+- **FA1-ac. The copy pass.** BA134 to BA139 (BA138 and BA139 are BVJ's
+  calls on names). Files: those each finding names; `notebook/help.astro`
+  and `desk-first-use.mjs` hold most of BA134. After FA1-t, which touches
+  some of the same strings. Tests: `desk-notes` (BA136), and any test
+  asserting a changed string.
+- **FA1-ad. The stylesheet.** BA140 to BA145 (BA144 is BVJ's call, and
+  site-wide). Files: `desk.css`, `sheets-page.css`, `print.css`. Browser
+  check: DevTools' forced-colors emulation in both themes, Tab through the
+  segmented controls, and a print at 900px wide.
 
 ## FA1-v. The follow-up audit: real devices
 
@@ -1947,6 +2330,32 @@ From FA1-u (2026-10-26):
   borrowed passages (John 7:53–8:11, Romans 16:25–27) carry their notes and
   sources; word numbers are unique within each verse. All 10,699 STEP and
   LSJ entries pass the lexicon sanitizer with nothing legitimate dropped.
+- **Two LIT panes on one chapter** (area 4): every id in a pane's blocks
+  is prefixed with the pane's (`prepareLitBlocks`, aria references
+  rewritten), and every other id under `desk/` carries the pane's id; about
+  30 id sites checked. The selection, the term lens, footnote popovers and
+  highlights are scoped to the pane that opened them. Highlights and pins
+  draw and update in both panes, and closing the last LIT pane clears the
+  highlights. `footnotePanel` clones the note, so the cached page stays
+  whole.
+- **Sheets** (area 5): a passage's blanks survive “Keep the new wording”
+  (`freshCopy` changes only the passage's own fields, run over a reworded
+  chapter). Verse-number gaps keep their empty slots, so a topic sheet's
+  last verse is right in all ten gap chapters, and a selection across a gap
+  never joins its verses. Undo across tabs is guarded by `stillCurrent`.
+  On Romans 8, finding 981 blanks took 21 ms and checking a five-passage
+  sheet 11 ms; the 512 KB limit stops a sheet near 2,900 blanks.
+- **Copy** (area 6): of 8,839 string literals, no British spelling in
+  reader text; curly quotes everywhere but BA135; one quote-and-comma slip
+  (BA136); no em dashes in prose; “Study View,” “Read View,” “Study Desk,”
+  “Continue reading” and “Bookmark” consistent; the sheet templates'
+  lists all have the Oxford comma.
+- **The stylesheet** (area 6): the 28 focus rules without the literal
+  `--focus-ring` all have a documented substitute; reduced motion is
+  covered site-wide (`global.css:435–445`) and all six desk smooth scrolls
+  are guarded; no bare `ch` unit; all 47 custom properties `desk.css`
+  uses are defined; every resolvable text color passes in both themes
+  except BA143's.
 - **The commands window**: a labelled, non-modal dialog, Escape kept to
   itself, insertion at the cursor replacing a selection and firing
   `input`, and a saved place clamped back on screen. Its two modules import
@@ -1954,10 +2363,16 @@ From FA1-u (2026-10-26):
 
 ## Not covered
 
-FA1-u and FA1-v take these up:
+FA1-u has read all six of its areas; what it couldn't reach without a real
+browser is below, for FA1-v:
 
-- **FA1-u's areas 4 to 6**: /desk's use of the shared modules, sheets
-  beyond one tab, and the copy pass and stylesheet.
+- **From FA1-u's areas 4 to 6, needing a real browser**: the clipped menu's
+  real heights (BA122); whether My Notes draws before the LIT pane's
+  chapter arrives on first load (BA121); the two-tab BroadcastChannel race
+  in a frozen or restored tab (BA129); the drawing cost of about 3,000
+  blank rows; the reader's `::highlight()` colors and the SVG marker
+  glyphs in forced colors; focus rings clipped by a pane's overflow; and
+  printing /notebook's settings controls.
 - **From FA1-u's areas 1 to 3, needing a real browser**: two tabs with a
   ribbon following, whether Duplicate tab copies the follow flag, whether
   setting a field's `value` clears its undo (the commands window), and a
@@ -1965,16 +2380,3 @@ FA1-u and FA1-v take these up:
 - **Other browsers.** All browser use was Chromium. Nothing ran in Safari or
   Firefox, with a real screen reader, on two screens, or on a touchscreen
   computer.
-- **Phase 2a's small pieces.** What's new for you (B3), your own chains
-  (N4) and the release-note parser weren't read in depth, and places and
-  ribbons only in part.
-- **The Greek tab's reading view**: Go to verse, the lexicon choice, drafts,
-  the two borrowed passages, and the commands window's focus handling and
-  where it inserts text.
-- **The /desk modes of shared modules**: highlights, verse labels and pins
-  in the LIT pane, `footnotes-view.js`, and the Sheet pane as a following
-  pane.
-- **Sheets in two tabs**: two tabs editing one sheet, and whether a
-  passage's blanks survive “Keep the new wording.”
-- **A full copy pass** of the desk's reader-facing strings. Most of
-  `desk.css` was checked only for dark-mode pairing.
