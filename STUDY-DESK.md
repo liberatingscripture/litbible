@@ -28,8 +28,10 @@ are recorded so they aren't re-argued.
   (BVJ, BA53; "Decisions", 2026-10-26). FA1-f built rule e's two guards
   (anchor vectors version 2) and brought the format into line with the
   code; what the apps should pick up is in the 2026-10-26 note for BDR's
-  Claude under "One notebook, three homes". Next: FA1-u, the follow-up
-  audit.
+  Claude under "One notebook, three homes". FA1-u, the follow-up audit,
+  has done areas 1 to 3 (2026-10-26): 33 findings, BA88 to BA120 (7
+  medium, 26 low), in four new phases, FA1-w to FA1-z, and in FA1-k, FA1-r
+  and FA1-t. Next: FA1-u's areas 4 to 6.
 
 - **Phase 2c is built on the preview** (2026-10-20): notes on a footnote
   and questions for discussion. **A note can be on a footnote** (M11):
@@ -5722,6 +5724,29 @@ split itself is still a proposal BVJ worked within but hasn't confirmed.
   reader's accessibility font still wins on screen. Left out: images and
   tables. The set can grow later but never shrink.
 
+### 2026-10-26 (FA1-u, areas 1 to 3: 33 findings; a stricter linker for notes)
+
+- **FA1-u's first session** audited What's new for you and your own chains
+  (area 1), places and ribbons (area 2), and the Greek tab's reading view
+  and the commands window (area 3). **33 findings, BA88 to BA120: 7 medium
+  and 26 low**, by area 11, 11 and 11. They are written up in
+  `STUDY-DESK-AUDIT-1.md` under FA1-u and planned in four new phases
+  (FA1-w What's new for you, FA1-x A note's references, FA1-y Ribbons and
+  Continue reading, FA1-z The Greek tab), with BA116 in FA1-k, BA114 and
+  BA115 in FA1-r, and BA91, BA109 and BA118 in FA1-t. Areas 4 to 6 are
+  next.
+- **A note's references get a stricter linker** (BVJ, 2026-10-26; BA89).
+  In a reader's note, a bare number after a comma or “and” no longer
+  continues a list of verses, so “Romans 8:28, 3 reasons” stays plain and
+  doesn't chain a note to Romans 8:3. A continuation links only when it is
+  itself a reference with a colon (“8:28, 9:1”), so “8:28, 30” in a note
+  links 8:28 alone. Footnotes, intros and articles keep today's rule.
+  Recommended with it, not a separate decision: a table of verse counts so
+  a verse past a chapter's end never links.
+- **FA1-y meets E9.** The ribbon findings describe today's code, which E9
+  (2026-10-22) will rebuild as Bookmarks; each says what E9 would make
+  moot, and if E9 is built first, FA1-y folds into it.
+
 ### 2026-10-26 (FA1-e: "My default" is a layout, not a passage)
 
 - **"My default" saves an arrangement, not a place** (BVJ, 2026-10-26;
@@ -6493,16 +6518,20 @@ The phases, in working order:
 | FA1-h | Marks on the page | BA16, BA17, BA19, BA20, BA23 |
 | FA1-i | Sheet templates and passages | BA69, BA70, BA75, BA76, BA77 |
 | FA1-j | The sheet editor: pasting and saving | BA68, BA71, BA72, BA73, BA74 |
-| FA1-k | Greek search commands | BA44, BA45, BA48, BA49, BA50 |
+| FA1-k | Greek search commands | BA44, BA45, BA48, BA49, BA50, BA116 |
 | FA1-l | /desk's LIT pane and layout | BA54, BA56, BA57, BA58, BA60, BA61 |
 | FA1-m | The tour, first use, and printing | BA33, BA34, BA35, BA36, BA37 |
 | FA1-n | Present mode and the sheet page | BA79, BA83, BA84, BA85, BA86 |
 | FA1-o | Announcements and focus for marks | BA18, BA21, BA22 |
 | FA1-p | Panels beside the Notebook | BA24, BA27, BA28 |
 | FA1-q | The gate and first paint | BA25, BA26, BA29, BA30 |
-| FA1-r | /desk's smaller fixes | BA31, BA62, BA63, BA64, BA65 |
+| FA1-r | /desk's smaller fixes | BA31, BA62, BA63, BA64, BA65, BA114, BA115 |
 | FA1-s | Greek credits and the notebook search | BA40, BA46, BA47 |
-| FA1-t | Copy and docs | BA15, BA38, BA39, BA42, BA43 |
+| FA1-t | Copy and docs | BA15, BA38, BA39, BA42, BA43, BA91, BA109, BA118 |
+| FA1-w | What's new for you | BA88, BA90, BA92, BA96, BA97, BA98 |
+| FA1-x | A note's references | BA89, BA93, BA94, BA95 |
+| FA1-y | Ribbons and Continue reading | BA99 to BA108 |
+| FA1-z | The Greek tab | BA110, BA111, BA112, BA113, BA117, BA119, BA120 |
 | FA1-v | The follow-up audit: real devices | new |
 
 FA1-f should land before the record format is frozen for the apps, and
