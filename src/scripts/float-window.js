@@ -71,6 +71,8 @@ export function createFloatWindow({ heading, title, className = "", attrs = {}, 
 
   let open = false;
   let dragged = false;
+  // The drag in progress, if any: close() ends it without reporting a move.
+  let endDrag = null;
 
   function clamp() {
     const r = el.getBoundingClientRect();
@@ -101,16 +103,19 @@ export function createFloatWindow({ heading, title, className = "", attrs = {}, 
       el.style.top = `${r.top + ev.clientY - y0}px`;
       clamp();
     };
-    const up = () => {
+    const up = (ev, report = true) => {
       el.classList.remove("lit-panel--dragging");
       removeEventListener("pointermove", move);
       removeEventListener("pointerup", up);
       removeEventListener("pointercancel", up);
-      if (dragged) {
+      endDrag = null;
+      // A window closed mid-drag has no place left to report.
+      if (report && open && dragged) {
         const at = el.getBoundingClientRect();
         onMoved({ left: at.left, top: at.top });
       }
     };
+    endDrag = up;
     addEventListener("pointermove", move);
     addEventListener("pointerup", up);
     addEventListener("pointercancel", up);
@@ -138,6 +143,7 @@ export function createFloatWindow({ heading, title, className = "", attrs = {}, 
   function close(reason = "close") {
     if (!open) return;
     open = false;
+    if (endDrag) endDrag(null, false);
     removeEventListener("resize", reposition);
     removeEventListener("scroll", reposition);
     el.remove();

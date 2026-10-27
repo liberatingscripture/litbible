@@ -444,12 +444,19 @@ that section.
        **quotes always mean the word itself** (BVJ, 2026-10-14). Two filters
        of one kind joined by "/" mean either (`.gen/dat`, BVJ 2026-10-15), so
        a term's `filters` can hold several of one axis; `codeFits` and
-       `groupsForFilters` read that as "any of them".
+       `groupsForFilters` read that as "any of them". A filter with no word
+       before it is any word (".gen" is "*.gen", BA48). **A search joins at
+       most four words** (`MAX_TERMS`, BA44): `matchConstruction` builds each
+       match round its middle word, exact but cubic only because of that
+       cap, so raising it needs a new matcher, not a bigger number.
      - **`searchGreekAuto` in `search-core.js` is the one Greek search**
        the tray, /search and the Greek tab call: a command query goes to
        `searchGreekCommands`, anything else to 1h's `searchGreek`, with
        two or three plain Latin words that find nothing tried as a
-       construction. `isGreekQuery` also counts `*` standing for a word and
+       construction. **Plain words holding a command word are a gloss when
+       they are one whole** ("present time", "in order to"; `wholeGloss`),
+       and otherwise a command that falls back to the gloss when it fails
+       or finds nothing (BA45, BVJ 2026-10-27). `isGreekQuery` also counts `*` standing for a word and
        a dot followed by a parsing word, so the tray, which has no type
        menu, reads them as Greek.
      - **The commands window is the one place for instructions and

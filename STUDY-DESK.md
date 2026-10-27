@@ -58,7 +58,14 @@ are recorded so they aren't re-argued.
   bold and italic, and Word's lists come back as lists (BA68, BA71, BA73),
   typing just before a tab closes is kept (BA72), and Ctrl+Z on the
   formatting toolbar undoes the typing rather than the saved text (BA74).
-  Next: FA1-k (Greek search commands).
+  FA1-k is done (#383): a broad construction search no longer freezes the
+  tab, and a search joins at most four words (BA44); an English gloss
+  holding a command word ("present time", "in order to") finds its word
+  (BA45; BVJ's calls in "Decisions", 2026-10-27); ".gen" alone is any
+  genitive (BA48); the readback gives each word's distance and says "then"
+  only when the order is fixed (BA50); and the commands window closed
+  mid-drag keeps its place (BA116). BA49 is accepted as it is.
+  Next: FA1-l (/desk's LIT pane and layout).
 
 - **Phase 2c is built on the preview** (2026-10-20): notes on a footnote
   and questions for discussion. **A note can be on a footnote** (M11):
@@ -5751,6 +5758,33 @@ split itself is still a proposal BVJ worked within but hasn't confirmed.
   reader's accessibility font still wins on screen. Left out: images and
   tables. The set can grow later but never shrink.
 
+### 2026-10-27 (FA1-k: Greek search commands; BVJ's two calls)
+
+FA1-k fixed BA44, BA45, BA48, BA50 and BA116 (`STUDY-DESK-AUDIT-1.md`).
+BVJ decided the two calls the audit left open:
+
+- **BA45, plain English words holding a command word: a whole gloss wins,
+  then the command, then the gloss again** (BVJ chose this over falling
+  back to the gloss only when the command fails, which left "present time"
+  returning 40 unrelated verses). Two or three plain words with no symbols
+  or quotes that are, whole, a word's gloss, one of its senses or the LIT's
+  rendering of it ("present time", "in order to", "forever and ever") search
+  as that gloss. Anything else is read as a command, and if the command
+  can't be read or finds nothing, the gloss search's answer is shown
+  instead. A reader who means the command writes it with a dot or a comma
+  (`*.pres, time`). This settles the case the 2026-10-14 entry left open
+  for command words; two plain words with only a space between them are
+  still a construction when they aren't a gloss.
+- **BA49, `*.sg` loading nearly the whole parse index: accepted** (BVJ
+  chose this over requiring a part of speech or case with number, gender or
+  person). It loads 54 of the 57 files, about 600 KB compressed, once a
+  visit; a note in `groupsForFilters` says so.
+
+Also: **a search joins at most four words** (BA44's cap, an error sentence,
+and a line in the commands window), which is what lets the matcher stay
+fast; and **a filter with no word before it is any word** (".gen" is
+"*.gen", BA48).
+
 ### 2026-10-27 (FA1-i: sheet templates and passages; BVJ's two calls)
 
 FA1-i fixed BA69, BA70, BA75, BA76, BA77 and BA127
@@ -6628,7 +6662,7 @@ The phases, in working order:
 | FA1-h | Marks on the page | done, #380: BA16, BA17, BA19, BA20, BA23 |
 | FA1-i | Sheet templates and passages | done, #381: BA69, BA70, BA75, BA76, BA77, BA127 |
 | FA1-j | The sheet editor: pasting and saving | done, #382: BA68, BA71, BA72, BA73, BA74 |
-| FA1-k | Greek search commands | BA44, BA45, BA48, BA49, BA50, BA116 |
+| FA1-k | Greek search commands | done, #383: BA44, BA45, BA48, BA49, BA50, BA116 |
 | FA1-l | /desk's LIT pane and layout | BA54, BA56, BA57, BA58, BA60, BA61 |
 | FA1-m | The tour, first use, and printing | BA33, BA34, BA35, BA36, BA37 |
 | FA1-n | Present mode and the sheet page | BA79, BA83, BA84, BA85, BA86 |

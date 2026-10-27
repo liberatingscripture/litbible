@@ -111,7 +111,7 @@ it goes after both, and FA1-ac after FA1-t.
 | FA1-h | Marks on the page | BA16, BA17, BA19, BA20, BA23 | done, #380 |
 | FA1-i | Sheet templates and passages | BA69, BA70, BA75, BA76, BA77, BA127 | done, #381 |
 | FA1-j | The sheet editor: pasting and saving | BA68, BA71, BA72, BA73, BA74 | done, #382 |
-| FA1-k | Greek search commands | BA44, BA45, BA48, BA49, BA50, BA116 | open |
+| FA1-k | Greek search commands | BA44, BA45, BA48, BA49, BA50, BA116 | done, #383 |
 | FA1-l | /desk's LIT pane and layout | BA54, BA56, BA57, BA58, BA60, BA61 | open |
 | FA1-m | The tour, first use, and printing | BA33, BA34, BA35, BA36, BA37 | open |
 | FA1-n | Present mode and the sheet page | BA79, BA83, BA84, BA85, BA86 | open |
@@ -811,7 +811,7 @@ committed `public/greek/search/`, which a small harness can read from disk.
     memoize by term and word, instead of walking every path. Cap the terms
     at four, with an error sentence.
   - *Check*: `*.sg` ×5 with `~v &` finishes in under a second.
-  - Status: open.
+  - Status: **Fixed in #383.** `marksFrom` builds each match round its middle word, exact and cubic in a verse's words, and a search joins at most four words (`MAX_TERMS`, error `tooMany`, and a line in the commands window). Five terms is now the error; `*.sg` ×4 with `~v &` is timed in the tests.
 - **BA45 (medium; reproduced; BVJ's call). English glosses containing a
   command word are read as commands.**
   - *What happens*: `isCommandQuery` (`greek-query.mjs:204–211`) takes these
@@ -827,7 +827,7 @@ committed `public/greek/search/`, which a small harness can read from disk.
     The decision log lists this case as not settled.
   - *Recommended*: when a command of two or three plain words errors or
     finds nothing, try the gloss search and show it if it finds a lemma.
-  - Status: open.
+  - Status: **Fixed in #383.** BVJ chose a stronger rule (2026-10-27): two or three plain words that are a whole gloss, sense or LIT rendering search as the gloss first; otherwise the command, falling back to the gloss as recommended (`searchGreekAuto`).
 - **BA48 (low; reproduced). A filter with no word before it is silently
   dropped.**
   - *What happens*: `.gen`, `.gen/dat` and `.gen.dat` give no terms and no
@@ -835,7 +835,7 @@ committed `public/greek/search/`, which a small harness can read from disk.
     “Type a search.”, and the tab says “Type a search, like πίστις.gen…”
   - *Fix*: read a leading filter as `*.` plus the filter, or say “‘.gen’
     needs a word before it, like πίστις.gen or *.gen.”
-  - Status: open.
+  - Status: **Fixed in #383.** A leading filter is read as `*.` plus the filter.
 - **BA49 (low, perf; reproduced). `*.sg` downloads nearly the whole parse
   index.**
   - *What happens*: parse groups are split by part of speech and case, or
@@ -844,7 +844,7 @@ committed `public/greek/search/`, which a small harness can read from disk.
     57 files.
   - *Fix*: accept this and note it, or require a part of speech or case
     with those filters (an error sentence like `bareAny`'s).
-  - Status: open.
+  - Status: **Accepted** (BVJ, 2026-10-27), with a note in `groupsForFilters`; #383.
 - **BA50 (low, copy; reproduced). The readback's “then” drops the distance
   and implies an order.**
   - *What happens*: `*.art, *.art, *.art ~v &` reads “Articles, with an
@@ -852,7 +852,7 @@ committed `public/greek/search/`, which a small harness can read from disk.
     (`describeGreekQuery`, `greek-query.mjs:486–491`).
   - *Fix*: repeat the distance for each later term, and drop “then” when the
     order is free.
-  - Status: open.
+  - Status: **Fixed in #383.** In any order: “Articles, with an article anywhere in the verse and an article anywhere in the verse, in any order.”
 
 ## FA1-l. /desk's LIT pane and layout
 
@@ -1821,7 +1821,7 @@ small stub DOM, and the rest traced or run over the committed
   - *Fix*: report a move only while the window is open, and end the drag
     in `close()`.
   - *Check*: the stub-DOM case as a test.
-  - Status: open.
+  - Status: **Fixed in #383** (FA1-k), tested in `test/float-window.test.js`.
 - **BA117 (low, accessibility; traced). What the tab and the window announce
   isn't meant to be heard.**
   - *What happens*: choosing a word announces the parsing and then

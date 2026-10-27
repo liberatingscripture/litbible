@@ -319,3 +319,173 @@ test("the committed index: parsing alone, and a word narrowed by parsing", () =>
 test("the committed index: every example the window offers finds something", () => {
   for (const { query } of EXAMPLES) assert.ok(searchCommitted(query).hits.length > 0, query);
 });
+
+// ── Fixes from the FA1-k audit ──────────────────────────────────────────
+
+/** The matcher as it was before BA44 (an exhaustive walk of every chain), kept as the reference. */
+function referenceMatch(lists, { gap = 3, anyOrder = false, bookOrder = null } = {}) {
+  if (!lists.length) return [];
+  const key = (w) => `${w.book}|${w.chapter}|${w.verse}`;
+  const byVerse = lists.map((list) => {
+    const m = new Map();
+    for (const w of list) {
+      const k = key(w);
+      const at = m.get(k);
+      if (at) at.push(w.t);
+      else m.set(k, [w.t]);
+    }
+    return m;
+  });
+  const out = [];
+  for (const [k, firsts] of byVerse[0]) {
+    if (byVerse.some((m) => !m.has(k))) continue;
+    const later = byVerse.slice(1).map((m) => m.get(k));
+    const matches = [];
+    for (const t0 of [...new Set(firsts)].sort((a, b) => a - b)) {
+      const marked = new Set();
+      const walk = (i, prev, used) => {
+        if (i === later.length) {
+          for (const t of used) marked.add(t);
+          return true;
+        }
+        let any = false;
+        for (const t of later[i]) {
+          if (used.includes(t)) continue;
+          if (!anyOrder && t <= prev) continue;
+          if (Math.abs(t - prev) - 1 > gap) continue;
+          if (walk(i + 1, t, [...used, t])) any = true;
+        }
+        return any;
+      };
+      if (walk(0, t0, [t0])) matches.push([...marked].sort((a, b) => a - b));
+    }
+    if (!matches.length) continue;
+    const [book, chapter, verse] = k.split("|");
+    out.push({ book: /^\d+$/.test(book) ? Number(book) : book, chapter: Number(chapter), verse: Number(verse), matches });
+  }
+  const rank = (b) => (typeof b === "number" ? b : bookOrder ? bookOrder.indexOf(b) : 0);
+  return out.sort((a, b) => rank(a.book) - rank(b.book) || a.chapter - b.chapter || a.verse - b.verse);
+}
+
+/** A small deterministic PRNG (mulberry32), so a failure can be replayed. */
+function prng(seed) {
+  let a = seed >>> 0;
+  return () => {
+    a = (a + 0x6d2b79f5) >>> 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+test("BA44: the rewritten matchConstruction agrees with the exhaustive walk it replaced", () => {
+  const rand = prng(20261027);
+  const int = (n) => Math.floor(rand() * n);
+  const gaps = [0, 1, 3, Infinity];
+  const cases = 600;
+  let withHits = 0;
+  for (let c = 0; c < cases; c++) {
+    const verses = 1 + int(3);
+    const terms = 1 + int(4);
+    const gap = gaps[int(gaps.length)];
+    const anyOrder = rand() < 0.5;
+    // Per verse, a pool of positions that the lists draw from, so words are shared between them.
+    const pools = Array.from({ length: verses }, () => Array.from({ length: 3 + int(8) }, () => int(16)));
+    const lists = Array.from({ length: terms }, () => {
+      const list = [];
+      for (let v = 0; v < verses; v++) {
+        if (rand() < 0.15) continue; // a verse some lists do not have
+        for (const t of pools[v]) if (rand() < 0.55) list.push({ book: "john", chapter: 1, verse: v + 1, t });
+        if (rand() < 0.2 && list.length) list.push({ ...list[int(list.length)] }); // a repeated word
+      }
+      return list.sort(() => rand() - 0.5);
+    });
+    const got = matchConstruction(lists, { gap, anyOrder, bookOrder: BOOK_ORDER });
+    const want = referenceMatch(lists, { gap, anyOrder, bookOrder: BOOK_ORDER });
+    assert.deepEqual(got, want, `case ${c}: ${terms} terms, gap ${gap}, anyOrder ${anyOrder}\n${JSON.stringify(lists)}`);
+    if (want.length) withHits++;
+  }
+  assert.ok(withHits > cases / 5, `only ${withHits} of ${cases} cases matched anything, so the data is too sparse to test`);
+});
+
+/** The word lists a query reads from the committed index, as searchCommitted builds them. */
+function committedLists(q) {
+  const index = prepareIndex(read("lemmas.json"));
+  const groupNames = Object.keys(read("parse.json").groups);
+  const parsed = parseGreekQuery(q);
+  assert.equal(parsed.error, undefined, q);
+  const resolved = resolveGreekQuery(index, parsed);
+  assert.equal(resolved.error, undefined, q);
+  const lists = resolved.terms.map((term) => {
+    if (term.lemmaIds) {
+      return term.lemmaIds.flatMap((id) =>
+        decodeOccurrences(read(`occ/${occShard(index, id)}.json`)[id], BOOK_ORDER, { form: term.form })
+          .filter((w) => codeFits(term.filters, w.pos + w.parse)));
+    }
+    return groupsForFilters(term.filters, groupNames).flatMap((g) =>
+      decodeParseGroup(read(`parse/${g}.json`), BOOK_ORDER).filter((w) => codeFits(term.filters, w.pos + w.parse)));
+  });
+  return { resolved, lists };
+}
+
+test("BA44: four words of one kind in any order finish quickly on the committed index", () => {
+  for (const q of ["*.sg, *.sg, *.sg, *.sg ~v &", "*.art, *.art, *.art, *.art ~v &"]) {
+    // Loading the files costs the same whatever the matcher does, so the matching is timed on its own.
+    const { resolved, lists } = committedLists(q);
+    const start = performance.now();
+    const hits = matchConstruction(lists, { gap: resolved.gap, anyOrder: resolved.anyOrder, bookOrder: BOOK_ORDER });
+    const matching = performance.now() - start;
+    // About half a second here; the old walk took 11 s. Room for a slow CI runner.
+    assert.ok(matching < 3000, `${q}: matching took ${Math.round(matching)} ms`);
+    assert.ok(hits.length > 0, q);
+  }
+});
+
+test("BA44: a search joins at most four words", () => {
+  const parsed = parseGreekQuery("*.art, *.art, *.art, *.art, *.art");
+  assert.equal(parsed.error.kind, "tooMany");
+  assert.equal(errorMessage(parsed.error).text, "A search can join at most 4 words.");
+  assert.equal(parseGreekQuery("*.art, *.art, *.art, *.art").error, undefined, "four is allowed");
+  const list = [1, 2, 3].map((t) => ({ book: "john", chapter: 1, verse: 1, t }));
+  assert.throws(() => matchConstruction([list, list, list, list, list], { gap: Infinity, anyOrder: true }), RangeError);
+  assert.doesNotThrow(() => matchConstruction([list, list, list, list], { gap: Infinity, anyOrder: true }));
+});
+
+test("BA48: a parsing after a space with no word before it is any word with that parsing", () => {
+  assert.deepEqual(shape(parseGreekQuery(".gen")), shape(parseGreekQuery("*.gen")));
+  assert.deepEqual(shape(parseGreekQuery(".gen/dat")), shape(parseGreekQuery("*.gen/dat")));
+  const gen = parseGreekQuery(".gen");
+  assert.equal(gen.error, undefined);
+  assert.equal(gen.terms.length, 1);
+  assert.equal(gen.terms[0].words, null, "any word");
+  assert.deepEqual(names(gen.terms[0].filters), ["genitive"]);
+  const both = parseGreekQuery(".gen/dat");
+  assert.equal(both.error, undefined);
+  assert.equal(both.terms.length, 1);
+  assert.equal(both.terms[0].words, null);
+  assert.deepEqual(names(both.terms[0].filters), ["genitive", "dative"]);
+  assert.equal(parseGreekQuery(".gen.dat").error?.kind, "conflict");
+  const hits = searchCommitted(".gen").hits;
+  assert.ok(hits.length > 0);
+  assert.equal(countLine(hits), countLine(searchCommitted("*.gen").hits));
+});
+
+test("BA50: the readback places each later word from the one before it", () => {
+  const say = (q) => {
+    const parsed = parseGreekQuery(q);
+    assert.equal(parsed.error, undefined, q);
+    return describeGreekQuery({ ...parsed, terms: parsed.terms.map((t) => ({ ...t, lemmaIds: null, shown: [] })) });
+  };
+  assert.equal(say("*.art, *.art, *.art ~v &"),
+    "Articles, with an article anywhere in the verse and an article anywhere in the verse, in any order");
+  assert.equal(say("*.art, *.noun.gen, *.art ~3"),
+    "Articles, followed within 3 words by a genitive noun, then within 3 words by an article");
+  assert.equal(say("*.art, *.noun, *.art ~2 &"),
+    "Articles, with a noun within 2 words and an article within 2 words of that, in any order");
+  assert.equal(say("*.art, *.noun ~0 &"), "Articles, with a noun next to it, in either order");
+  for (const q of ["*.art, *.art, *.art ~v &", "*.art, *.noun, *.art ~2 &", "*.art, *.noun, *.art ~0 &", "*.art, *.noun, *.art, *.verb ~1 &"]) {
+    assert.doesNotMatch(say(q), /, then/, q);
+  }
+  assert.match(say("*.art, *.noun, *.art ~0 &"), /next to that/);
+});
