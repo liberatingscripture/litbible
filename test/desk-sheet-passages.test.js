@@ -12,12 +12,15 @@ import assert from "node:assert/strict";
 
 import { assembleChapter, rangeOf } from "../src/lib/anchor-core.mjs";
 import { verseCopyFor } from "../src/lib/desk-records.mjs";
+import { makeModule } from "../src/lib/desk-sheets.mjs";
+import { templateModules } from "../src/lib/desk-sheet-templates.mjs";
 import {
   locatePassage,
   passageForReference,
   passageFromOffsets,
   passageFromRecord,
   passageFromVerses,
+  passageInsertIndex,
   passageReference,
   samePassage,
   sheetName,
@@ -147,6 +150,31 @@ test("passageForReference: nothing is added when the chapter couldn't be read", 
   const msg = { problem: "Romans 8 couldn’t be read just now. Check the connection and try again." };
   assert.deepEqual(passageForReference(null, ref("romans", 8, 28)), msg);
   assert.deepEqual(passageForReference(assembleChapter(new Map()), ref("romans", 8)), msg);
+});
+
+/* ── passageInsertIndex (BA69) ───────────────────────────────────────── */
+
+const types = (modules) => modules.map((m) => (m.type === "text" ? m.html.match(/^<h2>([^<]*)/)?.[1] ?? "text" : m.type));
+
+test("passageInsertIndex: a new template's first passage goes under Reading, not after Closing", () => {
+  const sheet = { modules: templateModules("bible-study") };
+  assert.equal(passageInsertIndex(sheet), 2);
+  assert.deepEqual(types(sheet.modules).slice(0, 2), ["Opening", "Reading"]);
+  assert.equal(passageInsertIndex({ modules: templateModules("sermon") }), 1);
+  assert.equal(passageInsertIndex({ modules: templateModules("lectio-divina") }), 1);
+});
+
+test("passageInsertIndex: later passages follow the last one", () => {
+  const modules = templateModules("bible-study");
+  const p = makeModule("passage", { bookKey: "romans", chapter: 8, verse: 28, endVerse: 28 });
+  modules.splice(2, 0, p);
+  assert.equal(passageInsertIndex({ modules }), 3);
+});
+
+test("passageInsertIndex: at the end with no passage and no reading part", () => {
+  assert.equal(passageInsertIndex({ modules: templateModules("blank") }), 1);
+  assert.equal(passageInsertIndex({ modules: [] }), 0);
+  assert.equal(passageInsertIndex({ modules: [makeModule("text", { html: "<h2>Our passage</h2>" })] }), 1);
 });
 
 /* ── passageFromOffsets ──────────────────────────────────────────────── */

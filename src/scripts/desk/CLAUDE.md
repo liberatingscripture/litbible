@@ -678,7 +678,18 @@ that section.
        tested; every template's formatted text must already be in the
        sanitizer's canonical form). New sheet in the Sheet pane lists them,
        and a new part goes after the part last worked in (`insertIndex` in
-       `sheet-pane.js`), so a passage lands inside a template, not after it.
+       `sheet-pane.js`). A passage with none worked in goes after the last
+       passage, or on a sheet with none, after the template's reading part
+       (`passageInsertIndex`, `readingPart`), so it lands inside a template,
+       not after it, on a sheet made days ago too (BA69, BVJ 2026-10-27).
+       **A sheet never marks which part is the reading**: it is found by its
+       heading ("Reading", "Read", "The text"), and a renamed one isn't, which
+       only sends the passage to the end. **Template text never mentions the
+       editor's tools**, since every part prints and goes up in present mode
+       (BA70; the test checks): "Add the passage with + Passage…" is
+       `READING_HINT`, ghost text the editor draws in the reading part (a
+       `data-hint` `::after`, with `aria-description`) until there is a
+       passage. Sheets made before 2026-10-27 still hold the old sentence.
      - **A sheet from a search or a topic** (M5) keeps desk code out of
        search.js: /search announces every hit (not just the page on screen)
        with a `lit:search-results` event on `document` and calls

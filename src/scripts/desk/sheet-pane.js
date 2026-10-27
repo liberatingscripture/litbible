@@ -26,8 +26,11 @@
 // - **New sheets start from a template** (M9; desk-sheet-templates.mjs): New
 //   sheet opens a short list in place, and a choice makes the sheet.
 // - **A new part goes right after the part last worked in** (last focused or
-//   clicked on this sheet), or at the end when there is none, so a passage
-//   added to a template lands where the reader was, not after "Closing".
+//   clicked on this sheet), or at the end when there is none. A passage with
+//   none worked in goes after the last passage, or on a sheet with none,
+//   after the template's reading part, so it lands under "Reading", not
+//   after "Closing" (BA69). Until there is a passage, that part shows how to
+//   add one as ghost text the sheet never holds, so it can't print (BA70).
 // - **Drag into order** by a module's grip, or Move up and Move down.
 // - **Saves as you go**: every change is saved at once, typing a moment after
 //   it pauses. A change made elsewhere (another pane on the same sheet,
@@ -48,12 +51,13 @@ import {
   sheetTooBig,
   updateModule,
 } from "../../lib/desk-sheets.mjs";
-import { TEMPLATES, templateModules } from "../../lib/desk-sheet-templates.mjs";
+import { READING_HINT, TEMPLATES, readingPart, templateModules } from "../../lib/desk-sheet-templates.mjs";
 import { discussionModules } from "../../lib/desk-sheet-discussion.mjs";
 import {
   passageFromOffsets,
   passageForReference,
   passageFromRecord,
+  passageInsertIndex,
   passageFromVerses,
   passageReference,
   samePassage,
@@ -192,10 +196,14 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
   const now = () => new Date().toISOString();
   const opCtx = () => ({ now: now(), ...ctx() });
 
-  /** Where a new part goes: after the part last worked in, else at the end. */
-  const insertIndex = (s) => {
+  /**
+   * Where a new part goes: after the part last worked in, else at the end,
+   * or for a passage where passageInsertIndex puts it (BA69).
+   */
+  const insertIndex = (s, { passage = false } = {}) => {
     const at = lastModule ? s.modules.findIndex((x) => x.id === lastModule) : -1;
-    return at < 0 ? s.modules.length : at + 1;
+    if (at >= 0) return at + 1;
+    return passage ? passageInsertIndex(s) : s.modules.length;
   };
 
   const me = {
@@ -213,7 +221,7 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
       const again = sheet.modules.some((m) => m.type === "passage" && samePassage(m, fields));
       const message = `${passageReference(fields)} added${again ? " again; it was already on the sheet" : ""}.`;
       const mod = makeModule("passage", fields);
-      const ok = await change((s) => addModule(s, mod, insertIndex(s), opCtx()), {
+      const ok = await change((s) => addModule(s, mod, insertIndex(s, { passage: true }), opCtx()), {
         announce: message,
         after: () => cards.get(mod.id)?.el.scrollIntoView({ block: "nearest" }),
       });
@@ -615,6 +623,21 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
       cards.delete(id);
     }
     for (const card of cards.values()) card.inst?.sheetChanged?.();
+    // How to add a passage, as ghost text in the reading part until the sheet
+    // has one (BA70). Only the editor shows it, so it never prints or goes up
+    // on a room's screen; aria-description gives it to a screen reader.
+    const reading = readOnly ? null : readingPart(sheet);
+    for (const [id, card] of cards) {
+      const box = card.el.querySelector(".desk-rich-editor > .desk-rich");
+      if (!box) continue;
+      if (id === reading?.id) {
+        box.dataset.hint = READING_HINT;
+        box.setAttribute("aria-description", READING_HINT);
+      } else if (box.dataset.hint) {
+        delete box.dataset.hint;
+        box.removeAttribute("aria-description");
+      }
+    }
     license?.sheetChanged();
     if (keyTermsButton) {
       const has = sheet.modules.some((x) => x?.type === "keyTerms");

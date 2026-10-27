@@ -14,6 +14,7 @@
 import { BOOKS, bookKeyToLabel } from "../data/books.js";
 import { makeAnchor, rangeOf, resolveAnchor } from "./anchor-core.mjs";
 import { verseCopyFor } from "./desk-records.mjs";
+import { readingPart } from "./desk-sheet-templates.mjs";
 
 /** The passage's verses, as a plain reference: "Romans 5:6–10", never "6a". */
 export function passageReference(p) {
@@ -124,6 +125,20 @@ export function locatePassage(chapter, p) {
   if (p.quote?.exact) return resolveAnchor(chapter, { ...p.quote, verse: p.verse, endVerse });
   const r = rangeOf(chapter, p.verse, endVerse);
   return r ? { status: "found", start: r[0], end: r[1] } : { status: "lost", start: null, end: null };
+}
+
+/**
+ * Where a passage goes when no part of the sheet has been worked in yet
+ * (BA69): after the sheet's last passage, so passages added one after
+ * another stay in order; on a sheet with none, after the template's reading
+ * part (readingPart), so the first lands under "Reading" and not after
+ * "Closing", in a sheet made just now or days ago; else at the end.
+ */
+export function passageInsertIndex(sheet) {
+  const modules = sheet?.modules ?? [];
+  for (let i = modules.length - 1; i >= 0; i--) if (modules[i]?.type === "passage") return i + 1;
+  const reading = readingPart(sheet);
+  return reading ? modules.indexOf(reading) + 1 : modules.length;
 }
 
 /** Whether two passage fields name the same words (for "already on the sheet"). */
