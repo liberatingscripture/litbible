@@ -47,7 +47,7 @@ are recorded so they aren't re-argued.
   notes hidden marks its words (BA19), a note on a footnote is named as
   one and listed when it cites its own verse (BA20), and a drag ending
   over a desk window no longer selects the rest of the chapter (BA23; two
-  calls for BVJ in "Decisions", 2026-10-27). FA1-i is done: a template's
+  calls for BVJ in "Decisions", 2026-10-27). FA1-i is done (#381): a template's
   first passage lands under its reading heading and the instruction to
   add one is ghost text that never prints (BA69, BA70; BVJ's calls in
   "Decisions", 2026-10-27), adding a passage again says so where it was
@@ -6622,7 +6622,7 @@ The phases, in working order:
 | FA1-ab | Sheets in two tabs, and large sheets | BA128 to BA133 |
 | FA1-g | Sharing a sheet | done, #379: BA78, BA80, BA81, BA82, BA87 |
 | FA1-h | Marks on the page | done, #380: BA16, BA17, BA19, BA20, BA23 |
-| FA1-i | Sheet templates and passages | done, #PRNUM: BA69, BA70, BA75, BA76, BA77, BA127 |
+| FA1-i | Sheet templates and passages | done, #381: BA69, BA70, BA75, BA76, BA77, BA127 |
 | FA1-j | The sheet editor: pasting and saving | BA68, BA71, BA72, BA73, BA74 |
 | FA1-k | Greek search commands | BA44, BA45, BA48, BA49, BA50, BA116 |
 | FA1-l | /desk's LIT pane and layout | BA54, BA56, BA57, BA58, BA60, BA61 |

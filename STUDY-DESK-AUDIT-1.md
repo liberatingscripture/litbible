@@ -109,7 +109,7 @@ it goes after both, and FA1-ac after FA1-t.
 | FA1-ab | Sheets in two tabs, and large sheets | BA128 to BA133 | done, #378 |
 | FA1-g | Sharing a sheet | BA78, BA80, BA81, BA82, BA87 | done, #379 |
 | FA1-h | Marks on the page | BA16, BA17, BA19, BA20, BA23 | done, #380 |
-| FA1-i | Sheet templates and passages | BA69, BA70, BA75, BA76, BA77, BA127 | done, #PRNUM |
+| FA1-i | Sheet templates and passages | BA69, BA70, BA75, BA76, BA77, BA127 | done, #381 |
 | FA1-j | The sheet editor: pasting and saving | BA68, BA71, BA72, BA73, BA74 | open |
 | FA1-k | Greek search commands | BA44, BA45, BA48, BA49, BA50, BA116 | open |
 | FA1-l | /desk's LIT pane and layout | BA54, BA56, BA57, BA58, BA60, BA61 | open |
@@ -687,7 +687,7 @@ needs no browser by moving the form's verse rule into
     passage “lands inside a template, not after it.”
   - *Recommended*: when a template is applied, treat its Reading (or Read)
     part as the part last worked in.
-  - Status: fixed in #PRNUM, by BVJ's choice of a fuller rule (2026-10-27):
+  - Status: fixed in #381, by BVJ's choice of a fuller rule (2026-10-27):
     a passage with no part worked in goes after the last passage, or on a
     sheet with none, after the part headed “Reading,” “Read” or “The text”
     (`passageInsertIndex`, `readingPart`), so a reopened sheet gets it too.
@@ -700,7 +700,7 @@ needs no browser by moving the form's verse rule into
   - *Recommended*: remove the instruction when the first passage is added
     under it, which needs no format change. The other choice is a hint that
     only the editor shows.
-  - Status: fixed in #PRNUM, as ghost text (BVJ, 2026-10-27): the templates
+  - Status: fixed in #381, as ghost text (BVJ, 2026-10-27): the templates
     no longer hold the sentence; the editor draws it in the reading part
     (`READING_HINT`) until the sheet has a passage, and the sheet never
     holds it.
@@ -711,7 +711,7 @@ needs no browser by moving the form's verse rule into
     STUDY-DESK.md (3f) says adding one again “says so.”
   - *Fix*: one visible message, such as “John 3:16 added again; it was
     already on the sheet.”
-  - Status: fixed in #PRNUM: “John 3:16 added again; it was already on the
+  - Status: fixed in #381: “John 3:16 added again; it was already on the
     sheet.” is announced once and shown where it was added (under the
     “+ Passage” box, or in the LIT pane's panel, which stays up longer).
 - **BA76 (low; reproduced). C15's check ignores blanks of words under four
@@ -722,13 +722,13 @@ needs no browser by moving the form's verse rule into
     prints and gives the answer away. Key-term blanks are unaffected.
   - *Fix*: compare a short blank whole against the note's words, with case
     and accents folded.
-  - Status: fixed in #PRNUM: a blank's short words, less a list of
+  - Status: fixed in #381: a blank's short words, less a list of
     grammatical ones, are held whole against the note's.
 - **BA77 (low, copy). The Class session template says “the leader copy.”**
   It should read “An answer for the leader’s copy.”
   (`desk-sheet-templates.mjs:69`). Templates must stay in the sanitizer's
   canonical form; the test checks.
-  - Status: fixed in #PRNUM.
+  - Status: fixed in #381.
 
 ## FA1-j. The sheet editor: pasting and saving
 
@@ -1982,7 +1982,7 @@ timing itself needs a real browser.
     gaps a “past the end” test misses.
   - *Check*: tests for “Romans 8” (1–39), “Romans 8:99,” “Romans 8:28-99”
     (to 39) and “Matthew 17:21” (refused).
-  - Status: fixed in #PRNUM, as proposed, in `passageForReference`
+  - Status: fixed in #381, as proposed, in `passageForReference`
     (`desk-sheet-passages.mjs`). A range that ends in a gap ends at the
     verse before it, and nothing is added when the chapter can't be read.
 - **BA128 (medium, data loss; reproduced). After one failed save, every
