@@ -479,7 +479,17 @@ that section.
        where its reader is (`at` on the pane), and the active one's is the
        shared passage, `layout.place` ("john 3:16",
        `src/lib/desk-passage.mjs`), which the panes that aren't pinned
-       follow. They lead back: their picker (`desk/passage-bar.js`), This
+       follow. **Every LIT pane has an `at` once there is a shared place**
+       (`placeLitPanes` in `desk-layout.mjs`, BA52): a new one, or one saved
+       without, starts at the shared place and keeps it, so it never
+       follows the active pane. "Reset to the original layout" keeps the
+       place (`originalLayout(place)`, BA55). **A redraw keeps every pane's
+       scrolling** (BA51): `draw()` takes each pane off the page, which
+       resets it, so `keepScroll` notes it first and puts it back, with the
+       pane's own `keep()` where its scrolling tells where its reader is
+       (the LIT pane by its verse at the reading line, the Greek by not
+       reporting the restored scroll). A new pane kind that reports its
+       place on scroll needs a `keep` too. They lead back: their picker (`desk/passage-bar.js`), This
        verse's Previous and Next, a footnote's verse, or scrolling the Greek
        move the active LIT pane. With no LIT pane open they share the place
        among themselves (BVJ, 2026-10-19, option A); a pinned pane keeps

@@ -562,6 +562,15 @@ export function createGreekTab({
     onTopVerse(v);
   }
 
+  /**
+   * The pane was moved (desk-page.js redraws /desk's panes, which takes each
+   * off the page and puts its scrolling back): what that scroll does next
+   * isn't the reader's, so it isn't told back (BA51).
+   */
+  function settle() {
+    readerScrolled = false;
+  }
+
   /** Bring a verse to the Greek's top, as the passage it follows moves (not told back). */
   async function goToVerse(verse) {
     if (!(await ensure()) || !verses.includes(verse)) return;
@@ -1034,5 +1043,5 @@ export function createGreekTab({
     if (await ensure()) queueGoto();
   }
 
-  return { el, render, selectWord, goToVerse };
+  return { el, render, selectWord, goToVerse, settle };
 }

@@ -276,7 +276,8 @@ async function start() {
     announce("This layout is now your default.");
   });
   menu.querySelector("[data-ws-reset]").addEventListener("click", () => {
-    commit(originalLayout());
+    // The panes go back; the reader's place stays (BA55).
+    commit(originalLayout(layout.place));
     announce("Back to the original layout: the LIT beside My Notes.");
     closeMenu();
   });
@@ -478,17 +479,41 @@ async function start() {
     return box;
   }
 
+  /**
+   * Note a pane's scrolling before it is moved, and return what puts it back
+   * (BA51): every scrolled box in it, then the pane's own `keep`, which a
+   * pane whose scrolling tells where its reader is gives (the LIT, the Greek).
+   */
+  function keepScroll(rec) {
+    const boxes = [];
+    for (const e of rec.el.querySelectorAll("*")) {
+      if (e.scrollTop || e.scrollLeft) boxes.push([e, e.scrollTop, e.scrollLeft]);
+    }
+    const own = rec.inst?.keep?.();
+    return () => {
+      for (const [e, top, left] of boxes) {
+        e.scrollTop = top;
+        e.scrollLeft = left;
+      }
+      own?.();
+    };
+  }
+
   function draw() {
     const live = new Set(panes(layout.root).map((p) => p.id));
     for (const [id, rec] of paneEls) {
       if (!live.has(id)) { rec.inst?.destroy(); paneEls.delete(id); }
     }
+    // Moving a pane into its new place takes it off the page for a moment,
+    // which resets its scrolling (BA51), so each is noted first; and moving
+    // an element blurs it, so the focus is put back after too.
+    const putBack = Array.from(paneEls.values(), (rec) => (rec.el.isConnected ? keepScroll(rec) : null));
     fit();
-    // Moving an element blurs it, so the focus is put back after.
     const focused = panesBox.contains(document.activeElement) ? document.activeElement : null;
     const tree = build(layout.root, []);
     tree.style.flex = "1 1 0px";
     panesBox.replaceChildren(tree, drop);
+    for (const back of putBack) back?.();
     if (focused?.isConnected) focused.focus({ preventScroll: true });
     mark();
     follow();
