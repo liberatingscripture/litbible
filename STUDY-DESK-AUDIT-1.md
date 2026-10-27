@@ -92,10 +92,10 @@ before FA1-f. The table is in working order. FA1-u's letter is out of
 sequence only because it was added after the others were lettered; IDs stay
 stable. FA1-w to FA1-z, and FA1-aa to FA1-ad, came from FA1-u and were
 placed last among the fixes; their place in the order is BVJ's to change.
-FA1-ab holds two data-loss findings (BA128, BA129), so the order's own rule,
-data loss first, argues for moving it up to follow FA1-u (a recommendation,
-not yet BVJ's call). FA1-aa works the same files as FA1-l and FA1-r, so it
-goes after both, and FA1-ac after FA1-t.
+The one exception is FA1-ab, which holds two data-loss findings (BA128,
+BA129): BVJ moved it up to follow FA1-u (2026-10-26), by the order's own
+rule, data loss first. FA1-aa works the same files as FA1-l and FA1-r, so
+it goes after both, and FA1-ac after FA1-t.
 
 | Phase | Area | Findings | Status |
 |---|---|---|---|
@@ -106,6 +106,7 @@ goes after both, and FA1-ac after FA1-t.
 | FA1-e | /desk keeps the reader's place | BA51, BA52, BA53, BA55 | done, #374 |
 | FA1-f | The record format, for BDR | BA8, BA14 | done, #375 |
 | FA1-u | The follow-up audit: code this audit didn't reach | new findings, BA88 onward | done: areas 1 to 3 (BA88 to BA120), #376; areas 4 to 6 (BA121 to BA145) |
+| FA1-ab | Sheets in two tabs, and large sheets | BA128 to BA133 | open |
 | FA1-g | Sharing a sheet | BA78, BA80, BA81, BA82, BA87 | open |
 | FA1-h | Marks on the page | BA16, BA17, BA19, BA20, BA23 | open |
 | FA1-i | Sheet templates and passages | BA69, BA70, BA75, BA76, BA77, BA127 | open |
@@ -125,7 +126,6 @@ goes after both, and FA1-ac after FA1-t.
 | FA1-y | Ribbons and Continue reading | BA99 to BA108 | open |
 | FA1-z | The Greek tab | BA110, BA111, BA112, BA113, BA117, BA119, BA120 | open |
 | FA1-aa | /desk's panes and the shared modules | BA121 to BA126 | open |
-| FA1-ab | Sheets in two tabs, and large sheets | BA128 to BA133 | open |
 | FA1-ac | The copy pass | BA134 to BA139 | open |
 | FA1-ad | The stylesheet: focus, forced colors, contrast, and print | BA140 to BA145 | open |
 | FA1-v | The follow-up audit: real devices | new findings | open |
@@ -1898,7 +1898,7 @@ other pane (see "What held up").
     takes, and pass `env.showPassage` from `mountKept`. The /notebook page
     keeps its plain links.
   - Status: open.
-- **BA125 (low; traced; BVJ's call). A verse menu opened with the mouse in a
+- **BA125 (low; traced; BVJ chose pinning, 2026-10-26). A verse menu opened with the mouse in a
   pane stays put while the pane scrolls.**
   - *What happens*: in Study View a mouse-opened menu scrolls with the text
     until dragged, because the document scrolls. A LIT pane scrolls inside
@@ -1906,9 +1906,11 @@ other pane (see "What held up").
     in document coordinates, so they stay on screen while their verse
     moves away. Nothing closes them on scroll, by rule.
   - *Where*: `lit-panel.js:55–92`; `global.css:2837`; `desk.css:5087`.
-  - *Recommended*: pin a panel opened from a pane to the screen
-    (`pinToScreen`), as a dragged one is. Closing it on the pane's scroll
-    is the other way.
+  - *Fix* (BVJ, 2026-10-26: Claude's recommendation): pin a panel opened
+    from a pane to the screen (`pinToScreen`), as a dragged one is.
+    Weighed and not chosen: closing it when the pane scrolls.
+  - *Check*: open a verse menu with the mouse in a LIT pane and wheel the
+    pane: the menu stays where it opened, as a dragged one does.
   - Status: open.
 - **BA126 (low, accessibility; traced). A pane's footnote letters aren't
   announced as opening a dialog, and a middle-click opens another /desk.**
@@ -2069,7 +2071,7 @@ and `sheets-page.css` in both themes.
   (`greek-query.mjs:154`). *Fix*: “Quotes search for “any,” “exact,”
   “and,” or “or” as a word.”
   - Status: open.
-- **BA138 (low, copy; BVJ's call). The panel is “Notebook” in its heading and
+- **BA138 (low, copy; BVJ chose, 2026-10-26). The panel is “Notebook” in its heading and
   “the notebook” in its controls.**
   - *What happens*: the heading, the tab and the tour say “Notebook,” but
     its own buttons say “Minimize the notebook” and “Close the notebook”
@@ -2081,12 +2083,12 @@ and `sheets-page.css` in both themes.
     (`note-settings.js:321`), “Save a copy of my notebook”
     (`desk-commands.mjs:100`) and “From my notebook” (`sheet-pane.js:885`)
     are lowercase.
-  - *Recommended*: capitalize where the panel is named (“Close the
-    Notebook”), and keep lowercase where the words mean what the reader
-    has kept (“Save a copy of my notebook”), so the “my notebook” strings
-    stay.
+  - *Fix* (BVJ, 2026-10-26: Claude's recommendation): capitalize where
+    the panel is named (“Close the Notebook”), and keep lowercase where
+    the words mean what the reader has kept (“Save a copy of my
+    notebook”), so the “my notebook” strings stay.
   - Status: open.
-- **BA139 (low, copy; BVJ's call). “My Notes” and “My notes” name the same
+- **BA139 (low, copy; BVJ chose, 2026-10-26). “My Notes” and “My notes” name the same
   thing.**
   - *What happens*: the tab and the pane kind say “My Notes”
     (`panel.js:148`, `desk-layout.mjs:51`), while the margin's switch, its
@@ -2096,9 +2098,12 @@ and `sheets-page.css` in both themes.
     (`desk-commands.mjs:51, 72, 79`), which are different things. The tour's
     two versions of one sentence say “My Notes” and “the Notebook” lists
     every bookmark (`desk-first-use.mjs:183–184`).
-  - *Recommended*: “My Notes” for the tab and pane only, and a different
-    name for the margin (“Notes in the margin”), so the two commands can't
-    be confused.
+  - *Fix* (BVJ, 2026-10-26: Claude's recommendation): “My Notes” for the
+    tab and pane only, and “Notes in the margin” for the margin (its
+    switch, its region's name and its command), so the two commands can't
+    be confused. This verse's subhead names the reader's notes on the
+    verse, so it can stay in sentence case; make the tour's two sentences
+    (`desk-first-use.mjs:183–184`) name the same place.
   - Status: open.
 - **BA140 (medium, accessibility; computed). A segmented control's focus ring
   can't be seen on the chosen option.**
@@ -2148,14 +2153,15 @@ and `sheets-page.css` in both themes.
   which WCAG exempts; it is the only reason given, so lift it too. *Fix*:
   `rgba(var(--ink-rgb), 0.7)` or more.
   - Status: open.
-- **BA144 (low, accessibility; computed; BVJ's call). Text fields' borders
+- **BA144 (low, accessibility; computed; BVJ chose, 2026-10-26). Text fields' borders
   are 1.6 to 1.9:1 against the panel.** In light mode a field's fill
   matches the panel, so its 1px border is its only edge, below the 3:1
   WCAG asks of a control's boundary (dark: 1.95 to 2.53:1). Eight fields:
   `desk.css:3063, 3199, 4077, 4868, 5468, 5611, 6059, 6109`. The rest of the
   site's fields are as soft, so this is a site-wide choice more than a desk
-  bug. *Recommended*: about `rgba(var(--ink-rgb), 0.55)` for field borders,
-  site-wide, in its own change.
+  bug. *Fix* (BVJ, 2026-10-26: Claude's recommendation): about
+  `rgba(var(--ink-rgb), 0.55)` for field borders, site-wide, as its own
+  commit in FA1-ad, checked against 3:1 in both themes.
   - Status: open.
 - **BA145 (low; possible). Nothing hides the Notebook rail or the undo bar
   in print.**
@@ -2199,25 +2205,27 @@ area's entry for the files.
   Files: `tab-greek.js`, `greek-find.js`, `greek-commands.js` (BA117),
   `desk-greek.mjs`, `desk.css`. Tests: `desk-greek`. Desk rules 14, 15
   and 17.
-- **FA1-aa. /desk's panes and the shared modules.** BA121 to BA126 (BA125
-  is BVJ's call). Files: `desk-panes.js`, `desk-page.js`,
+- **FA1-aa. /desk's panes and the shared modules.** BA121 to BA126 (BA125's
+  fix is BVJ's choice: pin the menu). Files: `desk-panes.js`, `desk-page.js`,
   `lit-records.js`, `lit-pane.js`, `lit-panel.js`, `kept-list.js`,
   `record-rows.js`, `tab-mine.js`, `change-notice.js`, `desk.css`.
   After FA1-l and FA1-r, which work the same files. Browser check: “Three
   rows” in a short window. Desk rule 18.
 - **FA1-ab. Sheets in two tabs, and large sheets.** BA128 to BA133, BA128
-  and BA129 data loss. Files: `sheet-pane.js`, `store.js` (`change`),
+  and BA129 data loss, so BVJ moved this phase up to follow FA1-u. Files: `sheet-pane.js`, `store.js` (`change`),
   `search-sheet.js`, `desk-sheet-gather.mjs`, `sheet-lit.js`,
   `desk-sheet-lit.mjs`. Tests: `desk-sheets`, `desk-sheet-gather`,
   `desk-sheet-lit`, and a two-tab test over a stubbed store. Desk rules 21
   to 23.
-- **FA1-ac. The copy pass.** BA134 to BA139 (BA138 and BA139 are BVJ's
-  calls on names). Files: those each finding names; `notebook/help.astro`
+- **FA1-ac. The copy pass.** BA134 to BA139 (BA138 and BA139 follow
+  BVJ's choice of names). Files: those each finding names; `notebook/help.astro`
   and `desk-first-use.mjs` hold most of BA134. After FA1-t, which touches
   some of the same strings. Tests: `desk-notes` (BA136), and any test
   asserting a changed string.
-- **FA1-ad. The stylesheet.** BA140 to BA145 (BA144 is BVJ's call, and
-  site-wide). Files: `desk.css`, `sheets-page.css`, `print.css`. Browser
+- **FA1-ad. The stylesheet.** BA140 to BA145 (BA144 is site-wide, by
+  BVJ's choice). Files: `desk.css`, `sheets-page.css`, `print.css`, and
+  for BA144 the site's own field styles (`global.css` and the page
+  stylesheets). Browser
   check: DevTools' forced-colors emulation in both themes, Tab through the
   segmented controls, and a print at 900px wide.
 

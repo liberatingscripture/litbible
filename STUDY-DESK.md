@@ -31,8 +31,8 @@ are recorded so they aren't re-argued.
   Claude under "One notebook, three homes". FA1-u, the follow-up audit,
   is done (2026-10-26): 58 findings, BA88 to BA145 (14 medium, 44 low).
   Areas 1 to 3 are in FA1-w to FA1-z and in FA1-k, FA1-r and FA1-t; areas
-  4 to 6 in FA1-aa to FA1-ad and FA1-i. Next: FA1-g, unless BVJ moves
-  FA1-ab (two data-loss findings in sheets) ahead of it.
+  4 to 6 in FA1-aa to FA1-ad and FA1-i. Next: FA1-ab (sheets in two tabs;
+  two data-loss findings), which BVJ moved ahead of FA1-g.
 
 - **Phase 2c is built on the preview** (2026-10-20): notes on a footnote
   and questions for discussion. **A note can be on a footnote** (M11):
@@ -5737,12 +5737,21 @@ split itself is still a proposal BVJ worked within but hasn't confirmed.
   BA127 in FA1-i. That ends FA1-u: 58 findings over its two sessions.
 - **Two are data loss, in sheets** (BA128, BA129): a failed save leaves
   every later edit unsaved, and a tab that hasn't heard another tab's save
-  writes its older copy over the whole sheet. Claude recommends moving
-  FA1-ab up to follow FA1-u, by the plan's own rule (data loss first);
-  BVJ's call, not yet made.
-- **Calls waiting for BVJ, with recommendations**: BA125 (a verse menu in a
-  scrolling pane: pin it to the screen), BA138 and BA139 (“Notebook” and
-  “My Notes” as names), and BA144 (fields' borders, a site-wide choice).
+  writes its older copy over the whole sheet. **BVJ moved FA1-ab up to
+  follow FA1-u** (2026-10-26), by the plan's own rule, data loss first, so
+  it is the next phase.
+- **BVJ took Claude's recommendation on all four calls** (2026-10-26):
+  - **BA125**: a verse menu or selection panel opened with the mouse in a
+    /desk pane is pinned to the screen, as a dragged one is, rather than
+    closed when the pane scrolls.
+  - **BA138**: “Notebook” is capitalized where it names the panel (“Close
+    the Notebook”); “my notebook” stays lowercase where it means what the
+    reader has kept (“Save a copy of my notebook”).
+  - **BA139**: “My Notes” names the tab and the pane only; the margin is
+    “Notes in the margin,” in its switch, its region's name and its
+    command.
+  - **BA144**: text fields' borders rise to about 3:1 site-wide, not only
+    on the desk, as its own commit in FA1-ad.
 
 ### 2026-10-26 (FA1-u, areas 1 to 3: 33 findings; a stricter linker for notes)
 
@@ -6541,6 +6550,7 @@ The phases, in working order:
 | FA1-e | /desk keeps the reader's place | BA51, BA52, BA53, BA55 |
 | FA1-f | The record format, for BDR | BA8, BA14 |
 | FA1-u | The follow-up audit: code this audit didn't reach | done: BA88 to BA145 |
+| FA1-ab | Sheets in two tabs, and large sheets | BA128 to BA133 |
 | FA1-g | Sharing a sheet | BA78, BA80, BA81, BA82, BA87 |
 | FA1-h | Marks on the page | BA16, BA17, BA19, BA20, BA23 |
 | FA1-i | Sheet templates and passages | BA69, BA70, BA75, BA76, BA77, BA127 |
@@ -6560,7 +6570,6 @@ The phases, in working order:
 | FA1-y | Ribbons and Continue reading | BA99 to BA108 |
 | FA1-z | The Greek tab | BA110, BA111, BA112, BA113, BA117, BA119, BA120 |
 | FA1-aa | /desk's panes and the shared modules | BA121 to BA126 |
-| FA1-ab | Sheets in two tabs, and large sheets | BA128 to BA133 |
 | FA1-ac | The copy pass | BA134 to BA139 |
 | FA1-ad | The stylesheet: focus, forced colors, contrast, and print | BA140 to BA145 |
 | FA1-v | The follow-up audit: real devices | new |
