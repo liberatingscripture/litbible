@@ -92,7 +92,7 @@ stable.
 | FA1-c | Merging and opening a copy | BA3, BA4, BA11, BA12 | done, #372 |
 | FA1-d | The store, the note editor, and undo | BA5, BA13, BA6, BA7 | done, #373 |
 | FA1-e | /desk keeps the reader's place | BA51, BA52, BA53, BA55 | done, #374 |
-| FA1-f | The record format, for BDR | BA8, BA14 | done |
+| FA1-f | The record format, for BDR | BA8, BA14 | done, #375 |
 | FA1-u | The follow-up audit: code this audit didn't reach | new findings, BA88 onward | open |
 | FA1-g | Sharing a sheet | BA78, BA80, BA81, BA82, BA87 | open |
 | FA1-h | Marks on the page | BA16, BA17, BA19, BA20, BA23 | open |
@@ -471,7 +471,7 @@ Christmas. After it, add a line to STUDY-DESK.md for BDR.
     history, so fetch more first (`git fetch --depth=1000 origin main`).
     Bump `ANCHOR_SPEC_VERSION`. If BVJ would rather wait, mark both guards
     in the format as not yet built instead.
-  - Status: fixed in FA1-f. `bestByContext` returns no occurrence when
+  - Status: fixed in #375. `bestByContext` returns no occurrence when
     there are several and fewer than `MIN_CONTEXT` (8) characters of context
     agree, and `resolveAnchor` takes a `changed` region only when it is at
     most `2 × exact + CHANGED_GROWTH` (16). A step whose guard fails doesn't
@@ -500,7 +500,7 @@ Christmas. After it, add a line to STUDY-DESK.md for BDR.
        say nothing uses the merge.
   - *Also*: describe FA1-b's per-entry `modified` and FA1-d's undo and trash
     behavior (BA7).
-  - Status: fixed in FA1-f. 1: a "Times" paragraph under the common fields
+  - Status: fixed in #375. 1: a "Times" paragraph under the common fields
     (`Z`, any number of fraction digits, three written, compared as
     instants). 2: kind 10 names the tombstone's fields (everything but
     `record`), and `emptyTrashRecord`'s comment says the same. 3: `v3-4`. 4:
