@@ -5743,6 +5743,13 @@ split itself is still a proposal BVJ worked within but hasn't confirmed.
   links 8:28 alone. Footnotes, intros and articles keep today's rule.
   Recommended with it, not a separate decision: a table of verse counts so
   a verse past a chapter's end never links.
+- **The Greek tab searches a one-letter Greek word** (BVJ, 2026-10-26;
+  BA110): its two-character floor is lifted for Greek and Strong's
+  numbers, as the tray and /search already do, so ὦ (“O”) and ἤ are
+  searchable by their forms. The floor never kept results small (καί
+  passes it). A bare search for the article is no use, since ὁ is in
+  6,966 of 7,942 verses; recommended, not decided: answer it with a line
+  pointing to a search beside a word (“ὁ, θεός”) instead of the list.
 - **FA1-y meets E9.** The ribbon findings describe today's code, which E9
   (2026-10-22) will rebuild as Bookmarks; each says what E9 would make
   moot, and if E9 is built first, FA1-y folds into it.

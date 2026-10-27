@@ -1681,21 +1681,30 @@ in Node against the real `float-window.js` and `greek-commands.js` with a
 small stub DOM, and the rest traced or run over the committed
 `public/greek/` data.
 
-- **BA110 (medium; traced and counted). The Greek tab can't search a
-  one-letter Greek word, the article ὁ among them.**
+- **BA110 (medium; traced and counted; BVJ chose to lift the floor,
+  2026-10-26). A one-letter Greek word offered as a search does nothing and
+  says nothing.**
   - *What happens*: the tab's search runs only from two characters, so
     clicking the lemma “ὁ” or a form like “ἡ” or “ἢ” in a word's details
-    fills the field and does nothing: no results and no hint. Typing “ὁ”
-    and Enter is the same. Rule 15 says a Greek query works “at any length
-    (ὁ, ἐν)”, and the tray and /search let it through. 19,802 of the
-    137,794 words have the lemma ὁ, and 4,844 have a one-letter form.
+    fills the field and does nothing: no results and no hint. Typing one
+    and Enter is the same. The tray and /search accept them (rule 15: a
+    Greek query “at any length”). What is lost is small but real: ὦ, the
+    vocative “O” (17 times: Galatians 3:1, Romans 11:33), is reachable
+    only by its Strong's number, and ἤ (“or,” “than,” 346) not by its
+    form. The floor doesn't keep results small anyway: καί (8,985) and
+    αὐτός (5,557) pass it. A bare search for the article itself is no
+    use: ὁ is in 6,966 of the NT's 7,942 verses. The article is studied
+    beside a word (“ὁ, θεός”), which the floor never blocked.
   - *Where*: `greek-find.js:164, 213, 271`; the starters are
     `tab-greek.js:793, 820`.
-  - *Fix*: one pure test, Greek or a Strong's number at any length and
-    anything else from two characters, used at all three places, with the
-    hint shown for a lone Latin letter.
-  - *Check*: a unit test of that helper; in the browser, open an article
-    and click its lemma.
+  - *Fix* (BVJ, 2026-10-26: “lift the floor for Greek”): one pure test,
+    Greek or a Strong's number at any length and anything else from two
+    characters, used at all three places, with the hint shown for a lone
+    Latin letter. Recommended with it: a search for the article alone
+    answers with a line rather than the list, such as “ὁ is in 6,966 of
+    7,942 verses. To study it, search it beside a word: ὁ, θεός.”
+  - *Check*: a unit test of that helper; in the browser, click ὦ's lemma
+    in Galatians 3:1 and expect its 17.
   - Status: open.
 - **BA111 (low; run over the data). A closing apparatus sign leads nowhere in
   eight verses.**
