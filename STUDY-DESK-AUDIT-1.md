@@ -91,7 +91,7 @@ stable.
 | FA1-b | Markdown copies | BA1, BA2, BA41, BA9, BA10 | done, #371 |
 | FA1-c | Merging and opening a copy | BA3, BA4, BA11, BA12 | done, #372 |
 | FA1-d | The store, the note editor, and undo | BA5, BA13, BA6, BA7 | done, #373 |
-| FA1-e | /desk keeps the reader's place | BA51, BA52, BA53, BA55 | done, #FA1E |
+| FA1-e | /desk keeps the reader's place | BA51, BA52, BA53, BA55 | done, #374 |
 | FA1-f | The record format, for BDR | BA8, BA14 | open |
 | FA1-u | The follow-up audit: code this audit didn't reach | new findings, BA88 onward | open |
 | FA1-g | Sharing a sheet | BA78, BA80, BA81, BA82, BA87 | open |
@@ -398,7 +398,7 @@ Browser check required.
     after; for a LIT pane, `goTo` its own passage with `{ force: true }`.
   - *Check*: in a browser, with the LIT pane partway into a book, close,
     add, move and switch panes.
-  - Status: fixed in #FA1E. `draw()` notes each pane's scrolling before it
+  - Status: fixed in #374. `draw()` notes each pane's scrolling before it
     moves the panes and puts it back after (`keepScroll`). The LIT pane's
     own `keep` puts the verse at its reading line back where it was, so a
     new width can't move it; it and the Greek clear their "the reader
@@ -414,7 +414,7 @@ Browser check required.
     contradicts rule 18's “each LIT pane keeps where its reader is.”
   - *Fix*: give a LIT pane `at = litPlace(…)` when it is made (`setKind`,
     `applyArrangement`, `splitPane`), or on mount through `setLitAt`.
-  - Status: fixed in #FA1E, in the layout rules rather than on mount:
+  - Status: fixed in #374, in the layout rules rather than on mount:
     `placeLitPanes` gives every LIT pane without an `at` the shared place,
     from `settleActive` (so every path that makes or loads a pane),
     `setPlace` and `setLitAt` (the old place, before it moves).
@@ -429,7 +429,7 @@ Browser check required.
     describes the default as a layout.
   - *Recommended*: open with the default's arrangement and the last visit's
     places, or Continue reading's.
-  - Status: fixed in #FA1E as recommended (BVJ, 2026-10-26: option 1).
+  - Status: fixed in #374 as recommended (BVJ, 2026-10-26: option 1).
     `openingLayout(saved, reading)` gives the default's arrangement
     (`atPlace`) the last place on the desk, else Continue reading's;
     pins and a Sheet pane's sheet are kept, a pin at the reader's place.
@@ -440,7 +440,7 @@ Browser check required.
     `desk-layout.mjs:178–190`).
   - *Fix*: `commit({ ...originalLayout(), place: layout.place })`, carrying
     the active LIT pane's `at` into p1.
-  - Status: fixed in #FA1E: `originalLayout(place)`, called with the
+  - Status: fixed in #374: `originalLayout(place)`, called with the
     shared place (the active LIT pane's).
 
 ## FA1-f. The record format, for BDR
