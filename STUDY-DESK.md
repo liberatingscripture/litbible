@@ -22,7 +22,7 @@ are recorded so they aren't re-argued.
   FA1-v (real devices). The plan,
   and every finding with its fix, is `STUDY-DESK-AUDIT-1.md`. In short, see
   "Full Audit 1 (10/20/2026)" below. FA1-a to FA1-d are done (#370,
-  #371, #372, #PRNUM); FA1-c changed the merge's clamp rule and the merge
+  #371, #372, #373); FA1-c changed the merge's clamp rule and the merge
   vectors (version 2), and FA1-d how undo and redo write trash records
   (BA7), both of which FA1-f takes to BDR. Next: FA1-e, /desk keeps the
   reader's place.

@@ -90,7 +90,7 @@ stable.
 | FA1-a | Security: the stored script and the sanitizer | BA66, BA67, BA59 | done, #370 |
 | FA1-b | Markdown copies | BA1, BA2, BA41, BA9, BA10 | done, #371 |
 | FA1-c | Merging and opening a copy | BA3, BA4, BA11, BA12 | done, #372 |
-| FA1-d | The store, the note editor, and undo | BA5, BA13, BA6, BA7 | done, #PRNUM |
+| FA1-d | The store, the note editor, and undo | BA5, BA13, BA6, BA7 | done, #373 |
 | FA1-e | /desk keeps the reader's place | BA51, BA52, BA53, BA55 | open |
 | FA1-f | The record format, for BDR | BA8, BA14 | open |
 | FA1-u | The follow-up audit: code this audit didn't reach | new findings, BA88 onward | open |
@@ -326,7 +326,7 @@ Browser check: edit a note in one tab while another tab changes it.
     history entry, and the import says "Nothing was changed."
   - *Fix*: `try { … } catch (e) { tx.abort(); throw e; }`. Refuse records
     nested beyond a sane depth in `planImport`.
-  - Status: fixed in #PRNUM. Every write in `store.js` goes through one
+  - Status: fixed in #373. Every write in `store.js` goes through one
     `apply`, which aborts the transaction when anything throws and rejects
     with that error, so none of a failed write is kept. `planImport` skips a
     record nested deeper than `MAX_NESTING` (64).
@@ -338,7 +338,7 @@ Browser check: edit a note in one tab while another tab changes it.
     copy from before it. A restore during the purge leaves a tombstone
     beside the live record.
   - *Fix*: read and write in one readwrite transaction.
-  - Status: fixed in #PRNUM. `store.change` reads and writes in one
+  - Status: fixed in #373. `store.change` reads and writes in one
     readwrite transaction; `remove`, `undo`, the purge and the history's own
     steps (whose overtaken check had the same gap) all use it.
 - **BA6 (medium, data loss). The note editor saves over changes made while
@@ -353,7 +353,7 @@ Browser check: edit a note in one tab while another tab changes it.
     words and the marker changed, say “This note was changed in another
     tab” rather than writing. Otherwise apply the words and the marker to
     the fresh copy.
-  - Status: fixed in #PRNUM, as described, through `planEdit`
+  - Status: fixed in #373, as described, through `planEdit`
     (`desk-store-core.mjs`) inside `store.change`. The editor stays open with
     the reader's words when it refuses.
 - **BA7 (medium; reproduced). Undo and redo leave states that a later merge
@@ -370,7 +370,7 @@ Browser check: edit a note in one tab while another tab changes it.
     `planDelete`, so a trash record is written. Compare entries ignoring
     `deletedAt`, as they already ignore `modified` and `client`. Tell BDR in
     FA1-f.
-  - Status: fixed in #PRNUM, as described. The trash record an undone add
+  - Status: fixed in #373, as described. The trash record an undone add
     writes takes an id the entry allots (`undoTrash`), so a redo removes it.
     Any trash record an undo or redo puts back gets a fresh `deletedAt`, not
     only a redone deletion's.
