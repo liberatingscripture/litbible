@@ -1,6 +1,6 @@
 # The content API, version 2 (draft 2)
 
-**Status: draft 2, 2026-10-26. Built on the website, on branch `api-v2`, in pull request #359, in
+**Status: draft 2, 2026-10-27. Built on the website, on branch `api-v2`, in pull request #359, in
 review by BVJ; nothing is served until he merges it.** Both apps' store releases (iOS 2.0.1, Android 1.2) were run
 against a build of this branch on 2026-10-22: no request reached `/api/data/v2/`, and each app's stored
 content was identical to a sync from `main` (`LIT Handoff/API-2-APP-CHECK-iOS-2026-10-22.md` and
@@ -11,7 +11,9 @@ on one text, and that agreement is the whole point.
 **Decided by BDR, 2026-10-22:** one file per chapter, not per book; version 1 is kept indefinitely;
 the review's tunings are adopted. **And 2026-10-23**, both apps recommending it: no content version
 inside a chapter file; `content.json` hashed beside `v2.files`, as `v2.content`; no change list for now
-(below). The order across the three platforms: the website first (this branch), iOS ingests in its
+(below). **And 2026-10-27, BVJ:** `anchorSpec` stays out of the chapter files and `books.json`, apps
+check `api` alone, and the vectors refuse a change to the words under the same `api` (below). The
+order across the three platforms: the website first (this branch), iOS ingests in its
 November update, and Android runs the vectors in December and reads version 2's files after its first
 synced release.
 
@@ -65,16 +67,31 @@ footnote letters placed.
 count. The text has nothing outside the Basic Multilingual Plane today, so they also equal code-point
 offsets. Every offset is in the final, normalized text.
 
-**The spec bump rule.** An app reads a chapter only when its `api` and `anchorSpec` are ones it
-implements. A change to the anchor rule (`ANCHOR_SPEC_VERSION` 3) is a new `api` number and a new
-folder (`/api/data/v3/`), never a change to the files under `/api/data/v2/`, so a client can never
-place a mark against text built by a rule it doesn't know.
+**The spec bump rule.** An app reads a file only when its `api` is one it implements, and **`api` is
+the only number it checks.** A change to the rules that make the words (`text`, the verse spans, a
+footnote's `text`) is a new `api` number and a new folder (`/api/data/v3/`), never a change to the
+files under `/api/data/v2/`. So within one folder those rules never change, the `api` number stands
+for them, and a client can never place a mark against words built by a rule it doesn't know (BVJ,
+2026-10-27).
 
-**Version 2 ships at `anchorSpec` 2.** Spec 2 (2026-10-26, audit FA1-f) changed only how a mark is
-found again (rule e's two guards in `resolveAnchor`), not the text: every chapter's `text` is the same
-under 1 and 2. It arrived before version 2 was published, so nothing under `/api/data/v2/` ever said 1.
-An app reading version 2 implements `resolveAnchor` as spec 2 has it, and runs the spec 2
-`anchor-vectors.json`.
+**The Study Desk's own rule number is not in a chapter file.** `ANCHOR_SPEC_VERSION`
+(`STUDY-DESK-FORMAT.md`) also moves when only the way a mark is found again changes, which alters no
+word in these files: spec 2 (2026-10-26, audit FA1-f) added rule e's two guards to `resolveAnchor`
+and left every chapter's `text` as it was. Carried in each chapter file, such a change would alter all
+260 files for nothing, and cut off any app checking the number. So `anchorSpec` appears only in
+`v2/version.json`, the manifest's `v2` key and `content.json`'s header, as information (which Study
+Desk rules the site follows; 2 today). Apps keep their own mark-finding code in step through app
+updates and `anchor-vectors.json`, never through content.
+
+**What catches a change to the words under the same `api`.** The vectors record a fingerprint of every
+chapter's words (`words`: its text, verse spans and footnote texts), and `npm run build:api2-vectors`
+refuses to write, and `test/api2.test.js` fails, when the words come out differently for a chapter
+whose version 1 file hasn't changed, or for any of the vectors' copied inputs. That covers every
+chapter **not edited since the vectors were last written**, and every edge case the vectors carry
+(poetry lines, ⟦ ⟧ passages, italics, footnote letters, verse-number gaps, drafts). It can't tell a
+rule change from an edit in a chapter edited in the same stretch; the copied edge cases are what still
+catch a rule change there. The build's own check doesn't cover this, by design: it holds the served
+text to `chapterAnchorText`, and moves with it.
 
 ## The files
 
@@ -84,7 +101,7 @@ All static, under `/api/data/v2/`, which both apps already resolve manifest path
 | File | What |
 |---|---|
 | `v2/version.json` | the gate a version 2 app polls: `{ api, anchorSpec, version, contentHash, chapterCount }` |
-| `v2/books.json` | the 27 books in canonical order: `{ bookKey, name, chapters, indexed: [bool per chapter] }` |
+| `v2/books.json` | `{ api, books }`: the 27 books in canonical order, each `{ bookKey, name, chapters, indexed: [bool per chapter] }` |
 | `v2/chapters/<book>-<n>.json` | one per chapter, below |
 | `v2/content.json` | every chapter in one file, `{ api, anchorSpec, version, contentHash, chapters: [...] }`, for the many-changes path and a first sync |
 
@@ -129,7 +146,6 @@ with the same serialization, and leaves `build-api-manifest.mjs` itself untouche
 ```jsonc
 {
   "api": 2,
-  "anchorSpec": 2,
   "bookKey": "john",
   "chapter": 3,
   "indexed": true,                     // false = a draft (see below)
@@ -242,14 +258,16 @@ has none today:
 `npm run build:api2-vectors` writes `test/fixtures/api2-vectors.json` (committed, on demand, like the
 anchor vectors):
 
-- **`hashes`**: for every chapter, `hash` and `source`, the SHA-256 of the version 1 chapter file it
-  was built from (the same hash the version 1 manifest lists for `chapters/<slug>.json`). An app
+- **`hashes`**: for every chapter, `hash`, `words` (the fingerprint of its words, above) and `source`,
+  the SHA-256 of the version 1 chapter file it was built from (the same hash the version 1 manifest
+  lists for `chapters/<slug>.json`). An app
   derives the anchor text from its own copy of version 1 through its own implementation, hashes it,
   and compares, for each chapter whose version 1 hash equals `source`. The site's test does the same
   against `api2-core`, skipping chapters edited since the vectors were written.
 - **`chapters`**: whole version 2 files for the edges above, each with its version 1 input copied in,
   so they stay valid as the corpus moves on.
 - **`synthetic`**: hand-written inputs for edges the corpus doesn't have today.
+- The header's `anchorSpec` is information only, like `v2/version.json`'s.
 
 `test/fixtures/anchor-vectors.json` keeps proving the rule itself; this file proves the served output.
 
@@ -350,26 +368,7 @@ join the LIT's text to MorphGNT's word numbering, which is CC BY-SA.
 
 ## Open
 
-1. **For BVJ, with BDR agreeing on the aim (2026-10-26): keep the Study Desk's rule number out of the
-   chapter files.** As built, every chapter file and `books.json` carry `anchorSpec`, which moves
-   whenever the shared Study Desk rules change, including a change like spec 2 that only affects how
-   a mark is found again and leaves the words alone. Each such change would alter all 260 files, so
-   every app downloads them all again, and an app that checks `anchorSpec` would stop taking updates
-   until it was updated itself. (An earlier draft of this item suggested raising `anchorSpec` inside
-   the files instead of opening a new folder; that has the same cost, so it was dropped.) Proposed:
-   - **Apps check `api` alone.** The `api` number already stands for the rules that make the words,
-     because a change to those rules is a new `api` and folder; within `/api/data/v2/` they never
-     change.
-   - **`anchorSpec` leaves the chapter files and `books.json`**, and stays in `v2/version.json` and the
-     manifest's `v2` key as information only: which Study Desk rules the site follows. Apps keep their
-     own mark-finding code in step through app updates and `anchor-vectors.json`, never through content.
-   - **A tripwire so the words' rules can't change silently under version 2.** The vectors already
-     copy their inputs; `build:api2-vectors` would refuse to write, and the vectors test would say why,
-     when those same inputs give different words (text, verse spans or footnote `text`) under the same
-     `api`.
-   - **Decide before any app reads version 2**: once a field ships in the files, removing it is a new
-     version under "Adding more later".
-2. **For BVJ, in review:** the shape as a whole, and whether he is content with the rules he already
+1. **For BVJ, in review:** the shape as a whole, and whether he is content with the rules he already
    follows being load-bearing (see "BVJ's part" above).
 
 ## Where this came from

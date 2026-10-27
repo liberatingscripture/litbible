@@ -562,9 +562,11 @@ spans above and the positions of its blocks, lines, emphasis, footnote
 letters and ⟦ ⟧ spans laid over it. Its build checks every chapter's `text`
 and verse spans against `chapterAnchorText` and fails on any difference, so
 an app that reads version 2 places marks against exactly the characters this
-section defines, without parsing the HTML itself. It ships at spec 2, whose
-change left the text alone; a later anchor rule (`ANCHOR_SPEC_VERSION` 3)
-means a new API version and folder, never a change under `/api/data/v2/`.
+section defines, without parsing the HTML itself. A change to how this
+section makes the words means a new API version and folder, never a change
+under `/api/data/v2/`. A change only to finding a mark again (as spec 2 was)
+touches nothing it serves: its chapter files don't carry this section's
+version number, which is information in its `version.json` alone.
 
 ### Anchor text for prose (provisional)
 

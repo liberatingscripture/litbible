@@ -20,6 +20,8 @@ import {
   addV2ToManifest,
   assertV1FilesMap,
   buildChapterV2,
+  wordsChanges,
+  wordsHash,
 } from "../scripts/lib/api2-core.mjs";
 
 const CHAPTERS = new URL("../src/data/chapters/", import.meta.url);
@@ -87,7 +89,9 @@ test("every chapter builds, and its text and verse spans are the anchor text", (
     );
     assert.equal(v2.hash, sha256(Buffer.from(v2.text, "utf8")), slug);
     assert.equal(v2.api, API_VERSION);
-    assert.equal(v2.anchorSpec, ANCHOR_SPEC_VERSION);
+    // The Study Desk's rule number stays out of a chapter file: it also moves
+    // when only the finding of marks changes, which alters no word here.
+    assert.ok(!("anchorSpec" in v2), `${slug} carries anchorSpec`);
     // A draft is either a placeholder page (no text, its figure kept) or the
     // translation so far (text, no figure); never both.
     if (!v2.indexed) assert.ok(v2.text === "" || v2.figures.length === 0, `${slug} is a draft`);
@@ -170,7 +174,7 @@ test("no <figure> in an indexed chapter", () => {
 
 // ── The committed vectors ────────────────────────────────────────────────
 
-test("the committed vectors are for this api and spec version", () => {
+test("the committed vectors are for this api (anchorSpec is information)", () => {
   assert.equal(vectors.api, API_VERSION);
   assert.equal(vectors.anchorSpec, ANCHOR_SPEC_VERSION);
 });
@@ -187,8 +191,57 @@ test("vector hashes hold for every chapter still at the text they record", () =>
     const entry = vectors.hashes[slug];
     assert.ok(entry, `${slug} missing from the vectors (run npm run build:api2-vectors)`);
     if (entry.source !== sha256(raw)) continue; // edited since; the vectors describe the older file
-    assert.equal(buildChapterV2(data).hash, entry.hash, slug);
+    const v2 = buildChapterV2(data);
+    assert.equal(v2.hash, entry.hash, slug);
+    // Text, verse spans and footnote text: if these move for a file that
+    // didn't, the rules that make the words changed, which is a new api number
+    // and folder (API-2-FORMAT.md, "The spec bump rule"), not a regeneration.
+    assert.equal(wordsHash(v2), entry.words, `${slug}: the words changed under api ${API_VERSION}`);
     checked++;
   }
   assert.ok(checked > 0, "no chapter is at the text the vectors record; regenerate them");
+});
+
+test("the words of every copied vector input hold under this api", () => {
+  for (const v of [...vectors.chapters, ...vectors.synthetic]) {
+    assert.equal(
+      wordsHash(buildChapterV2(v.input)),
+      wordsHash(v.expected),
+      `${v.slug ?? v.why}: the words changed under api ${API_VERSION}`,
+    );
+  }
+});
+
+test("regenerating the vectors refuses a change to the words under the same api", () => {
+  const sample = vectors.synthetic[1]; // a footnote letter between two spaces
+  const previous = {
+    api: API_VERSION,
+    hashes: { a: { source: "s1", words: "w1" }, b: { source: "s2", words: "w2" }, c: { source: "s3" } },
+    chapters: [],
+    synthetic: [sample],
+  };
+  const same = (input) => buildChapterV2(input);
+  // Nothing moved: no complaint.
+  assert.deepEqual(wordsChanges(previous, { a: { source: "s1", words: "w1" } }, same), []);
+  // A chapter at the same version 1 file with different words is caught; one
+  // whose file changed, or with no recorded words, is not judged.
+  const moved = wordsChanges(
+    previous,
+    { a: { source: "s1", words: "other" }, b: { source: "edited", words: "other" }, c: { source: "s3", words: "x" } },
+    same,
+  );
+  assert.deepEqual(moved.map((m) => m.split(":")[0]), ["a"]);
+  // A copied input whose words now differ is caught; a change elsewhere in the
+  // file (a block's span, a footnote's place) is not a change to the words.
+  const wordsDiffer = (input) => ({ ...buildChapterV2(input), text: "changed" });
+  assert.equal(wordsChanges(previous, {}, wordsDiffer).length, 1);
+  const rangesDiffer = (input) => ({ ...buildChapterV2(input), blocks: [], runs: [] });
+  assert.deepEqual(wordsChanges(previous, {}, rangesDiffer), []);
+  const footnoteDiffers = (input) => {
+    const c = buildChapterV2(input);
+    return { ...c, footnotes: c.footnotes.map((f) => ({ ...f, text: f.text + "!" })) };
+  };
+  assert.equal(wordsChanges(previous, {}, footnoteDiffers).length, 1);
+  // A new api number is a new folder, where the words may differ.
+  assert.deepEqual(wordsChanges({ ...previous, api: API_VERSION + 1 }, {}, wordsDiffer), []);
 });

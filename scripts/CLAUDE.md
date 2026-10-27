@@ -94,7 +94,7 @@
 | `build-api-manifest.mjs` | `public/api/manifest.json` + `public/api/data/` for the native apps. |
 | `build-api-v2.mjs` | fs shell for the content API, version 2: writes `public/api/data/v2/` and adds the manifest's `v2` key. Every rule is in `lib/api2-core.mjs`. |
 | `lib/api2-core.mjs` | The version 2 chapter: applies the anchor-text rewrites themselves, in order, to characters that remember their block, line and emphasis, so every offset is in the final text by construction; then checks the text and verse spans against `lib/anchor-text.mjs` and throws on a difference. Also `assertV1FilesMap`, the rule that keeps version 2 out of the version 1 `files` map. Unit-tested (`test/api2.test.js`). |
-| `build-api2-vectors.mjs` | Writes `test/fixtures/api2-vectors.json`: every chapter's version 2 `hash` beside the hash of the version 1 file it came from, whole files for the edge cases, and hand-written cases. **Not** in the build; regenerate after a deliberate change to `api2-core` or the corpus, and tell the apps. |
+| `build-api2-vectors.mjs` | Writes `test/fixtures/api2-vectors.json`: every chapter's version 2 `hash` and `words` fingerprint beside the hash of the version 1 file it came from, whole files for the edge cases, and hand-written cases. **Refuses to write** when an unedited chapter's or a copied input's words change under the same `api` (`wordsChanges`; `--allow-words-change` overrides, only before any app reads version 2). **Not** in the build; regenerate after a deliberate change to `api2-core` or the corpus, and tell the apps. |
 | `build-glossary-json.mjs` | fs shell: reads `src/content/glossary/*.md` and writes `public/glossary.json`, the apps' glossary feed. Delegates every rule to `lib/glossary-feed-core.mjs`. |
 | `build-greek-bridge.mjs` | fs shell: writes `public/search/greek-bridge.json`, the gated LIT renderings of the published glossary terms with their lemmas and verses, for searching the Greek by the LIT's words. Rules in `lib/greek-bridge-core.mjs` (unit-tested). In the build. |
 | `lib/glossary-feed-core.mjs` | Pure `buildGlossaryFeed()` core of that generator — frontmatter parse, Markdown→plain-prose flattening, the `index` maps, and the cross-reference check. Unit-tested directly (`test/build-glossary-feed.test.js`) since its output shape is an app contract. Its header documents the four silent failure modes. |
@@ -135,13 +135,18 @@
   `v2` key, which both apps' decoders skip; `assertV1FilesMap`
   (`lib/api2-core.mjs`) fails the build on any `files` path the shipping apps
   don't already know. A version 2 chapter file carries no content version, so
-  a publish re-downloads only the chapters that changed; and a new anchor spec
-  is a new `api` number and folder, never a change under `/api/data/v2/`. **It
+  a publish re-downloads only the chapters that changed. **Apps check `api`
+  alone**: a change to the rules that make the words (text, verse spans,
+  footnote text) is a new `api` number and folder, never a change under
+  `/api/data/v2/`, and `build:api2-vectors` refuses one under the same `api`.
+  The Study Desk's `anchorSpec` stays out of chapter files and `books.json`
+  (BVJ, 2026-10-27), since it also moves for changes that alter no word. **It
   grows by adding**: a new kind of data gets its own folder under
   `/api/data/v2/` and its own entries in `v2.files`, never fields inside a
   chapter file, and the apps ignore what they don't recognize (that spec's
   "Adding more later"). There is no change list for now (BDR, 2026-10-23): an
-  app re-places marks only in chapters whose `hash` moved. A draft that holds
+  app re-places marks only in chapters whose `hash` moved, and footnote pins
+  where a footnote's `text` changed. A draft that holds
   the translation so far is served with its text like any chapter, still
   `indexed: false`.
 - **Content files are hashed by RAW BYTES, so line endings are content.**

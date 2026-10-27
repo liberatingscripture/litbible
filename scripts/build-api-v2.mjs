@@ -18,6 +18,10 @@
  * version 2 file listed there would blank the reader's chapter. Version 2's
  * hashes go under the manifest's own `v2` key, which both apps' decoders skip.
  *
+ * `anchorSpec`, the Study Desk's rule number, is in `version.json`, the
+ * manifest's `v2` key and `content.json`'s header as information only, never
+ * in a chapter file or `books.json`: apps check `api` alone (API-2-FORMAT.md).
+ *
  * Every chapter's text and verse spans are checked against the anchor text
  * (scripts/lib/anchor-text.mjs) before anything is written; a difference fails
  * the build.
@@ -77,7 +81,7 @@ async function main() {
     return sha256(buf);
   };
 
-  files["books.json"] = await write("books.json", { api: API_VERSION, anchorSpec: ANCHOR_SPEC_VERSION, books });
+  files["books.json"] = await write("books.json", { api: API_VERSION, books });
   for (const c of chapters) {
     const rel = `chapters/${c.bookKey}-${c.chapter}.json`;
     files[rel] = await write(rel, c);

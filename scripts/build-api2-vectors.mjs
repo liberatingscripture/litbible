@@ -6,7 +6,8 @@
 // ingest and test/api2.test.js runs against scripts/lib/api2-core.mjs.
 //
 // On demand only, like build:anchor-vectors: the output is committed. It holds
-//   hashes    every chapter's `hash`, beside `source`, the SHA-256 of the
+//   hashes    every chapter's `hash` and `words` (wordsHash: its text, verse
+//             spans and footnote texts), beside `source`, the SHA-256 of the
 //             version 1 chapter file it was built from (the same hash the
 //             version 1 manifest lists), so an app or a test can tell which
 //             entries describe the text it has;
@@ -16,13 +17,22 @@
 //   synthetic hand-written inputs for edges the corpus doesn't have today.
 //
 //   npm run build:api2-vectors
+//
+// It refuses to write when the words would change under the same `api`
+// (wordsChanges): for every chapter whose version 1 file is the one the
+// committed vectors were made from, and for every copied sample and
+// hand-written input. A change to the rules that make the words is a new `api`
+// number and folder (API-2-FORMAT.md, "The spec bump rule"), so this is where
+// such a change is caught before it reaches the apps. `--allow-words-change`
+// writes anyway; use it only for a deliberate fix made before any app reads
+// version 2, and say so in the PR.
 
-import { readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { ANCHOR_SPEC_VERSION } from "./lib/anchor-text.mjs";
-import { API_VERSION, buildChapterV2, sha256 } from "./lib/api2-core.mjs";
+import { API_VERSION, buildChapterV2, sha256, wordsChanges, wordsHash } from "./lib/api2-core.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const CHAPTERS = join(ROOT, "src/data/chapters");
@@ -44,7 +54,7 @@ const hashes = {};
 for (const name of readdirSync(CHAPTERS).filter((n) => n.endsWith(".json")).sort()) {
   const raw = readFileSync(join(CHAPTERS, name));
   const v2 = buildChapterV2(JSON.parse(raw.toString("utf8")));
-  hashes[name.replace(/\.json$/, "")] = { source: sha256(raw), hash: v2.hash };
+  hashes[name.replace(/\.json$/, "")] = { source: sha256(raw), hash: v2.hash, words: wordsHash(v2) };
 }
 
 // ── Chapters, whole ────────────────────────────────────────────────────────
@@ -113,6 +123,20 @@ const SYNTHETIC = [
   return { why, input, expected: buildChapterV2(input) };
 });
 
+// ── The words must not change under one api ────────────────────────────────
+const previous = existsSync(OUT) ? JSON.parse(readFileSync(OUT, "utf8")) : null;
+const moved = wordsChanges(previous, hashes, buildChapterV2);
+if (moved.length && !process.argv.includes("--allow-words-change")) {
+  console.error(
+    `❌ The words would change under api ${API_VERSION} (text, verse spans or footnote text):\n` +
+      moved.map((m) => `   ${m}`).join("\n") +
+      `\nA change to the rules that make the words is a new api number and folder ` +
+      `(API-2-FORMAT.md, "The spec bump rule"). Nothing was written.`,
+  );
+  process.exit(1);
+}
+if (moved.length) console.warn(`⚠️  Words changed under api ${API_VERSION}, written anyway (--allow-words-change):\n   ${moved.join("\n   ")}`);
+
 writeFileSync(
   OUT,
   JSON.stringify(
@@ -120,7 +144,7 @@ writeFileSync(
       api: API_VERSION,
       anchorSpec: ANCHOR_SPEC_VERSION,
       note:
-        "Vectors for the content API, version 2 (API-2-FORMAT.md). `hashes[slug].source` is the SHA-256 of the version 1 chapter file, as the version 1 manifest lists it; `hash` is the version 2 chapter's hash when built from that file. `chapters` and `synthetic` copy their version 1 input, and `expected` is the whole version 2 chapter file. Regenerate with `npm run build:api2-vectors`.",
+        "Vectors for the content API, version 2 (API-2-FORMAT.md). `hashes[slug].source` is the SHA-256 of the version 1 chapter file, as the version 1 manifest lists it; `hash` is the version 2 chapter's hash when built from that file, and `words` the fingerprint of its text, verse spans and footnote texts. `chapters` and `synthetic` copy their version 1 input, and `expected` is the whole version 2 chapter file. `anchorSpec` here is information only (the Study Desk's rule number when these were written); a chapter file doesn't carry it. Regenerate with `npm run build:api2-vectors`.",
       hashes,
       chapters,
       synthetic: SYNTHETIC,

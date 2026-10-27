@@ -28,12 +28,18 @@
 
 import { createHash } from "node:crypto";
 
-import { chapterAnchorText, ANCHOR_SPEC_VERSION } from "./anchor-text.mjs";
+import { chapterAnchorText } from "./anchor-text.mjs";
 import { INVISIBLE } from "../../src/lib/anchor-core.mjs";
 import { footnoteText } from "../../src/lib/desk-footnotes.mjs";
 
-/** The `api` number of this format. A new anchor spec is a new api number and
- *  a new folder (/api/data/v3/), never a change under the same path. */
+/** The `api` number of this format, and the only number an app checks. It
+ *  also stands for the rules that make the words (`text`, the verse spans,
+ *  each footnote's `text`): a change to those is a new api number and a new
+ *  folder (/api/data/v3/), never a change under the same path, so within
+ *  /api/data/v2/ they never change. The Study Desk's own rule number
+ *  (ANCHOR_SPEC_VERSION) is not in a chapter file: it also moves when only the
+ *  way a mark is found again changes, which alters no word here
+ *  (BVJ, 2026-10-27). */
 export const API_VERSION = 2;
 
 /** The keys the shipping apps already handle in the version 1 manifest's
@@ -477,7 +483,6 @@ export function buildChapterV2(data) {
 
   return {
     api: API_VERSION,
-    anchorSpec: ANCHOR_SPEC_VERSION,
     bookKey: data.bookKey,
     chapter: data.chapter,
     indexed,
@@ -493,4 +498,48 @@ export function buildChapterV2(data) {
     marks,
     figures,
   };
+}
+
+/* ── The words, and the check that they don't change under one api ─────── */
+
+/**
+ * A fingerprint of what a chapter's marks are placed against: its text, its
+ * verse spans and each footnote's text, in order. Ranges, letters' places and
+ * metadata are left out, so a fix to those is not a change to the words.
+ */
+export function wordsHash(chapter) {
+  return sha256(
+    JSON.stringify({
+      text: chapter.text,
+      verses: chapter.verses.map((v) => [v.v, v.start, v.end]),
+      footnotes: chapter.footnotes.map((f) => f.text),
+    }),
+  );
+}
+
+/**
+ * Where regenerating the vectors would change the words under the same api,
+ * which the spec forbids (a change to the rules that make the words is a new
+ * api and folder). `previous` is the committed vectors; `hashes` the fresh
+ * `{ slug: { source, words } }`; `rebuild` builds a chapter from a vector's
+ * copied input. A chapter whose version 1 file changed since the vectors were
+ * written can't be judged (its words may have changed for a good reason), so
+ * it is skipped; the copied sample and synthetic inputs always can be.
+ *
+ * @returns {string[]} one line per chapter or case whose words moved
+ */
+export function wordsChanges(previous, hashes, rebuild) {
+  if (!previous || previous.api !== API_VERSION) return [];
+  const out = [];
+  for (const [slug, old] of Object.entries(previous.hashes ?? {})) {
+    const now = hashes[slug];
+    if (!old.words || !now || now.source !== old.source) continue;
+    if (now.words !== old.words) out.push(`${slug}: the same version 1 file now gives different words`);
+  }
+  for (const v of [...(previous.chapters ?? []), ...(previous.synthetic ?? [])]) {
+    if (wordsHash(rebuild(v.input)) !== wordsHash(v.expected)) {
+      out.push(`${v.slug ?? v.why}: its copied input now gives different words`);
+    }
+  }
+  return out;
 }
