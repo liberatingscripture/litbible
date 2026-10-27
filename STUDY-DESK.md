@@ -41,7 +41,14 @@ are recorded so they aren't re-argued.
   says when one is damaged (BA80, BA87), a participant share leaves out
   parts of unknown types (BA81), and opening a share drops its
   comparison copies (BA82). What the apps should pick up is in the
-  format's "Sharing a sheet." Next: FA1-h (marks on the page).
+  format's "Sharing a sheet." FA1-h is done: Bookmark saves one per
+  verse and Remove bookmark takes every one there (BA16), "Hide my notes"
+  hides notes in a footnote's popover (BA17), going to a note with the
+  notes hidden marks its words (BA19), a note on a footnote is named as
+  one and listed when it cites its own verse (BA20), and a drag ending
+  over a desk window no longer selects the rest of the chapter (BA23; two
+  calls for BVJ in "Decisions", 2026-10-27). Next: FA1-i (sheet templates
+  and passages).
 
 - **Phase 2c is built on the preview** (2026-10-20): notes on a footnote
   and questions for discussion. **A note can be on a footnote** (M11):
@@ -5734,6 +5741,29 @@ split itself is still a proposal BVJ worked within but hasn't confirmed.
   reader's accessibility font still wins on screen. Left out: images and
   tables. The set can grow later but never shrink.
 
+### 2026-10-27 (FA1-h: marks on the page; two calls for BVJ to judge)
+
+FA1-h fixed BA16, BA17, BA19, BA20 and BA23 (`STUDY-DESK-AUDIT-1.md`). Two
+of them needed a call the audit left to the session. Both are
+recommendations, for BVJ to confirm or change:
+
+- **BA23, a drag that ends over a desk window: the selection ends where
+  the pointer last was over the text.** The audit offered three fixes:
+  end it there, offer no panel, or ask before a note on more than a few
+  verses. The first was taken, since it keeps the gesture working and asks
+  nothing. The page's own selection is moved to match, so what is
+  highlighted is what the panel offers. A drag that really goes past the
+  last verse (below the text going down, above it going up) still runs to
+  the end, as before. It is shared reader code (`chapter-tools.js`, rule in
+  `src/lib/selection-end.mjs`), so it serves every reader, though only the
+  desk's windows and /desk's panes set it off today.
+- **BA19, going to a note while the notes are hidden: focus goes to where
+  its words are.** The 2026-10-07 decision (the margin switch, item 7)
+  says focus lands on the note, but with the notes hidden the margin holds
+  none. Focus goes to the verse number its marked words start in, or for a
+  note on a footnote to that footnote's first link, so a keyboard reader
+  arrives where the marking is.
+
 ### 2026-10-26 (FA1-u, areas 4 to 6: 25 findings; FA1-u done)
 
 - **FA1-u's second session** audited /desk's use of the shared modules
@@ -6561,7 +6591,7 @@ The phases, in working order:
 | FA1-u | The follow-up audit: code this audit didn't reach | done: BA88 to BA145 |
 | FA1-ab | Sheets in two tabs, and large sheets | BA128 to BA133 |
 | FA1-g | Sharing a sheet | done, #379: BA78, BA80, BA81, BA82, BA87 |
-| FA1-h | Marks on the page | BA16, BA17, BA19, BA20, BA23 |
+| FA1-h | Marks on the page | done: BA16, BA17, BA19, BA20, BA23 |
 | FA1-i | Sheet templates and passages | BA69, BA70, BA75, BA76, BA77, BA127 |
 | FA1-j | The sheet editor: pasting and saving | BA68, BA71, BA72, BA73, BA74 |
 | FA1-k | Greek search commands | BA44, BA45, BA48, BA49, BA50, BA116 |

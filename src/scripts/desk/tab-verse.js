@@ -37,7 +37,7 @@
 import { notesCiting } from "../../lib/desk-chains.mjs";
 import { shortQuote } from "../../lib/desk-notes.mjs";
 import { COLORS, onFootnote, verseCopyFor } from "../../lib/desk-records.mjs";
-import { forChapter, recordHref, recordReference } from "../../lib/desk-store-core.mjs";
+import { forChapter, recordHref, recordReference, recordWhere } from "../../lib/desk-store-core.mjs";
 import { adjacentVerse, recordsOnVerse } from "../../lib/desk-verse.mjs";
 import { W, flattenWords } from "../../lib/desk-greek.mjs";
 import { verseAtReadingLine } from "../last-read.js";
@@ -204,7 +204,8 @@ export function createVerseTab({
   function mentionItem(r) {
     const li = document.createElement("li");
     li.className = "desk-verse__mention";
-    const where = recordReference(r);
+    // "a footnote in Romans 8:3" for a note on a footnote (rule 23; BA20).
+    const where = recordWhere(r);
     const lead = document.createElement("p");
     lead.className = "desk-verse__mention-lead";
     lead.append("Mentioned in your note on ");

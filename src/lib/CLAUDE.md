@@ -76,7 +76,9 @@ From the root's project tree.
                      #   greek-query.mjs (Greek search commands: parsing
                      #   and constructions, the readback, the commands
                      #   list) + greek-commands-ui.mjs (its pure UI helpers),
-                     #   levenshtein.mjs,
+                     #   levenshtein.mjs, selection-end.mjs (where a
+                     #   mouse selection of scripture ends when the drag
+                     #   finishes off the text; chapter-tools.js),
                      #   osis.mjs (the OSIS book codes,
                      #   shared by chapter-html.ts and the export),
                      #   app-platform.mjs

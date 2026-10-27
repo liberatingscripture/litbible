@@ -89,6 +89,38 @@ export function planDelete(record, ctx) {
   return { put: [trash], remove: [record.id], trash };
 }
 
+/** The bookmarks on one verse. A verse should hold one, but a copy can bring a second. */
+export function bookmarksOn(records, { bookKey, chapter, verse }) {
+  return (records ?? []).filter(
+    (r) => r?.kind === "bookmark" && r.bookKey === bookKey && r.chapter === chapter && r.verse === verse,
+  );
+}
+
+/**
+ * Bookmark a verse, planned over the notebook as it is now (`records`, read in
+ * the same transaction as the write): the new bookmark, or null and nothing
+ * written when the verse already holds one, so a second press, or a press
+ * before the panel has read the chapter, never saves two (BA16).
+ */
+export function planBookmark(records, record) {
+  return bookmarksOn(records, record).length ? null : planSave(record);
+}
+
+/**
+ * Remove the bookmark on a verse: every one it holds, each through its trash
+ * record, so the mark goes from the margin (BA16). Null when there is none.
+ * `trash` lists the trash records.
+ */
+export function planUnbookmark(records, place, ctx) {
+  const plans = bookmarksOn(records, place).map((r) => planDelete(r, ctx));
+  if (!plans.length) return null;
+  return {
+    put: plans.flatMap((p) => p.put),
+    remove: plans.flatMap((p) => p.remove),
+    trash: plans.map((p) => p.trash),
+  };
+}
+
 /**
  * Undo a deletion: the record comes back and its trash record goes. Null when
  * there is nothing to bring back (the trash has been emptied).

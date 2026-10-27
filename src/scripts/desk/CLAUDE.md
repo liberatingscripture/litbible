@@ -151,7 +151,16 @@ that section.
      script, since nothing of the desk paints before it loads. "Hide my
      notes" (M1, key H) is no setting of its own: it saves and turns off
      "My notes", "My bookmarks" and both views' "My highlights", and puts
-     them back (`note-settings.js`).
+     them back (`note-settings.js`). With "My notes" off, a footnote's
+     popover lists none of the reader's notes either (`desk.css`, BA17),
+     while the Notebook's tabs and /desk's panes still do. Going to a note
+     from the panel marks its words even then, and puts focus on the verse
+     number they start in, since the margin holds no note to focus (BA19).
+     **A verse holds one bookmark**: Bookmark and Remove bookmark plan
+     over the notebook in the write's own transaction (`planBookmark`,
+     `planUnbookmark` in `desk-store-core.mjs`), so a second press adds
+     nothing and removing takes every bookmark a copy may have brought
+     (BA16).
      While the desk is on, each Study View verse number's accessible name
      names the reader's highlights and counts their notes on it ("Verse 18,
      highlighted yellow, 1 note of mine"; `desk/verse-labels.js`), the one
@@ -739,7 +748,11 @@ that section.
        a note's verse must ask `onFootnote` first**: `isVerseMark`,
        `noteCounts`, This verse's verse list and the verse labels all leave
        such notes out, and `recordWhere` (`desk-store-core.mjs`) names it
-       ("a footnote in Romans 8:3") where `recordReference` names the verse.
+       ("a footnote in Romans 8:3") where `recordReference` names the verse,
+     and is what This verse's "Mentioned in your note on…" uses. Such a
+     note citing its own verse is a chain like any other, so `notesCiting`
+     (`desk-chains.mjs`) lists it rather than treating it as sitting on
+     that verse (BA20).
      - **`desk/footnote-notes.js` is its page side**: "Add a note" beside
        every Pin (`addNoteButton`, which `pins.js` and the tabs and pane
        call) and the reader's notes under a footnote (`footnoteNotes`). Both

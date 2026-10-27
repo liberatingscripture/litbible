@@ -10,16 +10,19 @@ import assert from "node:assert/strict";
 import { createRecord } from "../src/lib/desk-records.mjs";
 import {
   CHANNEL,
+  bookmarksOn,
   changeMessage,
   currentSlug,
   forChapter,
   forProse,
   kindName,
   liveRecords,
+  planBookmark,
   planDelete,
   planEdit,
   planPurge,
   planSave,
+  planUnbookmark,
   planUndo,
   planWrite,
   readChangeMessage,
@@ -367,4 +370,63 @@ test("planEdit counts a property holding undefined as missing", () => {
 test("planEdit refuses what planSave refuses", () => {
   const opened = note({ bookKey: "romans", chapter: 8, verse: 3 });
   assert.throws(() => planEdit(opened, opened, { body: "x", marker: "star" }, SAVED), /not saved/);
+});
+
+/* ── Bookmarks: one to a verse (BA16) ────────────────────────────────── */
+
+function bookmark(where, extra = {}) {
+  return createRecord("bookmark", { ...where, ...extra }, { ...base, now: "2026-10-05T12:00:00.000Z", id: nextId() });
+}
+
+const HERE = { bookKey: "romans", chapter: 8, verse: 3 };
+
+test("bookmarksOn returns only the bookmarks on that exact verse", () => {
+  const mine = bookmark(HERE);
+  const otherVerse = bookmark({ bookKey: "romans", chapter: 8, verse: 4 });
+  const otherChapter = bookmark({ bookKey: "romans", chapter: 9, verse: 3 });
+  const otherBook = bookmark({ bookKey: "john", chapter: 8, verse: 3 });
+  const aNote = note(HERE);
+  const { trash } = planDelete(bookmark(HERE), { ...base, now: "2026-10-06T00:00:00.000Z" });
+  assert.deepEqual(bookmarksOn([otherVerse, aNote, mine, trash, otherChapter, otherBook], HERE), [mine]);
+  assert.deepEqual(bookmarksOn([aNote, trash, otherVerse], HERE), []);
+  assert.deepEqual(bookmarksOn(undefined, HERE), [], "a missing notebook holds none");
+});
+
+test("planBookmark puts the new bookmark when the verse has none", () => {
+  const fresh = bookmark(HERE);
+  const elsewhere = bookmark({ bookKey: "romans", chapter: 8, verse: 4 });
+  assert.deepEqual(planBookmark([elsewhere, note(HERE)], fresh), { put: [fresh], remove: [] });
+  assert.deepEqual(planBookmark([], fresh), { put: [fresh], remove: [] });
+});
+
+test("planBookmark writes nothing when the verse already holds a bookmark (the second press)", () => {
+  const first = bookmark(HERE);
+  const second = bookmark(HERE);
+  assert.equal(planBookmark([first], second), null);
+});
+
+test("planBookmark still refuses a malformed record, as planSave does", () => {
+  const bad = { ...bookmark(HERE), chapter: 17 };
+  assert.throws(() => planBookmark([], bad), /not saved/);
+});
+
+test("planUnbookmark removes every bookmark on the verse, each through its own trash record", () => {
+  const a = bookmark(HERE);
+  const b = bookmark(HERE);
+  const other = bookmark({ bookKey: "romans", chapter: 8, verse: 4 });
+  const aNote = note(HERE);
+  const plan = planUnbookmark([a, other, aNote, b], HERE, { ...base, now: "2026-10-06T00:00:00.000Z" });
+  assert.deepEqual(plan.remove, [a.id, b.id]);
+  assert.equal(plan.put.length, 2);
+  assert.deepEqual(plan.trash, plan.put, "trash lists the trash records the plan puts");
+  assert.ok(plan.put.every((t) => t.kind === "trash"));
+  assert.deepEqual(plan.put.map((t) => t.deletedId), [a.id, b.id]);
+  assert.notEqual(plan.put[0].id, plan.put[1].id, "each trash record has its own id");
+  assert.ok(!plan.remove.includes(other.id) && !plan.remove.includes(aNote.id), "other records are left alone");
+});
+
+test("planUnbookmark has nothing to do when the verse holds no bookmark", () => {
+  const other = bookmark({ bookKey: "romans", chapter: 8, verse: 4 });
+  assert.equal(planUnbookmark([other, note(HERE)], HERE, base), null);
+  assert.equal(planUnbookmark([], HERE, base), null);
 });

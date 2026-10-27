@@ -23,7 +23,7 @@
 
 import { linkScriptureRefs } from "./scripture-refs.mjs";
 import { openExternalLinks } from "./external-links.mjs";
-import { proseTarget } from "./desk-records.mjs";
+import { onFootnote, proseTarget } from "./desk-records.mjs";
 
 /** Escapes text for HTML. */
 export function escapeText(s) {
@@ -82,7 +82,8 @@ function notesWithBodies(records) {
 
 /**
  * The reader's notes that cite a verse (or, with `verse` null, any part of a
- * chapter), other than notes sitting on that verse themselves. A citation of
+ * chapter), other than notes sitting on that verse themselves (a note on one
+ * of its footnotes sits on the footnote, so it is listed). A citation of
  * a whole chapter counts for every verse in it. Returns `{ record, ref }`,
  * `ref` being the citation that matched, in the records' own order.
  *
@@ -99,7 +100,9 @@ export function notesCiting(records, { bookKey, chapter, verse = null }) {
         (verse == null || c.from == null || (c.from <= verse && verse <= c.to)),
     );
     if (!ref) continue;
-    if (!proseTarget(record) && sitsOn(record, bookKey, chapter, verse ?? ref.from, verse ?? ref.to)) continue;
+    // A note on a footnote sits on the footnote, not its verse, so citing
+    // that verse is a chain like any other (rule 23; BA20).
+    if (!proseTarget(record) && !onFootnote(record) && sitsOn(record, bookKey, chapter, verse ?? ref.from, verse ?? ref.to)) continue;
     out.push({ record, ref });
   }
   return out;

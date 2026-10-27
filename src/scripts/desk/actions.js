@@ -29,7 +29,7 @@
 //     Study View (highlights.js), under Study View's setting.
 
 import { COLORS, createRecord, quoteFields } from "../../lib/desk-records.mjs";
-import { recordReference } from "../../lib/desk-store-core.mjs";
+import { bookmarksOn, planBookmark, planUnbookmark, recordReference } from "../../lib/desk-store-core.mjs";
 import { rangeOf } from "../../lib/anchor-core.mjs";
 import { rangeToOffsets } from "../../lib/desk-anchor-dom.mjs";
 import {
@@ -106,34 +106,49 @@ export function initActions({ store, ctx, showVerse = null }) {
 
     // A bookmark is one verse: the first the menu or selection covers.
     const verse = d.start;
-    let existing = null;
+    const place = { ...where, verse };
+    let existing = false;
     store
       .byChapter(where.bookKey, where.chapter)
       .then((records) => {
-        existing = records.find((r) => r.kind === "bookmark" && r.verse === verse) ?? null;
+        existing = bookmarksOn(records, place).length > 0;
         if (existing) bookmark.textContent = "Remove bookmark";
       })
       .catch(() => {});
 
+    // One press is one change: the button stands down until the panel closes,
+    // and each change is planned over the notebook as it is when written, so
+    // a press before the chapter has been read never saves a second bookmark,
+    // and removing takes every one the verse holds (BA16).
+    let busy = false;
     bookmark.addEventListener("click", async () => {
+      if (busy) return;
+      busy = true;
+      bookmark.setAttribute("aria-disabled", "true");
       d.acting?.();
       const ref = `${bookKeyToLabel(where.bookKey)} ${where.chapter}:${verse}`;
-      if (existing) {
-        const trash = await store.remove(existing.id);
-        // The change this made, read at once: the undo button, like Ctrl+Z,
-        // takes back exactly this one (history.js).
-        const entry = trash ? store.lastEntry() : null;
-        bookmark.textContent = "Removed ✓";
+      try {
+        if (existing) {
+          const plan = await store.change(({ all }) => all().then((records) => planUnbookmark(records, place, ctx())));
+          // The change this made, read at once: the undo button, like Ctrl+Z,
+          // takes back exactly this one (history.js).
+          const entry = plan ? store.lastEntry() : null;
+          bookmark.textContent = "Removed ✓";
+          setTimeout(closePanel, 700);
+          if (entry) showUndo(`Bookmark on ${ref} removed.`, () => undoEntry(entry));
+          return;
+        }
+        const now = new Date().toISOString();
+        const record = createRecord("bookmark", { ...place, endVerse: verse }, { now, ...ctx() });
+        await store.change(({ all }) => all().then((records) => planBookmark(records, record)));
+        existing = true;
+        bookmark.textContent = "Bookmarked ✓";
         setTimeout(closePanel, 700);
-        if (entry) showUndo(`Bookmark on ${ref} removed.`, () => undoEntry(entry));
-        return;
+      } catch (err) {
+        console.error("Study Desk: the bookmark couldn't be changed", err);
+        busy = false;
+        bookmark.removeAttribute("aria-disabled");
       }
-      const now = new Date().toISOString();
-      await store.save(
-        createRecord("bookmark", { ...where, verse, endVerse: verse }, { now, ...ctx() }),
-      );
-      bookmark.textContent = "Bookmarked ✓";
-      setTimeout(closePanel, 700);
     });
   });
 

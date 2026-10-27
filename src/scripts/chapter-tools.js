@@ -33,6 +33,7 @@
 
 import { stripBracketMarkers } from "../lib/bracket-markers.mjs";
 import { LIT_CREDIT_LINE } from "../lib/lit-credit.mjs";
+import { pullBackSelectionEnd } from "../lib/selection-end.mjs";
 import { markEmphasis, handoutPlain, handoutHtml, VN_ON, VN_OFF, FN_ON, FN_OFF } from "../lib/handout-rich.mjs";
 import { showPanel, closePanel, currentPanel, setEscapeFallback, isSmallScreen } from "./lit-panel.js";
 import { imageStep } from "./verse-image.js";
@@ -1307,6 +1308,24 @@ function initSelectionShare(view) {
   return () => selectionViews.delete(view);
 }
 
+/** The view whose text holds a node, or null. */
+function viewHolding(node) {
+  for (const view of selectionViews) {
+    if (view.container.isConnected && view.container.contains(node)) return view;
+  }
+  return null;
+}
+
+/** The caret position under a point, as { node, offset }, or null. */
+function caretAt(x, y) {
+  if (document.caretPositionFromPoint) {
+    const p = document.caretPositionFromPoint(x, y);
+    return p ? { node: p.offsetNode, offset: p.offset } : null;
+  }
+  const r = document.caretRangeFromPoint?.(x, y);
+  return r ? { node: r.startContainer, offset: r.startOffset } : null;
+}
+
 /** The selection's share in whichever view holds it, or null. */
 function shareInViews(selection) {
   for (const view of selectionViews) {
@@ -1325,22 +1344,78 @@ function listenForSelections() {
     timer = setTimeout(update, 200);
   };
 
+  // Where a mouse drag last was over a view's text, for a drag that ends off
+  // it (endOffText).
+  let lastCaret = null;
+  let moveFrame = 0;
   document.addEventListener(
     "pointerdown",
     (e) => {
       pointerDown = true;
+      lastCaret = null;
       // A new gesture may select the same words again; let it show the panel.
       if (!currentPanel()?.el.contains(e.target)) shownKey = null;
     },
     true
   );
-  const release = () => {
+  document.addEventListener(
+    "pointermove",
+    (e) => {
+      if (!pointerDown || e.pointerType !== "mouse" || moveFrame) return;
+      const { clientX, clientY } = e;
+      moveFrame = requestAnimationFrame(() => {
+        moveFrame = 0;
+        const caret = caretAt(clientX, clientY);
+        if (caret && viewHolding(caret.node)) lastCaret = caret;
+      });
+    },
+    true
+  );
+  const release = (e) => {
     pointerDown = false;
+    if (e.type === "pointerup" && e.pointerType === "mouse") endOffText(e);
     settle();
   };
   document.addEventListener("pointerup", release, true);
   document.addEventListener("pointercancel", release, true);
   document.addEventListener("selectionchange", settle);
+
+  /**
+   * A drag that ends off the text, over something drawn over the page but
+   * written elsewhere in it (a Study Desk window, a margin note, another
+   * /desk pane), leaves the selection's end wherever that sits in the
+   * document, often after the rest of the chapter. End it where the pointer
+   * last was over the text instead, and move the page's selection there, so
+   * what is highlighted is what the panel offers (BA23). A drag that went past
+   * the text's end still runs to it.
+   */
+  function endOffText(e) {
+    const caret = lastCaret;
+    lastCaret = null;
+    const sel = document.getSelection();
+    if (!caret || !sel || sel.isCollapsed || !sel.anchorNode || !sel.focusNode) return;
+    const view = viewHolding(sel.anchorNode);
+    if (!view || view !== viewHolding(caret.node)) return;
+    const order = sel.anchorNode.compareDocumentPosition(sel.focusNode);
+    const forward =
+      order & Node.DOCUMENT_POSITION_FOLLOWING ? true
+      : order & Node.DOCUMENT_POSITION_PRECEDING ? false
+      : sel.anchorOffset <= sel.focusOffset;
+    const box = view.container.getBoundingClientRect();
+    const pull = pullBackSelectionEnd({
+      endInText: view.container.contains(sel.focusNode),
+      forward,
+      pointerY: e.clientY,
+      textTop: box.top,
+      textBottom: box.bottom,
+    });
+    if (!pull) return;
+    try {
+      sel.extend(caret.node, caret.offset);
+    } catch {
+      /* the text moved under the drag; leave the selection as it is */
+    }
+  }
 
   function update() {
     // Mid-drag with a mouse: wait for the button to come up rather than
