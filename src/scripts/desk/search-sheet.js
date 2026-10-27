@@ -14,7 +14,8 @@
 //   chapters every chapter by topic: [{ bookKey, chapter, labels }]
 // It is sent after every render (a new query, a page turned, a sort), and
 // this file draws again from it each time; ticks belong to a query and are
-// forgotten when the query changes.
+// forgotten when the query changes, and a tick on a verse the results no
+// longer hold (a book filter) is dropped.
 //
 // What it makes is the rules in src/lib/desk-sheet-gather.mjs: passages in
 // Bible order, runs of consecutive verses as one range, no more than a sheet
@@ -25,7 +26,7 @@
 
 import deskCss from "../../styles/desk.css?inline";
 import { canEdit } from "../../lib/desk-records.mjs";
-import { webClient } from "../../lib/desk-store-core.mjs";
+import { planSave, webClient } from "../../lib/desk-store-core.mjs";
 import {
   gatherMessage,
   passagesFromChapters,
@@ -236,6 +237,16 @@ function update(next) {
     }
     query = next.query;
   }
+  // A tick on a verse the results no longer hold (the book filter changed
+  // them, not the query) would count in the bar and gather nothing (BA132).
+  const shown = new Set((next.verses ?? []).map(verseKey));
+  let dropped = false;
+  for (const key of ticked) {
+    if (shown.has(key)) continue;
+    ticked.delete(key);
+    dropped = true;
+  }
+  if (dropped && bars.verses) closePanel(bars.verses, { focus: false });
   detail = next;
   for (const kind of ["verses", "chapters"]) {
     const bar = ensureBar(kind);
@@ -337,6 +348,15 @@ async function gather(bar, into) {
     say(bar, text);
   };
 
+  // What was pressed for, taken now: the results can change during the
+  // waits below (a new query, the book filter), and the sheet is made of
+  // these, titled by this query (BA130).
+  const verses = bar.kind === "verses";
+  const picked = verses ? chosenVerses() : detail.chapters;
+  const title = verses
+    ? searchSheetTitle(detail.query)
+    : searchSheetTitle(detail.query, { kind: "topic", label: commonLabel(detail.chapters) });
+
   let store;
   try {
     store = await notebook();
@@ -345,33 +365,43 @@ async function gather(bar, into) {
     fail("This browser isn’t letting the site keep a notebook, so sheets can’t be saved here.");
     return;
   }
+  // The fetching comes first, so the sheet is read only inside the write.
+  const chapters = verses ? null : await withLastVerses(picked);
+  const passagesFor = (room) => (verses ? passagesFromVerses(picked, { room }) : passagesFromChapters(chapters, { room }));
 
-  // The sheet is read again here, since another tab may have changed it
-  // since the list was drawn.
-  let target = null;
-  if (!made) {
-    try {
-      target = await store.get(into.id);
-    } catch (_) {}
-    if (target?.kind !== "sheet" || !canEdit(target)) {
-      fail("That sheet couldn’t be changed. It may have been deleted or made by a newer version of the LIT.");
-      return;
-    }
+  // The sheet is read and added to in one transaction, since another tab, or
+  // /desk, may have changed it since the list was drawn (BA130).
+  let outcome;
+  try {
+    outcome = await store.change(async ({ get }) => {
+      const now = new Date().toISOString();
+      const target = made ? null : await get(into.id);
+      if (!made && (target?.kind !== "sheet" || !canEdit(target))) return { gone: true };
+      const result = passagesFor(roomOnSheet(target?.modules?.length ?? 0));
+      if (!result.passages.length) return { result };
+      let sheet;
+      if (made) {
+        sheet = createSheet(
+          { title, template: "search", modules: result.passages.map((p) => makeModule("passage", p)) },
+          { now, ...ctx() },
+        );
+      } else {
+        sheet = target;
+        for (const p of result.passages) sheet = addModule(sheet, makeModule("passage", p), undefined, { now, ...ctx() });
+      }
+      return { result, sheet, ...planSave(sheet) };
+    });
+  } catch (err) {
+    console.error("Study Desk: the sheet couldn’t be made", err);
+    fail("The sheet couldn’t be saved. Nothing was changed.");
+    return;
   }
-
-  const room = roomOnSheet(target?.modules?.length ?? 0);
-  let result;
-  let title;
-  if (bar.kind === "verses") {
-    result = passagesFromVerses(chosenVerses(), { room });
-    title = searchSheetTitle(detail.query);
-  } else {
-    const chapters = await withLastVerses(detail.chapters);
-    result = passagesFromChapters(chapters, { room });
-    const label = commonLabel(detail.chapters);
-    title = searchSheetTitle(detail.query, { kind: "topic", label });
+  if (outcome.gone) {
+    fail("That sheet couldn’t be changed. It may have been deleted or made by a newer version of the LIT.");
+    return;
   }
-  if (!result.passages.length) {
+  const { result, sheet } = outcome;
+  if (!sheet) {
     fail(
       result.unknown
         ? "Those chapters couldn’t be read just now, so nothing was added. Try again in a moment."
@@ -379,32 +409,12 @@ async function gather(bar, into) {
     );
     return;
   }
-
-  let sheet;
-  const now = new Date().toISOString();
-  try {
-    if (made) {
-      sheet = createSheet(
-        { title, template: "search", modules: result.passages.map((p) => makeModule("passage", p)) },
-        { now, ...ctx() },
-      );
-    } else {
-      sheet = target;
-      for (const p of result.passages) sheet = addModule(sheet, makeModule("passage", p), undefined, { now, ...ctx() });
-    }
-    await store.save(sheet);
-  } catch (err) {
-    console.error("Study Desk: the sheet couldn’t be made", err);
-    fail("The sheet couldn’t be saved. Nothing was changed.");
-    return;
-  }
   const entry = store.lastEntry();
 
   closePanel(bar, { focus: false });
-  const left = result.leftOut + (result.unknown ?? 0);
   say(
     bar,
-    gatherMessage({ made, name: sheetName(sheet), added: result.passages.length, leftOut: left }),
+    gatherMessage({ made, name: sheetName(sheet), added: result.passages.length, leftOut: result.leftOut, unread: result.unknown ?? 0 }),
     { sheet, entry },
   );
 }

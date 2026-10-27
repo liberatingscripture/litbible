@@ -212,9 +212,13 @@ that section.
      `undoTrash`, which a redo removes), never a bare removal, which a backup
      would bring back as new (BA7); a change that depends on what the
      notebook holds (deleting, restoring, the purge, a history step, the note
-     editor's save) reads and writes in **one** transaction through
-     `store.change`, and any write that throws aborts the whole transaction
-     (BA5, BA13); the note editor saves onto the note as it is at Save
+     editor's save, every change to a sheet) reads and writes in **one**
+     transaction through `store.change`, and any write that throws aborts the
+     whole transaction (BA5, BA13). **A sheet is changed over the record as
+     read there** (`planSheetChange` in `desk-sheets.mjs`), never over a copy a
+     pane or /search holds, which another tab may have saved past (BA129,
+     BA130); the Sheet pane's `sheet` moves only once a save lands, so a
+     failed one leaves it on the saved copy (BA128); the note editor saves onto the note as it is at Save
      (`planEdit`), and refuses if anything but its words and marker changed
      meanwhile (BA6); and the keys stand down in text fields, selects and while a note editor
      is open, leaving the browser's own undo alone. Not tied to the Keyboard

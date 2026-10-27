@@ -141,3 +141,30 @@ test("what the reader is told", () => {
   assert.match(gatherMessage({ made: true, name: "A", added: 300, leftOut: 7 }), /7 more passages didn’t fit/);
   for (const text of [gatherMessage({ made: true, name: "A", added: 1, leftOut: 2 })]) assert.equal(text.includes("—"), false);
 });
+
+test("what the reader is told: unread chapters are told apart from the limit (BA131)", () => {
+  const two = gatherMessage({ made: false, name: "Big", added: 2, unread: 2 });
+  assert.equal(two, "Added 2 passages to “Big.” 2 chapters couldn’t be read just now, so they weren’t added.");
+  assert.equal(two.includes("at most"), false);
+  assert.equal(two.includes(String(SHEET_LIMITS.modules)), false);
+
+  const one = gatherMessage({ made: true, name: "A", added: 1, unread: 1 });
+  assert.equal(one, "Made “A” with 1 passage. 1 chapter couldn’t be read just now, so it wasn’t added.");
+  assert.equal(one.includes("at most"), false);
+
+  const both = gatherMessage({ made: false, name: "Big", added: 300, leftOut: 7, unread: 2 });
+  assert.equal(
+    both,
+    `Added 300 passages to “Big.” 7 more passages didn’t fit, since a sheet holds at most ${SHEET_LIMITS.modules} parts. ` +
+      "2 chapters couldn’t be read just now, so they weren’t added.",
+  );
+  assert.ok(both.indexOf("didn’t fit") < both.indexOf("couldn’t be read"));
+
+  // Nothing unread: the message is what it was before the option existed.
+  const before = gatherMessage({ made: false, name: "Big", added: 2, leftOut: 1 });
+  assert.equal(gatherMessage({ made: false, name: "Big", added: 2, leftOut: 1, unread: 0 }), before);
+  assert.equal(gatherMessage({ made: false, name: "Big", added: 2, leftOut: 1, unread: undefined }), before);
+  assert.equal(gatherMessage({ made: true, name: "A", added: 3, unread: 0 }), "Made “A” with 3 passages.");
+
+  for (const text of [two, one, both]) assert.equal(text.includes("—"), false);
+});

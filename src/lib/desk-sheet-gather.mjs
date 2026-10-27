@@ -152,13 +152,23 @@ const quoted = (name) => String(name ?? "").replace(/“/g, "‘").replace(/”/
  * What to tell the reader after the sheet was made or added to, in the site's
  * voice (American spelling, Oxford comma, curly quotes, periods inside).
  *
- * @param {{ made: boolean, name: string, added: number, leftOut?: number }} what
+ * `leftOut` counts the passages the sheet had no room for, and `unread` the
+ * chapters whose last verse couldn't be read (passagesFromChapters' `unknown`),
+ * told apart, since only the first has anything to do with the limit (BA131).
+ *
+ * @param {{ made: boolean, name: string, added: number, leftOut?: number, unread?: number }} what
  */
-export function gatherMessage({ made, name, added, leftOut = 0 }) {
+export function gatherMessage({ made, name, added, leftOut = 0, unread = 0 }) {
   const lead = made
     ? `Made “${quoted(name)}” with ${plural(added, "passage", "passages")}.`
     : `Added ${plural(added, "passage", "passages")} to “${quoted(name)}.”`;
-  if (!leftOut) return lead;
-  const rest = `${leftOut} more ${leftOut === 1 ? "passage" : "passages"} didn’t fit`;
-  return `${lead} ${rest}, since a sheet holds at most ${SHEET_LIMITS.modules} parts.`;
+  const parts = [lead];
+  if (leftOut) {
+    const rest = `${leftOut} more ${leftOut === 1 ? "passage" : "passages"} didn’t fit`;
+    parts.push(`${rest}, since a sheet holds at most ${SHEET_LIMITS.modules} parts.`);
+  }
+  if (unread) {
+    parts.push(`${plural(unread, "chapter", "chapters")} couldn’t be read just now, so ${unread === 1 ? "it wasn’t" : "they weren’t"} added.`);
+  }
+  return parts.join(" ");
 }

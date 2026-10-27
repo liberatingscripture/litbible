@@ -31,8 +31,11 @@ are recorded so they aren't re-argued.
   Claude under "One notebook, three homes". FA1-u, the follow-up audit,
   is done (2026-10-26): 58 findings, BA88 to BA145 (14 medium, 44 low).
   Areas 1 to 3 are in FA1-w to FA1-z and in FA1-k, FA1-r and FA1-t; areas
-  4 to 6 in FA1-aa to FA1-ad and FA1-i. Next: FA1-ab (sheets in two tabs;
-  two data-loss findings), which BVJ moved ahead of FA1-g.
+  4 to 6 in FA1-aa to FA1-ad and FA1-i. FA1-ab, which BVJ moved ahead of
+  FA1-g, is done (#378): a sheet's change is now planned over the record
+  read in the same transaction as the write, so two tabs on one sheet keep
+  each other's edits (BA129), and a save that fails puts the part back and
+  says why (BA128). Next: FA1-g (sharing a sheet).
 
 - **Phase 2c is built on the preview** (2026-10-20): notes on a footnote
   and questions for discussion. **A note can be on a footnote** (M11):
