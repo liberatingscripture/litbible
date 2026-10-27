@@ -106,7 +106,7 @@ it goes after both, and FA1-ac after FA1-t.
 | FA1-e | /desk keeps the reader's place | BA51, BA52, BA53, BA55 | done, #374 |
 | FA1-f | The record format, for BDR | BA8, BA14 | done, #375 |
 | FA1-u | The follow-up audit: code this audit didn't reach | new findings, BA88 onward | done: areas 1 to 3 (BA88 to BA120), #376; areas 4 to 6 (BA121 to BA145) |
-| FA1-ab | Sheets in two tabs, and large sheets | BA128 to BA133 | open |
+| FA1-ab | Sheets in two tabs, and large sheets | BA128 to BA133 | done, #378 |
 | FA1-g | Sharing a sheet | BA78, BA80, BA81, BA82, BA87 | open |
 | FA1-h | Marks on the page | BA16, BA17, BA19, BA20, BA23 | open |
 | FA1-i | Sheet templates and passages | BA69, BA70, BA75, BA76, BA77, BA127 | open |
@@ -1971,7 +1971,12 @@ timing itself needs a real browser.
     Remove some text or blanks.”
   - *Check*: paste 600 KB into a part: the status says why, the part goes
     back to its saved text, and the next small edit saves.
-  - Status: open.
+  - Status: fixed in #378. `sheet` changes only once a save lands (`change()`
+    in `sheet-pane.js`), so a failed save leaves the pane on the last saved
+    copy; `failed()` rebuilds the part that made it from that copy and the
+    status says why (“Not saved: this sheet is too big to save (512 KB).
+    Remove some text or blanks.”). Tests in `desk-sheets` (`sheetTooBig`, and
+    a small edit saving after an oversized one).
 - **BA129 (medium, data loss; reproduced in Node). With one sheet open in two
   tabs, a tab that hasn't heard the other's save writes its older copy
   over the whole sheet.**
@@ -1990,7 +1995,13 @@ timing itself needs a real browser.
     the sheet when the tab becomes visible.
   - *Check*: two tabs on one sheet; tab B edits part X, then tab A, before
     hearing of it, edits part Y: both edits are kept.
-  - Status: open.
+  - Status: fixed in #378. `change()` plans each edit with `planSheetChange`
+    (`desk-sheets.mjs`) over the record read inside `store.change`, and the
+    pane re-reads its sheet on `visibilitychange` and `pageshow`. Tests in
+    `desk-sheets`: two tabs over a stubbed store keep both edits. Found in
+    passing and fixed with it: “+ For discussion” worked out its questions
+    against the pane’s copy, so it now works them out again inside the change.
+    The real-browser race (a frozen tab) stays with FA1-v.
 - **BA130 (low, data loss; traced). “Make a sheet” from search, into an
   existing sheet, saves a copy read before a network wait.**
   - *What happens*: `gather()` reads the target sheet, then for a topic
@@ -2002,7 +2013,9 @@ timing itself needs a real browser.
   - *Where*: `search-sheet.js:301–344`.
   - *Fix*: fetch first, then read and add inside one `store.change`, with
     the query captured before the wait.
-  - Status: open.
+  - Status: fixed in #378. What was pressed for, and the title, are taken
+    before any wait; the chapters are fetched first; then the sheet is read
+    and added to in one `store.change`.
 - **BA131 (low, copy; reproduced). A topic sheet that couldn't read some
   chapters blames the 300-part limit.**
   - *What happens*: chapters whose last verse couldn't be fetched are added
@@ -2010,7 +2023,9 @@ timing itself needs a real browser.
     fit, since a sheet holds at most 300 parts” with nowhere near 300.
   - *Where*: `search-sheet.js:376, 404`; `desk-sheet-gather.mjs:113–122`.
   - *Fix*: count them apart: “2 chapters couldn’t be read just now.”
-  - Status: open.
+  - Status: fixed in #378. `gatherMessage` takes `unread` apart from
+    `leftOut`: “2 chapters couldn’t be read just now, so they weren’t added.”
+    Tests in `desk-sheet-gather`.
 - **BA132 (low; traced). Ticked verses stay counted after the book filter
   hides them, and the button then does nothing.**
   - *What happens*: ticks are cleared only when the query changes, and the
@@ -2019,7 +2034,8 @@ timing itself needs a real browser.
     ticked” and offers “Clear ticks,” while making a sheet finds none.
   - *Where*: `search-sheet.js:228–245, 170–174, 289–291`.
   - *Fix*: drop ticks that aren't in the shown results when they change.
-  - Status: open.
+  - Status: fixed in #378. `update()` drops a tick on a verse the results no
+    longer hold, and closes an open chooser whose count it changed.
 - **BA133 (low, performance; reproduced). Every redraw of a sheet works out
   every footnote against every blank, once per passage.**
   - *What happens*: each passage card redraws its footnotes on every save,
@@ -2031,7 +2047,11 @@ timing itself needs a real browser.
     `desk-sheet-lit.mjs` (`blanksGivenAway`, about line 282).
   - *Fix*: work out each blank's stems once per redraw, and redraw the
     notes only when the blanks or footnote choices changed.
-  - Status: open.
+  - Status: fixed in #378. `blanksGivenAway` stems each text once (a private,
+    bounded cache in `desk-sheet-lit.mjs`), and a passage redraws its
+    footnotes on a save only when its choices or the sheet’s passages with
+    blanks changed (`notesInputs` in `sheet-lit.js`). Tests in
+    `desk-sheet-lit`.
 
 ### Area 6: a copy pass and the stylesheet (done 2026-10-26)
 

@@ -37,7 +37,17 @@
 import { canEdit } from "../../lib/desk-records.mjs";
 import { sheetHtmlForShow } from "../../lib/desk-sheet-copy.mjs";
 import { MODULE_TYPES, SHEET_LIMITS } from "../../lib/desk-sheet-format.mjs";
-import { addModule, createSheet, makeModule, moveModule, removeModule, setSheetFields, updateModule } from "../../lib/desk-sheets.mjs";
+import {
+  addModule,
+  createSheet,
+  makeModule,
+  moveModule,
+  planSheetChange,
+  removeModule,
+  setSheetFields,
+  sheetTooBig,
+  updateModule,
+} from "../../lib/desk-sheets.mjs";
 import { TEMPLATES, templateModules } from "../../lib/desk-sheet-templates.mjs";
 import { discussionModules } from "../../lib/desk-sheet-discussion.mjs";
 import {
@@ -50,7 +60,7 @@ import {
   sortSheets,
 } from "../../lib/desk-sheet-passages.mjs";
 import { rangeToOffsets } from "../../lib/desk-anchor-dom.mjs";
-import { planSave, recordReference } from "../../lib/desk-store-core.mjs";
+import { recordReference } from "../../lib/desk-store-core.mjs";
 import { parseReference } from "../search-core.js";
 import { closePanel } from "../lit-panel.js";
 import { loadChapterPage } from "./chapter-page.js";
@@ -212,7 +222,7 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
 
   /**
    * Apply an operation to the sheet and save it. Saves run one after
-   * another, each with the sheet as the last one left it. Resolves true when
+   * another, each on the sheet as the notebook holds it. Resolves true when
    * the change was saved (or changed nothing). `source` is the module whose
    * own card made the change, which then isn't redrawn: it already shows it,
    * and redrawing would drop a click on its buttons that is under way.
@@ -220,42 +230,109 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
   // `quiet` is for a write the reader didn't make (a passage's first
   // comparison copy, S2): saved without an undo step, so Ctrl+Z never takes
   // it away only to have it written straight back.
+  //
+  // The operation is applied to the sheet as the notebook holds it, read in
+  // the same transaction as the write, never to this pane's copy (BA129):
+  // another tab may have saved the sheet's other parts since this one last
+  // heard, and its message may never come (a frozen tab, no
+  // BroadcastChannel). And `sheet` changes only once a save has landed, so a
+  // save that fails leaves the pane on the last saved copy and every later
+  // edit still saves (BA128).
   function change(op, { announce = null, after = null, source = null, quiet = false } = {}) {
     const run = saving.then(async () => {
       if (destroyed || !sheet) return false;
-      let next;
+      const n = seq;
+      const id = sheet.id;
+      let made;
       try {
-        next = op(sheet);
-      } catch (err) {
-        console.error("Study Desk: the sheet refused a change", err);
-        say(err.message?.includes("at most") ? `A sheet holds at most ${SHEET_LIMITS.modules} parts.` : "That change couldn’t be made.");
-        return false;
-      }
-      if (next === sheet) return true;
-      sheet = next;
-      if (!quiet) status.textContent = "Saving…";
-      try {
-        if (quiet) await store.commit(planSave(next), { record: false });
-        else await store.save(next);
-        if (!quiet) status.textContent = "Saved";
+        made = await store.change(
+          async ({ get }) => {
+            const plan = planSheetChange(await get(id), op);
+            if (plan.changed && !quiet) status.textContent = "Saving…";
+            return plan;
+          },
+          { record: !quiet },
+        );
       } catch (err) {
         console.error("Study Desk: the sheet couldn’t be saved", err);
-        status.textContent = "Not saved";
-        say("The sheet couldn’t be saved. Your last change may be lost if you leave.");
+        if (n === seq && !destroyed) failed(err, source);
         return false;
       }
-      if (source) {
+      if (n !== seq || destroyed) return false;
+      if (made.gone) {
+        // Deleted here or in another tab.
+        setSheet(null);
+        showList();
+        return false;
+      }
+      if (made.refused) {
+        console.error("Study Desk: the sheet refused a change", made.refused);
+        say(/holds at most \d+ modules/.test(made.refused.message ?? "") ? `A sheet holds at most ${SHEET_LIMITS.modules} parts.` : "That change couldn’t be made.");
+        return false;
+      }
+      const moved = json(made.sheet) !== json(sheet);
+      sheet = made.sheet;
+      if (made.changed && !quiet) status.textContent = "Saved";
+      if (source && made.changed) {
         const card = cards.get(source);
-        const m = next.modules.find((x) => x.id === source);
+        const m = sheet.modules.find((x) => x.id === source);
         if (card && m) card.json = json(m);
       }
-      draw();
+      if (moved) draw();
+      if (!made.changed) return true;
       after?.();
       if (announce) say(announce);
       return true;
     });
     saving = run.catch(() => false);
     return run;
+  }
+
+  /**
+   * A save failed, so nothing of it was kept: say why, and put the part that
+   * made it back to its saved text, so the page shows what a reload would
+   * (BA128).
+   */
+  function failed(err, source) {
+    status.textContent = sheetTooBig(err)
+      ? `Not saved: this sheet is too big to save (${SHEET_LIMITS.bytes / 1024} KB). Remove some text or blanks.`
+      : "Not saved, so that change was taken back.";
+    const card = source ? cards.get(source) : null;
+    if (!card || !sheet || !moduleList) return;
+    const focused = card.inst?.hasFocus?.();
+    card.inst?.destroy?.();
+    card.el.remove();
+    cards.delete(source);
+    draw();
+    if (focused) cards.get(source)?.inst?.focus?.();
+  }
+
+  /**
+   * Read the sheet again, for a change made elsewhere, and redraw what moved.
+   * Also run when the tab comes back into view, since a frozen tab, or one
+   * without BroadcastChannel, never hears another tab's save (BA129).
+   */
+  async function refresh() {
+    if (!sheet) return;
+    await saving;
+    if (!sheet) return;
+    const n = seq;
+    let record = null;
+    try {
+      record = await store.get(sheet.id);
+    } catch (_) {
+      return;
+    }
+    if (n !== seq || destroyed || !sheet) return;
+    if (record?.kind !== "sheet") {
+      // Deleted here or in another tab.
+      setSheet(null);
+      showList();
+      return;
+    }
+    if (json(record) === json(sheet)) return;
+    sheet = record;
+    draw();
   }
 
   // ---- the list of sheets ----
@@ -823,12 +900,16 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
       }
       const count = got.modules.filter((m) => m.type === "question").length;
       const missed = got.dropped ? ` ${got.dropped} more didn’t fit.` : "";
+      // Worked out again on the sheet as saved, so questions another tab put
+      // on it meanwhile aren't added twice.
+      let added = got.modules;
       change((s) => {
+        added = discussionModules(s, records).modules;
         let at = insertIndex(s);
-        return got.modules.reduce((acc, m) => addModule(acc, m, at++, opCtx()), s);
+        return added.reduce((acc, m) => addModule(acc, m, at++, opCtx()), s);
       }, {
         announce: `${count} ${count === 1 ? "question" : "questions"} added for discussion.${missed}`,
-        after: () => cards.get(got.modules[0].id)?.el.scrollIntoView({ block: "nearest" }),
+        after: () => cards.get(added[0]?.id)?.el.scrollIntoView({ block: "nearest" }),
       });
     });
     row.append(discuss);
@@ -975,27 +1056,14 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
 
   // ---- changes made elsewhere ----
 
-  const unsubscribe = store.subscribe(async (ids) => {
-    if (!sheet || !ids?.includes?.(sheet.id)) return;
-    await saving;
-    const n = seq;
-    let record = null;
-    try {
-      record = await store.get(sheet.id);
-    } catch (_) {
-      return;
-    }
-    if (n !== seq || destroyed || !sheet) return;
-    if (record?.kind !== "sheet") {
-      // Deleted here or in another tab.
-      setSheet(null);
-      showList();
-      return;
-    }
-    if (json(record) === json(sheet)) return;
-    sheet = record;
-    draw();
+  const unsubscribe = store.subscribe((ids) => {
+    if (sheet && ids?.includes?.(sheet.id)) refresh();
   });
+  const onVisible = () => {
+    if (document.visibilityState === "visible") refresh();
+  };
+  document.addEventListener("visibilitychange", onVisible);
+  window.addEventListener("pageshow", onVisible);
 
   queueMicrotask(() => {
     const id = getSheet();
@@ -1010,6 +1078,8 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
       destroyed = true;
       seq++;
       unsubscribe();
+      document.removeEventListener("visibilitychange", onVisible);
+      window.removeEventListener("pageshow", onVisible);
       openPanes.delete(me);
       if (lastUsed === me) lastUsed = null;
       for (const card of cards.values()) card.inst?.destroy?.();

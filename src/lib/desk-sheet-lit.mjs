@@ -235,9 +235,30 @@ export function telltaleStems(text) {
  * @param {{ exact: string }[]} blanks
  */
 export function blanksGivenAway(footnoteText, blanks) {
-  const inNote = telltaleStems(footnoteText);
+  const inNote = stemsOf(footnoteText);
   if (!inNote.size) return [];
-  return blanks.filter((b) => [...telltaleStems(b.exact)].some((s) => inNote.has(s)));
+  return blanks.filter((b) => {
+    for (const s of stemsOf(b.exact)) if (inNote.has(s)) return true;
+    return false;
+  });
+}
+
+// The stems of each text, worked out once: every footnote of every passage is
+// held against every blank on the sheet on each redraw, so the same few
+// thousand blank words were being stemmed again per footnote, per passage
+// (BA133). Bounded, and private, so no caller can change a cached set.
+const STEM_CACHE_LIMIT = 10000;
+const stemCache = new Map();
+
+function stemsOf(text) {
+  const key = String(text ?? "");
+  let stems = stemCache.get(key);
+  if (!stems) {
+    if (stemCache.size >= STEM_CACHE_LIMIT) stemCache.clear();
+    stems = telltaleStems(key);
+    stemCache.set(key, stems);
+  }
+  return stems;
 }
 
 /* ── Which footnotes print ──────────────────────────────────────────── */

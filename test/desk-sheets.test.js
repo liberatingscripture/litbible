@@ -23,7 +23,17 @@ import {
   sanitizeSheetHtml as clean,
   validateSheet,
 } from "../src/lib/desk-sheet-format.mjs";
-import { addModule, createSheet, makeModule, moveModule, removeModule, setSheetFields, updateModule } from "../src/lib/desk-sheets.mjs";
+import {
+  addModule,
+  createSheet,
+  makeModule,
+  moveModule,
+  planSheetChange,
+  removeModule,
+  setSheetFields,
+  sheetTooBig,
+  updateModule,
+} from "../src/lib/desk-sheets.mjs";
 import { describeEntry, inversePlan, makeEntry, redoPlan, stillCurrent } from "../src/lib/desk-history.mjs";
 import { planDelete, planSave, planUndo, planWrite } from "../src/lib/desk-store-core.mjs";
 
@@ -1290,4 +1300,134 @@ test("history: a new sheet is added, and an untitled one is named so", () => {
   assert.equal(describeEntry(makeEntry({ put: [s], remove: [] }, new Map(), "e")), "Sheet “Untitled” added.");
   const named = setSheetFields(s, { title: "Freedom" }, at(T1));
   assert.equal(describeEntry(makeEntry({ put: [named], remove: [] }, new Map([[s.id, s]]), "e")), "Sheet “Freedom” changed.");
+});
+
+/* ── Changing a sheet over what the store holds now (BA129, BA128) ───── */
+
+/**
+ * A stand-in for the notebook store's `change(build)` (src/scripts/desk/store.js):
+ * it runs build({ get, all }) over the stored records, and only if build returns
+ * without throwing applies the { put, remove } it gave back. Each get() hands out
+ * a copy, as IndexedDB does, so no tab can reach into what is stored.
+ */
+function stubStore(records) {
+  const map = new Map(records.map((r) => [r.id, structuredClone(r)]));
+  return {
+    map,
+    async change(build) {
+      const plan = await build({
+        get: async (id) => structuredClone(map.get(id)) ?? undefined,
+        all: async () => [...map.values()].map((r) => structuredClone(r)),
+      });
+      for (const r of plan?.put ?? []) map.set(r.id, structuredClone(r));
+      for (const id of plan?.remove ?? []) map.delete(id);
+      return plan;
+    },
+  };
+}
+
+/** What the sheet pane's change() does: plan the operation over the record as stored now. */
+const changeThrough = (store, id, op) => store.change(async ({ get }) => planSheetChange(await get(id), op));
+
+const twoTexts = () => sheetOf(makeModule("text", { html: "<p>X0</p>" }, { id: "x" }), makeModule("text", { html: "<p>Y0</p>" }, { id: "y" }));
+const htmlOf = (sheet, id) => sheet.modules.find((m) => m.id === id).html;
+
+test("BA129: two tabs editing different parts of one sheet keep both edits", async () => {
+  const sheet = twoTexts();
+  const store = stubStore([sheet]);
+  // Both tabs opened the sheet as it was; neither hears the other's save.
+  const tabA = structuredClone(sheet);
+  const tabB = structuredClone(sheet);
+
+  await changeThrough(store, sheet.id, (s) => updateModule(s, "x", { html: "<p>X by B</p>" }, at(T1)));
+  const plan = await changeThrough(store, sheet.id, (s) => updateModule(s, "y", { html: "<p>Y by A</p>" }, at(T2)));
+
+  assert.equal(plan.changed, true);
+  const stored = store.map.get(sheet.id);
+  assert.equal(htmlOf(stored, "x"), "<p>X by B</p>");
+  assert.equal(htmlOf(stored, "y"), "<p>Y by A</p>");
+  assert.equal(stored.modified, T2);
+  assert.deepEqual(validateRecord(stored), []);
+
+  // Why it matters: the old way applied A's edit to A's stale copy and saved
+  // the whole sheet, which wrote B's edit away.
+  const old = new Map([[sheet.id, tabB]]);
+  const savedByB = updateModule(tabB, "x", { html: "<p>X by B</p>" }, at(T1));
+  old.set(sheet.id, savedByB);
+  const savedByA = updateModule(tabA, "y", { html: "<p>Y by A</p>" }, at(T2));
+  old.set(sheet.id, savedByA);
+  assert.equal(htmlOf(old.get(sheet.id), "y"), "<p>Y by A</p>");
+  assert.equal(htmlOf(old.get(sheet.id), "x"), "<p>X0</p>", "the stale copy loses the other tab's edit");
+});
+
+test("BA128: an edit that pushes the sheet past its size limit throws and writes nothing", async () => {
+  const sheet = twoTexts();
+  const store = stubStore([sheet]);
+  const before = structuredClone(store.map.get(sheet.id));
+  const huge = `<p>${"a".repeat(600 * 1024)}</p>`;
+
+  let thrown;
+  try {
+    await changeThrough(store, sheet.id, (s) => updateModule(s, "x", { html: huge }, at(T1)));
+  } catch (e) {
+    thrown = e;
+  }
+  assert.ok(thrown, "planSheetChange throws, so the store's transaction writes nothing");
+  assert.equal(sheetTooBig(thrown), true);
+  assert.deepEqual(store.map.get(sheet.id), before);
+
+  // The tab keeps the last saved copy, so the next small edit still saves.
+  const plan = await changeThrough(store, sheet.id, (s) => updateModule(s, "y", { html: "<p>Y small</p>" }, at(T2)));
+  assert.equal(plan.changed, true);
+  const stored = store.map.get(sheet.id);
+  assert.equal(htmlOf(stored, "y"), "<p>Y small</p>");
+  assert.equal(htmlOf(stored, "x"), "<p>X0</p>");
+});
+
+test("planSheetChange: nothing to change when there is no editable sheet", () => {
+  const op = () => assert.fail("the operation must not run");
+  assert.deepEqual(planSheetChange(null, op), { gone: true });
+  assert.deepEqual(planSheetChange(undefined, op), { gone: true });
+  const note = { id: nextId(), kind: "note", modified: T0 };
+  assert.deepEqual(planSheetChange(note, op), { gone: true });
+  const newer = { ...sheetOf(makeModule("text", {}, { id: "t" })), sheetFormat: SHEET_FORMAT + 1 };
+  assert.deepEqual(planSheetChange(newer, op), { gone: true });
+});
+
+test("planSheetChange: an operation that refuses comes back as refused, not thrown", () => {
+  const modules = Array.from({ length: SHEET_LIMITS.modules }, (_, i) => makeModule("text", {}, { id: `m${i}` }));
+  const full = sheetOf(...modules);
+  const out = planSheetChange(full, (s) => addModule(s, makeModule("text", {}, { id: "one-more" }), undefined, at(T1)));
+  assert.equal(Object.keys(out).join(), "refused");
+  assert.ok(out.refused instanceof Error);
+  assert.match(out.refused.message, new RegExp(`at most ${SHEET_LIMITS.modules} modules`));
+});
+
+test("planSheetChange: a change that changes nothing returns the very same sheet", () => {
+  const s = twoTexts();
+  const out = planSheetChange(s, (cur) => updateModule(cur, "x", { html: "<p>X0</p>" }, at(T1)));
+  assert.deepEqual(Object.keys(out).sort(), ["changed", "sheet"]);
+  assert.equal(out.changed, false);
+  assert.equal(out.sheet, s);
+});
+
+test("planSheetChange: a change comes back as a plan to put the new sheet", () => {
+  const s = twoTexts();
+  const out = planSheetChange(s, (cur) => updateModule(cur, "x", { html: "<p>X1</p>" }, at(T1)));
+  assert.equal(out.changed, true);
+  assert.equal(htmlOf(out.sheet, "x"), "<p>X1</p>");
+  assert.equal(out.put.length, 1);
+  assert.equal(out.put[0], out.sheet);
+  assert.deepEqual(out.remove, []);
+  assert.equal(out.sheet.modified, T1);
+  assert.equal(htmlOf(s, "x"), "<p>X0</p>", "the record it was given is not touched");
+});
+
+test("sheetTooBig: only the size limit's error is the size limit", () => {
+  assert.equal(sheetTooBig(new Error("desk-sheets: not a sheet")), false);
+  assert.equal(sheetTooBig(new Error("QuotaExceededError")), false);
+  assert.equal(sheetTooBig(undefined), false);
+  assert.equal(sheetTooBig(null), false);
+  assert.equal(sheetTooBig("a sheet is at most 512 KB"), false, "a string is not an error");
+  assert.equal(sheetTooBig(new Error("desk-store: not saved (… a sheet is at most 512 KB …)")), true);
 });

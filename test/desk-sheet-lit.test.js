@@ -508,6 +508,64 @@ test("blanksGivenAway: an empty note, or no blanks, gives nothing away", () => {
   assert.deepEqual(blanksGivenAway("deviation", []), []);
 });
 
+test("blanksGivenAway: repeated calls agree, and hand back the caller's own blanks (BA133)", () => {
+  const dev = { exact: "deviating" };
+  const grace = { exact: "grace" };
+  const blanks = [dev, grace];
+  const first = blanksGivenAway("People characterized by deviation", blanks);
+  const second = blanksGivenAway("People characterized by deviation", blanks);
+  assert.deepEqual(first, [dev]);
+  assert.deepEqual(second, first);
+  assert.equal(first[0], dev);
+  assert.equal(second[0], dev);
+  assert.equal(blanks.length, 2);
+});
+
+test("blanksGivenAway: the cache shares no set with a caller (BA133)", () => {
+  const blanks = [{ exact: "deviating" }];
+  const note = "people characterized by deviation";
+  assert.equal(blanksGivenAway(note, blanks).length, 1);
+  // Emptying a set telltaleStems returned must not reach what blanksGivenAway remembers.
+  const mine = telltaleStems("deviation");
+  assert.ok(mine.size > 0);
+  mine.clear();
+  assert.equal(blanksGivenAway(note, blanks).length, 1);
+  telltaleStems("deviating").clear();
+  assert.equal(blanksGivenAway(note, blanks).length, 1);
+  assert.equal(telltaleStems("deviation").size, 1);
+});
+
+test("blanksGivenAway: a sheet's worth of footnotes against a few thousand blanks stays quick (BA133)", () => {
+  const blanks = [];
+  for (let i = 0; i < 2900; i++) blanks.push({ exact: `word${i}ing` });
+  const real = [{ exact: "deviating" }, { exact: "righteousness" }, { exact: "mercy" }];
+  blanks.splice(500, 0, real[0]);
+  blanks.splice(1500, 0, real[1]);
+  blanks.splice(2500, 0, real[2]);
+
+  const start = performance.now();
+  for (let n = 0; n < 23; n++) {
+    const got = blanksGivenAway(`Note ${n}: people characterized by deviation and righteous living, not mercy-less`, blanks);
+    assert.equal(got.length, 3);
+    assert.equal(got[0], real[0]);
+    assert.equal(got[1], real[1]);
+    assert.equal(got[2], real[2]);
+  }
+  const elapsed = performance.now() - start;
+  // A smoke check against the cost growing as footnotes x blanks stemming, not a benchmark.
+  assert.ok(elapsed < 1000, `took ${Math.round(elapsed)} ms`);
+});
+
+test("blanksGivenAway: still right after more texts than the cache holds (BA133)", () => {
+  const blanks = [{ exact: "deviating" }, { exact: "grace" }];
+  for (let i = 0; i < 10500; i++) blanksGivenAway(`filler note number${i}words`, blanks);
+  assert.deepEqual(blanksGivenAway("People characterized by deviation", blanks), [blanks[0]]);
+  assert.deepEqual(blanksGivenAway("Unmerited grace given", blanks), [blanks[1]]);
+  assert.deepEqual(blanksGivenAway("nothing relevant here", blanks), []);
+  // And the earliest texts, long since evicted, still answer correctly.
+  assert.deepEqual(blanksGivenAway("filler note number0words", [{ exact: "number0words" }]), [{ exact: "number0words" }]);
+});
+
 /* ── footnoteKey ─────────────────────────────────────────────────────── */
 
 const notes = [
