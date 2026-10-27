@@ -156,7 +156,9 @@ Field by field:
 - **`hash`**: the SHA-256 of `text` encoded as UTF-8, written as 64 lowercase hex digits. It changes
   only when the words change: a block split, a footnote added or a topic retagged leaves it alone. A
   placeholder draft's is the hash of `""` (`e3b0c442…b855`). The apps use it to know whether any mark in the
-  chapter needs re-placing at all.
+  chapter's verses needs re-placing at all. **It covers the verse text only**: a pinned footnote or a
+  note on a footnote is matched by that footnote's `text`, so an app re-checks those whenever a
+  footnote's `text` differs from the copy it held, which it sees when the chapter's file changes.
 - **`verses`**: `assembleChapter`'s spans, in number order. A verse running across a block boundary
   is one span. A verse-number gap (Matthew 17:21) is simply absent.
 - **`blocks`**: one per `<p id>` or `<blockquote id>` in `paragraphs`, in order, with **BVJ's block
@@ -254,8 +256,9 @@ anchor vectors):
 ## The change list (none for now)
 
 **Decided by BDR, 2026-10-23, on Android's recommendation: no change list for now.** An app knows
-which chapters changed from their `hash`, and re-places the marks in those chapters only; it holds the
-old and new text at sync time, so it can work out which verses changed itself if it ever wants to.
+which chapters changed from their `hash`, and re-places the marks in those chapters' verses only (and
+re-checks a footnote's pins and notes when that footnote's `text` changed; see `hash` above); it holds
+the old and new text at sync time, so it can work out which verses changed itself if it ever wants to.
 Revisit only if an app shows a need for verse-level detail. The reasoning, kept for that day:
 
 Draft 1 proposed `v2.changes`: per chapter changed since the app's previous version, the verses whose
@@ -347,11 +350,25 @@ join the LIT's text to MorphGNT's word numbering, which is CC BY-SA.
 
 ## Open
 
-1. **For BDR and BVJ, before the apps build their `anchorSpec` check:** as written, the spec bump
-   rule sends any future `ANCHOR_SPEC_VERSION` to a new folder, even a change like spec 2 that leaves
-   the text alone, and a new folder means every app downloads every chapter again. If a change that
-   only affects finding marks should stay under `/api/data/v2/` (moving `anchorSpec` in the files),
-   the rule can be narrowed to changes in the text. It stays as written until you decide.
+1. **For BVJ, with BDR agreeing on the aim (2026-10-26): keep the Study Desk's rule number out of the
+   chapter files.** As built, every chapter file and `books.json` carry `anchorSpec`, which moves
+   whenever the shared Study Desk rules change, including a change like spec 2 that only affects how
+   a mark is found again and leaves the words alone. Each such change would alter all 260 files, so
+   every app downloads them all again, and an app that checks `anchorSpec` would stop taking updates
+   until it was updated itself. (An earlier draft of this item suggested raising `anchorSpec` inside
+   the files instead of opening a new folder; that has the same cost, so it was dropped.) Proposed:
+   - **Apps check `api` alone.** The `api` number already stands for the rules that make the words,
+     because a change to those rules is a new `api` and folder; within `/api/data/v2/` they never
+     change.
+   - **`anchorSpec` leaves the chapter files and `books.json`**, and stays in `v2/version.json` and the
+     manifest's `v2` key as information only: which Study Desk rules the site follows. Apps keep their
+     own mark-finding code in step through app updates and `anchor-vectors.json`, never through content.
+   - **A tripwire so the words' rules can't change silently under version 2.** The vectors already
+     copy their inputs; `build:api2-vectors` would refuse to write, and the vectors test would say why,
+     when those same inputs give different words (text, verse spans or footnote `text`) under the same
+     `api`.
+   - **Decide before any app reads version 2**: once a field ships in the files, removing it is a new
+     version under "Adding more later".
 2. **For BVJ, in review:** the shape as a whole, and whether he is content with the rules he already
    follows being load-bearing (see "BVJ's part" above).
 
