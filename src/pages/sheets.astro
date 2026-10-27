@@ -35,9 +35,11 @@ import "../styles/pages/sheets-page.css";
   <script is:inline>
     // Keep in step with SHARE_PREFIX in src/lib/desk-sheet-share.mjs.
     // A shared link opened in a tab already on this page changes only the
-    // fragment, with no new page, so the same is done on hashchange (this
-    // listener is added before the beacon's could be), then the page reloads
-    // to show the sheet from the history entry.
+    // fragment, with no new page, so the same is done on popstate, which a
+    // fragment navigation fires first, and on hashchange, which follows
+    // (BA78). Both listeners are added before the beacon's could be. Then the
+    // page reloads to show the sheet from the history entry; by hashchange
+    // the fragment is already gone, so it reloads once.
     (function () {
       function take() {
         var h = location.hash;
@@ -45,14 +47,18 @@ import "../styles/pages/sheets-page.css";
         try {
           history.replaceState({ litSharedSheet: h.slice(1) }, "", location.pathname + location.search);
         } catch (e) {
+          // Already navigating away, without the sheet: no reload after it.
           location.replace(location.pathname + location.search);
+          return false;
         }
         return true;
       }
-      take();
-      addEventListener("hashchange", function () {
+      function takeAndShow() {
         if (take()) location.reload();
-      });
+      }
+      take();
+      addEventListener("popstate", takeAndShow);
+      addEventListener("hashchange", takeAndShow);
     })();
   </script>
   <div class="sheets-page">

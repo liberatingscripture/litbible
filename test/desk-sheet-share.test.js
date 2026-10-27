@@ -167,3 +167,82 @@ test("a copy into my desk is a new sheet of mine", async () => {
   assert.ok(mine.modules.every((m, i) => m.id !== sheet.modules[i].id));
   assert.equal(mine.title, sheet.title);
 });
+
+test("BA80: a file with two data lines yields the last", () => {
+  const file = "# T\n\n<!-- lit-sheet share1.AAAA -->\n\nmore\n<!-- lit-sheet share1.BBBB -->\n";
+  assert.equal(fragmentInFile(file), "share1.BBBB");
+});
+
+test("BA80: a sheet's text can't plant a data line in its file", async () => {
+  assert.equal(plainText("<p>&lt;!-- x --&gt;</p>"), "&lt;!-- x -->");
+  const s = createSheet(
+    { title: "Planted", modules: [makeModule("text", { html: "<p>&lt;!-- lit-sheet share1.AAAA --&gt;</p>" }), makeModule("keyTerms")] },
+    ctx,
+  );
+  assert.deepEqual(validateRecord(s), []);
+  const file = await shareFile(s);
+  assert.equal(file.split("<!-- lit-sheet").length - 1, 1, "only the real data line opens a comment");
+  assert.ok(file.includes("&lt;!-- lit-sheet share1.AAAA -->"));
+  const { sheet } = await openShare(fragmentInFile(file), ctx);
+  assert.equal(sheet.title, "Planted");
+  assert.equal(sheet.modules.length, 2);
+});
+
+test("BA81: a part of an unknown type stays out of a participant share", async () => {
+  const s = sample();
+  s.modules.push({ id: "m-poll", type: "poll", answer: "secret", html: "<p>x</p>" });
+  assert.deepEqual(validateRecord(s), []);
+  const participant = sharedSheet(s, { scope: "participant" });
+  assert.equal(participant.modules.length, 4);
+  assert.ok(!participant.modules.some((m) => m.type === "poll"));
+  assert.ok(!JSON.stringify(participant).includes("secret"));
+  const file = await shareFile(s, { scope: "participant" });
+  const { sheet } = await openShare(fragmentInFile(file), ctx);
+  assert.ok(!sheet.modules.some((m) => m.type === "poll"));
+  assert.ok(!JSON.stringify(sheet).includes("secret"));
+  const leader = sharedSheet(s);
+  assert.equal(leader.modules.length, 6);
+  assert.equal(leader.modules.find((m) => m.type === "poll").answer, "secret");
+});
+
+test("BA82: a crafted share's comparison copies are dropped on opening", async () => {
+  const data = sharedSheet(sample());
+  data.modules = data.modules.map((m) => (m.type === "passage" ? { ...m, verseCopy: "scripture", verseCopyAsOf: "v1" } : m));
+  assert.ok(data.modules.some((m) => "verseCopy" in m));
+  const { sheet } = await openShare(await fragmentOf(data), ctx);
+  for (const m of sheet.modules) {
+    assert.equal("verseCopy" in m, false);
+    assert.equal("verseCopyAsOf" in m, false);
+  }
+  const mine = copyOfShared(sheet, { client: "web-me", now: "2026-10-21T00:00:00.000Z" });
+  for (const m of mine.modules) {
+    assert.equal("verseCopy" in m, false);
+    assert.equal("verseCopyAsOf" in m, false);
+  }
+});
+
+test("BA87: a data line folded by email still opens", async () => {
+  const file = await shareFile(sample());
+  const real = fragmentInFile(file);
+  const data = real.slice(SHARE_PREFIX.length);
+  const folded = `${SHARE_PREFIX}${data.slice(0, 40)}\r\n  ${data.slice(40, 90)}\r\n${data.slice(90)}\n`;
+  const mangled = file.replace(real, folded);
+  assert.notEqual(mangled, file);
+  assert.equal(fragmentInFile(mangled), real);
+  const { sheet } = await openShare(fragmentInFile(mangled), ctx);
+  assert.equal(sheet.modules.length, 5);
+});
+
+test("BA87: an unreadable data line is damaged, and no data line is null", () => {
+  for (const text of ["# T\n<!-- lit-sheet share1.!!! -->\n", "# T\n<!-- lit-sheet share1.AAAA\n", "<!-- lit-sheet -->"]) {
+    assert.throws(() => fragmentInFile(text), (e) => e instanceof ShareError && e.code === "damaged", text);
+  }
+  assert.equal(fragmentInFile("# T\n\nNo data here.\n"), null);
+  assert.equal(fragmentInFile(""), null);
+});
+
+test("BA87: a crafted file of unclosed whitespace is read in linear time", () => {
+  const started = performance.now();
+  assert.throws(() => fragmentInFile("<!-- lit-sheet share1." + " ".repeat(500_000)), (e) => e.code === "damaged");
+  assert.ok(performance.now() - started < 1000, "took too long");
+});

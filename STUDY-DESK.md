@@ -35,7 +35,13 @@ are recorded so they aren't re-argued.
   FA1-g, is done (#378): a sheet's change is now planned over the record
   read in the same transaction as the write, so two tabs on one sheet keep
   each other's edits (BA129), and a save that fails puts the part back and
-  says why (BA128). Next: FA1-g (sharing a sheet).
+  says why (BA128). FA1-g is done (#379): a shared link opened in a tab
+  already on /sheets/ is moved out of the address on `popstate` too
+  (BA78), a shared file opens its last data line, folded or not, and
+  says when one is damaged (BA80, BA87), a participant share leaves out
+  parts of unknown types (BA81), and opening a share drops its
+  comparison copies (BA82). What the apps should pick up is in the
+  format's "Sharing a sheet." Next: FA1-h (marks on the page).
 
 - **Phase 2c is built on the preview** (2026-10-20): notes on a footnote
   and questions for discussion. **A note can be on a footnote** (M11):
@@ -6554,7 +6560,7 @@ The phases, in working order:
 | FA1-f | The record format, for BDR | BA8, BA14 |
 | FA1-u | The follow-up audit: code this audit didn't reach | done: BA88 to BA145 |
 | FA1-ab | Sheets in two tabs, and large sheets | BA128 to BA133 |
-| FA1-g | Sharing a sheet | BA78, BA80, BA81, BA82, BA87 |
+| FA1-g | Sharing a sheet | done, #379: BA78, BA80, BA81, BA82, BA87 |
 | FA1-h | Marks on the page | BA16, BA17, BA19, BA20, BA23 |
 | FA1-i | Sheet templates and passages | BA69, BA70, BA75, BA76, BA77, BA127 |
 | FA1-j | The sheet editor: pasting and saving | BA68, BA71, BA72, BA73, BA74 |
