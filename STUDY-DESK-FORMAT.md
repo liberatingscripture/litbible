@@ -472,12 +472,18 @@ anything else.
 |---|---|
 | `lit` | `"sheet"` |
 | `sheetFormat`, `title`, `subtitle`, `template`, `commercial` | As on the sheet (`commercial` only when true) |
-| `scope` | `"leader"` (everything) or `"participant"` (no module marked `leaderOnly`, and every question's `answer` empty) |
+| `scope` | `"leader"` (everything) or `"participant"` (no module marked `leaderOnly`, no module of a type the sender doesn't know, and every question's `answer` empty) |
 | `contentVersion` | The sheet's own, so the receiver knows which text it was made on |
 | `modules` | The sheet's modules, each **without its `id`**, and passages without `verseCopy` and `verseCopyAsOf` |
 
-Nothing else of the record travels (its id, client, times, labels). A
-receiver gives every module a fresh id and makes the sheet a record of its
+A participant share leaves out a module of a type the sender doesn't know
+(2026-10-27, BA81), as the participant's paper copy does, since the sender
+can't tell which of its fields are for the leader. A leader share keeps it
+whole, as the editor does. Nothing else of the record travels (its id,
+client, times, labels). A
+receiver gives every module a fresh id, **drops `verseCopy` and
+`verseCopyAsOf` from every module whatever the share holds** (a shared sheet
+is never flagged as changed; BA82), and makes the sheet a record of its
 own, and refuses the share unless that record passes the sheet's check
 (`validateSheet`): formatted text must already be in the canonical form.
 Decompressed data over twice the sheet's 512 KB limit is refused before it
@@ -487,13 +493,21 @@ is read whole.
 how to open it, each part in words (a passage by its reference, never its
 text), and on its last line the data, as an HTML comment so a Markdown
 viewer shows nothing of it: `<!-- lit-sheet share1.<data> -->`, the same
-fragment a link carries. Its name ends `.lit-sheet.md`.
+fragment a link carries. Its name ends `.lit-sheet.md`. A reader takes the
+**last** such comment in the file and removes any whitespace inside the data,
+since an email client may fold the long line; a comment begun
+(`<!-- lit-sheet`) but unreadable is reported as damaged, not as a file with
+no sheet. The readable part writes any `<!--` in a sheet's own text as
+`&lt;!--`, so a sheet's text can't plant a data line (2026-10-27, BA80,
+BA87).
 
 **Opening one** on the website keeps the fragment out of every server's
 sight: an inline script at the top of the sheets page's body moves it into
 the tab's history entry (`history.state.litSharedSheet`) while the page is
 still being parsed, before Cloudflare's analytics beacon (a deferred script)
-runs, and the page shows the sheet from there. A reload finds it again. It is shown read only until the
+runs, and the page shows the sheet from there. A link opened in a tab
+already on the sheets page is moved the same way on `popstate` and
+`hashchange`, by listeners added before the beacon's. A reload finds it again. It is shown read only until the
 reader chooses "Copy into my desk", which saves it as a new sheet of theirs
 (new id, new times, their client). A shared link opened on a phone or
 tablet says to open it on a computer (decision 4).

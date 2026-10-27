@@ -14,7 +14,9 @@
 // (id, client, times, labels), each module's id, and the passages' comparison
 // copies (`verseCopy`, which hold scripture and are compared with nothing on
 // the other side). A participant share also leaves out the parts marked
-// Leader only and the questions' answers, so the link can go to the room.
+// Leader only, the questions' answers and every part of a type this version
+// doesn't know (whose fields it can't vouch for), so the link can go to the
+// room.
 //
 // Opening one never trusts it: the data is decompressed with a ceiling (a
 // small link can't grow into something huge), parsed, rebuilt as a sheet
@@ -28,7 +30,7 @@
 
 import { bookKeyToLabel } from "../data/books.js";
 import { createRecord, validateRecord } from "./desk-records.mjs";
-import { SHEET_FORMAT, SHEET_LIMITS } from "./desk-sheet-format.mjs";
+import { MODULE_TYPES, SHEET_FORMAT, SHEET_LIMITS } from "./desk-sheet-format.mjs";
 
 /** The fragment's prefix: "share", then the share format's version, then a dot. */
 export const SHARE_PREFIX = "share1.";
@@ -42,8 +44,18 @@ export const SHARE_SCOPES = Object.freeze(["leader", "participant"]);
  * get too small to scan from a printed page or a screen across a table.
  */
 export const QR_LINK_LIMIT = 1000;
-/** The file's data line: an HTML comment, so a Markdown viewer shows nothing of it. */
-const DATA_LINE = /<!--\s*lit-sheet\s+(share1\.[A-Za-z0-9_-]+)\s*-->/;
+/**
+ * The file's data line: an HTML comment, so a Markdown viewer shows nothing of
+ * it. Whitespace inside the data is allowed and removed, since an email client
+ * may fold a long line (BA87). The file writes its data line last, so the last
+ * match is the one taken (BA80). The data's characters and the whitespace
+ * between them are matched as separate runs, never one class with `\s` in
+ * it, which would retry the closing `\s*-->` at every space (quadratic on a
+ * crafted file).
+ */
+const DATA_LINE = /<!--\s*lit-sheet\s+(share1\.[A-Za-z0-9_-]*(?:\s+[A-Za-z0-9_-]+)*)\s*-->/g;
+/** A data line's opener, to tell a damaged data line from a file with none. */
+const DATA_OPENER = /<!--\s*lit-sheet\b/;
 /** Decompressed data larger than this is refused (the sheet limit with room for JSON's own). */
 const MAX_JSON_BYTES = SHEET_LIMITS.bytes * 2;
 
@@ -148,7 +160,9 @@ export function sharedSheet(sheet, { scope = "leader" } = {}) {
   if (sheet?.kind !== "sheet") throw new Error("desk-sheet-share: not a sheet");
   if (!SHARE_SCOPES.includes(scope)) throw new Error(`desk-sheet-share: unknown scope "${scope}"`);
   const modules = (sheet.modules ?? [])
-    .filter((m) => !(scope === "participant" && m?.leaderOnly === true))
+    // A participant share has what the participant copy prints (modulesForCopy):
+    // no Leader only part, and no part of a type this version doesn't know (BA81).
+    .filter((m) => scope === "leader" || (m?.leaderOnly !== true && MODULE_TYPES.includes(m?.type)))
     .map((m) => plainModule(m, scope));
   const out = {
     lit: "sheet",
@@ -191,6 +205,8 @@ export function plainText(html) {
     .replace(/&gt;/g, ">")
     .replace(/&quot;/g, "\"")
     .replace(/&amp;/g, "&")
+    // A sheet's own text can't plant a data line in the file (BA80).
+    .replace(/<!--/g, "&lt;!--")
     .replace(/[ \t]+\n/g, "\n")
     .replace(/\n{3,}/g, "\n\n")
     .trim();
@@ -259,9 +275,18 @@ export function shareFileName(sheet) {
   return `${slug || "sheet"}.lit-sheet.md`;
 }
 
-/** The fragment a shared sheet's file carries, or null. */
+/**
+ * The fragment a shared sheet's file carries, or null when it has no data
+ * line. Throws ShareError("damaged") when a data line is begun but can't be
+ * read, so the reader is told to ask for the file again (BA87).
+ */
 export function fragmentInFile(text) {
-  return String(text ?? "").match(DATA_LINE)?.[1] ?? null;
+  const str = String(text ?? "");
+  let last = null;
+  for (const m of str.matchAll(DATA_LINE)) last = m[1];
+  if (last !== null) return last.replace(/\s+/g, "");
+  if (DATA_OPENER.test(str)) throw new ShareError("damaged");
+  return null;
 }
 
 /* ── Opening a share ─────────────────────────────────────────────────── */
@@ -297,7 +322,10 @@ export function sheetFromShared(data, { now, client, id, newId = () => globalThi
   if (data.sheetFormat > SHEET_FORMAT) throw new ShareError("newer");
   const modules = data.modules.map((m) => {
     if (!m || typeof m !== "object" || Array.isArray(m)) throw new ShareError("invalid", "module");
-    const { id: _ignored, ...rest } = m;
+    // What never travels is dropped here too, whatever a crafted share holds,
+    // so a shared sheet is never flagged as changed (BA82).
+    const rest = {};
+    for (const [k, v] of Object.entries(m)) if (!DROP.has(k)) rest[k] = v;
     return { id: newId(), ...rest };
   });
   const fields = {

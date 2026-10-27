@@ -107,7 +107,7 @@ it goes after both, and FA1-ac after FA1-t.
 | FA1-f | The record format, for BDR | BA8, BA14 | done, #375 |
 | FA1-u | The follow-up audit: code this audit didn't reach | new findings, BA88 onward | done: areas 1 to 3 (BA88 to BA120), #376; areas 4 to 6 (BA121 to BA145) |
 | FA1-ab | Sheets in two tabs, and large sheets | BA128 to BA133 | done, #378 |
-| FA1-g | Sharing a sheet | BA78, BA80, BA81, BA82, BA87 | open |
+| FA1-g | Sharing a sheet | BA78, BA80, BA81, BA82, BA87 | done, #PRNUM |
 | FA1-h | Marks on the page | BA16, BA17, BA19, BA20, BA23 | open |
 | FA1-i | Sheet templates and passages | BA69, BA70, BA75, BA76, BA77, BA127 | open |
 | FA1-j | The sheet editor: pasting and saving | BA68, BA71, BA72, BA73, BA74 | open |
@@ -547,7 +547,12 @@ script), `STUDY-DESK-FORMAT.md` ("Sharing a sheet"). Tests:
   - *Check*: on the deployed site, since the beacon is added at deploy:
     paste a share link into a tab already on /sheets/ and watch the
     beacon's request.
-  - Status: open.
+  - Status: fixed in #PRNUM. The move now runs on `popstate` as well as
+    `hashchange`. Checked locally (2026-10-27): listeners added after
+    load, where the beacon's would be, saw `/sheets/` with no fragment on
+    both events, and the page reloaded once with the sheet in
+    `history.state`. The check against the real beacon on the deployed
+    site is still FA1-v's, item 7.
 - **BA80 (low, security; reproduced). A `.lit-sheet.md` file opens the first
   data line in it, and a sheet's own text can plant one.**
   - *What happens*: the data regex isn't anchored to the last line
@@ -558,7 +563,8 @@ script), `STUDY-DESK-FORMAT.md` ("Sharing a sheet"). Tests:
     that passes from leader to leader.
   - *Fix*: take the last match, or require it on the final non-empty line.
     Escape `<!--` in the readable part.
-  - Status: open.
+  - Status: fixed in #PRNUM. `fragmentInFile` takes the last data line,
+    and `plainText` writes `<!--` as `&lt;!--`.
 - **BA81 (low; reproduced). A participant share keeps parts of unknown types
   whole, answers included.**
   - *What happens*: `plainModule` empties `answer` only on question parts
@@ -567,7 +573,7 @@ script), `STUDY-DESK-FORMAT.md` ("Sharing a sheet"). Tests:
   - *Fix*: leave unknown types out of a participant share. Paper copies
     already skip them (`modulesForCopy`). Say so in the format's “Sharing a
     sheet,” for BDR.
-  - Status: open.
+  - Status: fixed in #PRNUM. Said in the format's “Sharing a sheet” for BDR.
 - **BA82 (low; reproduced). A crafted share can raise a false “wording
   changed” notice after Copy into my desk.**
   - *What happens*: `sheetFromShared` drops only `id` (298–302), and
@@ -576,7 +582,7 @@ script), `STUDY-DESK-FORMAT.md` ("Sharing a sheet"). Tests:
     never flagged.
   - *Fix*: strip the `DROP` fields in `sheetFromShared`, as `plainModule`
     does.
-  - Status: open.
+  - Status: fixed in #PRNUM.
 - **BA87 (low, copy; reproduced). A file whose data line was wrapped by
   email says it doesn't hold a shared sheet.**
   - *What happens*: a folded line gives null, so the “no-data” message
@@ -584,7 +590,8 @@ script), `STUDY-DESK-FORMAT.md` ("Sharing a sheet"). Tests:
   - *Fix*: allow whitespace inside the data and remove it, or report
     “damaged… Ask for it again” when a `<!-- lit-sheet` opener is there but
     can't be read.
-  - Status: open.
+  - Status: fixed in #PRNUM. Both: whitespace inside the data is removed,
+    and an opener that can't be read is reported as damaged.
 
 ## FA1-h. Marks on the page
 
@@ -2287,8 +2294,9 @@ Then, in particular:
    - a sheet's leader and participant copies on Letter and on A4.
 
    Check that page breaks, the codes and the credit line print.
-7. **The deployed site**: the shared-link beacon check (BA78), if FA1-g
-   didn't already do it.
+7. **The deployed site**: the shared-link beacon check (BA78). FA1-g
+   checked it locally, with listeners standing in for the beacon's; the
+   real beacon is added only at deploy.
 
 ---
 

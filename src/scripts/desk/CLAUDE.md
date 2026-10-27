@@ -682,15 +682,19 @@ that section.
      - **Sharing** (S8) is `src/lib/desk-sheet-share.mjs` (pure, tested;
        format in STUDY-DESK-FORMAT.md, "Sharing a sheet"): the sheet, less
        its ids and comparison copies (and, for a participant share, its
-       Leader only parts and answers), as deflate-raw JSON in base64url
-       after `#share1.`, or the same data on the last line of a
-       `.lit-sheet.md` file. Opening one decompresses with a ceiling,
-       rebuilds the record with fresh ids and refuses it unless
-       `validateRecord` passes. **The fragment must never reach a server or
-       the analytics beacon**: an inline script in `sheets.astro`'s body
-       moves it into `history.state.litSharedSheet` while the page parses,
-       and again on `hashchange` (then reloads), since a link opened in a tab
-       already on /sheets/ changes only the fragment. Checked against the
+       Leader only parts, answers and parts of unknown types), as
+       deflate-raw JSON in base64url after `#share1.`, or the same data on
+       the last line of a `.lit-sheet.md` file (`fragmentInFile` takes the
+       last data line, ignores whitespace folded into it, and throws
+       "damaged" for one it can't read). Opening one decompresses with a
+       ceiling, rebuilds the record with fresh ids, drops the comparison
+       copies again and refuses it unless `validateRecord` passes. **The
+       fragment must never reach a server or the analytics beacon**: an
+       inline script in `sheets.astro`'s body moves it into
+       `history.state.litSharedSheet` while the page parses, and again on
+       `popstate` and `hashchange` (then reloads), since a link opened in a
+       tab already on /sheets/ changes only the fragment, and a fragment
+       navigation fires `popstate` first (BA78). Checked against the
        real beacon on 2026-10-20: its `location` came without the fragment.
        The navigation timing entry's `name` still holds the original
        address, and the beacon didn't send it then; recheck if the beacon
