@@ -203,11 +203,20 @@ that section.
      whether a change was overtaken; `desk/history.js` holds the stacks and
      the keys, and the undo bar's Undo button is the same thing (`undoEntry`),
      so callers capture `store.lastEntry()` right after their write and pass
-     `() => undoEntry(entry)` to `showUndo`. Two rules that are easy to break:
+     `() => undoEntry(entry)` to `showUndo`. Rules that are easy to break:
      an undo restamps `modified` and `client` (the undone state must outrank
-     the change under the newer-wins sync rule), so entries are compared
-     **without** those two fields, or nothing could be undone twice in a row;
-     and the keys stand down in text fields, selects and while a note editor
+     the change under the newer-wins sync rule), and a trash record it puts
+     back gets a fresh `deletedAt` too, so entries are compared **without**
+     those fields, or nothing could be undone twice in a row; undoing an add
+     deletes through a trash record (its id allotted in the entry,
+     `undoTrash`, which a redo removes), never a bare removal, which a backup
+     would bring back as new (BA7); a change that depends on what the
+     notebook holds (deleting, restoring, the purge, a history step, the note
+     editor's save) reads and writes in **one** transaction through
+     `store.change`, and any write that throws aborts the whole transaction
+     (BA5, BA13); the note editor saves onto the note as it is at Save
+     (`planEdit`), and refuses if anything but its words and marker changed
+     meanwhile (BA6); and the keys stand down in text fields, selects and while a note editor
      is open, leaving the browser's own undo alone. Not tied to the Keyboard
      switch (it isn't a single-key shortcut, WCAG 2.1.4). The undo bar closes by itself after ten seconds (BVJ,
      2026-10-09), never while hovered or focused; that is safe only because

@@ -8,9 +8,16 @@
 // typed; Cancel, × and Escape close it.
 //
 // A note's body is the reader's own words: always text, never HTML.
+//
+// Saving an edit writes the words and the marker onto the note as it stands
+// at that moment, read in the same transaction (planEdit), never onto the copy
+// the editor opened with: another tab, the notebook page or an import may have
+// changed it since (BA6). If one did, or deleted it, nothing is written and the
+// editor stays open with the reader's words, saying so.
 
-import { MARKERS, createRecord, editRecord, proseTarget, verseCopyFor } from "../../lib/desk-records.mjs";
+import { MARKERS, createRecord, proseTarget, verseCopyFor } from "../../lib/desk-records.mjs";
 import { MARKER_NAMES, shortQuote } from "../../lib/desk-notes.mjs";
+import { planEdit } from "../../lib/desk-store-core.mjs";
 import { closePanel, showPanel } from "../lit-panel.js";
 import { glyph } from "./glyphs.js";
 import { undoEntry } from "./history.js";
@@ -109,14 +116,40 @@ export function openNoteEditor({ trigger, store, ctx, ref, record = null, draft 
     });
   }
 
+  const failed = (err) => {
+    console.error("Study Desk: the note wasn't saved", err);
+    error.hidden = false;
+    error.textContent = "The note couldn’t be saved in this browser.";
+  };
+
+  async function saveEdit(now) {
+    if (record.body === body.value && record.marker === marker) return closePanel();
+    const changes = { body: body.value, marker };
+    let overtaken = false;
+    try {
+      await store.change(async ({ get }) => {
+        const plan = planEdit(await get(record.id), record, changes, { now, client: ctx().client });
+        overtaken = !plan;
+        return plan;
+      });
+    } catch (err) {
+      return failed(err);
+    }
+    if (overtaken) {
+      error.hidden = false;
+      error.textContent =
+        "This note was changed in another tab, so your edit wasn’t saved. Copy your words, then close this and open the note again.";
+      return;
+    }
+    closePanel();
+  }
+
   async function save() {
     if (example) return;
     const now = new Date().toISOString();
+    if (editing) return saveEdit(now);
     let next;
-    if (editing) {
-      if (record.body === body.value && record.marker === marker) return closePanel();
-      next = editRecord(record, { body: body.value, marker }, { now, client: ctx().client });
-    } else if (onFn) {
+    if (onFn) {
       // No quote and no verse copy: the footnote's own words are what it hangs on.
       next = createRecord(
         "note",
@@ -168,9 +201,7 @@ export function openNoteEditor({ trigger, store, ctx, ref, record = null, draft 
       await store.save(next);
       closePanel();
     } catch (err) {
-      console.error("Study Desk: the note wasn't saved", err);
-      error.hidden = false;
-      error.textContent = "The note couldn’t be saved in this browser.";
+      failed(err);
     }
   }
 

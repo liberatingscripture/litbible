@@ -621,6 +621,27 @@ function canonical(value) {
 
 const same = (a, b) => canonical(a) === canonical(b);
 
+/**
+ * How deeply a record from a file may nest, counting the record itself as 1.
+ * The format's deepest records (a sheet, inside a trash record) are a few
+ * levels deep, so this is generous; it is there because a browser refuses to
+ * store a record nested thousands deep (a structured-clone RangeError), which
+ * validateRecord can't see (BA5).
+ */
+export const MAX_NESTING = 64;
+
+/** Whether `value` nests deeper than `limit`. Iterative, so a deep file can't overflow the stack. */
+export function nestedTooDeep(value, limit = MAX_NESTING) {
+  const stack = [[value, 1]];
+  while (stack.length) {
+    const [v, depth] = stack.pop();
+    if (!v || typeof v !== "object") continue;
+    if (depth > limit) return true;
+    for (const k of Object.keys(v)) stack.push([v[k], depth + 1]);
+  }
+  return false;
+}
+
 /** A record from a file with any sheet's formatted text sanitized, in the trash too (BA66). */
 function cleanIncoming(r) {
   if (r?.kind !== "trash") return cleanSheetText(r);
@@ -657,6 +678,10 @@ export function planImport(local, incoming, ctx = {}) {
   const skipped = [];
   const usable = [];
   for (const r of incoming ?? []) {
+    if (nestedTooDeep(r)) {
+      skipped.push({ record: r, reason: "It is nested too deeply to be kept." });
+      continue;
+    }
     const bad = r && typeof r === "object" && r.kind !== "trash" ? validateRecord(r) : [];
     if (bad.length) skipped.push({ record: r, reason: `${bad.join("; ")}.`.replace(/^./, (c) => c.toUpperCase()) });
     else usable.push(cleanIncoming(r));
