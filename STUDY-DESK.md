@@ -29,9 +29,10 @@ are recorded so they aren't re-argued.
   (anchor vectors version 2) and brought the format into line with the
   code; what the apps should pick up is in the 2026-10-26 note for BDR's
   Claude under "One notebook, three homes". FA1-u, the follow-up audit,
-  has done areas 1 to 3 (2026-10-26): 33 findings, BA88 to BA120 (7
-  medium, 26 low), in four new phases, FA1-w to FA1-z, and in FA1-k, FA1-r
-  and FA1-t. Next: FA1-u's areas 4 to 6.
+  is done (2026-10-26): 58 findings, BA88 to BA145 (14 medium, 44 low).
+  Areas 1 to 3 are in FA1-w to FA1-z and in FA1-k, FA1-r and FA1-t; areas
+  4 to 6 in FA1-aa to FA1-ad and FA1-i. Next: FA1-ab (sheets in two tabs;
+  two data-loss findings), which BVJ moved ahead of FA1-g.
 
 - **Phase 2c is built on the preview** (2026-10-20): notes on a footnote
   and questions for discussion. **A note can be on a footnote** (M11):
@@ -5724,6 +5725,34 @@ split itself is still a proposal BVJ worked within but hasn't confirmed.
   reader's accessibility font still wins on screen. Left out: images and
   tables. The set can grow later but never shrink.
 
+### 2026-10-26 (FA1-u, areas 4 to 6: 25 findings; FA1-u done)
+
+- **FA1-u's second session** audited /desk's use of the shared modules
+  (area 4), sheets beyond one tab (area 5), and a copy pass and the
+  stylesheet (area 6). **25 findings, BA121 to BA145: 7 medium and 18
+  low**, by area 6, 7 and 12. They are written up in
+  `STUDY-DESK-AUDIT-1.md` under FA1-u and planned in four new phases
+  (FA1-aa /desk's panes and the shared modules, FA1-ab Sheets in two tabs
+  and large sheets, FA1-ac The copy pass, FA1-ad The stylesheet), with
+  BA127 in FA1-i. That ends FA1-u: 58 findings over its two sessions.
+- **Two are data loss, in sheets** (BA128, BA129): a failed save leaves
+  every later edit unsaved, and a tab that hasn't heard another tab's save
+  writes its older copy over the whole sheet. **BVJ moved FA1-ab up to
+  follow FA1-u** (2026-10-26), by the plan's own rule, data loss first, so
+  it is the next phase.
+- **BVJ took Claude's recommendation on all four calls** (2026-10-26):
+  - **BA125**: a verse menu or selection panel opened with the mouse in a
+    /desk pane is pinned to the screen, as a dragged one is, rather than
+    closed when the pane scrolls.
+  - **BA138**: “Notebook” is capitalized where it names the panel (“Close
+    the Notebook”); “my notebook” stays lowercase where it means what the
+    reader has kept (“Save a copy of my notebook”).
+  - **BA139**: “My Notes” names the tab and the pane only; the margin is
+    “Notes in the margin,” in its switch, its region's name and its
+    command.
+  - **BA144**: text fields' borders rise to about 3:1 site-wide, not only
+    on the desk, as its own commit in FA1-ad.
+
 ### 2026-10-26 (FA1-u, areas 1 to 3: 33 findings; a stricter linker for notes)
 
 - **FA1-u's first session** audited What's new for you and your own chains
@@ -6520,10 +6549,11 @@ The phases, in working order:
 | FA1-d | The store, the note editor, and undo | BA5, BA13, BA6, BA7 |
 | FA1-e | /desk keeps the reader's place | BA51, BA52, BA53, BA55 |
 | FA1-f | The record format, for BDR | BA8, BA14 |
-| FA1-u | The follow-up audit: code this audit didn't reach | new, BA88 onward |
+| FA1-u | The follow-up audit: code this audit didn't reach | done: BA88 to BA145 |
+| FA1-ab | Sheets in two tabs, and large sheets | BA128 to BA133 |
 | FA1-g | Sharing a sheet | BA78, BA80, BA81, BA82, BA87 |
 | FA1-h | Marks on the page | BA16, BA17, BA19, BA20, BA23 |
-| FA1-i | Sheet templates and passages | BA69, BA70, BA75, BA76, BA77 |
+| FA1-i | Sheet templates and passages | BA69, BA70, BA75, BA76, BA77, BA127 |
 | FA1-j | The sheet editor: pasting and saving | BA68, BA71, BA72, BA73, BA74 |
 | FA1-k | Greek search commands | BA44, BA45, BA48, BA49, BA50, BA116 |
 | FA1-l | /desk's LIT pane and layout | BA54, BA56, BA57, BA58, BA60, BA61 |
@@ -6539,6 +6569,9 @@ The phases, in working order:
 | FA1-x | A note's references | BA89, BA93, BA94, BA95 |
 | FA1-y | Ribbons and Continue reading | BA99 to BA108 |
 | FA1-z | The Greek tab | BA110, BA111, BA112, BA113, BA117, BA119, BA120 |
+| FA1-aa | /desk's panes and the shared modules | BA121 to BA126 |
+| FA1-ac | The copy pass | BA134 to BA139 |
+| FA1-ad | The stylesheet: focus, forced colors, contrast, and print | BA140 to BA145 |
 | FA1-v | The follow-up audit: real devices | new |
 
 FA1-f should land before the record format is frozen for the apps, and
