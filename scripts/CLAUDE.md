@@ -48,7 +48,15 @@
 7. `build:api` — generates `public/api/content.json` (full NT in canonical
    order). Runs *after* `build:manifest` and reads the shared `version` from
    `version.json` so all three API artifacts report the same version.
-8. `build:og` — generates `public/og/<slug>.png`, a 1200×630 social share card
+8. `build:api2` — generates `public/api/data/v2/`, the content API version 2
+   (`API-2-FORMAT.md`): each chapter as its Study Desk anchor text with its
+   verses, blocks, lines, emphasis, footnote letters and ⟦ ⟧ spans as offsets,
+   plus `books.json`, `content.json` and its own `version.json`. It then adds
+   the `v2` key to `manifest.json`, and **never touches the manifest's `files`
+   map** (see "Version 2 of the content API" below). It fails the build if any
+   chapter's text or verse spans differ from `chapterAnchorText`. Runs after
+   `build:manifest` and `build:api` because it reads their `version`.
+9. `build:og` — generates `public/og/<slug>.png`, a 1200×630 social share card
    for every chapter and book-intro page (owner-approved design: ink field,
    the ringed emblem, Fraunces display-cut reference), plus `apps.png`
    for `/apps` — a sibling composition on the same ink field whose hero visual
@@ -65,8 +73,8 @@
    `twitter:card=summary_large_image`. A website asset, NOT part of the app
    contract — it must never move under
    `public/api/`.
-9. `astro build` — compiles the site to `dist/`.
-10. `pagefind --site dist` — indexes glossary + article + book-intro pages
+10. `astro build` — compiles the site to `dist/`.
+11. `pagefind --site dist` — indexes glossary + article + book-intro pages
    into `dist/pagefind/` (scripture chapter pages are deliberately not
    Pagefind-indexed — see Search below).
 
@@ -84,6 +92,9 @@
 | `build-verse-index.mjs` | fs/CLI shell: walks the chapter files, skips drafts, derives the corpus `vocab`, and writes `public/search/verses.json` — per-verse plain text for client-side scripture keyword search. Delegates the HTML→verse-text extraction to `lib/verse-index-core.mjs`. |
 | `build-api-json.mjs` | `public/api/content.json`. |
 | `build-api-manifest.mjs` | `public/api/manifest.json` + `public/api/data/` for the native apps. |
+| `build-api-v2.mjs` | fs shell for the content API, version 2: writes `public/api/data/v2/` and adds the manifest's `v2` key. Every rule is in `lib/api2-core.mjs`. |
+| `lib/api2-core.mjs` | The version 2 chapter: applies the anchor-text rewrites themselves, in order, to characters that remember their block, line and emphasis, so every offset is in the final text by construction; then checks the text and verse spans against `lib/anchor-text.mjs` and throws on a difference. Also `assertV1FilesMap`, the rule that keeps version 2 out of the version 1 `files` map. Unit-tested (`test/api2.test.js`). |
+| `build-api2-vectors.mjs` | Writes `test/fixtures/api2-vectors.json`: every chapter's version 2 `hash` beside the hash of the version 1 file it came from, whole files for the edge cases, and hand-written cases. **Not** in the build; regenerate after a deliberate change to `api2-core` or the corpus, and tell the apps. |
 | `build-glossary-json.mjs` | fs shell: reads `src/content/glossary/*.md` and writes `public/glossary.json`, the apps' glossary feed. Delegates every rule to `lib/glossary-feed-core.mjs`. |
 | `build-greek-bridge.mjs` | fs shell: writes `public/search/greek-bridge.json`, the gated LIT renderings of the published glossary terms with their lemmas and verses, for searching the Greek by the LIT's words. Rules in `lib/greek-bridge-core.mjs` (unit-tested). In the build. |
 | `lib/glossary-feed-core.mjs` | Pure `buildGlossaryFeed()` core of that generator — frontmatter parse, Markdown→plain-prose flattening, the `index` maps, and the cross-reference check. Unit-tested directly (`test/build-glossary-feed.test.js`) since its output shape is an app contract. Its header documents the four silent failure modes. |
@@ -113,6 +124,26 @@
 
 ## Conventions
 
+- **Version 2 of the content API (`/api/data/v2/`, `API-2-FORMAT.md`) is
+  served beside version 1, which is kept indefinitely** (BDR, 2026-10-22).
+  Its one hard rule: **nothing of version 2 ever goes into the manifest's
+  `files` map, and nothing under `chapters/` there is ever anything but a
+  version 1 chapter.** An installed Android build matches
+  `chapters/<book>-<n>.json` *anywhere* in a path and decodes it with every
+  field defaulted, so a version 2 file listed there would replace a reader's
+  chapter with an empty one. Version 2's hashes go under the manifest's own
+  `v2` key, which both apps' decoders skip; `assertV1FilesMap`
+  (`lib/api2-core.mjs`) fails the build on any `files` path the shipping apps
+  don't already know. A version 2 chapter file carries no content version, so
+  a publish re-downloads only the chapters that changed; and a new anchor spec
+  is a new `api` number and folder, never a change under `/api/data/v2/`. **It
+  grows by adding**: a new kind of data gets its own folder under
+  `/api/data/v2/` and its own entries in `v2.files`, never fields inside a
+  chapter file, and the apps ignore what they don't recognize (that spec's
+  "Adding more later"). There is no change list for now (BDR, 2026-10-23): an
+  app re-places marks only in chapters whose `hash` moved. A draft that holds
+  the translation so far is served with its text like any chapter, still
+  `indexed: false`.
 - **Content files are hashed by RAW BYTES, so line endings are content.**
   `.gitattributes` (`* text=auto eol=lf`) normalizes on commit, so a committed
   blob can never carry CRLF and the *published* `version` is stable. What it

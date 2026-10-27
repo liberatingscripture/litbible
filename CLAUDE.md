@@ -149,6 +149,7 @@ npm run build:api         # Regenerate public/api/content.json only
 npm run build:glossary    # Regenerate the apps' glossary feed (public/glossary.json)
 npm run build:greek-bridge # Regenerate the Greek search's glossary bridge (public/search/greek-bridge.json)
 npm run build:manifest    # Regenerate API manifest + /api/data for the mobile apps
+npm run build:api2        # Regenerate /api/data/v2, the content API version 2
 npm run build:og          # Regenerate the chapter/intro share cards (public/og/)
 npm run build:favicons    # Regenerate the favicon/touch/manifest icons from the emblem SVGs
                           #   (on demand only — outputs are committed, not built)
@@ -177,6 +178,7 @@ npm run audit:words       # Re-check every stored phase 2 record against today's
 npm run build:anchor-vectors # Regenerate test/fixtures/anchor-vectors.json, the Study Desk
                           #   anchor-text vectors the apps run (on demand only — committed,
                           #   and its "before" texts come from git history)
+npm run build:api2-vectors # Regenerate test/fixtures/api2-vectors.json (on demand; committed)
 npm run audit:alignment   # Re-check decided alignment records against the current text
                           #   (--all to list every finding). Run after editing scripture
 npm run draft:release-notes -- --since <ref>  # Draft a release-notes entry from git diff
@@ -349,15 +351,16 @@ The table of every script in `scripts/` and its role is in `scripts/CLAUDE.md`.
   `public/search/verses.json`, `public/search/chapters/`,
   `public/search/greek-bridge.json`, `public/topics-index.json`,
   `public/glossary.json`, `dist/`, `.astro/`.
-  Don't hand-edit them. Seven generators are deliberately **outside** this rule
+  Don't hand-edit them. Eight generators are deliberately **outside** this rule
   because their output is committed and hand-maintained — `build:favicons`
   (icons), `build:alignment` (review state), `build:bracket-font`
   (`public/fonts/bracket-markers.otf`), `build:text-critical-font`
   (`public/fonts/text-critical-signs.otf`), `build:apps-qr`
   (`public/images/apps-qr.svg`), `build:anchor-vectors`
-  (`test/fixtures/anchor-vectors.json`, which the apps fetch), and
+  (`test/fixtures/anchor-vectors.json`, which the apps fetch),
+  `build:api2-vectors` (`test/fixtures/api2-vectors.json`, likewise), and
   `build:greek` (`public/greek/`, built from sources CI doesn't have); none
-  of the seven runs in `npm run build`.
+  of the eight runs in `npm run build`.
 - **No client JS framework**, but `src/scripts/` *does* hold vanilla JS for
   progressive enhancement (verse highlighting/menus, footnote popovers, reading
   mode, search). Everything must degrade gracefully without JS.
@@ -503,6 +506,7 @@ The table of every script in `scripts/` and its role is in `scripts/CLAUDE.md`.
 | `GLOSSARY-CANDIDATES.md` | Register of glossary candidates deliberately not included or deferred, and the payload criterion behind those calls. Read it before proposing a "next term." |
 | `TOPICS.md` | **The authority on chapter and book-intro `topics`** — the significance filter, the alternative-translation pair table, the prefix-search rule, casing, and the hand-run checks. Read it before adding or revising any topics array. |
 | `STUDY-DESK.md`, `STUDY-DESK-FORMAT.md`, `STUDY-DESK-AUDIT-1.md` | The Study Desk's planning record, its record format (shared with the apps) and its audit; see `src/scripts/desk/CLAUDE.md`. Large: grep for an ID, never read whole |
+| `API-2-FORMAT.md` | The content API, version 2 (`/api/data/v2/`), beside version 1; opens with the manifest rule that protects installed apps |
 | `DISASTER-RECOVERY.md` | Continuity doc: every dashboard/secret behind the deploy (names only, no values) + the DNS inventory + from-zero redeploy path. Update it when an integration, secret, or DNS record is added/removed. |
 
 > The top-level `README.md` is the lighter human-facing overview; this file is

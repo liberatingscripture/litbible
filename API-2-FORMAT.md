@@ -1,7 +1,7 @@
 # The content API, version 2 (draft 2)
 
-**Status: draft 2, 2026-10-23. Built on the website, on branch `api-v2`, as a draft pull request to
-BVJ; nothing is served until he merges it.** Both apps' store releases (iOS 2.0.1, Android 1.2) were run
+**Status: draft 2, 2026-10-26. Built on the website, on branch `api-v2`, in pull request #359, in
+review by BVJ; nothing is served until he merges it.** Both apps' store releases (iOS 2.0.1, Android 1.2) were run
 against a build of this branch on 2026-10-22: no request reached `/api/data/v2/`, and each app's stored
 content was identical to a sync from `main` (`LIT Handoff/API-2-APP-CHECK-iOS-2026-10-22.md` and
 `…-ANDROID-…`). Draft 1 was written on 2026-10-22 by the iOS app's Claude instance. Draft 2 folds in the review BDR accepted (`LIT Handoff/API-2-REVIEW-2026-10-22.md`, ten
@@ -51,24 +51,30 @@ how BVJ writes, and the Study Desk record format.
 ## The one rule
 
 **A chapter's `text` is exactly its anchor text** as `STUDY-DESK-FORMAT.md` defines it and
-`chapterAnchorText` in `scripts/lib/anchor-text.mjs` computes it (`ANCHOR_SPEC_VERSION` 1): the
+`chapterAnchorText` in `scripts/lib/anchor-text.mjs` computes it (`ANCHOR_SPEC_VERSION` 2): the
 verses in number order, joined by one space, each verse's words with its number and footnote letters
 dropped, block boundaries as one space, entities decoded, NFC, zero-width characters and soft hyphens
 removed, the bracket markers stripped, whitespace collapsed, quotes and dashes as written.
 
 **The build checks it.** For every chapter, `text` and every verse span must equal
-`chapterAnchorText`'s, or `npm run build` fails before anything is published. On 2026-10-23: all 260
-chapters identical (210 published, Acts 1 a draft with text, 49 placeholders), 6,561 verses, 2,257
-blocks, 348 lines, 5,767 footnote letters placed.
+`chapterAnchorText`'s, or `npm run build` fails before anything is published. On 2026-10-26: all 260
+chapters identical (211 published, 49 placeholders), 6,561 verses, 2,257 blocks, 348 lines, 5,767
+footnote letters placed.
 
 **Offsets** are UTF-16 code units, `[start, end)`, as JavaScript, Kotlin and Swift's `utf16` view all
 count. The text has nothing outside the Basic Multilingual Plane today, so they also equal code-point
 offsets. Every offset is in the final, normalized text.
 
 **The spec bump rule.** An app reads a chapter only when its `api` and `anchorSpec` are ones it
-implements. A change to the anchor rule (`ANCHOR_SPEC_VERSION` 2) is a new `api` number and a new
+implements. A change to the anchor rule (`ANCHOR_SPEC_VERSION` 3) is a new `api` number and a new
 folder (`/api/data/v3/`), never a change to the files under `/api/data/v2/`, so a client can never
 place a mark against text built by a rule it doesn't know.
+
+**Version 2 ships at `anchorSpec` 2.** Spec 2 (2026-10-26, audit FA1-f) changed only how a mark is
+found again (rule e's two guards in `resolveAnchor`), not the text: every chapter's `text` is the same
+under 1 and 2. It arrived before version 2 was published, so nothing under `/api/data/v2/` ever said 1.
+An app reading version 2 implements `resolveAnchor` as spec 2 has it, and runs the spec 2
+`anchor-vectors.json`.
 
 ## The files
 
@@ -94,7 +100,7 @@ exporter alone with no new wording. **A version 2 app syncs when either differs 
 ```jsonc
 "v2": {
   "api": 2,
-  "anchorSpec": 1,
+  "anchorSpec": 2,
   "version": "v20261022.f40155c1",       // the same string as the top-level version
   "contentHash": "c427cb08",             // as v2/version.json
   "files": {                              // paths relative to /api/data/v2/
@@ -123,7 +129,7 @@ with the same serialization, and leaves `build-api-manifest.mjs` itself untouche
 ```jsonc
 {
   "api": 2,
-  "anchorSpec": 1,
+  "anchorSpec": 2,
   "bookKey": "john",
   "chapter": 3,
   "indexed": true,                     // false = a draft (see below)
@@ -164,7 +170,7 @@ Field by field:
   text holds one space there, as the anchor rule says.
 - **`runs`**: inline emphasis, one per `<em>` or `<strong>` element (`kind` `em` or `strong`), from its
   first non-space character to its last. An element crossing a verse boundary is one run and covers
-  the space between the verses. On 2026-10-23 the text has 112 `em` (110 published, 2 in Acts 1) and
+  the space between the verses. On 2026-10-26 the text has 112 `em`, all in published chapters, and
   no `strong` (all 147 `<strong>` are in the placeholders' "still in progress" heading, which is not
   in `text`). Nothing else inline
   is in use: the whole corpus has `p`, `span.vglue`, `sup.vn`, `sup.fn-ref`, `a` (only inside
@@ -191,10 +197,10 @@ Field by field:
   `text`. A placeholder's other paragraph (the "still in progress" heading the website stopped
   printing) is not served.
 - **`indexed`**: `false` is a draft, and a draft comes in two forms. A **placeholder** has no verse
-  text: `text` is `""`, there are no ranges, and its art is in `figures` (49 chapters on 2026-10-23). A
-  draft can also hold **the translation so far** (Acts 1 since 2026-10-23, still `indexed: false`):
-  then it is served like any chapter, text and ranges, because version 2's text is the anchor text for
-  every chapter, with no exceptions. **An app decides what a draft means from `indexed`, never from
+  text: `text` is `""`, there are no ranges, and its art is in `figures` (all 49 drafts on
+  2026-10-26). A draft can also hold **the translation so far** while still `indexed: false`, as a book
+  is imported ahead of its publication (no chapter does today): then it is served like any chapter,
+  text and ranges, because version 2's text is the anchor text for every chapter, with no exceptions. **An app decides what a draft means from `indexed`, never from
   whether `text` is empty**: a Notebook record is never made on a chapter with `indexed: false`
   (`STUDY-DESK-FORMAT.md`, "Anchor text": drafts aren't covered), whatever it shows of the text.
 
@@ -227,7 +233,7 @@ has none today:
 | A letter between two spaces | the spaces collapse to one, the letter sits before it | synthetic |
 | A verse-number gap | the verse is absent from `verses` | `matthew-17` |
 | A placeholder draft | `text` "", no ranges, its `figures` | `acts-2` |
-| A draft holding the translation so far | text and ranges as any chapter, `indexed` false | `acts-1` |
+| A draft holding the translation so far | text and ranges as any chapter, `indexed` false | synthetic (none in the corpus) |
 
 ## The vectors, and how the apps use them
 
@@ -341,8 +347,13 @@ join the LIT's text to MorphGNT's word numbering, which is CC BY-SA.
 
 ## Open
 
-Nothing for BDR. For BVJ, in review: the shape as a whole, and whether he is content with the rules
-he already follows being load-bearing (see "BVJ's part" above).
+1. **For BDR and BVJ, before the apps build their `anchorSpec` check:** as written, the spec bump
+   rule sends any future `ANCHOR_SPEC_VERSION` to a new folder, even a change like spec 2 that leaves
+   the text alone, and a new folder means every app downloads every chapter again. If a change that
+   only affects finding marks should stay under `/api/data/v2/` (moving `anchorSpec` in the files),
+   the rule can be narrowed to changes in the text. It stays as written until you decide.
+2. **For BVJ, in review:** the shape as a whole, and whether he is content with the rules he already
+   follows being load-bearing (see "BVJ's part" above).
 
 ## Where this came from
 

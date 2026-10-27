@@ -370,8 +370,9 @@ export function buildChapterV2(data) {
 
   // The fidelity assertion. Draft chapters are held to it too: their text is
   // whatever the reference makes of them, "" for a placeholder page and the
-  // translation so far for a draft that holds one (Acts 1 since 2026-10-23).
-  // `indexed` tells an app which is which; the text is never blanked here.
+  // translation so far for a draft that holds one (a book imported ahead of
+  // its publication). `indexed` tells an app which is which; the text is
+  // never blanked here.
   const ref = chapterAnchorText(paragraphs);
   if (text !== ref.text) {
     let i = 0;

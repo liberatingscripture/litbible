@@ -64,7 +64,6 @@ const SAMPLE = [
   ["romans-8", "an <em> run"],
   ["matthew-17", "a verse-number gap (17:21 is not in the source text)"],
   ["acts-2", "a placeholder draft (`indexed` false): empty text, its placeholder <figure> kept"],
-  ["acts-1", "a draft holding the translation so far (`indexed` false): its text and ranges, served like any chapter's"],
 ];
 const chapters = SAMPLE.map(([slug, why]) => {
   const input = inputOf(JSON.parse(readFileSync(join(CHAPTERS, `${slug}.json`), "utf8")));
@@ -94,11 +93,17 @@ const SYNTHETIC = [
     ],
     footnotes: [],
   },
-].map(({ why, paragraphs, footnotes }) => {
+  {
+    why: "a draft holding the translation so far (`indexed` false, as a book imported ahead of its publication): its text and ranges, served like any chapter's",
+    indexed: false,
+    paragraphs: [`<p id="test-1-p1">${vn(1)}Alpha</span> beta.${fn("a")} ${vn(2)}Gamma</span> delta.</p>`],
+    footnotes: [note("a", "A note.")],
+  },
+].map(({ why, indexed = true, paragraphs, footnotes }) => {
   const input = {
     bookKey: "test",
     chapter: 1,
-    indexed: true,
+    indexed,
     title: "Test 1",
     description: "",
     topics: [],
