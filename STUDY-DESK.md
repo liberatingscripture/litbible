@@ -21,11 +21,12 @@ are recorded so they aren't re-argued.
   phases are the next audit: FA1-u (the code this one didn't reach) and
   FA1-v (real devices). The plan,
   and every finding with its fix, is `STUDY-DESK-AUDIT-1.md`. In short, see
-  "Full Audit 1 (10/20/2026)" below. FA1-a to FA1-d are done (#370,
-  #371, #372, #373); FA1-c changed the merge's clamp rule and the merge
+  "Full Audit 1 (10/20/2026)" below. FA1-a to FA1-e are done (#370,
+  #371, #372, #373, #374); FA1-c changed the merge's clamp rule and the merge
   vectors (version 2), and FA1-d how undo and redo write trash records
-  (BA7), both of which FA1-f takes to BDR. Next: FA1-e, /desk keeps the
-  reader's place.
+  (BA7), both of which FA1-f takes to BDR. FA1-e made "My default" a
+  layout without a passage (BVJ, BA53; "Decisions", 2026-10-26). Next:
+  FA1-f, the record format, for BDR.
 
 - **Phase 2c is built on the preview** (2026-10-20): notes on a footnote
   and questions for discussion. **A note can be on a footnote** (M11):
@@ -5691,6 +5692,22 @@ split itself is still a proposal BVJ worked within but hasn't confirmed.
   values, so themes, print and contrast decide how they look, and a
   reader's accessibility font still wins on screen. Left out: images and
   tables. The set can grow later but never shrink.
+
+### 2026-10-26 (FA1-e: "My default" is a layout, not a passage)
+
+- **"My default" saves an arrangement, not a place** (BVJ, 2026-10-26;
+  BA53, option 1 of three). Opening the desk with My default gives its
+  panes, kinds, sizes, "Stay here" pins and each Sheet pane's sheet, at the
+  place the reader was last on /desk, or Continue reading's when the desk
+  has none. Until then it reopened at the passage where the default was
+  made, ignoring both, which D9's answer 2 (the default as a *layout*)
+  didn't mean. A pinned pane in the default keeps its Stay here but starts
+  at the reader's place. Weighed and not chosen: keeping the default as a
+  saved desk, passage and all (a bookmark by another name, and a reset of
+  the reader's place on every visit with nothing on the page saying why),
+  and a "Remember the passage too" box beside "Make this my default" (one
+  more control in the Layout menu). The default still stores its places, so
+  a later choice can use them; the page ignores them on the way in.
 
 ### 2026-10-22 (Bookmarks and ribbons become one)
 

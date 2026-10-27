@@ -33,7 +33,8 @@
 //
 // The layout is kept in localStorage['lit-desk-layout'] (named in /privacy's
 // paragraph), written on every change: the last layout, the reader's own
-// default, and which of the two opens the page.
+// default, and which of the two opens the page. The default is an
+// arrangement, not a passage (BA53): it opens where the reader last was.
 
 import { recordReference } from "../../lib/desk-store-core.mjs";
 import {
@@ -203,13 +204,14 @@ async function start() {
   root.classList.add("desk-ws");
 
   let saved = readSaved(readKey());
-  let layout = openingLayout(saved);
-  // The following panes' shared passage starts where the reader last read.
-  if (!parsePassage(layout.place)) {
-    let last = null;
-    try { last = loadLastRead(); } catch (_) {}
-    layout = setPlace(layout, formatPassage(startingPassage(last)));
-  }
+  // Where the reader last read (Continue reading), or Matthew 1: where a
+  // layout with no place of its own starts, and where "My default" opens
+  // when the desk has no last place (BA53).
+  let lastRead = null;
+  try { lastRead = loadLastRead(); } catch (_) {}
+  const reading = formatPassage(startingPassage(lastRead));
+  let layout = openingLayout(saved, reading);
+  if (!parsePassage(layout.place)) layout = setPlace(layout, reading);
 
   // ---- the Layout menu ----
 
@@ -276,7 +278,8 @@ async function start() {
     announce("This layout is now your default.");
   });
   menu.querySelector("[data-ws-reset]").addEventListener("click", () => {
-    commit(originalLayout());
+    // The panes go back; the reader's place stays (BA55).
+    commit(originalLayout(layout.place));
     announce("Back to the original layout: the LIT beside My Notes.");
     closeMenu();
   });
@@ -478,17 +481,41 @@ async function start() {
     return box;
   }
 
+  /**
+   * Note a pane's scrolling before it is moved, and return what puts it back
+   * (BA51): every scrolled box in it, then the pane's own `keep`, which a
+   * pane whose scrolling tells where its reader is gives (the LIT, the Greek).
+   */
+  function keepScroll(rec) {
+    const boxes = [];
+    for (const e of rec.el.querySelectorAll("*")) {
+      if (e.scrollTop || e.scrollLeft) boxes.push([e, e.scrollTop, e.scrollLeft]);
+    }
+    const own = rec.inst?.keep?.();
+    return () => {
+      for (const [e, top, left] of boxes) {
+        e.scrollTop = top;
+        e.scrollLeft = left;
+      }
+      own?.();
+    };
+  }
+
   function draw() {
     const live = new Set(panes(layout.root).map((p) => p.id));
     for (const [id, rec] of paneEls) {
       if (!live.has(id)) { rec.inst?.destroy(); paneEls.delete(id); }
     }
+    // Moving a pane into its new place takes it off the page for a moment,
+    // which resets its scrolling (BA51), so each is noted first; and moving
+    // an element blurs it, so the focus is put back after too.
+    const putBack = Array.from(paneEls.values(), (rec) => (rec.el.isConnected ? keepScroll(rec) : null));
     fit();
-    // Moving an element blurs it, so the focus is put back after.
     const focused = panesBox.contains(document.activeElement) ? document.activeElement : null;
     const tree = build(layout.root, []);
     tree.style.flex = "1 1 0px";
     panesBox.replaceChildren(tree, drop);
+    for (const back of putBack) back?.();
     if (focused?.isConnected) focused.focus({ preventScroll: true });
     mark();
     follow();

@@ -863,12 +863,40 @@ test("writeSaved writes the saved state as text", () => {
 test("openingLayout picks the default, the last, or the original", () => {
   const last = applyArrangement(originalLayout(), "rows-2");
   const mine = applyArrangement(originalLayout(), "cols-3");
-  assert.equal(openingLayout({ last, mine, start: "default" }), mine);
+  assert.deepEqual(openingLayout({ last, mine, start: "default" }), mine);
   assert.equal(openingLayout({ last, mine, start: "last" }), last);
-  assert.equal(openingLayout({ last: null, mine, start: "last" }), mine);
+  assert.deepEqual(openingLayout({ last: null, mine, start: "last" }), mine);
   assert.equal(openingLayout({ last, mine: null, start: "default" }), last);
   assert.deepEqual(openingLayout({ last: null, mine: null, start: "last" }), originalLayout());
   assert.deepEqual(openingLayout(readSaved("garbage")), originalLayout());
+  assert.deepEqual(openingLayout(readSaved("garbage"), "acts 2"), originalLayout("acts 2"));
+});
+
+test("BA53: My default opens its arrangement at the last place on the desk, not the one it was made at", () => {
+  // Made at Romans 8 with a second LIT pane, a pinned Greek and a sheet.
+  let mine = setPlace(applyArrangement(originalLayout(), "grid"), "romans 8:1");
+  mine = setKind(mine, "p2", "lit");
+  mine = setLitAt(mine, "p2", "romans 9:1");
+  mine = setPin(mine, "p4", true, "romans 8:3");
+  mine = setPaneSheet(setKind(mine, "p3", "sheet"), "p3", "s1");
+  const last = setLitAt(originalLayout(), "p1", "john 3:16");
+  const open = openingLayout({ last, mine, start: "default" }, "acts 2");
+  assert.equal(open.place, "john 3:16");
+  assert.equal(findPane(open.root, "p1").at, "john 3:16");
+  assert.equal(findPane(open.root, "p2").at, "john 3:16");
+  assert.deepEqual(findPane(open.root, "p4").pin, { at: "john 3:16" }, "Stay here is kept, at the reader's place");
+  assert.equal(findPane(open.root, "p3").sheet, "s1", "the Sheet pane keeps its sheet");
+  assert.equal(arrangementOf(open), "grid");
+  assert.deepEqual(open.root.sizes, mine.root.sizes);
+  assert.equal(findPane(mine.root, "p1").at, "romans 8:1", "the saved default is not mutated");
+
+  const first = openingLayout({ last: null, mine, start: "default" }, "acts 2");
+  assert.equal(first.place, "acts 2", "no last place on the desk: Continue reading's");
+  assert.equal(findPane(first.root, "p2").at, "acts 2");
+  const none = openingLayout({ last: null, mine, start: "default" });
+  assert.equal("place" in none, false, "no place at all: the page starts one");
+  assert.equal("at" in findPane(none.root, "p1"), false);
+  assert.equal(findPane(none.root, "p4").pin.at, null);
 });
 
 // ---- purity ---------------------------------------------------------------
@@ -930,8 +958,11 @@ test("setPlace sets the place the following panes share", () => {
   const next = setPlace(l, "john 3:16");
   assert.equal(next.place, "john 3:16");
   assert.equal(next.active, l.active);
-  assert.deepEqual(next.root, l.root);
-  assert.equal(setPlace(next, "mark 1").place, "mark 1");
+  assert.equal(findPane(next.root, "p1").at, "john 3:16", "the LIT pane, with no place yet, starts there (BA52)");
+  assert.equal("at" in findPane(l.root, "p1"), false, "the layout given is not mutated");
+  const later = setPlace(next, "mark 1");
+  assert.equal(later.place, "mark 1");
+  assert.deepEqual(later.root, next.root, "a LIT pane with a place keeps it");
 });
 
 test("setPlace returns the same object when nothing changes", () => {
@@ -1049,7 +1080,7 @@ test("setLitAt on a LIT pane that is not active sets its place and leaves the sh
   assert.equal(findPane(next.root, "p3").at, "romans 8:1");
   assert.equal(next.place, "mark 1");
   assert.equal(next.active, "p1");
-  assert.equal(findPane(next.root, "p1").at, undefined);
+  assert.equal(findPane(next.root, "p1").at, "mark 1", "it keeps the shared place setPlace gave it");
   assert.equal("place" in setLitAt(twoLit(), "p3", "romans 8:1"), false, "no shared place is added");
 });
 
@@ -1083,7 +1114,9 @@ test("setActive to a LIT pane with no passage leaves the shared place unchanged"
 test("litPlace is the pane's own passage, else the shared place, and null for a non-LIT pane", () => {
   const l = setPlace(setLitAt(twoLit(), "p3", "romans 8:1"), "mark 1");
   assert.equal(litPlace(l, "p3"), "romans 8:1");
-  assert.equal(litPlace(l, "p1"), "mark 1", "no passage of its own: the shared place");
+  assert.equal(litPlace(l, "p1"), "mark 1", "given the shared place when it was set");
+  const byHand = { ...twoLit(), place: "mark 1" };
+  assert.equal(litPlace(byHand, "p1"), "mark 1", "no passage of its own: the shared place");
   assert.equal(litPlace(l, "p2"), null, "My Notes is not a LIT pane");
   assert.equal(litPlace(l, "nope"), null);
   assert.equal(litPlace(twoLit(), "p1"), null, "no passage anywhere");
@@ -1129,8 +1162,68 @@ test("checkLayout keeps a LIT pane's passage and the shared place, and drops a p
   const l = checkLayout({ root, active: "p1", place: "john 3:16" });
   assert.equal(findPane(l.root, "p1").at, "john 3:16");
   assert.equal("at" in findPane(l.root, "p2"), false, "a passage on My Notes is dropped");
-  assert.equal("at" in findPane(l.root, "p3"), false, "a passage that is not a string is dropped");
+  assert.equal(findPane(l.root, "p3").at, "john 3:16", "a passage that is not a string gives way to the shared place");
   assert.equal(l.place, "john 3:16");
+});
+
+// ---- FA1-e: /desk keeps the reader's place ----
+
+test("BA52: a new LIT pane starts at the shared place and keeps it when the active pane moves", () => {
+  const base = setPlace(originalLayout(), "john 3:16");
+  const split = splitPane(base, "p2", "right", newPane(base, "lit"));
+  assert.equal(findPane(split.root, "p3").at, "john 3:16");
+  const moved = setLitAt(split, "p1", "john 4:1");
+  assert.equal(moved.place, "john 4:1");
+  assert.equal(litPlace(moved, "p3"), "john 3:16", "the second pane stays where it was");
+
+  const kind = setKind(base, "p2", "lit");
+  assert.equal(findPane(kind.root, "p2").at, "john 3:16", "a pane switched to the LIT");
+  assert.equal(litPlace(setLitAt(kind, "p1", "acts 2"), "p2"), "john 3:16");
+
+  // An arrangement's empty slot gets the LIT when none is open.
+  const noLit = setKind(base, "p1", "mine");
+  const three = applyArrangement(noLit, "cols-3");
+  const lit = panes(three.root).find((q) => q.kind === "lit");
+  assert.ok(lit && lit.id !== "p1" && lit.id !== "p2", "a new LIT pane fills the empty slot");
+  assert.equal(lit.at, "john 3:16");
+  assert.equal(litPlace(setLitAt(splitPane(three, "p1", "left", newPane(three, "lit")), lit.id, "acts 2"), lit.id), "acts 2");
+});
+
+test("BA52: checkLayout drops a saved place that isn't a passage, so it isn't given to a LIT pane", () => {
+  const root = () => cols([0.5, 0.5], leaf("p1", "lit"), leaf("p2", "lit"));
+  const l = checkLayout({ root: root(), active: "p1", place: "not a passage" });
+  assert.equal("place" in l, false);
+  assert.equal("at" in findPane(l.root, "p2"), false);
+  const bad = checkLayout({ root: cols([0.5, 0.5], { pane: { id: "p1", kind: "lit", pin: null, at: "nowhere 99" } }, leaf("p2", "mine")), active: "p1" });
+  assert.equal("at" in findPane(bad.root, "p1"), false, "a LIT pane's place that isn't a passage is dropped");
+});
+
+test("BA52: a LIT pane with no place of its own stays put when the active pane moves", () => {
+  const l = { ...twoLit(), place: "mark 1" }; // as saved before BA52
+  const next = setLitAt(l, "p1", "mark 2:1");
+  assert.equal(findPane(next.root, "p3").at, "mark 1");
+  assert.equal("at" in findPane(l.root, "p3"), false, "the layout given is not mutated");
+});
+
+test("BA52: a saved layout's LIT pane with no place is given the shared place on the way back in", () => {
+  const root = cols([0.5, 0.5], leaf("p1", "lit"), leaf("p2", "lit"));
+  const l = checkLayout({ root, active: "p1", place: "luke 15:11" });
+  assert.equal(findPane(l.root, "p1").at, "luke 15:11");
+  assert.equal(findPane(l.root, "p2").at, "luke 15:11");
+  const none = checkLayout({ root: cols([0.5, 0.5], leaf("p1", "lit"), leaf("p2", "lit")), active: "p1" });
+  assert.equal("at" in findPane(none.root, "p2"), false, "no shared place, nothing to give");
+});
+
+test("BA55: originalLayout given a place starts its LIT pane there", () => {
+  const l = originalLayout("john 3:16");
+  assert.equal(l.place, "john 3:16");
+  assert.equal(findPane(l.root, "p1").at, "john 3:16");
+  assert.equal(arrangementOf(l), arrangementOf(originalLayout()));
+  for (const bad of [null, undefined, "", 5]) {
+    const o = originalLayout(bad);
+    assert.equal("place" in o, false, String(bad));
+    assert.equal("at" in findPane(o.root, "p1"), false, String(bad));
+  }
 });
 
 // ---- the sheet a Sheet pane shows (3f) ----

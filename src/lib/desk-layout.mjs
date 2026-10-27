@@ -33,6 +33,8 @@
 // - the original layout is the LIT text beside My Notes, 60/40, and the
 //   layout is kept in this browser.
 
+import { parsePassage } from "./desk-passage.mjs";
+
 export const MAX_PANES = 4;
 export const MIN_WIDTH = 280;
 export const MIN_HEIGHT = 160;
@@ -174,19 +176,30 @@ export function normalize(node) {
   return { split: node.split, sizes, children: kids };
 }
 
-/** The layout every reader starts with: the LIT beside My Notes, 60/40. */
-export function originalLayout() {
-  return {
+/**
+ * The layout every reader starts with: the LIT beside My Notes, 60/40. Given
+ * a place ("john 3:16"), the LIT pane starts there, so "Reset to the original
+ * layout" keeps the reader's place (BA55); without one, the page starts it at
+ * Continue reading.
+ */
+export function originalLayout(place = null) {
+  const lit = { id: "p1", kind: "lit", pin: null };
+  const layout = {
     root: {
       split: "columns",
       sizes: [0.6, 0.4],
       children: [
-        { pane: { id: "p1", kind: "lit", pin: null } },
+        { pane: lit },
         { pane: { id: "p2", kind: "mine", pin: null } },
       ],
     },
     active: "p1",
   };
+  if (typeof place === "string" && place) {
+    lit.at = place;
+    layout.place = place;
+  }
+  return layout;
 }
 
 /**
@@ -201,7 +214,18 @@ function settleActive(layout) {
     layout.active = next?.id ?? null;
     if (next?.at) layout.place = next.at;
   }
+  if (layout.place) placeLitPanes(layout.root, layout.place);
   return layout;
+}
+
+/**
+ * Each LIT pane keeps where its reader is (BA52): one with no place of its
+ * own yet, new or saved before it had one, is given `place` (the shared
+ * place it shows) and keeps it, rather than following the active pane until
+ * its reader scrolls it. Mutates `root`.
+ */
+function placeLitPanes(root, place) {
+  for (const p of panes(root)) if (p.kind === "lit" && !p.at) p.at = place;
 }
 
 /**
@@ -301,7 +325,8 @@ export function setKind(layout, id, kind) {
   if (!pane || pane.kind === kind) return layout;
   pane.kind = kind;
   if (!isFollower(kind)) pane.pin = null;
-  // A LIT pane's place is its own; a new one starts at the shared place.
+  // A LIT pane's place is its own; a new one starts at the shared place
+  // (settleActive gives it).
   delete pane.at;
   // So is the sheet a Sheet pane shows (3f); another kind has none.
   delete pane.sheet;
@@ -342,6 +367,8 @@ export function setLitAt(layout, id, at) {
   const place = layout.active === id ? at : layout.place;
   if (pane.at === at && layout.place === place) return layout;
   const next = clone(layout);
+  // A LIT pane with no place of its own stays at the one it shows (BA52).
+  if (layout.place) placeLitPanes(next.root, layout.place);
   findPane(next.root, id).at = at;
   if (place) next.place = place;
   return next;
@@ -384,7 +411,11 @@ export function showSheet(layout, sheetId) {
   return setPaneSheet(setKind(layout, give.id, "sheet"), give.id, sheetId);
 }
 
-/** The passage a LIT pane shows: its own place, else the shared one (a new pane starts there). */
+/**
+ * The passage a LIT pane shows: its own place, else the shared one. Every
+ * LIT pane is given a place of its own once there is a shared one
+ * (placeLitPanes), so the second is only for a layout made by hand.
+ */
 export function litPlace(layout, id) {
   const pane = findPane(layout.root, id);
   if (pane?.kind !== "lit") return null;
@@ -397,7 +428,13 @@ export function litPlace(layout, id) {
  */
 export function setPlace(layout, at) {
   if (typeof at !== "string" || !at || layout.place === at) return layout;
-  return { ...layout, place: at };
+  const next = { ...layout, place: at };
+  // A LIT pane with no place of its own yet starts here, and keeps it (BA52).
+  if (panes(layout.root).some((p) => p.kind === "lit" && !p.at)) {
+    next.root = clone(layout.root);
+    placeLitPanes(next.root, at);
+  }
+  return next;
 }
 
 /**
@@ -546,7 +583,9 @@ export function checkLayout(value) {
         ? { at: typeof pin.at === "string" ? pin.at : null }
         : null;
       const kept = { id, kind, pin: keepPin };
-      if (kind === "lit" && typeof node.pane.at === "string" && node.pane.at) kept.at = node.pane.at;
+      // A LIT pane's place that isn't a passage is dropped, so the shared
+      // place (or Continue reading) stands in for it.
+      if (kind === "lit" && parsePassage(node.pane.at)) kept.at = node.pane.at;
       if (kind === "sheet" && typeof node.pane.sheet === "string" && node.pane.sheet) kept.sheet = node.pane.sheet;
       return { pane: kept };
     }
@@ -561,9 +600,11 @@ export function checkLayout(value) {
   };
   const root = check(value.root, 0);
   if (!root || ids.size > MAX_PANES) return null;
-  const layout = settleActive({ root: normalize(root), active: typeof value.active === "string" ? value.active : null });
-  if (typeof value.place === "string" && value.place) layout.place = value.place;
-  return layout;
+  const layout = { root: normalize(root), active: typeof value.active === "string" ? value.active : null };
+  // Set before settleActive, which gives it to any LIT pane without a place
+  // (BA52); one that isn't a passage is dropped, so it isn't passed on.
+  if (parsePassage(value.place)) layout.place = value.place;
+  return settleActive(layout);
 }
 
 /**
@@ -584,8 +625,37 @@ export function writeSaved({ last, mine, start }) {
   return JSON.stringify({ v: 1, start: start === "default" ? "default" : "last", last: last ?? null, mine: mine ?? null });
 }
 
-/** The layout the page opens with. */
-export function openingLayout(saved) {
-  if (saved.start === "default" && saved.mine) return saved.mine;
-  return saved.last ?? saved.mine ?? originalLayout();
+/**
+ * A layout's arrangement at a place (BA53): its panes, kinds, sizes, pins and
+ * sheets kept, and every place in it (the shared one, each LIT pane's and
+ * each "Stay here" pane's) set to `place`, a passage string. Without one,
+ * the places are cleared, for the page to start them.
+ */
+export function atPlace(layout, place) {
+  const next = clone(layout);
+  const ok = parsePassage(place) ? place : null;
+  for (const p of panes(next.root)) {
+    if (p.kind === "lit") {
+      if (ok) p.at = ok;
+      else delete p.at;
+    }
+    if (p.pin) p.pin.at = ok;
+  }
+  if (ok) next.place = ok;
+  else delete next.place;
+  return next;
+}
+
+/**
+ * The layout the page opens with. "My last layout" is the desk as it was
+ * left, places and all. "My default" is an arrangement, not a passage (BVJ,
+ * 2026-10-26; BA53): its panes open at the place the reader was last on the
+ * desk, or else at `reading` (the page's Continue reading place), never at
+ * the one it was made at.
+ */
+export function openingLayout(saved, reading = null) {
+  const from = parsePassage(saved.last?.place) ? saved.last.place : reading;
+  if (saved.start === "default" && saved.mine) return atPlace(saved.mine, from);
+  if (saved.last) return saved.last;
+  return saved.mine ? atPlace(saved.mine, from) : originalLayout(from);
 }
