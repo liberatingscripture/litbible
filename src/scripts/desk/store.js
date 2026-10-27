@@ -144,6 +144,9 @@ export async function openStore({ ctx }) {
    * the write is safe. Anything that throws before then aborts the whole
    * transaction and rejects with its own error.
    */
+  /** Transactions waiting for what they read before they write (writeNow). */
+  const reading = new Set();
+
   async function apply(build, { record = true } = {}) {
     if (typeof build !== "function" && !build.put.length && !build.remove.length) return build;
     const tx = db.transaction(RECORDS, "readwrite");
@@ -155,10 +158,14 @@ export async function openStore({ ctx }) {
     let ids = [];
     let was = [];
     try {
-      plan =
-        typeof build === "function"
-          ? await build({ get: (id) => request(objects.get(id)), all: () => request(objects.getAll()) })
-          : build;
+      if (typeof build === "function") {
+        reading.add(tx);
+        try {
+          plan = await build({ get: (id) => request(objects.get(id)), all: () => request(objects.getAll()) });
+        } finally {
+          reading.delete(tx);
+        }
+      } else plan = build;
       if (plan && (plan.put.length || plan.remove.length)) {
         ids = touched(plan);
         was = record ? ids.map((id) => objects.get(id)) : [];
@@ -244,6 +251,38 @@ export async function openStore({ ctx }) {
       await apply(checked, { record });
       askToPersist();
       return plan;
+    },
+
+    /**
+     * Write a plan for a page that is going away (`pagehide`), when nothing
+     * after the event will run (BA72): the writes are made before this
+     * returns, with no read first, and the transaction is committed at once.
+     * A transaction that has to read, or that isn't committed, doesn't
+     * survive the page closing, and neither does one opened behind a
+     * transaction still waiting for its read, so those are aborted first:
+     * they could never finish, and the caller writes what they would have
+     * (checked in Chrome, 2026-10-27). Not remembered for the history.
+     * Throws on a malformed record, as `commit` refuses one; returns whether
+     * anything was written.
+     */
+    writeNow(plan) {
+      const checked = planWrite(plan);
+      if (!checked.put.length && !checked.remove.length) return false;
+      for (const stuck of reading) {
+        try {
+          stuck.abort();
+        } catch {
+          /* already finished */
+        }
+      }
+      reading.clear();
+      const tx = db.transaction(RECORDS, "readwrite");
+      const objects = tx.objectStore(RECORDS);
+      for (const r of checked.put) objects.put(r);
+      for (const id of checked.remove) objects.delete(id);
+      tx.commit?.();
+      channel?.postMessage(changeMessage(touched(checked)));
+      return true;
     },
 
     /**

@@ -686,6 +686,192 @@ export function sanitizeSheetHtml(html) {
   return blocks.map(serBlock).join("");
 }
 
+/* ── Reading a paste ─────────────────────────────────────────────────── */
+
+// What another program puts on the clipboard says some things in ways the
+// sanitizer, which reads stored text, shouldn't guess at (BA68, BA71). So a
+// paste or a drop is read here first, on the parse tree, and then goes through
+// the sanitizer's own steps; what comes out is the canonical form, so
+// sanitizeSheetHtml(pastedSheetHtml(x)) === pastedSheetHtml(x). None of this
+// is in the format: how a client reads a paste is its own business.
+
+/** Elements that are blocks in what is pasted (tr is read as a paragraph). */
+const PASTED_BLOCKS = new Set(["p", "h1", "h2", "h3", "h4", "h5", "h6", "ul", "ol", "li", "blockquote", "hr", "div", "tr"]);
+const BOLD_WEIGHT = /^(?:bold|bolder|[6-9]00)$/;
+const NORMAL_WEIGHT = /^(?:normal|lighter|[1-4]00)$/;
+const WORD_MARKER = /mso-list\s*:\s*ignore/i;
+
+/** A style attribute's declarations, by property in lowercase, the last one winning. */
+function readStyle(style) {
+  const out = new Map();
+  for (const part of (style ?? "").split(";")) {
+    const colon = part.indexOf(":");
+    if (colon < 0) continue;
+    const value = part.slice(colon + 1).replace(/!\s*important\s*$/i, "").trim().toLowerCase();
+    out.set(part.slice(0, colon).trim().toLowerCase(), value);
+  }
+  return out;
+}
+
+/** Whether nodes hold a block, directly or through elements the sanitizer unwraps. */
+function holdsBlock(nodes) {
+  return nodes.some(
+    (n) =>
+      n.t === "el" &&
+      (PASTED_BLOCKS.has(n.name) || ((n.name === "span" || !ALLOWED.has(RENAMED[n.name] ?? n.name)) && holdsBlock(n.kids))),
+  );
+}
+
+/** A span's inline styles as the tags they mean (Google Docs writes bold as a weight, never as `<b>`). */
+function styledKids(style, kids, inLink) {
+  const s = readStyle(style);
+  let out = kids;
+  const wrap = (name) => {
+    out = [elNode(name, out, { attrs: new Map() })];
+  };
+  if (BOLD_WEIGHT.test(s.get("font-weight") ?? "")) wrap("strong");
+  if (/^(?:italic|oblique)/.test(s.get("font-style") ?? "")) wrap("em");
+  const decoration = `${s.get("text-decoration") ?? ""} ${s.get("text-decoration-line") ?? ""}`;
+  // A link is underlined already; Docs says so on the span inside it.
+  if (!inLink && decoration.includes("underline")) wrap("u");
+  if (decoration.includes("line-through")) wrap("s");
+  const va = s.get("vertical-align");
+  if (va === "super") wrap("sup");
+  else if (va === "sub") wrap("sub");
+  return out;
+}
+
+const textOf = (nodes) => nodes.map((n) => (n.t === "text" ? n.s : textOf(n.kids))).join("");
+
+/** The first marker span (Word's bullet or number) among nodes, or null. */
+function wordMarker(nodes) {
+  for (const n of nodes) {
+    if (n.t !== "el") continue;
+    if (WORD_MARKER.test(n.attrs?.get("style") ?? "")) return n;
+    const inner = wordMarker(n.kids);
+    if (inner) return inner;
+  }
+  return null;
+}
+
+/**
+ * A Word list paragraph's place in its list, { level, ordered }, or null when
+ * the paragraph isn't one. Word writes a list item as a paragraph whose style
+ * names its list and level (`mso-list:l0 level2 lfo1`) and whose bullet or
+ * number is text in a marker span; "List Paragraph" without numbering has the
+ * class but neither, and stays a paragraph.
+ */
+function wordListItem(p) {
+  const style = p.attrs?.get("style") ?? "";
+  const listed = /mso-list\s*:\s*l\d+/i.test(style);
+  const marker = wordMarker(p.kids);
+  if (!listed && !marker) return null;
+  const level = Number(/level(\d+)/i.exec(style)?.[1] ?? 1);
+  const label = marker ? textOf(marker.kids).replace(/[\s ]+/g, "") : "";
+  return { level: Math.min(Math.max(level, 1), 9), ordered: /^\(?[0-9a-z]+[.)]$/i.test(label) };
+}
+
+/** Runs of Word list paragraphs among siblings, rebuilt as nested ul and ol. */
+function wordLists(nodes) {
+  const out = [];
+  let run = [];
+  let gap = [];
+  const flush = () => {
+    if (run.length) out.push(buildWordList(run));
+    run = [];
+    pushAll(out, gap);
+    gap = [];
+  };
+  for (const n of nodes) {
+    if (n.t === "el" && n.wordList) {
+      gap = []; // whitespace between two items
+      run.push(n);
+    } else if (run.length && n.t === "text" && !NOT_SPACE.test(n.s)) gap.push(n);
+    else {
+      flush();
+      out.push(n);
+    }
+  }
+  flush();
+  return out;
+}
+
+function buildWordList(paragraphs) {
+  let top = null;
+  const stack = [];
+  for (const p of paragraphs) {
+    const { level, ordered } = p.wordList;
+    stack.length = Math.min(stack.length, level);
+    while (stack.length < level) {
+      const list = elNode(ordered ? "ol" : "ul", [], { attrs: new Map() });
+      const parent = stack[stack.length - 1];
+      if (!parent) top = list;
+      else {
+        if (!parent.kids.length) parent.kids.push(elNode("li", [], { attrs: new Map() }));
+        parent.kids[parent.kids.length - 1].kids.push(list);
+      }
+      stack.push(list);
+    }
+    stack[stack.length - 1].kids.push(elNode("li", p.kids, { attrs: new Map() }));
+  }
+  return top;
+}
+
+/** The parse tree of a paste, with what other programs mean said the sanitizer's way. */
+function readPasteNodes(nodes, inLink) {
+  const out = [];
+  for (const n of nodes) {
+    if (n.t === "text") {
+      out.push(n);
+      continue;
+    }
+    const style = n.attrs?.get("style") ?? "";
+    // Word's bullet or number, with the spaces after it; the list is rebuilt below.
+    if (WORD_MARKER.test(style)) continue;
+    const link = inLink || n.name === "a";
+    const kids = readPasteNodes(n.kids, link);
+    if (n.name === "b" && NORMAL_WEIGHT.test(readStyle(style).get("font-weight") ?? "")) {
+      // Google Docs wraps a whole copy in <b style="font-weight:normal">.
+      pushAll(out, kids);
+    } else if (n.name === "div" && holdsBlock(kids)) {
+      // A wrapper (a web page's, webmail's, Word's WordSection1), not a paragraph.
+      pushAll(out, kids);
+    } else if (n.name === "span" && !holdsBlock(kids)) {
+      out.push({ ...n, kids: styledKids(style, kids, link) });
+    } else {
+      const el = { ...n, kids };
+      if (n.name === "p") {
+        const item = wordListItem(n);
+        if (item) el.wordList = item;
+      }
+      out.push(el);
+    }
+  }
+  return wordLists(out);
+}
+
+/**
+ * Pasted or dropped HTML in the canonical form, read as sanitizeSheetHtml
+ * reads it, except that what Google Docs, Word and web pages mean is kept:
+ * Docs' `<b style="font-weight:normal">` wrapper is not bold, and its bold,
+ * italic, underline, strikethrough, superscript and subscript, which it writes
+ * as styles on a span, are the tags; a `div` that holds blocks is a wrapper,
+ * not one paragraph; and Word's list paragraphs are lists again, without their
+ * typed bullets. A value that is not a string is "".
+ *
+ * @param {unknown} html
+ * @returns {string}
+ */
+export function pastedSheetHtml(html) {
+  if (typeof html !== "string" || html === "") return "";
+  const blocks = toBlocks(convert(readPasteNodes(parse(tokenize(html)), false)), "top");
+  // An empty line at either end is the copy's edge (Docs ends one with a <br>), not text.
+  const empty = (b) => b?.name === "p" && b.kids.length === 1 && b.kids[0].name === "br";
+  while (blocks.length > 1 && empty(blocks[blocks.length - 1])) blocks.pop();
+  while (blocks.length > 1 && empty(blocks[0])) blocks.shift();
+  return blocks.map(serBlock).join("");
+}
+
 /** The formatted fields of each module type that has them. */
 const FORMATTED = Object.freeze({ text: ["html"], question: ["html", "answer"] });
 

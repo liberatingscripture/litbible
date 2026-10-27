@@ -19,7 +19,8 @@
 //
 // The keys never act while the reader is typing, or has a note open in the
 // editor, or is in a control that owns undo (a text field, a select, an
-// editable area): the browser's own undo runs there, untouched. They are not
+// editable area, a sheet's text editor with its toolbar): the browser's own
+// undo runs there, untouched. They are not
 // tied to the site's Keyboard switch. That switch exists because a single
 // letter can fire when someone dictates a word (WCAG 2.1.4), and Ctrl+Z is not
 // a single-key shortcut.
@@ -46,6 +47,10 @@ const NOT_TEXT = new Set(["checkbox", "radio", "button", "submit", "reset", "ima
 /** Whether `el` is somewhere the browser's own undo belongs. */
 function owningUndo(el) {
   if (!(el instanceof Element)) return false;
+  // A sheet's formatted-text editor is one piece, its toolbar included: an
+  // undo of the saved text with focus on a button would leave the words on
+  // screen, which the next keystroke saves back (BA74).
+  if (el.closest(".desk-rich-editor")) return true;
   const field = el.closest("input, textarea, select, [contenteditable]:not([contenteditable='false'])");
   if (!field) return false;
   return field instanceof HTMLInputElement ? !NOT_TEXT.has(field.type) : true;

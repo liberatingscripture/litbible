@@ -227,10 +227,19 @@ that section.
      read there** (`planSheetChange` in `desk-sheets.mjs`), never over a copy a
      pane or /search holds, which another tab may have saved past (BA129,
      BA130); the Sheet pane's `sheet` moves only once a save lands, so a
-     failed one leaves it on the saved copy (BA128); the note editor saves onto the note as it is at Save
+     failed one leaves it on the saved copy (BA128), though each save's
+     transaction opens when the change is asked for, so saves land in order.
+     **A closing page keeps its last typing** (BA72): on `pagehide` the pane
+     writes what hasn't landed, applied to its own copy, through
+     `store.writeNow`, which writes before it returns, reads nothing,
+     commits at once and first aborts any transaction still waiting on its
+     read. Chrome keeps no other kind of write made while a page closes;
+     a read-then-write save, or one queued behind it, is lost (tested
+     2026-10-27). Hidden only starts the ordinary saves; the note editor saves onto the note as it is at Save
      (`planEdit`), and refuses if anything but its words and marker changed
-     meanwhile (BA6); and the keys stand down in text fields, selects and while a note editor
-     is open, leaving the browser's own undo alone. Not tied to the Keyboard
+     meanwhile (BA6); and the keys stand down in text fields, selects, anywhere in a sheet's
+     text editor (its toolbar too, where Ctrl+Z undoes the typing, BA74) and
+     while a note editor is open, leaving the browser's own undo alone. Not tied to the Keyboard
      switch (it isn't a single-key shortcut, WCAG 2.1.4). The undo bar closes by itself after ten seconds (BVJ,
      2026-10-09), never while hovered or focused; that is safe only because
      the same undo stays on Ctrl+Z, so don't remove one without the other.
@@ -483,6 +492,10 @@ that section.
        The LIT pane is `desk/lit-pane.js`, Footnotes
        `desk/footnotes-view.js` (3e), and Sheet `desk/sheet-pane.js` (3f),
        the sheet editor, with its formatted text in `desk/sheet-text.js`
+       (a paste or a drop from elsewhere is read by `pastedSheetHtml`,
+       which keeps what Google Docs, Word and web pages mean: headings and
+       lists inside a wrapper, Docs' bold and italic, Word's lists; BA68,
+       BA71, BA73. How a client reads a paste isn't in the format)
        and what it knows about the LIT (3h: blanks, the footnote picker,
        the key terms box and the license card) in `desk/sheet-lit.js`,
        whose rules are `src/lib/desk-sheet-lit.mjs`.
