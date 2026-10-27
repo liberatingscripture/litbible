@@ -207,58 +207,85 @@ export function termForWords(start, end, marks, terms) {
 
 /* ── Footnotes that give a blank away ───────────────────────────────── */
 
-// Short and common words never decide it: "the" in a note gives nothing away.
+// Stems are for words of MIN_LETTERS or more, and common ones never decide it:
+// "that" in a note gives nothing away. A shorter word is not stemmed ("sin"
+// would match "since"); it is held WHOLE against the note's words, so a blank
+// on "God", "joy", "law", "sin" or "Son" is given away by a note that uses the
+// word, and is not by "since" or "lawful" (BA76). Only a grammatical word is
+// skipped there (SHORT_FUNCTION), never a content word like "god" or "all".
 const MIN_LETTERS = 4;
 const COMMON = new Set(
   ("that this with from they them their have will were what when your which into than then there these those " +
     "been also because about would could should upon unto shall does were being some such only even very more " +
     "most other over each them same just like").split(" "),
 );
+// Words under MIN_LETTERS that carry no content, plus the fragments an
+// apostrophe leaves ("God's" splits into "god" and "s"; "'ll", "'re", "'ve").
+const SHORT_FUNCTION = new Set(
+  ("a an the and or nor but so yet of to in on at by for as is be am are was it its he she we you i me my his her " +
+    "our us him not no do did has had if who how why can may too any out off per via ll re ve").split(" "),
+);
+
+function wordsOf(text) {
+  return foldDiacritics(String(text ?? "")).toLowerCase().split(/[^\p{L}]+/u);
+}
 
 /** The stems of a text's words that are long and uncommon enough to give a blank away. */
 export function telltaleStems(text) {
   const stems = new Set();
-  for (const raw of foldDiacritics(String(text ?? "")).toLowerCase().split(/[^\p{L}]+/u)) {
+  for (const raw of wordsOf(text)) {
     if (raw.length < MIN_LETTERS || COMMON.has(raw)) continue;
     stems.add(stemWord(raw));
   }
   return stems;
 }
 
+// A text's short content words, folded, as whole words (BA76).
+function shortWordsOf(text) {
+  const shorts = new Set();
+  for (const raw of wordsOf(text)) {
+    if (raw.length >= 2 && raw.length < MIN_LETTERS && !SHORT_FUNCTION.has(raw)) shorts.add(raw);
+  }
+  return shorts;
+}
+
 /**
  * The blanks a footnote would give away: those with a word whose stem the
  * footnote shares ("deviating" is given away by a note reading "people
- * characterized by deviation"). Errs toward flagging, since a flag only asks
- * the leader to decide (C15).
+ * characterized by deviation"), or a short content word the footnote uses
+ * whole ("God", "joy", "law"; BA76). Errs toward flagging, since a flag only
+ * asks the leader to decide (C15).
  *
  * @param {string} footnoteText
  * @param {{ exact: string }[]} blanks
  */
 export function blanksGivenAway(footnoteText, blanks) {
-  const inNote = stemsOf(footnoteText);
-  if (!inNote.size) return [];
+  const inNote = wordsInOf(footnoteText);
+  if (!inNote.stems.size && !inNote.shorts.size) return [];
   return blanks.filter((b) => {
-    for (const s of stemsOf(b.exact)) if (inNote.has(s)) return true;
+    const inBlank = wordsInOf(b.exact);
+    for (const s of inBlank.stems) if (inNote.stems.has(s)) return true;
+    for (const w of inBlank.shorts) if (inNote.shorts.has(w)) return true;
     return false;
   });
 }
 
-// The stems of each text, worked out once: every footnote of every passage is
-// held against every blank on the sheet on each redraw, so the same few
-// thousand blank words were being stemmed again per footnote, per passage
-// (BA133). Bounded, and private, so no caller can change a cached set.
-const STEM_CACHE_LIMIT = 10000;
-const stemCache = new Map();
+// The stems and short words of each text, worked out once: every footnote of
+// every passage is held against every blank on the sheet on each redraw, so the
+// same few thousand blank words were being stemmed again per footnote, per
+// passage (BA133). Bounded, and private, so no caller can change a cached set.
+const WORDS_CACHE_LIMIT = 10000;
+const wordsCache = new Map();
 
-function stemsOf(text) {
+function wordsInOf(text) {
   const key = String(text ?? "");
-  let stems = stemCache.get(key);
-  if (!stems) {
-    if (stemCache.size >= STEM_CACHE_LIMIT) stemCache.clear();
-    stems = telltaleStems(key);
-    stemCache.set(key, stems);
+  let words = wordsCache.get(key);
+  if (!words) {
+    if (wordsCache.size >= WORDS_CACHE_LIMIT) wordsCache.clear();
+    words = { stems: telltaleStems(key), shorts: shortWordsOf(key) };
+    wordsCache.set(key, words);
   }
-  return stems;
+  return words;
 }
 
 /* ── Which footnotes print ──────────────────────────────────────────── */

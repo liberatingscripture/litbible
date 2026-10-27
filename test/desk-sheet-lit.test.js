@@ -566,6 +566,53 @@ test("blanksGivenAway: still right after more texts than the cache holds (BA133)
   assert.deepEqual(blanksGivenAway("filler note number0words", [{ exact: "number0words" }]), [{ exact: "number0words" }]);
 });
 
+test("blanksGivenAway: a short blank word is given away by the whole word, folded (BA76)", () => {
+  for (const [word, note] of [
+    ["God", "a note about god and mercy"],
+    ["joy", "Rejoicing, or Jöy, here"],
+    ["law", "Under the Law, here"],
+    ["sin", "the SIN offering"],
+    ["Son", "the SON of man"],
+  ]) {
+    const blank = { exact: word };
+    assert.deepEqual(blanksGivenAway(note, [blank]), [blank], `${word} in "${note}"`);
+  }
+});
+
+test("blanksGivenAway: a short blank word is never given away by a longer word that contains it (BA76)", () => {
+  assert.deepEqual(blanksGivenAway("since the business was lawful", [{ exact: "sin" }, { exact: "law" }]), []);
+  assert.deepEqual(blanksGivenAway("the person is a reason", [{ exact: "son" }]), []);
+  assert.deepEqual(blanksGivenAway("joyful and godly", [{ exact: "joy" }, { exact: "God" }]), []);
+});
+
+test("blanksGivenAway: only the blank's content words count, never its function words (BA76)", () => {
+  const blank = { exact: "the law" };
+  assert.deepEqual(blanksGivenAway("the way of the people", [blank]), []);
+  assert.deepEqual(blanksGivenAway("the law of Moses", [blank]), [blank]);
+  assert.deepEqual(blanksGivenAway("the way of the people", [{ exact: "of the" }]), []);
+  assert.deepEqual(blanksGivenAway("it is not so, but he and we or you do as I", [{ exact: "of the" }, { exact: "is not" }]), []);
+});
+
+test("blanksGivenAway: short content words count, apostrophe fragments do not (BA76)", () => {
+  for (const w of ["all", "one", "way"]) {
+    assert.deepEqual(blanksGivenAway(`note on ${w} here`, [{ exact: w }]), [{ exact: w }], w);
+  }
+  // "God's" splits into "god" and "s"; a stray "s" in Paul's must not flag it.
+  assert.deepEqual(blanksGivenAway("Paul’s letter", [{ exact: "God’s" }]), []);
+  assert.deepEqual(blanksGivenAway("God’s letter", [{ exact: "God’s" }]).length, 1);
+});
+
+test("blanksGivenAway: long-word stem matching is unchanged by the short-word rule (BA76)", () => {
+  const blank = { exact: "deviating" };
+  assert.deepEqual(blanksGivenAway("People characterized by deviation", [blank]), [blank]);
+  assert.deepEqual(blanksGivenAway("the that this with", [{ exact: "the that" }]), []);
+  assert.deepEqual(blanksGivenAway("lawful behavior", [{ exact: "lawful" }]), [{ exact: "lawful" }]);
+});
+
+test("telltaleStems: short words still never become stems (BA76)", () => {
+  assert.equal(telltaleStems("God joy law sin Son").size, 0);
+});
+
 /* ── footnoteKey ─────────────────────────────────────────────────────── */
 
 const notes = [

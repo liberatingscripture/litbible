@@ -47,8 +47,14 @@ are recorded so they aren't re-argued.
   notes hidden marks its words (BA19), a note on a footnote is named as
   one and listed when it cites its own verse (BA20), and a drag ending
   over a desk window no longer selects the rest of the chapter (BA23; two
-  calls for BVJ in "Decisions", 2026-10-27). Next: FA1-i (sheet templates
-  and passages).
+  calls for BVJ in "Decisions", 2026-10-27). FA1-i is done (#381): a template's
+  first passage lands under its reading heading and the instruction to
+  add one is ghost text that never prints (BA69, BA70; BVJ's calls in
+  "Decisions", 2026-10-27), adding a passage again says so where it was
+  added (BA75), a footnote that uses a short blanked word such as "God" is
+  flagged (BA76), the Class session template reads "the leader's copy"
+  (BA77), and "+ Passage" checks its verses (BA127). Next: FA1-j (the
+  sheet editor: pasting and saving).
 
 - **Phase 2c is built on the preview** (2026-10-20): notes on a footnote
   and questions for discussion. **A note can be on a footnote** (M11):
@@ -5741,6 +5747,30 @@ split itself is still a proposal BVJ worked within but hasn't confirmed.
   reader's accessibility font still wins on screen. Left out: images and
   tables. The set can grow later but never shrink.
 
+### 2026-10-27 (FA1-i: sheet templates and passages; BVJ's two calls)
+
+FA1-i fixed BA69, BA70, BA75, BA76, BA77 and BA127
+(`STUDY-DESK-AUDIT-1.md`). BVJ decided the two calls the audit left open:
+
+- **BA69, where a passage lands in a template: by the reading heading,
+  for as long as the sheet has no passage** (BVJ chose this over setting
+  the reading part as "last worked in" only when the sheet is made, which
+  a reopened sheet would lose). A passage added before any part is worked
+  in goes after the part headed "Reading," "Read" or "The text." Once there
+  is a passage, the next goes after the last one, so passages added one
+  after another stay in order (Claude's addition, since otherwise the second
+  landed after "Closing"). A part the reader has clicked or typed in still
+  wins. A sheet doesn't record which part is the reading, so a renamed
+  heading isn't found and the passage goes at the end.
+- **BA70, the instructions that printed: ghost text** (BVJ asked for it
+  over removing the sentence when the first passage is added, if it could
+  be done). The templates no longer hold "Add the passage with + Passage,
+  or from the LIT pane's verse numbers." The editor shows it, dimmed and in
+  italics, inside the reading part's box until the sheet has a passage.
+  The sheet never holds it, so it can't print or go up on a room's screen.
+  Sheets made before this change still hold the old sentence, to delete
+  by hand.
+
 ### 2026-10-27 (FA1-h: marks on the page; two calls for BVJ to judge)
 
 FA1-h (#380) fixed BA16, BA17, BA19, BA20 and BA23 (`STUDY-DESK-AUDIT-1.md`). Two
@@ -6592,7 +6622,7 @@ The phases, in working order:
 | FA1-ab | Sheets in two tabs, and large sheets | BA128 to BA133 |
 | FA1-g | Sharing a sheet | done, #379: BA78, BA80, BA81, BA82, BA87 |
 | FA1-h | Marks on the page | done, #380: BA16, BA17, BA19, BA20, BA23 |
-| FA1-i | Sheet templates and passages | BA69, BA70, BA75, BA76, BA77, BA127 |
+| FA1-i | Sheet templates and passages | done, #381: BA69, BA70, BA75, BA76, BA77, BA127 |
 | FA1-j | The sheet editor: pasting and saving | BA68, BA71, BA72, BA73, BA74 |
 | FA1-k | Greek search commands | BA44, BA45, BA48, BA49, BA50, BA116 |
 | FA1-l | /desk's LIT pane and layout | BA54, BA56, BA57, BA58, BA60, BA61 |

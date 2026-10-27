@@ -26,8 +26,11 @@
 // - **New sheets start from a template** (M9; desk-sheet-templates.mjs): New
 //   sheet opens a short list in place, and a choice makes the sheet.
 // - **A new part goes right after the part last worked in** (last focused or
-//   clicked on this sheet), or at the end when there is none, so a passage
-//   added to a template lands where the reader was, not after "Closing".
+//   clicked on this sheet), or at the end when there is none. A passage with
+//   none worked in goes after the last passage, or on a sheet with none,
+//   after the template's reading part, so it lands under "Reading", not
+//   after "Closing" (BA69). Until there is a passage, that part shows how to
+//   add one as ghost text the sheet never holds, so it can't print (BA70).
 // - **Drag into order** by a module's grip, or Move up and Move down.
 // - **Saves as you go**: every change is saved at once, typing a moment after
 //   it pauses. A change made elsewhere (another pane on the same sheet,
@@ -48,11 +51,13 @@ import {
   sheetTooBig,
   updateModule,
 } from "../../lib/desk-sheets.mjs";
-import { TEMPLATES, templateModules } from "../../lib/desk-sheet-templates.mjs";
+import { READING_HINT, TEMPLATES, readingPart, templateModules } from "../../lib/desk-sheet-templates.mjs";
 import { discussionModules } from "../../lib/desk-sheet-discussion.mjs";
 import {
   passageFromOffsets,
+  passageForReference,
   passageFromRecord,
+  passageInsertIndex,
   passageFromVerses,
   passageReference,
   samePassage,
@@ -142,10 +147,13 @@ function listenForPanels() {
         console.error("Study Desk: couldn't read the passage for the sheet", err);
         fields = passageFromVerses(null, where, d.start, d.end);
       }
-      const ok = await pane.addPassage(fields);
-      add.textContent = ok ? "Added ✓" : "Couldn’t add it";
+      const added = await pane.addPassage(fields);
+      const again = added?.again === true;
+      add.textContent = !added ? "Couldn’t add it" : again ? "Added again ✓" : "Added ✓";
+      // Why "again" stays on screen long enough to read (BA75).
+      if (again) row.after(make("p", "lit-panel__hint", added.message));
       if (d.kind === "selection") window.getSelection()?.removeAllRanges();
-      setTimeout(closePanel, 700);
+      setTimeout(closePanel, again ? 2500 : 700);
     });
     const row = make("div", "lit-panel__row");
     row.append(add);
@@ -188,25 +196,36 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
   const now = () => new Date().toISOString();
   const opCtx = () => ({ now: now(), ...ctx() });
 
-  /** Where a new part goes: after the part last worked in, else at the end. */
-  const insertIndex = (s) => {
+  /**
+   * Where a new part goes: after the part last worked in, else at the end,
+   * or for a passage where passageInsertIndex puts it (BA69).
+   */
+  const insertIndex = (s, { passage = false } = {}) => {
     const at = lastModule ? s.modules.findIndex((x) => x.id === lastModule) : -1;
-    return at < 0 ? s.modules.length : at + 1;
+    if (at >= 0) return at + 1;
+    return passage ? passageInsertIndex(s) : s.modules.length;
   };
 
   const me = {
     sheet: () => sheet,
     contentVersion: () => ctx().contentVersion,
+    /**
+     * Add a passage after the part last worked in. Resolves false when it
+     * wasn't added, else { message, again }: the one message saying so, which
+     * is announced. Adding one already on the sheet adds it again and says so
+     * in that same message, never in a second one, and the caller shows it,
+     * so it is seen as well as heard (BA75).
+     */
     addPassage: async (fields) => {
       if (!sheet || !canEdit(sheet)) return false;
-      if (sheet.modules.some((m) => m.type === "passage" && samePassage(m, fields))) {
-        say(`${passageReference(fields)} is already on the sheet.`);
-      }
+      const again = sheet.modules.some((m) => m.type === "passage" && samePassage(m, fields));
+      const message = `${passageReference(fields)} added${again ? " again; it was already on the sheet" : ""}.`;
       const mod = makeModule("passage", fields);
-      return change((s) => addModule(s, mod, insertIndex(s), opCtx()), {
-        announce: `${passageReference(fields)} added.`,
+      const ok = await change((s) => addModule(s, mod, insertIndex(s, { passage: true }), opCtx()), {
+        announce: message,
         after: () => cards.get(mod.id)?.el.scrollIntoView({ block: "nearest" }),
       });
+      return ok && { message, again };
     },
   };
   openPanes.add(me);
@@ -604,6 +623,21 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
       cards.delete(id);
     }
     for (const card of cards.values()) card.inst?.sheetChanged?.();
+    // How to add a passage, as ghost text in the reading part until the sheet
+    // has one (BA70). Only the editor shows it, so it never prints or goes up
+    // on a room's screen; aria-description gives it to a screen reader.
+    const reading = readOnly ? null : readingPart(sheet);
+    for (const [id, card] of cards) {
+      const box = card.el.querySelector(".desk-rich-editor > .desk-rich");
+      if (!box) continue;
+      if (id === reading?.id) {
+        box.dataset.hint = READING_HINT;
+        box.setAttribute("aria-description", READING_HINT);
+      } else if (box.dataset.hint) {
+        delete box.dataset.hint;
+        box.removeAttribute("aria-description");
+      }
+    }
     license?.sheetChanged();
     if (keyTermsButton) {
       const has = sheet.modules.some((x) => x?.type === "keyTerms");
@@ -934,9 +968,18 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
     go.type = "submit";
     const problem = make("p", "desk-sheet__problem");
     problem.setAttribute("role", "alert");
+    // A passage added again says so here, where the reader added it (BA75);
+    // the pane's live region has already announced it.
+    const note = make("p", "desk-sheet__empty");
+    note.hidden = true;
+    const added = (result) => {
+      note.hidden = !result?.again;
+      note.textContent = result?.again ? result.message : "";
+    };
     line.append(input, go);
     line.addEventListener("submit", async (e) => {
       e.preventDefault();
+      added(null);
       const ref = parseReference(input.value.replace(/[–—]/g, "-"));
       if (!ref) {
         problem.textContent = "That isn’t a reference the LIT can read. Try a book, a chapter, and verses, such as Romans 5:6–10.";
@@ -944,22 +987,20 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
       }
       problem.textContent = "";
       let chapter = null;
-      let source = null;
       try {
-        source = await loadChapterPage(ref.bookKey, ref.chapter);
+        const source = await loadChapterPage(ref.bookKey, ref.chapter);
         chapter = source.textBox ? source.anchorText() : null;
       } catch (_) {}
-      const last = chapter?.verses?.length ? Math.max(...chapter.verses) : null;
-      const verse = ref.verse ?? 1;
-      const end = ref.rangeEnd ?? (ref.verse ? ref.verse : last ?? 1);
-      if (last && verse > last) {
-        problem.textContent = `${passageReference({ bookKey: ref.bookKey, chapter: ref.chapter, verse })} isn’t in the LIT; that chapter ends at verse ${last}.`;
+      const found = passageForReference(chapter, ref, ctx().contentVersion);
+      if (found.problem) {
+        problem.textContent = found.problem;
         return;
       }
-      const ok = await me.addPassage(passageFromVerses(chapter, ref, verse, Math.min(end, last ?? end), ctx().contentVersion));
-      if (ok) input.value = "";
+      const result = await me.addPassage(found.fields);
+      added(result);
+      if (result) input.value = "";
     });
-    form.append(line, problem);
+    form.append(line, problem, note);
 
     // From the notebook: its notes, highlights and bookmarks, newest first.
     const fromBook = make("div", "desk-sheet__from");
@@ -992,7 +1033,8 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
           chapter = source.textBox ? source.anchorText() : null;
         } catch (_) {}
         const fields = passageFromRecord(r, chapter, ctx().contentVersion);
-        if (fields) await me.addPassage(fields);
+        added(null);
+        if (fields) added(await me.addPassage(fields));
       });
       li.append(b);
       ul.append(li);
