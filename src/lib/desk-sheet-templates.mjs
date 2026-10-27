@@ -66,7 +66,7 @@ const BUILDERS = {
     text("<h2>Goals for this session</h2><ul><li>Goal</li></ul>"),
     text("<h2>Reading</h2><p>Add the passage with + Passage.</p>"),
     text("<h2>Background</h2><p>Notes for the leader: history, setting, and the words worth explaining.</p>", { leaderOnly: true }),
-    question("<p>What is happening in this passage?</p>", "<p>An answer for the leader copy.</p>"),
+    question("<p>What is happening in this passage?</p>", "<p>An answer for the leader’s copy.</p>"),
     question("<p>What did you notice in the LIT’s wording?</p>", ""),
     makeModule("keyTerms"),
     text("<h2>Next time</h2><p>The reading for next week, and anything to bring.</p>"),

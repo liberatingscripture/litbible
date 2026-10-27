@@ -11,7 +11,7 @@
 // live text whenever it is shown; `verseCopy` is kept for comparison only
 // (S2), never shown.
 
-import { bookKeyToLabel } from "../data/books.js";
+import { BOOKS, bookKeyToLabel } from "../data/books.js";
 import { makeAnchor, rangeOf, resolveAnchor } from "./anchor-core.mjs";
 import { verseCopyFor } from "./desk-records.mjs";
 
@@ -43,6 +43,38 @@ export function passageFromVerses(chapter, where, verse, endVerse = verse, conte
     endVerse: last,
     ...copyFields(chapter, first, last, contentVersion),
   };
+}
+
+/**
+ * A typed reference as a passage ("+ Passage"), checked against the chapter:
+ * { fields } to add, or { problem } to show the reader. `ref` is
+ * parseReference's ({ bookKey, chapter, verse, rangeEnd }); `chapter` is the
+ * chapter's anchor text, or null when it couldn't be read.
+ *
+ * A chapter alone is all of it. A verse the LIT doesn't have is refused, past
+ * the chapter's end or in a gap (Matthew 17:21); a range's end is brought back
+ * to the last verse there is, so the reference never names a missing verse.
+ * Nothing is added without the chapter, since nothing could be checked (BA127).
+ */
+export function passageForReference(chapter, ref, contentVersion = null) {
+  const name = (verse) => passageReference({ bookKey: ref.bookKey, chapter: ref.chapter, verse });
+  const chapters = BOOKS[ref.bookKey];
+  if (chapters && ref.chapter > chapters) {
+    const book = bookKeyToLabel(ref.bookKey);
+    return { problem: chapters === 1 ? `${book} has only one chapter.` : `${book} has ${chapters} chapters.` };
+  }
+  const verses = chapter?.verses;
+  if (!verses?.size) {
+    return { problem: `${bookKeyToLabel(ref.bookKey)} ${ref.chapter} couldn’t be read just now. Check the connection and try again.` };
+  }
+  const numbers = [...verses.keys()];
+  const last = Math.max(...numbers);
+  const verse = ref.verse ?? Math.min(...numbers);
+  if (verse > last) return { problem: `${name(verse)} isn’t in the LIT; that chapter ends at verse ${last}.` };
+  if (!verses.has(verse)) return { problem: `${name(verse)} isn’t in the LIT.` };
+  let end = Math.min(ref.verse == null ? last : ref.rangeEnd ?? verse, last);
+  while (end > verse && !verses.has(end)) end--;
+  return { fields: passageFromVerses(chapter, ref, verse, end, contentVersion) };
 }
 
 /**

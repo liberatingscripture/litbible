@@ -58,7 +58,7 @@ test("the blank template is one empty text module", () => {
 test("the class template keeps the background for the leader and one answer", () => {
   const mods = templateModules("class");
   assert.equal(mods[2].leaderOnly, true);
-  assert.equal(mods[3].answer, "<p>An answer for the leader copy.</p>");
+  assert.equal(mods[3].answer, "<p>An answer for the leader’s copy.</p>");
   assert.equal(mods[4].answer, "");
 });
 
