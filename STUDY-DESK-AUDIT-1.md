@@ -108,7 +108,7 @@ it goes after both, and FA1-ac after FA1-t.
 | FA1-u | The follow-up audit: code this audit didn't reach | new findings, BA88 onward | done: areas 1 to 3 (BA88 to BA120), #376; areas 4 to 6 (BA121 to BA145) |
 | FA1-ab | Sheets in two tabs, and large sheets | BA128 to BA133 | done, #378 |
 | FA1-g | Sharing a sheet | BA78, BA80, BA81, BA82, BA87 | done, #379 |
-| FA1-h | Marks on the page | BA16, BA17, BA19, BA20, BA23 | done |
+| FA1-h | Marks on the page | BA16, BA17, BA19, BA20, BA23 | done, #380 |
 | FA1-i | Sheet templates and passages | BA69, BA70, BA75, BA76, BA77, BA127 | open |
 | FA1-j | The sheet editor: pasting and saving | BA68, BA71, BA72, BA73, BA74 | open |
 | FA1-k | Greek search commands | BA44, BA45, BA48, BA49, BA50, BA116 | open |
@@ -610,7 +610,7 @@ Browser check: Romans 8.
     mark stays.
   - *Fix*: disable the button on the first press and set `existing` to the
     saved record. Remove every bookmark on that verse.
-  - Status: fixed (FA1-h). The press stands down until the panel closes,
+  - Status: fixed in #380. The press stands down until the panel closes,
     and both changes are planned over the notebook in the write's own
     transaction (`planBookmark`, `planUnbookmark` in `desk-store-core.mjs`):
     a verse that already holds a bookmark gets no second, and removing
@@ -624,7 +624,7 @@ Browser check: Romans 8.
     highlight and mark.
   - *Fix*: `html[data-desk-notes="off"] .desk-fnn { display: none }`, or
     check the setting and redraw on `SETTINGS_EVENT`.
-  - Status: fixed (FA1-h), by the CSS rule, scoped to a popover
+  - Status: fixed in #380, by the CSS rule, scoped to a popover
     (`.lit-panel .desk-fnn`): the Notebook's tabs and /desk's Footnotes
     pane still list the notes, as they list every other note while the
     notes are hidden.
@@ -635,7 +635,7 @@ Browser check: Romans 8.
     (`notes-margin.js:450`), so `reveal` (603–629) scrolls, lights nothing,
     and leaves focus in the panel.
   - *Fix*: let ids in `flash` light their words whatever the setting.
-  - Status: fixed (FA1-h). Focus, which the margin can't take while it
+  - Status: fixed in #380. Focus, which the margin can't take while it
     holds no notes, goes to the verse number the words start in (or the
     footnote's first link); a call for BVJ, "Decisions", 2026-10-27.
 - **BA20 (low; reproduced). Two places treat a note on a footnote as a note
@@ -649,7 +649,7 @@ Browser check: Romans 8.
       that cites its own verse (`sitsOn`), so it is never listed.
   - *Fix*: use `recordWhere` in This verse, and skip the `sitsOn` exclusion
     when `onFootnote(record)`.
-  - Status: fixed (FA1-h), as proposed.
+  - Status: fixed in #380, as proposed.
 - **BA23 (low; seen in the browser). A drag that ends over a desk window
   saves the note on the rest of the chapter.**
   - *What happens*: a selection dragged onto the tour offer or the Notebook
@@ -660,7 +660,7 @@ Browser check: Romans 8.
     last verse the pointer crossed, or don't offer the panel. Otherwise ask
     before making a note on more than a few verses. Settle which in the
     session.
-  - Status: fixed (FA1-h): the selection ends where the pointer last was
+  - Status: fixed in #380: the selection ends where the pointer last was
     over the text, and the page's selection moves to match, unless the drag
     went past the text's end (`src/lib/selection-end.mjs`, used by
     `chapter-tools.js`). A call for BVJ, "Decisions", 2026-10-27.

@@ -41,7 +41,7 @@ are recorded so they aren't re-argued.
   says when one is damaged (BA80, BA87), a participant share leaves out
   parts of unknown types (BA81), and opening a share drops its
   comparison copies (BA82). What the apps should pick up is in the
-  format's "Sharing a sheet." FA1-h is done: Bookmark saves one per
+  format's "Sharing a sheet." FA1-h is done (#380): Bookmark saves one per
   verse and Remove bookmark takes every one there (BA16), "Hide my notes"
   hides notes in a footnote's popover (BA17), going to a note with the
   notes hidden marks its words (BA19), a note on a footnote is named as
@@ -5743,7 +5743,7 @@ split itself is still a proposal BVJ worked within but hasn't confirmed.
 
 ### 2026-10-27 (FA1-h: marks on the page; two calls for BVJ to judge)
 
-FA1-h fixed BA16, BA17, BA19, BA20 and BA23 (`STUDY-DESK-AUDIT-1.md`). Two
+FA1-h (#380) fixed BA16, BA17, BA19, BA20 and BA23 (`STUDY-DESK-AUDIT-1.md`). Two
 of them needed a call the audit left to the session. Both are
 recommendations, for BVJ to confirm or change:
 
@@ -6591,7 +6591,7 @@ The phases, in working order:
 | FA1-u | The follow-up audit: code this audit didn't reach | done: BA88 to BA145 |
 | FA1-ab | Sheets in two tabs, and large sheets | BA128 to BA133 |
 | FA1-g | Sharing a sheet | done, #379: BA78, BA80, BA81, BA82, BA87 |
-| FA1-h | Marks on the page | done: BA16, BA17, BA19, BA20, BA23 |
+| FA1-h | Marks on the page | done, #380: BA16, BA17, BA19, BA20, BA23 |
 | FA1-i | Sheet templates and passages | BA69, BA70, BA75, BA76, BA77, BA127 |
 | FA1-j | The sheet editor: pasting and saving | BA68, BA71, BA72, BA73, BA74 |
 | FA1-k | Greek search commands | BA44, BA45, BA48, BA49, BA50, BA116 |
