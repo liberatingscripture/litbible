@@ -110,7 +110,7 @@ it goes after both, and FA1-ac after FA1-t.
 | FA1-g | Sharing a sheet | BA78, BA80, BA81, BA82, BA87 | done, #379 |
 | FA1-h | Marks on the page | BA16, BA17, BA19, BA20, BA23 | done, #380 |
 | FA1-i | Sheet templates and passages | BA69, BA70, BA75, BA76, BA77, BA127 | done, #381 |
-| FA1-j | The sheet editor: pasting and saving | BA68, BA71, BA72, BA73, BA74 | open |
+| FA1-j | The sheet editor: pasting and saving | BA68, BA71, BA72, BA73, BA74 | done, #382 |
 | FA1-k | Greek search commands | BA44, BA45, BA48, BA49, BA50, BA116 | open |
 | FA1-l | /desk's LIT pane and layout | BA54, BA56, BA57, BA58, BA60, BA61 | open |
 | FA1-m | The tour, first use, and printing | BA33, BA34, BA35, BA36, BA37 | open |
@@ -749,13 +749,13 @@ hand.
   - *Fix*: unwrap a `b` whose style sets the weight to normal or 400. Treat
     a `div` holding blocks as transparent, instead of renaming it `p`.
   - *Check*: tests with real-shaped clipboard HTML.
-  - Status: open.
+  - Status: Fixed in #382: a paste or a drop is read by `pastedSheetHtml` (`desk-sheet-format.mjs`), which unwraps Docs' normal-weight `b`, treats a `div` holding blocks as a wrapper, and reads Docs' span styles (weight, italic, underline outside a link, line-through, super and sub) as their tags. Paste-only, so the stored format is unchanged. Tests: `desk-sheet-paste`.
 - **BA71 (low). Word lists paste as paragraphs starting with “·” and
   spaces.** Word marks list items as `MsoListParagraph` paragraphs, with
   the bullet in `mso-list:Ignore` spans.
   - *Fix*: drop those spans, and rebuild runs of `MsoListParagraph*`
     paragraphs as `ul` or `ol`.
-  - Status: open.
+  - Status: Fixed in #382: in `pastedSheetHtml`, a paragraph whose style names a Word list level (or that holds a marker span) is a list item; runs of them become `ul` or `ol` by the marker (a number or letter with “.” or “)” is numbered), nested by level, with the marker spans gone. A “List Paragraph” with neither stays a paragraph.
 - **BA72 (low, data loss). The last half-second of typing is lost when the
   tab closes.**
   - *What happens*: text saves 400 ms after the last keystroke, and the
@@ -763,14 +763,14 @@ hand.
     `sheet-pane.js:455–466`). Nothing saves on `pagehide`.
   - *Fix*: call `flushAll` on `pagehide` and on `visibilitychange` to hidden,
     starting the store write synchronously.
-  - Status: open.
+  - Status: Fixed in #382, and the fix needed more than the audit said. Chrome keeps no IndexedDB write made while a page closes unless it reads nothing, is committed at once, and isn't queued behind a transaction still waiting on its read (tested by reloading mid-typing). So every sheet save now opens its transaction when it is asked for, hidden starts the waiting saves, and on `pagehide` the pane applies what hasn't landed to its own copy and writes it through `store.writeNow`, which aborts the stuck reads first. Checked in the browser: text and a title typed just before a reload survive.
 - **BA73 (low; likely). Dropping rich text skips the sanitizer until
   saved.**
   - *What happens*: the drop handler (`sheet-text.js:995–1001`) cancels file
     drops only. Dragged HTML shows its colors, fonts and images, which then
     disappear on reload.
   - *Fix*: on drop, take `text/html` or `text/plain` through the paste path.
-  - Status: open.
+  - Status: Fixed in #382: text dropped from elsewhere goes in at the drop point through the paste path (`caretAt`); words dragged from a sheet's own editor are still moved by the browser.
 - **BA74 (low). Ctrl+Z on the formatting toolbar undoes the saved text but
   not the screen.**
   - *What happens*: `owningUndo` (`history.js:46–61`) covers fields and
@@ -780,7 +780,7 @@ hand.
     keystroke silently cancels the undo, and a reload shows different text.
   - *Fix*: treat the whole `.desk-rich-editor` as owning undo, or redraw the
     editor when an undo targets it.
-  - Status: open.
+  - Status: Fixed in #382: `owningUndo` (`history.js`) covers the whole `.desk-rich-editor`, and Ctrl+Z (Ctrl+Y, Ctrl+Shift+Z) on its toolbar undoes the typing in the text. Checked in the browser.
 
 ## FA1-k. Greek search commands
 

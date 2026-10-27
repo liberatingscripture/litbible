@@ -17,7 +17,8 @@
 //  - Nothing is reported twice: a value equal to the last one reported or
 //    given is not sent again. Changes go out 400 ms after the last input, and
 //    at once on flush(), on focus leaving the whole editor, and on destroy().
-//  - Pasted text is run through the sanitizer before it goes in, so a paste
+//  - Pasted or dropped text is read by pastedSheetHtml (the sanitizer, plus
+//    what Google Docs, Word and web pages mean) before it goes in, so a paste
 //    can't bring in a style, an image, or a tag the format doesn't have.
 //  - The toolbar is one tab stop (the WAI-ARIA toolbar pattern, arrow keys
 //    inside it). A button press never takes focus from the text: the
@@ -32,7 +33,7 @@
 // for them. The named styles, text alignment, the horizontal line and
 // un-quoting edit the DOM directly, so the browser's undo steps over them.
 
-import { ALIGNMENTS, SPAN_STYLES, sanitizeSheetHtml } from "../../lib/desk-sheet-format.mjs";
+import { ALIGNMENTS, SPAN_STYLES, pastedSheetHtml, sanitizeSheetHtml } from "../../lib/desk-sheet-format.mjs";
 
 const STYLE_KEYS = Object.keys(SPAN_STYLES);
 const SAVE_DELAY = 400;
@@ -103,6 +104,20 @@ function plainToHtml(text) {
     .filter(Boolean)
     .map((p) => `<p>${escText(p).replace(/\n/g, "<br>")}</p>`)
     .join("");
+}
+
+/** Whether a drag under way began in a sheet's own text (any editor's); its drop is the browser's. */
+let draggingText = false;
+
+/** A collapsed range where a drop at (x, y) lands, or null. */
+function caretAt(x, y) {
+  const pos = document.caretPositionFromPoint?.(x, y);
+  if (pos?.offsetNode) {
+    const range = document.createRange();
+    range.setStart(pos.offsetNode, pos.offset);
+    return range;
+  }
+  return document.caretRangeFromPoint?.(x, y) ?? null;
 }
 
 /** The inside of html that is one plain paragraph, so a paste can join the line it lands in; else null. */
@@ -915,6 +930,17 @@ export function createSheetText({ html, label, placeholder, idPrefix, onChange }
     tools[to].focus();
   });
 
+  // Ctrl+Z on a toolbar button undoes the typing, as it would in the text:
+  // the desk's own undo stands down anywhere in the editor (BA74).
+  toolbar.addEventListener("keydown", (e) => {
+    if (!(e.ctrlKey || e.metaKey) || e.altKey || e.target.closest("input")) return;
+    const key = e.key.toLowerCase();
+    const command = key === "z" ? (e.shiftKey ? "redo" : "undo") : key === "y" && !e.shiftKey ? "redo" : null;
+    if (!command) return;
+    e.preventDefault();
+    act(() => exec(command));
+  });
+
   /** Keep the selection in the text while a toolbar or menu button is pressed. */
   el.addEventListener("mousedown", (e) => {
     if (editable.contains(e.target) || e.target.closest("input")) return;
@@ -981,23 +1007,50 @@ export function createSheetText({ html, label, placeholder, idPrefix, onChange }
     }
   });
 
+  /** Put pasted or dropped text in at the selection, read the way a paste is (BA68, BA71). */
+  function insertTransfer(data) {
+    let clean = pastedSheetHtml(data.getData("text/html"));
+    if (!clean) clean = sanitizeSheetHtml(plainToHtml(data.getData("text/plain")));
+    if (!clean) return;
+    prepareCommands();
+    const inner = singleParagraphInner(clean);
+    if (!exec("insertHTML", inner ?? clean)) exec("insertText", data.getData("text/plain"));
+  }
+
   editable.addEventListener("paste", (e) => {
     const data = e.clipboardData;
     if (!data) return;
     e.preventDefault();
-    let clean = sanitizeSheetHtml(data.getData("text/html"));
-    if (!clean) clean = sanitizeSheetHtml(plainToHtml(data.getData("text/plain")));
-    if (!clean) return;
-    const inner = singleParagraphInner(clean);
-    if (!exec("insertHTML", inner ?? clean)) exec("insertText", data.getData("text/plain"));
+    insertTransfer(data);
   });
 
   // Files dropped on the text would open or embed; the format holds no images.
   editable.addEventListener("dragover", (e) => {
     if (e.dataTransfer?.types?.includes("Files")) e.preventDefault();
   });
+  // Text dropped from elsewhere goes in as a paste does, so its colors, fonts
+  // and images never show only to vanish on reload (BA73). Words dragged from
+  // one of the sheet's own editors are left to the browser, which moves them.
+  editable.addEventListener("dragstart", () => {
+    draggingText = true;
+  });
+  editable.addEventListener("dragend", () => {
+    draggingText = false;
+  });
   editable.addEventListener("drop", (e) => {
-    if (e.dataTransfer?.files?.length) e.preventDefault();
+    const data = e.dataTransfer;
+    if (!data) return;
+    if (data.files?.length) {
+      e.preventDefault();
+      return;
+    }
+    if (draggingText || !(data.types.includes("text/html") || data.types.includes("text/plain"))) return;
+    e.preventDefault();
+    const at = caretAt(e.clientX, e.clientY);
+    editable.focus();
+    if (at && editable.contains(at.startContainer)) placeCaret(at.startContainer, at.startOffset);
+    else if (!rangeInside()) caretToEnd();
+    insertTransfer(data);
   });
 
   el.addEventListener("focusout", (e) => {

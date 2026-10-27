@@ -236,6 +236,8 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
   // ---- saving ----
 
   let saving = Promise.resolve();
+  /** The changes asked for whose write hasn't landed, in the order asked (BA72). */
+  const pending = new Set();
   const status = make("span", "desk-sheet__saved");
   status.setAttribute("role", "status");
 
@@ -257,21 +259,34 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
   // BroadcastChannel). And `sheet` changes only once a save has landed, so a
   // save that fails leaves the pane on the last saved copy and every later
   // edit still saves (BA128).
+  //
+  // The write starts when the change is asked for, not once the saves before
+  // it have landed: a tab being closed runs nothing after that (BA72), and the
+  // store opens its transaction before its first await. IndexedDB runs
+  // transactions on the same records in the order they were opened, each
+  // reading the sheet as the one before left it, so the saves still land one
+  // after another; only this pane's bookkeeping waits its turn.
   function change(op, { announce = null, after = null, source = null, quiet = false } = {}) {
+    if (destroyed || !sheet) return Promise.resolve(false);
+    const n = seq;
+    const id = sheet.id;
+    const write = store.change(
+      async ({ get }) => {
+        const plan = planSheetChange(await get(id), op);
+        if (plan.changed && !quiet) status.textContent = "Saving…";
+        return plan;
+      },
+      { record: !quiet },
+    );
+    write.catch(() => {}); // reported below, in turn
+    const asked = { op, id };
+    pending.add(asked);
+    const landed = () => pending.delete(asked);
+    write.then(landed, landed);
     const run = saving.then(async () => {
-      if (destroyed || !sheet) return false;
-      const n = seq;
-      const id = sheet.id;
       let made;
       try {
-        made = await store.change(
-          async ({ get }) => {
-            const plan = planSheetChange(await get(id), op);
-            if (plan.changed && !quiet) status.textContent = "Saving…";
-            return plan;
-          },
-          { record: !quiet },
-        );
+        made = await write;
       } catch (err) {
         console.error("Study Desk: the sheet couldn’t be saved", err);
         if (n === seq && !destroyed) failed(err, source);
@@ -657,6 +672,34 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
     titleInput?.flush?.();
     subtitleInput?.flush?.();
     for (const card of cards.values()) card.inst?.flush?.();
+  }
+
+  /**
+   * The page is closing (BA72). The saves under way read the sheet before
+   * they write, and a closing page never gets that read back, so they would
+   * die with it, as would typing still waiting for its delay. So what hasn't
+   * landed is applied to this pane's copy and written at once (`writeNow`),
+   * without the read. Not for a page going into the back-forward cache
+   * (`persisted`), which keeps running its saves when it comes back.
+   */
+  function onPagehide(e) {
+    flushAll();
+    if (e.persisted || destroyed || readOnly || !sheet || !pending.size) return;
+    let next = sheet;
+    let plan = null;
+    for (const asked of pending) {
+      if (asked.id !== sheet.id) continue;
+      const p = planSheetChange(next, asked.op);
+      if (!p.changed) continue;
+      next = p.sheet;
+      plan = p;
+    }
+    if (!plan) return;
+    try {
+      store.writeNow(plan);
+    } catch (err) {
+      console.error("Study Desk: the sheet couldn’t be saved as the page closed", err);
+    }
   }
 
   // ---- a module's card ----
@@ -1102,10 +1145,14 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
     if (sheet && ids?.includes?.(sheet.id)) refresh();
   });
   const onVisible = () => {
+    // Hidden comes first when a tab closes; this starts the saves, and
+    // onPagehide makes sure of them (BA72).
     if (document.visibilityState === "visible") refresh();
+    else flushAll();
   };
   document.addEventListener("visibilitychange", onVisible);
   window.addEventListener("pageshow", onVisible);
+  window.addEventListener("pagehide", onPagehide);
 
   queueMicrotask(() => {
     const id = getSheet();
@@ -1122,6 +1169,7 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
       unsubscribe();
       document.removeEventListener("visibilitychange", onVisible);
       window.removeEventListener("pageshow", onVisible);
+      window.removeEventListener("pagehide", onPagehide);
       openPanes.delete(me);
       if (lastUsed === me) lastUsed = null;
       for (const card of cards.values()) card.inst?.destroy?.();

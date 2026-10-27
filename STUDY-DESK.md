@@ -53,8 +53,12 @@ are recorded so they aren't re-argued.
   "Decisions", 2026-10-27), adding a passage again says so where it was
   added (BA75), a footnote that uses a short blanked word such as "God" is
   flagged (BA76), the Class session template reads "the leader's copy"
-  (BA77), and "+ Passage" checks its verses (BA127). Next: FA1-j (the
-  sheet editor: pasting and saving).
+  (BA77), and "+ Passage" checks its verses (BA127). FA1-j is done (#382): a paste
+  or a drop from Google Docs, Word or a web page keeps its headings, lists,
+  bold and italic, and Word's lists come back as lists (BA68, BA71, BA73),
+  typing just before a tab closes is kept (BA72), and Ctrl+Z on the
+  formatting toolbar undoes the typing rather than the saved text (BA74).
+  Next: FA1-k (Greek search commands).
 
 - **Phase 2c is built on the preview** (2026-10-20): notes on a footnote
   and questions for discussion. **A note can be on a footnote** (M11):
@@ -6623,7 +6627,7 @@ The phases, in working order:
 | FA1-g | Sharing a sheet | done, #379: BA78, BA80, BA81, BA82, BA87 |
 | FA1-h | Marks on the page | done, #380: BA16, BA17, BA19, BA20, BA23 |
 | FA1-i | Sheet templates and passages | done, #381: BA69, BA70, BA75, BA76, BA77, BA127 |
-| FA1-j | The sheet editor: pasting and saving | BA68, BA71, BA72, BA73, BA74 |
+| FA1-j | The sheet editor: pasting and saving | done, #382: BA68, BA71, BA72, BA73, BA74 |
 | FA1-k | Greek search commands | BA44, BA45, BA48, BA49, BA50, BA116 |
 | FA1-l | /desk's LIT pane and layout | BA54, BA56, BA57, BA58, BA60, BA61 |
 | FA1-m | The tour, first use, and printing | BA33, BA34, BA35, BA36, BA37 |
