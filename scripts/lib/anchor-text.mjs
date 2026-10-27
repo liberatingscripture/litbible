@@ -28,7 +28,9 @@ import { assembleChapter, normalizeAnchorText } from "../../src/lib/anchor-core.
 
 export {
   ANCHOR_SPEC_VERSION,
+  CHANGED_GROWTH,
   CONTEXT_LENGTH,
+  MIN_CONTEXT,
   assembleChapter,
   makeAnchor,
   normalizeAnchorText,

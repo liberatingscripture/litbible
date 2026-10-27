@@ -2,10 +2,10 @@
 //
 // Merging two copies of a reader's notebook (STUDY-DESK-FORMAT.md, "Clocks"
 // and kind 10 `trash`; STUDY-DESK.md, "When notes collide: rules a to e").
-// Phase 1's import of an export file uses it, and phase 4's sync is the same
-// function with a service on the other side. Pure: no storage, no DOM, and no
-// clock of its own unless the caller leaves `now` out. NOTHING CALLS IT YET;
-// phase 1d's import will.
+// Opening an export file uses it (src/lib/desk-export.mjs, "Open this copy"),
+// and phase 4's sync would be the same function with a service on the other
+// side. Pure: no storage, no DOM, and no clock of its own unless the caller
+// leaves `now` out.
 //
 // The rules, in the order they apply. a to c are BDR's answers of 2026-10-09,
 // settled with the apps; the collapse rule (6) is the website's proposal of

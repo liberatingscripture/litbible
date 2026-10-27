@@ -21,12 +21,15 @@ are recorded so they aren't re-argued.
   phases are the next audit: FA1-u (the code this one didn't reach) and
   FA1-v (real devices). The plan,
   and every finding with its fix, is `STUDY-DESK-AUDIT-1.md`. In short, see
-  "Full Audit 1 (10/20/2026)" below. FA1-a to FA1-e are done (#370,
-  #371, #372, #373, #374); FA1-c changed the merge's clamp rule and the merge
-  vectors (version 2), and FA1-d how undo and redo write trash records
-  (BA7), both of which FA1-f takes to BDR. FA1-e made "My default" a
-  layout without a passage (BVJ, BA53; "Decisions", 2026-10-26). Next:
-  FA1-f, the record format, for BDR.
+  "Full Audit 1 (10/20/2026)" below. FA1-a to FA1-f are done (#370,
+  #371, #372, #373, #374, #375); FA1-c changed the merge's clamp
+  rule and the merge vectors (version 2), and FA1-d how undo and redo write
+  trash records (BA7). FA1-e made "My default" a layout without a passage
+  (BVJ, BA53; "Decisions", 2026-10-26). FA1-f built rule e's two guards
+  (anchor vectors version 2) and brought the format into line with the
+  code; what the apps should pick up is in the 2026-10-26 note for BDR's
+  Claude under "One notebook, three homes". Next: FA1-u, the follow-up
+  audit.
 
 - **Phase 2c is built on the preview** (2026-10-20): notes on a footnote
   and questions for discussion. **A note can be on a footnote** (M11):
@@ -2241,6 +2244,32 @@ website has to say goes here, on `main`, with its date.
   new merge vectors. **Also**: BVJ strongly recommends that the
   `bookmark` note marker be renamed `ribbon` (E10; retiring it is the other
   option); either touches both apps' seven markers. Not decided, to raise with BDR.
+- **2026-10-26: for BDR's Claude. The record format now matches the
+  website's code, and rule e's guards are built** (Full Audit 1, phases
+  FA1-c, FA1-d and FA1-f; `STUDY-DESK-AUDIT-1.md`). What the apps should
+  pick up from `STUDY-DESK-FORMAT.md` before the format freezes:
+  - **Rule e's two guards** ("Finding a mark again"; BA8). Where the quoted
+    words occur more than once, an occurrence counts only when 8 characters
+    of context agree; a `changed` region is at most twice the quote plus 16
+    characters. Past either, that step fails and the mark ends on its
+    verses with the notice. The numbers are the website's, for BDR to match
+    or change (Android's own limit is "about twice plus a little").
+    **`test/fixtures/anchor-vectors.json` is spec version 2**, with five new
+    cases and the two numbers in its header, and the chapter vectors for
+    Luke 1 and Luke 22 refreshed from today's text.
+  - **The merge vectors are version 2** ("Clocks", "A clock running ahead";
+    BA4, BA11, BA12): a future time is clamped on every arrival, against a
+    cap that is an export file's own `exported` time when that is earlier,
+    and a record that had to be clamped never beats anything the receiving
+    side holds. One id is one record: a different `kind` under a known id is
+    skipped.
+  - **Undo and redo** (kind 10; BA7): what an undo or redo puts back is
+    stamped fresh, a trash record's `deletedAt` included, and undoing an
+    add deletes through the trash.
+  - **Corrections, no change of rule** (BA14): times end in `Z` (an offset
+    is refused); a tombstone keeps every field but `record`; the Web
+    Annotation `FragmentSelector` is `v3-4`, without `#`; a `hidden`
+    record's note to self is proposed as `body`.
 - Everything else in the proposal (the remaining Zoom items, the sequence)
   waits on the Zoom.
 

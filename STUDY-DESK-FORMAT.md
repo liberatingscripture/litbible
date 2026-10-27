@@ -1,7 +1,12 @@
 # The Study Desk record format (draft 1, with draft 2's additions)
 
 **Status: a draft for the website and both apps to agree, written 2026-10-05.
-Nothing uses it yet.** It answers the iOS reply's W1 (the text rule and its
+The website's Study Desk preview writes and reads it** (behind `?desk=on`,
+not yet released): its notebook, its export files and opening them, which
+merges through `src/lib/desk-merge.mjs`. **The apps don't use it yet.**
+Audit FA1-f (2026-10-26) brought this file into line with the website's code;
+what that changed for the apps is listed in `STUDY-DESK.md`, "One notebook,
+three homes" (its 2026-10-26 note for BDR's Claude). It answers the iOS reply's W1 (the text rule and its
 test vectors) and W6 (every kind of record the website will ever store), and
 the Android reply's A-F1 to A-F13. `STUDY-DESK.md` holds the plan and the
 decisions; this file holds only the format.
@@ -55,11 +60,21 @@ make are listed in `STUDY-DESK.md` ("To be decided").
 | `id` | A UUID. Both apps' existing UUIDs carry over unchanged |
 | `kind` | One of the kinds below |
 | `schema` | The format version this record was written in (1) |
-| `created` | When the reader made it (ISO 8601, UTC) |
-| `modified` | When the reader last changed it (principle 4) |
+| `created` | When the reader made it: ISO 8601 in UTC, ending in `Z` (below) |
+| `modified` | When the reader last changed it (principle 4), in the same form |
 | `client` | What wrote it last, e.g. `web/2026.10`, `ios/2.1`, `android/1.4` (A-F11) |
 | `contentVersion` | The `version` from `/api/version.json` the client had when the record was made, e.g. `v20261004.5d2c847d` |
 | `labels` | IDs of the reader's labels (M8); may be empty |
+
+**Times** (`created`, `modified`, a trash record's `deletedAt`) are written
+in UTC **with `Z`**, never an offset: `2026-10-26T14:03:09.512Z`. Fractions of
+a second are optional and may have any number of digits; the website writes
+three (JavaScript's `toISOString()`). When it opens a copy, the website skips,
+and reports, any record but a trash record whose `created` or `modified`
+isn't in this form, so such a record written with `+00:00` would never reach
+it. Trash records are only required to carry times that parse, but write
+them with `Z` too. Clients compare times as instants, not as strings, so
+`…09.5Z` and `…09.500Z` are the same time.
 
 A record about the text also carries **where**:
 
@@ -112,7 +127,11 @@ generated from `src/data/books.js` (A-F9). It's never stored.
 3. **`hidden`** (N8): a verse range the reader has hidden until they choose
    to show it, with an optional note to self. While the record exists, every
    client keeps those verses hidden everywhere they appear, screen readers
-   included.
+   included. **The note to self is `body`**, as a note's words are (the
+   website's proposal, 2026-10-26, for BDR to confirm). The website's hidden
+   passage is built but held off `main`, so nothing writes this kind yet; its
+   export reads `body` and, failing that, `note`, so a record written either
+   way is kept.
 4. **`bookmark`** (B2)
    - a verse;
    - an optional `label`;
@@ -167,8 +186,11 @@ generated from `src/data/books.js` (A-F9). It's never stored.
    untouched (principle 6, C8); only the website reads or writes it. Its
    shape is under "Sheets (kind 9)" below.
 10. **`trash`** (M7): the whole deleted record for 30 days. After that the
-    content is dropped and only `deletedId` and `deletedAt` stay, kept
-    indefinitely, so a stale backup can't bring a deleted note back (A-F10).
+    deleted record (`record`) is dropped and the rest is kept indefinitely,
+    as a **tombstone**, so a stale backup can't bring a deleted note back
+    (A-F10). A tombstone keeps the fields every record carries, `deletedId`,
+    `deletedKind` and `deletedAt`; only `record` goes, and dropping it
+    leaves `modified` as it was, since the reader changed nothing.
     Deleting means removing the live record and writing this one, never
     flipping a flag on the live record (iOS found flag flips unreliable).
     **For draft 2** (BDR, 2026-10-09, rule c): the 30-day trash and the
@@ -192,6 +214,19 @@ generated from `src/data/books.js` (A-F9). It's never stored.
       later deletion can hold the older words.
     - Its `modified` is the later of the two, and its 30 days run from the
       kept `deletedAt`.
+
+    **Undo and redo on the website** (audit FA1-d, BA7, 2026-10-26; for BDR,
+    since a sync would carry what they write). Undoing is the reader acting,
+    so every record an undo or redo puts back gets a fresh `modified` (one of
+    a kind or schema it can't edit comes back exactly as it was), and a
+    trash record put back also gets a fresh `deletedAt`: it is the deletion
+    made again, and a copy of the notebook saved in between holds the record
+    the undo brought back, which an old `deletedAt` would lose to (rule b).
+    **Undoing an add deletes through the trash** rather than removing the
+    record outright, so a copy saved before the undo can't bring it back as
+    new; a redo removes that trash record again. The apps need only the
+    principle: whatever their undo writes must outrank, by rules a and b, the
+    change it takes back.
 
     The website's first proposal (2026-10-05) kept the **earliest**
     deletion instead. Rule b, answered since, makes that wrong: an edit made
@@ -537,9 +572,9 @@ Run these steps in order. The first that succeeds gives the status:
 
 | Status | When | What the reader sees |
 |---|---|---|
-| `found` | `exact` occurs in the record's verses. If it occurs more than once, take the occurrence whose surroundings agree longest with `prefix` (read backwards) plus `suffix` (read forwards); on a tie, the first | The mark, as made |
-| `moved` | `exact` occurs elsewhere in the chapter (chosen the same way) | The mark, at its new place |
-| `changed` | The words are gone, but enough of the context survives inside the record's verses. Take the longest tail of `prefix` and head of `suffix` that still occur in order, at least 8 characters between them, and use the text between | The mark on the new words, flagged, with the old words kept: the apps' existing behaviour |
+| `found` | `exact` occurs in the record's verses. If it occurs more than once, take the occurrence whose surroundings agree longest with `prefix` (read backwards) plus `suffix` (read forwards); on a tie, the first. **Only if at least 8 characters agree** (the context floor, below) | The mark, as made |
+| `moved` | `exact` occurs elsewhere in the chapter (chosen the same way, with the same floor) | The mark, at its new place |
+| `changed` | The words are gone, but enough of the context survives inside the record's verses. Take the longest tail of `prefix` and head of `suffix` that still occur in order, at least 8 characters between them, and use the text between. **Only if that text is at most twice `exact`'s length plus 16 characters** (the size limit, below) | The mark on the new words, flagged, with the old words kept: the apps' existing behaviour |
 | `verse` | Nothing usable | The mark on its whole verse range, flagged |
 | `lost` | The record's verses no longer exist | Listed, never drawn |
 
@@ -576,11 +611,24 @@ The apps still have to agree it. Three refinements of the rule above:
 Draft 1 adopts the apps' approach over the plan's whole-verse fallback,
 because both apps already ship it and tell the reader.
 
-**For draft 2** (BDR, 2026-10-09, rule e): two guards on `changed`, each
-with a test case. A **size limit**: never take a region much longer than the
-original (Android's is about twice plus a little). A **context floor**: where
-the words repeat ("Amen."), trust a choice only when enough context matches.
-Past either, the mark falls to `verse`, with the notice.
+**Rule e's two guards** (BDR, 2026-10-09: "both guards"; built in the
+reference 2026-10-26, audit FA1-f, BA8; spec version 2 of the vectors). A
+step whose guard fails doesn't succeed, and the next step is tried, so in
+the end such a mark falls to `verse`, with the notice:
+- **The context floor**: where `exact` occurs more than once in the text
+  searched ("Amen."), an occurrence is taken only when at least **8**
+  characters of context agree, `prefix` and `suffix` together
+  (`MIN_CONTEXT`, the same 8 as `changed`'s floor). A word that occurs once
+  needs no context, so an old quote with none is still `found`.
+- **The size limit**: a `changed` region may be at most **2 × the length of
+  `exact` + 16** characters (`CHANGED_GROWTH`), counted in normalized
+  UTF-16 code units. Without it a 12-character quote, “God so loved,”
+  resolved to a 68-character region in the audit's reproduction (BA8); the
+  vectors' case is 65. Android's own limit is "about twice plus a
+  little"; these are the website's numbers, for BDR to match or change.
+
+The vectors carry both numbers (`minContext`, `changedGrowth`) and five cases
+for them.
 
 ### Highlights that meet
 
@@ -626,7 +674,9 @@ that decides which write is newer, and `modified` only breaks a tie (A-F7).
 wins on every store and for every kind, notes included, so a write never
 wins just because its device synced last. A store's revision is only the
 "what changed since last time" cursor and the tiebreaker for an exact tie,
-and a `modified` in the future is clamped to the service's clock on arrival.
+and a `modified` in the future is clamped on **every** arrival, not once,
+and never beats what the receiving side holds (under "A clock running ahead"
+below).
 An edit later than a trash record's `deletedAt` brings the record back
 (rule b). The older of two versions of a note is discarded, like any other
 kind's (BVJ, going with BDR, 2026-10-09), so a conflicting note leaves no
@@ -698,8 +748,9 @@ and accounts would live under `/sheets/`, `/notebook/`, `/account/`.
   JSON encrypted.
 - **The export file.** For marks on the text: JSON in the W3C Web Annotation
   shape, where `TextQuoteSelector` is `quote`, `FragmentSelector` is
-  `#v3-4`, `motivation` comes from `kind`, and the LIT fields go under
-  `lit`. Sheets and places use this format's own JSON. Markdown is kept for
+  `v3-4` (the fragment without its `#`, as W3C's selector has it, with
+  `conformsTo` RFC 3986), `motivation` comes from `kind`, and the LIT fields
+  go under `lit`. Sheets and places use this format's own JSON. Markdown is kept for
   people (the mocked D1 file). **Built on the website 2026-10-12**
   (`src/lib/desk-export.mjs`; the defaults are the website's, for BVJ to
   confirm) as three files, each for a different reader:

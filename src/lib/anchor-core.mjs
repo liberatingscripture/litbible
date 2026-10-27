@@ -19,7 +19,8 @@
 
 import { stripBracketMarkers } from "./bracket-markers.mjs";
 
-export const ANCHOR_SPEC_VERSION = 1;
+// 2 since audit FA1-f (2026-10-26): rule e's guards, MIN_CONTEXT and CHANGED_GROWTH.
+export const ANCHOR_SPEC_VERSION = 2;
 
 /** Characters of context stored either side of the quoted words. */
 export const CONTEXT_LENGTH = 32;
@@ -123,7 +124,26 @@ function occurrences(text, needle, from, to) {
   return out;
 }
 
-/** The occurrence whose surroundings agree most with the stored context; the first on a tie. */
+/**
+ * Context that must agree, both ends together: for `changed`, what survives of
+ * the stored context; for `found` and `moved`, what picks one of several
+ * occurrences of the quoted words (rule e's context floor).
+ */
+export const MIN_CONTEXT = 8;
+
+/**
+ * Rule e's size limit: a `changed` region may be at most twice the quoted
+ * words' length plus this many characters, so a short quote is never carried
+ * to a whole clause.
+ */
+export const CHANGED_GROWTH = 16;
+
+/**
+ * The occurrence whose surroundings agree most with the stored context; the
+ * first on a tie. With more than one occurrence, a choice is trusted only when
+ * at least MIN_CONTEXT characters of context agree ("Amen." twice in a verse);
+ * otherwise null, and resolveAnchor tries its next step. Null too for none.
+ */
 function bestByContext(chapter, starts, anchor) {
   let best = null;
   let bestScore = -1;
@@ -137,6 +157,7 @@ function bestByContext(chapter, starts, anchor) {
       bestScore = score;
     }
   }
+  if (starts.length > 1 && bestScore < MIN_CONTEXT) return null;
   return best;
 }
 
@@ -151,6 +172,11 @@ function bestByContext(chapter, starts, anchor) {
  *            inside the anchor's verses, is shown instead and flagged
  *   verse    nothing usable; the mark falls back to its whole verse range
  *   lost     the anchor's verses no longer exist in the chapter
+ *
+ * Rule e's two guards (BDR, 2026-10-09; spec version 2): where the words occur
+ * more than once, an occurrence is taken only when MIN_CONTEXT characters of
+ * its context agree; and a `changed` region is never longer than twice the
+ * quoted words plus CHANGED_GROWTH. Past either, that step doesn't succeed.
  *
  * @returns {{status: string, start: number|null, end: number|null}}
  */
@@ -167,29 +193,24 @@ export function resolveAnchor(chapter, anchor) {
   };
   const range = rangeOf(chapter, anchor.verse, anchor.endVerse ?? anchor.verse);
 
+  // A step that finds something its guard won't trust doesn't succeed, and
+  // the next step is tried (rule e).
   if (range && exact) {
-    const here = occurrences(chapter.text, exact, range[0], range[1]);
-    if (here.length) {
-      const s = bestByContext(chapter, here, a);
-      return { status: "found", start: s, end: s + exact.length };
-    }
+    const s = bestByContext(chapter, occurrences(chapter.text, exact, range[0], range[1]), a);
+    if (s !== null) return { status: "found", start: s, end: s + exact.length };
   }
   if (exact) {
-    const anywhere = occurrences(chapter.text, exact, 0, chapter.text.length);
-    if (anywhere.length) {
-      const s = bestByContext(chapter, anywhere, a);
-      return { status: "moved", start: s, end: s + exact.length };
-    }
+    const s = bestByContext(chapter, occurrences(chapter.text, exact, 0, chapter.text.length), a);
+    if (s !== null) return { status: "moved", start: s, end: s + exact.length };
   }
   if (!range) return { status: "lost", start: null, end: null };
 
   const between = textBetweenContext(chapter, a, range);
-  if (between) return { status: "changed", ...between };
+  if (between && between.end - between.start <= 2 * exact.length + CHANGED_GROWTH) {
+    return { status: "changed", ...between };
+  }
   return { status: "verse", start: range[0], end: range[1] };
 }
-
-/** Context that survives must be at least this long, both ends together. */
-const MIN_SURVIVING_CONTEXT = 8;
 
 /**
  * The words are gone. If what's left of the context still brackets some text
@@ -210,7 +231,7 @@ function textBetweenContext(chapter, a, range) {
     for (let preLen = a.prefix.length; preLen > 0; preLen--) {
       const tail = a.prefix.slice(a.prefix.length - preLen).trim();
       if (!tail) break;
-      if (tail.length + head.length < MIN_SURVIVING_CONTEXT) break;
+      if (tail.length + head.length < MIN_CONTEXT) break;
       const p = window.lastIndexOf(tail, q - tail.length);
       if (p === -1) continue;
       let s = p + tail.length;
@@ -219,7 +240,7 @@ function textBetweenContext(chapter, a, range) {
       while (e > s && window[e - 1] === " ") e--;
       if (e > s) return { start: lo + s, end: lo + e };
     }
-    if (head.length < MIN_SURVIVING_CONTEXT) break;
+    if (head.length < MIN_CONTEXT) break;
   }
   return null;
 }

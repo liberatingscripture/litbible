@@ -20,7 +20,9 @@ import { fileURLToPath } from "node:url";
 
 import {
   ANCHOR_SPEC_VERSION,
+  CHANGED_GROWTH,
   CONTEXT_LENGTH,
+  MIN_CONTEXT,
   chapterAnchorText,
   makeAnchor,
   normalizeAnchorText,
@@ -69,6 +71,7 @@ const CHAPTERS = [
   ["romans-4", "used by the rewording vectors below"],
   ["galatians-3", "used by the rewording vectors below"],
   ["matthew-20", "used by the paragraph-merge vectors below"],
+  ["john-3", "used by rule e's size-limit vectors below"],
 ].map(([slug, why]) => {
   const paragraphs = readNow(slug);
   const { verses, text } = chapterAnchorText(paragraphs);
@@ -128,6 +131,34 @@ const RESOLVE_CASES = [
     madeOn: { slug: "matthew-17" }, quote: null, verse: 20, against: "matthew-17",
     override: { verse: 21, endVerse: 21, exact: "this kind does not go out", prefix: "", suffix: "" },
   },
+  // Rule e's guards (BDR, 2026-10-09; spec version 2). Each anchor is made on
+  // today's text and then given other words or context, as an older record
+  // or another app's would have.
+  {
+    why: "rule e, size limit: a 12-character quote whose surviving context now brackets 65 characters falls to its verse (audit BA8)",
+    madeOn: { slug: "john-3" }, quote: "God loved the whole world: God gave the One-of-a-kind Son so that", verse: 16, against: "john-3",
+    override: { exact: "God so loved" },
+  },
+  {
+    why: "rule e, size limit: a 22-character quote whose context brackets 25 characters is within it, so it is changed",
+    madeOn: { slug: "john-3" }, quote: "God loved the whole world", verse: 16, against: "john-3",
+    override: { exact: "God so loved the world" },
+  },
+  {
+    why: "rule e, context floor: a word three times in its verse, with no stored context (an old app quote), falls to its verse",
+    madeOn: { slug: "john-9" }, quote: "see", verse: 39, occurrence: 3, against: "john-9",
+    override: { prefix: "", suffix: "" },
+  },
+  {
+    why: "rule e, context floor: 7 characters of agreeing context is too few to pick between repeated words",
+    madeOn: { slug: "john-9" }, quote: "see", verse: 39, occurrence: 3, against: "john-9",
+    adjust: (a) => ({ prefix: a.prefix.slice(-4), suffix: a.suffix.slice(0, 3) }),
+  },
+  {
+    why: "rule e, context floor: 8 characters of agreeing context is enough, and picks the third",
+    madeOn: { slug: "john-9" }, quote: "see", verse: 39, occurrence: 3, against: "john-9",
+    adjust: (a) => ({ prefix: a.prefix.slice(-4), suffix: a.suffix.slice(0, 4) }),
+  },
 ];
 
 const RESOLVE = RESOLVE_CASES.map((c) => {
@@ -142,7 +173,7 @@ const RESOLVE = RESOLVE_CASES.map((c) => {
   } else {
     anchor = anchorOn(made, c.quote, c.verse, c.occurrence);
   }
-  anchor = { ...anchor, ...(c.override || {}) };
+  anchor = { ...anchor, ...(c.override || {}), ...(c.adjust ? c.adjust(anchor) : {}) };
   const chapter = chapterBySlug.get(c.against);
   const r = resolveAnchor(chapter, anchor);
   return {
@@ -163,6 +194,9 @@ const out = {
   spec: "STUDY-DESK-FORMAT.md",
   specVersion: ANCHOR_SPEC_VERSION,
   contextLength: CONTEXT_LENGTH,
+  minContext: MIN_CONTEXT,
+  changedGrowth: CHANGED_GROWTH,
+  changedLimit: "a changed region is at most 2 × exact's length + changedGrowth",
   offsets: "UTF-16 code units into a chapter's anchor text (verse texts joined by one space)",
   generatedBy: "npm run build:anchor-vectors (scripts/build-anchor-vectors.mjs)",
   normalize: NORMALIZE,

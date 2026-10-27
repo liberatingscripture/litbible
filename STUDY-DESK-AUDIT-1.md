@@ -92,7 +92,7 @@ stable.
 | FA1-c | Merging and opening a copy | BA3, BA4, BA11, BA12 | done, #372 |
 | FA1-d | The store, the note editor, and undo | BA5, BA13, BA6, BA7 | done, #373 |
 | FA1-e | /desk keeps the reader's place | BA51, BA52, BA53, BA55 | done, #374 |
-| FA1-f | The record format, for BDR | BA8, BA14 | open |
+| FA1-f | The record format, for BDR | BA8, BA14 | done, #375 |
 | FA1-u | The follow-up audit: code this audit didn't reach | new findings, BA88 onward | open |
 | FA1-g | Sharing a sheet | BA78, BA80, BA81, BA82, BA87 | open |
 | FA1-h | Marks on the page | BA16, BA17, BA19, BA20, BA23 | open |
@@ -471,7 +471,17 @@ Christmas. After it, add a line to STUDY-DESK.md for BDR.
     history, so fetch more first (`git fetch --depth=1000 origin main`).
     Bump `ANCHOR_SPEC_VERSION`. If BVJ would rather wait, mark both guards
     in the format as not yet built instead.
-  - Status: open.
+  - Status: fixed in #375. `bestByContext` returns no occurrence when
+    there are several and fewer than `MIN_CONTEXT` (8) characters of context
+    agree, and `resolveAnchor` takes a `changed` region only when it is at
+    most `2 × exact + CHANGED_GROWTH` (16). A step whose guard fails doesn't
+    succeed and the next is tried, so such a mark ends on its verses.
+    `ANCHOR_SPEC_VERSION` is 2; the vectors gained five cases (John 3:16's
+    65-character region for a 12-character quote, a 25-character one that
+    fits, and John 9:39's "see" with no context, 7 and 8 characters), and
+    the header carries both numbers. No git fetch was needed: the checkout
+    had full history. Regenerating also refreshed the Luke 1 and Luke 22
+    chapter vectors from today's text.
 - **BA14 (low, docs). The format and the code disagree in seven places.**
   - *What happens*: the format says one thing and the code does another:
     1. Times must end in `Z` (`validateRecord`, `desk-records.mjs:250`), but
@@ -490,7 +500,16 @@ Christmas. After it, add a line to STUDY-DESK.md for BDR.
        say nothing uses the merge.
   - *Also*: describe FA1-b's per-entry `modified` and FA1-d's undo and trash
     behavior (BA7).
-  - Status: open.
+  - Status: fixed in #375. 1: a "Times" paragraph under the common fields
+    (`Z`, any number of fraction digits, three written, compared as
+    instants). 2: kind 10 names the tombstone's fields (everything but
+    `record`), and `emptyTrashRecord`'s comment says the same. 3: `v3-4`. 4:
+    already done by FA1-b (#371), which described the escaping in full. 5:
+    `body`, proposed, with `note` still read. 6: "Clocks" now says every
+    arrival and points to FA1-c's rule. 7: the format's status lines and
+    `desk-merge.mjs`'s header. FA1-b's per-entry `modified` was already
+    described; FA1-d's undo and redo are now under kind 10. A note for BDR's
+    Claude is in STUDY-DESK.md, "One notebook, three homes".
 
 ## FA1-g. Sharing a sheet
 
