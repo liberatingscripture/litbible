@@ -13,7 +13,9 @@ import { readFileSync } from "node:fs";
 
 import {
   ANCHOR_SPEC_VERSION,
+  CHANGED_GROWTH,
   CONTEXT_LENGTH,
+  MIN_CONTEXT,
   chapterAnchorText,
   makeAnchor,
   normalizeAnchorText,
@@ -27,6 +29,8 @@ const vectors = JSON.parse(
 test("the committed vectors are for this spec version and context length", () => {
   assert.equal(vectors.specVersion, ANCHOR_SPEC_VERSION);
   assert.equal(vectors.contextLength, CONTEXT_LENGTH);
+  assert.equal(vectors.minContext, MIN_CONTEXT);
+  assert.equal(vectors.changedGrowth, CHANGED_GROWTH);
 });
 
 test("normalization vectors", () => {
@@ -110,4 +114,33 @@ test("resolveAnchor: with nothing to go on, a mark falls back to its whole verse
   const r = resolveAnchor(chapter, { verse: 3, endVerse: 3, exact: "abides", prefix: "", suffix: "" });
   assert.equal(r.status, "verse");
   assert.equal(chapter.text.slice(r.start, r.end), "Love never fails.");
+});
+
+test("resolveAnchor, rule e: repeated words with too little agreeing context fall to the verse", () => {
+  // "is" twice in verse 1, and again in verse 2.
+  const second = chapter.text.indexOf("is kind");
+  const a = { ...makeAnchor(chapter, second, second + 2), prefix: "", suffix: "" };
+  const r = resolveAnchor(chapter, a);
+  assert.equal(r.status, "verse");
+  assert.equal(chapter.text.slice(r.start, r.end), "Love is patient, love is kind.");
+});
+
+test("resolveAnchor, rule e: a single occurrence needs no context", () => {
+  const r = resolveAnchor(chapter, { verse: 3, endVerse: 3, exact: "never", prefix: "", suffix: "" });
+  assert.equal(r.status, "found");
+});
+
+test("resolveAnchor, rule e: a changed region longer than twice the quote plus CHANGED_GROWTH falls to the verse", () => {
+  const long = chapterAnchorText([
+    '<p id="t-1-p1"><span class="vglue"><sup id="v1" class="vn">1</sup>&nbsp;Love</span> is ' +
+      "x".repeat(2 * "patient".length + CHANGED_GROWTH + 1) + ", love is kind.</p>",
+  ]);
+  const fits = chapterAnchorText([
+    '<p id="t-1-p1"><span class="vglue"><sup id="v1" class="vn">1</sup>&nbsp;Love</span> is ' +
+      "x".repeat(2 * "patient".length + CHANGED_GROWTH) + ", love is kind.</p>",
+  ]);
+  const s = chapter.text.indexOf("patient");
+  const a = makeAnchor(chapter, s, s + "patient".length);
+  assert.equal(resolveAnchor(long, a).status, "verse");
+  assert.equal(resolveAnchor(fits, a).status, "changed");
 });

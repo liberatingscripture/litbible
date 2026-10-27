@@ -217,9 +217,10 @@ export function restoreFromTrash(trash, { now, client } = {}) {
 }
 
 /**
- * After TRASH_DAYS a trash record drops what it held and keeps only its
- * tombstone (`deletedId`, `deletedAt`), indefinitely, so a stale backup can't
- * bring the record back (A-F10). The same record when it isn't due yet, or is
+ * After TRASH_DAYS a trash record drops what it held (`record`) and keeps the
+ * rest as its tombstone (the common fields, `deletedId`, `deletedKind`,
+ * `deletedAt`), indefinitely, so a stale backup can't bring the record back
+ * (A-F10). The same record when it isn't due yet, or is
  * already empty. Emptying isn't the reader changing anything, so `modified`
  * stays put.
  */
