@@ -9,7 +9,7 @@
 
 ## Content Collections (`src/content.config.ts`)
 
-Five collections, all loaded via Astro's `glob` loader. Two are site-wide:
+Six collections, all loaded via Astro's `glob` loader. Two are site-wide:
 
 - **`articles`** — `src/content/articles/*.md`. Schema: `title`, `date`,
   optional `author`/`description`/`heroImage`/`featured`, `tags[]`. **An
@@ -58,9 +58,15 @@ Five collections, all loaded via Astro's `glob` loader. Two are site-wide:
   `GLOSSARY-CANDIDATES.md` with the reasoning, so a term is triaged once rather
   than re-proposed every time a survey re-ranks it.
 
-Three drive the `/apps` promo page only (section content as data, edited without
-touching component code — consumed by `src/components/apps/*`):
+Four drive the `/apps` promo page only (section content as data, edited without
+touching component code — consumed by `src/components/apps/*`). Their schemas
+are defined in the mirrored `src/components/apps/collections.ts`, which
+`content.config.ts` spreads in, and Brandon edits all four through the Apps
+Page Studio (see `src/components/apps/CLAUDE.md`):
 
+- **`appsSections`** — `src/content/apps-sections/<id>.json`, one per section
+  of the page: its `kind`, `order`, `background`, optional `hidden`, and every
+  word, link, store button and screenshot it shows.
 - **`callouts`** — reader-feature cards (`title`, `order`, `platform`, `mode`,
   `accent`, `imageSide`, `image`).
 - **`examples`** — LIT-vs-traditional passage comparisons (`reference`,

@@ -38,7 +38,8 @@
     "fix:chapters": "node scripts/validate-chapters.mjs --fix",
     "import:chapter": "node scripts/import-chapter.mjs",
     "draft:release-notes": "node scripts/draft-release-notes.mjs",
-    "review:reconcile": "node scripts/reconcile/review/server.mjs"
+    "review:reconcile": "node scripts/reconcile/review/server.mjs",
+    "studio:apps": "node scripts/apps-studio/cli.mjs"
   },
   "dependencies": {
     "@astrojs/rss": "^4.0.18",
