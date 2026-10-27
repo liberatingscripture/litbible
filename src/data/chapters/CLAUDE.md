@@ -171,6 +171,12 @@ Each file in `src/data/chapters/` follows this structure:
      `/ekdemeo/.test(html)` silently fails open.
   5. **Numeric ranges take an en dash**, outside tags and outside URLs printed
      as visible link text.
+- **No `<figure>` in a published chapter, or in a draft with verse text**
+  (2026-10-22). Every one is a placeholder draft's art. The content API,
+  version 2 serves a chapter's words alone, and the anchor-text rule has no
+  clause for a caption, so a figure beside verse text would leak its words
+  into the text the apps anchor notes to. The validator rejects it and
+  `build-api-v2.mjs` refuses it.
 - Always run `npm run validate:chapters` after editing chapter JSON. The
   pre-commit hook validates staged chapter files automatically.
 
