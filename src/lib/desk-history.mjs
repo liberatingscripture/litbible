@@ -19,23 +19,30 @@
 //   - Undoing is the reader acting, so every record put back is stamped with
 //     the time of the undo and this client (principle 4). Under the newer
 //     `modified` wins rule of a sync, the undone state must outrank the change
-//     it undoes, or another device would keep the change. A trash record comes
-//     back exactly as it was: it is bookkeeping, not something the reader
-//     changed, and so is a record this code can't edit (principle 6).
+//     it undoes, or another device would keep the change. A record this code
+//     can't edit comes back exactly as it was (principle 6). A trash record
+//     put back is the deletion made again, so its `deletedAt` moves to the
+//     same time: a copy of the notebook saved in between holds the record
+//     the undo brought back, and an old `deletedAt` would lose to it (BA7).
+//     For the same reason undoing an add deletes what was added, through a
+//     trash record, rather than simply removing it, which a copy saved
+//     before the undo would bring back as new. Each entry allots that trash
+//     record's id when it is made (`undoTrash`), so a redo can take it away
+//     again.
 //   - A change is undone only while the notebook still holds what it left
 //     (stillCurrent). If another tab, or a later change to the same record,
 //     has moved a record on, putting the old state back would erase that
 //     work, so the history says so instead. Records are compared whole
-//     except for the two fields the stamp above writes, `modified` and
-//     `client`: an undo restamps the record it restores, and the change
+//     except for the fields the stamp above writes, `modified` and `client`,
+//     and a trash record's `deletedAt`: an undo restamps the record it restores, and the change
 //     before it in the history still holds the record as it was stamped
 //     then. Compared with the stamp, undoing a deletion would overtake the
 //     edit beneath it and nothing could be undone twice in a row. Words,
 //     verses, colours and every other field still count; a stamp alone
 //     isn't a change anyone made.
 
-import { canEdit } from "./desk-records.mjs";
-import { kindName, liveRecords, recordWhere, touched } from "./desk-store-core.mjs";
+import { canEdit, trashRecord } from "./desk-records.mjs";
+import { deepEqual, kindName, liveRecords, recordWhere, touched } from "./desk-store-core.mjs";
 
 /** How many changes one page visit remembers. */
 export const HISTORY_LIMIT = 50;
@@ -47,26 +54,13 @@ function snapshot(value) {
 }
 
 /**
- * Whether two values are the same, with a property holding `undefined` counting
- * as missing (JSON, and so the apps, can't tell the two apart).
- */
-function deepEqual(a, b) {
-  if (Object.is(a, b)) return true;
-  if (typeof a !== "object" || typeof b !== "object" || a === null || b === null) return false;
-  if (Array.isArray(a) !== Array.isArray(b)) return false;
-  if (Array.isArray(a)) return a.length === b.length && a.every((x, i) => deepEqual(x, b[i]));
-  const keys = (o) => Object.keys(o).filter((k) => o[k] !== undefined);
-  const ka = keys(a);
-  return ka.length === keys(b).length && ka.every((k) => Object.hasOwn(b, k) && deepEqual(a[k], b[k]));
-}
-
-/**
- * Records without the two fields an undo or redo restamps (see the top of this
+ * Records without the fields an undo or redo restamps (see the top of this
  * file); null (or undefined) is a record that isn't there.
  */
 function content(record) {
   if (record == null) return null;
   const { modified: _modified, client: _client, ...rest } = record;
+  if (record.kind === "trash") delete rest.deletedAt;
   return rest;
 }
 
@@ -96,16 +90,22 @@ function lookup(states) {
  * `after` is what the plan left: its record for an id it puts, null for one
  * it removes (a removal wins if a plan did both, as it does when written).
  */
-export function makeEntry(plan, before, id) {
+export function makeEntry(plan, before, id, { newId = () => globalThis.crypto.randomUUID() } = {}) {
   const was = lookup(before);
   const put = new Map((plan.put ?? []).map((r) => [r.id, r]));
   const gone = new Set(plan.remove ?? []);
   const ids = touched({ put: plan.put ?? [], remove: plan.remove ?? [] });
-  return {
+  const entry = {
     id,
     before: ids.map((rid) => ({ id: rid, record: snapshot(was(rid)) })),
     after: ids.map((rid) => ({ id: rid, record: gone.has(rid) ? null : snapshot(put.get(rid) ?? null) })),
   };
+  // A record the change added, which an undo deletes through a trash record
+  // with this id (see the top of this file).
+  entry.undoTrash = entry.after
+    .filter((a, i) => a.record && a.record.kind !== "trash" && entry.before[i].record == null)
+    .map((a) => ({ id: a.id, trashId: newId() }));
+  return entry;
 }
 
 /** Whether a change left the notebook as it found it, a stamp aside. Such a change isn't worth remembering. */
@@ -121,10 +121,16 @@ export function pushEntry(stack, entry, limit = HISTORY_LIMIT) {
 
 /* ── Taking a change back, or doing it again ─────────────────────────── */
 
-/** A record put back by an undo or a redo: stamped with the reader's act, unless it isn't ours to stamp. */
+/**
+ * A record put back by an undo or a redo: stamped with the reader's act, unless
+ * it isn't ours to stamp. A trash record is a deletion made again, now.
+ */
 function restamped(record, { now, client } = {}) {
+  const at = now ?? new Date().toISOString();
+  const by = client ? { client } : {};
+  if (record.kind === "trash") return { ...snapshot(record), modified: at, deletedAt: at, ...by };
   if (!canEdit(record)) return snapshot(record);
-  return { ...snapshot(record), modified: now ?? new Date().toISOString(), ...(client ? { client } : {}) };
+  return { ...snapshot(record), modified: at, ...by };
 }
 
 function planFor(states, ctx) {
@@ -140,19 +146,42 @@ function planFor(states, ctx) {
 /**
  * The write that takes an entry's change back: every id that was absent before
  * is removed, every other put back as it was, stamped `now` by `client`
- * (see the top of this file for which records are not).
+ * (see the top of this file for which records are not). A record the change
+ * added is deleted, so a trash record holding it goes in under the id the
+ * entry allotted (`undoTrash`).
  *
- * @param {{ before: { id: string, record: object | null }[] }} entry
- * @param {{ now?: string, client?: string }} [ctx]
+ * @param {{ before: { id: string, record: object | null }[],
+ *   after: { id: string, record: object | null }[],
+ *   undoTrash?: { id: string, trashId: string }[] }} entry
+ * @param {{ now?: string, client?: string, contentVersion?: string }} [ctx]
  * @returns {{ put: object[], remove: string[] }}
  */
 export function inversePlan(entry, ctx = {}) {
-  return planFor(entry.before, ctx);
+  const plan = planFor(entry.before, ctx);
+  const now = ctx.now ?? new Date().toISOString();
+  for (const { id, trashId } of entry.undoTrash ?? []) {
+    const added = entry.after.find((a) => a.id === id)?.record;
+    if (!added) continue;
+    plan.put.push(
+      trashRecord(snapshot(added), {
+        now,
+        client: ctx.client ?? added.client,
+        contentVersion: ctx.contentVersion ?? added.contentVersion,
+        id: trashId,
+      }),
+    );
+  }
+  return plan;
 }
 
-/** The write that does a taken-back change again: the same as inversePlan, from `after`. */
+/**
+ * The write that does a taken-back change again: the same as inversePlan, from
+ * `after`, which also takes away the trash record an undone add left.
+ */
 export function redoPlan(entry, ctx = {}) {
-  return planFor(entry.after, ctx);
+  const plan = planFor(entry.after, ctx);
+  for (const { trashId } of entry.undoTrash ?? []) plan.remove.push(trashId);
+  return plan;
 }
 
 /**

@@ -17,6 +17,7 @@ import {
   kindName,
   liveRecords,
   planDelete,
+  planEdit,
   planPurge,
   planSave,
   planUndo,
@@ -302,4 +303,68 @@ test("a note on a footnote reads as 'a footnote in' its verse; anything else rea
   const entryNote = { kind: "note", glossaryEntry: "flesh-body", targetTitle: "Flesh" };
   assert.equal(recordWhere(entryNote), recordReference(entryNote));
   assert.equal(recordWhere(entryNote), "Glossary: Flesh");
+});
+
+/* ── planEdit (BA6) ──────────────────────────────────────────────────── */
+
+const SAVED = { now: "2026-10-09T08:00:00.000Z", client: "web/2026.11" };
+const edit = { body: "second thoughts", marker: "question" };
+
+test("planEdit puts the edit over the record as the notebook holds it now, stamped", () => {
+  const opened = note({ bookKey: "romans", chapter: 8, verse: 3 });
+  const plan = planEdit(opened, opened, edit, SAVED);
+  assert.deepEqual(plan.remove, []);
+  assert.equal(plan.put.length, 1);
+  const [saved] = plan.put;
+  assert.equal(saved.id, opened.id);
+  assert.equal(saved.body, "second thoughts");
+  assert.equal(saved.marker, "question");
+  assert.equal(saved.modified, SAVED.now);
+  assert.equal(saved.client, SAVED.client);
+  assert.equal(saved.created, opened.created);
+});
+
+test("planEdit is null when the record is gone, or is not the one that was opened", () => {
+  const opened = note({ bookKey: "romans", chapter: 8, verse: 3 });
+  assert.equal(planEdit(null, opened, edit, SAVED), null);
+  assert.equal(planEdit(undefined, opened, edit, SAVED), null);
+  assert.equal(planEdit({ ...opened, id: nextId() }, opened, edit, SAVED), null);
+  assert.equal(planEdit({ ...opened, kind: "bookmark" }, opened, edit, SAVED), null);
+});
+
+test("planEdit is null when anything besides the edited fields changed since the editor opened", () => {
+  const opened = note({ bookKey: "romans", chapter: 8, verse: 3 });
+  assert.equal(planEdit({ ...opened, labels: ["a-label"] }, opened, edit, SAVED), null, "a label was added elsewhere");
+  assert.equal(planEdit({ ...opened, quote: { exact: "flesh", prefix: "the ", suffix: " is" } }, opened, edit, SAVED), null);
+  assert.equal(planEdit({ ...opened, verseCopy: "x" }, opened, edit, SAVED), null);
+  assert.equal(planEdit({ ...opened, verse: 4 }, opened, edit, SAVED), null);
+  assert.equal(planEdit({ ...opened, created: "2026-10-01T00:00:00.000Z" }, opened, edit, SAVED), null);
+});
+
+test("planEdit tolerates a restamp and what changed in the fields being edited, and keeps everything else as held", () => {
+  const opened = note({ bookKey: "romans", chapter: 8, verse: 3 });
+  // Another tab saved a different body and marker, and stamped the record: the editor's wording wins.
+  const current = { ...opened, body: "from another tab", marker: "heart", modified: "2026-10-08T00:00:00.000Z", client: "ios/9", novel: { a: [1] } };
+  // A field the editor did not open with is a change it never saw, so it blocks; one it did open with is carried.
+  assert.equal(planEdit(current, opened, edit, SAVED), null);
+  const both = { ...opened, novel: { a: [1] } };
+  const held = { ...both, body: "from another tab", marker: "heart", modified: "2026-10-08T00:00:00.000Z", client: "ios/9" };
+  const [saved] = planEdit(held, both, edit, SAVED).put;
+  assert.equal(saved.body, "second thoughts");
+  assert.equal(saved.marker, "question");
+  assert.equal(saved.modified, SAVED.now);
+  assert.equal(saved.client, SAVED.client);
+  assert.deepEqual(saved.novel, { a: [1] }, "a field it doesn't know is carried");
+});
+
+test("planEdit counts a property holding undefined as missing", () => {
+  const opened = note({ bookKey: "romans", chapter: 8, verse: 3 });
+  assert.notEqual(planEdit({ ...opened, extra: undefined }, opened, edit, SAVED), null);
+  assert.notEqual(planEdit(opened, { ...opened, extra: undefined }, edit, SAVED), null);
+  assert.equal(planEdit({ ...opened, extra: null }, opened, edit, SAVED), null, "null is a value");
+});
+
+test("planEdit refuses what planSave refuses", () => {
+  const opened = note({ bookKey: "romans", chapter: 8, verse: 3 });
+  assert.throws(() => planEdit(opened, opened, { body: "x", marker: "star" }, SAVED), /not saved/);
 });

@@ -14,11 +14,13 @@ import { OSIS_BOOKS, osisRef } from "../src/lib/osis.mjs";
 import { LIT_CREDIT_LINE } from "../src/lib/lit-credit.mjs";
 import { planDelete } from "../src/lib/desk-store-core.mjs";
 import {
+  MAX_NESTING,
   describeAhead,
   describeLastExport,
   describeSummary,
   escapeBody,
   exportFilename,
+  nestedTooDeep,
   parseImport,
   parseReference,
   planChanges,
@@ -408,6 +410,59 @@ test("planImport sanitizes a sheet's text whatever its format, in the trash too 
   assert.equal(sheetHere.sheetFormat, 2, "the rest of the record is carried as it arrived");
   // A sheet already clean is the same object, so a second import changes nothing.
   assert.equal(planChanges(planImport(out.plan.put, file.records, { now: "2026-10-13T00:00:00.000Z" }).plan), false);
+});
+
+/** `levels` objects nested one inside the next, the first being depth 1. */
+function nest(levels) {
+  let v = {};
+  for (let i = 1; i < levels; i++) v = { in: v };
+  return v;
+}
+
+test("nestedTooDeep counts the record itself as depth 1, and a limit of 64 by default", () => {
+  assert.equal(MAX_NESTING, 64);
+  assert.equal(nestedTooDeep({}), false);
+  assert.equal(nestedTooDeep("text"), false);
+  assert.equal(nestedTooDeep(null), false);
+  assert.equal(nestedTooDeep(nest(MAX_NESTING)), false, "exactly at the limit");
+  assert.equal(nestedTooDeep(nest(MAX_NESTING + 1)), true);
+  assert.equal(nestedTooDeep(nest(3), 3), false);
+  assert.equal(nestedTooDeep(nest(4), 3), true);
+  // Arrays count as a level, and a wide record is not a deep one.
+  assert.equal(nestedTooDeep({ a: [[{ b: 1 }]] }, 4), false);
+  assert.equal(nestedTooDeep({ a: [[{ b: {} }]] }, 4), true);
+  assert.equal(nestedTooDeep({ a: Array.from({ length: 5000 }, () => ({ b: 1 })) }), false);
+});
+
+test("nestedTooDeep reads a very deep value without overflowing the stack", () => {
+  assert.equal(nestedTooDeep(nest(10000)), true);
+});
+
+test("planImport skips a record nested too deeply, live or in the trash, and still imports the rest", () => {
+  // The audit's reproduction: a file whose record nests thousands deep, which a
+  // browser would refuse to store (a structured-clone RangeError) halfway through.
+  const deepNote = { ...make("note", { bookKey: "acts", chapter: 2, verse: 1, body: "x", marker: "note" }), extra: nest(10000) };
+  const deepGone = { ...trash, id: nextId(), record: { ...trash.record, extra: nest(10000) } };
+  const out = planImport([], [deepNote, yellow, deepGone, mark], { now: "2026-10-13T00:00:00.000Z" });
+  assert.deepEqual(out.plan.put.sort((a, b) => (a.id < b.id ? -1 : 1)), [yellow, mark].sort((a, b) => (a.id < b.id ? -1 : 1)));
+  assert.equal(out.skipped.length, 2);
+  assert.equal(out.summary.skipped, 2);
+  assert.deepEqual(out.skipped.map((s) => s.reason), ["It is nested too deeply to be kept.", "It is nested too deeply to be kept."]);
+  assert.deepEqual(out.skipped.map((s) => s.record), [deepNote, deepGone]);
+});
+
+test("planImport keeps a record nested exactly to the limit, and a sheet inside a trash record is well within it", () => {
+  // The record is depth 1, so its `extra` may hold the other 63 levels.
+  const edge = { ...make("note", { bookKey: "acts", chapter: 2, verse: 2, body: "x", marker: "note" }), extra: nest(MAX_NESTING - 1) };
+  const over = { ...make("note", { bookKey: "acts", chapter: 2, verse: 3, body: "x", marker: "note" }), extra: nest(MAX_NESTING) };
+  const gone = planDelete(sheet, { ...ctx, now: "2026-10-01T00:00:00.000Z" }).trash;
+  assert.equal(nestedTooDeep(edge), false);
+  assert.equal(nestedTooDeep(over), true);
+  assert.equal(nestedTooDeep(gone), false);
+  const out = planImport([], [edge, over, gone], { now: "2026-10-13T00:00:00.000Z" });
+  assert.deepEqual(out.plan.put.map((r) => r.id).sort(), [edge.id, gone.id].sort());
+  assert.equal(out.summary.skipped, 1);
+  assert.equal(out.skipped[0].record, over);
 });
 
 test("importing the same file twice writes nothing the second time", () => {

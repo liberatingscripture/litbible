@@ -13,10 +13,24 @@
 // builds its own plan; planWrite is what checks it before the shell commits it.
 
 import { BOOK_ORDER, bookKeyToLabel } from "../data/books.js";
-import { emptyTrashRecord, restoreFromTrash, trashRecord, validateRecord } from "./desk-records.mjs";
+import { editRecord, emptyTrashRecord, restoreFromTrash, trashRecord, validateRecord } from "./desk-records.mjs";
 
 /** The BroadcastChannel every tab of the notebook listens on. */
 export const CHANNEL = "lit-desk";
+
+/**
+ * Whether two values are the same, with a property holding `undefined` counting
+ * as missing (JSON, and so the apps, can't tell the two apart).
+ */
+export function deepEqual(a, b) {
+  if (Object.is(a, b)) return true;
+  if (typeof a !== "object" || typeof b !== "object" || a === null || b === null) return false;
+  if (Array.isArray(a) !== Array.isArray(b)) return false;
+  if (Array.isArray(a)) return a.length === b.length && a.every((x, i) => deepEqual(x, b[i]));
+  const keys = (o) => Object.keys(o).filter((k) => o[k] !== undefined);
+  const ka = keys(a);
+  return ka.length === keys(b).length && ka.every((k) => Object.hasOwn(b, k) && deepEqual(a[k], b[k]));
+}
 
 /** The ids a plan touches, which is what the other tabs are told. */
 export function touched(plan) {
@@ -28,6 +42,28 @@ export function planSave(record) {
   const problems = validateRecord(record);
   if (problems.length) throw new Error(`desk-store: not saved (${problems.join("; ")})`);
   return { put: [record], remove: [] };
+}
+
+/**
+ * Save an edit made in an editor over the record the notebook holds now
+ * (`current`, read in the same transaction as the write), not over the copy
+ * the editor opened with (`opened`), so what changed meanwhile survives (BA6).
+ * Null, and nothing written, when the record is gone or anything besides the
+ * fields being edited has changed since it was opened (labels, a kept quote, an
+ * import), since the reader edited a version that is no longer there. A
+ * restamp alone (`modified`, `client`) isn't a change.
+ *
+ * @param {object | null} current
+ * @param {object} opened
+ * @param {object} changes the fields the editor sets, `{ body, marker }` for a note
+ * @param {{ now?: string, client?: string }} stamp
+ */
+export function planEdit(current, opened, changes, stamp) {
+  if (!current || current.id !== opened?.id || current.kind !== opened.kind) return null;
+  const ignore = new Set([...Object.keys(changes), "modified", "client"]);
+  const rest = (r) => Object.fromEntries(Object.entries(r).filter(([k]) => !ignore.has(k)));
+  if (!deepEqual(rest(current), rest(opened))) return null;
+  return planSave(editRecord(current, changes, stamp));
 }
 
 /**

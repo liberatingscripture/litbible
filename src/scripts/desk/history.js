@@ -37,6 +37,7 @@ import {
   redoPlan,
   stillCurrent,
 } from "../../lib/desk-history.mjs";
+import { planWrite } from "../../lib/desk-store-core.mjs";
 import { announce, hideUndo, showNotice, showUndo } from "./undo-bar.js";
 
 /** Input types that are not a place to type, so they don't own undo. */
@@ -73,7 +74,7 @@ let active = null;
  * Start the history for this page. Once the store is open; a second call
  * returns the first.
  *
- * @param {{ store: object, ctx: () => { client: string } }} options
+ * @param {{ store: object, ctx: () => { client: string, contentVersion: string } }} options
  * @returns {{ undo: () => Promise<boolean>, redo: () => Promise<boolean>,
  *   undoEntry: (entry: object) => Promise<boolean>, redoEntry: (entry: object) => Promise<boolean> }}
  */
@@ -106,31 +107,38 @@ export function createHistory({ store, ctx }) {
     stacks.redo = stacks.redo.filter((e) => e.id !== id);
   };
 
-  /** The notebook's records under the ids an entry touched, as they are now. */
-  async function currentOf(entry) {
-    const have = new Map();
-    for (const { id } of entry.after) have.set(id, (await store.get(id)) ?? null);
-    return have;
-  }
-
   /**
    * Take an entry back (`side` "undo") or do it again ("redo"). True when it
    * was; false when it was overtaken (and has been forgotten), which the bar
    * says. A store that fails to write throws, for the caller to report.
+   *
+   * The check and the write are one transaction (store.change), so another
+   * tab's change can't land between them and be overwritten (BA13).
    */
   async function step(entry, side) {
     const from = side === "undo" ? "undo" : "redo";
     const into = side === "undo" ? "redo" : "undo";
 
-    if (!stillCurrent(entry, await currentOf(entry), side)) {
+    const { client, contentVersion } = ctx();
+    const stamp = { now: new Date().toISOString(), client, contentVersion };
+    let overtaken = false;
+    await store.change(
+      async ({ get }) => {
+        const have = new Map();
+        for (const { id } of entry.after) have.set(id, (await get(id)) ?? null);
+        if (!stillCurrent(entry, have, side)) {
+          overtaken = true;
+          return null;
+        }
+        return planWrite(side === "undo" ? inversePlan(entry, stamp) : redoPlan(entry, stamp));
+      },
+      { record: false },
+    );
+    if (overtaken) {
       forget(entry.id);
       showNotice(`That was changed since, so it can’t be ${side === "undo" ? "undone" : "redone"} here.`);
       return false;
     }
-
-    const stamp = { now: new Date().toISOString(), client: ctx().client };
-    const plan = side === "undo" ? inversePlan(entry, stamp) : redoPlan(entry, stamp);
-    await store.commit(plan, { record: false });
 
     stacks[from] = stacks[from].filter((e) => e.id !== entry.id);
     stacks[into] = pushEntry(stacks[into], entry, HISTORY_LIMIT);
