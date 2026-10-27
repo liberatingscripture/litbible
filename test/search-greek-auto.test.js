@@ -8,7 +8,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 
-import { countLine } from "../src/lib/greek-query.mjs";
+import { countLine, isCommandQuery } from "../src/lib/greek-query.mjs";
 import { foldGreek } from "../src/lib/greek-search.mjs";
 
 const publicDir = (rel) => fileURLToPath(new URL(`../public/${rel}`, import.meta.url));
@@ -124,4 +124,28 @@ test("the single-word options still reach it", async () => {
 
 test.after(() => {
   console.warn = warn;
+});
+
+// ── Fixes from the FA1-k audit ──────────────────────────────────────────
+
+test("BA45: two or three plain words that are a whole gloss are the gloss, even holding a command word", async () => {
+  // "be next to" and "be exactly" end in a command word, which a command drops.
+  for (const q of ["present time", "in the middle", "next day", "in order to", "be next to", "be exactly"]) {
+    assert.equal(isCommandQuery(q), true, `${q} reads as a command`);
+    const res = await searchGreekAuto("/", q);
+    assert.notEqual(res.kind, "commands", q);
+    assert.equal(res.kind, "latin", q);
+    assert.ok(res.lemmas.length > 0, q);
+    assert.ok(res.lemmas.some((l) => l.how === "lit" || l.how === "sense" || (l.how === "gloss" && l.glossHeads.includes(q))), q);
+  }
+  assert.equal((await searchGreekAuto("/", "present time")).lemmas[0].lemma, "δεῦρο");
+  assert.ok((await searchGreekAuto("/", "next day")).lemmas.some((l) => l.lemma === "ἐπαύριον"));
+  assert.ok((await searchGreekAuto("/", "in order to")).lemmas.some((l) => l.lemma === "ἵνα"));
+});
+
+test("BA45: a command of plain words that is no gloss is still a command", async () => {
+  const res = await searchGreekAuto("/", "pistis genitive");
+  assert.equal(res.kind, "commands");
+  assert.equal(res.error, null);
+  assert.ok(res.hits.length > 0);
 });
