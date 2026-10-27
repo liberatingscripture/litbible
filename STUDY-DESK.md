@@ -58,7 +58,7 @@ are recorded so they aren't re-argued.
   bold and italic, and Word's lists come back as lists (BA68, BA71, BA73),
   typing just before a tab closes is kept (BA72), and Ctrl+Z on the
   formatting toolbar undoes the typing rather than the saved text (BA74).
-  FA1-k is done (#PRNUM): a broad construction search no longer freezes the
+  FA1-k is done (#383): a broad construction search no longer freezes the
   tab, and a search joins at most four words (BA44); an English gloss
   holding a command word ("present time", "in order to") finds its word
   (BA45; BVJ's calls in "Decisions", 2026-10-27); ".gen" alone is any
@@ -6662,7 +6662,7 @@ The phases, in working order:
 | FA1-h | Marks on the page | done, #380: BA16, BA17, BA19, BA20, BA23 |
 | FA1-i | Sheet templates and passages | done, #381: BA69, BA70, BA75, BA76, BA77, BA127 |
 | FA1-j | The sheet editor: pasting and saving | done, #382: BA68, BA71, BA72, BA73, BA74 |
-| FA1-k | Greek search commands | done, #PRNUM: BA44, BA45, BA48, BA49, BA50, BA116 |
+| FA1-k | Greek search commands | done, #383: BA44, BA45, BA48, BA49, BA50, BA116 |
 | FA1-l | /desk's LIT pane and layout | BA54, BA56, BA57, BA58, BA60, BA61 |
 | FA1-m | The tour, first use, and printing | BA33, BA34, BA35, BA36, BA37 |
 | FA1-n | Present mode and the sheet page | BA79, BA83, BA84, BA85, BA86 |
