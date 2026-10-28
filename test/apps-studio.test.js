@@ -15,7 +15,7 @@ import {
 } from "../scripts/apps-studio/core.mjs";
 import { buildBoardCss, SOURCES } from "../scripts/apps-studio/board-css.mjs";
 import { inline, band, leavesSite } from "../src/components/apps/render.ts";
-import { inline as boardInline, band as boardBand, smartQuotes as boardQuotes } from "../scripts/apps-studio/board/page.js";
+import { inline as boardInline, band as boardBand, smartQuotes as boardQuotes, renderPage } from "../scripts/apps-studio/board/page.js";
 
 const repo = fileURLToPath(new URL("..", import.meta.url));
 
@@ -90,7 +90,7 @@ test("the Studio's lists match the site's schema", () => {
 
 // --- Changing it -----------------------------------------------------------------
 
-test("an edit applies when the page still says what Brandon saw", () => {
+test("an edit applies when the page still says what BDR saw", () => {
   const m = readModel(repoFiles());
   const hero = m.sections.find((s) => s.id === "hero");
   const c = change("set", { path: ["sections", "hero", "title"], before: hero.title, after: "A New Testament for *everyone*." });
@@ -197,6 +197,33 @@ test("the schema check catches what would break the page", () => {
   assert.match(problems, /straight double quote/);
 });
 
+test("a link or store button takes only an address the page can safely use", () => {
+  const m = readModel(repoFiles());
+  const about = m.sections.find((s) => s.id === "about");
+  const hero = m.sections.find((s) => s.id === "hero");
+  for (const href of ["https://example.org/", "/privacy", "#join", "mailto:hello@example.org"]) {
+    about.link.href = href;
+    hero.buttons[0].href = href;
+    assert.deepEqual(validateModel(m), [], href);
+  }
+  for (const href of ["javascript:alert(1)", " https://example.org/", "http://example.org/", "www.example.org", "//example.org", "/\\example.org", "https://example.org/a b", "data:text/html,hi"]) {
+    about.link.href = href;
+    hero.buttons[0].href = href;
+    const problems = validateModel(m).join("\n");
+    assert.match(problems, /“about” section’s link has to start with https:\/\//, href);
+    assert.match(problems, /“hero” section, button 1: its link has to start with https:\/\//, href);
+  }
+});
+
+test("the hero can't be hidden, since its title is the page's only <h1>; other sections can", () => {
+  const m = readModel(repoFiles());
+  const hide = (id) => applyChanges(m, [change("set", { path: ["sections", id, "hidden"], before: false, after: true })]).model;
+  assert.match(validateModel(hide("hero")).join("\n"), /“hero” section can’t be hidden/);
+  assert.deepEqual(validateModel(hide("about")), []);
+  const hero = readFileSync(join(repo, "src/components/apps/Hero.astro"), "utf8");
+  assert.match(hero, /<h1\b/, "the hero no longer holds the page's <h1>; revisit RULES.alwaysShown");
+});
+
 test("house-style notes flag British spelling and straight quotes", () => {
   const m = readModel(repoFiles());
   m.sections[0].subtitle = "Pick a colour you'd like";
@@ -283,6 +310,40 @@ test("a picture's spot decides where it goes and how big it ships", () => {
   assert.throws(() => planImage({ path: ["files", "/assets/screenshots/x.webp"] }, new Set()));
 });
 
+test("an archived original never overwrites one already kept", () => {
+  const taken = new Set([
+    "_source-images/screenshots/IMG_1234.PNG",
+    "_source-images/screenshots/IMG_1234-2.PNG",
+    "_source-images/screenshots/image.png",
+  ]);
+  assert.equal(planImage({ path: ["callouts", "x", "image"], upload: { name: "IMG_1234.PNG" } }, taken).archive, "_source-images/screenshots/IMG_1234-3.PNG");
+  assert.equal(planPicture({ name: "image.png" }, taken).archive, "_source-images/screenshots/image-2.png");
+  assert.equal(planPicture({ name: "fresh.png" }, taken).archive, "_source-images/screenshots/fresh.png");
+});
+
+test("a failed run gives back what it replaced and removes only what it created", async () => {
+  const { mkdtemp, writeFile: write, readFile: read, rm } = await import("node:fs/promises");
+  const { existsSync } = await import("node:fs");
+  const { tmpdir } = await import("node:os");
+  const { Undo } = await import("../scripts/apps-studio/undo.mjs");
+  const root = await mkdtemp(join(tmpdir(), "apps-studio-undo-"));
+  try {
+    await write(join(root, "icon.webp"), "old icon");
+    await write(join(root, "untouched.png"), "an older original");
+    const undo = new Undo(root);
+    await undo.remember("icon.webp");
+    await undo.remember("new.webp");
+    await write(join(root, "icon.webp"), "new icon");
+    await write(join(root, "new.webp"), "new picture");
+    await undo.run();
+    assert.equal(await read(join(root, "icon.webp"), "utf8"), "old icon");
+    assert.equal(existsSync(join(root, "new.webp")), false);
+    assert.equal(await read(join(root, "untouched.png"), "utf8"), "an older original");
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
 test("a picture added to a section is converted as a picture, and swappable once it's laid out", () => {
   // A note carries the picture; the apply step plans its file like any other.
   const plan = planPicture({ name: "iPhone Duo - Philippians 2.png", fileName: "iphone-duo-philippians-2" }, new Set());
@@ -331,6 +392,46 @@ test("the board's page styles are current with the components' own", () => {
   const committed = readFileSync(join(repo, "scripts/apps-studio/board/page.css"), "utf8");
   assert.equal(committed, buildBoardCss(files), "run `npm run studio:apps -- board-css` and commit board/page.css");
   assert.doesNotMatch(committed, /:global\(|prefers-color-scheme|\dvw\b/);
+});
+
+// The class names each component's template writes, read from its source: static
+// class="…" values, and the string literals inside class={…} and class:list={…}
+// (template literals with their ${…} parts left out, and a name cut off by one dropped).
+function templateClasses(astro) {
+  const template = astro
+    .replace(/^---[\s\S]*?\n---\n/, "")
+    .replace(/<script[\s\S]*?<\/script>/g, "")
+    .replace(/<style[\s\S]*?<\/style>/g, "");
+  const names = new Set();
+  const add = (text) => text.split(/\s+/).filter((c) => /^[a-z][\w-]*$/i.test(c) && !c.endsWith("-")).forEach((c) => names.add(c));
+  for (const m of template.matchAll(/\bclass="([^"]*)"/g)) add(m[1]);
+  for (const m of template.matchAll(/\bclass(?::list)?=\{/g)) {
+    let depth = 1;
+    let i = m.index + m[0].length;
+    const start = i;
+    while (i < template.length && depth) {
+      if (template[i] === "{") depth++;
+      else if (template[i] === "}") depth--;
+      i++;
+    }
+    const expr = template.slice(start, i - 1);
+    for (const s of expr.matchAll(/'([^']*)'|"([^"]*)"|`([^`]*)`/g)) add((s[1] ?? s[2] ?? s[3] ?? "").replace(/\$\{[^}]*\}/g, " "));
+  }
+  return names;
+}
+
+test("the board draws the page with the components' own class names", () => {
+  // A coarse markup check: it catches an element added, renamed or dropped in a
+  // component and not in board/page.js (or the reverse), not one moved within it.
+  const components = readdirSync(join(repo, "src/components/apps")).filter((f) => f.endsWith(".astro"));
+  const fromComponents = new Set();
+  for (const f of components) for (const c of templateClasses(readFileSync(join(repo, "src/components/apps", f), "utf8"))) fromComponents.add(c);
+  const html = renderPage(readModel(repoFiles()));
+  const fromBoard = new Set([...html.matchAll(/\bclass="([^"]*)"/g)].flatMap((m) => m[1].split(/\s+/)).filter(Boolean));
+  // Names the data decides at render time: a section's band, a callout's side, the carousel's live frame.
+  const fromData = /^(band--|callout--image-|is-active$)/;
+  assert.deepEqual([...fromComponents].filter((c) => !fromBoard.has(c)).sort(), [], "class names the components write and board/page.js doesn't");
+  assert.deepEqual([...fromBoard].filter((c) => !fromComponents.has(c) && !fromData.test(c)).sort(), [], "class names board/page.js writes and the components don't");
 });
 
 test("render.ts and the board draw the inline format identically", () => {

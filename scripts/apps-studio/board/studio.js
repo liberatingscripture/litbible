@@ -1,5 +1,5 @@
 /**
- * The Apps Page Studio board: Brandon edits the /apps page here, and the
+ * The Apps Page Studio board: BDR edits the /apps page here, and the
  * edits go to Claude as numbered requests.
  *
  * Its data lives in the artifact's db:
@@ -504,7 +504,7 @@ function pickImage(path) {
 
 // --- Pictures to add, and notes for Claude ---------------------------------------
 // A note is something for Claude to do by hand. It can name a section and carry
-// pictures, which is how Brandon adds a picture to a section: the apply step
+// pictures, which is how BDR adds a picture to a section: the apply step
 // converts it, and Claude lays it out from his words.
 
 function anchorName(anchor) {
@@ -989,7 +989,7 @@ function sectionPanel(id) {
     <div class="fld"><span>Place on the page</span><div class="row">
       <button type="button" class="btn" data-action="move" data-coll="sections" data-id="${esc(id)}" data-dir="-1" ${i === 0 ? "disabled" : ""}>Move up</button>
       <button type="button" class="btn" data-action="move" data-coll="sections" data-id="${esc(id)}" data-dir="1" ${i === list.length - 1 ? "disabled" : ""}>Move down</button>
-      <button type="button" class="btn" data-action="hide" data-id="${esc(id)}">${s.hidden ? "Show on the page" : "Hide from the page"}</button>
+      ${!RULES.alwaysShown.includes(s.kind) || s.hidden ? `<button type="button" class="btn" data-action="hide" data-id="${esc(id)}">${s.hidden ? "Show on the page" : "Hide from the page"}</button>` : ""}
     </div></div>
     ${RULES.duplicable.includes(s.kind) ? `<div class="row"><button type="button" class="btn" data-action="duplicate" data-id="${esc(id)}">Make a copy below</button>${isCopy ? `<button type="button" class="btn btn--danger" data-action="remove" data-coll="sections" data-id="${esc(id)}">Remove this copy</button>` : ""}</div>` : ""}
     ${s.kind === "examples" ? `

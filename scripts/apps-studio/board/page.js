@@ -124,7 +124,7 @@ export function renderPage(model, o = {}) {
   return `<div class="apps">${extra("_page", "The whole page")}${body.join("")}</div>`;
 }
 
-/** Placeholders for what Brandon asked to add: the pictures and his words, until Claude lays them out. */
+/** Placeholders for what BDR asked to add: the pictures and his words, until Claude lays them out. */
 function pendingStrip(list, name) {
   return list
     .map((p) => {

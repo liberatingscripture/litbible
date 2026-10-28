@@ -27,10 +27,15 @@ export async function readFiles(root = ROOT) {
   return files;
 }
 
-/** Every file under public/assets/, as repo paths, so new names don't collide. */
+/**
+ * Every file under public/assets/ and the archive of originals, as repo
+ * paths, so a new picture's name and its archived original's name never
+ * collide with a file already there.
+ */
 export async function takenPaths(root = ROOT) {
   const taken = new Set();
   async function walk(rel) {
+    if (!existsSync(path.join(root, rel))) return;
     for (const e of await readdir(path.join(root, rel), { withFileTypes: true })) {
       const p = `${rel}/${e.name}`;
       if (e.isDirectory()) await walk(p);
@@ -38,8 +43,10 @@ export async function takenPaths(root = ROOT) {
     }
   }
   await walk("public/assets");
+  await walk("_source-images/screenshots");
   return taken;
 }
+
 
 /** Each image's real size on disk, keyed by its src ("/assets/…"). */
 export async function imageSizes(srcs, root = ROOT) {

@@ -29,7 +29,7 @@
  *       Print the files map the board is published with (published path →
  *       repo path), for the Artifact tool's `files`.
  */
-import { readFile, rm, writeFile } from "node:fs/promises";
+import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { buildBoardCss, SOURCES } from "./board-css.mjs";
 import {
@@ -37,6 +37,7 @@ import {
   RULES, textWarnings, validateModel, writeModel,
 } from "./core.mjs";
 import { headCommit, imageSizes, processImage, readFiles, ROOT, takenPaths, unusedImages, writeAll } from "./store.mjs";
+import { Undo } from "./undo.mjs";
 
 export const BOARD_CSS = "scripts/apps-studio/board/page.css";
 
@@ -77,10 +78,12 @@ async function apply() {
   const imageNotes = [];
   const failed = [];
   const written = [];
+  const undo = new Undo();
   for (const change of changes.filter((c) => c.op === "image")) {
     try {
       const plan = planImage(change, taken);
       taken.add(plan.out);
+      if (plan.archive) taken.add(plan.archive);
       if (dry) {
         const spec = RULES.slots[plan.slot];
         const w = change.upload?.width ?? 1;
@@ -88,6 +91,8 @@ async function apply() {
         const k = spec.longest ? Math.min(1, spec.longest / Math.max(w, h)) : 1;
         images[change.key] = { src: plan.src, width: Math.round(w * k), height: Math.round(h * k) };
       } else {
+        await undo.remember(plan.out);
+        await undo.remember(plan.archive);
         const done = await processImage(change, plan, { uploadsDir });
         images[change.key] = done;
         written.push(plan.out);
@@ -99,7 +104,7 @@ async function apply() {
     }
   }
 
-  // Pictures attached to notes (a picture Brandon added to a section): each is
+  // Pictures attached to notes (a picture BDR added to a section): each is
   // converted now, once per upload however many notes share it, and listed
   // on its note's result for Claude to lay out by hand.
   const noteFiles = {};
@@ -112,9 +117,12 @@ async function apply() {
         if (!done) {
           const plan = planPicture(pic, taken);
           taken.add(plan.out);
+          taken.add(plan.archive);
           if (dry) {
             done = { file: plan.out, src: plan.src, width: pic.width ?? 0, height: pic.height ?? 0, notes: [] };
           } else {
+            await undo.remember(plan.out);
+            await undo.remember(plan.archive);
             const r = await processImage({ upload: { asset: pic.asset, name: pic.name }, frame: pic.frame }, plan, { uploadsDir });
             done = { file: plan.out, ...r };
             written.push(plan.out);
@@ -157,8 +165,9 @@ async function apply() {
   };
 
   if (problems.length) {
-    // Leave the tree as it was: take back the pictures this run made.
-    for (const rel of written) await rm(path.join(ROOT, rel), { force: true });
+    // Leave the tree as it was: remove what this run created, and give back
+    // the old bytes of anything it replaced. Nothing else is touched.
+    await undo.run();
   } else if (!dry) {
     const { writes, deletes } = writeModel(next, files);
     const retired = allResults.filter((r) => r.status === "applied").map((r) => changes.find((c) => c.key === r.key))
