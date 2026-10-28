@@ -38,7 +38,7 @@ const ACCENTS = { advent: "Advent", christmas: "Christmas", lent: "Lent", easter
 /** Each color's light and dark value (apps.css, global.css), for swatches drawn outside the page. */
 const HUES = {
   advent: ["#1A4FA0", "#6BA3E8"], christmas: ["#C62D25", "#F05252"], lent: ["#800080", "#CC66CC"],
-  easter: ["#B8860B", "#D4AF37"], ot: ["#186420", "#4DB84D"], green: ["#209D50", "#209D50"],
+  easter: ["#A67C00", "#E0B93A"], ot: ["#186420", "#4DB84D"], green: ["#209D50", "#209D50"],
 };
 const RESULT = {
   applied: ["Applied", "good"], already: ["Already so", "good"], conflict: ["Needs a look", "warn"],
@@ -1083,7 +1083,7 @@ function calloutPanel(id) {
   return `
     <p class="crumb">Callout ${i + 1} of ${list.length}${isNew ? " · new" : ""}</p>
     <h2>${esc(co.title)}</h2>
-    <div class="fld"><span>Season color</span>${swatches("accent", RULES.accents, co.accent, (a) => ACCENTS[a], (a) => HUES[a])}<p class="hint">Colors the heading and tints the card.</p></div>
+    <div class="fld"><span>Season color</span>${swatches("accent", RULES.accents, co.accent, (a) => ACCENTS[a], (a) => HUES[a])}<p class="hint">Paints the card in the season’s band, as the app’s Today card is.</p></div>
     <div class="fld"><span>Picture side, on wide screens</span>${seg("imageSide", [["left", "Left"], ["right", "Right"]])}</div>
     <div class="fld"><span>The screenshot shows</span><div class="row">${seg("platform", [["ios", "iPhone"], ["android", "Android"]])}${seg("mode", [["light", "Light mode"], ["dark", "Dark mode"]])}</div><p class="hint">Used for the picture’s alt text.</p></div>
     <div class="fld"><span>Words and picture</span><ul class="outline">

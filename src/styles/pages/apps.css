@@ -90,12 +90,32 @@
   --card-lit: rgba(32, 157, 80, 0.09); /* faint LIT-green wash */
   --card-trad: var(--bg-soft);          /* neutral grey card */
 
-  /* ---- Seasonal liturgical colors (verbatim, light) ---- */
+  /* ---- Seasonal liturgical colors, the iOS app's own (LiturgicalSeason.swift) ---- */
   --season-advent: #1A4FA0;
   --season-christmas: #C62D25;
   --season-lent: #800080;
-  --season-easter: #B8860B; /* darkened gold: accessible as title text on light, matches the app */
+  --season-easter: #A67C00; /* the app's gold since 2026-09-24 */
   --season-ot: #186420;
+
+  /* ---- Season bands: the callout and carousel cards, painted like the
+     app's Today card (SeasonBand.swift). In light the band is the season's
+     own color, deepening slightly toward its foot (--band-shade, black laid
+     over the bottom; the app's 0.14 deepen comes to about 6%). After dark
+     it's the app's "Glass": the light color scaled to luminance 0.034, with
+     a deeper foot (0.62 of that, about 24% shade). Lettered white in both,
+     as the app is: on Easter's gold that measures 3.7 to 1, so
+     prefers-contrast swaps in the app's high-contrast amber below. ---- */
+  --band-advent: #1A4FA0;
+  --band-christmas: #C62D25;
+  --band-lent: #800080;
+  --band-easter: #A67C00;
+  --band-ot: #186420;
+  --band-shade: 0.06;
+}
+@media (prefers-contrast: more) {
+  :root:not([data-theme="dark"]) .apps {
+    --band-easter: #7A5C0F; /* the app's Increase Contrast amber, ~6 to 1 under white */
+  }
 }
 
 /* Dark mode — follow the site's dual mechanism (system pref + data-theme).
@@ -115,8 +135,15 @@
     --season-advent: #6BA3E8;
     --season-christmas: #F05252;
     --season-lent: #CC66CC;
-    --season-easter: #D4AF37;
+    --season-easter: #E0B93A;
     --season-ot: #4DB84D;
+
+    --band-advent: #113266;
+    --band-christmas: #651713;
+    --band-lent: #610061;
+    --band-easter: #423100;
+    --band-ot: #0E3C13;
+    --band-shade: 0.24;
   }
 }
 :root[data-theme="dark"] .apps {
@@ -132,8 +159,15 @@
   --season-advent: #6BA3E8;
   --season-christmas: #F05252;
   --season-lent: #CC66CC;
-  --season-easter: #D4AF37;
+  --season-easter: #E0B93A;
   --season-ot: #4DB84D;
+
+  --band-advent: #113266;
+  --band-christmas: #651713;
+  --band-lent: #610061;
+  --band-easter: #423100;
+  --band-ot: #0E3C13;
+  --band-shade: 0.24;
 }
 
 /* Hero scale relaxes on narrow viewports (verbatim behavior). */
