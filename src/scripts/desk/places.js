@@ -290,22 +290,31 @@ export function placesSection({ store, ctx = null, emptyText = null }) {
   const whenSeen = () => {
     if (visible()) render();
   };
-  store?.subscribe(whenSeen);
+  const unsubscribe = store?.subscribe(whenSeen);
   // Another tab's Continue reading or Read View place.
-  window.addEventListener("storage", (e) => {
+  const onStorage = (e) => {
     if (e.key === null || e.key === "lit_last_read" || e.key?.startsWith("lit_rm_resume_")) whenSeen();
-  });
+  };
+  window.addEventListener("storage", onStorage);
   // This tab's Continue reading moves as the reader reads: a slow redraw.
   let timer = 0;
-  window.addEventListener("lit:last-read", () => {
+  const onLastRead = () => {
     if (timer) return;
     timer = window.setTimeout(() => {
       timer = 0;
       whenSeen();
     }, 2000);
-  });
+  };
+  window.addEventListener("lit:last-read", onLastRead);
 
   section.refresh = () => render();
+  // For a My Notes pane on /desk, which can be closed (BA31).
+  section.destroy = () => {
+    unsubscribe?.();
+    window.removeEventListener("storage", onStorage);
+    window.removeEventListener("lit:last-read", onLastRead);
+    window.clearTimeout(timer);
+  };
   render();
   return section;
 }

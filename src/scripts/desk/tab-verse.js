@@ -80,7 +80,7 @@ const ICON_NEXT = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" s
  *   two panes' ids apart. `onVerse` hears the verse Previous or Next steps to,
  *   so the panes that share a passage move together.
  * @returns {{ el: HTMLElement, render: () => Promise<void>, setVerse: (verse: number) => void,
- *   focusHeading: () => void }}
+ *   focusHeading: () => void, destroy: () => void }}
  */
 export function createVerseTab({
   store, here, visible, panelOpen, onEdit = null, onAddNote = null, goHere = null, ctx = null, showInText = null,
@@ -477,11 +477,19 @@ export function createVerseTab({
   });
 
   // A verse's menu opened while the notebook is open picks that verse.
-  document.addEventListener("lit:panel-actions", (e) => {
+  const onPanelActions = (e) => {
     const d = e.detail;
     if (d?.kind !== "verse" || d.view !== "study" || !panelOpen()) return;
     setVerse(d.start);
-  });
+  };
+  document.addEventListener("lit:panel-actions", onPanelActions);
 
-  return { el, render, setVerse, focusHeading: () => heading.focus({ preventScroll: true }) };
+  return {
+    el,
+    render,
+    setVerse,
+    focusHeading: () => heading.focus({ preventScroll: true }),
+    // For /desk, whose This verse pane builds a tab per chapter (BA31).
+    destroy: () => document.removeEventListener("lit:panel-actions", onPanelActions),
+  };
 }

@@ -17,7 +17,8 @@
 //
 // Where it sits: beside the field if there is room to its right, else below it
 // against the window's right edge; from the Greek tab, to the left of the
-// Notebook. A reader who drags it keeps it there for the visit
+// Notebook, and from a Greek pane on /desk, which closes it with the pane or
+// on moving to another chapter, beside the pane. A reader who drags it keeps it there for the visit
 // (sessionStorage), and the first time the reader picks "Greek" as the search
 // type on /search it opens by itself, once (localStorage, no focus taken).
 //
@@ -121,7 +122,11 @@ function announce(text) {
 function insert(text, { byMouse = false } = {}) {
   if (!current) return;
   const { field } = current;
-  if (!field.isConnected) return;
+  // Its field is gone (a /desk pane closed or redrawn): so is the window (BA114).
+  if (!field.isConnected) {
+    closeGreekCommands("field");
+    return;
+  }
   const start = field.selectionStart ?? field.value.length;
   const end = field.selectionEnd ?? start;
   const { value, caret } = insertAtCursor(field.value, start, end, text);
@@ -269,6 +274,10 @@ function place(el) {
   let top = box.top;
   // From the Notebook's own tab: to the left of the Notebook.
   if (current.source === "notebook") left = right - w - GAP;
+  // From a Greek pane on /desk, which has no Notebook: beside the pane, to its
+  // left where that has room, else to its right (BA114).
+  const pane = current.source === "notebook" && !panel ? current.field.closest(".desk-pane")?.getBoundingClientRect() : null;
+  if (pane) left = pane.left - w - GAP >= EDGE ? pane.left - w - GAP : pane.right + GAP;
   // No room beside the field: below it, against the right edge.
   if (left + w > right - EDGE || left < EDGE) {
     left = right - w - GAP;

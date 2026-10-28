@@ -84,10 +84,6 @@ const HIGHLIGHT_WORDS = 24;
 // A note on a footnote quotes this many words of the footnote.
 const FOOTNOTE_WORDS = 12;
 
-// Which colour the list is narrowed to (null: everything). Kept for the visit.
-let colorFilter = null;
-// The same for the label the list is narrowed to (an id; null: everything).
-let labelFilter = null;
 // Numbers each tab's ids, since /desk can show several My Notes panes.
 let seq = 0;
 
@@ -131,10 +127,16 @@ function highlightedWords(color, words) {
  *   `visible` says whether the tab can be seen, so a hidden one isn't drawn;
  *   `afterRender` lets the panel bring its foot up to date. `ctx` and
  *   `showInText` are what the change notice's card needs.
- * @returns {{ el: HTMLElement, render: (opts?: { focusIndex?: number | null }) => Promise<void> }}
+ * @returns {{ el: HTMLElement, render: (opts?: { focusIndex?: number | null }) => Promise<void>,
+ *   follow: (passage: object) => void, destroy: () => void }}
  */
 export function createMineTab({ store, storeError, scope: pageScope = null, addAction = null, inReadView, visible, afterRender = () => {}, onEdit = null, goHere = null, ctx = null, showInText = null }) {
   const n = ++seq;
+  // Which colour the list is narrowed to (null: everything), and the label
+  // (an id; null: everything). Each tab's own, so two My Notes panes on /desk
+  // narrow apart (BA31); a tab lasts the visit.
+  let colorFilter = null;
+  let labelFilter = null;
   const el = document.createElement("div");
   el.className = "desk-mine";
   el.innerHTML = `
@@ -671,7 +673,13 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
 
   document.addEventListener(SETTINGS_EVENT, markCut);
 
-  return { el, render, follow };
+  // Take the tab down, for a My Notes pane on /desk that closes (BA31).
+  function destroy() {
+    document.removeEventListener(SETTINGS_EVENT, markCut);
+    places?.destroy();
+  }
+
+  return { el, render, follow, destroy };
 }
 
 /** The nearest ancestor that scrolls vertically, or null. */

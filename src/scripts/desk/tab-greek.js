@@ -148,7 +148,8 @@ function readTermData() {
  *   pane is moved with `goToVerse`.
  * @returns {{ el: HTMLElement, render: () => Promise<void>,
  *   selectWord: (verse: number, t: number, opts?: { focus?: boolean }) => Promise<boolean>,
- *   goToVerse: (verse: number) => Promise<void> }}
+ *   goToVerse: (verse: number) => Promise<void>, settle: () => void,
+ *   destroy: () => void }}
  */
 export function createGreekTab({
   here, visible, openVerse, source = null, startVerse = null, idSuffix = "", openHit = null, onTopVerse = null,
@@ -260,6 +261,8 @@ export function createGreekTab({
     scroller.replaceChildren(box);
   }
 
+  let destroyed = false; // taken down (destroy, below)
+
   /** Load and draw the chapter once; resolves true when the Greek is on the tab. */
   function ensure() {
     if (data) return Promise.resolve(true);
@@ -278,7 +281,8 @@ export function createGreekTab({
       )
       .then((ok) => {
         loading = null;
-        if (ok) build();
+        // A tab taken down while its chapter loaded is never built (BA115).
+        if (ok && !destroyed) build();
         return ok;
       });
     return loading;
@@ -302,6 +306,7 @@ export function createGreekTab({
     }
   }
 
+  let resizes = null; // the scroller's ResizeObserver, once built
   function build() {
     flat = flattenWords(data.paragraphs);
     verses = versesOf(flat);
@@ -365,14 +370,15 @@ export function createGreekTab({
     window.addEventListener("scroll", queueGoto, { passive: true });
     scroller.addEventListener("scroll", queueGoto, { passive: true });
     if (typeof ResizeObserver === "function") {
-      new ResizeObserver(() => {
+      resizes = new ResizeObserver(() => {
         if (pending != null && scroller.clientHeight > 0) {
           const v = pending;
           pending = null;
           scrollToVerse(v);
         }
         queueGoto();
-      }).observe(scroller);
+      });
+      resizes.observe(scroller);
     }
 
     openAtReading();
@@ -706,9 +712,10 @@ export function createGreekTab({
   splitter.setAttribute("aria-valuemax", String(MAX_SPLIT * 100));
   if (share != null) setShare(share, { keep: false });
   // "Reset widths" forgets it.
-  document.addEventListener(WIDTHS_EVENT, () => {
+  const onWidths = () => {
     if (keptGreekSplit() == null && share != null) setShare(null, { keep: false });
-  });
+  };
+  document.addEventListener(WIDTHS_EVENT, onWidths);
 
   splitter.addEventListener("pointerdown", (e) => {
     if (e.button !== 0) return;
@@ -1043,5 +1050,21 @@ export function createGreekTab({
     if (await ensure()) queueGoto();
   }
 
-  return { el, render, selectWord, goToVerse, settle };
+  /**
+   * Take the tab down for good (BA115): /desk's Greek pane builds a tab per
+   * chapter, so each must let go of the window, the document and the
+   * commands window its search opened. The Notebook's tab lives as long as
+   * the page and never calls it.
+   */
+  function destroy() {
+    destroyed = true;
+    find.close({ focus: false });
+    window.removeEventListener("scroll", queueGoto);
+    document.removeEventListener(WIDTHS_EVENT, onWidths);
+    resizes?.disconnect();
+    window.clearTimeout(litTimer);
+    cancelAnimationFrame(splitFrame);
+  }
+
+  return { el, render, selectWord, goToVerse, settle, destroy };
 }

@@ -11,8 +11,8 @@
 // mark's anchor is measured against (desk-anchor-dom.mjs).
 //
 // One fetch per chapter per visit, shared by every pane (the browser's
-// cache does the rest). The page is parsed with DOMParser, so nothing in it
-// runs or loads.
+// cache does the rest), and of each only what the panes read is kept (BA65).
+// The page is parsed with DOMParser, so nothing in it runs or loads.
 
 import { pageAnchorText } from "../../lib/desk-anchor-dom.mjs";
 import { footnotesFromDom } from "../../lib/desk-footnotes.mjs";
@@ -25,16 +25,31 @@ const loaded = new Map(); // "john 3" → source, once its page has been read
 /** The chapter's Study View address. */
 export const chapterHref = (bookKey, chapter) => `${BASE}${bookKey}-${chapter}/`;
 
-function read(doc, bookKey, chapter) {
+/**
+ * The parts of a parsed page the panes read, moved into a document of their
+ * own, so the rest of the page (its header, footer, scripts and styles) can
+ * go (BA65): the text, the footnotes and Go deeper. The key-term data and the
+ * content version are read before this, as values.
+ */
+function keepParts(doc, textBox) {
+  const kept = document.implementation.createHTMLDocument("");
+  const parts = [textBox, ...doc.querySelectorAll("ol.footnotes"), doc.querySelector(".go-deeper")];
+  for (const part of parts) if (part) kept.body.append(part);
+  return kept;
+}
+
+function read(page, bookKey, chapter) {
   let pinnable; // the footnotes as pins read them, worked out once
-  const article = doc.querySelector("article.chapter");
-  const textBox = doc.querySelector(".chapter-paragraphs");
+  const article = page.querySelector("article.chapter");
+  const textBox = page.querySelector(".chapter-paragraphs");
   // A draft chapter has no LIT text yet (indexed: false), only its Greek.
   const draft = !textBox || article?.dataset.draftBook === bookKey;
   let termData = null;
   try {
-    termData = JSON.parse(doc.getElementById("term-lens-data")?.textContent || "null");
+    termData = JSON.parse(page.getElementById("term-lens-data")?.textContent || "null");
   } catch (_) {}
+  const contentVersion = page.documentElement?.dataset.contentVersion || null;
+  const doc = keepParts(page, textBox);
   const verses = Array.from(textBox?.querySelectorAll('sup.vn[id^="v"]') ?? [])
     .map((m) => Number(m.id.slice(1)))
     .filter(Number.isFinite);
@@ -63,8 +78,9 @@ function read(doc, bookKey, chapter) {
     goDeeper: doc.querySelector(".go-deeper"),
     // The content version the page was built from (<html data-content-version>),
     // which a sheet's "Text as of" line and its comparison copies name.
-    contentVersion: doc.documentElement?.dataset.contentVersion || null,
-    // The page itself, where a handout copied in the LIT pane reads its notes.
+    contentVersion,
+    // The parts kept (keepParts), where a handout copied in the LIT pane reads
+    // its notes, and a sheet walks the text.
     doc,
     footnoteBody: (id) => doc.getElementById(id)?.querySelector(".fn-body") ?? null,
     // Read fresh each time, like page.js's chapterText.

@@ -28,7 +28,8 @@
 // - **Where the reader is** is the verse at the reading line, a quarter of
 //   the way down, told to `onPlace` only when the reader's own scrolling
 //   moved it (the Greek pane's rule), so a pane sent somewhere never chases
-//   the panes that follow it.
+//   the panes that follow it. A chapter in a stub is told only once the
+//   reader stops on it (BA64).
 // - **The verse menu and the selection panel are Study View's own** (3f;
 //   chapter-tools.js's attachVerseTools), with the pane as one more view:
 //   each chapter names its own reference and link, and "Copy with
@@ -63,6 +64,8 @@ import { createPassageBar } from "./passage-bar.js";
 const LINE = 0.25;
 /** How much text to keep ready beyond each edge, in pane heights. */
 const AHEAD = 1.5;
+/** How long the reading line rests in a stub before its chapter is told, in ms. */
+const STUB_SETTLE = 300;
 
 function make(tag, cls, text) {
   const e = document.createElement(tag);
@@ -107,6 +110,7 @@ export function createLitPane({ paneId, start, drafts, onPlace }) {
   let stalled = false; // a chapter below failed to load; Try again clears it
   let stalledUp = false; // a chapter above failed to load; Try again clears it
   let told = null; // the passage last told to onPlace (or gone to)
+  let stubWait = 0; // a place in a stub, told once the reader stops there (BA64)
   let readerMoved = false;
   let destroyed = false;
   const lenses = [];
@@ -403,6 +407,9 @@ export function createLitPane({ paneId, start, drafts, onPlace }) {
     if (!force && told && sameChapter(told, p) && told.verse === p.verse) return;
     told = p;
     readerMoved = false;
+    // A stub's place still waiting is the reader's old one: going elsewhere drops it.
+    clearTimeout(stubWait);
+    stubWait = 0;
     bar.update(p);
     const i = unitIndex(units, p.bookKey, p.chapter);
     if (i < 0) return;
@@ -452,8 +459,17 @@ export function createLitPane({ paneId, start, drafts, onPlace }) {
       if (!resized()) note();
       fill();
       if (!readerMoved) return;
+      clearTimeout(stubWait);
+      stubWait = 0;
       const p = placeNow();
       if (!p || (told && sameChapter(told, p) && told.verse === p.verse)) return;
+      // Scrolling past a stub runs through its chapters by the frame (Acts
+      // has 28), and each would send the following panes to fetch one, so a
+      // chapter there is told only once the reader stops on it (BA64).
+      if (units[Number(sectionAtLine()?.dataset.unit)]?.draft) {
+        stubWait = setTimeout(() => { stubWait = 0; tell(p); }, STUB_SETTLE);
+        return;
+      }
       tell(p);
     });
   }, { passive: true });
@@ -517,6 +533,7 @@ export function createLitPane({ paneId, start, drafts, onPlace }) {
       seq++;
       ro.disconnect();
       if (frame) cancelAnimationFrame(frame);
+      clearTimeout(stubWait);
       for (const l of lenses.splice(0)) l?.destroy?.();
       tools.destroy();
       offDesk();
