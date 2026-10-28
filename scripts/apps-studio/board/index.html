@@ -211,12 +211,13 @@
   /* The Studio's marks on the page. --inv undoes the page's scale, so a
      2px outline is 2px on screen at any zoom. */
   .canvas[data-mode="edit"] .replica :is([data-edit], [data-link]) { cursor: text; }
-  .canvas[data-mode="edit"] .replica :is([data-image], [data-season], [data-callout], [data-example]) { cursor: pointer; }
+  .canvas[data-mode="edit"] .replica :is([data-image], [data-season], [data-callout], [data-carousel-card], [data-example]) { cursor: pointer; }
   .canvas[data-mode="edit"] .replica :is([data-edit], [data-link], [data-image]):hover {
     outline: calc(2px * var(--inv, 1)) solid var(--st-select);
     outline-offset: calc(3px * var(--inv, 1));
   }
   .canvas[data-mode="edit"] .replica [data-callout]:hover,
+  .canvas[data-mode="edit"] .replica [data-carousel-card]:hover,
   .canvas[data-mode="edit"] .replica [data-example]:hover { box-shadow: 0 0 0 calc(2px * var(--inv, 1)) var(--st-select-soft); }
   .canvas[data-mode="edit"] .replica .is-changed {
     outline: calc(1.5px * var(--inv, 1)) dashed var(--st-select);

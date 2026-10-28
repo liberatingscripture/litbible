@@ -127,7 +127,8 @@ the templates, and would publish without anyone applying this repo's rules.
 - **The board's data** is its artifact database: `studio/page` (the seed: the
   page model, the rules and each image's size, written by Claude from
   `npm run studio:apps -- seed`), `studio/draft` (BDR's unsent edits; Claude
-  never writes it), and `requests/rNNNN` (sent batches, whose `status`,
+  never writes it; the board saves typing when the field is left, and never
+  redraws a panel while a text field has focus, since that drops the caret), and `requests/rNNNN` (sent batches, whose `status`,
   `results`, `calls`, `pr`, `preview` and `log` Claude updates). Uploaded
   pictures are in its asset store; a change holds the asset id.
 - **`scripts/apps-studio/core.mjs` is the one rule set**: reading the content
