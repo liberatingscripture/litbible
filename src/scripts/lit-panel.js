@@ -12,7 +12,7 @@
 // frame (audit C12). A click inside it doesn't close a floating panel, and a
 // floating panel is placed clear of it.
 
-import { dockWidth, inDock } from "./desk-frame.js";
+import { inDock, panelRoom, shiftClearOfDock } from "./desk-frame.js";
 
 let openPanel = null;
 
@@ -23,6 +23,22 @@ let openPanel = null;
  */
 export function currentPanel() {
   return openPanel;
+}
+
+/**
+ * Move the open panel left, clear of the Notebook, after the Notebook grew
+ * under it (BA28): desk/margin.js calls this when a placement widens the room
+ * the Notebook keeps (expanding from its tab, a wider floating width). Moved,
+ * not closed, since the panel may be a note editor holding unsaved words. A
+ * bottom sheet spans the window and stays, as does a panel where the room left
+ * is too small to hold one (panelRoom), and one the reader is dragging, whose
+ * next move would put it back under the pointer.
+ */
+export function keepClearOfDock() {
+  const el = openPanel?.el;
+  if (!el || el.classList.contains("lit-panel--sheet") || el.classList.contains("lit-panel--dragging")) return;
+  const by = shiftClearOfDock(el.getBoundingClientRect(), panelRoom());
+  if (by) el.style.left = `${(parseFloat(el.style.left) || 0) - by}px`;
 }
 
 export function closePanel() {
@@ -89,7 +105,7 @@ export function showPanel(trigger, el, { restoreFocus = null, onClose = null, ex
   } else {
     document.body.appendChild(el);
     const rect = trigger.getBoundingClientRect();
-    const room = window.innerWidth - dockWidth();
+    const room = panelRoom();
     const panelWidth = Math.min(380, room - 24);
     el.style.maxWidth = panelWidth + "px";
     const width = el.offsetWidth;

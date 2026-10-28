@@ -101,6 +101,33 @@ export function dockWidth() {
   return Number.isFinite(v) ? v : 0;
 }
 
+// The least room a floating panel is squeezed into beside the Notebook (BA27).
+// The Notebook floating expanded can be dragged to nearly the window's width,
+// which left a verse menu 60px wide; below this, a panel lies over the
+// Notebook instead (it sits above the rail: global.css, desk.css).
+export const MIN_PANEL_ROOM = 300;
+
+/**
+ * The width, from the window's left edge, a floating panel may use: the
+ * window less the room the open Notebook keeps for itself, or the whole
+ * window where that would leave less than MIN_PANEL_ROOM.
+ */
+export function panelRoom(viewport = window.innerWidth, dock = dockWidth()) {
+  const room = viewport - dock;
+  return room < MIN_PANEL_ROOM ? viewport : room;
+}
+
+/**
+ * How far left a panel spanning `left` to `right` (window px) moves to end
+ * `edge` short of `room`, never past `edge` from the window's left (BA28: the
+ * Notebook grew under a panel already open). 0 when it is already clear.
+ */
+export function shiftClearOfDock({ left, right }, room, edge = 12) {
+  const over = right - (room - edge);
+  if (over <= 0) return 0;
+  return Math.max(0, Math.min(over, left - edge));
+}
+
 /** Whether an event target sits inside the panel. */
 export function inDock(target) {
   return target instanceof Element && Boolean(target.closest(DOCK_SELECTOR));
