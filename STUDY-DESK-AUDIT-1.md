@@ -121,7 +121,7 @@ it goes after both, and FA1-ac after FA1-t.
 | FA1-r | /desk's smaller fixes | BA31, BA62, BA63, BA64, BA65, BA114, BA115 | done, #398 |
 | FA1-s | Greek credits and the notebook search | BA40, BA46, BA47 | done, #399 |
 | FA1-t | Copy and docs | BA15, BA38, BA39, BA42, BA43, BA91, BA109, BA118 | done, #400 |
-| FA1-w | What's new for you | BA88, BA90, BA92, BA96, BA97, BA98 | open |
+| FA1-w | What's new for you | BA88, BA90, BA92, BA96, BA97, BA98 | done, #401 |
 | FA1-x | A note's references | BA89, BA93, BA94, BA95 | open |
 | FA1-y | Ribbons and Continue reading | BA99 to BA108 | open |
 | FA1-z | The Greek tab | BA110, BA111, BA112, BA113, BA117, BA119, BA120 | open |
@@ -1483,7 +1483,7 @@ chapters, intros, glossary, articles) rightly yield none.
     a Try again button.
   - *Check*: a test with a `fetch` that fails once and then succeeds: the
     second `loadReleaseNotes()` fetches again.
-  - Status: open.
+  - Status: **Fixed in #401** (FA1-w). `loadReleaseNotes` forgets a failed fetch, so the next call fetches again; the notebook page's message has a Try again button. Tested in `test/release-feed.test.js` (a fetch that fails once, then succeeds).
 - **BA89 (medium; reproduced; BVJ chose the stricter mode, 2026-10-26). A bare
   number after a reference in a note links as a verse.**
   - *What happens*: notes use the shared linker as footnotes do, and its
@@ -1523,7 +1523,7 @@ chapters, intros, glossary, articles) rightly yield none.
     `footnote_updated`, and name them with `recordWhere` (“your note on a
     footnote in Luke 24:4”), kept apart from the verse's own note.
   - *Check*: `marksTouched(textChange, [noteOnFootnote])` is empty.
-  - Status: open.
+  - Status: **Fixed in #401** (FA1-w). `marksTouched` lets a pinned footnote or a note on a footnote match only `footnote_added` and `footnote_updated` (`onAFootnote`), and `markLinks` names a footnote note with `recordWhere` (“your note on a footnote in Luke 24:4”), apart from a note on the verse. Tested in `test/desk-whats-new.test.js` and `test/desk-whats-new-view.test.js`.
 - **BA91 (low, copy; reproduced). “Touches …” has no Oxford comma and names
   the verse each time.**
   - *What happens*: “Touches your note on Luke 24:4, your highlight on Luke
@@ -1550,7 +1550,7 @@ chapters, intros, glossary, articles) rightly yield none.
     more changes on that date as New; compare the mark's Pacific day.
   - *Check*: tests with a folded same-day entry and a `v20261026.*` mark
     against an entry dated 2026-10-25.
-  - Status: open.
+  - Status: **Fixed in #401** (FA1-w). “Last looked” is saved as the day and its publish's change count (`"2026-10-26+3"`, `seenValue`); `isNewChange` treats changes past the count on that day as New, and an old bare day reads as before. `textDay` reads a timestamp as its Pacific day and a content version's UTC day as the day before. Tested with a folded same-day entry and a `v20261026.*` mark against an entry dated 2026-10-25.
 - **BA93 (low; traced). “Mentioned in your note on…” lists notes in no
   order.**
   - *What happens*: `notesCiting` keeps `store.all()`'s order, which is
@@ -1589,7 +1589,7 @@ chapters, intros, glossary, articles) rightly yield none.
     record change or reload, linking to a page where nothing is New.
   - *Where*: `store.js:122–126`; `tab-mine.js:370–385`.
   - *Fix*: post a channel message when `whatsNewSeen` is set.
-  - Status: open.
+  - Status: **Fixed in #401** (FA1-w). `setMeta` posts a meta message of its own (`metaMessage`, which `readChangeMessage` ignores) and `store.onMeta` hears it, so the Notebook panel and /desk's My Notes pane redraw the line without every tab redrawing its marks. Tested in `test/desk-store-core.test.js`; the two-tab redraw itself is not.
 - **BA97 (low; traced). The What's new section redraws whole on every change
   and has no error path.**
   - *What happens*: any notebook change, in any tab, rebuilds the list, so
@@ -1597,7 +1597,7 @@ chapters, intros, glossary, articles) rightly yield none.
     and an unhandled rejection (`notebook-page.js:156`).
   - *Where*: `whats-new.js:134–181`.
   - *Fix*: skip a redraw when what it finds is unchanged; catch and say so.
-  - Status: open.
+  - Status: **Fixed in #401** (FA1-w). The list is rebuilt only when what it shows changed (a signature of the drawn publishes), and a failed read says “Your notebook couldn’t be read just now.” with Try again instead of an unhandled rejection. Not unit-tested (DOM).
 - **BA98 (low, tests; traced). A `text_updated` row without verses says
   nothing, and no test reads the whole feed.**
   - *What happens*: the drafter can write “John 7 — updated” and “John 7 —
@@ -1609,7 +1609,7 @@ chapters, intros, glossary, articles) rightly yield none.
   - *Where*: `desk-change.mjs:425–472`; `test/desk-whats-new.test.js:213–227`.
   - *Fix*: read such a row as the whole chapter; add a test that every
     `text_updated` row in the real feed yields verses.
-  - Status: open.
+  - Status: **Fixed in #401** (FA1-w). `changeVerses` reads a `text_updated` row that names no verse as the whole chapter, its chapter taken from “John 7 — updated” when there is no `location`. A test checks that every `text_updated` row in the real feed (238 today) yields verses.
 
 ### Area 2: places and ribbons (done 2026-10-26)
 
