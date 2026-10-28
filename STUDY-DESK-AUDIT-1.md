@@ -69,7 +69,7 @@ once, so these rules keep a session inside one window:
    page. Cloud sessions have Playwright and Chromium ready.
 6. **Stop cleanly.** If a session runs long, stop at a finding boundary,
    mark the rest open here, and push what is done.
-7. **Close the loop.** Mark each finding's status here ("Fixed in #NNN").
+7. **Close the loop.** Mark each finding's status here ("Fixed in #391").
    Write any BVJ call into STUDY-DESK.md's decision log. Update CLAUDE.md's
    desk rule if behavior it describes changed.
 
@@ -115,7 +115,7 @@ it goes after both, and FA1-ac after FA1-t.
 | FA1-l | /desk's LIT pane and layout | BA54, BA56, BA57, BA58, BA60, BA61 | done, #387 |
 | FA1-m | The tour, first use, and printing | BA33, BA34, BA35, BA36, BA37 | done, #388 |
 | FA1-n | Present mode and the sheet page | BA79, BA83, BA84, BA85, BA86 | done, #390 |
-| FA1-o | Announcements and focus for marks | BA18, BA21, BA22 | done, #NNN |
+| FA1-o | Announcements and focus for marks | BA18, BA21, BA22 | done, #391 |
 | FA1-p | Panels beside the Notebook | BA24, BA27, BA28 | open |
 | FA1-q | The gate and first paint | BA25, BA26, BA29, BA30 | open |
 | FA1-r | /desk's smaller fixes | BA31, BA62, BA63, BA64, BA65, BA114, BA115 | open |
@@ -1054,7 +1054,7 @@ screen reader if one is at hand, or the accessibility tree.
   - *Fix*: announce after each successful write, through `undo-bar.js`:
     “Note saved on Romans 8:3.”, “Bookmarked Romans 8:28.”, “Highlighted
     yellow: Romans 8:4–5.”
-  - Status: **Fixed in #NNN.** `src/lib/desk-announce.mjs` holds the three
+  - Status: **Fixed in #391.** `src/lib/desk-announce.mjs` holds the three
     sentences; `note-editor.js` (new or edited note) and `actions.js`
     (bookmark; a highlight that touches no other colour, since one that does
     already speaks through its undo notice) call `announce` after the write
@@ -1071,7 +1071,7 @@ screen reader if one is at hand, or the accessibility tree.
     `note-editor.js:180–188`.
   - *Fix*: after a delete, focus the verse number or the next note. On a
     redraw, re-bind the popover to the new circle or close it.
-  - Status: **Fixed in #NNN.** `notes-margin.js`: `draw` notes the next note
+  - Status: **Fixed in #391.** `notes-margin.js`: `draw` notes the next note
     before it clears the aside, and when focus was on a control the drawing no
     longer has, `focusGone` puts it on the verse number the note sat on, else
     the next note (a note on a glossary entry or an article has no verse
@@ -1093,7 +1093,7 @@ screen reader if one is at hand, or the accessibility tree.
     (`verseLabel`). Rule 7 names highlights and counts notes; bookmarks, the
     one mark Read View also shows, are left out.
   - *Recommended*: “Verse 28, bookmarked”.
-  - Status: **Fixed in #NNN** with the recommended wording (BVJ, 2026-10-27).
+  - Status: **Fixed in #391** with the recommended wording (BVJ, 2026-10-27).
     `verseLabel` takes `bookmarked` and puts it right after the number, before
     the highlights (“Verse 3, bookmarked, highlighted yellow, 1 note of
     mine”); `bookmarkedVerses` reads it from the chapter's records, and it
