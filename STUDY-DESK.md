@@ -144,7 +144,7 @@ are recorded so they aren't re-argued.
   keeps its list, and the reader's focus, through an unchanged redraw and
   says so when the notebook can't be read (BA97); and a `text_updated` row
   naming no verse reads as the whole chapter (BA98).
-  FA1-x is done (#NNN): a reader's note is linked in a note mode of the
+  FA1-x is done (#402): a reader's note is linked in a note mode of the
   linker, in which a list continues only with a chapter:verse (“Romans
   8:28, 3 reasons” and “8:28, 30” link 8:28 alone) and a verse past a
   chapter's end links nothing, from a committed table of verse counts
@@ -6888,7 +6888,7 @@ The phases, in working order:
 | FA1-s | Greek credits and the notebook search | done, #399: BA40, BA46, BA47 |
 | FA1-t | Copy and docs | done, #400: BA15, BA38, BA39, BA42, BA43, BA91, BA109, BA118 |
 | FA1-w | What's new for you | done, #401: BA88, BA90, BA92, BA96, BA97, BA98 |
-| FA1-x | A note's references | done, #NNN: BA89, BA93, BA94, BA95 |
+| FA1-x | A note's references | done, #402: BA89, BA93, BA94, BA95 |
 | FA1-y | Ribbons and Continue reading | BA99 to BA108 |
 | FA1-z | The Greek tab | BA110, BA111, BA112, BA113, BA117, BA119, BA120 |
 | FA1-aa | /desk's panes and the shared modules | BA121 to BA126 |
