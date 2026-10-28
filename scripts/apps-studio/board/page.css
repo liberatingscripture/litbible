@@ -97,7 +97,7 @@
   --band-shade: 0.06;
 }
 @media (prefers-contrast: more) {
-  :root:not([data-theme="dark"]) .apps {
+  :root[data-theme="light"] .apps {
     --band-easter: #7A5C0F;
   }
 }

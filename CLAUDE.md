@@ -343,6 +343,9 @@ The table of every script in `scripts/` and its role is in `scripts/CLAUDE.md`.
     bookmarks, and the Greek.”
   - Quotes are curly (“ ” and ‘ ’), as the chapter JSON rule below requires
     for scripture.
+  - **No em dashes in prose Claude writes for the site** (BVJ, 2026-10-28),
+    alt text included: use a comma, colon or parentheses. Ones already in
+    the owner's text stay.
   This governs text Claude writes. **The translation, footnotes, intros and
   articles are the owner's** and come from the Word masters, so a British
   form found there is reported to BVJ, never silently changed. A 2026-10-13

@@ -23,7 +23,7 @@ const callouts = (await getCollection('callouts')).sort(
         return (
           <article
             class={`callout callout--image-${side}`}
-            style={`--callout-accent: var(--season-${c.data.accent}); --callout-band: var(--band-${c.data.accent});`}
+            style={`--callout-band: var(--band-${c.data.accent});`}
           >
             <div class="callout__copy">
               <h3 class="callout__title">{c.data.title}</h3>

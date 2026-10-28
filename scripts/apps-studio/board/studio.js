@@ -627,9 +627,11 @@ function renderFromDb() {
   if (st.seed) renderAll();
 }
 
+// Leaving a field saves it, even straight into another field: saving
+// redraws nothing, since the board ignores the echo of its own save.
 document.addEventListener("focusout", () => setTimeout(() => {
-  if (typing()) return;
   if (st.dirty) flush();
+  if (typing()) return;
   if (renderLater) { renderLater = false; if (st.seed) renderAll(); }
 }, 0));
 

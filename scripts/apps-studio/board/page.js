@@ -256,7 +256,7 @@ function callout(co, c) {
     ? `<img src="${escapeHtml(c.img(co.image))}" alt="${escapeHtml(alt)}" ${edc(c, [...p, "image"], "callout__phone")} loading="lazy" decoding="async"${im(c, [...p, "image"], "Callout picture", "phone")}>`
     : c.editable ? `<button type="button" class="studio-drop" data-image="${escapeHtml(pathKey([...p, "image"]))}" data-label="Callout picture" data-slot="phone">Add a picture</button>` : "";
   const sel = c.editable ? ` data-callout="${escapeHtml(co.id)}" data-label="Callout"` : "";
-  return `<article class="callout callout--image-${co.imageSide}" style="--callout-accent: var(--season-${co.accent}); --callout-band: var(--band-${co.accent});"${sel}><div class="callout__copy"><h3 ${edc(c, [...p, "title"], "callout__title")}${ed(c, [...p, "title"], "Callout heading", "line")}>${escapeHtml(co.title)}</h3><div ${edc(c, [...p, "body"], "callout__body")}${ed(c, [...p, "body"], "Callout text", "paragraphs")}>${paragraphs(co.body)}</div></div><div class="callout__image">${img}</div></article>`;
+  return `<article class="callout callout--image-${co.imageSide}" style="--callout-band: var(--band-${co.accent});"${sel}><div class="callout__copy"><h3 ${edc(c, [...p, "title"], "callout__title")}${ed(c, [...p, "title"], "Callout heading", "line")}>${escapeHtml(co.title)}</h3><div ${edc(c, [...p, "body"], "callout__body")}${ed(c, [...p, "body"], "Callout text", "paragraphs")}>${paragraphs(co.body)}</div></div><div class="callout__image">${img}</div></article>`;
 }
 
 function carousel(s, c) {
@@ -268,7 +268,7 @@ function carousel(s, c) {
   const chips = seasons
     .map((se, i) => {
       const on = i === active;
-            const sel = c.editable ? ` data-season="${escapeHtml(se.id)}" data-label="Season"` : "";
+      const sel = c.editable ? ` data-season="${escapeHtml(se.id)}" data-label="Season"` : "";
       return `<button class="church-year__chip${on ? " is-active" : ""}" role="listitem" data-index="${i}" data-accent-var="${escapeHtml(se.colorVar)}" aria-pressed="${on}"${sel}><span class="church-year__dot" style="background-color: var(${se.colorVar});" aria-hidden="true"></span><span class="church-year__chip-label${mark(c, ["seasons", se.id, "name"])}">${escapeHtml(se.name)}</span></button>`;
     })
     .join("");
