@@ -42,7 +42,12 @@ Every write to an existing document needs `if_version` from your last read. Appe
 7. Read the report and the diff (`git status`, `git diff`), then deal with each kind of result:
    - `applied` or `already`: done.
    - `conflict`: never force it. If the page changed under his edit, or a picture failed, write a call: "Use my version" or "Keep what's live", with the reason in `why`.
-   - `manual`: notes for you. Do them in code by the rules in `src/components/apps/CLAUDE.md` and `src/styles/CLAUDE.md` (both dark-mode selectors, `--focus-ring`, curly quotes, American spelling). If a note is unclear, write a call; don't guess.
+   - `manual`: notes for you. Do them in code by the rules in `src/components/apps/CLAUDE.md` and `src/styles/CLAUDE.md` (both dark-mode selectors, `--focus-ring`, curly quotes, American spelling). If a note is unclear, write a call; don't guess. A note's `anchor` names the section it's about.
+   - **A note with pictures is a picture Brandon added to a section.** Its result's `files` lists them, already converted (and framed, if he asked, by the `frames` CLI). One upload used by two notes is one file. Lay each out where his words say:
+     - Make it a picture field of that section (`{src, alt, width, height}` under a key that says what it is, for example `phones.duo` in the hero or `devices.duo` in the showcase). Put it in the section's JSON, add it to the schema in `src/components/apps/collections.ts` (optional, so the LSC copy still builds), and draw it in the component and in `scripts/apps-studio/board/page.js` (with `im()`, so the board can swap it). Then run `npm run studio:apps -- board-css` if the styles changed. From then on it's an ordinary picture: `slotFor` treats it as a `picture`.
+     - If its `alt` is empty, open the picture and write the alt text yourself.
+     - Keep the layout's proportions. The showcase draws its devices at real-life scale (see `BigScreens.astro`'s header); an iPhone Duo unfolded is about 150mm tall.
+     - Check it at phone, tablet and desktop widths, in light and dark, before writing back. If you can't build here, check on the Cloudflare preview. Describe the placement in the PR.
    - Also read every change's `note`; he may ask for something beyond the change itself.
    - `warnings` (house style): mention them in the PR. If the words are his new copy, write a call; don't fix them silently.
    - `problems`: nothing was written. Fix the cause, or ask him.

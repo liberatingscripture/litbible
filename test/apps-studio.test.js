@@ -10,8 +10,8 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseDoc, serializeDoc, fieldLines } from "../scripts/apps-studio/frontmatter.mjs";
 import {
-  applyChanges, DIRS, PAGE_FILE, planImage, readModel, RULES, slotFor, slugify,
-  smartQuotes, textWarnings, validateModel, writeModel, fitCarouselFrame,
+  applyChanges, DIRS, PAGE_FILE, planImage, planPicture, readModel, RULES, sectionImages, slotFor, slugify,
+  smartQuotes, textWarnings, validateModel, writeModel, fitCarouselFrame, imagePaths,
 } from "../scripts/apps-studio/core.mjs";
 import { buildBoardCss, SOURCES } from "../scripts/apps-studio/board-css.mjs";
 import { inline, band, leavesSite } from "../src/components/apps/render.ts";
@@ -281,6 +281,47 @@ test("a picture's spot decides where it goes and how big it ships", () => {
   });
   assert.equal(planImage({ path: ["files", "/assets/images/lit-app-icon-ios.webp"] }, new Set()).out, "public/assets/images/lit-app-icon-ios.webp");
   assert.throws(() => planImage({ path: ["files", "/assets/screenshots/x.webp"] }, new Set()));
+});
+
+test("a picture added to a section is converted as a picture, and swappable once it's laid out", () => {
+  // A note carries the picture; the apply step plans its file like any other.
+  const plan = planPicture({ name: "iPhone Duo - Philippians 2.png", fileName: "iphone-duo-philippians-2" }, new Set());
+  assert.deepEqual(plan, {
+    slot: "picture",
+    out: "public/assets/screenshots/iphone-duo-philippians-2.webp",
+    src: "/assets/screenshots/iphone-duo-philippians-2.webp",
+    archive: "_source-images/screenshots/iPhone Duo - Philippians 2.png",
+  });
+  assert.equal(RULES.slots.picture.frame, "apple");
+  assert.equal(RULES.slots.picture.longestWide, 1300);
+
+  // Once Claude makes it a field of the section, every rule already knows it.
+  const m = readModel(repoFiles());
+  const showcase = m.sections.find((s) => s.kind === "bigscreens");
+  showcase.devices.duo = { src: "/assets/screenshots/iphone-duo.webp", alt: "LIT Bible on an iPhone Duo", width: 1000, height: 1000 };
+  assert.equal(slotFor(["sections", showcase.id, "devices", "duo"]), "picture");
+  assert.equal(slotFor(["sections", "hero", "phones", "front"]), "phone");
+  assert.ok(sectionImages(showcase).some(([keys]) => keys.join(".") === "devices.duo"));
+  assert.ok(imagePaths(m).includes("/assets/screenshots/iphone-duo.webp"));
+  assert.deepEqual(validateModel(m), []);
+  showcase.devices.duo.alt = "";
+  assert.match(validateModel(m).join("\n"), /devices duo needs a picture, its alt text, and its size/);
+
+  // And a swap of it applies like any other picture.
+  showcase.devices.duo.alt = "LIT Bible on an iPhone Duo";
+  const c = change("image", { path: ["sections", showcase.id, "devices", "duo"], before: structuredClone(showcase.devices.duo) });
+  const { results, model } = applyChanges(m, [c], { images: { [c.key]: { src: "/assets/screenshots/iphone-duo-2.webp", width: 990, height: 1000 } } });
+  assert.equal(results[0].status, "applied");
+  assert.equal(model.sections.find((s) => s.id === showcase.id).devices.duo.src, "/assets/screenshots/iphone-duo-2.webp");
+});
+
+test("a note, with or without pictures, is left for Claude and changes nothing by itself", () => {
+  const files = repoFiles();
+  const m = readModel(files);
+  const note = change("note", { anchor: ["sections", "hero"], text: "Add the Duo beside the phones", images: [{ asset: "a1", name: "duo.png", width: 2007, height: 2484 }] });
+  const { model, results } = applyChanges(m, [note]);
+  assert.equal(results[0].status, "manual");
+  assert.deepEqual(writeModel(model, files), { writes: {}, deletes: [] });
 });
 
 // --- The page and the board read copy the same way -------------------------------------------

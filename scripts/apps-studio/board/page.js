@@ -104,19 +104,35 @@ export const ICONS = {
 /**
  * The page body.
  * @param {object} model the Studio model (core.mjs)
- * @param {{editable?: boolean, img?: (src: string) => string, season?: number, changed?: Set<string>}} [o]
+ * @param {{editable?: boolean, img?: (src: string) => string, season?: number, changed?: Set<string>,
+ *   pending?: Map<string, {key: string, label: string, text: string, images: string[], sent: boolean}[]>}} [o]
  *   img turns a model src into a URL the board can load; season is the
- *   carousel frame on show; changed holds the path keys with a pending edit
+ *   carousel frame on show; changed holds the path keys with a pending edit;
+ *   pending holds the notes and pictures to add, by section id ("_page" for
+ *   the whole page), drawn as placeholders after their section
  */
 export function renderPage(model, o = {}) {
-  const c = { editable: false, img: (s) => s, season: 0, changed: new Set(), ...o, model };
+  const c = { editable: false, img: (s) => s, season: 0, changed: new Set(), pending: new Map(), ...o, model };
   const sections = [...model.sections].sort(byOrder);
+  const extra = (id, name) => (c.editable && c.pending.get(id)?.length ? pendingStrip(c.pending.get(id), name) : "");
   const body = sections.map((s) => {
-    if (s.hidden) return c.editable ? hiddenSection(s, c) : "";
+    const name = KINDS[s.kind]?.name ?? s.kind;
+    if (s.hidden) return c.editable ? hiddenSection(s, c) + extra(s.id, name) : "";
     const draw = DRAW[s.kind];
-    return draw ? draw(s, c) : "";
+    return (draw ? draw(s, c) : "") + extra(s.id, name);
   });
-  return `<div class="apps">${body.join("")}</div>`;
+  return `<div class="apps">${extra("_page", "The whole page")}${body.join("")}</div>`;
+}
+
+/** Placeholders for what Brandon asked to add: the pictures and his words, until Claude lays them out. */
+function pendingStrip(list, name) {
+  return list
+    .map((p) => {
+      const pics = p.images.length ? `<span class="studio-pending__pics">${p.images.map((u) => `<img src="${escapeHtml(u)}" alt="">`).join("")}</span>` : "";
+      const text = p.text ? escapeHtml(p.text) : "<i>Say where it goes</i>";
+      return `<div class="studio-pending${p.sent ? " is-sent" : ""}"${p.sent ? "" : ` data-note="${escapeHtml(p.key)}"`}><span class="studio-pending__tag">${escapeHtml(p.label)} · ${escapeHtml(name)}${p.sent ? " · sent" : ""}</span>${pics}<span class="studio-pending__text">${text}</span></div>`;
+    })
+    .join("");
 }
 
 // --- Editing attributes ------------------------------------------------------------

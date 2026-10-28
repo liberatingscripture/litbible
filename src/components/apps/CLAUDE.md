@@ -155,6 +155,18 @@ the templates, and would publish without anyone applying this repo's rules.
   framed for him with the `frames` CLI (Apple devices only, his saved colors);
   Android and foldable pictures arrive framed. The app icons are replaced in
   place, so the home page, the Android banner and the share card follow.
+- **A picture can be added to a section** (Brandon, 2026-10-27; first use, an
+  iPhone Duo in the hero and the showcase). On the board it's a note anchored
+  to the section that carries the upload and his words about where it goes;
+  dropping a file onto a section starts one. The apply step converts it
+  (`planPicture`: 1000px tall, or 1300px wide when landscape; framed on
+  request, the `frames` CLI knowing the iPhone Duo's screens), once per
+  upload, and lists it on the note's result. Claude then lays it out by hand
+  and makes it a picture field of the section (`{src, alt, width, height}`
+  under a descriptive key, in the JSON, `collections.ts`, the component and
+  `board/page.js`). Any picture object in a section is then an ordinary
+  picture to the Studio: `slotFor` calls it a `picture`, and `sectionImages`
+  finds it for `imagePaths` and the schema check, so no other rule changes.
 - **Brandon's words are his.** Curly quotes are applied automatically (the
   board does it as he types); a British spelling, a straight quote that
   survives, or a LIT quotation that doesn't match the chapter is asked about

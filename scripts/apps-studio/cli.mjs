@@ -12,8 +12,10 @@
  *       JSON, DIR holds the pictures it uploaded, each saved as
  *       <asset id>.<ext>. Prints a report (and writes it to --report): every
  *       change applied, already true, refused as a conflict (with why), or
- *       left for Claude to do by hand. Nothing is written while the result
- *       would break the page's schema. --dry-run writes nothing at all.
+ *       left for Claude to do by hand; a note's pictures are converted and
+ *       listed on its result (`files`) for Claude to lay out. Nothing is
+ *       written while the result would break the page's schema. --dry-run
+ *       writes nothing at all.
  *
  *   check
  *       Read the page's files and report anything the Studio couldn't read
@@ -31,7 +33,7 @@ import { readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { buildBoardCss, SOURCES } from "./board-css.mjs";
 import {
-  applyChanges, fitCarouselFrame, imagePaths, makeSeed, planImage, readModel,
+  applyChanges, fitCarouselFrame, imagePaths, makeSeed, planImage, planPicture, readModel,
   RULES, textWarnings, validateModel, writeModel,
 } from "./core.mjs";
 import { headCommit, imageSizes, processImage, readFiles, ROOT, takenPaths, unusedImages, writeAll } from "./store.mjs";
@@ -97,9 +99,40 @@ async function apply() {
     }
   }
 
+  // Pictures attached to notes (a picture Brandon added to a section): each is
+  // converted now, once per upload however many notes share it, and listed
+  // on its note's result for Claude to lay out by hand.
+  const noteFiles = {};
+  const byAsset = new Map();
+  for (const change of changes.filter((c) => c.op === "note" && c.images?.length)) {
+    noteFiles[change.key] = [];
+    for (const pic of change.images) {
+      try {
+        let done = byAsset.get(pic.asset);
+        if (!done) {
+          const plan = planPicture(pic, taken);
+          taken.add(plan.out);
+          if (dry) {
+            done = { file: plan.out, src: plan.src, width: pic.width ?? 0, height: pic.height ?? 0, notes: [] };
+          } else {
+            const r = await processImage({ upload: { asset: pic.asset, name: pic.name }, frame: pic.frame }, plan, { uploadsDir });
+            done = { file: plan.out, ...r };
+            written.push(plan.out);
+            if (plan.archive) written.push(plan.archive);
+          }
+          byAsset.set(pic.asset, done);
+        }
+        noteFiles[change.key].push({ file: done.file, src: done.src, width: done.width, height: done.height, alt: pic.alt || "", notes: done.notes });
+      } catch (e) {
+        noteFiles[change.key].push({ name: pic.name, error: e.message });
+      }
+    }
+  }
+
   const failedKeys = new Set(failed.map((f) => f.key));
   const { model: next, results } = applyChanges(model, changes.filter((c) => !failedKeys.has(c.key)), { images });
   const allResults = [...results, ...failed];
+  for (const r of allResults) if (noteFiles[r.key]) r.files = noteFiles[r.key];
 
   // The carousel's frame follows its screenshots, but only when this request
   // changed one: a request about something else never moves the carousel.

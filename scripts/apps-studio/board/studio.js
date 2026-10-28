@@ -16,7 +16,7 @@
  * as board/, core.mjs and frontmatter.mjs beside index.html, and the site's
  * pictures under site/assets/.
  */
-import { applyChanges, deepEqual, RULES, slugify, textWarnings, validateModel } from "../core.mjs";
+import { applyChanges, deepEqual, RULES, slotFor, slugify, textWarnings, validateModel } from "../core.mjs";
 import {
   CALLOUT_FIELDS, EXAMPLE_FIELDS, escapeHtml as esc, ICONS, KINDS, parsePathKey, pathKey, renderPage, smartQuotes,
 } from "./page.js";
@@ -134,12 +134,9 @@ const draftList = (except) => Object.values(st.draft.changes).filter((c) => c.ke
 const openRequests = () => st.requests.filter((r) => OPEN.has(r.status)).sort((a, b) => a.number - b.number);
 const pendingList = () => openRequests().flatMap((r) => r.changes ?? []);
 
+/** core.mjs's rule for which kind of picture a place holds. */
 function slotOf(path) {
-  const [where, , ...keys] = path;
-  if (where === "files") return String(path[1]).endsWith(".svg") ? "icon-svg" : "icon";
-  if (where === "seasons") return "carousel";
-  if (where === "sections" && keys[0] === "devices") return keys[1] === "tablet" ? "tablet" : "foldable";
-  return "phone";
+  try { return slotFor(path); } catch { return "picture"; }
 }
 
 /** An uploaded picture's size once it ships, for drawing it at the right shape now. */
@@ -229,8 +226,9 @@ function fieldLabel(path) {
     if (f) return f[0];
     if (/^buttons\/\d+/.test(k)) return `Button ${Number(keys[1]) + 1}`;
     if (k === "link") return "Link";
-    if (k.startsWith("phones/")) return keys[1] === "back" ? "Back phone" : "Front phone";
-    if (k.startsWith("devices/")) return keys[1] === "tablet" ? "Tablet picture" : "Foldable picture";
+    const named = { "phones/back": "Back phone", "phones/front": "Front phone", "devices/tablet": "Tablet picture", "devices/foldable": "Foldable picture" };
+    if (named[k]) return named[k];
+    if (getAt(s, keys)?.src !== undefined) return `${keys[keys.length - 1].replace(/^./, (ch) => ch.toUpperCase())} picture`;
     return { background: "Background", hidden: "Shown on the page" }[k] ?? k;
   }
   if (where === "callouts") return CALLOUT_FIELDS[k]?.[0] ?? { accent: "Season color", imageSide: "Picture side", platform: "Platform", mode: "Screen mode", image: "Picture" }[k] ?? k;
@@ -243,7 +241,7 @@ function groupOf(c) {
   const model = current().model;
   if (c.op === "order") return { sections: "Page order", callouts: "Callouts", seasons: "Carousel" }[c.collection];
   if (c.op === "add" || c.op === "remove") return entryName({ ...model, [c.collection]: [...model[c.collection], { id: c.id, ...(c.data ?? c.before ?? {}) }] }, c.collection, c.id);
-  if (c.op === "note") return "Notes for Claude";
+  if (c.op === "note") return c.anchor ? anchorName(c.anchor) : "Notes for Claude";
   const [where, id] = c.path;
   if (where === "page") return "Search and sharing";
   if (where === "files") return "App icons";
@@ -386,6 +384,7 @@ function revert(key) {
   if (!c) return;
   if (c.op === "add") return removeEntry(c.collection, c.id);
   delete st.draft.changes[key];
+  if (st.selection?.key === key) st.selection = null;
   changed();
 }
 
@@ -490,13 +489,115 @@ async function upload(path, file) {
 let pendingPick = null;
 els.file.addEventListener("change", () => {
   const f = els.file.files?.[0];
-  if (f && pendingPick) upload(pendingPick, f);
+  if (f && pendingPick) pendingPick(f);
   els.file.value = "";
 });
-function pick(path) {
-  pendingPick = path;
-  els.file.accept = slotOf(path) === "icon-svg" ? "image/svg+xml,.svg" : "image/png,image/jpeg,image/webp";
+function pick(onFile, accept = "image/png,image/jpeg,image/webp") {
+  pendingPick = onFile;
+  els.file.accept = accept;
   els.file.click();
+}
+/** Choose a file to replace the picture at `path`. */
+function pickImage(path) {
+  pick((f) => upload(path, f), slotOf(path) === "icon-svg" ? "image/svg+xml,.svg" : undefined);
+}
+
+// --- Pictures to add, and notes for Claude ---------------------------------------
+// A note is something for Claude to do by hand. It can name a section and carry
+// pictures, which is how Brandon adds a picture to a section: the apply step
+// converts it, and Claude lays it out from his words.
+
+function anchorName(anchor) {
+  if (!anchor) return "The whole page";
+  const s = current().model.sections.find((x) => x.id === anchor[1]);
+  return s ? (KINDS[s.kind]?.name ?? s.kind) : anchor[1];
+}
+
+function newNote(anchor, text = "") {
+  const key = `note:${Date.now()}`;
+  st.draft.changes[key] = { key, op: "note", text, anchor: anchor ?? null, images: [], label: "Note for Claude", at: Date.now() };
+  return key;
+}
+
+/** Upload a file and attach it to a note as a picture to add. */
+async function attachPicture(key, file) {
+  const c = st.draft.changes[key];
+  if (!c) return false;
+  if (!st.assets) { toast("Pictures can only be added from the Studio on claude.ai, by its owner."); return false; }
+  const ext = (file.name.split(".").pop() || "").toLowerCase();
+  const type = file.type || TYPES[ext] || "";
+  if (!["image/png", "image/jpeg", "image/webp"].includes(type)) { toast("Use a PNG, JPEG or WebP picture."); return false; }
+  setStatus("saving", "Uploading…");
+  const dims = await measure(file);
+  let res;
+  try {
+    res = await st.assets.upload(file, { type });
+  } catch (e) {
+    setStatus("error", "Upload failed");
+    toast(e?.code === "too_large" ? "That picture is over 20 MB. Export it smaller and try again." : `The picture didn’t upload (${e?.message || e?.code || "unknown error"}).`);
+    return false;
+  }
+  st.blobUrls.set(res.id, res.url || dims.url);
+  c.images = [...(c.images ?? []), { asset: res.id, name: file.name, type, width: dims.width, height: dims.height, bytes: file.size, frame: false, fileName: slugify(file.name), alt: "" }];
+  c.label = "Picture to add";
+  return true;
+}
+
+/** A new picture-to-add note for a section, from a dropped or chosen file. */
+async function addPictureTo(sectionId, file, text = "") {
+  const key = newNote(sectionId ? ["sections", sectionId] : null, text);
+  if (!(await attachPicture(key, file))) { delete st.draft.changes[key]; return; }
+  st.selection = { type: "note", key };
+  st.tab = "edit";
+  changed();
+  requestAnimationFrame(() => $("#note-text")?.focus({ preventScroll: true }));
+}
+
+/** Every picture uploaded in this draft, for using one in a second place. */
+function draftUploads(exceptKey) {
+  const seen = new Map();
+  for (const c of draftList()) {
+    if (c.op === "image" && c.upload?.asset && c.key !== exceptKey) seen.set(c.upload.asset, { ...c.upload });
+    if (c.op === "note") for (const p of c.images ?? []) if (c.key !== exceptKey) seen.set(p.asset, p);
+  }
+  const mine = new Set((st.draft.changes[exceptKey]?.images ?? []).map((p) => p.asset));
+  return [...seen.values()].filter((p) => !mine.has(p.asset));
+}
+
+function reusePicture(key, asset) {
+  const c = st.draft.changes[key];
+  const found = draftUploads(key).find((p) => p.asset === asset);
+  if (!c || !found) return;
+  c.images = [...(c.images ?? []), { asset, name: found.name, type: found.type, width: found.width, height: found.height, bytes: found.bytes, frame: Boolean(found.frame), fileName: found.fileName ?? slugify(found.name ?? ""), alt: found.alt ?? "" }];
+  c.label = "Picture to add";
+  changed();
+}
+
+function unattachPicture(key, asset) {
+  const c = st.draft.changes[key];
+  if (!c) return;
+  c.images = (c.images ?? []).filter((p) => p.asset !== asset);
+  c.label = c.images.length ? "Picture to add" : "Note for Claude";
+  changed();
+}
+
+/** The placeholders the page shows for notes, sent or not, by section id. */
+function pendingByAnchor() {
+  const out = new Map();
+  const add = (c, sent) => {
+    const id = c.anchor?.[0] === "sections" ? c.anchor[1] : "_page";
+    if (!out.has(id)) out.set(id, []);
+    out.get(id).push({
+      key: c.key,
+      label: c.images?.length ? (c.images.length === 1 ? "Picture to add" : `${c.images.length} pictures to add`) : "Note for Claude",
+      text: c.text ?? "",
+      images: (c.images ?? []).map((p) => imgUrl(`/_blob/${p.asset}`)),
+      sent,
+    });
+  };
+  for (const r of openRequests()) for (const c of r.changes ?? []) if (c.op === "note") add(c, true);
+  for (const c of draftList()) if (c.op === "note") add(c, false);
+  return out;
 }
 
 // --- Saving the draft -----------------------------------------------------------------
@@ -543,6 +644,10 @@ function review() {
   const model = current().model;
   const draft = draftList();
   const problems = draft.length ? validateModel(model) : [];
+  for (const c of draft) {
+    if (c.op !== "note" || (c.text ?? "").trim()) continue;
+    problems.push(c.images?.length ? `Say where the picture for ${anchorName(c.anchor)} should go` : `A note for ${anchorName(c.anchor)} is empty`);
+  }
   const conflicts = draft.filter((c) => current().results[c.key]?.status === "conflict");
   const ids = new Set(draft.flatMap((c) => (c.path && c.path[0] !== "page" ? [String(c.path[1])] : c.id ? [c.id] : [])));
   const page = draft.some((c) => c.path?.[0] === "page");
@@ -650,6 +755,7 @@ function renderReplica() {
     img: imgUrl,
     season: st.season,
     changed: st.showChanges ? changedPaths() : new Set(),
+    pending: st.showChanges ? pendingByAnchor() : new Map(),
   });
   els.replica.dataset.theme = st.pageTheme;
   els.canvas.dataset.mode = st.preview ? "preview" : "edit";
@@ -685,6 +791,7 @@ function selector(sel) {
     case "callout": return q("data-callout", sel.id);
     case "season": return q("data-season", sel.id);
     case "example": return `article${q("data-example", sel.id)}`;
+    case "note": return q("data-note", sel.key);
     default: return null;
   }
 }
@@ -694,11 +801,15 @@ function markSelection() {
   if (s) for (const el of $$(s, els.replica)) el.classList.add("is-selected");
 }
 
+/** Bring the selection to the middle of the window, scrolling the window only (never the page's frame). */
 function scrollToSelection() {
   requestAnimationFrame(() => {
     const s = selector(st.selection);
     const el = s && $(s, els.replica);
-    if (el) el.scrollIntoView({ block: "center", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    const top = window.scrollY + r.top - Math.max(0, (window.innerHeight - r.height) / 2);
+    window.scrollTo({ top: Math.max(0, top), behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
   });
 }
 
@@ -886,7 +997,55 @@ function sectionPanel(id) {
       ${hero ? `<label class="fld" for="pick-comparison"><span>Compared with</span><select id="pick-comparison" data-id="${esc(hero.id)}">${RULES.comparisons.map((v) => `<option ${v === hero.comparison ? "selected" : ""}>${v}</option>`).join("")}</select></label>` : ""}` : ""}
     ${fields.length ? `<div class="fld"><span>Words in this section</span><ul class="outline">${fields.map(([k, [label]]) => `<li><button type="button" data-action="edit-field" data-path="${esc(pathKey(["sections", id, ...k.split("/")]))}">${esc(label)}<em>${esc(short(toText(getAt(s, k.split("/")), "line"), 34))}</em></button></li>`).join("")}</ul></div>` : ""}
     ${s.kind === "reader" ? `<div class="row"><button type="button" class="btn" data-action="add-callout">Add a callout</button></div>` : ""}
+    ${additionsFor(id)}
     <div class="row"><button type="button" class="btn btn--quiet" data-action="deselect">Done</button></div>`;
+}
+
+/** A section's pictures to add and notes, and the way to add another. */
+function additionsFor(id) {
+  const list = draftList().filter((c) => c.op === "note" && c.anchor?.[1] === id);
+  return `
+    <div class="fld"><span>Add to this section</span>
+      ${list.length ? `<ul class="outline">${list.map((c) => `<li><button type="button" data-action="edit-note" data-key="${esc(c.key)}">${esc(c.images?.length ? "Picture to add" : "Note")}<em>${esc(short(c.text, 30) || "say where it goes")}</em></button></li>`).join("")}</ul>` : ""}
+      <div class="drop" data-action="add-picture" data-id="${esc(id)}" role="button" tabindex="0"><b>Add a picture to this section</b><span class="hint">Drop a file here or click to choose, then say where it goes. You can also drop a file straight onto the section.</span></div>
+      <div class="row"><button type="button" class="btn" data-action="add-section-note" data-id="${esc(id)}">Add a note about this section</button></div>
+    </div>`;
+}
+
+function pictureCard(c, p, i) {
+  const a = esc(p.asset);
+  return `<div class="pic">
+    <img src="${esc(imgUrl(`/_blob/${p.asset}`))}" alt="">
+    <div class="pic__body">
+      <p class="meta"><span>${p.width}×${p.height}</span><span>${esc(p.name ?? "")}</span></p>
+      <fieldset class="fld choice"><legend>Device frame</legend>
+        <label><input type="radio" name="pic-frame-${i}" data-pic="${a}" data-pic-field="frame" value="framed" ${!p.frame ? "checked" : ""}> <span>It already has its frame</span></label>
+        <label><input type="radio" name="pic-frame-${i}" data-pic="${a}" data-pic-field="frame" value="frame" ${p.frame ? "checked" : ""}> <span>Frame it for me<small>For a raw iPhone, iPhone Duo or iPad screenshot, framed with your saved colors.</small></span></label>
+      </fieldset>
+      <label class="fld"><span>What a screen reader says</span><textarea rows="2" data-pic="${a}" data-pic-field="alt" placeholder="Leave blank and Claude will write it">${esc(p.alt ?? "")}</textarea></label>
+      <label class="fld"><span>File name</span><input type="text" data-pic="${a}" data-pic-field="fileName" value="${esc(p.fileName ?? "")}" autocomplete="off" spellcheck="false"></label>
+      <div class="row"><button type="button" class="btn btn--quiet" data-action="unattach" data-key="${esc(c.key)}" data-asset="${a}">Remove this picture</button></div>
+    </div>
+  </div>`;
+}
+
+function notePanel(key) {
+  const c = st.draft.changes[key];
+  if (!c || c.op !== "note") return homePanel();
+  const sections = [...current().model.sections].sort(byOrder);
+  const pics = c.images ?? [];
+  const reuse = draftUploads(key);
+  const at = c.anchor?.[1] ?? "";
+  return `
+    <p class="crumb">${esc(anchorName(c.anchor))} · ${pics.length ? "Picture to add" : "Note for Claude"}</p>
+    <h2>${pics.length ? (pics.length === 1 ? "A picture to add" : `${pics.length} pictures to add`) : "A note for Claude"}</h2>
+    <label class="fld" for="note-anchor"><span>Part of the page</span><select id="note-anchor"><option value="">The whole page</option>${sections.map((s) => `<option value="${esc(s.id)}" ${s.id === at ? "selected" : ""}>${esc(KINDS[s.kind]?.name ?? s.kind)}</option>`).join("")}</select></label>
+    <label class="fld" for="note-text"><span>${pics.length ? "Where and how should it appear?" : "What should change?"}</span><textarea id="note-text" rows="4" data-autofocus placeholder="${pics.length ? "For example: beside the two phones, as tall as the iPhone, slightly behind it" : "Describe the change"}">${esc(c.text ?? "")}</textarea></label>
+    ${pics.map((p, i) => pictureCard(c, p, i)).join("")}
+    <div class="drop" data-action="attach" data-key="${esc(key)}" role="button" tabindex="0"><b>${pics.length ? "Add another picture" : "Add a picture"}</b><span class="hint">Drop a file here, or click to choose. PNG, JPEG or WebP.</span></div>
+    ${reuse.length ? `<div class="fld"><span>Or use a picture you already added</span><div class="reuse">${reuse.map((p) => `<button type="button" class="reuse__pick" data-action="reuse" data-key="${esc(key)}" data-asset="${esc(p.asset)}" title="${esc(p.name ?? "")}"><img src="${esc(imgUrl(`/_blob/${p.asset}`))}" alt="${esc(p.name ?? "A picture you added")}"></button>`).join("")}</div></div>` : ""}
+    <p class="hint">${pics.length ? "A new picture needs a place in the layout, so Claude puts it there by hand from your words, and you’ll see it on the real page in the preview link. Here it shows as a placeholder after its section. Once it’s in, you can swap it like any other picture." : "Claude reads this when it applies your changes, and asks if anything is unclear."}</p>
+    <div class="row"><button type="button" class="btn btn--danger" data-action="revert" data-key="${esc(key)}">Delete this ${pics.length ? "addition" : "note"}</button><button type="button" class="btn btn--quiet" data-action="deselect">Done</button></div>`;
 }
 
 function calloutPanel(id) {
@@ -965,8 +1124,9 @@ function homePanel() {
     <ul class="outline">${sections.map((s) => `<li><button type="button" data-action="select-section" data-id="${esc(s.id)}">${esc(KINDS[s.kind]?.name ?? s.kind)}${s.hidden ? "<em>hidden</em>" : ""}</button></li>${s.kind === "reader" ? [...model.callouts].sort(byOrder).map((co) => `<li class="sub"><button type="button" data-action="select-callout" data-id="${esc(co.id)}">${esc(short(co.title, 34))}</button></li>`).join("") : ""}`).join("")}</ul>
     <div class="row"><button type="button" class="btn" data-action="page-title">Search and sharing text</button><button type="button" class="btn" data-action="add-callout">Add a callout</button></div>
     <h3>Something else?</h3>
-    <div class="fld"><textarea id="free-note" rows="3" placeholder="Describe a change the Studio can’t make here, like a new kind of section"></textarea></div>
-    <div class="row"><button type="button" class="btn" data-action="add-note">Add to my changes</button></div>
+    <label class="fld" for="free-anchor"><span>Which part of the page?</span><select id="free-anchor"><option value="">The whole page</option>${sections.map((s) => `<option value="${esc(s.id)}">${esc(KINDS[s.kind]?.name ?? s.kind)}</option>`).join("")}</select></label>
+    <div class="fld"><textarea id="free-note" rows="3" aria-label="Describe the change" placeholder="Describe a change the Studio can’t make here, like a new kind of section or a new layout"></textarea></div>
+    <div class="row"><button type="button" class="btn" data-action="add-note">Add to my changes</button><button type="button" class="btn" data-action="add-note-picture">Add with a picture…</button></div>
     <p class="hint">The page here is the live site${seededAt ? ` as of ${seededAt.toLocaleDateString([], { month: "short", day: "numeric" })}` : ""}, plus anything you’ve sent that isn’t live yet.</p>`;
 }
 
@@ -983,6 +1143,7 @@ function renderEdit() {
   else if (s.type === "callout") html = calloutPanel(s.id);
   else if (s.type === "season") html = seasonPanel(s.id);
   else if (s.type === "example") html = examplePanel(s.id);
+  else if (s.type === "note") html = notePanel(s.key);
   else html = homePanel();
   p.innerHTML = html;
 }
@@ -1031,12 +1192,16 @@ function describe(c) {
     }
     case "add": return c.collection === "callouts" ? `Adds “${esc(short(c.data?.title, 50))}”` : `Adds a copy of ${esc(KINDS[c.data?.kind]?.name ?? "a section")}`;
     case "remove": return c.collection === "callouts" ? `Removes “${esc(short(c.before?.title, 50))}”` : "Removes this section";
-    case "note": return esc(c.text);
+    case "note": {
+      const pics = (c.images ?? []).map((p) => `<img src="${esc(imgUrl(`/_blob/${p.asset}`))}" alt="" style="max-height:72px;border-radius:6px">`).join(" ");
+      return `${pics ? `<span class="row">${pics}</span>` : ""}${esc(c.text) || "<i>Say where it goes</i>"}`;
+    }
     default: return "";
   }
 }
 
 function showTarget(c) {
+  if (c.op === "note") return { type: "note", key: c.key };
   if (c.op === "add" || c.op === "remove") return c.collection === "callouts" ? { type: "callout", id: c.id } : { type: "section", id: c.id };
   if (c.op === "order") return null;
   if (!c.path) return null;
@@ -1077,7 +1242,7 @@ function renderChanges() {
         const conflict = r?.status === "conflict";
         const target = showTarget(c);
         return `<li class="change${conflict ? " is-conflict" : ""}">
-          <div class="change__top"><strong>${esc(c.label || fieldLabel(c.path ?? []))}</strong>${conflict ? '<span class="chip chip--warn">Changed since</span>' : `<span class="chip chip--sel">${{ set: "Edit", image: "Picture", order: "Order", add: "Added", remove: "Removed", note: "Note" }[c.op]}</span>`}</div>
+          <div class="change__top"><strong>${esc(c.label || fieldLabel(c.path ?? []))}</strong>${conflict ? '<span class="chip chip--warn">Changed since</span>' : `<span class="chip chip--sel">${c.op === "note" && c.images?.length ? "New picture" : { set: "Edit", image: "Picture", order: "Order", add: "Added", remove: "Removed", note: "Note" }[c.op]}</span>`}</div>
           <div class="diff">${describe(c)}</div>
           ${conflict ? `<p class="hint">${esc(r.reason)}</p>` : ""}
           ${c.note ? `<p class="change__note">Note: ${esc(c.note)}</p>` : ""}
@@ -1119,7 +1284,8 @@ function renderRequests() {
       <details><summary class="hint">${(r.changes ?? []).length} change${(r.changes ?? []).length === 1 ? "" : "s"}</summary><ul class="items">${(r.changes ?? []).map((c) => {
         const res = results[c.key];
         const [label, tone] = RESULT[res?.status] ?? [];
-        return `<li><span>${esc(c.label || "Change")}${c.op === "note" ? `: ${esc(short(c.text, 50))}` : ""}</span>${label ? `<span class="chip chip--${tone}" title="${esc(res.reason ?? "")}">${label}</span>` : ""}</li>`;
+        const what = c.op === "note" ? `${c.anchor ? `${anchorName(c.anchor)}: ` : ""}${short(c.text, 50)}` : "";
+        return `<li><span>${esc(c.label || "Change")}${what ? `: ${esc(what)}` : ""}</span>${label ? `<span class="chip chip--${tone}" title="${esc(res.reason ?? "")}">${label}</span>` : ""}</li>`;
       }).join("")}</ul></details>
       ${(r.log ?? []).length ? `<ul class="log">${[...r.log].reverse().slice(0, 6).map((l) => `<li><time>${esc(when(l.at))}</time>${esc(l.text)}</li>`).join("")}</ul>` : ""}
       ${r.status === "sent" ? `<div class="row"><button type="button" class="btn" data-action="withdraw-edit" data-req="${esc(r.id)}">Take back to edit</button><button type="button" class="btn btn--quiet" data-action="withdraw" data-req="${esc(r.id)}">Withdraw</button></div>` : ""}
@@ -1132,15 +1298,16 @@ function renderRequests() {
 els.replica.addEventListener("click", (e) => {
   e.preventDefault();
   if (st.preview || !st.seed) return;
-  const t = e.target.closest("[data-section-tag],[data-add],[data-edit],[data-image],[data-link],[data-season],[data-callout],[data-example],[data-section]");
+  const t = e.target.closest("[data-section-tag],[data-add],[data-note],[data-edit],[data-image],[data-link],[data-season],[data-callout],[data-example],[data-section]");
   if (!t) return select(null);
   if (t.dataset.sectionTag) return select({ type: "section", id: t.dataset.sectionTag });
   if (t.dataset.add === "callout") return addCallout();
+  if (t.dataset.note) return select({ type: "note", key: t.dataset.note });
   if (t.dataset.edit) return select({ type: "field", path: parsePathKey(t.dataset.edit) });
   if (t.dataset.image) {
     const path = parsePathKey(t.dataset.image);
     select({ type: "image", path });
-    if (t.classList.contains("studio-drop")) pick(path);
+    if (t.classList.contains("studio-drop")) pickImage(path);
     return;
   }
   if (t.dataset.link) return select({ type: "link", path: parsePathKey(t.dataset.link) });
@@ -1150,19 +1317,45 @@ els.replica.addEventListener("click", (e) => {
   if (t.dataset.section) return select({ type: "section", id: t.dataset.section });
 });
 
-// Drop a picture straight onto a picture on the page.
+// Drop a file onto a picture to replace it, or anywhere else in a section to
+// add it there (then say where it goes).
 els.replica.addEventListener("dragover", (e) => {
-  if (st.preview) return;
-  const t = e.target.closest("[data-image]");
-  if (t && e.dataTransfer?.types.includes("Files")) e.preventDefault();
+  if (st.preview || !e.dataTransfer?.types.includes("Files")) return;
+  if (e.target.closest("[data-image],[data-note],[data-section]")) e.preventDefault();
 });
 els.replica.addEventListener("drop", (e) => {
-  const t = e.target.closest("[data-image]");
   const f = e.dataTransfer?.files?.[0];
-  if (!t || !f) return;
+  if (!f || st.preview) return;
+  const img = e.target.closest("[data-image]");
+  const note = e.target.closest("[data-note]");
+  const section = e.target.closest("[data-section]");
+  if (!img && !note && !section) return;
   e.preventDefault();
-  upload(parsePathKey(t.dataset.image), f);
+  if (img) return upload(parsePathKey(img.dataset.image), f);
+  if (note) return attachAndShow(note.dataset.note, f);
+  return addPictureTo(section.dataset.section, f);
 });
+
+function attachAndShow(key, file) {
+  return attachPicture(key, file).then((ok) => {
+    if (!ok) return;
+    st.selection = { type: "note", key };
+    st.tab = "edit";
+    changed();
+  });
+}
+
+/** What a drop zone in the panel does with a file, chosen or dropped. */
+function useFile(drop, file) {
+  const d = drop.dataset;
+  if (d.action === "pick") return upload(parsePathKey(d.path), file);
+  if (d.action === "attach") return attachAndShow(d.key, file);
+  if (d.action === "add-picture") return addPictureTo(d.id, file);
+}
+function chooseFile(drop) {
+  if (drop.dataset.action === "pick") return pickImage(parsePathKey(drop.dataset.path));
+  pick((f) => useFile(drop, f));
+}
 
 const panelsRoot = $("#inspector");
 
@@ -1201,7 +1394,25 @@ panelsRoot.addEventListener("click", (e) => {
       ta.dispatchEvent(new Event("input", { bubbles: true }));
       return;
     }
-    case "pick": return pick(parsePathKey(d.path));
+    case "pick":
+    case "attach":
+    case "add-picture":
+      return chooseFile(a);
+    case "reuse": return reusePicture(d.key, d.asset);
+    case "unattach": return unattachPicture(d.key, d.asset);
+    case "edit-note": return select({ type: "note", key: d.key }, { scroll: true });
+    case "add-section-note": {
+      const key = newNote(["sections", d.id]);
+      st.selection = { type: "note", key };
+      changed();
+      requestAnimationFrame(() => $("#note-text")?.focus({ preventScroll: true }));
+      return;
+    }
+    case "add-note-picture": {
+      const at = $("#free-anchor")?.value || null;
+      const text = smartQuotes($("#free-note")?.value ?? "");
+      return pick((f) => addPictureTo(at, f, text));
+    }
     case "move": return move(d.coll, d.id, Number(d.dir));
     case "hide": {
       const s = current().model.sections.find((x) => x.id === d.id);
@@ -1216,7 +1427,11 @@ panelsRoot.addEventListener("click", (e) => {
     case "select-section": return select({ type: "section", id: d.id }, { scroll: true, focus: false });
     case "select-callout": return select({ type: "callout", id: d.id }, { scroll: true, focus: false });
     case "page-title": return select({ type: "field", path: ["page", "title"] });
-    case "add-note": { const box = $("#free-note"); addNote(box?.value ?? ""); return; }
+    case "add-note": {
+      const at = $("#free-anchor")?.value;
+      addNote(smartQuotes($("#free-note")?.value ?? ""), at ? ["sections", at] : null);
+      return;
+    }
     case "show": {
       const c = st.draft.changes[d.key];
       const target = c && showTarget(c);
@@ -1242,7 +1457,7 @@ panelsRoot.addEventListener("click", (e) => {
 
 panelsRoot.addEventListener("keydown", (e) => {
   const drop = e.target.closest(".drop");
-  if (drop && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); pick(parsePathKey(drop.dataset.path)); }
+  if (drop && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); chooseFile(drop); }
 });
 
 panelsRoot.addEventListener("dragover", (e) => {
@@ -1255,7 +1470,8 @@ panelsRoot.addEventListener("drop", (e) => {
   const f = e.dataTransfer?.files?.[0];
   if (!drop || !f) return;
   e.preventDefault();
-  upload(parsePathKey(drop.dataset.path), f);
+  drop.classList.remove("is-over");
+  useFile(drop, f);
 });
 
 panelsRoot.addEventListener("input", (e) => {
@@ -1302,6 +1518,22 @@ panelsRoot.addEventListener("input", (e) => {
     }
     return;
   }
+  if (t.id === "note-text" || t.dataset.pic) {
+    const c = st.selection?.type === "note" && st.draft.changes[st.selection.key];
+    if (!c) return;
+    if (t.id === "note-text") {
+      const [s0, s1] = [t.selectionStart, t.selectionEnd];
+      const curled = smartQuotes(t.value);
+      if (curled !== t.value) { t.value = curled; t.setSelectionRange(s0, s1); }
+      c.text = t.value;
+    } else {
+      const p = (c.images ?? []).find((x) => x.asset === t.dataset.pic);
+      if (!p) return;
+      if (t.dataset.picField === "alt") p.alt = smartQuotes(t.value);
+      if (t.dataset.picField === "fileName") p.fileName = slugify(t.value) || p.fileName;
+    }
+    return changedQuietly();
+  }
   if (t.dataset.note) return setNote(t.dataset.note, t.value);
   if (t.id === "message") { st.draft.message = t.value; queueSave(); }
 });
@@ -1311,6 +1543,16 @@ panelsRoot.addEventListener("change", (e) => {
   if (t.name === "frame") {
     const c = st.selection && st.draft.changes[`image:${pathKey(st.selection.path)}`];
     if (c) { c.frame = t.value === "frame"; changed(); }
+  }
+  if (t.id === "note-anchor" || t.dataset.picField === "frame") {
+    const c = st.selection?.type === "note" && st.draft.changes[st.selection.key];
+    if (!c) return;
+    if (t.id === "note-anchor") c.anchor = t.value ? ["sections", t.value] : null;
+    else {
+      const p = (c.images ?? []).find((x) => x.asset === t.dataset.pic);
+      if (p) p.frame = t.value === "frame";
+    }
+    changed();
   }
   if (t.id === "pick-example") {
     const model = current().model;
