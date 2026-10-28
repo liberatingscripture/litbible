@@ -17,13 +17,29 @@
 //     mention can't disagree. The Hebrew Bible and apocrypha link out
 //     (Sefaria, eBible.org) and are not chains: only the LIT's verses are.
 //
-// The browser has no chapter files to ask whether a verse exists, so the
-// linker's defaults stand: every verse is taken to exist (a gap like
-// Matthew 17:21 lands on its chapter page, which is harmless).
+// A note is read in the linker's note mode (BVJ, 2026-10-26; BA89, BA94):
+// a bare number after a reference ("Romans 8:28, 3 reasons") is prose, not a
+// verse, and a book may be written in any case or a common short form
+// ("jn 3:16"). The browser has no chapter files, so whether a verse exists
+// is read from the committed verse counts (src/data/verse-counts.js): a
+// verse past a chapter's end links nothing, and a gap inside one (Matthew
+// 17:21) lands on its chapter page, which is harmless.
 
 import { linkScriptureRefs } from "./scripture-refs.mjs";
 import { openExternalLinks } from "./external-links.mjs";
 import { onFootnote, proseTarget } from "./desk-records.mjs";
+import { byPlace } from "./desk-store-core.mjs";
+import { verseCount } from "../data/verse-counts.js";
+
+const NOTE_LINKING = {
+  mode: "note",
+  hasVerse: (bookKey, chapter, verse) => verse <= verseCount(bookKey, chapter),
+};
+
+/** A note's body escaped and linked, as both exports below read it. */
+function linkedBody(body) {
+  return linkScriptureRefs(escapeText(body), NOTE_LINKING);
+}
 
 /** Escapes text for HTML. */
 export function escapeText(s) {
@@ -41,26 +57,40 @@ export function escapeText(s) {
  * the element showing it keeps `white-space: pre-wrap` as before.
  */
 export function noteBodyHtml(body) {
-  return openExternalLinks(linkScriptureRefs(escapeText(body)));
+  return openExternalLinks(linkedBody(body));
 }
 
-const SREF_HREF = /<a class="sref" href="\/([a-z0-9]+)-(\d+)\/(?:#v(\d+)(?:-(\d+))?)?"/g;
+const SREF_HREF =
+  /<a class="sref" href="\/([a-z0-9]+)-(\d+)\/(?:#v(\d+)(?:-(\d+))?)?"(?: data-end="(\d+)(?::(\d+))?")?/g;
 
 /**
  * The LIT verses a note's body cites, in order, without repeats:
  * `{ bookKey, chapter, from, to }`, with `from` and `to` null for a whole
- * chapter ("John 3").
+ * chapter ("John 3"). A range into a later chapter is one entry per chapter
+ * (BA94): "John 3:16–4:2" is 3:16–36 and 4:1–2, "Hebrews 6–9" chapters 6 to 9.
  */
 export function citedRefs(body) {
   const out = [];
   const seen = new Set();
-  for (const m of linkScriptureRefs(escapeText(body)).matchAll(SREF_HREF)) {
-    const from = m[3] ? Number(m[3]) : null;
-    const to = m[3] ? Number(m[4] ?? m[3]) : null;
-    const key = `${m[1]}-${m[2]}:${from}-${to}`;
-    if (seen.has(key)) continue;
+  const add = (bookKey, chapter, from, to) => {
+    const key = `${bookKey}-${chapter}:${from}-${to}`;
+    if (seen.has(key)) return;
     seen.add(key);
-    out.push({ bookKey: m[1], chapter: Number(m[2]), from, to });
+    out.push({ bookKey, chapter, from, to });
+  };
+  for (const m of linkedBody(body).matchAll(SREF_HREF)) {
+    const bookKey = m[1];
+    const chapter = Number(m[2]);
+    const from = m[3] ? Number(m[3]) : null;
+    if (!m[5]) {
+      add(bookKey, chapter, from, m[3] ? Number(m[4] ?? m[3]) : null);
+      continue;
+    }
+    const endChapter = Number(m[5]);
+    add(bookKey, chapter, from, from == null ? null : verseCount(bookKey, chapter));
+    for (let c = chapter + 1; c < endChapter; c++) add(bookKey, c, null, null);
+    if (m[6]) add(bookKey, endChapter, 1, Number(m[6]));
+    else add(bookKey, endChapter, null, null);
   }
   return out;
 }
@@ -85,7 +115,9 @@ function notesWithBodies(records) {
  * chapter), other than notes sitting on that verse themselves (a note on one
  * of its footnotes sits on the footnote, so it is listed). A citation of
  * a whole chapter counts for every verse in it. Returns `{ record, ref }`,
- * `ref` being the citation that matched, in the records' own order.
+ * `ref` being the citation that matched, in the order of the notes' own
+ * places, as `liveRecords` sorts them (BA93): the store hands records back
+ * by id, which is random.
  *
  * @param {object[]} records the notebook
  * @param {{ bookKey: string, chapter: number, verse?: number | null }} where
@@ -105,5 +137,5 @@ export function notesCiting(records, { bookKey, chapter, verse = null }) {
     if (!proseTarget(record) && !onFootnote(record) && sitsOn(record, bookKey, chapter, verse ?? ref.from, verse ?? ref.to)) continue;
     out.push({ record, ref });
   }
-  return out;
+  return out.sort((x, y) => byPlace(x.record, y.record));
 }

@@ -37,6 +37,20 @@
 //     MT, Alter's translation), since the link would open a different verse
 //     or wording;
 //   - anything already inside <a>, <script>, <style>, <code> or <pre>.
+//
+// A reader's own note is read in a mode of its own (`mode: "note"`; BVJ,
+// 2026-10-26, BA89 and BA94), since footnotes are typed carefully and notes
+// aren't:
+//   - stricter about lists: a continuation links only when it is itself a
+//     chapter:verse ("8:28, 9:1"), so "Romans 8:28, 3 reasons" and "8:28, 30"
+//     link 8:28 alone, and a verse `hasVerse` refuses links nothing (the
+//     caller passes a table of verse counts, so "Luke 2:100" stays plain);
+//   - looser about names: a New Testament book in any case and in common
+//     short forms ("john 3:16", "Jn 3:16", "1Cor 13:4", "rom 8.28"), and a
+//     period between chapter and verse. A name not written exactly as the
+//     site writes it links only with a verse, so "mark 3 places" stays plain;
+//   - a range into another chapter ("John 3:16–4:2", "Hebrews 6–9") carries
+//     its end on the link as `data-end` ("4:2", "9"), for the note's chains.
 
 import { BOOKS, BOOK_ORDER, BOOK_ABBREVIATIONS, bookKeyToLabel } from "../data/books.js";
 import { HB_BOOKS, chapterCount as hbChapterCount, sefariaHref } from "./sefaria-refs.mjs";
@@ -56,6 +70,9 @@ const OTHER_TRANSLATIONS = [
 ];
 
 const SP = String.raw`(?:\s|\u00a0|&nbsp;|&#160;)+`;
+// In a lookbehind, a bounded run: an unbounded one rescans a long run of
+// spaces at every position, which stalled a note of 40,000 spaces (BA95).
+const SP_BEHIND = String.raw`(?:\s|\u00a0|&nbsp;|&#160;){1,4}`;
 const DASH = String.raw`(?:-|\u2013|&ndash;|&#8211;)`;
 
 // Books that link to another site, keyed by a prefix on the book key. And the
@@ -104,22 +121,77 @@ const EM_TITLE_RE = new RegExp(String.raw`<em>(${NAME_ALT})</em>(?=${SP}\d)`, "g
 // A book name, optionally followed by a period, then the chapter-or-verse
 // number and an optional range. Not preceded by a letter, digit, or a number
 // and space (so the "John" inside "1 John" is never matched on its own).
-const REF_RE = new RegExp(
-  String.raw`(?<![A-Za-z0-9])(?<![123]${SP})${EM_OPEN}?(${NAME_ALT})${EM_CLOSE}?\.?${SP}` +
-    String.raw`(\d{1,3})(?::(\d{1,3}))?([a-c])?` +
-    String.raw`(?:${DASH}(\d{1,3})(?::(\d{1,3}))?([a-c])?)?` +
-    String.raw`(?![0-9A-Za-z]|:\d)`,
-  "g"
-);
+// `cv` is what may stand between chapter and verse.
+const refRe = (nameAlt, cv) =>
+  new RegExp(
+    String.raw`(?<![A-Za-z0-9])(?<![123]${SP_BEHIND})${EM_OPEN}?(${nameAlt})${EM_CLOSE}?\.?${SP}` +
+      String.raw`(\d{1,3})(?:${cv}(\d{1,3}))?([a-c])?` +
+      String.raw`(?:${DASH}(\d{1,3})(?:${cv}(\d{1,3}))?([a-c])?)?` +
+      String.raw`(?![0-9A-Za-z]|${cv}\d)`,
+    "g",
+  );
 
 // A continuation right after a reference: a separator, then C:V or a bare
 // number, with an optional range. Anchored at the continuation's start.
-const CONT_RE = new RegExp(
-  String.raw`^(\s*,\s*(?:and${SP})?|\s*;\s*|${SP}and${SP})` +
-    String.raw`(\d{1,3})(?::(\d{1,3}))?([a-c])?` +
-    String.raw`(?:${DASH}(\d{1,3})(?::(\d{1,3}))?([a-c])?)?` +
-    String.raw`(?![0-9A-Za-z]|:\d)`
-);
+const contRe = (cv) =>
+  new RegExp(
+    String.raw`^(\s*,\s*(?:and${SP})?|\s*;\s*|${SP}and${SP})` +
+      String.raw`(\d{1,3})(?:${cv}(\d{1,3}))?([a-c])?` +
+      String.raw`(?:${DASH}(\d{1,3})(?:${cv}(\d{1,3}))?([a-c])?)?` +
+      String.raw`(?![0-9A-Za-z]|${cv}\d)`,
+  );
+
+const REF_RE = refRe(NAME_ALT, ":");
+const CONT_RE = contRe(":");
+
+// Note mode's names: the New Testament's in any case, with these common short
+// forms and with a numbered book's space optional ("1Cor"), and the other
+// books' exactly as above (a lowercase "is 3:15" is a time, not Isaiah).
+// Character classes rather than the i flag, so the rest stays exact.
+const NOTE_SHORT_NAMES = {
+  matthew: ["Mt", "Mat"],
+  mark: ["Mk", "Mrk"],
+  luke: ["Lk", "Luk"],
+  john: ["Jn", "Jhn"],
+  romans: ["Ro"],
+  "1corinthians": ["1 Co"],
+  "2corinthians": ["2 Co"],
+  philippians: ["Php"],
+  "1thessalonians": ["1 Th", "1 Thes"],
+  "2thessalonians": ["2 Th", "2 Thes"],
+  "1timothy": ["1 Ti"],
+  "2timothy": ["2 Ti"],
+  titus: ["Tit"],
+  philemon: ["Phm"],
+  james: ["Jm"],
+  "1peter": ["1 Pt", "1 Pe"],
+  "2peter": ["2 Pt", "2 Pe"],
+  "1john": ["1 Jn", "1 Jhn"],
+  "2john": ["2 Jn", "2 Jhn"],
+  "3john": ["3 Jn", "3 Jhn"],
+  revelation: ["Rv", "Revelations"],
+};
+const squash = (name) => name.replace(/(?:\s|\u00a0|&nbsp;|&#160;)+/g, "").toLowerCase();
+const NOTE_NAME_TO_KEY = new Map();
+for (const [name, key] of NAME_TO_KEY) if (!key.includes(":")) NOTE_NAME_TO_KEY.set(squash(name), key);
+for (const [key, names] of Object.entries(NOTE_SHORT_NAMES)) {
+  for (const name of names) NOTE_NAME_TO_KEY.set(squash(name), key);
+}
+const SP_OPT = String.raw`(?:\s|\u00a0|&nbsp;|&#160;)*`;
+const anyCase = (name) =>
+  escapeRe(name)
+    .replace(/[A-Za-z]/g, (c) => `[${c.toUpperCase()}${c.toLowerCase()}]`)
+    .replace(/^(\d) /, `$1${SP_OPT}`)
+    .replace(/ /g, SP);
+const NOTE_NAME_ALT = [
+  ...[...NAME_TO_KEY].map(([name, key]) => [name, key.includes(":") ? escapeRe(name).replace(/ /g, SP) : anyCase(name)]),
+  ...Object.values(NOTE_SHORT_NAMES).flat().map((name) => [name, anyCase(name)]),
+]
+  .sort((a, b) => b[0].length - a[0].length)
+  .map(([, pattern]) => pattern)
+  .join("|");
+const NOTE_REF_RE = refRe(NOTE_NAME_ALT, "[:.]");
+const NOTE_CONT_RE = contRe("[:.]");
 
 // A numbered book's number ("and 1 Samuel", "and 1 Enoch") is not a verse
 // continuing the list before it, though it parses as one.
@@ -175,6 +247,20 @@ function resolve(key, nums, ctx = {}, opts) {
 
   if (!(chapter >= 1 && chapter <= BOOKS[key])) return null;
   if (verse != null && verse < 1) return null;
+  if (opts.note && verse != null && !opts.hasVerse(key, chapter, verse)) return null;
+
+  // In a note, a range into a later chapter keeps its end ("3:16–4:2", "6–9").
+  let end = null;
+  if (opts.note && c != null) {
+    const endChapter = n(c);
+    if (b != null && d != null) {
+      if (endChapter > chapter && endChapter <= BOOKS[key] && n(d) >= 1 && opts.hasVerse(key, endChapter, n(d))) {
+        end = `${endChapter}:${n(d)}`;
+      }
+    } else if (b == null && d == null && !prev && !single && endChapter > chapter && endChapter <= BOOKS[key]) {
+      end = String(endChapter);
+    }
+  }
 
   let hash = "";
   if (verse != null) {
@@ -195,6 +281,7 @@ function resolve(key, nums, ctx = {}, opts) {
     verse,
     href: `/${key}-${chapter}/${hash}`,
     draft: opts.isDraft(key, chapter),
+    end,
   };
 }
 
@@ -247,19 +334,27 @@ function anchor(target, text) {
   // version), whose & must be written as &amp; inside an attribute.
   if (target.outbound) return `<a class="${target.outbound}" href="${target.href.replace(/&/g, "&amp;")}">${text}</a>`;
   const draft = target.draft ? " data-draft" : "";
-  return `<a class="sref" href="${target.href}"${draft}>${text}</a>`;
+  const end = target.end ? ` data-end="${target.end}"` : "";
+  return `<a class="sref" href="${target.href}"${end}${draft}>${text}</a>`;
 }
 
 /** Links the references in one run of text (no tags inside it). */
 function linkText(text, opts) {
+  const refs = opts.note ? NOTE_REF_RE : REF_RE;
+  const conts = opts.note ? NOTE_CONT_RE : CONT_RE;
   let out = "";
   let last = 0;
-  REF_RE.lastIndex = 0;
+  refs.lastIndex = 0;
   let m;
-  while ((m = REF_RE.exec(text))) {
+  while ((m = refs.exec(text))) {
     const name = m[1].replace(/(?:\s|\u00a0|&nbsp;|&#160;)+/g, " ");
-    const key = NAME_TO_KEY.get(name);
+    let key = NAME_TO_KEY.get(name);
     if (VERSE_ONLY.has(name) && m[3] == null) continue;
+    if (!key && opts.note) {
+      // A name not written as the site writes it ("john", "Jn") needs a verse.
+      if (m[3] == null) continue;
+      key = NOTE_NAME_TO_KEY.get(squash(name));
+    }
     const first = key ? resolve(key, m.slice(2, 8), {}, opts) : null;
     if (!first) continue;
     if (first.outbound && QUALIFIER_BEHIND.test(text.slice(0, m.index))) continue;
@@ -269,8 +364,10 @@ function linkText(text, opts) {
     let pos = m.index + m[0].length;
     let prev = first;
     for (;;) {
-      const cm = CONT_RE.exec(text.slice(pos));
+      const cm = conts.exec(text.slice(pos));
       if (!cm) break;
+      // In a note, only a chapter:verse continues a list (BA89).
+      if (opts.note && cm[3] == null) break;
       const bare = cm[3] == null && cm[5] == null && /^[1-4]$/.test(cm[2]);
       if (bare && NUMBERED_BOOK_AHEAD.test(text.slice(pos + cm[0].length))) break;
       const sepRaw = cm[1].trim();
@@ -282,7 +379,7 @@ function linkText(text, opts) {
       pos += cm[0].length;
       prev = target;
     }
-    REF_RE.lastIndex = pos;
+    refs.lastIndex = pos;
 
     // Tagged with another translation: the whole list stays plain.
     if ((first.outbound ? OUTBOUND_TAG_RE : TAG_RE).test(text.slice(pos))) continue;
@@ -339,11 +436,16 @@ export function mapHtmlText(html, fn, skip = SKIP_TAGS) {
  *   (a draft, or a verse the source text omits) links to the chapter instead.
  * @param {(key: string, chapter: number) => boolean} [opts.isDraft]
  *   Draft chapters get `data-draft`, which the preview reads.
+ * @param {"note"} [opts.mode]
+ *   "note" reads a reader's own note (see the header): stricter lists, any
+ *   case and short names, and `data-end` on a range into a later chapter. A
+ *   verse `hasVerse` refuses is then not linked at all.
  */
 export function linkScriptureRefs(html, opts = {}) {
   const o = {
     hasVerse: opts.hasVerse ?? (() => true),
     isDraft: opts.isDraft ?? (() => false),
+    note: opts.mode === "note",
   };
   const src = String(html);
   if (src.includes(EM_OPEN) || src.includes(EM_CLOSE)) return mapHtmlText(src, (text) => linkText(text, o));

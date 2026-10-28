@@ -11,6 +11,7 @@ import { createRecord } from "../src/lib/desk-records.mjs";
 import {
   CHANNEL,
   bookmarksOn,
+  byPlace,
   changeMessage,
   currentSlug,
   forChapter,
@@ -172,6 +173,32 @@ test("liveRecords leaves trash out and orders by Bible order, then verse, then a
   const { trash } = planDelete(note({ bookKey: "mark", chapter: 1, verse: 1 }), base);
   const got = liveRecords([rom8v28, label, john, trash, rom8v3, matt]);
   assert.deepEqual(got.map((r) => r.id), [matt.id, john.id, rom8v3.id, rom8v28.id, label.id]);
+});
+
+test("byPlace orders by Bible order, chapter, verse, then created, with no-book records last (BA93)", () => {
+  const at = (bookKey, chapter, verse, created) => ({ bookKey, chapter, verse, created });
+  const list = [
+    { id: "label", created: "2026-01-01T00:00:00.000Z" },
+    at("romans", 8, 28, "2026-01-02"),
+    at("romans", 8, 3, "2026-01-03"),
+    at("romans", 4, 30, "2026-01-04"),
+    at("matthew", 28, 20, "2026-01-05"),
+    at("romans", 8, 3, "2026-01-01"),
+  ];
+  const name = (r) => (r.id ? r.id : `${r.bookKey} ${r.chapter}:${r.verse} ${r.created}`);
+  const expected = [
+    "matthew 28:20 2026-01-05",
+    "romans 4:30 2026-01-04",
+    "romans 8:3 2026-01-01",
+    "romans 8:3 2026-01-03",
+    "romans 8:28 2026-01-02",
+    "label",
+  ];
+  assert.deepEqual([...list].sort(byPlace).map(name), expected);
+  assert.deepEqual([...list].reverse().sort(byPlace).map(name), expected);
+  assert.ok(byPlace(at("romans", 1, 1, "a"), {}) < 0, "a record with a book sorts before one without");
+  assert.ok(byPlace({}, at("romans", 1, 1, "a")) > 0);
+  assert.equal(byPlace(at("romans", 1, 1, "a"), at("romans", 1, 1, "a")), 0);
 });
 
 test("forChapter keeps one chapter's records", () => {

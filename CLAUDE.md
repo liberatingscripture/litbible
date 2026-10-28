@@ -223,6 +223,8 @@ src/
     books.js         # NT book constants: BOOKS (chapter counts), BOOK_ORDER,
                      #   bookKeyToLabel(), BOOK_ABBREVIATIONS — the single
                      #   source for book names
+    verse-counts.js  # VERSE_COUNTS: the last verse number of every NT chapter, for
+                     #   browser code with no chapter files (the desk's note linking)
     podcast-feed.xml # Committed podcast snapshot (refreshed by fetch:podcast)
     podcastOverrides.json     # Manual episode metadata overrides
     release-notes.json        # "What's new" entries (auto-appended in CI)
