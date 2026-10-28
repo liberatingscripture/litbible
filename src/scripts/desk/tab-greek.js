@@ -22,6 +22,7 @@
 // changes the scripture on the page.
 
 import { describeParse } from "../../lib/greek-parse.mjs";
+import { GREEK_LICENSE_HREF, SOURCES } from "../../lib/greek-credits.mjs";
 import { parsingQuery } from "../../lib/greek-commands-ui.mjs";
 import {
   W, borrowedFor, firstWordOf, flattenWords, indexOfWord, joinAnd, moveFrom, orderSenses,
@@ -61,14 +62,8 @@ const BORROWED = {
   },
 };
 
-const SOURCES = [
-  ["SBL Greek New Testament (SBLGNT), © 2010 Society of Biblical Literature and Logos Bible Software, CC BY 4.0", "https://github.com/LogosBible/SBLGNT"],
-  ["Lemmas and parsing: MorphGNT, CC BY-SA 3.0", "https://github.com/morphgnt/sblgnt"],
-  ["Parsing for John 7:53–8:11 and Romans 16:25–27: MACULA Greek, Clear Bible, CC BY 4.0", "https://github.com/Clear-Bible/macula-greek"],
-  ["UBS Dictionary of the Greek New Testament, United Bible Societies, CC BY-SA 4.0", "https://github.com/ubsicap/ubs-open-license"],
-  // Credited as STEPBible's README asks: "STEP Bible" linked to www.STEPBible.org.
-  ["STEP Bible: brief lexicon (TBESG) and full LSJ (TFLSJ), Tyndale House Cambridge, CC BY 4.0, reformatted", "https://www.stepbible.org/"],
-];
+// The sources and their licenses are src/lib/greek-credits.mjs, which the
+// search results' credit line shares (BA46).
 
 // How long an apparatus entry stays lit after a sign takes the reader to it.
 const LIT_MS = 1800;
@@ -437,7 +432,7 @@ export function createGreekTab({
     }
     const share = make("p", "desk-greek__sources-note");
     const license = make("a", null, "the license note");
-    license.href = "/greek/LICENSE.txt";
+    license.href = GREEK_LICENSE_HREF;
     share.append("The Greek text files are shared under CC BY-SA 4.0, the lexicons under their own licenses. See ", license, ".");
     sec.append(h, ul, share);
     return sec;

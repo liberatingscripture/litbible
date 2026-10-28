@@ -121,7 +121,12 @@ are recorded so they aren't re-argued.
   reader stops on it (BA64); a fetched chapter keeps only its text, footnotes
   and Go deeper (BA65); and the Greek commands window on /desk sits beside
   its pane and closes with it (BA114).
-  Next: FA1-s (Greek credits and the notebook search).
+  FA1-s is done (#399): each group of Greek search results credits its
+  sources in a line under it, with the Greek tab's names and links (BA46);
+  the Greek's license note says the search index carries STEPBible's brief
+  glosses for most lemmas (BA47); and a Greek search lists the reader's
+  matching notes, where a final σ now matches ς (BA40, BVJ's call).
+  Next: FA1-t (Copy and docs).
 
 - **Phase 2c is built on the preview** (2026-10-20): notes on a footnote
   and questions for discussion. **A note can be on a footnote** (M11):
@@ -273,8 +278,9 @@ are recorded so they aren't re-argued.
   "Fixes and experience" (IDs E1 onward). It never waits for phases 3 and 4.
   Open from BVJ's use so far: Places (E4), and the Greek search commands,
   where putting a search together isn't intuitive (E5; BVJ wants to try a
-  menu-based builder) and a word family can't be searched (E6), and
-  whether the Notebook's Greek tab should search at all (E7). **Decided
+  menu-based builder) and a word family can't be searched (E6),
+  whether the Notebook's Greek tab should search at all (E7), and a switch
+  for whether a Greek search lists the reader's notes (E11, 2026-10-28). **Decided
   2026-10-21** (E8): there is no way into /desk, and **Read View is
   removed at the desk's launch**, its button on a computer becoming the
   way into the desk. **Decided 2026-10-22** (E9, which takes up E4):
@@ -5826,6 +5832,30 @@ split itself is still a proposal BVJ worked within but hasn't confirmed.
   reader's accessibility font still wins on screen. Left out: images and
   tables. The set can grow later but never shrink.
 
+### 2026-10-28 (FA1-s: Greek credits and the notebook search; BVJ's call)
+
+FA1-s fixed BA40, BA46 and BA47 (`STUDY-DESK-AUDIT-1.md`). BVJ decided the
+call the audit left open:
+
+- **BA40, a Greek search lists the reader's matching notes** (BVJ chose
+  this over keeping the Greek alone). The 2026-10-13 rule that one query
+  never gets both English and Greek results was about the English verses,
+  not the reader's own words, so it stands: a query with Greek letters or a
+  Strong's number still gets no English group. Under all types, the
+  notebook's matches are listed too, ahead of the Greek as on every other
+  search (in the tray, and on /search's first page). The notebook's
+  matching also reads a final ς as σ, so "πιστισ" finds a note on πίστις.
+
+Also: **every Greek group credits its sources** in one line under it
+("Greek: SBLGNT; parsing: MorphGNT and MACULA Greek; glosses: UBS and STEP
+Bible (licenses)."), with the Greek tab's names and links, from
+`src/lib/greek-credits.mjs` (BA46; MACULA added to the audit's wording,
+since it gives the index its Strong's numbers and two passages' parsing).
+And `public/greek/LICENSE.txt` says the search index carries STEPBible's
+brief glosses for most lemmas, pointing to github.com/STEPBible as the
+`step/` and `lsj/` sections do, with everything else in `search/` still
+CC BY-SA 4.0 (BA47).
+
 ### 2026-10-27 (E10 built: the website reads and writes `ribbon`)
 
 **For BDR's Claude.** The website now follows E10 (BDR, 2026-10-23) on its
@@ -6781,7 +6811,7 @@ The phases, in working order:
 | FA1-p | Panels beside the Notebook | done, #392: BA24, BA27, BA28 |
 | FA1-q | The gate and first paint | done, #396: BA25, BA26, BA29, BA30 |
 | FA1-r | /desk's smaller fixes | done, #398: BA31, BA62, BA63, BA64, BA65, BA114, BA115 |
-| FA1-s | Greek credits and the notebook search | BA40, BA46, BA47 |
+| FA1-s | Greek credits and the notebook search | done, #399: BA40, BA46, BA47 |
 | FA1-t | Copy and docs | BA15, BA38, BA39, BA42, BA43, BA91, BA109, BA118 |
 | FA1-w | What's new for you | BA88, BA90, BA92, BA96, BA97, BA98 |
 | FA1-x | A note's references | BA89, BA93, BA94, BA95 |
@@ -7084,6 +7114,17 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   of E9** (PR #385): its marker picker says "Ribbon", and it reads an old
   `bookmark` as `ribbon` and writes `ribbon` (see the 2026-10-27 entry
   under "Decisions").
+- **E11, wish: a Greek search should let the reader turn their notes on or
+  off in its results.** BVJ (2026-10-28), right after BA40's call (FA1-s,
+  #399), which made a Greek search under all types list the reader's
+  matching notes ahead of the Greek, in the search tray and on /search's
+  first page. Today the only way to leave them out is to pick the "Greek"
+  type, which also changes how Latin letters are read (as a
+  transliteration or a gloss), so it isn't a real off switch. Open: where
+  the switch lives (the Greek group's foot beside "Search commands", the
+  "Your notebook" group's own title, or /search's filters), whether it
+  is remembered (a new storage key goes in /privacy's paragraph), and
+  whether it should also govern notes on English searches. Status: open.
 
 **Fixed**
 

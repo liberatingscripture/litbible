@@ -410,7 +410,11 @@ that section.
        16:25–27 its Greek from the SBLGNT apparatus and its parsing from
        MACULA's Nestle 1904. Re-run it when a source changes, never by hand.
      - **Licenses keep the files apart.** `text/` and `ubs/` are CC BY-SA
-       4.0 (MorphGNT, UBS); `step/` and `lsj/` stay CC BY 4.0. **Nothing
+       4.0 (MorphGNT, UBS); `step/` and `lsj/` stay CC BY 4.0, as do the
+       STEPBible brief glosses in `search/` (BA47). The sources and their
+       credits are `src/lib/greek-credits.mjs`: the tab lists `SOURCES`, and
+       every group of Greek search results carries `SEARCH_CREDIT` under it
+       (BA46), so a new place that shows Greek results draws it too. **Nothing
        from the LIT goes into `public/greek/`**: the tab's "rendered here
        as…" line reads the page's own `#term-lens-data`, whose terms carry
        their Greek `lemmas` (`term-lens-data.mjs`, from
@@ -438,7 +442,9 @@ that section.
        function returning true.**
      - **One query never gets both English and Greek results** (BVJ,
        2026-10-13). A query with Greek letters or a Strong's number
-       (`isGreekQuery`) gets the Greek alone, at any length (ὁ, ἐν); every
+       (`isGreekQuery`) gets the Greek alone, at any length (ὁ, ἐν), save
+       the reader's own notes: under all types, the notebook's matches
+       come ahead of it (BA40, BVJ 2026-10-28); every
        other query gets exactly the pre-1h search, unless the reader picks
        the type menu's "Greek" (injected by script, only with the gate on),
        which searches Latin text as a transliteration or a gloss. /search

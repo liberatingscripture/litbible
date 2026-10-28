@@ -95,3 +95,15 @@ test("a note on a footnote is found by the words of its footnote", () => {
   assert.deepEqual(searchNotebook([onFn], "sarx").map((h) => h.id), ["fn"]);
   assert.deepEqual(searchNotebook([onFn], "reading").map((h) => h.id), ["fn"], "its own words still count");
 });
+
+test("a final sigma typed as σ is read as ς, in the query and in the note (BA40)", () => {
+  const records = [note("g", "john", 1, 1, "πίστις")];
+  for (const q of ["πιστισ", "πιστις", "ΠΙΣΤΙΣ", "πίστις"]) {
+    assert.deepEqual(searchNotebook(records, q).map((h) => h.id), ["g"], q);
+  }
+  assert.deepEqual(searchTokens("πίστις"), ["πιστισ"]);
+  assert.deepEqual(searchTokens("πιστισ"), ["πιστισ"]);
+  const parts = snippetParts("Faith is πίστις in Greek", searchTokens("πιστισ"));
+  assert.deepEqual(parts.filter((p) => p.mark).map((p) => p.text), ["πίστις"]);
+  assert.equal(parts.map((p) => p.text).join(""), "Faith is πίστις in Greek");
+});
