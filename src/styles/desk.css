@@ -2300,6 +2300,13 @@ html[data-desk-list="full"] .desk-item__pin-text {
   display: none;
 }
 
+/* With "My notes" off, as "Hide my notes" (M1) leaves it, a footnote's popover
+   lists none of the reader's notes, since it opens over the page being shown;
+   the Notebook's tabs and /desk's Footnotes pane still list them (BA17). */
+html[data-desk-notes="off"] .lit-panel .desk-fnn {
+  display: none;
+}
+
 .desk-verse__fn .desk-fnn {
   grid-column: 2;
 }
@@ -5775,7 +5782,25 @@ html.desk-ws--moving * {
   pointer-events: none;
 }
 
+/* How to add a passage, in a template's reading part until the sheet has one
+   (BA70; sheet-pane.js sets data-hint). The sheet never holds it, so it can't
+   print. Its alt text is empty because aria-description already reads it. */
+.desk-rich[data-hint]::after {
+  content: attr(data-hint);
+  content: attr(data-hint) / "";
+  display: block;
+  margin-top: 0.5em;
+  color: rgba(var(--ink-rgb), 0.62);
+  font-style: italic;
+  pointer-events: none;
+  user-select: none;
+}
+
 @media (forced-colors: active) {
+  .desk-rich[data-hint]::after {
+    color: GrayText;
+  }
+
   .desk-rich-tool[aria-pressed="true"],
   .desk-rich-tool[aria-expanded="true"] {
     outline: 2px solid ButtonText;

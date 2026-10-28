@@ -21,8 +21,51 @@ are recorded so they aren't re-argued.
   phases are the next audit: FA1-u (the code this one didn't reach) and
   FA1-v (real devices). The plan,
   and every finding with its fix, is `STUDY-DESK-AUDIT-1.md`. In short, see
-  "Full Audit 1 (10/20/2026)" below. Next: FA1-a, a sheet in a newer
-  format that runs its own script.
+  "Full Audit 1 (10/20/2026)" below. FA1-a to FA1-f are done (#370,
+  #371, #372, #373, #374, #375); FA1-c changed the merge's clamp
+  rule and the merge vectors (version 2), and FA1-d how undo and redo write
+  trash records (BA7). FA1-e made "My default" a layout without a passage
+  (BVJ, BA53; "Decisions", 2026-10-26). FA1-f built rule e's two guards
+  (anchor vectors version 2) and brought the format into line with the
+  code; what the apps should pick up is in the 2026-10-26 note for BDR's
+  Claude under "One notebook, three homes". FA1-u, the follow-up audit,
+  is done (2026-10-26): 58 findings, BA88 to BA145 (14 medium, 44 low).
+  Areas 1 to 3 are in FA1-w to FA1-z and in FA1-k, FA1-r and FA1-t; areas
+  4 to 6 in FA1-aa to FA1-ad and FA1-i. FA1-ab, which BVJ moved ahead of
+  FA1-g, is done (#378): a sheet's change is now planned over the record
+  read in the same transaction as the write, so two tabs on one sheet keep
+  each other's edits (BA129), and a save that fails puts the part back and
+  says why (BA128). FA1-g is done (#379): a shared link opened in a tab
+  already on /sheets/ is moved out of the address on `popstate` too
+  (BA78), a shared file opens its last data line, folded or not, and
+  says when one is damaged (BA80, BA87), a participant share leaves out
+  parts of unknown types (BA81), and opening a share drops its
+  comparison copies (BA82). What the apps should pick up is in the
+  format's "Sharing a sheet." FA1-h is done (#380): Bookmark saves one per
+  verse and Remove bookmark takes every one there (BA16), "Hide my notes"
+  hides notes in a footnote's popover (BA17), going to a note with the
+  notes hidden marks its words (BA19), a note on a footnote is named as
+  one and listed when it cites its own verse (BA20), and a drag ending
+  over a desk window no longer selects the rest of the chapter (BA23; two
+  calls for BVJ in "Decisions", 2026-10-27). FA1-i is done (#381): a template's
+  first passage lands under its reading heading and the instruction to
+  add one is ghost text that never prints (BA69, BA70; BVJ's calls in
+  "Decisions", 2026-10-27), adding a passage again says so where it was
+  added (BA75), a footnote that uses a short blanked word such as "God" is
+  flagged (BA76), the Class session template reads "the leader's copy"
+  (BA77), and "+ Passage" checks its verses (BA127). FA1-j is done (#382): a paste
+  or a drop from Google Docs, Word or a web page keeps its headings, lists,
+  bold and italic, and Word's lists come back as lists (BA68, BA71, BA73),
+  typing just before a tab closes is kept (BA72), and Ctrl+Z on the
+  formatting toolbar undoes the typing rather than the saved text (BA74).
+  FA1-k is done (#383): a broad construction search no longer freezes the
+  tab, and a search joins at most four words (BA44); an English gloss
+  holding a command word ("present time", "in order to") finds its word
+  (BA45; BVJ's calls in "Decisions", 2026-10-27); ".gen" alone is any
+  genitive (BA48); the readback gives each word's distance and says "then"
+  only when the order is fixed (BA50); and the commands window closed
+  mid-drag keeps its place (BA116). BA49 is accepted as it is.
+  Next: FA1-l (/desk's LIT pane and layout).
 
 - **Phase 2c is built on the preview** (2026-10-20): notes on a footnote
   and questions for discussion. **A note can be on a footnote** (M11):
@@ -2239,6 +2282,32 @@ website has to say goes here, on `main`, with its date.
   option); either touches both apps' seven markers. **BDR, 2026-10-23: E9
   accepted, and the marker is renamed `ribbon`** (the format says so; the
   apps file the read-old-write-new change as NB12 on each roadmap).
+- **2026-10-26: for BDR's Claude. The record format now matches the
+  website's code, and rule e's guards are built** (Full Audit 1, phases
+  FA1-c, FA1-d and FA1-f; `STUDY-DESK-AUDIT-1.md`). What the apps should
+  pick up from `STUDY-DESK-FORMAT.md` before the format freezes:
+  - **Rule e's two guards** ("Finding a mark again"; BA8). Where the quoted
+    words occur more than once, an occurrence counts only when 8 characters
+    of context agree; a `changed` region is at most twice the quote plus 16
+    characters. Past either, that step fails and the mark ends on its
+    verses with the notice. The numbers are the website's, for BDR to match
+    or change (Android's own limit is "about twice plus a little").
+    **`test/fixtures/anchor-vectors.json` is spec version 2**, with five new
+    cases and the two numbers in its header, and the chapter vectors for
+    Luke 1 and Luke 22 refreshed from today's text.
+  - **The merge vectors are version 2** ("Clocks", "A clock running ahead";
+    BA4, BA11, BA12): a future time is clamped on every arrival, against a
+    cap that is an export file's own `exported` time when that is earlier,
+    and a record that had to be clamped never beats anything the receiving
+    side holds. One id is one record: a different `kind` under a known id is
+    skipped.
+  - **Undo and redo** (kind 10; BA7): what an undo or redo puts back is
+    stamped fresh, a trash record's `deletedAt` included, and undoing an
+    add deletes through the trash.
+  - **Corrections, no change of rule** (BA14): times end in `Z` (an offset
+    is refused); a tombstone keeps every field but `record`; the Web
+    Annotation `FragmentSelector` is `v3-4`, without `#`; a `hidden`
+    record's note to self is proposed as `body`.
 - Everything else in the proposal (the remaining Zoom items, the sequence)
   waits on the Zoom.
 
@@ -5692,6 +5761,154 @@ split itself is still a proposal BVJ worked within but hasn't confirmed.
   reader's accessibility font still wins on screen. Left out: images and
   tables. The set can grow later but never shrink.
 
+### 2026-10-27 (FA1-k: Greek search commands; BVJ's two calls)
+
+FA1-k fixed BA44, BA45, BA48, BA50 and BA116 (`STUDY-DESK-AUDIT-1.md`).
+BVJ decided the two calls the audit left open:
+
+- **BA45, plain English words holding a command word: a whole gloss wins,
+  then the command, then the gloss again** (BVJ chose this over falling
+  back to the gloss only when the command fails, which left "present time"
+  returning 40 unrelated verses). Two or three plain words with no symbols
+  or quotes that are, whole, a word's gloss, one of its senses or the LIT's
+  rendering of it ("present time", "in order to", "forever and ever") search
+  as that gloss. Anything else is read as a command, and if the command
+  can't be read or finds nothing, the gloss search's answer is shown
+  instead. A reader who means the command writes it with a dot or a comma
+  (`*.pres, time`). This settles the case the 2026-10-14 entry left open
+  for command words; two plain words with only a space between them are
+  still a construction when they aren't a gloss.
+- **BA49, `*.sg` loading nearly the whole parse index: accepted** (BVJ
+  chose this over requiring a part of speech or case with number, gender or
+  person). It loads 54 of the 57 files, about 600 KB compressed, once a
+  visit; a note in `groupsForFilters` says so.
+
+Also: **a search joins at most four words** (BA44's cap, an error sentence,
+and a line in the commands window), which is what lets the matcher stay
+fast; and **a filter with no word before it is any word** (".gen" is
+"*.gen", BA48).
+
+### 2026-10-27 (FA1-i: sheet templates and passages; BVJ's two calls)
+
+FA1-i fixed BA69, BA70, BA75, BA76, BA77 and BA127
+(`STUDY-DESK-AUDIT-1.md`). BVJ decided the two calls the audit left open:
+
+- **BA69, where a passage lands in a template: by the reading heading,
+  for as long as the sheet has no passage** (BVJ chose this over setting
+  the reading part as "last worked in" only when the sheet is made, which
+  a reopened sheet would lose). A passage added before any part is worked
+  in goes after the part headed "Reading," "Read" or "The text." Once there
+  is a passage, the next goes after the last one, so passages added one
+  after another stay in order (Claude's addition, since otherwise the second
+  landed after "Closing"). A part the reader has clicked or typed in still
+  wins. A sheet doesn't record which part is the reading, so a renamed
+  heading isn't found and the passage goes at the end.
+- **BA70, the instructions that printed: ghost text** (BVJ asked for it
+  over removing the sentence when the first passage is added, if it could
+  be done). The templates no longer hold "Add the passage with + Passage,
+  or from the LIT pane's verse numbers." The editor shows it, dimmed and in
+  italics, inside the reading part's box until the sheet has a passage.
+  The sheet never holds it, so it can't print or go up on a room's screen.
+  Sheets made before this change still hold the old sentence, to delete
+  by hand.
+
+### 2026-10-27 (FA1-h: marks on the page; two calls for BVJ to judge)
+
+FA1-h (#380) fixed BA16, BA17, BA19, BA20 and BA23 (`STUDY-DESK-AUDIT-1.md`). Two
+of them needed a call the audit left to the session. Both are
+recommendations, for BVJ to confirm or change:
+
+- **BA23, a drag that ends over a desk window: the selection ends where
+  the pointer last was over the text.** The audit offered three fixes:
+  end it there, offer no panel, or ask before a note on more than a few
+  verses. The first was taken, since it keeps the gesture working and asks
+  nothing. The page's own selection is moved to match, so what is
+  highlighted is what the panel offers. A drag that really goes past the
+  last verse (below the text going down, above it going up) still runs to
+  the end, as before. It is shared reader code (`chapter-tools.js`, rule in
+  `src/lib/selection-end.mjs`), so it serves every reader, though only the
+  desk's windows and /desk's panes set it off today.
+- **BA19, going to a note while the notes are hidden: focus goes to where
+  its words are.** The 2026-10-07 decision (the margin switch, item 7)
+  says focus lands on the note, but with the notes hidden the margin holds
+  none. Focus goes to the verse number its marked words start in, or for a
+  note on a footnote to that footnote's first link, so a keyboard reader
+  arrives where the marking is.
+
+### 2026-10-26 (FA1-u, areas 4 to 6: 25 findings; FA1-u done)
+
+- **FA1-u's second session** audited /desk's use of the shared modules
+  (area 4), sheets beyond one tab (area 5), and a copy pass and the
+  stylesheet (area 6). **25 findings, BA121 to BA145: 7 medium and 18
+  low**, by area 6, 7 and 12. They are written up in
+  `STUDY-DESK-AUDIT-1.md` under FA1-u and planned in four new phases
+  (FA1-aa /desk's panes and the shared modules, FA1-ab Sheets in two tabs
+  and large sheets, FA1-ac The copy pass, FA1-ad The stylesheet), with
+  BA127 in FA1-i. That ends FA1-u: 58 findings over its two sessions.
+- **Two are data loss, in sheets** (BA128, BA129): a failed save leaves
+  every later edit unsaved, and a tab that hasn't heard another tab's save
+  writes its older copy over the whole sheet. **BVJ moved FA1-ab up to
+  follow FA1-u** (2026-10-26), by the plan's own rule, data loss first, so
+  it is the next phase.
+- **BVJ took Claude's recommendation on all four calls** (2026-10-26):
+  - **BA125**: a verse menu or selection panel opened with the mouse in a
+    /desk pane is pinned to the screen, as a dragged one is, rather than
+    closed when the pane scrolls.
+  - **BA138**: “Notebook” is capitalized where it names the panel (“Close
+    the Notebook”); “my notebook” stays lowercase where it means what the
+    reader has kept (“Save a copy of my notebook”).
+  - **BA139**: “My Notes” names the tab and the pane only; the margin is
+    “Notes in the margin,” in its switch, its region's name and its
+    command.
+  - **BA144**: text fields' borders rise to about 3:1 site-wide, not only
+    on the desk, as its own commit in FA1-ad.
+
+### 2026-10-26 (FA1-u, areas 1 to 3: 33 findings; a stricter linker for notes)
+
+- **FA1-u's first session** audited What's new for you and your own chains
+  (area 1), places and ribbons (area 2), and the Greek tab's reading view
+  and the commands window (area 3). **33 findings, BA88 to BA120: 7 medium
+  and 26 low**, by area 11, 11 and 11. They are written up in
+  `STUDY-DESK-AUDIT-1.md` under FA1-u and planned in four new phases
+  (FA1-w What's new for you, FA1-x A note's references, FA1-y Ribbons and
+  Continue reading, FA1-z The Greek tab), with BA116 in FA1-k, BA114 and
+  BA115 in FA1-r, and BA91, BA109 and BA118 in FA1-t. Areas 4 to 6 are
+  next.
+- **A note's references get a stricter linker** (BVJ, 2026-10-26; BA89).
+  In a reader's note, a bare number after a comma or “and” no longer
+  continues a list of verses, so “Romans 8:28, 3 reasons” stays plain and
+  doesn't chain a note to Romans 8:3. A continuation links only when it is
+  itself a reference with a colon (“8:28, 9:1”), so “8:28, 30” in a note
+  links 8:28 alone. Footnotes, intros and articles keep today's rule.
+  Recommended with it, not a separate decision: a table of verse counts so
+  a verse past a chapter's end never links.
+- **The Greek tab searches a one-letter Greek word** (BVJ, 2026-10-26;
+  BA110): its two-character floor is lifted for Greek and Strong's
+  numbers, as the tray and /search already do, so ὦ (“O”) and ἤ are
+  searchable by their forms. The floor never kept results small (καί
+  passes it). A bare search for the article is no use, since ὁ is in
+  6,966 of 7,942 verses; recommended, not decided: answer it with a line
+  pointing to a search beside a word (“ὁ, θεός”) instead of the list.
+- **FA1-y meets E9.** The ribbon findings describe today's code, which E9
+  (2026-10-22) will rebuild as Bookmarks; each says what E9 would make
+  moot, and if E9 is built first, FA1-y folds into it.
+
+### 2026-10-26 (FA1-e: "My default" is a layout, not a passage)
+
+- **"My default" saves an arrangement, not a place** (BVJ, 2026-10-26;
+  BA53, option 1 of three). Opening the desk with My default gives its
+  panes, kinds, sizes, "Stay here" pins and each Sheet pane's sheet, at the
+  place the reader was last on /desk, or Continue reading's when the desk
+  has none. Until then it reopened at the passage where the default was
+  made, ignoring both, which D9's answer 2 (the default as a *layout*)
+  didn't mean. A pinned pane in the default keeps its Stay here but starts
+  at the reader's place. Weighed and not chosen: keeping the default as a
+  saved desk, passage and all (a bookmark by another name, and a reset of
+  the reader's place on every visit with nothing on the page saying why),
+  and a "Remember the passage too" box beside "Make this my default" (one
+  more control in the Layout menu). The default still stores its places, so
+  a later choice can use them; the page ignores them on the way in.
+
 ### 2026-10-23 (BDR's answers: E9 accepted, the marker renamed `ribbon`, two confirmations)
 
 - **E9, bookmarks and ribbons one feature: accepted by BDR** (2026-10-23).
@@ -6460,21 +6677,29 @@ The phases, in working order:
 | FA1-d | The store, the note editor, and undo | BA5, BA13, BA6, BA7 |
 | FA1-e | /desk keeps the reader's place | BA51, BA52, BA53, BA55 |
 | FA1-f | The record format, for BDR | BA8, BA14 |
-| FA1-u | The follow-up audit: code this audit didn't reach | new, BA88 onward |
-| FA1-g | Sharing a sheet | BA78, BA80, BA81, BA82, BA87 |
-| FA1-h | Marks on the page | BA16, BA17, BA19, BA20, BA23 |
-| FA1-i | Sheet templates and passages | BA69, BA70, BA75, BA76, BA77 |
-| FA1-j | The sheet editor: pasting and saving | BA68, BA71, BA72, BA73, BA74 |
-| FA1-k | Greek search commands | BA44, BA45, BA48, BA49, BA50 |
+| FA1-u | The follow-up audit: code this audit didn't reach | done: BA88 to BA145 |
+| FA1-ab | Sheets in two tabs, and large sheets | BA128 to BA133 |
+| FA1-g | Sharing a sheet | done, #379: BA78, BA80, BA81, BA82, BA87 |
+| FA1-h | Marks on the page | done, #380: BA16, BA17, BA19, BA20, BA23 |
+| FA1-i | Sheet templates and passages | done, #381: BA69, BA70, BA75, BA76, BA77, BA127 |
+| FA1-j | The sheet editor: pasting and saving | done, #382: BA68, BA71, BA72, BA73, BA74 |
+| FA1-k | Greek search commands | done, #383: BA44, BA45, BA48, BA49, BA50, BA116 |
 | FA1-l | /desk's LIT pane and layout | BA54, BA56, BA57, BA58, BA60, BA61 |
 | FA1-m | The tour, first use, and printing | BA33, BA34, BA35, BA36, BA37 |
 | FA1-n | Present mode and the sheet page | BA79, BA83, BA84, BA85, BA86 |
 | FA1-o | Announcements and focus for marks | BA18, BA21, BA22 |
 | FA1-p | Panels beside the Notebook | BA24, BA27, BA28 |
 | FA1-q | The gate and first paint | BA25, BA26, BA29, BA30 |
-| FA1-r | /desk's smaller fixes | BA31, BA62, BA63, BA64, BA65 |
+| FA1-r | /desk's smaller fixes | BA31, BA62, BA63, BA64, BA65, BA114, BA115 |
 | FA1-s | Greek credits and the notebook search | BA40, BA46, BA47 |
-| FA1-t | Copy and docs | BA15, BA38, BA39, BA42, BA43 |
+| FA1-t | Copy and docs | BA15, BA38, BA39, BA42, BA43, BA91, BA109, BA118 |
+| FA1-w | What's new for you | BA88, BA90, BA92, BA96, BA97, BA98 |
+| FA1-x | A note's references | BA89, BA93, BA94, BA95 |
+| FA1-y | Ribbons and Continue reading | BA99 to BA108 |
+| FA1-z | The Greek tab | BA110, BA111, BA112, BA113, BA117, BA119, BA120 |
+| FA1-aa | /desk's panes and the shared modules | BA121 to BA126 |
+| FA1-ac | The copy pass | BA134 to BA139 |
+| FA1-ad | The stylesheet: focus, forced colors, contrast, and print | BA140 to BA145 |
 | FA1-v | The follow-up audit: real devices | new |
 
 FA1-f should land before the record format is frozen for the apps, and

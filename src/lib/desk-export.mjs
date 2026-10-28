@@ -13,14 +13,18 @@
 //                         file re-imports losslessly here too.
 //   Markdown              for people, after the mocked file in D1: headings,
 //                         the quoted words, the note. A note edited in the
-//                         file comes back as an edit; a new well-formed entry
-//                         comes back as a new note.
+//                         file comes back as an edit, unless the note here
+//                         changed after the file was saved (BA1); a new
+//                         well-formed entry comes back as a new note, unless
+//                         its id was deleted here (BA2).
 //
 // Opening a copy never deletes anything because it is missing from the file
 // (audit C17): a record absent from the file is simply not read. A deletion
 // reaches the notebook only as a trash record, which only the full backup
-// carries. Pure: no storage, no DOM, no clock unless the caller leaves `now`
-// or `exported` out.
+// carries. The two JSON files' own `exported` time caps their records' times
+// in the merge, and a record dated by a clock running ahead never replaces,
+// deletes or brings back anything here (BA4). Pure: no storage, no DOM, no
+// clock unless the caller leaves `now` or `exported` out.
 //
 // Motivations in the Web Annotation file (decided here, for BVJ to confirm):
 //   highlight    highlighting
@@ -39,7 +43,8 @@ import { LIT_CREDIT_LINE } from "./lit-credit.mjs";
 import { osisRef } from "./osis.mjs";
 import { labelMap, labelsOf } from "./desk-labels.mjs";
 import { mergeRecords } from "./desk-merge.mjs";
-import { MARKERS, SCHEMA_VERSION, createRecord, editRecord, proseTarget, validateRecord } from "./desk-records.mjs";
+import { MARKERS, SCHEMA_VERSION, canEdit, createRecord, editRecord, proseTarget, validateRecord } from "./desk-records.mjs";
+import { cleanSheetText } from "./desk-sheet-format.mjs";
 import { kindName, liveRecords, recordHref, recordReference } from "./desk-store-core.mjs";
 
 export const ORIGIN = "https://litbible.net";
@@ -185,22 +190,31 @@ export function toWebAnnotation(records, opts) {
 
 const MD_TITLE = "# My LIT notebook";
 const MD_END = "<!-- lit-notebook end -->";
-const idComment = (id) => `<!-- lit:id=${id} -->`;
-const ID_COMMENT = /^<!--\s*lit:id=(\S+?)\s*-->$/;
+// An entry's comment carries its record's `modified` (BA1), so opening an
+// older copy can tell an edit made in the file from words changed here since.
+// A file saved before that has only the id, and the header's time stands in.
+const idComment = (id, modified) => `<!-- lit:id=${id}${typeof modified === "string" ? ` modified=${modified}` : ""} -->`;
+const ID_COMMENT = /^<!--\s*lit:id=(\S+?)(?:\s+modified=(\S+?))?\s*-->$/;
 
-/** Body lines that could be read as structure get a backslash, which parsing takes off again. */
+/**
+ * The reader's words made safe for a Markdown file. A line that could be read
+ * as structure (`#`, `>`, `\`) gets a backslash, and every `<` becomes `\<`,
+ * so a Markdown viewer shows typed HTML as text instead of rendering it
+ * (BA41); that covers a line starting `<!--` too. unescapeBody undoes both
+ * exactly: every `\<` in the escaped text is one this added.
+ */
 export function escapeBody(text) {
   return String(text ?? "")
     .replace(/\r\n?/g, "\n")
     .split("\n")
-    .map((line) => (/^(#|>|\\|<!--)/.test(line) ? `\\${line}` : line))
+    .map((line) => (/^(#|>|\\)/.test(line) ? `\\${line}` : line).replace(/</g, "\\<"))
     .join("\n");
 }
 
 export function unescapeBody(text) {
   return text
     .split("\n")
-    .map((line) => line.replace(/^\\(?=[#>\\]|<!--)/, ""))
+    .map((line) => line.replace(/\\</g, "<").replace(/^\\(?=[#>\\])/, ""))
     .join("\n");
 }
 
@@ -223,7 +237,7 @@ function kindLine(r) {
 }
 
 function entryMarkdown(r, labels) {
-  const lines = [`## ${headingOf(r)}`, idComment(r.id)];
+  const lines = [`## ${headingOf(r)}`, idComment(r.id, r.modified)];
   const address = addressOf(r);
   if (address) lines.push(address);
   const names = labelsOf(r, labels).map((l) => l.name);
@@ -249,7 +263,7 @@ export function toMarkdown(records, { exported = isoNow() } = {}) {
   const entries = live.filter((r) => isAnnotated(r) && r.kind !== "place");
   const places = live.filter((r) => r.kind === "place");
   const labelRecords = [...labels.values()];
-  const out = [MD_TITLE, `<!-- ${BACKUP_FORMAT} ${BACKUP_VERSION} · saved ${clock(exported)} -->`];
+  const out = [MD_TITLE, `<!-- ${BACKUP_FORMAT} ${BACKUP_VERSION} · saved ${clock(exported)} · ${exported} -->`];
   for (const r of entries) out.push("", entryMarkdown(r, labels));
   if (places.length) {
     out.push("", "## Places");
@@ -308,6 +322,13 @@ const KIND_WORD = /^(Highlight|Note on a footnote|Note|Bookmark|Pinned footnote|
 /** One `##` entry of a Markdown file, as written. */
 function readEntries(text) {
   const lines = String(text).replace(/\r\n?/g, "\n").split("\n");
+  // The first non-blank line after each line, worked out once from the end,
+  // so a file of many headings reads in one pass (BA10).
+  const nextFilled = new Array(lines.length);
+  for (let i = lines.length - 1, next = ""; i >= 0; i--) {
+    nextFilled[i] = next;
+    if (lines[i].trim() !== "") next = lines[i];
+  }
   const entries = [];
   let section = null; // "Places" | "Labels" | null
   let at = null;
@@ -321,13 +342,13 @@ function readEntries(text) {
     const heading = /^##\s+(.*\S)\s*$/.exec(line);
     if (heading) {
       finish();
-      const next = lines.slice(i + 1).find((l) => l.trim() !== "") ?? "";
+      const next = nextFilled[i];
       if ((heading[1] === "Places" || heading[1] === "Labels") && !ID_COMMENT.test(next.trim())) {
         section = heading[1];
         continue;
       }
       section = null;
-      at = { line: i + 1, heading: heading[1], id: null, link: null, meta: null, quote: [], body: [], seenQuote: false, seenBody: false };
+      at = { line: i + 1, heading: heading[1], id: null, modified: null, link: null, meta: null, quote: [], body: [], seenQuote: false, seenBody: false };
       continue;
     }
     if (section || !at) continue;
@@ -337,6 +358,7 @@ function readEntries(text) {
       const id = ID_COMMENT.exec(t);
       if (id && !at.id) {
         at.id = id[1];
+        at.modified = id[2] ?? null;
         continue;
       }
       if (/^https?:\/\//.test(t) && !at.link) {
@@ -364,8 +386,38 @@ function readEntries(text) {
 
 const fail = (line, message) => ({ line, message });
 
+/** A time in milliseconds, or null when it is missing or won't parse. */
+function instantOf(iso) {
+  const n = typeof iso === "string" ? Date.parse(iso) : NaN;
+  return Number.isNaN(n) ? null : n;
+}
+
+/**
+ * When the file was saved, from its header: the full time, or, in a file saved
+ * before the header carried one, "saved YYYY-MM-DD HH:MM" (UTC, cut from the
+ * same time) with the minute rounded down, so the guess never makes the file
+ * newer than it is. Null when there is no header.
+ */
+function savedAt(text) {
+  const head = /<!--\s*lit-notebook\b([^\n]*?)-->/.exec(text)?.[1] ?? "";
+  const full = instantOf(/·\s*(\d{4}-\d\d-\d\dT\S+)/.exec(head)?.[1]);
+  if (full != null) return full;
+  const minute = /saved\s+(\d{4}-\d\d-\d\d)\s+(\d\d:\d\d)/.exec(head);
+  return minute ? instantOf(`${minute[1]}T${minute[2]}:00.000Z`) : null;
+}
+
 function parseMarkdown(text, { local = [], ctx = {}, now = isoNow() } = {}) {
-  const localById = new Map(local.filter((r) => typeof r?.id === "string").map((r) => [r.id, r]));
+  const localById = new Map(local.filter((r) => typeof r?.id === "string" && r.kind !== "trash").map((r) => [r.id, r]));
+  // The ids the notebook holds as deleted (BA2): the id each trash record
+  // deleted, which a tombstone keeps past 30 days, and the trash record's own.
+  const trashFor = new Map();
+  for (const r of local) {
+    if (r?.kind !== "trash") continue;
+    if (typeof r.deletedId === "string") trashFor.set(r.deletedId, r);
+    if (typeof r.id === "string") trashFor.set(r.id, r);
+  }
+  const fileSaved = savedAt(text);
+  const nowMs = instantOf(now);
   const records = [];
   const problems = [];
   const entries = readEntries(text);
@@ -381,15 +433,36 @@ function parseMarkdown(text, { local = [], ctx = {}, now = isoNow() } = {}) {
       // A known id: the words may have been edited. Nothing else is read back,
       // so a heading or a date edited in the file changes nothing.
       const field = have.kind === "note" ? "body" : have.kind === "bookmark" ? "label" : null;
-      if (field && body !== String(have[field] ?? "").trim()) {
+      if (field && canEdit(have) && body !== String(have[field] ?? "").trim()) {
         if (have.kind === "note" && !body && !have.quote && !have.marker) {
           records.push(have);
-        } else {
-          records.push(editRecord(have, { [field]: body }, { now, client: ctx.client }));
+          continue;
         }
+        // The words differ. They were edited in the file only if the record
+        // here is no newer than the file's copy of it (BA1). If it is newer,
+        // they were changed here after the copy was saved, and they stay: the
+        // file's words go to the merge under the file's own time, lose to the
+        // newer record, and are counted as kept here. A file with no time at
+        // all is taken to be the older, and so is a time later than now: a
+        // clock running ahead can't be ordered against anything here, and
+        // trusting it would beat every later edit each time the file is
+        // opened (BA4).
+        const fileTime = [instantOf(e.modified), fileSaved].find((t) => t != null && (nowMs == null || t <= nowMs)) ?? null;
+        const here = instantOf(have.modified);
+        const editedInFile = fileTime != null && here != null && here <= fileTime;
+        const stamp = editedInFile ? now : fileTime != null ? new Date(fileTime).toISOString() : have.modified;
+        records.push(editRecord(have, { [field]: body }, { now: stamp, client: ctx.client }));
       } else {
         records.push(have);
       }
+      continue;
+    }
+
+    if (e.id && trashFor.has(e.id)) {
+      // Deleted here since this copy was saved. A stale copy never brings a
+      // deleted note back (A-F10), so an id held as trash is never reused.
+      const where = "record" in trashFor.get(e.id) ? " It is in the trash, if you want it back." : "";
+      problems.push(fail(e.line, `“${e.heading}” has been deleted here since this copy was saved, so it was left out.${where}`));
       continue;
     }
 
@@ -461,9 +534,12 @@ function placeOf(e) {
  *   `local` (the notebook's records) lets a Markdown entry with a known id
  *   become an edit of that record; `ctx` stamps notes made from new entries.
  * @returns {{ kind: "backup" | "webAnnotation" | "markdown" | "unknown",
- *   records: object[], problems: { line: number | null, message: string }[], notes: string[] }}
+ *   records: object[], problems: { line: number | null, message: string }[], notes: string[],
+ *   exported?: string }}
  *   `problems` are things left out, for the reader to look over; `notes` are
- *   things worth saying that left nothing out.
+ *   things worth saying that left nothing out; `exported` is when a JSON file
+ *   says it was saved (a Markdown file's time is read entry by entry instead,
+ *   and its edits are stamped now, so it gives none).
  */
 export function parseImport(text, opts = {}) {
   const source = String(text ?? "").replace(/^﻿/, "");
@@ -494,7 +570,7 @@ function parseBackup(data) {
   if (Number.isFinite(data.version) && data.version > BACKUP_VERSION) {
     notes.push("This copy was saved by a newer version of the notebook. Anything this version doesn’t know is kept as it is.");
   }
-  return { kind: "backup", records: data.records, problems, notes };
+  return { kind: "backup", records: data.records, problems, notes, ...savedTime(data.exported) };
 }
 
 function isAnnotation(data) {
@@ -504,10 +580,13 @@ function isAnnotation(data) {
 }
 
 function parseAnnotations(data) {
-  const items = Array.isArray(data) ? data : data.type === "Annotation" ? [data] : (data.first?.items ?? data.items ?? []);
+  const listed = Array.isArray(data) ? data : data.type === "Annotation" ? [data] : (data.first?.items ?? data.items ?? []);
   const records = [];
   const problems = [];
   const notes = [];
+  // A list that isn't one is reported, not read (BA9).
+  const items = Array.isArray(listed) ? listed : [];
+  if (!Array.isArray(listed)) problems.push(fail(null, "This file’s list of annotations couldn’t be read."));
   items.forEach((a, i) => {
     const record = a?.lit?.record;
     if (record && typeof record === "object") records.push(record);
@@ -517,7 +596,12 @@ function parseAnnotations(data) {
   if (data.lit?.version > BACKUP_VERSION) {
     notes.push("This copy was saved by a newer version of the notebook. Anything this version doesn’t know is kept as it is.");
   }
-  return { kind: "webAnnotation", records, problems, notes };
+  return { kind: "webAnnotation", records, problems, notes, ...savedTime(data.lit?.exported ?? data.created) };
+}
+
+/** `{ exported }` when a JSON file says when it was saved, for the merge's cap; else nothing. */
+function savedTime(value) {
+  return typeof value === "string" && instantOf(value) != null ? { exported: value } : {};
 }
 
 /* ── Planning an import ──────────────────────────────────────────────── */
@@ -538,30 +622,71 @@ function canonical(value) {
 const same = (a, b) => canonical(a) === canonical(b);
 
 /**
+ * How deeply a record from a file may nest, counting the record itself as 1.
+ * The format's deepest records (a sheet, inside a trash record) are a few
+ * levels deep, so this is generous; it is there because a browser refuses to
+ * store a record nested thousands deep (a structured-clone RangeError), which
+ * validateRecord can't see (BA5).
+ */
+export const MAX_NESTING = 64;
+
+/** Whether `value` nests deeper than `limit`. Iterative, so a deep file can't overflow the stack. */
+export function nestedTooDeep(value, limit = MAX_NESTING) {
+  const stack = [[value, 1]];
+  while (stack.length) {
+    const [v, depth] = stack.pop();
+    if (!v || typeof v !== "object") continue;
+    if (depth > limit) return true;
+    for (const k of Object.keys(v)) stack.push([v[k], depth + 1]);
+  }
+  return false;
+}
+
+/** A record from a file with any sheet's formatted text sanitized, in the trash too (BA66). */
+function cleanIncoming(r) {
+  if (r?.kind !== "trash") return cleanSheetText(r);
+  const inner = cleanSheetText(r.record);
+  return inner === r.record ? r : { ...r, record: inner };
+}
+
+/**
  * What opening a copy would do, before anything is written. Merged with the
  * merge engine (desk-merge.mjs), so the newer writing wins for every kind,
  * a deletion and an edit settle by the later action, and a copy that is
  * older than what is here changes nothing. A record that is malformed is
- * reported and left out, never written.
+ * reported and left out, never written, and a sheet's formatted text is
+ * sanitized on the way in whatever its format (cleanSheetText).
  *
  * @param {object[]} local what the notebook holds now, trash included
  * @param {object[]} incoming the records read from the file
- * @param {{ now?: string, tiebreak?: Function }} [ctx]
+ * @param {{ now?: string, exported?: string, tiebreak?: Function }} [ctx]
+ *   `exported` is the file's own time (parseImport's), the merge's cap.
  * @returns {{ plan: { put: object[], remove: string[] },
- *   summary: { added: number, updated: number, unchanged: number, keptHere: number, deleted: number, skipped: number },
- *   skipped: { record: unknown, reason: string }[] }}
- *   `keptHere` counts records whose copy here is newer, or whose deletion
- *   here stands; `deleted` those the file deletes.
+ *   summary: { added: number, updated: number, unchanged: number, keptHere: number, deleted: number, trash: number, skipped: number },
+ *   skipped: { record: unknown, reason: string }[], ahead: { record: unknown, written: boolean }[] }}
+ *   Every write the plan makes is counted, so a plan that changes anything
+ *   never reads as "Nothing to open" (BA11). `added`, `updated` and `deleted`
+ *   count records written; `trash` the deletions whose trash record changed
+ *   with no record of their own changing (one written for a record never
+ *   here, two collapsed into one, one emptied after its 30 days); `keptHere`
+ *   the file's records that changed nothing because the copy here is newer,
+ *   or a deletion here stands, or the record here is still newer than the
+ *   file's deletion of it; `ahead` the merge's records dated by a clock
+ *   running ahead.
  */
 export function planImport(local, incoming, ctx = {}) {
   const skipped = [];
   const usable = [];
   for (const r of incoming ?? []) {
+    if (nestedTooDeep(r)) {
+      skipped.push({ record: r, reason: "It is nested too deeply to be kept." });
+      continue;
+    }
     const bad = r && typeof r === "object" && r.kind !== "trash" ? validateRecord(r) : [];
     if (bad.length) skipped.push({ record: r, reason: `${bad.join("; ")}.`.replace(/^./, (c) => c.toUpperCase()) });
-    else usable.push(r);
+    else usable.push(cleanIncoming(r));
   }
-  const merged = mergeRecords(local, usable, { now: ctx.now, tiebreak: ctx.tiebreak });
+  const merged = mergeRecords(local, usable, { now: ctx.now, exported: ctx.exported, tiebreak: ctx.tiebreak });
   skipped.push(...merged.skipped);
 
   const was = new Map(local.filter((r) => typeof r?.id === "string").map((r) => [r.id, r]));
@@ -569,33 +694,91 @@ export function planImport(local, incoming, ctx = {}) {
   for (const id of merged.remove) now.delete(id);
   for (const r of merged.put) now.set(r.id, r);
 
+  const summary = { added: 0, updated: 0, unchanged: 0, keptHere: 0, deleted: 0, trash: 0, skipped: skipped.length };
+  const isTrash = (r) => r?.kind === "trash";
+
+  // What was written, counted from the writes themselves (BA11).
+  const written = new Set([...merged.put.map((r) => r.id), ...merged.remove]);
+  const changedHere = new Set();
+  for (const id of written) {
+    const before = was.get(id);
+    const after = now.get(id);
+    if (isTrash(before) || isTrash(after)) continue;
+    changedHere.add(id);
+    if (!before) summary.added++;
+    else if (!after) summary.deleted++;
+    else summary.updated++;
+  }
+  // A trash record's change counts once per deletion, and not at all when it
+  // goes with its record's own (deleted by the file, or brought back by it).
+  const trashFor = new Set();
+  for (const id of written) {
+    const t = now.get(id) ?? was.get(id);
+    if (isTrash(t) && !changedHere.has(t.deletedId)) trashFor.add(t.deletedId);
+  }
+  summary.trash = trashFor.size;
+
+  // What the file held that changed nothing.
   const rejected = new Set(merged.skipped.map((s) => s.record));
-  const counted = new Set();
-  const summary = { added: 0, updated: 0, unchanged: 0, keptHere: 0, deleted: 0, skipped: skipped.length };
+  const seen = new Set();
   for (const r of usable) {
-    if (rejected.has(r) || typeof r.id !== "string" || counted.has(r.id)) continue;
-    if (r.kind === "trash") {
+    if (rejected.has(r) || typeof r?.id !== "string" || seen.has(r.id) || written.has(r.id)) continue;
+    seen.add(r.id);
+    if (isTrash(r)) {
+      // A deletion in the file that didn't take: the record here is newer.
       const live = was.get(r.deletedId);
-      if (live && live.kind !== "trash" && !now.has(r.deletedId)) summary.deleted++;
+      if (live && !isTrash(live) && !written.has(r.deletedId)) summary.keptHere++;
       continue;
     }
-    counted.add(r.id);
     const before = was.get(r.id);
-    const after = now.get(r.id);
-    if (!before) {
-      if (after) summary.added++;
-      else summary.keptHere++;
-    } else if (!after) {
-      summary.keptHere++;
-    } else if (!same(before, after)) {
-      summary.updated++;
-    } else if (same(before, r)) {
-      summary.unchanged++;
-    } else {
-      summary.keptHere++;
-    }
+    if (before && same(before, r)) summary.unchanged++;
+    else summary.keptHere++;
   }
-  return { plan: { put: merged.put, remove: merged.remove }, summary, skipped };
+  return { plan: { put: merged.put, remove: merged.remove }, summary, skipped, ahead: merged.ahead };
+}
+
+/**
+ * Read a chosen file and plan opening it against what the notebook holds
+ * now: everything the "Open a copy" result shows. Run it again when the
+ * reader presses Open, since the notebook may have changed since the file was
+ * chosen, here, in another tab, or by Keep (BA3), and write that plan.
+ *
+ * @param {string} text the file's contents
+ * @param {{ local: object[], ctx?: { client: string, contentVersion: string }, now?: string }} opts
+ * @returns {{ message: string } | { read: object, planned: object, sentence: string, ahead: string | null }}
+ *   `message` alone when the file isn't one this page opens; otherwise
+ *   parseImport's reading, planImport's plan, the summary sentence (with what
+ *   the reading left out counted in) and a sentence about records from a
+ *   clock running ahead, if any.
+ */
+export function planOpen(text, { local, ctx, now = isoNow() }) {
+  const read = parseImport(text, { local, ctx, now });
+  if (read.kind === "unknown") return { message: read.problems[0]?.message ?? "This isn’t a notebook file." };
+  const planned = planImport(local, read.records, { now, exported: read.exported });
+  const sentence = describeSummary({ ...planned.summary, skipped: planned.summary.skipped + read.problems.length });
+  return { read, planned, sentence, ahead: describeAhead(planned.ahead) };
+}
+
+/** Whether two readings of one file would do the same thing, as the reader was told. */
+export const sameOpen = (a, b) => !a.message && !b.message && a.sentence === b.sentence && a.ahead === b.ahead;
+
+/**
+ * A plain sentence about records dated by a clock running ahead, or null.
+ * "2 records in this file were dated by a clock running ahead. Such a record
+ * never replaces, deletes or brings back anything here: 1 added with an
+ * earlier date, and yours kept for the other."
+ */
+export function describeAhead(ahead = []) {
+  const n = ahead.length;
+  if (!n) return null;
+  const added = ahead.filter((a) => a.written).length;
+  const kept = n - added;
+  const head = `${n === 1 ? "One record in this file was" : `${n} records in this file were`} dated by a clock running ahead.`;
+  let rest;
+  if (!kept) rest = `${n === 1 ? "It was" : "They were"} added with an earlier date.`;
+  else if (!added) rest = `Yours ${n === 1 ? "is" : "are"} kept as ${n === 1 ? "it is" : "they are"}.`;
+  else rest = `${added} added with an earlier date, and yours kept for the other${kept === 1 ? "" : ` ${kept}`}.`;
+  return `${head} Such a record never replaces, deletes or brings back anything here: ${rest.charAt(0).toLowerCase()}${rest.slice(1)}`;
 }
 
 /** A plain sentence for a summary: "3 new, 1 updated, 12 already here." */
@@ -604,6 +787,7 @@ export function describeSummary(s) {
   if (s.added) parts.push(`${s.added} new`);
   if (s.updated) parts.push(`${s.updated} updated`);
   if (s.deleted) parts.push(`${s.deleted} deleted`);
+  if (s.trash) parts.push(`${s.trash} ${s.trash === 1 ? "change" : "changes"} in the trash`);
   if (s.unchanged) parts.push(`${s.unchanged} already here`);
   if (s.keptHere) parts.push(`${s.keptHere} kept as they are here (yours ${s.keptHere === 1 ? "is" : "are"} newer)`);
   if (s.skipped) parts.push(`${s.skipped} left out`);

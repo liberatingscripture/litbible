@@ -194,7 +194,13 @@ function openFileRow(root, store) {
     let fragment = null;
     try {
       fragment = fragmentInFile(await file.text());
-    } catch (_) {}
+    } catch (err) {
+      // A data line begun but unreadable is damaged, not missing (BA87).
+      if (err instanceof ShareError) {
+        status.textContent = err.message;
+        return;
+      }
+    }
     if (!fragment) {
       status.textContent = SHARE_ERRORS["no-data"];
       return;

@@ -24,6 +24,7 @@ import {
   stillCurrent,
 } from "../src/lib/desk-history.mjs";
 import { placeHighlights, planHighlight } from "../src/lib/desk-highlights.mjs";
+import { mergeRecords, mergeSets } from "../src/lib/desk-merge.mjs";
 import { createRecord } from "../src/lib/desk-records.mjs";
 import { liveRecords, planDelete, planSave, planUndo, planWrite } from "../src/lib/desk-store-core.mjs";
 
@@ -73,7 +74,7 @@ function notebook(records = []) {
     step(entry, side, now) {
       const have = new Map(entry.after.map(({ id }) => [id, held.get(id) ?? null]));
       if (!stillCurrent(entry, have, side)) return null;
-      const plan = (side === "undo" ? inversePlan : redoPlan)(entry, { now, client: ctx.client });
+      const plan = (side === "undo" ? inversePlan : redoPlan)(entry, { now, ...ctx });
       nb.apply(plan, { record: false });
       return entry;
     },
@@ -157,9 +158,20 @@ test("inversePlan removes what was absent and puts back the rest, stamped as the
   assert.equal(undo.put[0].client, "web/2026.11");
   assert.equal(undo.put[0].created, T0);
 
+  // An add undoes as a deletion, through a trash record under the id the
+  // entry allotted, so a copy saved before the undo can't bring it back (BA7).
   const fresh = note({ bookKey: "romans", chapter: 8, verse: 4 });
-  const add = makeEntry({ put: [fresh], remove: [] }, new Map(), "e");
-  assert.deepEqual(inversePlan(add, { now: T2, client: ctx.client }), { put: [], remove: [fresh.id] });
+  const add = makeEntry({ put: [fresh], remove: [] }, new Map(), "e", { newId: () => "trash-1" });
+  assert.deepEqual(add.undoTrash, [{ id: fresh.id, trashId: "trash-1" }]);
+  const gone = inversePlan(add, { now: T2, client: ctx.client, contentVersion: VERSION });
+  assert.deepEqual(gone.remove, [fresh.id]);
+  assert.equal(gone.put.length, 1);
+  assert.equal(gone.put[0].id, "trash-1");
+  assert.equal(gone.put[0].kind, "trash");
+  assert.equal(gone.put[0].deletedId, fresh.id);
+  assert.equal(gone.put[0].deletedAt, T2);
+  assert.equal(gone.put[0].contentVersion, VERSION);
+  assert.deepEqual(gone.put[0].record, fresh);
 });
 
 test("inversePlan outranks the change it undoes under the newer-modified rule", () => {
@@ -191,15 +203,19 @@ test("undoing a deletion brings the record back stamped, and removes the trash r
   assert.equal(undo.put[0].body, "mine");
 });
 
-test("redoing a deletion puts the trash record back exactly as it was", () => {
+test("redoing a deletion deletes again, now: the trash record comes back with a fresh deletedAt", () => {
   const r = note({ bookKey: "romans", chapter: 8, verse: 3 });
   const plan = planDelete(r, { ...ctx, now: T1, id: nextId() });
   const entry = makeEntry(plan, new Map([[r.id, r]]), "e");
   const redo = redoPlan(entry, { now: T3, client: "web/2026.11" });
   assert.deepEqual(redo.remove, [r.id]);
   assert.equal(redo.put.length, 1);
-  assert.deepEqual(redo.put[0], plan.trash);
-  assert.equal(redo.put[0].modified, T1);
+  const { deletedAt, modified, client, ...rest } = redo.put[0];
+  const { deletedAt: _d, modified: _m, client: _c, ...was } = plan.trash;
+  assert.deepEqual(rest, was, "everything else, the held record included, is as deleted");
+  assert.equal(deletedAt, T3);
+  assert.equal(modified, T3);
+  assert.equal(client, "web/2026.11");
 });
 
 test("redoPlan is inversePlan from the other side: it puts the edited note back, stamped", () => {
@@ -338,7 +354,10 @@ test("a note: add, edit and delete each undo and redo, in order, and an undo is 
   const redone = nb.step(afterDelete, "redo", "2026-10-09T09:04:00.000Z");
   assert.notEqual(redone, null);
   assert.equal(stored(nb, r.id), null);
-  assert.deepEqual(stored(nb, trash.trash.id), trash.trash, "the trash record is exactly as deleted");
+  const { deletedAt, modified: _m, ...rest } = stored(nb, trash.trash.id);
+  const { deletedAt: _d, modified: _m2, ...was } = trash.trash;
+  assert.deepEqual(rest, was, "the trash record holds what was deleted");
+  assert.equal(deletedAt, "2026-10-09T09:04:00.000Z", "and is dated by the redo");
 });
 
 test("an entry can be undone, redone and undone again", () => {
@@ -588,4 +607,162 @@ test("no sentence the history makes holds an em dash; a verse range takes an en 
 test("describeEntry: a note on a footnote added reads as a footnote in its verse", () => {
   const r = note({ bookKey: "romans", chapter: 8, verse: 3 }, { footnote: "The Greek sarx means flesh here." });
   assert.equal(describeEntry(entryFor({ put: [r], remove: [] })), "Note on a footnote in Romans 8:3 added.");
+});
+
+/* ── Undoing an add, and a copy of the notebook saved in between (BA7) ─ */
+
+const T4 = "2026-10-09T08:15:00.000Z";
+const trashOf = (nb, id) => [...nb.held.values()].filter((r) => r.kind === "trash" && r.deletedId === id);
+const copyOf = (nb) => [...nb.held.values()].map((r) => structuredClone(r));
+
+test("makeEntry lists each record the change added, with an allotted trash id, and no other", () => {
+  const added = note({ bookKey: "romans", chapter: 8, verse: 3 });
+  const kept = note({ bookKey: "romans", chapter: 8, verse: 4 });
+  let k = 0;
+  const newId = () => `trash-${++k}`;
+  const entry = makeEntry({ put: [added, { ...kept, body: "new", modified: T1 }], remove: [] }, new Map([[kept.id, kept]]), "e", { newId });
+  assert.deepEqual(entry.undoTrash, [{ id: added.id, trashId: "trash-1" }], "an edit adds nothing");
+  // A deletion adds a trash record, which is not a record the reader added.
+  const gone = planDelete(kept, { ...ctx, now: T1, id: nextId() });
+  assert.deepEqual(makeEntry(gone, new Map([[kept.id, kept]]), "e", { newId }).undoTrash, []);
+  // With no newId given, an id is made.
+  const [{ trashId }] = makeEntry({ put: [added], remove: [] }, new Map(), "e").undoTrash;
+  assert.equal(typeof trashId, "string");
+  assert.ok(trashId && trashId !== added.id);
+});
+
+test("undoing an add leaves a trash record under the allotted id; redoing removes it and brings the note back", () => {
+  const nb = notebook();
+  const r = note({ bookKey: "romans", chapter: 8, verse: 3 });
+  nb.apply(planSave(r));
+  const entry = nb.last;
+  const [{ trashId }] = entry.undoTrash;
+  assert.deepEqual(trashOf(nb, r.id), [], "nothing in the trash while the note stands");
+
+  nb.step(entry, "undo", T2);
+  assert.equal(stored(nb, r.id), null);
+  const t = stored(nb, trashId);
+  assert.equal(t.kind, "trash");
+  assert.equal(t.deletedId, r.id);
+  assert.equal(t.deletedAt, T2);
+  assert.equal(t.modified, T2);
+  assert.equal(t.client, ctx.client);
+  assert.equal(t.contentVersion, VERSION);
+  assert.deepEqual(t.record, r, "it holds the note as added");
+  assert.equal(nb.last, entry, "the undo made no entry of its own");
+
+  nb.step(entry, "redo", T3);
+  assert.equal(stored(nb, r.id).body, "mine");
+  assert.equal(stored(nb, r.id).modified, T3);
+  assert.equal(stored(nb, trashId), null);
+  assert.deepEqual(trashOf(nb, r.id), [], "no trash is left behind");
+});
+
+test("an add can be undone, redone and undone again: the allotted trash id is reused", () => {
+  const nb = notebook();
+  const r = note({ bookKey: "romans", chapter: 8, verse: 3 });
+  nb.apply(planSave(r));
+  const entry = nb.last;
+  const [{ trashId }] = entry.undoTrash;
+  assert.notEqual(nb.step(entry, "undo", T1), null);
+  assert.notEqual(nb.step(entry, "redo", T2), null);
+  assert.notEqual(nb.step(entry, "undo", T3), null);
+  assert.equal(stored(nb, r.id), null);
+  assert.deepEqual(trashOf(nb, r.id).map((t) => t.id), [trashId]);
+  assert.equal(stored(nb, trashId).deletedAt, T3, "dated by the latest undo");
+});
+
+test("a highlight added and then undone leaves a trash record holding it", () => {
+  const nb = notebook();
+  const { entry } = mark(nb, "patient", "yellow", T1);
+  const [h] = liveHighlights(nb);
+  assert.equal(entry.undoTrash.length, 1);
+  assert.equal(entry.undoTrash[0].id, h.id);
+  nb.step(entry, "undo", T2);
+  assert.equal(liveHighlights(nb).length, 0);
+  const t = stored(nb, entry.undoTrash[0].trashId);
+  assert.equal(t.kind, "trash");
+  assert.equal(t.deletedKind, "highlight");
+  assert.equal(t.record.quote.exact, "patient");
+  nb.step(entry, "redo", T3);
+  assert.equal(liveHighlights(nb)[0].quote.exact, "patient");
+  assert.equal(stored(nb, entry.undoTrash[0].trashId), null);
+});
+
+test("stillCurrent ignores a trash record's deletedAt, but not the same field on any other record", () => {
+  const r = note({ bookKey: "romans", chapter: 8, verse: 3 });
+  const plan = planDelete(r, { ...ctx, now: T1, id: nextId() });
+  const entry = makeEntry(plan, new Map([[r.id, r]]), "e");
+  const redated = { ...plan.trash, deletedAt: T3, modified: T3 };
+  assert.equal(stillCurrent(entry, new Map([[r.id, null], [plan.trash.id, redated]]), "undo"), true);
+  // Anything else on the trash record still counts.
+  assert.equal(stillCurrent(entry, new Map([[r.id, null], [plan.trash.id, { ...redated, deletedId: "other" }]]), "undo"), false);
+
+  // On a record that isn't trash, a deletedAt is a field like any other.
+  const fresh = note({ bookKey: "romans", chapter: 8, verse: 4 });
+  const add = makeEntry({ put: [{ ...fresh, deletedAt: T1 }], remove: [] }, new Map(), "e");
+  assert.equal(stillCurrent(add, new Map([[fresh.id, { ...fresh, deletedAt: T1 }]]), "undo"), true);
+  assert.equal(stillCurrent(add, new Map([[fresh.id, { ...fresh, deletedAt: T3 }]]), "undo"), false);
+  assert.equal(stillCurrent(add, new Map([[fresh.id, fresh]]), "undo"), false);
+});
+
+test("isNoop ignores a trash record's deletedAt too, and nothing else on it", () => {
+  const r = note({ bookKey: "romans", chapter: 8, verse: 3 });
+  const { trash } = planDelete(r, { ...ctx, now: T1, id: nextId() });
+  const before = new Map([[trash.id, trash]]);
+  assert.equal(isNoop(makeEntry({ put: [{ ...trash, deletedAt: T3, modified: T3 }], remove: [] }, before, "e")), true);
+  assert.equal(isNoop(makeEntry({ put: [{ ...trash, deletedId: "other" }], remove: [] }, before, "e")), false);
+});
+
+test("undoing a restore deletes again, now: the trash record comes back with a fresh deletedAt", () => {
+  const r = note({ bookKey: "romans", chapter: 8, verse: 3 });
+  const plan = planDelete(r, { ...ctx, now: T1, id: nextId() });
+  const nb = notebook([plan.trash]);
+  nb.apply(planUndo(plan.trash, { now: T2, client: ctx.client }));
+  const entry = nb.last;
+  assert.equal(stored(nb, r.id).modified, T2);
+  nb.step(entry, "undo", T3);
+  assert.equal(stored(nb, r.id), null);
+  const back = stored(nb, plan.trash.id);
+  assert.equal(back.deletedAt, T3);
+  assert.equal(back.modified, T3);
+  assert.deepEqual(back.record, r);
+});
+
+test("BA7: delete, undo, a copy saved, then redo the deletion: the copy can't bring the note back", () => {
+  const nb = notebook();
+  const r = note({ bookKey: "romans", chapter: 8, verse: 3 });
+  nb.apply(planSave(r));
+  const deleted = (nb.apply(planDelete(nb.get(r.id), { ...ctx, now: T1, id: nextId() })), nb.last);
+  nb.step(deleted, "undo", T2);
+  assert.equal(stored(nb, r.id).modified, T2);
+  const backup = copyOf(nb);
+  nb.step(deleted, "redo", T3);
+  assert.equal(stored(nb, r.id), null);
+
+  const merged = mergeRecords([...nb.held.values()], backup, { now: T4 });
+  assert.equal(merged.put.some((x) => x.id === r.id), false, "the note is not written back");
+  assert.deepEqual(merged.remove, [], "and the deletion is not taken away");
+  assert.equal(mergeSets([...nb.held.values()], backup, { now: T4 }).some((x) => x.id === r.id), false);
+  assert.equal(trashOf(nb, r.id).length, 1);
+});
+
+test("BA7: add, a copy saved, then undo the add: the copy can't bring the note back", () => {
+  const nb = notebook();
+  const r = note({ bookKey: "romans", chapter: 8, verse: 3 });
+  nb.apply(planSave(r));
+  const entry = nb.last;
+  const backup = copyOf(nb);
+  nb.step(entry, "undo", T2);
+  assert.equal(stored(nb, r.id), null);
+
+  const merged = mergeRecords([...nb.held.values()], backup, { now: T3 });
+  assert.equal(merged.put.some((x) => x.id === r.id), false, "the note is not written back");
+  assert.equal(mergeSets([...nb.held.values()], backup, { now: T3 }).some((x) => x.id === r.id && x.kind === "note"), false);
+
+  // And a redo, which is the reader acting again, does outrank that copy.
+  nb.step(entry, "redo", T4);
+  const again = mergeSets([...nb.held.values()], backup, { now: "2026-10-09T09:00:00.000Z" });
+  assert.equal(again.filter((x) => x.id === r.id && x.kind === "note").length, 1);
+  assert.equal(again.some((x) => x.kind === "trash" && x.deletedId === r.id), false);
 });

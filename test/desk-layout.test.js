@@ -724,7 +724,7 @@ test("a layout round-trips through writeSaved and readSaved", () => {
 });
 
 test("a pin and an unknown kind survive a round trip", () => {
-  const l = mk(cols([0.5, 0.5], leaf("a", "lit"), leaf("b", "greek", { at: "John 1:1" })), "a");
+  const l = mk(cols([0.5, 0.5], leaf("p1", "lit"), leaf("p2", "greek", { at: "John 1:1" })), "p1");
   assert.deepEqual(checkLayout(structuredClone(l)), l);
 });
 
@@ -735,58 +735,68 @@ test("checkLayout rejects what isn't a layout", () => {
 });
 
 test("checkLayout rejects duplicate ids", () => {
-  const dup = { root: cols([0.5, 0.5], leaf("a", "lit"), leaf("a", "mine")), active: "a" };
+  const dup = { root: cols([0.5, 0.5], leaf("p1", "lit"), leaf("p1", "mine")), active: "p1" };
   assert.equal(checkLayout(dup), null);
 });
 
+test("checkLayout accepts only the ids nextId makes (BA59)", () => {
+  // A stored id goes into markup (id="deskPassage-…") and selectors, so a
+  // hostile one is refused before it gets there.
+  for (const id of ['p1"><img src=x onerror=alert(1)>', 'p1"]', "p1 p2", "a", "P1", "p", "p1234", "p-1", " p1", ""]) {
+    const l = { root: cols([0.5, 0.5], leaf(id, "lit"), leaf("p2", "mine")), active: id };
+    assert.equal(checkLayout(l), null, JSON.stringify(id));
+  }
+  assert.ok(checkLayout({ root: cols([0.5, 0.5], leaf("p1", "lit"), leaf("p999", "mine")), active: "p1" }));
+});
+
 test("checkLayout rejects more than four panes", () => {
-  const five = { root: cols([0.2, 0.2, 0.2, 0.2, 0.2], ...["a", "b", "c", "d", "e"].map((i) => leaf(i, "mine"))), active: null };
+  const five = { root: cols([0.2, 0.2, 0.2, 0.2, 0.2], ...["p1", "p2", "p3", "p4", "p5"].map((i) => leaf(i, "mine"))), active: null };
   assert.equal(checkLayout(five), null);
-  const four = { root: cols([0.25, 0.25, 0.25, 0.25], ...["a", "b", "c", "d"].map((i) => leaf(i, "mine"))), active: null };
+  const four = { root: cols([0.25, 0.25, 0.25, 0.25], ...["p1", "p2", "p3", "p4"].map((i) => leaf(i, "mine"))), active: null };
   assert.ok(checkLayout(four));
 });
 
 test("checkLayout rejects a split with fewer than two children", () => {
-  assert.equal(checkLayout({ root: { split: "columns", sizes: [1], children: [leaf("a", "lit")] }, active: "a" }), null);
+  assert.equal(checkLayout({ root: { split: "columns", sizes: [1], children: [leaf("p1", "lit")] }, active: "p1" }), null);
   assert.equal(checkLayout({ root: { split: "columns", sizes: [], children: [] }, active: null }), null);
   assert.equal(checkLayout({ root: { split: "columns", sizes: [1, 1] }, active: null }), null);
-  const inner = cols([0.5, 0.5], leaf("a", "lit"), { split: "rows", sizes: [1], children: [leaf("b", "mine")] });
-  assert.equal(checkLayout({ root: inner, active: "a" }), null);
+  const inner = cols([0.5, 0.5], leaf("p1", "lit"), { split: "rows", sizes: [1], children: [leaf("p2", "mine")] });
+  assert.equal(checkLayout({ root: inner, active: "p1" }), null);
 });
 
 test("checkLayout rejects a bad split name", () => {
-  const bad = { root: { split: "diagonal", sizes: [0.5, 0.5], children: [leaf("a", "lit"), leaf("b", "mine")] }, active: "a" };
+  const bad = { root: { split: "diagonal", sizes: [0.5, 0.5], children: [leaf("p1", "lit"), leaf("p2", "mine")] }, active: "p1" };
   assert.equal(checkLayout(bad), null);
 });
 
 test("checkLayout rejects non-string or empty ids and kinds", () => {
-  assert.equal(checkLayout({ root: leaf("a", 5), active: null }), null);
-  assert.equal(checkLayout({ root: leaf("a", ""), active: null }), null);
-  assert.equal(checkLayout({ root: leaf("a", null), active: null }), null);
+  assert.equal(checkLayout({ root: leaf("p1", 5), active: null }), null);
+  assert.equal(checkLayout({ root: leaf("p1", ""), active: null }), null);
+  assert.equal(checkLayout({ root: leaf("p1", null), active: null }), null);
   assert.equal(checkLayout({ root: leaf(1, "lit"), active: null }), null);
   assert.equal(checkLayout({ root: leaf("", "lit"), active: null }), null);
-  assert.equal(checkLayout({ root: cols([0.5, 0.5], leaf("a", "lit"), leaf("b", ["mine"])), active: "a" }), null);
+  assert.equal(checkLayout({ root: cols([0.5, 0.5], leaf("p1", "lit"), leaf("p2", ["mine"])), active: "p1" }), null);
 });
 
 test("checkLayout keeps a kind it doesn't know", () => {
-  const l = checkLayout({ root: cols([0.5, 0.5], leaf("a", "lit"), leaf("b", "timeline")), active: "a" });
-  assert.equal(findPane(l.root, "b").kind, "timeline");
+  const l = checkLayout({ root: cols([0.5, 0.5], leaf("p1", "lit"), leaf("p2", "timeline")), active: "p1" });
+  assert.equal(findPane(l.root, "p2").kind, "timeline");
 });
 
 test("checkLayout drops a pin on a kind that doesn't follow, and cleans one that does", () => {
   const l = checkLayout({
-    root: cols([0.25, 0.25, 0.25, 0.25], leaf("a", "lit", { at: "x" }), leaf("b", "verse", { at: "John 3:16", extra: 1 }), leaf("c", "greek", { at: 5 }), leaf("d", "footnotes", "nope")),
-    active: "a",
+    root: cols([0.25, 0.25, 0.25, 0.25], leaf("p1", "lit", { at: "x" }), leaf("p2", "verse", { at: "John 3:16", extra: 1 }), leaf("p3", "greek", { at: 5 }), leaf("p4", "footnotes", "nope")),
+    active: "p1",
   });
-  assert.equal(findPane(l.root, "a").pin, null);
-  assert.deepEqual(findPane(l.root, "b").pin, { at: "John 3:16" });
-  assert.deepEqual(findPane(l.root, "c").pin, { at: null });
-  assert.equal(findPane(l.root, "d").pin, null);
+  assert.equal(findPane(l.root, "p1").pin, null);
+  assert.deepEqual(findPane(l.root, "p2").pin, { at: "John 3:16" });
+  assert.deepEqual(findPane(l.root, "p3").pin, { at: null });
+  assert.equal(findPane(l.root, "p4").pin, null);
 });
 
 test("checkLayout replaces bad sizes with even ones", () => {
-  const make = (sizes) => checkLayout({ root: { split: "columns", sizes, children: [leaf("a", "lit"), leaf("b", "mine")] }, active: "a" });
-  for (const sizes of [undefined, [1], [0.5, 0.5, 0], [0, 1], [-1, 2], ["a", "b"], [NaN, 1], [Infinity, 1], "x"]) {
+  const make = (sizes) => checkLayout({ root: { split: "columns", sizes, children: [leaf("p1", "lit"), leaf("p2", "mine")] }, active: "p1" });
+  for (const sizes of [undefined, [1], [0.5, 0.5, 0], [0, 1], [-1, 2], ["p1", "p2"], [NaN, 1], [Infinity, 1], "x"]) {
     close(make(sizes).root.sizes, [0.5, 0.5], JSON.stringify(sizes));
   }
   close(make([0.7, 0.3]).root.sizes, [0.7, 0.3]);
@@ -794,23 +804,23 @@ test("checkLayout replaces bad sizes with even ones", () => {
 });
 
 test("checkLayout normalizes the tree it reads", () => {
-  const l = checkLayout({ root: cols([0.5, 0.5], cols([0.5, 0.5], leaf("a", "lit"), leaf("b", "mine")), leaf("c", "verse")), active: "a" });
-  assert.deepEqual(l.root.children.map((c) => c.pane.id), ["a", "b", "c"]);
+  const l = checkLayout({ root: cols([0.5, 0.5], cols([0.5, 0.5], leaf("p1", "lit"), leaf("p2", "mine")), leaf("p3", "verse")), active: "p1" });
+  assert.deepEqual(l.root.children.map((c) => c.pane.id), ["p1", "p2", "p3"]);
   close(l.root.sizes, [0.25, 0.25, 0.5]);
 });
 
 test("checkLayout settles the active pane", () => {
-  const root = () => cols([0.5, 0.5], leaf("a", "mine"), leaf("b", "lit"));
-  assert.equal(checkLayout({ root: root(), active: "b" }).active, "b");
-  assert.equal(checkLayout({ root: root(), active: "a" }).active, "b", "a pane that isn't LIT");
-  assert.equal(checkLayout({ root: root(), active: "zzz" }).active, "b");
-  assert.equal(checkLayout({ root: root(), active: 7 }).active, "b");
-  assert.equal(checkLayout({ root: root() }).active, "b");
-  assert.equal(checkLayout({ root: cols([0.5, 0.5], leaf("a", "mine"), leaf("b", "verse")), active: "a" }).active, null);
+  const root = () => cols([0.5, 0.5], leaf("p1", "mine"), leaf("p2", "lit"));
+  assert.equal(checkLayout({ root: root(), active: "p2" }).active, "p2");
+  assert.equal(checkLayout({ root: root(), active: "p1" }).active, "p2", "a pane that isn't LIT");
+  assert.equal(checkLayout({ root: root(), active: "zzz" }).active, "p2");
+  assert.equal(checkLayout({ root: root(), active: 7 }).active, "p2");
+  assert.equal(checkLayout({ root: root() }).active, "p2");
+  assert.equal(checkLayout({ root: cols([0.5, 0.5], leaf("p1", "mine"), leaf("p2", "verse")), active: "p1" }).active, null);
 });
 
 test("checkLayout accepts a single pane", () => {
-  assert.deepEqual(checkLayout({ root: leaf("a", "lit"), active: "a" }), { root: leaf("a", "lit"), active: "a" });
+  assert.deepEqual(checkLayout({ root: leaf("p1", "lit"), active: "p1" }), { root: leaf("p1", "lit"), active: "p1" });
 });
 
 test("readSaved of garbage gives nothing saved and the 'last' start", () => {
@@ -853,12 +863,40 @@ test("writeSaved writes the saved state as text", () => {
 test("openingLayout picks the default, the last, or the original", () => {
   const last = applyArrangement(originalLayout(), "rows-2");
   const mine = applyArrangement(originalLayout(), "cols-3");
-  assert.equal(openingLayout({ last, mine, start: "default" }), mine);
+  assert.deepEqual(openingLayout({ last, mine, start: "default" }), mine);
   assert.equal(openingLayout({ last, mine, start: "last" }), last);
-  assert.equal(openingLayout({ last: null, mine, start: "last" }), mine);
+  assert.deepEqual(openingLayout({ last: null, mine, start: "last" }), mine);
   assert.equal(openingLayout({ last, mine: null, start: "default" }), last);
   assert.deepEqual(openingLayout({ last: null, mine: null, start: "last" }), originalLayout());
   assert.deepEqual(openingLayout(readSaved("garbage")), originalLayout());
+  assert.deepEqual(openingLayout(readSaved("garbage"), "acts 2"), originalLayout("acts 2"));
+});
+
+test("BA53: My default opens its arrangement at the last place on the desk, not the one it was made at", () => {
+  // Made at Romans 8 with a second LIT pane, a pinned Greek and a sheet.
+  let mine = setPlace(applyArrangement(originalLayout(), "grid"), "romans 8:1");
+  mine = setKind(mine, "p2", "lit");
+  mine = setLitAt(mine, "p2", "romans 9:1");
+  mine = setPin(mine, "p4", true, "romans 8:3");
+  mine = setPaneSheet(setKind(mine, "p3", "sheet"), "p3", "s1");
+  const last = setLitAt(originalLayout(), "p1", "john 3:16");
+  const open = openingLayout({ last, mine, start: "default" }, "acts 2");
+  assert.equal(open.place, "john 3:16");
+  assert.equal(findPane(open.root, "p1").at, "john 3:16");
+  assert.equal(findPane(open.root, "p2").at, "john 3:16");
+  assert.deepEqual(findPane(open.root, "p4").pin, { at: "john 3:16" }, "Stay here is kept, at the reader's place");
+  assert.equal(findPane(open.root, "p3").sheet, "s1", "the Sheet pane keeps its sheet");
+  assert.equal(arrangementOf(open), "grid");
+  assert.deepEqual(open.root.sizes, mine.root.sizes);
+  assert.equal(findPane(mine.root, "p1").at, "romans 8:1", "the saved default is not mutated");
+
+  const first = openingLayout({ last: null, mine, start: "default" }, "acts 2");
+  assert.equal(first.place, "acts 2", "no last place on the desk: Continue reading's");
+  assert.equal(findPane(first.root, "p2").at, "acts 2");
+  const none = openingLayout({ last: null, mine, start: "default" });
+  assert.equal("place" in none, false, "no place at all: the page starts one");
+  assert.equal("at" in findPane(none.root, "p1"), false);
+  assert.equal(findPane(none.root, "p4").pin.at, null);
 });
 
 // ---- purity ---------------------------------------------------------------
@@ -920,8 +958,11 @@ test("setPlace sets the place the following panes share", () => {
   const next = setPlace(l, "john 3:16");
   assert.equal(next.place, "john 3:16");
   assert.equal(next.active, l.active);
-  assert.deepEqual(next.root, l.root);
-  assert.equal(setPlace(next, "mark 1").place, "mark 1");
+  assert.equal(findPane(next.root, "p1").at, "john 3:16", "the LIT pane, with no place yet, starts there (BA52)");
+  assert.equal("at" in findPane(l.root, "p1"), false, "the layout given is not mutated");
+  const later = setPlace(next, "mark 1");
+  assert.equal(later.place, "mark 1");
+  assert.deepEqual(later.root, next.root, "a LIT pane with a place keeps it");
 });
 
 test("setPlace returns the same object when nothing changes", () => {
@@ -992,13 +1033,13 @@ test("the shared place survives applyArrangement, closePane and splitPane", () =
 });
 
 test("checkLayout keeps a string place and drops anything else", () => {
-  const root = () => cols([0.5, 0.5], leaf("a", "lit"), leaf("b", "verse"));
-  assert.equal(checkLayout({ root: root(), active: "a", place: "john 3:16" }).place, "john 3:16");
+  const root = () => cols([0.5, 0.5], leaf("p1", "lit"), leaf("p2", "verse"));
+  assert.equal(checkLayout({ root: root(), active: "p1", place: "john 3:16" }).place, "john 3:16");
   for (const bad of [undefined, null, "", 5, {}, ["john 3"], true]) {
-    const l = checkLayout({ root: root(), active: "a", place: bad });
+    const l = checkLayout({ root: root(), active: "p1", place: bad });
     assert.equal("place" in l, false, String(bad));
   }
-  assert.equal("place" in checkLayout({ root: root(), active: "a" }), false);
+  assert.equal("place" in checkLayout({ root: root(), active: "p1" }), false);
 });
 
 test("a place round-trips through writeSaved and readSaved", () => {
@@ -1039,7 +1080,7 @@ test("setLitAt on a LIT pane that is not active sets its place and leaves the sh
   assert.equal(findPane(next.root, "p3").at, "romans 8:1");
   assert.equal(next.place, "mark 1");
   assert.equal(next.active, "p1");
-  assert.equal(findPane(next.root, "p1").at, undefined);
+  assert.equal(findPane(next.root, "p1").at, "mark 1", "it keeps the shared place setPlace gave it");
   assert.equal("place" in setLitAt(twoLit(), "p3", "romans 8:1"), false, "no shared place is added");
 });
 
@@ -1073,7 +1114,9 @@ test("setActive to a LIT pane with no passage leaves the shared place unchanged"
 test("litPlace is the pane's own passage, else the shared place, and null for a non-LIT pane", () => {
   const l = setPlace(setLitAt(twoLit(), "p3", "romans 8:1"), "mark 1");
   assert.equal(litPlace(l, "p3"), "romans 8:1");
-  assert.equal(litPlace(l, "p1"), "mark 1", "no passage of its own: the shared place");
+  assert.equal(litPlace(l, "p1"), "mark 1", "given the shared place when it was set");
+  const byHand = { ...twoLit(), place: "mark 1" };
+  assert.equal(litPlace(byHand, "p1"), "mark 1", "no passage of its own: the shared place");
   assert.equal(litPlace(l, "p2"), null, "My Notes is not a LIT pane");
   assert.equal(litPlace(l, "nope"), null);
   assert.equal(litPlace(twoLit(), "p1"), null, "no passage anywhere");
@@ -1111,16 +1154,76 @@ test("checkLayout keeps a LIT pane's passage and the shared place, and drops a p
     split: "columns",
     sizes: [0.34, 0.33, 0.33],
     children: [
-      { pane: { id: "a", kind: "lit", pin: null, at: "john 3:16" } },
-      { pane: { id: "b", kind: "mine", pin: null, at: "romans 8:1" } },
-      { pane: { id: "c", kind: "lit", pin: null, at: 5 } },
+      { pane: { id: "p1", kind: "lit", pin: null, at: "john 3:16" } },
+      { pane: { id: "p2", kind: "mine", pin: null, at: "romans 8:1" } },
+      { pane: { id: "p3", kind: "lit", pin: null, at: 5 } },
     ],
   };
-  const l = checkLayout({ root, active: "a", place: "john 3:16" });
-  assert.equal(findPane(l.root, "a").at, "john 3:16");
-  assert.equal("at" in findPane(l.root, "b"), false, "a passage on My Notes is dropped");
-  assert.equal("at" in findPane(l.root, "c"), false, "a passage that is not a string is dropped");
+  const l = checkLayout({ root, active: "p1", place: "john 3:16" });
+  assert.equal(findPane(l.root, "p1").at, "john 3:16");
+  assert.equal("at" in findPane(l.root, "p2"), false, "a passage on My Notes is dropped");
+  assert.equal(findPane(l.root, "p3").at, "john 3:16", "a passage that is not a string gives way to the shared place");
   assert.equal(l.place, "john 3:16");
+});
+
+// ---- FA1-e: /desk keeps the reader's place ----
+
+test("BA52: a new LIT pane starts at the shared place and keeps it when the active pane moves", () => {
+  const base = setPlace(originalLayout(), "john 3:16");
+  const split = splitPane(base, "p2", "right", newPane(base, "lit"));
+  assert.equal(findPane(split.root, "p3").at, "john 3:16");
+  const moved = setLitAt(split, "p1", "john 4:1");
+  assert.equal(moved.place, "john 4:1");
+  assert.equal(litPlace(moved, "p3"), "john 3:16", "the second pane stays where it was");
+
+  const kind = setKind(base, "p2", "lit");
+  assert.equal(findPane(kind.root, "p2").at, "john 3:16", "a pane switched to the LIT");
+  assert.equal(litPlace(setLitAt(kind, "p1", "acts 2"), "p2"), "john 3:16");
+
+  // An arrangement's empty slot gets the LIT when none is open.
+  const noLit = setKind(base, "p1", "mine");
+  const three = applyArrangement(noLit, "cols-3");
+  const lit = panes(three.root).find((q) => q.kind === "lit");
+  assert.ok(lit && lit.id !== "p1" && lit.id !== "p2", "a new LIT pane fills the empty slot");
+  assert.equal(lit.at, "john 3:16");
+  assert.equal(litPlace(setLitAt(splitPane(three, "p1", "left", newPane(three, "lit")), lit.id, "acts 2"), lit.id), "acts 2");
+});
+
+test("BA52: checkLayout drops a saved place that isn't a passage, so it isn't given to a LIT pane", () => {
+  const root = () => cols([0.5, 0.5], leaf("p1", "lit"), leaf("p2", "lit"));
+  const l = checkLayout({ root: root(), active: "p1", place: "not a passage" });
+  assert.equal("place" in l, false);
+  assert.equal("at" in findPane(l.root, "p2"), false);
+  const bad = checkLayout({ root: cols([0.5, 0.5], { pane: { id: "p1", kind: "lit", pin: null, at: "nowhere 99" } }, leaf("p2", "mine")), active: "p1" });
+  assert.equal("at" in findPane(bad.root, "p1"), false, "a LIT pane's place that isn't a passage is dropped");
+});
+
+test("BA52: a LIT pane with no place of its own stays put when the active pane moves", () => {
+  const l = { ...twoLit(), place: "mark 1" }; // as saved before BA52
+  const next = setLitAt(l, "p1", "mark 2:1");
+  assert.equal(findPane(next.root, "p3").at, "mark 1");
+  assert.equal("at" in findPane(l.root, "p3"), false, "the layout given is not mutated");
+});
+
+test("BA52: a saved layout's LIT pane with no place is given the shared place on the way back in", () => {
+  const root = cols([0.5, 0.5], leaf("p1", "lit"), leaf("p2", "lit"));
+  const l = checkLayout({ root, active: "p1", place: "luke 15:11" });
+  assert.equal(findPane(l.root, "p1").at, "luke 15:11");
+  assert.equal(findPane(l.root, "p2").at, "luke 15:11");
+  const none = checkLayout({ root: cols([0.5, 0.5], leaf("p1", "lit"), leaf("p2", "lit")), active: "p1" });
+  assert.equal("at" in findPane(none.root, "p2"), false, "no shared place, nothing to give");
+});
+
+test("BA55: originalLayout given a place starts its LIT pane there", () => {
+  const l = originalLayout("john 3:16");
+  assert.equal(l.place, "john 3:16");
+  assert.equal(findPane(l.root, "p1").at, "john 3:16");
+  assert.equal(arrangementOf(l), arrangementOf(originalLayout()));
+  for (const bad of [null, undefined, "", 5]) {
+    const o = originalLayout(bad);
+    assert.equal("place" in o, false, String(bad));
+    assert.equal("at" in findPane(o.root, "p1"), false, String(bad));
+  }
 });
 
 // ---- the sheet a Sheet pane shows (3f) ----
@@ -1156,11 +1259,11 @@ test("setKind drops a Sheet pane's sheet", () => {
 });
 
 test("checkLayout keeps a Sheet pane's sheet and drops one anywhere else", () => {
-  const l = checkLayout(mk(cols([0.5, 0.5], { pane: { id: "a", kind: "sheet", sheet: "s-1" } }, { pane: { id: "b", kind: "mine", sheet: "s-2" } })));
-  assert.equal(findPane(l.root, "a").sheet, "s-1");
-  assert.equal("sheet" in findPane(l.root, "b"), false);
-  const bad = checkLayout(mk(cols([0.5, 0.5], { pane: { id: "a", kind: "sheet", sheet: 7 } }, leaf("b", "mine"))));
-  assert.equal("sheet" in findPane(bad.root, "a"), false);
+  const l = checkLayout(mk(cols([0.5, 0.5], { pane: { id: "p1", kind: "sheet", sheet: "s-1" } }, { pane: { id: "p2", kind: "mine", sheet: "s-2" } })));
+  assert.equal(findPane(l.root, "p1").sheet, "s-1");
+  assert.equal("sheet" in findPane(l.root, "p2"), false);
+  const bad = checkLayout(mk(cols([0.5, 0.5], { pane: { id: "p1", kind: "sheet", sheet: 7 } }, leaf("p2", "mine"))));
+  assert.equal("sheet" in findPane(bad.root, "p1"), false);
 });
 
 // ---- showSheet (M5) ----------------------------------------------------------

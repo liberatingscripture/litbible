@@ -56,11 +56,15 @@ npm run dev        # start the dev server at http://localhost:4321
 
 The production build runs in stages: refresh the podcast feed → generate topic
 indexes → generate the verse search index → generate the glossary feed →
-generate the mobile-app manifest → generate the JSON API → generate chapter
-share images → compile the site with Astro → build the Pagefind search index.
+generate the mobile-app manifest → generate the JSON API (version 1, then
+version 2) → generate chapter share images → compile the site with Astro →
+build the Pagefind search index.
 
 The mobile apps sync their content from the JSON API, so a few build outputs are
-contracts rather than conveniences. The glossary feed is the fussiest of them —
+contracts rather than conveniences. Version 2 of that API (`API-2-FORMAT.md`)
+serves each chapter as plain text with positions laid over it, beside version 1,
+which stays exactly as it was; that spec opens with the one rule that keeps
+installed app builds safe. The glossary feed is the fussiest of them —
 its shape has several ways to fail silently on one platform only, all documented
 in `scripts/lib/glossary-feed-core.mjs`. Read that header before changing how
 glossary entries are written or generated.
@@ -194,6 +198,9 @@ an integration or secret changes.
 
 ## A note for contributors using Claude Code
 
-This repo includes a `CLAUDE.md` file with detailed operational guidance for the
+This repo includes `CLAUDE.md` files with detailed operational guidance for the
 [Claude Code](https://claude.com/claude-code) AI assistant — data formats, build
-internals, and conventions. It's a useful deep reference for humans too.
+internals, and conventions. The root `CLAUDE.md` holds what applies everywhere
+and indexes the rest, which sit beside the code they describe
+(`src/data/chapters/CLAUDE.md`, `src/scripts/desk/CLAUDE.md`, and so on). They're
+a useful deep reference for humans too.

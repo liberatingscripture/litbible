@@ -12,11 +12,15 @@ import assert from "node:assert/strict";
 
 import { assembleChapter, rangeOf } from "../src/lib/anchor-core.mjs";
 import { verseCopyFor } from "../src/lib/desk-records.mjs";
+import { makeModule } from "../src/lib/desk-sheets.mjs";
+import { templateModules } from "../src/lib/desk-sheet-templates.mjs";
 import {
   locatePassage,
+  passageForReference,
   passageFromOffsets,
   passageFromRecord,
   passageFromVerses,
+  passageInsertIndex,
   passageReference,
   samePassage,
   sheetName,
@@ -91,6 +95,86 @@ test("passageFromVerses: with no chapter there are no verseCopy keys at all", ()
   assert.equal("verseCopy" in p, false);
   assert.equal("verseCopyAsOf" in p, false);
   assert.deepEqual(p, { bookKey: "john", chapter: 1, verse: 1, endVerse: 2 });
+});
+
+/* ── passageForReference ("+ Passage", BA127) ─────────────────────────── */
+
+// Romans 8 has 39 verses; Matthew 17 has no verse 21 (a gap the LIT keeps).
+const versesTo = (n, skip = []) =>
+  assembleChapter(new Map(Array.from({ length: n }, (_, i) => i + 1).filter((v) => !skip.includes(v)).map((v) => [v, `Verse ${v}.`])));
+const romans8 = versesTo(39);
+const matthew17 = versesTo(27, [21]);
+const ref = (bookKey, chapter, verse = null, rangeEnd = null) => ({ bookKey, chapter, verse, rangeEnd });
+
+test("passageForReference: a chapter alone is the whole chapter", () => {
+  const { fields, problem } = passageForReference(romans8, ref("romans", 8), VERSION);
+  assert.equal(problem, undefined);
+  assert.equal(fields.verse, 1);
+  assert.equal(fields.endVerse, 39);
+  assert.equal(passageReference(fields), "Romans 8:1–39");
+  assert.equal(fields.verseCopyAsOf, VERSION);
+});
+
+test("passageForReference: a verse past the chapter's end is refused", () => {
+  assert.deepEqual(passageForReference(romans8, ref("romans", 8, 99)), {
+    problem: "Romans 8:99 isn’t in the LIT; that chapter ends at verse 39.",
+  });
+});
+
+test("passageForReference: a range past the chapter's end stops at its last verse", () => {
+  const { fields } = passageForReference(romans8, ref("romans", 8, 28, 99));
+  assert.equal(passageReference(fields), "Romans 8:28–39");
+});
+
+test("passageForReference: a verse the LIT doesn't have is refused", () => {
+  assert.deepEqual(passageForReference(matthew17, ref("matthew", 17, 21)), { problem: "Matthew 17:21 isn’t in the LIT." });
+  assert.deepEqual(passageForReference(matthew17, ref("matthew", 17, 21, 23)), { problem: "Matthew 17:21 isn’t in the LIT." });
+});
+
+test("passageForReference: a range ending in a gap ends at the verse before it", () => {
+  assert.equal(passageReference(passageForReference(matthew17, ref("matthew", 17, 19, 21)).fields), "Matthew 17:19–20");
+  assert.equal(passageReference(passageForReference(matthew17, ref("matthew", 17, 20, 22)).fields), "Matthew 17:20–22");
+});
+
+test("passageForReference: one verse, and a range inside the chapter, as typed", () => {
+  assert.equal(passageReference(passageForReference(romans8, ref("romans", 8, 28)).fields), "Romans 8:28");
+  assert.equal(passageReference(passageForReference(romans8, ref("romans", 8, 28, 30)).fields), "Romans 8:28–30");
+});
+
+test("passageForReference: a chapter the book doesn't have is named", () => {
+  assert.deepEqual(passageForReference(null, ref("romans", 17)), { problem: "Romans has 16 chapters." });
+  assert.deepEqual(passageForReference(null, ref("jude", 2)), { problem: "Jude has only one chapter." });
+});
+
+test("passageForReference: nothing is added when the chapter couldn't be read", () => {
+  const msg = { problem: "Romans 8 couldn’t be read just now. Check the connection and try again." };
+  assert.deepEqual(passageForReference(null, ref("romans", 8, 28)), msg);
+  assert.deepEqual(passageForReference(assembleChapter(new Map()), ref("romans", 8)), msg);
+});
+
+/* ── passageInsertIndex (BA69) ───────────────────────────────────────── */
+
+const types = (modules) => modules.map((m) => (m.type === "text" ? m.html.match(/^<h2>([^<]*)/)?.[1] ?? "text" : m.type));
+
+test("passageInsertIndex: a new template's first passage goes under Reading, not after Closing", () => {
+  const sheet = { modules: templateModules("bible-study") };
+  assert.equal(passageInsertIndex(sheet), 2);
+  assert.deepEqual(types(sheet.modules).slice(0, 2), ["Opening", "Reading"]);
+  assert.equal(passageInsertIndex({ modules: templateModules("sermon") }), 1);
+  assert.equal(passageInsertIndex({ modules: templateModules("lectio-divina") }), 1);
+});
+
+test("passageInsertIndex: later passages follow the last one", () => {
+  const modules = templateModules("bible-study");
+  const p = makeModule("passage", { bookKey: "romans", chapter: 8, verse: 28, endVerse: 28 });
+  modules.splice(2, 0, p);
+  assert.equal(passageInsertIndex({ modules }), 3);
+});
+
+test("passageInsertIndex: at the end with no passage and no reading part", () => {
+  assert.equal(passageInsertIndex({ modules: templateModules("blank") }), 1);
+  assert.equal(passageInsertIndex({ modules: [] }), 0);
+  assert.equal(passageInsertIndex({ modules: [makeModule("text", { html: "<h2>Our passage</h2>" })] }), 1);
 });
 
 /* ── passageFromOffsets ──────────────────────────────────────────────── */

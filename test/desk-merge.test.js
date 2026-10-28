@@ -16,6 +16,8 @@ import { planWrite } from "../src/lib/desk-store-core.mjs";
 
 const vectors = JSON.parse(readFileSync(new URL("./fixtures/merge-vectors.json", import.meta.url), "utf8"));
 const clone = (x) => JSON.parse(JSON.stringify(x));
+/** A case's options: its `now`, and the arriving copy's `exported` time when it gives one. */
+const opts = (c) => ({ now: c.now, ...(c.exported ? { exported: c.exported } : {}) });
 
 /** What the store holds once a plan has been committed. */
 function apply(local, plan) {
@@ -38,7 +40,7 @@ function shuffled(items, seed) {
 }
 
 test("the vectors are well formed", () => {
-  assert.equal(vectors.version, 1);
+  assert.equal(vectors.version, 2);
   assert.ok(vectors.cases.length >= 15);
   const names = vectors.cases.map((c) => c.name);
   assert.equal(new Set(names).size, names.length, "case names are unique");
@@ -54,12 +56,12 @@ test("the vectors are well formed", () => {
 
 for (const c of vectors.cases) {
   test(`vector ${c.name}: mergeSets`, () => {
-    assert.deepEqual(mergeSets(clone(c.local), clone(c.incoming), { now: c.now }), c.expect);
+    assert.deepEqual(mergeSets(clone(c.local), clone(c.incoming), opts(c)), c.expect);
   });
 
   test(`vector ${c.name}: mergeRecords`, () => {
     const local = clone(c.local);
-    const plan = mergeRecords(local, clone(c.incoming), { now: c.now });
+    const plan = mergeRecords(local, clone(c.incoming), opts(c));
     assert.deepEqual(apply(local, plan), c.expect);
     assert.equal(plan.skipped.length, c.skipped ?? 0);
     for (const s of plan.skipped) assert.ok(typeof s.reason === "string" && s.reason.endsWith("."), `${c.name}: reason is a sentence`);
@@ -73,18 +75,18 @@ for (const c of vectors.cases) {
 
   test(`vector ${c.name}: input order doesn't matter`, () => {
     for (const seed of [1, 2, 3]) {
-      const got = mergeSets(shuffled(clone(c.local), seed), shuffled(clone(c.incoming), seed + 10), { now: c.now });
+      const got = mergeSets(shuffled(clone(c.local), seed), shuffled(clone(c.incoming), seed + 10), opts(c));
       assert.deepEqual(got, c.expect);
     }
   });
 
   test(`vector ${c.name}: merging the same records again writes nothing`, () => {
-    const merged = mergeSets(clone(c.local), clone(c.incoming), { now: c.now });
-    const again = mergeRecords(merged, clone(c.incoming), { now: c.now });
+    const merged = mergeSets(clone(c.local), clone(c.incoming), opts(c));
+    const again = mergeRecords(merged, clone(c.incoming), opts(c));
     assert.deepEqual(again.put, []);
     assert.deepEqual(again.remove, []);
-    const once = mergeRecords(clone(c.local), clone(c.incoming), { now: c.now });
-    const next = mergeRecords(apply(clone(c.local), once), clone(c.incoming), { now: c.now });
+    const once = mergeRecords(clone(c.local), clone(c.incoming), opts(c));
+    const next = mergeRecords(apply(clone(c.local), once), clone(c.incoming), opts(c));
     assert.deepEqual({ put: next.put, remove: next.remove }, { put: [], remove: [] });
   });
 }
@@ -99,8 +101,8 @@ const ONE_SIDED = new Set([
 ]);
 for (const c of vectors.cases.filter((c) => !["clamp", "skip"].includes(c.rule) && !ONE_SIDED.has(c.name))) {
   test(`vector ${c.name}: A into B equals B into A`, () => {
-    const ab = mergeSets(clone(c.local), clone(c.incoming), { now: c.now });
-    const ba = mergeSets(clone(c.incoming), clone(c.local), { now: c.now });
+    const ab = mergeSets(clone(c.local), clone(c.incoming), opts(c));
+    const ba = mergeSets(clone(c.incoming), clone(c.local), opts(c));
     assert.deepEqual(ba, ab);
   });
 }
@@ -215,4 +217,66 @@ test("a removed trash record is named in remove, and so is a record that was del
   assert.deepEqual(mergeRecords([trash], [live], { now: NOW }).remove, ["t1"]);
   const early = note({ modified: "2026-10-04T09:00:00.000Z" });
   assert.deepEqual(mergeRecords([early], [trash], { now: NOW }).remove, ["n1"]);
+});
+
+/* ── A clock running ahead (BA4, BA12) ───────────────────────────────── */
+
+const day = (n) => `2026-10-${String(n).padStart(2, "0")}T12:00:00.000Z`;
+const fast = note({ modified: "2026-10-20T09:00:00.000Z", body: "from a clock eight days fast" });
+
+test("a file from a fast clock, opened again after an edit here, leaves the edit (BA4)", () => {
+  const first = mergeRecords([], [fast], { now: day(12) });
+  assert.equal(first.put[0].modified, day(12));
+  const edited = [{ ...first.put[0], modified: day(13), body: "edited here the next day" }];
+  const again = mergeRecords(edited, [fast], { now: day(14) });
+  assert.deepEqual({ put: again.put, remove: again.remove }, { put: [], remove: [] });
+  assert.deepEqual(again.ahead.map((a) => a.written), [false]);
+});
+
+test("a file from a fast clock, opened again after a deletion here, doesn't bring the record back (BA4)", () => {
+  const first = mergeRecords([], [fast], { now: day(12) });
+  const trash = {
+    id: "t1", kind: "trash", schema: 1, created: day(13), modified: day(13), client: "web/2026.10",
+    contentVersion: "v20261012.1a2b3c4d", labels: [], deletedId: "n1", deletedKind: "note", deletedAt: day(13), record: first.put[0],
+  };
+  const again = mergeRecords([trash], [fast], { now: day(14) });
+  assert.deepEqual({ put: again.put, remove: again.remove }, { put: [], remove: [] });
+});
+
+test("a deletion from a fast clock, opened again after an undo here, doesn't delete again (BA4)", () => {
+  const trash = {
+    id: "t1", kind: "trash", schema: 1, created: "2026-10-20T09:00:00.000Z", modified: "2026-10-20T09:00:00.000Z",
+    client: "web/2026.10", contentVersion: "v20261012.1a2b3c4d", labels: [], deletedId: "n1", deletedKind: "note",
+    deletedAt: "2026-10-20T09:00:00.000Z", record: note(),
+  };
+  // Nothing here for it, so the deletion is taken, at the cap.
+  const first = mergeRecords([], [trash], { now: day(12) });
+  assert.equal(first.put[0].deletedAt, day(12));
+  // Undone here the next day: the note is back, newer than the deletion.
+  const undone = [note({ modified: day(13), body: "back" })];
+  const again = mergeRecords(undone, [trash], { now: day(14) });
+  assert.deepEqual({ put: again.put, remove: again.remove }, { put: [], remove: [] });
+});
+
+test("an export file's own time caps its records, so opening it on any later day writes the same thing", () => {
+  const exported = "2026-10-11T08:00:00.000Z";
+  const late = note({ modified: "2026-10-11T09:00:00.000Z", body: "an hour after the file" });
+  const a = mergeSets([], [late], { now: day(12), exported });
+  const b = mergeSets([], [late], { now: day(20), exported });
+  assert.deepEqual(a, b);
+  assert.equal(a[0].modified, exported);
+});
+
+test("ahead lists every arriving record that ran past the cap, written or not, and nothing else", () => {
+  const plan = mergeRecords([note({ id: "n2" })], [fast, note({ id: "n2", modified: "2099-01-01T00:00:00.000Z" }), note({ id: "n3" })], { now: day(12) });
+  assert.deepEqual(
+    plan.ahead.map((a) => [a.record.id, a.written]).sort(),
+    [["n1", true], ["n2", false]],
+  );
+  // The record reported is the one that arrived, unclamped.
+  assert.equal(plan.ahead.find((a) => a.record.id === "n2").record.modified, "2099-01-01T00:00:00.000Z");
+});
+
+test("an exported time that isn't a time is ignored, and now caps alone", () => {
+  assert.equal(mergeSets([], [fast], { now: day(12), exported: "yesterday" })[0].modified, day(12));
 });

@@ -1,7 +1,12 @@
 # The Study Desk record format (draft 1, with draft 2's additions)
 
 **Status: a draft for the website and both apps to agree, written 2026-10-05.
-Nothing uses it yet.** It answers the iOS reply's W1 (the text rule and its
+The website's Study Desk preview writes and reads it** (behind `?desk=on`,
+not yet released): its notebook, its export files and opening them, which
+merges through `src/lib/desk-merge.mjs`. **The apps don't use it yet.**
+Audit FA1-f (2026-10-26) brought this file into line with the website's code;
+what that changed for the apps is listed in `STUDY-DESK.md`, "One notebook,
+three homes" (its 2026-10-26 note for BDR's Claude). It answers the iOS reply's W1 (the text rule and its
 test vectors) and W6 (every kind of record the website will ever store), and
 the Android reply's A-F1 to A-F13. `STUDY-DESK.md` holds the plan and the
 decisions; this file holds only the format.
@@ -55,11 +60,21 @@ make are listed in `STUDY-DESK.md` ("To be decided").
 | `id` | A UUID. Both apps' existing UUIDs carry over unchanged |
 | `kind` | One of the kinds below |
 | `schema` | The format version this record was written in (1) |
-| `created` | When the reader made it (ISO 8601, UTC) |
-| `modified` | When the reader last changed it (principle 4) |
+| `created` | When the reader made it: ISO 8601 in UTC, ending in `Z` (below) |
+| `modified` | When the reader last changed it (principle 4), in the same form |
 | `client` | What wrote it last, e.g. `web/2026.10`, `ios/2.1`, `android/1.4` (A-F11) |
 | `contentVersion` | The `version` from `/api/version.json` the client had when the record was made, e.g. `v20261004.5d2c847d` |
 | `labels` | IDs of the reader's labels (M8); may be empty |
+
+**Times** (`created`, `modified`, a trash record's `deletedAt`) are written
+in UTC **with `Z`**, never an offset: `2026-10-26T14:03:09.512Z`. Fractions of
+a second are optional and may have any number of digits; the website writes
+three (JavaScript's `toISOString()`). When it opens a copy, the website skips,
+and reports, any record but a trash record whose `created` or `modified`
+isn't in this form, so such a record written with `+00:00` would never reach
+it. Trash records are only required to carry times that parse, but write
+them with `Z` too. Clients compare times as instants, not as strings, so
+`…09.5Z` and `…09.500Z` are the same time.
 
 A record about the text also carries **where**:
 
@@ -94,7 +109,7 @@ generated from `src/data/books.js` (A-F9). It's never stored.
    Instead of verses, a note's target may be:
    - a **footnote**, given by its verse and the footnote's quoted words, never
      its letter (M11). **The website's proposal, built on its preview
-     2026-10-20, for BDR to confirm or change**: the footnote is named
+     2026-10-20, confirmed by BDR 2026-10-23**: the footnote is named
      exactly as a `footnotePin` names it (kind 11), by the verse whose text
      holds its letter, `footnote` (its full text in the same normalized
      form) and `n` when that verse has two or more identical footnotes. Such
@@ -116,7 +131,11 @@ generated from `src/data/books.js` (A-F9). It's never stored.
 3. **`hidden`** (N8): a verse range the reader has hidden until they choose
    to show it, with an optional note to self. While the record exists, every
    client keeps those verses hidden everywhere they appear, screen readers
-   included.
+   included. **The note to self is `body`**, as a note's words are (the
+   website's proposal, 2026-10-26, for BDR to confirm). The website's hidden
+   passage is built but held off `main`, so nothing writes this kind yet; its
+   export reads `body` and, failing that, `note`, so a record written either
+   way is kept.
 4. **`bookmark`** (B2)
    - a verse;
    - an optional `label`;
@@ -172,8 +191,11 @@ generated from `src/data/books.js` (A-F9). It's never stored.
    untouched (principle 6, C8); only the website reads or writes it. Its
    shape is under "Sheets (kind 9)" below.
 10. **`trash`** (M7): the whole deleted record for 30 days. After that the
-    content is dropped and only `deletedId` and `deletedAt` stay, kept
-    indefinitely, so a stale backup can't bring a deleted note back (A-F10).
+    deleted record (`record`) is dropped and the rest is kept indefinitely,
+    as a **tombstone**, so a stale backup can't bring a deleted note back
+    (A-F10). A tombstone keeps the fields every record carries, `deletedId`,
+    `deletedKind` and `deletedAt`; only `record` goes, and dropping it
+    leaves `modified` as it was, since the reader changed nothing.
     Deleting means removing the live record and writing this one, never
     flipping a flag on the live record (iOS found flag flips unreliable).
     **For draft 2** (BDR, 2026-10-09, rule c): the 30-day trash and the
@@ -185,7 +207,7 @@ generated from `src/data/books.js` (A-F9). It's never stored.
 
     **Two trash records for one deletion** (two devices each deleted the
     record before they met) **collapse to one. The website's proposal,
-    2026-10-12, for BDR to confirm or change:**
+    2026-10-12, confirmed by BDR 2026-10-23:**
     - **The later deletion is kept**: the survivor is the trash record with
       the later `deletedAt` (on a tie, the lower `id`), so every client
       keeps the same id. That is rule b's "the later action wins": an edit
@@ -197,6 +219,19 @@ generated from `src/data/books.js` (A-F9). It's never stored.
       later deletion can hold the older words.
     - Its `modified` is the later of the two, and its 30 days run from the
       kept `deletedAt`.
+
+    **Undo and redo on the website** (audit FA1-d, BA7, 2026-10-26; for BDR,
+    since a sync would carry what they write). Undoing is the reader acting,
+    so every record an undo or redo puts back gets a fresh `modified` (one of
+    a kind or schema it can't edit comes back exactly as it was), and a
+    trash record put back also gets a fresh `deletedAt`: it is the deletion
+    made again, and a copy of the notebook saved in between holds the record
+    the undo brought back, which an old `deletedAt` would lose to (rule b).
+    **Undoing an add deletes through the trash** rather than removing the
+    record outright, so a copy saved before the undo can't bring it back as
+    new; a redo removes that trash record again. The apps need only the
+    principle: whatever their undo writes must outrank, by rules a and b, the
+    change it takes back.
 
     The website's first proposal (2026-10-05) kept the **earliest**
     deletion instead. Rule b, answered since, makes that wrong: an edit made
@@ -362,7 +397,10 @@ be empty. At most one per sheet.
 in **one canonical form**, so every client writes the same text for the
 same formatting and a merge never sees a change that isn't one. Every
 client sanitizes it **when it is saved and again when it is shown**,
-keeping exactly the set below and nothing else; anything else is dropped,
+**whatever the sheet's `sheetFormat`**: a sheet in a newer format is shown
+read only, but its text is still drawn through the sanitizer, and the
+website sanitizes these fields on every sheet it imports (FA1, BA66). The
+sanitizer keeps exactly the set below and nothing else; anything else is dropped,
 its text kept, and `<script>`, `<style>` and the like are dropped with
 their contents. The form:
 - Only the tags of the set, in lowercase, with these attributes and no
@@ -439,12 +477,18 @@ anything else.
 |---|---|
 | `lit` | `"sheet"` |
 | `sheetFormat`, `title`, `subtitle`, `template`, `commercial` | As on the sheet (`commercial` only when true) |
-| `scope` | `"leader"` (everything) or `"participant"` (no module marked `leaderOnly`, and every question's `answer` empty) |
+| `scope` | `"leader"` (everything) or `"participant"` (no module marked `leaderOnly`, no module of a type the sender doesn't know, and every question's `answer` empty) |
 | `contentVersion` | The sheet's own, so the receiver knows which text it was made on |
 | `modules` | The sheet's modules, each **without its `id`**, and passages without `verseCopy` and `verseCopyAsOf` |
 
-Nothing else of the record travels (its id, client, times, labels). A
-receiver gives every module a fresh id and makes the sheet a record of its
+A participant share leaves out a module of a type the sender doesn't know
+(2026-10-27, BA81), as the participant's paper copy does, since the sender
+can't tell which of its fields are for the leader. A leader share keeps it
+whole, as the editor does. Nothing else of the record travels (its id,
+client, times, labels). A
+receiver gives every module a fresh id, **drops `verseCopy` and
+`verseCopyAsOf` from every module whatever the share holds** (a shared sheet
+is never flagged as changed; BA82), and makes the sheet a record of its
 own, and refuses the share unless that record passes the sheet's check
 (`validateSheet`): formatted text must already be in the canonical form.
 Decompressed data over twice the sheet's 512 KB limit is refused before it
@@ -454,13 +498,21 @@ is read whole.
 how to open it, each part in words (a passage by its reference, never its
 text), and on its last line the data, as an HTML comment so a Markdown
 viewer shows nothing of it: `<!-- lit-sheet share1.<data> -->`, the same
-fragment a link carries. Its name ends `.lit-sheet.md`.
+fragment a link carries. Its name ends `.lit-sheet.md`. A reader takes the
+**last** such comment in the file and removes any whitespace inside the data,
+since an email client may fold the long line; a comment begun
+(`<!-- lit-sheet`) but unreadable is reported as damaged, not as a file with
+no sheet. The readable part writes any `<!--` in a sheet's own text as
+`&lt;!--`, so a sheet's text can't plant a data line (2026-10-27, BA80,
+BA87).
 
 **Opening one** on the website keeps the fragment out of every server's
 sight: an inline script at the top of the sheets page's body moves it into
 the tab's history entry (`history.state.litSharedSheet`) while the page is
 still being parsed, before Cloudflare's analytics beacon (a deferred script)
-runs, and the page shows the sheet from there. A reload finds it again. It is shown read only until the
+runs, and the page shows the sheet from there. A link opened in a tab
+already on the sheets page is moved the same way on `popstate` and
+`hashchange`, by listeners added before the beacon's. A reload finds it again. It is shown read only until the
 reader chooses "Copy into my desk", which saves it as a new sheet of theirs
 (new id, new times, their client). A shared link opened on a phone or
 tablet says to open it on a computer (decision 4).
@@ -521,6 +573,20 @@ on screen and in Copy text; only anchoring flattens them.
 Not covered: draft chapters (`indexed: false`). Their placeholder text
 isn't scripture, so a mark is never anchored there.
 
+### Anchor text, served
+
+The content API, version 2 (`API-2-FORMAT.md`, under `/api/data/v2/`)
+serves each chapter's anchor text ready-made, as `text`, with the verse
+spans above and the positions of its blocks, lines, emphasis, footnote
+letters and ⟦ ⟧ spans laid over it. Its build checks every chapter's `text`
+and verse spans against `chapterAnchorText` and fails on any difference, so
+an app that reads version 2 places marks against exactly the characters this
+section defines, without parsing the HTML itself. A change to how this
+section makes the words means a new API version and folder, never a change
+under `/api/data/v2/`. A change only to finding a mark again (as spec 2 was)
+touches nothing it serves: its chapter files don't carry this section's
+version number, which is information in its `version.json` alone.
+
 ### Anchor text for prose (provisional)
 
 A glossary entry or an article has no verses (N11). The website's proposal,
@@ -539,9 +605,9 @@ Run these steps in order. The first that succeeds gives the status:
 
 | Status | When | What the reader sees |
 |---|---|---|
-| `found` | `exact` occurs in the record's verses. If it occurs more than once, take the occurrence whose surroundings agree longest with `prefix` (read backwards) plus `suffix` (read forwards); on a tie, the first | The mark, as made |
-| `moved` | `exact` occurs elsewhere in the chapter (chosen the same way) | The mark, at its new place |
-| `changed` | The words are gone, but enough of the context survives inside the record's verses. Take the longest tail of `prefix` and head of `suffix` that still occur in order, at least 8 characters between them, and use the text between | The mark on the new words, flagged, with the old words kept: the apps' existing behaviour |
+| `found` | `exact` occurs in the record's verses. If it occurs more than once, take the occurrence whose surroundings agree longest with `prefix` (read backwards) plus `suffix` (read forwards); on a tie, the first. **Only if at least 8 characters agree** (the context floor, below) | The mark, as made |
+| `moved` | `exact` occurs elsewhere in the chapter (chosen the same way, with the same floor) | The mark, at its new place |
+| `changed` | The words are gone, but enough of the context survives inside the record's verses. Take the longest tail of `prefix` and head of `suffix` that still occur in order, at least 8 characters between them, and use the text between. **Only if that text is at most twice `exact`'s length plus 16 characters** (the size limit, below) | The mark on the new words, flagged, with the old words kept: the apps' existing behaviour |
 | `verse` | Nothing usable | The mark on its whole verse range, flagged |
 | `lost` | The record's verses no longer exist | Listed, never drawn |
 
@@ -578,11 +644,24 @@ The apps still have to agree it. Three refinements of the rule above:
 Draft 1 adopts the apps' approach over the plan's whole-verse fallback,
 because both apps already ship it and tell the reader.
 
-**For draft 2** (BDR, 2026-10-09, rule e): two guards on `changed`, each
-with a test case. A **size limit**: never take a region much longer than the
-original (Android's is about twice plus a little). A **context floor**: where
-the words repeat ("Amen."), trust a choice only when enough context matches.
-Past either, the mark falls to `verse`, with the notice.
+**Rule e's two guards** (BDR, 2026-10-09: "both guards"; built in the
+reference 2026-10-26, audit FA1-f, BA8; spec version 2 of the vectors). A
+step whose guard fails doesn't succeed, and the next step is tried, so in
+the end such a mark falls to `verse`, with the notice:
+- **The context floor**: where `exact` occurs more than once in the text
+  searched ("Amen."), an occurrence is taken only when at least **8**
+  characters of context agree, `prefix` and `suffix` together
+  (`MIN_CONTEXT`, the same 8 as `changed`'s floor). A word that occurs once
+  needs no context, so an old quote with none is still `found`.
+- **The size limit**: a `changed` region may be at most **2 × the length of
+  `exact` + 16** characters (`CHANGED_GROWTH`), counted in normalized
+  UTF-16 code units. Without it a 12-character quote, “God so loved,”
+  resolved to a 68-character region in the audit's reproduction (BA8); the
+  vectors' case is 65. Android's own limit is "about twice plus a
+  little"; these are the website's numbers, for BDR to match or change.
+
+The vectors carry both numbers (`minContext`, `changedGrowth`) and five cases
+for them.
 
 ### Highlights that meet
 
@@ -628,7 +707,9 @@ that decides which write is newer, and `modified` only breaks a tie (A-F7).
 wins on every store and for every kind, notes included, so a write never
 wins just because its device synced last. A store's revision is only the
 "what changed since last time" cursor and the tiebreaker for an exact tie,
-and a `modified` in the future is clamped to the service's clock on arrival.
+and a `modified` in the future is clamped on **every** arrival, not once,
+and never beats what the receiving side holds (under "A clock running ahead"
+below).
 An edit later than a trash record's `deletedAt` brings the record back
 (rule b). The older of two versions of a note is discarded, like any other
 kind's (BVJ, going with BDR, 2026-10-09), so a conflicting note leaves no
@@ -646,6 +727,28 @@ second copy.
   edit, the record stays deleted (rule b), but its trash record takes the
   newer copy, so undoing or restoring brings back what the reader last
   wrote. The same principle as the collapse rule under kind 10.
+
+**A clock running ahead never beats what a device holds** (audit FA1-c,
+2026-10-26; version 2 of the merge vectors; for BDR to confirm). Clamping a
+future time to "now" on arrival isn't enough on its own, because "now" moves:
+the same export file opened again a day later would beat the edit or the
+deletion made in between, every time (BA4). So:
+- **The cap** is the receiving side's "now", or, for an export file, the
+  file's own `exported` time when that is earlier, since nothing in a file can
+  be newer than the file. A sync service's cap is its own clock.
+- **What is clamped**: `modified`, a trash record's `deletedAt`, and the
+  `modified` of the copy a trash record holds (BA12; a held copy from the
+  future would outrank every later one, and an undo would bring back its
+  words).
+- **A record that had to be clamped never beats anything the receiving side
+  holds**: it is dropped when that side has a record with its id or a
+  deletion of it, or, for a trash record, the record it deletes or another
+  deletion of it. Only when the receiving side has nothing for it is it
+  written, at the cap. Opening the same file again then writes nothing.
+- **One id is one record** (BA11): an arriving record whose `kind` differs
+  from another copy of its id, on the receiving side or in the same input,
+  is skipped and reported, so a trash record can never replace the note it
+  shares an id with. So is a trash record whose `deletedId` is its own `id`.
 
 ## Addresses
 
@@ -678,8 +781,9 @@ and accounts would live under `/sheets/`, `/notebook/`, `/account/`.
   JSON encrypted.
 - **The export file.** For marks on the text: JSON in the W3C Web Annotation
   shape, where `TextQuoteSelector` is `quote`, `FragmentSelector` is
-  `#v3-4`, `motivation` comes from `kind`, and the LIT fields go under
-  `lit`. Sheets and places use this format's own JSON. Markdown is kept for
+  `v3-4` (the fragment without its `#`, as W3C's selector has it, with
+  `conformsTo` RFC 3986), `motivation` comes from `kind`, and the LIT fields
+  go under `lit`. Sheets and places use this format's own JSON. Markdown is kept for
   people (the mocked D1 file). **Built on the website 2026-10-12**
   (`src/lib/desk-export.mjs`; the defaults are the website's, for BVJ to
   confirm) as three files, each for a different reader:
@@ -700,14 +804,30 @@ and accounts would live under `/sheets/`, `/notebook/`, `/account/`.
     labels, sheets, mark rules and kinds the website doesn't know. Files
     other tools made are reported and skipped on import.
   - **Markdown** (`.md`): for people, each entry headed by its reference and
-    carrying `<!-- lit:id=… -->`, ending with the license notice and the
-    link to the terms. A note edited in the file comes back as an edit (a
-    bookmark's label too), and a new entry with a verse reference becomes a
-    new note; highlights, bookmarks and pins can't be made from Markdown, and
-    places and labels aren't read back. A body line starting `#`, `>` or
-    `<!--` is escaped with a backslash on save.
+    carrying `<!-- lit:id=… modified=… -->` (its record's `modified`), the
+    header `<!-- lit-notebook 1 · saved YYYY-MM-DD HH:MM · <ISO time> -->`,
+    ending with the license notice and the link to the terms. A note edited
+    in the file comes back as an edit (a bookmark's label too), and a new
+    entry with a verse reference becomes a new note; highlights, bookmarks
+    and pins can't be made from Markdown, and places and labels aren't read
+    back. **Words that differ count as an edit only when the record here is
+    no newer than the file's copy of it** (the entry's `modified`, else the
+    header's time; a file saved before 2026-10-26 has only the header's
+    minute, read as UTC and rounded down, and a file with no time at all is
+    taken as the older). Otherwise the words changed here after the copy was
+    saved, and they stay, counted as kept here (audit BA1). **An entry whose
+    id the notebook holds as trash, or as a tombstone, is left out** and
+    reported, never made into a new note, so a stale copy can't bring back a
+    note deleted since (BA2, A-F10). On save, a body line starting `#`, `>`
+    or `\` takes a backslash, and every `<` becomes `\<` so a Markdown viewer
+    shows typed HTML as text (BA41); reading back undoes both.
   Opening a copy merges through `desk-merge.mjs`, in one commit, and never
-  deletes a record for being absent from the file (audit C17).
+  deletes a record for being absent from the file (audit C17). The two JSON
+  files' `exported` time is the merge's cap (under "Clocks"); a Markdown
+  entry whose time is later than now counts as having no time, so the file
+  is taken as the older. The website plans the merge again when the reader
+  confirms, against the notebook as it is then, and shows the new outcome
+  instead of writing if it differs (BA3).
 
 ## Still open in this file
 

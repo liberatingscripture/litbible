@@ -26,8 +26,11 @@
 // - **New sheets start from a template** (M9; desk-sheet-templates.mjs): New
 //   sheet opens a short list in place, and a choice makes the sheet.
 // - **A new part goes right after the part last worked in** (last focused or
-//   clicked on this sheet), or at the end when there is none, so a passage
-//   added to a template lands where the reader was, not after "Closing".
+//   clicked on this sheet), or at the end when there is none. A passage with
+//   none worked in goes after the last passage, or on a sheet with none,
+//   after the template's reading part, so it lands under "Reading", not
+//   after "Closing" (BA69). Until there is a passage, that part shows how to
+//   add one as ghost text the sheet never holds, so it can't print (BA70).
 // - **Drag into order** by a module's grip, or Move up and Move down.
 // - **Saves as you go**: every change is saved at once, typing a moment after
 //   it pauses. A change made elsewhere (another pane on the same sheet,
@@ -35,13 +38,26 @@
 //   one being typed in.
 
 import { canEdit } from "../../lib/desk-records.mjs";
+import { sheetHtmlForShow } from "../../lib/desk-sheet-copy.mjs";
 import { MODULE_TYPES, SHEET_LIMITS } from "../../lib/desk-sheet-format.mjs";
-import { addModule, createSheet, makeModule, moveModule, removeModule, setSheetFields, updateModule } from "../../lib/desk-sheets.mjs";
-import { TEMPLATES, templateModules } from "../../lib/desk-sheet-templates.mjs";
+import {
+  addModule,
+  createSheet,
+  makeModule,
+  moveModule,
+  planSheetChange,
+  removeModule,
+  setSheetFields,
+  sheetTooBig,
+  updateModule,
+} from "../../lib/desk-sheets.mjs";
+import { READING_HINT, TEMPLATES, readingPart, templateModules } from "../../lib/desk-sheet-templates.mjs";
 import { discussionModules } from "../../lib/desk-sheet-discussion.mjs";
 import {
   passageFromOffsets,
+  passageForReference,
   passageFromRecord,
+  passageInsertIndex,
   passageFromVerses,
   passageReference,
   samePassage,
@@ -49,7 +65,7 @@ import {
   sortSheets,
 } from "../../lib/desk-sheet-passages.mjs";
 import { rangeToOffsets } from "../../lib/desk-anchor-dom.mjs";
-import { planSave, recordReference } from "../../lib/desk-store-core.mjs";
+import { recordReference } from "../../lib/desk-store-core.mjs";
 import { parseReference } from "../search-core.js";
 import { closePanel } from "../lit-panel.js";
 import { loadChapterPage } from "./chapter-page.js";
@@ -131,10 +147,13 @@ function listenForPanels() {
         console.error("Study Desk: couldn't read the passage for the sheet", err);
         fields = passageFromVerses(null, where, d.start, d.end);
       }
-      const ok = await pane.addPassage(fields);
-      add.textContent = ok ? "Added ✓" : "Couldn’t add it";
+      const added = await pane.addPassage(fields);
+      const again = added?.again === true;
+      add.textContent = !added ? "Couldn’t add it" : again ? "Added again ✓" : "Added ✓";
+      // Why "again" stays on screen long enough to read (BA75).
+      if (again) row.after(make("p", "lit-panel__hint", added.message));
       if (d.kind === "selection") window.getSelection()?.removeAllRanges();
-      setTimeout(closePanel, 700);
+      setTimeout(closePanel, again ? 2500 : 700);
     });
     const row = make("div", "lit-panel__row");
     row.append(add);
@@ -177,25 +196,36 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
   const now = () => new Date().toISOString();
   const opCtx = () => ({ now: now(), ...ctx() });
 
-  /** Where a new part goes: after the part last worked in, else at the end. */
-  const insertIndex = (s) => {
+  /**
+   * Where a new part goes: after the part last worked in, else at the end,
+   * or for a passage where passageInsertIndex puts it (BA69).
+   */
+  const insertIndex = (s, { passage = false } = {}) => {
     const at = lastModule ? s.modules.findIndex((x) => x.id === lastModule) : -1;
-    return at < 0 ? s.modules.length : at + 1;
+    if (at >= 0) return at + 1;
+    return passage ? passageInsertIndex(s) : s.modules.length;
   };
 
   const me = {
     sheet: () => sheet,
     contentVersion: () => ctx().contentVersion,
+    /**
+     * Add a passage after the part last worked in. Resolves false when it
+     * wasn't added, else { message, again }: the one message saying so, which
+     * is announced. Adding one already on the sheet adds it again and says so
+     * in that same message, never in a second one, and the caller shows it,
+     * so it is seen as well as heard (BA75).
+     */
     addPassage: async (fields) => {
       if (!sheet || !canEdit(sheet)) return false;
-      if (sheet.modules.some((m) => m.type === "passage" && samePassage(m, fields))) {
-        say(`${passageReference(fields)} is already on the sheet.`);
-      }
+      const again = sheet.modules.some((m) => m.type === "passage" && samePassage(m, fields));
+      const message = `${passageReference(fields)} added${again ? " again; it was already on the sheet" : ""}.`;
       const mod = makeModule("passage", fields);
-      return change((s) => addModule(s, mod, insertIndex(s), opCtx()), {
-        announce: `${passageReference(fields)} added.`,
+      const ok = await change((s) => addModule(s, mod, insertIndex(s, { passage: true }), opCtx()), {
+        announce: message,
         after: () => cards.get(mod.id)?.el.scrollIntoView({ block: "nearest" }),
       });
+      return ok && { message, again };
     },
   };
   openPanes.add(me);
@@ -206,12 +236,14 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
   // ---- saving ----
 
   let saving = Promise.resolve();
+  /** The changes asked for whose write hasn't landed, in the order asked (BA72). */
+  const pending = new Set();
   const status = make("span", "desk-sheet__saved");
   status.setAttribute("role", "status");
 
   /**
    * Apply an operation to the sheet and save it. Saves run one after
-   * another, each with the sheet as the last one left it. Resolves true when
+   * another, each on the sheet as the notebook holds it. Resolves true when
    * the change was saved (or changed nothing). `source` is the module whose
    * own card made the change, which then isn't redrawn: it already shows it,
    * and redrawing would drop a click on its buttons that is under way.
@@ -219,42 +251,122 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
   // `quiet` is for a write the reader didn't make (a passage's first
   // comparison copy, S2): saved without an undo step, so Ctrl+Z never takes
   // it away only to have it written straight back.
+  //
+  // The operation is applied to the sheet as the notebook holds it, read in
+  // the same transaction as the write, never to this pane's copy (BA129):
+  // another tab may have saved the sheet's other parts since this one last
+  // heard, and its message may never come (a frozen tab, no
+  // BroadcastChannel). And `sheet` changes only once a save has landed, so a
+  // save that fails leaves the pane on the last saved copy and every later
+  // edit still saves (BA128).
+  //
+  // The write starts when the change is asked for, not once the saves before
+  // it have landed: a tab being closed runs nothing after that (BA72), and the
+  // store opens its transaction before its first await. IndexedDB runs
+  // transactions on the same records in the order they were opened, each
+  // reading the sheet as the one before left it, so the saves still land one
+  // after another; only this pane's bookkeeping waits its turn.
   function change(op, { announce = null, after = null, source = null, quiet = false } = {}) {
+    if (destroyed || !sheet) return Promise.resolve(false);
+    const n = seq;
+    const id = sheet.id;
+    const write = store.change(
+      async ({ get }) => {
+        const plan = planSheetChange(await get(id), op);
+        if (plan.changed && !quiet) status.textContent = "Saving…";
+        return plan;
+      },
+      { record: !quiet },
+    );
+    write.catch(() => {}); // reported below, in turn
+    const asked = { op, id };
+    pending.add(asked);
+    const landed = () => pending.delete(asked);
+    write.then(landed, landed);
     const run = saving.then(async () => {
-      if (destroyed || !sheet) return false;
-      let next;
+      let made;
       try {
-        next = op(sheet);
-      } catch (err) {
-        console.error("Study Desk: the sheet refused a change", err);
-        say(err.message?.includes("at most") ? `A sheet holds at most ${SHEET_LIMITS.modules} parts.` : "That change couldn’t be made.");
-        return false;
-      }
-      if (next === sheet) return true;
-      sheet = next;
-      if (!quiet) status.textContent = "Saving…";
-      try {
-        if (quiet) await store.commit(planSave(next), { record: false });
-        else await store.save(next);
-        if (!quiet) status.textContent = "Saved";
+        made = await write;
       } catch (err) {
         console.error("Study Desk: the sheet couldn’t be saved", err);
-        status.textContent = "Not saved";
-        say("The sheet couldn’t be saved. Your last change may be lost if you leave.");
+        if (n === seq && !destroyed) failed(err, source);
         return false;
       }
-      if (source) {
+      if (n !== seq || destroyed) return false;
+      if (made.gone) {
+        // Deleted here or in another tab.
+        setSheet(null);
+        showList();
+        return false;
+      }
+      if (made.refused) {
+        console.error("Study Desk: the sheet refused a change", made.refused);
+        say(/holds at most \d+ modules/.test(made.refused.message ?? "") ? `A sheet holds at most ${SHEET_LIMITS.modules} parts.` : "That change couldn’t be made.");
+        return false;
+      }
+      const moved = json(made.sheet) !== json(sheet);
+      sheet = made.sheet;
+      if (made.changed && !quiet) status.textContent = "Saved";
+      if (source && made.changed) {
         const card = cards.get(source);
-        const m = next.modules.find((x) => x.id === source);
+        const m = sheet.modules.find((x) => x.id === source);
         if (card && m) card.json = json(m);
       }
-      draw();
+      if (moved) draw();
+      if (!made.changed) return true;
       after?.();
       if (announce) say(announce);
       return true;
     });
     saving = run.catch(() => false);
     return run;
+  }
+
+  /**
+   * A save failed, so nothing of it was kept: say why, and put the part that
+   * made it back to its saved text, so the page shows what a reload would
+   * (BA128).
+   */
+  function failed(err, source) {
+    status.textContent = sheetTooBig(err)
+      ? `Not saved: this sheet is too big to save (${SHEET_LIMITS.bytes / 1024} KB). Remove some text or blanks.`
+      : "Not saved, so that change was taken back.";
+    const card = source ? cards.get(source) : null;
+    if (!card || !sheet || !moduleList) return;
+    const focused = card.inst?.hasFocus?.();
+    card.inst?.destroy?.();
+    card.el.remove();
+    cards.delete(source);
+    draw();
+    if (focused) cards.get(source)?.inst?.focus?.();
+  }
+
+  /**
+   * Read the sheet again, for a change made elsewhere, and redraw what moved.
+   * Also run when the tab comes back into view, since a frozen tab, or one
+   * without BroadcastChannel, never hears another tab's save (BA129).
+   */
+  async function refresh() {
+    if (!sheet) return;
+    await saving;
+    if (!sheet) return;
+    const n = seq;
+    let record = null;
+    try {
+      record = await store.get(sheet.id);
+    } catch (_) {
+      return;
+    }
+    if (n !== seq || destroyed || !sheet) return;
+    if (record?.kind !== "sheet") {
+      // Deleted here or in another tab.
+      setSheet(null);
+      showList();
+      return;
+    }
+    if (json(record) === json(sheet)) return;
+    sheet = record;
+    draw();
   }
 
   // ---- the list of sheets ----
@@ -526,6 +638,21 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
       cards.delete(id);
     }
     for (const card of cards.values()) card.inst?.sheetChanged?.();
+    // How to add a passage, as ghost text in the reading part until the sheet
+    // has one (BA70). Only the editor shows it, so it never prints or goes up
+    // on a room's screen; aria-description gives it to a screen reader.
+    const reading = readOnly ? null : readingPart(sheet);
+    for (const [id, card] of cards) {
+      const box = card.el.querySelector(".desk-rich-editor > .desk-rich");
+      if (!box) continue;
+      if (id === reading?.id) {
+        box.dataset.hint = READING_HINT;
+        box.setAttribute("aria-description", READING_HINT);
+      } else if (box.dataset.hint) {
+        delete box.dataset.hint;
+        box.removeAttribute("aria-description");
+      }
+    }
     license?.sheetChanged();
     if (keyTermsButton) {
       const has = sheet.modules.some((x) => x?.type === "keyTerms");
@@ -545,6 +672,34 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
     titleInput?.flush?.();
     subtitleInput?.flush?.();
     for (const card of cards.values()) card.inst?.flush?.();
+  }
+
+  /**
+   * The page is closing (BA72). The saves under way read the sheet before
+   * they write, and a closing page never gets that read back, so they would
+   * die with it, as would typing still waiting for its delay. So what hasn't
+   * landed is applied to this pane's copy and written at once (`writeNow`),
+   * without the read. Not for a page going into the back-forward cache
+   * (`persisted`), which keeps running its saves when it comes back.
+   */
+  function onPagehide(e) {
+    flushAll();
+    if (e.persisted || destroyed || readOnly || !sheet || !pending.size) return;
+    let next = sheet;
+    let plan = null;
+    for (const asked of pending) {
+      if (asked.id !== sheet.id) continue;
+      const p = planSheetChange(next, asked.op);
+      if (!p.changed) continue;
+      next = p.sheet;
+      plan = p;
+    }
+    if (!plan) return;
+    try {
+      store.writeNow(plan);
+    } catch (err) {
+      console.error("Study Desk: the sheet couldn’t be saved as the page closed", err);
+    }
   }
 
   // ---- a module's card ----
@@ -707,7 +862,9 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
 
   function readOnlyRich(card, html) {
     const box = make("div", "desk-rich");
-    box.innerHTML = html ?? "";
+    // A read-only sheet is one in a newer format, which validateSheet never
+    // checked, so its html is drawn only through the sanitizer (BA66).
+    box.innerHTML = sheetHtmlForShow(html);
     card.append(box);
     return null;
   }
@@ -820,12 +977,16 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
       }
       const count = got.modules.filter((m) => m.type === "question").length;
       const missed = got.dropped ? ` ${got.dropped} more didn’t fit.` : "";
+      // Worked out again on the sheet as saved, so questions another tab put
+      // on it meanwhile aren't added twice.
+      let added = got.modules;
       change((s) => {
+        added = discussionModules(s, records).modules;
         let at = insertIndex(s);
-        return got.modules.reduce((acc, m) => addModule(acc, m, at++, opCtx()), s);
+        return added.reduce((acc, m) => addModule(acc, m, at++, opCtx()), s);
       }, {
         announce: `${count} ${count === 1 ? "question" : "questions"} added for discussion.${missed}`,
-        after: () => cards.get(got.modules[0].id)?.el.scrollIntoView({ block: "nearest" }),
+        after: () => cards.get(added[0]?.id)?.el.scrollIntoView({ block: "nearest" }),
       });
     });
     row.append(discuss);
@@ -850,9 +1011,18 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
     go.type = "submit";
     const problem = make("p", "desk-sheet__problem");
     problem.setAttribute("role", "alert");
+    // A passage added again says so here, where the reader added it (BA75);
+    // the pane's live region has already announced it.
+    const note = make("p", "desk-sheet__empty");
+    note.hidden = true;
+    const added = (result) => {
+      note.hidden = !result?.again;
+      note.textContent = result?.again ? result.message : "";
+    };
     line.append(input, go);
     line.addEventListener("submit", async (e) => {
       e.preventDefault();
+      added(null);
       const ref = parseReference(input.value.replace(/[–—]/g, "-"));
       if (!ref) {
         problem.textContent = "That isn’t a reference the LIT can read. Try a book, a chapter, and verses, such as Romans 5:6–10.";
@@ -860,22 +1030,20 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
       }
       problem.textContent = "";
       let chapter = null;
-      let source = null;
       try {
-        source = await loadChapterPage(ref.bookKey, ref.chapter);
+        const source = await loadChapterPage(ref.bookKey, ref.chapter);
         chapter = source.textBox ? source.anchorText() : null;
       } catch (_) {}
-      const last = chapter?.verses?.length ? Math.max(...chapter.verses) : null;
-      const verse = ref.verse ?? 1;
-      const end = ref.rangeEnd ?? (ref.verse ? ref.verse : last ?? 1);
-      if (last && verse > last) {
-        problem.textContent = `${passageReference({ bookKey: ref.bookKey, chapter: ref.chapter, verse })} isn’t in the LIT; that chapter ends at verse ${last}.`;
+      const found = passageForReference(chapter, ref, ctx().contentVersion);
+      if (found.problem) {
+        problem.textContent = found.problem;
         return;
       }
-      const ok = await me.addPassage(passageFromVerses(chapter, ref, verse, Math.min(end, last ?? end), ctx().contentVersion));
-      if (ok) input.value = "";
+      const result = await me.addPassage(found.fields);
+      added(result);
+      if (result) input.value = "";
     });
-    form.append(line, problem);
+    form.append(line, problem, note);
 
     // From the notebook: its notes, highlights and bookmarks, newest first.
     const fromBook = make("div", "desk-sheet__from");
@@ -908,7 +1076,8 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
           chapter = source.textBox ? source.anchorText() : null;
         } catch (_) {}
         const fields = passageFromRecord(r, chapter, ctx().contentVersion);
-        if (fields) await me.addPassage(fields);
+        added(null);
+        if (fields) added(await me.addPassage(fields));
       });
       li.append(b);
       ul.append(li);
@@ -972,27 +1141,18 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
 
   // ---- changes made elsewhere ----
 
-  const unsubscribe = store.subscribe(async (ids) => {
-    if (!sheet || !ids?.includes?.(sheet.id)) return;
-    await saving;
-    const n = seq;
-    let record = null;
-    try {
-      record = await store.get(sheet.id);
-    } catch (_) {
-      return;
-    }
-    if (n !== seq || destroyed || !sheet) return;
-    if (record?.kind !== "sheet") {
-      // Deleted here or in another tab.
-      setSheet(null);
-      showList();
-      return;
-    }
-    if (json(record) === json(sheet)) return;
-    sheet = record;
-    draw();
+  const unsubscribe = store.subscribe((ids) => {
+    if (sheet && ids?.includes?.(sheet.id)) refresh();
   });
+  const onVisible = () => {
+    // Hidden comes first when a tab closes; this starts the saves, and
+    // onPagehide makes sure of them (BA72).
+    if (document.visibilityState === "visible") refresh();
+    else flushAll();
+  };
+  document.addEventListener("visibilitychange", onVisible);
+  window.addEventListener("pageshow", onVisible);
+  window.addEventListener("pagehide", onPagehide);
 
   queueMicrotask(() => {
     const id = getSheet();
@@ -1007,6 +1167,9 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
       destroyed = true;
       seq++;
       unsubscribe();
+      document.removeEventListener("visibilitychange", onVisible);
+      window.removeEventListener("pageshow", onVisible);
+      window.removeEventListener("pagehide", onPagehide);
       openPanes.delete(me);
       if (lastUsed === me) lastUsed = null;
       for (const card of cards.values()) card.inst?.destroy?.();

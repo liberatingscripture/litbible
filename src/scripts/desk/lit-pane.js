@@ -75,7 +75,8 @@ function make(tag, cls, text) {
  *   `start` is the passage it opens at; `drafts` the draft chapters of each
  *   book (desk.astro writes them at build); `onPlace` hears where the
  *   reader is, and every passage the picker or the reader asks for.
- * @returns {{ el: HTMLElement, goTo: (passage: object) => void, destroy: () => void }}
+ * @returns {{ el: HTMLElement, goTo: (passage: object) => void,
+ *   keep: () => () => void, destroy: () => void }}
  */
 export function createLitPane({ paneId, start, drafts, onPlace }) {
   const units = corpusUnits(drafts);
@@ -279,6 +280,31 @@ export function createLitPane({ paneId, start, drafts, onPlace }) {
     return { bookKey: u.bookKey, chapter: u.chapters[0], verse };
   }
 
+  /**
+   * Note where the text is, before the page takes the pane off it to redraw
+   * the panes (which resets its scrolling, BA51), and return what puts it
+   * back: the verse number at or above the reading line goes back the same
+   * distance from it, however a new width has rewrapped the lines. The move
+   * isn't the reader's scrolling, so nothing is told.
+   */
+  function keep() {
+    const s = sectionAtLine();
+    if (!s || !scroller.clientHeight) return () => {};
+    const y = line();
+    let mark = s;
+    for (const m of s.querySelectorAll("sup.vn")) {
+      if (m.getBoundingClientRect().top > y) break;
+      mark = m;
+    }
+    const offset = mark.getBoundingClientRect().top - y;
+    return () => {
+      if (destroyed || !mark.isConnected || !scroller.clientHeight) return;
+      readerMoved = false;
+      const delta = mark.getBoundingClientRect().top - line() - offset;
+      if (Math.abs(delta) >= 1) scroller.scrollTop += delta;
+    };
+  }
+
   // ---- loading as the reader nears an edge ----
 
   async function fill() {
@@ -444,6 +470,7 @@ export function createLitPane({ paneId, start, drafts, onPlace }) {
   return {
     el,
     goTo,
+    keep,
     destroy() {
       destroyed = true;
       seq++;

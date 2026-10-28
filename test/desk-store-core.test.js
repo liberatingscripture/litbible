@@ -10,15 +10,19 @@ import assert from "node:assert/strict";
 import { createRecord } from "../src/lib/desk-records.mjs";
 import {
   CHANNEL,
+  bookmarksOn,
   changeMessage,
   currentSlug,
   forChapter,
   forProse,
   kindName,
   liveRecords,
+  planBookmark,
   planDelete,
+  planEdit,
   planPurge,
   planSave,
+  planUnbookmark,
   planUndo,
   planWrite,
   readChangeMessage,
@@ -302,4 +306,127 @@ test("a note on a footnote reads as 'a footnote in' its verse; anything else rea
   const entryNote = { kind: "note", glossaryEntry: "flesh-body", targetTitle: "Flesh" };
   assert.equal(recordWhere(entryNote), recordReference(entryNote));
   assert.equal(recordWhere(entryNote), "Glossary: Flesh");
+});
+
+/* ── planEdit (BA6) ──────────────────────────────────────────────────── */
+
+const SAVED = { now: "2026-10-09T08:00:00.000Z", client: "web/2026.11" };
+const edit = { body: "second thoughts", marker: "question" };
+
+test("planEdit puts the edit over the record as the notebook holds it now, stamped", () => {
+  const opened = note({ bookKey: "romans", chapter: 8, verse: 3 });
+  const plan = planEdit(opened, opened, edit, SAVED);
+  assert.deepEqual(plan.remove, []);
+  assert.equal(plan.put.length, 1);
+  const [saved] = plan.put;
+  assert.equal(saved.id, opened.id);
+  assert.equal(saved.body, "second thoughts");
+  assert.equal(saved.marker, "question");
+  assert.equal(saved.modified, SAVED.now);
+  assert.equal(saved.client, SAVED.client);
+  assert.equal(saved.created, opened.created);
+});
+
+test("planEdit is null when the record is gone, or is not the one that was opened", () => {
+  const opened = note({ bookKey: "romans", chapter: 8, verse: 3 });
+  assert.equal(planEdit(null, opened, edit, SAVED), null);
+  assert.equal(planEdit(undefined, opened, edit, SAVED), null);
+  assert.equal(planEdit({ ...opened, id: nextId() }, opened, edit, SAVED), null);
+  assert.equal(planEdit({ ...opened, kind: "bookmark" }, opened, edit, SAVED), null);
+});
+
+test("planEdit is null when anything besides the edited fields changed since the editor opened", () => {
+  const opened = note({ bookKey: "romans", chapter: 8, verse: 3 });
+  assert.equal(planEdit({ ...opened, labels: ["a-label"] }, opened, edit, SAVED), null, "a label was added elsewhere");
+  assert.equal(planEdit({ ...opened, quote: { exact: "flesh", prefix: "the ", suffix: " is" } }, opened, edit, SAVED), null);
+  assert.equal(planEdit({ ...opened, verseCopy: "x" }, opened, edit, SAVED), null);
+  assert.equal(planEdit({ ...opened, verse: 4 }, opened, edit, SAVED), null);
+  assert.equal(planEdit({ ...opened, created: "2026-10-01T00:00:00.000Z" }, opened, edit, SAVED), null);
+});
+
+test("planEdit tolerates a restamp and what changed in the fields being edited, and keeps everything else as held", () => {
+  const opened = note({ bookKey: "romans", chapter: 8, verse: 3 });
+  // Another tab saved a different body and marker, and stamped the record: the editor's wording wins.
+  const current = { ...opened, body: "from another tab", marker: "heart", modified: "2026-10-08T00:00:00.000Z", client: "ios/9", novel: { a: [1] } };
+  // A field the editor did not open with is a change it never saw, so it blocks; one it did open with is carried.
+  assert.equal(planEdit(current, opened, edit, SAVED), null);
+  const both = { ...opened, novel: { a: [1] } };
+  const held = { ...both, body: "from another tab", marker: "heart", modified: "2026-10-08T00:00:00.000Z", client: "ios/9" };
+  const [saved] = planEdit(held, both, edit, SAVED).put;
+  assert.equal(saved.body, "second thoughts");
+  assert.equal(saved.marker, "question");
+  assert.equal(saved.modified, SAVED.now);
+  assert.equal(saved.client, SAVED.client);
+  assert.deepEqual(saved.novel, { a: [1] }, "a field it doesn't know is carried");
+});
+
+test("planEdit counts a property holding undefined as missing", () => {
+  const opened = note({ bookKey: "romans", chapter: 8, verse: 3 });
+  assert.notEqual(planEdit({ ...opened, extra: undefined }, opened, edit, SAVED), null);
+  assert.notEqual(planEdit(opened, { ...opened, extra: undefined }, edit, SAVED), null);
+  assert.equal(planEdit({ ...opened, extra: null }, opened, edit, SAVED), null, "null is a value");
+});
+
+test("planEdit refuses what planSave refuses", () => {
+  const opened = note({ bookKey: "romans", chapter: 8, verse: 3 });
+  assert.throws(() => planEdit(opened, opened, { body: "x", marker: "star" }, SAVED), /not saved/);
+});
+
+/* ── Bookmarks: one to a verse (BA16) ────────────────────────────────── */
+
+function bookmark(where, extra = {}) {
+  return createRecord("bookmark", { ...where, ...extra }, { ...base, now: "2026-10-05T12:00:00.000Z", id: nextId() });
+}
+
+const HERE = { bookKey: "romans", chapter: 8, verse: 3 };
+
+test("bookmarksOn returns only the bookmarks on that exact verse", () => {
+  const mine = bookmark(HERE);
+  const otherVerse = bookmark({ bookKey: "romans", chapter: 8, verse: 4 });
+  const otherChapter = bookmark({ bookKey: "romans", chapter: 9, verse: 3 });
+  const otherBook = bookmark({ bookKey: "john", chapter: 8, verse: 3 });
+  const aNote = note(HERE);
+  const { trash } = planDelete(bookmark(HERE), { ...base, now: "2026-10-06T00:00:00.000Z" });
+  assert.deepEqual(bookmarksOn([otherVerse, aNote, mine, trash, otherChapter, otherBook], HERE), [mine]);
+  assert.deepEqual(bookmarksOn([aNote, trash, otherVerse], HERE), []);
+  assert.deepEqual(bookmarksOn(undefined, HERE), [], "a missing notebook holds none");
+});
+
+test("planBookmark puts the new bookmark when the verse has none", () => {
+  const fresh = bookmark(HERE);
+  const elsewhere = bookmark({ bookKey: "romans", chapter: 8, verse: 4 });
+  assert.deepEqual(planBookmark([elsewhere, note(HERE)], fresh), { put: [fresh], remove: [] });
+  assert.deepEqual(planBookmark([], fresh), { put: [fresh], remove: [] });
+});
+
+test("planBookmark writes nothing when the verse already holds a bookmark (the second press)", () => {
+  const first = bookmark(HERE);
+  const second = bookmark(HERE);
+  assert.equal(planBookmark([first], second), null);
+});
+
+test("planBookmark still refuses a malformed record, as planSave does", () => {
+  const bad = { ...bookmark(HERE), chapter: 17 };
+  assert.throws(() => planBookmark([], bad), /not saved/);
+});
+
+test("planUnbookmark removes every bookmark on the verse, each through its own trash record", () => {
+  const a = bookmark(HERE);
+  const b = bookmark(HERE);
+  const other = bookmark({ bookKey: "romans", chapter: 8, verse: 4 });
+  const aNote = note(HERE);
+  const plan = planUnbookmark([a, other, aNote, b], HERE, { ...base, now: "2026-10-06T00:00:00.000Z" });
+  assert.deepEqual(plan.remove, [a.id, b.id]);
+  assert.equal(plan.put.length, 2);
+  assert.deepEqual(plan.trash, plan.put, "trash lists the trash records the plan puts");
+  assert.ok(plan.put.every((t) => t.kind === "trash"));
+  assert.deepEqual(plan.put.map((t) => t.deletedId), [a.id, b.id]);
+  assert.notEqual(plan.put[0].id, plan.put[1].id, "each trash record has its own id");
+  assert.ok(!plan.remove.includes(other.id) && !plan.remove.includes(aNote.id), "other records are left alone");
+});
+
+test("planUnbookmark has nothing to do when the verse holds no bookmark", () => {
+  const other = bookmark({ bookKey: "romans", chapter: 8, verse: 4 });
+  assert.equal(planUnbookmark([other, note(HERE)], HERE, base), null);
+  assert.equal(planUnbookmark([], HERE, base), null);
 });

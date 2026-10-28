@@ -2,10 +2,10 @@
 //
 // Merging two copies of a reader's notebook (STUDY-DESK-FORMAT.md, "Clocks"
 // and kind 10 `trash`; STUDY-DESK.md, "When notes collide: rules a to e").
-// Phase 1's import of an export file uses it, and phase 4's sync is the same
-// function with a service on the other side. Pure: no storage, no DOM, and no
-// clock of its own unless the caller leaves `now` out. NOTHING CALLS IT YET;
-// phase 1d's import will.
+// Opening an export file uses it (src/lib/desk-export.mjs, "Open this copy"),
+// and phase 4's sync would be the same function with a service on the other
+// side. Pure: no storage, no DOM, and no clock of its own unless the caller
+// leaves `now` out.
 //
 // The rules, in the order they apply. a to c are BDR's answers of 2026-10-09,
 // settled with the apps; the collapse rule (6) is the website's proposal of
@@ -19,10 +19,20 @@
 //      tie goes to the optional `tiebreak` (a sync service passes its revision
 //      order); with none, the LOCAL copy stays and nothing is written.
 //   clamp. A record arriving from the other side whose `modified` (or, for a
-//      trash record, `deletedAt`) is later than `now` is treated as `now`, and
-//      the copy written carries the clamped value. One device's clock claiming
-//      the future must not win every later argument. Local records are never
-//      clamped: they are the reader's own.
+//      trash record, `deletedAt`, or the `modified` of the copy it holds) is
+//      later than the cap is treated as the cap, and the copy written carries
+//      the clamped value. The cap is `now`, or the other side's `exported`
+//      time when that is earlier (an export file's own time: nothing in a file
+//      can be newer than the file). One device's clock claiming the future
+//      must not win every later argument, so a record that had to be clamped
+//      (it "ran ahead") NEVER beats anything this side holds: it is dropped
+//      when this side has a record with its id or a deletion of it, or (for a
+//      trash record) the record it deletes or another deletion of it, and is
+//      written, at the cap, only when this side has nothing for it. Clamping
+//      on each arrival alone isn't enough: the cap moves with `now`, so the
+//      same file opened again would beat an edit or a deletion made in
+//      between (audit BA4, BA12). Local records are never clamped: they are
+//      the reader's own.
 //   b. Deleted on one side, edited on the other: a live record X against a
 //      trash record whose `deletedId` is X, from either side. The later action
 //      wins: if the live record's `modified` is later than the trash record's
@@ -60,8 +70,12 @@
 //      Each client applies that only when the reader makes or removes a
 //      highlight, so a merge never trims or joins one.
 //   9. A malformed arriving record (no string `id`, no `kind`, an unparsable
-//      `modified`, or a trash record without a `deletedId` or with an
-//      unparsable `deletedAt`) is skipped and reported, never written. The
+//      `modified`, or a trash record without a `deletedId`, naming itself as
+//      what it deleted, or with an unparsable `deletedAt`) is skipped and
+//      reported, never written. So is one whose `kind` differs from another
+//      copy of its id, on this side or in the same input: one id is one
+//      record, so a trash record never replaces the note it shares an id
+//      with (audit BA11). The
 //      local side is trusted to be what the store holds: its records are only
 //      read, leniently (a local time that won't parse loses to anything).
 //      Several records with one id inside one input are merged among
@@ -69,8 +83,9 @@
 //      smaller JSON text, so the order of the input never matters).
 //
 // The result doesn't depend on the order of either input, merging the same
-// incoming twice writes nothing the second time, and merging A into B and B
-// into A end with the same records, apart from the places the rules name as
+// incoming twice writes nothing the second time (on a later day too, which is
+// what the clamp's never-beats rule is for), and merging A into B and B into
+// A end with the same records, apart from the places the rules name as
 // one-sided: the local copy staying on an exact tie, clamping, and skipping.
 
 import { emptyTrashRecord, migrateRecord } from "./desk-records.mjs";
@@ -108,6 +123,8 @@ const byId = (a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
 
 /* ── Checking what arrives (rule 9) ──────────────────────────────────── */
 
+const holds = (t) => t.record != null && typeof t.record === "object";
+
 /** Why an arriving record can't be merged, as a plain sentence; null if it can. */
 function problemWith(r) {
   if (!r || typeof r !== "object" || Array.isArray(r)) return "It is not a record.";
@@ -116,16 +133,22 @@ function problemWith(r) {
   if (!parses(r.modified)) return "Its modified time is missing or is not a time.";
   if (r.kind === "trash") {
     if (typeof r.deletedId !== "string" || !r.deletedId) return "It is a trash record that doesn't say which record it deleted.";
+    if (r.deletedId === r.id) return "It is a trash record that names itself as the record it deleted.";
     if (!parses(r.deletedAt)) return "It is a trash record whose deletion time is missing or is not a time.";
   }
   return null;
 }
 
-/** The record with its times no later than `now` (the same object if they are). */
-function clamped(r, now, nowMs) {
+/** The record with its times no later than the cap (the same object if they are). */
+function clamped(r, cap, capMs) {
   let out = r;
-  if (instant(out.modified) > nowMs) out = { ...out, modified: now };
-  if (out.kind === "trash" && instant(out.deletedAt) > nowMs) out = { ...out, deletedAt: now };
+  if (instant(out.modified) > capMs) out = { ...out, modified: cap };
+  if (out.kind === "trash") {
+    if (instant(out.deletedAt) > capMs) out = { ...out, deletedAt: cap };
+    // The copy a trash record holds too, or a held copy from the future would
+    // outrank every later one, and an undo would bring back its words (BA12).
+    if (holds(out) && instant(out.record.modified) > capMs) out = { ...out, record: { ...out.record, modified: cap } };
+  }
   return out;
 }
 
@@ -160,8 +183,6 @@ function dedupe(records, pick) {
 
 /* ── Rule 6 ──────────────────────────────────────────────────────────── */
 
-const holds = (t) => t.record != null && typeof t.record === "object";
-
 /** Several trash records for one deletion, as the one that survives. */
 function collapseTrash(group) {
   if (group.length === 1) return group[0];
@@ -193,24 +214,70 @@ function checkNow(now) {
   return at;
 }
 
-/** Everything both public functions need: the merged records and what was skipped. */
-function combine(local, incoming, { now, tiebreak } = {}) {
-  const at = checkNow(now);
+/** The latest time an arriving record may carry: `now`, or `exported` if earlier. */
+function capOf(at, exported) {
   const nowMs = Date.parse(at);
+  return parses(exported) && Date.parse(exported) < nowMs ? [exported, Date.parse(exported)] : [at, nowMs];
+}
+
+const kindName = (kind) => (kind === "trash" ? "trash record" : kind);
+const aKind = (kind) => `${/^[aeiou]/i.test(kindName(kind)) ? "an" : "a"} ${kindName(kind)}`;
+
+/** Everything both public functions need: the merged records, what was skipped and what ran ahead. */
+function combine(local, incoming, { now, exported, tiebreak } = {}) {
+  const at = checkNow(now);
+  const [cap, capMs] = capOf(at, exported);
 
   const skipped = [];
   const arriving = [];
+  const rawOf = new Map();
+  const ahead = new Set();
   for (const raw of incoming ?? []) {
     const why = problemWith(raw);
-    if (why) skipped.push({ record: raw, reason: why });
-    else arriving.push(clamped(migrateRecord(raw), at, nowMs));
+    if (why) {
+      skipped.push({ record: raw, reason: why });
+      continue;
+    }
+    const migrated = migrateRecord(raw);
+    const r = clamped(migrated, cap, capMs);
+    if (r !== migrated) ahead.add(r);
+    rawOf.set(r, raw);
+    arriving.push(r);
   }
 
   const mine = dedupe(
     (local ?? []).filter((r) => typeof r?.id === "string" && r.id),
     pickWithin,
   );
-  const theirs = dedupe(arriving, pickWithin);
+
+  // Rule 9: one id is one record. Copies of one id in different kinds, within
+  // the input or against this side, are left out, whatever their order.
+  const kindsIn = new Map();
+  for (const r of arriving) {
+    if (!kindsIn.has(r.id)) kindsIn.set(r.id, new Set());
+    kindsIn.get(r.id).add(r.kind);
+  }
+  const fitting = arriving.filter((r) => {
+    const here = mine.get(r.id);
+    let why = null;
+    if (kindsIn.get(r.id).size > 1) why = "Another record in the same file has its id but is of another kind.";
+    else if (here && here.kind !== r.kind) why = `It is ${aKind(r.kind)} with the id of ${aKind(here.kind)} here.`;
+    if (why) skipped.push({ record: rawOf.get(r), reason: why });
+    return !why;
+  });
+  const theirs = dedupe(fitting, pickWithin);
+
+  // The clamp: a record that ran ahead never beats anything this side holds.
+  const deletedHere = new Set();
+  for (const r of mine.values()) if (r.kind === "trash" && typeof r.deletedId === "string") deletedHere.add(r.deletedId);
+  const ranAhead = [];
+  for (const [id, r] of theirs) {
+    if (!ahead.has(r)) continue;
+    const touches =
+      mine.has(id) || (r.kind === "trash" ? mine.has(r.deletedId) || deletedHere.has(r.deletedId) : deletedHere.has(id));
+    ranAhead.push({ record: rawOf.get(r), written: !touches });
+    if (touches) theirs.delete(id);
+  }
 
   const merged = new Map(mine);
   for (const [id, r] of theirs) {
@@ -248,7 +315,7 @@ function combine(local, incoming, { now, tiebreak } = {}) {
     if (r.kind === "trash") merged.set(id, emptyTrashRecord(r, at));
   }
 
-  return { records: [...merged.values()].sort(byId), skipped };
+  return { records: [...merged.values()].sort(byId), skipped, ahead: ranAhead };
 }
 
 /**
@@ -256,10 +323,12 @@ function combine(local, incoming, { now, tiebreak } = {}) {
  *
  * @param {object[]} a the local records
  * @param {object[]} b the arriving records (the side that is clamped and checked)
- * @param {{ now?: string, tiebreak?: (local: object, incoming: object) => number }} [opts]
- *   `tiebreak` decides an exact tie in `modified`, as a comparator on which copy
- *   is newer: positive when the local copy is, negative when the incoming one
- *   is, 0 (or absent) to leave the local copy.
+ * @param {{ now?: string, exported?: string, tiebreak?: (local: object, incoming: object) => number }} [opts]
+ *   `exported` is when the arriving copy was made (an export file's own time),
+ *   which caps its records' times when it is earlier than `now`; a sync leaves
+ *   it out. `tiebreak` decides an exact tie in `modified`, as a comparator on
+ *   which copy is newer: positive when the local copy is, negative when the
+ *   incoming one is, 0 (or absent) to leave the local copy.
  * @returns {object[]} the merged records, sorted by id
  */
 export function mergeSets(a, b, opts) {
@@ -272,18 +341,21 @@ export function mergeSets(a, b, opts) {
  *
  * @param {object[]} local what the store holds now
  * @param {object[]} incoming an export file's records, or a sync's
- * @param {{ now?: string, tiebreak?: (local: object, incoming: object) => number }} [opts]
- * @returns {{ put: object[], remove: string[], skipped: { record: unknown, reason: string }[] }}
+ * @param {{ now?: string, exported?: string, tiebreak?: (local: object, incoming: object) => number }} [opts]
+ * @returns {{ put: object[], remove: string[], skipped: { record: unknown, reason: string }[],
+ *   ahead: { record: unknown, written: boolean }[] }}
  *   `put` holds only records that are new or changed; `remove` the local ids
  *   that went (a deleted record, or a trash record that collapsed or was
- *   cleared by an edit); `skipped` the arriving records that couldn't be merged.
+ *   cleared by an edit); `skipped` the arriving records that couldn't be
+ *   merged; `ahead` the arriving records whose times ran past the cap, each
+ *   `written` (at the cap) or not (what this side holds stayed).
  */
 export function mergeRecords(local, incoming, opts) {
-  const { records, skipped } = combine(local, incoming, opts);
+  const { records, skipped, ahead } = combine(local, incoming, opts);
   const before = new Map();
   for (const r of local ?? []) if (typeof r?.id === "string" && r.id) before.set(r.id, r);
   const put = records.filter((r) => !before.has(r.id) || !sameRecord(before.get(r.id), r));
   const kept = new Set(records.map((r) => r.id));
   const remove = [...before.keys()].filter((id) => !kept.has(id)).sort();
-  return { put, remove, skipped };
+  return { put, remove, skipped, ahead };
 }

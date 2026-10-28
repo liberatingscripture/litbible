@@ -19,6 +19,7 @@
 
 import { canEdit, createRecord, editRecord } from "./desk-records.mjs";
 import { MODULE_TYPES, SHEET_FORMAT, SHEET_LIMITS, sanitizeSheetHtml } from "./desk-sheet-format.mjs";
+import { planSave } from "./desk-store-core.mjs";
 
 /** The fields a new module of each type starts with (besides its `id` and `type`). */
 const DEFAULTS = {
@@ -184,4 +185,36 @@ export function setSheetFields(sheet, changes, ctx) {
   }
   if (Object.keys(changes).every((f) => same(changes[f], sheet[f]))) return sheet;
   return editRecord(sheet, changes, ctx);
+}
+
+/**
+ * Plan one change to a sheet over the record the notebook holds now
+ * (`current`, read in the same transaction as the write), never over a copy
+ * read earlier, so a save another tab made to the sheet's other parts
+ * survives (BA129). `op` is one of the operations above, given the sheet.
+ *
+ * - `{ gone: true }`: there is no sheet here to change (deleted meanwhile, or
+ *   in a format this code can't edit), so nothing is written.
+ * - `{ refused: error }`: the operation refused the change (a 301st part, say).
+ * - `{ sheet: current, changed: false }`: it changed nothing.
+ * - `{ sheet: next, changed: true, put: [next], remove: [] }`: the plan.
+ *
+ * Throws as planSave does when the changed sheet can't be saved (over its
+ * 512 KB, BA128), so the caller's transaction writes nothing.
+ */
+export function planSheetChange(current, op) {
+  if (current?.kind !== "sheet" || !canEdit(current)) return { gone: true };
+  let next;
+  try {
+    next = op(current);
+  } catch (refused) {
+    return { refused };
+  }
+  if (next === current) return { sheet: current, changed: false };
+  return { sheet: next, changed: true, ...planSave(next) };
+}
+
+/** Whether an error is the size limit refusing a sheet ("a sheet is at most 512 KB"). */
+export function sheetTooBig(error) {
+  return String(error?.message ?? "").includes(`a sheet is at most ${SHEET_LIMITS.bytes / 1024} KB`);
 }

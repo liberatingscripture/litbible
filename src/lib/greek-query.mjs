@@ -146,7 +146,7 @@ export const COMMANDS = [
     title: "Building a search",
     items: [
       { code: "πίστις", greek: true, means: "Any form of a word", note: "In Greek, transliterated (pistis) or by Strong’s number (G4102)", insert: "" },
-      { code: ",", word: "and", means: "Then another word", note: "πίστις.gen, Χριστός.gen: found together, in that order", insert: ", " },
+      { code: ",", word: "and", means: "Then another word", note: "πίστις.gen, Χριστός.gen: found together, in that order. Up to four words", insert: ", " },
       { code: ".gen", means: "Narrow the word before it", note: "Join several: *.aor.impv", insert: ".gen" },
       { code: "*", word: "any", means: "Any word", note: "Needs a filter: *.gen.noun is any genitive noun", insert: "*" },
       { code: "/", word: "or", means: "Either one", note: "Two words, Ἰησοῦς/Χριστός, or two filters of one kind, πίστις.gen/dat", insert: "/" },
@@ -185,6 +185,9 @@ export const EXAMPLES = [
 ];
 
 /* ── Reading a query ─────────────────────────────────────────────── */
+
+/** The most words a construction joins (BA44), which keeps matchConstruction fast. */
+export const MAX_TERMS = 4;
 
 const QUOTED = /["“”]([^"“”]+)["“”]/g;
 const LITERAL = "\u0001";
@@ -289,7 +292,8 @@ export function parseGreekQuery(raw) {
     if (tok === "&") { anyOrder = true; close(); continue; }
     const [head, ...rest] = tok.split(".");
 
-    // ".gen" after a space narrows the word before it.
+    // ".gen" after a space narrows the word before it; with no word before
+    // it, it is "*.gen" (BA48: it was dropped without a word).
     if (head === "" && terms.length) {
       const err = addFilters(last(), rest.filter(Boolean));
       if (err) return { error: err };
@@ -309,7 +313,7 @@ export function parseGreekQuery(raw) {
     if (head.startsWith(LITERAL)) {
       term.words = [literals[Number(head.slice(1))]];
       term.literal = true;
-    } else if (head !== "*" && head.toLowerCase() !== "any") {
+    } else if (head !== "" && head !== "*" && head.toLowerCase() !== "any") {
       term.exact = head.startsWith("=");
       term.words = (term.exact ? head.slice(1) : head).split(/[/|]/).filter(Boolean);
       if (!term.words.length) continue;
@@ -323,6 +327,7 @@ export function parseGreekQuery(raw) {
 
   for (const t of terms) delete t.closed;
   if (terms.some((t) => !t.words && !t.filters.length)) return { error: { kind: "bareAny" } };
+  if (terms.length > MAX_TERMS) return { error: { kind: "tooMany" } };
   return { terms, gap, anyOrder };
 }
 
@@ -378,7 +383,10 @@ export function resolveGreekQuery(index, parsed, { bridge = null } = {}) {
 /**
  * The parse groups (search/parse.json's names) an any-word term needs: those
  * that can hold a word with every filter. Leaves out only what can't match;
- * codeFits decides each word.
+ * codeFits decides each word. The groups are split by part of speech and
+ * case, or tense and mood, so number, gender and person alone narrow nothing:
+ * "*.sg" loads 54 of the 57 files, about 600 KB compressed, once a visit.
+ * Accepted (BVJ, 2026-10-27; BA49) rather than asking for a part of speech.
  */
 export function groupsForFilters(filters, groupNames) {
   // Each kind of filter given, with the codes a word may have for it.
@@ -431,28 +439,18 @@ export function matchConstruction(lists, { gap = 3, anyOrder = false, bookOrder 
     }
     return m;
   });
+  if (lists.length > MAX_TERMS) throw new RangeError(`at most ${MAX_TERMS} terms`);
+  // Whether `t` may follow `prev`: after it unless in any order, and no more
+  // than `gap` words between.
+  const near = (prev, t) => t !== prev && (anyOrder || t > prev) && Math.abs(t - prev) - 1 <= gap;
   const out = [];
   for (const [k, firsts] of byVerse[0]) {
     if (byVerse.some((m) => !m.has(k))) continue;
-    const later = byVerse.slice(1).map((m) => m.get(k));
+    const later = byVerse.slice(1).map((m) => [...new Set(m.get(k))]);
     const matches = [];
     for (const t0 of [...new Set(firsts)].sort((a, b) => a - b)) {
-      const marked = new Set();
-      const walk = (i, prev, used) => {
-        if (i === later.length) {
-          for (const t of used) marked.add(t);
-          return true;
-        }
-        let any = false;
-        for (const t of later[i]) {
-          if (used.includes(t)) continue;
-          if (!anyOrder && t <= prev) continue;
-          if (Math.abs(t - prev) - 1 > gap) continue;
-          if (walk(i + 1, t, [...used, t])) any = true;
-        }
-        return any;
-      };
-      if (walk(0, t0, [t0])) matches.push([...marked].sort((a, b) => a - b));
+      const marked = marksFrom(t0, later, near);
+      if (marked) matches.push([...marked].sort((a, b) => a - b));
     }
     if (!matches.length) continue;
     const [book, chapter, verse] = k.split("|");
@@ -460,6 +458,45 @@ export function matchConstruction(lists, { gap = 3, anyOrder = false, bookOrder 
   }
   const rank = (b) => (typeof b === "number" ? b : bookOrder ? bookOrder.indexOf(b) : 0);
   return out.sort((a, b) => rank(a.book) - rank(b.book) || a.chapter - b.chapter || a.verse - b.verse);
+}
+
+/**
+ * Every word on some match from first word `t0`, or null when there is
+ * none. A match is a chain t0, w1, …, of distinct words, one from each later
+ * list, each `near` the one before. Walking every chain grew exponentially
+ * (BA44: five "*.sg" in any order took minutes), so a chain is built round
+ * its middle: at most three later terms (MAX_TERMS) keep this cubic in a
+ * verse's words.
+ */
+function marksFrom(t0, later, near) {
+  const marked = new Set([t0]);
+  if (!later.length) return marked;
+  const [l1, l2, l3] = later.map((list) => list.filter((t) => t !== t0));
+  if (later.length === 1) {
+    for (const w1 of l1) if (near(t0, w1)) marked.add(w1);
+  } else if (later.length === 2) {
+    for (const w1 of l1) {
+      if (!near(t0, w1)) continue;
+      const w2s = l2.filter((w2) => w2 !== w1 && near(w1, w2));
+      if (!w2s.length) continue;
+      marked.add(w1);
+      for (const w2 of w2s) marked.add(w2);
+    }
+  } else {
+    for (const w2 of l2) {
+      const w1s = l1.filter((w1) => w1 !== w2 && near(t0, w1) && near(w1, w2));
+      if (!w1s.length) continue;
+      const w3s = l3.filter((w3) => w3 !== w2 && near(w2, w3));
+      // A w1 needs some w3 other than itself.
+      const ok = w1s.filter((w1) => w3s.some((w3) => w3 !== w1));
+      if (!ok.length) continue;
+      marked.add(w2);
+      for (const w1 of ok) marked.add(w1);
+      // A w3 needs some w1 other than itself.
+      for (const w3 of w3s) if (ok.length > 1 || ok[0] !== w3) marked.add(w3);
+    }
+  }
+  return marked.size > 1 ? marked : null;
 }
 
 /* ── Saying it back ──────────────────────────────────────────────── */
@@ -483,12 +520,18 @@ export function describeGreekQuery(resolved, { greek = (s) => s, text = (s) => s
   const parts = resolved.terms.map((term, i) => describeTerm(term, i === 0, greek, text));
   let out = parts[0].charAt(0).toUpperCase() + parts[0].slice(1);
   const { gap, anyOrder } = resolved;
-  const how = gap === Infinity ? "anywhere in the verse" : gap === 0 ? (anyOrder ? "next to it" : "directly") : `within ${gap} ${gap === 1 ? "word" : "words"}`;
+  // Each later word is placed from the one before it, so each says how far
+  // (BA50); in any order there is no "then".
+  const how = (i) => {
+    if (gap === Infinity) return "anywhere in the verse";
+    if (gap === 0) return anyOrder ? (i > 1 ? "next to that" : "next to it") : "directly";
+    return `within ${gap} ${gap === 1 ? "word" : "words"}${anyOrder && i > 1 ? " of that" : ""}`;
+  };
   for (let i = 1; i < parts.length; i++) {
-    if (i > 1) out += `, then ${parts[i]}`;
-    else if (anyOrder) out += `, with ${parts[i]} ${how}, in either order`;
-    else out += `, followed ${how} by ${parts[i]}`;
+    if (anyOrder) out += `${i > 1 ? " and" : ", with"} ${parts[i]} ${how(i)}`;
+    else out += `, ${i > 1 ? "then" : "followed"} ${how(i)} by ${parts[i]}`;
   }
+  if (anyOrder && parts.length > 1) out += parts.length > 2 ? ", in any order" : ", in either order";
   return out;
 }
 
@@ -558,6 +601,8 @@ export function errorMessage(error) {
       return { text: `A word can’t be both ${error.other} and ${error.name}. For either one, join them with a slash, like gen/dat.`, filter: error.name };
     case "mixedAxes":
       return { text: `A slash joins two of one kind, like gen/dat or aor/pres, not ${error.names.join(" and ")}.`, filter: null };
+    case "tooMany":
+      return { text: `A search can join at most ${MAX_TERMS} words.`, filter: null };
     case "bareAny":
       return { text: "“Any word” needs a filter after it, like any genitive noun.", filter: null };
     case "exactGreek":

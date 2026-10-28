@@ -321,6 +321,14 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
 
   const ownBlanks = () => (view ? locateBlanks(view, mod) : []);
 
+  // What the footnote list is drawn from besides the chapter: this passage's
+  // choices, and every passage on the sheet with blanks. A save that changes
+  // neither (typing in a text part, say) leaves the list as it is, since
+  // working it out holds every footnote against every blank (BA133).
+  const notesInputs = () =>
+    JSON.stringify([mod.footnotes ?? [], (getSheet()?.modules ?? []).filter((x) => x?.type === "passage" && x.blanks?.length)]);
+  let notesDrawn = null;
+
   async function render() {
     const n = ++seq;
     const v = await readPassage(mod);
@@ -576,8 +584,10 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
 
   async function drawNotes() {
     const n = seq;
+    const inputs = notesInputs();
     const blanks = await sheetBlanks();
     if (gone || n !== seq || !view) return;
+    notesDrawn = inputs;
     const focusKey = notesBox.contains(document.activeElement) ? document.activeElement?.dataset.focusKey : null;
     const rows = footnoteRows(view.list, view.footnoteIds, mod.footnotes, blanks);
     const printing = rows.filter((r) => r.print).length;
@@ -656,7 +666,7 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
       else render();
     },
     sheetChanged() {
-      if (view && notesBox && !typing()) drawNotes();
+      if (view && notesBox && !typing() && notesInputs() !== notesDrawn) drawNotes();
     },
     hasFocus: typing,
     destroy() {

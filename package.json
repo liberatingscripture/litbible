@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": ">=22.22"
+    "node": ">=22.23.4"
   },
   "scripts": {
     "prepare": "git config core.hooksPath .githooks",
@@ -11,6 +11,8 @@
     "build:topics": "node scripts/build-topics-index.mjs",
     "build:verses": "node scripts/build-verse-index.mjs",
     "build:api": "node scripts/build-api-json.mjs",
+    "build:api2": "node scripts/build-api-v2.mjs",
+    "build:api2-vectors": "node scripts/build-api2-vectors.mjs",
     "build:glossary": "node scripts/build-glossary-json.mjs",
     "build:greek-bridge": "node scripts/build-greek-bridge.mjs",
     "build:manifest": "node scripts/build-api-manifest.mjs",
@@ -27,7 +29,7 @@
     "audit:words": "node scripts/audit-alignment-words.mjs",
     "audit:alignment": "node scripts/audit-alignment.mjs",
     "fetch:podcast": "node scripts/fetch-podcast-feed.mjs",
-    "build": "node scripts/fetch-podcast-feed.mjs && npm run build:topics && npm run build:verses && npm run build:glossary && npm run build:greek-bridge && npm run build:manifest && npm run build:api && npm run build:og && astro build && pagefind --site dist",
+    "build": "node scripts/fetch-podcast-feed.mjs && npm run build:topics && npm run build:verses && npm run build:glossary && npm run build:greek-bridge && npm run build:manifest && npm run build:api && npm run build:api2 && npm run build:og && astro build && pagefind --site dist",
     "preview": "npm run build && astro preview",
     "check": "astro check",
     "validate:chapters": "node scripts/validate-chapters.mjs",
@@ -48,13 +50,13 @@
     "@fontsource/fraunces": "^5.3.0",
     "@fontsource/inter": "^5.3.0",
     "@fontsource/opendyslexic": "^5.3.0",
-    "astro": "^7.4.0",
+    "astro": "^7.4.2",
     "qrcode-generator": "^2.0.4",
     "simple-icons": "^16.35.0"
   },
   "devDependencies": {
-    "@astrojs/check": "^0.9.10",
-    "@astrojs/markdown-remark": "7.3.3",
+    "@astrojs/check": "^0.9.12",
+    "@astrojs/markdown-remark": "7.3.4",
     "@astrojs/sitemap": "^3.7.4",
     "@fontsource/noto-sans-math": "^5.3.0",
     "jsonc-parser": "^3.3.1",

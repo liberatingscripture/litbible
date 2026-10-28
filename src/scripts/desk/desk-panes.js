@@ -23,6 +23,9 @@
 // (passage-bar.js). Each mount returns { destroy },
 // plus setPassage for a pane that is moved: a following pane, or a LIT pane
 // that the panes following it lead back (the Greek's scrolling, a picker).
+// A pane whose scrolling tells where its reader is also returns keep, which
+// desk-page.js calls before it redraws the panes (BA51): it notes where the
+// pane is and returns what puts it back, untold.
 
 import { sameChapter, passageLabel } from "../../lib/desk-passage.mjs";
 import { chapterHref, loadChapterPage } from "./chapter-page.js";
@@ -232,6 +235,8 @@ function mountGreek(body, env, pane) {
     setPassage: show,
     chapter: () => chapter,
     selectWord: (verse, t, opts) => tab?.selectWord(verse, t, opts) ?? Promise.resolve(false),
+    // The page puts the scrolling back; the Greek only mustn't tell it.
+    keep: () => () => tab?.settle(),
     destroy: () => { seq++; },
   };
 }
@@ -283,7 +288,7 @@ function mountLit(body, env, pane) {
   body.classList.add("desk-pane__body--fill");
   const lit = createLitPane({ paneId: pane.id, start: pane.get(), drafts: env.drafts, onPlace: pane.set });
   body.append(lit.el);
-  return { setPassage: (p) => lit.goTo(p), destroy: () => lit.destroy() };
+  return { setPassage: (p) => lit.goTo(p), keep: () => lit.keep(), destroy: () => lit.destroy() };
 }
 
 function mountSheet(body, env, pane) {
@@ -328,7 +333,8 @@ function mountKept(body, env, pane) {
  *   `get` and `set` are the passage the pane shows (desk-page.js): for a LIT
  *   pane, `set` is where its reader now is. `getSheet` and `setSheet` are the
  *   sheet a Sheet pane shows.
- * @returns {{ destroy: () => void, setPassage?: (passage: object) => void }}
+ * @returns {{ destroy: () => void, setPassage?: (passage: object) => void,
+ *   keep?: () => () => void }}
  */
 export function mountPane(kind, body, env, pane) {
   body.classList.remove("desk-pane__body--fill");

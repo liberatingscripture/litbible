@@ -1546,7 +1546,7 @@ export async function searchGreek(base, raw, { tray = false, near = true, bookKe
   const selected =
     (lemmaId != null && lemmas.find((l) => l.id === Number(lemmaId))) ||
     (lemmas.length === 1 ? lemmas[0] : null);
-  const out = { ...empty, kind: match.kind, lemmas, selected, form: match.form };
+  const out = { ...empty, kind: match.kind, lemmas, selected, form: match.form, query: match.query ?? null };
   if (!selected) return out;
   const entry = await loadGreekOccurrences(base, index, selected.id);
   const form = exactForm && match.form ? match.form : null;
@@ -1700,22 +1700,37 @@ function plainLatinWords(q) {
   return n >= 2 && n <= 3;
 }
 
+/** Whether a Latin search found a lemma by the whole phrase: the LIT's rendering, a gloss or a sense. */
+function wholeGloss(res) {
+  return res.kind === "latin" && res.lemmas.some((l) => l.how === "lit" || l.how === "sense" || (l.how === "gloss" && l.glossHeads?.includes(res.query)));
+}
+
 /**
  * The one Greek search the three surfaces call (the search bar's tray,
  * /search and the Notebook's Greek tab). A command query goes to
  * searchGreekCommands, unless it reads as one plain word ("πίστις.", "πίστις
- * and"), which is searchGreek's as before. Any other query is searchGreek's
- * as before; when that finds no word and the query is two or three plain Latin
- * words, they are tried as a construction (pistis Christos). Resolves to
- * searchGreek's result, or to searchGreekCommands's (kind "commands"). The
- * options are searchGreek's, and `bookKey` is searchGreekCommands's too.
+ * and"), which is searchGreek's as before. Two or three plain Latin words that
+ * hold a command word are a gloss when they are one whole ("present time",
+ * "in order to"), and a command otherwise, falling back to the gloss when the
+ * command fails or finds nothing (BA45, BVJ 2026-10-27). Any other query is
+ * searchGreek's as before; when that finds no word and the query is two or
+ * three plain Latin words, they are tried as a construction (pistis Christos).
+ * Resolves to searchGreek's result, or to searchGreekCommands's (kind
+ * "commands"). The options are searchGreek's, and `bookKey` is
+ * searchGreekCommands's too.
  */
 export async function searchGreekAuto(base, raw, options = {}) {
   const q = String(raw ?? "").trim();
   if (isCommandQuery(q)) {
+    // First, so a gloss ending in a command word ("be next to") isn't cut short.
+    const gloss = plainLatinWords(q) ? await searchGreek(base, q, options) : null;
+    if (gloss && wholeGloss(gloss)) return gloss;
     const parsed = parseGreekQuery(q);
     if (!parsed.error && isSimpleQuery(parsed)) return searchGreek(base, parsed.terms[0].words[0], options);
-    return searchGreekCommands(base, q, { bookKey: options.bookKey });
+    if (!gloss) return searchGreekCommands(base, q, { bookKey: options.bookKey });
+    const cmd = await searchGreekCommands(base, q, { bookKey: options.bookKey });
+    if ((cmd.error || (!cmd.failed && !cmd.hits.length)) && gloss.lemmas.length) return gloss;
+    return cmd;
   }
   const res = await searchGreek(base, q, options);
   if (!res.lemmas.length && plainLatinWords(q)) {
