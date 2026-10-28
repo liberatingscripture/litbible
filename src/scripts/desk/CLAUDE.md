@@ -717,13 +717,21 @@ that section.
      - **The two windows stay in step through a BroadcastChannel**
        (`channelName`, one per sheet), with a `hello` from a window that
        opens and a `bye` from one that closes; every message is checked
-       (`presentMessage`, `checkState`) before it is used. The presenter view
+       (`presentMessage`, `checkState`) before it is used. Every message
+       carries the sender's `role`, and **a `hello` counts as hearing that
+       window**, since the state then flows the other way and the newcomer
+       sends none (BA84). The presenter view
        places the presentation on a second screen through the Window
        Management API where it can (`openPresenterWindow`); without it, the
-       leader drags the window.
+       leader drags the window. Asking for the screens can use up the click
+       a window needs, so where the permission had to be asked and the
+       window is blocked, it says to choose Presenter view again (BA85).
      - **While it is open, everything behind it is `inert`**, and the stage
        is a `role="dialog"`, which is what keeps the site's single-key
-       shortcuts (keyboard-shortcuts.js) out of its way.
+       shortcuts (keyboard-shortcuts.js) out of its way. Its keys are heard
+       on the document in the capture phase, and a strip button about to be
+       disabled or hidden hands focus to the stage first, so focus never
+       falls out of the keys' reach (BA79).
   21. **Phase 3k is getting started and sharing** (built 2026-10-20;
      STUDY-DESK.md, M5, M9, S8 and "Order of work", 3k). Four things to know:
      - **Templates** (M9) are `src/lib/desk-sheet-templates.mjs` (pure,

@@ -675,8 +675,14 @@ test("channelName: one channel per sheet", () => {
   assert.notEqual(channelName("a"), channelName("b"));
 });
 
-test("presentMessage: a hello is read with its sender", () => {
-  assert.deepEqual(presentMessage({ v: 1, type: "hello", from: "w1" }), { type: "hello", from: "w1" });
+test("presentMessage: a hello is read with its sender and role, defaulting to stage (BA84)", () => {
+  assert.deepEqual(presentMessage({ v: 1, type: "hello", from: "w1" }), { type: "hello", from: "w1", role: "stage" });
+  assert.deepEqual(presentMessage({ v: 1, type: "hello", from: "w1", role: "presenter" }), {
+    type: "hello",
+    from: "w1",
+    role: "presenter",
+  });
+  assert.equal(presentMessage({ v: 1, type: "hello", from: "w1", role: "audience" }).role, "stage");
 });
 
 test("presentMessage: a bye carries its role, defaulting to stage", () => {
@@ -741,7 +747,11 @@ test("makeMessage: stamps the version, type and sender, with extra fields", () =
 
 test("makeMessage: round-trips through presentMessage", () => {
   const state = { screen: 1, revealed: { 1: 2 }, notes: { 1: true } };
-  assert.deepEqual(presentMessage(makeMessage("hello", "a")), { type: "hello", from: "a" });
+  assert.deepEqual(presentMessage(makeMessage("hello", "a", { role: "presenter" })), {
+    type: "hello",
+    from: "a",
+    role: "presenter",
+  });
   assert.deepEqual(presentMessage(makeMessage("bye", "a", { role: "presenter" })), {
     type: "bye",
     from: "a",

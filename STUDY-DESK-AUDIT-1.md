@@ -113,8 +113,8 @@ it goes after both, and FA1-ac after FA1-t.
 | FA1-j | The sheet editor: pasting and saving | BA68, BA71, BA72, BA73, BA74 | done, #382 |
 | FA1-k | Greek search commands | BA44, BA45, BA48, BA49, BA50, BA116 | done, #383 |
 | FA1-l | /desk's LIT pane and layout | BA54, BA56, BA57, BA58, BA60, BA61 | done, #387 |
-| FA1-m | The tour, first use, and printing | BA33, BA34, BA35, BA36, BA37 | done |
-| FA1-n | Present mode and the sheet page | BA79, BA83, BA84, BA85, BA86 | open |
+| FA1-m | The tour, first use, and printing | BA33, BA34, BA35, BA36, BA37 | done, #388 |
+| FA1-n | Present mode and the sheet page | BA79, BA83, BA84, BA85, BA86 | done |
 | FA1-o | Announcements and focus for marks | BA18, BA21, BA22 | open |
 | FA1-p | Panels beside the Notebook | BA24, BA27, BA28 | open |
 | FA1-q | The gate and first paint | BA25, BA26, BA29, BA30 | open |
@@ -1003,7 +1003,7 @@ Browser check: present a sheet and use only the keyboard.
     in.
   - *Fix*: listen on `document` while presenting, removed in `finish`. Or
     move focus to the stage before hiding or disabling a focused control.
-  - Status: open.
+  - Status: **Fixed.** Before a control is disabled or hidden while it has focus, the stage takes focus, and the keys are heard on the document (capture phase, removed in `finish`) while the stage or the body has focus, so they also work if focus ever falls to the page.
 - **BA83 (low, a11y). The focus ring on the white paper preview is 2.4:1 in
   dark theme.**
   - *What happens*: `.sheet-copy` redefines `--green-text` but not
@@ -1011,7 +1011,7 @@ Browser check: present a sheet and use only the keyboard.
     gets the dark theme's #3abf6a ring.
   - *Fix*: pin `--focus-ring: #0f6b33` on `.sheet-copy`, per CLAUDE.md's rule
     for fixed surfaces.
-  - Status: open.
+  - Status: **Fixed.** `.sheet-copy` pins `--focus-ring: #0f6b33` beside its `--green-text`, and the paper is in `src/styles/CLAUDE.md`'s table of pinned surfaces.
 - **BA84 (low). The presenter view keeps saying no presentation is open.**
   - *What happens*: after Close and Present again, it keeps “The
     presentation was closed…”. Opened first, it says “No presentation is
@@ -1021,7 +1021,7 @@ Browser check: present a sheet and use only the keyboard.
     (`desk-present.mjs:343`).
   - *Fix*: keep `role` in `hello` and treat a stage's `hello` as heard, or
     have the stage reply with its state.
-  - Status: open.
+  - Status: **Fixed.** `hello` keeps its `role` (`presentMessage`, tested), and a window hearing a `hello` draws it as heard, so the presenter view clears its status when the presentation opens, first or again.
 - **BA85 (low; possible). The two-screen presenter view may blame the
   pop-up blocker for a slow permission prompt.**
   - *What happens*: `getScreenDetails()` can prompt, then
@@ -1029,13 +1029,13 @@ Browser check: present a sheet and use only the keyboard.
     last and is blocked (`sheet-present.js:526–546`).
   - *Fix*: if permission had to be asked, say “Choose Presenter view
     again”, or open the window first. Needs two screens to check.
-  - Status: open.
+  - Status: **Fixed, not checked on two screens.** Before `getScreenDetails()`, the presenter view asks whether it will prompt (the `window-management` permission, once `window-placement`); if it did and the window is then blocked, it says “The browser asked about your screens first, so the presenter view didn’t open. Choose Presenter view again.” rather than blaming pop-ups. A second press doesn’t ask. FA1-v's two-screen check covers it.
 - **BA86 (low, a11y). Poetry on a sheet loses its description.**
   - *What happens*: `passageWords` strips `aria-describedby`
     (`sheet-lit.js:221–224`). The page carries `#hbq-description` for it
     (`sheets.astro:24–25, 59`), but nothing points at it.
   - *Fix*: keep `aria-describedby="hbq-description"` on `.hbq` blocks.
-  - Status: open.
+  - Status: **Fixed.** `passageWords` keeps `aria-describedby="hbq-description"` and drops every other reference (/desk and /sheets both carry `#hbq-description`).
 
 ## FA1-o. Announcements and focus for marks
 

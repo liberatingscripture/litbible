@@ -331,19 +331,23 @@ export function fitSize({ min, max, fits }) {
 export const channelName = (sheetId) => `lit-present:${sheetId}`;
 
 /**
- * A message from the other window, checked: { type: "state", state, from },
- * { type: "hello", from } (a window that just opened asks where the room is),
- * or { type: "bye", from, role } (a window closing); anything else is null.
- * `state` still goes through checkState before it is used.
+ * A message from the other window, checked: { type: "state", state, from, role },
+ * { type: "hello", from, role } (a window that just opened asks where the
+ * room is, and says which window it is, so a presenter view hearing the
+ * presentation's hello knows it is open; BA84), or { type: "bye", from, role }
+ * (a window closing); anything else is null. `role` is "presenter" or, unless
+ * the message says so, "stage". `state` still goes through checkState before
+ * it is used.
  */
 export function presentMessage(data) {
   if (!data || typeof data !== "object" || data.v !== MESSAGE_VERSION) return null;
   const from = typeof data.from === "string" ? data.from : null;
   if (!from) return null;
-  if (data.type === "hello") return { type: "hello", from };
-  if (data.type === "bye") return { type: "bye", from, role: data.role === "presenter" ? "presenter" : "stage" };
+  const role = data.role === "presenter" ? "presenter" : "stage";
+  if (data.type === "hello") return { type: "hello", from, role };
+  if (data.type === "bye") return { type: "bye", from, role };
   if (data.type === "state" && data.state && typeof data.state === "object") {
-    return { type: "state", from, state: data.state, role: data.role === "presenter" ? "presenter" : "stage" };
+    return { type: "state", from, state: data.state, role };
   }
   return null;
 }

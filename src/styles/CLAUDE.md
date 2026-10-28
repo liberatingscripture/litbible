@@ -293,6 +293,7 @@
   | `.articles-hero` search form | `articles.css`, on `.searchbar__form` | `--ink` | 4.58:1 |
   | `.menu-overlay` (90% black in both themes) | `global.css` | `--green` | 5.02–5.95:1 by page |
   | Menu toggle while open (it sits above the overlay) | `global.css`, `html.menu-open` | `--green` | same |
+  | `.sheet-copy`, the white paper preview on `/sheets` (BA83) | `sheets-page.css` | `#0f6b33` (Deep Green) | 6.6:1 |
 
   The default ring fails on LIT Green (1.89:1 light, 1.47:1 dark) and so does
   cream (2.63:1), which is why ink is the pin there. No ink or Deep Green

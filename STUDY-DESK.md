@@ -74,7 +74,7 @@ are recorded so they aren't re-argued.
   column (BA60; with only LIT panes open, the last one gives way, as with
   four panes, which BVJ confirmed, 2026-10-27), and a narrow window squeezes the panes only while it is
   narrow, the reader's sizes kept and saved (BA61).
-  FA1-m is done: a tour cut short by a reload or a link leaves the
+  FA1-m is done (#388): a tour cut short by a reload or a link leaves the
   Notebook as the reader had it, since the tour opens it without saving
   that (BA33); where the browser keeps no notebook, the panel no longer says
   where it is kept or asks where it should live, the tour leaves out the
@@ -83,7 +83,15 @@ are recorded so they aren't re-argued.
   move, and the two prints run one at a time (BA35); a tour restarted
   within a second keeps its guard (BA36); and the tour won't start over a
   note being written (BA37).
-  Next: FA1-n (present mode and the sheet page).
+  FA1-n is done: present mode's keys keep working when the button that had
+  focus is disabled or hidden, the stage taking focus first (BA79); a link
+  on the white paper preview gets a ring that shows in dark theme (BA83);
+  the presenter view stops saying no presentation is open once one opens,
+  first or again (BA84); where the browser had to ask about the screens and
+  then blocked the presenter view's window, it says to choose Presenter
+  view again rather than blaming pop-ups (BA85; FA1-v checks it on two
+  screens); and poetry on a sheet keeps its description (BA86).
+  Next: FA1-o (announcements and focus for marks).
 
 - **Phase 2c is built on the preview** (2026-10-20): notes on a footnote
   and questions for discussion. **A note can be on a footnote** (M11):
@@ -6728,8 +6736,8 @@ The phases, in working order:
 | FA1-j | The sheet editor: pasting and saving | done, #382: BA68, BA71, BA72, BA73, BA74 |
 | FA1-k | Greek search commands | done, #383: BA44, BA45, BA48, BA49, BA50, BA116 |
 | FA1-l | /desk's LIT pane and layout | done, #387: BA54, BA56, BA57, BA58, BA60, BA61 |
-| FA1-m | The tour, first use, and printing | done: BA33, BA34, BA35, BA36, BA37 |
-| FA1-n | Present mode and the sheet page | BA79, BA83, BA84, BA85, BA86 |
+| FA1-m | The tour, first use, and printing | done, #388: BA33, BA34, BA35, BA36, BA37 |
+| FA1-n | Present mode and the sheet page | done: BA79, BA83, BA84, BA85, BA86 |
 | FA1-o | Announcements and focus for marks | BA18, BA21, BA22 |
 | FA1-p | Panels beside the Notebook | BA24, BA27, BA28 |
 | FA1-q | The gate and first paint | BA25, BA26, BA29, BA30 |

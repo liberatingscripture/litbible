@@ -279,8 +279,12 @@ function createControl({ sheet, store, role, draw, say }) {
   channel?.addEventListener("message", (e) => {
     const msg = presentMessage(e.data);
     if (!msg || msg.from === me || closed) return;
-    if (msg.type === "hello") send("state", { state });
-    else if (msg.type === "state") {
+    if (msg.type === "hello") {
+      send("state", { state });
+      // A window that says hello is open: the presenter view stops saying no
+      // presentation is, though the state goes from here to there (BA84).
+      draw(state, deck, `heard:${msg.role}`);
+    } else if (msg.type === "state") {
       apply(msg.state, { from: "there", why: "remote" });
       // Heard either way, so the presenter view knows the presentation is open.
       draw(state, deck, `heard:${msg.role}`);
@@ -423,11 +427,21 @@ export async function openPresentation({ sheet, store, fullscreen = true, onClos
       const kind = deck.screens[i].kind;
       const blanks = deck.shape.blanks[i];
       const n = state.revealed[i] ?? 0;
-      prev.disabled = i === 0;
-      next.disabled = i === deck.screens.length - 1;
-      reveal.hidden = !blanks;
+      // A control about to be disabled or hidden while it has focus would
+      // drop focus to the page, out of the stage's keys (BA79): the stage
+      // takes it first.
+      const off = new Map([
+        [prev, i === 0],
+        [next, i === deck.screens.length - 1],
+        [reveal, !blanks],
+        [notes, kind !== "passage" || !deck.rows[i].length],
+      ]);
+      if (off.get(document.activeElement)) stage.focus({ preventScroll: true });
+      prev.disabled = off.get(prev);
+      next.disabled = off.get(next);
+      reveal.hidden = off.get(reveal);
       reveal.textContent = blanks ? `Reveal (${n} of ${blanks})` : "Reveal";
-      notes.hidden = kind !== "passage" || !deck.rows[i].length;
+      notes.hidden = off.get(notes);
       notes.setAttribute("aria-pressed", String(state.notes[i] === true));
       where.textContent = screenCount(i, deck.screens.length);
       const words = why === "remote" ? "" : announce(why, state, deck);
@@ -479,6 +493,7 @@ export async function openPresentation({ sheet, store, fullscreen = true, onClos
     clearTimeout(idle);
     control.close();
     document.removeEventListener("fullscreenchange", onFullscreen);
+    document.removeEventListener("keydown", onKey, true);
     window.removeEventListener("resize", onResize);
     window.removeEventListener("pagehide", onPagehide);
     if (isFull()) document.exitFullscreen?.().catch(() => {});
@@ -490,7 +505,12 @@ export async function openPresentation({ sheet, store, fullscreen = true, onClos
   }
   close.addEventListener("click", finish);
 
-  stage.addEventListener("keydown", (e) => {
+  // Heard on the document, so the keys still work if focus ever falls to
+  // the page (BA79); everything else on it is inert, so only the stage or
+  // the body can have it. In the capture phase, so the site's shortcuts
+  // (keyboard-shortcuts.js) find the key already taken.
+  const onKey = (e) => {
+    if (e.defaultPrevented || !(stage.contains(e.target) || e.target === document.body)) return;
     if (e.key === "Escape") {
       // Escape in full screen is the browser's way out of it, not ours.
       if (isFull() || performance.now() - fullscreenLeft < 400) return;
@@ -502,7 +522,8 @@ export async function openPresentation({ sheet, store, fullscreen = true, onClos
     if (!action) return;
     e.preventDefault();
     control.act(action);
-  });
+  };
+  document.addEventListener("keydown", onKey, true);
 
   const onResize = () => { if (shownEl) fitScreen(shownEl); };
   window.addEventListener("resize", onResize);
@@ -527,7 +548,9 @@ async function openPresenterWindow(stage, sheet, say) {
   const url = sheetUrl(sheet.id, "presenter");
   const name = `lit-presenter-${sheet.id}`;
   let features = "popup,width=1180,height=760";
+  let asked = false;
   if (window.screen?.isExtended && typeof window.getScreenDetails === "function") {
+    asked = await willAsk();
     try {
       const details = await window.getScreenDetails();
       const here = details.currentScreen;
@@ -542,7 +565,24 @@ async function openPresenterWindow(stage, sheet, say) {
     }
   }
   const win = window.open(url, name, features);
-  if (!win) say("The browser blocked the presenter view’s window. Allow pop-ups for litbible.net and try again.");
+  if (win) return;
+  // A window opens only on the click's moment, which the browser's question
+  // about the screens may have used up; the second time it doesn't ask (BA85).
+  say(asked
+    ? "The browser asked about your screens first, so the presenter view didn’t open. Choose Presenter view again."
+    : "The browser blocked the presenter view’s window. Allow pop-ups for litbible.net and try again.");
+}
+
+/** Whether getScreenDetails() will ask the reader first (Chrome's "window-management" permission, once "window-placement"). */
+async function willAsk() {
+  for (const name of ["window-management", "window-placement"]) {
+    try {
+      return (await navigator.permissions.query({ name })).state === "prompt";
+    } catch (_) {
+      // Not a permission this browser knows by that name.
+    }
+  }
+  return false;
 }
 
 /* ── The presenter view ──────────────────────────────────────────────── */

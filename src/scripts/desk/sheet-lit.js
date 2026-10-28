@@ -218,8 +218,11 @@ export function passageWords(view, m, { keepNotes = null } = {}) {
     s.replaceWith(letter);
   });
   words.querySelectorAll("[id]").forEach((el) => el.removeAttribute("id"));
+  // The ids are gone, so references to them go too, except a poetry block's
+  // description, which every page showing a passage (/desk, /sheets) carries
+  // as a chapter page does (BA86).
   words.querySelectorAll("[aria-describedby], [aria-labelledby]").forEach((el) => {
-    el.removeAttribute("aria-describedby");
+    if (el.getAttribute("aria-describedby") !== "hbq-description") el.removeAttribute("aria-describedby");
     el.removeAttribute("aria-labelledby");
   });
   for (const el of words.querySelectorAll("p, blockquote")) if (!el.textContent.trim()) el.remove();
