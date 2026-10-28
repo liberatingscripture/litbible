@@ -164,8 +164,9 @@ const seasons = (await getCollection('seasons')).sort(
 
 <style>
   /* ---- Section card ---- */
+  /* The last callout, so it keeps the callouts' own gap (ReaderCallouts). */
   .church-year {
-    margin-top: var(--space-5);
+    margin-top: var(--space-7);
     display: grid;
     grid-template-columns: 1fr;
     gap: var(--space-8);

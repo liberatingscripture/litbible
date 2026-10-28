@@ -174,7 +174,12 @@ the templates, and would publish without anyone applying this repo's rules.
   file it wrote before stopping (`undo.mjs`): a replaced file gets its old
   bytes, a new one is removed, nothing else is touched. A raw iPhone or iPad
   screenshot can be framed by the `frames` CLI (Apple devices only, with
-  BDR's saved colors); Android and foldable pictures arrive framed. The app
+  BDR's saved colors); Android and foldable pictures arrive framed. A
+  picture's fully clear margin is cut away before it ships (`opaqueBox` in
+  `store.mjs`; never the icons, never a picture with no transparency), since
+  the page lines devices up by their pictures' edges and a framed iPhone came
+  with a margin the Android picture didn't, which stood it above the hero's
+  baseline (BDR, 2026-10-28). The app
   icons are replaced in place, so the home page, the Android banner and the
   share card follow.
 - **A picture can be added to a section** (BDR, 2026-10-27; first use, an

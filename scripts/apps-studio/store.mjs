@@ -89,6 +89,31 @@ function frameScreenshot(file, outDir) {
 }
 
 /**
+ * The part of a picture that isn't fully transparent, or null when nothing
+ * is to be cut. A framed device often comes with a clear margin, different
+ * per device, and the page lines devices up by their pictures' edges (the
+ * hero's phones stand on one baseline), so a margin would lift one device
+ * off it. A picture with no transparency is never touched.
+ */
+export async function opaqueBox(source) {
+  const { data, info } = await sharp(source).rotate().ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+  const { width, height, channels } = info;
+  let top = height, bottom = -1, left = width, right = -1;
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      if (data[(y * width + x) * channels + channels - 1] === 0) continue;
+      if (y < top) top = y;
+      if (y > bottom) bottom = y;
+      if (x < left) left = x;
+      if (x > right) right = x;
+    }
+  }
+  if (bottom < 0) return null;
+  const box = { left, top, width: right - left + 1, height: bottom - top + 1 };
+  return box.width === width && box.height === height ? null : box;
+}
+
+/**
  * Turn one uploaded picture into the file the page ships.
  * @param {object} change the `image` change
  * @param {{slot: string, out: string, src: string, archive: string|null}} plan from core.planImage
@@ -127,8 +152,10 @@ export async function processImage(change, plan, { uploadsDir, root = ROOT }) {
     const resize = spec.square
       ? { width: target, height: target, fit: "contain", background: { r: 0, g: 0, b: 0, alpha: 0 } }
       : meta.width >= meta.height ? { width: target } : { height: target };
-    const info = await sharp(source)
-      .rotate()
+    const box = spec.square ? null : await opaqueBox(source);
+    let pipeline = sharp(source).rotate();
+    if (box) pipeline = sharp(await pipeline.extract(box).toBuffer());
+    const info = await pipeline
       .resize({ ...resize, withoutEnlargement: !spec.square })
       .webp({ quality: RULES.quality, effort: 6 })
       .toFile(outFile);
