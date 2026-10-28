@@ -118,7 +118,7 @@ it goes after both, and FA1-ac after FA1-t.
 | FA1-o | Announcements and focus for marks | BA18, BA21, BA22 | done, #391 |
 | FA1-p | Panels beside the Notebook | BA24, BA27, BA28 | done, #392 |
 | FA1-q | The gate and first paint | BA25, BA26, BA29, BA30 | done, #396 |
-| FA1-r | /desk's smaller fixes | BA31, BA62, BA63, BA64, BA65, BA114, BA115 | open |
+| FA1-r | /desk's smaller fixes | BA31, BA62, BA63, BA64, BA65, BA114, BA115 | done, #PRNUM |
 | FA1-s | Greek credits and the notebook search | BA40, BA46, BA47 | open |
 | FA1-t | Copy and docs | BA15, BA38, BA39, BA42, BA43, BA91, BA109, BA118 | open |
 | FA1-w | What's new for you | BA88, BA90, BA92, BA96, BA97, BA98 | open |
@@ -1234,16 +1234,16 @@ the commands window on /desk), written up under FA1-u, area 3.
     `destroy()` only unsubscribes the store (`desk-panes.js:333–359`).
   - *Fix*: move the filters into `createMineTab`'s closure, and return the
     listener removals for `destroy()`.
-  - Status: open.
+  - Status: **Fixed in #PRNUM** (FA1-r). The filters are each tab's own; My Notes, This verse and Greek each return a `destroy` that the pane calls when it closes or builds a tab for another chapter, and My Notes' Places section (`places.js`), which held a store subscription and two window listeners per pane, takes them down too.
 - **BA62 (low, copy). The “Leading” hover text leaves out My Notes.** It
   should read “My Notes, This verse, Greek, and Footnotes follow this pane.”
   (`desk-page.js:409`; also the header comment at 23–24).
-  - Status: open.
+  - Status: **Fixed in #PRNUM** (FA1-r), in the hover text and the header comment.
 - **BA63 (low, a11y). The Layout menu stays open when keyboard focus leaves
   it.**
   - *Fix*: close it on `focusout` to anywhere outside the menu and its
     button (`desk-page.js:305–322, 572–577`).
-  - Status: open.
+  - Status: **Fixed in #PRNUM** (FA1-r). Focus moving to anything outside the menu and its button closes it; focus going nowhere (another window) leaves it to the click elsewhere, as before.
 - **BA64 (low, perf; likely). Scrolling past the Acts stub cycles the
   shared place through up to 28 chapters.**
   - *What happens*: `placeNow` (`lit-pane.js:265–270`) maps the line's
@@ -1251,7 +1251,7 @@ the commands window on /desk), written up under FA1-u, area 3.
     Footnotes and Greek fetching that chapter, about one request per frame.
   - *Fix*: report a stub's first chapter only, or debounce `follow()` while
     the LIT pane scrolls.
-  - Status: open.
+  - Status: **Fixed in #PRNUM** (FA1-r). A place in a stub is told once the reading line has rested there 300ms (`STUB_SETTLE` in `lit-pane.js`), so a reader who stops in Acts still has the Greek follow to that chapter; a place outside a stub is told at once, as before.
 - **BA65 (low, perf). Every fetched chapter's whole page is kept for the
   visit.**
   - *What happens*: `chapter-page.js:22–23, 55–87` keeps the whole parsed
@@ -1260,7 +1260,7 @@ the commands window on /desk), written up under FA1-u, area 3.
     BVJ's 3e decision.
   - *Fix*: keep only the text, footnotes, term data, Go deeper, and the
     content-version fields.
-  - Status: open.
+  - Status: **Fixed in #PRNUM** (FA1-r). `keepParts` in `chapter-page.js` moves the text, the footnote lists and Go deeper into a small document of their own (still `source.doc`, which the handout and the sheets read); the key-term data and the content version are read as values first.
 
 ## FA1-s. Greek credits and the notebook search
 
@@ -1860,7 +1860,7 @@ small stub DOM, and the rest traced or run over the committed
     the window; `insert()` closes the window when its field is gone; place
     it beside the pane on /desk. Add /desk to rule 17.
   - *Check*: a test that removes the field and expects the window closed.
-  - Status: open.
+  - Status: **Fixed in #PRNUM** (FA1-r). The Greek tab's `destroy` closes its search, which closes the window; `insert()` closes it when its field is gone; on /desk it sits beside the pane (left where there is room, else right). Rule 17 names /desk. Tested in `test/greek-commands.test.js`.
 - **BA115 (low, performance; traced). Each Greek tab built on /desk leaves
   its listeners behind.**
   - *What happens*: `build()` adds a window scroll listener, a
@@ -1870,7 +1870,7 @@ small stub DOM, and the rest traced or run over the committed
   - *Where*: `tab-greek.js:365–376, 709, 1046`; `desk-panes.js:208–240`.
   - *Fix*: return a `destroy` that removes them, disconnects the observer,
     closes the search and clears the timers; call it from the pane.
-  - Status: open.
+  - Status: **Fixed in #PRNUM** (FA1-r). `createGreekTab` returns a `destroy` (the window scroll listener, the widths listener, the ResizeObserver, the apparatus and split timers, and its search); the pane calls it on a new chapter and on closing.
 - **BA116 (low; run in a stub DOM). Closing the commands window mid-drag
   saves its place as the top left corner.**
   - *What happens*: Escape, the Notebook closing or leaving the page while

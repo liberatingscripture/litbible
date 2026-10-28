@@ -526,7 +526,11 @@ that section.
        (`src/scripts/greek-commands.js`). It is a `float-window.js` window,
        outside `lit-panel.js`'s one slot, so a footnote or preview opening
        never closes it; from the Greek tab it closes with the Notebook,
-       which announces itself with `lit:notebook-state` (`desk/panel.js`).
+       which announces itself with `lit:notebook-state` (`desk/panel.js`),
+       and from a Greek pane on /desk, which has no Notebook, it sits beside
+       the pane and closes with the pane's search, which the tab's `destroy`
+       closes when the pane closes or moves to another chapter. A click
+       finding its field gone closes it too (BA114).
        Its two keys, `localStorage['lit-greek-commands']` (opened once) and
        `sessionStorage['lit-greek-commands-pos']` (a dragged place), are in
        /privacy's paragraph.
@@ -555,6 +559,10 @@ that section.
        foot), Greek `tab-greek.js`, and What I've kept `kept-list.js`, which
        the notebook page draws too. Those tabs take a `source` and an
        `idSuffix` for this; a change to one must keep both callers working.
+       **The three tabs each return a `destroy`** that takes off what they
+       add to the window or the document, which the pane calls when it
+       closes and when it builds a new tab for another chapter (BA31,
+       BA115); a listener a tab adds outside its own element goes in it.
        The LIT pane is `desk/lit-pane.js`, Footnotes
        `desk/footnotes-view.js` (3e), and Sheet `desk/sheet-pane.js` (3f),
        the sheet editor, with its formatted text in `desk/sheet-text.js`
@@ -567,7 +575,10 @@ that section.
        whose rules are `src/lib/desk-sheet-lit.mjs`.
      - **Every pane reads a chapter from its built Study View page**,
        fetched and parsed once a visit (`desk/chapter-page.js`), so what it
-       shows is character-identical to Study View. Each LIT pane keeps
+       shows is character-identical to Study View. Only the parts the panes
+       read are kept, moved into a document of their own (`keepParts`: the
+       text, the footnotes and Go deeper; BA65), so a new reader of `doc`
+       finds nothing else there. Each LIT pane keeps
        where its reader is (`at` on the pane), and the active one's is the
        shared passage, `layout.place` ("john 3:16",
        `src/lib/desk-passage.mjs`), which the panes that aren't pinned

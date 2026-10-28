@@ -120,6 +120,7 @@ function mountVerse(body, env, pane) {
       return;
     }
     const n = ++seq;
+    tab?.destroy();
     tab = null;
     chapter = p;
     shown = p.verse;
@@ -170,6 +171,7 @@ function mountVerse(body, env, pane) {
     destroy: () => {
       seq++;
       unsubscribe?.();
+      tab?.destroy();
     },
   };
 }
@@ -192,6 +194,7 @@ function mountGreek(body, env, pane) {
       return;
     }
     const n = ++seq;
+    tab?.destroy();
     tab = null;
     chapter = p;
     top = p.verse;
@@ -237,7 +240,10 @@ function mountGreek(body, env, pane) {
     selectWord: (verse, t, opts) => tab?.selectWord(verse, t, opts) ?? Promise.resolve(false),
     // The page puts the scrolling back; the Greek only mustn't tell it.
     keep: () => () => tab?.settle(),
-    destroy: () => { seq++; },
+    destroy: () => {
+      seq++;
+      tab?.destroy();
+    },
   };
 }
 
@@ -362,7 +368,13 @@ export function mountPane(kind, body, env, pane) {
     // only once it is there.
     queueMicrotask(() => tab.render());
     const unsubscribe = env.store?.subscribe(() => tab.render());
-    return { setPassage: (p) => tab.follow(p), destroy: () => unsubscribe?.() };
+    return {
+      setPassage: (p) => tab.follow(p),
+      destroy: () => {
+        unsubscribe?.();
+        tab.destroy();
+      },
+    };
   }
   if (kind === "verse") return mountVerse(body, env, pane);
   if (kind === "greek") return mountGreek(body, env, pane);

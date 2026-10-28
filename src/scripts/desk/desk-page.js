@@ -20,8 +20,8 @@
 // - **Each pane's name is a menu** for showing another kind in it, which is
 //   also the keyboard's way to put any pane anywhere. × closes a pane.
 // - **The LIT pane last scrolled, clicked or typed in is the active one**,
-//   marked "Leading" when more than one is open, and This verse, Greek, and
-//   Footnotes follow it unless their "Stay here" is pressed.
+//   marked "Leading" when more than one is open, and My Notes, This verse,
+//   Greek, and Footnotes follow it unless their "Stay here" is pressed.
 // - **Each LIT pane keeps where its reader is** (`at`, 3e), and the active
 //   one's is the passage the following panes share, `layout.place`, so they
 //   follow it. They lead back too: a following pane's picker, This verse's
@@ -323,6 +323,15 @@ async function start() {
   menu.addEventListener("keydown", (e) => {
     if (e.key === "Escape") { e.stopPropagation(); closeMenu(); }
   });
+  // Tabbing out of the menu closes it, as a click elsewhere does (BA63). Focus
+  // going nowhere (another window, a click on nothing focusable) leaves it to
+  // the click.
+  for (const part of [menu, layoutButton]) {
+    part.addEventListener("focusout", (e) => {
+      const to = e.relatedTarget;
+      if (to instanceof Node && !menu.contains(to) && !layoutButton.contains(to)) closeMenu({ focus: false });
+    });
+  }
 
   // ---- the panes ----
 
@@ -414,7 +423,7 @@ async function start() {
       kindButton.innerHTML = `<span class="desk-pane__name"></span>${ICON_CARET}`;
       h2.append(kindButton);
       const lead = el("span", "desk-pane__lead", "Leading");
-      lead.title = "This verse, Greek, and Footnotes follow this pane";
+      lead.title = "My Notes, This verse, Greek, and Footnotes follow this pane";
       const pin = el("button", "desk-pane__pin");
       pin.type = "button";
       pin.innerHTML = `${ICON_PIN}<span>Stay here</span>`;
