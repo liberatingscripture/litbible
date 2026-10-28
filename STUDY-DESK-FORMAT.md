@@ -97,15 +97,19 @@ generated from `src/data/books.js` (A-F9). It's never stored.
      original wording, so it says when its copy was taken.
 2. **`note`**
    - `body`: plain text, always displayed as text;
-   - `marker`: `note`, `emphasis`, `question`, `heart`, `bookmark`,
-     `lightbulb` or `flame`. N6's question is the `question` marker;
+   - `marker`: `note`, `emphasis`, `question`, `heart`, `ribbon`,
+     `lightbulb` or `flame`. N6's question is the `question` marker.
+     **`ribbon` was `bookmark` until 2026-10-23** (E10; BDR's decision):
+     every client reads `bookmark` as `ribbon` and writes `ribbon`, as iOS
+     already reads an old `star` as `emphasis`; nothing stored is rewritten.
+     The marker's picture and color do not change;
    - `quote`, optional: a note on a whole verse has none;
    - `verseCopy`, `verseCopyAsOf`.
 
    Instead of verses, a note's target may be:
    - a **footnote**, given by its verse and the footnote's quoted words, never
      its letter (M11). **The website's proposal, built on its preview
-     2026-10-20, for BDR to confirm or change**: the footnote is named
+     2026-10-20, confirmed by BDR 2026-10-23**: the footnote is named
      exactly as a `footnotePin` names it (kind 11), by the verse whose text
      holds its letter, `footnote` (its full text in the same normalized
      form) and `n` when that verse has two or more identical footnotes. Such
@@ -138,9 +142,9 @@ generated from `src/data/books.js` (A-F9). It's never stored.
    - an optional `from`: how the reader got there (a search, an episode, an
      intro).
 
-   **Open:** whether the apps' `bookmark` marker on a note becomes this.
-   Draft 1 keeps them apart: a bookmark is its own kind, and the marker stays
-   a note's glyph.
+   ~~**Open:** whether the apps' `bookmark` marker on a note becomes this.~~
+   **Settled 2026-10-23:** a bookmark is its own kind, and the note marker,
+   now named `ribbon` (kind 2), stays a note's glyph.
 
    **Coming (BVJ, 2026-10-22; STUDY-DESK.md E9), not yet in the format:**
    bookmarks and named ribbons become one feature, Bookmarks. This kind would
@@ -149,12 +153,13 @@ generated from `src/data/books.js` (A-F9). It's never stored.
    `ribbon: true` would retire. **For BDR's Claude:** the apps need not build
    ribbons as a separate kind. Nothing changes here until the website says so
    in STUDY-DESK.md, with new merge vectors.
-   **Strongly recommended (E10), not changed:** the note marker `bookmark`
-   (kind 1) shares the feature's name, so rename it `ribbon` (its picture
-   and color stay the same; the red bookmark glyph is never called a
-   ribbon). The other option is to retire it (six markers left; notes
-   carrying it would read as `note`). The apps could read an old value as
-   the new one, as iOS reads an old `star` as `emphasis`.
+   **E9: accepted by BDR, 2026-10-23.** The apps build one kind, Bookmarks,
+   and no separate ribbon kind.
+   **E10, decided by BDR 2026-10-23: the note marker is renamed `ribbon`**
+   (kind 2's `marker` list above says so). Its picture and color stay the
+   same; the red bookmark glyph is never called a ribbon. Every client reads
+   an old `bookmark` as `ribbon` and writes `ribbon`, as iOS reads an old
+   `star` as `emphasis`. (The other option, retiring it, was not taken.)
 5. **`place`** (B1): `name` (empty for a book's own "Continue reading"
    place), a verse, and `ribbon: true` for a named ribbon. Places are stored
    as verses, never scroll positions (A-F13). **Open:** whether each device's
@@ -202,7 +207,7 @@ generated from `src/data/books.js` (A-F9). It's never stored.
 
     **Two trash records for one deletion** (two devices each deleted the
     record before they met) **collapse to one. The website's proposal,
-    2026-10-12, for BDR to confirm or change:**
+    2026-10-12, confirmed by BDR 2026-10-23:**
     - **The later deletion is kept**: the survivor is the trash record with
       the later `deletedAt` (on a tie, the lower `id`), so every client
       keeps the same id. That is rule b's "the later action wins": an edit
@@ -826,7 +831,9 @@ and accounts would live under `/sheets/`, `/notebook/`, `/account/`.
 
 ## Still open in this file
 
-- Bookmarks vs the `bookmark` marker (kind 4).
+- ~~Bookmarks vs the `bookmark` marker (kind 4)~~: **settled 2026-10-23** —
+  the marker is renamed `ribbon` (E10, BDR); bookmarks stay their own kind,
+  with ribbons folded in (E9, accepted by BDR).
 - ~~The overlap rule's three details~~: **approved by BDR, 2026-10-09**
   (under "Highlights that meet").
 - **How records merge, and the `trash` record's fields: answered by BDR,
@@ -839,7 +846,7 @@ and accounts would live under `/sheets/`, `/notebook/`, `/account/`.
   collapsing two trash records of one deletion**, which draft 4d of BDR's
   proposal doesn't mention, is now the website's proposal under kind 10
   (2026-10-12): the later deletion with the newer content. Built that way;
-  for BDR to confirm or change.
+  **confirmed by BDR, 2026-10-23**, with the three details under "Clocks".
 - **Notes on glossary entries and articles** (STUDY-DESK.md, N11; BVJ,
   2026-10-06). **Built provisionally on the website's preview
   (2026-10-08)**: the two targets under kind 2, the rule against renaming
@@ -848,9 +855,9 @@ and accounts would live under `/sheets/`, `/notebook/`, `/account/`.
   confirm. **Website only** unless BDR changes the apps. Until then the apps
   carry these records untouched (principle 6), as they would any target
   they don't know.
-- **Notes on a footnote** (M11; kind 2): the fields are the website's
-  proposal, built on its preview 2026-10-20 (`footnote` and `n`, as kind 11
-  has them), for BDR to confirm or change.
+- ~~**Notes on a footnote** (M11; kind 2)~~: the fields (`footnote` and `n`,
+  as kind 11 has them; built on the preview 2026-10-20) **confirmed by BDR,
+  2026-10-23**.
 - Whether reading places sync (kind 5).
 - ~~The sheet's inner shape~~: **approved by BVJ, 2026-10-18**, under
   "Sheets (kind 9)".

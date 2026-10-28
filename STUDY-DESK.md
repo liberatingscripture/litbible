@@ -2279,7 +2279,9 @@ website has to say goes here, on `main`, with its date.
   changed in the format yet; the website will say so here when it is, with
   new merge vectors. **Also**: BVJ strongly recommends that the
   `bookmark` note marker be renamed `ribbon` (E10; retiring it is the other
-  option); either touches both apps' seven markers. Not decided, to raise with BDR.
+  option); either touches both apps' seven markers. **BDR, 2026-10-23: E9
+  accepted, and the marker is renamed `ribbon`** (the format says so; the
+  apps file the read-old-write-new change as NB12 on each roadmap).
 - **2026-10-26: for BDR's Claude. The record format now matches the
   website's code, and rule e's guards are built** (Full Audit 1, phases
   FA1-c, FA1-d and FA1-f; `STUDY-DESK-AUDIT-1.md`). What the apps should
@@ -2640,9 +2642,10 @@ Rules a to e as BDR answered them (2026-10-09), each with a test case, and:
 - Bookmarks are their own kind; the `bookmark` marker stays a note's glyph
   (agreed). **Two changes proposed 2026-10-22 (BVJ), to settle before this
   freezes**: named ribbons fold into bookmarks (E9), and the marker is
-  renamed `ribbon` (E10, a strong recommendation; retiring it is the
-  other option). The first retires kind 5's `ribbon: true`; the second
-  touches both apps' seven markers.
+  renamed `ribbon` (E10). **Both settled by BDR, 2026-10-23: E9 accepted,
+  E10 taken as the rename.** The first retires kind 5's `ribbon: true`; the
+  second touches both apps' seven markers (each reads `bookmark` as
+  `ribbon` and writes `ribbon`).
 - A reading place is a verse, one per book, whether or not places sync.
   (With E9, "Continue reading" is the only place the reader doesn't make.)
 - Notes on glossary entries and articles (N11) name the entry by its id and
@@ -5906,6 +5909,23 @@ recommendations, for BVJ to confirm or change:
   more control in the Layout menu). The default still stores its places, so
   a later choice can use them; the page ignores them on the way in.
 
+### 2026-10-23 (BDR's answers: E9 accepted, the marker renamed `ribbon`, two confirmations)
+
+- **E9, bookmarks and ribbons one feature: accepted by BDR** (2026-10-23).
+  The apps build one kind, Bookmarks, with a name and an optional "move as
+  I read"; no separate ribbon kind.
+- **E10: the `bookmark` note marker is renamed `ribbon`** (BDR, 2026-10-23;
+  BVJ's first suggestion). The format's marker list says so
+  (`STUDY-DESK-FORMAT.md`, kind 2): every client reads `bookmark` as
+  `ribbon` and writes `ribbon`; the picture and color stay.
+- **Confirmed by BDR the same day:** a note on a footnote named as a pin is
+  (kind 2, the 2026-10-20 proposal), and the collapse of two trash records
+  of one deletion with its three merge details (2026-10-12). Both come off
+  the format's "Still open" list.
+- Recorded by BDR's Claude on the proposal ("One Notebook, Three Homes",
+  its 2026-10-23 entries) and brought here as a docs pull request, under
+  the scope BVJ widened on 2026-10-09.
+
 ### 2026-10-22 (Bookmarks and ribbons become one)
 
 - **Bookmarks and ribbons are one feature, Bookmarks** (BVJ, 2026-10-22):
@@ -5928,6 +5948,7 @@ recommendations, for BVJ to confirm or change:
 - **A strong recommendation, not a change** (BVJ): rename the `bookmark`
   note marker to `ribbon`, or retire it, so it no longer clashes with the
   feature. Left as it is for now (E10); the picture stays the same.
+  **Decided by BDR, 2026-10-23: renamed `ribbon`** (see the 2026-10-23 entry).
 
 ### 2026-10-21 (/desk's own header; a search pane, 3m)
 
@@ -6934,9 +6955,10 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   open (kind 5's open question); if it does, "Continue reading" is the
   only place, one per book, and no named place exists. The website will
   update the format draft and the merge vectors when it builds this and
-  will say so here. Raise any objection here before the apps build ribbons.
-- **E10, rough, strong recommendation: the `bookmark` note marker clashes
-  with Bookmarks, so rename it or retire it.** BVJ (2026-10-22): leave it
+  will say so here. ~~Raise any objection here before the apps build ribbons.~~
+  **Accepted by BDR, 2026-10-23**: the apps build one kind, Bookmarks.
+- **E10: the `bookmark` note marker clashes with Bookmarks, so rename it
+  or retire it. Decided by BDR, 2026-10-23: renamed `ribbon`.** BVJ (2026-10-22): leave it
   for now, and **strongly recommend** one of the two. One of the seven
   note markers (`note`, `emphasis`, `question`, `heart`, `bookmark`,
   `lightbulb`, `flame`) is named `bookmark` and drawn with a bookmark
@@ -6965,8 +6987,11 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   was to retire it, on the worry that a ribbon-shaped marker would look
   like the bookmark glyph; BVJ's point that the color differs, and that
   the name fits the picture, settles that, and renaming keeps every
-  existing note's choice. Open, and to raise with BDR before the format
-  freezes (the pre-Christmas list, "To freeze before Christmas").
+  existing note's choice. **BDR, 2026-10-23: rename it.** The format's
+  marker list now says `ribbon` (`STUDY-DESK-FORMAT.md`, kind 2); each app
+  reads an old `bookmark` as `ribbon` and writes `ribbon` (iOS NB12,
+  Android NB12, both small). The website's own marker picker and any copy
+  that calls the marker "bookmark" follow when E9 is built.
 
 **Fixed**
 
