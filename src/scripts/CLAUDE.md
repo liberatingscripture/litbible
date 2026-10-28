@@ -222,7 +222,10 @@ selection clears.
 works in both views (audit X8, owner 2026-09-28). It draws the passage in the
 share-card design, in the reader's browser, and hands it on: the phone's
 share sheet on a phone or tablet, a download on a computer, told apart by the
-OS (`isAppPlatform`, the app announcement's test), never the screen width.
+OS (`isAppPlatform`, the app announcement's test), never the screen width. A
+tablet whose browser passes for a computer's (iPadOS reports a Mac, an
+Android tablet in desktop site mode reports Linux) is told by its touch
+screen.
 Nothing is stored, and nothing leaves the device until the reader shares it.
 The pieces are `src/lib/verse-image.mjs` (the design and the typesetting,
 pure and unit-tested with a fake measure) and `src/scripts/verse-image.js`

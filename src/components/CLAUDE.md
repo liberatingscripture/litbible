@@ -35,6 +35,6 @@
   other's flag, the cookie one way and `lit_app_banner_dismissed` the other,
   so closing either retires both without storing anything new. And on a
   computer it shows a QR code to `/apps` (`public/images/apps-qr.svg`, from
-  `npm run build:apps-qr`), hidden on a phone or tablet by the same OS check
-  (`isAppPlatform`) and lazy-loaded so a closed dialog never fetches it. It
+  `npm run build:apps-qr`), hidden on a phone or tablet by the same device
+  check (`isAppPlatform`) and lazy-loaded so a closed dialog never fetches it. It
   does show on phones: the owner declined a "not on phones" rule.

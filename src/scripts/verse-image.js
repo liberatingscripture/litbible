@@ -8,8 +8,9 @@
 // One button that becomes the next question each time it's answered (owner,
 // 2026-09-28): "Make an image" → Ink or Paper → Square or Story → the phone's
 // share sheet, or a download on a computer. A phone or tablet is told apart
-// by its OS (isAppPlatform), not the screen width, the same test the app
-// announcement uses.
+// by its OS, or its touch screen where its browser passes for a computer's
+// (isAppPlatform), not the screen width, the same test the app announcement
+// uses.
 //
 // Nothing is stored and nothing leaves the device until the reader shares it.
 //
