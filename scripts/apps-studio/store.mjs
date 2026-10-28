@@ -114,12 +114,12 @@ export async function processImage(change, plan, { uploadsDir, root = ROOT }) {
 
   try {
     const meta = await sharp(source).metadata();
-    const longest = Math.max(meta.width, meta.height);
-    if (longest < spec.longest) notes.push(`The picture is ${meta.width}×${meta.height}, smaller than the ${spec.longest}px this spot ships at, so it may look soft.`);
+    const target = spec.longestWide && meta.width > meta.height ? spec.longestWide : spec.longest;
+    if (Math.max(meta.width, meta.height) < target) notes.push(`The picture is ${meta.width}×${meta.height}, smaller than the ${target}px this spot ships at, so it may look soft.`);
     if (spec.square && meta.width !== meta.height) notes.push("The icon isn’t square; it was fitted inside a square.");
     const resize = spec.square
-      ? { width: spec.longest, height: spec.longest, fit: "contain", background: { r: 0, g: 0, b: 0, alpha: 0 } }
-      : meta.width >= meta.height ? { width: spec.longest } : { height: spec.longest };
+      ? { width: target, height: target, fit: "contain", background: { r: 0, g: 0, b: 0, alpha: 0 } }
+      : meta.width >= meta.height ? { width: target } : { height: target };
     const info = await sharp(source)
       .rotate()
       .resize({ ...resize, withoutEnlargement: !spec.square })

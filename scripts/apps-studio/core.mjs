@@ -18,6 +18,12 @@
  * carries the value it had when Brandon edited it (`before`). A change whose
  * place no longer holds `before` is refused as a conflict rather than written
  * over, because someone (or something) changed the page since.
+ *
+ * A `note` is for Claude to act on by hand. It may name a section
+ * (`anchor: ["sections", id]`) and carry pictures (`images`), as when
+ * Brandon adds a picture to a section and says where it goes: the apply step
+ * converts each picture (planPicture) and Claude lays it out, making it a
+ * picture field of that section so the board can swap it from then on.
  */
 import { parseDoc, serializeDoc } from "./frontmatter.mjs";
 
@@ -57,15 +63,18 @@ export const RULES = {
   duplicable: ["about", "bigscreens", "humane"],
   /**
    * Where each kind of image goes and how big it ships (FIXLIST O8: longest
-   * edge 1000–1300px at WebP quality 80). `frame: "apple"` means a raw iPhone
-   * or iPad screenshot can be framed by the `frames` CLI, which knows only
-   * Apple devices; Android screenshots arrive framed.
+   * edge 1000–1300px at WebP quality 80). `frame: "apple"` means a raw iPhone,
+   * iPhone Duo or iPad screenshot can be framed by the `frames` CLI, which
+   * knows only Apple devices; Android screenshots arrive framed. `picture` is
+   * any other picture in a section, including one Brandon adds to a section
+   * for Claude to lay out: 1000px tall, or 1300px wide when it's landscape.
    */
   slots: {
     phone: { label: "Phone screenshot", dir: "public/assets/screenshots", longest: 1000, frame: "apple" },
     carousel: { label: "Carousel screenshot", dir: "public/assets/screenshots/carousel", longest: 1000, frame: "apple" },
     tablet: { label: "Tablet screenshot", dir: "public/assets/screenshots", longest: 1300, frame: "apple" },
     foldable: { label: "Foldable screenshot", dir: "public/assets/screenshots", longest: 1000, frame: null },
+    picture: { label: "Picture", dir: "public/assets/screenshots", longest: 1000, longestWide: 1300, frame: "apple" },
     icon: { label: "App icon", dir: "public/assets/images", longest: 512, frame: null, square: true },
     "icon-svg": { label: "App icon (SVG)", dir: "public/assets/images", frame: null, svg: true },
   },
@@ -353,6 +362,11 @@ export function validateModel(m) {
       default:
         problems.push(`${where} is an unknown kind, “${s.kind}”`);
     }
+    // Every other picture in a section, such as one added to a layout later.
+    const named = new Set(["phones.back", "phones.front", "devices.tablet", "devices.foldable"]);
+    for (const [keys, img] of sectionImages(s)) {
+      if (!named.has(keys.join("."))) checkImage(img, `${where}’s ${keys.join(" ")}`, problems);
+    }
   }
   for (const c of m.callouts) {
     const where = `The callout “${c.title || c.id}”`;
@@ -422,15 +436,33 @@ export function textWarnings(m) {
 
 // --- Images --------------------------------------------------------------------
 
-/** Which kind of image a change replaces. */
+/**
+ * Which kind of image a change replaces. Any picture object in a section
+ * that isn't a phone, the tablet or the foldable is a `picture`, so one
+ * Claude adds to a layout is swappable from the board with no rule of its own.
+ */
 export function slotFor(path) {
-  const [where, id, ...keys] = path;
+  const [where, id, ...keys] = path.map(String);
   if (where === "files") return id.endsWith(".svg") ? "icon-svg" : "icon";
   if (where === "callouts" && keys[0] === "image") return "phone";
   if (where === "seasons" && keys[0] === "image") return "carousel";
-  if (where === "sections" && keys[0] === "phones") return "phone";
-  if (where === "sections" && keys[0] === "devices") return keys[1] === "tablet" ? "tablet" : "foldable";
+  if (where === "sections" && keys[0] === "phones" && ["back", "front"].includes(keys[1])) return "phone";
+  if (where === "sections" && keys[0] === "devices" && keys[1] === "tablet") return "tablet";
+  if (where === "sections" && keys[0] === "devices" && keys[1] === "foldable") return "foldable";
+  if (where === "sections" && keys.length) return "picture";
   throw new Error(`no picture goes at ${path.join(" › ")}`);
+}
+
+/** Every picture object in a section (`{src, alt, width, height}`), with its path. */
+export function sectionImages(section) {
+  const out = [];
+  const walk = (value, keys) => {
+    if (!value || typeof value !== "object") return;
+    if (typeof value.src === "string") { out.push([keys, value]); return; }
+    for (const [k, v] of Object.entries(value)) walk(v, [...keys, k]);
+  };
+  walk(section, []);
+  return out;
 }
 
 /** A file name the mirror accepts: lowercase-kebab, no spaces. */
@@ -453,26 +485,39 @@ export function slugify(name) {
  */
 export function planImage(change, taken) {
   const slot = slotFor(change.path);
-  const spec = RULES.slots[slot];
   if (change.path[0] === "files") {
     const src = change.path[1];
     if (!RULES.iconFiles.includes(src)) throw new Error(`${src} isn’t one of the app icons`);
     return { slot, out: `public${src}`, src, archive: null };
   }
-  const stem = slugify(change.fileName || change.upload?.name || "") || "screenshot";
+  return planFile(slot, change.fileName || change.upload?.name, change.upload?.name, taken);
+}
+
+/**
+ * Where a picture attached to a note goes: a new file in the screenshots
+ * folder, sized as a `picture`, for Claude to lay out by hand.
+ * @param {{name?: string, fileName?: string}} picture one of a note's `images`
+ */
+export function planPicture(picture, taken) {
+  return planFile("picture", picture.fileName || picture.name, picture.name, taken);
+}
+
+function planFile(slot, wanted, original, taken) {
+  const spec = RULES.slots[slot];
+  const stem = slugify(wanted || "") || (slot === "picture" ? "picture" : "screenshot");
   let name = `${stem}.webp`;
   for (let n = 2; taken.has(`${spec.dir}/${name}`); n++) name = `${stem}-${n}.webp`;
   const out = `${spec.dir}/${name}`;
-  const original = (change.upload?.name || `${stem}.png`).replace(/[/\\]/g, "-");
+  const kept = (original || `${stem}.png`).replace(/[/\\]/g, "-");
   const archiveDir = slot === "carousel" ? "_source-images/screenshots/carousel" : "_source-images/screenshots";
-  return { slot, out, src: out.replace(/^public/, ""), archive: `${archiveDir}/${original}` };
+  return { slot, out, src: out.replace(/^public/, ""), archive: `${archiveDir}/${kept}` };
 }
 
 /** Every image path the model points at, plus the icons. */
 export function imagePaths(m) {
   const paths = new Set(RULES.iconFiles);
   for (const s of m.sections) {
-    for (const img of [s.phones?.back, s.phones?.front, s.devices?.tablet, s.devices?.foldable]) if (img?.src) paths.add(img.src);
+    for (const [, img] of sectionImages(s)) paths.add(img.src);
   }
   for (const c of m.callouts) if (c.image) paths.add(c.image);
   for (const s of m.seasons) if (s.image) paths.add(s.image);

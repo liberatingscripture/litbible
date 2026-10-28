@@ -203,7 +203,9 @@
     font-size: 12px;
     color: var(--st-ink-3);
   }
-  .sheet { margin: 0 auto; border-radius: 6px; overflow: hidden; box-shadow: var(--st-shadow); background: #FAFAF8; }
+  /* clip, not hidden: a hidden box can still be scrolled by script (scrollIntoView
+     did, shifting the page inside its frame), a clipped one can't. */
+  .sheet { margin: 0 auto; border-radius: 6px; overflow: hidden; overflow: clip; box-shadow: var(--st-shadow); background: #FAFAF8; }
   .replica { transform-origin: top left; }
 
   /* The Studio's marks on the page. --inv undoes the page's scale, so a
@@ -278,6 +280,35 @@
     color: var(--st-ink-3);
   }
   .replica .studio-placeholder { opacity: 0.55; }
+  /* A picture or note waiting for Claude to lay it out, after its section. */
+  .replica .studio-pending {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: calc(8px * var(--inv, 1)) calc(18px * var(--inv, 1));
+    margin: calc(10px * var(--inv, 1)) clamp(1.25rem, 4cqw, 3rem);
+    padding: calc(14px * var(--inv, 1)) calc(18px * var(--inv, 1));
+    border: calc(2px * var(--inv, 1)) dashed var(--st-select);
+    border-radius: calc(14px * var(--inv, 1));
+    /* Opaque, in the Studio's own colors: the page behind may be in the other theme. */
+    background: linear-gradient(var(--st-select-soft), var(--st-select-soft)), var(--st-panel);
+    color: var(--st-ink);
+    font: 500 calc(15px * var(--inv, 1)) / 1.4 var(--st-ui);
+    cursor: pointer;
+  }
+  .replica .studio-pending.is-sent { border-style: dotted; cursor: default; opacity: 0.85; }
+  .replica .studio-pending__tag {
+    grid-column: 1 / -1;
+    color: var(--st-select);
+    font-size: calc(12px * var(--inv, 1));
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .replica .studio-pending__pics { display: flex; gap: calc(8px * var(--inv, 1)); }
+  .replica .studio-pending__pics img { height: calc(110px * var(--inv, 1)); width: auto; max-width: none; border-radius: calc(6px * var(--inv, 1)); }
+  .replica .studio-pending__text { min-width: 0; }
+  .canvas[data-mode="preview"] .replica .studio-pending { display: none; }
   .replica .studio-empty { font: 500 18px var(--st-ui); color: var(--st-ink-3); }
 
   /* ---- Inspector ---- */
@@ -393,6 +424,15 @@
   .choice label:has(input:checked) { border-color: var(--st-select); background: var(--st-select-soft); }
   .choice input { accent-color: var(--st-select); margin: 2px 0 0; }
   .choice small { display: block; color: var(--st-ink-3); }
+
+  .pic { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 12px; padding: 12px; border: 1px solid var(--st-rule); border-radius: 12px; }
+  .pic > img { width: 96px; max-height: 200px; object-fit: contain; border-radius: 6px; background: var(--st-sunk); align-self: start; }
+  .pic__body { display: grid; gap: 10px; min-width: 0; }
+  .pic .meta span:last-child { overflow-wrap: anywhere; }
+  .reuse { display: flex; flex-wrap: wrap; gap: 8px; }
+  .reuse__pick { border: 1px solid var(--st-rule); border-radius: 8px; padding: 4px; background: var(--st-panel); cursor: pointer; }
+  .reuse__pick:hover { border-color: var(--st-select); }
+  .reuse__pick img { display: block; height: 64px; width: auto; border-radius: 4px; }
 
   .box { padding: 12px 14px; border-radius: 10px; border: 1px solid var(--st-rule); background: var(--st-sunk); display: grid; gap: 6px; }
   .box ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
