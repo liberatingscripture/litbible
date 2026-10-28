@@ -542,7 +542,7 @@
 
 /* src/components/apps/ChurchYearCarousel.astro */
 .replica .church-year {
-  margin-top: var(--space-5);
+  margin-top: var(--space-7);
   display: grid;
   grid-template-columns: 1fr;
   gap: var(--space-8);

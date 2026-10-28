@@ -446,3 +446,16 @@ test("render.ts and the board draw the inline format identically", () => {
   assert.equal(leavesSite("/privacy"), false);
   assert.equal(leavesSite("https://apps.apple.com/app/x"), true);
 });
+
+test("a picture's clear margin is cut, so devices stand on one baseline", async () => {
+  const { default: sharp } = await import("sharp");
+  const { opaqueBox } = await import("../scripts/apps-studio/store.mjs");
+  const clear = { r: 0, g: 0, b: 0, alpha: 0 };
+  const device = await sharp({ create: { width: 6, height: 10, channels: 4, background: { r: 20, g: 20, b: 20, alpha: 1 } } }).png().toBuffer();
+  const framed = await sharp({ create: { width: 10, height: 16, channels: 4, background: clear } })
+    .composite([{ input: device, left: 2, top: 1 }]).png().toBuffer();
+  assert.deepEqual(await opaqueBox(framed), { left: 2, top: 1, width: 6, height: 10 });
+  assert.equal(await opaqueBox(device), null, "a picture with no clear margin is left alone");
+  const screenshot = await sharp({ create: { width: 4, height: 4, channels: 3, background: "#fff" } }).png().toBuffer();
+  assert.equal(await opaqueBox(screenshot), null, "a picture with no transparency is never cut");
+});
