@@ -8,6 +8,7 @@ import SiteFooter from "../components/SiteFooter.astro";
 import AppsLaunchPopover from "../components/AppsLaunchPopover.astro";
 import AppInstallBanner from "../components/AppInstallBanner.astro";
 import { APP_PLATFORM_UA } from "../lib/app-platform.mjs";
+import { EDGE, FIRST_PAINT, GAP, MAX_MEASURE, MIN_MEASURE, MIN_WIDTH } from "../lib/desk-margin.mjs";
 import { contentVersion } from "../lib/content-version.mjs";
 
 const {
@@ -60,6 +61,10 @@ const criticalDarkColor = isGreen ? "#E1DFD9" : "#F0F0F0";
 // :not([data-theme="light"]) (so a forced-light user on a dark OS gets no dark
 // frame), and an explicit :root[data-theme="dark"] rule forces dark on any OS.
 const criticalCSS = `html,body{margin:0;padding:0}html{scrollbar-gutter:stable}body{background:${criticalBg};color:${criticalColor}}.site-header{min-height:80px}.site-header__inner{min-height:80px;box-sizing:border-box}main{min-height:50svh}@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) body{background:${criticalDarkBg};color:${criticalDarkColor}}}:root[data-theme="dark"] body{background:${criticalDarkBg};color:${criticalDarkColor}}`;
+
+// What the desk's pre-paint script needs to repeat src/lib/desk-margin.mjs's
+// firstPaint (BA25, BA30).
+const deskFit = { ...FIRST_PAINT, edge: EDGE, gap: GAP, minWidth: MIN_WIDTH, minMeasure: MIN_MEASURE, maxMeasure: MAX_MEASURE };
 ---
 
 <!doctype html>
@@ -102,9 +107,15 @@ const criticalCSS = `html,body{margin:0;padding:0}html{scrollbar-gutter:stable}b
          margin.js keeps data-desk-expanded in step from then on. The widths
          a reader dragged this visit (sessionStorage lit-desk-measure and lit-desk-width;
          src/scripts/desk/widths.js) go on with it as data-desk-widths, --desk-measure and
-         --desk-width, so a Study View chapter opens with them and doesn't jump. The panel
-         itself sits in the margin, so nothing else needs reserving for it here. -->
-    <script is:inline define:vars={{ appUa: APP_PLATFORM_UA.source, appUaFlags: APP_PLATFORM_UA.flags }}>try{var d=document.documentElement,s=localStorage,u=new URL(location.href),q=u.searchParams.get('desk'),a=navigator.userAgent||'';if(q==='on'||q==='off'){if(q==='on')s.setItem('lit-desk-preview','on');else{s.removeItem('lit-desk-preview');s.removeItem('lit-desk-panel')}u.searchParams.delete('desk');history.replaceState(history.state,'',u.pathname+u.search+u.hash)}if(s.getItem('lit-desk-preview')==='on'&&!(new RegExp(appUa,appUaFlags).test(a)||(/Macintosh/.test(a)&&navigator.maxTouchPoints>1))){d.setAttribute('data-desk','on');var b=s.getItem('lit-desk-start');if(b==='closed'?false:b==='min'||b==='open'||s.getItem('lit-desk-panel')!=='closed'){d.setAttribute('data-desk-panel','open');if(b==='open'||(b!=='min'&&s.getItem('lit-desk-min')==='0')){d.setAttribute('data-desk-expanded','');var w=sessionStorage,m=parseFloat(w.getItem('lit-desk-measure')),x=parseFloat(w.getItem('lit-desk-width'));if(m>=36&&m<=72&&x>=280){d.setAttribute('data-desk-widths','');d.style.setProperty('--desk-measure',String(m));d.style.setProperty('--desk-width',x+'px')}}}}}catch(_){}</script>
+         --desk-width, so a Study View chapter opens with them and doesn't jump. Both are
+         stamped only where the window holds them: the script repeats
+         src/lib/desk-margin.mjs's firstPaint (handed its numbers as deskFit), which works
+         out the column's width from the reader's font and text size. Too narrow for the
+         margin, the notebook would float and fold by itself, reflowing every chapter
+         (BA25); widths kept in a wider window are given way as widths.js gives them, or
+         left off (BA30). The panel itself sits in the margin, so nothing else needs
+         reserving for it here. -->
+    <script is:inline define:vars={{ appUa: APP_PLATFORM_UA.source, appUaFlags: APP_PLATFORM_UA.flags, deskFit }}>try{var d=document.documentElement,s=localStorage,u=new URL(location.href),q=u.searchParams.get('desk'),n=navigator,a=n.userAgent||'',t=n.maxTouchPoints>1;if(q==='on'||q==='off'){if(q==='on')s.setItem('lit-desk-preview','on');else{s.removeItem('lit-desk-preview');s.removeItem('lit-desk-panel')}u.searchParams.delete('desk');history.replaceState(history.state,'',u.pathname+u.search+u.hash)}if(s.getItem('lit-desk-preview')==='on'&&!(new RegExp(appUa,appUaFlags).test(a)||(n.userAgentData&&n.userAgentData.mobile===true)||(t&&(/Macintosh/.test(a)||(/Linux/.test(a)&&!/CrOS/.test(a)))))){d.setAttribute('data-desk','on');var b=s.getItem('lit-desk-start');if(b==='closed'?false:b==='min'||b==='open'||s.getItem('lit-desk-panel')!=='closed'){d.setAttribute('data-desk-panel','open');if(b==='open'||(b!=='min'&&s.getItem('lit-desk-min')==='0')){var f=deskFit,w=sessionStorage,m=parseFloat(w.getItem('lit-desk-measure')),x=parseFloat(w.getItem('lit-desk-width')),v=d.clientWidth||innerWidth,k=(f.ch[d.getAttribute('data-font')]||f.ch[''])*(f.scale[d.getAttribute('data-size')]||1)*f.body*parseFloat(getComputedStyle(d).fontSize),r=v-f.edge-f.gap,h=1,g;if(m>=f.minMeasure&&m<=f.maxMeasure&&x>=f.minWidth){h=m*k+f.pad+x-r;if(h>0){g=Math.min(h,x-f.minWidth);x-=g;h-=g}if(h>0){g=Math.min(h,(m-f.minMeasure)*k);m-=g/k;h-=g}}if(h<=.5){d.setAttribute('data-desk-expanded','');d.setAttribute('data-desk-widths','');d.style.setProperty('--desk-measure',String(Math.round(m*10)/10));d.style.setProperty('--desk-width',Math.round(x)+'px')}else if(r-f.measure*k-f.pad>=f.minWidth)d.setAttribute('data-desk-expanded','')}}}}catch(_){}</script>
     <title>{title}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />

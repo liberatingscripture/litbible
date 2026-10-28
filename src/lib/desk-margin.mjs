@@ -302,6 +302,61 @@ export function widestMeasure({ viewport, parentLeft, ch, pad, width }) {
   return round(Math.min(MAX_MEASURE, (viewport - EDGE - GAP - parentLeft - width - pad) / ch));
 }
 
+/* ── Before first paint ─────────────────────────────────────────────── */
+
+// Layout.astro's pre-paint script stamps <html data-desk-expanded> (the 48
+// measure on Study View chapters) and the reader's kept widths, so a page
+// opening with the notebook expanded doesn't reflow. Stamped where the
+// window can't hold them, the first placement undid them: in a window too
+// narrow for the margin the notebook floats, folds by itself
+// (nextCollapsed), and the column reflowed from 48 to 52 on every chapter
+// (BA25); and widths kept in a wider window opened the column off center
+// until widths.js gave way (BA30). So the script works out, before anything
+// is laid out, what the first placement will decide: firstPaint below,
+// which it repeats, since it can't import (test/desk-prepaint.test.js holds
+// the two together and this to the placements it predicts).
+//
+// It reads the Study View column's width from the reader's settings, from
+// these values, which test/desk-margin.test.js holds to global.css and
+// ScriptureLayout.astro. The window is the whole width the script sees,
+// before the page has a scrollbar, so a classic scrollbar leaves a band of
+// about 16px where it still guesses wrong.
+export const FIRST_PAINT = {
+  measure: 48, // Study View's measure with the notebook expanded (global.css)
+  pad: 32, // .scripture-main's side padding (ScriptureLayout.astro)
+  body: 1.125, // the body's font size, in rem (global.css)
+  // --ch in em, by data-font (global.css; "" is Inter, the default)
+  ch: { "": 0.63086, dyslexic: 0.5, atkinson: 0.648 },
+  // --reading-scale, by data-size (global.css; "" is Medium)
+  scale: { "": 1, sm: 16 / 18, lg: 20 / 18, xl: 23 / 18 },
+};
+
+/**
+ * What the first placement will make of a Study View page opening with the
+ * notebook expanded: whether it stays expanded (`expanded`; it folds where
+ * the margin can't hold it even with the column moved), and the widths to
+ * draw the page with (`widths`: the kept ones, given way as placeWithWidths
+ * gives them, or null where they don't fit and the ordinary placement takes
+ * over). The column starts against its containing box's left edge, which
+ * is the window's on Study View.
+ *
+ * @param {object} m
+ * @param {number} m.viewport the window's width
+ * @param {number} m.ch px per measure unit at the column's size
+ * @param {{ measure: number, width: number } | null} [m.kept] the widths the
+ *   reader kept this visit, already checked for range
+ * @returns {{ expanded: boolean, widths: { measure: number, width: number } | null }}
+ */
+export function firstPaint({ viewport, ch, kept = null }) {
+  const lay = kept ? placeWithWidths({ viewport, parentLeft: 0, ch, pad: FIRST_PAINT.pad, ...kept }) : null;
+  if (lay && !lay.over) return { expanded: true, widths: { measure: lay.measure, width: lay.width } };
+  // placeInMargin's test, with the column centered and free to move left to
+  // the window's edge: the panel's room on the right plus the column's left
+  // margin must hold MIN_WIDTH.
+  const column = FIRST_PAINT.measure * ch + FIRST_PAINT.pad;
+  return { expanded: viewport - EDGE - GAP - column >= MIN_WIDTH, widths: null };
+}
+
 // Measures are kept to a tenth: enough for a smooth drag, short in storage.
 function round(v) {
   return Math.round(v * 10) / 10;

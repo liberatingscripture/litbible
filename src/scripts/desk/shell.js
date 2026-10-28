@@ -21,6 +21,7 @@ import { createVerseLabels } from "./verse-labels.js";
 import { createHighlights } from "./highlights.js";
 import { proseSource, studySource } from "./note-sources.js";
 import { pageChapter } from "./page.js";
+import { standDown } from "../desk-frame.js";
 import { initProseActions } from "./prose-actions.js";
 import { initPins } from "./pins.js";
 import { initRibbonFollow } from "./ribbon-follow.js";
@@ -53,6 +54,11 @@ function goToVerse(record) {
     behavior: reduced ? "auto" : "smooth",
   });
 }
+
+// Whether the Notebook came up. Past that, a failure is logged and the rest
+// keeps working; before it, there is no Notebook for the narrowed column and
+// the buttons to belong to, so the page stands down (BA29).
+let panelUp = false;
 
 async function start() {
   addDeskStyle();
@@ -145,6 +151,7 @@ async function start() {
     ctx,
     showInText: store ? showInText : null,
   });
+  panelUp = true;
   initActions({ store, ctx, showVerse: panel.showVerse });
   initRibbonFollow({ store, ctx });
   initCommands({ panel, printNotes, printRoom });
@@ -158,4 +165,7 @@ async function start() {
   if (store) createHighlights({ store });
 }
 
-start();
+start().catch((err) => {
+  console.error("Study Desk: the notebook didn't start", err);
+  if (!panelUp) standDown();
+});
