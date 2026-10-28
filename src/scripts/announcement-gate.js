@@ -45,8 +45,9 @@ export function hasCookie(name) {
 export const isVerseDeepLink = (hash = location.hash) => VERSE_LINK.test(hash);
 export const isOverScripture = (root = document) => !!root.querySelector(SCRIPTURE_SURFACES);
 
-// iOS, iPadOS or Android, by the device's OS. It lives in src/lib/ now,
-// since the Study Desk's gate reads it too.
+// iOS, iPadOS or Android, by the device's OS, or by a touch screen where a
+// tablet's browser passes for a computer's (app-platform.mjs). It lives in
+// src/lib/ now, since the Study Desk's gate reads it too.
 export { isAppPlatform } from "../lib/app-platform.mjs";
 
 /**

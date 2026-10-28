@@ -10,10 +10,11 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 
 import {
-  EDGE, GAP, MAX_MEASURE, MAX_WIDTH, MIN_HEIGHT, MIN_MEASURE, MIN_WIDTH, TAB_EDGE, TAB_GAP, TAB_WIDTH,
-  dragFloatEdge, dragNotebookEdge, dragTextEdge, floatBounds, floatWidth, nextCollapsed, panelHeight, placeFloating, placeInMargin,
+  EDGE, FIRST_PAINT, GAP, MAX_MEASURE, MAX_WIDTH, MIN_HEIGHT, MIN_MEASURE, MIN_WIDTH, TAB_EDGE, TAB_GAP, TAB_WIDTH,
+  dragFloatEdge, dragNotebookEdge, dragTextEdge, firstPaint, floatBounds, floatWidth, nextCollapsed, panelHeight, placeFloating, placeInMargin,
   placeWithWidths, widestMeasure, widthsFromLayout,
 } from "../src/lib/desk-margin.mjs";
 
@@ -553,4 +554,79 @@ test("widestMeasure: it is the most dragTextEdge lets the LIT widen to", () => {
   const maxMeasure = widestMeasure({ viewport: 1100, parentLeft: 0, ch: CH, pad: PAD, width: 320 });
   assert.ok(maxMeasure < MAX_MEASURE);
   assert.equal(dragTextEdge({ measure: 40, dx: -2000, ch: CH, maxMeasure }), maxMeasure);
+});
+
+/* ── Before first paint (BA25, BA30) ─────────────────────────────────── */
+
+// px per measure unit on Study View for every font and size, at two root sizes.
+const chs = Object.values(FIRST_PAINT.ch).flatMap((c) =>
+  Object.values(FIRST_PAINT.scale).flatMap((s) => [16, 20].map((root) => c * s * FIRST_PAINT.body * root)),
+);
+
+test("firstPaint stamps the notebook expanded exactly where placeInMargin keeps it in the margin", () => {
+  for (const ch of chs) {
+    const width = FIRST_PAINT.measure * ch + FIRST_PAINT.pad;
+    for (let viewport = 600; viewport <= 1800; viewport += 3) {
+      const at = placeInMargin(centred(viewport, width));
+      const fp = firstPaint({ viewport, ch });
+      assert.equal(fp.expanded, !at.over, `${ch} ${viewport}`);
+      assert.equal(fp.widths, null);
+    }
+  }
+});
+
+test("firstPaint: the default font and size float the notebook below about 897px (the browser's own boundary)", () => {
+  const ch = FIRST_PAINT.ch[""] * FIRST_PAINT.body * 16;
+  assert.equal(firstPaint({ viewport: 897, ch }).expanded, false);
+  assert.equal(firstPaint({ viewport: 898, ch }).expanded, true);
+});
+
+test("firstPaint keeps the widths placeWithWidths would apply, and none where they don't fit", () => {
+  const kepts = [
+    { measure: 48, width: 300 }, { measure: 60, width: 440 }, { measure: 72, width: 600 }, { measure: 36, width: 280 },
+  ];
+  for (const ch of chs) {
+    for (const kept of kepts) {
+      for (let viewport = 600; viewport <= 1800; viewport += 11) {
+        const lay = placeWithWidths({ viewport, parentLeft: 0, ch, pad: FIRST_PAINT.pad, ...kept });
+        const fp = firstPaint({ viewport, ch, kept });
+        const where = JSON.stringify({ ch, kept, viewport });
+        if (lay.over) {
+          assert.equal(fp.widths, null, where);
+          assert.deepEqual(fp, firstPaint({ viewport, ch }), where);
+        } else {
+          assert.deepEqual(fp, { expanded: true, widths: { measure: lay.measure, width: lay.width } }, where);
+        }
+      }
+    }
+  }
+});
+
+// FIRST_PAINT restates the stylesheets' numbers, since the pre-paint script
+// works out the column's width before any stylesheet has loaded. A change
+// to one of these needs the same change there.
+test("FIRST_PAINT matches global.css and ScriptureLayout.astro", () => {
+  const css = readFileSync(new URL("../src/styles/global.css", import.meta.url), "utf8");
+  const layout = readFileSync(new URL("../src/layouts/ScriptureLayout.astro", import.meta.url), "utf8");
+  const fix = "; update FIRST_PAINT in src/lib/desk-margin.mjs";
+  const num = (re, src = css) => {
+    const m = re.exec(src);
+    assert.ok(m, `${re} wasn't found${fix}`);
+    return m;
+  };
+  assert.equal(Number(num(/:root\s*\{[^}]*?--ch:\s*([\d.]+)em/).at(1)), FIRST_PAINT.ch[""], `Inter's --ch${fix}`);
+  for (const font of ["dyslexic", "atkinson"]) {
+    const re = new RegExp(String.raw`html\[data-font="${font}"\]\s*\{\s*--ch:\s*([\d.]+)em`);
+    assert.equal(Number(num(re)[1]), FIRST_PAINT.ch[font], `${font}'s --ch${fix}`);
+  }
+  for (const size of ["sm", "lg", "xl"]) {
+    const re = new RegExp(String.raw`html\[data-size="${size}"\]\s*\{\s*--reading-scale:\s*calc\((\d+)\s*/\s*(\d+)\)`);
+    const m = num(re);
+    assert.equal(Number(m[1]) / Number(m[2]), FIRST_PAINT.scale[size], `${size}'s --reading-scale${fix}`);
+  }
+  assert.equal(Number(num(/Base typography[\s\S]*?body\s*\{[^}]*?font-size:\s*([\d.]+)rem/)[1]), FIRST_PAINT.body, `the body's size${fix}`);
+  const measure = num(/html\[data-desk\]\[data-desk-expanded\]:has\(\.scripture-layout--scripture \.scripture-main\)\s*\{\s*--reading-measure:\s*(\d+)/);
+  assert.equal(Number(measure[1]), FIRST_PAINT.measure, `the expanded measure${fix}`);
+  const pad = num(/\.scripture-main\s*\{[^}]*?padding:\s*\d+px\s+(\d+)px\s+\d+px;/, layout);
+  assert.equal(2 * Number(pad[1]), FIRST_PAINT.pad, `.scripture-main's side padding${fix}`);
 });
