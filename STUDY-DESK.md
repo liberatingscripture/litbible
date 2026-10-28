@@ -91,7 +91,15 @@ are recorded so they aren't re-argued.
   then blocked the presenter view's window, it says to choose Presenter
   view again rather than blaming pop-ups (BA85; FA1-v checks it on two
   screens); and poetry on a sheet keeps its description (BA86).
-  Next: FA1-o (announcements and focus for marks).
+  FA1-o is done (#NNN): making a note, a bookmark or a highlight is announced
+  (“Note saved on Romans 8:3.”, “Bookmarked Romans 8:28.”, “Highlighted
+  yellow: Romans 8:4–5.”), through the undo bar's live region (BA18); focus no
+  longer drops to the page after a note is deleted from the margin, after a
+  redraw replaces an open circle's popover trigger, or after saving a note made
+  from a selection (BA21); and a bookmarked verse's number is named “Verse 28,
+  bookmarked” (BA22; BVJ chose that wording over placing it last or “has a
+  bookmark”, 2026-10-27).
+  Next: FA1-p (panels beside the Notebook).
 
 - **Phase 2c is built on the preview** (2026-10-20): notes on a footnote
   and questions for discussion. **A note can be on a footnote** (M11):
@@ -6738,7 +6746,7 @@ The phases, in working order:
 | FA1-l | /desk's LIT pane and layout | done, #387: BA54, BA56, BA57, BA58, BA60, BA61 |
 | FA1-m | The tour, first use, and printing | done, #388: BA33, BA34, BA35, BA36, BA37 |
 | FA1-n | Present mode and the sheet page | done, #390: BA79, BA83, BA84, BA85, BA86 |
-| FA1-o | Announcements and focus for marks | BA18, BA21, BA22 |
+| FA1-o | Announcements and focus for marks | done, #NNN: BA18, BA21, BA22 |
 | FA1-p | Panels beside the Notebook | BA24, BA27, BA28 |
 | FA1-q | The gate and first paint | BA25, BA26, BA29, BA30 |
 | FA1-r | /desk's smaller fixes | BA31, BA62, BA63, BA64, BA65, BA114, BA115 |

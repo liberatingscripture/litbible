@@ -115,7 +115,7 @@ it goes after both, and FA1-ac after FA1-t.
 | FA1-l | /desk's LIT pane and layout | BA54, BA56, BA57, BA58, BA60, BA61 | done, #387 |
 | FA1-m | The tour, first use, and printing | BA33, BA34, BA35, BA36, BA37 | done, #388 |
 | FA1-n | Present mode and the sheet page | BA79, BA83, BA84, BA85, BA86 | done, #390 |
-| FA1-o | Announcements and focus for marks | BA18, BA21, BA22 | open |
+| FA1-o | Announcements and focus for marks | BA18, BA21, BA22 | done, #NNN |
 | FA1-p | Panels beside the Notebook | BA24, BA27, BA28 | open |
 | FA1-q | The gate and first paint | BA25, BA26, BA29, BA30 | open |
 | FA1-r | /desk's smaller fixes | BA31, BA62, BA63, BA64, BA65, BA114, BA115 | open |
@@ -1054,7 +1054,11 @@ screen reader if one is at hand, or the accessibility tree.
   - *Fix*: announce after each successful write, through `undo-bar.js`:
     “Note saved on Romans 8:3.”, “Bookmarked Romans 8:28.”, “Highlighted
     yellow: Romans 8:4–5.”
-  - Status: open.
+  - Status: **Fixed in #NNN.** `src/lib/desk-announce.mjs` holds the three
+    sentences; `note-editor.js` (new or edited note) and `actions.js`
+    (bookmark; a highlight that touches no other colour, since one that does
+    already speaks through its undo notice) call `announce` after the write
+    lands. The verse number's new name follows through BA22's label.
 - **BA21 (low, a11y; likely). Focus is lost after deleting a note from the
   margin.**
   - *What happens*: three cases:
@@ -1067,14 +1071,33 @@ screen reader if one is at hand, or the accessibility tree.
     `note-editor.js:180–188`.
   - *Fix*: after a delete, focus the verse number or the next note. On a
     redraw, re-bind the popover to the new circle or close it.
-  - Status: open.
+  - Status: **Fixed in #NNN.** `notes-margin.js`: `draw` notes the next note
+    before it clears the aside, and when focus was on a control the drawing no
+    longer has, `focusGone` puts it on the verse number the note sat on, else
+    the next note (a note on a glossary entry or an article has no verse
+    number). That runs on `draw`'s early exit too, which is the one deleting
+    the last note takes. `keepPopover` re-points an open circle popover (its
+    trigger and its `restoreFocus`) at the new circle after every redraw, or
+    closes it onto the note's words when the note is no longer a circle. A
+    selection's note editor gets the verse number its selection starts in as
+    `restoreFocus` (`verseNumberOf`, `actions.js`). `note-editor.js`'s
+    `landFocus` covers what the margin can't see: the margin's Edit button is
+    `display: none` unless its note is hovered or focused, so the editor
+    closing found no button to return to on Save, Delete, Cancel and ×, and
+    focus now goes to the verse number when it would have fallen to the page.
+    Checked in the browser on Romans 8 with the page's focus and live region
+    read directly, not with a screen reader.
 - **BA22 (low, a11y; seen in the browser; BVJ's call on wording). A verse's
   name doesn't say it is bookmarked.**
   - *What happens*: bookmarked Romans 8:28 is named just “Verse 28”
     (`verseLabel`). Rule 7 names highlights and counts notes; bookmarks, the
     one mark Read View also shows, are left out.
   - *Recommended*: “Verse 28, bookmarked”.
-  - Status: open.
+  - Status: **Fixed in #NNN** with the recommended wording (BVJ, 2026-10-27).
+    `verseLabel` takes `bookmarked` and puts it right after the number, before
+    the highlights (“Verse 3, bookmarked, highlighted yellow, 1 note of
+    mine”); `bookmarkedVerses` reads it from the chapter's records, and it
+    counts only while “My bookmarks” is on, like the other kinds.
 
 ## FA1-p. Panels beside the Notebook
 

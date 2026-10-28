@@ -95,6 +95,22 @@ export function highlightColors(records) {
   return colors;
 }
 
+/**
+ * The verses a bookmark sits on, as a Set. A bookmark is one verse, but its
+ * span is read like any record's, so one a copy brought with a range marks
+ * each verse in it. Only bookmarks count.
+ */
+export function bookmarkedVerses(records) {
+  const verses = new Set();
+  for (const r of records ?? []) {
+    if (r?.kind !== "bookmark") continue;
+    const s = span(r);
+    if (!s) continue;
+    for (let v = s.from; v <= s.to; v++) verses.add(v);
+  }
+  return verses;
+}
+
 /** "yellow", "yellow and pink", "yellow, green and pink": no comma before the last "and". */
 function joinWords(words) {
   if (words.length < 2) return words.join("");
@@ -102,10 +118,12 @@ function joinWords(words) {
 }
 
 /**
- * A Study View verse number's accessible name. It names the reader's highlights
- * and notes on the verse, colours first: "Verse 1", "Verse 1, highlighted
- * yellow", "Verse 1, 1 note of mine", "Verse 1, highlighted yellow and pink, 2
- * notes of mine". `colors` is a list of colour names as highlightColors gives
+ * A Study View verse number's accessible name. It names the reader's bookmark,
+ * highlights and notes on the verse, the bookmark first (BA22; BVJ,
+ * 2026-10-27): "Verse 1", "Verse 28, bookmarked", "Verse 1, highlighted
+ * yellow", "Verse 1, 1 note of mine", "Verse 1, bookmarked, highlighted yellow
+ * and pink, 2 notes of mine". `bookmarked` is whether the verse holds one (see
+ * bookmarkedVerses). `colors` is a list of colour names as highlightColors gives
  * them. A missing or empty list, and a missing count, are none. Colours are
  * named in COLORS order whatever order they arrive in, and a name not in COLORS
  * is left out, so the label always matches what the page draws.
@@ -117,11 +135,12 @@ function joinWords(words) {
  * changed since I marked it" or "… 2 changed since I marked them". None adds
  * nothing.
  */
-export function verseLabel(verse, noteCount, colors = [], changed = 0) {
+export function verseLabel(verse, noteCount, colors = [], changed = 0, bookmarked = false) {
   const n = Number(noteCount) || 0;
   const c = Number(changed) || 0;
   const shown = COLORS.filter((color) => (colors ?? []).includes(color));
   const parts = [`Verse ${verse}`];
+  if (bookmarked) parts.push("bookmarked");
   if (shown.length) parts.push(`highlighted ${joinWords(shown)}`);
   if (n > 0) parts.push(`${n} ${n === 1 ? "note" : "notes"} of mine`);
   if (c > 0) parts.push(`${c} changed since I marked ${c === 1 ? "it" : "them"}`);

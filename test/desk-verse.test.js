@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { adjacentVerse, highlightColors, noteCounts, recordsOnVerse, verseLabel } from "../src/lib/desk-verse.mjs";
+import { adjacentVerse, bookmarkedVerses, highlightColors, noteCounts, recordsOnVerse, verseLabel } from "../src/lib/desk-verse.mjs";
 
 const note = (id, verse, endVerse) => ({ id, kind: "note", bookKey: "romans", chapter: 8, verse, ...(endVerse ? { endVerse } : {}) });
 const bookmark = (id, verse, endVerse) => ({ id, kind: "bookmark", bookKey: "romans", chapter: 8, verse, ...(endVerse ? { endVerse } : {}) });
@@ -187,4 +187,23 @@ test("a note on a footnote is about the footnote, so it counts for no verse", ()
   const counts = noteCounts([onFn, note("a", 3)]);
   assert.equal(counts.get(3), 1, "only the verse note counts");
   assert.equal(noteCounts([onFn]).size, 0);
+});
+
+test("a bookmarked verse says so, right after its number (BA22)", () => {
+  assert.equal(verseLabel(28, 0, [], 0, true), "Verse 28, bookmarked");
+  assert.equal(verseLabel(28, 0, [], 0, false), "Verse 28");
+  assert.equal(verseLabel(28), "Verse 28", "bookmarked defaults to no");
+  assert.equal(
+    verseLabel(3, 2, ["yellow", "pink"], 1, true),
+    "Verse 3, bookmarked, highlighted yellow and pink, 2 notes of mine, 1 changed since I marked it",
+    "the bookmark leads, and the change count still comes last",
+  );
+});
+
+test("bookmarkedVerses holds the verses bookmarks sit on, and nothing else does", () => {
+  const verses = bookmarkedVerses([bookmark("a", 28), bookmark("b", 3, 5), note("n", 9), highlight("h", 10, "yellow")]);
+  assert.deepEqual([...verses].sort((a, b) => a - b), [3, 4, 5, 28]);
+  assert.equal(bookmarkedVerses([]).size, 0);
+  assert.equal(bookmarkedVerses(null).size, 0);
+  assert.equal(bookmarkedVerses([{ id: "x", kind: "bookmark" }]).size, 0, "a bookmark with no verse marks none");
 });

@@ -17,12 +17,13 @@
 
 import { MARKERS, createRecord, currentMarker, proseTarget, verseCopyFor } from "../../lib/desk-records.mjs";
 import { MARKER_NAMES, shortQuote } from "../../lib/desk-notes.mjs";
+import { noteSavedMessage } from "../../lib/desk-announce.mjs";
 import { planEdit } from "../../lib/desk-store-core.mjs";
 import { closePanel, currentPanel, showPanel } from "../lit-panel.js";
 import { glyph } from "./glyphs.js";
 import { undoEntry } from "./history.js";
 import { chapterText } from "./page.js";
-import { showUndo } from "./undo-bar.js";
+import { announce, showUndo } from "./undo-bar.js";
 
 let seq = 0;
 
@@ -160,6 +161,8 @@ export function openNoteEditor({ trigger, store, ctx, ref, record = null, draft 
       return;
     }
     closePanel();
+    landFocus(record);
+    announce(noteSavedMessage(where));
   }
 
   async function save() {
@@ -218,20 +221,27 @@ export function openNoteEditor({ trigger, store, ctx, ref, record = null, draft 
     try {
       await store.save(next);
       closePanel();
+      landFocus(next);
+      announce(noteSavedMessage(where));
     } catch (err) {
       failed(err);
     }
   }
 
   panel.querySelector(".desk-editor__save").addEventListener("click", save);
-  panel.querySelector(".desk-editor__cancel").addEventListener("click", closePanel);
-  panel.querySelector(".lit-panel__close").addEventListener("click", closePanel);
+  const dismiss = () => {
+    closePanel();
+    landFocus(place);
+  };
+  panel.querySelector(".desk-editor__cancel").addEventListener("click", dismiss);
+  panel.querySelector(".lit-panel__close").addEventListener("click", dismiss);
   panel.querySelector(".desk-editor__delete")?.addEventListener("click", async () => {
     const trash = await store.remove(record.id);
     // The change this made, read at once: the undo button, like Ctrl+Z,
     // takes back exactly this one (history.js).
     const entry = trash ? store.lastEntry() : null;
     closePanel();
+    landFocus(record);
     if (!entry) return;
     showUndo(`Note on ${where} deleted.`, () => undoEntry(entry));
   });
@@ -253,6 +263,21 @@ export function openNoteEditor({ trigger, store, ctx, ref, record = null, draft 
   });
   body.focus({ preventScroll: true });
   return panel;
+}
+
+/**
+ * After the editor closes, focus must not be left on the page (BA21). The
+ * button it came from may be hidden (the margin's Edit shows only while its
+ * note is hovered or focused, and the editor took the focus away) or gone (a
+ * redraw, or the note was deleted), so `closePanel`'s return finds nothing:
+ * focus then goes to the verse number the note sits on. A note on a footnote
+ * or a glossary entry or an article has none, and is left to its caller.
+ */
+function landFocus(place) {
+  const now = document.activeElement;
+  if (now && now !== document.body) return;
+  if (typeof place.footnote === "string" || !Number.isInteger(place.verse)) return;
+  document.getElementById(`v${place.verse}`)?.focus({ preventScroll: true });
 }
 
 function escapeHtml(s) {
