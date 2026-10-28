@@ -71,6 +71,10 @@ silent or expensive.
   dynamic import. Read the desk file before touching a shared panel.
 - **`STUDY-DESK.md` (about 470 KB) and `STUDY-DESK-AUDIT-1.md` are too large to
   read whole.** Grep for the ID or heading and read that section.
+- **On the owner's Windows machine, run Python as `python` or `py`, never
+  `python3`.** `python3` is a Microsoft Store stub that prints "Python was not
+  found" and exits 49, though Python is installed. Don't read that as "no
+  Python here" and switch tools.
 
 ## Project Overview
 
