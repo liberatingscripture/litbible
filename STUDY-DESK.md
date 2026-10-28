@@ -113,7 +113,7 @@ are recorded so they aren't re-argued.
   placement will decide; and where the desk fails to load or start, the page
   goes back to the reader's, with one failing Notebook tab no longer taking
   the others down (BA29).
-  FA1-r is done (#PRNUM): two My Notes panes keep their own color and label
+  FA1-r is done (#398): two My Notes panes keep their own color and label
   filters, and a closed pane, or one moved to another chapter, takes its
   listeners with it (BA31, BA115); "Leading" names My Notes among the panes
   that follow (BA62); the Layout menu closes when focus leaves it (BA63);
@@ -6780,7 +6780,7 @@ The phases, in working order:
 | FA1-o | Announcements and focus for marks | done, #391: BA18, BA21, BA22 |
 | FA1-p | Panels beside the Notebook | done, #392: BA24, BA27, BA28 |
 | FA1-q | The gate and first paint | done, #396: BA25, BA26, BA29, BA30 |
-| FA1-r | /desk's smaller fixes | done, #PRNUM: BA31, BA62, BA63, BA64, BA65, BA114, BA115 |
+| FA1-r | /desk's smaller fixes | done, #398: BA31, BA62, BA63, BA64, BA65, BA114, BA115 |
 | FA1-s | Greek credits and the notebook search | BA40, BA46, BA47 |
 | FA1-t | Copy and docs | BA15, BA38, BA39, BA42, BA43, BA91, BA109, BA118 |
 | FA1-w | What's new for you | BA88, BA90, BA92, BA96, BA97, BA98 |
