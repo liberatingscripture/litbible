@@ -799,16 +799,20 @@ test("releaseNoteFor is for the record's own book and chapter", () => {
 });
 
 test("releaseNoteFor ignores entries from before the record's text was taken, and counts the day itself", () => {
-  assert.equal(releaseNoteFor(ENTRIES, taken({ contentVersion: "v20261005.5d2c847d" })), null, "everything is older");
+  assert.equal(releaseNoteFor(ENTRIES, taken({ contentVersion: "v20261006.5d2c847d" })), null, "everything is older");
+  // A version names its build's UTC day, which may be the Pacific evening before (BA92).
+  assert.equal(releaseNoteFor(ENTRIES, taken({ contentVersion: "v20261005.5d2c847d" })).id, "2026-10-04", "a build on the Pacific evening of the 4th");
   assert.equal(releaseNoteFor(ENTRIES, taken({ contentVersion: "v20261004.5d2c847d" })).id, "2026-10-04", "the same day may be a later publish");
   assert.equal(releaseNoteFor(ENTRIES, taken({ verse: 5, contentVersion: "v20260920.00000000" })).id, "2026-09-20");
-  assert.equal(releaseNoteFor(ENTRIES, taken({ verse: 5, contentVersion: "v20260921.00000000" })), null);
+  assert.equal(releaseNoteFor(ENTRIES, taken({ verse: 5, contentVersion: "v20260922.00000000" })), null);
 });
 
 test("releaseNoteFor dates the record from its content version, then its verse copy, then its creation", () => {
   const noVersion = { bookKey: "romans", chapter: 8, verse: 5 };
   assert.equal(releaseNoteFor(ENTRIES, { ...noVersion, contentVersion: "unversioned", verseCopyAsOf: "2026-09-20T01:00:00.000Z" }).id, "2026-09-20");
-  assert.equal(releaseNoteFor(ENTRIES, { ...noVersion, verseCopyAsOf: "2026-09-21T01:00:00.000Z" }), null);
+  assert.equal(releaseNoteFor(ENTRIES, { ...noVersion, verseCopyAsOf: "2026-09-21T12:00:00.000Z" }), null);
+  // 01:00 UTC on the 21st is the evening of the 20th in Pacific time, the feed's day (BA92).
+  assert.equal(releaseNoteFor(ENTRIES, { ...noVersion, verseCopyAsOf: "2026-09-21T01:00:00.000Z" }).id, "2026-09-20");
   assert.equal(releaseNoteFor(ENTRIES, { ...noVersion, created: "2026-09-01T00:00:00.000Z" }).id, "2026-09-20");
   assert.equal(releaseNoteFor(ENTRIES, { ...noVersion, verseCopyAsOf: "soon", created: "2026-09-01T00:00:00.000Z" }).id, "2026-09-20");
   assert.equal(releaseNoteFor(ENTRIES, noVersion), null, "no date to go by");

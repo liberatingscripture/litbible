@@ -17,6 +17,7 @@ import {
   forProse,
   kindName,
   liveRecords,
+  metaMessage,
   planBookmark,
   planDelete,
   planEdit,
@@ -26,6 +27,7 @@ import {
   planUndo,
   planWrite,
   readChangeMessage,
+  readMetaMessage,
   recordHref,
   recordReadHref,
   recordReference,
@@ -149,6 +151,15 @@ test("change messages: what tabs send each other, and nothing else is read", () 
   assert.deepEqual(readChangeMessage({ v: 1, ids: [] }), []);
   for (const bad of [null, "a", { v: 2, ids: ["a"] }, { v: 1 }, { v: 1, ids: [1] }]) {
     assert.equal(readChangeMessage(bad), null);
+  }
+});
+
+test("meta messages name a meta key, and a change message never reads as one (BA96)", () => {
+  assert.deepEqual(metaMessage("whatsNewSeen"), { v: 1, meta: "whatsNewSeen" });
+  assert.equal(readMetaMessage(metaMessage("whatsNewSeen")), "whatsNewSeen");
+  assert.equal(readChangeMessage(metaMessage("whatsNewSeen")), null, "no tab redraws its marks for it");
+  for (const bad of [null, "a", { v: 2, meta: "x" }, { v: 1, meta: "" }, { v: 1, meta: 3 }, changeMessage(["a"]), { v: 1, ids: [], meta: "x" }]) {
+    assert.equal(readMetaMessage(bad), null);
   }
 });
 

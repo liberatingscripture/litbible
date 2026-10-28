@@ -154,6 +154,20 @@ export function readChangeMessage(data) {
   return data.ids.every((id) => typeof id === "string") ? data.ids : null;
 }
 
+/**
+ * A notebook meta value changed (BA96): "last looked" for What's new, the last
+ * copy saved. It names no record, so a tab hearing it redraws only what reads
+ * meta, never the marks; readChangeMessage ignores it.
+ */
+export function metaMessage(key) {
+  return { v: 1, meta: String(key) };
+}
+
+/** The meta key a message names, or null for anything else. */
+export function readMetaMessage(data) {
+  return data?.v === 1 && typeof data.meta === "string" && data.meta && !("ids" in data) ? data.meta : null;
+}
+
 /* ── Reading the notebook ────────────────────────────────────────────── */
 
 const bookIndex = (key) => {

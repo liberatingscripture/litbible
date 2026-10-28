@@ -134,7 +134,17 @@ are recorded so they aren't re-argued.
   “Touches …” groups the reader's marks by place (BA91); the empty Places
   line quotes “Continue reading” and the ribbon form gives the real count
   (BA109); and “Rendered here as …” has the Oxford comma (BA118).
-  Next: FA1-w (What's new for you).
+  FA1-w is done (#401): the release notes are fetched again after a
+  failure, and the notebook page's message has Try again (BA88); a pinned
+  footnote or a note on a footnote hears only footnote changes and is named
+  as one (BA90); “last looked” keeps the count of the day's changes, so a
+  second publish folded into that day is New, and a mark's day is read in
+  Pacific time as the feed's is (BA92); the Notebook's line moves on in
+  other tabs once the notebook page has been looked at (BA96); What's new
+  keeps its list, and the reader's focus, through an unchanged redraw and
+  says so when the notebook can't be read (BA97); and a `text_updated` row
+  naming no verse reads as the whole chapter (BA98).
+  Next: FA1-x (A note's references).
 
 - **Phase 2c is built on the preview** (2026-10-20): notes on a footnote
   and questions for discussion. **A note can be on a footnote** (M11):
@@ -6838,7 +6848,7 @@ The phases, in working order:
 | FA1-r | /desk's smaller fixes | done, #398: BA31, BA62, BA63, BA64, BA65, BA114, BA115 |
 | FA1-s | Greek credits and the notebook search | done, #399: BA40, BA46, BA47 |
 | FA1-t | Copy and docs | done, #400: BA15, BA38, BA39, BA42, BA43, BA91, BA109, BA118 |
-| FA1-w | What's new for you | BA88, BA90, BA92, BA96, BA97, BA98 |
+| FA1-w | What's new for you | done, #401: BA88, BA90, BA92, BA96, BA97, BA98 |
 | FA1-x | A note's references | BA89, BA93, BA94, BA95 |
 | FA1-y | Ribbons and Continue reading | BA99 to BA108 |
 | FA1-z | The Greek tab | BA110, BA111, BA112, BA113, BA117, BA119, BA120 |

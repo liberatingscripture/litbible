@@ -7,7 +7,8 @@
 // sessionStorage for the tab's visit, keyed by the content version this page
 // was built from: a new publish is a new version, so a stale copy is never
 // used, and moving between pages of the site costs no second download. When
-// the version is unknown (dev, before a build) nothing is kept.
+// the version is unknown (dev, before a build) nothing is kept. A fetch that
+// fails is forgotten, so the next reader of the feed tries again.
 
 const KEY = "lit-desk-release-feed";
 
@@ -29,9 +30,13 @@ function keep(entries) {
   } catch (_) {}
 }
 
-/** The release notes, newest first; null if they can't be had. Fetched once per page. */
+/**
+ * The release notes, newest first; null if they can't be had. Fetched once
+ * per page, but a failure isn't kept: the next call fetches again (BA88).
+ */
 export function loadReleaseNotes() {
-  pending ??= (async () => {
+  if (pending) return pending;
+  const attempt = (async () => {
     const cacheable = version() !== "unversioned";
     const kept = cacheable ? readKept() : null;
     if (kept) return kept;
@@ -46,5 +51,9 @@ export function loadReleaseNotes() {
       return null;
     }
   })();
-  return pending;
+  pending = attempt;
+  attempt.then((entries) => {
+    if (!entries && pending === attempt) pending = null;
+  });
+  return attempt;
 }
