@@ -3,11 +3,15 @@
  * Big screens — the universal app on tablets and foldables.
  * Shows the multi-pane Study view: notes/highlights beside the text.
  *
- * The two devices are composed at real-life scale: an iPad Air in
- * landscape is 178.5mm tall, the unfolded Pixel 9 Fold is 155.2mm — a
- * 1.150 : 1 ratio. Both framed PNGs are cropped tight to the device, so
- * the Fold image height is simply pinned to 155.2/178.5 = 0.8695 of the
- * iPad's. The Fold overlaps slightly and sits in front (z-index).
+ * The devices are composed at real-life scale, the iPad in the middle: an
+ * iPad Air in landscape is 178.5mm tall, the unfolded Pixel 9 Fold is
+ * 155.2mm — a 1.150 : 1 ratio. Both framed PNGs are cropped tight to the
+ * device, so the Fold image height is simply pinned to 155.2/178.5 =
+ * 0.8695 of the iPad's. The iPhone Duo, unfolded in landscape, is about
+ * 124mm tall: its framed picture is 2247px tall at roughly the 460 ppi of
+ * recent iPhones, since Apple's published size wasn't at hand. Hence
+ * 0.69; correct --duo-scale if the real figure differs. The Fold overlaps
+ * the iPad's left edge and the Duo its right, both in front (z-index).
  */
 import { band, inline, type Section } from './render';
 
@@ -15,7 +19,7 @@ interface Props {
   section: Section<'bigscreens'>;
 }
 const { section } = Astro.props;
-const { tablet, foldable } = section.devices;
+const { tablet, foldable, duo } = section.devices;
 ---
 
 <section class:list={['bigscreens', band(section.background)]}>
@@ -26,7 +30,19 @@ const { tablet, foldable } = section.devices;
       <p class="bigscreens__body" set:html={inline(section.text)}></p>
     </header>
 
-    <div class="bigscreens__stage">
+    <div class:list={['bigscreens__stage', duo && 'bigscreens__stage--trio']}>
+      <figure class="bigscreens__device bigscreens__device--fold">
+        <img
+          src={foldable.src}
+          alt={foldable.alt}
+          class="bigscreens__shot bigscreens__shot--fold"
+          width={foldable.width}
+          height={foldable.height}
+          loading="lazy"
+          decoding="async"
+        />
+      </figure>
+
       <figure class="bigscreens__device bigscreens__device--pad">
         <img
           src={tablet.src}
@@ -39,17 +55,19 @@ const { tablet, foldable } = section.devices;
         />
       </figure>
 
-      <figure class="bigscreens__device bigscreens__device--fold">
-        <img
-          src={foldable.src}
-          alt={foldable.alt}
-          class="bigscreens__shot bigscreens__shot--fold"
-          width={foldable.width}
-          height={foldable.height}
-          loading="lazy"
-          decoding="async"
-        />
-      </figure>
+      {duo && (
+        <figure class="bigscreens__device bigscreens__device--duo">
+          <img
+            src={duo.src}
+            alt={duo.alt}
+            class="bigscreens__shot bigscreens__shot--duo"
+            width={duo.width}
+            height={duo.height}
+            loading="lazy"
+            decoding="async"
+          />
+        </figure>
+      )}
     </div>
   </div>
 </section>
@@ -96,11 +114,14 @@ const { tablet, foldable } = section.devices;
 
   /* ---- Device stage ----
      iPad height drives the composition (--pad-h); the Fold is pinned to
-     0.8695 of it for real-life scale. They overlap and bottom-align, like
-     two devices on a desk. Scales fluidly via vw, no breakpoint needed. */
+     0.8695 of it and the Duo to 0.69, for real-life scale. They overlap
+     and bottom-align, like devices on a desk. Scales fluidly via vw, no
+     breakpoint needed; with three devices the iPad is a little smaller,
+     so the row fits the container. */
   .bigscreens__stage {
     --pad-h: clamp(150px, 40vw, 420px);
     --fold-scale: 0.8695; /* 155.2mm / 178.5mm */
+    --duo-scale: 0.69; /* ~124mm / 178.5mm */
 
     margin-top: var(--space-8);
     display: flex;
@@ -115,9 +136,25 @@ const { tablet, foldable } = section.devices;
   .bigscreens__device--pad {
     z-index: 1;
   }
-  .bigscreens__device--fold {
+  .bigscreens__stage--trio {
+    --pad-h: clamp(120px, 30vw, 400px);
+  }
+  .bigscreens__device--fold,
+  .bigscreens__device--duo {
     z-index: 2;
-    /* Overlap onto the iPad's near edge by ~15% of the iPad height. */
+  }
+  /* Each overlaps onto the iPad's near edge by ~15% of the iPad height. */
+  .bigscreens__device--fold {
+    order: 2;
+    margin-left: calc(var(--pad-h) * -0.15);
+  }
+  .bigscreens__stage--trio .bigscreens__device--fold {
+    order: 0;
+    margin-left: 0;
+    margin-right: calc(var(--pad-h) * -0.15);
+  }
+  .bigscreens__device--duo {
+    order: 2;
     margin-left: calc(var(--pad-h) * -0.15);
   }
 
@@ -135,16 +172,21 @@ const { tablet, foldable } = section.devices;
   .bigscreens__shot--fold {
     height: calc(var(--pad-h) * var(--fold-scale));
   }
+  .bigscreens__shot--duo {
+    height: calc(var(--pad-h) * var(--duo-scale));
+  }
 
   /* Phones: at real scale the pair shrinks past legibility, so show just
      the foldable — larger, no overlap — so the second panel actually reads.
      The iPad is named in the copy and returns on wider screens. */
   @media (max-width: 600px) {
-    .bigscreens__device--pad {
+    .bigscreens__device--pad,
+    .bigscreens__device--duo {
       display: none;
     }
-    .bigscreens__device--fold {
-      margin-left: 0;
+    .bigscreens__device--fold,
+    .bigscreens__stage--trio .bigscreens__device--fold {
+      margin: 0;
     }
     .bigscreens__shot--fold {
       height: auto;
