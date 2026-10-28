@@ -105,7 +105,15 @@ are recorded so they aren't re-argued.
   instead (BA27); and a touch selection's panel keeps clear of the Notebook,
   as does a panel already open when the Notebook expands, which moves aside
   rather than closing (BA28).
-  Next: FA1-q (the gate and first paint).
+  FA1-q is done (#396): an Android tablet in desktop site mode no longer
+  gets the desk (BA26); a chapter opening with the notebook expanded in a
+  window too narrow for it no longer reflows from 48 to 52 (BA25), and widths
+  dragged in a wider window open given way to what fits rather than off
+  center (BA30), since the pre-paint script now works out what the first
+  placement will decide; and where the desk fails to load or start, the page
+  goes back to the reader's, with one failing Notebook tab no longer taking
+  the others down (BA29).
+  Next: FA1-r (/desk's smaller fixes).
 
 - **Phase 2c is built on the preview** (2026-10-20): notes on a footnote
   and questions for discussion. **A note can be on a footnote** (M11):
@@ -6754,7 +6762,7 @@ The phases, in working order:
 | FA1-n | Present mode and the sheet page | done, #390: BA79, BA83, BA84, BA85, BA86 |
 | FA1-o | Announcements and focus for marks | done, #391: BA18, BA21, BA22 |
 | FA1-p | Panels beside the Notebook | done, #392: BA24, BA27, BA28 |
-| FA1-q | The gate and first paint | BA25, BA26, BA29, BA30 |
+| FA1-q | The gate and first paint | done, #396: BA25, BA26, BA29, BA30 |
 | FA1-r | /desk's smaller fixes | BA31, BA62, BA63, BA64, BA65, BA114, BA115 |
 | FA1-s | Greek credits and the notebook search | BA40, BA46, BA47 |
 | FA1-t | Copy and docs | BA15, BA38, BA39, BA42, BA43, BA91, BA109, BA118 |
