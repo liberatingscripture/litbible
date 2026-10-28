@@ -140,6 +140,9 @@
   --text-strong: #000;
   --ink-rgb: 29, 35, 28;
   --green-text: #0f6b33;
+  /* Its links sit on the white, so their ring is pinned too, or dark theme's
+     would be 2.4:1 on it (BA83; src/styles/CLAUDE.md, fixed surfaces). */
+  --focus-ring: #0f6b33;
   --surface: #fff;
   --surface-raised: #fff;
   --desk-rich-red: #b3261e;
