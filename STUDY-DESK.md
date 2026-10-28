@@ -72,7 +72,7 @@ are recorded so they aren't re-argued.
   sizes overflow falls back to even sizes (BA58), `/desk/?sheet=` opens the
   sheet in a pane that isn't a LIT pane when there is no room for another
   column (BA60; with only LIT panes open, the last one gives way, as with
-  four panes), and a narrow window squeezes the panes only while it is
+  four panes, which BVJ confirmed, 2026-10-27), and a narrow window squeezes the panes only while it is
   narrow, the reader's sizes kept and saved (BA61).
   Next: FA1-m (the tour, first use, and printing).
 
