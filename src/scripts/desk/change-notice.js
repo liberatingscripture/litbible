@@ -363,17 +363,17 @@ export function openNotice(trigger, record, { store, ctx, showInText = null, res
   if (diff) {
     panel.append(el("p", "desk-notice__label", "What changed"), diff);
   } else if (notice.markedNow) {
-    panel.append(el("p", "desk-notice__label", "Now it reads"), el("p", "desk-notice__quote", `‘${shortQuote(notice.markedNow, 40)}’`));
+    panel.append(el("p", "desk-notice__label", "Now it reads"), el("p", "desk-notice__quote", `“${shortQuote(notice.markedNow, 40)}”`));
   }
   // The words the reader marked, which are no longer there. For a pin, the
   // footnote as it read when pinned, when the diff above isn't showing it.
   if (isPin && !diff) {
-    panel.append(el("p", "desk-notice__marked", `You pinned: ‘${shortQuote(record.footnote, 40)}’`));
+    panel.append(el("p", "desk-notice__marked", `You pinned: “${shortQuote(record.footnote, 40)}”`));
   } else if (onFn && !diff) {
     panel.append(el("p", "desk-notice__marked", `Your note was on: “${shortQuote(record.footnote, 40)}”`));
   } else if (notice.kind !== "reworded" && record.quote?.exact) {
     const marked = el("p", "desk-notice__marked");
-    marked.append(`You marked: ‘${shortQuote(record.quote.exact, 24)}’`);
+    marked.append(`You marked: “${shortQuote(record.quote.exact, 24)}”`);
     panel.append(marked);
   }
 
@@ -426,7 +426,7 @@ export function openNotice(trigger, record, { store, ctx, showInText = null, res
         return fail("This page is older than your mark. Reload the page, then try again.");
       }
       const next = planKeep({ text, record: fresh, notice: current, ctx: ctx() });
-      if (!next) return fail(`That ${noun} can't be kept here.`);
+      if (!next) return fail(`That ${noun} can’t be kept here.`);
       await store.save(next);
       // The change this made, read at once: the undo button, like Ctrl+Z,
       // takes back exactly this one (history.js).
@@ -438,7 +438,7 @@ export function openNotice(trigger, record, { store, ctx, showInText = null, res
       onDone?.("keep", fresh);
     } catch (err) {
       console.error("Study Desk: the mark wasn't kept", err);
-      fail(`The ${noun} couldn't be kept in this browser.`);
+      fail(`The ${noun} couldn’t be kept in this browser.`);
     }
   }
 
@@ -455,7 +455,7 @@ export function openNotice(trigger, record, { store, ctx, showInText = null, res
       onDone?.("delete", record);
     } catch (err) {
       console.error("Study Desk: the mark wasn't deleted", err);
-      fail(isPin ? "The footnote couldn't be unpinned." : `The ${noun} couldn't be deleted.`);
+      fail(isPin ? "The footnote couldn’t be unpinned." : `The ${noun} couldn’t be deleted.`);
     }
   }
 

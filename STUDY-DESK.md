@@ -126,7 +126,15 @@ are recorded so they aren't re-argued.
   the Greek's license note says the search index carries STEPBible's brief
   glosses for most lemmas (BA47); and a Greek search lists the reader's
   matching notes, where a final σ now matches ς (BA40, BVJ's call).
-  Next: FA1-t (Copy and docs).
+  FA1-t is done (#400): the change notice's quotes and apostrophes are
+  curly (BA15); the help page says to type “>tour” on a page of scripture
+  (BA38) and that Undo brings a deleted item back only until the page is
+  left (BA39, BVJ's call); /privacy names `lit-desk-ribbon` (BA42); the
+  desk's pages and /privacy take the site's title suffix (BA43, BVJ's call);
+  “Touches …” groups the reader's marks by place (BA91); the empty Places
+  line quotes “Continue reading” and the ribbon form gives the real count
+  (BA109); and “Rendered here as …” has the Oxford comma (BA118).
+  Next: FA1-w (What's new for you).
 
 - **Phase 2c is built on the preview** (2026-10-20): notes on a footnote
   and questions for discussion. **A note can be on a footnote** (M11):
@@ -5832,6 +5840,23 @@ split itself is still a proposal BVJ worked within but hasn't confirmed.
   reader's accessibility font still wins on screen. Left out: images and
   tables. The set can grow later but never shrink.
 
+### 2026-10-28 (FA1-t: copy and docs; BVJ's two calls)
+
+FA1-t fixed BA15, BA38, BA39, BA42, BA43, BA91, BA109 and BA118
+(`STUDY-DESK-AUDIT-1.md`). BVJ decided the two calls the audit left open:
+
+- **BA39, what the help page promises about the trash** (BVJ chose the
+  audit's wording over only dropping “for 30 days”): “Deleting a note,
+  bookmark, or highlight moves it to the trash. Undo (or Ctrl+Z, ⌘Z on a
+  Mac) brings it back until you leave the page; after that, only a saved
+  copy does.” **BVJ also asked for Phase 5 to make the old claim true**:
+  a trash the reader can restore from, as the apps' next version has. It is
+  E12 under “Fixes and experience.”
+- **BA43, the desk's page titles** (BVJ chose the site's own suffix, and
+  for /privacy too): “Notebook,” “Notebook help,” “Study Desk,” “My
+  sheets” and a sheet's own titles end in “| Liberation and Inclusion
+  Translation,” as /privacy now does.
+
 ### 2026-10-28 (FA1-s: Greek credits and the notebook search; BVJ's call)
 
 FA1-s fixed BA40, BA46 and BA47 (`STUDY-DESK-AUDIT-1.md`). BVJ decided the
@@ -6812,7 +6837,7 @@ The phases, in working order:
 | FA1-q | The gate and first paint | done, #396: BA25, BA26, BA29, BA30 |
 | FA1-r | /desk's smaller fixes | done, #398: BA31, BA62, BA63, BA64, BA65, BA114, BA115 |
 | FA1-s | Greek credits and the notebook search | done, #399: BA40, BA46, BA47 |
-| FA1-t | Copy and docs | BA15, BA38, BA39, BA42, BA43, BA91, BA109, BA118 |
+| FA1-t | Copy and docs | done, #400: BA15, BA38, BA39, BA42, BA43, BA91, BA109, BA118 |
 | FA1-w | What's new for you | BA88, BA90, BA92, BA96, BA97, BA98 |
 | FA1-x | A note's references | BA89, BA93, BA94, BA95 |
 | FA1-y | Ribbons and Continue reading | BA99 to BA108 |
@@ -7125,6 +7150,17 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   "Your notebook" group's own title, or /search's filters), whether it
   is remembered (a new storage key goes in /privacy's paragraph), and
   whether it should also govern notes on English searches. Status: open.
+- **E12, wish: a trash the reader can restore from.** BVJ (2026-10-28),
+  with BA39's call (FA1-t, #400). The help page used to say a deleted item
+  waits in the trash for 30 days, which suggested it could be brought back;
+  on the website only Undo can, until the page is left, and nothing lists
+  the trash. The apps' next version lets the reader restore from it, so
+  the website should too, and then the help page can say so again. The
+  records already allow it: a trash record holds the whole item for 30 days
+  (`restoreFromTrash` in `desk-records.mjs`; M7, “A trash with undo”).
+  Open: where the list lives (the notebook page, beside “Empty the trash
+  now,” is the likely place), and whether restoring is an undoable change
+  like any other. Status: open.
 
 **Fixed**
 

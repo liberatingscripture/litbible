@@ -15,6 +15,8 @@ import { whatsNewForYou } from "../src/lib/desk-whats-new.mjs";
 import {
   PUBLISH_LIMIT,
   hasVerseMarks,
+  joinList,
+  listSeparator,
   markLinks,
   newestDate,
   presentWhatsNew,
@@ -59,7 +61,7 @@ test("hasVerseMarks: only a record on a verse counts", () => {
   assert.equal(hasVerseMarks([{ kind: "bookmark", bookKey: "romans", chapter: 4, verse: 7 }]), true);
 });
 
-test("markLinks names each mark with its verse link, once", () => {
+test("markLinks names each mark with its verse link, once, grouped by place", () => {
   const links = markLinks([
     note(),
     { kind: "highlight", color: "yellow", bookKey: "galatians", chapter: 3, verse: 27 },
@@ -68,11 +70,60 @@ test("markLinks names each mark with its verse link, once", () => {
     { kind: "footnotePin", bookKey: "romans", chapter: 4, verse: 7 },
   ]);
   assert.deepEqual(links, [
-    { text: "your note on Romans 4:7", href: "/romans-4/#v7" },
+    { text: "your note and pinned footnote on Romans 4:7", href: "/romans-4/#v7" },
     { text: "your highlight on Galatians 3:27", href: "/galatians-3/#v27" },
     { text: "your ribbon on Romans 4:6–9", href: "/romans-4/#v6-9" },
-    { text: "your pinned footnote on Romans 4:7", href: "/romans-4/#v7" },
   ]);
+});
+
+const luke = (kind, verse = 4) => ({ kind, bookKey: "luke", chapter: 24, verse });
+
+test("markLinks: one item, and nothing at all", () => {
+  assert.deepEqual(markLinks([luke("note")]), [{ text: "your note on Luke 24:4", href: "/luke-24/#v4" }]);
+  assert.deepEqual(markLinks([]), []);
+  assert.deepEqual(markLinks(null), []);
+});
+
+test("markLinks: marks at one place share it, with the Oxford comma from three", () => {
+  assert.deepEqual(markLinks([luke("note"), luke("highlight"), luke("bookmark")]), [
+    { text: "your note, highlight, and bookmark on Luke 24:4", href: "/luke-24/#v4" },
+  ]);
+  assert.deepEqual(markLinks([luke("note"), luke("highlight")]), [
+    { text: "your note and highlight on Luke 24:4", href: "/luke-24/#v4" },
+  ]);
+  assert.deepEqual(markLinks([luke("note"), luke("note")]), [{ text: "your note on Luke 24:4", href: "/luke-24/#v4" }]);
+});
+
+test("markLinks: places and kinds keep the order first seen", () => {
+  const links = markLinks([
+    luke("note", 4),
+    luke("highlight", 5),
+    luke("bookmark", 5),
+    luke("highlight", 4),
+  ]);
+  assert.deepEqual(links, [
+    { text: "your note and highlight on Luke 24:4", href: "/luke-24/#v4" },
+    { text: "your highlight and bookmark on Luke 24:5", href: "/luke-24/#v5" },
+  ]);
+});
+
+test("listSeparator and joinList: Oxford comma from three items on", () => {
+  assert.equal(listSeparator(0, 3), "");
+  assert.equal(joinList(["a"]), "a");
+  assert.equal(joinList(["a", "b"]), "a and b");
+  assert.equal(joinList(["a", "b", "c"]), "a, b, and c");
+  assert.equal(joinList(["a", "b", "c", "d"]), "a, b, c, and d");
+  assert.equal(joinList([]), "");
+  // two places: "a and b"; the second place's kinds group inside it
+  const two = markLinks([luke("note", 4), luke("highlight", 5), luke("bookmark", 5)])
+    .map((l, i, all) => listSeparator(i, all.length) + l.text)
+    .join("");
+  assert.equal(two, "your note on Luke 24:4 and your highlight and bookmark on Luke 24:5");
+  // three places, each a group of its own
+  const text = markLinks([luke("note", 4), luke("highlight", 5), luke("bookmark", 6)])
+    .map((l, i, all) => listSeparator(i, all.length) + l.text)
+    .join("");
+  assert.equal(text, "your note on Luke 24:4, your highlight on Luke 24:5, and your bookmark on Luke 24:6");
 });
 
 test("presentWhatsNew: nothing is new on a first look, after-the-day publishes are new after one", () => {

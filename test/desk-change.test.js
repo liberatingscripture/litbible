@@ -591,12 +591,12 @@ test("noticeWords: verse falls back to the whole verse, or the whole passage for
   const notice = { kind: "verse" };
   assert.deepEqual(noticeWords(notice, { kind: "note", verse: 2, endVerse: 2 }, "Romans 8:2"), {
     title: "The wording changed",
-    text: "We couldn't find the words you marked, so your note is on the whole verse for now.",
+    text: "We couldn’t find the words you marked, so your note is on the whole verse for now.",
     keep: "Keep on the whole verse",
   });
   assert.deepEqual(noticeWords(notice, { kind: "highlight", verse: 2, endVerse: 4 }, "Romans 8:2–4"), {
     title: "The wording changed",
-    text: "We couldn't find the words you marked, so your highlight is on the whole passage for now.",
+    text: "We couldn’t find the words you marked, so your highlight is on the whole passage for now.",
     keep: "Keep on the whole passage",
   });
   assert.equal(noticeWords(notice, { kind: "note", verse: 2 }, "Romans 8:2").keep, "Keep on the whole verse", "no endVerse is one verse");
@@ -606,12 +606,12 @@ test("noticeWords: whole, for a note on an entry or an article", () => {
   const notice = { kind: "whole" };
   assert.deepEqual(noticeWords(notice, { kind: "note", glossaryEntry: "flesh-body" }, "Glossary"), {
     title: "The wording changed",
-    text: "We couldn't find the words you marked, so your note is on the whole entry for now.",
+    text: "We couldn’t find the words you marked, so your note is on the whole entry for now.",
     keep: "Keep on the whole entry",
   });
   assert.deepEqual(noticeWords(notice, { kind: "note", article: "why-lit" }, "Article"), {
     title: "The wording changed",
-    text: "We couldn't find the words you marked, so your note is on the whole article for now.",
+    text: "We couldn’t find the words you marked, so your note is on the whole article for now.",
     keep: "Keep on the whole article",
   });
 });
@@ -619,32 +619,42 @@ test("noticeWords: whole, for a note on an entry or an article", () => {
 test("noticeWords: lost names the reference and offers no Keep", () => {
   assert.deepEqual(noticeWords({ kind: "lost" }, { kind: "note", verse: 36 }, "Luke 17:36"), {
     title: "Not in the text",
-    text: "Luke 17:36 isn't in the text any more, so your note can't be shown on the page.",
+    text: "Luke 17:36 isn’t in the text any more, so your note can’t be shown on the page.",
     keep: null,
   });
   assert.equal(
     noticeWords({ kind: "lost" }, { kind: "highlight", verse: 36 }, "Luke 17:36").text,
-    "Luke 17:36 isn't in the text any more, so your highlight can't be shown on the page.",
+    "Luke 17:36 isn’t in the text any more, so your highlight can’t be shown on the page.",
   );
 });
 
 test("noticeWords: reworded", () => {
   assert.deepEqual(noticeWords({ kind: "reworded" }, { kind: "note", verse: 2 }, "Romans 8:2"), {
     title: "The wording changed",
-    text: "The verse's wording changed after you wrote this note.",
+    text: "The verse’s wording changed after you wrote this note.",
     keep: "Keep",
   });
   assert.equal(
     noticeWords({ kind: "reworded" }, { kind: "note", verse: 2, endVerse: 3 }, "Romans 8:2–3").text,
-    "The passage's wording changed after you wrote this note.",
+    "The passage’s wording changed after you wrote this note.",
   );
 });
 
-test("noticeWords uses straight apostrophes and covers every kind", () => {
+test("noticeWords uses curly apostrophes (BA15) and covers every kind", () => {
+  const records = [
+    { kind: "note", verse: 2 },
+    { kind: "highlight", verse: 2, endVerse: 4 },
+    { kind: "footnotePin", verse: 2, footnote: "A pinned footnote.", n: 1 },
+    { kind: "note", verse: 2, footnote: "A footnote.", n: 1 },
+  ];
   for (const kind of NOTICE_KINDS) {
+    for (const record of records) {
+      const words = noticeWords({ kind }, record, "Romans 8:2");
+      const all = words.title + words.text + (words.keep ?? "");
+      assert.equal(all.includes("'"), false, `${kind}: no straight apostrophe`);
+    }
     const words = noticeWords({ kind }, { kind: "note", verse: 2 }, "Romans 8:2");
     assert.ok(words.title && words.text, kind);
-    assert.equal(/[‘’]/.test(words.title + words.text + (words.keep ?? "")), false, `${kind}: no curly apostrophe`);
   }
   assert.deepEqual(noticeWords(null, { kind: "note" }, ""), { title: "The wording changed", text: "", keep: null }, "nothing to say for no notice");
 });

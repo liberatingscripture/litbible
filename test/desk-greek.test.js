@@ -114,7 +114,8 @@ test("renderings read as a sentence", () => {
   assert.equal(joinAnd([]), "");
   assert.equal(joinAnd(["a"]), "a");
   assert.equal(joinAnd(["a", "b"]), "a and b");
-  assert.equal(joinAnd(["a", "b", "c"]), "a, b and c");
+  assert.equal(joinAnd(["a", "b", "c"]), "a, b, and c");
+  assert.equal(joinAnd(["a", "b", "c", "d"]), "a, b, c, and d");
 });
 
 test("a verse inside a borrowed passage names it", () => {

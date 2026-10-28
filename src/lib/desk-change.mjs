@@ -337,8 +337,8 @@ export function excerptDiff(runs, { context = 6 } = {}) {
 /**
  * What the reader is told. `ref` is the mark's reference as the page words it
  * ("Romans 8:3"), used when the verses are gone. `keep` is the Keep button's
- * label, or null where there is nothing to keep (lost). Straight apostrophes,
- * like the rest of the desk's own strings.
+ * label, or null where there is nothing to keep (lost). Reader-facing copy
+ * uses curly apostrophes and quotes, like the rest of the site.
  *
  * @returns {{ title: string, text: string, keep: string|null }}
  */
@@ -354,7 +354,7 @@ export function noticeWords(notice, record, ref) {
     if (notice?.kind === "lost") {
       return {
         title: "Not in the text",
-        text: `The footnote you pinned on ${ref} isn't in the text any more, so it can't be shown on the page.`,
+        text: `The footnote you pinned on ${ref} isn’t in the text any more, so it can’t be shown on the page.`,
         keep: null,
       };
     }
@@ -371,7 +371,7 @@ export function noticeWords(notice, record, ref) {
     if (notice?.kind === "lost") {
       return {
         title: "Not in the text",
-        text: `The footnote your note is on in ${ref} isn't in the text any more, so your note can't be shown beside it.`,
+        text: `The footnote your note is on in ${ref} isn’t in the text any more, so your note can’t be shown beside it.`,
         keep: null,
       };
     }
@@ -393,25 +393,25 @@ export function noticeWords(notice, record, ref) {
     case "verse":
       return {
         title: "The wording changed",
-        text: `We couldn't find the words you marked, so your ${noun} is on the whole ${whole} for now.`,
+        text: `We couldn’t find the words you marked, so your ${noun} is on the whole ${whole} for now.`,
         keep: `Keep on the whole ${whole}`,
       };
     case "whole":
       return {
         title: "The wording changed",
-        text: `We couldn't find the words you marked, so your note is on the whole ${whole} for now.`,
+        text: `We couldn’t find the words you marked, so your note is on the whole ${whole} for now.`,
         keep: `Keep on the whole ${whole}`,
       };
     case "lost":
       return {
         title: "Not in the text",
-        text: `${ref} isn't in the text any more, so your ${noun} can't be shown on the page.`,
+        text: `${ref} isn’t in the text any more, so your ${noun} can’t be shown on the page.`,
         keep: null,
       };
     case "reworded":
       return {
         title: "The wording changed",
-        text: `The ${whole}'s wording changed after you wrote this note.`,
+        text: `The ${whole}’s wording changed after you wrote this note.`,
         keep: "Keep",
       };
     default:

@@ -158,7 +158,7 @@ async function start() {
   // Continue reading, Read View's places and the reader's ribbons (B1), drawn
   // and kept up to date by places.js.
   q("[data-np-places]").append(
-    placesSection({ store, ctx, emptyText: "No places yet. Continue reading and your ribbons appear here." }),
+    placesSection({ store, ctx, emptyText: "No places yet. “Continue reading” and your ribbons appear here." }),
   );
 
   let renderSeq = 0;

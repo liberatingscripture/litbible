@@ -22,6 +22,7 @@ import { whatsNewForYou, whatsNewLine } from "../../lib/desk-whats-new.mjs";
 import {
   SEEN_KEY,
   hasVerseMarks,
+  listSeparator,
   markLinks,
   newestDate,
   presentWhatsNew,
@@ -67,13 +68,13 @@ export async function panelLine(store, records) {
   return text ? { text, href: WHATS_NEW_HREF } : null;
 }
 
-/** "your note on Romans 4:7 and your highlight on Galatians 3:27", as links. */
+/** "your note and highlight on Romans 4:7 and your note on Galatians 3:27", as links. */
 function marksSentence(records) {
   const p = el("p", "desk-wn__marks");
   p.append("Touches ");
   const links = markLinks(records);
   links.forEach(({ text, href }, i) => {
-    if (i > 0) p.append(i === links.length - 1 ? " and " : ", ");
+    p.append(listSeparator(i, links.length));
     const a = el("a", null, text);
     if (href) a.href = href;
     p.append(a);

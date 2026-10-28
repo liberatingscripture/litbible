@@ -685,7 +685,7 @@ function leaderNotes(state, deck) {
  * @param {{ root: HTMLElement, sheet: object, store: object }} opts
  */
 export async function showPresenterView({ root, sheet, store }) {
-  document.title = `Presenter view: ${sheetName(sheet)} | LIT Bible`;
+  document.title = `Presenter view: ${sheetName(sheet)} | Liberation and Inclusion Translation`;
   document.documentElement.dataset.presenter = "on";
   root.classList.add("present-presenter");
   const live = liveRegion();
