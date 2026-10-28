@@ -116,7 +116,7 @@ it goes after both, and FA1-ac after FA1-t.
 | FA1-m | The tour, first use, and printing | BA33, BA34, BA35, BA36, BA37 | done, #388 |
 | FA1-n | Present mode and the sheet page | BA79, BA83, BA84, BA85, BA86 | done, #390 |
 | FA1-o | Announcements and focus for marks | BA18, BA21, BA22 | done, #391 |
-| FA1-p | Panels beside the Notebook | BA24, BA27, BA28 | done, #PRNUM |
+| FA1-p | Panels beside the Notebook | BA24, BA27, BA28 | done, #392 |
 | FA1-q | The gate and first paint | BA25, BA26, BA29, BA30 | open |
 | FA1-r | /desk's smaller fixes | BA31, BA62, BA63, BA64, BA65, BA114, BA115 | open |
 | FA1-s | Greek credits and the notebook search | BA40, BA46, BA47 | open |
@@ -1112,7 +1112,7 @@ Files: `src/scripts/desk/panel.js`, `src/scripts/lit-panel.js`,
     class.
   - *Fix*: check lit-panel's shared slot (`currentPanel()`), or
     `.lit-panel:not(.lit-window)`.
-  - Status: **Fixed in #PRNUM.** The Notebook's Escape stands down for
+  - Status: **Fixed in #392.** The Notebook's Escape stands down for
     `currentPanel()` only. A floating window takes its own Escape when focus
     is inside it and stops it there, so with focus in the Notebook, Escape
     now closes or collapses the Notebook and leaves the window open.
@@ -1124,7 +1124,7 @@ Files: `src/scripts/desk/panel.js`, `src/scripts/lit-panel.js`,
   - *Fix*: when the room left is under about 300px, let the panel lie over
     the Notebook (its z-index is already above the rail's), or cap the
     floating width to leave a usable strip.
-  - Status: **Fixed in #PRNUM**, by the first fix, since capping the width
+  - Status: **Fixed in #392**, by the first fix, since capping the width
     would undo BVJ's 2026-10-14 range ("no wider than the window less an
     EDGE each side"). `panelRoom()` in `desk-frame.js` is the one rule: the
     window less `dockWidth()`, or the whole window where that leaves under
@@ -1140,7 +1140,7 @@ Files: `src/scripts/desk/panel.js`, `src/scripts/lit-panel.js`,
       (`panel.js:345–358`).
   - *Fix*: subtract `dockWidth()`, and close or re-place the open panel when
     the dock grows (in `margin.js`'s `place()`).
-  - Status: **Fixed in #PRNUM.** `placeBesideTouchSelection` keeps to
+  - Status: **Fixed in #392.** `placeBesideTouchSelection` keeps to
     `panelRoom()` (a phone has no dock, so it is unchanged there). `place()`
     remembers the room it kept, and when that grows it calls
     `keepClearOfDock()` (`lit-panel.js`), which moves the open panel left by
