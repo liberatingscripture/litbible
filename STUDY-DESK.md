@@ -65,7 +65,16 @@ are recorded so they aren't re-argued.
   genitive (BA48); the readback gives each word's distance and says "then"
   only when the order is fixed (BA50); and the commands window closed
   mid-drag keeps its place (BA116). BA49 is accepted as it is.
-  Next: FA1-l (/desk's LIT pane and layout).
+  FA1-l is done: the LIT pane keeps the verse at its reading line when the
+  window or a split line changes its size (BA54), a chapter above that
+  fails to load says so with Try again (BA56), the end of the New Testament
+  reaches the reading line in a tall pane (BA57), a stored layout whose
+  sizes overflow falls back to even sizes (BA58), `/desk/?sheet=` opens the
+  sheet in a pane that isn't a LIT pane when there is no room for another
+  column (BA60; with only LIT panes open, the last one gives way, as with
+  four panes, which BVJ confirmed, 2026-10-27), and a narrow window squeezes the panes only while it is
+  narrow, the reader's sizes kept and saved (BA61).
+  Next: FA1-m (the tour, first use, and printing).
 
 - **Phase 2c is built on the preview** (2026-10-20): notes on a footnote
   and questions for discussion. **A note can be on a footnote** (M11):
@@ -6709,7 +6718,7 @@ The phases, in working order:
 | FA1-i | Sheet templates and passages | done, #381: BA69, BA70, BA75, BA76, BA77, BA127 |
 | FA1-j | The sheet editor: pasting and saving | done, #382: BA68, BA71, BA72, BA73, BA74 |
 | FA1-k | Greek search commands | done, #383: BA44, BA45, BA48, BA49, BA50, BA116 |
-| FA1-l | /desk's LIT pane and layout | BA54, BA56, BA57, BA58, BA60, BA61 |
+| FA1-l | /desk's LIT pane and layout | done: BA54, BA56, BA57, BA58, BA60, BA61 |
 | FA1-m | The tour, first use, and printing | BA33, BA34, BA35, BA36, BA37 |
 | FA1-n | Present mode and the sheet page | BA79, BA83, BA84, BA85, BA86 |
 | FA1-o | Announcements and focus for marks | BA18, BA21, BA22 |

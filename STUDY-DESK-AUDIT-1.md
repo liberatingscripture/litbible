@@ -112,7 +112,7 @@ it goes after both, and FA1-ac after FA1-t.
 | FA1-i | Sheet templates and passages | BA69, BA70, BA75, BA76, BA77, BA127 | done, #381 |
 | FA1-j | The sheet editor: pasting and saving | BA68, BA71, BA72, BA73, BA74 | done, #382 |
 | FA1-k | Greek search commands | BA44, BA45, BA48, BA49, BA50, BA116 | done, #383 |
-| FA1-l | /desk's LIT pane and layout | BA54, BA56, BA57, BA58, BA60, BA61 | open |
+| FA1-l | /desk's LIT pane and layout | BA54, BA56, BA57, BA58, BA60, BA61 | done |
 | FA1-m | The tour, first use, and printing | BA33, BA34, BA35, BA36, BA37 | open |
 | FA1-n | Present mode and the sheet page | BA79, BA83, BA84, BA85, BA86 | open |
 | FA1-o | Announcements and focus for marks | BA18, BA21, BA22 | open |
@@ -870,14 +870,14 @@ pane deep in a book. After FA1-e.
     every loaded chapter above the reader while `scrollTop` stays the same.
   - *Fix*: around a reflow, measure the verse at the reading line and
     restore it, as `hold()` does.
-  - Status: open.
+  - Status: **Fixed.** The pane notes the verse at the reading line whenever it settles (a scroll, a load above, a jump), with the size it was noted at, and its ResizeObserver puts that verse back when the size changes. A scroll before the observer runs doesn't replace the note. Checked in the browser four chapters deep in Romans: Romans 8:32 stayed 9px above the line at widths 450 to 801 and through a window resize.
 - **BA56 (low). A chapter above that fails to load gives no message and no
   Try again.**
   - *What happens*: `lit-pane.js:308–318` gives up silently. At `scrollTop` 0
     nothing retries, because no scroll event fires. Chapters below already
     show both (295–300).
   - *Fix*: mirror the case below.
-  - Status: open.
+  - Status: **Fixed.** A chapter above that fails shows the same message and Try again at the top, added and removed without moving the text, and nothing above loads until it is pressed. Checked with Romans 3's fetch failing at the top of the pane.
 - **BA57 (low; likely). The end of the New Testament can't reach the
   reading line in a tall pane.**
   - *What happens*: the 40vh of space below the text (`desk.css:5087–5088`)
@@ -887,7 +887,7 @@ pane deep in a book. After FA1-e.
     it is published.
   - *Fix*: size the space below from the scroller, `clientHeight × (1 −
     LINE)`.
-  - Status: open.
+  - Status: **Fixed.** lit-pane.js sets `--desk-lit-below` to `clientHeight × (1 − LINE)` whenever the pane's size changes; 40vh stays the fallback. Checked: scrolled to the end, the Revelation stub becomes the place (“revelation 22”).
 - **BA58 (low; reproduced). A stored layout whose sizes overflow fills 40%
   of the page.**
   - *What happens*: `checkLayout` accepts `[1e308, 1e308]`
@@ -896,7 +896,7 @@ pane deep in a book. After FA1-e.
     Only a corrupted or hand-edited key does this.
   - *Fix*: reject a sum that isn't finite and above zero, and fall back to
     even sizes.
-  - Status: open.
+  - Status: **Fixed.** `checkLayout` also requires the sizes' sum to be finite, else even sizes; tested.
 - **BA60 (low; reproduced). `/desk/?sheet=` can make a layout too wide for
   the window.**
   - *What happens*: `showSheet` (`desk-layout.mjs:373–385`;
@@ -904,7 +904,7 @@ pane deep in a book. After FA1-e.
     columns need 852px, so a narrower window scrolls sideways.
   - *Fix*: check `needs`, and if the layout won't fit, show the sheet in an
     existing pane that isn't a LIT pane.
-  - Status: open.
+  - Status: **Fixed.** `showSheet(layout, id, width)` splits only when the new layout's minimum width fits the panes' width; otherwise the sheet takes the last pane that isn't a LIT pane, or, when every pane is one, the last pane, as with four panes open. desk-page.js passes the panes' width. Tested.
 - **BA61 (low). Narrowing the window rewrites the reader's pane sizes for
   good.**
   - *What happens*: the sizes squeezed to fit the narrow window replace the
@@ -913,7 +913,7 @@ pane deep in a book. After FA1-e.
     alone (`desk-layout.mjs:477–484`).
   - *Fix*: keep the reader's sizes in the layout, and fit only what is
     drawn.
-  - Status: open.
+  - Status: **Fixed.** desk-page.js keeps the reader's sizes in the layout and fits a drawn copy (`drawn`) to the room; a line the reader moves starts from its drawn sizes, and what they make of that split becomes theirs. Checked: at 700px the panes drew 57/43, a save kept 70/30, and widening drew 70/30 again.
 
 ## FA1-m. The tour, first use, and printing
 

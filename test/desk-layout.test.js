@@ -803,6 +803,20 @@ test("checkLayout replaces bad sizes with even ones", () => {
   close(make([1, 3]).root.sizes, [0.25, 0.75], "sizes that don't sum to 1 are scaled");
 });
 
+test("BA58: checkLayout replaces sizes whose sum overflows with even ones", () => {
+  const two = checkLayout({ root: { split: "columns", sizes: [1e308, 1e308], children: [leaf("p1", "lit"), leaf("p2", "mine")] }, active: "p1" });
+  close(two.root.sizes, [0.5, 0.5], "two huge sizes");
+  const three = checkLayout({
+    root: { split: "columns", sizes: [1e308, 1e308, 1], children: [leaf("p1", "lit"), leaf("p2", "mine"), leaf("p3", "verse")] },
+    active: "p1",
+  });
+  close(three.root.sizes, [1 / 3, 1 / 3, 1 / 3], "three children, two huge");
+  for (const l of [two, three]) {
+    const fit = fitSizes(l.root, 1200, 800);
+    assert.ok(Math.abs(fit.sizes.reduce((a, b) => a + b, 0) - 1) < 1e-9, "the fitted sizes sum to 1");
+  }
+});
+
 test("checkLayout normalizes the tree it reads", () => {
   const l = checkLayout({ root: cols([0.5, 0.5], cols([0.5, 0.5], leaf("p1", "lit"), leaf("p2", "mine")), leaf("p3", "verse")), active: "p1" });
   assert.deepEqual(l.root.children.map((c) => c.pane.id), ["p1", "p2", "p3"]);
@@ -1296,6 +1310,33 @@ test("showSheet with four panes open gives a pane that isn't the LIT its place",
   assert.equal(findPane(next.root, "p3").sheet, "s-1");
   assert.equal(findPane(next.root, "p1").kind, "lit");
   assert.equal(findPane(next.root, "p4").kind, "lit");
+});
+
+test("BA60: showSheet gives a pane its place when a split would not fit the width", () => {
+  const next = showSheet(originalLayout(), "s-1", 600);
+  assert.equal(panes(next.root).length, 2);
+  assert.equal(findPane(next.root, "p2").kind, "sheet");
+  assert.equal(findPane(next.root, "p2").sheet, "s-1");
+  assert.equal(findPane(next.root, "p1").kind, "lit");
+});
+
+test("BA60: showSheet splits when the width holds the new pane, or none is given", () => {
+  assert.equal(panes(showSheet(originalLayout(), "s-1", 1200).root).length, 3);
+  assert.equal(panes(showSheet(originalLayout(), "s-1", 852).root).length, 3, "exactly enough");
+  assert.equal(panes(showSheet(originalLayout(), "s-1", 851).root).length, 2, "a pixel short");
+  assert.equal(panes(showSheet(originalLayout(), "s-1").root).length, 3);
+  for (const bad of [0, -5, NaN, Infinity, "900", null]) {
+    assert.equal(panes(showSheet(originalLayout(), "s-1", bad).root).length, 3, `width ${String(bad)} is not asked about`);
+  }
+});
+
+test("BA60: showSheet on a single LIT pane too narrow for two columns uses that pane", () => {
+  const l = mk(leaf("p1", "lit"));
+  const next = showSheet(l, "s-1", 400);
+  assert.equal(panes(next.root).length, 1);
+  assert.equal(findPane(next.root, "p1").kind, "sheet");
+  assert.equal(findPane(next.root, "p1").sheet, "s-1");
+  assert.equal(panes(showSheet(l, "s-1", 600).root).length, 2, "two columns fit 600");
 });
 
 test("showSheet leaves the layout alone for an empty id", () => {
