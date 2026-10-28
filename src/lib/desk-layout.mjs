@@ -393,11 +393,15 @@ export function setPaneSheet(layout, id, sheetId) {
 /**
  * Show a sheet in the layout (M5, "Open it on the Study Desk"): in the first
  * Sheet pane there is, else in a new Sheet pane split beside the active pane
- * (or the first), else, with four panes already open, in the last pane that
- * isn't a LIT pane (the last of all when every one is). Unchanged for an
- * empty id.
+ * (or the first), else, with four panes already open or no room for another
+ * column, in the last pane that isn't a LIT pane (the last of all when every
+ * one is). `width` is the panes' width in pixels (BA60): the new pane is
+ * split off only when the layout still fits it, so a narrow window never
+ * scrolls sideways for it. A split to the right never raises the height a
+ * layout needs, so only the width is asked. Without a width that is a
+ * positive number, the room isn't asked about. Unchanged for an empty id.
  */
-export function showSheet(layout, sheetId) {
+export function showSheet(layout, sheetId, width) {
   if (typeof sheetId !== "string" || !sheetId) return layout;
   const all = panes(layout.root);
   if (!all.length) return layout;
@@ -405,7 +409,9 @@ export function showSheet(layout, sheetId) {
   if (existing) return setPaneSheet(layout, existing.id, sheetId);
   if (all.length < MAX_PANES) {
     const target = findPane(layout.root, layout.active) ?? all[0];
-    return splitPane(layout, target.id, "right", { ...newPane(layout, "sheet"), sheet: sheetId });
+    const split = splitPane(layout, target.id, "right", { ...newPane(layout, "sheet"), sheet: sheetId });
+    const asked = typeof width === "number" && Number.isFinite(width) && width > 0;
+    if (!asked || minSize(split.root).w <= width) return split;
   }
   const give = [...all].reverse().find((p) => p.kind !== "lit") ?? all[all.length - 1];
   return setPaneSheet(setKind(layout, give.id, "sheet"), give.id, sheetId);
@@ -592,8 +598,12 @@ export function checkLayout(value) {
     if ((node.split !== "columns" && node.split !== "rows") || !Array.isArray(node.children) || node.children.length < 2) return null;
     const children = node.children.map((c) => check(c, depth + 1));
     if (children.some((c) => !c)) return null;
+    // Each size is a finite number above zero, and so is their sum: two sizes
+    // of 1e308 are each fine and add to Infinity, which normalize turns into
+    // nothing at all (BA58).
     const sizes = Array.isArray(node.sizes) && node.sizes.length === children.length
       && node.sizes.every((s) => typeof s === "number" && s > 0 && Number.isFinite(s))
+      && Number.isFinite(node.sizes.reduce((a, b) => a + b, 0))
       ? node.sizes
       : even(children.length);
     return { split: node.split, sizes, children };

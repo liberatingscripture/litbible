@@ -544,7 +544,11 @@ that section.
        render-time change to the chapter text must pass that sweep too.** A
        chapter loading above is held in place by measuring the reading line
        (the browser's scroll anchoring is off there, or both would correct),
-       and only the reader's own scrolling reports a new place, so panes
+       and so is a new size: the pane notes the verse at the line whenever it
+       settles, and its ResizeObserver puts it back when the width or height
+       changes (BA54). The room below the text is the part of the pane below
+       the line (`--desk-lit-below`, BA57), so the last verses reach it.
+       Only the reader's own scrolling reports a new place, so panes
        never chase each other. Footnote letters open their own chapter's
        note (`footnotePanel`, shared with Study View in `panel-pieces.js`);
        key terms are attached per chapter (`attachTermLens` in
@@ -588,7 +592,14 @@ that section.
        desk, or Continue reading's (`openingLayout`, `atPlace`), keeping its
        pins and sheets; a
        layout that fails the check falls back to the original, the LIT
-       beside My Notes, 60/40. Named in /privacy's paragraph.
+       beside My Notes, 60/40 (sizes whose sum overflows are made even,
+       BA58). Named in /privacy's paragraph. **The layout keeps the
+       reader's sizes; only the drawing is fitted** (BA61): `drawn` in
+       desk-page.js is `fitSizes` of the layout for the room there is, so a
+       narrow window squeezes the panes without the squeeze being saved, and
+       a line the reader moves starts from its drawn sizes. `/desk/?sheet=`
+       splits off a Sheet pane only where the width holds another column
+       (`showSheet`'s `width`, BA60).
      - **The desk has its own header** (BVJ, 2026-10-21; `deskTitle` on
        Layout and SiteHeader), at every width: the emblem and "LIT Bible"
        as the home link, "Study Desk" centered as the page's h1, then the

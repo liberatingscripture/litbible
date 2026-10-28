@@ -5111,8 +5111,9 @@ html.desk-ws--moving * {
 .desk-lit__text {
   max-width: var(--reading-width);
   margin: 0 auto;
-  /* Room below Revelation 22, so its last verses can reach the reading line. */
-  padding-bottom: 40vh;
+  /* Room below Revelation 22, so its last verses can reach the reading line.
+     lit-pane.js sets --desk-lit-below to the part of the pane below that line. */
+  padding-bottom: var(--desk-lit-below, 40vh);
   font-size: calc(1em * var(--reading-scale, 1));
 }
 

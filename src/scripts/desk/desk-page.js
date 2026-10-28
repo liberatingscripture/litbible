@@ -336,6 +336,10 @@ async function start() {
   else root.append(bar, panesBox, status);
 
   const paneEls = new Map(); // id → { el, body, kind, inst, ... }
+  // The tree as drawn: the layout's, with sizes fitted to the room there is
+  // (fit). The layout keeps the reader's own sizes, so a narrow window
+  // squeezes the panes only while it is narrow (BA61).
+  let drawn = layout.root;
   let kindMenu = null; // the open "show in this pane" menu, if any
 
   function save() {
@@ -512,7 +516,7 @@ async function start() {
     const putBack = Array.from(paneEls.values(), (rec) => (rec.el.isConnected ? keepScroll(rec) : null));
     fit();
     const focused = panesBox.contains(document.activeElement) ? document.activeElement : null;
-    const tree = build(layout.root, []);
+    const tree = build(drawn, []);
     tree.style.flex = "1 1 0px";
     panesBox.replaceChildren(tree, drop);
     for (const back of putBack) back?.();
@@ -629,12 +633,13 @@ async function start() {
       if (e.button !== 0) return;
       e.preventDefault();
       line.setPointerCapture(e.pointerId);
-      const base = layout;
+      const base = asDrawn(path);
       const from = columns ? e.clientX : e.clientY;
       const length = lengthOf();
       document.documentElement.classList.add(columns ? "desk-ws--resizing-x" : "desk-ws--resizing-y");
       const move = (ev) => {
         layout = resize(base, path, index, (columns ? ev.clientX : ev.clientY) - from, length);
+        fit();
         sizeSplit(path);
       };
       const up = () => {
@@ -655,37 +660,58 @@ async function start() {
       e.preventDefault();
       const length = lengthOf();
       const step = length * (e.shiftKey ? 0.1 : 0.02);
-      layout = resize(layout, path, index, e.key === ahead ? step : -step, length);
+      layout = resize(asDrawn(path), path, index, e.key === ahead ? step : -step, length);
+      fit();
       sizeSplit(path);
       save();
     });
     line.addEventListener("dblclick", () => {
       layout = evenOut(layout, path);
+      fit();
       sizeSplit(path);
       save();
     });
     return line;
   }
 
-  /** Sizes that give every pane its minimum in the space there is (in memory; saved with the next change). */
+  /**
+   * Sizes that give every pane its minimum in the space there is, for drawing
+   * only: the layout keeps the reader's, so they come back when the window
+   * widens again, and only those are saved (BA61).
+   */
   function fit() {
     const { width, height } = panesBox.getBoundingClientRect();
-    if (width && height) layout = { ...layout, root: fitSizes(layout.root, width, height) };
+    drawn = width && height ? fitSizes(layout.root, width, height) : layout.root;
   }
 
-  /** Put every split's sizes on the page without redrawing. */
+  /**
+   * The layout with one split's sizes as drawn, for a line the reader moves:
+   * the line starts from where it is on the page, and what the reader makes
+   * of that split becomes theirs. The other splits keep the reader's sizes.
+   */
+  function asDrawn(path) {
+    const shown = nodeAt(drawn, path);
+    if (!shown || shown.pane) return layout;
+    const next = structuredClone(layout);
+    const node = nodeAt(next.root, path);
+    if (!node || node.pane || node.sizes.length !== shown.sizes.length) return layout;
+    node.sizes = shown.sizes.slice();
+    return next;
+  }
+
+  /** Put every split's drawn sizes on the page without redrawing. */
   function sizeAll() {
     const walk = (node, path) => {
       if (node.pane) return;
       sizeSplit(path);
       node.children.forEach((c, i) => walk(c, [...path, i]));
     };
-    walk(layout.root, []);
+    walk(drawn, []);
   }
 
-  /** Put a split's sizes on the page without redrawing it. */
+  /** Put a split's drawn sizes on the page without redrawing it. */
   function sizeSplit(path) {
-    const node = nodeAt(layout.root, path);
+    const node = nodeAt(drawn, path);
     const box = panesBox.querySelector(`.desk-split[data-path="${path.join(".")}"]`);
     if (!node || node.pane || !box) return;
     const parts = Array.from(box.children).filter((c) => !c.classList.contains("desk-split__handle"));
@@ -830,7 +856,9 @@ async function start() {
     let record = null;
     try { record = wanted && store ? await store.get(wanted) : null; } catch (_) {}
     if (record?.kind === "sheet") {
-      layout = showSheet(layout, record.id);
+      // Beside the active pane where the window has room for another
+      // column, else in a pane that isn't a LIT pane (BA60).
+      layout = showSheet(layout, record.id, panesBox.getBoundingClientRect().width);
       save();
     }
   }

@@ -15,7 +15,9 @@
 //   at the reading line is measured before and put back after, as
 //   keepReadingPlace does for the window (keep-reading-place.js). The
 //   browser's own scroll anchoring is off here (desk.css), or the two would
-//   both correct.
+//   both correct. **Nor does a new size** (BA54): a window or a split line
+//   that rewraps every chapter above puts the verse at the reading line back
+//   where it was, from a note of it taken whenever the pane settles.
 // - **Drafts are a stub**: a run of drafts in one book is one, as in Read
 //   View (src/lib/desk-corpus.mjs), and a passage in it lands on the stub.
 // - **Popovers know their chapter**: a footnote letter opens its own
@@ -103,6 +105,7 @@ export function createLitPane({ paneId, start, drafts, onPlace }) {
   let loadingUp = false;
   let loadingDown = false;
   let stalled = false; // a chapter below failed to load; Try again clears it
+  let stalledUp = false; // a chapter above failed to load; Try again clears it
   let told = null; // the passage last told to onPlace (or gone to)
   let readerMoved = false;
   let destroyed = false;
@@ -235,6 +238,12 @@ export function createLitPane({ paneId, start, drafts, onPlace }) {
     return r.top + r.height * LINE;
   };
 
+  /** Room below the text, so its last line can reach the reading line (BA57). */
+  function sizeBelow() {
+    const h = scroller.clientHeight;
+    if (h) text.style.setProperty("--desk-lit-below", `${Math.ceil(h * (1 - LINE))}px`);
+  }
+
   /** The section the reading line is in, or the nearest one. */
   function sectionAtLine() {
     const y = line();
@@ -305,6 +314,19 @@ export function createLitPane({ paneId, start, drafts, onPlace }) {
     };
   }
 
+  // The verse at the reading line, noted while the pane is settled, and the
+  // size it was noted at. A new size rewraps the text above it, so the
+  // ResizeObserver puts it back (BA54). A note is taken only at the size it
+  // was last noted at, since a scroll after a resize but before the
+  // observer runs would note the verse the rewrap left there.
+  let held = null;
+  const size = () => [scroller.clientWidth, scroller.clientHeight];
+  function note() {
+    const [w, h] = size();
+    held = { back: keep(), w, h };
+  }
+  const resized = () => !held || held.w !== scroller.clientWidth || held.h !== scroller.clientHeight;
+
   // ---- loading as the reader nears an edge ----
 
   async function fill() {
@@ -331,15 +353,24 @@ export function createLitPane({ paneId, start, drafts, onPlace }) {
       fill();
       return;
     }
-    if (!loadingUp && scroller.scrollTop < h * AHEAD && lo > 0) {
+    if (!loadingUp && !stalledUp && scroller.scrollTop < h * AHEAD && lo > 0) {
       loadingUp = true;
       const i = lo - 1;
       const section = await render(i);
       loadingUp = false;
-      if (n !== seq || !section) return;
+      if (n !== seq) return;
+      if (!section) {
+        // Shown at the top, as the case below is at the foot, and held so the
+        // text being read doesn't move; Try again loads it again.
+        stalledUp = true;
+        const f = failed(units[i], i, () => { hold(() => f.remove()); stalledUp = false; fill(); });
+        hold(() => text.prepend(f));
+        return;
+      }
       hold(() => text.prepend(section));
       sections.set(i, section);
       lo = i;
+      if (!resized()) note();
       fill();
     }
   }
@@ -378,11 +409,12 @@ export function createLitPane({ paneId, start, drafts, onPlace }) {
     const there = sections.get(i);
     if (there?.isConnected) {
       scrollTo(there, p);
+      if (!resized()) note();
       fill();
       return;
     }
     const n = ++seq;
-    loadingUp = loadingDown = stalled = false;
+    loadingUp = loadingDown = stalled = stalledUp = false;
     // Nothing is on the page until the chapter comes, so nothing fills in
     // around the old place meanwhile.
     lo = 0;
@@ -400,6 +432,7 @@ export function createLitPane({ paneId, start, drafts, onPlace }) {
     sections.set(i, section);
     lo = hi = i;
     scrollTo(section, p);
+    note();
     fill();
   }
 
@@ -416,6 +449,7 @@ export function createLitPane({ paneId, start, drafts, onPlace }) {
     if (frame) return;
     frame = requestAnimationFrame(() => {
       frame = 0;
+      if (!resized()) note();
       fill();
       if (!readerMoved) return;
       const p = placeNow();
@@ -462,7 +496,14 @@ export function createLitPane({ paneId, start, drafts, onPlace }) {
     panel.focus({ preventScroll: true });
   });
 
-  const ro = new ResizeObserver(() => fill());
+  const ro = new ResizeObserver(() => {
+    sizeBelow();
+    if (!scroller.clientHeight) return; // off the page for a moment (a redraw)
+    // Not the reader's scrolling, so nothing is told (keep's rule).
+    if (held && resized()) held.back();
+    note();
+    fill();
+  });
   ro.observe(scroller);
 
   queueMicrotask(() => goTo(start, { force: true }));
