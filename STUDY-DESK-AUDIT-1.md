@@ -120,7 +120,7 @@ it goes after both, and FA1-ac after FA1-t.
 | FA1-q | The gate and first paint | BA25, BA26, BA29, BA30 | done, #396 |
 | FA1-r | /desk's smaller fixes | BA31, BA62, BA63, BA64, BA65, BA114, BA115 | done, #398 |
 | FA1-s | Greek credits and the notebook search | BA40, BA46, BA47 | done, #399 |
-| FA1-t | Copy and docs | BA15, BA38, BA39, BA42, BA43, BA91, BA109, BA118 | open |
+| FA1-t | Copy and docs | BA15, BA38, BA39, BA42, BA43, BA91, BA109, BA118 | done, #400 |
 | FA1-w | What's new for you | BA88, BA90, BA92, BA96, BA97, BA98 | open |
 | FA1-x | A note's references | BA89, BA93, BA94, BA95 | open |
 | FA1-y | Ribbons and Continue reading | BA99 to BA108 | open |
@@ -1322,7 +1322,7 @@ BA91 (area 1), BA109 (area 2) and BA118 (area 3), written up there.
     “…”.” The code comment saying straight is the desk's style is out of
     date.
   - *Where*: `desk-change.mjs:345–420`; `change-notice.js:371–376, 426–458`.
-  - Status: open.
+  - Status: **Fixed in #400** (FA1-t). Every quotation in the notice uses double curly quotes, and the apostrophes are curly; `test/desk-change.test.js` checks every notice kind for a straight one.
 - **BA38 (low, copy). The help page's “Type ‘tour’” doesn't work where it is
   read.**
   - *What happens*: the help page isn't a reading surface, so typing “tour”
@@ -1331,7 +1331,7 @@ BA91 (area 1), BA109 (area 2) and BA118 (area 3), written up there.
     (`help.astro:156–157`; `desk-commands.mjs:112–118`;
     `searchbar.js:1179–1222`).
   - *Fix*: reword the line, or let Enter run a lone matching command.
-  - Status: open.
+  - Status: **Fixed in #400** (FA1-t), by rewording: “On a page of scripture, for example, type “>tour” and press Enter.” Enter running a lone match was not taken, since it would take over a search for the word.
 - **BA39 (low, copy; BVJ's call). “Moves it to the trash for 30 days”
   suggests it can be fished back out.**
   - *What happens*: Undo works only until the page is left, and nothing
@@ -1339,12 +1339,12 @@ BA91 (area 1), BA109 (area 2) and BA118 (area 3), written up there.
     `notebook-page.js:132`).
   - *Recommended*: “Undo brings it back until you leave the page; after
     that, only a saved copy does.” Or drop “for 30 days.”
-  - Status: open.
+  - Status: **Fixed in #400** (FA1-t). BVJ chose the recommended wording (2026-10-28), and asked for a Phase 5 task to make a restorable trash true on the website (STUDY-DESK.md, E12).
 - **BA42 (low, docs). /privacy doesn't name `sessionStorage['lit-desk-ribbon']`.**
   This is the C25 key that lets a ribbon follow the reader within a book
   (`ribbon-follow.js`; `desk-places.mjs`). Every other desk key is named.
   Rule 13 says to keep the privacy paragraph in step.
-  - Status: open.
+  - Status: **Fixed in #400** (FA1-t).
 - **BA43 (low, copy; BVJ's call). The desk's pages are titled differently
   from the rest of the site.**
   - *What happens*: “Notebook | LIT Bible,” “Your notebook | LIT Bible” (the
@@ -1352,7 +1352,7 @@ BA91 (area 1), BA109 (area 2) and BA118 (area 3), written up there.
     beside “Romans 8 | Liberation and Inclusion Translation.”
   - *Recommended*: the site's own suffix, and “Notebook help” for the help
     page.
-  - Status: open.
+  - Status: **Fixed in #400** (FA1-t). BVJ chose the site's suffix (2026-10-28), for /privacy too: “Notebook help,” and “My sheets” before and after the script runs.
 
 ## FA1-u. The follow-up audit: code this audit didn't reach
 
@@ -1531,7 +1531,7 @@ chapters, intros, glossary, articles) rightly yield none.
   - *Where*: `whats-new.js:75`; `desk-whats-new-view.mjs:55`.
   - *Fix*: group by place: “Touches your note, highlight, and bookmark on
     Luke 24:4.”, with the comma before “and” from three on.
-  - Status: open.
+  - Status: **Fixed in #400** (FA1-t). `markLinks` groups by place; `listSeparator` and `joinList` hold the Oxford comma. Tested in `test/desk-whats-new-view.test.js`.
 - **BA92 (low; reproduced). “Last looked” misses a second publish on the same
   day, and a publish on the evening a mark was made.**
   - *What happens*:
@@ -1777,7 +1777,7 @@ that drive the real `ribbon-follow.js`, `last-read.js` and
   - *Fix*: “No places yet. “Continue reading” and your ribbons appear
     here.”; use the real count.
   - *E9*: moot (the Places group goes, and “ribbon” is retired).
-  - Status: open.
+  - Status: **Fixed in #400** (FA1-t), as written.
 
 ### Area 3: the Greek tab's reading view and the commands window (done 2026-10-26)
 
@@ -1898,7 +1898,7 @@ small stub DOM, and the rest traced or run over the committed
     No verse has three renderings of one term yet.
   - *Where*: `desk-greek.mjs:189–192`; `test/desk-greek.test.js:117`.
   - *Fix*: “a, b, and c” from three on; update the test.
-  - Status: open.
+  - Status: **Fixed in #400** (FA1-t).
 - **BA119 (low, polish). The search's empty choices box keeps its margin
   when hidden.**
   - *What happens*: `.desk-greek__choices` sets `display: flex`, which
