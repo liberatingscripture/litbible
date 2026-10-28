@@ -161,6 +161,33 @@ From the root's project tree.
      link this writes. Links to draft chapters carry `data-draft`.
   5. **Existing links, `<code>`, and attributes are never touched**, so a
      hand-written article link keeps its own target.
+  **A reader's own note is linked in a mode of its own**
+  (`linkScriptureRefs(html, { mode: "note", hasVerse })`, called by
+  `desk-chains.mjs`; BVJ, 2026-10-26, BA89 and BA94), since footnotes are typed
+  carefully and notes aren't. Three things differ, and everything else above
+  holds. **Lists are stricter**: a continuation links only when it is itself a
+  chapter:verse, so "Romans 8:28, 3 reasons" and "8:28, 30" link 8:28 alone
+  while "8:28, 9:1" and "8:28; 9:1" link both; and a verse `hasVerse` refuses
+  links nothing, with the counts from `src/data/verse-counts.js` (the last
+  verse number of every chapter, checked by `test/verse-counts.test.js`
+  against the SBLGNT and the LIT), so "Luke 2:100" stays plain while a gap
+  inside a chapter (Matthew 17:21) still lands on its chapter (rule 4).
+  **Names are looser**: a New Testament book matches in any case and in the
+  common short forms in `NOTE_SHORT_NAMES` ("john 3:16", "Jn 3:16", "1Cor
+  13:4", "Revelations"), a period may separate chapter and verse ("Gal 3.28"),
+  and a name not written as the site writes it links only with a verse, so
+  "mark 3 places" stays plain. Hebrew Bible and apocrypha names stay
+  exact-case, since a lowercase "is 3:15" is a time, not Isaiah. The short-name
+  set is a recommendation awaiting BVJ's confirmation (STUDY-DESK.md,
+  Decisions, 2026-10-28). **A range into a later chapter keeps its end** on the
+  link as `data-end` ("John 3:16–4:2" gets `4:2`, "Hebrews 6–9" gets `9`), which
+  `citedRefs` reads to list the span chapter by chapter. Footnotes, intros,
+  articles, the glossary and release notes keep the five rules exactly; the
+  Study Desk's sheets (`sheetHtmlForShow`) do too, and whether a sheet's own
+  words should use note mode is an open question for BVJ. The lookbehind that
+  keeps "1 John" from matching as "John" bounds its whitespace run
+  (`SP_BEHIND`, at most four), since an unbounded one stalled a note of 40,000
+  spaces for 3.5 seconds (BA95); this holds in every mode.
   On `/glossary`, `linkGlossaryCrossRefs` also turns `the entry for “X”` into a
   jump to that entry, resolving X through the feed's own `normalizeLabel` so the
   page and iOS agree; the phrase itself ships verbatim (see The Glossary Feed).

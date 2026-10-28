@@ -175,21 +175,23 @@ const bookIndex = (key) => {
   return i === -1 ? Infinity : i;
 };
 
+/** Bible order, then the order records were made: the notebook's one order. */
+export function byPlace(a, b) {
+  return (
+    bookIndex(a.bookKey) - bookIndex(b.bookKey) ||
+    (a.chapter ?? 0) - (b.chapter ?? 0) ||
+    (a.verse ?? 0) - (b.verse ?? 0) ||
+    String(a.created).localeCompare(String(b.created))
+  );
+}
+
 /**
  * The records a reader sees, in Bible order then the order they were made.
  * Trash records are left out; records not on the text (a label, a mark rule, a
  * sheet) come last.
  */
 export function liveRecords(records) {
-  return records
-    .filter((r) => r && r.kind !== "trash")
-    .sort(
-      (a, b) =>
-        bookIndex(a.bookKey) - bookIndex(b.bookKey) ||
-        (a.chapter ?? 0) - (b.chapter ?? 0) ||
-        (a.verse ?? 0) - (b.verse ?? 0) ||
-        String(a.created).localeCompare(String(b.created)),
-    );
+  return records.filter((r) => r && r.kind !== "trash").sort(byPlace);
 }
 
 /** One chapter's records, in the same order. */

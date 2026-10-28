@@ -489,6 +489,11 @@ that section.
        (search snippets, fields and accessible names stay plain text). A
        link can't sit inside a button, so a note row's own control is
        stretched over the row behind its words.
+       **The note is linked in the linker's note mode** (stricter lists, any
+       case and short names, `data-end` spans, and verse counts from
+       `src/data/verse-counts.js`; BA89, BA94; `src/lib/CLAUDE.md`, “Scripture
+       references link at render”), and “Mentioned in your note on…” lists the
+       citing notes in `byPlace` order, Bible order then when made (BA93).
      - **What's new for you** (`src/lib/desk-whats-new.mjs`) reads the
        release notes through the change notice's `changeVerses`, so the
        description wording rule 12 relies on is load-bearing here as well.

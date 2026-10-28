@@ -144,7 +144,17 @@ are recorded so they aren't re-argued.
   keeps its list, and the reader's focus, through an unchanged redraw and
   says so when the notebook can't be read (BA97); and a `text_updated` row
   naming no verse reads as the whole chapter (BA98).
-  Next: FA1-x (A note's references).
+  FA1-x is done (#NNN): a reader's note is linked in a note mode of the
+  linker, in which a list continues only with a chapter:verse (“Romans
+  8:28, 3 reasons” and “8:28, 30” link 8:28 alone) and a verse past a
+  chapter's end links nothing, from a committed table of verse counts
+  (BA89); New Testament names match in any case and in common short forms
+  (“john 3:16,” “Jn 3:16,” “1Cor 13:4”), a period may separate chapter and
+  verse, and a range into a later chapter chains every verse in the span
+  (BA94, whose set of short names awaits BVJ's confirmation); “Mentioned
+  in your note on…” lists the notes in Bible order (BA93); and a note of
+  40,000 spaces draws in about 2 ms, not 3.5 s (BA95).
+  Next: FA1-y (Ribbons and Continue reading).
 
 - **Phase 2c is built on the preview** (2026-10-20): notes on a footnote
   and questions for discussion. **A note can be on a footnote** (M11):
@@ -5850,6 +5860,35 @@ split itself is still a proposal BVJ worked within but hasn't confirmed.
   reader's accessibility font still wins on screen. Left out: images and
   tables. The set can grow later but never shrink.
 
+### 2026-10-28 (FA1-x: a note's references; two calls for BVJ)
+
+FA1-x fixed BA89, BA93, BA94 and BA95 (`STUDY-DESK-AUDIT-1.md`). BA89 is
+BVJ's decision of 2026-10-26 (the stricter mode for notes). The two items
+below are **recommendations the phase acted on, not decisions**: BVJ is
+asked to confirm or change them.
+
+- **BA94, the short names and the verse rule** (a recommendation, for BVJ to
+  confirm or change). In a note, a New Testament book matches in any case,
+  and in these short forms (`NOTE_SHORT_NAMES` in `scripture-refs.mjs`),
+  with the space after a book's number optional (“1Cor”): Mt and Mat;
+  Mk and Mrk; Lk and Luk; Jn and Jhn; Ro; 1 Co and 2 Co; Php; 1 Th, 1 Thes,
+  2 Th, and 2 Thes; 1 Ti and 2 Ti; Tit; Phm; Jm; 1 Pt, 1 Pe, 2 Pt, and
+  2 Pe; 1 Jn, 1 Jhn, 2 Jn, 2 Jhn, 3 Jn, and 3 Jhn; Rv; and “Revelations.” A
+  period may stand between chapter and verse (“Gal 3.28”). A name not
+  written as the site writes it links only with a verse, so “mark 3
+  places” and “john 3” stay plain while “john 3:16” links. Left out on
+  purpose: Roman numerals (“I Cor”), ordinal words (“First Corinthians”),
+  and lowercase Hebrew Bible and apocrypha names, which stay exact-case
+  (a lowercase “is 3:15” is a time, not Isaiah).
+- **Sheets and note mode** (an open question for BVJ, with no recommendation
+  yet).
+  `sheetHtmlForShow` in `desk-sheet-copy.mjs` still uses the site's rule,
+  so a note copied onto a sheet by “+ For discussion” now links differently
+  there than it does in the note (“Romans 8:28, 30” links 8:30 on the sheet
+  and not in the note). The question for BVJ: should a sheet's own words use
+  note mode too, or keep the site's rule? Footnotes, intros, articles, the
+  glossary, and the release notes keep today's rule either way.
+
 ### 2026-10-28 (FA1-t: copy and docs; BVJ's two calls)
 
 FA1-t fixed BA15, BA38, BA39, BA42, BA43, BA91, BA109 and BA118
@@ -6849,7 +6888,7 @@ The phases, in working order:
 | FA1-s | Greek credits and the notebook search | done, #399: BA40, BA46, BA47 |
 | FA1-t | Copy and docs | done, #400: BA15, BA38, BA39, BA42, BA43, BA91, BA109, BA118 |
 | FA1-w | What's new for you | done, #401: BA88, BA90, BA92, BA96, BA97, BA98 |
-| FA1-x | A note's references | BA89, BA93, BA94, BA95 |
+| FA1-x | A note's references | done, #NNN: BA89, BA93, BA94, BA95 |
 | FA1-y | Ribbons and Continue reading | BA99 to BA108 |
 | FA1-z | The Greek tab | BA110, BA111, BA112, BA113, BA117, BA119, BA120 |
 | FA1-aa | /desk's panes and the shared modules | BA121 to BA126 |

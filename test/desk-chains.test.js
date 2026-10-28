@@ -67,11 +67,89 @@ test("citedRefs reads a verse, a range, and a whole chapter, and dedupes repeats
   ]);
 });
 
-test("citedRefs reads a list continuation after a verse", () => {
-  assert.deepEqual(citedRefs("Romans 8:28, 30"), [
+test("citedRefs cites a list continuation only when it has its own chapter:verse (BA89)", () => {
+  assert.deepEqual(citedRefs("Romans 8:28, 30"), [{ bookKey: "romans", chapter: 8, from: 28, to: 28 }], "a bare 30 is prose");
+  assert.deepEqual(citedRefs("See Romans 8:28, 3 reasons why"), [{ bookKey: "romans", chapter: 8, from: 28, to: 28 }]);
+  assert.deepEqual(citedRefs("John 3:16 and 2 others"), [{ bookKey: "john", chapter: 3, from: 16, to: 16 }]);
+  assert.deepEqual(citedRefs("Luke 2:1, 100 years"), [{ bookKey: "luke", chapter: 2, from: 1, to: 1 }]);
+  assert.deepEqual(citedRefs("Romans 8:28, 9:1"), [
     { bookKey: "romans", chapter: 8, from: 28, to: 28 },
-    { bookKey: "romans", chapter: 8, from: 30, to: 30 },
+    { bookKey: "romans", chapter: 9, from: 1, to: 1 },
   ]);
+  assert.deepEqual(citedRefs("Romans 8:28; 9:1"), [
+    { bookKey: "romans", chapter: 8, from: 28, to: 28 },
+    { bookKey: "romans", chapter: 9, from: 1, to: 1 },
+  ]);
+  assert.deepEqual(citedRefs("John 3:16 and 4:2"), [
+    { bookKey: "john", chapter: 3, from: 16, to: 16 },
+    { bookKey: "john", chapter: 4, from: 2, to: 2 },
+  ]);
+});
+
+test("citedRefs ignores a verse past the end of its chapter (BA89)", () => {
+  assert.deepEqual(citedRefs("Luke 2:100"), []);
+  assert.deepEqual(citedRefs("Luke 2:52"), [{ bookKey: "luke", chapter: 2, from: 52, to: 52 }]);
+  assert.deepEqual(citedRefs("Matthew 17:21"), [{ bookKey: "matthew", chapter: 17, from: 21, to: 21 }], "a gap inside the chapter still counts");
+});
+
+test("citedRefs reads any case, short names, and a period between chapter and verse (BA94)", () => {
+  assert.deepEqual(citedRefs("john 3:16 and Gal 3.28 and 1Cor 13:4 and Mt 5:3"), [
+    { bookKey: "john", chapter: 3, from: 16, to: 16 },
+    { bookKey: "galatians", chapter: 3, from: 28, to: 28 },
+    { bookKey: "1corinthians", chapter: 13, from: 4, to: 4 },
+    { bookKey: "matthew", chapter: 5, from: 3, to: 3 },
+  ]);
+  assert.deepEqual(citedRefs("mark 3 places and jn 3"), [], "a short or lowercase name needs a verse");
+  assert.deepEqual(citedRefs("Mark 3"), [{ bookKey: "mark", chapter: 3, from: null, to: null }]);
+  assert.deepEqual(citedRefs("gen 1:1 and the meeting is 3:15"), []);
+});
+
+test("citedRefs expands a range into a later chapter, one entry per chapter (BA94)", () => {
+  assert.deepEqual(citedRefs("John 3:16–4:2"), [
+    { bookKey: "john", chapter: 3, from: 16, to: 36 },
+    { bookKey: "john", chapter: 4, from: 1, to: 2 },
+  ]);
+  assert.deepEqual(citedRefs("Hebrews 6–9"), [6, 7, 8, 9].map((chapter) => ({ bookKey: "hebrews", chapter, from: null, to: null })));
+  assert.deepEqual(citedRefs("Galatians 5:25–6:1"), [
+    { bookKey: "galatians", chapter: 5, from: 25, to: 26 },
+    { bookKey: "galatians", chapter: 6, from: 1, to: 1 },
+  ]);
+});
+
+test("citedRefs gives an invalid range end only its start (BA94)", () => {
+  assert.deepEqual(citedRefs("John 21:25–22:1"), [{ bookKey: "john", chapter: 21, from: 25, to: 25 }], "John has 21 chapters");
+});
+
+test("a chapter-spanning range counts for a verse in a middle or last chapter (BA94)", () => {
+  const records = [note("span", "romans", 1, 1, "John 3:16–5:3")];
+  assert.equal(notesCiting(records, { bookKey: "john", chapter: 3, verse: 20 }).length, 1, "first chapter, after the start");
+  assert.equal(notesCiting(records, { bookKey: "john", chapter: 3, verse: 15 }).length, 0, "first chapter, before the start");
+  assert.equal(notesCiting(records, { bookKey: "john", chapter: 4, verse: 30 }).length, 1, "middle chapter");
+  assert.equal(notesCiting(records, { bookKey: "john", chapter: 5, verse: 3 }).length, 1, "last chapter, at the end");
+  assert.equal(notesCiting(records, { bookKey: "john", chapter: 5, verse: 4 }).length, 0, "last chapter, past the end");
+});
+
+test("noteBodyHtml writes data-end on a range into a later chapter, and none otherwise (BA94)", () => {
+  assert.ok(noteBodyHtml("John 3:16–4:2").includes(' data-end="4:2"'));
+  assert.ok(noteBodyHtml("Hebrews 6–9").includes(' data-end="9"'));
+  assert.ok(!noteBodyHtml("John 3:16–18").includes("data-end"));
+  assert.ok(!noteBodyHtml("John 21:25–22:1").includes("data-end"));
+});
+
+test("noteBodyHtml follows note mode: no link for a bare continuation or a missing verse (BA89)", () => {
+  const html = noteBodyHtml("See Romans 8:28, 3 reasons why");
+  assert.equal((html.match(/<a /g) ?? []).length, 1, html);
+  assert.ok(html.endsWith("</a>, 3 reasons why"), html);
+  assert.equal(noteBodyHtml("Luke 2:100"), "Luke 2:100");
+});
+
+test("a long run of spaces does not stall noteBodyHtml (BA95)", () => {
+  const text = "John" + " ".repeat(40000);
+  const started = performance.now();
+  const html = noteBodyHtml(text);
+  const took = performance.now() - started;
+  assert.equal(html, text);
+  assert.ok(took < 50, `took ${took.toFixed(1)} ms`);
 });
 
 test("citedRefs is empty for a body with no references", () => {
@@ -135,13 +213,26 @@ test("notesCiting includes a glossary-entry note that cites the verse", () => {
   assert.equal(hits[0].record.id, "g1");
 });
 
-test("notesCiting returns hits in the order the records are given, not sorted", () => {
+test("notesCiting returns hits in the citing notes' own order: Bible order, chapter, verse, then created (BA93)", () => {
   const records = [
-    note("later-verse", "romans", 5, 1, "Rom 8:28"),
-    note("earlier-verse", "romans", 4, 1, "Rom 8:28"),
+    note("c-1corinthians", "1corinthians", 1, 1, "Rom 8:28", { created: "2026-01-01T00:00:00.000Z" }),
+    note("b-romans-5", "romans", 5, 1, "Rom 8:28", { created: "2026-01-01T00:00:00.000Z" }),
+    note("a-romans-4-v9", "romans", 4, 9, "Rom 8:28", { created: "2026-01-02T00:00:00.000Z" }),
+    note("a-romans-4-v1-late", "romans", 4, 1, "Rom 8:28", { created: "2026-01-03T00:00:00.000Z" }),
+    note("a-romans-4-v1-early", "romans", 4, 1, "Rom 8:28", { created: "2026-01-01T00:00:00.000Z" }),
+    note("z-matthew", "matthew", 5, 3, "Rom 8:28", { created: "2026-02-01T00:00:00.000Z" }),
   ];
+  const ids = (list) => notesCiting(list, { bookKey: "romans", chapter: 8, verse: 28 }).map((h) => h.record.id);
+  const expected = ["z-matthew", "a-romans-4-v1-early", "a-romans-4-v1-late", "a-romans-4-v9", "b-romans-5", "c-1corinthians"];
+  assert.deepEqual(ids(records), expected);
+  assert.deepEqual(ids([...records].reverse()), expected, "the order doesn't depend on the order given");
+});
+
+test("notesCiting puts notes with no book (glossary or article notes) after the rest (BA93)", () => {
+  const entry = { id: "g1", kind: "note", glossaryEntry: "flesh-body", body: "See Romans 8:28.", created: "2026-01-01T00:00:00.000Z" };
+  const records = [entry, note("late-book", "revelation", 1, 1, "Rom 8:28"), note("early-book", "matthew", 1, 1, "Rom 8:28")];
   const ids = notesCiting(records, { bookKey: "romans", chapter: 8, verse: 28 }).map((h) => h.record.id);
-  assert.deepEqual(ids, ["later-verse", "earlier-verse"]);
+  assert.deepEqual(ids, ["early-book", "late-book", "g1"]);
 });
 
 test("notesCiting tolerates a missing notebook", () => {

@@ -122,7 +122,7 @@ it goes after both, and FA1-ac after FA1-t.
 | FA1-s | Greek credits and the notebook search | BA40, BA46, BA47 | done, #399 |
 | FA1-t | Copy and docs | BA15, BA38, BA39, BA42, BA43, BA91, BA109, BA118 | done, #400 |
 | FA1-w | What's new for you | BA88, BA90, BA92, BA96, BA97, BA98 | done, #401 |
-| FA1-x | A note's references | BA89, BA93, BA94, BA95 | open |
+| FA1-x | A note's references | BA89, BA93, BA94, BA95 | done, #NNN |
 | FA1-y | Ribbons and Continue reading | BA99 to BA108 | open |
 | FA1-z | The Greek tab | BA110, BA111, BA112, BA113, BA117, BA119, BA120 | open |
 | FA1-aa | /desk's panes and the shared modules | BA121 to BA126 | open |
@@ -1508,7 +1508,7 @@ chapters, intros, glossary, articles) rightly yield none.
     so a verse past a chapter's end never links.
   - *Check*: `noteBodyHtml("John 3:16 and 2 others")` leaves “2” plain;
     `citedRefs("Luke 2:1, 100 years")` cites only 2:1.
-  - Status: open.
+  - Status: **Fixed in #NNN** (FA1-x). A note is linked in a note mode of the linker (`linkScriptureRefs(html, { mode: "note", hasVerse })`, called from `desk-chains.mjs`). A list continues only with a chapter:verse, so “Romans 8:28, 3 reasons,” “John 3:16 and 2 others,” and “8:28, 30” link the first reference alone, while “8:28, 9:1” and “8:28; 9:1” link both. The committed table `src/data/verse-counts.js` (the last verse number of every chapter, from the SBLGNT and the LIT) is passed as `hasVerse`, so “Luke 2:100” links nothing, and a gap inside a chapter (Matthew 17:21) still lands on its chapter. Footnotes, intros and articles keep their rule. Tested in `test/scripture-refs.test.js` and `test/desk-chains.test.js`; `test/verse-counts.test.js` checks the table against the SBLGNT and the chapter files.
 - **BA90 (low; reproduced). What's new for you treats a note on a footnote as
   a note on its verse.**
   - *What happens*: `markVerses` takes any note or pin with a verse and
@@ -1558,7 +1558,7 @@ chapters, intros, glossary, articles) rightly yield none.
   - *Where*: `desk-chains.mjs:92–106`; `tab-verse.js:193`.
   - *Fix*: sort by book, chapter, verse and `created`, as `liveRecords`
     does.
-  - Status: open.
+  - Status: **Fixed in #NNN** (FA1-x). `notesCiting` sorts its result with `byPlace`, the comparator `liveRecords` now shares (exported from `desk-store-core.mjs`): Bible order, then when the note was made. Tested in `test/desk-chains.test.js` and `test/desk-store-core.test.js`.
 - **BA94 (low; reproduced; partly BVJ's call). A note's reference is read only
   as the shared linker reads it.**
   - *What happens*: a range into another chapter (“John 3:16–4:2”) links
@@ -1570,7 +1570,7 @@ chapters, intros, glossary, articles) rightly yield none.
   - *Where*: `scripture-refs.mjs:66–80, 150–190`; `desk-chains.mjs:47`.
   - *Fix*: the reader mode of BA89, accepting any case and common short
     names, and a cross-chapter span in `citedRefs`.
-  - Status: open.
+  - Status: **Fixed in #NNN** (FA1-x), in note mode, except that the set of short names awaits BVJ's confirmation (STUDY-DESK.md, Decisions, 2026-10-28). New Testament names match in any case and in common short forms (“john 3:16,” “rom 8:28,” “Jn 3:16,” “Mt 5:3,” “1Cor 13:4,” “Revelations”), and a period may separate chapter and verse (“Gal 3.28”). A name not written as the site writes it links only with a verse, so “mark 3 places” stays plain. Hebrew Bible and apocrypha names stay exact-case, so a lowercase “is 3:15” is not Isaiah. A range into a later chapter carries its end on the link as `data-end` (“John 3:16–4:2,” “Hebrews 6–9”), and `citedRefs` lists it chapter by chapter. Tested in `test/scripture-refs.test.js` and `test/desk-chains.test.js`.
 - **BA95 (low, performance; reproduced). A long run of spaces in a note stalls
   the page.**
   - *What happens*: the linker's lookbehind rescans a whole whitespace run
@@ -1581,7 +1581,7 @@ chapters, intros, glossary, articles) rightly yield none.
   - *Fix*: bound the lookbehind's whitespace (`{1,4}`), or collapse long
     runs before linking.
   - *Check*: `noteBodyHtml("John" + " ".repeat(40000))` under 50 ms.
-  - Status: open.
+  - Status: **Fixed in #NNN** (FA1-x). The linker's lookbehind bounds its whitespace run (`SP_BEHIND`, at most four), so a note of 40,000 spaces draws in about 2 ms, not 3.5 s. It applies to footnotes, intros and articles too, with no change in what they link. Tested in `test/scripture-refs.test.js`.
 - **BA96 (low; traced). The My Notes line about news stays after the notebook
   page has been looked at.**
   - *What happens*: `setMeta` tells no one, so a chapter's My Notes tab in

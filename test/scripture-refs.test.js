@@ -10,6 +10,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 
 import { linkScriptureRefs, mapHtmlText } from "../src/lib/scripture-refs.mjs";
+import { verseCount } from "../src/data/verse-counts.js";
 
 // Every verse exists unless a test says otherwise.
 const link = (html, opts) => linkScriptureRefs(html, opts);
@@ -305,4 +306,109 @@ test("isDraft marks the link for the preview", () => {
 test("mapHtmlText leaves tags and comments byte-identical", () => {
   const html = '<p class="x">a <!-- b --> <em>c</em></p>';
   assert.equal(mapHtmlText(html, (t) => t.toUpperCase()), '<p class="x">A <!-- b --> <em>C</em></p>');
+});
+
+/* ── Note mode (a reader's own note; BA89, BA94, BA95) ───────────────────── */
+
+// What the Study Desk passes: a verse exists up to its chapter's last number.
+const NOTE = { mode: "note", hasVerse: (key, chapter, verse) => verse <= verseCount(key, chapter) };
+const noteLink = (text) => linkScriptureRefs(text, NOTE);
+// The linked text and its address, in order.
+const noteRefs = (text) => hrefs(text, NOTE);
+
+test("note mode: a list continuation links only when it has a chapter:verse (BA89)", () => {
+  assert.deepEqual(noteRefs("See Romans 8:28, 3 reasons why"), [["Romans 8:28", "/romans-8/#v28"]]);
+  assert.deepEqual(noteRefs("John 3:16 and 2 others"), [["John 3:16", "/john-3/#v16"]]);
+  assert.deepEqual(noteRefs("Luke 2:1, 100 years"), [["Luke 2:1", "/luke-2/#v1"]]);
+  assert.deepEqual(noteRefs("Romans 8:28, 30"), [["Romans 8:28", "/romans-8/#v28"]]);
+  assert.equal(noteLink("John 3:16 and 2 others"), '<a class="sref" href="/john-3/#v16">John 3:16</a> and 2 others', "the 2 stays plain text");
+});
+
+test("note mode: a continuation with its own chapter:verse still links, after a comma, semicolon or and (BA89)", () => {
+  assert.deepEqual(noteRefs("Romans 8:28, 9:1"), [["Romans 8:28", "/romans-8/#v28"], ["9:1", "/romans-9/#v1"]]);
+  assert.deepEqual(noteRefs("Romans 8:28; 9:1"), [["Romans 8:28", "/romans-8/#v28"], ["9:1", "/romans-9/#v1"]]);
+  assert.deepEqual(noteRefs("John 3:16 and 4:2"), [["John 3:16", "/john-3/#v16"], ["4:2", "/john-4/#v2"]]);
+});
+
+test("note mode: a verse past the chapter's end links nothing; a gap inside it still links (BA89)", () => {
+  assert.equal(noteLink("Luke 2:100"), "Luke 2:100");
+  assert.deepEqual(noteRefs("Luke 2:52"), [["Luke 2:52", "/luke-2/#v52"]]);
+  assert.equal(noteLink("Luke 2:53"), "Luke 2:53", "one past the last verse");
+  assert.deepEqual(noteRefs("Matthew 17:21"), [["Matthew 17:21", "/matthew-17/#v21"]], "a verse the text omits is inside the chapter");
+});
+
+test("note mode: New Testament names match in any case and in short forms (BA94)", () => {
+  const cases = [
+    ["john 3:16", "/john-3/#v16"],
+    ["rom 8:28", "/romans-8/#v28"],
+    ["Jn 3:16", "/john-3/#v16"],
+    ["Mt 5:3", "/matthew-5/#v3"],
+    ["1Cor 13:4", "/1corinthians-13/#v4"],
+    ["1 cor 13:4", "/1corinthians-13/#v4"],
+    ["1John 4:8", "/1john-4/#v8"],
+    ["Revelations 21:4", "/revelation-21/#v4"],
+  ];
+  for (const [text, href] of cases) assert.deepEqual(noteRefs(text), [[text, href]], text);
+});
+
+test("note mode: a period separates chapter and verse (BA94)", () => {
+  assert.deepEqual(noteRefs("Gal 3.28"), [["Gal 3.28", "/galatians-3/#v28"]]);
+  assert.deepEqual(noteRefs("rom 8.28"), [["rom 8.28", "/romans-8/#v28"]]);
+});
+
+test("note mode: a name not written as the site writes it needs a verse (BA94)", () => {
+  assert.equal(noteLink("mark 3 places"), "mark 3 places");
+  assert.equal(noteLink("jn 3"), "jn 3");
+  assert.equal(noteLink("rom 8"), "rom 8");
+  assert.deepEqual(noteRefs("Mark 3"), [["Mark 3", "/mark-3/"]], "the site's own spelling still links the chapter");
+});
+
+test("note mode: Hebrew Bible names stay exact-case (BA94)", () => {
+  assert.deepEqual(sefaria("Genesis 1:1", NOTE), [["Genesis 1:1", "Genesis.1.1"]]);
+  assert.equal(noteLink("gen 1:1"), "gen 1:1");
+  assert.equal(noteLink("the meeting is 3:15"), "the meeting is 3:15", "a lowercase \"is\" is a time, not Isaiah");
+});
+
+test("note mode: a range into a later chapter carries data-end (BA94)", () => {
+  assert.equal(
+    noteLink("John 3:16–4:2"),
+    '<a class="sref" href="/john-3/#v16" data-end="4:2">John 3:16–4:2</a>'
+  );
+  assert.equal(
+    noteLink("Hebrews 6–9"),
+    '<a class="sref" href="/hebrews-6/" data-end="9">Hebrews 6–9</a>'
+  );
+});
+
+test("note mode: an invalid range end gets no data-end (BA94)", () => {
+  const html = noteLink("John 21:25–22:1");
+  assert.ok(!html.includes("data-end"), html);
+  assert.ok(html.includes('href="/john-21/#v25"'), html);
+  assert.ok(!noteLink("Hebrews 12–14").includes("data-end"), "Hebrews has 13 chapters");
+  assert.ok(!noteLink("John 3:16–4:99").includes("data-end"), "John 4 has no verse 99");
+  assert.ok(!noteLink("John 3:16–18").includes("data-end"), "a range inside the chapter has no data-end");
+});
+
+test("note mode: a long run of spaces does not stall the linker (BA95)", () => {
+  for (const opts of [undefined, NOTE]) {
+    const text = "John" + " ".repeat(40000);
+    const started = performance.now();
+    const out = linkScriptureRefs(text, opts);
+    const took = performance.now() - started;
+    assert.equal(out, text);
+    assert.ok(took < 50, `took ${took.toFixed(1)} ms`);
+  }
+});
+
+test("site mode is unchanged by note mode: lists, case, periods, and no data-end", () => {
+  assert.deepEqual(hrefs("Romans 8:28, 30"), [["Romans 8:28", "/romans-8/#v28"], ["30", "/romans-8/#v30"]]);
+  assert.deepEqual(hrefs("1 Corinthians 11 and 14"), [["1 Corinthians 11", "/1corinthians-11/"], ["14", "/1corinthians-14/"]]);
+  assert.equal(link("john 3:16"), "john 3:16");
+  assert.equal(link("Jn 3:16"), "Jn 3:16");
+  assert.equal(link("Gal 3.28"), '<a class="sref" href="/galatians-3/">Gal 3</a>.28');
+  assert.equal(link("Luke 2:100"), '<a class="sref" href="/luke-2/#v100">Luke 2:100</a>', "the default hasVerse accepts any verse");
+  for (const text of ["John 3:16–4:2", "Hebrews 6–9", "John 21:25–22:1"]) {
+    assert.ok(!link(text).includes("data-end"), text);
+  }
+  assert.deepEqual(hrefs("John 3:16–4:2"), [["John 3:16–4:2", "/john-3/#v16"]]);
 });
