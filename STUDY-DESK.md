@@ -83,7 +83,7 @@ are recorded so they aren't re-argued.
   move, and the two prints run one at a time (BA35); a tour restarted
   within a second keeps its guard (BA36); and the tour won't start over a
   note being written (BA37).
-  FA1-n is done: present mode's keys keep working when the button that had
+  FA1-n is done (#390): present mode's keys keep working when the button that had
   focus is disabled or hidden, the stage taking focus first (BA79); a link
   on the white paper preview gets a ring that shows in dark theme (BA83);
   the presenter view stops saying no presentation is open once one opens,
@@ -6737,7 +6737,7 @@ The phases, in working order:
 | FA1-k | Greek search commands | done, #383: BA44, BA45, BA48, BA49, BA50, BA116 |
 | FA1-l | /desk's LIT pane and layout | done, #387: BA54, BA56, BA57, BA58, BA60, BA61 |
 | FA1-m | The tour, first use, and printing | done, #388: BA33, BA34, BA35, BA36, BA37 |
-| FA1-n | Present mode and the sheet page | done: BA79, BA83, BA84, BA85, BA86 |
+| FA1-n | Present mode and the sheet page | done, #390: BA79, BA83, BA84, BA85, BA86 |
 | FA1-o | Announcements and focus for marks | BA18, BA21, BA22 |
 | FA1-p | Panels beside the Notebook | BA24, BA27, BA28 |
 | FA1-q | The gate and first paint | BA25, BA26, BA29, BA30 |

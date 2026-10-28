@@ -114,7 +114,7 @@ it goes after both, and FA1-ac after FA1-t.
 | FA1-k | Greek search commands | BA44, BA45, BA48, BA49, BA50, BA116 | done, #383 |
 | FA1-l | /desk's LIT pane and layout | BA54, BA56, BA57, BA58, BA60, BA61 | done, #387 |
 | FA1-m | The tour, first use, and printing | BA33, BA34, BA35, BA36, BA37 | done, #388 |
-| FA1-n | Present mode and the sheet page | BA79, BA83, BA84, BA85, BA86 | done |
+| FA1-n | Present mode and the sheet page | BA79, BA83, BA84, BA85, BA86 | done, #390 |
 | FA1-o | Announcements and focus for marks | BA18, BA21, BA22 | open |
 | FA1-p | Panels beside the Notebook | BA24, BA27, BA28 | open |
 | FA1-q | The gate and first paint | BA25, BA26, BA29, BA30 | open |
