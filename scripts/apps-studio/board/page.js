@@ -11,6 +11,7 @@
  *   data-edit="<path>"   a piece of text       data-image="<path>"  a picture
  *   data-link="<path>"   a button or link      data-section="<id>"  a section
  *   data-callout="<id>"  a callout card        data-season="<id>"   a carousel chip
+ *   data-carousel-card="<section id>"  the carousel's card, the last callout
  *   data-example="<id>"  the comparison card
  * A path is the model path with each part URI-encoded and joined by "/",
  * so an icon's path ["files", "/assets/images/x.webp"] survives the trip.
@@ -278,5 +279,6 @@ function carousel(s, c) {
       return `<div class="church-year__frame${i === active ? " is-active" : ""}" data-index="${i}" aria-label="${escapeHtml(`${cy.passage} with ${se.name} accent color`)}"><img src="${escapeHtml(c.img(se.image))}" alt="${escapeHtml(`LIT Bible showing ${cy.passage} with ${se.name} accent color`)}" ${edc(c, q, "church-year__phone")} loading="lazy" decoding="async" width="${cy.frame.width}" height="${cy.frame.height}"${im(c, q, `${se.name} screenshot`, "carousel")}></div>`;
     })
     .join("");
-  return `<div class="church-year" data-carousel style="--cy-accent: var(${seasons[active].colorVar});"><div class="church-year__copy"><h3 ${edc(c, [...p, "title"], "church-year__title")}${ed(c, [...p, "title"], "Carousel heading", "title")}>${inline(cy.title)}</h3><p ${edc(c, [...p, "text"], "church-year__body")}${ed(c, [...p, "text"], "Carousel text", "prose")}>${inline(cy.text)}</p><div class="church-year__chips" role="list">${chips}</div></div><div class="church-year__stage" role="group" aria-label="${escapeHtml(cy.stageLabel)}" style="aspect-ratio: ${cy.frame.width} / ${cy.frame.height};">${frames}</div></div>`;
+  const sel = c.editable ? ` data-carousel-card="${escapeHtml(s.id)}" data-label="Carousel"` : "";
+  return `<div class="church-year" data-carousel${sel} style="--cy-accent: var(${seasons[active].colorVar});"><div class="church-year__copy"><h3 ${edc(c, [...p, "title"], "church-year__title")}${ed(c, [...p, "title"], "Carousel heading", "title")}>${inline(cy.title)}</h3><p ${edc(c, [...p, "text"], "church-year__body")}${ed(c, [...p, "text"], "Carousel text", "prose")}>${inline(cy.text)}</p><div class="church-year__chips" role="list">${chips}</div></div><div class="church-year__stage" role="group" aria-label="${escapeHtml(cy.stageLabel)}" style="aspect-ratio: ${cy.frame.width} / ${cy.frame.height};">${frames}</div></div>`;
 }
