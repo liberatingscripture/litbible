@@ -149,7 +149,7 @@ const appsSections = defineCollection({
       title: z.string(),
       text: z.string(),
       /** A tablet and an unfolded foldable, composed at real-life scale. */
-      devices: z.object({ tablet: image, foldable: image }),
+      devices: z.object({ tablet: image, foldable: image, duo: image.optional() }),
     }),
     z.object({
       kind: z.literal("humane"),
