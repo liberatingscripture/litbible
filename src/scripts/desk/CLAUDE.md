@@ -91,9 +91,18 @@ that section.
      global.css, held to the list by `test/desk-frame.test.js`), and the
      desk's code isn't loaded. **A new reading surface needs an entry in
      both.**
-     Floating panels subtract `dockWidth()` (`src/scripts/desk-frame.js`)
-     from the window's width, and anything marked `[data-desk-dock]` counts
-     as inside it (no outside-click close, shortcuts stand down).
+     Floating panels keep to `panelRoom()` (`src/scripts/desk-frame.js`):
+     the window's width less `dockWidth()`, or the whole window where that
+     leaves under 300px, so beside a floating notebook dragged wide a panel
+     lies over it rather than shrinking to a sliver (BA27). A shared panel
+     already open when the notebook grows under it is moved left, never
+     closed, since it may be a note editor (`keepClearOfDock`, called from
+     `margin.js`'s `place()`; BA28). Anything marked `[data-desk-dock]`
+     counts as inside it (no outside-click close, shortcuts stand down).
+     The notebook's own Escape stands down only for the shared panel's slot
+     (`currentPanel()`), not for a floating window (`float-window.js`),
+     which wears the panels' class but takes Escape only from inside itself
+     (BA24).
   4. **While the preview is on, the reading measure is 52**, the width BVJ
      picked for the desk's release, **and 48 on Study View chapters while the
      notebook is expanded** (BVJ, 2026-10-08; 2026-10-14), to leave the panel room for the

@@ -39,6 +39,7 @@
 // My Notes' own, above its list.)
 
 import { keepReadingPlace } from "../keep-reading-place.js";
+import { currentPanel } from "../lit-panel.js";
 import { createRail } from "./margin.js";
 import { HIDE_EVENT, panelNoteControls } from "./note-settings.js";
 import { greekChapter, pageChapter } from "./page.js";
@@ -365,13 +366,16 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
 
   // Escape closes the panel when focus is in it and nothing floating is open
   // over it; a floating panel (lit-panel.js) or the Display tray takes its own
-  // Escape first. Floating, it collapses instead, the way a floating window
+  // Escape first. A floating window (float-window.js: the tour offer, the
+  // Greek commands) wears the panels' class but not their slot, and takes
+  // Escape only from inside itself, so it doesn't count here (BA24).
+  // Floating, it collapses instead, the way a floating window
   // gets out of the way: the text comes back and the notebook stays a tab
   // away. Stopped here, so Study View's Escape fallback (clearing a selected
   // verse) doesn't run as well.
   panel.addEventListener("keydown", (e) => {
     if (e.key !== "Escape") return;
-    if (document.querySelector(".lit-panel")) return;
+    if (currentPanel()) return;
     const tray = document.getElementById("fontTray");
     if (tray && !tray.hidden) return;
     e.stopPropagation();

@@ -69,7 +69,7 @@ once, so these rules keep a session inside one window:
    page. Cloud sessions have Playwright and Chromium ready.
 6. **Stop cleanly.** If a session runs long, stop at a finding boundary,
    mark the rest open here, and push what is done.
-7. **Close the loop.** Mark each finding's status here ("Fixed in #391").
+7. **Close the loop.** Mark each finding's status here ("Fixed in #NNN").
    Write any BVJ call into STUDY-DESK.md's decision log. Update CLAUDE.md's
    desk rule if behavior it describes changed.
 
@@ -116,7 +116,7 @@ it goes after both, and FA1-ac after FA1-t.
 | FA1-m | The tour, first use, and printing | BA33, BA34, BA35, BA36, BA37 | done, #388 |
 | FA1-n | Present mode and the sheet page | BA79, BA83, BA84, BA85, BA86 | done, #390 |
 | FA1-o | Announcements and focus for marks | BA18, BA21, BA22 | done, #391 |
-| FA1-p | Panels beside the Notebook | BA24, BA27, BA28 | open |
+| FA1-p | Panels beside the Notebook | BA24, BA27, BA28 | done, #392 |
 | FA1-q | The gate and first paint | BA25, BA26, BA29, BA30 | open |
 | FA1-r | /desk's smaller fixes | BA31, BA62, BA63, BA64, BA65, BA114, BA115 | open |
 | FA1-s | Greek credits and the notebook search | BA40, BA46, BA47 | open |
@@ -1112,7 +1112,10 @@ Files: `src/scripts/desk/panel.js`, `src/scripts/lit-panel.js`,
     class.
   - *Fix*: check lit-panel's shared slot (`currentPanel()`), or
     `.lit-panel:not(.lit-window)`.
-  - Status: open.
+  - Status: **Fixed in #392.** The Notebook's Escape stands down for
+    `currentPanel()` only. A floating window takes its own Escape when focus
+    is inside it and stops it there, so with focus in the Notebook, Escape
+    now closes or collapses the Notebook and leaves the window open.
 - **BA27 (low). Panels shrink to slivers beside a wide floating Notebook.**
   - *What happens*: `floatWidth` allows the window's width less 32px
     (`desk-margin.mjs:150–159`). Panels fit into what's left
@@ -1121,7 +1124,14 @@ Files: `src/scripts/desk/panel.js`, `src/scripts/lit-panel.js`,
   - *Fix*: when the room left is under about 300px, let the panel lie over
     the Notebook (its z-index is already above the rail's), or cap the
     floating width to leave a usable strip.
-  - Status: open.
+  - Status: **Fixed in #392**, by the first fix, since capping the width
+    would undo BVJ's 2026-10-14 range ("no wider than the window less an
+    EDGE each side"). `panelRoom()` in `desk-frame.js` is the one rule: the
+    window less `dockWidth()`, or the whole window where that leaves under
+    `MIN_PANEL_ROOM` (300px). `showPanel` and `placeClearOfSelection` use
+    it. The Greek commands window (`greek-commands.js`) and the undo bar
+    (`desk.css`) still measure against the dock alone; neither was in the
+    finding.
 - **BA28 (low). Some panels end up over the expanded Notebook.**
   - *What happens*: two cases:
     - `placeBesideTouchSelection` (`panel-pieces.js:161–180`) ignores
@@ -1130,7 +1140,13 @@ Files: `src/scripts/desk/panel.js`, `src/scripts/lit-panel.js`,
       (`panel.js:345–358`).
   - *Fix*: subtract `dockWidth()`, and close or re-place the open panel when
     the dock grows (in `margin.js`'s `place()`).
-  - Status: open.
+  - Status: **Fixed in #392.** `placeBesideTouchSelection` keeps to
+    `panelRoom()` (a phone has no dock, so it is unchanged there). `place()`
+    remembers the room it kept, and when that grows it calls
+    `keepClearOfDock()` (`lit-panel.js`), which moves the open panel left by
+    `shiftClearOfDock` until it ends 12px short of the Notebook, never past
+    12px from the window's left. Moved rather than closed, since the open
+    panel may be a note editor holding unsaved words. A bottom sheet stays.
 
 ## FA1-q. The gate and first paint
 

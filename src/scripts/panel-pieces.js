@@ -13,7 +13,7 @@
 // same popover (desk/lit-pane.js, phase 3e).
 
 import { closePanel } from "./lit-panel.js";
-import { dockWidth } from "./desk-frame.js";
+import { panelRoom } from "./desk-frame.js";
 
 // The kind of pointer that last pressed the page: "mouse", "touch" or "pen".
 // Both panels take their layout from it, not from the screen width: a finger
@@ -160,7 +160,9 @@ const MIN_SCROLLING_HEIGHT = 220;
  */
 export function placeBesideTouchSelection(rect) {
   return (el) => {
-    el.style.maxWidth = window.innerWidth - 2 * PANEL_EDGE + "px";
+    // Clear of the Notebook, on a touchscreen computer with the desk on (BA28).
+    const room = panelRoom();
+    el.style.maxWidth = room - 2 * PANEL_EDGE + "px";
     const width = el.offsetWidth;
     const height = el.offsetHeight;
     const viewH = window.innerHeight;
@@ -174,7 +176,7 @@ export function placeBesideTouchSelection(rect) {
     else top = viewH - height - PANEL_EDGE;
 
     let left = rect.left + rect.width / 2 - width / 2;
-    left = Math.max(PANEL_EDGE, Math.min(left, window.innerWidth - width - PANEL_EDGE));
+    left = Math.max(PANEL_EDGE, Math.min(left, room - width - PANEL_EDGE));
     return { left: window.scrollX + left, top: window.scrollY + top };
   };
 }
@@ -189,7 +191,7 @@ export function placeBesideTouchSelection(rect) {
  */
 export function placeClearOfSelection(rect) {
   return (el) => {
-    const room = window.innerWidth - dockWidth();
+    const room = panelRoom();
     el.style.maxWidth = Math.min(380, room - 2 * PANEL_EDGE) + "px";
     const width = el.offsetWidth;
     const height = el.offsetHeight;

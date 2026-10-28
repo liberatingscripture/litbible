@@ -67,6 +67,7 @@ import { WIDTHS_EVENT, createWidths, keptFloatWidth } from "./widths.js";
 import { createFloatResize } from "./float-resize.js";
 import { MIN_KEY, startState } from "../../lib/desk-start.mjs";
 import { keepReadingPlace } from "../keep-reading-place.js";
+import { keepClearOfDock } from "../lit-panel.js";
 
 /**
  * @param {HTMLElement} panel the Notebook panel, which this moves into the rail
@@ -190,6 +191,9 @@ export function createRail(panel, tab, onChange = () => {}) {
     panel.style.height = `${panelHeight(rail.getBoundingClientRect(), window.innerHeight)}px`;
   }
 
+  // The room the last placement kept, to tell when the Notebook grows.
+  let lastDock = 0;
+
   function place() {
     const before = { floating, collapsed };
     if (!open) {
@@ -202,6 +206,7 @@ export function createRail(panel, tab, onChange = () => {}) {
       floating = collapsed = false;
       root.style.removeProperty("--desk-dock-width");
       root.style.removeProperty("--desk-bar-center");
+      lastDock = 0;
       report(before);
       return;
     }
@@ -276,7 +281,12 @@ export function createRail(panel, tab, onChange = () => {}) {
     // For the floating panels (desk-frame.js) and the undo bar. From the
     // window's edge, scrollbar included, since that's what lit-panel.js
     // measures against (window.innerWidth).
-    root.style.setProperty("--desk-dock-width", `${window.innerWidth - box.left}px`);
+    const dock = window.innerWidth - box.left;
+    root.style.setProperty("--desk-dock-width", `${dock}px`);
+    // A shared panel already open stays where it was put, so one the Notebook
+    // has just grown under moves clear of it (BA28).
+    if (dock > lastDock) keepClearOfDock();
+    lastDock = dock;
     const col = columnBox();
     root.style.setProperty("--desk-bar-center", `${(col.left + col.right) / 2}px`);
     report(before);

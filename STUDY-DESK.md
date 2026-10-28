@@ -99,7 +99,13 @@ are recorded so they aren't re-argued.
   from a selection (BA21); and a bookmarked verse's number is named “Verse 28,
   bookmarked” (BA22; BVJ chose that wording over placing it last or “has a
   bookmark”, 2026-10-27).
-  Next: FA1-p (panels beside the Notebook).
+  FA1-p is done (#392): Escape in the Notebook works while the tour offer
+  or the Greek commands window is open (BA24); beside a floating Notebook
+  dragged wide, a panel that would get under 300px lies over the Notebook
+  instead (BA27); and a touch selection's panel keeps clear of the Notebook,
+  as does a panel already open when the Notebook expands, which moves aside
+  rather than closing (BA28).
+  Next: FA1-q (the gate and first paint).
 
 - **Phase 2c is built on the preview** (2026-10-20): notes on a footnote
   and questions for discussion. **A note can be on a footnote** (M11):
@@ -6747,7 +6753,7 @@ The phases, in working order:
 | FA1-m | The tour, first use, and printing | done, #388: BA33, BA34, BA35, BA36, BA37 |
 | FA1-n | Present mode and the sheet page | done, #390: BA79, BA83, BA84, BA85, BA86 |
 | FA1-o | Announcements and focus for marks | done, #391: BA18, BA21, BA22 |
-| FA1-p | Panels beside the Notebook | BA24, BA27, BA28 |
+| FA1-p | Panels beside the Notebook | done, #392: BA24, BA27, BA28 |
 | FA1-q | The gate and first paint | BA25, BA26, BA29, BA30 |
 | FA1-r | /desk's smaller fixes | BA31, BA62, BA63, BA64, BA65, BA114, BA115 |
 | FA1-s | Greek credits and the notebook search | BA40, BA46, BA47 |
