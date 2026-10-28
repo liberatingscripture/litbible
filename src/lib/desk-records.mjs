@@ -56,10 +56,27 @@ export const MARKERS = Object.freeze([
   "emphasis",
   "question",
   "heart",
-  "bookmark",
+  "ribbon",
   "lightbulb",
   "flame",
 ]);
+
+/**
+ * Note markers renamed since a client may have written them, each with the
+ * name it reads as now. `bookmark` became `ribbon` (STUDY-DESK.md E10; BDR,
+ * 2026-10-23), so the marker no longer shares a name with Bookmarks; its
+ * picture and color stayed. Every client reads the old name as the new one
+ * and writes the new one, as iOS reads an old `star` as `emphasis`. A record
+ * still holding the old name is valid, and nothing stored is rewritten just
+ * because it was read: migrateRecord renames it on the way in, so the next
+ * write of that note carries the new name.
+ */
+export const RENAMED_MARKERS = Object.freeze({ bookmark: "ribbon" });
+
+/** A note marker by its current name: the new name for a renamed one. */
+export function currentMarker(marker) {
+  return typeof marker === "string" && Object.hasOwn(RENAMED_MARKERS, marker) ? RENAMED_MARKERS[marker] : marker;
+}
 
 /** Kinds that sit on the text, and so carry `bookKey`, `chapter` and verses. */
 const ON_THE_TEXT = new Set(["highlight", "note", "hidden", "bookmark", "place", "footnotePin"]);
@@ -236,16 +253,33 @@ export function emptyTrashRecord(trash, now = new Date().toISOString()) {
  * Bring a record up to SCHEMA_VERSION. A record from a newer schema is
  * returned unchanged, and canEdit keeps it read-only.
  *
- * One change so far, within schema 1: a trash record written before
- * `deletedKind` existed (phase 1b's provisional fields) takes the kind from
- * the record it holds. A tombstone already emptied can't recover it and stays
- * as it is; nothing reads the kind of a deletion past its 30 days.
+ * Two changes so far, within schema 1:
+ * - a trash record written before `deletedKind` existed (phase 1b's
+ *   provisional fields) takes the kind from the record it holds. A tombstone
+ *   already emptied can't recover it and stays as it is; nothing reads the
+ *   kind of a deletion past its 30 days;
+ * - a note with a renamed marker (RENAMED_MARKERS) takes the current name,
+ *   and so does a note a trash record holds, so undoing its deletion brings
+ *   it back renamed. A note this code can't edit (a newer schema) is left as
+ *   it arrived.
+ * Returns the record itself when nothing needed changing.
  */
 export function migrateRecord(record) {
-  if (record?.kind === "trash" && record.deletedKind == null && typeof record.record?.kind === "string") {
-    return { ...record, deletedKind: record.record.kind };
+  let r = record;
+  if (r?.kind === "trash" && r.deletedKind == null && typeof r.record?.kind === "string") {
+    r = { ...r, deletedKind: r.record.kind };
   }
-  return record;
+  if (r?.kind === "trash" && r.record) {
+    const held = renameMarker(r.record);
+    if (held !== r.record) r = { ...r, record: held };
+  }
+  return renameMarker(r);
+}
+
+function renameMarker(r) {
+  if (r?.kind !== "note" || !canEdit(r)) return r;
+  const marker = currentMarker(r.marker);
+  return marker === r.marker ? r : { ...r, marker };
 }
 
 const ISO = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$/;
@@ -293,7 +327,8 @@ export function validateRecord(r) {
   }
   if (k === "note") {
     need(typeof r.body === "string", "body is not text");
-    need(MARKERS.includes(r.marker), `marker "${r.marker}" is not one of ${MARKERS.join(", ")}`);
+    // A renamed marker's old name is still valid: every client reads it as the new one.
+    need(MARKERS.includes(currentMarker(r.marker)), `marker "${r.marker}" is not one of ${MARKERS.join(", ")}`);
     if (r.footnote != null) {
       need(typeof r.footnote === "string" && r.footnote.length > 0, "footnote is empty");
       need(r.n == null || (Number.isInteger(r.n) && r.n >= 1), "n is not a positive integer");

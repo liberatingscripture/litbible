@@ -15,7 +15,7 @@
 // changed it since (BA6). If one did, or deleted it, nothing is written and the
 // editor stays open with the reader's words, saying so.
 
-import { MARKERS, createRecord, proseTarget, verseCopyFor } from "../../lib/desk-records.mjs";
+import { MARKERS, createRecord, currentMarker, proseTarget, verseCopyFor } from "../../lib/desk-records.mjs";
 import { MARKER_NAMES, shortQuote } from "../../lib/desk-notes.mjs";
 import { planEdit } from "../../lib/desk-store-core.mjs";
 import { closePanel, showPanel } from "../lit-panel.js";
@@ -55,7 +55,8 @@ export function openNoteEditor({ trigger, store, ctx, ref, record = null, draft 
   const n = ++seq;
   const editing = Boolean(record);
   const place = record ?? draft;
-  let marker = record?.marker ?? "note";
+  // A renamed marker opens under its new name, and saving writes that (E10).
+  let marker = currentMarker(record?.marker ?? "note");
 
   const panel = document.createElement("div");
   panel.setAttribute("role", "dialog");
@@ -123,7 +124,7 @@ export function openNoteEditor({ trigger, store, ctx, ref, record = null, draft 
   };
 
   async function saveEdit(now) {
-    if (record.body === body.value && record.marker === marker) return closePanel();
+    if (record.body === body.value && currentMarker(record.marker) === marker) return closePanel();
     const changes = { body: body.value, marker };
     let overtaken = false;
     try {

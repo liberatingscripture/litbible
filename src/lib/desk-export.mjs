@@ -43,7 +43,7 @@ import { LIT_CREDIT_LINE } from "./lit-credit.mjs";
 import { osisRef } from "./osis.mjs";
 import { labelMap, labelsOf } from "./desk-labels.mjs";
 import { mergeRecords } from "./desk-merge.mjs";
-import { MARKERS, SCHEMA_VERSION, canEdit, createRecord, editRecord, proseTarget, validateRecord } from "./desk-records.mjs";
+import { MARKERS, SCHEMA_VERSION, canEdit, createRecord, currentMarker, editRecord, migrateRecord, proseTarget, validateRecord } from "./desk-records.mjs";
 import { cleanSheetText } from "./desk-sheet-format.mjs";
 import { kindName, liveRecords, recordHref, recordReference } from "./desk-store-core.mjs";
 
@@ -229,7 +229,7 @@ function kindLine(r) {
       // A note on a footnote (M11) says so, and Markdown won't make a new one,
       // since a heading names the verse and not which of its footnotes.
       const word = typeof r.footnote === "string" ? "Note on a footnote" : "Note";
-      return r.marker && r.marker !== "note" ? `${word} (${r.marker})` : word;
+      return r.marker && r.marker !== "note" ? `${word} (${currentMarker(r.marker)})` : word;
     }
     default:
       return kindName(r.kind);
@@ -476,7 +476,8 @@ function parseMarkdown(text, { local = [], ctx = {}, now = isoNow() } = {}) {
       problems.push(fail(e.line, `“${e.heading}” has no note under it, so it was left out.`));
       continue;
     }
-    const marker = MARKERS.includes(qualifier) ? qualifier : "note";
+    // A copy saved before a marker was renamed names the old one ("Note (bookmark)").
+    const marker = MARKERS.includes(currentMarker(qualifier)) ? currentMarker(qualifier) : "note";
     const place = placeOf(e);
     if (!place) {
       problems.push(fail(e.line, `“${e.heading}” isn’t a reference this notebook can read, like “Romans 8:3–4.”`));
@@ -682,9 +683,11 @@ export function planImport(local, incoming, ctx = {}) {
       skipped.push({ record: r, reason: "It is nested too deeply to be kept." });
       continue;
     }
-    const bad = r && typeof r === "object" && r.kind !== "trash" ? validateRecord(r) : [];
+    // Brought up to date first, so a note with a renamed marker reads by its new name (E10).
+    const m = r && typeof r === "object" ? migrateRecord(r) : r;
+    const bad = m && typeof m === "object" && m.kind !== "trash" ? validateRecord(m) : [];
     if (bad.length) skipped.push({ record: r, reason: `${bad.join("; ")}.`.replace(/^./, (c) => c.toUpperCase()) });
-    else usable.push(cleanIncoming(r));
+    else usable.push(cleanIncoming(m));
   }
   const merged = mergeRecords(local, usable, { now: ctx.now, exported: ctx.exported, tiebreak: ctx.tiebreak });
   skipped.push(...merged.skipped);

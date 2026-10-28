@@ -983,8 +983,9 @@ html[data-desk-note-font="plain"] .desk-note-pop {
 }
 
 /* A bookmark's mark: its glyph in red, not in a circle, in the gutter beside
-   the verse (a trial, BVJ 2026-10-07). The note marker of the same shape is
-   green and always comes with words, so the two read apart. */
+   the verse (a trial, BVJ 2026-10-07). The note marker of the same shape,
+   `ribbon` (named `bookmark` until E10), is green and always comes with
+   words, so the two read apart. */
 .desk-ribbon {
   position: absolute;
   width: 14px;

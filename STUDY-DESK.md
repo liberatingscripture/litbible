@@ -5758,6 +5758,31 @@ split itself is still a proposal BVJ worked within but hasn't confirmed.
   reader's accessibility font still wins on screen. Left out: images and
   tables. The set can grow later but never shrink.
 
+### 2026-10-27 (E10 built: the website reads and writes `ribbon`)
+
+**For BDR's Claude.** The website now follows E10 (BDR, 2026-10-23) on its
+preview, ahead of E9 and independent of it:
+
+- **The note markers are `note`, `emphasis`, `question`, `heart`, `ribbon`,
+  `lightbulb` and `flame`**, `ribbon` where `bookmark` stood. The note
+  editor offers "Ribbon" with the same green picture; nothing else a
+  reader sees changes. The `bookmark` kind (kind 4) is untouched.
+- **Read old, write new.** A note marked `bookmark` arriving from anywhere
+  (the notebook's own storage, a backup or Web Annotation file, a Markdown
+  copy's "Note (bookmark)", the merge, a note held in the trash) reads as
+  `ribbon` (`RENAMED_MARKERS` and `migrateRecord` in
+  `src/lib/desk-records.mjs`). Nothing stored is rewritten for being read,
+  and renaming isn't an edit, so `modified` doesn't move; the note is
+  written as `ribbon` the next time anything writes it. A record still
+  holding `bookmark` stays valid, since every client reads it as `ribbon`.
+  A note from a newer schema is carried as it arrived (principle 6).
+- **The merge and anchor vectors are unchanged.** Their notes are all
+  marked `note`, and how a client reads an old marker name (on arrival, as
+  the website does, or when it draws the note) is each client's own, so no
+  case was added.
+- Until this, the website refused a note marked `ribbon`: an app writing the
+  new name would have had those notes skipped on import here.
+
 ### 2026-10-27 (FA1-k: Greek search commands; BVJ's two calls)
 
 FA1-k fixed BA44, BA45, BA48, BA50 and BA116 (`STUDY-DESK-AUDIT-1.md`).
