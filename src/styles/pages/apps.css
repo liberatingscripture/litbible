@@ -103,7 +103,7 @@
      over the bottom; the app's 0.14 deepen comes to about 6%). After dark
      it's the app's "Glass": the light color scaled to luminance 0.034, with
      a deeper foot (0.62 of that, about 24% shade). Lettered white in both,
-     as the app is: on Easter's gold that measures 3.7 to 1, so
+     as the app is: on Easter's gold that measures 3.8 to 1, so
      prefers-contrast swaps in the app's high-contrast amber below. ---- */
   --band-advent: #1A4FA0;
   --band-christmas: #C62D25;
@@ -112,9 +112,16 @@
   --band-ot: #186420;
   --band-shade: 0.06;
 }
-@media (prefers-contrast: more) {
+/* The app's Increase Contrast amber, 6.2 to 1 under white: light mode only,
+   whether the OS is light or the reader forced light. */
+@media (prefers-contrast: more) and (prefers-color-scheme: light) {
   :root:not([data-theme="dark"]) .apps {
-    --band-easter: #7A5C0F; /* the app's Increase Contrast amber, ~6 to 1 under white */
+    --band-easter: #7A5C0F;
+  }
+}
+@media (prefers-contrast: more) {
+  :root[data-theme="light"] .apps {
+    --band-easter: #7A5C0F;
   }
 }
 
@@ -301,9 +308,10 @@
 /* ---- Section bands ----
    A section's `background` (src/content/apps-sections; render.ts's band())
    puts one of these on it. Plain sections take none and show the page.
-   Tints mix the season's color into the surface exactly as the callout cards
-   do: 8% over the near-white surface in light, 15% over the elevated surface
-   in dark, where the --season-* tokens are already the brighter accents. */
+   Tints mix the season's color into the surface: 8% over the near-white
+   surface in light, 15% over the elevated surface in dark, where the
+   --season-* tokens are already the brighter accents. (The callout cards
+   used to share this wash; they're season bands now, above.) */
 .apps .band--soft {
   background: var(--bg-soft);
 }
