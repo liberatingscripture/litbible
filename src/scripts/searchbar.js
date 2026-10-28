@@ -48,6 +48,7 @@ import {
 import { hasGreek, lemmaLine } from "../lib/greek-search.mjs";
 import { countLine, describeGreekQuery, errorMessage } from "../lib/greek-query.mjs";
 import { formsLine, replaceWord, verseGreek } from "../lib/greek-commands-ui.mjs";
+import { creditHtml } from "../lib/greek-credits.mjs";
 
 // The Greek commands window is loaded only when the Greek is searched at all
 // (and then only when a button asks for it), so a reader without the Study
@@ -591,6 +592,13 @@ const _initSearchbars = async () => {
     // page", and the way to the commands window in the group's foot. An error
     // or an empty result keeps the foot, so the window is always one click
     // away.
+    // Between the counts in the status line.
+    const STATUS_SEP = " • ";
+
+    // Who the Greek comes from, under every Greek group (BA46): the same
+    // names and links as the Greek tab's sources (greek-credits.mjs).
+    const GREEK_CREDIT = `<p class="searchbar__credit">${creditHtml(escapeHtml)}</p>`;
+
     function renderGreekCommandsGroup(greek, q, bookKey) {
       const group = document.createElement("div");
       group.className = "searchbar__group";
@@ -639,7 +647,8 @@ const _initSearchbars = async () => {
         <div class="searchbar__group-title">Greek</div>
         ${body}
         ${rows ? `<ol class="searchbar__results">${rows}</ol>` : ""}
-        <div class="searchbar__group-foot">${all}<button type="button" class="greek-cmd-link" data-greek-cmds>Search commands</button></div>`;
+        <div class="searchbar__group-foot">${all}<button type="button" class="greek-cmd-link" data-greek-cmds>Search commands</button></div>
+        ${GREEK_CREDIT}`;
 
       group.addEventListener("click", (e) => {
         const link = e.target.closest?.("[data-greek-hit]");
@@ -725,6 +734,7 @@ const _initSearchbars = async () => {
       group.innerHTML = `
         <div class="searchbar__group-title">Greek</div>
         <ol class="searchbar__results">${rows}</ol>
+        ${GREEK_CREDIT}
       `;
 
       group.addEventListener("click", (e) => {
@@ -879,22 +889,41 @@ const _initSearchbars = async () => {
 
         // A query with Greek letters or a Strong's number, or any query under
         // the Greek type, is searched in the Greek alone (BVJ, 2026-10-13):
-        // no other group, no count for one, and no other index fetched.
+        // no English group, no count for one, and no other index fetched.
+        // The reader's own notebook is the exception (BA40, BVJ 2026-10-28):
+        // under all types, their notes holding the Greek are listed too, ahead
+        // of it as on every other search.
         if (
           greekSearchEnabled() &&
           !ref &&
           (isGreekQuery(q) || activeMode === "greek")
         ) {
           if (pinnedGreek && pinnedGreek.text !== q) pinnedGreek = null;
+          const notebookPromise =
+            desk && activeMode === "all"
+              ? desk.search(q, { bookKey: keywordBook }).catch(() => null)
+              : null;
           const greek = await searchGreekAuto(base, q, {
             near: false,
             bookKey: keywordBook,
             lemmaId: pinnedGreek ? pinnedGreek.id : null,
           }).catch(() => null);
           if (mySeq !== searchSeq) return;
+          const notebook = notebookPromise ? await notebookPromise : null;
+          if (mySeq !== searchSeq) return;
+          const nCount = notebook?.total ?? 0;
+          const withNotebook = () => {
+            if (!nCount) return;
+            desk.renderTray(groupsEl, { notebook, query: q });
+            const line = `${nCount} notebook match${nCount === 1 ? "" : "es"}`;
+            // "No Greek words match." loses its period beside the count.
+            const said = status.textContent.replace(/\.$/, "");
+            status.textContent = said ? `${said}${STATUS_SEP}${line}` : line;
+          };
           // A command search (πίστις.gen, *.aor.impv) has its own group.
           if (greek?.kind === "commands") {
             renderGreekCommandsGroup(greek, q, keywordBook);
+            withNotebook();
             renderActiveFilters();
             return;
           }
@@ -912,6 +941,7 @@ const _initSearchbars = async () => {
               ? `${greekCount} Greek match${greekCount === 1 ? "" : "es"}`
               : `${greekCount} Greek word${greekCount === 1 ? "" : "s"}`;
           if (greekCount) renderGreekGroup(greek, q, keywordBook);
+          withNotebook();
           renderActiveFilters();
           return;
         }
@@ -1069,7 +1099,7 @@ const _initSearchbars = async () => {
         const aCount = articleMatches.length;
         const iCount = introMatches.length;
         const kCount = verseHits.length; // one match = one verse
-        const sep = " • ";
+        const sep = STATUS_SEP;
 
         // Only include counts for sections visible under the current mode
         const showG = activeMode === "all" || activeMode === "glossary";

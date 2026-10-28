@@ -43,7 +43,11 @@ search/
   only, accents and breathings removed), Strong's numbers and gloss, and the
   place and parsing of each of its words (lemmas.json, occ/), and the same
   words grouped by parsing (parse.json, parse/). Built from MorphGNT's lemmas
-  and parsing (CC BY-SA 3.0),
-  with Strong's numbers from MACULA Greek (Clear Bible, CC BY 4.0) and glosses
-  from the UBS dictionary above (or the brief lexicon where UBS has none).
-  This directory is licensed CC BY-SA 4.0.
+  and parsing (CC BY-SA 3.0), with Strong's numbers from MACULA Greek (Clear
+  Bible, CC BY 4.0). A lemma's glosses are the UBS dictionary's above (CC
+  BY-SA 4.0) and, for most lemmas, the brief gloss of STEPBible's TBESG
+  lexicon (Tyndale House Cambridge, CC BY 4.0). As with step/ and lsj/,
+  those glosses are formatted for this search and are not a copy of the
+  data: to use the lexicon yourself, get it from
+  https://github.com/STEPBible/STEPBible-Data (CC BY 4.0). Apart from them,
+  this directory is licensed CC BY-SA 4.0.

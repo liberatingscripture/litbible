@@ -17,9 +17,10 @@
 // out. A trash record is never a result either.
 //
 // Matching is by word beginning, with case and accents ignored (the same
-// folding the verse search uses): "lib" finds "Liberation", and every word of
-// the query has to be somewhere in the record or its labels. Results are in
-// Bible order, then notes on the glossary, then notes on articles.
+// folding the verse search uses, and a final ς read as σ): "lib" finds
+// "Liberation", and every word of the query has to be somewhere in the record
+// or its labels. Results are in Bible order, then notes on the glossary, then
+// notes on articles.
 
 import { BOOK_ORDER } from "../data/books.js";
 import { foldDiacritics } from "./word-stem.mjs";
@@ -27,7 +28,8 @@ import { kindName, recordHref, recordReference } from "./desk-store-core.mjs";
 
 const WORD_RE = /[\p{L}\p{N}]+/gu;
 
-const fold = (s) => foldDiacritics(String(s || "").toLowerCase());
+// A final sigma is a sigma (BA40): "πιστισ" typed with σ finds "πίστις".
+const fold = (s) => foldDiacritics(String(s || "").toLowerCase()).replace(/ς/g, "σ");
 
 /**
  * The words of a query, folded. A single letter is dropped when the query has

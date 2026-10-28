@@ -1039,6 +1039,7 @@ function showGreekStart() {
 function renderGreekCommands() {
   const greek = lastSearchCache.greek;
   hideResultGroups();
+  showGreekNotebook();
   const token = ++greekSeq;
   const stale = () => token !== greekSeq;
   setRefBanner("", false);
@@ -1088,6 +1089,17 @@ function renderGreekCommands() {
   setPager(total, page);
 }
 
+/**
+ * The reader's notes that match a Greek search, above the Greek on its first
+ * page (BA40). Call after hideResultGroups, which empties the group.
+ */
+function showGreekNotebook() {
+  const { notebook, deskApi } = lastSearchCache || {};
+  if (!deskApi || !notebook?.total || readState().page !== 1) return;
+  groupNotebook.hidden = false;
+  deskApi.renderPageGroup(notebookEl, notebook);
+}
+
 /** A Greek search's whole page: its group alone, its pager, no sort control, no jump links. */
 function renderGreekOnly() {
   if (lastSearchCache.greek?.kind === "commands") {
@@ -1097,6 +1109,7 @@ function renderGreekOnly() {
   clearGreekHelp();
   const greek = lastSearchCache.greek;
   hideResultGroups();
+  showGreekNotebook();
   const token = ++greekSeq;
   setRefBanner("", false);
   if (sortWrapEl) sortWrapEl.hidden = true;
@@ -1484,17 +1497,21 @@ async function runFullSearch() {
 
   // A query with Greek letters or a Strong's number, or any query under the
   // Greek type, is searched in the Greek alone: no Pagefind, verse search,
-  // topics, glossary, articles or notebook, and no counts for them.
+  // topics, glossary or articles, and no counts for them. The reader's own
+  // notebook is the exception (BA40, BVJ 2026-10-28): under all types, their
+  // notes holding the Greek are listed above it, on its first page.
   if (wantsGreekOnly(q, mode)) {
     if (greekChoice.q !== q) greekChoice = { q, lemmaId: null, exact: false };
-    const [greek, verseIndex] = await Promise.all([
+    const deskApi = mode === "all" ? await loadDeskSearch() : null;
+    const [greek, verseIndex, notebook] = await Promise.all([
       fetchGreek(q, book, greekChoice.lemmaId, greekChoice.exact).catch((err) => {
         console.warn("[search] Greek search failed:", err);
         return null;
       }),
       loadVerseIndex(base),
+      deskApi ? deskApi.search(q, { bookKey: book }).catch(() => null) : null,
     ]);
-    lastSearchCache = { greekOnly: true, displayQ, greek, verseIndex };
+    lastSearchCache = { greekOnly: true, displayQ, greek, verseIndex, notebook, deskApi };
     renderFromCache();
     return;
   }

@@ -1,6 +1,7 @@
 ---
 // src/pages/search.astro
 import SearchLayout from "../layouts/SearchLayout.astro";
+import { SEARCH_CREDIT, isExternal } from "../lib/greek-credits.mjs";
 
 const title = "Search | Liberation and Inclusion Translation";
 const description = "Search the Liberation & Inclusion Translation (LIT).";
@@ -108,6 +109,12 @@ const description = "Search the Liberation & Inclusion Translation (LIT).";
       <!-- Examples, or an error with its way out, where a Greek search has
            nothing to list (search.js). -->
       <div class="greek-help" id="greek-help" hidden></div>
+      <!-- Who the Greek comes from (BA46): the Greek tab's names and links. -->
+      <p class="greek-credit">{SEARCH_CREDIT.map((p) =>
+        typeof p === "string" ? p
+        : isExternal(p.href) ? <a href={p.href} target="_blank" rel="noopener noreferrer">{p.text}</a>
+        : <a href={p.href}>{p.text}</a>
+      )}</p>
     </div>
 
     <!-- The one pager, for whichever group is paging: English verses, or the
@@ -643,6 +650,20 @@ const description = "Search the Liberation & Inclusion Translation (LIT).";
 
   .greek-help[hidden] {
     display: none;
+  }
+
+  /* The Greek's sources, under the Greek group (greek-credits.mjs). */
+  .greek-credit {
+    margin: 16px 0 0;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: rgba(var(--ink-rgb), 0.75);
+  }
+
+  .greek-credit a {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 2px;
   }
 
   .greek-help__lead,

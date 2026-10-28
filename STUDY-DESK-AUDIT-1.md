@@ -119,7 +119,7 @@ it goes after both, and FA1-ac after FA1-t.
 | FA1-p | Panels beside the Notebook | BA24, BA27, BA28 | done, #392 |
 | FA1-q | The gate and first paint | BA25, BA26, BA29, BA30 | done, #396 |
 | FA1-r | /desk's smaller fixes | BA31, BA62, BA63, BA64, BA65, BA114, BA115 | done, #398 |
-| FA1-s | Greek credits and the notebook search | BA40, BA46, BA47 | open |
+| FA1-s | Greek credits and the notebook search | BA40, BA46, BA47 | done, #PR |
 | FA1-t | Copy and docs | BA15, BA38, BA39, BA42, BA43, BA91, BA109, BA118 | open |
 | FA1-w | What's new for you | BA88, BA90, BA92, BA96, BA97, BA98 | open |
 | FA1-x | A note's references | BA89, BA93, BA94, BA95 | open |
@@ -1280,7 +1280,7 @@ CLAUDE.md desk rules 14 and 15. **Do this before Greek search launches**
   - *Fix*: a one-line credit under each Greek group, with links, sharing the
     tab's strings: “Greek: SBLGNT; parsing: MorphGNT; glosses: UBS and STEP
     Bible.”
-  - Status: open.
+  - Status: **Fixed in #PR** (FA1-s). `src/lib/greek-credits.mjs` holds the Greek tab's sources and the line, which the tray (`searchbar.js`) and /search (`search.astro`, at build) draw under every Greek group: “Greek: SBLGNT; parsing: MorphGNT and MACULA Greek; glosses: UBS and STEP Bible (licenses).” MACULA is added, since it gives the index its Strong's numbers and two passages' parsing. Tested in `test/greek-credits.test.js`.
 - **BA47 (low, licensing). LICENSE.txt understates STEP Bible's share of the
   search index.**
   - *What happens*: the `search/` section says its glosses come “from the
@@ -1294,7 +1294,7 @@ CLAUDE.md desk rules 14 and 15. **Do this before Greek search launches**
     The file is written from `LICENSE_TEXT` in `scripts/build-greek.mjs`
     (about line 422) and committed, and CI can't run `build:greek`. Edit
     both identically.
-  - Status: open.
+  - Status: **Fixed in #PR** (FA1-s). The section names TBESG's brief glosses (CC BY 4.0) for most lemmas, points to github.com/STEPBible as `step/` and `lsj/` do, and keeps the rest of `search/` CC BY-SA 4.0, which MorphGNT's ShareAlike requires. `test/greek-credits.test.js` holds the file to `LICENSE_TEXT`.
 - **BA40 (low; BVJ's call). A Greek search never looks in the notebook, and
   the notebook's matching misses a final sigma typed as σ.**
   - *What happens*: a Greek query returns before the “Your notebook” group
@@ -1304,7 +1304,7 @@ CLAUDE.md desk rules 14 and 15. **Do this before Greek search launches**
     “πιστις” finds the note.
   - *Recommended*: fold ς to σ either way. BVJ to say whether a Greek query
     lists the reader's matching notes.
-  - Status: open.
+  - Status: **Fixed in #PR** (FA1-s). BVJ chose to list them (2026-10-28): under all types, the notebook's matches come ahead of the Greek in the tray and on /search's first page, still with no English group. `desk-search.mjs`'s `fold` reads ς as σ. Tested in `test/desk-search.test.js`.
 
 ## FA1-t. Copy and docs
 
