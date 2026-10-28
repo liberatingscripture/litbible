@@ -4,19 +4,25 @@
   "background": "plain",
   "eyebrow": "Supercharged on tablets and foldables",
   "title": "Expand your views,\nand your view.",
-  "text": "A second panel fans open on iPad and foldable phones, bringing your notes, glossary, and more on one side, the passage on the other.",
+  "text": "Browse the nerdy stuff without losing your place on iPhone Duo, iPad, and Android foldables.",
   "devices": {
     "tablet": {
-      "src": "/assets/screenshots/ipad-philippians-2.webp",
-      "alt": "LIT Bible on an iPad Air in landscape — the My Notes panel beside Philippians 2 in the side-by-side study view",
-      "width": 2640,
-      "height": 1920
+      "src": "/assets/screenshots/translation-ipad-2-framed.webp",
+      "alt": "LIT Bible on an iPad Air in landscape — the Glossary panel beside Matthew 5 in the side-by-side study view",
+      "width": 1300,
+      "height": 945
     },
     "foldable": {
       "src": "/assets/screenshots/android-foldable-philippians-2.webp",
       "alt": "LIT Bible on an unfolded Pixel 9 Fold — a notes and highlights panel beside Philippians 2, in Lent purple",
       "width": 2204,
       "height": 2274
+    },
+    "duo": {
+      "src": "/assets/screenshots/sacred-time-duo-2-framed.webp",
+      "alt": "LIT Bible on an unfolded iPhone Duo in landscape — the Today page for the First Sunday of Advent beside Mark 13",
+      "width": 1300,
+      "height": 944
     }
   }
 }

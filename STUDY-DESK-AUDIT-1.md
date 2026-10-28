@@ -117,7 +117,7 @@ it goes after both, and FA1-ac after FA1-t.
 | FA1-n | Present mode and the sheet page | BA79, BA83, BA84, BA85, BA86 | done, #390 |
 | FA1-o | Announcements and focus for marks | BA18, BA21, BA22 | done, #391 |
 | FA1-p | Panels beside the Notebook | BA24, BA27, BA28 | done, #392 |
-| FA1-q | The gate and first paint | BA25, BA26, BA29, BA30 | open |
+| FA1-q | The gate and first paint | BA25, BA26, BA29, BA30 | done, #396 |
 | FA1-r | /desk's smaller fixes | BA31, BA62, BA63, BA64, BA65, BA114, BA115 | open |
 | FA1-s | Greek credits and the notebook search | BA40, BA46, BA47 | open |
 | FA1-t | Copy and docs | BA15, BA38, BA39, BA42, BA43, BA91, BA109, BA118 | open |
@@ -1166,7 +1166,10 @@ a half-screen window (about 960px).
     copies, and add the user agents to `test/desk-prepaint.test.js`. The same
     test also decides the app announcement's QR code and “Make an image”'s
     share-or-download, which is right for tablets.
-  - Status: open.
+  - Status: **Fixed in #396.** `isAppPlatform` and the pre-paint copy also
+    count `userAgentData.mobile`, and a Linux user agent with a touch screen
+    unless it is a Chromebook (“CrOS”). The user agents are in
+    `test/desk-prepaint.test.js` and `test/announcement-gate.test.js`.
 - **BA25 (low). In a half-screen window every chapter opens at 48 and
   reflows to 52.**
   - *What happens*: once `lit-desk-min` is “0” or the start is Open, the
@@ -1177,7 +1180,15 @@ a half-screen window (about 960px).
   - *Where*: `Layout.astro:104`; `margin.js:222, 240`.
   - *Fix*: don't stamp below a rough window-width threshold, or treat the
     first placement after a pre-paint stamp as already expanded.
-  - Status: open.
+  - Status: **Fixed in #396**, by the first fix, made exact rather than
+    rough: the pre-paint script repeats `firstPaint` (`desk-margin.mjs`),
+    which works out the 48 column's width from the reader's font and text
+    size and stamps `data-desk-expanded` only where `placeInMargin` will keep
+    the notebook in the margin. The window it reads is the width less the
+    scrollbar, measured on a throwaway element: before the critical CSS's
+    scrollbar gutter is laid out, `clientWidth` still includes it, which left
+    a 16px band. Checked in a browser: the stamp now flips at a 898px layout
+    width, where the notebook stops floating.
 - **BA29 (low). If the desk fails to start, the column stays narrowed and
   the buttons do nothing.**
   - *What happens*: the pre-paint stamps stay when the shell's code fails to
@@ -1188,7 +1199,14 @@ a half-screen window (about 960px).
   - *Fix*: remove `data-desk-panel`, `data-desk-expanded` and
     `data-desk-widths` in the gate's catch and around `start()`. Build each
     tab in its own try/catch.
-  - Status: open.
+  - Status: **Fixed in #396.** `standDown()` (`desk-frame.js`) removes
+    `data-desk` too, so the Notebook buttons hide and the column goes back to
+    the reader's, along with the panel, expanded and widths stamps and their
+    properties, any rail and width handles, and the column's move. The gate
+    calls it when the shell fails to load, and the shell when `start()`
+    fails before the panel is built; after that a failure is only logged.
+    Each tab is built in its own try/catch, and one that throws shows “This
+    tab couldn’t load.”
 - **BA30 (low). Widths dragged in a wide window make a narrower one open
   off-center, then jump.**
   - *What happens*: the pre-paint script checks only `x >= 280`
@@ -1196,7 +1214,10 @@ a half-screen window (about 960px).
     small window gives the column a 640px right margin until `margin.js`
     runs after the store opens.
   - *Fix*: skip stamping a width above about half the window.
-  - Status: open.
+  - Status: **Fixed in #396**, more fully than the suggested threshold: the
+    script gives the kept widths way exactly as `placeWithWidths` does (the
+    notebook first, then the LIT) and stamps what fits, or nothing where they
+    don't fit at all. Checked in a browser at 1440, 1100 and 800px.
 
 ## FA1-r. /desk's smaller fixes
 

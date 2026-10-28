@@ -603,13 +603,35 @@ function pendingByAnchor() {
 // --- Saving the draft -----------------------------------------------------------------
 
 let saveTimer = null;
+let renderLater = false;
+
+/** Whether a text field has focus. Nothing saves or redraws under someone typing. */
+function typing() {
+  const a = document.activeElement;
+  return !!a && (a.isContentEditable || a.matches("textarea, input:not([type]), input[type=text], input[type=url], input[type=search]"));
+}
+
+// Typing is saved when the field is left: another pane, a click elsewhere, or
+// the tab hidden. Other edits (a swatch, a button) save after a short pause.
 function queueSave() {
   if (st.readOnly || !st.db) return;
   st.dirty = true;
   setStatus("saving", "Unsaved");
   clearTimeout(saveTimer);
-  saveTimer = setTimeout(flush, 650);
+  if (!typing()) saveTimer = setTimeout(flush, 650);
 }
+
+/** Redraw for news from the database, unless it would replace the field being typed in. */
+function renderFromDb() {
+  if (typing()) { renderLater = true; return; }
+  if (st.seed) renderAll();
+}
+
+document.addEventListener("focusout", () => setTimeout(() => {
+  if (typing()) return;
+  if (st.dirty) flush();
+  if (renderLater) { renderLater = false; if (st.seed) renderAll(); }
+}, 0));
 
 async function flush() {
   clearTimeout(saveTimer);
@@ -637,6 +659,7 @@ async function flush() {
   }
 }
 document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden" && st.dirty) flush(); });
+window.addEventListener("pagehide", () => { if (st.dirty) flush(); });
 
 // --- Sending, answering, withdrawing --------------------------------------------------
 
@@ -790,6 +813,7 @@ function selector(sel) {
     case "section": return q("data-section", sel.id);
     case "callout": return q("data-callout", sel.id);
     case "season": return q("data-season", sel.id);
+    case "carousel": return q("data-carousel-card", sel.id);
     case "example": return `article${q("data-example", sel.id)}`;
     case "note": return q("data-note", sel.key);
     default: return null;
@@ -1079,6 +1103,26 @@ function calloutPanel(id) {
     <div class="row"><button type="button" class="btn btn--quiet" data-action="deselect">Done</button></div>`;
 }
 
+/** The carousel's card ("Mark sacred time"), drawn as the last callout of the reader section. */
+function carouselPanel(id) {
+  const model = current().model;
+  const s = model.sections.find((x) => x.id === id);
+  if (!s?.carousel) return homePanel();
+  const cy = s.carousel;
+  const p = ["sections", id, "carousel"];
+  const seasons = [...model.seasons].sort(byOrder);
+  const field = (k, label) => `<li><button type="button" data-action="edit-field" data-path="${esc(pathKey([...p, k]))}">${label}<em>${esc(short(cy[k] ?? "", 30))}</em></button></li>`;
+  return `
+    <p class="crumb">Callout ${model.callouts.length + 1} of ${model.callouts.length + 1} · the season carousel</p>
+    <h2>${esc(cy.title)}</h2>
+    <div class="fld"><span>Words</span><ul class="outline">
+      ${field("title", "Heading")}${field("text", "Text")}${field("passage", "Passage the screenshots show")}${field("stageLabel", "What a screen reader hears")}
+    </ul></div>
+    <div class="fld"><span>Seasons, with their screenshots</span><ul class="outline">${seasons.map((se) => `<li><button type="button" data-action="select-season" data-id="${esc(se.id)}">${esc(se.name)}<em>${esc(String(se.image).split("/").pop())}</em></button></li>`).join("")}</ul></div>
+    <p class="hint">Its color follows whichever season is showing, and its picture stays on the right. To change either, leave Claude a note.</p>
+    <div class="row"><button type="button" class="btn btn--quiet" data-action="deselect">Done</button></div>`;
+}
+
 function seasonPanel(id) {
   const model = current().model;
   const se = model.seasons.find((x) => x.id === id);
@@ -1121,7 +1165,7 @@ function homePanel() {
     <h2>Edit the page</h2>
     <p class="lede">Click any words, picture, button or section on the page to change it. Edits save as you go, and nothing reaches the site until you send them.</p>
     <h3>On this page</h3>
-    <ul class="outline">${sections.map((s) => `<li><button type="button" data-action="select-section" data-id="${esc(s.id)}">${esc(KINDS[s.kind]?.name ?? s.kind)}${s.hidden ? "<em>hidden</em>" : ""}</button></li>${s.kind === "reader" ? [...model.callouts].sort(byOrder).map((co) => `<li class="sub"><button type="button" data-action="select-callout" data-id="${esc(co.id)}">${esc(short(co.title, 34))}</button></li>`).join("") : ""}`).join("")}</ul>
+    <ul class="outline">${sections.map((s) => `<li><button type="button" data-action="select-section" data-id="${esc(s.id)}">${esc(KINDS[s.kind]?.name ?? s.kind)}${s.hidden ? "<em>hidden</em>" : ""}</button></li>${s.kind === "reader" ? [...model.callouts].sort(byOrder).map((co) => `<li class="sub"><button type="button" data-action="select-callout" data-id="${esc(co.id)}">${esc(short(co.title, 34))}</button></li>`).join("") + (s.carousel ? `<li class="sub"><button type="button" data-action="select-carousel" data-id="${esc(s.id)}">${esc(short(s.carousel.title, 34))}</button></li>` : "") : ""}`).join("")}</ul>
     <div class="row"><button type="button" class="btn" data-action="page-title">Search and sharing text</button><button type="button" class="btn" data-action="add-callout">Add a callout</button></div>
     <h3>Something else?</h3>
     <label class="fld" for="free-anchor"><span>Which part of the page?</span><select id="free-anchor"><option value="">The whole page</option>${sections.map((s) => `<option value="${esc(s.id)}">${esc(KINDS[s.kind]?.name ?? s.kind)}</option>`).join("")}</select></label>
@@ -1142,6 +1186,7 @@ function renderEdit() {
   else if (s.type === "section") html = sectionPanel(s.id);
   else if (s.type === "callout") html = calloutPanel(s.id);
   else if (s.type === "season") html = seasonPanel(s.id);
+  else if (s.type === "carousel") html = carouselPanel(s.id);
   else if (s.type === "example") html = examplePanel(s.id);
   else if (s.type === "note") html = notePanel(s.key);
   else html = homePanel();
@@ -1298,7 +1343,7 @@ function renderRequests() {
 els.replica.addEventListener("click", (e) => {
   e.preventDefault();
   if (st.preview || !st.seed) return;
-  const t = e.target.closest("[data-section-tag],[data-add],[data-note],[data-edit],[data-image],[data-link],[data-season],[data-callout],[data-example],[data-section]");
+  const t = e.target.closest("[data-section-tag],[data-add],[data-note],[data-edit],[data-image],[data-link],[data-season],[data-callout],[data-carousel-card],[data-example],[data-section]");
   if (!t) return select(null);
   if (t.dataset.sectionTag) return select({ type: "section", id: t.dataset.sectionTag });
   if (t.dataset.add === "callout") return addCallout();
@@ -1313,6 +1358,7 @@ els.replica.addEventListener("click", (e) => {
   if (t.dataset.link) return select({ type: "link", path: parsePathKey(t.dataset.link) });
   if (t.dataset.season) return select({ type: "season", id: t.dataset.season });
   if (t.dataset.callout) return select({ type: "callout", id: t.dataset.callout });
+  if (t.dataset.carouselCard) return select({ type: "carousel", id: t.dataset.carouselCard });
   if (t.dataset.example) return select({ type: "example", id: t.dataset.example });
   if (t.dataset.section) return select({ type: "section", id: t.dataset.section });
 });
@@ -1426,6 +1472,8 @@ panelsRoot.addEventListener("click", (e) => {
     case "edit-image": return select({ type: "image", path: parsePathKey(d.path) }, { scroll: true });
     case "select-section": return select({ type: "section", id: d.id }, { scroll: true, focus: false });
     case "select-callout": return select({ type: "callout", id: d.id }, { scroll: true, focus: false });
+    case "select-carousel": return select({ type: "carousel", id: d.id }, { scroll: true, focus: false });
+    case "select-season": return select({ type: "season", id: d.id }, { scroll: true, focus: false });
     case "page-title": return select({ type: "field", path: ["page", "title"] });
     case "add-note": {
       const at = $("#free-anchor")?.value;
@@ -1626,21 +1674,23 @@ function restoreView() {
     showNotice("");
     els.seedLabel.textContent = st.seed.commit ? `live page · ${String(st.seed.commit).slice(0, 7)}` : "live page";
     invalidate();
-    renderAll();
+    renderFromDb();
     if (els.status.dataset.state === "idle") setStatus("saved", "Up to date");
   }, (e) => setStatus("error", e?.code === "revoked" ? "Access changed" : "Lost the connection; reload"));
 
   db.doc("studio/draft").onSnapshot((snap) => {
     if (snap.metadata.hasPendingWrites || st.dirty || st.saving) return;
     const data = snap.exists ? snap.data() : null;
-    st.draft = { changes: clone(data?.changes ?? {}), message: data?.message ?? "" };
+    const next = { changes: clone(data?.changes ?? {}), message: data?.message ?? "" };
+    if (deepEqual(next, st.draft)) return; // the echo of this board's own save
+    st.draft = next;
     invalidate();
-    if (st.seed) renderAll();
+    renderFromDb();
   });
 
   db.collection("requests").onSnapshot((snap) => {
     st.requests = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
     invalidate();
-    if (st.seed) renderAll();
+    renderFromDb();
   });
 })();

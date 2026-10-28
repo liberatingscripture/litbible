@@ -7,11 +7,16 @@
 // Everywhere else this is the whole of the desk a reader downloads: the shell
 // is a dynamic import, which Vite splits into chunks of its own.
 
-import { readingSurface } from "./desk-frame.js";
+import { readingSurface, standDown } from "./desk-frame.js";
 
 if (document.documentElement.dataset.desk === "on" && readingSurface()) {
+  // Didn't load (offline, or an old page after a deploy): the page goes back
+  // to what it is without the desk, rather than keeping the narrowed column
+  // and Notebook buttons that do nothing (BA29). The shell does the same if
+  // the Notebook fails to start.
   import("./desk/shell.js").catch((err) => {
     console.error("Study Desk: the shell didn't load", err);
+    standDown();
   });
 } else if (document.documentElement.dataset.desk === "on" && document.querySelector("[data-notebook-page]")) {
   // The notebook page (/notebook/) is not a reading surface: it has no panel

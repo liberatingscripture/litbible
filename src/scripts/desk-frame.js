@@ -90,6 +90,29 @@ export function readingSurface(doc = document) {
   return READING_SURFACES.find((s) => doc.querySelector(s.column[0])) ?? null;
 }
 
+// What Layout.astro's pre-paint script and src/scripts/desk/margin.js put on
+// <html> for the Notebook.
+const DESK_ATTRS = ["data-desk", "data-desk-panel", "data-desk-expanded", "data-desk-widths", "data-desk-no-notebook"];
+const DESK_PROPS = ["--desk-measure", "--desk-width", "--desk-dock-width", "--desk-bar-center"];
+
+/**
+ * Put the page back as it is without the desk, when the desk's code didn't
+ * load (offline, or an old page after a deploy) or the Notebook failed to
+ * start (BA29). The pre-paint stamps had already narrowed the column and
+ * shown the Notebook buttons, which then did nothing; with them gone the
+ * page is the ordinary reader's page, its buttons hidden (global.css). Also
+ * takes away the rail and the width handles, and the column's move left, in
+ * case the Notebook got that far.
+ */
+export function standDown(doc = document) {
+  const root = doc.documentElement;
+  for (const a of DESK_ATTRS) root.removeAttribute(a);
+  for (const p of DESK_PROPS) root.style.removeProperty(p);
+  for (const el of doc.querySelectorAll(".desk-rail, .desk-gutters")) el.remove();
+  const surface = readingSurface(doc);
+  for (const sel of surface?.move ?? []) for (const el of doc.querySelectorAll(sel)) el.style.translate = "";
+}
+
 /**
  * How much of the window's width, from its right edge, the open panel keeps
  * clear for itself, in px: from the panel's left edge to the window's edge,

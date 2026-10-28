@@ -251,8 +251,15 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
     const kept = localStorage.getItem(TAB_KEY);
     if (kept && tabs.has(kept)) activeTab = kept;
   } catch (_) {}
+  // Each tab is built on its own, so one that fails leaves the notebook and
+  // its other tabs working, and says so in its place (BA29).
   for (const t of tabs.values()) {
-    t.view = t.make();
+    try {
+      t.view = t.make();
+    } catch (err) {
+      console.error(`Study Desk: the ${t.label} tab didn't load`, err);
+      t.view = brokenTab();
+    }
     t.body.append(t.view.el);
   }
 
@@ -609,6 +616,17 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
     snapshot,
     restore,
   };
+}
+
+/**
+ * A tab that failed to build (BA29): a line saying so where its content would
+ * be, and every call the panel makes on a tab's view answered with nothing.
+ */
+function brokenTab() {
+  const el = document.createElement("p");
+  el.className = "desk-panel__empty";
+  el.textContent = "This tab couldn’t load. Reloading the page may bring it back.";
+  return { el, render() {}, setVerse() {}, focusHeading() {}, async selectWord() {} };
 }
 
 function escapeHtml(s) {

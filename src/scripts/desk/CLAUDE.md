@@ -31,7 +31,17 @@ that section.
      `<html data-desk="on">`. The script repeats
      `src/lib/app-platform.mjs`'s test, since it
      can't import; `test/desk-prepaint.test.js` runs it against the same
-     devices, so change the two together.
+     devices, so change the two together. A tablet whose browser passes for
+     a computer's (iPadOS reports a Mac; Chrome and Firefox on an Android
+     tablet in desktop site mode report Linux) is told by its touch screen,
+     and a Chromebook stays a computer (BA26).
+     **If the desk doesn't come up, the page stands down** (BA29): where the
+     shell fails to load (offline, an old page after a deploy) or fails
+     before the Notebook is built, `standDown()` (`desk-frame.js`, called by
+     the gate and the shell) takes the pre-paint stamps off, so the column
+     and the hidden Notebook buttons are the reader's again. A failure after
+     the Notebook is up is only logged. `createPanel` builds each tab on its
+     own, so one that throws shows a line saying so and the rest work.
   2. **Readers download none of it.** `desk-gate.js` imports
      `src/scripts/desk/shell.js` only with `data-desk="on"`. The shell adds
      `desk.css` itself as a `<style>` (`?inline`): **a plain CSS import is
@@ -110,7 +120,17 @@ that section.
      articles and the glossary stay at 52, since none gets that tab. The switch is
      `html[data-desk-expanded]`, which Layout.astro's pre-paint script stamps
      so a page opening with the notebook expanded never reflows, and which
-     margin.js sets and clears inside `keepReadingPlace`.
+     margin.js sets and clears inside `keepReadingPlace`. **It stamps it, and
+     the dragged widths below, only where the window holds them** (BA25,
+     BA30): the script repeats `firstPaint` (`desk-margin.mjs`), which works
+     out the column's width from the reader's font and text size
+     (`FIRST_PAINT`, held to global.css and ScriptureLayout.astro by
+     `test/desk-margin.test.js`) and the window less its scrollbar, which the
+     script measures, since the page's reserved gutter isn't there yet. Too
+     narrow, the notebook floats and folds, and a stamp would have reflowed
+     every chapter from 48 to 52; widths kept in a wider window are given way
+     as `placeWithWidths` gives them, or left off. A change to the column's
+     CSS, or to the placement rules, needs `firstPaint` to follow.
      Read View's toolbar takes a fixed
      floor (725px; 895px in OpenDyslexic) because it outgrows the column.
      **On Study View the reader can drag the widths** of their notes'

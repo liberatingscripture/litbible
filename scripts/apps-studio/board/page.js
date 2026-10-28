@@ -11,6 +11,7 @@
  *   data-edit="<path>"   a piece of text       data-image="<path>"  a picture
  *   data-link="<path>"   a button or link      data-section="<id>"  a section
  *   data-callout="<id>"  a callout card        data-season="<id>"   a carousel chip
+ *   data-carousel-card="<section id>"  the carousel's card, the last callout
  *   data-example="<id>"  the comparison card
  * A path is the model path with each part URI-encoded and joined by "/",
  * so an icon's path ["files", "/assets/images/x.webp"] survives the trip.
@@ -225,8 +226,8 @@ const DRAW = {
 
   bigscreens(s, c) {
     const p = ["sections", s.id];
-    const { tablet, foldable } = s.devices;
-    return `<section class="${cls("bigscreens", band(s.background))}"${sec(s, c)}>${tag(s, c)}<div class="container bigscreens__inner"><header class="bigscreens__head"><span ${edc(c, [...p, "eyebrow"], "bigscreens__eyebrow")}${ed(c, [...p, "eyebrow"], "Small heading", "line")}>${inline(s.eyebrow)}</span><h2 ${edc(c, [...p, "title"], "bigscreens__title")}${ed(c, [...p, "title"], "Heading", "title")}>${inline(s.title)}</h2><p ${edc(c, [...p, "text"], "bigscreens__body")}${ed(c, [...p, "text"], "Text", "prose")}>${inline(s.text)}</p></header><div class="bigscreens__stage"><figure class="bigscreens__device bigscreens__device--pad">${image(c, tablet, [...p, "devices", "tablet"], "bigscreens__shot bigscreens__shot--pad", "Tablet", "tablet", ' loading="lazy" decoding="async"')}</figure><figure class="bigscreens__device bigscreens__device--fold">${image(c, foldable, [...p, "devices", "foldable"], "bigscreens__shot bigscreens__shot--fold", "Foldable", "foldable", ' loading="lazy" decoding="async"')}</figure></div></div></section>`;
+    const { tablet, foldable, duo } = s.devices;
+    return `<section class="${cls("bigscreens", band(s.background))}"${sec(s, c)}>${tag(s, c)}<div class="container bigscreens__inner"><header class="bigscreens__head"><span ${edc(c, [...p, "eyebrow"], "bigscreens__eyebrow")}${ed(c, [...p, "eyebrow"], "Small heading", "line")}>${inline(s.eyebrow)}</span><h2 ${edc(c, [...p, "title"], "bigscreens__title")}${ed(c, [...p, "title"], "Heading", "title")}>${inline(s.title)}</h2><p ${edc(c, [...p, "text"], "bigscreens__body")}${ed(c, [...p, "text"], "Text", "prose")}>${inline(s.text)}</p></header><div class="${cls("bigscreens__stage", duo ? "bigscreens__stage--trio" : "")}"><figure class="bigscreens__device bigscreens__device--fold">${image(c, foldable, [...p, "devices", "foldable"], "bigscreens__shot bigscreens__shot--fold", "Foldable", "foldable", ' loading="lazy" decoding="async"')}</figure><figure class="bigscreens__device bigscreens__device--pad">${image(c, tablet, [...p, "devices", "tablet"], "bigscreens__shot bigscreens__shot--pad", "Tablet", "tablet", ' loading="lazy" decoding="async"')}</figure>${duo ? `<figure class="bigscreens__device bigscreens__device--duo">${image(c, duo, [...p, "devices", "duo"], "bigscreens__shot bigscreens__shot--duo", "iPhone Duo", "picture", ' loading="lazy" decoding="async"')}</figure>` : ""}</div></div></section>`;
   },
 
   humane(s, c) {
@@ -277,5 +278,6 @@ function carousel(s, c) {
       return `<div class="church-year__frame${i === active ? " is-active" : ""}" data-index="${i}" aria-label="${escapeHtml(`${cy.passage} with ${se.name} accent color`)}"><img src="${escapeHtml(c.img(se.image))}" alt="${escapeHtml(`LIT Bible showing ${cy.passage} with ${se.name} accent color`)}" ${edc(c, q, "church-year__phone")} loading="lazy" decoding="async" width="${cy.frame.width}" height="${cy.frame.height}"${im(c, q, `${se.name} screenshot`, "carousel")}></div>`;
     })
     .join("");
-  return `<div class="church-year" data-carousel style="--cy-band: var(${seasons[active].colorVar.replace("--season-", "--band-")});"><div class="church-year__copy"><h3 ${edc(c, [...p, "title"], "church-year__title")}${ed(c, [...p, "title"], "Carousel heading", "title")}>${inline(cy.title)}</h3><p ${edc(c, [...p, "text"], "church-year__body")}${ed(c, [...p, "text"], "Carousel text", "prose")}>${inline(cy.text)}</p><div class="church-year__chips" role="list">${chips}</div></div><div class="church-year__stage" role="group" aria-label="${escapeHtml(cy.stageLabel)}" style="aspect-ratio: ${cy.frame.width} / ${cy.frame.height};">${frames}</div></div>`;
+  const sel = c.editable ? ` data-carousel-card="${escapeHtml(s.id)}" data-label="Carousel"` : "";
+  return `<div class="church-year" data-carousel${sel} style="--cy-band: var(${seasons[active].colorVar.replace("--season-", "--band-")});"><div class="church-year__copy"><h3 ${edc(c, [...p, "title"], "church-year__title")}${ed(c, [...p, "title"], "Carousel heading", "title")}>${inline(cy.title)}</h3><p ${edc(c, [...p, "text"], "church-year__body")}${ed(c, [...p, "text"], "Carousel text", "prose")}>${inline(cy.text)}</p><div class="church-year__chips" role="list">${chips}</div></div><div class="church-year__stage" role="group" aria-label="${escapeHtml(cy.stageLabel)}" style="aspect-ratio: ${cy.frame.width} / ${cy.frame.height};">${frames}</div></div>`;
 }

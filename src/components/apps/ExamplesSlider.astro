@@ -80,8 +80,10 @@ function lite(md: string): string {
     line-height: var(--leading-snug);
   }
 
+  /* The block is centered in the section; its texts stay left-aligned. */
   .example {
     max-width: var(--measure-wide);
+    margin-inline: auto;
   }
   .example__reference {
     font-family: var(--font-serif);
@@ -90,6 +92,7 @@ function lite(md: string): string {
     letter-spacing: var(--tracking-tight);
     color: var(--text);
     margin-bottom: var(--space-6);
+    text-align: center;
   }
   .example__columns {
     display: grid;

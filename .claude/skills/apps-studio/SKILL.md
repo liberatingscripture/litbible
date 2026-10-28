@@ -46,7 +46,7 @@ Every write to an existing document needs `if_version` from your last read. Appe
    - **A note with pictures is a picture BDR added to a section.** Its result's `files` lists them, already converted (and framed, if BDR asked, by the `frames` CLI). One upload used by two notes is one file. Lay each out where BDR's words say:
      - Make it a picture field of that section (`{src, alt, width, height}` under a key that says what it is, for example `phones.duo` in the hero or `devices.duo` in the showcase). Put it in the section's JSON, add it to the schema in `src/components/apps/collections.ts` (optional, so the LSC copy still builds), and draw it in the component and in `scripts/apps-studio/board/page.js` (with `im()`, so the board can swap it). Then run `npm run studio:apps -- board-css` if the styles changed. From then on it's an ordinary picture: `slotFor` treats it as a `picture`.
      - If its `alt` is empty, open the picture and write the alt text yourself.
-     - Keep the layout's proportions. The showcase draws its devices at real-life scale (see `BigScreens.astro`'s header); an iPhone Duo unfolded is about 150mm tall.
+     - Keep the layout's proportions. The showcase draws its devices at real-life scale; `BigScreens.astro`'s header has each device's size, including the iPhone Duo's estimate.
      - Check it at phone, tablet and desktop widths, in light and dark, before writing back. If you can't build here, check on the Cloudflare preview. Describe the placement in the PR.
    - Also read every change's `note`; it may ask for something beyond the change itself.
    - `warnings` (house style): mention them in the PR. If the words are BDR's new copy, write a call; don't fix them silently.

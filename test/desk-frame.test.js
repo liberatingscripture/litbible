@@ -11,7 +11,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
-import { MIN_PANEL_ROOM, READING_SURFACES, panelRoom, readingSurface, shiftClearOfDock } from "../src/scripts/desk-frame.js";
+import { MIN_PANEL_ROOM, READING_SURFACES, panelRoom, readingSurface, shiftClearOfDock, standDown } from "../src/scripts/desk-frame.js";
 
 const css = readFileSync(new URL("../src/styles/global.css", import.meta.url), "utf8");
 const rule = /body:not\(:has\(([^)]*)\)\)\s*\[data-desk-toggle\]/.exec(css);
@@ -117,4 +117,60 @@ test("the Notebook's Escape asks currentPanel(), not whether anything wears the 
   const panel = readFileSync(new URL("../src/scripts/desk/panel.js", import.meta.url), "utf8");
   assert.doesNotMatch(panel, /querySelector\(\s*["'`]\.lit-panel/);
   assert.match(panel, /if \(currentPanel\(\)\) return;/);
+});
+
+/* ── When the desk fails to start (BA29) ─────────────────────────────── */
+
+/**
+ * A page as the pre-paint script and the Notebook leave it: the desk's
+ * attributes and properties on <html>, a rail and width handles, and the
+ * column moved left. `surface` is the column's selector, if the page has one.
+ */
+function deskPage(surface = ".scripture-layout--scripture .scripture-main") {
+  const attrs = new Map([
+    ["data-desk", "on"], ["data-desk-panel", "open"], ["data-desk-expanded", ""], ["data-desk-widths", ""],
+    ["data-desk-no-notebook", ""], ["data-theme", "dark"], ["data-size", "lg"],
+  ]);
+  const props = new Map([
+    ["--desk-measure", "50"], ["--desk-width", "360px"], ["--desk-dock-width", "380px"], ["--desk-bar-center", "400px"], ["color-scheme", "dark"],
+  ]);
+  const removed = [];
+  const el = (name) => ({ name, style: { translate: "-40px 0" }, remove: () => removed.push(name) });
+  const column = el("column");
+  const extras = [el("rail"), el("gutters")];
+  const doc = {
+    documentElement: {
+      removeAttribute: (k) => attrs.delete(k),
+      style: { removeProperty: (k) => props.delete(k) },
+    },
+    querySelector: (sel) => (sel === surface ? column : null),
+    querySelectorAll: (sel) => {
+      if (sel === ".desk-rail, .desk-gutters") return extras;
+      return sel === surface ? [column] : [];
+    },
+  };
+  return { doc, attrs, props, removed, column };
+}
+
+test("standDown puts the page back as it is without the desk", () => {
+  const page = deskPage();
+  standDown(page.doc);
+  assert.deepEqual([...page.attrs.keys()], ["data-theme", "data-size"], "only the desk's own attributes go");
+  assert.deepEqual([...page.props.keys()], ["color-scheme"], "only the desk's own properties go");
+  assert.deepEqual(page.removed, ["rail", "gutters"]);
+  assert.equal(page.column.style.translate, "", "the column moves back");
+});
+
+test("standDown works on a page with no reading column", () => {
+  const page = deskPage(null);
+  standDown(page.doc);
+  assert.deepEqual([...page.attrs.keys()], ["data-theme", "data-size"]);
+  assert.equal(page.column.style.translate, "-40px 0");
+});
+
+test("the gate and the shell stand down when the desk fails, and each tab is built on its own", () => {
+  const read = (p) => readFileSync(new URL(p, import.meta.url), "utf8");
+  assert.match(read("../src/scripts/desk-gate.js"), /import\("\.\/desk\/shell\.js"\)\.catch\(\(err\) => \{[^}]*standDown\(\);/);
+  assert.match(read("../src/scripts/desk/shell.js"), /start\(\)\.catch\(\(err\) => \{[^}]*if \(!panelUp\) standDown\(\);/);
+  assert.match(read("../src/scripts/desk/panel.js"), /try \{\s*t\.view = t\.make\(\);\s*\} catch/);
 });

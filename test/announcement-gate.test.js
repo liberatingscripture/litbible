@@ -149,6 +149,23 @@ test("isAppPlatform: computers are not", () => {
   assert.equal(isAppPlatform({}), false);
 });
 
+test("isAppPlatform: an Android tablet in desktop site mode reports Linux, so a touch-screen Linux counts (BA26)", () => {
+  assert.equal(isAppPlatform({ userAgent: UA.linux, maxTouchPoints: 5 }), true);
+  const firefox = "Mozilla/5.0 (X11; Linux x86_64; rv:131.0) Gecko/20100101 Firefox/131.0";
+  assert.equal(isAppPlatform({ userAgent: firefox, maxTouchPoints: 5 }), true);
+  assert.equal(isAppPlatform({ userAgent: firefox, maxTouchPoints: 0 }), false);
+});
+
+test("isAppPlatform: a touch-screen Chromebook is a computer", () => {
+  const chromebook = "Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36";
+  assert.equal(isAppPlatform({ userAgent: chromebook, maxTouchPoints: 10 }), false);
+});
+
+test("isAppPlatform: a browser that says it is mobile counts", () => {
+  assert.equal(isAppPlatform({ userAgent: UA.linux, maxTouchPoints: 0, userAgentData: { mobile: true } }), true);
+  assert.equal(isAppPlatform({ userAgent: UA.windows, maxTouchPoints: 0, userAgentData: { mobile: false } }), false);
+});
+
 /* ── shouldAnnounce ────────────────────────────────────────────────────── */
 
 const COOKIE = "lit_apps_launch_v1";
