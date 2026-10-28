@@ -278,8 +278,9 @@ are recorded so they aren't re-argued.
   "Fixes and experience" (IDs E1 onward). It never waits for phases 3 and 4.
   Open from BVJ's use so far: Places (E4), and the Greek search commands,
   where putting a search together isn't intuitive (E5; BVJ wants to try a
-  menu-based builder) and a word family can't be searched (E6), and
-  whether the Notebook's Greek tab should search at all (E7). **Decided
+  menu-based builder) and a word family can't be searched (E6),
+  whether the Notebook's Greek tab should search at all (E7), and a switch
+  for whether a Greek search lists the reader's notes (E11, 2026-10-28). **Decided
   2026-10-21** (E8): there is no way into /desk, and **Read View is
   removed at the desk's launch**, its button on a computer becoming the
   way into the desk. **Decided 2026-10-22** (E9, which takes up E4):
@@ -7113,6 +7114,17 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   of E9** (PR #385): its marker picker says "Ribbon", and it reads an old
   `bookmark` as `ribbon` and writes `ribbon` (see the 2026-10-27 entry
   under "Decisions").
+- **E11, wish: a Greek search should let the reader turn their notes on or
+  off in its results.** BVJ (2026-10-28), right after BA40's call (FA1-s,
+  #399), which made a Greek search under all types list the reader's
+  matching notes ahead of the Greek, in the search tray and on /search's
+  first page. Today the only way to leave them out is to pick the "Greek"
+  type, which also changes how Latin letters are read (as a
+  transliteration or a gloss), so it isn't a real off switch. Open: where
+  the switch lives (the Greek group's foot beside "Search commands", the
+  "Your notebook" group's own title, or /search's filters), whether it
+  is remembered (a new storage key goes in /privacy's paragraph), and
+  whether it should also govern notes on English searches. Status: open.
 
 **Fixed**
 
