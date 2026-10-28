@@ -65,7 +65,8 @@
 //      by the same id and `modified` rules and is written back exactly as it
 //      arrived. Nothing kind-specific is read or validated here. The one
 //      change to an arriving record is migrateRecord, which returns it as it
-//      was unless something needed filling in.
+//      was unless something needed filling in or a note's marker was renamed
+//      (`bookmark` reads as `ribbon`, E10).
 //   8. Highlights are NOT re-run through the overlap rule (desk-highlights.mjs).
 //      Each client applies that only when the reader makes or removes a
 //      highlight, so a merge never trims or joins one.

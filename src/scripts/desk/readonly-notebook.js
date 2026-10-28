@@ -7,6 +7,8 @@
 // has none, so a look must not make one. A page that also runs the shell has
 // the database open already, and the two simply share it.
 
+import { migrateRecord } from "../../lib/desk-records.mjs";
+
 const DB_NAME = "lit-desk";
 const RECORDS = "records";
 
@@ -55,7 +57,8 @@ export async function readRecords() {
     const tx = connection.transaction(RECORDS, "readonly");
     return await new Promise((resolve, reject) => {
       const all = tx.objectStore(RECORDS).getAll();
-      all.onsuccess = () => resolve(all.result ?? []);
+      // As store.js reads them: a renamed note marker by its new name (E10).
+      all.onsuccess = () => resolve((all.result ?? []).map(migrateRecord));
       all.onerror = () => reject(all.error);
     });
   } catch (_) {

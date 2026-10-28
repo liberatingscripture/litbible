@@ -122,6 +122,14 @@ that section.
      `<html data-content-version>`, which Layout.astro reads at build from
      `public/api/version.json` (`src/lib/content-version.mjs`; "unversioned"
      in dev before a build).
+     **Every record read comes through `migrateRecord`** (`desk-records.mjs`):
+     the store's reads (`current` in `desk/store.js`, the history's "before"
+     included), `desk/readonly-notebook.js`, an import (`planImport`) and the
+     merge. It renames an old note marker in memory (`bookmark` reads as
+     `ribbon`, STUDY-DESK.md E10; `RENAMED_MARKERS`) and never writes back
+     for a read, so the next write of the note carries the new name. A new
+     way of reading records needs it too, or an old note shows its old name
+     and a write over it compares unlike records.
   6. **Phase 1c's notes reach the reader code through one event.**
      `chapter-tools.js` dispatches `lit:panel-actions` from the verse menu
      and the selection panel before placing them, with the panel, its verses

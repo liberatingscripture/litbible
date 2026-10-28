@@ -14,11 +14,13 @@ import {
   KINDS,
   MARKERS,
   PROSE_TARGETS,
+  RENAMED_MARKERS,
   SCHEMA_VERSION,
   TRASH_DAYS,
   canEdit,
   compareContentVersions,
   createRecord,
+  currentMarker,
   editRecord,
   emptyTrashRecord,
   mayRewriteAnchor,
@@ -317,6 +319,55 @@ test("migrateRecord gives a phase 1b trash record the kind of the record it hold
   assert.equal(migrateRecord(emptied), emptied, "an emptied tombstone can't recover its kind");
   const current = trashRecord(h, trashCtx);
   assert.equal(migrateRecord(current), current);
+});
+
+/* ── E10: the `bookmark` note marker is `ribbon` ─────────────────────── */
+
+const ribbonNote = (marker, extra = {}) =>
+  createRecord("note", { bookKey: "john", chapter: 3, verse: 16, body: "Come back to this.", marker, ...extra }, ctx);
+
+test("E10: MARKERS lists ribbon where bookmark stood, and no longer bookmark", () => {
+  assert.deepEqual(MARKERS, ["note", "emphasis", "question", "heart", "ribbon", "lightbulb", "flame"]);
+  assert.deepEqual(RENAMED_MARKERS, { bookmark: "ribbon" });
+  assert.equal(currentMarker("bookmark"), "ribbon");
+  for (const m of MARKERS) assert.equal(currentMarker(m), m);
+  assert.equal(currentMarker("star"), "star");
+  assert.equal(currentMarker(undefined), undefined);
+});
+
+test("E10: a note marked ribbon validates, an old bookmark still does, an unknown marker doesn't", () => {
+  assert.deepEqual(validateRecord(ribbonNote("ribbon")), []);
+  assert.deepEqual(validateRecord(ribbonNote("bookmark")), [], "every client reads the old name as the new one");
+  const problems = validateRecord(ribbonNote("star"));
+  assert.deepEqual(problems, ['marker "star" is not one of note, emphasis, question, heart, ribbon, lightbulb, flame']);
+  assert.ok(validateRecord(ribbonNote(undefined)).some((p) => p.startsWith("marker")));
+});
+
+test("E10: migrateRecord reads a bookmark marker as ribbon and changes nothing else", () => {
+  const old = ribbonNote("bookmark");
+  const read = migrateRecord(old);
+  assert.notEqual(read, old, "a new object: the record passed in isn't changed");
+  assert.equal(old.marker, "bookmark");
+  assert.deepEqual(read, { ...old, marker: "ribbon" });
+  assert.equal(read.modified, old.modified, "reading isn't an edit");
+  const now = ribbonNote("ribbon");
+  assert.equal(migrateRecord(now), now);
+  assert.equal(migrateRecord(read), read, "idempotent");
+});
+
+test("E10: a deleted note held in the trash comes back as ribbon", () => {
+  const trash = trashRecord(ribbonNote("bookmark"), trashCtx);
+  const read = migrateRecord(trash);
+  assert.equal(read.record.marker, "ribbon");
+  assert.equal(trash.record.marker, "bookmark");
+  assert.equal(restoreFromTrash(read, trashCtx).marker, "ribbon");
+});
+
+test("E10: a note from a newer schema, or of another kind, is carried as it arrived", () => {
+  const newer = { ...ribbonNote("bookmark"), schema: SCHEMA_VERSION + 1 };
+  assert.equal(migrateRecord(newer), newer);
+  const other = { ...createRecord("place", { bookKey: "john", chapter: 3, verse: 16, name: "" }, ctx), marker: "bookmark" };
+  assert.equal(migrateRecord(other), other);
 });
 
 test("a footnotePin needs its verse and the footnote's text, never its letter", () => {

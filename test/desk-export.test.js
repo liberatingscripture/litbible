@@ -337,6 +337,48 @@ test("parseReference reads references and refuses the rest", () => {
 
 const later = (r, changes, at) => editRecord(r, changes, { now: at, client: "ios/2.1" });
 
+test("E10: an incoming note marked bookmark is kept, and reads as ribbon", () => {
+  const old = make("note", { bookKey: "luke", chapter: 15, verse: 20, endVerse: 20, body: "Ran to meet him.", marker: "bookmark" });
+  const out = planImport([], [old], { now: "2026-10-13T00:00:00.000Z" });
+  assert.deepEqual(out.skipped, []);
+  assert.deepEqual(out.plan.put, [{ ...old, marker: "ribbon" }]);
+  assert.equal(out.plan.put[0].modified, old.modified, "renaming the marker isn't an edit");
+  assert.equal(out.summary.added, 1);
+  // The notebook holding it (read as ribbon) and a copy still saying bookmark agree.
+  const again = planImport(out.plan.put, [old], { now: "2026-10-13T00:00:00.000Z" });
+  assert.deepEqual(again.plan, { put: [], remove: [] });
+  assert.equal(again.summary.unchanged, 1);
+  // So does a note deleted while it said bookmark: undoing brings back a ribbon.
+  const trash = planDelete(old, { ...ctx, now: "2026-10-01T00:00:00.000Z" }).trash;
+  assert.equal(planImport([], [trash], { now: "2026-10-13T00:00:00.000Z" }).plan.put[0].record.marker, "ribbon");
+});
+
+test("E10: ribbon opens as itself, and an unknown marker is still skipped", () => {
+  const ribbon = make("note", { bookKey: "luke", chapter: 15, verse: 21, endVerse: 21, body: "", marker: "ribbon" });
+  const star = make("note", { bookKey: "luke", chapter: 15, verse: 22, endVerse: 22, body: "Robe.", marker: "star" });
+  const out = planImport([], [ribbon, star], { now: "2026-10-13T00:00:00.000Z" });
+  assert.deepEqual(out.plan.put, [ribbon]);
+  assert.equal(out.skipped.length, 1);
+  assert.equal(out.skipped[0].record, star);
+  assert.match(out.skipped[0].reason, /^Marker "star" is not one of note, emphasis, question, heart, ribbon, lightbulb, flame\.$/);
+});
+
+test("E10: Markdown says ribbon, and an old copy's “Note (bookmark)” reads as ribbon", () => {
+  const old = make("note", { bookKey: "luke", chapter: 15, verse: 20, endVerse: 20, body: "Ran to meet him.", marker: "bookmark" });
+  assert.match(toMarkdown([old], opts), /^Note \(ribbon\) · /m);
+  const text = `# My LIT notebook
+## Luke 15:20
+Note (bookmark) · 2026-10-01
+
+Ran to meet him.
+`;
+  const back = parseImport(text, { local: [], ctx });
+  assert.deepEqual(back.problems, []);
+  assert.equal(back.records[0].marker, "ribbon");
+  const unknown = parseImport(text.replace("(bookmark)", "(star)"), { local: [], ctx });
+  assert.equal(unknown.records[0].marker, "note", "an unknown marker in Markdown is a plain note, as before");
+});
+
 test("planImport adds new records and leaves identical ones alone", () => {
   const out = planImport([romans], [romans, asked], { now: "2026-10-13T00:00:00.000Z" });
   assert.deepEqual(out.plan.put, [asked]);

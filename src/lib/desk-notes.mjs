@@ -191,7 +191,7 @@ export const MARKER_NAMES = Object.freeze({
   emphasis: "Emphasis",
   question: "Question",
   heart: "Heart",
-  bookmark: "Bookmark",
+  ribbon: "Ribbon",
   lightbulb: "Lightbulb",
   flame: "Flame",
 });

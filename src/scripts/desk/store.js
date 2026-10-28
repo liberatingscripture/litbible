@@ -46,6 +46,7 @@ import {
   touched,
 } from "../../lib/desk-store-core.mjs";
 import { isNoop, makeEntry } from "../../lib/desk-history.mjs";
+import { migrateRecord } from "../../lib/desk-records.mjs";
 
 const DB_NAME = "lit-desk";
 const DB_VERSION = 1;
@@ -57,6 +58,12 @@ const request = (r) =>
     r.onsuccess = () => resolve(r.result);
     r.onerror = () => reject(r.error);
   });
+
+// Records as this code reads them (migrateRecord: a renamed note marker by
+// its new name, E10), in memory only. A record is never rewritten for being
+// read; the next write of it carries the new form. Every read goes through
+// this, the history's "before" included, so what a change compares is alike.
+const current = (result) => (Array.isArray(result) ? result.map(migrateRecord) : result && migrateRecord(result));
 
 const committed = (tx) =>
   new Promise((resolve, reject) => {
@@ -111,7 +118,7 @@ export async function openStore({ ctx }) {
 
   const read = async (fn) => {
     const tx = db.transaction(RECORDS, "readonly");
-    return request(fn(tx.objectStore(RECORDS)));
+    return current(await request(fn(tx.objectStore(RECORDS))));
   };
 
   async function getMeta(key) {
@@ -161,7 +168,10 @@ export async function openStore({ ctx }) {
       if (typeof build === "function") {
         reading.add(tx);
         try {
-          plan = await build({ get: (id) => request(objects.get(id)), all: () => request(objects.getAll()) });
+          plan = await build({
+            get: async (id) => current(await request(objects.get(id))),
+            all: async () => current(await request(objects.getAll())),
+          });
         } finally {
           reading.delete(tx);
         }
@@ -184,7 +194,7 @@ export async function openStore({ ctx }) {
     if (!ids.length) return plan ?? null;
     channel?.postMessage(changeMessage(ids));
     if (record) {
-      const entry = makeEntry(plan, new Map(ids.map((id, i) => [id, was[i].result ?? null])), entryId());
+      const entry = makeEntry(plan, new Map(ids.map((id, i) => [id, current(was[i].result ?? null)])), entryId());
       // A change that left the notebook as it found it isn't worth undoing,
       // and clears `latest` so a caller asking for its entry gets nothing
       // rather than the one before.

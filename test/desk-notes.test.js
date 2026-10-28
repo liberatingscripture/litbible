@@ -1,9 +1,11 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { MARKERS } from "../src/lib/desk-records.mjs";
 import {
   CIRCLE,
   CIRCLE_ROOM,
   FULL_ROOM,
+  MARKER_NAMES,
   NOTE_LINES,
   circlesPerRow,
   layoutCircles,
@@ -166,4 +168,10 @@ test("a note opens, for screen readers, with the words it hangs on", () => {
 test("a note on a footnote opens by naming the footnote, not words of the verse", () => {
   const onFn = { kind: "note", footnote: "The Greek sarx means flesh here.", body: "mine", marker: "note" };
   assert.equal(noteOpening(onFn, "Romans 8:3"), "My note on a footnote, Romans 8:3: ");
+});
+
+test("every note marker has the name a reader sees, and the ribbon is called Ribbon (E10)", () => {
+  assert.deepEqual(Object.keys(MARKER_NAMES), [...MARKERS]);
+  assert.equal(MARKER_NAMES.ribbon, "Ribbon");
+  assert.equal(MARKER_NAMES.bookmark, undefined);
 });
