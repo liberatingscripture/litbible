@@ -39,7 +39,7 @@ below unless it is already loaded.** Two rules keep this from decaying:
 | `src/content/CLAUDE.md` | Articles, glossary entries, the /apps collections; the apps' glossary feed |
 | `src/data/alignment/CLAUDE.md` | The alignment dataset, both review tools, MorphGNT, /glossary's "Where it appears", the term lens |
 | `src/components/CLAUDE.md` | The announcement popover |
-| `src/components/apps/CLAUDE.md`, `scripts/apps-studio/CLAUDE.md` | The /apps mirror shared with the LSC site; the page's section data; the Apps Page Studio (Brandon's editing board, its scripts, the `/apps-studio` skill) |
+| `src/components/apps/CLAUDE.md`, `scripts/apps-studio/CLAUDE.md` | The /apps mirror shared with the LSC site; the page's section data; the Apps Page Studio (BDR's editing board, its scripts, the `/apps-studio` skill) |
 | `src/pages/CLAUDE.md` | The podcast page's embeds |
 | `scripts/CLAUDE.md` | The build pipeline step by step, the table of `scripts/`, release-notes automation, raw-byte hashing and line endings, the importer |
 | `scripts/reconcile/CLAUDE.md` | The Word masters and the reconcile toolchain |

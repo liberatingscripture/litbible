@@ -15,13 +15,13 @@
  *
  * A change names a place in the model by `path` (["sections", "hero",
  * "title"], ["callouts", "the-day-youre-in", "body"], ["page", "title"]) and
- * carries the value it had when Brandon edited it (`before`). A change whose
+ * carries the value it had when BDR edited it (`before`). A change whose
  * place no longer holds `before` is refused as a conflict rather than written
  * over, because someone (or something) changed the page since.
  *
  * A `note` is for Claude to act on by hand. It may name a section
  * (`anchor: ["sections", id]`) and carry pictures (`images`), as when
- * Brandon adds a picture to a section and says where it goes: the apply step
+ * BDR adds a picture to a section and says where it goes: the apply step
  * converts each picture (planPicture) and Claude lays it out, making it a
  * picture field of that section so the board can swap it from then on.
  */
@@ -61,12 +61,14 @@ export const RULES = {
   placements: ["hero", "deeper"],
   /** Section kinds that can be copied into a second section, or removed. The rest only hide. */
   duplicable: ["about", "bigscreens", "humane"],
+  /** Section kinds that can't be hidden: the hero's title is the page's only <h1>. */
+  alwaysShown: ["hero"],
   /**
    * Where each kind of image goes and how big it ships (FIXLIST O8: longest
    * edge 1000–1300px at WebP quality 80). `frame: "apple"` means a raw iPhone,
    * iPhone Duo or iPad screenshot can be framed by the `frames` CLI, which
    * knows only Apple devices; Android screenshots arrive framed. `picture` is
-   * any other picture in a section, including one Brandon adds to a section
+   * any other picture in a section, including one BDR adds to a section
    * for Claude to lay out: 1000px tall, or 1300px wide when it's landscape.
    */
   slots: {
@@ -301,13 +303,29 @@ function checkImage(img, where, problems) {
   }
 }
 
+/**
+ * An address a link may have: a full https address, a page on the site (one
+ * slash; two, or a backslash, would make a browser go to another site), an
+ * anchor, or an email. No spaces, which a browser drops or rewrites.
+ */
+const ADDRESS = /^(https:\/\/|\/(?![/\\])|#|mailto:)[^\s\\]*$/i;
+const ADDRESS_RULE = "has to start with https://, /, # or mailto:, with no spaces";
+
 function checkButtons(buttons, where, problems) {
   if (!Array.isArray(buttons) || buttons.length !== 2) return problems.push(`${where} needs exactly two store buttons`);
   buttons.forEach((b, i) => {
     if (!oneOf(b?.platform, RULES.platforms) || !str(b?.label) || !str(b?.href)) {
       problems.push(`${where}, button ${i + 1}, needs a platform, a label and a link`);
+    } else if (!ADDRESS.test(b.href)) {
+      problems.push(`${where}, button ${i + 1}: its link ${ADDRESS_RULE}`);
     }
   });
+}
+
+function checkLink(link, where, problems) {
+  if (!link) return;
+  if (!str(link.label) || !str(link.href)) problems.push(`${where}’s link needs a label and an address`);
+  else if (!ADDRESS.test(link.href)) problems.push(`${where}’s link ${ADDRESS_RULE}`);
 }
 
 /** Problems that would fail the site's own schema or break the page. Nothing is written while any remain. */
@@ -323,6 +341,7 @@ export function validateModel(m) {
     if (!SLUG.test(s.id)) problems.push(`${where} has a file name that isn’t lowercase-kebab`);
     if (!oneOf(s.background ?? "plain", RULES.backgrounds)) problems.push(`${where} has an unknown background`);
     if (typeof s.order !== "number") problems.push(`${where} has no place in the page`);
+    if (s.hidden && RULES.alwaysShown.includes(s.kind)) problems.push(`${where} can’t be hidden: its title is the page’s main heading`);
     const need = (fields) => fields.filter((f) => !str(s[f])).forEach((f) => problems.push(`${where} needs its ${f}`));
     switch (s.kind) {
       case "hero":
@@ -333,7 +352,7 @@ export function validateModel(m) {
         break;
       case "about":
         need(["title", "text"]);
-        if (s.link && (!str(s.link.label) || !str(s.link.href))) problems.push(`${where}’s link needs a label and an address`);
+        checkLink(s.link, where, problems);
         break;
       case "examples":
         need(["eyebrow", "title", "litLabel"]);
@@ -353,7 +372,7 @@ export function validateModel(m) {
         need(["eyebrow", "title"]);
         if (!Array.isArray(s.paragraphs) || !s.paragraphs.length || !s.paragraphs.every(str)) problems.push(`${where} needs at least one paragraph, none empty`);
         if (!Array.isArray(s.negations) || !s.negations.every(str)) problems.push(`${where}’s short lines can’t be empty`);
-        if (s.link && (!str(s.link.label) || !str(s.link.href))) problems.push(`${where}’s link needs a label and an address`);
+        checkLink(s.link, where, problems);
         break;
       case "get-app":
         need(["title", "text"]);
@@ -502,6 +521,11 @@ export function planPicture(picture, taken) {
   return planFile("picture", picture.fileName || picture.name, picture.name, taken);
 }
 
+/**
+ * A free name for the shipped WebP and for the archived original, each made
+ * unique against `taken` with -2, -3…, so neither ever overwrites a file
+ * already in the repo (two uploads called IMG_1234.PNG keep both originals).
+ */
 function planFile(slot, wanted, original, taken) {
   const spec = RULES.slots[slot];
   const stem = slugify(wanted || "") || (slot === "picture" ? "picture" : "screenshot");
@@ -509,8 +533,12 @@ function planFile(slot, wanted, original, taken) {
   for (let n = 2; taken.has(`${spec.dir}/${name}`); n++) name = `${stem}-${n}.webp`;
   const out = `${spec.dir}/${name}`;
   const kept = (original || `${stem}.png`).replace(/[/\\]/g, "-");
+  const dot = kept.lastIndexOf(".");
+  const [root, ext] = dot > 0 ? [kept.slice(0, dot), kept.slice(dot)] : [kept, ""];
   const archiveDir = slot === "carousel" ? "_source-images/screenshots/carousel" : "_source-images/screenshots";
-  return { slot, out, src: out.replace(/^public/, ""), archive: `${archiveDir}/${kept}` };
+  let archive = `${archiveDir}/${kept}`;
+  for (let n = 2; taken.has(archive); n++) archive = `${archiveDir}/${root}-${n}${ext}`;
+  return { slot, out, src: out.replace(/^public/, ""), archive };
 }
 
 /** Every image path the model points at, plus the icons. */

@@ -141,6 +141,10 @@ jobs:
                 [ -n "$f" ] || continue
                 echo "curl -fsSL --create-dirs https://raw.githubusercontent.com/${{ github.repository }}/main/$f -o $f"
               done
+              if [ -n "$MIRROR_GONE" ]; then
+                echo "# Removed on litbible. Remove each here only if nothing else on this site"
+                echo "# uses it; check first with: grep -rn \"<its file name>\" src"
+              fi
               echo "$MIRROR_GONE" | while read -r f; do
                 [ -n "$f" ] || continue
                 echo "git rm --ignore-unmatch $f"

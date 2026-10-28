@@ -61,7 +61,7 @@
 ## The page is data
 
 Every word, picture, link, background and position on /apps lives in content
-files; the components only draw them (Brandon's call, 2026-10-26, so the
+files; the components only draw them (BDR's call, 2026-10-26, so the
 Studio below can change any of it without touching code). Since then the
 templates hold no copy at all: **never write a word back into a component.**
 
@@ -95,7 +95,9 @@ templates hold no copy at all: **never write a word back into a component.**
   `about`, `bigscreens` and `humane` (core.mjs's `RULES.duplicable`). The
   others only hide: `hero` and `examples` carry page-wide meaning, `reader`'s
   carousel script finds the first `[data-carousel]`, and `get-app` has
-  `id="join"`.
+  `id="join"`. **The hero can't be hidden either** (`RULES.alwaysShown`; BVJ,
+  2026-10-28): its title is the page's only `<h1>`. The schema check refuses a
+  hidden hero, and the board offers no Hide for it.
 - **Image `width`/`height` give the shape before the picture loads.** The ones
   the refactor carried over are the original PNGs' sizes (1350×2760 for a file
   that ships at 489×1000), which is the same shape; the Studio writes each new
@@ -106,12 +108,13 @@ templates hold no copy at all: **never write a word back into a component.**
   padding**, which `apps.css`'s own `.container` leaves in place. That spacing
   is part of the page's look, and the board copies it.
 - The refactor rendered pixel-identical to the page before it (1440, 820 and
-  390px, light and dark), checked by building both in a copy of the repo
-  outside this folder (Astro can't build from a path with an apostrophe).
+  390px, light and dark), checked by building both.
 
 ## The Apps Page Studio
 
-Brandon's way of changing /apps: a board on claude.ai showing the real page,
+BDR's way of changing /apps: a board on claude.ai (**BDR's private
+artifact**, so only a session signed in to BDR's account can reach it; a
+session in BVJ's account can't) showing the real page,
 where he clicks anything to edit it (words, pictures, buttons, backgrounds,
 order, callouts) and sends the edits to Claude as numbered requests. Claude
 applies a request with the `/apps-studio` skill
@@ -129,7 +132,7 @@ the templates, and would publish without anyone applying this repo's rules.
   pictures are in its asset store; a change holds the asset id.
 - **`scripts/apps-studio/core.mjs` is the one rule set**: reading the content
   files into the model, applying a change (refused as a conflict when the page
-  no longer holds the `before` Brandon edited against), the schema check, the
+  no longer holds the `before` BDR edited against), the schema check, the
   house-style notes, where an image goes, and writing back only what changed.
   `frontmatter.mjs` reads and writes the Markdown collections' frontmatter,
   keeping untouched fields byte for byte. `store.mjs` is the disk side
@@ -143,19 +146,28 @@ the templates, and would publish without anyone applying this repo's rules.
   components' own styles (`npm run studio:apps -- board-css`: width media
   queries become container queries, `:global` is unwrapped, a `.replica`
   prefix stands in for Astro's scoping). **A change to a component's markup
-  needs the same change in `page.js`; a change to its styles needs
-  `board-css` re-run**, and `test/apps-studio.test.js` fails until it is.
-  The tests also hold `page.js`'s `inline`/`band` to `render.ts`, and core's
-  enums to `collections.ts`.
+  needs the same change in `page.js`, and a change to its styles needs
+  `board-css` re-run.** `test/apps-studio.test.js` checks both, in two
+  different strengths. The generated `page.css` must equal what `board-css`
+  makes from today's components, exactly. The markup check is coarse: the
+  class names each component's template writes must be the ones `page.js`
+  writes, which catches an element added, renamed or dropped on one side but
+  not an element moved, a changed attribute or new text. Beyond that the
+  markup is kept in step by hand. The tests also hold `page.js`'s
+  `inline`/`band` to `render.ts`, and core's enums to `collections.ts`.
 - **Pictures** ship as WebP at quality 80, longest edge 1000px (phones,
   foldable, carousel) or 1300px (tablet), per FIXLIST O8, under a
   lowercase-kebab name the mirror accepts; the original is archived in
-  `_source-images/screenshots/`. A replaced picture's old file is deleted when
-  nothing under `src/` names it. A raw iPhone or iPad screenshot can be
+  `_source-images/screenshots/` under its own name, with `-2`, `-3` added
+  when that name is taken (`IMG_1234.PNG` recurs across phones), so an older
+  original is never overwritten. A replaced picture's old file is deleted when
+  nothing under `src/` names it. A run that fails its checks puts back every
+  file it wrote before stopping (`undo.mjs`): a replaced file gets its old
+  bytes, a new one is removed, nothing else is touched. A raw iPhone or iPad screenshot can be
   framed for him with the `frames` CLI (Apple devices only, his saved colors);
   Android and foldable pictures arrive framed. The app icons are replaced in
   place, so the home page, the Android banner and the share card follow.
-- **A picture can be added to a section** (Brandon, 2026-10-27; first use, an
+- **A picture can be added to a section** (BDR, 2026-10-27; first use, an
   iPhone Duo in the hero and the showcase). On the board it's a note anchored
   to the section that carries the upload and his words about where it goes;
   dropping a file onto a section starts one. The apply step converts it
@@ -167,7 +179,7 @@ the templates, and would publish without anyone applying this repo's rules.
   `board/page.js`). Any picture object in a section is then an ordinary
   picture to the Studio: `slotFor` calls it a `picture`, and `sectionImages`
   finds it for `imagePaths` and the schema check, so no other rule changes.
-- **Brandon's words are his.** Curly quotes are applied automatically (the
+- **BDR's words are his.** Curly quotes are applied automatically (the
   board does it as he types); a British spelling, a straight quote that
   survives, or a LIT quotation that doesn't match the chapter is asked about
   on the board as a call, never fixed silently.
