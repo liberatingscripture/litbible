@@ -43,21 +43,41 @@ export function hasVerseMarks(records) {
 const MARK_NAMES = { note: "note", highlight: "highlight", bookmark: "bookmark", footnotePin: "pinned footnote" };
 
 /**
- * A mark named in a sentence, with its link: `{ text: "your note on Romans
- * 4:7", href: "/romans-4/#v7" }`. Marks that read the same ("your highlight on
- * Romans 4:7" twice) come out once.
+ * The separator before item `i` of `n` in a list read aloud, with the Oxford
+ * comma: "a and b", "a, b, and c". Nothing before the first.
+ */
+export function listSeparator(i, n) {
+  if (i <= 0) return "";
+  if (i < n - 1) return ", ";
+  return n === 2 ? " and " : ", and ";
+}
+
+/** Items joined by `listSeparator`: "a", "a and b", "a, b, and c". */
+export function joinList(items) {
+  return items.map((item, i) => listSeparator(i, items.length) + item).join("");
+}
+
+/**
+ * The reader's marks named in a sentence, one entry for each place they sit,
+ * with its link. Marks at one place share it: `{ text: "your note, highlight,
+ * and bookmark on Luke 24:4", href: "/luke-24/#v4" }`, not the verse said
+ * three times. Places and the kinds within a place keep the order first seen;
+ * marks that read the same ("your highlight on Romans 4:7" twice) come out
+ * once. Join the entries with `listSeparator`.
  */
 export function markLinks(records) {
-  const seen = new Set();
-  const out = [];
+  const places = new Map();
   for (const r of records ?? []) {
     const name = r.kind === "place" ? (r.ribbon ? "ribbon" : "place") : (MARK_NAMES[r.kind] ?? "mark");
-    const text = `your ${name} on ${recordReference(r)}`;
-    if (seen.has(text)) continue;
-    seen.add(text);
-    out.push({ text, href: recordHref(r) });
+    const where = recordReference(r);
+    let place = places.get(where);
+    if (!place) {
+      place = { names: [], href: recordHref(r) };
+      places.set(where, place);
+    }
+    if (!place.names.includes(name)) place.names.push(name);
   }
-  return out;
+  return [...places].map(([where, { names, href }]) => ({ text: `your ${joinList(names)} on ${where}`, href }));
 }
 
 /**

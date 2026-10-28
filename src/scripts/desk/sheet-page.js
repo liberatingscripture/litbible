@@ -140,7 +140,7 @@ async function copyToClipboard({ html, text }) {
 }
 
 async function showList(root, store) {
-  document.title = "My sheets | LIT Bible";
+  document.title = "My sheets | Liberation and Inclusion Translation";
   root.replaceChildren(make("h1", "sheets-page__title", "My sheets"));
   let sheets = [];
   try {
@@ -332,7 +332,7 @@ async function drawSheet(root, { sheet, store, view = null, shared = null }) {
         if (n !== seq) return;
         current = el;
         paperBox.replaceChildren(el);
-        document.title = `${sheetName(sheet)}, ${COPY_NAMES[copy].toLowerCase()} | LIT Bible`;
+        document.title = `${sheetName(sheet)}, ${COPY_NAMES[copy].toLowerCase()} | Liberation and Inclusion Translation`;
         if (shared) return;
         const checks = await copyChecks(sheet, copy);
         if (n === seq) drawCheck(checkBox, checks, edit.href);

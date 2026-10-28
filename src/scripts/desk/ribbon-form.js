@@ -10,7 +10,7 @@
 // a name may be, how many) are src/lib/desk-places.mjs.
 
 import { createRecord, editRecord } from "../../lib/desk-records.mjs";
-import { MAX_RIBBONS, RIBBON_NAME_MAX, canAddRibbon, cleanRibbonName, ribbonNameProblem, ribbonsOf } from "../../lib/desk-places.mjs";
+import { RIBBON_NAME_MAX, canAddRibbon, cleanRibbonName, ribbonNameProblem, ribbonsOf } from "../../lib/desk-places.mjs";
 import { recordReference } from "../../lib/desk-store-core.mjs";
 import { closePanel, showPanel } from "../lit-panel.js";
 import { undoEntry } from "./history.js";
@@ -77,7 +77,7 @@ export async function openRibbonForm({ trigger, store, ctx, where, restoreFocus 
       <button type="button" class="lit-panel__close" aria-label="Close">×</button>
     </div>
     <p class="desk-ribbon-form__where"></p>
-    ${canAdd ? "" : `<p class="desk-ribbon-form__limit">You have ${MAX_RIBBONS} ribbons. Choose one to move here.</p>`}
+    ${canAdd ? "" : `<p class="desk-ribbon-form__limit">You have ${ribbons.length} ribbons. Choose one to move here.</p>`}
     <fieldset class="desk-ribbon-form__choices">
       <legend class="sr-only">${ribbons.length ? "A new ribbon, or a ribbon to move here" : "A new ribbon"}</legend>
       ${choices.join("")}
