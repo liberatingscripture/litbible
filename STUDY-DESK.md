@@ -7015,8 +7015,10 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   existing note's choice. **BDR, 2026-10-23: rename it.** The format's
   marker list now says `ribbon` (`STUDY-DESK-FORMAT.md`, kind 2); each app
   reads an old `bookmark` as `ribbon` and writes `ribbon` (iOS NB12,
-  Android NB12, both small). The website's own marker picker and any copy
-  that calls the marker "bookmark" follow when E9 is built.
+  Android NB12, both small). **The website followed on 2026-10-27, ahead
+  of E9** (PR #385): its marker picker says "Ribbon", and it reads an old
+  `bookmark` as `ribbon` and writes `ribbon` (see the 2026-10-27 entry
+  under "Decisions").
 
 **Fixed**
 
