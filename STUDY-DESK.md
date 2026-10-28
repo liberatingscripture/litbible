@@ -4718,6 +4718,15 @@ be revisited for version 2.
 - **D4, pop the notebook out** (was phase 3l): deferred 2026-10-21 (BVJ),
   to be revisited for version 2. /desk's panes already cover most of its
   job.
+- **The desk on large tablets and foldables**: for version 2 (BVJ,
+  2026-10-28, while FA1-q fixed BA26). Version 1 stays on computers only
+  (ground rule 1), with tablets kept out even in desktop site mode. BVJ
+  “wouldn't be sad” if a tablet or an unfolded foldable could opt in, since
+  the problem is a phone's small screen, not a portable device. The likely
+  shape: gate the desk on the screen's size and the reader's choice, apart
+  from `isAppPlatform`, which should keep treating tablets as tablets for
+  the app QR code and the share sheet. It would need touch work and
+  real-device checks, since the desk was built for a mouse.
 
 **Still open, for BVJ:**
 - **N8, the hidden passage**: undecided until the Zoom (BVJ, 2026-10-15). It
